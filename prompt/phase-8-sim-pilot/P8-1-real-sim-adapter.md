@@ -2,7 +2,7 @@
 
 ## 0. Meta
 
-Work `W-0048` · prereq P2-4 + W-0008 vendor protocol/test SIM · mode `LAB_REAL_SIM` · `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+Work `W-0048` · prereq P2-4 + **P2-9 (`W-0066`, nguồn audio)** + W-0008 vendor protocol/test SIM · mode `LAB_REAL_SIM` · `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
 ## 1. Outcome
 
@@ -24,3 +24,10 @@ Vendor/protocol baseline, approved allowlist, call-to-test-number logs, DTMF/dis
 ## 4. Forbidden
 
 No customer number, no full address/raw phone evidence, no recording/SMS, no fallback around allowlist/kill switch, no claim that one SIM validates 32 eSIM throughput.
+
+## 6. Definition of Done
+- [ ] Vendor adapter implement sau `ISimGateway`; **domain không đổi** khi thay provider.
+- [ ] Speech/audio lấy từ `P2-9` (`ITtsProvider`) — không tự chế nguồn audio.
+- [ ] Allowlist + kill switch + one-active-call-per-channel enforce trước mọi dial, có test âm.
+- [ ] Chỉ đạt `LAB_REAL_SIM_VERIFIED` cho phạm vi đã test; **không** suy ra 32-eSIM throughput hay integration.
+- [ ] `W-0008`/`OD-V1-09`/`OD-V1-18`/`OD-V1-19` vẫn mở nếu vendor chưa cung cấp artifact.

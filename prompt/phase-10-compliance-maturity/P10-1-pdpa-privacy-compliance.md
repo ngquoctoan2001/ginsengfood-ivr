@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P10-1` · **Phase** 10 — Compliance & Maturity |
-| **Prereq** | `P0-3`, `P4-3` |
+| **Work ID** | `W-0052` (canonical tracker §5) |
+| **Prereq** | `P0-3`, `P4-3`, `P1-5` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · Legal gate trước PROD |
 | **Stack** | .NET 10 · legal/process |
 

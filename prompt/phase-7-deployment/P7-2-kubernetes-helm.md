@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P7-2` · **Phase** 7 — Deployment |
-| **Prereq** | `P7-1`, `P6-2` |
+| **Work ID** | `W-0044` (canonical tracker §5) |
+| **Prereq** | `P7-1`, `P6-2`, `P1-5` (IRetentionJob) |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Kubernetes · Helm |
 
@@ -25,7 +26,7 @@ IVR chạy trên K8s (DTS-04). Cần manifest chuẩn cho 4 môi trường (dev/
 - **Config/secret:** ConfigMap (non-secret) + Secret/Vault (secret); `REAL_CUSTOMER_CALL_ALLOWED` per-env values (chỉ prod/pilot sau DF-03).
 - **Probe:** liveness/readiness/startup map `/health/*` (DO-06); readiness 503 → out of rotation.
 - **NetworkPolicy:** least-privilege egress (chỉ Core/ops/CRM/SIM/DB/otel); ingress hạn chế.
-- **Retention:** CronJob chạy `IRetentionJob` (P1-2) theo DF-07.
+- **Retention:** CronJob chạy `IRetentionJob` (**P1-5 / W-0064**) theo DF-07. Job mặc định `DryRun=true`; bật real-run là quyết định vận hành có approval.
 - **PDB, resource limits, anti-affinity** cho HA.
 
 ## 5. INPUTS / DEPENDENCIES
@@ -33,7 +34,7 @@ IVR chạy trên K8s (DTS-04). Cần manifest chuẩn cho 4 môi trường (dev/
 
 ## 6. BUILD STEPS
 1. **Helm chart** `deploy/helm/ivr/`: templates deployment×3, service, HPA, ConfigMap, Secret ref, CronJob (retention), NetworkPolicy, PDB, ServiceAccount + RBAC (K8s).
-2. **values per-env** `values-{dev,staging,pilot,prod}.yaml`: image tag, replicas, HPA min/max, `REAL_CUSTOMER_CALL_ALLOWED` (false trừ prod/pilot sau gate), `IVR_ADAPTER_MODE` (MOCK trừ pilot/prod), resource limits, downstream URLs.
+2. **values per-env** `values-{dev,staging,pilot,prod}.yaml`: image tag, replicas, HPA min/max, `REAL_CUSTOMER_CALL_ALLOWED` (**false ở mọi env cho tới DF-03 sign-off**), `IVR_EXECUTION_MODE` (canonical key; `dev`/`staging`=MOCK, `lab`=MOCK|LAB_REAL_SIM, `prod`=MOCK|PRODUCTION_REAL — xem governance §6). Environment **không** quyết định execution mode và không env nào tự bật real call, resource limits, downstream URLs.
 3. **Probes**: startup (migration/warmup), readiness (DB/downstream/adapter), liveness.
 4. **Secret handling**: ExternalSecret/Vault injection prod; không secret literal trong values prod.
 5. **SIM concurrency guard**: annotate/document HPA ceiling; worker leader/lock đảm bảo không double-dispatch khi scale.
@@ -51,7 +52,7 @@ IVR chạy trên K8s (DTS-04). Cần manifest chuẩn cho 4 môi trường (dev/
 | Test ID | Loại | Assert |
 | --- | --- | --- |
 | `IT-K8S-LINT-01` | ci | helm lint + kubeconform pass mọi env. |
-| `IT-K8S-GATE-02` | ci | values dev/staging → `REAL_CUSTOMER_CALL_ALLOWED=false` & MODE=MOCK; prod chỉ true sau flag gate. |
+| `IT-K8S-GATE-02` | ci | values `dev`/`staging` → `REAL_CUSTOMER_CALL_ALLOWED=false` và `IVR_EXECUTION_MODE=MOCK`; `lab` → allowlist bắt buộc non-empty + kill switch có mặt; `prod` chỉ `true` sau DF-03. Assert đọc từ **effective config của pod đang chạy**, không đọc từ values file. |
 | `IT-K8S-PROBE-03` | integration | readiness 503 khi DB/downstream down → pod out of rotation. |
 | `IT-K8S-NETPOL-04` | integration | egress ngoài allowlist bị chặn (NetworkPolicy). |
 | `IT-K8S-RETENTION-05` | integration | CronJob retention chạy đúng lịch, xoá đúng class (DF-07). |

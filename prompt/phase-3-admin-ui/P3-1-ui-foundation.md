@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P3-1` · **Phase** 3 — Admin UI |
-| **Prereq** | `P0-3`, `P2-1` |
+| **Work ID** | `W-0025` (canonical tracker §5) |
+| **Prereq** | `P0-3`, `P2-1`, `P2-8` (backend admin API) |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Next.js (React/TS) · gọi `Ivr.Api` |
 

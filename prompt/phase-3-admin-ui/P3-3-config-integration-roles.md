@@ -1,10 +1,13 @@
 # PROMPT P3-3 — Config, Integration Status, Seed/Mock & Roles UI
 
+> **Phụ thuộc readiness (2026-08-12, W-0062):** badge/UI dựa trên `/health/ready=503` chỉ có tín hiệu thật sau `P6-1` (W-0040). Trước đó test badge phải dùng stub, và **không** được ghi là đã verify fail-closed.
+
 ## 0. Meta
 | | |
 | --- | --- |
 | **ID** | `P3-3` · **Phase** 3 — Admin UI |
-| **Prereq** | `P3-2` |
+| **Work ID** | `W-0027` (canonical tracker §5) |
+| **Prereq** | `P3-2`, `P2-8` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Next.js |
 

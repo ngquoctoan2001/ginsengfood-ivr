@@ -59,8 +59,8 @@ Tóm tắt hiểu biết sau khi đọc docs. Mỗi mục có nhãn căn cứ.
 - ✅ **RESOLVED (D-01, Module 3 xác nhận 2026-07-02)** — trước đây là tension: **Thứ tự IVR ↔ order_code**:
   - phase-3.1/07: IVR *required* xảy ra **trước** khi sinh `order_code` (gate chống đơn ảo trước khi order chính thức).
   - phase-8/00: IVR "chỉ vận hành **sau** khi có Official Order đủ điều kiện từ Order Core".
-  → ✅ **Chốt (D-01):** `order_code` cấp **khi tạo Official Order**; đơn vào `CONFIRMATION_REQUIRED/IVR_PENDING`; **fulfillment/downstream khóa** tới khi Core nhận & chấp nhận IVR signal. Câu "không order_code trước IVR" của phase-3.1 = "không release/verify downstream trước IVR". Tức là **phương án (a)** — IVR chạy trên official order chờ xác nhận, order_code đã có. Xem [decisions-log.md](decisions-log.md) D-01.
-- ✅ **RESOLVED (D-08, Module 3):** Giữ **outbound confirmation only**; nhóm inbound (tra cứu đơn theo số, đặt hàng qua điện thoại, gặp nhân viên, tư vấn) = **future scope**, chưa làm. Xem [decisions-log.md](decisions-log.md) D-08.
+  → ✅ **Chốt (D-01):** `order_code` cấp **khi tạo Official Order**; đơn vào `CONFIRMATION_REQUIRED/IVR_PENDING`; **fulfillment/downstream khóa** tới khi Core nhận & chấp nhận IVR signal. Câu "không order_code trước IVR" của phase-3.1 = "không release/verify downstream trước IVR". Tức là **phương án (a)** — IVR chạy trên official order chờ xác nhận, order_code đã có. Xem [decisions-log.md](../decisions-log.md) D-01.
+- ✅ **RESOLVED (D-08, Module 3):** Giữ **outbound confirmation only**; nhóm inbound (tra cứu đơn theo số, đặt hàng qua điện thoại, gặp nhân viên, tư vấn) = **future scope**, chưa làm. Xem [decisions-log.md](../decisions-log.md) D-08.
 - ✅ **RESOLVED (D-10):** Attempt policy = rule mới: 2 cuộc cả hai program; GH 5′ (T0/T0+2:30), 24/7 15′ (T0/T0+7:30); `T0` = lúc Core mở window/tạo task. (Thay rule cũ 2/10 & 3/15.)
 - CONFIRMED: Mô hình triển khai chốt là **Internal SIM Gateway Server**, **1 SIM = 1 cuộc active**; cloud IVR/SIP/brandname là future owner decision. Nguồn: phase-8/00 §6,§11; PACK-09.
 

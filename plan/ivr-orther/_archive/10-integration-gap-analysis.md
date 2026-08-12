@@ -2,7 +2,7 @@
 
 Phân tích khoảng trống tích hợp hiện tại. Với mỗi gap: mô tả, tác động IVR, priority, mock được không, ai xử lý, specs cần sinh, câu hỏi cần xác nhận.
 
-> ✅ **Cập nhật 2026-07-02 (Module 3/3.1 trả lời — xem [decisions-log.md](decisions-log.md)):**
+> ✅ **Cập nhật 2026-07-02 (Module 3/3.1 trả lời — xem [decisions-log.md](../decisions-log.md)):**
 > **ĐÃ ĐÓNG (còn lại là hiện thực API, không phải gap thiết kế):** GAP-S1 (contract → D-03/D-04), GAP-S2 (order state → D-02), GAP-S3 (tension order_code → **D-01**), GAP-S4 (IVRRequiredDecision → D-09), GAP-S5 (quota release → D-11), GAP-S6 (trust → D-12), GAP-S7 (dial token → D-05); GAP-O1 **phần Core** → D-06; GAP-O2 (availability → D-07 qua commerce).
 > **CÒN LẠI:** GAP-T1/T2 (SIM), GAP-A1/A2 (auth), GAP-E1/E2 (evidence/retention), GAP-N1 (notification).
 > **✅ Cập nhật 2026-07-02 (Ops-Core trả lời DO-01..DO-09):** GAP-O1 phần Ops → **DO-01** (sellable gate `availability/check`), GAP-O3 (event push) → **DO-04** (webhook `sku-became-not-sellable`). **GAP MỚI phát sinh:** do-not-call/opt-out **không thuộc ops** → cần **CRM/business-platform** cấp (GAP-N2/Q-C1).

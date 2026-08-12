@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P11-3` · **Phase** 11 — External Production Closure |
+| **Work ID** | `W-0059` (canonical tracker §5) |
 | **Prereq** | `P10-1`, `P10-2` inputs preferred; must finish before `P9-1` |
 | **Governance** | No legal/sign-off auto-approval; prepare package for owner/legal/security |
 | **Stack** | Compliance artifacts + decision records + release evidence |

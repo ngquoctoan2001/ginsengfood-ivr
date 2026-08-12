@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P4-6` · **Phase** 4 — Real Integration |
+| **Work ID** | `W-0034` (canonical tracker §5) |
 | **Prereq** | `P4-3` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | .NET 10 · event/review |

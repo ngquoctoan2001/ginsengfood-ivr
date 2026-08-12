@@ -8,13 +8,15 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
 | Operation | Input | Output |
 | --- | --- | --- |
 | `dial(attempt)` | `attempt_id`, `sim_channel_id`, `dial_token` (D-05), `script_template_id`+`script_version`, `allowed_script_variables` | `adapter_result_id`, `call_started_at` |
-| `play_script` | script + biến được phép (`order_code_short`, `total_amount_display`, opt `customer_name_short`/`program_name`) | ack |
+| `play_script` | script + biến được phép. **Current approved:** `order_code_short`, `total_amount_display`, opt `customer_name_short`/`program_name`. **Target V1 proposal (`OD-V1-15`):** thêm `items[].public_name`, `items[].quantity`, `delivery_area_short`. Danh sách canonical duy nhất nằm ở `specs/functional/04-call-execution-dtmf.md`; ba tài liệu phải trỏ về đó, không tự liệt kê lệch. | ack |
 | `capture_dtmf` | timeout sau script | `raw_dtmf` (`1`/`0`/none/invalid), `dtmf_error?` |
 | `report_disposition` | — | `raw_call_status`, `call_ended_at`, `call_duration`, `technical_error_code?` |
 | `health` | `sim_channel_id` | `status`, `last_health_check_at`, `cooldown_until` |
 
 ## 2. Ràng buộc (P0)
 - Adapter **KHÔNG** có credential ghi order, **không** gửi SMS (phase-8/02 FR-004; P0-IVR-005).
+- **Trust boundary `dial_token` (`OD-V1-18` — chưa chốt):** tài liệu này ghi adapter chỉ nhận `dial_token`, trong khi `P2-4` đặt `IDialTokenResolver` bên trong IVR và gateway thương mại quay số E.164. Ranh giới mục tiêu: `IVR → opaque dial_token → trusted resolver/gateway → E.164`. IVR **không** giữ mapping key `dial_token→số thật` (D-05). Phương án cuối cần Security + vendor xác nhận trước `LAB_REAL_SIM`.
+- **Recording:** `dial()` phải mang tham số `recording: DISABLED` và adapter phải expose read-back qua `health()`; giá trị khác `DISABLED` bị từ chối fail-closed cho tới khi có legal sign-off (DT-05).
 - Chỉ dùng `dial_token`/`phone_ref`; **không** nhận/lưu raw phone (D-05; P0-IVR-007). Token TTL ≤ window, one-use/attempt (D-05).
 - `ONE_SIM_ONE_ACTIVE_CALL`; cooldown 5s; `fail_count≥3/10′` → disable+alert (DT-04).
 - Recording **OFF** mặc định (DT-05); nếu bật, chỉ lưu `recording_ref` + retention (DF-07 PENDING).

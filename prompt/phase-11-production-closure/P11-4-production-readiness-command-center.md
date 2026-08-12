@@ -20,3 +20,14 @@ Generate decision views for implementation/mock, one-SIM lab, real Sales integra
 ## 3. Forbidden
 
 No independent task statuses, no percentage-based readiness, no global COD-only scope, no closing external item from a ticket/report without executable/accepted evidence, and no automatic production flag mutation.
+
+## 5. Forbidden
+- ❌ Tạo tracker/backlog thứ hai; file này **mirror** `_execution/prompt-execution-tracker.md`, không thay thế.
+- ❌ Đóng gate bằng ticket/report thay vì artifact thật.
+- ❌ Tự bật production flag.
+
+## 6. Definition of Done
+- [ ] Sinh `docs/release/gate-status.yaml` **machine-readable** (input cho guardrail `P0-4` và cho `P9-1`), phủ đủ `G-*` ở tracker §3 và `OD-V1-01..21`.
+- [ ] Mỗi readiness item map tới một Work ID + evidence link thật.
+- [ ] Board hiển thị đúng 4 nấc ladder (`IMPLEMENTATION_COMPLETE_BEHIND_MOCKS` → `LAB_REAL_SIM_VERIFIED` → `REAL_SALES_INTEGRATION_VERIFIED` → `PRODUCTION_REAL_ELIGIBLE`), không dùng phần trăm.
+- [ ] Đạt tối đa `EVIDENCE_SUBMITTED`; chỉ Release owner chuyển `ACCEPTED`.

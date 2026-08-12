@@ -29,3 +29,19 @@ Verify and obtain acceptance for real Sales integration, production auth/policy,
 ## 4. Forbidden
 
 No global COD-only assumption; use exact two-program matrix. No customer call based on one-SIM lab, mock/Sales compat evidence, ticket text or unsigned report. No silent scope expansion.
+
+## 5. Output artifacts
+| Path | Nội dung |
+| --- | --- |
+| `docs/release/go-no-go-dossier.md` | Dossier go/no-go: từng gate, owner, evidence link, residual risk, chữ ký |
+| `docs/release/gate-status.yaml` | **Machine-readable** trạng thái gate/evidence, do `P11-4` sinh và `P0-4` guardrail đọc để từ chối flip khi thiếu gate |
+| `docs/evidence/W-0050/**` | Evidence của lần chạy gate |
+
+## 6. Required input from P11-3
+`docs/release/df03-signoff-input.md` (sinh bởi `P11-3`/`W-0059`) là **input bắt buộc**; không có nó thì không chạy được prompt này. `W-0059` phải hoàn thành trước `W-0050`.
+
+## 7. Definition of Done
+- [ ] Mọi gate trong `docs/release/gate-status.yaml` ở trạng thái accepted với evidence link thật.
+- [ ] Technical guard đã được chứng minh **từ chối** flip khi thiếu bất kỳ gate/evidence nào (test âm bắt buộc).
+- [ ] Dossier có chữ ký owner có thẩm quyền và ngày ký; không suy ra từ Git username.
+- [ ] Chỉ Release owner chuyển `ACCEPTED`; prompt này **không** tự bật `REAL_CUSTOMER_CALL_ALLOWED`.

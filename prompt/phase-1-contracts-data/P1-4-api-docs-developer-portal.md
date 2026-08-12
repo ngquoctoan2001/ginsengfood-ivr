@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P1-4` · **Phase** 1 — Contracts & Data |
+| **Work ID** | `W-0017` (canonical tracker §5) |
 | **Prereq** | `P1-1` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | OpenAPI · docs tooling |
@@ -41,7 +42,7 @@ IVR là ranh giới tích hợp nhiều team. Contract không có tài liệu r�
 | `docs/api/**` (rendered) | API reference |
 | `docs/api-changelog.md`, `docs/api-versioning.md` | Changelog + policy |
 | `docs/integration-guide.md` | Hướng dẫn team tích hợp |
-| `deploy/ci/docs.yml` | Publish + drift check |
+| `deploy/ci/docs.gitlab-ci.yml` | Publish + drift check; **phải được root `.gitlab-ci.yml` `include`** (P0-2 §4 Entrypoint) và có test chứng minh job xuất hiện trong rendered pipeline |
 
 ## 8. TESTS TO WRITE
 | Test ID | Loại | Assert |

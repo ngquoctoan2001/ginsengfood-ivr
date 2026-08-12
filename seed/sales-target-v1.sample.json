@@ -1,6 +1,11 @@
 {
   "_layer": "fake-sales-target-v1",
-  "_note": "Canonical non-production fixtures. Candidate policy is allowed only in MOCK/LAB.",
+  "_note": "Canonical non-production fixture for Target V1. Candidate attempt policy (mock-lab-v1) is allowed ONLY in MOCK/LAB and is fixture data, never a DB constraint. Every task body validates against components.schemas.IvrConfirmationTaskV1 in specs/api/openapi/ivr-order-confirmation.v1.yaml and must INSERT into specs/database/02-tables.md without violating NOT NULL.",
+  "_layer_rules": {
+    "schema_negative": "body is invalid against IvrConfirmationTaskV1 -> HTTP 422 + ErrorEnvelope code",
+    "domain_negative": "body is schema-VALID but rejected by domain/policy -> HTTP 200 + IvrTaskIntakeResult.decision",
+    "callback_ack": "Sales-side semantic ACK on the outbound callback -> CallbackAck200/CallbackAck409 in order-core-ivr-callback.target-v1.yaml"
+  },
   "tasks": [
     {
       "scenario": "golden-hour-online-confirmable",
@@ -25,6 +30,7 @@
         "attempt_offsets_seconds": [0, 150],
         "phone_ref": "phone-ref-fake-0001",
         "phone_masked": "84xxxxx0001",
+        "phone_validation_status": "VALID",
         "dial_token": "dial-token-fake-gh-0001",
         "dial_token_expires_at": "2026-08-12T03:05:00Z",
         "privacy_safe_order_summary": {
@@ -42,11 +48,130 @@
         },
         "call_restriction": false,
         "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
-        "evidence_ref": "evidence://fake-sales/gh-0001",
-        "call_script_template_id": "ORDER-CONFIRM-VI",
-        "call_script_version": "target-v1-test",
-        "evidence_policy_version": "test-v1",
-        "privacy_policy_version": "test-v1"
+        "evidence_ref": "evidence://fake-sales/gh-0001"
+      }
+    },
+    {
+      "scenario": "golden-hour-online-cancel",
+      "headers": { "Idempotency-Key": "idem-target-gh-0002", "X-Correlation-Id": "corr-target-gh-0002" },
+      "body": {
+        "contract_version": "ivr-order-confirmation.v1",
+        "task_id": "TASK-TARGET-GH-0002",
+        "correlation_id": "corr-target-gh-0002",
+        "created_at": "2026-08-12T03:10:00Z",
+        "order_id": "ORDER-TARGET-GH-0002",
+        "order_code": "GF-2026-GH-0002",
+        "order_code_short": "GH0002",
+        "order_version": "3",
+        "order_state": "CONFIRMING",
+        "payment_method_snapshot": "ONLINE",
+        "ivr_confirmation_required": true,
+        "program_code": "GOLDEN_HOUR",
+        "confirmation_window_started_at": "2026-08-12T03:10:00Z",
+        "confirmation_window_expires_at": "2026-08-12T03:15:00Z",
+        "attempt_policy_version": "mock-lab-v1",
+        "max_customer_attempts": 2,
+        "attempt_offsets_seconds": [0, 150],
+        "phone_ref": "phone-ref-fake-0002",
+        "phone_masked": "84xxxxx0002",
+        "phone_validation_status": "VALID",
+        "dial_token": "dial-token-fake-gh-0002",
+        "dial_token_expires_at": "2026-08-12T03:15:00Z",
+        "privacy_safe_order_summary": {
+          "customer_display_name": "anh Cường",
+          "order_code_short": "GH0002",
+          "items": [{ "public_name": "Trà hồng sâm", "quantity": 1, "unit_label": "hộp" }],
+          "total_amount": 320000,
+          "currency": "VND",
+          "delivery_area_short": "Phường Bến Nghé, Quận 1, Thành phố Hồ Chí Minh",
+          "program_display_name": "Giờ Vàng",
+          "locale": "vi-VN"
+        },
+        "call_restriction": false,
+        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+        "evidence_ref": "evidence://fake-sales/gh-0002"
+      }
+    },
+    {
+      "scenario": "golden-hour-online-no-answer",
+      "headers": { "Idempotency-Key": "idem-target-gh-0003", "X-Correlation-Id": "corr-target-gh-0003" },
+      "body": {
+        "contract_version": "ivr-order-confirmation.v1",
+        "task_id": "TASK-TARGET-GH-0003",
+        "correlation_id": "corr-target-gh-0003",
+        "created_at": "2026-08-12T03:20:00Z",
+        "order_id": "ORDER-TARGET-GH-0003",
+        "order_code": "GF-2026-GH-0003",
+        "order_code_short": "GH0003",
+        "order_version": "1",
+        "order_state": "CONFIRMING",
+        "payment_method_snapshot": "ONLINE",
+        "ivr_confirmation_required": true,
+        "program_code": "GOLDEN_HOUR",
+        "confirmation_window_started_at": "2026-08-12T03:20:00Z",
+        "confirmation_window_expires_at": "2026-08-12T03:25:00Z",
+        "attempt_policy_version": "mock-lab-v1",
+        "max_customer_attempts": 2,
+        "attempt_offsets_seconds": [0, 150],
+        "phone_ref": "phone-ref-fake-0003",
+        "phone_masked": "84xxxxx0003",
+        "phone_validation_status": "VALID",
+        "dial_token": "dial-token-fake-gh-0003",
+        "dial_token_expires_at": "2026-08-12T03:25:00Z",
+        "privacy_safe_order_summary": {
+          "customer_display_name": "chị Dung",
+          "order_code_short": "GH0003",
+          "items": [{ "public_name": "Hồng sâm lát tẩm mật ong", "quantity": 3, "unit_label": "hộp" }],
+          "total_amount": 1450000,
+          "currency": "VND",
+          "delivery_area_short": "Thành phố Thủ Đức, Thành phố Hồ Chí Minh",
+          "program_display_name": "Giờ Vàng",
+          "locale": "vi-VN"
+        },
+        "call_restriction": false,
+        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+        "evidence_ref": "evidence://fake-sales/gh-0003"
+      }
+    },
+    {
+      "scenario": "golden-hour-online-technical",
+      "headers": { "Idempotency-Key": "idem-target-gh-0004", "X-Correlation-Id": "corr-target-gh-0004" },
+      "body": {
+        "contract_version": "ivr-order-confirmation.v1",
+        "task_id": "TASK-TARGET-GH-0004",
+        "correlation_id": "corr-target-gh-0004",
+        "created_at": "2026-08-12T03:30:00Z",
+        "order_id": "ORDER-TARGET-GH-0004",
+        "order_code": "GF-2026-GH-0004",
+        "order_code_short": "GH0004",
+        "order_version": "2",
+        "order_state": "CONFIRMING",
+        "payment_method_snapshot": "ONLINE",
+        "ivr_confirmation_required": true,
+        "program_code": "GOLDEN_HOUR",
+        "confirmation_window_started_at": "2026-08-12T03:30:00Z",
+        "confirmation_window_expires_at": "2026-08-12T03:35:00Z",
+        "attempt_policy_version": "mock-lab-v1",
+        "max_customer_attempts": 2,
+        "attempt_offsets_seconds": [0, 150],
+        "phone_ref": "phone-ref-fake-0004",
+        "phone_masked": "84xxxxx0004",
+        "phone_validation_status": "VALID",
+        "dial_token": "dial-token-fake-gh-0004",
+        "dial_token_expires_at": "2026-08-12T03:35:00Z",
+        "privacy_safe_order_summary": {
+          "customer_display_name": "anh Em",
+          "order_code_short": "GH0004",
+          "items": [{ "public_name": "Nước hồng sâm", "quantity": 1, "unit_label": "hộp" }],
+          "total_amount": 280000,
+          "currency": "VND",
+          "delivery_area_short": "Quận 3, Thành phố Hồ Chí Minh",
+          "program_display_name": "Giờ Vàng",
+          "locale": "vi-VN"
+        },
+        "call_restriction": false,
+        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+        "evidence_ref": "evidence://fake-sales/gh-0004"
       }
     },
     {
@@ -70,8 +195,9 @@
         "attempt_policy_version": "mock-lab-v1",
         "max_customer_attempts": 2,
         "attempt_offsets_seconds": [0, 450],
-        "phone_ref": "phone-ref-fake-0002",
-        "phone_masked": "84xxxxx0002",
+        "phone_ref": "phone-ref-fake-0011",
+        "phone_masked": "84xxxxx0011",
+        "phone_validation_status": "VALID",
         "dial_token": "dial-token-fake-247-0001",
         "dial_token_expires_at": "2026-08-12T04:15:00Z",
         "privacy_safe_order_summary": {
@@ -81,26 +207,440 @@
           "total_amount": 1120000,
           "currency": "VND",
           "delivery_area_short": "Thành phố Thủ Đức, Thành phố Hồ Chí Minh",
-          "program_display_name": "Bán hàng 24 trên 7",
+          "program_display_name": "Bán hàng hai mươi tư trên bảy",
           "locale": "vi-VN"
         },
         "call_restriction": false,
         "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
-        "evidence_ref": "evidence://fake-sales/247-0001",
-        "call_script_template_id": "ORDER-CONFIRM-VI",
-        "call_script_version": "target-v1-test",
-        "evidence_policy_version": "test-v1",
-        "privacy_policy_version": "test-v1"
+        "evidence_ref": "evidence://fake-sales/247-0001"
+      }
+    },
+    {
+      "scenario": "twenty-four-seven-cod-cancel",
+      "headers": { "Idempotency-Key": "idem-target-247-0002", "X-Correlation-Id": "corr-target-247-0002" },
+      "body": {
+        "contract_version": "ivr-order-confirmation.v1",
+        "task_id": "TASK-TARGET-247-0002",
+        "correlation_id": "corr-target-247-0002",
+        "created_at": "2026-08-12T04:20:00Z",
+        "order_id": "ORDER-TARGET-247-0002",
+        "order_code": "GF-2026-247-0002",
+        "order_code_short": "2470002",
+        "order_version": "2",
+        "order_state": "CONFIRMING",
+        "payment_method_snapshot": "COD",
+        "ivr_confirmation_required": true,
+        "program_code": "TWENTY_FOUR_SEVEN",
+        "confirmation_window_started_at": "2026-08-12T04:20:00Z",
+        "confirmation_window_expires_at": "2026-08-12T04:35:00Z",
+        "attempt_policy_version": "mock-lab-v1",
+        "max_customer_attempts": 2,
+        "attempt_offsets_seconds": [0, 450],
+        "phone_ref": "phone-ref-fake-0012",
+        "phone_masked": "84xxxxx0012",
+        "phone_validation_status": "VALID",
+        "dial_token": "dial-token-fake-247-0002",
+        "dial_token_expires_at": "2026-08-12T04:35:00Z",
+        "privacy_safe_order_summary": {
+          "customer_display_name": "chị Hoa",
+          "order_code_short": "2470002",
+          "items": [{ "public_name": "Kẹo hồng sâm", "quantity": 2, "unit_label": "gói" }],
+          "total_amount": 240000,
+          "currency": "VND",
+          "delivery_area_short": "Phường Tân Định, Quận 1, Thành phố Hồ Chí Minh",
+          "program_display_name": "Bán hàng hai mươi tư trên bảy",
+          "locale": "vi-VN"
+        },
+        "call_restriction": false,
+        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+        "evidence_ref": "evidence://fake-sales/247-0002"
+      }
+    },
+    {
+      "scenario": "twenty-four-seven-cod-no-answer",
+      "headers": { "Idempotency-Key": "idem-target-247-0003", "X-Correlation-Id": "corr-target-247-0003" },
+      "body": {
+        "contract_version": "ivr-order-confirmation.v1",
+        "task_id": "TASK-TARGET-247-0003",
+        "correlation_id": "corr-target-247-0003",
+        "created_at": "2026-08-12T04:40:00Z",
+        "order_id": "ORDER-TARGET-247-0003",
+        "order_code": "GF-2026-247-0003",
+        "order_code_short": "2470003",
+        "order_version": "1",
+        "order_state": "CONFIRMING",
+        "payment_method_snapshot": "COD",
+        "ivr_confirmation_required": true,
+        "program_code": "TWENTY_FOUR_SEVEN",
+        "confirmation_window_started_at": "2026-08-12T04:40:00Z",
+        "confirmation_window_expires_at": "2026-08-12T04:55:00Z",
+        "attempt_policy_version": "mock-lab-v1",
+        "max_customer_attempts": 2,
+        "attempt_offsets_seconds": [0, 450],
+        "phone_ref": "phone-ref-fake-0013",
+        "phone_masked": "84xxxxx0013",
+        "phone_validation_status": "VALID",
+        "dial_token": "dial-token-fake-247-0003",
+        "dial_token_expires_at": "2026-08-12T04:55:00Z",
+        "privacy_safe_order_summary": {
+          "customer_display_name": "anh Khoa",
+          "order_code_short": "2470003",
+          "items": [{ "public_name": "Hồng sâm lát tẩm mật ong", "quantity": 1, "unit_label": "hộp" }],
+          "total_amount": 480000,
+          "currency": "VND",
+          "delivery_area_short": "Quận Gò Vấp, Thành phố Hồ Chí Minh",
+          "program_display_name": "Bán hàng hai mươi tư trên bảy",
+          "locale": "vi-VN"
+        },
+        "call_restriction": false,
+        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+        "evidence_ref": "evidence://fake-sales/247-0003"
+      }
+    },
+    {
+      "scenario": "twenty-four-seven-cod-technical",
+      "headers": { "Idempotency-Key": "idem-target-247-0004", "X-Correlation-Id": "corr-target-247-0004" },
+      "body": {
+        "contract_version": "ivr-order-confirmation.v1",
+        "task_id": "TASK-TARGET-247-0004",
+        "correlation_id": "corr-target-247-0004",
+        "created_at": "2026-08-12T05:00:00Z",
+        "order_id": "ORDER-TARGET-247-0004",
+        "order_code": "GF-2026-247-0004",
+        "order_code_short": "2470004",
+        "order_version": "5",
+        "order_state": "CONFIRMING",
+        "payment_method_snapshot": "COD",
+        "ivr_confirmation_required": true,
+        "program_code": "TWENTY_FOUR_SEVEN",
+        "confirmation_window_started_at": "2026-08-12T05:00:00Z",
+        "confirmation_window_expires_at": "2026-08-12T05:15:00Z",
+        "attempt_policy_version": "mock-lab-v1",
+        "max_customer_attempts": 2,
+        "attempt_offsets_seconds": [0, 450],
+        "phone_ref": "phone-ref-fake-0014",
+        "phone_masked": "84xxxxx0014",
+        "phone_validation_status": "VALID",
+        "dial_token": "dial-token-fake-247-0004",
+        "dial_token_expires_at": "2026-08-12T05:15:00Z",
+        "privacy_safe_order_summary": {
+          "customer_display_name": "chị Lan",
+          "order_code_short": "2470004",
+          "items": [{ "public_name": "Trà hồng sâm", "quantity": 4, "unit_label": "hộp" }],
+          "total_amount": 1280000,
+          "currency": "VND",
+          "delivery_area_short": "Quận Bình Thạnh, Thành phố Hồ Chí Minh",
+          "program_display_name": "Bán hàng hai mươi tư trên bảy",
+          "locale": "vi-VN"
+        },
+        "call_restriction": false,
+        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+        "evidence_ref": "evidence://fake-sales/247-0004"
+      }
+    },
+    {
+      "scenario": "twenty-four-seven-cod-restricted",
+      "headers": { "Idempotency-Key": "idem-target-247-0005", "X-Correlation-Id": "corr-target-247-0005" },
+      "body": {
+        "contract_version": "ivr-order-confirmation.v1",
+        "task_id": "TASK-TARGET-247-0005",
+        "correlation_id": "corr-target-247-0005",
+        "created_at": "2026-08-12T05:20:00Z",
+        "order_id": "ORDER-TARGET-247-0005",
+        "order_code": "GF-2026-247-0005",
+        "order_code_short": "2470005",
+        "order_version": "1",
+        "order_state": "CONFIRMING",
+        "payment_method_snapshot": "COD",
+        "ivr_confirmation_required": true,
+        "program_code": "TWENTY_FOUR_SEVEN",
+        "confirmation_window_started_at": "2026-08-12T05:20:00Z",
+        "confirmation_window_expires_at": "2026-08-12T05:35:00Z",
+        "attempt_policy_version": "mock-lab-v1",
+        "max_customer_attempts": 2,
+        "attempt_offsets_seconds": [0, 450],
+        "phone_ref": "phone-ref-fake-0015",
+        "phone_masked": "84xxxxx0015",
+        "phone_validation_status": "VALID",
+        "dial_token": "dial-token-fake-247-0005",
+        "dial_token_expires_at": "2026-08-12T05:35:00Z",
+        "privacy_safe_order_summary": {
+          "customer_display_name": "anh Minh",
+          "order_code_short": "2470005",
+          "items": [{ "public_name": "Cao hồng sâm", "quantity": 1, "unit_label": "hộp" }],
+          "total_amount": 1120000,
+          "currency": "VND",
+          "delivery_area_short": "Quận Tân Bình, Thành phố Hồ Chí Minh",
+          "program_display_name": "Bán hàng hai mươi tư trên bảy",
+          "locale": "vi-VN"
+        },
+        "call_restriction": true,
+        "eligibility_snapshot": { "decision": "BLOCKED_DO_NOT_CALL", "source": "fake-sales" },
+        "evidence_ref": "evidence://fake-sales/247-0005"
       }
     }
   ],
-  "negative_mutations": [
-    { "id": "NEG-MATRIX-01", "from": "golden-hour-online-confirmable", "replace": { "payment_method_snapshot": "COD" }, "expect": "TASK_REJECTED_POLICY_MISMATCH" },
-    { "id": "NEG-MATRIX-02", "from": "twenty-four-seven-cod-confirmable", "replace": { "payment_method_snapshot": "ONLINE" }, "expect": "TASK_REJECTED_POLICY_MISMATCH" },
-    { "id": "NEG-FLAG-01", "from": "golden-hour-online-confirmable", "replace": { "ivr_confirmation_required": false }, "expect": "TASK_REJECTED_STATE_NOT_CALLABLE" },
-    { "id": "NEG-SPEECH-01", "from": "golden-hour-online-confirmable", "remove": "privacy_safe_order_summary.items", "expect": "IVR_VALIDATION_ERROR" },
-    { "id": "NEG-PII-01", "from": "golden-hour-online-confirmable", "add": { "privacy_safe_order_summary.full_address": "FORBIDDEN TEST VALUE" }, "expect": "IVR_PII_POLICY_VIOLATION" },
-    { "id": "NEG-TOKEN-01", "from": "golden-hour-online-confirmable", "replace": { "dial_token_expires_at": "2026-08-12T02:59:59Z" }, "expect": "IVR_CONTACT_INVALID" },
-    { "id": "NEG-POLICY-01", "from": "golden-hour-online-confirmable", "replace": { "attempt_policy_version": "unknown" }, "expect": "IVR_POLICY_MISMATCH" }
+  "schema_negative": [
+    {
+      "id": "NEG-SCHEMA-MATRIX-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "payment_method_snapshot": "COD" },
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST",
+      "note": "GOLDEN_HOUR+COD violates the oneOf matrix; rejected before domain validation."
+    },
+    {
+      "id": "NEG-SCHEMA-MATRIX-02",
+      "from": "twenty-four-seven-cod-confirmable",
+      "replace": { "payment_method_snapshot": "ONLINE" },
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-FLAG-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "ivr_confirmation_required": false },
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST",
+      "note": "enum:[true] makes false a schema violation, not a domain decision."
+    },
+    {
+      "id": "NEG-SCHEMA-SPEECH-01",
+      "from": "golden-hour-online-confirmable",
+      "remove": "privacy_safe_order_summary.items",
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-PII-01",
+      "from": "golden-hour-online-confirmable",
+      "add": { "privacy_safe_order_summary.full_address": "FORBIDDEN TEST VALUE" },
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST",
+      "note": "additionalProperties:false rejects unknown fields. This does NOT test the real risk; see NEG-DOMAIN-PII-01/02."
+    },
+    {
+      "id": "NEG-SCHEMA-PII-02",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "privacy_safe_order_summary.delivery_area_short": "123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP.HCM" },
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST",
+      "note": "House number caught by the digit pattern on delivery_area_short."
+    },
+    {
+      "id": "NEG-SCHEMA-CONTRACT-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "contract_version": "ivr-order-confirmation.v2" },
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST",
+      "note": "Unknown contract_version is fail-closed; there is no negotiation path in V1."
+    }
+  ],
+  "domain_negative": [
+    {
+      "id": "NEG-DOMAIN-PII-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "privacy_safe_order_summary.delivery_area_short": "Đường Nguyễn Huệ, Phường Bến Nghé, Quận Một, Thành phố Hồ Chí Minh" },
+      "layer": "domain",
+      "expect_http": 422,
+      "expect_error_code": "IVR_PII_POLICY_VIOLATION",
+      "note": "Schema-VALID (no digits) but semantically a street address. This is the fixture that actually exercises FR-IVR-INTAKE-005."
+    },
+    {
+      "id": "NEG-DOMAIN-PII-02",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "privacy_safe_order_summary.customer_display_name": "chị An - Sđt tám bốn chín không ba" },
+      "layer": "domain",
+      "expect_http": 422,
+      "expect_error_code": "IVR_PII_POLICY_VIOLATION",
+      "note": "Spelled-out phone digits smuggled into a speech field."
+    },
+    {
+      "id": "NEG-DOMAIN-TOKEN-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "dial_token_expires_at": "2026-08-12T02:59:59Z" },
+      "layer": "domain",
+      "expect_http": 200,
+      "expect_decision": "TASK_REJECTED_CONTACT_INVALID",
+      "note": "Token TTL must not expire before the confirmation window closes."
+    },
+    {
+      "id": "NEG-DOMAIN-POLICY-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "attempt_policy_version": "unknown-policy-vX" },
+      "layer": "domain",
+      "expect_http": 200,
+      "expect_decision": "TASK_HELD_POLICY_MISSING",
+      "note": "Unknown policy version is fail-closed; IVR must not invent a policy."
+    },
+    {
+      "id": "NEG-DOMAIN-POLICY-02",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "attempt_offsets_seconds": [0, 600] },
+      "layer": "domain",
+      "expect_http": 200,
+      "expect_decision": "TASK_REJECTED_POLICY_MISMATCH",
+      "note": "Offset 600s falls outside the 300s Golden Hour window declared on the same task."
+    },
+    {
+      "id": "NEG-DOMAIN-POLICY-03",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "max_customer_attempts": 3 },
+      "layer": "domain",
+      "expect_http": 200,
+      "expect_decision": "TASK_REJECTED_POLICY_MISMATCH",
+      "note": "max_customer_attempts must equal len(attempt_offsets_seconds). Schema allows up to 10 by design so a future owner-approved policy needs no migration."
+    },
+    {
+      "id": "NEG-DOMAIN-RESTRICTION-01",
+      "from": "twenty-four-seven-cod-restricted",
+      "layer": "domain",
+      "expect_http": 200,
+      "expect_decision": "TASK_BLOCKED_OPERATIONAL",
+      "note": "call_restriction=true blocks voice; no dial is scheduled."
+    },
+    {
+      "id": "NEG-DOMAIN-PHONE-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "phone_validation_status": "UNKNOWN" },
+      "layer": "domain",
+      "expect_http": 200,
+      "expect_decision": "TASK_REJECTED_CONTACT_INVALID",
+      "note": "Unknown phone validation status is fail-closed at dispatch."
+    },
+    {
+      "id": "NEG-DOMAIN-IDEMPOTENCY-01",
+      "from": "golden-hour-online-confirmable",
+      "replay_with_same_key_different_payload": { "order_version": "18" },
+      "layer": "domain",
+      "expect_http": 409,
+      "expect_error_code": "IVR_IDEMPOTENCY_CONFLICT",
+      "note": "Same Idempotency-Key + different payload hash."
+    },
+    {
+      "id": "NEG-DOMAIN-IDEMPOTENCY-02",
+      "from": "golden-hour-online-confirmable",
+      "replay_identical": true,
+      "layer": "domain",
+      "expect_http": 200,
+      "expect_decision": "TASK_ACCEPTED_DUPLICATE_REPLAY",
+      "note": "Same key + identical payload returns the stored response snapshot."
+    }
+  ],
+  "callback_scenarios": [
+    {
+      "id": "CB-ACK-ACCEPTED",
+      "from_task": "TASK-TARGET-GH-0001",
+      "result_type": "IVR_CONFIRMED",
+      "sales_ack_http": 200,
+      "sales_ack_code": "ACCEPTED",
+      "expect_delivery_status": "DELIVERED_ACCEPTED"
+    },
+    {
+      "id": "CB-ACK-DUPLICATE",
+      "from_task": "TASK-TARGET-GH-0001",
+      "result_type": "IVR_CONFIRMED",
+      "resend_same_idempotency_key": true,
+      "sales_ack_http": 200,
+      "sales_ack_code": "DUPLICATE_ACCEPTED",
+      "expect_delivery_status": "DELIVERED_ACCEPTED"
+    },
+    {
+      "id": "CB-ACK-BLOCKED",
+      "from_task": "TASK-TARGET-247-0001",
+      "result_type": "IVR_CONFIRMED",
+      "sales_ack_http": 200,
+      "sales_ack_code": "BLOCKED_BY_CORE",
+      "expect_delivery_status": "DELIVERED_BLOCKED",
+      "note": "Delivery is complete; do NOT retry. Customer pressed 1 but Core blocked."
+    },
+    {
+      "id": "CB-ACK-REVIEW",
+      "from_task": "TASK-TARGET-247-0001",
+      "result_type": "IVR_CONFIRMED",
+      "sales_ack_http": 200,
+      "sales_ack_code": "REVIEW_REQUIRED",
+      "expect_delivery_status": "DELIVERED_REVIEW"
+    },
+    {
+      "id": "CB-ACK-STALE",
+      "from_task": "TASK-TARGET-GH-0001",
+      "result_type": "IVR_CONFIRMED",
+      "order_version_seen_by_ivr": "17",
+      "sales_ack_http": 409,
+      "sales_ack_code": "REJECTED_STALE",
+      "expect_delivery_status": "REJECTED_STALE",
+      "expect_transport_retry": false,
+      "note": "409 must NEVER be transport-retried; route to admin review."
+    },
+    {
+      "id": "CB-ACK-IDEMPOTENCY-CONFLICT",
+      "from_task": "TASK-TARGET-GH-0001",
+      "result_type": "IVR_CONFIRMED",
+      "sales_ack_http": 409,
+      "sales_ack_code": "IDEMPOTENCY_CONFLICT",
+      "expect_delivery_status": "IDEMPOTENCY_CONFLICT",
+      "expect_transport_retry": false
+    },
+    {
+      "id": "CB-DLQ-422",
+      "from_task": "TASK-TARGET-GH-0002",
+      "result_type": "IVR_CUSTOMER_CANCELLED",
+      "sales_ack_http": 422,
+      "expect_delivery_status": "INVALID_DEAD_LETTER",
+      "expect_transport_retry": false
+    },
+    {
+      "id": "CB-RETRY-503",
+      "from_task": "TASK-TARGET-247-0002",
+      "result_type": "IVR_CUSTOMER_CANCELLED",
+      "sales_ack_http": 503,
+      "expect_delivery_status": "RETRY_PENDING",
+      "expect_transport_retry": true,
+      "expect_same_idempotency_key": true
+    },
+    {
+      "id": "CB-RETRY-EXHAUSTED",
+      "from_task": "TASK-TARGET-247-0002",
+      "result_type": "IVR_CUSTOMER_CANCELLED",
+      "sales_ack_http": 503,
+      "repeat_until_bound": true,
+      "expect_delivery_status": "RETRY_EXHAUSTED",
+      "expect_admin_review": true
+    },
+    {
+      "id": "CB-NO-ANSWER-ADVISORY",
+      "from_task": "TASK-TARGET-GH-0003",
+      "result_type": "IVR_NO_ANSWER_FINAL",
+      "expect_recommended_core_action": "CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT",
+      "sales_ack_http": 200,
+      "sales_ack_code": "ACCEPTED",
+      "note": "IVR never cancels. Core timeout worker decides."
+    },
+    {
+      "id": "CB-TECHNICAL-NOT-COUNTED",
+      "from_task": "TASK-TARGET-247-0004",
+      "result_type": "IVR_TECHNICAL_EXCEPTION",
+      "expect_is_counted_customer_attempt": false,
+      "sales_ack_http": 200,
+      "sales_ack_code": "ACCEPTED",
+      "note": "Technical failure must never be reported as customer no-answer."
+    },
+    {
+      "id": "CB-NOTIFICATION-NO-EGRESS",
+      "from_task": "TASK-TARGET-GH-0001",
+      "result_type": "IVR_CONFIRMED",
+      "expect_notification_calls": 0,
+      "expect_notification_outbox_rows": 0,
+      "expect_external_egress": "none",
+      "note": "V1 notification is DISABLED. Asserted for every result type, not just confirm."
+    }
   ]
 }

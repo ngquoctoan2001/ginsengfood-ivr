@@ -42,6 +42,9 @@ Baseline chỉ giúp tái lập lần rà soát. Mọi thay đổi source/OpenAP
 | Program | Payment | Điều kiện tạo IVR task | Ý nghĩa phím |
 | --- | --- | --- | --- |
 | `GOLDEN_HOUR` | `ONLINE` | Official Order, trạng thái callable do Core xác định, `ivr_confirmation_required=true` | xác nhận/hủy **ý định đặt hàng**; không xác nhận thanh toán |
+
+> **Delta chưa được owner duyệt (`OD-V1-13`, `OD-V1-14`).** Business source đọc được hiện vẫn COD-only (`decisions-log.md` DS-01, source-read từ Sales platform), và `ivr_confirmation_required` **không xuất hiện lần nào** trong `docs/documents/`. Dòng `GOLDEN_HOUR+ONLINE` ở trên là **đề xuất Target V1**, được build song song sau mock, **không** được coi là đã phê duyệt. Test `non-COD reject` cũ đã được sửa để không loại Golden Hour ONLINE (`P5-1` IT-05a/b/c).
+
 | `TWENTY_FOUR_SEVEN` | `COD` | Official Order, trạng thái callable do Core xác định, `ivr_confirmation_required=true` | xác nhận/hủy đơn COD |
 
 - Canonical code là `TWENTY_FOUR_SEVEN`. Giá trị legacy `24_7` chỉ được nhận trong `CURRENT_COMPAT` adapter rồi normalize; không phát tán tiếp.
@@ -51,11 +54,11 @@ Baseline chỉ giúp tái lập lần rà soát. Mọi thay đổi source/OpenAP
 
 Sales Platform cần push `POST /v1/ivr/order-confirmation/tasks` với:
 
-- `contract_version`, `task_id`, `order_id`, `order_code`, `order_version`;
+- `contract_version`, `task_id`, `order_id`, `order_code`, `order_version`, `order_state` (enum đục do Core sở hữu — D-02);
 - `program_code`, `payment_method_snapshot`, `ivr_confirmation_required`;
 - `confirmation_window_started_at`, `confirmation_window_expires_at`;
 - `attempt_policy_version`, `max_customer_attempts`, `attempt_offsets_seconds`;
-- `phone_ref`, `phone_masked`, `dial_token`, `dial_token_expires_at`;
+- `phone_ref`, `phone_masked`, `dial_token`, `dial_token_expires_at` (**`OD-V1-17`:** một token scalar không đủ cho 2 customer attempt + technical retry nếu ngữ nghĩa là one-use/attempt; Sales/Security phải chọn per-attempt token, reissue endpoint, token bundle hoặc reusable token có TTL/risk control. **`OD-V1-18`:** vị trí resolve `dial_token→E.164` chưa được định nghĩa — `specs/api/04` nói adapter không nhận số, `P2-4` đặt resolver trong IVR);
 - `privacy_safe_order_summary` theo §6;
 - `call_restriction`, `eligibility_snapshot`, `evidence_ref`;
 - headers `Idempotency-Key`, `X-Correlation-Id`, service authentication.
@@ -72,6 +75,16 @@ Fake Sales provider phải sinh được cùng DTO và mọi lỗi contract đ�
 - `total_amount`, `currency=VND`;
 - `delivery_area_short`: chỉ phường/xã, quận/huyện, tỉnh/thành hoặc mô tả rút gọn đã được Core chuẩn hóa; **không gửi/đọc địa chỉ đầy đủ**;
 - `program_display_name`;
+
+**Ràng buộc kiểm được bằng máy cho `delivery_area_short` (Sales phải tuân):**
+
+- Giá trị **không được bắt đầu bằng chữ số** và **không được chứa dạng `x/y`** — đây là hai dấu hiệu số nhà. Schema enforce bằng `pattern`.
+- Đơn vị hành chính có số vẫn hợp lệ: `"Quận 7, Thành phố Hồ Chí Minh"`, `"Phường 12, Quận Tân Bình"` — **không** cần viết chữ.
+- Chuỗi không có chữ số nhưng vẫn là địa chỉ đường phố (ví dụ `"Đường Nguyễn Huệ, Phường Bến Nghé"`) **vượt qua schema** và phải bị chặn bởi semantic detector phía IVR (`FR-IVR-INTAKE-005`) với `IVR_PII_POLICY_VIOLATION`. Fixture `NEG-DOMAIN-PII-01` kiểm đúng nhánh này.
+
+
+> **`OD-V1-15`:** ba tài liệu enforce whitelist biến script (`specs/data/05`, `specs/ui/04`, `specs/api/04`) hiện chỉ cho 4 biến và **không** có `items[]` hay `delivery_area_short` — tức đúng hai thứ mà câu thoại Target V1 bắt buộc phải đọc. Business source `PACK-09 §9.1` hậu thuẫn bộ hẹp. Mở rộng whitelist là một **quyết định privacy** cần Product + Privacy/Legal duyệt; fixture MOCK dùng bộ rộng nhưng không đóng gate.
+
 - `locale=vi-VN` và `pronunciation_hints` tùy chọn.
 
 Mẫu ý nghĩa cần hỗ trợ: “Xin chào anh/chị {name}. Anh/chị có đơn {code} gồm {items}, tổng tiền {amount}, giao đến {area}. Bấm 1 để xác nhận, bấm 0 để hủy.” Script thực tế phải qua content/privacy approval. IVR không tự truy vấn hoặc ghép raw address từ database Sales.
@@ -80,6 +93,7 @@ Mẫu ý nghĩa cần hỗ trợ: “Xin chào anh/chị {name}. Anh/chị có �
 
 - Trạng thái: `CANDIDATE_POLICY_OWNER_DECISION_REQUIRED`.
 - Candidate để mock/lab: tối đa 2 customer attempts; Golden Hour window 5 phút với A2 tại +150 giây; 24/7 window 15 phút với A2 tại +450 giây.
+- **Delta với business source (`OD-V1-16`):** `docs/documents/4. phase/phase-8/10-…` §8 và `16-…` §NFR (cả hai **không** mang banner D-10) ghi Golden Hour 2 attempts/**10 phút** và 24/7 **3** attempts/15 phút. Sales dev đã nêu xung đột này là `OWNER_DECISION_REQUIRED`. IVR **không** sửa business source; delta được theo dõi ở open-decision register.
 - Không hard-code candidate vào database constraint hoặc domain constant. Task phải mang `attempt_policy_version`; IVR dùng policy registry/config có validation bounds.
 - Không được dùng candidate cho `PRODUCTION_REAL` trước owner sign-off. Technical retry không tính là customer attempt.
 
@@ -140,7 +154,9 @@ Không được nói “chỉ cắm API và eSIM là vận hành” nếu chưa 
 3. attempt policy owner sign-off;
 4. real SIM lab pass bằng số allowlist;
 5. 32 eSIM gateway/capacity được nghiệm thu;
-6. legal/privacy/security/release sign-off và production evidence pass.
+6. legal/privacy/security/release sign-off và production evidence pass;
+7. TTS/audio provider được chọn và nghiệm thu phát âm ở lab (`OD-V1-19`; prompt `P2-9`/W-0066 mới chỉ tạo port + fake);
+8. IVR internal/admin API được implement (`P2-8`/W-0065 — 13 operation trước đây không có prompt nào build).
 
 ## 13. Các câu trả lời cần đòi từ Sales/owner
 

@@ -1,5 +1,8 @@
 # Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation
 
+> **LỊCH SỬ — vòng hỏi/đáp 2026-07-02.** Các câu trả lời dưới đây là bản ghi của vòng đó. Nơi nào mâu thuẫn với `plan/ivr-orther/target-contract-v1-draft.md` hoặc các quyết định `TV1-*` trong `decisions-log.md` thì **TV1-* thắng** (xem `decisions-log.md` dòng 3). Cụ thể đã bị supersede: kết luận “IVR chỉ COD”, D-10 đã khóa, callback Golden Hour là target cuối, taxonomy `CALLBACK_*`, và pilot mặc định 12 SIM. Không dùng file này làm authority cho implementation.
+
+
 Người gửi: Team IVR / Module 8 (IVR Order Confirmation — phase-8 / PACK-09)
 Ngày gửi: 2026-07-02
 Trạng thái: ✅ **Owner tự chốt phần lớn (2026-07-02)** — Foundation điền từ docs; Telephony chốt phần IVR-owned, phần hạ tầng PENDING (SIM chưa mua).

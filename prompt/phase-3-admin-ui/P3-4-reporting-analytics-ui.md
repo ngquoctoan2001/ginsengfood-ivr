@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P3-4` · **Phase** 3 — Admin UI |
+| **Work ID** | `W-0028` (canonical tracker §5) |
 | **Prereq** | `P3-2`, `P10-4` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Next.js · analytics/reporting API |

@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P10-4` · **Phase** 10 — Compliance & Maturity |
+| **Work ID** | `W-0055` (canonical tracker §5) |
 | **Prereq** | `P6-1` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | **Stack** | .NET 10 · data pipeline · warehouse |

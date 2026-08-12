@@ -2,7 +2,7 @@
 
 Kế hoạch phân tích riêng module 1/2 để sau này sinh: ops-core data mapping, ops-core required APIs, inventory/product/traceability/recall integration, seed/mock strategy cho dữ liệu ops.
 
-> ✅ **Cập nhật 2026-07-02 — Ops-Core đã trả lời (DO-01..DO-09):** blocker gộp = **sellable gate** (`availability/check` → `SellableStatus`), scope SKU/batch, **ops không biết `order_id`** (Core fan-out); revalidate do **Order Core** gọi (fail-closed qua `/health/ready`); webhook `ops-core.sellable.sku-became-not-sellable.v1`; public trace theo **`qrCode`**; **do-not-call/opt-out = CRM, không phải ops**; sale-lock = recall-triggered. Chi tiết: [decisions-log.md](decisions-log.md) DO-*.
+> ✅ **Cập nhật 2026-07-02 — Ops-Core đã trả lời (DO-01..DO-09):** blocker gộp = **sellable gate** (`availability/check` → `SellableStatus`), scope SKU/batch, **ops không biết `order_id`** (Core fan-out); revalidate do **Order Core** gọi (fail-closed qua `/health/ready`); webhook `ops-core.sellable.sku-became-not-sellable.v1`; public trace theo **`qrCode`**; **do-not-call/opt-out = CRM, không phải ops**; sale-lock = recall-triggered. Chi tiết: [decisions-log.md](../decisions-log.md) DO-*.
 
 ## 1. Tài liệu ops-core đã đọc
 

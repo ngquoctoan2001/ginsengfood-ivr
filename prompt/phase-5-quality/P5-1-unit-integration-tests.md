@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P5-1` · **Phase** 5 — Quality Engineering |
-| **Prereq** | `P2-*` (core) |
+| **Work ID** | `W-0035` (canonical tracker §5) |
+| **Prereq** | `P2-1`..`P2-9` (gồm `P2-8` admin API, `P2-9` TTS) |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | .NET 10 · xUnit · Testcontainers |
 
@@ -50,7 +51,9 @@ Các slice Phase 2 đã có test cục bộ; Phase 5 hợp nhất thành **test 
 | --- | --- | --- |
 | `UT-*` (02) | unit | policy/normalizer/eligibility/foundation. |
 | `IT-01..17` (03) | integration | intake/scheduler/callback/blocker/fail-closed profiles. |
-| `IT-05a/05b` | integration | non-CONFIRMING/non-COD reject (DS-01). |
+| `IT-05a` | integration | Target matrix: accept `GOLDEN_HOUR+ONLINE` và `TWENTY_FOUR_SEVEN+COD` khi `ivr_confirmation_required=true`; reject mọi tổ hợp khác fail-closed (TV1-01). **Không** dùng rule COD-only cũ (DS-01 đã bị supersede). |
+| `IT-05b` | integration | non-callable `order_state` reject; `ivr_confirmation_required=false` reject. |
+| `IT-05c` | integration | **CURRENT_COMPAT only:** adapter Golden Hour giữ hành vi COD/current riêng và **không** được dùng để phủ định Target matrix (DS-01 = lịch sử). |
 | `IT-FAILGATE-*` | integration | 8 fail-gate (testing/08) không xảy ra. |
 
 Trace: toàn bộ `specs/testing/02`, `03`, `08`.

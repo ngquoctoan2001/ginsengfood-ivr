@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P3-2` · **Phase** 3 — Admin UI |
-| **Prereq** | `P3-1` |
+| **Work ID** | `W-0026` (canonical tracker §5) |
+| **Prereq** | `P3-1`, `P2-8` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Next.js · `Ivr.Api` admin endpoints |
 

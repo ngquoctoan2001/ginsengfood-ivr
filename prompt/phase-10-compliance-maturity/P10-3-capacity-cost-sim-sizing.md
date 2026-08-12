@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P10-3` · **Phase** 10 — Compliance & Maturity |
+| **Work ID** | `W-0054` (canonical tracker §5) |
 | **Prereq** | `P6-2`, `P5-3` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | **Stack** | modeling · .NET/analysis |

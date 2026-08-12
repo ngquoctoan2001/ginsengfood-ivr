@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P9-2` · **Phase** 9 — Release & Operations |
+| **Work ID** | `W-0051` (canonical tracker §5) |
 | **Prereq** | `P9-1` |
 | **Governance** | Production live (`REAL_CUSTOMER_CALL_ALLOWED=true` sau P9-1) — vận hành an toàn, có rollback |
 | **Stack** | K8s prod · runbook/ops |
@@ -51,9 +52,9 @@ Sau khi gate mở (P9-1), IVR gọi khách thật ở production. Cần quy trì
 | Test ID | Loại | Assert |
 | --- | --- | --- |
 | `IT-OPS-ROLLBACK-01` | drill | rollback (helm + kill-switch) khôi phục về trạng thái an toàn trong RTO. |
-| `IT-OPS-DR-02` | drill | Postgres restore từ backup thành công; RPO đạt. |
-| `IT-OPS-RETENTION-03` | integration | CronJob retention xoá đúng class theo DF-07; audit giữ đúng hạn. |
-| `IT-OPS-INCIDENT-04` | drill | kịch bản SIM down/downstream fail-closed → runbook dẫn tới khôi phục; alert đúng. |
+| `IT-OPS-DR-02` | drill (**staging/pilot trên bản restore, không chạy trên prod live**) | Postgres restore từ backup thành công; RPO đạt. |
+| `IT-OPS-RETENTION-03` | integration (**staging, `DryRun=true` trước; real-run cần approval**) | CronJob retention xoá đúng class theo DF-07; audit giữ đúng hạn. |
+| `IT-OPS-INCIDENT-04` | drill (**staging/pilot; nếu buộc chạy ở prod phải kill-switch REAL→MOCK trước**) | kịch bản SIM down/downstream fail-closed → runbook dẫn tới khôi phục; alert đúng. |
 
 ## 9. REVIEW / ACCEPTANCE GATE
 **Self-review:** [ ] rollback + DR tested (không chỉ viết); [ ] retention/legal chạy; [ ] on-call/incident đủ; [ ] fail-closed giữ; [ ] kill-switch usable.
@@ -63,6 +64,8 @@ Sau khi gate mở (P9-1), IVR gọi khách thật ở production. Cần quy trì
 Rollback drill log, DR restore test (RTO/RPO), retention CronJob run, incident drill report, cutover checkpoints.
 
 ## 11. FORBIDDEN
+- ❌ Chạy bất kỳ drill nào trên production live mà không kill-switch `REAL→MOCK` trước, không có blast radius đặt tên và không có owner approval ghi vào tracker.
+- ❌ Retention real-run trên production khi chưa có `DryRun` report được review.
 - ❌ Production không rollback/DR đã test. ❌ Bỏ retention/legal (DF-07). ❌ Bật recording không consent (DT-05). ❌ "Mở cửa" khi downstream sự cố (giữ fail-closed).
 
 ## 12. DEFINITION OF DONE

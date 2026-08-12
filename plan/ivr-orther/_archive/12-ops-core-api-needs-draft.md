@@ -1,6 +1,6 @@
 # 12 — Ops-Core API Needs (DRAFT)
 
-✅ **Cập nhật 2026-07-02 — Ops-Core đã trả lời (DO-01..DO-09, [decisions-log.md](decisions-log.md)).** Khác bản nháp ở 3 điểm nền tảng: (1) ops **không biết `order_id`** → Order Core fan-out theo SKU/batch; (2) blocker gộp **đã có sẵn** = **sellable gate** `POST /api/v1/admin/availability/check` → `SellableStatus`; (3) **do-not-call/opt-out KHÔNG thuộc ops** (thuộc CRM), và **sale-lock hiện = recall-triggered**. Các API-O bên dưới giữ làm nháp gốc; trạng thái thực tế xem DO-*.
+✅ **Cập nhật 2026-07-02 — Ops-Core đã trả lời (DO-01..DO-09, [decisions-log.md](../decisions-log.md)).** Khác bản nháp ở 3 điểm nền tảng: (1) ops **không biết `order_id`** → Order Core fan-out theo SKU/batch; (2) blocker gộp **đã có sẵn** = **sellable gate** `POST /api/v1/admin/availability/check` → `SellableStatus`; (3) **do-not-call/opt-out KHÔNG thuộc ops** (thuộc CRM), và **sale-lock hiện = recall-triggered**. Các API-O bên dưới giữ làm nháp gốc; trạng thái thực tế xem DO-*.
 
 ⚠️ (Bản nháp gốc) Nhãn scope: **[CORE]** (cần cho outbound confirm) / **[INBOUND?]** (chỉ nếu mở inbound).
 

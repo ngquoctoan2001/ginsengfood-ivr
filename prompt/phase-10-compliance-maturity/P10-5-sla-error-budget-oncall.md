@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P10-5` · **Phase** 10 — Compliance & Maturity |
+| **Work ID** | `W-0056` (canonical tracker §5) |
 | **Prereq** | `P6-2`, `P9-2` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | **Stack** | process · SRE |

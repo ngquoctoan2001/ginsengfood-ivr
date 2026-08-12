@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P5-5` · **Phase** 5 — Quality Engineering |
-| **Prereq** | `P3-*` |
+| **Work ID** | `W-0039` (canonical tracker §5) |
+| **Prereq** | `P3-1`..`P3-4` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Next.js · Playwright/axe · visual regression |
 
@@ -39,7 +40,7 @@ Admin UI (P3-*) là công cụ vận hành hằng ngày của ops. UI khó dùng
 | --- | --- |
 | `tests/ui-a11y/**` | axe + keyboard nav |
 | `tests/ui-visual/**` | visual regression baseline |
-| `deploy/ci/ui-qa.yml` | Job a11y/i18n/visual |
+| `deploy/ci/ui-qa.gitlab-ci.yml` | Job a11y/i18n/visual; **phải được root `.gitlab-ci.yml` `include`**, `allow_failure: false`, và có test chứng minh job xuất hiện trong rendered pipeline |
 
 ## 8. TESTS TO WRITE
 | Test ID | Loại | Assert |

@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P6-3` · **Phase** 6 — Observability & Reliability |
-| **Prereq** | `P6-2`, `P4-*` |
+| **Work ID** | `W-0042` (canonical tracker §5) |
+| **Prereq** | `P6-2`, `P4-2`, `P4-3` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | .NET 10 · chaos tooling · K8s |
 

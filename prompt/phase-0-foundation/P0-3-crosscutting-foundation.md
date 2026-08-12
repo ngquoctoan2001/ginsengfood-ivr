@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P0-3` |
+| **Work ID** | `W-0012` (canonical tracker §5) |
 | **Phase** | 0 — Foundation & Project Setup |
 | **Prereq (blockedBy)** | `P0-1` |
 | **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
@@ -31,7 +32,8 @@ Trước khi build intake/scheduler/callback (Phase 2), cần bộ khung ngang b
 
 ## 5. INPUTS / DEPENDENCIES
 - Postgres (P0-1) cho bảng `ivr_audit_log`, `ivr_idempotency_keys`, `ivr_evidence` (định nghĩa migration ở P1-2; ở đây định nghĩa entity + interface, migration nối sau).
-- Permission source: **reuse Permission Core** (DF-01) — ở MOCK dùng JWT claim/`X-Permissions` header giả lập; thật ở P4-4.
+- Permission source: **reuse Permission Core** (DF-01). Ở `MOCK` dùng JWT claim hoặc header giả lập `X-Permissions`; production dùng JWT claim thật ở P4-4.
+- **Ràng buộc bắt buộc:** provider đọc `X-Permissions` chỉ được đăng ký khi `executionMode == MOCK`. Ở mọi mode khác, startup **fail** nếu mock permission provider được đăng ký, và header `X-Permissions` bị **bỏ qua hoàn toàn**. Header này không nằm trong bất kỳ contract nào và không được document như public input.
 - `NEED_CONFIRMATION`: secret store (env dev → Vault prod, chốt P7).
 
 ## 6. BUILD STEPS
@@ -64,6 +66,7 @@ Trước khi build intake/scheduler/callback (Phase 2), cần bộ khung ngang b
 | `UT-FND-IDEMP-01` | unit | same key+payload → snapshot cũ; khác payload → 409 `IVR_IDEMPOTENCY_CONFLICT`. |
 | `UT-FND-CORR-02` | unit | thiếu `X-Correlation-Id` → sinh mới; có → giữ nguyên; propagate outbound. |
 | `UT-FND-RBAC-03` | unit | thiếu permission → `403 IVR_FORBIDDEN_CALLER`; đủ → pass. |
+| `UT-FND-RBAC-08` | unit | `executionMode != MOCK` → header `X-Permissions` bị bỏ qua và request trả 403; đăng ký mock permission provider ngoài MOCK → startup fail. |
 | `UT-FND-ALLOW-04` | unit | `X-Source-System` sai → 403; đúng+token → pass. |
 | `UT-FND-ERR-05` | unit | exception → envelope `{error:{code,message,details,correlationId}}`, status khớp §1b/§1c, không leak stack/PII. |
 | `UT-FND-AUDIT-06` | unit | audit chỉ insert (update/delete ném lỗi); có `correlationId`; không chứa phone thô. |

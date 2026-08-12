@@ -10,7 +10,7 @@
 | **ID** | `{P{phase}-{seq}}` |
 | **Phase** | `{0..11}` — {tên phase} |
 | **Prereq (blockedBy)** | *{các prompt phải xong trước, VD `P0-3`, `P1-2`}* |
-| **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` *(trừ Phase 8/9 có ghi rõ)* |
+| **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_EXECUTION_MODE=MOCK` *(trừ Phase 8/9 có ghi rõ)* |
 | **Stack** | .NET 10 / PostgreSQL / Next.js / Docker+K8s *(theo phần liên quan)* |
 | **Work ID** | *ID kế tiếp/chính xác trong `_execution/prompt-execution-tracker.md`; bắt buộc trước khi code* |
 | **Execution mode** | `MOCK` mặc định; `LAB_REAL_SIM`/`PRODUCTION_REAL` chỉ khi prompt và gate cho phép |
@@ -49,6 +49,9 @@ Tách từng input thành `REAL_AVAILABLE`, `MOCK_REQUIRED`, `OWNER_DECISION_REQ
 
 **Chuẩn output:** tuân `prompt/README-governance.md` §Coding-standards; mọi public API có XML doc; không magic number (dùng const/policy); log có `correlationId`.
 
+## 7b. COMMANDS (bắt buộc — lệnh tái lập được)
+*Liệt kê 2–5 lệnh chính xác chạy từ repository root để sinh evidence (vd `dotnet test tests/Ivr.UnitTests -v n`, `npm --prefix admin-ui run build`). Reviewer phải chạy lại được.*
+
 ## 8. TESTS TO WRITE (test code — bắt buộc)
 *Test cụ thể phải viết, trace về `specs/testing/*` (ID test). Nêu loại (unit/integration/contract/e2e), framework (xUnit/Testcontainers/Playwright), và case chính (happy + negative + fail-closed).*
 | Test ID (specs) | Loại | Assert |
@@ -62,7 +65,7 @@ Tách từng input thành `REAL_AVAILABLE`, `MOCK_REQUIRED`, `OWNER_DECISION_REQ
 - [ ] Fail-closed ở mọi nhánh lỗi liên quan blocker/dispatch.
 - [ ] Lint/build/test xanh; coverage đạt ngưỡng phase.
 
-**Reviewer checklist (người/agent review PR):** *{tiêu chí review riêng slice — vd race-guard, PII masking, idempotency key reuse}.*
+**Reviewer checklist (người/agent review GitLab MR):** *{tiêu chí review riêng slice — vd race-guard, PII masking, idempotency key reuse}.*
 
 ## 10. EVIDENCE EXPECTED (bằng chứng nộp)
 *Log/artifact cụ thể để chứng minh Done gate (MASTER-05). VD: migration log, test report, reject-403 sample, screenshot UI.*
@@ -77,7 +80,7 @@ Tách từng input thành `REAL_AVAILABLE`, `MOCK_REQUIRED`, `OWNER_DECISION_REQ
 ## 12. DEFINITION OF DONE (DoD)
 - [ ] Build + test + lint pass (CI).
 - [ ] Tất cả §8 test xanh; §10 evidence sinh ra.
-- [ ] Self-review §9 tick hết; PR có traceability (source/req/contract/test/evidence).
+- [ ] Self-review §9 tick hết; GitLab MR có traceability (source/req/contract/test/evidence).
 - [ ] Cập nhật doc liên quan nếu đổi contract.
 - [ ] Cập nhật Work ID trong tracker với artifacts, commands/tests, evidence, blockers và việc phát sinh; append activity log.
 - [ ] Ghi đúng cấp độ: mock-complete, lab-verified, integration-verified hoặc production-accepted; không gộp các cấp.

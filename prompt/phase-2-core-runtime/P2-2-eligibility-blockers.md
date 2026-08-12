@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P2-2` · **Phase** 2 — Core Runtime (mock SIM) |
+| **Work ID** | `W-0019` (canonical tracker §5) |
 | **Prereq** | `P2-1` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | .NET 10 |

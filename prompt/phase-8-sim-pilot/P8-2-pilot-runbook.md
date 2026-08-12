@@ -20,3 +20,15 @@ Create and execute a controlled lab runbook using one real SIM and approved team
 ## 3. Acceptance
 
 Lab report/evidence accepted by IVR/Infra; all numbers are approved test numbers; raw phone/audio absent; `REAL_CUSTOMER_CALL_ALLOWED=NO` before/during/after. Update W-0049. A later real-customer pilot requires a separate owner-approved release scope.
+
+## 5. Forbidden
+- ❌ Gọi bất kỳ số nào ngoài `labDestinationAllowlist`.
+- ❌ Đặt `REAL_CUSTOMER_CALL_ALLOWED=true` (chỉ P9-1 sau DF-03 mới được xét).
+- ❌ Coi lab 1 SIM là bằng chứng throughput 32 eSIM (`G-ESIM32`).
+- ❌ Lưu audio hoặc số thật vào evidence.
+
+## 6. Definition of Done
+- [ ] Runbook chạy được end-to-end trên **1 SIM thật + allowlist**, kill switch verify được.
+- [ ] Evidence trong `docs/evidence/W-0049/`: dial/DTMF/disposition log đã redact, allowlist reject sample, kill-switch drill.
+- [ ] Đạt tối đa `LAB_REAL_SIM_VERIFIED` cho đúng phạm vi đã test; **không** suy ra integration hay production.
+- [ ] Cập nhật W-0049; chỉ reviewer/owner chuyển `ACCEPTED`.

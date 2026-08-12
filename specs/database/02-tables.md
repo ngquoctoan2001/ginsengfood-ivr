@@ -18,28 +18,28 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `payment_method_snapshot` | string | ✓ | idx | `ONLINE` for GH or `COD` for 24/7; IVR does not process payment |
 | `ivr_confirmation_required` | bool | ✓ | idx | must be true |
 | `customer_id` | string | ○ | idx | không full profile |
-| `customer_trust_status` | string | ✓ | | D-12 |
-| `trusted_skip_allowed` | bool | ✓ | | D-12 |
-| `risk_flags_json` | json | ✓ | | boolean source-backed (D-13) |
+| `customer_trust_status` | string | ○ | | **Sales-supplied optional** (OpenAPI optional); null ⇒ fail-closed trust=UNKNOWN (D-12) |
+| `trusted_skip_allowed` | bool | ○ | | **Sales-supplied optional**; null ⇒ `false` (fail-closed, D-12) |
+| `risk_flags_json` | json | ○ | | **Sales-supplied optional**; null ⇒ `[]` (D-13) |
 | `program_type` | string | ✓ | idx | `GOLDEN_HOUR`/`TWENTY_FOUR_SEVEN` |
 | `attempt_policy_version` | string | ✓ | idx | owner-approved in production; candidate allowed only MOCK/LAB |
 | `max_attempts` | int | ✓ | | bounded by app policy, not fixed to 2 |
 | `attempt_offsets_seconds_json` | json | ✓ | | ordered offsets including 0 |
 | `confirmation_window_started_at` | datetime | ✓ | idx | source timestamp |
 | `confirmation_window_expires_at` | datetime | ✓ | idx | source deadline |
-| `official_contact_id` | string | ✓ | idx | contact duyệt |
+| `official_contact_id` | string | ○ | idx | **IVR-derived** từ `phone_ref`; không có trên task contract, nullable tới khi resolver cung cấp |
 | `phone_ref` | string | ✓ | | secure ref (D-05) — **không raw** |
 | `phone_masked` | string | ✓ | | admin-safe |
-| `phone_validation_status` | string | ✓ | idx | không unknown khi dispatch |
+| `phone_validation_status` | string | ○ | idx | **Sales-supplied optional**; null/`unknown` ⇒ **không dispatch** (fail-closed) |
 | `dial_token` | string/encrypted | ✓ | | opaque token only; never raw phone |
 | `dial_token_expires_at` | datetime | ✓ | idx | must not exceed call window |
 | `privacy_safe_order_summary_json` | json | ✓ | | short name/code, public items+qty, total, short area; schema validated |
-| `eligibility_decision` | string | ✓ | idx | enum |
-| `blocked_reasons_json` | json | ✓ | | danh sách block |
-| `sellable_status_json` | json | ✓ | | **per-line SKU/batch snapshot** (DO-02): `[{sku_id,batch_id?,decision,recall_hold,sale_lock,quality_hold,stock_available,batch_released,trace_ready,captured_at}]` |
+| `eligibility_decision` | string | ○ | idx | **IVR-derived** (P2-2 ghi sau intake); null tới khi eligibility chạy |
+| `blocked_reasons_json` | json | ○ | | **IVR-derived**; null tới khi eligibility chạy |
+| `sellable_status_json` | json | ○ | | **Sales-supplied optional** per-line SKU/batch snapshot (DO-02): `[{sku_id,batch_id?,decision,recall_hold,sale_lock,quality_hold,stock_available,batch_released?,trace_ready,captured_at}]`; null ⇒ **không dispatch** (fail-closed). `batch_released` optional — absent được coi là `false` (fail-closed) |
 | `sellable_captured_at` | datetime | ○ | | max độ tươi snapshot |
-| `call_restriction` | bool | ○ | | ✅ do-not-call từ CRM (DC-01); nullable tới IR-CRM-01 |
-| `not_for_quote_cart_draft` | bool | ✓ | | must true |
+| `call_restriction` | bool | ✓ | | **Sales-supplied**, required trên wire (OpenAPI) và NOT NULL ở đây; `true`/`unknown` → fail-closed (DC-01) |
+| `not_for_quote_cart_draft` | bool | ✓ | | **IVR-derived invariant**, server-default `true`; không nhận từ wire |
 | `no_direct_order_update` | bool | ✓ | | must true |
 | `created_at` | datetime | ✓ | idx | server time |
 | `expires_at` | datetime | ✓ | idx | = `t0_at + window` |
@@ -82,7 +82,8 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `id`/`ivr_call_attempt_id` | uuid/string | ✓ | PK/Unique | |
 | `ivr_call_job_id` | string | ✓ | FK/idx | |
 | `task_id` | string | ✓ | idx | |
-| `attempt_number` | int | ✓ | idx | 1..2 |
+| `attempt_number` | int | ✓ | idx | `1..max_attempts_snapshot` (cùng hàng); KHÔNG hằng số |
+| `max_attempts_snapshot` | int | ✓ | | **Persisted snapshot** copy từ `ivr_call_jobs.max_attempts` lúc INSERT. Tồn tại để CHECK là **same-row** — PostgreSQL không cho CHECK tham chiếu bảng khác. Immutable sau khi tạo. |
 | `scheduled_at`/`scheduled_window_expires_at` | datetime | ✓ | idx | |
 | `started_at`/`ended_at` | datetime | ○ | | |
 | `status` | string | ✓ | idx | `ivr-call-attempt-status` |
@@ -100,7 +101,9 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `policy_version`/`script_version` | string | ✓ | | |
 | `evidence_refs_json`/`audit_refs_json` | json | ○ | | |
 
-**Constraints:** Unique(`ivr_call_job_id`,`attempt_number`) cho customer-counted; CHECK `attempt_number ≤ 2` (D-10); `is_counted_customer_attempt=false` khi `technical_exception_type` not null.
+**Constraints:** Unique(`ivr_call_job_id`,`attempt_number`) cho customer-counted; **same-row** CHECK `attempt_number >= 1 AND attempt_number <= max_attempts_snapshot` (**không** CHECK hằng số `2`, xem DB-04 §4); `is_counted_customer_attempt=false` khi `technical_exception_type` not null.
+
+> **PostgreSQL:** `CHECK` chỉ đánh giá được trên **một hàng của chính bảng đó** — không tham chiếu được `ivr_call_jobs`. Vì vậy bound policy được denormalize thành `max_attempts_snapshot`. Tính nhất quán `max_attempts_snapshot == ivr_call_jobs.max_attempts` được bảo đảm bằng **trigger `BEFORE INSERT`** (copy giá trị) hoặc bằng application invariant, **không** bằng CHECK. Xem DB-04 §4.
 
 ## 4. `ivr_raw_call_event` (MỚI — OD-DR-03)
 | Column | Type | Req | Index | Note |
@@ -153,8 +156,36 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 ## 7. Bảng vận hành phụ trợ
 | Bảng | Field chính |
 | --- | --- |
-| `ivr_sim_channels` | `sim_channel_id`(PK), `sim_number_ref`, `enabled`, `status` (IDLE/RESERVED/ACTIVE_CALL/DISABLED/HEALTH_FAILED), `active_call_job_id`, `fail_count`, `last_health_check_at`, `cooldown_until`, `disabled_reason`, **`adapter_mode`** (MOCK/REAL — DT-01) |
+| `ivr_sim_channels` | `sim_channel_id`(PK), `sim_number_ref`, `enabled`, `status` (IDLE/RESERVED/ACTIVE_CALL/QUARANTINED/DISABLED/HEALTH_FAILED), `active_call_job_id`, `fail_count`, `last_health_check_at`, `cooldown_until`, `quarantine_until`, `disabled_reason`, **`adapter_mode`** (MOCK/REAL — DT-01), **lease/fencing:** `lease_token`, `lease_fencing_generation`, `leased_by_worker_id`, `lease_acquired_at`, `lease_expires_at` (xem DB-04 §5) |
 | `ivr_capacity_incidents` | `capacity_incident_id`(PK), `session_id`, `program_code`, `status`, `scope`, `hold_new_calls`, `active_sim_count`, `pending_call_jobs`, `expired_call_jobs`, `missed_deadline_count`, `shortage_reason`, `opened_at`, `resolved_at`, `reason` |
 | `ivr_technical_exceptions` | `technical_exception_id`(PK), `ivr_call_attempt_id`, `exception_type`, `customer_attempt_counted=false`, `technical_retry_allowed`, `technical_retry_count`, `retry_reason`, `correlation_id`, `created_at` |
 | `ivr_admin_actions` | `admin_action_id`(PK), `action_type`, `permission`, `actor_id`, `target_type`, `target_id`, `reason`, `before_state`, `after_state`, `correlation_id`, `evidence_ref`, `no_policy_bypass=true`, `created_at` |
 | `ivr_evidence_links` | `owner_table`, `owner_id`, `evidence_ref`, `audit_ref` |
+
+## 8. Bảng foundation / platform (định nghĩa entity ở P0-3/P0-4, migration ở P1-2)
+
+> Các bảng này trước đây chỉ tồn tại trong prompt P0-3/P0-4/P4-6 mà không có trong DB spec, nên P1-2 (nguồn = `specs/database/*`) sẽ không tạo chúng. Bổ sung 2026-08-12 (W-0062).
+
+| Bảng | Field chính | Owner prompt |
+| --- | --- | --- |
+| `ivr_idempotency_keys` | `key`(Unique scoped), `scope`, `payload_hash`, `response_snapshot_json`, `created_at`, `expires_at` | P0-3 |
+| `ivr_audit_log` | `audit_id`(PK), `actor_id`, `actor_type`, `action`, `target_type`, `target_id`, `reason`, `before_state`, `after_state`, `correlation_id`, `created_at` — **append-only**, không UPDATE/DELETE | P0-3 |
+| `ivr_evidence` | `evidence_ref`(PK), `kind`, `correlation_id`, `work_id`, `payload_ref` (đường dẫn `docs/evidence/<W-XXXX>/`), `created_at` | P0-3 |
+| `ivr_feature_flags` | `key`, `env`, `enabled`, `value_json`, `updated_by`, `updated_at`, `reason` — Unique(`key`,`env`); mọi thay đổi ghi `ivr_audit_log` | P0-4 |
+| `ivr_review_items` | `review_item_id`(PK), `source_type`, `source_id`, `reason`, `status`, `assigned_to`, `resolution`, `correlation_id`, `created_at`, `resolved_at` | P4-6 |
+
+**Retention:** mỗi bảng trên phải khai báo data class và retention period trong `specs/database/05-retention-and-privacy.md`; job purge do `IRetentionJob` thực thi (xem prompt P1-5).
+
+## 9. Phân loại nguồn cột (chống DB↔OpenAPI inversion)
+
+Mỗi cột thuộc đúng một loại. `P1-2` và `P1-3` phải giữ phân loại này khi sinh entity/migration:
+
+| Loại | Nghĩa | Quy tắc NOT NULL |
+| --- | --- | --- |
+| **Sales-supplied required** | có trong `required` của `IvrConfirmationTaskV1` | NOT NULL |
+| **Sales-supplied optional** | có trong `properties` nhưng không `required` | NULLABLE; null phải có hành vi fail-closed ghi rõ |
+| **IVR-derived** | IVR tính/ghi sau intake | NULLABLE lúc insert, hoặc server-default |
+| **Persisted snapshot** | copy bất biến của policy/script/eligibility tại thời điểm intake | NOT NULL sau khi job tạo, immutable |
+| **Internal-only** | không bao giờ xuất hiện trên wire contract | NOT NULL với server-default |
+
+**Kiểm tra bắt buộc ở P1-2:** canonical fixture `seed/sales-target-v1.sample.json` phải INSERT được vào schema mà không vi phạm NOT NULL. Nếu vi phạm → hoặc cột sai loại, hoặc fixture thiếu field; sửa cả hai phía trong cùng work item.

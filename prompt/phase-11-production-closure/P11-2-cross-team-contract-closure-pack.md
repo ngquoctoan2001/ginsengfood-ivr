@@ -24,3 +24,13 @@ Each ticket includes current source evidence, target delta, sample payload, acce
 ## 3. Acceptance
 
 Run CDC against supplied sandbox; pin upstream commit/OpenAPI hash; update the corresponding W-0002..7 separately. Ticket “done” without merged code/OpenAPI/test evidence remains `BLOCKED_EXTERNAL`.
+
+## 5. Forbidden
+- ❌ Đóng bất kỳ `W-0002..W-0007` nào vì IVR đã mock.
+- ❌ Tự phê duyệt Golden Hour ONLINE (`OD-V1-13`), `ivr_confirmation_required` (`OD-V1-14`), attempt policy (`OD-V1-16`), whitelist lời thoại (`OD-V1-15`) hay dial-token semantics (`OD-V1-17`).
+- ❌ Coi đề xuất kỹ thuật của dev Sales là chữ ký owner.
+
+## 6. Definition of Done
+- [ ] Mỗi ticket có: current evidence, target delta, sample payload, acceptance test, owner, due, gate, mock fallback, closure artifact chính xác.
+- [ ] `OD-V1-01..07` và `OD-V1-13..18` đều có ticket tương ứng.
+- [ ] Trạng thái các external row giữ `BLOCKED_EXTERNAL`; đạt tối đa `EVIDENCE_SUBMITTED` cho pack tài liệu.

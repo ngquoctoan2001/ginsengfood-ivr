@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P10-2` · **Phase** 10 — Compliance & Maturity |
-| **Prereq** | `P1-2`, `P7-2` |
+| **Work ID** | `W-0053` (canonical tracker §5) |
+| **Prereq** | `P1-2`, `P7-2`, `P1-5` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | **Stack** | PostgreSQL · K8s · crypto/backup |
 

@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P7-1` · **Phase** 7 — Deployment |
-| **Prereq** | `P2-*`, `P3-*` |
+| **Work ID** | `W-0043` (canonical tracker §5) |
+| **Prereq** | `P2-1`..`P2-9`, `P3-1`..`P3-3` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Docker (multi-stage) · .NET 10 · Next.js |
 
@@ -34,7 +35,7 @@ Trước khi lên K8s (P7-2), cần image chuẩn cho `ivr-api`, `ivr-worker`, `
 2. **Dockerfile `ivr-worker`**: tương tự (worker không expose HTTP trừ health/metrics).
 3. **Dockerfile `ivr-admin-ui`**: Next.js standalone build, non-root, chỉ static+server cần thiết.
 4. **`.dockerignore`** cho mỗi context; tối ưu cache layer (restore trước copy source).
-5. **`docker-compose.dev.yml`**: api+worker+ui+postgres+otel + fake Sales Target V1/WireMock + mock SIM + mock JWT issuer; default `EXECUTION_MODE=MOCK`, isolated network and no real telephony/Sales egress.
+5. **`docker-compose.dev.yml`**: api+worker+ui+postgres+otel + fake Sales Target V1/WireMock + mock SIM + mock JWT issuer; default `IVR_EXECUTION_MODE=MOCK` (canonical key, governance §6), isolated network and no real telephony/Sales egress.
 6. **Image scan** (Trivy/Grype) trong build; fail High/Critical (nối P5-4). SBOM (optional).
 7. Tài liệu build/run + tag convention (semver + git sha).
 

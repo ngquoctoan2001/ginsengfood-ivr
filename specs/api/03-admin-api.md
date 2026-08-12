@@ -32,3 +32,12 @@ Admin **KHÔNG** được:
 
 ## Báo cáo (admin)
 - **7 endpoint admin** (1 GET + 6 POST), mỗi cái map 1 permission `IVR_*` (DF-01). Không endpoint nào cho phép force order/bypass blocker.
+
+## Runtime-gate controls — bất đối xứng theo chiều an toàn
+
+`OD-V1-20` (chờ Security/Release owner) đề xuất quyền `IVR_RUNTIME_GATE_ADMIN`. Quy tắc áp cho mọi endpoint đổi runtime gate:
+
+- **Chiều giảm rủi ro luôn được phép** ở mọi environment: bật `globalDialKillSwitch`, thu hẹp/làm rỗng `labDestinationAllowlist`, đặt `realCustomerCallAllowed=false`. Chỉ cần permission + `reason` + audit; **không** four-eyes, **không** chờ deployment. Một kill switch không bật được trong sự cố là kill switch hỏng.
+- **Chiều tăng rủi ro luôn bị gate**: tắt kill switch, mở rộng allowlist → four-eyes + `reason`; ở `PRODUCTION_REAL` chỉ qua deployment có approval (P7-3/P9-1). `realCustomerCallAllowed=true` chỉ qua P9-1 sau DF-03. `v1NotificationEnabled`/`recordingEnabled` bật lên bị từ chối ở mọi mode.
+- Không đọc được trạng thái kill switch ⇒ coi như **ON** (fail-closed).
+- Actor thực hiện call không được tự mở rộng allowlist cho đích mình sắp gọi.

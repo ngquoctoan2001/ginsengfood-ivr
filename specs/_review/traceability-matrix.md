@@ -13,8 +13,16 @@ Trạng thái: `LIVING` · Cập nhật: `2026-08-12`.
 | no-answer waits for timeout | `TV1-06` | functional/05, workflow/03 | P2-3/P2-6/P5 | sequence/state tests |
 | no notification | `TV1-07` | scope/integration | P4-5/P5 | no-op and no-egress tests |
 | mock-first build | `TV1-10` | acceptance/runbook | P0-P7 | fake providers + CI evidence |
+| GitLab CI only | `TV1-12` | defaults/governance | P0-2/P5-4/P7-3 | `.gitlab-ci.yml`, MR pipeline, protected-branch/merge-check evidence |
 | one real SIM lab | `TV1-09` | telephony IR/acceptance | P8 | allowlist/kill-switch/DTMF evidence |
 | 32 eSIM target | `TV1-09` | deployment/capacity | P8/P10/P11 | procurement + measured load evidence |
 | single progress ledger | owner request 2026-08-12 | prompt governance/tracker | every prompt | sequential Work IDs + evidence refs |
+| IVR internal & admin API | `specs/api/02`,`03` + IVR OpenAPI (14 operation) | api/02, api/03, OpenAPI | **P2-8** (W-0065) | authz-denied per permission, idempotency, audit append-only, PII masking, OAS contract |
+| speech/TTS audio boundary | governance §3 providers; TCv1 §6 | functional/04, api/04 | P2-4 (fake) + **P2-9** (W-0066) → P8-1 | snapshot text, audio metadata, PII scan, timeout≠no-answer; pronunciation acceptance chỉ ở lab |
+| retention/data lifecycle | DF-07 | database/05, database/02 §8 | **P1-5** (W-0064) → P7-2/P9-2/P10-1/P10-2 | dry-run + real-run report, legal-hold test, audit không bị xoá |
+| attempt policy is config, not schema | `TV1-02` | database/02 §1, database/04 §4, functional/03 | P1-2/P2-3 | migration KHÔNG chứa CHECK hằng số 2/300/150/900/450 |
+| channel lease/fencing | `FR-IVR-SCH-003` | database/02 §7, database/04 §5 | P1-2/P2-3 | one-active-call test, crash-reclaim test, fencing generation reject |
+| runtime-gate RBAC | `OD-V1-20` | api/03, ui/08 | P0-4/P2-8 | authz-denied, four-eyes, immutable-in-PROD, kill-switch-overrides |
+| GitLab CI hosted evidence | `TV1-12` | defaults/governance §2.12 | P0-2/P5-4/P7-3 + **W-0061** | GitLab project/runner/registry/protected-branch — `NOT_RUN` cho tới khi `G-GITLAB` đóng |
 
-Any prompt/PR missing source → contract → test → evidence linkage is not complete.
+Any prompt/GitLab MR missing source → contract → test → evidence linkage is not complete.

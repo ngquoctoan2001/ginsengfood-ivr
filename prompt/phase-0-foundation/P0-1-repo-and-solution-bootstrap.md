@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P0-1` |
+| **Work ID** | `W-0010` (canonical tracker §5) |
 | **Phase** | 0 — Foundation & Project Setup |
 | **Prereq (blockedBy)** | — (prompt đầu tiên) |
 | **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
@@ -30,12 +31,12 @@ IVR Order Confirmation là **service .NET độc lập** (KHÔNG thuộc `ginsen
 
 ## 5. INPUTS / DEPENDENCIES
 - .NET 10 SDK, Node ≥ 20 (Next.js), Docker (Postgres local).
-- Env mẫu: `EXECUTION_MODE=MOCK`, `SALES_PROVIDER=FAKE_TARGET_V1`, `SIM_PROVIDER=MOCK`, `ConnectionStrings__IvrDb`, `REAL_CUSTOMER_CALL_ALLOWED=NO`.
-- `NEED_CONFIRMATION`: tên repo/namespace gốc (default `Ivr`), package registry — không chặn.
+- Env mẫu (canonical key theo governance §6): `IVR_EXECUTION_MODE=MOCK`, `SALES_PROVIDER=FAKE_TARGET_V1`, `SIM_PROVIDER=MOCK`, `ConnectionStrings__IvrDb`, `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+- `CONFIRMED_2026-08-12`: logical repository `ginsengfood-ivr`, namespace `Ivr`, source tại repository hiện tại; không tạo nested Git repository. Bootstrap dùng public NuGet/npm; private registry vẫn open nhưng không chặn P0-1.
 
 ## 6. BUILD STEPS
 1. Tạo solution `Ivr.sln` + các project:
-   - `src/Ivr.Api` (ASP.NET Core, target `net10.0`) — chỉ `GET /health/live|ready|startup` trả 200/JSON (readiness sẽ nối DB ở P0-3/P1-2).
+   - `src/Ivr.Api` (ASP.NET Core, target `net10.0`) — chỉ `GET /health/live|ready|startup` trả 200/JSON. **Readiness fail-closed (DO-06/DTS-05) thuộc `P6-1` (W-0040)** — không phải P0-3/P1-2. Ở P0-1 `/health/ready` là placeholder luôn 200; mọi prompt tiêu thụ readiness trước W-0040 phải coi đây là chưa có tín hiệu fail-closed.
    - `src/Ivr.Worker` (Worker Service, `BackgroundService` rỗng "IvrHeartbeat" log mỗi 30s).
    - `src/Ivr.Domain` (class library, không ref Infrastructure).
    - `src/Ivr.Infrastructure` (class library; ref Domain; thêm `IvrDbContext : DbContext` rỗng, EF Core + Npgsql).
@@ -45,7 +46,7 @@ IVR Order Confirmation là **service .NET độc lập** (KHÔNG thuộc `ginsen
 3. Thêm `.editorconfig` (C# style rules) + analyzers (`Microsoft.CodeAnalysis.NetAnalyzers`, tuỳ chọn StyleCop). Cấu hình severity = warning→error cho rule quan trọng.
 4. `admin-ui/`: khởi tạo **Next.js** (TypeScript, App Router, ESLint, strict). Trang `/` placeholder "IVR Admin — MOCK mode". Chưa auth (P3-1).
 5. `docker-compose.dev.yml`: `postgres:16` plus placeholders/services for fake Sales, mock SIM and mock JWT issuer; no real external egress. API reads env config.
-6. `README.md` gốc repo: cách chạy (`docker compose up postgres`, `dotnet run --project src/Ivr.Api`, `npm --prefix admin-ui run dev`), sơ đồ thành phần, nhắc governance (`REAL_CUSTOMER_CALL_ALLOWED=NO`).
+6. `README.md` gốc repo: cách chạy (`docker compose -f docker-compose.dev.yml up postgres`, `dotnet run --project src/Ivr.Api`, `npm --prefix admin-ui run dev`), sơ đồ thành phần, nhắc governance (`REAL_CUSTOMER_CALL_ALLOWED=NO`).
 7. Config qua `appsettings.json` + `appsettings.Development.json` + env override; bind `IvrOptions` (adapter mode, connection). KHÔNG hardcode secret.
 
 ## 7. OUTPUT ARTIFACTS
@@ -77,7 +78,7 @@ IVR Order Confirmation là **service .NET độc lập** (KHÔNG thuộc `ginsen
 **Reviewer:** kiểm layout khớp governance §3; ref direction đúng; health endpoint tách live/ready/startup (chuẩn K8s probe sau này).
 
 ## 10. EVIDENCE EXPECTED
-Build log (0 warning), test report (3 pass), `docker compose up postgres` + `dotnet run` log health 200, screenshot Next.js placeholder.
+Build log (0 warning), test report (3 pass), `docker compose -f docker-compose.dev.yml up postgres` + `dotnet run` log health 200, screenshot Next.js placeholder.
 
 ## 11. FORBIDDEN
 - ❌ Business logic / entity `ivr_*` (thuộc P1).

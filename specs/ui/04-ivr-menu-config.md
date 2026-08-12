@@ -13,7 +13,8 @@ Xem/quản cấu hình call script (template + version + biến được phép).
 ```
 
 ## Dữ liệu / ràng buộc
-- `allowed_variables`: `order_code_short`, `total_amount_display`, (opt) `customer_name_short`, `program_name`.
+- `allowed_variables` (current, approved): `order_code_short`, `total_amount_display`, (opt) `customer_name_short`, `program_name`.
+- `allowed_variables` (Target V1 proposal, `OD-V1-15` **OWNER_DECISION_REQUIRED**): thêm `items[].public_name`, `items[].quantity`, `delivery_area_short`. UI phải hiển thị rõ biến nào thuộc bộ chờ duyệt và **chặn approve script production** dùng biến chưa duyệt; MOCK/LAB được phép.
 - `prohibited_variables` (hiển thị để nhắc): FULL_ADDRESS, MEMBER_TIER, DIAMOND, PAYMENT_DETAIL, ORDER_HISTORY, AI/CRM content, HEALTH.
 - KEY_9 = `NOT_ENABLED` (AS-07) — không cho bật ở UI giai đoạn đầu.
 

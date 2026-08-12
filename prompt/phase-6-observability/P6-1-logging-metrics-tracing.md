@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P6-1` · **Phase** 6 — Observability & Reliability |
-| **Prereq** | `P2-*` |
+| **Work ID** | `W-0040` (canonical tracker §5) |
+| **Prereq** | `P2-1`..`P2-9` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | .NET 10 · OpenTelemetry (OTLP) |
 

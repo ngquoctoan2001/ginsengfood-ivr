@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P7-4` · **Phase** 7 — Deployment |
+| **Work ID** | `W-0046` (canonical tracker §5) |
 | **Prereq** | `P7-3` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Kubernetes · Argo Rollouts/Flagger (env) |

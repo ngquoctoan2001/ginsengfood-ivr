@@ -1,5 +1,8 @@
 # Câu hỏi bổ sung IVR — gửi CRM / Module 3.1 (vòng 2: do-not-call / opt-out / thông báo sau gọi)
 
+> **LỊCH SỬ — vòng hỏi/đáp 2026-07-02.** Các câu trả lời dưới đây là bản ghi của vòng đó. Nơi nào mâu thuẫn với `plan/ivr-orther/target-contract-v1-draft.md` hoặc các quyết định `TV1-*` trong `decisions-log.md` thì **TV1-* thắng** (xem `decisions-log.md` dòng 3). Cụ thể đã bị supersede: kết luận “IVR chỉ COD”, D-10 đã khóa, callback Golden Hour là target cuối, taxonomy `CALLBACK_*`, và pilot mặc định 12 SIM. Không dùng file này làm authority cho implementation.
+
+
 Người gửi: Team IVR / Module 8 (IVR Order Confirmation — phase-8 / PACK-09)
 Ngày gửi: 2026-07-02
 Trạng thái: ✅ **ĐÃ TRẢ LỜI (2026-07-02, đọc source `ginsengfood-business-platform`)** — QC1–QC6 → **DC-01..06** ([decisions-log.md](decisions-log.md)).

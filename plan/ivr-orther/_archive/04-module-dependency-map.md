@@ -45,7 +45,7 @@ IVR-Orther (IVR Order Confirmation / phase-8)
 | Public trace / recall lookup | (chỉ nếu inbound: khách hỏi batch an toàn?) | product_name, status VALID/RECALLED | read | P2 | Out-of-scope phase-8 | Không cần cho outbound confirm |
 | Product master (tên SKU) | (nếu script cần tên sản phẩm) | public name | read | P2 | ASSUMPTION | Thường lấy qua commerce, không trực tiếp ops |
 
-- ✅ **CHỐT (DO-01..DO-03, DO-CORR-1):** IVR **không** gọi ops trực tiếp. **Order Core** fan-out order → dòng SKU/batch → gọi sellable gate → nhúng snapshot per-line vào task (pre-dispatch) **và** revalidate realtime khi callback. Ops-core không biết `order_id`. Xem [decisions-log.md](decisions-log.md) DO-*, [12](12-ops-core-api-needs-draft.md).
+- ✅ **CHỐT (DO-01..DO-03, DO-CORR-1):** IVR **không** gọi ops trực tiếp. **Order Core** fan-out order → dòng SKU/batch → gọi sellable gate → nhúng snapshot per-line vào task (pre-dispatch) **và** revalidate realtime khi callback. Ops-core không biết `order_id`. Xem [decisions-log.md](../decisions-log.md) DO-*, [12](12-ops-core-api-needs-draft.md).
 - ✅ **CHỐT (DO-CORR-2):** blocker **do-not-call/opt-out** = **CRM/business-platform (§2)**, KHÔNG phải ops-core.
 
 ## 4. Shared System (foundation)

@@ -16,7 +16,9 @@ IVR-owned base `/v1/ivr/order-confirmation`; Sales-owned target callback `/api/v
 | `X-Actor-Id` | admin metadata after authenticated RBAC; never trusted alone |
 | `X-Source-System` | optional/required metadata by profile; never sole auth |
 
-mTLS is pending owner decision. `X-Internal-Token` only current compatibility. Errors use stable redacted envelope with correlation ID.
+mTLS is pending owner decision (`OD-V1-07`). `X-Internal-Token` only current compatibility.
+
+**IVR ingress scopes (đề xuất, chờ `OD-V1-07`):** `ivr.task.write` (Sales → `POST /tasks`), `ivr.internal.write` (IVR worker/adapter → internal lifecycle endpoints), `ivr.admin.read`, `ivr.admin.write`. `bearerAuth` hiện là `type: http, scheme: bearer` nên **không thể mang scope**; khi Security/Platform chốt `OD-V1-07`, chuyển sang `oauth2`/`clientCredentials` (như `serviceJwt` trong `order-core-ivr-callback.target-v1.yaml`) hoặc công bố claim mang scope, rồi gắn scope cho từng operation. Tới lúc đó, negative test scope chạy trên mock issuer và **không** được coi là đã xác thực production. Errors use stable redacted envelope with correlation ID.
 
 ## Compatibility/change
 

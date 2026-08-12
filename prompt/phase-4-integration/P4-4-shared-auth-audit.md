@@ -25,3 +25,8 @@ Valid token; wrong issuer/audience/scope/signature; expired/not-yet-valid; JWKS 
 ## 4. Forbidden
 
 No `X-Source-System`/`X-Internal-Token` as Target authentication, no direct Ops/CRM service credentials, no secret in source/log/evidence, no claim real auth from mock JWT.
+
+## 5. Definition of Done
+- [ ] Mock JWT suite (issuer/audience/scope/expiry/nbf/alg/kid/JWKS-failure) xanh → **`TESTS_PASS`** (mock-only).
+- [ ] Production auth profile vẫn `BLOCKED_EXTERNAL` (`W-0006`/`OD-V1-07`); **không** suy ra từ mock.
+- [ ] Cập nhật Work ID `W-0032` với artifacts/commands/evidence/residual gate; chỉ reviewer/owner chuyển `ACCEPTED`.

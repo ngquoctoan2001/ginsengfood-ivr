@@ -8,7 +8,8 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p06` · Nguồn: `phase-8/02 §11`, `
 | **RESTRICTED** | raw phone thật; `dial_token`→số | **KHÔNG** (token→số chỉ ở SIM adapter vault) | KHÔNG | KHÔNG |
 | **SENSITIVE** | `phone_masked`, `official_contact_id`, `customer_ref`, `risk_flags`, `call_restriction` | ref/masked | chỉ `phone_masked` | KHÔNG |
 | **INTERNAL** | order refs, `order_state`, program, result, evidence refs | có | có (masked view) | KHÔNG |
-| **PUBLIC-SAFE** | `order_code_short`, `total_amount_display`, (opt) `customer_name_short`, `program_name` | có | có | ✅ ALLOWED |
+| **PUBLIC-SAFE (current, narrow)** | `order_code_short`, `total_amount_display`, (opt) `customer_name_short`, `program_name` | có | có | ✅ ALLOWED |
+| **PUBLIC-SAFE (Target V1 proposal)** | thêm `items[].public_name`, `items[].quantity`, `delivery_area_short` (không bắt đầu bằng chữ số, không chứa `x/y`; đơn vị hành chính có số vẫn hợp lệ) | có | có | ⏳ `OD-V1-15` — **OWNER_DECISION_REQUIRED** (Product + Privacy/Legal). Fixture MOCK được dùng bộ này; **không** đóng gate production. |
 
 ## 2. Quy tắc P0 (phase-8/02 §11, /08)
 - ✅ Chỉ dùng `phone_ref`/`phone_masked`/`dial_token` để gọi; **cấm** raw phone trong log/UI/DB IVR (D-05; P0-IVR-007). `dial_token` TTL ≤ confirmation window, one-use/attempt; mapping token→số thật **nằm ở SIM adapter/token vault**, không ở IVR.

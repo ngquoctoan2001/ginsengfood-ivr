@@ -1,6 +1,8 @@
 # IVR Prompt Library — Master Index
 
-Trạng thái: `READY_FOR_IMPLEMENTATION_WITH_MOCKS` · Cập nhật: `2026-08-12`.
+Trạng thái: `READY_FOR_IMPLEMENTATION_WITH_MOCKS_AFTER_BASELINE_FREEZE` · Cập nhật: `2026-08-12` (sau remediation W-0062).
+
+> Điều kiện còn lại trước W-0010: owner freeze/commit baseline tài liệu (xem `_execution/defaults-and-confirmations.md` §Must-decide gates). Hosted CI evidence phụ thuộc `W-0061`/`G-GITLAB`.
 
 Đọc theo thứ tự: [Governance](README-governance.md) → [Runbook](RUNBOOK-execute-prompts.md) → [Target V1](../plan/ivr-orther/target-contract-v1-draft.md) → [Defaults](./_execution/defaults-and-confirmations.md) → [Canonical tracker](./_execution/prompt-execution-tracker.md).
 
@@ -25,7 +27,7 @@ Every prompt must update the Work ID assigned in the canonical tracker before/du
 | ID | Prompt | Target V1 addition |
 | --- | --- | --- |
 | P0-1 | [repo/solution bootstrap](phase-0-foundation/P0-1-repo-and-solution-bootstrap.md) | standalone .NET repo; fake providers |
-| P0-2 | [CI quality gates](phase-0-foundation/P0-2-ci-baseline-quality-gates.md) | two OpenAPI drift/lint; tracker/evidence checks |
+| P0-2 | [GitLab CI quality gates](phase-0-foundation/P0-2-ci-baseline-quality-gates.md) | root `.gitlab-ci.yml`; MR/default-branch gates; OpenAPI drift + tracker/evidence checks |
 | P0-3 | [cross-cutting foundation](phase-0-foundation/P0-3-crosscutting-foundation.md) | mock JWT, PII guards, idempotency/correlation |
 | P0-4 | [flags/config](phase-0-foundation/P0-4-feature-flag-config-platform.md) | MOCK/LAB/PROD modes, provider flags, kill switches |
 
@@ -37,6 +39,7 @@ Every prompt must update the Work ID assigned in the canonical tracker before/du
 | P1-2 | [Postgres migrations](phase-1-contracts-data/P1-2-database-migrations-postgres.md) | policy/speech/dial token snapshots; no exact D-10 checks |
 | P1-3 | [domain/DTO mapping](phase-1-contracts-data/P1-3-domain-model-dto-mapping.md) | program matrix, policy registry, speech/privacy providers |
 | P1-4 | [API docs portal](phase-1-contracts-data/P1-4-api-docs-developer-portal.md) | clear CURRENT_COMPAT vs TARGET_DRAFT |
+| P1-5 | [retention job / data lifecycle](phase-1-contracts-data/P1-5-retention-job-data-lifecycle.md) | `IRetentionJob` mà P7-2/P9-2/P10-1/P10-2 phụ thuộc (W-0064) |
 
 ## Phase 2 — Core runtime in MOCK
 
@@ -48,7 +51,9 @@ Every prompt must update the Work ID assigned in the canonical tracker before/du
 | P2-4 | [mock SIM adapter](phase-2-core-runtime/P2-4-sim-adapter-mock.md) | speech render, fake dial-token resolver, deterministic calls |
 | P2-5 | [DTMF normalizer](phase-2-core-runtime/P2-5-dtmf-normalizer.md) | candidate mapping until real lab |
 | P2-6 | [Sales callback](phase-2-core-runtime/P2-6-order-core-callback.md) | generic semantic ACK/outbox + GH compat |
-| P2-7 | [script/content](phase-2-core-runtime/P2-7-script-content-management.md) | items/qty/total/short area; privacy approval |
+| P2-7 | [script/content](phase-2-core-runtime/P2-7-script-content-management.md) | items/qty/total/short area; privacy approval; **chạy TRƯỚC P2-1** (registry để intake fail-closed) |
+| P2-8 | [internal & admin API](phase-2-core-runtime/P2-8-internal-admin-api.md) | 13 operation IVR-owned chưa có prompt (W-0065) |
+| P2-9 | [speech/TTS provider](phase-2-core-runtime/P2-9-speech-tts-provider.md) | port + fake + adapter skeleton; prereq của P8-1 (W-0066) |
 
 ## Phase 3 — Next.js admin
 
@@ -98,4 +103,4 @@ P5 must test both programs, speech/PII, policy versions, three modes, target ACK
 | P10 | [privacy](phase-10-compliance-maturity/P10-1-pdpa-privacy-compliance.md), [data/DR](phase-10-compliance-maturity/P10-2-data-governance-backup-dr.md), [capacity/cost](phase-10-compliance-maturity/P10-3-capacity-cost-sim-sizing.md), [analytics](phase-10-compliance-maturity/P10-4-analytics-bi-pipeline.md), [SLA/on-call](phase-10-compliance-maturity/P10-5-sla-error-budget-oncall.md) |
 | P11 | [telephony closure](phase-11-production-closure/P11-1-telephony-procurement-rfq-lab-acceptance.md), [Sales/auth contract closure](phase-11-production-closure/P11-2-cross-team-contract-closure-pack.md), [legal/sign-off](phase-11-production-closure/P11-3-legal-retention-df03-signoff-pack.md), [readiness command center](phase-11-production-closure/P11-4-production-readiness-command-center.md) |
 
-There are 51 prompts. “All prompts authored” means the library exists; it does not mean implementation, external integration, lab or production is complete.
+There are **54 prompts** (51 gốc + P1-5, P2-8, P2-9 thêm ở W-0062). “All prompts authored” means the library exists; it does not mean implementation, external integration, lab or production is complete.

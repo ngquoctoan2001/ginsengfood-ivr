@@ -4,6 +4,7 @@
 | | |
 | --- | --- |
 | **ID** | `P6-2` · **Phase** 6 — Observability & Reliability |
+| **Work ID** | `W-0041` (canonical tracker §5) |
 | **Prereq** | `P6-1` |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | Grafana/Prometheus (env) · Alertmanager |

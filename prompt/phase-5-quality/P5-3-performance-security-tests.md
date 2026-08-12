@@ -4,7 +4,8 @@
 | | |
 | --- | --- |
 | **ID** | `P5-3` · **Phase** 5 — Quality Engineering |
-| **Prereq** | `P2-*`, `P4-*` |
+| **Work ID** | `W-0037` (canonical tracker §5) |
+| **Prereq** | `P2-1`..`P2-9`, `P4-2`, `P4-3` (KHÔNG gồm `P4-1`/`P4-4` đang BLOCKED_EXTERNAL, `P4-5`/`P4-6` DEFERRED) |
 | **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
 | **Stack** | .NET 10 · k6/NBomber · security tooling |
 

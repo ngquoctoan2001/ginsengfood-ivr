@@ -2,7 +2,7 @@
 
 Gom câu hỏi cần xác nhận. Mỗi câu: câu hỏi · vì sao cần · ai trả lời · ảnh hưởng nếu chưa trả lời · có thể giả định tạm không.
 
-> ✅ **Cập nhật 2026-07-02 — Module 3 & 3.1 đã trả lời** (xem [decisions-log.md](decisions-log.md) D-01..D-14).
+> ✅ **Cập nhật 2026-07-02 — Module 3 & 3.1 đã trả lời** (xem [decisions-log.md](../decisions-log.md) D-01..D-14).
 > **ĐÃ KHÓA:** Q-B1→D-08 · Q-F1→D-01 · Q-S1→D-02 · Q-S2→D-03 · Q-S3→D-05 · Q-O1(phần Core)→D-06 · Q-F3→D-12 · Q-D2→D-14 · (+ Q4/Q7/Q9/Q11/Q13→D-04/07/09/11/13).
 > **✅ Ops-Core cũng đã trả lời (DO-01..DO-09):** blocker = sellable gate; Q-O1 phần Ops → DO-01; QO4 event → DO-04.
 > **🆕 PHÁT SINH (P0):** **Q-C1** — do-not-call/opt-out là **CRM/business-platform** (không phải ops, theo DO-CORR-2) → cần hỏi Module 3.1 (CRM).

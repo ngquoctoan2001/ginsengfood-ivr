@@ -17,6 +17,7 @@
 | `TV1-09` | Hiện test bằng 1 SIM thật + allowlist; tương lai target 32 eSIM channels, cấu hình động. | `OWNER_DIRECTION` |
 | `TV1-10` | Ba mode bắt buộc: `MOCK`, `LAB_REAL_SIM`, `PRODUCTION_REAL`. | `ACCEPTED_FOR_IMPLEMENTATION` |
 | `TV1-11` | Dev dùng mock JWT; production target short-lived service JWT, mTLS chờ Security/Platform quyết định. | `TARGET_DRAFT` |
+| `TV1-12` | CI provider là GitLab CI; entrypoint `.gitlab-ci.yml`, Merge Request pipeline và GitLab merge/protected-branch gates. Không dùng GitHub Actions cho IVR. | `OWNER_CONFIRMED` |
 
 Nguồn chi tiết và tiêu chí closure: [target-contract-v1-draft.md](target-contract-v1-draft.md).
 
@@ -153,4 +154,4 @@ Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Teleph
 | **DTS-04** | **Deploy = Docker + Kubernetes** (Helm). Thành phần: `ivr-api` (intake/callback), `ivr-worker` (scheduler/dispatch/SIM), `ivr-admin-ui`. | **HPA** scale worker theo SIM concurrency; secrets qua K8s Secret/Vault; NetworkPolicy; retention job = CronJob. Governance ladder → env promotion (DF-03). |
 | **DTS-05** | **Quan sát & CI/CD:** OpenTelemetry (log/metric/trace), health `/health/live|ready|startup` (fail-closed 503, khớp DO-06), pipeline build→test→scan→push→deploy staged. | `REAL_CUSTOMER_CALL_ALLOWED=NO` map thành env gate; chỉ prod-gate mới bật SIM `REAL`. |
 
-**ASSUMPTION cần owner xác nhận khi vào Phase 1/7 (không chặn bắt đầu):** ORM cụ thể (EF Core vs Dapper) · message/outbox lib · CI provider (GitHub Actions vs GitLab CI vs Azure DevOps) · secret store (K8s Secret vs HashiCorp Vault vs cloud KMS) · container registry. Prompt viết **tham số hóa** các điểm này, default hợp lý + đánh dấu `NEED_CONFIRMATION`.
+**Đã xác nhận 2026-08-12:** ORM/migration = EF Core; outbox = PostgreSQL-backed; CI provider = GitLab CI, không dùng GitHub Actions. **Còn cần owner/platform xác nhận trước phase liên quan:** secret store (K8s Secret vs HashiCorp Vault vs cloud KMS), container registry và GitLab Runner/Kubernetes credentials. Không được biến các mục còn mở thành production evidence.

@@ -29,13 +29,13 @@ Legacy `24_7` chỉ được normalize tại `CURRENT_COMPAT` boundary. Bất k�
 
 ## 3. Target task fields
 
-Required: `contract_version`, `task_id`, `order_id`, `order_code`, `order_version`, `program_code`, `payment_method_snapshot`, `ivr_confirmation_required`, `confirmation_window_started_at`, `confirmation_window_expires_at`, `attempt_policy_version`, `max_customer_attempts`, `attempt_offsets_seconds`, `phone_ref`, `phone_masked`, `dial_token`, `dial_token_expires_at`, `privacy_safe_order_summary`, `call_restriction`, `eligibility_snapshot`, `evidence_ref`.
+Required: `contract_version`, `task_id`, `order_id`, `order_code`, `order_version`, `order_state`, `program_code`, `payment_method_snapshot`, `ivr_confirmation_required`, `confirmation_window_started_at`, `confirmation_window_expires_at`, `attempt_policy_version`, `max_customer_attempts`, `attempt_offsets_seconds`, `phone_ref`, `phone_masked`, `dial_token`, `dial_token_expires_at`, `privacy_safe_order_summary`, `call_restriction`, `eligibility_snapshot`, `evidence_ref`.
 
 Headers required: `Authorization`, `Idempotency-Key`, `X-Correlation-Id`.
 
 ## 4. Speech payload privacy
 
-- `delivery_area_short` tuyệt đối không phải full address.
+- `delivery_area_short` tuyệt đối không phải full address. **Ràng buộc kiểm được bằng máy:** không bắt đầu bằng chữ số, không chứa dạng `x/y` (số nhà). Đơn vị hành chính có số vẫn hợp lệ (`"Quận 7"`, `"Phường 12"`). Chuỗi không số nhưng vẫn là địa chỉ đường phố sẽ bị IVR chặn ở tầng semantic (`IVR_PII_POLICY_VIOLATION`).
 - `items[].public_name` phải là tên công khai phù hợp để đọc; Sales chịu trách nhiệm normalize.
 - Có limit/collapse policy khi đơn nhiều dòng; IVR không âm thầm bỏ tổng tiền hay đổi nghĩa đơn.
 - Fake fixtures phải có: 1 item, nhiều item/collapse, Unicode/tên khó đọc, total lớn, thiếu field, PII violation.

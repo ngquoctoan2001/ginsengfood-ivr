@@ -21,3 +21,13 @@ Produce actionable procurement/vendor artifacts in two stages: acquire/enable on
 W-0008 closes lab portion only after P8 evidence; production portion closes only after 32 eSIM procurement and measured capacity/failover. Do not infer 32-channel readiness from simulator or one-SIM results.
 
 Update canonical tracker throughout; vendor follow-ups are unplanned Work IDs in sequence.
+
+## 5. Forbidden
+- ❌ Chọn vendor thay owner/procurement.
+- ❌ Đóng `W-0008`/`G-LAB-SIM`/`G-ESIM32` bằng RFQ hay báo giá; chỉ artifact thật mới đóng.
+- ❌ Ghi số SIM pilot mặc định (12/24/32) như đã chốt khi chưa có throughput đo thật.
+
+## 6. Definition of Done
+- [ ] RFQ/checklist bao phủ: protocol/SDK, DTMF mode, codec/format, disposition mapping, concurrency/channel, health API, caller ID, secret provisioning, CDR, **TTS/audio capability (`OD-V1-19`)**.
+- [ ] Mỗi mục có owner + due + closure artifact định nghĩa rõ.
+- [ ] Trạng thái giữ `BLOCKED_EXTERNAL` cho tới khi vendor phản hồi; đạt tối đa `EVIDENCE_SUBMITTED` cho phần tài liệu.
