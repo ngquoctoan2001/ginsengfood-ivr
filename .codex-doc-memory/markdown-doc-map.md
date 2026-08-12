@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-12T13:40:36.409Z
+Generated: 2026-08-12T14:30:32.258Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 396
+- Markdown files: 397
 - Links resolved: 369
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 31
+- Orphan candidates: 32
 
 ## High Link Documents
 
@@ -86,6 +86,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0012/README.md
 - docs/evidence/W-0013/README.md
 - docs/evidence/W-0014/README.md
+- docs/evidence/W-0015/README.md
 - plan/ivr-orther/_archive/01-reading-inventory.md
 - plan/ivr-orther/_archive/08-target-specs-structure-proposal.md
 - prompt/_review/phase-0-11-spec-alignment-review.md
@@ -115,7 +116,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | admin-ui/README.md | IVR Admin UI | 1/2 | 0 | 0 | 0 | 90 |
 | AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
 | CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
-| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 789 |
+| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 834 |
 | docs/contracts/openapi-codegen.md | OpenAPI Code Generation and Contract Drift Policy | 1/6 | 0 | 0 | 0 | 429 |
 | docs/contracts/openapi-contract-diff.md | OpenAPI Contract Baseline and Human-Readable Diff | 1/5 | 0 | 0 | 0 | 383 |
 | docs/documents/0. appendices/01-OPERATIONAL-FORMS.md | OPERATIONAL FORMS | 1/16 | 1 | 0 | 0 | 3384 |
@@ -301,6 +302,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0012/README.md | W-0012 — P0-3 Cross-Cutting Foundation Evidence | 1/8 | 0 | 0 | 0 | 1061 |
 | docs/evidence/W-0013/README.md | W-0013 — P0-4 Feature-Flag Platform Evidence | 1/7 | 0 | 0 | 0 | 1242 |
 | docs/evidence/W-0014/README.md | W-0014 — P1-1 OpenAPI Codegen and Contract Scaffold Evidence | 1/8 | 0 | 0 | 0 | 1030 |
+| docs/evidence/W-0015/README.md | W-0015 / P1-2 PostgreSQL persistence evidence | 1/7 | 0 | 0 | 0 | 702 |
 | integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/4 | 0 | 5 | 0 | 224 |
 | integration-requirements/01-sales-platform-requirements.md | IR-01 — Sales Platform / Order Core Requirements | 1/8 | 1 | 0 | 0 | 692 |
 | integration-requirements/02-ops-core-requirements.md | IR-02 — Ops-Core Requirements (Module 1/2) | 1/3 | 1 | 0 | 0 | 457 |
@@ -348,7 +350,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 6425 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 6890 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
@@ -459,7 +461,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/database/03-enums-and-status.md | DB-03 — Enums and Status | 1/1 | 1 | 0 | 0 | 117 |
 | specs/database/04-indexes.md | DB-04 — Indexes & Constraints | 1/6 | 1 | 0 | 0 | 933 |
 | specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 1/5 | 1 | 1 | 0 | 242 |
-| specs/database/06-migration-plan.md | DB-06 — Migration Plan | 1/7 | 2 | 0 | 0 | 364 |
+| specs/database/06-migration-plan.md | DB-06 — Migration Plan | 1/7 | 2 | 0 | 0 | 384 |
 | specs/functional/00-index.md | Functional SRS — Index | 1/4 | 0 | 8 | 0 | 379 |
 | specs/functional/01-task-intake.md | FR — Task Intake | 1/3 | 1 | 0 | 0 | 282 |
 | specs/functional/02-eligibility-and-blockers.md | FR — Eligibility and Blockers | 1/1 | 1 | 0 | 0 | 169 |

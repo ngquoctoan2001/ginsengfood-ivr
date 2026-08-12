@@ -11,6 +11,8 @@ public sealed class FeatureFlagEntity
 
     public bool Enabled { get; set; }
 
+    public long Revision { get; set; }
+
     public string ValueJson { get; set; } = string.Empty;
 
     public string UpdatedBy { get; set; } = string.Empty;
@@ -30,11 +32,13 @@ public sealed class FeatureFlagEntityConfiguration : IEntityTypeConfiguration<Fe
         builder.Property(entity => entity.Key).HasColumnName("key").HasMaxLength(80);
         builder.Property(entity => entity.Environment).HasColumnName("env").HasMaxLength(24);
         builder.Property(entity => entity.Enabled).HasColumnName("enabled");
+        builder.Property(entity => entity.Revision).HasColumnName("revision");
         builder.Property(entity => entity.ValueJson).HasColumnName("value_json").HasColumnType("jsonb");
         builder.Property(entity => entity.UpdatedBy).HasColumnName("updated_by").HasMaxLength(128);
         builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
         builder.Property(entity => entity.Reason).HasColumnName("reason").HasMaxLength(500);
         builder.HasIndex(entity => new { entity.Key, entity.Environment }).IsUnique();
+        builder.HasIndex(entity => new { entity.Environment, entity.Revision });
         builder.HasData(FeatureFlagSeedData.All());
     }
 }

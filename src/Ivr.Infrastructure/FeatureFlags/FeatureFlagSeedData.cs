@@ -56,6 +56,7 @@ internal static class FeatureFlagSeedData
             Key = key,
             Environment = environment,
             Enabled = enabled,
+            Revision = 0,
             ValueJson = JsonSerializer.Serialize(value),
             UpdatedBy = "bootstrap",
             UpdatedAt = DateTimeOffset.UnixEpoch,

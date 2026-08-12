@@ -3,6 +3,9 @@ using Ivr.Infrastructure.Correlation;
 using Ivr.Infrastructure.Evidence;
 using Ivr.Infrastructure.Idempotency;
 using Ivr.Infrastructure.Persistence;
+using Ivr.Infrastructure.Persistence.Channels;
+using Ivr.Infrastructure.Persistence.Outbox;
+using Ivr.Infrastructure.Persistence.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -81,12 +84,28 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IEvidenceStore>(
                 provider => provider.GetRequiredService<InMemoryEvidenceStore>());
         }
+        else
+        {
+            services.TryAddSingleton<PostgresIdempotencyStore>();
+            services.TryAddSingleton<IIdempotencyStore>(
+                provider => provider.GetRequiredService<PostgresIdempotencyStore>());
+            services.TryAddSingleton<PostgresAuditLogger>();
+            services.TryAddSingleton<IAuditLogger>(
+                provider => provider.GetRequiredService<PostgresAuditLogger>());
+            services.TryAddSingleton<PostgresEvidenceStore>();
+            services.TryAddSingleton<IEvidenceStore>(
+                provider => provider.GetRequiredService<PostgresEvidenceStore>());
+        }
 
-        services.AddDbContext<IvrDbContext>((serviceProvider, dbContextOptions) =>
+        services.AddDbContextFactory<IvrDbContext>((serviceProvider, dbContextOptions) =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<IvrOptions>>().Value;
             dbContextOptions.UseNpgsql(options.ConnectionString);
         });
+        services.TryAddSingleton<FeatureFlagPersistenceSession>();
+        services.TryAddSingleton<IOpaqueValueProtector, UnavailableOpaqueValueProtector>();
+        services.TryAddSingleton<ICallbackOutboxRepository, CallbackOutboxRepository>();
+        services.TryAddSingleton<ISimChannelLeaseRepository, SimChannelLeaseRepository>();
 
         return services;
     }

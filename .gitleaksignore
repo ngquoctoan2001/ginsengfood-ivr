@@ -6,3 +6,14 @@ prompt/phase-8-sim-pilot/P8-1-real-sim-adapter.md:generic-api-key:16
 specs/api/08-external-api-needs.md:generic-api-key:19
 # Immutable historical documentation false positive from commit ab7de4d.
 ab7de4d59eb04eb9f172385a1ffa4d25023064e5:prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:generic-api-key:75
+# Reviewed EF feature-flag seed false positives.
+src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:158
+src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:257
+src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:356
+src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:455
+src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:554
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:155
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:254
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:353
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:452
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:551

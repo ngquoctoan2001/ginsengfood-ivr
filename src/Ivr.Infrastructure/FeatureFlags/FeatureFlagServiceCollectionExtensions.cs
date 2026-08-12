@@ -2,6 +2,7 @@ using Ivr.Infrastructure.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Ivr.Infrastructure.Persistence;
 
 namespace Ivr.Infrastructure.FeatureFlags;
 
@@ -35,9 +36,9 @@ public static class FeatureFlagServiceCollectionExtensions
         {
             services.TryAddSingleton<IFeatureFlagStore, PostgresFeatureFlagStore>();
             services.TryAddSingleton<IFeatureFlagCommandIdempotency,
-                UnavailableFeatureFlagCommandIdempotency>();
+                PostgresFeatureFlagCommandIdempotency>();
             services.TryAddSingleton<IRuntimeSafetyHealth,
-                PendingRuntimeSafetyHealth>();
+                PostgresRuntimeSafetyHealth>();
         }
 
         services.TryAddSingleton<FeatureFlagPlatform>();

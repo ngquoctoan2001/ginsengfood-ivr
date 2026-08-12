@@ -60,8 +60,15 @@ openapi_lint:
 build_test_dotnet:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:10.0.201
+  services:
+    - name: docker:29.6.2-dind
+      alias: docker
   extends: .dotnet_cache
   allow_failure: false
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    TESTCONTAINERS_HOST_OVERRIDE: "docker"
   script:
     - dotnet restore Ivr.sln --locked-mode
     - dotnet build Ivr.sln --configuration Release --no-restore

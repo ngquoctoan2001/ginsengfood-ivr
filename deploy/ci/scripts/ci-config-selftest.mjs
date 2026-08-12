@@ -64,6 +64,20 @@ for (const jobName of ["build_test_dotnet", "lint_dotnet", "security_scan"]) {
   );
 }
 
+const dotnetTestServices = jobs.build_test_dotnet.services ?? [];
+assert(
+  dotnetTestServices.length === 1 &&
+    dotnetTestServices[0].name === "docker:29.6.2-dind" &&
+    dotnetTestServices[0].alias === "docker",
+  "build_test_dotnet must use the pinned Docker-in-Docker service for Testcontainers.",
+);
+assert(
+  jobs.build_test_dotnet.variables?.DOCKER_HOST === "tcp://docker:2375" &&
+    jobs.build_test_dotnet.variables?.DOCKER_TLS_CERTDIR === "" &&
+    jobs.build_test_dotnet.variables?.TESTCONTAINERS_HOST_OVERRIDE === "docker",
+  "build_test_dotnet Testcontainers variables are incomplete.",
+);
+
 const includes = (rootCi.include ?? []).map((entry) =>
   typeof entry === "string" ? entry : entry.local,
 );
@@ -221,6 +235,7 @@ process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate preventio
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");
 process.stdout.write("SDK_IMAGE_PIN_PASS — .NET jobs match global.json\n");
+process.stdout.write("TESTCONTAINERS_DIND_PASS — PostgreSQL tests have a pinned Docker service\n");
 process.stdout.write("OPENAPI_CODEGEN_GATE_PASS — hashes, report and generated code enforced\n");
 process.stdout.write("CI_CONFIG_SELFTEST_PASS\n");
 

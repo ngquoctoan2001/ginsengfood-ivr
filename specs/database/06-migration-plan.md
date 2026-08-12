@@ -14,7 +14,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §12; D
 1. `ivr_confirmation_tasks` (+ CHECK D-10) → 2. `ivr_call_jobs` → 3. `ivr_call_attempts` → 4. `ivr_raw_call_event` → 5. `ivr_call_results` → 6. `ivr_result_callbacks` → 7. `ivr_sim_channels` → 8. `ivr_capacity_incidents` → 9. `ivr_technical_exceptions` → 10. `ivr_admin_actions` → 11. `ivr_evidence_links`.
 
 ## 3. Điểm khác biệt cần chú ý khi hiện thực (so với phase-8/12 gốc)
-- ⚠️ **CHECK 24/7 `max_attempts`**: gốc phase-8/12 = 3 → **đổi thành 2** (D-10). Golden Hour window gốc 600 → **300** (D-10). Nếu tái dùng migration cũ, **phải sửa constraint**.
+- ⚠️ **Không khóa candidate D-10 vào schema**: lịch sử phase-8/12 có 24/7 = 3 attempt và Golden Hour = 600 giây; candidate `mock-lab-v1` hiện dùng dữ liệu versioned riêng cho MOCK/LAB. Migration chỉ enforce bounds `1..10`, cardinality/order/window bằng application/trigger phù hợp và tuyệt đối không có CHECK exact `2/300/150/900/450`.
 - ➕ Thêm bảng `ivr_raw_call_event` (OD-DR-03).
 - ➕ Thêm cột `sellable_status_json` + `sellable_captured_at`, `t0_at`, `attempt_spacing_seconds`, `order_state`, `payment_method_snapshot`, `is_ivr_callable`(nullable/derived), `call_restriction`(nullable), `adapter_mode`.
 - Target V1 requires `order_version_seen_by_ivr`; current-compat data, if retained, stays in explicit compatibility columns/table and never weakens target validation. Store HTTP + semantic ACK separately.

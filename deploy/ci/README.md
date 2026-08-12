@@ -23,7 +23,7 @@ The .NET jobs pin `mcr.microsoft.com/dotnet/sdk:10.0.201` to the SDK selected by
 | --- | --- |
 | `ci_config_selftest` | workflow routing, local-fragment reachability, artifact topology, no active GitHub Actions |
 | `openapi_lint` | Redocly lint, OpenAPI 3.1 parse/local refs, Target/current fixture schema validation, pinned contract drift |
-| `build_test_dotnet` | locked restore, warnings-as-errors build, xUnit/JUnit/Cobertura, aggregate line coverage ≥ 60% |
+| `build_test_dotnet` | locked restore, warnings-as-errors build, xUnit/JUnit/Cobertura, PostgreSQL Testcontainers migration/concurrency tests, aggregate line coverage ≥ 60% |
 | `lint_dotnet` | locked restore, pinned NSwag regeneration/drift check, analyzers, `dotnet format --verify-no-changes` |
 | `build_lint_ui` | lockfile-based `npm ci`, ESLint, optional UI test script, production build |
 | `security_scan` | NuGet High/Critical policy, npm High/Critical policy, checksum-verified Gitleaks 8.30.0 |
@@ -37,6 +37,11 @@ by P5.
 NuGet and npm scans fail for High/Critical vulnerabilities. Lower severities
 remain visible for triage. Gitleaks is a separate secret scanner and does not
 replace the PII job.
+
+`build_test_dotnet` uses the pinned `docker:29.6.2-dind` service so the P1-2
+PostgreSQL Testcontainers suite cannot be skipped in hosted CI. The GitLab
+Runner must allow privileged service containers and service DNS alias `docker`;
+runner identity/capability proof remains part of external work item W-0061.
 
 `.gitleaksignore` contains four line-specific false-positive fingerprints from
 documentation prose. No complete source file is exempted; moving or changing a
