@@ -13,13 +13,20 @@ public sealed class MockPermissionAuthenticationHandler(
 {
     public const string SchemeName = "IvrMockPermissions";
     public const string HeaderName = "X-Permissions";
+    public const string ActorHeaderName = "X-Mock-Actor-Id";
+    public const string DestinationRefHeaderName = "X-Mock-Destination-Ref";
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        List<Claim> claims =
-        [
-            new(ClaimTypes.NameIdentifier, "mock-permission-caller"),
-        ];
+        string actorId = Request.Headers[ActorHeaderName].FirstOrDefault()
+            ?? "mock-permission-caller";
+        List<Claim> claims = [new(ClaimTypes.NameIdentifier, actorId)];
+
+        string? destinationRef = Request.Headers[DestinationRefHeaderName].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(destinationRef))
+        {
+            claims.Add(new Claim(FeatureFlagClaims.DestinationRef, destinationRef));
+        }
 
         string[] requestedPermissions = Request.Headers[HeaderName]
             .SelectMany(value => (value ?? string.Empty).Split(

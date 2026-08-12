@@ -3,8 +3,9 @@
 [![GitLab pipeline](https://img.shields.io/badge/GitLab_pipeline-NOT_RUN-lightgrey)](deploy/ci/README.md#gitlab-project-settings--hosted-evidence)
 
 Standalone .NET 10 service for IVR order confirmation. The foundation includes
-health probes, cross-cutting security and traceability primitives, an empty
-worker, an empty EF Core PostgreSQL context, and a Next.js admin placeholder.
+health probes, cross-cutting security and traceability primitives, typed
+feature flags with fail-closed kill switches, an empty worker, an EF Core
+feature-flag model, and a Next.js admin placeholder.
 It contains no order-confirmation business logic and does not connect to the
 Java sales platform, a SIM, or a customer.
 
@@ -49,10 +50,13 @@ Ivr.Worker -----------------+
 ```
 
 - `Ivr.Api`: health probes plus reusable correlation, stable error envelope,
-  permission enforcement, and the Order Core service allowlist.
+  permission enforcement, the Order Core service allowlist, and the feature-
+  flag read/admin endpoints.
 - `Ivr.Worker`: mock heartbeat every 30 seconds.
 - `Ivr.Infrastructure`: in-memory MOCK idempotency, append-only audit and
-  evidence stores; the empty `IvrDbContext` receives migrations in P1-2.
+  evidence stores; typed dynamic config, audited feature-flag mutations,
+  centralized dispatch/kill gates, and the `ivr_feature_flags` EF model. P1-2
+  still owns the physical migration and persistent command transaction.
 - `Ivr.Domain`: stable error catalog and PII masking/guard primitives.
 - `Ivr.Contracts`: reserved for the P1-1 generated OpenAPI client and DTOs.
 - `admin-ui`: strict TypeScript App Router placeholder; authentication begins

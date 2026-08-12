@@ -9,6 +9,10 @@ public sealed class IvrOptions
 
     public const string MockExecutionMode = "MOCK";
 
+    public const string LabRealSimExecutionMode = "LAB_REAL_SIM";
+
+    public const string ProductionRealExecutionMode = "PRODUCTION_REAL";
+
     public string ExecutionMode { get; set; } = "MOCK";
 
     public string SalesProvider { get; set; } = "FAKE_TARGET_V1";

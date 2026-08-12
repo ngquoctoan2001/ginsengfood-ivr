@@ -8,8 +8,8 @@ public sealed class IvrOptionsValidator : IValidateOptions<IvrOptions>
         new(StringComparer.OrdinalIgnoreCase)
         {
             IvrOptions.MockExecutionMode,
-            "LAB",
-            "PRODUCTION_REAL",
+            IvrOptions.LabRealSimExecutionMode,
+            IvrOptions.ProductionRealExecutionMode,
         };
 
     public ValidateOptionsResult Validate(string? name, IvrOptions options)
@@ -20,7 +20,8 @@ public sealed class IvrOptionsValidator : IValidateOptions<IvrOptions>
 
         if (!SupportedExecutionModes.Contains(options.ExecutionMode))
         {
-            failures.Add("IVR_EXECUTION_MODE must be MOCK, LAB, or PRODUCTION_REAL.");
+            failures.Add(
+                "IVR_EXECUTION_MODE must be MOCK, LAB_REAL_SIM, or PRODUCTION_REAL.");
         }
 
         Require(options.SalesProvider, "SALES_PROVIDER", failures);

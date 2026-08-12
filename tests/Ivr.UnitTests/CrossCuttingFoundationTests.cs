@@ -160,6 +160,16 @@ public sealed class CrossCuttingFoundationTests
         CorrelationContext correlationContext = new();
         Assert.Throws<InvalidOperationException>(
             () => correlationContext.Push("0912341234"));
+
+        for (int index = 0; index < 1000; index++)
+        {
+            string generatedCorrelationId = CorrelationIdGenerator.Create();
+            Assert.True(PiiGuard.IsSafeText(generatedCorrelationId));
+            Assert.StartsWith("corr-", generatedCorrelationId, StringComparison.Ordinal);
+            Assert.All(
+                generatedCorrelationId[5..].Split('-'),
+                segment => Assert.Equal(4, segment.Length));
+        }
     }
 
     [Fact]

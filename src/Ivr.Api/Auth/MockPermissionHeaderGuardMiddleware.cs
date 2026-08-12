@@ -21,8 +21,7 @@ public sealed class MockPermissionHeaderGuardMiddleware(RequestDelegate next)
             IvrOptions.MockExecutionMode,
             StringComparison.OrdinalIgnoreCase);
 
-        if (!isMock && context.Request.Headers.ContainsKey(
-                MockPermissionAuthenticationHandler.HeaderName))
+        if (!isMock && HasMockHeader(context.Request.Headers))
         {
             await errorWriter.WriteAsync(context, IvrErrors.ForbiddenCaller());
             return;
@@ -30,4 +29,9 @@ public sealed class MockPermissionHeaderGuardMiddleware(RequestDelegate next)
 
         await next(context);
     }
+
+    private static bool HasMockHeader(IHeaderDictionary headers) =>
+        headers.ContainsKey(MockPermissionAuthenticationHandler.HeaderName)
+        || headers.ContainsKey(MockPermissionAuthenticationHandler.ActorHeaderName)
+        || headers.ContainsKey(MockPermissionAuthenticationHandler.DestinationRefHeaderName);
 }

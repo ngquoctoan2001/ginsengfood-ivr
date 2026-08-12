@@ -225,6 +225,46 @@ paths:
       responses:
         '200': { description: OK }
         '403': { $ref: '#/components/responses/Error' }
+  /feature-flags/{environment}:
+    get:
+      tags: [admin]
+      summary: Read a fresh typed feature-flag snapshot (perm IVR_FLAG_READ)
+      operationId: getFeatureFlags
+      parameters:
+        - $ref: '#/components/parameters/FeatureFlagEnvironment'
+        - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200': { description: Fresh snapshot, content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagReadResult' } } } }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+    post:
+      tags: [admin]
+      summary: Atomically mutate runtime controls (perm IVR_RUNTIME_GATE_ADMIN; OD-V1-20 pending)
+      operationId: mutateFeatureFlags
+      parameters:
+        - $ref: '#/components/parameters/FeatureFlagEnvironment'
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagMutationRequest' } } }
+      responses:
+        '200': { description: Audited mutation and verified revision, content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagMutationResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /feature-flags/{environment}/kill-switch:
+    get:
+      tags: [admin]
+      summary: Verify effective kill-switch state (perm IVR_FLAG_READ)
+      operationId: verifyFeatureFlagKillSwitch
+      parameters:
+        - $ref: '#/components/parameters/FeatureFlagEnvironment'
+        - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200': { description: Effective fail-closed state, content: { application/json: { schema: { $ref: '#/components/schemas/KillSwitchVerification' } } } }
+        '403': { $ref: '#/components/responses/Error' }
 components:
   securitySchemes:
     bearerAuth:
@@ -252,6 +292,11 @@ components:
       in: header
       required: true
       schema: { type: string, enum: [sales-platform, order-core] }
+    FeatureFlagEnvironment:
+      name: environment
+      in: path
+      required: true
+      schema: { type: string, enum: [dev, staging, lab, pilot, prod] }
   responses:
     Error:
       description: Error envelope
@@ -684,3 +729,88 @@ components:
         technical_retry_allowed: { type: boolean }
         target_attempt_id: { type: string }
         reason: { type: string }
+    FeatureFlagSnapshot:
+      type: object
+      additionalProperties: false
+      required:
+        - environment
+        - revision
+        - executionMode
+        - salesProvider
+        - simProvider
+        - attemptPolicyVersion
+        - realCustomerCallAllowed
+        - labDestinationAllowlist
+        - globalDialKillSwitch
+        - v1NotificationEnabled
+        - recordingEnabled
+      properties:
+        environment: { type: string, enum: [dev, staging, lab, pilot, prod] }
+        revision: { type: integer, format: int64, minimum: 0 }
+        executionMode: { type: string, enum: [MOCK, LAB_REAL_SIM, PRODUCTION_REAL] }
+        salesProvider: { type: string, enum: [FAKE_TARGET_V1, CURRENT_GOLDEN_HOUR_COMPAT, TARGET_V1] }
+        simProvider: { type: string, enum: [MOCK, VENDOR] }
+        attemptPolicyVersion: { type: string }
+        realCustomerCallAllowed: { type: boolean }
+        labDestinationAllowlist:
+          type: array
+          uniqueItems: true
+          items: { type: string }
+        globalDialKillSwitch: { type: boolean }
+        v1NotificationEnabled: { type: boolean, enum: [false] }
+        recordingEnabled: { type: boolean, enum: [false] }
+    FeatureFlagReadResult:
+      type: object
+      additionalProperties: false
+      required: [snapshot, providerReadable, fromCache]
+      properties:
+        snapshot: { $ref: '#/components/schemas/FeatureFlagSnapshot' }
+        providerReadable: { type: boolean }
+        fromCache: { type: boolean }
+    FeatureFlagChangeSet:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        executionMode: { type: string, enum: [MOCK, LAB_REAL_SIM, PRODUCTION_REAL] }
+        salesProvider: { type: string, enum: [FAKE_TARGET_V1, CURRENT_GOLDEN_HOUR_COMPAT, TARGET_V1] }
+        simProvider: { type: string, enum: [MOCK, VENDOR] }
+        attemptPolicyVersion: { type: string }
+        realCustomerCallAllowed: { type: boolean }
+        labDestinationAllowlist:
+          type: array
+          uniqueItems: true
+          items: { type: string }
+        globalDialKillSwitch: { type: boolean }
+        v1NotificationEnabled: { type: boolean }
+        recordingEnabled: { type: boolean }
+    FeatureFlagMutationRequest:
+      type: object
+      additionalProperties: false
+      required: [changes, reason]
+      properties:
+        changes: { $ref: '#/components/schemas/FeatureFlagChangeSet' }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        approvalReference:
+          type: string
+          description: Opaque reference verified server-side; never a client-supplied approver identity.
+    FeatureFlagMutationResult:
+      type: object
+      additionalProperties: false
+      required: [snapshot, increasedRiskKeys]
+      properties:
+        snapshot: { $ref: '#/components/schemas/FeatureFlagSnapshot' }
+        approvedBy: { type: [string, 'null'] }
+        increasedRiskKeys:
+          type: array
+          uniqueItems: true
+          items: { type: string }
+    KillSwitchVerification:
+      type: object
+      additionalProperties: false
+      required: [providerReadable, revision, globalDialKillSwitch, realCallsEnabled]
+      properties:
+        providerReadable: { type: boolean }
+        revision: { type: integer, format: int64, minimum: 0 }
+        globalDialKillSwitch: { type: boolean }
+        realCallsEnabled: { type: boolean }

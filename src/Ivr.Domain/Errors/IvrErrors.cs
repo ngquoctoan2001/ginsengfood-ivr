@@ -20,6 +20,15 @@ public static class IvrErrors
             IvrErrorCodes.IdempotencyConflict,
             "The idempotency key was already used with a different payload.");
 
+    public static IvrFailureException PolicyMismatch(string safeMessage) =>
+        new(IvrErrorCodes.PolicyMismatch, safeMessage);
+
+    public static IvrFailureException OperationalBlocked(string safeMessage) =>
+        new(IvrErrorCodes.OperationalBlocked, safeMessage);
+
+    public static IvrFailureException NotFound(string safeMessage) =>
+        new(IvrErrorCodes.NotFound, safeMessage);
+
     public static IvrFailureException InternalError() =>
         new(IvrErrorCodes.InternalError, "An internal error occurred.");
 }

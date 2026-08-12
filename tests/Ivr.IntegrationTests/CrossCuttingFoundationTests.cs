@@ -78,15 +78,17 @@ public sealed class CrossCuttingFoundationTests
     public async Task MockPermissionHeaderIsRejectedOutsideMockAndCannotBeRegistered()
     {
         await using FoundationApiTestApplication application =
-            await FoundationApiTestApplication.StartAsync("LAB");
+            await FoundationApiTestApplication.StartAsync(Ivr.Infrastructure.Configuration.IvrOptions.LabRealSimExecutionMode);
         using HttpRequestMessage request = new(HttpMethod.Get, "/correlation-outbound");
         request.Headers.Add("X-Permissions", IvrPermissions.QueuePause);
+        request.Headers.Add("X-Mock-Actor-Id", "actor-1");
+        request.Headers.Add("X-Mock-Destination-Ref", "destination-ref-1");
 
         using HttpResponseMessage response = await application.Client.SendAsync(request);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 
         using ConfigurationManager configuration = new();
-        configuration["IVR_EXECUTION_MODE"] = "LAB";
+        configuration["IVR_EXECUTION_MODE"] = Ivr.Infrastructure.Configuration.IvrOptions.LabRealSimExecutionMode;
         configuration[IvrApiServiceCollectionExtensions.RegisterMockPermissionProviderKey] = "true";
         ServiceCollection services = new();
         Assert.Throws<InvalidOperationException>(

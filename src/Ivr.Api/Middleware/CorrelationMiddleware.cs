@@ -16,7 +16,7 @@ public sealed class CorrelationMiddleware(RequestDelegate next, ILogger<Correlat
             .ToString();
         string correlationId = IsValid(inbound)
             ? inbound
-            : Guid.NewGuid().ToString("N");
+            : CorrelationIdGenerator.Create();
 
         context.TraceIdentifier = correlationId;
         context.Response.Headers[CorrelationPropagationHandler.HeaderName] = correlationId;

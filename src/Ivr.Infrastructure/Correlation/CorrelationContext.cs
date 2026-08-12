@@ -15,7 +15,7 @@ public sealed class CorrelationContext : ICorrelationContext
             return CorrelationId;
         }
 
-        string generated = Guid.NewGuid().ToString("N");
+        string generated = CorrelationIdGenerator.Create();
         Current.Value = new Holder(generated);
         return generated;
     }

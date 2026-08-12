@@ -13,6 +13,9 @@ Base path `/v1/ivr/order-confirmation/*`. Admin RBAC server-side; mọi POST có
 | `/sim-channels/{simChannelId}:enable` | POST | `IVR_SIM_ENABLE` | `IvrAdminAction` | Enable SIM sau health pass |
 | `/technical-retries` | POST | `IVR_MANUAL_RETRY` | `IvrTechnicalException` | Request technical retry (không tăng customer attempt) |
 | `/admin-reviews` | POST | `IVR_RESULT_REVIEW` | `IvrAdminAction` | Ghi review/annotation |
+| `/feature-flags/{environment}` | GET | `IVR_FLAG_READ` | `FeatureFlagReadResult` | Đọc fresh typed snapshot; provider lỗi trả fail-closed |
+| `/feature-flags/{environment}/kill-switch` | GET | `IVR_FLAG_READ` | `KillSwitchVerification` | Xác minh revision và trạng thái kill switch effective |
+| `/feature-flags/{environment}` | POST | `IVR_RUNTIME_GATE_ADMIN` *(OD-V1-20 pending)* | `FeatureFlagMutationRequest` | Mutation atomic, reason, idempotency, audit và four-eyes theo chiều rủi ro |
 
 ## 2. Ràng buộc admin action (P0)
 Mỗi POST phải có: authenticated actor (`X-Actor-Id`), permission server-side, `reason`, `target_type`+`target_id`, audit record, evidence ref nếu ảnh hưởng queue/SIM/retry/result, `no_policy_bypass=true`.
@@ -31,7 +34,7 @@ Admin **KHÔNG** được:
 - Dev dùng mock channels; lab ban đầu có 1 SIM thật và destination allowlist; production target 32 eSIM channels. Channel count là config. UI/API phải hiển thị mode/provider và không được bật real call permission chỉ vì channel được enable.
 
 ## Báo cáo (admin)
-- **7 endpoint admin** (1 GET + 6 POST), mỗi cái map 1 permission `IVR_*` (DF-01). Không endpoint nào cho phép force order/bypass blocker.
+- **10 endpoint admin** (3 GET + 7 POST), mỗi cái map 1 permission `IVR_*`. Ba endpoint feature-flag do P0-4 bổ sung; quyền mutation `IVR_RUNTIME_GATE_ADMIN` vẫn fail-closed cho tới khi OD-V1-20 được owner phê duyệt. Không endpoint nào cho phép force order/bypass blocker.
 
 ## Runtime-gate controls — bất đối xứng theo chiều an toàn
 
