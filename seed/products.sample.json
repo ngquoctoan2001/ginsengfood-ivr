@@ -1,0 +1,10 @@
+{
+  "_layer": "sim-ops",
+  "_note": "SKU/batch public name (ops). Không expose supplier/cost/QC.",
+  "products": [
+    { "sku_id": "SKU-A1", "public_name": "Chao Sam Savigin - Vi Ga", "batches": ["BAT-2026-0001"] },
+    { "sku_id": "SKU-B2", "public_name": "Chao Sam Savigin - Vi Bo", "batches": ["BAT-2026-0007"] },
+    { "sku_id": "SKU-C9", "public_name": "Chao Sam Savigin - Combo", "batches": ["BAT-2026-0009"] },
+    { "sku_id": "SKU-A5", "public_name": "Chao Sam Savigin - Vi Ca", "batches": ["BAT-2026-0005"] }
+  ]
+}

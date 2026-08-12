@@ -1,0 +1,28 @@
+{
+  "_layer": "ivr-owned",
+  "_note": "Admin/ops actor + permission (DF-01). Enforce server-side; mọi action có reason+audit.",
+  "agents": [
+    {
+      "actor_id": "AGT-VIEWER-01",
+      "role": "OpsViewer",
+      "permissions": ["IVR_QUEUE_VIEW"],
+      "can": ["xem queue/call-job (masked)"],
+      "cannot": ["pause/resume", "force order", "xem raw phone"]
+    },
+    {
+      "actor_id": "AGT-OPS-01",
+      "role": "Ops",
+      "permissions": ["IVR_QUEUE_VIEW", "IVR_MANUAL_RETRY", "IVR_SIM_DISABLE"],
+      "can": ["technical retry (không count customer attempt)", "disable SIM khi health fail"],
+      "cannot": ["bypass blocker", "vượt max attempt"]
+    },
+    {
+      "actor_id": "AGT-ADMIN-01",
+      "role": "AdminIM",
+      "permissions": ["IVR_QUEUE_VIEW", "IVR_QUEUE_PAUSE", "IVR_QUEUE_RESUME", "IVR_SIM_ENABLE", "IVR_SIM_DISABLE", "IVR_RESULT_REVIEW"],
+      "can": ["pause/resume queue (reason+evidence)", "enable SIM sau health pass", "review result"],
+      "cannot": ["force confirm/cancel order (D-02)", "reset attempt count", "resume khi incident chưa xử lý"]
+    }
+  ],
+  "_p0": "Không role nào được force order state hay bypass P0 blocker (no_policy_bypass=true)."
+}

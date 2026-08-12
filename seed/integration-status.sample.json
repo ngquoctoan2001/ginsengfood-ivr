@@ -1,0 +1,75 @@
+{
+  "_layer": "ivr-owned",
+  "_note": "Bật/tắt dependency để test fail-closed (D-06/DO-06). Mỗi profile = 1 tình huống.",
+  "profiles": [
+    {
+      "id": "STATUS-all-up",
+      "order_core": "up",
+      "ops_sellable_gate": "up",
+      "sim_gateway": "mock_up",
+      "crm_do_not_call": "up",
+      "evidence_registry": "up",
+      "expected": "luồng bình thường (dry-run/mock)"
+    },
+    {
+      "id": "STATUS-order-core-down",
+      "order_core": "down",
+      "ops_sellable_gate": "up",
+      "sim_gateway": "mock_up",
+      "crm_do_not_call": "up",
+      "evidence_registry": "up",
+      "expected": "không tạo task mới; callback retry bounded / admin review (phase-8/02 §10)",
+      "smoke_ref": "fail-safe order-core-down"
+    },
+    {
+      "id": "STATUS-ops-down",
+      "order_core": "up",
+      "ops_sellable_gate": "down",
+      "sim_gateway": "mock_up",
+      "crm_do_not_call": "up",
+      "evidence_registry": "up",
+      "expected": "revalidate blocker fail -> fail-closed: không dispatch / Core block (DO-06)",
+      "smoke_ref": "fail-safe ops-down"
+    },
+    {
+      "id": "STATUS-ops-ready-503",
+      "order_core": "up",
+      "ops_sellable_gate": "ready_503",
+      "sim_gateway": "mock_up",
+      "crm_do_not_call": "up",
+      "evidence_registry": "up",
+      "expected": "/health/ready=503 -> coi như không xác thực được blocker -> fail-closed (DO-06)",
+      "smoke_ref": "fail-safe ops-ready-503"
+    },
+    {
+      "id": "STATUS-crm-down",
+      "order_core": "up",
+      "ops_sellable_gate": "up",
+      "sim_gateway": "mock_up",
+      "crm_do_not_call": "down",
+      "evidence_registry": "up",
+      "expected": "không xác định opt-out -> không dispatch (DC-01 fail-closed)",
+      "smoke_ref": "fail-safe crm-do-not-call-down"
+    },
+    {
+      "id": "STATUS-evidence-down",
+      "order_core": "up",
+      "ops_sellable_gate": "up",
+      "sim_gateway": "mock_up",
+      "crm_do_not_call": "up",
+      "evidence_registry": "down",
+      "expected": "không final-callback nếu thiếu evidence -> hold/review",
+      "smoke_ref": "fail-safe evidence-down"
+    },
+    {
+      "id": "STATUS-sim-down",
+      "order_core": "up",
+      "ops_sellable_gate": "up",
+      "sim_gateway": "down",
+      "crm_do_not_call": "up",
+      "evidence_registry": "up",
+      "expected": "IVR_TECHNICAL_EXCEPTION (không no-answer, P0-IVR-004)",
+      "smoke_ref": "fail-safe sim-down"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "_layer": "ivr-owned",
+  "_note": "Call script + DTMF. CALL_PURPOSE=ORDER_CONFIRMATION_ONLY. KEY_9 NOT_ENABLED (AS-07).",
+  "scripts": [
+    {
+      "call_script_template_id": "SCRIPT-ORDER-CONFIRM",
+      "call_script_version": "v1",
+      "call_purpose": "ORDER_CONFIRMATION_ONLY",
+      "text_template": "Ginsengfood kinh chao Minh. Ginsengfood cam on Minh da chon Chao Sam Savigin. Don hang {{order_code_short}} cua Minh co tong thanh toan {{total_amount_display}}. De xac nhan tiep tuc xu ly don hang, Minh vui long bam phim 1. Neu Minh khong dat hoac muon huy don nay, Minh vui long bam phim 0. Ginsengfood tran trong cam on a.",
+      "allowed_variables": ["order_code_short", "total_amount_display", "customer_name_short", "program_name"],
+      "prohibited_variables": ["FULL_ADDRESS", "MEMBER_TIER", "DIAMOND_REFERRAL_INFO", "PAYMENT_DETAIL", "ORDER_HISTORY", "AI_CONSULTATION_CONTENT", "CRM_CONTENT", "HEALTH_OR_SENSITIVE_NOTE"]
+    }
+  ],
+  "dtmf_keys": [
+    { "key": "1", "meaning": "Xac nhan don", "action": "IVR_CONFIRMED" },
+    { "key": "0", "meaning": "Khong dat / huy", "action": "IVR_CUSTOMER_CANCELLED" },
+    { "key": "none", "meaning": "Khong bam", "action": "no-answer theo attempt/window" },
+    { "key": "invalid", "meaning": "Sai phim", "action": "IVR_WRONG_INPUT" },
+    { "key": "9", "meaning": "Human support", "action": "NOT_ENABLED", "_note": "KEY_9 chua bat (AS-07)" }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "_layer": "ivr-owned",
+  "_note": "Kịch bản cho MOCK SIM adapter: raw_call_status theo attempt -> result mong đợi (DT-02). smoke_ref map phase-8/09 (IVR-SMK) / docx (M8-P0).",
+  "scenarios": [
+    {
+      "id": "SCN-001-confirm",
+      "task_ref": "TASK-0001",
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "answered", "raw_dtmf": "1" }],
+      "expected_result_type": "IVR_CONFIRMED",
+      "expected_counted": true,
+      "expected_core_response": "CALLBACK_ACCEPTED_FOR_REVALIDATION",
+      "smoke_ref": "M8-P0-004 / IVR-SMK-confirm"
+    },
+    {
+      "id": "SCN-002-cancel",
+      "task_ref": "TASK-0002",
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "answered", "raw_dtmf": "0" }],
+      "expected_result_type": "IVR_CUSTOMER_CANCELLED",
+      "expected_counted": true,
+      "expected_core_response": "CALLBACK_ACCEPTED_FOR_REVALIDATION",
+      "smoke_ref": "M8-P0-005 / IVR-SMK-cancel"
+    },
+    {
+      "id": "SCN-003-no-answer-final",
+      "task_ref": "TASK-0002",
+      "attempts": [
+        { "attempt_number": 1, "raw_call_status": "ring_timeout", "raw_dtmf": null },
+        { "attempt_number": 2, "raw_call_status": "ring_timeout", "raw_dtmf": null }
+      ],
+      "expected_result_type": "IVR_NO_ANSWER_FINAL",
+      "expected_counted": true,
+      "expected_core_response": "CALLBACK_ACCEPTED_FOR_REVALIDATION",
+      "smoke_ref": "M8-P0-006 (24-7: A2@T0+7:30, expire T0+15:00)"
+    },
+    {
+      "id": "SCN-004-busy-then-confirm",
+      "task_ref": "TASK-0001",
+      "attempts": [
+        { "attempt_number": 1, "raw_call_status": "busy", "raw_dtmf": null },
+        { "attempt_number": 2, "raw_call_status": "answered", "raw_dtmf": "1" }
+      ],
+      "expected_result_type": "IVR_CONFIRMED",
+      "expected_counted": true,
+      "_note": "busy = NO_ANSWER (counted), không technical (DT-02)",
+      "smoke_ref": "IVR-SMK-disposition-busy"
+    },
+    {
+      "id": "SCN-005-invalid-phone",
+      "task_ref": "TASK-0007",
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "unreachable", "raw_dtmf": null }],
+      "expected_result_type": "IVR_INVALID_PHONE_FINAL",
+      "expected_counted": false,
+      "_note": "unreachable/sai số -> INVALID_PHONE_FINAL, KHÔNG no-answer (DT-02)",
+      "smoke_ref": "M8-P0 invalid-phone"
+    },
+    {
+      "id": "SCN-006-technical-exception",
+      "task_ref": "TASK-0001",
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "sim_error", "raw_dtmf": null }],
+      "expected_result_type": "IVR_TECHNICAL_EXCEPTION",
+      "expected_counted": false,
+      "_note": "SIM error -> TECHNICAL, không tính no-answer (P0-IVR-004)",
+      "smoke_ref": "M8-P0-007"
+    },
+    {
+      "id": "SCN-007-window-expired",
+      "task_ref": "TASK-0001",
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "ring_timeout", "raw_dtmf": null }],
+      "window_behavior": "expire_before_attempt2",
+      "expected_result_type": "IVR_CONFIRMATION_WINDOW_EXPIRED",
+      "expected_counted": true,
+      "smoke_ref": "IVR-SMK-window-expired"
+    },
+    {
+      "id": "SCN-008-operational-block-recall",
+      "task_ref": "TASK-0006",
+      "attempts": [],
+      "expected_intake_decision": "TASK_BLOCKED_OPERATIONAL",
+      "expected_result_type": "IVR_OPERATIONAL_BLOCKED",
+      "_note": "RECALL trong snapshot -> block pre-dispatch",
+      "smoke_ref": "M8-P0-008"
+    },
+    {
+      "id": "SCN-009-race-recall-after-key1",
+      "task_ref": "TASK-0001",
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "answered", "raw_dtmf": "1" }],
+      "core_revalidate_injects": { "recall_hold": true },
+      "expected_result_type": "IVR_CONFIRMED",
+      "expected_core_response": "CALLBACK_BLOCKED_BY_CORE",
+      "_note": "khách bấm 1 nhưng recall xuất hiện lúc revalidate -> Core block, KHÔNG confirm (D-06)",
+      "smoke_ref": "IVR-SMK-race / phase-8/07 P0-007"
+    },
+    {
+      "id": "SCN-010-trusted-skip",
+      "task_ref": "TASK-0009",
+      "attempts": [],
+      "expected_intake_decision": "TASK_SKIPPED_TRUSTED_CUSTOMER",
+      "_note": "CUST-002 trusted + trusted_skip_allowed + no risk/blocker (D-12)",
+      "smoke_ref": "IVR-SMK-trusted-skip"
+    },
+    {
+      "id": "SCN-011-duplicate-callback",
+      "task_ref": "TASK-0001",
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "answered", "raw_dtmf": "1" }],
+      "duplicate_callback": true,
+      "expected_behavior": "idempotent_return_previous_ack",
+      "smoke_ref": "M8-P0-010"
+    },
+    {
+      "id": "SCN-012-opt-out-block",
+      "task_ref": "TASK-0008",
+      "attempts": [],
+      "expected_intake_decision": "TASK_BLOCKED_OPERATIONAL",
+      "_note": "call_restriction=true (CRM opt-out, DC-01 mock source) -> block dispatch",
+      "smoke_ref": "IVR-SMK-do-not-call"
+    },
+    {
+      "id": "SCN-013-not-official-order",
+      "task_ref": "TASK-0010",
+      "attempts": [],
+      "expected_intake_decision": "TASK_REJECTED_NOT_OFFICIAL_ORDER",
+      "expected_http": 422,
+      "expected_code": "IVR_NOT_OFFICIAL_ORDER",
+      "smoke_ref": "M8-P0-001"
+    },
+    {
+      "id": "SCN-014-needs-support-key9",
+      "task_ref": "TASK-0001",
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "answered", "raw_dtmf": "9" }],
+      "expected_result_type": "IVR_WRONG_INPUT",
+      "_note": "KEY_9 NOT_ENABLED giai đoạn đầu -> WRONG_INPUT (không phải support handoff)",
+      "smoke_ref": "IVR-SMK-key9-not-enabled"
+    },
+    {
+      "id": "SCN-015-capacity-incident",
+      "task_ref": "TASK-0001",
+      "bulk_jobs": 800,
+      "sim_count": 32,
+      "window_seconds": 300,
+      "expected_behavior": "open_capacity_incident_no_batch",
+      "smoke_ref": "M8-P0-009"
+    }
+  ]
+}

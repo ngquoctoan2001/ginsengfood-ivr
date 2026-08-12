@@ -1,0 +1,3463 @@
+{
+  "generatedAt": "2026-06-05T08:30:35.927Z",
+  "root": "C:\\Projects\\ginsengfood-ops-core\\ginsengfood-contracts\\docs\\documents\\4. phase\\phase-4",
+  "files": [
+    {
+      "path": "00-PHÂN TÍCH HIỆN TRẠNG.md",
+      "title": "P4 - PHÂN TÍCH HIỆN TRẠNG",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4 - PHÂN TÍCH HIỆN TRẠNG",
+          "line": 1,
+          "slug": "p4---phân-tích-hiện-trạng"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 27,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 31,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 35,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4 - AI ADVISOR RUNTIME / CUSTOMER MEMORY / PRODUCT CONSULTATION / QUOTE ORDER CONSUMER / SAFETY WORDING ANALYSIS HANDOFF",
+          "line": 37,
+          "slug": "prompt-p4---ai-advisor-runtime-customer-memory-product-consultation-quote-order-consumer-safety-wording-analysis-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "1. Phase marker",
+          "line": 47,
+          "slug": "1-phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "2. Cảnh báo nhận thức kỹ thuật",
+          "line": 59,
+          "slug": "2-cảnh-báo-nhận-thức-kỹ-thuật"
+        },
+        {
+          "depth": 2,
+          "text": "3. Quan điểm khóa",
+          "line": 65,
+          "slug": "3-quan-điểm-khóa"
+        },
+        {
+          "depth": 2,
+          "text": "4. Phạm vi phải phân tích",
+          "line": 73,
+          "slug": "4-phạm-vi-phải-phân-tích"
+        },
+        {
+          "depth": 2,
+          "text": "5. Câu hỏi phân tích bắt buộc",
+          "line": 92,
+          "slug": "5-câu-hỏi-phân-tích-bắt-buộc"
+        },
+        {
+          "depth": 2,
+          "text": "6. Output report 14 mục bắt buộc",
+          "line": 109,
+          "slug": "6-output-report-14-mục-bắt-buộc"
+        },
+        {
+          "depth": 2,
+          "text": "7. Done condition",
+          "line": 128,
+          "slug": "7-done-condition"
+        },
+        {
+          "depth": 1,
+          "text": "P4 - PHÂN TÍCH HIỆN TRẠNG",
+          "line": 145,
+          "slug": "p4---phân-tích-hiện-trạng"
+        },
+        {
+          "depth": 2,
+          "text": "Khóa nguồn bắt buộc",
+          "line": 147,
+          "slug": "khóa-nguồn-bắt-buộc"
+        }
+      ],
+      "links": [],
+      "lines": 150,
+      "words": 1607,
+      "encodingNameAnomaly": true,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "01-THIẾT KẾ KỸ THUẬT.md",
+      "title": "P4.1 - TECHNICAL DESIGN ONLY",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4.1 - TECHNICAL DESIGN ONLY",
+          "line": 1,
+          "slug": "p41---technical-design-only"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 27,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 31,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 35,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-1 - AI ADVISOR RUNTIME TECHNICAL DESIGN HANDOFF",
+          "line": 37,
+          "slug": "prompt-p4-1---ai-advisor-runtime-technical-design-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "1. PHASE MARKER",
+          "line": 39,
+          "slug": "1-phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "2. HEADER",
+          "line": 57,
+          "slug": "2-header"
+        },
+        {
+          "depth": 2,
+          "text": "3. MODE",
+          "line": 63,
+          "slug": "3-mode"
+        },
+        {
+          "depth": 2,
+          "text": "4. SOURCE-OF-TRUTH",
+          "line": 67,
+          "slug": "4-source-of-truth"
+        },
+        {
+          "depth": 2,
+          "text": "5. ENTRY CONDITION",
+          "line": 83,
+          "slug": "5-entry-condition"
+        },
+        {
+          "depth": 2,
+          "text": "6. OBJECTIVE",
+          "line": 97,
+          "slug": "6-objective"
+        },
+        {
+          "depth": 2,
+          "text": "7. SCOPE IN",
+          "line": 113,
+          "slug": "7-scope-in"
+        },
+        {
+          "depth": 2,
+          "text": "8. SCOPE OUT",
+          "line": 133,
+          "slug": "8-scope-out"
+        },
+        {
+          "depth": 2,
+          "text": "9. DESIGN PRINCIPLES",
+          "line": 149,
+          "slug": "9-design-principles"
+        },
+        {
+          "depth": 2,
+          "text": "10. TARGET ARCHITECTURE OVERVIEW",
+          "line": 167,
+          "slug": "10-target-architecture-overview"
+        },
+        {
+          "depth": 2,
+          "text": "11. COMPONENT RESPONSIBILITY MATRIX",
+          "line": 187,
+          "slug": "11-component-responsibility-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "12. RUNTIME CONSUMER CONTRACT",
+          "line": 211,
+          "slug": "12-runtime-consumer-contract"
+        },
+        {
+          "depth": 2,
+          "text": "12.1. Contract envelope",
+          "line": 215,
+          "slug": "121-contract-envelope"
+        },
+        {
+          "depth": 2,
+          "text": "12.2. Customer context contract",
+          "line": 233,
+          "slug": "122-customer-context-contract"
+        },
+        {
+          "depth": 2,
+          "text": "12.3. Product public data contract",
+          "line": 249,
+          "slug": "123-product-public-data-contract"
+        },
+        {
+          "depth": 2,
+          "text": "12.4. Sellable and suppression contract",
+          "line": 267,
+          "slug": "124-sellable-and-suppression-contract"
+        },
+        {
+          "depth": 2,
+          "text": "12.5. QuoteSnapshot contract",
+          "line": 279,
+          "slug": "125-quotesnapshot-contract"
+        },
+        {
+          "depth": 2,
+          "text": "12.6. Order draft / confirmation / official order contract",
+          "line": 299,
+          "slug": "126-order-draft-confirmation-official-order-contract"
+        },
+        {
+          "depth": 2,
+          "text": "13. KHONG SELF-COMPUTE ENFORCEMENT MATRIX",
+          "line": 313,
+          "slug": "13-khong-self-compute-enforcement-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "14. DATA FLOW DESIGN",
+          "line": 333,
+          "slug": "14-data-flow-design"
+        },
+        {
+          "depth": 2,
+          "text": "14.1. Flow tư vấn sản phẩm",
+          "line": 335,
+          "slug": "141-flow-tư-vấn-sản-phẩm"
+        },
+        {
+          "depth": 2,
+          "text": "1. Channel gửi message/event vào AI Message Intake cùng channel_context và correlation_id.",
+          "line": 337,
+          "slug": "1-channel-gửi-messageevent-vào-ai-message-intake-cùng-channelcontext-và-correlationid"
+        },
+        {
+          "depth": 2,
+          "text": "2. AI chuẩn hóa intent, nhu cầu, product mention, risk mention và context nhận diện khách.",
+          "line": 339,
+          "slug": "2-ai-chuẩn-hóa-intent-nhu-cầu-product-mention-risk-mention-và-context-nhận-diện-khách"
+        },
+        {
+          "depth": 2,
+          "text": "3. Customer Memory Resolver trả customer_context public-safe, member tier nếu runtime xác nhận, complaint/opt-out/dietary flags nếu có.",
+          "line": 341,
+          "slug": "3-customer-memory-resolver-trả-customercontext-public-safe-member-tier-nếu-runtime-xác-nhận-complaintopt-outdietary-flags-nếu-có"
+        },
+        {
+          "depth": 2,
+          "text": "4. Product Knowledge Resolver trả product_public_data theo public view policy.",
+          "line": 343,
+          "slug": "4-product-knowledge-resolver-trả-productpublicdata-theo-public-view-policy"
+        },
+        {
+          "depth": 2,
+          "text": "5. Sellable Runtime Consumer kiểm tra sellable/suppression theo SKU/kênh/khách.",
+          "line": 345,
+          "slug": "5-sellable-runtime-consumer-kiểm-tra-sellablesuppression-theo-skukênhkhách"
+        },
+        {
+          "depth": 2,
+          "text": "6. Consultation Orchestrator chọn câu trả lời phù hợp: tư vấn, đề xuất thay thế, hỏi mở rộng tối thiểu, handoff hoặc dừng bán.",
+          "line": 347,
+          "slug": "6-consultation-orchestrator-chọn-câu-trả-lời-phù-hợp-tư-vấn-đề-xuất-thay-thế-hỏi-mở-rộng-tối-thiểu-handoff-hoặc-dừng-bán"
+        },
+        {
+          "depth": 2,
+          "text": "7. Safety/Public Wording Guard kiểm tra claim, data leakage, public/private scope và tone trước khi trả lời.",
+          "line": 349,
+          "slug": "7-safetypublic-wording-guard-kiểm-tra-claim-data-leakage-publicprivate-scope-và-tone-trước-khi-trả-lời"
+        },
+        {
+          "depth": 2,
+          "text": "8. AI Audit/Evidence Logger ghi quyết định ở mức cần thiết cho QA/replay.",
+          "line": 351,
+          "slug": "8-ai-auditevidence-logger-ghi-quyết-định-ở-mức-cần-thiết-cho-qareplay"
+        },
+        {
+          "depth": 2,
+          "text": "14.2. Flow báo giá và chốt đơn",
+          "line": 353,
+          "slug": "142-flow-báo-giá-và-chốt-đơn"
+        },
+        {
+          "depth": 2,
+          "text": "1. AI chỉ bắt đầu quote flow khi SKU/quantity/channel/customer context đủ và sellable_status = SELLABLE.",
+          "line": 355,
+          "slug": "1-ai-chỉ-bắt-đầu-quote-flow-khi-skuquantitychannelcustomer-context-đủ-và-sellablestatus-sellable"
+        },
+        {
+          "depth": 2,
+          "text": "2. AI gọi Commerce Runtime để tạo QuoteSnapshot.",
+          "line": 357,
+          "slug": "2-ai-gọi-commerce-runtime-để-tạo-quotesnapshot"
+        },
+        {
+          "depth": 2,
+          "text": "3. AI hiển thị giá cuối, breakdown public-safe và thời hạn giữ giá đúng snapshot.",
+          "line": 359,
+          "slug": "3-ai-hiển-thị-giá-cuối-breakdown-public-safe-và-thời-hạn-giữ-giá-đúng-snapshot"
+        },
+        {
+          "depth": 2,
+          "text": "4. Nếu khách đồng ý, AI yêu cầu/hiển thị Order Draft payload từ Commerce Runtime.",
+          "line": 361,
+          "slug": "4-nếu-khách-đồng-ý-ai-yêu-cầuhiển-thị-order-draft-payload-từ-commerce-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "5. Khách kiểm tra thông tin và bấm CTA \"Xác nhận đơn\" hoặc xác nhận hợp lệ theo kênh text-only.",
+          "line": 363,
+          "slug": "5-khách-kiểm-tra-thông-tin-và-bấm-cta-xác-nhận-đơn-hoặc-xác-nhận-hợp-lệ-theo-kênh-text-only"
+        },
+        {
+          "depth": 2,
+          "text": "6. AI gửi Customer Confirmation event về Commerce Runtime.",
+          "line": 365,
+          "slug": "6-ai-gửi-customer-confirmation-event-về-commerce-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "7. AI chỉ nói đơn chính thức khi Commerce Runtime trả order_code.",
+          "line": 367,
+          "slug": "7-ai-chỉ-nói-đơn-chính-thức-khi-commerce-runtime-trả-ordercode"
+        },
+        {
+          "depth": 2,
+          "text": "8. AI không nói paid cho đến khi Payment Core public-safe state xác nhận.",
+          "line": 369,
+          "slug": "8-ai-không-nói-paid-cho-đến-khi-payment-core-public-safe-state-xác-nhận"
+        },
+        {
+          "depth": 2,
+          "text": "14.3. Flow Live / Messenger / CRM",
+          "line": 371,
+          "slug": "143-flow-live-messenger-crm"
+        },
+        {
+          "depth": 2,
+          "text": "15. STATE COORDINATION DESIGN",
+          "line": 385,
+          "slug": "15-state-coordination-design"
+        },
+        {
+          "depth": 2,
+          "text": "16. PUBLIC / PRIVATE DATA BOUNDARY",
+          "line": 403,
+          "slug": "16-public-private-data-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "17. SAFETY / PUBLIC WORDING / CLAIM GUARD DESIGN",
+          "line": 419,
+          "slug": "17-safety-public-wording-claim-guard-design"
+        },
+        {
+          "depth": 2,
+          "text": "18. CHANNEL HANDOFF DESIGN",
+          "line": 435,
+          "slug": "18-channel-handoff-design"
+        },
+        {
+          "depth": 2,
+          "text": "19. ERROR AND FALLBACK DESIGN",
+          "line": 449,
+          "slug": "19-error-and-fallback-design"
+        },
+        {
+          "depth": 2,
+          "text": "20. SECURITY / AUDIT / IDEMPOTENCY DESIGN",
+          "line": 469,
+          "slug": "20-security-audit-idempotency-design"
+        },
+        {
+          "depth": 2,
+          "text": "21. OBSERVABILITY DESIGN",
+          "line": 487,
+          "slug": "21-observability-design"
+        },
+        {
+          "depth": 2,
+          "text": "22. TECHNICAL DESIGN MATRIX",
+          "line": 503,
+          "slug": "22-technical-design-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "23. DESIGN CONFLICT DETECTION MATRIX",
+          "line": 521,
+          "slug": "23-design-conflict-detection-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "24. REQUIRED EVIDENCE DESIGN",
+          "line": 539,
+          "slug": "24-required-evidence-design"
+        },
+        {
+          "depth": 2,
+          "text": "25. SMOKE REQUIRED",
+          "line": 561,
+          "slug": "25-smoke-required"
+        },
+        {
+          "depth": 2,
+          "text": "26. EXECUTION STEPS - TECHNICAL DESIGN ONLY",
+          "line": 593,
+          "slug": "26-execution-steps---technical-design-only"
+        },
+        {
+          "depth": 2,
+          "text": "1. Đọc báo cáo 00-PHÂN TÍCH HIỆN TRẠNG.md và xác định các module/service/file hiện có liên quan đến AI Advisor.",
+          "line": 595,
+          "slug": "1-đọc-báo-cáo-00-phân-tích-hiện-trạngmd-và-xác-định-các-moduleservicefile-hiện-có-liên-quan-đến-ai-advisor"
+        },
+        {
+          "depth": 2,
+          "text": "2. Map từng truth AI đang cần sang owner Phase 1/2/3; đánh dấu mọi chỗ AI đang tự tính là conflict.",
+          "line": 597,
+          "slug": "2-map-từng-truth-ai-đang-cần-sang-owner-phase-123-đánh-dấu-mọi-chỗ-ai-đang-tự-tính-là-conflict"
+        },
+        {
+          "depth": 2,
+          "text": "3. Thiết kế Runtime Consumer Contract ở mức field/owner/privacy/fallback, chưa viết DTO code.",
+          "line": 599,
+          "slug": "3-thiết-kế-runtime-consumer-contract-ở-mức-fieldownerprivacyfallback-chưa-viết-dto-code"
+        },
+        {
+          "depth": 2,
+          "text": "4. Thiết kế component boundary và trách nhiệm rõ cho Customer Memory, Product Knowledge, Consultation Orchestrator, Quote/Order Consumer, Safety Guard và Channel Bridge.",
+          "line": 601,
+          "slug": "4-thiết-kế-component-boundary-và-trách-nhiệm-rõ-cho-customer-memory-product-knowledge-consultation-orchestrator-quoteorder-consumer-safety-guard-và-channel-bridge"
+        },
+        {
+          "depth": 2,
+          "text": "5. Thiết kế data flow cho tư vấn, quote, order draft, customer confirmation, payment state, shipping state, CRM và handoff.",
+          "line": 603,
+          "slug": "5-thiết-kế-data-flow-cho-tư-vấn-quote-order-draft-customer-confirmation-payment-state-shipping-state-crm-và-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "6. Thiết kế fail-safe khi resolver/runtime unavailable hoặc conflict.",
+          "line": 605,
+          "slug": "6-thiết-kế-fail-safe-khi-resolverruntime-unavailable-hoặc-conflict"
+        },
+        {
+          "depth": 2,
+          "text": "7. Thiết kế audit/evidence/idempotency cho mọi side effect.",
+          "line": 607,
+          "slug": "7-thiết-kế-auditevidenceidempotency-cho-mọi-side-effect"
+        },
+        {
+          "depth": 2,
+          "text": "8. Viết technical design report 14 mục, ghi rõ điểm chặn/gap nếu có.",
+          "line": 609,
+          "slug": "8-viết-technical-design-report-14-mục-ghi-rõ-điểm-chặngap-nếu-có"
+        },
+        {
+          "depth": 2,
+          "text": "9. Không sửa code và không mở Gateway sau bước này.",
+          "line": 611,
+          "slug": "9-không-sửa-code-và-không-mở-gateway-sau-bước-này"
+        },
+        {
+          "depth": 2,
+          "text": "27. REQUIRED REPORT FORMAT - 14 MỤC",
+          "line": 613,
+          "slug": "27-required-report-format---14-mục"
+        },
+        {
+          "depth": 2,
+          "text": "28. DONE GATE",
+          "line": 641,
+          "slug": "28-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "29. FAIL GATE",
+          "line": 661,
+          "slug": "29-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "30. DOWNSTREAM HANDOFF",
+          "line": 679,
+          "slug": "30-downstream-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "31. PROMPT COPY GIAO DEV / CODEX / COPILOT",
+          "line": 697,
+          "slug": "31-prompt-copy-giao-dev-codex-copilot"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-1 - TECHNICAL DESIGN ONLY",
+          "line": 699,
+          "slug": "prompt-p4-1---technical-design-only"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE-04-AI-ADVISOR-RUNTIME",
+          "line": 701,
+          "slug": "phase-04-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "02-HỢP ĐỒNG TIÊU THỤ DỮ LIỆU THỜI GIAN CHẠY.docx",
+          "line": 703,
+          "slug": "02-hợp-đồng-tiêu-thụ-dữ-liệu-thời-gian-chạydocx"
+        }
+      ],
+      "links": [],
+      "lines": 706,
+      "words": 8379,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "02-HỢP ĐỒNG TIÊU THỤ DỮ LIỆU THỜI GIAN CHẠY.md",
+      "title": "P4.2A - RUNTIME CONSUMER CONTRACT",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4.2A - RUNTIME CONSUMER CONTRACT",
+          "line": 1,
+          "slug": "p42a---runtime-consumer-contract"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 27,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 31,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 35,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2A - AI ADVISOR RUNTIME CONSUMER CONTRACT / READ-ONLY BUSINESS TRUTH CONSUMPTION / FAIL-CLOSED BOUNDARY HANDOFF",
+          "line": 37,
+          "slug": "prompt-p4-2a---ai-advisor-runtime-consumer-contract-read-only-business-truth-consumption-fail-closed-boundary-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "1. PHASE MARKER",
+          "line": 49,
+          "slug": "1-phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE-04-AI-ADVISOR-RUNTIME / P4-2A / RUNTIME-CONSUMER-CONTRACT.",
+          "line": 51,
+          "slug": "phase-04-ai-advisor-runtime-p4-2a-runtime-consumer-contract"
+        },
+        {
+          "depth": 2,
+          "text": "2. HEADER",
+          "line": 55,
+          "slug": "2-header"
+        },
+        {
+          "depth": 2,
+          "text": "3. MODE",
+          "line": 65,
+          "slug": "3-mode"
+        },
+        {
+          "depth": 2,
+          "text": "LIMITED IMPLEMENTATION HANDOFF - RUNTIME CONSUMER CONTRACT ONLY.",
+          "line": 67,
+          "slug": "limited-implementation-handoff---runtime-consumer-contract-only"
+        },
+        {
+          "depth": 2,
+          "text": "4. SOURCE-OF-TRUTH",
+          "line": 79,
+          "slug": "4-source-of-truth"
+        },
+        {
+          "depth": 2,
+          "text": "5. ENTRY CONDITION",
+          "line": 91,
+          "slug": "5-entry-condition"
+        },
+        {
+          "depth": 2,
+          "text": "00-PHÂN TÍCH HIỆN TRẠNG.md đã được chạy hoặc ít nhất đã được developer đọc và lập current state/gap/điểm chặn report.",
+          "line": 93,
+          "slug": "00-phân-tích-hiện-trạngmd-đã-được-chạy-hoặc-ít-nhất-đã-được-developer-đọc-và-lập-current-stategapđiểm-chặn-report"
+        },
+        {
+          "depth": 2,
+          "text": "01-THIẾT KẾ KỸ THUẬT.docx đã được dùng làm thiết kế định hướng cho Phase 4.",
+          "line": 95,
+          "slug": "01-thiết-kế-kỹ-thuậtdocx-đã-được-dùng-làm-thiết-kế-định-hướng-cho-phase-4"
+        },
+        {
+          "depth": 2,
+          "text": "6. OBJECTIVE",
+          "line": 103,
+          "slug": "6-objective"
+        },
+        {
+          "depth": 2,
+          "text": "7. SCOPE IN",
+          "line": 119,
+          "slug": "7-scope-in"
+        },
+        {
+          "depth": 2,
+          "text": "8. SCOPE OUT",
+          "line": 135,
+          "slug": "8-scope-out"
+        },
+        {
+          "depth": 2,
+          "text": "9. RUNTIME CONSUMER ARCHITECTURE",
+          "line": 149,
+          "slug": "9-runtime-consumer-architecture"
+        },
+        {
+          "depth": 2,
+          "text": "10. REQUEST ENVELOPE CONTRACT",
+          "line": 167,
+          "slug": "10-request-envelope-contract"
+        },
+        {
+          "depth": 2,
+          "text": "11. RESPONSE ENVELOPE CONTRACT",
+          "line": 187,
+          "slug": "11-response-envelope-contract"
+        },
+        {
+          "depth": 2,
+          "text": "12. OWNER AND PROVIDER MATRIX",
+          "line": 211,
+          "slug": "12-owner-and-provider-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "13. CONTRACT RESOLUTION STATUS",
+          "line": 239,
+          "slug": "13-contract-resolution-status"
+        },
+        {
+          "depth": 2,
+          "text": "14. FAIL-CLOSED RULE REGISTRY",
+          "line": 255,
+          "slug": "14-fail-closed-rule-registry"
+        },
+        {
+          "depth": 2,
+          "text": "15. PUBLIC / PRIVATE FIELD BOUNDARY",
+          "line": 277,
+          "slug": "15-public-private-field-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "16. ADAPTER / RESOLVER CONTRACT LIST",
+          "line": 291,
+          "slug": "16-adapter-resolver-contract-list"
+        },
+        {
+          "depth": 2,
+          "text": "17. QUOTE AND ORDER CONSUMPTION CONTRACT",
+          "line": 315,
+          "slug": "17-quote-and-order-consumption-contract"
+        },
+        {
+          "depth": 2,
+          "text": "18. CUSTOMER MEMORY CONSUMPTION BOUNDARY",
+          "line": 333,
+          "slug": "18-customer-memory-consumption-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "19. CHANNEL CONSUMPTION BOUNDARY",
+          "line": 347,
+          "slug": "19-channel-consumption-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "20. SECURITY / AUDIT / IDEMPOTENCY REQUIREMENTS",
+          "line": 359,
+          "slug": "20-security-audit-idempotency-requirements"
+        },
+        {
+          "depth": 2,
+          "text": "21. EXECUTION STEPS",
+          "line": 371,
+          "slug": "21-execution-steps"
+        },
+        {
+          "depth": 2,
+          "text": "22. IMPLEMENTATION CHECKLIST",
+          "line": 393,
+          "slug": "22-implementation-checklist"
+        },
+        {
+          "depth": 2,
+          "text": "23. SMOKE REQUIRED",
+          "line": 419,
+          "slug": "23-smoke-required"
+        },
+        {
+          "depth": 2,
+          "text": "24. EVIDENCE REQUIRED",
+          "line": 445,
+          "slug": "24-evidence-required"
+        },
+        {
+          "depth": 2,
+          "text": "25. REQUIRED REPORT FORMAT - 14 MỤC",
+          "line": 467,
+          "slug": "25-required-report-format---14-mục"
+        },
+        {
+          "depth": 2,
+          "text": "26. DONE GATE",
+          "line": 497,
+          "slug": "26-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "27. FAIL GATE",
+          "line": 519,
+          "slug": "27-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "28. DOWNSTREAM HANDOFF",
+          "line": 543,
+          "slug": "28-downstream-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "29. PROMPT COPY GIAO DEV / CODEX / COPILOT",
+          "line": 555,
+          "slug": "29-prompt-copy-giao-dev-codex-copilot"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2A - AI ADVISOR RUNTIME CONSUMER CONTRACT / LIMITED IMPLEMENTATION HANDOFF",
+          "line": 559,
+          "slug": "prompt-p4-2a---ai-advisor-runtime-consumer-contract-limited-implementation-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "MODE: LIMITED IMPLEMENTATION - RUNTIME CONSUMER CONTRACT ONLY.",
+          "line": 561,
+          "slug": "mode-limited-implementation---runtime-consumer-contract-only"
+        },
+        {
+          "depth": 2,
+          "text": "1. Inspect codebase thật để xác định AI Advisor orchestrator, resolver, renderer, channel bridge, quote/order integration hiện có.",
+          "line": 571,
+          "slug": "1-inspect-codebase-thật-để-xác-định-ai-advisor-orchestrator-resolver-renderer-channel-bridge-quoteorder-integration-hiện-có"
+        },
+        {
+          "depth": 2,
+          "text": "2. Tìm toàn bộ nơi AI layer đang hardcode hoặc tự tính SKU/price/discount/member benefit/sellable/stock/order_code/paid/revenue.",
+          "line": 573,
+          "slug": "2-tìm-toàn-bộ-nơi-ai-layer-đang-hardcode-hoặc-tự-tính-skupricediscountmember-benefitsellablestockordercodepaidrevenue"
+        },
+        {
+          "depth": 2,
+          "text": "3. Thiết kế hoặc map RuntimeConsumerEnvelope và RuntimeResolutionEnvelope theo convention hiện có.",
+          "line": 575,
+          "slug": "3-thiết-kế-hoặc-map-runtimeconsumerenvelope-và-runtimeresolutionenvelope-theo-convention-hiện-có"
+        },
+        {
+          "depth": 2,
+          "text": "4. Triển khai hoặc chuẩn hóa adapter cho ProductPublicData, CustomerContext, CustomerMemory, SellableRuntime, QuoteSnapshot, OrderDraft, OfficialOrderState, PaymentPublicState, ShippingPublicState, Suppression, ChannelPolicy.",
+          "line": 577,
+          "slug": "4-triển-khai-hoặc-chuẩn-hóa-adapter-cho-productpublicdata-customercontext-customermemory-sellableruntime-quotesnapshot-orderdraft-officialorderstate-paymentpublicstate-shippingpublicstate-suppression-channelpolicy"
+        },
+        {
+          "depth": 2,
+          "text": "5. Áp fail-closed cho MISSING/UNKNOWN/bị chặn/CONFLICT/ERROR.",
+          "line": 579,
+          "slug": "5-áp-fail-closed-cho-missingunknownbị-chặnconflicterror"
+        },
+        {
+          "depth": 2,
+          "text": "6. Đảm bảo QuoteSnapshot là nguồn duy nhất cho final price; order_code là điều kiện duy nhất để nói Official Order; Payment Core confirmation là điều kiện duy nhất để nói Paid.",
+          "line": 581,
+          "slug": "6-đảm-bảo-quotesnapshot-là-nguồn-duy-nhất-cho-final-price-ordercode-là-điều-kiện-duy-nhất-để-nói-official-order-payment-core-confirmation-là-điều-kiện-duy-nhất-để-nói-paid"
+        },
+        {
+          "depth": 2,
+          "text": "7. Chặn public/private leak: không lộ internal SKU code, formula, cost, supplier, QC note, stock quantity, trace internal.",
+          "line": 583,
+          "slug": "7-chặn-publicprivate-leak-không-lộ-internal-sku-code-formula-cost-supplier-qc-note-stock-quantity-trace-internal"
+        },
+        {
+          "depth": 2,
+          "text": "8. Chạy smoke P4-2A-SMK-001 đến P4-2A-SMK-012.",
+          "line": 585,
+          "slug": "8-chạy-smoke-p4-2a-smk-001-đến-p4-2a-smk-012"
+        },
+        {
+          "depth": 2,
+          "text": "9. Báo cáo đúng 14 mục: Tóm tắt; File đã sửa; Nguồn yêu cầu; Evidence đã dùng; Lệnh đã chạy; Kết quả test; Kết quả backend build; Kết quả frontend build; Kết quả cleanup process; Cập nhật Markdown; Kết quả database migration/update nếu áp dụng; Kết quả seed validation nếu áp dụng; Rủi ro còn lại; Cập nhật handoff.",
+          "line": 587,
+          "slug": "9-báo-cáo-đúng-14-mục-tóm-tắt-file-đã-sửa-nguồn-yêu-cầu-evidence-đã-dùng-lệnh-đã-chạy-kết-quả-test-kết-quả-backend-build-kết-quả-frontend-build-kết-quả-cleanup-process-cập-nhật-markdown-kết-quả-database-migrationupdate-nếu-áp-dụng-kết-quả-seed-validation-nếu-áp-dụng-rủi-ro-còn-lại-cập-nhật-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE-04-AI-ADVISOR-RUNTIME",
+          "line": 603,
+          "slug": "phase-04-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "03-BỘ NHỚ KHÁCH HÀNG VÀ BỘ GIẢI NGỮ CẢNH",
+          "line": 605,
+          "slug": "03-bộ-nhớ-khách-hàng-và-bộ-giải-ngữ-cảnh"
+        }
+      ],
+      "links": [],
+      "lines": 608,
+      "words": 6918,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "03-BỘ NHỚ KHÁCH HÀNG VÀ BỘ GIẢI NGỮ CẢNH.md",
+      "title": "P4.2B - CUSTOMER MEMORY CONTEXT RESOLVER",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4.2B - CUSTOMER MEMORY CONTEXT RESOLVER",
+          "line": 1,
+          "slug": "p42b---customer-memory-context-resolver"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 27,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 31,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 35,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2B - CUSTOMER MEMORY / CONTEXT RESOLVER / PRIVACY / PERSONALIZATION / PUBLIC-SAFE RESPONSE HANDOFF",
+          "line": 37,
+          "slug": "prompt-p4-2b---customer-memory-context-resolver-privacy-personalization-public-safe-response-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "MODE: LIMITED IMPLEMENTATION HANDOFF - CUSTOMER MEMORY AND CONTEXT RESOLVER ONLY",
+          "line": 39,
+          "slug": "mode-limited-implementation-handoff---customer-memory-and-context-resolver-only"
+        },
+        {
+          "depth": 2,
+          "text": "1. PHASE MARKER",
+          "line": 45,
+          "slug": "1-phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "2. HEADER",
+          "line": 57,
+          "slug": "2-header"
+        },
+        {
+          "depth": 2,
+          "text": "3. MODE",
+          "line": 63,
+          "slug": "3-mode"
+        },
+        {
+          "depth": 2,
+          "text": "4. SOURCE-OF-TRUTH",
+          "line": 77,
+          "slug": "4-source-of-truth"
+        },
+        {
+          "depth": 2,
+          "text": "5. ENTRY CONDITION",
+          "line": 91,
+          "slug": "5-entry-condition"
+        },
+        {
+          "depth": 2,
+          "text": "00-PHÂN TÍCH HIỆN TRẠNG.md đã được dùng để phân tích hiện trạng và gap cho AI Advisor Runtime.",
+          "line": 93,
+          "slug": "00-phân-tích-hiện-trạngmd-đã-được-dùng-để-phân-tích-hiện-trạng-và-gap-cho-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "01-THIẾT KẾ KỸ THUẬT đã khóa boundary tổng thể của Phase 4.",
+          "line": 95,
+          "slug": "01-thiết-kế-kỹ-thuật-đã-khóa-boundary-tổng-thể-của-phase-4"
+        },
+        {
+          "depth": 2,
+          "text": "02-HỢP ĐỒNG TIÊU THỤ DỮ LIỆU THỜI GIAN CHẠY đã khóa AI Advisor là runtime consumer, không phải owner business truth.",
+          "line": 97,
+          "slug": "02-hợp-đồng-tiêu-thụ-dữ-liệu-thời-gian-chạy-đã-khóa-ai-advisor-là-runtime-consumer-không-phải-owner-business-truth"
+        },
+        {
+          "depth": 2,
+          "text": "6. OBJECTIVE",
+          "line": 105,
+          "slug": "6-objective"
+        },
+        {
+          "depth": 2,
+          "text": "7. SCOPE IN",
+          "line": 113,
+          "slug": "7-scope-in"
+        },
+        {
+          "depth": 2,
+          "text": "8. SCOPE OUT",
+          "line": 135,
+          "slug": "8-scope-out"
+        },
+        {
+          "depth": 2,
+          "text": "9. OWNERSHIP AND BOUNDARY MATRIX",
+          "line": 155,
+          "slug": "9-ownership-and-boundary-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "10. CUSTOMER MEMORY CONTEXT CONTRACT",
+          "line": 173,
+          "slug": "10-customer-memory-context-contract"
+        },
+        {
+          "depth": 2,
+          "text": "11. RESOLVER CHAIN",
+          "line": 229,
+          "slug": "11-resolver-chain"
+        },
+        {
+          "depth": 2,
+          "text": "12. CONTEXT STATUS STATE MACHINE",
+          "line": 255,
+          "slug": "12-context-status-state-machine"
+        },
+        {
+          "depth": 2,
+          "text": "13. PERSONALIZATION RULE REGISTRY",
+          "line": 267,
+          "slug": "13-personalization-rule-registry"
+        },
+        {
+          "depth": 2,
+          "text": "14. PUBLIC / PRIVATE DATA CLASSIFICATION",
+          "line": 289,
+          "slug": "14-public-private-data-classification"
+        },
+        {
+          "depth": 2,
+          "text": "15. CONFLICT DETECTION MATRIX",
+          "line": 307,
+          "slug": "15-conflict-detection-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "16. IMPLEMENTATION TASKS",
+          "line": 325,
+          "slug": "16-implementation-tasks"
+        },
+        {
+          "depth": 2,
+          "text": "17. API / SERVICE BOUNDARY SUGGESTION",
+          "line": 347,
+          "slug": "17-api-service-boundary-suggestion"
+        },
+        {
+          "depth": 2,
+          "text": "18. SMOKE REQUIRED",
+          "line": 353,
+          "slug": "18-smoke-required"
+        },
+        {
+          "depth": 2,
+          "text": "19. EVIDENCE REQUIRED",
+          "line": 379,
+          "slug": "19-evidence-required"
+        },
+        {
+          "depth": 2,
+          "text": "20. REQUIRED REPORT FORMAT - 14 MỤC",
+          "line": 399,
+          "slug": "20-required-report-format---14-mục"
+        },
+        {
+          "depth": 2,
+          "text": "21. DONE GATE",
+          "line": 429,
+          "slug": "21-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "22. FAIL GATE",
+          "line": 451,
+          "slug": "22-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "23. DOWNSTREAM HANDOFF",
+          "line": 469,
+          "slug": "23-downstream-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "24. PROMPT COPY GIAO DEV / CODEX / COPILOT",
+          "line": 481,
+          "slug": "24-prompt-copy-giao-dev-codex-copilot"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE-04-AI-ADVISOR-RUNTIME",
+          "line": 485,
+          "slug": "phase-04-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "04-ĐIỀU PHỐI TƯ VẤN KIẾN THỨC SẢN PHẨM",
+          "line": 487,
+          "slug": "04-điều-phối-tư-vấn-kiến-thức-sản-phẩm"
+        }
+      ],
+      "links": [],
+      "lines": 490,
+      "words": 5239,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "04-ĐIỀU PHỐI TƯ VẤN KIẾN THỨC SẢN PHẨM.md",
+      "title": "P4.2C - PRODUCT KNOWLEDGE CONSULTATION ORCHESTRATOR",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4.2C - PRODUCT KNOWLEDGE CONSULTATION ORCHESTRATOR",
+          "line": 1,
+          "slug": "p42c---product-knowledge-consultation-orchestrator"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 27,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 31,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 35,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2C - PRODUCT KNOWLEDGE / CONSULTATION ORCHESTRATOR / SKU FIT / SELLABLE GUARD / PUBLIC-SAFE COUNSEL HANDOFF",
+          "line": 37,
+          "slug": "prompt-p4-2c---product-knowledge-consultation-orchestrator-sku-fit-sellable-guard-public-safe-counsel-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE MARKER",
+          "line": 41,
+          "slug": "phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "1. HEADER",
+          "line": 51,
+          "slug": "1-header"
+        },
+        {
+          "depth": 2,
+          "text": "2. MODE",
+          "line": 65,
+          "slug": "2-mode"
+        },
+        {
+          "depth": 2,
+          "text": "3. SOURCE-OF-TRUTH",
+          "line": 73,
+          "slug": "3-source-of-truth"
+        },
+        {
+          "depth": 2,
+          "text": "4. ENTRY CONDITION",
+          "line": 85,
+          "slug": "4-entry-condition"
+        },
+        {
+          "depth": 2,
+          "text": "00-PHÂN TÍCH HIỆN TRẠNG.md đã hoàn tất report phân tích hoặc có kết quả current state đủ để triển khai có kiểm soát.",
+          "line": 87,
+          "slug": "00-phân-tích-hiện-trạngmd-đã-hoàn-tất-report-phân-tích-hoặc-có-kết-quả-current-state-đủ-để-triển-khai-có-kiểm-soát"
+        },
+        {
+          "depth": 2,
+          "text": "01-THIẾT KẾ KỸ THUẬT đã khóa boundary tổng thể của AI Advisor Runtime.",
+          "line": 89,
+          "slug": "01-thiết-kế-kỹ-thuật-đã-khóa-boundary-tổng-thể-của-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "02-HỢP ĐỒNG TIÊU THỤ DỮ LIỆU THỜI GIAN CHẠY đã xác định AI Advisor nhận runtime data theo hợp đồng nào.",
+          "line": 91,
+          "slug": "02-hợp-đồng-tiêu-thụ-dữ-liệu-thời-gian-chạy-đã-xác-định-ai-advisor-nhận-runtime-data-theo-hợp-đồng-nào"
+        },
+        {
+          "depth": 2,
+          "text": "03-BỘ NHỚ KHÁCH HÀNG VÀ BỘ GIẢI NGỮ CẢNH đã khóa Customer Memory và Context Resolver theo read-only consumer view.",
+          "line": 93,
+          "slug": "03-bộ-nhớ-khách-hàng-và-bộ-giải-ngữ-cảnh-đã-khóa-customer-memory-và-context-resolver-theo-read-only-consumer-view"
+        },
+        {
+          "depth": 2,
+          "text": "5. OBJECTIVE",
+          "line": 99,
+          "slug": "5-objective"
+        },
+        {
+          "depth": 2,
+          "text": "6. SCOPE IN",
+          "line": 113,
+          "slug": "6-scope-in"
+        },
+        {
+          "depth": 2,
+          "text": "7. SCOPE OUT",
+          "line": 129,
+          "slug": "7-scope-out"
+        },
+        {
+          "depth": 2,
+          "text": "8. PRODUCT KNOWLEDGE DATA CONTRACT",
+          "line": 145,
+          "slug": "8-product-knowledge-data-contract"
+        },
+        {
+          "depth": 2,
+          "text": "9. CONSULTATION ORCHESTRATOR RESPONSIBILITY",
+          "line": 165,
+          "slug": "9-consultation-orchestrator-responsibility"
+        },
+        {
+          "depth": 2,
+          "text": "10. CONSULTATION INPUT CONTRACT",
+          "line": 181,
+          "slug": "10-consultation-input-contract"
+        },
+        {
+          "depth": 2,
+          "text": "11. CONSULTATION OUTPUT CONTRACT",
+          "line": 199,
+          "slug": "11-consultation-output-contract"
+        },
+        {
+          "depth": 2,
+          "text": "12. PRODUCT FIT RANKING RULE",
+          "line": 215,
+          "slug": "12-product-fit-ranking-rule"
+        },
+        {
+          "depth": 2,
+          "text": "13. SELLABLE / SUPPRESSION RULE",
+          "line": 233,
+          "slug": "13-sellable-suppression-rule"
+        },
+        {
+          "depth": 2,
+          "text": "14. COMBO / PROPOSAL RULE",
+          "line": 247,
+          "slug": "14-combo-proposal-rule"
+        },
+        {
+          "depth": 2,
+          "text": "14.1. GENDER / AGE ADD-ON RULE",
+          "line": 261,
+          "slug": "141-gender-age-add-on-rule"
+        },
+        {
+          "depth": 2,
+          "text": "14.2. BULK BUY / CORPORATE GIFT / DISTRIBUTOR SPLIT",
+          "line": 273,
+          "slug": "142-bulk-buy-corporate-gift-distributor-split"
+        },
+        {
+          "depth": 2,
+          "text": "15. PUBLIC WORDING RENDER RULE",
+          "line": 283,
+          "slug": "15-public-wording-render-rule"
+        },
+        {
+          "depth": 2,
+          "text": "16. CUSTOMER-FACING TEMPLATE EXAMPLES",
+          "line": 297,
+          "slug": "16-customer-facing-template-examples"
+        },
+        {
+          "depth": 2,
+          "text": "17. IMPLEMENTATION TASKS",
+          "line": 311,
+          "slug": "17-implementation-tasks"
+        },
+        {
+          "depth": 2,
+          "text": "18. FILE / MODULE BOUNDARY GỢI Ý",
+          "line": 333,
+          "slug": "18-file-module-boundary-gợi-ý"
+        },
+        {
+          "depth": 2,
+          "text": "19. SMOKE REQUIRED",
+          "line": 345,
+          "slug": "19-smoke-required"
+        },
+        {
+          "depth": 2,
+          "text": "20. EVIDENCE REQUIRED",
+          "line": 375,
+          "slug": "20-evidence-required"
+        },
+        {
+          "depth": 2,
+          "text": "21. REQUIRED REPORT FORMAT - 14 MỤC",
+          "line": 397,
+          "slug": "21-required-report-format---14-mục"
+        },
+        {
+          "depth": 2,
+          "text": "22. DONE GATE",
+          "line": 427,
+          "slug": "22-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "23. FAIL GATE",
+          "line": 445,
+          "slug": "23-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "24. DOWNSTREAM HANDOFF",
+          "line": 463,
+          "slug": "24-downstream-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "25. PROMPT COPY GIAO DEV / CODEX / COPILOT",
+          "line": 475,
+          "slug": "25-prompt-copy-giao-dev-codex-copilot"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2C - PRODUCT KNOWLEDGE / CONSULTATION ORCHESTRATOR / SKU FIT / SELLABLE GUARD / PUBLIC-SAFE COUNSEL HANDOFF",
+          "line": 479,
+          "slug": "prompt-p4-2c---product-knowledge-consultation-orchestrator-sku-fit-sellable-guard-public-safe-counsel-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "MODE: LIMITED IMPLEMENTATION HANDOFF",
+          "line": 481,
+          "slug": "mode-limited-implementation-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "1. Inspect codebase thật để tìm Product Knowledge, Product Resolver, AI Orchestrator, Prompt Templates, Safety Guard, Channel Adapter và tests.",
+          "line": 513,
+          "slug": "1-inspect-codebase-thật-để-tìm-product-knowledge-product-resolver-ai-orchestrator-prompt-templates-safety-guard-channel-adapter-và-tests"
+        },
+        {
+          "depth": 2,
+          "text": "2. Tạo/chuẩn hóa ProductKnowledgeConsumerView chỉ chứa public-safe fields và orchestration hooks.",
+          "line": 515,
+          "slug": "2-tạochuẩn-hóa-productknowledgeconsumerview-chỉ-chứa-public-safe-fields-và-orchestration-hooks"
+        },
+        {
+          "depth": 2,
+          "text": "3. Tạo/chuẩn hóa ConsultationOrchestrator nhận conversation_request, customer_context_readonly, product_need, product_public_data_candidates, sellable_status, safety_claim_policy và channel_context.",
+          "line": 517,
+          "slug": "3-tạochuẩn-hóa-consultationorchestrator-nhận-conversationrequest-customercontextreadonly-productneed-productpublicdatacandidates-sellablestatus-safetyclaimpolicy-và-channelcontext"
+        },
+        {
+          "depth": 2,
+          "text": "4. Implement ranking/recommendation dựa trên intent match, dietary/allergy fit, runtime sellable, product role, taste/sensory fit, customer history, channel fit.",
+          "line": 519,
+          "slug": "4-implement-rankingrecommendation-dựa-trên-intent-match-dietaryallergy-fit-runtime-sellable-product-role-tastesensory-fit-customer-history-channel-fit"
+        },
+        {
+          "depth": 2,
+          "text": "5. Implement replacement strategy cho OUT_OF_STOCK, NOT_SELLABLE, RECALL_OR_SALE_LOCK, CHANNEL_SUPPRESSED, UNKNOWN_RUNTIME.",
+          "line": 521,
+          "slug": "5-implement-replacement-strategy-cho-outofstock-notsellable-recallorsalelock-channelsuppressed-unknownruntime"
+        },
+        {
+          "depth": 2,
+          "text": "6. Implement combo/proposal logic không hardcode; mỗi SKU trong combo phải có vai trò và hiệu dụng Đông phương public-safe.",
+          "line": 523,
+          "slug": "6-implement-comboproposal-logic-không-hardcode-mỗi-sku-trong-combo-phải-có-vai-trò-và-hiệu-dụng-đông-phương-public-safe"
+        },
+        {
+          "depth": 2,
+          "text": "7. Render response theo tone Ginsengfood: \"Dạ Em ... ạ\", tự nhiên, có lực bán, không máy móc, không dùng từ \"hệ thống\" trong lời khách.",
+          "line": 525,
+          "slug": "7-render-response-theo-tone-ginsengfood-dạ-em-ạ-tự-nhiên-có-lực-bán-không-máy-móc-không-dùng-từ-hệ-thống-trong-lời-khách"
+        },
+        {
+          "depth": 2,
+          "text": "8. Nếu khách có tín hiệu mua, chỉ tạo quote_request_intent; final price phải lấy từ QuoteSnapshot ở Commerce Runtime/P4-2D.",
+          "line": 527,
+          "slug": "8-nếu-khách-có-tín-hiệu-mua-chỉ-tạo-quoterequestintent-final-price-phải-lấy-từ-quotesnapshot-ở-commerce-runtimep4-2d"
+        },
+        {
+          "depth": 2,
+          "text": "9. Viết tests và smoke P4-2C-SMK-001 đến P4-2C-SMK-014.",
+          "line": 529,
+          "slug": "9-viết-tests-và-smoke-p4-2c-smk-001-đến-p4-2c-smk-014"
+        },
+        {
+          "depth": 2,
+          "text": "10. Trả report 14 mục theo chuẩn Ginsengfood/Codex.",
+          "line": 531,
+          "slug": "10-trả-report-14-mục-theo-chuẩn-ginsengfoodcodex"
+        },
+        {
+          "depth": 2,
+          "text": "P4-2C PRODUCT KNOWLEDGE CONSULTATION ORCHESTRATOR: LIMITED IMPLEMENTATION HANDOFF ONLY",
+          "line": 545,
+          "slug": "p4-2c-product-knowledge-consultation-orchestrator-limited-implementation-handoff-only"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE-04-AI-ADVISOR-RUNTIME",
+          "line": 561,
+          "slug": "phase-04-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "05-TIÊU THỤ BÁO GIÁ NHÁP VÀ XÁC NHẬN ĐƠN",
+          "line": 563,
+          "slug": "05-tiêu-thụ-báo-giá-nháp-và-xác-nhận-đơn"
+        }
+      ],
+      "links": [],
+      "lines": 566,
+      "words": 6835,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "05-TIÊU THỤ BÁO GIÁ NHÁP VÀ XÁC NHẬN ĐƠN.md",
+      "title": "P4.2D - QUOTE ORDER DRAFT CONFIRMATION CONSUMER",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4.2D - QUOTE ORDER DRAFT CONFIRMATION CONSUMER",
+          "line": 1,
+          "slug": "p42d---quote-order-draft-confirmation-consumer"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 29,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 33,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 37,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2D - QUOTE SNAPSHOT / ORDER DRAFT / CUSTOMER CONFIRMATION / OFFICIAL ORDER CONSUMER HANDOFF",
+          "line": 39,
+          "slug": "prompt-p4-2d---quote-snapshot-order-draft-customer-confirmation-official-order-consumer-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE MARKER",
+          "line": 43,
+          "slug": "phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "1. HEADER",
+          "line": 53,
+          "slug": "1-header"
+        },
+        {
+          "depth": 2,
+          "text": "2. MODE",
+          "line": 69,
+          "slug": "2-mode"
+        },
+        {
+          "depth": 2,
+          "text": "3. SOURCE-OF-TRUTH",
+          "line": 77,
+          "slug": "3-source-of-truth"
+        },
+        {
+          "depth": 2,
+          "text": "4. ENTRY CONDITION",
+          "line": 93,
+          "slug": "4-entry-condition"
+        },
+        {
+          "depth": 2,
+          "text": "04-P4-2C Product Knowledge / Consultation Orchestrator đã đề xuất được sản phẩm hoặc combo hợp lệ về mặt tư vấn.",
+          "line": 95,
+          "slug": "04-p4-2c-product-knowledge-consultation-orchestrator-đã-đề-xuất-được-sản-phẩm-hoặc-combo-hợp-lệ-về-mặt-tư-vấn"
+        },
+        {
+          "depth": 2,
+          "text": "5. OBJECTIVE",
+          "line": 107,
+          "slug": "5-objective"
+        },
+        {
+          "depth": 2,
+          "text": "6. SCOPE IN",
+          "line": 123,
+          "slug": "6-scope-in"
+        },
+        {
+          "depth": 2,
+          "text": "7. SCOPE OUT",
+          "line": 147,
+          "slug": "7-scope-out"
+        },
+        {
+          "depth": 2,
+          "text": "8. RUNTIME CONTRACT REQUIRED",
+          "line": 163,
+          "slug": "8-runtime-contract-required"
+        },
+        {
+          "depth": 2,
+          "text": "9. STATE CHAIN LOCK",
+          "line": 187,
+          "slug": "9-state-chain-lock"
+        },
+        {
+          "depth": 2,
+          "text": "10. ORDER DRAFT RENDERING RULE",
+          "line": 209,
+          "slug": "10-order-draft-rendering-rule"
+        },
+        {
+          "depth": 2,
+          "text": "11. CUSTOMER-FACING TEMPLATE LOCK",
+          "line": 223,
+          "slug": "11-customer-facing-template-lock"
+        },
+        {
+          "depth": 2,
+          "text": "12. GUARD MATRIX",
+          "line": 245,
+          "slug": "12-guard-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "13. DTO / API BOUNDARY GỢI Ý",
+          "line": 265,
+          "slug": "13-dto-api-boundary-gợi-ý"
+        },
+        {
+          "depth": 2,
+          "text": "14. CHANNEL RULES",
+          "line": 281,
+          "slug": "14-channel-rules"
+        },
+        {
+          "depth": 2,
+          "text": "15. EXECUTION STEPS",
+          "line": 293,
+          "slug": "15-execution-steps"
+        },
+        {
+          "depth": 2,
+          "text": "16. SMOKE REQUIRED",
+          "line": 315,
+          "slug": "16-smoke-required"
+        },
+        {
+          "depth": 2,
+          "text": "17. EVIDENCE REQUIRED",
+          "line": 343,
+          "slug": "17-evidence-required"
+        },
+        {
+          "depth": 2,
+          "text": "18. REQUIRED REPORT FORMAT - 14 MỤC",
+          "line": 365,
+          "slug": "18-required-report-format---14-mục"
+        },
+        {
+          "depth": 2,
+          "text": "19. DONE GATE",
+          "line": 395,
+          "slug": "19-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "20. FAIL GATE",
+          "line": 417,
+          "slug": "20-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "21. DOWNSTREAM HANDOFF",
+          "line": 441,
+          "slug": "21-downstream-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "22. PROMPT COPY GIAO DEV / CODEX / COPILOT",
+          "line": 447,
+          "slug": "22-prompt-copy-giao-dev-codex-copilot"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2D - QUOTE SNAPSHOT / ORDER DRAFT / CUSTOMER CONFIRMATION / OFFICIAL ORDER CONSUMER HANDOFF",
+          "line": 451,
+          "slug": "prompt-p4-2d---quote-snapshot-order-draft-customer-confirmation-official-order-consumer-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "MODE: LIMITED IMPLEMENTATION HANDOFF.",
+          "line": 453,
+          "slug": "mode-limited-implementation-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "1. Tìm các module/service hiện có liên quan AI Advisor, Commerce client, quote, cart, order draft, customer confirmation, official order, payment, shipping, channel adapter và prompt renderer.",
+          "line": 471,
+          "slug": "1-tìm-các-moduleservice-hiện-có-liên-quan-ai-advisor-commerce-client-quote-cart-order-draft-customer-confirmation-official-order-payment-shipping-channel-adapter-và-prompt-renderer"
+        },
+        {
+          "depth": 2,
+          "text": "2. Lập current state mapping theo STATE CHAIN LOCK: CONSULTATION_READY -> QUOTE_REQUESTED -> QUOTE_SNAPSHOT_CREATED -> ORDER_DRAFT_CREATED -> CUSTOMER_CONFIRMATION_WAITING -> CUSTOMER_CONFIRMED -> OFFICIAL_ORDER_CREATED -> PAYMENT_SELECTED -> PAYMENT_CONFIRMED_PAID -> SHIPPING_IN_PROGRESS.",
+          "line": 473,
+          "slug": "2-lập-current-state-mapping-theo-state-chain-lock-consultationready---quoterequested---quotesnapshotcreated---orderdraftcreated---customerconfirmationwaiting---customerconfirmed---officialordercreated---paymentselected---paymentconfirmedpaid---shippinginprogress"
+        },
+        {
+          "depth": 2,
+          "text": "3. Tìm và ghi lại mọi đoạn AI/frontend/prompt tự tính final price, discount, member benefit, shipping fee, VAT, stock, sellable, order_code, paid hoặc revenue.",
+          "line": 475,
+          "slug": "3-tìm-và-ghi-lại-mọi-đoạn-aifrontendprompt-tự-tính-final-price-discount-member-benefit-shipping-fee-vat-stock-sellable-ordercode-paid-hoặc-revenue"
+        },
+        {
+          "depth": 2,
+          "text": "1. Chuẩn hóa QuoteSnapshot consumer DTO và renderer.",
+          "line": 505,
+          "slug": "1-chuẩn-hóa-quotesnapshot-consumer-dto-và-renderer"
+        },
+        {
+          "depth": 2,
+          "text": "2. Chuẩn hóa OrderDraft renderer dạng form/prefill, không chỉ text summary.",
+          "line": 507,
+          "slug": "2-chuẩn-hóa-orderdraft-renderer-dạng-formprefill-không-chỉ-text-summary"
+        },
+        {
+          "depth": 2,
+          "text": "3. Chuẩn hóa Customer Confirmation adapter với actor, correlation_id, idempotency_key và audit.",
+          "line": 509,
+          "slug": "3-chuẩn-hóa-customer-confirmation-adapter-với-actor-correlationid-idempotencykey-và-audit"
+        },
+        {
+          "depth": 2,
+          "text": "4. Chuẩn hóa Official Order public renderer: chỉ hiển thị order_code nếu runtime trả order_code.",
+          "line": 511,
+          "slug": "4-chuẩn-hóa-official-order-public-renderer-chỉ-hiển-thị-ordercode-nếu-runtime-trả-ordercode"
+        },
+        {
+          "depth": 2,
+          "text": "5. Chuẩn hóa Payment/Shipping public-safe renderer.",
+          "line": 513,
+          "slug": "5-chuẩn-hóa-paymentshipping-public-safe-renderer"
+        },
+        {
+          "depth": 2,
+          "text": "6. Thêm guard: QUOTE_REQUIRED, QUOTE_EXPIRED, SELLABLE_BLOCKED, MEMBER_BENEFIT_UNRESOLVED, ORDER_DRAFT_NOT_CONFIRMED, ORDER_CODE_MISSING, PAYMENT_UNCONFIRMED, HIGH_RISK_COMMAND_MISSING_IDEMPOTENCY, RECALL_SALE_LOCK_SUPPRESSION.",
+          "line": 515,
+          "slug": "6-thêm-guard-quoterequired-quoteexpired-sellableblocked-memberbenefitunresolved-orderdraftnotconfirmed-ordercodemissing-paymentunconfirmed-highriskcommandmissingidempotency-recallsalelocksuppression"
+        },
+        {
+          "depth": 2,
+          "text": "7. Thêm smoke test P4-2D-SMK-001 đến P4-2D-SMK-013.",
+          "line": 517,
+          "slug": "7-thêm-smoke-test-p4-2d-smk-001-đến-p4-2d-smk-013"
+        },
+        {
+          "depth": 2,
+          "text": "1. Tóm tắt.",
+          "line": 521,
+          "slug": "1-tóm-tắt"
+        },
+        {
+          "depth": 2,
+          "text": "2. File đã sửa.",
+          "line": 523,
+          "slug": "2-file-đã-sửa"
+        },
+        {
+          "depth": 2,
+          "text": "3. Nguồn yêu cầu.",
+          "line": 525,
+          "slug": "3-nguồn-yêu-cầu"
+        },
+        {
+          "depth": 2,
+          "text": "4. Evidence đã dùng.",
+          "line": 527,
+          "slug": "4-evidence-đã-dùng"
+        },
+        {
+          "depth": 2,
+          "text": "5. Lệnh đã chạy.",
+          "line": 529,
+          "slug": "5-lệnh-đã-chạy"
+        },
+        {
+          "depth": 2,
+          "text": "6. Kết quả test.",
+          "line": 531,
+          "slug": "6-kết-quả-test"
+        },
+        {
+          "depth": 2,
+          "text": "7. Kết quả backend build.",
+          "line": 533,
+          "slug": "7-kết-quả-backend-build"
+        },
+        {
+          "depth": 2,
+          "text": "8. Kết quả frontend build.",
+          "line": 535,
+          "slug": "8-kết-quả-frontend-build"
+        },
+        {
+          "depth": 2,
+          "text": "9. Kết quả cleanup process.",
+          "line": 537,
+          "slug": "9-kết-quả-cleanup-process"
+        },
+        {
+          "depth": 2,
+          "text": "10. Cập nhật Markdown.",
+          "line": 539,
+          "slug": "10-cập-nhật-markdown"
+        },
+        {
+          "depth": 2,
+          "text": "11. Kết quả database migration/update nếu áp dụng.",
+          "line": 541,
+          "slug": "11-kết-quả-database-migrationupdate-nếu-áp-dụng"
+        },
+        {
+          "depth": 2,
+          "text": "12. Kết quả seed validation nếu áp dụng.",
+          "line": 543,
+          "slug": "12-kết-quả-seed-validation-nếu-áp-dụng"
+        },
+        {
+          "depth": 2,
+          "text": "13. Rủi ro còn lại.",
+          "line": 545,
+          "slug": "13-rủi-ro-còn-lại"
+        },
+        {
+          "depth": 2,
+          "text": "14. Cập nhật handoff.",
+          "line": 547,
+          "slug": "14-cập-nhật-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "P4-2D LOCAL STATUS: IMPLEMENTATION HANDOFF ONLY / LOCAL SMOKE REQUIRED.",
+          "line": 549,
+          "slug": "p4-2d-local-status-implementation-handoff-only-local-smoke-required"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE-04-AI-ADVISOR-RUNTIME",
+          "line": 565,
+          "slug": "phase-04-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "06-CHẶN AN TOÀN NGÔN TỪ CÔNG KHAI VÀ TUYÊN BỐ",
+          "line": 567,
+          "slug": "06-chặn-an-toàn-ngôn-từ-công-khai-và-tuyên-bố"
+        }
+      ],
+      "links": [],
+      "lines": 570,
+      "words": 6213,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "06-CHẶN AN TOÀN NGÔN TỪ CÔNG KHAI VÀ TUYÊN BỐ.md",
+      "title": "P4.2E - SAFETY PUBLIC WORDING CLAIM GUARD",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4.2E - SAFETY PUBLIC WORDING CLAIM GUARD",
+          "line": 1,
+          "slug": "p42e---safety-public-wording-claim-guard"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 27,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 31,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 35,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2E - SAFETY / PUBLIC WORDING / CLAIM GUARD / PUBLIC-PRIVATE BOUNDARY HANDOFF",
+          "line": 37,
+          "slug": "prompt-p4-2e---safety-public-wording-claim-guard-public-private-boundary-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE MARKER",
+          "line": 41,
+          "slug": "phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "1. HEADER",
+          "line": 51,
+          "slug": "1-header"
+        },
+        {
+          "depth": 2,
+          "text": "2. MODE",
+          "line": 67,
+          "slug": "2-mode"
+        },
+        {
+          "depth": 2,
+          "text": "3. SOURCE-OF-TRUTH",
+          "line": 77,
+          "slug": "3-source-of-truth"
+        },
+        {
+          "depth": 2,
+          "text": "4. ENTRY CONDITION",
+          "line": 89,
+          "slug": "4-entry-condition"
+        },
+        {
+          "depth": 2,
+          "text": "5. OBJECTIVE",
+          "line": 105,
+          "slug": "5-objective"
+        },
+        {
+          "depth": 2,
+          "text": "6. SCOPE IN",
+          "line": 119,
+          "slug": "6-scope-in"
+        },
+        {
+          "depth": 2,
+          "text": "7. SCOPE OUT",
+          "line": 133,
+          "slug": "7-scope-out"
+        },
+        {
+          "depth": 2,
+          "text": "8. RUNTIME GUARD CONTRACT",
+          "line": 147,
+          "slug": "8-runtime-guard-contract"
+        },
+        {
+          "depth": 2,
+          "text": "9. CLAIM POLICY MATRIX",
+          "line": 177,
+          "slug": "9-claim-policy-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "10. FORBIDDEN OUTPUT REGISTER",
+          "line": 189,
+          "slug": "10-forbidden-output-register"
+        },
+        {
+          "depth": 2,
+          "text": "11. PUBLIC / PRIVATE FIELD BOUNDARY",
+          "line": 207,
+          "slug": "11-public-private-field-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "12. HEALTH-SENSITIVE TEMPLATE LOCK",
+          "line": 219,
+          "slug": "12-health-sensitive-template-lock"
+        },
+        {
+          "depth": 2,
+          "text": "13. EASTERN WELLNESS WORDING CONTROL",
+          "line": 231,
+          "slug": "13-eastern-wellness-wording-control"
+        },
+        {
+          "depth": 2,
+          "text": "14. CHANNEL SURFACE GUARD",
+          "line": 245,
+          "slug": "14-channel-surface-guard"
+        },
+        {
+          "depth": 2,
+          "text": "15. GUARD EXECUTION FLOW",
+          "line": 257,
+          "slug": "15-guard-execution-flow"
+        },
+        {
+          "depth": 2,
+          "text": "16. IMPLEMENTATION TASKS",
+          "line": 281,
+          "slug": "16-implementation-tasks"
+        },
+        {
+          "depth": 2,
+          "text": "17. TEST MATRIX",
+          "line": 297,
+          "slug": "17-test-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "18. SMOKE REQUIRED",
+          "line": 319,
+          "slug": "18-smoke-required"
+        },
+        {
+          "depth": 2,
+          "text": "19. EVIDENCE REQUIRED",
+          "line": 337,
+          "slug": "19-evidence-required"
+        },
+        {
+          "depth": 2,
+          "text": "20. REQUIRED REPORT FORMAT - 14 MỤC",
+          "line": 351,
+          "slug": "20-required-report-format---14-mục"
+        },
+        {
+          "depth": 2,
+          "text": "1. Tóm tắt.",
+          "line": 353,
+          "slug": "1-tóm-tắt"
+        },
+        {
+          "depth": 2,
+          "text": "2. File đã sửa.",
+          "line": 355,
+          "slug": "2-file-đã-sửa"
+        },
+        {
+          "depth": 2,
+          "text": "3. Nguồn yêu cầu.",
+          "line": 357,
+          "slug": "3-nguồn-yêu-cầu"
+        },
+        {
+          "depth": 2,
+          "text": "4. Evidence đã dùng.",
+          "line": 359,
+          "slug": "4-evidence-đã-dùng"
+        },
+        {
+          "depth": 2,
+          "text": "5. Lệnh đã chạy.",
+          "line": 361,
+          "slug": "5-lệnh-đã-chạy"
+        },
+        {
+          "depth": 2,
+          "text": "6. Kết quả test.",
+          "line": 363,
+          "slug": "6-kết-quả-test"
+        },
+        {
+          "depth": 2,
+          "text": "7. Kết quả backend build.",
+          "line": 365,
+          "slug": "7-kết-quả-backend-build"
+        },
+        {
+          "depth": 2,
+          "text": "8. Kết quả frontend build.",
+          "line": 367,
+          "slug": "8-kết-quả-frontend-build"
+        },
+        {
+          "depth": 2,
+          "text": "9. Kết quả cleanup process.",
+          "line": 369,
+          "slug": "9-kết-quả-cleanup-process"
+        },
+        {
+          "depth": 2,
+          "text": "10. Cập nhật Markdown.",
+          "line": 371,
+          "slug": "10-cập-nhật-markdown"
+        },
+        {
+          "depth": 2,
+          "text": "11. Kết quả database migration/update nếu áp dụng.",
+          "line": 373,
+          "slug": "11-kết-quả-database-migrationupdate-nếu-áp-dụng"
+        },
+        {
+          "depth": 2,
+          "text": "12. Kết quả seed validation nếu áp dụng.",
+          "line": 375,
+          "slug": "12-kết-quả-seed-validation-nếu-áp-dụng"
+        },
+        {
+          "depth": 2,
+          "text": "13. Rủi ro còn lại.",
+          "line": 377,
+          "slug": "13-rủi-ro-còn-lại"
+        },
+        {
+          "depth": 2,
+          "text": "14. Cập nhật handoff.",
+          "line": 379,
+          "slug": "14-cập-nhật-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "21. DONE GATE",
+          "line": 381,
+          "slug": "21-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "22. FAIL GATE",
+          "line": 399,
+          "slug": "22-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "23. DOWNSTREAM HANDOFF",
+          "line": 419,
+          "slug": "23-downstream-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "07-CẦU NỐI BÀN GIAO KÊNH MESSENGER TRỰC TIẾP VÀ CRM: Chỉ chuyển sang Channel Bridge khi guard đã kiểm soát được public/private wording và channel surface policy.",
+          "line": 421,
+          "slug": "07-cầu-nối-bàn-giao-kênh-messenger-trực-tiếp-và-crm-chỉ-chuyển-sang-channel-bridge-khi-guard-đã-kiểm-soát-được-publicprivate-wording-và-channel-surface-policy"
+        },
+        {
+          "depth": 2,
+          "text": "08-BÁO CÁO KIỂM THỬ KHÓI VÀ BẰNG CHỨNG: Chỉ lập smoke/evidence report sau khi có test output và audit sample cho guard.",
+          "line": 423,
+          "slug": "08-báo-cáo-kiểm-thử-khói-và-bằng-chứng-chỉ-lập-smokeevidence-report-sau-khi-có-test-output-và-audit-sample-cho-guard"
+        },
+        {
+          "depth": 2,
+          "text": "24. PROMPT COPY GIAO DEV / CODEX / COPILOT",
+          "line": 427,
+          "slug": "24-prompt-copy-giao-dev-codex-copilot"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2E - SAFETY / PUBLIC WORDING / CLAIM GUARD / PUBLIC-PRIVATE BOUNDARY HANDOFF",
+          "line": 429,
+          "slug": "prompt-p4-2e---safety-public-wording-claim-guard-public-private-boundary-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "MODE: LIMITED IMPLEMENTATION HANDOFF",
+          "line": 431,
+          "slug": "mode-limited-implementation-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "OBJECTIVE:",
+          "line": 435,
+          "slug": "objective"
+        },
+        {
+          "depth": 2,
+          "text": "MUST DO:",
+          "line": 439,
+          "slug": "must-do"
+        },
+        {
+          "depth": 2,
+          "text": "1. Inspect current render touchpoints for consult, product recommendation, combo, quote, order draft, CRM preview and live reply.",
+          "line": 441,
+          "slug": "1-inspect-current-render-touchpoints-for-consult-product-recommendation-combo-quote-order-draft-crm-preview-and-live-reply"
+        },
+        {
+          "depth": 2,
+          "text": "2. Create/normalize one guard contract receiving message_candidate, response_family, product_public_data, customer_context, runtime_truth_snapshot, safety_policy_snapshot and channel_surface.",
+          "line": 443,
+          "slug": "2-createnormalize-one-guard-contract-receiving-messagecandidate-responsefamily-productpublicdata-customercontext-runtimetruthsnapshot-safetypolicysnapshot-and-channelsurface"
+        },
+        {
+          "depth": 2,
+          "text": "3. Block or rewrite forbidden outputs: treatment, diagnosis-like, guaranteed result, internal SKU-only, formula/cost/QC/trace/supplier leak, stock count, price guess and public \"hệ thống\" wording.",
+          "line": 445,
+          "slug": "3-block-or-rewrite-forbidden-outputs-treatment-diagnosis-like-guaranteed-result-internal-sku-only-formulacostqctracesupplier-leak-stock-count-price-guess-and-public-hệ-thống-wording"
+        },
+        {
+          "depth": 2,
+          "text": "4. Preserve approved Eastern wellness language only inside public-safe framing: \"theo tinh thần ẩm thực/thực dưỡng phương Đông\", \"qua bữa ăn\", \"hỗ trợ/chăm sóc/bồi bổ\".",
+          "line": 447,
+          "slug": "4-preserve-approved-eastern-wellness-language-only-inside-public-safe-framing-theo-tinh-thần-ẩm-thựcthực-dưỡng-phương-đông-qua-bữa-ăn-hỗ-trợchăm-sócbồi-bổ"
+        },
+        {
+          "depth": 2,
+          "text": "5. Apply health-sensitive template when customer mentions disease, treatment, pregnancy, allergy, dietary restrictions or doctor instruction.",
+          "line": 449,
+          "slug": "5-apply-health-sensitive-template-when-customer-mentions-disease-treatment-pregnancy-allergy-dietary-restrictions-or-doctor-instruction"
+        },
+        {
+          "depth": 2,
+          "text": "6. Enforce exact-lock without paraphrase; only variable replacement is allowed.",
+          "line": 451,
+          "slug": "6-enforce-exact-lock-without-paraphrase-only-variable-replacement-is-allowed"
+        },
+        {
+          "depth": 2,
+          "text": "7. Write tests for all negative cases and generate audit evidence.",
+          "line": 453,
+          "slug": "7-write-tests-for-all-negative-cases-and-generate-audit-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "MUST NOT DO:",
+          "line": 455,
+          "slug": "must-not-do"
+        },
+        {
+          "depth": 2,
+          "text": "1. Do not calculate price, discount, member benefit, stock, sellable, order_code, paid, verified revenue, commission, ROAS or payout.",
+          "line": 457,
+          "slug": "1-do-not-calculate-price-discount-member-benefit-stock-sellable-ordercode-paid-verified-revenue-commission-roas-or-payout"
+        },
+        {
+          "depth": 2,
+          "text": "2. Do not expose internal SKU code, formula, pilot, cost, QC notes, trace internal, supplier private, stock count or internal suppression reason to customers.",
+          "line": 459,
+          "slug": "2-do-not-expose-internal-sku-code-formula-pilot-cost-qc-notes-trace-internal-supplier-private-stock-count-or-internal-suppression-reason-to-customers"
+        },
+        {
+          "depth": 2,
+          "text": "3. Do not create new medical claims or claim whitelist entries without owner-approved policy.",
+          "line": 461,
+          "slug": "3-do-not-create-new-medical-claims-or-claim-whitelist-entries-without-owner-approved-policy"
+        },
+        {
+          "depth": 2,
+          "text": "4. Do not call this Gateway PASS, Completion Decision, Release Readiness or Production Readiness.",
+          "line": 463,
+          "slug": "4-do-not-call-this-gateway-pass-completion-decision-release-readiness-or-production-readiness"
+        },
+        {
+          "depth": 2,
+          "text": "REPORT FORMAT:",
+          "line": 465,
+          "slug": "report-format"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE-04-AI-ADVISOR-RUNTIME",
+          "line": 483,
+          "slug": "phase-04-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "07-CẦU NỐI BÀN GIAO KÊNH MESSENGER TRỰC TIẾP VÀ CRM",
+          "line": 485,
+          "slug": "07-cầu-nối-bàn-giao-kênh-messenger-trực-tiếp-và-crm"
+        }
+      ],
+      "links": [],
+      "lines": 488,
+      "words": 5447,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "07-CẦU NỐI BÀN GIAO KÊNH MESSENGER TRỰC TIẾP VÀ CRM.md",
+      "title": "P4.2F - CHANNEL HANDOFF MESSENGER LIVE CRM BRIDGE",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4.2F - CHANNEL HANDOFF MESSENGER LIVE CRM BRIDGE",
+          "line": 1,
+          "slug": "p42f---channel-handoff-messenger-live-crm-bridge"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 28,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 32,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 36,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2F - CHANNEL HANDOFF / MESSENGER / LIVE / CRM BRIDGE / GATEWAY BOUNDARY HANDOFF",
+          "line": 38,
+          "slug": "prompt-p4-2f---channel-handoff-messenger-live-crm-bridge-gateway-boundary-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE MARKER",
+          "line": 42,
+          "slug": "phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "1. HEADER",
+          "line": 52,
+          "slug": "1-header"
+        },
+        {
+          "depth": 2,
+          "text": "2. MODE",
+          "line": 68,
+          "slug": "2-mode"
+        },
+        {
+          "depth": 2,
+          "text": "3. SOURCE-OF-TRUTH",
+          "line": 78,
+          "slug": "3-source-of-truth"
+        },
+        {
+          "depth": 2,
+          "text": "4. OBJECTIVE",
+          "line": 92,
+          "slug": "4-objective"
+        },
+        {
+          "depth": 2,
+          "text": "5. SCOPE IN",
+          "line": 108,
+          "slug": "5-scope-in"
+        },
+        {
+          "depth": 2,
+          "text": "6. SCOPE OUT",
+          "line": 126,
+          "slug": "6-scope-out"
+        },
+        {
+          "depth": 2,
+          "text": "7. ARCHITECTURE POSITION",
+          "line": 144,
+          "slug": "7-architecture-position"
+        },
+        {
+          "depth": 2,
+          "text": "8. CHANNEL CONTEXT ENVELOPE",
+          "line": 162,
+          "slug": "8-channel-context-envelope"
+        },
+        {
+          "depth": 2,
+          "text": "9. HANDOFF DECISION MATRIX",
+          "line": 192,
+          "slug": "9-handoff-decision-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "10. PUBLIC / PRIVATE ROUTING RULES",
+          "line": 212,
+          "slug": "10-public-private-routing-rules"
+        },
+        {
+          "depth": 2,
+          "text": "11. LIVE BRIDGE RULES",
+          "line": 226,
+          "slug": "11-live-bridge-rules"
+        },
+        {
+          "depth": 2,
+          "text": "12. MESSENGER HANDOFF RULES",
+          "line": 240,
+          "slug": "12-messenger-handoff-rules"
+        },
+        {
+          "depth": 2,
+          "text": "13. CRM BRIDGE RULES",
+          "line": 256,
+          "slug": "13-crm-bridge-rules"
+        },
+        {
+          "depth": 2,
+          "text": "14. SUPPRESSION AND MODERATION POLICY",
+          "line": 270,
+          "slug": "14-suppression-and-moderation-policy"
+        },
+        {
+          "depth": 2,
+          "text": "15. RESPONSE TIMING AND DELIVERY CONTROL",
+          "line": 284,
+          "slug": "15-response-timing-and-delivery-control"
+        },
+        {
+          "depth": 2,
+          "text": "16. DATA CONTRACTS TO IMPLEMENT",
+          "line": 298,
+          "slug": "16-data-contracts-to-implement"
+        },
+        {
+          "depth": 2,
+          "text": "17. EXECUTION STEPS",
+          "line": 310,
+          "slug": "17-execution-steps"
+        },
+        {
+          "depth": 2,
+          "text": "1. Inspect codebase hiện có để xác định event model của Facebook/Messenger/Live/CRM và các handler hiện đang gọi AI Advisor.",
+          "line": 312,
+          "slug": "1-inspect-codebase-hiện-có-để-xác-định-event-model-của-facebookmessengerlivecrm-và-các-handler-hiện-đang-gọi-ai-advisor"
+        },
+        {
+          "depth": 2,
+          "text": "2. Lập bản đồ route hiện tại: public comment, live comment, Messenger, CRM trigger, human handoff và moderation.",
+          "line": 314,
+          "slug": "2-lập-bản-đồ-route-hiện-tại-public-comment-live-comment-messenger-crm-trigger-human-handoff-và-moderation"
+        },
+        {
+          "depth": 2,
+          "text": "3. Tạo hoặc chuẩn hóa ChannelContextEnvelope; đảm bảo correlation_id, idempotency_key và permission_state xuất hiện ở mọi flow tạo side effect.",
+          "line": 316,
+          "slug": "3-tạo-hoặc-chuẩn-hóa-channelcontextenvelope-đảm-bảo-correlationid-idempotencykey-và-permissionstate-xuất-hiện-ở-mọi-flow-tạo-side-effect"
+        },
+        {
+          "depth": 2,
+          "text": "4. Tạo HandoffDecision policy với các decision_type: PUBLIC_REPLY, PRIVATE_INVITE, CONTINUE_PRIVATE, HUMAN_HANDOFF, SUPPRESS, MODERATE, CRM_SCHEDULE.",
+          "line": 318,
+          "slug": "4-tạo-handoffdecision-policy-với-các-decisiontype-publicreply-privateinvite-continueprivate-humanhandoff-suppress-moderate-crmschedule"
+        },
+        {
+          "depth": 2,
+          "text": "5. Kết nối bridge với Runtime Consumer Contract của file 2A và Safety/Public Wording/Claim Guard của file 2E.",
+          "line": 320,
+          "slug": "5-kết-nối-bridge-với-runtime-consumer-contract-của-file-2a-và-safetypublic-wordingclaim-guard-của-file-2e"
+        },
+        {
+          "depth": 2,
+          "text": "6. Đảm bảo quote/order/private data chỉ đi qua Messenger/private theo policy; public không lộ dữ liệu nhạy cảm.",
+          "line": 322,
+          "slug": "6-đảm-bảo-quoteorderprivate-data-chỉ-đi-qua-messengerprivate-theo-policy-public-không-lộ-dữ-liệu-nhạy-cảm"
+        },
+        {
+          "depth": 2,
+          "text": "7. Thêm suppression theo Recall/Sale Lock, product not sellable, channel suppressed, opt-out, frequency cap và abuse/troll policy.",
+          "line": 324,
+          "slug": "7-thêm-suppression-theo-recallsale-lock-product-not-sellable-channel-suppressed-opt-out-frequency-cap-và-abusetroll-policy"
+        },
+        {
+          "depth": 2,
+          "text": "8. Thêm audit/evidence log cho từng quyết định handoff và outbound command.",
+          "line": 326,
+          "slug": "8-thêm-auditevidence-log-cho-từng-quyết-định-handoff-và-outbound-command"
+        },
+        {
+          "depth": 2,
+          "text": "9. Viết smoke test theo các case bắt buộc trong file này; không mở Gateway dù smoke local pass.",
+          "line": 328,
+          "slug": "9-viết-smoke-test-theo-các-case-bắt-buộc-trong-file-này-không-mở-gateway-dù-smoke-local-pass"
+        },
+        {
+          "depth": 2,
+          "text": "18. REQUIRED SMOKE TESTS",
+          "line": 330,
+          "slug": "18-required-smoke-tests"
+        },
+        {
+          "depth": 2,
+          "text": "19. EVIDENCE REQUIRED",
+          "line": 352,
+          "slug": "19-evidence-required"
+        },
+        {
+          "depth": 2,
+          "text": "20. REQUIRED REPORT FORMAT - 14 MỤC",
+          "line": 366,
+          "slug": "20-required-report-format---14-mục"
+        },
+        {
+          "depth": 2,
+          "text": "21. DONE GATE",
+          "line": 394,
+          "slug": "21-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "22. FAIL GATE",
+          "line": 412,
+          "slug": "22-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "23. DOWNSTREAM HANDOFF",
+          "line": 432,
+          "slug": "23-downstream-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "08-BÁO CÁO KIỂM THỬ KHÓI VÀ BẰNG CHỨNG: Tổng hợp smoke/evidence toàn Phase 4: runtime consumer, customer memory, product consultation, quote/order consumer, safety guard, channel bridge.",
+          "line": 434,
+          "slug": "08-báo-cáo-kiểm-thử-khói-và-bằng-chứng-tổng-hợp-smokeevidence-toàn-phase-4-runtime-consumer-customer-memory-product-consultation-quoteorder-consumer-safety-guard-channel-bridge"
+        },
+        {
+          "depth": 2,
+          "text": "24. PROMPT COPY GIAO DEV / CODEX / COPILOT",
+          "line": 444,
+          "slug": "24-prompt-copy-giao-dev-codex-copilot"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2F - CHANNEL HANDOFF / MESSENGER / LIVE / CRM BRIDGE / GATEWAY BOUNDARY HANDOFF",
+          "line": 448,
+          "slug": "prompt-p4-2f---channel-handoff-messenger-live-crm-bridge-gateway-boundary-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "MODE: LIMITED IMPLEMENTATION - CHANNEL HANDOFF BRIDGE ONLY",
+          "line": 450,
+          "slug": "mode-limited-implementation---channel-handoff-bridge-only"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE-04-AI-ADVISOR-RUNTIME",
+          "line": 508,
+          "slug": "phase-04-ai-advisor-runtime"
+        },
+        {
+          "depth": 2,
+          "text": "08-BÁO CÁO KIỂM THỬ KHÓI VÀ BẰNG CHỨNG",
+          "line": 510,
+          "slug": "08-báo-cáo-kiểm-thử-khói-và-bằng-chứng"
+        }
+      ],
+      "links": [],
+      "lines": 513,
+      "words": 5120,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "08-BÁO CÁO KIỂM THỬ KHÓI VÀ BẰNG CHỨNG.md",
+      "title": "P4.2G - SMOKE EVIDENCE REPORT",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4.2G - SMOKE EVIDENCE REPORT",
+          "line": 1,
+          "slug": "p42g---smoke-evidence-report"
+        },
+        {
+          "depth": 2,
+          "text": "Khối nguồn bắt buộc đã nhập vào file này",
+          "line": 3,
+          "slug": "khối-nguồn-bắt-buộc-đã-nhập-vào-file-này"
+        },
+        {
+          "depth": 3,
+          "text": "A. Nội dung nguồn đã nhập",
+          "line": 7,
+          "slug": "a-nội-dung-nguồn-đã-nhập"
+        },
+        {
+          "depth": 3,
+          "text": "B. Conflict lock",
+          "line": 18,
+          "slug": "b-conflict-lock"
+        },
+        {
+          "depth": 3,
+          "text": "C. Trạng thái evidence bắt buộc",
+          "line": 29,
+          "slug": "c-trạng-thái-evidence-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "D. Khóa riêng của file này",
+          "line": 33,
+          "slug": "d-khóa-riêng-của-file-này"
+        },
+        {
+          "depth": 2,
+          "text": "Nội dung triển khai",
+          "line": 37,
+          "slug": "nội-dung-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "PROMPT-P4-2G - AI ADVISOR RUNTIME / SMOKE / EVIDENCE / REPORT / PHASE 4 LOCAL READINESS HANDOFF",
+          "line": 39,
+          "slug": "prompt-p4-2g---ai-advisor-runtime-smoke-evidence-report-phase-4-local-readiness-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "PHASE MARKER",
+          "line": 43,
+          "slug": "phase-marker"
+        },
+        {
+          "depth": 2,
+          "text": "1. HEADER",
+          "line": 53,
+          "slug": "1-header"
+        },
+        {
+          "depth": 2,
+          "text": "2. MODE",
+          "line": 67,
+          "slug": "2-mode"
+        },
+        {
+          "depth": 2,
+          "text": "3. SOURCE-OF-TRUTH",
+          "line": 77,
+          "slug": "3-source-of-truth"
+        },
+        {
+          "depth": 2,
+          "text": "4. ENTRY CONDITION",
+          "line": 95,
+          "slug": "4-entry-condition"
+        },
+        {
+          "depth": 2,
+          "text": "5. OBJECTIVE",
+          "line": 109,
+          "slug": "5-objective"
+        },
+        {
+          "depth": 2,
+          "text": "1. Kiểm tra AI Advisor consume đúng runtime từ Phase 1, Phase 2 và Phase 3.",
+          "line": 113,
+          "slug": "1-kiểm-tra-ai-advisor-consume-đúng-runtime-từ-phase-1-phase-2-và-phase-3"
+        },
+        {
+          "depth": 2,
+          "text": "2. Kiểm tra Customer Memory chỉ dùng để cá nhân hóa tư vấn, không tự quyết giá/tồn/quyền lợi/trạng thái đơn.",
+          "line": 115,
+          "slug": "2-kiểm-tra-customer-memory-chỉ-dùng-để-cá-nhân-hóa-tư-vấn-không-tự-quyết-giátồnquyền-lợitrạng-thái-đơn"
+        },
+        {
+          "depth": 2,
+          "text": "3. Kiểm tra Product Consultation chỉ tư vấn SKU hợp lệ, sellable, không bị recall/sale lock/channel suppression và phù hợp guard.",
+          "line": 117,
+          "slug": "3-kiểm-tra-product-consultation-chỉ-tư-vấn-sku-hợp-lệ-sellable-không-bị-recallsale-lockchannel-suppression-và-phù-hợp-guard"
+        },
+        {
+          "depth": 2,
+          "text": "4. Kiểm tra Quote/Order consumer dùng QuoteSnapshot, order draft, customer confirmation và order_code đúng boundary.",
+          "line": 119,
+          "slug": "4-kiểm-tra-quoteorder-consumer-dùng-quotesnapshot-order-draft-customer-confirmation-và-ordercode-đúng-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "5. Kiểm tra Safety/Public Wording/Claim Guard chặn claim y tế, internal leak và lỗi public/private.",
+          "line": 121,
+          "slug": "5-kiểm-tra-safetypublic-wordingclaim-guard-chặn-claim-y-tế-internal-leak-và-lỗi-publicprivate"
+        },
+        {
+          "depth": 2,
+          "text": "6. Kiểm tra Messenger/Live/CRM Bridge tôn trọng channel policy, opt-out, frequency cap, public/private routing và suppression.",
+          "line": 123,
+          "slug": "6-kiểm-tra-messengerlivecrm-bridge-tôn-trọng-channel-policy-opt-out-frequency-cap-publicprivate-routing-và-suppression"
+        },
+        {
+          "depth": 2,
+          "text": "6. SCOPE IN",
+          "line": 125,
+          "slug": "6-scope-in"
+        },
+        {
+          "depth": 2,
+          "text": "7. SCOPE OUT",
+          "line": 141,
+          "slug": "7-scope-out"
+        },
+        {
+          "depth": 2,
+          "text": "8. PHASE 4 COMPONENT READINESS MATRIX",
+          "line": 155,
+          "slug": "8-phase-4-component-readiness-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "9. GLOBAL SMOKE TEST CATALOG",
+          "line": 171,
+          "slug": "9-global-smoke-test-catalog"
+        },
+        {
+          "depth": 2,
+          "text": "10. EVIDENCE REQUIRED",
+          "line": 225,
+          "slug": "10-evidence-required"
+        },
+        {
+          "depth": 2,
+          "text": "11. điểm chặn REGISTER",
+          "line": 245,
+          "slug": "11-điểm-chặn-register"
+        },
+        {
+          "depth": 2,
+          "text": "12. EXECUTION STEPS",
+          "line": 271,
+          "slug": "12-execution-steps"
+        },
+        {
+          "depth": 2,
+          "text": "1. Ghi nhận repository, branch, commit hash, build version, environment và config snapshot trước khi test.",
+          "line": 273,
+          "slug": "1-ghi-nhận-repository-branch-commit-hash-build-version-environment-và-config-snapshot-trước-khi-test"
+        },
+        {
+          "depth": 2,
+          "text": "2. Xác nhận đang ở smoke/evidence/report mode; không sửa code, không migration, không seed production, không mở Gateway.",
+          "line": 275,
+          "slug": "2-xác-nhận-đang-ở-smokeevidencereport-mode-không-sửa-code-không-migration-không-seed-production-không-mở-gateway"
+        },
+        {
+          "depth": 2,
+          "text": "3. Rà soát mapping giữa các file P4-2A đến P4-2F và implementation candidate hiện có.",
+          "line": 277,
+          "slug": "3-rà-soát-mapping-giữa-các-file-p4-2a-đến-p4-2f-và-implementation-candidate-hiện-có"
+        },
+        {
+          "depth": 2,
+          "text": "4. Chuẩn bị test data: khách mới, khách cũ/member, Diamond context, SKU sellable, SKU not sellable, SKU recall/sale lock, quote hợp lệ, quote hết hạn, order draft, duplicate event, opt-out CRM, troll/complaint.",
+          "line": 279,
+          "slug": "4-chuẩn-bị-test-data-khách-mới-khách-cũmember-diamond-context-sku-sellable-sku-not-sellable-sku-recallsale-lock-quote-hợp-lệ-quote-hết-hạn-order-draft-duplicate-event-opt-out-crm-trollcomplaint"
+        },
+        {
+          "depth": 2,
+          "text": "5. Chạy smoke P4-GSMK-001 đến P4-GSMK-026; ghi pass/fail từng case, không gộp chung.",
+          "line": 281,
+          "slug": "5-chạy-smoke-p4-gsmk-001-đến-p4-gsmk-026-ghi-passfail-từng-case-không-gộp-chung"
+        },
+        {
+          "depth": 2,
+          "text": "6. Thu thập evidence theo P4-EVD-001 đến P4-EVD-009; mask secret, token, thông tin khách thật và dữ liệu nhạy cảm.",
+          "line": 283,
+          "slug": "6-thu-thập-evidence-theo-p4-evd-001-đến-p4-evd-009-mask-secret-token-thông-tin-khách-thật-và-dữ-liệu-nhạy-cảm"
+        },
+        {
+          "depth": 2,
+          "text": "7. Nếu có Fail Gate hoặc điểm chặn, dừng gọi pass, lập điểm chặn register và downstream impact.",
+          "line": 285,
+          "slug": "7-nếu-có-fail-gate-hoặc-điểm-chặn-dừng-gọi-pass-lập-điểm-chặn-register-và-downstream-impact"
+        },
+        {
+          "depth": 2,
+          "text": "9. Chuyển report và evidence cho owner review; chỉ owner/release decision mới được chuyển sang bước Gateway review.",
+          "line": 287,
+          "slug": "9-chuyển-report-và-evidence-cho-owner-review-chỉ-ownerrelease-decision-mới-được-chuyển-sang-bước-gateway-review"
+        },
+        {
+          "depth": 2,
+          "text": "13. REPORT RESULT MATRIX TEMPLATE",
+          "line": 289,
+          "slug": "13-report-result-matrix-template"
+        },
+        {
+          "depth": 2,
+          "text": "14. REQUIRED REPORT FORMAT - 14 MỤC",
+          "line": 305,
+          "slug": "14-required-report-format---14-mục"
+        },
+        {
+          "depth": 2,
+          "text": "15. DONE GATE",
+          "line": 333,
+          "slug": "15-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "16. FAIL GATE",
+          "line": 343,
+          "slug": "16-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "17. DOWNSTREAM IMPACT",
+          "line": 361,
+          "slug": "17-downstream-impact"
+        },
+        {
+          "depth": 2,
+          "text": "18. DOWNSTREAM HANDOFF",
+          "line": 373,
+          "slug": "18-downstream-handoff"
+        }
+      ],
+      "links": [],
+      "lines": 376,
+      "words": 4199,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "09-CHỈ MỤC BÀN GIAO.md",
+      "title": "P4 - CHỈ MỤC BÀN GIAO",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4 - CHỈ MỤC BÀN GIAO",
+          "line": 1,
+          "slug": "p4---chỉ-mục-bàn-giao"
+        },
+        {
+          "depth": 2,
+          "text": "Khóa chống conflict Phase 4",
+          "line": 3,
+          "slug": "khóa-chống-conflict-phase-4"
+        },
+        {
+          "depth": 2,
+          "text": "1. Thứ tự đọc trong bộ Phase 4 đã rewrite",
+          "line": 15,
+          "slug": "1-thứ-tự-đọc-trong-bộ-phase-4-đã-rewrite"
+        },
+        {
+          "depth": 2,
+          "text": "2. Ranh giới Phase 4",
+          "line": 31,
+          "slug": "2-ranh-giới-phase-4"
+        },
+        {
+          "depth": 2,
+          "text": "3. Source-of-truth bắt buộc đã nhập",
+          "line": 63,
+          "slug": "3-source-of-truth-bắt-buộc-đã-nhập"
+        },
+        {
+          "depth": 2,
+          "text": "4. Execution order",
+          "line": 80,
+          "slug": "4-execution-order"
+        },
+        {
+          "depth": 2,
+          "text": "5. P0 gates",
+          "line": 99,
+          "slug": "5-p0-gates"
+        },
+        {
+          "depth": 2,
+          "text": "6. Done condition",
+          "line": 123,
+          "slug": "6-done-condition"
+        }
+      ],
+      "links": [],
+      "lines": 135,
+      "words": 1325,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "10-PHỤ LỤC KHÓA THỜI GIAN CHẠY THỰC CHIẾN CỐ VẤN AI.md",
+      "title": "P4 - PHỤ LỤC KHÓA RUNTIME THỰC CHIẾN AI ADVISOR",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4 - PHỤ LỤC KHÓA RUNTIME THỰC CHIẾN AI ADVISOR",
+          "line": 1,
+          "slug": "p4---phụ-lục-khóa-runtime-thực-chiến-ai-advisor"
+        },
+        {
+          "depth": 2,
+          "text": "Khóa chống conflict Phase 4",
+          "line": 3,
+          "slug": "khóa-chống-conflict-phase-4"
+        },
+        {
+          "depth": 2,
+          "text": "1. Vai trò addendum",
+          "line": 14,
+          "slug": "1-vai-trò-addendum"
+        },
+        {
+          "depth": 2,
+          "text": "2. Runtime boundary không được vi phạm",
+          "line": 20,
+          "slug": "2-runtime-boundary-không-được-vi-phạm"
+        },
+        {
+          "depth": 2,
+          "text": "3. Conflict phải fail-closed",
+          "line": 39,
+          "slug": "3-conflict-phải-fail-closed"
+        },
+        {
+          "depth": 2,
+          "text": "4. Contracts tối thiểu phải có",
+          "line": 52,
+          "slug": "4-contracts-tối-thiểu-phải-có"
+        },
+        {
+          "depth": 2,
+          "text": "5. Customer-facing language lock",
+          "line": 72,
+          "slug": "5-customer-facing-language-lock"
+        },
+        {
+          "depth": 2,
+          "text": "6. P0 smoke tối thiểu",
+          "line": 95,
+          "slug": "6-p0-smoke-tối-thiểu"
+        },
+        {
+          "depth": 2,
+          "text": "7. Evidence lock",
+          "line": 116,
+          "slug": "7-evidence-lock"
+        },
+        {
+          "depth": 2,
+          "text": "8. Done gate của addendum",
+          "line": 135,
+          "slug": "8-done-gate-của-addendum"
+        },
+        {
+          "depth": 2,
+          "text": "9. Final status",
+          "line": 146,
+          "slug": "9-final-status"
+        }
+      ],
+      "links": [],
+      "lines": 157,
+      "words": 909,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "11-MA TRẬN SRS VÀ BÀN GIAO TRIỂN KHAI.md",
+      "title": "P4 - MA TRẬN SRS VÀ BÀN GIAO TRIỂN KHAI",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "P4 - MA TRẬN SRS VÀ BÀN GIAO TRIỂN KHAI",
+          "line": 1,
+          "slug": "p4---ma-trận-srs-và-bàn-giao-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "1. Khóa chống conflict Phase 4",
+          "line": 10,
+          "slug": "1-khóa-chống-conflict-phase-4"
+        },
+        {
+          "depth": 2,
+          "text": "2. Mục tiêu bàn giao",
+          "line": 16,
+          "slug": "2-mục-tiêu-bàn-giao"
+        },
+        {
+          "depth": 2,
+          "text": "3. Phạm vi SRS",
+          "line": 32,
+          "slug": "3-phạm-vi-srs"
+        },
+        {
+          "depth": 2,
+          "text": "4. SRS readiness gate",
+          "line": 67,
+          "slug": "4-srs-readiness-gate"
+        },
+        {
+          "depth": 2,
+          "text": "5. Requirement traceability matrix",
+          "line": 84,
+          "slug": "5-requirement-traceability-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "6. Non-functional requirements",
+          "line": 113,
+          "slug": "6-non-functional-requirements"
+        },
+        {
+          "depth": 2,
+          "text": "7. Implementation work packages",
+          "line": 129,
+          "slug": "7-implementation-work-packages"
+        },
+        {
+          "depth": 2,
+          "text": "8. Dev analysis checklist before SRS",
+          "line": 147,
+          "slug": "8-dev-analysis-checklist-before-srs"
+        },
+        {
+          "depth": 2,
+          "text": "9. SRS document structure bắt buộc",
+          "line": 164,
+          "slug": "9-srs-document-structure-bắt-buộc"
+        },
+        {
+          "depth": 2,
+          "text": "10. Acceptance criteria cho SRS",
+          "line": 184,
+          "slug": "10-acceptance-criteria-cho-srs"
+        },
+        {
+          "depth": 2,
+          "text": "11. Implementation guardrails",
+          "line": 205,
+          "slug": "11-implementation-guardrails"
+        },
+        {
+          "depth": 2,
+          "text": "12. Report format bắt buộc sau implementation",
+          "line": 225,
+          "slug": "12-report-format-bắt-buộc-sau-implementation"
+        },
+        {
+          "depth": 2,
+          "text": "13. Final status",
+          "line": 244,
+          "slug": "13-final-status"
+        }
+      ],
+      "links": [],
+      "lines": 254,
+      "words": 2624,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "12-BẢNG GOM GIAI ĐOẠN 4.md",
+      "title": "BẢNG GÔM GIAI ĐOẠN 4 - AI ADVISOR RUNTIME CANONICAL REWRITE",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "BẢNG GÔM GIAI ĐOẠN 4 - AI ADVISOR RUNTIME CANONICAL REWRITE",
+          "line": 1,
+          "slug": "bảng-gôm-giai-đoạn-4---ai-advisor-runtime-canonical-rewrite"
+        },
+        {
+          "depth": 2,
+          "text": "0. Khóa chống conflict nội bộ Phase 4",
+          "line": 12,
+          "slug": "0-khóa-chống-conflict-nội-bộ-phase-4"
+        },
+        {
+          "depth": 2,
+          "text": "1. Kết luận điều hành",
+          "line": 18,
+          "slug": "1-kết-luận-điều-hành"
+        },
+        {
+          "depth": 2,
+          "text": "2. Tài liệu nguồn đã nhập vào Phase 4",
+          "line": 41,
+          "slug": "2-tài-liệu-nguồn-đã-nhập-vào-phase-4"
+        },
+        {
+          "depth": 3,
+          "text": "2.1. Master / Pack / Tech",
+          "line": 43,
+          "slug": "21-master-pack-tech"
+        },
+        {
+          "depth": 3,
+          "text": "2.2. Upstream Phase 3 / Phase 3.1",
+          "line": 69,
+          "slug": "22-upstream-phase-3-phase-31"
+        },
+        {
+          "depth": 3,
+          "text": "2.3. Sáu bản bổ sung Phase 3.1",
+          "line": 78,
+          "slug": "23-sáu-bản-bổ-sung-phase-31"
+        },
+        {
+          "depth": 3,
+          "text": "2.4. Canonical mới",
+          "line": 89,
+          "slug": "24-canonical-mới"
+        },
+        {
+          "depth": 3,
+          "text": "2.5. Downstream Phase 5 / Facebook / Ads / Live",
+          "line": 97,
+          "slug": "25-downstream-phase-5-facebook-ads-live"
+        },
+        {
+          "depth": 3,
+          "text": "2.6. Coverage lock chống thiếu nguồn",
+          "line": 107,
+          "slug": "26-coverage-lock-chống-thiếu-nguồn"
+        },
+        {
+          "depth": 2,
+          "text": "3. Conflict resolution matrix",
+          "line": 126,
+          "slug": "3-conflict-resolution-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "4. Phase 4 source-of-truth chain",
+          "line": 141,
+          "slug": "4-phase-4-source-of-truth-chain"
+        },
+        {
+          "depth": 2,
+          "text": "5. Phase 4 owns / does not own",
+          "line": 166,
+          "slug": "5-phase-4-owns-does-not-own"
+        },
+        {
+          "depth": 2,
+          "text": "6. Global status locks",
+          "line": 178,
+          "slug": "6-global-status-locks"
+        },
+        {
+          "depth": 2,
+          "text": "7. Runtime input contracts bắt buộc",
+          "line": 198,
+          "slug": "7-runtime-input-contracts-bắt-buộc"
+        },
+        {
+          "depth": 3,
+          "text": "7.1. AIAdvisorRequestEnvelope",
+          "line": 200,
+          "slug": "71-aiadvisorrequestenvelope"
+        },
+        {
+          "depth": 3,
+          "text": "7.2. ChannelContext",
+          "line": 227,
+          "slug": "72-channelcontext"
+        },
+        {
+          "depth": 3,
+          "text": "7.3. DailySalesContext",
+          "line": 250,
+          "slug": "73-dailysalescontext"
+        },
+        {
+          "depth": 3,
+          "text": "7.4. CustomerAdvisoryContext",
+          "line": 286,
+          "slug": "74-customeradvisorycontext"
+        },
+        {
+          "depth": 3,
+          "text": "7.5. ProductRoleMatrix",
+          "line": 325,
+          "slug": "75-productrolematrix"
+        },
+        {
+          "depth": 3,
+          "text": "7.6. QuoteSnapshotConsumerView",
+          "line": 369,
+          "slug": "76-quotesnapshotconsumerview"
+        },
+        {
+          "depth": 3,
+          "text": "7.7. OrderRuntimeConsumerView",
+          "line": 403,
+          "slug": "77-orderruntimeconsumerview"
+        },
+        {
+          "depth": 3,
+          "text": "7.8. PaymentPublicResponsePolicy",
+          "line": 438,
+          "slug": "78-paymentpublicresponsepolicy"
+        },
+        {
+          "depth": 3,
+          "text": "7.9. ShippingETAResponsePolicy",
+          "line": 449,
+          "slug": "79-shippingetaresponsepolicy"
+        },
+        {
+          "depth": 3,
+          "text": "7.10. CRMMemberContext",
+          "line": 465,
+          "slug": "710-crmmembercontext"
+        },
+        {
+          "depth": 3,
+          "text": "7.11. DiamondReferralContext",
+          "line": 495,
+          "slug": "711-diamondreferralcontext"
+        },
+        {
+          "depth": 2,
+          "text": "8. Recommendation decision tree",
+          "line": 521,
+          "slug": "8-recommendation-decision-tree"
+        },
+        {
+          "depth": 2,
+          "text": "9. Situation locks from real-life supplement",
+          "line": 561,
+          "slug": "9-situation-locks-from-real-life-supplement"
+        },
+        {
+          "depth": 2,
+          "text": "10. Public/private and language guard",
+          "line": 585,
+          "slug": "10-publicprivate-and-language-guard"
+        },
+        {
+          "depth": 3,
+          "text": "10.1. Customer-facing banned terms",
+          "line": 587,
+          "slug": "101-customer-facing-banned-terms"
+        },
+        {
+          "depth": 3,
+          "text": "10.2. Replacement style",
+          "line": 613,
+          "slug": "102-replacement-style"
+        },
+        {
+          "depth": 3,
+          "text": "10.3. Channel surface rule",
+          "line": 625,
+          "slug": "103-channel-surface-rule"
+        },
+        {
+          "depth": 2,
+          "text": "11. Final Response Guard",
+          "line": 634,
+          "slug": "11-final-response-guard"
+        },
+        {
+          "depth": 2,
+          "text": "12. Typing / pacing policy",
+          "line": 664,
+          "slug": "12-typing-pacing-policy"
+        },
+        {
+          "depth": 2,
+          "text": "13. CRM / Member rendering lock",
+          "line": 693,
+          "slug": "13-crm-member-rendering-lock"
+        },
+        {
+          "depth": 2,
+          "text": "14. Finance / Diamond rendering lock",
+          "line": 729,
+          "slug": "14-finance-diamond-rendering-lock"
+        },
+        {
+          "depth": 2,
+          "text": "15. Ads / Live / Gateway lock",
+          "line": 747,
+          "slug": "15-ads-live-gateway-lock"
+        },
+        {
+          "depth": 3,
+          "text": "15.1. Ads",
+          "line": 749,
+          "slug": "151-ads"
+        },
+        {
+          "depth": 3,
+          "text": "15.2. Live / MC AI",
+          "line": 760,
+          "slug": "152-live-mc-ai"
+        },
+        {
+          "depth": 3,
+          "text": "15.3. Gateway",
+          "line": 777,
+          "slug": "153-gateway"
+        },
+        {
+          "depth": 2,
+          "text": "16. AI decision and evidence objects",
+          "line": 797,
+          "slug": "16-ai-decision-and-evidence-objects"
+        },
+        {
+          "depth": 3,
+          "text": "16.1. DecisionEnvelope",
+          "line": 799,
+          "slug": "161-decisionenvelope"
+        },
+        {
+          "depth": 3,
+          "text": "16.2. Evidence item",
+          "line": 833,
+          "slug": "162-evidence-item"
+        },
+        {
+          "depth": 2,
+          "text": "17. Phase 4 execution shards",
+          "line": 861,
+          "slug": "17-phase-4-execution-shards"
+        },
+        {
+          "depth": 2,
+          "text": "18. Phase 4 P0 gates",
+          "line": 877,
+          "slug": "18-phase-4-p0-gates"
+        },
+        {
+          "depth": 2,
+          "text": "19. Smoke matrix",
+          "line": 901,
+          "slug": "19-smoke-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "20. Done gate",
+          "line": 932,
+          "slug": "20-done-gate"
+        },
+        {
+          "depth": 2,
+          "text": "21. Fail gate",
+          "line": 947,
+          "slug": "21-fail-gate"
+        },
+        {
+          "depth": 2,
+          "text": "22. Owner decision carry-over",
+          "line": 969,
+          "slug": "22-owner-decision-carry-over"
+        },
+        {
+          "depth": 2,
+          "text": "23. SRS and implementation handoff",
+          "line": 983,
+          "slug": "23-srs-and-implementation-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "24. Handoff to Phase 5",
+          "line": 1005,
+          "slug": "24-handoff-to-phase-5"
+        },
+        {
+          "depth": 2,
+          "text": "25. Final status",
+          "line": 1035,
+          "slug": "25-final-status"
+        }
+      ],
+      "links": [],
+      "lines": 1049,
+      "words": 5760,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    }
+  ],
+  "edges": [],
+  "issues": {
+    "unresolvedLinks": [],
+    "duplicateTitles": [],
+    "encodingNameAnomalies": [
+      "00-PHÂN TÍCH HIỆN TRẠNG.md"
+    ],
+    "orphanCandidates": [
+      "00-PHÂN TÍCH HIỆN TRẠNG.md",
+      "01-THIẾT KẾ KỸ THUẬT.md",
+      "02-HỢP ĐỒNG TIÊU THỤ DỮ LIỆU THỜI GIAN CHẠY.md",
+      "03-BỘ NHỚ KHÁCH HÀNG VÀ BỘ GIẢI NGỮ CẢNH.md",
+      "04-ĐIỀU PHỐI TƯ VẤN KIẾN THỨC SẢN PHẨM.md",
+      "05-TIÊU THỤ BÁO GIÁ NHÁP VÀ XÁC NHẬN ĐƠN.md",
+      "06-CHẶN AN TOÀN NGÔN TỪ CÔNG KHAI VÀ TUYÊN BỐ.md",
+      "07-CẦU NỐI BÀN GIAO KÊNH MESSENGER TRỰC TIẾP VÀ CRM.md",
+      "08-BÁO CÁO KIỂM THỬ KHÓI VÀ BẰNG CHỨNG.md",
+      "09-CHỈ MỤC BÀN GIAO.md",
+      "10-PHỤ LỤC KHÓA THỜI GIAN CHẠY THỰC CHIẾN CỐ VẤN AI.md",
+      "11-MA TRẬN SRS VÀ BÀN GIAO TRIỂN KHAI.md",
+      "12-BẢNG GOM GIAI ĐOẠN 4.md"
+    ]
+  }
+}

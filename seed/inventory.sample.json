@@ -1,0 +1,68 @@
+{
+  "_layer": "sim-ops",
+  "_note": "SellableStatus per sku/batch (DO-01). Mock của POST /api/v1/admin/availability/check. captured_at cố định (DO-02).",
+  "sellable_status": [
+    {
+      "sku_id": "SKU-A1",
+      "batch_id": "BAT-2026-0001",
+      "decision": "SELLABLE",
+      "recall_hold": false,
+      "sale_lock": false,
+      "quality_hold": false,
+      "stock_available": true,
+      "batch_released": true,
+      "warehouse_receipt_confirmed": true,
+      "hsd_valid": true,
+      "trace_ready": true,
+      "captured_at": "2026-07-02T02:00:00Z"
+    },
+    {
+      "sku_id": "SKU-B2",
+      "batch_id": "BAT-2026-0007",
+      "decision": "NOT_SELLABLE",
+      "recall_hold": false,
+      "sale_lock": false,
+      "quality_hold": false,
+      "stock_available": false,
+      "batch_released": true,
+      "warehouse_receipt_confirmed": true,
+      "hsd_valid": true,
+      "trace_ready": true,
+      "captured_at": "2026-07-02T02:00:00Z",
+      "_note": "het hang (stock_available=false)"
+    },
+    {
+      "sku_id": "SKU-C9",
+      "batch_id": "BAT-2026-0009",
+      "decision": "BLOCKED",
+      "recall_hold": true,
+      "sale_lock": true,
+      "quality_hold": false,
+      "stock_available": true,
+      "batch_released": true,
+      "warehouse_receipt_confirmed": true,
+      "hsd_valid": true,
+      "trace_ready": true,
+      "captured_at": "2026-07-02T02:00:00Z",
+      "recall_case_id": "b6f0c9e2-0000-4000-8000-000000000009",
+      "recall_no": "RC-2026-009",
+      "sale_lock_id": "a1d2f3e4-0000-4000-8000-000000000009",
+      "_note": "RECALL active -> sale_lock (recall-triggered DO-CORR-3) -> block"
+    },
+    {
+      "sku_id": "SKU-A5",
+      "batch_id": "BAT-2026-0005",
+      "decision": "BLOCKED",
+      "recall_hold": false,
+      "sale_lock": false,
+      "quality_hold": true,
+      "stock_available": true,
+      "batch_released": true,
+      "warehouse_receipt_confirmed": true,
+      "hsd_valid": true,
+      "trace_ready": true,
+      "captured_at": "2026-07-02T02:00:00Z",
+      "_note": "quality hold -> block"
+    }
+  ]
+}
