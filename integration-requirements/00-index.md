@@ -1,25 +1,30 @@
 # Integration Requirements — Index (IVR Order Confirmation)
 
-Trạng thái: `REQUIREMENTS` · Sinh bởi: `plan/ivr-orther/prompts/p09-generate-integration-requirements.md`
-Người gửi: Team IVR / Module 8. Nguồn: `plan/ivr-orther/decisions-log.md` (D-*/DO-*/DF-*/DT-*), `specs/srs/api/*`, `data/*`, `10-integration-gap-analysis.md`, `11`,`12`; `phase-8/17`,`/02`; `phase-3.1/07`.
+Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-12`.
 
-## 1. Mục đích
-Tài liệu **yêu cầu tích hợp** gửi các team để hiện thực contract IVR cần. Phần lớn contract **đã được các team chốt** (D-*/DO-*/DF-*/DT-*) — đây là bản chuyển từ Q&A sang "cần build gì". Phần chưa chốt đánh ⏳.
+## Mục đích
 
-## 2. Cấu trúc
-| File | Team | Trạng thái |
+Đây là contract pack gửi các team để IVR .NET có thể tích hợp với Sales Platform Java, Telephony và Foundation. Tài liệu phân biệt rõ:
+
+- `CURRENT_COMPAT`: source/API hiện có, dùng tạm sau adapter;
+- `TARGET_DRAFT`: hai bên có thể build song song nhưng chưa được coi là khóa;
+- `OWNER_DECISION_REQUIRED`: không được tự chọn cho production;
+- `BLOCKED_EXTERNAL`: không chặn code sau mock, nhưng chặn integration/vận hành thật.
+
+Nguồn điều khiển: `plan/ivr-orther/target-contract-v1-draft.md` → `decisions-log.md` → OpenAPI/spec.
+
+## Cấu trúc
+
+| File | Owner | Nội dung |
 | --- | --- | --- |
-| [01-sales-platform-requirements.md](01-sales-platform-requirements.md) | Order Core (M3) + Sales Extensions (M3.1) | ✅ contract chốt D-01..14; cần build |
-| [02-ops-core-requirements.md](02-ops-core-requirements.md) | Ops-Core (M1/2) | ✅ DO-01..09; cần build/điều chỉnh |
-| [03-telephony-sim-requirements.md](03-telephony-sim-requirements.md) | Telephony/Infra | ⏳ DT-01..06; mua SIM |
-| [04-shared-auth-audit-requirements.md](04-shared-auth-audit-requirements.md) | Foundation | ✅ DF-01..07 (owner kiêm) |
-| [05-open-contract-questions.md](05-open-contract-questions.md) | tổng hợp câu hỏi mở | ✅ Q-C1/DC-01 + DG-03/DS-01..05 resolved; P0 còn DT-01 + DF-03 |
+| [01-sales-platform-requirements.md](01-sales-platform-requirements.md) | Sales/Order Core | producer, speech data, dial-token, callback/revalidation, timeout |
+| [02-ops-core-requirements.md](02-ops-core-requirements.md) | Ops-Core qua Sales Core | sellable/recall/sale-lock evidence; IVR không gọi trực tiếp |
+| [03-telephony-sim-requirements.md](03-telephony-sim-requirements.md) | Telephony/Infra | mock → 1 SIM lab → 32 eSIM target |
+| [04-shared-auth-audit-requirements.md](04-shared-auth-audit-requirements.md) | Security/Foundation | auth, RBAC, audit, retention, release gates |
+| [05-open-contract-questions.md](05-open-contract-questions.md) | các owner | câu hỏi còn mở và acceptance evidence cần trả |
 
-## 3. Tension order_code — ✅ ĐÃ GIẢI QUYẾT
-`phase-3.1/07` ("không order_code trước IVR") vs `phase-8` ("IVR sau Official Order") → **D-01**: order_code cấp khi tạo Official Order; đơn vào `CONFIRMATION_REQUIRED/IVR_PENDING`; **fulfillment/downstream khóa** tới khi Core chấp nhận IVR signal. "Không order_code trước IVR" = "không release/verify downstream trước IVR". Không còn là câu hỏi mở.
+## Mock-first rule
 
-## 4. Mock fallback
-Mọi dependency có thể chạy **MOCK** (adapter/port + `INTEGRATION_MODE`) để IVR làm smoke/dry-run trước khi có API/hạ tầng thật (seed p10). `REAL_CUSTOMER_CALL_ALLOWED=NO` tới release gate (DF-03).
+Mọi external dependency phải có port + deterministic fake provider + failure scenarios. Điều này cho phép đạt `IMPLEMENTATION_COMPLETE_BEHIND_MOCKS`, nhưng không biến `BLOCKED_EXTERNAL` thành `VERIFIED`.
 
-## 5. Quy ước mỗi yêu cầu
-`ID · mục đích · priority · input/output · sync/async · idempotency · mock? · ai build · trạng thái`.
+Ba mode: `MOCK`, `LAB_REAL_SIM`, `PRODUCTION_REAL`. `REAL_CUSTOMER_CALL_ALLOWED=NO` cho tới release gate.

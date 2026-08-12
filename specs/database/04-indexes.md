@@ -21,7 +21,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §4-8,�
 
 ## 3. Index race guard / lookup
 - Current lookup: `order_state`, `program_type`, `official_order_id`, `task_id`, `correlation_id`; stale guard hiện chạy bằng Core recheck state/COD/sellable.
-- Target race guard (IR-SALES-OC1): nullable/indexed `order_version_snapshot` / `order_version_seen_by_ivr` trên results/callbacks khi Core expose version.
+- Target race guard: required/indexed `order_version_snapshot` / `order_version_seen_by_ivr`; current-compat records are distinguishable and cannot weaken target validation.
 - `correlation_id` trên tasks/results/technical_exceptions/admin_actions (trace).
 - `official_order_id`, `task_id` trên các bảng con.
 - `result_type`, `is_final_for_ivr`, `human_review_required` (query review).

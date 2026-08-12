@@ -12,6 +12,8 @@
 | **Prereq (blockedBy)** | *{các prompt phải xong trước, VD `P0-3`, `P1-2`}* |
 | **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` *(trừ Phase 8/9 có ghi rõ)* |
 | **Stack** | .NET 10 / PostgreSQL / Next.js / Docker+K8s *(theo phần liên quan)* |
+| **Work ID** | *ID kế tiếp/chính xác trong `_execution/prompt-execution-tracker.md`; bắt buộc trước khi code* |
+| **Execution mode** | `MOCK` mặc định; `LAB_REAL_SIM`/`PRODUCTION_REAL` chỉ khi prompt và gate cho phép |
 
 ## 1. ROLE (đóng vai)
 *Persona rõ ràng agent phải nhập vai, kèm mức seniority + trọng tâm.* Ví dụ:
@@ -31,6 +33,8 @@
 
 ## 5. INPUTS / DEPENDENCIES (yếu tố đầu vào)
 *Config, biến môi trường, contract, seed, service ngoài, secret. Nêu default + `NEED_CONFIRMATION` nếu chưa chốt.*
+
+Tách từng input thành `REAL_AVAILABLE`, `MOCK_REQUIRED`, `OWNER_DECISION_REQUIRED` hoặc `BLOCKED_EXTERNAL`. Không invent production API/data. Mọi thiếu hụt mới phải thêm Work ID kế tiếp vào tracker.
 
 ## 6. BUILD STEPS (việc cần làm — chi tiết, có thứ tự)
 *Các bước đánh số, đủ cụ thể để thực thi: file/class/endpoint/migration nào, hành vi ra sao. .NET/Next.js cụ thể, không generic.*
@@ -75,3 +79,11 @@
 - [ ] Tất cả §8 test xanh; §10 evidence sinh ra.
 - [ ] Self-review §9 tick hết; PR có traceability (source/req/contract/test/evidence).
 - [ ] Cập nhật doc liên quan nếu đổi contract.
+- [ ] Cập nhật Work ID trong tracker với artifacts, commands/tests, evidence, blockers và việc phát sinh; append activity log.
+- [ ] Ghi đúng cấp độ: mock-complete, lab-verified, integration-verified hoặc production-accepted; không gộp các cấp.
+
+## 13. TRACKER UPDATE (bắt buộc)
+
+- Before: Work ID + `IN_PROGRESS` + baseline/prereq.
+- During: checkpoint và mọi unplanned dependency/work bằng ID tuần tự.
+- After: actual files, test commands/results, evidence links, residual gates, next allowed work; chỉ reviewer/owner chuyển `ACCEPTED`.

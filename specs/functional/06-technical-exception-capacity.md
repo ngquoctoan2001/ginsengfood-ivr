@@ -1,6 +1,6 @@
 # FR — Technical Exception & Capacity
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p03`
+Trạng thái: `TARGET_V1_DRAFT` · Disposition mapping is provisional until verified with the real gateway.
 Nguồn: `docx` §15 (technical error boundary), §11 (capacity), §12 (scheduler); `phase-8/16` (NFR).
 
 **Actor:** Technical Exception Handler + Capacity Incident Monitor.
@@ -21,7 +21,7 @@ CONFIRMED: **Lỗi kỹ thuật tuyệt đối không được tính là khách 
 | `INTERNAL_CALLBACK_ERROR` | CUSTOMER_NO_ANSWER | Retry callback bounded + admin review |
 | `SCHEDULER_ERROR` | CUSTOMER_NO_ANSWER | Capacity/technical incident |
 
-## Call disposition mapping (DT-02 — ✅ LOCKED, IVR-owned; re-verify telco khi có SIM)
+## Call disposition mapping (candidate; re-verify with 1 real SIM/gateway)
 Ánh xạ tín hiệu SIM/telco → result. Nguồn: docx §13,§15; quyết định DT-02 (`plan/ivr-orther/decisions-log.md`). ⚠️ SIM gateway **chưa mua** → khi mua phải re-verify disposition code thật (DT-01).
 
 | Tín hiệu SIM/telco | Result | Counted? | Ghi chú |
@@ -40,7 +40,7 @@ CONFIRMED: **Lỗi kỹ thuật tuyệt đối không được tính là khách 
 | --- | --- | --- | --- |
 | FR-IVR-TECH-001 | Mọi lỗi kỹ thuật → `IVR_TECHNICAL_EXCEPTION` với `is_counted_customer_attempt=false` | docx §15; phase-8/12 §6 | Lỗi không tăng attempt (P0-IVR-004) |
 | FR-IVR-TECH-002 | Technical retry là kỹ thuật, có giới hạn (count/backoff — `Owner Decision Required` OD-10); không reset customer attempt | phase-8/07 §14; docx §15 | Retry bounded |
-| FR-IVR-TECH-003 | `SIM_CHANNEL_FAILURE` → auto disable SIM + alert; `fail_count ≥3/10′` | docx §10,§12 | SIM lỗi tự disable |
+| FR-IVR-TECH-003 | `SIM_CHANNEL_FAILURE` → quarantine/disable + alert theo versioned config; candidate `fail_count ≥3/10′` chỉ MOCK/LAB | docx §10,§12 | SIM lỗi tự cô lập |
 | FR-IVR-TECH-004 | `INTERNAL_CALLBACK_ERROR` → retry callback bounded cùng idempotency; hết retry → admin review | phase-8/07 §14 | Không duplicate transition |
 | FR-IVR-CAP-001 | Mở `capacity_incident` khi pending/expired/missed-deadline vượt ngưỡng; **không im lặng để đơn hết hạn** | docx §11,§12 | Miss deadline không log → FAIL (P0) |
 | FR-IVR-CAP-002 | Không nhận call job vượt capacity nếu chắc chắn miss deadline (Capacity Gate) | docx §7,§11 | Vượt capacity → incident + alert |
@@ -48,6 +48,6 @@ CONFIRMED: **Lỗi kỹ thuật tuyệt đối không được tính là khách 
 | FR-IVR-CAP-004 | Result khi capacity không xử lý kịp: `IVR_CAPACITY_EXCEPTION` (không tính no-answer) → Core/review | phase-8/07 §10 | Capacity → review |
 
 ## Owner Decision
-- ✅ **OD-11 → DT-02 (LOCKED):** disposition mapping (bảng trên); re-verify với telco thật khi có SIM (DT-01).
-- ✅ **OD-05 → DT-04:** SIM pool — giả định lập kế hoạch pilot 12 → launch 24–32; số thật điền khi mua (PENDING procurement).
+- Mapping disposition chỉ được khóa sau lab với **1 SIM thật**.
+- Channel pool hiện tại: 1 SIM lab; production target **32 eSIM**, cấu hình động và cần capacity evidence.
 - ⏳ OD-10 (technical retry count/backoff) — còn treo (đề xuất bounded; owner chốt số).

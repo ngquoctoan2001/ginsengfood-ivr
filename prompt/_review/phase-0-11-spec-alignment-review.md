@@ -1,5 +1,7 @@
 # REVIEW — Phase 0-11 Spec Alignment
 
+> **SUPERSEDED 2026-08-12:** review này phản ánh baseline cũ COD-only/D-10/current callback. Dùng Target V1 plan và `specs/_review/traceability-matrix.md` cho implementation hiện tại.
+
 Trạng thái: `REVIEW` · Ngày rà soát: 2026-07-06 · Phạm vi: toàn bộ prompt active `P0-*` đến `P11-*`, `prompt/00-index.md`, `prompt/README-governance.md`, OpenAPI/spec/database/testing/review register hiện hành.
 
 ## Kết luận

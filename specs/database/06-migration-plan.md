@@ -5,7 +5,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §12; D
 ## 1. Migration gates (trước khi merge)
 - [ ] Unique index cho `task_id`, `callback_id`, các `idempotency_key` (DF-04).
 - [ ] Index scheduler-deadline (`ivr_call_jobs(status, expires_at)`, `t0_at`).
-- [ ] Constraint/app-guard: `max_attempts=2`; window/spacing theo program (D-10); `attempt_number ≤ 2`; technical ≠ counted attempt.
+- [ ] Constraint/app-guard: `max_attempts BETWEEN 1 AND 10`; offsets ordered/nonnegative/before expiry; `attempt_number ≤ max_attempts`; technical ≠ counted attempt. Candidate timings live in versioned config, not DB CHECK.
 - [ ] **KHÔNG** cột bắt buộc full phone / raw recording (D-05/DT-05/DF-07).
 - [ ] Có migration rollback hoặc forward-fix plan.
 - [ ] Seed tối thiểu: chỉ `ivr_sim_channels` ở **non-prod**, `enabled=false`, `adapter_mode=MOCK` (DT-01).
@@ -17,7 +17,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §12; D
 - ⚠️ **CHECK 24/7 `max_attempts`**: gốc phase-8/12 = 3 → **đổi thành 2** (D-10). Golden Hour window gốc 600 → **300** (D-10). Nếu tái dùng migration cũ, **phải sửa constraint**.
 - ➕ Thêm bảng `ivr_raw_call_event` (OD-DR-03).
 - ➕ Thêm cột `sellable_status_json` + `sellable_captured_at`, `t0_at`, `attempt_spacing_seconds`, `order_state`, `payment_method_snapshot`, `is_ivr_callable`(nullable/derived), `call_restriction`(nullable), `adapter_mode`.
-- ⚠️ Callback race-guard current/target: `order_version_seen_by_ivr` nullable/target-only tới IR-SALES-OC1; current lưu `core_http_status` (`200`/`422`), `core_response_code` là semantic target IR-SALES-OC2.
+- Target V1 requires `order_version_seen_by_ivr`; current-compat data, if retained, stays in explicit compatibility columns/table and never weakens target validation. Store HTTP + semantic ACK separately.
 
 ## 4. Sau khi có nguồn thật (bỏ mock)
 - `call_restriction`: bật NOT NULL/logic sau khi IR-CRM-01 build rich response/Core wiring từ nguồn DC-01.

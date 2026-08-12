@@ -30,7 +30,7 @@ IVR Order Confirmation là **service .NET độc lập** (KHÔNG thuộc `ginsen
 
 ## 5. INPUTS / DEPENDENCIES
 - .NET 10 SDK, Node ≥ 20 (Next.js), Docker (Postgres local).
-- Env mẫu: `IVR_ADAPTER_MODE=MOCK`, `ConnectionStrings__IvrDb`, `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+- Env mẫu: `EXECUTION_MODE=MOCK`, `SALES_PROVIDER=FAKE_TARGET_V1`, `SIM_PROVIDER=MOCK`, `ConnectionStrings__IvrDb`, `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 - `NEED_CONFIRMATION`: tên repo/namespace gốc (default `Ivr`), package registry — không chặn.
 
 ## 6. BUILD STEPS
@@ -44,7 +44,7 @@ IVR Order Confirmation là **service .NET độc lập** (KHÔNG thuộc `ginsen
 2. Thiết lập **Directory.Build.props** ở gốc: `<Nullable>enable</Nullable>`, `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, `<LangVersion>latest</LangVersion>`, `<ImplicitUsings>enable</ImplicitUsings>`.
 3. Thêm `.editorconfig` (C# style rules) + analyzers (`Microsoft.CodeAnalysis.NetAnalyzers`, tuỳ chọn StyleCop). Cấu hình severity = warning→error cho rule quan trọng.
 4. `admin-ui/`: khởi tạo **Next.js** (TypeScript, App Router, ESLint, strict). Trang `/` placeholder "IVR Admin — MOCK mode". Chưa auth (P3-1).
-5. `docker-compose.dev.yml` ở gốc: service `postgres:16` (db `ivr`, user/pass dev), volume, healthcheck. Api đọc `ConnectionStrings__IvrDb`.
+5. `docker-compose.dev.yml`: `postgres:16` plus placeholders/services for fake Sales, mock SIM and mock JWT issuer; no real external egress. API reads env config.
 6. `README.md` gốc repo: cách chạy (`docker compose up postgres`, `dotnet run --project src/Ivr.Api`, `npm --prefix admin-ui run dev`), sơ đồ thành phần, nhắc governance (`REAL_CUSTOMER_CALL_ALLOWED=NO`).
 7. Config qua `appsettings.json` + `appsettings.Development.json` + env override; bind `IvrOptions` (adapter mode, connection). KHÔNG hardcode secret.
 

@@ -1,5 +1,7 @@
 # IVR Dev Prompt Library — Index
 
+> **LEGACY / DO NOT EXECUTE FOR TARGET V1:** các prompt trong thư mục này giữ để truy vết baseline cũ. Chạy prompt active ở `prompt/phase-*` và tracker canonical.
+
 Trạng thái: `DEV_HANDOFF` · Sinh bởi: `plan/ivr-orther/prompts/p13-generate-final-prompt-library.md`
 Đối tượng: dev backend / codex / copilot triển khai IVR theo slice. Nguồn cấu trúc: `TECH-13` (dev prompt pack), `TECH-11/12` (roadmap/backlog); docx §19 (slice M8.2A–H).
 Trạng thái specs: p01–p12 + p14 xong (xem `specs/srs/_review/*`). Đây là **prompt triển khai** — KHÔNG phải code, KHÔNG production code.

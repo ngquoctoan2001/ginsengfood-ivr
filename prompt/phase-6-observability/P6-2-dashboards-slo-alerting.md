@@ -28,7 +28,7 @@ Trước pilot/production, phải có "mắt và tai": dashboard trạng thái, 
 - Metrics từ P6-1; Grafana/Prometheus/Alertmanager (env — `NEED_CONFIRMATION`).
 
 ## 6. BUILD STEPS
-1. **Dashboards** (as-code, JSON/Grafana): tổng quan (task/attempt/result rate), SIM pool health/utilization, callback latency + 200/422, fail-closed/capacity, queue depth + deadline adherence, downstream health.
+1. **Dashboards** (as-code): task/attempt/result theo program/policy/mode/provider, channel health/utilization (1 lab/32 target), callback HTTP+semantic ACK với current compat tách riêng, fail-closed/capacity, deadline và downstream health.
 2. **SLO/SLI**: định nghĩa + error budget; panel burn-rate.
 3. **Alert rules**: theo §4, severity (page vs ticket), for-duration, annotation + runbook link.
 4. **Integration status** panel khớp UI (P3-3) — nguồn thật.

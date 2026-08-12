@@ -22,7 +22,7 @@ IVR chạy nhiều thành phần (api/worker) + tích hợp downstream. Không q
 - **OTel:** log + metric + trace qua OTLP; resource attributes (service, version, env).
 - **DF-05:** correlation propagate inbound→outbound→log/trace; trace span qua boundary (Core/ops/CRM/SIM).
 - **D-05 (PII-safe):** không log/metric/trace phone thô/recording/token→số/DTMF raw; dùng mask + id (task/order/correlation).
-- **Metrics nghiệp vụ:** task intake by decision, attempt A1/A2, result by type, callback 200/422, no-answer/technical rate, SIM pool utilization, capacity exception, fail-closed count, callback latency.
+- **Metrics nghiệp vụ:** intake theo program/payment/decision/mode/provider, attempt theo policy version, result, callback HTTP+semantic ACK (current compat tách label), no-answer/technical, channel utilization, capacity/fail-closed và latency; không dùng PII/high-cardinality IDs làm label.
 - Không đo sai lệch (đo từ nguồn thật, không suy đoán).
 
 ## 5. INPUTS / DEPENDENCIES

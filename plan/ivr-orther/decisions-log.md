@@ -1,4 +1,24 @@
-# Decisions Log — IVR (locked answers từ Module 3 / 3.1)
+# Decisions Log — IVR (lịch sử quyết định + Target V1 overlay)
+
+> **Hiệu lực 2026-08-12:** các quyết định `TV1-*` trong [target-contract-v1-draft.md](target-contract-v1-draft.md) là lớp điều khiển mới cho plan/spec/prompt. Chúng **supersede** mọi câu cũ nói toàn hệ thống “COD-only”, D-10 đã khóa, callback cũ là target cuối, notification phải build trong V1, hoặc pilot mặc định 12 SIM. Các bảng `D-*`/`DS-*` bên dưới được giữ nguyên làm lịch sử/current-compat; không được dùng để phủ định `TV1-*`.
+
+## Target V1 overlay — trạng thái DRAFT
+
+| ID | Quyết định điều khiển | Trạng thái |
+| --- | --- | --- |
+| `TV1-01` | Scope gồm `GOLDEN_HOUR+ONLINE` và `TWENTY_FOUR_SEVEN+COD`, đều cần `ivr_confirmation_required=true`. | `TARGET_DRAFT` |
+| `TV1-02` | Attempt policy 2 lần/5′/15′ chỉ là candidate cho MOCK/LAB; phải policy-versioned/configurable và chờ owner chốt trước production. | `OWNER_DECISION_REQUIRED` |
+| `TV1-03` | IVR là service .NET tách biệt; Sales Java sở hữu eligibility, order truth, revalidation và transition. | `ACCEPTED_FOR_PLANNING` |
+| `TV1-04` | Callback target: `POST /api/v1/internal/orders/{orderId}/ivr-result-callbacks`; endpoint Golden Hour hiện tại là `CURRENT_COMPAT`. | `TARGET_DRAFT` |
+| `TV1-05` | Target callback dùng service auth + idempotency/correlation + order version và ACK semantic theo Target V1. | `TARGET_DRAFT` |
+| `TV1-06` | `NO_ANSWER_FINAL` không hủy ngay; Core chờ timeout/revalidate. | `TARGET_DRAFT` |
+| `TV1-07` | SMS/notification bị tắt trong V1; IVR không gửi. | `IN_SCOPE_LOCK` |
+| `TV1-08` | `privacy_safe_order_summary` là P0 integration dependency để đọc tên, đơn, mặt hàng, tổng tiền và vùng giao rút gọn. | `TARGET_DRAFT` |
+| `TV1-09` | Hiện test bằng 1 SIM thật + allowlist; tương lai target 32 eSIM channels, cấu hình động. | `OWNER_DIRECTION` |
+| `TV1-10` | Ba mode bắt buộc: `MOCK`, `LAB_REAL_SIM`, `PRODUCTION_REAL`. | `ACCEPTED_FOR_IMPLEMENTATION` |
+| `TV1-11` | Dev dùng mock JWT; production target short-lived service JWT, mTLS chờ Security/Platform quyết định. | `TARGET_DRAFT` |
+
+Nguồn chi tiết và tiêu chí closure: [target-contract-v1-draft.md](target-contract-v1-draft.md).
 
 Nguồn: trả lời chính thức từ **Module 3 (Commerce Order Core)** và **Module 3.1 (Sales Extensions)** ngày 2026-07-02 (xem `questions-to-module-3-and-3.1.md`).
 Trạng thái các quyết định dưới đây: **LOCKED** (đã có owner trả lời) — nâng từ `ASSUMPTION`/`NEED_CONFIRMATION` lên `CONFIRMED`.

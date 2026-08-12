@@ -32,7 +32,7 @@ Bạn là **Senior Frontend Engineer**. Bạn xây các màn giám sát vận h�
 ## 6. BUILD STEPS
 1. **Dashboard**: card tổng (task theo trạng thái, attempt hôm nay, success/no-answer/technical rate, SIM pool health, capacity). Auto-refresh nhẹ. Filter theo program/thời gian.
 2. **Call Log**: bảng phân trang/tìm kiếm (theo order_code, correlation_id, trạng thái, program, ngày); cột masked phone; export CSV masked (tuỳ chọn).
-3. **Call Detail**: timeline attempt (A1/A2), disposition→result, technical exception, callback + Core response (200/422/target code), evidence/audit links, correlation id. Nút "result review" (nếu quyền) → ghi audit với reason.
+3. **Call Detail**: policy-versioned attempt timeline, speech metadata (không PII), disposition→result, technical exception, Target callback semantic ACK; Golden Hour 200/422 có nhãn `CURRENT_COMPAT`, evidence/audit/correlation. Review chỉ ghi audit, không đổi order.
 4. Xử lý loading/error/empty; envelope error render.
 5. Không action transition order; chỉ IVR admin action (review/note).
 
@@ -61,7 +61,7 @@ Trace: `specs/testing/05`, `specs/ui/01-03`.
 Screenshot dashboard/log/detail, masked phone proof, review-action audit record, error/empty states.
 
 ## 11. FORBIDDEN
-- ❌ Control transition order (D-02). ❌ Lộ số/recording (D-05). ❌ Tính KPI sai lệch ở client thay vì API. 
+- ❌ Control transition order (D-02). ❌ Lộ số/recording (D-05). ❌ Tính KPI sai lệch ở client thay vì API.
 
 ## 12. DEFINITION OF DONE
 - [ ] 3 màn + evidence view; 4 test §8 xanh; evidence §10 đủ.

@@ -1,23 +1,30 @@
-# IR-05 — Open Contract Questions (tổng hợp còn mở)
+# IR-05 — Open Contract Questions and Closure Evidence
 
-Trạng thái: `REQUIREMENTS` · Tổng hợp các điểm chưa chốt còn chặn/ảnh hưởng integration. Phần lớn contract đã khóa (D-*/DO-*/DF-*/DT-*); dưới đây là phần **còn cần người/mua sắm/legal**.
+Trạng thái: `OPEN` · Cập nhật: `2026-08-12`. Không đóng bằng suy luận hoặc chỉ bằng code IVR.
 
-| ID | Câu hỏi/việc mở | Prio | Team | Chặn gì | File |
-| --- | --- | --- | --- | --- | --- |
-| ~~OQ-01 / Q-C1~~ ✅ | **do-not-call / opt-out / call-restriction**: nguồn = `crm-ads-eligibility` PHONE_CALL (DC-01); `eligible` dùng được ngay; rich fields/Core wiring theo IR-CRM-01 | P1 build | CRM / Customer Identity | ✅ Hết chặn P0; còn build extension | `questions-to-crm-3.1-followup.md` (QC1/QC2), IR-CRM-01 |
-| ~~OQ-02 / DG-03~~ ✅ | **Order-state enum values + transition table**: `CONFIRMING+COD`; confirm→CONFIRMED, cancel→CANCELLED, timeout→EXPIRED; no-answer/technical không transition | ✅ resolved | Order Core (M3) | ✅ DS-01..05; còn OC1/OC2/OC3 target | `questions-to-order-core-state.md`, `data/04-missing-data` |
-| OQ-03 | **SIM procurement**: protocol (DT-01), số SIM launch (DT-04), caller-ID (DT-06) | P0 (gọi thật) | Telephony/Infra/procurement | Chặn gọi khách thật; không chặn specs/mock | `03-telephony-sim-requirements` |
-| OQ-04 | **Retention duration** từng loại dữ liệu | P1 | Owner + Legal | Compliance/PII | `04-shared-auth-audit-requirements` DF-07 |
-| OQ-05 | **Release sign-off authority + pilot scope** | P0 (khi release) | Release Owner (bạn) + security/privacy | Mở `REAL_CUSTOMER_CALL_ALLOWED` | DF-03 |
-| OQ-06 | **Technical retry count/backoff** (bounded) | P1 | IVR Owner | Config retry callback/technical | OD-10 |
-| OQ-07 | **captured_at/ETag** trên SellableStatus + lock | P1 | Ops-Core | Độ tươi snapshot (DO-02) | `02-ops-core-requirements` IR-OPS-02 |
-| OQ-08 | **Notification template** sau Core hủy/expire + CRM outcome event name | P1 | CRM/Notification | Thông báo sau no-answer/expire (QC5/OD-16) | `questions-to-crm-3.1-followup` QC5 |
+| ID | Câu hỏi cần trả lời | Owner | Chặn | Evidence để đóng |
+| --- | --- | --- | --- | --- |
+| `OQ-SALES-01` | Xác nhận Golden Hour ONLINE và 24/7 COD đều tạo task khi `ivr_confirmation_required=true`; callable states cụ thể? | Sales/Product | real producer | signed matrix + tests |
+| `OQ-SALES-02` | Chấp nhận path callback Target V1 và ACK taxonomy hay cung cấp phương án thay thế? | Sales API owner | real callback | OpenAPI + contract tests |
+| `OQ-SALES-03` | `order_version` có bắt buộc, bump khi nào; stale/idempotency conflict xử lý ra sao? | Sales/Order Core | race safety | implementation tests |
+| `OQ-SALES-04` | Schema/sample `privacy_safe_order_summary`, limit item và quy tắc vùng giao rút gọn? | Sales/Product/Privacy | business acceptance | schema + fixtures + approval |
+| `OQ-SALES-05` | `dial_token` được issue/resolve ở đâu, TTL/one-use/redemption audit? | Sales/Security/Telephony | real call | threat model + API/tests |
+| `OQ-SALES-06` | No-answer timeout worker và revalidation order/state/version hoạt động cụ thể thế nào? | Sales/Product | end-to-end correctness | sequence + tests |
+| `OQ-POLICY-01` | Chốt max attempts/window/offset cho hai program | Product/Order Core | production policy | owner decision ID/version |
+| `OQ-AUTH-01` | JWT issuer/audience/scopes/TTL/JWKS; mTLS có bắt buộc? | Security/Platform | real integration | auth profile + test credential |
+| `OQ-TEL-01` | Protocol/SDK, DTMF, disposition, resolver, caller ID cho 1 SIM lab | Infra/vendor | lab | vendor docs + lab pass |
+| `OQ-TEL-02` | 32 eSIM concurrency/capacity/rate/cost/failover | Infra/procurement | production capacity | procurement + load evidence |
+| `OQ-LEGAL-01` | Script, legal basis, do-not-call, retention; recording giữ OFF | Legal/Privacy | customer calls | signed review |
+| `OQ-REL-01` | Pilot scope, release authority, rollback/kill switch | Release owner | go-live | accepted go/no-go packet |
 
-## Câu hỏi chặn lớn nhất
-**OQ-03 (mua SIM)** và **OQ-05 (release sign-off)** là hai P0 còn chặn gọi khách thật. **Q-C1/DC-01** đã có nguồn, không còn là P0; **IR-CRM-01** chỉ còn là build P1 cho rich response/Core wiring.
+## Được phép làm trước
 
-## Báo cáo (p09)
-- **Yêu cầu theo team:** Sales/Order Core **10** (IR-SALES-01..10), Ops-Core **7** (IR-OPS-01..07), Telephony **6** (IR-TEL-01..06), Foundation **7** (IR-FND-01..07) = **30 yêu cầu**.
-- **P0:** IR-SALES-01..06, IR-OPS-01..04, IR-TEL-01..02, IR-FND-01..04 (+ OQ-03/05). OQ-01/Q-C1 đã chuyển thành IR-CRM-01 P1.
-- **Câu hỏi chặn lớn nhất:** OQ-03 (mua SIM) + OQ-05 (release sign-off).
-- **Tension order_code:** ✅ đã giải quyết (D-01).
+Toàn bộ IVR side được xây qua interfaces và deterministic mocks/fakes. Khi thiếu field/API trong lúc implement, phải thêm Work ID tuần tự vào `prompt/_execution/prompt-execution-tracker.md`, thêm/update requirement tại đây hoặc file owner tương ứng, và đánh `BLOCKED_EXTERNAL`; không được tự invent production behavior.
+
+## Câu hỏi gửi dev Sales ngay
+
+1. Gửi OpenAPI/samples của current endpoints và target proposal phản hồi.
+2. Cho biết producer Golden Hour hiện enqueue ở điều kiện nào và nơi sẽ thêm producer 24/7 COD.
+3. Chỉ ra entity/projection có thể sinh speech summary không lộ full address.
+4. Chỉ ra token vault/resolver hiện có hoặc xác nhận cần build mới.
+5. Chỉ ra auth middleware/service-account convention hiện tại.

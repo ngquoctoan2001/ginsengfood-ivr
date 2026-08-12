@@ -1,5 +1,7 @@
 # REVIEW — Zero-to-Production Prompt Readiness
 
+> **SUPERSEDED 2026-08-12:** giữ làm lịch sử. Target V1 hiện tách mock-complete, one-SIM lab, real Sales integration và 32-eSIM production gates.
+
 Trạng thái: `REVIEW` · Ngày rà soát: 2026-07-06 · Phạm vi: toàn bộ `prompt/phase-*`, `prompt/00-index.md`, `prompt/README-governance.md`, `plan/ivr-orther/production-blockers-plan.md`, `specs/_review/open-decisions-register.md`.
 
 ## Kết luận

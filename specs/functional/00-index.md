@@ -1,7 +1,6 @@
 # Functional SRS — Index
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `plan/ivr-orther/prompts/p03-generate-functional-srs.md`
-Phạm vi: outbound order-confirmation ([../01-context-and-scope.md](../01-context-and-scope.md)). Attempt policy: ✅ **D-10 (LOCKED)** — rule mới PACK-09 V1.0 (2 cuộc cả hai; GH 5′, 24/7 15′; `T0`=lúc Core mở window). Xem `plan/ivr-orther/decisions-log.md`.
+Trạng thái: `TARGET_V1_DRAFT` · Phạm vi: outbound confirmation cho GH+ONLINE và 24/7+COD. Attempt policy là versioned config; candidate D-10 chỉ MOCK/LAB tới owner sign-off.
 
 ## 1. Cấu trúc
 | File | Domain |
@@ -29,6 +28,6 @@ Phạm vi: outbound order-confirmation ([../01-context-and-scope.md](../01-conte
 | P0-IVR-005 | Invalid phone tách khỏi no-answer | phase-8/07; docx §13 |
 | P0-IVR-006 | Evidence/audit bắt buộc; không PASS khi evidence chưa accepted | phase-8/00 P0-005; docx P0-09 |
 | P0-IVR-007 | Privacy safe by default; không log raw phone/full profile | phase-8/00 P0-006; docx §17 |
-| P0-IVR-008 | Không tự gửi notification; chỉ sau Core decision | phase-8/00 §4; phase-8/02 |
+| P0-IVR-008 | V1 notification disabled; IVR không gửi SMS/notification ở bất kỳ result nào | TV1-07; phase-8 boundary |
 | P0-IVR-009 | Không vượt `MAX_ATTEMPT`; không gọi ngoài window/policy | docx §8, P0-03 |
 | P0-IVR-010 | `REAL_CUSTOMER_CALL_ALLOWED=NO` tới khi release gate pass | phase-8/00 §13; docx §25 |

@@ -1,32 +1,15 @@
 # ARCH-03 — Integration Architecture
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p08` · Nguồn: `phase-8/02`,`/17`; `MASTER-04`; D-03/D-04/D-09/DO-03/DO-04/DF-05/DF-06.
+Trạng thái: `TARGET_V1_DRAFT`.
 
-## 1. Kiểu tích hợp
-| Tích hợp | Producer → Consumer | Kiểu | Transport | Auth |
-| --- | --- | --- | --- | --- |
-| Task | Order Core → IVR | **sync command** (push) | Internal REST `POST /tasks` (D-03) | service token + allowlist (DF-06) |
-| Result callback | IVR → Order Core | **sync + retry** | `POST {orderCore}/v1/orders/{id}/ivr-result-callbacks` (D-04) | service token |
-| Blocker check/revalidate | **Order Core** → Ops | sync read | `POST /api/v1/admin/availability/check` (DO-03) | Core service-cred `SellableCheck` |
-| Blocker "hold sớm" | Ops → IVR/Core | **async event** | webhook `ops-core.sellable.sku-became-not-sellable.v1` (DO-04) | dedupe `EventId` |
-| IVR-required | Sales 3.1 → Order Core | async event | `order.ivr_required_decisioned` (D-09) | — |
-| Admin action | Admin → IVR | sync command | Internal admin REST | RBAC `IVR_*` (DF-01) |
-| Evidence write | IVR → Evidence Registry | sync | Internal writer | — |
-| Event publication (optional) | IVR → consumers | async | outbox pattern tái dùng ops-core (DF-05) | signal only, không thay callback |
+| Integration | Direction | Transport | Auth/status |
+| --- | --- | --- | --- |
+| Target task | Sales → IVR | `POST /v1/ivr/order-confirmation/tasks` | service JWT; mock now |
+| Target result | IVR → Sales | `POST /api/v1/internal/orders/{id}/ivr-result-callbacks` + outbox | service JWT; mTLS pending |
+| Current compatibility | IVR → Sales | `/api/v1/internal/ivr/golden-hour/callbacks` | isolated/feature-flagged |
+| Eligibility/blockers | Ops/CRM → Sales internally | Sales aggregates task + revalidates callback | IVR has no direct credentials |
+| Telephony | IVR → gateway | provider port | mock / 1 SIM lab / 32 eSIM target |
+| Admin | Next.js → IVR | internal REST | RBAC/service auth |
+| Audit/evidence | IVR → approved sink | internal writer/export | no self-acceptance |
 
-## 2. Allowlist & identity (DF-06)
-- Chỉ service identity **Order Core** được `POST /tasks` (`X-Source-System=order-core` + token). 
-- SIM adapter, Admin UI, kênh khác **không** được tạo task/ghi order.
-- Downstream (AI/Facebook/Live/CRM) chỉ consume trạng thái Core-approved; không trigger IVR (phase-8/02).
-
-## 3. Resolver/Guard (MASTER-04)
-- Trước dispatch: Eligibility Resolver hợp nhất snapshot (trust/contact/blocker/window/capacity) → Guard PASS/BLOCK/SKIP/REVIEW.
-- Khi callback: **Order Core** là Guard cuối (revalidate realtime blocker qua ops — DO-03); IVR chỉ đưa signal.
-- Không hardcode; thiếu source → fail-closed (MASTER-04 no-hardcode).
-
-## 4. Error propagation
-- IVR API dùng error envelope + stable `code` (xem `api/06-error-codes` §1c). 
-- Ops error codes (DO-06) do **Order Core** nhận khi revalidate; Core map sang `CALLBACK_BLOCKED_BY_CORE`/fail-closed.
-
-## 5. Idempotency/correlation xuyên tích hợp
-- `Idempotency-Key` cho task/callback/admin/retry; `X-Correlation-Id` giữ nguyên xuyên Order Core → IVR → SIM → Evidence → Core (DF-04/05, MASTER-03).
+All commands carry idempotency/correlation. External failure is fail-closed. V1 has no customer-notification integration or generic event publication. `X-Internal-Token` belongs only to current compatibility; target uses short-lived JWT.

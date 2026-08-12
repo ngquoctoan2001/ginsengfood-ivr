@@ -1,6 +1,6 @@
 # DB-02 — Tables
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12`; D-10, D-02, D-05, DO-02, DT-01/05, OD-DR-03.
+Trạng thái: `TARGET_V1_DRAFT` · Policy values are versioned/configurable; exact candidate timings are not database invariants.
 Cột: `type semantic · required · index · note`. Tên bảng đề xuất; giữ semantic.
 
 ## 1. `ivr_confirmation_tasks`
@@ -8,28 +8,32 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | --- | --- | --- | --- | --- |
 | `id` | uuid | ✓ | PK | internal |
 | `task_id` | string | ✓ | Unique | contract id |
-| `version` | string | ✓ | | `v1` |
+| `version` | string | ✓ | | contract version, e.g. `ivr-order-confirmation.v1` |
 | `idempotency_key` | string | ✓ | Unique(scoped) | chống duplicate task |
 | `correlation_id` | string | ✓ | idx | trace |
 | `official_order_id` | string | ✓ | idx | **không** source-of-truth |
 | `order_code` | string | ○ | | display/audit |
-| `order_version` | string | ○ | idx(target) | target IR-SALES-OC1; current Core chưa expose (DS-04) |
-| `order_state` | string | ✓ | idx | **enum đục** từ Core (D-02); current must be `CONFIRMING` for IVR |
-| `payment_method_snapshot` | string | ✓ | idx | must be `COD` for IVR (DS-01); không xử lý payment |
-| `is_ivr_callable` | bool | ○ | | optional derived convenience flag; source-of-truth = `CONFIRMING+COD` |
+| `order_version` | string | ✓ | idx | Target V1 race snapshot; current-compat may use isolated nullable DTO, not this target table invariant |
+| `order_state` | string | ✓ | idx | opaque snapshot; Sales owns callable states |
+| `payment_method_snapshot` | string | ✓ | idx | `ONLINE` for GH or `COD` for 24/7; IVR does not process payment |
+| `ivr_confirmation_required` | bool | ✓ | idx | must be true |
 | `customer_id` | string | ○ | idx | không full profile |
 | `customer_trust_status` | string | ✓ | | D-12 |
 | `trusted_skip_allowed` | bool | ✓ | | D-12 |
 | `risk_flags_json` | json | ✓ | | boolean source-backed (D-13) |
 | `program_type` | string | ✓ | idx | `GOLDEN_HOUR`/`TWENTY_FOUR_SEVEN` |
-| `max_attempts` | int | ✓ | | **=2** (D-10) |
-| `confirmation_window_seconds` | int | ✓ | | GH **300** / 24-7 **900** (D-10) |
-| `attempt_spacing_seconds` | int | ✓ | | GH **150** / 24-7 **450** (D-10) |
-| `t0_at` | datetime | ✓ | idx | Core mở window (D-10) |
+| `attempt_policy_version` | string | ✓ | idx | owner-approved in production; candidate allowed only MOCK/LAB |
+| `max_attempts` | int | ✓ | | bounded by app policy, not fixed to 2 |
+| `attempt_offsets_seconds_json` | json | ✓ | | ordered offsets including 0 |
+| `confirmation_window_started_at` | datetime | ✓ | idx | source timestamp |
+| `confirmation_window_expires_at` | datetime | ✓ | idx | source deadline |
 | `official_contact_id` | string | ✓ | idx | contact duyệt |
 | `phone_ref` | string | ✓ | | secure ref (D-05) — **không raw** |
 | `phone_masked` | string | ✓ | | admin-safe |
 | `phone_validation_status` | string | ✓ | idx | không unknown khi dispatch |
+| `dial_token` | string/encrypted | ✓ | | opaque token only; never raw phone |
+| `dial_token_expires_at` | datetime | ✓ | idx | must not exceed call window |
+| `privacy_safe_order_summary_json` | json | ✓ | | short name/code, public items+qty, total, short area; schema validated |
 | `eligibility_decision` | string | ✓ | idx | enum |
 | `blocked_reasons_json` | json | ✓ | | danh sách block |
 | `sellable_status_json` | json | ✓ | | **per-line SKU/batch snapshot** (DO-02): `[{sku_id,batch_id?,decision,recall_hold,sale_lock,quality_hold,stock_available,batch_released,trace_ready,captured_at}]` |
@@ -43,7 +47,7 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `reject_reason` | string | ○ | | machine-readable |
 | `evidence_refs_json`/`audit_refs_json` | json | ○ | | |
 
-**Constraints:** Unique(`task_id`); Unique(`idempotency_key` scope intake); CHECK `max_attempts=2`; CHECK `program_type='GOLDEN_HOUR' → confirmation_window_seconds=300 AND attempt_spacing_seconds=150`; CHECK `program_type='TWENTY_FOUR_SEVEN' → confirmation_window_seconds=900 AND attempt_spacing_seconds=450`.
+**Constraints:** Unique(`task_id`); Unique(`idempotency_key` scope intake); CHECK `max_attempts BETWEEN 1 AND 10`; CHECK offsets nonnegative/strictly increasing and before expiry in application/domain validation; CHECK program/payment matrix (GH+ONLINE or 24/7+COD); CHECK `ivr_confirmation_required=true`. Exact 2/300/150/900/450 candidate values are configuration, not DB constraints.
 
 ## 2. `ivr_call_jobs`
 | Column | Type | Req | Index | Note |
@@ -51,13 +55,13 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `id`/`ivr_call_job_id` | uuid/string | ✓ | PK/Unique | |
 | `task_id` | string | ✓ | FK/idx | |
 | `official_order_id` | string | ✓ | idx | snapshot ref |
-| `order_version_snapshot` | string | ○ | idx(target) | target IR-SALES-OC1 race guard; current nullable |
+| `order_version_snapshot` | string | ✓ | idx | Target V1 race guard |
 | `program_type` | string | ✓ | idx | |
 | `attempt_policy_code` | string | ✓ | | policy version |
 | `status` | string | ✓ | idx | `ivr-call-job-status` |
-| `max_attempts` | int | ✓ | | =2 |
-| `attempt_spacing_seconds` | int | ✓ | | 150/450 |
-| `confirmation_window_seconds` | int | ✓ | | 300/900 |
+| `max_attempts` | int | ✓ | | policy snapshot, bounded 1..10 |
+| `attempt_offsets_seconds_json` | json | ✓ | | policy snapshot |
+| `confirmation_window_seconds` | int | ✓ | | derived from task start/expiry |
 | `attempt_schedule_json` | json | ✓ | | offsets từ `t0_at` |
 | `t0_at` | datetime | ✓ | idx | |
 | `eligible` | bool | ✓ | idx | |
@@ -119,7 +123,7 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `ivr_call_job_id` | string | ✓ | FK/idx | |
 | `task_id`/`official_order_id` | string | ✓ | idx | |
 | `order_version_snapshot` | string | ○ | idx(target) | order version từ task nếu Core cung cấp; current Core stale guard bằng state/COD/sellable recheck (DS-04) |
-| `order_version_seen_by_ivr` | string | ○ | idx(target) | target-only callback race guard cho IR-SALES-OC1; nullable/current không gửi |
+| `order_version_seen_by_ivr` | string | ✓ | idx | required Target V1 race guard; compatibility records use explicit legacy shape/provider |
 | `final_result_status`/`result_type` | string | ✓ | idx | |
 | `result_reason`/`dtmf_key` | string | ○ | | |
 | `is_counted_customer_attempt`/`is_final_for_ivr` | bool | ✓ | idx(final) | |

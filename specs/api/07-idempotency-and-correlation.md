@@ -27,5 +27,5 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/04` §13, `
 - Khi block bởi ops: ghi thêm `sale_lock_id`/`recall_case_id` (Guid) + `scope` (DO-07).
 
 ## 4. Race guard
-- **Current (DS-04):** OpenAPI dùng `IvrConfirmationResultCallbackCurrentV1`; chưa gửi/chưa nhận `order_version_seen_by_ivr`. Chống stale hiện dựa state `CONFIRMING` + COD + blocker recheck; invalid/stale-by-state → `422`.
-- **Target (IR-SALES-OC1):** `IvrConfirmationResultCallbackTargetV1` bắt buộc `order_version_seen_by_ivr`; mismatch → Core `CALLBACK_REJECTED_STALE` (D-02/D-04).
+- **Target V1:** callback bắt buộc `order_version_seen_by_ivr`; Sales trả `409 REJECTED_STALE` khi version/state không còn hợp lệ. Same key+same payload → `DUPLICATE_ACCEPTED`; same key+different payload → `409 IDEMPOTENCY_CONFLICT`.
+- **Current compatibility:** Golden Hour adapter may omit version and receive coarse 200/422 behavior, but it stays isolated by provider/record type and never counts as Target evidence.

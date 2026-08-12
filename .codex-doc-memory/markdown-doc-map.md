@@ -1,46 +1,50 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-12T01:01:38.368Z
+Generated: 2026-08-12T03:29:26.667Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 371
-- Links resolved: 441
+- Markdown files: 381
+- Links resolved: 365
 - Unresolved links: 0
-- Duplicate titles: 0
+- Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 7
+- Orphan candidates: 21
 
 ## High Link Documents
 
 | File | Title | Incoming | Outgoing | Words |
 | --- | --- | ---: | ---: | ---: |
 | docs/documents/00-DOC-READING-ORDER.md | Documentation Reading Order | 0 | 177 | 4269 |
-| prompt/00-index.md | IVR Prompt Library — Master Index (zero → production) | 3 | 62 | 1827 |
-| prompt/_execution/prompt-execution-tracker.md | Prompt Execution Tracker — IVR P0-P11 | 3 | 51 | 1188 |
+| prompt/00-index.md | IVR Prompt Library — Master Index | 1 | 56 | 688 |
+| plan/ivr-orther/decisions-log.md | Decisions Log — IVR (lịch sử quyết định + Target V1 overlay) | 15 | 3 | 3433 |
 | plan/ivr-orther/_archive/prompts/00-index.md | Prompts Index — IVR-Orther | 1 | 16 | 572 |
-| plan/ivr-orther/decisions-log.md | Decisions Log — IVR (locked answers từ Module 3 / 3.1) | 15 | 1 | 3129 |
-| plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1 | 9 | 396 |
-| prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 0 | 9 | 340 |
-| specs/functional/00-index.md | Functional SRS — Index | 0 | 9 | 387 |
-| specs/testing/00-index.md | Testing SRS — Index | 0 | 9 | 271 |
-| specs/workflows/00-index.md | Workflows — Index | 0 | 9 | 214 |
-| specs/api/00-index.md | API SRS — Index | 0 | 8 | 391 |
+| prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 0 | 9 | 369 |
+| specs/testing/00-index.md | Testing SRS — Index | 0 | 9 | 122 |
+| specs/workflows/00-index.md | Workflows — Index | 0 | 9 | 119 |
+| specs/api/00-index.md | API SRS — Index | 0 | 8 | 160 |
+| specs/functional/00-index.md | Functional SRS — Index | 0 | 8 | 379 |
 | specs/ui/00-index.md | UI SRS — Index (Admin/Ops Console) | 0 | 8 | 247 |
 | plan/ivr-orther/_archive/16-prompt-roadmap.md | 16 — Prompt Roadmap | 1 | 6 | 1036 |
-| prompt/RUNBOOK-execute-prompts.md | RUNBOOK — Execute IVR Prompts P0-P11 | 2 | 5 | 1028 |
-| specs/architecture/00-index.md | Architecture SRS — Index | 0 | 7 | 252 |
+| specs/architecture/00-index.md | Architecture SRS — Index | 0 | 7 | 98 |
 | specs/data/00-index.md | Data SRS — Index | 0 | 6 | 232 |
-| specs/database/00-index.md | Database SRS — Index | 0 | 6 | 307 |
-| integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 0 | 5 | 277 |
+| specs/database/00-index.md | Database SRS — Index | 0 | 6 | 101 |
+| integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 0 | 5 | 224 |
 | plan/ivr-orther/_archive/06-ops-core-analysis-plan.md | 06 — Ops-Core Analysis Plan (Module 1 / 2) | 0 | 4 | 504 |
 | plan/ivr-orther/_archive/12-ops-core-api-needs-draft.md | 12 — Ops-Core API Needs (DRAFT) | 3 | 1 | 730 |
 | plan/ivr-orther/_archive/13-seed-and-mock-strategy-plan.md | 13 — Seed & Mock Strategy Plan | 2 | 2 | 744 |
-| specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 4 | 0 | 846 |
-| specs/06-assumptions-and-open-questions.md | SRS-06 — Assumptions & Open Questions (v1) | 1 | 3 | 945 |
-| specs/api/02-internal-api.md | API-02 — Internal API | 1 | 3 | 632 |
+| plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1 | 3 | 379 |
+| plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 4 | 0 | 1356 |
 | plan/ivr-orther/_archive/02-current-understanding.md | 02 — Current Understanding | 1 | 2 | 1078 |
+| plan/ivr-orther/_archive/05-sales-platform-analysis-plan.md | 05 — Sales Platform Analysis Plan (Module 3 / 3.1) | 0 | 3 | 503 |
+| plan/ivr-orther/_archive/15-open-questions.md | 15 — Open Questions | 2 | 1 | 1079 |
+| specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 3 | 0 | 313 |
+| plan/ivr-orther/_archive/03-ivr-related-findings.md | 03 — IVR-Related Findings | 0 | 2 | 769 |
+
+## Duplicate Titles
+
+- gitnexus — code intelligence: AGENTS.md, CLAUDE.md
 
 ## Encoding Or Name Anomalies
 
@@ -63,9 +67,23 @@ Root: C:\Users\Administrator\Desktop\ivr
 
 ## Orphan Candidates
 
+- .claude/skills/gitnexus/gitnexus-cli/SKILL.md
+- .claude/skills/gitnexus/gitnexus-debugging/SKILL.md
+- .claude/skills/gitnexus/gitnexus-exploring/SKILL.md
+- .claude/skills/gitnexus/gitnexus-guide/SKILL.md
+- .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md
+- .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md
+- AGENTS.md
+- CLAUDE.md
 - plan/ivr-orther/_archive/01-reading-inventory.md
 - plan/ivr-orther/_archive/08-target-specs-structure-proposal.md
+- prompt/_review/phase-0-11-spec-alignment-review.md
+- prompt/_review/zero-to-production-prompt-readiness-review.md
+- prompt/_TEMPLATE.md
+- README.md
 - seed/README.md
+- specs/_review/normalization-report.md
+- specs/_review/traceability-matrix.md
 - specs/03-stakeholders-and-actors.md
 - specs/04-glossary.md
 - specs/05-current-docs-review.md
@@ -75,6 +93,14 @@ Root: C:\Users\Administrator\Desktop\ivr
 
 | File | Title | H1/Headings | Incoming | Outgoing | Unresolved | Words |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| .claude/skills/gitnexus/gitnexus-cli/SKILL.md | GitNexus CLI Commands | 1/9 | 0 | 0 | 0 | 581 |
+| .claude/skills/gitnexus/gitnexus-debugging/SKILL.md | Debugging with GitNexus | 1/7 | 0 | 0 | 0 | 264 |
+| .claude/skills/gitnexus/gitnexus-exploring/SKILL.md | Exploring Codebases with GitNexus | 1/7 | 0 | 0 | 0 | 178 |
+| .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/10 | 0 | 0 | 0 | 1015 |
+| .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md | Impact Analysis with GitNexus | 1/8 | 0 | 0 | 0 | 225 |
+| .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md | Refactoring with GitNexus | 1/10 | 0 | 0 | 0 | 187 |
+| AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
+| CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
 | docs/documents/0. appendices/01-OPERATIONAL-FORMS.md | OPERATIONAL FORMS | 1/16 | 1 | 0 | 0 | 3384 |
 | docs/documents/0. appendices/02-AUTO-GENERATED-FORM-RULES.md | AUTO GENERATED FORM RULES | 1/59 | 1 | 0 | 0 | 1635 |
 | docs/documents/0. appendices/03-PRINTING-CODE-RULES.md | PRINTING CODE RULES | 1/40 | 1 | 0 | 0 | 906 |
@@ -253,12 +279,12 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/documents/6. canonical/02-CANONICAL-FINANCE-DIAMOND-COMMISSION-PAYOUT-RUNTIME.md | Canonical Finance / Diamond Commission / Payout Runtime | 1/10 | 1 | 0 | 0 | 775 |
 | docs/documents/6. canonical/03-CANONICAL-EVIDENCE-SMOKE-GATE-CUSTOMER-TO-CASH-CARE.md | Canonical Evidence / Smoke Gate - Customer-to-Cash-to-Care | 1/7 | 1 | 0 | 0 | 721 |
 | docs/documents/6. canonical/README.md | Canonical Runtime Addenda | 1/1 | 1 | 0 | 0 | 73 |
-| integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/6 | 0 | 5 | 0 | 277 |
-| integration-requirements/01-sales-platform-requirements.md | IR-01 — Sales Platform Requirements (Order Core M3 + Sales Extensions M3.1) | 1/7 | 1 | 0 | 0 | 934 |
+| integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/4 | 0 | 5 | 0 | 224 |
+| integration-requirements/01-sales-platform-requirements.md | IR-01 — Sales Platform / Order Core Requirements | 1/8 | 1 | 0 | 0 | 642 |
 | integration-requirements/02-ops-core-requirements.md | IR-02 — Ops-Core Requirements (Module 1/2) | 1/3 | 1 | 0 | 0 | 457 |
-| integration-requirements/03-telephony-sim-requirements.md | IR-03 — Telephony / SIM Gateway Requirements | 1/2 | 1 | 0 | 0 | 325 |
-| integration-requirements/04-shared-auth-audit-requirements.md | IR-04 — Shared / Foundation Requirements | 1/2 | 1 | 0 | 0 | 316 |
-| integration-requirements/05-open-contract-questions.md | IR-05 — Open Contract Questions (tổng hợp còn mở) | 1/3 | 1 | 0 | 0 | 392 |
+| integration-requirements/03-telephony-sim-requirements.md | IR-03 — Telephony / SIM Gateway Requirements | 1/5 | 1 | 0 | 0 | 421 |
+| integration-requirements/04-shared-auth-audit-requirements.md | IR-04 — Shared Auth, Audit and Release Requirements | 1/3 | 1 | 0 | 0 | 265 |
+| integration-requirements/05-open-contract-questions.md | IR-05 — Open Contract Questions and Closure Evidence | 1/3 | 1 | 0 | 0 | 455 |
 | plan/ivr-orther/_archive/01-reading-inventory.md | 01 — Reading Inventory | 1/7 | 0 | 0 | 0 | 1938 |
 | plan/ivr-orther/_archive/02-current-understanding.md | 02 — Current Understanding | 1/15 | 1 | 2 | 0 | 1078 |
 | plan/ivr-orther/_archive/03-ivr-related-findings.md | 03 — IVR-Related Findings | 1/12 | 0 | 2 | 0 | 769 |
@@ -289,18 +315,19 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/_archive/prompts/p12-generate-ui-specs.md | P12 — Generate UI Specs (Admin/Ops Console) | 1/9 | 1 | 0 | 0 | 231 |
 | plan/ivr-orther/_archive/prompts/p13-generate-final-prompt-library.md | P13 — Generate Final Prompt Library | 1/9 | 1 | 0 | 0 | 226 |
 | plan/ivr-orther/_archive/prompts/p14-review-and-normalize-specs.md | P14 — Review & Normalize Specs | 1/9 | 1 | 0 | 0 | 290 |
-| plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1/7 | 1 | 9 | 0 | 396 |
-| plan/ivr-orther/14-risk-register.md | 14 — Risk Register | 1/2 | 1 | 1 | 0 | 929 |
-| plan/ivr-orther/decisions-log.md | Decisions Log — IVR (locked answers từ Module 3 / 3.1) | 1/12 | 15 | 1 | 0 | 3129 |
-| plan/ivr-orther/production-blockers-plan.md | Production Blockers Closure Plan — IVR Order Confirmation | 1/7 | 1 | 0 | 0 | 919 |
-| plan/ivr-orther/questions-to-crm-3.1-followup.md | Câu hỏi bổ sung IVR — gửi CRM / Module 3.1 (vòng 2: do-not-call / opt-out / thông báo sau gọi) | 1/10 | 2 | 1 | 0 | 1087 |
-| plan/ivr-orther/questions-to-module-3-and-3.1.md | Câu hỏi tích hợp IVR — gửi Team Module 3 (Commerce Order Core) & Module 3.1 (Sales Extensions) | 3/20 | 1 | 1 | 0 | 2123 |
-| plan/ivr-orther/questions-to-ops-core.md | Câu hỏi tích hợp IVR — gửi Team Ops-Core (Module 1 Product Master / Module 2 Operational Core) | 3/15 | 1 | 1 | 0 | 1637 |
-| plan/ivr-orther/questions-to-order-core-state.md | Yêu cầu bàn giao Order-State Contract — gửi Order Core (Module 3) | 1/9 | 1 | 1 | 0 | 911 |
-| plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 1 | 1 | 0 | 1585 |
-| prompt/_execution/defaults-and-confirmations.md | Defaults & Confirmations — IVR Prompt Execution | 1/7 | 3 | 0 | 0 | 1271 |
-| prompt/_execution/prompt-execution-tracker.md | Prompt Execution Tracker — IVR P0-P11 | 1/5 | 3 | 51 | 0 | 1188 |
-| prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 340 |
+| plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1/6 | 1 | 3 | 0 | 379 |
+| plan/ivr-orther/14-risk-register.md | 14 — Risk Register | 1/2 | 0 | 1 | 0 | 1166 |
+| plan/ivr-orther/decisions-log.md | Decisions Log — IVR (lịch sử quyết định + Target V1 overlay) | 1/13 | 15 | 3 | 0 | 3433 |
+| plan/ivr-orther/production-blockers-plan.md | External Closure Plan — IVR Order Confirmation | 1/9 | 1 | 0 | 0 | 595 |
+| plan/ivr-orther/questions-to-crm-3.1-followup.md | Câu hỏi bổ sung IVR — gửi CRM / Module 3.1 (vòng 2: do-not-call / opt-out / thông báo sau gọi) | 1/10 | 1 | 1 | 0 | 1087 |
+| plan/ivr-orther/questions-to-module-3-and-3.1.md | Câu hỏi tích hợp IVR — gửi Team Module 3 (Commerce Order Core) & Module 3.1 (Sales Extensions) | 3/20 | 0 | 1 | 0 | 2123 |
+| plan/ivr-orther/questions-to-ops-core.md | Câu hỏi tích hợp IVR — gửi Team Ops-Core (Module 1 Product Master / Module 2 Operational Core) | 3/15 | 0 | 1 | 0 | 1637 |
+| plan/ivr-orther/questions-to-order-core-state.md | Yêu cầu bàn giao Order-State Contract — gửi Order Core (Module 3) | 1/9 | 0 | 1 | 0 | 911 |
+| plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1585 |
+| plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1356 |
+| prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 494 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 2004 |
+| prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
 | prompt/_legacy-mock/03-m8-2b-eligibility.md | DEV PROMPT 03 — M8.2B Eligibility Resolver | 1/9 | 1 | 0 | 0 | 161 |
@@ -310,123 +337,124 @@ Root: C:\Users\Administrator\Desktop\ivr
 | prompt/_legacy-mock/07-m8-2f-order-core-callback.md | DEV PROMPT 07 — M8.2F Order Core Callback | 1/9 | 1 | 0 | 0 | 179 |
 | prompt/_legacy-mock/08-m8-2g-admin-monitoring-ui.md | DEV PROMPT 08 — M8.2G Admin Monitoring / UI | 1/9 | 1 | 0 | 0 | 189 |
 | prompt/_legacy-mock/09-m8-2h-smoke-evidence.md | DEV PROMPT 09 — M8.2H Smoke / Evidence Pack | 1/10 | 1 | 0 | 0 | 235 |
-| prompt/_review/phase-0-11-spec-alignment-review.md | REVIEW — Phase 0-11 Spec Alignment | 1/7 | 2 | 0 | 0 | 642 |
-| prompt/_review/zero-to-production-prompt-readiness-review.md | REVIEW — Zero-to-Production Prompt Readiness | 1/7 | 1 | 0 | 0 | 626 |
-| prompt/_TEMPLATE.md | PROMPT {ID} — {Tên slice} | 1/14 | 1 | 0 | 0 | 680 |
-| prompt/00-index.md | IVR Prompt Library — Master Index (zero → production) | 1/17 | 3 | 62 | 0 | 1827 |
-| prompt/phase-0-foundation/P0-1-repo-and-solution-bootstrap.md | PROMPT P0-1 — Repo & Solution Bootstrap | 1/14 | 2 | 0 | 0 | 842 |
-| prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md | PROMPT P0-2 — CI Baseline & Quality Gates | 1/14 | 2 | 0 | 0 | 797 |
-| prompt/phase-0-foundation/P0-3-crosscutting-foundation.md | PROMPT P0-3 — Cross-Cutting Foundation | 1/14 | 2 | 0 | 0 | 973 |
-| prompt/phase-0-foundation/P0-4-feature-flag-config-platform.md | PROMPT P0-4 — Feature-Flag & Dynamic Config Platform | 1/14 | 2 | 0 | 0 | 617 |
-| prompt/phase-1-contracts-data/P1-1-openapi-codegen-contract-scaffold.md | PROMPT P1-1 — OpenAPI Codegen & Contract Scaffold | 1/14 | 2 | 0 | 0 | 898 |
-| prompt/phase-1-contracts-data/P1-2-database-migrations-postgres.md | PROMPT P1-2 — Database Migrations (PostgreSQL / EF Core) | 1/14 | 2 | 0 | 0 | 848 |
-| prompt/phase-1-contracts-data/P1-3-domain-model-dto-mapping.md | PROMPT P1-3 — Domain Model & DTO Mapping | 1/14 | 2 | 0 | 0 | 818 |
-| prompt/phase-1-contracts-data/P1-4-api-docs-developer-portal.md | PROMPT P1-4 — API Docs & Developer Portal | 1/14 | 2 | 0 | 0 | 524 |
-| prompt/phase-10-compliance-maturity/P10-1-pdpa-privacy-compliance.md | PROMPT P10-1 — PDPA / Privacy Compliance & Consent | 1/14 | 2 | 0 | 0 | 672 |
-| prompt/phase-10-compliance-maturity/P10-2-data-governance-backup-dr.md | PROMPT P10-2 — Data Governance, Backup Crypto & DR Topology | 1/14 | 2 | 0 | 0 | 586 |
-| prompt/phase-10-compliance-maturity/P10-3-capacity-cost-sim-sizing.md | PROMPT P10-3 — Capacity, Cost & SIM Sizing Model | 1/14 | 2 | 0 | 0 | 661 |
-| prompt/phase-10-compliance-maturity/P10-4-analytics-bi-pipeline.md | PROMPT P10-4 — Analytics / BI Pipeline | 1/14 | 2 | 0 | 0 | 539 |
-| prompt/phase-10-compliance-maturity/P10-5-sla-error-budget-oncall.md | PROMPT P10-5 — SLA, Error-Budget Policy & On-Call Maturity | 1/14 | 2 | 0 | 0 | 646 |
-| prompt/phase-11-production-closure/P11-1-telephony-procurement-rfq-lab-acceptance.md | PROMPT P11-1 — Telephony Procurement RFQ & Lab Acceptance | 1/14 | 2 | 0 | 0 | 778 |
-| prompt/phase-11-production-closure/P11-2-cross-team-contract-closure-pack.md | PROMPT P11-2 — Cross-Team Contract Closure Pack | 1/14 | 2 | 0 | 0 | 760 |
-| prompt/phase-11-production-closure/P11-3-legal-retention-df03-signoff-pack.md | PROMPT P11-3 — Legal Retention & DF-03 Sign-Off Pack | 1/14 | 2 | 0 | 0 | 717 |
-| prompt/phase-11-production-closure/P11-4-production-readiness-command-center.md | PROMPT P11-4 — Production Readiness Command Center | 1/14 | 2 | 0 | 0 | 665 |
-| prompt/phase-2-core-runtime/P2-1-task-intake.md | PROMPT P2-1 — Task Intake | 1/14 | 2 | 0 | 0 | 694 |
-| prompt/phase-2-core-runtime/P2-2-eligibility-blockers.md | PROMPT P2-2 — Eligibility & Blockers | 1/14 | 2 | 0 | 0 | 674 |
-| prompt/phase-2-core-runtime/P2-3-scheduler-attempt-policy.md | PROMPT P2-3 — Scheduler & Attempt Policy | 1/14 | 2 | 0 | 0 | 647 |
-| prompt/phase-2-core-runtime/P2-4-sim-adapter-mock.md | PROMPT P2-4 — SIM Adapter (Port + Mock) | 1/14 | 2 | 0 | 0 | 618 |
-| prompt/phase-2-core-runtime/P2-5-dtmf-normalizer.md | PROMPT P2-5 — DTMF Normalizer | 1/14 | 2 | 0 | 0 | 547 |
-| prompt/phase-2-core-runtime/P2-6-order-core-callback.md | PROMPT P2-6 — Order Core Callback | 1/14 | 2 | 0 | 0 | 767 |
-| prompt/phase-2-core-runtime/P2-7-script-content-management.md | PROMPT P2-7 — Script / Content Management | 1/14 | 2 | 0 | 0 | 584 |
-| prompt/phase-3-admin-ui/P3-1-ui-foundation.md | PROMPT P3-1 — Admin UI Foundation (Next.js) | 1/14 | 2 | 0 | 0 | 645 |
-| prompt/phase-3-admin-ui/P3-2-dashboard-calllog-detail.md | PROMPT P3-2 — Dashboard, Call Log & Call Detail | 1/14 | 2 | 0 | 0 | 581 |
-| prompt/phase-3-admin-ui/P3-3-config-integration-roles.md | PROMPT P3-3 — Config, Integration Status, Seed/Mock & Roles UI | 1/14 | 2 | 0 | 0 | 615 |
-| prompt/phase-3-admin-ui/P3-4-reporting-analytics-ui.md | PROMPT P3-4 — Reporting & Analytics UI | 1/14 | 2 | 0 | 0 | 806 |
-| prompt/phase-4-integration/P4-1-order-core-wiring.md | PROMPT P4-1 — Order Core Real Wiring | 1/14 | 2 | 0 | 0 | 646 |
-| prompt/phase-4-integration/P4-2-ops-sellable-gate.md | PROMPT P4-2 — Ops-Core Sellable Gate Integration | 1/14 | 2 | 0 | 0 | 628 |
-| prompt/phase-4-integration/P4-3-crm-eligibility-events.md | PROMPT P4-3 — CRM Eligibility & Post-Decision Events | 1/14 | 2 | 0 | 0 | 621 |
-| prompt/phase-4-integration/P4-4-shared-auth-audit.md | PROMPT P4-4 — Shared Auth, Service Identity & Audit Federation | 1/14 | 2 | 0 | 0 | 604 |
-| prompt/phase-4-integration/P4-5-post-decision-notification.md | PROMPT P4-5 — Post-Decision Notification Integration | 1/14 | 2 | 0 | 0 | 577 |
-| prompt/phase-4-integration/P4-6-opt-out-feedback-loop.md | PROMPT P4-6 — Opt-Out Feedback Loop | 1/14 | 2 | 0 | 0 | 617 |
-| prompt/phase-5-quality/P5-1-unit-integration-tests.md | PROMPT P5-1 — Unit & Integration Test Suite | 1/14 | 2 | 0 | 0 | 577 |
-| prompt/phase-5-quality/P5-2-contract-e2e-tests.md | PROMPT P5-2 — Contract & E2E Test Suite | 1/14 | 2 | 0 | 0 | 574 |
-| prompt/phase-5-quality/P5-3-performance-security-tests.md | PROMPT P5-3 — Performance, Load & Security/Privacy Tests | 1/14 | 2 | 0 | 0 | 601 |
-| prompt/phase-5-quality/P5-4-code-review-gate.md | PROMPT P5-4 — Code Review Gate & Static Analysis | 1/14 | 2 | 0 | 0 | 594 |
-| prompt/phase-5-quality/P5-5-accessibility-i18n-qa.md | PROMPT P5-5 — Accessibility, i18n & Cross-Browser QA | 1/14 | 2 | 0 | 0 | 508 |
-| prompt/phase-6-observability/P6-1-logging-metrics-tracing.md | PROMPT P6-1 — Logging, Metrics & Tracing (OpenTelemetry) | 1/14 | 2 | 0 | 0 | 581 |
-| prompt/phase-6-observability/P6-2-dashboards-slo-alerting.md | PROMPT P6-2 — Dashboards, SLO & Alerting | 1/14 | 2 | 0 | 0 | 517 |
-| prompt/phase-6-observability/P6-3-chaos-resilience-gamedays.md | PROMPT P6-3 — Chaos & Resilience Game-Days | 1/14 | 2 | 0 | 0 | 595 |
-| prompt/phase-7-deployment/P7-1-docker-images-compose.md | PROMPT P7-1 — Docker Images & Dev Compose | 1/14 | 2 | 0 | 0 | 540 |
-| prompt/phase-7-deployment/P7-2-kubernetes-helm.md | PROMPT P7-2 — Kubernetes & Helm | 1/14 | 2 | 0 | 0 | 589 |
-| prompt/phase-7-deployment/P7-3-cicd-pipeline.md | PROMPT P7-3 — CD Pipeline & Environment Promotion | 1/14 | 2 | 0 | 0 | 601 |
-| prompt/phase-7-deployment/P7-4-progressive-delivery-canary.md | PROMPT P7-4 — Progressive Delivery & Canary | 1/14 | 2 | 0 | 0 | 559 |
-| prompt/phase-7-deployment/P7-5-secret-rotation-key-lifecycle.md | PROMPT P7-5 — Secret Rotation & Key Lifecycle | 1/14 | 2 | 0 | 0 | 589 |
-| prompt/phase-8-sim-pilot/P8-1-real-sim-adapter.md | PROMPT P8-1 — Real SIM Adapter | 1/14 | 2 | 0 | 0 | 680 |
-| prompt/phase-8-sim-pilot/P8-2-pilot-runbook.md | PROMPT P8-2 — Pilot Runbook (Limited Real Customers) | 1/14 | 2 | 0 | 0 | 666 |
-| prompt/phase-9-release-ops/P9-1-release-gate-execution.md | PROMPT P9-1 — Release Gate Execution | 1/14 | 2 | 0 | 0 | 651 |
-| prompt/phase-9-release-ops/P9-2-cutover-ops-runbook.md | PROMPT P9-2 — Cutover, Rollback & Ops Runbook | 1/14 | 2 | 0 | 0 | 654 |
-| prompt/README-governance.md | IVR Prompt Library — Governance (đọc trước mọi prompt) | 1/9 | 2 | 0 | 0 | 536 |
-| prompt/RUNBOOK-execute-prompts.md | RUNBOOK — Execute IVR Prompts P0-P11 | 1/12 | 2 | 5 | 0 | 1028 |
-| seed/README.md | IVR Seed / Mock Data (NON-PRODUCTION ONLY) | 1/6 | 0 | 0 | 0 | 372 |
-| specs/_review/normalization-report.md | REVIEW — Normalization Report | 1/27 | 1 | 0 | 0 | 1321 |
-| specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 1/7 | 4 | 0 | 0 | 846 |
-| specs/_review/traceability-matrix.md | REVIEW — Traceability Matrix | 1/4 | 1 | 0 | 0 | 604 |
-| specs/01-context-and-scope.md | SRS-01 — Context & Scope | 1/8 | 2 | 1 | 0 | 763 |
+| prompt/_review/phase-0-11-spec-alignment-review.md | REVIEW — Phase 0-11 Spec Alignment | 1/7 | 0 | 0 | 0 | 663 |
+| prompt/_review/zero-to-production-prompt-readiness-review.md | REVIEW — Zero-to-Production Prompt Readiness | 1/7 | 0 | 0 | 0 | 647 |
+| prompt/_TEMPLATE.md | PROMPT {ID} — {Tên slice} | 1/15 | 0 | 0 | 0 | 816 |
+| prompt/00-index.md | IVR Prompt Library — Master Index | 1/10 | 1 | 56 | 0 | 688 |
+| prompt/phase-0-foundation/P0-1-repo-and-solution-bootstrap.md | PROMPT P0-1 — Repo & Solution Bootstrap | 1/14 | 1 | 0 | 0 | 851 |
+| prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md | PROMPT P0-2 — CI Baseline & Quality Gates | 1/14 | 1 | 0 | 0 | 797 |
+| prompt/phase-0-foundation/P0-3-crosscutting-foundation.md | PROMPT P0-3 — Cross-Cutting Foundation | 1/14 | 1 | 0 | 0 | 973 |
+| prompt/phase-0-foundation/P0-4-feature-flag-config-platform.md | PROMPT P0-4 — Feature-Flag & Dynamic Config Platform | 1/14 | 1 | 0 | 0 | 610 |
+| prompt/phase-1-contracts-data/P1-1-openapi-codegen-contract-scaffold.md | PROMPT P1-1 — Target/Compat OpenAPI, Codegen and Contract Scaffold | 1/8 | 1 | 0 | 0 | 306 |
+| prompt/phase-1-contracts-data/P1-2-database-migrations-postgres.md | PROMPT P1-2 — PostgreSQL/EF Core Persistence for Target V1 | 1/7 | 1 | 0 | 0 | 227 |
+| prompt/phase-1-contracts-data/P1-3-domain-model-dto-mapping.md | PROMPT P1-3 — Domain Model, Policies, Speech and Provider Ports | 1/7 | 1 | 0 | 0 | 217 |
+| prompt/phase-1-contracts-data/P1-4-api-docs-developer-portal.md | PROMPT P1-4 — API Docs & Developer Portal | 1/14 | 1 | 0 | 0 | 531 |
+| prompt/phase-10-compliance-maturity/P10-1-pdpa-privacy-compliance.md | PROMPT P10-1 — PDPA / Privacy Compliance & Consent | 1/14 | 1 | 0 | 0 | 672 |
+| prompt/phase-10-compliance-maturity/P10-2-data-governance-backup-dr.md | PROMPT P10-2 — Data Governance, Backup Crypto & DR Topology | 1/14 | 1 | 0 | 0 | 586 |
+| prompt/phase-10-compliance-maturity/P10-3-capacity-cost-sim-sizing.md | PROMPT P10-3 — Capacity, Cost & SIM Sizing Model | 1/14 | 1 | 0 | 0 | 659 |
+| prompt/phase-10-compliance-maturity/P10-4-analytics-bi-pipeline.md | PROMPT P10-4 — Analytics / BI Pipeline | 1/14 | 1 | 0 | 0 | 539 |
+| prompt/phase-10-compliance-maturity/P10-5-sla-error-budget-oncall.md | PROMPT P10-5 — SLA, Error-Budget Policy & On-Call Maturity | 1/14 | 1 | 0 | 0 | 646 |
+| prompt/phase-11-production-closure/P11-1-telephony-procurement-rfq-lab-acceptance.md | PROMPT P11-1 — Telephony RFQ, One-SIM Lab and 32-eSIM Closure | 1/5 | 1 | 0 | 0 | 167 |
+| prompt/phase-11-production-closure/P11-2-cross-team-contract-closure-pack.md | PROMPT P11-2 — Sales/Auth Target Contract Closure Pack | 1/5 | 1 | 0 | 0 | 167 |
+| prompt/phase-11-production-closure/P11-3-legal-retention-df03-signoff-pack.md | PROMPT P11-3 — Legal Retention & DF-03 Sign-Off Pack | 1/14 | 1 | 0 | 0 | 717 |
+| prompt/phase-11-production-closure/P11-4-production-readiness-command-center.md | PROMPT P11-4 — Production Readiness Command Center | 1/5 | 1 | 0 | 0 | 164 |
+| prompt/phase-2-core-runtime/P2-1-task-intake.md | PROMPT P2-1 — Target V1 Task Intake | 1/7 | 1 | 0 | 0 | 195 |
+| prompt/phase-2-core-runtime/P2-2-eligibility-blockers.md | PROMPT P2-2 — Eligibility & Blockers | 1/14 | 1 | 0 | 0 | 674 |
+| prompt/phase-2-core-runtime/P2-3-scheduler-attempt-policy.md | PROMPT P2-3 — Versioned Scheduler, Attempts and Channel Leases | 1/6 | 1 | 0 | 0 | 217 |
+| prompt/phase-2-core-runtime/P2-4-sim-adapter-mock.md | PROMPT P2-4 — Mock Telephony, Dial Token and Speech Execution | 1/6 | 1 | 0 | 0 | 213 |
+| prompt/phase-2-core-runtime/P2-5-dtmf-normalizer.md | PROMPT P2-5 — DTMF Normalizer | 1/14 | 1 | 0 | 0 | 547 |
+| prompt/phase-2-core-runtime/P2-6-order-core-callback.md | PROMPT P2-6 — Sales Result Callback, Outbox and Compatibility Adapter | 1/6 | 1 | 0 | 0 | 198 |
+| prompt/phase-2-core-runtime/P2-7-script-content-management.md | PROMPT P2-7 — Script, Content Approval and Speech Safety | 1/6 | 1 | 0 | 0 | 187 |
+| prompt/phase-3-admin-ui/P3-1-ui-foundation.md | PROMPT P3-1 — Admin UI Foundation (Next.js) | 1/14 | 1 | 0 | 0 | 645 |
+| prompt/phase-3-admin-ui/P3-2-dashboard-calllog-detail.md | PROMPT P3-2 — Dashboard, Call Log & Call Detail | 1/14 | 1 | 0 | 0 | 583 |
+| prompt/phase-3-admin-ui/P3-3-config-integration-roles.md | PROMPT P3-3 — Config, Integration Status, Seed/Mock & Roles UI | 1/14 | 1 | 0 | 0 | 615 |
+| prompt/phase-3-admin-ui/P3-4-reporting-analytics-ui.md | PROMPT P3-4 — Reporting & Analytics UI | 1/14 | 1 | 0 | 0 | 806 |
+| prompt/phase-4-integration/P4-1-order-core-wiring.md | PROMPT P4-1 — Sales Platform Provider Wiring and Contract Verification | 1/6 | 1 | 0 | 0 | 234 |
+| prompt/phase-4-integration/P4-2-ops-sellable-gate.md | PROMPT P4-2 — Sales Eligibility/Blocker Snapshot Contract | 1/5 | 1 | 0 | 0 | 151 |
+| prompt/phase-4-integration/P4-3-crm-eligibility-events.md | PROMPT P4-3 — Voice Call Restriction and Trust Snapshot | 1/5 | 1 | 0 | 0 | 155 |
+| prompt/phase-4-integration/P4-4-shared-auth-audit.md | PROMPT P4-4 — Target Service JWT, Optional mTLS and Audit | 1/6 | 1 | 0 | 0 | 211 |
+| prompt/phase-4-integration/P4-5-post-decision-notification.md | PROMPT P4-5 — V1 Notification Disabled Boundary | 1/5 | 1 | 0 | 0 | 178 |
+| prompt/phase-4-integration/P4-6-opt-out-feedback-loop.md | PROMPT P4-6 — Opt-Out Feedback Loop | 1/14 | 1 | 0 | 0 | 617 |
+| prompt/phase-5-quality/P5-1-unit-integration-tests.md | PROMPT P5-1 — Unit & Integration Test Suite | 1/14 | 1 | 0 | 0 | 602 |
+| prompt/phase-5-quality/P5-2-contract-e2e-tests.md | PROMPT P5-2 — Contract & E2E Test Suite | 1/14 | 1 | 0 | 0 | 600 |
+| prompt/phase-5-quality/P5-3-performance-security-tests.md | PROMPT P5-3 — Performance, Load & Security/Privacy Tests | 1/14 | 1 | 0 | 0 | 600 |
+| prompt/phase-5-quality/P5-4-code-review-gate.md | PROMPT P5-4 — Code Review Gate & Static Analysis | 1/14 | 1 | 0 | 0 | 594 |
+| prompt/phase-5-quality/P5-5-accessibility-i18n-qa.md | PROMPT P5-5 — Accessibility, i18n & Cross-Browser QA | 1/14 | 1 | 0 | 0 | 508 |
+| prompt/phase-6-observability/P6-1-logging-metrics-tracing.md | PROMPT P6-1 — Logging, Metrics & Tracing (OpenTelemetry) | 1/14 | 1 | 0 | 0 | 586 |
+| prompt/phase-6-observability/P6-2-dashboards-slo-alerting.md | PROMPT P6-2 — Dashboards, SLO & Alerting | 1/14 | 1 | 0 | 0 | 518 |
+| prompt/phase-6-observability/P6-3-chaos-resilience-gamedays.md | PROMPT P6-3 — Chaos & Resilience Game-Days | 1/14 | 1 | 0 | 0 | 595 |
+| prompt/phase-7-deployment/P7-1-docker-images-compose.md | PROMPT P7-1 — Docker Images & Dev Compose | 1/14 | 1 | 0 | 0 | 558 |
+| prompt/phase-7-deployment/P7-2-kubernetes-helm.md | PROMPT P7-2 — Kubernetes & Helm | 1/14 | 1 | 0 | 0 | 589 |
+| prompt/phase-7-deployment/P7-3-cicd-pipeline.md | PROMPT P7-3 — CD Pipeline & Environment Promotion | 1/14 | 1 | 0 | 0 | 601 |
+| prompt/phase-7-deployment/P7-4-progressive-delivery-canary.md | PROMPT P7-4 — Progressive Delivery & Canary | 1/14 | 1 | 0 | 0 | 559 |
+| prompt/phase-7-deployment/P7-5-secret-rotation-key-lifecycle.md | PROMPT P7-5 — Secret Rotation & Key Lifecycle | 1/14 | 1 | 0 | 0 | 589 |
+| prompt/phase-8-sim-pilot/P8-1-real-sim-adapter.md | PROMPT P8-1 — Vendor Adapter and One-Real-SIM Lab | 1/6 | 1 | 0 | 0 | 212 |
+| prompt/phase-8-sim-pilot/P8-2-pilot-runbook.md | PROMPT P8-2 — Real-SIM Lab Runbook (No Customers) | 1/5 | 1 | 0 | 0 | 174 |
+| prompt/phase-9-release-ops/P9-1-release-gate-execution.md | PROMPT P9-1 — Production Customer-Call Release Gate | 1/6 | 1 | 0 | 0 | 214 |
+| prompt/phase-9-release-ops/P9-2-cutover-ops-runbook.md | PROMPT P9-2 — Cutover, Rollback & Ops Runbook | 1/14 | 1 | 0 | 0 | 654 |
+| prompt/README-governance.md | IVR Prompt Library — Governance | 1/7 | 1 | 0 | 0 | 343 |
+| prompt/RUNBOOK-execute-prompts.md | RUNBOOK — Execute IVR Prompts P0–P11 | 1/10 | 1 | 0 | 0 | 432 |
+| README.md | ivr | 1/1 | 0 | 0 | 0 | 2 |
+| seed/README.md | IVR Seed / Mock Data (NON-PRODUCTION ONLY) | 1/6 | 0 | 0 | 0 | 400 |
+| specs/_review/normalization-report.md | REVIEW — Normalization Report | 1/28 | 0 | 0 | 0 | 1439 |
+| specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 1/4 | 3 | 0 | 0 | 313 |
+| specs/_review/traceability-matrix.md | REVIEW — Target V1 Traceability Matrix | 1/1 | 0 | 0 | 0 | 265 |
+| specs/01-context-and-scope.md | SRS-01 — Context and Scope | 1/6 | 1 | 0 | 0 | 335 |
 | specs/02-business-goals.md | SRS-02 — Business Goals | 1/5 | 0 | 1 | 0 | 376 |
 | specs/03-stakeholders-and-actors.md | SRS-03 — Stakeholders & Actors | 1/4 | 0 | 0 | 0 | 491 |
-| specs/04-glossary.md | SRS-04 — Glossary | 1/1 | 0 | 0 | 0 | 798 |
-| specs/05-current-docs-review.md | SRS-05 — Current Docs Review (IVR Order Confirmation) | 1/14 | 0 | 0 | 0 | 2861 |
-| specs/06-assumptions-and-open-questions.md | SRS-06 — Assumptions & Open Questions (v1) | 1/9 | 1 | 3 | 0 | 945 |
-| specs/api/00-index.md | API SRS — Index | 1/5 | 0 | 8 | 0 | 391 |
-| specs/api/01-conventions.md | API-01 — Conventions | 1/8 | 1 | 2 | 0 | 423 |
-| specs/api/02-internal-api.md | API-02 — Internal API | 1/9 | 1 | 3 | 0 | 632 |
-| specs/api/03-admin-api.md | API-03 — Admin API | 1/6 | 1 | 0 | 0 | 330 |
+| specs/04-glossary.md | SRS-04 — Glossary | 1/1 | 0 | 0 | 0 | 780 |
+| specs/05-current-docs-review.md | SRS-05 — Current Docs Review (IVR Order Confirmation) | 1/14 | 0 | 0 | 0 | 2894 |
+| specs/06-assumptions-and-open-questions.md | SRS-06 — Assumptions and Open Questions | 1/4 | 0 | 1 | 0 | 252 |
+| specs/api/00-index.md | API SRS — Index | 1/2 | 0 | 8 | 0 | 160 |
+| specs/api/01-conventions.md | API-01 — Conventions | 1/5 | 1 | 0 | 0 | 179 |
+| specs/api/02-internal-api.md | API-02 — IVR-Owned Internal API | 1/3 | 1 | 1 | 0 | 206 |
+| specs/api/03-admin-api.md | API-03 — Admin API | 1/6 | 1 | 0 | 0 | 337 |
 | specs/api/04-sim-adapter-contract.md | API-04 — SIM Adapter Contract (Internal — Adapter Port) | 1/6 | 1 | 0 | 0 | 418 |
-| specs/api/05-order-core-contracts.md | API-05 — Order Core Contracts | 1/6 | 2 | 0 | 0 | 888 |
-| specs/api/06-error-codes.md | API-06 — Error Codes | 1/9 | 3 | 0 | 0 | 827 |
-| specs/api/07-idempotency-and-correlation.md | API-07 — Idempotency & Correlation | 1/5 | 2 | 0 | 0 | 311 |
-| specs/api/08-external-api-needs.md | API-08 — External API Needs (contract IVR cần từ team khác) | 1/7 | 2 | 0 | 0 | 488 |
-| specs/architecture/00-index.md | Architecture SRS — Index | 1/4 | 0 | 7 | 0 | 252 |
-| specs/architecture/01-system-context.md | ARCH-01 — System Context | 1/2 | 1 | 0 | 0 | 119 |
-| specs/architecture/02-module-boundaries.md | ARCH-02 — Module Boundaries (Service Blocks) | 1/4 | 1 | 0 | 0 | 339 |
-| specs/architecture/03-integration-architecture.md | ARCH-03 — Integration Architecture | 1/6 | 1 | 0 | 0 | 349 |
-| specs/architecture/04-deployment-architecture.md | ARCH-04 — Deployment Architecture | 1/6 | 1 | 0 | 0 | 241 |
+| specs/api/05-order-core-contracts.md | API-05 — Sales Platform Contracts | 1/6 | 2 | 0 | 0 | 312 |
+| specs/api/06-error-codes.md | API-06 — Error Codes | 1/9 | 1 | 0 | 0 | 827 |
+| specs/api/07-idempotency-and-correlation.md | API-07 — Idempotency & Correlation | 1/5 | 1 | 0 | 0 | 330 |
+| specs/api/08-external-api-needs.md | API-08 — External API Needs | 1/4 | 1 | 0 | 0 | 136 |
+| specs/architecture/00-index.md | Architecture SRS — Index | 1/1 | 0 | 7 | 0 | 98 |
+| specs/architecture/01-system-context.md | ARCH-01 — System Context | 1/1 | 1 | 0 | 0 | 43 |
+| specs/architecture/02-module-boundaries.md | ARCH-02 — IVR Module Boundaries | 1/1 | 1 | 0 | 0 | 179 |
+| specs/architecture/03-integration-architecture.md | ARCH-03 — Integration Architecture | 1/1 | 1 | 0 | 0 | 167 |
+| specs/architecture/04-deployment-architecture.md | ARCH-04 — Deployment Architecture | 1/2 | 1 | 0 | 0 | 83 |
 | specs/architecture/05-resilience.md | ARCH-05 — Resilience (Failure / Fail-closed / Retry / Cache) | 1/7 | 1 | 0 | 0 | 514 |
 | specs/architecture/06-observability.md | ARCH-06 — Observability & Ops | 1/7 | 1 | 0 | 0 | 318 |
-| specs/architecture/07-diagrams.md | ARCH-07 — Diagrams (tổng hợp) | 1/5 | 1 | 0 | 0 | 62 |
+| specs/architecture/07-diagrams.md | ARCH-07 — Summary Diagrams | 1/3 | 1 | 0 | 0 | 26 |
 | specs/data/00-index.md | Data SRS — Index | 1/4 | 0 | 6 | 0 | 232 |
-| specs/data/01-data-ownership.md | DATA-01 — Data Ownership | 1/4 | 1 | 0 | 0 | 501 |
-| specs/data/02-mapping-sales-platform.md | DATA-02 — Mapping: Sales Platform (Order Core / Module 3 · 3.1) | 1/6 | 1 | 0 | 0 | 547 |
+| specs/data/01-data-ownership.md | DATA-01 — Data Ownership | 1/1 | 1 | 0 | 0 | 172 |
+| specs/data/02-mapping-sales-platform.md | DATA-02 — Mapping: Sales Platform ↔ IVR | 1/4 | 1 | 0 | 0 | 258 |
 | specs/data/03-mapping-ops-core.md | DATA-03 — Mapping: Ops-Core (Sellable Gate / Sale-Lock / Recall) | 1/7 | 1 | 0 | 0 | 427 |
-| specs/data/04-missing-data.md | DATA-04 — Missing Data (GAP) | 1/3 | 1 | 0 | 0 | 396 |
+| specs/data/04-missing-data.md | DATA-04 — Missing External Data and Contracts | 1/1 | 1 | 0 | 0 | 203 |
 | specs/data/05-pii-policy.md | DATA-05 — PII & Privacy Policy | 1/7 | 2 | 0 | 0 | 441 |
-| specs/database/00-index.md | Database SRS — Index | 1/5 | 0 | 6 | 0 | 307 |
+| specs/database/00-index.md | Database SRS — Index | 1/1 | 0 | 6 | 0 | 101 |
 | specs/database/01-erd.md | DB-01 — ERD | 1/2 | 1 | 0 | 0 | 97 |
-| specs/database/02-tables.md | DB-02 — Tables | 1/8 | 1 | 0 | 0 | 1615 |
-| specs/database/03-enums-and-status.md | DB-03 — Enums & Status | 1/12 | 1 | 0 | 0 | 350 |
-| specs/database/04-indexes.md | DB-04 — Indexes & Constraints | 1/5 | 1 | 0 | 0 | 285 |
+| specs/database/02-tables.md | DB-02 — Tables | 1/8 | 1 | 0 | 0 | 1709 |
+| specs/database/03-enums-and-status.md | DB-03 — Enums and Status | 1/1 | 1 | 0 | 0 | 111 |
+| specs/database/04-indexes.md | DB-04 — Indexes & Constraints | 1/5 | 1 | 0 | 0 | 287 |
 | specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 1/5 | 1 | 1 | 0 | 242 |
-| specs/database/06-migration-plan.md | DB-06 — Migration Plan | 1/7 | 2 | 0 | 0 | 345 |
-| specs/functional/00-index.md | Functional SRS — Index | 1/4 | 0 | 9 | 0 | 387 |
-| specs/functional/01-task-intake.md | FR — Task Intake | 1/4 | 1 | 0 | 0 | 471 |
-| specs/functional/02-eligibility-and-blockers.md | FR — Eligibility & Blockers | 1/3 | 1 | 0 | 0 | 591 |
-| specs/functional/03-scheduler-attempt-policy.md | FR — Scheduler & Attempt Policy | 1/4 | 1 | 0 | 0 | 554 |
-| specs/functional/04-call-execution-dtmf.md | FR — Call Execution & DTMF | 1/7 | 1 | 0 | 0 | 503 |
-| specs/functional/05-result-normalization-callback.md | FR — Result Normalization & Callback | 1/5 | 1 | 1 | 0 | 675 |
-| specs/functional/06-technical-exception-capacity.md | FR — Technical Exception & Capacity | 1/5 | 1 | 0 | 0 | 645 |
+| specs/database/06-migration-plan.md | DB-06 — Migration Plan | 1/7 | 2 | 0 | 0 | 364 |
+| specs/functional/00-index.md | Functional SRS — Index | 1/4 | 0 | 8 | 0 | 379 |
+| specs/functional/01-task-intake.md | FR — Task Intake | 1/3 | 1 | 0 | 0 | 282 |
+| specs/functional/02-eligibility-and-blockers.md | FR — Eligibility and Blockers | 1/1 | 1 | 0 | 0 | 169 |
+| specs/functional/03-scheduler-attempt-policy.md | FR — Scheduler and Attempt Policy | 1/3 | 1 | 0 | 0 | 211 |
+| specs/functional/04-call-execution-dtmf.md | FR — Call Execution, Speech and DTMF | 1/4 | 1 | 0 | 0 | 262 |
+| specs/functional/05-result-normalization-callback.md | FR — Result Normalization and Sales Callback | 1/5 | 1 | 0 | 0 | 246 |
+| specs/functional/06-technical-exception-capacity.md | FR — Technical Exception & Capacity | 1/5 | 1 | 0 | 0 | 641 |
 | specs/functional/07-admin-operations.md | FR — Admin / Ops Operations | 1/4 | 1 | 0 | 0 | 448 |
 | specs/functional/08-evidence-audit-privacy.md | FR — Evidence, Audit & Privacy | 1/4 | 1 | 0 | 0 | 410 |
-| specs/tech/00-tech-stack.md | TECH-STACK — IVR Order Confirmation Service | 1/6 | 0 | 0 | 0 | 444 |
-| specs/testing/00-index.md | Testing SRS — Index | 1/5 | 0 | 9 | 0 | 271 |
-| specs/testing/01-strategy.md | TEST-01 — Strategy | 1/6 | 1 | 0 | 0 | 300 |
-| specs/testing/02-unit-test-plan.md | TEST-02 — Unit Test Plan | 1/7 | 1 | 0 | 0 | 495 |
-| specs/testing/03-integration-test-plan.md | TEST-03 — Integration Test Plan | 1/6 | 1 | 0 | 0 | 425 |
-| specs/testing/04-contract-test-plan.md | TEST-04 — Contract Test Plan | 1/7 | 1 | 0 | 0 | 401 |
-| specs/testing/05-e2e-test-plan.md | TEST-05 — E2E Test Plan (dry-run) | 1/2 | 1 | 0 | 0 | 324 |
-| specs/testing/06-performance-test-plan.md | TEST-06 — Performance / Capacity Test Plan | 1/6 | 1 | 0 | 0 | 259 |
+| specs/tech/00-tech-stack.md | TECH-STACK — Standalone IVR Service | 1/5 | 0 | 0 | 0 | 230 |
+| specs/testing/00-index.md | Testing SRS — Index | 1/1 | 0 | 9 | 0 | 122 |
+| specs/testing/01-strategy.md | TEST-01 — Strategy | 1/6 | 1 | 0 | 0 | 308 |
+| specs/testing/02-unit-test-plan.md | TEST-02 — Unit and Property Test Plan | 1/1 | 1 | 0 | 0 | 152 |
+| specs/testing/03-integration-test-plan.md | TEST-03 — Integration Test Plan | 1/1 | 1 | 0 | 0 | 118 |
+| specs/testing/04-contract-test-plan.md | TEST-04 — Contract Test Plan | 1/4 | 1 | 0 | 0 | 102 |
+| specs/testing/05-e2e-test-plan.md | TEST-05 — End-to-End Plan | 1/1 | 1 | 0 | 0 | 145 |
+| specs/testing/06-performance-test-plan.md | TEST-06 — Performance and Capacity Test Plan | 1/1 | 1 | 0 | 0 | 128 |
 | specs/testing/07-security-privacy-test-plan.md | TEST-07 — Security & Privacy Test Plan | 1/6 | 1 | 0 | 0 | 324 |
-| specs/testing/08-acceptance-criteria.md | TEST-08 — Acceptance Criteria & Gates | 1/7 | 1 | 0 | 0 | 427 |
-| specs/testing/09-smoke-matrix.md | TEST-09 — Smoke Matrix | 1/3 | 1 | 0 | 0 | 589 |
+| specs/testing/08-acceptance-criteria.md | TEST-08 — Acceptance Criteria and Gates | 1/6 | 1 | 0 | 0 | 295 |
+| specs/testing/09-smoke-matrix.md | TEST-09 — Target V1 Smoke Matrix | 1/1 | 1 | 0 | 0 | 263 |
 | specs/ui/00-index.md | UI SRS — Index (Admin/Ops Console) | 1/4 | 0 | 8 | 0 | 247 |
 | specs/ui/01-dashboard.md | UI-01 — Dashboard (Queue / Capacity / Incident) | 1/6 | 1 | 0 | 0 | 142 |
 | specs/ui/02-call-log.md | UI-02 — Call Log (danh sách CallJob) | 1/7 | 1 | 0 | 0 | 115 |
@@ -436,14 +464,14 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/ui/06-callback-request.md | UI-06 — Admin Review & Technical Retry | 1/5 | 1 | 0 | 0 | 120 |
 | specs/ui/07-seed-mock-management.md | UI-07 — Seed / Mock Management (NON-PROD only) | 1/5 | 1 | 0 | 0 | 135 |
 | specs/ui/08-role-permission-ui.md | UI-08 — Role / Permission & Matrix | 1/6 | 1 | 0 | 0 | 317 |
-| specs/workflows/00-index.md | Workflows — Index | 1/4 | 0 | 9 | 0 | 214 |
-| specs/workflows/01-happy-path-confirm.md | Workflow — Happy Path (Confirm, phím 1) | 1/1 | 1 | 1 | 0 | 62 |
+| specs/workflows/00-index.md | Workflows — Index | 1/1 | 0 | 9 | 0 | 119 |
+| specs/workflows/01-happy-path-confirm.md | Workflow — Happy Path Confirm (key 1) | 1/1 | 1 | 0 | 0 | 31 |
 | specs/workflows/02-cancel.md | Workflow — Cancel (phím 0) | 1/1 | 1 | 0 | 0 | 50 |
-| specs/workflows/03-no-answer-attempts.md | Workflow — No-Answer & Attempts | 1/2 | 1 | 0 | 0 | 171 |
+| specs/workflows/03-no-answer-attempts.md | Workflow — No Answer and Timeout | 1/1 | 1 | 0 | 0 | 47 |
 | specs/workflows/04-invalid-phone.md | Workflow — Invalid Phone | 1/1 | 1 | 0 | 0 | 102 |
 | specs/workflows/05-technical-exception.md | Workflow — Technical Exception | 1/1 | 1 | 0 | 0 | 67 |
-| specs/workflows/06-race-condition-revalidation.md | Workflow — Race Condition & Revalidation | 1/2 | 2 | 0 | 0 | 296 |
+| specs/workflows/06-race-condition-revalidation.md | Workflow — Race Condition and Sales Revalidation | 1/1 | 1 | 0 | 0 | 36 |
 | specs/workflows/07-trusted-skip.md | Workflow — Trusted Customer Skip | 1/1 | 1 | 0 | 0 | 127 |
 | specs/workflows/08-capacity-hold.md | Workflow — Capacity Hold / Incident | 1/1 | 1 | 0 | 0 | 79 |
-| specs/workflows/09-state-machines.md | Workflow — State Machines | 1/7 | 2 | 0 | 0 | 293 |
+| specs/workflows/09-state-machines.md | Workflow — IVR State Machines | 1/3 | 1 | 0 | 0 | 66 |
 

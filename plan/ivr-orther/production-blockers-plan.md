@@ -1,72 +1,61 @@
-# Production Blockers Closure Plan — IVR Order Confirmation
+# External Closure Plan — IVR Order Confirmation
 
-Trạng thái: `LIVING` · Mục tiêu: đóng **~35–40% còn lại** tới "gọi khách COD thật ở production" — phần **KHÔNG** phải code IVR (mua sắm + team khác + legal). Đây là thứ thật sự nâng % production; bộ `prompt/` lo service IVR ở P0-P10 và đã bổ sung **P11 External Production Closure** để prompt hóa RFQ/ticket/legal/sign-off/evidence.
-Nguồn: `decisions-log.md`, `specs/_review/open-decisions-register.md`.
+Trạng thái: `LIVING` · Cập nhật: `2026-08-12`.
 
-> Quy ước: **[HARD]** = chặn cứng gọi khách thật · **[SOFT]** = làm suy giảm nhưng vẫn go-live COD được (fail-safe) · **[LEGAL/PROC]** = ngoài kỹ thuật.
+Mục tiêu là tách rõ ba mốc: (1) build hoàn chỉnh sau mocks, (2) lab bằng SIM thật, (3) vận hành khách thật. Không dùng phần trăm ước lượng làm bằng chứng readiness.
 
-## A. Mua SIM Gateway (Telephony) — [HARD] [PROC]
-| Item | Nội dung cần chốt | Owner | Chặn | Feed vào |
-| --- | --- | --- | --- | --- |
-| **DT-01** | **Protocol/SDK** SIM gateway (SIP/gateway API); khả năng `dial/play/capture DTMF/disposition/health` | Infra/Procurement + IVR Owner | `RealSimGateway` (P8-1); gọi thật | P11-1 → P8-1 |
-| **DT-03** | DTMF **RFC2833 vs in-band** theo gateway | Infra | capture phím 1/0 | P11-1 → P8-1 |
-| **DT-04** | **Số SIM pool**: pilot ~12 → launch **24–32** (chốt số thật); cooldown 5s, fail-count auto-disable | Procurement | capacity thật | P11-1 → P2-3/P8-1 |
-| **DT-06** | **Caller-ID / brandname** đăng ký (anti-spam, tin cậy) | Telco/Procurement | trải nghiệm + tỉ lệ nghe | P11-1 → P8-1 |
-| **DT-02** | **Re-verify disposition** telco thật (busy/rejected/unreachable/dropped) khi có SIM | IVR (sau mua) | chính xác no-answer vs technical | P11-1/P8-1 harness |
+## 1. Mốc và gate
 
-**Ticket đề xuất:** "Procure internal SIM gateway supporting programmable dial + DTMF capture + call disposition + health API; provision 24–32 SIM; register caller-ID/brandname." **Acceptance:** gateway gọi được số test, trả disposition + DTMF, health endpoint; SDK/protocol doc bàn giao cho P8-1.
-**Lead time:** procurement + telco registration thường dài → **khởi động sớm song song với code P0–P7.**
+| Mốc | Có thể hoàn thành ngay | Còn chặn |
+| --- | --- | --- |
+| `IMPLEMENTATION_COMPLETE_BEHIND_MOCKS` | .NET API/Worker/domain/DB, Next.js admin, scheduler/dialer/normalizer/callback adapters, fake Sales provider, mock SIM, tests, observability, deploy manifests | không cần Sales/SIM thật để hoàn tất code |
+| `LAB_REAL_SIM_VERIFIED` | nối 1 SIM thật, chỉ gọi allowlist test, kiểm tra DTMF/disposition/kill switch | gateway protocol, test SIM, số test được duyệt, lab evidence |
+| `PRODUCTION_REAL_ELIGIBLE` | wiring Sales API thật và 32 eSIM config sau nghiệm thu | tất cả contract/auth/policy/legal/security/capacity/release gates |
 
-## B. Hạng mục team khác phải build (cross-team) — phần lớn [SOFT]
-> IVR chạy production COD-only được **không cần** các mục này (đã fail-safe), nhưng chúng nâng chất lượng/độ an toàn. Prompt Phase 4 đã viết code IVR-side dưới **feature-flag** — bật khi team kia xong.
+## 2. Hard dependencies cho Sales integration/business acceptance
 
-| Item | Team | Nội dung | HARD/SOFT | IVR-side sẵn sàng |
-| --- | --- | --- | --- | --- |
-| **IR-SALES-OC1** | Order Core | Expose `order_version` + callback nhận `order_version_seen_by_ivr` → bật race-guard | SOFT (nay dùng state/COD/sellable recheck) | P11-2 → P4-1 flag `orderVersionRaceGuard` |
-| **IR-SALES-OC2** | Order Core | Richer callback codes (thay vì chỉ `422`) | SOFT | P11-2 → P4-1 flag `richCallbackCodes` |
-| **IR-SALES-OC3** | Order Core | Explicit no-answer/technical transition (nay order chờ `timeout→EXPIRED`) | SOFT (order vẫn tự expire) | P11-2 → P2-6/P4-1 (advisory) |
-| **DC-05** | Order Core + CRM | Publish event `ORDER_CONFIRMED/CANCELLED/EXPIRED` sau Core decision + CRM notification template | SOFT (nay notification no-op) | P11-2 → P4-3/P4-5 consumer |
-| **DC-06** | CRM | Build `CustomerTrustResolver` (`trusted_skip_allowed/risk_flags`) | SOFT (nay default require-IVR) | P11-2 → P4-3 flag `trustResolver` |
-| **IR-CRM-01** | CRM/Customer Identity | Extend `crm-ads-eligibility` response (`do_not_call/opt_out_scope/reason/effective_at`) | SOFT (nay `eligible` đủ block cơ bản) | P11-2 → P4-3 flag `richDoNotCall` |
-
-**Ticket đề xuất (mỗi mục):** gửi kèm `integration-requirements/01-sales-platform-requirements.md` (IR-SALES-OC*) và mục CRM (DC-05/06, IR-CRM-01). **Acceptance:** contract mới có OpenAPI + test; IVR bật flag tương ứng và pass integration test.
-**Sequence:** OC1 (race-guard, ưu tiên P1) → DC-05 (notify) → IR-CRM-01 (rich DNC) → OC2/OC3 → DC-06 (trust, P3.2/optional).
-
-## C. Legal / Sign-off — [HARD cho production] [LEGAL]
-| Item | Nội dung | Owner | Chặn |
+| ID | Sales/owner phải cung cấp | IVR chuẩn bị trước | Gate |
 | --- | --- | --- | --- |
-| **DF-07** | Retention duration từng loại (call log/DTMF/raw token/audit); recording OFF | Owner + Legal | privacy review → release |
-| **DT-05** | Recording: giữ **OFF**; nếu bật cần consent + legal + retention | Owner + Legal | (nếu bật) |
-| **PDPA/consent** | Cơ sở pháp lý gọi transactional (COD confirm); do-not-call registry hợp lệ | Legal | tuân thủ |
-| **DF-03** | **Release sign-off** = Module 8 Owner + security/privacy review; mở `REAL_CUSTOMER_CALL_ALLOWED` | Owner + Sec/Privacy | P11-3 → go-live (P9-1) |
+| `IR-SALES-TASK-V1` | producer cho Golden Hour ONLINE + 24/7 COD, flag `ivr_confirmation_required` | intake port + fake producer | real integration |
+| `IR-SALES-SPEECH-V1` | `privacy_safe_order_summary` có tên ngắn, items, tổng tiền, vùng giao rút gọn | DTO, validator, renderer/TTS abstraction, fake data | business acceptance |
+| `IR-SALES-DIAL-V1` | `dial_token` issue/resolve, TTL/one-use semantics | token-only storage + resolver port/mock | real call |
+| `IR-SALES-CB-V1` | generic callback endpoint + ACK taxonomy + idempotency + revalidation/version | target client + current-compat adapter + WireMock | real integration |
+| `IR-SALES-TIMEOUT-V1` | timeout worker/no-answer policy | advisory result + no-transition invariant | end-to-end correctness |
+| `IR-AUTH-V1` | issuer/audience/scope/JWKS/TTL; quyết định mTLS | mock JWT + auth abstraction/negative tests | real integration |
+| `D-10-OWNER` | attempt policy cuối | config/policy registry; candidate chỉ MOCK/LAB | production |
 
-**Acceptance:** văn bản retention policy + legal basis ký; DF-03 checklist ký (evidence ACCEPTED) → ghi `specs/decisions/DF-03-signoff.md` (P9-1).
+Đây không phải các mục “soft” nếu mục tiêu là luồng thật đầy đủ. Chỉ việc **viết code IVR** mới có thể tiếp tục nhờ mocks.
 
-## D. Đường tới hạn (critical path) tới production thật
-```
-Song song từ đầu:
-  ├─ Code IVR: prompt P0→P7  (service dev-complete, MOCK)
-  ├─ [A] Mua SIM (P11-1, lead time dài) ──────┐
-  ├─ [B] Team khác build OC1/DC-05/IR-CRM-01 ─┤ (P11-2, SOFT, nâng chất lượng)
-  └─ [C] Legal DF-07 + PDPA (P11-3) ──────────┤
-                                               ▼
-   SIM về → P8-1 (real adapter) + DT-02 re-verify → P8-2 pilot (scope hạn chế, DF-03)
-                                               ▼
-             P11-4 readiness board + DF-03 sign-off + evidence ACCEPTED → P9-1 mở REAL_CALL → P9-2 ops
-```
-**Chốt quan trọng:** [A] SIM và [C] Legal là **HARD** — không có 2 cái này thì **0% gọi khách thật** dù code xong. [B] là SOFT — go-live COD được, bật dần bằng flag.
+## 3. Telephony/SIM/eSIM
 
-## E. % đóng góp (đối chiếu câu hỏi "bao nhiêu %")
-| Nếu xong | % tới production thật |
-| --- | --- |
-| Chỉ code IVR (prompt P0–P9 thực thi) | ~60–65% |
-| + Mua SIM [A] + verify DT-02 | +~20% → ~85% |
-| + Legal/DF-03 [C] | +~10% → ~95% |
-| + Cross-team [B] (chất lượng đầy đủ) | +~5% → ~100% |
+### Hiện tại — lab
 
-→ Xác nhận: **thêm prompt code IVR không kéo % lên** quá 60–65%; P11 giúp đóng [A]+[C] bằng artifacts/evidence nhưng vẫn cần owner/vendor/legal/team khác thực hiện và ký.
+- 1 SIM thật là đủ cho bước kiểm chứng đầu tiên.
+- Chỉ gọi số trong `LAB_DESTINATION_ALLOWLIST`; `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+- Phải có kill switch, one-active-call-per-channel, cooldown, health, DTMF, disposition mapping và audit không lộ số thô.
 
-## F. Việc cần bạn (Owner) khởi động NGAY (song song code)
-1. **Mở procurement SIM gateway** (lead time dài nhất) — dùng spec mục A làm RFQ.
-2. **Gửi 6 ticket cross-team** (mục B) kèm `integration-requirements/*`.
-3. **Khởi động legal** retention + PDPA (mục C) — không chờ tới release.
+### Tương lai — vận hành
+
+- Target 32 eSIM channels; channel count và concurrency là config, không hard-code.
+- Cần vendor cung cấp protocol/SDK, DTMF mode, health API, disposition semantics, rate/cost, caller ID và secret provisioning.
+- Capacity test phải dùng throughput thực đo; không còn mặc định pilot 12 SIM.
+
+## 4. Notification
+
+V1 không gửi SMS/notification. `P4-5` là deferred/no-op extension boundary để chứng minh IVR không phát message. Mọi CRM notification là future contract riêng, không chặn V1.
+
+## 5. Legal, security và release
+
+- Approve script/privacy: không đọc địa chỉ đầy đủ; recording OFF mặc định.
+- Chốt retention cho task/attempt/result/audit và evidence.
+- Chốt transaction-call legal basis/do-not-call behavior.
+- Security review auth, secret rotation và egress allowlist.
+- `DF-03` release sign-off chỉ sau integration, lab/pilot, rollback/kill-switch và evidence được chấp nhận.
+
+## 6. Trình tự khuyến nghị
+
+1. Chạy P0–P7 bằng `MOCK`; ghi mọi việc vào tracker duy nhất.
+2. Song song gửi Sales contract pack và Telephony lab checklist; đòi dữ liệu còn thiếu ngay khi phát hiện.
+3. Khi có 1 SIM/gateway: chạy P8 trong `LAB_REAL_SIM`, allowlist only.
+4. Khi Sales endpoint/auth sẵn: chạy P4 real-provider contract tests trên sandbox.
+5. Nghiệm thu 32 eSIM/capacity, legal/security/release rồi mới xét `PRODUCTION_REAL`.

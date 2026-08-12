@@ -1,5 +1,7 @@
 # IVR Seed / Mock Data (NON-PRODUCTION ONLY)
 
+> **Target V1 canonical fixture (2026-08-12):** use `sales-target-v1.sample.json`. Các JSON cũ là legacy/current-compat scenarios với giả định COD-only/D-10 cũ; không dùng để sinh Target V1 domain/DTO.
+
 Trạng thái: `SEED_MOCK` · Sinh bởi: `plan/ivr-orther/prompts/p10-generate-seed-data.md`
 Nguồn: `plan/ivr-orther/13-seed-and-mock-strategy-plan.md`, `specs/srs/database/*`, `data/*`, `workflows/*`; smoke `phase-8/09`.
 
@@ -22,9 +24,9 @@ Nguồn: `plan/ivr-orther/13-seed-and-mock-strategy-plan.md`, `specs/srs/databas
 | `integration-status.sample.json` | **IVR-owned** | up/down của Order Core/ops/SIM/CRM (test fail-safe) |
 
 ## Cách dùng
-1. Chạy IVR với `INTEGRATION_MODE=MOCK` và `IVR_ADAPTER_MODE=MOCK`.
+1. Chạy IVR với `EXECUTION_MODE=MOCK`, `SALES_PROVIDER=FAKE_TARGET_V1` và `SIM_PROVIDER=MOCK`.
 2. Nạp `customers/orders/products/inventory` vào mock của Order Core/ops.
-3. Mock task-producer đẩy `ivr-tasks` vào `POST /tasks`.
+3. Fake Sales producer đẩy `sales-target-v1.sample.json` vào `POST /tasks`.
 4. Mock SIM adapter đọc `call-scenarios` để phát `raw_call_status` mô phỏng → Result Normalizer (DT-02).
 5. `integration-status` bật/tắt dependency để test fail-closed.
 

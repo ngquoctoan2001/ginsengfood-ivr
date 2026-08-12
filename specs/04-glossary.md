@@ -8,12 +8,12 @@ Nguồn: `phase-8/00 §3`, `MASTER-03`, `docx` §6, §8, §13.
 | **IVR (Order Confirmation)** | Hợp phần gọi tự động OUTBOUND xác nhận Official Order qua Internal SIM Gateway. Module 8 / PACK-09 / phase-8. |
 | **Order Core** | Commerce Order Core / Order State Machine — chủ sở hữu trạng thái đơn; lớp quyết định cuối. |
 | **Official Order** | Đơn chính thức (có `order_code`) do Commerce tạo từ Customer Confirmation hợp lệ. |
-| **order_status** (thực tế) | ✅ DS-01: `CONFIRMING · CONFIRMED · PACKED · SHIPPING · DELIVERED · FAILED · CANCELLED · EXPIRED`. **IVR-callable = CHỈ `CONFIRMING` + `payment_method_snapshot=COD`.** |
-| **CONFIRMING** | State đơn chờ IVR xác nhận (khóa fulfillment; shipment cần `CONFIRMED`). Đây là state IVR gọi. (DS-01/DS-05) |
-| **COD constraint** | 🆕 DS-01: IVR **chỉ** áp dụng cho đơn **COD** (`payment_method_snapshot=COD`). Đơn prepaid/non-COD → không IVR. |
+| **order_status** | Opaque Sales-owned order status. Target V1 chỉ nhận task khi Sales đánh callable; state values cần Sales ký theo từng program. |
+| **CONFIRMING** | Current Sales state used by existing flows; Target V1 callable-state matrix remains an external contract. |
+| **Program/payment matrix** | Target V1: `GOLDEN_HOUR+ONLINE` và `TWENTY_FOUR_SEVEN+COD`, đều `ivr_confirmation_required=true`. |
 | **ORDER_VERIFIED** | Gate downstream (CRM/commission/reporting) = `DELIVERED` + `payment_status=PAID` + `verification_status∈{VERIFIED,TRUSTED}` (DS-05). Không liên quan trực tiếp IVR. |
 | **order_code / order_code_short** | Mã đơn chính thức / mã rút gọn được phép đọc trong call script. |
-| **order_version** | `orders.version` (JPA @Version) — ⚠️ DS-04: có nội bộ nhưng **chưa expose** trong contract; race-guard `order_version_seen_by_ivr` là **GAP** (cần Order Core expose). |
+| **order_version** | Sales-owned optimistic version. Target V1 bắt buộc trong task/callback; current Sales còn GAP nên real integration bị chặn. |
 | **IVR task** (`IvrConfirmationTaskV1`) | Yêu cầu nội bộ do Order Core tạo để IVR xét/gọi xác nhận. |
 | **IVR result** | Kết quả đã normalize từ cuộc gọi; là **signal**, không phải state cuối. |
 | **Result callback** (`IvrConfirmationResultCallbackV1`) | Bản tin IVR gửi result về Order Core để revalidate. |

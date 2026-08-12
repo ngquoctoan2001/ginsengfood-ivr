@@ -1,38 +1,45 @@
 # IVR Order Confirmation — Plan Index (canonical)
 
-Trạng thái: `LIVING` · Module: **IVR Order Confirmation** (PACK-09 / TECH-09 / phase-8 / "Module 8").
-Cập nhật 2026-07-03: đã **clean** — scaffolding Giai đoạn 1 chuyển vào `_archive/`; giữ lại tài liệu canonical (living) dưới đây. Giai đoạn hiện tại đã chuyển từ *plan/spec* sang **bộ prompt triển khai A–Z (zero→production)**.
+Trạng thái: `LIVING` · Cập nhật: `2026-08-12` · Module: **IVR Order Confirmation**.
 
-## 1. Canonical (đang dùng)
-| File | Vai trò |
-| --- | --- |
-| [decisions-log.md](decisions-log.md) | **Bản ghi quyết định đã KHÓA** (D-01..14, DS-01..05, DO-*, DF-*, DT-*, DC-*, DTS-*). Nguồn chân lý. |
-| [14-risk-register.md](14-risk-register.md) | Risk register (living). |
-| [questions-to-module-3-and-3.1.md](questions-to-module-3-and-3.1.md) | Handoff Q&A — Sales/Commerce 3 & 3.1 (đã trả lời → D-01..14). |
-| [questions-to-ops-core.md](questions-to-ops-core.md) | Handoff Q&A — Ops-Core 1/2 (đã trả lời → DO-*). |
-| [questions-to-crm-3.1-followup.md](questions-to-crm-3.1-followup.md) | Handoff Q&A — CRM/Customer Identity (đã trả lời → DC-*). |
-| [questions-to-telephony-and-foundation.md](questions-to-telephony-and-foundation.md) | Handoff Q&A — Telephony/SIM & Foundation (đã trả lời → DT-*/DF-*). |
-| [questions-to-order-core-state.md](questions-to-order-core-state.md) | Handoff Q&A — Order Core state (DG-03 → DS-01..05, đã trả lời). |
+## 1. Thứ tự nguồn điều khiển
 
-## 2. Deliverable chính (ngoài plan/)
+1. [target-contract-v1-draft.md](target-contract-v1-draft.md) — Target V1 để build song song; còn các owner/external gates.
+2. [decisions-log.md](decisions-log.md) — lịch sử quyết định và current-compat; `TV1-*` supersede các giả định cũ khi mâu thuẫn.
+3. `specs/api/openapi/*` — machine-readable contract; Target Sales callback vẫn là draft cho tới khi hai team ký.
+4. `specs/*`, `integration-requirements/*`, rồi `prompt/*`.
+5. `docs/documents/*` — tài liệu gốc của business, không sửa; dùng để truy nguồn.
+
+Không được tuyên bố `CONTRACT_LOCKED`, `PRODUCTION_READY` hoặc “chỉ cấu hình là chạy” khi các gate ngoài còn mở.
+
+## 2. Deliverables đang dùng
+
 | Nơi | Nội dung |
 | --- | --- |
-| `specs/` (78 file) | SRS/SDS đã distill+normalize (functional, workflows, api+OpenAPI, data, database, architecture, testing, ui, _review). |
-| `integration-requirements/` (6 file) | Yêu cầu tích hợp gửi Sales/Ops/Telephony/Foundation + open contract questions. |
-| `seed/` (10 file) | Mock data (orders CONFIRMING+COD, tasks, inventory sellable, scenarios…). |
-| **`prompt/`** | ⭐ **Bộ prompt triển khai A–Z (zero→production)** — xem [`prompt/00-index.md`](../../prompt/00-index.md). |
+| `specs/` | SRS/SDS, workflow, API/OpenAPI, data, database, architecture, testing, UI. |
+| `integration-requirements/` | Contract/API/data/auth/SIM cần các team khác cung cấp. |
+| `seed/` | Fake Sales/SIM data cho `MOCK`; phải bám Target V1 DTO. |
+| `prompt/` | Chuỗi prompt triển khai .NET/Next.js từ foundation đến release. |
+| `prompt/_execution/prompt-execution-tracker.md` | **Sổ tiến độ duy nhất**, bao gồm planned và unplanned theo thứ tự phát sinh. |
 
-## 3. Tech stack (DTS — 2026-07-03)
-Backend **.NET 10 (C#)** · DB **PostgreSQL** · Admin UI **Next.js** · Deploy **Docker + Kubernetes**. Chi tiết: `decisions-log.md` §DTS + `specs/tech/00-tech-stack.md`.
-Lưu ý: Order Core / CRM / Ops thuộc `ginsengfood-business-platform` (**Java/Spring**) — IVR là **service .NET tách biệt**, nói chuyện qua contract (OpenAPI/webhook), không chia sẻ codebase.
+## 3. Kiến trúc và scope
 
-## 4. Trạng thái open-decisions
-Bản chuẩn: [`specs/_review/open-decisions-register.md`](../../specs/_review/open-decisions-register.md).
-P0 chặn gọi khách thật còn lại: **mua SIM (DT-01)**, **release sign-off (DF-03)**, **Legal retention (DF-07)**.
-Build items (không chặn dry-run): IR-SALES-OC1/OC2/OC3, DC-05/DC-06, IR-CRM-01.
+- IVR: service riêng, backend .NET 10, PostgreSQL, admin Next.js, Docker/Kubernetes.
+- Sales Platform: Java/Spring Boot + Next.js; giao tiếp qua versioned API, không chia sẻ DB/source.
+- Program V1: Golden Hour ONLINE và 24/7 COD theo ma trận `TV1-01`.
+- Dev trước bằng fake Sales provider + mock telephony; kiểm thử lab bằng 1 SIM thật/allowlist; target sau này 32 eSIM channels.
+- V1 không gửi SMS/notification.
 
-## 5. Lịch sử (đã archive)
-`_archive/`: reading-inventory, current-understanding, findings, module-dependency-map, các *-analysis-plan, source-of-truth-build-plan, target-specs-structure-proposal, specs-generation-sequence, integration-gap-analysis, api-needs-drafts, seed-strategy, 15-open-questions (→ open-decisions-register), 16-prompt-roadmap (spec-gen cũ, → prompt/00-index mới), và `prompts/` (p01–p14 spec-generation, đã chạy xong).
+## 4. Các gate còn mở
 
-## 6. Nhãn
-`CONFIRMED` · `ASSUMPTION` · `NEED_CONFIRMATION` · `TODO` · `GAP` · `RISK` · `LOCKED`.
+- Sales: task producer đủ hai program, generic callback + ACK, `order_version`, speech summary, dial-token, timeout/revalidation và OpenAPI/sandbox.
+- Owner: attempt policy D-10 và policy gọi.
+- Security/Platform: auth production và mTLS.
+- Telephony: protocol/SDK, DTMF/disposition, 1 SIM lab rồi 32 eSIM capacity.
+- Legal/Privacy/Release: nội dung lời thoại, retention, allowlist/pilot và go-live sign-off.
+
+Các mục trên **không chặn build sau ports/mocks**, nhưng chặn integration thật hoặc production tương ứng. Xem [production-blockers-plan.md](production-blockers-plan.md) và `integration-requirements/05-open-contract-questions.md`.
+
+## 5. Lịch sử
+
+`_archive/`, các file `questions-to-*` và `prompt/_legacy-mock/` là lịch sử/reference, không phải nguồn điều khiển implementation mới. Nhãn dùng: `CURRENT_COMPAT`, `TARGET_DRAFT`, `OWNER_DECISION_REQUIRED`, `BLOCKED_EXTERNAL`, `IMPLEMENTED`, `VERIFIED`.

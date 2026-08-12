@@ -34,7 +34,7 @@ Trước khi lên K8s (P7-2), cần image chuẩn cho `ivr-api`, `ivr-worker`, `
 2. **Dockerfile `ivr-worker`**: tương tự (worker không expose HTTP trừ health/metrics).
 3. **Dockerfile `ivr-admin-ui`**: Next.js standalone build, non-root, chỉ static+server cần thiết.
 4. **`.dockerignore`** cho mỗi context; tối ưu cache layer (restore trước copy source).
-5. **`docker-compose.dev.yml`** (mở rộng P0-1): api+worker+ui+postgres+otel-collector; env dev; volume; healthcheck; mạng nội bộ.
+5. **`docker-compose.dev.yml`**: api+worker+ui+postgres+otel + fake Sales Target V1/WireMock + mock SIM + mock JWT issuer; default `EXECUTION_MODE=MOCK`, isolated network and no real telephony/Sales egress.
 6. **Image scan** (Trivy/Grype) trong build; fail High/Critical (nối P5-4). SBOM (optional).
 7. Tài liệu build/run + tag convention (semver + git sha).
 
@@ -51,7 +51,7 @@ Trước khi lên K8s (P7-2), cần image chuẩn cho `ivr-api`, `ivr-worker`, `
 | --- | --- | --- |
 | `IT-IMG-BUILD-01` | ci | 3 image build pass; non-root (USER ≠ root). |
 | `IT-IMG-HEALTH-02` | ci | container healthcheck `/health/live` → healthy. |
-| `IT-IMG-COMPOSE-03` | ci | compose up → toàn hệ chạy MOCK, smoke 1 luồng qua. |
+| `IT-IMG-COMPOSE-03` | ci | compose up → cả GH ONLINE và 24/7 COD chạy qua fake Sales/mock speech+SIM/target callback; no real egress. |
 | `IT-IMG-SCAN-04` | ci | Trivy scan fail nếu High/Critical; pass khi sạch. |
 
 ## 9. REVIEW / ACCEPTANCE GATE

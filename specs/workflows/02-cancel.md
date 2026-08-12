@@ -21,8 +21,8 @@ sequenceDiagram
     Norm->>Evid: evidence(result)
     Norm->>OrderCore: callback (IVR_CUSTOMER_CANCELLED, recommended=CORE_REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST)
     OrderCore->>OrderCore: revalidate + cancel via state machine (reason CUSTOMER_CANCELLED_BY_IVR_KEY_0)
-    OrderCore-->>Norm: CALLBACK_ACCEPTED_FOR_REVALIDATION
-    Note over OrderCore: Notification (nếu có) do owner khác gửi SAU Core decision
+    OrderCore-->>Norm: 200 ACCEPTED / BLOCKED_BY_CORE / REVIEW_REQUIRED
+    Note over OrderCore: V1 notification disabled; IVR sends none
 ```
 
 **P0:** `IVR_CAN_DIRECTLY_CANCEL_ORDER = NO`; hủy phải qua Core (P0-IVR-002). IVR/SIM không tự gửi thông báo (P0-IVR-008).

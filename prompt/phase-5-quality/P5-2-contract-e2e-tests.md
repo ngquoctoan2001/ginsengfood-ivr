@@ -21,7 +21,7 @@ IVR là consumer (task từ Order Core) và producer (callback về Core). Contr
 
 ## 4. DECISIONS & CONSTRAINTS
 - **DF-02:** OpenAPI validate + contract test trong CI.
-- **DS-03/04:** contract test callback assert theo **reality (200/422)**; các case `CALLBACK_*`/order_version = **target**, đánh dấu skip/pending tới khi OC1/OC2.
+- **Target/current split:** Target callback/order version/semantic ACK tests run against WireMock now and real Sales when available; Golden Hour current 200/422 tests stay in a compatibility suite. Never skip Target tests merely because provider is unavailable—run fake tests and mark real-provider evidence `BLOCKED_EXTERNAL`.
 - **Consumer-driven:** pact cho task (Order Core producer) + callback (IVR producer).
 - **E2E:** phủ SCN chính (confirm, cancel, no-answer→A2→final, technical, invalid-phone, race-block) qua UI+API MOCK.
 
@@ -47,7 +47,7 @@ IVR là consumer (task từ Order Core) và producer (callback về Core). Contr
 | --- | --- | --- |
 | `CT-OAS-01..03` | contract | OpenAPI parse/ref/enum (D-10). |
 | `CT-TASK-01..04` | contract | task schema + policy mismatch. |
-| `CT-CB-01..04` | contract | callback 200/422 (DS-03); target cases pending. |
+| `CT-CB-01..04` | contract | target ACK/status/version/idempotency plus separate GH current-compat 200/422 suite. |
 | `E2E-CONFIRM-01` | e2e | confirm luồng → detail hiển thị CONFIRMED signal + callback 200. |
 | `E2E-NOANSWER-02` | e2e | A1 no-answer→A2→final; order không bị IVR transition (DS-02). |
 | `E2E-RACE-03` | e2e | phím 1 + blocker → blocked, không confirm. |
@@ -55,7 +55,7 @@ IVR là consumer (task từ Order Core) và producer (callback về Core). Contr
 Trace: `specs/testing/04`, `05`.
 
 ## 9. REVIEW / ACCEPTANCE GATE
-**Self-review:** [ ] contract khớp reality (200/422); [ ] target cases pending rõ; [ ] E2E phủ SCN chính; [ ] no giả pass.
+**Self-review:** [ ] target/current suites tách; [ ] both programs + speech/token/no-answer covered; [ ] fake vs real evidence labeled; [ ] no giả pass.
 **Reviewer:** pact provider/consumer đúng vai; drift-check chặn; E2E deterministic.
 
 ## 10. EVIDENCE EXPECTED

@@ -1,91 +1,46 @@
-# PROMPT P1-1 — OpenAPI Codegen & Contract Scaffold
+# PROMPT P1-1 — Target/Compat OpenAPI, Codegen and Contract Scaffold
 
 ## 0. Meta
-| | |
-| --- | --- |
-| **ID** | `P1-1` |
-| **Phase** | 1 — Contracts & Data |
-| **Prereq (blockedBy)** | `P0-1`, `P0-2`, `P0-3` |
-| **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
-| **Stack** | .NET 10 · OpenAPI 3.1 |
 
-## 1. ROLE
-Bạn là **API Contract Engineer**. Bạn biến OpenAPI 3.1 thành nguồn sự thật cho DTO/endpoint, sinh code an toàn kiểu (type-safe), và dựng khung contract-test để mọi thay đổi contract bị phát hiện sớm. Bạn giữ "contract-first": code theo spec, không ngược lại.
+Work `W-0014` · prereq P0-1..3 · mode `MOCK` · real integration remains blocked.
 
-## 2. CONTEXT
-Order Core PUSH `IvrConfirmationTaskV1` vào IVR, IVR callback `IvrConfirmationResultCallbackV1` về Core. Hai contract này (+ admin API) đã đặc tả trong OpenAPI. Prompt này sinh server stub (cho `Ivr.Api`) + client (gọi Order Core/ops/CRM) + DTO vào `Ivr.Contracts`, và scaffold contract test. Chưa có business logic — chỉ contract binding.
+## 1. Role/outcome
 
-## 3. SOURCE SPECS (đọc trước)
-- `specs/api/openapi/ivr-order-confirmation.v1.yaml` (14 paths / 14 schemas — nguồn chính)
-- `specs/api/00-index.md`, `specs/api/01-conventions.md`, `specs/api/02-internal-api.md`, `specs/api/03-admin-api.md`, `specs/api/05-order-core-contracts.md`, `specs/api/06-error-codes.md`, `specs/api/07-idempotency-and-correlation.md`
-- `specs/api/04-sim-adapter-contract.md` (port SIM — dùng ở P2-4, chỉ định nghĩa interface DTO ở đây)
-- `plan/ivr-orther/decisions-log.md` §D-03/D-04 (task/callback), §DS-03/DS-04 (reality 200/422, no order_version)
+Bạn là Senior .NET API/Contract Engineer. Tạo typed contracts và drift gates cho IVR-owned API, Sales callback Target V1 và Golden Hour current compatibility mà không trộn semantics. Kết quả phải build/test được dù Sales API thật chưa có.
 
-## 4. DECISIONS & CONSTRAINTS
-- **DF-02:** OpenAPI validate CI (đã có gate ở P0-2) — codegen phải khớp spec đã lint.
-- **D-03/D-04:** task = `POST /v1/ivr/order-confirmation/tasks`; callback = `POST {orderCore}/v1/orders/{order_id}/ivr-result-callbacks`.
-- **DS-03/DS-04 (reality):** callback response thực tế = **200/422**, chưa có `CALLBACK_*` codes, Core chưa nhận `order_version_seen_by_ivr`. ⇒ Sinh **hai DTO callback** theo OpenAPI: `IvrConfirmationResultCallbackCurrentV1` (không có/không require `order_version_seen_by_ivr`) và `IvrConfirmationResultCallbackTargetV1` (OC1 target, require `order_version_seen_by_ivr`). Client mặc định dùng current; target DTO chỉ dùng sau feature flag/contract OC1.
-- **api/06 §1c:** `ErrorEnvelope.code` dùng 15 mã `IVR_*` — sinh enum (siết type).
+## 2. Read first
 
-## 5. INPUTS / DEPENDENCIES
-- OpenAPI yaml đã validate (P0-2).
-- Codegen tool cho .NET: **NSwag** hoặc **Kiota** (default NSwag — `NEED_CONFIRMATION`; chọn 1, cấu hình reproducible qua CI).
-- `Ivr.Contracts` project (P0-1, rỗng).
+- `prompt/README-governance.md`, tracker Work W-0014;
+- `plan/ivr-orther/target-contract-v1-draft.md`;
+- `specs/api/00-index.md`, `05-order-core-contracts.md`;
+- cả hai file `specs/api/openapi/*.yaml`;
+- `integration-requirements/01-sales-platform-requirements.md`.
 
-## 6. BUILD STEPS
-1. Cấu hình codegen (NSwag config/`.nswag` hoặc Kiota) sinh:
-   - **Server interface/DTO** cho các path IVR own (intake, admin, health) → `Ivr.Contracts` + controllers/handlers stub trong `Ivr.Api` (chỉ trả `501 NotImplemented` tạm — logic ở Phase 2).
-   - **Client** cho outbound: Order Core callback client, (chuẩn bị) ops sellable client, CRM eligibility client — interface + typed DTO.
-2. Sinh **enum** từ spec: `ProgramCode`, `IntakeDecision`, result taxonomy, `ErrorCode` (15 mã §1c). Đánh dấu `CALLBACK_*` "target" bằng attribute/comment (DS-03).
-3. Sinh đúng required/nullable current: `IvrConfirmationTaskV1` current **không require** `order_version`/`is_ivr_callable`, **require** `payment_method_snapshot=COD`; callback current **không require** `order_version_seen_by_ivr`.
-4. Đảm bảo **required/nullable** khớp spec; DTO là `record`; JSON options: camelCase, enum-as-string, không serialize null tuỳ ý (giữ khớp spec).
-5. Tạo `Ivr.Contracts` build target: codegen chạy như bước build (hoặc committed generated + CI verify no-drift). **Chọn "generate at build" hoặc "commit + verify"** — verify drift trong CI (nếu spec đổi mà chưa regen → fail).
-6. **Contract-test scaffold** (`tests/Ivr.ContractTests`):
-   - Test schema round-trip: seed JSON (`seed/ivr-tasks.sample.json`) deserialize vào DTO không mất field; validate required.
-   - Placeholder consumer-driven contract (Pact hoặc snapshot) cho task (Order Core producer) & callback (IVR producer) — chi tiết assertion ở P5-2.
-7. Sinh **API docs** (Swagger UI ở `Ivr.Api`, chỉ non-prod) từ cùng spec.
+## 3. Constraints
 
-## 7. OUTPUT ARTIFACTS
-| Path | Nội dung |
-| --- | --- |
-| `src/Ivr.Contracts/Generated/**` | DTO + enum sinh từ OpenAPI |
-| `src/Ivr.Api/Endpoints/**` (stub 501) | Server binding intake/admin/health |
-| `src/Ivr.Infrastructure/Clients/**` | OrderCore/Ops/CRM client (typed, chưa wire thật) |
-| `nswag.json` / kiota config + CI drift-check | Codegen reproducible |
-| `tests/Ivr.ContractTests/**` | Schema round-trip + scaffold pact |
+- Target task supports GH+ONLINE and 24/7+COD with required flag/version/policy/dial-token/speech summary.
+- Target callback path/ACK schema is authoritative for new domain/client but still `TARGET_DRAFT` externally.
+- Current `/api/v1/internal/ivr/golden-hour/callbacks` gets separate DTO/client/feature flag, never target alias.
+- No raw phone/full address; no notification/order transition API.
 
-**Chuẩn output:** generated code không sửa tay (đánh dấu `<auto-generated>`); enum-as-string; `ErrorCode` type-safe.
+## 4. Build
 
-## 8. TESTS TO WRITE
-| Test ID | Loại | Assert |
-| --- | --- | --- |
-| `CT-OAS-01` | contract | `ivr-order-confirmation.v1.yaml` parse 3.1 pass (đã ở CI; test lặp assert). |
-| `CT-OAS-02` | contract | Mọi `$ref` resolve; required fields có trong DTO. |
-| `CT-TASK-01` | contract | seed TASK deserialize → DTO đủ field, `sellable_status[]` có `captured_at`. |
-| `CT-TASK-CURRENT-02` | contract | current task schema không require `order_version`/`is_ivr_callable`, require `payment_method_snapshot=COD`. |
-| `CT-CB-CURRENT-03` | contract | current callback schema không require `order_version_seen_by_ivr`; target callback thiếu field này fail. |
-| `CT-DRIFT-04` | ci | Đổi spec không regen → drift-check FAIL. |
-| `CT-ERR-CODE-05` | contract | `ErrorCode` enum = đúng 15 mã §1c. |
+1. Validate/normalize both OpenAPI documents in CI; pin hashes and generate a human-readable contract diff.
+2. Generate/implement IVR server DTOs and Sales target client in `Ivr.Contracts`; isolate generated code from domain models.
+3. Define explicit `CurrentGoldenHourCallback*` compatibility DTO/client from verified current Sales schema or checked fixture; mark unsupported fields clearly.
+4. Add fake Sales server/WireMock mappings for both programs and ACK/error/retry scenarios.
+5. Add compatibility selection through typed provider config; invalid mode/provider combination fails startup.
+6. Document codegen/regeneration/deprecation. Drift does not auto-accept upstream change.
 
-Trace: `specs/testing/04-contract-test-plan.md`.
+## 5. Tests/evidence
 
-## 9. REVIEW / ACCEPTANCE GATE
-**Self-review:**
-- [ ] DTO khớp spec (required/nullable/enum); round-trip seed không mất field.
-- [ ] `CALLBACK_*` target vs 200/422 reality được chú thích rõ (DS-03).
-- [ ] Drift-check hoạt động.
+- parse/ref validation of both OAS; generated-code compile;
+- task schema accepts exact two matrix rows and rejects cross-combinations/missing flag/version/speech/token;
+- speech schema rejects full-address/unknown properties fixtures;
+- target callback covers every 200/409/422/429/5xx response;
+- target/current DTO cannot be assigned/interchanged accidentally;
+- record commands, hashes, generated diff and test report in W-0014.
 
-**Reviewer:** không sửa tay generated; client outbound có `Idempotency-Key`+`X-Correlation-Id` header slot (nối P0-3 handler); Swagger UI chỉ non-prod.
+## 6. Forbidden/DoD
 
-## 10. EVIDENCE EXPECTED
-Codegen output log, contract-test report (5 pass), drift-check demo (fail khi đổi spec), Swagger UI screenshot (non-prod).
-
-## 11. FORBIDDEN
-- ❌ Sửa tay file generated.
-- ❌ Định nghĩa DTO/enum lệch spec (spec là nguồn sự thật).
-- ❌ Bật Swagger UI ở prod.
-- ❌ Coi `CALLBACK_*` là đã có ở Core (đó là target — DS-03).
-
-## 12. DEFINITION OF DONE
-- [ ] Codegen sinh DTO/enum/client + stub; 5 contract test §8 xanh; drift-check gate.
-- [ ] `Ivr.Contracts` build sạch; evidence §10 đủ.
+No current endpoint as final target, no fake pass, no production base URL/credential invention. Done at `TESTS_PASS` after codegen/build/tests/evidence; external Sales approval stays W-0002/W-0005/W-0006 `BLOCKED_EXTERNAL`.

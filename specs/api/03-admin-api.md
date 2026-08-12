@@ -27,8 +27,8 @@ Admin **KHÔNG** được:
 ## 3. Privacy (masked)
 - `/queue`, `/call-jobs/{id}` chỉ hiển thị `phone_masked`, `order_code`, program, status, deadline. **Không** raw phone/full address/payment/health (phase-8/08; P0-IVR-007).
 
-## 4. SIM admin & trạng thái "chưa mua"
-- SIM chưa mua (DT-01) → `/sim-channels/*` chạy trên **SIM mock/non-prod** (disabled/dry-run). Contract giữ nguyên để khi có SIM thật chỉ đổi adapter (DT-01). Số SIM giả định pilot 12 (DT-04).
+## 4. SIM/eSIM admin theo mode
+- Dev dùng mock channels; lab ban đầu có 1 SIM thật và destination allowlist; production target 32 eSIM channels. Channel count là config. UI/API phải hiển thị mode/provider và không được bật real call permission chỉ vì channel được enable.
 
 ## Báo cáo (admin)
 - **7 endpoint admin** (1 GET + 6 POST), mỗi cái map 1 permission `IVR_*` (DF-01). Không endpoint nào cho phép force order/bypass blocker.

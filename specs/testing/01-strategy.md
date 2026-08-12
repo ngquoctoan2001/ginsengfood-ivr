@@ -12,7 +12,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p11` · Nguồn: `MASTER-05`, `phase-
 | Release smoke | đủ điều kiện gate + owner sign-off | evidence packet + REAL_CALL gate |
 
 ## 2. Mock-first
-- `INTEGRATION_MODE=MOCK`, `IVR_ADAPTER_MODE=MOCK`; dùng `seed/*` (Order Core/ops/SIM giả lập).
+- `EXECUTION_MODE=MOCK`, `SALES_PROVIDER=FAKE_TARGET_V1`, `SIM_PROVIDER=MOCK`; dùng `seed/sales-target-v1.sample.json` và deterministic fake scenarios. Legacy seed only for explicit compatibility tests.
 - Bỏ mock dần theo `integration-requirements/*` khi có API/hạ tầng thật.
 - **KHÔNG gọi khách thật** cho tới release gate (DF-03) + mua SIM (DT-01).
 

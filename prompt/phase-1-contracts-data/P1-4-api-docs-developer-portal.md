@@ -21,7 +21,7 @@ IVR là ranh giới tích hợp nhiều team. Contract không có tài liệu r�
 
 ## 4. DECISIONS & CONSTRAINTS
 - **Single source:** docs sinh từ OpenAPI; không viết tay lệch spec.
-- **Target vs live:** đánh dấu rõ endpoint/field target (order_version, `CALLBACK_*`) vs live (200/422) — DS-03/04.
+- **Target vs current compat:** publish Target generic callback/order-version/semantic ACK separately from Golden Hour current endpoint/200-422; show `TARGET_DRAFT`, upstream status and deprecation plan.
 - **Versioning:** SemVer contract; deprecation policy (Sunset header, thời gian ân hạn).
 - **Non-prod:** portal chỉ non-prod; không lộ ví dụ chứa PII thật.
 

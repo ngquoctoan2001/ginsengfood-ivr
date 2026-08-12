@@ -1,5 +1,18 @@
 # 14 — Risk Register
 
+> **Target V1 update 2026-08-12:** ưu tiên hiện tại gồm Sales producer cho hai program, speech summary, dial-token, generic callback/version/ACK, auth và owner attempt policy; lab dùng 1 SIM thật/allowlist, production target 32 eSIM. Các risk/closure cũ bên dưới là lịch sử nếu mâu thuẫn với `target-contract-v1-draft.md`.
+
+| ID | New/changed Target V1 risk | Priority | Mitigation/owner |
+| --- | --- | --- | --- |
+| `R-V1-01` | Golden Hour ONLINE/24-7 COD producer matrix chưa khóa/implement đủ | P0 | Target task OAS + fake producer; Sales/Product sign-off |
+| `R-V1-02` | Không có speech payload nên lời gọi không đọc được đơn theo yêu cầu | P0 | required privacy-safe summary + fixtures; Sales/Product/Privacy |
+| `R-V1-03` | Dial-token/resolver chưa có | P0 | token port/fake; Security/Telephony contract |
+| `R-V1-04` | Generic callback/version/ACK/auth chưa có | P0 | target client/WireMock + current compat; Sales/Security evidence |
+| `R-V1-05` | D-10 candidate bị hard-code rồi dùng production | P0 | versioned registry + PROD approval guard; Product owner |
+| `R-V1-06` | Một SIM lab bị hiểu nhầm là 32-eSIM production proof | P0 | separate gates/evidence; Infra/Release |
+| `R-V1-07` | Legacy prompt/seed làm dev quay lại COD-only/current behavior | P0 | source priority, legacy labels, CI contract tests |
+| `R-V1-08` | Tracker thiếu việc phát sinh làm mất kiểm soát scope | P0 | single sequential ledger; every prompt updates it |
+
 Impact/Probability: Cao/Trung bình/Thấp. Priority: P0 (chặn) / P1 / P2.
 
 > ✅ **Cập nhật 2026-07-02 (Module 3/3.1 trả lời — [decisions-log.md](decisions-log.md)):** giảm/đóng: **R-02** (order_code → D-01), **R-04** (order status → D-02), R-03 phần dial token (D-05), R-13 (race guard `order_version` → D-02/D-04). R-01 (chưa có API sales) hạ xuống "đã có hợp đồng, chờ hiện thực". Còn P0: R-06 (SIM protocol), R-16 (technical≠no-answer), R-09 (PII), R-21 (release gate).
@@ -24,7 +37,7 @@ Impact/Probability: Cao/Trung bình/Thấp. Priority: P0 (chặn) / P1 / P2.
 | R-14 | **Chưa có môi trường test tích hợp** | TB | Cao | P1 | Seed/mock + dry-run mode; INTEGRATION_MODE flag | IVR | seed/*, testing/* |
 | R-15 | **IVR bị thiết kế phụ thuộc quá chặt vào sales platform** | Cao | TB | P1 | Adapter/port + contract; IVR chỉ consume signal; không ôm logic sales | IVR Architect | architecture/02,03 |
 | R-16 | **Nhầm technical failure với no-answer** (FAIL P0) | Cao | TB | P0 | `is_counted_customer_attempt=false` cho technical; mapping disposition rõ | IVR | functional/06 |
-| R-17 | **IVR tự ý update order / gửi notification** (FAIL P0) | Cao | Thấp | P0 | Không endpoint/đường ghi order; notification chỉ sau Core decision | IVR Architect | api/*, architecture/03 |
+| R-17 | **IVR tự ý update order / gửi notification** (FAIL P0) | Cao | Thấp | P0 | Không endpoint/đường ghi order; V1 notification disabled/no-egress | IVR Architect | api/*, architecture/03 |
 | R-18 | **Open decisions treo trôi vào code** (trust threshold, retention, SIM protocol…) | Cao | Cao | P0 | p14 duy trì open-decisions-register; chặn code tới khi P0 đóng | Owner | _review/open-decisions-register |
 | R-19 | **Lệch version tài liệu** (.docx V0.2 vs md; file tham chiếu thiếu) | TB | TB | P1 | p01 đối chiếu; ghi ADR chọn version; tạo source-map | IVR + Owner | 05-current-docs-review, decisions/ |
 | R-20 | **Scope creep sang inbound** (lookup/order-by-phone/tư vấn) | TB | TB | P1 | Khóa scope outbound; inbound chỉ khi owner duyệt + có nguồn | Product owner | context/scope |

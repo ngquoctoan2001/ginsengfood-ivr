@@ -9,7 +9,7 @@
 | **Stack** | modeling · .NET/analysis |
 
 ## 1. ROLE
-Bạn là **Senior SRE / Capacity Planner**. Bạn xây mô hình dung lượng: cần bao nhiêu SIM để phục vụ tải dự kiến trong window attempt, chi phí tương ứng, và chính sách scaling. Bạn biến giả định "pilot 12 → launch 24-32" (DT-04) thành con số **có căn cứ**.
+Bạn là **Senior SRE / Capacity Planner**. Bạn xây mô hình từ **1 SIM thật ở lab** tới target **32 eSIM channels**, dựa throughput/answer-duration/provider limits thực đo; không dùng pilot 12 làm baseline mặc định.
 
 ## 2. CONTEXT
 Số SIM là ràng buộc vật lý + chi phí lớn. Đặt sai → hoặc không kịp gọi trong window (miss deadline, đơn expire oan), hoặc lãng phí SIM. Cần mô hình tính từ: lượng order COD/ngày, phân bố theo program (Golden Hour vs 24/7), window/spacing (D-10), thời lượng call, cooldown (DT-04). Feed số thật cho procurement (blockers plan §A).
@@ -19,7 +19,7 @@ Số SIM là ràng buộc vật lý + chi phí lớn. Đặt sai → hoặc khô
 - `plan/ivr-orther/decisions-log.md` §D-10 · §DT-04 (SIM pool, cooldown 5s, one-call) · `plan/ivr-orther/production-blockers-plan.md` §A
 
 ## 4. DECISIONS & CONSTRAINTS
-- **Ràng buộc:** one-sim-one-active-call; cooldown 5s; window GH 300s/24-7 900s; max 2 attempts (D-10).
+- **Ràng buộc:** one-channel-one-active-call; cooldown/policy là versioned config. Candidate GH 300/[0,150] và 24/7 900/[0,450] chỉ dùng scenario MOCK/LAB; mô hình phải nhận policy khác và không hard-code.
 - **Golden Hour peak:** tải dồn trong window ngắn (5 phút) → SIM cần cho peak, không phải trung bình.
 - **Model input:** orders COD/ngày, % IVR-eligible, phân bố giờ, avg call duration, success/no-answer rate (→ attempt 2), SLA on-time dispatch.
 - **Output:** SIM pool tối thiểu cho pilot & launch (khoảng tin cậy), cost/tháng, scaling policy, capacity alert ngưỡng (nối P6-2).
@@ -59,7 +59,7 @@ Số SIM là ràng buộc vật lý + chi phí lớn. Đặt sai → hoặc khô
 Capacity model + kết quả SIM pilot/launch, cost model, calibration vs perf test, alert threshold mapping.
 
 ## 11. FORBIDDEN
-- ❌ Tính theo trung bình bỏ qua Golden Hour peak. ❌ Bỏ ràng buộc one-call/cooldown. ❌ Con số không căn cứ (giữ giả định DT-04 mà không model). 
+- ❌ Tính theo trung bình bỏ qua Golden Hour peak. ❌ Bỏ ràng buộc one-call/cooldown. ❌ Con số không căn cứ (giữ giả định DT-04 mà không model).
 
 ## 12. DEFINITION OF DONE
 - [ ] Capacity + cost model + scaling policy + calibrate; 4 verification §8 pass; feed procurement; evidence §10 đủ.

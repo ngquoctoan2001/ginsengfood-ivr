@@ -23,7 +23,7 @@ Các slice Phase 2 đã có test cục bộ; Phase 5 hợp nhất thành **test 
 - **Coverage:** core slice ≥ 80% (nâng từ nền P0-2); không loại trừ bừa.
 - **Testcontainers Postgres:** integration chạy DB thật (migration P1-2), không in-memory giả.
 - **Trace:** mỗi test map ID trong `testing/02/03`; mọi P0/FR có ≥1 test.
-- **DS-01/DT-02/D-10 assert cứng:** COD-only, technical≠no-answer, attempt=2/window — có test negative.
+- **Target V1 asserts:** GH+ONLINE and 24/7+COD matrix; technical≠no-answer; policy is versioned/configurable. Candidate 2/5′/15′ is tested only as MOCK/LAB fixture, plus an alternate policy proving no hard-code.
 - **Fail gate (testing/08):** test khẳng định IVR không transition order, không xử lý payment, technical≠no-answer, PII masked.
 
 ## 5. INPUTS / DEPENDENCIES
@@ -31,7 +31,7 @@ Các slice Phase 2 đã có test cục bộ; Phase 5 hợp nhất thành **test 
 
 ## 6. BUILD STEPS
 1. **Unit** (`Ivr.UnitTests`): domain policy (AttemptPolicy property, DispositionMapper matrix, EligibilityRules, PII guard), normalizer, callback logic, foundation (idempotency/correlation/error).
-2. **Integration** (`Ivr.IntegrationTests`, Testcontainers Postgres): intake→job, scheduler A1/A2/expire, blocker fan-out, callback 200/422/retry, fail-closed profiles (order-core-down/ops-down/crm-down/sim-down/evidence-down).
+2. **Integration** (`Ivr.IntegrationTests`, Testcontainers Postgres): both intake paths→job, scheduler offsets/expire, speech/token guards, blocker snapshots, target callback semantic ACK/retry/DLQ plus GH current-compat isolation, fail-closed profiles.
 3. **Fixture/builder**: test data builders từ seed; clock injectable cho thời gian.
 4. **Coverage** đạt ngưỡng; report cobertura; map traceability (test↔spec ID) xuất bảng.
 5. **Fail-gate assertions** (testing/08): test chuyên khẳng định 8 fail-gate không xảy ra.

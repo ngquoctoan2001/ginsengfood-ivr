@@ -20,7 +20,7 @@ IVR bị chặn bởi SIM concurrency (one-sim-one-call) và deadline attempt. C
 - `plan/ivr-orther/decisions-log.md` §DT-04 (capacity/cooldown), §DO-06 (fail-closed), §D-05 (PII)
 
 ## 4. DECISIONS & CONSTRAINTS
-- **Capacity (DT-04):** test với SIM pool size (mock scale); vượt → `IVR_CAPACITY_EXCEPTION` (không counted), hàng đợi ổn định, không mất task.
+- **Capacity:** simulate 1-channel lab and 32-channel target with multiple policy versions; real 32-eSIM proof remains vendor/load-gate evidence. Overload → `IVR_CAPACITY_EXCEPTION` not-counted, stable queue/outbox.
 - **Fail-closed (DO-06):** dưới tải, downstream chậm/timeout → block/không dispatch, không "mở cửa".
 - **PII (D-05):** scan log/metric/trace/UI không lộ phone thô/recording/token→số.
 - **Perf target:** callback revalidate 3–5s (D-04); intake/scheduler latency ngưỡng; no memory leak qua soak.
@@ -30,7 +30,7 @@ IVR bị chặn bởi SIM concurrency (one-sim-one-call) và deadline attempt. C
 - Load tool (k6/NBomber); mock SIM scale; security scanners (OWASP ZAP baseline, dotnet vuln, gitleaks — nối P0-2); log/trace sink.
 
 ## 6. BUILD STEPS
-1. **Load/throughput**: mô phỏng N task đồng thời với SIM pool cố định; đo throughput, latency p50/p95, queue depth; xác nhận không vượt one-sim-one-call.
+1. **Load/throughput**: run 1- and 32-channel simulations plus alternate attempt policies; measure latency/queue/deadlines and one-channel-one-call.
 2. **Capacity/backpressure**: đẩy quá capacity → `CAPACITY_EXCEPTION` (not counted), không mất task, phục hồi khi tải giảm.
 3. **Soak**: chạy dài (vd 4–8h mock) → không leak memory/connection; deadline không trôi.
 4. **Resilience under load**: downstream chậm/timeout → fail-closed (không dispatch/không confirm sai); technical≠no-answer giữ đúng dưới tải.
@@ -50,7 +50,7 @@ IVR bị chặn bởi SIM concurrency (one-sim-one-call) và deadline attempt. C
 | `PT-CAP-01` | perf | vượt capacity → `CAPACITY_EXCEPTION` not-counted, không mất task. |
 | `PT-SOAK-02` | perf | soak dài → không leak; deadline giữ. |
 | `PT-FAILCLOSED-03` | perf | downstream chậm → fail-closed under load. |
-| `SEC-PII-04` | security | không phone/recording/token→số trong log/trace/UI (D-05). |
+| `SEC-PII-04` | security | no raw phone/full address/recording/token mapping in log/trace/UI/evidence; speech summary whitelist enforced. |
 | `SEC-AUTHZ-05` | security | caller lạ/thiếu scope → 403; rate-limit hoạt động. |
 | `SEC-ERR-06` | security | error không leak stack/PII; envelope chuẩn. |
 

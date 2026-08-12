@@ -1,32 +1,24 @@
-# Workflow — Happy Path (Confirm, phím 1)
+# Workflow — Happy Path Confirm (key 1)
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p04` · Nguồn: `docx` §3,§8,§9,§14; `phase-8/07`,`/23`.
-
-**Kết quả:** `IVR_CONFIRMED` (counted, final) → Order Core revalidate → tiếp tục xử lý đơn.
+Trạng thái: `TARGET_V1_DRAFT`.
 
 ```mermaid
 sequenceDiagram
-    participant OrderCore
+    participant Sales
     participant IVR
-    participant Sched
     participant SIM
-    participant Norm
-    participant Evid
-    OrderCore->>IVR: IvrConfirmationTaskV1 (order, program, contact, blockers)
-    IVR->>IVR: validate Official Order + idempotency + eligibility
-    IVR->>Evid: audit(task intake ACCEPTED)
-    IVR->>Sched: create CallJob (attempt schedule)
-    Sched->>SIM: dispatch attempt 1 @ T0 (reserve 1 SIM)
-    SIM->>SIM: play script(order_code_short, total_amount_display)
-    SIM-->>Sched: answered + DTMF=1
-    Sched->>Norm: raw call event (status, dtmf=1)
-    Norm->>Norm: normalize -> IVR_CONFIRMED
-    Norm->>Evid: evidence(result + dtmf)
-    Norm->>OrderCore: IvrConfirmationResultCallbackCurrentV1 (IVR_CONFIRMED, evidence_ref)
-    Note over Norm,OrderCore: Target IR-SALES-OC1 adds order_version_seen_by_ivr
-    OrderCore->>OrderCore: revalidate (version, state, blocker, evidence)
-    OrderCore-->>Norm: CALLBACK_ACCEPTED_FOR_REVALIDATION
-    OrderCore->>OrderCore: transition per state machine (Core decides)
+    participant Customer
+    Sales->>IVR: Target task (program/payment/version/policy/dial token/speech summary)
+    IVR->>IVR: auth + idempotency + matrix + eligibility + privacy validation
+    IVR->>SIM: dial token; play approved order summary
+    SIM->>Customer: name, items, total, short delivery area; key 1/0
+    Customer-->>SIM: DTMF 1
+    SIM-->>IVR: answered + key 1
+    IVR->>IVR: normalize IVR_CONFIRMED + evidence + outbox
+    IVR->>Sales: POST /api/v1/internal/orders/{id}/ivr-result-callbacks
+    Sales->>Sales: revalidate idempotency/version/state/program/payment/blockers
+    Sales-->>IVR: 200 ACCEPTED/BLOCKED_BY_CORE/REVIEW_REQUIRED
+    Note over Sales: Only Sales may transition the order
 ```
 
-**Ghi chú:** attempt 2 không được tạo vì A1 đã có kết quả cuối (FR-IVR-SCH-005). Core có thể vẫn `BLOCKED_BY_CORE` nếu revalidate phát hiện blocker (xem [06](06-race-condition-revalidation.md)).
+Final A1 prevents later customer attempts. `ACCEPTED` is callback acceptance, not an assertion by IVR that the order is confirmed.

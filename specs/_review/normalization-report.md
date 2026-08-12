@@ -1,5 +1,19 @@
 # REVIEW — Normalization Report
 
+## Round 5 — Target V1 realignment (2026-08-12)
+
+Source/code review superseded several earlier conclusions. Active plan/spec/prompt now use `plan/ivr-orther/target-contract-v1-draft.md`:
+
+- scope is Golden Hour ONLINE plus 24/7 COD, not global COD-only;
+- D-10 timings are configurable candidate values for MOCK/LAB, not production-locked;
+- target callback is Sales-owned generic `/api/v1/internal/orders/{orderId}/ivr-result-callbacks`; Golden Hour endpoint is compatibility-only;
+- speech summary with items/total/short area is a P0 upstream dependency;
+- no-answer waits for Sales timeout; V1 notification is disabled;
+- dev is mock-first, then one real SIM lab, with 32 eSIM target later;
+- target auth and several Sales contracts remain open.
+
+Earlier Round 1–4 text below is retained as historical evidence and is **not authoritative where it conflicts with Round 5**.
+
 Trạng thái: `REVIEW` · Sinh bởi: `plan/ivr-orther/prompts/p14-review-and-normalize-specs.md`
 Phạm vi: rà soát toàn bộ `specs/srs/*` + `integration-requirements/*` + `seed/*`. Chuẩn đánh giá: `00-AI-EVALUATION-DEV-READINESS.md`, `MASTER-05`.
 
@@ -32,7 +46,7 @@ Thuật ngữ dùng nhất quán với `04-glossary`. Đã bổ sung "Sellable g
 D-01/DS-01: order_code khi tạo Official Order; state chờ IVR = **`CONFIRMING`** (COD-only, DS-01); fulfillment gated (shipment cần CONFIRMED). Nêu ở `01-context`, `data/*`, `integration-requirements/00`, `10-gap-analysis`.
 
 ## 7. Mọi FR/P0 có test + evidence? — ✅ PASS (còn treo integration)
-- 10 P0 (00-index testing) đều có test + smoke (09) + evidence. 
+- 10 P0 (00-index testing) đều có test + smoke (09) + evidence.
 - ✅ **DG-03 đã trả DS-01..05**; integration/contract test đầy đủ đã tách target/deferred cho OC1/OC2/OC3.
 
 ## 8. Trùng lặp / lỗ hổng
