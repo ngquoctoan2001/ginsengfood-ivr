@@ -52,7 +52,7 @@ Xác nhận bởi IVR dev ngày `2026-08-12`: repository/namespace/source root, 
 ## Must-decide gates
 
 - Before P0: repository/name/source root/CI/evidence root are confirmed; P0-1 must still inspect the current working tree and avoid conflicting source.
-- **Before P0 (mới, W-0062): `BASELINE_FREEZE_REQUIRED`.** Toàn bộ tài liệu điều khiển (governance, tracker, defaults, specs, OpenAPI, seed, prompt) hiện **uncommitted** trên `main` tại `HEAD=b3a93aa`. Owner phải review và commit/freeze baseline này trước khi W-0010 bắt đầu; nếu không, `git checkout .` sẽ xoá cả quyết định A-0004/A-0005 lẫn toàn bộ remediation. Remediation **không tự commit**.
+- **Before P0 (W-0062): `BASELINE_FREEZE_REQUIRED` — SATISFIED 2026-08-12.** Owner đã review/freeze bộ tài liệu điều khiển tại `main@5c6f39e`; W-0010 được phép bắt đầu từ baseline sạch này. Các thay đổi implementation sau commit phải tiếp tục được ghi trong tracker/evidence, không được suy ngược rằng contract/external gate đã đóng.
 - **Before P0-2: `G-GITLAB` (W-0061)** phải có GitLab project + runner, nếu không P0-2 chỉ đạt local/config evidence và hosted evidence giữ `NOT_RUN`/`BLOCKED_EXTERNAL`.
 - Before P1: codegen/outbox/schema ownership are confirmed.
 - Before P4 real: Sales OpenAPI/base URL/sandbox, auth/JWT/mTLS and provider credentials.

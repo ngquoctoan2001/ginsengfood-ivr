@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-12T08:48:19.505Z",
+  "generatedAt": "2026-08-12T09:35:11.663Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -19,55 +19,62 @@
         {
           "depth": 2,
           "text": "Commands",
-          "line": 10,
+          "line": 12,
           "slug": "commands"
         },
         {
           "depth": 3,
           "text": "analyze — Build or refresh the index",
-          "line": 12,
+          "line": 14,
           "slug": "analyze-build-or-refresh-the-index"
         },
         {
           "depth": 3,
           "text": "status — Check index freshness",
-          "line": 28,
+          "line": 30,
           "slug": "status-check-index-freshness"
         },
         {
           "depth": 3,
           "text": "clean — Delete the index",
-          "line": 36,
+          "line": 38,
           "slug": "clean-delete-the-index"
         },
         {
           "depth": 3,
           "text": "wiki — Generate documentation from the graph",
-          "line": 49,
+          "line": 51,
           "slug": "wiki-generate-documentation-from-the-graph"
         },
         {
           "depth": 3,
           "text": "list — Show all indexed repos",
-          "line": 66,
+          "line": 68,
           "slug": "list-show-all-indexed-repos"
         },
         {
           "depth": 2,
           "text": "After Indexing",
-          "line": 74,
+          "line": 76,
           "slug": "after-indexing"
         },
         {
           "depth": 2,
           "text": "Troubleshooting",
-          "line": 79,
+          "line": 81,
           "slug": "troubleshooting"
         }
       ],
-      "links": [],
-      "lines": 84,
-      "words": 483,
+      "links": [
+        {
+          "kind": "markdown",
+          "text": "#1939",
+          "rawTarget": "https://github.com/abhigyanpatwari/GitNexus/issues/1939",
+          "line": 10
+        }
+      ],
+      "lines": 86,
+      "words": 581,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -114,19 +121,19 @@
         {
           "depth": 2,
           "text": "Tools",
-          "line": 49,
+          "line": 50,
           "slug": "tools"
         },
         {
           "depth": 2,
           "text": "Example: \"Payment endpoint returns 500 intermittently\"",
-          "line": 75,
+          "line": 87,
           "slug": "example-payment-endpoint-returns-500-intermittently"
         }
       ],
       "links": [],
-      "lines": 90,
-      "words": 201,
+      "lines": 102,
+      "words": 264,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -224,21 +231,45 @@
           "slug": "tools-reference"
         },
         {
+          "depth": 3,
+          "text": "Paginating `list_repos`",
+          "line": 47,
+          "slug": "paginating-listrepos"
+        },
+        {
+          "depth": 3,
+          "text": "Taint findings (`explain`)",
+          "line": 78,
+          "slug": "taint-findings-explain"
+        },
+        {
+          "depth": 3,
+          "text": "Control & data dependence (`pdg_query`)",
+          "line": 88,
+          "slug": "control-data-dependence-pdgquery"
+        },
+        {
+          "depth": 3,
+          "text": "Shortest path between two symbols (`trace`)",
+          "line": 97,
+          "slug": "shortest-path-between-two-symbols-trace"
+        },
+        {
           "depth": 2,
           "text": "Resources Reference",
-          "line": 43,
+          "line": 107,
           "slug": "resources-reference"
         },
         {
           "depth": 2,
           "text": "Graph Schema",
-          "line": 56,
+          "line": 120,
           "slug": "graph-schema"
         }
       ],
       "links": [],
-      "lines": 65,
-      "words": 381,
+      "lines": 129,
+      "words": 1015,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -387,6 +418,65 @@
       "incomingLinks": []
     },
     {
+      "path": "admin-ui/AGENTS.md",
+      "title": "This is NOT the Next.js you know",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "This is NOT the Next.js you know",
+          "line": 3,
+          "slug": "this-is-not-the-nextjs-you-know"
+        }
+      ],
+      "links": [],
+      "lines": 10,
+      "words": 95,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "admin-ui/CLAUDE.md",
+      "title": "CLAUDE",
+      "frontmatter": {},
+      "headings": [],
+      "links": [],
+      "lines": 2,
+      "words": 1,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "admin-ui/README.md",
+      "title": "IVR Admin UI",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "IVR Admin UI",
+          "line": 1,
+          "slug": "ivr-admin-ui"
+        },
+        {
+          "depth": 2,
+          "text": "Local commands",
+          "line": 7,
+          "slug": "local-commands"
+        }
+      ],
+      "links": [],
+      "lines": 24,
+      "words": 90,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "AGENTS.md",
       "title": "GitNexus — Code Intelligence",
       "frontmatter": {},
@@ -406,25 +496,25 @@
         {
           "depth": 2,
           "text": "Never Do",
-          "line": 16,
+          "line": 17,
           "slug": "never-do"
         },
         {
           "depth": 2,
           "text": "Resources",
-          "line": 23,
+          "line": 24,
           "slug": "resources"
         },
         {
           "depth": 2,
           "text": "CLI",
-          "line": 32,
+          "line": 33,
           "slug": "cli"
         }
       ],
       "links": [],
-      "lines": 44,
-      "words": 340,
+      "lines": 45,
+      "words": 381,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -450,25 +540,25 @@
         {
           "depth": 2,
           "text": "Never Do",
-          "line": 16,
+          "line": 17,
           "slug": "never-do"
         },
         {
           "depth": 2,
           "text": "Resources",
-          "line": 23,
+          "line": 24,
           "slug": "resources"
         },
         {
           "depth": 2,
           "text": "CLI",
-          "line": 32,
+          "line": 33,
           "slug": "cli"
         }
       ],
       "links": [],
-      "lines": 44,
-      "words": 340,
+      "lines": 45,
+      "words": 381,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -214170,6 +214260,56 @@
       ]
     },
     {
+      "path": "docs/evidence/W-0010/README.md",
+      "title": "W-0010 — P0-1 Repo & Solution Bootstrap Evidence",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0010 — P0-1 Repo & Solution Bootstrap Evidence",
+          "line": 1,
+          "slug": "w-0010-p0-1-repo-solution-bootstrap-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Scope verified",
+          "line": 15,
+          "slug": "scope-verified"
+        },
+        {
+          "depth": 2,
+          "text": "Build and test results",
+          "line": 26,
+          "slug": "build-and-test-results"
+        },
+        {
+          "depth": 2,
+          "text": "Runtime results",
+          "line": 54,
+          "slug": "runtime-results"
+        },
+        {
+          "depth": 2,
+          "text": "UI evidence",
+          "line": 85,
+          "slug": "ui-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates",
+          "line": 97,
+          "slug": "residual-gates"
+        }
+      ],
+      "links": [],
+      "lines": 107,
+      "words": 610,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "integration-requirements/00-index.md",
       "title": "Integration Requirements — Index (IVR Order Confirmation)",
       "frontmatter": {},
@@ -218622,7 +218762,7 @@
       ],
       "links": [],
       "lines": 63,
-      "words": 729,
+      "words": 722,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -218692,19 +218832,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 191,
+          "line": 196,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 212,
+          "line": 217,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 325,
-      "words": 4465,
+      "lines": 348,
+      "words": 4806,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -225754,19 +225894,49 @@
     },
     {
       "path": "README.md",
-      "title": "ivr",
+      "title": "GinsengFood IVR",
       "frontmatter": {},
       "headings": [
         {
           "depth": 1,
-          "text": "ivr",
+          "text": "GinsengFood IVR",
           "line": 1,
-          "slug": "ivr"
+          "slug": "ginsengfood-ivr"
+        },
+        {
+          "depth": 2,
+          "text": "Safety baseline",
+          "line": 8,
+          "slug": "safety-baseline"
+        },
+        {
+          "depth": 2,
+          "text": "Components",
+          "line": 25,
+          "slug": "components"
+        },
+        {
+          "depth": 2,
+          "text": "Prerequisites",
+          "line": 50,
+          "slug": "prerequisites"
+        },
+        {
+          "depth": 2,
+          "text": "Run locally",
+          "line": 56,
+          "slug": "run-locally"
+        },
+        {
+          "depth": 2,
+          "text": "Verify",
+          "line": 95,
+          "slug": "verify"
         }
       ],
       "links": [],
-      "lines": 2,
-      "words": 2,
+      "lines": 108,
+      "words": 311,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -232873,8 +233043,12 @@
       ".claude/skills/gitnexus/gitnexus-guide/SKILL.md",
       ".claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md",
       ".claude/skills/gitnexus/gitnexus-refactoring/SKILL.md",
+      "admin-ui/AGENTS.md",
+      "admin-ui/CLAUDE.md",
+      "admin-ui/README.md",
       "AGENTS.md",
       "CLAUDE.md",
+      "docs/evidence/W-0010/README.md",
       "plan/ivr-orther/_archive/01-reading-inventory.md",
       "plan/ivr-orther/_archive/08-target-specs-structure-proposal.md",
       "prompt/_review/phase-0-11-spec-alignment-review.md",

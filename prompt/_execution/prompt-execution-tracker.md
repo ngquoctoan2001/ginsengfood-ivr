@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0078` |
 | Last allocated | `W-0077` |
-| Last activity sequence | `A-0031` |
+| Last activity sequence | `A-0036` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -73,7 +73,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | Work ID | Prompt | Scope summary | Prereq | Status | Owner | Artifacts/MR | Tests/evidence | Residual/next |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `W-0001` | Planning realignment | Target V1 plan/spec/prompt/tracker/OpenAPI | docs/code review | EVIDENCE_SUBMITTED | Codex + IVR owner | Target V1 draft, two OpenAPI files, 51-prompt register, fake seed | JSON/YAML/schema/ref/link/tracker/diff checks pass | technical defaults confirmed; owner may accept evidence separately |
-| `W-0010` | `P0-1` | repo/solution bootstrap | technical defaults confirmed 2026-08-12 | NOT_STARTED |  |  |  | next implementation work |
+| `W-0010` | `P0-1` | repo/solution bootstrap | technical defaults confirmed 2026-08-12; baseline frozen at `5c6f39e` | ACCEPTED | Codex (explicit IVR owner authorization) | `Ivr.sln`; `src/**`; `tests/**`; `admin-ui/**`; `docker-compose.dev.yml`; `README.md`; `docs/evidence/W-0010/` | .NET build 0 warning/0 error; 3/3 test pass; format 0/39; UI lint/build pass; Postgres healthy; probes 3/3; browser clean + screenshot; doc links 0 unresolved; GitNexus LOW/0 process/0 cycle | P0-1 closed; MOCK only; GitLab CI next at W-0011; real Sales/SIM/lab/production remain NOT_RUN and outside this acceptance |
 | `W-0011` | `P0-2` | GitLab CI/quality baseline | W-0010 | NOT_STARTED |  |  |  |  |
 | `W-0012` | `P0-3` | config/auth/audit/idempotency/correlation | W-0010 | NOT_STARTED |  |  |  |  |
 | `W-0013` | `P0-4` | mode/provider flags + kill switches | W-0012 | NOT_STARTED |  |  |  |  |
@@ -187,6 +187,11 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0029` | 2026-08-12 | `W-0075` | FINISH | Chạy official `markdown-doc-reader` mapper vào `.codex-doc-memory`; thay map stale 381/365 bằng artifact khớp cây tài liệu hiện tại | Codex | 384 files / 368 resolved / 0 unresolved / 1 duplicate / 16 anomalies / 21 orphans |
 | `A-0030` | 2026-08-12 | `W-0075` | CHECKPOINT | Trong lượt final validation, một GitNexus index refresh ngoài phạm vi đã đồng thời sửa AGENTS.md, CLAUDE.md và 6 skill file; Codex không tạo/hoàn nguyên/stage các thay đổi này. Map được regenerate trên cây hiện tại; owner phải tách scope khi review/commit | Codex | baseline đầu lượt sạch; concurrent files có timestamp 15:33:04 và `.gitnexus/meta.json` indexedAt 08:33:03Z tại HEAD ff6734e |
 | `A-0031` | 2026-08-12 | `W-0075` | CHECKPOINT | IVR dev chủ động chạy lại GitNexus và yêu cầu tiếp tục; giữ bộ AGENTS/CLAUDE/skill generated làm trạng thái có chủ đích, sau đó regenerate official Markdown map và rerun validation | IVR dev + Codex | GitNexus indexedAt 08:46:44Z, lastCommit ff6734e, 390 files / 36578 nodes / 36756 edges / 0 processes |
+| `A-0032` | 2026-08-12 | `W-0010` | START | Bắt đầu P0-1 repo/solution bootstrap từ baseline đã freeze; dựng .NET 10 + PostgreSQL/EF Core + Next.js strict + Docker Compose hoàn toàn MOCK | Codex | baseline `5c6f39e892b2c6d85c56065f8c10dcdba2ba8770`, branch main, working tree clean; .NET SDK 10.0.201, Node 24.14.1, npm 11.11.0, Docker Engine 29.6.2/Compose 5.3.1 |
+| `A-0033` | 2026-08-12 | `W-0010` | CHECKPOINT | Hoàn tất scaffold/source/tests/admin UI/Compose; xử lý analyzer logging bằng source-generated LoggerMessage và tách cổng Postgres IVR sang `55433` do `5432`, `55431`, `55432` đã bận | Codex | build 0 warning/0 error; tests 3/3; Postgres `healthy`, `127.0.0.1:55433` reachable |
+| `A-0034` | 2026-08-12 | `W-0010` | FINISH/HANDOFF | Nộp evidence P0-1 ở trạng thái MOCK; chưa tự ACCEPTED và không tạo GitLab CI, business entity, Sales/SIM integration hay real-call path | Codex | `docs/evidence/W-0010/`; UI lint/build pass; health live/ready/startup 200 JSON; screenshot + console 0 issue; format/diff pass; owner review + GitNexus change review pending |
+| `A-0035` | 2026-08-12 | `W-0010` | VALIDATION/HANDOFF | Lượt rà soát cuối đồng bộ launch URL `127.0.0.1:5088`, loại asset/README Next.js template sai, chạy lại build/test/UI/runtime và dọn tiến trình/container kiểm thử có kiểm soát | Codex | build 0/0; 3/3 test pass; UI lint/build pass; launch-profile probes 3/3 HTTP 200; official doc map 388 files/368 resolved/0 unresolved; Postgres container stopped, volume preserved |
+| `A-0036` | 2026-08-12 | `W-0010` | ACCEPTANCE | Theo ủy quyền explicit của IVR owner, Codex tự review và chấp nhận P0-1 local bootstrap; acceptance không mở rộng sang real integration/telephony/production | Codex | GitNexus re-index 36,696 nodes/36,886 edges; status up-to-date; change risk LOW, 0 affected process; 0 circular import; direct diff review không có blocking finding |
 
 ## 8. Per-work completion record template
 
@@ -321,4 +326,22 @@ Production evidence: NOT_RUN
 Residual blockers/risks: W-0056 chuyển BLOCKED_EXTERNAL vì P9-2/W-0051 phụ thuộc production release path; không được chạy on-call maturity như thể ops runbook đã có
 Next allowed Work ID(s): W-0078 chưa cấp; W-0010 vẫn là implementation work đầu tiên sau baseline freeze
 Final status: EVIDENCE_SUBMITTED
+```
+
+```text
+Work ID: W-0010
+Prompt: P0-1
+Baseline/commit: baseline main@5c6f39e892b2c6d85c56065f8c10dcdba2ba8770; clean working tree at START; this completion record is included in the dedicated P0-1 commit
+Scope completed: standalone .NET 10 solution bootstrap; API health probes; empty worker heartbeat; empty EF Core/Npgsql context; strict Next.js admin placeholder; PostgreSQL 16 and inert mock-provider Compose placeholders; root tooling and runbook
+Files/artifacts: Ivr.sln; Directory.Build.props; .editorconfig; global.json; .gitignore; src/**; tests/**; admin-ui/**; docker-compose.dev.yml; README.md; docs/evidence/W-0010/**
+Commands and exact results: dotnet restore PASS; dotnet build PASS 0 warnings/0 errors; dotnet test PASS 3/3 implemented tests; dotnet format verify PASS 0/39 changed; npm lint PASS; npm build PASS; npm audit 0 vulnerabilities; Compose config PASS; Postgres healthy and localhost port 55433 reachable; three API probes HTTP 200 JSON; browser console 0 warning/error; official Markdown mapper 388 files/368 resolved/0 unresolved; GitNexus staged 59 files/79 symbols, LOW risk/0 process/0 cycle; git diff --check PASS
+Tests/evidence: UT-BOOT-01 PASS; IT-BOOT-02 PASS for live/ready/startup; UT-BOOT-03 PASS; screenshot docs/evidence/W-0010/admin-ui-mock-mode.png; detailed command evidence docs/evidence/W-0010/README.md
+Review/acceptance by: ACCEPTED 2026-08-12 by Codex self-review under explicit IVR owner authorization; scope limited to P0-1 local bootstrap
+Mock-only evidence: complete for P0-1; IVR_EXECUTION_MODE=MOCK; SALES_PROVIDER=FAKE_TARGET_V1; SIM_PROVIDER=MOCK; REAL_CUSTOMER_CALL_ALLOWED=NO
+Lab evidence: NOT_RUN; one real SIM belongs W-0048/W-0049 and requires allowlist/vendor decisions
+Real integration evidence: NOT_RUN; no Sales API/auth/SIM adapter connected
+Production evidence: NOT_RUN; no staging, 32 eSIM, protected GitLab pipeline, or release evidence
+Residual blockers/risks: readiness is an always-200 bootstrap placeholder until W-0040; GitLab CI belongs W-0011; private registry remains open but non-blocking; no real Sales/SIM/lab/production evidence is implied by this acceptance
+Next allowed Work ID(s): W-0011; W-0057/W-0058 remain separately eligible when their owners and external inputs are available
+Final status: ACCEPTED
 ```

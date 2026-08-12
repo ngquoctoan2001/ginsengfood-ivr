@@ -1,0 +1,56 @@
+name: ginsengfood-ivr-dev
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ivr
+      POSTGRES_USER: ivr
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:${IVR_POSTGRES_PORT:-55433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ivr -d ivr"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - ivr-postgres-data:/var/lib/postgresql/data
+    networks:
+      - ivr-database-local
+
+  fake-sales:
+    image: alpine:3.22
+    profiles: ["mocks"]
+    command: ["sh", "-c", "echo 'FAKE_TARGET_V1 placeholder only'; tail -f /dev/null"]
+    environment:
+      PROVIDER_MODE: FAKE_TARGET_V1
+    networks:
+      - ivr-internal
+
+  mock-sim:
+    image: alpine:3.22
+    profiles: ["mocks"]
+    command: ["sh", "-c", "echo 'MOCK SIM placeholder only'; tail -f /dev/null"]
+    environment:
+      SIM_PROVIDER: MOCK
+      REAL_CUSTOMER_CALL_ALLOWED: "NO"
+    networks:
+      - ivr-internal
+
+  mock-jwt:
+    image: alpine:3.22
+    profiles: ["mocks"]
+    command: ["sh", "-c", "echo 'MOCK JWT issuer placeholder only'; tail -f /dev/null"]
+    environment:
+      JWT_ISSUER_MODE: MOCK
+    networks:
+      - ivr-internal
+
+networks:
+  ivr-database-local:
+  ivr-internal:
+    internal: true
+
+volumes:
+  ivr-postgres-data:

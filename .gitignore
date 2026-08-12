@@ -1,0 +1,29 @@
+# .NET
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+TestResults/
+coverage/
+
+# Node / Next.js
+admin-ui/node_modules/
+admin-ui/.next/
+admin-ui/out/
+admin-ui/.env*
+!admin-ui/.env.example
+npm-debug.log*
+
+# Local runtime data and secrets
+.env
+.env.*
+!.env.example
+.secrets/
+pgdata/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
