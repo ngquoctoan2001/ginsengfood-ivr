@@ -74,15 +74,17 @@ Sau khi có solution (P0-1), cần CI tự động để mọi prompt sau có "d
 
      ```text
      (^|[^0-9])(0|84|\+84)[0-9]{9}([^0-9]|$)
-     (đường|Đường|ĐƯỜNG|duong|Duong|DUONG)
-     (số nhà|Số nhà|Số Nhà|SỐ NHÀ|so nha|So nha|SO NHA)
-     (ngõ|Ngõ|NGÕ|hẻm|Hẻm|HẺM|ngach|Ngach)
-     (thôn |Thôn |THÔN |ấp |Ấp |ẤP |tổ |Tổ |TỔ )
+     ((đ|Đ)(ư|Ư)(ờ|Ờ)(n|N)(g|G)|(d|D)(u|U)(o|O)(n|N)(g|G))
+     ((s|S)(ố|Ố) (n|N)(h|H)(à|À)|(s|S)(o|O) (n|N)(h|H)(a|A))
+     ((n|N)(g|G)(õ|Õ)|(h|H)(ẻ|Ẻ)(m|M)|(n|N)(g|G)(á|Á)(c|C)(h|H)|(n|N)(g|G)(a|A)(c|C)(h|H))
+     ((t|T)(h|H)(ô|Ô)(n|N) |(ấ|Ấ|a|A)(p|P) |(t|T)(ổ|Ổ) )
      [Dd][Ii][Aa][Ll][_-]?[Tt][Oo][Kk][Ee][Nn]["'`: ]+[A-Za-z0-9._-]{8,}
      ```
 
      Lớp ký tự ASCII (`[Dd]`, `[0-9]`) vẫn an toàn ở mọi locale nên `dial_token` giữ nguyên dạng đó.
-     Alternation literal còn bắt thêm dạng **không dấu** (`duong`, `so nha`) mà lớp ký tự bỏ sót hoàn toàn.
+     Với cụm tiếng Việt, alternation literal được đặt **theo từng ký tự** để vừa an toàn ở `LC_ALL=C`, vừa
+     bắt được cả kiểu viết hoa/thường trộn như `ĐưỜnG`, `Số NHÀ`, `nGáCh`. Nó cũng bắt thêm dạng **không
+     dấu** (`duong`, `so nha`, `ngach`) mà lớp ký tự bỏ sót hoàn toàn.
 
      Job phải **đặt `LC_ALL=C.UTF-8` tường minh** và chạy `grep -nEf deploy/ci/pii-patterns.txt <targets>`,
      **fail khi có match**. Không được phụ thuộc locale mặc định của runner.
@@ -114,9 +116,10 @@ Sau khi có solution (P0-1), cần CI tự động để mọi prompt sau có "d
 | `CT-CI-04` | ci-selftest | Commit chứa secret giả → gitleaks fail. |
 | `CT-CI-05` | config/rules | MR, default-branch push và manual web source render đúng job; không sinh duplicate branch+MR pipeline. |
 | `CT-CI-06` | ci-selftest | Commit chứa số điện thoại/địa chỉ giả trong test output hoặc evidence → job `pii_scan` FAIL. |
-| `CT-CI-06b` | ci-selftest | **Chữ HOA phải bị bắt**: `123 Đường Nguyễn Huệ`, `123 ĐƯỜNG NGUYỄN HUỆ`, `SỐ NHÀ 45`, `NGÕ 12`, `DIAL_TOKEN: abc12345xyz` → FAIL. Và **không** false-positive trên `560000 VND`, `Quận 7`, `Quan 7`, `Phường Bến Nghé`, `Thành phố Thủ Đức`. |
+| `CT-CI-06b` | ci-selftest | **Chữ HOA phải bị bắt**: `123 Đường Nguyễn Huệ`, `123 ĐƯỜNG NGUYỄN HUỆ`, `SỐ NHÀ 45`, `NGÕ 12`, `NGÁCH 3`, `DIAL_TOKEN: abc12345xyz` → FAIL. Và **không** false-positive trên `560000 VND`, `Quận 7`, `Quan 7`, `Phường Bến Nghé`, `Thành phố Thủ Đức`. |
 | `CT-CI-06d` | ci-selftest | **Locale independence**: chạy lại đúng bộ fixture của `CT-CI-06b` dưới `LC_ALL=C`, `LC_ALL=C.UTF-8` và `LC_ALL=POSIX` — kết quả phải **giống hệt** ở cả ba. Test này bắt lỗi bracket expression đa byte; nếu ai đó đổi pattern về dạng `[Đđ]` thì test đỏ. |
-| `CT-CI-06e` | ci-selftest | **Dạng không dấu**: `123 duong Nguyen Hue`, `SO NHA 45` → FAIL (bộ pattern phủ cả biến thể không dấu). |
+| `CT-CI-06e` | ci-selftest | **Dạng không dấu**: `123 duong Nguyen Hue`, `SO NHA 45`, `NGACH 3` → FAIL (bộ pattern phủ cả biến thể không dấu). |
+| `CT-CI-06f` | ci-selftest | **Hoa/thường trộn**: `123 ĐưỜnG Nguyễn Huệ`, `Số NHÀ 45`, `nGáCh 3`, `HẻM 9` → FAIL. Chứng minh alternation theo từng ký tự không bỏ lọt biến thể case mà không cần `grep -i`. |
 | `CT-CI-06c` | ci-selftest | **Artifact liên job**: PII được cài vào artifact của `build_test_dotnet` (không phải workspace của `pii_scan`) → `pii_scan` vẫn FAIL. Chứng minh `needs`/`dependencies` thực sự tải artifact về. |
 | `CT-CI-08` | config/rules | Mọi job có `artifacts:` đều nằm trong `needs` của `pii_scan` (phương án A) **hoặc** tự chạy scanner trước upload (phương án B); thiếu job → FAIL. |
 | `CT-CI-07` | config/rules | Mọi file dưới `deploy/ci/*.gitlab-ci.yml` đều reachable từ root `.gitlab-ci.yml` (render pipeline liệt kê đủ job); fragment mồ côi → FAIL. |

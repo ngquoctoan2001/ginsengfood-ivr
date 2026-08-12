@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0077` |
-| Last allocated | `W-0076` |
-| Last activity sequence | `A-0024` |
+| `NEXT_WORK_ID` | `W-0078` |
+| Last allocated | `W-0077` |
+| Last activity sequence | `A-0031` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -103,7 +103,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0037` | `P5-3` | performance/security/privacy/mode-isolation | W-0018..24,W-0065,W-0066,W-0030,W-0031 | NOT_STARTED |  |  |  |  |
 | `W-0038` | `P5-4` | code review/static/security gates | W-0011 | NOT_STARTED |  |  |  |  |
 | `W-0039` | `P5-5` | UI accessibility/i18n/visual QA | W-0025..28 | NOT_STARTED |  |  |  |  |
-| `W-0040` | `P6-1` | redacted telemetry/tracing/metrics | W-0018..24,W-0065 | NOT_STARTED |  |  |  |  |
+| `W-0040` | `P6-1` | redacted telemetry/tracing/metrics | W-0018..24,W-0065,W-0066 | NOT_STARTED |  |  |  | bao gồm provider/TTS telemetry của P2-9 |
 | `W-0041` | `P6-2` | dashboards/SLO/alerts/readiness | W-0040 | NOT_STARTED |  |  |  |  |
 | `W-0042` | `P6-3` | chaos/fail-closed/recovery exercises | W-0041,W-0030,W-0031 | NOT_STARTED |  |  |  |  |
 | `W-0043` | `P7-1` | Docker/Compose incl fake Sales/mock SIM/JWT | W-0018..24,W-0025..27,W-0065,W-0066 | NOT_STARTED |  |  |  |  |
@@ -119,7 +119,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0053` | `P10-2` | data governance/backup/DR | W-0015,W-0044,W-0064 | NOT_STARTED |  |  |  |  |
 | `W-0054` | `P10-3` | 1/32-channel capacity and cost model | W-0041,W-0037 | NOT_STARTED |  |  |  | measured data needed |
 | `W-0055` | `P10-4` | analytics pipeline | W-0040 | NOT_STARTED |  |  |  |  |
-| `W-0056` | `P10-5` | SLA/error budget/on-call | W-0041 | NOT_STARTED |  |  |  |  |
+| `W-0056` | `P10-5` | SLA/error budget/on-call | W-0041,W-0051 | BLOCKED_EXTERNAL |  |  |  | chờ P9-2 production ops runbook/hypercare; không suy ra on-call maturity từ mock |
 | `W-0057` | `P11-1` | telephony RFQ + one-SIM lab + 32-eSIM requirements | — (chạy song song từ đầu; không phụ thuộc code) | NOT_STARTED |  |  |  | owns W-0008 closure |
 | `W-0058` | `P11-2` | Sales/auth contract closure pack | W-0014 | NOT_STARTED |  |  |  | owns W-0002..7 closure |
 | `W-0059` | `P11-3` | legal/retention/script/release package | W-0052,W-0053 | NOT_STARTED |  |  |  | owns W-0009 inputs |
@@ -135,9 +135,10 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0071` | Fix: cross-table CHECK | PostgreSQL không cho `CHECK` tham chiếu bảng khác; thêm cột denormalize `max_attempts_snapshot` + same-row CHECK (Origin=`RED_TEAM_REMEDIATION`) | W-0062 | EVIDENCE_SUBMITTED | Claude | `specs/database/02-tables.md` §3, `04-indexes.md` §4 | ghi rõ 3 cơ chế hợp lệ (snapshot+CHECK / trigger / app) | `P1-2` phải chọn cơ chế và ghi trong migration |
 | `W-0072` | Fix: `order_state` + policy `delivery_area_short` | `order_state` required ở OpenAPI nhưng thiếu ở plan §5/IR-01; pattern `^[^0-9]*$` loại nhầm `"Quận 7"` hợp lệ (Origin=`RED_TEAM_REMEDIATION`) | W-0062 | EVIDENCE_SUBMITTED | Claude | OpenAPI, target-contract §5/§6, IR-01, `specs/data/05`, seed | required 22/22 khớp 3 tài liệu; pattern 7/7 case pass; seed 9/9 valid | whitelist vẫn chờ `OD-V1-15` |
 | `W-0073` | Fix: PII gate case + artifact topology | Pattern địa chỉ chỉ khớp chữ thường (sót `Đường`, `SỐ NHÀ`); `grep -i` KHÔNG fold được `Đ`↔`đ` (đo: 1/3 dòng ở mọi locale). `pii_scan` chưa khai `needs`/`dependencies` nên không thấy artifact job khác ⇒ xanh giả (Origin=`RED_TEAM_REMEDIATION`) | W-0067 | EVIDENCE_SUBMITTED | Claude | `P0-2` §6.2/§7/§8/§9 | 19/19 pattern case pass; thêm `CT-CI-06b` (chữ HOA), `CT-CI-06c` (artifact liên job), `CT-CI-08` (mọi job artifact có trong `needs`) | `deploy/ci/pii-patterns.txt` tạo thật ở W-0011 |
-| `W-0074` | Fix: dependency wildcard sweep | `W-0065` thiếu `W-0013` (P0-4 flags), `W-0066` thiếu `W-0064` (IRetentionJob); 13 row có Meta `P*-\*` hoặc prereq free-text lệch tracker (Origin=`RED_TEAM_REMEDIATION`) | W-0070 | EVIDENCE_SUBMITTED | Claude | tracker §5 (14 row) + Meta 9 prompt | 0 row còn wildcard/free-text; cycle = none | — |
-| `W-0075` | Doc-map regeneration | Map phải do **mapper chính thức** `markdown-doc-reader` sinh; generator tự viết không tái lập được semantics (đo: 192/188/305/333/485/513/556 link — không giá trị nào ra 368) (Origin=`RED_TEAM_REMEDIATION`) | W-0062 | BLOCKED_INTERNAL | IVR dev (có mapper) | `.codex-doc-memory/markdown-doc-map.{json,md}` | **Acceptance đã đo sẵn:** `Markdown files: 384`, `Links resolved: 368`, `Unresolved: 0`, `Duplicate titles: 1`, `Encoding/name anomalies: 16` | map hiện đã revert về HEAD (381/365) ⇒ **STALE**, thiếu 3 prompt mới; chạy mapper chính thức trước khi commit baseline |
-| `W-0076` | Fix: PII pattern locale-independence | Bracket expression đa byte (`[Đđ]`, `[ốỐ]`, `[àÀ]`) **vỡ dưới `LC_ALL=C`** — chỉ bắt 3/8 dòng, và `Ngõ` khớp nhầm do trùng byte `0xC3`. Container CI tối giản thường ở `LC_ALL=C` ⇒ gate lại xanh giả theo cách khác (Origin=`RED_TEAM_REMEDIATION`) | W-0073 | EVIDENCE_SUBMITTED | Claude | `P0-2` §6.2/§7/§8/§9 | Pattern trích thẳng từ prompt, chạy `grep -nEf` thật: **8/8 PII và 0/0 false-positive ở cả `C`, `C.UTF-8`, `en_US.UTF-8`, `POSIX`**; thêm `CT-CI-06d` (3 locale) và `CT-CI-06e` (dạng không dấu) | `deploy/ci/pii-patterns.txt` tạo thật ở W-0011 |
+| `W-0074` | Fix: dependency wildcard sweep | `W-0065` thiếu `W-0013` (P0-4 flags), `W-0066` thiếu `W-0064` (IRetentionJob); 13 row có Meta `P*-\*` hoặc prereq free-text lệch tracker (Origin=`RED_TEAM_REMEDIATION`) | W-0070 | EVIDENCE_SUBMITTED | Claude | tracker §5 (14 row) + Meta 9 prompt | kiểm tra ban đầu không thấy cycle | reviewer phát hiện hai direct dependency còn lệch; follow-up W-0077 |
+| `W-0075` | Doc-map regeneration | Map phải do **mapper chính thức** `markdown-doc-reader` sinh; generator tự viết không tái lập được semantics (đo: 192/188/305/333/485/513/556 link — không giá trị nào ra 368) (Origin=`RED_TEAM_REMEDIATION`) | W-0062 | EVIDENCE_SUBMITTED | Codex | `.codex-doc-memory/markdown-doc-map.{json,md}` | official mapper: `384 files / 368 resolved / 0 unresolved / 1 duplicate / 16 anomalies / 21 orphans` | artifact đã đồng bộ; chờ owner review/acceptance, không suy ra contract/release readiness |
+| `W-0076` | Fix: PII pattern locale-independence | Bracket expression đa byte (`[Đđ]`, `[ốỐ]`, `[àÀ]`) **vỡ dưới `LC_ALL=C`** — chỉ bắt 3/8 dòng, và `Ngõ` khớp nhầm do trùng byte `0xC3`. Container CI tối giản thường ở `LC_ALL=C` ⇒ gate lại xanh giả theo cách khác (Origin=`RED_TEAM_REMEDIATION`) | W-0073 | EVIDENCE_SUBMITTED | Claude + Codex | `P0-2` §6.2/§7/§8/§9 | Pattern trích thẳng từ prompt, BusyBox `grep -nE`: **49/49 PII, 0/5 false-positive** ở `C`, `C.UTF-8`, `POSIX`; thêm `CT-CI-06d/e/f`, gồm `ngách/NGÁCH/NGACH` và mixed-case | `deploy/ci/pii-patterns.txt` + hosted CT-CI tạo/chạy thật ở W-0011; current evidence là static prompt test |
+| `W-0077` | Fix: direct dependency Meta/tracker drift | `P6-1` khai `P2-1..P2-9` nhưng W-0040 thiếu W-0066; `P10-5` khai/dùng trực tiếp `P9-2` nhưng W-0056 thiếu W-0051. Hai Work ID đều vắng cả direct dependency lẫn transitive closure (Origin=`RED_TEAM_REMEDIATION`) | W-0074 | EVIDENCE_SUBMITTED | Codex | tracker §5 + Meta/body của `P6-1`, `P10-5` | 54/54 prompt: 0 direct Meta/tracker mismatch; graph 54 node, 0 cycle; W-0040 có W-0066, W-0056 có W-0051 | W-0056 chuyển `BLOCKED_EXTERNAL` đúng với P9-2; không đóng external gate |
 
 ## 6. Unplanned work insertion template
 
@@ -179,6 +180,13 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0022` | 2026-08-12 | `W-0076` | DISCOVERY | Pattern lớp ký tự của W-0073 vẫn hỏng: dưới `LC_ALL=C` chỉ bắt 3/8 dòng PII, sót `đường`/`Đường`/`ĐƯỜNG`/`SỐ NHÀ`; `Ngõ` khớp do trùng byte `0xC3` chứ không đúng ngữ nghĩa | Claude | `LC_ALL=C grep -nEf` trên fixture 8 dòng |
 | `A-0023` | 2026-08-12 | `W-0076` | FINISH | Chuyển sang **alternation literal** (chuỗi byte UTF-8 nguyên vẹn) cho mọi ký tự có dấu; giữ lớp ký tự ASCII cho `dial_token`; job bắt buộc đặt `LC_ALL=C.UTF-8` tường minh | Claude | 8/8 PII + 0/0 false-positive ở 4 locale, pattern trích thẳng từ prompt |
 | `A-0024` | 2026-08-12 | `W-0074` | CHECKPOINT | Xác minh lại hai dependency đã nối ở W-0074 (`W-0065←W-0013`, `W-0066←W-0064`); transitive closure cho thấy **0** phụ thuộc trực tiếp còn thiếu trên toàn bộ 54 prompt ⇒ **không cấp Work ID mới** cho hạng mục này | Claude | closure check 54 node |
+| `A-0025` | 2026-08-12 | `W-0077` | START | Reviewer tái hiện hai dependency Meta/tracker còn lệch: W-0066 không nằm trong closure của W-0040 và W-0051 không nằm trong closure của W-0056; cấp Work ID riêng để sửa factual error của A-0024 | Codex | baseline `ff6734e7bb54819a3ab2cade5b798e374f7540dc`; direct + transitive dependency check |
+| `A-0026` | 2026-08-12 | `W-0076` | DISCOVERY | Alternation theo cả cụm vẫn bỏ lọt `ngách`, `NGÁCH`, `NGACH` và hoa/thường trộn (`ĐưỜnG`, `Số NHÀ`, `nGáCh`) dù đã hết lỗi bracket đa byte | Codex | BusyBox `grep -nE` từ pattern trích thẳng P0-2 |
+| `A-0027` | 2026-08-12 | `W-0076` | FINISH | Chuyển cụm địa chỉ sang alternation literal theo từng ký tự; bổ sung biến thể có dấu/không dấu và `CT-CI-06f` cho mixed-case | Codex | 49/49 PII + 0/5 false-positive ở `C`, `C.UTF-8`, `POSIX`; engine BusyBox 1.37.0 |
+| `A-0028` | 2026-08-12 | `W-0077` | FINISH | Thêm W-0066 vào W-0040; thêm W-0051 vào W-0056 và chuyển W-0056 sang `BLOCKED_EXTERNAL` để khớp prerequisite P9-2 | Codex | 54/54 prompt, 0 direct Meta/tracker mismatch; graph 54 node, 0 cycle |
+| `A-0029` | 2026-08-12 | `W-0075` | FINISH | Chạy official `markdown-doc-reader` mapper vào `.codex-doc-memory`; thay map stale 381/365 bằng artifact khớp cây tài liệu hiện tại | Codex | 384 files / 368 resolved / 0 unresolved / 1 duplicate / 16 anomalies / 21 orphans |
+| `A-0030` | 2026-08-12 | `W-0075` | CHECKPOINT | Trong lượt final validation, một GitNexus index refresh ngoài phạm vi đã đồng thời sửa AGENTS.md, CLAUDE.md và 6 skill file; Codex không tạo/hoàn nguyên/stage các thay đổi này. Map được regenerate trên cây hiện tại; owner phải tách scope khi review/commit | Codex | baseline đầu lượt sạch; concurrent files có timestamp 15:33:04 và `.gitnexus/meta.json` indexedAt 08:33:03Z tại HEAD ff6734e |
+| `A-0031` | 2026-08-12 | `W-0075` | CHECKPOINT | IVR dev chủ động chạy lại GitNexus và yêu cầu tiếp tục; giữ bộ AGENTS/CLAUDE/skill generated làm trạng thái có chủ đích, sau đó regenerate official Markdown map và rerun validation | IVR dev + Codex | GitNexus indexedAt 08:46:44Z, lastCommit ff6734e, 390 files / 36578 nodes / 36756 edges / 0 processes |
 
 ## 8. Per-work completion record template
 
@@ -258,5 +266,59 @@ Tests/evidence: documentation/contract static validation only. NO runtime, NO bu
 Review/acceptance by: pending IVR owner
 Residual blockers/risks: không đổi so với vòng một — TARGET_CONTRACT_V1 vẫn DRAFT; OD-V1-01..21 mở;
   W-0002..W-0009, W-0061, W-0063 BLOCKED_EXTERNAL; baseline vẫn chưa commit (BASELINE_FREEZE_REQUIRED)
+Final status: EVIDENCE_SUBMITTED
+```
+
+```text
+Work ID: W-0075
+Origin: RED_TEAM_REMEDIATION
+Baseline/commit: HEAD ff6734e7bb54819a3ab2cade5b798e374f7540dc on main; clean working tree at start
+Scope completed: regenerate repository Markdown map bằng đúng official markdown-doc-reader mapper, không dùng generator tự viết
+Files/artifacts: .codex-doc-memory/markdown-doc-map.md; .codex-doc-memory/markdown-doc-map.json
+Commands and exact results: node md_doc_map.js <repo> --out <repo>/.codex-doc-memory; 384 Markdown files; 368 links resolved; 0 unresolved; 1 duplicate title; 16 encoding/name anomalies; 21 orphan candidates
+Tests/evidence: official generated artifacts + summary counts; final JSON/OpenAPI/seed/prompt/dependency/control-char/diff validation PASS
+Review/acceptance by: pending IVR owner
+Mock-only evidence: N/A — documentation index only
+Lab evidence: NOT_RUN
+Real integration evidence: NOT_RUN
+Production evidence: NOT_RUN
+Residual blockers/risks: duplicate/anomaly/orphan inventories vẫn hiện hữu trong map và không tự động đồng nghĩa defect; cần review riêng nếu owner muốn dọn cấu trúc. IVR dev đã chủ động rerun GitNexus và giữ generated changes làm input hiện tại; khi commit nên tách GitNexus-generated scope khỏi remediation docs. Không đóng contract/external/release gate
+Next allowed Work ID(s): W-0010 chỉ sau baseline owner review/freeze; external W-0057/W-0058/W-0061/W-0063 có thể chạy theo owner
+Final status: EVIDENCE_SUBMITTED
+```
+
+```text
+Work ID: W-0076 (review follow-up)
+Origin: RED_TEAM_REMEDIATION
+Baseline/commit: HEAD ff6734e7bb54819a3ab2cade5b798e374f7540dc on main
+Scope completed: đóng false-negative còn lại của PII pattern cho ngách có dấu/không dấu, uppercase và hoa/thường trộn mà vẫn không dùng bracket expression đa byte
+Files/artifacts: prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md; tracker
+Commands and exact results: trích 6 pattern thẳng từ prompt; BusyBox 1.37.0 grep -nE; C=49/49 PII + 0/5 false-positive; C.UTF-8=49/49 + 0/5; POSIX=49/49 + 0/5
+Tests/evidence: CT-CI-06b thêm NGÁCH; CT-CI-06e thêm NGACH; CT-CI-06f thêm mixed-case ĐưỜnG/Số NHÀ/nGáCh/HẻM
+Review/acceptance by: pending IVR owner
+Mock-only evidence: static prompt/regex fixture only; deploy/ci/pii-patterns.txt và GitLab job chưa tồn tại
+Lab evidence: NOT_RUN
+Real integration evidence: NOT_RUN
+Production evidence: NOT_RUN
+Residual blockers/risks: phải implement file pattern, artifact topology và CT-CI-06* thật ở W-0011; hosted GitLab evidence vẫn BLOCKED_EXTERNAL bởi W-0061
+Next allowed Work ID(s): W-0011 sau W-0010
+Final status: EVIDENCE_SUBMITTED
+```
+
+```text
+Work ID: W-0077
+Origin: RED_TEAM_REMEDIATION
+Baseline/commit: HEAD ff6734e7bb54819a3ab2cade5b798e374f7540dc on main
+Scope completed: đồng bộ hai direct prerequisite còn lệch giữa prompt Meta và canonical tracker
+Files/artifacts: prompt/_execution/prompt-execution-tracker.md; source Meta/body được đối chiếu ở P6-1 và P10-5, không cần sửa source prompt
+Commands and exact results: parse 54 canonical prompt + tracker; direct Meta/tracker mismatch=0; dependency graph=54 node; cycle=0; W-0040 contains W-0066; W-0056 contains W-0051
+Tests/evidence: deterministic static dependency/graph validation
+Review/acceptance by: pending IVR owner
+Mock-only evidence: N/A — planning dependency correction only
+Lab evidence: NOT_RUN
+Real integration evidence: NOT_RUN
+Production evidence: NOT_RUN
+Residual blockers/risks: W-0056 chuyển BLOCKED_EXTERNAL vì P9-2/W-0051 phụ thuộc production release path; không được chạy on-call maturity như thể ops runbook đã có
+Next allowed Work ID(s): W-0078 chưa cấp; W-0010 vẫn là implementation work đầu tiên sau baseline freeze
 Final status: EVIDENCE_SUBMITTED
 ```
