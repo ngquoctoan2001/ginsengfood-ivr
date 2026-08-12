@@ -36,6 +36,8 @@ Thôn Bình An
 Ấp Một
 Tổ 8
 DIAL_TOKEN: abc12345xyz
+"dial_token": "json12345token"
+dial-token=equals12345token
 EOF
 
 cat > "$good_fixture" <<'EOF'
@@ -47,6 +49,7 @@ Thành phố Thủ Đức
 IVR bootstrap accepted
 OpenAPI parse completed
 Markdown map generated
+<method name="get_Dial_token" signature="()" />
 EOF
 
 expected_bad_lines=$(wc -l < "$bad_fixture" | tr -d ' ')
@@ -85,3 +88,4 @@ echo "CT-CI-06c PASS — downloaded-artifact simulation rejected"
 echo "CT-CI-06d PASS — C, C.UTF-8, and POSIX results identical"
 echo "CT-CI-06e PASS — unaccented address cases rejected"
 echo "CT-CI-06f PASS — mixed-case Vietnamese cases rejected"
+echo "CT-CI-06g PASS — Cobertura dial-token symbol is not treated as a token value"

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\Ivr.Contracts\Ivr.Contracts.csproj" />
     <ProjectReference Include="..\Ivr.Domain\Ivr.Domain.csproj" />
   </ItemGroup>
 

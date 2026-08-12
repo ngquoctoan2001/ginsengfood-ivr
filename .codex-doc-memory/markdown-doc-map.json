@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-12T12:28:09.073Z",
+  "generatedAt": "2026-08-12T13:40:36.409Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -646,13 +646,13 @@
         {
           "depth": 2,
           "text": "GitLab project settings — hosted evidence",
-          "line": 123,
+          "line": 133,
           "slug": "gitlab-project-settings-hosted-evidence"
         }
       ],
       "links": [],
-      "lines": 145,
-      "words": 725,
+      "lines": 155,
+      "words": 789,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -662,9 +662,103 @@
           "to": "deploy/ci/README.md",
           "kind": "markdown",
           "rawTarget": "deploy/ci/README.md",
-          "line": 128
+          "line": 129
         }
       ]
+    },
+    {
+      "path": "docs/contracts/openapi-codegen.md",
+      "title": "OpenAPI Code Generation and Contract Drift Policy",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "OpenAPI Code Generation and Contract Drift Policy",
+          "line": 1,
+          "slug": "openapi-code-generation-and-contract-drift-policy"
+        },
+        {
+          "depth": 2,
+          "text": "Contract boundaries",
+          "line": 5,
+          "slug": "contract-boundaries"
+        },
+        {
+          "depth": 2,
+          "text": "Reproduce generated code",
+          "line": 18,
+          "slug": "reproduce-generated-code"
+        },
+        {
+          "depth": 2,
+          "text": "Hash and human-diff gate",
+          "line": 34,
+          "slug": "hash-and-human-diff-gate"
+        },
+        {
+          "depth": 2,
+          "text": "Current compatibility and deprecation",
+          "line": 61,
+          "slug": "current-compatibility-and-deprecation"
+        },
+        {
+          "depth": 2,
+          "text": "External gates deliberately left open",
+          "line": 75,
+          "slug": "external-gates-deliberately-left-open"
+        }
+      ],
+      "links": [],
+      "lines": 80,
+      "words": 429,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/contracts/openapi-contract-diff.md",
+      "title": "OpenAPI Contract Baseline and Human-Readable Diff",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "OpenAPI Contract Baseline and Human-Readable Diff",
+          "line": 1,
+          "slug": "openapi-contract-baseline-and-human-readable-diff"
+        },
+        {
+          "depth": 2,
+          "text": "ivr-owned-target-v1-draft",
+          "line": 10,
+          "slug": "ivr-owned-target-v1-draft"
+        },
+        {
+          "depth": 2,
+          "text": "sales-callback-target-v1-draft",
+          "line": 22,
+          "slug": "sales-callback-target-v1-draft"
+        },
+        {
+          "depth": 2,
+          "text": "sales-current-golden-hour-compat-a3aad246",
+          "line": 34,
+          "slug": "sales-current-golden-hour-compat-a3aad246"
+        },
+        {
+          "depth": 2,
+          "text": "Review boundary",
+          "line": 46,
+          "slug": "review-boundary"
+        }
+      ],
+      "links": [],
+      "lines": 52,
+      "words": 383,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
     },
     {
       "path": "docs/documents/0. appendices/01-OPERATIONAL-FORMS.md",
@@ -214580,6 +214674,68 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0014/README.md",
+      "title": "W-0014 — P1-1 OpenAPI Codegen and Contract Scaffold Evidence",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0014 — P1-1 OpenAPI Codegen and Contract Scaffold Evidence",
+          "line": 1,
+          "slug": "w-0014-p1-1-openapi-codegen-and-contract-scaffold-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Scope implemented",
+          "line": 18,
+          "slug": "scope-implemented"
+        },
+        {
+          "depth": 2,
+          "text": "Verified current Sales compatibility source",
+          "line": 54,
+          "slug": "verified-current-sales-compatibility-source"
+        },
+        {
+          "depth": 2,
+          "text": "Pinned contract and generated hashes",
+          "line": 73,
+          "slug": "pinned-contract-and-generated-hashes"
+        },
+        {
+          "depth": 2,
+          "text": "Contract tests",
+          "line": 86,
+          "slug": "contract-tests"
+        },
+        {
+          "depth": 2,
+          "text": "Final local gate results",
+          "line": 104,
+          "slug": "final-local-gate-results"
+        },
+        {
+          "depth": 2,
+          "text": "GitNexus and impact review",
+          "line": 128,
+          "slug": "gitnexus-and-impact-review"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates and ownership boundaries",
+          "line": 139,
+          "slug": "residual-gates-and-ownership-boundaries"
+        }
+      ],
+      "links": [],
+      "lines": 150,
+      "words": 1030,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "integration-requirements/00-index.md",
       "title": "Integration Requirements — Index (IVR Order Confirmation)",
       "frontmatter": {},
@@ -219102,19 +219258,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 214,
+          "line": 218,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 235,
+          "line": 239,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 421,
-      "words": 6103,
+      "lines": 443,
+      "words": 6425,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -226188,19 +226344,19 @@
         {
           "depth": 2,
           "text": "Prerequisites",
-          "line": 68,
+          "line": 69,
           "slug": "prerequisites"
         },
         {
           "depth": 2,
           "text": "Run locally",
-          "line": 74,
+          "line": 75,
           "slug": "run-locally"
         },
         {
           "depth": 2,
           "text": "Verify",
-          "line": 113,
+          "line": 114,
           "slug": "verify"
         }
       ],
@@ -226215,11 +226371,11 @@
           "kind": "markdown",
           "text": "the CI\nrunbook",
           "rawTarget": "deploy/ci/README.md",
-          "line": 128
+          "line": 129
         }
       ],
-      "lines": 130,
-      "words": 445,
+      "lines": 131,
+      "words": 454,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -226227,7 +226383,7 @@
           "to": "deploy/ci/README.md",
           "kind": "markdown",
           "rawTarget": "deploy/ci/README.md",
-          "line": 128
+          "line": 129
         }
       ],
       "unresolvedLinks": [],
@@ -232847,7 +233003,7 @@
       "to": "deploy/ci/README.md",
       "kind": "markdown",
       "rawTarget": "deploy/ci/README.md",
-      "line": 128
+      "line": 129
     },
     {
       "from": "specs/02-business-goals.md",
@@ -233347,10 +233503,13 @@
       "admin-ui/README.md",
       "AGENTS.md",
       "CLAUDE.md",
+      "docs/contracts/openapi-codegen.md",
+      "docs/contracts/openapi-contract-diff.md",
       "docs/evidence/W-0010/README.md",
       "docs/evidence/W-0011/README.md",
       "docs/evidence/W-0012/README.md",
       "docs/evidence/W-0013/README.md",
+      "docs/evidence/W-0014/README.md",
       "plan/ivr-orther/_archive/01-reading-inventory.md",
       "plan/ivr-orther/_archive/08-target-specs-structure-proposal.md",
       "prompt/_review/phase-0-11-spec-alignment-review.md",

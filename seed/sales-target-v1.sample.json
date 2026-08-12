@@ -441,6 +441,30 @@
       "expect_http": 422,
       "expect_error_code": "IVR_MALFORMED_REQUEST",
       "note": "Unknown contract_version is fail-closed; there is no negotiation path in V1."
+    },
+    {
+      "id": "NEG-SCHEMA-ORDER-VERSION-01",
+      "from": "golden-hour-online-confirmable",
+      "remove": "order_version",
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-POLICY-VERSION-01",
+      "from": "golden-hour-online-confirmable",
+      "remove": "attempt_policy_version",
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-DIAL-TOKEN-01",
+      "from": "golden-hour-online-confirmable",
+      "remove": "dial_token",
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
     }
   ],
   "domain_negative": [

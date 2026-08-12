@@ -2,6 +2,9 @@ openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
   version: 1.0.0
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
   description: >
     Target V1 draft for the standalone .NET IVR service. Not a public API. The
     Sales Platform owns eligibility, revalidation, and order-state transitions.
@@ -14,7 +17,9 @@ security:
   - bearerAuth: []
 tags:
   - name: internal
+    description: Service-to-service operations owned by the standalone IVR service.
   - name: admin
+    description: Masked, permission-gated operator controls and projections.
 paths:
   /tasks:
     post:
@@ -62,6 +67,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJob' } } }
       responses:
         '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJob' } } } }
+        '422': { $ref: '#/components/responses/Error' }
   /call-jobs/{ivrCallJobId}:
     get:
       tags: [internal]
@@ -89,6 +95,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallAttempt' } } }
       responses:
         '200': { description: OK }
+        '422': { $ref: '#/components/responses/Error' }
   /call-results:
     post:
       tags: [internal]
@@ -102,6 +109,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallResult' } } }
       responses:
         '200': { description: OK }
+        '422': { $ref: '#/components/responses/Error' }
   /result-callbacks:
     post:
       tags: [internal]
@@ -115,6 +123,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/IvrConfirmationResultCallbackTargetV1' } } }
       responses:
         '200': { description: Recorded, content: { application/json: { schema: { $ref: '#/components/schemas/CallbackCoreResponseTarget' } } } }
+        '422': { $ref: '#/components/responses/Error' }
   /queue:
     get:
       tags: [admin]
@@ -600,43 +609,6 @@ components:
         - CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW
         - CORE_IGNORE_STALE_CALLBACK
         - CORE_BLOCK_DUE_TO_OPERATIONAL_CONSTRAINT
-    IvrConfirmationResultCallbackCurrentV1:
-      type: object
-      description: >
-        Current DS-03/DS-04 compatible callback record. Order Core currently accepts
-        result only while order is CONFIRMING+COD and rejects invalid/stale-by-state
-        cases with HTTP 422. It does not receive order_version_seen_by_ivr yet.
-      required:
-        - callback_id
-        - task_id
-        - order_id
-        - result_type
-        - is_counted_customer_attempt
-        - is_final_for_ivr
-        - recommended_core_action
-        - evidence_ref
-        - audit_ref
-      properties:
-        callback_id: { type: string }
-        task_id: { type: string }
-        call_job_id: { type: string }
-        attempt_id: { type: string }
-        order_id: { type: string }
-        program_code: { $ref: '#/components/schemas/ProgramCode' }
-        attempt_no: { type: integer, minimum: 1, maximum: 10 }
-        max_attempts: { type: integer, minimum: 1, maximum: 10 }
-        result_type: { $ref: '#/components/schemas/ResultType' }
-        result_reason: { type: string }
-        dtmf_key: { type: string }
-        is_counted_customer_attempt: { type: boolean }
-        is_final_for_ivr: { type: boolean }
-        recommended_core_action: { $ref: '#/components/schemas/RecommendedCoreAction' }
-        technical_error_code: { type: string }
-        evidence_ref: { type: string }
-        audit_ref: { type: string }
-        privacy_policy_version: { type: string }
-        script_version: { type: string }
-        created_at: { type: string, format: date-time }
     IvrConfirmationResultCallbackTargetV1:
       type: object
       description: >
@@ -685,17 +657,6 @@ components:
         privacy_policy_version: { type: string }
         script_version: { type: string }
         created_at: { type: string, format: date-time }
-    CallbackCoreResponseCurrent:
-      type: object
-      description: >
-        Current DS-03 Order Core behavior: accept with HTTP 200 or reject invalid
-        state/COD cases with HTTP 422. No semantic CALLBACK_* code is guaranteed yet.
-      required: [http_status]
-      properties:
-        http_status:
-          type: integer
-          enum: [200, 422]
-        detail: { type: string }
     CallbackCoreResponseTarget:
       type: object
       description: Target semantic callback response.

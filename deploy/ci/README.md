@@ -22,9 +22,9 @@ The .NET jobs pin `mcr.microsoft.com/dotnet/sdk:10.0.201` to the SDK selected by
 | Job | Gate |
 | --- | --- |
 | `ci_config_selftest` | workflow routing, local-fragment reachability, artifact topology, no active GitHub Actions |
-| `openapi_lint` | Redocly recommended lint, OpenAPI 3.1 parse/local refs, Target V1 fixture schema validation |
+| `openapi_lint` | Redocly lint, OpenAPI 3.1 parse/local refs, Target/current fixture schema validation, pinned contract drift |
 | `build_test_dotnet` | locked restore, warnings-as-errors build, xUnit/JUnit/Cobertura, aggregate line coverage ≥ 60% |
-| `lint_dotnet` | locked restore, analyzers, `dotnet format --verify-no-changes` |
+| `lint_dotnet` | locked restore, pinned NSwag regeneration/drift check, analyzers, `dotnet format --verify-no-changes` |
 | `build_lint_ui` | lockfile-based `npm ci`, ESLint, optional UI test script, production build |
 | `security_scan` | NuGet High/Critical policy, npm High/Critical policy, checksum-verified Gitleaks 8.30.0 |
 | `pii_scan` | raw-phone/address/dial-token scan under explicit `LC_ALL=C.UTF-8` |
@@ -96,9 +96,19 @@ npm --prefix deploy/ci ci
 npm --prefix deploy/ci run test:config
 npm --prefix deploy/ci run openapi:lint
 npm --prefix deploy/ci run openapi:validate
+npm --prefix deploy/ci run openapi:drift
 npm --prefix deploy/ci run test:openapi-negative
+./deploy/ci/scripts/regenerate-openapi.ps1
 docker compose -f docker-compose.dev.yml --profile mocks config --quiet
 ```
+
+`openapi:drift` is read-only and fails when a reviewed source hash changes.
+After reviewing an intentional draft change, run
+`openapi:accept-reviewed-draft`; this refreshes only the committed manifest and
+human-readable report. It never changes `TARGET_CONTRACT_V1=DRAFT` or approves
+the external Sales contract. The PowerShell regeneration script uses the
+repository-local `NSwag.ConsoleCore` tool pinned in `dotnet-tools.json`; GitLab
+runs the equivalent cross-platform `dotnet nswag` commands directly.
 
 Coverage and NuGet policy tool examples:
 

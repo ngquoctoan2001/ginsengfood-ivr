@@ -1,3 +1,5 @@
+using Ivr.Contracts.Sales;
+
 namespace Ivr.Infrastructure.Configuration;
 
 /// <summary>
@@ -16,6 +18,19 @@ public sealed class IvrOptions
     public string ExecutionMode { get; set; } = "MOCK";
 
     public string SalesProvider { get; set; } = "FAKE_TARGET_V1";
+
+    /// <summary>
+    /// Returns the configured provider as a closed typed value.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when startup validation was bypassed and the value is unsupported.
+    /// </exception>
+    public SalesProviderKind GetSalesProviderKind()
+    {
+        return SalesProviderNames.TryParse(SalesProvider, out SalesProviderKind provider)
+            ? provider
+            : throw new InvalidOperationException("SALES_PROVIDER is not supported.");
+    }
 
     public string SimProvider { get; set; } = "MOCK";
 

@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0078` |
 | Last allocated | `W-0077` |
-| Last activity sequence | `A-0054` |
+| Last activity sequence | `A-0058` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -77,7 +77,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0011` | `P0-2` | GitLab CI/quality baseline | W-0010 ACCEPTED | TESTS_PASS | Codex | `.gitlab-ci.yml`; `deploy/ci/**`; MR template; CODEOWNERS; lockfiles; `docs/evidence/W-0011/` | build 0/0; tests 3/3; merged coverage 95.77%; format 0/43; UI/OpenAPI/security/PII/config + CT-CI-01..08 PASS locally | local/config scope complete and committed separately; remote vẫn là GitHub; hosted pipeline/settings/runner/registry NOT_RUN, W-0061/G-GITLAB BLOCKED_EXTERNAL |
 | `W-0012` | `P0-3` | config/auth/audit/idempotency/correlation | W-0010 ACCEPTED; P0-2 local gates TESTS_PASS | TESTS_PASS | Codex | `src/Ivr.Api/{Auth,Foundation,Middleware}/`; `src/Ivr.Domain/{Errors,Privacy}/`; `src/Ivr.Infrastructure/{Audit,Correlation,Evidence,Idempotency}/`; `docs/evidence/W-0012/` | build 0/0; 14/14 implemented tests; P0-3 11/11; coverage 91.99%; format/UI/OpenAPI/config/security/PII/Compose PASS; GitNexus staged CRITICAL breadth reviewed, 0 cycle | local MOCK implementation complete; hosted GitLab run remains NOT_RUN under W-0061; P1-2 owns persistence migrations, P4-4 owns production auth; no Sales/SIM/real call |
 | `W-0013` | `P0-4` | mode/provider flags + kill switches | W-0012 TESTS_PASS | TESTS_PASS | Codex | `src/Ivr.Infrastructure/FeatureFlags/**`; API/admin/Worker wiring; EF model; OpenAPI; `docs/evidence/W-0013/` | Release 0/0; 27/27 tests, five-run stability; P0-4 13/13 including all 10 required; coverage 87.50%; format/UI/OpenAPI/config/security/PII/Compose PASS; GitNexus staged CRITICAL breadth reviewed, 0 cycle | local MOCK complete; OD-V1-20 pending/fail-closed; P1-2 owns migration/persistent mutation; W-0061 hosted GitLab BLOCKED_EXTERNAL |
-| `W-0014` | `P1-1` | both OpenAPI/codegen/contract scaffold | W-0010..12 | NOT_STARTED |  |  |  |  |
+| `W-0014` | `P1-1` | both OpenAPI/codegen/contract scaffold | W-0010..12 TESTS_PASS; baseline `c78a407` | TESTS_PASS | Codex | pinned NSwag/codegen; generated IVR DTOs + Target Sales client; verified current-compat fixture/client; drift/hash gate; fake Sales mappings; `docs/contracts/**`; `docs/evidence/W-0014/` | Release 0/0; 55/55 tests; coverage 75.57%; regeneration stable; OpenAPI lint/parse/schema/drift, format/UI/config/NuGet/npm/Compose/Gitleaks/PII PASS; GitNexus staged MEDIUM 42 file/452 symbol/4 generated-client flow/0 cycle | Contract remains TARGET_DRAFT; current compat runtime-disabled; W-0002/W-0005/W-0006 and W-0061 stay BLOCKED_EXTERNAL; next W-0015/P1-2 |
 | `W-0015` | `P1-2` | PostgreSQL/EF migrations, versioned policy/speech snapshots | W-0012 | NOT_STARTED |  |  |  |  |
 | `W-0016` | `P1-3` | domain/DTO/provider ports/privacy guards | W-0014,W-0015 | NOT_STARTED |  |  |  |  |
 | `W-0017` | `P1-4` | API docs/versioning/drift portal | W-0014 | NOT_STARTED |  |  |  |  |
@@ -210,6 +210,10 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0052` | 2026-08-12 | `W-0013` | IMPLEMENTATION/VALIDATION | Hoàn tất typed flag/config store, cache/refresh, centralized dispatch/kill gate, asymmetric audited admin API, four-eyes/self-authorization guard, EF model/45 safe seeds, Worker/API DI và OpenAPI; self-review sửa replay DTO và bảo đảm kill-on không bị cấu hình hỏng sẵn chặn | Codex | locked restore/build/format PASS 0/0; full suite 27/27 PASS ba lượt liên tiếp; all 10 required + 3 extra P0-4 IDs PASS; coverage 87.61%; UI/OpenAPI/config/NuGet/npm/Compose/Gitleaks/PII PASS; GitNexus final staged review pending |
 | `A-0053` | 2026-08-12 | `W-0013` | REGRESSION/FIX | Full-suite stress tái hiện flake P0-3: GUID correlation sinh ngẫu nhiên đôi lúc giống chuỗi số bị PII guard chặn, gây HTTP 500; thay generator bằng prefix + tám nhóm hex 4 ký tự và thêm 1.000-case regression vào test PII hiện hữu | Codex | impact CorrelationContext/CorrelationMiddleware LOW (interface/DI lower-bound); Release 0/0; 27/27 PASS năm lượt liên tiếp; final coverage 87.50% (1183/1352); không tạo Work ID mới vì remediation trực tiếp cần để P0-4 full gate ổn định |
 | `A-0054` | 2026-08-12 | `W-0013` | CHANGE_REVIEW/HANDOFF | Re-index và review staged scope sau remediation; giữ nguyên cảnh báo CRITICAL do breadth vertical platform, đối chiếu focused impact và process family trước commit riêng P0-4 | Codex | GitNexus 37,400 nodes/38,474 edges/62 flows; staged 42 file/279 symbol/49 flow CRITICAL (gồm 2 metadata file GitNexus); focused cao nhất InMemoryFeatureFlagStore MEDIUM với 11 test dependants, các entrypoint còn lại LOW; 0 cycle; không thấy consumer ngoài API/Worker/test/spec dự kiến |
+| `A-0055` | 2026-08-12 | `W-0014` | START/DISCOVERY | Bắt đầu P1-1 từ dedicated P0-4 commit; đọc đủ governance/Target V1/API/OpenAPI/IR và kiểm chứng current Golden Hour trực tiếp trên Sales baseline; giữ target/current tách biệt và không nâng DRAFT thành approved | Codex | IVR baseline `c78a407`, Sales baseline `a3aad246`; current DTO 7 field + enum 4 giá trị + `X-Internal-Token`; official Markdown map start 393 file/369 resolved/0 unresolved; MOCK only, W-0002/W-0005/W-0006/W-0061 vẫn BLOCKED_EXTERNAL |
+| `A-0056` | 2026-08-12 | `W-0014` | IMPLEMENTATION | Thêm NSwag codegen/pin/drift, generated IVR/Target contracts, current Golden Hour compatibility source-verified, typed provider/mode guard, fake Sales catalog và test contract; không trộn current/Target semantics | Codex | generated hashes ổn định; OpenAPI 2/2, exact matrix + 10 negative; current compat schema và Target-field rejection; contract 19, unit 22 |
+| `A-0057` | 2026-08-12 | `W-0014` | VALIDATION/FIX | Full gate tìm thấy integration fixture LAB còn dùng mock SIM và PII scanner hiểu nhầm tên method Cobertura `get_Dial_token`; sửa fixture theo canonical LAB+VENDOR và regex chỉ nhận token khi có phép gán, thêm CT-CI-06g | Codex | integration 14/14; full 55/55; coverage 75.57%; PII self-test + 60 artifact PASS; Gitleaks/NuGet/npm/UI/Compose/OpenAPI/config PASS |
+| `A-0058` | 2026-08-12 | `W-0014` | CHANGE_REVIEW/HANDOFF | Hoàn tất evidence, official Markdown map và GitNexus review; scoped change không có production flow/cycle ngoài contract/config/test dự kiến; chốt local MOCK ở TESTS_PASS và giữ external gates mở | Codex | map 396 file/369 resolved/0 unresolved; GitNexus 37,854 nodes/39,085 edges/66 flows; staged MEDIUM 42 file/452 symbol/4 generated-client flow; focused clients/selector/validator LOW, test fixture MEDIUM 5 caller; cycle 0 |
 
 ## 8. Per-work completion record template
 
@@ -416,5 +420,23 @@ Production evidence: NOT_RUN; runtime admin authorization defaults denied; persi
 Residual blockers/risks: OD-V1-20 owner approval pending; P1-2 owns physical migration and persistent atomic command transaction; W-0061 hosted GitLab remains BLOCKED_EXTERNAL; production identity/approval provider later; 10 pre-existing OpenAPI advisory warnings remain for P1-1
 GitNexus review: refreshed 37,400 nodes/38,474 edges/62 flows; staged CRITICAL breadth (42 files/279 symbols/49 expected platform flows, including two generated index-count metadata files); focused maximum MEDIUM for the in-memory store with 11 test dependants, remaining platform entrypoints LOW; 0 cycle
 Next allowed Work ID(s): W-0014/P1-1 is the recommended next prompt; W-0015/P1-2 is also dependency-eligible and closes P0-4 persistence; W-0061 continues in parallel
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0014 / P1-1
+Baseline/commit: main@c78a407466e0f49847c83e0cea665582b80f6b1a; dedicated P1-1 commit created after this record
+Scope completed: pinned/deterministic OpenAPI codegen; generated IVR server DTO and Target Sales client; isolated current Golden Hour DTO/client from verified Sales SHA; typed provider/mode guard; fake Sales mappings; drift/report CI gates; contract tests and evidence
+Files/artifacts: dotnet-tools.json; specs/api/openapi/contract-manifest.json; specs/api/compat/current-golden-hour-callback.a3aad246.schema.json; src/Ivr.Contracts/Generated/**; src/Ivr.Contracts/Sales/**; tests/Ivr.ContractTests/**; docs/contracts/**; docs/evidence/W-0014/README.md
+Commands and exact results: locked restore PASS; NSwag 14.7.1 regeneration stable; Release build/analyzers 0 warnings/0 errors; format 0/108; full tests 55/55; merged coverage 75.57% (1404/1858); UI lint/build and both npm audits PASS; CI config CT-CI-05/07/08/codegen PASS; OpenAPI lint 0 warnings, parse/schema/hash/report/negative PASS; NuGet High/Critical, Compose, Gitleaks and PII PASS
+Tests/evidence: contract 19/19, unit 22/22, integration 14/14; target all four semantic 200 ACKs and typed 409/422/429/500/503 errors; exact two program/payment rows; 10 negative schema cases; target/current type separation; current exact route/header/DTO; details docs/evidence/W-0014/README.md
+Review/acceptance by: Codex self-review under explicit IVR owner authorization; local status limited to TESTS_PASS because Target V1 and hosted GitLab gates remain externally open
+Mock-only evidence: complete for scaffold, fake Sales and startup selection; IVR_EXECUTION_MODE=MOCK, SALES_PROVIDER=FAKE_TARGET_V1, SIM_PROVIDER=MOCK, REAL_CUSTOMER_CALL_ALLOWED=NO
+Lab evidence: NOT_RUN; no physical SIM/vendor adapter/destination call
+Real integration evidence: NOT_RUN; Sales source was read at pinned SHA but no API/auth/sandbox was invoked
+Production evidence: NOT_RUN; no production URL/credential/provider/customer call; current compatibility remains runtime-disabled
+Residual blockers/risks: TARGET_CONTRACT_V1=DRAFT; W-0002/W-0005/W-0006 Sales contract/auth/CDC and W-0061 hosted GitLab remain BLOCKED_EXTERNAL; P1-2 owns PostgreSQL migrations and persistent P0-4 transaction
+GitNexus review: refreshed 37,854 nodes/39,085 edges/66 flows; staged MEDIUM with 42 files/452 symbols/4 generated Target-client flows; focused contract clients/selector/validator LOW, integration fixture MEDIUM with five test callers only; circular-import check 0
+Next allowed Work ID(s): W-0015/P1-2 starts next and closes physical persistence assigned by P0-4; W-0061 continues in parallel
 Final status: TESTS_PASS
 ```

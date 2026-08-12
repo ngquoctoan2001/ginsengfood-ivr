@@ -23,4 +23,8 @@
     <ProjectReference Include="..\..\src\Ivr.Contracts\Ivr.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Fixtures\WireMock\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

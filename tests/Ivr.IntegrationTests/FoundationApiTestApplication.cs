@@ -47,7 +47,9 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
             {
                 ["IVR_EXECUTION_MODE"] = executionMode,
                 ["SALES_PROVIDER"] = "FAKE_TARGET_V1",
-                ["SIM_PROVIDER"] = "MOCK",
+                ["SIM_PROVIDER"] = executionMode == IvrOptions.LabRealSimExecutionMode
+                    ? "VENDOR"
+                    : "MOCK",
                 ["ConnectionStrings:IvrDb"] =
                     "Host=localhost;Port=5432;Database=ivr_test;Username=ivr;Password=unused",
                 ["REAL_CUSTOMER_CALL_ALLOWED"] = "NO",

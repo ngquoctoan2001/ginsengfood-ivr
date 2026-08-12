@@ -1,0 +1,73 @@
+{
+  "Mappings": [
+    {
+      "Scenario": "target-gh-accepted",
+      "x-fixture-program": "GOLDEN_HOUR+ONLINE",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 200, "BodyAsJson": { "code": "ACCEPTED", "callback_id": "cb-gh-1", "correlation_id": "corr-gh-1" } }
+    },
+    {
+      "Scenario": "target-247-accepted",
+      "x-fixture-program": "TWENTY_FOUR_SEVEN+COD",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 200, "BodyAsJson": { "code": "ACCEPTED", "callback_id": "cb-247-1", "correlation_id": "corr-247-1" } }
+    },
+    {
+      "Scenario": "target-duplicate",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 200, "BodyAsJson": { "code": "DUPLICATE_ACCEPTED", "callback_id": "cb-1", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "target-blocked",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 200, "BodyAsJson": { "code": "BLOCKED_BY_CORE", "callback_id": "cb-1", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "target-review",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 200, "BodyAsJson": { "code": "REVIEW_REQUIRED", "callback_id": "cb-1", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "target-stale",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 409, "BodyAsJson": { "code": "REJECTED_STALE", "callback_id": "cb-1", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "target-idempotency-conflict",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 409, "BodyAsJson": { "code": "IDEMPOTENCY_CONFLICT", "callback_id": "cb-1", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "target-invalid",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 422, "BodyAsJson": { "code": "INVALID_OUTCOME", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "target-throttled",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 429, "Headers": { "Retry-After": "1" }, "BodyAsJson": { "code": "RATE_LIMITED", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "target-server-error",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 500, "BodyAsJson": { "code": "SERVER_FAILURE", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "target-unavailable",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/orders/{orderId}/ivr-result-callbacks" },
+      "Response": { "StatusCode": 503, "BodyAsJson": { "code": "SERVICE_UNAVAILABLE", "correlation_id": "corr-1" } }
+    },
+    {
+      "Scenario": "current-gh-accepted",
+      "x-fixture-program": "GOLDEN_HOUR+ONLINE",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/ivr/golden-hour/callbacks", "Headers": { "X-Internal-Token": "required" } },
+      "Response": { "StatusCode": 200, "BodyAsJson": { "success": true, "message": "Success", "data": { "callId": 1, "reservationId": 2, "orderId": 3, "beforeStatus": "PENDING", "afterStatus": "CONFIRMED", "occurredAt": "2026-08-12T08:30:00Z", "idempotencyKey": "current-compat-0001" } } }
+    },
+    {
+      "Scenario": "current-gh-rejected",
+      "x-fixture-program": "GOLDEN_HOUR+ONLINE",
+      "Request": { "Methods": ["POST"], "Path": "/api/v1/internal/ivr/golden-hour/callbacks", "Headers": { "X-Internal-Token": "required" } },
+      "Response": { "StatusCode": 422, "BodyAsJson": { "success": false, "message": "Unprocessable callback", "data": null } }
+    }
+  ]
+}

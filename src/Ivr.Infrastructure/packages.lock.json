@@ -191,6 +191,9 @@
           "Microsoft.Extensions.Logging.Abstractions": "10.0.0"
         }
       },
+      "ivr.contracts": {
+        "type": "Project"
+      },
       "ivr.domain": {
         "type": "Project"
       }

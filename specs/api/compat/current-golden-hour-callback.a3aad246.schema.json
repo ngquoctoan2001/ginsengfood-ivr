@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ginsengfood:sales:current-golden-hour-callback:a3aad246",
+  "title": "CurrentGoldenHourCallbackRequest",
+  "description": "Compatibility-only schema verified against Sales commit a3aad246d986fbc273cf41aaa93eec6659669656. It is not Target V1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "callId",
+    "reservationId",
+    "orderId",
+    "customerId",
+    "result",
+    "idempotencyKey"
+  ],
+  "properties": {
+    "callId": { "type": "integer", "format": "int64" },
+    "reservationId": { "type": "integer", "format": "int64" },
+    "orderId": { "type": "integer", "format": "int64" },
+    "customerId": { "type": "integer", "format": "int64" },
+    "result": {
+      "type": "string",
+      "enum": ["CONFIRMED", "REJECTED", "NO_ANSWER", "FAILED"]
+    },
+    "occurredAt": { "type": ["string", "null"], "format": "date-time" },
+    "idempotencyKey": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "CurrentGoldenHourCallbackResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "callId",
+        "reservationId",
+        "orderId",
+        "beforeStatus",
+        "afterStatus",
+        "occurredAt",
+        "idempotencyKey"
+      ],
+      "properties": {
+        "callId": { "type": "integer", "format": "int64" },
+        "reservationId": { "type": "integer", "format": "int64" },
+        "orderId": { "type": "integer", "format": "int64" },
+        "beforeStatus": { "type": "string" },
+        "afterStatus": { "type": "string" },
+        "occurredAt": { "type": "string", "format": "date-time" },
+        "idempotencyKey": { "type": "string" }
+      }
+    }
+  },
+  "x-current-endpoint": "POST /api/v1/internal/ivr/golden-hour/callbacks",
+  "x-current-auth": "X-Internal-Token transitional shared secret",
+  "x-current-success-envelope": "ApiResponse<GoldenHourIvrCallbackResponse>",
+  "x-current-source": {
+    "repository": "ginsengfood-business-platform",
+    "commit": "a3aad246d986fbc273cf41aaa93eec6659669656",
+    "request": "back-end/src/main/java/com/ginsengfood/project/ivr/dto/request/GoldenHourIvrCallbackRequest.java",
+    "result": "back-end/src/main/java/com/ginsengfood/project/ivr/dto/request/GoldenHourIvrCallbackResult.java",
+    "response": "back-end/src/main/java/com/ginsengfood/project/ivr/dto/response/GoldenHourIvrCallbackResponse.java",
+    "controller": "back-end/src/main/java/com/ginsengfood/project/ivr/api/InternalGoldenHourIvrCallbackController.java"
+  },
+  "x-unsupported-target-fields": [
+    "contract_version",
+    "callback_id",
+    "task_id",
+    "order_version_seen_by_ivr",
+    "attempt_number",
+    "is_counted_customer_attempt",
+    "is_final_for_ivr",
+    "recommended_core_action",
+    "evidence_ref",
+    "audit_ref",
+    "semantic_ack"
+  ]
+}

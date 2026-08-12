@@ -53,6 +53,7 @@
       "ivr.infrastructure": {
         "type": "Project",
         "dependencies": {
+          "Ivr.Contracts": "[1.0.0, )",
           "Ivr.Domain": "[1.0.0, )",
           "Microsoft.EntityFrameworkCore": "[10.0.11, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )"

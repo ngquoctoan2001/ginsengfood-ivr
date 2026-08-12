@@ -198,10 +198,30 @@ for (const openApiFile of openApiFiles) {
   );
 }
 
+const openApiJobScript = (jobs.openapi_lint.script ?? []).join("\n");
+assert(
+  openApiJobScript.includes("openapi:drift"),
+  "OpenAPI job must enforce pinned hashes and the human-readable report.",
+);
+const dotnetLintScript = (jobs.lint_dotnet.script ?? []).join("\n");
+for (const requiredCodegenToken of [
+  "dotnet tool restore",
+  "dotnet nswag openapi2csclient",
+  "ivr-order-confirmation.v1.yaml",
+  "order-core-ivr-callback.target-v1.yaml",
+  "git diff --exit-code -- src/Ivr.Contracts/Generated",
+]) {
+  assert(
+    dotnetLintScript.includes(requiredCodegenToken),
+    `OpenAPI codegen drift gate is missing ${requiredCodegenToken}.`,
+  );
+}
+
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");
 process.stdout.write("SDK_IMAGE_PIN_PASS — .NET jobs match global.json\n");
+process.stdout.write("OPENAPI_CODEGEN_GATE_PASS — hashes, report and generated code enforced\n");
 process.stdout.write("CI_CONFIG_SELFTEST_PASS\n");
 
 function evaluateWorkflow(source, branch, defaultBranch) {

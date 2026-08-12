@@ -58,7 +58,8 @@ Ivr.Worker -----------------+
   centralized dispatch/kill gates, and the `ivr_feature_flags` EF model. P1-2
   still owns the physical migration and persistent command transaction.
 - `Ivr.Domain`: stable error catalog and PII masking/guard primitives.
-- `Ivr.Contracts`: reserved for the P1-1 generated OpenAPI client and DTOs.
+- `Ivr.Contracts`: generated IVR DTOs and Sales Target V1 client plus a separate
+  pinned Golden Hour current-compat client; see `docs/contracts/openapi-codegen.md`.
 - `admin-ui`: strict TypeScript App Router placeholder; authentication begins
   in P3-1.
 

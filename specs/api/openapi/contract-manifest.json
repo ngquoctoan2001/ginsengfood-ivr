@@ -1,0 +1,38 @@
+{
+  "manifestVersion": 1,
+  "contractState": "TARGET_CONTRACT_V1=DRAFT",
+  "codeGenerator": {
+    "name": "NSwag.ConsoleCore",
+    "version": "14.7.1"
+  },
+  "salesCurrentBaseline": {
+    "repository": "ginsengfood-business-platform",
+    "commit": "a3aad246d986fbc273cf41aaa93eec6659669656"
+  },
+  "contracts": [
+    {
+      "id": "ivr-owned-target-v1-draft",
+      "role": "IVR server DTO source",
+      "status": "TARGET_DRAFT",
+      "path": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
+      "sha256": "5a7bafa4f69f28d480ee3083ea5ede5be0577dc06734964f0f5ba686e13d111b",
+      "generated": "src/Ivr.Contracts/Generated/IvrServer/V1/IvrServerModels.g.cs"
+    },
+    {
+      "id": "sales-callback-target-v1-draft",
+      "role": "Sales callback client source",
+      "status": "TARGET_DRAFT",
+      "path": "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
+      "sha256": "1677d490eea5484e449ace3310e26e3c59acbb8011c7c1736e3f981afffa96ee",
+      "generated": "src/Ivr.Contracts/Generated/SalesTarget/V1/SalesTargetV1Client.g.cs"
+    },
+    {
+      "id": "sales-current-golden-hour-compat-a3aad246",
+      "role": "Verified current compatibility fixture",
+      "status": "CURRENT_COMPAT_VERIFIED_AT_PINNED_SHA",
+      "path": "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json",
+      "sha256": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
+      "generated": null
+    }
+  ]
+}

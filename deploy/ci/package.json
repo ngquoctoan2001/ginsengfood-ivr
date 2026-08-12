@@ -6,6 +6,8 @@
   "scripts": {
     "openapi:lint": "redocly lint ../../specs/api/openapi/ivr-order-confirmation.v1.yaml ../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml --config ../../.redocly.yaml",
     "openapi:validate": "node scripts/validate-openapi.mjs",
+    "openapi:drift": "node scripts/openapi-contract-drift.mjs",
+    "openapi:accept-reviewed-draft": "node scripts/openapi-contract-drift.mjs --accept-reviewed-draft",
     "test:openapi-negative": "node scripts/selftest-openapi.mjs",
     "test:config": "node scripts/ci-config-selftest.mjs"
   },

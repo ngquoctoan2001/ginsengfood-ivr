@@ -2,6 +2,9 @@ openapi: 3.1.0
 info:
   title: Sales Order Core — IVR Result Callback Target V1
   version: 1.0.0-draft
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
   description: >
     Proposed Sales-owned endpoint consumed by the standalone IVR service. This is
     TARGET_DRAFT, not proof of current Sales implementation. IVR sends an input

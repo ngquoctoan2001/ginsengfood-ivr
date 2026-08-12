@@ -4,6 +4,7 @@
       files:
         - global.json
         - Directory.Build.props
+        - dotnet-tools.json
       prefix: "dotnet-$CI_JOB_NAME"
     paths:
       - .nuget/packages/
@@ -48,6 +49,7 @@ openapi_lint:
     - if [ "${CI_OPENAPI_SELFTEST_INVALID:-0}" = "1" ]; then cp deploy/ci/fixtures/openapi/invalid-openapi.yaml specs/api/openapi/ci-selftest.invalid.yaml; fi
     - npm --prefix deploy/ci run openapi:lint
     - npm --prefix deploy/ci run openapi:validate -- --summary ci-artifacts/openapi/validation-summary.txt
+    - npm --prefix deploy/ci run openapi:drift
     - npm --prefix deploy/ci run test:openapi-negative
   artifacts:
     when: always
@@ -92,6 +94,43 @@ lint_dotnet:
   allow_failure: false
   script:
     - dotnet restore Ivr.sln --locked-mode
+    - dotnet tool restore
+    - >
+      dotnet nswag openapi2csclient
+      /Input:specs/api/openapi/ivr-order-confirmation.v1.yaml
+      /Output:src/Ivr.Contracts/Generated/IvrServer/V1/IvrServerModels.g.cs
+      /Namespace:Ivr.Contracts.Generated.IvrServer.V1
+      /ClassName:IvrServerV1Client
+      /GenerateClientClasses:false
+      /GenerateDtoTypes:true
+      /JsonLibrary:SystemTextJson
+      /JsonLibraryVersion:10.0
+      /GenerateNullableReferenceTypes:true
+      /GenerateOptionalPropertiesAsNullable:true
+      /UseRequiredKeyword:true
+      /WriteAccessor:init
+      /NewLineBehavior:LF
+    - >
+      dotnet nswag openapi2csclient
+      /Input:specs/api/openapi/order-core-ivr-callback.target-v1.yaml
+      /Output:src/Ivr.Contracts/Generated/SalesTarget/V1/SalesTargetV1Client.g.cs
+      /Namespace:Ivr.Contracts.Generated.SalesTarget.V1
+      /ClassName:SalesTargetV1Client
+      /GenerateClientClasses:true
+      /GenerateClientInterfaces:true
+      /InjectHttpClient:true
+      /DisposeHttpClient:false
+      /UseBaseUrl:true
+      /GenerateBaseUrlProperty:true
+      /OperationGenerationMode:SingleClientFromOperationId
+      /JsonLibrary:SystemTextJson
+      /JsonLibraryVersion:10.0
+      /GenerateNullableReferenceTypes:true
+      /GenerateOptionalPropertiesAsNullable:true
+      /UseRequiredKeyword:true
+      /WriteAccessor:init
+      /NewLineBehavior:LF
+    - git diff --exit-code -- src/Ivr.Contracts/Generated
     - dotnet format Ivr.sln --no-restore --verify-no-changes --verbosity diagnostic
     - dotnet build Ivr.sln --configuration Release --no-restore -p:RunAnalyzers=true
 
