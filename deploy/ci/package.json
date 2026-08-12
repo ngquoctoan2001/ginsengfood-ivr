@@ -1,0 +1,19 @@
+{
+  "name": "ginsengfood-ivr-ci-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "openapi:lint": "redocly lint ../../specs/api/openapi/ivr-order-confirmation.v1.yaml ../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml --config ../../.redocly.yaml",
+    "openapi:validate": "node scripts/validate-openapi.mjs",
+    "test:openapi-negative": "node scripts/selftest-openapi.mjs",
+    "test:config": "node scripts/ci-config-selftest.mjs"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "12.1.0",
+    "@redocly/cli": "2.46.1",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.0"
+  }
+}

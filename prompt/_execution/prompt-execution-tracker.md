@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0078` |
 | Last allocated | `W-0077` |
-| Last activity sequence | `A-0036` |
+| Last activity sequence | `A-0043` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -74,7 +74,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `W-0001` | Planning realignment | Target V1 plan/spec/prompt/tracker/OpenAPI | docs/code review | EVIDENCE_SUBMITTED | Codex + IVR owner | Target V1 draft, two OpenAPI files, 51-prompt register, fake seed | JSON/YAML/schema/ref/link/tracker/diff checks pass | technical defaults confirmed; owner may accept evidence separately |
 | `W-0010` | `P0-1` | repo/solution bootstrap | technical defaults confirmed 2026-08-12; baseline frozen at `5c6f39e` | ACCEPTED | Codex (explicit IVR owner authorization) | `Ivr.sln`; `src/**`; `tests/**`; `admin-ui/**`; `docker-compose.dev.yml`; `README.md`; `docs/evidence/W-0010/` | .NET build 0 warning/0 error; 3/3 test pass; format 0/39; UI lint/build pass; Postgres healthy; probes 3/3; browser clean + screenshot; doc links 0 unresolved; GitNexus LOW/0 process/0 cycle | P0-1 closed; MOCK only; GitLab CI next at W-0011; real Sales/SIM/lab/production remain NOT_RUN and outside this acceptance |
-| `W-0011` | `P0-2` | GitLab CI/quality baseline | W-0010 | NOT_STARTED |  |  |  |  |
+| `W-0011` | `P0-2` | GitLab CI/quality baseline | W-0010 ACCEPTED | TESTS_PASS | Codex | `.gitlab-ci.yml`; `deploy/ci/**`; MR template; CODEOWNERS; lockfiles; `docs/evidence/W-0011/` | build 0/0; tests 3/3; merged coverage 95.77%; format 0/43; UI/OpenAPI/security/PII/config + CT-CI-01..08 PASS locally | local/config scope complete and committed separately; remote vẫn là GitHub; hosted pipeline/settings/runner/registry NOT_RUN, W-0061/G-GITLAB BLOCKED_EXTERNAL |
 | `W-0012` | `P0-3` | config/auth/audit/idempotency/correlation | W-0010 | NOT_STARTED |  |  |  |  |
 | `W-0013` | `P0-4` | mode/provider flags + kill switches | W-0012 | NOT_STARTED |  |  |  |  |
 | `W-0014` | `P1-1` | both OpenAPI/codegen/contract scaffold | W-0010..12 | NOT_STARTED |  |  |  |  |
@@ -192,6 +192,13 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0034` | 2026-08-12 | `W-0010` | FINISH/HANDOFF | Nộp evidence P0-1 ở trạng thái MOCK; chưa tự ACCEPTED và không tạo GitLab CI, business entity, Sales/SIM integration hay real-call path | Codex | `docs/evidence/W-0010/`; UI lint/build pass; health live/ready/startup 200 JSON; screenshot + console 0 issue; format/diff pass; owner review + GitNexus change review pending |
 | `A-0035` | 2026-08-12 | `W-0010` | VALIDATION/HANDOFF | Lượt rà soát cuối đồng bộ launch URL `127.0.0.1:5088`, loại asset/README Next.js template sai, chạy lại build/test/UI/runtime và dọn tiến trình/container kiểm thử có kiểm soát | Codex | build 0/0; 3/3 test pass; UI lint/build pass; launch-profile probes 3/3 HTTP 200; official doc map 388 files/368 resolved/0 unresolved; Postgres container stopped, volume preserved |
 | `A-0036` | 2026-08-12 | `W-0010` | ACCEPTANCE | Theo ủy quyền explicit của IVR owner, Codex tự review và chấp nhận P0-1 local bootstrap; acceptance không mở rộng sang real integration/telephony/production | Codex | GitNexus re-index 36,696 nodes/36,886 edges; status up-to-date; change risk LOW, 0 affected process; 0 circular import; direct diff review không có blocking finding |
+| `A-0037` | 2026-08-12 | `W-0011` | START | Bắt đầu P0-2 từ P0-1 commit `85cefa7`; dựng GitLab-only quality baseline và negative self-tests, giữ mock/no-real-call invariants | Codex | branch main; GitNexus up-to-date; remote duy nhất `origin=https://github.com/ngquoctoan2001/ivr.git`; không có GitLab CI env nên W-0061 hosted evidence tiếp tục BLOCKED_EXTERNAL |
+| `A-0038` | 2026-08-12 | `W-0011` | DISCOVERY | Exact security job phát hiện floating image `dotnet/sdk:10.0` resolve SDK 10.0.400, không tương thích `global.json` khóa 10.0.201; pin cả 3 job .NET về image 10.0.201 và thêm config regression check | Codex | lần đầu exit 1 trước restore; image tag 10.0.201 tồn tại; lượt chạy lại exact Linux security script exit 0 |
+| `A-0039` | 2026-08-12 | `W-0011` | CHECKPOINT | Hoàn tất 6 quality gate và negative self-test CT-CI-01..08 ở local/container; OpenAPI có 10 advisory warning nhưng 0 lint/parser/ref/schema error | Codex | build 0 warning/0 error; 3/3 test; merged coverage 95.77% (68/71 unique lines); format 0/43; UI build; NuGet/npm/Gitleaks/PII/Compose PASS; official Markdown map 391 files/369 resolved/0 unresolved; `docs/evidence/W-0011/` |
+| `A-0040` | 2026-08-12 | `W-0011` | FINISH/HANDOFF | Chốt P0-2 ở mức local/config `TESTS_PASS`; không nâng `ACCEPTED` vì chưa có GitLab project/runner/MR/protected-setting evidence theo DoD | Codex | implementation và evidence hoàn tất; W-0061/G-GITLAB tiếp tục BLOCKED_EXTERNAL; real Sales/SIM/customer call vẫn NOT_RUN |
+| `A-0041` | 2026-08-12 | `W-0011` | DISCOVERY | Self-review sau handoff phát hiện phép cộng root count của nhiều Cobertura report đếm trùng source line; sửa policy thành merge theo package/class/line và thêm 2 report bổ sung nhau để chứng minh deduplicate | Codex | GitNexus impact LOW, 1 caller/0 process; merge fixture 100%; actual merged coverage 95.77% (68/71 unique lines) |
+| `A-0042` | 2026-08-12 | `W-0011` | DISCOVERY | PII scanner ban đầu echo nguyên dòng vi phạm và `deploy/ci/node_modules` chưa được ignore; đổi log thành file:line:[REDACTED], thêm regression assertion, tổng quát hóa ignore và giữ coverage fixtures trackable | Codex | CT-CI-06* PASS với log redacted; evidence/artifact scan 22 files PASS; untracked scope giảm còn đúng 49 file P0-2 |
+| `A-0043` | 2026-08-12 | `W-0011` | FINISH/HANDOFF | Rerun gate sau self-review; workflow giới hạn đúng MR, default-branch push và manual web (schedule không còn lọt); sẵn sàng dedicated P0-2 commit ở `TESTS_PASS` | Codex | config/OpenAPI/.NET/UI/security/PII/doc-map/GitNexus/diff gates PASS; hosted W-0061 tiếp tục BLOCKED_EXTERNAL |
 
 ## 8. Per-work completion record template
 
@@ -344,4 +351,22 @@ Production evidence: NOT_RUN; no staging, 32 eSIM, protected GitLab pipeline, or
 Residual blockers/risks: readiness is an always-200 bootstrap placeholder until W-0040; GitLab CI belongs W-0011; private registry remains open but non-blocking; no real Sales/SIM/lab/production evidence is implied by this acceptance
 Next allowed Work ID(s): W-0011; W-0057/W-0058 remain separately eligible when their owners and external inputs are available
 Final status: ACCEPTED
+```
+
+```text
+Work ID: W-0011
+Prompt: P0-2
+Baseline/commit: baseline main@85cefa7 (accepted P0-1); this record is included in the dedicated P0-2 commit
+Scope completed: GitLab-only workflow routing; locked .NET/UI builds; JUnit/Cobertura and 60% coverage gate; .NET format/analyzers; OpenAPI lint/parse/ref/schema checks; NuGet/npm vulnerability policy; Gitleaks; locale-stable PII scan with upstream artifact topology; MR template; CODEOWNERS routing; local/hosted runbook
+Files/artifacts: .gitlab-ci.yml; deploy/ci/**; .gitlab/merge_request_templates/Default.md; CODEOWNERS; .gitleaks.toml; .gitleaksignore; .redocly.yaml; committed NuGet lockfiles; docs/evidence/W-0011/README.md
+Commands and exact results: config CT-CI-05/07/08 PASS; OpenAPI 2/2 parse, 9 valid target tasks, 7/7 schema negatives rejected, 10/10 domain negatives schema-valid; Release build 0 warnings/0 errors; 3/3 implemented tests; merged coverage 95.77% (68/71 unique lines, 3 reports) >= 60%; format 0/43; UI lint/build PASS; NuGet/npm High policy PASS and npm 0 vulnerabilities; exact Linux security script exit 0; PII selftests and evidence/artifact scan PASS; Compose config PASS; Gitleaks dir scan no leaks; official Markdown map 391 files/369 resolved/0 unresolved
+Tests/evidence: CT-CI-01 through CT-CI-08 PASS locally, including expected non-zero for invalid OpenAPI, failing xUnit, 50% coverage, fake GitHub PAT, and downloaded-artifact PII; detailed evidence at docs/evidence/W-0011/README.md
+Review/acceptance by: Codex self-review; local/config status only. Prompt DoD limits this evidence to TESTS_PASS until hosted GitLab evidence exists
+Mock-only evidence: complete for P0-2 quality baseline; IVR remains MOCK and REAL_CUSTOMER_CALL_ALLOWED=NO
+Lab evidence: NOT_RUN; no SIM or phone call exercised
+Real integration evidence: NOT_RUN; no Sales API/auth/provider connected
+Production evidence: NOT_RUN; no GitLab hosted MR/runner/protected settings/registry, staging, eSIM, or release proof
+Residual blockers/risks: W-0061/G-GITLAB BLOCKED_EXTERNAL because remote remains GitHub-only and no GitLab platform access is available; CODEOWNERS paths are planned placeholders until Platform provisions/verifies groups and enforcement; 10 OpenAPI advisory warnings remain visible for P1-1 hardening
+Next allowed Work ID(s): W-0061 should be closed next for hosted CI proof; W-0012/P0-3 is dependency-eligible from W-0010 and may proceed while W-0061 remains explicit
+Final status: TESTS_PASS
 ```

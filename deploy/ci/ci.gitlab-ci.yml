@@ -1,0 +1,144 @@
+.dotnet_cache:
+  cache:
+    key:
+      files:
+        - global.json
+        - Directory.Build.props
+      prefix: "dotnet-$CI_JOB_NAME"
+    paths:
+      - .nuget/packages/
+    policy: pull-push
+
+.admin_ui_cache:
+  cache:
+    key:
+      files:
+        - admin-ui/package-lock.json
+      prefix: "admin-ui-$CI_JOB_NAME"
+    paths:
+      - .npm/
+    policy: pull-push
+
+.ci_tools_cache:
+  cache:
+    key:
+      files:
+        - deploy/ci/package-lock.json
+      prefix: "ci-tools-$CI_JOB_NAME"
+    paths:
+      - .npm/
+    policy: pull-push
+
+ci_config_selftest:
+  stage: validate
+  image: node:24-bookworm-slim
+  extends: .ci_tools_cache
+  allow_failure: false
+  script:
+    - npm --prefix deploy/ci ci --no-audit --no-fund
+    - npm --prefix deploy/ci run test:config
+
+openapi_lint:
+  stage: validate
+  image: node:24-bookworm-slim
+  extends: .ci_tools_cache
+  allow_failure: false
+  script:
+    - npm --prefix deploy/ci ci --no-audit --no-fund
+    - if [ "${CI_OPENAPI_SELFTEST_INVALID:-0}" = "1" ]; then cp deploy/ci/fixtures/openapi/invalid-openapi.yaml specs/api/openapi/ci-selftest.invalid.yaml; fi
+    - npm --prefix deploy/ci run openapi:lint
+    - npm --prefix deploy/ci run openapi:validate -- --summary ci-artifacts/openapi/validation-summary.txt
+    - npm --prefix deploy/ci run test:openapi-negative
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/openapi/
+
+build_test_dotnet:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
+  extends: .dotnet_cache
+  allow_failure: false
+  script:
+    - dotnet restore Ivr.sln --locked-mode
+    - dotnet build Ivr.sln --configuration Release --no-restore
+    - mkdir -p ci-artifacts/dotnet/test-results ci-artifacts/dotnet/coverage
+    - if [ "${CI_DOTNET_SELFTEST_FAIL:-0}" = "1" ]; then dotnet test deploy/ci/fixtures/failing-test/Ivr.CiFailingTests.csproj --configuration Release; fi
+    - if dotnet test deploy/ci/fixtures/failing-test/Ivr.CiFailingTests.csproj --configuration Release > ci-artifacts/dotnet/ct-ci-02-expected-failure.log 2>&1; then echo "CT-CI-02 expected the fixture test to fail"; exit 1; else echo "CT-CI-02 PASS — failing test returned non-zero"; fi
+    - dotnet test Ivr.sln --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory ci-artifacts/dotnet/coverage --logger:"junit;LogFilePath=../../ci-artifacts/dotnet/test-results/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+    - if [ "${CI_COVERAGE_SELFTEST_LOW:-0}" = "1" ]; then dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage deploy/ci/fixtures/coverage/low 60; fi
+    - if dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage deploy/ci/fixtures/coverage/low 60; then echo "CT-CI-03 expected low coverage to fail"; exit 1; else echo "CT-CI-03 negative threshold PASS"; fi
+    - dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage deploy/ci/fixtures/coverage/merge 100
+    - dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage ci-artifacts/dotnet/coverage 60 --output ci-artifacts/dotnet/coverage-summary.txt
+    - if [ "${CI_PII_SELFTEST_ARTIFACT:-0}" = "1" ]; then printf '123 Đường Nguyễn Huệ\n' > ci-artifacts/dotnet/pii-negative-artifact.txt; fi
+  coverage: '/TOTAL_LINE_COVERAGE=(\d+(?:\.\d+)?)%/'
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/dotnet/
+    reports:
+      junit:
+        - ci-artifacts/dotnet/test-results/*-test-result.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: ci-artifacts/dotnet/coverage/**/coverage.cobertura.xml
+
+lint_dotnet:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
+  extends: .dotnet_cache
+  allow_failure: false
+  script:
+    - dotnet restore Ivr.sln --locked-mode
+    - dotnet format Ivr.sln --no-restore --verify-no-changes --verbosity diagnostic
+    - dotnet build Ivr.sln --configuration Release --no-restore -p:RunAnalyzers=true
+
+build_lint_ui:
+  stage: build
+  image: node:24-bookworm-slim
+  extends: .admin_ui_cache
+  allow_failure: false
+  script:
+    - npm --prefix admin-ui ci --no-audit --no-fund
+    - npm --prefix admin-ui run lint
+    - if node -e "const p=require('./admin-ui/package.json');process.exit(p.scripts?.test?0:1)"; then npm --prefix admin-ui test; else echo "No admin-ui test script in P0-2; continuing with lint and production build"; fi
+    - npm --prefix admin-ui run build
+    - mkdir -p ci-artifacts/ui
+    - printf 'admin-ui lint=PASS\nadmin-ui production-build=PASS\n' > ci-artifacts/ui/summary.txt
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/ui/
+
+security_scan:
+  stage: security
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
+  extends: .dotnet_cache
+  allow_failure: false
+  variables:
+    GITLEAKS_VERSION: "8.30.0"
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends ca-certificates curl nodejs npm
+  script:
+    - sh deploy/ci/scripts/security-scan.sh
+
+pii_scan:
+  stage: privacy
+  image: debian:bookworm-slim
+  allow_failure: false
+  variables:
+    LC_ALL: "C.UTF-8"
+  needs:
+    - job: build_test_dotnet
+      artifacts: true
+    - job: build_lint_ui
+      artifacts: true
+    - job: openapi_lint
+      artifacts: true
+  script:
+    - sh deploy/ci/scripts/selftest-pii.sh
+    - sh deploy/ci/scripts/scan-pii.sh docs/evidence ci-artifacts

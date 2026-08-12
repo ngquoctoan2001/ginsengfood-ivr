@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-12T09:35:11.663Z
+Generated: 2026-08-12T10:31:05.295Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 388
-- Links resolved: 368
+- Markdown files: 391
+- Links resolved: 369
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 25
+- Orphan candidates: 26
 
 ## High Link Documents
 
@@ -73,18 +73,19 @@ Root: C:\Users\Administrator\Desktop\ivr
 - .claude/skills/gitnexus/gitnexus-guide/SKILL.md
 - .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md
 - .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md
+- .gitlab/merge_request_templates/Default.md
 - admin-ui/AGENTS.md
 - admin-ui/CLAUDE.md
 - admin-ui/README.md
 - AGENTS.md
 - CLAUDE.md
 - docs/evidence/W-0010/README.md
+- docs/evidence/W-0011/README.md
 - plan/ivr-orther/_archive/01-reading-inventory.md
 - plan/ivr-orther/_archive/08-target-specs-structure-proposal.md
 - prompt/_review/phase-0-11-spec-alignment-review.md
 - prompt/_review/zero-to-production-prompt-readiness-review.md
 - prompt/_TEMPLATE.md
-- README.md
 - seed/README.md
 - specs/_review/normalization-report.md
 - specs/_review/traceability-matrix.md
@@ -103,11 +104,13 @@ Root: C:\Users\Administrator\Desktop\ivr
 | .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/10 | 0 | 0 | 0 | 1015 |
 | .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md | Impact Analysis with GitNexus | 1/8 | 0 | 0 | 0 | 225 |
 | .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md | Refactoring with GitNexus | 1/10 | 0 | 0 | 0 | 187 |
+| .gitlab/merge_request_templates/Default.md | IVR change traceability | 1/4 | 0 | 0 | 0 | 209 |
 | admin-ui/AGENTS.md | This is NOT the Next.js you know | 1/1 | 0 | 0 | 0 | 95 |
 | admin-ui/CLAUDE.md | CLAUDE | 0/0 | 0 | 0 | 0 | 1 |
 | admin-ui/README.md | IVR Admin UI | 1/2 | 0 | 0 | 0 | 90 |
 | AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
 | CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
+| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 725 |
 | docs/documents/0. appendices/01-OPERATIONAL-FORMS.md | OPERATIONAL FORMS | 1/16 | 1 | 0 | 0 | 3384 |
 | docs/documents/0. appendices/02-AUTO-GENERATED-FORM-RULES.md | AUTO GENERATED FORM RULES | 1/59 | 1 | 0 | 0 | 1635 |
 | docs/documents/0. appendices/03-PRINTING-CODE-RULES.md | PRINTING CODE RULES | 1/40 | 1 | 0 | 0 | 906 |
@@ -287,6 +290,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/documents/6. canonical/03-CANONICAL-EVIDENCE-SMOKE-GATE-CUSTOMER-TO-CASH-CARE.md | Canonical Evidence / Smoke Gate - Customer-to-Cash-to-Care | 1/7 | 1 | 0 | 0 | 721 |
 | docs/documents/6. canonical/README.md | Canonical Runtime Addenda | 1/1 | 1 | 0 | 0 | 73 |
 | docs/evidence/W-0010/README.md | W-0010 — P0-1 Repo & Solution Bootstrap Evidence | 1/6 | 0 | 0 | 0 | 610 |
+| docs/evidence/W-0011/README.md | W-0011 — P0-2 GitLab CI Baseline Evidence | 1/6 | 0 | 0 | 0 | 821 |
 | integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/4 | 0 | 5 | 0 | 224 |
 | integration-requirements/01-sales-platform-requirements.md | IR-01 — Sales Platform / Order Core Requirements | 1/8 | 1 | 0 | 0 | 692 |
 | integration-requirements/02-ops-core-requirements.md | IR-02 — Ops-Core Requirements (Module 1/2) | 1/3 | 1 | 0 | 0 | 457 |
@@ -334,7 +338,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 4806 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 5230 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
@@ -405,7 +409,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | prompt/phase-9-release-ops/P9-2-cutover-ops-runbook.md | PROMPT P9-2 — Cutover, Rollback & Ops Runbook | 1/14 | 1 | 0 | 0 | 730 |
 | prompt/README-governance.md | IVR Prompt Library — Governance (đọc trước mọi prompt) | 1/10 | 1 | 0 | 0 | 1096 |
 | prompt/RUNBOOK-execute-prompts.md | RUNBOOK — Execute IVR Prompts P0–P11 | 1/10 | 1 | 0 | 0 | 432 |
-| README.md | GinsengFood IVR | 1/6 | 0 | 0 | 0 | 311 |
+| README.md | GinsengFood IVR | 1/6 | 0 | 1 | 0 | 331 |
 | seed/README.md | IVR Seed / Mock Data (NON-PRODUCTION ONLY) | 1/7 | 0 | 0 | 0 | 574 |
 | specs/_review/normalization-report.md | REVIEW — Normalization Report | 1/28 | 0 | 0 | 0 | 1439 |
 | specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 1/5 | 3 | 0 | 0 | 1035 |

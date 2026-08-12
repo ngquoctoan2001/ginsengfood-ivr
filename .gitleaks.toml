@@ -1,0 +1,14 @@
+title = "GinsengFood IVR secret scanning"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Only generated/ignored build and dependency paths are excluded; source, fixtures, logs, and evidence remain scanned."
+paths = [
+  '''admin-ui/package-lock\.json''',
+  '''deploy/ci/package-lock\.json''',
+  '''(^|/)(node_modules|bin|obj|\.next|ci-artifacts)/''',
+  '''(^|/)\.git/''',
+  '''(^|/)\.gitnexus/'''
+]

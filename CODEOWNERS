@@ -1,0 +1,15 @@
+# Placeholder GitLab group paths must be verified by W-0061 before enforcement.
+* @ginsengfood/ivr-maintainers
+
+/src/Ivr.Domain/ @ginsengfood/ivr-domain
+/src/Ivr.Infrastructure/ @ginsengfood/ivr-platform
+/src/Ivr.Api/ @ginsengfood/ivr-platform
+/src/Ivr.Worker/ @ginsengfood/ivr-platform
+/src/Ivr.Contracts/ @ginsengfood/ivr-contracts
+/specs/api/openapi/ @ginsengfood/ivr-contracts
+/deploy/ci/ @ginsengfood/ivr-maintainers
+/.gitlab-ci.yml @ginsengfood/ivr-maintainers
+/CODEOWNERS @ginsengfood/ivr-maintainers
+/admin-ui/ @ginsengfood/ivr-ui
+/prompt/ @ginsengfood/ivr-maintainers
+/docs/evidence/ @ginsengfood/ivr-maintainers

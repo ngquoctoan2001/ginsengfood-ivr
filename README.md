@@ -1,5 +1,7 @@
 # GinsengFood IVR
 
+[![GitLab pipeline](https://img.shields.io/badge/GitLab_pipeline-NOT_RUN-lightgrey)](deploy/ci/README.md#gitlab-project-settings--hosted-evidence)
+
 Standalone .NET 10 service for IVR order confirmation. This P0-1 bootstrap has
 health probes, an empty worker, an empty EF Core PostgreSQL context, and a
 Next.js admin placeholder. It contains no order-confirmation business logic and
@@ -104,4 +106,6 @@ docker compose -f docker-compose.dev.yml config --quiet
 ```
 
 Expected test IDs are `UT-BOOT-01`, `IT-BOOT-02`, and `UT-BOOT-03`. CI is
-introduced by P0-2 using GitLab CI; P0-1 is verified locally only.
+implemented by P0-2 using GitLab CI. Until W-0061 provisions the GitLab project,
+runner, protected branch, and merge checks, the badge and hosted evidence remain
+`NOT_RUN`; see [the CI runbook](deploy/ci/README.md).

@@ -6,10 +6,14 @@
 *.suo
 TestResults/
 coverage/
+!deploy/ci/fixtures/coverage/
+!deploy/ci/fixtures/coverage/**
+ci-artifacts/
+.tools/
 
 # Node / Next.js
-admin-ui/node_modules/
-admin-ui/.next/
+**/node_modules/
+**/.next/
 admin-ui/out/
 admin-ui/.env*
 !admin-ui/.env.example

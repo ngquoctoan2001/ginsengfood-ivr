@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: Deliberately invalid CT-CI-01 fixture
+  version: 0.0.0
+paths:
+  /invalid:
+    get:
+      responses:
+        "200":
+          description: This response references a schema that does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DoesNotExist"
+components:
+  schemas: {}

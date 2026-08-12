@@ -1,0 +1,13 @@
+extends:
+  - recommended
+
+rules:
+  no-unused-components: warn
+  operation-summary: warn
+  security-defined: warn
+
+apis:
+  ivr-internal:
+    root: specs/api/openapi/ivr-order-confirmation.v1.yaml
+  order-core-callback:
+    root: specs/api/openapi/order-core-ivr-callback.target-v1.yaml
