@@ -7,6 +7,8 @@ public sealed class IvrOptions
 {
     public const string SectionName = "Ivr";
 
+    public const string MockExecutionMode = "MOCK";
+
     public string ExecutionMode { get; set; } = "MOCK";
 
     public string SalesProvider { get; set; } = "FAKE_TARGET_V1";

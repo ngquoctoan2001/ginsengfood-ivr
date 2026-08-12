@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0078` |
 | Last allocated | `W-0077` |
-| Last activity sequence | `A-0043` |
+| Last activity sequence | `A-0049` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -75,7 +75,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0001` | Planning realignment | Target V1 plan/spec/prompt/tracker/OpenAPI | docs/code review | EVIDENCE_SUBMITTED | Codex + IVR owner | Target V1 draft, two OpenAPI files, 51-prompt register, fake seed | JSON/YAML/schema/ref/link/tracker/diff checks pass | technical defaults confirmed; owner may accept evidence separately |
 | `W-0010` | `P0-1` | repo/solution bootstrap | technical defaults confirmed 2026-08-12; baseline frozen at `5c6f39e` | ACCEPTED | Codex (explicit IVR owner authorization) | `Ivr.sln`; `src/**`; `tests/**`; `admin-ui/**`; `docker-compose.dev.yml`; `README.md`; `docs/evidence/W-0010/` | .NET build 0 warning/0 error; 3/3 test pass; format 0/39; UI lint/build pass; Postgres healthy; probes 3/3; browser clean + screenshot; doc links 0 unresolved; GitNexus LOW/0 process/0 cycle | P0-1 closed; MOCK only; GitLab CI next at W-0011; real Sales/SIM/lab/production remain NOT_RUN and outside this acceptance |
 | `W-0011` | `P0-2` | GitLab CI/quality baseline | W-0010 ACCEPTED | TESTS_PASS | Codex | `.gitlab-ci.yml`; `deploy/ci/**`; MR template; CODEOWNERS; lockfiles; `docs/evidence/W-0011/` | build 0/0; tests 3/3; merged coverage 95.77%; format 0/43; UI/OpenAPI/security/PII/config + CT-CI-01..08 PASS locally | local/config scope complete and committed separately; remote vẫn là GitHub; hosted pipeline/settings/runner/registry NOT_RUN, W-0061/G-GITLAB BLOCKED_EXTERNAL |
-| `W-0012` | `P0-3` | config/auth/audit/idempotency/correlation | W-0010 | NOT_STARTED |  |  |  |  |
+| `W-0012` | `P0-3` | config/auth/audit/idempotency/correlation | W-0010 ACCEPTED; P0-2 local gates TESTS_PASS | TESTS_PASS | Codex | `src/Ivr.Api/{Auth,Foundation,Middleware}/`; `src/Ivr.Domain/{Errors,Privacy}/`; `src/Ivr.Infrastructure/{Audit,Correlation,Evidence,Idempotency}/`; `docs/evidence/W-0012/` | build 0/0; 14/14 implemented tests; P0-3 11/11; coverage 91.99%; format/UI/OpenAPI/config/security/PII/Compose PASS; GitNexus staged CRITICAL breadth reviewed, 0 cycle | local MOCK implementation complete; hosted GitLab run remains NOT_RUN under W-0061; P1-2 owns persistence migrations, P4-4 owns production auth; no Sales/SIM/real call |
 | `W-0013` | `P0-4` | mode/provider flags + kill switches | W-0012 | NOT_STARTED |  |  |  |  |
 | `W-0014` | `P1-1` | both OpenAPI/codegen/contract scaffold | W-0010..12 | NOT_STARTED |  |  |  |  |
 | `W-0015` | `P1-2` | PostgreSQL/EF migrations, versioned policy/speech snapshots | W-0012 | NOT_STARTED |  |  |  |  |
@@ -199,6 +199,12 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0041` | 2026-08-12 | `W-0011` | DISCOVERY | Self-review sau handoff phát hiện phép cộng root count của nhiều Cobertura report đếm trùng source line; sửa policy thành merge theo package/class/line và thêm 2 report bổ sung nhau để chứng minh deduplicate | Codex | GitNexus impact LOW, 1 caller/0 process; merge fixture 100%; actual merged coverage 95.77% (68/71 unique lines) |
 | `A-0042` | 2026-08-12 | `W-0011` | DISCOVERY | PII scanner ban đầu echo nguyên dòng vi phạm và `deploy/ci/node_modules` chưa được ignore; đổi log thành file:line:[REDACTED], thêm regression assertion, tổng quát hóa ignore và giữ coverage fixtures trackable | Codex | CT-CI-06* PASS với log redacted; evidence/artifact scan 22 files PASS; untracked scope giảm còn đúng 49 file P0-2 |
 | `A-0043` | 2026-08-12 | `W-0011` | FINISH/HANDOFF | Rerun gate sau self-review; workflow giới hạn đúng MR, default-branch push và manual web (schedule không còn lọt); sẵn sàng dedicated P0-2 commit ở `TESTS_PASS` | Codex | config/OpenAPI/.NET/UI/security/PII/doc-map/GitNexus/diff gates PASS; hosted W-0061 tiếp tục BLOCKED_EXTERNAL |
+| `A-0044` | 2026-08-12 | `W-0012` | START | Bắt đầu P0-3 cross-cutting foundation từ dedicated P0-2 commit; triển khai config validation, correlation, error envelope, RBAC, Order Core allowlist, idempotency, append-only audit, evidence và PII guard | Codex | baseline `0c2f692`, branch main, clean working tree trước official Markdown map; GitNexus up-to-date; MOCK/REAL_CUSTOMER_CALL_ALLOWED=NO; W-0061 không chặn local implementation |
+| `A-0045` | 2026-08-12 | `W-0012` | CHECKPOINT | Hoàn tất source và test P0-3; bổ sung test riêng cho config/evidence ngoài 8 ID bắt buộc; bắt đầu đóng evidence và change review | Codex | Release build 0/0; 13/13 implemented tests; P0-3 10/10; merged coverage 91.46% (546/597); format/UI/OpenAPI/config/NuGet/npm/Compose/Gitleaks/PII PASS; hosted GitLab vẫn NOT_RUN |
+| `A-0046` | 2026-08-12 | `W-0012` | FINISH/HANDOFF | Chốt P0-3 local MOCK ở `TESTS_PASS`; toàn bộ primitive, test và evidence đã hoàn tất nhưng không nâng `ACCEPTED` vì DoD yêu cầu chạy trong GitLab CI còn bị W-0061 chặn bên ngoài | Codex | official doc map 392 files/369 resolved/0 unresolved; GitNexus 37,086 nodes/37,561 edges/23 flows, entrypoint risk LOW, detect change LOW, 0 affected process, 0 cycle; Sales/SIM/lab/production NOT_RUN |
+| `A-0047` | 2026-08-12 | `W-0012` | DISCOVERY/FIX | Staged change review báo CRITICAL do breadth 56 file/21 flow; review từng flow phát hiện PII guard chưa chứng minh mixed-case Unicode và correlation/audit/evidence metadata chưa guard đủ. Mở rộng case-folding + guard toàn metadata, correlation nghi PII được thay ID mới, thêm regression rồi rerun | Codex | `EnsureSafeText` impact HIGH: 4 direct/2 process nên được cảnh báo và kiểm thử đầy đủ; các middleware/store còn lại LOW; focused P0-3 10/10 PASS; full gate rerun pending |
+| `A-0048` | 2026-08-12 | `W-0012` | VALIDATION/HANDOFF | Khóa context làm nguồn correlation outbound duy nhất, chặn PII trong idempotency key/snapshot, snapshot bất biến error details/catalog; hoàn tất full rerun sau remediation staged review | Codex | locked restore/format/build PASS 0/0; 14/14 implemented tests; P0-3 11/11; merged coverage 91.99% (563/612); W-0061 hosted GitLab vẫn NOT_RUN/BLOCKED_EXTERNAL |
+| `A-0049` | 2026-08-12 | `W-0012` | CHANGE_REVIEW | Re-index và review staged scope sau mọi remediation. `detect_changes` vẫn CRITICAL do breadth foundation (56 file/228 symbol/25 flow); đối chiếu từng flow đều thuộc scope mới, impact cụ thể cao nhất PII guard HIGH đã có regression; không có caller/process ngoài dự kiến hay cycle | Codex | GitNexus 37,093 nodes/37,596 edges/27 flows; staged diff check PASS; 0 circular import; cảnh báo CRITICAL được giữ nguyên trong evidence, không hạ mức giả tạo |
 
 ## 8. Per-work completion record template
 
@@ -368,5 +374,23 @@ Real integration evidence: NOT_RUN; no Sales API/auth/provider connected
 Production evidence: NOT_RUN; no GitLab hosted MR/runner/protected settings/registry, staging, eSIM, or release proof
 Residual blockers/risks: W-0061/G-GITLAB BLOCKED_EXTERNAL because remote remains GitHub-only and no GitLab platform access is available; CODEOWNERS paths are planned placeholders until Platform provisions/verifies groups and enforcement; 10 OpenAPI advisory warnings remain visible for P1-1 hardening
 Next allowed Work ID(s): W-0061 should be closed next for hosted CI proof; W-0012/P0-3 is dependency-eligible from W-0010 and may proceed while W-0061 remains explicit
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0012
+Prompt: P0-3
+Baseline/commit: baseline main@0c2f692 (dedicated P0-2 commit); this record is included in the dedicated P0-3 commit
+Scope completed: fail-fast configuration; correlation context/middleware/outbound propagation; exact 15-code error catalog/envelope; seven-permission RBAC with MOCK-only header adapter and non-MOCK fail-close; Order Core source/token allowlist; in-memory MOCK idempotency, append-only audit and evidence registries; admin reason guard; PII mask/guard; DI and ordered API pipeline
+Files/artifacts: src/Ivr.Api/{Auth,Foundation,Middleware}/; src/Ivr.Domain/{Errors,Privacy}/; src/Ivr.Infrastructure/{Audit,Configuration,Correlation,Evidence,Idempotency}/; tests/Ivr.UnitTests/CrossCuttingFoundationTests.cs; tests/Ivr.IntegrationTests/{CrossCuttingFoundationTests,FoundationApiTestApplication}.cs; README.md; docs/evidence/W-0012/README.md
+Commands and exact results: locked restore PASS; Release build 0 warnings/0 errors; 14/14 implemented tests; merged coverage 91.99% (563/612, 3 reports) >= 60%; format PASS; UI lint/build + two npm audits PASS; CI config CT-CI-05/07/08 PASS; OpenAPI parse/schema/negative PASS with 10 advisory warnings and 0 errors; NuGet High/Critical PASS; Compose PASS; Gitleaks no leaks; PII selftest/current scan PASS; official Markdown map 392 files/369 resolved/0 unresolved; GitNexus staged CRITICAL breadth (56 files/228 symbols/25 expected new flows), 0 circular import
+Tests/evidence: all eight required IDs UT-FND-IDEMP-01/CORR-02/RBAC-03/RBAC-08/ALLOW-04/ERR-05/AUDIT-06/PII-07 PASS; extra UT-FND-CONFIG-09, UT-FND-EVID-10 and UT-FND-ERRCAT-11 PASS; normalized safe 403/409/500 samples and detailed proof at docs/evidence/W-0012/README.md
+Review/acceptance by: Codex self-review under explicit IVR owner authorization; final status limited to TESTS_PASS because hosted GitLab execution required by DoD is unavailable
+Mock-only evidence: complete for P0-3 local implementation; IVR_EXECUTION_MODE=MOCK; SALES_PROVIDER=FAKE_TARGET_V1; SIM_PROVIDER=MOCK; REAL_CUSTOMER_CALL_ALLOWED=NO; no customer call path
+Lab evidence: NOT_RUN; no physical SIM/device/provider exercised
+Real integration evidence: NOT_RUN; Order Core route uses an isolated test host/fake token only; no Sales API/auth connected
+Production evidence: NOT_RUN; non-MOCK authentication deliberately fails closed; no GitLab hosted pipeline, persistent foundation tables, staging, eSIM, or release proof
+Residual blockers/risks: W-0061/G-GITLAB remains BLOCKED_EXTERNAL; P1-2 owns PostgreSQL mappings/migrations; P4-4 owns production JWT/service-auth federation; P7 owns production secret-store selection; 10 pre-existing OpenAPI advisory warnings remain for P1-1
+Next allowed Work ID(s): W-0013/P0-4 is the recommended next local implementation; W-0061 should continue in parallel; W-0015/P1-2 is also dependency-eligible after this local foundation
 Final status: TESTS_PASS
 ```

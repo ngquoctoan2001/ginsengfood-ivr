@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-12T10:31:05.295Z",
+  "generatedAt": "2026-08-12T11:38:36.421Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -662,7 +662,7 @@
           "to": "deploy/ci/README.md",
           "kind": "markdown",
           "rawTarget": "deploy/ci/README.md",
-          "line": 111
+          "line": 124
         }
       ]
     },
@@ -214462,6 +214462,68 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0012/README.md",
+      "title": "W-0012 — P0-3 Cross-Cutting Foundation Evidence",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0012 — P0-3 Cross-Cutting Foundation Evidence",
+          "line": 1,
+          "slug": "w-0012-p0-3-cross-cutting-foundation-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Scope implemented",
+          "line": 15,
+          "slug": "scope-implemented"
+        },
+        {
+          "depth": 2,
+          "text": "Required P0-3 tests",
+          "line": 39,
+          "slug": "required-p0-3-tests"
+        },
+        {
+          "depth": 2,
+          "text": "Normalized safe envelope samples",
+          "line": 58,
+          "slug": "normalized-safe-envelope-samples"
+        },
+        {
+          "depth": 2,
+          "text": "Final local gate results",
+          "line": 72,
+          "slug": "final-local-gate-results"
+        },
+        {
+          "depth": 2,
+          "text": "GitNexus staged change review",
+          "line": 88,
+          "slug": "gitnexus-staged-change-review"
+        },
+        {
+          "depth": 2,
+          "text": "Append-only and privacy review",
+          "line": 109,
+          "slug": "append-only-and-privacy-review"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates and ownership boundaries",
+          "line": 126,
+          "slug": "residual-gates-and-ownership-boundaries"
+        }
+      ],
+      "links": [],
+      "lines": 137,
+      "words": 1061,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "integration-requirements/00-index.md",
       "title": "Integration Requirements — Index (IVR Order Confirmation)",
       "frontmatter": {},
@@ -218984,19 +219046,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 203,
+          "line": 209,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 224,
+          "line": 230,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 373,
-      "words": 5230,
+      "lines": 397,
+      "words": 5692,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -226058,31 +226120,31 @@
         {
           "depth": 2,
           "text": "Safety baseline",
-          "line": 10,
+          "line": 11,
           "slug": "safety-baseline"
         },
         {
           "depth": 2,
           "text": "Components",
-          "line": 27,
+          "line": 37,
           "slug": "components"
         },
         {
           "depth": 2,
           "text": "Prerequisites",
-          "line": 52,
+          "line": 64,
           "slug": "prerequisites"
         },
         {
           "depth": 2,
           "text": "Run locally",
-          "line": 58,
+          "line": 70,
           "slug": "run-locally"
         },
         {
           "depth": 2,
           "text": "Verify",
-          "line": 97,
+          "line": 109,
           "slug": "verify"
         }
       ],
@@ -226095,13 +226157,13 @@
         },
         {
           "kind": "markdown",
-          "text": "the CI runbook",
+          "text": "the CI\nrunbook",
           "rawTarget": "deploy/ci/README.md",
-          "line": 111
+          "line": 124
         }
       ],
-      "lines": 112,
-      "words": 331,
+      "lines": 126,
+      "words": 417,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -226109,7 +226171,7 @@
           "to": "deploy/ci/README.md",
           "kind": "markdown",
           "rawTarget": "deploy/ci/README.md",
-          "line": 111
+          "line": 124
         }
       ],
       "unresolvedLinks": [],
@@ -232729,7 +232791,7 @@
       "to": "deploy/ci/README.md",
       "kind": "markdown",
       "rawTarget": "deploy/ci/README.md",
-      "line": 111
+      "line": 124
     },
     {
       "from": "specs/02-business-goals.md",
@@ -233231,6 +233293,7 @@
       "CLAUDE.md",
       "docs/evidence/W-0010/README.md",
       "docs/evidence/W-0011/README.md",
+      "docs/evidence/W-0012/README.md",
       "plan/ivr-orther/_archive/01-reading-inventory.md",
       "plan/ivr-orther/_archive/08-target-specs-structure-proposal.md",
       "prompt/_review/phase-0-11-spec-alignment-review.md",

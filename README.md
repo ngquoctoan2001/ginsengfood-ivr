@@ -2,10 +2,11 @@
 
 [![GitLab pipeline](https://img.shields.io/badge/GitLab_pipeline-NOT_RUN-lightgrey)](deploy/ci/README.md#gitlab-project-settings--hosted-evidence)
 
-Standalone .NET 10 service for IVR order confirmation. This P0-1 bootstrap has
-health probes, an empty worker, an empty EF Core PostgreSQL context, and a
-Next.js admin placeholder. It contains no order-confirmation business logic and
-does not connect to the Java sales platform, a SIM, or a customer.
+Standalone .NET 10 service for IVR order confirmation. The foundation includes
+health probes, cross-cutting security and traceability primitives, an empty
+worker, an empty EF Core PostgreSQL context, and a Next.js admin placeholder.
+It contains no order-confirmation business logic and does not connect to the
+Java sales platform, a SIM, or a customer.
 
 ## Safety baseline
 
@@ -17,6 +18,15 @@ SALES_PROVIDER=FAKE_TARGET_V1
 SIM_PROVIDER=MOCK
 REAL_CUSTOMER_CALL_ALLOWED=NO
 ConnectionStrings__IvrDb=Host=localhost;Port=55433;Database=ivr;Username=ivr
+```
+
+`ORDER_CORE_SERVICE_TOKEN` is required by the API allowlist and must be injected
+through the process environment or a secret provider. It is deliberately absent
+from `appsettings*.json` and tracked files. For a local MOCK process, set a
+disposable value without writing it to disk:
+
+```powershell
+$env:ORDER_CORE_SERVICE_TOKEN = Read-Host "Local MOCK Order Core token"
 ```
 
 Do not introduce real provider credentials, customer data, shared Java entities,
@@ -38,10 +48,12 @@ Ivr.Worker -----------------+
    +----> Ivr.Contracts
 ```
 
-- `Ivr.Api`: `/health/live`, `/health/ready`, and `/health/startup`.
+- `Ivr.Api`: health probes plus reusable correlation, stable error envelope,
+  permission enforcement, and the Order Core service allowlist.
 - `Ivr.Worker`: mock heartbeat every 30 seconds.
-- `Ivr.Infrastructure`: empty `IvrDbContext`; migrations begin in P1-2.
-- `Ivr.Domain`: empty business boundary.
+- `Ivr.Infrastructure`: in-memory MOCK idempotency, append-only audit and
+  evidence stores; the empty `IvrDbContext` receives migrations in P1-2.
+- `Ivr.Domain`: stable error catalog and PII masking/guard primitives.
 - `Ivr.Contracts`: reserved for the P1-1 generated OpenAPI client and DTOs.
 - `admin-ui`: strict TypeScript App Router placeholder; authentication begins
   in P3-1.
@@ -105,7 +117,9 @@ npm --prefix admin-ui run build
 docker compose -f docker-compose.dev.yml config --quiet
 ```
 
-Expected test IDs are `UT-BOOT-01`, `IT-BOOT-02`, and `UT-BOOT-03`. CI is
-implemented by P0-2 using GitLab CI. Until W-0061 provisions the GitLab project,
-runner, protected branch, and merge checks, the badge and hosted evidence remain
-`NOT_RUN`; see [the CI runbook](deploy/ci/README.md).
+Foundation test IDs include `UT-BOOT-01`, `IT-BOOT-02`, `UT-BOOT-03`, and the
+`UT-FND-*` suite for configuration, idempotency, correlation, RBAC, service
+allowlisting, error envelopes, audit, and PII. CI is implemented by P0-2 using
+GitLab CI. Until W-0061 provisions the GitLab project, runner, protected branch,
+and merge checks, the badge and hosted evidence remain `NOT_RUN`; see [the CI
+runbook](deploy/ci/README.md).

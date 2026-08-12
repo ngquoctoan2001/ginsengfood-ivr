@@ -1,4 +1,6 @@
 using System.Net;
+using Ivr.Api.Auth;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Ivr.IntegrationTests;
@@ -16,7 +18,12 @@ public sealed class HealthEndpointsTests
     [Trait("TestId", "IT-BOOT-02")]
     public async Task BootstrapHealthEndpointsReturnJsonAndHttp200()
     {
-        await using WebApplicationFactory<Program> application = new();
+        await using WebApplicationFactory<Program> baselineApplication = new();
+        await using WebApplicationFactory<Program> application =
+            baselineApplication.WithWebHostBuilder(
+                builder => builder.UseSetting(
+                    OrderCoreAllowlistOptions.TokenConfigurationKey,
+                    FoundationApiTestApplication.ServiceToken));
         using HttpClient client = application.CreateClient();
 
         foreach (string path in ProbePaths)
