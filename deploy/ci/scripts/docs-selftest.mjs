@@ -118,6 +118,12 @@ async function assertCiTopology() {
   }
   const pages = fragment.api_docs_pages;
   assert(pages.pages === true, "api_docs_pages must be an explicit GitLab Pages job.");
+  assert(
+    (pages.script ?? []).some((line) =>
+      String(line).includes("docs:build -- --output ../../public"),
+    ),
+    "Pages output must resolve to the repository-root public directory when npm --prefix deploy/ci is used.",
+  );
   assert(pages.environment?.deployment_tier === "development", "API docs environment must be non-production.");
   assert(
     (pages.rules ?? []).some((rule) => String(rule.if ?? "").includes("API_DOCS_PUBLISH_NONPROD")),
