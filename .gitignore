@@ -31,3 +31,5 @@ pgdata/
 .vscode/
 .DS_Store
 Thumbs.db
+
+.codex-doc-memory

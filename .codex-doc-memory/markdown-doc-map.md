@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-13T01:41:57.173Z
+Generated: 2026-08-13T03:07:40.796Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 398
-- Links resolved: 369
+- Markdown files: 405
+- Links resolved: 372
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 33
+- Orphan candidates: 36
 
 ## High Link Documents
 
@@ -36,11 +36,11 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/_archive/13-seed-and-mock-strategy-plan.md | 13 — Seed & Mock Strategy Plan | 2 | 2 | 744 |
 | plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1 | 3 | 379 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 4 | 0 | 1749 |
+| docs/api-changelog.md | IVR API Contract Changelog | 0 | 3 | 208 |
 | plan/ivr-orther/_archive/02-current-understanding.md | 02 — Current Understanding | 1 | 2 | 1078 |
 | plan/ivr-orther/_archive/05-sales-platform-analysis-plan.md | 05 — Sales Platform Analysis Plan (Module 3 / 3.1) | 0 | 3 | 503 |
 | plan/ivr-orther/_archive/15-open-questions.md | 15 — Open Questions | 2 | 1 | 1079 |
 | specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 3 | 0 | 1035 |
-| plan/ivr-orther/_archive/03-ivr-related-findings.md | 03 — IVR-Related Findings | 0 | 2 | 769 |
 
 ## Duplicate Titles
 
@@ -88,6 +88,9 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0014/README.md
 - docs/evidence/W-0015/README.md
 - docs/evidence/W-0016/README.md
+- docs/evidence/W-0017/README.md
+- docs/evidence/W-0061/README.md
+- docs/integration-guide.md
 - plan/ivr-orther/_archive/01-reading-inventory.md
 - plan/ivr-orther/_archive/08-target-specs-structure-proposal.md
 - prompt/_review/phase-0-11-spec-alignment-review.md
@@ -105,19 +108,23 @@ Root: C:\Users\Administrator\Desktop\ivr
 
 | File | Title | H1/Headings | Incoming | Outgoing | Unresolved | Words |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| .claude/skills/gitnexus/gitnexus-cli/SKILL.md | GitNexus CLI Commands | 1/9 | 0 | 0 | 0 | 581 |
-| .claude/skills/gitnexus/gitnexus-debugging/SKILL.md | Debugging with GitNexus | 1/7 | 0 | 0 | 0 | 264 |
+| .claude/skills/gitnexus/gitnexus-cli/SKILL.md | GitNexus CLI Commands | 1/9 | 0 | 0 | 0 | 483 |
+| .claude/skills/gitnexus/gitnexus-debugging/SKILL.md | Debugging with GitNexus | 1/7 | 0 | 0 | 0 | 201 |
 | .claude/skills/gitnexus/gitnexus-exploring/SKILL.md | Exploring Codebases with GitNexus | 1/7 | 0 | 0 | 0 | 178 |
-| .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/10 | 0 | 0 | 0 | 1015 |
+| .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/6 | 0 | 0 | 0 | 381 |
 | .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md | Impact Analysis with GitNexus | 1/8 | 0 | 0 | 0 | 225 |
 | .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md | Refactoring with GitNexus | 1/10 | 0 | 0 | 0 | 187 |
 | .gitlab/merge_request_templates/Default.md | IVR change traceability | 1/4 | 0 | 0 | 0 | 209 |
 | admin-ui/AGENTS.md | This is NOT the Next.js you know | 1/1 | 0 | 0 | 0 | 95 |
 | admin-ui/CLAUDE.md | CLAUDE | 0/0 | 0 | 0 | 0 | 1 |
 | admin-ui/README.md | IVR Admin UI | 1/2 | 0 | 0 | 0 | 90 |
-| AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
-| CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
-| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 834 |
+| AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
+| CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
+| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 1009 |
+| docs/api/changelog/ivr-order-confirmation.md | API Changelog 1.0.0 vs. 1.0.0 | 1/1 | 1 | 0 | 0 | 9 |
+| docs/api/changelog/order-core-ivr-callback.md | API Changelog 1.0.0-draft vs. 1.0.0-draft | 1/1 | 1 | 0 | 0 | 9 |
+| docs/api-changelog.md | IVR API Contract Changelog | 1/3 | 0 | 3 | 0 | 208 |
+| docs/api-versioning.md | IVR API Versioning and Deprecation Policy | 1/7 | 1 | 0 | 0 | 422 |
 | docs/contracts/openapi-codegen.md | OpenAPI Code Generation and Contract Drift Policy | 1/6 | 0 | 0 | 0 | 429 |
 | docs/contracts/openapi-contract-diff.md | OpenAPI Contract Baseline and Human-Readable Diff | 1/5 | 0 | 0 | 0 | 383 |
 | docs/documents/0. appendices/01-OPERATIONAL-FORMS.md | OPERATIONAL FORMS | 1/16 | 1 | 0 | 0 | 3384 |
@@ -305,6 +312,9 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0014/README.md | W-0014 — P1-1 OpenAPI Codegen and Contract Scaffold Evidence | 1/8 | 0 | 0 | 0 | 1030 |
 | docs/evidence/W-0015/README.md | W-0015 / P1-2 PostgreSQL persistence evidence | 1/7 | 0 | 0 | 0 | 702 |
 | docs/evidence/W-0016/README.md | W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards | 1/8 | 0 | 0 | 0 | 752 |
+| docs/evidence/W-0017/README.md | W-0017 / P1-4 API documentation portal evidence | 1/8 | 0 | 0 | 0 | 560 |
+| docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/6 | 0 | 0 | 0 | 406 |
+| docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
 | integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/4 | 0 | 5 | 0 | 224 |
 | integration-requirements/01-sales-platform-requirements.md | IR-01 — Sales Platform / Order Core Requirements | 1/8 | 1 | 0 | 0 | 692 |
 | integration-requirements/02-ops-core-requirements.md | IR-02 — Ops-Core Requirements (Module 1/2) | 1/3 | 1 | 0 | 0 | 457 |
@@ -352,7 +362,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 7483 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 8726 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
@@ -368,8 +378,8 @@ Root: C:\Users\Administrator\Desktop\ivr
 | prompt/_TEMPLATE.md | PROMPT {ID} — {Tên slice} | 1/16 | 0 | 0 | 0 | 857 |
 | prompt/00-index.md | IVR Prompt Library — Master Index | 1/10 | 1 | 59 | 0 | 783 |
 | prompt/phase-0-foundation/P0-1-repo-and-solution-bootstrap.md | PROMPT P0-1 — Repo & Solution Bootstrap | 1/14 | 1 | 0 | 0 | 913 |
-| prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md | PROMPT P0-2 — CI Baseline & Quality Gates | 1/14 | 1 | 0 | 0 | 1859 |
-| prompt/phase-0-foundation/P0-3-crosscutting-foundation.md | PROMPT P0-3 — Cross-Cutting Foundation | 1/14 | 1 | 0 | 0 | 1069 |
+| prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md | PROMPT P0-2 — CI Baseline & Quality Gates | 1/14 | 1 | 0 | 0 | 2112 |
+| prompt/phase-0-foundation/P0-3-crosscutting-foundation.md | PROMPT P0-3 — Cross-Cutting Foundation | 1/14 | 1 | 0 | 0 | 1083 |
 | prompt/phase-0-foundation/P0-4-feature-flag-config-platform.md | PROMPT P0-4 — Feature-Flag & Dynamic Config Platform | 1/14 | 1 | 0 | 0 | 1098 |
 | prompt/phase-1-contracts-data/P1-1-openapi-codegen-contract-scaffold.md | PROMPT P1-1 — Target/Compat OpenAPI, Codegen and Contract Scaffold | 1/8 | 1 | 0 | 0 | 306 |
 | prompt/phase-1-contracts-data/P1-2-database-migrations-postgres.md | PROMPT P1-2 — PostgreSQL/EF Core Persistence for Target V1 | 1/7 | 1 | 0 | 0 | 227 |
@@ -440,7 +450,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/api/03-admin-api.md | API-03 — Admin API | 1/7 | 1 | 0 | 0 | 558 |
 | specs/api/04-sim-adapter-contract.md | API-04 — SIM Adapter Contract (Internal — Adapter Port) | 1/6 | 1 | 0 | 0 | 542 |
 | specs/api/05-order-core-contracts.md | API-05 — Sales Platform Contracts | 1/6 | 2 | 0 | 0 | 312 |
-| specs/api/06-error-codes.md | API-06 — Error Codes | 1/9 | 1 | 0 | 0 | 827 |
+| specs/api/06-error-codes.md | API-06 — Error Codes | 1/9 | 1 | 0 | 0 | 850 |
 | specs/api/07-idempotency-and-correlation.md | API-07 — Idempotency & Correlation | 1/5 | 1 | 0 | 0 | 330 |
 | specs/api/08-external-api-needs.md | API-08 — External API Needs | 1/4 | 1 | 0 | 0 | 136 |
 | specs/architecture/00-index.md | Architecture SRS — Index | 1/1 | 0 | 7 | 0 | 98 |

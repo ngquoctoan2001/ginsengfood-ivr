@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T01:41:57.173Z",
+  "generatedAt": "2026-08-13T03:07:40.796Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -19,62 +19,55 @@
         {
           "depth": 2,
           "text": "Commands",
-          "line": 12,
+          "line": 10,
           "slug": "commands"
         },
         {
           "depth": 3,
           "text": "analyze — Build or refresh the index",
-          "line": 14,
+          "line": 12,
           "slug": "analyze-build-or-refresh-the-index"
         },
         {
           "depth": 3,
           "text": "status — Check index freshness",
-          "line": 30,
+          "line": 28,
           "slug": "status-check-index-freshness"
         },
         {
           "depth": 3,
           "text": "clean — Delete the index",
-          "line": 38,
+          "line": 36,
           "slug": "clean-delete-the-index"
         },
         {
           "depth": 3,
           "text": "wiki — Generate documentation from the graph",
-          "line": 51,
+          "line": 49,
           "slug": "wiki-generate-documentation-from-the-graph"
         },
         {
           "depth": 3,
           "text": "list — Show all indexed repos",
-          "line": 68,
+          "line": 66,
           "slug": "list-show-all-indexed-repos"
         },
         {
           "depth": 2,
           "text": "After Indexing",
-          "line": 76,
+          "line": 74,
           "slug": "after-indexing"
         },
         {
           "depth": 2,
           "text": "Troubleshooting",
-          "line": 81,
+          "line": 79,
           "slug": "troubleshooting"
         }
       ],
-      "links": [
-        {
-          "kind": "markdown",
-          "text": "#1939",
-          "rawTarget": "https://github.com/abhigyanpatwari/GitNexus/issues/1939",
-          "line": 10
-        }
-      ],
-      "lines": 86,
-      "words": 581,
+      "links": [],
+      "lines": 84,
+      "words": 483,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -121,19 +114,19 @@
         {
           "depth": 2,
           "text": "Tools",
-          "line": 50,
+          "line": 49,
           "slug": "tools"
         },
         {
           "depth": 2,
           "text": "Example: \"Payment endpoint returns 500 intermittently\"",
-          "line": 87,
+          "line": 75,
           "slug": "example-payment-endpoint-returns-500-intermittently"
         }
       ],
       "links": [],
-      "lines": 102,
-      "words": 264,
+      "lines": 90,
+      "words": 201,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -231,45 +224,21 @@
           "slug": "tools-reference"
         },
         {
-          "depth": 3,
-          "text": "Paginating `list_repos`",
-          "line": 47,
-          "slug": "paginating-listrepos"
-        },
-        {
-          "depth": 3,
-          "text": "Taint findings (`explain`)",
-          "line": 78,
-          "slug": "taint-findings-explain"
-        },
-        {
-          "depth": 3,
-          "text": "Control & data dependence (`pdg_query`)",
-          "line": 88,
-          "slug": "control-data-dependence-pdgquery"
-        },
-        {
-          "depth": 3,
-          "text": "Shortest path between two symbols (`trace`)",
-          "line": 97,
-          "slug": "shortest-path-between-two-symbols-trace"
-        },
-        {
           "depth": 2,
           "text": "Resources Reference",
-          "line": 107,
+          "line": 43,
           "slug": "resources-reference"
         },
         {
           "depth": 2,
           "text": "Graph Schema",
-          "line": 120,
+          "line": 56,
           "slug": "graph-schema"
         }
       ],
       "links": [],
-      "lines": 129,
-      "words": 1015,
+      "lines": 65,
+      "words": 381,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -534,25 +503,25 @@
         {
           "depth": 2,
           "text": "Never Do",
-          "line": 17,
+          "line": 16,
           "slug": "never-do"
         },
         {
           "depth": 2,
           "text": "Resources",
-          "line": 24,
+          "line": 23,
           "slug": "resources"
         },
         {
           "depth": 2,
           "text": "CLI",
-          "line": 33,
+          "line": 32,
           "slug": "cli"
         }
       ],
       "links": [],
-      "lines": 45,
-      "words": 381,
+      "lines": 44,
+      "words": 340,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -578,25 +547,25 @@
         {
           "depth": 2,
           "text": "Never Do",
-          "line": 17,
+          "line": 16,
           "slug": "never-do"
         },
         {
           "depth": 2,
           "text": "Resources",
-          "line": 24,
+          "line": 23,
           "slug": "resources"
         },
         {
           "depth": 2,
           "text": "CLI",
-          "line": 33,
+          "line": 32,
           "slug": "cli"
         }
       ],
       "links": [],
-      "lines": 45,
-      "words": 381,
+      "lines": 44,
+      "words": 340,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -628,31 +597,31 @@
         {
           "depth": 2,
           "text": "PII artifact topology",
-          "line": 50,
+          "line": 60,
           "slug": "pii-artifact-topology"
         },
         {
           "depth": 2,
           "text": "Negative pipeline switches",
-          "line": 72,
+          "line": 85,
           "slug": "negative-pipeline-switches"
         },
         {
           "depth": 2,
           "text": "Local verification",
-          "line": 87,
+          "line": 100,
           "slug": "local-verification"
         },
         {
           "depth": 2,
           "text": "GitLab project settings — hosted evidence",
-          "line": 138,
+          "line": 158,
           "slug": "gitlab-project-settings-hosted-evidence"
         }
       ],
       "links": [],
-      "lines": 160,
-      "words": 834,
+      "lines": 180,
+      "words": 1009,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -663,6 +632,199 @@
           "kind": "markdown",
           "rawTarget": "deploy/ci/README.md",
           "line": 129
+        }
+      ]
+    },
+    {
+      "path": "docs/api/changelog/ivr-order-confirmation.md",
+      "title": "API Changelog 1.0.0 vs. 1.0.0",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "API Changelog 1.0.0 vs. 1.0.0",
+          "line": 1,
+          "slug": "api-changelog-100-vs-100"
+        }
+      ],
+      "links": [],
+      "lines": 5,
+      "words": 9,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": [
+        {
+          "from": "docs/api-changelog.md",
+          "to": "docs/api/changelog/ivr-order-confirmation.md",
+          "kind": "markdown",
+          "rawTarget": "api/changelog/ivr-order-confirmation.md",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "path": "docs/api/changelog/order-core-ivr-callback.md",
+      "title": "API Changelog 1.0.0-draft vs. 1.0.0-draft",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "API Changelog 1.0.0-draft vs. 1.0.0-draft",
+          "line": 1,
+          "slug": "api-changelog-100-draft-vs-100-draft"
+        }
+      ],
+      "links": [],
+      "lines": 5,
+      "words": 9,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": [
+        {
+          "from": "docs/api-changelog.md",
+          "to": "docs/api/changelog/order-core-ivr-callback.md",
+          "kind": "markdown",
+          "rawTarget": "api/changelog/order-core-ivr-callback.md",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "path": "docs/api-changelog.md",
+      "title": "IVR API Contract Changelog",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "IVR API Contract Changelog",
+          "line": 1,
+          "slug": "ivr-api-contract-changelog"
+        },
+        {
+          "depth": 2,
+          "text": "Current comparisons",
+          "line": 11,
+          "slug": "current-comparisons"
+        },
+        {
+          "depth": 2,
+          "text": "Change procedure",
+          "line": 21,
+          "slug": "change-procedure"
+        }
+      ],
+      "links": [
+        {
+          "kind": "markdown",
+          "text": "IVR API changelog",
+          "rawTarget": "api/changelog/ivr-order-confirmation.md",
+          "line": 15
+        },
+        {
+          "kind": "markdown",
+          "text": "Sales callback changelog",
+          "rawTarget": "api/changelog/order-core-ivr-callback.md",
+          "line": 16
+        },
+        {
+          "kind": "markdown",
+          "text": "API versioning policy",
+          "rawTarget": "api-versioning.md",
+          "line": 26
+        }
+      ],
+      "lines": 29,
+      "words": 208,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [
+        {
+          "from": "docs/api-changelog.md",
+          "to": "docs/api/changelog/ivr-order-confirmation.md",
+          "kind": "markdown",
+          "rawTarget": "api/changelog/ivr-order-confirmation.md",
+          "line": 15
+        },
+        {
+          "from": "docs/api-changelog.md",
+          "to": "docs/api/changelog/order-core-ivr-callback.md",
+          "kind": "markdown",
+          "rawTarget": "api/changelog/order-core-ivr-callback.md",
+          "line": 16
+        },
+        {
+          "from": "docs/api-changelog.md",
+          "to": "docs/api-versioning.md",
+          "kind": "markdown",
+          "rawTarget": "api-versioning.md",
+          "line": 26
+        }
+      ],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/api-versioning.md",
+      "title": "IVR API Versioning and Deprecation Policy",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "IVR API Versioning and Deprecation Policy",
+          "line": 1,
+          "slug": "ivr-api-versioning-and-deprecation-policy"
+        },
+        {
+          "depth": 2,
+          "text": "Contract identity",
+          "line": 5,
+          "slug": "contract-identity"
+        },
+        {
+          "depth": 2,
+          "text": "SemVer rules",
+          "line": 11,
+          "slug": "semver-rules"
+        },
+        {
+          "depth": 2,
+          "text": "Lifecycle",
+          "line": 26,
+          "slug": "lifecycle"
+        },
+        {
+          "depth": 2,
+          "text": "Deprecation response headers",
+          "line": 36,
+          "slug": "deprecation-response-headers"
+        },
+        {
+          "depth": 2,
+          "text": "Grace period",
+          "line": 49,
+          "slug": "grace-period"
+        },
+        {
+          "depth": 2,
+          "text": "Portal publication",
+          "line": 55,
+          "slug": "portal-publication"
+        }
+      ],
+      "links": [],
+      "lines": 61,
+      "words": 422,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": [
+        {
+          "from": "docs/api-changelog.md",
+          "to": "docs/api-versioning.md",
+          "kind": "markdown",
+          "rawTarget": "api-versioning.md",
+          "line": 26
         }
       ]
     },
@@ -214854,6 +215016,204 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0017/README.md",
+      "title": "W-0017 / P1-4 API documentation portal evidence",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0017 / P1-4 API documentation portal evidence",
+          "line": 1,
+          "slug": "w-0017-p1-4-api-documentation-portal-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Delivered scope",
+          "line": 9,
+          "slug": "delivered-scope"
+        },
+        {
+          "depth": 2,
+          "text": "Primary artifacts",
+          "line": 23,
+          "slug": "primary-artifacts"
+        },
+        {
+          "depth": 2,
+          "text": "Contract boundaries shown by the portal",
+          "line": 39,
+          "slug": "contract-boundaries-shown-by-the-portal"
+        },
+        {
+          "depth": 2,
+          "text": "Required P1-4 tests",
+          "line": 47,
+          "slug": "required-p1-4-tests"
+        },
+        {
+          "depth": 2,
+          "text": "Commands and observed results",
+          "line": 59,
+          "slug": "commands-and-observed-results"
+        },
+        {
+          "depth": 2,
+          "text": "Visual check",
+          "line": 105,
+          "slug": "visual-check"
+        },
+        {
+          "depth": 2,
+          "text": "Hosted and runtime evidence not claimed",
+          "line": 112,
+          "slug": "hosted-and-runtime-evidence-not-claimed"
+        }
+      ],
+      "links": [],
+      "lines": 124,
+      "words": 560,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0061/README.md",
+      "title": "W-0061 — GitLab platform provisioning evidence",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0061 — GitLab platform provisioning evidence",
+          "line": 1,
+          "slug": "w-0061-gitlab-platform-provisioning-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Confirmed external progress",
+          "line": 9,
+          "slug": "confirmed-external-progress"
+        },
+        {
+          "depth": 2,
+          "text": "First hosted pipeline result",
+          "line": 17,
+          "slug": "first-hosted-pipeline-result"
+        },
+        {
+          "depth": 2,
+          "text": "Remediation in this change",
+          "line": 27,
+          "slug": "remediation-in-this-change"
+        },
+        {
+          "depth": 2,
+          "text": "Local verification",
+          "line": 36,
+          "slug": "local-verification"
+        },
+        {
+          "depth": 2,
+          "text": "Residual W-0061 checklist",
+          "line": 52,
+          "slug": "residual-w-0061-checklist"
+        }
+      ],
+      "links": [],
+      "lines": 67,
+      "words": 406,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/integration-guide.md",
+      "title": "IVR Integration Guide — Order Core, Ops and CRM",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "IVR Integration Guide — Order Core, Ops and CRM",
+          "line": 1,
+          "slug": "ivr-integration-guide-order-core-ops-and-crm"
+        },
+        {
+          "depth": 2,
+          "text": "Read this first",
+          "line": 5,
+          "slug": "read-this-first"
+        },
+        {
+          "depth": 2,
+          "text": "Target task intake",
+          "line": 18,
+          "slug": "target-task-intake"
+        },
+        {
+          "depth": 2,
+          "text": "Target result callback",
+          "line": 47,
+          "slug": "target-result-callback"
+        },
+        {
+          "depth": 2,
+          "text": "Current Golden Hour compatibility",
+          "line": 69,
+          "slug": "current-golden-hour-compatibility"
+        },
+        {
+          "depth": 2,
+          "text": "Errors and traceability",
+          "line": 82,
+          "slug": "errors-and-traceability"
+        },
+        {
+          "depth": 2,
+          "text": "Team handoff checklist",
+          "line": 90,
+          "slug": "team-handoff-checklist"
+        },
+        {
+          "depth": 3,
+          "text": "Order Core / Sales",
+          "line": 92,
+          "slug": "order-core-sales"
+        },
+        {
+          "depth": 3,
+          "text": "Ops",
+          "line": 99,
+          "slug": "ops"
+        },
+        {
+          "depth": 3,
+          "text": "CRM",
+          "line": 104,
+          "slug": "crm"
+        },
+        {
+          "depth": 3,
+          "text": "IVR",
+          "line": 109,
+          "slug": "ivr"
+        },
+        {
+          "depth": 2,
+          "text": "Local developer commands",
+          "line": 116,
+          "slug": "local-developer-commands"
+        }
+      ],
+      "links": [],
+      "lines": 129,
+      "words": 644,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "integration-requirements/00-index.md",
       "title": "Integration Requirements — Index (IVR Order Confirmation)",
       "frontmatter": {},
@@ -219364,31 +219724,31 @@
         {
           "depth": 2,
           "text": "6. Unplanned work insertion template",
-          "line": 144,
+          "line": 150,
           "slug": "6-unplanned-work-insertion-template"
         },
         {
           "depth": 2,
           "text": "7. Activity log (append-only)",
-          "line": 156,
+          "line": 162,
           "slug": "7-activity-log-append-only"
         },
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 233,
+          "line": 257,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 254,
+          "line": 278,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 476,
-      "words": 7483,
+      "lines": 518,
+      "words": 8726,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -221490,43 +221850,43 @@
         {
           "depth": 2,
           "text": "7. OUTPUT ARTIFACTS",
-          "line": 97,
+          "line": 99,
           "slug": "7-output-artifacts"
         },
         {
           "depth": 2,
           "text": "8. TESTS TO WRITE",
-          "line": 110,
+          "line": 112,
           "slug": "8-tests-to-write"
         },
         {
           "depth": 2,
           "text": "9. REVIEW / ACCEPTANCE GATE",
-          "line": 127,
+          "line": 132,
           "slug": "9-review-acceptance-gate"
         },
         {
           "depth": 2,
           "text": "10. EVIDENCE EXPECTED",
-          "line": 138,
+          "line": 145,
           "slug": "10-evidence-expected"
         },
         {
           "depth": 2,
           "text": "11. FORBIDDEN",
-          "line": 141,
+          "line": 148,
           "slug": "11-forbidden"
         },
         {
           "depth": 2,
           "text": "12. DEFINITION OF DONE",
-          "line": 147,
+          "line": 154,
           "slug": "12-definition-of-done"
         }
       ],
       "links": [],
-      "lines": 151,
-      "words": 1859,
+      "lines": 158,
+      "words": 2112,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -221632,7 +221992,7 @@
       ],
       "links": [],
       "lines": 99,
-      "words": 1069,
+      "words": 1083,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -227615,37 +227975,37 @@
         {
           "depth": 2,
           "text": "2. Business intake outcome codes (200 body — phase-8/04 §12)",
-          "line": 45,
+          "line": 46,
           "slug": "2-business-intake-outcome-codes-200-body-phase-804-12"
         },
         {
           "depth": 2,
           "text": "3. Result taxonomy (callback — functional/05 + DT-02)",
-          "line": 48,
+          "line": 49,
           "slug": "3-result-taxonomy-callback-functional05-dt-02"
         },
         {
           "depth": 2,
           "text": "4. Consume ops-core error codes (khi Order Core revalidate blocker — DO-06)",
-          "line": 51,
+          "line": 52,
           "slug": "4-consume-ops-core-error-codes-khi-order-core-revalidate-blocker-do-06"
         },
         {
           "depth": 2,
           "text": "5. Nguyên tắc",
-          "line": 65,
+          "line": 66,
           "slug": "5-nguyên-tắc"
         },
         {
           "depth": 2,
           "text": "Báo cáo (error)",
-          "line": 70,
+          "line": 71,
           "slug": "báo-cáo-error"
         }
       ],
       "links": [],
-      "lines": 73,
-      "words": 827,
+      "lines": 74,
+      "words": 850,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -230996,6 +231356,27 @@
   ],
   "edges": [
     {
+      "from": "docs/api-changelog.md",
+      "to": "docs/api/changelog/ivr-order-confirmation.md",
+      "kind": "markdown",
+      "rawTarget": "api/changelog/ivr-order-confirmation.md",
+      "line": 15
+    },
+    {
+      "from": "docs/api-changelog.md",
+      "to": "docs/api/changelog/order-core-ivr-callback.md",
+      "kind": "markdown",
+      "rawTarget": "api/changelog/order-core-ivr-callback.md",
+      "line": 16
+    },
+    {
+      "from": "docs/api-changelog.md",
+      "to": "docs/api-versioning.md",
+      "kind": "markdown",
+      "rawTarget": "api-versioning.md",
+      "line": 26
+    },
+    {
       "from": "docs/documents/00-DOC-READING-ORDER.md",
       "to": "docs/documents/00-AI-EVALUATION-DEV-READINESS.md",
       "kind": "markdown",
@@ -233630,6 +234011,9 @@
       "docs/evidence/W-0014/README.md",
       "docs/evidence/W-0015/README.md",
       "docs/evidence/W-0016/README.md",
+      "docs/evidence/W-0017/README.md",
+      "docs/evidence/W-0061/README.md",
+      "docs/integration-guide.md",
       "plan/ivr-orther/_archive/01-reading-inventory.md",
       "plan/ivr-orther/_archive/08-target-specs-structure-proposal.md",
       "prompt/_review/phase-0-11-spec-alignment-review.md",
