@@ -1,5 +1,6 @@
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
+using Ivr.Domain.Policies;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Persistence;
@@ -108,7 +109,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
 
     [Fact]
     [Trait("TestId", "IT-INTAKE-DB-02")]
-    public async Task RejectedTaskPersistsDecisionAuditButNoTaskJobOrOutbox()
+    public async Task RestrictedTaskPersistsPendingForEligibilityDecision()
     {
         await fixture.ResetAsync();
         IDbContextFactory<IvrDbContext> factory = fixture.Services
@@ -135,11 +136,14 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             new string('B', 64),
             ExecutionMode.Mock));
 
-        Assert.Equal(TaskIntakeDecisions.BlockedOperational, outcome.Decision);
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
-        Assert.Empty(await verification.ConfirmationTasks.ToListAsync());
-        Assert.Empty(await verification.CallJobs.ToListAsync());
-        Assert.Empty(await verification.TaskIntakeOutbox.ToListAsync());
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks.SingleAsync();
+        CallJobEntity job = await verification.CallJobs.SingleAsync();
+        Assert.True(task.CallRestriction);
+        Assert.False(job.Eligible);
+        Assert.Equal(EligibilityDecisions.Pending, job.EligibilityDecision);
+        Assert.Equal(1, await verification.TaskIntakeOutbox.CountAsync());
         Assert.Equal(1, await verification.IdempotencyKeys.CountAsync());
         AuditLogEntity audit = await verification.AuditLog.SingleAsync();
         Assert.DoesNotContain(source.Dial_token, audit.DataJson, StringComparison.Ordinal);

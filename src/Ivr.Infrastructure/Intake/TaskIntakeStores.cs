@@ -1,19 +1,21 @@
 using System.Data;
 using System.Text.Json;
 using Ivr.Domain.Errors;
+using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
 using Ivr.Domain.Retention;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Idempotency;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
+using Ivr.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ivr.Infrastructure.Intake;
 
 public sealed class InMemoryTaskIntakeStore(
     IAuditLogger auditLogger,
-    TimeProvider timeProvider) : ITaskIntakeStore, IDisposable
+    TimeProvider timeProvider) : ITaskIntakeStore, IEligibilityRepository, IDisposable
 {
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly Dictionary<string, StoredOutcome> byKey = new(StringComparer.Ordinal);
@@ -21,12 +23,19 @@ public sealed class InMemoryTaskIntakeStore(
     private readonly Dictionary<string, ConfirmationTaskEntity> tasks = new(StringComparer.Ordinal);
     private readonly Dictionary<string, CallJobEntity> jobs = new(StringComparer.Ordinal);
     private readonly Dictionary<Guid, TaskIntakeOutboxEntity> outbox = [];
+    private readonly Dictionary<string, CapacityIncidentEntity> capacityIncidents =
+        new(StringComparer.Ordinal);
+    private readonly List<EvidenceLinkEntity> evidenceLinks = [];
 
     public int TaskCount => tasks.Count;
 
     public int CallJobCount => jobs.Count;
 
     public int OutboxCount => outbox.Count;
+
+    public int CapacityIncidentCount => capacityIncidents.Count;
+
+    public int EvidenceLinkCount => evidenceLinks.Count;
 
     public async Task<TaskIntakeOutcome> ExecuteAsync(
         TaskIntakeCommand command,
@@ -75,6 +84,110 @@ public sealed class InMemoryTaskIntakeStore(
     }
 
     public void Dispose() => gate.Dispose();
+
+    public async Task<EligibilityTaskRecord?> FindAsync(
+        string taskId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
+        PiiGuard.EnsureSafeText(taskId);
+        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (!tasks.TryGetValue(taskId, out ConfirmationTaskEntity? task))
+            {
+                return null;
+            }
+
+            CallJobEntity job = jobs.Values.Single(item => item.TaskId == taskId);
+            TaskIntakeOutboxEntity intakeOutbox = outbox.Values
+                .Single(item => item.TaskId == taskId);
+            return new EligibilityTaskRecord(task, job, intakeOutbox);
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task<EligibilityEvaluation> PersistAsync(
+        string taskId,
+        EligibilityEvaluation evaluation,
+        EligibilityCapacitySnapshot capacity,
+        string correlationId,
+        CancellationToken cancellationToken = default)
+    {
+        PostgresEligibilityRepository.Validate(
+            taskId,
+            evaluation,
+            capacity,
+            correlationId);
+        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            ConfirmationTaskEntity task = tasks[taskId];
+            CallJobEntity job = jobs.Values.Single(item => item.TaskId == taskId);
+            if (!string.Equals(
+                    job.EligibilityDecision,
+                    EligibilityDecisions.Pending,
+                    StringComparison.Ordinal))
+            {
+                if (string.Equals(
+                        job.EligibilityDecision,
+                        evaluation.Decision,
+                        StringComparison.Ordinal))
+                {
+                    return evaluation with { CapacityIncidentId = job.CapacityIncidentId };
+                }
+
+                throw new InvalidOperationException(
+                    "The task already has a different eligibility decision.");
+            }
+
+            TaskIntakeOutboxEntity intakeOutbox = outbox.Values
+                .Single(item => item.TaskId == taskId);
+            EligibilityPersistenceArtifacts artifacts = EligibilityPersistence.Apply(
+                task,
+                job,
+                intakeOutbox,
+                evaluation,
+                capacity,
+                correlationId);
+            if (artifacts.CapacityIncident is not null)
+            {
+                capacityIncidents.Add(
+                    artifacts.CapacityIncident.CapacityIncidentId,
+                    artifacts.CapacityIncident);
+            }
+
+            evidenceLinks.AddRange(artifacts.EvidenceLinks);
+            await auditLogger.AppendAsync(
+                new AuditEvent(
+                    artifacts.Audit.ActorId,
+                    artifacts.Audit.Action,
+                    string.Concat("confirmation-task:", taskId),
+                    artifacts.Audit.Reason,
+                    correlationId,
+                    new Dictionary<string, object?>
+                    {
+                        ["decision"] = artifacts.Evaluation.Decision,
+                        ["eligible"] = artifacts.Evaluation.Eligible,
+                        ["reason_codes"] = artifacts.Evaluation.Reasons
+                            .Select(reason => reason.Code)
+                            .ToArray(),
+                        ["advisories"] = artifacts.Evaluation.Advisories,
+                        ["capacity_incident_id"] =
+                            artifacts.Evaluation.CapacityIncidentId,
+                        ["is_counted_customer_attempt"] = false,
+                    }),
+                cancellationToken).ConfigureAwait(false);
+            return artifacts.Evaluation;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
 
     private Task<AuditLogEntry> AppendAuditAsync(
         TaskIntakeCommand command,

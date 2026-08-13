@@ -2,6 +2,8 @@
 
 Status: `TESTS_PASS`. Đây là bằng chứng local `MOCK` và PostgreSQL disposable; không phải bằng chứng Sales thật, SIM/eSIM thật, LAB hay production.
 
+> Current ownership note (`W-0019/P2-2`, 2026-08-13): restriction/sellable quyết định sau intake tại eligibility gate. Các reject sample/count bên dưới ghi lại đúng baseline commit P2-1; runtime hiện tại persist restricted/blocker snapshot ở `PENDING_ELIGIBILITY` rồi P2-2 ghi decision/reason/evidence atomically.
+
 ## Phạm vi đã hoàn thành
 
 - `POST /v1/ivr/order-confirmation/tasks` nhận đúng Target V1, bắt buộc service-token/source allowlist, `Idempotency-Key` và `X-Correlation-Id`.

@@ -4,6 +4,7 @@ using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
 using Ivr.Domain.Scripts;
 using Ivr.Infrastructure.Configuration;
@@ -448,51 +449,16 @@ public sealed class TaskIntakeService(
         IvrConfirmationTaskV1 source,
         ExecutionMode mode)
     {
-        if (source.Call_restriction)
-        {
-            return Rejected(
-                source,
-                TaskIntakeDecisions.BlockedOperational,
-                "CALL_RESTRICTION_ACTIVE");
-        }
-
         JsonElement eligibility = JsonSerializer.SerializeToElement(
             source.Eligibility_snapshot);
-        if (eligibility.ValueKind != JsonValueKind.Object
-            || !eligibility.TryGetProperty("decision", out JsonElement decision)
-            || decision.ValueKind != JsonValueKind.String)
+        if (eligibility.ValueKind != JsonValueKind.Object)
         {
             return HeldPolicy(source, "ELIGIBILITY_EVIDENCE_MISSING");
         }
 
-        if (!string.Equals(decision.GetString(), "ELIGIBLE", StringComparison.Ordinal))
-        {
-            return Rejected(
-                source,
-                TaskIntakeDecisions.BlockedOperational,
-                "ELIGIBILITY_SNAPSHOT_BLOCKED");
-        }
-
-        if (source.Sellable_status is { Count: > 0 }
-            && source.Sellable_status.Any(line =>
-                line.Decision != SellableStatusLineDecision.SELLABLE
-                || line.Recall_hold != false
-                || line.Sale_lock != false
-                || line.Quality_hold != false
-                || line.Stock_available != true
-                || line.Batch_released != true
-                || line.Trace_ready != true))
-        {
-            return Rejected(
-                source,
-                TaskIntakeDecisions.BlockedOperational,
-                "SELLABLE_OR_TRACE_EVIDENCE_BLOCKED");
-        }
-
         if (mode != ExecutionMode.Mock
             && (string.IsNullOrWhiteSpace(source.Evidence_policy_version)
-                || string.IsNullOrWhiteSpace(source.Privacy_policy_version)
-                || source.Sellable_status is not { Count: > 0 }))
+                || string.IsNullOrWhiteSpace(source.Privacy_policy_version)))
         {
             return HeldPolicy(source, "NON_MOCK_DEPENDENCY_EVIDENCE_MISSING");
         }
@@ -612,13 +578,13 @@ public sealed class TaskIntakeService(
             CallScriptVersion = approvedScript.Version.Key.Version,
             EvidencePolicyVersion = evidencePolicy,
             PrivacyPolicyVersion = privacyPolicy,
-            EligibilityDecision = "ELIGIBLE",
+            EligibilityDecision = null,
             EligibilitySnapshotJson = eligibilityJson,
             SellableStatusJson = sellableJson,
             SellableCapturedAt = source.Sellable_status is { Count: > 0 }
                 ? source.Sellable_status.Max(line => line.Captured_at)
                 : null,
-            CallRestriction = false,
+            CallRestriction = source.Call_restriction,
             NotForQuoteCartDraft = true,
             NoDirectOrderUpdate = true,
             CreatedAt = now,
@@ -641,8 +607,8 @@ public sealed class TaskIntakeService(
             AttemptScheduleJson = scheduleJson,
             T0At = snapshot.ConfirmationWindow.StartedAt,
             ExpiresAt = snapshot.ConfirmationWindow.ExpiresAt,
-            Eligible = true,
-            EligibilityDecision = "ELIGIBLE",
+            Eligible = false,
+            EligibilityDecision = EligibilityDecisions.Pending,
             QueueStatus = command.ExecutionMode == ExecutionMode.Mock
                 ? "HELD_MOCK"
                 : "HELD_ELIGIBILITY",

@@ -1,3 +1,4 @@
+using Ivr.Api.Application;
 using Ivr.Api.Admin;
 using Ivr.Api.Foundation;
 using Ivr.Api.Health;
@@ -9,6 +10,7 @@ using Ivr.Infrastructure.FeatureFlags;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddIvrFoundation(builder.Configuration);
+builder.Services.AddIvrEligibility(builder.Configuration);
 builder.Services.AddIvrFeatureFlags(builder.Configuration);
 builder.Services.AddIvrApiFoundation(builder.Configuration);
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T12:02:23.280Z",
+  "generatedAt": "2026-08-13T13:03:54.130Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215122,49 +215122,105 @@
         {
           "depth": 2,
           "text": "Phạm vi đã hoàn thành",
-          "line": 5,
+          "line": 7,
           "slug": "phạm-vi-đã-hoàn-thành"
         },
         {
           "depth": 2,
           "text": "Response mẫu đã redacted",
-          "line": 18,
+          "line": 20,
           "slug": "response-mẫu-đã-redacted"
         },
         {
           "depth": 2,
           "text": "Test và DB assertions",
-          "line": 44,
+          "line": 46,
           "slug": "test-và-db-assertions"
         },
         {
           "depth": 2,
           "text": "Final local gate — 2026-08-13",
-          "line": 56,
+          "line": 58,
           "slug": "final-local-gate-2026-08-13"
         },
         {
           "depth": 2,
           "text": "Artifacts",
-          "line": 100,
+          "line": 102,
           "slug": "artifacts"
         },
         {
           "depth": 2,
           "text": "Residual gates",
-          "line": 107,
+          "line": 109,
           "slug": "residual-gates"
         },
         {
           "depth": 2,
           "text": "Commit/remote handoff",
-          "line": 115,
+          "line": 117,
           "slug": "commitremote-handoff"
         }
       ],
       "links": [],
-      "lines": 120,
-      "words": 569,
+      "lines": 122,
+      "words": 607,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0019/README.md",
+      "title": "W-0019 / P2-2 — Eligibility and Blockers",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0019 / P2-2 — Eligibility and Blockers",
+          "line": 1,
+          "slug": "w-0019-p2-2-eligibility-and-blockers"
+        },
+        {
+          "depth": 2,
+          "text": "Phạm vi đã hoàn thành",
+          "line": 5,
+          "slug": "phạm-vi-đã-hoàn-thành"
+        },
+        {
+          "depth": 2,
+          "text": "Decision samples đã redacted",
+          "line": 18,
+          "slug": "decision-samples-đã-redacted"
+        },
+        {
+          "depth": 2,
+          "text": "Tests",
+          "line": 54,
+          "slug": "tests"
+        },
+        {
+          "depth": 2,
+          "text": "Local gates — 2026-08-13",
+          "line": 69,
+          "slug": "local-gates-2026-08-13"
+        },
+        {
+          "depth": 2,
+          "text": "Artifacts",
+          "line": 104,
+          "slug": "artifacts"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates",
+          "line": 114,
+          "slug": "residual-gates"
+        }
+      ],
+      "links": [],
+      "lines": 122,
+      "words": 509,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -220187,19 +220243,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 284,
+          "line": 287,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 305,
+          "line": 308,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 620,
-      "words": 10629,
+      "lines": 641,
+      "words": 10844,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -234541,6 +234597,7 @@
       "docs/evidence/W-0016/README.md",
       "docs/evidence/W-0017/README.md",
       "docs/evidence/W-0018/README.md",
+      "docs/evidence/W-0019/README.md",
       "docs/evidence/W-0061/README.md",
       "docs/evidence/W-0085/README.md",
       "docs/evidence/W-0086/README.md",

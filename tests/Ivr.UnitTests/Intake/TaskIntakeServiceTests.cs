@@ -2,6 +2,7 @@ using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Policies;
 using Ivr.Domain.Scripts;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
@@ -76,9 +77,8 @@ public sealed class TaskIntakeServiceTests
     [Theory]
     [InlineData("unknown-policy", 2, false, "VALID", TaskIntakeDecisions.HeldPolicyMissing)]
     [InlineData(CandidateAttemptPolicies.Version, 3, false, "VALID", TaskIntakeDecisions.RejectedPolicyMismatch)]
-    [InlineData(CandidateAttemptPolicies.Version, 2, true, "VALID", TaskIntakeDecisions.BlockedOperational)]
     [InlineData(CandidateAttemptPolicies.Version, 2, false, "UNKNOWN", TaskIntakeDecisions.RejectedContactInvalid)]
-    public async Task PolicyRestrictionAndContactFailuresCreateNoJob(
+    public async Task PolicyAndContactFailuresCreateNoJob(
         string policyVersion,
         int maxAttempts,
         bool callRestriction,
@@ -99,6 +99,22 @@ public sealed class TaskIntakeServiceTests
         Assert.Equal(0, test.Store.TaskCount);
         Assert.Equal(0, test.Store.CallJobCount);
         Assert.Equal(0, test.Store.OutboxCount);
+    }
+
+    [Fact]
+    public async Task CallRestrictionIsPersistedPendingForEligibilityGate()
+    {
+        TestContext test = CreateContext();
+        IvrConfirmationTaskV1 source = CreateTask(callRestriction: true);
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+        var stored = await test.Store.FindAsync(source.Task_id);
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        Assert.NotNull(stored);
+        Assert.True(stored.Task.CallRestriction);
+        Assert.False(stored.CallJob.Eligible);
+        Assert.Equal(EligibilityDecisions.Pending, stored.CallJob.EligibilityDecision);
     }
 
     [Theory]

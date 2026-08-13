@@ -9,6 +9,7 @@ using Ivr.Infrastructure.Persistence.Channels;
 using Ivr.Infrastructure.Persistence.Outbox;
 using Ivr.Infrastructure.Persistence.Security;
 using Ivr.Infrastructure.Providers.Fakes;
+using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scripts;
 using Ivr.Domain.Scripts;
 using Ivr.Domain.Confirmation;
@@ -112,6 +113,8 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<InMemoryTaskIntakeStore>();
             services.TryAddSingleton<ITaskIntakeStore>(provider =>
                 provider.GetRequiredService<InMemoryTaskIntakeStore>());
+            services.TryAddSingleton<IEligibilityRepository>(provider =>
+                provider.GetRequiredService<InMemoryTaskIntakeStore>());
             services.TryAddSingleton<IOpaqueValueProtector, MockOnlyOpaqueValueProtector>();
         }
         else
@@ -132,6 +135,8 @@ public static class ServiceCollectionExtensions
                 provider => provider.GetRequiredService<PostgresScriptRegistry>());
             services.TryAddSingleton<IAttemptPolicyRegistry, PostgresAttemptPolicyRegistry>();
             services.TryAddSingleton<ITaskIntakeStore, PostgresTaskIntakeStore>();
+            services.TryAddSingleton<IEligibilityRepository,
+                PostgresEligibilityRepository>();
         }
 
         services.AddDbContextFactory<IvrDbContext>((serviceProvider, dbContextOptions) =>
