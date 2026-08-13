@@ -31,7 +31,7 @@ api_docs_pages:
   script:
     - npm --prefix deploy/ci ci --no-audit --no-fund
     - npm --prefix deploy/ci run test:docs
-    - npm --prefix deploy/ci run docs:build -- --output public
+    - npm --prefix deploy/ci run docs:build -- --output ../../public
   pages: true
   environment:
     name: api-docs-nonprod
