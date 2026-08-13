@@ -9,8 +9,10 @@ specs/api/08-external-api-needs.md:generic-api-key:19
 docs/api/portal-manifest.json:generic-api-key:21
 docs/api/ivr-order-confirmation-v1.html:generic-api-key:541
 docs/api/ivr-order-confirmation-v1.html:generic-api-key:553
-# Immutable historical documentation false positive from commit ab7de4d.
+# Immutable historical documentation false positives from early baseline commits.
+# Shallow hosted clones can expose either fingerprint at the depth boundary.
 ab7de4d59eb04eb9f172385a1ffa4d25023064e5:prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:generic-api-key:75
+b3a93aac90099169c1bc5df0afa6b216fa50a43c:prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:generic-api-key:75
 # Reviewed EF feature-flag seed false positives.
 src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:158
 src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:257

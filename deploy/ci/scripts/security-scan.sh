@@ -8,7 +8,14 @@ checksums="gitleaks_${gitleaks_version}_checksums.txt"
 release_base="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}"
 work_directory=$(mktemp -d)
 negative_file="$repository_root/.ci-secret-selftest.env"
+scan_commit="${CI_COMMIT_SHA:-HEAD}"
 trap 'rm -rf "$work_directory"; rm -f "$negative_file"' EXIT HUP INT TERM
+
+if ! git -C "$repository_root" rev-parse --verify --quiet \
+  "${scan_commit}^{commit}" >/dev/null; then
+  echo "Gitleaks scan commit is not a valid commit: $scan_commit" >&2
+  exit 1
+fi
 
 curl --fail --silent --show-error --location \
   "$release_base/$archive" \
@@ -66,6 +73,7 @@ fi
 
 "$work_directory/gitleaks" git "$repository_root" \
   --config "$repository_root/.gitleaks.toml" \
+  --log-opts="$scan_commit" \
   --no-banner --redact
 
 echo "SECURITY_SCAN_PASS gitleaks=$gitleaks_version nuget=HIGH npm=HIGH"

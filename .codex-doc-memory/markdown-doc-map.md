@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-13T07:09:48.584Z
+Generated: 2026-08-13T07:56:30.188Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 407
+- Markdown files: 408
 - Links resolved: 372
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 38
+- Orphan candidates: 39
 
 ## High Link Documents
 
@@ -91,6 +91,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0017/README.md
 - docs/evidence/W-0061/README.md
 - docs/evidence/W-0085/README.md
+- docs/evidence/W-0086/README.md
 - docs/integration-guide.md
 - docs/operations/gitlab-runner-winhost.md
 - plan/ivr-orther/_archive/01-reading-inventory.md
@@ -122,7 +123,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | admin-ui/README.md | IVR Admin UI | 1/2 | 0 | 0 | 0 | 90 |
 | AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
 | CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
-| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 1115 |
+| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 1154 |
 | docs/api/changelog/ivr-order-confirmation.md | API Changelog 1.0.0 vs. 1.0.0 | 1/1 | 1 | 0 | 0 | 9 |
 | docs/api/changelog/order-core-ivr-callback.md | API Changelog 1.0.0-draft vs. 1.0.0-draft | 1/1 | 1 | 0 | 0 | 9 |
 | docs/api-changelog.md | IVR API Contract Changelog | 1/3 | 0 | 3 | 0 | 208 |
@@ -315,8 +316,9 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0015/README.md | W-0015 / P1-2 PostgreSQL persistence evidence | 1/7 | 0 | 0 | 0 | 700 |
 | docs/evidence/W-0016/README.md | W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards | 1/8 | 0 | 0 | 0 | 756 |
 | docs/evidence/W-0017/README.md | W-0017 / P1-4 API documentation portal evidence | 1/8 | 0 | 0 | 0 | 700 |
-| docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1465 |
+| docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1502 |
 | docs/evidence/W-0085/README.md | W-0085 Linux ProjectReference path portability | 1/6 | 0 | 0 | 0 | 270 |
+| docs/evidence/W-0086/README.md | W-0086 — Shallow-clone Gitleaks fingerprint remediation | 1/4 | 0 | 0 | 0 | 349 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
 | docs/operations/gitlab-runner-winhost.md | GitLab self-hosted Docker runner on Windows | 1/8 | 0 | 0 | 0 | 676 |
 | integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/4 | 0 | 5 | 0 | 224 |
@@ -366,7 +368,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 9385 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 9695 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |

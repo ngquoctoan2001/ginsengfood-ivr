@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T07:09:48.584Z",
+  "generatedAt": "2026-08-13T07:56:30.188Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -597,31 +597,31 @@
         {
           "depth": 2,
           "text": "PII artifact topology",
-          "line": 71,
+          "line": 76,
           "slug": "pii-artifact-topology"
         },
         {
           "depth": 2,
           "text": "Negative pipeline switches",
-          "line": 96,
+          "line": 101,
           "slug": "negative-pipeline-switches"
         },
         {
           "depth": 2,
           "text": "Local verification",
-          "line": 111,
+          "line": 116,
           "slug": "local-verification"
         },
         {
           "depth": 2,
           "text": "GitLab project settings — hosted evidence",
-          "line": 169,
+          "line": 174,
           "slug": "gitlab-project-settings-hosted-evidence"
         }
       ],
       "links": [],
-      "lines": 192,
-      "words": 1115,
+      "lines": 197,
+      "words": 1154,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215168,8 +215168,8 @@
         }
       ],
       "links": [],
-      "lines": 187,
-      "words": 1465,
+      "lines": 192,
+      "words": 1502,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215220,6 +215220,44 @@
       "links": [],
       "lines": 69,
       "words": 270,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0086/README.md",
+      "title": "W-0086 — Shallow-clone Gitleaks fingerprint remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0086 — Shallow-clone Gitleaks fingerprint remediation",
+          "line": 1,
+          "slug": "w-0086-shallow-clone-gitleaks-fingerprint-remediation"
+        },
+        {
+          "depth": 2,
+          "text": "Failure evidence",
+          "line": 9,
+          "slug": "failure-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Remediation",
+          "line": 29,
+          "slug": "remediation"
+        },
+        {
+          "depth": 2,
+          "text": "Verification",
+          "line": 36,
+          "slug": "verification"
+        }
+      ],
+      "links": [],
+      "lines": 61,
+      "words": 349,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -219884,31 +219922,31 @@
         {
           "depth": 2,
           "text": "6. Unplanned work insertion template",
-          "line": 151,
+          "line": 152,
           "slug": "6-unplanned-work-insertion-template"
         },
         {
           "depth": 2,
           "text": "7. Activity log (append-only)",
-          "line": 163,
+          "line": 164,
           "slug": "7-activity-log-append-only"
         },
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 266,
+          "line": 271,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 287,
+          "line": 292,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 546,
-      "words": 9385,
+      "lines": 551,
+      "words": 9695,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -234174,6 +234212,7 @@
       "docs/evidence/W-0017/README.md",
       "docs/evidence/W-0061/README.md",
       "docs/evidence/W-0085/README.md",
+      "docs/evidence/W-0086/README.md",
       "docs/integration-guide.md",
       "docs/operations/gitlab-runner-winhost.md",
       "plan/ivr-orther/_archive/01-reading-inventory.md",

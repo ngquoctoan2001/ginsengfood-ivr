@@ -68,6 +68,11 @@ PostgreSQL Testcontainers suite cannot be skipped in hosted CI. Project runner
 documentation prose. No complete source file is exempted; moving or changing a
 line invalidates its exception and forces a fresh review.
 
+The Git history scan validates `${CI_COMMIT_SHA:-HEAD}` before passing that
+exact commit through Gitleaks `--log-opts`. This scans every reachable ancestor
+of the pipeline commit while excluding stale orphan refs left in a reused runner
+worktree after an amended/force-pushed MR commit.
+
 ## PII artifact topology
 
 The pipeline uses option A: a centralized `pii_scan`. GitLab jobs are isolated,

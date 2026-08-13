@@ -184,3 +184,8 @@ CI_CONFIG_SELFTEST_PASS
 | Masked/protected variables | PASS | `IVR_W0061_PROTECTED_PROBE` protected/masked/hidden; `API_DOCS_PUBLISH_NONPROD` protected; values not recorded |
 
 W-0011/P0-2 now has hosted pipeline, runner, branch protection, merge-check, Registry, Pages and protected-variable evidence. W-0061 remains `BLOCKED_EXTERNAL` solely because required independent MR approval cannot be enforced or demonstrated on the current GitLab Free/single-member project. This status must not be weakened to `ACCEPTED` merely because optional self-approval is available.
+
+The evidence-recording MR `!3` later exposed a depth-20 Gitleaks historical
+false positive tracked separately as W-0086. That CI remediation does not change
+the platform-control verdict above and must pass its hosted rerun before MR `!3`
+is merged.
