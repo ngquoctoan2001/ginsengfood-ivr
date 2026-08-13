@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "parameters": "--vulnerable --include-transitive",
+  "projects": [
+    {
+      "path": "src/Ivr.Domain/Ivr.Domain.csproj"
+    }
+  ]
+}

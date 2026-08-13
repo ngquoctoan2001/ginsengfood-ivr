@@ -38,14 +38,16 @@ Sau khi có solution (P0-1), cần CI tự động để mọi prompt sau có "d
 ## 6. BUILD STEPS
 1. Tạo root **`.gitlab-ci.yml`** với `workflow:rules` cho `merge_request_event`, default branch và manual web pipeline có chủ đích. Root file `include` các fragment versioned dưới `deploy/ci/`; không dùng remote include không pin.
 2. Tạo các stage/job tối thiểu, `allow_failure: false` cho quality gates:
-   - `build_test_dotnet`: restore → build warnings-as-errors → `dotnet test` + JUnit/Cobertura artifacts; fail dưới coverage threshold.
+   - `build_test_dotnet`: restore → build warnings-as-errors → `dotnet test` + JUnit/Cobertura artifacts; fail dưới coverage threshold. Negative self-test phải xác minh **đúng test đã discover và cố tình fail** / **đúng báo cáo coverage thấp**, không được coi mọi exit khác `0` (như typo path/tool crash) là PASS.
    - `lint_dotnet`: analyzers + `dotnet format --verify-no-changes`.
    - `build_lint_ui`: `npm ci` → lint → test nếu có → production build.
    - `openapi_lint`: parse/lint toàn bộ `specs/api/openapi/*.yaml`, kiểm local `$ref` và schema fixtures (DF-02).
-   - `security_scan`: vulnerable NuGet/npm packages theo severity policy + gitleaks (secret patterns); GitLab SAST/Semgrep có thể thêm nếu runner/tier hỗ trợ nhưng không được làm gate cơ bản biến mất.
+   - `security_scan`: vulnerable NuGet/npm packages theo severity policy + gitleaks (secret patterns); JSON NuGet phải có schema/version/parameters/projects hợp lệ và severity ngoài catalog phải fail closed (`{}` không phải báo cáo sạch). GitLab SAST/Semgrep có thể thêm nếu runner/tier hỗ trợ nhưng không được làm gate cơ bản biến mất.
    - `pii_scan` (**gate riêng, `allow_failure: false`**): quét test output, `docs/evidence/**` và artifact của
      **mọi job phía trước**. **gitleaks KHÔNG phải PII scanner** — nó khớp secret, không khớp số điện thoại
      hay địa chỉ, nên hai job phải tách riêng.
+
+     Scanner phải duyệt **mọi regular text file** dưới target, không whitelist extension; vì vậy `.sql`, file không extension và loại text artifact mới đều được phủ. File binary được bỏ qua có đếm rõ; target không tồn tại hoặc target không cho ra text file nào phải FAIL closed, không được `PASS files=0`.
 
      **Topology thu thập artifact (bắt buộc).** GitLab job chạy cô lập: nếu không khai `needs`/`dependencies`
      thì `pii_scan` **không nhìn thấy** artifact của job khác và sẽ xanh giả. Dùng đúng một trong hai:
@@ -111,8 +113,8 @@ Sau khi có solution (P0-1), cần CI tự động để mọi prompt sau có "d
 | Test ID | Loại | Assert |
 | --- | --- | --- |
 | `CT-CI-01` | ci-selftest | MR có OpenAPI cố tình sai → job `openapi_lint` FAIL. |
-| `CT-CI-02` | ci-selftest | Test cố tình fail → pipeline đỏ, block merge. |
-| `CT-CI-03` | ci-selftest | Coverage dưới ngưỡng → gate fail. |
+| `CT-CI-02` | ci-selftest | Test đã discover `CtCi02DeliberatelyFails` và fail với marker dự kiến → gate PASS self-test; typo/missing project không được tính là expected failure. |
+| `CT-CI-03` | ci-selftest | Báo cáo fixture đo đúng coverage dưới ngưỡng → gate PASS self-test; missing report/path không được tính là low-coverage evidence. |
 | `CT-CI-04` | ci-selftest | Commit chứa secret giả → gitleaks fail. |
 | `CT-CI-05` | config/rules | MR, default-branch push và manual web source render đúng job; không sinh duplicate branch+MR pipeline. |
 | `CT-CI-06` | ci-selftest | Commit chứa số điện thoại/địa chỉ giả trong test output hoặc evidence → job `pii_scan` FAIL. |
@@ -121,13 +123,18 @@ Sau khi có solution (P0-1), cần CI tự động để mọi prompt sau có "d
 | `CT-CI-06e` | ci-selftest | **Dạng không dấu**: `123 duong Nguyen Hue`, `SO NHA 45`, `NGACH 3` → FAIL (bộ pattern phủ cả biến thể không dấu). |
 | `CT-CI-06f` | ci-selftest | **Hoa/thường trộn**: `123 ĐưỜnG Nguyễn Huệ`, `Số NHÀ 45`, `nGáCh 3`, `HẻM 9` → FAIL. Chứng minh alternation theo từng ký tự không bỏ lọt biến thể case mà không cần `grep -i`. |
 | `CT-CI-06c` | ci-selftest | **Artifact liên job**: PII được cài vào artifact của `build_test_dotnet` (không phải workspace của `pii_scan`) → `pii_scan` vẫn FAIL. Chứng minh `needs`/`dependencies` thực sự tải artifact về. |
+| `CT-CI-06h` | ci-selftest | `.sql` và text file không extension chứa PII đều FAIL; missing target và target chỉ có binary đều fail closed, không `PASS files=0`. |
 | `CT-CI-08` | config/rules | Mọi job có `artifacts:` đều nằm trong `needs` của `pii_scan` (phương án A) **hoặc** tự chạy scanner trước upload (phương án B); thiếu job → FAIL. |
 | `CT-CI-07` | config/rules | Mọi file dưới `deploy/ci/*.gitlab-ci.yml` đều reachable từ root `.gitlab-ci.yml` (render pipeline liệt kê đủ job); fragment mồ côi → FAIL. |
+| `CT-CI-09` | ci-selftest | NuGet vulnerability fixture sạch PASS; High, `{}`/schema thiếu và severity lạ đều FAIL closed với lý do phân biệt. |
+| `CT-CI-10` | config/contract | Exact set 16 error codes phải giống nhau giữa OpenAPI, API-06 và `IvrErrorCodes`; lệch bất kỳ phía nào → FAIL. |
 
 ## 9. REVIEW / ACCEPTANCE GATE
 **Self-review:**
 - [ ] 6 job chạy độc lập (gồm `pii_scan`), fail đúng khi vi phạm; rule routing được chứng minh bằng §8.
-- [ ] `pii_scan` nhìn thấy artifact của job khác (`CT-CI-06c`), bắt được chữ HOA tiếng Việt (`CT-CI-06b`), cho kết quả **giống nhau ở 3 locale** (`CT-CI-06d`) và phủ dạng không dấu (`CT-CI-06e`).
+- [ ] `pii_scan` nhìn thấy artifact của job khác (`CT-CI-06c`), bắt được chữ HOA tiếng Việt (`CT-CI-06b`), cho kết quả **giống nhau ở 3 locale** (`CT-CI-06d`), phủ dạng không dấu (`CT-CI-06e`) và mọi text artifact bất kể extension (`CT-CI-06h`).
+- [ ] Negative test/coverage self-test xác minh đúng semantic failure; vulnerability JSON fail closed khi schema hoặc severity không hợp lệ (`CT-CI-02/03/09`).
+- [ ] Stable error catalog exact-set parity giữa OpenAPI/API-06/source (`CT-CI-10`).
 - [ ] `deploy/ci/pii-patterns.txt` **không** chứa lớp ký tự cho ký tự có dấu (chỉ alternation literal); job đặt `LC_ALL=C.UTF-8` tường minh.
 - [ ] OpenAPI lint đúng DF-02; secret/vuln scan bật.
 - [ ] MR template ép traceability.

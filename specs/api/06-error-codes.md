@@ -35,6 +35,7 @@ Bám phase-8/11 §6. Quy tắc chốt để implementer không làm lệch:
 | `IVR_POLICY_MISMATCH` | 409 | program/`max_attempts`/window lệch (D-10) | `TASK_REJECTED_POLICY_MISMATCH` |
 | `IVR_CONTACT_INVALID` | 422 | phone/contact không hợp lệ | `TASK_REJECTED_CONTACT_INVALID` |
 | `IVR_SCRIPT_NOT_APPROVED` | 422 | script/version chưa duyệt | `TASK_REJECTED_SCRIPT_NOT_APPROVED` |
+| `IVR_PII_POLICY_VIOLATION` | 422 | payload/text chứa PII không được phép như phone hoặc địa chỉ đường phố đầy đủ | — |
 | `IVR_OPERATIONAL_BLOCKED` | 409 | blocker active (sellable/recall/sale-lock/do-not-call) | `TASK_BLOCKED_OPERATIONAL` |
 | `IVR_NOT_FOUND` | 404 | resource không tồn tại | — |
 | `IVR_RATE_LIMITED` | 429 | rate limit (nếu hỗ trợ) | — |
@@ -68,5 +69,5 @@ Order Core gọi ops sellable gate; các mã ổn định IVR/Core phải hiểu
 - Error envelope thống nhất `{error:{code,message,details,correlationId}}` (đồng bộ ops — DO-06).
 
 ## Báo cáo (error)
-- HTTP mapping (8) + **response model rõ (200-decision vs 4xx-envelope)** + **danh mục 15 `code` ổn định** (§1c); intake taxonomy 12 (5 → 200 body, 7 → 4xx); result taxonomy 10; consume 8 mã ops-core (fail-closed).
+- HTTP mapping (8) + **response model rõ (200-decision vs 4xx-envelope)** + **danh mục 16 `code` ổn định** (§1c); intake taxonomy 12 (5 → 200 body, 7 → 4xx); result taxonomy 10; consume 8 mã ops-core (fail-closed).
 - ✅ Cập nhật review 2026-07-02: bổ sung §1b (response model) + §1c (stable code catalog) — gỡ nhập nhằng reject 4xx vs 200 và khai báo `code` cho envelope.

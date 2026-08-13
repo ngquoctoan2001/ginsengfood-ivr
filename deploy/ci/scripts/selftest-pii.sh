@@ -82,6 +82,43 @@ if LC_ALL=C.UTF-8 sh "$scanner" "$fixture_root/ci-artifacts"; then
   exit 1
 fi
 
+sql_root="$fixture_root/sql-artifact"
+mkdir -p "$sql_root"
+printf "INSERT INTO evidence(note) VALUES ('0901234567');\n" > "$sql_root/result.sql"
+if LC_ALL=C.UTF-8 sh "$scanner" "$sql_root"; then
+  echo "CT-CI-06h expected SQL artifact PII to fail" >&2
+  exit 1
+fi
+
+extensionless_root="$fixture_root/extensionless-artifact"
+mkdir -p "$extensionless_root"
+printf 'DIAL_TOKEN: extensionless12345token\n' > "$extensionless_root/evidence"
+if LC_ALL=C.UTF-8 sh "$scanner" "$extensionless_root"; then
+  echo "CT-CI-06h expected extensionless artifact PII to fail" >&2
+  exit 1
+fi
+
+set +e
+LC_ALL=C.UTF-8 sh "$scanner" "$fixture_root/missing-target" > /dev/null 2>&1
+missing_status=$?
+set -e
+if [ "$missing_status" -ne 2 ]; then
+  echo "CT-CI-06h expected a missing target to fail closed with exit 2" >&2
+  exit 1
+fi
+
+binary_root="$fixture_root/binary-only"
+mkdir -p "$binary_root"
+printf '\000\001\002' > "$binary_root/screenshot.png"
+set +e
+LC_ALL=C.UTF-8 sh "$scanner" "$binary_root" > /dev/null 2>&1
+binary_status=$?
+set -e
+if [ "$binary_status" -ne 2 ]; then
+  echo "CT-CI-06h expected a target with no text artifacts to fail closed" >&2
+  exit 1
+fi
+
 echo "CT-CI-06 PASS — phone/address/token fixtures rejected"
 echo "CT-CI-06b PASS — uppercase cases rejected; safe cases accepted"
 echo "CT-CI-06c PASS — downloaded-artifact simulation rejected"
@@ -89,3 +126,4 @@ echo "CT-CI-06d PASS — C, C.UTF-8, and POSIX results identical"
 echo "CT-CI-06e PASS — unaccented address cases rejected"
 echo "CT-CI-06f PASS — mixed-case Vietnamese cases rejected"
 echo "CT-CI-06g PASS — Cobertura dial-token symbol is not treated as a token value"
+echo "CT-CI-06h PASS — SQL and extensionless text are scanned; missing/empty-text targets fail closed"

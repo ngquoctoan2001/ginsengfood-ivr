@@ -3,7 +3,10 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Ivr.Api.Auth;
 using Ivr.Api.Foundation;
+using Ivr.Api.Middleware;
 using Ivr.Domain.Errors;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -137,6 +140,13 @@ public sealed class CrossCuttingFoundationTests
             IvrErrorCodes.IdempotencyConflict,
             knownBody.RootElement.GetProperty("error").GetProperty("code").GetString());
 
+        using HttpResponseMessage pii = await application.Client.GetAsync("/pii-error");
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, pii.StatusCode);
+        using JsonDocument piiBody = JsonDocument.Parse(await pii.Content.ReadAsStringAsync());
+        Assert.Equal(
+            IvrErrorCodes.PiiPolicyViolation,
+            piiBody.RootElement.GetProperty("error").GetProperty("code").GetString());
+
         using HttpResponseMessage unexpected = await application.Client.GetAsync(
             "/unexpected-error");
         string unexpectedBody = await unexpected.Content.ReadAsStringAsync();
@@ -150,6 +160,48 @@ public sealed class CrossCuttingFoundationTests
             error.GetProperty("correlationId").GetString()));
     }
 
+    [Fact]
+    [Trait("TestId", "IT-FND-ERR-12")]
+    public async Task ErrorEnvelopeCatchesAuthenticationStageFailures()
+    {
+        await using FoundationApiTestApplication application =
+            await FoundationApiTestApplication.StartAsync(throwDuringAuthentication: true);
+
+        using HttpResponseMessage response = await application.Client.GetAsync("/permission");
+        string body = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.DoesNotContain("0912341234", body, StringComparison.Ordinal);
+        Assert.DoesNotContain("InvalidOperationException", body, StringComparison.Ordinal);
+        using JsonDocument parsed = JsonDocument.Parse(body);
+        JsonElement error = parsed.RootElement.GetProperty("error");
+        Assert.Equal(IvrErrorCodes.InternalError, error.GetProperty("code").GetString());
+        Assert.False(string.IsNullOrWhiteSpace(
+            error.GetProperty("correlationId").GetString()));
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-FND-ERR-13")]
+    public async Task ErrorWriterAbortsWithoutRewritingAStartedResponse()
+    {
+        await using FoundationApiTestApplication application =
+            await FoundationApiTestApplication.StartAsync();
+        StartedResponseFeature responseFeature = new();
+        RecordingRequestLifetimeFeature lifetimeFeature = new();
+        FeatureCollection features = new();
+        features.Set<IHttpResponseFeature>(responseFeature);
+        features.Set<IHttpRequestLifetimeFeature>(lifetimeFeature);
+        DefaultHttpContext context = new(features);
+        IvrErrorResponseWriter writer = application.Services
+            .GetRequiredService<IvrErrorResponseWriter>();
+
+        await writer.WriteAsync(context, IvrErrors.InternalError());
+
+        Assert.True(lifetimeFeature.WasAborted);
+        Assert.Equal(StatusCodes.Status200OK, responseFeature.StatusCode);
+        Assert.Equal(0, responseFeature.Body.Length);
+    }
+
     private static HttpRequestMessage CreateOrderCoreRequest(
         string source,
         string token = FoundationApiTestApplication.ServiceToken)
@@ -160,5 +212,35 @@ public sealed class CrossCuttingFoundationTests
             "Bearer",
             token);
         return request;
+    }
+
+    private sealed class RecordingRequestLifetimeFeature : IHttpRequestLifetimeFeature
+    {
+        public CancellationToken RequestAborted { get; set; }
+
+        public bool WasAborted { get; private set; }
+
+        public void Abort() => WasAborted = true;
+    }
+
+    private sealed class StartedResponseFeature : IHttpResponseFeature
+    {
+        public int StatusCode { get; set; } = StatusCodes.Status200OK;
+
+        public string? ReasonPhrase { get; set; }
+
+        public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
+
+        public Stream Body { get; set; } = new MemoryStream();
+
+        public bool HasStarted => true;
+
+        public void OnStarting(Func<object, Task> callback, object state)
+        {
+        }
+
+        public void OnCompleted(Func<object, Task> callback, object state)
+        {
+        }
     }
 }

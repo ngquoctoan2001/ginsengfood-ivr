@@ -90,14 +90,50 @@ static int RunVulnerabilities(string[] arguments)
         return Usage("minimum-severity must be low, moderate, high, or critical.");
     }
 
-    using JsonDocument document = JsonDocument.Parse(File.ReadAllText(arguments[0]));
-    List<string> blockedSeverities = [];
-    CollectSeverities(document.RootElement, blockedSeverities, threshold);
-
-    if (blockedSeverities.Count > 0)
+    JsonDocument document;
+    try
     {
-        return Fail(
-            $"NuGet vulnerability policy failed: {blockedSeverities.Count} finding(s) at or above {arguments[1]}.");
+        document = JsonDocument.Parse(File.ReadAllText(arguments[0]));
+    }
+    catch (JsonException)
+    {
+        return Fail("NuGet vulnerability report is not valid JSON.");
+    }
+    catch (IOException)
+    {
+        return Fail("NuGet vulnerability report could not be read.");
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return Fail("NuGet vulnerability report could not be read.");
+    }
+
+    using (document)
+    {
+        if (!IsValidVulnerabilityReport(document.RootElement))
+        {
+            return Fail("NuGet vulnerability report has an invalid or incomplete schema.");
+        }
+
+        List<string> blockedSeverities = [];
+        int invalidSeverityCount = 0;
+        CollectSeverities(
+            document.RootElement,
+            blockedSeverities,
+            threshold,
+            ref invalidSeverityCount);
+
+        if (invalidSeverityCount > 0)
+        {
+            return Fail(
+                $"NuGet vulnerability report contains {invalidSeverityCount} unknown or malformed severity value(s).");
+        }
+
+        if (blockedSeverities.Count > 0)
+        {
+            return Fail(
+                $"NuGet vulnerability policy failed: {blockedSeverities.Count} finding(s) at or above {arguments[1]}.");
+        }
     }
 
     Console.WriteLine(
@@ -105,30 +141,84 @@ static int RunVulnerabilities(string[] arguments)
     return 0;
 }
 
-static void CollectSeverities(JsonElement element, List<string> blocked, int threshold)
+static bool IsValidVulnerabilityReport(JsonElement root)
+{
+    if (root.ValueKind != JsonValueKind.Object
+        || !root.TryGetProperty("version", out JsonElement version)
+        || version.ValueKind != JsonValueKind.Number
+        || !version.TryGetInt32(out int versionNumber)
+        || versionNumber != 1
+        || !root.TryGetProperty("parameters", out JsonElement parameters)
+        || parameters.ValueKind != JsonValueKind.String
+        || !HasExpectedVulnerabilityParameters(parameters.GetString())
+        || !root.TryGetProperty("projects", out JsonElement projects)
+        || projects.ValueKind != JsonValueKind.Array
+        || projects.GetArrayLength() == 0)
+    {
+        return false;
+    }
+
+    foreach (JsonElement project in projects.EnumerateArray())
+    {
+        if (project.ValueKind != JsonValueKind.Object
+            || !project.TryGetProperty("path", out JsonElement projectPath)
+            || projectPath.ValueKind != JsonValueKind.String
+            || string.IsNullOrWhiteSpace(projectPath.GetString()))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool HasExpectedVulnerabilityParameters(string? parameters) =>
+    parameters?.Contains("--vulnerable", StringComparison.Ordinal) == true
+    && parameters.Contains("--include-transitive", StringComparison.Ordinal);
+
+static void CollectSeverities(
+    JsonElement element,
+    List<string> blocked,
+    int threshold,
+    ref int invalidSeverityCount)
 {
     if (element.ValueKind == JsonValueKind.Object)
     {
         foreach (JsonProperty property in element.EnumerateObject())
         {
-            if (string.Equals(property.Name, "severity", StringComparison.OrdinalIgnoreCase)
-                && property.Value.ValueKind == JsonValueKind.String)
+            if (string.Equals(property.Name, "severity", StringComparison.OrdinalIgnoreCase))
             {
-                string severity = property.Value.GetString() ?? string.Empty;
-                if (SeverityRank(severity) >= threshold)
+                if (property.Value.ValueKind != JsonValueKind.String)
                 {
-                    blocked.Add(severity);
+                    invalidSeverityCount++;
+                }
+                else
+                {
+                    string severity = property.Value.GetString() ?? string.Empty;
+                    int rank = SeverityRank(severity);
+                    if (rank < 0)
+                    {
+                        invalidSeverityCount++;
+                    }
+                    else if (rank >= threshold)
+                    {
+                        blocked.Add(severity);
+                    }
                 }
             }
 
-            CollectSeverities(property.Value, blocked, threshold);
+            CollectSeverities(
+                property.Value,
+                blocked,
+                threshold,
+                ref invalidSeverityCount);
         }
     }
     else if (element.ValueKind == JsonValueKind.Array)
     {
         foreach (JsonElement child in element.EnumerateArray())
         {
-            CollectSeverities(child, blocked, threshold);
+            CollectSeverities(child, blocked, threshold, ref invalidSeverityCount);
         }
     }
 }

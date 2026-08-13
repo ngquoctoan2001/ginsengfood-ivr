@@ -19,6 +19,7 @@ public static class IvrErrorCodes
     public const string PolicyMismatch = "IVR_POLICY_MISMATCH";
     public const string ContactInvalid = "IVR_CONTACT_INVALID";
     public const string ScriptNotApproved = "IVR_SCRIPT_NOT_APPROVED";
+    public const string PiiPolicyViolation = "IVR_PII_POLICY_VIOLATION";
     public const string OperationalBlocked = "IVR_OPERATIONAL_BLOCKED";
     public const string NotFound = "IVR_NOT_FOUND";
     public const string RateLimited = "IVR_RATE_LIMITED";
@@ -37,6 +38,7 @@ public static class IvrErrorCodes
             PolicyMismatch,
             ContactInvalid,
             ScriptNotApproved,
+            PiiPolicyViolation,
             OperationalBlocked,
             NotFound,
             RateLimited,

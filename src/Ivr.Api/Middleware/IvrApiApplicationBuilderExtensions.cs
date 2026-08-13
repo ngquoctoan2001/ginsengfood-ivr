@@ -9,11 +9,11 @@ public static class IvrApiApplicationBuilderExtensions
         ArgumentNullException.ThrowIfNull(app);
 
         app.UseMiddleware<CorrelationMiddleware>();
+        app.UseMiddleware<ErrorEnvelopeMiddleware>();
         app.UseMiddleware<MockPermissionHeaderGuardMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseMiddleware<OrderCoreAllowlistMiddleware>();
-        app.UseMiddleware<ErrorEnvelopeMiddleware>();
         return app;
     }
 }

@@ -3,7 +3,9 @@ using Ivr.Infrastructure.Correlation;
 
 namespace Ivr.Api.Middleware;
 
-public sealed class IvrErrorResponseWriter(ICorrelationContext correlationContext)
+public sealed class IvrErrorResponseWriter(
+    ICorrelationContext correlationContext,
+    ILogger<IvrErrorResponseWriter> logger)
 {
     public Task WriteAsync(
         HttpContext context,
@@ -12,6 +14,16 @@ public sealed class IvrErrorResponseWriter(ICorrelationContext correlationContex
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(failure);
+
+        if (context.Response.HasStarted)
+        {
+            IvrErrorResponseWriterLog.ResponseAlreadyStarted(
+                logger,
+                failure.ErrorCode,
+                correlationContext.GetOrCreate());
+            context.Abort();
+            return Task.CompletedTask;
+        }
 
         context.Response.Clear();
         context.Response.StatusCode = IvrErrorHttpStatus.FromCode(failure.ErrorCode);
@@ -48,10 +60,23 @@ internal static class IvrErrorHttpStatus
         IvrErrorCodes.PolicyMismatch => StatusCodes.Status409Conflict,
         IvrErrorCodes.ContactInvalid => StatusCodes.Status422UnprocessableEntity,
         IvrErrorCodes.ScriptNotApproved => StatusCodes.Status422UnprocessableEntity,
+        IvrErrorCodes.PiiPolicyViolation => StatusCodes.Status422UnprocessableEntity,
         IvrErrorCodes.OperationalBlocked => StatusCodes.Status409Conflict,
         IvrErrorCodes.NotFound => StatusCodes.Status404NotFound,
         IvrErrorCodes.RateLimited => StatusCodes.Status429TooManyRequests,
         IvrErrorCodes.InternalError => StatusCodes.Status500InternalServerError,
         _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unknown IVR error code."),
     };
+}
+
+internal static partial class IvrErrorResponseWriterLog
+{
+    [LoggerMessage(
+        EventId = 2002,
+        Level = LogLevel.Error,
+        Message = "Cannot write IVR error envelope after the response started. ErrorCode={ErrorCode} CorrelationId={CorrelationId}")]
+    public static partial void ResponseAlreadyStarted(
+        ILogger logger,
+        string errorCode,
+        string correlationId);
 }

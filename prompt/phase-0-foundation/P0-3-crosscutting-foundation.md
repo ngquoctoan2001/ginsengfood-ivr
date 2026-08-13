@@ -17,7 +17,7 @@ Bạn là **Senior .NET Backend Engineer** phụ trách nền tảng cross-cutti
 Trước khi build intake/scheduler/callback (Phase 2), cần bộ khung ngang bảo đảm **bảo mật, truy vết, chống trùng, bằng chứng** đồng nhất. Đây là hiện thực các quyết định foundation DF-01/DF-04/DF-05/DF-06 + response model của `api/06`. Các slice sau chỉ việc "cắm vào" thay vì tự chế.
 
 ## 3. SOURCE SPECS (đọc trước)
-- `specs/api/01-conventions.md`, `specs/api/06-error-codes.md` (§1b response model, §1c 15 mã `IVR_*`), `specs/api/07-idempotency-and-correlation.md`
+- `specs/api/01-conventions.md`, `specs/api/06-error-codes.md` (§1b response model, §1c 16 mã `IVR_*`), `specs/api/07-idempotency-and-correlation.md`
 - `specs/architecture/02-module-boundaries.md`, `specs/architecture/05-resilience.md`
 - `specs/data/05-pii-policy.md`
 - `plan/ivr-orther/decisions-log.md` §DF-01/DF-04/DF-05/DF-06 · §D-05 (PII)
@@ -27,7 +27,7 @@ Trước khi build intake/scheduler/callback (Phase 2), cần bộ khung ngang b
 - **DF-04 (idempotency + audit):** audit **append-only**; idempotency store dùng để chống replay (same key+payload → kết quả cũ; same key+payload khác → conflict `IVR_IDEMPOTENCY_CONFLICT`).
 - **DF-05 (correlation):** `X-Correlation-Id` xuyên suốt; sinh nếu thiếu; propagate sang mọi outbound + log.
 - **DF-06 (allowlist):** chỉ `X-Source-System=order-core` + token hợp lệ được gọi command intake (enforce ở P2-1, nhưng middleware allowlist dựng ở đây).
-- **api/06 §1b:** response model = **200 + decision** cho outcome nghiệp vụ hợp lệ; **4xx + envelope** cho lỗi; `code` ∈ 15 mã §1c.
+- **api/06 §1b:** response model = **200 + decision** cho outcome nghiệp vụ hợp lệ; **4xx + envelope** cho lỗi; `code` ∈ 16 mã §1c.
 - **D-05 (PII):** không log raw phone; helper mask sẵn.
 
 ## 5. INPUTS / DEPENDENCIES
@@ -39,14 +39,14 @@ Trước khi build intake/scheduler/callback (Phase 2), cần bộ khung ngang b
 ## 6. BUILD STEPS
 1. **Config & secrets** (`Ivr.Infrastructure/Config`): `IvrOptions` (adapter mode, connection, feature flags gồm `RealCustomerCallAllowed=false`), bind từ env; validate on startup (fail fast nếu thiếu); secret chỉ qua env/secret-provider, không file plaintext.
 2. **Correlation middleware** (`Ivr.Api`): đọc/sinh `X-Correlation-Id`; đẩy vào `ILogger` scope; expose `ICorrelationContext`; propagate qua `HttpClient` handler (DelegatingHandler) cho outbound.
-3. **Error envelope** (`Ivr.Api`): exception middleware map lỗi → `{error:{code,message,details,correlationId}}` với `code` ∈ 15 mã §1c; map HTTP status theo bảng §1b/§1c; **không leak stack/PII**. Cung cấp `IvrError` factory + `ProblemDetails`-style.
+3. **Error envelope** (`Ivr.Api`): exception middleware map lỗi → `{error:{code,message,details,correlationId}}` với `code` ∈ 16 mã §1c; map HTTP status theo bảng §1b/§1c; **không leak stack/PII**. Cung cấp `IvrError` factory + `ProblemDetails`-style.
 4. **RBAC** (`Ivr.Api/Auth`): `IPermissionEvaluator` + `[RequirePermission("IVR_...")]` attribute/policy; enforce server-side; ở MOCK đọc permission từ claim; deny → `403 IVR_FORBIDDEN_CALLER`. Admin action ghi `reason`.
 5. **Service allowlist** (`Ivr.Api/Auth`): middleware kiểm `X-Source-System` + token cho route command; caller lạ → `403 IVR_FORBIDDEN_CALLER` (dùng ở intake P2-1).
 6. **Idempotency store** (`Ivr.Infrastructure`): `IIdempotencyStore` (entity `ivr_idempotency_keys{key, payload_hash, response_snapshot, created_at}`); helper `ExecuteIdempotent(key, payloadHash, factory)`: same key+hash → trả snapshot; same key+khác hash → `IVR_IDEMPOTENCY_CONFLICT` (409).
 7. **Audit log** (`Ivr.Infrastructure`): `IAuditLogger` ghi **append-only** `ivr_audit_log{id, actor, action, entity_ref, reason?, correlation_id, created_at, data_json}`; không update/delete (chỉ insert). Không ghi PII thô.
 8. **Evidence registry** (`Ivr.Infrastructure`): `IEvidenceStore` ghi `ivr_evidence{evidence_ref, kind, correlation_id, payload_ref, created_at}` — dùng để link signal/blocker/callback ở các phase sau (MASTER-05).
 9. **PII helper** (`Ivr.Domain` hoặc shared): `Mask(phone)` → `09****1234`; guard chặn log field cấm.
-10. Đăng ký DI toàn bộ; wire middleware pipeline đúng thứ tự (correlation → auth → allowlist → error).
+10. Đăng ký DI toàn bộ; wire middleware pipeline đúng thứ tự (correlation → error envelope → mock-header guard → auth → allowlist) để lỗi ở mọi tầng downstream đều được chuẩn hóa.
 
 ## 7. OUTPUT ARTIFACTS
 | Path | Nội dung |
@@ -90,7 +90,7 @@ Test report 7 pass; sample envelope 403/409/500 (mask PII); audit log insert-onl
 - ❌ Log/persist raw phone, dial_token, recording (D-05).
 - ❌ Audit cho phép update/delete.
 - ❌ Trust permission từ client mà không verify server-side.
-- ❌ Mã lỗi ngoài 15 mã §1c.
+- ❌ Mã lỗi ngoài 16 mã §1c.
 
 ## 12. DEFINITION OF DONE
 - [ ] Toàn bộ primitive hoạt động + 7 test xanh trong CI (P0-2).

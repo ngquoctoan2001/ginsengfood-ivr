@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "parameters": "--vulnerable --include-transitive",
+  "projects": [
+    {
+      "path": "src/Ivr.Domain/Ivr.Domain.csproj",
+      "frameworks": [
+        {
+          "framework": "net10.0",
+          "transitivePackages": [
+            {
+              "id": "Example.Vulnerable.Package",
+              "resolvedVersion": "1.0.0",
+              "vulnerabilities": [
+                {
+                  "severity": "High",
+                  "advisoryurl": "https://example.invalid/advisory"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

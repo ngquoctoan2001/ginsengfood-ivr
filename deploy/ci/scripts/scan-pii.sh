@@ -24,22 +24,39 @@ for target in "$@"; do
   if [ -f "$target" ]; then
     printf '%s\n' "$target" >> "$file_list"
   elif [ -d "$target" ]; then
-    find "$target" -type f \( \
-      -name '*.txt' -o -name '*.log' -o -name '*.md' -o \
-      -name '*.xml' -o -name '*.json' -o -name '*.yaml' -o \
-      -name '*.yml' -o -name '*.csv' -o -name '*.trx' \
-    \) -print >> "$file_list"
+    find "$target" -type f -print >> "$file_list"
+  else
+    echo "PII scan target not found: $target" >&2
+    exit 2
   fi
 done
 
 if [ ! -s "$file_list" ]; then
-  echo "PII_SCAN_PASS files=0 locale=$LC_ALL"
-  exit 0
+  echo "PII_SCAN_FAIL no files found under requested targets" >&2
+  exit 2
 fi
 
 matched=0
 scanned=0
+skipped_binary=0
 while IFS= read -r file; do
+  if [ ! -r "$file" ]; then
+    echo "PII scanner could not read $file" >&2
+    exit 2
+  fi
+
+  if [ -s "$file" ]; then
+    set +e
+    grep -Iq '' "$file"
+    text_status=$?
+    set -e
+    case "$text_status" in
+      0) ;;
+      1) skipped_binary=$((skipped_binary + 1)); continue ;;
+      *) echo "PII scanner could not classify $file" >&2; exit 2 ;;
+    esac
+  fi
+
   scanned=$((scanned + 1))
   : > "$raw_match"
   set +e
@@ -58,10 +75,15 @@ while IFS= read -r file; do
   esac
 done < "$file_list"
 
+if [ "$scanned" -eq 0 ]; then
+  echo "PII_SCAN_FAIL no text files found under requested targets" >&2
+  exit 2
+fi
+
 if [ "$matched" -eq 1 ]; then
   echo "PII_SCAN_FAIL locale=$LC_ALL" >&2
   cat "$match_log" >&2
   exit 1
 fi
 
-echo "PII_SCAN_PASS files=$scanned locale=$LC_ALL"
+echo "PII_SCAN_PASS files=$scanned skipped_binary=$skipped_binary locale=$LC_ALL"

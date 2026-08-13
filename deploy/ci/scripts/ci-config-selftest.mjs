@@ -13,6 +13,12 @@ const fragment = parse(await fs.readFile(fragmentPath, "utf8"));
 const globalJson = JSON.parse(
   await fs.readFile(path.join(repositoryRoot, "global.json"), "utf8"),
 );
+const ivrOpenApi = parse(
+  await fs.readFile(
+    path.join(repositoryRoot, "specs/api/openapi/ivr-order-confirmation.v1.yaml"),
+    "utf8",
+  ),
+);
 
 const reservedKeys = new Set([
   "after_script",
@@ -89,6 +95,11 @@ assert(
     dotnetTestServices[0].name === "docker:29.6.2-dind" &&
     dotnetTestServices[0].alias === "docker",
   "build_test_dotnet must use the pinned Docker-in-Docker service for Testcontainers.",
+);
+const dotnetTestScript = (jobs.build_test_dotnet.script ?? []).join("\n");
+assert(
+  dotnetTestScript.includes("selftest-dotnet-policy.sh"),
+  "build_test_dotnet must run the semantic test, coverage, and vulnerability policy self-test.",
 );
 assert(
   jobs.build_test_dotnet.variables?.DOCKER_HOST === "tcp://docker:2375" &&
@@ -188,6 +199,12 @@ assert(
   scanScript.includes("[REDACTED]") && !scanScript.includes('cat "$file"'),
   "PII scanner must redact matched values in CI logs.",
 );
+assert(
+  scanScript.includes('find "$target" -type f -print') &&
+    !scanScript.includes("-name '*.txt'") &&
+    scanScript.includes("no text files found"),
+  "PII scanner must inspect all text artifacts and fail closed when a target yields none.",
+);
 
 const jobScripts = Object.values(jobs)
   .flatMap((job) => job.script ?? [])
@@ -250,9 +267,26 @@ for (const requiredCodegenToken of [
   );
 }
 
+const documentedErrorCodes = extractMatches(
+  await fs.readFile(path.join(repositoryRoot, "specs/api/06-error-codes.md"), "utf8"),
+  /^\| `(?<code>IVR_[A-Z0-9_]+)` \|/gmu,
+);
+const sourceErrorCodes = extractMatches(
+  await fs.readFile(path.join(repositoryRoot, "src/Ivr.Domain/Errors/IvrErrorCodes.cs"), "utf8"),
+  /public const string \w+ = "(?<code>IVR_[A-Z0-9_]+)";/gu,
+);
+const openApiErrorCodes = ivrOpenApi.components?.schemas?.ErrorCode?.enum ?? [];
+assert(
+  documentedErrorCodes.length === 16,
+  `Stable error catalog must contain 16 codes; found ${documentedErrorCodes.length}.`,
+);
+assertSameSet(openApiErrorCodes, documentedErrorCodes, "CT-CI-10 OpenAPI/API-06 parity");
+assertSameSet(sourceErrorCodes, documentedErrorCodes, "CT-CI-10 source/API-06 parity");
+
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");
+process.stdout.write("CT-CI-10 PASS — OpenAPI, API-06 and source error catalogs match\n");
 process.stdout.write("CACHE_KEY_FILES_PASS — every cache key uses at most two inputs\n");
 process.stdout.write("SDK_IMAGE_PIN_PASS — .NET jobs match global.json\n");
 process.stdout.write("TESTCONTAINERS_DIND_PASS — PostgreSQL tests have a pinned Docker service\n");
@@ -284,4 +318,8 @@ function assertSameSet(actual, expected, context) {
     JSON.stringify(actualSorted) === JSON.stringify(expectedSorted),
     `${context}: actual=${actualSorted.join(",")} expected=${expectedSorted.join(",")}`,
   );
+}
+
+function extractMatches(text, pattern) {
+  return [...text.matchAll(pattern)].map((match) => match.groups.code);
 }

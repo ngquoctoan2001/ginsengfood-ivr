@@ -363,6 +363,48 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
     }
 
     [Fact]
+    [Trait("TestId", "IT-DB-AUDIT-07")]
+    public async Task AuditRowsRejectDirectUpdateAndDeleteAndRemainUnchanged()
+    {
+        await fixture.ResetAsync();
+        IAuditLogger auditLogger = fixture.Services.GetRequiredService<IAuditLogger>();
+        AuditLogEntry entry = await auditLogger.AppendAsync(
+            new AuditEvent(
+                "integration-test",
+                "AUDIT_APPEND_ONLY_PROOF",
+                "audit:append-only",
+                "Verify database trigger enforcement",
+                "corr-audit-append-only-001",
+                new Dictionary<string, object?> { ["testId"] = "IT-DB-AUDIT-07" }));
+
+        await using (IvrDbContext updateContext = await Factory().CreateDbContextAsync())
+        {
+            PostgresException updateFailure = await Assert.ThrowsAsync<PostgresException>(
+                () => updateContext.Database.ExecuteSqlInterpolatedAsync(
+                    $"UPDATE ivr_audit_log SET action = {'X'} WHERE audit_id = {entry.Id}"));
+            Assert.Equal(PostgresErrorCodes.RaiseException, updateFailure.SqlState);
+            Assert.Contains("append-only", updateFailure.MessageText, StringComparison.Ordinal);
+        }
+
+        await using (IvrDbContext deleteContext = await Factory().CreateDbContextAsync())
+        {
+            PostgresException deleteFailure = await Assert.ThrowsAsync<PostgresException>(
+                () => deleteContext.Database.ExecuteSqlInterpolatedAsync(
+                    $"DELETE FROM ivr_audit_log WHERE audit_id = {entry.Id}"));
+            Assert.Equal(PostgresErrorCodes.RaiseException, deleteFailure.SqlState);
+            Assert.Contains("append-only", deleteFailure.MessageText, StringComparison.Ordinal);
+        }
+
+        await using IvrDbContext verification = await Factory().CreateDbContextAsync();
+        AuditLogEntity persisted = await verification.AuditLog
+            .AsNoTracking()
+            .SingleAsync(row => row.AuditId == entry.Id);
+        Assert.Equal("AUDIT_APPEND_ONLY_PROOF", persisted.Action);
+        Assert.Equal("corr-audit-append-only-001", persisted.CorrelationId);
+        Assert.Equal(1, await verification.AuditLog.CountAsync());
+    }
+
+    [Fact]
     [Trait("TestId", "IT-DB-LEASE-05")]
     public async Task ChannelLeaseUsesSkipLockedAndMonotonicFencing()
     {

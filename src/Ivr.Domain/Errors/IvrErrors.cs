@@ -23,6 +23,11 @@ public static class IvrErrors
     public static IvrFailureException PolicyMismatch(string safeMessage) =>
         new(IvrErrorCodes.PolicyMismatch, safeMessage);
 
+    public static IvrFailureException PiiPolicyViolation() =>
+        new(
+            IvrErrorCodes.PiiPolicyViolation,
+            "The request violates the IVR privacy policy.");
+
     public static IvrFailureException OperationalBlocked(string safeMessage) =>
         new(IvrErrorCodes.OperationalBlocked, safeMessage);
 

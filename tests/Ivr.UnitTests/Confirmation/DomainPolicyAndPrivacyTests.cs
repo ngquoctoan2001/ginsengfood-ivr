@@ -76,13 +76,23 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Theory]
-    [InlineData("0901234567")]
-    [InlineData("dial-token: abcdefghijk")]
-    [InlineData("Đường Nguyễn Huệ, Phường Bến Nghé")]
-    [InlineData("12/3 Lê Lợi")]
-    [InlineData("123 Nguyễn Huệ")]
-    public void PrivacyGuardRejectsPhoneTokenAndFullAddress(string unsafeValue)
+    [InlineData("phone")]
+    [InlineData("dial-token")]
+    [InlineData("street-keyword")]
+    [InlineData("slash-address")]
+    [InlineData("numeric-street")]
+    public void PrivacyGuardRejectsPhoneTokenAndFullAddress(string caseId)
     {
+        string unsafeValue = caseId switch
+        {
+            "phone" => "0901234567",
+            "dial-token" => "dial-token: abcdefghijk",
+            "street-keyword" => "Đường Nguyễn Huệ, Phường Bến Nghé",
+            "slash-address" => "12/3 Lê Lợi",
+            "numeric-street" => "123 Nguyễn Huệ",
+            _ => throw new ArgumentOutOfRangeException(nameof(caseId)),
+        };
+
         Assert.Throws<InvalidOperationException>(() => ShortDeliveryArea.Create(unsafeValue));
     }
 
@@ -102,10 +112,17 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Theory]
-    [InlineData("0901234567")]
-    [InlineData("+84 901 234 567")]
-    public void DialTokenReferenceRejectsRawPhoneData(string rawPhone)
+    [InlineData("local")]
+    [InlineData("international-spaced")]
+    public void DialTokenReferenceRejectsRawPhoneData(string caseId)
     {
+        string rawPhone = caseId switch
+        {
+            "local" => "0901234567",
+            "international-spaced" => "+84 901 234 567",
+            _ => throw new ArgumentOutOfRangeException(nameof(caseId)),
+        };
+
         Assert.Throws<InvalidOperationException>(() =>
             DialTokenReference.Create(
                 rawPhone,

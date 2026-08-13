@@ -1,14 +1,18 @@
+using System.Text.Encodings.Web;
 using Ivr.Api.Auth;
 using Ivr.Api.Foundation;
 using Ivr.Api.Middleware;
 using Ivr.Domain.Errors;
 using Ivr.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Ivr.IntegrationTests;
 
@@ -31,10 +35,13 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
 
     public HttpClient Client { get; }
 
+    public IServiceProvider Services => application.Services;
+
     public string? CapturedCorrelationId => captureHandler.CorrelationId;
 
     public static async Task<FoundationApiTestApplication> StartAsync(
-        string executionMode = IvrOptions.MockExecutionMode)
+        string executionMode = IvrOptions.MockExecutionMode,
+        bool throwDuringAuthentication = false)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(
             new WebApplicationOptions
@@ -58,6 +65,19 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
 
         builder.Services.AddIvrFoundation(builder.Configuration);
         builder.Services.AddIvrApiFoundation(builder.Configuration);
+        if (throwDuringAuthentication)
+        {
+            builder.Services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = ThrowingAuthenticationHandler.SchemeName;
+                    options.DefaultChallengeScheme = ThrowingAuthenticationHandler.SchemeName;
+                    options.DefaultForbidScheme = ThrowingAuthenticationHandler.SchemeName;
+                })
+                .AddScheme<AuthenticationSchemeOptions, ThrowingAuthenticationHandler>(
+                    ThrowingAuthenticationHandler.SchemeName,
+                    _ => { });
+        }
+
         builder.Services.AddSingleton<CaptureHandler>();
         builder.Services.AddHttpClient("capture")
             .ConfigurePrimaryHttpMessageHandler(
@@ -103,6 +123,10 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
                 (Func<IResult>)(static () => throw IvrErrors.IdempotencyConflict()))
             .AllowAnonymous();
         app.MapGet(
+                "/pii-error",
+                (Func<IResult>)(static () => throw IvrErrors.PiiPolicyViolation()))
+            .AllowAnonymous();
+        app.MapGet(
                 "/unexpected-error",
                 (Func<IResult>)(static () => throw new InvalidOperationException(
                     "customer 0912341234")))
@@ -136,5 +160,17 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
                 : null;
             return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK));
         }
+    }
+
+    private sealed class ThrowingAuthenticationHandler(
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder)
+        : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+    {
+        public const string SchemeName = "IvrThrowingAuthenticationTest";
+
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync() =>
+            throw new InvalidOperationException("authentication customer 0912341234");
     }
 }
