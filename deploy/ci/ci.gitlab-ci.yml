@@ -3,7 +3,6 @@
     key:
       files:
         - global.json
-        - Directory.Build.props
         - dotnet-tools.json
       prefix: "dotnet-$CI_JOB_NAME"
     paths:

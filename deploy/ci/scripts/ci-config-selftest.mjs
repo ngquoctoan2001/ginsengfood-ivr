@@ -36,6 +36,25 @@ const jobs = Object.fromEntries(
   ),
 );
 
+const cacheDefinitions = Object.entries(fragment).filter(
+  ([, definition]) =>
+    definition &&
+    typeof definition === "object" &&
+    definition.cache?.key?.files !== undefined,
+);
+for (const [definitionName, definition] of cacheDefinitions) {
+  const cacheKeyFiles = definition.cache.key.files;
+  assert(
+    Array.isArray(cacheKeyFiles) && cacheKeyFiles.length > 0 && cacheKeyFiles.length <= 2,
+    `${definitionName} cache:key:files must contain between one and two entries for GitLab compatibility.`,
+  );
+}
+assertSameSet(
+  fragment[".dotnet_cache"].cache.key.files,
+  ["global.json", "dotnet-tools.json"],
+  ".NET cache key inputs",
+);
+
 const requiredJobs = [
   "build_test_dotnet",
   "lint_dotnet",
@@ -234,6 +253,7 @@ for (const requiredCodegenToken of [
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");
+process.stdout.write("CACHE_KEY_FILES_PASS — every cache key uses at most two inputs\n");
 process.stdout.write("SDK_IMAGE_PIN_PASS — .NET jobs match global.json\n");
 process.stdout.write("TESTCONTAINERS_DIND_PASS — PostgreSQL tests have a pinned Docker service\n");
 process.stdout.write("OPENAPI_CODEGEN_GATE_PASS — hashes, report and generated code enforced\n");

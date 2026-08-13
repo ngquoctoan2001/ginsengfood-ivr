@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0079` |
 | Last allocated | `W-0078` |
-| Last activity sequence | `A-0072` |
+| Last activity sequence | `A-0074` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -229,6 +229,8 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0070` | 2026-08-13 | `W-0016` | UNBLOCKED/VALIDATION | Môi trường mới cho phép chạy `dotnet` và `git`; sửa analyzer/ambiguity bằng impact-first review và GitNexus rename, sau đó chạy toàn bộ closure gates | Codex | Release build 0 warning/0 error; format 0/138; 54/54 unit và 93/93 full tests; coverage 90.99%; UI/OpenAPI/config/Compose/security/PII PASS |
 | `A-0071` | 2026-08-13 | `W-0078` | FINISH/HANDOFF | Pin SSH.NET bản vá trực tiếp vì Testcontainers chưa có release mới; giữ warning-as-error, không suppress advisory | Codex | locked restore PASS; NuGet vulnerability list rỗng; build 0/0; 20/20 integration + 93/93 regression; npm audit và Gitleaks PASS |
 | `A-0072` | 2026-08-13 | `W-0016` | CHANGE_REVIEW/HANDOFF | Chốt P1-3 local MOCK ở TESTS_PASS sau khi rerun đủ build/test/coverage/security và staged change review; không nâng ACCEPTED hoặc production readiness | Codex | GitNexus graph 38,700 node/40,925 edge/113 flow; staged HIGH breadth 292 changed symbol/22 indexed file/12 expected speech-privacy-policy-mapping flow; 93/93 regression + 90.99% coverage là bằng chứng chính; W-0061 và mọi real Sales/SIM/customer gate vẫn mở |
+| `A-0073` | 2026-08-13 | `W-0061` | EXTERNAL_PROGRESS/FAIL | GitLab project và remote `origin` đã có; push `main@3c0aa13` tạo pipeline hosted đầu tiên nhưng GitLab từ chối cấu hình trước khi sinh job vì `.dotnet_cache.cache.key.files` có 3 mục, vượt giới hạn 2 | IVR dev + Codex | project `nqt20102001/ginsengfood-ivr`; pipeline `#2755964245`; 0 job; exact error được lưu tại `docs/evidence/W-0061/README.md`; runner/protected branch/registry vẫn chưa có proof |
+| `A-0074` | 2026-08-13 | `W-0061` | REMEDIATION/VALIDATION | Giảm .NET cache key còn `global.json` + `dotnet-tools.json`; thêm self-test tổng quát chặn mọi `cache:key:files` rỗng hoặc quá 2 mục; chuẩn bị commit/push riêng để GitLab tạo pipeline mới | Codex | impact LOW, blast radius 3 job kế thừa cache; `npm --prefix deploy/ci run test:config` PASS; `gitlab-ci-local --list` ENV_BLOCKED do máy Windows không có `/bin/bash`; hosted rerun và enforcement vẫn `NOT_RUN` |
 
 ## 8. Per-work completion record template
 
