@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T03:07:40.796Z",
+  "generatedAt": "2026-08-13T07:09:48.584Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -597,31 +597,31 @@
         {
           "depth": 2,
           "text": "PII artifact topology",
-          "line": 60,
+          "line": 71,
           "slug": "pii-artifact-topology"
         },
         {
           "depth": 2,
           "text": "Negative pipeline switches",
-          "line": 85,
+          "line": 96,
           "slug": "negative-pipeline-switches"
         },
         {
           "depth": 2,
           "text": "Local verification",
-          "line": 100,
+          "line": 111,
           "slug": "local-verification"
         },
         {
           "depth": 2,
           "text": "GitLab project settings — hosted evidence",
-          "line": 158,
+          "line": 169,
           "slug": "gitlab-project-settings-hosted-evidence"
         }
       ],
       "links": [],
-      "lines": 180,
-      "words": 1009,
+      "lines": 192,
+      "words": 1115,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -648,7 +648,7 @@
         }
       ],
       "links": [],
-      "lines": 5,
+      "lines": 4,
       "words": 9,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
@@ -676,7 +676,7 @@
         }
       ],
       "links": [],
-      "lines": 5,
+      "lines": 4,
       "words": 9,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
@@ -214681,37 +214681,37 @@
         {
           "depth": 2,
           "text": "Scope implemented",
-          "line": 15,
+          "line": 17,
           "slug": "scope-implemented"
         },
         {
           "depth": 2,
           "text": "Positive gate results",
-          "line": 32,
+          "line": 34,
           "slug": "positive-gate-results"
         },
         {
           "depth": 2,
           "text": "Negative self-tests",
-          "line": 55,
+          "line": 57,
           "slug": "negative-self-tests"
         },
         {
           "depth": 2,
           "text": "Review finding fixed during verification",
-          "line": 69,
+          "line": 71,
           "slug": "review-finding-fixed-during-verification"
         },
         {
           "depth": 2,
-          "text": "Hosted and production residual gates",
-          "line": 82,
-          "slug": "hosted-and-production-residual-gates"
+          "text": "Hosted evidence and production residual gates",
+          "line": 84,
+          "slug": "hosted-evidence-and-production-residual-gates"
         }
       ],
       "links": [],
-      "lines": 96,
-      "words": 821,
+      "lines": 104,
+      "words": 901,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -214731,49 +214731,49 @@
         {
           "depth": 2,
           "text": "Scope implemented",
-          "line": 15,
+          "line": 16,
           "slug": "scope-implemented"
         },
         {
           "depth": 2,
           "text": "Required P0-3 tests",
-          "line": 39,
+          "line": 40,
           "slug": "required-p0-3-tests"
         },
         {
           "depth": 2,
           "text": "Normalized safe envelope samples",
-          "line": 58,
+          "line": 59,
           "slug": "normalized-safe-envelope-samples"
         },
         {
           "depth": 2,
           "text": "Final local gate results",
-          "line": 72,
+          "line": 73,
           "slug": "final-local-gate-results"
         },
         {
           "depth": 2,
           "text": "GitNexus staged change review",
-          "line": 88,
+          "line": 89,
           "slug": "gitnexus-staged-change-review"
         },
         {
           "depth": 2,
           "text": "Append-only and privacy review",
-          "line": 109,
+          "line": 110,
           "slug": "append-only-and-privacy-review"
         },
         {
           "depth": 2,
           "text": "Residual gates and ownership boundaries",
-          "line": 126,
+          "line": 127,
           "slug": "residual-gates-and-ownership-boundaries"
         }
       ],
       "links": [],
-      "lines": 137,
-      "words": 1061,
+      "lines": 140,
+      "words": 1081,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -214823,13 +214823,13 @@
         {
           "depth": 2,
           "text": "GitNexus change review",
-          "line": 126,
+          "line": 127,
           "slug": "gitnexus-change-review"
         }
       ],
       "links": [],
-      "lines": 144,
-      "words": 1242,
+      "lines": 145,
+      "words": 1236,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -214890,8 +214890,8 @@
         }
       ],
       "links": [],
-      "lines": 150,
-      "words": 1030,
+      "lines": 151,
+      "words": 1046,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -214947,7 +214947,7 @@
       ],
       "links": [],
       "lines": 109,
-      "words": 702,
+      "words": 700,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215003,13 +215003,13 @@
         {
           "depth": 2,
           "text": "Reproduction commands",
-          "line": 91,
+          "line": 92,
           "slug": "reproduction-commands"
         }
       ],
       "links": [],
-      "lines": 108,
-      "words": 752,
+      "lines": 109,
+      "words": 756,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215041,37 +215041,37 @@
         {
           "depth": 2,
           "text": "Contract boundaries shown by the portal",
-          "line": 39,
+          "line": 40,
           "slug": "contract-boundaries-shown-by-the-portal"
         },
         {
           "depth": 2,
           "text": "Required P1-4 tests",
-          "line": 47,
+          "line": 48,
           "slug": "required-p1-4-tests"
         },
         {
           "depth": 2,
           "text": "Commands and observed results",
-          "line": 59,
+          "line": 60,
           "slug": "commands-and-observed-results"
         },
         {
           "depth": 2,
           "text": "Visual check",
-          "line": 105,
+          "line": 111,
           "slug": "visual-check"
         },
         {
           "depth": 2,
-          "text": "Hosted and runtime evidence not claimed",
-          "line": 112,
-          "slug": "hosted-and-runtime-evidence-not-claimed"
+          "text": "Hosted Pages evidence and runtime boundaries",
+          "line": 118,
+          "slug": "hosted-pages-evidence-and-runtime-boundaries"
         }
       ],
       "links": [],
-      "lines": 124,
-      "words": 560,
+      "lines": 146,
+      "words": 700,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215097,31 +215097,129 @@
         {
           "depth": 2,
           "text": "First hosted pipeline result",
-          "line": 17,
+          "line": 22,
           "slug": "first-hosted-pipeline-result"
         },
         {
           "depth": 2,
+          "text": "Successful hosted baseline",
+          "line": 32,
+          "slug": "successful-hosted-baseline"
+        },
+        {
+          "depth": 2,
+          "text": "Successful self-hosted baseline",
+          "line": 46,
+          "slug": "successful-self-hosted-baseline"
+        },
+        {
+          "depth": 2,
+          "text": "Protected branch and merge enforcement",
+          "line": 64,
+          "slug": "protected-branch-and-merge-enforcement"
+        },
+        {
+          "depth": 2,
+          "text": "Protected variables",
+          "line": 89,
+          "slug": "protected-variables"
+        },
+        {
+          "depth": 2,
+          "text": "Container Registry proof",
+          "line": 100,
+          "slug": "container-registry-proof"
+        },
+        {
+          "depth": 2,
+          "text": "Pages access-control and publication proof",
+          "line": 106,
+          "slug": "pages-access-control-and-publication-proof"
+        },
+        {
+          "depth": 2,
+          "text": "Approval enforcement blocker",
+          "line": 116,
+          "slug": "approval-enforcement-blocker"
+        },
+        {
+          "depth": 2,
+          "text": "Self-hosted Docker runner provisioning",
+          "line": 132,
+          "slug": "self-hosted-docker-runner-provisioning"
+        },
+        {
+          "depth": 2,
           "text": "Remediation in this change",
-          "line": 27,
+          "line": 145,
           "slug": "remediation-in-this-change"
         },
         {
           "depth": 2,
           "text": "Local verification",
-          "line": 36,
+          "line": 154,
           "slug": "local-verification"
         },
         {
           "depth": 2,
           "text": "Residual W-0061 checklist",
-          "line": 52,
+          "line": 170,
           "slug": "residual-w-0061-checklist"
         }
       ],
       "links": [],
-      "lines": 67,
-      "words": 406,
+      "lines": 187,
+      "words": 1465,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0085/README.md",
+      "title": "W-0085 Linux ProjectReference path portability",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0085 Linux ProjectReference path portability",
+          "line": 1,
+          "slug": "w-0085-linux-projectreference-path-portability"
+        },
+        {
+          "depth": 2,
+          "text": "Failure evidence",
+          "line": 7,
+          "slug": "failure-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Fix",
+          "line": 26,
+          "slug": "fix"
+        },
+        {
+          "depth": 2,
+          "text": "Verification",
+          "line": 32,
+          "slug": "verification"
+        },
+        {
+          "depth": 2,
+          "text": "Hosted closure",
+          "line": 50,
+          "slug": "hosted-closure"
+        },
+        {
+          "depth": 2,
+          "text": "Residual external gate",
+          "line": 66,
+          "slug": "residual-external-gate"
+        }
+      ],
+      "links": [],
+      "lines": 69,
+      "words": 270,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215208,6 +215306,68 @@
       "links": [],
       "lines": 129,
       "words": 644,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/operations/gitlab-runner-winhost.md",
+      "title": "GitLab self-hosted Docker runner on Windows",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "GitLab self-hosted Docker runner on Windows",
+          "line": 1,
+          "slug": "gitlab-self-hosted-docker-runner-on-windows"
+        },
+        {
+          "depth": 2,
+          "text": "Runner layout",
+          "line": 5,
+          "slug": "runner-layout"
+        },
+        {
+          "depth": 2,
+          "text": "Host requirements",
+          "line": 15,
+          "slug": "host-requirements"
+        },
+        {
+          "depth": 2,
+          "text": "Safe verification",
+          "line": 25,
+          "slug": "safe-verification"
+        },
+        {
+          "depth": 2,
+          "text": "CI routing",
+          "line": 39,
+          "slug": "ci-routing"
+        },
+        {
+          "depth": 2,
+          "text": "Validated pipelines",
+          "line": 53,
+          "slug": "validated-pipelines"
+        },
+        {
+          "depth": 2,
+          "text": "Configuration changes and recovery",
+          "line": 62,
+          "slug": "configuration-changes-and-recovery"
+        },
+        {
+          "depth": 2,
+          "text": "Hosted evidence boundary",
+          "line": 75,
+          "slug": "hosted-evidence-boundary"
+        }
+      ],
+      "links": [],
+      "lines": 86,
+      "words": 676,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -219724,31 +219884,31 @@
         {
           "depth": 2,
           "text": "6. Unplanned work insertion template",
-          "line": 150,
+          "line": 151,
           "slug": "6-unplanned-work-insertion-template"
         },
         {
           "depth": 2,
           "text": "7. Activity log (append-only)",
-          "line": 162,
+          "line": 163,
           "slug": "7-activity-log-append-only"
         },
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 257,
+          "line": 266,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 278,
+          "line": 287,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 518,
-      "words": 8726,
+      "lines": 546,
+      "words": 9385,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -234013,7 +234173,9 @@
       "docs/evidence/W-0016/README.md",
       "docs/evidence/W-0017/README.md",
       "docs/evidence/W-0061/README.md",
+      "docs/evidence/W-0085/README.md",
       "docs/integration-guide.md",
+      "docs/operations/gitlab-runner-winhost.md",
       "plan/ivr-orther/_archive/01-reading-inventory.md",
       "plan/ivr-orther/_archive/08-target-specs-structure-proposal.md",
       "prompt/_review/phase-0-11-spec-alignment-review.md",

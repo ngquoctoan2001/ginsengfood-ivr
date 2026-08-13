@@ -3,8 +3,8 @@
 Date: 2026-08-13
 Baseline: `main@a94b858`
 Mode: local `MOCK`; non-production documentation only
-Local implementation status: `TESTS_PASS`
-Hosted GitLab Pages status: `NOT_RUN` / `BLOCKED_EXTERNAL` under `W-0061`
+Implementation status: `ACCEPTED` under explicit IVR owner authorization
+Hosted GitLab Pages status: `PASS` (private, project-members only)
 
 ## Delivered scope
 
@@ -115,18 +115,29 @@ one Redoc contract page were opened over a local HTTP server. The expected
 non-production banner, two Target draft cards, current compatibility card and
 guide links rendered successfully.
 
-## Hosted and runtime evidence not claimed
+## Hosted Pages evidence and runtime boundaries
 
-- GitLab hosted pipeline, runner execution and protected-branch enforcement:
-  `NOT_RUN` under `W-0061`.
-- GitLab Pages access control and hosted URL: `NOT_RUN`. Publication defaults to
-  `API_DOCS_PUBLISH_NONPROD=NO`; Platform may arm `YES` only after access control
-  is enabled and verified.
+- GitLab hosted quality and Pages pipeline `#2756517379`: PASS, 12 jobs and 98
+  tests on protected `main`.
+- Pages job `15873355825`: PASS; 11 generated portal artifacts, root `public/`
+  upload found 12 files/directories and returned HTTP 201; generated
+  `pages:deploy` also passed.
+- Hosted URL: `https://ginsengfood-ivr-0332fa.gitlab.io/`; active deployment is
+  12 files / 53.9 KiB from `/public`.
+- Access control: private project, `Only Project Members`; authenticated member
+  loaded `Ginsengfood IVR Developer Portal`, while an anonymous request returned
+  `302` to GitLab Pages authentication.
+- First production-shaped Pages attempt in pipeline `#2756451810` is retained as
+  failed evidence because its artifact was written to `deploy/ci/public`; MR
+  `!2` corrected the output to repository-root `public/` and added a regression
+  check before the final PASS.
 - Sales API/auth, CDC, SIM/eSIM, TTS and real customer call: `NOT_RUN`.
 - Staging and production deployment: `NOT_RUN`.
 
-Therefore P1-4 is locally complete at `TESTS_PASS`; this evidence must not be
-used to infer Target V1 approval, hosted CI acceptance or production readiness.
+Therefore P1-4 is accepted for its defined non-production documentation scope.
+This evidence must not be used to infer Target V1 approval, Sales integration,
+telephony readiness or production readiness. W-0061 remains independently
+`BLOCKED_EXTERNAL` only for required MR approval enforcement.
 
 Final GitNexus staged review: `LOW` risk, 33 files, 10 indexed documentation
 symbols, zero affected IVR execution processes. New generator/CI files are not

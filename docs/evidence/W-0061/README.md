@@ -4,7 +4,7 @@ Date: 2026-08-13
 
 Gate: `G-GITLAB`
 
-Status: `BLOCKED_EXTERNAL` — project/remote, SaaS-hosted baseline and tagged self-hosted Linux-container/Docker-in-Docker execution are proven. Protected default branch, merge enforcement, Pages access control, registry and protected-variable proof are still incomplete.
+Status: `BLOCKED_EXTERNAL` — every requested GitLab platform control except required Merge Request approval enforcement is now proven. The remaining blocker is external: the project is on GitLab Free, the UI reports `Approval is optional`, and the project has only one member (`nqt20102001`, Owner). Required approval rules need GitLab Premium/Ultimate and an independent reviewer account.
 
 ## Confirmed external progress
 
@@ -15,6 +15,9 @@ Status: `BLOCKED_EXTERNAL` — project/remote, SaaS-hosted baseline and tagged s
 - First hosted pipeline: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2755964245`
 - First fully successful hosted pipeline after W-0085: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2756119982`
 - First fully successful tagged self-hosted pipeline: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2756183002`
+- First protected-branch MR pipeline: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2756409438`
+- Final Pages-remediation MR pipeline: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2756495155`
+- Final protected `main` pipeline with Pages deploy: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2756517379`
 
 ## First hosted pipeline result
 
@@ -58,6 +61,74 @@ Job `15871330726` (`ci_config_selftest`) and job `15871330732` (`build_test_dotn
 
 The sibling Things project independently passed pipeline `#2756187683` on runner `#55115556` / `things-docker-winhost`; its Docker-in-Docker job completed in `12m59s` with a `3s` queue. This is supporting host-capacity evidence, not a substitute for IVR acceptance.
 
+## Protected branch and merge enforcement
+
+GitLab project settings were configured and verified as follows:
+
+| Control | Verified state |
+| --- | --- |
+| Protected branch | `main` protected |
+| Allowed to merge | Maintainers |
+| Allowed to push and merge | No one |
+| Force push | Disabled |
+| Merge check | `Pipelines must succeed` enabled |
+| Skipped pipelines | Not considered successful |
+
+A direct-push negative test was run after the rule was saved:
+
+```text
+git push origin HEAD:main
+remote: GitLab: You are not allowed to push code to protected branches on this project.
+! [remote rejected] HEAD -> main (pre-receive hook declined)
+```
+
+Merge Request `!1` (`codex/w0061-platform-enforcement`) passed pipeline `#2756409438` with 9/9 quality jobs and 98 tests. GitLab displayed `Pipeline must succeed`; auto-merge completed only after the pipeline passed and produced merge commit `b8044096`.
+
+Merge Request `!2` (`codex/w0061-evidence-closure`) passed pipeline `#2756495155` with the same 9/9 quality jobs and 98 tests. It remediated the Pages artifact-root defect described below and merged as `ca10ebb4` only after the pipeline passed.
+
+## Protected variables
+
+The following project variables are stored in GitLab; secret values are intentionally excluded from repository evidence:
+
+| Variable | Protected | Masked | Hidden | Purpose |
+| --- | --- | --- | --- | --- |
+| `IVR_W0061_PROTECTED_PROBE` | Yes | Yes | Yes | prove secret-variable protection metadata without disclosing the value |
+| `API_DOCS_PUBLISH_NONPROD` | Yes | No | No | arm private non-production Pages publication only on protected refs |
+
+No credential value was printed, copied into YAML, committed, or recorded in this evidence.
+
+## Container Registry proof
+
+Manual job `15872915564` in protected-`main` pipeline `#2756451810` passed on runner `#55115499`. The job authenticated with the short-lived `CI_JOB_TOKEN`, pushed a metadata-only image, removed its local copy, pulled it again, and verified the revision label.
+
+GitLab Container Registry shows repository `ginsengfood-ivr/w0061-proof` with one tag under project registry path `/container_registry/12115445`. The job neither used nor exposed a long-lived personal/deploy token.
+
+## Pages access-control and publication proof
+
+The project is private and GitLab Pages access is configured as `Only Project Members`. Protected variable `API_DOCS_PUBLISH_NONPROD` armed the default-branch-only publish job.
+
+The first post-enforcement `main` pipeline `#2756451810` is intentionally retained as failed evidence: all quality jobs, `api_docs_pages` script, and Registry smoke passed, but generated `pages:deploy` failed because the script wrote to `deploy/ci/public` while GitLab expected repository-root `public/`. Merge Request `!2` changed the argument to `--output ../../public` and added a topology regression assertion.
+
+Final pipeline `#2756517379` for commit `ca10ebb4` passed with 12 jobs and 98 tests. Job `15873355825` produced `API_DOCS_GENERATED=11`, resolved `API_DOCS_OUTPUT=public`, uploaded 12 matching files with HTTP 201, and the generated `pages:deploy` job passed.
+
+The deployed private portal is `https://ginsengfood-ivr-0332fa.gitlab.io/`. GitLab Pages lists the deployment as active from root `/public`, 12 files, 53.9 KiB. An authenticated project-member browser loaded the page with title `Ginsengfood IVR Developer Portal`. An anonymous HTTP request returned `302 Found` to `https://projects.gitlab.io/auth?...`, proving the portal is not anonymously readable.
+
+## Approval enforcement blocker
+
+The Merge Request page currently reports `Approval is optional`. GitLab's approval documentation states that approvals on GitLab Free are optional and do not prevent merging; required approval rules are available in Premium/Ultimate. The project currently has one member, the same Owner who authors and merges these changes, so an independent approval cannot be demonstrated even after enabling a required rule.
+
+Authoritative references:
+
+- <https://docs.gitlab.com/user/project/merge_requests/approvals/>
+- <https://docs.gitlab.com/user/project/merge_requests/approvals/rules/>
+
+Exact external closure actions:
+
+1. upgrade the namespace/project to GitLab Premium or Ultimate;
+2. invite at least one independent reviewer with sufficient project access;
+3. create an approval rule for protected branches requiring at least one approval, and configure Code Owner approval if desired;
+4. open a small Merge Request, capture the blocked-before-approval state, obtain the independent approval, then capture the merge-after-green-pipeline-and-approval state.
+
 ## Self-hosted Docker runner provisioning
 
 The Windows development host runs Docker Desktop in Linux-container mode. No Ubuntu distribution is required. GitLab Runner `19.2.0` remains installed as the existing Windows service.
@@ -94,7 +165,7 @@ OPENAPI_CODEGEN_GATE_PASS
 CI_CONFIG_SELFTEST_PASS
 ```
 
-`npx --yes gitlab-ci-local@latest --list` remains `ENV_BLOCKED` on this Windows host because its renderer attempts to execute `/bin/bash`. This does not invalidate the deterministic Node self-test, but it also does not replace the required hosted GitLab rerun.
+`npx --yes gitlab-ci-local@latest --list` remains `ENV_BLOCKED` on this Windows host because its renderer attempts to execute `/bin/bash`. This does not invalidate the deterministic Node self-test. Hosted GitLab pipelines listed above are the authoritative execution evidence instead.
 
 ## Residual W-0061 checklist
 
@@ -105,11 +176,11 @@ CI_CONFIG_SELFTEST_PASS
 | Self-hosted runner control plane | PASS | runner `#55115499` online, version 19.2.0, project-locked tag `ginsengfood-docker` |
 | Tagged Linux-container execution | PASS | pipeline `#2756183002`; jobs name `#55115499` / `ivr-docker-winhost` |
 | Docker-in-Docker on self-hosted runner | PASS | job `15871330732` passed the PostgreSQL Testcontainers suite on runner `#55115499` |
-| Protected default branch | NOT_RUN | branch rule export/screenshot; direct push disabled as approved |
-| Merge-request approvals/CODEOWNERS | NOT_RUN | enforced approval rule evidence |
-| Pipelines must succeed | NOT_RUN | GitLab merge-check setting evidence |
-| Container Registry push/pull | NOT_RUN | registry path and successful authenticated push/pull evidence |
-| Pages access control | NOT_RUN | private project Pages access-control setting and authenticated access proof |
-| Masked/protected variables | NOT_RUN | names/scope/protection only; never record secret values |
+| Protected default branch | PASS | `main`: merge Maintainers, push No one, force push off; direct-push negative test rejected |
+| Merge-request approvals/CODEOWNERS | BLOCKED_EXTERNAL | current Free tier shows optional approvals; only one project member; upgrade plus independent reviewer required |
+| Pipelines must succeed | PASS | setting enabled; MR `!1`/`!2` merged only after green pipelines |
+| Container Registry push/pull | PASS | job `15872915564`; registry repository `ginsengfood-ivr/w0061-proof` |
+| Pages access control | PASS | private project, `Only Project Members`; pipeline `#2756517379`, job `15873355825`, anonymous redirect to GitLab auth |
+| Masked/protected variables | PASS | `IVR_W0061_PROTECTED_PROBE` protected/masked/hidden; `API_DOCS_PUBLISH_NONPROD` protected; values not recorded |
 
-W-0011/P0-2 now has hosted pipeline evidence but remains `TESTS_PASS` until its external platform settings are evidenced. W-0061 therefore remains `BLOCKED_EXTERNAL`; the runner/DinD portion is complete, not the full GitLab platform gate.
+W-0011/P0-2 now has hosted pipeline, runner, branch protection, merge-check, Registry, Pages and protected-variable evidence. W-0061 remains `BLOCKED_EXTERNAL` solely because required independent MR approval cannot be enforced or demonstrated on the current GitLab Free/single-member project. This status must not be weakened to `ACCEPTED` merely because optional self-approval is available.

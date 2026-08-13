@@ -60,9 +60,9 @@ remain visible for triage. Gitleaks is a separate secret scanner and does not
 replace the PII job.
 
 `build_test_dotnet` uses the pinned `docker:29.6.2-dind` service so the P1-2
-PostgreSQL Testcontainers suite cannot be skipped in hosted CI. The GitLab
-Runner must allow privileged service containers and service DNS alias `docker`;
-runner identity/capability proof remains part of external work item W-0061.
+PostgreSQL Testcontainers suite cannot be skipped in hosted CI. Project runner
+`#55115499` has proven privileged service containers, service DNS alias
+`docker`, PostgreSQL Testcontainers and all quality stages in hosted pipelines.
 
 `.gitleaksignore` contains four line-specific false-positive fingerprints from
 documentation prose. No complete source file is exempted; moving or changing a
@@ -168,22 +168,23 @@ A local render or YAML parse never replaces hosted GitLab evidence.
 
 ## GitLab project settings — hosted evidence
 
-All items below are `NOT_RUN` and `BLOCKED_EXTERNAL` by W-0061 until a real
-GitLab project and runner exist:
+The following controls are proven in `docs/evidence/W-0061/README.md`:
 
-- project/mirror URL and a GitLab remote;
-- Linux/amd64 runner identity capable of Docker pulls, outbound NuGet/npm/GitHub
-  release downloads, and at least the images pinned in the pipeline;
-- protected default branch with no direct push;
-- Merge Request approvals and verified CODEOWNERS group paths;
-- **Pipelines must succeed** merge check;
-- masked/protected CI/CD variables and protected environments;
-- Container Registry push/pull proof;
-- one green hosted MR plus red negative pipelines from the switches above.
+- GitLab project/remote plus separate GitHub mirror;
+- self-hosted Linux-container runner `#55115499` with privileged DinD;
+- protected `main` with direct pushes disabled and force push off;
+- **Pipelines must succeed**, proven through MRs `!1` and `!2`;
+- protected/masked/hidden variable metadata without recording secret values;
+- authenticated Container Registry push/remove/pull/label verification in job
+  `15872915564`;
+- private Pages deployment and project-member-only access in pipeline
+  `#2756517379`.
 
-The root `CODEOWNERS` uses planned `@ginsengfood/ivr-*` group paths. Platform must
-create or replace and verify those groups as part of W-0061; the file alone does
-not prove approval enforcement.
+The remaining W-0061 gate is required independent MR approval. GitLab Free shows
+`Approval is optional`, and the project has only one member. Upgrade to
+Premium/Ultimate, add an independent reviewer, then require at least one
+approval on protected branches before treating CODEOWNERS/approval enforcement
+as proven. The root `CODEOWNERS` file alone is not enforcement evidence.
 
 Do not place credentials in YAML, caches, artifacts, logs, or evidence. GitLab
 variables containing credentials must be masked, protected, scoped, and rotated

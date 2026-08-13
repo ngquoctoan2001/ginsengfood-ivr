@@ -6,7 +6,7 @@ Baseline: `38eaecad2b4ce99aa14b12f708f5db1dd5fda5e9` (`P1-2`)
 
 Mode: `MOCK`
 
-Status: `TESTS_PASS` locally; hosted GitLab proof remains `NOT_RUN` under `W-0061`.
+Status: `TESTS_PASS`; local domain/provider proof and later hosted GitLab quality pipelines pass.
 
 ## Implemented scope
 
@@ -81,8 +81,9 @@ and all 20 integration tests passed after the pin.
 
 ## Explicit residual gates
 
-- `W-0061` / `G-GITLAB`: `BLOCKED_EXTERNAL`; hosted MR pipeline, runner,
-  protected-branch and registry evidence remain `NOT_RUN`.
+- `W-0061` / `G-GITLAB`: `BLOCKED_EXTERNAL` only for required independent MR
+  approval; hosted MR/runner/protected-branch/merge-check/Registry/Pages and
+  protected-variable evidence pass.
 - `TARGET_CONTRACT_V1` remains `DRAFT`; Sales endpoint/auth/CDC and approved
   production attempt policy remain external.
 - Real Sales API, SIM/eSIM hardware, SMS and real customer calls were not used.
