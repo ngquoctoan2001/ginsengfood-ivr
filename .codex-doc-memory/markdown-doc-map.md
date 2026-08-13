@@ -1,12 +1,12 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-13T09:27:35.811Z
+Generated: 2026-08-13T10:23:41.556Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 409
-- Links resolved: 374
+- Markdown files: 411
+- Links resolved: 375
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
@@ -316,6 +316,8 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0015/README.md | W-0015 / P1-2 PostgreSQL persistence evidence | 1/7 | 0 | 0 | 0 | 700 |
 | docs/evidence/W-0016/README.md | W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards | 1/8 | 0 | 0 | 0 | 756 |
 | docs/evidence/W-0017/README.md | W-0017 / P1-4 API documentation portal evidence | 1/8 | 0 | 0 | 0 | 700 |
+| docs/evidence/W-0024/privacy-test-report.md | W-0024 privacy test report | 1/1 | 1 | 0 | 0 | 206 |
+| docs/evidence/W-0024/README.md | W-0024 / P2-7 — Script, Content Approval and Speech Safety | 1/6 | 0 | 1 | 0 | 427 |
 | docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1511 |
 | docs/evidence/W-0064/README.md | W-0064 — P1-5 Retention Job & Data Lifecycle Evidence | 1/5 | 1 | 1 | 0 | 416 |
 | docs/evidence/W-0085/README.md | W-0085 Linux ProjectReference path portability | 1/6 | 0 | 0 | 0 | 270 |
@@ -369,7 +371,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 9973 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 10177 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
@@ -473,10 +475,10 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/data/02-mapping-sales-platform.md | DATA-02 — Mapping: Sales Platform ↔ IVR | 1/4 | 1 | 0 | 0 | 258 |
 | specs/data/03-mapping-ops-core.md | DATA-03 — Mapping: Ops-Core (Sellable Gate / Sale-Lock / Recall) | 1/7 | 1 | 0 | 0 | 427 |
 | specs/data/04-missing-data.md | DATA-04 — Missing External Data and Contracts | 1/1 | 1 | 0 | 0 | 203 |
-| specs/data/05-pii-policy.md | DATA-05 — PII & Privacy Policy | 1/7 | 2 | 0 | 0 | 494 |
+| specs/data/05-pii-policy.md | DATA-05 — PII & Privacy Policy | 1/7 | 2 | 0 | 0 | 524 |
 | specs/database/00-index.md | Database SRS — Index | 1/1 | 0 | 6 | 0 | 101 |
 | specs/database/01-erd.md | DB-01 — ERD | 1/2 | 1 | 0 | 0 | 97 |
-| specs/database/02-tables.md | DB-02 — Tables | 1/10 | 1 | 0 | 0 | 2236 |
+| specs/database/02-tables.md | DB-02 — Tables | 1/11 | 1 | 0 | 0 | 2321 |
 | specs/database/03-enums-and-status.md | DB-03 — Enums and Status | 1/1 | 1 | 0 | 0 | 117 |
 | specs/database/04-indexes.md | DB-04 — Indexes & Constraints | 1/6 | 1 | 0 | 0 | 933 |
 | specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 1/8 | 2 | 2 | 0 | 1063 |
@@ -485,7 +487,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/functional/01-task-intake.md | FR — Task Intake | 1/3 | 1 | 0 | 0 | 282 |
 | specs/functional/02-eligibility-and-blockers.md | FR — Eligibility and Blockers | 1/1 | 1 | 0 | 0 | 169 |
 | specs/functional/03-scheduler-attempt-policy.md | FR — Scheduler and Attempt Policy | 1/3 | 1 | 0 | 0 | 211 |
-| specs/functional/04-call-execution-dtmf.md | FR — Call Execution, Speech and DTMF | 1/4 | 1 | 0 | 0 | 262 |
+| specs/functional/04-call-execution-dtmf.md | FR — Call Execution, Speech and DTMF | 1/5 | 1 | 0 | 0 | 400 |
 | specs/functional/05-result-normalization-callback.md | FR — Result Normalization and Sales Callback | 1/5 | 1 | 0 | 0 | 246 |
 | specs/functional/06-technical-exception-capacity.md | FR — Technical Exception & Capacity | 1/5 | 1 | 0 | 0 | 641 |
 | specs/functional/07-admin-operations.md | FR — Admin / Ops Operations | 1/4 | 1 | 0 | 0 | 448 |
@@ -505,7 +507,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/ui/01-dashboard.md | UI-01 — Dashboard (Queue / Capacity / Incident) | 1/6 | 1 | 0 | 0 | 142 |
 | specs/ui/02-call-log.md | UI-02 — Call Log (danh sách CallJob) | 1/7 | 1 | 0 | 0 | 115 |
 | specs/ui/03-call-detail.md | UI-03 — Call Detail (trace task→job→attempt→result→callback) | 1/6 | 1 | 0 | 0 | 167 |
-| specs/ui/04-ivr-menu-config.md | UI-04 — IVR Menu / Script Config | 1/6 | 1 | 0 | 0 | 201 |
+| specs/ui/04-ivr-menu-config.md | UI-04 — IVR Menu / Script Config | 1/6 | 1 | 0 | 0 | 283 |
 | specs/ui/05-integration-status.md | UI-05 — Integration Status (Health) | 1/6 | 1 | 0 | 0 | 112 |
 | specs/ui/06-callback-request.md | UI-06 — Admin Review & Technical Retry | 1/5 | 1 | 0 | 0 | 120 |
 | specs/ui/07-seed-mock-management.md | UI-07 — Seed / Mock Management (NON-PROD only) | 1/5 | 1 | 0 | 0 | 135 |

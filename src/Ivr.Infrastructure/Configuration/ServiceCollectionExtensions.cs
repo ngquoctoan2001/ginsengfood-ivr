@@ -6,6 +6,8 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Channels;
 using Ivr.Infrastructure.Persistence.Outbox;
 using Ivr.Infrastructure.Persistence.Security;
+using Ivr.Infrastructure.Scripts;
+using Ivr.Domain.Scripts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +64,15 @@ public static class ServiceCollectionExtensions
             .ValidateOnStart();
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IValidateOptions<IvrOptions>, IvrOptionsValidator>());
+        services.AddOptions<ScriptContentOptions>()
+            .Configure(options =>
+            {
+                options.ProductionTargetV1FieldsApproved = string.Equals(
+                    configuration["IVR_PRODUCTION_TARGET_V1_FIELDS_APPROVED"]
+                        ?? section[nameof(ScriptContentOptions.ProductionTargetV1FieldsApproved)],
+                    "YES",
+                    StringComparison.OrdinalIgnoreCase);
+            });
 
         services.TryAddSingleton<TimeProvider>(TimeProvider.System);
         services.TryAddSingleton<ICorrelationContext, CorrelationContext>();
@@ -83,6 +94,11 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<InMemoryEvidenceStore>();
             services.TryAddSingleton<IEvidenceStore>(
                 provider => provider.GetRequiredService<InMemoryEvidenceStore>());
+            services.TryAddSingleton<InMemoryScriptRegistry>();
+            services.TryAddSingleton<IScriptRegistry>(
+                provider => provider.GetRequiredService<InMemoryScriptRegistry>());
+            services.TryAddSingleton<IScriptContentManager>(
+                provider => provider.GetRequiredService<InMemoryScriptRegistry>());
         }
         else
         {
@@ -95,6 +111,11 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<PostgresEvidenceStore>();
             services.TryAddSingleton<IEvidenceStore>(
                 provider => provider.GetRequiredService<PostgresEvidenceStore>());
+            services.TryAddSingleton<PostgresScriptRegistry>();
+            services.TryAddSingleton<IScriptRegistry>(
+                provider => provider.GetRequiredService<PostgresScriptRegistry>());
+            services.TryAddSingleton<IScriptContentManager>(
+                provider => provider.GetRequiredService<PostgresScriptRegistry>());
         }
 
         services.AddDbContextFactory<IvrDbContext>((serviceProvider, dbContextOptions) =>
@@ -106,6 +127,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IOpaqueValueProtector, UnavailableOpaqueValueProtector>();
         services.TryAddSingleton<ICallbackOutboxRepository, CallbackOutboxRepository>();
         services.TryAddSingleton<ISimChannelLeaseRepository, SimChannelLeaseRepository>();
+        services.TryAddSingleton<IScriptPreviewRenderer, VietnameseOrderScriptRenderer>();
 
         return services;
     }

@@ -1,0 +1,5 @@
+SYNTHETIC TEST DATA — NOT A CUSTOMER RECORD
+
+Xin chào anh/chị Anh Minh. Anh/chị có đơn DH-A1 gồm 2 hộp Cháo sâm Ginsengfood, tổng tiền 1.234.567 đồng, giao đến Quận 1. Bấm phím 1 để xác nhận đơn hàng, bấm phím 0 để hủy.
+
+Assertions: Unicode NFC; locale vi-VN; DTMF meaning fixed to 1=confirm and 0=cancel; no raw phone, full address, payment detail, history, CRM/AI free text, health note, recording or notification content.

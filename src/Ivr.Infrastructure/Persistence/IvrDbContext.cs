@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence.Entities;
+using Ivr.Infrastructure.Scripts;
 
 namespace Ivr.Infrastructure.Persistence;
 
@@ -27,6 +28,8 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     public DbSet<EvidenceEntity> Evidence => Set<EvidenceEntity>();
     public DbSet<ReviewItemEntity> ReviewItems => Set<ReviewItemEntity>();
     public DbSet<RetentionCheckpointEntity> RetentionCheckpoints => Set<RetentionCheckpointEntity>();
+    public DbSet<ScriptVersionEntity> ScriptVersions => Set<ScriptVersionEntity>();
+    public DbSet<ScriptApprovalEntity> ScriptApprovals => Set<ScriptApprovalEntity>();
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T09:27:35.811Z",
+  "generatedAt": "2026-08-13T10:23:41.556Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215109,6 +215109,99 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0024/privacy-test-report.md",
+      "title": "W-0024 privacy test report",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0024 privacy test report",
+          "line": 1,
+          "slug": "w-0024-privacy-test-report"
+        }
+      ],
+      "links": [],
+      "lines": 21,
+      "words": 206,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": [
+        {
+          "from": "docs/evidence/W-0024/README.md",
+          "to": "docs/evidence/W-0024/privacy-test-report.md",
+          "kind": "markdown",
+          "rawTarget": "privacy-test-report.md",
+          "line": 72
+        }
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0024/README.md",
+      "title": "W-0024 / P2-7 — Script, Content Approval and Speech Safety",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0024 / P2-7 — Script, Content Approval and Speech Safety",
+          "line": 1,
+          "slug": "w-0024-p2-7-script-content-approval-and-speech-safety"
+        },
+        {
+          "depth": 2,
+          "text": "Delivered scope",
+          "line": 5,
+          "slug": "delivered-scope"
+        },
+        {
+          "depth": 2,
+          "text": "Approval gates",
+          "line": 15,
+          "slug": "approval-gates"
+        },
+        {
+          "depth": 2,
+          "text": "Focused evidence",
+          "line": 25,
+          "slug": "focused-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Artifacts",
+          "line": 68,
+          "slug": "artifacts"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates",
+          "line": 75,
+          "slug": "residual-gates"
+        }
+      ],
+      "links": [
+        {
+          "kind": "markdown",
+          "text": "Privacy test report",
+          "rawTarget": "privacy-test-report.md",
+          "line": 72
+        }
+      ],
+      "lines": 81,
+      "words": 427,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [
+        {
+          "from": "docs/evidence/W-0024/README.md",
+          "to": "docs/evidence/W-0024/privacy-test-report.md",
+          "kind": "markdown",
+          "rawTarget": "privacy-test-report.md",
+          "line": 72
+        }
+      ],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "docs/evidence/W-0061/README.md",
       "title": "W-0061 — GitLab platform provisioning evidence",
       "frontmatter": {},
@@ -220032,19 +220125,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 275,
+          "line": 278,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 296,
+          "line": 299,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 573,
-      "words": 9973,
+      "lines": 594,
+      "words": 10177,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -229122,31 +229215,31 @@
         {
           "depth": 2,
           "text": "3. Retention (đề xuất — số cụ thể chờ DF-07/Legal)",
-          "line": 21,
+          "line": 22,
           "slug": "3-retention-đề-xuất-số-cụ-thể-chờ-df-07legal"
         },
         {
           "depth": 2,
           "text": "4. Trace vs PII",
-          "line": 31,
+          "line": 32,
           "slug": "4-trace-vs-pii"
         },
         {
           "depth": 2,
           "text": "5. FAIL nếu",
-          "line": 35,
+          "line": 36,
           "slug": "5-fail-nếu"
         },
         {
           "depth": 2,
           "text": "Báo cáo (PII)",
-          "line": 40,
+          "line": 41,
           "slug": "báo-cáo-pii"
         }
       ],
       "links": [],
-      "lines": 42,
-      "words": 494,
+      "lines": 43,
+      "words": 524,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -229362,14 +229455,20 @@
         },
         {
           "depth": 2,
-          "text": "9. Phân loại nguồn cột (chống DB↔OpenAPI inversion)",
+          "text": "8.1. Script/content lifecycle (W-0024)",
           "line": 179,
+          "slug": "81-scriptcontent-lifecycle-w-0024"
+        },
+        {
+          "depth": 2,
+          "text": "9. Phân loại nguồn cột (chống DB↔OpenAPI inversion)",
+          "line": 188,
           "slug": "9-phân-loại-nguồn-cột-chống-dbopenapi-inversion"
         }
       ],
       "links": [],
-      "lines": 192,
-      "words": 2236,
+      "lines": 201,
+      "words": 2321,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -229916,20 +230015,26 @@
         },
         {
           "depth": 2,
-          "text": "DTMF",
+          "text": "Lifecycle và mode gate (W-0024)",
           "line": 18,
+          "slug": "lifecycle-và-mode-gate-w-0024"
+        },
+        {
+          "depth": 2,
+          "text": "DTMF",
+          "line": 26,
           "slug": "dtmf"
         },
         {
           "depth": 2,
           "text": "Requirements",
-          "line": 28,
+          "line": 36,
           "slug": "requirements"
         }
       ],
       "links": [],
-      "lines": 41,
-      "words": 262,
+      "lines": 49,
+      "words": 400,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -231032,25 +231137,25 @@
         {
           "depth": 2,
           "text": "Dữ liệu / ràng buộc",
-          "line": 15,
+          "line": 16,
           "slug": "dữ-liệu-ràng-buộc"
         },
         {
           "depth": 2,
           "text": "Actions",
-          "line": 21,
+          "line": 22,
           "slug": "actions"
         },
         {
           "depth": 2,
           "text": "P0",
-          "line": 27,
+          "line": 33,
           "slug": "p0"
         }
       ],
       "links": [],
-      "lines": 29,
-      "words": 201,
+      "lines": 35,
+      "words": 283,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -232948,6 +233053,13 @@
       "kind": "markdown",
       "rawTarget": "6. canonical/README.md",
       "line": 540
+    },
+    {
+      "from": "docs/evidence/W-0024/README.md",
+      "to": "docs/evidence/W-0024/privacy-test-report.md",
+      "kind": "markdown",
+      "rawTarget": "privacy-test-report.md",
+      "line": 72
     },
     {
       "from": "docs/evidence/W-0064/README.md",

@@ -15,6 +15,14 @@ Allowed input chỉ từ `privacy_safe_order_summary`:
 
 Forbidden: raw/full address, raw phone, payment credentials/details, order history, member/referral, health/sensitive note, CRM/AI free text. Script version/content/privacy approval bắt buộc trước customer calls.
 
+## Lifecycle và mode gate (W-0024)
+
+- Mỗi `(template_id, version)` đi theo `DRAFT → IN_REVIEW → APPROVED → RETIRED`; version đã có approval không được sửa nội dung và approval là append-only.
+- `MOCK` cần `MOCK_TEST`; `LAB_REAL_SIM` cần `LAB`; `PRODUCTION_REAL` cần đồng thời `CONTENT` và `PRIVACY_LEGAL` từ hai actor khác nhau.
+- Template Target V1 dùng items/short area còn cần khóa owner `OD-V1-15`; cấu hình mặc định `ProductionTargetV1FieldsApproved=NO`, vì vậy PROD fail-closed dù đã có hai approval.
+- Runtime phải resolve chính xác `template_id + version + mode`; không chọn ngẫu nhiên/A-B và không fallback sang version chưa duyệt. Không resolve được thì P2-1 trả `IVR_SCRIPT_NOT_APPROVED`.
+- Preview trả đúng text đã sanitize, duration ước tính, snapshot input PUBLIC-SAFE và deterministic input/content hash; audit chỉ giữ ref/status/hash, không ghi nội dung lời thoại khách hàng.
+
 ## DTMF
 
 | Input | Normalized signal |
@@ -29,7 +37,7 @@ Forbidden: raw/full address, raw phone, payment credentials/details, order histo
 
 | ID | Yêu cầu |
 | --- | --- |
-| `FR-IVR-CALL-001` | Chỉ render script/template version đã approve; deterministic snapshot per task |
+| `FR-IVR-CALL-001` | Chỉ render script/template version đã approve đúng execution mode; deterministic snapshot/hash per task |
 | `FR-IVR-CALL-002` | Item collapse policy rõ ràng, không đổi total/meaning; pronunciation test tiếng Việt |
 | `FR-IVR-CALL-003` | Chỉ dial qua token resolver boundary; không persist/log raw phone |
 | `FR-IVR-CALL-004` | Capture provider events rồi normalize; raw provider payload không đi Sales callback |

@@ -1,5 +1,6 @@
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.FeatureFlags;
+using Ivr.Infrastructure.Scripts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ivr.Infrastructure.Persistence;
@@ -19,6 +20,7 @@ internal static class PersistenceModelConfiguration
         ConfigureOperations(modelBuilder);
         ConfigureFoundation(modelBuilder);
         ConfigureRetention(modelBuilder);
+        ConfigureScripts(modelBuilder);
         ApplyStorageConventions(modelBuilder);
     }
 
@@ -353,6 +355,40 @@ internal static class PersistenceModelConfiguration
         checkpoint.HasIndex(entity => entity.RunId);
         checkpoint.HasIndex(entity => new { entity.Status, entity.UpdatedAt });
         checkpoint.HasIndex(entity => entity.FirstNotConfiguredAt);
+    }
+
+    private static void ConfigureScripts(ModelBuilder modelBuilder)
+    {
+        var version = modelBuilder.Entity<ScriptVersionEntity>();
+        version.ToTable(
+            "ivr_script_versions",
+            table =>
+            {
+                table.HasCheckConstraint(
+                    "ck_ivr_script_versions_status",
+                    "status IN ('DRAFT','IN_REVIEW','APPROVED','RETIRED')");
+                table.HasCheckConstraint(
+                    "ck_ivr_script_versions_hash",
+                    "template_hash ~ '^[a-f0-9]{64}$'");
+            });
+        version.HasKey(entity => entity.Id);
+        version.HasIndex(entity => new { entity.TemplateId, entity.Version }).IsUnique();
+        version.HasIndex(entity => entity.Status);
+        version.HasIndex(entity => entity.CreatedAt);
+
+        var approval = modelBuilder.Entity<ScriptApprovalEntity>();
+        approval.ToTable(
+            "ivr_script_approvals",
+            table => table.HasCheckConstraint(
+                "ck_ivr_script_approvals_type",
+                "approval_type IN ('MOCK_TEST','LAB','CONTENT','PRIVACY_LEGAL')"));
+        approval.HasKey(entity => entity.Id);
+        approval.HasOne(entity => entity.ScriptVersion)
+            .WithMany(entity => entity.Approvals)
+            .HasForeignKey(entity => entity.ScriptVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        approval.HasIndex(entity => new { entity.ScriptVersionId, entity.ApprovalType }).IsUnique();
+        approval.HasIndex(entity => entity.ApprovedAt);
     }
 
     private static void ApplyStorageConventions(ModelBuilder modelBuilder)

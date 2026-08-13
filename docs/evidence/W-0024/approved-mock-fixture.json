@@ -1,0 +1,18 @@
+{
+  "fixture_kind": "SYNTHETIC_MOCK_ONLY",
+  "template_id": "SCRIPT-ORDER-CONFIRM",
+  "version": "v1-test-approved",
+  "status": "APPROVED",
+  "locale": "vi-VN",
+  "template_text": "Xin chào anh/chị {{customer_display_name}}. Anh/chị có đơn {{order_code_short}} gồm {{items_spoken}}, tổng tiền {{total_amount_display}}, giao đến {{delivery_area_short}}. Bấm phím 1 để xác nhận đơn hàng, bấm phím 0 để hủy.",
+  "template_hash": "e228e0ac4fbfc0b5b37817739c83590f6cb14cddd73fbc27c6437e503ca780bd",
+  "approval": {
+    "type": "MOCK_TEST",
+    "actor_id": "fixture-reviewer",
+    "reason": "W-0024 synthetic MOCK fixture only",
+    "correlation_id": "W-0024-SEED",
+    "approved_at": "2026-08-12T00:00:00Z"
+  },
+  "allowed_modes": ["MOCK"],
+  "blocked_modes": ["LAB_REAL_SIM", "PRODUCTION_REAL"]
+}

@@ -176,6 +176,15 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 
 **Retention:** mỗi bảng trên phải khai báo data class và retention period trong `specs/database/05-retention-and-privacy.md`; job purge do `IRetentionJob` thực thi (xem prompt P1-5).
 
+## 8.1. Script/content lifecycle (W-0024)
+
+| Bảng | Field chính | Invariant |
+| --- | --- | --- |
+| `ivr_script_versions` | `id`(PK), `template_id` + `version`(Unique), `status`, `template_text`, `template_hash`, `allowed_input_fields_json`, create/submit/retire actor+reason+time | `DRAFT/IN_REVIEW/APPROVED/RETIRED`; content/identity immutable từ lúc approve; retire thay delete |
+| `ivr_script_approvals` | `id`(PK), `script_version_id`(FK), `approval_type`, `actor_id`, `reason`, `correlation_id`, `approved_at` | Unique(version,type); `MOCK_TEST/LAB/CONTENT/PRIVACY_LEGAL`; append-only trigger |
+
+Migration W-0024 seed duy nhất `SCRIPT-ORDER-CONFIRM:v1-test-approved` với `MOCK_TEST`; seed không cấp LAB/PROD. Bảng không chứa customer input, rendered speech, raw phone, full address hay recording.
+
 ## 9. Phân loại nguồn cột (chống DB↔OpenAPI inversion)
 
 Mỗi cột thuộc đúng một loại. `P1-2` và `P1-3` phải giữ phân loại này khi sinh entity/migration:

@@ -106,11 +106,13 @@ public sealed record ShortDeliveryArea
     {
         string safeValue = PrivacySafeOrderSummary.EnsureSafeBounded(value, 160, nameof(value));
         string normalized = RemoveDiacritics(safeValue).ToLowerInvariant();
+        string markerScanText = normalized.StartsWith("thanh pho ", StringComparison.Ordinal)
+            ? normalized["thanh pho ".Length..]
+            : normalized;
         if (char.IsDigit(safeValue.TrimStart()[0])
             || HasSlashHouseNumber(safeValue)
             || RestrictedAddressMarkers.Any(marker =>
-                safeValue.Contains(marker, StringComparison.OrdinalIgnoreCase)
-                || normalized.Contains(RemoveDiacritics(marker), StringComparison.Ordinal)))
+                markerScanText.Contains(RemoveDiacritics(marker), StringComparison.Ordinal)))
         {
             throw new InvalidOperationException("Delivery area contains full-address detail.");
         }
