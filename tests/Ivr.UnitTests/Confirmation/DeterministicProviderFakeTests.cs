@@ -17,30 +17,43 @@ public sealed class DeterministicProviderFakeTests
             ["dial-token-1"] = "provider-destination-ref-1",
         });
         DialAuthorization authorization = await resolver.ResolveAsync(
-            DialTokenReference.Create("dial-token-1", now.AddMinutes(10)),
+            new DialTokenResolutionRequest(
+                DialTokenReference.Create("dial-token-1", now.AddMinutes(10)),
+                AttemptId.Create("attempt-1")),
             now,
             CancellationToken.None);
         FakeSpeechRenderer renderer = new();
         RenderedSpeech speech = await renderer.RenderAsync(
             TestData.Summary(),
-            "template-1",
-            "version-1",
+            "SCRIPT-ORDER-CONFIRM",
+            "v1-test-approved",
+            ExecutionMode.Mock,
             CancellationToken.None);
-        SimDialResult expectedDial = new(
-            SimCallOutcome.DtmfConfirmed,
-            now,
-            now.AddMinutes(1),
-            "provider-call-ref-1");
-        FakeSimGateway gateway = new(new Dictionary<string, SimDialResult>
+        FakeSimGateway gateway = new(new Dictionary<string, FakeSimScenario>
         {
-            ["attempt-1"] = expectedDial,
+            ["attempt-1"] = new(SimProviderDisposition.Answered, "1"),
         });
-        SimDialResult actualDial = await gateway.DialAsync(
+        SimCallSession call = await gateway.DialAsync(
             new SimDialRequest(
                 AttemptId.Create("attempt-1"),
                 TaskId.Create("task-1"),
+                "SIM-MOCK-001",
+                Guid.NewGuid(),
+                1,
                 authorization,
-                speech),
+                SimRecordingMode.Disabled),
+            CancellationToken.None);
+        await gateway.PlayAsync(call, speech, CancellationToken.None);
+        SimDtmfCapture dtmf = await gateway.CaptureDtmfAsync(
+            call,
+            TimeSpan.FromSeconds(10),
+            CancellationToken.None);
+        SimDispositionReport disposition = await gateway.GetDispositionAsync(
+            call,
+            CancellationToken.None);
+        await gateway.HangupAsync(call, CancellationToken.None);
+        SimGatewayHealth health = await gateway.CheckHealthAsync(
+            "SIM-MOCK-001",
             CancellationToken.None);
 
         CallbackAcknowledgement ack = new(
@@ -77,7 +90,11 @@ public sealed class DeterministicProviderFakeTests
         Assert.Equal(now, clock.UtcNow);
         Assert.Equal("id-1", ids.NewIdentifier());
         Assert.Equal("[REDACTED_DIAL_AUTHORIZATION]", authorization.ToString());
-        Assert.Equal(expectedDial, actualDial);
+        Assert.Equal("[REDACTED_RENDERED_SPEECH]", speech.ToString());
+        Assert.Equal("1", dtmf.Key);
+        Assert.Equal(SimProviderDisposition.Answered, disposition.Disposition);
+        Assert.Equal(SimChannelHealthState.Healthy, health.State);
+        Assert.Equal(6, gateway.Events.Count);
         Assert.Equal(ack, returnedAck);
         Assert.Equal("[REDACTED_SERVICE_TOKEN]", token.ToString());
         Assert.Single(audit.Records);

@@ -92,7 +92,10 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         ScriptRenderOptions effectiveOptions = options ?? ScriptRenderOptions.Default;
         string validTemplate = TargetV1SpeechPolicy.ValidateTemplate(script.Version.TemplateText);
 
-        string spokenItems = FormatItems(summary.Items, effectiveOptions.MaximumSpokenItems);
+        string spokenItems = FormatItems(
+            summary.Items,
+            summary.PronunciationHints,
+            effectiveOptions.MaximumSpokenItems);
         string totalAmount = string.Concat(
             summary.Total.Amount.ToString("N0", VietnameseCulture),
             " đồng");
@@ -143,7 +146,10 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
             contentHash);
     }
 
-    private static string FormatItems(IReadOnlyList<SpeechItem> items, int maximumSpokenItems)
+    private static string FormatItems(
+        IReadOnlyList<SpeechItem> items,
+        IReadOnlyDictionary<string, string> pronunciationHints,
+        int maximumSpokenItems)
     {
         string[] spoken = items
             .Take(maximumSpokenItems)
@@ -153,7 +159,7 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
                 {
                     FormatQuantity(item.Quantity),
                     item.UnitLabel,
-                    item.PublicName,
+                    pronunciationHints.GetValueOrDefault(item.PublicName, item.PublicName),
                 }.Where(value => !string.IsNullOrWhiteSpace(value))))
             .ToArray();
         int remainder = items.Count - spoken.Length;

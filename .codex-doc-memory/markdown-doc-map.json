@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T14:32:32.258Z",
+  "generatedAt": "2026-08-13T15:42:40.134Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215301,6 +215301,68 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0021/README.md",
+      "title": "W-0021 / P2-4 — speech rendering, dial-token and MOCK SIM adapter",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0021 / P2-4 — speech rendering, dial-token and MOCK SIM adapter",
+          "line": 1,
+          "slug": "w-0021-p2-4-speech-rendering-dial-token-and-mock-sim-adapter"
+        },
+        {
+          "depth": 2,
+          "text": "Verdict",
+          "line": 3,
+          "slug": "verdict"
+        },
+        {
+          "depth": 2,
+          "text": "Implemented boundary",
+          "line": 16,
+          "slug": "implemented-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "Approved synthetic speech snapshot",
+          "line": 42,
+          "slug": "approved-synthetic-speech-snapshot"
+        },
+        {
+          "depth": 2,
+          "text": "Safe local configuration shape",
+          "line": 59,
+          "slug": "safe-local-configuration-shape"
+        },
+        {
+          "depth": 2,
+          "text": "Scenario and safety matrix",
+          "line": 92,
+          "slug": "scenario-and-safety-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "Verification evidence",
+          "line": 107,
+          "slug": "verification-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates and ownership",
+          "line": 135,
+          "slug": "residual-gates-and-ownership"
+        }
+      ],
+      "links": [],
+      "lines": 149,
+      "words": 940,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "docs/evidence/W-0024/privacy-test-report.md",
       "title": "W-0024 privacy test report",
       "frontmatter": {},
@@ -220317,19 +220379,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 292,
+          "line": 295,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 313,
+          "line": 316,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 666,
-      "words": 11176,
+      "lines": 669,
+      "words": 11387,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -234673,6 +234735,7 @@
       "docs/evidence/W-0018/README.md",
       "docs/evidence/W-0019/README.md",
       "docs/evidence/W-0020/README.md",
+      "docs/evidence/W-0021/README.md",
       "docs/evidence/W-0061/README.md",
       "docs/evidence/W-0085/README.md",
       "docs/evidence/W-0086/README.md",

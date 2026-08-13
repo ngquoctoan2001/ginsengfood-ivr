@@ -33,12 +33,61 @@ public sealed record DialAuthorization
 public interface IDialTokenResolver
 {
     public ValueTask<DialAuthorization> ResolveAsync(
-        DialTokenReference dialToken,
+        DialTokenResolutionRequest request,
         DateTimeOffset now,
         CancellationToken cancellationToken);
 }
 
-public sealed record RenderedSpeech(string ScriptReference, string ContentHash);
+public sealed record DialTokenResolutionRequest(
+    DialTokenReference DialToken,
+    AttemptId AttemptId);
+
+public sealed record RenderedSpeech
+{
+    public RenderedSpeech(
+        string scriptReference,
+        string exactText,
+        string contentHash,
+        string locale,
+        TimeSpan estimatedDuration,
+        int collapsedItemCount,
+        string audioFormat)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(scriptReference);
+        ArgumentException.ThrowIfNullOrWhiteSpace(exactText);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentHash);
+        ArgumentException.ThrowIfNullOrWhiteSpace(locale);
+        ArgumentException.ThrowIfNullOrWhiteSpace(audioFormat);
+        ArgumentOutOfRangeException.ThrowIfLessThan(estimatedDuration, TimeSpan.Zero);
+        ArgumentOutOfRangeException.ThrowIfNegative(collapsedItemCount);
+        ScriptReference = scriptReference;
+        ExactText = exactText;
+        ContentHash = contentHash;
+        Locale = locale;
+        EstimatedDuration = estimatedDuration;
+        CollapsedItemCount = collapsedItemCount;
+        AudioFormat = audioFormat;
+    }
+
+    public string ScriptReference { get; }
+
+    /// <summary>
+    /// Privacy-safe text held in memory for playback. Never log or persist it as evidence.
+    /// </summary>
+    public string ExactText { get; }
+
+    public string ContentHash { get; }
+
+    public string Locale { get; }
+
+    public TimeSpan EstimatedDuration { get; }
+
+    public int CollapsedItemCount { get; }
+
+    public string AudioFormat { get; }
+
+    public override string ToString() => "[REDACTED_RENDERED_SPEECH]";
+}
 
 public interface ISpeechRenderer
 {
@@ -46,33 +95,119 @@ public interface ISpeechRenderer
         PrivacySafeOrderSummary summary,
         string scriptTemplateId,
         string scriptVersion,
+        ExecutionMode executionMode,
         CancellationToken cancellationToken);
 }
 
-public enum SimCallOutcome
+public enum SimRecordingMode
 {
-    DtmfConfirmed,
-    DtmfCancelled,
-    NoAnswer,
-    TechnicalException,
+    Disabled,
+    Enabled,
 }
 
 public sealed record SimDialRequest(
     AttemptId AttemptId,
     TaskId TaskId,
+    string SimChannelId,
+    Guid LeaseToken,
+    long FencingGeneration,
     DialAuthorization DialAuthorization,
-    RenderedSpeech Speech);
+    SimRecordingMode RecordingMode);
 
-public sealed record SimDialResult(
-    SimCallOutcome Outcome,
+public sealed record SimCallSession(
+    AttemptId AttemptId,
+    string SimChannelId,
+    string ProviderCallReference,
+    long FencingGeneration,
     DateTimeOffset StartedAt,
-    DateTimeOffset CompletedAt,
-    string ProviderReference);
+    bool IsConnected);
+
+public enum SimProviderDisposition
+{
+    Answered,
+    RingTimeout,
+    Busy,
+    Rejected,
+    Unreachable,
+    InvalidDestination,
+    Dropped,
+    NetworkError,
+    SimError,
+    AudioError,
+    DtmfError,
+}
+
+public enum SimChannelHealthState
+{
+    Healthy,
+    Degraded,
+    Unavailable,
+}
+
+public enum SimProviderEventType
+{
+    DialStarted,
+    SpeechPlayed,
+    DtmfCaptured,
+    DispositionReported,
+    HangupCompleted,
+    HealthChecked,
+}
+
+public sealed record SimDtmfCapture(
+    string? Key,
+    bool NoInput,
+    string? TechnicalErrorCode);
+
+public sealed record SimDispositionReport(
+    SimProviderDisposition Disposition,
+    DateTimeOffset StartedAt,
+    DateTimeOffset EndedAt,
+    string? TechnicalErrorCode,
+    bool ChannelHealthy);
+
+public sealed record SimGatewayHealth(
+    string SimChannelId,
+    SimChannelHealthState State,
+    DateTimeOffset CheckedAt,
+    DateTimeOffset? CooldownUntil,
+    bool RecordingDisabled);
+
+public sealed record SimProviderEvent(
+    SimProviderEventType Type,
+    AttemptId AttemptId,
+    string SimChannelId,
+    string ProviderCallReference,
+    DateTimeOffset OccurredAt,
+    string? StatusCode,
+    string? ContentHash);
 
 public interface ISimGateway
 {
-    public ValueTask<SimDialResult> DialAsync(
+    public ValueTask<SimCallSession> DialAsync(
         SimDialRequest request,
+        CancellationToken cancellationToken);
+
+    public ValueTask PlayAsync(
+        SimCallSession session,
+        RenderedSpeech speech,
+        CancellationToken cancellationToken);
+
+    public ValueTask<SimDtmfCapture> CaptureDtmfAsync(
+        SimCallSession session,
+        TimeSpan timeout,
+        CancellationToken cancellationToken);
+
+    public ValueTask<SimDispositionReport> GetDispositionAsync(
+        SimCallSession session,
+        CancellationToken cancellationToken);
+
+    public ValueTask HangupAsync(
+        SimCallSession session,
+        CancellationToken cancellationToken);
+
+    public ValueTask<SimGatewayHealth> CheckHealthAsync(
+        string simChannelId,
         CancellationToken cancellationToken);
 }
 

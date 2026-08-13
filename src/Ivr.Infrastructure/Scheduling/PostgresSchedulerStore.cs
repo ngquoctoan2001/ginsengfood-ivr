@@ -52,6 +52,10 @@ public sealed class PostgresSchedulerStore(
         ArgumentException.ThrowIfNullOrWhiteSpace(workerId);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(leaseDuration, TimeSpan.Zero);
+        bool mockExecution = string.Equals(
+            executionMode,
+            "MOCK",
+            StringComparison.OrdinalIgnoreCase);
         DateTimeOffset now = timeProvider.GetUtcNow();
         await using IvrDbContext context = await dbContextFactory
             .CreateDbContextAsync(cancellationToken)
@@ -70,8 +74,12 @@ public sealed class PostgresSchedulerStore(
                   AND attempt.is_counted_customer_attempt IS TRUE
             ) progress
             WHERE job.eligible IS TRUE
-              AND job.status = 'READY_FOR_SCHEDULER'
-              AND job.queue_status = 'QUEUED'
+              AND (({{mockExecution}} IS TRUE
+                    AND job.status = 'DRY_RUN'
+                    AND job.queue_status = 'HELD_MOCK')
+                   OR ({{mockExecution}} IS FALSE
+                    AND job.status = 'READY_FOR_SCHEDULER'
+                    AND job.queue_status = 'QUEUED'))
               AND progress.counted < job.max_attempts
               AND ((job.attempt_schedule_json ->> progress.counted)::timestamptz) <= {{now}}
               AND ((job.attempt_schedule_json ->> progress.counted)::timestamptz) < job.expires_at
@@ -242,7 +250,8 @@ public sealed class PostgresSchedulerStore(
                 CallAttemptEntity? attempt = await context.CallAttempts
                     .Where(candidate => candidate.IvrCallJobId == activeJobId
                         && candidate.SimChannelId == channel.SimChannelId
-                        && candidate.Status == "LEASED_PENDING_DISPATCH")
+                        && (candidate.Status == "LEASED_PENDING_DISPATCH"
+                            || candidate.Status == "ACTIVE_CALL"))
                     .OrderByDescending(candidate => candidate.ScheduledAt)
                     .FirstOrDefaultAsync(cancellationToken)
                     .ConfigureAwait(false);
@@ -300,7 +309,7 @@ public sealed class PostgresSchedulerStore(
             WHERE job.eligible IS TRUE
               AND job.closed_at IS NULL
               AND job.expires_at <= {{detectedAt}}
-              AND job.status IN ('READY_FOR_SCHEDULER', 'DISPATCH_LEASED')
+              AND job.status IN ('READY_FOR_SCHEDULER', 'DISPATCH_LEASED', 'DRY_RUN')
               AND NOT EXISTS (
                   SELECT 1 FROM ivr_call_results result
                   WHERE result.ivr_call_job_id = job.ivr_call_job_id

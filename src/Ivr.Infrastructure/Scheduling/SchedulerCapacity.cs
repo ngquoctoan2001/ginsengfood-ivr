@@ -1,8 +1,12 @@
 using System.Text.Json;
 using Ivr.Domain.Confirmation;
+using Ivr.Domain.Ports;
 using Ivr.Domain.Scheduling;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
+using Ivr.Infrastructure.Persistence.Security;
+using Ivr.Infrastructure.Providers.Fakes;
+using Ivr.Infrastructure.Telephony;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -427,21 +431,56 @@ public static class SchedulerServiceCollectionExtensions
             .ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
             IValidateOptions<SchedulerOptions>, SchedulerOptionsValidator>());
+        services.AddOptions<MockTelephonyOptions>()
+            .Bind(configuration.GetSection(MockTelephonyOptions.SectionName))
+            .ValidateOnStart();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IValidateOptions<MockTelephonyOptions>, MockTelephonyOptionsValidator>());
         services.TryAddSingleton(new SchedulerExecutionContext(executionMode));
         if (useMockCapacity)
         {
             services.TryAddSingleton<ISchedulerCapacityService,
                 MockSchedulerCapacityService>();
+            services.TryAddSingleton<MockDialTokenVault>();
+            services.Replace(ServiceDescriptor.Singleton<IOpaqueValueProtector>(provider =>
+                provider.GetRequiredService<MockDialTokenVault>()));
+            services.TryAddSingleton<IDialTokenResolver>(provider =>
+                provider.GetRequiredService<MockDialTokenVault>());
+            services.TryAddSingleton<ISpeechRenderer, ApprovedVietnameseSpeechRenderer>();
+            services.TryAddSingleton<ISimGateway>(provider =>
+            {
+                MockTelephonyOptions options = provider
+                    .GetRequiredService<IOptions<MockTelephonyOptions>>().Value;
+                Dictionary<string, FakeSimScenario> scenarios = options.Scenarios.ToDictionary(
+                    pair => pair.Key,
+                    pair => new FakeSimScenario(
+                        Enum.Parse<SimProviderDisposition>(
+                            pair.Value.Disposition,
+                            ignoreCase: true),
+                        pair.Value.DtmfKey,
+                        pair.Value.TechnicalErrorCode,
+                        TimeSpan.FromMilliseconds(pair.Value.DialDelayMilliseconds),
+                        TimeSpan.FromMilliseconds(pair.Value.PlayDelayMilliseconds),
+                        TimeSpan.FromMilliseconds(pair.Value.CaptureDelayMilliseconds)),
+                    StringComparer.Ordinal);
+                return new FakeSimGateway(
+                    scenarios,
+                    timeProvider: provider.GetRequiredService<TimeProvider>());
+            });
+            services.TryAddSingleton<ITelephonyDispatchStore,
+                PostgresTelephonyDispatchStore>();
+            services.TryAddSingleton<ISchedulerDispatchGateway,
+                MockSchedulerDispatchGateway>();
         }
         else
         {
             services.TryAddSingleton<ISchedulerCapacityService,
                 PostgresSchedulerCapacityService>();
+            services.TryAddSingleton<ISchedulerDispatchGateway,
+                UnavailableSchedulerDispatchGateway>();
         }
 
         services.TryAddSingleton<IPostgresSchedulerStore, PostgresSchedulerStore>();
-        services.TryAddSingleton<ISchedulerDispatchGateway,
-            UnavailableSchedulerDispatchGateway>();
         services.TryAddSingleton<ISchedulerRuntime, SchedulerRuntime>();
         return services;
     }
