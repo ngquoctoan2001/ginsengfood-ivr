@@ -8,9 +8,10 @@ Execution mode: `MOCK`
 
 Real customer calls: `NO`
 
-Final local status: `TESTS_PASS`. Source, local/container quality gates, and
-MOCK integration tests are complete. Hosted GitLab execution remains
-`NOT_RUN`/`BLOCKED_EXTERNAL` under W-0061 and is not implied by this evidence.
+Final status: `TESTS_PASS`. Source, local/container quality gates, MOCK
+integration tests and later hosted GitLab quality pipelines are complete.
+W-0061 remains independently `BLOCKED_EXTERNAL` only for required independent
+MR approval enforcement.
 
 ## Scope implemented
 
@@ -125,9 +126,11 @@ implemented tests above.
 
 ## Residual gates and ownership boundaries
 
-- W-0061/G-GITLAB remains `BLOCKED_EXTERNAL`: no GitLab project/remote, runner,
-  hosted MR pipeline, protected-branch settings, approval enforcement, or
-  registry proof exists yet.
+- W-0061/G-GITLAB remains `BLOCKED_EXTERNAL` only for required independent MR
+  approval: project/remote, runner, hosted pipelines, protected branch,
+  `Pipelines must succeed`, Registry, Pages and protected variables are proven;
+  the current GitLab Free/single-member project cannot enforce or demonstrate
+  the remaining approval rule.
 - P4-4 owns production JWT/service-auth federation. The current non-MOCK scheme
   intentionally fails closed; it is not a production authentication claim.
 - P1-2 owns PostgreSQL entity mapping and migrations for idempotency, audit, and

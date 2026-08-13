@@ -206,6 +206,17 @@ assert(
   "PII scanner must inspect all text artifacts and fail closed when a target yields none.",
 );
 
+const securityScanScript = await fs.readFile(
+  path.join(scriptDirectory, "security-scan.sh"),
+  "utf8",
+);
+assert(
+  securityScanScript.includes('scan_commit="${CI_COMMIT_SHA:-HEAD}"') &&
+    securityScanScript.includes('"${scan_commit}^{commit}"') &&
+    securityScanScript.includes('--log-opts="$scan_commit"'),
+  "Gitleaks history scan must be anchored to the validated pipeline commit.",
+);
+
 const jobScripts = Object.values(jobs)
   .flatMap((job) => job.script ?? [])
   .join("\n");
@@ -290,6 +301,7 @@ process.stdout.write("CT-CI-10 PASS — OpenAPI, API-06 and source error catalog
 process.stdout.write("CACHE_KEY_FILES_PASS — every cache key uses at most two inputs\n");
 process.stdout.write("SDK_IMAGE_PIN_PASS — .NET jobs match global.json\n");
 process.stdout.write("TESTCONTAINERS_DIND_PASS — PostgreSQL tests have a pinned Docker service\n");
+process.stdout.write("GITLEAKS_COMMIT_SCOPE_PASS — history scan is anchored to the validated pipeline commit\n");
 process.stdout.write("OPENAPI_CODEGEN_GATE_PASS — hashes, report and generated code enforced\n");
 process.stdout.write("CI_CONFIG_SELFTEST_PASS\n");
 

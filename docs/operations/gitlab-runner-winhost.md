@@ -10,7 +10,7 @@ This host runs GitLab Runner as a Windows service and uses Docker Desktop's Linu
 | `ivr-docker-winhost` | `ginsengfood-ivr` | Docker Linux containers, privileged | `ginsengfood-docker` | 1 |
 | `things-docker-winhost` | `things` | Docker Linux containers, privileged | `ginsengfood-docker` | 1 |
 
-Global concurrency is 3. Each runner uses `request_concurrency=2`. Project runners are locked to their assigned project, do not run untagged jobs and remain unprotected until the corresponding protected-branch policy is configured.
+Global concurrency is 3. Each runner uses `request_concurrency=2`. Project runners are locked to their assigned project and do not run untagged jobs. The IVR `main` branch is now protected; runner protection is a separate scheduling choice and is not required for the current MR pipelines because feature-branch jobs must also execute before merge.
 
 ## Host requirements
 
@@ -57,7 +57,7 @@ The Docker executor is privileged because current pipelines use Docker-in-Docker
 | 2026-08-13 | IVR | `#2756183002` | `#55115499` / `ivr-docker-winhost` | 9/9 jobs, 98 tests, PostgreSQL Testcontainers and all gates PASS |
 | 2026-08-13 | Things | `#2756187683` | `#55115556` / `things-docker-winhost` | G02 Docker-in-Docker gate PASS |
 
-These pipelines prove both project runners can execute Linux-container jobs on the Windows host. They do not prove protected-branch, merge-approval, Registry, Pages or protected-variable configuration.
+These pipelines prove both project runners can execute Linux-container jobs on the Windows host. For IVR, later W-0061 evidence also proves protected `main`, `Pipelines must succeed`, Registry, Pages and protected variables. Required independent MR approval remains blocked by GitLab Free plus single-member project membership.
 
 ## Configuration changes and recovery
 
@@ -82,4 +82,4 @@ Runner `Online` proves control-plane contact only. Docker/DinD readiness require
 - security and privacy gates;
 - GitLab job detail showing the expected self-hosted runner identity.
 
-Protected branch, merge approval, `Pipelines must succeed`, Pages access control, registry and protected-variable evidence are independent platform gates.
+Protected branch, merge approval, `Pipelines must succeed`, Pages access control, registry and protected-variable evidence are independent platform gates. Their current IVR status is recorded in `docs/evidence/W-0061/README.md`; do not infer approval enforcement from runner success.

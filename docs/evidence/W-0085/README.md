@@ -65,4 +65,4 @@ Codex accepted W-0085 on 2026-08-13 under the IVR owner's standing authorization
 
 ## Residual external gate
 
-W-0085 is `ACCEPTED`. W-0061 remains independently `BLOCKED_EXTERNAL` until branch protection, approval, merge enforcement, registry, Pages access-control and protected-variable evidence are complete. Those platform settings are not residual defects in the W-0085 source fix.
+W-0085 is `ACCEPTED`. W-0061 remains independently `BLOCKED_EXTERNAL` only for required independent MR approval enforcement; branch protection, merge-check, Registry, Pages access-control and protected-variable evidence are complete. That platform approval limitation is not a residual defect in the W-0085 source fix.

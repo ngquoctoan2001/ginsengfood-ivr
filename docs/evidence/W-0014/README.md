@@ -10,10 +10,10 @@ Verified Sales baseline:
 Execution mode: `MOCK` · fake Sales: `FAKE_TARGET_V1` · mock SIM: `MOCK` ·
 real-customer calls: `NO`
 
-Final local status: `TESTS_PASS`. Both Target V1 contracts remain
+Final status: `TESTS_PASS`. Both Target V1 contracts remain
 `TARGET_CONTRACT_V1=DRAFT`; this evidence does not claim Sales approval,
-connectivity, credentials, hosted GitLab execution, a real SIM call, or
-production readiness.
+connectivity, credentials, a real SIM call, or production readiness. Later
+hosted GitLab quality pipelines are recorded separately under W-0061.
 
 ## Scope implemented
 
@@ -140,8 +140,9 @@ contract tests. The circular-import check reports zero cycles.
 
 - `W-0002`, `W-0005` and `W-0006` remain `BLOCKED_EXTERNAL`: Sales has not
   approved Target V1, supplied sandbox/base URL/auth, or completed CDC.
-- `W-0061` remains `BLOCKED_EXTERNAL`: no hosted GitLab runner, MR pipeline,
-  protected-branch or approval-setting evidence exists yet.
+- `W-0061` remains `BLOCKED_EXTERNAL` only for required independent MR approval;
+  the hosted runner, MR pipelines, protected branch, merge check, Registry,
+  Pages and protected-variable controls are proven.
 - Current Golden Hour compatibility is source-verified but runtime-disabled;
   it is not treated as the generic Target endpoint.
 - Sales API, identity issuer, vendor SIM/eSIM, customer calls, lab, staging,

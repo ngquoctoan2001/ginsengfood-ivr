@@ -8,9 +8,11 @@ Execution mode: `MOCK`
 
 Real customer calls: `NO`
 
-Final local status: `TESTS_PASS`. This is local/config evidence only. A hosted
-GitLab pipeline, protected branch, merge checks, runner identity, CODEOWNERS
-enforcement, and registry remain `NOT_RUN`/`BLOCKED_EXTERNAL` under W-0061.
+Final status: `TESTS_PASS`. Local/config, hosted pipelines, runner identity,
+protected branch, `Pipelines must succeed`, Registry, Pages access control and
+protected-variable evidence are complete. Required independent MR approval
+enforcement remains `BLOCKED_EXTERNAL` under W-0061 because the current GitLab
+Free project has one member and exposes approvals only as optional.
 
 ## Scope implemented
 
@@ -79,17 +81,23 @@ requires 10.0.201. All .NET jobs are now pinned to `10.0.201`, and the config
 self-test prevents future image/global.json mismatch. The complete security job
 then exited 0 in the corrected image.
 
-## Hosted and production residual gates
+## Hosted evidence and production residual gates
 
-- Current remote is GitHub only; no GitLab project URL, runner, or registry is
-  available in this checkout.
-- Hosted MR green/red pipelines: `NOT_RUN`.
-- Protected default branch, no-direct-push, approvals, verified CODEOWNERS, and
-  **Pipelines must succeed**: `NOT_RUN`.
-- Runner identity/capabilities and masked/protected variables: `NOT_RUN`.
-- GitLab Container Registry push/pull: `NOT_RUN`.
+- GitLab project/remote and separate GitHub mirror: PASS.
+- Hosted MR pipelines `#2756409438` and `#2756495155`: PASS, 9/9 quality jobs
+  and 98 tests; both merged only after pipeline success.
+- Protected `main`, no direct push, and **Pipelines must succeed**: PASS; an
+  explicit direct push was rejected by the GitLab pre-receive hook.
+- Self-hosted runner `#55115499`, Docker-in-Docker and protected-variable
+  metadata: PASS.
+- GitLab Container Registry push/pull: PASS in job `15872915564`.
+- Private GitLab Pages/access control: PASS in pipeline `#2756517379`; anonymous
+  request redirects to GitLab authentication.
+- Required independent MR approval/CODEOWNERS enforcement: `BLOCKED_EXTERNAL`;
+  GitLab Free reports approvals as optional and the project has one member.
 - Sales API/auth, real SIM/eSIM, customer calls, lab, staging, and production:
   `NOT_RUN`; P0-2 does not authorize or exercise them.
 
-W-0061/G-GITLAB remains `BLOCKED_EXTERNAL`. Local success must not be described
-as hosted merge enforcement or production readiness.
+W-0061/G-GITLAB remains `BLOCKED_EXTERNAL` only for the required approval rule
+and independent reviewer proof. Hosted CI/platform success must not be described
+as production IVR readiness.

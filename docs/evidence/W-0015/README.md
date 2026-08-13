@@ -2,7 +2,7 @@
 
 Date: 2026-08-12
 Baseline: `5d2301e` (`P1-1`)
-Status: `TESTS_PASS` locally; hosted GitLab proof remains `NOT_RUN` under `W-0061`
+Status: `TESTS_PASS`; local persistence and later hosted GitLab quality proof pass
 
 ## Delivered scope
 
@@ -83,9 +83,9 @@ Engine 29.6.2 and passed 6/6:
 
 ## Explicit residual gates
 
-- `W-0061` / `G-GITLAB`: `BLOCKED_EXTERNAL`. Platform must provision the GitLab
-  project and a runner that supports privileged service containers plus the
-  `docker` service alias, then provide hosted MR pipeline/protected-branch proof.
+- `W-0061` / `G-GITLAB`: `BLOCKED_EXTERNAL` only for required independent MR
+  approval. Project/runner, privileged DinD/Testcontainers, hosted MR pipelines,
+  protected branch, merge check, Registry, Pages and variables are proven.
 - `DF-07`: retention periods and deletion/legal-hold policy remain owner/legal
   data. Rows default to `LEGAL_DECISION_PENDING`; no purge job is armed.
 - Production encryption/KMS provider, key rotation, backup/restore drill,

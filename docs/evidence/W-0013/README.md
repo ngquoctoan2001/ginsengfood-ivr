@@ -8,10 +8,10 @@ Execution mode: `MOCK`
 
 Real customer calls: `NO`
 
-Final local status: `TESTS_PASS`. The source, local/container quality gates,
-MOCK store, and isolated API tests are complete. OD-V1-20 approval, the P1-2
-physical migration, and hosted GitLab execution remain external or later-phase
-gates and are not implied by this evidence.
+Final status: `TESTS_PASS`. The source, local/container quality gates, MOCK
+store, isolated API tests and later hosted GitLab quality pipelines are
+complete. OD-V1-20 approval and later-phase production gates are not implied by
+this evidence.
 
 ## Scope implemented
 
@@ -116,8 +116,9 @@ audit entry and one revision increment.
 - P1-2 owns the physical `ivr_feature_flags` migration and persistent atomic
   audit/flag/idempotency transaction. The P0-4 PostgreSQL mutation path remains
   deliberately `OPERATIONAL_BLOCKED` until that work is complete.
-- W-0061 remains `BLOCKED_EXTERNAL`: no hosted GitLab runner, MR pipeline,
-  protected-branch, approval-rule, or registry proof exists yet.
+- W-0061 remains `BLOCKED_EXTERNAL` only for required independent MR approval;
+  all other GitLab project/runner/branch/merge-check/Registry/Pages/variable
+  evidence is complete.
 - Production identity and approval providers remain later work. The current
   non-MOCK path cannot self-enable runtime mutation.
 - Sales API/auth, physical SIM/eSIM, customer calls, lab, staging, pilot, and

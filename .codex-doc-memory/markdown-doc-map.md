@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-13T03:07:40.796Z
+Generated: 2026-08-13T08:11:11.595Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 405
+- Markdown files: 408
 - Links resolved: 372
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 36
+- Orphan candidates: 39
 
 ## High Link Documents
 
@@ -90,7 +90,10 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0016/README.md
 - docs/evidence/W-0017/README.md
 - docs/evidence/W-0061/README.md
+- docs/evidence/W-0085/README.md
+- docs/evidence/W-0086/README.md
 - docs/integration-guide.md
+- docs/operations/gitlab-runner-winhost.md
 - plan/ivr-orther/_archive/01-reading-inventory.md
 - plan/ivr-orther/_archive/08-target-specs-structure-proposal.md
 - prompt/_review/phase-0-11-spec-alignment-review.md
@@ -120,7 +123,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | admin-ui/README.md | IVR Admin UI | 1/2 | 0 | 0 | 0 | 90 |
 | AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
 | CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
-| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 1009 |
+| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 1154 |
 | docs/api/changelog/ivr-order-confirmation.md | API Changelog 1.0.0 vs. 1.0.0 | 1/1 | 1 | 0 | 0 | 9 |
 | docs/api/changelog/order-core-ivr-callback.md | API Changelog 1.0.0-draft vs. 1.0.0-draft | 1/1 | 1 | 0 | 0 | 9 |
 | docs/api-changelog.md | IVR API Contract Changelog | 1/3 | 0 | 3 | 0 | 208 |
@@ -306,15 +309,18 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/documents/6. canonical/03-CANONICAL-EVIDENCE-SMOKE-GATE-CUSTOMER-TO-CASH-CARE.md | Canonical Evidence / Smoke Gate - Customer-to-Cash-to-Care | 1/7 | 1 | 0 | 0 | 721 |
 | docs/documents/6. canonical/README.md | Canonical Runtime Addenda | 1/1 | 1 | 0 | 0 | 73 |
 | docs/evidence/W-0010/README.md | W-0010 — P0-1 Repo & Solution Bootstrap Evidence | 1/6 | 0 | 0 | 0 | 610 |
-| docs/evidence/W-0011/README.md | W-0011 — P0-2 GitLab CI Baseline Evidence | 1/6 | 0 | 0 | 0 | 821 |
-| docs/evidence/W-0012/README.md | W-0012 — P0-3 Cross-Cutting Foundation Evidence | 1/8 | 0 | 0 | 0 | 1061 |
-| docs/evidence/W-0013/README.md | W-0013 — P0-4 Feature-Flag Platform Evidence | 1/7 | 0 | 0 | 0 | 1242 |
-| docs/evidence/W-0014/README.md | W-0014 — P1-1 OpenAPI Codegen and Contract Scaffold Evidence | 1/8 | 0 | 0 | 0 | 1030 |
-| docs/evidence/W-0015/README.md | W-0015 / P1-2 PostgreSQL persistence evidence | 1/7 | 0 | 0 | 0 | 702 |
-| docs/evidence/W-0016/README.md | W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards | 1/8 | 0 | 0 | 0 | 752 |
-| docs/evidence/W-0017/README.md | W-0017 / P1-4 API documentation portal evidence | 1/8 | 0 | 0 | 0 | 560 |
-| docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/6 | 0 | 0 | 0 | 406 |
+| docs/evidence/W-0011/README.md | W-0011 — P0-2 GitLab CI Baseline Evidence | 1/6 | 0 | 0 | 0 | 901 |
+| docs/evidence/W-0012/README.md | W-0012 — P0-3 Cross-Cutting Foundation Evidence | 1/8 | 0 | 0 | 0 | 1081 |
+| docs/evidence/W-0013/README.md | W-0013 — P0-4 Feature-Flag Platform Evidence | 1/7 | 0 | 0 | 0 | 1236 |
+| docs/evidence/W-0014/README.md | W-0014 — P1-1 OpenAPI Codegen and Contract Scaffold Evidence | 1/8 | 0 | 0 | 0 | 1046 |
+| docs/evidence/W-0015/README.md | W-0015 / P1-2 PostgreSQL persistence evidence | 1/7 | 0 | 0 | 0 | 700 |
+| docs/evidence/W-0016/README.md | W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards | 1/8 | 0 | 0 | 0 | 756 |
+| docs/evidence/W-0017/README.md | W-0017 / P1-4 API documentation portal evidence | 1/8 | 0 | 0 | 0 | 700 |
+| docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1511 |
+| docs/evidence/W-0085/README.md | W-0085 Linux ProjectReference path portability | 1/6 | 0 | 0 | 0 | 270 |
+| docs/evidence/W-0086/README.md | W-0086 — Shallow-clone Gitleaks fingerprint remediation | 1/4 | 0 | 0 | 0 | 401 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
+| docs/operations/gitlab-runner-winhost.md | GitLab self-hosted Docker runner on Windows | 1/8 | 0 | 0 | 0 | 676 |
 | integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/4 | 0 | 5 | 0 | 224 |
 | integration-requirements/01-sales-platform-requirements.md | IR-01 — Sales Platform / Order Core Requirements | 1/8 | 1 | 0 | 0 | 692 |
 | integration-requirements/02-ops-core-requirements.md | IR-02 — Ops-Core Requirements (Module 1/2) | 1/3 | 1 | 0 | 0 | 457 |
@@ -362,7 +368,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 8726 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 9773 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
