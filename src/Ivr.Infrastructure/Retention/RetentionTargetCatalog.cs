@@ -1,0 +1,162 @@
+using Ivr.Domain.Retention;
+
+namespace Ivr.Infrastructure.Retention;
+
+internal sealed record RetentionTarget(
+    string Segment,
+    string TableName,
+    string TimestampColumn,
+    RetentionStrategy Strategy,
+    string? ExtraEligibilitySql = null,
+    string? ProtectedSql = null,
+    string? DependencyBlockedSql = null,
+    string? AnonymizeSetSql = null);
+
+internal static class RetentionTargetCatalog
+{
+    private static readonly Dictionary<string, IReadOnlyList<RetentionTarget>> Targets =
+        new Dictionary<string, IReadOnlyList<RetentionTarget>>(StringComparer.Ordinal)
+        {
+            [RetentionDataClasses.CallbackMetadata] =
+            [
+                Delete("callbacks", "ivr_result_callbacks", "created_at"),
+            ],
+            [RetentionDataClasses.RawCallEvent] =
+            [
+                Delete("raw_call_events", "ivr_raw_call_events", "received_at"),
+            ],
+            [RetentionDataClasses.AttemptMetadata] =
+            [
+                Delete("technical_exceptions", "ivr_technical_exceptions", "created_at"),
+                Delete(
+                    "call_attempts",
+                    "ivr_call_attempts",
+                    "scheduled_at",
+                    dependencyBlockedSql:
+                        "EXISTS (SELECT 1 FROM ivr_raw_call_events child "
+                        + "WHERE child.ivr_call_attempt_id = t.ivr_call_attempt_id) "
+                        + "OR EXISTS (SELECT 1 FROM ivr_technical_exceptions child "
+                        + "WHERE child.ivr_call_attempt_id = t.ivr_call_attempt_id)"),
+            ],
+            [RetentionDataClasses.ResultMetadata] =
+            [
+                Delete(
+                    "call_results",
+                    "ivr_call_results",
+                    "created_at",
+                    dependencyBlockedSql:
+                        "EXISTS (SELECT 1 FROM ivr_result_callbacks child "
+                        + "WHERE child.ivr_call_result_id = t.ivr_call_result_id)"),
+            ],
+            [RetentionDataClasses.SpeechSnapshot] =
+            [
+                Anonymize(
+                    "confirmation_task_speech",
+                    "ivr_confirmation_tasks",
+                    "created_at",
+                    "phone_ref = 'redacted', phone_masked = '***', "
+                    + "dial_token_ciphertext = 'enc:redacted', "
+                    + "privacy_safe_order_summary_json = '{}'::jsonb"),
+            ],
+            [RetentionDataClasses.EvidenceLink] =
+            [
+                Delete(
+                    "evidence_links",
+                    "ivr_evidence_links",
+                    "created_at",
+                    protectedSql: "t.accepted_at IS NOT NULL"),
+                Delete(
+                    "evidence_registry",
+                    "ivr_evidence",
+                    "created_at",
+                    protectedSql: "t.accepted_at IS NOT NULL"),
+            ],
+            [RetentionDataClasses.IdempotencyKey] =
+            [
+                Delete("idempotency_keys", "ivr_idempotency_keys", "created_at"),
+            ],
+            [RetentionDataClasses.ReviewItem] =
+            [
+                Anonymize(
+                    "review_items",
+                    "ivr_review_items",
+                    "resolved_at",
+                    "source_id = 'anonymized', reason = '[retained-record-anonymized]', "
+                    + "assigned_to = NULL, resolution = NULL",
+                    extraEligibilitySql: "t.resolved_at IS NOT NULL"),
+            ],
+            [RetentionDataClasses.TaskMetadata] =
+            [
+                Delete(
+                    "call_jobs",
+                    "ivr_call_jobs",
+                    "created_at",
+                    dependencyBlockedSql:
+                        "EXISTS (SELECT 1 FROM ivr_call_attempts child "
+                        + "WHERE child.ivr_call_job_id = t.ivr_call_job_id) "
+                        + "OR EXISTS (SELECT 1 FROM ivr_call_results child "
+                        + "WHERE child.ivr_call_job_id = t.ivr_call_job_id)"),
+                Delete(
+                    "confirmation_tasks",
+                    "ivr_confirmation_tasks",
+                    "created_at",
+                    dependencyBlockedSql:
+                        "EXISTS (SELECT 1 FROM ivr_call_jobs child "
+                        + "WHERE child.task_id = t.task_id)"),
+                Delete(
+                    "capacity_incidents",
+                    "ivr_capacity_incidents",
+                    "opened_at",
+                    extraEligibilitySql: "t.resolved_at IS NOT NULL"),
+            ],
+        };
+
+    public static IReadOnlyList<RetentionTarget> Get(string dataClass) =>
+        Targets.TryGetValue(dataClass, out IReadOnlyList<RetentionTarget>? targets)
+            ? targets
+            : throw new ArgumentOutOfRangeException(
+                nameof(dataClass),
+                dataClass,
+                "Unknown retention data class.");
+
+    public static RetentionStrategy GetStrategy(string dataClass)
+    {
+        IReadOnlyList<RetentionTarget> targets = Get(dataClass);
+        RetentionStrategy strategy = targets[0].Strategy;
+        if (targets.Any(target => target.Strategy != strategy))
+        {
+            throw new InvalidOperationException(
+                $"Retention class '{dataClass}' has inconsistent target strategies.");
+        }
+
+        return strategy;
+    }
+
+    private static RetentionTarget Delete(
+        string segment,
+        string table,
+        string timestamp,
+        string? extraEligibilitySql = null,
+        string? protectedSql = null,
+        string? dependencyBlockedSql = null) => new(
+            segment,
+            table,
+            timestamp,
+            RetentionStrategy.Delete,
+            extraEligibilitySql,
+            protectedSql,
+            dependencyBlockedSql);
+
+    private static RetentionTarget Anonymize(
+        string segment,
+        string table,
+        string timestamp,
+        string setSql,
+        string? extraEligibilitySql = null) => new(
+            segment,
+            table,
+            timestamp,
+            RetentionStrategy.Anonymize,
+            extraEligibilitySql,
+            AnonymizeSetSql: setSql);
+}

@@ -19,6 +19,11 @@ src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV
 src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:356
 src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:455
 src/Ivr.Infrastructure/Persistence/Migrations/20260812142435_P1_2_InitialTargetV1Persistence.Designer.cs:generic-api-key:554
+src/Ivr.Infrastructure/Persistence/Migrations/20260813091114_P1_5_RetentionLifecycle.Designer.cs:generic-api-key:158
+src/Ivr.Infrastructure/Persistence/Migrations/20260813091114_P1_5_RetentionLifecycle.Designer.cs:generic-api-key:257
+src/Ivr.Infrastructure/Persistence/Migrations/20260813091114_P1_5_RetentionLifecycle.Designer.cs:generic-api-key:356
+src/Ivr.Infrastructure/Persistence/Migrations/20260813091114_P1_5_RetentionLifecycle.Designer.cs:generic-api-key:455
+src/Ivr.Infrastructure/Persistence/Migrations/20260813091114_P1_5_RetentionLifecycle.Designer.cs:generic-api-key:554
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:155
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:254
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:353

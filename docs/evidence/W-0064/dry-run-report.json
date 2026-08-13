@@ -1,0 +1,21 @@
+{
+  "evidenceType": "automated_test_assertion",
+  "testId": "IT-RET-DRYRUN-02",
+  "executionMode": "MOCK_TEST_DB",
+  "dryRun": true,
+  "classes": [
+    {
+      "dataClass": "idempotency_key",
+      "strategy": "DELETE",
+      "status": "DRY_RUN",
+      "examinedCount": 1,
+      "deletedCount": 0,
+      "anonymizedCount": 0,
+      "legalHoldCount": 0,
+      "protectedCount": 0,
+      "dependencyBlockedCount": 0
+    }
+  ],
+  "targetRowsChanged": 0,
+  "containsCustomerData": false
+}

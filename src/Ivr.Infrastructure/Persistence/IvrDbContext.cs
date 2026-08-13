@@ -26,6 +26,7 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     public DbSet<AuditLogEntity> AuditLog => Set<AuditLogEntity>();
     public DbSet<EvidenceEntity> Evidence => Set<EvidenceEntity>();
     public DbSet<ReviewItemEntity> ReviewItems => Set<ReviewItemEntity>();
+    public DbSet<RetentionCheckpointEntity> RetentionCheckpoints => Set<RetentionCheckpointEntity>();
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {

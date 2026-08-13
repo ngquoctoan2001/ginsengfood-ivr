@@ -1,0 +1,34 @@
+{
+  "evidenceType": "automated_test_assertion_summary",
+  "executionMode": "MOCK_TEST_DB",
+  "dryRun": false,
+  "cases": [
+    {
+      "testId": "IT-RET-DELETE-03",
+      "dataClass": "evidence_link",
+      "deletedCount": 1,
+      "protectedAcceptedCount": 1,
+      "unrequestedClassesChanged": 0
+    },
+    {
+      "testId": "IT-RET-HOLD-04",
+      "dataClass": "idempotency_key",
+      "deletedCount": 0,
+      "legalHoldCount": 1
+    },
+    {
+      "testId": "IT-RET-RESUME-06",
+      "dataClass": "idempotency_key",
+      "firstCommittedBatchCount": 1,
+      "resumedDeletedCount": 2,
+      "finalCheckpoint": "COMPLETED"
+    },
+    {
+      "testId": "IT-RET-PII-07",
+      "dataClass": "speech_snapshot",
+      "anonymizedCount": 1,
+      "sensitiveFixtureValuesRemaining": 0
+    }
+  ],
+  "containsCustomerData": false
+}

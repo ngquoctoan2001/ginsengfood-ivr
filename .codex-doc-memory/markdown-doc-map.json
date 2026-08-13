@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T08:11:11.595Z",
+  "generatedAt": "2026-08-13T09:27:35.811Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -19,55 +19,62 @@
         {
           "depth": 2,
           "text": "Commands",
-          "line": 10,
+          "line": 12,
           "slug": "commands"
         },
         {
           "depth": 3,
           "text": "analyze — Build or refresh the index",
-          "line": 12,
+          "line": 14,
           "slug": "analyze-build-or-refresh-the-index"
         },
         {
           "depth": 3,
           "text": "status — Check index freshness",
-          "line": 28,
+          "line": 30,
           "slug": "status-check-index-freshness"
         },
         {
           "depth": 3,
           "text": "clean — Delete the index",
-          "line": 36,
+          "line": 38,
           "slug": "clean-delete-the-index"
         },
         {
           "depth": 3,
           "text": "wiki — Generate documentation from the graph",
-          "line": 49,
+          "line": 51,
           "slug": "wiki-generate-documentation-from-the-graph"
         },
         {
           "depth": 3,
           "text": "list — Show all indexed repos",
-          "line": 66,
+          "line": 68,
           "slug": "list-show-all-indexed-repos"
         },
         {
           "depth": 2,
           "text": "After Indexing",
-          "line": 74,
+          "line": 76,
           "slug": "after-indexing"
         },
         {
           "depth": 2,
           "text": "Troubleshooting",
-          "line": 79,
+          "line": 81,
           "slug": "troubleshooting"
         }
       ],
-      "links": [],
-      "lines": 84,
-      "words": 483,
+      "links": [
+        {
+          "kind": "markdown",
+          "text": "#1939",
+          "rawTarget": "https://github.com/abhigyanpatwari/GitNexus/issues/1939",
+          "line": 10
+        }
+      ],
+      "lines": 86,
+      "words": 581,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -114,19 +121,19 @@
         {
           "depth": 2,
           "text": "Tools",
-          "line": 49,
+          "line": 50,
           "slug": "tools"
         },
         {
           "depth": 2,
           "text": "Example: \"Payment endpoint returns 500 intermittently\"",
-          "line": 75,
+          "line": 87,
           "slug": "example-payment-endpoint-returns-500-intermittently"
         }
       ],
       "links": [],
-      "lines": 90,
-      "words": 201,
+      "lines": 102,
+      "words": 264,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -224,21 +231,45 @@
           "slug": "tools-reference"
         },
         {
+          "depth": 3,
+          "text": "Paginating `list_repos`",
+          "line": 47,
+          "slug": "paginating-listrepos"
+        },
+        {
+          "depth": 3,
+          "text": "Taint findings (`explain`)",
+          "line": 78,
+          "slug": "taint-findings-explain"
+        },
+        {
+          "depth": 3,
+          "text": "Control & data dependence (`pdg_query`)",
+          "line": 88,
+          "slug": "control-data-dependence-pdgquery"
+        },
+        {
+          "depth": 3,
+          "text": "Shortest path between two symbols (`trace`)",
+          "line": 97,
+          "slug": "shortest-path-between-two-symbols-trace"
+        },
+        {
           "depth": 2,
           "text": "Resources Reference",
-          "line": 43,
+          "line": 107,
           "slug": "resources-reference"
         },
         {
           "depth": 2,
           "text": "Graph Schema",
-          "line": 56,
+          "line": 120,
           "slug": "graph-schema"
         }
       ],
       "links": [],
-      "lines": 65,
-      "words": 381,
+      "lines": 129,
+      "words": 1015,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -503,25 +534,25 @@
         {
           "depth": 2,
           "text": "Never Do",
-          "line": 16,
+          "line": 17,
           "slug": "never-do"
         },
         {
           "depth": 2,
           "text": "Resources",
-          "line": 23,
+          "line": 24,
           "slug": "resources"
         },
         {
           "depth": 2,
           "text": "CLI",
-          "line": 32,
+          "line": 33,
           "slug": "cli"
         }
       ],
       "links": [],
-      "lines": 44,
-      "words": 340,
+      "lines": 45,
+      "words": 381,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -547,25 +578,25 @@
         {
           "depth": 2,
           "text": "Never Do",
-          "line": 16,
+          "line": 17,
           "slug": "never-do"
         },
         {
           "depth": 2,
           "text": "Resources",
-          "line": 23,
+          "line": 24,
           "slug": "resources"
         },
         {
           "depth": 2,
           "text": "CLI",
-          "line": 32,
+          "line": 33,
           "slug": "cli"
         }
       ],
       "links": [],
-      "lines": 44,
-      "words": 340,
+      "lines": 45,
+      "words": 381,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215176,6 +215207,73 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0064/README.md",
+      "title": "W-0064 — P1-5 Retention Job & Data Lifecycle Evidence",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0064 — P1-5 Retention Job & Data Lifecycle Evidence",
+          "line": 1,
+          "slug": "w-0064-p1-5-retention-job-data-lifecycle-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Phạm vi đã chứng minh",
+          "line": 5,
+          "slug": "phạm-vi-đã-chứng-minh"
+        },
+        {
+          "depth": 2,
+          "text": "Bằng chứng test bắt buộc",
+          "line": 13,
+          "slug": "bằng-chứng-test-bắt-buộc"
+        },
+        {
+          "depth": 2,
+          "text": "Report fixture đã chạy",
+          "line": 38,
+          "slug": "report-fixture-đã-chạy"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates",
+          "line": 46,
+          "slug": "residual-gates"
+        }
+      ],
+      "links": [
+        {
+          "kind": "markdown",
+          "text": "DB-05",
+          "rawTarget": "../../../specs/database/05-retention-and-privacy.md",
+          "line": 42
+        }
+      ],
+      "lines": 52,
+      "words": 416,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [
+        {
+          "from": "docs/evidence/W-0064/README.md",
+          "to": "specs/database/05-retention-and-privacy.md",
+          "kind": "markdown",
+          "rawTarget": "../../../specs/database/05-retention-and-privacy.md",
+          "line": 42
+        }
+      ],
+      "unresolvedLinks": [],
+      "incomingLinks": [
+        {
+          "from": "specs/database/05-retention-and-privacy.md",
+          "to": "docs/evidence/W-0064/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/evidence/W-0064/README.md",
+          "line": 85
+        }
+      ]
+    },
+    {
       "path": "docs/evidence/W-0085/README.md",
       "title": "W-0085 Linux ProjectReference path portability",
       "frontmatter": {},
@@ -219934,19 +220032,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 272,
+          "line": 275,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 293,
+          "line": 296,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 552,
-      "words": 9773,
+      "lines": 573,
+      "words": 9973,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -229384,27 +229482,45 @@
         },
         {
           "depth": 2,
-          "text": "1. Nguyên tắc",
+          "text": "1. Nguyên tắc bất biến",
           "line": 5,
-          "slug": "1-nguyên-tắc"
+          "slug": "1-nguyên-tắc-bất-biến"
         },
         {
           "depth": 2,
-          "text": "2. Retention theo loại (số cụ thể ⏳ DF-07 — Owner+Legal)",
-          "line": 11,
-          "slug": "2-retention-theo-loại-số-cụ-thể-df-07-ownerlegal"
+          "text": "2. Data class, chiến lược và nguồn period",
+          "line": 16,
+          "slug": "2-data-class-chiến-lược-và-nguồn-period"
         },
         {
           "depth": 2,
-          "text": "3. Masking",
-          "line": 22,
-          "slug": "3-masking"
+          "text": "3. Phủ bảng `02-tables.md` §1–§8",
+          "line": 32,
+          "slug": "3-phủ-bảng-02-tablesmd-18"
         },
         {
           "depth": 2,
-          "text": "4. Migration gate liên quan privacy",
-          "line": 26,
-          "slug": "4-migration-gate-liên-quan-privacy"
+          "text": "4. Thuật toán, batch và khả năng resume",
+          "line": 55,
+          "slug": "4-thuật-toán-batch-và-khả-năng-resume"
+        },
+        {
+          "depth": 2,
+          "text": "5. Masking và privacy",
+          "line": 66,
+          "slug": "5-masking-và-privacy"
+        },
+        {
+          "depth": 2,
+          "text": "6. Gate và trạng thái còn mở",
+          "line": 73,
+          "slug": "6-gate-và-trạng-thái-còn-mở"
+        },
+        {
+          "depth": 2,
+          "text": "7. Migration gate liên quan privacy",
+          "line": 80,
+          "slug": "7-migration-gate-liên-quan-privacy"
         }
       ],
       "links": [
@@ -229412,11 +229528,17 @@
           "kind": "markdown",
           "text": "06-migration-plan.md",
           "rawTarget": "06-migration-plan.md",
-          "line": 27
+          "line": 85
+        },
+        {
+          "kind": "markdown",
+          "text": "W-0064",
+          "rawTarget": "../../docs/evidence/W-0064/README.md",
+          "line": 85
         }
       ],
-      "lines": 28,
-      "words": 242,
+      "lines": 86,
+      "words": 1063,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -229424,11 +229546,25 @@
           "to": "specs/database/06-migration-plan.md",
           "kind": "markdown",
           "rawTarget": "06-migration-plan.md",
-          "line": 27
+          "line": 85
+        },
+        {
+          "from": "specs/database/05-retention-and-privacy.md",
+          "to": "docs/evidence/W-0064/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/evidence/W-0064/README.md",
+          "line": 85
         }
       ],
       "unresolvedLinks": [],
       "incomingLinks": [
+        {
+          "from": "docs/evidence/W-0064/README.md",
+          "to": "specs/database/05-retention-and-privacy.md",
+          "kind": "markdown",
+          "rawTarget": "../../../specs/database/05-retention-and-privacy.md",
+          "line": 42
+        },
         {
           "from": "specs/database/00-index.md",
           "to": "specs/database/05-retention-and-privacy.md",
@@ -229505,7 +229641,7 @@
           "to": "specs/database/06-migration-plan.md",
           "kind": "markdown",
           "rawTarget": "06-migration-plan.md",
-          "line": 27
+          "line": 85
         }
       ]
     },
@@ -232814,6 +232950,13 @@
       "line": 540
     },
     {
+      "from": "docs/evidence/W-0064/README.md",
+      "to": "specs/database/05-retention-and-privacy.md",
+      "kind": "markdown",
+      "rawTarget": "../../../specs/database/05-retention-and-privacy.md",
+      "line": 42
+    },
+    {
       "from": "integration-requirements/00-index.md",
       "to": "integration-requirements/01-sales-platform-requirements.md",
       "kind": "markdown",
@@ -233917,7 +234060,14 @@
       "to": "specs/database/06-migration-plan.md",
       "kind": "markdown",
       "rawTarget": "06-migration-plan.md",
-      "line": 27
+      "line": 85
+    },
+    {
+      "from": "specs/database/05-retention-and-privacy.md",
+      "to": "docs/evidence/W-0064/README.md",
+      "kind": "markdown",
+      "rawTarget": "../../docs/evidence/W-0064/README.md",
+      "line": 85
     },
     {
       "from": "specs/functional/00-index.md",

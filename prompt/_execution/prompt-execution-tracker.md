@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0087` |
 | Last allocated | `W-0086` |
-| Last activity sequence | `A-0103` |
+| Last activity sequence | `A-0106` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -125,7 +125,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0059` | `P11-3` | legal/retention/script/release package | W-0052,W-0053 | NOT_STARTED |  |  |  | owns W-0009 inputs |
 | `W-0060` | `P11-4` | readiness board/evidence/go-no-go | — (liên tục; đọc tracker §3/§4/§5) | NOT_STARTED |  |  |  | mirrors, does not replace this ledger |
 | `W-0062` | Red-team remediation | Sửa tài liệu/contract/prompt/fixture theo red-team findings (Origin=`RED_TEAM_REMEDIATION`) | W-0001 | EVIDENCE_SUBMITTED | Claude + IVR owner | governance restore, DB/OpenAPI/seed realign, 3 prompt mới, tracker | link/JSON/YAML/OpenAPI/seed-schema/prompt-graph checks — xem §9 | không đóng external gate nào; chờ owner review |
-| `W-0064` | `P1-5` | retention job + data lifecycle (`IRetentionJob`) | W-0015 | NOT_STARTED |  |  |  | prereq của W-0044/W-0051/W-0052/W-0053; retention period thật chờ DF-07/`OD-V1-11` |
+| `W-0064` | `P1-5` | retention job + data lifecycle (`IRetentionJob`) | W-0015 | TESTS_PASS | Codex | branch `codex/w0064-p1-5-retention`; Domain/Infrastructure/Worker; EF migration; DB-05; `docs/evidence/W-0064/` | 7/7 focused; full 105/105; coverage 93.70%; migration apply/rollback/recreate; format/config/OpenAPI/UI/security/PII/Compose PASS | owner/reviewer acceptance pending; production periods vẫn `OWNER_DECISION_REQUIRED` theo DF-07/`OD-V1-11`; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | `W-0065` | `P2-8` | IVR internal & admin API (13 operation còn thiếu) | W-0013,W-0018,W-0020,W-0022,W-0023 | NOT_STARTED |  |  |  | prereq của W-0025/W-0026/W-0027/W-0036; quyền `IVR_RUNTIME_GATE_ADMIN` chờ `OD-V1-20` |
 | `W-0066` | `P2-9` | speech/TTS provider port + adapter skeleton | W-0021,W-0024,W-0064 | NOT_STARTED |  |  |  | prereq của W-0048; vendor TTS chờ `OD-V1-19` |
 | `W-0067` | Fix: PII regex control char | Ký tự điều khiển `0x08` lọt vào regex PII của `pii_scan` (P0-2) làm pattern vô hiệu (Origin=`RED_TEAM_REMEDIATION`) | W-0062 | EVIDENCE_SUBMITTED | Claude | `P0-2` §6.2 | 0x08 = 0 toàn repo; 5/5 pattern test pass | pattern chuyển sang `deploy/ci/pii-patterns.txt`, tạo file thật ở W-0011 |
@@ -268,6 +268,9 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0101` | 2026-08-13 | `W-0086` | HOSTED_DISCOVERY/REMEDIATION | Pipeline `#2756604515` xác nhận fingerprint lịch sử đã được ignore, nhưng câu mô tả finding trong chính evidence W-0086 lại tạo meta false positive mới trên synthetic merge ref; sửa wording và amend commit thay vì thêm exception nối tiếp | Codex | security job `15873949053`; exact `refs/merge-requests/3/merge` depth-20 reproduction: 21 commits, one redacted match in `docs/evidence/W-0086/README.md:19`; `pii_scan` PASS |
 | `A-0102` | 2026-08-13 | `W-0086` | HOSTED_DISCOVERY/REMEDIATION | Pipeline `#2756636651` vẫn thấy orphan commit cũ trong persistent runner worktree dù fresh clone của exact synthetic merge ref xanh; khóa Git history scan vào commit pipeline đã validate thay vì quét mọi local ref | Codex | job `15874176742`; fresh `refs/merge-requests/3/merge` PASS 21 commits/19.93 MB/no leaks; GitNexus blast radius LOW, 0 affected processes; thêm config regression guard cho `${CI_COMMIT_SHA:-HEAD}` + `--log-opts` |
 | `A-0103` | 2026-08-13 | `W-0086`,`W-0061` | VALIDATION/HANDOFF | Final remediation pipeline xanh; chuyển W-0086 sang ACCEPTED và cho phép MR `!3` tiếp tục merge-check. W-0061 không đổi verdict, chỉ còn approval rule bắt buộc là BLOCKED_EXTERNAL | Codex | pipeline `#2756668648` PASS 9/9 jobs, 98 tests, 11m57s; security `15874408908` PASS 20 commits/19.91 MB/no leaks; privacy `15874408909` PASS |
+| `A-0104` | 2026-08-13 | `W-0064` | START | Bắt đầu P1-5 retention/data lifecycle từ protected-main merge; giữ default dry-run, fail-closed khi thiếu period, legal hold thắng retention và audit/evidence accepted không bị purge | Codex | baseline `5544395`; branch `codex/w0064-p1-5-retention`; `REAL_CUSTOMER_CALL_ALLOWED=NO`; GitNexus refresh đang chạy trước symbol edits |
+| `A-0105` | 2026-08-13 | `W-0064` | IMPLEMENTATION/VALIDATION | Dựng catalog 9 data class, default dry-run/fail-closed config, legal hold, child-first batch bằng `SKIP LOCKED`, checkpoint/resume, audit/metric/age alert, one-pass worker host và EF migration; self-review bổ sung trigger redaction một chiều + rollback trigger cũ và bảo vệ accepted evidence | Codex | UT-RET 1/1 + IT-RET 6/6 PASS trên PostgreSQL Testcontainers; IT-DB-MIGRATE-01 PASS; EF no pending model changes |
+| `A-0106` | 2026-08-13 | `W-0064` | CHANGE_REVIEW/HANDOFF | Chốt P1-5 local ở `TESTS_PASS`; DB-05 phủ đủ 18 bảng, evidence aggregate không PII; giữ period production trống để Legal/Privacy quyết định và không nâng thành ACCEPTED | Codex | locked restore; build 0/0; format PASS; full 105/105; coverage 93.70%; CI config/OpenAPI/docs/UI/npm/NuGet/Compose/Gitleaks/PII PASS; official map 409 file/374 link/0 unresolved; evidence `docs/evidence/W-0064/` |
 
 ## 8. Per-work completion record template
 
@@ -437,6 +440,24 @@ Real integration evidence: NOT_RUN; no Sales API/auth/provider connected
 Production evidence: NOT_RUN; no GitLab hosted MR/runner/protected settings/registry, staging, eSIM, or release proof
 Residual blockers/risks: W-0061/G-GITLAB BLOCKED_EXTERNAL because remote remains GitHub-only and no GitLab platform access is available; CODEOWNERS paths are planned placeholders until Platform provisions/verifies groups and enforcement; 10 OpenAPI advisory warnings remain visible for P1-1 hardening
 Next allowed Work ID(s): W-0061 should be closed next for hosted CI proof; W-0012/P0-3 is dependency-eligible from W-0010 and may proceed while W-0061 remains explicit
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0064 / P1-5
+Baseline/commit: main@5544395; dedicated P1-5 commit created after this record
+Scope completed: Domain retention port/report; config-backed nine-class policy; fail-closed NOT_CONFIGURED behavior; DELETE/ANONYMIZE catalog; legal hold; accepted-evidence/audit protection; child-first short PostgreSQL batches; resumable checkpoints; privacy-safe audit/metrics/age alert; one-pass Worker host; EF migration and rollback-safe snapshot trigger; full DB-05 matrix
+Files/artifacts: src/Ivr.Domain/Retention/**; src/Ivr.Infrastructure/Retention/**; src/Ivr.Infrastructure/Persistence/**; src/Ivr.Worker/Jobs/RetentionJobHost.cs and safe appsettings; tests/Ivr.UnitTests/RetentionPolicyTests.cs; tests/Ivr.IntegrationTests/Retention/**; specs/database/05-retention-and-privacy.md; docs/evidence/W-0064/**
+Commands and exact results: locked restore PASS; Release build 0 warning/0 error; format PASS; EF no pending model changes; migration apply/rollback/recreate PASS with 18 IVR tables; focused unit 1/1 + PostgreSQL integration 6/6; full contract 19 + unit 57 + integration 29 = 105/105; merged coverage 93.70% (10887/11619); CI config, OpenAPI lint/parse/schema/hash/negative, docs portal tests, UI lint/build, both npm audits, NuGet High, Compose, Gitleaks and locale-stable PII PASS
+Tests/evidence: UT-RET-CONFIG-01 and IT-RET-DRYRUN-02/DELETE-03/HOLD-04/AUDIT-05/RESUME-06/PII-07 all PASS; sanitized dry-run/real-run aggregate reports and matrix at docs/evidence/W-0064/
+Review/acceptance by: Codex self-review under explicit IVR owner authorization; status limited to TESTS_PASS until owner/reviewer accepts and Legal/Privacy closes DF-07 periods
+Mock-only evidence: complete for P1-5 behavior using config test periods and disposable real PostgreSQL; repository defaults remain host disabled, DryRun=true and PeriodDays empty
+Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, destination call or customer interaction
+Real integration evidence: NOT_RUN; no Sales endpoint/auth/provider invoked and no production data processed
+Production evidence: NOT_RUN; no production period, schedule, deployment or legal approval; REAL_CUSTOMER_CALL_ALLOWED=NO
+Residual blockers/risks: DF-07/OD-V1-11 is OWNER_DECISION_REQUIRED for all production periods; audit/accepted evidence policy changes require separate decision; P7-2 owns CronJob schedule; hosted CI/MR evidence intentionally handled outside this local prompt
+GitNexus review: staged HIGH breadth with 31 files, 33 indexed symbols and 7 existing persistence flows; pre-edit impact was CRITICAL for RetainedEntity/IvrDbContext and MEDIUM for model/evidence configuration, so changes stayed additive and full PostgreSQL/regression proof is authoritative; untracked new retention symbols are a graph lower bound
+Next allowed Work ID(s): W-0024/P2-7 remains the recommended next implementation; W-0066/P2-9 is dependency-eligible after W-0064 and may follow the planned order
 Final status: TESTS_PASS
 ```
 

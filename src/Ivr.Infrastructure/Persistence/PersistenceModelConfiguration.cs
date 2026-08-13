@@ -18,6 +18,7 @@ internal static class PersistenceModelConfiguration
         ConfigureChannel(modelBuilder);
         ConfigureOperations(modelBuilder);
         ConfigureFoundation(modelBuilder);
+        ConfigureRetention(modelBuilder);
         ApplyStorageConventions(modelBuilder);
     }
 
@@ -309,6 +310,8 @@ internal static class PersistenceModelConfiguration
         evidenceLink.Property(entity => entity.Id).UseIdentityByDefaultColumn();
         evidenceLink.HasIndex(entity => new { entity.OwnerTable, entity.OwnerId });
         evidenceLink.HasIndex(entity => entity.EvidenceRef);
+        evidenceLink.HasIndex(entity => entity.CreatedAt);
+        evidenceLink.HasIndex(entity => entity.AcceptedAt);
     }
 
     private static void ConfigureFoundation(ModelBuilder modelBuilder)
@@ -332,6 +335,7 @@ internal static class PersistenceModelConfiguration
         evidence.HasIndex(entity => entity.CorrelationId);
         evidence.HasIndex(entity => entity.WorkId);
         evidence.HasIndex(entity => entity.CreatedAt);
+        evidence.HasIndex(entity => entity.AcceptedAt);
 
         var review = modelBuilder.Entity<ReviewItemEntity>();
         review.ToTable("ivr_review_items");
@@ -341,6 +345,16 @@ internal static class PersistenceModelConfiguration
         review.HasIndex(entity => new { entity.SourceType, entity.SourceId });
     }
 
+    private static void ConfigureRetention(ModelBuilder modelBuilder)
+    {
+        var checkpoint = modelBuilder.Entity<RetentionCheckpointEntity>();
+        checkpoint.ToTable("ivr_retention_checkpoints");
+        checkpoint.HasKey(entity => new { entity.DataClass, entity.Segment });
+        checkpoint.HasIndex(entity => entity.RunId);
+        checkpoint.HasIndex(entity => new { entity.Status, entity.UpdatedAt });
+        checkpoint.HasIndex(entity => entity.FirstNotConfiguredAt);
+    }
+
     private static void ApplyStorageConventions(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -348,6 +362,16 @@ internal static class PersistenceModelConfiguration
             if (entityType.ClrType == typeof(FeatureFlagEntity))
             {
                 continue;
+            }
+
+            if (typeof(RetainedEntity).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasIndex(nameof(RetainedEntity.RetainUntil));
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasIndex(nameof(RetainedEntity.LegalHoldUntil));
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasIndex(nameof(RetainedEntity.AnonymizedAt));
             }
 
             foreach (var property in entityType.GetProperties())

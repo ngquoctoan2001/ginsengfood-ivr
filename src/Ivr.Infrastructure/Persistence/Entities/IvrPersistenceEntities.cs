@@ -5,6 +5,10 @@ public abstract class RetainedEntity
     public string RetentionClass { get; set; } = "LEGAL_DECISION_PENDING";
 
     public DateTimeOffset? RetainUntil { get; set; }
+
+    public DateTimeOffset? LegalHoldUntil { get; set; }
+
+    public DateTimeOffset? AnonymizedAt { get; set; }
 }
 
 public sealed class ConfirmationTaskEntity : RetainedEntity
@@ -263,13 +267,15 @@ public sealed class AdminActionEntity : RetainedEntity
     public DateTimeOffset CreatedAt { get; set; }
 }
 
-public sealed class EvidenceLinkEntity
+public sealed class EvidenceLinkEntity : RetainedEntity
 {
     public long Id { get; set; }
     public string OwnerTable { get; set; } = string.Empty;
     public string OwnerId { get; set; } = string.Empty;
     public string EvidenceRef { get; set; } = string.Empty;
     public string? AuditRef { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
+    public DateTimeOffset? AcceptedAt { get; set; }
 }
 
 public sealed class IdempotencyKeyEntity : RetainedEntity
@@ -306,6 +312,7 @@ public sealed class EvidenceEntity : RetainedEntity
     public string WorkId { get; set; } = string.Empty;
     public string PayloadRef { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? AcceptedAt { get; set; }
 }
 
 public sealed class ReviewItemEntity : RetainedEntity
@@ -320,4 +327,16 @@ public sealed class ReviewItemEntity : RetainedEntity
     public string CorrelationId { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? ResolvedAt { get; set; }
+}
+
+public sealed class RetentionCheckpointEntity
+{
+    public string DataClass { get; set; } = string.Empty;
+    public string Segment { get; set; } = string.Empty;
+    public Guid RunId { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public long ProcessedCount { get; set; }
+    public DateTimeOffset? FirstNotConfiguredAt { get; set; }
+    public DateTimeOffset LastRunAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 }

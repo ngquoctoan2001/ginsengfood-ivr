@@ -1,12 +1,12 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-13T08:11:11.595Z
+Generated: 2026-08-13T09:27:35.811Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 408
-- Links resolved: 372
+- Markdown files: 409
+- Links resolved: 374
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
@@ -36,11 +36,11 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/_archive/13-seed-and-mock-strategy-plan.md | 13 — Seed & Mock Strategy Plan | 2 | 2 | 744 |
 | plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1 | 3 | 379 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 4 | 0 | 1749 |
+| specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 2 | 2 | 1063 |
 | docs/api-changelog.md | IVR API Contract Changelog | 0 | 3 | 208 |
 | plan/ivr-orther/_archive/02-current-understanding.md | 02 — Current Understanding | 1 | 2 | 1078 |
 | plan/ivr-orther/_archive/05-sales-platform-analysis-plan.md | 05 — Sales Platform Analysis Plan (Module 3 / 3.1) | 0 | 3 | 503 |
 | plan/ivr-orther/_archive/15-open-questions.md | 15 — Open Questions | 2 | 1 | 1079 |
-| specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 3 | 0 | 1035 |
 
 ## Duplicate Titles
 
@@ -111,18 +111,18 @@ Root: C:\Users\Administrator\Desktop\ivr
 
 | File | Title | H1/Headings | Incoming | Outgoing | Unresolved | Words |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| .claude/skills/gitnexus/gitnexus-cli/SKILL.md | GitNexus CLI Commands | 1/9 | 0 | 0 | 0 | 483 |
-| .claude/skills/gitnexus/gitnexus-debugging/SKILL.md | Debugging with GitNexus | 1/7 | 0 | 0 | 0 | 201 |
+| .claude/skills/gitnexus/gitnexus-cli/SKILL.md | GitNexus CLI Commands | 1/9 | 0 | 0 | 0 | 581 |
+| .claude/skills/gitnexus/gitnexus-debugging/SKILL.md | Debugging with GitNexus | 1/7 | 0 | 0 | 0 | 264 |
 | .claude/skills/gitnexus/gitnexus-exploring/SKILL.md | Exploring Codebases with GitNexus | 1/7 | 0 | 0 | 0 | 178 |
-| .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/6 | 0 | 0 | 0 | 381 |
+| .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/10 | 0 | 0 | 0 | 1015 |
 | .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md | Impact Analysis with GitNexus | 1/8 | 0 | 0 | 0 | 225 |
 | .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md | Refactoring with GitNexus | 1/10 | 0 | 0 | 0 | 187 |
 | .gitlab/merge_request_templates/Default.md | IVR change traceability | 1/4 | 0 | 0 | 0 | 209 |
 | admin-ui/AGENTS.md | This is NOT the Next.js you know | 1/1 | 0 | 0 | 0 | 95 |
 | admin-ui/CLAUDE.md | CLAUDE | 0/0 | 0 | 0 | 0 | 1 |
 | admin-ui/README.md | IVR Admin UI | 1/2 | 0 | 0 | 0 | 90 |
-| AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
-| CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
+| AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
+| CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
 | deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 1154 |
 | docs/api/changelog/ivr-order-confirmation.md | API Changelog 1.0.0 vs. 1.0.0 | 1/1 | 1 | 0 | 0 | 9 |
 | docs/api/changelog/order-core-ivr-callback.md | API Changelog 1.0.0-draft vs. 1.0.0-draft | 1/1 | 1 | 0 | 0 | 9 |
@@ -317,6 +317,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0016/README.md | W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards | 1/8 | 0 | 0 | 0 | 756 |
 | docs/evidence/W-0017/README.md | W-0017 / P1-4 API documentation portal evidence | 1/8 | 0 | 0 | 0 | 700 |
 | docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1511 |
+| docs/evidence/W-0064/README.md | W-0064 — P1-5 Retention Job & Data Lifecycle Evidence | 1/5 | 1 | 1 | 0 | 416 |
 | docs/evidence/W-0085/README.md | W-0085 Linux ProjectReference path portability | 1/6 | 0 | 0 | 0 | 270 |
 | docs/evidence/W-0086/README.md | W-0086 — Shallow-clone Gitleaks fingerprint remediation | 1/4 | 0 | 0 | 0 | 401 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
@@ -368,7 +369,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 9773 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 9973 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
@@ -478,7 +479,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/database/02-tables.md | DB-02 — Tables | 1/10 | 1 | 0 | 0 | 2236 |
 | specs/database/03-enums-and-status.md | DB-03 — Enums and Status | 1/1 | 1 | 0 | 0 | 117 |
 | specs/database/04-indexes.md | DB-04 — Indexes & Constraints | 1/6 | 1 | 0 | 0 | 933 |
-| specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 1/5 | 1 | 1 | 0 | 242 |
+| specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 1/8 | 2 | 2 | 0 | 1063 |
 | specs/database/06-migration-plan.md | DB-06 — Migration Plan | 1/7 | 2 | 0 | 0 | 384 |
 | specs/functional/00-index.md | Functional SRS — Index | 1/4 | 0 | 8 | 0 | 379 |
 | specs/functional/01-task-intake.md | FR — Task Intake | 1/3 | 1 | 0 | 0 | 282 |
