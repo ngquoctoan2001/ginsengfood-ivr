@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-12T14:30:32.258Z",
+  "generatedAt": "2026-08-13T01:41:57.173Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -214792,6 +214792,68 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0016/README.md",
+      "title": "W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards",
+          "line": 1,
+          "slug": "w-0016-p1-3-domain-dto-mapping-provider-ports-and-privacy-guards"
+        },
+        {
+          "depth": 2,
+          "text": "Implemented scope",
+          "line": 11,
+          "slug": "implemented-scope"
+        },
+        {
+          "depth": 2,
+          "text": "Tests executed",
+          "line": 26,
+          "slug": "tests-executed"
+        },
+        {
+          "depth": 2,
+          "text": "Review evidence",
+          "line": 39,
+          "slug": "review-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Full local gates",
+          "line": 53,
+          "slug": "full-local-gates"
+        },
+        {
+          "depth": 2,
+          "text": "Security-gate remediation discovered during closure",
+          "line": 73,
+          "slug": "security-gate-remediation-discovered-during-closure"
+        },
+        {
+          "depth": 2,
+          "text": "Explicit residual gates",
+          "line": 82,
+          "slug": "explicit-residual-gates"
+        },
+        {
+          "depth": 2,
+          "text": "Reproduction commands",
+          "line": 91,
+          "slug": "reproduction-commands"
+        }
+      ],
+      "links": [],
+      "lines": 108,
+      "words": 752,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "integration-requirements/00-index.md",
       "title": "Integration Requirements — Index (IVR Order Confirmation)",
       "frontmatter": {},
@@ -219302,31 +219364,31 @@
         {
           "depth": 2,
           "text": "6. Unplanned work insertion template",
-          "line": 143,
+          "line": 144,
           "slug": "6-unplanned-work-insertion-template"
         },
         {
           "depth": 2,
           "text": "7. Activity log (append-only)",
-          "line": 155,
+          "line": 156,
           "slug": "7-activity-log-append-only"
         },
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 224,
+          "line": 233,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 245,
+          "line": 254,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 467,
-      "words": 6890,
+      "lines": 476,
+      "words": 7483,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -233567,6 +233629,7 @@
       "docs/evidence/W-0013/README.md",
       "docs/evidence/W-0014/README.md",
       "docs/evidence/W-0015/README.md",
+      "docs/evidence/W-0016/README.md",
       "plan/ivr-orther/_archive/01-reading-inventory.md",
       "plan/ivr-orther/_archive/08-target-specs-structure-proposal.md",
       "prompt/_review/phase-0-11-spec-alignment-review.md",
