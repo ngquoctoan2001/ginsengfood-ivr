@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0087` |
 | Last allocated | `W-0086` |
-| Last activity sequence | `A-0102` |
+| Last activity sequence | `A-0103` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -147,7 +147,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0083` | Source project dependency guard remediation | `Origin=RED_TEAM_REMEDIATION` · thay assembly-only check bằng exact `src/*.csproj` reference matrix | W-0010,W-0014 | TESTS_PASS | Codex | `ArchitectureDependencyTests` reads every source `.csproj` and exact approved direct refs | UT-BOOT-03 1/1; unit 54/54; full solution 96/96 | local guard complete; any new source project/reference must update reviewed matrix |
 | `W-0084` | PostgreSQL audit append-only proof | `Origin=RED_TEAM_REMEDIATION` · chứng minh trực tiếp trigger chặn cả UPDATE và DELETE, bản ghi không đổi | W-0015 | TESTS_PASS | Codex | PostgreSQL Testcontainers `IT-DB-AUDIT-07` | direct UPDATE and DELETE both SQLSTATE `P0001`/append-only; row unchanged; integration 23/23; full 96/96 | local PostgreSQL proof complete; no staging/production database mutation performed |
 | `W-0085` | Linux ProjectReference path portability | `Origin=UNPLANNED` · discovered 2026-08-13 from hosted GitLab job `15870797229` · Windows-style `ProjectReference` separators made UT-BOOT-03 fail only on Linux · priority P0 · affects hosted build gate | W-0083,W-0061 | ACCEPTED | Codex (explicit IVR owner authorization) | cross-platform project-name resolver + Windows/Unix separator regression; `docs/evidence/W-0085/` | local 98/98; hosted pipelines `#2756119982` và self-hosted `#2756183002` đều 9/9 jobs + 98/98 tests PASS | source defect closed; W-0061 remains separately open only for required independent MR approval |
-| `W-0086` | Shallow-clone Gitleaks fingerprint remediation | `Origin=UNPLANNED` · MR `!3` job `15873689410` exposed immutable planning-prose false positive only at depth-20 history boundary | W-0011,W-0061 | TESTS_PASS | Codex | exact commit/file/rule/line fingerprint in `.gitleaksignore`; `docs/evidence/W-0086/` | full-history PASS; depth-20 failure reproduced; remediated depth-20 scan 20 commits/19.93 MB/no leaks; config PASS | do not weaken scanner; promote only after MR pipeline green |
+| `W-0086` | Shallow-clone Gitleaks fingerprint remediation | `Origin=UNPLANNED` · MR `!3` job `15873689410` exposed immutable planning-prose false positive at depth boundary; persistent runner later retained orphan amended commits | W-0011,W-0061 | ACCEPTED | Codex | exact historical fingerprint plus validated `${CI_COMMIT_SHA:-HEAD}` Gitleaks history scope; `docs/evidence/W-0086/` | local current-HEAD 23 commits/20.45 MB/no leaks; MR pipeline `#2756668648` 9/9 jobs + 98 tests PASS; security `15874408908` and privacy `15874408909` PASS | scanner remains fail-closed; only pipeline commit ancestry is authoritative, not stale runner refs |
 
 ## 6. Unplanned work insertion template
 
@@ -267,6 +267,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0100` | 2026-08-13 | `W-0086` | REMEDIATION/VALIDATION | Thêm đúng fingerprint commit/file/rule/line vào `.gitleaksignore`; không exempt file, không nới regex/rule, giữ CT-CI-04 fake-PAT negative test | Codex | remediated depth-20 scan PASS: 20 commits, 19.93 MB, no leaks; config PASS; hosted rerun còn bắt buộc trước ACCEPTED |
 | `A-0101` | 2026-08-13 | `W-0086` | HOSTED_DISCOVERY/REMEDIATION | Pipeline `#2756604515` xác nhận fingerprint lịch sử đã được ignore, nhưng câu mô tả finding trong chính evidence W-0086 lại tạo meta false positive mới trên synthetic merge ref; sửa wording và amend commit thay vì thêm exception nối tiếp | Codex | security job `15873949053`; exact `refs/merge-requests/3/merge` depth-20 reproduction: 21 commits, one redacted match in `docs/evidence/W-0086/README.md:19`; `pii_scan` PASS |
 | `A-0102` | 2026-08-13 | `W-0086` | HOSTED_DISCOVERY/REMEDIATION | Pipeline `#2756636651` vẫn thấy orphan commit cũ trong persistent runner worktree dù fresh clone của exact synthetic merge ref xanh; khóa Git history scan vào commit pipeline đã validate thay vì quét mọi local ref | Codex | job `15874176742`; fresh `refs/merge-requests/3/merge` PASS 21 commits/19.93 MB/no leaks; GitNexus blast radius LOW, 0 affected processes; thêm config regression guard cho `${CI_COMMIT_SHA:-HEAD}` + `--log-opts` |
+| `A-0103` | 2026-08-13 | `W-0086`,`W-0061` | VALIDATION/HANDOFF | Final remediation pipeline xanh; chuyển W-0086 sang ACCEPTED và cho phép MR `!3` tiếp tục merge-check. W-0061 không đổi verdict, chỉ còn approval rule bắt buộc là BLOCKED_EXTERNAL | Codex | pipeline `#2756668648` PASS 9/9 jobs, 98 tests, 11m57s; security `15874408908` PASS 20 commits/19.91 MB/no leaks; privacy `15874408909` PASS |
 
 ## 8. Per-work completion record template
 

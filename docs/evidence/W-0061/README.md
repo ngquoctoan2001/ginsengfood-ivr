@@ -185,7 +185,8 @@ CI_CONFIG_SELFTEST_PASS
 
 W-0011/P0-2 now has hosted pipeline, runner, branch protection, merge-check, Registry, Pages and protected-variable evidence. W-0061 remains `BLOCKED_EXTERNAL` solely because required independent MR approval cannot be enforced or demonstrated on the current GitLab Free/single-member project. This status must not be weakened to `ACCEPTED` merely because optional self-approval is available.
 
-The evidence-recording MR `!3` later exposed a depth-20 Gitleaks historical
-false positive tracked separately as W-0086. That CI remediation does not change
-the platform-control verdict above and must pass its hosted rerun before MR `!3`
-is merged.
+The evidence-recording MR `!3` later exposed a persistent-runner Gitleaks
+history-scope defect tracked separately as W-0086. Final remediation pipeline
+`#2756668648` passed 9/9 jobs and 98 tests; security job `15874408908` scanned
+20 commits/19.91 MB with no leaks. W-0086 is `ACCEPTED` and does not change the
+platform-control verdict above.

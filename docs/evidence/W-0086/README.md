@@ -4,7 +4,7 @@ Date: 2026-08-13
 
 Origin: `UNPLANNED` hosted MR pipeline failure during W-0061 evidence closure
 
-Status: `TESTS_PASS`; hosted rerun pending
+Status: `ACCEPTED`
 
 ## Failure evidence
 
@@ -53,7 +53,14 @@ and must still produce Gitleaks exit 42.
   `${CI_COMMIT_SHA:-HEAD}`. This keeps the complete reachable history in scope
   while excluding stale local refs unrelated to the checked pipeline commit;
 - `npm --prefix deploy/ci run test:config`: PASS;
-- GitLab MR pipeline rerun: required before promotion to `ACCEPTED`.
+- final GitLab MR pipeline `#2756668648`: PASS, 9/9 jobs, 98 tests, 11m57s;
+- hosted security job `15874408908`: PASS, CT-CI-04 fake-PAT negative test
+  rejected, 20 commits/19.91 MB scanned, no leaks, NuGet/npm HIGH gates clear;
+- hosted privacy job `15874408909`: PASS.
+
+Acceptance verdict: the scanner remains fail-closed and history-complete for the
+validated pipeline commit, while persistent-runner orphan refs can no longer
+create nondeterministic findings. W-0086 is closed.
 
 This work changes only a line-specific false-positive fingerprint. It does not
 change application runtime, Sales integration, SIM/eSIM behavior or customer

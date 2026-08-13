@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T07:56:30.188Z",
+  "generatedAt": "2026-08-13T08:11:11.595Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215168,8 +215168,8 @@
         }
       ],
       "links": [],
-      "lines": 192,
-      "words": 1502,
+      "lines": 193,
+      "words": 1511,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215256,8 +215256,8 @@
         }
       ],
       "links": [],
-      "lines": 61,
-      "words": 349,
+      "lines": 68,
+      "words": 401,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -219934,19 +219934,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 271,
+          "line": 272,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 292,
+          "line": 293,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 551,
-      "words": 9695,
+      "lines": 552,
+      "words": 9773,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
