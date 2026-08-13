@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0087` |
 | Last allocated | `W-0086` |
-| Last activity sequence | `A-0114` |
+| Last activity sequence | `A-0115` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -279,6 +279,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0112` | 2026-08-13 | `W-0018` | IMPLEMENTATION/VALIDATION | Dựng Target V1 intake endpoint, strict schema/canonical idempotency, ordered domain gates, exact attempt/script lookup, MOCK dry-run, atomic PostgreSQL task/job/outbox/audit/idempotency và fake coverage cho cả hai program path | Codex | contract 21 + unit 80 + integration 43 = 144/144; PostgreSQL 8 concurrent → `1/1/1/1/1`; reject → zero task/job/outbox; coverage 95.26%; EF no pending changes |
 | `A-0113` | 2026-08-13 | `W-0018` | SELF_REVIEW/REMEDIATION | Chặn task identifier không public-safe trước khi dùng làm idempotency/audit scope; thu hẹp schema-error catch để lỗi runtime/service không bị ngụy trang thành malformed request; chốt evidence ở MOCK ceiling `TESTS_PASS` | Codex | locked restore; format; build 0/0; CI config/OpenAPI/docs/UI/NuGet/npm/Compose/PII PASS; official map 412/375/0; baseline Gitleaks history 27 commits/no leaks; final GitNexus/commit history scan còn chạy trước commit |
 | `A-0114` | 2026-08-13 | `W-0018` | CHANGE_REVIEW/HANDOFF | Staged review chỉ gồm P2-1, loại AGENTS.md/CLAUDE.md metadata WIP; GitNexus xác nhận CRITICAL breadth đúng với intake API + shared persistence, nên giữ verdict `TESTS_PASS` và dựa trên full API/PostgreSQL/regression proof | Codex | staged 32 files/206 indexed symbols/57 flows; build 0/0; 144/144; coverage 95.26%; EF no drift; focused 13/13 + PostgreSQL 3/3; diff-check PASS |
+| `A-0115` | 2026-08-13 | `W-0018` | COMMIT/PUSH_HANDOFF | Commit P2-1 trực tiếp trên `main`; post-commit Gitleaks sạch; GitHub fast-forward thành công, GitLab từ chối vì protected `main` vẫn cấu hình No one can push. Không hạ protection và không tạo branch/MR trái chỉ đạo owner | Codex | implementation `85c2b63`; Gitleaks 28 commits/21.19 MB/no leaks; GitHub remote ref verified exact; GitLab remains `5544395` with pre-receive rejection |
 
 ## 8. Per-work completion record template
 
@@ -453,16 +454,17 @@ Final status: TESTS_PASS
 
 ```text
 Work ID: W-0018 / P2-1
-Baseline/commit: baseline main@addc423; this record is included in the dedicated P2-1 commit
+Baseline/commit: baseline main@addc423; implementation commit 85c2b63b6b386fcc7311a8c6c64385dacad5b31f; this handoff is finalized in a follow-up documentation commit
 Scope completed: authenticated Target V1 intake; strict contract/schema and canonical idempotency; ordered official-order/matrix/policy/contact/speech/eligibility/script/mode gates; exact duplicate replay/conflict; MOCK dry-run; atomic PostgreSQL task/job/intake-outbox/audit/idempotency; immutable snapshots; retention order; canonical fake scenarios for both program paths
 Files/artifacts: src/Ivr.Api/Intake/**; src/Ivr.Infrastructure/Intake/**; persistence entity/context/config/security/retention changes; migration 20260813111817_P2_1_TaskIntake; seed/sales-target-v1.sample.json; database specs; TaskIntake unit/integration/contract tests; docs/evidence/W-0018/README.md
-Commands and exact results: locked restore PASS; Release build 0 warnings/0 errors; format PASS; contract 21 + unit 80 + integration 43 = 144/144; merged coverage 95.26% (18289/19200, 3 reports); EF no pending model changes; CI config/OpenAPI/docs/UI/NuGet/npm/Compose/PII PASS; official map 412 files/375 resolved/0 unresolved; baseline Gitleaks history 27 commits/20.92 MB/no leaks
+Commands and exact results: locked restore PASS; Release build 0 warnings/0 errors; format PASS; contract 21 + unit 80 + integration 43 = 144/144; merged coverage 95.26% (18289/19200, 3 reports); EF no pending model changes; CI config/OpenAPI/docs/UI/NuGet/npm/Compose/PII PASS; official map 412 files/375 resolved/0 unresolved; implementation-commit Gitleaks history 28 commits/21.19 MB/no leaks
 Tests/evidence: 13 focused service cases; 10 API cases; 2 PostgreSQL cases; 2 contract cases; 8 concurrent requests persist exactly task/job/outbox/idempotency/audit = 1/1/1/1/1; restricted task persists zero task/job/outbox; exact response/error and audit allowlist at docs/evidence/W-0018/README.md
 Review/acceptance by: Codex self-review under explicit IVR owner authorization; status limited to TESTS_PASS until owner/reviewer accepts and external integrations are evidenced
 Mock-only evidence: complete for both canonical Target V1 program/payment paths using fake Sales fixtures, MOCK-approved script and one-way test protector; REAL_CUSTOMER_CALL_ALLOWED=NO; outbox remains HELD_MOCK
 Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, destination call or customer interaction
 Real integration evidence: NOT_RUN; no Sales endpoint/service auth/CDC, production key provider or carrier invoked
 Production evidence: NOT_RUN; no production script/privacy approval, key management, deployment or customer call
+Remote handoff: GitHub main fast-forwarded to 85c2b63 and remote ref verified exact; GitLab origin/main remains 5544395 because protected main rejects direct push; no MR was created
 Residual blockers/risks: P2-2 owns eligibility/blocker orchestration; Sales API/auth/data and real opaque protector are still required; LAB/PROD script approval and SIM/eSIM configuration remain open; protected GitLab main rejects direct push under the owner-mandated single-main workflow
 GitNexus review: pre-edit mapper/DI LOW, ConfirmationTaskEntity HIGH (44 symbols), IvrDbContext CRITICAL (18 symbols/8 flows); final staged detect-changes CRITICAL with 32 files, 206 indexed symbols and 57 intake/persistence flows; full API/PostgreSQL/regression proof is required and passed
 Next allowed Work ID(s): W-0019/P2-2 eligibility/blockers/fail-closed is the recommended next implementation

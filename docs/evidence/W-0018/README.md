@@ -87,8 +87,8 @@ PASS — 0 findings
 Docker Compose config
 PASS
 
-Gitleaks history scan at baseline HEAD
-PASS — 27 commits / 20.92 MB / no leaks
+Gitleaks history scan at implementation commit `85c2b63`
+PASS — 28 commits / 21.19 MB / no leaks
 
 PII selftest + docs/evidence and ci-artifacts scan
 PASS — CT-CI-06..06h; 140 text files; 2 binary files skipped
@@ -111,3 +111,9 @@ PASS — 412 files / 375 resolved links / 0 unresolved
 - P2-2 còn sở hữu eligibility/blocker orchestration trước khi một accepted intake có thể tiến sâu hơn.
 - `REAL_CUSTOMER_CALL_ALLOWED=NO`; không có real customer call và IVR không gửi SMS/customer notification.
 - Hosted GitLab pipeline không được dùng để nâng trạng thái prompt này; protected `main` hiện vẫn chặn direct push.
+
+## Commit/remote handoff
+
+- Implementation commit: `85c2b63b6b386fcc7311a8c6c64385dacad5b31f` trên `main`.
+- GitHub `main`: fast-forward thành công và đã xác minh remote ref trùng implementation commit.
+- GitLab `main`: vẫn ở `5544395`; server từ chối direct push vì protected branch. Không hạ protection và không tạo branch/MR trái chỉ đạo owner.
