@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0085` |
-| Last allocated | `W-0084` |
-| Last activity sequence | `A-0090` |
+| `NEXT_WORK_ID` | `W-0086` |
+| Last allocated | `W-0085` |
+| Last activity sequence | `A-0093` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -61,7 +61,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | `W-0007` | Attempt policy | Product/Core | BLOCKED_EXTERNAL | approved version/max/window/offsets | candidate MOCK/LAB only | owner sign-off |
 | `W-0008` | Telephony lab/32 eSIM | Infra/vendor | BLOCKED_EXTERNAL | 1 SIM lab protocol + future 32 eSIM capacity/caller-ID/cost | mock SIM/load model | procure/test |
 | `W-0009` | Legal/release | Legal/Privacy/Release | BLOCKED_EXTERNAL | script, retention, legal basis, pilot/go-live approval | recording off/no customers | start review early |
-| `W-0061` | **GitLab platform provisioning** (TV1-12) | Platform/Infra | BLOCKED_EXTERNAL | tạo/mirror GitLab project + xác nhận remote; GitLab Runner + tags/capabilities; Container Registry; protected default branch; MR approvals; "Pipelines must succeed"; masked/protected CI/CD variables | local rules render + `gitlab-ci-local` (renderer, KHÔNG phải hosted proof) | gửi request Platform; P0-2 hosted evidence giữ `NOT_RUN` tới khi đóng |
+| `W-0061` | **GitLab platform provisioning** (TV1-12) | Platform/Infra | BLOCKED_EXTERNAL | project/dual remote và GitLab SaaS Linux runner đã có hosted proof; còn Container Registry, protected default branch, MR approvals, "Pipelines must succeed", Pages access control và masked/protected variables | hosted job `15870797229` chạy trên `green-8.saas-linux-small-amd64` tại `2b1a4d4`, nhưng pipeline đỏ do W-0085 | chạy lại sau W-0085; chỉ đóng khi pipeline xanh và đủ settings/protection evidence |
 | `W-0063` | **Platform infrastructure dependencies** | Platform/Infra | BLOCKED_EXTERNAL | container registry; K8s cluster + credentials 4 env; secret store (Vault/KMS); observability backend (Tempo/Jaeger + Prometheus + Loki hoặc APM); Grafana/Alertmanager; Argo Rollouts/Flagger; analytics warehouse; visual-regression service | docker-compose local stack | gom 8 mục `NEED_CONFIRMATION` trong P5-5/P6-1/P6-2/P7-1/P7-2/P7-4/P7-5/P10-4 |
 
 ## 5. Planned implementation register
@@ -146,6 +146,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0082` | Error envelope boundary remediation | `Origin=RED_TEAM_REMEDIATION` · error middleware phải bao auth/allowlist; writer fail safely khi response đã start | W-0012,W-0081 | TESTS_PASS | Codex | middleware order; response writer started guard/log/abort; integration harness/tests | IT-FND-ERR-12/13 + full cross-cutting 7/7; full solution 96/96; coverage 91.50%; build 0/0 | HIGH blast radius regression passed locally; production runtime proof remains outside this work |
 | `W-0083` | Source project dependency guard remediation | `Origin=RED_TEAM_REMEDIATION` · thay assembly-only check bằng exact `src/*.csproj` reference matrix | W-0010,W-0014 | TESTS_PASS | Codex | `ArchitectureDependencyTests` reads every source `.csproj` and exact approved direct refs | UT-BOOT-03 1/1; unit 54/54; full solution 96/96 | local guard complete; any new source project/reference must update reviewed matrix |
 | `W-0084` | PostgreSQL audit append-only proof | `Origin=RED_TEAM_REMEDIATION` · chứng minh trực tiếp trigger chặn cả UPDATE và DELETE, bản ghi không đổi | W-0015 | TESTS_PASS | Codex | PostgreSQL Testcontainers `IT-DB-AUDIT-07` | direct UPDATE and DELETE both SQLSTATE `P0001`/append-only; row unchanged; integration 23/23; full 96/96 | local PostgreSQL proof complete; no staging/production database mutation performed |
+| `W-0085` | Linux ProjectReference path portability | `Origin=UNPLANNED` · discovered 2026-08-13 from hosted GitLab job `15870797229` · Windows-style `ProjectReference` separators made UT-BOOT-03 fail only on Linux · priority P0 · affects hosted build gate | W-0083,W-0061 | TESTS_PASS | Codex | cross-platform project-name resolver + Windows/Unix separator regression; `docs/evidence/W-0085/` | Windows focused 3/3; Linux focused 3/3 + unit 56/56; full local 98/98; build 0/0; format/config PASS | rerun hosted GitLab pipeline after commit; W-0061 remains open until green/settings proof |
 
 ## 6. Unplanned work insertion template
 
@@ -253,6 +254,9 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0088` | 2026-08-13 | `W-0017` | START/DISCOVERY | Bắt đầu P1-4 từ baseline P1-3; chọn Redocly đã pin sẵn và oasdiff v1.26.1; giữ current Golden Hour tách khỏi Target V1 và Pages fail-closed tới khi access control được xác minh | Codex | baseline `a94b858`; GitNexus docs/CI impact LOW hoặc unindexed, 0 runtime process; MOCK/non-production only |
 | `A-0089` | 2026-08-13 | `W-0017` | IMPLEMENTATION/VALIDATION | Dựng portal tĩnh 11 artifact, integration/versioning/changelog docs, manifest hash, baseline + breaking fixture và 3 GitLab jobs; self-review đổi Pages thành build thẳng `public/` và arm oasdiff bằng `--fail-on WARN` | Codex | CT-DOC-01/02 và UT-DOC-PII-03 PASS; Target/current boundary + link + CI topology PASS; oasdiff 2 baseline no-change; visual render PASS |
 | `A-0090` | 2026-08-13 | `W-0017` | CHANGE_REVIEW/HANDOFF | Chốt P1-4 local ở TESTS_PASS; giữ hosted Pages, runner và access-control proof mở dưới W-0061, không suy ra contract approval hay production readiness | Codex | build 0/0; full 96/96; UI lint/build; OpenAPI/config/Compose/NuGet/npm/Gitleaks/PII PASS; official map 405 file/372 resolved/0 unresolved; GitNexus staged LOW 33 file/10 doc symbol/0 process; evidence `docs/evidence/W-0017/` |
+| `A-0091` | 2026-08-13 | `W-0085` | START/DISCOVERY | Hosted Linux runner tái hiện UT-BOOT-03: `Path.GetFullPath` trên Linux không coi dấu gạch chéo ngược trong MSBuild Include là separator, nên actual project names còn nguyên `..\` | Codex | job `15870797229`, commit `2b1a4d4`; GitNexus focused impact LOW/0 caller/0 process |
+| `A-0092` | 2026-08-13 | `W-0061` | EXTERNAL_PROGRESS | Hosted pipeline chứng minh project, checkout, SaaS Linux runner, Docker executor, DIND service, cache và artifact upload hoạt động; chưa đóng gate vì build job đỏ và settings/protection proof còn thiếu | IVR dev + Codex | runner `green-8.saas-linux-small-amd64`; job `15870797229`; artifacts/JUnit/Cobertura upload 201; root cause tracked W-0085 |
+| `A-0093` | 2026-08-13 | `W-0085` | VALIDATION/HANDOFF | Chuẩn hóa cả separator Windows/Unix trước khi resolve ProjectReference và thêm regression riêng; chốt local/Linux sạch ở TESTS_PASS, chờ hosted rerun | Codex | impact LOW/0 process; Windows 3/3; Linux focused 3/3 + unit 56/56; full local 98/98; build 0/0; format/config PASS; `docs/evidence/W-0085/` |
 
 ## 8. Per-work completion record template
 
@@ -513,5 +517,23 @@ Production evidence: NOT_RUN; API_DOCS_PUBLISH_NONPROD defaults NO and no produc
 Residual blockers/risks: W-0061 remains BLOCKED_EXTERNAL for hosted GitLab pipeline/runner/protected-settings evidence; Platform must enable and verify GitLab Pages access control before arming API_DOCS_PUBLISH_NONPROD=YES; Sales contract approval remains external
 GitNexus review: staged LOW with 33 files, 10 indexed documentation symbols and 0 affected IVR execution processes; direct generator/CI source and deterministic self-tests cover new unindexed files
 Next allowed Work ID(s): W-0024/P2-7 is required before W-0018/P2-1 and is the recommended next local implementation; W-0061 continues in parallel
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0085
+Prompt: unplanned hosted-CI remediation after P1-4
+Baseline/commit: main@2b1a4d4; dedicated fix commit created after this record
+Scope completed: make exact source-project dependency guard portable across Windows and Linux MSBuild path separators; add explicit two-separator regression
+Files/artifacts: tests/Ivr.UnitTests/ArchitectureDependencyTests.cs; docs/evidence/W-0085/README.md; prompt/_execution/prompt-execution-tracker.md
+Commands and exact results: Windows focused 3/3; clean Linux SDK focused 3/3 and full unit 56/56; locked restore; Release build 0 warning/0 error; full local contract 19 + unit 56 + integration 23 = 98/98; format and CI config PASS
+Tests/evidence: hosted failure job 15870797229 at 2b1a4d4 plus disposable Linux reproduction/fix proof in docs/evidence/W-0085/README.md
+Review/acceptance by: Codex self-review; status limited to TESTS_PASS until hosted pipeline rerun is green
+Mock-only evidence: N/A to runtime behavior; this changes only a static architecture test
+Lab evidence: NOT_RUN; no SIM/device/customer call
+Real integration evidence: NOT_RUN; no Sales/provider endpoint invoked
+Production evidence: NOT_RUN; no deployment
+Residual blockers/risks: W-0061 remains BLOCKED_EXTERNAL; new push must prove hosted Linux job and entire pipeline green, then branch/settings evidence remains
+Next allowed Work ID(s): verify the new GitLab pipeline, then W-0024/P2-7
 Final status: TESTS_PASS
 ```

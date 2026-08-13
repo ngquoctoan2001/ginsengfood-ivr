@@ -35,8 +35,7 @@ public sealed class ArchitectureDependencyTests
                 .Descendants("ProjectReference")
                 .Select(reference => reference.Attribute("Include")?.Value)
                 .Where(include => !string.IsNullOrWhiteSpace(include))
-                .Select(include => Path.GetFileNameWithoutExtension(
-                    Path.GetFullPath(include!, projectDirectory)))
+                .Select(include => GetReferencedProjectName(include!, projectDirectory))
                 .Order(StringComparer.Ordinal)
                 .ToArray();
 
@@ -44,6 +43,28 @@ public sealed class ArchitectureDependencyTests
                 approvedReferences[projectName].Order(StringComparer.Ordinal),
                 actualReferences);
         }
+    }
+
+    [Theory]
+    [Trait("TestId", "UT-BOOT-03-LINUX-PATH")]
+    [InlineData(@"..\Ivr.Contracts\Ivr.Contracts.csproj")]
+    [InlineData("../Ivr.Contracts/Ivr.Contracts.csproj")]
+    public void ProjectReferenceNameSupportsWindowsAndUnixSeparators(string include)
+    {
+        ArgumentNullException.ThrowIfNull(include);
+        string projectDirectory = Path.Combine(Path.GetTempPath(), "Ivr.Api");
+
+        Assert.Equal("Ivr.Contracts", GetReferencedProjectName(include, projectDirectory));
+    }
+
+    private static string GetReferencedProjectName(string include, string projectDirectory)
+    {
+        string platformPath = include
+            .Replace('\\', Path.DirectorySeparatorChar)
+            .Replace('/', Path.DirectorySeparatorChar);
+
+        return Path.GetFileNameWithoutExtension(
+            Path.GetFullPath(platformPath, projectDirectory));
     }
 
     private static string FindRepositoryRoot()
