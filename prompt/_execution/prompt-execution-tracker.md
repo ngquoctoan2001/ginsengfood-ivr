@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0087` |
 | Last allocated | `W-0086` |
-| Last activity sequence | `A-0118` |
+| Last activity sequence | `A-0119` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -283,6 +283,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0116` | 2026-08-13 | `W-0019` | START/DISCOVERY | Bắt đầu P2-2 trực tiếp trên `main`: pure eligibility rules, fail-closed sellable/voice restriction/contact/window/capacity, trust-skip disabled và atomic task/job/capacity/audit/evidence update; không gọi Ops/CRM trực tiếp | Codex | baseline `8751d3f`; P2-1 prereq TESTS_PASS; official map 412/375/0; P2-1 `Accepted` impact HIGH 13 symbols/3 flows, DI LOW; REAL_CUSTOMER_CALL_ALLOWED=NO |
 | `A-0117` | 2026-08-13 | `W-0019` | IMPLEMENTATION | Chuyển accepted intake về `PENDING_ELIGIBILITY`; dựng ordered pure rules và service chỉ đọc stored snapshot; persistence khóa theo task và cập nhật task/job/outbox/reason/evidence/audit/capacity incident atomically; MOCK eligible vẫn no-egress | Codex | `EligibilityRules`, `EligibilityService`, in-memory/PostgreSQL repository; trust-skip application flag hard-off; default non-MOCK capacity fail-closed; không có direct Ops/CRM client |
 | `A-0118` | 2026-08-13 | `W-0019` | VALIDATION/HANDOFF | Chốt P2-2 local ở `TESTS_PASS`: required blocker/DNC/trust/fail-closed/capacity cases xanh; bổ sung MOCK eligible hold, stored restriction-before-capacity và capacity-evidence fail-closed proof; full regression, coverage, EF, API/docs/UI/security/privacy/map đều xanh | Codex | focused unit 4/4 + integration 4/4; full 152/152; coverage 94.71%; Release 0 warning/0 error; EF no drift; Gitleaks no leaks; PII PASS; map 413/375/0; real calls NO |
+| `A-0119` | 2026-08-13 | `W-0019` | COMMIT/PUSH_HANDOFF | Commit P2-2 trực tiếp trên `main`; post-commit Gitleaks sạch; GitHub fast-forward và remote ref xác minh đúng; GitLab tiếp tục từ chối direct push bởi protected `main`. Không hạ protection, không tạo branch/MR | Codex | implementation `6e0f9d3`; Gitleaks 30 commits/21.31 MB/no leaks; GitHub main exact; GitLab origin/main vẫn `5544395` |
 
 ## 8. Per-work completion record template
 
@@ -623,7 +624,7 @@ Final status: TESTS_PASS
 
 ```text
 Work ID: W-0019 / P2-2
-Baseline/commit: baseline main@8751d3f; dedicated implementation commit pending final change review; no branch/MR by explicit IVR owner instruction
+Baseline/commit: baseline main@8751d3f; implementation commit 6e0f9d3e0fc294256a298ff5d65e92fcf0dcd21f; this handoff is finalized in a follow-up documentation commit; no branch/MR by explicit IVR owner instruction
 Scope completed: ordered stored-snapshot eligibility gate; official/state/matrix reassert; per-line sellable/blocker fail-closed; PHONE_CALL restriction separated from SMS opt-out; contact/token/window; late capacity check; trust-skip hard-off; eligible/block/hold/capacity states; atomic task/job/outbox/reason/evidence/audit/capacity persistence; MOCK no-egress
 Files/artifacts: src/Ivr.Domain/Policies/EligibilityRules.cs; src/Ivr.Api/Application/EligibilityService.cs; src/Ivr.Infrastructure/Repositories/EligibilityRepository.cs; intake/DI wiring; unit/integration tests; docs/evidence/W-0019/README.md; official Markdown map
 Commands and exact results: locked restore PASS; Release analyzer build 0 warning/0 error; format PASS; contract 21 + unit 84 + integration 47 = 152/152; merged coverage 94.71% (18870/19925, 3 reports); EF no pending model; CI config/OpenAPI/docs/UI/NuGet/npm/Compose/Gitleaks/PII PASS; official map 413 files/375 resolved/0 unresolved
@@ -633,6 +634,7 @@ Mock-only evidence: complete; fake capacity provider and synthetic snapshots onl
 Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, destination allowlist or carrier path
 Real integration evidence: NOT_RUN; no Sales/Order Core endpoint/auth/CDC and no direct Ops/CRM endpoint invoked
 Production evidence: NOT_RUN; default non-MOCK capacity fails closed; no production capacity provider, scheduler, trust resolver, deployment or approval
+Remote handoff: GitHub main fast-forwarded to 6e0f9d3 and remote ref verified exact; GitLab origin/main remains 5544395 because protected main rejects direct push; no MR was created
 Residual blockers/risks: P2-3 owns real scheduler/channel capacity and must replace the fail-closed non-MOCK provider; Sales Target V1/auth/data, LAB/PROD script/key/SIM and trust resolver remain external/open; protected GitLab main may reject direct push under owner-mandated single-main workflow
 GitNexus review: pre-edit P2-1 Accepted HIGH (13 symbols/3 flows), InMemoryTaskIntakeStore MEDIUM (38 lower-bound consumers), EligibilityRules Evaluate HIGH (8 symbols/1 flow), foundation DI LOW; final staged detect-changes CRITICAL with 16 files/111 symbols/38 intake-persistence flows; cycle check shows only the pre-existing RuntimeGateDefaults↔PersistenceModelConfiguration cycle outside staged scope
 Next allowed Work ID(s): W-0020/P2-3 policy registry, scheduler and channel leases is the recommended next implementation

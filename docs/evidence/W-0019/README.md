@@ -91,8 +91,8 @@ PASS — 2 OpenAPI files; 9 canonical tasks; 12 schema negatives rejected;
 admin-ui lint + production build; NuGet/npm HIGH; Docker Compose
 PASS — 0 vulnerability finding
 
-Gitleaks 8.30.0 Windows working tree + Git history
-PASS — SHA256 verified; 29 commits / 21.23 MB / no leaks
+Gitleaks 8.30.0 Windows working tree + implementation-commit Git history
+PASS — SHA256 verified; 30 commits / 21.31 MB / no leaks
 
 PII selftest + docs/evidence and ci-artifacts scan
 PASS — CT-CI-06..06h; 154 text files; 2 binary files skipped
@@ -119,3 +119,9 @@ PASS — 413 files / 375 resolved links / 0 unresolved
 - Physical SIM/eSIM, modem, carrier, destination allowlist and customer call are `NOT_RUN`.
 - Trust skip cannot be enabled until a versioned resolver/evidence decision is approved.
 - Protected GitLab `main` may still reject owner-mandated direct push; this does not change local test verdict.
+
+## Commit/remote handoff
+
+- Implementation commit: `6e0f9d3e0fc294256a298ff5d65e92fcf0dcd21f` trên `main`.
+- GitHub `main`: fast-forward thành công và remote ref đã xác minh trùng implementation commit.
+- GitLab `main`: vẫn ở `5544395`; pre-receive hook từ chối direct push do protected branch. Không hạ protection và không tạo branch/MR trái chỉ đạo owner.
