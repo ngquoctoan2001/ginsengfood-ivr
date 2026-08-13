@@ -4,15 +4,16 @@ Date: 2026-08-13
 
 Gate: `G-GITLAB`
 
-Status: `BLOCKED_EXTERNAL` — project/remote and the first hosted parser result exist, but a successful hosted pipeline, usable runner, protected default branch, merge enforcement and registry proof are still incomplete.
+Status: `BLOCKED_EXTERNAL` — project/remote, a successful SaaS-hosted pipeline and an online self-hosted Docker runner now exist. Tagged execution on the new runner, protected default branch, merge enforcement, Pages access control and registry proof are still incomplete.
 
 ## Confirmed external progress
 
 - GitLab project: `https://gitlab.com/nqt20102001/ginsengfood-ivr`
 - GitLab remote: `origin=https://gitlab.com/nqt20102001/ginsengfood-ivr.git`
-- GitHub mirror remote remains separate: `github=https://github.com/ngquoctoan2001/ivr.git`
+- GitHub mirror remote remains separate: `github=https://github.com/ngquoctoan2001/ginsengfood-ivr.git`
 - GitLab `main` was confirmed at `3c0aa13bf5460cbb44d9eb76e0f64fc31a0d49f1` before this remediation.
 - First hosted pipeline: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2755964245`
+- First fully successful hosted pipeline after W-0085: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2756119982`
 
 ## First hosted pipeline result
 
@@ -23,6 +24,33 @@ jobs:build_test_dotnet:cache:key:files config has too many items (maximum is 2)
 ```
 
 The failure is a real hosted GitLab parser result. It is not runner evidence because no job was created or assigned.
+
+## Successful hosted baseline
+
+Pipeline `#2756119982` passed for commit `799501c6` after the W-0085 Linux path-portability remediation:
+
+```text
+Status: Passed
+Jobs: 9/9
+Tests: 98
+Duration: 4m42s
+Stages: validate, build, test, security, privacy
+```
+
+This proves the GitLab configuration and all current gates can pass on the SaaS Linux executor. It does not by itself prove the new self-hosted runner.
+
+## Self-hosted Docker runner provisioning
+
+The Windows development host runs Docker Desktop in Linux-container mode. No Ubuntu distribution is required. GitLab Runner `19.2.0` remains installed as the existing Windows service.
+
+| Project | Runner | Executor | Tag | GitLab state before tagged pipeline |
+| --- | --- | --- | --- | --- |
+| IVR | `#55115499` / `ivr-docker-winhost` | Docker, privileged | `ginsengfood-docker` | Online |
+| Things | `#55115556` / `things-docker-winhost` | Docker, privileged | `ginsengfood-docker` | Online |
+
+The existing `ops-core-win` shell executor was preserved. Host scheduling is `concurrent=3`; every runner has `limit=1` and `request_concurrency=2`, so Ops Core, IVR and Things may each run one job without one project consuming all worker slots. Both Docker runners are project-locked, do not accept untagged jobs and are not marked protected until protected-branch policy is configured.
+
+Runner authentication tokens are stored only in `C:\\GitLab-Runner\\config.toml`; token values must never be copied into repository evidence, logs or screenshots.
 
 ## Remediation in this change
 
@@ -54,9 +82,10 @@ CI_CONFIG_SELFTEST_PASS
 | Requirement | State | Required evidence |
 | --- | --- | --- |
 | GitLab project and remote | PASS | project URL, `git remote -v`, remote branch SHA |
-| CI configuration accepted | NOT_RUN after remediation | new hosted pipeline must create the expected jobs |
-| Linux runner executes jobs | NOT_RUN | successful job pages including .NET/Testcontainers and security gates |
-| Docker-in-Docker capability | NOT_RUN | `build_test_dotnet` runs the PostgreSQL Testcontainers suite |
+| CI configuration accepted | PASS | pipeline `#2756119982`, 9/9 jobs and 98 tests passed |
+| Self-hosted runner control plane | PASS | runner `#55115499` online, version 19.2.0, project-locked tag `ginsengfood-docker` |
+| Tagged Linux-container execution | NOT_RUN | successful job pages naming `ivr-docker-winhost` |
+| Docker-in-Docker on self-hosted runner | NOT_RUN | `build_test_dotnet` runs the PostgreSQL Testcontainers suite on runner `#55115499` |
 | Protected default branch | NOT_RUN | branch rule export/screenshot; direct push disabled as approved |
 | Merge-request approvals/CODEOWNERS | NOT_RUN | enforced approval rule evidence |
 | Pipelines must succeed | NOT_RUN | GitLab merge-check setting evidence |

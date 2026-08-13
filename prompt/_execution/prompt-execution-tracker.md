@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0086` |
 | Last allocated | `W-0085` |
-| Last activity sequence | `A-0093` |
+| Last activity sequence | `A-0094` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -61,7 +61,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | `W-0007` | Attempt policy | Product/Core | BLOCKED_EXTERNAL | approved version/max/window/offsets | candidate MOCK/LAB only | owner sign-off |
 | `W-0008` | Telephony lab/32 eSIM | Infra/vendor | BLOCKED_EXTERNAL | 1 SIM lab protocol + future 32 eSIM capacity/caller-ID/cost | mock SIM/load model | procure/test |
 | `W-0009` | Legal/release | Legal/Privacy/Release | BLOCKED_EXTERNAL | script, retention, legal basis, pilot/go-live approval | recording off/no customers | start review early |
-| `W-0061` | **GitLab platform provisioning** (TV1-12) | Platform/Infra | BLOCKED_EXTERNAL | project/dual remote và GitLab SaaS Linux runner đã có hosted proof; còn Container Registry, protected default branch, MR approvals, "Pipelines must succeed", Pages access control và masked/protected variables | hosted job `15870797229` chạy trên `green-8.saas-linux-small-amd64` tại `2b1a4d4`, nhưng pipeline đỏ do W-0085 | chạy lại sau W-0085; chỉ đóng khi pipeline xanh và đủ settings/protection evidence |
+| `W-0061` | **GitLab platform provisioning** (TV1-12) | Platform/Infra | BLOCKED_EXTERNAL | project/dual remote, pipeline `#2756119982` xanh và self-hosted Docker runner `#55115499` đã online; còn tagged pipeline/DinD proof trên runner mới, Container Registry, protected default branch, MR approvals, "Pipelines must succeed", Pages access control và masked/protected variables | Windows host + Docker Desktop Linux containers; runner tag `ginsengfood-docker`; không ghi token vào evidence | commit/push runner tag, chứng minh 9 jobs chạy trên `ivr-docker-winhost`; chỉ đóng khi đủ settings/protection/registry evidence |
 | `W-0063` | **Platform infrastructure dependencies** | Platform/Infra | BLOCKED_EXTERNAL | container registry; K8s cluster + credentials 4 env; secret store (Vault/KMS); observability backend (Tempo/Jaeger + Prometheus + Loki hoặc APM); Grafana/Alertmanager; Argo Rollouts/Flagger; analytics warehouse; visual-regression service | docker-compose local stack | gom 8 mục `NEED_CONFIRMATION` trong P5-5/P6-1/P6-2/P7-1/P7-2/P7-4/P7-5/P10-4 |
 
 ## 5. Planned implementation register
@@ -257,6 +257,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0091` | 2026-08-13 | `W-0085` | START/DISCOVERY | Hosted Linux runner tái hiện UT-BOOT-03: `Path.GetFullPath` trên Linux không coi dấu gạch chéo ngược trong MSBuild Include là separator, nên actual project names còn nguyên `..\` | Codex | job `15870797229`, commit `2b1a4d4`; GitNexus focused impact LOW/0 caller/0 process |
 | `A-0092` | 2026-08-13 | `W-0061` | EXTERNAL_PROGRESS | Hosted pipeline chứng minh project, checkout, SaaS Linux runner, Docker executor, DIND service, cache và artifact upload hoạt động; chưa đóng gate vì build job đỏ và settings/protection proof còn thiếu | IVR dev + Codex | runner `green-8.saas-linux-small-amd64`; job `15870797229`; artifacts/JUnit/Cobertura upload 201; root cause tracked W-0085 |
 | `A-0093` | 2026-08-13 | `W-0085` | VALIDATION/HANDOFF | Chuẩn hóa cả separator Windows/Unix trước khi resolve ProjectReference và thêm regression riêng; chốt local/Linux sạch ở TESTS_PASS, chờ hosted rerun | Codex | impact LOW/0 process; Windows 3/3; Linux focused 3/3 + unit 56/56; full local 98/98; build 0/0; format/config PASS; `docs/evidence/W-0085/` |
+| `A-0094` | 2026-08-13 | `W-0061` | START/EXTERNAL_PROGRESS | Provision self-hosted Docker executor trên Windows + Docker Desktop Linux containers; giữ nguyên `ops-core-win`, tạo project runner riêng cho IVR và Things, khóa theo project và chỉ nhận tag `ginsengfood-docker` | Codex + IVR owner | IVR runner `#55115499` online; Things runner `#55115556` online; GitLab Runner 19.2.0; config global `concurrent=3`, mỗi runner `limit=1`, `request_concurrency=2`; pipeline tagged/DinD proof đang chờ commit |
 
 ## 8. Per-work completion record template
 

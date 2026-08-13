@@ -25,6 +25,8 @@ variables:
   npm_config_cache: "$CI_PROJECT_DIR/.npm"
 
 default:
+  tags:
+    - ginsengfood-docker
   interruptible: true
   retry:
     max: 1
