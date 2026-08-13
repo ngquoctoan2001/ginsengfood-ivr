@@ -1,0 +1,24 @@
+{
+  "baselineVersion": 1,
+  "tool": {
+    "name": "oasdiff",
+    "version": "1.26.1",
+    "image": "tufin/oasdiff:v1.26.1@sha256:aae8cfcf7d18d3b0ebce6bdf407623bf8788ca318c7a0440627aaf583ed3e9f4"
+  },
+  "contracts": [
+    {
+      "id": "ivr-owned-target-v1-draft",
+      "baseline": "specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0.yaml",
+      "baselineSha256": "5a7bafa4f69f28d480ee3083ea5ede5be0577dc06734964f0f5ba686e13d111b",
+      "current": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
+      "generatedChangelog": "docs/api/changelog/ivr-order-confirmation.md"
+    },
+    {
+      "id": "sales-callback-target-v1-draft",
+      "baseline": "specs/api/openapi/baselines/order-core-ivr-callback.v1.0.0-draft.yaml",
+      "baselineSha256": "1677d490eea5484e449ace3310e26e3c59acbb8011c7c1736e3f981afffa96ee",
+      "current": "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
+      "generatedChangelog": "docs/api/changelog/order-core-ivr-callback.md"
+    }
+  ]
+}

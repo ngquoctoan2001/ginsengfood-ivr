@@ -9,13 +9,16 @@
     "openapi:drift": "node scripts/openapi-contract-drift.mjs",
     "openapi:accept-reviewed-draft": "node scripts/openapi-contract-drift.mjs --accept-reviewed-draft",
     "test:openapi-negative": "node scripts/selftest-openapi.mjs",
-    "test:config": "node scripts/ci-config-selftest.mjs"
+    "test:config": "node scripts/ci-config-selftest.mjs",
+    "docs:build": "node scripts/build-api-docs.mjs",
+    "test:docs": "node scripts/docs-selftest.mjs"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "12.1.0",
     "@redocly/cli": "2.46.1",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
+    "marked": "18.0.9",
     "yaml": "2.9.0"
   }
 }

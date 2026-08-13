@@ -4,6 +4,11 @@ plan/ivr-orther/_archive/prompts/p05-generate-api-specs.md:generic-api-key:4
 prompt/_legacy-mock/01-foundation-and-contracts.md:generic-api-key:34
 prompt/phase-8-sim-pilot/P8-1-real-sim-adapter.md:generic-api-key:16
 specs/api/08-external-api-needs.md:generic-api-key:19
+# Reviewed deterministic API portal false positives: SHA-256 source manifest
+# values and Redoc's generated placeholder for fields named `*_token`.
+docs/api/portal-manifest.json:generic-api-key:21
+docs/api/ivr-order-confirmation-v1.html:generic-api-key:541
+docs/api/ivr-order-confirmation-v1.html:generic-api-key:553
 # Immutable historical documentation false positive from commit ab7de4d.
 ab7de4d59eb04eb9f172385a1ffa4d25023064e5:prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:generic-api-key:75
 # Reviewed EF feature-flag seed false positives.

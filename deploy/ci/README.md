@@ -21,13 +21,23 @@ The .NET jobs pin `mcr.microsoft.com/dotnet/sdk:10.0.201` to the SDK selected by
 
 | Job | Gate |
 | --- | --- |
-| `ci_config_selftest` | workflow routing, local-fragment reachability, artifact topology, no active GitHub Actions |
+| `ci_config_selftest` | workflow routing, local-fragment reachability, artifact topology, 16-code OpenAPI/API-06/source parity, no active GitHub Actions |
 | `openapi_lint` | Redocly lint, OpenAPI 3.1 parse/local refs, Target/current fixture schema validation, pinned contract drift |
-| `build_test_dotnet` | locked restore, warnings-as-errors build, xUnit/JUnit/Cobertura, PostgreSQL Testcontainers migration/concurrency tests, aggregate line coverage ≥ 60% |
+| `build_test_dotnet` | locked restore, warnings-as-errors build, semantic negative test/coverage/policy self-tests, xUnit/JUnit/Cobertura, PostgreSQL Testcontainers migration/concurrency tests, aggregate line coverage ≥ 60% |
 | `lint_dotnet` | locked restore, pinned NSwag regeneration/drift check, analyzers, `dotnet format --verify-no-changes` |
 | `build_lint_ui` | lockfile-based `npm ci`, ESLint, optional UI test script, production build |
-| `security_scan` | NuGet High/Critical policy, npm High/Critical policy, checksum-verified Gitleaks 8.30.0 |
-| `pii_scan` | raw-phone/address/dial-token scan under explicit `LC_ALL=C.UTF-8` |
+| `security_scan` | schema-validated fail-closed NuGet High/Critical policy, npm High/Critical policy, checksum-verified Gitleaks 8.30.0 |
+| `pii_scan` | raw-phone/address/dial-token scan across every text artifact under explicit `LC_ALL=C.UTF-8` |
+| `api_docs_verify` | regenerate Redoc portal, fail on drift, enforce Target/current separation and no-real-PII examples |
+| `api_contract_diff` | pinned oasdiff changelog/breaking gate plus CT-DOC-02 negative fixture |
+| `api_docs_pages` | publish the verified static portal to GitLab Pages only after the non-prod access-control gate is armed |
+
+P1-4 lives in the separately included `docs.gitlab-ci.yml`. The Pages job is
+fail-closed by `API_DOCS_PUBLISH_NONPROD=NO`; Platform may set it to `YES` only
+after GitLab Pages Access Control is enabled and verified. Once armed, default
+branch merges publish automatically to the `api-docs-nonprod` development-tier
+environment. Merge requests still run both documentation verification jobs but
+never deploy Pages.
 
 Foundation coverage starts at 60%. It may only rise or receive a documented
 generated-code exclusion; lowering the threshold or excluding handwritten
@@ -57,10 +67,13 @@ so it declares `needs` with `artifacts: true` for every artifact producer:
 - `openapi_lint`.
 
 `CT-CI-08` fails if any job gains `artifacts:` without being added to this list.
-`scan-pii.sh` scans text evidence and downloaded artifacts; binary screenshots
-are deliberately skipped because byte-oriented grep cannot classify image
-content. Match logs expose only file paths and `[REDACTED]`, never the matched
-value. Evidence authors must keep PII out before creating any screenshot.
+`scan-pii.sh` scans every regular text file in evidence and downloaded artifact
+trees, including `.sql`, extensionless files, and future text extensions. Binary
+screenshots are deliberately skipped with an explicit counter because
+byte-oriented grep cannot classify image content. A missing target or a target
+with zero text files fails closed. Match logs expose only file paths and
+`[REDACTED]`, never the matched value. Evidence authors must keep PII out before
+creating any screenshot.
 
 Patterns live in `pii-patterns.txt`, one ERE per line. Vietnamese case handling
 uses literal per-character alternation rather than `grep -i` or multibyte
@@ -103,9 +116,15 @@ npm --prefix deploy/ci run openapi:lint
 npm --prefix deploy/ci run openapi:validate
 npm --prefix deploy/ci run openapi:drift
 npm --prefix deploy/ci run test:openapi-negative
+npm --prefix deploy/ci run test:docs
 ./deploy/ci/scripts/regenerate-openapi.ps1
 docker compose -f docker-compose.dev.yml --profile mocks config --quiet
 ```
+
+Run `sh deploy/ci/scripts/selftest-dotnet-policy.sh` in a Linux SDK environment
+to execute CT-CI-02/03/09. The self-test distinguishes the intended test and
+low-coverage failures from typo/missing-path failures and rejects malformed,
+empty, or unknown-severity NuGet JSON.
 
 `openapi:drift` is read-only and fails when a reviewed source hash changes.
 After reviewing an intentional draft change, run
@@ -129,6 +148,7 @@ Run Gitleaks and the exact Linux/grep PII self-test through Docker:
 docker run --rm -v "${PWD}:/repo" -w /repo zricethezav/gitleaks:v8.30.0 dir . --config .gitleaks.toml --no-banner --redact
 docker run --rm -v "${PWD}:/repo" -w /repo -e LC_ALL=C.UTF-8 debian:bookworm-slim sh deploy/ci/scripts/selftest-pii.sh
 docker run --rm -v "${PWD}:/repo" -w /repo -e LC_ALL=C.UTF-8 debian:bookworm-slim sh deploy/ci/scripts/scan-pii.sh docs/evidence
+docker run --rm -v "${PWD}:/repo" -w /repo --entrypoint /bin/sh tufin/oasdiff:v1.26.1 -c "sh deploy/ci/scripts/selftest-oasdiff.sh"
 ```
 
 `gitlab-ci-local` is optional. On Windows it may fail solely because the host has

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Integration Guide · Ginsengfood IVR</title><link rel="stylesheet" href="styles.css"></head>
+<body><main class="container document"><nav><a href="index.html">← Portal home</a></nav>
+<header><div class="badge warning">NON-PRODUCTION ONLY</div><h1>Integration Guide</h1>
+<p class="source">Source: <code>docs/integration-guide.md</code></p></header><h1>IVR Integration Guide — Order Core, Ops and CRM</h1>
+<p>Status: <code>TARGET_CONTRACT_V1=DRAFT</code> · Environment: non-production only · Real customer calls: <code>NO</code>.</p>
+<h2>Read this first</h2>
+<p>There are three separate contract boundaries:</p>
+<table>
+<thead>
+<tr>
+<th>Boundary</th>
+<th>Machine source</th>
+<th>Runtime status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sales/Order Core → IVR task and IVR-owned admin/internal API</td>
+<td><code>specs/api/openapi/ivr-order-confirmation.v1.yaml</code></td>
+<td>Target draft; MOCK fixtures only</td>
+</tr>
+<tr>
+<td>IVR → Sales result callback</td>
+<td><code>specs/api/openapi/order-core-ivr-callback.target-v1.yaml</code></td>
+<td>Target draft; Sales approval/base URL/auth pending</td>
+</tr>
+<tr>
+<td>IVR → current Golden Hour callback</td>
+<td>pinned JSON Schema at Sales commit <code>a3aad246…</code></td>
+<td>compatibility-only; no approved IVR runtime mode</td>
+</tr>
+</tbody></table>
+<p>Do not send 24/7 COD outcomes to the current Golden Hour endpoint and do not
+interpret a rendered Target page as proof that Sales has implemented it.</p>
+<h2>Target task intake</h2>
+<p>Proposed endpoint:</p>
+<pre><code class="language-text">POST {ivr-base}/v1/ivr/order-confirmation/tasks
+</code></pre>
+<p>Required transport metadata is defined by OpenAPI and includes service bearer
+identity, <code>Idempotency-Key</code>, <code>X-Correlation-Id</code> and the Order Core source
+profile. Use a new idempotency key for a new semantic command; replay the exact
+same key and body only when retrying the same command.</p>
+<p>The body includes immutable order/version/policy snapshots, an opaque dialing
+reference and a privacy-safe speech summary. Never paste a real phone, full
+street address, credential or real dialing token into a request example,
+ticket, log or evidence file. Safe documentation uses values such as
+<code>09****1234</code>, <code>Quận 7</code>, <code>order_demo_01</code> and <code>opaque-nonprod-token</code>.</p>
+<p>Supported program/payment rows are exactly:</p>
+<table>
+<thead>
+<tr>
+<th>Program</th>
+<th>Payment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GOLDEN_HOUR</code></td>
+<td><code>ONLINE</code></td>
+</tr>
+<tr>
+<td><code>TWENTY_FOUR_SEVEN</code></td>
+<td><code>COD</code></td>
+</tr>
+</tbody></table>
+<p>Every other combination is rejected. The authoritative fields, formats,
+required list and response schemas are in the generated IVR API reference.</p>
+<h2>Target result callback</h2>
+<p>Proposed endpoint owned by Sales:</p>
+<pre><code class="language-text">POST {sales-base}/api/v1/internal/orders/{orderId}/ivr-result-callbacks
+</code></pre>
+<p><code>orderId</code> in the path must equal <code>order_id</code> in the body. IVR submits a signal;
+Sales revalidates version, state, program/payment, blockers and evidence before
+performing any transition.</p>
+<p>Semantic success codes are <code>ACCEPTED</code>, <code>DUPLICATE_ACCEPTED</code>,
+<code>BLOCKED_BY_CORE</code> and <code>REVIEW_REQUIRED</code>. HTTP 200 therefore means delivery was
+processed, not necessarily that the order became confirmed. HTTP 409 is a
+stale/idempotency decision and must not be blindly transport-retried; 429,
+5xx and timeout use bounded retry with the identical key and body.</p>
+<p>For <code>IVR_NO_ANSWER_FINAL</code>, send
+<code>CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT</code>. IVR does not cancel or expire the
+order; the Sales timeout worker owns that decision after revalidation.</p>
+<h2>Current Golden Hour compatibility</h2>
+<p>Verified current endpoint:</p>
+<pre><code class="language-text">POST /api/v1/internal/ivr/golden-hour/callbacks
+</code></pre>
+<p>It uses transitional <code>X-Internal-Token</code>, a current-specific DTO and the result
+values <code>CONFIRMED</code>, <code>REJECTED</code>, <code>NO_ANSWER</code>, <code>FAILED</code>. It has no semantic Target
+ACK, order-version field, attempt metadata or evidence/audit references. It is
+isolated behind its own adapter and must have a reviewed sunset/disable path.</p>
+<h2>Errors and traceability</h2>
+<ul>
+<li>IVR errors use <code>{error:{code,message,details,correlationId}}</code>.</li>
+<li><code>code</code> is the stable enum rendered from OpenAPI; do not parse human messages.</li>
+<li>Propagate <code>X-Correlation-Id</code> end to end and record it in safe evidence.</li>
+<li>Never log raw phone, full address, token, authorization header or secret.</li>
+<li>Authentication, allowlist, idempotency and policy failures are fail-closed.</li>
+</ul>
+<h2>Team handoff checklist</h2>
+<h3>Order Core / Sales</h3>
+<ul>
+<li>approve exact Target OpenAPI and SemVer;</li>
+<li>supply sandbox/base URL and service-auth profile;</li>
+<li>implement/review task producer, callback consumer and semantic ACKs;</li>
+<li>prove idempotency, stale-version handling, blocker revalidation and no-answer timeout behavior.</li>
+</ul>
+<h3>Ops</h3>
+<ul>
+<li>expose/revalidate sellable, recall and sale-lock truth to Order Core;</li>
+<li>return stable fail-closed codes; no direct order transition is owned by IVR.</li>
+</ul>
+<h3>CRM</h3>
+<ul>
+<li>own customer communication/template channels; IVR does not send SMS or notification;</li>
+<li>provide only privacy-safe speech inputs approved for the call script.</li>
+</ul>
+<h3>IVR</h3>
+<ul>
+<li>keep MOCK and real-customer permission fail-closed;</li>
+<li>accept only the exact task contract and publish only normalized result signals;</li>
+<li>retain audit/evidence references without raw PII;</li>
+<li>enable current or Target provider only through reviewed configuration and release gates.</li>
+</ul>
+<h2>Local developer commands</h2>
+<pre><code class="language-powershell">npm --prefix deploy/ci ci
+npm --prefix deploy/ci run openapi:lint
+npm --prefix deploy/ci run openapi:validate
+npm --prefix deploy/ci run openapi:drift
+npm --prefix deploy/ci run docs:build
+npm --prefix deploy/ci run test:docs
+</code></pre>
+<p>The final hosted URL is intentionally absent until GitLab Pages Access Control
+and the non-prod publication gate have evidence.</p>
+
+<footer>Generated content. Edit the named source, not this HTML.</footer></main></body></html>

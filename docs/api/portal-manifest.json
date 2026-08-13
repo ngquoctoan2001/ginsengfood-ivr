@@ -1,0 +1,32 @@
+{
+  "manifestVersion": 1,
+  "portalEnvironment": "NON_PRODUCTION_ONLY",
+  "contractState": "TARGET_CONTRACT_V1=DRAFT",
+  "renderer": "@redocly/cli 2.46.1",
+  "markdownRenderer": "marked 18.0.9",
+  "generatedFiles": [
+    "api-changelog.html",
+    "api-versioning.html",
+    "current-golden-hour-compat.html",
+    "index.html",
+    "integration-guide.html",
+    "ivr-order-confirmation-v1.html",
+    "ivr-order-confirmation-changelog.html",
+    "order-core-ivr-callback-changelog.html",
+    "order-core-ivr-callback-target-v1.html",
+    "portal-manifest.json",
+    "styles.css"
+  ],
+  "sourceHashes": {
+    "docs/api-changelog.md": "ec97b1d3c19b34766629efd4cd2784a48d0a8c7112137bc67d7f0efc78a2f618",
+    "docs/api-versioning.md": "bef9515401e0baf6926d3e5f3d0ddcd00004cb327974897cb113f787e737114d",
+    "docs/api/changelog/ivr-order-confirmation.md": "bc99d71b12b5867a35e47a756060faa893ac8de4865af2f01e1377ad2f6444c3",
+    "docs/api/changelog/order-core-ivr-callback.md": "581b5550712f7bbd97269a1679cd803d3b1522037c4dfb29aae67c34b95363eb",
+    "docs/integration-guide.md": "a6222a57f3fe73241318d3a7cef6453b3602204721039fe1ab3a54460abc9253",
+    "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
+    "specs/api/openapi/changelog-baseline.json": "7086e113eb1ae02dde4021d46467a8d384c6208be7f2db5bef634fbc3c1d4c2a",
+    "specs/api/openapi/contract-manifest.json": "42ec2c13c1832ee7eb2bf4e2dbfb7c9927740f0a51b96846b0da6cebff2c1249",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "5a7bafa4f69f28d480ee3083ea5ede5be0577dc06734964f0f5ba686e13d111b",
+    "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "1677d490eea5484e449ace3310e26e3c59acbb8011c7c1736e3f981afffa96ee"
+  }
+}

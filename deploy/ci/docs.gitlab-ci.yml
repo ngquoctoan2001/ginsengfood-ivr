@@ -1,0 +1,42 @@
+api_docs_verify:
+  stage: validate
+  image: node:24-bookworm-slim
+  extends: .ci_tools_cache
+  allow_failure: false
+  script:
+    - npm --prefix deploy/ci ci --no-audit --no-fund
+    - npm --prefix deploy/ci run test:docs
+
+api_contract_diff:
+  stage: validate
+  image:
+    name: tufin/oasdiff:v1.26.1@sha256:aae8cfcf7d18d3b0ebce6bdf407623bf8788ca318c7a0440627aaf583ed3e9f4
+    entrypoint: [""]
+  allow_failure: false
+  script:
+    - oasdiff --version
+    - sh deploy/ci/scripts/generate-oasdiff-changelog.sh specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml /tmp/ivr-order-confirmation.md
+    - diff -u docs/api/changelog/ivr-order-confirmation.md /tmp/ivr-order-confirmation.md
+    - sh deploy/ci/scripts/generate-oasdiff-changelog.sh specs/api/openapi/baselines/order-core-ivr-callback.v1.0.0-draft.yaml specs/api/openapi/order-core-ivr-callback.target-v1.yaml /tmp/order-core-ivr-callback.md
+    - diff -u docs/api/changelog/order-core-ivr-callback.md /tmp/order-core-ivr-callback.md
+    - oasdiff breaking specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml --format markdown --fail-on WARN
+    - oasdiff breaking specs/api/openapi/baselines/order-core-ivr-callback.v1.0.0-draft.yaml specs/api/openapi/order-core-ivr-callback.target-v1.yaml --format markdown --fail-on WARN
+    - sh deploy/ci/scripts/selftest-oasdiff.sh
+
+api_docs_pages:
+  stage: publish
+  image: node:24-bookworm-slim
+  extends: .ci_tools_cache
+  allow_failure: false
+  script:
+    - npm --prefix deploy/ci ci --no-audit --no-fund
+    - npm --prefix deploy/ci run test:docs
+    - npm --prefix deploy/ci run docs:build -- --output public
+  pages: true
+  environment:
+    name: api-docs-nonprod
+    deployment_tier: development
+    url: $CI_PAGES_URL
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $API_DOCS_PUBLISH_NONPROD == "YES"'
+    - when: never

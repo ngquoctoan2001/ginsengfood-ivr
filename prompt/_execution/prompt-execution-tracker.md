@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0085` |
 | Last allocated | `W-0084` |
-| Last activity sequence | `A-0087` |
+| Last activity sequence | `A-0090` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -80,7 +80,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0014` | `P1-1` | both OpenAPI/codegen/contract scaffold | W-0010..12 TESTS_PASS; baseline `c78a407` | TESTS_PASS | Codex | pinned NSwag/codegen; generated IVR DTOs + Target Sales client; verified current-compat fixture/client; drift/hash gate; fake Sales mappings; `docs/contracts/**`; `docs/evidence/W-0014/` | Release 0/0; 55/55 tests; coverage 75.57%; regeneration stable; OpenAPI lint/parse/schema/drift, format/UI/config/NuGet/npm/Compose/Gitleaks/PII PASS; GitNexus staged MEDIUM 42 file/452 symbol/4 generated-client flow/0 cycle | Contract remains TARGET_DRAFT; current compat runtime-disabled; W-0002/W-0005/W-0006 and W-0061 stay BLOCKED_EXTERNAL; next W-0015/P1-2 |
 | `W-0015` | `P1-2` | PostgreSQL/EF migrations, versioned policy/speech snapshots | W-0012 TESTS_PASS; baseline `5d2301e` | TESTS_PASS | Codex | EF 17-table model/migration; Up/Down SQL; Testcontainers; persistent P0-4 flag/audit/idempotency transaction; outbox + channel lease/fencing; `docs/evidence/W-0015/` | clean/recreate/rollback + 6/6 PostgreSQL tests; full 61/61; coverage 90.64%; format/UI/OpenAPI/config/dependency/Compose PASS | local P0-4 persistence gap closed; no exact candidate DB timings; DF-07/KMS/backup-staging-prod and W-0061 remain open; no real Sales/SIM/call |
 | `W-0016` | `P1-3` | domain/DTO/provider ports/privacy guards | W-0014,W-0015 | TESTS_PASS | Codex | immutable domain/value objects; provider ports + deterministic fakes; target/current anti-corruption mappers; privacy guards; tests; `docs/evidence/W-0016/README.md` | locked restore/build/format PASS; 93/93 full tests; coverage 90.99%; UI/OpenAPI/config/dependency/Compose/Gitleaks/PII PASS; map 398/369/0; GitNexus staged HIGH 292 symbol/22 file/12 expected flow | local MOCK complete; Target V1/policy approvals and real Sales/SIM/customer calls remain external/NOT_RUN; W-0061 BLOCKED_EXTERNAL; next W-0017/P1-4 |
-| `W-0017` | `P1-4` | API docs/versioning/drift portal | W-0014 | NOT_STARTED |  |  |  |  |
+| `W-0017` | `P1-4` | API docs/versioning/drift portal | W-0014 | TESTS_PASS | Codex | static Redoc portal; versioning/integration/changelog guides; pinned oasdiff; GitLab docs fragment; `docs/evidence/W-0017/` | CT-DOC-01/02 + UT-DOC-PII-03 PASS; 11 rendered artifacts; OpenAPI/config/security/PII; full solution 96/96 | hosted GitLab Pages/access control `NOT_RUN` under W-0061; Target V1 remains DRAFT; no Sales/SIM/customer call |
 | `W-0018` | `P2-1` | task intake for both program/payment paths | W-0014..16,W-0024 | NOT_STARTED |  |  |  |  |
 | `W-0019` | `P2-2` | eligibility/blockers/fail-closed | W-0018 | NOT_STARTED |  |  |  |  |
 | `W-0020` | `P2-3` | policy registry/scheduler/channel leases | W-0019 | NOT_STARTED |  |  |  |  |
@@ -250,6 +250,9 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0085` | 2026-08-13 | `W-0083` | FINISH/HANDOFF | UT-BOOT-03 đọc toàn bộ 5 source project và enforce exact direct-reference matrix | Codex | focused 1/1; unit 54/54; full solution 96/96 |
 | `A-0086` | 2026-08-13 | `W-0084` | FINISH/HANDOFF | Testcontainers gửi UPDATE và DELETE trực tiếp vào `ivr_audit_log`, xác minh trigger `P0001` và bản ghi nguyên vẹn | Codex | focused 1/1; integration 23/23; full solution 96/96; không chạm staging/production |
 | `A-0087` | 2026-08-13 | `W-0079..W-0084` | CHANGE_REVIEW/HANDOFF | Chạy GitNexus `detect-changes --scope all`; combined dirty tree gồm remediation này, generated GitNexus WIP và P1-4 concurrent work nên breadth là upper bound, không gán toàn bộ cho bundle này | Codex | CRITICAL aggregate 33 indexed files/96 symbols/31 flows; expected error-writer flows hiện diện; build 0/0, full 96/96, coverage 91.50%, focused matrices và privacy/config gates PASS |
+| `A-0088` | 2026-08-13 | `W-0017` | START/DISCOVERY | Bắt đầu P1-4 từ baseline P1-3; chọn Redocly đã pin sẵn và oasdiff v1.26.1; giữ current Golden Hour tách khỏi Target V1 và Pages fail-closed tới khi access control được xác minh | Codex | baseline `a94b858`; GitNexus docs/CI impact LOW hoặc unindexed, 0 runtime process; MOCK/non-production only |
+| `A-0089` | 2026-08-13 | `W-0017` | IMPLEMENTATION/VALIDATION | Dựng portal tĩnh 11 artifact, integration/versioning/changelog docs, manifest hash, baseline + breaking fixture và 3 GitLab jobs; self-review đổi Pages thành build thẳng `public/` và arm oasdiff bằng `--fail-on WARN` | Codex | CT-DOC-01/02 và UT-DOC-PII-03 PASS; Target/current boundary + link + CI topology PASS; oasdiff 2 baseline no-change; visual render PASS |
+| `A-0090` | 2026-08-13 | `W-0017` | CHANGE_REVIEW/HANDOFF | Chốt P1-4 local ở TESTS_PASS; giữ hosted Pages, runner và access-control proof mở dưới W-0061, không suy ra contract approval hay production readiness | Codex | build 0/0; full 96/96; UI lint/build; OpenAPI/config/Compose/NuGet/npm/Gitleaks/PII PASS; official map 405 file/372 resolved/0 unresolved; GitNexus staged LOW 33 file/10 doc symbol/0 process; evidence `docs/evidence/W-0017/` |
 
 ## 8. Per-work completion record template
 
@@ -492,5 +495,23 @@ Production evidence: NOT_RUN; no KMS/key rotation, retention purge, backup/resto
 Residual blockers/risks: W-0061/G-GITLAB BLOCKED_EXTERNAL and runner must support privileged DIND; DF-07 retention/legal hold unresolved; production protector/KMS and backup/staging/release approval open; TARGET_CONTRACT_V1 remains DRAFT; migration Down is destructive total data loss and test-only
 GitNexus review: staged MEDIUM with 40 files, 35 indexed symbols and four existing feature-flag read flows; zero circular imports; new persistence symbols are not yet indexed, so graph counts are lower-bound and direct source/PostgreSQL/full regression review is authoritative
 Next allowed Work ID(s): W-0016/P1-3 is the recommended next implementation; W-0017/P1-4 may follow/parallelize after scope review; W-0061 continues with Platform
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0017 / P1-4
+Baseline/commit: main@a94b858 (P1-3 plus GitLab cache-key remediation); dedicated P1-4 commit created after this record
+Scope completed: deterministic Redoc developer portal; 11 committed render artifacts; Target/current boundary page; integration/versioning/changelog guides; source-hash manifest; pinned oasdiff changelog and breaking gate; root-included GitLab verification/diff/fail-closed Pages jobs
+Files/artifacts: docs/api/**; docs/api-changelog.md; docs/api-versioning.md; docs/integration-guide.md; specs/api/openapi/baselines/**; specs/api/openapi/changelog-baseline.json; deploy/ci/docs.gitlab-ci.yml; deploy/ci/scripts/{build-api-docs.mjs,docs-selftest.mjs,generate-oasdiff-changelog.sh,selftest-oasdiff.sh}; docs/evidence/W-0017/**
+Commands and exact results: docs render 11; CT-DOC-01/02 and UT-DOC-PII-03 PASS; Target/current boundary, local links and GitLab docs topology PASS; oasdiff v1.26.1 two initial baselines no change; OpenAPI lint/parse/schema/hash/negative PASS; locked restore/format/build PASS 0 warning/0 error; contract 19/19, unit 54/54, integration 23/23 = 96/96; UI lint/build; both npm audits 0; NuGet High policy, Gitleaks, PII and Compose PASS; official map 405 file/372 resolved/0 unresolved
+Tests/evidence: generated drift fail demo; removed-operation breaking fixture; privacy-safe source examples; rendered portal screenshot and exact results at docs/evidence/W-0017/README.md
+Review/acceptance by: Codex self-review under explicit IVR owner authorization; local status limited to TESTS_PASS because hosted GitLab Pages/runner/access-control evidence is unavailable
+Mock-only evidence: complete for P1-4; portal is marked NON-PRODUCTION ONLY; Target contracts remain DRAFT; examples use masked/synthetic values
+Lab evidence: NOT_RUN; no physical SIM/eSIM, device or destination call
+Real integration evidence: NOT_RUN; no Sales endpoint/auth/CDC/provider invoked
+Production evidence: NOT_RUN; API_DOCS_PUBLISH_NONPROD defaults NO and no production portal is created
+Residual blockers/risks: W-0061 remains BLOCKED_EXTERNAL for hosted GitLab pipeline/runner/protected-settings evidence; Platform must enable and verify GitLab Pages access control before arming API_DOCS_PUBLISH_NONPROD=YES; Sales contract approval remains external
+GitNexus review: staged LOW with 33 files, 10 indexed documentation symbols and 0 affected IVR execution processes; direct generator/CI source and deterministic self-tests cover new unindexed files
+Next allowed Work ID(s): W-0024/P2-7 is required before W-0018/P2-1 and is the recommended next local implementation; W-0061 continues in parallel
 Final status: TESTS_PASS
 ```

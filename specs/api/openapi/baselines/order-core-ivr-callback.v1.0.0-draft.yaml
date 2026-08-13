@@ -1,0 +1,193 @@
+openapi: 3.1.0
+info:
+  title: Sales Order Core — IVR Result Callback Target V1
+  version: 1.0.0-draft
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+  description: >
+    Proposed Sales-owned endpoint consumed by the standalone IVR service. This is
+    TARGET_DRAFT, not proof of current Sales implementation. IVR sends an input
+    signal only; Sales revalidates and owns every order transition.
+servers:
+  - url: https://sales-platform.invalid
+    description: Placeholder; replace with an approved sandbox/production base URL.
+security:
+  - serviceJwt: [ivr.result.write]
+paths:
+  /api/v1/internal/orders/{orderId}/ivr-result-callbacks:
+    post:
+      operationId: submitIvrOrderConfirmationResult
+      summary: Submit a normalized IVR result signal for Sales revalidation
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string, minLength: 1 }
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, minLength: 8, maxLength: 200 }
+        - name: X-Correlation-Id
+          in: header
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 200 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IvrResultCallbackV1' }
+            examples:
+              confirmed:
+                value:
+                  contract_version: ivr-order-confirmation.v1
+                  callback_id: cb_01
+                  task_id: task_01
+                  order_id: order_01
+                  order_version_seen_by_ivr: '17'
+                  result_type: IVR_CONFIRMED
+                  is_counted_customer_attempt: true
+                  is_final_for_ivr: true
+                  attempt_number: 1
+                  occurred_at: '2026-08-12T08:30:00Z'
+                  recommended_core_action: CORE_REVALIDATE_AND_CONFIRM_ORDER
+                  evidence_ref: evidence://ivr/task_01/result
+                  audit_ref: audit://ivr/cb_01
+      responses:
+        '200':
+          description: Signal delivery completed; inspect semantic code.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CallbackAck200' }
+        '409':
+          description: Stale signal or idempotency conflict; do not transport-retry automatically.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CallbackAck409' }
+        '401':
+          description: Missing or invalid service identity.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '403':
+          description: Authenticated caller lacks the required service scope.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '422':
+          description: Invalid schema or unsupported outcome.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '429':
+          description: Retryable throttling.
+          headers:
+            Retry-After: { schema: { type: integer, minimum: 1 } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Retryable server failure.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '503':
+          description: Retryable dependency/service unavailable.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+components:
+  securitySchemes:
+    serviceJwt:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://identity.invalid/oauth2/token
+          scopes:
+            ivr.result.write: Submit IVR result signals
+  schemas:
+    ResultType:
+      type: string
+      enum:
+        - IVR_CONFIRMED
+        - IVR_CUSTOMER_CANCELLED
+        - IVR_NO_ANSWER_ATTEMPT
+        - IVR_NO_ANSWER_FINAL
+        - IVR_CONFIRMATION_WINDOW_EXPIRED
+        - IVR_INVALID_PHONE_FINAL
+        - IVR_WRONG_INPUT
+        - IVR_TECHNICAL_EXCEPTION
+        - IVR_CAPACITY_EXCEPTION
+        - IVR_OPERATIONAL_BLOCKED
+        - IVR_POLICY_BLOCKED
+    RecommendedCoreAction:
+      type: string
+      enum:
+        - CORE_REVALIDATE_AND_CONFIRM_ORDER
+        - CORE_REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST
+        - CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT
+        - CORE_REVALIDATE_AND_EXPIRE_CONFIRMATION
+        - CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW
+        - CORE_IGNORE_STALE_CALLBACK
+        - CORE_BLOCK_DUE_TO_OPERATIONAL_CONSTRAINT
+    IvrResultCallbackV1:
+      type: object
+      additionalProperties: false
+      required:
+        - contract_version
+        - callback_id
+        - task_id
+        - order_id
+        - order_version_seen_by_ivr
+        - result_type
+        - is_counted_customer_attempt
+        - is_final_for_ivr
+        - attempt_number
+        - occurred_at
+        - recommended_core_action
+        - evidence_ref
+        - audit_ref
+      properties:
+        contract_version: { type: string, enum: [ivr-order-confirmation.v1] }
+        callback_id: { type: string, minLength: 1, maxLength: 120 }
+        task_id: { type: string, minLength: 1, maxLength: 120 }
+        order_id: { type: string, minLength: 1, maxLength: 120 }
+        order_version_seen_by_ivr: { type: string, minLength: 1, maxLength: 120 }
+        result_type: { $ref: '#/components/schemas/ResultType' }
+        result_reason: { type: string, maxLength: 500 }
+        is_counted_customer_attempt: { type: boolean }
+        is_final_for_ivr: { type: boolean }
+        attempt_number: { type: integer, minimum: 1, maximum: 10 }
+        occurred_at: { type: string, format: date-time }
+        recommended_core_action: { $ref: '#/components/schemas/RecommendedCoreAction' }
+        evidence_ref: { type: string, minLength: 1, maxLength: 500 }
+        audit_ref: { type: string, minLength: 1, maxLength: 500 }
+    CallbackAck200:
+      type: object
+      additionalProperties: false
+      required: [code, callback_id, correlation_id]
+      properties:
+        code:
+          type: string
+          enum: [ACCEPTED, DUPLICATE_ACCEPTED, BLOCKED_BY_CORE, REVIEW_REQUIRED]
+        callback_id: { type: string }
+        correlation_id: { type: string }
+        order_state: { type: string }
+        detail: { type: string, maxLength: 500 }
+    CallbackAck409:
+      type: object
+      additionalProperties: false
+      required: [code, callback_id, correlation_id]
+      properties:
+        code: { type: string, enum: [REJECTED_STALE, IDEMPOTENCY_CONFLICT] }
+        callback_id: { type: string }
+        correlation_id: { type: string }
+        detail: { type: string, maxLength: 500 }
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [code, correlation_id]
+      properties:
+        code: { type: string }
+        correlation_id: { type: string }
+        detail: { type: string, maxLength: 500 }

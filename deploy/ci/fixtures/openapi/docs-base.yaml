@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: API docs breaking-change baseline
+  version: 1.0.0
+paths:
+  /tasks/{taskId}:
+    get:
+      operationId: getTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Task found

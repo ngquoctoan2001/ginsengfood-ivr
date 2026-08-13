@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Current Golden Hour compatibility · Ginsengfood IVR</title><link rel="stylesheet" href="styles.css"></head>
+<body><main class="container document"><nav><a href="index.html">← Portal home</a></nav>
+<header><div class="badge warning">NON-PRODUCTION ONLY</div><h1>Current Golden Hour compatibility</h1>
+<p class="source">Source: <code>specs/api/compat/current-golden-hour-callback.a3aad246.schema.json</code></p></header><div class="badge compat-badge">CURRENT_COMPAT_VERIFIED_AT_PINNED_SHA</div>
+    <p><strong>This is not Target V1.</strong> It is verified against
+      <code>ginsengfood-business-platform@a3aad246d986fbc273cf41aaa93eec6659669656</code>.</p>
+    <h2>Wire contract</h2>
+    <p><code>POST /api/v1/internal/ivr/golden-hour/callbacks</code></p>
+    <p>Authentication: <code>X-Internal-Token transitional shared secret</code></p>
+    <p>Success envelope: <code>ApiResponse&lt;GoldenHourIvrCallbackResponse&gt;</code></p>
+    <table><thead><tr><th>Field</th><th>Type / values</th><th>Required</th></tr></thead><tbody><tr><td><code>callId</code></td><td>integer</td><td>yes</td></tr>
+<tr><td><code>reservationId</code></td><td>integer</td><td>yes</td></tr>
+<tr><td><code>orderId</code></td><td>integer</td><td>yes</td></tr>
+<tr><td><code>customerId</code></td><td>integer</td><td>yes</td></tr>
+<tr><td><code>result</code></td><td>string<br><small>CONFIRMED, REJECTED, NO_ANSWER, FAILED</small></td><td>yes</td></tr>
+<tr><td><code>occurredAt</code></td><td>string | null</td><td>no</td></tr>
+<tr><td><code>idempotencyKey</code></td><td>string</td><td>yes</td></tr></tbody></table>
+    <h2>Unsupported Target fields</h2><ul class="columns"><li><code>contract_version</code></li><li><code>callback_id</code></li><li><code>task_id</code></li><li><code>order_version_seen_by_ivr</code></li><li><code>attempt_number</code></li><li><code>is_counted_customer_attempt</code></li><li><code>is_final_for_ivr</code></li><li><code>recommended_core_action</code></li><li><code>evidence_ref</code></li><li><code>audit_ref</code></li><li><code>semantic_ack</code></li></ul>
+    <div class="notice">Compatibility is Golden Hour only, runtime-disabled by default and has no approved sunset date.</div>
+<footer>Generated content. Edit the named source, not this HTML.</footer></main></body></html>
