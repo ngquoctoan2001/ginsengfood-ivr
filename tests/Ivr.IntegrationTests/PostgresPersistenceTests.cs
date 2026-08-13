@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using DotNet.Testcontainers.Builders;
+using Ivr.Api.Application;
 using Ivr.Domain.Errors;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
@@ -55,6 +56,7 @@ public sealed class PostgresPersistenceFixture : IAsyncLifetime
             .Build();
         var services = new ServiceCollection();
         services.AddIvrFoundation(configuration);
+        services.AddIvrEligibility(configuration);
         services.AddIvrFeatureFlags(configuration);
         Services = services.BuildServiceProvider(validateScopes: true);
     }

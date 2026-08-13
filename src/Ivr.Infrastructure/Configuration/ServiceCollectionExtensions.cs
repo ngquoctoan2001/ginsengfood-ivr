@@ -10,6 +10,7 @@ using Ivr.Infrastructure.Persistence.Outbox;
 using Ivr.Infrastructure.Persistence.Security;
 using Ivr.Infrastructure.Providers.Fakes;
 using Ivr.Infrastructure.Repositories;
+using Ivr.Infrastructure.Scheduling;
 using Ivr.Infrastructure.Scripts;
 using Ivr.Domain.Scripts;
 using Ivr.Domain.Confirmation;
@@ -134,6 +135,8 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IScriptContentManager>(
                 provider => provider.GetRequiredService<PostgresScriptRegistry>());
             services.TryAddSingleton<IAttemptPolicyRegistry, PostgresAttemptPolicyRegistry>();
+            services.TryAddSingleton<IAttemptPolicyRegistryWriter,
+                PostgresAttemptPolicyRegistryWriter>();
             services.TryAddSingleton<ITaskIntakeStore, PostgresTaskIntakeStore>();
             services.TryAddSingleton<IEligibilityRepository,
                 PostgresEligibilityRepository>();
@@ -149,6 +152,13 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<ICallbackOutboxRepository, CallbackOutboxRepository>();
         services.TryAddSingleton<ISimChannelLeaseRepository, SimChannelLeaseRepository>();
         services.TryAddSingleton<IScriptPreviewRenderer, VietnameseOrderScriptRenderer>();
+        services.AddIvrScheduling(
+            configuration,
+            executionMode,
+            string.Equals(
+                executionMode,
+                IvrOptions.MockExecutionMode,
+                StringComparison.OrdinalIgnoreCase));
 
         return services;
     }

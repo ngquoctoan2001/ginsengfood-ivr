@@ -1,0 +1,458 @@
+using System.Text.Json;
+using Ivr.Api.Application;
+using Ivr.Domain.Confirmation;
+using Ivr.Domain.Policies;
+using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.Intake;
+using Ivr.Infrastructure.Persistence;
+using Ivr.Infrastructure.Persistence.Entities;
+using Ivr.Infrastructure.Repositories;
+using Ivr.Infrastructure.Scheduling;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Ivr.IntegrationTests;
+
+[Collection(PostgresPersistenceTestGroup.Name)]
+public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture)
+{
+    private static readonly DateTimeOffset Now =
+        new(2026, 8, 13, 9, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    [Trait("TestId", "IT-SCH-CLAIM-01")]
+    public async Task DuplicateWorkersCreateOneAttemptAndOneActiveChannelLease()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(factory, "TASK-SCH-CLAIM-01", "JOB-SCH-CLAIM-01", Now);
+        await SeedChannelAsync(factory, "SIM-LAB-001");
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        SchedulerDispatchLease?[] leases = await Task.WhenAll(
+            store.TryClaimDueDispatchAsync(
+                "worker-a",
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromMinutes(2)),
+            store.TryClaimDueDispatchAsync(
+                "worker-b",
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromMinutes(2)));
+
+        SchedulerDispatchLease lease = Assert.Single(leases.OfType<SchedulerDispatchLease>());
+        Assert.Equal(1, lease.AttemptNumber);
+        Assert.Equal(1, lease.FencingGeneration);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallAttemptEntity attempt = await verification.CallAttempts.AsNoTracking().SingleAsync();
+        SimChannelEntity channel = await verification.SimChannels.AsNoTracking().SingleAsync();
+        CallJobEntity job = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("LEASED_PENDING_DISPATCH", attempt.Status);
+        Assert.False(attempt.IsCountedCustomerAttempt);
+        Assert.Equal("RESERVED", channel.Status);
+        Assert.Equal(job.IvrCallJobId, channel.ActiveCallJobId);
+        Assert.Equal("DISPATCH_LEASED", job.Status);
+        Assert.Equal("LEASED", job.QueueStatus);
+        Assert.Single(await verification.AuditLog.AsNoTracking()
+            .Where(row => row.Action == "SCHEDULER_DISPATCH_LEASED")
+            .ToListAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-SCH-RECOVERY-02")]
+    public async Task ExpiredLeaseIsQuarantinedWithNewFenceAndCannotBeReclaimedBlindly()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(factory, "TASK-SCH-RECOVERY-02", "JOB-SCH-RECOVERY-02", Now);
+        await SeedChannelAsync(factory, "SIM-LAB-RECOVERY-001");
+        var claimStore = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await claimStore.TryClaimDueDispatchAsync(
+                "worker-crashed",
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromSeconds(30)));
+        DateTimeOffset recoveryAt = Now.AddSeconds(31);
+        var recoveryStore = new PostgresSchedulerStore(
+            factory,
+            new FixedTimeProvider(recoveryAt));
+
+        int recovered = await recoveryStore.QuarantineExpiredLeasesAsync(
+            recoveryAt,
+            TimeSpan.FromMinutes(10),
+            16);
+
+        Assert.Equal(1, recovered);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        SimChannelEntity channel = await verification.SimChannels.AsNoTracking().SingleAsync();
+        CallAttemptEntity attempt = await verification.CallAttempts.AsNoTracking().SingleAsync();
+        CallJobEntity job = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("QUARANTINED", channel.Status);
+        Assert.Equal(lease.FencingGeneration + 1, channel.LeaseFencingGeneration);
+        Assert.Null(channel.LeaseToken);
+        Assert.Equal("RECOVERY_REQUIRED", attempt.Status);
+        Assert.Equal("HELD_ADMIN_REVIEW", job.Status);
+        Assert.Equal("HELD_LEASE_RECOVERY", job.QueueStatus);
+        Assert.Null(await recoveryStore.TryClaimDueDispatchAsync(
+            "worker-new",
+            IvrOptions.LabRealSimExecutionMode,
+            TimeSpan.FromMinutes(2)));
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-SCH-DEADLINE-03")]
+    public async Task MissedDeadlineCreatesCapacityIncidentAndFinalNonCountedResult()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        DateTimeOffset startedAt = Now.AddMinutes(-5);
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-DEADLINE-03",
+            "JOB-SCH-DEADLINE-03",
+            startedAt,
+            expiresAt: Now);
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        int closed = await store.CloseMissedDeadlinesAsync(Now, 16);
+
+        Assert.Equal(1, closed);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CapacityIncidentEntity incident = await verification.CapacityIncidents
+            .AsNoTracking()
+            .SingleAsync();
+        CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        CallJobEntity job = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("SCHEDULER_DEADLINE", incident.Scope);
+        Assert.Equal(1, incident.MissedDeadlineCount);
+        Assert.Equal("IVR_CAPACITY_EXCEPTION", result.ResultType);
+        Assert.True(result.IsFinalForIvr);
+        Assert.False(result.IsCountedCustomerAttempt);
+        Assert.Equal("CAPACITY_MISSED", job.Status);
+        Assert.Equal(incident.CapacityIncidentId, job.CapacityIncidentId);
+        Assert.Equal(0, await verification.CallAttempts.CountAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-SCH-DEADLINE-08")]
+    public async Task AttemptClaimedBeforeDeadlineIsNotMisclassifiedAsCapacityMiss()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        DateTimeOffset startedAt = Now.AddMinutes(-5);
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-DEADLINE-08",
+            "JOB-SCH-DEADLINE-08",
+            startedAt,
+            expiresAt: Now);
+        await using (IvrDbContext seed = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await seed.CallJobs.SingleAsync();
+            job.Status = "DISPATCH_LEASED";
+            job.QueueStatus = "LEASED";
+            seed.CallAttempts.Add(new CallAttemptEntity
+            {
+                IvrCallAttemptId = "ATTEMPT-SCH-DEADLINE-08",
+                IvrCallJobId = job.IvrCallJobId,
+                TaskId = job.TaskId,
+                AttemptNumber = 1,
+                MaxAttemptsSnapshot = 2,
+                ScheduledAt = startedAt,
+                ScheduledWindowExpiresAt = Now,
+                StartedAt = Now.AddSeconds(-10),
+                Status = "ACTIVE_CALL",
+                IsCountedCustomerAttempt = false,
+                PolicyVersion = job.AttemptPolicyCode,
+                ScriptVersion = job.ScriptVersion,
+            });
+            await seed.SaveChangesAsync();
+        }
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        int closed = await store.CloseMissedDeadlinesAsync(Now, 16);
+
+        Assert.Equal(0, closed);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        Assert.Equal(0, await verification.CallResults.CountAsync());
+        Assert.Equal("DISPATCH_LEASED", (await verification.CallJobs.SingleAsync()).Status);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-SCH-FINAL-04")]
+    public async Task FinalResultPreventsFutureAttemptEvenWhenSecondOffsetIsDue()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-FINAL-04",
+            "JOB-SCH-FINAL-04",
+            Now.AddMinutes(-4),
+            Now.AddMinutes(1));
+        await SeedChannelAsync(factory, "SIM-LAB-FINAL-001");
+        await using (IvrDbContext seed = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await seed.CallJobs.SingleAsync();
+            seed.CallAttempts.Add(new CallAttemptEntity
+            {
+                IvrCallAttemptId = "ATTEMPT-SCH-FINAL-04-1",
+                IvrCallJobId = job.IvrCallJobId,
+                TaskId = job.TaskId,
+                AttemptNumber = 1,
+                MaxAttemptsSnapshot = 2,
+                ScheduledAt = Now.AddMinutes(-4),
+                ScheduledWindowExpiresAt = Now.AddMinutes(1),
+                StartedAt = Now.AddMinutes(-4),
+                EndedAt = Now.AddMinutes(-3),
+                Status = "COMPLETED",
+                ResultStatus = "IVR_CONFIRMED",
+                IsCountedCustomerAttempt = true,
+                PolicyVersion = job.AttemptPolicyCode,
+                ScriptVersion = job.ScriptVersion,
+            });
+            seed.CallResults.Add(new CallResultEntity
+            {
+                IvrCallResultId = "RESULT-SCH-FINAL-04",
+                IvrCallJobId = job.IvrCallJobId,
+                TaskId = job.TaskId,
+                OfficialOrderId = job.OfficialOrderId,
+                OrderVersionSnapshot = job.OrderVersionSnapshot,
+                OrderVersionSeenByIvr = job.OrderVersionSnapshot,
+                FinalResultStatus = "IVR_CONFIRMED",
+                ResultType = "IVR_CONFIRMED",
+                IsCountedCustomerAttempt = true,
+                IsFinalForIvr = true,
+                RecommendedCoreAction = "REVALIDATE_AND_CONFIRM_ORDER",
+                CoreOrderHandoffRequired = true,
+                HumanReviewRequired = false,
+                CreatedAt = Now.AddMinutes(-3),
+            });
+            await seed.SaveChangesAsync();
+        }
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        SchedulerDispatchLease? next = await store.TryClaimDueDispatchAsync(
+            "worker-final",
+            IvrOptions.LabRealSimExecutionMode,
+            TimeSpan.FromMinutes(2));
+
+        Assert.Null(next);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(1, await verification.CallAttempts.CountAsync());
+        Assert.Null((await verification.SimChannels.AsNoTracking().SingleAsync()).LeaseToken);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-POLICY-AUDIT-05")]
+    public async Task AlternatePolicyIsRegisteredAsNewVersionAndAudited()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        var writer = new PostgresAttemptPolicyRegistryWriter(
+            factory,
+            new FixedTimeProvider(Now));
+        AttemptPolicySnapshot policy = AttemptPolicySnapshot.Create(
+            PolicyVersion.Create("alternate-three-v1"),
+            IvrProgramCode.GoldenHour,
+            3,
+            [TimeSpan.Zero, TimeSpan.FromSeconds(45), TimeSpan.FromSeconds(105)],
+            TimeSpan.FromSeconds(180),
+            AttemptPolicyApproval.OwnerApproved);
+
+        await writer.RegisterNewVersionAsync(
+            policy,
+            [ExecutionMode.Mock, ExecutionMode.LabRealSim, ExecutionMode.ProductionReal],
+            "policy-owner-test",
+            "owner-approved-test-policy",
+            "corr-policy-audit-05");
+        var registry = new PostgresAttemptPolicyRegistry(factory);
+        AttemptPolicySnapshot resolved = await registry.ResolveAsync(
+            policy.Version,
+            policy.Program,
+            ExecutionMode.ProductionReal,
+            CancellationToken.None);
+
+        Assert.Equal(3, resolved.MaxCustomerAttempts);
+        Assert.Equal([0, 45, 105], resolved.AttemptOffsets.Select(Value).ToArray());
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        AuditLogEntity audit = await verification.AuditLog.AsNoTracking().SingleAsync();
+        Assert.Equal("ATTEMPT_POLICY_VERSION_REGISTERED", audit.Action);
+        Assert.Contains(policy.ComputeHash(), audit.DataJson, StringComparison.Ordinal);
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            writer.RegisterNewVersionAsync(
+                policy,
+                [ExecutionMode.Mock],
+                "policy-owner-test",
+                "duplicate-test",
+                "corr-policy-audit-duplicate"));
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-POLICY-PROD-06")]
+    public async Task CandidatePolicyRegistrationFailsClosedForProduction()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        var writer = new PostgresAttemptPolicyRegistryWriter(
+            factory,
+            new FixedTimeProvider(Now));
+        AttemptPolicySnapshot candidate = AttemptPolicySnapshot.Create(
+            PolicyVersion.Create("candidate-prod-forbidden-v1"),
+            IvrProgramCode.GoldenHour,
+            2,
+            [TimeSpan.Zero, TimeSpan.FromSeconds(150)],
+            TimeSpan.FromSeconds(300),
+            AttemptPolicyApproval.CandidateMockLabOnly);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            writer.RegisterNewVersionAsync(
+                candidate,
+                [ExecutionMode.ProductionReal],
+                "policy-owner-test",
+                "candidate-must-fail",
+                "corr-policy-prod-06"));
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(0, await verification.AttemptPolicies.CountAsync());
+        Assert.Equal(0, await verification.AuditLog.CountAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-SCH-CAPACITY-07")]
+    public async Task EligibilityCapacityProviderUsesSchedulerCalculationInNonMockMode()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(factory, "TASK-SCH-CAP-07", "JOB-SCH-CAP-07", Now);
+        await SeedChannelAsync(factory, "SIM-LAB-CAP-001");
+        await using IvrDbContext read = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity task = await read.ConfirmationTasks.AsNoTracking().SingleAsync();
+        CallJobEntity job = await read.CallJobs.AsNoTracking().SingleAsync();
+        IEligibilityCapacityProvider provider = fixture.Services
+            .GetRequiredService<IEligibilityCapacityProvider>();
+
+        EligibilityCapacitySnapshot capacity = await provider.GetCapacityAsync(
+            new EligibilityTaskRecord(
+                task,
+                job,
+                new TaskIntakeOutboxEntity
+                {
+                    TaskId = task.TaskId,
+                    IvrCallJobId = job.IvrCallJobId,
+                }),
+            Now);
+
+        Assert.IsType<SchedulerEligibilityCapacityProvider>(provider);
+        Assert.True(capacity.SourceAvailable);
+        Assert.True(capacity.CanMeetDeadline);
+        Assert.Equal(1, capacity.ActiveSimCount);
+        Assert.Equal(2, capacity.PendingCallJobs);
+        Assert.StartsWith("evidence://ivr/p2-3/scheduler-capacity/", capacity.EvidenceRef,
+            StringComparison.Ordinal);
+    }
+
+    private IDbContextFactory<IvrDbContext> Factory() => fixture.Services
+        .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+
+    private static async Task SeedReadyJobAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string taskId,
+        string jobId,
+        DateTimeOffset startedAt,
+        DateTimeOffset? expiresAt = null)
+    {
+        DateTimeOffset deadline = expiresAt ?? startedAt.AddMinutes(5);
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        context.ConfirmationTasks.Add(new ConfirmationTaskEntity
+        {
+            Id = Guid.NewGuid(),
+            TaskId = taskId,
+            ContractVersion = "ivr-order-confirmation.v1",
+            IdempotencyKey = string.Concat("scheduler:", taskId),
+            CorrelationId = string.Concat("corr-", taskId),
+            OfficialOrderId = string.Concat("ORDER-", taskId),
+            OrderCode = string.Concat("GF-", taskId),
+            OrderVersion = "1",
+            OrderState = "CONFIRMING",
+            PaymentMethodSnapshot = "ONLINE",
+            IvrConfirmationRequired = true,
+            RiskFlagsJson = "[]",
+            ProgramType = "GOLDEN_HOUR",
+            AttemptPolicyVersion = CandidateAttemptPolicies.Version,
+            MaxAttempts = 2,
+            AttemptOffsetsSecondsJson = "[0,150]",
+            ConfirmationWindowStartedAt = startedAt,
+            ConfirmationWindowExpiresAt = deadline,
+            PhoneRef = string.Concat("phone-ref-", taskId),
+            PhoneMasked = "84xxxxx0020",
+            PhoneValidationStatus = "VALID",
+            DialTokenCiphertext = string.Concat("enc:", taskId),
+            DialTokenExpiresAt = deadline,
+            PrivacySafeOrderSummaryJson = "{}",
+            CallScriptTemplateId = "SCRIPT-ORDER-CONFIRM",
+            CallScriptVersion = "v1-test-approved",
+            EvidencePolicyVersion = "evidence-v1",
+            PrivacyPolicyVersion = "privacy-v1",
+            EligibilityDecision = "ELIGIBLE",
+            EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
+            SellableStatusJson = "[]",
+            CallRestriction = false,
+            CreatedAt = startedAt,
+            ExpiresAt = deadline,
+            AcceptedAt = startedAt,
+        });
+        context.CallJobs.Add(new CallJobEntity
+        {
+            IvrCallJobId = jobId,
+            TaskId = taskId,
+            OfficialOrderId = string.Concat("ORDER-", taskId),
+            OrderVersionSnapshot = "1",
+            ProgramType = "GOLDEN_HOUR",
+            AttemptPolicyCode = CandidateAttemptPolicies.Version,
+            Status = "READY_FOR_SCHEDULER",
+            MaxAttempts = 2,
+            AttemptOffsetsSecondsJson = "[0,150]",
+            ConfirmationWindowSeconds = 300,
+            AttemptScheduleJson = JsonSerializer.Serialize(new[]
+            {
+                startedAt,
+                startedAt.AddSeconds(150),
+            }),
+            T0At = startedAt,
+            ExpiresAt = deadline,
+            Eligible = true,
+            EligibilityDecision = "ELIGIBLE",
+            QueueStatus = "QUEUED",
+            ScriptVersion = "SCRIPT-ORDER-CONFIRM:v1-test-approved",
+            PrivacyPolicyVersion = "privacy-v1",
+            CreatedAt = startedAt,
+        });
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedChannelAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string channelId)
+    {
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        context.SimChannels.Add(new SimChannelEntity
+        {
+            SimChannelId = channelId,
+            SimNumberRef = string.Concat("sim-ref-", channelId),
+            Enabled = true,
+            Status = "IDLE",
+            AdapterMode = "VENDOR",
+            ExecutionMode = IvrOptions.LabRealSimExecutionMode,
+            ProviderName = "VENDOR",
+            LastHealthCheckAt = Now,
+        });
+        await context.SaveChangesAsync();
+    }
+
+    private static int Value(TimeSpan value) => checked((int)value.TotalSeconds);
+
+    private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
+    }
+}

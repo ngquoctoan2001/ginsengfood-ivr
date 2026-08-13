@@ -5,6 +5,7 @@ using Ivr.Domain.Policies;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Repositories;
+using Ivr.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -167,6 +168,39 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         EligibilityEvaluation result = await service.EvaluateAsync(
             "TASK-ELIG-FAILCLOSED-08",
             "corr-elig-failclosed-08");
+
+        Assert.False(result.Eligible);
+        Assert.Equal(EligibilityDecisions.HeldAdminReview, result.Decision);
+        Assert.Equal(
+            EligibilityReasonCodes.CapacitySourceUnavailable,
+            Assert.Single(result.Reasons).Code);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(0, await verification.CallAttempts.CountAsync());
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-ELIG-SCHED-09")]
+    public async Task SchedulerCapacitySourceUnavailableFailsClosedWithoutAttempt()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-ELIG-SCHED-09",
+            "JOB-ELIG-SCHED-09",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY");
+        var service = new EligibilityService(
+            new PostgresEligibilityRepository(factory),
+            new SchedulerEligibilityCapacityProvider(
+                new UnavailableSchedulerCapacityService()),
+            new FixedTimeProvider(Now));
+
+        EligibilityEvaluation result = await service.EvaluateAsync(
+            "TASK-ELIG-SCHED-09",
+            "corr-elig-sched-09");
 
         Assert.False(result.Eligible);
         Assert.Equal(EligibilityDecisions.HeldAdminReview, result.Decision);

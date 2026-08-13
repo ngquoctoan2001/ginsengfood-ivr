@@ -2,8 +2,8 @@ using System.Text.Json;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
-using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Repositories;
+using Ivr.Infrastructure.Scheduling;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Ivr.Api.Application;
@@ -24,47 +24,57 @@ public interface IEligibilityService
         CancellationToken cancellationToken = default);
 }
 
-public sealed class MockEligibilityCapacityProvider : IEligibilityCapacityProvider
+public sealed class SchedulerEligibilityCapacityProvider(
+    ISchedulerCapacityService schedulerCapacity) : IEligibilityCapacityProvider
 {
-    public ValueTask<EligibilityCapacitySnapshot> GetCapacityAsync(
+    public async ValueTask<EligibilityCapacitySnapshot> GetCapacityAsync(
         EligibilityTaskRecord task,
         DateTimeOffset evaluatedAt,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(task);
-        cancellationToken.ThrowIfCancellationRequested();
-        return ValueTask.FromResult(new EligibilityCapacitySnapshot(
-            true,
-            true,
-            "MOCK-CAPACITY-P2-2",
-            1,
-            0,
-            0,
-            0,
-            null,
-            "evidence://mock/p2-2/capacity-available"));
+        int[] offsets = DeserializeOffsets(task.CallJob.AttemptOffsetsSecondsJson);
+        Ivr.Domain.Confirmation.IvrProgramCode program = task.CallJob.ProgramType switch
+        {
+            "GOLDEN_HOUR" => Ivr.Domain.Confirmation.IvrProgramCode.GoldenHour,
+            "TWENTY_FOUR_SEVEN" => Ivr.Domain.Confirmation.IvrProgramCode.TwentyFourSeven,
+            _ => throw new InvalidOperationException("Stored scheduler program is unknown."),
+        };
+        int riskScore = SchedulerCapacityMapper.RiskScore(task.Task.RiskFlagsJson);
+        SchedulerCapacitySnapshot capacity = await schedulerCapacity.CalculateAsync(
+            new SchedulerCapacityRequest(
+                task.CallJob.IvrCallJobId,
+                program,
+                task.CallJob.T0At,
+                task.CallJob.ExpiresAt,
+                task.CallJob.CreatedAt,
+                offsets,
+                riskScore),
+            evaluatedAt,
+            cancellationToken).ConfigureAwait(false);
+        return new EligibilityCapacitySnapshot(
+            capacity.SourceAvailable,
+            capacity.FitsBeforeDeadline,
+            capacity.SessionId,
+            capacity.ActiveChannelCount,
+            capacity.PendingDispatches,
+            capacity.ExpiredJobs,
+            capacity.MissedDeadlineCount,
+            capacity.ShortageReason,
+            capacity.EvidenceRef);
     }
-}
 
-public sealed class FailClosedEligibilityCapacityProvider : IEligibilityCapacityProvider
-{
-    public ValueTask<EligibilityCapacitySnapshot> GetCapacityAsync(
-        EligibilityTaskRecord task,
-        DateTimeOffset evaluatedAt,
-        CancellationToken cancellationToken = default)
+    private static int[] DeserializeOffsets(string json)
     {
-        ArgumentNullException.ThrowIfNull(task);
-        cancellationToken.ThrowIfCancellationRequested();
-        return ValueTask.FromResult(new EligibilityCapacitySnapshot(
-            false,
-            false,
-            "CAPACITY-SOURCE-UNAVAILABLE",
-            0,
-            0,
-            0,
-            0,
-            "CAPACITY_PROVIDER_NOT_CONFIGURED",
-            "evidence://ivr/p2-2/capacity-source-unavailable"));
+        try
+        {
+            return JsonSerializer.Deserialize<int[]>(json)
+                ?? throw new InvalidOperationException("Stored attempt offsets are missing.");
+        }
+        catch (JsonException exception)
+        {
+            throw new InvalidOperationException("Stored attempt offsets are unreadable.", exception);
+        }
     }
 }
 
@@ -278,23 +288,9 @@ public static class EligibilityServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
-        string executionMode = configuration["IVR_EXECUTION_MODE"]
-            ?? configuration[$"{IvrOptions.SectionName}:{nameof(IvrOptions.ExecutionMode)}"]
-            ?? IvrOptions.MockExecutionMode;
         services.TryAddSingleton<IEligibilityService, EligibilityService>();
-        if (string.Equals(
-                executionMode,
-                IvrOptions.MockExecutionMode,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            services.TryAddSingleton<IEligibilityCapacityProvider,
-                MockEligibilityCapacityProvider>();
-        }
-        else
-        {
-            services.TryAddSingleton<IEligibilityCapacityProvider,
-                FailClosedEligibilityCapacityProvider>();
-        }
+        services.TryAddSingleton<IEligibilityCapacityProvider,
+            SchedulerEligibilityCapacityProvider>();
 
         return services;
     }

@@ -61,10 +61,10 @@ public sealed class SimChannelLeaseRepository(
               FROM ivr_sim_channels
               WHERE enabled IS TRUE
                 AND execution_mode = @execution_mode
-                AND status IN ('IDLE', 'RESERVED')
-                AND (lease_token IS NULL OR lease_expires_at < @now)
+                AND status = 'IDLE'
+                AND lease_token IS NULL
                 AND (cooldown_until IS NULL OR cooldown_until <= @now)
-                AND (quarantine_until IS NULL OR quarantine_until <= @now)
+                AND quarantine_until IS NULL
               ORDER BY fail_count, sim_channel_id
               FOR UPDATE SKIP LOCKED
               LIMIT 1
