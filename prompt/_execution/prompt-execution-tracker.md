@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0087` |
 | Last allocated | `W-0086` |
-| Last activity sequence | `A-0109` |
+| Last activity sequence | `A-0110` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -87,7 +87,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0021` | `P2-4` | speech + dial-token + mock SIM adapter | W-0020 | NOT_STARTED |  |  |  |  |
 | `W-0022` | `P2-5` | DTMF/disposition normalizer | W-0021 | NOT_STARTED |  |  |  |  |
 | `W-0023` | `P2-6` | target callback/outbox + GH compat | W-0022 | NOT_STARTED |  |  |  |  |
-| `W-0024` | `P2-7` | script/content approval and safe variables (chạy TRƯỚC P2-1) | W-0016 | TESTS_PASS | Codex | `src/Ivr.Domain/Scripts/**`; `src/Ivr.Infrastructure/Scripts/**`; P2-7 migration/seed; specs/tests/evidence W-0024 | 117/117; coverage 94.71%; EF/model/format/build/OpenAPI/docs/UI/security/PII PASS | MOCK fixture only; LAB/real Sales/PROD NOT_RUN; OD-V1-15 + W-0003 remain open; REAL_CUSTOMER_CALL_ALLOWED=NO |
+| `W-0024` | `P2-7` | script/content approval and safe variables (chạy TRƯỚC P2-1) | W-0016 | TESTS_PASS | Codex | `src/Ivr.Domain/Scripts/**`; `src/Ivr.Infrastructure/Scripts/**`; P2-7 migration/seed; specs/tests/evidence W-0024 | 117/117; coverage 94.71%; EF/model/format/build/OpenAPI/docs/UI/security/PII PASS | GitHub main pushed; GitLab main push BLOCKED_EXTERNAL by protected-branch rule; MOCK fixture only; LAB/real Sales/PROD NOT_RUN; OD-V1-15 + W-0003 remain open |
 | `W-0025` | `P3-1` | Next.js/RBAC/API client/mode banners | W-0012,W-0018,W-0065 | NOT_STARTED |  |  |  |  |
 | `W-0026` | `P3-2` | dashboard/log/detail masked evidence | W-0025,W-0065 | NOT_STARTED |  |  |  |  |
 | `W-0027` | `P3-3` | config/integration/provider/channel/roles UI | W-0026,W-0065 | NOT_STARTED |  |  |  |  |
@@ -274,6 +274,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0107` | 2026-08-13 | `W-0024` | START | Bắt đầu P2-7 trực tiếp trên `main`: versioned script lifecycle, mode-specific approval, Target V1 Vietnamese renderer, PostgreSQL persistence và MOCK test-approved seed; không tạo branch/MR theo chỉ đạo IVR owner | Codex | baseline `458d0af`; prereq W-0016 satisfied; GitNexus pre-edit: IvrDbContext CRITICAL (18 symbols/8 flows), model/DI LOW; full shared-DbContext regression bắt buộc; REAL_CUSTOMER_CALL_ALLOWED=NO |
 | `A-0108` | 2026-08-13 | `W-0024` | IMPLEMENTATION/VALIDATION | Hoàn thiện immutable script lifecycle, exact mode approval, RBAC/four-eyes/audit, Target V1 whitelist/renderer/preview/hash, MOCK seed và PostgreSQL trigger; focused remediation sửa EF navigation state và short-area `Thành phố` nhưng vẫn chặn full address | Codex | UT-SCRIPT 10/10; IT-SCRIPT + IT-DB-MIGRATE 3/3; EF no pending model changes; pre-edit ShortDeliveryArea impact LOW (10 symbols/2 flows) |
 | `A-0109` | 2026-08-13 | `W-0024` | CHANGE_REVIEW/HANDOFF | Chốt P2-7 local ở `TESTS_PASS`; full shared-DbContext regression và privacy/security gate xanh, giữ MOCK/LAB/PROD tách biệt và không nâng synthetic fixture thành production approval | Codex | build 0/0; format PASS; 117/117; coverage 94.71%; OpenAPI/docs/UI/NuGet/npm/Compose/Gitleaks/PII PASS; official map 411 file/375 resolved/0 unresolved; evidence `docs/evidence/W-0024/` |
+| `A-0110` | 2026-08-13 | `W-0024` | COMMIT/PUSH_HANDOFF | Commit implementation P2-7 trực tiếp trên `main`; GitHub fast-forward thành công, GitLab từ chối vì protected `main` vẫn cấu hình No one can push. Không tự hạ protection và không tạo branch/MR trái chỉ đạo owner | Codex | implementation commit `e911fc1`; GitHub `main` pushed; GitLab exact error `You are not allowed to push code to protected branches`; origin/main remains behind local main |
 
 ## 8. Per-work completion record template
 
@@ -448,7 +449,7 @@ Final status: TESTS_PASS
 
 ```text
 Work ID: W-0024 / P2-7
-Baseline/commit: main@458d0af (P1-5); dedicated P2-7 commit created after this record; no branch/MR by explicit IVR owner instruction
+Baseline/commit: main@458d0af (P1-5); implementation commit e911fc1; no branch/MR by explicit IVR owner instruction
 Scope completed: immutable DRAFT/IN_REVIEW/APPROVED/RETIRED script lifecycle; explicit RBAC, actor/reason/audit and four-eyes; IScriptRegistry exact mode gate; Target V1 whitelist; deterministic Vietnamese preview with one/many/collapse/VND/short area/1-0; PUBLIC-SAFE snapshot and hashes; in-memory MOCK registry; PostgreSQL registry, migration, mode seed and database lifecycle/append-only guards
 Files/artifacts: src/Ivr.Domain/Scripts/**; src/Ivr.Infrastructure/Scripts/**; IvrDbContext/model/migration; seed/ivr-menu.sample.json; API/Worker safe config; tests/Ivr.UnitTests/Scripts/**; tests/Ivr.IntegrationTests/Scripts/**; specs functional/data/database/UI; docs/evidence/W-0024/**; official Markdown map
 Commands and exact results: locked restore PASS; Release build 0 warning/0 error; format PASS; EF no pending model changes; focused UT-SCRIPT 10/10 and PostgreSQL script/migration 3/3; full contract 19 + unit 67 + integration 31 = 117/117; merged coverage 94.71% (14435/15241, 3 reports); CI config, OpenAPI lint/parse/schema/hash/negative, API docs, UI lint/build, NuGet/npm HIGH, Compose, Gitleaks and locale-stable PII PASS; official map 411 files/375 resolved/0 unresolved
@@ -458,6 +459,7 @@ Mock-only evidence: complete; SCRIPT-ORDER-CONFIRM:v1-test-approved has MOCK_TES
 Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, vendor TTS/audio, allowlisted destination or real call
 Real integration evidence: NOT_RUN; no Sales endpoint/auth/provider or customer data connected
 Production evidence: NOT_RUN; Content + Privacy/Legal approval not seeded; ProductionTargetV1FieldsApproved=NO; REAL_CUSTOMER_CALL_ALLOWED=NO; no deployment
+Remote handoff: GitHub main fast-forwarded to e911fc1; GitLab origin/main push is BLOCKED_EXTERNAL because protected main disallows direct push; no MR was created
 Residual blockers/risks: OD-V1-15 is OWNER_DECISION_REQUIRED for reading items/short area in PROD; W-0003 external Sales contract/data remains open; recording OFF; no notification/SMS/A-B behavior; hosted pipeline intentionally skipped under current main-only/no-MR workflow
 GitNexus review: pre-edit IvrDbContext CRITICAL (18 symbols/8 flows), ShortDeliveryArea LOW (10 symbols/2 flows), model/DI LOW; unstaged tracked review HIGH with 21 files/37 symbols/6 existing flows and new unindexed symbols as graph lower bound; full PostgreSQL and 117-test proof covers shared-context blast radius; final staged detect recorded immediately before commit
 Next allowed Work ID(s): W-0018/P2-1 task intake is now dependency-eligible and is the recommended next implementation; it must fail closed with IVR_SCRIPT_NOT_APPROVED when this registry does not resolve exact template/version/mode
