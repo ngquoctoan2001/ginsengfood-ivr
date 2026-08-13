@@ -1,0 +1,25 @@
+registry_push_pull_smoke:
+  stage: publish
+  image: docker:29.6.2-cli
+  services:
+    - name: docker:29.6.2-dind
+      alias: docker
+  allow_failure: true
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - test -n "${CI_REGISTRY:-}" && test -n "${CI_REGISTRY_IMAGE:-}" && test -n "${CI_JOB_TOKEN:-}"
+    - export PROOF_IMAGE="${CI_REGISTRY_IMAGE}/w0061-proof:${CI_COMMIT_SHA}"
+    - printf '%s' "$CI_JOB_TOKEN" | docker login --username gitlab-ci-token --password-stdin "$CI_REGISTRY"
+    - printf 'FROM scratch\nARG REVISION\nLABEL org.opencontainers.image.title="ginsengfood-ivr W-0061 registry proof"\nLABEL org.opencontainers.image.revision="$REVISION"\n' | docker build --build-arg REVISION="$CI_COMMIT_SHA" --tag "$PROOF_IMAGE" -
+    - docker push "$PROOF_IMAGE"
+    - docker image rm --force "$PROOF_IMAGE"
+    - docker pull "$PROOF_IMAGE"
+    - test "$(docker image inspect "$PROOF_IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')" = "$CI_COMMIT_SHA"
+  after_script:
+    - docker logout "$CI_REGISTRY" || true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+    - when: never

@@ -36,3 +36,4 @@ default:
 include:
   - local: "/deploy/ci/ci.gitlab-ci.yml"
   - local: "/deploy/ci/docs.gitlab-ci.yml"
+  - local: "/deploy/ci/registry.gitlab-ci.yml"

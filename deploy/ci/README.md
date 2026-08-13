@@ -31,6 +31,7 @@ The .NET jobs pin `mcr.microsoft.com/dotnet/sdk:10.0.201` to the SDK selected by
 | `api_docs_verify` | regenerate Redoc portal, fail on drift, enforce Target/current separation and no-real-PII examples |
 | `api_contract_diff` | pinned oasdiff changelog/breaking gate plus CT-DOC-02 negative fixture |
 | `api_docs_pages` | publish the verified static portal to GitLab Pages only after the non-prod access-control gate is armed |
+| `registry_push_pull_smoke` | manual protected-`main` proof that a short-lived `CI_JOB_TOKEN` can push, remove locally, pull and verify an IVR Registry image |
 
 P1-4 lives in the separately included `docs.gitlab-ci.yml`. The Pages job is
 fail-closed by `API_DOCS_PUBLISH_NONPROD=NO`; Platform may set it to `YES` only
@@ -38,6 +39,16 @@ after GitLab Pages Access Control is enabled and verified. Once armed, default
 branch merges publish automatically to the `api-docs-nonprod` development-tier
 environment. Merge requests still run both documentation verification jobs but
 never deploy Pages.
+
+`registry_push_pull_smoke` is an optional manual job available only on the
+default branch. It authenticates with the short-lived `CI_JOB_TOKEN`, builds a
+metadata-only image under `$CI_REGISTRY_IMAGE/w0061-proof:$CI_COMMIT_SHA`,
+pushes it, removes the local copy, pulls it back and verifies the embedded
+revision label. It never prints credentials and does not require a deploy token
+or personal access token. The job is intentionally `allow_failure: true` so an
+unplayed operational smoke does not block every default-branch pipeline; a
+W-0061 closure claim still requires the manual job itself to finish with
+`PASS`.
 
 Foundation coverage starts at 60%. It may only rise or receive a documented
 generated-code exclusion; lowering the threshold or excluding handwritten
