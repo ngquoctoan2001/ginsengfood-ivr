@@ -1,6 +1,7 @@
 using Ivr.Api.Admin;
 using Ivr.Api.Foundation;
 using Ivr.Api.Health;
+using Ivr.Api.Intake;
 using Ivr.Api.Middleware;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.FeatureFlags;
@@ -17,6 +18,7 @@ app.UseRouting();
 app.UseIvrApiFoundation();
 app.MapIvrHealthEndpoints();
 app.MapIvrFeatureFlagEndpoints();
+app.MapIvrTaskIntakeEndpoint();
 
 app.Run();
 

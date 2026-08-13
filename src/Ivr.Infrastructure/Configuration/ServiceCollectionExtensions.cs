@@ -1,13 +1,18 @@
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Correlation;
+using Ivr.Infrastructure.Contracts;
 using Ivr.Infrastructure.Evidence;
 using Ivr.Infrastructure.Idempotency;
+using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Channels;
 using Ivr.Infrastructure.Persistence.Outbox;
 using Ivr.Infrastructure.Persistence.Security;
+using Ivr.Infrastructure.Providers.Fakes;
 using Ivr.Infrastructure.Scripts;
 using Ivr.Domain.Scripts;
+using Ivr.Domain.Confirmation;
+using Ivr.Domain.Ports;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,6 +80,9 @@ public static class ServiceCollectionExtensions
             });
 
         services.TryAddSingleton<TimeProvider>(TimeProvider.System);
+        services.TryAddSingleton(SpeechSummaryLimits.Create(100, 100));
+        services.TryAddSingleton<TargetV1TaskMapper>();
+        services.TryAddSingleton<ITaskIntakeService, TaskIntakeService>();
         services.TryAddSingleton<ICorrelationContext, CorrelationContext>();
         services.AddTransient<CorrelationPropagationHandler>();
         services.ConfigureHttpClientDefaults(
@@ -99,6 +107,12 @@ public static class ServiceCollectionExtensions
                 provider => provider.GetRequiredService<InMemoryScriptRegistry>());
             services.TryAddSingleton<IScriptContentManager>(
                 provider => provider.GetRequiredService<InMemoryScriptRegistry>());
+            services.TryAddSingleton<IAttemptPolicyRegistry>(_ =>
+                new FakeAttemptPolicyRegistry(CandidateAttemptPolicies.Create()));
+            services.TryAddSingleton<InMemoryTaskIntakeStore>();
+            services.TryAddSingleton<ITaskIntakeStore>(provider =>
+                provider.GetRequiredService<InMemoryTaskIntakeStore>());
+            services.TryAddSingleton<IOpaqueValueProtector, MockOnlyOpaqueValueProtector>();
         }
         else
         {
@@ -116,6 +130,8 @@ public static class ServiceCollectionExtensions
                 provider => provider.GetRequiredService<PostgresScriptRegistry>());
             services.TryAddSingleton<IScriptContentManager>(
                 provider => provider.GetRequiredService<PostgresScriptRegistry>());
+            services.TryAddSingleton<IAttemptPolicyRegistry, PostgresAttemptPolicyRegistry>();
+            services.TryAddSingleton<ITaskIntakeStore, PostgresTaskIntakeStore>();
         }
 
         services.AddDbContextFactory<IvrDbContext>((serviceProvider, dbContextOptions) =>

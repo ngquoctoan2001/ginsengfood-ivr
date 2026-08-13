@@ -87,6 +87,7 @@ internal static class RetentionTargetCatalog
             ],
             [RetentionDataClasses.TaskMetadata] =
             [
+                Delete("task_intake_outbox", "ivr_task_intake_outbox", "created_at"),
                 Delete(
                     "call_jobs",
                     "ivr_call_jobs",

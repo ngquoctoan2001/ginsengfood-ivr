@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0087` |
 | Last allocated | `W-0086` |
-| Last activity sequence | `A-0110` |
+| Last activity sequence | `A-0114` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -81,7 +81,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0015` | `P1-2` | PostgreSQL/EF migrations, versioned policy/speech snapshots | W-0012 TESTS_PASS; baseline `5d2301e` | TESTS_PASS | Codex | EF 17-table model/migration; Up/Down SQL; Testcontainers; persistent P0-4 flag/audit/idempotency transaction; outbox + channel lease/fencing; `docs/evidence/W-0015/` | clean/recreate/rollback + 6/6 PostgreSQL tests; full 61/61; later hosted DinD/Testcontainers and quality pipelines PASS | local P0-4 persistence gap closed; DF-07/KMS/backup-staging-prod remain; W-0061 only approval enforcement remains; no real Sales/SIM/call |
 | `W-0016` | `P1-3` | domain/DTO/provider ports/privacy guards | W-0014,W-0015 | TESTS_PASS | Codex | immutable domain/value objects; provider ports + deterministic fakes; target/current anti-corruption mappers; privacy guards; tests; `docs/evidence/W-0016/README.md` | locked restore/build/format PASS; 93/93 full tests; later hosted pipelines 98/98; GitNexus staged HIGH 292 symbol/22 file/12 expected flow | local MOCK complete; Target V1/policy approvals and real Sales/SIM/customer calls remain external/NOT_RUN; W-0061 only GitLab approval enforcement remains |
 | `W-0017` | `P1-4` | API docs/versioning/drift portal | W-0014 | ACCEPTED | Codex (explicit IVR owner authorization) | static Redoc portal; versioning/integration/changelog guides; pinned oasdiff; private GitLab Pages; `docs/evidence/W-0017/` | local CT-DOC-01/02 + UT-DOC-PII-03; pipeline `#2756517379` 12 jobs/98 tests; Pages job `15873355825` + deploy PASS; anonymous access redirects to auth | non-production docs scope closed; Target V1 remains DRAFT; no Sales/SIM/customer call; W-0061 approval gate remains independent |
-| `W-0018` | `P2-1` | task intake for both program/payment paths | W-0014..16,W-0024 | NOT_STARTED |  |  |  |  |
+| `W-0018` | `P2-1` | task intake for both program/payment paths | W-0014..16,W-0024 | TESTS_PASS | Codex | `docs/evidence/W-0018/README.md`; 144/144; PostgreSQL concurrent atomicity `1/1/1/1/1`; coverage 95.26% | local MOCK + disposable PostgreSQL; full build/OpenAPI/docs/UI/security/privacy gates PASS | owner/reviewer acceptance, real Sales/auth, LAB/PROD script/key/SIM and P2-2 eligibility remain open |
 | `W-0019` | `P2-2` | eligibility/blockers/fail-closed | W-0018 | NOT_STARTED |  |  |  |  |
 | `W-0020` | `P2-3` | policy registry/scheduler/channel leases | W-0019 | NOT_STARTED |  |  |  |  |
 | `W-0021` | `P2-4` | speech + dial-token + mock SIM adapter | W-0020 | NOT_STARTED |  |  |  |  |
@@ -275,6 +275,10 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0108` | 2026-08-13 | `W-0024` | IMPLEMENTATION/VALIDATION | Hoàn thiện immutable script lifecycle, exact mode approval, RBAC/four-eyes/audit, Target V1 whitelist/renderer/preview/hash, MOCK seed và PostgreSQL trigger; focused remediation sửa EF navigation state và short-area `Thành phố` nhưng vẫn chặn full address | Codex | UT-SCRIPT 10/10; IT-SCRIPT + IT-DB-MIGRATE 3/3; EF no pending model changes; pre-edit ShortDeliveryArea impact LOW (10 symbols/2 flows) |
 | `A-0109` | 2026-08-13 | `W-0024` | CHANGE_REVIEW/HANDOFF | Chốt P2-7 local ở `TESTS_PASS`; full shared-DbContext regression và privacy/security gate xanh, giữ MOCK/LAB/PROD tách biệt và không nâng synthetic fixture thành production approval | Codex | build 0/0; format PASS; 117/117; coverage 94.71%; OpenAPI/docs/UI/NuGet/npm/Compose/Gitleaks/PII PASS; official map 411 file/375 resolved/0 unresolved; evidence `docs/evidence/W-0024/` |
 | `A-0110` | 2026-08-13 | `W-0024` | COMMIT/PUSH_HANDOFF | Commit implementation P2-7 trực tiếp trên `main`; GitHub fast-forward thành công, GitLab từ chối vì protected `main` vẫn cấu hình No one can push. Không tự hạ protection và không tạo branch/MR trái chỉ đạo owner | Codex | implementation commit `e911fc1`; GitHub `main` pushed; GitLab exact error `You are not allowed to push code to protected branches`; origin/main remains behind local main |
+| `A-0111` | 2026-08-13 | `W-0018` | START | Bắt đầu P2-1 trực tiếp trên `main`: endpoint Target V1, ordered validation, exact script approval, atomic task/job/outbox/audit, idempotent replay/conflict và fake scenarios cho cả hai program path; không tạo branch/MR theo chỉ đạo IVR owner | Codex | baseline `addc423`; prereq W-0014/W-0015/W-0016/W-0024 satisfied; GitNexus refreshed at baseline; mapper/DI LOW, `ConfirmationTaskEntity` HIGH (44 symbols), `IvrDbContext` CRITICAL (18 symbols/8 flows); full PostgreSQL regression bắt buộc; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
+| `A-0112` | 2026-08-13 | `W-0018` | IMPLEMENTATION/VALIDATION | Dựng Target V1 intake endpoint, strict schema/canonical idempotency, ordered domain gates, exact attempt/script lookup, MOCK dry-run, atomic PostgreSQL task/job/outbox/audit/idempotency và fake coverage cho cả hai program path | Codex | contract 21 + unit 80 + integration 43 = 144/144; PostgreSQL 8 concurrent → `1/1/1/1/1`; reject → zero task/job/outbox; coverage 95.26%; EF no pending changes |
+| `A-0113` | 2026-08-13 | `W-0018` | SELF_REVIEW/REMEDIATION | Chặn task identifier không public-safe trước khi dùng làm idempotency/audit scope; thu hẹp schema-error catch để lỗi runtime/service không bị ngụy trang thành malformed request; chốt evidence ở MOCK ceiling `TESTS_PASS` | Codex | locked restore; format; build 0/0; CI config/OpenAPI/docs/UI/NuGet/npm/Compose/PII PASS; official map 412/375/0; baseline Gitleaks history 27 commits/no leaks; final GitNexus/commit history scan còn chạy trước commit |
+| `A-0114` | 2026-08-13 | `W-0018` | CHANGE_REVIEW/HANDOFF | Staged review chỉ gồm P2-1, loại AGENTS.md/CLAUDE.md metadata WIP; GitNexus xác nhận CRITICAL breadth đúng với intake API + shared persistence, nên giữ verdict `TESTS_PASS` và dựa trên full API/PostgreSQL/regression proof | Codex | staged 32 files/206 indexed symbols/57 flows; build 0/0; 144/144; coverage 95.26%; EF no drift; focused 13/13 + PostgreSQL 3/3; diff-check PASS |
 
 ## 8. Per-work completion record template
 
@@ -444,6 +448,24 @@ Real integration evidence: NOT_RUN; no Sales API/auth/provider connected
 Production evidence: NOT_RUN; no GitLab hosted MR/runner/protected settings/registry, staging, eSIM, or release proof
 Residual blockers/risks: W-0061/G-GITLAB BLOCKED_EXTERNAL because remote remains GitHub-only and no GitLab platform access is available; CODEOWNERS paths are planned placeholders until Platform provisions/verifies groups and enforcement; 10 OpenAPI advisory warnings remain visible for P1-1 hardening
 Next allowed Work ID(s): W-0061 should be closed next for hosted CI proof; W-0012/P0-3 is dependency-eligible from W-0010 and may proceed while W-0061 remains explicit
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0018 / P2-1
+Baseline/commit: baseline main@addc423; this record is included in the dedicated P2-1 commit
+Scope completed: authenticated Target V1 intake; strict contract/schema and canonical idempotency; ordered official-order/matrix/policy/contact/speech/eligibility/script/mode gates; exact duplicate replay/conflict; MOCK dry-run; atomic PostgreSQL task/job/intake-outbox/audit/idempotency; immutable snapshots; retention order; canonical fake scenarios for both program paths
+Files/artifacts: src/Ivr.Api/Intake/**; src/Ivr.Infrastructure/Intake/**; persistence entity/context/config/security/retention changes; migration 20260813111817_P2_1_TaskIntake; seed/sales-target-v1.sample.json; database specs; TaskIntake unit/integration/contract tests; docs/evidence/W-0018/README.md
+Commands and exact results: locked restore PASS; Release build 0 warnings/0 errors; format PASS; contract 21 + unit 80 + integration 43 = 144/144; merged coverage 95.26% (18289/19200, 3 reports); EF no pending model changes; CI config/OpenAPI/docs/UI/NuGet/npm/Compose/PII PASS; official map 412 files/375 resolved/0 unresolved; baseline Gitleaks history 27 commits/20.92 MB/no leaks
+Tests/evidence: 13 focused service cases; 10 API cases; 2 PostgreSQL cases; 2 contract cases; 8 concurrent requests persist exactly task/job/outbox/idempotency/audit = 1/1/1/1/1; restricted task persists zero task/job/outbox; exact response/error and audit allowlist at docs/evidence/W-0018/README.md
+Review/acceptance by: Codex self-review under explicit IVR owner authorization; status limited to TESTS_PASS until owner/reviewer accepts and external integrations are evidenced
+Mock-only evidence: complete for both canonical Target V1 program/payment paths using fake Sales fixtures, MOCK-approved script and one-way test protector; REAL_CUSTOMER_CALL_ALLOWED=NO; outbox remains HELD_MOCK
+Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, destination call or customer interaction
+Real integration evidence: NOT_RUN; no Sales endpoint/service auth/CDC, production key provider or carrier invoked
+Production evidence: NOT_RUN; no production script/privacy approval, key management, deployment or customer call
+Residual blockers/risks: P2-2 owns eligibility/blocker orchestration; Sales API/auth/data and real opaque protector are still required; LAB/PROD script approval and SIM/eSIM configuration remain open; protected GitLab main rejects direct push under the owner-mandated single-main workflow
+GitNexus review: pre-edit mapper/DI LOW, ConfirmationTaskEntity HIGH (44 symbols), IvrDbContext CRITICAL (18 symbols/8 flows); final staged detect-changes CRITICAL with 32 files, 206 indexed symbols and 57 intake/persistence flows; full API/PostgreSQL/regression proof is required and passed
+Next allowed Work ID(s): W-0019/P2-2 eligibility/blockers/fail-closed is the recommended next implementation
 Final status: TESTS_PASS
 ```
 

@@ -19,7 +19,7 @@ Trạng thái: `TESTS_PASS` cho cơ chế P1-5 · Giá trị retention productio
 
 | Data class | Strategy | Period source | Phạm vi |
 | --- | --- | --- | --- |
-| `task_metadata` | `DELETE` | `Ivr:Retention:PeriodDays:task_metadata` | task, job và capacity incident đã resolved, theo thứ tự child-first |
+| `task_metadata` | `DELETE` | `Ivr:Retention:PeriodDays:task_metadata` | intake outbox, task, job và capacity incident đã resolved, theo thứ tự child-first |
 | `attempt_metadata` | `DELETE` | `Ivr:Retention:PeriodDays:attempt_metadata` | attempt và technical exception |
 | `result_metadata` | `DELETE` | `Ivr:Retention:PeriodDays:result_metadata` | kết quả cuộc gọi khi không còn callback phụ thuộc |
 | `callback_metadata` | `DELETE` | `Ivr:Retention:PeriodDays:callback_metadata` | callback/outbox đã quá hạn |
@@ -34,6 +34,7 @@ Trạng thái: `TESTS_PASS` cho cơ chế P1-5 · Giá trị retention productio
 | Bảng | Data class / policy | Strategy | Điều kiện bảo vệ hoặc ghi chú |
 | --- | --- | --- | --- |
 | `ivr_confirmation_tasks` | `task_metadata`; đồng thời chứa `speech_snapshot` | `DELETE`; `ANONYMIZE` snapshot trước | task chỉ xoá khi không còn job; trigger chỉ cho phép redaction một chiều đã định nghĩa |
+| `ivr_task_intake_outbox` | `task_metadata` | `DELETE` | child đầu tiên của accepted task/job; chỉ giữ hash/correlation và không giữ request body |
 | `ivr_attempt_policies` | `active_config` | `PRESERVE` | immutable versioned config, không thuộc catalog P1-5 |
 | `ivr_call_jobs` | `task_metadata` | `DELETE` | chỉ xoá khi không còn attempt/result phụ thuộc |
 | `ivr_call_attempts` | `attempt_metadata` | `DELETE` | chỉ xoá khi không còn raw event/technical exception phụ thuộc |
@@ -54,7 +55,7 @@ Trạng thái: `TESTS_PASS` cho cơ chế P1-5 · Giá trị retention productio
 
 ## 4. Thuật toán, batch và khả năng resume
 
-1. Resolve class theo thứ tự child-first: callback → raw event → attempt → result → speech → evidence → idempotency → review → task.
+1. Resolve class theo thứ tự child-first: callback → raw event → attempt → result → speech → evidence → idempotency → review → intake outbox → task/job.
 2. Resolve period. Thiếu period thì upsert checkpoint `NOT_CONFIGURED`, phát metric/alert age và không chạy mutation.
 3. Đếm `actionable`, `legal hold`, `protected`, `dependency blocked` cho dry-run/report.
 4. Real-run chọn tối đa `BatchSize` bằng `FOR UPDATE SKIP LOCKED`, mutate trong transaction `READ COMMITTED` ngắn và upsert checkpoint trong cùng transaction.

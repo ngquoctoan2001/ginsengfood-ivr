@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T10:25:30.175Z",
+  "generatedAt": "2026-08-13T11:57:40.540Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215109,6 +215109,62 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0018/README.md",
+      "title": "W-0018 / P2-1 — Target V1 Task Intake",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0018 / P2-1 — Target V1 Task Intake",
+          "line": 1,
+          "slug": "w-0018-p2-1-target-v1-task-intake"
+        },
+        {
+          "depth": 2,
+          "text": "Phạm vi đã hoàn thành",
+          "line": 5,
+          "slug": "phạm-vi-đã-hoàn-thành"
+        },
+        {
+          "depth": 2,
+          "text": "Response mẫu đã redacted",
+          "line": 18,
+          "slug": "response-mẫu-đã-redacted"
+        },
+        {
+          "depth": 2,
+          "text": "Test và DB assertions",
+          "line": 44,
+          "slug": "test-và-db-assertions"
+        },
+        {
+          "depth": 2,
+          "text": "Final local gate — 2026-08-13",
+          "line": 56,
+          "slug": "final-local-gate-2026-08-13"
+        },
+        {
+          "depth": 2,
+          "text": "Artifacts",
+          "line": 100,
+          "slug": "artifacts"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates",
+          "line": 107,
+          "slug": "residual-gates"
+        }
+      ],
+      "links": [],
+      "lines": 114,
+      "words": 520,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "docs/evidence/W-0024/privacy-test-report.md",
       "title": "W-0024 privacy test report",
       "frontmatter": {},
@@ -215362,7 +215418,7 @@
           "to": "docs/evidence/W-0064/README.md",
           "kind": "markdown",
           "rawTarget": "../../docs/evidence/W-0064/README.md",
-          "line": 85
+          "line": 86
         }
       ]
     },
@@ -220125,19 +220181,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 279,
+          "line": 283,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 300,
+          "line": 304,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 596,
-      "words": 10259,
+      "lines": 618,
+      "words": 10561,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -227300,13 +227356,13 @@
         {
           "depth": 2,
           "text": "Coverage smoke (map `phase-8/09` IVR-SMK / docx M8-P0)",
-          "line": 56,
+          "line": 58,
           "slug": "coverage-smoke-map-phase-809-ivr-smk-docx-m8-p0"
         }
       ],
       "links": [],
-      "lines": 58,
-      "words": 574,
+      "lines": 60,
+      "words": 615,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -229414,61 +229470,67 @@
         {
           "depth": 2,
           "text": "2. `ivr_call_jobs`",
-          "line": 52,
+          "line": 54,
           "slug": "2-ivrcalljobs"
         },
         {
           "depth": 2,
+          "text": "2.1. `ivr_task_intake_outbox` (W-0018)",
+          "line": 81,
+          "slug": "21-ivrtaskintakeoutbox-w-0018"
+        },
+        {
+          "depth": 2,
           "text": "3. `ivr_call_attempts`",
-          "line": 79,
+          "line": 96,
           "slug": "3-ivrcallattempts"
         },
         {
           "depth": 2,
           "text": "4. `ivr_raw_call_event` (MỚI — OD-DR-03)",
-          "line": 108,
+          "line": 125,
           "slug": "4-ivrrawcallevent-mới-od-dr-03"
         },
         {
           "depth": 2,
           "text": "5. `ivr_call_results`",
-          "line": 122,
+          "line": 139,
           "slug": "5-ivrcallresults"
         },
         {
           "depth": 2,
           "text": "6. `ivr_result_callbacks`",
-          "line": 140,
+          "line": 157,
           "slug": "6-ivrresultcallbacks"
         },
         {
           "depth": 2,
           "text": "7. Bảng vận hành phụ trợ",
-          "line": 156,
+          "line": 173,
           "slug": "7-bảng-vận-hành-phụ-trợ"
         },
         {
           "depth": 2,
           "text": "8. Bảng foundation / platform (định nghĩa entity ở P0-3/P0-4, migration ở P1-2)",
-          "line": 165,
+          "line": 182,
           "slug": "8-bảng-foundation-platform-định-nghĩa-entity-ở-p0-3p0-4-migration-ở-p1-2"
         },
         {
           "depth": 2,
           "text": "8.1. Script/content lifecycle (W-0024)",
-          "line": 179,
+          "line": 196,
           "slug": "81-scriptcontent-lifecycle-w-0024"
         },
         {
           "depth": 2,
           "text": "9. Phân loại nguồn cột (chống DB↔OpenAPI inversion)",
-          "line": 188,
+          "line": 205,
           "slug": "9-phân-loại-nguồn-cột-chống-dbopenapi-inversion"
         }
       ],
       "links": [],
-      "lines": 201,
-      "words": 2321,
+      "lines": 218,
+      "words": 2565,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -229530,31 +229592,31 @@
         {
           "depth": 2,
           "text": "2. Index scheduler (deadline-aware — phase-8/12 §5)",
-          "line": 21,
+          "line": 22,
           "slug": "2-index-scheduler-deadline-aware-phase-812-5"
         },
         {
           "depth": 2,
           "text": "3. Index race guard / lookup",
-          "line": 30,
+          "line": 32,
           "slug": "3-index-race-guard-lookup"
         },
         {
           "depth": 2,
           "text": "4. Constraint P0 — **bounds và invariant only**",
-          "line": 38,
+          "line": 40,
           "slug": "4-constraint-p0-bounds-và-invariant-only"
         },
         {
           "depth": 2,
           "text": "5. Lease / fencing (chống double-call)",
-          "line": 63,
+          "line": 67,
           "slug": "5-lease-fencing-chống-double-call"
         }
       ],
       "links": [],
-      "lines": 76,
-      "words": 933,
+      "lines": 80,
+      "words": 1012,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -229600,25 +229662,25 @@
         {
           "depth": 2,
           "text": "4. Thuật toán, batch và khả năng resume",
-          "line": 55,
+          "line": 56,
           "slug": "4-thuật-toán-batch-và-khả-năng-resume"
         },
         {
           "depth": 2,
           "text": "5. Masking và privacy",
-          "line": 66,
+          "line": 67,
           "slug": "5-masking-và-privacy"
         },
         {
           "depth": 2,
           "text": "6. Gate và trạng thái còn mở",
-          "line": 73,
+          "line": 74,
           "slug": "6-gate-và-trạng-thái-còn-mở"
         },
         {
           "depth": 2,
           "text": "7. Migration gate liên quan privacy",
-          "line": 80,
+          "line": 81,
           "slug": "7-migration-gate-liên-quan-privacy"
         }
       ],
@@ -229627,17 +229689,17 @@
           "kind": "markdown",
           "text": "06-migration-plan.md",
           "rawTarget": "06-migration-plan.md",
-          "line": 85
+          "line": 86
         },
         {
           "kind": "markdown",
           "text": "W-0064",
           "rawTarget": "../../docs/evidence/W-0064/README.md",
-          "line": 85
+          "line": 86
         }
       ],
-      "lines": 86,
-      "words": 1063,
+      "lines": 87,
+      "words": 1090,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -229645,14 +229707,14 @@
           "to": "specs/database/06-migration-plan.md",
           "kind": "markdown",
           "rawTarget": "06-migration-plan.md",
-          "line": 85
+          "line": 86
         },
         {
           "from": "specs/database/05-retention-and-privacy.md",
           "to": "docs/evidence/W-0064/README.md",
           "kind": "markdown",
           "rawTarget": "../../docs/evidence/W-0064/README.md",
-          "line": 85
+          "line": 86
         }
       ],
       "unresolvedLinks": [],
@@ -229740,7 +229802,7 @@
           "to": "specs/database/06-migration-plan.md",
           "kind": "markdown",
           "rawTarget": "06-migration-plan.md",
-          "line": 85
+          "line": 86
         }
       ]
     },
@@ -234172,14 +234234,14 @@
       "to": "specs/database/06-migration-plan.md",
       "kind": "markdown",
       "rawTarget": "06-migration-plan.md",
-      "line": 85
+      "line": 86
     },
     {
       "from": "specs/database/05-retention-and-privacy.md",
       "to": "docs/evidence/W-0064/README.md",
       "kind": "markdown",
       "rawTarget": "../../docs/evidence/W-0064/README.md",
-      "line": 85
+      "line": 86
     },
     {
       "from": "specs/functional/00-index.md",
@@ -234472,6 +234534,7 @@
       "docs/evidence/W-0015/README.md",
       "docs/evidence/W-0016/README.md",
       "docs/evidence/W-0017/README.md",
+      "docs/evidence/W-0018/README.md",
       "docs/evidence/W-0061/README.md",
       "docs/evidence/W-0085/README.md",
       "docs/evidence/W-0086/README.md",

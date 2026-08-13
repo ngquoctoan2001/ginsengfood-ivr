@@ -465,6 +465,22 @@
       "layer": "schema",
       "expect_http": 422,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-FLAG-ABSENT-01",
+      "from": "golden-hour-online-confirmable",
+      "remove": "ivr_confirmation_required",
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-EVIDENCE-01",
+      "from": "golden-hour-online-confirmable",
+      "remove": "evidence_ref",
+      "layer": "schema",
+      "expect_http": 422,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
     }
   ],
   "domain_negative": [
@@ -554,8 +570,37 @@
       "replay_identical": true,
       "layer": "domain",
       "expect_http": 200,
-      "expect_decision": "TASK_ACCEPTED_DUPLICATE_REPLAY",
-      "note": "Same key + identical payload returns the stored response snapshot."
+      "expect_decision": "TASK_ACCEPTED_DRY_RUN_ONLY",
+      "note": "Same key + identical payload returns the exact original stored response snapshot; no synthetic replay decision exists."
+    },
+    {
+      "id": "NEG-DOMAIN-WINDOW-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "confirmation_window_expires_at": "2026-08-12T02:59:59Z" },
+      "layer": "domain",
+      "expect_http": 422,
+      "expect_error_code": "IVR_STATE_NOT_CALLABLE"
+    },
+    {
+      "id": "NEG-DOMAIN-SCRIPT-01",
+      "from": "golden-hour-online-confirmable",
+      "add": {
+        "call_script_template_id": "SCRIPT-NOT-APPROVED",
+        "call_script_version": "v999"
+      },
+      "layer": "domain",
+      "expect_http": 422,
+      "expect_error_code": "IVR_SCRIPT_NOT_APPROVED"
+    },
+    {
+      "id": "NEG-DOMAIN-IDEMPOTENCY-03",
+      "from": "golden-hour-online-confirmable",
+      "concurrent_identical_replays": 8,
+      "layer": "domain",
+      "expect_http": 200,
+      "expect_decision": "TASK_ACCEPTED_DRY_RUN_ONLY",
+      "expect_call_job_count": 1,
+      "note": "Concurrent same-key delivery must converge to one task/job/outbox and replay one response snapshot."
     }
   ],
   "callback_scenarios": [

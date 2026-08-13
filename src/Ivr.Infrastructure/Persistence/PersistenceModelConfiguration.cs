@@ -12,6 +12,7 @@ internal static class PersistenceModelConfiguration
         ConfigureTask(modelBuilder);
         ConfigurePolicy(modelBuilder);
         ConfigureJob(modelBuilder);
+        ConfigureTaskIntakeOutbox(modelBuilder);
         ConfigureAttempt(modelBuilder);
         ConfigureRawEvent(modelBuilder);
         ConfigureResult(modelBuilder);
@@ -169,6 +170,37 @@ internal static class PersistenceModelConfiguration
         builder.HasIndex(entity => entity.SimChannelId);
         builder.HasIndex(entity => entity.ProviderCallId);
         builder.HasIndex(entity => entity.RawCallEventId);
+    }
+
+    private static void ConfigureTaskIntakeOutbox(ModelBuilder modelBuilder)
+    {
+        var builder = modelBuilder.Entity<TaskIntakeOutboxEntity>();
+        builder.ToTable(
+            "ivr_task_intake_outbox",
+            table =>
+            {
+                table.HasCheckConstraint(
+                    "ck_ivr_task_intake_outbox_hash",
+                    "payload_sha256 ~ '^[A-F0-9]{64}$'");
+                table.HasCheckConstraint(
+                    "ck_ivr_task_intake_outbox_status",
+                    "status IN ('HELD_MOCK','READY_FOR_ELIGIBILITY','PUBLISHED')");
+            });
+        builder.HasKey(entity => entity.OutboxId);
+        builder.HasOne<ConfirmationTaskEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.TaskId)
+            .HasPrincipalKey(entity => entity.TaskId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<CallJobEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.IvrCallJobId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(entity => entity.TaskId).IsUnique();
+        builder.HasIndex(entity => entity.IvrCallJobId).IsUnique();
+        builder.HasIndex(entity => new { entity.Status, entity.CreatedAt });
+        builder.HasIndex(entity => entity.CorrelationId);
+        builder.HasIndex(entity => entity.PublishedAt);
     }
 
     private static void ConfigureRawEvent(ModelBuilder modelBuilder)

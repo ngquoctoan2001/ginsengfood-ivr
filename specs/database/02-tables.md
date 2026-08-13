@@ -34,6 +34,8 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `dial_token` | string/encrypted | ✓ | | opaque token only; never raw phone |
 | `dial_token_expires_at` | datetime | ✓ | idx | must not exceed call window |
 | `privacy_safe_order_summary_json` | json | ✓ | | short name/code, public items+qty, total, short area; schema validated |
+| `call_script_template_id` / `call_script_version` | string | ✓ | | exact approved script snapshot resolved by IVR at intake; immutable |
+| `evidence_policy_version` / `privacy_policy_version` | string | ✓ | | IVR-resolved policy snapshots; MOCK uses explicit synthetic defaults, non-MOCK must supply/resolve real versions |
 | `eligibility_decision` | string | ○ | idx | **IVR-derived** (P2-2 ghi sau intake); null tới khi eligibility chạy |
 | `blocked_reasons_json` | json | ○ | | **IVR-derived**; null tới khi eligibility chạy |
 | `sellable_status_json` | json | ○ | | **Sales-supplied optional** per-line SKU/batch snapshot (DO-02): `[{sku_id,batch_id?,decision,recall_hold,sale_lock,quality_hold,stock_available,batch_released?,trace_ready,captured_at}]`; null ⇒ **không dispatch** (fail-closed). `batch_released` optional — absent được coi là `false` (fail-closed) |
@@ -75,6 +77,21 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `evidence_refs_json`/`audit_refs_json` | json | ○ | | |
 
 **Indexes:** `(status, expires_at)` (scheduler deadline), `(program_type,status)`, `(official_order_id,status)`.
+
+## 2.1. `ivr_task_intake_outbox` (W-0018)
+
+| Column | Type | Req | Index | Note |
+| --- | --- | --- | --- | --- |
+| `outbox_id` | uuid | ✓ | PK | server-generated |
+| `task_id` | string | ✓ | Unique/FK | exactly one intake event per accepted task |
+| `ivr_call_job_id` | string | ✓ | Unique/FK | exactly one intake event per created/dry-run job |
+| `event_type` | string | ✓ | | `IVR_TASK_DRY_RUN_RECORDED` or `IVR_TASK_READY_FOR_ELIGIBILITY` |
+| `status` | string | ✓ | `(status,created_at)` | `HELD_MOCK`, `READY_FOR_ELIGIBILITY`, `PUBLISHED` |
+| `correlation_id` | string | ✓ | idx | privacy-safe trace only |
+| `payload_sha256` | string | ✓ | CHECK | uppercase SHA-256 of canonical request JSON; never stores request body |
+| `created_at` / `published_at` | datetime | ✓/○ | idx | MOCK remains held and is never dispatched to real telephony |
+
+Task, call job, intake outbox, idempotency response snapshot and audit record are committed in one PostgreSQL transaction. Rejected/held requests persist only the idempotency decision and privacy-safe audit; they create zero task/job/outbox rows. Outbox identity/payload fields are immutable by trigger; only lifecycle status/published time and retention fields may advance.
 
 ## 3. `ivr_call_attempts`
 | Column | Type | Req | Index | Note |

@@ -3,6 +3,7 @@ using System;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Ivr.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(IvrDbContext))]
-    partial class IvrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260813111817_P2_1_TaskIntake")]
+    partial class P2_1_TaskIntake
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

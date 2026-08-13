@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-13T10:25:30.175Z
+Generated: 2026-08-13T11:57:40.540Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 411
+- Markdown files: 412
 - Links resolved: 375
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 39
+- Orphan candidates: 40
 
 ## High Link Documents
 
@@ -36,7 +36,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/_archive/13-seed-and-mock-strategy-plan.md | 13 — Seed & Mock Strategy Plan | 2 | 2 | 744 |
 | plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1 | 3 | 379 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 4 | 0 | 1749 |
-| specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 2 | 2 | 1063 |
+| specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 2 | 2 | 1090 |
 | docs/api-changelog.md | IVR API Contract Changelog | 0 | 3 | 208 |
 | plan/ivr-orther/_archive/02-current-understanding.md | 02 — Current Understanding | 1 | 2 | 1078 |
 | plan/ivr-orther/_archive/05-sales-platform-analysis-plan.md | 05 — Sales Platform Analysis Plan (Module 3 / 3.1) | 0 | 3 | 503 |
@@ -89,6 +89,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0015/README.md
 - docs/evidence/W-0016/README.md
 - docs/evidence/W-0017/README.md
+- docs/evidence/W-0018/README.md
 - docs/evidence/W-0061/README.md
 - docs/evidence/W-0085/README.md
 - docs/evidence/W-0086/README.md
@@ -316,6 +317,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0015/README.md | W-0015 / P1-2 PostgreSQL persistence evidence | 1/7 | 0 | 0 | 0 | 700 |
 | docs/evidence/W-0016/README.md | W-0016 / P1-3 — Domain, DTO mapping, provider ports and privacy guards | 1/8 | 0 | 0 | 0 | 756 |
 | docs/evidence/W-0017/README.md | W-0017 / P1-4 API documentation portal evidence | 1/8 | 0 | 0 | 0 | 700 |
+| docs/evidence/W-0018/README.md | W-0018 / P2-1 — Target V1 Task Intake | 1/7 | 0 | 0 | 0 | 520 |
 | docs/evidence/W-0024/privacy-test-report.md | W-0024 privacy test report | 1/1 | 1 | 0 | 0 | 206 |
 | docs/evidence/W-0024/README.md | W-0024 / P2-7 — Script, Content Approval and Speech Safety | 1/6 | 0 | 1 | 0 | 427 |
 | docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1511 |
@@ -371,7 +373,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 10259 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 10561 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
@@ -443,7 +445,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | prompt/README-governance.md | IVR Prompt Library — Governance (đọc trước mọi prompt) | 1/10 | 1 | 0 | 0 | 1096 |
 | prompt/RUNBOOK-execute-prompts.md | RUNBOOK — Execute IVR Prompts P0–P11 | 1/10 | 1 | 0 | 0 | 432 |
 | README.md | GinsengFood IVR | 1/6 | 0 | 1 | 0 | 454 |
-| seed/README.md | IVR Seed / Mock Data (NON-PRODUCTION ONLY) | 1/7 | 0 | 0 | 0 | 574 |
+| seed/README.md | IVR Seed / Mock Data (NON-PRODUCTION ONLY) | 1/7 | 0 | 0 | 0 | 615 |
 | specs/_review/normalization-report.md | REVIEW — Normalization Report | 1/28 | 0 | 0 | 0 | 1439 |
 | specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 1/5 | 3 | 0 | 0 | 1035 |
 | specs/_review/traceability-matrix.md | REVIEW — Target V1 Traceability Matrix | 1/1 | 0 | 0 | 0 | 464 |
@@ -478,10 +480,10 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/data/05-pii-policy.md | DATA-05 — PII & Privacy Policy | 1/7 | 2 | 0 | 0 | 524 |
 | specs/database/00-index.md | Database SRS — Index | 1/1 | 0 | 6 | 0 | 101 |
 | specs/database/01-erd.md | DB-01 — ERD | 1/2 | 1 | 0 | 0 | 97 |
-| specs/database/02-tables.md | DB-02 — Tables | 1/11 | 1 | 0 | 0 | 2321 |
+| specs/database/02-tables.md | DB-02 — Tables | 1/12 | 1 | 0 | 0 | 2565 |
 | specs/database/03-enums-and-status.md | DB-03 — Enums and Status | 1/1 | 1 | 0 | 0 | 117 |
-| specs/database/04-indexes.md | DB-04 — Indexes & Constraints | 1/6 | 1 | 0 | 0 | 933 |
-| specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 1/8 | 2 | 2 | 0 | 1063 |
+| specs/database/04-indexes.md | DB-04 — Indexes & Constraints | 1/6 | 1 | 0 | 0 | 1012 |
+| specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 1/8 | 2 | 2 | 0 | 1090 |
 | specs/database/06-migration-plan.md | DB-06 — Migration Plan | 1/7 | 2 | 0 | 0 | 384 |
 | specs/functional/00-index.md | Functional SRS — Index | 1/4 | 0 | 8 | 0 | 379 |
 | specs/functional/01-task-intake.md | FR — Task Intake | 1/3 | 1 | 0 | 0 | 282 |

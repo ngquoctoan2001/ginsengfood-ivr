@@ -89,7 +89,7 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         Assert.Contains(applied, name => name.EndsWith(
             "P1_2_InitialTargetV1Persistence",
             StringComparison.Ordinal));
-        Assert.Equal(20, await CountIvrTablesAsync(dbContext));
+        Assert.Equal(21, await CountIvrTablesAsync(dbContext));
         IRuntimeSafetyHealth runtimeSafety = fixture.Services
             .GetRequiredService<IRuntimeSafetyHealth>();
         Assert.True(await runtimeSafety.IsAuditProviderHealthyAsync());
@@ -100,7 +100,7 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         Assert.False(await runtimeSafety.IsAuditProviderHealthyAsync());
 
         await dbContext.Database.MigrateAsync();
-        Assert.Equal(20, await CountIvrTablesAsync(dbContext));
+        Assert.Equal(21, await CountIvrTablesAsync(dbContext));
         Assert.Equal(45, await dbContext.FeatureFlags.CountAsync());
         Assert.True(await runtimeSafety.IsAuditProviderHealthyAsync());
     }

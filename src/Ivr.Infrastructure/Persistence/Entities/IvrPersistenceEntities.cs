@@ -41,6 +41,10 @@ public sealed class ConfirmationTaskEntity : RetainedEntity
     public string DialTokenCiphertext { get; set; } = string.Empty;
     public DateTimeOffset DialTokenExpiresAt { get; set; }
     public string PrivacySafeOrderSummaryJson { get; set; } = "{}";
+    public string CallScriptTemplateId { get; set; } = string.Empty;
+    public string CallScriptVersion { get; set; } = string.Empty;
+    public string EvidencePolicyVersion { get; set; } = string.Empty;
+    public string PrivacyPolicyVersion { get; set; } = string.Empty;
     public string? EligibilityDecision { get; set; }
     public string? EligibilitySnapshotJson { get; set; }
     public string? BlockedReasonsJson { get; set; }
@@ -98,6 +102,19 @@ public sealed class CallJobEntity : RetainedEntity
     public string? ClosedReason { get; set; }
     public string? EvidenceRefsJson { get; set; }
     public string? AuditRefsJson { get; set; }
+}
+
+public sealed class TaskIntakeOutboxEntity : RetainedEntity
+{
+    public Guid OutboxId { get; set; }
+    public string TaskId { get; set; } = string.Empty;
+    public string IvrCallJobId { get; set; } = string.Empty;
+    public string EventType { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public string CorrelationId { get; set; } = string.Empty;
+    public string PayloadSha256 { get; set; } = string.Empty;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? PublishedAt { get; set; }
 }
 
 public sealed class CallAttemptEntity : RetainedEntity

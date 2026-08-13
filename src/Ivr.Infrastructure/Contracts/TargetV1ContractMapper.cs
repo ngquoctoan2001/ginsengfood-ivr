@@ -27,7 +27,7 @@ public sealed class TargetV1TaskMapper(
             Server.IvrConfirmationTaskV1Payment_method_snapshot.COD => PaymentMethod.CashOnDelivery,
             _ => throw new InvalidOperationException("Unsupported payment method."),
         };
-        ProgramPayment programPayment = ProgramPaymentPolicy.EnsureAllowed(
+        _ = ProgramPaymentPolicy.EnsureAllowed(
             program,
             paymentMethod,
             source.Ivr_confirmation_required);
@@ -39,10 +39,32 @@ public sealed class TargetV1TaskMapper(
             cancellationToken);
         EnsureWirePolicyMatchesSnapshot(source, policy);
 
+        PrivacySafeOrderSummary speech = MapSpeechSummary(
+            source.Privacy_safe_order_summary,
+            speechLimits);
+        return CreateDomainSnapshot(source, executionMode, policy, speech);
+    }
+
+    internal static ConfirmationTaskSnapshot CreateDomainSnapshot(
+        Server.IvrConfirmationTaskV1 source,
+        ExecutionMode executionMode,
+        AttemptPolicySnapshot policy,
+        PrivacySafeOrderSummary speech)
+    {
+        IvrProgramCode program = MapProgram(source.Program_code);
+        PaymentMethod paymentMethod = source.Payment_method_snapshot switch
+        {
+            Server.IvrConfirmationTaskV1Payment_method_snapshot.ONLINE => PaymentMethod.Online,
+            Server.IvrConfirmationTaskV1Payment_method_snapshot.COD => PaymentMethod.CashOnDelivery,
+            _ => throw new InvalidOperationException("Unsupported payment method."),
+        };
+        ProgramPayment programPayment = ProgramPaymentPolicy.EnsureAllowed(
+            program,
+            paymentMethod,
+            source.Ivr_confirmation_required);
         ConfirmationWindow window = ConfirmationWindow.Create(
             source.Confirmation_window_started_at,
             source.Confirmation_window_expires_at);
-        PrivacySafeOrderSummary speech = MapSpeech(source.Privacy_safe_order_summary, speechLimits);
         return ConfirmationTaskSnapshot.Create(
             TaskId.Create(source.Task_id),
             OrderId.Create(source.Order_id),
@@ -80,7 +102,7 @@ public sealed class TargetV1TaskMapper(
         _ => throw new InvalidOperationException("Unsupported program code."),
     };
 
-    private static PrivacySafeOrderSummary MapSpeech(
+    internal static PrivacySafeOrderSummary MapSpeechSummary(
         Server.PrivacySafeOrderSummary source,
         SpeechSummaryLimits limits)
     {

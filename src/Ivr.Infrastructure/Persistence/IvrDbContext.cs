@@ -14,6 +14,7 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     public DbSet<ConfirmationTaskEntity> ConfirmationTasks => Set<ConfirmationTaskEntity>();
     public DbSet<AttemptPolicyEntity> AttemptPolicies => Set<AttemptPolicyEntity>();
     public DbSet<CallJobEntity> CallJobs => Set<CallJobEntity>();
+    public DbSet<TaskIntakeOutboxEntity> TaskIntakeOutbox => Set<TaskIntakeOutboxEntity>();
     public DbSet<CallAttemptEntity> CallAttempts => Set<CallAttemptEntity>();
     public DbSet<RawCallEventEntity> RawCallEvents => Set<RawCallEventEntity>();
     public DbSet<CallResultEntity> CallResults => Set<CallResultEntity>();

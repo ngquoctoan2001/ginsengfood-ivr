@@ -53,5 +53,7 @@ Nguồn: `specs/database/*`, `specs/data/*`, `specs/workflows/*`; smoke `phase-8
 
 `NEG-DOMAIN-PII-01` là fixture quan trọng nhất của nhóm privacy: `delivery_area_short` **hợp lệ theo schema** (không có chữ số) nhưng vẫn là địa chỉ đường phố, nên nó thực sự kiểm tra semantic detector `FR-IVR-INTAKE-005` — khác với `NEG-SCHEMA-PII-01` chỉ kiểm tra `additionalProperties:false`.
 
+Replay identical của intake phải trả lại **chính decision/job ID ban đầu** (`TASK_ACCEPTED_DRY_RUN_ONLY` trong MOCK), không phát minh decision `...DUPLICATE_REPLAY`. Fixture còn khóa missing flag/evidence, stale window, script chưa approved và 8 concurrent identical replay hội tụ về đúng 1 task/job/outbox.
+
 ## Coverage smoke (map `phase-8/09` IVR-SMK / docx M8-P0)
 Xem `call-scenarios.sample.json.scenarios[].smoke_ref`. Bao phủ: confirm, cancel, no-answer(2 attempts), window-expired, invalid-phone, technical≠no-answer, sale-lock/recall block, race, trusted-skip, duplicate callback, capacity, needs-support (KEY_9 not-enabled), sales/ops down (fail-closed).

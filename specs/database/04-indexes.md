@@ -9,6 +9,7 @@ Trạng thái: `TARGET_V1_DRAFT` · Nguồn: `phase-8/12` §4-8,§12; DF-04, D-0
 | --- | --- | --- |
 | `ivr_confirmation_tasks` | `task_id` | 1 task 1 record |
 | `ivr_confirmation_tasks` | `idempotency_key` (scope intake) | chống duplicate task (DF-04) |
+| `ivr_task_intake_outbox` | `task_id`; `ivr_call_job_id` | 1 atomic intake event cho mỗi task/job accepted |
 | `ivr_call_jobs` | `ivr_call_job_id` | |
 | `ivr_call_attempts` | `ivr_call_attempt_id`; `(ivr_call_job_id, attempt_number)` | 1 attempt-number/job |
 | `ivr_call_results` | `ivr_call_result_id` | |
@@ -26,6 +27,7 @@ Trạng thái: `TARGET_V1_DRAFT` · Nguồn: `phase-8/12` §4-8,§12; DF-04, D-0
 - `ivr_sim_channels (lease_expires_at)` — reclaim lease hết hạn sau worker crash.
 - `ivr_result_callbacks (delivery_status, next_retry_at)` — outbox dequeue.
 - `ivr_idempotency_keys (created_at)` — retention/purge scan.
+- `ivr_task_intake_outbox (status, created_at)`, `(published_at)`, `(correlation_id)` — lifecycle/trace scan; MOCK rows stay `HELD_MOCK`.
 
 ## 3. Index race guard / lookup
 - Current lookup: `order_state`, `program_type`, `official_order_id`, `task_id`, `correlation_id`; stale guard hiện chạy bằng Core recheck state/COD/sellable.
@@ -49,6 +51,8 @@ Attempt policy là **data/config gắn `attempt_policy_version`**, không phải
 | offsets cardinality | `len(offsets) == max_attempts` | application/domain validation |
 | snapshot consistency | `ivr_call_attempts.max_attempts_snapshot == ivr_call_jobs.max_attempts` | **trigger `BEFORE INSERT`** hoặc application invariant — **không** phải CHECK |
 | policy snapshot immutable | `attempt_policy_version`, `max_attempts`, `attempt_offsets_seconds_json` trên `ivr_call_jobs` không được UPDATE sau khi job được tạo | job giữ snapshot policy tại thời điểm intake (`FR-IVR-SCH-009`) |
+| intake snapshot immutable | script template/version + evidence/privacy policy trên task và outbox identity/payload không được UPDATE | PostgreSQL trigger; replay reads stored response instead of recreating rows |
+| intake payload hash | `payload_sha256 ~ '^[A-F0-9]{64}$'` | canonical JSON hash only; request body/PII is not copied to outbox |
 | technical ≠ no-answer | `is_counted_customer_attempt=false` khi `technical_exception_type` không null | P0-IVR-004 |
 | program/payment matrix | `(GOLDEN_HOUR ∧ ONLINE) ∨ (TWENTY_FOUR_SEVEN ∧ COD)` | Target V1; xem `open-decisions-register` `OD-V1-01` |
 | required flag | `ivr_confirmation_required = true` | |
