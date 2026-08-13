@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T14:22:26.369Z",
+  "generatedAt": "2026-08-13T14:32:32.258Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215281,14 +215281,20 @@
         },
         {
           "depth": 2,
-          "text": "Residual gates",
+          "text": "Commit và remote handoff",
           "line": 126,
+          "slug": "commit-và-remote-handoff"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates",
+          "line": 133,
           "slug": "residual-gates"
         }
       ],
       "links": [],
-      "lines": 135,
-      "words": 885,
+      "lines": 142,
+      "words": 983,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -220311,19 +220317,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 291,
+          "line": 292,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 312,
+          "line": 313,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 663,
-      "words": 11124,
+      "lines": 666,
+      "words": 11176,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],

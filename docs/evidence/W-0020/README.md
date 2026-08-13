@@ -123,6 +123,13 @@ PASS — 414 files / 375 resolved links / 0 unresolved
 - `tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs`
 - `tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs`
 
+## Commit và remote handoff
+
+- Implementation commit: `d23ab984627d270c335172261c836aa8af78497a` trên `main`.
+- GitHub `main` đã fast-forward tới đúng commit trên và remote ref đã được xác minh.
+- GitLab `origin/main` vẫn ở `5544395ecbc62c31e8a3f78857f65d275e97b5a1`: direct push bị pre-receive hook từ chối vì protected branch. Không hạ protection và không tạo branch/MR theo chỉ đạo workflow một nhánh của IVR owner.
+- GitNexus staged review: `CRITICAL`, 20 file/188 symbol/35 flow; mức rộng này đến từ thay capacity provider và thêm scheduler xuyên Domain/API/Infrastructure/Worker. Cycle Configuration↔Scheduling mới phát hiện đã được loại bỏ; cycle check cuối chỉ còn cycle baseline `RuntimeGateDefaults`↔`PersistenceModelConfiguration`.
+
 ## Residual gates
 
 - `Ivr:Scheduler:Enabled` giữ `false` và dispatch gateway giữ unavailable cho tới P2-4 cung cấp speech/dial-token/mock SIM adapter. Đây là fail-closed activation boundary, không phải real-call permission.

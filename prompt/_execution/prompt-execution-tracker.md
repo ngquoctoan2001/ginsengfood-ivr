@@ -287,6 +287,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0120` | 2026-08-13 | `W-0020` | START/DISCOVERY | Bắt đầu P2-3 trực tiếp trên `main`: versioned policy registry, deadline-aware deterministic scheduler, scheduler-owned capacity calculation và atomic SIM channel lease/fencing/recovery; không tạo branch/MR theo chỉ đạo IVR owner | Codex | baseline `ab12bd9`; prereq W-0019 TESTS_PASS; official map 413/375/0; GitNexus refreshed 39,654 nodes/43,984 edges/215 flows; REAL_CUSTOMER_CALL_ALLOWED=NO |
 | `A-0121` | 2026-08-13 | `W-0020` | IMPLEMENTATION | Dựng planner/runtime/worker deadline-aware, policy new-version writer có audit, capacity service cho MOCK/PostgreSQL, atomic job+SIM+attempt claim, lease fencing/quarantine recovery và deadline incident/result; thay capacity provider P2-2 bằng scheduler capacity | Codex | scheduler flag mặc định off; default dispatch gateway unavailable; attempt chỉ claim chưa counted; không thêm ISimGateway implementation/dial-token resolver/external egress |
 | `A-0122` | 2026-08-13 | `W-0020` | VALIDATION/SELF_REVIEW | Chốt P2-3 local `TESTS_PASS`; remediation race để active attempt đã claim trước expiry không bị gắn nhầm capacity miss; full regression/coverage/EF/API/docs/UI/security/privacy/map đều xanh | Codex | focused unit 9/9 + PostgreSQL 9/9; full 170/170; coverage 94.68% (19729/20838); Release 0 warning/0 error; map 414/375/0; no real call |
+| `A-0123` | 2026-08-13 | `W-0020` | COMMIT/REMOTE_HANDOFF | Commit implementation P2-3 trên `main`, xác minh GitHub ref và ghi nhận GitLab protected-main blocker; không tạo branch/MR hoặc hạ protection | Codex | implementation `d23ab984627d270c335172261c836aa8af78497a`; GitHub main exact; GitLab origin/main vẫn `5544395ecbc62c31e8a3f78857f65d275e97b5a1` do pre-receive protected-branch rejection; final documentation commit tiếp theo |
 
 ## 8. Per-work completion record template
 
@@ -646,7 +647,7 @@ Final status: TESTS_PASS
 
 ```text
 Work ID: W-0020 / P2-3
-Baseline/commit: baseline main@ab12bd9; implementation commit pending final staged GitNexus review in this work item; no branch/MR by explicit IVR owner instruction
+Baseline/commit: baseline main@ab12bd9; implementation commit d23ab984627d270c335172261c836aa8af78497a; this handoff is finalized in a follow-up documentation commit; no branch/MR by explicit IVR owner instruction
 Scope completed: immutable/versioned attempt-policy registry write path + audit; exact snapshot scheduling; deterministic deadline/program/offset/risk/creation ordering; scheduler-owned MOCK/PostgreSQL capacity calculation; non-MOCK eligibility provider replacement; atomic multi-worker job/channel/attempt claim; one-active-channel lease/fencing; crash quarantine/reconciliation; final-result/offset/expiry guards; deadline capacity incident + final non-counted result; fail-closed worker runtime and activation config
 Files/artifacts: src/Ivr.Domain/Scheduling/**; src/Ivr.Infrastructure/Scheduling/**; src/Ivr.Infrastructure/Intake/AttemptPolicyRegistryWriter.cs; eligibility/DI/channel lease/worker wiring; scheduler unit/PostgreSQL tests; docs/evidence/W-0020/README.md; official Markdown map
 Commands and exact results: locked source unchanged; format PASS; Release analyzer build 0 warning/0 error; focused unit 9/9 + PostgreSQL 9/9; full contract 21 + unit 93 + integration 56 = 170/170; coverage 94.68% (19729/20838); EF no pending model; API/docs/UI/config/NuGet/npm/Compose/Gitleaks/PII PASS; official map 414 files/375 resolved/0 unresolved
@@ -656,6 +657,8 @@ Mock-only evidence: complete; scheduler flag false by default, MockChannelCount 
 Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, carrier, destination allowlist, disposition or caller-ID proof
 Real integration evidence: NOT_RUN; no Sales/Order Core or telephony endpoint/auth invoked
 Production evidence: NOT_RUN; candidate policy forbidden; no approved production policy, measured capacity, deployment or sign-off
+Remote handoff: GitHub main fast-forwarded to d23ab98 and remote ref verified exact; GitLab origin/main remains 5544395 because protected main rejects direct push; no MR was created
+GitNexus review: refreshed main index 39,878 nodes/44,878 edges/248 flows; final staged detect-changes CRITICAL with 20 files/188 symbols/35 flows, expected for cross-layer scheduler/capacity replacement; new Configuration↔Scheduling cycle was removed after MEDIUM/LOW impact review; cycle check now shows only pre-existing RuntimeGateDefaults↔PersistenceModelConfiguration
 Residual blockers/risks: P2-4 must provide speech/dial-token/mock SIM gateway and consume SchedulerDispatchLease with fencing; W-0007/OD-V1-08 policy approval, 1-SIM lab, 32-eSIM procurement/vendor capacity, Sales/auth/legal/security/release remain external; GitLab protected main may reject direct push
 Next allowed Work ID(s): W-0021/P2-4 speech + dial-token + mock SIM adapter
 Final status: TESTS_PASS
