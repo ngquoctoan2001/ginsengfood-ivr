@@ -146,3 +146,15 @@ Named P2-4 proof includes:
   No source-system endpoint or credential is embedded here.
 - Real integration, LAB, staging, production, legal/security approval and a real
   customer call are `NOT_RUN`.
+
+## Handoff
+
+- Implementation commit: `ec459a3963fbc7991d6656d663637fdc618d0a07`.
+- GitHub `main` was verified at that implementation commit before this final evidence
+  update. GitLab `origin/main` remains `5544395ecbc62c31e8a3f78857f65d275e97b5a1`
+  because its protected-branch hook rejects direct pushes; no branch/MR was created.
+- GitNexus refreshed the explicit `main` index to 40,064 nodes / 45,685 edges /
+  280 flows. Staged breadth was `CRITICAL` (18 files, 173 symbols, 56 flows), expected
+  for the reviewed domain/scheduler/persistence/worker seam and covered by the full
+  regression. Concrete gateway/store context remained lower-bound because DI/interface
+  dispatch cannot be fully resolved statically.

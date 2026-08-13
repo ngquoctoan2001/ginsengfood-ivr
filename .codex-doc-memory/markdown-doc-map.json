@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T15:42:40.134Z",
+  "generatedAt": "2026-08-13T15:48:50.877Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215352,11 +215352,17 @@
           "text": "Residual gates and ownership",
           "line": 135,
           "slug": "residual-gates-and-ownership"
+        },
+        {
+          "depth": 2,
+          "text": "Handoff",
+          "line": 150,
+          "slug": "handoff"
         }
       ],
       "links": [],
-      "lines": 149,
-      "words": 940,
+      "lines": 161,
+      "words": 1026,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -220379,19 +220385,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 295,
+          "line": 296,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 316,
+          "line": 317,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 669,
-      "words": 11387,
+      "lines": 689,
+      "words": 11439,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],

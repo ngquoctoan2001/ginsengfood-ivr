@@ -1,6 +1,6 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-13T15:42:40.134Z
+Generated: 2026-08-13T15:48:50.877Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
@@ -323,7 +323,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0018/README.md | W-0018 / P2-1 — Target V1 Task Intake | 1/8 | 0 | 0 | 0 | 607 |
 | docs/evidence/W-0019/README.md | W-0019 / P2-2 — Eligibility and Blockers | 1/8 | 0 | 0 | 0 | 559 |
 | docs/evidence/W-0020/README.md | W-0020 / P2-3 — Policy Registry, Deadline Scheduler and Channel Leases | 1/9 | 0 | 0 | 0 | 983 |
-| docs/evidence/W-0021/README.md | W-0021 / P2-4 — speech rendering, dial-token and MOCK SIM adapter | 1/8 | 0 | 0 | 0 | 940 |
+| docs/evidence/W-0021/README.md | W-0021 / P2-4 — speech rendering, dial-token and MOCK SIM adapter | 1/9 | 0 | 0 | 0 | 1026 |
 | docs/evidence/W-0024/privacy-test-report.md | W-0024 privacy test report | 1/1 | 1 | 0 | 0 | 206 |
 | docs/evidence/W-0024/README.md | W-0024 / P2-7 — Script, Content Approval and Speech Safety | 1/6 | 0 | 1 | 0 | 427 |
 | docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1511 |
@@ -379,7 +379,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 11387 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 11439 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |

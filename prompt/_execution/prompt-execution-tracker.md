@@ -291,6 +291,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0124` | 2026-08-13 | `W-0021` | START/DISCOVERY | Bắt đầu P2-4 trực tiếp trên `main`: approved Vietnamese speech text, dial-token expiry/replay/allowlist guard, vendor-neutral fake SIM operations và fenced scheduler dispatch completion; không tạo branch/MR | Codex | baseline `7ee2fd0`; W-0020 TESTS_PASS; map 414/375/0; provider ports + scheduler gateway impact MEDIUM, fake/DI LOW; MOCK-only, no real egress/customer call |
 | `A-0125` | 2026-08-13 | `W-0021` | IMPLEMENTATION | Dựng speech renderer approved tiếng Việt + fake audio metadata, MOCK fingerprint vault một-lần/expiry/allowlist, vendor-neutral SIM port/fake scenario matrix và PostgreSQL fenced dispatch store; nối SchedulerDispatchLease tới gateway, raw event giữ pending P2-5 | Codex | fail-closed flags; recording disabled; một active call/channel; cooldown/quarantine; no HTTP/socket/serial/SIP/vendor dependency; no order mutation/counting |
 | `A-0126` | 2026-08-13 | `W-0021` | VALIDATION/SELF_REVIEW | Chốt P2-4 local `TESTS_PASS`: full regression/coverage/EF/API/docs/UI/config/NuGet/Compose/Gitleaks/PII/map xanh; exact synthetic speech snapshot, token failure, stale fence, unhealthy channel và non-MOCK isolation được kiểm chứng | Codex | contract 21 + unit 106 + integration 59 = 186/186; coverage 94.55% (20505/21687); Release 0 warning/0 error; map 415/375/0; real/LAB/provider/TTS NOT_RUN |
+| `A-0127` | 2026-08-13 | `W-0021` | COMMIT/REMOTE_HANDOFF | Commit implementation P2-4 trên `main`, xác minh GitHub ref và ghi nhận GitLab protected-main blocker; không tạo branch/MR hoặc hạ protection | Codex | implementation `ec459a3963fbc7991d6656d663637fdc618d0a07`; GitHub main exact; GitLab origin/main vẫn `5544395ecbc62c31e8a3f78857f65d275e97b5a1` do pre-receive protected-branch rejection; final documentation commit tiếp theo |
 
 ## 8. Per-work completion record template
 
@@ -664,5 +665,24 @@ Remote handoff: GitHub main fast-forwarded to d23ab98 and remote ref verified ex
 GitNexus review: refreshed main index 39,878 nodes/44,878 edges/248 flows; final staged detect-changes CRITICAL with 20 files/188 symbols/35 flows, expected for cross-layer scheduler/capacity replacement; new Configuration↔Scheduling cycle was removed after MEDIUM/LOW impact review; cycle check now shows only pre-existing RuntimeGateDefaults↔PersistenceModelConfiguration
 Residual blockers/risks: P2-4 must provide speech/dial-token/mock SIM gateway and consume SchedulerDispatchLease with fencing; W-0007/OD-V1-08 policy approval, 1-SIM lab, 32-eSIM procurement/vendor capacity, Sales/auth/legal/security/release remain external; GitLab protected main may reject direct push
 Next allowed Work ID(s): W-0021/P2-4 speech + dial-token + mock SIM adapter
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0021 / P2-4
+Baseline/commit: baseline main@7ee2fd081c2e279a6fe3967f2611c0758b38d9c6; implementation commit ec459a3963fbc7991d6656d663637fdc618d0a07; this handoff is finalized in a follow-up documentation commit; no branch/MR by explicit IVR owner instruction
+Scope completed: approved Vietnamese order-confirmation speech text and deterministic fake audio metadata; item collapse + exact pronunciation hints; opaque MOCK dial-token fingerprint vault with expiry/replay/allowlist; vendor-neutral SIM dial/play/DTMF/disposition/hang-up/health port; deterministic scenario/delay/error fake; SchedulerDispatchLease-to-gateway connection; atomic fenced PostgreSQL active/finalize/fail path; lease release/fence/cooldown/quarantine; raw event pending P2-5 normalization and never counted in P2-4
+Files/artifacts: src/Ivr.Domain/Ports/ProviderPorts.cs; src/Ivr.Domain/Scripts/VietnameseOrderScriptRenderer.cs; src/Ivr.Infrastructure/Telephony/**; fake providers; scheduler store/DI/appsettings; telephony unit/PostgreSQL tests; docs/evidence/W-0021/README.md; official Markdown map
+Commands and exact results: locked restore PASS; Release analyzer build 0 warning/0 error; format PASS; contract 21 + unit 106 + integration 59 = 186/186; coverage 94.55% (20505/21687, 3 reports) >= 60%; EF no pending model; API/docs/OpenAPI/UI/config/NuGet/npm/Compose/Gitleaks/PII PASS; official map 415 files/375 resolved/0 unresolved
+Tests/evidence: exact synthetic Vietnamese snapshot, collapse/total/instructions, approved pronunciation, token expiry/replay/allowlist/vault, every provider disposition, no-input/invalid DTMF, one active channel, delay cancellation, recording rejection, fail-closed config/kill, non-MOCK isolation, fenced PostgreSQL happy/token/health paths; details docs/evidence/W-0021/README.md
+Review/acceptance by: Codex self-review under explicit IVR owner authorization; status limited to TESTS_PASS until owner/reviewer accepts and physical/external/release evidence exists
+Mock-only evidence: complete; fake text/audio metadata, process-local fake destination allowlist/scenarios, no HTTP/socket/serial/SIP/vendor transport, recording disabled, REAL_CUSTOMER_CALL_ALLOWED=NO
+Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, carrier, caller ID or allowlisted test phone destination
+Real integration evidence: NOT_RUN; no Sales/Order Core endpoint/auth/token delivery, telephony provider, TTS provider or order callback
+Production evidence: NOT_RUN; defaults remain Enabled=false/KillSwitch=true; no real customer call, recording, deployment or approval
+Remote handoff: GitHub main fast-forwarded to ec459a3 and remote ref verified exact before the final documentation commit; GitLab origin/main remains 5544395 because protected main rejects direct push; no MR was created
+GitNexus review: refreshed explicit main index 40,064 nodes/45,685 edges/280 flows; final staged detect-changes CRITICAL with 18 files/173 symbols/56 flows, expected for the cross-layer provider/scheduler/persistence seam; focused new gateway/store context is lower-bound due DI/interface dispatch; full architecture/build/regression evidence passed
+Residual blockers/risks: W-0022/P2-5 owns normalization/counting/retry meaning; W-0066/P2-9 owns TTS provider/audio; W-0048/P8-1 owns one-SIM lab/vendor adapter; 32-eSIM procurement/capacity, Sales API/auth/data, legal/security/release remain external; GitLab protected main may reject direct push
+Next allowed Work ID(s): W-0022/P2-5 DTMF/disposition normalizer
 Final status: TESTS_PASS
 ```
