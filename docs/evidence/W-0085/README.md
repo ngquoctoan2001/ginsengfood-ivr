@@ -2,7 +2,7 @@
 
 Date: 2026-08-13
 Origin: hosted GitLab pipeline failure
-Status: `TESTS_PASS` locally and in a clean Linux SDK container
+Status: `ACCEPTED` — local, clean Linux-container and hosted GitLab regression evidence passed
 
 ## Failure evidence
 
@@ -47,9 +47,22 @@ The Linux verification copied the working tree without host `bin/obj` output
 into a disposable container before restore/build/test. This avoids a false pass
 from Windows-generated build assets.
 
+## Hosted closure
+
+The source portability defect is closed by two successful hosted pipelines:
+
+```text
+Pipeline #2756119982: PASS on GitLab SaaS Linux executor
+Pipeline #2756183002: PASS on self-hosted Linux-container runner #55115499
+Jobs: 9/9 PASS
+Tests: 98/98 PASS
+Self-hosted merged coverage: 91.5%
+```
+
+Pipeline `#2756183002` also passed the PostgreSQL Testcontainers build job through the privileged Docker executor, so the corrected architecture test is proven in the final self-hosted CI topology rather than only in a disposable local container.
+
+Codex accepted W-0085 on 2026-08-13 under the IVR owner's standing authorization to self-review and close completed prompt/remediation work.
+
 ## Residual external gate
 
-The source fix is locally complete at `TESTS_PASS`. A new hosted pipeline must
-pass before this specific GitLab failure is closed. W-0061 remains
-`BLOCKED_EXTERNAL` until the pipeline and remaining branch protection, approval,
-registry, Pages access-control and protected-variable evidence are complete.
+W-0085 is `ACCEPTED`. W-0061 remains independently `BLOCKED_EXTERNAL` until branch protection, approval, merge enforcement, registry, Pages access-control and protected-variable evidence are complete. Those platform settings are not residual defects in the W-0085 source fix.

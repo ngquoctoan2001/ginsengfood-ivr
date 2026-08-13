@@ -50,6 +50,15 @@ Jobs with this tag do not fall back to GitLab SaaS instance runners. If the Wind
 
 The Docker executor is privileged because current pipelines use Docker-in-Docker and Testcontainers. Only trusted project code may run on these runners. Do not enable untagged jobs or assign unrelated projects.
 
+## Validated pipelines
+
+| Date | Project | Pipeline | Runner | Result |
+| --- | --- | --- | --- | --- |
+| 2026-08-13 | IVR | `#2756183002` | `#55115499` / `ivr-docker-winhost` | 9/9 jobs, 98 tests, PostgreSQL Testcontainers and all gates PASS |
+| 2026-08-13 | Things | `#2756187683` | `#55115556` / `things-docker-winhost` | G02 Docker-in-Docker gate PASS |
+
+These pipelines prove both project runners can execute Linux-container jobs on the Windows host. They do not prove protected-branch, merge-approval, Registry, Pages or protected-variable configuration.
+
 ## Configuration changes and recovery
 
 1. Back up `C:\GitLab-Runner\config.toml` before registration or manual edits.

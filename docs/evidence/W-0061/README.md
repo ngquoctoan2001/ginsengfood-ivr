@@ -4,7 +4,7 @@ Date: 2026-08-13
 
 Gate: `G-GITLAB`
 
-Status: `BLOCKED_EXTERNAL` — project/remote, a successful SaaS-hosted pipeline and an online self-hosted Docker runner now exist. Tagged execution on the new runner, protected default branch, merge enforcement, Pages access control and registry proof are still incomplete.
+Status: `BLOCKED_EXTERNAL` — project/remote, SaaS-hosted baseline and tagged self-hosted Linux-container/Docker-in-Docker execution are proven. Protected default branch, merge enforcement, Pages access control, registry and protected-variable proof are still incomplete.
 
 ## Confirmed external progress
 
@@ -14,6 +14,7 @@ Status: `BLOCKED_EXTERNAL` — project/remote, a successful SaaS-hosted pipeline
 - GitLab `main` was confirmed at `3c0aa13bf5460cbb44d9eb76e0f64fc31a0d49f1` before this remediation.
 - First hosted pipeline: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2755964245`
 - First fully successful hosted pipeline after W-0085: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2756119982`
+- First fully successful tagged self-hosted pipeline: `https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2756183002`
 
 ## First hosted pipeline result
 
@@ -39,14 +40,32 @@ Stages: validate, build, test, security, privacy
 
 This proves the GitLab configuration and all current gates can pass on the SaaS Linux executor. It does not by itself prove the new self-hosted runner.
 
+## Successful self-hosted baseline
+
+Pipeline `#2756183002` passed for commit `fba3172` with all jobs routed by tag `ginsengfood-docker` to project runner `#55115499` / `ivr-docker-winhost`:
+
+```text
+Status: Passed
+Jobs: 9/9
+Tests: 98
+Merged coverage: 91.5%
+Duration: 19m37s
+Queued: 3s
+Stages: validate, build, test, security, privacy
+```
+
+Job `15871330726` (`ci_config_selftest`) and job `15871330732` (`build_test_dotnet`) both named runner `#55115499`. The build job passed the PostgreSQL Testcontainers suite through the privileged Docker executor, proving Docker-in-Docker use on the Windows-hosted Linux-container runner. Security job `15871330733` and the privacy gate also passed on the same tagged runner.
+
+The sibling Things project independently passed pipeline `#2756187683` on runner `#55115556` / `things-docker-winhost`; its Docker-in-Docker job completed in `12m59s` with a `3s` queue. This is supporting host-capacity evidence, not a substitute for IVR acceptance.
+
 ## Self-hosted Docker runner provisioning
 
 The Windows development host runs Docker Desktop in Linux-container mode. No Ubuntu distribution is required. GitLab Runner `19.2.0` remains installed as the existing Windows service.
 
-| Project | Runner | Executor | Tag | GitLab state before tagged pipeline |
+| Project | Runner | Executor | Tag | Verified state |
 | --- | --- | --- | --- | --- |
-| IVR | `#55115499` / `ivr-docker-winhost` | Docker, privileged | `ginsengfood-docker` | Online |
-| Things | `#55115556` / `things-docker-winhost` | Docker, privileged | `ginsengfood-docker` | Online |
+| IVR | `#55115499` / `ivr-docker-winhost` | Docker, privileged | `ginsengfood-docker` | Online; tagged pipeline PASS |
+| Things | `#55115556` / `things-docker-winhost` | Docker, privileged | `ginsengfood-docker` | Online; tagged pipeline PASS |
 
 The existing `ops-core-win` shell executor was preserved. Host scheduling is `concurrent=3`; every runner has `limit=1` and `request_concurrency=2`, so Ops Core, IVR and Things may each run one job without one project consuming all worker slots. Both Docker runners are project-locked, do not accept untagged jobs and are not marked protected until protected-branch policy is configured.
 
@@ -82,14 +101,15 @@ CI_CONFIG_SELFTEST_PASS
 | Requirement | State | Required evidence |
 | --- | --- | --- |
 | GitLab project and remote | PASS | project URL, `git remote -v`, remote branch SHA |
-| CI configuration accepted | PASS | pipeline `#2756119982`, 9/9 jobs and 98 tests passed |
+| CI configuration accepted | PASS | pipelines `#2756119982` and `#2756183002`; 9/9 jobs and 98 tests passed |
 | Self-hosted runner control plane | PASS | runner `#55115499` online, version 19.2.0, project-locked tag `ginsengfood-docker` |
-| Tagged Linux-container execution | NOT_RUN | successful job pages naming `ivr-docker-winhost` |
-| Docker-in-Docker on self-hosted runner | NOT_RUN | `build_test_dotnet` runs the PostgreSQL Testcontainers suite on runner `#55115499` |
+| Tagged Linux-container execution | PASS | pipeline `#2756183002`; jobs name `#55115499` / `ivr-docker-winhost` |
+| Docker-in-Docker on self-hosted runner | PASS | job `15871330732` passed the PostgreSQL Testcontainers suite on runner `#55115499` |
 | Protected default branch | NOT_RUN | branch rule export/screenshot; direct push disabled as approved |
 | Merge-request approvals/CODEOWNERS | NOT_RUN | enforced approval rule evidence |
 | Pipelines must succeed | NOT_RUN | GitLab merge-check setting evidence |
 | Container Registry push/pull | NOT_RUN | registry path and successful authenticated push/pull evidence |
+| Pages access control | NOT_RUN | private project Pages access-control setting and authenticated access proof |
 | Masked/protected variables | NOT_RUN | names/scope/protection only; never record secret values |
 
-W-0011/P0-2 remains `TESTS_PASS` locally. Do not promote it to hosted acceptance until the residual checklist is evidenced.
+W-0011/P0-2 now has hosted pipeline evidence but remains `TESTS_PASS` until its external platform settings are evidenced. W-0061 therefore remains `BLOCKED_EXTERNAL`; the runner/DinD portion is complete, not the full GitLab platform gate.
