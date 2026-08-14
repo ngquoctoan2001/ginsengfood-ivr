@@ -6,6 +6,7 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Security;
 using Ivr.Infrastructure.Providers.Fakes;
+using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Telephony;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -400,6 +401,8 @@ public static class SchedulerServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
         IConfigurationSection section = configuration.GetSection(SchedulerOptions.SectionName);
+        IConfigurationSection normalizationSection = configuration.GetSection(
+            NormalizationOptions.SectionName);
         services.AddOptions<SchedulerOptions>()
             .Configure(options =>
             {
@@ -431,6 +434,22 @@ public static class SchedulerServiceCollectionExtensions
             .ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
             IValidateOptions<SchedulerOptions>, SchedulerOptionsValidator>());
+        services.AddOptions<NormalizationOptions>()
+            .Configure(options =>
+            {
+                options.Enabled = normalizationSection.GetValue(
+                    nameof(NormalizationOptions.Enabled),
+                    options.Enabled);
+                options.BatchSize = normalizationSection.GetValue(
+                    nameof(NormalizationOptions.BatchSize),
+                    options.BatchSize);
+                options.PollIntervalMilliseconds = normalizationSection.GetValue(
+                    nameof(NormalizationOptions.PollIntervalMilliseconds),
+                    options.PollIntervalMilliseconds);
+            })
+            .ValidateOnStart();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IValidateOptions<NormalizationOptions>, NormalizationOptionsValidator>());
         services.AddOptions<MockTelephonyOptions>()
             .Bind(configuration.GetSection(MockTelephonyOptions.SectionName))
             .ValidateOnStart();
@@ -482,6 +501,8 @@ public static class SchedulerServiceCollectionExtensions
 
         services.TryAddSingleton<IPostgresSchedulerStore, PostgresSchedulerStore>();
         services.TryAddSingleton<ISchedulerRuntime, SchedulerRuntime>();
+        services.TryAddSingleton<IRawEventRepository, RawEventRepository>();
+        services.TryAddSingleton<IResultRepository, ResultRepository>();
         return services;
     }
 }

@@ -263,7 +263,6 @@ public sealed class PostgresTelephonyDispatchStore(
                     {
                         ["raw_event_id"] = rawEventId,
                         ["raw_call_status"] = rawStatus,
-                        ["dtmf"] = dtmf,
                         ["technical_error_code"] = technicalErrorCode,
                         ["channel_healthy"] = channelHealthy,
                         ["recording"] = "DISABLED",

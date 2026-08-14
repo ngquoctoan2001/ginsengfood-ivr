@@ -3,6 +3,7 @@ using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Retention;
 using Ivr.Worker.Jobs;
+using Ivr.Worker.Normalization;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -12,6 +13,8 @@ builder.Services.AddIvrRetention(builder.Configuration);
 builder.Services.AddHostedService<IvrHeartbeat>();
 builder.Services.AddHostedService<RetentionJobHost>();
 builder.Services.AddHostedService<SchedulerJobHost>();
+builder.Services.AddSingleton<ResultNormalizer>();
+builder.Services.AddHostedService<NormalizationJobHost>();
 
 var host = builder.Build();
 host.Run();

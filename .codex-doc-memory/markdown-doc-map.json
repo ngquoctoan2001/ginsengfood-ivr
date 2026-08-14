@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T15:48:50.877Z",
+  "generatedAt": "2026-08-14T00:55:33.357Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215369,6 +215369,62 @@
       "incomingLinks": []
     },
     {
+      "path": "docs/evidence/W-0022/README.md",
+      "title": "W-0022 / P2-5 — DTMF and disposition normalization",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0022 / P2-5 — DTMF and disposition normalization",
+          "line": 1,
+          "slug": "w-0022-p2-5-dtmf-and-disposition-normalization"
+        },
+        {
+          "depth": 2,
+          "text": "Delivered behavior",
+          "line": 9,
+          "slug": "delivered-behavior"
+        },
+        {
+          "depth": 2,
+          "text": "Locked mapping matrix",
+          "line": 27,
+          "slug": "locked-mapping-matrix"
+        },
+        {
+          "depth": 2,
+          "text": "Retry and state policy",
+          "line": 43,
+          "slug": "retry-and-state-policy"
+        },
+        {
+          "depth": 2,
+          "text": "Named behavior evidence",
+          "line": 59,
+          "slug": "named-behavior-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Verification evidence",
+          "line": 85,
+          "slug": "verification-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Safety and residual gates",
+          "line": 111,
+          "slug": "safety-and-residual-gates"
+        }
+      ],
+      "links": [],
+      "lines": 127,
+      "words": 1034,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "docs/evidence/W-0024/privacy-test-report.md",
       "title": "W-0024 privacy test report",
       "frontmatter": {},
@@ -220385,19 +220441,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 296,
+          "line": 299,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 317,
+          "line": 320,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 689,
-      "words": 11439,
+      "lines": 692,
+      "words": 11681,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -234742,6 +234798,7 @@
       "docs/evidence/W-0019/README.md",
       "docs/evidence/W-0020/README.md",
       "docs/evidence/W-0021/README.md",
+      "docs/evidence/W-0022/README.md",
       "docs/evidence/W-0061/README.md",
       "docs/evidence/W-0085/README.md",
       "docs/evidence/W-0086/README.md",
