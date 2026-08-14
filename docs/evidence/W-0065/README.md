@@ -132,8 +132,9 @@ the executable evidence; the JSON files are privacy-safe review projections.
 
 ## Residual gates
 
-- GitLab hosted pipeline/protected-main evidence: `NOT_RUN` for this commit;
-  direct main push is expected to remain rejected by project protection.
+- GitLab hosted pipeline/protected-main evidence: `NOT_RUN` for this commit.
+  Direct `main` push succeeded, but that remote ref alone does not prove a
+  hosted job result, protected-branch policy, approval rule, or merge gate.
 - Reviewer/owner acceptance: `NOT_RUN`; status is intentionally capped at
   `TESTS_PASS`.
 - Real Sales/internal identity issuer, production service token, sandbox/CDC,

@@ -1,6 +1,6 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-14T03:33:20.195Z
+Generated: 2026-08-14T03:35:07.007Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
@@ -333,7 +333,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0024/README.md | W-0024 / P2-7 — Script, Content Approval and Speech Safety | 1/6 | 0 | 1 | 0 | 427 |
 | docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1511 |
 | docs/evidence/W-0064/README.md | W-0064 — P1-5 Retention Job & Data Lifecycle Evidence | 1/5 | 1 | 1 | 0 | 416 |
-| docs/evidence/W-0065/README.md | W-0065 — P2-8 internal and admin API evidence | 1/8 | 0 | 0 | 0 | 1076 |
+| docs/evidence/W-0065/README.md | W-0065 — P2-8 internal and admin API evidence | 1/8 | 0 | 0 | 0 | 1088 |
 | docs/evidence/W-0085/README.md | W-0085 Linux ProjectReference path portability | 1/6 | 0 | 0 | 0 | 270 |
 | docs/evidence/W-0086/README.md | W-0086 — Shallow-clone Gitleaks fingerprint remediation | 1/4 | 0 | 0 | 0 | 401 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
@@ -385,7 +385,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 12335 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 12387 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |

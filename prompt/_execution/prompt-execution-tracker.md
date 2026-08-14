@@ -304,6 +304,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0137` | 2026-08-14 | `W-0065` | IMPLEMENTATION | Dựng 6 lifecycle endpoint service-only và 7 admin endpoint permission 1-1; canonical lifecycle reassert, typed masked projection, idempotency, serializable admin action+audit, queue hold, safe SIM mutation, bounded retry và immutable result review | Codex | dedicated internal token/source/scope; admin actor binding; response PII fail-closed; scheduler chỉ chặn claim mới; MOCK direct enable only; no Sales/order/SMS/call thật |
 | `A-0138` | 2026-08-14 | `W-0065` | SELF_REVIEW/REMEDIATION | Siết CT bằng generated DTO, bổ sung 403 cho QueueView, sửa enum YAML bị gộp do indentation và regenerate/repin; tách internal/admin mapper đúng namespace; khóa admin UI qua BFF, không phát internal token xuống browser | Codex | parsed callback enum 6 giá trị riêng; 13 route; OpenAPI/codegen/drift/docs rerun; mapping/test-host blast radius LOW; build/focused xanh sau refactor |
 | `A-0139` | 2026-08-14 | `W-0065` | VALIDATION/EVIDENCE | Chốt local `TESTS_PASS` và bộ evidence privacy-safe: 10 nhóm/12 case, 7 mẫu 403, 409 conflict, audit redacted, contract hash/diff và fresh coverage | Codex | contract 21 + unit 157 + integration 77 = 255/255; focused 12/12; coverage 94.30% (22760/24137, 3 reports); Release 0 warning/0 error; EF/API/docs/UI/config/NuGet/npm/Compose/Gitleaks/PII PASS; map 418/375/0; GitNexus main 40630/47818/300, staged CRITICAL 33 files/285 symbols/141 expected flows; external/hosted/reviewer/LAB/PROD vẫn NOT_RUN |
+| `A-0140` | 2026-08-14 | `W-0065` | COMMIT/REMOTE_HANDOFF | Commit implementation P2-8 trực tiếp trên `main`, push và xác minh exact ref ở cả GitHub lẫn GitLab; không tạo branch/MR | Codex | `251d276e47299d7eec209a4cb6563bc4a56cc0a9`; GitHub main exact; GitLab origin/main exact; push thành công không thay thế hosted pipeline/protected-policy evidence, vẫn NOT_RUN |
 
 ## 8. Per-work completion record template
 
@@ -478,7 +479,7 @@ Final status: TESTS_PASS
 
 ```text
 Work ID: W-0065 / P2-8
-Baseline/commit: baseline main@87457b6f37a89c35a3eaf9e77452049e9c0429d9; implementation commit is created from this reviewed staged tree and recorded by the following append-only COMMIT/REMOTE_HANDOFF activity; no branch/MR by explicit IVR owner instruction
+Baseline/commit: baseline main@87457b6f37a89c35a3eaf9e77452049e9c0429d9; implementation commit 251d276e47299d7eec209a4cb6563bc4a56cc0a9; no branch/MR by explicit IVR owner instruction
 Scope completed: 6 IVR service-only lifecycle operations; 7 admin operations with exact existing permission mapping and actor binding; typed/masked OpenAPI projections; idempotency and typed errors; serializable admin action+append-only audit; queue pause/resume claim control; safe SIM enable/disable; bounded non-counted technical retry; immutable-result admin review; response PII fail-closed guard; API portal and BFF boundary documentation
 Files/artifacts: src/Ivr.Api/Internal/**; src/Ivr.Api/Admin/IvrAdminEndpoints.cs; src/Ivr.Api/Application/InternalAdminApiService.cs; src/Ivr.Api/Filters/PiiMaskingFilter.cs; error/program/scheduler integration; OpenAPI + pinned generated DTO/API portal; PostgreSQL integration tests; docs/evidence/W-0065/**; official Markdown map
 Commands and exact results: locked restore PASS; Release analyzer build 0 warning/0 error; format PASS; focused W-0065 12/12; contract 21 + unit 157 + integration 77 = 255/255; fresh coverage 94.30% (22760/24137, 3 reports); EF no pending model; OpenAPI lint/parse/negative/codegen/drift PASS; API docs/links/config/Admin UI/NuGet/npm/Compose/Gitleaks staged-diff/PII PASS; official map 418 files/375 resolved/0 unresolved
@@ -489,9 +490,9 @@ Mock-only evidence: complete; TestServer, synthetic service/admin identities, in
 Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, carrier, caller ID, allowlisted test destination or TTS pronunciation proof
 Real integration evidence: NOT_RUN; no Sales/Order Core endpoint, production token issuer, sandbox/CDC, telephony/TTS provider or customer destination invoked
 Production evidence: NOT_RUN; Target contract remains DRAFT; no hosted pipeline, production identity/config/deployment/sign-off, one-SIM lab or 32-eSIM capacity acceptance
-Remote handoff: pending implementation commit/push; GitLab protected main is expected to reject direct push and will not be weakened; no branch/MR will be created
+Remote handoff: implementation commit 251d276e47299d7eec209a4cb6563bc4a56cc0a9 pushed and verified exact on GitHub main and GitLab origin/main; no branch/MR created; hosted pipeline/protected-policy evidence remains NOT_RUN
 Safety boundary: lifecycle endpoints cannot synthesize arbitrary final state; IVR does not transition order, write Sales, send SMS, enable REAL SIM or dial a real customer; admin retry/review cannot bypass policy or alter normalized result
-Residual blockers/risks: production internal identity/token and Sales Target approval remain OWNER_DATA_REQUIRED/BLOCKED_EXTERNAL; physical lab, provider configuration, TTS acceptance, 32-eSIM provisioning, hosted GitLab and release approvals remain NOT_RUN; GitLab protected main may reject the owner-mandated direct-main push
+Residual blockers/risks: production internal identity/token and Sales Target approval remain OWNER_DATA_REQUIRED/BLOCKED_EXTERNAL; physical lab, provider configuration, TTS acceptance, 32-eSIM provisioning, hosted GitLab job/policy evidence and release approvals remain NOT_RUN; direct remote ref success is not CI or production proof
 Next allowed Work ID(s): W-0066/P2-9 speech/TTS provider port + adapter skeleton is the recommended next implementation; W-0025/P3-1 is also locally unblocked but remains later in phase order
 Final status: TESTS_PASS
 ```
