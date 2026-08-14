@@ -46,9 +46,9 @@ public static class CallbackServiceCollectionExtensions
                 client.BaseAddress = new Uri(options.CurrentGoldenHourBaseUrl);
                 client.Timeout = TimeSpan.FromSeconds(options.RequestTimeoutSeconds);
             });
-        services.TryAddSingleton<ICurrentGoldenHourCallbackTransport,
+        services.TryAddScoped<ICurrentGoldenHourCallbackTransport,
             CurrentGoldenHourCallbackTransport>();
-        services.TryAddSingleton<CallbackDispatcher>();
+        services.TryAddScoped<CallbackDispatcher>();
         return services;
     }
 }

@@ -16,7 +16,12 @@ Focused execution: `7 unit + 2 integration = 9/9 PASS`.
 
 Full regression after fixture remediation: `21 contract + 164 unit + 79 integration = 264/264 PASS`.
 
-Coverage merge: `94.7%` line coverage (`25,645/27,080`) from three green
-Cobertura reports. The integration coverage retry passed `79/79` after one transient
+Historical coverage merge: `94.7%` line coverage (`25,645/27,080`) from three
+green Cobertura reports, including migration/generated source. The corrected
+2026-08-14 full-tree run excludes migrations and `.g.cs` source through the
+collector plus merge policy and reports `88.80%` (`10,350/11,656`) across three
+reports. The merge policy explicitly excluded one Worker source-generator class
+that Coverlet still emitted on Windows. The integration coverage retry passed
+`79/79` after one transient
 P2-8 idempotency-header rejection; the independent full regression remained
 `264/264 PASS`.

@@ -110,16 +110,29 @@ public sealed class CallbackCircuitBreaker(
         }
     }
 
+    public void RecordProbeAborted()
+    {
+        lock (_sync)
+        {
+            _halfOpenProbeInProgress = false;
+        }
+    }
+
     public CallbackCircuitState Snapshot()
     {
         lock (_sync)
         {
             bool open = _openUntil > timeProvider.GetUtcNow();
+            bool halfOpen = _halfOpenProbeInProgress;
             return new CallbackCircuitState(
-                open,
+                open || halfOpen,
                 _consecutiveFailures,
                 _openUntil,
-                open ? "NOT_READY_CIRCUIT_OPEN" : "READY");
+                open
+                    ? "NOT_READY_CIRCUIT_OPEN"
+                    : halfOpen
+                        ? "NOT_READY_CIRCUIT_HALF_OPEN"
+                        : "READY");
         }
     }
 }

@@ -52,7 +52,9 @@ internal sealed class TaskIntakeApiTestApplication : IAsyncDisposable
                     FoundationApiTestApplication.ServiceToken,
             });
         builder.Services.AddSingleton<TimeProvider>(new FixedTimeProvider(Now));
-        builder.Services.AddIvrFoundation(builder.Configuration);
+        builder.Services.AddIvrFoundation(
+            builder.Configuration,
+            useInMemoryTestDoubles: true);
         builder.Services.AddIvrApiFoundation(builder.Configuration);
 
         WebApplication app = builder.Build();

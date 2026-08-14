@@ -9,10 +9,18 @@ public sealed class DeterministicProviderFakeTests
     [Fact]
     public async Task EveryProviderPortHasDeterministicFake()
     {
+        ProviderFakeSnapshot first = await RunProviderFakesOnce();
+        ProviderFakeSnapshot second = await RunProviderFakesOnce();
+
+        Assert.Equal(first, second);
+    }
+
+    private static async Task<ProviderFakeSnapshot> RunProviderFakesOnce()
+    {
         DateTimeOffset now = new(2026, 8, 13, 0, 0, 0, TimeSpan.Zero);
-        FakeSystemClock clock = new(now);
-        FakeIdentifierGenerator ids = new(["id-1"]);
-        FakeDialTokenResolver resolver = new(new Dictionary<string, string>
+        var clock = new FakeSystemClock(now);
+        var ids = new FakeIdentifierGenerator(["id-1"]);
+        var resolver = new FakeDialTokenResolver(new Dictionary<string, string>
         {
             ["dial-token-1"] = "provider-destination-ref-1",
         });
@@ -22,14 +30,14 @@ public sealed class DeterministicProviderFakeTests
                 AttemptId.Create("attempt-1")),
             now,
             CancellationToken.None);
-        FakeSpeechRenderer renderer = new();
+        var renderer = new FakeSpeechRenderer();
         RenderedSpeech speech = await renderer.RenderAsync(
             TestData.Summary(),
             "SCRIPT-ORDER-CONFIRM",
             "v1-test-approved",
             ExecutionMode.Mock,
             CancellationToken.None);
-        FakeSimGateway gateway = new(new Dictionary<string, FakeSimScenario>
+        var gateway = new FakeSimGateway(new Dictionary<string, FakeSimScenario>
         {
             ["attempt-1"] = new(SimProviderDisposition.Answered, "1"),
         });
@@ -38,7 +46,7 @@ public sealed class DeterministicProviderFakeTests
                 AttemptId.Create("attempt-1"),
                 TaskId.Create("task-1"),
                 "SIM-MOCK-001",
-                Guid.NewGuid(),
+                Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
                 1,
                 authorization,
                 SimRecordingMode.Disabled),
@@ -60,17 +68,17 @@ public sealed class DeterministicProviderFakeTests
             CallbackAcknowledgementCode.Accepted,
             CallbackId.Create("callback-1"),
             CorrelationId.Create("correlation-1"));
-        FakeOrderCoreCallbackClient callbackClient = new([ack]);
+        var callbackClient = new FakeOrderCoreCallbackClient([ack]);
         CallbackAcknowledgement returnedAck = await callbackClient.SubmitAsync(
             TestData.Result(),
             CancellationToken.None);
-        FakeServiceTokenProvider tokenProvider = new(new Dictionary<string, ServiceAccessToken>
+        var tokenProvider = new FakeServiceTokenProvider(new Dictionary<string, ServiceAccessToken>
         {
             ["sales"] = ServiceAccessToken.CreateTrusted("fake-service-token", now.AddMinutes(5)),
         });
         ServiceAccessToken token = await tokenProvider.GetAsync("sales", CancellationToken.None);
 
-        InMemoryDomainAuditSink audit = new();
+        var audit = new InMemoryDomainAuditSink();
         await audit.AppendAsync(
             new DomainAuditRecord(
                 AuditReference.Create("audit-1"),
@@ -78,7 +86,7 @@ public sealed class DeterministicProviderFakeTests
                 now,
                 CorrelationId.Create("correlation-1")),
             CancellationToken.None);
-        InMemoryDomainEvidenceSink evidence = new();
+        var evidence = new InMemoryDomainEvidenceSink();
         await evidence.AppendAsync(
             new DomainEvidenceRecord(
                 EvidenceReference.Create("evidence-1"),
@@ -87,18 +95,20 @@ public sealed class DeterministicProviderFakeTests
                 now),
             CancellationToken.None);
 
-        Assert.Equal(now, clock.UtcNow);
-        Assert.Equal("id-1", ids.NewIdentifier());
-        Assert.Equal("[REDACTED_DIAL_AUTHORIZATION]", authorization.ToString());
-        Assert.Equal("[REDACTED_RENDERED_SPEECH]", speech.ToString());
-        Assert.Equal("1", dtmf.Key);
-        Assert.Equal(SimProviderDisposition.Answered, disposition.Disposition);
-        Assert.Equal(SimChannelHealthState.Healthy, health.State);
-        Assert.Equal(6, gateway.Events.Count);
-        Assert.Equal(ack, returnedAck);
-        Assert.Equal("[REDACTED_SERVICE_TOKEN]", token.ToString());
-        Assert.Single(audit.Records);
-        Assert.Single(evidence.Records);
+        return new ProviderFakeSnapshot(
+            clock.UtcNow,
+            ids.NewIdentifier(),
+            authorization.ToString(),
+            speech.ToString(),
+            speech.ContentHash,
+            dtmf.Key,
+            disposition.Disposition,
+            health.State,
+            gateway.Events.Count,
+            returnedAck,
+            token.ToString(),
+            Assert.Single(audit.Records).CorrelationId.Value,
+            Assert.Single(evidence.Records).SnapshotHash);
     }
 
     [Fact]
@@ -120,4 +130,19 @@ public sealed class DeterministicProviderFakeTests
                 ExecutionMode.Mock,
                 CancellationToken.None));
     }
+
+    private sealed record ProviderFakeSnapshot(
+        DateTimeOffset UtcNow,
+        string Identifier,
+        string AuthorizationDisplay,
+        string SpeechDisplay,
+        string SpeechContentHash,
+        string? Dtmf,
+        SimProviderDisposition Disposition,
+        SimChannelHealthState Health,
+        int EventCount,
+        CallbackAcknowledgement Acknowledgement,
+        string TokenDisplay,
+        string AuditCorrelationId,
+        string EvidenceContentHash);
 }

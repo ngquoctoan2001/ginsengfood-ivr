@@ -8,6 +8,17 @@ Evidence date: `2026-08-14`
 
 Real-customer-call gate: `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
+## Coverage correction — 2026-08-14
+
+The original `94.30% (22,760/24,137)` measurement below is retained as
+historical evidence but is not comparable with the corrected policy: it
+included EF migration and generated `.g.cs` source. A clean full regression
+using committed `coverage.runsettings` plus the merge-policy exclusion reports
+`88.80% (10,350/11,656)` across three Cobertura reports. Coverlet still emitted
+one Worker source-generator class on Windows; `Ivr.CiPolicy` explicitly excluded
+that class, and its negative fixture proves generated/migration lines cannot
+make a below-threshold result pass. The result remains above the 60% gate.
+
 ## Delivered boundary
 
 - Six IVR-owned lifecycle operations require the dedicated bearer secret from
@@ -104,7 +115,8 @@ the executable evidence; the JSON files are privacy-safe review projections.
 | Unit tests | PASS — 157/157 |
 | PostgreSQL integration tests | PASS — 77/77 |
 | Total regression | PASS — 255/255 |
-| Fresh aggregate line coverage | PASS — 94.30% (22,760/24,137), 3 reports, threshold 60% |
+| Historical aggregate line coverage | PASS at the time — 94.30% (22,760/24,137), but included migration/generated source |
+| Corrected full-tree line coverage | PASS — 88.80% (10,350/11,656), 3 reports, 1 generated class explicitly excluded, threshold 60% |
 | `dotnet format --verify-no-changes` | PASS |
 | EF pending-model changes | PASS — none; W-0065 reuses the existing schema |
 | OpenAPI lint/parse/negative/codegen/drift | PASS — four pre-existing unused-component warnings, no errors |

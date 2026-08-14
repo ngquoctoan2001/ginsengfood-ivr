@@ -15,7 +15,7 @@
       "role": "IVR server DTO source",
       "status": "TARGET_DRAFT",
       "path": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
-      "sha256": "4dd221befe0e2cd8b5bc090ec0179ca3581caa928abf268ba865fd30c31316d4",
+      "sha256": "f49f4b18362df88d68ebcdc6737632d18158eb926529a7b63cabbb93c1848112",
       "generated": "src/Ivr.Contracts/Generated/IvrServer/V1/IvrServerModels.g.cs"
     },
     {

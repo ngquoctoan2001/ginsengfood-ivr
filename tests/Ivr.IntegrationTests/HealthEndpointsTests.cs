@@ -1,5 +1,6 @@
 using System.Net;
 using Ivr.Api.Auth;
+using Ivr.Api.Internal;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -21,9 +22,15 @@ public sealed class HealthEndpointsTests
         await using WebApplicationFactory<Program> baselineApplication = new();
         await using WebApplicationFactory<Program> application =
             baselineApplication.WithWebHostBuilder(
-                builder => builder.UseSetting(
-                    OrderCoreAllowlistOptions.TokenConfigurationKey,
-                    FoundationApiTestApplication.ServiceToken));
+                builder =>
+                {
+                    builder.UseSetting(
+                        OrderCoreAllowlistOptions.TokenConfigurationKey,
+                        FoundationApiTestApplication.ServiceToken);
+                    builder.UseSetting(
+                        InternalServiceOptions.TokenConfigurationKey,
+                        InternalAdminApiTestApplication.InternalToken);
+                });
         using HttpClient client = application.CreateClient();
 
         foreach (string path in ProbePaths)

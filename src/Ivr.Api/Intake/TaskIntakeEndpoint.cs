@@ -43,12 +43,10 @@ public static class TaskIntakeEndpoint
     {
         string correlationId = RequiredHeader(
             context,
-            CorrelationPropagationHandler.HeaderName,
-            IvrErrorCodes.MissingTrace);
+            CorrelationPropagationHandler.HeaderName);
         string idempotencyKey = RequiredHeader(
             context,
-            IdempotencyHeader,
-            IvrErrorCodes.MalformedRequest);
+            IdempotencyHeader);
         byte[] requestBytes;
         IvrConfirmationTaskV1 source;
         string payloadHash;
@@ -115,10 +113,16 @@ public static class TaskIntakeEndpoint
 
     private static string RequiredHeader(
         HttpContext context,
-        string headerName,
-        string errorCode)
+        string headerName)
     {
         string value = context.Request.Headers[headerName].ToString();
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new IvrFailureException(
+                IvrErrorCodes.MissingTrace,
+                string.Concat(headerName, " is required."));
+        }
+
         if (value.Length is > 0 and <= 128
             && PiiGuard.IsSafeText(value)
             && value.All(character =>
@@ -128,10 +132,9 @@ public static class TaskIntakeEndpoint
             return value;
         }
 
-        string message = errorCode == IvrErrorCodes.MissingTrace
-            ? "X-Correlation-Id is required and must be valid."
-            : "Idempotency-Key is required and must be valid.";
-        throw new IvrFailureException(errorCode, message);
+        throw new IvrFailureException(
+            IvrErrorCodes.MalformedRequest,
+            string.Concat(headerName, " has invalid syntax."));
     }
 
     private static async Task<byte[]> ReadBoundedBodyAsync(
@@ -389,7 +392,7 @@ public static class TaskIntakeEndpoint
                 "The task body does not match ivr-order-confirmation.v1.",
                 new Dictionary<string, string>(),
                 correlationId)),
-            statusCode: StatusCodes.Status422UnprocessableEntity);
+            statusCode: StatusCodes.Status400BadRequest);
 
     private static ExecutionMode ParseExecutionMode(string value) => value switch
     {

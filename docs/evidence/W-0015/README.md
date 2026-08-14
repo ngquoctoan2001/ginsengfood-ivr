@@ -2,7 +2,12 @@
 
 Date: 2026-08-12
 Baseline: `5d2301e` (`P1-1`)
-Status: `TESTS_PASS`; local persistence and later hosted GitLab quality proof pass
+Status: `TESTS_PASS`; local persistence and historical hosted GitLab quality proof pass
+
+> Evidence correction — 2026-08-14: historical hosted passes do not prove the
+> current remediation tree. Current GitLab `main` has
+> `Allowed to push and merge: No one`; the setting is `PASS_SETTING_CURRENT`
+> under W-0061 and a fresh rejected-push probe is `NOT_RUN`.
 
 ## Delivered scope
 
@@ -83,9 +88,10 @@ Engine 29.6.2 and passed 6/6:
 
 ## Explicit residual gates
 
-- `W-0061` / `G-GITLAB`: `BLOCKED_EXTERNAL` only for required independent MR
-  approval. Project/runner, privileged DinD/Testcontainers, hosted MR pipelines,
-  protected branch, merge check, Registry, Pages and variables are proven.
+- `W-0061` / `G-GITLAB`: `BLOCKED_EXTERNAL`. Historical runner, DinD,
+  hosted-MR, Registry, Pages and variable evidence remains valid; current
+  no-direct-push configuration passes, while independent approval remains
+  unavailable.
 - `DF-07`: retention periods and deletion/legal-hold policy remain owner/legal
   data. Rows default to `LEGAL_DECISION_PENDING`; no purge job is armed.
 - Production encryption/KMS provider, key rotation, backup/restore drill,

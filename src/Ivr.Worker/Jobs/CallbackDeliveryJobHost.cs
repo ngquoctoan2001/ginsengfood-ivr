@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 namespace Ivr.Worker.Jobs;
 
 public sealed partial class CallbackDeliveryJobHost(
-    CallbackDispatcher dispatcher,
+    IServiceScopeFactory scopeFactory,
     CallbackCircuitBreaker circuitBreaker,
     IOptions<CallbackDeliveryOptions> options,
     ILogger<CallbackDeliveryJobHost> logger) : BackgroundService
@@ -24,6 +24,9 @@ public sealed partial class CallbackDeliveryJobHost(
         {
             try
             {
+                await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+                CallbackDispatcher dispatcher = scope.ServiceProvider
+                    .GetRequiredService<CallbackDispatcher>();
                 IReadOnlyList<CallbackDispatchResult> results =
                     await dispatcher.RunBatchAsync(stoppingToken).ConfigureAwait(false);
                 if (results.Count > 0)

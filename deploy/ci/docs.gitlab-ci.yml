@@ -15,11 +15,11 @@ api_contract_diff:
   allow_failure: false
   script:
     - oasdiff --version
-    - sh deploy/ci/scripts/generate-oasdiff-changelog.sh specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml /tmp/ivr-order-confirmation.md
+    - sh deploy/ci/scripts/generate-oasdiff-changelog.sh specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.2.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml /tmp/ivr-order-confirmation.md
     - diff -u docs/api/changelog/ivr-order-confirmation.md /tmp/ivr-order-confirmation.md
     - sh deploy/ci/scripts/generate-oasdiff-changelog.sh specs/api/openapi/baselines/order-core-ivr-callback.v1.0.0-draft.yaml specs/api/openapi/order-core-ivr-callback.target-v1.yaml /tmp/order-core-ivr-callback.md
     - diff -u docs/api/changelog/order-core-ivr-callback.md /tmp/order-core-ivr-callback.md
-    - oasdiff breaking specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml --format markdown --fail-on WARN
+    - oasdiff breaking specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.2.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml --format markdown --fail-on WARN
     - oasdiff breaking specs/api/openapi/baselines/order-core-ivr-callback.v1.0.0-draft.yaml specs/api/openapi/order-core-ivr-callback.target-v1.yaml --format markdown --fail-on WARN
     - sh deploy/ci/scripts/selftest-oasdiff.sh
 

@@ -153,10 +153,15 @@ public sealed class CrossCuttingFoundationTests
         Assert.Throws<InvalidOperationException>(
             () => PiiGuard.EnsureSafeText("contact 0912341234"));
         Assert.Throws<InvalidOperationException>(
+            () => PiiGuard.EnsureSafeText("contact 090-123-4567"));
+        Assert.Throws<InvalidOperationException>(
+            () => PiiGuard.EnsureSafeText("contact +84 (90) 123 4567"));
+        Assert.Throws<InvalidOperationException>(
             () => PiiGuard.EnsureSafeText("ĐưỜnG confidential"));
         Assert.Throws<InvalidOperationException>(
             () => PiiGuard.EnsureSafeText("tổ 5"));
         Assert.True(PiiGuard.IsSafeText("send to queue"));
+        Assert.True(PiiGuard.IsSafeText("dịch vụ cao cấp"));
         CorrelationContext correlationContext = new();
         Assert.Throws<InvalidOperationException>(
             () => correlationContext.Push("0912341234"));

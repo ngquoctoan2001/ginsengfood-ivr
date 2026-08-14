@@ -1,3 +1,4 @@
+using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using Ivr.Domain.Privacy;
@@ -185,29 +186,50 @@ public sealed class CallbackOutboxRepository(
         DateTimeOffset now = timeProvider.GetUtcNow();
         await using IvrDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
             cancellationToken);
-        ResultCallbackEntity? callback = await dbContext.ResultCallbacks.SingleOrDefaultAsync(
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(
+            IsolationLevel.ReadCommitted,
+            cancellationToken);
+        ResultCallbackEntity? callback = await dbContext.ResultCallbacks
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
             row => row.CallbackId == callbackId
                 && row.LeaseToken == leaseToken
                 && row.DeliveryStatus == "SENDING",
             cancellationToken);
         if (callback is null)
         {
+            await transaction.CommitAsync(cancellationToken);
             return false;
         }
 
-        callback.DeliveryStatus = update.DeliveryStatus;
-        callback.SentAt ??= now;
-        callback.AcknowledgedAt = update.Acknowledged ? now : null;
-        callback.CoreHttpStatus = update.CoreHttpStatus;
-        callback.CoreResponseCode = update.CoreResponseCode;
-        callback.RetryCount = update.RetryCount;
-        callback.LastRetryAt = update.DeliveryStatus is "RETRY_PENDING" or "RETRY_EXHAUSTED"
-            ? now
-            : callback.LastRetryAt;
-        callback.NextRetryAt = update.NextRetryAt;
-        callback.LastError = update.LastError;
-        callback.LeaseToken = null;
-        callback.LeaseExpiresAt = null;
+        bool recordsRetry = update.DeliveryStatus is "RETRY_PENDING" or "RETRY_EXHAUSTED";
+        int changed = await dbContext.ResultCallbacks
+            .Where(row => row.CallbackId == callbackId
+                && row.LeaseToken == leaseToken
+                && row.DeliveryStatus == "SENDING")
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(row => row.DeliveryStatus, update.DeliveryStatus)
+                    .SetProperty(row => row.SentAt, row => row.SentAt ?? now)
+                    .SetProperty(
+                        row => row.AcknowledgedAt,
+                        update.Acknowledged ? now : (DateTimeOffset?)null)
+                    .SetProperty(row => row.CoreHttpStatus, update.CoreHttpStatus)
+                    .SetProperty(row => row.CoreResponseCode, update.CoreResponseCode)
+                    .SetProperty(row => row.RetryCount, update.RetryCount)
+                    .SetProperty(
+                        row => row.LastRetryAt,
+                        row => recordsRetry ? now : row.LastRetryAt)
+                    .SetProperty(row => row.NextRetryAt, update.NextRetryAt)
+                    .SetProperty(row => row.LastError, update.LastError)
+                    .SetProperty(row => row.LeaseToken, (string?)null)
+                    .SetProperty(row => row.LeaseExpiresAt, (DateTimeOffset?)null),
+                cancellationToken);
+        if (changed != 1)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return false;
+        }
 
         ConfirmationTaskEntity task = await dbContext.ConfirmationTasks.AsNoTracking()
             .SingleAsync(candidate => candidate.TaskId == callback.TaskId, cancellationToken);
@@ -254,6 +276,7 @@ public sealed class CallbackOutboxRepository(
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return true;
     }
 }

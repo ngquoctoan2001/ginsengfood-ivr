@@ -4,7 +4,31 @@ Date: 2026-08-13
 
 Gate: `G-GITLAB`
 
-Status: `BLOCKED_EXTERNAL` — every requested GitLab platform control except required Merge Request approval enforcement is now proven. The remaining blocker is external: the project is on GitLab Free, the UI reports `Approval is optional`, and the project has only one member (`nqt20102001`, Owner). Required approval rules need GitLab Premium/Ultimate and an independent reviewer account.
+Status: `BLOCKED_EXTERNAL` — historical hosted pipeline/runner/Registry/Pages
+evidence remains valid and current branch enforcement has been restored.
+Authenticated UI verification after the 2026-08-14 remediation shows `main`
+protected with `Allowed to push and merge: No one`; merge remains limited to
+Maintainers, force push is disabled and `Pipelines must succeed` remains
+enabled. Required independent approval is still unavailable with one project
+member. A fresh rejected direct-push probe has not been run.
+
+## 2026-08-14 current-state correction and remediation
+
+The controls below were proven during MRs `!1` and `!2`, but later Phase 1/2
+activity records direct pushes that succeeded. The first authenticated settings
+read confirmed why: Maintainers could push directly to protected `main`. During
+this remediation, only `Allowed to push and merge` was changed from
+`Maintainers` to `No one`; the authenticated post-save view confirmed the new
+state. Therefore:
+
+- the old direct-push rejection remains historical behavioral evidence;
+- zero merge commits alone is not proof of direct push, but the activity log
+  plus the observed pre-remediation `Maintainers` setting proved the drift;
+- the current `No one` setting restores MR-only writes to `main`, while
+  `Pipelines must succeed` continues to protect MR merges;
+- a new rejected direct-push probe remains `NOT_RUN`; it must use a safe
+  disposable commit and must not risk changing `main` if the rule regresses;
+- exact external closure still requires an independently approved green MR.
 
 ## Confirmed external progress
 
@@ -61,7 +85,7 @@ Job `15871330726` (`ci_config_selftest`) and job `15871330732` (`build_test_dotn
 
 The sibling Things project independently passed pipeline `#2756187683` on runner `#55115556` / `things-docker-winhost`; its Docker-in-Docker job completed in `12m59s` with a `3s` queue. This is supporting host-capacity evidence, not a substitute for IVR acceptance.
 
-## Protected branch and merge enforcement
+## Historical protected branch and merge enforcement
 
 GitLab project settings were configured and verified as follows:
 
@@ -85,6 +109,9 @@ remote: GitLab: You are not allowed to push code to protected branches on this p
 Merge Request `!1` (`codex/w0061-platform-enforcement`) passed pipeline `#2756409438` with 9/9 quality jobs and 98 tests. GitLab displayed `Pipeline must succeed`; auto-merge completed only after the pipeline passed and produced merge commit `b8044096`.
 
 Merge Request `!2` (`codex/w0061-evidence-closure`) passed pipeline `#2756495155` with the same 9/9 quality jobs and 98 tests. It remediated the Pages artifact-root defect described below and merged as `ca10ebb4` only after the pipeline passed.
+
+These facts remain valid for that historical window. They must not be used to
+describe the current push permission after the 2026-08-14 drift noted above.
 
 ## Protected variables
 
@@ -176,14 +203,21 @@ CI_CONFIG_SELFTEST_PASS
 | Self-hosted runner control plane | PASS | runner `#55115499` online, version 19.2.0, project-locked tag `ginsengfood-docker` |
 | Tagged Linux-container execution | PASS | pipeline `#2756183002`; jobs name `#55115499` / `ivr-docker-winhost` |
 | Docker-in-Docker on self-hosted runner | PASS | job `15871330732` passed the PostgreSQL Testcontainers suite on runner `#55115499` |
-| Protected default branch | PASS | `main`: merge Maintainers, push No one, force push off; direct-push negative test rejected |
+| Protected default branch | PASS_SETTING_CURRENT | authenticated post-save view: `main` protected, merge Maintainers, push+merge No one, force push off |
+| Rejected direct-push probe | NOT_RUN | historical rejection retained; run a new safe disposable-commit probe against the current rule without risking a write to `main` |
 | Merge-request approvals/CODEOWNERS | BLOCKED_EXTERNAL | current Free tier shows optional approvals; only one project member; upgrade plus independent reviewer required |
-| Pipelines must succeed | PASS | setting enabled; MR `!1`/`!2` merged only after green pipelines |
+| Pipelines must succeed | PASS_SETTING_CURRENT | setting enabled; MR `!1`/`!2` merged after green pipelines; current branch rule forces writes through an MR |
 | Container Registry push/pull | PASS | job `15872915564`; registry repository `ginsengfood-ivr/w0061-proof` |
 | Pages access control | PASS | private project, `Only Project Members`; pipeline `#2756517379`, job `15873355825`, anonymous redirect to GitLab auth |
 | Masked/protected variables | PASS | `IVR_W0061_PROTECTED_PROBE` protected/masked/hidden; `API_DOCS_PUBLISH_NONPROD` protected; values not recorded |
 
-W-0011/P0-2 now has hosted pipeline, runner, branch protection, merge-check, Registry, Pages and protected-variable evidence. W-0061 remains `BLOCKED_EXTERNAL` solely because required independent MR approval cannot be enforced or demonstrated on the current GitLab Free/single-member project. This status must not be weakened to `ACCEPTED` merely because optional self-approval is available.
+W-0011/P0-2 has historical hosted pipeline, runner, merge-check, Registry,
+Pages and protected-variable evidence. W-0061 remains `BLOCKED_EXTERNAL` only
+because required independent MR approval cannot yet be enforced or
+demonstrated. The no-direct-push setting is current `PASS_SETTING_CURRENT`; its
+fresh behavioral rejection probe remains `NOT_RUN` and must not be represented
+as executed. This status must not be weakened to `ACCEPTED` merely because
+optional self-approval is available.
 
 The evidence-recording MR `!3` later exposed a persistent-runner Gitleaks
 history-scope defect tracked separately as W-0086. Final remediation pipeline

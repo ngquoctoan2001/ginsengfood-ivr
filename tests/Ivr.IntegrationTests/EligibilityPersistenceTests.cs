@@ -55,7 +55,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         Assert.Equal("CAPACITY_HELD", job.Status);
         Assert.Equal("HELD_CAPACITY", job.QueueStatus);
         Assert.Equal(incident.CapacityIncidentId, job.CapacityIncidentId);
-        Assert.True(incident.HoldNewCalls);
+        Assert.False(incident.HoldNewCalls);
         Assert.Equal(0, await verification.CallAttempts.CountAsync());
         Assert.NotEmpty(await verification.EvidenceLinks.AsNoTracking().ToListAsync());
         AuditLogEntity audit = await verification.AuditLog
@@ -177,6 +177,10 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
         Assert.Equal(0, await verification.CallAttempts.CountAsync());
         Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        ReviewItemEntity review = await verification.ReviewItems.AsNoTracking().SingleAsync();
+        Assert.Equal("ELIGIBILITY_DECISION", review.SourceType);
+        Assert.Equal("TASK-ELIG-FAILCLOSED-08", review.SourceId);
+        Assert.Equal("OPEN", review.Status);
     }
 
     [Fact]
@@ -210,6 +214,9 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
         Assert.Equal(0, await verification.CallAttempts.CountAsync());
         Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        Assert.Equal(
+            "TASK-ELIG-SCHED-09",
+            (await verification.ReviewItems.AsNoTracking().SingleAsync()).SourceId);
     }
 
     private static async Task SeedPendingTaskAsync(

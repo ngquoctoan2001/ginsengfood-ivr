@@ -7,7 +7,7 @@
 | **Work ID** | `W-0010` (canonical tracker §5) |
 | **Phase** | 0 — Foundation & Project Setup |
 | **Prereq (blockedBy)** | — (prompt đầu tiên) |
-| **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
+| **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_EXECUTION_MODE=MOCK` |
 | **Stack** | .NET 10 (C#) · PostgreSQL · Next.js · Docker |
 
 ## 1. ROLE

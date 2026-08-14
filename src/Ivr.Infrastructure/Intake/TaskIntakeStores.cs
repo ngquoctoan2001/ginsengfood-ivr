@@ -67,9 +67,9 @@ public sealed class InMemoryTaskIntakeStore(
 
             var stored = new StoredOutcome(command.PayloadHash, plan.Outcome);
             byKey.Add(command.ScopedIdempotencyKey, stored);
-            byTask.Add(command.Source.Task_id, stored);
             if (plan.Task is not null)
             {
+                byTask.Add(command.Source.Task_id, stored);
                 tasks.Add(plan.Task.TaskId, plan.Task);
                 jobs.Add(plan.CallJob!.IvrCallJobId, plan.CallJob);
                 outbox.Add(plan.Outbox!.OutboxId, plan.Outbox);
@@ -273,21 +273,24 @@ public sealed class PostgresTaskIntakeStore(
             return Deserialize(keyed.ResponseSnapshotJson);
         }
 
-        IdempotencyKeyEntity? taskRecord = await context.IdempotencyKeys
+        List<IdempotencyKeyEntity> taskRecords = await context.IdempotencyKeys
             .AsNoTracking()
             .Where(record => record.Scope == Scope
                 && record.Key.StartsWith(command.TaskScope))
-            .OrderBy(record => record.CreatedAt)
-            .FirstOrDefaultAsync(cancellationToken)
+            .OrderByDescending(record => record.CreatedAt)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
-        if (taskRecord is not null)
+        foreach (IdempotencyKeyEntity taskRecord in taskRecords)
         {
-            PostgresIdempotencyStore.EnsureSamePayload(taskRecord, command.PayloadHash);
             TaskIntakeOutcome replay = Deserialize(taskRecord.ResponseSnapshotJson);
-            context.IdempotencyKeys.Add(CreateIdempotency(command, replay));
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-            return replay;
+            if (replay.IvrCallJobId is not null)
+            {
+                PostgresIdempotencyStore.EnsureSamePayload(taskRecord, command.PayloadHash);
+                context.IdempotencyKeys.Add(CreateIdempotency(command, replay));
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                return replay;
+            }
         }
 
         TaskIntakePersistencePlan plan = await factory(cancellationToken).ConfigureAwait(false);

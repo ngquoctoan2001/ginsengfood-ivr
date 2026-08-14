@@ -15,6 +15,7 @@ export const generatedPortalFiles = [
   "current-golden-hour-compat.html",
   "index.html",
   "integration-guide.html",
+  "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
   "ivr-order-confirmation-v1.html",
   "ivr-order-confirmation-changelog.html",
   "order-core-ivr-callback-changelog.html",
@@ -47,7 +48,14 @@ const markdownDefinitions = [
       "api-versioning.md": "api-versioning.html",
       "api/changelog/ivr-order-confirmation.md": "ivr-order-confirmation-changelog.html",
       "api/changelog/order-core-ivr-callback.md": "order-core-ivr-callback-changelog.html",
+      "api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md":
+        "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
     },
+  },
+  {
+    source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+    output: "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
+    title: "Archived IVR Contract Transition",
   },
   {
     source: "docs/api/changelog/ivr-order-confirmation.md",

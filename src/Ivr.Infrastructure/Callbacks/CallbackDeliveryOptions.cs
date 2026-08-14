@@ -76,6 +76,14 @@ public sealed class CallbackDeliveryOptionsValidator : IValidateOptions<Callback
         }
 
         if (options.Enabled
+            && provider is SalesProviderKind.TargetV1 or SalesProviderKind.FakeTargetV1
+            && string.IsNullOrWhiteSpace(options.TokenAudience))
+        {
+            return ValidateOptionsResult.Fail(
+                "CallbackDelivery.TokenAudience is required for Target V1 delivery.");
+        }
+
+        if (options.Enabled
             && provider == SalesProviderKind.CurrentGoldenHourCompat
             && (!options.CurrentGoldenHourCompatibilityEnabled
                 || string.IsNullOrWhiteSpace(options.CurrentGoldenHourInternalToken)))

@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using System.Collections.Concurrent;
 using Ivr.Api.Admin;
 using Ivr.Api.Application;
 using Ivr.Api.Auth;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Ivr.IntegrationTests;
 
@@ -26,15 +28,20 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
         new[] { "phone-ref-p2-8" }.ToFrozenSet(StringComparer.Ordinal);
     private readonly WebApplication application;
 
-    private InternalAdminApiTestApplication(WebApplication application)
+    private InternalAdminApiTestApplication(
+        WebApplication application,
+        RecordingLoggerProvider logs)
     {
         this.application = application;
+        Logs = logs;
         Client = application.GetTestClient();
     }
 
     public HttpClient Client { get; }
 
     public IServiceProvider Services => application.Services;
+
+    public RecordingLoggerProvider Logs { get; }
 
     public static async Task<InternalAdminApiTestApplication> StartAsync(
         string connectionString,
@@ -44,6 +51,8 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
         WebApplicationBuilder builder = WebApplication.CreateBuilder(
             new WebApplicationOptions { EnvironmentName = "Testing" });
         builder.WebHost.UseTestServer();
+        var logs = new RecordingLoggerProvider();
+        builder.Logging.AddProvider(logs);
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["IVR_EXECUTION_MODE"] = IvrOptions.MockExecutionMode,
@@ -96,7 +105,7 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
         app.MapIvrInternalLifecycleEndpoints();
         app.MapIvrAdminEndpoints();
         await app.StartAsync();
-        return new InternalAdminApiTestApplication(app);
+        return new InternalAdminApiTestApplication(app, logs);
     }
 
     public async ValueTask DisposeAsync()
@@ -122,5 +131,39 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
                 0,
                 null,
                 "evidence://ivr/p2-8/test-capacity"));
+    }
+
+    internal sealed class RecordingLoggerProvider : ILoggerProvider
+    {
+        private readonly ConcurrentQueue<string> entries = new();
+
+        public IReadOnlyCollection<string> Entries => entries.ToArray();
+
+        public ILogger CreateLogger(string categoryName) => new RecordingLogger(entries);
+
+        public void Dispose()
+        {
+        }
+
+        private sealed class RecordingLogger(ConcurrentQueue<string> entries) : ILogger
+        {
+            public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+            public bool IsEnabled(LogLevel logLevel) => true;
+
+            public void Log<TState>(
+                LogLevel logLevel,
+                EventId eventId,
+                TState state,
+                Exception? exception,
+                Func<TState, Exception?, string> formatter)
+            {
+                entries.Enqueue(formatter(state, exception));
+                if (exception is not null)
+                {
+                    entries.Enqueue(exception.GetType().Name);
+                }
+            }
+        }
     }
 }

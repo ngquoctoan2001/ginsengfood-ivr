@@ -1,7 +1,8 @@
 {
   "evidenceType": "automated_test_assertion",
   "testId": "IT-RET-DRYRUN-02",
-  "executionMode": "MOCK_TEST_DB",
+  "executionMode": "LAB_REAL_SIM",
+  "environment": "DISPOSABLE_TEST_DB",
   "dryRun": true,
   "classes": [
     {

@@ -106,9 +106,10 @@ public sealed record ShortDeliveryArea
     {
         string safeValue = PrivacySafeOrderSummary.EnsureSafeBounded(value, 160, nameof(value));
         string normalized = RemoveDiacritics(safeValue).ToLowerInvariant();
-        string markerScanText = normalized.StartsWith("thanh pho ", StringComparison.Ordinal)
-            ? normalized["thanh pho ".Length..]
-            : normalized;
+        string markerScanText = normalized.Replace(
+            "thanh pho ",
+            " ",
+            StringComparison.Ordinal);
         if (char.IsDigit(safeValue.TrimStart()[0])
             || HasSlashHouseNumber(safeValue)
             || RestrictedAddressMarkers.Any(marker =>

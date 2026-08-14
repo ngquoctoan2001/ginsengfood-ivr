@@ -109,7 +109,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
 
     [Fact]
     [Trait("TestId", "IT-INTAKE-DB-02")]
-    public async Task RestrictedTaskPersistsPendingForEligibilityDecision()
+    public async Task RestrictedTaskIsRejectedBeforePersistence()
     {
         await fixture.ResetAsync();
         IDbContextFactory<IvrDbContext> factory = fixture.Services
@@ -136,18 +136,54 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             new string('B', 64),
             ExecutionMode.Mock));
 
-        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        Assert.Equal(TaskIntakeDecisions.BlockedOperational, outcome.Decision);
+        Assert.Equal(Ivr.Domain.Errors.IvrErrorCodes.OperationalBlocked, outcome.FailureCode);
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
-        ConfirmationTaskEntity task = await verification.ConfirmationTasks.SingleAsync();
-        CallJobEntity job = await verification.CallJobs.SingleAsync();
-        Assert.True(task.CallRestriction);
-        Assert.False(job.Eligible);
-        Assert.Equal(EligibilityDecisions.Pending, job.EligibilityDecision);
-        Assert.Equal(1, await verification.TaskIntakeOutbox.CountAsync());
+        Assert.Equal(0, await verification.ConfirmationTasks.CountAsync());
+        Assert.Equal(0, await verification.CallJobs.CountAsync());
+        Assert.Equal(0, await verification.TaskIntakeOutbox.CountAsync());
         Assert.Equal(1, await verification.IdempotencyKeys.CountAsync());
         AuditLogEntity audit = await verification.AuditLog.SingleAsync();
         Assert.DoesNotContain(source.Dial_token, audit.DataJson, StringComparison.Ordinal);
         Assert.DoesNotContain(source.Phone_ref, audit.DataJson, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task PostgresNewKeyReevaluatesTransientPolicyHold()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPoliciesAsync(factory);
+        var clock = new FixedTimeProvider(Now);
+        var service = new TaskIntakeService(
+            new PostgresTaskIntakeStore(factory, clock),
+            new PostgresAttemptPolicyRegistry(factory),
+            new PostgresScriptRegistry(factory, clock, Options.Create(new ScriptContentOptions())),
+            new MockOnlyOpaqueValueProtector(),
+            SpeechSummaryLimits.Create(100, 100),
+            clock,
+            Options.Create(new IvrOptions()));
+        IvrConfirmationTaskV1 missing = CreateTask(policyVersion: "not-yet-present");
+
+        TaskIntakeOutcome held = await service.IntakeAsync(new TaskIntakeCommand(
+            missing,
+            "idem-transient-db-1",
+            missing.Correlation_id!,
+            new string('C', 64),
+            ExecutionMode.Mock));
+        TaskIntakeOutcome accepted = await service.IntakeAsync(new TaskIntakeCommand(
+            CreateTask(),
+            "idem-transient-db-2",
+            missing.Correlation_id!,
+            new string('D', 64),
+            ExecutionMode.Mock));
+
+        Assert.Equal(TaskIntakeDecisions.HeldPolicyMissing, held.Decision);
+        Assert.NotNull(accepted.IvrCallJobId);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(2, await verification.IdempotencyKeys.CountAsync());
+        Assert.Equal(1, await verification.ConfirmationTasks.CountAsync());
     }
 
     private static async Task SeedPoliciesAsync(IDbContextFactory<IvrDbContext> factory)
@@ -179,7 +215,9 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         await context.SaveChangesAsync();
     }
 
-    private static IvrConfirmationTaskV1 CreateTask(bool callRestriction = false)
+    private static IvrConfirmationTaskV1 CreateTask(
+        bool callRestriction = false,
+        string policyVersion = CandidateAttemptPolicies.Version)
     {
         DateTimeOffset start = Now.AddMinutes(-1);
         return new IvrConfirmationTaskV1
@@ -199,7 +237,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             Program_code = ProgramCode.GOLDEN_HOUR,
             Confirmation_window_started_at = start,
             Confirmation_window_expires_at = start.AddMinutes(5),
-            Attempt_policy_version = CandidateAttemptPolicies.Version,
+            Attempt_policy_version = policyVersion,
             Max_customer_attempts = 2,
             Attempt_offsets_seconds = [0, 150],
             Phone_ref = "phone-ref-pg-p2-1",

@@ -173,12 +173,16 @@ public sealed class PostgresSchedulerCapacityService(
             .Where(channel => channel.Enabled
                 && channel.ExecutionMode == executionMode
                 && channel.Status != "DISABLED"
-                && channel.Status != "QUARANTINED"
+                && (channel.Status != "QUARANTINED"
+                    || channel.QuarantineUntil <= evaluatedAt)
                 && channel.Status != "HEALTH_FAILED")
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
         SchedulerChannelAvailability[] channels = storedChannels
-            .Where(channel => channel.Status == "IDLE" && channel.LeaseToken is null)
+            .Where(channel => channel.LeaseToken is null
+                && (channel.Status == "IDLE"
+                    || (channel.Status == "QUARANTINED"
+                        && channel.QuarantineUntil <= evaluatedAt)))
             .Select(channel => new SchedulerChannelAvailability(
                 channel.SimChannelId,
                 AvailableAt(channel, evaluatedAt)))

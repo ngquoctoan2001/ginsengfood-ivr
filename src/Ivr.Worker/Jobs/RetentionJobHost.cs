@@ -10,7 +10,6 @@ namespace Ivr.Worker.Jobs;
 public sealed partial class RetentionJobHost(
     IRetentionJob retentionJob,
     IOptions<RetentionOptions> options,
-    IHostApplicationLifetime applicationLifetime,
     ILogger<RetentionJobHost> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -22,36 +21,29 @@ public sealed partial class RetentionJobHost(
             return;
         }
 
-        try
-        {
-            RetentionRunReport report = await retentionJob.RunAsync(
-                new RetentionRunOptions(
-                    configured.DryRun,
-                    configured.DataClasses,
-                    BatchSize: configured.BatchSize),
-                stoppingToken);
-            LogCompleted(
-                logger,
-                report.RunId,
-                report.DryRun,
-                report.DeletedCount,
-                report.AnonymizedCount,
-                report.LegalHoldCount);
+        RetentionRunReport report = await retentionJob.RunAsync(
+            new RetentionRunOptions(
+                configured.DryRun,
+                configured.DataClasses,
+                BatchSize: configured.BatchSize),
+            stoppingToken);
+        LogCompleted(
+            logger,
+            report.RunId,
+            report.DryRun,
+            report.DeletedCount,
+            report.AnonymizedCount,
+            report.LegalHoldCount);
 
-            foreach (RetentionClassReport item in report.Classes.Where(
-                         item => item.Status == RetentionClassRunStatus.NotConfigured
-                             && item.NotConfiguredAgeDays >= configured.NotConfiguredAlertAfterDays))
-            {
-                LogNotConfigured(
-                    logger,
-                    item.DataClass,
-                    item.NotConfiguredAgeDays.GetValueOrDefault(),
-                    configured.NotConfiguredAlertAfterDays);
-            }
-        }
-        finally
+        foreach (RetentionClassReport item in report.Classes.Where(
+                     item => item.Status == RetentionClassRunStatus.NotConfigured
+                         && item.NotConfiguredAgeDays >= configured.NotConfiguredAlertAfterDays))
         {
-            applicationLifetime.StopApplication();
+            LogNotConfigured(
+                logger,
+                item.DataClass,
+                item.NotConfiguredAgeDays.GetValueOrDefault(),
+                configured.NotConfiguredAlertAfterDays);
         }
     }
 

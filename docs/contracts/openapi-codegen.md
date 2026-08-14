@@ -58,6 +58,10 @@ That command only pins a new reviewed draft baseline. It does not mean Sales has
 implemented or approved Target V1, and it must not change
 `TARGET_CONTRACT_V1=DRAFT` without the external owner artifact.
 
+The IVR draft comparison baseline is `1.0.0-draft.2`. The superseded `1.0.0`
+baseline and its generated transition report remain committed as audit history;
+never overwrite them when rotating a future reviewed draft.
+
 ## Current compatibility and deprecation
 
 - Endpoint: `POST /api/v1/internal/ivr/golden-hour/callbacks`.

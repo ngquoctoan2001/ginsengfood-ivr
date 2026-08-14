@@ -96,6 +96,8 @@ internal static class RetentionTargetCatalog
                         "EXISTS (SELECT 1 FROM ivr_call_attempts child "
                         + "WHERE child.ivr_call_job_id = t.ivr_call_job_id) "
                         + "OR EXISTS (SELECT 1 FROM ivr_call_results child "
+                        + "WHERE child.ivr_call_job_id = t.ivr_call_job_id) "
+                        + "OR EXISTS (SELECT 1 FROM ivr_task_intake_outbox child "
                         + "WHERE child.ivr_call_job_id = t.ivr_call_job_id)"),
                 Delete(
                     "confirmation_tasks",
@@ -103,6 +105,8 @@ internal static class RetentionTargetCatalog
                     "created_at",
                     dependencyBlockedSql:
                         "EXISTS (SELECT 1 FROM ivr_call_jobs child "
+                        + "WHERE child.task_id = t.task_id) "
+                        + "OR EXISTS (SELECT 1 FROM ivr_task_intake_outbox child "
                         + "WHERE child.task_id = t.task_id)"),
                 Delete(
                     "capacity_incidents",

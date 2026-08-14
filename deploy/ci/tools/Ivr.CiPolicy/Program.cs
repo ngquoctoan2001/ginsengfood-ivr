@@ -38,12 +38,13 @@ static int RunCoverage(string[] arguments)
     }
 
     Dictionary<string, bool> lineCoverage = new(StringComparer.Ordinal);
+    int excludedSourceClasses = 0;
 
     foreach (string report in reports)
     {
         XElement coverage = XDocument.Load(report).Root
             ?? throw new InvalidDataException($"Coverage report has no root: {report}");
-        CollectCoverageLines(coverage, report, lineCoverage);
+        excludedSourceClasses += CollectCoverageLines(coverage, report, lineCoverage);
     }
 
     long valid = lineCoverage.Count;
@@ -55,7 +56,7 @@ static int RunCoverage(string[] arguments)
     long covered = lineCoverage.Values.LongCount(isCovered => isCovered);
     decimal percentage = covered * 100m / valid;
     string summary = FormattableString.Invariant(
-        $"TOTAL_LINE_COVERAGE={percentage:F2}% COVERED={covered} VALID={valid} REPORTS={reports.Length}");
+        $"TOTAL_LINE_COVERAGE={percentage:F2}% COVERED={covered} VALID={valid} REPORTS={reports.Length} EXCLUDED_SOURCE_CLASSES={excludedSourceClasses}");
 
     Console.WriteLine(summary);
 
@@ -241,11 +242,12 @@ static long ParseLongAttribute(XElement element, string name, string report)
         : throw new InvalidDataException($"{report} has no valid {name} attribute.");
 }
 
-static void CollectCoverageLines(
+static int CollectCoverageLines(
     XElement coverage,
     string report,
     Dictionary<string, bool> lineCoverage)
 {
+    int excludedSourceClasses = 0;
     foreach (XElement package in coverage.Descendants("package"))
     {
         string packageName = package.Attribute("name")?.Value
@@ -253,8 +255,15 @@ static void CollectCoverageLines(
 
         foreach (XElement coveredClass in package.Descendants("class"))
         {
+            string? filename = coveredClass.Attribute("filename")?.Value;
+            if (filename is not null && IsExcludedCoverageSource(filename))
+            {
+                excludedSourceClasses++;
+                continue;
+            }
+
             string className = coveredClass.Attribute("name")?.Value
-                ?? coveredClass.Attribute("filename")?.Value
+                ?? filename
                 ?? throw new InvalidDataException($"Coverage class has no identity: {report}");
 
             foreach (XElement line in coveredClass.Element("lines")?.Elements("line") ?? [])
@@ -266,6 +275,17 @@ static void CollectCoverageLines(
             }
         }
     }
+
+    return excludedSourceClasses;
+}
+
+static bool IsExcludedCoverageSource(string filename)
+{
+    string normalized = filename.Replace('\\', '/');
+    return normalized.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase)
+        || normalized.Contains("/Migrations/", StringComparison.OrdinalIgnoreCase)
+        || normalized.StartsWith("Migrations/", StringComparison.OrdinalIgnoreCase)
+        || normalized.Contains("/obj/", StringComparison.OrdinalIgnoreCase);
 }
 
 static int Usage(string message)

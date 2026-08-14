@@ -15,12 +15,12 @@
 Bạn là **Senior .NET Backend Engineer**. Bạn implement phần API còn thiếu của IVR: 6 internal lifecycle operation và 7 admin operation đã khai báo trong OpenAPI nhưng **chưa có prompt nào build**. Bạn ưu tiên authz chặt, idempotency, audit append-only và PII masking. Bạn KHÔNG mở thêm quyền cho IVR đối với order state.
 
 ## 2. CONTEXT
-`specs/api/openapi/ivr-order-confirmation.v1.yaml` khai báo 14 operation. `P2-1` chỉ phủ `POST /tasks`. 13 operation còn lại (`recordEligibility`, `createCallJob`, `getCallJob`, `recordAttempt`, `recordResult`, `recordResultCallback`, `getQueue`, `pauseQueue`, `resumeQueue`, `disableSim`, `enableSim`, `technicalRetry`, `adminReview`) không có build step ở bất kỳ prompt nào, trong khi `P0-3` định nghĩa permission cho chúng, `P3-1..P3-4` build UI gọi chúng và `P5-2` drive chúng qua Playwright. Slice này đóng lỗ hổng đó.
+`specs/api/openapi/ivr-order-confirmation.v1.yaml` hiện khai báo 17 operation: 14 operation thuộc phạm vi P2-8 (intake + 6 lifecycle + 7 admin) và 3 operation feature-flag đã được triển khai ở P0-4. `P2-1` chỉ phủ `POST /tasks`. 13 operation P2-8 còn lại (`recordEligibility`, `createCallJob`, `getCallJob`, `recordAttempt`, `recordResult`, `recordResultCallback`, `getQueue`, `pauseQueue`, `resumeQueue`, `disableSim`, `enableSim`, `technicalRetry`, `adminReview`) không có build step ở bất kỳ prompt nào, trong khi `P0-3` định nghĩa permission cho chúng, `P3-1..P3-4` build UI gọi chúng và `P5-2` drive chúng qua Playwright. Slice này đóng lỗ hổng đó.
 
 Đây là **IVR-internal/admin API**, không phải outbound Sales callback. Outbound callback là `P2-6` và dùng `order-core-ivr-callback.target-v1.yaml`. Hai surface không được trộn.
 
 ## 3. SOURCE SPECS (đọc trước khi code — bắt buộc)
-- `specs/api/openapi/ivr-order-confirmation.v1.yaml` (14 operation, `ErrorCode`, `IvrTaskIntakeResult`)
+- `specs/api/openapi/ivr-order-confirmation.v1.yaml` (17 operation tổng; 14 thuộc P2-8, `ErrorCode`, `IvrTaskIntakeResult`)
 - `specs/api/02-internal-api.md`, `specs/api/03-admin-api.md`, `specs/api/06-error-codes.md`, `specs/api/07-idempotency-and-correlation.md`
 - `specs/functional/07-admin-operations.md`, `specs/functional/06-technical-exception-capacity.md`
 - `specs/database/02-tables.md` §7 §8 §9, `specs/database/04-indexes.md` §5

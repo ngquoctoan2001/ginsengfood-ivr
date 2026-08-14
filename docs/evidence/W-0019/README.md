@@ -34,6 +34,40 @@ Block sellable:
 }
 ```
 
+Block do-not-call cho kênh voice:
+
+```json
+{
+  "eligible": false,
+  "decision": "TASK_BLOCKED_OPERATIONAL",
+  "reasons": [
+    {
+      "code": "PHONE_CALL_RESTRICTED",
+      "signal": "crm.phone_call_restriction",
+      "evidence_ref": "evidence://synthetic/p2-2#eligibility/do-not-call"
+    }
+  ],
+  "is_counted_customer_attempt": false
+}
+```
+
+Fail-closed khi snapshot sellable không đủ:
+
+```json
+{
+  "eligible": false,
+  "decision": "TASK_HELD_ADMIN_REVIEW",
+  "reasons": [
+    {
+      "code": "SELLABLE_STATUS_UNKNOWN",
+      "signal": "sellable_status[0]",
+      "evidence_ref": "evidence://synthetic/p2-2#eligibility/sellable/0"
+    }
+  ],
+  "is_counted_customer_attempt": false
+}
+```
+
 Capacity exception:
 
 ```json

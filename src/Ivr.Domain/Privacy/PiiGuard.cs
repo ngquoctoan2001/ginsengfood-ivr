@@ -18,10 +18,10 @@ public static class PiiGuard
     };
 
     private static readonly Regex RestrictedValuePattern = new(
-        @"(?<![0-9])(?:0|84|\+84)[0-9]{9}(?![0-9])|"
+        @"(?<![0-9A-Za-z])(?:0[0-9]{9}|(?:84|\+84)[0-9]{9}|0[0-9]{2}[\s.-][0-9]{3}[\s.-][0-9]{4}|(?:84|\+84)[\s.-]*\(?[0-9]{2}\)?[\s.-][0-9]{3}[\s.-][0-9]{4})(?![0-9A-Za-z])|"
         + "(?:dial[_-]?token)[\\\"'`: ]+[A-Za-z0-9._-]{8,}|"
-        + @"(?:duong|so nha|ngo|hem|ngach|thon|ap)\s+[A-Za-z0-9]|"
-        + @"(?:đường|số nhà|ngõ|hẻm|ngách|thôn|ấp|tổ)\s+",
+        + @"(?<![\p{L}\p{N}])(?:duong|so nha|ngo|hem|ngach|thon|ap)\s+[A-Za-z0-9]|"
+        + @"(?<![\p{L}\p{N}])(?:đường|số nhà|ngõ|hẻm|ngách|thôn|ấp|tổ)\s+",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase,
         TimeSpan.FromMilliseconds(100));
 

@@ -102,17 +102,21 @@ public sealed class TaskIntakeService(
 
         if (!WirePolicyMatches(source, policy, window))
         {
-            return Rejected(
+            return Failed(
                 source,
                 TaskIntakeDecisions.RejectedPolicyMismatch,
+                IvrErrorCodes.PolicyMismatch,
+                "The task policy snapshot does not match the approved IVR policy.",
                 "ATTEMPT_POLICY_SNAPSHOT_MISMATCH");
         }
 
         if (!ContactIsValid(source, window, now))
         {
-            return Rejected(
+            return Failed(
                 source,
                 TaskIntakeDecisions.RejectedContactInvalid,
+                IvrErrorCodes.ContactInvalid,
+                "The task contact or dial token is not valid for the confirmation window.",
                 "CONTACT_OR_DIAL_TOKEN_INVALID");
         }
 
@@ -454,6 +458,16 @@ public sealed class TaskIntakeService(
         if (eligibility.ValueKind != JsonValueKind.Object)
         {
             return HeldPolicy(source, "ELIGIBILITY_EVIDENCE_MISSING");
+        }
+
+        if (source.Call_restriction)
+        {
+            return Failed(
+                source,
+                TaskIntakeDecisions.BlockedOperational,
+                IvrErrorCodes.OperationalBlocked,
+                "The task is restricted from phone calls.",
+                "PHONE_CALL_RESTRICTED");
         }
 
         if (mode != ExecutionMode.Mock

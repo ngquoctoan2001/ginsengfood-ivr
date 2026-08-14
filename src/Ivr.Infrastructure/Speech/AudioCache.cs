@@ -106,6 +106,10 @@ public sealed class AudioCache(TimeProvider timeProvider) : IAudioCache
                         cancellationToken).ConfigureAwait(false);
                     return new AudioCacheResult(cached, true, current.ExpiresAt);
                 }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
                 catch
                 {
                     entries.TryRemove(new KeyValuePair<string, CacheEntry>(key.CacheId, current));
@@ -116,7 +120,7 @@ public sealed class AudioCache(TimeProvider timeProvider) : IAudioCache
             var created = new CacheEntry(
                 expiresAt,
                 new Lazy<Task<RenderedAudio>>(
-                    () => factory(cancellationToken),
+                    () => factory(CancellationToken.None),
                     LazyThreadSafetyMode.ExecutionAndPublication));
             if (!entries.TryAdd(key.CacheId, created))
             {
@@ -128,6 +132,10 @@ public sealed class AudioCache(TimeProvider timeProvider) : IAudioCache
                 RenderedAudio audio = await created.Audio.Value.WaitAsync(
                     cancellationToken).ConfigureAwait(false);
                 return new AudioCacheResult(audio, false, created.ExpiresAt);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
             }
             catch
             {

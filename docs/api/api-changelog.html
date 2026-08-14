@@ -22,8 +22,8 @@ and does not approve the external Sales contract.</p>
 </thead>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
-<td><code>1.0.0</code></td>
-<td><code>1.0.0</code></td>
+<td><code>1.0.0-draft.2</code></td>
+<td><code>1.0.0-draft.2</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>
@@ -33,8 +33,12 @@ and does not approve the external Sales contract.</p>
 <td><a href="order-core-ivr-callback-changelog.html">Sales callback changelog</a></td>
 </tr>
 </tbody></table>
-<p>Both reports currently say <code>No changes detected</code>; P1-4 establishes the first
-reviewed documentation baseline rather than claiming that Target V1 is live.</p>
+<p>Both current reports say <code>No changes detected</code>. The previous IVR baseline is
+retained at <code>baselines/ivr-order-confirmation.v1.0.0.yaml</code>; its transition to
+draft.2 contained <code>143</code> changes (<code>63</code> errors and <code>80</code> warnings) and is preserved
+in <a href="ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html">the archived transition report</a>.
+This reviewed draft reset repairs the comparison gate; it does not claim that
+Target V1 is live, backward compatible, or approved by Sales.</p>
 <h2>Change procedure</h2>
 <ol>
 <li>Change the authoritative OpenAPI file only after reviewing the consumer and provider impact.</li>

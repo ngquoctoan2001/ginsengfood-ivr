@@ -5,7 +5,6 @@ using Ivr.Infrastructure.Evidence;
 using Ivr.Infrastructure.Idempotency;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Persistence;
-using Ivr.Infrastructure.Persistence.Channels;
 using Ivr.Infrastructure.Persistence.Outbox;
 using Ivr.Infrastructure.Persistence.Security;
 using Ivr.Infrastructure.Providers.Fakes;
@@ -30,7 +29,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddIvrFoundation(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        bool useInMemoryTestDoubles = false)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -90,11 +90,17 @@ public static class ServiceCollectionExtensions
         services.ConfigureHttpClientDefaults(
             clientBuilder => clientBuilder.AddHttpMessageHandler<CorrelationPropagationHandler>());
 
-        if (string.Equals(
-                executionMode,
-                IvrOptions.MockExecutionMode,
-                StringComparison.OrdinalIgnoreCase))
+        if (useInMemoryTestDoubles)
         {
+            if (!string.Equals(
+                    executionMode,
+                    IvrOptions.MockExecutionMode,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "In-memory foundation test doubles are allowed in MOCK execution only.");
+            }
+
             services.TryAddSingleton<InMemoryIdempotencyStore>();
             services.TryAddSingleton<IIdempotencyStore>(
                 provider => provider.GetRequiredService<InMemoryIdempotencyStore>());
@@ -116,7 +122,6 @@ public static class ServiceCollectionExtensions
                 provider.GetRequiredService<InMemoryTaskIntakeStore>());
             services.TryAddSingleton<IEligibilityRepository>(provider =>
                 provider.GetRequiredService<InMemoryTaskIntakeStore>());
-            services.TryAddSingleton<IOpaqueValueProtector, MockOnlyOpaqueValueProtector>();
         }
         else
         {
@@ -148,9 +153,18 @@ public static class ServiceCollectionExtensions
             dbContextOptions.UseNpgsql(options.ConnectionString);
         });
         services.TryAddSingleton<FeatureFlagPersistenceSession>();
-        services.TryAddSingleton<IOpaqueValueProtector, UnavailableOpaqueValueProtector>();
+        if (string.Equals(
+                executionMode,
+                IvrOptions.MockExecutionMode,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            services.TryAddSingleton<IOpaqueValueProtector, MockOnlyOpaqueValueProtector>();
+        }
+        else
+        {
+            services.TryAddSingleton<IOpaqueValueProtector, UnavailableOpaqueValueProtector>();
+        }
         services.TryAddSingleton<ICallbackOutboxRepository, CallbackOutboxRepository>();
-        services.TryAddSingleton<ISimChannelLeaseRepository, SimChannelLeaseRepository>();
         services.TryAddSingleton<IScriptPreviewRenderer, VietnameseOrderScriptRenderer>();
         services.AddIvrScheduling(
             configuration,

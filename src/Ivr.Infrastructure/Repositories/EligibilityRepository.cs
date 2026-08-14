@@ -117,6 +117,11 @@ public sealed class PostgresEligibilityRepository(
             context.CapacityIncidents.Add(artifacts.CapacityIncident);
         }
 
+        if (artifacts.ReviewItem is not null)
+        {
+            context.ReviewItems.Add(artifacts.ReviewItem);
+        }
+
         context.EvidenceLinks.AddRange(artifacts.EvidenceLinks);
         context.AuditLog.Add(artifacts.Audit);
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -149,6 +154,7 @@ public sealed class PostgresEligibilityRepository(
 internal sealed record EligibilityPersistenceArtifacts(
     EligibilityEvaluation Evaluation,
     CapacityIncidentEntity? CapacityIncident,
+    ReviewItemEntity? ReviewItem,
     IReadOnlyList<EvidenceLinkEntity> EvidenceLinks,
     AuditLogEntity Audit);
 
@@ -178,7 +184,7 @@ internal static class EligibilityPersistence
                 ProgramCode = task.ProgramType,
                 Status = "OPEN",
                 Scope = "ELIGIBILITY_DEADLINE",
-                HoldNewCalls = true,
+                HoldNewCalls = false,
                 ActiveSimCount = capacity.ActiveSimCount,
                 PendingCallJobs = capacity.PendingCallJobs,
                 ExpiredCallJobs = capacity.ExpiredCallJobs,
@@ -250,9 +256,27 @@ internal static class EligibilityPersistence
             DataJson = auditData,
             CreatedAt = persisted.EvaluatedAt,
         };
+        ReviewItemEntity? reviewItem = string.Equals(
+            persisted.Decision,
+            EligibilityDecisions.HeldAdminReview,
+            StringComparison.Ordinal)
+            ? new ReviewItemEntity
+            {
+                ReviewItemId = string.Concat("REVIEW-ELIG-", Guid.NewGuid().ToString("N")),
+                SourceType = "ELIGIBILITY_DECISION",
+                SourceId = task.TaskId,
+                Reason = persisted.Reasons.Count > 0
+                    ? persisted.Reasons[0].Code
+                    : EligibilityDecisions.HeldAdminReview,
+                Status = "OPEN",
+                CorrelationId = correlationId,
+                CreatedAt = persisted.EvaluatedAt,
+            }
+            : null;
         return new EligibilityPersistenceArtifacts(
             persisted,
             capacityIncident,
+            reviewItem,
             links,
             audit);
     }

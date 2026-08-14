@@ -43,6 +43,7 @@ public sealed class RetentionJobFixture : IAsyncLifetime
                 [$"Ivr:Retention:PeriodDays:{RetentionDataClasses.SpeechSnapshot}"] = "1",
                 [$"Ivr:Retention:PeriodDays:{RetentionDataClasses.EvidenceLink}"] = "1",
                 [$"Ivr:Retention:PeriodDays:{RetentionDataClasses.ReviewItem}"] = "1",
+                [$"Ivr:Retention:PeriodDays:{RetentionDataClasses.TaskMetadata}"] = "1",
             })
             .Build();
         var services = new ServiceCollection();
@@ -152,6 +153,89 @@ public sealed class RetentionJobTests(RetentionJobFixture fixture)
         Assert.Equal(0, dataClass.DeletedCount);
         await using IvrDbContext dbContext = await fixture.Factory().CreateDbContextAsync();
         Assert.True(await dbContext.IdempotencyKeys.AnyAsync(item => item.Key == "held-old"));
+    }
+
+    [Fact]
+    public async Task HeldIntakeOutboxBlocksParentTaskAndJobDeletion()
+    {
+        await fixture.ResetAsync();
+        DateTimeOffset old = Now.AddDays(-10);
+        ConfirmationTaskEntity task = CreateConfirmationTask("outbox-hold", old);
+        task.RetentionClass = RetentionDataClasses.TaskMetadata;
+        var job = new CallJobEntity
+        {
+            IvrCallJobId = "JOB-RET-OUTBOX-HOLD",
+            TaskId = task.TaskId,
+            OfficialOrderId = task.OfficialOrderId,
+            OrderVersionSnapshot = task.OrderVersion,
+            ProgramType = "GOLDEN_HOUR",
+            AttemptPolicyCode = "retention-test-v1",
+            Status = "CLOSED",
+            MaxAttempts = 2,
+            AttemptOffsetsSecondsJson = "[0,150]",
+            ConfirmationWindowSeconds = 300,
+            AttemptScheduleJson = "[]",
+            T0At = old,
+            ExpiresAt = old.AddMinutes(5),
+            QueueStatus = "CLOSED",
+            ScriptVersion = "SCRIPT-ORDER-CONFIRM@v1-test-approved",
+            CreatedAt = old,
+            ClosedAt = old.AddMinutes(5),
+            RetentionClass = RetentionDataClasses.TaskMetadata,
+        };
+        var outbox = new TaskIntakeOutboxEntity
+        {
+            OutboxId = Guid.NewGuid(),
+            TaskId = task.TaskId,
+            IvrCallJobId = job.IvrCallJobId,
+            EventType = "RETENTION_TEST",
+            Status = "PUBLISHED",
+            CorrelationId = task.CorrelationId,
+            PayloadSha256 = new string('A', 64),
+            CreatedAt = old,
+            LegalHoldUntil = Now.AddDays(30),
+            RetentionClass = RetentionDataClasses.TaskMetadata,
+        };
+        await using (IvrDbContext seed = await fixture.Factory().CreateDbContextAsync())
+        {
+            seed.ConfirmationTasks.Add(task);
+            seed.CallJobs.Add(job);
+            seed.TaskIntakeOutbox.Add(outbox);
+            await seed.SaveChangesAsync();
+        }
+
+        RetentionRunReport report = await RunAsync(
+            RetentionDataClasses.TaskMetadata,
+            dryRun: false);
+
+        RetentionClassReport dataClass = Assert.Single(report.Classes);
+        Assert.Equal(1, dataClass.LegalHoldCount);
+        Assert.Equal(2, dataClass.DependencyBlockedCount);
+        Assert.Equal(0, dataClass.DeletedCount);
+        await using IvrDbContext verification = await fixture.Factory().CreateDbContextAsync();
+        Assert.Equal(1, await verification.TaskIntakeOutbox.CountAsync());
+        Assert.Equal(1, await verification.CallJobs.CountAsync());
+        Assert.Equal(1, await verification.ConfirmationTasks.CountAsync());
+    }
+
+    [Fact]
+    public async Task MissingPeriodCreatesNotConfiguredReportAndCheckpoint()
+    {
+        await fixture.ResetAsync();
+
+        RetentionRunReport report = await RunAsync(
+            RetentionDataClasses.RawCallEvent,
+            dryRun: false);
+
+        RetentionClassReport dataClass = Assert.Single(report.Classes);
+        Assert.Equal(RetentionClassRunStatus.NotConfigured, dataClass.Status);
+        Assert.Equal(0, dataClass.NotConfiguredAgeDays);
+        await using IvrDbContext verification = await fixture.Factory().CreateDbContextAsync();
+        RetentionCheckpointEntity checkpoint = await verification.RetentionCheckpoints
+            .SingleAsync();
+        Assert.Equal("NOT_CONFIGURED", checkpoint.Status);
+        Assert.Equal("__policy__", checkpoint.Segment);
+        Assert.NotNull(checkpoint.FirstNotConfiguredAt);
     }
 
     [Fact]

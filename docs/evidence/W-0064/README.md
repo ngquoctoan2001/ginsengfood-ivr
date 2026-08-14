@@ -42,6 +42,11 @@ Official Markdown mapper sau cập nhật: `409` file, `374` link resolved, `0` 
 - Chiến lược, guard và period source chuẩn: [DB-05](../../../specs/database/05-retention-and-privacy.md).
 
 Các JSON chỉ chứa aggregate test evidence, không chứa row ID hoặc dữ liệu khách hàng.
+Fixture khởi tạo canonical `IVR_EXECUTION_MODE=LAB_REAL_SIM` để đi qua startup
+validation, nhưng chạy hoàn toàn trong `DISPOSABLE_TEST_DB`: không khởi động
+telephony/provider, không có egress và không có dữ liệu khách hàng. Vì vậy report
+ghi mode cấu hình thực cùng environment kiểm thử, thay vì nhãn hư cấu
+`MOCK_TEST_DB`.
 
 ## Residual gates
 

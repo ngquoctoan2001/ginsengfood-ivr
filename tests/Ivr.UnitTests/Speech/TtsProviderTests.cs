@@ -114,6 +114,7 @@ public sealed class TtsProviderTests
         foreach (string unsafeText in new[]
                  {
                      "Xin gọi số 0901234567 để xác nhận.",
+                     "Xin gọi số 090-123-4567 để xác nhận.",
                      "Giao tới Đường Nguyễn Huệ, Phường Bến Nghé.",
                  })
         {
@@ -132,8 +133,9 @@ public sealed class TtsProviderTests
         PrivacySafeOrderSummary summary = TestData.Summary();
         RenderedSpeech rendered = await RenderAsync(summary);
         var time = new FixedTimeProvider(Now);
+        var countingProvider = new CountingTtsProvider();
         SpeechSynthesisService service = CreateService(
-            new CountingTtsProvider(),
+            countingProvider,
             time,
             out _,
             new TtsProviderOptions
@@ -145,6 +147,7 @@ public sealed class TtsProviderTests
         IvrFailureException configuredPii = await Assert.ThrowsAsync<IvrFailureException>(
             () => SynthesizeAsync(service, rendered, summary));
         Assert.Equal(IvrErrorCodes.PiiPolicyViolation, configuredPii.ErrorCode);
+        Assert.Equal(0, countingProvider.Calls);
     }
 
     [Fact]

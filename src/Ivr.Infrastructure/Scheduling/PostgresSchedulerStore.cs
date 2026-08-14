@@ -65,6 +65,17 @@ public sealed class PostgresSchedulerStore(
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
             cancellationToken).ConfigureAwait(false);
+        await context.SimChannels
+            .Where(channel => channel.Status == "QUARANTINED"
+                && channel.QuarantineUntil <= now
+                && channel.LeaseToken == null)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(channel => channel.Status, "IDLE")
+                    .SetProperty(channel => channel.QuarantineUntil, (DateTimeOffset?)null)
+                    .SetProperty(channel => channel.DisabledReason, (string?)null),
+                cancellationToken)
+            .ConfigureAwait(false);
         CallJobEntity? job = await context.CallJobs.FromSqlInterpolated($$"""
             SELECT job.*
             FROM ivr_call_jobs job
@@ -101,6 +112,7 @@ public sealed class PostgresSchedulerStore(
                   SELECT 1 FROM ivr_capacity_incidents incident
                   WHERE incident.status = 'OPEN'
                     AND incident.hold_new_calls IS TRUE
+                    AND incident.scope = 'ADMIN_QUEUE_PAUSE'
               )
             ORDER BY job.expires_at,
                      CASE job.program_type
@@ -316,7 +328,11 @@ public sealed class PostgresSchedulerStore(
             WHERE job.eligible IS TRUE
               AND job.closed_at IS NULL
               AND job.expires_at <= {{detectedAt}}
-              AND job.status IN ('READY_FOR_SCHEDULER', 'DISPATCH_LEASED', 'DRY_RUN')
+              AND job.status IN (
+                  'READY_FOR_SCHEDULER',
+                  'DISPATCH_LEASED',
+                  'DRY_RUN',
+                  'HELD_ADMIN_REVIEW')
               AND NOT EXISTS (
                   SELECT 1 FROM ivr_call_results result
                   WHERE result.ivr_call_job_id = job.ivr_call_job_id
@@ -367,7 +383,7 @@ public sealed class PostgresSchedulerStore(
                 ProgramCode = job.ProgramType,
                 Status = "OPEN",
                 Scope = "SCHEDULER_DEADLINE",
-                HoldNewCalls = true,
+                HoldNewCalls = false,
                 ActiveSimCount = activeChannels,
                 PendingCallJobs = pendingJobs,
                 ExpiredCallJobs = 1,

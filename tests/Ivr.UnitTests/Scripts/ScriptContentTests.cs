@@ -202,33 +202,34 @@ public sealed class ScriptContentTests
     [InlineData("Xin chào {{customer_display_name}} {{order_code_short}} {{items_spoken}} {{total_amount_display}} {{delivery_area_short}}. Bấm phím 9, bấm phím 1, bấm phím 0.")]
     public void TemplateRejectsUnknownHtmlPiiAndUnsupportedInstructions(string template)
     {
-        Assert.ThrowsAny<Exception>(() => ScriptDraftDefinition.Create("SCRIPT-TEST", "v1", template));
+        Assert.Throws<InvalidOperationException>(() =>
+            ScriptDraftDefinition.Create("SCRIPT-TEST", "v1", template));
     }
 
     [Fact]
     [Trait("TestId", "UT-SCRIPT-INPUT-GUARD-05")]
     public void TemplateAndSpeechInputRejectMissingOversizedControlAndFullAddressData()
     {
-        Assert.ThrowsAny<Exception>(() => ScriptDraftDefinition.Create(
+        Assert.Throws<InvalidOperationException>(() => ScriptDraftDefinition.Create(
             "SCRIPT-TEST",
             "v1",
             string.Concat(TargetV1SpeechPolicy.CanonicalVietnameseTemplate, "\u0001")));
-        Assert.ThrowsAny<Exception>(() => ScriptDraftDefinition.Create(
+        Assert.Throws<ArgumentOutOfRangeException>(() => ScriptDraftDefinition.Create(
             "SCRIPT-TEST",
             "v1",
             string.Concat(
                 TargetV1SpeechPolicy.CanonicalVietnameseTemplate,
                 new string('x', 2_000))));
-        Assert.ThrowsAny<Exception>(() => Summary(
+        Assert.Throws<InvalidOperationException>(() => Summary(
             [SpeechItem.Create("Sản phẩm", 1, null)],
             100_000m,
             "12 đường Nguyễn Huệ"));
         Assert.Equal(
             "Thành phố Hồ Chí Minh",
             ShortDeliveryArea.Create("Thành phố Hồ Chí Minh").Value);
-        Assert.ThrowsAny<Exception>(() => ShortDeliveryArea.Create(
+        Assert.Throws<InvalidOperationException>(() => ShortDeliveryArea.Create(
             "Thành phố Hồ Chí Minh, đường Nguyễn Huệ"));
-        Assert.ThrowsAny<Exception>(() => PrivacySafeOrderSummary.Create(
+        Assert.Throws<ArgumentException>(() => PrivacySafeOrderSummary.Create(
             string.Empty,
             "DH-A1",
             [SpeechItem.Create("Sản phẩm", 1, null)],
@@ -237,11 +238,11 @@ public sealed class ScriptContentTests
             "Golden Hour",
             null,
             SpeechSummaryLimits.Create(20, 5)));
-        Assert.ThrowsAny<Exception>(() => SpeechItem.Create(
+        Assert.Throws<InvalidOperationException>(() => SpeechItem.Create(
             "Liên hệ 0901234567",
             1,
             null));
-        Assert.ThrowsAny<Exception>(() => SpeechItem.Create(
+        Assert.Throws<ArgumentOutOfRangeException>(() => SpeechItem.Create(
             new string('x', 161),
             1,
             null));

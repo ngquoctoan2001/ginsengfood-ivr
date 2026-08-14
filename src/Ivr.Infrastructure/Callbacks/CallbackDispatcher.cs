@@ -88,6 +88,19 @@ public sealed class CallbackDispatcher(
                     "CALLBACK_ADAPTER_SELECTION_REJECTED",
                     "CALLBACK_ADAPTER_SELECTION_REJECTED");
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                circuitBreaker.RecordProbeAborted();
+                throw;
+            }
+            catch (Exception)
+            {
+                transportResult = new CallbackTransportResult(
+                    CallbackTransportOutcome.TransientFailure,
+                    null,
+                    "CALLBACK_TRANSPORT_UNEXPECTED_FAILURE",
+                    "CALLBACK_TRANSPORT_UNEXPECTED_FAILURE");
+            }
 
             if (transportResult.Outcome == CallbackTransportOutcome.TransientFailure)
             {

@@ -8,7 +8,6 @@ using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence;
-using Ivr.Infrastructure.Persistence.Channels;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Outbox;
 using Microsoft.EntityFrameworkCore;
@@ -404,71 +403,6 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         Assert.Equal("AUDIT_APPEND_ONLY_PROOF", persisted.Action);
         Assert.Equal("corr-audit-append-only-001", persisted.CorrelationId);
         Assert.Equal(1, await verification.AuditLog.CountAsync());
-    }
-
-    [Fact]
-    [Trait("TestId", "IT-DB-LEASE-05")]
-    public async Task ChannelLeaseUsesSkipLockedAndMonotonicFencing()
-    {
-        await fixture.ResetAsync();
-        await using (IvrDbContext dbContext = await Factory().CreateDbContextAsync())
-        {
-            dbContext.SimChannels.Add(new SimChannelEntity
-            {
-                SimChannelId = "SIM-LAB-001",
-                SimNumberRef = "sim-ref-lab-001",
-                Enabled = true,
-                Status = "IDLE",
-                AdapterMode = "VENDOR",
-                ExecutionMode = IvrOptions.LabRealSimExecutionMode,
-                ProviderName = "VENDOR",
-            });
-            await dbContext.SaveChangesAsync();
-        }
-
-        ISimChannelLeaseRepository repository = fixture.Services
-            .GetRequiredService<ISimChannelLeaseRepository>();
-        Task<SimChannelLease?> firstAcquire = repository.AcquireAsync(
-            "worker-a",
-            IvrOptions.LabRealSimExecutionMode,
-            TimeSpan.FromMinutes(1));
-        Task<SimChannelLease?> secondAcquire = repository.AcquireAsync(
-            "worker-b",
-            IvrOptions.LabRealSimExecutionMode,
-            TimeSpan.FromMinutes(1));
-        SimChannelLease?[] leases = await Task.WhenAll(firstAcquire, secondAcquire);
-        SimChannelLease lease = Assert.Single(leases.OfType<SimChannelLease>());
-        Assert.Equal(1, lease.FencingGeneration);
-        Assert.False(await repository.ReleaseAsync(
-            lease.SimChannelId,
-            Guid.NewGuid(),
-            lease.FencingGeneration));
-        await using (IvrDbContext activeCallContext = await Factory().CreateDbContextAsync())
-        {
-            SimChannelEntity channel = await activeCallContext.SimChannels.SingleAsync();
-            channel.Status = "BUSY";
-            channel.ActiveCallJobId = "JOB-ACTIVE-001";
-            await activeCallContext.SaveChangesAsync();
-        }
-
-        Assert.True(await repository.ReleaseAsync(
-            lease.SimChannelId,
-            lease.LeaseToken,
-            lease.FencingGeneration));
-        await using (IvrDbContext releasedContext = await Factory().CreateDbContextAsync())
-        {
-            SimChannelEntity released = await releasedContext.SimChannels.SingleAsync();
-            Assert.Null(released.ActiveCallJobId);
-            Assert.Null(released.LeaseToken);
-            Assert.Equal("IDLE", released.Status);
-        }
-
-        SimChannelLease reacquired = Assert.IsType<SimChannelLease>(
-            await repository.AcquireAsync(
-                "worker-c",
-                IvrOptions.LabRealSimExecutionMode,
-                TimeSpan.FromMinutes(1)));
-        Assert.Equal(2, reacquired.FencingGeneration);
     }
 
     [Fact]

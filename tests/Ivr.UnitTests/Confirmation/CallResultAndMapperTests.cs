@@ -1,5 +1,6 @@
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Contracts.Generated.SalesTarget.V1;
+using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Infrastructure.Contracts;
 using Ivr.Infrastructure.Providers.Fakes;
@@ -125,8 +126,14 @@ public sealed class CallResultAndMapperTests
             CancellationToken.None);
 
         Assert.Equal("task-1", domain.TaskId.Value);
+        Assert.Same(policy, domain.AttemptPolicy);
         Assert.Equal("[REDACTED_DIAL_TOKEN]", domain.DialToken.ToString());
-        Assert.DoesNotContain("090", domain.SpeechSummary.ComputeHash(), StringComparison.Ordinal);
+        string serializedDomain = JsonSerializer.Serialize(domain);
+        Assert.DoesNotContain("phone-ref-1", serializedDomain, StringComparison.Ordinal);
+        Assert.DoesNotContain("***1234", serializedDomain, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            typeof(ConfirmationTaskSnapshot).GetProperties(),
+            property => property.Name.Contains("Phone", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

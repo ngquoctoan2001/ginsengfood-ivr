@@ -47,8 +47,8 @@ Nguồn: `specs/database/*`, `specs/data/*`, `specs/workflows/*`; smoke `phase-8
 
 | Mảng | Lớp | Kết quả mong đợi |
 | --- | --- | --- |
-| `schema_negative` | OpenAPI schema | HTTP `422` + `ErrorEnvelope.code` |
-| `domain_negative` | domain/policy (payload schema-VALID) | HTTP `200` + `IvrTaskIntakeResult.decision`, hoặc `422 IVR_PII_POLICY_VIOLATION` / `409 IVR_IDEMPOTENCY_CONFLICT` |
+| `schema_negative` | OpenAPI schema | HTTP `400` + `ErrorEnvelope.code` |
+| `domain_negative` | domain/policy (payload schema-VALID) | stable `409`/`422` + `ErrorEnvelope.code`, hoặc HTTP `200` chỉ cho accepted/held non-error decisions |
 | `callback_scenarios` | Sales semantic ACK | `CallbackAck200`/`CallbackAck409` + `delivery_status` nội bộ |
 
 `NEG-DOMAIN-PII-01` là fixture quan trọng nhất của nhóm privacy: `delivery_area_short` **hợp lệ theo schema** (không có chữ số) nhưng vẫn là địa chỉ đường phố, nên nó thực sự kiểm tra semantic detector `FR-IVR-INTAKE-005` — khác với `NEG-SCHEMA-PII-01` chỉ kiểm tra `additionalProperties:false`.

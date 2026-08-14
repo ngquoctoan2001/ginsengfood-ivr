@@ -100,7 +100,8 @@ public sealed class CurrentGoldenHourCallbackTransport(
             return Invalid("CURRENT_GOLDEN_HOUR_IDENTITY_MISSING");
         }
 
-        CurrentGoldenHourCallbackResult? compatibilityResult = MapResult(payload.Result_type);
+        CurrentGoldenHourCallbackResult? compatibilityResult =
+            CurrentGoldenHourCompatMapper.ToCompatibilityResult(payload.Result_type);
         if (compatibilityResult is null)
         {
             return Invalid("CURRENT_GOLDEN_HOUR_RESULT_UNREPRESENTABLE");
@@ -196,15 +197,6 @@ public sealed class CurrentGoldenHourCallbackTransport(
             return Invalid("CURRENT_GOLDEN_HOUR_ACK_INVALID");
         }
     }
-
-    private static CurrentGoldenHourCallbackResult? MapResult(ResultType result) => result switch
-    {
-        ResultType.IVR_CONFIRMED => CurrentGoldenHourCallbackResult.Confirmed,
-        ResultType.IVR_CUSTOMER_CANCELLED => CurrentGoldenHourCallbackResult.Rejected,
-        ResultType.IVR_NO_ANSWER_FINAL => CurrentGoldenHourCallbackResult.NoAnswer,
-        ResultType.IVR_TECHNICAL_EXCEPTION => CurrentGoldenHourCallbackResult.Failed,
-        _ => null,
-    };
 
     private static CallbackTransportResult Invalid(string code) => new(
         CallbackTransportOutcome.Invalid,

@@ -222,18 +222,19 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
                 null,
                 true,
                 false)));
-        Assert.True(await outbox.CompleteDeliveryAsync(
-            leased.CallbackId,
-            leased.LeaseToken,
-            new CallbackDeliveryUpdate(
-                "DELIVERED_BLOCKED",
-                200,
-                "BLOCKED_BY_CORE",
-                null,
-                0,
-                null,
-                true,
-                true)));
+        var update = new CallbackDeliveryUpdate(
+            "DELIVERED_BLOCKED",
+            200,
+            "BLOCKED_BY_CORE",
+            null,
+            0,
+            null,
+            true,
+            true);
+        bool[] completions = await Task.WhenAll(
+            outbox.CompleteDeliveryAsync(leased.CallbackId, leased.LeaseToken, update),
+            outbox.CompleteDeliveryAsync(leased.CallbackId, leased.LeaseToken, update));
+        Assert.Single(completions, completed => completed);
 
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
         ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking().SingleAsync();
@@ -248,6 +249,9 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.Contains(await verification.AuditLog.AsNoTracking().ToListAsync(),
             audit => audit.Action == "IVR_CALLBACK_DELIVERY_STATE_CHANGED"
                 && audit.TargetId == callback.CallbackId);
+        Assert.Single(await verification.AuditLog.AsNoTracking()
+            .Where(audit => audit.Action == "IVR_CALLBACK_DELIVERY_STATE_CHANGED")
+            .ToListAsync());
     }
 
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services

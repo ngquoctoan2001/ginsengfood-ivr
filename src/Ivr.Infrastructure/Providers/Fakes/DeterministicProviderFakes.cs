@@ -193,6 +193,8 @@ public sealed class MockSimOperationException(
 
 public sealed class FakeSimGateway : ISimGateway
 {
+    private const int MaximumRetainedEvents = 4_096;
+    private const int MaximumRetainedPlayedSpeech = 1_024;
     private readonly ImmutableDictionary<string, FakeSimScenario> _scenarios;
     private readonly ImmutableDictionary<string, SimChannelHealthState> _healthByChannel;
     private readonly ConcurrentDictionary<string, SimCallSession> _activeChannels = new(StringComparer.Ordinal);
@@ -281,6 +283,15 @@ public sealed class FakeSimGateway : ISimGateway
         }
 
         _playedSpeech[session.ProviderCallReference] = speech;
+        while (_playedSpeech.Count > MaximumRetainedPlayedSpeech)
+        {
+            string? oldestKey = _playedSpeech.Keys.FirstOrDefault(key =>
+                !string.Equals(key, session.ProviderCallReference, StringComparison.Ordinal));
+            if (oldestKey is null || !_playedSpeech.TryRemove(oldestKey, out _))
+            {
+                break;
+            }
+        }
         AppendEvent(
             SimProviderEventType.SpeechPlayed,
             session,
@@ -403,7 +414,7 @@ public sealed class FakeSimGateway : ISimGateway
         SimCallSession session,
         string? statusCode,
         string? contentHash) =>
-        _events.Enqueue(new SimProviderEvent(
+        AppendBoundedEvent(new SimProviderEvent(
             type,
             session.AttemptId,
             session.SimChannelId,
@@ -411,6 +422,15 @@ public sealed class FakeSimGateway : ISimGateway
             _timeProvider.GetUtcNow(),
             statusCode,
             contentHash));
+
+    private void AppendBoundedEvent(SimProviderEvent providerEvent)
+    {
+        _events.Enqueue(providerEvent);
+        while (_events.Count > MaximumRetainedEvents)
+        {
+            _events.TryDequeue(out _);
+        }
+    }
 
     private async Task DelayAsync(TimeSpan delay, CancellationToken cancellationToken)
     {

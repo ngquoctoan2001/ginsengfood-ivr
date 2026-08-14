@@ -12,11 +12,15 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0` | `1.0.0` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.2` | `1.0.0-draft.2` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
-Both reports currently say `No changes detected`; P1-4 establishes the first
-reviewed documentation baseline rather than claiming that Target V1 is live.
+Both current reports say `No changes detected`. The previous IVR baseline is
+retained at `baselines/ivr-order-confirmation.v1.0.0.yaml`; its transition to
+draft.2 contained `143` changes (`63` errors and `80` warnings) and is preserved
+in [the archived transition report](api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md).
+This reviewed draft reset repairs the comparison gate; it does not claim that
+Target V1 is live, backward compatible, or approved by Sales.
 
 ## Change procedure
 

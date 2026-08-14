@@ -10,6 +10,16 @@ Evidence date: `2026-08-14`
 
 Real-customer-call gate: `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
+## Coverage correction — 2026-08-14
+
+The original `94.7% (25,645/27,080)` ReportGenerator value below is historical
+and included EF migration plus generated `.g.cs` source. A clean full
+regression using committed `coverage.runsettings` plus the merge-policy
+exclusion reports `88.80% (10,350/11,656)` from three Cobertura reports.
+Coverlet still emitted one Worker source-generator class on Windows;
+`Ivr.CiPolicy` explicitly excluded it, and the exclusion negative-control
+fixture passed. The result remains above the 60% policy threshold.
+
 ## Delivered boundary
 
 - `Ivr.Domain.Speech.ITtsProvider` accepts a redacted `SpeechScript` plus vendor-neutral
@@ -43,7 +53,7 @@ synthetic privacy-safe fixture and the JSON contains metadata only.
 
 The nine required groups are listed in [test-report.md](test-report.md). Current focused
 result is `9/9 PASS`; the full regression after implementation is `264/264 PASS`.
-The final three-report merge produced `94.7%` line coverage
+The historical three-report merge produced `94.7%` line coverage
 (`25,645/27,080`) with ReportGenerator 5.5.11. One coverage-instrumented P2-8
 internal-admin test transiently rejected a generated idempotency header; its isolated
 coverage rerun passed `79/79`, while the independent non-coverage full regression
@@ -93,7 +103,10 @@ documentation follow-up commit; no branch or merge request was created.
 - Release build: PASS, `0` warnings / `0` errors.
 - Required P2-9 matrix: `9/9 PASS`.
 - Full regression: contract `21`, unit `164`, integration `79` = `264/264 PASS`.
-- Fresh merged line coverage: `94.7%` (`25,645/27,080`, three green reports).
+- Historical merged line coverage: `94.7%` (`25,645/27,080`, three green
+  reports), including migration/generated source.
+- Corrected full-tree line coverage: `88.80%` (`10,350/11,656`, three reports,
+  one generated class explicitly excluded), threshold `60%` PASS.
 - PII evidence scan: PASS (`6` text files, `0` binary skipped, `C.UTF-8`).
 - Official Markdown map: PASS (`421` files, `377` resolved links, `0` unresolved).
 - Staged-diff Gitleaks 8.30.0: PASS (approximately `106 KB`, no leaks).

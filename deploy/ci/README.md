@@ -23,7 +23,7 @@ The .NET jobs pin `mcr.microsoft.com/dotnet/sdk:10.0.201` to the SDK selected by
 | --- | --- |
 | `ci_config_selftest` | workflow routing, local-fragment reachability, artifact topology, 16-code OpenAPI/API-06/source parity, no active GitHub Actions |
 | `openapi_lint` | Redocly lint, OpenAPI 3.1 parse/local refs, Target/current fixture schema validation, pinned contract drift |
-| `build_test_dotnet` | locked restore, warnings-as-errors build, semantic negative test/coverage/policy self-tests, xUnit/JUnit/Cobertura, PostgreSQL Testcontainers migration/concurrency tests, aggregate line coverage ≥ 60% |
+| `build_test_dotnet` | locked restore, warnings-as-errors build, semantic negative test/coverage/policy self-tests, xUnit/JUnit/Cobertura, PostgreSQL Testcontainers migration/concurrency tests, aggregate line coverage ≥ 60%; generated OpenAPI/EF migration sources excluded by `coverage.runsettings` |
 | `lint_dotnet` | locked restore, pinned NSwag regeneration/drift check, analyzers, `dotnet format --verify-no-changes` |
 | `build_lint_ui` | lockfile-based `npm ci`, ESLint, optional UI test script, production build |
 | `security_scan` | schema-validated fail-closed NuGet High/Critical policy, npm High/Critical policy, checksum-verified Gitleaks 8.30.0 |
@@ -173,11 +173,13 @@ A local render or YAML parse never replaces hosted GitLab evidence.
 
 ## GitLab project settings — hosted evidence
 
-The following controls are proven in `docs/evidence/W-0061/README.md`:
+The following controls have historical hosted proof in
+`docs/evidence/W-0061/README.md`:
 
 - GitLab project/remote plus separate GitHub mirror;
 - self-hosted Linux-container runner `#55115499` with privileged DinD;
-- protected `main` with direct pushes disabled and force push off;
+- protected `main`; force push remains off, but the current live setting allows
+  Maintainers to push directly and therefore needs remediation;
 - **Pipelines must succeed**, proven through MRs `!1` and `!2`;
 - protected/masked/hidden variable metadata without recording secret values;
 - authenticated Container Registry push/remove/pull/label verification in job
@@ -185,7 +187,8 @@ The following controls are proven in `docs/evidence/W-0061/README.md`:
 - private Pages deployment and project-member-only access in pipeline
   `#2756517379`.
 
-The remaining W-0061 gate is required independent MR approval. GitLab Free shows
+The remaining W-0061 gates are restoring `Allowed to push and merge: No one`
+with a fresh rejected-push probe, plus required independent MR approval. GitLab Free shows
 `Approval is optional`, and the project has only one member. Upgrade to
 Premium/Ultimate, add an independent reviewer, then require at least one
 approval on protected branches before treating CODEOWNERS/approval enforcement

@@ -18,7 +18,7 @@ a compatibility adapter and cannot become the default provider.
 The result normalizer now stores the following records in one PostgreSQL transaction:
 
 - the final `ivr_call_results` row;
-- the immutable `ivr_callback_outbox` body, payload hash, stable idempotency key and
+- the immutable `ivr_result_callbacks` body, payload hash, stable idempotency key and
   correlation ID;
 - the existing evidence, audit and job-state changes from P2-5.
 
@@ -79,7 +79,8 @@ that an order was confirmed, cancelled or otherwise transitioned.
 
 ## Runtime controls and observability
 
-- `Ivr:Callbacks:Enabled=false` by default;
+- `Ivr:CallbackDelivery:Enabled=false` by default (JSON path
+  `Ivr.CallbackDelivery.Enabled`);
 - `CurrentGoldenHourCompatibilityEnabled=false` by default;
 - real `TARGET_V1` selection fails validation until the real Sales contract/auth
   gate is wired; local testing uses `FAKE_TARGET_V1` and a refreshing mock token;

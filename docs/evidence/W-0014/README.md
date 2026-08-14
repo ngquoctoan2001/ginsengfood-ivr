@@ -15,6 +15,12 @@ Final status: `TESTS_PASS`. Both Target V1 contracts remain
 connectivity, credentials, a real SIM call, or production readiness. Later
 hosted GitLab quality pipelines are recorded separately under W-0061.
 
+> Evidence correction — 2026-08-14: the local P1-1 results and later historical
+> hosted W-0061 pipelines are separate evidence sets. Current GitLab `main`
+> has `Allowed to push and merge: No one`, so the setting is
+> `PASS_SETTING_CURRENT`; a fresh rejection probe is `NOT_RUN`. No hosted run of
+> the current remediation tree is claimed.
+
 ## Scope implemented
 
 - Repository-local `NSwag.ConsoleCore 14.7.1` tool manifest and deterministic
@@ -140,9 +146,9 @@ contract tests. The circular-import check reports zero cycles.
 
 - `W-0002`, `W-0005` and `W-0006` remain `BLOCKED_EXTERNAL`: Sales has not
   approved Target V1, supplied sandbox/base URL/auth, or completed CDC.
-- `W-0061` remains `BLOCKED_EXTERNAL` only for required independent MR approval;
-  the hosted runner, MR pipelines, protected branch, merge check, Registry,
-  Pages and protected-variable controls are proven.
+- `W-0061` remains `BLOCKED_EXTERNAL`: historical hosted runner/MR/Registry/
+  Pages proof remains valid and the no-direct-push setting is current; required
+  independent MR approval remains unavailable.
 - Current Golden Hour compatibility is source-verified but runtime-disabled;
   it is not treated as the generic Target endpoint.
 - Sales API, identity issuer, vendor SIM/eSIM, customer calls, lab, staging,

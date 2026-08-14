@@ -15,7 +15,7 @@ public sealed class SalesContractScaffoldTests
     [Trait("TestId", "CT-CONTRACT-SEPARATION-01")]
     public void TargetInternalCurrentAndWireDtosAreNotAssignable()
     {
-        Type internalTarget = typeof(IvrConfirmationResultCallbackTargetV1);
+        Type internalTarget = typeof(IvrResultCallbackLifecycle);
         Type targetWire = typeof(SalesTarget.IvrResultCallbackV1);
         Type currentWire = typeof(CurrentGoldenHourCallbackRequest);
 

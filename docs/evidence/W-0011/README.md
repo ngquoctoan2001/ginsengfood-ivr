@@ -86,8 +86,9 @@ then exited 0 in the corrected image.
 - GitLab project/remote and separate GitHub mirror: PASS.
 - Hosted MR pipelines `#2756409438` and `#2756495155`: PASS, 9/9 quality jobs
   and 98 tests; both merged only after pipeline success.
-- Protected `main`, no direct push, and **Pipelines must succeed**: PASS; an
-  explicit direct push was rejected by the GitLab pre-receive hook.
+- Protected `main`, current `Allowed to push and merge: No one`, and
+  **Pipelines must succeed**: PASS_SETTING_CURRENT. The explicit direct-push
+  rejection is historical; a fresh post-remediation probe is `NOT_RUN`.
 - Self-hosted runner `#55115499`, Docker-in-Docker and protected-variable
   metadata: PASS.
 - GitLab Container Registry push/pull: PASS in job `15872915564`.

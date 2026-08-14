@@ -15,6 +15,7 @@ stages:
 
 variables:
   IVR_EXECUTION_MODE: "MOCK"
+  IVR_INTERNAL_SERVICE_TOKEN: "ci-mock-internal-service-token"
   SALES_PROVIDER: "FAKE_TARGET_V1"
   SIM_PROVIDER: "MOCK"
   REAL_CUSTOMER_CALL_ALLOWED: "NO"

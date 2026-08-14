@@ -7,7 +7,7 @@
 | **Work ID** | `W-0011` (canonical tracker §5) |
 | **Phase** | 0 — Foundation & Project Setup |
 | **Prereq (blockedBy)** | `P0-1` |
-| **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
+| **Governance flag** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_EXECUTION_MODE=MOCK` |
 | **Stack** | .NET 10 · Next.js · GitLab CI (`CONFIRMED_2026-08-12`) |
 
 ## 1. ROLE

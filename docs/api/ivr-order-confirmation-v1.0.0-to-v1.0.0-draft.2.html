@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Archived IVR Contract Transition · Ginsengfood IVR</title><link rel="stylesheet" href="styles.css"></head>
+<body><main class="container document"><nav><a href="index.html">← Portal home</a></nav>
+<header><div class="badge warning">NON-PRODUCTION ONLY</div><h1>Archived IVR Contract Transition</h1>
+<p class="source">Source: <code>docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md</code></p></header><h1>API Changelog 1.0.0 vs. 1.0.0-draft.2</h1>
+<h2>API Changes</h2>
+<h3>POST /admin-reviews</h3>
+<ul>
+<li>:warning: added the new required request property <code>resolution</code></li>
+<li>:warning: added the new required request property <code>review_item_id</code></li>
+<li>:warning: the <code>reason</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>reason</code> request property&#39;s maxLength was set to <code>500</code></li>
+<li>:warning: removed the request property <code>action_type</code></li>
+<li>:warning: removed the request property <code>no_policy_bypass</code></li>
+<li>:warning: removed the request property <code>target_id</code></li>
+<li>:warning: removed the request property <code>target_type</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /call-attempts</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-service-scope</code></li>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-source-system</code></li>
+<li>:warning: the request property <code>ivr_call_attempt_id</code> became required</li>
+<li>:warning: the request property <code>ivr_call_job_id</code> became required</li>
+<li>:warning: the <code>ivr_call_attempt_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>ivr_call_job_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>422</code></li>
+<li>:warning: removed the request property <code>attempt_number</code></li>
+<li>:warning: removed the request property <code>disposition</code></li>
+<li>:warning: removed the request property <code>dtmf_key</code></li>
+<li>:warning: removed the request property <code>is_counted_customer_attempt</code></li>
+<li>:warning: removed the request property <code>result_status</code></li>
+<li>:warning: removed the request property <code>sim_channel_id</code></li>
+<li>:warning: removed the request property <code>status</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>403</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /call-jobs</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-service-scope</code></li>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-source-system</code></li>
+<li>:warning: the request property <code>ivr_call_job_id</code> became required</li>
+<li>:warning: the request property <code>task_id</code> became required</li>
+<li>:warning: the <code>ivr_call_job_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>task_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>422</code></li>
+<li>:warning: removed the request property <code>attempt_policy_version</code></li>
+<li>:warning: removed the request property <code>attempt_spacing_seconds</code></li>
+<li>:warning: removed the request property <code>confirmation_window_seconds</code></li>
+<li>:warning: removed the request property <code>input_signal_only</code></li>
+<li>:warning: removed the request property <code>max_attempts</code></li>
+<li>:warning: removed the request property <code>no_direct_order_update</code></li>
+<li>:warning: removed the request property <code>official_order_id</code></li>
+<li>:warning: removed the request property <code>order_version</code></li>
+<li>:warning: removed the request property <code>program_type</code></li>
+<li>:warning: removed the request property <code>queue_status</code></li>
+<li>:warning: removed the request property <code>status</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>403</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+<li>the response property <code>input_signal_only</code> became required for the status <code>200</code></li>
+<li>the response property <code>ivr_call_job_id</code> became required for the status <code>200</code></li>
+<li>the response property <code>max_attempts</code> became required for the status <code>200</code></li>
+<li>the response property <code>no_direct_order_update</code> became required for the status <code>200</code></li>
+<li>the response property <code>program_type</code> became required for the status <code>200</code></li>
+<li>the response property <code>queue_status</code> became required for the status <code>200</code></li>
+<li>the response property <code>status</code> became required for the status <code>200</code></li>
+<li>the response property <code>task_id</code> became required for the status <code>200</code></li>
+<li>added the required property <code>eligible</code> to the response with the <code>200</code> status</li>
+<li>added the required property <code>expires_at</code> to the response with the <code>200</code> status</li>
+</ul>
+<h3>GET /call-jobs/{ivrCallJobId}</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-service-scope</code></li>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-source-system</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>404</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>403</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+<li>the response property <code>input_signal_only</code> became required for the status <code>200</code></li>
+<li>the response property <code>ivr_call_job_id</code> became required for the status <code>200</code></li>
+<li>the response property <code>max_attempts</code> became required for the status <code>200</code></li>
+<li>the response property <code>no_direct_order_update</code> became required for the status <code>200</code></li>
+<li>the response property <code>program_type</code> became required for the status <code>200</code></li>
+<li>the response property <code>queue_status</code> became required for the status <code>200</code></li>
+<li>the response property <code>status</code> became required for the status <code>200</code></li>
+<li>the response property <code>task_id</code> became required for the status <code>200</code></li>
+<li>added the required property <code>eligible</code> to the response with the <code>200</code> status</li>
+<li>added the required property <code>expires_at</code> to the response with the <code>200</code> status</li>
+</ul>
+<h3>POST /call-results</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-service-scope</code></li>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-source-system</code></li>
+<li>:warning: the request property <code>ivr_call_job_id</code> became required</li>
+<li>:warning: the request property <code>ivr_call_result_id</code> became required</li>
+<li>:warning: the <code>ivr_call_job_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>ivr_call_result_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>422</code></li>
+<li>:warning: removed the request property <code>final_result_status</code></li>
+<li>:warning: removed the request property <code>input_signal_only</code></li>
+<li>:warning: removed the request property <code>is_counted_customer_attempt</code></li>
+<li>:warning: removed the request property <code>is_final_for_ivr</code></li>
+<li>:warning: removed the request property <code>no_direct_order_update</code></li>
+<li>:warning: removed the request property <code>no_payment_or_revenue_effect</code></li>
+<li>:warning: removed the request property <code>recommended_core_action</code></li>
+<li>:warning: removed the request property <code>result_type</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>403</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /eligibility-checks</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-service-scope</code></li>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-source-system</code></li>
+<li>:warning: the request property <code>task_id</code> became required</li>
+<li>:warning: the <code>task_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>422</code></li>
+<li>:warning: removed the request property <code>blocked_reasons</code></li>
+<li>:warning: removed the request property <code>decision</code></li>
+<li>:warning: removed the request property <code>evidence_ref</code></li>
+<li>:warning: removed the request property <code>skip_trusted</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>403</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+<li>the response property <code>blocked_reasons</code> became required for the status <code>200</code></li>
+<li>the response property <code>evidence_ref</code> became required for the status <code>200</code></li>
+<li>the response property <code>task_id</code> became required for the status <code>200</code></li>
+</ul>
+<h3>GET /feature-flags/{environment}</h3>
+<ul>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>409</code></li>
+</ul>
+<h3>POST /feature-flags/{environment}</h3>
+<ul>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>400</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>409</code></li>
+</ul>
+<h3>GET /feature-flags/{environment}/kill-switch</h3>
+<ul>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+</ul>
+<h3>GET /queue</h3>
+<ul>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /queue:pause</h3>
+<ul>
+<li>:warning: the <code>reason</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>reason</code> request property&#39;s maxLength was set to <code>500</code></li>
+<li>:warning: removed the request property <code>action_type</code></li>
+<li>:warning: removed the request property <code>no_policy_bypass</code></li>
+<li>:warning: removed the request property <code>target_id</code></li>
+<li>:warning: removed the request property <code>target_type</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /queue:resume</h3>
+<ul>
+<li>:warning: the <code>reason</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>reason</code> request property&#39;s maxLength was set to <code>500</code></li>
+<li>:warning: removed the request property <code>action_type</code></li>
+<li>:warning: removed the request property <code>no_policy_bypass</code></li>
+<li>:warning: removed the request property <code>target_id</code></li>
+<li>:warning: removed the request property <code>target_type</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /result-callbacks</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-service-scope</code></li>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-source-system</code></li>
+<li>:warning: added the new required request property <code>ivr_call_result_id</code></li>
+<li>:warning: the <code>callback_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>422</code></li>
+<li>:warning: removed the required property <code>code</code> from the response with the <code>200</code> status</li>
+<li>:warning: removed the request property <code>attempt_id</code></li>
+<li>:warning: removed the request property <code>attempt_no</code></li>
+<li>:warning: removed the request property <code>audit_ref</code></li>
+<li>:warning: removed the request property <code>call_job_id</code></li>
+<li>:warning: removed the request property <code>contract_version</code></li>
+<li>:warning: removed the request property <code>created_at</code></li>
+<li>:warning: removed the request property <code>dtmf_key</code></li>
+<li>:warning: removed the request property <code>evidence_ref</code></li>
+<li>:warning: removed the request property <code>is_counted_customer_attempt</code></li>
+<li>:warning: removed the request property <code>is_final_for_ivr</code></li>
+<li>:warning: removed the request property <code>max_attempts</code></li>
+<li>:warning: removed the request property <code>order_id</code></li>
+<li>:warning: removed the request property <code>order_version_seen_by_ivr</code></li>
+<li>:warning: removed the request property <code>privacy_policy_version</code></li>
+<li>:warning: removed the request property <code>program_code</code></li>
+<li>:warning: removed the request property <code>recommended_core_action</code></li>
+<li>:warning: removed the request property <code>result_reason</code></li>
+<li>:warning: removed the request property <code>result_type</code></li>
+<li>:warning: removed the request property <code>script_version</code></li>
+<li>:warning: removed the request property <code>task_id</code></li>
+<li>:warning: removed the request property <code>technical_error_code</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>403</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+<li>added the required property <code>callback_id</code> to the response with the <code>200</code> status</li>
+<li>added the required property <code>delivery_status</code> to the response with the <code>200</code> status</li>
+<li>added the required property <code>ivr_call_result_id</code> to the response with the <code>200</code> status</li>
+<li>added the required property <code>requires_core_revalidation</code> to the response with the <code>200</code> status</li>
+<li>added the required property <code>result_state</code> to the response with the <code>200</code> status</li>
+<li>added the required property <code>retry_count</code> to the response with the <code>200</code> status</li>
+</ul>
+<h3>POST /sim-channels/{simChannelId}:disable</h3>
+<ul>
+<li>:warning: the <code>reason</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>reason</code> request property&#39;s maxLength was set to <code>500</code></li>
+<li>:warning: removed the request property <code>action_type</code></li>
+<li>:warning: removed the request property <code>no_policy_bypass</code></li>
+<li>:warning: removed the request property <code>target_id</code></li>
+<li>:warning: removed the request property <code>target_type</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /sim-channels/{simChannelId}:enable</h3>
+<ul>
+<li>:warning: the <code>reason</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>reason</code> request property&#39;s maxLength was set to <code>500</code></li>
+<li>:warning: removed the request property <code>action_type</code></li>
+<li>:warning: removed the request property <code>no_policy_bypass</code></li>
+<li>:warning: removed the request property <code>target_id</code></li>
+<li>:warning: removed the request property <code>target_type</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /tasks</h3>
+<ul>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>409</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>422</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /technical-retries</h3>
+<ul>
+<li>:warning: added the new required request property <code>technical_exception_id</code></li>
+<li>:warning: the request property <code>reason</code> became required</li>
+<li>:warning: the request property <code>target_attempt_id</code> became required</li>
+<li>:warning: the <code>reason</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>target_attempt_id</code> request property&#39;s minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: the <code>error/details</code> response&#39;s property <code>type</code> changed from <code>array&lt;object&gt;</code> to <code>object</code> for status <code>403</code></li>
+<li>:warning: the <code>reason</code> request property&#39;s maxLength was set to <code>500</code></li>
+<li>:warning: removed the request property <code>customer_attempt_counted</code></li>
+<li>:warning: removed the request property <code>exception_type</code></li>
+<li>:warning: removed the request property <code>technical_retry_allowed</code></li>
+<li>added the new optional request property <code>evidence_ref</code></li>
+<li>added the media type <code>application/json</code> for the response with the status <code>200</code></li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>409</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h2>Components</h2>
+<ul>
+<li>removed the schema <code>CallbackCoreResponseTarget</code></li>
+<li>removed the schema <code>IvrAdminAction</code></li>
+<li>removed the schema <code>IvrConfirmationResultCallbackTargetV1</code></li>
+<li>removed the schema <code>IvrTechnicalException</code></li>
+<li>removed the schema <code>RecommendedCoreAction</code></li>
+</ul>
+
+<footer>Generated content. Edit the named source, not this HTML.</footer></main></body></html>

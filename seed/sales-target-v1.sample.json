@@ -2,8 +2,8 @@
   "_layer": "fake-sales-target-v1",
   "_note": "Canonical non-production fixture for Target V1. Candidate attempt policy (mock-lab-v1) is allowed ONLY in MOCK/LAB and is fixture data, never a DB constraint. Every task body validates against components.schemas.IvrConfirmationTaskV1 in specs/api/openapi/ivr-order-confirmation.v1.yaml and must INSERT into specs/database/02-tables.md without violating NOT NULL.",
   "_layer_rules": {
-    "schema_negative": "body is invalid against IvrConfirmationTaskV1 -> HTTP 422 + ErrorEnvelope code",
-    "domain_negative": "body is schema-VALID but rejected by domain/policy -> HTTP 200 + IvrTaskIntakeResult.decision",
+    "schema_negative": "body is invalid against IvrConfirmationTaskV1 -> HTTP 400 + ErrorEnvelope code",
+    "domain_negative": "body is schema-VALID but rejected by domain/policy -> stable HTTP status + ErrorEnvelope or an explicit held decision",
     "callback_ack": "Sales-side semantic ACK on the outbound callback -> CallbackAck200/CallbackAck409 in order-core-ivr-callback.target-v1.yaml"
   },
   "tasks": [
@@ -507,8 +507,8 @@
       "from": "golden-hour-online-confirmable",
       "replace": { "dial_token_expires_at": "2026-08-12T02:59:59Z" },
       "layer": "domain",
-      "expect_http": 200,
-      "expect_decision": "TASK_REJECTED_CONTACT_INVALID",
+      "expect_http": 422,
+      "expect_error_code": "IVR_CONTACT_INVALID",
       "note": "Token TTL must not expire before the confirmation window closes."
     },
     {
@@ -525,8 +525,8 @@
       "from": "golden-hour-online-confirmable",
       "replace": { "attempt_offsets_seconds": [0, 600] },
       "layer": "domain",
-      "expect_http": 200,
-      "expect_decision": "TASK_REJECTED_POLICY_MISMATCH",
+      "expect_http": 409,
+      "expect_error_code": "IVR_POLICY_MISMATCH",
       "note": "Offset 600s falls outside the 300s Golden Hour window declared on the same task."
     },
     {
@@ -534,16 +534,16 @@
       "from": "golden-hour-online-confirmable",
       "replace": { "max_customer_attempts": 3 },
       "layer": "domain",
-      "expect_http": 200,
-      "expect_decision": "TASK_REJECTED_POLICY_MISMATCH",
+      "expect_http": 409,
+      "expect_error_code": "IVR_POLICY_MISMATCH",
       "note": "max_customer_attempts must equal len(attempt_offsets_seconds). Schema allows up to 10 by design so a future owner-approved policy needs no migration."
     },
     {
       "id": "NEG-DOMAIN-RESTRICTION-01",
       "from": "twenty-four-seven-cod-restricted",
       "layer": "domain",
-      "expect_http": 200,
-      "expect_decision": "TASK_BLOCKED_OPERATIONAL",
+      "expect_http": 409,
+      "expect_error_code": "IVR_OPERATIONAL_BLOCKED",
       "note": "call_restriction=true blocks voice; no dial is scheduled."
     },
     {
@@ -551,8 +551,8 @@
       "from": "golden-hour-online-confirmable",
       "replace": { "phone_validation_status": "UNKNOWN" },
       "layer": "domain",
-      "expect_http": 200,
-      "expect_decision": "TASK_REJECTED_CONTACT_INVALID",
+      "expect_http": 422,
+      "expect_error_code": "IVR_CONTACT_INVALID",
       "note": "Unknown phone validation status is fail-closed at dispatch."
     },
     {

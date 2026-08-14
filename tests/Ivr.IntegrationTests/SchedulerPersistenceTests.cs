@@ -96,6 +96,22 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
             "worker-new",
             IvrOptions.LabRealSimExecutionMode,
             TimeSpan.FromMinutes(2)));
+
+        DateTimeOffset quarantineExpiredAt = recoveryAt.AddMinutes(10).AddSeconds(1);
+        var expiredQuarantineStore = new PostgresSchedulerStore(
+            factory,
+            new FixedTimeProvider(quarantineExpiredAt));
+        Assert.Null(await expiredQuarantineStore.TryClaimDueDispatchAsync(
+            "worker-after-quarantine",
+            IvrOptions.LabRealSimExecutionMode,
+            TimeSpan.FromMinutes(2)));
+        await using IvrDbContext afterQuarantine = await factory.CreateDbContextAsync();
+        SimChannelEntity recoveredChannel = await afterQuarantine.SimChannels
+            .AsNoTracking()
+            .SingleAsync();
+        Assert.Equal("IDLE", recoveredChannel.Status);
+        Assert.Null(recoveredChannel.QuarantineUntil);
+        Assert.Null(recoveredChannel.DisabledReason);
     }
 
     [Fact]
@@ -143,6 +159,69 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         Assert.Equal("CAPACITY_MISSED", job.Status);
         Assert.Equal(incident.CapacityIncidentId, job.CapacityIncidentId);
         Assert.Equal(0, await verification.CallAttempts.CountAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-SCH-DEADLINE-09")]
+    public async Task HeldAdminReviewJobStillClosesAtItsDeadline()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-DEADLINE-09",
+            "JOB-SCH-DEADLINE-09",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+        await using (IvrDbContext seed = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await seed.CallJobs.SingleAsync();
+            job.Status = "HELD_ADMIN_REVIEW";
+            job.QueueStatus = "HELD_ADMIN_REVIEW";
+            await seed.SaveChangesAsync();
+        }
+
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        Assert.Equal(1, await store.CloseMissedDeadlinesAsync(Now, 16));
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallJobEntity closed = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("CAPACITY_MISSED", closed.Status);
+        Assert.NotNull(closed.ClosedAt);
+        Assert.False((await verification.CapacityIncidents.AsNoTracking().SingleAsync()).HoldNewCalls);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-SCH-HOLD-10")]
+    public async Task JobScopedCapacityIncidentDoesNotFreezeUnrelatedDispatch()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(factory, "TASK-SCH-HOLD-10", "JOB-SCH-HOLD-10", Now);
+        await SeedChannelAsync(factory, "SIM-LAB-HOLD-010");
+        await using (IvrDbContext seed = await factory.CreateDbContextAsync())
+        {
+            seed.CapacityIncidents.Add(new CapacityIncidentEntity
+            {
+                CapacityIncidentId = "CAP-JOB-SCOPED-10",
+                SessionId = "SESSION-JOB-SCOPED-10",
+                ProgramCode = "GOLDEN_HOUR",
+                Status = "OPEN",
+                Scope = "ELIGIBILITY_DEADLINE",
+                HoldNewCalls = true,
+                OpenedAt = Now,
+                Reason = "LEGACY_JOB_SCOPED_INCIDENT",
+            });
+            await seed.SaveChangesAsync();
+        }
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        SchedulerDispatchLease? lease = await store.TryClaimDueDispatchAsync(
+            "worker-job-scoped",
+            IvrOptions.LabRealSimExecutionMode,
+            TimeSpan.FromMinutes(2));
+
+        Assert.NotNull(lease);
     }
 
     [Fact]

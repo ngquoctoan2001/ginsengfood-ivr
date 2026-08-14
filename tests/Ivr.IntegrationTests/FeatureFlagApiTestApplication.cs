@@ -63,7 +63,9 @@ internal sealed class FeatureFlagApiTestApplication : IAsyncDisposable
                     FoundationApiTestApplication.ServiceToken,
             });
 
-        builder.Services.AddIvrFoundation(builder.Configuration);
+        builder.Services.AddIvrFoundation(
+            builder.Configuration,
+            useInMemoryTestDoubles: true);
         builder.Services.AddIvrFeatureFlags(builder.Configuration);
         builder.Services.AddIvrApiFoundation(builder.Configuration);
         builder.Services.RemoveAll<IAuditLogger>();

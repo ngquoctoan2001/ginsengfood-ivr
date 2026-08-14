@@ -369,8 +369,35 @@ public sealed class CallbackDeliveryTests
         Assert.Equal("NOT_READY_CIRCUIT_OPEN", circuit.Snapshot().Readiness);
         clock.Advance(TimeSpan.FromSeconds(31));
         Assert.True(circuit.TryEnter());
+        Assert.Equal("NOT_READY_CIRCUIT_HALF_OPEN", circuit.Snapshot().Readiness);
         circuit.RecordSuccess();
         Assert.Equal("READY", circuit.Snapshot().Readiness);
+    }
+
+    [Fact]
+    public async Task UnexpectedTransportFailureBecomesRetryAndReleasesHalfOpenProbe()
+    {
+        CallbackDeliveryOptions settings = CreateOptions();
+        settings.CircuitFailureThreshold = 1;
+        settings.CircuitOpenSeconds = 1;
+        var clock = new MutableTimeProvider(Now);
+        var circuit = new CallbackCircuitBreaker(clock, Options.Create(settings));
+        circuit.RecordTransientFailure();
+        clock.Advance(TimeSpan.FromSeconds(2));
+        var outbox = new MemoryOutbox(CreateMessage());
+        var dispatcher = new CallbackDispatcher(
+            outbox,
+            new ThrowingTargetTransport(),
+            new StubCurrentTransport(),
+            circuit,
+            Options.Create(settings),
+            clock);
+
+        CallbackDispatchResult result = Assert.Single(await dispatcher.RunBatchAsync());
+
+        Assert.Equal("CALLBACK_TRANSPORT_UNEXPECTED_FAILURE", result.ResponseCode);
+        Assert.Equal("RETRY_PENDING", outbox.Update?.DeliveryStatus);
+        Assert.Equal("NOT_READY_CIRCUIT_OPEN", circuit.Snapshot().Readiness);
     }
 
     [Fact]
@@ -413,9 +440,16 @@ public sealed class CallbackDeliveryTests
         CallbackDeliveryOptions current = CreateOptions();
         current.Enabled = true;
         current.Provider = SalesProviderNames.CurrentGoldenHourCompat;
+        CallbackDeliveryOptions missingAudience = CreateOptions();
+        missingAudience.Enabled = true;
+        missingAudience.TokenAudience = " ";
 
         Assert.True(validator.Validate(null, real).Failed);
         Assert.True(validator.Validate(null, current).Failed);
+        Assert.Contains(
+            "TokenAudience",
+            validator.Validate(null, missingAudience).FailureMessage,
+            StringComparison.Ordinal);
         Assert.True(validator.Validate(null, CreateOptions()).Succeeded);
     }
 
@@ -686,6 +720,14 @@ public sealed class CallbackDeliveryTests
         public Task<CallbackTransportResult> SendAsync(
             CallbackOutboxMessage message,
             CancellationToken cancellationToken) => Task.FromResult(result);
+    }
+
+    private sealed class ThrowingTargetTransport : ITargetV1CallbackTransport
+    {
+        public Task<CallbackTransportResult> SendAsync(
+            CallbackOutboxMessage message,
+            CancellationToken cancellationToken) =>
+            throw new TimeoutException("synthetic unexpected transport failure");
     }
 
     private sealed class StubCurrentTransport : ICurrentGoldenHourCallbackTransport

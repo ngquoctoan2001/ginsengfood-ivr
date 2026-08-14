@@ -45,6 +45,7 @@ public sealed class InternalAdminApiService(
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const string AdminPauseScope = "ADMIN_QUEUE_PAUSE";
+    private const string FoundationIdempotencyScope = "foundation";
 
     public Task<EligibilityApiResult> EvaluateEligibilityAsync(
         string taskId,
@@ -229,7 +230,9 @@ public sealed class InternalAdminApiService(
             channel => channel.Enabled,
             cancellationToken).ConfigureAwait(false);
         int holds = await context.CapacityIncidents.AsNoTracking().CountAsync(
-            incident => incident.Status == "OPEN" && incident.HoldNewCalls,
+            incident => incident.Status == "OPEN"
+                && incident.HoldNewCalls
+                && incident.Scope == AdminPauseScope,
             cancellationToken).ConfigureAwait(false);
         return new QueueProjectionApiResult(
             holds > 0,
@@ -309,17 +312,6 @@ public sealed class InternalAdminApiService(
             async (context, now, token) =>
             {
                 Validate(request);
-                bool blocked = await context.CapacityIncidents.AnyAsync(
-                    item => item.Status == "OPEN"
-                        && item.HoldNewCalls
-                        && item.Scope != AdminPauseScope,
-                    token).ConfigureAwait(false);
-                if (blocked)
-                {
-                    throw IvrErrors.OperationalBlocked(
-                        "Queue resume is blocked by a non-admin capacity incident.");
-                }
-
                 CapacityIncidentEntity? incident = await context.CapacityIncidents
                     .SingleOrDefaultAsync(
                         item => item.Status == "OPEN" && item.Scope == AdminPauseScope,
@@ -386,17 +378,13 @@ public sealed class InternalAdminApiService(
         CancellationToken cancellationToken)
     {
         Validate(request);
-        return IdempotentAsync(
+        return AtomicAdminAsync(
             "technical-retry",
             idempotencyKey,
             request,
-            async token =>
+            async (context, token) =>
             {
                 DateTimeOffset now = timeProvider.GetUtcNow();
-                await using IvrDbContext context = await CreateContextAsync(token);
-                await using var transaction = await context.Database.BeginTransactionAsync(
-                    IsolationLevel.Serializable,
-                    token).ConfigureAwait(false);
                 TechnicalExceptionEntity technical = await context.TechnicalExceptions
                     .SingleOrDefaultAsync(
                         item => item.TechnicalExceptionId == request.TechnicalExceptionId,
@@ -460,8 +448,6 @@ public sealed class InternalAdminApiService(
                     }, JsonOptions),
                     now);
                 PersistAdminMutation(context, mutation);
-                await context.SaveChangesAsync(token).ConfigureAwait(false);
-                await transaction.CommitAsync(token).ConfigureAwait(false);
                 return new TechnicalRetryApiResult(
                     mutation.Action.AdminActionId,
                     technical.TechnicalExceptionId,
@@ -482,17 +468,13 @@ public sealed class InternalAdminApiService(
         CancellationToken cancellationToken)
     {
         Validate(request);
-        return IdempotentAsync(
+        return AtomicAdminAsync(
             "admin-review",
             idempotencyKey,
             request,
-            async token =>
+            async (context, token) =>
             {
                 DateTimeOffset now = timeProvider.GetUtcNow();
-                await using IvrDbContext context = await CreateContextAsync(token);
-                await using var transaction = await context.Database.BeginTransactionAsync(
-                    IsolationLevel.Serializable,
-                    token).ConfigureAwait(false);
                 ReviewItemEntity review = await context.ReviewItems.SingleOrDefaultAsync(
                     item => item.ReviewItemId == request.ReviewItemId,
                     token).ConfigureAwait(false)
@@ -529,8 +511,6 @@ public sealed class InternalAdminApiService(
                     after,
                     now);
                 PersistAdminMutation(context, mutation);
-                await context.SaveChangesAsync(token).ConfigureAwait(false);
-                await transaction.CommitAsync(token).ConfigureAwait(false);
                 return new AdminReviewApiResult(
                     mutation.Action.AdminActionId,
                     review.ReviewItemId,
@@ -636,17 +616,13 @@ public sealed class InternalAdminApiService(
     {
         RequireSafe(actorId, nameof(actorId));
         RequireSafe(correlationId, nameof(correlationId));
-        return IdempotentAsync(
+        return AtomicAdminAsync(
             operation,
             idempotencyKey,
             payload,
-            async token =>
+            async (context, token) =>
             {
                 DateTimeOffset now = timeProvider.GetUtcNow();
-                await using IvrDbContext context = await CreateContextAsync(token);
-                await using var transaction = await context.Database.BeginTransactionAsync(
-                    IsolationLevel.Serializable,
-                    token).ConfigureAwait(false);
                 AdminMutation created = await mutation(context, now, token).ConfigureAwait(false);
                 if (!string.Equals(created.Action.Permission, permission, StringComparison.Ordinal))
                 {
@@ -654,8 +630,6 @@ public sealed class InternalAdminApiService(
                 }
 
                 PersistAdminMutation(context, created);
-                await context.SaveChangesAsync(token).ConfigureAwait(false);
-                await transaction.CommitAsync(token).ConfigureAwait(false);
                 return new AdminActionApiResult(
                     created.Action.AdminActionId,
                     created.Action.ActionType,
@@ -687,7 +661,10 @@ public sealed class InternalAdminApiService(
             || job.ClosedAt is not null
             || job.ExpiresAt <= now
             || task.CallRestriction
-            || !string.Equals(task.EligibilityDecision, "ELIGIBLE", StringComparison.Ordinal))
+            || !string.Equals(
+                task.EligibilityDecision,
+                EligibilityDecisions.Eligible,
+                StringComparison.Ordinal))
         {
             throw IvrErrors.PolicyMismatch(
                 "The technical retry is not allowed by the stored policy snapshot.");
@@ -697,7 +674,9 @@ public sealed class InternalAdminApiService(
             result => result.IvrCallJobId == job.IvrCallJobId && result.IsFinalForIvr,
             cancellationToken).ConfigureAwait(false);
         bool queueHeld = await context.CapacityIncidents.AnyAsync(
-            incident => incident.Status == "OPEN" && incident.HoldNewCalls,
+            incident => incident.Status == "OPEN"
+                && incident.HoldNewCalls
+                && incident.Scope == AdminPauseScope,
             cancellationToken).ConfigureAwait(false);
         if (finalExists || queueHeld)
         {
@@ -751,6 +730,66 @@ public sealed class InternalAdminApiService(
             "SHA256-",
             string.Join('-', rawHash.Chunk(8).Select(chunk => new string(chunk))));
         return idempotencyStore.ExecuteAsync(key, payloadHash, factory, cancellationToken);
+    }
+
+    private async Task<TResponse> AtomicAdminAsync<TPayload, TResponse>(
+        string operation,
+        string key,
+        TPayload payload,
+        Func<IvrDbContext, CancellationToken, Task<TResponse>> factory,
+        CancellationToken cancellationToken)
+    {
+        RequireSafe(key, nameof(key));
+        ArgumentNullException.ThrowIfNull(factory);
+        string payloadHash = ComputePayloadHash(operation, payload);
+        await using IvrDbContext context = await CreateContextAsync(cancellationToken);
+        await using var transaction = await context.Database.BeginTransactionAsync(
+            IsolationLevel.Serializable,
+            cancellationToken).ConfigureAwait(false);
+        await context.Database.ExecuteSqlInterpolatedAsync(
+            $"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))",
+            cancellationToken).ConfigureAwait(false);
+        IdempotencyKeyEntity? existing = await context.IdempotencyKeys.FindAsync(
+            [FoundationIdempotencyScope, key],
+            cancellationToken).ConfigureAwait(false);
+        if (existing is not null)
+        {
+            if (!string.Equals(existing.PayloadHash, payloadHash, StringComparison.Ordinal))
+            {
+                throw IvrErrors.IdempotencyConflict();
+            }
+            TResponse replay = JsonSerializer.Deserialize<TResponse>(
+                existing.ResponseSnapshotJson,
+                JsonOptions)
+                ?? throw new InvalidOperationException(
+                    "The stored admin idempotency response could not be restored.");
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            return replay;
+        }
+
+        TResponse response = await factory(context, cancellationToken).ConfigureAwait(false);
+        string snapshot = JsonSerializer.Serialize(response, JsonOptions);
+        PiiGuard.EnsureSafeText(snapshot);
+        context.IdempotencyKeys.Add(new IdempotencyKeyEntity
+        {
+            Scope = FoundationIdempotencyScope,
+            Key = key,
+            PayloadHash = payloadHash,
+            ResponseSnapshotJson = snapshot,
+            CreatedAt = timeProvider.GetUtcNow(),
+        });
+        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        return response;
+    }
+
+    private static string ComputePayloadHash<TPayload>(string operation, TPayload payload)
+    {
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(new { operation, payload }, JsonOptions);
+        string rawHash = Convert.ToHexString(SHA256.HashData(bytes));
+        return string.Concat(
+            "SHA256-",
+            string.Join('-', rawHash.Chunk(8).Select(chunk => new string(chunk))));
     }
 
     private Task<IvrDbContext> CreateContextAsync(CancellationToken cancellationToken) =>
@@ -954,11 +993,16 @@ public static class InternalAdminApiServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
-        services.AddOptions<InternalServiceOptions>().Configure(options =>
-        {
-            options.ServiceToken = configuration[InternalServiceOptions.TokenConfigurationKey]
-                ?? string.Empty;
-        });
+        services.AddOptions<InternalServiceOptions>()
+            .Configure(options =>
+            {
+                options.ServiceToken = configuration[InternalServiceOptions.TokenConfigurationKey]
+                    ?? string.Empty;
+            })
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.ServiceToken),
+                $"{InternalServiceOptions.TokenConfigurationKey} is required.")
+            .ValidateOnStart();
         services.Configure<RouteHandlerOptions>(options =>
         {
             options.ThrowOnBadRequest = true;

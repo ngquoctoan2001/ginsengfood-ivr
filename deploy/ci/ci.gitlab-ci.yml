@@ -74,7 +74,7 @@ build_test_dotnet:
     - mkdir -p ci-artifacts/dotnet/test-results ci-artifacts/dotnet/coverage
     - if [ "${CI_DOTNET_SELFTEST_FAIL:-0}" = "1" ]; then dotnet test deploy/ci/fixtures/failing-test/Ivr.CiFailingTests.csproj --configuration Release; fi
     - sh deploy/ci/scripts/selftest-dotnet-policy.sh ci-artifacts/dotnet/policy-selftest
-    - dotnet test Ivr.sln --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory ci-artifacts/dotnet/coverage --logger:"junit;LogFilePath=../../ci-artifacts/dotnet/test-results/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+    - dotnet test Ivr.sln --configuration Release --no-build --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory ci-artifacts/dotnet/coverage --logger:"junit;LogFilePath=../../ci-artifacts/dotnet/test-results/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
     - if [ "${CI_COVERAGE_SELFTEST_LOW:-0}" = "1" ]; then dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage deploy/ci/fixtures/coverage/low 60; fi
     - dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage deploy/ci/fixtures/coverage/merge 100
     - dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage ci-artifacts/dotnet/coverage 60 --output ci-artifacts/dotnet/coverage-summary.txt

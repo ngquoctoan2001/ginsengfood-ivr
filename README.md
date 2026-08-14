@@ -30,6 +30,19 @@ disposable value without writing it to disk:
 $env:ORDER_CORE_SERVICE_TOKEN = Read-Host "Local MOCK Order Core token"
 ```
 
+`IVR_INTERNAL_SERVICE_TOKEN` is independently required at startup for the six
+IVR-owned worker/adapter lifecycle endpoints. Keep it distinct from the Order
+Core token and inject it through the environment or a secret provider:
+
+```powershell
+$env:IVR_INTERNAL_SERVICE_TOKEN = Read-Host "Local MOCK IVR internal token"
+```
+
+The tracked `appsettings*.json` files contain only an empty declaration so a
+missing token fails startup. GitLab uses a synthetic MOCK-only value. The
+development Compose file does not run the API, so this host-process secret is
+not passed to any container.
+
 Do not introduce real provider credentials, customer data, shared Java entities,
 or access to the sales platform database. The Postgres `trust` configuration in
 `docker-compose.dev.yml` is restricted to localhost development and must never

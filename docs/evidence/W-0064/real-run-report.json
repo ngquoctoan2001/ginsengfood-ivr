@@ -1,6 +1,7 @@
 {
   "evidenceType": "automated_test_assertion_summary",
-  "executionMode": "MOCK_TEST_DB",
+  "executionMode": "LAB_REAL_SIM",
+  "environment": "DISPOSABLE_TEST_DB",
   "dryRun": false,
   "cases": [
     {

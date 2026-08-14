@@ -6,7 +6,7 @@
 | **ID** | `P0-4` · **Phase** 0 — Foundation |
 | **Work ID** | `W-0013` (canonical tracker §5) |
 | **Prereq** | `P0-3` |
-| **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
+| **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_EXECUTION_MODE=MOCK` |
 | **Stack** | .NET 10 · PostgreSQL |
 
 ## 1. ROLE

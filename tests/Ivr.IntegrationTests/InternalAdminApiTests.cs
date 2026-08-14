@@ -300,6 +300,52 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
     }
 
     [Fact]
+    public async Task AdminMutationRollsBackWhenIdempotencySnapshotCannotCommit()
+    {
+        await fixture.ResetAsync();
+        await using IvrDbContext setup = await Factory().CreateDbContextAsync();
+        await setup.Database.ExecuteSqlRawAsync(
+            """
+            CREATE OR REPLACE FUNCTION ivr_test_reject_idempotency_insert()
+            RETURNS trigger AS $$
+            BEGIN
+              RAISE EXCEPTION 'synthetic idempotency failure';
+            END;
+            $$ LANGUAGE plpgsql;
+            CREATE TRIGGER trg_test_reject_idempotency_insert
+            BEFORE INSERT ON ivr_idempotency_keys
+            FOR EACH ROW EXECUTE FUNCTION ivr_test_reject_idempotency_insert();
+            """);
+        await using InternalAdminApiTestApplication app = await StartAsync();
+        try
+        {
+            using HttpResponseMessage response = await SendAdminAsync(
+                app,
+                HttpMethod.Post,
+                "/v1/ivr/order-confirmation/queue:pause",
+                new AdminMutationRequest("atomic rollback proof"),
+                IvrPermissions.QueuePause,
+                idempotencyKey: "idem-atomic-rollback-proof");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+            await using IvrDbContext verification = await Factory().CreateDbContextAsync();
+            Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+            Assert.Equal(0, await verification.AdminActions.CountAsync());
+            Assert.Equal(0, await verification.AuditLog.CountAsync());
+            Assert.Equal(0, await verification.IdempotencyKeys.CountAsync());
+        }
+        finally
+        {
+            await setup.Database.ExecuteSqlRawAsync(
+                """
+                DROP TRIGGER IF EXISTS trg_test_reject_idempotency_insert
+                ON ivr_idempotency_keys;
+                DROP FUNCTION IF EXISTS ivr_test_reject_idempotency_insert();
+                """);
+        }
+    }
+
+    [Fact]
     [Trait("TestId", "IT-API-QUEUE-08")]
     public async Task PauseBlocksOnlyNewClaimsAndResumeRestoresClaiming()
     {
@@ -313,6 +359,15 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             new AdminMutationRequest("controlled pause"),
             IvrPermissions.QueuePause);
         Assert.Equal(HttpStatusCode.OK, pause.StatusCode);
+        await using (IvrDbContext paused = await Factory().CreateDbContextAsync())
+        {
+            Assert.Equal(
+                "TECHNICAL_FAILED",
+                (await paused.CallAttempts.AsNoTracking().SingleAsync()).Status);
+            Assert.Contains(
+                await paused.AuditLog.AsNoTracking().ToListAsync(),
+                audit => audit.Action == "QUEUE_PAUSE");
+        }
         IPostgresSchedulerStore scheduler = app.Services
             .GetRequiredService<IPostgresSchedulerStore>();
         Assert.Null(await scheduler.TryClaimDueDispatchAsync(
@@ -327,6 +382,15 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             new AdminMutationRequest("controlled resume"),
             IvrPermissions.QueueResume);
         Assert.Equal(HttpStatusCode.OK, resume.StatusCode);
+        await using (IvrDbContext resumed = await Factory().CreateDbContextAsync())
+        {
+            Assert.Equal(
+                "TECHNICAL_FAILED",
+                (await resumed.CallAttempts.AsNoTracking().SingleAsync()).Status);
+            Assert.Contains(
+                await resumed.AuditLog.AsNoTracking().ToListAsync(),
+                audit => audit.Action == "QUEUE_RESUME");
+        }
         Assert.NotNull(await scheduler.TryClaimDueDispatchAsync(
             "p2-8-worker",
             IvrOptions.MockExecutionMode,
@@ -366,6 +430,42 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             enable,
             HttpStatusCode.Conflict,
             IvrErrorCodes.OperationalBlocked);
+    }
+
+    [Theory]
+    [InlineData("REAL", "IDLE", false)]
+    [InlineData("MOCK", "QUARANTINED", true)]
+    public async Task DirectEnableRejectsRealOrQuarantinedChannel(
+        string adapterMode,
+        string status,
+        bool quarantined)
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(activeChannel: false);
+        await using (IvrDbContext seed = await Factory().CreateDbContextAsync())
+        {
+            SimChannelEntity channel = await seed.SimChannels.SingleAsync();
+            channel.Enabled = false;
+            channel.AdapterMode = adapterMode;
+            channel.Status = status;
+            channel.QuarantineUntil = quarantined ? Now.AddMinutes(10) : null;
+            await seed.SaveChangesAsync();
+        }
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        using HttpResponseMessage response = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/sim-channels/SIM-P2-8:enable",
+            new AdminMutationRequest("direct enable safety proof"),
+            IvrPermissions.SimEnable);
+
+        await AssertErrorAsync(
+            response,
+            HttpStatusCode.Conflict,
+            IvrErrorCodes.OperationalBlocked);
+        await using IvrDbContext verification = await Factory().CreateDbContextAsync();
+        Assert.False((await verification.SimChannels.AsNoTracking().SingleAsync()).Enabled);
     }
 
     [Fact]
@@ -478,16 +578,41 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
     {
         await fixture.ResetAsync();
         await using InternalAdminApiTestApplication app = await StartAsync();
-        using HttpResponseMessage unsafeReason = await SendAdminAsync(
-            app,
-            HttpMethod.Post,
-            "/v1/ivr/order-confirmation/queue:pause",
-            new AdminMutationRequest("call customer 0901234567"),
-            IvrPermissions.QueuePause);
-        await AssertErrorAsync(
-            unsafeReason,
-            HttpStatusCode.UnprocessableEntity,
-            IvrErrorCodes.PiiPolicyViolation);
+        const string rawPhone = "0901234567";
+        (string Route, object Body, string Permission)[] unsafeRequests =
+        [
+            (
+                "/v1/ivr/order-confirmation/queue:pause",
+                new AdminMutationRequest($"call customer {rawPhone}"),
+                IvrPermissions.QueuePause),
+            (
+                "/v1/ivr/order-confirmation/sim-channels/SIM-P2-8:disable",
+                new AdminMutationRequest($"isolate {rawPhone}"),
+                IvrPermissions.SimDisable),
+            (
+                "/v1/ivr/order-confirmation/technical-retries",
+                new TechnicalRetryRequest("TECH-P2-8", "ATTEMPT-P2-8", $"retry {rawPhone}"),
+                IvrPermissions.ManualRetry),
+            (
+                "/v1/ivr/order-confirmation/admin-reviews",
+                new AdminReviewRequest("REVIEW-P2-8", "safe resolution", $"review {rawPhone}"),
+                IvrPermissions.ResultReview),
+        ];
+        foreach ((string route, object body, string permission) in unsafeRequests)
+        {
+            using HttpResponseMessage unsafeResponse = await SendAdminAsync(
+                app,
+                HttpMethod.Post,
+                route,
+                body,
+                permission);
+            await AssertErrorAsync(
+                unsafeResponse,
+                HttpStatusCode.UnprocessableEntity,
+                IvrErrorCodes.PiiPolicyViolation);
+            Assert.DoesNotContain(rawPhone, await unsafeResponse.Content.ReadAsStringAsync(),
+                StringComparison.Ordinal);
+        }
 
         using HttpRequestMessage malformed = CreateInternalRequest(
             HttpMethod.Post,
@@ -509,6 +634,9 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         Assert.DoesNotContain("phone", payload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("address", payload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("dial_token", payload, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(
+            app.Logs.Entries,
+            entry => entry.Contains(rawPhone, StringComparison.Ordinal));
     }
 
     private Task<InternalAdminApiTestApplication> StartAsync() =>
@@ -556,7 +684,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             CallScriptVersion = "v1-test-approved",
             EvidencePolicyVersion = "evidence-v1",
             PrivacyPolicyVersion = "privacy-v1",
-            EligibilityDecision = eligible ? "ELIGIBLE" : null,
+            EligibilityDecision = eligible ? EligibilityDecisions.Eligible : null,
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
             SellableStatusJson = "[]",
             SellableCapturedAt = Now,
@@ -588,7 +716,9 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             T0At = startedAt,
             ExpiresAt = deadline,
             Eligible = eligible,
-            EligibilityDecision = eligible ? "ELIGIBLE" : EligibilityDecisions.Pending,
+            EligibilityDecision = eligible
+                ? EligibilityDecisions.Eligible
+                : EligibilityDecisions.Pending,
             QueueStatus = "HELD_MOCK",
             ScriptVersion = "SCRIPT-ORDER-CONFIRM:v1-test-approved",
             PrivacyPolicyVersion = "privacy-v1",

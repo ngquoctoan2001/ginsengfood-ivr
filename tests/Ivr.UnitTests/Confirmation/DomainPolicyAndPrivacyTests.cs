@@ -76,6 +76,14 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Theory]
+    [InlineData("Quận 1, Thành phố Hồ Chí Minh")]
+    [InlineData("Khu đô thị cao cấp, Quận 7")]
+    public void ShortAreaAcceptsCityAndBenignWords(string value)
+    {
+        Assert.Equal(value, ShortDeliveryArea.Create(value).Value);
+    }
+
+    [Theory]
     [InlineData("phone")]
     [InlineData("dial-token")]
     [InlineData("street-keyword")]

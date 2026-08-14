@@ -40,6 +40,24 @@ public sealed class TaskIntakeApiTests
     }
 
     [Fact]
+    [Trait("TestId", "IT-INTAKE-JSON-NULL-OMISSION-14")]
+    public async Task OptionalNullResponseFieldsAreOmittedPerOpenApiContract()
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        body["attempt_policy_version"] = "unknown-policy";
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+        string json = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("TASK_HELD_POLICY_MISSING", json, StringComparison.Ordinal);
+        Assert.DoesNotContain("ivr_call_job_id", json, StringComparison.Ordinal);
+        Assert.DoesNotContain(":null", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-INTAKE-IDEMPOTENCY-02")]
     public async Task ExactReplayReturnsOriginalResponseAndChangedPayloadConflicts()
     {
@@ -70,7 +88,7 @@ public sealed class TaskIntakeApiTests
     [InlineData("required-flag")]
     [InlineData("unknown-speech-field")]
     [Trait("TestId", "IT-INTAKE-SCHEMA-03")]
-    public async Task SchemaViolationsReturnEndpointSpecific422(string scenario)
+    public async Task SchemaViolationsReturnMalformed400(string scenario)
     {
         await using TaskIntakeApiTestApplication app =
             await TaskIntakeApiTestApplication.StartAsync();
@@ -90,7 +108,7 @@ public sealed class TaskIntakeApiTests
 
         using HttpResponseMessage response = await SendAsync(app.Client, body);
 
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(response));
         Assert.Equal(0, app.Store.CallJobCount);
         Assert.Empty(app.Audit.Entries);
@@ -155,12 +173,132 @@ public sealed class TaskIntakeApiTests
         Assert.Equal(0, app.Store.CallJobCount);
     }
 
+    [Fact]
+    public async Task MissingIdempotencyIsMissingTraceButInvalidSyntaxIsMalformed()
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+
+        using HttpResponseMessage missing = await SendAsync(
+            app.Client,
+            CreateBody(),
+            includeIdempotency: false);
+        using HttpResponseMessage invalid = await SendAsync(
+            app.Client,
+            CreateBody(),
+            idempotencyKey: "invalid key with spaces");
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, missing.StatusCode);
+        Assert.Equal(IvrErrorCodes.MissingTrace, await ErrorCodeAsync(missing));
+        Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(invalid));
+    }
+
+    [Fact]
+    public async Task CallRestrictionReturnsOperationalBlocked409()
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        body["call_restriction"] = true;
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal(IvrErrorCodes.OperationalBlocked, await ErrorCodeAsync(response));
+        Assert.Equal(0, app.Store.CallJobCount);
+    }
+
+    [Fact]
+#pragma warning disable CA2000 // await using owns each per-fixture test application.
+    public async Task EveryCanonicalDomainNegativeFixtureExecutesItsExpectedRuntimeBranch()
+    {
+        JsonObject catalog = JsonNode.Parse(await File.ReadAllTextAsync(
+            FindRepositoryFile("seed", "sales-target-v1.sample.json")))!.AsObject();
+        JsonArray tasks = catalog["tasks"]!.AsArray();
+        foreach (JsonNode? fixtureNode in catalog["domain_negative"]!.AsArray())
+        {
+            JsonObject fixture = fixtureNode!.AsObject();
+            string scenario = fixture["from"]!.GetValue<string>();
+            JsonObject task = tasks.Single(node =>
+                    node!["scenario"]!.GetValue<string>() == scenario)!["body"]!
+                .DeepClone()
+                .AsObject();
+            NormalizeFixtureWindow(task);
+            ApplyFixtureObject(task, fixture["replace"] as JsonObject);
+            ApplyFixtureObject(task, fixture["add"] as JsonObject);
+            await using TaskIntakeApiTestApplication app =
+                await TaskIntakeApiTestApplication.StartAsync();
+            HttpResponseMessage response;
+            string fixtureId = fixture["id"]!.GetValue<string>();
+            if (fixture["replay_with_same_key_different_payload"] is JsonObject changedFields)
+            {
+                using HttpResponseMessage first = await SendAsync(app.Client, task);
+                Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+                JsonObject changed = task.DeepClone().AsObject();
+                ApplyFixtureObject(changed, changedFields);
+                response = await SendAsync(app.Client, changed);
+            }
+            else if (fixture["replay_identical"]?.GetValue<bool>() == true)
+            {
+                using HttpResponseMessage first = await SendAsync(app.Client, task);
+                Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+                response = await SendAsync(app.Client, task);
+            }
+            else if (fixture["concurrent_identical_replays"] is JsonValue replayCountNode)
+            {
+                int replayCount = replayCountNode.GetValue<int>();
+                HttpResponseMessage[] responses = await Task.WhenAll(
+                    Enumerable.Range(0, replayCount)
+                        .Select(_ => SendAsync(app.Client, task.DeepClone().AsObject())));
+                response = responses[0];
+                foreach (HttpResponseMessage extra in responses.Skip(1))
+                {
+                    Assert.Equal(response.StatusCode, extra.StatusCode);
+                    extra.Dispose();
+                }
+
+                Assert.Equal(
+                    fixture["expect_call_job_count"]!.GetValue<int>(),
+                    app.Store.CallJobCount);
+            }
+            else
+            {
+                response = await SendAsync(app.Client, task);
+            }
+
+            using (response)
+            {
+                Assert.Equal(
+                    (HttpStatusCode)fixture["expect_http"]!.GetValue<int>(),
+                    response.StatusCode);
+                if (fixture["expect_error_code"] is JsonValue errorCode)
+                {
+                    Assert.Equal(errorCode.GetValue<string>(), await ErrorCodeAsync(response));
+                }
+                else
+                {
+                    IvrTaskIntakeResult result = (await response.Content
+                        .ReadFromJsonAsync<IvrTaskIntakeResult>())!;
+                    Assert.Equal(
+                        fixture["expect_decision"]!.GetValue<string>(),
+                        result.Decision.ToString());
+                }
+            }
+
+            Assert.False(string.IsNullOrWhiteSpace(fixtureId));
+        }
+    }
+#pragma warning restore CA2000
+
     private static async Task<HttpResponseMessage> SendAsync(
         HttpClient client,
         JsonObject body,
         bool includeSource = true,
         bool includeAuthorization = true,
-        bool includeCorrelation = true)
+        bool includeCorrelation = true,
+        bool includeIdempotency = true,
+        string idempotencyKey = "idem-api-p2-1")
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, TaskIntakeEndpoint.Route)
         {
@@ -188,7 +326,10 @@ public sealed class TaskIntakeApiTests
             request.Headers.Add(CorrelationPropagationHandler.HeaderName, "corr-api-p2-1");
         }
 
-        request.Headers.Add(TaskIntakeEndpoint.IdempotencyHeader, "idem-api-p2-1");
+        if (includeIdempotency)
+        {
+            request.Headers.Add(TaskIntakeEndpoint.IdempotencyHeader, idempotencyKey);
+        }
         return await client.SendAsync(request);
     }
 
@@ -253,6 +394,56 @@ public sealed class TaskIntakeApiTests
             },
             ["evidence_ref"] = "evidence://api/p2-1",
         };
+    }
+
+    private static void NormalizeFixtureWindow(JsonObject body)
+    {
+        DateTimeOffset start = TaskIntakeApiTestApplication.Now.AddMinutes(-1);
+        int seconds = body["program_code"]!.GetValue<string>() == "GOLDEN_HOUR"
+            ? 300
+            : 900;
+        body["created_at"] = start;
+        body["confirmation_window_started_at"] = start;
+        body["confirmation_window_expires_at"] = start.AddSeconds(seconds);
+        body["dial_token_expires_at"] = start.AddSeconds(seconds);
+        body["correlation_id"] = "corr-api-p2-1";
+    }
+
+    private static void ApplyFixtureObject(JsonObject body, JsonObject? changes)
+    {
+        if (changes is null)
+        {
+            return;
+        }
+
+        foreach ((string path, JsonNode? value) in changes)
+        {
+            string[] segments = path.Split('.');
+            JsonObject owner = body;
+            foreach (string segment in segments[..^1])
+            {
+                owner = owner[segment]!.AsObject();
+            }
+
+            owner[segments[^1]] = value?.DeepClone();
+        }
+    }
+
+    private static string FindRepositoryFile(params string[] segments)
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            string candidate = segments.Aggregate(directory.FullName, Path.Combine);
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new FileNotFoundException(Path.Combine(segments));
     }
 
     private static async Task<string> ErrorCodeAsync(HttpResponseMessage response)

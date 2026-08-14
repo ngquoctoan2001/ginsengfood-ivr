@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Ivr.Api\Ivr.Api.csproj" />
+    <ProjectReference Include="..\..\src\Ivr.Worker\Ivr.Worker.csproj" />
   </ItemGroup>
 
 </Project>

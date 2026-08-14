@@ -6,6 +6,12 @@ Mode: local `MOCK`; non-production documentation only
 Implementation status: `ACCEPTED` under explicit IVR owner authorization
 Hosted GitLab Pages status: `PASS` (private, project-members only)
 
+> Evidence correction — 2026-08-14: `ACCEPTED` here means explicit IVR-owner
+> acceptance of the non-production documentation slice; it is not independent
+> MR approval. The recorded Pages pipeline remains historical PASS. Current
+> GitLab `main` has `Allowed to push and merge: No one`; the setting is current
+> PASS, while a fresh rejection probe is `NOT_RUN` under W-0061.
+
 ## Delivered scope
 
 - Deterministic static Redoc pages for both reviewed OpenAPI sources.
@@ -137,7 +143,8 @@ guide links rendered successfully.
 Therefore P1-4 is accepted for its defined non-production documentation scope.
 This evidence must not be used to infer Target V1 approval, Sales integration,
 telephony readiness or production readiness. W-0061 remains independently
-`BLOCKED_EXTERNAL` only for required MR approval enforcement.
+`BLOCKED_EXTERNAL`: current no-direct-push configuration passes, while
+independent MR approval remains unavailable.
 
 Final GitNexus staged review: `LOW` risk, 33 files, 10 indexed documentation
 symbols, zero affected IVR execution processes. New generator/CI files are not

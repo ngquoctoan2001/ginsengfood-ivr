@@ -6,7 +6,7 @@
 | **ID** | `P1-4` · **Phase** 1 — Contracts & Data |
 | **Work ID** | `W-0017` (canonical tracker §5) |
 | **Prereq** | `P1-1` |
-| **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_ADAPTER_MODE=MOCK` |
+| **Governance** | `REAL_CUSTOMER_CALL_ALLOWED=NO` · `IVR_EXECUTION_MODE=MOCK` |
 | **Stack** | OpenAPI · docs tooling |
 
 ## 1. ROLE

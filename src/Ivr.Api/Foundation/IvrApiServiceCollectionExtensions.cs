@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Ivr.Api.Auth;
 using Ivr.Api.Middleware;
 using Ivr.Infrastructure.Configuration;
@@ -74,6 +75,11 @@ public static class IvrApiServiceCollectionExtensions
         services.AddSingleton<IAuthorizationMiddlewareResultHandler,
             IvrAuthorizationMiddlewareResultHandler>();
         services.AddSingleton<IvrErrorResponseWriter>();
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.DefaultIgnoreCondition =
+                JsonIgnoreCondition.WhenWritingNull;
+        });
 
         services.AddOptions<OrderCoreAllowlistOptions>()
             .Configure(options =>

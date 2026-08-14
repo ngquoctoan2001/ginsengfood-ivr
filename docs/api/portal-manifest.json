@@ -10,6 +10,7 @@
     "current-golden-hour-compat.html",
     "index.html",
     "integration-guide.html",
+    "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
     "ivr-order-confirmation-v1.html",
     "ivr-order-confirmation-changelog.html",
     "order-core-ivr-callback-changelog.html",
@@ -18,15 +19,16 @@
     "styles.css"
   ],
   "sourceHashes": {
-    "docs/api-changelog.md": "ec97b1d3c19b34766629efd4cd2784a48d0a8c7112137bc67d7f0efc78a2f618",
+    "docs/api-changelog.md": "746c9ee4ccb645af1aa30710ba4c7ce2d557f202f68b5d70295df27e57b9fca7",
     "docs/api-versioning.md": "bef9515401e0baf6926d3e5f3d0ddcd00004cb327974897cb113f787e737114d",
-    "docs/api/changelog/ivr-order-confirmation.md": "bc99d71b12b5867a35e47a756060faa893ac8de4865af2f01e1377ad2f6444c3",
+    "docs/api/changelog/ivr-order-confirmation.md": "d3b676442bf8f1dd27b139a7fca92630bc03fb579e63ffc56bd8bfaf3d6b9d9f",
+    "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md": "92ff570d5dfe289506afd14b140b300e200f242fa6e60bdf32821579a2c4fe70",
     "docs/api/changelog/order-core-ivr-callback.md": "581b5550712f7bbd97269a1679cd803d3b1522037c4dfb29aae67c34b95363eb",
     "docs/integration-guide.md": "a6222a57f3fe73241318d3a7cef6453b3602204721039fe1ab3a54460abc9253",
     "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
-    "specs/api/openapi/changelog-baseline.json": "7086e113eb1ae02dde4021d46467a8d384c6208be7f2db5bef634fbc3c1d4c2a",
-    "specs/api/openapi/contract-manifest.json": "741c329d54a7b2fd2461ca0ff9a95097620966df4a6e7a891342eaf5d7360e5c",
-    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "4dd221befe0e2cd8b5bc090ec0179ca3581caa928abf268ba865fd30c31316d4",
+    "specs/api/openapi/changelog-baseline.json": "e071abfaef70d792a2ce3fa61ecc16690cf5c7d0f7f40fc3205ea79e5cc36bf1",
+    "specs/api/openapi/contract-manifest.json": "83657a7b0eb09cda2e5e2ef804278db1eb5272040808a4f61de89451ef50689d",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "f49f4b18362df88d68ebcdc6737632d18158eb926529a7b63cabbb93c1848112",
     "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "1677d490eea5484e449ace3310e26e3c59acbb8011c7c1736e3f981afffa96ee"
   }
 }

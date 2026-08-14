@@ -6,7 +6,12 @@ Baseline: `38eaecad2b4ce99aa14b12f708f5db1dd5fda5e9` (`P1-2`)
 
 Mode: `MOCK`
 
-Status: `TESTS_PASS`; local domain/provider proof and later hosted GitLab quality pipelines pass.
+Status: `TESTS_PASS`; local domain/provider proof and historical hosted GitLab quality pipelines pass.
+
+> Evidence correction — 2026-08-14: historical hosted passes do not prove the
+> current remediation tree. Current GitLab `main` has
+> `Allowed to push and merge: No one`; the setting is `PASS_SETTING_CURRENT`
+> under W-0061 and a fresh rejected-push probe is `NOT_RUN`.
 
 ## Implemented scope
 
@@ -81,9 +86,9 @@ and all 20 integration tests passed after the pin.
 
 ## Explicit residual gates
 
-- `W-0061` / `G-GITLAB`: `BLOCKED_EXTERNAL` only for required independent MR
-  approval; hosted MR/runner/protected-branch/merge-check/Registry/Pages and
-  protected-variable evidence pass.
+- `W-0061` / `G-GITLAB`: `BLOCKED_EXTERNAL`; historical hosted MR/runner/
+  Registry/Pages evidence passes and current no-direct-push configuration
+  passes, while independent approval remains unavailable.
 - `TARGET_CONTRACT_V1` remains `DRAFT`; Sales endpoint/auth/CDC and approved
   production attempt policy remain external.
 - Real Sales API, SIM/eSIM hardware, SMS and real customer calls were not used.

@@ -67,7 +67,9 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
                 [OrderCoreAllowlistOptions.TokenConfigurationKey] = ServiceToken,
             });
 
-        builder.Services.AddIvrFoundation(builder.Configuration);
+        builder.Services.AddIvrFoundation(
+            builder.Configuration,
+            useInMemoryTestDoubles: executionMode == IvrOptions.MockExecutionMode);
         builder.Services.AddIvrApiFoundation(builder.Configuration);
         if (throwDuringAuthentication)
         {

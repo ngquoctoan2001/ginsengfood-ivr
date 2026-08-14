@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T04:49:38.698Z",
+  "generatedAt": "2026-08-14T09:14:53.193Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -651,8 +651,8 @@
         }
       ],
       "links": [],
-      "lines": 197,
-      "words": 1154,
+      "lines": 200,
+      "words": 1187,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -662,20 +662,20 @@
           "to": "deploy/ci/README.md",
           "kind": "markdown",
           "rawTarget": "deploy/ci/README.md",
-          "line": 129
+          "line": 142
         }
       ]
     },
     {
       "path": "docs/api/changelog/ivr-order-confirmation.md",
-      "title": "API Changelog 1.0.0 vs. 1.0.0",
+      "title": "API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.2",
       "frontmatter": {},
       "headings": [
         {
           "depth": 1,
-          "text": "API Changelog 1.0.0 vs. 1.0.0",
+          "text": "API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.2",
           "line": 1,
-          "slug": "api-changelog-100-vs-100"
+          "slug": "api-changelog-100-draft2-vs-100-draft2"
         }
       ],
       "links": [],
@@ -691,6 +691,148 @@
           "kind": "markdown",
           "rawTarget": "api/changelog/ivr-order-confirmation.md",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+      "title": "API Changelog 1.0.0 vs. 1.0.0-draft.2",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "API Changelog 1.0.0 vs. 1.0.0-draft.2",
+          "line": 1,
+          "slug": "api-changelog-100-vs-100-draft2"
+        },
+        {
+          "depth": 2,
+          "text": "API Changes",
+          "line": 4,
+          "slug": "api-changes"
+        },
+        {
+          "depth": 3,
+          "text": "POST /admin-reviews",
+          "line": 6,
+          "slug": "post-admin-reviews"
+        },
+        {
+          "depth": 3,
+          "text": "POST /call-attempts",
+          "line": 26,
+          "slug": "post-call-attempts"
+        },
+        {
+          "depth": 3,
+          "text": "POST /call-jobs",
+          "line": 51,
+          "slug": "post-call-jobs"
+        },
+        {
+          "depth": 3,
+          "text": "GET /call-jobs/{ivrCallJobId}",
+          "line": 89,
+          "slug": "get-call-jobsivrcalljobid"
+        },
+        {
+          "depth": 3,
+          "text": "POST /call-results",
+          "line": 110,
+          "slug": "post-call-results"
+        },
+        {
+          "depth": 3,
+          "text": "POST /eligibility-checks",
+          "line": 136,
+          "slug": "post-eligibility-checks"
+        },
+        {
+          "depth": 3,
+          "text": "GET /feature-flags/{environment}",
+          "line": 158,
+          "slug": "get-feature-flagsenvironment"
+        },
+        {
+          "depth": 3,
+          "text": "POST /feature-flags/{environment}",
+          "line": 163,
+          "slug": "post-feature-flagsenvironment"
+        },
+        {
+          "depth": 3,
+          "text": "GET /feature-flags/{environment}/kill-switch",
+          "line": 169,
+          "slug": "get-feature-flagsenvironmentkill-switch"
+        },
+        {
+          "depth": 3,
+          "text": "GET /queue",
+          "line": 173,
+          "slug": "get-queue"
+        },
+        {
+          "depth": 3,
+          "text": "POST /queue:pause",
+          "line": 182,
+          "slug": "post-queuepause"
+        },
+        {
+          "depth": 3,
+          "text": "POST /queue:resume",
+          "line": 199,
+          "slug": "post-queueresume"
+        },
+        {
+          "depth": 3,
+          "text": "POST /result-callbacks",
+          "line": 216,
+          "slug": "post-result-callbacks"
+        },
+        {
+          "depth": 3,
+          "text": "POST /sim-channels/{simChannelId}:disable",
+          "line": 259,
+          "slug": "post-sim-channelssimchanneliddisable"
+        },
+        {
+          "depth": 3,
+          "text": "POST /sim-channels/{simChannelId}:enable",
+          "line": 277,
+          "slug": "post-sim-channelssimchannelidenable"
+        },
+        {
+          "depth": 3,
+          "text": "POST /tasks",
+          "line": 295,
+          "slug": "post-tasks"
+        },
+        {
+          "depth": 3,
+          "text": "POST /technical-retries",
+          "line": 305,
+          "slug": "post-technical-retries"
+        },
+        {
+          "depth": 2,
+          "text": "Components",
+          "line": 329,
+          "slug": "components"
+        }
+      ],
+      "links": [],
+      "lines": 335,
+      "words": 2694,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": [
+        {
+          "from": "docs/api-changelog.md",
+          "to": "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+          "kind": "markdown",
+          "rawTarget": "api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+          "line": 21
         }
       ]
     },
@@ -742,7 +884,7 @@
         {
           "depth": 2,
           "text": "Change procedure",
-          "line": 21,
+          "line": 25,
           "slug": "change-procedure"
         }
       ],
@@ -761,13 +903,19 @@
         },
         {
           "kind": "markdown",
+          "text": "the archived transition report",
+          "rawTarget": "api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+          "line": 21
+        },
+        {
+          "kind": "markdown",
           "text": "API versioning policy",
           "rawTarget": "api-versioning.md",
-          "line": 26
+          "line": 30
         }
       ],
-      "lines": 29,
-      "words": 208,
+      "lines": 33,
+      "words": 244,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -786,10 +934,17 @@
         },
         {
           "from": "docs/api-changelog.md",
+          "to": "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+          "kind": "markdown",
+          "rawTarget": "api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+          "line": 21
+        },
+        {
+          "from": "docs/api-changelog.md",
           "to": "docs/api-versioning.md",
           "kind": "markdown",
           "rawTarget": "api-versioning.md",
-          "line": 26
+          "line": 30
         }
       ],
       "unresolvedLinks": [],
@@ -855,7 +1010,7 @@
           "to": "docs/api-versioning.md",
           "kind": "markdown",
           "rawTarget": "api-versioning.md",
-          "line": 26
+          "line": 30
         }
       ]
     },
@@ -895,7 +1050,7 @@
           "to": "docs/capacity-model.md",
           "kind": "markdown",
           "rawTarget": "../../capacity-model.md",
-          "line": 57
+          "line": 67
         }
       ]
     },
@@ -931,19 +1086,19 @@
         {
           "depth": 2,
           "text": "Current compatibility and deprecation",
-          "line": 61,
+          "line": 65,
           "slug": "current-compatibility-and-deprecation"
         },
         {
           "depth": 2,
           "text": "External gates deliberately left open",
-          "line": 75,
+          "line": 79,
           "slug": "external-gates-deliberately-left-open"
         }
       ],
       "links": [],
-      "lines": 80,
-      "words": 429,
+      "lines": 84,
+      "words": 459,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -987,7 +1142,7 @@
       ],
       "links": [],
       "lines": 52,
-      "words": 396,
+      "words": 391,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -214781,8 +214936,8 @@
         }
       ],
       "links": [],
-      "lines": 104,
-      "words": 901,
+      "lines": 105,
+      "words": 907,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -214920,49 +215075,49 @@
         {
           "depth": 2,
           "text": "Scope implemented",
-          "line": 18,
+          "line": 24,
           "slug": "scope-implemented"
         },
         {
           "depth": 2,
           "text": "Verified current Sales compatibility source",
-          "line": 54,
+          "line": 60,
           "slug": "verified-current-sales-compatibility-source"
         },
         {
           "depth": 2,
           "text": "Pinned contract and generated hashes",
-          "line": 73,
+          "line": 79,
           "slug": "pinned-contract-and-generated-hashes"
         },
         {
           "depth": 2,
           "text": "Contract tests",
-          "line": 86,
+          "line": 92,
           "slug": "contract-tests"
         },
         {
           "depth": 2,
           "text": "Final local gate results",
-          "line": 104,
+          "line": 110,
           "slug": "final-local-gate-results"
         },
         {
           "depth": 2,
           "text": "GitNexus and impact review",
-          "line": 128,
+          "line": 134,
           "slug": "gitnexus-and-impact-review"
         },
         {
           "depth": 2,
           "text": "Residual gates and ownership boundaries",
-          "line": 139,
+          "line": 145,
           "slug": "residual-gates-and-ownership-boundaries"
         }
       ],
       "links": [],
-      "lines": 151,
-      "words": 1046,
+      "lines": 157,
+      "words": 1098,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -214982,43 +215137,43 @@
         {
           "depth": 2,
           "text": "Delivered scope",
-          "line": 7,
+          "line": 12,
           "slug": "delivered-scope"
         },
         {
           "depth": 2,
           "text": "Migration artifacts",
-          "line": 30,
+          "line": 35,
           "slug": "migration-artifacts"
         },
         {
           "depth": 2,
           "text": "PostgreSQL integration proof",
-          "line": 45,
+          "line": 50,
           "slug": "postgresql-integration-proof"
         },
         {
           "depth": 2,
           "text": "Full local gates",
-          "line": 59,
+          "line": 64,
           "slug": "full-local-gates"
         },
         {
           "depth": 2,
           "text": "Explicit residual gates",
-          "line": 84,
+          "line": 89,
           "slug": "explicit-residual-gates"
         },
         {
           "depth": 2,
           "text": "Reproduction commands",
-          "line": 97,
+          "line": 103,
           "slug": "reproduction-commands"
         }
       ],
       "links": [],
-      "lines": 109,
-      "words": 700,
+      "lines": 115,
+      "words": 740,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215038,49 +215193,49 @@
         {
           "depth": 2,
           "text": "Implemented scope",
-          "line": 11,
+          "line": 16,
           "slug": "implemented-scope"
         },
         {
           "depth": 2,
           "text": "Tests executed",
-          "line": 26,
+          "line": 31,
           "slug": "tests-executed"
         },
         {
           "depth": 2,
           "text": "Review evidence",
-          "line": 39,
+          "line": 44,
           "slug": "review-evidence"
         },
         {
           "depth": 2,
           "text": "Full local gates",
-          "line": 53,
+          "line": 58,
           "slug": "full-local-gates"
         },
         {
           "depth": 2,
           "text": "Security-gate remediation discovered during closure",
-          "line": 73,
+          "line": 78,
           "slug": "security-gate-remediation-discovered-during-closure"
         },
         {
           "depth": 2,
           "text": "Explicit residual gates",
-          "line": 82,
+          "line": 87,
           "slug": "explicit-residual-gates"
         },
         {
           "depth": 2,
           "text": "Reproduction commands",
-          "line": 92,
+          "line": 97,
           "slug": "reproduction-commands"
         }
       ],
       "links": [],
-      "lines": 109,
-      "words": 756,
+      "lines": 114,
+      "words": 802,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215100,49 +215255,49 @@
         {
           "depth": 2,
           "text": "Delivered scope",
-          "line": 9,
+          "line": 15,
           "slug": "delivered-scope"
         },
         {
           "depth": 2,
           "text": "Primary artifacts",
-          "line": 23,
+          "line": 29,
           "slug": "primary-artifacts"
         },
         {
           "depth": 2,
           "text": "Contract boundaries shown by the portal",
-          "line": 40,
+          "line": 46,
           "slug": "contract-boundaries-shown-by-the-portal"
         },
         {
           "depth": 2,
           "text": "Required P1-4 tests",
-          "line": 48,
+          "line": 54,
           "slug": "required-p1-4-tests"
         },
         {
           "depth": 2,
           "text": "Commands and observed results",
-          "line": 60,
+          "line": 66,
           "slug": "commands-and-observed-results"
         },
         {
           "depth": 2,
           "text": "Visual check",
-          "line": 111,
+          "line": 117,
           "slug": "visual-check"
         },
         {
           "depth": 2,
           "text": "Hosted Pages evidence and runtime boundaries",
-          "line": 118,
+          "line": 124,
           "slug": "hosted-pages-evidence-and-runtime-boundaries"
         }
       ],
       "links": [],
-      "lines": 146,
-      "words": 700,
+      "lines": 153,
+      "words": 762,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215236,37 +215391,37 @@
         {
           "depth": 2,
           "text": "Tests",
-          "line": 54,
+          "line": 88,
           "slug": "tests"
         },
         {
           "depth": 2,
           "text": "Local gates — 2026-08-13",
-          "line": 69,
+          "line": 103,
           "slug": "local-gates-2026-08-13"
         },
         {
           "depth": 2,
           "text": "Artifacts",
-          "line": 104,
+          "line": 138,
           "slug": "artifacts"
         },
         {
           "depth": 2,
           "text": "Residual gates",
-          "line": 114,
+          "line": 148,
           "slug": "residual-gates"
         },
         {
           "depth": 2,
           "text": "Commit/remote handoff",
-          "line": 123,
+          "line": 157,
           "slug": "commitremote-handoff"
         }
       ],
       "links": [],
-      "lines": 128,
-      "words": 559,
+      "lines": 162,
+      "words": 570,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215502,25 +215657,25 @@
         {
           "depth": 2,
           "text": "Named behavior evidence",
-          "line": 93,
+          "line": 94,
           "slug": "named-behavior-evidence"
         },
         {
           "depth": 2,
           "text": "Verification evidence",
-          "line": 113,
+          "line": 114,
           "slug": "verification-evidence"
         },
         {
           "depth": 2,
           "text": "Safety and residual gates",
-          "line": 141,
+          "line": 142,
           "slug": "safety-and-residual-gates"
         }
       ],
       "links": [],
-      "lines": 158,
-      "words": 1056,
+      "lines": 159,
+      "words": 1059,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215632,86 +215787,92 @@
         },
         {
           "depth": 2,
+          "text": "2026-08-14 current-state correction and remediation",
+          "line": 15,
+          "slug": "2026-08-14-current-state-correction-and-remediation"
+        },
+        {
+          "depth": 2,
           "text": "Confirmed external progress",
-          "line": 9,
+          "line": 33,
           "slug": "confirmed-external-progress"
         },
         {
           "depth": 2,
           "text": "First hosted pipeline result",
-          "line": 22,
+          "line": 46,
           "slug": "first-hosted-pipeline-result"
         },
         {
           "depth": 2,
           "text": "Successful hosted baseline",
-          "line": 32,
+          "line": 56,
           "slug": "successful-hosted-baseline"
         },
         {
           "depth": 2,
           "text": "Successful self-hosted baseline",
-          "line": 46,
+          "line": 70,
           "slug": "successful-self-hosted-baseline"
         },
         {
           "depth": 2,
-          "text": "Protected branch and merge enforcement",
-          "line": 64,
-          "slug": "protected-branch-and-merge-enforcement"
+          "text": "Historical protected branch and merge enforcement",
+          "line": 88,
+          "slug": "historical-protected-branch-and-merge-enforcement"
         },
         {
           "depth": 2,
           "text": "Protected variables",
-          "line": 89,
+          "line": 116,
           "slug": "protected-variables"
         },
         {
           "depth": 2,
           "text": "Container Registry proof",
-          "line": 100,
+          "line": 127,
           "slug": "container-registry-proof"
         },
         {
           "depth": 2,
           "text": "Pages access-control and publication proof",
-          "line": 106,
+          "line": 133,
           "slug": "pages-access-control-and-publication-proof"
         },
         {
           "depth": 2,
           "text": "Approval enforcement blocker",
-          "line": 116,
+          "line": 143,
           "slug": "approval-enforcement-blocker"
         },
         {
           "depth": 2,
           "text": "Self-hosted Docker runner provisioning",
-          "line": 132,
+          "line": 159,
           "slug": "self-hosted-docker-runner-provisioning"
         },
         {
           "depth": 2,
           "text": "Remediation in this change",
-          "line": 145,
+          "line": 172,
           "slug": "remediation-in-this-change"
         },
         {
           "depth": 2,
           "text": "Local verification",
-          "line": 154,
+          "line": 181,
           "slug": "local-verification"
         },
         {
           "depth": 2,
           "text": "Residual W-0061 checklist",
-          "line": 170,
+          "line": 197,
           "slug": "residual-w-0061-checklist"
         }
       ],
       "links": [],
-      "lines": 193,
-      "words": 1511,
+      "lines": 227,
+      "words": 1752,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215749,7 +215910,7 @@
         {
           "depth": 2,
           "text": "Residual gates",
-          "line": 46,
+          "line": 51,
           "slug": "residual-gates"
         }
       ],
@@ -215761,8 +215922,8 @@
           "line": 42
         }
       ],
-      "lines": 52,
-      "words": 416,
+      "lines": 57,
+      "words": 464,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -215797,50 +215958,56 @@
         },
         {
           "depth": 2,
-          "text": "Delivered boundary",
+          "text": "Coverage correction — 2026-08-14",
           "line": 11,
+          "slug": "coverage-correction-2026-08-14"
+        },
+        {
+          "depth": 2,
+          "text": "Delivered boundary",
+          "line": 22,
           "slug": "delivered-boundary"
         },
         {
           "depth": 2,
           "text": "API surface",
-          "line": 42,
+          "line": 53,
           "slug": "api-surface"
         },
         {
           "depth": 2,
           "text": "Required test groups",
-          "line": 54,
+          "line": 65,
           "slug": "required-test-groups"
         },
         {
           "depth": 2,
           "text": "Contract evidence",
-          "line": 81,
+          "line": 92,
           "slug": "contract-evidence"
         },
         {
           "depth": 2,
           "text": "Final local verification",
-          "line": 97,
+          "line": 108,
           "slug": "final-local-verification"
         },
         {
           "depth": 2,
           "text": "Samples and safety interpretation",
-          "line": 121,
+          "line": 133,
           "slug": "samples-and-safety-interpretation"
         },
         {
           "depth": 2,
           "text": "Residual gates",
-          "line": 133,
+          "line": 145,
           "slug": "residual-gates"
         }
       ],
       "links": [],
-      "lines": 146,
-      "words": 1088,
+      "lines": 158,
+      "words": 1195,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215859,38 +216026,44 @@
         },
         {
           "depth": 2,
-          "text": "Delivered boundary",
+          "text": "Coverage correction — 2026-08-14",
           "line": 13,
+          "slug": "coverage-correction-2026-08-14"
+        },
+        {
+          "depth": 2,
+          "text": "Delivered boundary",
+          "line": 23,
           "slug": "delivered-boundary"
         },
         {
           "depth": 2,
           "text": "Test evidence",
-          "line": 42,
+          "line": 52,
           "slug": "test-evidence"
         },
         {
           "depth": 2,
           "text": "Safety interpretation",
-          "line": 59,
+          "line": 69,
           "slug": "safety-interpretation"
         },
         {
           "depth": 2,
           "text": "Residual gates",
-          "line": 69,
+          "line": 79,
           "slug": "residual-gates"
         },
         {
           "depth": 2,
           "text": "Commit and remote handoff",
-          "line": 84,
+          "line": 94,
           "slug": "commit-and-remote-handoff"
         },
         {
           "depth": 2,
           "text": "Local validation summary",
-          "line": 90,
+          "line": 100,
           "slug": "local-validation-summary"
         }
       ],
@@ -215899,17 +216072,17 @@
           "kind": "markdown",
           "text": "test-report.md",
           "rawTarget": "test-report.md",
-          "line": 44
+          "line": 54
         },
         {
           "kind": "markdown",
           "text": "capacity model",
           "rawTarget": "../../capacity-model.md",
-          "line": 57
+          "line": 67
         }
       ],
-      "lines": 100,
-      "words": 592,
+      "lines": 113,
+      "words": 679,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -215917,14 +216090,14 @@
           "to": "docs/evidence/W-0066/test-report.md",
           "kind": "markdown",
           "rawTarget": "test-report.md",
-          "line": 44
+          "line": 54
         },
         {
           "from": "docs/evidence/W-0066/README.md",
           "to": "docs/capacity-model.md",
           "kind": "markdown",
           "rawTarget": "../../capacity-model.md",
-          "line": 57
+          "line": 67
         }
       ],
       "unresolvedLinks": [],
@@ -215943,8 +216116,8 @@
         }
       ],
       "links": [],
-      "lines": 23,
-      "words": 203,
+      "lines": 28,
+      "words": 245,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215954,7 +216127,7 @@
           "to": "docs/evidence/W-0066/test-report.md",
           "kind": "markdown",
           "rawTarget": "test-report.md",
-          "line": 44
+          "line": 54
         }
       ]
     },
@@ -216041,6 +216214,202 @@
       "links": [],
       "lines": 68,
       "words": 401,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0087/README.md",
+      "title": "W-0087 — Phase 1/2 runtime continuity remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0087 — Phase 1/2 runtime continuity remediation",
+          "line": 1,
+          "slug": "w-0087-phase-12-runtime-continuity-remediation"
+        },
+        {
+          "depth": 2,
+          "text": "Findings addressed",
+          "line": 5,
+          "slug": "findings-addressed"
+        },
+        {
+          "depth": 2,
+          "text": "Executable proof",
+          "line": 20,
+          "slug": "executable-proof"
+        },
+        {
+          "depth": 2,
+          "text": "Boundary",
+          "line": 30,
+          "slug": "boundary"
+        }
+      ],
+      "links": [],
+      "lines": 35,
+      "words": 191,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0088/README.md",
+      "title": "W-0088 — Phase 1/2 state-machine liveness remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0088 — Phase 1/2 state-machine liveness remediation",
+          "line": 1,
+          "slug": "w-0088-phase-12-state-machine-liveness-remediation"
+        }
+      ],
+      "links": [],
+      "lines": 24,
+      "words": 148,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0089/README.md",
+      "title": "W-0089 — Phase 1/2 privacy and intake correctness remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0089 — Phase 1/2 privacy and intake correctness remediation",
+          "line": 1,
+          "slug": "w-0089-phase-12-privacy-and-intake-correctness-remediation"
+        }
+      ],
+      "links": [],
+      "lines": 29,
+      "words": 201,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0090/README.md",
+      "title": "W-0090 — Phase 1/2 callback and admin atomicity remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0090 — Phase 1/2 callback and admin atomicity remediation",
+          "line": 1,
+          "slug": "w-0090-phase-12-callback-and-admin-atomicity-remediation"
+        }
+      ],
+      "links": [],
+      "lines": 27,
+      "words": 149,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0091/README.md",
+      "title": "W-0091 — Phase 1/2 retention and acceptance-test remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0091 — Phase 1/2 retention and acceptance-test remediation",
+          "line": 1,
+          "slug": "w-0091-phase-12-retention-and-acceptance-test-remediation"
+        }
+      ],
+      "links": [],
+      "lines": 31,
+      "words": 213,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0092/README.md",
+      "title": "W-0092 — Phase 1/2 contract and configuration remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0092 — Phase 1/2 contract and configuration remediation",
+          "line": 1,
+          "slug": "w-0092-phase-12-contract-and-configuration-remediation"
+        }
+      ],
+      "links": [],
+      "lines": 37,
+      "words": 257,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0093/README.md",
+      "title": "W-0093 — Phase 1/2 governance and evidence truth remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0093 — Phase 1/2 governance and evidence truth remediation",
+          "line": 1,
+          "slug": "w-0093-phase-12-governance-and-evidence-truth-remediation"
+        },
+        {
+          "depth": 2,
+          "text": "Live platform correction",
+          "line": 5,
+          "slug": "live-platform-correction"
+        },
+        {
+          "depth": 2,
+          "text": "Evidence corrections",
+          "line": 36,
+          "slug": "evidence-corrections"
+        },
+        {
+          "depth": 2,
+          "text": "Final local evidence gates",
+          "line": 54,
+          "slug": "final-local-evidence-gates"
+        }
+      ],
+      "links": [],
+      "lines": 66,
+      "words": 440,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0094/README.md",
+      "title": "W-0094 — Phase 1/2 lifecycle and dead-code remediation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0094 — Phase 1/2 lifecycle and dead-code remediation",
+          "line": 1,
+          "slug": "w-0094-phase-12-lifecycle-and-dead-code-remediation"
+        }
+      ],
+      "links": [],
+      "lines": 28,
+      "words": 194,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -216189,6 +216558,176 @@
       "links": [],
       "lines": 86,
       "words": 676,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/review/2026-08-14-phase-1-2-code-review.md",
+      "title": "Rà soát Phase 1 + Phase 2 — IVR Order Confirmation",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Rà soát Phase 1 + Phase 2 — IVR Order Confirmation",
+          "line": 1,
+          "slug": "rà-soát-phase-1-phase-2-ivr-order-confirmation"
+        },
+        {
+          "depth": 2,
+          "text": "1. Tóm tắt điều hành",
+          "line": 10,
+          "slug": "1-tóm-tắt-điều-hành"
+        },
+        {
+          "depth": 2,
+          "text": "2. Mốc đo thực nghiệm",
+          "line": 27,
+          "slug": "2-mốc-đo-thực-nghiệm"
+        },
+        {
+          "depth": 2,
+          "text": "3. P0 — Chặn",
+          "line": 42,
+          "slug": "3-p0-chặn"
+        },
+        {
+          "depth": 3,
+          "text": "E-01 · Luồng nghiệp vụ không chạy được ở chế độ MOCK: intake ghi vào RAM, scheduler đọc PostgreSQL",
+          "line": 44,
+          "slug": "e-01-luồng-nghiệp-vụ-không-chạy-được-ở-chế-độ-mock-intake-ghi-vào-ram-scheduler-đọc-postgresql"
+        },
+        {
+          "depth": 3,
+          "text": "E-02 · Không có đường nào tạo kênh SIM — scheduler không bao giờ lease được channel",
+          "line": 68,
+          "slug": "e-02-không-có-đường-nào-tạo-kênh-sim-scheduler-không-bao-giờ-lease-được-channel"
+        },
+        {
+          "depth": 3,
+          "text": "E-03 · `PiiGuard` bỏ lọt mọi số điện thoại có dấu phân tách — cổng D-05 trên đường chạy thật",
+          "line": 84,
+          "slug": "e-03-piiguard-bỏ-lọt-mọi-số-điện-thoại-có-dấu-phân-tách-cổng-d-05-trên-đường-chạy-thật"
+        },
+        {
+          "depth": 2,
+          "text": "4. P1 — Nghiêm trọng",
+          "line": 104,
+          "slug": "4-p1-nghiêm-trọng"
+        },
+        {
+          "depth": 3,
+          "text": "E-04 · Một job trễ deadline làm ngừng dispatch của **toàn hệ thống**, vĩnh viễn",
+          "line": 106,
+          "slug": "e-04-một-job-trễ-deadline-làm-ngừng-dispatch-của-toàn-hệ-thống-vĩnh-viễn"
+        },
+        {
+          "depth": 3,
+          "text": "E-05 · Kênh SIM bị quarantine vĩnh viễn — công suất giảm dần về 0",
+          "line": 138,
+          "slug": "e-05-kênh-sim-bị-quarantine-vĩnh-viễn-công-suất-giảm-dần-về-0"
+        },
+        {
+          "depth": 3,
+          "text": "E-06 · Job trong `HELD_ADMIN_REVIEW` chết im lặng — Sales không bao giờ nhận kết quả",
+          "line": 151,
+          "slug": "e-06-job-trong-heldadminreview-chết-im-lặng-sales-không-bao-giờ-nhận-kết-quả"
+        },
+        {
+          "depth": 3,
+          "text": "E-07 · `TASK_HELD_ADMIN_REVIEW` không tạo ReviewItem — admin không có việc để làm",
+          "line": 163,
+          "slug": "e-07-taskheldadminreview-không-tạo-reviewitem-admin-không-có-việc-để-làm"
+        },
+        {
+          "depth": 3,
+          "text": "E-08 · Cổng `call_restriction` ở intake đã bị gỡ — regression từ P2-2",
+          "line": 169,
+          "slug": "e-08-cổng-callrestriction-ở-intake-đã-bị-gỡ-regression-từ-p2-2"
+        },
+        {
+          "depth": 3,
+          "text": "E-09 · `technicalRetry` bị từ chối 100% — so sánh sai hằng số",
+          "line": 188,
+          "slug": "e-09-technicalretry-bị-từ-chối-100-so-sánh-sai-hằng-số"
+        },
+        {
+          "depth": 3,
+          "text": "E-10 · `PiiGuard` chặn nhầm tên sản phẩm của chính công ty",
+          "line": 206,
+          "slug": "e-10-piiguard-chặn-nhầm-tên-sản-phẩm-của-chính-công-ty"
+        },
+        {
+          "depth": 3,
+          "text": "E-11 · `ShortDeliveryArea` từ chối định dạng khu vực giao hàng phổ biến nhất Việt Nam",
+          "line": 220,
+          "slug": "e-11-shortdeliveryarea-từ-chối-định-dạng-khu-vực-giao-hàng-phổ-biến-nhất-việt-nam"
+        },
+        {
+          "depth": 3,
+          "text": "E-12 · Circuit breaker kẹt half-open vĩnh viễn, readiness vẫn báo READY",
+          "line": 238,
+          "slug": "e-12-circuit-breaker-kẹt-half-open-vĩnh-viễn-readiness-vẫn-báo-ready"
+        },
+        {
+          "depth": 2,
+          "text": "5. P1 — Cổng contract và quản trị",
+          "line": 254,
+          "slug": "5-p1-cổng-contract-và-quản-trị"
+        },
+        {
+          "depth": 3,
+          "text": "E-13 · Cổng changelog/breaking-change đang đỏ trên `main`; changelog công bố sai sự thật",
+          "line": 256,
+          "slug": "e-13-cổng-changelogbreaking-change-đang-đỏ-trên-main-changelog-công-bố-sai-sự-thật"
+        },
+        {
+          "depth": 3,
+          "text": "E-14 · Evidence W-0061 khẳng định `main` được bảo vệ, thực tế có 19 commit push thẳng",
+          "line": 282,
+          "slug": "e-14-evidence-w-0061-khẳng-định-main-được-bảo-vệ-thực-tế-có-19-commit-push-thẳng"
+        },
+        {
+          "depth": 2,
+          "text": "6. P2 — Đáng kể",
+          "line": 294,
+          "slug": "6-p2-đáng-kể"
+        },
+        {
+          "depth": 2,
+          "text": "7. P3 — Nợ kỹ thuật và trôi lệch",
+          "line": 310,
+          "slug": "7-p3-nợ-kỹ-thuật-và-trôi-lệch"
+        },
+        {
+          "depth": 2,
+          "text": "8. Đã bác bỏ — đừng sửa",
+          "line": 330,
+          "slug": "8-đã-bác-bỏ-đừng-sửa"
+        },
+        {
+          "depth": 2,
+          "text": "9. Những phần làm tốt",
+          "line": 340,
+          "slug": "9-những-phần-làm-tốt"
+        },
+        {
+          "depth": 2,
+          "text": "10. Thứ tự đề nghị",
+          "line": 356,
+          "slug": "10-thứ-tự-đề-nghị"
+        },
+        {
+          "depth": 2,
+          "text": "11. Phạm vi và phương pháp",
+          "line": 371,
+          "slug": "11-phạm-vi-và-phương-pháp"
+        }
+      ],
+      "links": [],
+      "lines": 382,
+      "words": 3454,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -220705,31 +221244,31 @@
         {
           "depth": 2,
           "text": "6. Unplanned work insertion template",
-          "line": 152,
+          "line": 160,
           "slug": "6-unplanned-work-insertion-template"
         },
         {
           "depth": 2,
           "text": "7. Activity log (append-only)",
-          "line": 164,
+          "line": 172,
           "slug": "7-activity-log-append-only"
         },
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 313,
+          "line": 339,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 334,
+          "line": 360,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 784,
-      "words": 12717,
+      "lines": 810,
+      "words": 14082,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -224955,7 +225494,7 @@
       ],
       "links": [],
       "lines": 112,
-      "words": 1291,
+      "words": 1320,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -227797,25 +228336,25 @@
         {
           "depth": 2,
           "text": "Components",
-          "line": 38,
+          "line": 51,
           "slug": "components"
         },
         {
           "depth": 2,
           "text": "Prerequisites",
-          "line": 69,
+          "line": 82,
           "slug": "prerequisites"
         },
         {
           "depth": 2,
           "text": "Run locally",
-          "line": 75,
+          "line": 88,
           "slug": "run-locally"
         },
         {
           "depth": 2,
           "text": "Verify",
-          "line": 114,
+          "line": 127,
           "slug": "verify"
         }
       ],
@@ -227830,11 +228369,11 @@
           "kind": "markdown",
           "text": "the CI\nrunbook",
           "rawTarget": "deploy/ci/README.md",
-          "line": 129
+          "line": 142
         }
       ],
-      "lines": 131,
-      "words": 454,
+      "lines": 144,
+      "words": 525,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -227842,7 +228381,7 @@
           "to": "deploy/ci/README.md",
           "kind": "markdown",
           "rawTarget": "deploy/ci/README.md",
-          "line": 129
+          "line": 142
         }
       ],
       "unresolvedLinks": [],
@@ -227898,7 +228437,7 @@
       ],
       "links": [],
       "lines": 60,
-      "words": 615,
+      "words": 617,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -228998,7 +229537,7 @@
       ],
       "links": [],
       "lines": 75,
-      "words": 878,
+      "words": 880,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -232420,10 +232959,17 @@
     },
     {
       "from": "docs/api-changelog.md",
+      "to": "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+      "kind": "markdown",
+      "rawTarget": "api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
+      "line": 21
+    },
+    {
+      "from": "docs/api-changelog.md",
       "to": "docs/api-versioning.md",
       "kind": "markdown",
       "rawTarget": "api-versioning.md",
-      "line": 26
+      "line": 30
     },
     {
       "from": "docs/documents/00-DOC-READING-ORDER.md",
@@ -233683,14 +234229,14 @@
       "to": "docs/evidence/W-0066/test-report.md",
       "kind": "markdown",
       "rawTarget": "test-report.md",
-      "line": 44
+      "line": 54
     },
     {
       "from": "docs/evidence/W-0066/README.md",
       "to": "docs/capacity-model.md",
       "kind": "markdown",
       "rawTarget": "../../capacity-model.md",
-      "line": 57
+      "line": 67
     },
     {
       "from": "integration-requirements/00-index.md",
@@ -234579,7 +235125,7 @@
       "to": "deploy/ci/README.md",
       "kind": "markdown",
       "rawTarget": "deploy/ci/README.md",
-      "line": 129
+      "line": 142
     },
     {
       "from": "specs/02-business-goals.md",
@@ -235106,8 +235652,17 @@
       "docs/evidence/W-0065/README.md",
       "docs/evidence/W-0085/README.md",
       "docs/evidence/W-0086/README.md",
+      "docs/evidence/W-0087/README.md",
+      "docs/evidence/W-0088/README.md",
+      "docs/evidence/W-0089/README.md",
+      "docs/evidence/W-0090/README.md",
+      "docs/evidence/W-0091/README.md",
+      "docs/evidence/W-0092/README.md",
+      "docs/evidence/W-0093/README.md",
+      "docs/evidence/W-0094/README.md",
       "docs/integration-guide.md",
       "docs/operations/gitlab-runner-winhost.md",
+      "docs/review/2026-08-14-phase-1-2-code-review.md",
       "plan/ivr-orther/_archive/01-reading-inventory.md",
       "plan/ivr-orther/_archive/08-target-specs-structure-proposal.md",
       "prompt/_review/phase-0-11-spec-alignment-review.md",

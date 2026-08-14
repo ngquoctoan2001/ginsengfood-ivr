@@ -99,22 +99,49 @@ public sealed class TaskIntakeServiceTests
         Assert.Equal(0, test.Store.TaskCount);
         Assert.Equal(0, test.Store.CallJobCount);
         Assert.Equal(0, test.Store.OutboxCount);
+        if (expectedDecision == TaskIntakeDecisions.RejectedPolicyMismatch)
+        {
+            Assert.Equal(IvrErrorCodes.PolicyMismatch, outcome.FailureCode);
+        }
+        else if (expectedDecision == TaskIntakeDecisions.RejectedContactInvalid)
+        {
+            Assert.Equal(IvrErrorCodes.ContactInvalid, outcome.FailureCode);
+        }
     }
 
     [Fact]
-    public async Task CallRestrictionIsPersistedPendingForEligibilityGate()
+    public async Task CallRestrictionBlocksBeforeAnyWorkIsPersisted()
     {
         TestContext test = CreateContext();
         IvrConfirmationTaskV1 source = CreateTask(callRestriction: true);
 
         TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
-        var stored = await test.Store.FindAsync(source.Task_id);
+        Assert.Equal(TaskIntakeDecisions.BlockedOperational, outcome.Decision);
+        Assert.Equal(IvrErrorCodes.OperationalBlocked, outcome.FailureCode);
+        Assert.Null(await test.Store.FindAsync(source.Task_id));
+        Assert.Equal(0, test.Store.CallJobCount);
+    }
 
-        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
-        Assert.NotNull(stored);
-        Assert.True(stored.Task.CallRestriction);
-        Assert.False(stored.CallJob.Eligible);
-        Assert.Equal(EligibilityDecisions.Pending, stored.CallJob.EligibilityDecision);
+    [Fact]
+    public async Task NewKeyReevaluatesTransientHoldButSameKeyStillReplays()
+    {
+        TestContext test = CreateContext();
+        IvrConfirmationTaskV1 missingPolicy = CreateTask(policyVersion: "not-yet-present");
+        TaskIntakeCommand firstCommand = Command(
+            missingPolicy,
+            idempotencyKey: "idem-transient-1");
+
+        TaskIntakeOutcome first = await test.Service.IntakeAsync(firstCommand);
+        TaskIntakeOutcome sameKey = await test.Service.IntakeAsync(firstCommand);
+        TaskIntakeOutcome reevaluated = await test.Service.IntakeAsync(Command(
+            CreateTask(),
+            payloadHash: new string('B', 64),
+            idempotencyKey: "idem-transient-2"));
+
+        Assert.Equal(TaskIntakeDecisions.HeldPolicyMissing, first.Decision);
+        Assert.Equal(first, sameKey);
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, reevaluated.Decision);
+        Assert.Equal(1, test.Store.CallJobCount);
     }
 
     [Theory]
@@ -219,10 +246,11 @@ public sealed class TaskIntakeServiceTests
 
     private static TaskIntakeCommand Command(
         IvrConfirmationTaskV1 source,
-        string? payloadHash = null) =>
+        string? payloadHash = null,
+        string idempotencyKey = "idem-p2-1") =>
         new(
             source,
-            "idem-p2-1",
+            idempotencyKey,
             source.Correlation_id!,
             payloadHash ?? new string('A', 64),
             ExecutionMode.Mock);

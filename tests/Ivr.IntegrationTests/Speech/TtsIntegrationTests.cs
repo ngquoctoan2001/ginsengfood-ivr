@@ -13,6 +13,52 @@ namespace Ivr.IntegrationTests.Speech;
 public sealed class TtsAudioCacheIntegrationTests(RetentionJobFixture fixture)
 {
     [Fact]
+    public async Task FirstWaiterCancellationDoesNotPoisonSharedSynthesis()
+    {
+        IAudioCache cache = fixture.Services.GetRequiredService<IAudioCache>();
+        AudioCacheKey key = AudioCacheKey.Create(
+            "SCRIPT-CANCEL-SAFETY",
+            "v1",
+            "summary-cancel-safety",
+            "voice-a",
+            "vi-VN");
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int providerCalls = 0;
+        async Task<RenderedAudio> Factory(CancellationToken token)
+        {
+            Interlocked.Increment(ref providerCalls);
+            started.SetResult();
+            await release.Task.WaitAsync(token);
+            return RenderedAudio.Create(
+                "audio/L16",
+                8_000,
+                TimeSpan.FromSeconds(1),
+                "memory://tts/cache/cancel-safe");
+        }
+
+        using var firstCancellation = new CancellationTokenSource();
+        Task<AudioCacheResult> first = cache.GetOrCreateAsync(
+            key,
+            DateTimeOffset.UtcNow.AddMinutes(1),
+            Factory,
+            firstCancellation.Token);
+        await started.Task;
+        firstCancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => first);
+        Task<AudioCacheResult> second = cache.GetOrCreateAsync(
+            key,
+            DateTimeOffset.UtcNow.AddMinutes(1),
+            Factory,
+            CancellationToken.None);
+        release.SetResult();
+
+        AudioCacheResult result = await second;
+        Assert.True(result.CacheHit);
+        Assert.Equal(1, providerCalls);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-TTS-CACHE-08")]
     public async Task CacheKeyTtlAndRetentionHookAreBoundedAndDeterministic()
     {
@@ -122,6 +168,7 @@ public sealed class TtsModeIsolationIntegrationTests
             && descriptor.ImplementationType == typeof(ConfigurableExternalTtsProvider));
         using ServiceProvider provider = services.BuildServiceProvider(validateScopes: true);
         Assert.IsType<FakeDeterministicTtsProvider>(provider.GetRequiredService<ITtsProvider>());
+        NoEgressIlGuard.AssertNoCallTargets(typeof(FakeDeterministicTtsProvider));
         TtsProviderOptions bound = provider.GetRequiredService<IOptions<TtsProviderOptions>>().Value;
         Assert.Empty(bound.Endpoint);
         Assert.Empty(bound.Credential);

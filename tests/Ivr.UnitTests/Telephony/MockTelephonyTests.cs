@@ -1,6 +1,6 @@
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Reflection;
+using System.Reflection.Emit;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
 using Ivr.Infrastructure.Configuration;
@@ -18,6 +18,12 @@ public sealed class MockTelephonyTests
 {
     private static readonly DateTimeOffset Now =
         new(2026, 8, 13, 15, 0, 0, TimeSpan.Zero);
+
+    private static readonly Dictionary<short, OpCode> OpCodesByValue =
+        typeof(OpCodes).GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(field => field.FieldType == typeof(OpCode))
+            .Select(field => (OpCode)field.GetValue(null)!)
+            .ToDictionary(opCode => opCode.Value);
 
     [Fact]
     [Trait("TestId", "UT-TEL-SPEECH-01")]
@@ -214,15 +220,29 @@ public sealed class MockTelephonyTests
             ["attempt-a"] = new(SimProviderDisposition.Answered, "1"),
             ["attempt-b"] = new(SimProviderDisposition.Answered, "0"),
         });
-        SimCallSession first = await gateway.DialAsync(
-            Request("attempt-a", "SIM-SINGLE"),
-            CancellationToken.None);
+        Task<SimCallSession>[] competing =
+        [
+            gateway.DialAsync(Request("attempt-a", "SIM-SINGLE"), CancellationToken.None)
+                .AsTask(),
+            gateway.DialAsync(Request("attempt-b", "SIM-SINGLE"), CancellationToken.None)
+                .AsTask(),
+        ];
+        try
+        {
+            await Task.WhenAll(competing);
+        }
+        catch (MockSimOperationException)
+        {
+        }
 
-        MockSimOperationException conflict = await Assert.ThrowsAsync<MockSimOperationException>(
-            async () => await gateway.DialAsync(
-                Request("attempt-b", "SIM-SINGLE"),
-                CancellationToken.None));
-
+        SimCallSession first = await Assert.Single(
+            competing,
+            task => task.Status == TaskStatus.RanToCompletion);
+        Task<SimCallSession> rejected = Assert.Single(
+            competing,
+            task => task.IsFaulted);
+        MockSimOperationException conflict = Assert.IsType<MockSimOperationException>(
+            rejected.Exception!.GetBaseException());
         Assert.Equal("MOCK_CHANNEL_ALREADY_ACTIVE", conflict.TechnicalErrorCode);
         await gateway.HangupAsync(first, CancellationToken.None);
         SimCallSession second = await gateway.DialAsync(
@@ -315,17 +335,72 @@ public sealed class MockTelephonyTests
             killed.Failures!,
             failure => failure.Contains("KillSwitch", StringComparison.Ordinal));
 
-        Type gatewayType = typeof(FakeSimGateway);
-        FieldInfo[] transportFields = gatewayType.GetFields(
-            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-        Assert.DoesNotContain(transportFields, field =>
-            typeof(HttpClient).IsAssignableFrom(field.FieldType)
-            || typeof(Socket).IsAssignableFrom(field.FieldType)
-            || typeof(TcpClient).IsAssignableFrom(field.FieldType));
-        Assert.DoesNotContain(
-            gatewayType.Assembly.GetReferencedAssemblies(),
-            assembly => assembly.Name is "SSH.NET" or "System.IO.Ports");
+        AssertNoEgressCallTargets(typeof(FakeSimGateway));
     }
+
+    private static void AssertNoEgressCallTargets(Type type)
+    {
+        IEnumerable<MethodBase> methods = type
+            .GetMethods(BindingFlags.Instance | BindingFlags.Static
+                | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+            .Cast<MethodBase>()
+            .Concat(type.GetConstructors(BindingFlags.Instance | BindingFlags.Public
+                | BindingFlags.NonPublic | BindingFlags.DeclaredOnly));
+        foreach (MethodBase method in methods)
+        {
+            byte[]? il = method.GetMethodBody()?.GetILAsByteArray();
+            if (il is null)
+            {
+                continue;
+            }
+
+            for (int offset = 0; offset < il.Length;)
+            {
+                short value = il[offset++] == 0xFE
+                    ? unchecked((short)(0xFE00 | il[offset++]))
+                    : il[offset - 1];
+                OpCode opCode = OpCodesByValue[value];
+                if (opCode.OperandType is OperandType.InlineField
+                    or OperandType.InlineMethod
+                    or OperandType.InlineTok
+                    or OperandType.InlineType)
+                {
+                    int token = BitConverter.ToInt32(il, offset);
+                    MemberInfo member = method.Module.ResolveMember(
+                        token,
+                        type.GetGenericArguments(),
+                        method is MethodInfo info ? info.GetGenericArguments() : null)!;
+                    string? memberNamespace = member switch
+                    {
+                        Type memberType => memberType.Namespace,
+                        _ => member.DeclaringType?.Namespace,
+                    };
+                    Assert.False(
+                        memberNamespace?.StartsWith("System.Net", StringComparison.Ordinal) == true
+                        || memberNamespace?.StartsWith("System.IO.Ports", StringComparison.Ordinal) == true,
+                        $"{method.Name} references egress member {member.DeclaringType?.FullName}.{member.Name}");
+                }
+
+                offset += OperandSize(opCode.OperandType, il, offset);
+            }
+        }
+    }
+
+    private static int OperandSize(OperandType operandType, byte[] il, int offset) =>
+        operandType switch
+        {
+            OperandType.InlineNone => 0,
+            OperandType.ShortInlineBrTarget or OperandType.ShortInlineI
+                or OperandType.ShortInlineVar => 1,
+            OperandType.InlineVar => 2,
+            OperandType.InlineBrTarget or OperandType.InlineField or OperandType.InlineI
+                or OperandType.InlineMethod or OperandType.InlineSig
+                or OperandType.InlineString or OperandType.InlineTok
+                or OperandType.InlineType or OperandType.ShortInlineR => 4,
+            OperandType.InlineI8 or OperandType.InlineR => 8,
+            OperandType.InlineSwitch => checked(4 + (BitConverter.ToInt32(il, offset) * 4)),
+            _ => throw new InvalidOperationException($"Unsupported IL operand {operandType}."),
+        };
 
     [Fact]
     [Trait("TestId", "UT-TEL-DI-08")]
@@ -343,7 +418,7 @@ public sealed class MockTelephonyTests
             })
             .Build();
         var services = new ServiceCollection();
-        services.AddIvrFoundation(configuration);
+        services.AddIvrFoundation(configuration, useInMemoryTestDoubles: true);
         using ServiceProvider provider = services.BuildServiceProvider(validateScopes: true);
 
         Assert.IsType<MockSchedulerDispatchGateway>(

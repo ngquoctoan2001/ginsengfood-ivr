@@ -44,7 +44,8 @@ dotnet run --project "$policy_project" --configuration Release --no-build -- \
 coverage_status=$?
 set -e
 if [ "$coverage_status" -ne 1 ] \
-  || ! grep -F "below the required 60.00%" "$artifact_root/ct-ci-03-expected-failure.log" > /dev/null; then
+  || ! grep -F "below the required 60.00%" "$artifact_root/ct-ci-03-expected-failure.log" > /dev/null \
+  || ! grep -F "EXCLUDED_SOURCE_CLASSES=2" "$artifact_root/ct-ci-03-expected-failure.log" > /dev/null; then
   echo "CT-CI-03 did not observe the intended low-coverage failure" >&2
   exit 1
 fi

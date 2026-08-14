@@ -12,6 +12,7 @@ builder.Services.AddIvrFoundation(builder.Configuration);
 builder.Services.AddIvrFeatureFlags(builder.Configuration);
 builder.Services.AddIvrRetention(builder.Configuration);
 builder.Services.AddIvrCallbackDelivery(builder.Configuration);
+builder.Services.AddHostedService<MockSimChannelProvisioner>();
 builder.Services.AddHostedService<IvrHeartbeat>();
 builder.Services.AddHostedService<RetentionJobHost>();
 builder.Services.AddHostedService<SchedulerJobHost>();
