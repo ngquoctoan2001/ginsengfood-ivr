@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T01:57:59.116Z",
+  "generatedAt": "2026-08-14T01:59:35.087Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215438,49 +215438,49 @@
         {
           "depth": 2,
           "text": "Delivered behavior",
-          "line": 9,
+          "line": 11,
           "slug": "delivered-behavior"
         },
         {
           "depth": 2,
           "text": "Target V1 delivery contract",
-          "line": 29,
+          "line": 31,
           "slug": "target-v1-delivery-contract"
         },
         {
           "depth": 2,
           "text": "Current Golden Hour compatibility boundary",
-          "line": 60,
+          "line": 62,
           "slug": "current-golden-hour-compatibility-boundary"
         },
         {
           "depth": 2,
           "text": "Runtime controls and observability",
-          "line": 78,
+          "line": 80,
           "slug": "runtime-controls-and-observability"
         },
         {
           "depth": 2,
           "text": "Named behavior evidence",
-          "line": 91,
+          "line": 93,
           "slug": "named-behavior-evidence"
         },
         {
           "depth": 2,
           "text": "Verification evidence",
-          "line": 111,
+          "line": 113,
           "slug": "verification-evidence"
         },
         {
           "depth": 2,
           "text": "Safety and residual gates",
-          "line": 139,
+          "line": 141,
           "slug": "safety-and-residual-gates"
         }
       ],
       "links": [],
-      "lines": 156,
-      "words": 1053,
+      "lines": 158,
+      "words": 1056,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -220503,19 +220503,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 303,
+          "line": 304,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 324,
+          "line": 325,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 734,
-      "words": 11972,
+      "lines": 736,
+      "words": 12028,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],

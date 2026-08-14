@@ -4,6 +4,8 @@ Date: 2026-08-14
 
 Implementation baseline: `68d5fef6ffa39f8a52409adf281876e0f0d1734f`
 
+Implementation commit: `2412cf65615c1079e2c96f5f9ab5fc5b6eeb149c`
+
 Execution boundary: local/MOCK, `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
 ## Delivered behavior
