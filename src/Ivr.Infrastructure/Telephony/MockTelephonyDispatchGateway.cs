@@ -1,8 +1,10 @@
 using Ivr.Domain.Confirmation;
+using Ivr.Domain.Errors;
 using Ivr.Domain.Ports;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Providers.Fakes;
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Speech;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Telephony;
@@ -155,6 +157,7 @@ public sealed class MockSchedulerDispatchGateway(
     ITelephonyDispatchStore store,
     IDialTokenResolver dialTokenResolver,
     ISpeechRenderer speechRenderer,
+    ISpeechSynthesisService speechSynthesisService,
     ISimGateway simGateway,
     IOptions<MockTelephonyOptions> mockOptions,
     IOptions<IvrOptions> ivrOptions,
@@ -203,6 +206,14 @@ public sealed class MockSchedulerDispatchGateway(
                 dispatch.ScriptTemplateId,
                 dispatch.ScriptVersion,
                 ExecutionMode.Mock,
+                cancellationToken).ConfigureAwait(false);
+            speech = await speechSynthesisService.SynthesizeAsync(
+                speech,
+                dispatch.SpeechSummary,
+                dispatch.ScriptTemplateId,
+                dispatch.ScriptVersion,
+                ExecutionMode.Mock,
+                lease.Deadline,
                 cancellationToken).ConfigureAwait(false);
             SimGatewayHealth health = await simGateway.CheckHealthAsync(
                 lease.SimChannelId,
@@ -279,6 +290,10 @@ public sealed class MockSchedulerDispatchGateway(
             (SimProviderDisposition disposition, string technicalCode, bool channelHealthy) =
                 exception switch
                 {
+                    TtsSynthesisException tts =>
+                        (SimProviderDisposition.AudioError, tts.TechnicalErrorCode, true),
+                    IvrFailureException failure =>
+                        (SimProviderDisposition.AudioError, failure.ErrorCode, true),
                     MockSimOperationException mock =>
                         (mock.Disposition, mock.TechnicalErrorCode, mock.ChannelHealthy),
                     KeyNotFoundException =>

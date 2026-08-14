@@ -1,6 +1,6 @@
 # IVR Master Implementation Progress Ledger
 
-Trạng thái: `ACTIVE_SINGLE_SOURCE` · Cập nhật: `2026-08-13`
+Trạng thái: `ACTIVE_SINGLE_SOURCE` · Cập nhật: `2026-08-14`
 Scope: mọi planned work, unplanned work, dependency, decision, implementation, test, evidence và acceptance của IVR.
 
 > **Không tạo tracker/backlog thứ hai.** File này là sổ tiến độ duy nhất. Không xóa lịch sử; sửa factual error bằng một Activity entry mới. Khi bảng dài, tiếp tục append, không tách file.
@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0087` |
 | Last allocated | `W-0086` |
-| Last activity sequence | `A-0119` |
+| Last activity sequence | `A-0143` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -127,7 +127,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0062` | Red-team remediation | Sửa tài liệu/contract/prompt/fixture theo red-team findings (Origin=`RED_TEAM_REMEDIATION`) | W-0001 | EVIDENCE_SUBMITTED | Claude + IVR owner | governance restore, DB/OpenAPI/seed realign, 3 prompt mới, tracker | link/JSON/YAML/OpenAPI/seed-schema/prompt-graph checks — xem §9 | không đóng external gate nào; chờ owner review |
 | `W-0064` | `P1-5` | retention job + data lifecycle (`IRetentionJob`) | W-0015 | TESTS_PASS | Codex | branch `codex/w0064-p1-5-retention`; Domain/Infrastructure/Worker; EF migration; DB-05; `docs/evidence/W-0064/` | 7/7 focused; full 105/105; coverage 93.70%; migration apply/rollback/recreate; format/config/OpenAPI/UI/security/PII/Compose PASS | owner/reviewer acceptance pending; production periods vẫn `OWNER_DECISION_REQUIRED` theo DF-07/`OD-V1-11`; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | `W-0065` | `P2-8` | IVR internal & admin API (13 operation còn thiếu) | W-0013,W-0018,W-0020,W-0022,W-0023 đều TESTS_PASS; baseline `87457b6` | TESTS_PASS | Codex | 6 service-only lifecycle + 7 permission-gated admin operation; typed/masked response; idempotency; atomic action/audit; queue/SIM/retry/review policy; OpenAPI/codegen/API portal; `docs/evidence/W-0065/` | focused 12/12 (10 required group); full 255/255; coverage 94.30%; build 0/0; EF/API/docs/UI/config/security/privacy/Compose PASS | local/MOCK only; Target contract DRAFT; hosted GitLab/reviewer/real Sales-auth/SIM-eSIM/LAB/PROD `NOT_RUN`; `REAL_CUSTOMER_CALL_ALLOWED=NO`; no order transition/Sales write/SMS/call thật |
-| `W-0066` | `P2-9` | speech/TTS provider port + adapter skeleton | W-0021,W-0024,W-0064 | NOT_STARTED |  |  |  | prereq của W-0048; vendor TTS chờ `OD-V1-19` |
+| `W-0066` | `P2-9` | speech/TTS provider port + adapter skeleton | W-0021,W-0024,W-0064 đều TESTS_PASS; baseline `6204971` | TESTS_PASS | Codex | Domain port/models; deterministic fake; external skeleton; privacy/cache/retention seam; telephony wiring; `docs/evidence/W-0066/` | P2-9 9/9; full 264/264; coverage 94.7%; build 0 warning/error; PII/Gitleaks PASS; map 421/377/0 | prereq của W-0048; `OD-V1-15`, `OD-V1-19`, `W-0008` vẫn mở; lab/vendor/pronunciation NOT_RUN; MOCK no-egress, real calls NO |
 | `W-0067` | Fix: PII regex control char | Ký tự điều khiển `0x08` lọt vào regex PII của `pii_scan` (P0-2) làm pattern vô hiệu (Origin=`RED_TEAM_REMEDIATION`) | W-0062 | EVIDENCE_SUBMITTED | Claude | `P0-2` §6.2 | 0x08 = 0 toàn repo; 5/5 pattern test pass | pattern chuyển sang `deploy/ci/pii-patterns.txt`, tạo file thật ở W-0011 |
 | `W-0068` | Fix: kill-switch immutability | “Immutable trong PRODUCTION_REAL” khiến **không bật được** kill switch khi sự cố — sửa thành bất đối xứng theo chiều an toàn (Origin=`RED_TEAM_REMEDIATION`) | W-0062 | EVIDENCE_SUBMITTED | Claude | `P0-4` §6.6-6.7, `specs/api/03-admin-api.md` | thêm `IT-FLAG-EMERGENCY-10`, sửa `IT-FLAG-PRODGUARD-07`/`-09` | quyền `IVR_RUNTIME_GATE_ADMIN` vẫn chờ `OD-V1-20` |
 | `W-0069` | Fix: P2-1 ↔ P2-7 dependency | Bỏ prompt hư cấu `P2-7a`/`P2-7b`; `P2-7` chạy trước `P2-1` (Origin=`RED_TEAM_REMEDIATION`) | W-0062 | EVIDENCE_SUBMITTED | Claude | `P2-1`, `P2-7`, `prompt/00-index.md`, tracker §5 | cycle check 54 nodes = 0 cycle; `W-0024←W-0016`, `W-0018←W-0014..16,W-0024` | — |
@@ -305,6 +305,9 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0138` | 2026-08-14 | `W-0065` | SELF_REVIEW/REMEDIATION | Siết CT bằng generated DTO, bổ sung 403 cho QueueView, sửa enum YAML bị gộp do indentation và regenerate/repin; tách internal/admin mapper đúng namespace; khóa admin UI qua BFF, không phát internal token xuống browser | Codex | parsed callback enum 6 giá trị riêng; 13 route; OpenAPI/codegen/drift/docs rerun; mapping/test-host blast radius LOW; build/focused xanh sau refactor |
 | `A-0139` | 2026-08-14 | `W-0065` | VALIDATION/EVIDENCE | Chốt local `TESTS_PASS` và bộ evidence privacy-safe: 10 nhóm/12 case, 7 mẫu 403, 409 conflict, audit redacted, contract hash/diff và fresh coverage | Codex | contract 21 + unit 157 + integration 77 = 255/255; focused 12/12; coverage 94.30% (22760/24137, 3 reports); Release 0 warning/0 error; EF/API/docs/UI/config/NuGet/npm/Compose/Gitleaks/PII PASS; map 418/375/0; GitNexus main 40630/47818/300, staged CRITICAL 33 files/285 symbols/141 expected flows; external/hosted/reviewer/LAB/PROD vẫn NOT_RUN |
 | `A-0140` | 2026-08-14 | `W-0065` | COMMIT/REMOTE_HANDOFF | Commit implementation P2-8 trực tiếp trên `main`, push và xác minh exact ref ở cả GitHub lẫn GitLab; không tạo branch/MR | Codex | `251d276e47299d7eec209a4cb6563bc4a56cc0a9`; GitHub main exact; GitLab origin/main exact; push thành công không thay thế hosted pipeline/protected-policy evidence, vẫn NOT_RUN |
+| `A-0141` | 2026-08-14 | `W-0066` | START/DISCOVERY | Bắt đầu P2-9 trực tiếp trên `main`: port/model TTS, deterministic fake, external skeleton fail-closed, post-render privacy guard, bounded cache/purge và nối audio metadata vào MOCK SIM play; không chọn vendor hoặc tạo egress | Codex | baseline `6204971`; W-0021/W-0024/W-0064 TESTS_PASS; map 418/375/0; GitNexus `DispatchAsync` HIGH 7 symbol/1 worker flow, `RenderedSpeech`/DI/retention LOW; tránh sửa `FakeSimGateway.PlayAsync` CRITICAL; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
+| `A-0142` | 2026-08-14 | `W-0066` | IMPLEMENTATION/SELF_REVIEW | Dựng Domain TTS port/model, deterministic fake, external skeleton, post-render privacy guard, timeout/rate/cost metrics, deadline-retention cache và retention purge hook; nối synthesis trước SIM play. Self-review bổ sung redacted provider-options, PII conversion và non-MOCK fixture `UNSELECTED` | Codex | focused TTS 9/9; telephony 16/16; retention 6/6; full 264/264; `SynthesizeAsync` CRITICAL 14 symbol/2 flow và `DispatchAsync` HIGH đã được cảnh báo, giữ sequencing hẹp; không sửa `FakeSimGateway.PlayAsync` CRITICAL |
+| `A-0143` | 2026-08-14 | `W-0066` | VALIDATION/EVIDENCE | Khóa collision của deterministic audio ref bằng SHA-256 toàn bộ seed + tone digest; chạy lại format/build/full regression/coverage và cập nhật evidence. Một P2-8 admin test transient dưới coverage được giữ minh bạch, retry integration coverage xanh | Codex | collision probe PASS; build 0/0; P2-9 9/9; full 264/264; integration coverage retry 79/79; merged line coverage 94.7% (25,645/27,080); PII 6/0 PASS; Gitleaks staged khoảng 106 KB/no leaks; Markdown 421/377/0; GitNexus staged CRITICAL 33 file/179 symbol/20 flow, đã cảnh báo và phủ regression |
 
 ## 8. Per-work completion record template
 
@@ -756,5 +759,23 @@ Remote handoff: GitHub main fast-forwarded to 2412cf6 and remote ref verified ex
 Safety boundary: callback is an immutable signal only; Core owns revalidation/order transitions; current HTTP 200 is delivery acceptance only; NO_ANSWER_FINAL requires CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT; no direct cancellation/confirmation/payment/revenue update and no SMS/notification
 Residual blockers/risks: W-0005 current Golden Hour numeric identity/lifecycle and W-0006 Target endpoint/auth/payload remain OWNER_DATA_REQUIRED; production retry/token semantics, one-SIM lab, future 32-eSIM provisioning and release approvals remain external; GitLab protected main may reject direct push
 Next allowed Work ID(s): W-0065/P2-8 internal/admin API is now unblocked locally and is the recommended next implementation
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0066 / P2-9
+Baseline/commit: baseline main@62049711f6bca9a77c0d1f63d5936b8aa5fbc3e1; implementation and final documentation commits are recorded by the follow-up handoff; no branch/MR by explicit IVR owner instruction
+Scope completed: vendor-neutral ITtsProvider/SpeechScript/TtsOptions/RenderedAudio boundary; deterministic network-free MOCK PCM metadata adapter; configurable external fail-closed skeleton; post-render/pre-provider PII guard; Vietnamese pronunciation hints and VND/item rendering compatibility; timeout/error normalization; bounded rate/character/cost metrics; SHA-256 cache identity with deadline/retention TTL cap; P1-5 retention purge hook; synthesis-before-SIM-play wiring
+Files/artifacts: src/Ivr.Domain/Speech/**; src/Ivr.Infrastructure/Speech/**; retention/telephony/DI/config integration; P2-9 unit/integration tests; docs/capacity-model.md; docs/evidence/W-0066/**; official Markdown map
+Commands and exact results: format PASS; Release build 0 warning/0 error; required P2-9 9/9; full contract 21 + unit 164 + integration 79 = 264/264; fresh ReportGenerator merge 94.7% (25,645/27,080, 3 green reports); PII 6 files/0 skipped PASS; staged Gitleaks approximately 106 KB/no leaks; official Markdown map 421 files/377 resolved/0 unresolved
+Tests/evidence: UT-TTS-SNAPSHOT-01/VND-02/PRON-03/PII-04/TIMEOUT-05/NOTCONFIGURED-06/WHITELIST-07 and IT-TTS-CACHE-08/MODE-09 PASS; privacy-safe text/audio metadata/test matrix at docs/evidence/W-0066/
+Review/acceptance by: Codex self-review under explicit IVR owner authorization; status limited to TESTS_PASS until owner/reviewer accepts and physical/external/release evidence exists
+Mock-only evidence: complete; fake provider is deterministic and network-free, external adapter cannot be selected in MOCK, recording disabled, REAL_CUSTOMER_CALL_ALLOWED=NO, no real destination/customer call
+Lab evidence: NOT_RUN; no physical SIM/eSIM, modem/gateway codec, carrier, provider endpoint, allowlisted test phone or Vietnamese pronunciation acceptance
+Real integration evidence: NOT_RUN; no real TTS vendor, Sales/Order Core endpoint/auth/data, SIM gateway or callback path invoked
+Production evidence: NOT_RUN; external adapter remains TTS_NOT_CONFIGURED; no vendor/DPA/data-residency/pricing/quota/deployment/sign-off
+GitNexus review: refreshed main worktree index 40,823 nodes/48,374 edges/300 flows; FakeDeterministicTtsProvider.SynthesizeAsync HIGH with 5 impacted symbols/2 flows and DI/interface lower-bound; final staged detect-changes CRITICAL with 33 files/179 symbols/20 expected cross-layer TTS/telephony/retention flows; change kept bounded and covered by focused/full regression
+Residual blockers/risks: OD-V1-15 product/privacy whitelist, OD-V1-19 vendor/protocol/legal/cost/pronunciation and W-0008/W-0048 one-SIM lab remain open; future 32-eSIM capacity/failover/caller-ID evidence is NOT_RUN; hosted deployment/reviewer/production approval remain external
+Next allowed Work ID(s): W-0025/P3-1 Admin UI on the completed P2-8 internal/admin APIs is the recommended next implementation
 Final status: TESTS_PASS
 ```

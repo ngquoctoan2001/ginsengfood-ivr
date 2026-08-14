@@ -16,7 +16,8 @@ public sealed class RetentionJob(
     IDbContextFactory<IvrDbContext> dbContextFactory,
     IRetentionPolicyProvider policyProvider,
     IRetentionTelemetry telemetry,
-    TimeProvider timeProvider) : IRetentionJob
+    TimeProvider timeProvider,
+    IEnumerable<IRetentionPurgeHook>? purgeHooks = null) : IRetentionJob
 {
     private const string PolicyCheckpointSegment = "__policy__";
 
@@ -48,6 +49,16 @@ public sealed class RetentionJob(
                     options,
                     startedAt,
                     cancellationToken));
+            }
+
+            foreach (IRetentionPurgeHook hook in (purgeHooks ?? [])
+                         .OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await hook.PurgeExpiredAsync(
+                    startedAt,
+                    options.DryRun,
+                    cancellationToken).ConfigureAwait(false);
             }
 
             DateTimeOffset completedAt = options.Now ?? timeProvider.GetUtcNow();

@@ -7,6 +7,7 @@ using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Security;
 using Ivr.Infrastructure.Providers.Fakes;
 using Ivr.Infrastructure.Repositories;
+using Ivr.Infrastructure.Speech;
 using Ivr.Infrastructure.Telephony;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -456,6 +457,7 @@ public static class SchedulerServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
             IValidateOptions<MockTelephonyOptions>, MockTelephonyOptionsValidator>());
         services.TryAddSingleton(new SchedulerExecutionContext(executionMode));
+        services.AddIvrSpeech(configuration, executionMode);
         if (useMockCapacity)
         {
             services.TryAddSingleton<ISchedulerCapacityService,

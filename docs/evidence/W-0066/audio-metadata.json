@@ -1,0 +1,17 @@
+{
+  "fixture": "synthetic-deterministic-tone",
+  "contains_real_customer_data": false,
+  "format": "audio/L16",
+  "sample_rate_hz": 8000,
+  "content_reference_scheme": "memory://tts/fake/<sha256>",
+  "content_reference_contains_raw_summary": false,
+  "recording": "DISABLED",
+  "persisted_audio_file": false,
+  "cache_key": "sha256(template_id,version,summary_hash,voice_id,locale)",
+  "cache_ttl_bounds": [
+    "confirmation_window_remaining",
+    "Ivr:Speech:Tts:CacheMaximumTtlSeconds",
+    "speech_snapshot_retention"
+  ],
+  "live_pronunciation_verified": false
+}

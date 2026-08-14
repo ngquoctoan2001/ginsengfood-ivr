@@ -1,12 +1,12 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-14T03:35:07.007Z
+Generated: 2026-08-14T04:46:34.261Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 418
-- Links resolved: 375
+- Markdown files: 421
+- Links resolved: 377
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
@@ -135,6 +135,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/api/changelog/order-core-ivr-callback.md | API Changelog 1.0.0-draft vs. 1.0.0-draft | 1/1 | 1 | 0 | 0 | 9 |
 | docs/api-changelog.md | IVR API Contract Changelog | 1/3 | 0 | 3 | 0 | 208 |
 | docs/api-versioning.md | IVR API Versioning and Deprecation Policy | 1/7 | 1 | 0 | 0 | 422 |
+| docs/capacity-model.md | IVR Capacity and Cost Model | 1/3 | 1 | 0 | 0 | 359 |
 | docs/contracts/openapi-codegen.md | OpenAPI Code Generation and Contract Drift Policy | 1/6 | 0 | 0 | 0 | 429 |
 | docs/contracts/openapi-contract-diff.md | OpenAPI Contract Baseline and Human-Readable Diff | 1/5 | 0 | 0 | 0 | 396 |
 | docs/documents/0. appendices/01-OPERATIONAL-FORMS.md | OPERATIONAL FORMS | 1/16 | 1 | 0 | 0 | 3384 |
@@ -334,6 +335,8 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1511 |
 | docs/evidence/W-0064/README.md | W-0064 — P1-5 Retention Job & Data Lifecycle Evidence | 1/5 | 1 | 1 | 0 | 416 |
 | docs/evidence/W-0065/README.md | W-0065 — P2-8 internal and admin API evidence | 1/8 | 0 | 0 | 0 | 1088 |
+| docs/evidence/W-0066/README.md | W-0066 — P2-9 speech/TTS provider boundary evidence | 1/6 | 0 | 2 | 0 | 550 |
+| docs/evidence/W-0066/test-report.md | W-0066 required test matrix | 1/1 | 1 | 0 | 0 | 203 |
 | docs/evidence/W-0085/README.md | W-0085 Linux ProjectReference path portability | 1/6 | 0 | 0 | 0 | 270 |
 | docs/evidence/W-0086/README.md | W-0086 — Shallow-clone Gitleaks fingerprint remediation | 1/4 | 0 | 0 | 0 | 401 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
@@ -385,7 +388,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 12387 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 12658 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |

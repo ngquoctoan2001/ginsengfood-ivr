@@ -4,6 +4,7 @@ using Ivr.Api.Foundation;
 using Ivr.Api.Middleware;
 using Ivr.Domain.Errors;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.Speech;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -57,6 +58,9 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
                 ["SIM_PROVIDER"] = executionMode == IvrOptions.LabRealSimExecutionMode
                     ? "VENDOR"
                     : "MOCK",
+                ["Ivr:Speech:Tts:Provider"] = executionMode == IvrOptions.MockExecutionMode
+                    ? TtsProviderOptions.FakeProvider
+                    : TtsProviderOptions.UnselectedProvider,
                 ["ConnectionStrings:IvrDb"] =
                     "Host=localhost;Port=5432;Database=ivr_test;Username=ivr;Password=unused",
                 ["REAL_CUSTOMER_CALL_ALLOWED"] = "NO",

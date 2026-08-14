@@ -7,6 +7,7 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Providers.Fakes;
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Speech;
 using Ivr.Infrastructure.Telephony;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,7 +69,11 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         Assert.Equal("DISPOSITION_PENDING_NORMALIZATION", job.Status);
         Assert.Equal("HELD_NORMALIZATION", job.QueueStatus);
         Assert.Equal(6, sim.Events.Count);
-        Assert.Single(sim.PlayedSpeech);
+        RenderedSpeech played = Assert.Single(sim.PlayedSpeech).Value;
+        Assert.NotNull(played.Audio);
+        Assert.Equal("audio/L16", played.Audio.Format);
+        Assert.Equal(8_000, played.Audio.SampleRate);
+        Assert.StartsWith("memory://tts/fake/", played.Audio.ContentRef, StringComparison.Ordinal);
         Assert.DoesNotContain(
             await verification.AuditLog.Select(row => row.DataJson).ToListAsync(),
             json => json.Contains("Anh Đạt", StringComparison.Ordinal)
@@ -202,10 +207,25 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
                 [lease.AttemptId] = new() { Disposition = "Answered", DtmfKey = "1" },
             },
         };
+        var timeProvider = new FixedTimeProvider(Now);
+        IOptions<TtsProviderOptions> ttsOptions = Options.Create(new TtsProviderOptions
+        {
+            ExecutionMode = IvrOptions.MockExecutionMode,
+            Provider = TtsProviderOptions.FakeProvider,
+        });
+        var usage = new TtsUsageMeter();
+        var synthesis = new SpeechSynthesisService(
+            new FakeDeterministicTtsProvider(ttsOptions),
+            new AudioCache(timeProvider),
+            new TtsRequestBudget(timeProvider),
+            usage,
+            ttsOptions,
+            timeProvider);
         return new MockSchedulerDispatchGateway(
             store,
             new FakeDialTokenResolver(tokens, options.DestinationAllowlist),
             new FakeSpeechRenderer(),
+            synthesis,
             sim,
             Options.Create(options),
             Options.Create(new IvrOptions
@@ -215,7 +235,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
                 RealCustomerCallAllowed = false,
             }),
             new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
-            new FixedTimeProvider(Now));
+            timeProvider);
     }
 
     private static async Task SeedMockDispatchAsync(

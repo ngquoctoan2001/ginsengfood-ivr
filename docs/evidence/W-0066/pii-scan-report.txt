@@ -1,0 +1,6 @@
+W-0066 PRIVACY SCAN
+Status: PASS
+Scope: docs/evidence/W-0066
+Expected: no raw phone, full street address, dial token, credential or customer audio
+Command: docker/alpine sh deploy/ci/scripts/scan-pii.sh docs/evidence/W-0066
+Result: PII_SCAN_PASS files=6 skipped_binary=0 locale=C.UTF-8

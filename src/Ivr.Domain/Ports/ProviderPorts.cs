@@ -1,4 +1,5 @@
 using Ivr.Domain.Confirmation;
+using Ivr.Domain.Speech;
 
 namespace Ivr.Domain.Ports;
 
@@ -51,7 +52,8 @@ public sealed record RenderedSpeech
         string locale,
         TimeSpan estimatedDuration,
         int collapsedItemCount,
-        string audioFormat)
+        string audioFormat,
+        RenderedAudio? audio = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(scriptReference);
         ArgumentException.ThrowIfNullOrWhiteSpace(exactText);
@@ -67,6 +69,7 @@ public sealed record RenderedSpeech
         EstimatedDuration = estimatedDuration;
         CollapsedItemCount = collapsedItemCount;
         AudioFormat = audioFormat;
+        Audio = audio;
     }
 
     public string ScriptReference { get; }
@@ -85,6 +88,22 @@ public sealed record RenderedSpeech
     public int CollapsedItemCount { get; }
 
     public string AudioFormat { get; }
+
+    public RenderedAudio? Audio { get; }
+
+    public RenderedSpeech WithAudio(RenderedAudio audio)
+    {
+        ArgumentNullException.ThrowIfNull(audio);
+        return new RenderedSpeech(
+            ScriptReference,
+            ExactText,
+            ContentHash,
+            Locale,
+            EstimatedDuration,
+            CollapsedItemCount,
+            audio.Format,
+            audio);
+    }
 
     public override string ToString() => "[REDACTED_RENDERED_SPEECH]";
 }

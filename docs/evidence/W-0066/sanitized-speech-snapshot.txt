@@ -1,0 +1,9 @@
+SYNTHETIC_TEST_FIXTURE=YES
+CONTAINS_REAL_CUSTOMER_DATA=NO
+LOCALE=vi-VN
+
+ONE_ITEM:
+Xin chào anh/chị Anh Đạt. Anh/chị có đơn DH-2026-001 gồm 2 Hộp Sâm lát, tổng tiền 1.250.000 đồng, giao đến Phường Bến Nghé, Quận 1. Bấm phím 1 để xác nhận đơn hàng, bấm phím 0 để hủy.
+
+COLLAPSED_ITEMS:
+Xin chào anh/chị Chị Mai. Anh/chị có đơn DH-TTS-01 gồm 1 hộp Sâm lát, 2 gói Trà sâm, 3 chai Mật ong, và 1 sản phẩm khác, tổng tiền 9.876.500 đồng, giao đến Quận 7. Bấm phím 1 để xác nhận đơn hàng, bấm phím 0 để hủy.
