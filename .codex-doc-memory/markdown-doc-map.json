@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T09:14:53.193Z",
+  "generatedAt": "2026-08-14T10:51:35.122Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215865,14 +215865,20 @@
         },
         {
           "depth": 2,
-          "text": "Residual W-0061 checklist",
+          "text": "Phase 1/2 remediation MR !4 hosted validation",
           "line": 197,
+          "slug": "phase-12-remediation-mr-4-hosted-validation"
+        },
+        {
+          "depth": 2,
+          "text": "Residual W-0061 checklist",
+          "line": 232,
           "slug": "residual-w-0061-checklist"
         }
       ],
       "links": [],
-      "lines": 227,
-      "words": 1752,
+      "lines": 262,
+      "words": 2007,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -216382,14 +216388,20 @@
         },
         {
           "depth": 2,
-          "text": "Final local evidence gates",
+          "text": "Hosted remediation evidence",
           "line": 54,
+          "slug": "hosted-remediation-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Final local evidence gates",
+          "line": 75,
           "slug": "final-local-evidence-gates"
         }
       ],
       "links": [],
-      "lines": 66,
-      "words": 440,
+      "lines": 87,
+      "words": 601,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -221256,19 +221268,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 339,
+          "line": 340,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 360,
+          "line": 361,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 810,
-      "words": 14082,
+      "lines": 811,
+      "words": 14153,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],

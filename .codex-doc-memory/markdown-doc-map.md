@@ -1,6 +1,6 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-14T09:14:53.193Z
+Generated: 2026-08-14T10:51:35.122Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
@@ -342,7 +342,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0023/README.md | W-0023 / P2-6 — Sales callback outbox and Golden Hour compatibility | 1/8 | 0 | 0 | 0 | 1059 |
 | docs/evidence/W-0024/privacy-test-report.md | W-0024 privacy test report | 1/1 | 1 | 0 | 0 | 206 |
 | docs/evidence/W-0024/README.md | W-0024 / P2-7 — Script, Content Approval and Speech Safety | 1/6 | 0 | 1 | 0 | 427 |
-| docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/15 | 0 | 0 | 0 | 1752 |
+| docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/16 | 0 | 0 | 0 | 2007 |
 | docs/evidence/W-0064/README.md | W-0064 — P1-5 Retention Job & Data Lifecycle Evidence | 1/5 | 1 | 1 | 0 | 464 |
 | docs/evidence/W-0065/README.md | W-0065 — P2-8 internal and admin API evidence | 1/9 | 0 | 0 | 0 | 1195 |
 | docs/evidence/W-0066/README.md | W-0066 — P2-9 speech/TTS provider boundary evidence | 1/8 | 0 | 2 | 0 | 679 |
@@ -355,7 +355,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0090/README.md | W-0090 — Phase 1/2 callback and admin atomicity remediation | 1/1 | 0 | 0 | 0 | 149 |
 | docs/evidence/W-0091/README.md | W-0091 — Phase 1/2 retention and acceptance-test remediation | 1/1 | 0 | 0 | 0 | 213 |
 | docs/evidence/W-0092/README.md | W-0092 — Phase 1/2 contract and configuration remediation | 1/1 | 0 | 0 | 0 | 257 |
-| docs/evidence/W-0093/README.md | W-0093 — Phase 1/2 governance and evidence truth remediation | 1/4 | 0 | 0 | 0 | 440 |
+| docs/evidence/W-0093/README.md | W-0093 — Phase 1/2 governance and evidence truth remediation | 1/5 | 0 | 0 | 0 | 601 |
 | docs/evidence/W-0094/README.md | W-0094 — Phase 1/2 lifecycle and dead-code remediation | 1/1 | 0 | 0 | 0 | 194 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
 | docs/operations/gitlab-runner-winhost.md | GitLab self-hosted Docker runner on Windows | 1/8 | 0 | 0 | 0 | 676 |
@@ -407,7 +407,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 14082 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 14153 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |

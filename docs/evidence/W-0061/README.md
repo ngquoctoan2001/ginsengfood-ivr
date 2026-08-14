@@ -194,6 +194,41 @@ CI_CONFIG_SELFTEST_PASS
 
 `npx --yes gitlab-ci-local@latest --list` remains `ENV_BLOCKED` on this Windows host because its renderer attempts to execute `/bin/bash`. This does not invalidate the deterministic Node self-test. Hosted GitLab pipelines listed above are the authoritative execution evidence instead.
 
+## Phase 1/2 remediation MR !4 hosted validation
+
+Merge Request `!4` (`codex/phase-1-2-opus-remediation`) is the hosted evidence
+lane for W-0087..W-0094:
+<https://gitlab.com/nqt20102001/ginsengfood-ivr/-/merge_requests/4>.
+
+The failed pipelines are retained because each exposed a distinct CI defect:
+
+- pipeline `#2760049871` failed `lint_dotnet` with `NU1004` because the
+  integration-test lock file did not include its new Worker project reference;
+- pipeline `#2760097290` passed the full 281-test regression but
+  `security_scan` attributed four historical portal false positives to the
+  depth-20 boundary commit;
+- pipeline `#2760190045` reproduced that shallow-boundary security failure and
+  proved the PII artifact scan was correctly inspecting downloaded JUnit: a
+  theory display name serialized the raw negative fixture at XML line 537.
+
+Pipeline `#2760238052` for commit `001d2f57` then passed all 9 jobs. Hosted
+results were Release build `0 warnings / 0 errors`; Contract `21/21`, Unit
+`168/168` and Integration `92/92` (`281/281` total); merged line coverage
+`88.80% (10,350/11,656)`; and successful artifact/JUnit/Cobertura uploads.
+Security job `15900070454` validated the Gitleaks checksum, passed the NuGet
+High policy and both npm audits with zero vulnerabilities, scanned all `47`
+commits / `22.44 MB` with no leaks, and emitted `SECURITY_SCAN_PASS`. PII job
+`15900070455` passed CT-CI-06 through CT-CI-06h and scanned the downloaded
+evidence/artifact topology (`65` text files, `2` binary files skipped by
+policy), emitting `PII_SCAN_PASS`.
+
+Only `security_scan` now sets `GIT_DEPTH: "0"`, so the historical secret scan
+uses the full pipeline-commit ancestry instead of a moving shallow boundary.
+GitLab documents both the default depth of 20 for newly created projects and
+that job-level `GIT_DEPTH: "0"` disables shallow cloning:
+<https://docs.gitlab.com/ci/pipelines/settings/#limit-the-number-of-changes-fetched-during-clone>.
+The CI configuration self-test pins this requirement.
+
 ## Residual W-0061 checklist
 
 | Requirement | State | Required evidence |
@@ -206,7 +241,7 @@ CI_CONFIG_SELFTEST_PASS
 | Protected default branch | PASS_SETTING_CURRENT | authenticated post-save view: `main` protected, merge Maintainers, push+merge No one, force push off |
 | Rejected direct-push probe | NOT_RUN | historical rejection retained; run a new safe disposable-commit probe against the current rule without risking a write to `main` |
 | Merge-request approvals/CODEOWNERS | BLOCKED_EXTERNAL | current Free tier shows optional approvals; only one project member; upgrade plus independent reviewer required |
-| Pipelines must succeed | PASS_SETTING_CURRENT | setting enabled; MR `!1`/`!2` merged after green pipelines; current branch rule forces writes through an MR |
+| Pipelines must succeed | PASS_SETTING_CURRENT | setting enabled; MR `!1`/`!2` merged after green pipelines; MR `!4` pipeline `#2760238052` passed 9/9; current branch rule forces writes through an MR |
 | Container Registry push/pull | PASS | job `15872915564`; registry repository `ginsengfood-ivr/w0061-proof` |
 | Pages access control | PASS | private project, `Only Project Members`; pipeline `#2756517379`, job `15873355825`, anonymous redirect to GitLab auth |
 | Masked/protected variables | PASS | `IVR_W0061_PROTECTED_PROBE` protected/masked/hidden; `API_DOCS_PUBLISH_NONPROD` protected; values not recorded |
