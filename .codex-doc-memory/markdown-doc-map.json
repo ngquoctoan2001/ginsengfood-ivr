@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T04:46:34.261Z",
+  "generatedAt": "2026-08-14T04:49:38.698Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -895,7 +895,7 @@
           "to": "docs/capacity-model.md",
           "kind": "markdown",
           "rawTarget": "../../capacity-model.md",
-          "line": 55
+          "line": 57
         }
       ]
     },
@@ -215860,31 +215860,37 @@
         {
           "depth": 2,
           "text": "Delivered boundary",
-          "line": 11,
+          "line": 13,
           "slug": "delivered-boundary"
         },
         {
           "depth": 2,
           "text": "Test evidence",
-          "line": 40,
+          "line": 42,
           "slug": "test-evidence"
         },
         {
           "depth": 2,
           "text": "Safety interpretation",
-          "line": 57,
+          "line": 59,
           "slug": "safety-interpretation"
         },
         {
           "depth": 2,
           "text": "Residual gates",
-          "line": 67,
+          "line": 69,
           "slug": "residual-gates"
         },
         {
           "depth": 2,
+          "text": "Commit and remote handoff",
+          "line": 84,
+          "slug": "commit-and-remote-handoff"
+        },
+        {
+          "depth": 2,
           "text": "Local validation summary",
-          "line": 82,
+          "line": 90,
           "slug": "local-validation-summary"
         }
       ],
@@ -215893,17 +215899,17 @@
           "kind": "markdown",
           "text": "test-report.md",
           "rawTarget": "test-report.md",
-          "line": 42
+          "line": 44
         },
         {
           "kind": "markdown",
           "text": "capacity model",
           "rawTarget": "../../capacity-model.md",
-          "line": 55
+          "line": 57
         }
       ],
-      "lines": 92,
-      "words": 550,
+      "lines": 100,
+      "words": 592,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -215911,14 +215917,14 @@
           "to": "docs/evidence/W-0066/test-report.md",
           "kind": "markdown",
           "rawTarget": "test-report.md",
-          "line": 42
+          "line": 44
         },
         {
           "from": "docs/evidence/W-0066/README.md",
           "to": "docs/capacity-model.md",
           "kind": "markdown",
           "rawTarget": "../../capacity-model.md",
-          "line": 55
+          "line": 57
         }
       ],
       "unresolvedLinks": [],
@@ -215948,7 +215954,7 @@
           "to": "docs/evidence/W-0066/test-report.md",
           "kind": "markdown",
           "rawTarget": "test-report.md",
-          "line": 42
+          "line": 44
         }
       ]
     },
@@ -220711,19 +220717,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 312,
+          "line": 313,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 333,
+          "line": 334,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 782,
-      "words": 12658,
+      "lines": 784,
+      "words": 12717,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -233677,14 +233683,14 @@
       "to": "docs/evidence/W-0066/test-report.md",
       "kind": "markdown",
       "rawTarget": "test-report.md",
-      "line": 42
+      "line": 44
     },
     {
       "from": "docs/evidence/W-0066/README.md",
       "to": "docs/capacity-model.md",
       "kind": "markdown",
       "rawTarget": "../../capacity-model.md",
-      "line": 55
+      "line": 57
     },
     {
       "from": "integration-requirements/00-index.md",

@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0087` |
 | Last allocated | `W-0086` |
-| Last activity sequence | `A-0143` |
+| Last activity sequence | `A-0144` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -308,6 +308,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0141` | 2026-08-14 | `W-0066` | START/DISCOVERY | Bắt đầu P2-9 trực tiếp trên `main`: port/model TTS, deterministic fake, external skeleton fail-closed, post-render privacy guard, bounded cache/purge và nối audio metadata vào MOCK SIM play; không chọn vendor hoặc tạo egress | Codex | baseline `6204971`; W-0021/W-0024/W-0064 TESTS_PASS; map 418/375/0; GitNexus `DispatchAsync` HIGH 7 symbol/1 worker flow, `RenderedSpeech`/DI/retention LOW; tránh sửa `FakeSimGateway.PlayAsync` CRITICAL; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | `A-0142` | 2026-08-14 | `W-0066` | IMPLEMENTATION/SELF_REVIEW | Dựng Domain TTS port/model, deterministic fake, external skeleton, post-render privacy guard, timeout/rate/cost metrics, deadline-retention cache và retention purge hook; nối synthesis trước SIM play. Self-review bổ sung redacted provider-options, PII conversion và non-MOCK fixture `UNSELECTED` | Codex | focused TTS 9/9; telephony 16/16; retention 6/6; full 264/264; `SynthesizeAsync` CRITICAL 14 symbol/2 flow và `DispatchAsync` HIGH đã được cảnh báo, giữ sequencing hẹp; không sửa `FakeSimGateway.PlayAsync` CRITICAL |
 | `A-0143` | 2026-08-14 | `W-0066` | VALIDATION/EVIDENCE | Khóa collision của deterministic audio ref bằng SHA-256 toàn bộ seed + tone digest; chạy lại format/build/full regression/coverage và cập nhật evidence. Một P2-8 admin test transient dưới coverage được giữ minh bạch, retry integration coverage xanh | Codex | collision probe PASS; build 0/0; P2-9 9/9; full 264/264; integration coverage retry 79/79; merged line coverage 94.7% (25,645/27,080); PII 6/0 PASS; Gitleaks staged khoảng 106 KB/no leaks; Markdown 421/377/0; GitNexus staged CRITICAL 33 file/179 symbol/20 flow, đã cảnh báo và phủ regression |
+| `A-0144` | 2026-08-14 | `W-0066` | COMMIT/REMOTE_HANDOFF | Commit implementation P2-9 trực tiếp trên `main`, push và xác minh exact ref ở cả GitHub lẫn GitLab; documentation handoff được chốt bằng commit kế tiếp, không tạo branch/MR | Codex | `c93dace1614d8fc192a077ad4027a521f34bf711`; GitHub main exact; GitLab origin/main exact; `AGENTS.md` và `CLAUDE.md` vẫn là thay đổi user ngoài scope |
 
 ## 8. Per-work completion record template
 
@@ -764,7 +765,7 @@ Final status: TESTS_PASS
 
 ```text
 Work ID: W-0066 / P2-9
-Baseline/commit: baseline main@62049711f6bca9a77c0d1f63d5936b8aa5fbc3e1; implementation and final documentation commits are recorded by the follow-up handoff; no branch/MR by explicit IVR owner instruction
+Baseline/commit: baseline main@62049711f6bca9a77c0d1f63d5936b8aa5fbc3e1; implementation commit c93dace1614d8fc192a077ad4027a521f34bf711; this handoff is finalized in a follow-up documentation commit; no branch/MR by explicit IVR owner instruction
 Scope completed: vendor-neutral ITtsProvider/SpeechScript/TtsOptions/RenderedAudio boundary; deterministic network-free MOCK PCM metadata adapter; configurable external fail-closed skeleton; post-render/pre-provider PII guard; Vietnamese pronunciation hints and VND/item rendering compatibility; timeout/error normalization; bounded rate/character/cost metrics; SHA-256 cache identity with deadline/retention TTL cap; P1-5 retention purge hook; synthesis-before-SIM-play wiring
 Files/artifacts: src/Ivr.Domain/Speech/**; src/Ivr.Infrastructure/Speech/**; retention/telephony/DI/config integration; P2-9 unit/integration tests; docs/capacity-model.md; docs/evidence/W-0066/**; official Markdown map
 Commands and exact results: format PASS; Release build 0 warning/0 error; required P2-9 9/9; full contract 21 + unit 164 + integration 79 = 264/264; fresh ReportGenerator merge 94.7% (25,645/27,080, 3 green reports); PII 6 files/0 skipped PASS; staged Gitleaks approximately 106 KB/no leaks; official Markdown map 421 files/377 resolved/0 unresolved
@@ -776,6 +777,7 @@ Real integration evidence: NOT_RUN; no real TTS vendor, Sales/Order Core endpoin
 Production evidence: NOT_RUN; external adapter remains TTS_NOT_CONFIGURED; no vendor/DPA/data-residency/pricing/quota/deployment/sign-off
 GitNexus review: refreshed main worktree index 40,823 nodes/48,374 edges/300 flows; FakeDeterministicTtsProvider.SynthesizeAsync HIGH with 5 impacted symbols/2 flows and DI/interface lower-bound; final staged detect-changes CRITICAL with 33 files/179 symbols/20 expected cross-layer TTS/telephony/retention flows; change kept bounded and covered by focused/full regression
 Residual blockers/risks: OD-V1-15 product/privacy whitelist, OD-V1-19 vendor/protocol/legal/cost/pronunciation and W-0008/W-0048 one-SIM lab remain open; future 32-eSIM capacity/failover/caller-ID evidence is NOT_RUN; hosted deployment/reviewer/production approval remain external
+Remote handoff: GitHub main and GitLab origin/main were both fast-forwarded to c93dace1614d8fc192a077ad4027a521f34bf711 and verified exact before this documentation handoff commit; the follow-up commit is pushed to both remotes immediately after creation
 Next allowed Work ID(s): W-0025/P3-1 Admin UI on the completed P2-8 internal/admin APIs is the recommended next implementation
 Final status: TESTS_PASS
 ```

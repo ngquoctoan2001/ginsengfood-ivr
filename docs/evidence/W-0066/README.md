@@ -4,6 +4,8 @@ Status: `TESTS_PASS`
 
 Baseline: `62049711f6bca9a77c0d1f63d5936b8aa5fbc3e1`
 
+Implementation commit: `c93dace1614d8fc192a077ad4027a521f34bf711`
+
 Evidence date: `2026-08-14`
 
 Real-customer-call gate: `REAL_CUSTOMER_CALL_ALLOWED=NO`
@@ -78,6 +80,12 @@ Privacy-safe artifacts:
 
 Maximum status for P2-9 is `TESTS_PASS`; no statement here promotes mock evidence to
 LAB or production readiness.
+
+## Commit and remote handoff
+
+The implementation commit was pushed directly to `main` and verified exact on both
+GitHub and GitLab. The progress-ledger handoff is finalized in the immediate
+documentation follow-up commit; no branch or merge request was created.
 
 ## Local validation summary
 
