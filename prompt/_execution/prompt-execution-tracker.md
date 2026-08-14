@@ -295,6 +295,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0128` | 2026-08-14 | `W-0022` | START/DISCOVERY | Bắt đầu P2-5 trực tiếp trên `main`: khóa ma trận DTMF/disposition, counted-attempt, finality, human-review và bounded technical retry; giữ CallResultSnapshot factory HIGH-risk không đổi | Codex | baseline `0183ace`; W-0021 TESTS_PASS; map 415/375/0; CallResultSnapshot.Create HIGH (7 symbols/3 modules) avoided; provider FinalizeAsync HIGH chỉ loại DTMF khỏi audit; DI LOW; REAL_CUSTOMER_CALL_ALLOWED=NO |
 | `A-0129` | 2026-08-14 | `W-0022` | IMPLEMENTATION | Dựng DispositionMapper một nguồn mapping, ResultNormalizer worker fail-closed, PostgreSQL SKIP LOCKED atomic persist, evidence graph, human review, counted/final state machine và bounded technical retry; loại DTMF khỏi telephony audit | Codex | raw event bất biến; semantic key chỉ 1/0/INVALID/null; technical/invalid/capacity không tính attempt; rejected không cancel; unknown fail-safe technical; không order/payment/revenue mutation |
 | `A-0130` | 2026-08-14 | `W-0022` | VALIDATION/SELF_REVIEW | Chốt P2-5 local TESTS_PASS với full matrix + PostgreSQL concurrency/idempotency/privacy; final full regression và fresh coverage xanh; một transient feature-flag 500/409 cũ đã pass isolated và mọi rerun | Codex | contract 21 + unit 124 + integration 64 = 209/209; coverage 94.61% (21026/22225, 3 reports); Release 0 warning/0 error; format 0/202; EF/API/docs/UI/config/NuGet/Compose/Gitleaks/PII PASS; map 416/375/0; GitNexus main 40188 nodes/46163 edges/290 flows, staged HIGH 16 files/101 symbols/14 expected normalization flows |
+| `A-0131` | 2026-08-14 | `W-0022` | COMMIT/REMOTE_HANDOFF | Commit implementation P2-5 trên `main`, đẩy và xác minh GitHub; thử direct push GitLab nhưng giữ nguyên protected-main, không tạo branch/MR hoặc hạ protection | Codex | implementation `ca0193f40d2fa1ebac9536b95e7c8dc93688ba79`; GitHub main exact; GitLab origin/main vẫn `5544395ecbc62c31e8a3f78857f65d275e97b5a1` do pre-receive protected-branch rejection; final documentation commit tiếp theo |
 
 ## 8. Per-work completion record template
 
@@ -687,5 +688,24 @@ Remote handoff: GitHub main fast-forwarded to ec459a3 and remote ref verified ex
 GitNexus review: refreshed explicit main index 40,064 nodes/45,685 edges/280 flows; final staged detect-changes CRITICAL with 18 files/173 symbols/56 flows, expected for the cross-layer provider/scheduler/persistence seam; focused new gateway/store context is lower-bound due DI/interface dispatch; full architecture/build/regression evidence passed
 Residual blockers/risks: W-0022/P2-5 owns normalization/counting/retry meaning; W-0066/P2-9 owns TTS provider/audio; W-0048/P8-1 owns one-SIM lab/vendor adapter; 32-eSIM procurement/capacity, Sales API/auth/data, legal/security/release remain external; GitLab protected main may reject direct push
 Next allowed Work ID(s): W-0022/P2-5 DTMF/disposition normalizer
+Final status: TESTS_PASS
+```
+
+```text
+Work ID: W-0022 / P2-5
+Baseline/commit: baseline main@0183ace27b72b419c6c257e5cedd3b86d77a77aa; implementation commit ca0193f40d2fa1ebac9536b95e7c8dc93688ba79; this handoff is finalized in a follow-up documentation commit; no branch/MR by explicit IVR owner instruction
+Scope completed: one-source disposition mapper; answered 1/0/no-input/wrong-input, busy/rejected, invalid-phone, technical, capacity and unknown fail-safe taxonomy; counted/final semantics; candidate one technical retry without consuming customer attempt; admin review on exhaustion; SKIP LOCKED atomic result/technical/review/evidence/audit persistence; normalization worker; privacy-safe telephony audit
+Files/artifacts: src/Ivr.Domain/Confirmation/DispositionMapper.cs; src/Ivr.Infrastructure/Repositories/{RawEventRepository.cs,ResultRepository.cs}; src/Ivr.Worker/Normalization/ResultNormalizer.cs; src/Ivr.Worker/Jobs/NormalizationJobHost.cs; DI/appsettings; normalization unit/PostgreSQL tests; docs/evidence/W-0022/README.md; official Markdown map
+Commands and exact results: locked restore PASS; Release analyzer build 0 warning/0 error; format 0/202 PASS; contract 21 + unit 124 + integration 64 = 209/209; fresh coverage 94.61% (21026/22225, 3 reports) >= 60%; EF no pending model; API/docs/OpenAPI/UI/config/NuGet/npm/Compose/Gitleaks/PII PASS; official map 416 files/375 resolved/0 unresolved
+Tests/evidence: UT-NORM-01/02/03/04/05/06/UNMAP-07/RETRY-08/CAP-09/LASTKEY-10 and IT-NORM-PERSIST-01/TECH-02/REJECT-03/INVALID-04/CONCURRENCY-05 PASS; exact mapping/retry/state/evidence details at docs/evidence/W-0022/README.md
+Review/acceptance by: Codex self-review under explicit IVR owner authorization; status limited to TESTS_PASS until owner/reviewer accepts and physical/external/release evidence exists
+Mock-only evidence: complete; normalizer disabled by default, synthetic raw provider events and PostgreSQL Testcontainers only; REAL_CUSTOMER_CALL_ALLOWED=NO; no real egress/destination/customer call
+Lab evidence: NOT_RUN; no physical SIM/eSIM, modem, carrier, vendor raw-code mapping or allowlisted test call
+Real integration evidence: NOT_RUN; no Sales/Order Core endpoint/auth and no callback delivery; P2-6 owns callback/outbox
+Production evidence: NOT_RUN; TechnicalRetryLimit=1 remains MOCK/LAB candidate, not production approval; no provider mapping/deployment/sign-off
+Remote handoff: GitHub main fast-forwarded to ca0193f and remote ref verified exact; GitLab origin/main remains 5544395 because protected main rejects direct push; no MR was created
+GitNexus review: shared CallResultSnapshot.Create HIGH (7 symbols/3 modules) deliberately unchanged; telephony FinalizeAsync HIGH changed only to remove DTMF from audit; DI LOW; refreshed explicit main index 40188 nodes/46163 edges/290 flows; final staged detect-changes HIGH with 16 files/101 symbols/14 expected normalization flows
+Residual blockers/risks: P2-6/W-0023 callback/outbox remains next; production retry policy, real vendor raw-code mapping, Sales API/auth/payload, one-SIM lab, future 32-eSIM capacity and release approvals remain external; one existing feature-flag API transient passed isolated plus all subsequent full/integration/coverage reruns; GitLab protected main may reject direct push
+Next allowed Work ID(s): W-0023/P2-6 target callback/outbox + Golden Hour compatibility
 Final status: TESTS_PASS
 ```

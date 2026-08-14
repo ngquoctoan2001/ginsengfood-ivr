@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T00:55:33.357Z",
+  "generatedAt": "2026-08-14T00:58:58.936Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -215382,43 +215382,43 @@
         {
           "depth": 2,
           "text": "Delivered behavior",
-          "line": 9,
+          "line": 11,
           "slug": "delivered-behavior"
         },
         {
           "depth": 2,
           "text": "Locked mapping matrix",
-          "line": 27,
+          "line": 29,
           "slug": "locked-mapping-matrix"
         },
         {
           "depth": 2,
           "text": "Retry and state policy",
-          "line": 43,
+          "line": 45,
           "slug": "retry-and-state-policy"
         },
         {
           "depth": 2,
           "text": "Named behavior evidence",
-          "line": 59,
+          "line": 61,
           "slug": "named-behavior-evidence"
         },
         {
           "depth": 2,
           "text": "Verification evidence",
-          "line": 85,
+          "line": 87,
           "slug": "verification-evidence"
         },
         {
           "depth": 2,
           "text": "Safety and residual gates",
-          "line": 111,
+          "line": 113,
           "slug": "safety-and-residual-gates"
         }
       ],
       "links": [],
-      "lines": 127,
-      "words": 1034,
+      "lines": 129,
+      "words": 1037,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -220441,19 +220441,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 299,
+          "line": 300,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 320,
+          "line": 321,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 692,
-      "words": 11681,
+      "lines": 712,
+      "words": 11736,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
