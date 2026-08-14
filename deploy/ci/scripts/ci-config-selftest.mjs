@@ -88,6 +88,10 @@ for (const jobName of ["build_test_dotnet", "lint_dotnet", "security_scan"]) {
     `${jobName} image must match global.json: ${expectedDotnetImage}.`,
   );
 }
+assert(
+  jobs.security_scan.variables?.GIT_DEPTH === "0",
+  "security_scan must disable shallow cloning so Gitleaks fingerprints stay tied to their source commits.",
+);
 
 const dotnetTestServices = jobs.build_test_dotnet.services ?? [];
 assert(

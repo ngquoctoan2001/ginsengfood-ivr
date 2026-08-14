@@ -163,6 +163,7 @@ security_scan:
   extends: .dotnet_cache
   allow_failure: false
   variables:
+    GIT_DEPTH: "0"
     GITLEAKS_VERSION: "8.30.0"
   before_script:
     - apt-get update -qq

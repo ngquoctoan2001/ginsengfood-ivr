@@ -145,12 +145,17 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Theory]
-    [InlineData("Đường Nguyễn Huệ, Phường Bến Nghé, Quận Một", "chị An")]
-    [InlineData("Phường Bến Nghé, Quận Một", "chị An - số điện thoại tám bốn chín")]
-    public async Task SpeechPiiFailsClosedWithoutPersistingWork(
-        string area,
-        string customerDisplayName)
+    [InlineData("full-address")]
+    [InlineData("spoken-phone")]
+    public async Task SpeechPiiFailsClosedWithoutPersistingWork(string caseId)
     {
+        (string area, string customerDisplayName) = caseId switch
+        {
+            "full-address" => ("Đường Nguyễn Huệ, Phường Bến Nghé, Quận Một", "chị An"),
+            "spoken-phone" => ("Phường Bến Nghé, Quận Một", "chị An - số điện thoại tám bốn chín"),
+            _ => throw new ArgumentOutOfRangeException(nameof(caseId), caseId, null),
+        };
+
         TestContext test = CreateContext();
         IvrConfirmationTaskV1 source = CreateTask(
             deliveryArea: area,
