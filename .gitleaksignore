@@ -9,6 +9,11 @@ specs/api/08-external-api-needs.md:generic-api-key:19
 docs/api/portal-manifest.json:generic-api-key:22
 docs/api/ivr-order-confirmation-v1.html:generic-api-key:707
 docs/api/ivr-order-confirmation-v1.html:generic-api-key:719
+# Preserve the reviewed fingerprints from the immutable P1-4 portal commit;
+# current generated line numbers above do not suppress historical findings.
+2b1a4d4166f53e3525b87eac99541603039f4f3b:docs/api/portal-manifest.json:generic-api-key:21
+2b1a4d4166f53e3525b87eac99541603039f4f3b:docs/api/ivr-order-confirmation-v1.html:generic-api-key:541
+2b1a4d4166f53e3525b87eac99541603039f4f3b:docs/api/ivr-order-confirmation-v1.html:generic-api-key:553
 # Immutable historical documentation false positives from early baseline commits.
 # Shallow hosted clones can expose either fingerprint at the depth boundary.
 ab7de4d59eb04eb9f172385a1ffa4d25023064e5:prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:generic-api-key:75
