@@ -2,6 +2,7 @@ using System.Text.Json;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
+using Ivr.Infrastructure.Persistence.Outbox;
 using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,7 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         CallAttemptEntity attempt = await verification.CallAttempts.AsNoTracking().SingleAsync();
         CallJobEntity job = await verification.CallJobs.AsNoTracking().SingleAsync();
         CallResultEntity stored = await verification.CallResults.AsNoTracking().SingleAsync();
+        ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking().SingleAsync();
         EvidenceEntity evidence = await verification.Evidence.AsNoTracking().SingleAsync();
         AuditLogEntity audit = await verification.AuditLog.AsNoTracking()
             .SingleAsync(row => row.Action == "IVR_RESULT_NORMALIZED");
@@ -47,6 +49,22 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.True(attempt.IsCountedCustomerAttempt);
         Assert.Equal("RESULT_READY_FOR_CALLBACK", job.Status);
         Assert.Equal("HELD_CALLBACK", job.QueueStatus);
+        Assert.Equal("READY", callback.DeliveryStatus);
+        Assert.Equal("PENDING_CORE_REVALIDATION", callback.ResultState);
+        Assert.Equal("ivr-result:RESULT-RAW-NORM-001", callback.IdempotencyKey);
+        Assert.Equal(64, callback.PayloadSha256.Length);
+        using (JsonDocument payload = JsonDocument.Parse(callback.PayloadJson))
+        {
+            Assert.Equal(
+                "IVR_CONFIRMED",
+                payload.RootElement.GetProperty("result_type").GetString());
+            Assert.Equal(
+                "CORE_REVALIDATE_AND_CONFIRM_ORDER",
+                payload.RootElement.GetProperty("recommended_core_action").GetString());
+            Assert.Equal(
+                "ORDER-NORM-001",
+                payload.RootElement.GetProperty("order_id").GetString());
+        }
         Assert.Equal("W-0022", evidence.WorkId);
         Assert.Equal(3, await verification.EvidenceLinks.CountAsync());
         Assert.Equal(1, await verification.RawCallEvents.CountAsync());
@@ -54,6 +72,7 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.DoesNotContain("84xxxxx0021", audit.DataJson, StringComparison.Ordinal);
         Assert.Null(await repository.NormalizeNextAsync("normalizer-test-repeat"));
         Assert.Equal(1, await verification.CallResults.CountAsync());
+        Assert.Equal(1, await verification.ResultCallbacks.CountAsync());
     }
 
     [Fact]
@@ -101,6 +120,7 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.Equal("HELD_ADMIN_REVIEW", job.Status);
         Assert.Equal("HELD_TECHNICAL_REVIEW", job.QueueStatus);
         Assert.Single(await verification.ReviewItems.AsNoTracking().ToListAsync());
+        Assert.Empty(await verification.ResultCallbacks.AsNoTracking().ToListAsync());
     }
 
     [Fact]
@@ -126,6 +146,7 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.Equal("DRY_RUN", job.Status);
         Assert.Equal("HELD_MOCK", job.QueueStatus);
         Assert.Single(await verification.ReviewItems.AsNoTracking().ToListAsync());
+        Assert.Empty(await verification.ResultCallbacks.AsNoTracking().ToListAsync());
     }
 
     [Fact]
@@ -147,6 +168,7 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.True(attempt.InvalidPhone);
         Assert.False(attempt.IsCountedCustomerAttempt);
         Assert.Empty(await verification.TechnicalExceptions.AsNoTracking().ToListAsync());
+        Assert.Single(await verification.ResultCallbacks.AsNoTracking().ToListAsync());
     }
 
     [Fact]
@@ -168,6 +190,64 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.Equal(1, await verification.CallResults.CountAsync());
         Assert.Equal(1, await verification.Evidence.CountAsync());
         Assert.Equal(3, await verification.EvidenceLinks.CountAsync());
+        Assert.Empty(await verification.ResultCallbacks.AsNoTracking().ToListAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-CALLBACK-OUTBOX-06")]
+    public async Task DeliveryCompletionUsesLeaseFencingAndCreatesAdminVisibleReview()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedPendingAsync(factory, "ANSWERED", "1");
+        await Repository(factory).NormalizeNextAsync("normalizer-callback");
+        ICallbackOutboxRepository outbox = fixture.Services
+            .GetRequiredService<ICallbackOutboxRepository>();
+
+        CallbackOutboxMessage leased = Assert.Single(await outbox.DequeueReadyAsync(
+            10,
+            TimeSpan.FromMinutes(1)));
+        Assert.Equal("GOLDEN_HOUR", leased.ProgramCode);
+        Assert.Equal("corr-normalization-001", leased.CorrelationId);
+        Assert.Equal("ORDER-NORM-001", leased.OfficialOrderId);
+        Assert.False(await outbox.CompleteDeliveryAsync(
+            leased.CallbackId,
+            "stale-lease",
+            new CallbackDeliveryUpdate(
+                "DELIVERED_ACCEPTED",
+                200,
+                "ACCEPTED",
+                null,
+                0,
+                null,
+                true,
+                false)));
+        Assert.True(await outbox.CompleteDeliveryAsync(
+            leased.CallbackId,
+            leased.LeaseToken,
+            new CallbackDeliveryUpdate(
+                "DELIVERED_BLOCKED",
+                200,
+                "BLOCKED_BY_CORE",
+                null,
+                0,
+                null,
+                true,
+                true)));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking().SingleAsync();
+        ReviewItemEntity review = await verification.ReviewItems.AsNoTracking()
+            .SingleAsync(item => item.SourceType == "IVR_RESULT_CALLBACK");
+        Assert.Equal("DELIVERED_BLOCKED", callback.DeliveryStatus);
+        Assert.Equal(200, callback.CoreHttpStatus);
+        Assert.Equal("BLOCKED_BY_CORE", callback.CoreResponseCode);
+        Assert.NotNull(callback.AcknowledgedAt);
+        Assert.Null(callback.LeaseToken);
+        Assert.Equal(callback.CallbackId, review.SourceId);
+        Assert.Contains(await verification.AuditLog.AsNoTracking().ToListAsync(),
+            audit => audit.Action == "IVR_CALLBACK_DELIVERY_STATE_CHANGED"
+                && audit.TargetId == callback.CallbackId);
     }
 
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services

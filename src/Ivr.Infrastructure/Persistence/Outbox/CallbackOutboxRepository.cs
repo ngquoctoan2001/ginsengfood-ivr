@@ -8,11 +8,25 @@ namespace Ivr.Infrastructure.Persistence.Outbox;
 
 public sealed record CallbackOutboxMessage(
     string CallbackId,
+    string TaskId,
+    string OfficialOrderId,
+    string ProgramCode,
+    string CorrelationId,
     string IdempotencyKey,
     string PayloadJson,
     string PayloadSha256,
     int RetryCount,
     string LeaseToken);
+
+public sealed record CallbackDeliveryUpdate(
+    string DeliveryStatus,
+    int? CoreHttpStatus,
+    string? CoreResponseCode,
+    string? LastError,
+    int RetryCount,
+    DateTimeOffset? NextRetryAt,
+    bool Acknowledged,
+    bool RequiresReview);
 
 public interface ICallbackOutboxRepository
 {
@@ -24,12 +38,32 @@ public interface ICallbackOutboxRepository
         int batchSize,
         TimeSpan leaseDuration,
         CancellationToken cancellationToken = default);
+
+    public Task<bool> CompleteDeliveryAsync(
+        string callbackId,
+        string leaseToken,
+        CallbackDeliveryUpdate update,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class CallbackOutboxRepository(
     IDbContextFactory<IvrDbContext> dbContextFactory,
     TimeProvider timeProvider) : ICallbackOutboxRepository
 {
+    private static readonly HashSet<string> AllowedDeliveryStatuses = new(
+        [
+            "DELIVERED_ACCEPTED",
+            "DELIVERED_BLOCKED",
+            "DELIVERED_REVIEW",
+            "REJECTED_STALE",
+            "IDEMPOTENCY_CONFLICT",
+            "INVALID_DEAD_LETTER",
+            "AUTH_REJECTED",
+            "RETRY_PENDING",
+            "RETRY_EXHAUSTED",
+        ],
+        StringComparer.Ordinal);
+
     public async Task<ResultCallbackEntity> EnqueueAsync(
         ResultCallbackEntity callback,
         CancellationToken cancellationToken = default)
@@ -76,9 +110,14 @@ public sealed class CallbackOutboxRepository(
             .FromSqlInterpolated($$"""
                 SELECT *
                 FROM ivr_result_callbacks
-                WHERE delivery_status IN ('READY', 'RETRY_PENDING')
-                  AND (next_retry_at IS NULL OR next_retry_at <= {{now}})
-                  AND (lease_token IS NULL OR lease_expires_at < {{now}})
+                WHERE (
+                    delivery_status IN ('READY', 'RETRY_PENDING')
+                    AND (next_retry_at IS NULL OR next_retry_at <= {{now}})
+                    AND (lease_token IS NULL OR lease_expires_at < {{now}})
+                  ) OR (
+                    delivery_status = 'SENDING'
+                    AND lease_expires_at < {{now}}
+                  )
                 ORDER BY COALESCE(next_retry_at, created_at), created_at
                 FOR UPDATE SKIP LOCKED
                 LIMIT {{batchSize}}
@@ -93,14 +132,128 @@ public sealed class CallbackOutboxRepository(
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        string[] taskIds = [.. rows.Select(row => row.TaskId).Distinct(StringComparer.Ordinal)];
+        Dictionary<string, ConfirmationTaskEntity> tasks = await dbContext.ConfirmationTasks
+            .AsNoTracking()
+            .Where(task => taskIds.Contains(task.TaskId))
+            .ToDictionaryAsync(task => task.TaskId, StringComparer.Ordinal, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return rows.Select(row => new CallbackOutboxMessage(
                 row.CallbackId,
+                row.TaskId,
+                row.OfficialOrderId,
+                tasks[row.TaskId].ProgramType,
+                tasks[row.TaskId].CorrelationId,
                 row.IdempotencyKey,
                 row.PayloadJson,
                 row.PayloadSha256,
                 row.RetryCount,
                 leaseToken))
             .ToArray();
+    }
+
+    public async Task<bool> CompleteDeliveryAsync(
+        string callbackId,
+        string leaseToken,
+        CallbackDeliveryUpdate update,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(callbackId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(leaseToken);
+        ArgumentNullException.ThrowIfNull(update);
+        if (update.RetryCount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(update));
+        }
+
+        if (!AllowedDeliveryStatuses.Contains(update.DeliveryStatus)
+            || (update.DeliveryStatus == "RETRY_PENDING") != (update.NextRetryAt is not null))
+        {
+            throw new InvalidOperationException("Callback delivery transition is invalid.");
+        }
+
+        if (update.LastError is not null)
+        {
+            PiiGuard.EnsureSafeText(update.LastError);
+        }
+
+        if (update.CoreResponseCode is not null)
+        {
+            PiiGuard.EnsureSafeText(update.CoreResponseCode);
+        }
+
+        DateTimeOffset now = timeProvider.GetUtcNow();
+        await using IvrDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
+            cancellationToken);
+        ResultCallbackEntity? callback = await dbContext.ResultCallbacks.SingleOrDefaultAsync(
+            row => row.CallbackId == callbackId
+                && row.LeaseToken == leaseToken
+                && row.DeliveryStatus == "SENDING",
+            cancellationToken);
+        if (callback is null)
+        {
+            return false;
+        }
+
+        callback.DeliveryStatus = update.DeliveryStatus;
+        callback.SentAt ??= now;
+        callback.AcknowledgedAt = update.Acknowledged ? now : null;
+        callback.CoreHttpStatus = update.CoreHttpStatus;
+        callback.CoreResponseCode = update.CoreResponseCode;
+        callback.RetryCount = update.RetryCount;
+        callback.LastRetryAt = update.DeliveryStatus is "RETRY_PENDING" or "RETRY_EXHAUSTED"
+            ? now
+            : callback.LastRetryAt;
+        callback.NextRetryAt = update.NextRetryAt;
+        callback.LastError = update.LastError;
+        callback.LeaseToken = null;
+        callback.LeaseExpiresAt = null;
+
+        ConfirmationTaskEntity task = await dbContext.ConfirmationTasks.AsNoTracking()
+            .SingleAsync(candidate => candidate.TaskId == callback.TaskId, cancellationToken);
+        dbContext.AuditLog.Add(new AuditLogEntity
+        {
+            AuditId = Guid.NewGuid(),
+            ActorId = "ivr-callback-dispatcher",
+            ActorType = "service",
+            Action = "IVR_CALLBACK_DELIVERY_STATE_CHANGED",
+            TargetType = "result-callback",
+            TargetId = callback.CallbackId,
+            Reason = update.DeliveryStatus,
+            CorrelationId = task.CorrelationId,
+            DataJson = System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["delivery_status"] = update.DeliveryStatus,
+                ["core_http_status"] = update.CoreHttpStatus,
+                ["core_response_code"] = update.CoreResponseCode,
+                ["retry_count"] = update.RetryCount,
+                ["next_retry_at"] = update.NextRetryAt,
+            }),
+            CreatedAt = now,
+        });
+        if (update.RequiresReview)
+        {
+            string reviewId = string.Concat("REVIEW-CALLBACK-", callback.CallbackId);
+            bool exists = await dbContext.ReviewItems.AsNoTracking()
+                .AnyAsync(item => item.ReviewItemId == reviewId, cancellationToken);
+            if (!exists)
+            {
+                dbContext.ReviewItems.Add(new ReviewItemEntity
+                {
+                    ReviewItemId = reviewId,
+                    SourceType = "IVR_RESULT_CALLBACK",
+                    SourceId = callback.CallbackId,
+                    Reason = update.CoreResponseCode
+                        ?? update.LastError
+                        ?? update.DeliveryStatus,
+                    Status = "OPEN",
+                    CorrelationId = task.CorrelationId,
+                    CreatedAt = now,
+                });
+            }
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 }

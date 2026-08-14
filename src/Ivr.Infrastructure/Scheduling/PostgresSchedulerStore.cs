@@ -1,5 +1,7 @@
 using System.Data;
 using System.Text.Json;
+using Ivr.Domain.Confirmation;
+using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -334,6 +336,22 @@ public sealed class PostgresSchedulerStore(
         int pendingJobs = await context.CallJobs.CountAsync(
             candidate => candidate.Eligible && candidate.ClosedAt == null,
             cancellationToken).ConfigureAwait(false);
+        string[] jobIds = [.. jobs.Select(job => job.IvrCallJobId)];
+        Dictionary<string, int> lastAttemptNumbers = await context.CallAttempts
+            .AsNoTracking()
+            .Where(attempt => jobIds.Contains(attempt.IvrCallJobId))
+            .GroupBy(attempt => attempt.IvrCallJobId)
+            .Select(group => new
+            {
+                JobId = group.Key,
+                AttemptNumber = group.Max(attempt => attempt.AttemptNumber),
+            })
+            .ToDictionaryAsync(
+                item => item.JobId,
+                item => item.AttemptNumber,
+                StringComparer.Ordinal,
+                cancellationToken)
+            .ConfigureAwait(false);
         foreach (CallJobEntity job in jobs)
         {
             string incidentId = string.Concat("CAP-", Guid.NewGuid().ToString("N"));
@@ -354,6 +372,34 @@ public sealed class PostgresSchedulerStore(
                 Reason = "IVR_CAPACITY_EXCEPTION",
             });
             string resultId = string.Concat("RESULT-", Guid.NewGuid().ToString("N"));
+            string evidenceRef = string.Concat(
+                "evidence://ivr/p2-3/capacity-miss/",
+                job.IvrCallJobId);
+            AuditLogEntity audit = CreateAudit(
+                "SCHEDULER_DEADLINE_MISSED",
+                "call-job",
+                job.IvrCallJobId,
+                job.TaskId,
+                detectedAt,
+                new Dictionary<string, object?>
+                {
+                    ["capacity_incident_id"] = incidentId,
+                    ["result_id"] = resultId,
+                    ["deadline"] = job.ExpiresAt,
+                    ["is_counted_customer_attempt"] = false,
+                });
+            string auditRef = string.Concat("audit://ivr/", audit.AuditId.ToString("D"));
+            var normalized = new NormalizedResult(
+                IvrResultType.IvrCapacityException,
+                false,
+                true,
+                "NO_DISPATCH_BEFORE_DEADLINE",
+                null,
+                "CAPACITY_UNAVAILABLE",
+                CoreActionRecommendation.RevalidateAndHoldAdminReview,
+                true,
+                false,
+                0);
             context.CallResults.Add(new CallResultEntity
             {
                 IvrCallResultId = resultId,
@@ -376,27 +422,29 @@ public sealed class PostgresSchedulerStore(
                 CreatedAt = detectedAt,
                 EvidenceRefsJson = JsonSerializer.Serialize(new[]
                 {
-                    string.Concat("evidence://ivr/p2-3/capacity-miss/", job.IvrCallJobId),
+                    evidenceRef,
                 }),
+                AuditRefsJson = JsonSerializer.Serialize(new[] { auditRef }),
             });
+            int attemptNumber = lastAttemptNumbers.TryGetValue(
+                job.IvrCallJobId,
+                out int lastAttemptNumber)
+                ? Math.Min(checked(lastAttemptNumber + 1), job.MaxAttempts)
+                : 1;
+            context.ResultCallbacks.Add(CallbackOutboxSnapshotFactory.Create(
+                resultId,
+                job,
+                attemptNumber,
+                normalized,
+                evidenceRef,
+                auditRef,
+                detectedAt));
             job.CapacityIncidentId = incidentId;
             job.Status = "CAPACITY_MISSED";
             job.QueueStatus = "CLOSED_CAPACITY";
             job.ClosedAt = detectedAt;
             job.ClosedReason = "IVR_CAPACITY_EXCEPTION";
-            context.AuditLog.Add(CreateAudit(
-                "SCHEDULER_DEADLINE_MISSED",
-                "call-job",
-                job.IvrCallJobId,
-                job.TaskId,
-                detectedAt,
-                new Dictionary<string, object?>
-                {
-                    ["capacity_incident_id"] = incidentId,
-                    ["result_id"] = resultId,
-                    ["deadline"] = job.ExpiresAt,
-                    ["is_counted_customer_attempt"] = false,
-                }));
+            context.AuditLog.Add(audit);
         }
 
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

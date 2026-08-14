@@ -121,12 +121,25 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
             .AsNoTracking()
             .SingleAsync();
         CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking().SingleAsync();
         CallJobEntity job = await verification.CallJobs.AsNoTracking().SingleAsync();
         Assert.Equal("SCHEDULER_DEADLINE", incident.Scope);
         Assert.Equal(1, incident.MissedDeadlineCount);
         Assert.Equal("IVR_CAPACITY_EXCEPTION", result.ResultType);
         Assert.True(result.IsFinalForIvr);
         Assert.False(result.IsCountedCustomerAttempt);
+        Assert.Equal("READY", callback.DeliveryStatus);
+        Assert.Equal(result.IvrCallResultId, callback.IvrCallResultId);
+        using (JsonDocument payload = JsonDocument.Parse(callback.PayloadJson))
+        {
+            Assert.Equal(
+                "IVR_CAPACITY_EXCEPTION",
+                payload.RootElement.GetProperty("result_type").GetString());
+            Assert.False(payload.RootElement.GetProperty("is_counted_customer_attempt").GetBoolean());
+            Assert.Equal(
+                "CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+                payload.RootElement.GetProperty("recommended_core_action").GetString());
+        }
         Assert.Equal("CAPACITY_MISSED", job.Status);
         Assert.Equal(incident.CapacityIncidentId, job.CapacityIncidentId);
         Assert.Equal(0, await verification.CallAttempts.CountAsync());

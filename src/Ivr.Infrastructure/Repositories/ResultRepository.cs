@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 using Ivr.Domain.Confirmation;
+using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
@@ -144,13 +145,26 @@ public sealed class ResultRepository(
             rawEvent.RawEventId);
         Guid auditId = Guid.NewGuid();
         string auditRef = string.Concat("audit://ivr/", auditId.ToString("D"));
-        context.CallResults.Add(CreateResult(
+        CallResultEntity result = CreateResult(
             resultId,
             job,
             normalized,
             evidenceRef,
             auditRef,
-            now));
+            now);
+        context.CallResults.Add(result);
+        if (normalized.IsFinal)
+        {
+            context.ResultCallbacks.Add(CallbackOutboxSnapshotFactory.Create(
+                resultId,
+                job,
+                attempt,
+                task,
+                normalized,
+                evidenceRef,
+                auditRef,
+                rawEvent.ReceivedAt));
+        }
         if (normalized.ResultType == IvrResultType.IvrTechnicalException)
         {
             context.TechnicalExceptions.Add(new TechnicalExceptionEntity
