@@ -7,12 +7,12 @@ Base path `/v1/ivr/order-confirmation/*`. Admin RBAC server-side; mọi POST có
 | Endpoint | Method | Permission (DF-01) | Contract | Chức năng |
 | --- | --- | --- | --- | --- |
 | `/queue` | GET | `IVR_QUEUE_VIEW` | Queue projection (masked) | Xem queue/capacity/incident |
-| `/queue:pause` | POST | `IVR_QUEUE_PAUSE` | `IvrAdminAction` | Pause queue (reason/evidence) |
-| `/queue:resume` | POST | `IVR_QUEUE_RESUME` | `IvrAdminAction` | Resume sau khi incident resolved |
-| `/sim-channels/{simChannelId}:disable` | POST | `IVR_SIM_DISABLE` | `IvrAdminAction` | Disable SIM (health/failure reason) |
-| `/sim-channels/{simChannelId}:enable` | POST | `IVR_SIM_ENABLE` | `IvrAdminAction` | Enable SIM sau health pass |
-| `/technical-retries` | POST | `IVR_MANUAL_RETRY` | `IvrTechnicalException` | Request technical retry (không tăng customer attempt) |
-| `/admin-reviews` | POST | `IVR_RESULT_REVIEW` | `IvrAdminAction` | Ghi review/annotation |
+| `/queue:pause` | POST | `IVR_QUEUE_PAUSE` | `AdminMutationRequest` → `IvrAdminActionResult` | Pause queue (reason/evidence) |
+| `/queue:resume` | POST | `IVR_QUEUE_RESUME` | `AdminMutationRequest` → `IvrAdminActionResult` | Resume sau khi incident resolved |
+| `/sim-channels/{simChannelId}:disable` | POST | `IVR_SIM_DISABLE` | `AdminMutationRequest` → `IvrAdminActionResult` | Disable SIM (health/failure reason) |
+| `/sim-channels/{simChannelId}:enable` | POST | `IVR_SIM_ENABLE` | `AdminMutationRequest` → `IvrAdminActionResult` | Enable SIM sau health pass |
+| `/technical-retries` | POST | `IVR_MANUAL_RETRY` | `TechnicalRetryRequest` → `IvrTechnicalRetryResult` | Request technical retry (không tăng customer attempt) |
+| `/admin-reviews` | POST | `IVR_RESULT_REVIEW` | `AdminReviewRequest` → `IvrAdminReviewResult` | Ghi review/annotation |
 | `/feature-flags/{environment}` | GET | `IVR_FLAG_READ` | `FeatureFlagReadResult` | Đọc fresh typed snapshot; provider lỗi trả fail-closed |
 | `/feature-flags/{environment}/kill-switch` | GET | `IVR_FLAG_READ` | `KillSwitchVerification` | Xác minh revision và trạng thái kill switch effective |
 | `/feature-flags/{environment}` | POST | `IVR_RUNTIME_GATE_ADMIN` *(OD-V1-20 pending)* | `FeatureFlagMutationRequest` | Mutation atomic, reason, idempotency, audit và four-eyes theo chiều rủi ro |
@@ -20,12 +20,21 @@ Base path `/v1/ivr/order-confirmation/*`. Admin RBAC server-side; mọi POST có
 ## 2. Ràng buộc admin action (P0)
 Mỗi POST phải có: authenticated actor (`X-Actor-Id`), permission server-side, `reason`, `target_type`+`target_id`, audit record, evidence ref nếu ảnh hưởng queue/SIM/retry/result, `no_policy_bypass=true`.
 
+P2-8 thực thi `X-Actor-Id == authenticated NameIdentifier`; mỗi mutation commit business state + `ivr_admin_actions` + append-only `ivr_audit_log` trong cùng transaction, gồm `before/after`, permission, correlation và `no_policy_bypass=true`.
+
 Admin **KHÔNG** được:
 - Gọi khách ngoài attempt policy (D-10) hoặc reset customer attempt count.
 - **Force confirm/cancel order** (D-02: order state do Core; P0-IVR-002).
 - Enable SIM khi health check đang fail.
 - Resume queue khi capacity incident chưa xử lý.
 - Bỏ qua blocker (sellable/recall/sale-lock/do-not-call) — DO-*/DC-01.
+
+## 2a. Semantics đã khóa ở P2-8
+
+- Queue pause tạo open hold incident và chỉ chặn **claim mới**; active lease/call không bị cancel. Resume chỉ resolve admin pause và fail-closed nếu còn non-admin hold incident.
+- Disable channel đặt `enabled=false`; nếu đang active thì giữ nguyên active job/lease/fencing để call hiện tại hoàn tất. Enable trực tiếp channel `QUARANTINED`, `HEALTH_FAILED`, còn lease/active call, fail-count hoặc REAL adapter đều bị chặn cho đến reconciliation/cấu hình eSIM thật.
+- Technical retry chỉ áp cho technical exception đã lưu, không counted, còn trong window, dưới bounded limit, chưa final, không blocker/queue hold. Không reset customer attempt. MOCK requeue về `HELD_MOCK`; real mode vẫn phải qua runtime/kill-switch/`REAL_CUSTOMER_CALL_ALLOWED`.
+- Admin review chỉ resolve/annotate `ivr_review_items`; không sửa `ivr_call_results`, không fake result và không đổi order state.
 
 ## 3. Privacy (masked)
 - `/queue`, `/call-jobs/{id}` chỉ hiển thị `phone_masked`, `order_code`, program, status, deadline. **Không** raw phone/full address/payment/health (phase-8/08; P0-IVR-007).

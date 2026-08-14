@@ -4,7 +4,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/04` §13, `
 
 ## 1. Idempotency
 - Dùng **idempotency store của foundation** (DF-04), không tự chế.
-- Bắt buộc cho POST rủi ro: **task intake, result-callback (outbound tới Core), admin action, technical-retry**.
+- Bắt buộc cho mọi POST P2-8: **eligibility/job/attempt/result/callback lifecycle, admin action, technical-retry, admin-review**; outbound callback tới Core vẫn dùng key riêng của P2-6.
 - Scope key: theo endpoint + actor + business id (task_id/callback_id).
 
 | Tình huống | Hành vi |
@@ -15,6 +15,8 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/04` §13, `
 | Retry sau transient IVR error | Safe retry cùng key |
 | Retry sau khi task rejected | Trả cùng rejection; không tạo job sau trừ task/version mới |
 | Duplicate callback | Trả ack cũ; không tạo transition mới |
+
+P2-8 hash cả operation + normalized request; SHA-256 được biểu diễn thành các nhóm an toàn để privacy guard không nhận nhầm một chuỗi chữ số trong digest thành raw phone. Replay cùng key/hash trả đúng response snapshot; cùng key khác operation/payload trả `409 IVR_IDEMPOTENCY_CONFLICT`.
 
 - Callback retry (D-04): chỉ khi timeout/5xx/`TECHNICAL_RETRY_ALLOWED`; **cùng idempotency key**; không tạo result mới, không tăng customer attempt, không đổi result status, không bypass stale guard, bounded (OD-10 chốt count/backoff).
 

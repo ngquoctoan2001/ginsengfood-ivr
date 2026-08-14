@@ -23,6 +23,13 @@ public sealed class ErrorEnvelopeMiddleware(RequestDelegate next)
         {
             await errorWriter.WriteAsync(context, failure, context.RequestAborted);
         }
+        catch (BadHttpRequestException)
+        {
+            await errorWriter.WriteAsync(
+                context,
+                IvrErrors.MalformedRequest("The request body is malformed."),
+                context.RequestAborted);
+        }
         catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
         {
             throw;

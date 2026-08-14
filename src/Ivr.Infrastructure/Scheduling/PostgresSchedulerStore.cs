@@ -97,6 +97,11 @@ public sealed class PostgresSchedulerStore(
                     AND active_attempt.status IN (
                         'LEASED_PENDING_DISPATCH', 'DIALING', 'ACTIVE_CALL')
               )
+              AND NOT EXISTS (
+                  SELECT 1 FROM ivr_capacity_incidents incident
+                  WHERE incident.status = 'OPEN'
+                    AND incident.hold_new_calls IS TRUE
+              )
             ORDER BY job.expires_at,
                      CASE job.program_type
                          WHEN 'GOLDEN_HOUR' THEN 0

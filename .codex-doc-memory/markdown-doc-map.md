@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-14T01:59:35.087Z
+Generated: 2026-08-14T03:33:20.195Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 417
+- Markdown files: 418
 - Links resolved: 375
 - Unresolved links: 0
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 45
+- Orphan candidates: 46
 
 ## High Link Documents
 
@@ -96,6 +96,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0022/README.md
 - docs/evidence/W-0023/README.md
 - docs/evidence/W-0061/README.md
+- docs/evidence/W-0065/README.md
 - docs/evidence/W-0085/README.md
 - docs/evidence/W-0086/README.md
 - docs/integration-guide.md
@@ -135,7 +136,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/api-changelog.md | IVR API Contract Changelog | 1/3 | 0 | 3 | 0 | 208 |
 | docs/api-versioning.md | IVR API Versioning and Deprecation Policy | 1/7 | 1 | 0 | 0 | 422 |
 | docs/contracts/openapi-codegen.md | OpenAPI Code Generation and Contract Drift Policy | 1/6 | 0 | 0 | 0 | 429 |
-| docs/contracts/openapi-contract-diff.md | OpenAPI Contract Baseline and Human-Readable Diff | 1/5 | 0 | 0 | 0 | 383 |
+| docs/contracts/openapi-contract-diff.md | OpenAPI Contract Baseline and Human-Readable Diff | 1/5 | 0 | 0 | 0 | 396 |
 | docs/documents/0. appendices/01-OPERATIONAL-FORMS.md | OPERATIONAL FORMS | 1/16 | 1 | 0 | 0 | 3384 |
 | docs/documents/0. appendices/02-AUTO-GENERATED-FORM-RULES.md | AUTO GENERATED FORM RULES | 1/59 | 1 | 0 | 0 | 1635 |
 | docs/documents/0. appendices/03-PRINTING-CODE-RULES.md | PRINTING CODE RULES | 1/40 | 1 | 0 | 0 | 906 |
@@ -332,6 +333,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0024/README.md | W-0024 / P2-7 — Script, Content Approval and Speech Safety | 1/6 | 0 | 1 | 0 | 427 |
 | docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/14 | 0 | 0 | 0 | 1511 |
 | docs/evidence/W-0064/README.md | W-0064 — P1-5 Retention Job & Data Lifecycle Evidence | 1/5 | 1 | 1 | 0 | 416 |
+| docs/evidence/W-0065/README.md | W-0065 — P2-8 internal and admin API evidence | 1/8 | 0 | 0 | 0 | 1076 |
 | docs/evidence/W-0085/README.md | W-0085 Linux ProjectReference path portability | 1/6 | 0 | 0 | 0 | 270 |
 | docs/evidence/W-0086/README.md | W-0086 — Shallow-clone Gitleaks fingerprint remediation | 1/4 | 0 | 0 | 0 | 401 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
@@ -383,7 +385,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 12028 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 12335 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
@@ -467,12 +469,12 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/06-assumptions-and-open-questions.md | SRS-06 — Assumptions and Open Questions | 1/4 | 0 | 1 | 0 | 252 |
 | specs/api/00-index.md | API SRS — Index | 1/2 | 0 | 8 | 0 | 160 |
 | specs/api/01-conventions.md | API-01 — Conventions | 1/5 | 1 | 0 | 0 | 255 |
-| specs/api/02-internal-api.md | API-02 — IVR-Owned Internal API | 1/3 | 1 | 1 | 0 | 206 |
-| specs/api/03-admin-api.md | API-03 — Admin API | 1/7 | 1 | 0 | 0 | 558 |
+| specs/api/02-internal-api.md | API-02 — IVR-Owned Internal API | 1/4 | 1 | 1 | 0 | 376 |
+| specs/api/03-admin-api.md | API-03 — Admin API | 1/8 | 1 | 0 | 0 | 727 |
 | specs/api/04-sim-adapter-contract.md | API-04 — SIM Adapter Contract (Internal — Adapter Port) | 1/6 | 1 | 0 | 0 | 542 |
 | specs/api/05-order-core-contracts.md | API-05 — Sales Platform Contracts | 1/6 | 2 | 0 | 0 | 312 |
-| specs/api/06-error-codes.md | API-06 — Error Codes | 1/9 | 1 | 0 | 0 | 850 |
-| specs/api/07-idempotency-and-correlation.md | API-07 — Idempotency & Correlation | 1/5 | 1 | 0 | 0 | 330 |
+| specs/api/06-error-codes.md | API-06 — Error Codes | 1/9 | 1 | 0 | 0 | 878 |
+| specs/api/07-idempotency-and-correlation.md | API-07 — Idempotency & Correlation | 1/5 | 1 | 0 | 0 | 382 |
 | specs/api/08-external-api-needs.md | API-08 — External API Needs | 1/4 | 1 | 0 | 0 | 136 |
 | specs/architecture/00-index.md | Architecture SRS — Index | 1/1 | 0 | 7 | 0 | 98 |
 | specs/architecture/01-system-context.md | ARCH-01 — System Context | 1/1 | 1 | 0 | 0 | 43 |
@@ -502,7 +504,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/functional/04-call-execution-dtmf.md | FR — Call Execution, Speech and DTMF | 1/5 | 1 | 0 | 0 | 400 |
 | specs/functional/05-result-normalization-callback.md | FR — Result Normalization and Sales Callback | 1/5 | 1 | 0 | 0 | 246 |
 | specs/functional/06-technical-exception-capacity.md | FR — Technical Exception & Capacity | 1/5 | 1 | 0 | 0 | 641 |
-| specs/functional/07-admin-operations.md | FR — Admin / Ops Operations | 1/4 | 1 | 0 | 0 | 448 |
+| specs/functional/07-admin-operations.md | FR — Admin / Ops Operations | 1/4 | 1 | 0 | 0 | 548 |
 | specs/functional/08-evidence-audit-privacy.md | FR — Evidence, Audit & Privacy | 1/4 | 1 | 0 | 0 | 410 |
 | specs/tech/00-tech-stack.md | TECH-STACK — Standalone IVR Service | 1/5 | 0 | 0 | 0 | 230 |
 | specs/testing/00-index.md | Testing SRS — Index | 1/1 | 0 | 9 | 0 | 122 |
@@ -521,9 +523,9 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/ui/03-call-detail.md | UI-03 — Call Detail (trace task→job→attempt→result→callback) | 1/6 | 1 | 0 | 0 | 167 |
 | specs/ui/04-ivr-menu-config.md | UI-04 — IVR Menu / Script Config | 1/6 | 1 | 0 | 0 | 283 |
 | specs/ui/05-integration-status.md | UI-05 — Integration Status (Health) | 1/6 | 1 | 0 | 0 | 112 |
-| specs/ui/06-callback-request.md | UI-06 — Admin Review & Technical Retry | 1/5 | 1 | 0 | 0 | 120 |
+| specs/ui/06-callback-request.md | UI-06 — Admin Review & Technical Retry | 1/5 | 1 | 0 | 0 | 180 |
 | specs/ui/07-seed-mock-management.md | UI-07 — Seed / Mock Management (NON-PROD only) | 1/5 | 1 | 0 | 0 | 135 |
-| specs/ui/08-role-permission-ui.md | UI-08 — Role / Permission & Matrix | 1/6 | 1 | 0 | 0 | 317 |
+| specs/ui/08-role-permission-ui.md | UI-08 — Role / Permission & Matrix | 1/6 | 1 | 0 | 0 | 391 |
 | specs/workflows/00-index.md | Workflows — Index | 1/1 | 0 | 9 | 0 | 119 |
 | specs/workflows/01-happy-path-confirm.md | Workflow — Happy Path Confirm (key 1) | 1/1 | 1 | 0 | 0 | 31 |
 | specs/workflows/02-cancel.md | Workflow — Cancel (phím 0) | 1/1 | 1 | 0 | 0 | 50 |

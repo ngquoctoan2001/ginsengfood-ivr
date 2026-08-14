@@ -15,7 +15,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` · Nguồn: DF-01 (`IVR_*` ở P
 ## 3. Ma trận Permission ↔ Màn/Action
 | Màn / Action | Permission | API |
 | --- | --- | --- |
-| Dashboard / Call-log / Call-detail (view) | `IVR_QUEUE_VIEW` | `GET /queue`, `GET /call-jobs/{id}` |
+| Dashboard / Call-log / Call-detail (view) | `IVR_QUEUE_VIEW` | `GET /queue`; admin backend/BFF → internal `GET /call-jobs/{id}` |
 | Pause queue | `IVR_QUEUE_PAUSE` | `POST /queue:pause` |
 | Resume queue | `IVR_QUEUE_RESUME` | `POST /queue:resume` |
 | Disable SIM | `IVR_SIM_DISABLE` | `POST /sim-channels/{id}:disable` |
@@ -28,6 +28,8 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` · Nguồn: DF-01 (`IVR_*` ở P
 ## 4. Ràng buộc P0 (mọi role)
 - **Không** role nào force confirm/cancel order (D-02), reset attempt count, vượt max attempt (D-10), bypass blocker (DO-*/DC-01), hay set `REAL` khi chưa release gate.
 - Mọi action ghi: `actor_id`, `permission`, `reason`, `target`, `before/after`, `correlation_id`, `evidence_ref`, `no_policy_bypass=true`.
+- UI phải gửi `X-Actor-Id` khớp authenticated subject; backend không tin actor/permission do client tự khai. Queue pause không được hiển thị như đã hủy active calls; review không được hiển thị như đã đổi normalized result/order state.
+- Browser không gọi trực tiếp internal lifecycle API và không nhận internal service token. Call-detail phải qua admin backend/BFF có server-side RBAC; BFF dùng service identity riêng khi đọc masked projection.
 
 ## Báo cáo (p12)
 1. **Số màn:** 8 (dashboard, call-log, call-detail, menu-config, integration-status, callback-request, seed-mock, role-permission).

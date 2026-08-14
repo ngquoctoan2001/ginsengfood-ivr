@@ -65,6 +65,7 @@ Order Core gọi ops sellable gate; các mã ổn định IVR/Core phải hiểu
 
 ## 5. Nguyên tắc
 - `500` không che business reject (dùng `409`/`422` cho business).
+- P2-8 bật `ThrowOnBadRequest` cho minimal API để JSON body malformed/thiếu required body được middleware đổi thành typed `400 IVR_MALFORMED_REQUEST`, không trả body rỗng mặc định của framework.
 - Mọi lỗi kỹ thuật cuộc gọi → `IVR_TECHNICAL_EXCEPTION`, **không** thành no-answer (DT-02; P0-IVR-004).
 - Error envelope thống nhất `{error:{code,message,details,correlationId}}` (đồng bộ ops — DO-06).
 

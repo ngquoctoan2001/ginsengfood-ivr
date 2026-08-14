@@ -1,0 +1,22 @@
+{
+  "classification": "SYNTHETIC_REDACTED_TEST_EVIDENCE",
+  "expected_status": 403,
+  "expected_error_code": "IVR_FORBIDDEN_CALLER",
+  "cases": [
+    { "operation": "GET /queue", "required_permission": "IVR_QUEUE_VIEW" },
+    { "operation": "POST /queue:pause", "required_permission": "IVR_QUEUE_PAUSE" },
+    { "operation": "POST /queue:resume", "required_permission": "IVR_QUEUE_RESUME" },
+    { "operation": "POST /sim-channels/{id}:disable", "required_permission": "IVR_SIM_DISABLE" },
+    { "operation": "POST /sim-channels/{id}:enable", "required_permission": "IVR_SIM_ENABLE" },
+    { "operation": "POST /technical-retries", "required_permission": "IVR_MANUAL_RETRY" },
+    { "operation": "POST /admin-reviews", "required_permission": "IVR_RESULT_REVIEW" }
+  ],
+  "sample_envelope": {
+    "error": {
+      "code": "IVR_FORBIDDEN_CALLER",
+      "message": "The caller is not allowed.",
+      "details": {},
+      "correlationId": "corr-redacted"
+    }
+  }
+}

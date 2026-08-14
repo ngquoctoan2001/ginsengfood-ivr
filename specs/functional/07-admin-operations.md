@@ -29,6 +29,9 @@ Nguồn: `phase-8/08` (giám sát/audit/privacy), `phase-8/11 §5,§8` (admin AP
 | FR-IVR-ADM-004 | Override result (nếu có) yêu cầu restricted admin + Core approval + **dual evidence** | phase-8/15 | Override thiếu dual evidence → chặn |
 | FR-IVR-ADM-005 | UI hiển thị `phone_masked`; ẩn full phone/address/payment/member/health/CRM mặc định | phase-8/08 §6; docx §16,§17 | Full PII hiển thị → FAIL (P0-IVR-007) |
 | FR-IVR-ADM-006 | Admin action idempotent (Idempotency-Key cho POST rủi ro) | phase-8/11 §2 | Duplicate action → no double effect |
+| FR-IVR-ADM-007 | Queue pause chỉ ngăn dispatch claim mới; không cancel active call/lease. Resume fail-closed nếu còn hold incident ngoài admin pause | P2-8/W-0065 | Pause → claim null; active state giữ nguyên; resume có blocker → reject |
+| FR-IVR-ADM-008 | Technical retry giữ `is_counted_customer_attempt=false`, bounded, không reset counter và không chạy sau final/window/blocker | P2-5/P2-8 | Retry hợp lệ tăng technical count đúng 1; retry kế tiếp vượt limit → reject |
+| FR-IVR-ADM-009 | Review chỉ annotation/resolution; normalized result là immutable qua admin API | P2-8/W-0065 | Hash/snapshot result trước và sau review bằng nhau |
 
 ## Owner Decision
 - `Owner Decision Required` Q-U1 (nền tảng admin UI + nơi tạo permission `IVR_*`), Q-A2 (service identity allowlist).

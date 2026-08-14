@@ -17,7 +17,7 @@ Trạng thái: `LIVING` · Cập nhật: `2026-08-12`.
 | one real SIM lab | `TV1-09` | telephony IR/acceptance | P8 | allowlist/kill-switch/DTMF evidence |
 | 32 eSIM target | `TV1-09` | deployment/capacity | P8/P10/P11 | procurement + measured load evidence |
 | single progress ledger | owner request 2026-08-12 | prompt governance/tracker | every prompt | sequential Work IDs + evidence refs |
-| IVR internal & admin API | `specs/api/02`,`03` + IVR OpenAPI (14 operation) | api/02, api/03, OpenAPI | **P2-8** (W-0065) | authz-denied per permission, idempotency, audit append-only, PII masking, OAS contract |
+| IVR internal & admin API | `specs/api/02`,`03` + IVR OpenAPI (13 operation) | api/02, api/03, OpenAPI | **P2-8** (W-0065) | authz-denied per permission, idempotency, audit append-only, PII masking, OAS contract |
 | speech/TTS audio boundary | governance §3 providers; TCv1 §6 | functional/04, api/04 | P2-4 (fake) + **P2-9** (W-0066) → P8-1 | snapshot text, audio metadata, PII scan, timeout≠no-answer; pronunciation acceptance chỉ ở lab |
 | retention/data lifecycle | DF-07 | database/05, database/02 §8 | **P1-5** (W-0064) → P7-2/P9-2/P10-1/P10-2 | dry-run + real-run report, legal-hold test, audit không bị xoá |
 | attempt policy is config, not schema | `TV1-02` | database/02 §1, database/04 §4, functional/03 | P1-2/P2-3 | migration KHÔNG chứa CHECK hằng số 2/300/150/900/450 |

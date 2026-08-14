@@ -1,0 +1,19 @@
+{
+  "classification": "SYNTHETIC_REDACTED_TEST_EVIDENCE",
+  "scenario": "same idempotency key with a different canonical payload hash",
+  "expected_status": 409,
+  "expected_error_code": "IVR_IDEMPOTENCY_CONFLICT",
+  "post_condition": {
+    "admin_action_rows": 1,
+    "audit_rows": 1,
+    "second_mutation_applied": false
+  },
+  "sample_envelope": {
+    "error": {
+      "code": "IVR_IDEMPOTENCY_CONFLICT",
+      "message": "The idempotency key was already used with a different payload.",
+      "details": {},
+      "correlationId": "corr-redacted"
+    }
+  }
+}

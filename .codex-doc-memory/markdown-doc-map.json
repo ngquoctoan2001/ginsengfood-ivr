@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T01:59:35.087Z",
+  "generatedAt": "2026-08-14T03:33:20.195Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -947,7 +947,7 @@
       ],
       "links": [],
       "lines": 52,
-      "words": 383,
+      "words": 396,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -215745,6 +215745,68 @@
       ]
     },
     {
+      "path": "docs/evidence/W-0065/README.md",
+      "title": "W-0065 — P2-8 internal and admin API evidence",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0065 — P2-8 internal and admin API evidence",
+          "line": 1,
+          "slug": "w-0065-p2-8-internal-and-admin-api-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Delivered boundary",
+          "line": 11,
+          "slug": "delivered-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "API surface",
+          "line": 42,
+          "slug": "api-surface"
+        },
+        {
+          "depth": 2,
+          "text": "Required test groups",
+          "line": 54,
+          "slug": "required-test-groups"
+        },
+        {
+          "depth": 2,
+          "text": "Contract evidence",
+          "line": 81,
+          "slug": "contract-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "Final local verification",
+          "line": 97,
+          "slug": "final-local-verification"
+        },
+        {
+          "depth": 2,
+          "text": "Samples and safety interpretation",
+          "line": 121,
+          "slug": "samples-and-safety-interpretation"
+        },
+        {
+          "depth": 2,
+          "text": "Residual gates",
+          "line": 133,
+          "slug": "residual-gates"
+        }
+      ],
+      "links": [],
+      "lines": 145,
+      "words": 1076,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "docs/evidence/W-0085/README.md",
       "title": "W-0085 Linux ProjectReference path portability",
       "frontmatter": {},
@@ -220503,19 +220565,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 304,
+          "line": 308,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 325,
+          "line": 329,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 736,
-      "words": 12028,
+      "lines": 760,
+      "words": 12335,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -228481,14 +228543,20 @@
         },
         {
           "depth": 2,
-          "text": "Task validation",
+          "text": "Internal service boundary (P2-8 / W-0065)",
           "line": 17,
+          "slug": "internal-service-boundary-p2-8-w-0065"
+        },
+        {
+          "depth": 2,
+          "text": "Task validation",
+          "line": 26,
           "slug": "task-validation"
         },
         {
           "depth": 2,
           "text": "Outbound callback distinction",
-          "line": 27,
+          "line": 36,
           "slug": "outbound-callback-distinction"
         }
       ],
@@ -228497,11 +228565,11 @@
           "kind": "markdown",
           "text": "05-order-core-contracts.md",
           "rawTarget": "05-order-core-contracts.md",
-          "line": 29
+          "line": 38
         }
       ],
-      "lines": 30,
-      "words": 206,
+      "lines": 39,
+      "words": 376,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -228509,7 +228577,7 @@
           "to": "specs/api/05-order-core-contracts.md",
           "kind": "markdown",
           "rawTarget": "05-order-core-contracts.md",
-          "line": 29
+          "line": 38
         }
       ],
       "unresolvedLinks": [],
@@ -228548,32 +228616,38 @@
         },
         {
           "depth": 2,
+          "text": "2a. Semantics đã khóa ở P2-8",
+          "line": 32,
+          "slug": "2a-semantics-đã-khóa-ở-p2-8"
+        },
+        {
+          "depth": 2,
           "text": "3. Privacy (masked)",
-          "line": 30,
+          "line": 39,
           "slug": "3-privacy-masked"
         },
         {
           "depth": 2,
           "text": "4. SIM/eSIM admin theo mode",
-          "line": 33,
+          "line": 42,
           "slug": "4-simesim-admin-theo-mode"
         },
         {
           "depth": 2,
           "text": "Báo cáo (admin)",
-          "line": 36,
+          "line": 45,
           "slug": "báo-cáo-admin"
         },
         {
           "depth": 2,
           "text": "Runtime-gate controls — bất đối xứng theo chiều an toàn",
-          "line": 39,
+          "line": 48,
           "slug": "runtime-gate-controls-bất-đối-xứng-theo-chiều-an-toàn"
         }
       ],
       "links": [],
-      "lines": 47,
-      "words": 558,
+      "lines": 56,
+      "words": 727,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -228706,7 +228780,7 @@
           "to": "specs/api/05-order-core-contracts.md",
           "kind": "markdown",
           "rawTarget": "05-order-core-contracts.md",
-          "line": 29
+          "line": 38
         }
       ]
     },
@@ -228766,13 +228840,13 @@
         {
           "depth": 2,
           "text": "Báo cáo (error)",
-          "line": 71,
+          "line": 72,
           "slug": "báo-cáo-error"
         }
       ],
       "links": [],
-      "lines": 74,
-      "words": 850,
+      "lines": 75,
+      "words": 878,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -228806,25 +228880,25 @@
         {
           "depth": 2,
           "text": "2. Correlation",
-          "line": 21,
+          "line": 23,
           "slug": "2-correlation"
         },
         {
           "depth": 2,
           "text": "3. Trace linkage (MASTER-03 / DO-07)",
-          "line": 25,
+          "line": 27,
           "slug": "3-trace-linkage-master-03-do-07"
         },
         {
           "depth": 2,
           "text": "4. Race guard",
-          "line": 29,
+          "line": 31,
           "slug": "4-race-guard"
         }
       ],
       "links": [],
-      "lines": 32,
-      "words": 330,
+      "lines": 34,
+      "words": 382,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -230562,13 +230636,13 @@
         {
           "depth": 2,
           "text": "Owner Decision",
-          "line": 33,
+          "line": 36,
           "slug": "owner-decision"
         }
       ],
       "links": [],
-      "lines": 36,
-      "words": 448,
+      "lines": 39,
+      "words": 548,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -231643,13 +231717,13 @@
         {
           "depth": 2,
           "text": "P0",
-          "line": 21,
+          "line": 23,
           "slug": "p0"
         }
       ],
       "links": [],
-      "lines": 23,
-      "words": 120,
+      "lines": 26,
+      "words": 180,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -231753,13 +231827,13 @@
         {
           "depth": 2,
           "text": "Báo cáo (p12)",
-          "line": 32,
+          "line": 34,
           "slug": "báo-cáo-p12"
         }
       ],
       "links": [],
-      "lines": 36,
-      "words": 317,
+      "lines": 38,
+      "words": 391,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -234416,7 +234490,7 @@
       "to": "specs/api/05-order-core-contracts.md",
       "kind": "markdown",
       "rawTarget": "05-order-core-contracts.md",
-      "line": 29
+      "line": 38
     },
     {
       "from": "specs/architecture/00-index.md",
@@ -234863,6 +234937,7 @@
       "docs/evidence/W-0022/README.md",
       "docs/evidence/W-0023/README.md",
       "docs/evidence/W-0061/README.md",
+      "docs/evidence/W-0065/README.md",
       "docs/evidence/W-0085/README.md",
       "docs/evidence/W-0086/README.md",
       "docs/integration-guide.md",

@@ -48,12 +48,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrEligibilityDecision' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/EligibilityLifecycleRequest' } } }
       responses:
         '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrEligibilityDecision' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
         '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /call-jobs:
     post:
       tags: [internal]
@@ -62,12 +71,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJob' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/CallJobLifecycleRequest' } } }
       responses:
         '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJob' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
         '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /call-jobs/{ivrCallJobId}:
     get:
       tags: [internal]
@@ -79,9 +97,16 @@ paths:
           required: true
           schema: { type: string }
         - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
       responses:
         '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJob' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /call-attempts:
     post:
       tags: [internal]
@@ -90,12 +115,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallAttempt' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/CallAttemptLifecycleRequest' } } }
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallAttempt' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
         '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /call-results:
     post:
       tags: [internal]
@@ -104,12 +138,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallResult' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/CallResultLifecycleRequest' } } }
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
         '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /result-callbacks:
     post:
       tags: [internal]
@@ -118,12 +161,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrConfirmationResultCallbackTargetV1' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/ResultCallbackLifecycleRequest' } } }
       responses:
-        '200': { description: Recorded, content: { application/json: { schema: { $ref: '#/components/schemas/CallbackCoreResponseTarget' } } } }
+        '200': { description: Recorded internal delivery lifecycle, content: { application/json: { schema: { $ref: '#/components/schemas/IvrResultCallbackLifecycle' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
         '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /queue:
     get:
       tags: [admin]
@@ -134,8 +186,12 @@ paths:
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/ActorId'
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrQueueProjection' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /queue:pause:
     post:
       tags: [admin]
@@ -147,10 +203,16 @@ paths:
         - $ref: '#/components/parameters/ActorId'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminAction' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /queue:resume:
     post:
       tags: [admin]
@@ -162,10 +224,16 @@ paths:
         - $ref: '#/components/parameters/ActorId'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminAction' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /sim-channels/{simChannelId}:disable:
     post:
       tags: [admin]
@@ -181,10 +249,17 @@ paths:
         - $ref: '#/components/parameters/ActorId'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminAction' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /sim-channels/{simChannelId}:enable:
     post:
       tags: [admin]
@@ -200,10 +275,17 @@ paths:
         - $ref: '#/components/parameters/ActorId'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminAction' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /technical-retries:
     post:
       tags: [admin]
@@ -215,10 +297,17 @@ paths:
         - $ref: '#/components/parameters/ActorId'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrTechnicalException' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/TechnicalRetryRequest' } } }
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrTechnicalRetryResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /admin-reviews:
     post:
       tags: [admin]
@@ -230,10 +319,17 @@ paths:
         - $ref: '#/components/parameters/ActorId'
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminAction' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminReviewRequest' } } }
       responses:
-        '200': { description: OK }
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminReviewResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
   /feature-flags/{environment}:
     get:
       tags: [admin]
@@ -301,6 +397,16 @@ components:
       in: header
       required: true
       schema: { type: string, enum: [sales-platform, order-core] }
+    InternalSourceSystem:
+      name: X-Source-System
+      in: header
+      required: true
+      schema: { type: string, enum: [ivr-worker, ivr-adapter] }
+    InternalServiceScope:
+      name: X-Service-Scope
+      in: header
+      required: true
+      schema: { type: string, enum: [ivr.internal.write] }
     FeatureFlagEnvironment:
       name: environment
       in: path
@@ -345,12 +451,8 @@ components:
             message: { type: string }
             correlationId: { type: string }
             details:
-              type: array
-              items:
-                type: object
-                properties:
-                  field: { type: string }
-                  issue: { type: string }
+              type: object
+              additionalProperties: { type: string }
     ProgramCode:
       type: string
       enum: [GOLDEN_HOUR, TWENTY_FOUR_SEVEN]
@@ -532,9 +634,69 @@ components:
           type: array
           items: { type: string }
         evidence_ref: { type: string }
+    EligibilityLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [task_id]
+      properties:
+        task_id: { type: string, minLength: 1 }
+    CallJobLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [ivr_call_job_id, task_id]
+      properties:
+        ivr_call_job_id: { type: string, minLength: 1 }
+        task_id: { type: string, minLength: 1 }
+    CallAttemptLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [ivr_call_attempt_id, ivr_call_job_id]
+      properties:
+        ivr_call_attempt_id: { type: string, minLength: 1 }
+        ivr_call_job_id: { type: string, minLength: 1 }
+    CallResultLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [ivr_call_result_id, ivr_call_job_id]
+      properties:
+        ivr_call_result_id: { type: string, minLength: 1 }
+        ivr_call_job_id: { type: string, minLength: 1 }
+    ResultCallbackLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [callback_id, ivr_call_result_id]
+      properties:
+        callback_id: { type: string, minLength: 1 }
+        ivr_call_result_id: { type: string, minLength: 1 }
+    AdminMutationRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        evidence_ref: { type: string }
+    TechnicalRetryRequest:
+      type: object
+      additionalProperties: false
+      required: [technical_exception_id, target_attempt_id, reason]
+      properties:
+        technical_exception_id: { type: string, minLength: 1 }
+        target_attempt_id: { type: string, minLength: 1 }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        evidence_ref: { type: string }
+    AdminReviewRequest:
+      type: object
+      additionalProperties: false
+      required: [review_item_id, resolution, reason]
+      properties:
+        review_item_id: { type: string, minLength: 1 }
+        resolution: { type: string, minLength: 1, maxLength: 500 }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        evidence_ref: { type: string }
     IvrEligibilityDecision:
       type: object
-      required: [decision]
+      additionalProperties: false
+      required: [task_id, decision, blocked_reasons, evidence_ref]
       properties:
         task_id: { type: string }
         decision: { type: string }
@@ -545,6 +707,18 @@ components:
         evidence_ref: { type: string }
     IvrCallJob:
       type: object
+      additionalProperties: false
+      required:
+        - ivr_call_job_id
+        - task_id
+        - program_type
+        - status
+        - queue_status
+        - eligible
+        - max_attempts
+        - expires_at
+        - input_signal_only
+        - no_direct_order_update
       properties:
         ivr_call_job_id: { type: string }
         task_id: { type: string }
@@ -557,10 +731,20 @@ components:
         attempt_spacing_seconds: { type: integer }
         confirmation_window_seconds: { type: integer, minimum: 1 }
         queue_status: { type: string }
+        eligible: { type: boolean }
+        expires_at: { type: string, format: date-time }
         input_signal_only: { type: boolean, enum: [true] }
         no_direct_order_update: { type: boolean, enum: [true] }
     IvrCallAttempt:
       type: object
+      additionalProperties: false
+      required:
+        - ivr_call_attempt_id
+        - ivr_call_job_id
+        - attempt_number
+        - status
+        - is_counted_customer_attempt
+        - technical_retry_count
       properties:
         ivr_call_attempt_id: { type: string }
         ivr_call_job_id: { type: string }
@@ -569,14 +753,27 @@ components:
         result_status: { type: string }
         dtmf_key: { type: string }
         is_counted_customer_attempt: { type: boolean }
+        technical_retry_count: { type: integer, minimum: 0 }
         disposition: { type: string }
         sim_channel_id: { type: string }
     IvrCallResult:
       type: object
+      additionalProperties: false
+      required:
+        - ivr_call_result_id
+        - ivr_call_job_id
+        - result_type
+        - is_counted_customer_attempt
+        - is_final_for_ivr
+        - recommended_core_action
+        - input_signal_only
+        - no_direct_order_update
+        - no_payment_or_revenue_effect
       properties:
         ivr_call_result_id: { type: string }
         ivr_call_job_id: { type: string }
         final_result_status: { type: string }
+        result_reason: { type: string }
         result_type: { $ref: '#/components/schemas/ResultType' }
         is_counted_customer_attempt: { type: boolean }
         is_final_for_ivr: { type: boolean }
@@ -671,6 +868,95 @@ components:
             - REVIEW_REQUIRED
             - REJECTED_STALE
             - IDEMPOTENCY_CONFLICT
+    IvrResultCallbackLifecycle:
+      type: object
+      additionalProperties: false
+      required:
+        - callback_id
+        - ivr_call_result_id
+        - result_state
+        - delivery_status
+        - retry_count
+        - requires_core_revalidation
+      properties:
+        callback_id: { type: string }
+        ivr_call_result_id: { type: string }
+        result_state: { type: string }
+        delivery_status: { type: string }
+        retry_count: { type: integer, minimum: 0 }
+        requires_core_revalidation: { type: boolean, enum: [true] }
+    IvrQueueProjection:
+      type: object
+      additionalProperties: false
+      required:
+        - paused
+        - pending_jobs
+        - active_attempts
+        - enabled_channels
+        - open_hold_incidents
+        - projected_at
+      properties:
+        paused: { type: boolean }
+        pending_jobs: { type: integer, minimum: 0 }
+        active_attempts: { type: integer, minimum: 0 }
+        enabled_channels: { type: integer, minimum: 0 }
+        open_hold_incidents: { type: integer, minimum: 0 }
+        projected_at: { type: string, format: date-time }
+    IvrAdminActionResult:
+      type: object
+      additionalProperties: false
+      required:
+        - admin_action_id
+        - action_type
+        - target_type
+        - target_id
+        - status
+        - correlation_id
+        - no_policy_bypass
+      properties:
+        admin_action_id: { type: string }
+        action_type: { type: string }
+        target_type: { type: string }
+        target_id: { type: string }
+        status: { type: string, enum: [APPLIED] }
+        correlation_id: { type: string }
+        no_policy_bypass: { type: boolean, enum: [true] }
+    IvrTechnicalRetryResult:
+      type: object
+      additionalProperties: false
+      required:
+        - admin_action_id
+        - technical_exception_id
+        - target_attempt_id
+        - technical_retry_count
+        - customer_attempt_counted
+        - queue_status
+        - no_policy_bypass
+      properties:
+        admin_action_id: { type: string }
+        technical_exception_id: { type: string }
+        target_attempt_id: { type: string }
+        technical_retry_count: { type: integer, minimum: 1 }
+        customer_attempt_counted: { type: boolean, enum: [false] }
+        queue_status: { type: string }
+        no_policy_bypass: { type: boolean, enum: [true] }
+    IvrAdminReviewResult:
+      type: object
+      additionalProperties: false
+      required:
+        - admin_action_id
+        - review_item_id
+        - status
+        - resolution
+        - result_unchanged
+        - no_policy_bypass
+      properties:
+        admin_action_id: { type: string }
+        review_item_id: { type: string }
+        status: { type: string, enum: [RESOLVED] }
+        resolution: { type: string }
+        result_unchanged: { type: boolean, enum: [true] }
+        no_policy_bypass: { type: boolean, enum: [true] }
     IvrAdminAction:
       type: object
       required: [action_type, reason, target_type, target_id, no_policy_bypass]

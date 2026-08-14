@@ -1,0 +1,32 @@
+{
+  "classification": "SYNTHETIC_REDACTED_POSTGRES_PROJECTION",
+  "source_test_id": "IT-API-AUDIT-04",
+  "audit": {
+    "audit_id": "redacted-synthetic-id",
+    "actor_id": "operator-p2-8",
+    "actor_type": "admin",
+    "action": "SIM_DISABLE",
+    "target_type": "sim-channel",
+    "target_id": "SIM-P2-8",
+    "reason": "maintenance isolation",
+    "before_state": {
+      "enabled": true,
+      "status": "IDLE",
+      "activeCallJobId": null,
+      "leaseFencingGeneration": 0
+    },
+    "after_state": {
+      "enabled": false,
+      "status": "DISABLED",
+      "activeCallJobId": null,
+      "leaseFencingGeneration": 0
+    },
+    "correlation_id": "corr-redacted",
+    "data": {
+      "permission": "IVR_SIM_DISABLE",
+      "evidence_ref": "evidence://ivr/p2-8/sim-disable",
+      "no_policy_bypass": true
+    }
+  },
+  "append_only_update_attempt": "REJECTED_BY_DATABASE_TRIGGER"
+}

@@ -444,33 +444,152 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class EligibilityLifecycleRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("task_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Task_id { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CallJobLifecycleRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("ivr_call_job_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Ivr_call_job_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("task_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Task_id { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CallAttemptLifecycleRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("ivr_call_attempt_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Ivr_call_attempt_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ivr_call_job_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Ivr_call_job_id { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CallResultLifecycleRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("ivr_call_result_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Ivr_call_result_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ivr_call_job_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Ivr_call_job_id { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ResultCallbackLifecycleRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("callback_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Callback_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ivr_call_result_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Ivr_call_result_id { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class AdminMutationRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("reason")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(500, MinimumLength = 1)]
+        public required string Reason { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("evidence_ref")]
+        public string? Evidence_ref { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class TechnicalRetryRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("technical_exception_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Technical_exception_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("target_attempt_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Target_attempt_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reason")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(500, MinimumLength = 1)]
+        public required string Reason { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("evidence_ref")]
+        public string? Evidence_ref { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class AdminReviewRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("review_item_id")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required string Review_item_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("resolution")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(500, MinimumLength = 1)]
+        public required string Resolution { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reason")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(500, MinimumLength = 1)]
+        public required string Reason { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("evidence_ref")]
+        public string? Evidence_ref { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class IvrEligibilityDecision
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("task_id")]
-        public string? Task_id { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Task_id { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("decision")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public required string Decision { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("blocked_reasons")]
-        public System.Collections.Generic.ICollection<string>? Blocked_reasons { get; init; }
+        [System.ComponentModel.DataAnnotations.Required]
+        public required System.Collections.Generic.ICollection<string> Blocked_reasons { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("skip_trusted")]
         public bool? Skip_trusted { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("evidence_ref")]
-        public string? Evidence_ref { get; init; }
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Evidence_ref { get; init; }
 
     }
 
@@ -479,10 +598,12 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("ivr_call_job_id")]
-        public string? Ivr_call_job_id { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Ivr_call_job_id { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("task_id")]
-        public string? Task_id { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Task_id { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("official_order_id")]
         public string? Official_order_id { get; init; }
@@ -494,18 +615,20 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public string? Order_version { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("program_type")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<ProgramCode>))]
-        public ProgramCode? Program_type { get; init; }
+        public required ProgramCode Program_type { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string? Status { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Status { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("attempt_policy_version")]
         public string? Attempt_policy_version { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("max_attempts")]
         [System.ComponentModel.DataAnnotations.Range(1, 10)]
-        public int? Max_attempts { get; init; }
+        public required int Max_attempts { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("attempt_spacing_seconds")]
         public int? Attempt_spacing_seconds { get; init; }
@@ -515,22 +638,21 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public int? Confirmation_window_seconds { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("queue_status")]
-        public string? Queue_status { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Queue_status { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("eligible")]
+        public required bool Eligible { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("expires_at")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required System.DateTimeOffset Expires_at { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("input_signal_only")]
-        public bool? Input_signal_only { get; init; }
+        public required bool Input_signal_only { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("no_direct_order_update")]
-        public bool? No_direct_order_update { get; init; }
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
+        public required bool No_direct_order_update { get; init; }
 
     }
 
@@ -539,17 +661,20 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("ivr_call_attempt_id")]
-        public string? Ivr_call_attempt_id { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Ivr_call_attempt_id { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("ivr_call_job_id")]
-        public string? Ivr_call_job_id { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Ivr_call_job_id { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("attempt_number")]
         [System.ComponentModel.DataAnnotations.Range(1, 10)]
-        public int? Attempt_number { get; init; }
+        public required int Attempt_number { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string? Status { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Status { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("result_status")]
         public string? Result_status { get; init; }
@@ -558,22 +683,17 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public string? Dtmf_key { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("is_counted_customer_attempt")]
-        public bool? Is_counted_customer_attempt { get; init; }
+        public required bool Is_counted_customer_attempt { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("technical_retry_count")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Technical_retry_count { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("disposition")]
         public string? Disposition { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("sim_channel_id")]
         public string? Sim_channel_id { get; init; }
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
 
     }
 
@@ -582,44 +702,42 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("ivr_call_result_id")]
-        public string? Ivr_call_result_id { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Ivr_call_result_id { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("ivr_call_job_id")]
-        public string? Ivr_call_job_id { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Ivr_call_job_id { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("final_result_status")]
         public string? Final_result_status { get; init; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("result_reason")]
+        public string? Result_reason { get; init; }
+
         [System.Text.Json.Serialization.JsonPropertyName("result_type")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<ResultType>))]
-        public ResultType? Result_type { get; init; }
+        public required ResultType Result_type { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("is_counted_customer_attempt")]
-        public bool? Is_counted_customer_attempt { get; init; }
+        public required bool Is_counted_customer_attempt { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("is_final_for_ivr")]
-        public bool? Is_final_for_ivr { get; init; }
+        public required bool Is_final_for_ivr { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("recommended_core_action")]
-        public string? Recommended_core_action { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Recommended_core_action { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("input_signal_only")]
-        public bool? Input_signal_only { get; init; }
+        public required bool Input_signal_only { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("no_direct_order_update")]
-        public bool? No_direct_order_update { get; init; }
+        public required bool No_direct_order_update { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("no_payment_or_revenue_effect")]
-        public bool? No_payment_or_revenue_effect { get; init; }
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
+        public required bool No_payment_or_revenue_effect { get; init; }
 
     }
 
@@ -833,6 +951,159 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrResultCallbackLifecycle
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("callback_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Callback_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ivr_call_result_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Ivr_call_result_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("result_state")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Result_state { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("delivery_status")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Delivery_status { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("retry_count")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Retry_count { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("requires_core_revalidation")]
+        public required bool Requires_core_revalidation { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrQueueProjection
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("paused")]
+        public required bool Paused { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("pending_jobs")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Pending_jobs { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("active_attempts")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Active_attempts { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("enabled_channels")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Enabled_channels { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("open_hold_incidents")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Open_hold_incidents { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("projected_at")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required System.DateTimeOffset Projected_at { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAdminActionResult
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("admin_action_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Admin_action_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("action_type")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Action_type { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("target_type")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Target_type { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("target_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Target_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrAdminActionResultStatus>))]
+        public required IvrAdminActionResultStatus Status { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("correlation_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Correlation_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("no_policy_bypass")]
+        public required bool No_policy_bypass { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrTechnicalRetryResult
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("admin_action_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Admin_action_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("technical_exception_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Technical_exception_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("target_attempt_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Target_attempt_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("technical_retry_count")]
+        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue)]
+        public required int Technical_retry_count { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("customer_attempt_counted")]
+        public required bool Customer_attempt_counted { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("queue_status")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Queue_status { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("no_policy_bypass")]
+        public required bool No_policy_bypass { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAdminReviewResult
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("admin_action_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Admin_action_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("review_item_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Review_item_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrAdminReviewResultStatus>))]
+        public required IvrAdminReviewResultStatus Status { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("resolution")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Resolution { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("result_unchanged")]
+        public required bool Result_unchanged { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("no_policy_bypass")]
+        public required bool No_policy_bypass { get; init; }
 
     }
 
@@ -1078,6 +1349,30 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum XSourceSystem2
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"ivr-worker")]
+        [System.Runtime.Serialization.EnumMember(Value = @"ivr-worker")]
+        IvrWorker = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"ivr-adapter")]
+        [System.Runtime.Serialization.EnumMember(Value = @"ivr-adapter")]
+        IvrAdapter = 1,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum XServiceScope
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"ivr.internal.write")]
+        [System.Runtime.Serialization.EnumMember(Value = @"ivr.internal.write")]
+        Ivr_internal_write = 0,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum Environment
     {
 
@@ -1121,7 +1416,7 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public required string CorrelationId { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("details")]
-        public System.Collections.Generic.ICollection<Details>? Details { get; init; }
+        public System.Collections.Generic.IDictionary<string, string>? Details { get; init; }
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -1316,6 +1611,26 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrAdminActionResultStatus
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"APPLIED")]
+        [System.Runtime.Serialization.EnumMember(Value = @"APPLIED")]
+        APPLIED = 0,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrAdminReviewResultStatus
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"RESOLVED")]
+        [System.Runtime.Serialization.EnumMember(Value = @"RESOLVED")]
+        RESOLVED = 0,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum FeatureFlagSnapshotEnvironment
     {
 
@@ -1438,27 +1753,6 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonStringEnumMemberName(@"VENDOR")]
         [System.Runtime.Serialization.EnumMember(Value = @"VENDOR")]
         VENDOR = 1,
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Details
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("field")]
-        public string? Field { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("issue")]
-        public string? Issue { get; init; }
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
 
     }
 
