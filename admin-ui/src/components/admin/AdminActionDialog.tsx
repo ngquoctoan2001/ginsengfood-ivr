@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, type ReactNode } from "react";
+import { useActionState, useRef, type ReactNode } from "react";
 
 import { ErrorAlert } from "@/components/feedback/ErrorAlert";
 import { RequirePermission } from "@/components/rbac/RequirePermission";
@@ -43,12 +43,7 @@ export function AdminActionDialog({
 }: AdminActionDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [state, formAction, isPending] = useActionState(action, IDLE_ACTION_STATE);
-
-  useEffect(() => {
-    if (state.status === "success") {
-      dialogRef.current?.close();
-    }
-  }, [state]);
+  const succeeded = state.status === "success";
 
   return (
     <RequirePermission perm={perm}>
@@ -101,6 +96,21 @@ export function AdminActionDialog({
               </p>
             ) : null}
             {state.status === "error" ? <ErrorAlert error={state.error} /> : null}
+            {/* The dialog stays open on success and shows the ids. Closing
+                silently left the operator with no record to quote, and the
+                admin action id plus correlation id are exactly what a ticket or
+                an audit lookup needs. */}
+            {state.status === "success" ? (
+              <div className={styles.success} role="status" data-testid="action-success">
+                <p>{t("action.succeeded")}</p>
+                <dl className={styles.successMeta}>
+                  <dt>{t("action.adminActionId")}</dt>
+                  <dd data-testid="action-admin-action-id">{state.adminActionId}</dd>
+                  <dt>{t("error.correlationId")}</dt>
+                  <dd data-testid="action-correlation-id">{state.correlationId}</dd>
+                </dl>
+              </div>
+            ) : null}
 
             <div className={styles.actions}>
               <button
@@ -108,11 +118,13 @@ export function AdminActionDialog({
                 className={controls.secondary}
                 onClick={() => dialogRef.current?.close()}
               >
-                {t("action.cancel")}
+                {succeeded ? t("action.close") : t("action.cancel")}
               </button>
-              <button type="submit" className={controls.primary} disabled={isPending}>
-                {isPending ? t("action.submitting") : t("action.confirm")}
-              </button>
+              {succeeded ? null : (
+                <button type="submit" className={controls.primary} disabled={isPending}>
+                  {isPending ? t("action.submitting") : t("action.confirm")}
+                </button>
+              )}
             </div>
           </form>
         </dialog>

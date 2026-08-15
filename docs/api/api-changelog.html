@@ -23,7 +23,7 @@ and does not approve the external Sales contract.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.2</code></td>
-<td><code>1.0.0-draft.4</code></td>
+<td><code>1.0.0-draft.7</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>
@@ -40,11 +40,32 @@ service-only lifecycle endpoint.</p>
 <p><code>1.0.0-draft.4</code> (W-0096) adds three more, all read-only: <code>GET /scripts</code>,
 <code>GET /integration-status</code> and <code>GET /review-items</code>, backing the P3-3 back-office
 screens.</p>
-<p>Both steps are additive: <code>oasdiff breaking --fail-on WARN</code> reports <strong>no breaking
-changes</strong>. They add no request field, alter no existing operation, and grant no
-new capability — all six require <code>IVR_QUEUE_VIEW</code> and return masked projections
-only. No mutation operation was added for script lifecycle, seed loading or
-permission assignment.</p>
+<p><code>1.0.0-draft.5</code> (W-0098) adds four more read-only operations backing the P3-4
+reporting console: <code>GET /analytics/summary</code>, <code>GET /analytics/trend</code>,
+<code>GET /analytics/breakdown</code> and <code>GET /analytics/export</code>. They return aggregate
+values only — counts, rates and dimension labels — and drop any bucket below the
+server-side <code>min_bucket_size</code> before serialization. <code>warehouse_backed</code> is
+reported <code>false</code> because the P10-4 pipeline (<code>W-0055</code>) does not exist yet, so the
+console cannot present operational reads as a BI pipeline. The export operation
+is a <code>GET</code> with a mandatory <code>reason</code>: it is a read that is audited, not a state
+change, so no mutation surface was introduced.</p>
+<p><code>1.0.0-draft.6</code> (W-0099) adds one read operation, <code>GET /sim-channels</code>. The
+enable and disable operations for a SIM channel have existed since P2-8, but
+<code>specs/ui/08</code> §3 lists both as console actions and no screen could reach them:
+the dashboard SIM panel carried counts only, with no channel identity to act on.
+This supplies the roster. It projects no <code>sim_number_ref</code> — that points at a
+phone identity the console has no use for (D-05) — and no lease internals.</p>
+<p><code>1.0.0-draft.7</code> (W-0101) adds no operation. It completes three read
+projections against their UI specs: the dashboard gains <code>call_success_rate</code>,
+<code>sim.failure_rate</code>, <code>queue.attempt_two_pending</code> and <code>queue.blocked</code> — four tiles
+<code>specs/ui/01</code> asks for that had no field behind them — and the call detail gains
+the per-line <code>sellable_status</code> snapshot <code>specs/ui/03</code> requires. All are response
+fields on existing operations; nothing was removed or renamed.</p>
+<p>All five steps are additive: <code>oasdiff breaking --fail-on WARN</code> reports <strong>no
+breaking changes</strong>. They add no request body field, alter no existing operation,
+and grant no new capability — all eleven require <code>IVR_QUEUE_VIEW</code> and return
+masked or aggregate projections only. No mutation operation was added for script
+lifecycle, seed loading or permission assignment.</p>
 <p>The Sales callback report still says <code>No changes detected</code>. The previous IVR baseline is
 retained at <code>baselines/ivr-order-confirmation.v1.0.0.yaml</code>; its transition to
 draft.2 contained <code>143</code> changes (<code>63</code> errors and <code>80</code> warnings) and is preserved

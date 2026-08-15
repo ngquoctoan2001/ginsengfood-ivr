@@ -24,11 +24,24 @@ public static class IvrAdminEndpoints
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
         adminGroup.MapGet("/call-jobs/{ivrCallJobId}/detail", GetCallJobDetailAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/sim-channels", ListSimChannelsAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
         adminGroup.MapGet("/scripts", GetScriptCatalogAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
         adminGroup.MapGet("/integration-status", GetIntegrationStatusAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
         adminGroup.MapGet("/review-items", ListReviewItemsAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/analytics/summary", GetAnalyticsSummaryAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/analytics/trend", GetAnalyticsTrendAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/analytics/breakdown", GetAnalyticsBreakdownAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        // GET, not POST: the extract is a read that is audited, and keeping the
+        // verb read-only preserves the "no mutation surface" invariant the other
+        // reporting routes are tested against.
+        adminGroup.MapGet("/analytics/export", ExportAnalyticsAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
         adminGroup.MapPost("/queue:pause", PauseQueueAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueuePause));
@@ -114,6 +127,16 @@ public static class IvrAdminEndpoints
         return service.GetCallJobDetailAsync(ivrCallJobId, cancellationToken);
     }
 
+    private static Task<SimChannelListApiResult> ListSimChannelsAsync(
+        HttpContext context,
+        IAdminReadService service,
+        CancellationToken cancellationToken)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.ListSimChannelsAsync(cancellationToken);
+    }
+
     private static Task<ScriptCatalogApiResult> GetScriptCatalogAsync(
         HttpContext context,
         IAdminConfigReadService service,
@@ -146,6 +169,86 @@ public static class IvrAdminEndpoints
         _ = InternalRequestGuard.RequireCorrelation(context);
         _ = InternalRequestGuard.RequireAdminActor(context);
         return service.ListReviewItemsAsync(status, page, pageSize, cancellationToken);
+    }
+
+    private static Task<AnalyticsSummaryApiResult> GetAnalyticsSummaryAsync(
+        HttpContext context,
+        IAnalyticsReadService service,
+        CancellationToken cancellationToken,
+        [FromQuery(Name = "program")] string? program = null,
+        [FromQuery(Name = "result_type")] string? resultType = null,
+        [FromQuery(Name = "script_variant")] string? scriptVariant = null,
+        [FromQuery(Name = "bucket")] string? bucket = null,
+        [FromQuery(Name = "from")] DateTimeOffset? from = null,
+        [FromQuery(Name = "to")] DateTimeOffset? to = null)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.GetSummaryAsync(
+            new AnalyticsFilter(program, resultType, scriptVariant, bucket, from, to),
+            cancellationToken);
+    }
+
+    private static Task<AnalyticsTrendApiResult> GetAnalyticsTrendAsync(
+        HttpContext context,
+        IAnalyticsReadService service,
+        CancellationToken cancellationToken,
+        [FromQuery(Name = "program")] string? program = null,
+        [FromQuery(Name = "result_type")] string? resultType = null,
+        [FromQuery(Name = "script_variant")] string? scriptVariant = null,
+        [FromQuery(Name = "bucket")] string? bucket = null,
+        [FromQuery(Name = "from")] DateTimeOffset? from = null,
+        [FromQuery(Name = "to")] DateTimeOffset? to = null)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.GetTrendAsync(
+            new AnalyticsFilter(program, resultType, scriptVariant, bucket, from, to),
+            cancellationToken);
+    }
+
+    private static Task<AnalyticsBreakdownApiResult> GetAnalyticsBreakdownAsync(
+        HttpContext context,
+        IAnalyticsReadService service,
+        CancellationToken cancellationToken,
+        [FromQuery(Name = "dimension")] string? dimension = null,
+        [FromQuery(Name = "program")] string? program = null,
+        [FromQuery(Name = "result_type")] string? resultType = null,
+        [FromQuery(Name = "script_variant")] string? scriptVariant = null,
+        [FromQuery(Name = "bucket")] string? bucket = null,
+        [FromQuery(Name = "from")] DateTimeOffset? from = null,
+        [FromQuery(Name = "to")] DateTimeOffset? to = null)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.GetBreakdownAsync(
+            new AnalyticsFilter(program, resultType, scriptVariant, bucket, from, to),
+            dimension,
+            cancellationToken);
+    }
+
+    private static Task<AnalyticsExportApiResult> ExportAnalyticsAsync(
+        HttpContext context,
+        IAnalyticsReadService service,
+        CancellationToken cancellationToken,
+        [FromQuery(Name = "reason")] string? reason = null,
+        [FromQuery(Name = "dimension")] string? dimension = null,
+        [FromQuery(Name = "program")] string? program = null,
+        [FromQuery(Name = "result_type")] string? resultType = null,
+        [FromQuery(Name = "script_variant")] string? scriptVariant = null,
+        [FromQuery(Name = "bucket")] string? bucket = null,
+        [FromQuery(Name = "from")] DateTimeOffset? from = null,
+        [FromQuery(Name = "to")] DateTimeOffset? to = null)
+    {
+        string correlationId = InternalRequestGuard.RequireCorrelation(context);
+        string actorId = InternalRequestGuard.RequireAdminActor(context);
+        return service.ExportAsync(
+            new AnalyticsFilter(program, resultType, scriptVariant, bucket, from, to),
+            dimension,
+            reason,
+            actorId,
+            correlationId,
+            cancellationToken);
     }
 
     private static Task<AdminActionApiResult> PauseQueueAsync(

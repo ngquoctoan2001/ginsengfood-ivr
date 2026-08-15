@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { pauseQueue, resumeQueue } from "@/lib/api/admin";
+import { disableSimChannel, enableSimChannel, pauseQueue, resumeQueue } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrApiResponse } from "@/lib/api/client";
 import type { IvrAdminActionResult } from "@/lib/api/types";
@@ -71,4 +71,73 @@ export async function resumeQueueAction(
   formData: FormData,
 ): Promise<AdminActionState> {
   return runQueueMutation(formData, resumeQueue);
+}
+
+type SimChannelMutation = (
+  context: { session: AdminSession; config: AdminUiConfig },
+  simChannelId: string,
+  request: { reason: string; evidence_ref?: string },
+) => Promise<IvrApiResponse<IvrAdminActionResult>>;
+
+/**
+ * Enable/disable for one SIM channel (`specs/ui/08` §3).
+ *
+ * The channel id travels as a hidden field rather than as a closure argument so
+ * the control keeps working without client JavaScript, like every other admin
+ * action in this console. It is still the server that decides: a missing
+ * permission comes back as `403 IVR_FORBIDDEN_CALLER`.
+ */
+async function runSimChannelMutation(
+  formData: FormData,
+  mutate: SimChannelMutation,
+): Promise<AdminActionState> {
+  const simChannelId = String(formData.get("simChannelId") ?? "").trim();
+  if (simChannelId === "") {
+    return { status: "invalid", messageKey: "sim.channelRequired" };
+  }
+
+  const validation = validateAdminMutation(formData);
+  if (!validation.ok) {
+    return { status: "invalid", messageKey: validation.messageKey };
+  }
+
+  const session = await requireSession();
+  const config = readConfig();
+
+  try {
+    const response = await mutate(
+      { session, config },
+      simChannelId,
+      validation.evidenceRef === undefined
+        ? { reason: validation.reason }
+        : { reason: validation.reason, evidence_ref: validation.evidenceRef },
+    );
+
+    revalidatePath("/dashboard");
+    return {
+      status: "success",
+      adminActionId: response.data.admin_action_id,
+      correlationId: response.data.correlation_id,
+    };
+  } catch (cause) {
+    if (cause instanceof IvrApiError) {
+      return { status: "error", error: cause.toEnvelope() };
+    }
+
+    throw cause;
+  }
+}
+
+export async function disableSimChannelAction(
+  _state: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  return runSimChannelMutation(formData, disableSimChannel);
+}
+
+export async function enableSimChannelAction(
+  _state: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  return runSimChannelMutation(formData, enableSimChannel);
 }

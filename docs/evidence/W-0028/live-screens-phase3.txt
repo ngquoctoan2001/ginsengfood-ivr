@@ -1,0 +1,419 @@
+P3-4 / W-0028 — live console capture (option A: no browser dependency)
+
+Captured from the real stack, not a stub:
+  admin-ui  next start          http://127.0.0.1:3007  (NODE_ENV=production)
+  Ivr.Api   dotnet run Release  http://127.0.0.1:5005  (IVR_EXECUTION_MODE=MOCK)
+  database  PostgreSQL 16       127.0.0.1:55433        (docker-compose.dev.yml)
+
+REAL_CUSTOMER_CALL_ALLOWED=NO. Fixture rows only; no real SIM, carrier or customer.
+Each block below is the *visible* text of the page — <script> and the RSC flight
+payload are stripped, so this records what an operator sees rather than the data
+behind it.
+
+Screens: reporting overview, filters, breakdown, freshness, export
+=== Reporting overview — KPI, trend, taxonomy, freshness banner ===
+  GET /reports -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Báo cáo & phân tích
+  Số liệu tổng hợp theo lịch sử. Chỉ để xem, không điều khiển cuộc gọi hay trạng thái đơn.
+  Màn này phân tích xu hướng đã xảy ra, KHÔNG phải bảng điều hành thời gian thực. Đừng dùng số liệu ở đây để quyết định dispatch — xem Tổng quan (P3-2). Mọi dữ liệu đều ở dạng tổng hợp: không có số điện thoại, mã đơn đầy đủ, địa chỉ, thanh toán hay ghi chú sức khoẻ (D-05).
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Loại kết quả
+  Biến thể kịch bản
+  Chia theo
+  Ngày
+  Giờ
+  Chiều phân tích
+  Loại kết quả
+  Biến thể kịch bản (A/B)
+  Chương trình
+  Từ ngày
+  Đến ngày
+  Áp dụng
+  Xoá lọc
+  Đang tải…
+  Độ tươi dữ liệu
+  Đã cũ
+  Độ trễ
+  20m 37s
+  Sự kiện gần nhất
+  14:03:58 15/8/26
+  Số dòng đã quét
+  14
+  Nguồn: đọc trực tiếp dữ liệu vận hành — CHƯA có pipeline P10-4 (OPERATIONAL_READ_MODEL, W-0055)
+  Số nhóm bị ẩn vì dưới ngưỡng ẩn danh: 1 (k=5)
+  Tỉ lệ nghiệp vụ
+  Tỉ lệ xác nhận
+  42.9%
+  Tỉ lệ khách huỷ
+  0.0%
+  Tỉ lệ không nghe máy
+  35.7%
+  Tỉ lệ số không hợp lệ
+  0.0%
+  Tỉ lệ lỗi kỹ thuật
+  21.4%
+  Tỉ lệ bị chặn vận hành
+  0.0%
+  Tỉ lệ phải gọi lần 2
+  16.7%
+  Thời gian trung bình tới kết quả cuối
+  8m
+  Khối lượng
+  Tổng kết quả
+  14
+  Kết quả cuối
+  14
+  Tổng call job
+  18
+  Task đủ điều kiện gọi
+  17
+  Xu hướng theo thời gian
+  15-08
+  54.5%
+  Số liệu theo khoảng thời gian và chương trình. Khoảng có quá ít dữ liệu đã bị ẩn.
+  Khoảng
+  Chương trình
+  Tổng
+  Xác nhận
+  Không nghe
+  Số sai
+  Lỗi kỹ thuật
+  Tỉ lệ xác nhận
+  15-08
+  GOLDEN_HOUR
+  11
+  6
+  5
+  0
+  0
+  54.5%
+  Phân loại kết quả
+  Phân bố theo taxonomy kết quả (DT-02).
+  Loại kết quả
+  Tổng
+  Xác nhận
+  Tỉ lệ xác nhận
+  Tỉ trọng
+  IVR_CONFIRMED
+  6
+  6
+  100.0%
+  42.9%
+  IVR_NO_ANSWER_FINAL
+  5
+  0
+  0.0%
+  35.7%
+  Phân tích theo chiều
+  Phân tích theo chiều đã chọn — RESULT_TYPE
+  Loại kết quả
+  Tổng
+  Xác nhận
+  Tỉ lệ xác nhận
+  Tỉ trọng
+  IVR_CONFIRMED
+  6
+  6
+  100.0%
+  42.9%
+  IVR_NO_ANSWER_FINAL
+  5
+  0
+  0.0%
+  35.7%
+  Xuất dữ liệu tổng hợp
+  Chiều xuất
+  Loại kết quả
+  Biến thể kịch bản (A/B)
+  Chương trình
+  Lý do xuất (bắt buộc)
+  Xuất CSV
+  Chỉ xuất số liệu đã tổng hợp và đã ẩn danh; lý do được ghi vào audit log. Lát cắt quá nhỏ sẽ bị từ chối để tránh tái định danh. (k=5)
+=== Breakdown by script variant (A/B) ===
+  GET /reports?dimension=SCRIPT_VARIANT -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Báo cáo & phân tích
+  Số liệu tổng hợp theo lịch sử. Chỉ để xem, không điều khiển cuộc gọi hay trạng thái đơn.
+  Màn này phân tích xu hướng đã xảy ra, KHÔNG phải bảng điều hành thời gian thực. Đừng dùng số liệu ở đây để quyết định dispatch — xem Tổng quan (P3-2). Mọi dữ liệu đều ở dạng tổng hợp: không có số điện thoại, mã đơn đầy đủ, địa chỉ, thanh toán hay ghi chú sức khoẻ (D-05).
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Loại kết quả
+  Biến thể kịch bản
+  Chia theo
+  Ngày
+  Giờ
+  Chiều phân tích
+  Loại kết quả
+  Biến thể kịch bản (A/B)
+  Chương trình
+  Từ ngày
+  Đến ngày
+  Áp dụng
+  Xoá lọc
+  Đang tải…
+  Độ tươi dữ liệu
+  Đã cũ
+  Độ trễ
+  20m 37s
+  Sự kiện gần nhất
+  14:03:58 15/8/26
+  Số dòng đã quét
+  14
+  Nguồn: đọc trực tiếp dữ liệu vận hành — CHƯA có pipeline P10-4 (OPERATIONAL_READ_MODEL, W-0055)
+  Số nhóm bị ẩn vì dưới ngưỡng ẩn danh: 1 (k=5)
+  Tỉ lệ nghiệp vụ
+  Tỉ lệ xác nhận
+  42.9%
+  Tỉ lệ khách huỷ
+  0.0%
+  Tỉ lệ không nghe máy
+  35.7%
+  Tỉ lệ số không hợp lệ
+  0.0%
+  Tỉ lệ lỗi kỹ thuật
+  21.4%
+  Tỉ lệ bị chặn vận hành
+  0.0%
+  Tỉ lệ phải gọi lần 2
+  16.7%
+  Thời gian trung bình tới kết quả cuối
+  8m
+  Khối lượng
+  Tổng kết quả
+  14
+  Kết quả cuối
+  14
+  Tổng call job
+  18
+  Task đủ điều kiện gọi
+  17
+  Xu hướng theo thời gian
+  15-08
+  54.5%
+  Số liệu theo khoảng thời gian và chương trình. Khoảng có quá ít dữ liệu đã bị ẩn.
+  Khoảng
+  Chương trình
+  Tổng
+  Xác nhận
+  Không nghe
+  Số sai
+  Lỗi kỹ thuật
+  Tỉ lệ xác nhận
+  15-08
+  GOLDEN_HOUR
+  11
+  6
+  5
+  0
+  0
+  54.5%
+  Phân loại kết quả
+  Phân bố theo taxonomy kết quả (DT-02).
+  Loại kết quả
+  Tổng
+  Xác nhận
+  Tỉ lệ xác nhận
+  Tỉ trọng
+  IVR_CONFIRMED
+  6
+  6
+  100.0%
+  42.9%
+  IVR_NO_ANSWER_FINAL
+  5
+  0
+  0.0%
+  35.7%
+  Phân tích theo chiều
+  Phân tích theo chiều đã chọn — SCRIPT_VARIANT
+  Biến thể kịch bản (A/B)
+  Tổng
+  Xác nhận
+  Tỉ lệ xác nhận
+  Tỉ trọng
+  SCRIPT-ORDER-CONFIRM:vA
+  11
+  6
+  54.5%
+  78.6%
+  Xuất dữ liệu tổng hợp
+  Chiều xuất
+  Loại kết quả
+  Biến thể kịch bản (A/B)
+  Chương trình
+  Lý do xuất (bắt buộc)
+  Xuất CSV
+  Chỉ xuất số liệu đã tổng hợp và đã ẩn danh; lý do được ghi vào audit log. Lát cắt quá nhỏ sẽ bị từ chối để tránh tái định danh. (k=5)
+=== Narrow slice — the 24/7 cohort is below k=5 and is suppressed ===
+  GET /reports?program=TWENTY_FOUR_SEVEN -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Báo cáo & phân tích
+  Số liệu tổng hợp theo lịch sử. Chỉ để xem, không điều khiển cuộc gọi hay trạng thái đơn.
+  Màn này phân tích xu hướng đã xảy ra, KHÔNG phải bảng điều hành thời gian thực. Đừng dùng số liệu ở đây để quyết định dispatch — xem Tổng quan (P3-2). Mọi dữ liệu đều ở dạng tổng hợp: không có số điện thoại, mã đơn đầy đủ, địa chỉ, thanh toán hay ghi chú sức khoẻ (D-05).
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Loại kết quả
+  Biến thể kịch bản
+  Chia theo
+  Ngày
+  Giờ
+  Chiều phân tích
+  Loại kết quả
+  Biến thể kịch bản (A/B)
+  Chương trình
+  Từ ngày
+  Đến ngày
+  Áp dụng
+  Xoá lọc
+  Đang tải…
+  Độ tươi dữ liệu
+  Đã cũ
+  Độ trễ
+  20m 37s
+  Sự kiện gần nhất
+  14:03:58 15/8/26
+  Số dòng đã quét
+  3
+  Nguồn: đọc trực tiếp dữ liệu vận hành — CHƯA có pipeline P10-4 (OPERATIONAL_READ_MODEL, W-0055)
+  Số nhóm bị ẩn vì dưới ngưỡng ẩn danh: 1 (k=5)
+  Tỉ lệ nghiệp vụ
+  Tỉ lệ xác nhận
+  0.0%
+  Tỉ lệ khách huỷ
+  0.0%
+  Tỉ lệ không nghe máy
+  0.0%
+  Tỉ lệ số không hợp lệ
+  0.0%
+  Tỉ lệ lỗi kỹ thuật
+  100.0%
+  Tỉ lệ bị chặn vận hành
+  0.0%
+  Tỉ lệ phải gọi lần 2
+  0.0%
+  Thời gian trung bình tới kết quả cuối
+  8m
+  Khối lượng
+  Tổng kết quả
+  3
+  Kết quả cuối
+  3
+  Tổng call job
+  4
+  Task đủ điều kiện gọi
+  4
+  Xu hướng theo thời gian
+  Không có khoảng thời gian nào đủ ngưỡng ẩn danh để hiển thị.
+  Phân loại kết quả
+  Không có nhóm nào đủ ngưỡng ẩn danh để hiển thị.
+  Phân tích theo chiều
+  Không có nhóm nào đủ ngưỡng ẩn danh để hiển thị.
+  Xuất dữ liệu tổng hợp
+  Chiều xuất
+  Loại kết quả
+  Biến thể kịch bản (A/B)
+  Chương trình
+  Lý do xuất (bắt buộc)
+  Xuất CSV
+  Chỉ xuất số liệu đã tổng hợp và đã ẩn danh; lý do được ghi vào audit log. Lát cắt quá nhỏ sẽ bị từ chối để tránh tái định danh. (k=5)
+=== Sanitized export — aggregate CSV, audited ===
+  GET /reports/export?dimension=PROGRAM&reason=... -> 200
+  content-type: text/csv; charset=utf-8
+  content-disposition: attachment; filename="ivr-analytics-program.csv"
+  x-ivr-audit-ref: dbc015d2-c027-4ff1-a99b-33c1dd4baff1
+  x-ivr-suppressed-rows: 1
+  ---
+  dimension,key,total,confirmed,confirm_rate,share
+  PROGRAM,GOLDEN_HOUR,11,6,0.5455,0.7857
+  
+=== Export without a reason is refused ===
+  GET /reports/export?dimension=PROGRAM -> 400
+  ---
+  {"error":{"code":"IVR_MALFORMED_REQUEST","message":"Lý do xuất dữ liệu là bắt buộc và cần tối thiểu 8 ký tự."}}
+=== Export of a re-identifying slice is refused, not emptied ===
+  GET /reports/export?program=TWENTY_FOUR_SEVEN&reason=... -> 422
+  ---
+  {"error":{"code":"IVR_PII_POLICY_VIOLATION","message":"The request violates the IVR privacy policy."}}

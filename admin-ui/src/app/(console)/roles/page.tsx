@@ -120,11 +120,12 @@ export default async function RolesPage() {
 
 /** Mirrors the permission-to-screen mapping in `specs/ui/08` §3. */
 const PERMISSION_SCREENS: Readonly<Record<IvrPermission, string>> = {
-  IVR_QUEUE_VIEW: "Tổng quan · Nhật ký cuộc gọi · Chi tiết · Cấu hình · Trạng thái tích hợp · Chờ duyệt",
+  IVR_QUEUE_VIEW:
+    "Tổng quan · Nhật ký cuộc gọi · Chi tiết · Báo cáo & phân tích · Cấu hình · Trạng thái tích hợp · Chờ duyệt",
   IVR_QUEUE_PAUSE: "Tổng quan → Tạm dừng hàng đợi",
   IVR_QUEUE_RESUME: "Tổng quan → Tiếp tục hàng đợi",
-  IVR_SIM_ENABLE: "Bật kênh SIM (màn cấu hình kênh, P3-3 sau)",
-  IVR_SIM_DISABLE: "Tắt kênh SIM (màn cấu hình kênh, P3-3 sau)",
+  IVR_SIM_ENABLE: "Tổng quan → bảng kênh SIM → Bật kênh",
+  IVR_SIM_DISABLE: "Tổng quan → bảng kênh SIM → Tắt kênh",
   IVR_MANUAL_RETRY: "Chi tiết cuộc gọi → Yêu cầu gọi lại kỹ thuật",
   IVR_RESULT_REVIEW: "Chi tiết cuộc gọi → Ghi kết luận duyệt",
   IVR_FLAG_READ: "Đọc feature flag (API, chưa có màn riêng)",

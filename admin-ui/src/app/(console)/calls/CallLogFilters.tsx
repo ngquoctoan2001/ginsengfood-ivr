@@ -13,6 +13,8 @@ export interface CallLogFiltersProps {
     readonly orderCode: string;
     readonly correlationId: string;
     readonly nearExpiry: boolean;
+    readonly from: string;
+    readonly to: string;
   };
 }
 
@@ -49,6 +51,18 @@ export function CallLogFilters({ query }: CallLogFiltersProps) {
           <option value="TWENTY_FOUR_SEVEN">TWENTY_FOUR_SEVEN</option>
         </select>
       </label>
+      {/* Job status and queue status are different axes: a job can be CLOSED
+          while its queue status records how it left the queue. Both are filters
+          the API accepts, so both get a control. */}
+      <label className={controls.field}>
+        <span className={controls.label}>{t("calls.filterStatus")}</span>
+        <input
+          type="text"
+          name="status"
+          defaultValue={query.status}
+          className={controls.control}
+        />
+      </label>
       <label className={controls.field}>
         <span className={controls.label}>{t("calls.filterQueueStatus")}</span>
         <input
@@ -57,6 +71,14 @@ export function CallLogFilters({ query }: CallLogFiltersProps) {
           defaultValue={query.queueStatus}
           className={controls.control}
         />
+      </label>
+      <label className={controls.field}>
+        <span className={controls.label}>{t("dashboard.filterFrom")}</span>
+        <input type="date" name="from" defaultValue={query.from} className={controls.control} />
+      </label>
+      <label className={controls.field}>
+        <span className={controls.label}>{t("dashboard.filterTo")}</span>
+        <input type="date" name="to" defaultValue={query.to} className={controls.control} />
       </label>
       <label className={controls.field}>
         <span className={controls.label}>{t("calls.filterResultType")}</span>

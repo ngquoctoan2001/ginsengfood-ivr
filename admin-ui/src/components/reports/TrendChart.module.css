@@ -1,0 +1,92 @@
+.chart {
+  display: grid;
+  gap: var(--ivr-space-4);
+}
+
+.bars {
+  display: grid;
+  gap: var(--ivr-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 6rem 1fr 3.5rem;
+  align-items: center;
+  gap: var(--ivr-space-2);
+}
+
+.barLabel,
+.barValue {
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.barValue {
+  text-align: end;
+  color: var(--ivr-text);
+  font-weight: 600;
+}
+
+.track {
+  display: block;
+  block-size: 0.625rem;
+  border-radius: var(--ivr-radius-sm);
+  background: var(--ivr-surface-sunken);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  block-size: 100%;
+  background: var(--ivr-accent);
+}
+
+/* Two programmes, two fills. The pattern differs as well as the shade so the
+   comparison does not rest on colour alone. */
+.fill[data-program="247"] {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--ivr-neutral) 0,
+    var(--ivr-neutral) 4px,
+    var(--ivr-border-strong) 4px,
+    var(--ivr-border-strong) 8px
+  );
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--ivr-text-sm);
+}
+
+.caption {
+  text-align: start;
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-subtle);
+  padding-block-end: var(--ivr-space-2);
+}
+
+.table th,
+.table td {
+  border-block-end: 1px solid var(--ivr-border);
+  padding: var(--ivr-space-2);
+  text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.empty {
+  margin: 0;
+  font-size: var(--ivr-text-sm);
+  color: var(--ivr-text-muted);
+}

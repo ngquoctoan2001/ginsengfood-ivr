@@ -12,6 +12,7 @@ consistent loading/empty/error vocabulary.
 | `/dashboard` | P3-2 | Result rates, queue panel, attempt panel, SIM pool, open capacity incidents, queue pause/resume |
 | `/calls` | P3-2 | Masked, paginated call-job log with filters |
 | `/calls/[id]` | P3-2 | Full lifecycle trace, technical retry and admin review |
+| `/reports` | P3-4 | Aggregate KPI, trend, breakdown, freshness banner and audited CSV export |
 | `/review` | P3-3 | Human review queue, linking into call detail |
 | `/config` | P3-3 | Script versions, approval matrix, DTMF map, variable whitelist — read-only |
 | `/integration` | P3-3 | Dependency status and recent fail-closed events — view only |

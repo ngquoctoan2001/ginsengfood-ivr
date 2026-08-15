@@ -12,6 +12,7 @@ import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 
 import { CallDetailActions } from "./CallDetailActions";
+import table from "@/components/data/DataTable.module.css";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -94,6 +95,47 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
         <p className={styles.notice} data-testid="no-order-control">
           {t("detail.noOrderControl")}
         </p>
+      </section>
+
+      {/* `specs/ui/03` puts the per-line sellable snapshot in the trace. It is
+          what Order Core decided at intake, shown as captured — IVR never
+          re-evaluates sellability (DO-02). */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t("detail.sellableTitle")}</h2>
+        {detail.sellable_status.length === 0 ? (
+          <p className={styles.muted}>{t("detail.noSellable")}</p>
+        ) : (
+          <div className={table.scroll}>
+            <table className={table.table} data-testid="sellable-table">
+              <thead>
+                <tr>
+                  <th scope="col">{t("detail.sellableSku")}</th>
+                  <th scope="col">{t("detail.sellableBatch")}</th>
+                  <th scope="col">{t("detail.sellableDecision")}</th>
+                  <th scope="col">{t("detail.sellableRecallHold")}</th>
+                  <th scope="col">{t("detail.sellableSaleLock")}</th>
+                  <th scope="col">{t("detail.sellableQualityHold")}</th>
+                  <th scope="col">{t("detail.sellableCapturedAt")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detail.sellable_status.map((line) => (
+                  <tr key={`${line.sku_id}|${line.batch_id ?? ""}`}>
+                    <td className={table.mono}>{line.sku_id}</td>
+                    <td className={table.mono}>{line.batch_id ?? "—"}</td>
+                    <td>{line.decision}</td>
+                    <td>{flag(line.recall_hold)}</td>
+                    <td>{flag(line.sale_lock)}</td>
+                    <td>{flag(line.quality_hold)}</td>
+                    <td>
+                      {line.captured_at === undefined ? "—" : formatDateTime(line.captured_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       <section className={styles.section}>
@@ -297,6 +339,11 @@ function ReferenceList({ title, items }: { title: string; items: readonly string
 }
 
 /** DTMF is shown as business semantics, never as a raw provider payload (D-05). */
+/** A tri-state snapshot flag: set, not set, or not captured at all. */
+function flag(value: boolean | undefined): string {
+  return value === undefined ? "—" : value ? "✓" : "–";
+}
+
 function describeDtmf(key: string | undefined): string {
   if (key === undefined || key === "") {
     return "—";

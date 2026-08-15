@@ -884,6 +884,20 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
         public required int Near_expiry { get; init; }
 
+        /// <summary>
+        /// Open jobs holding exactly one counted customer attempt with one left. specs/ui/01 calls the tile "attempt2-due"; due-ness needs each job's own offset schedule, which this aggregate does not parse.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("attempt_two_pending")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Attempt_two_pending { get; init; }
+
+        /// <summary>
+        /// Open jobs the eligibility gate refused.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("blocked")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Blocked { get; init; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -913,6 +927,13 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonPropertyName("technical_exception_rate")]
         [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
         public required double Technical_exception_rate { get; init; }
+
+        /// <summary>
+        /// Share of results where IVR reached the customer and got an input — confirmed, cancelled or wrong-input. A cancel counts: the call succeeded, the answer was no. Formula pending owner confirmation.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("call_success_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Call_success_rate { get; init; }
 
     }
 
@@ -969,6 +990,13 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonPropertyName("quarantined")]
         [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
         public required int Quarantined { get; init; }
+
+        /// <summary>
+        /// Channels in HEALTH_FAILED over the whole pool.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("failure_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Failure_rate { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("adapter_mode")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
@@ -1428,6 +1456,13 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonPropertyName("sellable_captured_at")]
         public System.DateTimeOffset? Sellable_captured_at { get; init; }
 
+        /// <summary>
+        /// Per-line snapshot captured at intake; never re-evaluated by IVR (DO-02).
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("sellable_status")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required System.Collections.Generic.ICollection<SellableStatusLine> Sellable_status { get; init; }
+
         [System.Text.Json.Serialization.JsonPropertyName("max_attempts")]
         [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
         public required int Max_attempts { get; init; }
@@ -1828,6 +1863,420 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrSimChannel
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("sim_channel_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Sim_channel_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("enabled")]
+        public required bool Enabled { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Status { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("adapter_mode")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Adapter_mode { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("provider_name")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Provider_name { get; init; }
+
+        /// <summary>
+        /// Carrying a call; a disable then takes effect after it ends.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("busy")]
+        public required bool Busy { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("active_call_job_id")]
+        public string? Active_call_job_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fail_count")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Fail_count { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("quarantined")]
+        public required bool Quarantined { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("quarantine_until")]
+        public System.DateTimeOffset? Quarantine_until { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("cooldown_until")]
+        public System.DateTimeOffset? Cooldown_until { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("last_health_check_at")]
+        public System.DateTimeOffset? Last_health_check_at { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("disabled_reason")]
+        public string? Disabled_reason { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrSimChannelList
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("generated_at")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required System.DateTimeOffset Generated_at { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("execution_mode")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Execution_mode { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("real_customer_call_allowed")]
+        public required bool Real_customer_call_allowed { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("channels")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required System.Collections.Generic.ICollection<IvrSimChannel> Channels { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsDataQuality
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("generated_at")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required System.DateTimeOffset Generated_at { get; init; }
+
+        /// <summary>
+        /// OPERATIONAL_READ_MODEL until the P10-4 warehouse exists.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("source")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Source { get; init; }
+
+        /// <summary>
+        /// False means these numbers are operational reads, not a BI pipeline.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("warehouse_backed")]
+        public required bool Warehouse_backed { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("pipeline_work_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Pipeline_work_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("latest_event_at")]
+        public System.DateTimeOffset? Latest_event_at { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("freshness_seconds")]
+        [System.ComponentModel.DataAnnotations.Range(0L, long.MaxValue)]
+        public long? Freshness_seconds { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrAnalyticsDataQualityStatus>))]
+        public required IvrAnalyticsDataQualityStatus Status { get; init; }
+
+        /// <summary>
+        /// Server-side k-anonymity threshold; never settable by the caller.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("min_bucket_size")]
+        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue)]
+        public required int Min_bucket_size { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("suppressed_bucket_count")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Suppressed_bucket_count { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("scanned_rows")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Scanned_rows { get; init; }
+
+        /// <summary>
+        /// True when the scan cap was reached, so the numbers are partial.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("truncated")]
+        public required bool Truncated { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsFilter
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("program")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrAnalyticsFilterProgram>))]
+        public IvrAnalyticsFilterProgram? Program { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("result_type")]
+        [System.ComponentModel.DataAnnotations.StringLength(200)]
+        public string? Result_type { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("script_variant")]
+        [System.ComponentModel.DataAnnotations.StringLength(200)]
+        public string? Script_variant { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("bucket")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrAnalyticsFilterBucket>))]
+        public required IvrAnalyticsFilterBucket Bucket { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("from")]
+        public System.DateTimeOffset? From { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("to")]
+        public System.DateTimeOffset? To { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsKpi
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("total_results")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Total_results { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("total_final_results")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Total_final_results { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("total_call_jobs")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Total_call_jobs { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("total_eligible_tasks")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Total_eligible_tasks { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("confirm_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Confirm_rate { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("cancel_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Cancel_rate { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("no_answer_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double No_answer_rate { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("invalid_phone_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Invalid_phone_rate { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("technical_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Technical_rate { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("operational_blocked_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Operational_blocked_rate { get; init; }
+
+        /// <summary>
+        /// Counted customer attempts only; a technical retry never counts (DT-02).
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("attempt_2_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Attempt_2_rate { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("avg_seconds_to_final")]
+        [System.ComponentModel.DataAnnotations.Range(0D, double.MaxValue)]
+        public double? Avg_seconds_to_final { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsBreakdownRow
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("key")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.StringLength(200)]
+        public required string Key { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("total")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Total { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("confirmed")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Confirmed { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("confirm_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Confirm_rate { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("share")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Share { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsTrendBucket
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("bucket_start")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required System.DateTimeOffset Bucket_start { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("program")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Program { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("total")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Total { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("confirmed")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Confirmed { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("cancelled")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Cancelled { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("no_answer")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int No_answer { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("invalid_phone")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Invalid_phone { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("technical")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Technical { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("operational_blocked")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Operational_blocked { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("confirm_rate")]
+        [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
+        public required double Confirm_rate { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsSummary
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("filter")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsFilter Filter { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("execution_mode")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Execution_mode { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("kpi")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsKpi Kpi { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("result_taxonomy")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required System.Collections.Generic.ICollection<IvrAnalyticsBreakdownRow> Result_taxonomy { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("data_quality")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsDataQuality Data_quality { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsTrend
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("filter")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsFilter Filter { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("buckets")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required System.Collections.Generic.ICollection<IvrAnalyticsTrendBucket> Buckets { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("data_quality")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsDataQuality Data_quality { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsBreakdown
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("filter")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsFilter Filter { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("dimension")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrAnalyticsBreakdownDimension>))]
+        public required IvrAnalyticsBreakdownDimension Dimension { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("rows")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required System.Collections.Generic.ICollection<IvrAnalyticsBreakdownRow> Rows { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("data_quality")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsDataQuality Data_quality { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class IvrAnalyticsExport
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("filter")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsFilter Filter { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("dimension")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrAnalyticsExportDimension>))]
+        public required IvrAnalyticsExportDimension Dimension { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reason")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(200, MinimumLength = 8)]
+        public required string Reason { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("actor_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Actor_id { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("correlation_id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Correlation_id { get; init; }
+
+        /// <summary>
+        /// Identifier of the audit entry written for this export.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("audit_ref")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public required string Audit_ref { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("columns")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required System.Collections.Generic.ICollection<string> Columns { get; init; }
+
+        /// <summary>
+        /// Formatted aggregate values only; there is no object shape a customer field could travel in.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("rows")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required System.Collections.Generic.ICollection<System.Collections.Generic.ICollection<string>> Rows { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("suppressed_row_count")]
+        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
+        public required int Suppressed_row_count { get; init; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("data_quality")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public required IvrAnalyticsDataQuality Data_quality { get; init; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class IvrAdminActionResult
     {
 
@@ -2120,6 +2569,52 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum Program
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"GOLDEN_HOUR")]
+        [System.Runtime.Serialization.EnumMember(Value = @"GOLDEN_HOUR")]
+        GOLDEN_HOUR = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"TWENTY_FOUR_SEVEN")]
+        [System.Runtime.Serialization.EnumMember(Value = @"TWENTY_FOUR_SEVEN")]
+        TWENTY_FOUR_SEVEN = 1,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum Bucket
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"DAY")]
+        [System.Runtime.Serialization.EnumMember(Value = @"DAY")]
+        DAY = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"HOUR")]
+        [System.Runtime.Serialization.EnumMember(Value = @"HOUR")]
+        HOUR = 1,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum Dimension
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"RESULT_TYPE")]
+        [System.Runtime.Serialization.EnumMember(Value = @"RESULT_TYPE")]
+        RESULT_TYPE = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"SCRIPT_VARIANT")]
+        [System.Runtime.Serialization.EnumMember(Value = @"SCRIPT_VARIANT")]
+        SCRIPT_VARIANT = 1,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"PROGRAM")]
+        [System.Runtime.Serialization.EnumMember(Value = @"PROGRAM")]
+        PROGRAM = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum Environment
     {
 
@@ -2336,6 +2831,88 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonStringEnumMemberName(@"NOT_WIRED")]
         [System.Runtime.Serialization.EnumMember(Value = @"NOT_WIRED")]
         NOT_WIRED = 3,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrAnalyticsDataQualityStatus
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"FRESH")]
+        [System.Runtime.Serialization.EnumMember(Value = @"FRESH")]
+        FRESH = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"STALE")]
+        [System.Runtime.Serialization.EnumMember(Value = @"STALE")]
+        STALE = 1,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"NO_DATA")]
+        [System.Runtime.Serialization.EnumMember(Value = @"NO_DATA")]
+        NO_DATA = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrAnalyticsFilterProgram
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"GOLDEN_HOUR")]
+        [System.Runtime.Serialization.EnumMember(Value = @"GOLDEN_HOUR")]
+        GOLDEN_HOUR = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"TWENTY_FOUR_SEVEN")]
+        [System.Runtime.Serialization.EnumMember(Value = @"TWENTY_FOUR_SEVEN")]
+        TWENTY_FOUR_SEVEN = 1,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrAnalyticsFilterBucket
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"DAY")]
+        [System.Runtime.Serialization.EnumMember(Value = @"DAY")]
+        DAY = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"HOUR")]
+        [System.Runtime.Serialization.EnumMember(Value = @"HOUR")]
+        HOUR = 1,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrAnalyticsBreakdownDimension
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"RESULT_TYPE")]
+        [System.Runtime.Serialization.EnumMember(Value = @"RESULT_TYPE")]
+        RESULT_TYPE = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"SCRIPT_VARIANT")]
+        [System.Runtime.Serialization.EnumMember(Value = @"SCRIPT_VARIANT")]
+        SCRIPT_VARIANT = 1,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"PROGRAM")]
+        [System.Runtime.Serialization.EnumMember(Value = @"PROGRAM")]
+        PROGRAM = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrAnalyticsExportDimension
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"RESULT_TYPE")]
+        [System.Runtime.Serialization.EnumMember(Value = @"RESULT_TYPE")]
+        RESULT_TYPE = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"SCRIPT_VARIANT")]
+        [System.Runtime.Serialization.EnumMember(Value = @"SCRIPT_VARIANT")]
+        SCRIPT_VARIANT = 1,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"PROGRAM")]
+        [System.Runtime.Serialization.EnumMember(Value = @"PROGRAM")]
+        PROGRAM = 2,
 
     }
 

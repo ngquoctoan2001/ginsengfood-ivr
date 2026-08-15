@@ -13,9 +13,9 @@ import type {
   IvrCallJobPage,
   IvrDashboardProjection,
   IvrIntegrationStatus,
-  IvrQueueProjection,
   IvrReviewQueue,
   IvrScriptCatalog,
+  IvrSimChannelList,
   IvrTechnicalRetryResult,
   TechnicalRetryRequest,
 } from "./types";
@@ -35,6 +35,9 @@ export interface CallJobQuery {
   readonly orderCode?: string;
   readonly correlationId?: string;
   readonly nearExpiry?: boolean;
+  /** Calendar-day bounds, already widened to instants by the caller. */
+  readonly from?: string;
+  readonly to?: string;
   readonly page?: number;
   readonly pageSize?: number;
 }
@@ -42,22 +45,11 @@ export interface CallJobQuery {
 /**
  * Typed admin operations.
  *
- * The SIM-channel enable/disable operations are still unused here; they arrive
- * with the configuration screens that own them (P3-3 / W-0027), so no operation
- * ships without a caller and a test.
+ * Every function here has a caller and a test. `GET /queue` deliberately has no
+ * wrapper: P3-2 folded that screen into the dashboard, which reads
+ * `GET /dashboard` instead, so a wrapper for it would be an operation the
+ * console never issues.
  */
-export function getQueue(
-  context: AdminCallContext,
-): Promise<IvrApiResponse<IvrQueueProjection>> {
-  return callIvrApi<IvrQueueProjection>({
-    method: "GET",
-    path: "/queue",
-    session: context.session,
-    config: context.config,
-    fetchImpl: context.fetchImpl,
-  });
-}
-
 export function pauseQueue(
   context: AdminCallContext,
   request: AdminMutationRequest,
@@ -117,6 +109,8 @@ export function listCallJobs(
       order_code: query.orderCode,
       correlation_id: query.correlationId,
       near_expiry: query.nearExpiry === true ? "true" : undefined,
+      from: query.from,
+      to: query.to,
       page: query.page,
       page_size: query.pageSize,
     })}`,
@@ -160,6 +154,53 @@ export function submitAdminReview(
   return callIvrApi<IvrAdminReviewResult>({
     method: "POST",
     path: "/admin-reviews",
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function listSimChannels(
+  context: AdminCallContext,
+): Promise<IvrApiResponse<IvrSimChannelList>> {
+  return callIvrApi<IvrSimChannelList>({
+    method: "GET",
+    path: "/sim-channels",
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+/**
+ * Disabling a busy channel is accepted, not refused: it stops new dispatch and
+ * takes effect when the current call ends. The console shows `busy` so the
+ * operator knows which of the two it is asking for.
+ */
+export function disableSimChannel(
+  context: AdminCallContext,
+  simChannelId: string,
+  request: AdminMutationRequest,
+): Promise<IvrApiResponse<IvrAdminActionResult>> {
+  return callIvrApi<IvrAdminActionResult>({
+    method: "POST",
+    path: `/sim-channels/${encodeURIComponent(simChannelId)}:disable`,
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function enableSimChannel(
+  context: AdminCallContext,
+  simChannelId: string,
+  request: AdminMutationRequest,
+): Promise<IvrApiResponse<IvrAdminActionResult>> {
+  return callIvrApi<IvrAdminActionResult>({
+    method: "POST",
+    path: `/sim-channels/${encodeURIComponent(simChannelId)}:enable`,
     body: request,
     session: context.session,
     config: context.config,

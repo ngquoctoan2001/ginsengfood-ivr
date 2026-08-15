@@ -69,4 +69,6 @@ Screenshot 4 màn, prod-guard demo, health fail-closed badge, role-change audit,
 - ❌ Bật `IVR_ADAPTER_MODE=REAL`/gọi thật từ UI. ❌ Seed/mock ở prod. ❌ Dùng script chưa approved. ❌ Replay tạo signal mới (phải cùng key).
 
 ## 12. DEFINITION OF DONE
-- [ ] 4 nhóm màn + guard prod; 5 test §8 xanh; evidence §10 đủ. **Kết thúc Phase 3: bộ admin UI hoàn chỉnh (MOCK).**
+- [ ] 4 nhóm màn + guard prod; 5 test §8 xanh; evidence §10 đủ.
+
+> Ghi chú (W-0100): câu "Kết thúc Phase 3" ở bản trước là sai — `P3-4` (reporting/analytics, `W-0028`) mới là prompt cuối của Phase 3.

@@ -19,16 +19,16 @@
     "styles.css"
   ],
   "sourceHashes": {
-    "docs/api-changelog.md": "3473b0cbf059bce0fa739d89bddd08a1a7f31d898bf4b64e932bfb13f484f434",
+    "docs/api-changelog.md": "2104bb8fd878db6a3f3ef01b74edc42c8f553a6c3cb8b955d76b2bac8585b593",
     "docs/api-versioning.md": "bef9515401e0baf6926d3e5f3d0ddcd00004cb327974897cb113f787e737114d",
-    "docs/api/changelog/ivr-order-confirmation.md": "237374ca69238c675da7ef76e72bab42ff4854825049af9ace09a9a2ae947ac4",
+    "docs/api/changelog/ivr-order-confirmation.md": "adb1571b9d00ead35543ce69c6d151fa3400b13d054281c6fddff6294827a747",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md": "92ff570d5dfe289506afd14b140b300e200f242fa6e60bdf32821579a2c4fe70",
     "docs/api/changelog/order-core-ivr-callback.md": "581b5550712f7bbd97269a1679cd803d3b1522037c4dfb29aae67c34b95363eb",
     "docs/integration-guide.md": "a6222a57f3fe73241318d3a7cef6453b3602204721039fe1ab3a54460abc9253",
     "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
     "specs/api/openapi/changelog-baseline.json": "e071abfaef70d792a2ce3fa61ecc16690cf5c7d0f7f40fc3205ea79e5cc36bf1",
-    "specs/api/openapi/contract-manifest.json": "8ec07058e617e45c63a8deb5e90b43a2d40b98298eb73f71d280e4d8fdf971ca",
-    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "cc7b4ad23b8c575f3e5d5328a4a09a1ac4669ed7d59dda4e6022b808f931fd7b",
+    "specs/api/openapi/contract-manifest.json": "0b45a4d810ed6e50ada916d2dc6a37685c77420445c61fe0a8f0b4d4ea8a4e11",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "8adc9d40eead27ca04cfdaa99e863df0e2f3aab7e58b2c332f442a276ae2c8d7",
     "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "1677d490eea5484e449ace3310e26e3c59acbb8011c7c1736e3f981afffa96ee"
   }
 }

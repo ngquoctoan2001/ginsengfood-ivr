@@ -1010,6 +1010,7 @@ public static class InternalAdminApiServiceCollectionExtensions
         services.AddSingleton<IInternalAdminApiService, InternalAdminApiService>();
         services.AddSingleton<IAdminReadService, AdminReadService>();
         services.AddSingleton<IAdminConfigReadService, AdminConfigReadService>();
+        services.AddSingleton<IAnalyticsReadService, AnalyticsReadService>();
         return services;
     }
 }

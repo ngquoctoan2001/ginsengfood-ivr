@@ -60,6 +60,8 @@ function dashboardPayload(program: string | null) {
       open_total: scopedToGoldenHour ? 1 : 3,
       closed_total: 4,
       near_expiry: 1,
+      attempt_two_pending: 2,
+      blocked: 1,
     },
     results: {
       total: scopedToGoldenHour ? 1 : 4,
@@ -68,6 +70,7 @@ function dashboardPayload(program: string | null) {
       cancel_rate: 0,
       no_answer_rate: 0.5,
       technical_exception_rate: 0.25,
+      call_success_rate: 0.75,
     },
     attempts: {
       total: 6,
@@ -83,6 +86,7 @@ function dashboardPayload(program: string | null) {
       disabled: 1,
       health_failed: 0,
       quarantined: 0,
+      failure_rate: 0.5,
       adapter_mode: "MOCK",
     },
     open_incidents: [
@@ -156,6 +160,17 @@ const DETAIL_PAYLOAD = {
   eligibility_decision: "ELIGIBLE_FOR_IVR",
   blocked_reasons: ["DO_NOT_CALL"],
   call_restriction: false,
+  sellable_status: [
+    {
+      sku_id: "SKU-E2E-01",
+      batch_id: "BATCH-E2E-01",
+      decision: "BLOCKED",
+      recall_hold: false,
+      sale_lock: true,
+      quality_hold: false,
+      captured_at: "2026-08-15T01:00:00Z",
+    },
+  ],
   max_attempts: 2,
   attempt_policy_code: "mock-lab-v1",
   script_version: "SCRIPT-ORDER-CONFIRM:v1-test-approved",
@@ -245,6 +260,38 @@ const DETAIL_PAYLOAD = {
   no_direct_order_update: true,
 };
 
+/** W-0099 — the roster behind the dashboard SIM panel. */
+const SIM_CHANNELS_PAYLOAD = {
+  generated_at: "2026-08-15T02:00:00Z",
+  execution_mode: "MOCK",
+  real_customer_call_allowed: false,
+  channels: [
+    {
+      sim_channel_id: "SIM-E2E-01",
+      enabled: true,
+      status: "IDLE",
+      adapter_mode: "MOCK",
+      provider_name: "MOCK",
+      busy: false,
+      fail_count: 0,
+      quarantined: false,
+      last_health_check_at: "2026-08-15T01:59:00Z",
+    },
+    {
+      sim_channel_id: "SIM-E2E-02",
+      enabled: false,
+      status: "HEALTH_FAILED",
+      adapter_mode: "MOCK",
+      provider_name: "MOCK",
+      busy: false,
+      fail_count: 3,
+      quarantined: true,
+      quarantine_until: "2026-08-15T03:00:00Z",
+      disabled_reason: "health probe failed",
+    },
+  ],
+};
+
 beforeAll(async () => {
   const apiPort = await findFreePort();
   apiServer = createHttpServer((request, response) => {
@@ -259,6 +306,8 @@ beforeAll(async () => {
       body = callJobsPayload(url.searchParams);
     } else if (url.pathname === `${base}/call-jobs/${JOB_ID}/detail`) {
       body = DETAIL_PAYLOAD;
+    } else if (url.pathname === `${base}/sim-channels`) {
+      body = SIM_CHANNELS_PAYLOAD;
     } else {
       response.writeHead(404, { "Content-Type": "application/json" });
       response.end(
@@ -401,10 +450,51 @@ describe("E2E-UI-LOG-01 call log", () => {
     expect(allHtml).toContain("Tổng quan vận hành IVR");
     expect(allHtml).toContain("50.0%");
     expect(allHtml).toContain("SCHEDULER_DEADLINE");
+    // W-0101 — the four tiles `specs/ui/01` asks for.
+    expect(allHtml).toContain("75.0%");
+    expect(allHtml).toContain("Tỷ lệ gọi thành công");
+    expect(allHtml).toContain("Chờ gọi lần 2");
+    expect(allHtml).toContain("Bị chặn (eligibility)");
+    expect(allHtml).toContain("Tỷ lệ kênh lỗi");
 
     const filtered = await getHtml("/dashboard?program=GOLDEN_HOUR", cookie);
     expect(await filtered.text()).toContain("Tổng quan vận hành IVR");
     expect(apiRequests.some((entry) => entry.includes("program=GOLDEN_HOUR"))).toBe(true);
+  });
+
+  /**
+   * W-0099. `IVR_SIM_ENABLE` and `IVR_SIM_DISABLE` were in the permission
+   * vocabulary and in `specs/ui/08` §3 from the start, but no screen offered
+   * either control until the roster existed.
+   */
+  it("filters the call log by a date range and keeps it across pages", async () => {
+    const cookie = await signedInCookie();
+    apiRequests = [];
+
+    const response = await getHtml("/calls?from=2026-08-01&to=2026-08-14", cookie);
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('value="2026-08-01"');
+    // A calendar day must reach the API as the whole day, both ends.
+    expect(apiRequests.some((entry) => entry.includes("from=2026-08-01T00%3A00%3A00Z"))).toBe(true);
+    expect(apiRequests.some((entry) => entry.includes("to=2026-08-14T23%3A59%3A59Z"))).toBe(true);
+  });
+
+  it("lists the SIM channels and offers the control each one needs", async () => {
+    const cookie = await signedInCookie();
+    const html = await (await getHtml("/dashboard", cookie)).text();
+    const markup = html.replace(/<script[\s\S]*?<\/script>/gi, "");
+
+    expect(markup).toContain("SIM-E2E-01");
+    expect(markup).toContain("SIM-E2E-02");
+    expect(markup).toContain("đang cách ly");
+    // AGT-ADMIN-01 holds both permissions, so an enabled channel offers
+    // disable and a disabled one offers enable.
+    expect(markup).toContain("Tắt kênh");
+    expect(markup).toContain("Bật kênh");
+    // The roster never carries the phone identity behind a channel.
+    expect(html).not.toContain("sim_number_ref");
   });
 });
 
@@ -423,6 +513,11 @@ describe("E2E-UI-DETAIL-02 call detail", () => {
     expect(html).toContain("1 — xác nhận");
 
     // Result plus its advisory framing.
+    // W-0101 — the per-line sellable snapshot `specs/ui/03` puts in the trace,
+    // shown as Order Core captured it.
+    expect(html).toContain("SKU-E2E-01");
+    expect(html).toContain("BATCH-E2E-01");
+    expect(html).toContain("Khoá bán");
     expect(html).toContain("IVR_CONFIRMED");
     expect(html).toContain("CORE_REVALIDATE_AND_CONTINUE");
     expect(html).toContain("Order Core mới quyết định trạng thái đơn");

@@ -47,3 +47,36 @@
   justify-content: flex-end;
   gap: var(--ivr-space-2);
 }
+
+.success {
+  display: grid;
+  gap: var(--ivr-space-2);
+  border: 1px solid var(--ivr-success-border);
+  border-radius: var(--ivr-radius);
+  background: var(--ivr-success-surface);
+  padding: var(--ivr-space-3);
+  font-size: var(--ivr-text-sm);
+}
+
+.success p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.successMeta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--ivr-space-1) var(--ivr-space-3);
+  margin: 0;
+  font-size: var(--ivr-text-xs);
+}
+
+.successMeta dt {
+  color: var(--ivr-text-subtle);
+}
+
+.successMeta dd {
+  margin: 0;
+  font-family: var(--ivr-font-mono);
+  word-break: break-all;
+}

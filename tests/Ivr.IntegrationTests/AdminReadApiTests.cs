@@ -297,6 +297,52 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
     }
 
     [Fact]
+    [Trait("TestId", "IT-ADMIN-READ-09")]
+    public async Task DashboardAndDetailCarryTheTilesTheUiSpecsAskFor()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        using HttpResponseMessage dashboardResponse = await SendAdminAsync(
+            app,
+            "/v1/ivr/order-confirmation/dashboard",
+            IvrPermissions.QueueView);
+        IvrServer.IvrDashboardProjection dashboard =
+            (await dashboardResponse.Content.ReadFromJsonAsync<IvrServer.IvrDashboardProjection>())!;
+
+        // `specs/ui/01` asks for these four tiles; before W-0101 no field
+        // existed behind any of them.
+        Assert.InRange(dashboard.Results.Call_success_rate, 0d, 1d);
+        Assert.InRange(dashboard.Sim.Failure_rate, 0d, 1d);
+        Assert.True(dashboard.Queue.Attempt_two_pending >= 0);
+        Assert.True(dashboard.Queue.Blocked >= 0);
+
+        // A cancel is a successful call: the line worked, the answer was no. So
+        // call success is at least confirm plus cancel.
+        Assert.True(
+            dashboard.Results.Call_success_rate
+                >= dashboard.Results.Confirm_rate + dashboard.Results.Cancel_rate - 0.0001d,
+            $"call_success_rate={dashboard.Results.Call_success_rate} "
+                + $"confirm={dashboard.Results.Confirm_rate} cancel={dashboard.Results.Cancel_rate}");
+
+        using HttpResponseMessage detailResponse = await SendAdminAsync(
+            app,
+            $"/v1/ivr/order-confirmation/call-jobs/{GoldenHourJob}/detail",
+            IvrPermissions.QueueView);
+        IvrServer.IvrCallJobDetail detail =
+            (await detailResponse.Content.ReadFromJsonAsync<IvrServer.IvrCallJobDetail>())!;
+
+        // `specs/ui/03` wants the per-line snapshot, read back exactly as
+        // Order Core captured it.
+        IvrServer.SellableStatusLine line = Assert.Single(detail.Sellable_status);
+        Assert.Equal("SKU-READ-01", line.Sku_id);
+        Assert.Equal("BATCH-READ-01", line.Batch_id);
+        Assert.True(line.Sale_lock);
+        Assert.False(line.Recall_hold);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-ADMIN-READ-08")]
     public async Task NoReadProjectionCarriesRawContactDataOrADialToken()
     {
@@ -603,7 +649,9 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
             EligibilityDecision = "ELIGIBLE_FOR_IVR",
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE_FOR_IVR\"}",
             BlockedReasonsJson = "[\"DO_NOT_CALL\"]",
-            SellableStatusJson = "[]",
+            SellableStatusJson = "[{\"sku_id\":\"SKU-READ-01\",\"batch_id\":\"BATCH-READ-01\","
+                + "\"decision\":\"BLOCKED\",\"recall_hold\":false,\"sale_lock\":true,"
+                + "\"quality_hold\":false,\"captured_at\":\"2026-08-15T01:00:00+00:00\"}]",
             SellableCapturedAt = startedAt,
             CallRestriction = false,
             NotForQuoteCartDraft = true,

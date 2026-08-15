@@ -1,0 +1,84 @@
+Phase 3 audit / W-0099 — live console capture (option A: no browser dependency)
+
+Captured from the real stack, not a stub:
+  admin-ui  next start          http://127.0.0.1:3007  (NODE_ENV=production)
+  Ivr.Api   dotnet run Release  http://127.0.0.1:5005  (IVR_EXECUTION_MODE=MOCK)
+  database  PostgreSQL 16       127.0.0.1:55433        (docker-compose.dev.yml)
+
+REAL_CUSTOMER_CALL_ALLOWED=NO. Fixture rows only; no real SIM, carrier or customer.
+Each block below is the *visible* text of the page — <script> and the RSC flight
+payload are stripped, so this records what an operator sees rather than the data
+behind it.
+
+Screens: SIM channel roster and its two controls
+The roster is the dashboard SIM section. Only the meaningful control is offered
+per row, and each is gated on its own permission.
+
+=== AGT-ADMIN-01 — holds IVR_SIM_ENABLE and IVR_SIM_DISABLE ===
+  GET /dashboard -> 200
+  ---
+  Kênh SIM
+  Đang bật
+  Đã tắt
+  Kênh
+  Tình trạng
+  Đang bận
+  Số lần lỗi
+  Health check gần nhất
+  SIM-MOCK-001
+  Đang bật
+  Tắt kênh
+  SIM-MOCK-002
+  Đang bật
+  Tắt kênh
+  Tắt kênh
+  Tắt kênh SIM này. Scheduler sẽ không dispatch cuộc gọi mới lên kênh.
+  Tắt kênh
+  Kênh này ĐANG có cuộc gọi. Tắt sẽ chặn dispatch mới và chỉ có hiệu lực sau khi cuộc gọi hiện tại kết thúc — không cắt ngang cuộc đang chạy.
+  SIM-MOCK-003
+  Đã tắt
+  · đang cách ly
+  Bật kênh
+  Bật kênh
+=== AGT-OPS-01 — holds IVR_SIM_DISABLE only (no enable button) ===
+  GET /dashboard -> 200
+  ---
+  Kênh SIM
+  Đang bật
+  Đã tắt
+  Kênh
+  Tình trạng
+  Đang bận
+  Số lần lỗi
+  Health check gần nhất
+  SIM-MOCK-001
+  Đang bật
+  Tắt kênh
+  SIM-MOCK-002
+  Đang bật
+  Tắt kênh
+  Tắt kênh
+  Tắt kênh SIM này. Scheduler sẽ không dispatch cuộc gọi mới lên kênh.
+  Tắt kênh
+  Kênh này ĐANG có cuộc gọi. Tắt sẽ chặn dispatch mới và chỉ có hiệu lực sau khi cuộc gọi hiện tại kết thúc — không cắt ngang cuộc đang chạy.
+  SIM-MOCK-003
+  Đã tắt
+  · đang cách ly
+=== AGT-VIEWER-01 — holds neither (no control at all) ===
+  GET /dashboard -> 200
+  ---
+  Kênh SIM
+  Đang bật
+  Đã tắt
+  Kênh
+  Tình trạng
+  Đang bận
+  Số lần lỗi
+  Health check gần nhất
+  SIM-MOCK-001
+  Đang bật
+  SIM-MOCK-002
+  Đang bật
+  SIM-MOCK-003
+  Đã tắt
+  · đang cách ly

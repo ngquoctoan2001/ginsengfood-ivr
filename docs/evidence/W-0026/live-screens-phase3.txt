@@ -1,0 +1,1141 @@
+P3-2 / W-0026 — live console capture (option A: no browser dependency)
+
+Captured from the real stack, not a stub:
+  admin-ui  next start          http://127.0.0.1:3007  (NODE_ENV=production)
+  Ivr.Api   dotnet run Release  http://127.0.0.1:5005  (IVR_EXECUTION_MODE=MOCK)
+  database  PostgreSQL 16       127.0.0.1:55433        (docker-compose.dev.yml)
+
+REAL_CUSTOMER_CALL_ALLOWED=NO. Fixture rows only; no real SIM, carrier or customer.
+Each block below is the *visible* text of the page — <script> and the RSC flight
+payload are stripped, so this records what an operator sees rather than the data
+behind it.
+
+Screens: dashboard, call log, call detail
+=== Dashboard — AGT-ADMIN-01 (holds pause/resume) ===
+  GET /dashboard -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Tổng quan vận hành IVR
+  Số liệu do API tổng hợp, đã che dữ liệu cá nhân.
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Từ ngày
+  Đến ngày
+  Áp dụng
+  Xoá lọc
+  Đang tải…
+  Số liệu tính lúc: 14:24:35 15/8/26
+  Tỷ lệ kết quả
+  Tỷ lệ xác nhận
+  42.9%
+  Tỷ lệ huỷ
+  0.0%
+  Tỷ lệ không nghe máy
+  35.7%
+  Tỷ lệ lỗi kỹ thuật
+  21.4%
+  Tỷ lệ gọi thành công
+  42.9%
+  Tổng số kết quả
+  14
+  Hàng đợi
+  Trạng thái hàng đợi
+  Đang chạy
+  Chờ gọi
+  2
+  Giữ ở chế độ MOCK
+  1
+  Chờ quản trị duyệt
+  1
+  Đang điều phối
+  0
+  Đang mở
+  4
+  Đã đóng
+  14
+  Sắp hết hạn
+  0
+  Chờ gọi lần 2
+  1
+  Bị chặn (eligibility)
+  1
+  Tạm dừng hàng đợi
+  Tiếp tục hàng đợi
+  Lượt gọi
+  Tổng lượt
+  18
+  Tính vào giới hạn khách
+  15
+  Gọi lại do lỗi kỹ thuật
+  3
+  Đang chạy
+  0
+  Kênh SIM
+  Tổng kênh
+  3
+  Đang bật
+  2
+  Rảnh
+  1
+  Đang gọi
+  1
+  Đã tắt
+  1
+  Health fail
+  1
+  Đang cách ly
+  1
+  Tỷ lệ kênh lỗi
+  33.3%
+  Chế độ adapter
+  MOCK
+  Từng kênh SIM. Bật/tắt cần quyền riêng và luôn ghi lý do vào audit.
+  Kênh
+  Trạng thái bật
+  Tình trạng
+  Đang bận
+  Số lần lỗi
+  Health check gần nhất
+  Hành động
+  SIM-MOCK-001
+  Đang bật
+  IDLE
+  —
+  0
+  —
+  Tắt kênh
+  SIM-MOCK-002
+  Đang bật
+  ACTIVE
+  ✓ JOB-OP02
+  0
+  14:04:58 15/8/26
+  Tắt kênh
+  Sự cố năng lực đang mở
+  ID
+  Phạm vi
+  Giữ cuộc gọi mới
+  Nguyên nhân
+  Trễ deadline
+  Mở lúc
+  INCIDENT-EVID-01
+  SCHEDULER_DEADLINE
+  —
+  MOCK_CAPACITY_SHORTAGE
+  2
+  13:59:58 15/8/26
+  Tổng lượt trễ deadline: 2
+  Tạm dừng hàng đợi
+  Chỉ chặn nhận job mới. Cuộc gọi đang chạy vẫn hoàn tất.
+  Lý do
+  Tham chiếu bằng chứng (tuỳ chọn)
+  Thao tác được ghi audit kèm actor, quyền, lý do và correlation id.
+  Huỷ
+  Xác nhận
+  Tiếp tục hàng đợi
+  Chỉ gỡ lệnh tạm dừng của quản trị. Nếu còn sự cố khác, hệ thống vẫn giữ hàng đợi.
+  Lý do
+  Tham chiếu bằng chứng (tuỳ chọn)
+  Thao tác được ghi audit kèm actor, quyền, lý do và correlation id.
+  Huỷ
+  Xác nhận
+  Tắt kênh
+  Tắt kênh SIM này. Scheduler sẽ không dispatch cuộc gọi mới lên kênh.
+  Lý do
+  Tham chiếu bằng chứng (tuỳ chọn)
+  Thao tác được ghi audit kèm actor, quyền, lý do và correlation id.
+  Huỷ
+  Xác nhận
+  Tắt kênh
+  Kênh này ĐANG có cuộc gọi. Tắt sẽ chặn dispatch mới và chỉ có hiệu lực sau khi cuộc gọi hiện tại kết thúc — không cắt ngang cuộc đang chạy.
+  Lý do
+  Tham chiếu bằng chứng (tuỳ chọn)
+  Thao tác được ghi audit kèm actor, quyền, lý do và correlation id.
+  Huỷ
+  Xác nhận
+  SIM-MOCK-003
+  Đã tắt
+  · đang cách ly
+  HEALTH_FAILED
+  —
+  4
+  13:35:58 15/8/26
+  Bật kênh
+  Bật kênh
+  Bật lại kênh SIM này để scheduler được phép dùng. Chỉ bật sau khi health check đã đạt.
+  Lý do
+  Tham chiếu bằng chứng (tuỳ chọn)
+  Thao tác được ghi audit kèm actor, quyền, lý do và correlation id.
+  Huỷ
+  Xác nhận
+=== Dashboard — AGT-VIEWER-01 (view only: no queue control rendered) ===
+  GET /dashboard -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-VIEWER-01
+  Vai trò
+  OpsViewer
+  Số quyền
+  1
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Tổng quan vận hành IVR
+  Số liệu do API tổng hợp, đã che dữ liệu cá nhân.
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Từ ngày
+  Đến ngày
+  Áp dụng
+  Xoá lọc
+  Đang tải…
+  Số liệu tính lúc: 14:24:35 15/8/26
+  Tỷ lệ kết quả
+  Tỷ lệ xác nhận
+  42.9%
+  Tỷ lệ huỷ
+  0.0%
+  Tỷ lệ không nghe máy
+  35.7%
+  Tỷ lệ lỗi kỹ thuật
+  21.4%
+  Tỷ lệ gọi thành công
+  42.9%
+  Tổng số kết quả
+  14
+  Hàng đợi
+  Trạng thái hàng đợi
+  Đang chạy
+  Chờ gọi
+  2
+  Giữ ở chế độ MOCK
+  1
+  Chờ quản trị duyệt
+  1
+  Đang điều phối
+  0
+  Đang mở
+  4
+  Đã đóng
+  14
+  Sắp hết hạn
+  0
+  Chờ gọi lần 2
+  1
+  Bị chặn (eligibility)
+  1
+  Bạn không có quyền thực hiện thao tác quản trị trên hàng đợi.
+  Lượt gọi
+  Tổng lượt
+  18
+  Tính vào giới hạn khách
+  15
+  Gọi lại do lỗi kỹ thuật
+  3
+  Đang chạy
+  0
+  Kênh SIM
+  Tổng kênh
+  3
+  Đang bật
+  2
+  Rảnh
+  1
+  Đang gọi
+  1
+  Đã tắt
+  1
+  Health fail
+  1
+  Đang cách ly
+  1
+  Tỷ lệ kênh lỗi
+  33.3%
+  Chế độ adapter
+  MOCK
+  Từng kênh SIM. Bật/tắt cần quyền riêng và luôn ghi lý do vào audit.
+  Kênh
+  Trạng thái bật
+  Tình trạng
+  Đang bận
+  Số lần lỗi
+  Health check gần nhất
+  Hành động
+  SIM-MOCK-001
+  Đang bật
+  IDLE
+  —
+  0
+  —
+  SIM-MOCK-002
+  Đang bật
+  ACTIVE
+  ✓ JOB-OP02
+  0
+  14:04:58 15/8/26
+  Sự cố năng lực đang mở
+  ID
+  Phạm vi
+  Giữ cuộc gọi mới
+  Nguyên nhân
+  Trễ deadline
+  Mở lúc
+  INCIDENT-EVID-01
+  SCHEDULER_DEADLINE
+  —
+  MOCK_CAPACITY_SHORTAGE
+  2
+  13:59:58 15/8/26
+  Tổng lượt trễ deadline: 2
+  SIM-MOCK-003
+  Đã tắt
+  · đang cách ly
+  HEALTH_FAILED
+  —
+  4
+  13:35:58 15/8/26
+=== Call log — masked, order_code_short only ===
+  GET /calls -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Nhật ký cuộc gọi
+  Danh sách call-job đã che dữ liệu cá nhân. Chỉ để xem.
+  Mã đơn
+  Correlation ID
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Trạng thái job
+  Trạng thái hàng đợi
+  Từ ngày
+  Đến ngày
+  Loại kết quả
+  Chỉ hiện job sắp hết hạn
+  Lọc
+  Xoá lọc
+  Đang tải…
+  Màn danh sách chỉ để xem. Mọi thao tác quản trị nằm ở màn chi tiết.
+  Mã đơn (rút gọn)
+  Số điện thoại
+  Chương trình
+  Trạng thái
+  Hàng đợi
+  Lượt gọi
+  Kết quả
+  Hạn chót
+  Thao tác
+  GF-GH01
+  84xxxxxGH01
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  2/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH02
+  84xxxxxGH02
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  2/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH03
+  84xxxxxGH03
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  2/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH04
+  84xxxxxGH04
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH05
+  84xxxxxGH05
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH06
+  84xxxxxGH06
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH07
+  84xxxxxGH07
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH08
+  84xxxxxGH08
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH09
+  84xxxxxGH09
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH10
+  84xxxxxGH10
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH11
+  84xxxxxGH11
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-OP01
+  84xxxxxOP01
+  GOLDEN_HOUR
+  DRY_RUN
+  QUEUED
+  0/2
+  —
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-OP02
+  84xxxxxOP02
+  TWENTY_FOUR_SEVEN
+  DRY_RUN
+  HELD_MOCK
+  1/2
+  —
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-OP03
+  84xxxxxOP03
+  GOLDEN_HOUR
+  DRY_RUN
+  HELD_ADMIN_REVIEW
+  0/2
+  —
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-OP04
+  84xxxxxOP04
+  GOLDEN_HOUR
+  DRY_RUN
+  QUEUED
+  0/2
+  —
+  14:08:58 15/8/26
+  Xem chi tiết
+  GF-S701
+  84xxxxxS701
+  TWENTY_FOUR_SEVEN
+  CLOSED
+  QUEUED
+  1/2
+  IVR_TECHNICAL_EXCEPTION
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-S702
+  84xxxxxS702
+  TWENTY_FOUR_SEVEN
+  CLOSED
+  QUEUED
+  1/2
+  IVR_TECHNICAL_EXCEPTION
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-S703
+  84xxxxxS703
+  TWENTY_FOUR_SEVEN
+  CLOSED
+  QUEUED
+  1/2
+  IVR_TECHNICAL_EXCEPTION
+  18:05:58 15/8/26
+  Xem chi tiết
+  Tổng số bản ghi: 18 · Trang 1/1
+=== Call log — filtered by FULL order code (input only, never echoed) ===
+  GET /calls?order_code=GF-ORDER-GH01-FULL -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Nhật ký cuộc gọi
+  Danh sách call-job đã che dữ liệu cá nhân. Chỉ để xem.
+  Mã đơn
+  Correlation ID
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Trạng thái job
+  Trạng thái hàng đợi
+  Từ ngày
+  Đến ngày
+  Loại kết quả
+  Chỉ hiện job sắp hết hạn
+  Lọc
+  Xoá lọc
+  Đang tải…
+  Màn danh sách chỉ để xem. Mọi thao tác quản trị nằm ở màn chi tiết.
+  Mã đơn (rút gọn)
+  Số điện thoại
+  Chương trình
+  Trạng thái
+  Hàng đợi
+  Lượt gọi
+  Kết quả
+  Hạn chót
+  Thao tác
+  GF-GH01
+  84xxxxxGH01
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  2/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  Tổng số bản ghi: 1 · Trang 1/1
+=== Call log — date range filter (W-0101) ===
+  GET /calls?from=2026-08-01&to=2026-12-31 -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Nhật ký cuộc gọi
+  Danh sách call-job đã che dữ liệu cá nhân. Chỉ để xem.
+  Mã đơn
+  Correlation ID
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Trạng thái job
+  Trạng thái hàng đợi
+  Từ ngày
+  Đến ngày
+  Loại kết quả
+  Chỉ hiện job sắp hết hạn
+  Lọc
+  Xoá lọc
+  Đang tải…
+  Màn danh sách chỉ để xem. Mọi thao tác quản trị nằm ở màn chi tiết.
+  Mã đơn (rút gọn)
+  Số điện thoại
+  Chương trình
+  Trạng thái
+  Hàng đợi
+  Lượt gọi
+  Kết quả
+  Hạn chót
+  Thao tác
+  GF-GH01
+  84xxxxxGH01
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  2/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH02
+  84xxxxxGH02
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  2/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH03
+  84xxxxxGH03
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  2/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH04
+  84xxxxxGH04
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH05
+  84xxxxxGH05
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH06
+  84xxxxxGH06
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_CONFIRMED
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH07
+  84xxxxxGH07
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH08
+  84xxxxxGH08
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH09
+  84xxxxxGH09
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH10
+  84xxxxxGH10
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-GH11
+  84xxxxxGH11
+  GOLDEN_HOUR
+  CLOSED
+  QUEUED
+  1/2
+  IVR_NO_ANSWER_FINAL
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-OP01
+  84xxxxxOP01
+  GOLDEN_HOUR
+  DRY_RUN
+  QUEUED
+  0/2
+  —
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-OP02
+  84xxxxxOP02
+  TWENTY_FOUR_SEVEN
+  DRY_RUN
+  HELD_MOCK
+  1/2
+  —
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-OP03
+  84xxxxxOP03
+  GOLDEN_HOUR
+  DRY_RUN
+  HELD_ADMIN_REVIEW
+  0/2
+  —
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-OP04
+  84xxxxxOP04
+  GOLDEN_HOUR
+  DRY_RUN
+  QUEUED
+  0/2
+  —
+  14:08:58 15/8/26
+  Xem chi tiết
+  GF-S701
+  84xxxxxS701
+  TWENTY_FOUR_SEVEN
+  CLOSED
+  QUEUED
+  1/2
+  IVR_TECHNICAL_EXCEPTION
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-S702
+  84xxxxxS702
+  TWENTY_FOUR_SEVEN
+  CLOSED
+  QUEUED
+  1/2
+  IVR_TECHNICAL_EXCEPTION
+  18:05:58 15/8/26
+  Xem chi tiết
+  GF-S703
+  84xxxxxS703
+  TWENTY_FOUR_SEVEN
+  CLOSED
+  QUEUED
+  1/2
+  IVR_TECHNICAL_EXCEPTION
+  18:05:58 15/8/26
+  Xem chi tiết
+  Tổng số bản ghi: 18 · Trang 1/1
+=== Call detail JOB-GH01 — confirmed, Core answered 422 ===
+  GET /calls/JOB-GH01 -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  ← Về nhật ký cuộc gọi
+  Chi tiết cuộc gọi
+  JOB-GH01
+  Đang tải…
+  Mã đơn (rút gọn)
+  GF-GH01
+  Số điện thoại
+  84xxxxxGH01
+  Chương trình
+  GOLDEN_HOUR
+  Trạng thái đơn (do Order Core sở hữu)
+  CONFIRMING
+  Phiên bản đơn
+  1
+  Trạng thái job
+  CLOSED
+  Trạng thái hàng đợi
+  QUEUED
+  Kết luận eligibility
+  ELIGIBLE_FOR_IVR
+  Chặn gọi
+  —
+  Chính sách gọi lại
+  mock-lab-v1
+  Phiên bản kịch bản
+  SCRIPT-ORDER-CONFIRM:vA
+  Cửa sổ xác nhận
+  13:55:58 15/8/26 → 18:05:58 15/8/26
+  Giao diện này không có nút xác nhận hay huỷ đơn. Trạng thái đơn do Order Core quyết định (D-02).
+  Ảnh chụp khả năng bán (theo dòng)
+  SKU
+  Lô
+  Kết luận
+  Giữ do thu hồi
+  Khoá bán
+  Giữ do chất lượng
+  Chụp lúc
+  SKU-SAM-01
+  LOT-2026-08-A
+  SELLABLE
+  –
+  –
+  –
+  08:00:00 15/8/26
+  SKU-SAM-02
+  LOT-2026-08-B
+  BLOCKED
+  –
+  ✓
+  –
+  08:00:00 15/8/26
+  Các lượt gọi
+  Lượt 1 · COMPLETED
+  Lịch gọi
+  13:56:58 15/8/26
+  Phân loại
+  CONFIRMED
+  Phím bấm
+  1 — xác nhận
+  Tính vào giới hạn
+  ✓
+  Lỗi kỹ thuật
+  —
+  Kênh SIM
+  SIM-MOCK-001
+  Chính sách gọi lại
+  mock-lab-v1
+  Lượt 2 · COMPLETED
+  Lịch gọi
+  13:56:58 15/8/26
+  Phân loại
+  CONFIRMED
+  Phím bấm
+  1 — xác nhận
+  Tính vào giới hạn
+  ✓
+  Lỗi kỹ thuật
+  —
+  Kênh SIM
+  SIM-MOCK-001
+  Chính sách gọi lại
+  mock-lab-v1
+  Kết quả
+  Loại kết quả
+  IVR_CONFIRMED
+  Kết quả cuối
+  ✓
+  Phím bấm
+  —
+  Đề xuất cho Order Core (tham khảo)
+  CORE_REVALIDATE_AND_CONTINUE
+  Hạn chót
+  14:03:58 15/8/26
+  Đây chỉ là tín hiệu tham khảo. Order Core mới quyết định trạng thái đơn (D-02).
+  Callback về Order Core
+  ID
+  CALLBACK-GH01
+  Trạng thái
+  CONFIRMED_BY_CUSTOMER
+  Giao nhận
+  REJECTED
+  HTTP từ Core
+  422
+  Mã phản hồi Core
+  REJECTED_STALE_ORDER_VERSION
+  Số lần thử lại
+  1
+  Lỗi kỹ thuật
+  Không có lỗi kỹ thuật.
+  Mục chờ duyệt
+  Không có mục nào chờ duyệt.
+  Bằng chứng và audit
+  Correlation ID
+  corr-GH01
+  Chưa có tham chiếu bằng chứng.
+=== Call detail JOB-S701 — AGT-OPS-01 (retry yes, review no) ===
+  GET /calls/JOB-S701 -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-OPS-01
+  Vai trò
+  Ops
+  Số quyền
+  3
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  ← Về nhật ký cuộc gọi
+  Chi tiết cuộc gọi
+  JOB-S701
+  Đang tải…
+  Mã đơn (rút gọn)
+  GF-S701
+  Số điện thoại
+  84xxxxxS701
+  Chương trình
+  TWENTY_FOUR_SEVEN
+  Trạng thái đơn (do Order Core sở hữu)
+  CONFIRMING
+  Phiên bản đơn
+  1
+  Trạng thái job
+  CLOSED
+  Trạng thái hàng đợi
+  QUEUED
+  Kết luận eligibility
+  ELIGIBLE_FOR_IVR
+  Chặn gọi
+  —
+  Chính sách gọi lại
+  mock-lab-v1
+  Phiên bản kịch bản
+  SCRIPT-ORDER-CONFIRM:vB
+  Cửa sổ xác nhận
+  13:55:58 15/8/26 → 18:05:58 15/8/26
+  Giao diện này không có nút xác nhận hay huỷ đơn. Trạng thái đơn do Order Core quyết định (D-02).
+  Ảnh chụp khả năng bán (theo dòng)
+  Không có ảnh chụp khả năng bán nào ở phiếu này.
+  Các lượt gọi
+  Lượt 1 · COMPLETED
+  Lịch gọi
+  13:56:58 15/8/26
+  Phân loại
+  —
+  Phím bấm
+  —
+  Tính vào giới hạn
+  —
+  Lỗi kỹ thuật
+  MOCK_ADAPTER_FAULT
+  Kênh SIM
+  SIM-MOCK-001
+  Chính sách gọi lại
+  mock-lab-v1
+  Kết quả
+  Loại kết quả
+  IVR_TECHNICAL_EXCEPTION
+  Kết quả cuối
+  ✓
+  Phím bấm
+  —
+  Đề xuất cho Order Core (tham khảo)
+  CORE_REVALIDATE_AND_CONTINUE
+  Hạn chót
+  14:03:58 15/8/26
+  Đây chỉ là tín hiệu tham khảo. Order Core mới quyết định trạng thái đơn (D-02).
+  Callback về Order Core
+  Chưa có callback nào.
+  Lỗi kỹ thuật
+  ID
+  TECH-S701
+  Loại lỗi
+  MOCK_ADAPTER_FAULT
+  Được phép gọi lại
+  ✓
+  Gọi lại do lỗi kỹ thuật
+  1
+  Mục chờ duyệt
+  ID
+  REVIEW-S701
+  Lý do
+  technical exception needs human review
+  Trạng thái
+  OPEN
+  Kết luận
+  —
+  Yêu cầu gọi lại kỹ thuật · MOCK_ADAPTER_FAULT
+  Bằng chứng và audit
+  Correlation ID
+  corr-S701
+  Chưa có tham chiếu bằng chứng.
+  Yêu cầu gọi lại kỹ thuật · MOCK_ADAPTER_FAULT
+  Chỉ áp dụng cho lỗi kỹ thuật đã ghi nhận. Không tăng số lượt gọi tính cho khách.
+  Lý do
+  Tham chiếu bằng chứng (tuỳ chọn)
+  Thao tác được ghi audit kèm actor, quyền, lý do và correlation id.
+  Huỷ
+  Xác nhận
+=== Call detail — unknown job renders the error envelope ===
+  GET /calls/JOB-DOES-NOT-EXIST -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  ← Về nhật ký cuộc gọi
+  Chi tiết cuộc gọi
+  JOB-DOES-NOT-EXIST
+  Đang tải…
+  Không tải được dữ liệu
+  Không tìm thấy tài nguyên.
+  Mã lỗi
+  IVR_NOT_FOUND
+  Correlation ID
+  ui-f384-0219-d929-86e6-514d-83bf

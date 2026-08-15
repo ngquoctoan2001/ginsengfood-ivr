@@ -46,16 +46,6 @@ export interface IvrErrorEnvelope {
   };
 }
 
-/** OpenAPI `IvrQueueProjection` — masked queue/capacity projection. */
-export interface IvrQueueProjection {
-  readonly paused: boolean;
-  readonly pending_jobs: number;
-  readonly active_attempts: number;
-  readonly enabled_channels: number;
-  readonly open_hold_incidents: number;
-  readonly projected_at: string;
-}
-
 /** OpenAPI `IvrDashboardQueuePanel`. */
 export interface IvrDashboardQueuePanel {
   readonly paused: boolean;
@@ -66,6 +56,8 @@ export interface IvrDashboardQueuePanel {
   readonly open_total: number;
   readonly closed_total: number;
   readonly near_expiry: number;
+  readonly attempt_two_pending: number;
+  readonly blocked: number;
 }
 
 /** OpenAPI `IvrDashboardResultPanel` — rates are computed by the API, never here. */
@@ -76,6 +68,7 @@ export interface IvrDashboardResultPanel {
   readonly cancel_rate: number;
   readonly no_answer_rate: number;
   readonly technical_exception_rate: number;
+  readonly call_success_rate: number;
 }
 
 /** OpenAPI `IvrDashboardAttemptPanel`. */
@@ -95,6 +88,7 @@ export interface IvrDashboardSimPanel {
   readonly disabled: number;
   readonly health_failed: number;
   readonly quarantined: number;
+  readonly failure_rate: number;
   readonly adapter_mode: string;
 }
 
@@ -223,6 +217,23 @@ export interface IvrReviewItemDetail {
   readonly resolved_at?: string;
 }
 
+/**
+ * OpenAPI `SellableStatusLine` — the per-line snapshot Order Core sent at
+ * intake. IVR displays it as captured and never re-evaluates it (DO-02).
+ */
+export interface IvrSellableStatusLine {
+  readonly sku_id: string;
+  readonly batch_id?: string;
+  readonly decision: string;
+  readonly recall_hold?: boolean;
+  readonly sale_lock?: boolean;
+  readonly quality_hold?: boolean;
+  readonly stock_available?: boolean;
+  readonly batch_released?: boolean;
+  readonly trace_ready?: boolean;
+  readonly captured_at?: string;
+}
+
 /** OpenAPI `IvrCallJobDetail`. */
 export interface IvrCallJobDetail {
   readonly ivr_call_job_id: string;
@@ -240,6 +251,7 @@ export interface IvrCallJobDetail {
   readonly blocked_reasons: readonly string[];
   readonly call_restriction: boolean;
   readonly sellable_captured_at?: string;
+  readonly sellable_status: readonly IvrSellableStatusLine[];
   readonly max_attempts: number;
   readonly attempt_policy_code: string;
   readonly script_version: string;
@@ -420,4 +432,147 @@ export interface IvrAdminReviewResult {
   readonly resolution: string;
   readonly result_unchanged: boolean;
   readonly no_policy_bypass: boolean;
+}
+
+/**
+ * OpenAPI `IvrAnalyticsDataQuality`.
+ *
+ * `warehouse_backed` is the honesty flag: while it is false the numbers come
+ * from the operational read model, not the P10-4 BI pipeline, and the reporting
+ * screen must say so.
+ */
+export interface IvrAnalyticsDataQuality {
+  readonly generated_at: string;
+  readonly source: string;
+  readonly warehouse_backed: boolean;
+  readonly pipeline_work_id: string;
+  readonly latest_event_at?: string;
+  readonly freshness_seconds?: number;
+  readonly status: "FRESH" | "STALE" | "NO_DATA";
+  readonly min_bucket_size: number;
+  readonly suppressed_bucket_count: number;
+  readonly scanned_rows: number;
+  readonly truncated: boolean;
+}
+
+/** OpenAPI `IvrAnalyticsFilter` — the filter the server actually applied. */
+export interface IvrAnalyticsFilter {
+  readonly program?: string;
+  readonly result_type?: string;
+  readonly script_variant?: string;
+  readonly bucket: "DAY" | "HOUR";
+  readonly from?: string;
+  readonly to?: string;
+}
+
+/** OpenAPI `IvrAnalyticsKpi` — every rate is computed server-side. */
+export interface IvrAnalyticsKpi {
+  readonly total_results: number;
+  readonly total_final_results: number;
+  readonly total_call_jobs: number;
+  readonly total_eligible_tasks: number;
+  readonly confirm_rate: number;
+  readonly cancel_rate: number;
+  readonly no_answer_rate: number;
+  readonly invalid_phone_rate: number;
+  readonly technical_rate: number;
+  readonly operational_blocked_rate: number;
+  readonly attempt_2_rate: number;
+  readonly avg_seconds_to_final?: number;
+}
+
+/** OpenAPI `IvrAnalyticsBreakdownRow`. */
+export interface IvrAnalyticsBreakdownRow {
+  readonly key: string;
+  readonly total: number;
+  readonly confirmed: number;
+  readonly confirm_rate: number;
+  readonly share: number;
+}
+
+/** OpenAPI `IvrAnalyticsTrendBucket`. */
+export interface IvrAnalyticsTrendBucket {
+  readonly bucket_start: string;
+  readonly program: string;
+  readonly total: number;
+  readonly confirmed: number;
+  readonly cancelled: number;
+  readonly no_answer: number;
+  readonly invalid_phone: number;
+  readonly technical: number;
+  readonly operational_blocked: number;
+  readonly confirm_rate: number;
+}
+
+/** OpenAPI `IvrAnalyticsSummary`. */
+export interface IvrAnalyticsSummary {
+  readonly filter: IvrAnalyticsFilter;
+  readonly execution_mode: string;
+  readonly kpi: IvrAnalyticsKpi;
+  readonly result_taxonomy: readonly IvrAnalyticsBreakdownRow[];
+  readonly data_quality: IvrAnalyticsDataQuality;
+}
+
+/** OpenAPI `IvrAnalyticsTrend`. */
+export interface IvrAnalyticsTrend {
+  readonly filter: IvrAnalyticsFilter;
+  readonly buckets: readonly IvrAnalyticsTrendBucket[];
+  readonly data_quality: IvrAnalyticsDataQuality;
+}
+
+/** OpenAPI `IvrAnalyticsBreakdown`. */
+export interface IvrAnalyticsBreakdown {
+  readonly filter: IvrAnalyticsFilter;
+  readonly dimension: AnalyticsDimension;
+  readonly rows: readonly IvrAnalyticsBreakdownRow[];
+  readonly data_quality: IvrAnalyticsDataQuality;
+}
+
+/** OpenAPI `IvrAnalyticsExport` — aggregate strings only, never an object row. */
+export interface IvrAnalyticsExport {
+  readonly filter: IvrAnalyticsFilter;
+  readonly dimension: AnalyticsDimension;
+  readonly reason: string;
+  readonly actor_id: string;
+  readonly correlation_id: string;
+  readonly audit_ref: string;
+  readonly columns: readonly string[];
+  readonly rows: readonly (readonly string[])[];
+  readonly suppressed_row_count: number;
+  readonly data_quality: IvrAnalyticsDataQuality;
+}
+
+export const ANALYTICS_DIMENSIONS = ["RESULT_TYPE", "SCRIPT_VARIANT", "PROGRAM"] as const;
+
+export type AnalyticsDimension = (typeof ANALYTICS_DIMENSIONS)[number];
+
+/**
+ * OpenAPI `IvrSimChannel`.
+ *
+ * There is no `sim_number_ref` here and there will not be one: it points at a
+ * phone identity the console has no use for (D-05). Lease internals are absent
+ * too — they are scheduler mechanics, not operator information.
+ */
+export interface IvrSimChannel {
+  readonly sim_channel_id: string;
+  readonly enabled: boolean;
+  readonly status: string;
+  readonly adapter_mode: string;
+  readonly provider_name: string;
+  readonly busy: boolean;
+  readonly active_call_job_id?: string;
+  readonly fail_count: number;
+  readonly quarantined: boolean;
+  readonly quarantine_until?: string;
+  readonly cooldown_until?: string;
+  readonly last_health_check_at?: string;
+  readonly disabled_reason?: string;
+}
+
+/** OpenAPI `IvrSimChannelList`. */
+export interface IvrSimChannelList {
+  readonly generated_at: string;
+  readonly execution_mode: string;
+  readonly real_customer_call_allowed: boolean;
+  readonly channels: readonly IvrSimChannel[];
 }

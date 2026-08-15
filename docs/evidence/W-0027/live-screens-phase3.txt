@@ -1,0 +1,391 @@
+P3-3 / W-0027 — live console capture (option A: no browser dependency)
+
+Captured from the real stack, not a stub:
+  admin-ui  next start          http://127.0.0.1:3007  (NODE_ENV=production)
+  Ivr.Api   dotnet run Release  http://127.0.0.1:5005  (IVR_EXECUTION_MODE=MOCK)
+  database  PostgreSQL 16       127.0.0.1:55433        (docker-compose.dev.yml)
+
+REAL_CUSTOMER_CALL_ALLOWED=NO. Fixture rows only; no real SIM, carrier or customer.
+Each block below is the *visible* text of the page — <script> and the RSC flight
+payload are stripped, so this records what an operator sees rather than the data
+behind it.
+
+Screens: config, integration, review, seed, roles
+=== Script config — read-only, OD-V1-15 lock, KEY_9 NOT_ENABLED ===
+  GET /config -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Cấu hình kịch bản gọi
+  Chỉ để xem. Vòng đời duyệt kịch bản do owner thực hiện, không phải từ console này.
+  Màn này không có nút tạo bản nháp, gửi duyệt, phê duyệt hay thu hồi. Phê duyệt kịch bản là quyết định của owner (OD-V1-15).
+  Đang tải…
+  ProductionTargetV1FieldsApproved=NO — bộ trường Target V1 chưa được duyệt cho production, kể cả khi đã có đủ phê duyệt CONTENT và PRIVACY_LEGAL (OD-V1-15).
+  Các phiên bản kịch bản
+  Template
+  Phiên bản
+  Trạng thái
+  Phê duyệt
+  Còn thiếu
+  Template hợp lệ
+  Tạo lúc
+  SCRIPT-ORDER-CONFIRM
+  v1-test-approved
+  APPROVED
+  Chưa duyệt đủ
+  MOCK_TEST
+  LAB, CONTENT, PRIVACY_LEGAL
+  ✓
+  07:00:00 12/8/26
+  Bản đồ phím DTMF
+  Phím
+  Ý nghĩa
+  Đang bật
+  1
+  CONFIRM
+  ✓
+  0
+  CANCEL
+  ✓
+  9
+  NOT_ENABLED
+  —
+  Phím 9 (chuyển người thật) ở trạng thái NOT_ENABLED và không thể bật từ giao diện (AS-07).
+  Biến được phép
+  customer_display_name
+  order_code_short
+  items[].public_name
+  items[].quantity
+  items[].unit_label
+  total_amount
+  currency
+  delivery_area_short
+  program_display_name
+  locale
+  pronunciation_hints
+  Biến bị cấm
+  FULL_ADDRESS
+  MEMBER_TIER
+  DIAMOND
+  PAYMENT_DETAIL
+  ORDER_HISTORY
+  AI_CRM_CONTENT
+  HEALTH
+=== Integration status — unprobed dependencies are NOT_WIRED, not green ===
+  GET /integration -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Trạng thái tích hợp
+  Chỉ để xem. Không có nút override health để ép dispatch.
+  Đang tải…
+  Chưa có cơ chế thăm dò dependency thật (P6-1 / W-0040). Các thẻ NOT_WIRED bên dưới KHÔNG phải bằng chứng fail-closed đã kiểm chứng.
+  Cấu hình runtime
+  Chế độ thực thi
+  MOCK
+  Nhà cung cấp SIM
+  MOCK
+  Nhà cung cấp Sales
+  FAKE_TARGET_V1
+  Chính sách gọi lại
+  mock-lab-v1
+  Kill switch quay số
+  ĐANG BẬT — không dispatch
+  Revision cờ
+  0
+  Dependency
+  Trạng thái
+  Chi tiết
+  Hiệu ứng fail-closed
+  Ghi nhận lúc
+  SIM_GATEWAY
+  UP
+  IVR quan sát trực tiếp
+  provider=MOCK; channels 2/3 enabled
+  SIM down maps to IVR_TECHNICAL_EXCEPTION, never to no-answer (DT-02).
+  14:04:58 15/8/26
+  DIAL_KILL_SWITCH
+  DOWN
+  fail-closed
+  IVR quan sát trực tiếp
+  kill switch engaged; dispatch blocked
+  While engaged no call is dispatched in any mode.
+  —
+  ORDER_CORE
+  NOT_WIRED
+  Chưa có thăm dò
+  No provider endpoint configured; task push and callback intake are BLOCKED_EXTERNAL (G-CONTRACT).
+  Order Core down means no new task and bounded callback retry or admin review.
+  —
+  OPS_SELLABLE_GATE
+  NOT_WIRED
+  Chưa có thăm dò
+  No ops health probe; /health/ready has no dependency signal until W-0040.
+  ready=503 or down means fail-closed: no dispatch and no confirm (DO-06).
+  —
+  CRM_DO_NOT_CALL
+  NOT_WIRED
+  Chưa có thăm dò
+  No CRM provider wired (P4-3).
+  CRM down means opt-out cannot be determined, so no dispatch (DC-01).
+  —
+  EVIDENCE_REGISTRY
+  NOT_WIRED
+  Chưa có thăm dò
+  Evidence is written locally; no external registry probe exists.
+  Evidence down means no final callback, so the job holds.
+  —
+  Sự kiện fail-closed gần đây
+  Nguồn
+  Tham chiếu
+  Hiệu ứng fail-closed
+  Correlation ID
+  Ghi nhận lúc
+  CAPACITY_INCIDENT
+  INCIDENT-EVID-01
+  SCHEDULER_DEADLINE: open, dispatch not held
+  corr-incident-evid
+  13:59:58 15/8/26
+  REVIEW_ITEM
+  REVIEW-S701
+  IVR_CALL_RESULT: technical exception needs human review
+  corr-S701
+  14:02:58 15/8/26
+  Số liệu tính lúc: 14:24:35 15/8/26
+=== Review queue — links into call detail ===
+  GET /review -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Hàng đợi chờ duyệt
+  Các case cần con người xem: kết quả cần review, lỗi kỹ thuật, callback thất bại.
+  Trạng thái
+  OPEN
+  RESOLVED
+  Tất cả
+  Lọc
+  Đang tải…
+  Thao tác ghi review và gọi lại kỹ thuật nằm ở màn chi tiết cuộc gọi, nơi hiển thị đầy đủ bằng chứng.
+  Không có chức năng gửi lại callback từ giao diện. Việc gửi lại do outbox và circuit breaker của hệ thống quản lý.
+  Mã mục
+  Nguồn
+  Mã đơn (rút gọn)
+  Kết quả
+  Lý do
+  Trạng thái
+  Tạo lúc
+  Thao tác
+  REVIEW-S701
+  IVR_CALL_RESULT
+  GF-S701
+  IVR_TECHNICAL_EXCEPTION
+  technical exception needs human review
+  OPEN
+  14:02:58 15/8/26
+  Mở chi tiết cuộc gọi
+  Tổng số bản ghi: 1
+=== Seed / mock — non-prod, no write path from the browser ===
+  GET /seed -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Seed / Mock (chỉ non-prod)
+  Xem cấu hình môi trường test. Chỉ để xem.
+  Adapter
+  Chế độ thực thi
+  MOCK
+  Môi trường
+  dev
+  Vai trò
+  REAL_CALL=NO
+  Chế độ REAL bị khoá: cần mua SIM (DT-01) và qua release gate (DF-03). Không thể đổi từ giao diện này.
+  Nạp seed và chạy scenario
+  Chưa có API nạp seed hay chạy scenario. Việc này hiện thực hiện qua CLI/SQL; giao diện không mở lối ghi dữ liệu vào cơ sở dữ liệu.
+  Profile integration-status có sẵn
+  STATUS-all-up
+  STATUS-order-core-down
+  STATUS-ops-down
+  STATUS-ops-ready-503
+  STATUS-crm-down
+  STATUS-sim-down
+  STATUS-evidence-down
+  Nguồn: seed/integration-status.sample.json
+=== Roles — reference matrix, no assign/revoke control (DF-01) ===
+  GET /roles -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Vai trò và quyền
+  Ma trận tham chiếu. Quyền được tạo và quản lý ở Permission Core, không phải ở đây (DF-01).
+  Không có nút gán hay thu hồi quyền. Nguồn sự thật của phân quyền là Permission Core; console này chỉ hiển thị và enforce phía server.
+  Phiên hiện tại
+  Đang đăng nhập
+  AGT-ADMIN-01
+  Vai trò
+  AdminIM
+  Số quyền
+  6
+  IVR_QUEUE_VIEW
+  IVR_QUEUE_PAUSE
+  IVR_QUEUE_RESUME
+  IVR_SIM_ENABLE
+  IVR_SIM_DISABLE
+  IVR_RESULT_REVIEW
+  Vai trò
+  Tài khoản mẫu
+  Quyền
+  OpsViewer
+  AGT-VIEWER-01
+  IVR_QUEUE_VIEW
+  Ops
+  AGT-OPS-01
+  IVR_QUEUE_VIEW, IVR_MANUAL_RETRY, IVR_SIM_DISABLE
+  AdminIM
+  AGT-ADMIN-01
+  IVR_QUEUE_VIEW, IVR_QUEUE_PAUSE, IVR_QUEUE_RESUME, IVR_SIM_ENABLE, IVR_SIM_DISABLE, IVR_RESULT_REVIEW
+  Ma trận quyền ↔ thao tác
+  Quyền
+  Màn / thao tác
+  Vai trò
+  IVR_QUEUE_VIEW
+  Tổng quan · Nhật ký cuộc gọi · Chi tiết · Báo cáo & phân tích · Cấu hình · Trạng thái tích hợp · Chờ duyệt
+  OpsViewer, Ops, AdminIM
+  IVR_QUEUE_PAUSE
+  Tổng quan → Tạm dừng hàng đợi
+  AdminIM
+  IVR_QUEUE_RESUME
+  Tổng quan → Tiếp tục hàng đợi
+  AdminIM
+  IVR_SIM_ENABLE
+  Tổng quan → bảng kênh SIM → Bật kênh
+  AdminIM
+  IVR_SIM_DISABLE
+  Tổng quan → bảng kênh SIM → Tắt kênh
+  Ops, AdminIM
+  IVR_MANUAL_RETRY
+  Chi tiết cuộc gọi → Yêu cầu gọi lại kỹ thuật
+  Ops
+  IVR_RESULT_REVIEW
+  Chi tiết cuộc gọi → Ghi kết luận duyệt
+  AdminIM
+  IVR_FLAG_READ
+  Đọc feature flag (API, chưa có màn riêng)
+  Chưa cấp cho vai trò nào
+  IVR_RUNTIME_GATE_ADMIN
+  Đổi runtime gate — chờ owner duyệt OD-V1-20
+  Chưa cấp cho vai trò nào

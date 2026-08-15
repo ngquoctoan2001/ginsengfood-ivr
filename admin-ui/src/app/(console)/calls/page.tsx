@@ -29,6 +29,8 @@ interface CallLogQuery {
   readonly orderCode: string;
   readonly correlationId: string;
   readonly nearExpiry: boolean;
+  readonly from: string;
+  readonly to: string;
   readonly page: number;
 }
 
@@ -42,6 +44,8 @@ export default async function CallLogPage({ searchParams }: PageProps<"/calls">)
     orderCode: readParam(params.order_code),
     correlationId: readParam(params.correlation_id),
     nearExpiry: readParam(params.near_expiry) === "true",
+    from: readParam(params.from),
+    to: readParam(params.to),
     page: Math.max(1, Number.parseInt(readParam(params.page), 10) || 1),
   };
 
@@ -78,6 +82,10 @@ async function CallLogTable({ query }: { query: CallLogQuery }) {
           orderCode: blankToUndefined(query.orderCode),
           correlationId: blankToUndefined(query.correlationId),
           nearExpiry: query.nearExpiry ? true : undefined,
+          // A date input yields a day; the API takes instants, so the range
+          // covers the whole day at both ends.
+          from: query.from === "" ? undefined : `${query.from}T00:00:00Z`,
+          to: query.to === "" ? undefined : `${query.to}T23:59:59Z`,
           page: query.page,
           pageSize: PAGE_SIZE,
         },
@@ -175,6 +183,8 @@ function pageHref(query: CallLogQuery, page: number): string {
     ["order_code", query.orderCode],
     ["correlation_id", query.correlationId],
     ["near_expiry", query.nearExpiry ? "true" : ""],
+    ["from", query.from],
+    ["to", query.to],
     ["page", String(page)],
   ];
 

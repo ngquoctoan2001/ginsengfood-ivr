@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -91,7 +94,11 @@ describe("UT-UI-SEED-PROD-03 seed and mock guards", () => {
   });
 
   it("says plainly that no seed write path exists from the console", () => {
-    expect(messages["seed.loaderUnavailable"]).toMatch(/không tạo đường ghi dữ liệu/i);
+    // Wording note (W-0102): "đường" is avoided here on purpose. The PII gate
+    // scans docs/evidence/ with deliberately blunt literal patterns (W-0076), so
+    // console prose that reaches an evidence capture must not use the address
+    // vocabulary even in its "path" sense.
+    expect(messages["seed.loaderUnavailable"]).toMatch(/không mở lối ghi dữ liệu/i);
     expect(messages["seed.title"]).toContain("non-prod");
   });
 });
@@ -104,13 +111,33 @@ describe("UT-UI-ROLE-04 role and permission matrix", () => {
     expect(messages["roles.subtitle"]).toContain("DF-01");
   });
 
-  it("covers every permission in the screen mapping", async () => {
-    // The page's mapping must stay exhaustive; a new permission without a row
-    // would be a TypeScript error there, and this guards the vocabulary itself.
-    expect(IVR_PERMISSIONS.length).toBeGreaterThan(0);
+  it("maps every permission to the screen that uses it", () => {
+    // `Record<IvrPermission, string>` already makes a missing row a compile
+    // error. What that cannot catch is a row whose text no longer names a real
+    // screen, so the mapping is read and checked against the routes that exist.
+    // jsdom leaves `import.meta.url` without a file scheme, so the path is
+    // resolved from the Vitest project root instead.
+    const source = readFileSync(
+      resolve(process.cwd(), "src/app/(console)/roles/page.tsx"),
+      "utf8",
+    );
+    const mapping = Object.fromEntries(
+      [...source.matchAll(/^\s{2}(IVR_[A-Z_]+):\s*\n?\s*"([^"]*)"/gm)].map((match) => [
+        match[1],
+        match[2],
+      ]),
+    );
+
     for (const permission of IVR_PERMISSIONS) {
-      expect(typeof permission).toBe("string");
+      expect(mapping[permission], `${permission} has no screen mapping`).toBeTruthy();
     }
+
+    // The view permission gates every read screen in the nav, reporting included.
+    expect(mapping.IVR_QUEUE_VIEW).toContain(messages["nav.reports"]);
+    expect(mapping.IVR_QUEUE_VIEW).toContain(messages["nav.dashboard"]);
+    // The SIM controls now exist; the mapping must not still promise them later.
+    expect(mapping.IVR_SIM_ENABLE).not.toMatch(/sau|sắp|chưa có/i);
+    expect(mapping.IVR_SIM_DISABLE).not.toMatch(/sau|sắp|chưa có/i);
   });
 
   it("shows the runtime-gate permission as held by nobody", () => {

@@ -3,9 +3,9 @@ import { Suspense } from "react";
 import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorAlert";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
 import { MetricGrid, type Metric } from "@/components/data/MetricGrid";
-import { getDashboard } from "@/lib/api/admin";
+import { getDashboard, listSimChannels } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
-import type { IvrDashboardProjection } from "@/lib/api/types";
+import type { IvrDashboardProjection, IvrSimChannelList } from "@/lib/api/types";
 import { requireSession } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
@@ -13,6 +13,7 @@ import { hasPermission } from "@/lib/rbac/permissions";
 
 import { DashboardFilters } from "./DashboardFilters";
 import { QueueActions } from "./QueueActions";
+import { SimChannelActions } from "./SimChannelActions";
 import table from "@/components/data/DataTable.module.css";
 import styles from "./page.module.css";
 
@@ -51,11 +52,13 @@ async function DashboardPanels({
   const config = readConfig();
 
   let dashboard: IvrDashboardProjection | null = null;
+  let simChannels: IvrSimChannelList | null = null;
   let error: ErrorEnvelopeView | null = null;
 
   try {
-    dashboard = (
-      await getDashboard(
+    // Independent reads, issued together rather than as a waterfall.
+    const [dashboardResponse, simResponse] = await Promise.all([
+      getDashboard(
         { session, config },
         {
           program: program === "" ? undefined : program,
@@ -63,8 +66,11 @@ async function DashboardPanels({
           from: from === "" ? undefined : `${from}T00:00:00Z`,
           to: to === "" ? undefined : `${to}T23:59:59Z`,
         },
-      )
-    ).data;
+      ),
+      listSimChannels({ session, config }),
+    ]);
+    dashboard = dashboardResponse.data;
+    simChannels = simResponse.data;
   } catch (cause) {
     if (!(cause instanceof IvrApiError)) {
       throw cause;
@@ -73,7 +79,7 @@ async function DashboardPanels({
     error = cause.toEnvelope();
   }
 
-  if (error !== null || dashboard === null) {
+  if (error !== null || dashboard === null || simChannels === null) {
     return <ErrorAlert error={error!} />;
   }
 
@@ -88,6 +94,11 @@ async function DashboardPanels({
     {
       label: t("dashboard.technicalRate"),
       value: percent(dashboard.results.technical_exception_rate),
+    },
+    {
+      label: t("dashboard.callSuccessRate"),
+      value: percent(dashboard.results.call_success_rate),
+      testId: "call-success-rate",
     },
     { label: t("dashboard.resultTotal"), value: formatNumber(dashboard.results.total) },
   ];
@@ -112,6 +123,17 @@ async function DashboardPanels({
       label: t("dashboard.nearExpiry"),
       value: formatNumber(dashboard.queue.near_expiry),
       tone: dashboard.queue.near_expiry > 0 ? "warning" : undefined,
+    },
+    {
+      label: t("dashboard.attemptTwoPending"),
+      value: formatNumber(dashboard.queue.attempt_two_pending),
+      testId: "attempt-two-pending",
+    },
+    {
+      label: t("dashboard.blocked"),
+      value: formatNumber(dashboard.queue.blocked),
+      tone: dashboard.queue.blocked > 0 ? "warning" : undefined,
+      testId: "queue-blocked",
     },
   ];
 
@@ -144,6 +166,12 @@ async function DashboardPanels({
       value: formatNumber(dashboard.sim.quarantined),
       tone: dashboard.sim.quarantined > 0 ? "warning" : undefined,
     },
+    {
+      label: t("dashboard.simFailureRate"),
+      value: percent(dashboard.sim.failure_rate),
+      tone: dashboard.sim.failure_rate > 0 ? "danger" : undefined,
+      testId: "sim-failure-rate",
+    },
     { label: t("dashboard.simAdapterMode"), value: dashboard.sim.adapter_mode },
   ];
 
@@ -172,6 +200,57 @@ async function DashboardPanels({
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>{t("dashboard.simTitle")}</h2>
         <MetricGrid metrics={simMetrics} />
+
+        {simChannels.channels.length === 0 ? (
+          <p className={styles.muted}>{t("sim.noChannels")}</p>
+        ) : (
+          <div className={table.scroll}>
+            <table className={table.table} data-testid="sim-channel-table">
+              <caption className={styles.muted}>{t("sim.tableCaption")}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{t("sim.colChannel")}</th>
+                  <th scope="col">{t("sim.colState")}</th>
+                  <th scope="col">{t("sim.colStatus")}</th>
+                  <th scope="col">{t("sim.colBusy")}</th>
+                  <th scope="col">{t("sim.colFailCount")}</th>
+                  <th scope="col">{t("sim.colHealthCheck")}</th>
+                  <th scope="col">{t("sim.colAction")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {simChannels.channels.map((channel) => (
+                  <tr key={channel.sim_channel_id}>
+                    <td className={table.mono}>{channel.sim_channel_id}</td>
+                    <td>
+                      {channel.enabled ? t("sim.stateEnabled") : t("sim.stateDisabled")}
+                      {channel.quarantined ? ` · ${t("sim.quarantined")}` : ""}
+                    </td>
+                    <td>{channel.status}</td>
+                    <td>
+                      {channel.busy
+                        ? `✓${channel.active_call_job_id === undefined ? "" : ` ${channel.active_call_job_id}`}`
+                        : "—"}
+                    </td>
+                    <td>{formatNumber(channel.fail_count)}</td>
+                    <td>
+                      {channel.last_health_check_at === undefined
+                        ? "—"
+                        : formatDateTime(channel.last_health_check_at)}
+                    </td>
+                    <td>
+                      <SimChannelActions
+                        simChannelId={channel.sim_channel_id}
+                        enabled={channel.enabled}
+                        busy={channel.busy}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       <section className={styles.section}>

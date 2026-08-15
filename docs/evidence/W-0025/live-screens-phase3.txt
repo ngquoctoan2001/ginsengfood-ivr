@@ -1,0 +1,67 @@
+P3-1 / W-0025 — live console capture (option A: no browser dependency)
+
+Captured from the real stack, not a stub:
+  admin-ui  next start          http://127.0.0.1:3007  (NODE_ENV=production)
+  Ivr.Api   dotnet run Release  http://127.0.0.1:5005  (IVR_EXECUTION_MODE=MOCK)
+  database  PostgreSQL 16       127.0.0.1:55433        (docker-compose.dev.yml)
+
+REAL_CUSTOMER_CALL_ALLOWED=NO. Fixture rows only; no real SIM, carrier or customer.
+Each block below is the *visible* text of the page — <script> and the RSC flight
+payload are stripped, so this records what an operator sees rather than the data
+behind it.
+
+Screens: shell, session guard, RBAC visibility, governance banner
+=== Signed-out visitor is redirected, never served the screen ===
+  GET /reports (no cookie) -> 307
+  location: /login?next=%2Freports
+  ---
+  (no body rendered)
+=== Shell + governance banner + nav as AGT-VIEWER-01 ===
+  GET /dashboard -> 200
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Bỏ qua điều hướng, tới nội dung chính
+  IVR Admin
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Đang đăng nhập
+  AGT-VIEWER-01
+  Vai trò
+  OpsViewer
+  Số quyền
+  1
+  Đăng xuất
+  Tổng quan
+  Nhật ký cuộc gọi
+  Báo cáo & phân tích
+  Chờ duyệt
+  Cấu hình kịch bản
+  Trạng thái tích hợp
+  Seed / Mock
+  Vai trò & quyền
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).
+  Tổng quan vận hành IVR
+  Số liệu do API tổng hợp, đã che dữ liệu cá nhân.
+  Chương trình
+  Tất cả
+  GOLDEN_HOUR
+  TWENTY_FOUR_SEVEN
+  Từ ngày
+  Đến ngày
+  Áp dụng
+  Xoá lọc
+  Đang tải…
+  Số liệu tính lúc: 14:24:36 15/8/26
+  Tỷ lệ kết quả
+  Tỷ lệ xác nhận
+  42.9%
+=== Unknown route renders the console's own not-found state ===
+  GET /no-such-page -> 404
+  ---
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Không tìm thấy trang
+  Địa chỉ URL này không tồn tại trong bảng điều khiển.

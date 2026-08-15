@@ -105,6 +105,22 @@ public sealed record ReviewItemDetail(
     [property: JsonPropertyName("created_at")] DateTimeOffset CreatedAt,
     [property: JsonPropertyName("resolved_at")] DateTimeOffset? ResolvedAt);
 
+/// <summary>
+/// One line of the sellable snapshot Order Core sent at intake (UI-03). It is a
+/// captured decision, never a live lookup, and IVR never re-evaluates it.
+/// </summary>
+public sealed record SellableStatusLineView(
+    [property: JsonPropertyName("sku_id")] string SkuId,
+    [property: JsonPropertyName("batch_id")] string? BatchId,
+    [property: JsonPropertyName("decision")] string Decision,
+    [property: JsonPropertyName("recall_hold")] bool? RecallHold,
+    [property: JsonPropertyName("sale_lock")] bool? SaleLock,
+    [property: JsonPropertyName("quality_hold")] bool? QualityHold,
+    [property: JsonPropertyName("stock_available")] bool? StockAvailable,
+    [property: JsonPropertyName("batch_released")] bool? BatchReleased,
+    [property: JsonPropertyName("trace_ready")] bool? TraceReady,
+    [property: JsonPropertyName("captured_at")] DateTimeOffset? CapturedAt);
+
 public sealed record CallJobDetailApiResult(
     [property: JsonPropertyName("ivr_call_job_id")] string IvrCallJobId,
     [property: JsonPropertyName("task_id")] string TaskId,
@@ -121,6 +137,7 @@ public sealed record CallJobDetailApiResult(
     [property: JsonPropertyName("blocked_reasons")] IReadOnlyList<string> BlockedReasons,
     [property: JsonPropertyName("call_restriction")] bool CallRestriction,
     [property: JsonPropertyName("sellable_captured_at")] DateTimeOffset? SellableCapturedAt,
+    [property: JsonPropertyName("sellable_status")] IReadOnlyList<SellableStatusLineView> SellableStatus,
     [property: JsonPropertyName("max_attempts")] int MaxAttempts,
     [property: JsonPropertyName("attempt_policy_code")] string AttemptPolicyCode,
     [property: JsonPropertyName("script_version")] string ScriptVersion,
@@ -149,7 +166,15 @@ public sealed record DashboardQueuePanel(
     [property: JsonPropertyName("dispatching")] int Dispatching,
     [property: JsonPropertyName("open_total")] int OpenTotal,
     [property: JsonPropertyName("closed_total")] int ClosedTotal,
-    [property: JsonPropertyName("near_expiry")] int NearExpiry);
+    [property: JsonPropertyName("near_expiry")] int NearExpiry,
+    /// Open jobs that have consumed exactly one counted customer attempt and
+    /// still have an attempt left. `specs/ui/01` calls this tile "attempt2-due";
+    /// due-ness needs each job's own offset schedule, which this aggregate
+    /// deliberately does not parse, so the honest name is "pending".
+    [property: JsonPropertyName("attempt_two_pending")] int AttemptTwoPending,
+    /// Open jobs the eligibility gate refused. They are not dispatchable and
+    /// are not waiting on capacity.
+    [property: JsonPropertyName("blocked")] int Blocked);
 
 public sealed record DashboardResultPanel(
     [property: JsonPropertyName("total")] int Total,
@@ -157,7 +182,12 @@ public sealed record DashboardResultPanel(
     [property: JsonPropertyName("confirm_rate")] double ConfirmRate,
     [property: JsonPropertyName("cancel_rate")] double CancelRate,
     [property: JsonPropertyName("no_answer_rate")] double NoAnswerRate,
-    [property: JsonPropertyName("technical_exception_rate")] double TechnicalExceptionRate);
+    [property: JsonPropertyName("technical_exception_rate")] double TechnicalExceptionRate,
+    /// Share of results where IVR actually reached the customer and got an
+    /// input — confirmed, cancelled or wrong-input. It measures the call, not
+    /// the answer: a cancel is a successful call. Definition pending owner
+    /// confirmation (`specs/ui/01` names the tile but not its formula).
+    [property: JsonPropertyName("call_success_rate")] double CallSuccessRate);
 
 public sealed record DashboardAttemptPanel(
     [property: JsonPropertyName("total")] int Total,
@@ -173,6 +203,8 @@ public sealed record DashboardSimPanel(
     [property: JsonPropertyName("disabled")] int Disabled,
     [property: JsonPropertyName("health_failed")] int HealthFailed,
     [property: JsonPropertyName("quarantined")] int Quarantined,
+    /// Channels in HEALTH_FAILED over the whole pool.
+    [property: JsonPropertyName("failure_rate")] double FailureRate,
     [property: JsonPropertyName("adapter_mode")] string AdapterMode);
 
 public sealed record CapacityIncidentSummary(
@@ -198,3 +230,35 @@ public sealed record DashboardApiResult(
     [property: JsonPropertyName("sim")] DashboardSimPanel Sim,
     [property: JsonPropertyName("open_incidents")] IReadOnlyList<CapacityIncidentSummary> OpenIncidents,
     [property: JsonPropertyName("missed_deadline_count")] int MissedDeadlineCount);
+
+/// <summary>
+/// One SIM channel, as the console may see it (W-0099).
+///
+/// `sim_number_ref` is deliberately absent: it points at a phone identity and
+/// the console has no use for it, so it never crosses the boundary (D-05).
+/// Lease internals (fencing generation, worker id, lease token) are absent for
+/// the same reason in the other direction — they are scheduler mechanics, not
+/// operator information, and showing them would invite manual interference.
+/// </summary>
+public sealed record SimChannelView(
+    [property: JsonPropertyName("sim_channel_id")] string SimChannelId,
+    [property: JsonPropertyName("enabled")] bool Enabled,
+    [property: JsonPropertyName("status")] string Status,
+    [property: JsonPropertyName("adapter_mode")] string AdapterMode,
+    [property: JsonPropertyName("provider_name")] string ProviderName,
+    /// True while the channel is carrying a call; disabling then takes effect
+    /// after the call ends, which is why the console must be able to see it.
+    [property: JsonPropertyName("busy")] bool Busy,
+    [property: JsonPropertyName("active_call_job_id")] string? ActiveCallJobId,
+    [property: JsonPropertyName("fail_count")] int FailCount,
+    [property: JsonPropertyName("quarantined")] bool Quarantined,
+    [property: JsonPropertyName("quarantine_until")] DateTimeOffset? QuarantineUntil,
+    [property: JsonPropertyName("cooldown_until")] DateTimeOffset? CooldownUntil,
+    [property: JsonPropertyName("last_health_check_at")] DateTimeOffset? LastHealthCheckAt,
+    [property: JsonPropertyName("disabled_reason")] string? DisabledReason);
+
+public sealed record SimChannelListApiResult(
+    [property: JsonPropertyName("generated_at")] DateTimeOffset GeneratedAt,
+    [property: JsonPropertyName("execution_mode")] string ExecutionMode,
+    [property: JsonPropertyName("real_customer_call_allowed")] bool RealCustomerCallAllowed,
+    [property: JsonPropertyName("channels")] IReadOnlyList<SimChannelView> Channels);

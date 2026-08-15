@@ -25,6 +25,8 @@ public interface IAdminReadService
     public Task<CallJobDetailApiResult> GetCallJobDetailAsync(
         string ivrCallJobId,
         CancellationToken cancellationToken);
+
+    public Task<SimChannelListApiResult> ListSimChannelsAsync(CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -60,6 +62,14 @@ public sealed class AdminReadService(
 
     private static readonly string[] NoAnswerResultTypes =
         ["IVR_NO_ANSWER_ATTEMPT", "IVR_NO_ANSWER_FINAL"];
+
+    /// <summary>
+    /// Results that prove the call itself worked: the customer answered and gave
+    /// an input. Everything else — no answer, invalid phone, technical, capacity,
+    /// policy or operational block — is a call that did not reach anyone.
+    /// </summary>
+    private static readonly string[] ReachedCustomerResultTypes =
+        ["IVR_CONFIRMED", "IVR_CUSTOMER_CANCELLED", "IVR_WRONG_INPUT"];
 
     public async Task<DashboardApiResult> GetDashboardAsync(
         string? program,
@@ -114,6 +124,23 @@ public sealed class AdminReadService(
 
         IQueryable<string> jobIds = jobs.Select(job => job.IvrCallJobId);
 
+        // `specs/ui/01` asks for a blocked tile and an attempt-2 tile. Blocked is
+        // the eligibility refusal; attempt-2 is an open job that has spent one
+        // counted customer attempt and still has one left.
+        int blocked = await jobs
+            .CountAsync(job => job.ClosedAt == null && !job.Eligible, cancellationToken)
+            .ConfigureAwait(false);
+
+        IQueryable<string> openJobIds = jobs
+            .Where(job => job.ClosedAt == null && job.MaxAttempts >= 2)
+            .Select(job => job.IvrCallJobId);
+        int attemptTwoPending = await context.CallAttempts.AsNoTracking()
+            .Where(attempt => attempt.IsCountedCustomerAttempt
+                && openJobIds.Contains(attempt.IvrCallJobId))
+            .GroupBy(attempt => attempt.IvrCallJobId)
+            .CountAsync(group => group.Count() == 1, cancellationToken)
+            .ConfigureAwait(false);
+
         List<ResultTypeCount> resultCounts = await context.CallResults.AsNoTracking()
             .Where(result => jobIds.Contains(result.IvrCallJobId))
             .GroupBy(result => result.ResultType)
@@ -155,7 +182,7 @@ public sealed class AdminReadService(
             normalizedProgram,
             createdFrom,
             createdTo,
-            BuildQueuePanel(queueCounts, paused, nearExpiry),
+            BuildQueuePanel(queueCounts, paused, nearExpiry, attemptTwoPending, blocked),
             BuildResultPanel(resultCounts),
             new DashboardAttemptPanel(
                 attemptTotal,
@@ -407,6 +434,7 @@ public sealed class AdminReadService(
             ReadStringArray(task.BlockedReasonsJson),
             task.CallRestriction,
             task.SellableCapturedAt,
+            ReadSellableStatus(task.SellableStatusJson),
             job.MaxAttempts,
             job.AttemptPolicyCode,
             job.ScriptVersion,
@@ -479,10 +507,52 @@ public sealed class AdminReadService(
             job.NoDirectOrderUpdate);
     }
 
+    /// <summary>
+    /// The channel roster behind the dashboard's SIM panel (W-0099).
+    ///
+    /// The panel has always shown counts; without the per-channel list the
+    /// `IVR_SIM_ENABLE` / `IVR_SIM_DISABLE` operations from P2-8 had no console
+    /// surface at all, even though `specs/ui/08` §3 lists both as console
+    /// actions.
+    /// </summary>
+    public async Task<SimChannelListApiResult> ListSimChannelsAsync(
+        CancellationToken cancellationToken)
+    {
+        await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
+            cancellationToken).ConfigureAwait(false);
+        DateTimeOffset now = timeProvider.GetUtcNow();
+
+        List<SimChannelEntity> channels = await context.SimChannels.AsNoTracking()
+            .OrderBy(channel => channel.SimChannelId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new SimChannelListApiResult(
+            now,
+            ivrOptions.Value.ExecutionMode,
+            ivrOptions.Value.RealCustomerCallAllowed,
+            channels.Select(channel => new SimChannelView(
+                channel.SimChannelId,
+                channel.Enabled,
+                channel.Status,
+                channel.AdapterMode,
+                channel.ProviderName,
+                channel.ActiveCallJobId is not null,
+                channel.ActiveCallJobId,
+                channel.FailCount,
+                channel.QuarantineUntil is not null && channel.QuarantineUntil > now,
+                channel.QuarantineUntil,
+                channel.CooldownUntil,
+                channel.LastHealthCheckAt,
+                channel.DisabledReason)).ToArray());
+    }
+
     private static DashboardQueuePanel BuildQueuePanel(
         IReadOnlyList<QueueStatusCount> counts,
         bool paused,
-        int nearExpiry)
+        int nearExpiry,
+        int attemptTwoPending,
+        int blocked)
     {
         int Open(string queueStatus) => counts
             .Where(count => !count.Closed
@@ -497,7 +567,9 @@ public sealed class AdminReadService(
             Open("DISPATCHING"),
             counts.Where(count => !count.Closed).Sum(count => count.Count),
             counts.Where(count => count.Closed).Sum(count => count.Count),
-            nearExpiry);
+            nearExpiry,
+            attemptTwoPending,
+            blocked);
     }
 
     private static DashboardResultPanel BuildResultPanel(IReadOnlyList<ResultTypeCount> counts)
@@ -513,7 +585,10 @@ public sealed class AdminReadService(
             Share(Rate(count => count.ResultType == "IVR_CONFIRMED")),
             Share(Rate(count => count.ResultType == "IVR_CUSTOMER_CANCELLED")),
             Share(Rate(count => NoAnswerResultTypes.Contains(count.ResultType))),
-            Share(Rate(count => count.ResultType == "IVR_TECHNICAL_EXCEPTION")));
+            Share(Rate(count => count.ResultType == "IVR_TECHNICAL_EXCEPTION")),
+            // Reached-the-customer share: the call worked and an input came
+            // back. A cancel counts — the call succeeded, the answer was no.
+            Share(Rate(count => ReachedCustomerResultTypes.Contains(count.ResultType))));
     }
 
     private static DashboardSimPanel BuildSimPanel(
@@ -531,6 +606,7 @@ public sealed class AdminReadService(
             Count(channel => !channel.Enabled),
             Count(channel => channel.Status == "HEALTH_FAILED"),
             Count(channel => channel.QuarantineUntil != null && channel.QuarantineUntil > now),
+            Ratio(Count(channel => channel.Status == "HEALTH_FAILED"), channels.Count),
             channels.Count > 0 ? channels[0].AdapterMode : executionMode);
     }
 
@@ -559,6 +635,77 @@ public sealed class AdminReadService(
             return string.Empty;
         }
     }
+
+    /// <summary>
+    /// Projects the per-line sellable snapshot Order Core sent at intake
+    /// (`specs/ui/03`). It is read back exactly as captured — IVR never
+    /// re-evaluates sellability (DO-02) — and a malformed or absent snapshot
+    /// yields an empty list rather than failing the whole detail screen.
+    /// </summary>
+    private static double Ratio(int value, int total) =>
+        total == 0 ? 0d : Math.Round((double)value / total, 4);
+
+    private static SellableStatusLineView[] ReadSellableStatus(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return [];
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            if (document.RootElement.ValueKind != JsonValueKind.Array)
+            {
+                return [];
+            }
+
+            List<SellableStatusLineView> lines = [];
+            foreach (JsonElement line in document.RootElement.EnumerateArray())
+            {
+                if (line.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                lines.Add(new SellableStatusLineView(
+                    ReadString(line, "sku_id") ?? string.Empty,
+                    ReadString(line, "batch_id"),
+                    ReadString(line, "decision") ?? "UNKNOWN",
+                    ReadBool(line, "recall_hold"),
+                    ReadBool(line, "sale_lock"),
+                    ReadBool(line, "quality_hold"),
+                    ReadBool(line, "stock_available"),
+                    ReadBool(line, "batch_released"),
+                    ReadBool(line, "trace_ready"),
+                    ReadTimestamp(line, "captured_at")));
+            }
+
+            return [.. lines];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+    }
+
+    private static string? ReadString(JsonElement element, string name) =>
+        element.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+
+    private static bool? ReadBool(JsonElement element, string name) =>
+        element.TryGetProperty(name, out JsonElement value)
+            && value.ValueKind is JsonValueKind.True or JsonValueKind.False
+            ? value.GetBoolean()
+            : null;
+
+    private static DateTimeOffset? ReadTimestamp(JsonElement element, string name) =>
+        element.TryGetProperty(name, out JsonElement value)
+            && value.ValueKind == JsonValueKind.String
+            && value.TryGetDateTimeOffset(out DateTimeOffset parsed)
+            ? parsed
+            : null;
 
     private static string[] ReadStringArray(string? json)
     {

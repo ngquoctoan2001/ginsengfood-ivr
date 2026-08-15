@@ -19,6 +19,7 @@ interface NavItem {
 const NAV_ITEMS: readonly NavItem[] = [
   { href: "/dashboard", label: t("nav.dashboard"), perm: "IVR_QUEUE_VIEW" },
   { href: "/calls", label: t("nav.callLog"), perm: "IVR_QUEUE_VIEW" },
+  { href: "/reports", label: t("nav.reports"), perm: "IVR_QUEUE_VIEW" },
   { href: "/review", label: t("nav.review"), perm: "IVR_QUEUE_VIEW" },
   { href: "/config", label: t("nav.config"), perm: "IVR_QUEUE_VIEW" },
   { href: "/integration", label: t("nav.integration"), perm: "IVR_QUEUE_VIEW" },
