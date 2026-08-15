@@ -1,32 +1,217 @@
+/*
+ * Design tokens for the IVR admin console.
+ *
+ * Direction: Minimalism / Swiss — grid-based, high contrast, generous
+ * whitespace, restrained motion. Chosen for this product type via the
+ * `ui-ux-pro-max` skill ("enterprise apps, dashboards, professional tools"),
+ * along with the slate palette below.
+ *
+ * Two deliberate departures from the generated system:
+ *
+ * 1. The generated accent is green (#22C55E) for calls to action. In a
+ *    monitoring console green already means "healthy", so using it for buttons
+ *    would overload the one colour operators read as a status. Interactive
+ *    surfaces use the generated *primary* slate instead, and green stays
+ *    reserved for success state.
+ * 2. No web font is loaded. The generated pairing (Fira Sans / Fira Code) would
+ *    add a network dependency to an internal console; the system stack below
+ *    keeps the same technical, precise character with zero requests.
+ *
+ * Still plain CSS Modules: the component-library choice in P3-1 §5 remains
+ * NEED_CONFIRMATION, so no UI dependency is introduced.
+ */
+
 :root {
-  --background: #f3f7f4;
-  --foreground: #162c25;
+  color-scheme: light dark;
+
+  --ivr-font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+  --ivr-font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono",
+    "SF Mono", Menlo, monospace;
+
+  /* Type scale. Body stays at 15px; data tables step down one notch. */
+  --ivr-text-xs: 0.75rem;
+  --ivr-text-sm: 0.8125rem;
+  --ivr-text-base: 0.9375rem;
+  --ivr-text-lg: 1.0625rem;
+  --ivr-text-xl: 1.375rem;
+  --ivr-text-2xl: 1.75rem;
+
+  /* Surfaces — slate ramp. */
+  --ivr-surface: #ffffff;
+  --ivr-surface-raised: #f8fafc;
+  --ivr-surface-sunken: #f1f5f9;
+  --ivr-surface-hover: #f1f5f9;
+  --ivr-border: #e2e8f0;
+  /* Control boundaries (inputs, selects, secondary buttons) must clear 3:1
+     against their surface — WCAG 1.4.11 non-text contrast, enforced by
+     tests/unit/contrast.test.ts. Plain separators use --ivr-border. */
+  --ivr-border-strong: #7c8aa0;
+
+  --ivr-text: #0f172a;
+  --ivr-text-muted: #475569;
+  --ivr-text-subtle: #64748b;
+  --ivr-text-inverted: #ffffff;
+
+  /* Interactive. Slate rather than the generated green — see the note above. */
+  --ivr-accent: #1e293b;
+  --ivr-accent-hover: #334155;
+  --ivr-accent-contrast: #ffffff;
+  --ivr-link: #1d4ed8;
+  --ivr-focus: #2563eb;
+
+  /* Status. Every one of these is paired with a glyph and a word in the UI;
+     colour alone never carries meaning. */
+  --ivr-success: #15803d;
+  --ivr-success-surface: #f0fdf4;
+  --ivr-success-border: #86efac;
+  --ivr-warning: #b45309;
+  --ivr-warning-surface: #fffbeb;
+  --ivr-warning-border: #fcd34d;
+  --ivr-danger: #b91c1c;
+  --ivr-danger-surface: #fef2f2;
+  --ivr-danger-border: #fca5a5;
+  --ivr-neutral: #334155;
+  --ivr-neutral-surface: #f1f5f9;
+  --ivr-neutral-border: #cbd5e1;
+
+  --ivr-radius: 6px;
+  --ivr-radius-sm: 4px;
+  --ivr-shadow-card: 0 1px 2px rgb(15 23 42 / 6%);
+  --ivr-shadow-raised: 0 2px 8px rgb(15 23 42 / 8%);
+
+  --ivr-space-1: 0.25rem;
+  --ivr-space-2: 0.5rem;
+  --ivr-space-3: 0.75rem;
+  --ivr-space-4: 1rem;
+  --ivr-space-5: 1.5rem;
+  --ivr-space-6: 2rem;
+
+  --ivr-shell-width: 88rem;
+  --ivr-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html {
-  height: 100%;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ivr-surface: #1b2336;
+    --ivr-surface-raised: #272f42;
+    --ivr-surface-sunken: #0f172a;
+    --ivr-surface-hover: #2f3850;
+    --ivr-border: #334155;
+    --ivr-border-strong: #7c8aa0;
+
+    --ivr-text: #f8fafc;
+    --ivr-text-muted: #a9b6c8;
+    --ivr-text-subtle: #94a3b8;
+    --ivr-text-inverted: #0f172a;
+
+    --ivr-accent: #cbd5e1;
+    --ivr-accent-hover: #e2e8f0;
+    --ivr-accent-contrast: #0f172a;
+    --ivr-link: #93c5fd;
+    --ivr-focus: #93c5fd;
+
+    --ivr-success: #6ee7a4;
+    --ivr-success-surface: #10281b;
+    --ivr-success-border: #166534;
+    --ivr-warning: #fcd34d;
+    --ivr-warning-surface: #2a2008;
+    --ivr-warning-border: #a16207;
+    --ivr-danger: #fca5a5;
+    --ivr-danger-surface: #2c1214;
+    --ivr-danger-border: #b91c1c;
+    --ivr-neutral: #cbd5e1;
+    --ivr-neutral-surface: #272f42;
+    --ivr-neutral-border: #475569;
+
+    --ivr-shadow-card: 0 1px 2px rgb(0 0 0 / 40%);
+    --ivr-shadow-raised: 0 2px 8px rgb(0 0 0 / 45%);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  background: var(--ivr-surface-sunken);
+  color: var(--ivr-text);
+  font-family: var(--ivr-font-sans);
+  font-size: var(--ivr-text-base);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  letter-spacing: -0.011em;
+}
+
+a {
+  color: var(--ivr-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: color var(--ivr-transition);
+}
+
+a:hover {
+  color: var(--ivr-text);
+}
+
+button,
+select,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button,
+[role="button"],
+summary {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Numbers in an operations console are read in columns; keep them aligned. */
+table,
+dd,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ivr-focus);
+  outline-offset: 2px;
+  border-radius: var(--ivr-radius-sm);
+}
+
+::selection {
+  background: var(--ivr-focus);
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

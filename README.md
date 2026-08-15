@@ -73,8 +73,9 @@ Ivr.Worker -----------------+
 - `Ivr.Domain`: stable error catalog and PII masking/guard primitives.
 - `Ivr.Contracts`: generated IVR DTOs and Sales Target V1 client plus a separate
   pinned Golden Hour current-compat client; see `docs/contracts/openapi-codegen.md`.
-- `admin-ui`: strict TypeScript App Router placeholder; authentication begins
-  in P3-1.
+- `admin-ui`: strict TypeScript App Router console. Session/RBAC/i18n foundation
+  (P3-1) plus the dashboard, call log and call detail screens (P3-2). The browser
+  talks only to the Next.js server, which is the sole caller of `Ivr.Api`.
 
 `/health/ready` always returns HTTP 200 in P0-1. It is only a bootstrap
 placeholder and is not a fail-closed dependency-readiness signal until W-0040.
@@ -86,6 +87,21 @@ placeholder and is not a fail-closed dependency-readiness signal until W-0040.
 - Docker Engine with Compose
 
 ## Run locally
+
+### Ports
+
+IVR runs entirely inside its own range so it can share a machine with
+`ginsengfood-ops-core` (backend `5000`, frontend `3000`) without either side
+being stopped.
+
+| Component | Port | Pinned in |
+| --- | --- | --- |
+| `Ivr.Api` | `5005` | `src/Ivr.Api/Properties/launchSettings.json` |
+| `admin-ui` | `3005` | `admin-ui/package.json` (`dev` and `start`) |
+| PostgreSQL | `55433` | `docker-compose.dev.yml` (`IVR_POSTGRES_PORT`) |
+
+Keep these distinct from any other local service. The admin UI test suite binds
+an ephemeral port instead, so it never conflicts with a running dev server.
 
 Start the dedicated development database:
 
@@ -101,9 +117,9 @@ Run the API and inspect its probes:
 
 ```powershell
 dotnet run --project src/Ivr.Api
-Invoke-WebRequest http://127.0.0.1:5088/health/live
-Invoke-WebRequest http://127.0.0.1:5088/health/ready
-Invoke-WebRequest http://127.0.0.1:5088/health/startup
+Invoke-WebRequest http://127.0.0.1:5005/health/live
+Invoke-WebRequest http://127.0.0.1:5005/health/ready
+Invoke-WebRequest http://127.0.0.1:5005/health/startup
 ```
 
 Run the worker:

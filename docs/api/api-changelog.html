@@ -23,7 +23,7 @@ and does not approve the external Sales contract.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.2</code></td>
-<td><code>1.0.0-draft.2</code></td>
+<td><code>1.0.0-draft.4</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>
@@ -33,7 +33,19 @@ and does not approve the external Sales contract.</p>
 <td><a href="order-core-ivr-callback-changelog.html">Sales callback changelog</a></td>
 </tr>
 </tbody></table>
-<p>Both current reports say <code>No changes detected</code>. The previous IVR baseline is
+<p><code>1.0.0-draft.3</code> (W-0095) added three read-only admin operations — <code>GET /dashboard</code>,
+<code>GET /call-jobs</code> and <code>GET /call-jobs/{ivrCallJobId}/detail</code> — so the admin console
+can display queue, call-log and call-detail state without the browser reaching a
+service-only lifecycle endpoint.</p>
+<p><code>1.0.0-draft.4</code> (W-0096) adds three more, all read-only: <code>GET /scripts</code>,
+<code>GET /integration-status</code> and <code>GET /review-items</code>, backing the P3-3 back-office
+screens.</p>
+<p>Both steps are additive: <code>oasdiff breaking --fail-on WARN</code> reports <strong>no breaking
+changes</strong>. They add no request field, alter no existing operation, and grant no
+new capability — all six require <code>IVR_QUEUE_VIEW</code> and return masked projections
+only. No mutation operation was added for script lifecycle, seed loading or
+permission assignment.</p>
+<p>The Sales callback report still says <code>No changes detected</code>. The previous IVR baseline is
 retained at <code>baselines/ivr-order-confirmation.v1.0.0.yaml</code>; its transition to
 draft.2 contained <code>143</code> changes (<code>63</code> errors and <code>80</code> warnings) and is preserved
 in <a href="ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html">the archived transition report</a>.

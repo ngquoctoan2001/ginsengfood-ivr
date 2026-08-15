@@ -1,0 +1,37 @@
+.skeleton {
+  display: grid;
+  gap: var(--ivr-space-2);
+}
+
+.label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.row {
+  display: block;
+  height: 1.25rem;
+  border-radius: var(--ivr-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--ivr-surface-raised) 25%,
+    var(--ivr-surface-hover) 37%,
+    var(--ivr-surface-raised) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 50%;
+  }
+
+  to {
+    background-position: 0 50%;
+  }
+}

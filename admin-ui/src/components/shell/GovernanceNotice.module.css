@@ -1,0 +1,24 @@
+.notice {
+  border-radius: var(--ivr-radius);
+  border: 1px solid var(--ivr-border);
+  border-left: 3px solid var(--ivr-border-strong);
+  background: var(--ivr-surface);
+  padding: var(--ivr-space-3) var(--ivr-space-4);
+  display: grid;
+  gap: var(--ivr-space-1);
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-muted);
+}
+
+/* Real customer calls being permitted is the highest-consequence state this
+   console can be in, so it is the one notice that turns red. */
+.notice[data-real-call="allowed"] {
+  border-color: var(--ivr-danger);
+  border-left-color: var(--ivr-danger);
+  background: var(--ivr-danger-surface);
+  color: var(--ivr-text);
+}
+
+.line {
+  margin: 0;
+}

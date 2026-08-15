@@ -1,0 +1,49 @@
+.wrapper {
+  display: inline-block;
+}
+
+.dialog {
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius);
+  background: var(--ivr-surface);
+  color: var(--ivr-text);
+  box-shadow: var(--ivr-shadow-raised);
+  padding: 0;
+  max-width: 34rem;
+  width: calc(100vw - 2rem);
+}
+
+.dialog::backdrop {
+  background: rgb(15 23 42 / 55%);
+}
+
+.dialog > form {
+  padding: var(--ivr-space-5);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--ivr-text-lg);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.description {
+  margin: 0;
+  color: var(--ivr-text-muted);
+  font-size: var(--ivr-text-sm);
+}
+
+.notice {
+  margin: 0;
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-subtle);
+  border-left: 2px solid var(--ivr-border-strong);
+  padding-left: var(--ivr-space-3);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ivr-space-2);
+}

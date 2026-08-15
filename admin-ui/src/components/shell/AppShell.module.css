@@ -1,0 +1,114 @@
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.skipLink {
+  position: absolute;
+  left: -9999px;
+}
+
+.skipLink:focus-visible {
+  position: fixed;
+  top: var(--ivr-space-2);
+  left: var(--ivr-space-2);
+  z-index: 10;
+  display: inline-block;
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  border-radius: var(--ivr-radius-sm);
+  background: var(--ivr-accent);
+  color: var(--ivr-accent-contrast);
+  text-decoration: none;
+}
+
+/* Sticky so the environment badge and the signed-in actor stay visible while
+   an operator scrolls a long table. */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ivr-space-4);
+  padding: var(--ivr-space-3) var(--ivr-space-5);
+  border-bottom: 1px solid var(--ivr-border);
+  background: var(--ivr-surface);
+  box-shadow: var(--ivr-shadow-card);
+}
+
+.brand {
+  font-weight: 700;
+  font-size: var(--ivr-text-base);
+  letter-spacing: -0.015em;
+}
+
+.actor {
+  margin-left: auto;
+  display: grid;
+  gap: 1px;
+  font-size: var(--ivr-text-xs);
+  text-align: right;
+}
+
+.actorLine {
+  display: inline-flex;
+  gap: var(--ivr-space-2);
+  justify-content: flex-end;
+  align-items: baseline;
+}
+
+.actorKey {
+  color: var(--ivr-text-subtle);
+}
+
+.actorValue {
+  font-family: var(--ivr-font-mono);
+  font-weight: 500;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  align-items: stretch;
+}
+
+.main {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  gap: var(--ivr-space-5);
+  padding: var(--ivr-space-5) var(--ivr-space-6);
+  max-width: var(--ivr-shell-width);
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 64rem) {
+  .main {
+    padding: var(--ivr-space-4);
+    gap: var(--ivr-space-4);
+  }
+}
+
+@media (max-width: 48rem) {
+  .header {
+    position: static;
+    padding: var(--ivr-space-3) var(--ivr-space-4);
+    gap: var(--ivr-space-3);
+  }
+
+  .body {
+    flex-direction: column;
+  }
+
+  .actor {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .actorLine {
+    justify-content: flex-start;
+  }
+}

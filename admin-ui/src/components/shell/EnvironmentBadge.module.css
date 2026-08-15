@@ -1,0 +1,35 @@
+.badge {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ivr-space-4);
+  align-items: center;
+  border-left: 1px solid var(--ivr-border);
+  padding-left: var(--ivr-space-4);
+  font-size: var(--ivr-text-xs);
+}
+
+.item {
+  display: inline-flex;
+  gap: var(--ivr-space-2);
+  align-items: center;
+}
+
+.key {
+  color: var(--ivr-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.6875rem;
+}
+
+.value {
+  font-family: var(--ivr-font-mono);
+  font-weight: 600;
+}
+
+@media (max-width: 48rem) {
+  .badge {
+    border-left: none;
+    padding-left: 0;
+    gap: var(--ivr-space-3);
+  }
+}

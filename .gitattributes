@@ -1,3 +1,11 @@
+# These files are hashed or byte-compared by CI outside Git's own diff, so the
+# working tree must match the committed bytes exactly. Without eol=lf a Windows
+# checkout (core.autocrlf=true) rewrites them to CRLF and the contract-manifest,
+# changelog-baseline and API-docs gates fail locally while passing in CI.
+specs/api/openapi/** text eol=lf
+docs/api/** text eol=lf
+docs/api-changelog.md text eol=lf
+
 # NSwag owns these byte-for-byte outputs and currently emits trailing spaces.
 # Keep drift enforcement exact while excluding only generated code from Git's
 # handwritten whitespace diagnostics.

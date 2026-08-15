@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+
+import { t } from "@/lib/i18n";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "IVR Admin — MOCK mode",
-  description: "GinsengFood IVR administration bootstrap",
+  title: t("app.title"),
+  description: t("app.description"),
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

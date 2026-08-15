@@ -1,0 +1,37 @@
+P3-1 / W-0025 — RBAC show/hide + error envelope, captured 2026-08-15
+admin-ui `next start` on 127.0.0.1:3948 against live Ivr.Api (MOCK).
+
+=== 1. Unauthenticated GET /queue ===
+HTTP/1.1 307 Temporary Redirect
+location: /login?next=%2Fqueue
+
+=== 2. Sign-in as AGT-VIEWER-01 (OpsViewer, IVR_QUEUE_VIEW only) ===
+HTTP/1.1 303 See Other
+location: /queue
+set-cookie: ivr_admin_session=eyJhY3RvcklkIjoiQUdULVZJ…; Path=/; Expires=Sat, 15 Aug 2026 09:14:15 GMT; Max-Age=28800; Secure; HttpOnly; SameSite=strict
+
+Rendered /queue (viewer) — admin controls absent:
+  [present] AGT-VIEWER-01
+  [present] Bạn không có quyền thực hiện thao tác quản trị trên hàng đợi
+  [present] Hàng đợi IVR
+  [present] Job chờ xử lý
+  [present] OpsViewer
+  [present] Trạng thái hàng đợi
+
+=== 3. Sign-in as AGT-ADMIN-01 (AdminIM, 6 permissions) ===
+  [present] AGT-ADMIN-01
+  [present] AdminIM
+  [present] Hàng đợi IVR
+  [present] Lý do
+  [present] Thao tác được ghi audit kèm actor, quyền, lý do và correlation id.
+  [present] Tiếp tục hàng đợi
+  [present] Trạng thái hàng đợi
+  [present] Tạm dừng hàng đợi
+
+=== 4. Server-side enforcement — Ivr.Api rejects a viewer pause regardless of the client ===
+{"error":{"code":"IVR_FORBIDDEN_CALLER","message":"The caller is not permitted.","details":{},"correlationId":"ui-eeee-ffff-0000-1111-2222-3333"}}
+
+=== 5. Sign-out clears the session ===
+HTTP/1.1 303 See Other
+location: /login
+set-cookie: ivr_admin_session=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=strict

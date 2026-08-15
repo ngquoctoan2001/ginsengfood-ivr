@@ -1008,6 +1008,8 @@ public static class InternalAdminApiServiceCollectionExtensions
             options.ThrowOnBadRequest = true;
         });
         services.AddSingleton<IInternalAdminApiService, InternalAdminApiService>();
+        services.AddSingleton<IAdminReadService, AdminReadService>();
+        services.AddSingleton<IAdminConfigReadService, AdminConfigReadService>();
         return services;
     }
 }

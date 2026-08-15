@@ -1,0 +1,55 @@
+.alert {
+  border: 1px solid var(--ivr-danger-border);
+  border-left: 3px solid var(--ivr-danger);
+  background: var(--ivr-danger-surface);
+  border-radius: var(--ivr-radius);
+  padding: var(--ivr-space-4);
+  color: var(--ivr-text);
+  display: grid;
+  gap: var(--ivr-space-3);
+}
+
+.title {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--ivr-text-sm);
+  color: var(--ivr-danger);
+}
+
+.message {
+  margin: 0;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--ivr-space-1) var(--ivr-space-3);
+  margin: 0;
+  font-size: var(--ivr-text-xs);
+}
+
+.meta dt {
+  color: var(--ivr-text-muted);
+}
+
+.meta dd {
+  margin: 0;
+  font-family: var(--ivr-font-mono);
+  overflow-wrap: anywhere;
+}
+
+.detailsTitle {
+  margin: 0;
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-muted);
+}
+
+.details {
+  margin: 0;
+  padding-left: var(--ivr-space-5);
+  font-size: var(--ivr-text-xs);
+}
+
+.detailKey {
+  font-family: var(--ivr-font-mono);
+}

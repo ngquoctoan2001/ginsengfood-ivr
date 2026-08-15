@@ -2,6 +2,7 @@ using Ivr.Api.Application;
 using Ivr.Api.Auth;
 using Ivr.Api.Filters;
 using Ivr.Api.Internal;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Ivr.Api.Admin;
 
@@ -16,6 +17,18 @@ public static class IvrAdminEndpoints
             "/v1/ivr/order-confirmation")
             .AddEndpointFilter<PiiMaskingFilter>();
         adminGroup.MapGet("/queue", GetQueueAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/dashboard", GetDashboardAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/call-jobs", ListCallJobsAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/call-jobs/{ivrCallJobId}/detail", GetCallJobDetailAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/scripts", GetScriptCatalogAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/integration-status", GetIntegrationStatusAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+        adminGroup.MapGet("/review-items", ListReviewItemsAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
         adminGroup.MapPost("/queue:pause", PauseQueueAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueuePause));
@@ -40,6 +53,99 @@ public static class IvrAdminEndpoints
         _ = InternalRequestGuard.RequireCorrelation(context);
         _ = InternalRequestGuard.RequireAdminActor(context);
         return service.GetQueueAsync(cancellationToken);
+    }
+
+    private static Task<DashboardApiResult> GetDashboardAsync(
+        HttpContext context,
+        IAdminReadService service,
+        CancellationToken cancellationToken,
+        string? program = null,
+        DateTimeOffset? from = null,
+        DateTimeOffset? to = null)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.GetDashboardAsync(program, from, to, cancellationToken);
+    }
+
+    // Query names stay snake_case to match the rest of the contract.
+    private static Task<CallJobPageApiResult> ListCallJobsAsync(
+        HttpContext context,
+        IAdminReadService service,
+        CancellationToken cancellationToken,
+        [FromQuery(Name = "program")] string? program = null,
+        [FromQuery(Name = "status")] string? status = null,
+        [FromQuery(Name = "queue_status")] string? queueStatus = null,
+        [FromQuery(Name = "result_type")] string? resultType = null,
+        [FromQuery(Name = "order_code")] string? orderCode = null,
+        [FromQuery(Name = "correlation_id")] string? correlationId = null,
+        [FromQuery(Name = "near_expiry")] bool nearExpiry = false,
+        [FromQuery(Name = "from")] DateTimeOffset? from = null,
+        [FromQuery(Name = "to")] DateTimeOffset? to = null,
+        [FromQuery(Name = "page")] int page = 1,
+        [FromQuery(Name = "page_size")] int pageSize = AdminReadService.DefaultPageSize)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.ListCallJobsAsync(
+            new CallJobFilter(
+                program,
+                status,
+                queueStatus,
+                resultType,
+                orderCode,
+                correlationId,
+                nearExpiry,
+                from,
+                to,
+                page,
+                pageSize),
+            cancellationToken);
+    }
+
+    private static Task<CallJobDetailApiResult> GetCallJobDetailAsync(
+        string ivrCallJobId,
+        HttpContext context,
+        IAdminReadService service,
+        CancellationToken cancellationToken)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.GetCallJobDetailAsync(ivrCallJobId, cancellationToken);
+    }
+
+    private static Task<ScriptCatalogApiResult> GetScriptCatalogAsync(
+        HttpContext context,
+        IAdminConfigReadService service,
+        CancellationToken cancellationToken)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.GetScriptCatalogAsync(cancellationToken);
+    }
+
+    private static Task<IntegrationStatusApiResult> GetIntegrationStatusAsync(
+        HttpContext context,
+        IAdminConfigReadService service,
+        CancellationToken cancellationToken,
+        [FromQuery(Name = "environment")] string? environment = null)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.GetIntegrationStatusAsync(environment ?? string.Empty, cancellationToken);
+    }
+
+    private static Task<ReviewQueueApiResult> ListReviewItemsAsync(
+        HttpContext context,
+        IAdminConfigReadService service,
+        CancellationToken cancellationToken,
+        [FromQuery(Name = "status")] string? status = null,
+        [FromQuery(Name = "page")] int page = 1,
+        [FromQuery(Name = "page_size")] int pageSize = AdminConfigReadService.DefaultPageSize)
+    {
+        _ = InternalRequestGuard.RequireCorrelation(context);
+        _ = InternalRequestGuard.RequireAdminActor(context);
+        return service.ListReviewItemsAsync(status, page, pageSize, cancellationToken);
     }
 
     private static Task<AdminActionApiResult> PauseQueueAsync(

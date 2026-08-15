@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IVR Admin — Design system</title>
+<style>
+/*
+ * Design tokens for the IVR admin console.
+ *
+ * Direction: Minimalism / Swiss — grid-based, high contrast, generous
+ * whitespace, restrained motion. Chosen for this product type via the
+ * `ui-ux-pro-max` skill ("enterprise apps, dashboards, professional tools"),
+ * along with the slate palette below.
+ *
+ * Two deliberate departures from the generated system:
+ *
+ * 1. The generated accent is green (#22C55E) for calls to action. In a
+ *    monitoring console green already means "healthy", so using it for buttons
+ *    would overload the one colour operators read as a status. Interactive
+ *    surfaces use the generated *primary* slate instead, and green stays
+ *    reserved for success state.
+ * 2. No web font is loaded. The generated pairing (Fira Sans / Fira Code) would
+ *    add a network dependency to an internal console; the system stack below
+ *    keeps the same technical, precise character with zero requests.
+ *
+ * Still plain CSS Modules: the component-library choice in P3-1 §5 remains
+ * NEED_CONFIRMATION, so no UI dependency is introduced.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --ivr-font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+  --ivr-font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono",
+    "SF Mono", Menlo, monospace;
+
+  /* Type scale. Body stays at 15px; data tables step down one notch. */
+  --ivr-text-xs: 0.75rem;
+  --ivr-text-sm: 0.8125rem;
+  --ivr-text-base: 0.9375rem;
+  --ivr-text-lg: 1.0625rem;
+  --ivr-text-xl: 1.375rem;
+  --ivr-text-2xl: 1.75rem;
+
+  /* Surfaces — slate ramp. */
+  --ivr-surface: #ffffff;
+  --ivr-surface-raised: #f8fafc;
+  --ivr-surface-sunken: #f1f5f9;
+  --ivr-surface-hover: #f1f5f9;
+  --ivr-border: #e2e8f0;
+  /* Control boundaries (inputs, selects, secondary buttons) must clear 3:1
+     against their surface — WCAG 1.4.11 non-text contrast, enforced by
+     tests/unit/contrast.test.ts. Plain separators use --ivr-border. */
+  --ivr-border-strong: #7c8aa0;
+
+  --ivr-text: #0f172a;
+  --ivr-text-muted: #475569;
+  --ivr-text-subtle: #64748b;
+  --ivr-text-inverted: #ffffff;
+
+  /* Interactive. Slate rather than the generated green — see the note above. */
+  --ivr-accent: #1e293b;
+  --ivr-accent-hover: #334155;
+  --ivr-accent-contrast: #ffffff;
+  --ivr-link: #1d4ed8;
+  --ivr-focus: #2563eb;
+
+  /* Status. Every one of these is paired with a glyph and a word in the UI;
+     colour alone never carries meaning. */
+  --ivr-success: #15803d;
+  --ivr-success-surface: #f0fdf4;
+  --ivr-success-border: #86efac;
+  --ivr-warning: #b45309;
+  --ivr-warning-surface: #fffbeb;
+  --ivr-warning-border: #fcd34d;
+  --ivr-danger: #b91c1c;
+  --ivr-danger-surface: #fef2f2;
+  --ivr-danger-border: #fca5a5;
+  --ivr-neutral: #334155;
+  --ivr-neutral-surface: #f1f5f9;
+  --ivr-neutral-border: #cbd5e1;
+
+  --ivr-radius: 6px;
+  --ivr-radius-sm: 4px;
+  --ivr-shadow-card: 0 1px 2px rgb(15 23 42 / 6%);
+  --ivr-shadow-raised: 0 2px 8px rgb(15 23 42 / 8%);
+
+  --ivr-space-1: 0.25rem;
+  --ivr-space-2: 0.5rem;
+  --ivr-space-3: 0.75rem;
+  --ivr-space-4: 1rem;
+  --ivr-space-5: 1.5rem;
+  --ivr-space-6: 2rem;
+
+  --ivr-shell-width: 88rem;
+  --ivr-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ivr-surface: #1b2336;
+    --ivr-surface-raised: #272f42;
+    --ivr-surface-sunken: #0f172a;
+    --ivr-surface-hover: #2f3850;
+    --ivr-border: #334155;
+    --ivr-border-strong: #7c8aa0;
+
+    --ivr-text: #f8fafc;
+    --ivr-text-muted: #a9b6c8;
+    --ivr-text-subtle: #94a3b8;
+    --ivr-text-inverted: #0f172a;
+
+    --ivr-accent: #cbd5e1;
+    --ivr-accent-hover: #e2e8f0;
+    --ivr-accent-contrast: #0f172a;
+    --ivr-link: #93c5fd;
+    --ivr-focus: #93c5fd;
+
+    --ivr-success: #6ee7a4;
+    --ivr-success-surface: #10281b;
+    --ivr-success-border: #166534;
+    --ivr-warning: #fcd34d;
+    --ivr-warning-surface: #2a2008;
+    --ivr-warning-border: #a16207;
+    --ivr-danger: #fca5a5;
+    --ivr-danger-surface: #2c1214;
+    --ivr-danger-border: #b91c1c;
+    --ivr-neutral: #cbd5e1;
+    --ivr-neutral-surface: #272f42;
+    --ivr-neutral-border: #475569;
+
+    --ivr-shadow-card: 0 1px 2px rgb(0 0 0 / 40%);
+    --ivr-shadow-raised: 0 2px 8px rgb(0 0 0 / 45%);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--ivr-surface-sunken);
+  color: var(--ivr-text);
+  font-family: var(--ivr-font-sans);
+  font-size: var(--ivr-text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  letter-spacing: -0.011em;
+}
+
+a {
+  color: var(--ivr-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: color var(--ivr-transition);
+}
+
+a:hover {
+  color: var(--ivr-text);
+}
+
+button,
+select,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button,
+[role="button"],
+summary {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Numbers in an operations console are read in columns; keep them aligned. */
+table,
+dd,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ivr-focus);
+  outline-offset: 2px;
+  border-radius: var(--ivr-radius-sm);
+}
+
+::selection {
+  background: var(--ivr-focus);
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* preview page only */
+
+body { padding: 0; }
+.pv-wrap { max-width: 72rem; margin: 0 auto; padding: var(--ivr-space-6) var(--ivr-space-5); display: grid; gap: var(--ivr-space-5); }
+.pv-head h1 { margin: var(--ivr-space-1) 0; font-size: var(--ivr-text-2xl); font-weight: 650; letter-spacing: -.02em; }
+.pv-eyebrow { margin: 0; font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ivr-text-subtle); }
+.pv-sub { margin: var(--ivr-space-2) 0 0; color: var(--ivr-text-muted); max-width: 52rem; font-size: var(--ivr-text-sm); }
+section { display: grid; gap: var(--ivr-space-3); border: 1px solid var(--ivr-border); border-radius: var(--ivr-radius); background: var(--ivr-surface); padding: var(--ivr-space-5); box-shadow: var(--ivr-shadow-card); }
+section h2 { margin: 0; font-size: var(--ivr-text-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--ivr-text-subtle); }
+section p { margin: 0; }
+.pv-note { font-size: var(--ivr-text-xs); color: var(--ivr-text-subtle); max-width: 54rem; }
+code { font-family: var(--ivr-font-mono); font-size: .78em; }
+.pv-row { display: flex; flex-wrap: wrap; gap: var(--ivr-space-3); align-items: center; }
+.pv-swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: var(--ivr-space-3); }
+.pv-sw { border: 1px solid var(--ivr-border-strong); border-radius: var(--ivr-radius); padding: var(--ivr-space-4) var(--ivr-space-3); display: grid; gap: 2px; }
+.pv-sw span { font-weight: 600; font-size: var(--ivr-text-sm); }
+.pv-sw code { font-size: .68rem; opacity: .85; }
+.pv-badge { display: inline-flex; align-items: center; gap: var(--ivr-space-1); padding: 1px var(--ivr-space-2); border-radius: 999px; border: 1px solid transparent; font-size: var(--ivr-text-xs); font-weight: 500; white-space: nowrap; }
+.pv-badge[data-tone=success] { color: var(--ivr-success); background: var(--ivr-success-surface); border-color: var(--ivr-success-border); }
+.pv-badge[data-tone=warning] { color: var(--ivr-warning); background: var(--ivr-warning-surface); border-color: var(--ivr-warning-border); }
+.pv-badge[data-tone=danger] { color: var(--ivr-danger); background: var(--ivr-danger-surface); border-color: var(--ivr-danger-border); }
+.pv-badge[data-tone=neutral] { color: var(--ivr-neutral); background: var(--ivr-neutral-surface); border-color: var(--ivr-neutral-border); }
+.pv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: var(--ivr-space-3); margin: 0; }
+.pv-metric { border: 1px solid var(--ivr-border); border-radius: var(--ivr-radius); background: var(--ivr-surface); padding: var(--ivr-space-3) var(--ivr-space-4); box-shadow: var(--ivr-shadow-card); }
+.pv-metric dt { font-size: var(--ivr-text-xs); color: var(--ivr-text-subtle); text-transform: uppercase; letter-spacing: .05em; }
+.pv-metric dd { margin: var(--ivr-space-2) 0 0; font-size: var(--ivr-text-2xl); font-weight: 600; letter-spacing: -.02em; display: flex; align-items: center; gap: var(--ivr-space-2); }
+.pv-metric[data-tone] dd { font-size: var(--ivr-text-lg); }
+.pv-metric[data-tone=warning] { border-left: 3px solid var(--ivr-warning); }
+.pv-metric[data-tone=warning] dd { color: var(--ivr-warning); }
+.pv-metric[data-tone=danger] { border-left: 3px solid var(--ivr-danger); }
+.pv-metric[data-tone=danger] dd { color: var(--ivr-danger); }
+.pv-scroll { overflow-x: auto; border: 1px solid var(--ivr-border); border-radius: var(--ivr-radius); background: var(--ivr-surface); box-shadow: var(--ivr-shadow-card); }
+.pv-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--ivr-text-sm); }
+.pv-table thead th { text-align: left; padding: var(--ivr-space-2) var(--ivr-space-3); background: var(--ivr-surface-raised); border-bottom: 1px solid var(--ivr-border); color: var(--ivr-text-subtle); font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+.pv-table tbody td { padding: var(--ivr-space-2) var(--ivr-space-3); border-bottom: 1px solid var(--ivr-border); white-space: nowrap; }
+.pv-table tbody tr:last-child td { border-bottom: none; }
+.pv-table tbody tr { transition: background-color var(--ivr-transition); }
+.pv-table tbody tr:hover td { background: var(--ivr-surface-hover); }
+.pv-mono { font-family: var(--ivr-font-mono); font-size: var(--ivr-text-xs); }
+.pv-redacted { font-family: var(--ivr-font-mono); font-size: var(--ivr-text-xs); color: var(--ivr-danger); background: var(--ivr-danger-surface); border: 1px solid var(--ivr-danger-border); border-radius: var(--ivr-radius-sm); padding: 0 var(--ivr-space-1); }
+.pv-primary, .pv-secondary { display: inline-flex; align-items: center; justify-content: center; border-radius: var(--ivr-radius-sm); padding: var(--ivr-space-2) var(--ivr-space-4); font-size: var(--ivr-text-sm); font-weight: 600; min-height: 2.25rem; transition: background-color var(--ivr-transition), border-color var(--ivr-transition); }
+.pv-primary { background: var(--ivr-accent); border: 1px solid var(--ivr-accent); color: var(--ivr-accent-contrast); }
+.pv-primary:hover:not(:disabled) { background: var(--ivr-accent-hover); border-color: var(--ivr-accent-hover); }
+.pv-secondary { background: var(--ivr-surface); border: 1px solid var(--ivr-border-strong); color: var(--ivr-text); }
+.pv-secondary:hover:not(:disabled) { background: var(--ivr-surface-hover); }
+.pv-primary:disabled, .pv-secondary:disabled { opacity: .55; }
+.pv-control { background: var(--ivr-surface); border: 1px solid var(--ivr-border-strong); border-radius: var(--ivr-radius-sm); padding: var(--ivr-space-2) var(--ivr-space-3); min-width: 11rem; }
+.pv-control:focus { outline: none; border-color: var(--ivr-focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivr-focus) 25%, transparent); }
+.pv-gov { border-radius: var(--ivr-radius); border: 1px solid var(--ivr-border); border-left: 3px solid var(--ivr-border-strong); background: var(--ivr-surface); padding: var(--ivr-space-3) var(--ivr-space-4); display: grid; gap: var(--ivr-space-1); font-size: var(--ivr-text-xs); color: var(--ivr-text-muted); }
+.pv-gov[data-real-call=allowed] { border-color: var(--ivr-danger); border-left-color: var(--ivr-danger); background: var(--ivr-danger-surface); color: var(--ivr-text); }
+.pv-nav { display: flex; gap: 2px; flex-wrap: wrap; }
+.pv-nav a { display: block; padding: var(--ivr-space-2) var(--ivr-space-3); border-radius: var(--ivr-radius-sm); border-left: 2px solid transparent; text-decoration: none; color: var(--ivr-text-muted); font-size: var(--ivr-text-sm); font-weight: 500; }
+.pv-nav a[aria-current=page] { background: var(--ivr-surface-hover); border-left-color: var(--ivr-accent); color: var(--ivr-text); font-weight: 600; }
+
+</style>
+</head>
+<body>
+<div class="pv-wrap">
+
+<header class="pv-head">
+  <p class="pv-eyebrow">IVR Order Confirmation</p>
+  <h1>Bảng màu và thành phần giao diện</h1>
+  <p class="pv-sub">Hướng thiết kế <strong>Minimalism / Swiss</strong> với bảng màu slate, do skill
+  <code>ui-ux-pro-max</code> đề xuất cho loại sản phẩm &ldquo;enterprise apps, dashboards, professional tools&rdquo;.
+  Không tải web font, không thêm thư viện UI. Toàn bộ token đọc thẳng từ
+  <code>admin-ui/src/app/globals.css</code> nên trang này không thể lệch với console thật.
+  Đổi chế độ sáng/tối của hệ điều hành để xem cả hai theme.</p>
+</header>
+
+<section>
+  <h2>Bề mặt và chữ</h2>
+  <div class="pv-swatches">
+    <div class="pv-sw" style="background:var(--ivr-surface-sunken)"><span>nền trang</span><code>--ivr-surface-sunken</code></div>
+    <div class="pv-sw" style="background:var(--ivr-surface)"><span>thẻ</span><code>--ivr-surface</code></div>
+    <div class="pv-sw" style="background:var(--ivr-surface-raised)"><span>nổi</span><code>--ivr-surface-raised</code></div>
+    <div class="pv-sw" style="background:var(--ivr-accent);color:var(--ivr-accent-contrast)"><span>tương tác</span><code>--ivr-accent</code></div>
+  </div>
+  <p style="color:var(--ivr-text)">Chữ thường &mdash; <code>--ivr-text</code></p>
+  <p style="color:var(--ivr-text-muted)">Chữ phụ &mdash; <code>--ivr-text-muted</code></p>
+  <p style="color:var(--ivr-text-subtle)">Chữ mờ &mdash; <code>--ivr-text-subtle</code></p>
+  <p><a href="#">Liên kết &mdash; <code>--ivr-link</code></a></p>
+  <p class="pv-note">Mọi cặp trên đều được kiểm 4.5:1 (WCAG AA) ở cả hai theme bằng
+  <code>tests/unit/contrast.test.ts</code>. Viền của control giữ mức 3:1 theo WCAG 1.4.11.</p>
+</section>
+
+<section>
+  <h2>Trạng thái &mdash; ký hiệu + chữ + màu, không bao giờ chỉ màu</h2>
+  <div class="pv-row">
+    <span class="pv-badge" data-tone="success"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"/><path d="M5.4 8.2 7.2 10l3.4-3.6"/></svg><span>MOCK</span></span>
+    <span class="pv-badge" data-tone="warning"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.4 14.2 13H1.8L8 2.4Z"/><path d="M8 6.6v2.8"/><path d="M8 11.3h.01"/></svg><span>Sắp hết hạn</span></span>
+    <span class="pv-badge" data-tone="danger"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"/><path d="M10 6 6 10M6 6l4 4"/></svg><span>READY_503</span></span>
+    <span class="pv-badge" data-tone="neutral"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25" stroke-dasharray="2.6 2.2"/><path d="M5.6 8h4.8"/></svg><span>NOT_WIRED</span></span>
+  </div>
+  <p class="pv-note">Thử xem trang này ở chế độ đen trắng: trạng thái vẫn đọc được, vì ký hiệu và chữ
+  mang nghĩa chứ không phải màu. Đây là finding mức High của skill (&ldquo;Don't convey information by color alone&rdquo;).</p>
+</section>
+
+<section>
+  <h2>Điều hướng</h2>
+  <nav class="pv-nav">
+    <a href="#" aria-current="page">Tổng quan</a>
+    <a href="#">Nhật ký cuộc gọi</a>
+    <a href="#">Chờ duyệt</a>
+    <a href="#">Cấu hình kịch bản</a>
+    <a href="#">Trạng thái tích hợp</a>
+  </nav>
+</section>
+
+<section>
+  <h2>Chỉ số</h2>
+  <dl class="pv-grid">
+    <div class="pv-metric"><dt>Job chờ xử lý</dt><dd>128</dd></div>
+    <div class="pv-metric"><dt>Tỷ lệ xác nhận</dt><dd>62.5%</dd></div>
+    <div class="pv-metric" data-tone="warning"><dt>Trạng thái hàng đợi</dt><dd><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.4 14.2 13H1.8L8 2.4Z"/><path d="M8 6.6v2.8"/><path d="M8 11.3h.01"/></svg><span>Đang tạm dừng</span></dd></div>
+    <div class="pv-metric" data-tone="danger"><dt>Health fail</dt><dd><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"/><path d="M10 6 6 10M6 6l4 4"/></svg><span>2</span></dd></div>
+  </dl>
+</section>
+
+<section>
+  <h2>Bảng dữ liệu</h2>
+  <div class="pv-scroll">
+    <table class="pv-table">
+      <thead><tr><th>Mã đơn</th><th>Số điện thoại</th><th>Chương trình</th><th>Lượt gọi</th><th>Kết quả</th><th>Hạn chót</th></tr></thead>
+      <tbody>
+        <tr><td class="pv-mono">GF-DEMO-GH</td><td class="pv-mono">84xxxxx0065</td><td>GOLDEN_HOUR</td><td>2/2</td><td>IVR_CONFIRMED</td><td>08:05:00 15/8/26 <span class="pv-badge" data-tone="warning"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.4 14.2 13H1.8L8 2.4Z"/><path d="M8 6.6v2.8"/><path d="M8 11.3h.01"/></svg><span>Sắp hết hạn</span></span></td></tr>
+        <tr><td class="pv-mono">GF-DEMO-247</td><td class="pv-mono">84xxxxx0247</td><td>TWENTY_FOUR_SEVEN</td><td>1/2</td><td>IVR_NO_ANSWER_FINAL</td><td>14:30:00 15/8/26</td></tr>
+        <tr><td class="pv-mono">GF-DEMO-X</td><td><span class="pv-redacted">[đã ẩn]</span></td><td>GOLDEN_HOUR</td><td>0/2</td><td>&mdash;</td><td>16:00:00 15/8/26</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="pv-note">Header dính khi cuộn, hàng gọn, chữ số canh cột, hover rõ. Hàng thứ ba là
+  <code>MaskedPhone</code> từ chối hiển thị giá trị chưa được che (D-05).</p>
+</section>
+
+<section>
+  <h2>Control</h2>
+  <div class="pv-row">
+    <button class="pv-primary">Xác nhận</button>
+    <button class="pv-secondary">Huỷ</button>
+    <button class="pv-secondary" disabled>Đang gửi&hellip;</button>
+    <input class="pv-control" value="GF-ORDER-2026-0001">
+    <select class="pv-control"><option>GOLDEN_HOUR</option></select>
+  </div>
+  <p class="pv-note">Một định nghĩa nút và một định nghĩa input dùng chung cho mọi màn &mdash; trước đây có
+  năm bản sao hơi khác nhau. Focus ring luôn hiện, transition 180ms, vùng chạm nở lên 44px trên thiết bị cảm ứng.</p>
+</section>
+
+<section>
+  <h2>Nhắc governance</h2>
+  <aside class="pv-gov">
+    <p>REAL_CUSTOMER_CALL_ALLOWED=NO &mdash; hệ thống không gọi khách hàng thật.</p>
+    <p>Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).</p>
+  </aside>
+  <aside class="pv-gov" data-real-call="allowed">
+    <p>REAL_CUSTOMER_CALL_ALLOWED=YES &mdash; cần phê duyệt phát hành trước khi thao tác.</p>
+  </aside>
+  <p class="pv-note">Chỉ đúng một nhắc nhở chuyển sang đỏ, và đó là nhắc có hậu quả lớn nhất mà console này
+  có thể rơi vào.</p>
+</section>
+
+</div>
+</body>
+</html>

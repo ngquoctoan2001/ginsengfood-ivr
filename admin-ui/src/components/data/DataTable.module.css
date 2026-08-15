@@ -1,0 +1,86 @@
+/*
+ * Shared table treatment for every data screen.
+ *
+ * Six page modules each carried their own near-identical copy of this, which is
+ * how the console ended up with three different row heights. Import this module
+ * and use its class names instead.
+ *
+ * Density is tuned for an operations console: compact rows, a sticky header so
+ * column meaning survives scrolling, and tabular numerals so figures line up.
+ */
+
+.scroll {
+  overflow-x: auto;
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius);
+  background: var(--ivr-surface);
+  box-shadow: var(--ivr-shadow-card);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--ivr-text-sm);
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-align: left;
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  background: var(--ivr-surface-raised);
+  border-bottom: 1px solid var(--ivr-border);
+  color: var(--ivr-text-subtle);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  border-bottom: 1px solid var(--ivr-border);
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr {
+  transition: background-color var(--ivr-transition);
+}
+
+.table tbody tr:hover td {
+  background: var(--ivr-surface-hover);
+}
+
+.caption {
+  caption-side: bottom;
+  text-align: left;
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-subtle);
+}
+
+/** Identifiers, hashes and enum values. */
+.mono {
+  font-family: var(--ivr-font-mono);
+  font-size: var(--ivr-text-xs);
+}
+
+/** Prose cells that may wrap, such as a reason or an effect description. */
+.wrap {
+  white-space: normal;
+  min-width: 15rem;
+}
+
+/** Right-aligned numeric column. */
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

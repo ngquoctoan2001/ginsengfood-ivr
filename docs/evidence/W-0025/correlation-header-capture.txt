@@ -1,0 +1,48 @@
+P3-1 / W-0025 — admin-ui -> Ivr.Api header capture
+Captured 2026-08-15 by a localhost logging proxy on 127.0.0.1:5099 forwarding to
+Ivr.Api on 127.0.0.1:5088; admin-ui ran `next start` with IVR_API_BASE_URL
+pointed at the proxy. Actor AGT-ADMIN-01 signed in through the browser and used
+the "Tam dung hang doi" dialog.
+
+Shows: X-Correlation-Id on every request, Idempotency-Key on the mutation,
+X-Actor-Id bound to the authenticated subject, MOCK permission headers, and the
+reason/evidence_ref body. Ivr.Api echoes the same correlation id back.
+
+>>> POST /v1/ivr/order-confirmation/queue:pause
+    host: 127.0.0.1:5099
+    connection: keep-alive
+    accept: application/json
+    x-correlation-id: ui-cf7e-1f60-5ef7-262a-1d7d-59e9
+    content-type: application/json
+    idempotency-key: uikey-9280-0fcb-6faf-3f1f-0e45-a4e6
+    x-actor-id: AGT-ADMIN-01
+    x-mock-actor-id: AGT-ADMIN-01
+    x-permissions: IVR_QUEUE_VIEW,IVR_QUEUE_PAUSE,IVR_QUEUE_RESUME,IVR_SIM_ENABLE,IVR_SIM_DISABLE,IVR_RESULT_REVIEW
+    accept-language: *
+    sec-fetch-mode: cors
+    user-agent: node
+    pragma: no-cache
+    cache-control: no-cache
+    accept-encoding: gzip, deflate
+    content-length: 139
+    [body] {"reason":"Sự cố năng lực: tạm dừng nhận job mới để điều tra.","evidence_ref":"docs/evidence/W-0025/queue-pause-demo"}
+<<< HTTP 200
+    x-correlation-id: ui-cf7e-1f60-5ef7-262a-1d7d-59e9
+    [body] {"admin_action_id":"ADMIN-714586a58625432886812559fd524b8a","action_type":"QUEUE_PAUSE","target_type":"queue","target_id":"global","status":"APPLIED","correlation_id":"ui-cf7e-1f60-5ef7-262a-1d7d-59e9","no_policy_bypass":true}
+>>> GET /v1/ivr/order-confirmation/queue
+    host: 127.0.0.1:5099
+    connection: keep-alive
+    accept: application/json
+    x-correlation-id: ui-4343-431d-c144-df2f-f14d-3f25
+    x-actor-id: AGT-ADMIN-01
+    x-mock-actor-id: AGT-ADMIN-01
+    x-permissions: IVR_QUEUE_VIEW,IVR_QUEUE_PAUSE,IVR_QUEUE_RESUME,IVR_SIM_ENABLE,IVR_SIM_DISABLE,IVR_RESULT_REVIEW
+    accept-language: *
+    sec-fetch-mode: cors
+    user-agent: node
+    pragma: no-cache
+    cache-control: no-cache
+    accept-encoding: gzip, deflate
+<<< HTTP 200
+    x-correlation-id: ui-4343-431d-c144-df2f-f14d-3f25
+    [body] {"paused":true,"pending_jobs":0,"active_attempts":0,"enabled_channels":0,"open_hold_incidents":1,"projected_at":"2026-08-15T01:13:09.9812204+00:00"}

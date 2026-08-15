@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.2
+  version: 1.0.0-draft.4
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -87,6 +87,36 @@ paths:
         '403': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
         '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+    get:
+      tags: [admin]
+      summary: Call-job list, masked and paginated (perm IVR_QUEUE_VIEW)
+      description: >-
+        `order_code` is a filter input only and is never echoed; the response
+        carries the script-approved `order_code_short` (D-05, specs/ui/02).
+      operationId: listCallJobs
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: program, in: query, required: false, schema: { $ref: '#/components/schemas/ProgramCode' } }
+        - { name: status, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: queue_status, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: result_type, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: order_code, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: correlation_id, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: near_expiry, in: query, required: false, schema: { type: boolean, default: false } }
+        - { name: from, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: to, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: page, in: query, required: false, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: page_size, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJobPage' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
         '422': { $ref: '#/components/responses/Error' }
         '429': { $ref: '#/components/responses/Error' }
         '500': { $ref: '#/components/responses/Error' }
@@ -194,6 +224,117 @@ paths:
         '400': { $ref: '#/components/responses/Error' }
         '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /dashboard:
+    get:
+      tags: [admin]
+      summary: Operational dashboard projection, masked (perm IVR_QUEUE_VIEW)
+      description: >-
+        Aggregates are computed server-side so the console never derives a KPI
+        from raw rows. SIM pool and open incidents are pool-wide and ignore the
+        program/time filter.
+      operationId: getDashboard
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: program, in: query, required: false, schema: { $ref: '#/components/schemas/ProgramCode' } }
+        - { name: from, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: to, in: query, required: false, schema: { type: string, format: date-time } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrDashboardProjection' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-jobs/{ivrCallJobId}/detail:
+    get:
+      tags: [admin]
+      summary: Full masked lifecycle trace for one call job (perm IVR_QUEUE_VIEW)
+      description: >-
+        task intake to eligibility to attempts to result to callback, plus the
+        technical-exception and review-item ids the admin mutations require.
+        `order_state` is the opaque Core enum; IVR displays it and never changes
+        it (D-02).
+      operationId: getCallJobDetail
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - { name: ivrCallJobId, in: path, required: true, schema: { type: string, minLength: 1, maxLength: 128 } }
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJobDetail' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts:
+    get:
+      tags: [admin]
+      summary: Call-script catalogue, read-only (perm IVR_QUEUE_VIEW)
+      description: >-
+        Versions with their approval matrix, the allowed and prohibited variable
+        lists, and the DTMF map. KEY_9 is reported NOT_ENABLED (AS-07). Lifecycle
+        transitions are not exposed: approval is an owner action under OD-V1-15,
+        not a console button.
+      operationId: getScriptCatalog
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptCatalog' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /integration-status:
+    get:
+      tags: [admin]
+      summary: Downstream dependency status, read-only (perm IVR_QUEUE_VIEW)
+      description: >-
+        Reports what IVR can observe about itself and marks every unprobed
+        dependency NOT_WIRED. `dependency_probing_available` stays false until
+        P6-1 (W-0040) delivers real probing, so no card may be read as verified
+        fail-closed before then.
+      operationId: getIntegrationStatus
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: environment, in: query, required: false, schema: { type: string, maxLength: 40 } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrIntegrationStatus' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /review-items:
+    get:
+      tags: [admin]
+      summary: Human review queue, masked and paginated (perm IVR_QUEUE_VIEW)
+      operationId: listReviewItems
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: status, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: page, in: query, required: false, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: page_size, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrReviewQueue' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
         '429': { $ref: '#/components/responses/Error' }
         '500': { $ref: '#/components/responses/Error' }
   /queue:pause:
@@ -833,6 +974,510 @@ components:
         enabled_channels: { type: integer, minimum: 0 }
         open_hold_incidents: { type: integer, minimum: 0 }
         projected_at: { type: string, format: date-time }
+    IvrDashboardQueuePanel:
+      type: object
+      additionalProperties: false
+      required: [paused, queued, held_mock, held_admin_review, dispatching, open_total, closed_total, near_expiry]
+      properties:
+        paused: { type: boolean }
+        queued: { type: integer, minimum: 0 }
+        held_mock: { type: integer, minimum: 0 }
+        held_admin_review: { type: integer, minimum: 0 }
+        dispatching: { type: integer, minimum: 0 }
+        open_total: { type: integer, minimum: 0 }
+        closed_total: { type: integer, minimum: 0 }
+        near_expiry: { type: integer, minimum: 0 }
+    IvrDashboardResultPanel:
+      type: object
+      additionalProperties: false
+      required: [total, by_result_type, confirm_rate, cancel_rate, no_answer_rate, technical_exception_rate]
+      properties:
+        total: { type: integer, minimum: 0 }
+        by_result_type:
+          type: object
+          additionalProperties: { type: integer, minimum: 0 }
+        confirm_rate: { type: number, minimum: 0, maximum: 1 }
+        cancel_rate: { type: number, minimum: 0, maximum: 1 }
+        no_answer_rate: { type: number, minimum: 0, maximum: 1 }
+        technical_exception_rate: { type: number, minimum: 0, maximum: 1 }
+    IvrDashboardAttemptPanel:
+      type: object
+      additionalProperties: false
+      required: [total, counted_customer_attempts, technical_retries, active]
+      properties:
+        total: { type: integer, minimum: 0 }
+        counted_customer_attempts: { type: integer, minimum: 0 }
+        technical_retries: { type: integer, minimum: 0 }
+        active: { type: integer, minimum: 0 }
+    IvrDashboardSimPanel:
+      type: object
+      additionalProperties: false
+      required: [total, enabled, idle, active, disabled, health_failed, quarantined, adapter_mode]
+      properties:
+        total: { type: integer, minimum: 0 }
+        enabled: { type: integer, minimum: 0 }
+        idle: { type: integer, minimum: 0 }
+        active: { type: integer, minimum: 0 }
+        disabled: { type: integer, minimum: 0 }
+        health_failed: { type: integer, minimum: 0 }
+        quarantined: { type: integer, minimum: 0 }
+        adapter_mode: { type: string }
+    IvrCapacityIncidentSummary:
+      type: object
+      additionalProperties: false
+      required: [capacity_incident_id, scope, status, hold_new_calls, missed_deadline_count, opened_at]
+      properties:
+        capacity_incident_id: { type: string }
+        scope: { type: string }
+        status: { type: string }
+        hold_new_calls: { type: boolean }
+        shortage_reason: { type: string }
+        missed_deadline_count: { type: integer, minimum: 0 }
+        opened_at: { type: string, format: date-time }
+    IvrDashboardProjection:
+      type: object
+      additionalProperties: false
+      required:
+        - generated_at
+        - execution_mode
+        - sim_provider
+        - real_customer_call_allowed
+        - queue
+        - results
+        - attempts
+        - sim
+        - open_incidents
+        - missed_deadline_count
+      properties:
+        generated_at: { type: string, format: date-time }
+        execution_mode: { type: string }
+        sim_provider: { type: string }
+        real_customer_call_allowed: { type: boolean }
+        program_filter: { $ref: '#/components/schemas/ProgramCode' }
+        from: { type: string, format: date-time }
+        to: { type: string, format: date-time }
+        queue: { $ref: '#/components/schemas/IvrDashboardQueuePanel' }
+        results: { $ref: '#/components/schemas/IvrDashboardResultPanel' }
+        attempts: { $ref: '#/components/schemas/IvrDashboardAttemptPanel' }
+        sim: { $ref: '#/components/schemas/IvrDashboardSimPanel' }
+        open_incidents:
+          type: array
+          items: { $ref: '#/components/schemas/IvrCapacityIncidentSummary' }
+        missed_deadline_count: { type: integer, minimum: 0 }
+    IvrCallJobListItem:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_job_id
+        - task_id
+        - order_code_short
+        - phone_masked
+        - program_type
+        - status
+        - queue_status
+        - attempt_count
+        - max_attempts
+        - expires_at
+        - created_at
+        - near_expiry
+      properties:
+        ivr_call_job_id: { type: string }
+        task_id: { type: string }
+        order_code_short: { type: string, maxLength: 40 }
+        phone_masked: { type: string, description: Masked contact only; the raw number never leaves the token vault (D-05). }
+        program_type: { $ref: '#/components/schemas/ProgramCode' }
+        status: { type: string }
+        queue_status: { type: string }
+        attempt_count: { type: integer, minimum: 0 }
+        max_attempts: { type: integer, minimum: 0 }
+        result_type: { type: string }
+        expires_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        closed_at: { type: string, format: date-time }
+        near_expiry: { type: boolean }
+    IvrCallJobPage:
+      type: object
+      additionalProperties: false
+      required: [page, page_size, total_count, items]
+      properties:
+        page: { type: integer, minimum: 1 }
+        page_size: { type: integer, minimum: 1, maximum: 100 }
+        total_count: { type: integer, minimum: 0 }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/IvrCallJobListItem' }
+    IvrCallAttemptDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_attempt_id
+        - attempt_number
+        - scheduled_at
+        - status
+        - is_counted_customer_attempt
+        - technical_retry_count
+        - policy_version
+        - script_version
+      properties:
+        ivr_call_attempt_id: { type: string }
+        attempt_number: { type: integer, minimum: 1 }
+        scheduled_at: { type: string, format: date-time }
+        started_at: { type: string, format: date-time }
+        ended_at: { type: string, format: date-time }
+        status: { type: string }
+        result_status: { type: string }
+        disposition: { type: string }
+        dtmf_key: { type: string, description: Business semantic only (1 confirm / 0 cancel); never a raw payload. }
+        is_counted_customer_attempt: { type: boolean }
+        technical_retry_count: { type: integer, minimum: 0 }
+        technical_exception_type: { type: string }
+        sim_channel_id: { type: string }
+        blocked_reason: { type: string }
+        policy_version: { type: string }
+        script_version: { type: string }
+    IvrCallResultDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_result_id
+        - result_type
+        - is_counted_customer_attempt
+        - is_final_for_ivr
+        - recommended_core_action
+        - human_review_required
+        - created_at
+      properties:
+        ivr_call_result_id: { type: string }
+        result_type: { type: string }
+        result_reason: { type: string }
+        dtmf_key: { type: string }
+        is_counted_customer_attempt: { type: boolean }
+        is_final_for_ivr: { type: boolean }
+        recommended_core_action: { type: string, description: Advisory only; Order Core owns the transition (D-02). }
+        human_review_required: { type: boolean }
+        created_at: { type: string, format: date-time }
+    IvrResultCallbackDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - callback_id
+        - ivr_call_result_id
+        - result_state
+        - delivery_status
+        - retry_count
+        - requires_core_revalidation
+        - created_at
+      properties:
+        callback_id: { type: string }
+        ivr_call_result_id: { type: string }
+        result_state: { type: string }
+        delivery_status: { type: string }
+        core_http_status: { type: integer }
+        core_response_code: { type: string }
+        retry_count: { type: integer, minimum: 0 }
+        requires_core_revalidation: { type: boolean }
+        created_at: { type: string, format: date-time }
+        sent_at: { type: string, format: date-time }
+        acknowledged_at: { type: string, format: date-time }
+    IvrTechnicalExceptionDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - technical_exception_id
+        - ivr_call_attempt_id
+        - exception_type
+        - customer_attempt_counted
+        - technical_retry_allowed
+        - technical_retry_count
+        - created_at
+      properties:
+        technical_exception_id: { type: string }
+        ivr_call_attempt_id: { type: string }
+        exception_type: { type: string }
+        customer_attempt_counted: { type: boolean }
+        technical_retry_allowed: { type: boolean }
+        technical_retry_count: { type: integer, minimum: 0 }
+        created_at: { type: string, format: date-time }
+    IvrReviewItemDetail:
+      type: object
+      additionalProperties: false
+      required: [review_item_id, source_type, source_id, reason, status, created_at]
+      properties:
+        review_item_id: { type: string }
+        source_type: { type: string }
+        source_id: { type: string }
+        reason: { type: string }
+        status: { type: string }
+        resolution: { type: string }
+        created_at: { type: string, format: date-time }
+        resolved_at: { type: string, format: date-time }
+    IvrCallJobDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_job_id
+        - task_id
+        - order_code_short
+        - phone_masked
+        - program_type
+        - order_state
+        - order_version_snapshot
+        - status
+        - queue_status
+        - eligible
+        - eligibility_decision
+        - blocked_reasons
+        - call_restriction
+        - max_attempts
+        - attempt_policy_code
+        - script_version
+        - privacy_policy_version
+        - t0_at
+        - expires_at
+        - created_at
+        - attempts
+        - results
+        - callbacks
+        - technical_exceptions
+        - review_items
+        - evidence_refs
+        - audit_refs
+        - correlation_id
+        - input_signal_only
+        - no_direct_order_update
+      properties:
+        ivr_call_job_id: { type: string }
+        task_id: { type: string }
+        order_code_short: { type: string, maxLength: 40 }
+        phone_masked: { type: string }
+        program_type: { $ref: '#/components/schemas/ProgramCode' }
+        order_state:
+          type: string
+          description: Opaque enum owned by Order Core (D-02); displayed, never derived.
+        order_version_snapshot: { type: string }
+        status: { type: string }
+        queue_status: { type: string }
+        eligible: { type: boolean }
+        eligibility_decision: { type: string }
+        blocked_reasons:
+          type: array
+          items: { type: string }
+        call_restriction: { type: boolean }
+        sellable_captured_at: { type: string, format: date-time }
+        max_attempts: { type: integer, minimum: 0 }
+        attempt_policy_code: { type: string }
+        script_version: { type: string }
+        privacy_policy_version: { type: string }
+        t0_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        closed_at: { type: string, format: date-time }
+        closed_reason: { type: string }
+        attempts:
+          type: array
+          items: { $ref: '#/components/schemas/IvrCallAttemptDetail' }
+        results:
+          type: array
+          items: { $ref: '#/components/schemas/IvrCallResultDetail' }
+        callbacks:
+          type: array
+          items: { $ref: '#/components/schemas/IvrResultCallbackDetail' }
+        technical_exceptions:
+          type: array
+          items: { $ref: '#/components/schemas/IvrTechnicalExceptionDetail' }
+        review_items:
+          type: array
+          items: { $ref: '#/components/schemas/IvrReviewItemDetail' }
+        evidence_refs:
+          type: array
+          items: { type: string }
+        audit_refs:
+          type: array
+          items: { type: string }
+        correlation_id: { type: string }
+        input_signal_only: { type: boolean, enum: [true] }
+        no_direct_order_update: { type: boolean, enum: [true] }
+    IvrScriptApproval:
+      type: object
+      additionalProperties: false
+      required: [approval_type, actor_id, reason, correlation_id, approved_at]
+      properties:
+        approval_type: { type: string }
+        actor_id: { type: string }
+        reason: { type: string }
+        correlation_id: { type: string }
+        approved_at: { type: string, format: date-time }
+    IvrScriptVersion:
+      type: object
+      additionalProperties: false
+      required:
+        - template_id
+        - version
+        - status
+        - template_hash
+        - allowed_input_fields
+        - approvals
+        - missing_approvals
+        - template_valid
+        - uses_production_decision_fields
+        - created_by
+        - created_at
+      properties:
+        template_id: { type: string }
+        version: { type: string }
+        status: { type: string }
+        template_hash: { type: string }
+        allowed_input_fields:
+          type: array
+          items: { type: string }
+        approvals:
+          type: array
+          items: { $ref: '#/components/schemas/IvrScriptApproval' }
+        missing_approvals:
+          type: array
+          items: { type: string }
+        template_valid:
+          type: boolean
+          description: False when the stored template no longer satisfies the Target V1 whitelist.
+        uses_production_decision_fields: { type: boolean }
+        created_by: { type: string }
+        created_at: { type: string, format: date-time }
+        submitted_by: { type: string }
+        submitted_at: { type: string, format: date-time }
+        retired_by: { type: string }
+        retired_at: { type: string, format: date-time }
+    IvrDtmfKey:
+      type: object
+      additionalProperties: false
+      required: [key, meaning, enabled]
+      properties:
+        key: { type: string }
+        meaning: { type: string }
+        enabled: { type: boolean }
+    IvrScriptCatalog:
+      type: object
+      additionalProperties: false
+      required:
+        - generated_at
+        - execution_mode
+        - production_target_v1_fields_approved
+        - allowed_input_fields
+        - prohibited_variables
+        - dtmf_map
+        - required_approval_types
+        - versions
+      properties:
+        generated_at: { type: string, format: date-time }
+        execution_mode: { type: string }
+        production_target_v1_fields_approved:
+          type: boolean
+          description: OD-V1-15. While false the Target V1 field set is not production approved.
+        allowed_input_fields:
+          type: array
+          items: { type: string }
+        prohibited_variables:
+          type: array
+          items: { type: string }
+        dtmf_map:
+          type: array
+          items: { $ref: '#/components/schemas/IvrDtmfKey' }
+        required_approval_types:
+          type: array
+          items: { type: string }
+        versions:
+          type: array
+          items: { $ref: '#/components/schemas/IvrScriptVersion' }
+    IvrDependencyStatus:
+      type: object
+      additionalProperties: false
+      required: [dependency, state, detail, fail_closed_effect, observed]
+      properties:
+        dependency: { type: string }
+        state: { type: string, enum: [UP, DOWN, READY_503, NOT_WIRED] }
+        detail: { type: string }
+        fail_closed_effect: { type: string }
+        observed:
+          type: boolean
+          description: False means IVR has no probe for this dependency yet (W-0040).
+        captured_at: { type: string, format: date-time }
+    IvrFailClosedEvent:
+      type: object
+      additionalProperties: false
+      required: [source, reference, effect, correlation_id, occurred_at]
+      properties:
+        source: { type: string }
+        reference: { type: string }
+        effect: { type: string }
+        correlation_id: { type: string }
+        occurred_at: { type: string, format: date-time }
+    IvrIntegrationStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - generated_at
+        - execution_mode
+        - sales_provider
+        - sim_provider
+        - real_customer_call_allowed
+        - global_dial_kill_switch
+        - attempt_policy_version
+        - flag_revision
+        - dependency_probing_available
+        - dependencies
+        - recent_fail_closed_events
+      properties:
+        generated_at: { type: string, format: date-time }
+        execution_mode: { type: string }
+        sales_provider: { type: string }
+        sim_provider: { type: string }
+        real_customer_call_allowed: { type: boolean }
+        global_dial_kill_switch: { type: boolean }
+        attempt_policy_version: { type: string }
+        flag_revision: { type: integer }
+        dependency_probing_available:
+          type: boolean
+          description: False until P6-1 (W-0040); no card may be read as verified fail-closed.
+        dependencies:
+          type: array
+          items: { $ref: '#/components/schemas/IvrDependencyStatus' }
+        recent_fail_closed_events:
+          type: array
+          items: { $ref: '#/components/schemas/IvrFailClosedEvent' }
+    IvrReviewQueueItem:
+      type: object
+      additionalProperties: false
+      required:
+        - review_item_id
+        - source_type
+        - source_id
+        - reason
+        - status
+        - correlation_id
+        - created_at
+      properties:
+        review_item_id: { type: string }
+        source_type: { type: string }
+        source_id: { type: string }
+        reason: { type: string }
+        status: { type: string }
+        resolution: { type: string }
+        correlation_id: { type: string }
+        ivr_call_job_id: { type: string }
+        order_code_short: { type: string, maxLength: 40 }
+        result_type: { type: string }
+        created_at: { type: string, format: date-time }
+        resolved_at: { type: string, format: date-time }
+    IvrReviewQueue:
+      type: object
+      additionalProperties: false
+      required: [page, page_size, total_count, items]
+      properties:
+        page: { type: integer, minimum: 1 }
+        page_size: { type: integer, minimum: 1, maximum: 100 }
+        total_count: { type: integer, minimum: 0 }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/IvrReviewQueueItem' }
     IvrAdminActionResult:
       type: object
       additionalProperties: false

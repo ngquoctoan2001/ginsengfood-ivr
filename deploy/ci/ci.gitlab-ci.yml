@@ -147,10 +147,12 @@ build_lint_ui:
   script:
     - npm --prefix admin-ui ci --no-audit --no-fund
     - npm --prefix admin-ui run lint
-    - if node -e "const p=require('./admin-ui/package.json');process.exit(p.scripts?.test?0:1)"; then npm --prefix admin-ui test; else echo "No admin-ui test script in P0-2; continuing with lint and production build"; fi
+    - npm --prefix admin-ui run typecheck
+    # P3-1 (W-0025) added the suite; it is mandatory, not conditional.
+    - npm --prefix admin-ui test
     - npm --prefix admin-ui run build
     - mkdir -p ci-artifacts/ui
-    - printf 'admin-ui lint=PASS\nadmin-ui production-build=PASS\n' > ci-artifacts/ui/summary.txt
+    - printf 'admin-ui lint=PASS\nadmin-ui typecheck=PASS\nadmin-ui tests=PASS\nadmin-ui production-build=PASS\n' > ci-artifacts/ui/summary.txt
   artifacts:
     when: always
     expire_in: 7 days

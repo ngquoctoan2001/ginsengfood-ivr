@@ -1,0 +1,67 @@
+P3-2 / W-0026 — live console against Ivr.Api on 127.0.0.1:5005 (MOCK, PostgreSQL 55433)
+Captured 2026-08-15. Fixture rows seeded directly into the database.
+
+=== Dashboard (AdminIM) ===
+  0.0%
+  100.0%
+  Chờ gọi
+  Chờ quản trị duyệt
+  Giữ ở chế độ MOCK
+  Kênh SIM
+  Sắp hết hạn
+  Tiếp tục hàng đợi
+  Tạm dừng hàng đợi
+  Tổng quan vận hành IVR
+  Tỷ lệ huỷ
+  Tỷ lệ không nghe máy
+  Tỷ lệ kết quả
+  Tỷ lệ lỗi kỹ thuật
+  Tỷ lệ xác nhận
+  Đang bật
+
+=== Call log (AdminIM) — masked, order_code_short only ===
+  84xxxxx0065
+  84xxxxx0247
+  GF-DEMO-247
+  GF-DEMO-GH
+  GOLDEN_HOUR
+  IVR_CONFIRMED
+  Sắp hết hạn
+  TWENTY_FOUR_SEVEN
+
+=== Call log filtered by full order code (input only, not echoed in rows) ===
+  <td class="page-module__rzPRJq__mono">GF-DEMO-GH
+
+=== Call detail JOB-DEMO-GH (AdminIM) ===
+  1 — xác nhận
+  ACCEPTED
+  ATTEMPT-DEMO-GH-1
+  ATTEMPT-DEMO-GH-2
+  CALLBACK-DEMO-GH
+  CONFIRMING
+  CORE_REVALIDATE_AND_CONTINUE
+  DO_NOT_CALL
+  Ghi kết luận duyệt
+  IVR_CONFIRMED
+  MOCK_ADAPTER_FAULT
+  REVIEW-DEMO-GH
+  TECH-DEMO-GH
+  audit://ivr/demo/result
+  audit://ivr/demo/task
+  corr-demo-gh
+  evidence://ivr/demo/attempt-1
+  evidence://ivr/demo/attempt-2
+  evidence://ivr/demo/job
+  evidence://ivr/demo/result
+  evidence://ivr/demo/task
+
+=== RBAC matrix on the call-detail screen (counts in the served HTML) ===
+actor          retry-trigger  review-trigger  resolution-input   reviewItemId   technicalExceptionId
+AGT-VIEWER-01  0              0               0                  0              0
+AGT-OPS-01     1              0               0                  0              1
+AGT-ADMIN-01   0              1               1                  1              0
+
+Each role receives exactly the action forms its permissions allow, hidden target
+ids included. AdminIM shows no retry trigger because seed/agents.sample.json does
+not grant it IVR_MANUAL_RETRY. The read-only timeline stays visible to all three.
+Ivr.Api rejects a forged call regardless: see docs/evidence/W-0025 §4.
