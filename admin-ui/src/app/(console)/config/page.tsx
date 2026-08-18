@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorAlert";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
+import { BooleanCell } from "@/components/data/BooleanCell";
 import { StatusBadge } from "@/components/data/StatusBadge";
 import { getScriptCatalog } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
@@ -116,7 +117,7 @@ async function ScriptCatalogPanels() {
                     </td>
                     <td>
                       {version.template_valid ? (
-                        "✓"
+                        <BooleanCell value={true} />
                       ) : (
                         <span className={styles.invalid}>{t("config.templateInvalid")}</span>
                       )}
@@ -147,7 +148,7 @@ async function ScriptCatalogPanels() {
                   <td className={table.mono}>{key.key}</td>
                   <td data-testid={`dtmf-meaning-${key.key}`}>{key.meaning}</td>
                   <td data-testid={`dtmf-enabled-${key.key}`}>
-                    {key.enabled ? "✓" : "—"}
+                    <BooleanCell value={key.enabled} />
                   </td>
                 </tr>
               ))}

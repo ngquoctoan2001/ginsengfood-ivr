@@ -94,8 +94,8 @@ describe("UT-UI-REPORT-01 KPI cards", () => {
       />,
     );
 
-    expect(screen.getByTestId("kpi-confirm-rate")).toHaveTextContent("46.2%");
-    expect(screen.getByTestId("kpi-attempt-2-rate")).toHaveTextContent("23.1%");
+    expect(screen.getByTestId("kpi-confirm-rate")).toHaveTextContent("46,2%");
+    expect(screen.getByTestId("kpi-attempt-2-rate")).toHaveTextContent("23,1%");
     expect(screen.getByTestId("kpi-time-to-final")).toHaveTextContent("2m 15s");
   });
 
@@ -277,7 +277,10 @@ describe("UT-UI-REPORT-01 trend series", () => {
     expect(screen.getByText("GOLDEN_HOUR")).toBeInTheDocument();
     // The rate shows twice on purpose: once on the bar, once in the table that
     // carries the numbers for assistive technology.
-    expect(screen.getAllByText("54.5%")).toHaveLength(2);
+    // W-0039: 0.5455 renders as 54,6% — Intl half-expands 54.55, where toFixed(1) gave 54.5
+    // because 54.55 is not exactly representable in binary. The Intl value is the one a person
+    // rounding 54.55 to one decimal would write.
+    expect(screen.getAllByText("54,6%")).toHaveLength(2);
     expect(screen.queryByText("TWENTY_FOUR_SEVEN")).toBeNull();
 
     rerender(<TrendChart buckets={[]} bucket="DAY" />);

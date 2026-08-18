@@ -1,0 +1,60 @@
+# W-0036 / P5-2 §7. Contract and end-to-end jobs.
+#
+# Kept as a separate fragment from ci.gitlab-ci.yml on purpose: the main pipeline job builds and
+# runs the whole solution, while these two answer a different question — does the wire contract
+# still hold, and does a business flow still complete end to end. When one of them goes red the
+# fragment name is already the diagnosis.
+#
+# Both are allow_failure: false. A contract suite that may fail is a contract suite nobody reads.
+
+contract_suite:
+  stage: validate
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  allow_failure: false
+  variables:
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  script:
+    - dotnet restore Ivr.sln --locked-mode
+    - dotnet test tests/Ivr.ContractTests/Ivr.ContractTests.csproj --configuration Release
+        --logger:"junit;LogFilePath=../../ci-artifacts/contract/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+    # The pinned-provider check is what makes a green contract run mean something after Sales
+    # deploys: it records which upstream revision the fixtures were verified against.
+    - dotnet test tests/Ivr.ContractTests/Ivr.ContractTests.csproj --configuration Release --no-build
+        --filter "TestId=CT-CONTRACT-PINNED-08"
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/contract/
+    reports:
+      junit:
+        - ci-artifacts/contract/*-test-result.xml
+
+e2e_flow_suite:
+  stage: validate
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  allow_failure: false
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  script:
+    - dotnet restore Ivr.sln --locked-mode
+    # The business-flow tests run against a real PostgreSQL through Testcontainers, not an
+    # in-memory substitute — a flow that never touched the real constraints proves little.
+    - dotnet test tests/Ivr.IntegrationTests/Ivr.IntegrationTests.csproj --configuration Release
+        --filter "TestId~E2E-FLOW"
+        --logger:"junit;LogFilePath=../../ci-artifacts/e2e/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/e2e/
+    reports:
+      junit:
+        - ci-artifacts/e2e/*-test-result.xml

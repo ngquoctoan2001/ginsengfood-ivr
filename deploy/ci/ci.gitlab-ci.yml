@@ -77,7 +77,7 @@ build_test_dotnet:
     - dotnet test Ivr.sln --configuration Release --no-build --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory ci-artifacts/dotnet/coverage --logger:"junit;LogFilePath=../../ci-artifacts/dotnet/test-results/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
     - if [ "${CI_COVERAGE_SELFTEST_LOW:-0}" = "1" ]; then dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage deploy/ci/fixtures/coverage/low 60; fi
     - dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage deploy/ci/fixtures/coverage/merge 100
-    - dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage ci-artifacts/dotnet/coverage 60 --output ci-artifacts/dotnet/coverage-summary.txt
+    - dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release -- coverage ci-artifacts/dotnet/coverage 80 --output ci-artifacts/dotnet/coverage-summary.txt
     - if [ "${CI_PII_SELFTEST_ARTIFACT:-0}" = "1" ]; then printf '123 Đường Nguyễn Huệ\n' > ci-artifacts/dotnet/pii-negative-artifact.txt; fi
   coverage: '/TOTAL_LINE_COVERAGE=(\d+(?:\.\d+)?)%/'
   artifacts:

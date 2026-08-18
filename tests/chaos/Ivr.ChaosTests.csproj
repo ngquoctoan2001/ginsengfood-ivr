@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    W-0042 / P6-3. A separate project on purpose. Chaos scenarios cut real network connections and
+    wait for real recovery, so they are slower and less deterministic than the integration suite;
+    folding them in would make every developer pay that cost on every run and would push people
+    toward skipping the suite that catches ordinary regressions.
+
+    No package beyond what the integration suite already uses. Toxiproxy is driven over its HTTP
+    API with a plain HttpClient rather than through a client library, so this project adds nothing
+    to the lock files that `dotnet restore` in locked mode has to agree with in CI.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Ivr.ChaosTests</RootNamespace>
+    <AssemblyName>Ivr.ChaosTests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="JunitXml.TestLogger" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.11" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <!-- Pinned for the same reason as Ivr.IntegrationTests: Testcontainers pulls a transitive
+         SSH.NET carrying a known high-severity advisory, and the build treats that as an error. -->
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.13.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Ivr.Api\Ivr.Api.csproj" />
+    <ProjectReference Include="..\..\src\Ivr.Worker\Ivr.Worker.csproj" />
+  </ItemGroup>
+
+</Project>

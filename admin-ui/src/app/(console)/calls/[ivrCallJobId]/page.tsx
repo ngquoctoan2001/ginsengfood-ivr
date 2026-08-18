@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -12,6 +13,7 @@ import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 
 import { CallDetailActions } from "./CallDetailActions";
+import { BooleanCell } from "@/components/data/BooleanCell";
 import table from "@/components/data/DataTable.module.css";
 import styles from "./page.module.css";
 
@@ -78,7 +80,7 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
           <Field label={t("detail.eligibility")} value={detail.eligibility_decision} />
           <Field
             label={t("detail.callRestriction")}
-            value={detail.call_restriction ? "✓" : "—"}
+            value={<BooleanCell value={detail.call_restriction} />}
           />
           <Field label={t("detail.policy")} value={detail.attempt_policy_code} />
           <Field label={t("detail.scriptVersion")} value={detail.script_version} />
@@ -161,7 +163,7 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
                   <Field label={t("detail.attemptDtmf")} value={describeDtmf(attempt.dtmf_key)} />
                   <Field
                     label={t("detail.attemptCounted")}
-                    value={attempt.is_counted_customer_attempt ? "✓" : "—"}
+                    value={<BooleanCell value={attempt.is_counted_customer_attempt} />}
                   />
                   <Field
                     label={t("detail.attemptTechnical")}
@@ -192,7 +194,7 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
                 value={result.result_type}
                 testId="result-type"
               />
-              <Field label={t("detail.resultFinal")} value={result.is_final_for_ivr ? "✓" : "—"} />
+              <Field label={t("detail.resultFinal")} value={<BooleanCell value={result.is_final_for_ivr} />} />
               <Field label={t("detail.attemptDtmf")} value={describeDtmf(result.dtmf_key)} />
               <Field
                 label={t("detail.resultRecommended")}
@@ -248,7 +250,7 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
               <Field label={t("detail.technicalType")} value={exception.exception_type} />
               <Field
                 label={t("detail.technicalRetryAllowed")}
-                value={exception.technical_retry_allowed ? "✓" : "—"}
+                value={<BooleanCell value={exception.technical_retry_allowed} />}
               />
               <Field
                 label={t("dashboard.attemptTechnicalRetry")}
@@ -305,7 +307,8 @@ function Field({
   testId,
 }: {
   label: string;
-  value: string;
+  // Accepts a node so a value can carry its own accessible name — see BooleanCell (W-0039).
+  value: ReactNode;
   mono?: boolean;
   testId?: string;
 }) {
@@ -339,9 +342,13 @@ function ReferenceList({ title, items }: { title: string; items: readonly string
 }
 
 /** DTMF is shown as business semantics, never as a raw provider payload (D-05). */
-/** A tri-state snapshot flag: set, not set, or not captured at all. */
+/**
+ * A tri-state snapshot flag: set, not set, or not captured at all.
+ * W-0039: returns words rather than glyphs. This feeds string-typed places (CSV, title text)
+ * where an sr-only span cannot go, and "Chưa ghi nhận" is not the same claim as "Không".
+ */
 function flag(value: boolean | undefined): string {
-  return value === undefined ? "—" : value ? "✓" : "–";
+  return value === undefined ? t("boolean.unknown") : value ? t("boolean.yes") : t("boolean.no");
 }
 
 function describeDtmf(key: string | undefined): string {

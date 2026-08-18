@@ -303,6 +303,13 @@ public sealed class PostgresSchedulerStore(
                     ["fencing_generation"] = channel.LeaseFencingGeneration,
                     ["reason"] = channel.DisabledReason,
                 }));
+
+            // W-0041 / P6-2, DT-04. The auto-disable moment is the one ops must be woken for, and
+            // it is only observable here: the row afterwards shows a channel that is quarantined,
+            // never that it just became so. Counting at the transition is what lets an alert say
+            // "three in ten minutes" instead of "some channels are down".
+            Observability.IvrTelemetry.RecordChannelQuarantine(
+                (Observability.TelemetryTags.ReasonCode, channel.DisabledReason));
         }
 
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

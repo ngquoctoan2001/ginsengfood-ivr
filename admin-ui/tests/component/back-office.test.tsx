@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
@@ -112,21 +110,17 @@ describe("UT-UI-ROLE-04 role and permission matrix", () => {
   });
 
   it("maps every permission to the screen that uses it", () => {
-    // `Record<IvrPermission, string>` already makes a missing row a compile
+    // `Record<IvrPermission, MessageKey>` already makes a missing row a compile
     // error. What that cannot catch is a row whose text no longer names a real
     // screen, so the mapping is read and checked against the routes that exist.
-    // jsdom leaves `import.meta.url` without a file scheme, so the path is
-    // resolved from the Vitest project root instead.
-    const source = readFileSync(
-      resolve(process.cwd(), "src/app/(console)/roles/page.tsx"),
-      "utf8",
-    );
+    // W-0039 moved the prose into the catalogue; the check follows it there rather
+    // than being dropped, because the thing it guards did not change.
     const mapping = Object.fromEntries(
-      [...source.matchAll(/^\s{2}(IVR_[A-Z_]+):\s*\n?\s*"([^"]*)"/gm)].map((match) => [
-        match[1],
-        match[2],
+      IVR_PERMISSIONS.map((permission) => [
+        permission,
+        messages[`roles.screen.${permission}` as keyof typeof messages],
       ]),
-    );
+    ) as Record<string, string>;
 
     for (const permission of IVR_PERMISSIONS) {
       expect(mapping[permission], `${permission} has no screen mapping`).toBeTruthy();

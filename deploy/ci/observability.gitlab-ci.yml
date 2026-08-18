@@ -1,0 +1,47 @@
+# W-0041 / P6-2 §7. Alert rules and dashboards are validated as code.
+#
+# Two jobs because they answer two different questions, and merging them would hide which one
+# broke. `observability_rules` asks whether the alert rules still parse and still fire on the
+# series they were written for -- evaluated by the real Prometheus rule engine, not read as text.
+# `observability_contract` asks whether those rules and the dashboards still name metrics that a
+# production call site actually records.
+#
+# The second is the one that rots silently: an instrument can be deleted or renamed and every rule
+# keeps parsing perfectly while measuring nothing. A panel wired to a metric nobody emits scrapes
+# as a flat line, and a flat line reads as health.
+#
+# Both are allow_failure: false. An alerting gate that may fail is an alerting gate nobody reads.
+
+observability_rules:
+  stage: validate
+  image:
+    # The image's entrypoint is the server; blanking it lets the job run promtool instead.
+    name: prom/prometheus:v2.54.1
+    entrypoint: [""]
+  allow_failure: false
+  script:
+    - promtool check rules deploy/observability/alerts/ivr-slo.rules.yml
+    - promtool test rules deploy/observability/alerts/ivr-slo.latency.test.yml
+    - promtool test rules deploy/observability/alerts/ivr-slo.failclosed.test.yml
+    - promtool test rules deploy/observability/alerts/ivr-slo.channel.test.yml
+
+observability_contract:
+  stage: validate
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  allow_failure: false
+  variables:
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  script:
+    - dotnet restore Ivr.sln --locked-mode
+    - dotnet test tests/Ivr.UnitTests/Ivr.UnitTests.csproj --configuration Release
+        --filter "TestId~UT-DASH"
+        --logger:"junit;LogFilePath=../../ci-artifacts/observability/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/observability/
+    reports:
+      junit:
+        - ci-artifacts/observability/*-test-result.xml

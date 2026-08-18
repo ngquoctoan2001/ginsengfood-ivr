@@ -1,8 +1,18 @@
 import { formatNumber, LOCALE } from "@/lib/i18n";
 
+/**
+ * W-0039 / P5-5. One decimal place, but through Intl rather than toFixed: vi-VN writes the
+ * decimal separator as a comma, and a console that shows `95.5%` to Vietnamese operators is
+ * showing them a number in someone else's notation.
+ */
+const percentFormatter = new Intl.NumberFormat(LOCALE, {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
 /** Rates arrive as server-computed fractions; the console only formats them. */
 export function formatRate(rate: number): string {
-  return `${(rate * 100).toFixed(1)}%`;
+  return `${percentFormatter.format(rate * 100)}%`;
 }
 
 /** Seconds-to-final reads better as m/s than as a four-digit second count. */

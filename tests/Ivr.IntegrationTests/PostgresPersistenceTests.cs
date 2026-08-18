@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using DotNet.Testcontainers.Builders;
 using Ivr.Api.Application;
 using Ivr.Domain.Errors;
 using Ivr.Infrastructure.Audit;
@@ -29,20 +28,33 @@ public sealed class PostgresPersistenceTestGroup
 
 public sealed class PostgresPersistenceFixture : IAsyncLifetime
 {
+    // No WithWaitStrategy override here, and that is deliberate. A bare `pg_isready` probes the
+    // Unix socket, which the official image's temporary initdb server answers while TCP is still
+    // unbound -- so the fixture would publish a connection string roughly half a second before the
+    // real postmaster takes over port 5432. Testcontainers' own default probes `--host localhost`
+    // over TCP and therefore waits for the second server. See docs/evidence/W-0040 section 6.
     private readonly PostgreSqlContainer container = new PostgreSqlBuilder("postgres:16-alpine")
         .WithDatabase("ivr_p1_2")
         .WithUsername("ivr_test")
         .WithPassword("ivr-test-password")
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilCommandIsCompleted("pg_isready"))
         .Build();
 
     public ServiceProvider Services { get; private set; } = null!;
 
     public string ConnectionString => container.GetConnectionString();
 
+    /// <summary>
+    /// Container log captured the instant <c>StartAsync</c> returned, so a test can assert what
+    /// the wait strategy actually waited for rather than trusting that it waited for the right
+    /// thing.
+    /// </summary>
+    public string StartupLog { get; private set; } = string.Empty;
+
     public async Task InitializeAsync()
     {
         await container.StartAsync();
+        (string stdout, string stderr) = await container.GetLogsAsync(timestampsEnabled: false);
+        StartupLog = string.Join(Environment.NewLine, stdout, stderr);
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
@@ -79,6 +91,23 @@ public sealed class PostgresPersistenceFixture : IAsyncLifetime
 [Collection(PostgresPersistenceTestGroup.Name)]
 public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
 {
+    [Fact]
+    [Trait("TestId", "IT-DB-BOOT-08")]
+    public void TheFixtureWaitsForThePostmasterThatActuallyListensOnTcp()
+    {
+        // W-0040 section 6. The official postgres image starts a temporary initdb server on the
+        // Unix socket alone, shuts it down, then starts the real one on TCP. A wait strategy that
+        // probes the Unix socket returns inside that window and publishes a connection string
+        // pointing at a port the forwarder accepts but cannot yet serve, which lands on whichever
+        // test happens to run first as an EndOfStreamException mid-handshake -- a failure that
+        // names the wrong culprit. If StartAsync waited for the right postmaster, the log it
+        // returned on already says so.
+        Assert.Contains(
+            "listening on IPv4 address",
+            fixture.StartupLog,
+            StringComparison.Ordinal);
+    }
+
     [Fact]
     [Trait("TestId", "IT-DB-MIGRATE-01")]
     public async Task MigrationAppliesToEmptyDatabaseRollsBackAndRecreates()

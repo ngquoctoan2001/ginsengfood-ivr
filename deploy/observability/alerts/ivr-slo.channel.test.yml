@@ -1,0 +1,41 @@
+# W-0041 / P6-2 — promtool rule unit test backing IT-SLO-SIM-02.
+#
+# These drive the real Prometheus rule evaluator with synthetic series, so an alert that would
+# never fire fails here rather than during the incident it was meant to catch. Each case asserts
+# severity and the threshold, and every threshold has a matching case just below it that must
+# stay silent -- a rule that fires on everything is noise, which section 11 forbids as loudly as
+# a rule that never fires.
+rule_files:
+  - ivr-slo.rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    name: three channel auto-disables in ten minutes pages
+    input_series:
+      - series: 'ivr_channel_quarantines_total{ivr_reason_code="LEASE_EXPIRED_RECONCILIATION_REQUIRED"}'
+        values: '0+1x40'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: IvrChannelAutoDisableBurst
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              slo: channel_availability
+              decision: DT-04
+              slo_status: locked
+            exp_annotations:
+              summary: Three or more channels auto-disabled within ten minutes
+              description: DT-04 fixes the threshold at three failures in ten minutes; the expression carries its own window, so for is 0m.
+              runbook_url: docs/slo.md#channel-auto-disable
+
+  - interval: 1m
+    name: a single channel auto-disable stays silent
+    input_series:
+      - series: 'ivr_channel_quarantines_total{ivr_reason_code="LEASE_EXPIRED_RECONCILIATION_REQUIRED"}'
+        values: '0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: IvrChannelAutoDisableBurst
+        exp_alerts: []

@@ -1,0 +1,96 @@
+# W-0041 / P6-2 — Prometheus alert rules for IVR Order Confirmation.
+#
+# Every rule here names a metric that some production call site actually records. That is not a
+# style preference: an instrument that is declared but never called scrapes as a flat line, and a
+# flat line reads as health rather than as the silence it is. `UT-DASH-PII-04` walks from these
+# expressions back to the call sites and fails if a rule outruns the instrumentation.
+#
+# Thresholds are PROPOSALS (P6-2 section 4), not owner-approved operating limits. They are derived
+# from locked decisions where one exists -- D-04 for callback latency, DT-04 for channel
+# auto-disable -- and marked `slo_status: proposed` where no decision fixes them.
+groups:
+  - name: ivr-slo
+    interval: 30s
+    rules:
+      # D-04: Core revalidate must answer within 3-5s. The objective takes the upper bound.
+      - alert: IvrCallbackRevalidateLatencyBreach
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, ivr_program) (rate(ivr_result_callback_duration_seconds_bucket[10m]))
+          ) > 5
+        for: 10m
+        labels:
+          severity: page
+          slo: callback_revalidate_latency
+          decision: D-04
+          slo_status: locked
+        annotations:
+          summary: Callback revalidate p95 is above the 5s objective
+          description: p95 delivery time for {{ $labels.ivr_program }} has been above the D-04 objective of 5s for 10 minutes.
+          runbook_url: docs/slo.md#callback-revalidate-latency
+
+      # DO-06: fail-closed is correct behaviour, so the alert is on the RATIO, not on any hold.
+      # A ratio also survives a change in traffic volume, which an absolute count does not.
+      - alert: IvrDownstreamFailClosedSpike
+        expr: |
+          (
+            sum(rate(ivr_fail_closed_total[10m]))
+            /
+            clamp_min(sum(rate(ivr_intake_decisions_total[10m])), 0.001)
+          ) > 0.2
+        for: 10m
+        labels:
+          severity: page
+          slo: downstream_availability
+          decision: DO-06
+          slo_status: proposed
+        annotations:
+          summary: More than a fifth of evaluations are failing closed
+          description: Holding when a dependency cannot be proven healthy is designed behaviour, so this fires on the proportion, not on any single hold.
+          runbook_url: docs/slo.md#downstream-fail-closed
+
+      # DT-04 is locked: fail_count >= 3 within 10 minutes auto-disables a channel.
+      - alert: IvrChannelAutoDisableBurst
+        expr: sum(increase(ivr_channel_quarantines_total[10m])) >= 3
+        for: 0m
+        labels:
+          severity: page
+          slo: channel_availability
+          decision: DT-04
+          slo_status: locked
+        annotations:
+          summary: Three or more channels auto-disabled within ten minutes
+          description: DT-04 fixes the threshold at three failures in ten minutes; the expression carries its own window, so for is 0m.
+          runbook_url: docs/slo.md#channel-auto-disable
+
+      # ARCH-06 section 4: callback retry exhausted goes to admin review, not to a pager.
+      - alert: IvrCallbackRetryExhausted
+        expr: sum(increase(ivr_result_callbacks_total{ivr_outcome="RETRY_EXHAUSTED"}[15m])) > 0
+        for: 5m
+        labels:
+          severity: ticket
+          slo: callback_delivery
+          decision: ARCH-06
+          slo_status: proposed
+        annotations:
+          summary: A callback exhausted its retries and needs admin review
+          description: Ticket rather than page. The outbox already stopped retrying and the row is durable.
+          runbook_url: docs/slo.md#callback-retry-exhausted
+
+      - alert: IvrIntakeRejectionRatioHigh
+        expr: |
+          (
+            sum(rate(ivr_intake_decisions_total{ivr_decision=~"TASK_REJECTED.*"}[15m]))
+            /
+            clamp_min(sum(rate(ivr_intake_decisions_total[15m])), 0.001)
+          ) > 0.3
+        for: 15m
+        labels:
+          severity: ticket
+          slo: intake_success
+          slo_status: proposed
+        annotations:
+          summary: Intake is rejecting more than three in ten tasks
+          description: A sustained rejection ratio points upstream at Sales payloads rather than at IVR.
+          runbook_url: docs/slo.md#intake-success

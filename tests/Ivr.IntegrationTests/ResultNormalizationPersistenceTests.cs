@@ -194,6 +194,71 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
     }
 
     [Fact]
+    [Trait("TestId", "E2E-FLOW-CONFIRM-01")]
+    public async Task ConfirmFlowProducesAConfirmedSignalAcceptedBySalesAndVisibleToAdmin()
+    {
+        // W-0036 / P5-2 §8. The happy path, end to end on real storage: keypress -> normalized
+        // result -> outbox -> Sales ACK -> a row an operator can see. Each half is unit-tested
+        // elsewhere; what this adds is that the halves still join up.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedPendingAsync(factory, "ANSWERED", "1");
+        await Repository(factory).NormalizeNextAsync("normalizer-e2e-confirm");
+        ICallbackOutboxRepository outbox = fixture.Services
+            .GetRequiredService<ICallbackOutboxRepository>();
+
+        CallbackOutboxMessage leased = Assert.Single(await outbox.DequeueReadyAsync(
+            10,
+            TimeSpan.FromMinutes(1)));
+        Assert.True(await outbox.CompleteDeliveryAsync(
+            leased.CallbackId,
+            leased.LeaseToken,
+            new CallbackDeliveryUpdate("DELIVERED_ACCEPTED", 200, "ACCEPTED", null, 0, null, true, false)));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking().SingleAsync();
+
+        Assert.Equal("IVR_CONFIRMED", result.ResultType);
+        Assert.True(result.IsCountedCustomerAttempt);
+        Assert.Equal("DELIVERED_ACCEPTED", callback.DeliveryStatus);
+        Assert.Equal("ACCEPTED", callback.CoreResponseCode);
+        Assert.NotNull(callback.AcknowledgedAt);
+
+        // An accepted confirmation is not a review item: raising one would put every successful
+        // call into an operator's queue.
+        Assert.Empty(await verification.ReviewItems.AsNoTracking()
+            .Where(item => item.SourceType == "IVR_RESULT_CALLBACK")
+            .ToListAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "E2E-FLOW-NOANSWER-02")]
+    public async Task FinalNoAnswerAdvisesWaitingAndLeavesTheOrderExactlyWhereSalesPutIt()
+    {
+        // DS-02 / D-02. The assertion §8 actually asks for: after IVR gives up, the order is
+        // still whatever Sales said it was. IVR reporting "we could not reach them" must not be
+        // able to age into "the order changed".
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedPendingAsync(factory, "RING_TIMEOUT", null);
+        await Repository(factory).NormalizeNextAsync("normalizer-e2e-noanswer");
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks.AsNoTracking().SingleAsync();
+
+        Assert.StartsWith("IVR_NO_ANSWER", result.ResultType, StringComparison.Ordinal);
+        Assert.True(result.IsCountedCustomerAttempt);
+        // Stored in its internal spelling; the CORE_ prefix is the wire form (see IT-NORM-PERSIST-01).
+        Assert.Equal("NO_STATE_CHANGE_WAIT_FOR_TIMEOUT", result.RecommendedCoreAction);
+
+        // Untouched: same state, same version Sales sent at intake.
+        Assert.Equal("CONFIRMING", task.OrderState);
+        Assert.Equal("1", task.OrderVersion);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-ELIG-RACE-12")]
     public async Task BlockerRaisedAfterKeyOneBlocksTheSignalWithoutRewritingTheCallResult()
     {

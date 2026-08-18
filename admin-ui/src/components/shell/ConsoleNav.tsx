@@ -8,23 +8,25 @@ import { t } from "@/lib/i18n";
 import type { IvrPermission } from "@/lib/rbac/permissions";
 
 import styles from "./ConsoleNav.module.css";
+import { NavIcon, type NavIconName } from "./NavIcon";
 
 interface NavItem {
   readonly href: string;
   readonly label: string;
+  readonly icon: NavIconName;
   readonly perm: IvrPermission;
 }
 
 /** Every entry is a route that exists; all are gated on IVR_QUEUE_VIEW. */
 const NAV_ITEMS: readonly NavItem[] = [
-  { href: "/dashboard", label: t("nav.dashboard"), perm: "IVR_QUEUE_VIEW" },
-  { href: "/calls", label: t("nav.callLog"), perm: "IVR_QUEUE_VIEW" },
-  { href: "/reports", label: t("nav.reports"), perm: "IVR_QUEUE_VIEW" },
-  { href: "/review", label: t("nav.review"), perm: "IVR_QUEUE_VIEW" },
-  { href: "/config", label: t("nav.config"), perm: "IVR_QUEUE_VIEW" },
-  { href: "/integration", label: t("nav.integration"), perm: "IVR_QUEUE_VIEW" },
-  { href: "/seed", label: t("nav.seed"), perm: "IVR_QUEUE_VIEW" },
-  { href: "/roles", label: t("nav.roles"), perm: "IVR_QUEUE_VIEW" },
+  { href: "/dashboard", label: t("nav.dashboard"), icon: "dashboard", perm: "IVR_QUEUE_VIEW" },
+  { href: "/calls", label: t("nav.callLog"), icon: "callLog", perm: "IVR_QUEUE_VIEW" },
+  { href: "/reports", label: t("nav.reports"), icon: "reports", perm: "IVR_QUEUE_VIEW" },
+  { href: "/review", label: t("nav.review"), icon: "review", perm: "IVR_QUEUE_VIEW" },
+  { href: "/config", label: t("nav.config"), icon: "config", perm: "IVR_QUEUE_VIEW" },
+  { href: "/integration", label: t("nav.integration"), icon: "integration", perm: "IVR_QUEUE_VIEW" },
+  { href: "/seed", label: t("nav.seed"), icon: "seed", perm: "IVR_QUEUE_VIEW" },
+  { href: "/roles", label: t("nav.roles"), icon: "roles", perm: "IVR_QUEUE_VIEW" },
 ];
 
 export function ConsoleNav() {
@@ -41,7 +43,10 @@ export function ConsoleNav() {
                 className={styles.link}
                 aria-current={pathname === item.href ? "page" : undefined}
               >
-                {item.label}
+                <span className={styles.icon}>
+                  <NavIcon name={item.icon} />
+                </span>
+                <span className={styles.label}>{item.label}</span>
               </Link>
             </li>
           </RequirePermission>

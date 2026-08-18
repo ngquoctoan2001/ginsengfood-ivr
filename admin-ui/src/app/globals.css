@@ -1,31 +1,53 @@
 /*
  * Design tokens for the IVR admin console.
  *
- * Direction: Minimalism / Swiss — grid-based, high contrast, generous
- * whitespace, restrained motion. Chosen for this product type via the
- * `ui-ux-pro-max` skill ("enterprise apps, dashboards, professional tools"),
- * along with the slate palette below.
+ * The brand palette is five colours:
  *
- * Two deliberate departures from the generated system:
+ *   Primary Navy  #0B1F3A   shell — navbar, hero, sidebar
+ *   Gold          #C9A227   accent — primary action, active marker, rules
+ *   White         #F8F7F3   the page ground that sections sit on
+ *   Dark Text     #111827   body copy on light surfaces
+ *   Light Navy    #163A5F   the navy one step up — raised shell, dark cards
  *
- * 1. The generated accent is green (#22C55E) for calls to action. In a
- *    monitoring console green already means "healthy", so using it for buttons
- *    would overload the one colour operators read as a status. Interactive
- *    surfaces use the generated *primary* slate instead, and green stays
- *    reserved for success state.
- * 2. No web font is loaded. The generated pairing (Fira Sans / Fira Code) would
- *    add a network dependency to an internal console; the system stack below
- *    keeps the same technical, precise character with zero requests.
+ * Gold is budgeted at roughly 5–10% of the interface. That budget, plus the
+ * measured contrast of these five, is what the rules below encode.
  *
- * Still plain CSS Modules: the component-library choice in P3-1 §5 remains
- * NEED_CONFIRMATION, so no UI dependency is introduced.
+ * 1. GOLD CARRIES DARK INK, NEVER WHITE. #C9A227 scores 2.26:1 against the page
+ *    white — so white-on-gold (2.26) and white on the #B08B1E hover (2.99) are
+ *    both illegible and neither may be written. A gold fill takes Dark Text on
+ *    top: 7.33:1, and 5.54:1 on hover. Gold *text* on a light surface must use
+ *    --ivr-gold-ink, the same hue darkened to 5.52:1.
+ * 2. GOLD DRAWS ACCENTS, NOT CONTROL BOUNDARIES. On navy, gold clears 6.83:1 and
+ *    can outline anything. On light surfaces it cannot: an input or secondary
+ *    button outlined in gold would sit at 2.26:1, under the 3:1 WCAG 1.4.11
+ *    needs, so those use --ivr-border-strong. Gold on light is reserved for
+ *    decorative rules — a card's top edge, an active tab — which carry no
+ *    control state and stay inside the 5–10% budget.
+ * 3. WARNING IS NOT BRAND GOLD. An operator must not read the brand accent as a
+ *    caution state, so --ivr-warning sits at a burnt orange well away from the
+ *    gold hue rather than the amber this palette would otherwise suggest.
+ * 4. STATUS COLOUR NEVER TRAVELS ALONE. Every status token is paired with a
+ *    glyph and a word in the UI (see StatusIcon), so state survives greyscale
+ *    and colour-blindness. Status hues sit outside the five: a five-colour brand
+ *    cannot also encode success/warning/danger without collapsing meaning.
+ *
+ * Typography is Montserrat, loaded through next/font/google in app/layout.tsx
+ * and self-hosted by the build — exposed here as --font-montserrat. This
+ * replaces an earlier system-stack-only decision; the console is brand-facing
+ * enough to justify the one build-time dependency. The mono stack is kept for
+ * ID, code and phone columns: Montserrat is not monospaced, so identifiers
+ * would not align down a table column.
+ *
+ * Still plain CSS Modules: no UI dependency is introduced.
+ *
+ * Every colour pair below is enforced by tests/unit/contrast.test.ts.
  */
 
 :root {
   color-scheme: light dark;
 
-  --ivr-font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, "Noto Sans", sans-serif;
+  --ivr-font-sans: var(--font-montserrat), ui-sans-serif, system-ui, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   --ivr-font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono",
     "SF Mono", Menlo, monospace;
 
@@ -37,48 +59,76 @@
   --ivr-text-xl: 1.375rem;
   --ivr-text-2xl: 1.75rem;
 
-  /* Surfaces — slate ramp. */
+  /* Surfaces. #F8F7F3 is the brand white and reads as the page; cards sit a
+     plain white above it so data lifts off the ground. */
   --ivr-surface: #ffffff;
-  --ivr-surface-raised: #f8fafc;
-  --ivr-surface-sunken: #f1f5f9;
-  --ivr-surface-hover: #f1f5f9;
-  --ivr-border: #e2e8f0;
+  --ivr-surface-raised: #fdfdfb;
+  --ivr-surface-sunken: #f8f7f3;
+  --ivr-surface-hover: #f0eee8;
+  --ivr-border: #e4e1d8;
   /* Control boundaries (inputs, selects, secondary buttons) must clear 3:1
      against their surface — WCAG 1.4.11 non-text contrast, enforced by
-     tests/unit/contrast.test.ts. Plain separators use --ivr-border. */
-  --ivr-border-strong: #7c8aa0;
+     tests/unit/contrast.test.ts. This is the token rule 2 points at: gold
+     would be 2.26:1 here. Plain separators use --ivr-border. */
+  --ivr-border-strong: #7c889a;
 
-  --ivr-text: #0f172a;
-  --ivr-text-muted: #475569;
-  --ivr-text-subtle: #64748b;
-  --ivr-text-inverted: #ffffff;
+  --ivr-text: #111827;
+  --ivr-text-muted: #3a4a61;
+  --ivr-text-subtle: #5b6b80;
+  --ivr-text-inverted: #f8f7f3;
 
-  /* Interactive. Slate rather than the generated green — see the note above. */
-  --ivr-accent: #1e293b;
-  --ivr-accent-hover: #334155;
-  --ivr-accent-contrast: #ffffff;
-  --ivr-link: #1d4ed8;
-  --ivr-focus: #2563eb;
+  /* Interactive. Gold is the primary action, carrying Dark Text — rule 1. */
+  --ivr-accent: #c9a227;
+  --ivr-accent-hover: #b08b1e;
+  --ivr-accent-contrast: #111827;
 
-  /* Status. Every one of these is paired with a glyph and a word in the UI;
-     colour alone never carries meaning. */
-  --ivr-success: #15803d;
-  --ivr-success-surface: #f0fdf4;
-  --ivr-success-border: #86efac;
-  --ivr-warning: #b45309;
-  --ivr-warning-surface: #fffbeb;
-  --ivr-warning-border: #fcd34d;
-  --ivr-danger: #b91c1c;
-  --ivr-danger-surface: #fef2f2;
-  --ivr-danger-border: #fca5a5;
-  --ivr-neutral: #334155;
-  --ivr-neutral-surface: #f1f5f9;
-  --ivr-neutral-border: #cbd5e1;
+  /* Brand gold. Read rules 1 and 2 above before using any of these. */
+  --ivr-brand-gold: #c9a227;
+  --ivr-brand-gold-hover: #b08b1e;
+  --ivr-gold-ink: #7a6115;
+  --ivr-on-gold: #111827;
+
+  /* Light Navy. It reads as a link against Dark Text body copy, and it is the
+     only palette member that can also serve as a focus ring on light surfaces
+     — gold cannot, at 2.26:1. */
+  --ivr-link: #16457f;
+  --ivr-focus: #16457f;
+
+  /* Status. Paired with a glyph and a word everywhere — see rule 4. */
+  --ivr-success: #136c37;
+  --ivr-success-surface: #eef7f1;
+  --ivr-success-border: #8ecfa8;
+  --ivr-warning: #8a4b06;
+  --ivr-warning-surface: #fbf3e7;
+  --ivr-warning-border: #e0ab6b;
+  --ivr-danger: #b02a20;
+  --ivr-danger-surface: #fbf0ef;
+  --ivr-danger-border: #eda49e;
+  --ivr-neutral: #3a4a61;
+  --ivr-neutral-surface: #f0eee8;
+  --ivr-neutral-border: #cdc9bd;
+
+  /* Shell chrome. Navy in both themes: the navbar, hero and sidebar are brand
+     furniture rather than content, so they do not invert with the scheme. The
+     border is gold — a hairline is the cheapest 5% of the gold budget. */
+  --ivr-chrome: #0b1f3a;
+  --ivr-chrome-raised: #163a5f;
+  --ivr-chrome-hover: #1d4b7a;
+  --ivr-chrome-border: #c9a227;
+  --ivr-chrome-border-strong: #8fa8c4;
+  --ivr-chrome-text: #f8f7f3;
+  --ivr-chrome-text-muted: #a9bdd4;
+
+  /* Chart fills. This has to flip with the scheme rather than track the chrome:
+     in dark mode the page IS Primary Navy, so a navy bar on a navy track would
+     vanish. Navy on light, gold on dark — both stay in the palette, and both
+     clear 3:1 against the track they sit in (WCAG 1.4.11 graphical objects). */
+  --ivr-data-fill: #0b1f3a;
 
   --ivr-radius: 6px;
   --ivr-radius-sm: 4px;
-  --ivr-shadow-card: 0 1px 2px rgb(15 23 42 / 6%);
-  --ivr-shadow-raised: 0 2px 8px rgb(15 23 42 / 8%);
+  --ivr-shadow-card: 0 1px 2px rgb(11 31 58 / 6%);
+  --ivr-shadow-raised: 0 2px 8px rgb(11 31 58 / 10%);
 
   --ivr-space-1: 0.25rem;
   --ivr-space-2: 0.5rem;
@@ -93,36 +143,51 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ivr-surface: #1b2336;
-    --ivr-surface-raised: #272f42;
-    --ivr-surface-sunken: #0f172a;
-    --ivr-surface-hover: #2f3850;
-    --ivr-border: #334155;
-    --ivr-border-strong: #7c8aa0;
+    /* Dark mode is the palette read the other way up: Primary Navy becomes the
+       page, Light Navy becomes the card. Both are already brand colours, so the
+       shell needs no separate treatment here. */
+    --ivr-surface: #163a5f;
+    --ivr-surface-raised: #1d4b7a;
+    --ivr-surface-sunken: #0b1f3a;
+    --ivr-surface-hover: #245a90;
+    --ivr-border: #2a5580;
+    --ivr-border-strong: #8fa8c4;
 
-    --ivr-text: #f8fafc;
-    --ivr-text-muted: #a9b6c8;
-    --ivr-text-subtle: #94a3b8;
-    --ivr-text-inverted: #0f172a;
+    --ivr-text: #f8f7f3;
+    --ivr-text-muted: #b8cadc;
+    --ivr-text-subtle: #9db2c8;
+    --ivr-text-inverted: #111827;
 
-    --ivr-accent: #cbd5e1;
-    --ivr-accent-hover: #e2e8f0;
-    --ivr-accent-contrast: #0f172a;
-    --ivr-link: #93c5fd;
-    --ivr-focus: #93c5fd;
+    /* Gold keeps the primary-action role it has in light mode, and keeps Dark
+       Text on top — rule 1 holds on either ground. */
+    --ivr-accent: #c9a227;
+    --ivr-accent-hover: #dbb63f;
+    --ivr-accent-contrast: #111827;
 
-    --ivr-success: #6ee7a4;
-    --ivr-success-surface: #10281b;
-    --ivr-success-border: #166534;
-    --ivr-warning: #fcd34d;
-    --ivr-warning-surface: #2a2008;
-    --ivr-warning-border: #a16207;
-    --ivr-danger: #fca5a5;
-    --ivr-danger-surface: #2c1214;
-    --ivr-danger-border: #b91c1c;
-    --ivr-neutral: #cbd5e1;
-    --ivr-neutral-surface: #272f42;
-    --ivr-neutral-border: #475569;
+    /* Lifted one step: #c9a227 is a mid-tone that dulls against Light Navy
+       cards, so accents and gold ink brighten while fills stay on brand. */
+    --ivr-brand-gold: #dbb63f;
+    --ivr-brand-gold-hover: #e6c65e;
+    --ivr-gold-ink: #e6c65e;
+    --ivr-on-gold: #111827;
+
+    --ivr-link: #9dc3f0;
+    --ivr-focus: #dbb63f;
+
+    --ivr-success: #6fd79b;
+    --ivr-success-surface: #0e2e1e;
+    --ivr-success-border: #1d6b3f;
+    --ivr-warning: #f0a862;
+    --ivr-warning-surface: #331f0b;
+    --ivr-warning-border: #8a5212;
+    --ivr-danger: #f5a49e;
+    --ivr-danger-surface: #3a1512;
+    --ivr-danger-border: #b02a20;
+    --ivr-neutral: #c6cede;
+    --ivr-neutral-surface: #1d4b7a;
+    --ivr-neutral-border: #3f6690;
+
+    --ivr-data-fill: #dbb63f;
 
     --ivr-shadow-card: 0 1px 2px rgb(0 0 0 / 40%);
     --ivr-shadow-raised: 0 2px 8px rgb(0 0 0 / 45%);
@@ -151,11 +216,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Montserrat runs wide and tracks loose at heading sizes; pull it in so a
+   heading reads as one block rather than a row of separate letters. */
 h1,
 h2,
 h3 {
   line-height: 1.25;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.02em;
+  font-weight: 600;
 }
 
 a {
@@ -200,9 +268,12 @@ dd,
   border-radius: var(--ivr-radius-sm);
 }
 
+/* Not a hardcoded white: --ivr-focus is gold in dark mode, and white on gold is
+   2.26:1. The inverted-text token flips with the ground, so the selection stays
+   legible in both schemes. */
 ::selection {
   background: var(--ivr-focus);
-  color: #ffffff;
+  color: var(--ivr-text-inverted);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -214,4 +285,21 @@ dd,
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/*
+ * W-0039 / P5-5. Visually hidden but reachable by assistive technology. Used to pair a fast-to-
+ * scan glyph with the word it stands for, so a boolean cell has an accessible name without
+ * doubling the visual width of every table column.
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

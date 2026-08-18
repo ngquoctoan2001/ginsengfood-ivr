@@ -1,0 +1,304 @@
+{
+  "uid": "ivr-order-confirmation-slo",
+  "title": "IVR Order Confirmation — SLO & health",
+  "tags": [
+    "ivr",
+    "slo",
+    "W-0041"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "editable": false,
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "label": "Prometheus",
+        "hide": 0
+      }
+    ]
+  },
+  "description": "W-0041 / P6-2. Every panel names a metric that a production call site actually records; UT-DASH-PII-04 walks the expressions back to those call sites and fails if a panel outruns the instrumentation. No panel carries a per-customer or per-order dimension: ivr.correlation_id is trace-only, and as a metric label it would turn every request into its own time series.",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Intake decisions by outcome",
+      "description": "Decision mix at the single intake exit. Rejections rising without a matching rise in volume points upstream at Sales payloads, not at IVR.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (ivr_decision) (rate(ivr_intake_decisions_total[5m]))",
+          "legendFormat": "{{ivr_decision}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "reqps"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Intake decision latency p95",
+      "description": "Wall time from task receipt to decision, measured at the same exit as the decision itself so the two cannot drift apart.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(ivr_task_intake_duration_seconds_bucket[5m])))",
+          "legendFormat": "p95",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "s"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Callback revalidate p95 by program (SLO: D-04, 5s)",
+      "description": "D-04 fixes the objective at 5s. This is the synchronous hop the customer-facing confirmation inherits.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, ivr_program) (rate(ivr_result_callback_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{ivr_program}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Callback delivery outcome",
+      "description": "Terminal delivery states from the outbox, including RETRY_EXHAUSTED which routes to admin review rather than to a pager.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (ivr_outcome) (rate(ivr_result_callbacks_total[5m]))",
+          "legendFormat": "{{ivr_outcome}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "reqps"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Callback transport vs semantic ACK, by contract",
+      "description": "HTTP status and semantic ACK are separate questions: a 200 carrying a rejection is a failed confirmation with a healthy transport. Split by contract so the current Golden Hour compat path is never averaged together with target v1.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (ivr_callback_contract, ivr_http_status) (rate(ivr_result_callbacks_total[5m]))",
+          "legendFormat": "{{ivr_callback_contract}} http {{ivr_http_status}}",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (ivr_callback_contract, ivr_ack_code) (rate(ivr_result_callbacks_total[5m]))",
+          "legendFormat": "{{ivr_callback_contract}} ack {{ivr_ack_code}}",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "reqps"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Fail-closed holds by reason (DO-06)",
+      "description": "Holding when a dependency cannot be proven healthy is designed behaviour. Read the proportion against intake volume, not the absolute count.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (ivr_reason_code) (rate(ivr_fail_closed_total[5m]))",
+          "legendFormat": "{{ivr_reason_code}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "reqps"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Channel auto-disable, 10m window (DT-04)",
+      "description": "DT-04 auto-disables a channel at three failures in ten minutes. The window here matches the rule so the panel and the page agree.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (ivr_reason_code) (increase(ivr_channel_quarantines_total[10m]))",
+          "legendFormat": "{{ivr_reason_code}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    }
+  ]
+}

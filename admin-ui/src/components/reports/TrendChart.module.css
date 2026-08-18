@@ -39,10 +39,15 @@
   overflow: hidden;
 }
 
+/* The data token, not the gold accent. A bar is data rather than an action, and
+   gold reads at 2.26:1 against a light track — too faint to compare lengths by,
+   and a chart's worth of it would spend the 5–10% gold budget in one component.
+   --ivr-data-fill flips navy/gold with the scheme so the bar never matches the
+   track it sits in. */
 .fill {
   display: block;
   block-size: 100%;
-  background: var(--ivr-accent);
+  background: var(--ivr-data-fill);
 }
 
 /* Two programmes, two fills. The pattern differs as well as the shade so the

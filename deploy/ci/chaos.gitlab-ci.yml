@@ -1,0 +1,36 @@
+# W-0042 / P6-3 §7. Chaos scenarios run as their own job.
+#
+# Separate from the integration job on purpose. These scenarios cut real network links and wait for
+# real recovery, so they are slower and their failures mean something different: an integration
+# failure says a branch is wrong, a chaos failure says the system stops being safe under a fault
+# it will meet in production.
+#
+# allow_failure: false. A resilience gate that may fail proves resilience nobody checked.
+chaos_suite:
+  stage: validate
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  allow_failure: false
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+    # Testcontainers builds every dependency for the run and tears it down after, so the blast
+    # radius is this job's own network. CHAOS-GUARD-05 fails the build if a fault target ever
+    # names a host outside it.
+    TESTCONTAINERS_RYUK_DISABLED: "false"
+  script:
+    - dotnet restore Ivr.sln --locked-mode
+    - dotnet test tests/chaos/Ivr.ChaosTests.csproj --configuration Release
+        --logger:"junit;LogFilePath=../../ci-artifacts/chaos/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/chaos/
+    reports:
+      junit:
+        - ci-artifacts/chaos/*-test-result.xml

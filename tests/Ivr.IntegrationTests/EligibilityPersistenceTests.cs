@@ -424,6 +424,127 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         });
     }
 
+    [Fact]
+    [Trait("TestId", "PT-FAILCLOSED-03")]
+    public async Task WhenTheCapacitySourceIsDownUnderLoadEveryTaskIsHeldAndNoneDispatches()
+    {
+        // W-0037 / P5-3 §6.4, DO-06. The failure mode that matters is the permissive one: a
+        // capacity source that is slow or down must never be read as "plenty of room".
+        // Concurrency is the interesting case, because a race is where an "unknown" most easily
+        // gets rounded up to "fine".
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        const int taskCount = 12;
+        for (int index = 0; index < taskCount; index++)
+        {
+            string suffix = index.ToString("D3", System.Globalization.CultureInfo.InvariantCulture);
+            await SeedPendingTaskAsync(
+                factory,
+                string.Concat("TASK-PT-FC-", suffix),
+                string.Concat("JOB-PT-FC-", suffix),
+                "CREATED",
+                "READY_FOR_ELIGIBILITY");
+        }
+
+        var service = new EligibilityService(
+            new PostgresEligibilityRepository(factory),
+            new UnavailableCapacityProvider(),
+            new FixedTimeProvider(Now));
+
+        EligibilityEvaluation[] evaluations = await Task.WhenAll(
+            Enumerable.Range(0, taskCount).Select(index => service.EvaluateAsync(
+                string.Concat(
+                    "TASK-PT-FC-",
+                    index.ToString("D3", System.Globalization.CultureInfo.InvariantCulture)),
+                string.Concat(
+                    "corr-pt-fc-",
+                    index.ToString(System.Globalization.CultureInfo.InvariantCulture)))));
+
+        Assert.All(evaluations, evaluation =>
+        {
+            Assert.False(evaluation.Eligible);
+            Assert.False(evaluation.IsCountedCustomerAttempt);
+            Assert.Equal(
+                EligibilityReasonCodes.CapacitySourceUnavailable,
+                Assert.Single(evaluation.Reasons).Code);
+        });
+
+        // Not one dispatch, and every task still present and accounted for.
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(0, await verification.CallAttempts.CountAsync());
+        Assert.Equal(taskCount, await verification.CallJobs.CountAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "SEC-PII-04")]
+    public async Task NothingWrittenDuringALoadRunCarriesAPhoneNumberOrAStreetAddress()
+    {
+        // W-0037 / P5-3 §6.5, D-05. The CI gate scans FILES. Nothing scanned what the service
+        // actually wrote to the database, which is where a leak would land at runtime — an audit
+        // payload, an evidence ref or a review reason built from a customer field.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        const int taskCount = 8;
+        for (int index = 0; index < taskCount; index++)
+        {
+            string suffix = index.ToString("D3", System.Globalization.CultureInfo.InvariantCulture);
+            await SeedPendingTaskAsync(
+                factory,
+                string.Concat("TASK-SEC-PII-", suffix),
+                string.Concat("JOB-SEC-PII-", suffix),
+                "CREATED",
+                "READY_FOR_ELIGIBILITY");
+        }
+
+        var service = new EligibilityService(
+            new PostgresEligibilityRepository(factory),
+            new CapacityShortageProvider(),
+            new FixedTimeProvider(Now));
+        await Task.WhenAll(Enumerable.Range(0, taskCount).Select(index => service.EvaluateAsync(
+            string.Concat(
+                "TASK-SEC-PII-",
+                index.ToString("D3", System.Globalization.CultureInfo.InvariantCulture)),
+            string.Concat(
+                "corr-sec-pii-",
+                index.ToString(System.Globalization.CultureInfo.InvariantCulture)))));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        // Materialise first: DataJson is a json column, so composing the string in the query
+        // would ask PostgreSQL to concatenate json with text.
+        var written = new List<string>();
+        written.AddRange((await verification.AuditLog.AsNoTracking().ToListAsync())
+            .Select(row => string.Join(' ', row.DataJson, row.TargetId, row.Reason ?? "")));
+        written.AddRange((await verification.Evidence.AsNoTracking().ToListAsync())
+            .Select(row => string.Join(' ', row.EvidenceRef, row.PayloadRef ?? "")));
+        written.AddRange((await verification.EvidenceLinks.AsNoTracking().ToListAsync())
+            .Select(row => row.EvidenceRef));
+        written.AddRange((await verification.ReviewItems.AsNoTracking().ToListAsync())
+            .Select(row => string.Join(' ', row.Reason, row.SourceId)));
+        written.AddRange((await verification.CapacityIncidents.AsNoTracking().ToListAsync())
+            .Select(row => string.Join(' ', row.CapacityIncidentId, row.ShortageReason ?? "")));
+
+        Assert.NotEmpty(written);
+        foreach (string value in written)
+        {
+            // Same guard the runtime uses on its own writes, applied from the outside to what
+            // actually landed. A raw MSISDN or a semantic street address fails it.
+            Assert.True(
+                Ivr.Domain.Privacy.PiiGuard.IsSafeText(value),
+                $"A persisted row failed the PII guard: {value[..Math.Min(60, value.Length)]}");
+        }
+    }
+
+    private sealed class UnavailableCapacityProvider : IEligibilityCapacityProvider
+    {
+        public ValueTask<EligibilityCapacitySnapshot> GetCapacityAsync(
+            EligibilityTaskRecord task,
+            DateTimeOffset evaluatedAt,
+            CancellationToken cancellationToken = default) =>
+            throw new TimeoutException("Capacity source did not answer within the budget.");
+    }
+
     private static string SnapshotFor(string? scenario) => scenario switch
     {
         null => EligibleSnapshotJson,
@@ -508,7 +629,9 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
             Id = Guid.NewGuid(),
             TaskId = taskId,
             ContractVersion = "ivr-order-confirmation.v1",
-            IdempotencyKey = "order-core:TASK-ELIG-CAP-05:idem-cap-05",
+            // Derived from the task id: the hardcoded key was fine while every test seeded one
+            // task, and became a unique-index collision the moment a load test seeded twelve.
+            IdempotencyKey = string.Concat("order-core:", taskId, ":idem"),
             CorrelationId = "corr-elig-cap-05",
             OfficialOrderId = "ORDER-ELIG-CAP-05",
             OrderCode = "GF-CAP-05",

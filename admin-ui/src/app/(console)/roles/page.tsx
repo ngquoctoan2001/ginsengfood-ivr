@@ -1,6 +1,6 @@
 import { requireSession } from "@/lib/auth/guard";
 import { MOCK_DIRECTORY } from "@/lib/auth/directory";
-import { formatNumber, t } from "@/lib/i18n";
+import { formatNumber, t, type MessageKey } from "@/lib/i18n";
 import { IVR_PERMISSIONS, type IvrPermission } from "@/lib/rbac/permissions";
 
 import table from "@/components/data/DataTable.module.css";
@@ -97,7 +97,7 @@ export default async function RolesPage() {
                 return (
                   <tr key={permission}>
                     <td className={table.mono}>{permission}</td>
-                    <td className={table.wrap}>{PERMISSION_SCREENS[permission]}</td>
+                    <td className={table.wrap}>{t(PERMISSION_SCREEN_KEYS[permission])}</td>
                     <td>
                       {holders.length === 0 ? (
                         <span className={styles.ungranted} data-testid={`ungranted-${permission}`}>
@@ -118,16 +118,21 @@ export default async function RolesPage() {
   );
 }
 
-/** Mirrors the permission-to-screen mapping in `specs/ui/08` §3. */
-const PERMISSION_SCREENS: Readonly<Record<IvrPermission, string>> = {
-  IVR_QUEUE_VIEW:
-    "Tổng quan · Nhật ký cuộc gọi · Chi tiết · Báo cáo & phân tích · Cấu hình · Trạng thái tích hợp · Chờ duyệt",
-  IVR_QUEUE_PAUSE: "Tổng quan → Tạm dừng hàng đợi",
-  IVR_QUEUE_RESUME: "Tổng quan → Tiếp tục hàng đợi",
-  IVR_SIM_ENABLE: "Tổng quan → bảng kênh SIM → Bật kênh",
-  IVR_SIM_DISABLE: "Tổng quan → bảng kênh SIM → Tắt kênh",
-  IVR_MANUAL_RETRY: "Chi tiết cuộc gọi → Yêu cầu gọi lại kỹ thuật",
-  IVR_RESULT_REVIEW: "Chi tiết cuộc gọi → Ghi kết luận duyệt",
-  IVR_FLAG_READ: "Đọc feature flag (API, chưa có màn riêng)",
-  IVR_RUNTIME_GATE_ADMIN: "Đổi runtime gate — chờ owner duyệt OD-V1-20",
+/**
+ * Mirrors the permission-to-screen mapping in `specs/ui/08` §3.
+ *
+ * W-0039 / P5-5. The descriptions live in the message catalogue, not here. They are
+ * operator-facing Vietnamese prose, and prose that sits in a component is prose a translator
+ * never sees and a reviewer never diffs against the rest of the console's wording.
+ */
+const PERMISSION_SCREEN_KEYS: Readonly<Record<IvrPermission, MessageKey>> = {
+  IVR_QUEUE_VIEW: "roles.screen.IVR_QUEUE_VIEW",
+  IVR_QUEUE_PAUSE: "roles.screen.IVR_QUEUE_PAUSE",
+  IVR_QUEUE_RESUME: "roles.screen.IVR_QUEUE_RESUME",
+  IVR_SIM_ENABLE: "roles.screen.IVR_SIM_ENABLE",
+  IVR_SIM_DISABLE: "roles.screen.IVR_SIM_DISABLE",
+  IVR_MANUAL_RETRY: "roles.screen.IVR_MANUAL_RETRY",
+  IVR_RESULT_REVIEW: "roles.screen.IVR_RESULT_REVIEW",
+  IVR_FLAG_READ: "roles.screen.IVR_FLAG_READ",
+  IVR_RUNTIME_GATE_ADMIN: "roles.screen.IVR_RUNTIME_GATE_ADMIN",
 };

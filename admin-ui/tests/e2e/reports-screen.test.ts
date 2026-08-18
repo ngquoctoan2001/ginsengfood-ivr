@@ -265,12 +265,12 @@ describe("E2E-UI-REPORT-05 reporting console", () => {
 
     expect(html).toContain("Báo cáo &amp; phân tích");
     // KPI values are the ones the API computed, formatted by the console.
-    expect(html).toContain("46.2%");
-    expect(html).toContain("23.1%");
+    expect(html).toContain("46,2%");
+    expect(html).toContain("23,1%");
     expect(html).toContain("2m 15s");
     // Trend and breakdown.
     expect(html).toContain("GOLDEN_HOUR");
-    expect(html).toContain("54.5%");
+    expect(html).toContain("54,6%");
     expect(html).toContain("IVR_NO_ANSWER_FINAL");
     // Freshness plus the honest source statement and the suppression count.
     expect(html).toContain("Độ tươi dữ liệu");
@@ -331,8 +331,8 @@ describe("E2E-UI-REPORT-05 reporting console", () => {
     const html = await (await visit("/reports", cookie)).text();
 
     expect(html).toContain("IVR_FORBIDDEN_CALLER");
-    expect(html).not.toContain("46.2%");
-    expect(html).not.toContain("54.5%");
+    expect(html).not.toContain("46,2%");
+    expect(html).not.toContain("54,6%");
   });
 
   it("sends a signed-out visitor to login instead of the report", async () => {

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Ivr.Api.Auth;
+using Ivr.Api.Health;
 using Ivr.Api.Middleware;
 using Ivr.Infrastructure.Auth;
 using Ivr.Infrastructure.Configuration;
@@ -106,6 +107,9 @@ public static class IvrApiServiceCollectionExtensions
         services.TryAddSingleton<IServiceSigningKeySource>(
             provider => provider.GetRequiredService<MockOidcIssuer>());
         services.TryAddSingleton<IServiceJwtValidator, ServiceJwtValidator>();
+
+        // W-0040 / P6-1. Real readiness replaces the hardcoded probe.
+        services.TryAddScoped<IIvrReadinessProbe, IvrReadinessProbe>();
 
         return services;
     }

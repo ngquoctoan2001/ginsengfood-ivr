@@ -38,7 +38,7 @@ try {
   process.stdout.write("UT-DOC-PII-03 PASS — docs sources contain no real phone or full street address examples\n");
   process.stdout.write("DOC_BOUNDARY_PASS — Target draft and current compatibility stay separate\n");
   process.stdout.write("DOC_LINKS_PASS — every generated local portal link resolves\n");
-  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff and non-prod Pages jobs are root-included\n");
+  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, UI QA, observability and chaos jobs are root-included\n");
   process.stdout.write("API_DOCS_SELFTEST_PASS\n");
 } finally {
   await fs.rm(temporaryRoot, { recursive: true, force: true });
@@ -129,6 +129,95 @@ async function assertCiTopology() {
     (pages.rules ?? []).some((rule) => String(rule.if ?? "").includes("API_DOCS_PUBLISH_NONPROD")),
     "Pages job must require the explicit non-prod publication gate.",
   );
+
+  // W-0036 / P5-2 §7. The contract and e2e fragment must be root-included and fail closed.
+  // Writing the file is not the deliverable — a fragment nobody includes runs nowhere, and a
+  // suite that may fail is a suite nobody reads.
+  assert(
+    includes.includes("/deploy/ci/contract-e2e.gitlab-ci.yml"),
+    "Root GitLab config must include the contract/e2e fragment.",
+  );
+  const contractE2e = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/contract-e2e.gitlab-ci.yml"), "utf8"),
+  );
+  // W-0038 / P5-4 §7. Same treatment for the review gate: written, included, fails closed.
+  assert(
+    includes.includes("/deploy/ci/quality-gate.gitlab-ci.yml"),
+    "Root GitLab config must include the quality-gate fragment.",
+  );
+  const qualityGate = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/quality-gate.gitlab-ci.yml"), "utf8"),
+  );
+  for (const jobName of ["review_gate_selftest", "mr_traceability_gate"]) {
+    assert(qualityGate[jobName], `Rendered quality gate is missing ${jobName}.`);
+    assert(qualityGate[jobName].allow_failure === false, `${jobName} must fail closed.`);
+  }
+
+  // W-0039 / P5-5 §7. The console QA job, same treatment.
+  assert(
+    includes.includes("/deploy/ci/ui-qa.gitlab-ci.yml"),
+    "Root GitLab config must include the UI QA fragment.",
+  );
+  const uiQa = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/ui-qa.gitlab-ci.yml"), "utf8"),
+  );
+  assert(uiQa.ui_qa, "Rendered UI QA pipeline is missing ui_qa.");
+  assert(uiQa.ui_qa.allow_failure === false, "ui_qa must fail closed.");
+
+  // W-0041 / P6-2 section 7. The observability fragment, same treatment. This one matters more
+  // than most: its whole job is to catch dashboards and alerts that drifted away from the
+  // instrumentation, so a gate that runs nowhere leaves exactly the failure it was built for.
+  assert(
+    includes.includes("/deploy/ci/observability.gitlab-ci.yml"),
+    "Root GitLab config must include the observability fragment.",
+  );
+  const observability = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/observability.gitlab-ci.yml"), "utf8"),
+  );
+  for (const jobName of ["observability_rules", "observability_contract"]) {
+    assert(observability[jobName], `Rendered observability pipeline is missing ${jobName}.`);
+    assert(observability[jobName].allow_failure === false, `${jobName} must fail closed.`);
+  }
+  // promtool is the rule evaluator, not the server: the image entrypoint has to be blanked or the
+  // job starts Prometheus and waits forever instead of running the checks.
+  assert(
+    Array.isArray(observability.observability_rules.image?.entrypoint)
+      && observability.observability_rules.image.entrypoint.length === 1
+      && observability.observability_rules.image.entrypoint[0] === "",
+    "observability_rules must blank the Prometheus image entrypoint.",
+  );
+
+  // W-0042 / P6-3 section 7. The chaos fragment, same treatment. A resilience gate that runs
+  // nowhere leaves the system unproven under exactly the faults it will meet.
+  assert(
+    includes.includes("/deploy/ci/chaos.gitlab-ci.yml"),
+    "Root GitLab config must include the chaos fragment.",
+  );
+  const chaos = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/chaos.gitlab-ci.yml"), "utf8"),
+  );
+  assert(chaos.chaos_suite, "Rendered chaos pipeline is missing chaos_suite.");
+  assert(chaos.chaos_suite.allow_failure === false, "chaos_suite must fail closed.");
+  // The scenarios create their own containers, so the job needs a Docker daemon; without it every
+  // scenario errors on setup and the suite reads as broken tooling rather than as a fault found.
+  assert(
+    (chaos.chaos_suite.services ?? []).some((service) =>
+      String(service.name ?? service).includes("dind")),
+    "chaos_suite must provide a Docker daemon for the fault-injection containers.",
+  );
+
+  for (const jobName of ["contract_suite", "e2e_flow_suite"]) {
+    assert(contractE2e[jobName], `Rendered contract/e2e pipeline is missing ${jobName}.`);
+    assert(contractE2e[jobName].allow_failure === false, `${jobName} must fail closed.`);
+    assert(
+      contractE2e[jobName].variables?.REAL_CUSTOMER_CALL_ALLOWED === "NO",
+      `${jobName} must pin REAL_CUSTOMER_CALL_ALLOWED=NO.`,
+    );
+    assert(
+      contractE2e[jobName].variables?.IVR_ADAPTER_MODE === "MOCK",
+      `${jobName} must pin IVR_ADAPTER_MODE=MOCK.`,
+    );
+  }
 }
 
 async function assertBaselineManifest() {

@@ -64,6 +64,16 @@ async function IntegrationStatusPanels() {
       tone: status.global_dial_kill_switch ? "warning" : "success",
       testId: "kill-switch",
     },
+    {
+      label: t("integration.v1Notification"),
+      // W-0033 / P4-5 §2.5. Stated as an invariant rather than read from the API on purpose:
+      // V1 notification is immutable-off in the feature-flag guardrails, so it is not a runtime
+      // variable. Plumbing it as a live value would imply a precision that does not exist, and
+      // would let an operator read "no message was sent" as a failure instead of the design.
+      value: t("integration.v1NotificationDisabled"),
+      tone: "success",
+      testId: "v1-notification",
+    },
     { label: t("integration.flagRevision"), value: formatNumber(status.flag_revision) },
   ];
 

@@ -23,7 +23,15 @@
 }
 
 /* Sticky so the environment badge and the signed-in actor stay visible while
-   an operator scrolls a long table. */
+   an operator scrolls a long table.
+
+   The header is navy in both colour schemes. Its children — EnvironmentBadge,
+   SignOutButton — are also rendered on light surfaces elsewhere (the login
+   screen), so rather than teach them about a dark ground, the tokens they read
+   are re-pointed here. Custom properties inherit, so each child styles itself
+   correctly for navy without knowing it is on navy. Ratios against #0B1F3A:
+   text 15.41:1, muted 8.59:1, control border 6.74:1. The divider token becomes
+   the gold hairline, which is 6.83:1 there. */
 .header {
   position: sticky;
   top: 0;
@@ -33,15 +41,30 @@
   align-items: center;
   gap: var(--ivr-space-4);
   padding: var(--ivr-space-3) var(--ivr-space-5);
-  border-bottom: 1px solid var(--ivr-border);
-  background: var(--ivr-surface);
+  border-bottom: 1px solid var(--ivr-chrome-border);
+  background: var(--ivr-chrome);
+  color: var(--ivr-chrome-text);
   box-shadow: var(--ivr-shadow-card);
+
+  --ivr-text: var(--ivr-chrome-text);
+  --ivr-text-muted: var(--ivr-chrome-text-muted);
+  --ivr-text-subtle: var(--ivr-chrome-text-muted);
+  --ivr-border: var(--ivr-chrome-border);
+  --ivr-border-strong: var(--ivr-chrome-border-strong);
+  --ivr-surface: transparent;
+  --ivr-surface-hover: var(--ivr-chrome-hover);
+  --ivr-focus: var(--ivr-brand-gold);
 }
 
+/* Gold keel under the product name — the one place the brand accent is allowed
+   to be purely decorative, and it only works because the ground is navy. */
 .brand {
   font-weight: 700;
   font-size: var(--ivr-text-base);
   letter-spacing: -0.015em;
+  color: var(--ivr-chrome-text);
+  border-bottom: 2px solid var(--ivr-brand-gold);
+  padding-bottom: 2px;
 }
 
 .actor {

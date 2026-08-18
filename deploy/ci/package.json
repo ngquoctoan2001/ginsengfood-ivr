@@ -11,7 +11,11 @@
     "test:openapi-negative": "node scripts/selftest-openapi.mjs",
     "test:config": "node scripts/ci-config-selftest.mjs",
     "docs:build": "node scripts/build-api-docs.mjs",
-    "test:docs": "node scripts/docs-selftest.mjs"
+    "test:docs": "node scripts/docs-selftest.mjs",
+    "traceability:write": "node scripts/generate-test-traceability.mjs",
+    "test:traceability": "node scripts/generate-test-traceability.mjs --check",
+    "test:review-gate": "node scripts/review-gate-selftest.mjs",
+    "check:mr": "node scripts/check-mr-traceability.mjs"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "12.1.0",

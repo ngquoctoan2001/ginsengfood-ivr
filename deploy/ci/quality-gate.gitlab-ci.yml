@@ -1,0 +1,33 @@
+# W-0038 / P5-4 §7. The review gate.
+#
+# Static analysis, secret/vulnerability scanning and the coverage threshold already existed from
+# P0-2 and P5-1; what was missing was proof that any of them REJECT anything, and a check that a
+# merge request carries the traceability its template asks for.
+#
+# Both jobs are allow_failure: false. A quality gate that may fail is a suggestion.
+
+review_gate_selftest:
+  stage: validate
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  allow_failure: false
+  variables:
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends nodejs
+  script:
+    # Each check feeds a real tool a deliberately bad input and fails if the tool is happy.
+    # CT-GATE-01 order transition, CT-GATE-02 raw phone, CT-GATE-03 coverage drop,
+    # CT-GATE-04 untraceable merge request.
+    - node deploy/ci/scripts/review-gate-selftest.mjs
+
+mr_traceability_gate:
+  stage: validate
+  image: node:24-bookworm-slim
+  allow_failure: false
+  rules:
+    # Only meaningful on a merge request: there is no description to check otherwise.
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  script:
+    # MASTER-05. The template has existed since P0-2; nothing verified it was filled in.
+    - node deploy/ci/scripts/check-mr-traceability.mjs

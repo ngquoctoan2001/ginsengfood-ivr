@@ -1,3 +1,4 @@
+using System.Text;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Privacy;
 using Ivr.Infrastructure.Audit;
@@ -175,6 +176,30 @@ public sealed class CrossCuttingFoundationTests
                 generatedCorrelationId[5..].Split('-'),
                 segment => Assert.Equal(4, segment.Length));
         }
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-FND-PII-12")]
+    public void TheGuardScansALargeCleanBodyWithinBudgetInsteadOfTimingOut()
+    {
+        // W-0040 section 6. PiiMaskingFilter serialises the whole response body and hands it to
+        // the guard, so this input is bounded by nothing -- an admin list runs to hundreds of
+        // kilobytes. The old budget was 100 ms against an interpreted pattern costing roughly
+        // 0.19 ms/KB, which a body this size cannot finish inside; and .NET charges regex
+        // timeouts against wall clock rather than CPU, so a loaded host tripped it on inputs far
+        // smaller than this one -- including a 128-character correlation header.
+        var builder = new StringBuilder(1_100_000);
+        while (builder.Length < 1_000_000)
+        {
+            builder.Append("{\"taskId\":\"TASK-a1b2c3d4\",\"program\":\"GOLDEN_HOUR\",\"status\":\"DELIVERED_ACCEPTED\"},");
+        }
+
+        string clean = builder.ToString();
+        Assert.True(PiiGuard.IsSafeText(clean));
+
+        // The budget moved; the detection set did not. The same body carrying one restricted
+        // value is still caught, at the far end where a short-circuiting scan cannot cheat.
+        Assert.False(PiiGuard.IsSafeText(clean + "contact 0912341234"));
     }
 
     [Fact]

@@ -1,8 +1,12 @@
+/*
+ * The sidebar is brand furniture, not content: it stays navy in both colour
+ * schemes so the console reads the same way whichever one the operator runs.
+ */
 .nav {
-  border-right: 1px solid var(--ivr-border);
-  background: var(--ivr-surface);
+  border-right: 1px solid var(--ivr-chrome-border);
+  background: var(--ivr-chrome);
   padding: var(--ivr-space-4) var(--ivr-space-3);
-  min-width: 13.5rem;
+  min-width: 14.5rem;
 }
 
 .list {
@@ -16,35 +20,63 @@
 }
 
 .link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--ivr-space-3);
   padding: var(--ivr-space-2) var(--ivr-space-3);
   border-radius: var(--ivr-radius-sm);
   border-left: 2px solid transparent;
   text-decoration: none;
-  color: var(--ivr-text-muted);
+  color: var(--ivr-chrome-text-muted);
   font-size: var(--ivr-text-sm);
   font-weight: 500;
   transition: background-color var(--ivr-transition), color var(--ivr-transition),
     border-color var(--ivr-transition);
 }
 
-.link:hover {
-  background: var(--ivr-surface-hover);
-  color: var(--ivr-text);
+/* The blue focus ring is tuned for light content surfaces and would sink into
+   the navy here; gold clears 7.94:1 against it. */
+.link:focus-visible {
+  outline-color: var(--ivr-brand-gold);
 }
 
-/* The current page is marked by weight and a rule as well as colour. */
+.icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--ivr-chrome-text-muted);
+  transition: color var(--ivr-transition);
+}
+
+.label {
+  min-width: 0;
+}
+
+.link:hover {
+  background: var(--ivr-chrome-hover);
+  color: var(--ivr-chrome-text);
+}
+
+.link:hover .icon {
+  color: var(--ivr-chrome-text);
+}
+
+/* The current page is marked by weight, a gold rule and a gold glyph as well as
+   colour, so the state survives greyscale. */
 .link[aria-current="page"] {
-  background: var(--ivr-surface-hover);
-  border-left-color: var(--ivr-accent);
-  color: var(--ivr-text);
+  background: var(--ivr-chrome-raised);
+  border-left-color: var(--ivr-brand-gold);
+  color: var(--ivr-chrome-text);
   font-weight: 600;
+}
+
+.link[aria-current="page"] .icon {
+  color: var(--ivr-brand-gold);
 }
 
 @media (max-width: 48rem) {
   .nav {
     border-right: none;
-    border-bottom: 1px solid var(--ivr-border);
+    border-bottom: 1px solid var(--ivr-chrome-border);
     min-width: 0;
     padding: var(--ivr-space-2) var(--ivr-space-4);
     overflow-x: auto;
@@ -65,6 +97,6 @@
 
   .link[aria-current="page"] {
     border-left: none;
-    border-bottom-color: var(--ivr-accent);
+    border-bottom-color: var(--ivr-brand-gold);
   }
 }

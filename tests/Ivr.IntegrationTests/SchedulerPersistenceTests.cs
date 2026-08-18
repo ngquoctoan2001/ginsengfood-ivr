@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Ivr.Api.Application;
 using Ivr.Domain.Confirmation;
@@ -441,6 +442,72 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         Assert.Equal(2, capacity.PendingCallJobs);
         Assert.StartsWith("evidence://ivr/p2-3/scheduler-capacity/", capacity.EvidenceRef,
             StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [Trait("TestId", "PT-CAP-01")]
+    [InlineData(1, 8)]
+    [InlineData(4, 24)]
+    public async Task OverCapacityHoldsJobsWithoutLosingOneAndNeverDoubleBooksAChannel(
+        int channels,
+        int jobs)
+    {
+        // W-0037 / P5-3 §6.1-6.2. Two shapes on purpose: the one-SIM lab that is actually going
+        // to happen first, and a wider pool. Both are pushed past capacity, because the question
+        // is not "does it work when there is room" — it is what happens when there is not.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        for (int index = 0; index < channels; index++)
+        {
+            await SeedChannelAsync(
+                factory,
+                string.Concat("SIM-PT-CAP-", index.ToString("D3", CultureInfo.InvariantCulture)));
+        }
+
+        for (int index = 0; index < jobs; index++)
+        {
+            string suffix = index.ToString("D3", CultureInfo.InvariantCulture);
+            await SeedReadyJobAsync(
+                factory,
+                string.Concat("TASK-PT-CAP-", suffix),
+                string.Concat("JOB-PT-CAP-", suffix),
+                Now);
+        }
+
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        // Every worker races at once. Serial claiming would prove nothing about contention.
+        SchedulerDispatchLease?[] leases = await Task.WhenAll(
+            Enumerable.Range(0, jobs).Select(worker => store.TryClaimDueDispatchAsync(
+                string.Concat("worker-", worker.ToString(CultureInfo.InvariantCulture)),
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromMinutes(2))));
+
+        SchedulerDispatchLease[] granted = leases.OfType<SchedulerDispatchLease>().ToArray();
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+
+        // ONE_SIM_ONE_ACTIVE_CALL. The hard invariant: a channel carrying two calls is two
+        // customers hearing each other's order, so this is the assertion that matters most.
+        Assert.True(granted.Length <= channels, $"granted {granted.Length} leases for {channels} channels");
+        List<SimChannelEntity> reserved = await verification.SimChannels.AsNoTracking()
+            .Where(channel => channel.Status == "RESERVED")
+            .ToListAsync();
+        Assert.Equal(granted.Length, reserved.Count);
+        Assert.Equal(
+            reserved.Count,
+            reserved.Select(channel => channel.ActiveCallJobId).Distinct(StringComparer.Ordinal).Count());
+
+        // No task is lost under overload. Every job seeded is still accounted for — the ones that
+        // could not get a channel are waiting, not dropped, and none was silently marked done.
+        List<CallJobEntity> allJobs = await verification.CallJobs.AsNoTracking().ToListAsync();
+        Assert.Equal(jobs, allJobs.Count);
+        Assert.Equal(granted.Length, allJobs.Count(job => job.Status == "DISPATCH_LEASED"));
+
+        // A lease is not a customer attempt: it is IVR reserving a channel, and overload must
+        // never spend a customer's limited attempts (DT-02 / DT-04).
+        Assert.Empty(await verification.CallAttempts.AsNoTracking()
+            .Where(attempt => attempt.IsCountedCustomerAttempt)
+            .ToListAsync());
     }
 
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services

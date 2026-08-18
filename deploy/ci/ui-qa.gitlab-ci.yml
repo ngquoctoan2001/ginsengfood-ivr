@@ -1,0 +1,22 @@
+# W-0039 / P5-5 §7. Console accessibility, i18n and PII-at-render checks.
+#
+# Kept separate from the main UI build job so a red result names its own diagnosis: a broken
+# layout and a missing translation are different failures with different owners.
+#
+# Cross-browser and visual-regression jobs are deliberately absent — see docs/evidence/W-0039.
+# A job that cannot run is worse than no job: it becomes allow_failure and then furniture.
+
+ui_qa:
+  stage: validate
+  image: node:24-bookworm-slim
+  allow_failure: false
+  variables:
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  script:
+    - npm --prefix admin-ui ci --no-audit --no-fund
+    - npm --prefix admin-ui run lint
+    - npm --prefix admin-ui run typecheck
+    # UI-I18N-02 catalogue and VN notation, UI-A11Y-01 accessible names,
+    # UI-VISUAL-04 masked PII in rendered HTML, plus the WCAG contrast tokens from W-0097.
+    - npm --prefix admin-ui test

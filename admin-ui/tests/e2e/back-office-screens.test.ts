@@ -326,6 +326,12 @@ describe("E2E-UI-REVIEW-05 review queue and back-office screens", () => {
     expect(html).toContain("W-0040");
     // The kill switch is reported as engaged, not hidden.
     expect(html).toContain("ĐANG BẬT");
+
+    // W-0033 / P4-5 §2.5. The console must say V1 notification is off BY DESIGN. Without this
+    // line an operator seeing no customer message has no way to tell policy from failure.
+    expect(html).toContain("Thông báo tới khách (V1)");
+    expect(html).toContain("TẮT theo thiết kế");
+    expect(html).not.toContain("thông báo lỗi gửi");
   });
 
   it("locks seed and mock management in a production environment", async () => {

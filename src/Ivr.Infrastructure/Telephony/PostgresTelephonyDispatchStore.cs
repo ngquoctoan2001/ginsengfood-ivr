@@ -255,6 +255,19 @@ public sealed class PostgresTelephonyDispatchStore(
                     ? null
                     : technicalErrorCode ?? "MOCK_CHANNEL_UNHEALTHY";
                 ReleaseLease(channel);
+
+                // W-0042 / P6-3, DT-04. The second place a channel is taken out of service, and
+                // the one DT-04 actually names: fail_count crossing its threshold. W-0041 counted
+                // only the lease-expiry path, so the alert that claimed to cover DT-04 was reading
+                // a metric the DT-04 transition never touched -- an alert wired to the wrong
+                // event, which is worse than none because it looks covered.
+                if (!channelHealthy)
+                {
+                    Observability.IvrTelemetry.RecordChannelQuarantine(
+                        (Observability.TelemetryTags.ReasonCode,
+                            channel.DisabledReason ?? "MOCK_CHANNEL_UNHEALTHY"));
+                }
+
                 context.AuditLog.Add(CreateAudit(
                     "MOCK_SIM_PROVIDER_EVENT_CAPTURED",
                     attempt,

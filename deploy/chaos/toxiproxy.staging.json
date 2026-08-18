@@ -1,0 +1,14 @@
+[
+  {
+    "name": "ivr-db",
+    "listen": "0.0.0.0:15432",
+    "upstream": "chaos-db:5432",
+    "enabled": true
+  },
+  {
+    "name": "ivr-sales-callback",
+    "listen": "0.0.0.0:15999",
+    "upstream": "chaos-sales:5999",
+    "enabled": true
+  }
+]

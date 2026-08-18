@@ -276,9 +276,68 @@ public sealed class CallbackDeliveryTests
         Assert.Null(handler.Path);
     }
 
+    [Fact]
+    [Trait("TestId", "UT-OBS-TRACE-02")]
+    public async Task EachDeliveryEmitsOneSpanCarryingTheTaskCorrelationAndItsOutcome()
+    {
+        // W-0040 / P6-1 §6.2, DF-05. The correlation id the task arrived with has to survive to
+        // the outbound boundary. Without it, investigating one order means guessing which of a
+        // batch's log lines belong together.
+        var captured = new List<System.Diagnostics.Activity>();
+        using var listener = new System.Diagnostics.ActivityListener
+        {
+            ShouldListenTo = source => source.Name == Ivr.Infrastructure.Observability.IvrTelemetry.ServiceName,
+            Sample = (ref System.Diagnostics.ActivityCreationOptions<System.Diagnostics.ActivityContext> _) =>
+                System.Diagnostics.ActivitySamplingResult.AllDataAndRecorded,
+            ActivityStopped = captured.Add,
+        };
+        System.Diagnostics.ActivitySource.AddActivityListener(listener);
+
+        CallbackOutboxMessage message = CreateMessage();
+        var outbox = new MemoryOutbox(message);
+        var target = new StubTargetTransport(new CallbackTransportResult(
+            CallbackTransportOutcome.Accepted,
+            200,
+            "ACCEPTED",
+            null));
+        CallbackDispatcher dispatcher = CreateDispatcher(outbox, target, CreateOptions());
+
+        Assert.Single(await dispatcher.RunBatchAsync());
+
+        System.Diagnostics.Activity span = Assert.Single(
+            captured,
+            activity => activity.OperationName == "ivr.callback.deliver");
+        Assert.Equal(
+            message.CorrelationId,
+            span.GetTagItem(Ivr.Infrastructure.Observability.TelemetryTags.CorrelationId));
+        Assert.Equal(
+            message.ProgramCode,
+            span.GetTagItem(Ivr.Infrastructure.Observability.TelemetryTags.Program));
+
+        // The span records how the delivery ended, so a waterfall shows the outcome without a
+        // second lookup into the database.
+        Assert.Equal(
+            "DELIVERED_ACCEPTED",
+            span.GetTagItem(Ivr.Infrastructure.Observability.TelemetryTags.Outcome));
+
+        // And nothing customer-identifying rode along.
+        foreach (KeyValuePair<string, string?> tag in span.Tags)
+        {
+            Assert.Contains(tag.Key, Ivr.Infrastructure.Observability.TelemetryTags.Allowed);
+            Assert.True(
+                tag.Value is null || Ivr.Domain.Privacy.PiiGuard.IsSafeText(tag.Value),
+                $"span tag {tag.Key} failed the PII guard");
+        }
+    }
+
     [Theory]
     [Trait("TestId", "UT-CALLBACK-STATE-08")]
     [InlineData(CallbackTransportOutcome.Accepted, 200, "DELIVERED_ACCEPTED", 0, false)]
+    // W-0036 / P5-2 `CT-CB-02`. Sales saying "I already have this" must land in the SAME terminal
+    // state as "accepted", and must not raise a review. It was the one outcome this theory did
+    // not name — the transport classified it, but nothing asserted where it came to rest, so a
+    // duplicate could have quietly become a review item an operator then has to triage.
+    [InlineData(CallbackTransportOutcome.DuplicateAccepted, 200, "DELIVERED_ACCEPTED", 0, false)]
     [InlineData(CallbackTransportOutcome.BlockedByCore, 200, "DELIVERED_BLOCKED", 0, true)]
     [InlineData(CallbackTransportOutcome.ReviewRequired, 200, "DELIVERED_REVIEW", 0, true)]
     [InlineData(CallbackTransportOutcome.RejectedStale, 409, "REJECTED_STALE", 0, true)]

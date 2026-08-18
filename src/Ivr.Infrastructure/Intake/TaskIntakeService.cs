@@ -9,6 +9,7 @@ using Ivr.Domain.Privacy;
 using Ivr.Domain.Scripts;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Contracts;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Security;
 using Microsoft.Extensions.Options;
@@ -27,15 +28,32 @@ public sealed class TaskIntakeService(
     private const string MockEvidencePolicyVersion = "mock-evidence-v1";
     private const string MockPrivacyPolicyVersion = "mock-privacy-v1";
 
-    public Task<TaskIntakeOutcome> IntakeAsync(
+    public async Task<TaskIntakeOutcome> IntakeAsync(
         TaskIntakeCommand command,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(command);
-        return store.ExecuteAsync(
+        long startedTicks = System.Diagnostics.Stopwatch.GetTimestamp();
+        TaskIntakeOutcome outcome = await store.ExecuteAsync(
             command,
             token => EvaluateAsync(command, token),
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+
+        // W-0041 / P6-2. Measured at the single exit, so the decision mix and the latency come off
+        // the same event and cannot drift apart the way two separately placed probes would. The
+        // duration is real elapsed time, not an estimate: P6-1 section 11 forbids reporting a KPI
+        // that was inferred rather than observed.
+        (string Key, object? Value)[] tags =
+        [
+            (TelemetryTags.Program, command.Source.Program_code.ToString()),
+            (TelemetryTags.PaymentMethod, command.Source.Payment_method_snapshot.ToString()),
+            (TelemetryTags.Decision, outcome.Decision),
+        ];
+        IvrTelemetry.RecordIntakeDecision(tags);
+        IvrTelemetry.RecordIntakeLatency(
+            System.Diagnostics.Stopwatch.GetElapsedTime(startedTicks).TotalSeconds,
+            tags);
+        return outcome;
     }
 
     private async Task<TaskIntakePersistencePlan> EvaluateAsync(

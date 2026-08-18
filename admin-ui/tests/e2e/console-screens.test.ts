@@ -448,10 +448,10 @@ describe("E2E-UI-LOG-01 call log", () => {
     const all = await getHtml("/dashboard", cookie);
     const allHtml = await all.text();
     expect(allHtml).toContain("Tổng quan vận hành IVR");
-    expect(allHtml).toContain("50.0%");
+    expect(allHtml).toContain("50,0%");
     expect(allHtml).toContain("SCHEDULER_DEADLINE");
     // W-0101 — the four tiles `specs/ui/01` asks for.
-    expect(allHtml).toContain("75.0%");
+    expect(allHtml).toContain("75,0%");
     expect(allHtml).toContain("Tỷ lệ gọi thành công");
     expect(allHtml).toContain("Chờ gọi lần 2");
     expect(allHtml).toContain("Bị chặn (eligibility)");

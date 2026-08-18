@@ -3,6 +3,7 @@ using System.Text.Json;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -126,6 +127,20 @@ public sealed class EligibilityService(
             evaluation = EligibilityRules.Evaluate(snapshot with { Capacity = capacity });
         }
 
+        // W-0041 / P6-2, DO-06. Fail-closed is what the downstream-health alert is built on, so it
+        // has to be counted where it is decided: at rest, a task that was held and a task nobody
+        // ever sent look identical. One measurement per evaluation carrying the reason that drove
+        // it -- counting every reason would make a single hold read as several.
+        if (!evaluation.Eligible && FailClosedDecisions.Contains(evaluation.Decision))
+        {
+            IvrTelemetry.RecordFailClosed(
+                (TelemetryTags.Program, stored.Task.ProgramType),
+                (TelemetryTags.Decision, evaluation.Decision),
+                (TelemetryTags.ReasonCode, evaluation.Reasons.Count > 0
+                    ? evaluation.Reasons[0].Code
+                    : "UNSPECIFIED"));
+        }
+
         return await repository.PersistAsync(
             taskId,
             evaluation,
@@ -133,6 +148,19 @@ public sealed class EligibilityService(
             correlationId,
             cancellationToken).ConfigureAwait(false);
     }
+
+    /// <summary>
+    /// Decisions that mean the system refused to proceed because it could not prove it was safe
+    /// to. <c>TASK_SKIPPED_TRUSTED_CUSTOMER</c> is deliberately absent: that is policy choosing
+    /// not to call, not the system failing closed, and folding the two together would make a
+    /// working trust rule look like a downstream outage on the alert.
+    /// </summary>
+    private static readonly HashSet<string> FailClosedDecisions = new(StringComparer.Ordinal)
+    {
+        EligibilityDecisions.BlockedOperational,
+        EligibilityDecisions.HeldAdminReview,
+        EligibilityDecisions.CapacityException,
+    };
 
     private async ValueTask<EligibilityCapacitySnapshot> GetCapacityFailClosedAsync(
         EligibilityTaskRecord stored,

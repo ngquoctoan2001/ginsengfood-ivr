@@ -2,7 +2,9 @@ import { Suspense } from "react";
 
 import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorAlert";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
+import { BooleanCell } from "@/components/data/BooleanCell";
 import { MetricGrid, type Metric } from "@/components/data/MetricGrid";
+import { formatRate } from "@/lib/analytics/format";
 import { getDashboard, listSimChannels } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrDashboardProjection, IvrSimChannelList } from "@/lib/api/types";
@@ -228,9 +230,10 @@ async function DashboardPanels({
                     </td>
                     <td>{channel.status}</td>
                     <td>
-                      {channel.busy
-                        ? `✓${channel.active_call_job_id === undefined ? "" : ` ${channel.active_call_job_id}`}`
-                        : "—"}
+                      <BooleanCell value={channel.busy} />
+                      {channel.busy && channel.active_call_job_id !== undefined
+                        ? ` ${channel.active_call_job_id}`
+                        : ""}
                     </td>
                     <td>{formatNumber(channel.fail_count)}</td>
                     <td>
@@ -275,7 +278,7 @@ async function DashboardPanels({
                   <tr key={incident.capacity_incident_id}>
                     <td className={table.mono}>{incident.capacity_incident_id}</td>
                     <td>{incident.scope}</td>
-                    <td>{incident.hold_new_calls ? "✓" : "—"}</td>
+                    <td><BooleanCell value={incident.hold_new_calls} /></td>
                     <td>{incident.shortage_reason ?? "—"}</td>
                     <td>{formatNumber(incident.missed_deadline_count)}</td>
                     <td>{formatDateTime(incident.opened_at)}</td>
@@ -293,7 +296,11 @@ async function DashboardPanels({
   );
 }
 
-/** Rates arrive as API-computed fractions; the UI only formats them. */
+/**
+ * Rates arrive as API-computed fractions; the UI only formats them.
+ * W-0039: delegates to the shared formatter so the dashboard and the reports screen cannot
+ * drift into two different notations for the same number.
+ */
 function percent(rate: number): string {
-  return `${(rate * 100).toFixed(1)}%`;
+  return formatRate(rate);
 }

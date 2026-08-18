@@ -1,8 +1,13 @@
+/* The only screen with no data on it, so the only one where the brand gets the
+   full navy ground. Everything inside the card sits on white and keeps the
+   ordinary light tokens — including EnvironmentBadge, which is why the navy
+   stops at the card edge. */
 .page {
   min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: var(--ivr-space-5);
+  background: var(--ivr-chrome);
 }
 
 .card {
@@ -11,17 +16,21 @@
   gap: var(--ivr-space-4);
   background: var(--ivr-surface);
   border: 1px solid var(--ivr-border);
+  border-top: 3px solid var(--ivr-brand-gold);
   border-radius: var(--ivr-radius);
   padding: var(--ivr-space-6);
   box-shadow: var(--ivr-shadow-raised);
 }
 
+/* Gold ink, not brand gold: this sits on the white card, where #C9A227 would
+   fall to 2.26:1. See rule 1 in globals.css. */
 .eyebrow {
   margin: 0;
   font-size: var(--ivr-text-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--ivr-text-muted);
+  font-weight: 600;
+  color: var(--ivr-gold-ink);
 }
 
 .title {

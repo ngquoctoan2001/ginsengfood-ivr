@@ -57,13 +57,41 @@ const TEXT_PAIRS: readonly (readonly [string, string, string])[] = [
   ["success text on a card", "--ivr-success", "--ivr-surface"],
   ["warning text on a card", "--ivr-warning", "--ivr-surface"],
   ["danger text on a card", "--ivr-danger", "--ivr-surface"],
+
+  /*
+   * Brand gold. Rules 1 and 2 in globals.css confine gold to dark grounds and to
+   * fills that carry dark ink, so the pairs that exist here are the pairs that
+   * are legal: gold ink on light surfaces, dark ink on a gold fill, and brand
+   * gold on the navy shell. There is deliberately no
+   * "--ivr-brand-gold on --ivr-surface" pair and no white-on-gold pair — those
+   * are 2.26:1 and must never be written.
+   */
+  ["gold ink on a card", "--ivr-gold-ink", "--ivr-surface"],
+  ["gold ink on the page", "--ivr-gold-ink", "--ivr-surface-sunken"],
+  ["label on a gold fill", "--ivr-on-gold", "--ivr-brand-gold"],
+  // The primary button is gold, so its hover state carries a label too.
+  ["primary button label on hover", "--ivr-accent-contrast", "--ivr-accent-hover"],
+  ["shell text on the shell", "--ivr-chrome-text", "--ivr-chrome"],
+  ["shell muted text on the shell", "--ivr-chrome-text-muted", "--ivr-chrome"],
+  ["shell muted text on a raised shell surface", "--ivr-chrome-text-muted", "--ivr-chrome-raised"],
+  ["brand gold on the shell", "--ivr-brand-gold", "--ivr-chrome"],
+  ["brand gold on a raised shell surface", "--ivr-brand-gold", "--ivr-chrome-raised"],
 ];
 
 /** Non-text boundaries only need AA for large text / UI components. */
 const BOUNDARY_PAIRS: readonly (readonly [string, string, string])[] = [
   ["strong border on a card", "--ivr-border-strong", "--ivr-surface"],
+  ["strong border on the page", "--ivr-border-strong", "--ivr-surface-sunken"],
   ["focus ring on a card", "--ivr-focus", "--ivr-surface"],
   ["focus ring on the page", "--ivr-focus", "--ivr-surface-sunken"],
+  // AppShell re-points --ivr-border-strong to this inside the navy header, so
+  // the sign-out control keeps a visible boundary there too.
+  ["strong border on the shell", "--ivr-chrome-border-strong", "--ivr-chrome"],
+  ["the gold rule on the shell", "--ivr-chrome-border", "--ivr-chrome"],
+  // A chart bar is a graphical object under WCAG 1.4.11, and it sits in a track
+  // painted --ivr-surface-sunken. This pair is what stops the dark-mode bar from
+  // being navy-on-navy.
+  ["chart fill against its track", "--ivr-data-fill", "--ivr-surface-sunken"],
 ];
 
 describe.each(["light", "dark"] as const)("%s theme contrast", (theme) => {

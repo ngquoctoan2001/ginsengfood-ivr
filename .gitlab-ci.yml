@@ -37,4 +37,9 @@ default:
 include:
   - local: "/deploy/ci/ci.gitlab-ci.yml"
   - local: "/deploy/ci/docs.gitlab-ci.yml"
+  - local: "/deploy/ci/contract-e2e.gitlab-ci.yml"
+  - local: "/deploy/ci/quality-gate.gitlab-ci.yml"
+  - local: "/deploy/ci/ui-qa.gitlab-ci.yml"
+  - local: "/deploy/ci/observability.gitlab-ci.yml"
+  - local: "/deploy/ci/chaos.gitlab-ci.yml"
   - local: "/deploy/ci/registry.gitlab-ci.yml"

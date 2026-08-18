@@ -1,0 +1,54 @@
+# W-0041 / P6-2 — promtool rule unit test backing IT-SLO-LAT-03.
+#
+# These drive the real Prometheus rule evaluator with synthetic series, so an alert that would
+# never fire fails here rather than during the incident it was meant to catch. Each case asserts
+# severity and the threshold, and every threshold has a matching case just below it that must
+# stay silent -- a rule that fires on everything is noise, which section 11 forbids as loudly as
+# a rule that never fires.
+rule_files:
+  - ivr-slo.rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    name: callback p95 above 5s pages
+    input_series:
+      - series: 'ivr_result_callback_duration_seconds_bucket{ivr_program="GOLDEN_HOUR",le="1"}'
+        values: '0+0x40'
+      - series: 'ivr_result_callback_duration_seconds_bucket{ivr_program="GOLDEN_HOUR",le="5"}'
+        values: '0+0x40'
+      - series: 'ivr_result_callback_duration_seconds_bucket{ivr_program="GOLDEN_HOUR",le="10"}'
+        values: '0+10x40'
+      - series: 'ivr_result_callback_duration_seconds_bucket{ivr_program="GOLDEN_HOUR",le="+Inf"}'
+        values: '0+10x40'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: IvrCallbackRevalidateLatencyBreach
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              slo: callback_revalidate_latency
+              decision: D-04
+              slo_status: locked
+              ivr_program: GOLDEN_HOUR
+            exp_annotations:
+              summary: Callback revalidate p95 is above the 5s objective
+              description: p95 delivery time for GOLDEN_HOUR has been above the D-04 objective of 5s for 10 minutes.
+              runbook_url: docs/slo.md#callback-revalidate-latency
+
+  - interval: 1m
+    name: callback p95 under 5s stays silent
+    input_series:
+      - series: 'ivr_result_callback_duration_seconds_bucket{ivr_program="GOLDEN_HOUR",le="1"}'
+        values: '0+10x40'
+      - series: 'ivr_result_callback_duration_seconds_bucket{ivr_program="GOLDEN_HOUR",le="5"}'
+        values: '0+10x40'
+      - series: 'ivr_result_callback_duration_seconds_bucket{ivr_program="GOLDEN_HOUR",le="10"}'
+        values: '0+10x40'
+      - series: 'ivr_result_callback_duration_seconds_bucket{ivr_program="GOLDEN_HOUR",le="+Inf"}'
+        values: '0+10x40'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: IvrCallbackRevalidateLatencyBreach
+        exp_alerts: []
