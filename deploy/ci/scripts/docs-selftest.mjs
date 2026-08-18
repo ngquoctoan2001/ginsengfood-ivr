@@ -38,7 +38,7 @@ try {
   process.stdout.write("UT-DOC-PII-03 PASS — docs sources contain no real phone or full street address examples\n");
   process.stdout.write("DOC_BOUNDARY_PASS — Target draft and current compatibility stay separate\n");
   process.stdout.write("DOC_LINKS_PASS — every generated local portal link resolves\n");
-  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, UI QA, observability and chaos jobs are root-included\n");
+  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, UI QA, observability, chaos and image jobs are root-included\n");
   process.stdout.write("API_DOCS_SELFTEST_PASS\n");
 } finally {
   await fs.rm(temporaryRoot, { recursive: true, force: true });
@@ -205,6 +205,18 @@ async function assertCiTopology() {
       String(service.name ?? service).includes("dind")),
     "chaos_suite must provide a Docker daemon for the fault-injection containers.",
   );
+
+  // W-0043 / P7-1 section 8. The image fragment, same treatment. This gate is the only thing that
+  // looks at the published artifact rather than at the code inside it.
+  assert(
+    includes.includes("/deploy/ci/images.gitlab-ci.yml"),
+    "Root GitLab config must include the images fragment.",
+  );
+  const images = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/images.gitlab-ci.yml"), "utf8"),
+  );
+  assert(images.image_selftest, "Rendered images pipeline is missing image_selftest.");
+  assert(images.image_selftest.allow_failure === false, "image_selftest must fail closed.");
 
   for (const jobName of ["contract_suite", "e2e_flow_suite"]) {
     assert(contractE2e[jobName], `Rendered contract/e2e pipeline is missing ${jobName}.`);

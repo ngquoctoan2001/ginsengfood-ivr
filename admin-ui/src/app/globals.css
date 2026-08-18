@@ -3,11 +3,18 @@
  *
  * The brand palette is five colours:
  *
- *   Primary Navy  #0B1F3A   shell — navbar, hero, sidebar
+ *   Primary Navy  #0B1F3A   shell — navbar, sidebar — and all body copy
  *   Gold          #C9A227   accent — primary action, active marker, rules
  *   White         #F8F7F3   the page ground that sections sit on
- *   Dark Text     #111827   body copy on light surfaces
- *   Light Navy    #163A5F   the navy one step up — raised shell, dark cards
+ *   Dark Text     #111827   reserved: ink on a gold fill, where navy is too
+ *                           close in luminance to the gold to separate cleanly
+ *   Light Navy    #163A5F   the navy one step up — raised shell surfaces
+ *
+ * The console is LIGHT ONLY. It used to follow prefers-color-scheme, but a navy
+ * ground with pale text was the wrong read for a screen operators sit in front
+ * of all shift, so the scheme is pinned: white page, navy text, navy chrome, on
+ * every machine regardless of the OS setting. There is no dark token set to keep
+ * in sync, and contrast.test.ts therefore checks one theme rather than two.
  *
  * Gold is budgeted at roughly 5–10% of the interface. That budget, plus the
  * measured contrast of these five, is what the rules below encode.
@@ -44,7 +51,7 @@
  */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   --ivr-font-sans: var(--font-montserrat), ui-sans-serif, system-ui, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
@@ -70,11 +77,14 @@
      against their surface — WCAG 1.4.11 non-text contrast, enforced by
      tests/unit/contrast.test.ts. This is the token rule 2 points at: gold
      would be 2.26:1 here. Plain separators use --ivr-border. */
-  --ivr-border-strong: #7c889a;
+  --ivr-border-strong: #75879d;
 
-  --ivr-text: #111827;
-  --ivr-text-muted: #3a4a61;
-  --ivr-text-subtle: #5b6b80;
+  /* Body copy is Primary Navy, not a neutral black — the console reads as
+     navy-on-white. Muted and subtle are the same hue walked toward the page, so
+     the whole text ramp stays one colour family; the palest still clears AA. */
+  --ivr-text: #0b1f3a;
+  --ivr-text-muted: #3a5271;
+  --ivr-text-subtle: #5a7290;
   --ivr-text-inverted: #f8f7f3;
 
   /* Interactive. Gold is the primary action, carrying Dark Text — rule 1. */
@@ -104,13 +114,13 @@
   --ivr-danger: #b02a20;
   --ivr-danger-surface: #fbf0ef;
   --ivr-danger-border: #eda49e;
-  --ivr-neutral: #3a4a61;
+  --ivr-neutral: #3a5271;
   --ivr-neutral-surface: #f0eee8;
   --ivr-neutral-border: #cdc9bd;
 
-  /* Shell chrome. Navy in both themes: the navbar, hero and sidebar are brand
-     furniture rather than content, so they do not invert with the scheme. The
-     border is gold — a hairline is the cheapest 5% of the gold budget. */
+  /* Shell chrome — the navbar and sidebar. Navy furniture around white content,
+     which is the one place the brand gets a dark ground. The border is gold: a
+     hairline is the cheapest 5% of the gold budget. */
   --ivr-chrome: #0b1f3a;
   --ivr-chrome-raised: #163a5f;
   --ivr-chrome-hover: #1d4b7a;
@@ -119,10 +129,10 @@
   --ivr-chrome-text: #f8f7f3;
   --ivr-chrome-text-muted: #a9bdd4;
 
-  /* Chart fills. This has to flip with the scheme rather than track the chrome:
-     in dark mode the page IS Primary Navy, so a navy bar on a navy track would
-     vanish. Navy on light, gold on dark — both stay in the palette, and both
-     clear 3:1 against the track they sit in (WCAG 1.4.11 graphical objects). */
+  /* Chart fills. Navy rather than the gold accent: a bar is data, not an action.
+     Kept as its own token so a chart never silently inherits whatever --ivr-accent
+     becomes, and so contrast.test.ts can hold it to 3:1 against its track
+     (WCAG 1.4.11, graphical objects). */
   --ivr-data-fill: #0b1f3a;
 
   --ivr-radius: 6px;
@@ -139,59 +149,6 @@
 
   --ivr-shell-width: 88rem;
   --ivr-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark mode is the palette read the other way up: Primary Navy becomes the
-       page, Light Navy becomes the card. Both are already brand colours, so the
-       shell needs no separate treatment here. */
-    --ivr-surface: #163a5f;
-    --ivr-surface-raised: #1d4b7a;
-    --ivr-surface-sunken: #0b1f3a;
-    --ivr-surface-hover: #245a90;
-    --ivr-border: #2a5580;
-    --ivr-border-strong: #8fa8c4;
-
-    --ivr-text: #f8f7f3;
-    --ivr-text-muted: #b8cadc;
-    --ivr-text-subtle: #9db2c8;
-    --ivr-text-inverted: #111827;
-
-    /* Gold keeps the primary-action role it has in light mode, and keeps Dark
-       Text on top — rule 1 holds on either ground. */
-    --ivr-accent: #c9a227;
-    --ivr-accent-hover: #dbb63f;
-    --ivr-accent-contrast: #111827;
-
-    /* Lifted one step: #c9a227 is a mid-tone that dulls against Light Navy
-       cards, so accents and gold ink brighten while fills stay on brand. */
-    --ivr-brand-gold: #dbb63f;
-    --ivr-brand-gold-hover: #e6c65e;
-    --ivr-gold-ink: #e6c65e;
-    --ivr-on-gold: #111827;
-
-    --ivr-link: #9dc3f0;
-    --ivr-focus: #dbb63f;
-
-    --ivr-success: #6fd79b;
-    --ivr-success-surface: #0e2e1e;
-    --ivr-success-border: #1d6b3f;
-    --ivr-warning: #f0a862;
-    --ivr-warning-surface: #331f0b;
-    --ivr-warning-border: #8a5212;
-    --ivr-danger: #f5a49e;
-    --ivr-danger-surface: #3a1512;
-    --ivr-danger-border: #b02a20;
-    --ivr-neutral: #c6cede;
-    --ivr-neutral-surface: #1d4b7a;
-    --ivr-neutral-border: #3f6690;
-
-    --ivr-data-fill: #dbb63f;
-
-    --ivr-shadow-card: 0 1px 2px rgb(0 0 0 / 40%);
-    --ivr-shadow-raised: 0 2px 8px rgb(0 0 0 / 45%);
-  }
 }
 
 *,
@@ -268,9 +225,8 @@ dd,
   border-radius: var(--ivr-radius-sm);
 }
 
-/* Not a hardcoded white: --ivr-focus is gold in dark mode, and white on gold is
-   2.26:1. The inverted-text token flips with the ground, so the selection stays
-   legible in both schemes. */
+/* The inverted-text token rather than a hardcoded white, so a change to the
+   focus colour cannot leave selected text stranded against it. */
 ::selection {
   background: var(--ivr-focus);
   color: var(--ivr-text-inverted);

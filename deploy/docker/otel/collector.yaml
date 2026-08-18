@@ -1,0 +1,30 @@
+# W-0043 / P7-1. Minimal collector for the dev stack.
+#
+# It currently receives NOTHING. P6-1 instruments with BCL Meter/ActivitySource and no OTLP
+# exporter is wired -- that is W-0063 and still BLOCKED_EXTERNAL. This is here so the wiring exists
+# the day an exporter is added, and it is labelled rather than presented as a working pipeline.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+exporters:
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]

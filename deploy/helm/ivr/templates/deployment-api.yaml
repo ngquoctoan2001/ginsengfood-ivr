@@ -1,0 +1,78 @@
+{{- include "ivr.assertLadder" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ivr.fullname" . }}-api
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ivr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        {{- include "ivr.labels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+    spec:
+      serviceAccountName: {{ include "ivr.fullname" . }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: {{ include "ivr.name" . }}
+                    app.kubernetes.io/component: api
+      containers:
+        - name: api
+          image: "{{ include "ivr.image" . }}ivr-api:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            {{- include "ivr.governanceEnv" . | nindent 12 }}
+            {{- include "ivr.dbEnv" . | nindent 12 }}
+            {{- include "ivr.appSecretEnv" . | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          # Three probes, three different questions (DO-06 / P6-1).
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: http
+            periodSeconds: 3
+            failureThreshold: 40
+          readinessProbe:
+            # A 503 here takes the pod out of rotation WITHOUT restarting it, which is the correct
+            # response to a dependency outage -- restarting would only make the outage worse.
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            # Deliberately not /health/ready. Liveness must not depend on a downstream, or a single
+            # dependency outage restarts every pod at once.
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}

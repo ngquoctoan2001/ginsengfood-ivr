@@ -1,0 +1,14 @@
+# W-0043 / P7-1. Build context for the console image (admin-ui/).
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+tests/
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+.git/
+**/.DS_Store

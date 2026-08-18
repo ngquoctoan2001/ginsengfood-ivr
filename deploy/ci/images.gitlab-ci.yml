@@ -1,0 +1,24 @@
+# W-0043 / P7-1 §8. The container images checked as artifacts.
+#
+# Separate from every other fragment because it answers questions no code test can: whether the
+# published image runs as root, whether its healthcheck actually reports healthy, whether the dev
+# stack comes up from an empty volume, and whether the scan gate still fails on a known-bad base.
+# A green .NET suite says nothing about any of them.
+#
+# allow_failure: false. An image gate that may fail ships unscanned images.
+image_selftest:
+  stage: validate
+  image: docker:27-cli
+  allow_failure: false
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  before_script:
+    - apk add --no-cache nodejs
+  script:
+    - node deploy/ci/scripts/image-selftest.mjs

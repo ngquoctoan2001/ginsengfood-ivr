@@ -1,0 +1,95 @@
+# W-0044 / P7-2 — defaults.
+#
+# Every default here is the SAFE end of the governance ladder. An environment that forgets to set a
+# value gets the closed position, never the open one: a values file is a thing people copy, and a
+# copy that silently opens real calling is the one mistake this chart must make impossible.
+
+nameOverride: ""
+
+image:
+  registry: ""
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+# --- Governance ladder (README-governance section 6) --------------------------------------------
+governance:
+  # NEVER true in this file. P7-2 section 11 forbids it outside prod/pilot, and prod only after a
+  # DF-03 sign-off that does not exist yet.
+  realCustomerCallAllowed: false
+  # Canonical key. The ENVIRONMENT does not decide this -- an env values file may narrow it, never
+  # widen it beyond what the ladder allows for that env.
+  executionMode: MOCK
+  adapterMode: MOCK
+  # Non-empty only for lab: the destinations a LAB_REAL_SIM run may dial.
+  labDestinationAllowlist: []
+  killSwitchEnabled: true
+
+api:
+  replicas: 2
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  resources:
+    requests: { cpu: 100m, memory: 192Mi }
+    limits: { cpu: 1000m, memory: 512Mi }
+
+worker:
+  replicas: 1
+  hpa:
+    enabled: false
+    minReplicas: 1
+    # Ceiling, not a preference. One SIM carries one call (DT-04), so worker throughput is bounded
+    # by the SIM pool and not by pod count. Extra replicas cannot dial more calls; the scheduler's
+    # advisory lock (P2-3) makes them contend for the same leases instead. Raising this without
+    # raising the SIM pool buys nothing and costs contention.
+    maxReplicas: 2
+    simPoolSize: 12
+  resources:
+    requests: { cpu: 100m, memory: 192Mi }
+    limits: { cpu: 1000m, memory: 512Mi }
+
+ui:
+  replicas: 2
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { cpu: 500m, memory: 256Mi }
+
+database:
+  host: ivr-postgres
+  port: 5432
+  name: ivr
+  user: ivr
+  # Never a literal. The chart references a Secret; it does not carry one.
+  existingSecret: ivr-database
+  existingSecretPasswordKey: password
+
+secrets:
+  # P7-2 section 4: K8s Secret in dev, external store in prod. Either way the chart REFERENCES.
+  existingSecret: ivr-app-secrets
+  internalServiceTokenKey: internal-service-token
+  orderCoreServiceTokenKey: order-core-service-token
+
+retention:
+  enabled: true
+  schedule: "30 2 * * *"
+  # DF-07. Deleting customer data on a schedule is the one job where a wrong default is
+  # unrecoverable, so the default reports what it WOULD delete and deletes nothing.
+  dryRun: true
+
+networkPolicy:
+  enabled: true
+  # Least privilege: everything not named here is denied. DNS is separate because a policy that
+  # forgets it breaks every egress rule below it in a way that looks like the wrong rule.
+  allowDns: true
+  egress:
+    databasePort: 5432
+    otelPort: 4317
+    # Named destinations only. An empty list means no external egress at all, which is the correct
+    # state until an owner supplies the real endpoints.
+    external: []
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

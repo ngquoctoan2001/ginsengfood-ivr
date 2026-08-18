@@ -1,0 +1,38 @@
+# W-0044 / P7-2 — pilot
+#
+# Pilot / lab. Still MOCK: no gateway has been procured, so LAB_REAL_SIM has nothing to dial.
+governance:
+  environmentName: pilot
+  realCustomerCallAllowed: false
+  executionMode: MOCK
+  adapterMode: MOCK
+  killSwitchEnabled: true
+  # LAB_REAL_SIM is the mode this env is BUILT for, and it stays MOCK until the SIM gateway
+  # exists (W-0008, still BLOCKED_EXTERNAL). The allowlist below is what LAB_REAL_SIM would need:
+  # helm template FAILS if the mode is switched without it, so the two can never separate.
+  labDestinationAllowlist: []
+image:
+  tag: "0.1.0-pilot"
+
+api:
+  replicas: 2
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+worker:
+  replicas: 1
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+    simPoolSize: 12
+
+ui:
+  replicas: 2
+
+retention:
+  enabled: true
+  schedule: "30 2 * * *"
+  dryRun: true

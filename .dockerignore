@@ -1,0 +1,41 @@
+# W-0043 / P7-1. Build context for the .NET images (repository root).
+#
+# The point is not only speed: anything listed here cannot end up in a layer by accident, so the
+# ignore file is also the first line against a secret or a local artifact being baked into an
+# image (D-05).
+
+# Build output — stale bin/obj from a host build would be copied over the container's own.
+**/bin/
+**/obj/
+**/.vs/
+**/TestResults/
+
+# Not needed to publish api or worker.
+admin-ui/
+tests/
+docs/
+specs/
+plan/
+prompt/
+seed/
+deploy/observability/
+deploy/chaos/
+.gitnexus/
+.claude/
+
+# Repository and tooling metadata.
+.git/
+.github/
+.gitlab/
+**/.DS_Store
+**/node_modules/
+**/*.md
+!README.md
+
+# Local environment files. None are needed to build, and every one of them is a way for a
+# developer's credentials to reach a registry.
+**/.env
+**/.env.*
+**/*.pfx
+**/*.pem
+**/*.key

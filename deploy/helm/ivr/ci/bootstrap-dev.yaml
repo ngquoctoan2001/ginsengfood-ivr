@@ -1,0 +1,72 @@
+# W-0044 / P7-2 — what the chart REFERENCES but deliberately does not carry.
+#
+# The chart never contains a Secret literal (P7-2 §11). These are the dev-only stand-ins a test
+# cluster needs so the chart can be deployed for real; in staging and beyond they come from the
+# platform's secret store. The values are obviously fake so nobody is tempted to reuse them.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ivr-database
+type: Opaque
+stringData:
+  password: dev-database-password-not-a-real-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ivr-app-secrets
+type: Opaque
+stringData:
+  internal-service-token: dev-internal-token-not-a-real-secret
+  order-core-service-token: dev-ordercore-token-not-a-real-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ivr-postgres
+  labels:
+    app.kubernetes.io/name: postgres
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app.kubernetes.io/name: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ivr-postgres
+  labels:
+    app.kubernetes.io/name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  template:
+    metadata:
+      labels:
+        # The NetworkPolicy egress rule selects on this label. If it ever drifts, the API loses the
+        # database and the symptom looks like a database outage rather than a policy mismatch.
+        app.kubernetes.io/name: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_DB
+              value: ivr
+            - name: POSTGRES_USER
+              value: ivr
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ivr-database
+                  key: password
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "ivr", "-d", "ivr", "-h", "localhost"]
+            periodSeconds: 3

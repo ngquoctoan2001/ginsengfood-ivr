@@ -1,0 +1,24 @@
+{
+  "mappings": [
+    {
+      "name": "target-v1 result callback accepted",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/v1/orders/.*/ivr-result"
+      },
+      "response": {
+        "status": 202,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "response_code": "CALLBACK_ACCEPTED_FOR_REVALIDATION",
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "fake sales liveness",
+      "request": { "method": "GET", "urlPath": "/__admin/health" },
+      "response": { "status": 200, "jsonBody": { "status": "UP" } }
+    }
+  ]
+}

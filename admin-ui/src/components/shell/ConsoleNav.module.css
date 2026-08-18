@@ -1,6 +1,6 @@
 /*
- * The sidebar is brand furniture, not content: it stays navy in both colour
- * schemes so the console reads the same way whichever one the operator runs.
+ * The sidebar is brand furniture rather than content, so it keeps the navy
+ * ground while the working area beside it stays white.
  */
 .nav {
   border-right: 1px solid var(--ivr-chrome-border);

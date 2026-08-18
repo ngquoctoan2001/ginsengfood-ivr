@@ -25,9 +25,9 @@
 /* Sticky so the environment badge and the signed-in actor stay visible while
    an operator scrolls a long table.
 
-   The header is navy in both colour schemes. Its children — EnvironmentBadge,
-   SignOutButton — are also rendered on light surfaces elsewhere (the login
-   screen), so rather than teach them about a dark ground, the tokens they read
+   The header is the one navy band in a light console. Its children —
+   EnvironmentBadge, SignOutButton — are also rendered on white surfaces
+   elsewhere (the login card), so rather than teach them about navy, the tokens
    are re-pointed here. Custom properties inherit, so each child styles itself
    correctly for navy without knowing it is on navy. Ratios against #0B1F3A:
    text 15.41:1, muted 8.59:1, control border 6.74:1. The divider token becomes

@@ -1,0 +1,77 @@
+{{- if .Values.api.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "ivr.fullname" . }}-api
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "ivr.fullname" . }}-api
+  minReplicas: {{ .Values.api.hpa.minReplicas }}
+  maxReplicas: {{ .Values.api.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.api.hpa.targetCPUUtilizationPercentage }}
+{{- end }}
+{{- if .Values.worker.hpa.enabled }}
+---
+# The worker HPA is OFF by default, and that is a decision rather than an omission.
+#
+# Worker throughput is bounded by the SIM pool, not by pod count: one SIM carries one call (DT-04).
+# Scaling past the pool cannot dial more calls -- the scheduler's advisory lock (P2-3) makes the
+# extra pods contend for the same leases. So an autoscaler watching CPU would add pods that do no
+# work while looking like it responded to load, which is worse than not scaling at all because it
+# hides the real ceiling.
+#
+# maxReplicas is capped at the SIM pool size for anyone who does turn it on.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "ivr.fullname" . }}-worker
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+  annotations:
+    ivr.ginsengfood/ceiling-reason: >-
+      maxReplicas may not exceed worker.hpa.simPoolSize. Beyond it, pods contend for leases instead
+      of dialling calls.
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "ivr.fullname" . }}-worker
+  minReplicas: {{ .Values.worker.hpa.minReplicas }}
+  maxReplicas: {{ min .Values.worker.hpa.maxReplicas .Values.worker.hpa.simPoolSize }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+{{- end }}
+{{- if .Values.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "ivr.fullname" . }}-api
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ivr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: api
+{{- end }}

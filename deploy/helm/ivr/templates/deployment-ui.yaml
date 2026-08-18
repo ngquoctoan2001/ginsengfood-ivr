@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ivr.fullname" . }}-ui
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+spec:
+  replicas: {{ .Values.ui.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ivr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: ui
+  template:
+    metadata:
+      labels:
+        {{- include "ivr.labels" . | nindent 8 }}
+        app.kubernetes.io/component: ui
+    spec:
+      serviceAccountName: {{ include "ivr.fullname" . }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ui
+          image: "{{ include "ivr.image" . }}ivr-admin-ui:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: IVR_API_BASE_URL
+              value: "http://{{ include "ivr.fullname" . }}-api:8080"
+            - name: IVR_ENVIRONMENT_LABEL
+              value: {{ .Values.governance.environmentName | default "dev" | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: http
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.ui.resources | nindent 12 }}

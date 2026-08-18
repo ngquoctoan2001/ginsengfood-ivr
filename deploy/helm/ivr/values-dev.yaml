@@ -1,0 +1,35 @@
+# W-0044 / P7-2 — dev
+#
+# Ladder floor. MOCK only, no real calling, and nothing here may widen either.
+governance:
+  environmentName: dev
+  realCustomerCallAllowed: false
+  executionMode: MOCK
+  adapterMode: MOCK
+  killSwitchEnabled: true
+
+image:
+  tag: "0.1.0-dev"
+
+api:
+  replicas: 1
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+
+worker:
+  replicas: 1
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 1
+    simPoolSize: 4
+
+ui:
+  replicas: 1
+
+retention:
+  enabled: true
+  schedule: "30 2 * * *"
+  dryRun: true

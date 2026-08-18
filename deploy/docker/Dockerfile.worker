@@ -1,0 +1,50 @@
+# syntax=docker/dockerfile:1.7
+# W-0043 / P7-1 — ivr-worker (DTS-04: three separate deployables).
+#
+# Bases pinned by digest, same reasoning as Dockerfile.api: a tag is a moving pointer, so a build
+# that "passed the scan" could otherwise ship bits nobody scanned.
+#
+# Runtime, not aspnet: the worker is Microsoft.NET.Sdk.Worker on Host.CreateApplicationBuilder and
+# opens no socket at all. Shipping the ASP.NET stack here would add attack surface for a server
+# that never starts.
+# Pinned to the 10.0.2xx band because global.json pins 10.0.201 with rollForward=latestPatch,
+# which refuses a different feature band. Matching the repository rather than loosening
+# global.json: the pin is there so every build uses the SDK the tests were run against.
+ARG SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.203@sha256:6d7f69bc7bc9d4510ca255977b1f53ce52a79307e048a91450b2aecd63627cc3
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/runtime:10.0-noble-chiseled@sha256:221ee342027993567b03715e015576c6c3f9950fb263ffb13cd1685d3af5244e
+
+FROM ${SDK_IMAGE} AS build
+WORKDIR /src
+
+COPY global.json Directory.Build.props ./
+COPY src/Ivr.Domain/Ivr.Domain.csproj src/Ivr.Domain/packages.lock.json src/Ivr.Domain/
+COPY src/Ivr.Contracts/Ivr.Contracts.csproj src/Ivr.Contracts/packages.lock.json src/Ivr.Contracts/
+COPY src/Ivr.Infrastructure/Ivr.Infrastructure.csproj src/Ivr.Infrastructure/packages.lock.json src/Ivr.Infrastructure/
+COPY src/Ivr.Worker/Ivr.Worker.csproj src/Ivr.Worker/packages.lock.json src/Ivr.Worker/
+RUN dotnet restore src/Ivr.Worker/Ivr.Worker.csproj --locked-mode
+
+COPY src/ src/
+RUN dotnet publish src/Ivr.Worker/Ivr.Worker.csproj \
+        --configuration Release \
+        --no-restore \
+        --output /app
+
+FROM ${RUNTIME_IMAGE} AS final
+WORKDIR /app
+COPY --from=build /app .
+
+ENV DOTNET_EnableDiagnostics=0 \
+    IVR_EXECUTION_MODE=MOCK \
+    IVR_ADAPTER_MODE=MOCK \
+    REAL_CUSTOMER_CALL_ALLOWED=NO
+
+USER $APP_UID
+
+# No EXPOSE and no HEALTHCHECK, deliberately.
+#
+# P7-1 section 6.2 assumes the worker keeps health/metrics on HTTP, but it currently opens no
+# socket: there is nothing to probe. A process-liveness check would be theatre -- if the host
+# process dies the container dies with it, so the check could never report anything the runtime
+# does not already know. Recorded as a gap in docs/evidence/W-0043 rather than papered over with a
+# probe that always passes.
+ENTRYPOINT ["dotnet", "Ivr.Worker.dll"]

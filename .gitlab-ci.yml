@@ -42,4 +42,5 @@ include:
   - local: "/deploy/ci/ui-qa.gitlab-ci.yml"
   - local: "/deploy/ci/observability.gitlab-ci.yml"
   - local: "/deploy/ci/chaos.gitlab-ci.yml"
+  - local: "/deploy/ci/images.gitlab-ci.yml"
   - local: "/deploy/ci/registry.gitlab-ci.yml"

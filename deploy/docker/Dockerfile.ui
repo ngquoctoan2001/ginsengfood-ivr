@@ -1,0 +1,54 @@
+# syntax=docker/dockerfile:1.7
+# W-0043 / P7-1 — ivr-admin-ui (DTS-04: three separate deployables).
+#
+# Build context is admin-ui/, not the repository root: the console needs none of the .NET tree, and
+# a smaller context is the cheapest possible build speedup.
+ARG NODE_IMAGE=node:22-alpine@sha256:76789712cd1ae89a1225eac9077010d68987a423588042dac30446f502f1858c
+ARG BUSYBOX_IMAGE=busybox:1.37.0-uclibc@sha256:39a19081c6dc060c4efa25ca5845dc867e3f476e86ba8e7ee9da97bc1c2752ca
+
+FROM ${NODE_IMAGE} AS deps
+WORKDIR /src
+# Manifests first so a source edit does not re-install the dependency tree.
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM ${NODE_IMAGE} AS build
+WORKDIR /src
+COPY --from=deps /src/node_modules ./node_modules
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+FROM ${NODE_IMAGE} AS final
+WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0 \
+    IVR_ENVIRONMENT_LABEL=development
+
+# Next.js standalone output carries only the server and the modules it actually reached, so the
+# runtime image never receives the build toolchain or the full dependency tree.
+COPY --from=build --chown=1000:1000 /src/.next/standalone ./
+COPY --from=build --chown=1000:1000 /src/.next/static ./.next/static
+COPY --from=build --chown=1000:1000 /src/public ./public
+
+# npm is removed, and it is not cosmetic: every HIGH/CRITICAL finding Trivy reported against this
+# image lived in npm's own bundled dependencies under /usr/local/lib/node_modules/npm, not in
+# anything the console imports. The runtime runs `node server.js` and never needs a package
+# manager -- and a package manager left in a production image is a ready-made tool for anyone who
+# gets a shell in it.
+USER root
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
+EXPOSE 3000
+
+# Numeric, not the `node` name. Kubernetes cannot verify runAsNonRoot against a NAMED user -- it
+# refuses the container with "image has non-numeric user (node), cannot verify user is non-root" --
+# so a name here means the pod never starts under a hardened securityContext. Same UID either way.
+USER 1000
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=25s --retries=3 \
+    CMD ["/usr/bin/wget", "--quiet", "--spider", "http://127.0.0.1:3000/login"]
+
+CMD ["node", "server.js"]

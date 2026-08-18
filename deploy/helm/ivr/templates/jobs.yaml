@@ -1,0 +1,100 @@
+# W-0044 / P7-2 — the migration hook and the retention CronJob.
+#
+# The migration Job exists because W-0043 found that nothing applies migrations: on a fresh database
+# the worker died on a missing table and readiness had only ever looked green because an old volume
+# still carried the schema. A pre-install/pre-upgrade hook is the Kubernetes shape of the one-shot
+# job the compose stack needed -- and a hook, not an initContainer, because several API replicas
+# racing to apply the same migration is a known way to damage a schema.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "ivr.fullname" . }}-migrate
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrate
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        {{- include "ivr.labels" . | nindent 8 }}
+        app.kubernetes.io/component: migrate
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "ivr.fullname" . }}
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: migrate
+          image: "{{ include "ivr.image" . }}ivr-migrate:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - "--connection"
+            - "Host={{ .Values.database.host }};Port={{ .Values.database.port }};Database={{ .Values.database.name }};Username={{ .Values.database.user }};Password=$(IVR_DB_PASSWORD)"
+          env:
+            - name: IVR_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret }}
+                  key: {{ .Values.database.existingSecretPasswordKey }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+{{- if .Values.retention.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "ivr.fullname" . }}-retention
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: retention
+  annotations:
+    ivr.ginsengfood/decision: DF-07
+    ivr.ginsengfood/dry-run-note: >-
+      Deleting customer data on a schedule is the one job where a wrong default cannot be undone, so
+      the default reports what it would delete and deletes nothing. Turning it off is an operational
+      decision with an approval behind it, not a values tweak.
+spec:
+  schedule: {{ .Values.retention.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            {{- include "ivr.labels" . | nindent 12 }}
+            app.kubernetes.io/component: retention
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ include "ivr.fullname" . }}
+          securityContext:
+            runAsNonRoot: true
+          containers:
+            - name: retention
+              image: "{{ include "ivr.image" . }}ivr-worker:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              env:
+                - name: IVR_RETENTION_RUN_ONCE
+                  value: "true"
+                - name: IVR_RETENTION_DRY_RUN
+                  value: {{ .Values.retention.dryRun | quote }}
+                {{- include "ivr.governanceEnv" . | nindent 16 }}
+                {{- include "ivr.dbEnv" . | nindent 16 }}
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+{{- end }}

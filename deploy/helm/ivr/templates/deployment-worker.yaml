@@ -1,0 +1,51 @@
+{{- include "ivr.assertLadder" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ivr.fullname" . }}-worker
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+  annotations:
+    # The DT-04 ceiling, recorded where an operator scaling this will actually see it.
+    ivr.ginsengfood/sim-pool-size: {{ .Values.worker.hpa.simPoolSize | quote }}
+    ivr.ginsengfood/scaling-note: >-
+      One SIM carries one call. Replicas beyond the SIM pool cannot dial more calls; the scheduler
+      advisory lock (P2-3) makes the extra pods contend for the same leases instead of
+      double-dispatching. Raising maxReplicas without raising the SIM pool buys nothing.
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ivr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "ivr.labels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+    spec:
+      serviceAccountName: {{ include "ivr.fullname" . }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: worker
+          image: "{{ include "ivr.image" . }}ivr-worker:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- include "ivr.governanceEnv" . | nindent 12 }}
+            {{- include "ivr.dbEnv" . | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          # No HTTP probes: the worker opens no socket at all (W-0043 §2). Kubernetes restarting the
+          # pod when the process exits is the only liveness signal that exists here, and inventing
+          # an exec probe would report health nobody measured.
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}

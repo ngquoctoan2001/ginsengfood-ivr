@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1.7
+# W-0043 / P7-1 — one-shot schema migration for the dev stack.
+#
+# Exists because the stack could not come up from scratch without it. Nothing in the API or the
+# worker applies migrations, so a fresh volume gave an empty database: the worker died on
+# `relation "ivr_sim_channels" does not exist` and stayed dead, and readiness had only ever looked
+# green because a volume from an earlier session still carried the schema. Tearing the volume down
+# is what exposed it.
+#
+# A separate one-shot job rather than migrate-on-startup: several API replicas racing to apply the
+# same migration is a known way to damage a schema, so the dev stack models the shape production
+# needs instead of a shortcut that happens to work at one replica.
+ARG SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.203@sha256:6d7f69bc7bc9d4510ca255977b1f53ce52a79307e048a91450b2aecd63627cc3
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled@sha256:edec6ea65a92f432083a8f75fc3c18addd004015bbd4d523ce1d13e23b347008
+
+FROM ${SDK_IMAGE} AS build
+WORKDIR /src
+RUN dotnet tool install --global dotnet-ef --version 10.0.0
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Ivr.Infrastructure is both the migrations project AND the startup project: it is the one that
+# references Microsoft.EntityFrameworkCore.Design and carries IvrDbContextFactory. Pointing the
+# tool at Ivr.Api fails, and the API is not needed here at all.
+COPY global.json Directory.Build.props ./
+COPY src/Ivr.Domain/Ivr.Domain.csproj src/Ivr.Domain/packages.lock.json src/Ivr.Domain/
+COPY src/Ivr.Contracts/Ivr.Contracts.csproj src/Ivr.Contracts/packages.lock.json src/Ivr.Contracts/
+COPY src/Ivr.Infrastructure/Ivr.Infrastructure.csproj src/Ivr.Infrastructure/packages.lock.json src/Ivr.Infrastructure/
+
+# Two restores, deliberately. The first is the locked one CI verifies -- it is what proves the
+# package set has not drifted. The second adds the linux-x64 runtime assets that `migrations
+# bundle` needs to emit an executable; the lock files carry no RID target, so a locked restore
+# cannot provide them. Same package versions either way: the RID restore adds runtime assets, it
+# does not resolve anything new.
+RUN dotnet restore src/Ivr.Infrastructure/Ivr.Infrastructure.csproj --locked-mode \
+ && dotnet restore src/Ivr.Infrastructure/Ivr.Infrastructure.csproj --runtime linux-x64
+
+COPY src/ src/
+RUN dotnet ef migrations bundle \
+        --project src/Ivr.Infrastructure/Ivr.Infrastructure.csproj \
+        --startup-project src/Ivr.Infrastructure/Ivr.Infrastructure.csproj \
+        --configuration Release \
+        --runtime linux-x64 \
+        --output /efbundle --force
+
+FROM ${RUNTIME_IMAGE} AS final
+WORKDIR /app
+COPY --from=build /efbundle /app/efbundle
+USER $APP_UID
+ENTRYPOINT ["/app/efbundle"]

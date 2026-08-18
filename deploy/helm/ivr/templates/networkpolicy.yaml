@@ -1,0 +1,93 @@
+{{- if .Values.networkPolicy.enabled }}
+# W-0044 / P7-2 §4 — least-privilege egress.
+#
+# Default-deny first, then name what may leave. The order matters for a reader: a policy that opens
+# holes in a permissive default reads the same as one that opens holes in a closed default, and only
+# the second is least privilege.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ivr.fullname" . }}-default-deny
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ivr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ivr.fullname" . }}-egress
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ivr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Egress
+  egress:
+    {{- if .Values.networkPolicy.allowDns }}
+    # DNS is listed on its own because a policy that forgets it breaks every rule below in a way
+    # that looks like the wrong rule: names stop resolving, and the symptom points at the database.
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    {{- end }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.egress.databasePort }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: otel-collector
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.egress.otelPort }}
+    {{- range .Values.networkPolicy.egress.external }}
+    # {{ .name }} — an owner-supplied destination, never a wildcard.
+    - to:
+        - ipBlock:
+            cidr: {{ .cidr }}
+      ports:
+        - protocol: TCP
+          port: {{ .port }}
+    {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ivr.fullname" . }}-ingress
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ivr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: api
+  policyTypes:
+    - Ingress
+  ingress:
+    # Only the console reaches the API. Nothing else in the namespace has a reason to.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "ivr.name" . }}
+              app.kubernetes.io/component: ui
+      ports:
+        - protocol: TCP
+          port: 8080
+{{- end }}

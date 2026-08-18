@@ -1,0 +1,17 @@
+# syntax=docker/dockerfile:1.7
+# W-0043 / P7-1 — fake Sales Target V1 for the dev stack.
+#
+# Stubs are baked into the image rather than bind-mounted. A bind mount would make the dev stack
+# depend on the host's path layout and on Docker Desktop's file sharing, which is exactly the kind
+# of "works on my machine" the compose file exists to remove.
+#
+# This answers CALLBACK_ACCEPTED_FOR_REVALIDATION, which is Sales acknowledging receipt -- NOT the
+# order being confirmed (D-04). The distinction is the whole point of the contract, so the fake
+# must not blur it.
+ARG WIREMOCK_IMAGE=wiremock/wiremock:3.9.1
+FROM ${WIREMOCK_IMAGE}
+COPY --chown=1000:1000 fake-sales/target-v1-callback.json /home/wiremock/mappings/target-v1-callback.json
+
+# The upstream image runs as root. It is a dev-only mock rather than one of the three deployables,
+# but a root container on the dev network is still a root container, and dropping it costs a line.
+USER 1000:1000

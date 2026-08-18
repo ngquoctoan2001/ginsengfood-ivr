@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1.7
+# W-0043 / P7-1 — ivr-api (DTS-04: three separate deployables).
+#
+# Every base is pinned by digest, not by tag. A tag is a moving pointer: `10.0-noble-chiseled`
+# names a different image next month, and a build that "passed the scan" would then ship bits
+# nobody scanned. P7-1 section 11 forbids an unpinned base; a digest is the only form of pinning
+# that actually holds.
+# Pinned to the 10.0.2xx band because global.json pins 10.0.201 with rollForward=latestPatch,
+# which refuses a different feature band. Matching the repository rather than loosening
+# global.json: the pin is there so every build uses the SDK the tests were run against.
+ARG SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.203@sha256:6d7f69bc7bc9d4510ca255977b1f53ce52a79307e048a91450b2aecd63627cc3
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled@sha256:edec6ea65a92f432083a8f75fc3c18addd004015bbd4d523ce1d13e23b347008
+ARG BUSYBOX_IMAGE=busybox:1.37.0-uclibc@sha256:39a19081c6dc060c4efa25ca5845dc867e3f476e86ba8e7ee9da97bc1c2752ca
+
+FROM ${SDK_IMAGE} AS build
+WORKDIR /src
+
+# Restore against the project graph alone. Copying sources first would invalidate the restore layer
+# on every edit, which is the single most expensive cache mistake in a .NET image.
+COPY global.json Directory.Build.props ./
+COPY src/Ivr.Domain/Ivr.Domain.csproj src/Ivr.Domain/packages.lock.json src/Ivr.Domain/
+COPY src/Ivr.Contracts/Ivr.Contracts.csproj src/Ivr.Contracts/packages.lock.json src/Ivr.Contracts/
+COPY src/Ivr.Infrastructure/Ivr.Infrastructure.csproj src/Ivr.Infrastructure/packages.lock.json src/Ivr.Infrastructure/
+COPY src/Ivr.Api/Ivr.Api.csproj src/Ivr.Api/packages.lock.json src/Ivr.Api/
+# Locked mode so the image cannot silently resolve a different package than CI verified.
+RUN dotnet restore src/Ivr.Api/Ivr.Api.csproj --locked-mode
+
+COPY src/ src/
+RUN dotnet publish src/Ivr.Api/Ivr.Api.csproj \
+        --configuration Release \
+        --no-restore \
+        --output /app
+
+# A single static applet, so a chiseled image with no shell can still answer a healthcheck.
+FROM ${BUSYBOX_IMAGE} AS probe
+
+FROM ${RUNTIME_IMAGE} AS final
+WORKDIR /app
+COPY --from=build /app .
+COPY --from=probe /bin/busybox /probe/busybox
+
+# Safe by default, and overridable only by explicit env (12-factor). A container that has to be
+# told NOT to call real customers is one forgotten variable away from calling them.
+ENV ASPNETCORE_URLS=http://+:8080 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_EnableDiagnostics=0 \
+    IVR_EXECUTION_MODE=MOCK \
+    IVR_ADAPTER_MODE=MOCK \
+    REAL_CUSTOMER_CALL_ALLOWED=NO
+
+EXPOSE 8080
+
+# The chiseled images define a non-root app user (UID 1654). Stated explicitly rather than
+# inherited, so IT-IMG-BUILD-01 can assert it and a base change cannot quietly drop it.
+USER $APP_UID
+
+# Liveness only. Readiness depends on the database and would keep the container restarting during
+# a dependency outage, which is the failure P6-1 separated these probes to avoid.
+HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=3 \
+    CMD ["/probe/busybox", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/health/live"]
+
+ENTRYPOINT ["dotnet", "Ivr.Api.dll"]

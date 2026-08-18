@@ -12,30 +12,19 @@ const css = readFileSync(
 );
 
 /**
- * Reads the token values for one theme out of `globals.css`.
+ * Reads the token values out of `globals.css`.
  *
- * `light` is the bare `:root` block; `dark` is `:root` inside the
- * `prefers-color-scheme: dark` media query, layered over the light values the
- * way the cascade applies them.
+ * The console is light-only, so there is a single `:root` block and a single
+ * theme to check. The pattern requires the `--ivr-name: #hex;` form, which is
+ * why hex values quoted in the file's prose are not picked up as tokens.
  */
-function readTheme(theme: "light" | "dark"): Record<string, string> {
-  const darkStart = css.indexOf("@media (prefers-color-scheme: dark)");
-  expect(darkStart).toBeGreaterThan(0);
+function readTokens(): Record<string, string> {
+  const tokens: Record<string, string> = {};
+  for (const match of css.matchAll(/(--ivr-[a-z0-9-]+):\s*(#[0-9a-fA-F]{3,8})\s*;/g)) {
+    tokens[match[1]] = match[2];
+  }
 
-  const lightBlock = css.slice(0, darkStart);
-  const darkBlock = css.slice(darkStart, css.indexOf("\n}\n", darkStart));
-
-  const collect = (source: string): Record<string, string> => {
-    const tokens: Record<string, string> = {};
-    for (const match of source.matchAll(/(--ivr-[a-z0-9-]+):\s*(#[0-9a-fA-F]{3,8})\s*;/g)) {
-      tokens[match[1]] = match[2];
-    }
-
-    return tokens;
-  };
-
-  const light = collect(lightBlock);
-  return theme === "light" ? light : { ...light, ...collect(darkBlock) };
+  return tokens;
 }
 
 /** Text pairs that must clear AA for normal text. */
@@ -94,8 +83,19 @@ const BOUNDARY_PAIRS: readonly (readonly [string, string, string])[] = [
   ["chart fill against its track", "--ivr-data-fill", "--ivr-surface-sunken"],
 ];
 
-describe.each(["light", "dark"] as const)("%s theme contrast", (theme) => {
-  const tokens = readTheme(theme);
+describe("theme contrast", () => {
+  const tokens = readTokens();
+
+  /*
+   * The console is pinned to light. If a dark block is ever reintroduced, these
+   * pairs would silently check only the light values and a dark regression would
+   * ship unnoticed — so re-adding one has to come with restoring the per-theme
+   * layering this file used to do.
+   */
+  it("stays a single-theme stylesheet", () => {
+    expect(css).not.toContain("prefers-color-scheme: dark");
+    expect(css).toContain("color-scheme: light;");
+  });
 
   it("defines every token the pairs reference", () => {
     for (const [, foreground, background] of [...TEXT_PAIRS, ...BOUNDARY_PAIRS]) {

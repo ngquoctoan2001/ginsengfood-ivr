@@ -1,0 +1,5 @@
+# syntax=docker/dockerfile:1.7
+# W-0043 / P7-1 — OTel collector for the dev stack, config baked rather than bind-mounted.
+ARG COLLECTOR_IMAGE=otel/opentelemetry-collector-contrib:0.116.1
+FROM ${COLLECTOR_IMAGE}
+COPY otel/collector.yaml /etc/otelcol-contrib/config.yaml

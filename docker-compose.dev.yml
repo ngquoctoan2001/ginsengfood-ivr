@@ -1,5 +1,29 @@
 name: ginsengfood-ivr-dev
 
+# W-0043 / P7-1. Dev stack for the three deployables (DTS-04) plus the fakes they talk to.
+#
+# Two networks, and the difference between them is a real difference in what is guaranteed:
+#
+#   ivr-internal        internal: true -- NO route out at all. The fakes live here, so a mock can
+#                       never reach a real Sales endpoint or a real telephony provider no matter
+#                       what is configured. Verified, not assumed: IT-IMG-COMPOSE-03 attempts an
+#                       outbound connection from this network and requires it to fail.
+#   ivr-database-local  routable, because published ports do not work on an internal network --
+#                       measured, not guessed. api/worker/ui sit here so a developer can reach
+#                       them, which means their no-egress guarantee is the APPLICATION-layer one
+#                       (IVR_ADAPTER_MODE=MOCK, REAL_CUSTOMER_CALL_ALLOWED=NO, and the archi-
+#                       tecture tests that forbid an egress client), not a network-layer one.
+#
+# Saying which guarantee holds where matters: a reader who assumes the app containers are network
+# isolated would draw a stronger conclusion than the stack supports.
+
+x-ivr-safe-defaults: &ivr-safe-defaults
+  IVR_EXECUTION_MODE: MOCK
+  IVR_ADAPTER_MODE: MOCK
+  REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  SALES_PROVIDER: FAKE_TARGET_V1
+  SIM_PROVIDER: MOCK
+
 services:
   postgres:
     image: postgres:16
@@ -19,15 +43,10 @@ services:
     networks:
       - ivr-database-local
 
-  fake-sales:
-    image: alpine:3.22
-    profiles: ["mocks"]
-    command: ["sh", "-c", "echo 'FAKE_TARGET_V1 placeholder only'; tail -f /dev/null"]
-    environment:
-      PROVIDER_MODE: FAKE_TARGET_V1
-    networks:
-      - ivr-internal
-
+  # mock-sim and mock-jwt stay as P0-1 left them, deliberately. Both mocks are IN-PROCESS in MOCK
+  # adapter mode (MockTelephonyDispatchGateway, MockOidcIssuer), so nothing in the stack dials a
+  # container for either one. Replacing these placeholders with real servers would add two
+  # processes nobody talks to, which reads as more coverage than exists.
   mock-sim:
     image: alpine:3.22
     profiles: ["mocks"]
@@ -46,6 +65,103 @@ services:
       JWT_ISSUER_MODE: MOCK
     networks:
       - ivr-internal
+
+  ivr-migrate:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile.migrate
+    image: ivr-migrate:dev
+    # One-shot. api and worker wait for it to EXIT SUCCESSFULLY, not merely to start: without this
+    # the stack could not come up on a fresh volume at all -- the worker died on a missing table
+    # and stayed dead, and readiness only ever looked green because an old volume still had the
+    # schema.
+    command:
+      - "--connection"
+      - "Host=postgres;Port=5432;Database=ivr;Username=ivr"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - ivr-database-local
+
+  ivr-api:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile.api
+    image: ivr-api:dev
+    environment:
+      <<: *ivr-safe-defaults
+      ConnectionStrings__IvrDb: "Host=postgres;Port=5432;Database=ivr;Username=ivr"
+      # Dev-only values passed as env, never baked into a layer (D-05). They are obviously fake so
+      # nobody is tempted to reuse them anywhere real.
+      IVR_INTERNAL_SERVICE_TOKEN: "dev-internal-token-not-a-real-secret"
+      ORDER_CORE_SERVICE_TOKEN: "dev-ordercore-token-not-a-real-secret"
+      Ivr__CallbackDelivery__TargetBaseUrl: "http://fake-sales:8080"
+    ports:
+      - "127.0.0.1:${IVR_API_PORT:-58080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ivr-migrate:
+        condition: service_completed_successfully
+    networks:
+      - ivr-internal
+      - ivr-database-local
+
+  ivr-worker:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile.worker
+    image: ivr-worker:dev
+    environment:
+      <<: *ivr-safe-defaults
+      ConnectionStrings__IvrDb: "Host=postgres;Port=5432;Database=ivr;Username=ivr"
+      Ivr__CallbackDelivery__TargetBaseUrl: "http://fake-sales:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ivr-migrate:
+        condition: service_completed_successfully
+    networks:
+      - ivr-internal
+      - ivr-database-local
+
+  ivr-admin-ui:
+    build:
+      context: ./admin-ui
+      dockerfile: ../deploy/docker/Dockerfile.ui
+    image: ivr-admin-ui:dev
+    environment:
+      IVR_API_BASE_URL: "http://ivr-api:8080"
+      IVR_ENVIRONMENT_LABEL: development
+    ports:
+      - "127.0.0.1:${IVR_UI_PORT:-53000}:3000"
+    depends_on:
+      - ivr-api
+    networks:
+      - ivr-internal
+      - ivr-database-local
+
+  fake-sales:
+    build:
+      context: ./deploy/docker
+      dockerfile: Dockerfile.fake-sales
+    image: ivr-fake-sales:dev
+    # Internal only: a fake Sales that could reach the internet is not a fake Sales.
+    networks:
+      - ivr-internal
+
+  otel-collector:
+    build:
+      context: ./deploy/docker
+      dockerfile: Dockerfile.otel
+    image: ivr-otel-collector:dev
+    # Receives nothing today: no OTLP exporter is wired (W-0063, BLOCKED_EXTERNAL). Present so the
+    # wiring exists the day one is, and labelled so nobody reads it as a working pipeline.
+    networks:
+      - ivr-internal
+
 
 networks:
   ivr-database-local:
