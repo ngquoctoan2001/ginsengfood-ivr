@@ -920,6 +920,13 @@ components:
         eligibility_snapshot:
           type: object
           additionalProperties: true
+          description: >
+            Sales-owned eligibility evidence. The wire type stays an open object because the
+            shape is not owner-approved yet (OD-V1-03). The shape IVR validates against is
+            published as a linked evidence reference at
+            specs/api/evidence/eligibility-snapshot.v1.schema.json: decision, source_version,
+            captured_at, optional source_available and optional blockers[]. IVR fails closed on
+            anything it cannot interpret rather than tightening this schema (W-0030 / P4-2).
         evidence_ref: { type: string }
         # IVR-derived policy snapshots; optional on the wire.
         evidence_policy_version: { type: string }

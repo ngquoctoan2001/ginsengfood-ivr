@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Ivr.Api.Application;
 using Ivr.Contracts.Generated.IvrServer.V1;
+using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
@@ -16,6 +17,18 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
 {
     private static readonly DateTimeOffset Now =
         new(2026, 8, 13, 7, 0, 0, TimeSpan.Zero);
+
+    // W-0030 / P4-2. The old fixture carried only {"decision":"ELIGIBLE"}; the typed evidence
+    // rules now also require a source version and a fresh capture stamp, so the fixture supplies
+    // them. The rule was not relaxed to keep the old fixture passing — the fixture was corrected.
+    private static readonly string EligibleSnapshotJson = JsonSerializer.Serialize(new
+    {
+        decision = "ELIGIBLE",
+        source_version = "sales-eligibility-v1",
+        captured_at = Now.AddSeconds(-30),
+        source_available = true,
+        blockers = Array.Empty<string>(),
+    });
 
     [Fact]
     [Trait("TestId", "IT-ELIG-CAP-05")]
@@ -183,6 +196,262 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         Assert.Equal("OPEN", review.Status);
     }
 
+    [Theory]
+    [Trait("TestId", "IT-ELIG-EVIDENCE-10")]
+    [InlineData("pass", null, true, null)]
+    [InlineData("block", "blocked", false, EligibilityReasonCodes.EligibilitySnapshotBlocked)]
+    [InlineData("stale", "stale", false, EligibilityReasonCodes.EligibilitySnapshotStale)]
+    [InlineData("source-down", "unavailable", false,
+        EligibilityReasonCodes.EligibilitySourceUnavailable)]
+    [InlineData("unreadable", "unreadable", false,
+        EligibilityReasonCodes.EligibilitySnapshotUnreadable)]
+    public async Task SalesEligibilityEvidenceIsValidatedFailClosedOnRealStorage(
+        string caseId,
+        string? scenario,
+        bool expectedEligible,
+        string? expectedReasonCode)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        string taskId = string.Concat("TASK-ELIG-EV-", caseId.ToUpperInvariant());
+        string snapshotJson = SnapshotFor(scenario);
+        await SeedPendingTaskAsync(
+            factory,
+            taskId,
+            string.Concat("JOB-ELIG-EV-", caseId.ToUpperInvariant()),
+            "CREATED",
+            "READY_FOR_ELIGIBILITY",
+            eligibilitySnapshotJson: snapshotJson);
+        var service = new EligibilityService(
+            new PostgresEligibilityRepository(factory),
+            new CapacityAvailableProvider(),
+            new FixedTimeProvider(Now));
+
+        EligibilityEvaluation result = await service.EvaluateAsync(
+            taskId,
+            string.Concat("corr-elig-ev-", caseId));
+
+        Assert.Equal(expectedEligible, result.Eligible);
+        if (expectedReasonCode is not null)
+        {
+            Assert.Equal(expectedReasonCode, Assert.Single(result.Reasons).Code);
+        }
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        // Nothing that fails evidence validation may leave a dispatched attempt behind.
+        Assert.Equal(0, await verification.CallAttempts.CountAsync());
+
+        // The snapshot digest is persisted for every case, including the rejected ones: the
+        // evidence trail must show which bytes were judged, not only the ones that passed.
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks.AsNoTracking()
+            .SingleAsync(entity => entity.TaskId == taskId);
+        Assert.Equal(
+            DeterministicSnapshotHasher.Compute(snapshotJson),
+            task.EligibilitySnapshotHash);
+
+        if (expectedEligible)
+        {
+            Assert.Contains(
+                result.EvidenceRefs,
+                reference => reference.EndsWith(
+                    string.Concat("#eligibility/snapshot/", task.EligibilitySnapshotHash),
+                    StringComparison.Ordinal));
+        }
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-ELIG-EVIDENCE-11")]
+    public async Task EligibilitySnapshotHashColumnRejectsAnythingThatIsNotADigest()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-ELIG-EV-HASHGUARD",
+            "JOB-ELIG-EV-HASHGUARD",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY");
+
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity task = await context.ConfirmationTasks
+            .SingleAsync(entity => entity.TaskId == "TASK-ELIG-EV-HASHGUARD");
+
+        // Uppercase hex, a truncated digest, and a raw snapshot body must all be refused by the
+        // database itself — the column is a digest field, not a second place to park evidence.
+        foreach (string invalid in new[]
+        {
+            "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+            "abc123",
+            "{\"decision\":\"ELIGIBLE\"}",
+        })
+        {
+            task.EligibilitySnapshotHash = invalid;
+            await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
+            context.ChangeTracker.Clear();
+            task = await context.ConfirmationTasks
+                .SingleAsync(entity => entity.TaskId == "TASK-ELIG-EV-HASHGUARD");
+        }
+    }
+
+    [Theory]
+    [Trait("TestId", "IT-ELIG-VOICE-13")]
+    [InlineData("allowed", true, null)]
+    [InlineData("restricted", false, EligibilityReasonCodes.PhoneCallRestricted)]
+    [InlineData("resolver-down", false,
+        EligibilityReasonCodes.PhoneCallRestrictionSourceUnavailable)]
+    [InlineData("marketing-noise", true, null)]
+    public async Task VoiceRestrictionEvidenceIsHonouredAndMarketingConsentIsNot(
+        string caseId,
+        bool expectedEligible,
+        string? expectedReasonCode)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(caseId);
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        string taskId = string.Concat("TASK-ELIG-VOICE-", caseId.ToUpperInvariant());
+        await SeedPendingTaskAsync(
+            factory,
+            taskId,
+            string.Concat("JOB-ELIG-VOICE-", caseId.ToUpperInvariant()),
+            "CREATED",
+            "READY_FOR_ELIGIBILITY",
+            eligibilitySnapshotJson: VoiceSnapshotFor(caseId));
+        var service = new EligibilityService(
+            new PostgresEligibilityRepository(factory),
+            new CapacityAvailableProvider(),
+            new FixedTimeProvider(Now));
+
+        EligibilityEvaluation result = await service.EvaluateAsync(
+            taskId,
+            string.Concat("corr-elig-voice-", caseId));
+
+        Assert.Equal(expectedEligible, result.Eligible);
+        if (expectedReasonCode is not null)
+        {
+            Assert.Equal(expectedReasonCode, Assert.Single(result.Reasons).Code);
+        }
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(0, await verification.CallAttempts.CountAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-ELIG-TRUST-14")]
+    public async Task TrustResolverEvidenceNeverProducesASkipWhileTheFeatureStaysOwnerGated()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        // A fully evidenced, versioned resolver decision for a TRUSTED customer with no risk —
+        // the single case that could ever justify skipping the call.
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-ELIG-TRUST-14",
+            "JOB-ELIG-TRUST-14",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY",
+            eligibilitySnapshotJson: JsonSerializer.Serialize(new
+            {
+                decision = "ELIGIBLE",
+                source_version = "sales-eligibility-v1",
+                captured_at = Now.AddSeconds(-30),
+                source_available = true,
+                trust = new
+                {
+                    resolver_available = true,
+                    resolver_version = "sales-trust-v1",
+                    risk_evidence_available = true,
+                },
+            }),
+            customerTrustStatus: "TRUSTED",
+            trustedSkipAllowed: true);
+        var service = new EligibilityService(
+            new PostgresEligibilityRepository(factory),
+            new CapacityAvailableProvider(),
+            new FixedTimeProvider(Now));
+
+        EligibilityEvaluation result = await service.EvaluateAsync(
+            "TASK-ELIG-TRUST-14",
+            "corr-elig-trust-14");
+
+        // Even with every piece of evidence present, the call still happens: enabling the skip is
+        // an owner decision that needs a versioned Sales resolver contract, and that contract does
+        // not exist. `AS-07`-style default — the evidence plumbing is ready, the gate is not open.
+        Assert.True(result.Eligible);
+        Assert.NotEqual(EligibilityDecisions.SkippedTrustedCustomer, result.Decision);
+        Assert.Contains(EligibilityReasonCodes.TrustSkipDisabledRequireIvr, result.Advisories);
+    }
+
+    private static string VoiceSnapshotFor(string caseId)
+    {
+        object voice = caseId switch
+        {
+            "restricted" => new { restricted = true, source_available = true, source_version = "sales-voice-v1" },
+            "resolver-down" => new { restricted = false, source_available = false, source_version = "sales-voice-v1" },
+            _ => new { restricted = false, source_available = true, source_version = "sales-voice-v1" },
+        };
+
+        if (caseId != "marketing-noise")
+        {
+            return JsonSerializer.Serialize(new
+            {
+                decision = "ELIGIBLE",
+                source_version = "sales-eligibility-v1",
+                captured_at = Now.AddSeconds(-30),
+                source_available = true,
+                voice_restriction = voice,
+            });
+        }
+
+        // Same allowed voice decision, but the bag also carries every marketing-consent signal
+        // set to its most restrictive value. None of them may reach the voice decision.
+        return JsonSerializer.Serialize(new
+        {
+            decision = "ELIGIBLE",
+            source_version = "sales-eligibility-v1",
+            captured_at = Now.AddSeconds(-30),
+            source_available = true,
+            voice_restriction = voice,
+            sms_opt_out = true,
+            marketing_consent = false,
+            email_opt_out = true,
+            newsletter_subscribed = false,
+            promo_calls_allowed = false,
+        });
+    }
+
+    private static string SnapshotFor(string? scenario) => scenario switch
+    {
+        null => EligibleSnapshotJson,
+        "blocked" => JsonSerializer.Serialize(new
+        {
+            decision = "BLOCKED",
+            source_version = "sales-eligibility-v1",
+            captured_at = Now.AddSeconds(-30),
+            source_available = true,
+        }),
+        "stale" => JsonSerializer.Serialize(new
+        {
+            decision = "ELIGIBLE",
+            source_version = "sales-eligibility-v1",
+            captured_at = Now.AddHours(-3),
+            source_available = true,
+        }),
+        "unavailable" => JsonSerializer.Serialize(new
+        {
+            decision = "ELIGIBLE",
+            source_version = "sales-eligibility-v1",
+            captured_at = Now.AddSeconds(-30),
+            source_available = false,
+        }),
+        "unreadable" => "[\"not-an-object\"]",
+        _ => throw new ArgumentOutOfRangeException(nameof(scenario)),
+    };
+
     [Fact]
     [Trait("TestId", "IT-ELIG-SCHED-09")]
     public async Task SchedulerCapacitySourceUnavailableFailsClosedWithoutAttempt()
@@ -225,7 +494,11 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         string jobId,
         string jobStatus,
         string outboxStatus,
-        bool callRestriction = false)
+        bool callRestriction = false,
+        string? eligibilitySnapshotJson = null,
+        bool omitSnapshotHash = false,
+        string? customerTrustStatus = null,
+        bool trustedSkipAllowed = false)
     {
         DateTimeOffset startedAt = Now.AddMinutes(-1);
         DateTimeOffset expiresAt = Now.AddMinutes(4);
@@ -243,7 +516,8 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
             OrderState = "CONFIRMING",
             PaymentMethodSnapshot = "ONLINE",
             IvrConfirmationRequired = true,
-            TrustedSkipAllowed = false,
+            CustomerTrustStatus = customerTrustStatus,
+            TrustedSkipAllowed = trustedSkipAllowed,
             RiskFlagsJson = "[]",
             ProgramType = "GOLDEN_HOUR",
             AttemptPolicyVersion = "gh-v1-candidate",
@@ -262,7 +536,11 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
             EvidencePolicyVersion = "test-evidence-v1",
             PrivacyPolicyVersion = "test-privacy-v1",
             EligibilityDecision = null,
-            EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
+            EligibilitySnapshotJson = eligibilitySnapshotJson ?? EligibleSnapshotJson,
+            EligibilitySnapshotHash = omitSnapshotHash
+                ? null
+                : DeterministicSnapshotHasher.Compute(
+                    eligibilitySnapshotJson ?? EligibleSnapshotJson),
             SellableStatusJson = JsonSerializer.Serialize(new[]
             {
                 new SellableStatusLine

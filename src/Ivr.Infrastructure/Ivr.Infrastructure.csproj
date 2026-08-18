@@ -12,6 +12,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.11" />
+    <!-- W-0032 / P4-4. Service-identity JWT issuing and validation. Deliberately the library
+         package, not Microsoft.AspNetCore.Authentication.JwtBearer: the validator belongs in
+         Infrastructure where it is unit-testable and where the mock issuer lives, and the ASP.NET
+         handler stays a thin adapter in Ivr.Api next to the existing hand-written handlers.
+         Signature and lifetime checking is never hand-rolled. -->
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.22.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>

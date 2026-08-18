@@ -72,7 +72,9 @@ public sealed class CallbackDeliveryOptionsValidator : IValidateOptions<Callback
         if (options.Enabled && provider == SalesProviderKind.TargetV1)
         {
             return ValidateOptionsResult.Fail(
-                "Real TARGET_V1 auth remains blocked until P4-1/W-0006; use FAKE_TARGET_V1 locally.");
+                "Real TARGET_V1 delivery remains BLOCKED_EXTERNAL on W-0006/OD-V1-07 (no approved auth "
+                + "profile, no sandbox credential). P4-1 wired the provider; it did not unblock it. "
+                + "Use FAKE_TARGET_V1 locally.");
         }
 
         if (options.Enabled

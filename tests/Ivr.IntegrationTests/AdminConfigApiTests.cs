@@ -131,6 +131,21 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
             Assert.False(string.IsNullOrWhiteSpace(card.Fail_closed_effect));
         }
 
+        // W-0029 / P4-1 §3.5. ORDER_CORE stays unobserved while delivery is off, but its
+        // detail now names what IVR genuinely knows — the selected provider profile and its own
+        // outbound circuit — instead of an empty placeholder.
+        IvrServer.IvrDependencyStatus orderCore = status.Dependencies
+            .Single(item => item.Dependency == "ORDER_CORE");
+        Assert.Contains("provider=", orderCore.Detail, StringComparison.Ordinal);
+        Assert.Contains("circuit=", orderCore.Detail, StringComparison.Ordinal);
+        Assert.Contains("BLOCKED_EXTERNAL", orderCore.Detail, StringComparison.Ordinal);
+
+        // W-0031 landed, so the CRM card no longer promises a provider that will never be wired.
+        IvrServer.IvrDependencyStatus crm = status.Dependencies
+            .Single(item => item.Dependency == "CRM_DO_NOT_CALL");
+        Assert.Contains("W-0031", crm.Detail, StringComparison.Ordinal);
+        Assert.DoesNotContain("No CRM provider wired", crm.Detail, StringComparison.Ordinal);
+
         // What IVR does own is reported truthfully.
         IvrServer.IvrDependencyStatus sim = status.Dependencies
             .Single(item => item.Dependency == "SIM_GATEWAY");

@@ -34,6 +34,8 @@ internal sealed class TaskIntakeApiTestApplication : IAsyncDisposable
 
     public InMemoryAuditLogger Audit { get; }
 
+    public IServiceProvider Services => application.Services;
+
     public static async Task<TaskIntakeApiTestApplication> StartAsync()
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Policies;
@@ -205,18 +206,22 @@ public sealed class EligibilityService(
             stored.Task.PaymentMethodSnapshot,
             stored.Task.IvrConfirmationRequired,
             stored.Task.NotForQuoteCartDraft,
-            ReadEligibilityDecision(stored.Task.EligibilitySnapshotJson),
+            ReadEligibilityEvidence(
+                stored.Task.EligibilitySnapshotJson,
+                stored.Task.EligibilitySnapshotHash),
             lines,
-            stored.Task.CallRestriction,
-            false,
+            ReadVoiceContactEvidence(
+                stored.Task.EligibilitySnapshotJson,
+                stored.Task.CallRestriction),
             stored.Task.PhoneValidationStatus ?? string.Empty,
             stored.Task.DialTokenExpiresAt,
             stored.Task.ConfirmationWindowStartedAt,
             stored.Task.ConfirmationWindowExpiresAt,
-            stored.Task.CustomerTrustStatus,
-            stored.Task.TrustedSkipAllowed == true,
-            riskFlags,
-            false,
+            ReadTrustEvidence(
+                stored.Task.EligibilitySnapshotJson,
+                stored.Task.CustomerTrustStatus,
+                stored.Task.TrustedSkipAllowed == true,
+                riskFlags),
             capacity,
             evidenceAvailable,
             evidenceRef,
@@ -240,31 +245,213 @@ public sealed class EligibilityService(
         }
     }
 
-    private static string? ReadEligibilityDecision(string? json)
+    /// <summary>
+    /// Projects the stored Sales <c>eligibility_snapshot</c> onto the typed shape IVR validates
+    /// against (W-0030 / P4-2 §2.1-2.2). The expected shape is published as a linked evidence
+    /// reference at <c>specs/api/evidence/eligibility-snapshot.v1.schema.json</c>; the wire field
+    /// stays an open object until <c>OD-V1-03</c> closes, so this reader tolerates extra keys and
+    /// reports what it could not interpret instead of throwing.
+    /// </summary>
+    private static EligibilityEvidence ReadEligibilityEvidence(string? json, string? snapshotHash)
     {
         if (string.IsNullOrWhiteSpace(json))
         {
-            return null;
+            return EligibilityEvidence.Absent;
         }
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(json);
-            if (document.RootElement.ValueKind != JsonValueKind.Object
-                || !document.RootElement.TryGetProperty(
-                    "decision",
-                    out JsonElement decision)
-                || decision.ValueKind != JsonValueKind.String)
+            JsonElement root = document.RootElement;
+            if (root.ValueKind == JsonValueKind.Null || root.ValueKind == JsonValueKind.Undefined)
             {
-                return null;
+                return EligibilityEvidence.Absent;
             }
 
-            return decision.GetString();
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                return EligibilityEvidence.Malformed(snapshotHash);
+            }
+
+            return new EligibilityEvidence(
+                EligibilityEvidenceState.Present,
+                ReadString(root, "decision"),
+                ReadString(root, "source_version"),
+                ReadTimestamp(root, "captured_at"),
+                ReadBoolean(root, "source_available") ?? true,
+                ReadStringArray(root, "blockers"),
+                snapshotHash);
         }
         catch (JsonException)
         {
+            return EligibilityEvidence.Malformed(snapshotHash);
+        }
+    }
+
+    /// <summary>
+    /// Projects the transactional voice-contact decision (W-0031 / P4-3 §2.1-2.2).
+    /// <para>
+    /// Reads exactly three keys under <c>voice_restriction</c>. It never looks at
+    /// <c>sms_opt_out</c>, <c>marketing_consent</c>, <c>email_opt_out</c> or any other
+    /// marketing-consent key, even when Sales includes them in the same bag: a customer who
+    /// declined marketing has not declined a transactional order-confirmation call, and the two
+    /// decisions have different legal bases. The domain type this returns has no field that could
+    /// hold such a value, so the separation survives future edits to this reader.
+    /// </para>
+    /// The contract field <c>call_restriction</c> stays authoritative for the verdict; the bag
+    /// only adds provenance the wire contract cannot carry yet (<c>OD-V1-03</c>).
+    /// </summary>
+    private static VoiceContactEvidence ReadVoiceContactEvidence(
+        string? json,
+        bool columnRestriction)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return new VoiceContactEvidence(columnRestriction, true, null);
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                // Unreadable bags are already held by the eligibility evidence rules (W-0030).
+                // Nothing here may quietly upgrade that into a usable voice decision.
+                return VoiceContactEvidence.Unknown;
+            }
+
+            string? inheritedVersion = ReadString(root, "source_version");
+            if (!root.TryGetProperty("voice_restriction", out JsonElement voice)
+                || voice.ValueKind != JsonValueKind.Object)
+            {
+                return new VoiceContactEvidence(columnRestriction, true, inheritedVersion);
+            }
+
+            return new VoiceContactEvidence(
+                ReadBoolean(voice, "restricted") ?? columnRestriction,
+                ReadBoolean(voice, "source_available") ?? true,
+                ReadString(voice, "source_version") ?? inheritedVersion);
+        }
+        catch (JsonException)
+        {
+            return VoiceContactEvidence.Unknown;
+        }
+    }
+
+    /// <summary>
+    /// Projects the trust/risk resolver decision (W-0031 / P4-3 §2.3).
+    /// The skip feature itself stays disabled: enabling it is an owner decision that needs a
+    /// versioned Sales resolver contract, which does not exist. Reading the surrounding evidence
+    /// anyway means the day it is approved, the checks around it are already in place and tested.
+    /// </summary>
+    private static TrustResolverEvidence ReadTrustEvidence(
+        string? json,
+        string? trustStatus,
+        bool skipAllowedBySales,
+        IReadOnlyList<string> riskFlags)
+    {
+        const bool skipFeatureEnabled = false;
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return TrustResolverEvidence.RequireIvr with
+            {
+                SkipAllowedBySales = skipAllowedBySales,
+                TrustStatus = trustStatus,
+                RiskFlags = riskFlags,
+            };
+        }
+
+        bool resolverAvailable = false;
+        string? resolverVersion = null;
+        bool riskEvidenceAvailable = false;
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement root = document.RootElement;
+            if (root.ValueKind == JsonValueKind.Object
+                && root.TryGetProperty("trust", out JsonElement trust)
+                && trust.ValueKind == JsonValueKind.Object)
+            {
+                resolverAvailable = ReadBoolean(trust, "resolver_available") ?? false;
+                resolverVersion = ReadString(trust, "resolver_version");
+                riskEvidenceAvailable = ReadBoolean(trust, "risk_evidence_available") ?? false;
+            }
+        }
+        catch (JsonException)
+        {
+            // Fall through to the require-IVR defaults already assigned above.
+        }
+
+        return new TrustResolverEvidence(
+            skipFeatureEnabled,
+            skipAllowedBySales,
+            resolverAvailable,
+            resolverVersion,
+            trustStatus,
+            riskEvidenceAvailable,
+            riskFlags);
+    }
+
+    private static string? ReadString(JsonElement root, string property) =>
+        root.TryGetProperty(property, out JsonElement value)
+        && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+
+    private static bool? ReadBoolean(JsonElement root, string property)
+    {
+        if (!root.TryGetProperty(property, out JsonElement value))
+        {
             return null;
         }
+
+        return value.ValueKind switch
+        {
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            // A present-but-non-boolean flag is a producer defect. Reporting false makes the
+            // rules hold the task for review rather than silently treating it as available.
+            _ => false,
+        };
+    }
+
+    private static DateTimeOffset? ReadTimestamp(JsonElement root, string property)
+    {
+        if (!root.TryGetProperty(property, out JsonElement value)
+            || value.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return DateTimeOffset.TryParse(
+            value.GetString(),
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.RoundtripKind,
+            out DateTimeOffset parsed)
+            ? parsed
+            : null;
+    }
+
+    private static string[] ReadStringArray(JsonElement root, string property)
+    {
+        if (!root.TryGetProperty(property, out JsonElement value)
+            || value.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        var items = new List<string>();
+        foreach (JsonElement item in value.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.String
+                && item.GetString() is { Length: > 0 } text)
+            {
+                items.Add(text);
+            }
+        }
+
+        return items.ToArray();
     }
 
     private static (string EvidenceRef, bool Available) FirstEvidenceOrFailClosed(

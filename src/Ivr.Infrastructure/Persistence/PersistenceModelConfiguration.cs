@@ -56,6 +56,13 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_confirmation_tasks_masked_phone",
                     "phone_masked ~ '[xX*]' AND phone_masked !~ '(^|[^0-9])(0|84)[0-9]{9}([^0-9]|$)'");
+                // W-0030 / P4-2 §2.3. Lowercase hex only, matching ck_ivr_script_versions_hash.
+                // The column may be null for rows written before this migration; it may never
+                // hold anything that is not a SHA-256 digest, so no snapshot body can leak here.
+                table.HasCheckConstraint(
+                    "ck_ivr_confirmation_tasks_eligibility_hash",
+                    "eligibility_snapshot_hash IS NULL "
+                    + "OR eligibility_snapshot_hash ~ '^[a-f0-9]{64}$'");
             });
         builder.HasKey(entity => entity.Id);
         builder.HasAlternateKey(entity => entity.TaskId);

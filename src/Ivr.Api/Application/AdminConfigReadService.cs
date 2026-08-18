@@ -3,6 +3,7 @@ using Ivr.Api.Admin;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Privacy;
 using Ivr.Domain.Scripts;
+using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence;
@@ -41,7 +42,12 @@ public sealed class AdminConfigReadService(
     IFeatureFlags featureFlags,
     IOptions<IvrOptions> ivrOptions,
     IOptions<ScriptContentOptions> scriptOptions,
-    TimeProvider timeProvider) : IAdminConfigReadService
+    TimeProvider timeProvider,
+    // Optional on purpose. This is a read service for admin screens; a host that serves the
+    // console without running the callback delivery stack must still start. When the stack is
+    // absent the ORDER_CORE card reports NOT_WIRED, which is the truth for that host.
+    IOptions<CallbackDeliveryOptions>? callbackOptions = null,
+    CallbackCircuitBreaker? callbackCircuit = null) : IAdminConfigReadService
 {
     public const int MaxPageSize = 100;
     public const int DefaultPageSize = 25;
@@ -157,7 +163,14 @@ public sealed class AdminConfigReadService(
             // only what it can observe about itself and marks the rest NOT_WIRED,
             // rather than painting an unprobed dependency green.
             DependencyProbingAvailable: false,
-            BuildDependencies(flags, totalChannels, enabledChannels, lastHealthCheck),
+            BuildDependencies(
+                flags,
+                totalChannels,
+                enabledChannels,
+                lastHealthCheck,
+                callbackOptions?.Value,
+                callbackCircuit?.Snapshot(),
+                timeProvider.GetUtcNow()),
             BuildFailClosedEvents(incidents, reviews));
     }
 
@@ -305,7 +318,10 @@ public sealed class AdminConfigReadService(
         FeatureFlagSnapshot flags,
         int totalChannels,
         int enabledChannels,
-        DateTimeOffset? lastHealthCheck) =>
+        DateTimeOffset? lastHealthCheck,
+        CallbackDeliveryOptions? callback,
+        CallbackCircuitState? circuit,
+        DateTimeOffset observedAt) =>
     [
         // Observed: IVR owns this state and can report it truthfully.
         new DependencyStatusView(
@@ -327,14 +343,32 @@ public sealed class AdminConfigReadService(
             Observed: true,
             null),
 
-        // Not observed: no probe exists yet (P6-1 / W-0040).
+        // W-0029 / P4-1 §3.5. Observed, but only for what IVR genuinely knows: the selected
+        // provider profile and the live state of its own outbound circuit. It is NOT an external
+        // probe of Sales — that needs a real endpoint and belongs to W-0040. Reporting the
+        // circuit as if it were Sales' health would be the same lie in a nicer shape.
         new DependencyStatusView(
             "ORDER_CORE",
-            "NOT_WIRED",
-            "No provider endpoint configured; task push and callback intake are BLOCKED_EXTERNAL (G-CONTRACT).",
+            callback is not { Enabled: true } || circuit is null
+                ? "NOT_WIRED"
+                : circuit.Readiness == "READY" ? "UP" : "READY_503",
+            string.Concat(
+                "provider=",
+                callback?.Provider ?? "not-configured",
+                "; delivery=",
+                callback is { Enabled: true } ? "enabled" : "disabled",
+                "; circuit=",
+                circuit?.Readiness ?? "not-running",
+                "; consecutive_transient_failures=",
+                (circuit?.ConsecutiveTransientFailures ?? 0).ToString(
+                    System.Globalization.CultureInfo.InvariantCulture),
+                "; real endpoint still BLOCKED_EXTERNAL (G-CONTRACT / W-0002..W-0006)"),
             "Order Core down means no new task and bounded callback retry or admin review.",
-            Observed: false,
-            null),
+            // Observed only when delivery is actually on. With delivery disabled there is
+            // nothing being observed about Order Core, and saying otherwise would be the
+            // placeholder problem again in a different place.
+            Observed: callback is { Enabled: true } && circuit is not null,
+            callback is { Enabled: true } && circuit is not null ? observedAt : null),
         new DependencyStatusView(
             "OPS_SELLABLE_GATE",
             "NOT_WIRED",
@@ -345,7 +379,8 @@ public sealed class AdminConfigReadService(
         new DependencyStatusView(
             "CRM_DO_NOT_CALL",
             "NOT_WIRED",
-            "No CRM provider wired (P4-3).",
+            "Voice restriction and trust evidence arrive inside the Sales task (W-0031); "
+            + "IVR holds no CRM client and probes nothing (UT-ARCH-NO-CRM-EGRESS-06).",
             "CRM down means opt-out cannot be determined, so no dispatch (DC-01).",
             Observed: false,
             null),

@@ -47,6 +47,7 @@ public sealed class ConfirmationTaskEntity : RetainedEntity
     public string PrivacyPolicyVersion { get; set; } = string.Empty;
     public string? EligibilityDecision { get; set; }
     public string? EligibilitySnapshotJson { get; set; }
+    public string? EligibilitySnapshotHash { get; set; }
     public string? BlockedReasonsJson { get; set; }
     public string? SellableStatusJson { get; set; }
     public DateTimeOffset? SellableCapturedAt { get; set; }

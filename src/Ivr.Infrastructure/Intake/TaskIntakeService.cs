@@ -541,6 +541,10 @@ public sealed class TaskIntakeService(
                 snapshot.ConfirmationWindow.StartedAt.Add(offset)));
         string summaryJson = JsonSerializer.Serialize(source.Privacy_safe_order_summary);
         string eligibilityJson = JsonSerializer.Serialize(source.Eligibility_snapshot);
+        // W-0030 / P4-2 §2.3. Fingerprints exactly the evidence bag IVR stores and later
+        // evaluates, so the result callback can be traced to the bytes the decision was made on.
+        // Only the digest is ever carried forward — the snapshot body stays in the task row.
+        string eligibilitySnapshotHash = DeterministicSnapshotHasher.Compute(eligibilityJson);
         string? riskFlagsJson = source.Risk_flags is null
             ? null
             : JsonSerializer.Serialize(source.Risk_flags);
@@ -594,6 +598,7 @@ public sealed class TaskIntakeService(
             PrivacyPolicyVersion = privacyPolicy,
             EligibilityDecision = null,
             EligibilitySnapshotJson = eligibilityJson,
+            EligibilitySnapshotHash = eligibilitySnapshotHash,
             SellableStatusJson = sellableJson,
             SellableCapturedAt = source.Sellable_status is { Count: > 0 }
                 ? source.Sellable_status.Max(line => line.Captured_at)

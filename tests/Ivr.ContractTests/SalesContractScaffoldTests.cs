@@ -12,6 +12,62 @@ namespace Ivr.ContractTests;
 public sealed class SalesContractScaffoldTests
 {
     [Fact]
+    [Trait("TestId", "CT-CONTRACT-PINNED-08")]
+    public void ConsumerContractRecordsTheProviderVersionAndOpenApiHashItWasVerifiedAgainst()
+    {
+        // W-0029 / P4-1 §3.6. A consumer-driven contract suite is only evidence if it says WHICH
+        // provider revision it passed against. Without this, a green suite proves nothing after
+        // Sales deploys: the fixtures would still match a contract nobody is serving any more.
+        string root = FindRepositoryRoot();
+        string manifestPath = Path.Combine(
+            root,
+            "specs",
+            "api",
+            "openapi",
+            "contract-manifest.json");
+        using JsonDocument manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
+        JsonElement rootElement = manifest.RootElement;
+
+        // The upstream revision the current-compat fixtures were verified against.
+        JsonElement baseline = rootElement.GetProperty("salesCurrentBaseline");
+        string commit = baseline.GetProperty("commit").GetString()!;
+        Assert.Equal("ginsengfood-business-platform", baseline.GetProperty("repository").GetString());
+        Assert.Equal(40, commit.Length);
+        Assert.True(commit.All(character => Uri.IsHexDigit(character) && !char.IsUpper(character)));
+
+        // Every contract IVR generates a client or server DTO from is pinned by content hash, so
+        // an upstream edit cannot slip past the suite by being syntactically valid.
+        foreach (JsonElement contract in rootElement.GetProperty("contracts").EnumerateArray())
+        {
+            string relative = contract.GetProperty("path").GetString()!;
+            string pinned = contract.GetProperty("sha256").GetString()!;
+            byte[] content = File.ReadAllBytes(
+                Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
+            string actual = Convert.ToHexStringLower(
+                System.Security.Cryptography.SHA256.HashData(content));
+
+            Assert.Equal(pinned, actual);
+        }
+
+        // Target V1 stays DRAFT: the suite runs against fakes, and a passing run must never be
+        // read as an approved provider contract (W-0002..W-0006 / OD-V1-02).
+        Assert.Equal("TARGET_CONTRACT_V1=DRAFT", rootElement.GetProperty("contractState").GetString());
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null
+            && !File.Exists(Path.Combine(directory.FullName, "Ivr.sln")))
+        {
+            directory = directory.Parent;
+        }
+
+        return directory?.FullName
+            ?? throw new InvalidOperationException("The repository root was not found.");
+    }
+
+    [Fact]
     [Trait("TestId", "CT-CONTRACT-SEPARATION-01")]
     public void TargetInternalCurrentAndWireDtosAreNotAssignable()
     {

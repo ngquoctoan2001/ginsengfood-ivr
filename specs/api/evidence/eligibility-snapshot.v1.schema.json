@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ginsengfood:ivr:eligibility-snapshot:v1",
+  "title": "EligibilitySnapshotEvidenceV1",
+  "status": "TARGET_DRAFT_NOT_OWNER_APPROVED",
+  "description": "Shape IVR expects inside the Target V1 task field `eligibility_snapshot` (W-0030 / prompt P4-2). This is a LINKED EVIDENCE REFERENCE, not a wire contract: `eligibility_snapshot` stays an open object in specs/api/openapi/ivr-order-confirmation.v1.yaml because its shape is not owner-approved yet (OD-V1-03, closure ticket docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md). IVR validates received snapshots against this schema and FAILS CLOSED — it does not tighten a contract Sales has not agreed to. Sales proposing a different shape closes OD-V1-03; this file then follows, together with the OpenAPI description that points at it.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "decision": {
+      "type": "string",
+      "description": "Sales' own eligibility verdict for this order. IVR dispatches only on the exact value `ELIGIBLE`. `BLOCKED`, `NOT_ELIGIBLE` and `INELIGIBLE` are treated as an operational block. Any other value, including a missing one, holds the task for admin review rather than guessing — an unrecognised verdict is not a permissive one.",
+      "examples": ["ELIGIBLE", "BLOCKED", "NOT_ELIGIBLE", "INELIGIBLE"]
+    },
+    "source_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Version of the Sales evidence source that produced this snapshot. Required by IVR policy: without it, a snapshot cannot be attributed to a known producer, and a later dispute cannot be resolved. Absent or blank holds the task."
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When Sales captured the evidence. Must fall inside [confirmation_window_started_at, evaluation time]. Earlier means the evidence describes a different order state; later means a clock or producer defect. Both hold the task. Same freshness rule as the per-line `sellable_status[].captured_at`."
+    },
+    "source_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "False when Sales could not reach its own evidence source and is telling IVR so explicitly. Absent is read as true. A present-but-non-boolean value is read as false, because a producer defect here must not resolve to 'available'."
+    },
+    "blockers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Privacy-safe blocker codes Sales is aware of. A non-empty list blocks dispatch EVEN WHEN `decision` is `ELIGIBLE`: trusting the summary field over the detail would place a call on an order Sales itself flagged. Codes must carry no customer data — they travel into IVR evidence and admin screens."
+    },
+    "voice_restriction": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Provenance for the TRANSACTIONAL VOICE decision (W-0031 / P4-3). The task field `call_restriction` stays authoritative for the verdict; this object adds the source facts the wire contract cannot carry yet. IVR reads exactly the three keys below and nothing else from this object.",
+      "properties": {
+        "restricted": {
+          "type": "boolean",
+          "description": "True blocks dispatch. Absent falls back to the task field `call_restriction`. Neither absent nor unresolved may ever read as permission."
+        },
+        "source_available": {
+          "type": "boolean",
+          "default": true,
+          "description": "False means the voice-restriction resolver could not answer. IVR HOLDS the task: 'the resolver could not answer' is not permission to call."
+        },
+        "source_version": {
+          "type": "string",
+          "description": "Version of the resolver that produced the verdict. Falls back to the snapshot-level `source_version` when absent, since the voice decision belongs to the same evidence capture."
+        }
+      }
+    },
+    "trust": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Evidence backing the 'skip the call for a trusted customer' decision (W-0031 / P4-3 §2.3). Trust skip stays DISABLED regardless of this object: enabling it is an owner decision requiring a versioned Sales resolver contract that does not exist. IVR reads these keys so that the checks are already in place and tested the day the gate opens.",
+      "properties": {
+        "resolver_available": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the Sales trust resolver answered. Absent or false means require-IVR."
+        },
+        "resolver_version": {
+          "type": "string",
+          "description": "Version of the resolver decision. Blank or absent means require-IVR — an unversioned skip decision cannot be audited later."
+        },
+        "risk_evidence_available": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether risk evidence backing the trust status was available. Absent or false means require-IVR."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "decision": "ELIGIBLE",
+      "source_version": "sales-eligibility-v1",
+      "captured_at": "2026-08-18T03:00:00Z",
+      "source_available": true,
+      "blockers": []
+    },
+    {
+      "decision": "BLOCKED",
+      "source_version": "sales-eligibility-v1",
+      "captured_at": "2026-08-18T03:00:00Z",
+      "source_available": true,
+      "blockers": ["RECALL_HOLD"]
+    },
+    {
+      "decision": "ELIGIBLE",
+      "source_version": "sales-eligibility-v1",
+      "captured_at": "2026-08-18T03:00:00Z",
+      "source_available": false
+    }
+  ],
+  "x-ivr-fail-closed-order": [
+    "ELIGIBILITY_SNAPSHOT_MISSING — nothing was sent",
+    "ELIGIBILITY_SNAPSHOT_UNREADABLE — something was sent that IVR cannot interpret",
+    "ELIGIBILITY_SOURCE_UNAVAILABLE — source_available is false",
+    "ELIGIBILITY_SOURCE_VERSION_MISSING — source_version absent or blank",
+    "ELIGIBILITY_SNAPSHOT_STALE — captured_at absent or outside the confirmation window",
+    "ELIGIBILITY_SNAPSHOT_MISSING — decision absent or blank",
+    "ELIGIBILITY_SNAPSHOT_BLOCKED / ELIGIBILITY_SNAPSHOT_UNKNOWN — decision is not ELIGIBLE",
+    "ELIGIBILITY_SNAPSHOT_BLOCKED — decision is ELIGIBLE but blockers is non-empty"
+  ],
+  "x-ivr-fail-closed-directions": {
+    "voice_restriction": "Closes toward BLOCKING. Restricted, unknown and source-unavailable all stop the dispatch — not knowing whether we may call a customer must never resolve to calling them. Reason codes: PHONE_CALL_RESTRICTION_SOURCE_UNAVAILABLE, PHONE_CALL_RESTRICTION_MISSING, PHONE_CALL_RESTRICTED.",
+    "trust": "Closes toward CALLING. Any missing or unversioned part of the skip decision means require-IVR — not knowing whether we may skip must never resolve to skipping. Advisories: TRUST_SKIP_DISABLED_REQUIRE_IVR, TRUST_RESOLVER_UNAVAILABLE, TRUST_RESOLVER_VERSION_MISSING, TRUST_RISK_EVIDENCE_UNAVAILABLE. These never block.",
+    "why-the-asymmetry": "Both are fail-closed; they close in opposite directions because the harm differs. The failure mode of a wrong voice decision is an unwanted call to a customer who refused one. The failure mode of a wrong trust decision is one extra confirmation call. Collapsing them into a single flag would silently pick one harm over the other."
+  },
+  "x-ivr-notes": {
+    "marketing-consent-separation": "IVR reads no SMS, email, marketing-consent, newsletter or promo key from this bag, and the domain type carrying the voice decision has no field that could hold one. A customer who declined marketing has not declined a transactional order-confirmation call; the two rest on different legal bases. Sales may include such keys — they are ignored, and a test drives a bag containing all of them to prove the outcome does not change.",
+    "structural-before-content": "Structural failures are reported before content failures so the reason code names the real defect. A snapshot IVR could not read must never surface as a decision IVR disagrees with.",
+    "immutability": "At intake IVR stores the snapshot verbatim and records a SHA-256 digest of it in ivr_confirmation_tasks.eligibility_snapshot_hash, constrained to lowercase hex. The digest — never the body — is carried into the eligibility evaluation evidence refs so a result callback can be traced to the exact evidence the decision was made on.",
+    "not-an-ops-client": "IVR consumes this evidence only. It holds no Ops credential, client or webhook, and never writes order state (D-02). recommended_core_action on the outbound callback stays advisory."
+  }
+}

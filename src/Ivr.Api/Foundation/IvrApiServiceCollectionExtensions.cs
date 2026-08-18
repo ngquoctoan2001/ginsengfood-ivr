@@ -1,10 +1,12 @@
 using System.Text.Json.Serialization;
 using Ivr.Api.Auth;
 using Ivr.Api.Middleware;
+using Ivr.Infrastructure.Auth;
 using Ivr.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Api.Foundation;
@@ -92,6 +94,18 @@ public static class IvrApiServiceCollectionExtensions
                 options => !string.IsNullOrWhiteSpace(options.ServiceToken),
                 $"{OrderCoreAllowlistOptions.TokenConfigurationKey} is required.")
             .ValidateOnStart();
+
+        // W-0032 / P4-4. Service identity. Mock issuer only: ServiceIdentityOptionsValidator
+        // refuses Mode=Real at startup, so no deployment can quietly claim production auth.
+        services.AddOptions<ServiceIdentityOptions>()
+            .Bind(configuration.GetSection(ServiceIdentityOptions.SectionName))
+            .ValidateOnStart();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IValidateOptions<ServiceIdentityOptions>, ServiceIdentityOptionsValidator>());
+        services.TryAddSingleton<MockOidcIssuer>();
+        services.TryAddSingleton<IServiceSigningKeySource>(
+            provider => provider.GetRequiredService<MockOidcIssuer>());
+        services.TryAddSingleton<IServiceJwtValidator, ServiceJwtValidator>();
 
         return services;
     }

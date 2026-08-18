@@ -194,6 +194,61 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
     }
 
     [Fact]
+    [Trait("TestId", "IT-ELIG-RACE-12")]
+    public async Task BlockerRaisedAfterKeyOneBlocksTheSignalWithoutRewritingTheCallResult()
+    {
+        // Seed 'SCN-009-race-recall-after-key1': the customer confirmed, and only afterwards did
+        // Sales find a blocker during revalidation. P4-2 §3 and D-02 both hinge on this case.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedPendingAsync(factory, "ANSWERED", "1");
+        await Repository(factory).NormalizeNextAsync("normalizer-race-12");
+        ICallbackOutboxRepository outbox = fixture.Services
+            .GetRequiredService<ICallbackOutboxRepository>();
+
+        CallbackOutboxMessage leased = Assert.Single(await outbox.DequeueReadyAsync(
+            10,
+            TimeSpan.FromMinutes(1)));
+        Assert.True(await outbox.CompleteDeliveryAsync(
+            leased.CallbackId,
+            leased.LeaseToken,
+            new CallbackDeliveryUpdate(
+                "DELIVERED_BLOCKED",
+                200,
+                "BLOCKED_BY_CORE",
+                null,
+                0,
+                null,
+                true,
+                true)));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking()
+            .SingleAsync();
+
+        // What the customer actually did is a fact IVR observed. Sales blocking the order later
+        // does not retroactively make the keypress something else, so the stored result stays
+        // IVR_CONFIRMED and the counted attempt stays counted.
+        Assert.Equal("IVR_CONFIRMED", result.ResultType);
+        Assert.True(result.IsCountedCustomerAttempt);
+
+        // The block is recorded on the signal, not on the observation, and surfaces for review.
+        Assert.Equal("DELIVERED_BLOCKED", callback.DeliveryStatus);
+        Assert.Equal("BLOCKED_BY_CORE", callback.CoreResponseCode);
+        Assert.Contains(
+            await verification.ReviewItems.AsNoTracking().ToListAsync(),
+            item => item.SourceType == "IVR_RESULT_CALLBACK" && item.SourceId == callback.CallbackId);
+
+        // D-02: nothing IVR owns carries an order state it could have written. The task still
+        // holds the state Sales sent at intake, untouched by the confirm or by the block.
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks.AsNoTracking()
+            .SingleAsync();
+        Assert.Equal("CONFIRMING", task.OrderState);
+        Assert.Equal("1", task.OrderVersion);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-CALLBACK-OUTBOX-06")]
     public async Task DeliveryCompletionUsesLeaseFencingAndCreatesAdminVisibleReview()
     {

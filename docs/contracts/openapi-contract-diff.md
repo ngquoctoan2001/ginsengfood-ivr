@@ -11,7 +11,7 @@ Verified current Sales source: `ginsengfood-business-platform@a3aad246d986fbc273
 
 - Role/status: IVR server DTO source / `TARGET_DRAFT`
 - Source: `specs/api/openapi/ivr-order-confirmation.v1.yaml`
-- SHA-256: `8adc9d40eead27ca04cfdaa99e863df0e2f3aab7e58b2c332f442a276ae2c8d7`
+- SHA-256: `499f15892b303919b28f636a058216f56f7c8f3a87b34e5d9a6a4636e7e58508`
 - Title/version: IVR Order Confirmation — Internal/Admin API (Target V1 Draft) / `1.0.0-draft.7`
 - Generated: `src/Ivr.Contracts/Generated/IvrServer/V1/IvrServerModels.g.cs`
 - Operations (28): POST /tasks (intakeTask); POST /eligibility-checks (recordEligibility); GET /call-jobs (listCallJobs); POST /call-jobs (createCallJob); GET /call-jobs/{ivrCallJobId} (getCallJob); POST /call-attempts (recordAttempt); POST /call-results (recordResult); POST /result-callbacks (recordResultCallback); GET /queue (getQueue); GET /dashboard (getDashboard); GET /call-jobs/{ivrCallJobId}/detail (getCallJobDetail); GET /sim-channels (listSimChannels); GET /scripts (getScriptCatalog); GET /integration-status (getIntegrationStatus); GET /review-items (listReviewItems); GET /analytics/summary (getAnalyticsSummary); GET /analytics/trend (getAnalyticsTrend); GET /analytics/breakdown (getAnalyticsBreakdown); GET /analytics/export (exportAnalytics); POST /queue:pause (pauseQueue); POST /queue:resume (resumeQueue); POST /sim-channels/{simChannelId}:disable (disableSim); POST /sim-channels/{simChannelId}:enable (enableSim); POST /technical-retries (technicalRetry); POST /admin-reviews (adminReview); GET /feature-flags/{environment} (getFeatureFlags); POST /feature-flags/{environment} (mutateFeatureFlags); GET /feature-flags/{environment}/kill-switch (verifyFeatureFlagKillSwitch)

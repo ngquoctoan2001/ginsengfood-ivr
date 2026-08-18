@@ -8,8 +8,11 @@ using Ivr.Api.Auth;
 using Ivr.Api.Intake;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Errors;
+using Ivr.Infrastructure.Auth;
 using Ivr.Infrastructure.Correlation;
 using Ivr.Infrastructure.Intake;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Ivr.IntegrationTests;
 
@@ -157,6 +160,48 @@ public sealed class TaskIntakeApiTests
     }
 
     [Fact]
+    [Trait("TestId", "IT-AUTH-INGRESS-12")]
+    public async Task ServiceJwtAuthenticatesIngressAndAnUntrustedOneDoesNot()
+    {
+        // W-0032 / P4-4 §2.2. The unit suite proves the validator; this proves it is actually on
+        // the request path, and that the thing authenticating the caller is the signature.
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        var issuer = app.Services.GetRequiredService<MockOidcIssuer>();
+        using var untrusted = new MockOidcIssuer(
+            TimeProvider.System,
+            app.Services.GetRequiredService<IOptions<ServiceIdentityOptions>>());
+
+        using HttpResponseMessage accepted = await SendAsync(
+            app.Client,
+            CreateBody(),
+            bearerOverride: issuer.Issue("sales-platform", [ServiceIdentityScopes.TaskWrite]));
+        Assert.Equal(HttpStatusCode.OK, accepted.StatusCode);
+
+        // Correct shape, correct claims, wrong signer.
+        using HttpResponseMessage refused = await SendAsync(
+            app.Client,
+            CreateBody(),
+            idempotencyKey: "idem-auth-ingress-untrusted",
+            bearerOverride: untrusted.Issue(
+                "sales-platform",
+                [ServiceIdentityScopes.TaskWrite]));
+        Assert.Equal(HttpStatusCode.Forbidden, refused.StatusCode);
+
+        // A verified caller lacking the surface scope is refused too.
+        using HttpResponseMessage wrongScope = await SendAsync(
+            app.Client,
+            CreateBody(),
+            idempotencyKey: "idem-auth-ingress-scope",
+            bearerOverride: issuer.Issue(
+                "sales-platform",
+                [ServiceIdentityScopes.AdminRead]));
+        Assert.Equal(HttpStatusCode.Forbidden, wrongScope.StatusCode);
+
+        Assert.Equal(1, app.Store.CallJobCount);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-INTAKE-TRACE-06")]
     public async Task MissingCorrelationHeaderReturnsStableMissingTrace()
     {
@@ -298,7 +343,8 @@ public sealed class TaskIntakeApiTests
         bool includeAuthorization = true,
         bool includeCorrelation = true,
         bool includeIdempotency = true,
-        string idempotencyKey = "idem-api-p2-1")
+        string idempotencyKey = "idem-api-p2-1",
+        string? bearerOverride = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, TaskIntakeEndpoint.Route)
         {
@@ -314,7 +360,13 @@ public sealed class TaskIntakeApiTests
                 OrderCoreAllowlistOptions.SourceSystem);
         }
 
-        if (includeAuthorization)
+        if (bearerOverride is not null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue(
+                "Bearer",
+                bearerOverride);
+        }
+        else if (includeAuthorization)
         {
             request.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer",

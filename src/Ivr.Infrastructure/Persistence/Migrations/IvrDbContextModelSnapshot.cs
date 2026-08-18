@@ -1514,6 +1514,10 @@ namespace Ivr.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("eligibility_decision");
 
+                    b.Property<string>("EligibilitySnapshotHash")
+                        .HasColumnType("text")
+                        .HasColumnName("eligibility_snapshot_hash");
+
                     b.Property<string>("EligibilitySnapshotJson")
                         .HasColumnType("jsonb")
                         .HasColumnName("eligibility_snapshot_json");
@@ -1700,6 +1704,8 @@ namespace Ivr.Infrastructure.Persistence.Migrations
                     b.ToTable("ivr_confirmation_tasks", null, t =>
                         {
                             t.HasCheckConstraint("ck_ivr_confirmation_tasks_attempt_bounds", "max_attempts BETWEEN 1 AND 10");
+
+                            t.HasCheckConstraint("ck_ivr_confirmation_tasks_eligibility_hash", "eligibility_snapshot_hash IS NULL OR eligibility_snapshot_hash ~ '^[a-f0-9]{64}$'");
 
                             t.HasCheckConstraint("ck_ivr_confirmation_tasks_masked_phone", "phone_masked ~ '[xX*]' AND phone_masked !~ '(^|[^0-9])(0|84)[0-9]{9}([^0-9]|$)'");
 
