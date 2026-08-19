@@ -1,0 +1,155 @@
+# W-0045 / P7-3 §6 — build, publish, and the two environments that deploy automatically.
+#
+# Nothing here has ever run. There is no runner, no registry and no cluster credential for a real
+# environment (W-0061 / W-0063, both BLOCKED_EXTERNAL), so every job below is configuration whose
+# SHAPE is asserted by deploy/ci/scripts/cd-selftest.mjs and whose EXECUTION is NOT_RUN. P7-3 §10
+# is explicit that YAML is not deploy proof, and this file does not pretend otherwise.
+#
+# The ladder (README-governance §6) says REAL_CUSTOMER_CALL_ALLOWED is `false (immutable)` for dev,
+# staging and lab, and `false` for prod until a DF-03 sign-off. So no job in this pipeline sets it
+# at all: not to true, and not to false-in-a-place-that-could-be-edited-to-true. The value comes
+# from the chart, where a render-time guard already refuses to open it outside lab/prod.
+
+# The gate that checks this file. It lives here rather than in a separate fragment so the pipeline
+# and the rules it must obey move together: splitting them is how a rule ends up guarding a job that
+# was renamed months ago.
+cd_selftest:
+  stage: validate
+  image: node:22-alpine
+  allow_failure: false
+  script:
+    - npm --prefix deploy/ci ci --no-audit --no-fund
+    - node deploy/ci/scripts/cd-selftest.mjs
+
+# W-0046 / P7-4 §8. Progressive-delivery configuration, and the one check in it that reads real
+# code: IT-MIGRATE-03 fails on a migration that would break a two-version overlap.
+progressive_selftest:
+  stage: validate
+  image: node:22-alpine
+  allow_failure: false
+  script:
+    - npm --prefix deploy/ci ci --no-audit --no-fund
+    - node deploy/ci/scripts/progressive-selftest.mjs
+
+.deploy_base: &deploy_base
+  image: alpine/helm:3.16.3
+  # Serialised per environment. Two pipelines upgrading the same release concurrently is how a
+  # half-applied migration meets a half-rolled-back deployment.
+  before_script:
+    - helm version --short
+  # A failed upgrade returns the release to the revision it came from before the job ends. Without
+  # this, a bad deploy leaves the environment in the failed state until someone notices.
+  after_script:
+    - |
+      if [ "$CI_JOB_STATUS" != "success" ]; then
+        echo "deploy failed; rolling back $HELM_RELEASE in $KUBE_NAMESPACE"
+        helm rollback "$HELM_RELEASE" --namespace "$KUBE_NAMESPACE" --wait --timeout 5m || true
+        helm history "$HELM_RELEASE" --namespace "$KUBE_NAMESPACE" --max 5 || true
+      fi
+
+publish_images:
+  stage: publish
+  image: docker:27-cli
+  allow_failure: false
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    # Immutable by construction: semver plus the commit sha. A tag that can be moved is a tag that
+    # cannot answer "what is actually running".
+    IVR_IMAGE_TAG: "0.1.0-$CI_COMMIT_SHORT_SHA"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+  script:
+    - printf '%s' "$CI_JOB_TOKEN" | docker login --username gitlab-ci-token --password-stdin "$CI_REGISTRY"
+    - for f in api worker ui migrate; do
+        ctx="."; [ "$f" = "ui" ] && ctx="admin-ui";
+        docker build -f deploy/docker/Dockerfile.$f -t "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG" $ctx;
+      done
+    # The scan runs BEFORE the push, deliberately. Scanning what is already in the registry means
+    # the bad image exists and somebody can pull it.
+    - for f in api worker ui migrate; do
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.58.1
+          image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --quiet
+          "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG";
+      done
+    - mkdir -p ci-artifacts/cd
+    - for f in api worker ui migrate; do
+        docker push "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG";
+        docker inspect --format='{{index .RepoDigests 0}}' "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG"
+          >> ci-artifacts/cd/digests.txt;
+      done
+    # The digest, not the tag, is what later evidence has to cite: a tag names an intention, a
+    # digest names bits.
+    - cat ci-artifacts/cd/digests.txt
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - ci-artifacts/cd/
+
+deploy_dev:
+  <<: *deploy_base
+  stage: deploy
+  allow_failure: false
+  environment:
+    name: dev
+    deployment_tier: development
+  resource_group: dev
+  variables:
+    KUBE_NAMESPACE: ivr-dev
+    HELM_RELEASE: ivr
+  # needs, not just stage order: a red scan must make this job unreachable rather than merely
+  # earlier in the graph.
+  needs:
+    - job: publish_images
+      artifacts: true
+    - job: image_selftest
+    - job: k8s_selftest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - |
+      helm upgrade --install "$HELM_RELEASE" deploy/helm/ivr \
+        --namespace "$KUBE_NAMESPACE" --create-namespace \
+        --values deploy/helm/ivr/values-dev.yaml \
+        --set image.registry="$CI_REGISTRY_IMAGE" \
+        --set image.tag="0.1.0-$CI_COMMIT_SHORT_SHA" \
+        --atomic --wait --timeout 10m
+    # Post-deploy smoke. --atomic already reverts a failed rollout, so this catches the case that
+    # matters more: a rollout Kubernetes considers healthy while the service answers wrongly.
+    - kubectl -n "$KUBE_NAMESPACE" rollout status deploy/ivr-ivr-api --timeout=5m
+    - kubectl -n "$KUBE_NAMESPACE" run cd-smoke-$CI_JOB_ID --rm -i --restart=Never
+        --image=busybox:1.37.0-uclibc --command --
+        wget -q -T 10 -O- http://ivr-ivr-api:8080/health/ready
+
+deploy_staging:
+  <<: *deploy_base
+  stage: deploy
+  allow_failure: false
+  environment:
+    name: staging
+    deployment_tier: staging
+  resource_group: staging
+  variables:
+    KUBE_NAMESPACE: ivr-staging
+    HELM_RELEASE: ivr
+  needs:
+    - job: deploy_dev
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - |
+      helm upgrade --install "$HELM_RELEASE" deploy/helm/ivr \
+        --namespace "$KUBE_NAMESPACE" --create-namespace \
+        --values deploy/helm/ivr/values-staging.yaml \
+        --set image.registry="$CI_REGISTRY_IMAGE" \
+        --set image.tag="0.1.0-$CI_COMMIT_SHORT_SHA" \
+        --atomic --wait --timeout 10m
+    - kubectl -n "$KUBE_NAMESPACE" rollout status deploy/ivr-ivr-api --timeout=5m
+    - kubectl -n "$KUBE_NAMESPACE" run cd-smoke-$CI_JOB_ID --rm -i --restart=Never
+        --image=busybox:1.37.0-uclibc --command --
+        wget -q -T 10 -O- http://ivr-ivr-api:8080/health/ready

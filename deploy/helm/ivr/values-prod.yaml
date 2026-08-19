@@ -9,7 +9,7 @@ governance:
   killSwitchEnabled: true
   # PRODUCTION_REAL is the only mode prod may eventually carry, and realCustomerCallAllowed
   # stays FALSE here until a DF-03 sign-off exists. Nobody may flip it by editing this file: the
-  # render-time guard permits true only for pilot and prod, and the sign-off is a separate gate.
+  # render-time guard permits true only for lab and prod, and the sign-off is a separate gate.
 image:
   tag: "0.1.0"
 

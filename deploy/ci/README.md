@@ -197,3 +197,31 @@ as proven. The root `CODEOWNERS` file alone is not enforcement evidence.
 Do not place credentials in YAML, caches, artifacts, logs, or evidence. GitLab
 variables containing credentials must be masked, protected, scoped, and rotated
 under the platform secret-store decision.
+
+
+## Ladder → environment (`W-0045` / `P7-3` §4)
+
+`README-governance` §6 nói **environment và execution mode là hai trục độc lập**; không suy diễn cái
+này từ cái kia. Pipeline vì thế ánh xạ ladder sang **cổng**, không sang mode:
+
+| Bậc ladder | Môi trường mở ra | Job | Cách kích hoạt |
+| --- | --- | --- | --- |
+| `CONTRACT_APPROVED` | `dev` | `deploy_dev` | tự động trên default branch, sau `publish_images` |
+| `TASK_INTAKE/SCHEDULER_ENABLED` | `staging` (MOCK) | `deploy_staging` | tự động, sau `deploy_dev` |
+| `SIM_INTERNAL_TEST` | `lab` | `promote_lab` | **thủ công**, protected environment |
+| `REAL_CUSTOMER_CALL_ALLOWED` | `prod` | `promote_prod` | **thủ công** + tag + tham chiếu sign-off DF-03 |
+
+**Không job nào set `REAL_CUSTOMER_CALL_ALLOWED`.** Ladder ghi nó là `false (immutable)` ở dev,
+staging và lab, và `false` ở prod cho tới khi có DF-03. Nên số job pipeline được phép set nó là
+**không**, chứ không phải "một, cẩn thận". Mở real call là một admin action có permission riêng,
+audit và four-eyes — pipeline mà lật được nó sẽ làm chữ ký sign-off thành trang trí.
+`IT-CD-REAL-03` quét **toàn bộ** YAML CI và đỏ nếu bất kỳ dòng nào gán giá trị true-ish.
+
+**`when: manual` là cơ chế, không phải toàn bộ cổng.** Ai được bấm là do *protected environments*
+của GitLab quyết, mà đó là cấu hình trong project chứ không nằm trong repo — nên file YAML **không**
+tự chứng minh được four-eyes. Ghi ở `docs/evidence/W-0045` thay vì ngụ ý ở đây.
+
+**Chưa lần nào chạy.** Không runner, không registry, không credential cluster (`W-0061`, `W-0063`).
+`cd-selftest.mjs` kiểm **hình dạng** pipeline; `P7-3` §10 cấm gọi YAML là deploy proof.
+
+Rollback: [`rollback.md`](rollback.md).

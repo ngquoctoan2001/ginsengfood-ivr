@@ -58,6 +58,11 @@ metadata:
     app.kubernetes.io/component: retention
   annotations:
     ivr.ginsengfood/decision: DF-07
+    ivr.ginsengfood/run-once-note: >-
+      Ivr__Retention__RunOnce makes the worker perform one pass and stop the host. Without it the
+      pod never exits -- the scheduler, normalisation and callback hosts keep the process alive --
+      and Kubernetes records the Job as failed, which is what W-0044 hit the first time this was
+      scheduled.
     ivr.ginsengfood/dry-run-note: >-
       Deleting customer data on a schedule is the one job where a wrong default cannot be undone, so
       the default reports what it would delete and deletes nothing. Turning it off is an operational
@@ -85,9 +90,14 @@ spec:
               image: "{{ include "ivr.image" . }}ivr-worker:{{ .Values.image.tag }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               env:
-                - name: IVR_RETENTION_RUN_ONCE
+                # The real configuration keys. An earlier draft invented IVR_RETENTION_* names that
+                # the application silently ignored -- the job "ran" and configured nothing, which is
+                # the failure mode a retention job must never have.
+                - name: Ivr__Retention__Enabled
                   value: "true"
-                - name: IVR_RETENTION_DRY_RUN
+                - name: Ivr__Retention__RunOnce
+                  value: "true"
+                - name: Ivr__Retention__DryRun
                   value: {{ .Values.retention.dryRun | quote }}
                 {{- include "ivr.governanceEnv" . | nindent 16 }}
                 {{- include "ivr.dbEnv" . | nindent 16 }}

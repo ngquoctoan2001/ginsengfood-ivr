@@ -1,0 +1,78 @@
+# W-0046 / P7-4 §6.1 — canary for ivr-api.
+#
+# NEVER RUN. Argo Rollouts is not installed and no Prometheus receives IVR metrics (W-0063). Shape
+# asserted by deploy/ci/scripts/progressive-selftest.mjs; execution NOT_RUN.
+#
+# The API is the only one of the three deployables that gets a canary. It is stateless and
+# request-scoped, so two versions serving different requests is a normal condition rather than a
+# hazard. The worker is not (see worker-bluegreen.yaml).
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: ivr-api
+  labels:
+    app.kubernetes.io/name: ivr
+    app.kubernetes.io/component: api
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ivr
+      app.kubernetes.io/component: api
+  strategy:
+    canary:
+      # Analysis runs alongside every step, not once at the end. A canary that only checks after
+      # reaching 100% has already shifted all the traffic it was meant to protect.
+      analysis:
+        templates:
+          - templateName: ivr-api-slo
+        startingStep: 1
+        args:
+          - name: service-name
+            value: ivr-ivr-api
+      steps:
+        - setWeight: 10
+        # A pause with a duration, not an indefinite one: an indefinite pause waits for a human,
+        # and a canary nobody is watching sits at 10% until someone notices. The analysis above is
+        # what decides, and it needs wall-clock time to collect its five readings.
+        - pause: { duration: 5m }
+        - setWeight: 50
+        - pause: { duration: 10m }
+        - setWeight: 100
+      # Any analysis failure aborts, and abort means the stable version keeps all traffic. Nothing
+      # here can promote past a failing SLO -- P7-4 §11 forbids it, and the only way to make that
+      # true is to have no manual override in this file.
+      abortScaleDownDelaySeconds: 30
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ivr
+        app.kubernetes.io/component: api
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: api
+          image: ivr-api:0.1.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            # The floor travels with the canary. A rollout is not a place where the ladder relaxes:
+            # a canary carrying a different governance posture than stable would make the ladder
+            # depend on which pod answered.
+            - name: IVR_EXECUTION_MODE
+              value: "MOCK"
+            - name: REAL_CUSTOMER_CALL_ALLOWED
+              value: "NO"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10

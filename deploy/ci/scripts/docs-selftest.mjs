@@ -38,7 +38,7 @@ try {
   process.stdout.write("UT-DOC-PII-03 PASS — docs sources contain no real phone or full street address examples\n");
   process.stdout.write("DOC_BOUNDARY_PASS — Target draft and current compatibility stay separate\n");
   process.stdout.write("DOC_LINKS_PASS — every generated local portal link resolves\n");
-  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, UI QA, observability, chaos and image jobs are root-included\n");
+  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, UI QA, observability, chaos, image, chart and delivery jobs are root-included\n");
   process.stdout.write("API_DOCS_SELFTEST_PASS\n");
 } finally {
   await fs.rm(temporaryRoot, { recursive: true, force: true });
@@ -217,6 +217,38 @@ async function assertCiTopology() {
   );
   assert(images.image_selftest, "Rendered images pipeline is missing image_selftest.");
   assert(images.image_selftest.allow_failure === false, "image_selftest must fail closed.");
+
+  // W-0044 / P7-2 section 8. The chart gate, same treatment.
+  assert(
+    includes.includes("/deploy/ci/k8s.gitlab-ci.yml"),
+    "Root GitLab config must include the k8s fragment.",
+  );
+  const k8s = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/k8s.gitlab-ci.yml"), "utf8"),
+  );
+  assert(k8s.k8s_selftest, "Rendered k8s pipeline is missing k8s_selftest.");
+  assert(k8s.k8s_selftest.allow_failure === false, "k8s_selftest must fail closed.");
+
+  // W-0045 / P7-3 section 8. The delivery pipeline and the gate that checks it.
+  for (const fragment of ["cd.gitlab-ci.yml", "promote.gitlab-ci.yml"]) {
+    assert(
+      includes.includes(`/deploy/ci/${fragment}`),
+      `Root GitLab config must include the ${fragment} fragment.`,
+    );
+  }
+  // deploy and promote are separate stages: a promotion a human presses must not be schedulable in
+  // the same stage as the automatic deploys it comes after.
+  for (const stage of ["deploy", "promote"]) {
+    assert((root.stages ?? []).includes(stage), `Root GitLab config must expose the ${stage} stage.`);
+  }
+  const cd = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/cd.gitlab-ci.yml"), "utf8"),
+    { merge: true },
+  );
+  assert(cd.cd_selftest, "Rendered CD pipeline is missing cd_selftest.");
+  assert(cd.cd_selftest.allow_failure === false, "cd_selftest must fail closed.");
+  assert(cd.progressive_selftest, "Rendered CD pipeline is missing progressive_selftest.");
+  assert(cd.progressive_selftest.allow_failure === false, "progressive_selftest must fail closed.");
 
   for (const jobName of ["contract_suite", "e2e_flow_suite"]) {
     assert(contractE2e[jobName], `Rendered contract/e2e pipeline is missing ${jobName}.`);

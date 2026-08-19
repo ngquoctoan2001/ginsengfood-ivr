@@ -1,0 +1,64 @@
+# W-0046 / P7-4 §6.2 — blue-green for ivr-worker, and why it is NOT a canary.
+#
+# NEVER RUN. Argo Rollouts is not installed (W-0063). Shape asserted; execution NOT_RUN.
+#
+# A canary means two versions running concurrently for as long as the analysis takes -- ten,
+# twenty minutes. For a stateless API that is a normal condition. For the worker it means two
+# scheduler versions competing for the same due call jobs for that whole window.
+#
+# The scheduler's advisory lock and lease fencing (P2-3) make that SAFE: IT-SCH-CLAIM-01 proves two
+# workers claiming the same job produce exactly one attempt and one channel lease. So the risk here
+# is not correctness. It is that a long overlap makes any scheduling bug in the new version
+# **twice as likely to be observed while it is hardest to attribute** -- two versions producing
+# interleaved attempts is the worst possible state to debug from.
+#
+# Blue-green keeps the overlap to a single atomic service switch instead. The invariant that makes
+# it safe is the same lock either way; the choice is about how long a confusing state is allowed to
+# exist, not about whether correctness holds.
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: ivr-worker
+  labels:
+    app.kubernetes.io/name: ivr
+    app.kubernetes.io/component: worker
+  annotations:
+    ivr.ginsengfood/why-not-canary: >-
+      One SIM carries one call (DT-04) and the scheduler advisory lock (P2-3) already prevents
+      double-dispatch, so a canary would be correct but would leave two scheduler versions
+      interleaving attempts for the length of the analysis. Blue-green reduces that window to one
+      switch.
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ivr
+      app.kubernetes.io/component: worker
+  strategy:
+    blueGreen:
+      activeService: ivr-worker-active
+      previewService: ivr-worker-preview
+      # Manual promotion. The worker has no HTTP surface to smoke (W-0043 §2), so there is nothing
+      # to gate on automatically -- and auto-promoting on "the pods are up" would be asserting
+      # health nobody measured.
+      autoPromotionEnabled: false
+      # The previous version stays scaled up briefly so a rollback is a service switch rather than
+      # a cold start, which matters when the thing being rolled back is dispatching calls.
+      scaleDownDelaySeconds: 60
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ivr
+        app.kubernetes.io/component: worker
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: worker
+          image: ivr-worker:0.1.0
+          env:
+            - name: IVR_EXECUTION_MODE
+              value: "MOCK"
+            - name: REAL_CUSTOMER_CALL_ALLOWED
+              value: "NO"

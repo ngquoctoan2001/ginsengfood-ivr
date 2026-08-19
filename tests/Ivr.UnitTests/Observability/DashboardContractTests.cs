@@ -41,10 +41,20 @@ public sealed class DashboardContractTests
             .Select(tag => tag.Replace('.', '_'))
             .ToHashSet(StringComparer.Ordinal);
 
-        string[] artifacts = Directory.GetFiles(
-            Path.Combine(root, "deploy", "observability"),
-            "*.*",
-            SearchOption.AllDirectories);
+        // W-0046 / P7-4. deploy/rollouts is covered by the same rule, and it needs it more: an SLO
+        // analysis querying a metric nobody emits returns "no data", and most analysis engines read
+        // no-data as "not failing" -- so the canary would promote itself on silence.
+        string[] artifacts =
+        [
+            .. Directory.GetFiles(
+                Path.Combine(root, "deploy", "observability"),
+                "*.*",
+                SearchOption.AllDirectories),
+            .. Directory.GetFiles(
+                Path.Combine(root, "deploy", "rollouts"),
+                "*.*",
+                SearchOption.AllDirectories),
+        ];
         Assert.NotEmpty(artifacts);
 
         foreach (string artifact in artifacts)

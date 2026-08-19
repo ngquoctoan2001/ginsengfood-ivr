@@ -13,7 +13,7 @@ image:
 
 # --- Governance ladder (README-governance section 6) --------------------------------------------
 governance:
-  # NEVER true in this file. P7-2 section 11 forbids it outside prod/pilot, and prod only after a
+  # NEVER true in this file. P7-2 section 11 forbids it outside prod/lab, and prod only after a
   # DF-03 sign-off that does not exist yet.
   realCustomerCallAllowed: false
   # Canonical key. The ENVIRONMENT does not decide this -- an env values file may narrow it, never
@@ -72,6 +72,7 @@ secrets:
   orderCoreServiceTokenKey: order-core-service-token
 
 retention:
+  # W-0047 closed the run-once gap, so the CronJob can complete and is enabled again.
   enabled: true
   schedule: "30 2 * * *"
   # DF-07. Deleting customer data on a schedule is the one job where a wrong default is

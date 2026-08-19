@@ -1,10 +1,12 @@
 /*
- * The sidebar is brand furniture rather than content, so it keeps the navy
- * ground while the working area beside it stays white.
+ * A white sidebar against the #F8F7F3 working area: the two are close enough in
+ * value that the divider, not a colour change, is what separates them. Navy
+ * carries the labels and glyphs; the navy band in the shell is now the header
+ * alone.
  */
 .nav {
-  border-right: 1px solid var(--ivr-chrome-border);
-  background: var(--ivr-chrome);
+  border-right: 1px solid var(--ivr-border);
+  background: var(--ivr-surface);
   padding: var(--ivr-space-4) var(--ivr-space-3);
   min-width: 14.5rem;
 }
@@ -27,23 +29,17 @@
   border-radius: var(--ivr-radius-sm);
   border-left: 2px solid transparent;
   text-decoration: none;
-  color: var(--ivr-chrome-text-muted);
+  color: var(--ivr-text-muted);
   font-size: var(--ivr-text-sm);
-  font-weight: 500;
+  font-weight: 600;
   transition: background-color var(--ivr-transition), color var(--ivr-transition),
     border-color var(--ivr-transition);
-}
-
-/* The blue focus ring is tuned for light content surfaces and would sink into
-   the navy here; gold clears 7.94:1 against it. */
-.link:focus-visible {
-  outline-color: var(--ivr-brand-gold);
 }
 
 .icon {
   display: inline-flex;
   flex: none;
-  color: var(--ivr-chrome-text-muted);
+  color: var(--ivr-text-muted);
   transition: color var(--ivr-transition);
 }
 
@@ -52,31 +48,36 @@
 }
 
 .link:hover {
-  background: var(--ivr-chrome-hover);
-  color: var(--ivr-chrome-text);
+  background: var(--ivr-surface-hover);
+  color: var(--ivr-text);
 }
 
 .link:hover .icon {
-  color: var(--ivr-chrome-text);
+  color: var(--ivr-text);
 }
 
-/* The current page is marked by weight, a gold rule and a gold glyph as well as
-   colour, so the state survives greyscale. */
+/* The current page is marked by weight, a gold rule and full-strength navy as
+   well as a background, so the state survives greyscale. The rule is gold
+   because it is decorative — it carries no control state, so the 3:1 boundary
+   minimum does not bind, and gold is 2.42:1 on white. That is also why this
+   link must NOT override the focus ring to gold, the way it did when this
+   sidebar was navy: on white, a gold ring would be invisible. It inherits
+   --ivr-focus instead, at 9.58:1. */
 .link[aria-current="page"] {
-  background: var(--ivr-chrome-raised);
+  background: var(--ivr-surface-hover);
   border-left-color: var(--ivr-brand-gold);
-  color: var(--ivr-chrome-text);
-  font-weight: 600;
+  color: var(--ivr-text);
+  font-weight: 700;
 }
 
 .link[aria-current="page"] .icon {
-  color: var(--ivr-brand-gold);
+  color: var(--ivr-text);
 }
 
 @media (max-width: 48rem) {
   .nav {
     border-right: none;
-    border-bottom: 1px solid var(--ivr-chrome-border);
+    border-bottom: 1px solid var(--ivr-border);
     min-width: 0;
     padding: var(--ivr-space-2) var(--ivr-space-4);
     overflow-x: auto;

@@ -76,9 +76,10 @@ nó — đúng kiểu im lặng mà `P5-1` dựng bảng này để chặn.
   resolver, CRM do-not-call, Evidence Registry. Đó là **chưa phủ**, không phải "không áp dụng".
 - **Chưa có partition một phần, webhook trùng lặp / sai thứ tự** (`P6-3` §6.1). Toxic `latency` đã
   dựng nhưng chưa scenario nào dùng.
-- **`IT-12..17` mà `P6-3` §3/§9 trỏ tới không tồn tại** ở đâu trong `specs/` hay `plan/`;
-  `specs/testing/03-integration-test-plan.md` có 10 mục đánh số. Scenario map vào mục **4**, **8**,
-  **10** và ma trận `ARCH-05` §1. **Cần chủ sở hữu quyết** sửa prompt hay bổ sung spec — tôi không
-  tự tuyên bố phủ một dải ID không có thật.
+- ~~`IT-12..17` mà `P6-3` §3/§9 trỏ tới không tồn tại.~~ **Đã quyết `2026-08-19`**
+  (`OD-OPEN-01`): **sửa prompt, vì spec là nguồn sự thật**. `P6-3` §3/§9 giờ trỏ tới mục **4**
+  (lease/fencing + crash recovery), **8** (dependency/auth/evidence outage fail closed) và **10**
+  (migration/retention/audit/outbox recovery) của `specs/testing/03-integration-test-plan.md` —
+  đúng những mục scenario thực sự phủ.
 - **Recovery 8 ms đo một lần, một máy.** Nó là một quan sát, không phải phân phối. Và nó đo probe
   đầu tiên sau khi nối lại — không có khoảng chờ reconnect nào để đo.

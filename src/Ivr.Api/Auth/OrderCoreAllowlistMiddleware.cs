@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using Ivr.Api.Middleware;
 using Ivr.Domain.Errors;
 using Ivr.Infrastructure.Auth;
@@ -10,7 +8,7 @@ namespace Ivr.Api.Auth;
 
 public sealed class OrderCoreAllowlistMiddleware(
     RequestDelegate next,
-    IOptions<OrderCoreAllowlistOptions> options,
+    OrderCoreCredentialSource credentials,
     IServiceJwtValidator jwtValidator,
     IOptions<CallbackDeliveryOptions> salesProvider)
 {
@@ -66,8 +64,12 @@ public sealed class OrderCoreAllowlistMiddleware(
         // W-0032 / P4-4 §2.5. The legacy shared secret is compatibility only. Under the TARGET_V1
         // provider profile it is refused outright, so the target path can never run on a static
         // credential — see ServiceIdentityCompatPolicy for why the rule keys off the profile.
+        // W-0047 / P7-5. Two values may be accepted while a rotation is in flight, and the
+        // comparison runs over all of them without short-circuiting: returning early on the first
+        // match would let response time reveal WHICH value matched, and during an overlap that
+        // tells a caller whether the credential they hold is the one being retired.
         if (ServiceIdentityCompatPolicy.LegacyCredentialAccepted(salesProvider.Value.Provider)
-            && TokensMatch(suppliedToken, options.Value.ServiceToken))
+            && credentials.IsAccepted(suppliedToken))
         {
             await next(context);
             return;
@@ -78,13 +80,5 @@ public sealed class OrderCoreAllowlistMiddleware(
             identity.Failure == ServiceIdentityFailure.KeySourceUnavailable
                 ? IvrErrors.Unauthenticated()
                 : IvrErrors.ForbiddenCaller());
-    }
-
-    private static bool TokensMatch(string supplied, string expected)
-    {
-        byte[] suppliedBytes = Encoding.UTF8.GetBytes(supplied);
-        byte[] expectedBytes = Encoding.UTF8.GetBytes(expected);
-        return suppliedBytes.Length == expectedBytes.Length
-            && CryptographicOperations.FixedTimeEquals(suppliedBytes, expectedBytes);
     }
 }

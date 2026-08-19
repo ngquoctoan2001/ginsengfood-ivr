@@ -1,8 +1,8 @@
-# W-0044 / P7-2 — pilot
+# W-0044 / P7-2 — lab
 #
-# Pilot / lab. Still MOCK: no gateway has been procured, so LAB_REAL_SIM has nothing to dial.
+# Lab. Still MOCK: no gateway has been procured, so LAB_REAL_SIM has nothing to dial.
 governance:
-  environmentName: pilot
+  environmentName: lab
   realCustomerCallAllowed: false
   executionMode: MOCK
   adapterMode: MOCK
@@ -12,7 +12,7 @@ governance:
   # helm template FAILS if the mode is switched without it, so the two can never separate.
   labDestinationAllowlist: []
 image:
-  tag: "0.1.0-pilot"
+  tag: "0.1.0-lab"
 
 api:
   replicas: 2

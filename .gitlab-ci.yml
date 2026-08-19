@@ -12,6 +12,10 @@ stages:
   - security
   - privacy
   - publish
+  # W-0045 / P7-3. Deploy is its own stage after publish so a red scan cannot be raced by a
+  # deployment that started in parallel; promote is separate again because a human presses it.
+  - deploy
+  - promote
 
 variables:
   IVR_EXECUTION_MODE: "MOCK"
@@ -43,4 +47,7 @@ include:
   - local: "/deploy/ci/observability.gitlab-ci.yml"
   - local: "/deploy/ci/chaos.gitlab-ci.yml"
   - local: "/deploy/ci/images.gitlab-ci.yml"
+  - local: "/deploy/ci/k8s.gitlab-ci.yml"
+  - local: "/deploy/ci/cd.gitlab-ci.yml"
+  - local: "/deploy/ci/promote.gitlab-ci.yml"
   - local: "/deploy/ci/registry.gitlab-ci.yml"

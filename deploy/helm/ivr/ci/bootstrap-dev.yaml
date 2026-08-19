@@ -33,6 +33,22 @@ spec:
   selector:
     app.kubernetes.io/name: postgres
 ---
+# W-0044 / W-0047. Storage, and it is not incidental. Without a volume, IT-K8S-PROBE-03 scaling
+# postgres to zero and back destroys the schema, and every later check runs against an empty
+# database -- which is what made IT-K8S-RETENTION-05 fail with `relation "ivr_retention_checkpoints"
+# does not exist` while the retention code was fine. A readiness test that silently wipes the
+# database is testing something it did not intend to.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ivr-postgres-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -66,7 +82,15 @@ spec:
                   key: password
           ports:
             - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
           readinessProbe:
             exec:
               command: ["pg_isready", "-U", "ivr", "-d", "ivr", "-h", "localhost"]
             periodSeconds: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ivr-postgres-data

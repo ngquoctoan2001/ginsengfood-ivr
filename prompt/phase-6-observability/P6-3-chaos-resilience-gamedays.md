@@ -16,7 +16,8 @@ Bạn là **Senior Resilience/SRE Engineer**. Bạn chủ động phá hệ th�
 Fail-closed (DO-06) và resilience là bất biến sống còn. Unit/integration (P5) test từng nhánh, nhưng hành vi hệ thống dưới sự cố thật (timeout dây chuyền, DB mất kết nối, SIM chập chờn, webhook trùng lặp) cần game-day. Đây là điều kiện tin cậy trước pilot/production.
 
 ## 3. SOURCE SPECS (đọc trước)
-- `specs/architecture/05-resilience.md`, `specs/testing/03-integration-test-plan.md` (fail-closed profiles IT-12..17)
+- `specs/architecture/05-resilience.md`, `specs/testing/03-integration-test-plan.md` (mục **4** lease/fencing + crash recovery, **8** dependency/auth/evidence outage fail closed, **10** migration/retention/audit/outbox recovery)
+  > Sửa `2026-08-19` (`OD-OPEN-01`): bản trước trỏ tới "fail-closed profiles IT-12..17". Dải ID đó **không tồn tại** ở đâu trong `specs/` hay `plan/` — file được trỏ tới có 10 mục đánh số, không có ID. Spec là nguồn sự thật nên prompt được sửa, không phải spec.
 - `plan/ivr-orther/decisions-log.md` §DO-06 (fail-closed), §DT-04 (SIM), §D-04 (callback retry)
 
 ## 4. DECISIONS & CONSTRAINTS
@@ -54,7 +55,7 @@ Fail-closed (DO-06) và resilience là bất biến sống còn. Unit/integratio
 
 ## 9. REVIEW / ACCEPTANCE GATE
 **Self-review:** [ ] fail-closed kiểm chứng thực; [ ] không mất task; [ ] recovery đúng; [ ] blast-radius limited (không prod).
-**Reviewer:** scenario phủ profiles IT-12..17; điểm yếu có vé sửa; alert đúng.
+**Reviewer:** scenario phủ mục 4/8/10 của `specs/testing/03-integration-test-plan.md` và ma trận `ARCH-05` §1; điểm yếu có vé sửa; alert đúng.
 
 ## 10. EVIDENCE EXPECTED
 Game-day report per scenario (fail-closed proof, recovery time, no-data-loss), alert-fire capture, danh sách điểm yếu + vé.

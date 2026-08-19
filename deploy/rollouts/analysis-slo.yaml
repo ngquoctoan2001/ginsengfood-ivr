@@ -1,0 +1,70 @@
+# W-0046 / P7-4 §6.1 — the SLO gate a canary has to pass before it takes more traffic.
+#
+# Every query names a metric that a production call site actually records (W-0041 §2). That is
+# enforced, not intended: UT-DASH-PII-04 walks these expressions back to the `IvrTelemetry.Record*`
+# call sites and fails if one outruns the instrumentation. An analysis template querying a metric
+# nobody emits returns "no data", and most analysis engines read no-data as "not failing" -- so the
+# canary would promote itself on silence.
+#
+# NEVER RUN. There is no Prometheus receiving anything: no OTLP exporter is wired (W-0063,
+# BLOCKED_EXTERNAL). These templates are configuration whose shape is asserted; their execution is
+# NOT_RUN, and P7-4 §10's "canary run" evidence does not exist.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: ivr-api-slo
+  annotations:
+    ivr.ginsengfood/decisions: "D-04, DO-06"
+    ivr.ginsengfood/not-run: >-
+      No Prometheus receives IVR metrics yet (W-0063). These thresholds have never gated a real
+      promotion.
+spec:
+  args:
+    - name: service-name
+  metrics:
+    # D-04: Core revalidate answers in 3-5s; the objective takes the upper bound. Same number the
+    # P6-2 alert uses, deliberately -- a canary gate that is laxer than the paging threshold would
+    # promote a version that immediately pages whoever is on call.
+    - name: callback-revalidate-p95
+      interval: 1m
+      # Five consecutive good readings before promotion, one bad reading to fail. Asymmetric on
+      # purpose: promoting is the risky direction.
+      count: 5
+      successCondition: result[0] <= 5
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.observability.svc.cluster.local:9090
+          query: |
+            histogram_quantile(
+              0.95,
+              sum by (le) (rate(ivr_result_callback_duration_seconds_bucket{ivr_program!=""}[2m]))
+            )
+
+    # DO-06. Failing closed is correct behaviour, so the gate is a RATIO, not a count -- and it is
+    # measured against intake volume so a quiet period cannot look like a spike.
+    - name: fail-closed-ratio
+      interval: 1m
+      count: 5
+      successCondition: result[0] <= 0.2
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.observability.svc.cluster.local:9090
+          query: |
+            sum(rate(ivr_fail_closed_total[2m]))
+            /
+            clamp_min(sum(rate(ivr_intake_decisions_total[2m])), 0.001)
+
+    # A delivery that never terminates is not a success. RETRY_EXHAUSTED means the outbox gave up,
+    # which is the shape a bad release produces before anything else goes red.
+    - name: callback-retry-exhausted
+      interval: 1m
+      count: 5
+      successCondition: result[0] == 0
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.observability.svc.cluster.local:9090
+          query: |
+            sum(increase(ivr_result_callbacks_total{ivr_outcome="RETRY_EXHAUSTED"}[2m]))

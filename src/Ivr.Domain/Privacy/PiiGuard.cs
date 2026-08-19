@@ -25,6 +25,17 @@ public static class PiiGuard
     /// </summary>
     private static readonly TimeSpan MatchBudget = TimeSpan.FromSeconds(2);
 
+    /// <summary>
+    /// The phone branch matches ten digits beginning with zero, which also matches a zero-padded
+    /// ten-digit identifier. That is a known false positive, and the resolution recorded on
+    /// 2026-08-19 (<c>OD-OPEN-02</c>) is a NAMING RULE, not a narrower pattern: identifiers must not
+    /// contain a run of ten digits starting with zero.
+    /// <para>
+    /// Narrowing the pattern was rejected because it is a privacy-policy change in the direction of
+    /// detecting less — a real number written after a hyphenated prefix would stop being caught. So
+    /// when this guard rejects an identifier, the identifier changes; the pattern does not.
+    /// </para>
+    /// </summary>
     private static readonly Regex RestrictedValuePattern = new(
         @"(?<![0-9A-Za-z])(?:0[0-9]{9}|(?:84|\+84)[0-9]{9}|0[0-9]{2}[\s.-][0-9]{3}[\s.-][0-9]{4}|(?:84|\+84)[\s.-]*\(?[0-9]{2}\)?[\s.-][0-9]{3}[\s.-][0-9]{4})(?![0-9A-Za-z])|"
         + "(?:dial[_-]?token)[\\\"'`: ]+[A-Za-z0-9._-]{8,}|"

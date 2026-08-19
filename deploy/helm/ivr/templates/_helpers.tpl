@@ -26,8 +26,8 @@ and the only one that cannot be skipped by a hurried operator.
 {{- define "ivr.assertLadder" -}}
 {{- $env := .Values.governance.environmentName | default "dev" -}}
 {{- if .Values.governance.realCustomerCallAllowed -}}
-  {{- if not (has $env (list "pilot" "prod")) -}}
-    {{- fail (printf "REAL_CUSTOMER_CALL_ALLOWED is true for environment '%s'. Only pilot and prod may ever carry it, and only after a DF-03 sign-off (P7-2 section 11)." $env) -}}
+  {{- if not (has $env (list "lab" "prod")) -}}
+    {{- fail (printf "REAL_CUSTOMER_CALL_ALLOWED is true for environment '%s'. Only lab and prod may ever carry it, and only after a DF-03 sign-off (P7-2 section 11)." $env) -}}
   {{- end -}}
 {{- end -}}
 {{- if and (eq .Values.governance.executionMode "LAB_REAL_SIM") (not .Values.governance.labDestinationAllowlist) -}}

@@ -123,7 +123,6 @@
      hairline is the cheapest 5% of the gold budget. */
   --ivr-chrome: #0b1f3a;
   --ivr-chrome-raised: #163a5f;
-  --ivr-chrome-hover: #1d4b7a;
   --ivr-chrome-border: #c9a227;
   --ivr-chrome-border-strong: #8fa8c4;
   --ivr-chrome-text: #f8f7f3;
@@ -163,11 +162,20 @@ body {
   padding: 0;
 }
 
+/*
+ * Weight scale: 500 body, 600 emphasis, 700 headings.
+ *
+ * Body sits at 500 rather than the usual 400 because Montserrat is a geometric
+ * face with thin, even strokes — at 400 and 15px its body copy reads noticeably
+ * lighter than the grotesques this console was first drawn against. 500 is the
+ * baseline the rest of the scale steps up from.
+ */
 body {
   background: var(--ivr-surface-sunken);
   color: var(--ivr-text);
   font-family: var(--ivr-font-sans);
   font-size: var(--ivr-text-base);
+  font-weight: 500;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -180,7 +188,7 @@ h2,
 h3 {
   line-height: 1.25;
   letter-spacing: -0.02em;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 a {

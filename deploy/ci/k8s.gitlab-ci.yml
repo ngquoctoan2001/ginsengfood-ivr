@@ -1,0 +1,31 @@
+# W-0044 / P7-2 §8. The Helm chart checked against a real Kubernetes API.
+#
+# Separate from the image fragment because it answers a different question. `image_selftest` asks
+# whether the artifact is sound; this asks whether the chart that ships it produces a cluster that
+# behaves. Rendering proves the YAML parses -- it does not prove the pods start, that readiness
+# takes a pod out of rotation, or that a policy blocks anything, and each of those failed for its
+# own reason the first time this ran.
+#
+# allow_failure: false. A deployment gate that may fail ships charts nobody deployed.
+k8s_selftest:
+  stage: validate
+  image: docker:27-cli
+  allow_failure: false
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  before_script:
+    - apk add --no-cache nodejs
+    # The chart deploys the images P7-1 builds, so they have to exist before the cluster is asked
+    # to run them. Built here rather than pulled: no registry has been confirmed yet (W-0043 §9).
+    - docker build -f deploy/docker/Dockerfile.api -t ivr-api:p7-1 .
+    - docker build -f deploy/docker/Dockerfile.worker -t ivr-worker:p7-1 .
+    - docker build -f deploy/docker/Dockerfile.ui -t ivr-admin-ui:p7-1 admin-ui
+    - docker build -f deploy/docker/Dockerfile.migrate -t ivr-migrate:p7-1 .
+  script:
+    - node deploy/ci/scripts/k8s-selftest.mjs

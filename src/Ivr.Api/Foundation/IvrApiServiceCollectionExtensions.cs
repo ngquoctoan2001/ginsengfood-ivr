@@ -91,10 +91,37 @@ public static class IvrApiServiceCollectionExtensions
                         OrderCoreAllowlistOptions.TokenConfigurationKey]
                     ?? string.Empty;
             })
+            .Configure(options =>
+            {
+                // W-0047 / P7-5. The value being rotated out, and the instant it stops counting.
+                options.PreviousServiceToken = configuration[
+                        OrderCoreAllowlistOptions.PreviousTokenConfigurationKey]
+                    ?? string.Empty;
+                string? retiresAt = configuration[
+                    OrderCoreAllowlistOptions.PreviousTokenRetiresAtConfigurationKey];
+                options.PreviousServiceTokenRetiresAt =
+                    DateTimeOffset.TryParse(
+                        retiresAt,
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.AssumeUniversal
+                            | System.Globalization.DateTimeStyles.AdjustToUniversal,
+                        out DateTimeOffset parsed)
+                        ? parsed
+                        : null;
+            })
             .Validate(
                 options => !string.IsNullOrWhiteSpace(options.ServiceToken),
                 $"{OrderCoreAllowlistOptions.TokenConfigurationKey} is required.")
+            .Validate(
+                // A previous value with no retirement instant would be accepted until somebody
+                // remembered to delete the variable, which is the rotation that never finishes.
+                options => string.IsNullOrWhiteSpace(options.PreviousServiceToken)
+                    || options.PreviousServiceTokenRetiresAt is not null,
+                $"{OrderCoreAllowlistOptions.PreviousTokenRetiresAtConfigurationKey} is required "
+                + $"whenever {OrderCoreAllowlistOptions.PreviousTokenConfigurationKey} is set.")
             .ValidateOnStart();
+
+        services.TryAddSingleton<OrderCoreCredentialSource>();
 
         // W-0032 / P4-4. Service identity. Mock issuer only: ServiceIdentityOptionsValidator
         // refuses Mode=Real at startup, so no deployment can quietly claim production auth.
