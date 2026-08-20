@@ -479,7 +479,7 @@ export interface IvrAnalyticsKpi {
   readonly no_answer_rate: number;
   readonly invalid_phone_rate: number;
   readonly technical_rate: number;
-  readonly operational_blocked_rate: number;
+  readonly operational_blocked_rate: number | null;
   readonly attempt_2_rate: number;
   readonly avg_seconds_to_final?: number;
 }
@@ -503,7 +503,7 @@ export interface IvrAnalyticsTrendBucket {
   readonly no_answer: number;
   readonly invalid_phone: number;
   readonly technical: number;
-  readonly operational_blocked: number;
+  readonly operational_blocked: number | null;
   readonly confirm_rate: number;
 }
 

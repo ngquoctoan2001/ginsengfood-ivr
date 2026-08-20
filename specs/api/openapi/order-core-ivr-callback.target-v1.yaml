@@ -108,6 +108,11 @@ components:
   schemas:
     ResultType:
       type: string
+      description: >-
+        Shared compatibility taxonomy. The IVR V1 producer does not emit
+        IVR_OPERATIONAL_BLOCKED or IVR_POLICY_BLOCKED. Those are pre-call
+        decisions; a Sales revalidation block is returned as BLOCKED_BY_CORE and
+        does not rewrite the customer's observed result.
       enum:
         - IVR_CONFIRMED
         - IVR_CUSTOMER_CANCELLED

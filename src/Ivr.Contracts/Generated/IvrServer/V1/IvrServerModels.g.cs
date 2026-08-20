@@ -745,6 +745,9 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
 
     }
 
+    /// <summary>
+    /// Shared compatibility taxonomy. IVR does not emit IVR_OPERATIONAL_BLOCKED or IVR_POLICY_BLOCKED as call results: those are pre-call decisions. A Sales revalidation block after a real call is the callback ACK BLOCKED_BY_CORE and never rewrites the observed result.
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum ResultType
     {
@@ -2077,9 +2080,12 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
         public required double Technical_rate { get; init; }
 
+        /// <summary>
+        /// Null until a dedicated intake-block fact source exists. It must not be derived from call results because pre-call blocks create no call result; zero would falsely mean no block occurred.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("operational_blocked_rate")]
         [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
-        public required double Operational_blocked_rate { get; init; }
+        public required double? Operational_blocked_rate { get; init; }
 
         /// <summary>
         /// Counted customer attempts only; a technical retry never counts (DT-02).
@@ -2157,9 +2163,12 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
         public required int Technical { get; init; }
 
+        /// <summary>
+        /// Null for the current system. Pre-call operational/policy blocks are not result events and therefore cannot be counted in a result trend.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("operational_blocked")]
-        [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue)]
-        public required int Operational_blocked { get; init; }
+        [System.ComponentModel.DataAnnotations.Range(0D, double.MaxValue)]
+        public required int? Operational_blocked { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("confirm_rate")]
         [System.ComponentModel.DataAnnotations.Range(0D, 1D)]

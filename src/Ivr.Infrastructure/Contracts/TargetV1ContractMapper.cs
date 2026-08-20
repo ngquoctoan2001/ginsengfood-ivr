@@ -197,8 +197,9 @@ public static class TargetV1CallbackMapper
         IvrResultType.IvrWrongInput => Sales.ResultType.IVR_WRONG_INPUT,
         IvrResultType.IvrTechnicalException => Sales.ResultType.IVR_TECHNICAL_EXCEPTION,
         IvrResultType.IvrCapacityException => Sales.ResultType.IVR_CAPACITY_EXCEPTION,
-        IvrResultType.IvrOperationalBlocked => Sales.ResultType.IVR_OPERATIONAL_BLOCKED,
-        IvrResultType.IvrPolicyBlocked => Sales.ResultType.IVR_POLICY_BLOCKED,
+        IvrResultType.IvrOperationalBlocked or IvrResultType.IvrPolicyBlocked =>
+            throw new InvalidOperationException(
+                "Pre-call operational and policy blocks are not IVR callback results."),
         _ => throw new InvalidOperationException("Unsupported result type."),
     };
 

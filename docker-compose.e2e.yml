@@ -59,6 +59,43 @@ services:
       Ivr__Telephony__Mock__Scenarios__TASK-E2E-NOANSWER__PlayDelayMilliseconds: "0"
       Ivr__Telephony__Mock__Scenarios__TASK-E2E-NOANSWER__CaptureDelayMilliseconds: "0"
 
+      # A number the network cannot reach. Not a ring-out: nobody was ever reachable, so Sales is
+      # told to hold the order for a person rather than to wait out a timeout.
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-BADNUMBER__Disposition: "InvalidDestination"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-BADNUMBER__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-BADNUMBER__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-BADNUMBER__CaptureDelayMilliseconds: "0"
+
+      # Two scenarios whose outcomes are NOT final, because an attempt remains. They exist to prove
+      # a silence: nothing about either may reach Sales. Keyed explicitly rather than left to the
+      # wildcard below, which answers and presses 1 and would turn both into confirmations.
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-ATTEMPT__Disposition: "RingTimeout"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-ATTEMPT__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-ATTEMPT__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-ATTEMPT__CaptureDelayMilliseconds: "0"
+
+      # A key that is neither 1 nor 0. The customer answered and pressed something the menu does
+      # not offer, which is a different thing from not answering and has its own taxonomy value.
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-WRONGKEY__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-WRONGKEY__DtmfKey: "7"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-WRONGKEY__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-WRONGKEY__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-WRONGKEY__CaptureDelayMilliseconds: "0"
+
+      # The call connects and then our own audio fails. AudioError rather than NetworkError or
+      # SimError on purpose: it is the one technical disposition the SIM adapter reports as a
+      # HEALTHY channel, so the case can assert that a fault in our stack is not charged to the
+      # hardware that carried it.
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-TECHNICAL__Disposition: "AudioError"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-TECHNICAL__TechnicalErrorCode: "MOCK_AUDIO_ERROR_E2E"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-TECHNICAL__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-TECHNICAL__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-TECHNICAL__CaptureDelayMilliseconds: "0"
+
+      # No scenario for TASK-E2E-CAPACITY on purpose. That case must never reach a dial at all, so
+      # the wildcard below is left to catch it: if the queue pause ever stops holding dispatch, the
+      # task confirms instead of missing its deadline and the case fails loudly rather than
+      # silently passing against a SIM that refused to answer.
       # The fallback stays, so a task the smoke did not name still dials rather than failing in a
       # way that looks like a defect in the stack.
       Ivr__Telephony__Mock__Scenarios__*__Disposition: "Answered"

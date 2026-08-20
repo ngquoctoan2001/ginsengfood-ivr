@@ -65,7 +65,7 @@ Ký hiệu: `N` = `total_results` trong bucket; `J` = `total_call_jobs` trong ph
 | `no_answer_rate` | `no_answer_count / N` | gộp `IVR_NO_ANSWER_ATTEMPT` **và** `IVR_NO_ANSWER_FINAL` |
 | `invalid_phone_rate` | `invalid_phone_count / N` | `IVR_INVALID_PHONE_FINAL` |
 | `technical_rate` | `technical_count / N` | `IVR_TECHNICAL_EXCEPTION` |
-| `operational_blocked_rate` | `operational_blocked_count / N` | `IVR_OPERATIONAL_BLOCKED` |
+| `operational_blocked_rate` | `null` trong current system | block xảy ra trước cuộc gọi nên không có dòng `ivr_call_results`; chỉ bật KPI khi có intake-block fact source riêng, không được diễn giải `null` thành `0` |
 | `attempt_2_rate` | `#{job: counted_attempt_count ≥ 2} / J` | **chỉ** counted customer attempt (DT-02) |
 | `avg_seconds_to_final` | `seconds_to_result_sum / seconds_to_result_count` | chỉ dòng `is_final` |
 | `distinct_orders` | `count(distinct order_ref_hash)` | đơn, không phải kết quả |

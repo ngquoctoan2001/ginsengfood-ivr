@@ -132,7 +132,10 @@ async function ReportPanels({ query }: { query: ReportQuery }) {
     },
     {
       label: t("reports.kpiOperationalBlockedRate"),
-      value: formatRate(summary.kpi.operational_blocked_rate),
+      value:
+        summary.kpi.operational_blocked_rate === null
+          ? "—"
+          : formatRate(summary.kpi.operational_blocked_rate),
     },
     {
       label: t("reports.kpiAttemptTwoRate"),

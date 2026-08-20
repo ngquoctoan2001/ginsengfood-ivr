@@ -397,6 +397,9 @@ namespace Ivr.Contracts.Generated.SalesTarget.V1
         }
     }
 
+    /// <summary>
+    /// Shared compatibility taxonomy. The IVR V1 producer does not emit IVR_OPERATIONAL_BLOCKED or IVR_POLICY_BLOCKED. Those are pre-call decisions; a Sales revalidation block is returned as BLOCKED_BY_CORE and does not rewrite the customer's observed result.
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public enum ResultType
     {

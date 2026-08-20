@@ -29,9 +29,7 @@ public sealed class CallResultAndMapperTests
     [Theory]
     [InlineData(IvrResultType.IvrTechnicalException)]
     [InlineData(IvrResultType.IvrCapacityException)]
-    [InlineData(IvrResultType.IvrOperationalBlocked)]
-    [InlineData(IvrResultType.IvrPolicyBlocked)]
-    public void TechnicalCapacityAndPolicyResultsNeverCountAsCustomerAttempts(IvrResultType resultType)
+    public void TechnicalAndCapacityResultsNeverCountAsCustomerAttempts(IvrResultType resultType)
     {
         Assert.Throws<InvalidOperationException>(() => TestData.Result(
             resultType,
@@ -43,6 +41,24 @@ public sealed class CallResultAndMapperTests
             counted: false,
             CoreActionRecommendation.RevalidateAndHoldAdminReview);
         Assert.False(valid.IsCountedCustomerAttempt);
+    }
+
+    [Theory]
+    [InlineData(IvrResultType.IvrOperationalBlocked)]
+    [InlineData(IvrResultType.IvrPolicyBlocked)]
+    public void PreCallBlockedTaxonomyCannotBeSentAsAnIvrCallback(IvrResultType resultType)
+    {
+        CallResultSnapshot reserved = TestData.Result(
+            resultType,
+            counted: false,
+            CoreActionRecommendation.RevalidateAndHoldAdminReview);
+
+        InvalidOperationException failure = Assert.Throws<InvalidOperationException>(
+            () => TargetV1CallbackMapper.ToSalesWire(reserved));
+
+        Assert.Equal(
+            "Pre-call operational and policy blocks are not IVR callback results.",
+            failure.Message);
     }
 
     [Fact]

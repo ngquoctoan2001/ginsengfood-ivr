@@ -21,7 +21,7 @@ public sealed class RecoveryScenario(ChaosEnvironment chaos)
     public async Task TheBacklogDrainsExactlyOnceAfterTheLinkReturns()
     {
         string suffix = $"rec{Guid.NewGuid():N}"[..12];
-        ResultCallbackEntity queued = await SeedReadyCallbackAsync(suffix);
+        ResultCallbackEntity queued = await ChaosFixtures.SeedReadyCallbackAsync(chaos, suffix);
 
         var options = Options.Create(new CallbackDeliveryOptions
         {
@@ -92,45 +92,6 @@ public sealed class RecoveryScenario(ChaosEnvironment chaos)
         }
 
         return false;
-    }
-
-    private async Task<ResultCallbackEntity> SeedReadyCallbackAsync(string suffix)
-    {
-        ConfirmationTaskEntity task = ChaosFixtures.ReadCanonicalTask(suffix);
-        CallJobEntity job = ChaosFixtures.CreateJob(
-            task,
-            task.MaxAttempts,
-            task.AttemptOffsetsSecondsJson);
-        CallResultEntity result = ChaosFixtures.CreateResult(task, job);
-
-        await using (IvrDbContext context = await chaos.DbContextFactory.CreateDbContextAsync())
-        {
-            context.AddRange(task, job, result);
-            await context.SaveChangesAsync();
-        }
-
-        string payload = $"{{\"task_id\":\"{task.TaskId}\",\"result_type\":\"IVR_CONFIRMED\"}}";
-        var callback = new ResultCallbackEntity
-        {
-            CallbackId = $"CALLBACK-{suffix}",
-            IvrCallResultId = result.IvrCallResultId,
-            TaskId = task.TaskId,
-            OfficialOrderId = task.OfficialOrderId,
-            IdempotencyKey = $"callback-idem-{suffix}",
-            ResultStatus = "IVR_CONFIRMED",
-            ResultState = "PENDING_CORE_REVALIDATION",
-            DeliveryStatus = "READY",
-            RequiresCoreRevalidation = true,
-            PayloadJson = payload,
-            PayloadSha256 = Convert.ToHexString(
-                System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(payload))),
-            CreatedAt = task.CreatedAt,
-        };
-        await chaos.Services
-            .GetRequiredService<ICallbackOutboxRepository>()
-            .EnqueueAsync(callback);
-        return callback;
     }
 
     /// <summary>Sales is healthy and counts what it received, so a duplicate cannot hide.</summary>

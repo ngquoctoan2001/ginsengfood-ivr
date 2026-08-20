@@ -6,6 +6,11 @@ specs/api/openapi/** text eol=lf
 docs/api/** text eol=lf
 docs/api-changelog.md text eol=lf
 
+# dotnet format evaluates the physical working-tree bytes. Pin C# to LF so the
+# same format gate is reproducible on Windows (including core.autocrlf=true) and
+# on the Linux GitLab runner.
+*.cs text eol=lf
+
 # NSwag owns these byte-for-byte outputs and currently emits trailing spaces.
 # Keep drift enforcement exact while excluding only generated code from Git's
 # handwritten whitespace diagnostics.

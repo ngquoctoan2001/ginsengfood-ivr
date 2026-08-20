@@ -205,7 +205,7 @@ public sealed class FailGateTests
             .GetFiles(Path.Combine(root, "tests"), "*.cs", SearchOption.AllDirectories)
             .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
                 && !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
-            .SelectMany(File.ReadAllLines)
+            .SelectMany(ReadSourceLines)
             .Select(line => System.Text.RegularExpressions.Regex.Match(
                 line,
                 """\[Trait\("TestId",\s*"([^"]+)"\)\]"""))
@@ -228,6 +228,32 @@ public sealed class FailGateTests
             Assert.Contains(
                 rows,
                 row => row.StartsWith($"| `{testId}` |", StringComparison.Ordinal));
+        }
+    }
+
+    /// <summary>
+    /// Reads a source file, and on failure says WHICH file. <see cref="File.ReadAllLines(string)"/>
+    /// reports an IO problem without naming the gate it broke, and when this check went red once in
+    /// a solution-wide run there was nothing left to tell an unrelated IO failure apart from real
+    /// traceability drift — the two look identical once the message is gone.
+    /// <para>
+    /// This does not make the gate more tolerant: an unreadable file still fails it. It makes the
+    /// failure SAY which of the two things happened, because a red nobody can explain gets read as
+    /// noise and then ignored, which is the failure mode the gate exists to prevent.
+    /// </para>
+    /// </summary>
+    private static string[] ReadSourceLines(string file)
+    {
+        try
+        {
+            return File.ReadAllLines(file);
+        }
+        catch (IOException exception)
+        {
+            throw new IOException(
+                $"The traceability gate could not read '{file}'. This is an IO failure, not "
+                + "traceability drift: no conclusion about test coverage follows from it.",
+                exception);
         }
     }
 

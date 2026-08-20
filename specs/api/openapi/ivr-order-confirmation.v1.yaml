@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.8
+  version: 1.0.0-draft.9
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -1104,6 +1104,11 @@ components:
         no_payment_or_revenue_effect: { type: boolean, enum: [true] }
     ResultType:
       type: string
+      description: >-
+        Shared compatibility taxonomy. IVR does not emit
+        IVR_OPERATIONAL_BLOCKED or IVR_POLICY_BLOCKED as call results: those are
+        pre-call decisions. A Sales revalidation block after a real call is the
+        callback ACK BLOCKED_BY_CORE and never rewrites the observed result.
       enum:
         - IVR_CONFIRMED
         - IVR_CUSTOMER_CANCELLED
@@ -1806,7 +1811,15 @@ components:
         no_answer_rate: { type: number, format: double, minimum: 0, maximum: 1 }
         invalid_phone_rate: { type: number, format: double, minimum: 0, maximum: 1 }
         technical_rate: { type: number, format: double, minimum: 0, maximum: 1 }
-        operational_blocked_rate: { type: number, format: double, minimum: 0, maximum: 1 }
+        operational_blocked_rate:
+          type: [number, 'null']
+          format: double
+          minimum: 0
+          maximum: 1
+          description: >-
+            Null until a dedicated intake-block fact source exists. It must not
+            be derived from call results because pre-call blocks create no call
+            result; zero would falsely mean no block occurred.
         attempt_2_rate:
           type: number
           format: double
@@ -1847,7 +1860,12 @@ components:
         no_answer: { type: integer, minimum: 0 }
         invalid_phone: { type: integer, minimum: 0 }
         technical: { type: integer, minimum: 0 }
-        operational_blocked: { type: integer, minimum: 0 }
+        operational_blocked:
+          type: [integer, 'null']
+          minimum: 0
+          description: >-
+            Null for the current system. Pre-call operational/policy blocks are
+            not result events and therefore cannot be counted in a result trend.
         confirm_rate: { type: number, format: double, minimum: 0, maximum: 1 }
     IvrAnalyticsSummary:
       type: object

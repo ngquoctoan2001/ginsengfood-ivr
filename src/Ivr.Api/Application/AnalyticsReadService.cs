@@ -152,7 +152,7 @@ public sealed class AnalyticsReadService(
                 group.Count(row => NoAnswerResultTypes.Contains(row.ResultType)),
                 group.Count(row => row.ResultType == "IVR_INVALID_PHONE_FINAL"),
                 group.Count(row => row.ResultType == "IVR_TECHNICAL_EXCEPTION"),
-                group.Count(row => row.ResultType == "IVR_OPERATIONAL_BLOCKED"),
+                null,
                 Share(confirmed, total)));
         }
 
@@ -494,7 +494,7 @@ public sealed class AnalyticsReadService(
             Share(Count(row => NoAnswerResultTypes.Contains(row.ResultType)), total),
             Share(Count(row => row.ResultType == "IVR_INVALID_PHONE_FINAL"), total),
             Share(Count(row => row.ResultType == "IVR_TECHNICAL_EXCEPTION"), total),
-            Share(Count(row => row.ResultType == "IVR_OPERATIONAL_BLOCKED"), total),
+            null,
             Share(facts.SecondAttemptJobs, facts.TotalJobs),
             secondsToFinal.Length == 0 ? null : Math.Round(secondsToFinal.Average(), 2));
     }

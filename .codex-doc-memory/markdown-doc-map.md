@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-14T10:51:35.122Z
+Generated: 2026-08-20T08:35:28.468Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 431
-- Links resolved: 378
-- Unresolved links: 0
+- Markdown files: 522
+- Links resolved: 478
+- Unresolved links: 39
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 55
+- Orphan candidates: 107
 
 ## High Link Documents
 
@@ -18,29 +18,73 @@ Root: C:\Users\Administrator\Desktop\ivr
 | --- | --- | ---: | ---: | ---: |
 | docs/documents/00-DOC-READING-ORDER.md | Documentation Reading Order | 0 | 177 | 4269 |
 | prompt/00-index.md | IVR Prompt Library — Master Index | 1 | 59 | 783 |
-| plan/ivr-orther/decisions-log.md | Decisions Log — IVR (lịch sử quyết định + Target V1 overlay) | 15 | 3 | 3451 |
+| plan/ivr-orther/decisions-log.md | Decisions Log — IVR (lịch sử quyết định + Target V1 overlay) | 16 | 3 | 3478 |
+| docs/contracts/telephony-procurement-pack/R-01-vendor-requirements.md | R-01 — Yêu cầu nhà cung cấp telephony | 13 | 4 | 2363 |
+| docs/contracts/telephony-procurement-pack/README.md | Telephony Procurement Pack — 1 SIM lab và 32 eSIM production | 0 | 17 | 863 |
 | plan/ivr-orther/_archive/prompts/00-index.md | Prompts Index — IVR-Orther | 1 | 16 | 572 |
+| docs/contracts/target-v1-closure-pack/README.md | Target Contract V1 — Closure Pack | 1 | 11 | 968 |
+| docs/contracts/telephony-procurement-pack/R-05-tts-audio-capability.md | R-05 — Năng lực TTS và nguồn audio | 7 | 5 | 1441 |
+| docs/contracts/telephony-procurement-pack/R-04-scorecard-and-gaps.md | R-04 — Scorecard nhà cung cấp, gap register và điều khoản hợp đồng | 2 | 9 | 1403 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 0 | 9 | 369 |
 | specs/testing/00-index.md | Testing SRS — Index | 0 | 9 | 122 |
 | specs/workflows/00-index.md | Workflows — Index | 0 | 9 | 119 |
+| docs/contracts/target-v1-closure-pack/T-08-openapi-compat-cdc.md | T-08 — OpenAPI compatibility, deprecation và sở hữu consumer-driven test | 3 | 5 | 886 |
+| docs/contracts/telephony-procurement-pack/R-02-lab-package.md | R-02 — Gói lab 1 SIM thật | 3 | 5 | 1612 |
+| docs/contracts/telephony-procurement-pack/R-03-esim32-package.md | R-03 — Gói production nhiều kênh eSIM | 4 | 4 | 1687 |
 | specs/api/00-index.md | API SRS — Index | 0 | 8 | 160 |
 | specs/functional/00-index.md | Functional SRS — Index | 0 | 8 | 379 |
 | specs/ui/00-index.md | UI SRS — Index (Admin/Ops Console) | 0 | 8 | 247 |
+| docs/contracts/target-v1-closure-pack/T-03-speech-summary.md | T-03 — Privacy-safe order summary và whitelist biến lời thoại | 3 | 4 | 1042 |
+| docs/contracts/telephony-procurement-pack/lab-acceptance-report-template.md | Biểu mẫu — Báo cáo nghiệm thu lab 1 SIM | 5 | 2 | 1252 |
 | plan/ivr-orther/_archive/16-prompt-roadmap.md | 16 — Prompt Roadmap | 1 | 6 | 1036 |
 | specs/architecture/00-index.md | Architecture SRS — Index | 0 | 7 | 98 |
-| specs/data/00-index.md | Data SRS — Index | 0 | 6 | 232 |
-| specs/database/00-index.md | Database SRS — Index | 0 | 6 | 101 |
-| integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 0 | 5 | 224 |
-| docs/api-changelog.md | IVR API Contract Changelog | 0 | 4 | 244 |
-| plan/ivr-orther/_archive/06-ops-core-analysis-plan.md | 06 — Ops-Core Analysis Plan (Module 1 / 2) | 0 | 4 | 504 |
-| plan/ivr-orther/_archive/12-ops-core-api-needs-draft.md | 12 — Ops-Core API Needs (DRAFT) | 3 | 1 | 730 |
-| plan/ivr-orther/_archive/13-seed-and-mock-strategy-plan.md | 13 — Seed & Mock Strategy Plan | 2 | 2 | 744 |
-| plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1 | 3 | 379 |
-| plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 4 | 0 | 1749 |
-| specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 2 | 2 | 1090 |
-| plan/ivr-orther/_archive/02-current-understanding.md | 02 — Current Understanding | 1 | 2 | 1078 |
-| plan/ivr-orther/_archive/05-sales-platform-analysis-plan.md | 05 — Sales Platform Analysis Plan (Module 3 / 3.1) | 0 | 3 | 503 |
-| plan/ivr-orther/_archive/15-open-questions.md | 15 — Open Questions | 2 | 1 | 1079 |
+| docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md | T-02 — Task data: `order_version`, `order_state`, eligibility/restriction evidence | 3 | 3 | 866 |
+| docs/contracts/target-v1-closure-pack/T-04-dial-token.md | T-04 — Dial-token: issue / resolve / TTL / one-use / audit | 4 | 2 | 978 |
+| docs/contracts/target-v1-closure-pack/T-07-production-auth.md | T-07 — Production service auth: JWT issuer/audience/scope/TTL/JWKS + mTLS | 5 | 1 | 966 |
+
+## Unresolved Links
+
+| File | Line | Target | Kind |
+| --- | ---: | --- | --- |
+| docs/contracts/target-v1-closure-pack/README.md | 51 | ../../../specs/api/openapi/contract-manifest.json | markdown |
+| docs/contracts/target-v1-closure-pack/T-01-program-matrix.md | 19 | ../../../specs/api/openapi/ivr-order-confirmation.v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-01-program-matrix.md | 20 | ../../../src/Ivr.Api/Intake/TaskIntakeEndpoint.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-01-program-matrix.md | 21 | ../../../src/Ivr.Domain/Policies/EligibilityRules.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-01-program-matrix.md | 66 | ../../../tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md | 15 | ../../../specs/api/openapi/ivr-order-confirmation.v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md | 16 | ../../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md | 25 | ../../../src/Ivr.Domain/Policies/EligibilityRules.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md | 37 | ../../../src/Ivr.Api/Intake/TaskIntakeEndpoint.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md | 50 | ../../../src/Ivr.Domain/Policies/EligibilityRules.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-03-speech-summary.md | 11 | ../../../specs/api/openapi/ivr-order-confirmation.v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-03-speech-summary.md | 32 | ../../../src/Ivr.Domain/Confirmation/PrivacySafeSpeech.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-03-speech-summary.md | 81 | ../../../tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-04-dial-token.md | 11 | ../../../specs/api/openapi/ivr-order-confirmation.v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-04-dial-token.md | 31 | ../../../src/Ivr.Domain/Ports/ProviderPorts.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-04-dial-token.md | 91 | ../../../deploy/ci/scripts/scan-pii.sh | markdown |
+| docs/contracts/target-v1-closure-pack/T-05-callback-ack.md | 11 | ../../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-05-callback-ack.md | 25 | ../../../src/Ivr.Infrastructure/Callbacks/TargetV1CallbackTransport.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-05-callback-ack.md | 33 | ../../../specs/api/compat/current-golden-hour-callback.a3aad246.schema.json | markdown |
+| docs/contracts/target-v1-closure-pack/T-05-callback-ack.md | 92 | ../../../tests/Ivr.ContractTests/SalesContractScaffoldTests.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md | 17 | ../../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md | 28 | ../../../src/Ivr.Api/Application/AdminReadService.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md | 28 | ../../../src/Ivr.Api/Application/AnalyticsReadService.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-07-production-auth.md | 17 | ../../../src/Ivr.Api/Auth/OrderCoreAllowlistMiddleware.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-07-production-auth.md | 18 | ../../../src/Ivr.Api/Internal/InternalServiceOptions.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-07-production-auth.md | 19 | ../../../src/Ivr.Api/Auth/MockPermissionAuthenticationHandler.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-07-production-auth.md | 20 | ../../../src/Ivr.Domain/Ports/ProviderPorts.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-07-production-auth.md | 26 | ../../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-07-production-auth.md | 40 | ../../../specs/api/openapi/ivr-order-confirmation.v1.yaml | markdown |
+| docs/contracts/target-v1-closure-pack/T-08-openapi-compat-cdc.md | 15 | ../../../specs/api/openapi/contract-manifest.json | markdown |
+| docs/contracts/target-v1-closure-pack/T-08-openapi-compat-cdc.md | 16 | ../../../deploy/ci/docs.gitlab-ci.yml | markdown |
+| docs/contracts/target-v1-closure-pack/T-08-openapi-compat-cdc.md | 23 | ../../../specs/api/compat/current-golden-hour-callback.a3aad246.schema.json | markdown |
+| docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md | 11 | ../../../src/Ivr.Infrastructure/Intake/AttemptPolicyRegistries.cs | markdown |
+| docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md | 83 | ../../../tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs | markdown |
+| docs/contracts/telephony-procurement-pack/R-01-vendor-requirements.md | 13 | ../../../src/Ivr.Domain/Ports/ProviderPorts.cs | markdown |
+| docs/contracts/telephony-procurement-pack/R-01-vendor-requirements.md | 96 | ../../../src/Ivr.Domain/Ports/ProviderPorts.cs | markdown |
+| docs/evidence/W-0026/README.md | 84 | live-screens.txt | markdown |
+| docs/evidence/W-0030/README.md | 24 | ../../../specs/api/evidence/eligibility-snapshot.v1.schema.json | markdown |
+| docs/evidence/W-0097/README.md | 119 | design-preview.html | markdown |
 
 ## Duplicate Titles
 
@@ -73,14 +117,26 @@ Root: C:\Users\Administrator\Desktop\ivr
 - .claude/skills/gitnexus/gitnexus-guide/SKILL.md
 - .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md
 - .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md
-- .gitlab/merge_request_templates/Default.md
 - admin-ui/AGENTS.md
 - admin-ui/CLAUDE.md
 - admin-ui/README.md
 - AGENTS.md
 - CLAUDE.md
+- deploy/chaos/README.md
+- deploy/dr/README.md
+- docs/compliance/data-inventory.md
+- docs/compliance/dsar-runbook.md
+- docs/compliance/ivr-data-inventory.md
+- docs/compliance/ivr-pdpa-legal-basis-pack.md
+- docs/compliance/ivr-retention-options.md
+- docs/compliance/pia.md
+- docs/compliance/release-compliance-checklist.md
+- docs/compliance/retention.md
 - docs/contracts/openapi-codegen.md
 - docs/contracts/openapi-contract-diff.md
+- docs/cost-model.md
+- docs/data-governance.md
+- docs/dr-topology.md
 - docs/evidence/W-0010/README.md
 - docs/evidence/W-0011/README.md
 - docs/evidence/W-0012/README.md
@@ -95,6 +151,29 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0021/README.md
 - docs/evidence/W-0022/README.md
 - docs/evidence/W-0023/README.md
+- docs/evidence/W-0025/README.md
+- docs/evidence/W-0026/README.md
+- docs/evidence/W-0027/README.md
+- docs/evidence/W-0028/README.md
+- docs/evidence/W-0029/README.md
+- docs/evidence/W-0031/README.md
+- docs/evidence/W-0033/README.md
+- docs/evidence/W-0034/README.md
+- docs/evidence/W-0035/README.md
+- docs/evidence/W-0036/README.md
+- docs/evidence/W-0038/README.md
+- docs/evidence/W-0039/README.md
+- docs/evidence/W-0040/README.md
+- docs/evidence/W-0041/README.md
+- docs/evidence/W-0045/README.md
+- docs/evidence/W-0052/README.md
+- docs/evidence/W-0053/README.md
+- docs/evidence/W-0054/README.md
+- docs/evidence/W-0055/README.md
+- docs/evidence/W-0057/README.md
+- docs/evidence/W-0058/README.md
+- docs/evidence/W-0059/README.md
+- docs/evidence/W-0060/README.md
 - docs/evidence/W-0061/README.md
 - docs/evidence/W-0065/README.md
 - docs/evidence/W-0085/README.md
@@ -107,9 +186,25 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0092/README.md
 - docs/evidence/W-0093/README.md
 - docs/evidence/W-0094/README.md
+- docs/evidence/W-0095/README.md
+- docs/evidence/W-0096/README.md
+- docs/evidence/W-0097/README.md
+- docs/evidence/W-0098/README.md
+- docs/evidence/W-0099/README.md
+- docs/evidence/W-0100/README.md
+- docs/evidence/W-0101/README.md
+- docs/evidence/W-0102/README.md
 - docs/integration-guide.md
+- docs/kpi-catalog.md
+- docs/lab/one-sim-lab-plan.md
 - docs/operations/gitlab-runner-winhost.md
+- docs/owner-decisions-open.md
+- docs/release/df03-signoff-input.md
+- docs/release/readiness-board.md
+- docs/reports/2026-08-15-bao-cao-tien-do-ivr.md
 - docs/review/2026-08-14-phase-1-2-code-review.md
+- docs/slo.md
+- docs/traceability-tests.md
 - plan/ivr-orther/_archive/01-reading-inventory.md
 - plan/ivr-orther/_archive/08-target-specs-structure-proposal.md
 - prompt/_review/phase-0-11-spec-alignment-review.md
@@ -119,8 +214,9 @@ Root: C:\Users\Administrator\Desktop\ivr
 - specs/_review/normalization-report.md
 - specs/_review/traceability-matrix.md
 - specs/03-stakeholders-and-actors.md
-- specs/04-glossary.md
 - specs/05-current-docs-review.md
+- specs/decisions/DF-07-retention-policy.md
+- specs/decisions/DT-05-recording-off-policy.md
 - specs/tech/00-tech-stack.md
 
 ## File Inventory
@@ -133,21 +229,53 @@ Root: C:\Users\Administrator\Desktop\ivr
 | .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/10 | 0 | 0 | 0 | 1015 |
 | .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md | Impact Analysis with GitNexus | 1/8 | 0 | 0 | 0 | 225 |
 | .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md | Refactoring with GitNexus | 1/10 | 0 | 0 | 0 | 187 |
-| .gitlab/merge_request_templates/Default.md | IVR change traceability | 1/4 | 0 | 0 | 0 | 209 |
+| .gitlab/merge_request_templates/Default.md | IVR change traceability | 1/5 | 1 | 2 | 0 | 250 |
 | admin-ui/AGENTS.md | This is NOT the Next.js you know | 1/1 | 0 | 0 | 0 | 95 |
 | admin-ui/CLAUDE.md | CLAUDE | 0/0 | 0 | 0 | 0 | 1 |
-| admin-ui/README.md | IVR Admin UI | 1/2 | 0 | 0 | 0 | 90 |
+| admin-ui/README.md | IVR Admin UI | 1/5 | 0 | 0 | 0 | 617 |
 | AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
 | CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
-| deploy/ci/README.md | GitLab CI baseline | 1/7 | 1 | 0 | 0 | 1187 |
-| docs/api/changelog/ivr-order-confirmation.md | API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.2 | 1/1 | 1 | 0 | 0 | 9 |
+| deploy/chaos/README.md | Chaos fault injection — `W-0042` · `P6-3` | 1/5 | 0 | 0 | 0 | 365 |
+| deploy/ci/README.md | GitLab CI baseline | 1/8 | 1 | 1 | 0 | 1471 |
+| deploy/ci/rollback.md | Rollback — `W-0045` · `P7-3` §8 | 1/6 | 1 | 0 | 0 | 495 |
+| deploy/docker/README.md | Container images & dev stack — `W-0043` · `P7-1` | 1/10 | 1 | 0 | 0 | 748 |
+| deploy/dr/README.md | DR configuration — `W-0053` · `P10-2` | 1/5 | 0 | 0 | 0 | 257 |
+| deploy/helm/README.md | Helm chart — `W-0044` · `P7-2` | 1/9 | 1 | 0 | 0 | 820 |
+| docs/api/changelog/ivr-order-confirmation.md | API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.9 | 1/13 | 1 | 0 | 0 | 75 |
 | docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md | API Changelog 1.0.0 vs. 1.0.0-draft.2 | 1/20 | 1 | 0 | 0 | 2694 |
-| docs/api/changelog/order-core-ivr-callback.md | API Changelog 1.0.0-draft vs. 1.0.0-draft | 1/1 | 1 | 0 | 0 | 9 |
-| docs/api-changelog.md | IVR API Contract Changelog | 1/3 | 0 | 4 | 0 | 244 |
-| docs/api-versioning.md | IVR API Versioning and Deprecation Policy | 1/7 | 1 | 0 | 0 | 422 |
-| docs/capacity-model.md | IVR Capacity and Cost Model | 1/3 | 1 | 0 | 0 | 359 |
+| docs/api/changelog/order-core-ivr-callback.md | API Changelog 1.0.0-draft vs. 1.0.0-draft | 1/1 | 1 | 0 | 0 | 15 |
+| docs/api-changelog.md | IVR API Contract Changelog | 1/3 | 0 | 4 | 0 | 681 |
+| docs/api-versioning.md | IVR API Versioning and Deprecation Policy | 1/7 | 3 | 0 | 0 | 422 |
+| docs/capacity-model.md | IVR Capacity and Cost Model | 2/11 | 5 | 0 | 0 | 1298 |
+| docs/compliance/data-inventory.md | Data inventory & legal basis — `W-0052` · `P10-1` | 1/6 | 0 | 0 | 0 | 1172 |
+| docs/compliance/dsar-runbook.md | DSAR runbook — `W-0052` · `P10-1` | 1/9 | 0 | 0 | 0 | 688 |
+| docs/compliance/ivr-data-inventory.md | IVR data inventory (class level, có chủ sở hữu) — `W-0059` · `P11-3` | 1/6 | 0 | 0 | 0 | 747 |
+| docs/compliance/ivr-pdpa-legal-basis-pack.md | PDPA / legal basis pack — `W-0059` · `P11-3` | 1/7 | 0 | 0 | 0 | 922 |
+| docs/compliance/ivr-retention-options.md | Retention options (trước khi Legal ký) — `W-0059` · `P11-3` | 1/6 | 0 | 0 | 0 | 800 |
+| docs/compliance/pia.md | Privacy Impact Assessment — `W-0052` · `P10-1` | 1/6 | 0 | 0 | 0 | 917 |
+| docs/compliance/release-compliance-checklist.md | Release compliance checklist — `W-0052` · `P10-1` → cổng `P9-1` | 1/7 | 0 | 0 | 0 | 704 |
+| docs/compliance/retention.md | Retention policy — `W-0052` · `P10-1` · DF-07 | 1/6 | 0 | 0 | 0 | 562 |
 | docs/contracts/openapi-codegen.md | OpenAPI Code Generation and Contract Drift Policy | 1/6 | 0 | 0 | 0 | 459 |
-| docs/contracts/openapi-contract-diff.md | OpenAPI Contract Baseline and Human-Readable Diff | 1/5 | 0 | 0 | 0 | 391 |
+| docs/contracts/openapi-contract-diff.md | OpenAPI Contract Baseline and Human-Readable Diff | 1/5 | 0 | 0 | 0 | 458 |
+| docs/contracts/target-v1-closure-pack/README.md | Target Contract V1 — Closure Pack | 1/8 | 1 | 11 | 1 | 968 |
+| docs/contracts/target-v1-closure-pack/T-01-program-matrix.md | T-01 — Ma trận program / payment / IVR-required / callable | 1/8 | 4 | 1 | 4 | 807 |
+| docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md | T-02 — Task data: `order_version`, `order_state`, eligibility/restriction evidence | 1/8 | 3 | 3 | 5 | 866 |
+| docs/contracts/target-v1-closure-pack/T-03-speech-summary.md | T-03 — Privacy-safe order summary và whitelist biến lời thoại | 1/8 | 3 | 4 | 3 | 1042 |
+| docs/contracts/target-v1-closure-pack/T-04-dial-token.md | T-04 — Dial-token: issue / resolve / TTL / one-use / audit | 1/8 | 4 | 2 | 3 | 978 |
+| docs/contracts/target-v1-closure-pack/T-05-callback-ack.md | T-05 — Generic callback target, ACK taxonomy, idempotency/version | 1/8 | 1 | 0 | 4 | 938 |
+| docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md | T-06 — No-answer, wait-for-timeout và race lúc revalidation | 1/8 | 1 | 3 | 3 | 890 |
+| docs/contracts/target-v1-closure-pack/T-07-production-auth.md | T-07 — Production service auth: JWT issuer/audience/scope/TTL/JWKS + mTLS | 1/8 | 5 | 1 | 6 | 966 |
+| docs/contracts/target-v1-closure-pack/T-08-openapi-compat-cdc.md | T-08 — OpenAPI compatibility, deprecation và sở hữu consumer-driven test | 1/8 | 3 | 5 | 3 | 886 |
+| docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md | T-09 — `attempt_policy_version` cho production | 1/8 | 2 | 3 | 2 | 804 |
+| docs/contracts/telephony-procurement-pack/lab-acceptance-report-template.md | Biểu mẫu — Báo cáo nghiệm thu lab 1 SIM | 1/10 | 5 | 2 | 0 | 1252 |
+| docs/contracts/telephony-procurement-pack/R-01-vendor-requirements.md | R-01 — Yêu cầu nhà cung cấp telephony | 1/14 | 13 | 4 | 2 | 2363 |
+| docs/contracts/telephony-procurement-pack/R-02-lab-package.md | R-02 — Gói lab 1 SIM thật | 1/11 | 3 | 5 | 0 | 1612 |
+| docs/contracts/telephony-procurement-pack/R-03-esim32-package.md | R-03 — Gói production nhiều kênh eSIM | 1/11 | 4 | 4 | 0 | 1687 |
+| docs/contracts/telephony-procurement-pack/R-04-scorecard-and-gaps.md | R-04 — Scorecard nhà cung cấp, gap register và điều khoản hợp đồng | 1/6 | 2 | 9 | 0 | 1403 |
+| docs/contracts/telephony-procurement-pack/R-05-tts-audio-capability.md | R-05 — Năng lực TTS và nguồn audio | 1/7 | 7 | 5 | 0 | 1441 |
+| docs/contracts/telephony-procurement-pack/README.md | Telephony Procurement Pack — 1 SIM lab và 32 eSIM production | 1/7 | 0 | 17 | 0 | 863 |
+| docs/cost-model.md | Cost model — `W-0054` · `P10-3` | 1/6 | 0 | 0 | 0 | 729 |
+| docs/data-governance.md | Data governance — `W-0053` · `P10-2` | 1/9 | 0 | 0 | 0 | 1465 |
 | docs/documents/0. appendices/01-OPERATIONAL-FORMS.md | OPERATIONAL FORMS | 1/16 | 1 | 0 | 0 | 3384 |
 | docs/documents/0. appendices/02-AUTO-GENERATED-FORM-RULES.md | AUTO GENERATED FORM RULES | 1/59 | 1 | 0 | 0 | 1635 |
 | docs/documents/0. appendices/03-PRINTING-CODE-RULES.md | PRINTING CODE RULES | 1/40 | 1 | 0 | 0 | 906 |
@@ -305,13 +433,13 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/documents/4. phase/phase-8/07-CHUẨN HÓA KẾT QUẢ VÀ CALLBACK VỀ LÕI ĐƠN HÀNG.md | IVR-07 - Result Normalization / IVR -> Order Core Callback | 1/17 | 1 | 0 | 0 | 1628 |
 | docs/documents/4. phase/phase-8/08-GIÁM SÁT QUẢN TRỊ BẰNG CHỨNG KIỂM TOÁN VÀ RIÊNG TƯ.md | IVR-08 - Admin Monitoring / Evidence / Audit / Privacy | 1/18 | 1 | 0 | 0 | 1772 |
 | docs/documents/4. phase/phase-8/09-MA TRẬN KIỂM THỬ KHÓI VÀ CỔNG PHÁT HÀNH.md | IVR-09 - Test Matrix / Smoke / Release Gate | 1/17 | 1 | 0 | 0 | 1707 |
-| docs/documents/4. phase/phase-8/10-KIẾN TRÚC TRIỂN KHAI.md | IVR-10 - Implementation Architecture | 1/11 | 1 | 0 | 0 | 1185 |
+| docs/documents/4. phase/phase-8/10-KIẾN TRÚC TRIỂN KHAI.md | IVR-10 - Implementation Architecture | 1/11 | 2 | 0 | 0 | 1185 |
 | docs/documents/4. phase/phase-8/11-THIẾT KẾ API.md | IVR-11 - API Design | 1/12 | 1 | 0 | 0 | 1122 |
 | docs/documents/4. phase/phase-8/12-THIẾT KẾ CƠ SỞ DỮ LIỆU.md | IVR-12 - Database Design | 1/14 | 1 | 0 | 0 | 2159 |
 | docs/documents/4. phase/phase-8/13-THIẾT KẾ HÀM VÀ DỊCH VỤ.md | IVR-13 - Function / Service Design | 1/14 | 1 | 0 | 0 | 1256 |
 | docs/documents/4. phase/phase-8/14-ĐIỀU PHỐI QUY TRÌNH.md | IVR-14 - Workflow Orchestration | 1/14 | 1 | 0 | 0 | 1133 |
 | docs/documents/4. phase/phase-8/15-BẢO MẬT RIÊNG TƯ VÀ KIỂM TOÁN.md | IVR-15 - Security / Privacy / Audit | 1/13 | 1 | 0 | 0 | 1087 |
-| docs/documents/4. phase/phase-8/16-YÊU CẦU PHI CHỨC NĂNG.md | IVR-16 - Non-Functional Requirements | 1/14 | 1 | 0 | 0 | 925 |
+| docs/documents/4. phase/phase-8/16-YÊU CẦU PHI CHỨC NĂNG.md | IVR-16 - Non-Functional Requirements | 1/14 | 2 | 0 | 0 | 925 |
 | docs/documents/4. phase/phase-8/17-THIẾT KẾ TÍCH HỢP.md | IVR-17 - Integration Design | 1/14 | 1 | 0 | 0 | 1059 |
 | docs/documents/4. phase/phase-8/18-TRIỂN KHAI QUAN SÁT VÀ SỔ TAY VẬN HÀNH.md | IVR-18 - Deployment / Observability / Runbook | 1/13 | 1 | 0 | 0 | 1012 |
 | docs/documents/4. phase/phase-8/19-KẾ HOẠCH KIỂM THỬ KHÓI VÀ PHÁT HÀNH.md | IVR-19 - Test / Smoke / Release Plan | 1/13 | 1 | 0 | 0 | 1097 |
@@ -326,6 +454,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/documents/6. canonical/02-CANONICAL-FINANCE-DIAMOND-COMMISSION-PAYOUT-RUNTIME.md | Canonical Finance / Diamond Commission / Payout Runtime | 1/10 | 1 | 0 | 0 | 775 |
 | docs/documents/6. canonical/03-CANONICAL-EVIDENCE-SMOKE-GATE-CUSTOMER-TO-CASH-CARE.md | Canonical Evidence / Smoke Gate - Customer-to-Cash-to-Care | 1/7 | 1 | 0 | 0 | 721 |
 | docs/documents/6. canonical/README.md | Canonical Runtime Addenda | 1/1 | 1 | 0 | 0 | 73 |
+| docs/dr-topology.md | DR topology — `W-0053` · `P10-2` | 1/9 | 0 | 0 | 0 | 1381 |
 | docs/evidence/W-0010/README.md | W-0010 — P0-1 Repo & Solution Bootstrap Evidence | 1/6 | 0 | 0 | 0 | 610 |
 | docs/evidence/W-0011/README.md | W-0011 — P0-2 GitLab CI Baseline Evidence | 1/6 | 0 | 0 | 0 | 907 |
 | docs/evidence/W-0012/README.md | W-0012 — P0-3 Cross-Cutting Foundation Evidence | 1/8 | 0 | 0 | 0 | 1081 |
@@ -342,6 +471,37 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0023/README.md | W-0023 / P2-6 — Sales callback outbox and Golden Hour compatibility | 1/8 | 0 | 0 | 0 | 1059 |
 | docs/evidence/W-0024/privacy-test-report.md | W-0024 privacy test report | 1/1 | 1 | 0 | 0 | 206 |
 | docs/evidence/W-0024/README.md | W-0024 / P2-7 — Script, Content Approval and Speech Safety | 1/6 | 0 | 1 | 0 | 427 |
+| docs/evidence/W-0025/README.md | W-0025 — P3-1 Admin UI Foundation | 1/11 | 0 | 0 | 0 | 1417 |
+| docs/evidence/W-0026/README.md | W-0026 — P3-2 Dashboard, Call Log & Call Detail | 1/8 | 0 | 0 | 1 | 1118 |
+| docs/evidence/W-0027/README.md | W-0027 — P3-3 Config, Integration Status, Review Queue, Seed/Mock & Roles | 1/9 | 0 | 0 | 0 | 1170 |
+| docs/evidence/W-0028/README.md | W-0028 / P3-4 — Reporting & analytics console | 1/6 | 0 | 0 | 0 | 1080 |
+| docs/evidence/W-0029/README.md | W-0029 — Evidence: Sales provider wiring and contract verification (`P4-1`) | 1/10 | 0 | 0 | 0 | 1234 |
+| docs/evidence/W-0030/README.md | W-0030 — Evidence: Sales eligibility/blocker snapshot contract (`P4-2`) | 1/10 | 0 | 2 | 1 | 1502 |
+| docs/evidence/W-0031/README.md | W-0031 — Evidence: Voice call restriction and trust snapshot (`P4-3`) | 1/9 | 0 | 0 | 0 | 1331 |
+| docs/evidence/W-0032/README.md | W-0032 — Evidence: Service JWT, optional mTLS and audit (`P4-4`) | 1/9 | 0 | 2 | 0 | 1325 |
+| docs/evidence/W-0033/README.md | W-0033 — Evidence: V1 notification disabled boundary (`P4-5`) | 1/6 | 0 | 0 | 0 | 726 |
+| docs/evidence/W-0034/README.md | W-0034 — Evidence: Opt-out feedback loop (`P4-6`) | 1/9 | 0 | 0 | 0 | 1063 |
+| docs/evidence/W-0035/README.md | W-0035 — Evidence: Unit & integration test suite (`P5-1`) | 1/7 | 0 | 0 | 0 | 1000 |
+| docs/evidence/W-0036/README.md | W-0036 — Evidence: Contract & E2E test suite (`P5-2`) | 1/7 | 0 | 0 | 0 | 940 |
+| docs/evidence/W-0037/README.md | W-0037 — Evidence: Performance, load and security/privacy tests (`P5-3`) | 1/8 | 0 | 1 | 0 | 839 |
+| docs/evidence/W-0038/README.md | W-0038 — Evidence: Code review gate & static analysis (`P5-4`) | 1/7 | 0 | 0 | 0 | 971 |
+| docs/evidence/W-0039/README.md | W-0039 — Evidence: Accessibility, i18n & cross-browser QA (`P5-5`) | 1/9 | 0 | 0 | 0 | 927 |
+| docs/evidence/W-0040/README.md | W-0040 — Evidence: Logging, metrics & tracing (`P6-1`) | 1/18 | 0 | 0 | 0 | 2958 |
+| docs/evidence/W-0041/README.md | W-0041 — Evidence: Dashboards, SLO & alerting (`P6-2`) | 1/7 | 0 | 0 | 0 | 1558 |
+| docs/evidence/W-0042/README.md | W-0042 — Evidence: Chaos & resilience game-days (`P6-3`) | 1/14 | 0 | 1 | 0 | 2257 |
+| docs/evidence/W-0043/README.md | W-0043 — Evidence: Docker images & dev compose (`P7-1`) | 1/46 | 0 | 3 | 0 | 6466 |
+| docs/evidence/W-0044/README.md | W-0044 — Evidence: Kubernetes & Helm (`P7-2`) | 1/16 | 0 | 1 | 0 | 1807 |
+| docs/evidence/W-0045/README.md | W-0045 — Evidence: CD pipeline & environment promotion (`P7-3`) | 1/8 | 0 | 0 | 0 | 1050 |
+| docs/evidence/W-0046/README.md | W-0046 — Evidence: Progressive delivery & canary (`P7-4`) | 1/9 | 0 | 1 | 0 | 1063 |
+| docs/evidence/W-0047/README.md | W-0047 — Evidence: Secret rotation & key lifecycle (`P7-5`) | 1/19 | 0 | 2 | 0 | 2195 |
+| docs/evidence/W-0052/README.md | W-0052 — Evidence: PDPA / privacy compliance & consent (`P10-1`) | 1/10 | 0 | 0 | 0 | 1346 |
+| docs/evidence/W-0053/README.md | W-0053 — Evidence: Data governance, backup crypto & DR (`P10-2`) | 1/9 | 0 | 0 | 0 | 1596 |
+| docs/evidence/W-0054/README.md | W-0054 — Evidence: Capacity, cost & SIM sizing model (`P10-3`) | 1/10 | 0 | 0 | 0 | 1607 |
+| docs/evidence/W-0055/README.md | W-0055 — Evidence: Analytics / BI pipeline (`P10-4`) | 1/11 | 0 | 0 | 0 | 1931 |
+| docs/evidence/W-0057/README.md | W-0057 — Evidence: Telephony Procurement Pack (`P11-1`) | 1/9 | 0 | 0 | 0 | 1160 |
+| docs/evidence/W-0058/README.md | W-0058 — Evidence: Sales/Auth Target Contract Closure Pack (`P11-2`) | 1/10 | 0 | 0 | 0 | 1254 |
+| docs/evidence/W-0059/README.md | W-0059 — Evidence: Legal retention & DF-03 sign-off pack (`P11-3`) | 1/9 | 0 | 0 | 0 | 1017 |
+| docs/evidence/W-0060/README.md | W-0060 — Evidence: Production readiness command center (`P11-4`) | 1/8 | 0 | 0 | 0 | 935 |
 | docs/evidence/W-0061/README.md | W-0061 — GitLab platform provisioning evidence | 1/16 | 0 | 0 | 0 | 2007 |
 | docs/evidence/W-0064/README.md | W-0064 — P1-5 Retention Job & Data Lifecycle Evidence | 1/5 | 1 | 1 | 0 | 464 |
 | docs/evidence/W-0065/README.md | W-0065 — P2-8 internal and admin API evidence | 1/9 | 0 | 0 | 0 | 1195 |
@@ -357,9 +517,33 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0092/README.md | W-0092 — Phase 1/2 contract and configuration remediation | 1/1 | 0 | 0 | 0 | 257 |
 | docs/evidence/W-0093/README.md | W-0093 — Phase 1/2 governance and evidence truth remediation | 1/5 | 0 | 0 | 0 | 601 |
 | docs/evidence/W-0094/README.md | W-0094 — Phase 1/2 lifecycle and dead-code remediation | 1/1 | 0 | 0 | 0 | 194 |
+| docs/evidence/W-0095/README.md | W-0095 — Admin read API (`GET /dashboard`, `/call-jobs`, `/call-jobs/{id}/detail`) | 1/8 | 0 | 0 | 0 | 999 |
+| docs/evidence/W-0096/README.md | W-0096 — Back-office read API (`/scripts`, `/integration-status`, `/review-items`) | 1/8 | 0 | 0 | 0 | 835 |
+| docs/evidence/W-0097/README.md | W-0097 — Admin UI visual design pass | 1/9 | 0 | 0 | 1 | 974 |
+| docs/evidence/W-0098/README.md | W-0098 — Analytics read API (`/analytics/summary\|trend\|breakdown\|export`) | 1/10 | 0 | 0 | 0 | 1151 |
+| docs/evidence/W-0099/README.md | W-0099 — SIM channel surface (`GET /sim-channels` + console controls) | 1/6 | 0 | 0 | 0 | 688 |
+| docs/evidence/W-0100/README.md | W-0100 — Phase 3 audit hygiene remediation | 1/7 | 0 | 0 | 0 | 1022 |
+| docs/evidence/W-0101/README.md | W-0101 — Phase 3 spec conformance (UI-01 / UI-02 / UI-03) | 1/8 | 0 | 0 | 0 | 888 |
+| docs/evidence/W-0102/README.md | W-0102 — Phase 3 §10 live evidence capture | 1/8 | 0 | 0 | 0 | 1070 |
+| docs/evidence/W-0103/README.md | W-0103 — Current-system audit closure | 1/8 | 1 | 1 | 0 | 877 |
+| docs/gameday-report.md | Game-day report — IVR Order Confirmation (`W-0042` · `P6-3`) | 1/12 | 1 | 0 | 0 | 1506 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
+| docs/kpi-catalog.md | KPI catalog — `W-0055` · `P10-4` | 1/11 | 0 | 0 | 0 | 1648 |
+| docs/lab/one-sim-lab-plan.md | Kế hoạch lab — 1 SIM thật + đơn hàng mock | 1/27 | 0 | 0 | 0 | 3159 |
 | docs/operations/gitlab-runner-winhost.md | GitLab self-hosted Docker runner on Windows | 1/8 | 0 | 0 | 0 | 676 |
+| docs/owner-decisions-open.md | Quyết định đã chốt | 1/6 | 0 | 0 | 0 | 1059 |
+| docs/perf-security-report.md | Performance, capacity and security/privacy report | 1/8 | 1 | 0 | 0 | 922 |
+| docs/progressive-delivery.md | Progressive delivery — `W-0046` · `P7-4` | 1/7 | 1 | 0 | 0 | 1034 |
+| docs/release/df03-signoff-input.md | DF-03 sign-off input — `W-0059` · `P11-3` | 1/8 | 0 | 0 | 0 | 986 |
+| docs/release/readiness-board.md | Production readiness board — `W-0060` · `P11-4` | 1/8 | 0 | 0 | 0 | 735 |
+| docs/reports/2026-08-15-bao-cao-tien-do-ivr.md | Báo cáo tiến độ — IVR Order Confirmation | 1/19 | 0 | 0 | 0 | 4100 |
 | docs/review/2026-08-14-phase-1-2-code-review.md | Rà soát Phase 1 + Phase 2 — IVR Order Confirmation | 1/26 | 0 | 0 | 0 | 3454 |
+| docs/review-checklist.md | IVR merge-request review checklist | 1/7 | 2 | 2 | 0 | 582 |
+| docs/reviewer-guide.md | Reviewer guide — cái máy không bắt được | 1/10 | 2 | 1 | 0 | 918 |
+| docs/secret-inventory.md | Secret inventory — `W-0047` · `P7-5` §6.1 | 1/6 | 1 | 0 | 0 | 696 |
+| docs/secret-rotation-runbook.md | Secret rotation runbook — `W-0047` · `P7-5` §6.4 | 1/8 | 1 | 0 | 0 | 1038 |
+| docs/slo.md | SLO / SLI — IVR Order Confirmation (`W-0041` · `P6-2`) | 1/14 | 0 | 0 | 0 | 2096 |
+| docs/traceability-tests.md | Test traceability — test ID to source | 1/3 | 0 | 0 | 0 | 3379 |
 | integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/4 | 0 | 5 | 0 | 224 |
 | integration-requirements/01-sales-platform-requirements.md | IR-01 — Sales Platform / Order Core Requirements | 1/8 | 1 | 0 | 0 | 692 |
 | integration-requirements/02-ops-core-requirements.md | IR-02 — Ops-Core Requirements (Module 1/2) | 1/3 | 1 | 0 | 0 | 457 |
@@ -398,16 +582,16 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/_archive/prompts/p14-review-and-normalize-specs.md | P14 — Review & Normalize Specs | 1/9 | 1 | 0 | 0 | 290 |
 | plan/ivr-orther/00-index.md | IVR Order Confirmation — Plan Index (canonical) | 1/6 | 1 | 3 | 0 | 379 |
 | plan/ivr-orther/14-risk-register.md | 14 — Risk Register | 1/2 | 0 | 1 | 0 | 1166 |
-| plan/ivr-orther/decisions-log.md | Decisions Log — IVR (lịch sử quyết định + Target V1 overlay) | 1/13 | 15 | 3 | 0 | 3451 |
+| plan/ivr-orther/decisions-log.md | Decisions Log — IVR (lịch sử quyết định + Target V1 overlay) | 1/13 | 16 | 3 | 0 | 3478 |
 | plan/ivr-orther/production-blockers-plan.md | External Closure Plan — IVR Order Confirmation | 1/9 | 1 | 0 | 0 | 595 |
 | plan/ivr-orther/questions-to-crm-3.1-followup.md | Câu hỏi bổ sung IVR — gửi CRM / Module 3.1 (vòng 2: do-not-call / opt-out / thông báo sau gọi) | 1/10 | 1 | 1 | 0 | 1161 |
 | plan/ivr-orther/questions-to-module-3-and-3.1.md | Câu hỏi tích hợp IVR — gửi Team Module 3 (Commerce Order Core) & Module 3.1 (Sales Extensions) | 3/20 | 0 | 1 | 0 | 2197 |
 | plan/ivr-orther/questions-to-ops-core.md | Câu hỏi tích hợp IVR — gửi Team Ops-Core (Module 1 Product Master / Module 2 Operational Core) | 3/15 | 0 | 1 | 0 | 1711 |
 | plan/ivr-orther/questions-to-order-core-state.md | Yêu cầu bàn giao Order-State Contract — gửi Order Core (Module 3) | 1/9 | 0 | 1 | 0 | 985 |
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
-| plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 4 | 0 | 0 | 1749 |
+| plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 5 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 1 | 0 | 0 | 14153 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 3 | 0 | 0 | 40429 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
@@ -451,7 +635,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | prompt/phase-2-core-runtime/P2-9-speech-tts-provider.md | PROMPT P2-9 — Speech Rendering & TTS Provider Boundary | 1/15 | 1 | 0 | 0 | 1275 |
 | prompt/phase-3-admin-ui/P3-1-ui-foundation.md | PROMPT P3-1 — Admin UI Foundation (Next.js) | 1/14 | 1 | 0 | 0 | 658 |
 | prompt/phase-3-admin-ui/P3-2-dashboard-calllog-detail.md | PROMPT P3-2 — Dashboard, Call Log & Call Detail | 1/14 | 1 | 0 | 0 | 593 |
-| prompt/phase-3-admin-ui/P3-3-config-integration-roles.md | PROMPT P3-3 — Config, Integration Status, Seed/Mock & Roles UI | 1/14 | 1 | 0 | 0 | 658 |
+| prompt/phase-3-admin-ui/P3-3-config-integration-roles.md | PROMPT P3-3 — Config, Integration Status, Seed/Mock & Roles UI | 1/14 | 1 | 0 | 0 | 673 |
 | prompt/phase-3-admin-ui/P3-4-reporting-analytics-ui.md | PROMPT P3-4 — Reporting & Analytics UI | 1/14 | 1 | 0 | 0 | 815 |
 | prompt/phase-4-integration/P4-1-order-core-wiring.md | PROMPT P4-1 — Sales Platform Provider Wiring and Contract Verification | 1/8 | 1 | 0 | 0 | 353 |
 | prompt/phase-4-integration/P4-2-ops-sellable-gate.md | PROMPT P4-2 — Sales Eligibility/Blocker Snapshot Contract | 1/7 | 1 | 0 | 0 | 270 |
@@ -466,7 +650,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | prompt/phase-5-quality/P5-5-accessibility-i18n-qa.md | PROMPT P5-5 — Accessibility, i18n & Cross-Browser QA | 1/14 | 1 | 0 | 0 | 535 |
 | prompt/phase-6-observability/P6-1-logging-metrics-tracing.md | PROMPT P6-1 — Logging, Metrics & Tracing (OpenTelemetry) | 1/14 | 1 | 0 | 0 | 595 |
 | prompt/phase-6-observability/P6-2-dashboards-slo-alerting.md | PROMPT P6-2 — Dashboards, SLO & Alerting | 1/14 | 1 | 0 | 0 | 527 |
-| prompt/phase-6-observability/P6-3-chaos-resilience-gamedays.md | PROMPT P6-3 — Chaos & Resilience Game-Days | 1/14 | 1 | 0 | 0 | 605 |
+| prompt/phase-6-observability/P6-3-chaos-resilience-gamedays.md | PROMPT P6-3 — Chaos & Resilience Game-Days | 1/14 | 1 | 0 | 0 | 671 |
 | prompt/phase-7-deployment/P7-1-docker-images-compose.md | PROMPT P7-1 — Docker Images & Dev Compose | 1/14 | 1 | 0 | 0 | 571 |
 | prompt/phase-7-deployment/P7-2-kubernetes-helm.md | PROMPT P7-2 — Kubernetes & Helm | 1/14 | 1 | 0 | 0 | 662 |
 | prompt/phase-7-deployment/P7-3-cicd-pipeline.md | PROMPT P7-3 — CD Pipeline & Environment Promotion | 1/14 | 1 | 0 | 0 | 772 |
@@ -478,22 +662,22 @@ Root: C:\Users\Administrator\Desktop\ivr
 | prompt/phase-9-release-ops/P9-2-cutover-ops-runbook.md | PROMPT P9-2 — Cutover, Rollback & Ops Runbook | 1/14 | 1 | 0 | 0 | 730 |
 | prompt/README-governance.md | IVR Prompt Library — Governance (đọc trước mọi prompt) | 1/10 | 1 | 0 | 0 | 1096 |
 | prompt/RUNBOOK-execute-prompts.md | RUNBOOK — Execute IVR Prompts P0–P11 | 1/10 | 1 | 0 | 0 | 432 |
-| README.md | GinsengFood IVR | 1/6 | 0 | 1 | 0 | 525 |
+| README.md | GinsengFood IVR | 1/7 | 0 | 1 | 0 | 642 |
 | seed/README.md | IVR Seed / Mock Data (NON-PRODUCTION ONLY) | 1/7 | 0 | 0 | 0 | 617 |
 | specs/_review/normalization-report.md | REVIEW — Normalization Report | 1/28 | 0 | 0 | 0 | 1439 |
-| specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 1/5 | 3 | 0 | 0 | 1035 |
+| specs/_review/open-decisions-register.md | REVIEW — Open Decisions Register | 1/5 | 5 | 0 | 0 | 1035 |
 | specs/_review/traceability-matrix.md | REVIEW — Target V1 Traceability Matrix | 1/1 | 0 | 0 | 0 | 464 |
 | specs/01-context-and-scope.md | SRS-01 — Context and Scope | 1/6 | 1 | 0 | 0 | 335 |
 | specs/02-business-goals.md | SRS-02 — Business Goals | 1/5 | 0 | 1 | 0 | 376 |
 | specs/03-stakeholders-and-actors.md | SRS-03 — Stakeholders & Actors | 1/4 | 0 | 0 | 0 | 491 |
-| specs/04-glossary.md | SRS-04 — Glossary | 1/1 | 0 | 0 | 0 | 780 |
+| specs/04-glossary.md | SRS-04 — Glossary | 1/1 | 1 | 0 | 0 | 780 |
 | specs/05-current-docs-review.md | SRS-05 — Current Docs Review (IVR Order Confirmation) | 1/14 | 0 | 0 | 0 | 2894 |
 | specs/06-assumptions-and-open-questions.md | SRS-06 — Assumptions and Open Questions | 1/4 | 0 | 1 | 0 | 252 |
 | specs/api/00-index.md | API SRS — Index | 1/2 | 0 | 8 | 0 | 160 |
-| specs/api/01-conventions.md | API-01 — Conventions | 1/5 | 1 | 0 | 0 | 255 |
+| specs/api/01-conventions.md | API-01 — Conventions | 1/5 | 2 | 0 | 0 | 255 |
 | specs/api/02-internal-api.md | API-02 — IVR-Owned Internal API | 1/4 | 1 | 1 | 0 | 376 |
 | specs/api/03-admin-api.md | API-03 — Admin API | 1/8 | 1 | 0 | 0 | 727 |
-| specs/api/04-sim-adapter-contract.md | API-04 — SIM Adapter Contract (Internal — Adapter Port) | 1/6 | 1 | 0 | 0 | 542 |
+| specs/api/04-sim-adapter-contract.md | API-04 — SIM Adapter Contract (Internal — Adapter Port) | 1/6 | 3 | 0 | 0 | 542 |
 | specs/api/05-order-core-contracts.md | API-05 — Sales Platform Contracts | 1/6 | 2 | 0 | 0 | 312 |
 | specs/api/06-error-codes.md | API-06 — Error Codes | 1/9 | 1 | 0 | 0 | 880 |
 | specs/api/07-idempotency-and-correlation.md | API-07 — Idempotency & Correlation | 1/5 | 1 | 0 | 0 | 382 |
@@ -511,7 +695,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/data/02-mapping-sales-platform.md | DATA-02 — Mapping: Sales Platform ↔ IVR | 1/4 | 1 | 0 | 0 | 258 |
 | specs/data/03-mapping-ops-core.md | DATA-03 — Mapping: Ops-Core (Sellable Gate / Sale-Lock / Recall) | 1/7 | 1 | 0 | 0 | 427 |
 | specs/data/04-missing-data.md | DATA-04 — Missing External Data and Contracts | 1/1 | 1 | 0 | 0 | 203 |
-| specs/data/05-pii-policy.md | DATA-05 — PII & Privacy Policy | 1/7 | 2 | 0 | 0 | 524 |
+| specs/data/05-pii-policy.md | DATA-05 — PII & Privacy Policy | 1/7 | 5 | 0 | 0 | 524 |
 | specs/database/00-index.md | Database SRS — Index | 1/1 | 0 | 6 | 0 | 101 |
 | specs/database/01-erd.md | DB-01 — ERD | 1/2 | 1 | 0 | 0 | 97 |
 | specs/database/02-tables.md | DB-02 — Tables | 1/12 | 1 | 0 | 0 | 2565 |
@@ -519,12 +703,15 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/database/04-indexes.md | DB-04 — Indexes & Constraints | 1/6 | 1 | 0 | 0 | 1012 |
 | specs/database/05-retention-and-privacy.md | DB-05 — Retention & Privacy | 1/8 | 2 | 2 | 0 | 1090 |
 | specs/database/06-migration-plan.md | DB-06 — Migration Plan | 1/7 | 2 | 0 | 0 | 384 |
+| specs/decisions/DF-07-retention-policy.md | DF-07 — Retention policy | 1/5 | 0 | 0 | 0 | 531 |
+| specs/decisions/DT-05-recording-off-policy.md | DT-05 — Recording OFF policy | 1/6 | 0 | 0 | 0 | 511 |
+| specs/decisions/DT-06-blocked-result-semantics.md | DT-06 — Semantics của operational/policy block | 1/4 | 3 | 0 | 0 | 321 |
 | specs/functional/00-index.md | Functional SRS — Index | 1/4 | 0 | 8 | 0 | 379 |
 | specs/functional/01-task-intake.md | FR — Task Intake | 1/3 | 1 | 0 | 0 | 282 |
 | specs/functional/02-eligibility-and-blockers.md | FR — Eligibility and Blockers | 1/1 | 1 | 0 | 0 | 169 |
 | specs/functional/03-scheduler-attempt-policy.md | FR — Scheduler and Attempt Policy | 1/3 | 1 | 0 | 0 | 211 |
 | specs/functional/04-call-execution-dtmf.md | FR — Call Execution, Speech and DTMF | 1/5 | 1 | 0 | 0 | 400 |
-| specs/functional/05-result-normalization-callback.md | FR — Result Normalization and Sales Callback | 1/5 | 1 | 0 | 0 | 246 |
+| specs/functional/05-result-normalization-callback.md | FR — Result Normalization and Sales Callback | 1/5 | 1 | 1 | 0 | 328 |
 | specs/functional/06-technical-exception-capacity.md | FR — Technical Exception & Capacity | 1/5 | 1 | 0 | 0 | 641 |
 | specs/functional/07-admin-operations.md | FR — Admin / Ops Operations | 1/4 | 1 | 0 | 0 | 548 |
 | specs/functional/08-evidence-audit-privacy.md | FR — Evidence, Audit & Privacy | 1/4 | 1 | 0 | 0 | 410 |
@@ -543,7 +730,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | specs/ui/01-dashboard.md | UI-01 — Dashboard (Queue / Capacity / Incident) | 1/6 | 1 | 0 | 0 | 142 |
 | specs/ui/02-call-log.md | UI-02 — Call Log (danh sách CallJob) | 1/7 | 1 | 0 | 0 | 115 |
 | specs/ui/03-call-detail.md | UI-03 — Call Detail (trace task→job→attempt→result→callback) | 1/6 | 1 | 0 | 0 | 167 |
-| specs/ui/04-ivr-menu-config.md | UI-04 — IVR Menu / Script Config | 1/6 | 1 | 0 | 0 | 283 |
+| specs/ui/04-ivr-menu-config.md | UI-04 — IVR Menu / Script Config | 1/6 | 2 | 0 | 0 | 283 |
 | specs/ui/05-integration-status.md | UI-05 — Integration Status (Health) | 1/6 | 1 | 0 | 0 | 112 |
 | specs/ui/06-callback-request.md | UI-06 — Admin Review & Technical Retry | 1/5 | 1 | 0 | 0 | 180 |
 | specs/ui/07-seed-mock-management.md | UI-07 — Seed / Mock Management (NON-PROD only) | 1/5 | 1 | 0 | 0 | 135 |

@@ -23,7 +23,7 @@ and does not approve the external Sales contract.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.2</code></td>
-<td><code>1.0.0-draft.7</code></td>
+<td><code>1.0.0-draft.9</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>
@@ -61,7 +61,18 @@ projections against their UI specs: the dashboard gains <code>call_success_rate<
 <code>specs/ui/01</code> asks for that had no field behind them — and the call detail gains
 the per-line <code>sellable_status</code> snapshot <code>specs/ui/03</code> requires. All are response
 fields on existing operations; nothing was removed or renamed.</p>
-<p>All five steps are additive: <code>oasdiff breaking --fail-on WARN</code> reports <strong>no
+<p><code>1.0.0-draft.8</code> (W-0055) adds no operation. It makes the analytics source
+truthful after the warehouse pipeline landed: <code>data_quality.source</code> names the
+store that answered and <code>warehouse_status</code> separately reports whether ETL is
+complete, backlogged or mismatched.</p>
+<p><code>1.0.0-draft.9</code> (W-0103) adds no operation. It closes the blocked-result
+ambiguity: <code>IVR_OPERATIONAL_BLOCKED</code> and <code>IVR_POLICY_BLOCKED</code> stay in the shared
+compatibility enum, but the IVR producer does not emit them. The two analytics
+fields that previously returned a misleading numeric zero now explicitly return
+<code>null</code> until a dedicated intake/pre-call block fact source exists. Sales blocking
+after revalidation remains callback ACK <code>BLOCKED_BY_CORE</code> and never rewrites the
+observed customer result.</p>
+<p>All seven steps are additive or response-relaxing: <code>oasdiff breaking --fail-on WARN</code> reports <strong>no
 breaking changes</strong>. They add no request body field, alter no existing operation,
 and grant no new capability — all eleven require <code>IVR_QUEUE_VIEW</code> and return
 masked or aggregate projections only. No mutation operation was added for script

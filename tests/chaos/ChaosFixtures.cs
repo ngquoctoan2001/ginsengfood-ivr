@@ -3,7 +3,9 @@ using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
+using Ivr.Infrastructure.Persistence.Outbox;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ivr.ChaosTests;
 
@@ -247,4 +249,47 @@ internal static class ChaosFixtures
         await context.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// A task, its job, its final result and one READY outbox row, which is the smallest complete
+    /// state a callback scenario can start from. Lives here rather than in a scenario file because
+    /// three scenarios need exactly this shape and each used to carry its own byte-identical copy.
+    /// </summary>
+    internal static async Task<ResultCallbackEntity> SeedReadyCallbackAsync(
+        ChaosEnvironment chaos,
+        string suffix)
+    {
+        ArgumentNullException.ThrowIfNull(chaos);
+        ConfirmationTaskEntity task = ReadCanonicalTask(suffix);
+        CallJobEntity job = CreateJob(task, task.MaxAttempts, task.AttemptOffsetsSecondsJson);
+        CallResultEntity result = CreateResult(task, job);
+
+        await using (IvrDbContext context = await chaos.DbContextFactory.CreateDbContextAsync())
+        {
+            context.AddRange(task, job, result);
+            await context.SaveChangesAsync();
+        }
+
+        string payload = $"{{\"task_id\":\"{task.TaskId}\",\"result_type\":\"IVR_CONFIRMED\"}}";
+        var callback = new ResultCallbackEntity
+        {
+            CallbackId = $"CALLBACK-{suffix}",
+            IvrCallResultId = result.IvrCallResultId,
+            TaskId = task.TaskId,
+            OfficialOrderId = task.OfficialOrderId,
+            IdempotencyKey = $"callback-idem-{suffix}",
+            ResultStatus = "IVR_CONFIRMED",
+            ResultState = "PENDING_CORE_REVALIDATION",
+            DeliveryStatus = "READY",
+            RequiresCoreRevalidation = true,
+            PayloadJson = payload,
+            PayloadSha256 = Convert.ToHexString(
+                System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(payload))),
+            CreatedAt = task.CreatedAt,
+        };
+        await chaos.Services
+            .GetRequiredService<ICallbackOutboxRepository>()
+            .EnqueueAsync(callback);
+        return callback;
+    }
 }

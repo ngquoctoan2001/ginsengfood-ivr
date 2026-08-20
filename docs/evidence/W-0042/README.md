@@ -48,14 +48,15 @@ Kiểm âm: đổi upstream thành một hostname giải được → **đỏ**;
 
 | Lệnh | Kết quả |
 | --- | --- |
-| `dotnet test tests/chaos/` | **5/5**, chạy lặp 3 lượt đều xanh |
+| `dotnet test tests/chaos/` | **6/6**, chạy lặp 3 lượt đều xanh |
 | `CHAOS-DB-02` | `/health/ready` **503** khi cắt link; ghi **ném lỗi** chứ không nuốt; dòng trước sự cố còn nguyên; dòng ghi hỏng không để lại rác; **recovery 8 ms** |
 | `CHAOS-DOWNSTREAM-01` | `RETRY_PENDING`, `AcknowledgedAt` rỗng, `NextRetryAt` đặt; chạy lại ngay gửi **0** lần; breaker mở sau chuỗi hỏng |
 | `CHAOS-SIM-03` | **cả 5** disposition lỗi thiết bị → `IVR_TECHNICAL_EXCEPTION`, không phải no-answer; `is_counted_customer_attempt=false`; lần hỏng thứ 3 → `HEALTH_FAILED` |
 | `CHAOS-RECOVERY-04` | 0 lần gửi khi store mất; sau khôi phục đúng **1** lần; chạy lại **0**; một dòng duy nhất mang idempotency key |
+| `CHAOS-DUPLICATE-06` | partition **một phần** (cắt link DB **thật**): lệnh ghi **ném lỗi** chứ không trả `false`; lease lapse → dòng **được nhặt lại**; bản trùng **giống từng byte** (`callback_id`, idempotency key, payload, hash); worker lease cũ **bị chặn** trong lúc worker kia còn giữ dòng; **một** dòng outbox duy nhất; sau khi acknowledge thì không còn dequeue được nữa |
 | `CHAOS-GUARD-05` | kiểm âm đỏ đúng lý do |
 | `docs-selftest.mjs` | `DOC_CI_TOPOLOGY_PASS` (đã mở rộng cho fragment chaos, kiểm âm đỏ) |
-| `test:traceability` | `TEST_TRACEABILITY_CURRENT=257` (+5) |
+| `test:traceability` | `TEST_TRACEABILITY_CURRENT=257` (+5); **`331`** sau `CHAOS-DUPLICATE-06` (`2026-08-20`) |
 | `scan-pii.sh` | `PII_SCAN_PASS` |
 
 **Bộ sinh traceability phải sửa mới thấy project chaos.** Danh sách project trong
@@ -118,6 +119,68 @@ tiện lợi đang hỏng. Nửa **contact** của dòng (`CONTACT_INVALID`) m�
 
 Tôi **không** viết khẳng định "trust unavailable ⇒ hold", vì làm thế là **mã hoá một sai lầm vào bộ
 test**. Dòng này cần **chủ sở hữu quyết** ma trận nói gì — không phải một phép kiểm đoán hộ.
+
+## 7. Partition **một phần** — và lời hứa mà một outbox at-least-once thật sự giữ được
+
+`2026-08-20`, `CHAOS-DUPLICATE-06`. Đóng residual §6.1 (`partition một phần` + `webhook trùng lặp`).
+
+Một sự cố **toàn phần** dễ: không gì tới được Sales, outbox giữ kết quả, và `CHAOS-DOWNSTREAM-01`
+đã chứng minh IVR không tự bịa ra một xác nhận, cũng không đánh rơi cái nào. Partition **một phần**
+mới là hình dạng nguy hiểm, vì **không có gì trông như hỏng**: worker vẫn tới được Sales — callback
+đã giao và đã được hành động — nhưng worker **không tới được database**, nên nó không ghi nổi việc
+mình vừa giao. Lease hết hạn trong lúc nó vẫn sống và vẫn đúng; một worker khác nhặt dòng ấy lên; và
+Sales được báo **lần thứ hai**.
+
+Lời hứa mà một outbox at-least-once **không** giữ được là *"không bao giờ hai lần"*. Cắt đứt liên
+kết giữa **làm việc** và **ghi lại việc đã làm** khiến lần giao thứ hai thành **không tránh khỏi**,
+và bất kỳ thiết kế nào tuyên bố ngược lại chỉ là chưa bị partition bao giờ. Hai lời hứa **giữ
+được**, và đó là thứ scenario này đo:
+
+| Lời hứa | Đo bằng |
+| --- | --- |
+| lần giao thứ hai **nhận ra được** là cùng một cái | cùng `callback_id`, cùng idempotency key, payload và hash **giống nhau từng byte** |
+| worker về muộn **không thắng được** | `CompleteDeliveryAsync` với lease cũ trả `false` **trong lúc** worker kia còn đang giữ dòng |
+
+Payload so bằng **byte** chứ không so bằng JSON đã parse: transport đối chiếu thân đã gửi với
+`PayloadSha256`, nên một lần tuần tự hoá lại chỉ *mang cùng ý nghĩa* sẽ không sống sót — và một Sales
+khử trùng lặp theo hash sẽ thấy **hai callback khác nhau** cho **một quyết định**.
+
+Partition là **lỗi mạng thật**: link database bị cắt ở chặng Toxiproxy, nên lệnh ghi hỏng theo cách
+một lệnh ghi bị partition hỏng, không phải theo cách một mock hỏng. Và nó phải **ném lỗi** chứ không
+trả `false` — `false` nghĩa là database đã **từ chối**, một thế giới khác hẳn thế giới mà lệnh ghi
+**không bao giờ tới nơi**, và chỉ cái sau mới là partition. Khẳng định ấy có mặt để một lần chạy
+không hề partition được gì sẽ **đỏ**, thay vì đo một hệ thống khoẻ mạnh rồi báo xanh.
+
+### Kiểm âm **sống sót lần nữa** — đúng cái bẫy hai-guard của §6
+
+Bản đầu khẳng định *"worker về muộn không ghi được"* **sau khi** worker B đã hoàn tất. Gỡ hẳn điều
+kiện lease khỏi `CompleteDeliveryAsync` (cả hai chỗ) → **vẫn xanh**. Vì `CompleteDeliveryAsync` còn
+đòi `DeliveryStatus = 'SENDING'`, mà một dòng đã acknowledge thì không còn `SENDING`: thứ từ chối
+worker A là **trạng thái**, không phải **lease**.
+
+Đây là **lần thứ hai** trong dự án một khẳng định hành vi không phân biệt nổi hai guard cùng canh
+một chỗ — §6 là lần đầu. Lần này sửa **không** bằng cách thêm lời, mà bằng cách **đổi thời điểm**:
+khẳng định chuyển lên lúc B **vẫn đang giữ** dòng ở `SENDING`, khoảnh khắc duy nhất mà **lease** là
+thứ đang từ chối. Kèm ngay sau đó một khẳng định **dương** (B vẫn hoàn tất được), vì nếu thiếu thì
+*"A bị từ chối"* cũng đúng trên một repository từ chối **mọi** completion.
+
+Hai kiểm âm, cả hai đỏ đúng chỗ:
+
+| Regression cấy vào | Kết quả |
+| --- | --- |
+| Gỡ `row.LeaseToken == leaseToken` khỏi `CompleteDeliveryAsync` | đỏ: *"A worker whose lease had expired wrote the outcome of a row another worker was still holding"* |
+| Gỡ nhánh `delivery_status = 'SENDING' AND lease_expires_at < now` khỏi dequeue | đỏ: *"…was never re-claimed after its lease lapsed… it is a lost callback: Sales was told once and IVR believes it was never told at all"* |
+
+Kiểm âm thứ hai đáng nêu riêng, vì nó cho thấy **thiếu cơ chế nhặt lại còn tệ hơn trùng lặp**. Một
+dòng kẹt ở `SENDING` sau một lease chết không phải rủi ro trùng lặp — nó là **callback mất**: Sales
+đã được báo một lần, còn IVR tin rằng chưa báo lần nào.
+
+### Nửa "sai thứ tự" của residual: **cố ý không viết test**
+
+Một job chỉ có **đúng một** kết quả FINAL — claim query đòi `NOT EXISTS (final result)` và
+`UpdateJob` đóng job ngay khi có final — và **chỉ** kết quả FINAL mới vào outbox. Nên không thể tồn
+tại hai callback của cùng một task để mà sai thứ tự. Viết một test *"thứ tự đúng"* ở đây là viết một
+test **không thể đỏ**; ghi lại lý do đáng giá hơn ghi một dấu tick.
 
 ## 5. Cái này KHÔNG chứng minh
 

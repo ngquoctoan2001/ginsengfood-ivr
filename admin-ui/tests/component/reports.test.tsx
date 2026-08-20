@@ -27,7 +27,7 @@ const KPI: IvrAnalyticsKpi = {
   no_answer_rate: 0.3846,
   invalid_phone_rate: 0,
   technical_rate: 0.1538,
-  operational_blocked_rate: 0,
+  operational_blocked_rate: null,
   attempt_2_rate: 0.2308,
   avg_seconds_to_final: 135,
 };
@@ -57,7 +57,7 @@ const BUCKETS: readonly IvrAnalyticsTrendBucket[] = [
     no_answer: 5,
     invalid_phone: 0,
     technical: 0,
-    operational_blocked: 0,
+    operational_blocked: null,
     confirm_rate: 0.5455,
   },
 ];

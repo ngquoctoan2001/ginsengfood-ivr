@@ -4,9 +4,21 @@ Trạng thái: `TARGET_V1_DRAFT`.
 
 ## Canonical results
 
-`IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`, `IVR_NO_ANSWER_ATTEMPT`, `IVR_NO_ANSWER_FINAL`, `IVR_CONFIRMATION_WINDOW_EXPIRED`, `IVR_INVALID_PHONE_FINAL`, `IVR_WRONG_INPUT`, `IVR_TECHNICAL_EXCEPTION`, `IVR_CAPACITY_EXCEPTION`, `IVR_OPERATIONAL_BLOCKED`, `IVR_POLICY_BLOCKED`.
+IVR V1 có thể phát: `IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`,
+`IVR_NO_ANSWER_ATTEMPT`, `IVR_NO_ANSWER_FINAL`, `IVR_INVALID_PHONE_FINAL`,
+`IVR_WRONG_INPUT`, `IVR_TECHNICAL_EXCEPTION`, `IVR_CAPACITY_EXCEPTION`.
 
-Technical/capacity/policy exceptions are not customer attempts. IVR never transitions the order.
+Ba mã còn lại được giữ trong taxonomy dùng chung để tương thích nhưng **IVR không phát**:
+
+- `IVR_CONFIRMATION_WINDOW_EXPIRED` do timeout worker của Sales sở hữu.
+- `IVR_OPERATIONAL_BLOCKED` và `IVR_POLICY_BLOCKED` là quyết định trước cuộc gọi; không tạo
+  call result và không callback.
+- Nếu Sales revalidate sau cuộc gọi rồi chặn vì Sale Lock/Recall, Sales trả ACK
+  `BLOCKED_BY_CORE`; kết quả quan sát (`IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`, ...) không bị
+  viết lại.
+
+Technical/capacity exceptions are not customer attempts. IVR never transitions the order. Quyết
+định chi tiết và nguồn KPI nằm ở [DT-06](../decisions/DT-06-blocked-result-semantics.md).
 
 ## Target callback
 

@@ -76,6 +76,20 @@ public sealed class TelemetryTests
     public void BusinessCountersAndHistogramsEmitWithTheirDimensions()
     {
         var observed = new List<(string Instrument, double Value, string Program)>();
+
+        // Only the measurements THIS test records. The meter is process-global and xUnit runs test
+        // classes in parallel collections, so any other class that reaches production code with a
+        // Record call on it -- CallbackDeliveryTests drives CallbackDispatcher, which records
+        // ivr_result_callbacks_total -- emits into this listener too. Unfiltered, that produced two
+        // distinct failures: foreign measurements carrying another test's dimensions, and a
+        // "Collection was modified" crash from a foreign thread appending while the assertions
+        // below enumerate.
+        //
+        // Measurement callbacks run SYNCHRONOUSLY on the thread that recorded, so the test's own
+        // thread id identifies its own measurements exactly -- and it discriminates on something
+        // none of the assertions look at, so nothing below is weakened by it. Every measurement
+        // this test makes is still collected and still asserted.
+        int recordingThread = Environment.CurrentManagedThreadId;
         using var listener = new MeterListener();
         listener.InstrumentPublished = (instrument, target) =>
         {
@@ -85,9 +99,19 @@ public sealed class TelemetryTests
             }
         };
         listener.SetMeasurementEventCallback<long>((instrument, value, tags, _) =>
-            observed.Add((instrument.Name, value, ReadProgram(tags))));
+        {
+            if (Environment.CurrentManagedThreadId == recordingThread)
+            {
+                observed.Add((instrument.Name, value, ReadProgram(tags)));
+            }
+        });
         listener.SetMeasurementEventCallback<double>((instrument, value, tags, _) =>
-            observed.Add((instrument.Name, value, ReadProgram(tags))));
+        {
+            if (Environment.CurrentManagedThreadId == recordingThread)
+            {
+                observed.Add((instrument.Name, value, ReadProgram(tags)));
+            }
+        });
         listener.Start();
 
         IvrTelemetry.RecordIntakeDecision(

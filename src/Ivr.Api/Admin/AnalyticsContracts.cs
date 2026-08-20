@@ -52,7 +52,10 @@ public sealed record AnalyticsKpiView(
     [property: JsonPropertyName("no_answer_rate")] double NoAnswerRate,
     [property: JsonPropertyName("invalid_phone_rate")] double InvalidPhoneRate,
     [property: JsonPropertyName("technical_rate")] double TechnicalRate,
-    [property: JsonPropertyName("operational_blocked_rate")] double OperationalBlockedRate,
+    // Required and explicitly null until an intake-block fact source exists. A
+    // numeric zero would falsely claim that no blocks occurred.
+    [property: JsonPropertyName("operational_blocked_rate")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] double? OperationalBlockedRate,
     /// Share of in-scope call jobs that consumed a second counted customer
     /// attempt. Technical retries never count (DT-02).
     [property: JsonPropertyName("attempt_2_rate")] double AttemptTwoRate,
@@ -67,7 +70,8 @@ public sealed record AnalyticsTrendBucketView(
     [property: JsonPropertyName("no_answer")] int NoAnswer,
     [property: JsonPropertyName("invalid_phone")] int InvalidPhone,
     [property: JsonPropertyName("technical")] int Technical,
-    [property: JsonPropertyName("operational_blocked")] int OperationalBlocked,
+    [property: JsonPropertyName("operational_blocked")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] int? OperationalBlocked,
     [property: JsonPropertyName("confirm_rate")] double ConfirmRate);
 
 public sealed record AnalyticsBreakdownRowView(

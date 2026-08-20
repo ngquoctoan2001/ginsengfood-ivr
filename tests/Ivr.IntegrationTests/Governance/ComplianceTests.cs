@@ -423,7 +423,7 @@ public sealed class ComplianceTests(PostgresPersistenceFixture fixture)
             PayloadJson = string.Create(
                 CultureInfo.InvariantCulture,
                 $"{{\"order_ref\":\"{orderId}\",\"result\":\"IVR_CONFIRMED\"}}"),
-                        // ck_ivr_result_callbacks_hash: uppercase hex only.
+            // ck_ivr_result_callbacks_hash: uppercase hex only.
             PayloadSha256 = new string('A', 64),
             CreatedAt = Now,
             SentAt = Now,

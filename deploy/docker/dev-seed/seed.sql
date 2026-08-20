@@ -54,6 +54,23 @@ VALUES
      TIMESTAMPTZ '2026-08-12 00:00:00+00', 'LEGAL_DECISION_PENDING', NULL)
 ON CONFLICT (policy_version, program_type) DO NOTHING;
 
+-- A policy whose SECOND attempt is out of reach, for the cases that assert an absence. A non-final
+-- result is only non-final while an attempt remains, so the smoke has to observe one before the
+-- next dial changes it. Under mock-lab-v1 that dial is 150s away -- the same order of magnitude as
+-- the smoke's own runtime, which would make the check pass or fail on how busy the machine is.
+-- Twenty-five minutes is not a longer wait, it is no wait: the second attempt simply cannot land
+-- inside a run. The alternative was racing the clock, and a flaky negative check gets deleted.
+INSERT INTO ivr_attempt_policies (
+    policy_version, program_type, max_attempts, attempt_offsets_seconds_json,
+    confirmation_window_seconds, allowed_execution_modes_json, approved_for_production,
+    created_at, retention_class, retain_until)
+VALUES
+    ('mock-e2e-silent-v1', 'GOLDEN_HOUR', 2, '[0,1500]', 1800, '["MOCK"]', false,
+     TIMESTAMPTZ '2026-08-12 00:00:00+00', 'LEGAL_DECISION_PENDING', NULL),
+    ('mock-e2e-silent-v1', 'TWENTY_FOUR_SEVEN', 2, '[0,1500]', 1800, '["MOCK"]', false,
+     TIMESTAMPTZ '2026-08-12 00:00:00+00', 'LEGAL_DECISION_PENDING', NULL)
+ON CONFLICT (policy_version, program_type) DO NOTHING;
+
 DO $$
 BEGIN
     IF NOT EXISTS (

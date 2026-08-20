@@ -12,7 +12,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.2` | `1.0.0-draft.7` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.2` | `1.0.0-draft.9` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,
@@ -48,7 +48,20 @@ projections against their UI specs: the dashboard gains `call_success_rate`,
 the per-line `sellable_status` snapshot `specs/ui/03` requires. All are response
 fields on existing operations; nothing was removed or renamed.
 
-All five steps are additive: `oasdiff breaking --fail-on WARN` reports **no
+`1.0.0-draft.8` (W-0055) adds no operation. It makes the analytics source
+truthful after the warehouse pipeline landed: `data_quality.source` names the
+store that answered and `warehouse_status` separately reports whether ETL is
+complete, backlogged or mismatched.
+
+`1.0.0-draft.9` (W-0103) adds no operation. It closes the blocked-result
+ambiguity: `IVR_OPERATIONAL_BLOCKED` and `IVR_POLICY_BLOCKED` stay in the shared
+compatibility enum, but the IVR producer does not emit them. The two analytics
+fields that previously returned a misleading numeric zero now explicitly return
+`null` until a dedicated intake/pre-call block fact source exists. Sales blocking
+after revalidation remains callback ACK `BLOCKED_BY_CORE` and never rewrites the
+observed customer result.
+
+All seven steps are additive or response-relaxing: `oasdiff breaking --fail-on WARN` reports **no
 breaking changes**. They add no request body field, alter no existing operation,
 and grant no new capability — all eleven require `IVR_QUEUE_VIEW` and return
 masked or aggregate projections only. No mutation operation was added for script

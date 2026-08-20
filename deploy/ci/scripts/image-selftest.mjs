@@ -180,12 +180,31 @@ function checkScan() {
 
 // ------------------------------------------------------------------- IT-IMG-E2E-05
 //
-// Three tasks, all the way through: intake -> eligibility -> scheduler dispatch -> mock SIM ->
-// normalization -> callback outbox -> fake Sales, across both programmes and the three DT-02
-// branches that give Sales different instructions. Asserted at BOTH ends, because either one alone
-// can be satisfied by a stack that does not work: the database row says IVR believes it delivered,
-// the WireMock journal says Sales believes it received. Only the pair says a request crossed the
-// gap between them.
+// Six tasks, all the way through: intake -> eligibility -> scheduler dispatch -> mock SIM ->
+// normalization -> callback outbox -> fake Sales, across both programmes. Asserted at BOTH ends,
+// because either one alone can be satisfied by a stack that does not work: the database row says
+// IVR believes it delivered, the WireMock journal says Sales believes it received. Only the pair
+// says a request crossed the gap between them.
+//
+// Three groups, and the split carries the meaning rather than tidying a list:
+//
+//   DIALLED    a call happened, the result is FINAL       -> a callback must arrive
+//   SILENT     a call happened, the result is NOT final   -> nothing may reach Sales
+//   CAPACITY   no call ever happened, the window closed   -> Sales is told to hold for review
+//
+// SILENT is the group nothing had ever checked. Only final results enter the outbox --
+// ResultRepository asks before it builds one and CallbackOutboxSnapshotFactory throws if asked
+// anyway -- and that single condition is the whole reason an intermediate outcome cannot move an
+// order. Lose it and Sales hears "no answer" after the FIRST unanswered ring, on a task the
+// customer still has a second chance to answer. Every assertion in the DIALLED group would stay
+// green while that happened, because none of them can see a callback that should not exist. So the
+// silent cases assert an absence, and they wait before believing it: "not yet" is not "never".
+//
+// CAPACITY is the only path that reaches a final result WITHOUT passing through normalization --
+// the scheduler writes the row itself. It is driven the way an operator drives it, by pausing the
+// queue through the admin API and letting a window close, rather than by inserting an incident row
+// into the database. A fixture that faked the pause would also fake the thing under test, and this
+// way the pause has to actually stop dispatch for the case to reach its result at all.
 //
 // The overlay is what makes the stack able to dial at all. Everything the worker does ships
 // disabled, which is right for `docker compose up` and useless for a smoke, so the E2E posture
@@ -194,6 +213,13 @@ function checkScan() {
 const COMPOSE_E2E = ["compose", "-f", "docker-compose.dev.yml", "-f", "docker-compose.e2e.yml"];
 const ORDER_CORE_TOKEN = "dev-ordercore-token-not-a-real-secret";
 const INTERNAL_TOKEN = "dev-internal-token-not-a-real-secret";
+const ADMIN_ACTOR = "e2e-smoke-operator";
+
+// Twelve delivery polls at the overlay's 500ms interval. The silent cases assert that nothing
+// arrives, and an assertion made the instant the result row appears would pass on a stack whose
+// delivery loop is merely slow. Long enough that "nothing yet" means "nothing"; short enough that
+// nobody deletes the check to save the time.
+const SILENT_SETTLE_SECONDS = 6;
 
 // curl runs from a container ON the internal network rather than from the host: fake-sales is not
 // published, and reaching it from outside would measure a different topology than the one shipped.
@@ -209,26 +235,56 @@ function psql(sql) {
     "psql", "-U", "ivr", "-d", "ivr", "-tAc", sql]).trim();
 }
 
-function apiPost(routePath, body, headers) {
+function apiRequest(method, routePath, body, headers) {
   const flags = Object.entries(headers).flatMap(([name, value]) => ["-H", `${name}: ${value}`]);
+  const payload = body === null ? [] : ["--data-binary", body];
   return docker(["run", "--rm", "--network", "host", "curlimages/curl:8.11.1", "-s",
-    "-X", "POST", "-H", "Content-Type: application/json", ...flags,
-    "--data-binary", body,
+    "-X", method, "-H", "Content-Type: application/json", ...flags, ...payload,
     `http://127.0.0.1:${process.env.IVR_API_PORT ?? "58080"}${routePath}`]);
 }
 
-// Three cases, and the set is chosen rather than convenient. P7-1 section 8 asks for BOTH
+function apiPost(routePath, body, headers) {
+  return apiRequest("POST", routePath, body, headers);
+}
+
+// The actor is named TWICE on purpose, and the duplication is the check rather than an artefact:
+// the MOCK scheme mints the identity from X-Mock-Actor-Id, then InternalRequestGuard compares it
+// against X-Actor-Id and refuses the call if they disagree, so a request cannot be attributed to
+// whichever of two names the server happens to prefer.
+function adminHeaders(permission, correlation, idempotencyKey) {
+  const headers = {
+    "X-Mock-Actor-Id": ADMIN_ACTOR,
+    "X-Actor-Id": ADMIN_ACTOR,
+    "X-Permissions": permission,
+    "X-Correlation-Id": correlation,
+  };
+  if (idempotencyKey) {
+    headers["Idempotency-Key"] = idempotencyKey;
+  }
+  return headers;
+}
+
+function queueProjection(correlation) {
+  return JSON.parse(apiRequest(
+    "GET",
+    "/v1/ivr/order-confirmation/queue",
+    null,
+    adminHeaders("IVR_QUEUE_VIEW", correlation)));
+}
+
+// Four DIALLED cases, and the set is chosen rather than convenient. P7-1 section 8 asks for BOTH
 // programmes, and the DT-02 taxonomy is the thing Sales acts on, so one row per branch that leads
 // to a different instruction for Sales:
 //
-//   CONFIRM   Golden Hour / ONLINE     DTMF 1       -> confirm the order
-//   CANCEL    24/7 / COD               DTMF 0       -> cancel at the customer's request
-//   NOANSWER  Golden Hour / ONLINE     rings out    -> change NOTHING, wait for the timeout
+//   CONFIRM    Golden Hour / ONLINE   DTMF 1              -> confirm the order
+//   CANCEL     24/7 / COD             DTMF 0              -> cancel at the customer's request
+//   NOANSWER   Golden Hour / ONLINE   rings out           -> change NOTHING, wait for the timeout
+//   BADNUMBER  24/7 / COD             cannot be reached   -> hold the order for a person to look
 //
 // The third is the one worth the extra policy. TargetV1CallbackTransport refuses to send an
 // IVR_NO_ANSWER_FINAL that asks for any state transition -- IVR does not get to expire an order,
 // Sales' timeout worker owns that -- and until now that refusal had never run in a container.
-const E2E_CASES = [
+const E2E_DIALLED_CASES = [
   {
     taskId: "TASK-E2E-CONFIRM",
     program: "GOLDEN_HOUR",
@@ -267,14 +323,126 @@ const E2E_CASES = [
     // two chances the customer had, rather than two times the line happened to work.
     expectedCounted: true,
   },
+  {
+    // Sales said the number was valid and the network disagreed, which is the only way this result
+    // can arise: eligibility refuses a task whose phone_validation_status is anything else, so a
+    // number that fails at DIAL time is a disagreement between two systems rather than bad input.
+    taskId: "TASK-E2E-BADNUMBER",
+    program: "TWENTY_FOUR_SEVEN",
+    payment: "COD",
+    policy: "mock-e2e-single-v1",
+    windowSeconds: 900,
+    offsets: [0],
+    maxAttempts: 1,
+    expectedResult: "IVR_INVALID_PHONE_FINAL",
+    expectedAction: "CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+    // NOT counted, and this is the same rule the capacity case rests on reached from the other
+    // side: there the queue never dialled, here the dial found nothing to reach. Either way a
+    // chance nobody could have taken is not a chance the customer spent.
+    expectedCounted: false,
+  },
 ];
+
+// Two SILENT cases, one per programme. Both spend a customer attempt and neither is final, which
+// is the pair of properties that makes them dangerous: they look like outcomes and they are not.
+//
+//   ATTEMPT   Golden Hour / ONLINE   rings out with an attempt left  -> IVR_NO_ANSWER_ATTEMPT
+//   WRONGKEY  24/7 / COD             presses 7 with an attempt left  -> IVR_WRONG_INPUT
+//
+// Both ride a policy whose second attempt is twenty-five minutes out. Under mock-lab-v1 it would
+// be 150 seconds, close enough to the smoke's own runtime that a slow machine could dial again
+// mid-check, turn the result final and make the absence assertion fail for a reason that has
+// nothing to do with what it tests. A flaky negative check is worse than none: it gets deleted.
+// So the schedule moves out of reach instead of the clock being raced.
+const E2E_SILENT_CASES = [
+  {
+    taskId: "TASK-E2E-ATTEMPT",
+    program: "GOLDEN_HOUR",
+    payment: "ONLINE",
+    policy: "mock-e2e-silent-v1",
+    windowSeconds: 1800,
+    offsets: [0, 1500],
+    maxAttempts: 2,
+    expectedResult: "IVR_NO_ANSWER_ATTEMPT",
+    expectedCounted: true,
+  },
+  {
+    taskId: "TASK-E2E-WRONGKEY",
+    program: "TWENTY_FOUR_SEVEN",
+    payment: "COD",
+    policy: "mock-e2e-silent-v1",
+    windowSeconds: 1800,
+    offsets: [0, 1500],
+    maxAttempts: 2,
+    expectedResult: "IVR_WRONG_INPUT",
+    expectedCounted: true,
+  },
+];
+
+// The CAPACITY case. Its window has thirty seconds left when it is accepted, and the queue is
+// already paused, so the only way it can end is the way the scheduler's deadline sweep ends it.
+// Nothing here shortens a window to force the outcome: the policy is the same one the NOANSWER
+// case uses, and only the task's own start time is moved back.
+const E2E_CAPACITY_CASE = {
+  taskId: "TASK-E2E-CAPACITY",
+  program: "GOLDEN_HOUR",
+  payment: "ONLINE",
+  policy: "mock-e2e-single-v1",
+  windowSeconds: 300,
+  startedSecondsAgo: 270,
+  offsets: [0],
+  maxAttempts: 1,
+  expectedResult: "IVR_CAPACITY_EXCEPTION",
+  expectedAction: "CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+  // Nobody was ever called, so nobody spent a chance. A capacity miss that counted against the
+  // customer would quietly cost them an attempt for an outage that was ours.
+  expectedCounted: false,
+};
+
+// The TECHNICAL case, and it is less a sixth taxonomy value than a set of promises about what
+// happens when the fault is OURS. A technical failure is the one outcome the customer had no part
+// in, so four separate things must hold, each recorded in a different table:
+//
+//   the customer's attempt is NOT spent          ivr_call_attempts
+//   Sales is told NOTHING                        ivr_result_callbacks
+//   the order's fate is NOT settled              ivr_call_jobs   (parked, never closed)
+//   the SIM channel is NOT blamed                ivr_sim_channels
+//
+// None of the four had ever been checked outside a unit test, and they fail independently.
+//
+// It rides the ONE-attempt policy deliberately. Two dials happen while the policy allows the
+// customer a single call: if either dial counted, that one chance would be gone -- spent entirely
+// on our own audio stack failing, without the customer's phone ever ringing usefully.
+const E2E_TECHNICAL_CASE = {
+  taskId: "TASK-E2E-TECHNICAL",
+  program: "GOLDEN_HOUR",
+  payment: "ONLINE",
+  policy: "mock-e2e-single-v1",
+  windowSeconds: 300,
+  offsets: [0],
+  maxAttempts: 1,
+  expectedResult: "IVR_TECHNICAL_EXCEPTION",
+};
+
+// Everything that must leave the WireMock journal empty.
+const E2E_SILENT_TASKS = [
+  ...E2E_SILENT_CASES.map((testCase) => testCase.taskId),
+  E2E_TECHNICAL_CASE.taskId,
+];
+
+const E2E_DELIVERING_CASES = [...E2E_DIALLED_CASES, E2E_CAPACITY_CASE];
+
+// The control for the capacity case's attempt count. CONFIRM answers on its first attempt and is
+// therefore the one case whose attempt total is a known constant: exactly one.
+const ATTEMPT_CONTROL_TASK = "TASK-E2E-CONFIRM";
 
 function confirmationTask(testCase) {
   // The window length is not free: TaskIntakeService rejects the task unless
   // (expires - started) equals the stored policy's confirmation window exactly, so it is derived
   // from `started` rather than from now. Starting a minute in the past is what makes attempt
-  // offset 0 already due when the scheduler first looks.
-  const startedAt = Date.now() - 60_000;
+  // offset 0 already due when the scheduler first looks; the capacity case starts further back so
+  // that the window runs out while the queue is paused.
+  const startedAt = Date.now() - (testCase.startedSecondsAgo ?? 60) * 1000;
   const started = new Date(startedAt).toISOString().replace(/\.\d+Z$/, "Z");
   const expires = new Date(startedAt + testCase.windowSeconds * 1000)
     .toISOString().replace(/\.\d+Z$/, "Z");
@@ -333,7 +501,8 @@ function confirmationTask(testCase) {
   };
 }
 
-function driveCase(testCase) {
+/** Intake plus eligibility. Returns the correlation id the rest of the case is tracked by. */
+function admitCase(testCase) {
   const suffix = testCase.taskId.replace("TASK-E2E-", "");
   const correlation = `corr-e2e-${suffix}`;
 
@@ -366,6 +535,20 @@ function driveCase(testCase) {
     eligibility.decision === "ELIGIBLE_FOR_IVR",
     `${testCase.taskId}: eligibility returned ${JSON.stringify(eligibility)}.`);
 
+  return correlation;
+}
+
+/** The latest result for a task as `type|final|counted`, or 'none'. */
+function latestResult(taskId) {
+  return psql(
+    "SELECT COALESCE((SELECT r.result_type || '|' || r.is_final_for_ivr::text || '|' "
+    + "|| r.is_counted_customer_attempt::text FROM ivr_call_results r "
+    + "JOIN ivr_call_jobs j ON j.ivr_call_job_id = r.ivr_call_job_id "
+    + `WHERE j.task_id = '${taskId}' ORDER BY r.created_at DESC LIMIT 1), 'none')`);
+}
+
+/** Waits until the task holds a final result AND that result has been accepted by Sales. */
+function awaitDelivery(testCase, hint) {
   // Bounded wait on the terminal states rather than a fixed sleep: dispatch, normalization and
   // delivery are three separate poll loops and their combined latency is not a constant.
   let outcome = "";
@@ -383,8 +566,196 @@ function driveCase(testCase) {
   assert(
     outcome === `${testCase.expectedResult}|DELIVERED_ACCEPTED`,
     `${testCase.taskId}: ended at ${outcome}, expected `
-    + `${testCase.expectedResult}|DELIVERED_ACCEPTED. A capacity or technical result means the `
-    + "stack accepted the task and then could not complete it.");
+    + `${testCase.expectedResult}|DELIVERED_ACCEPTED. ${hint}`);
+}
+
+function driveDeliveredCase(testCase) {
+  const correlation = admitCase(testCase);
+  awaitDelivery(
+    testCase,
+    "A capacity or technical result means the stack accepted the task and then could not "
+    + "complete it.");
+  return correlation;
+}
+
+/** A case that must produce a result and then produce NOTHING for Sales. */
+function driveSilentCase(testCase) {
+  const correlation = admitCase(testCase);
+
+  let outcome = "none";
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    outcome = latestResult(testCase.taskId);
+    if (outcome !== "none") break;
+    sleepSeconds(2);
+  }
+  assert(
+    outcome === `${testCase.expectedResult}|false|${testCase.expectedCounted}`,
+    `${testCase.taskId}: normalized to ${outcome}, expected `
+    + `${testCase.expectedResult}|false|${testCase.expectedCounted}. A result that came back final `
+    + "here means the taxonomy spent the customer's last chance on their first ring.");
+
+  // The absence, given time to fail. Rechecked after the settle rather than only once, so that a
+  // delivery loop which is merely late cannot pass as a delivery loop which correctly did nothing.
+  sleepSeconds(SILENT_SETTLE_SECONDS);
+  assert(
+    psql(`SELECT COUNT(*) FROM ivr_result_callbacks WHERE task_id = '${testCase.taskId}'`) === "0",
+    `${testCase.taskId}: a NON-final result reached the callback outbox. Sales would be told to `
+    + "act on an outcome the customer has not finished producing.");
+  assert(
+    latestResult(testCase.taskId) === `${testCase.expectedResult}|false|${testCase.expectedCounted}`,
+    `${testCase.taskId}: the result changed during the settle window, so the absence above was `
+    + "measured against a different attempt than the one asserted.");
+  assert(
+    psql("SELECT COUNT(*) FROM ivr_call_jobs WHERE task_id = "
+      + `'${testCase.taskId}' AND closed_at IS NULL`) === "1",
+    `${testCase.taskId}: the job closed on a non-final result, so the customer lost the attempt `
+    + "the policy still owed them.");
+
+  return correlation;
+}
+
+/** A fault on OUR side: costs the customer nothing, retries once, then parks for a person. */
+function driveTechnicalCase(testCase) {
+  const correlation = admitCase(testCase);
+
+  // Waits for the job to be PARKED rather than for a result. The state worth asserting is the one
+  // after the retry budget is spent; stopping at the first result would measure the stack
+  // mid-retry and call whatever it found the answer.
+  let parked = "none";
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    parked = psql(
+      "SELECT status || '|' || queue_status || '|' || (closed_at IS NULL)::text "
+      + `FROM ivr_call_jobs WHERE task_id = '${testCase.taskId}'`);
+    if (parked.startsWith("HELD_ADMIN_REVIEW")) break;
+    sleepSeconds(2);
+  }
+  assert(
+    parked === "HELD_ADMIN_REVIEW|HELD_TECHNICAL_REVIEW|true",
+    `${testCase.taskId}: the job sits at ${parked}, expected `
+    + "HELD_ADMIN_REVIEW|HELD_TECHNICAL_REVIEW|true. A CLOSED job would mean IVR settled what "
+    + "happens to the order over a fault of its own.");
+
+  // Two dials, ONE customer attempt, NONE of it spent. All three numbers in one query because the
+  // claim is about how they relate: two rows that were two customer attempts would be a different
+  // and much worse stack than two rows that were one attempt retried.
+  assert(
+    psql("SELECT COUNT(*) || '/' || COUNT(DISTINCT a.attempt_number) || '/' || "
+      + "COUNT(*) FILTER (WHERE a.is_counted_customer_attempt) "
+      + "FROM ivr_call_attempts a JOIN ivr_call_jobs j ON j.ivr_call_job_id = a.ivr_call_job_id "
+      + `WHERE j.task_id = '${testCase.taskId}'`) === "2/1/0",
+    `${testCase.taskId}: dials / customer attempts / counted should be 2/1/0. The retry belongs to `
+    + "the SAME attempt, and a policy that promised the customer one call still owes them one.");
+
+  // The budget, spent in order and then stopped. TechnicalRetryLimit is 1, so the counter runs
+  // 1 then 2, and the second is the one that is over budget and parks the job.
+  assert(
+    psql("SELECT string_agg(a.technical_retry_count::text, ',' ORDER BY a.ended_at) "
+      + "FROM ivr_call_attempts a JOIN ivr_call_jobs j ON j.ivr_call_job_id = a.ivr_call_job_id "
+      + `WHERE j.task_id = '${testCase.taskId}'`) === "1,2",
+    `${testCase.taskId}: the technical retry counter did not run 1 then 2, so the retry budget is `
+    + "not being carried across dials and nothing bounds how many times this can repeat.");
+
+  assert(
+    psql("SELECT COUNT(*) || '/' || COUNT(*) FILTER (WHERE "
+      + "r.result_type = 'IVR_TECHNICAL_EXCEPTION' AND r.is_final_for_ivr IS FALSE "
+      + "AND r.is_counted_customer_attempt IS FALSE) "
+      + "FROM ivr_call_results r JOIN ivr_call_jobs j ON j.ivr_call_job_id = r.ivr_call_job_id "
+      + `WHERE j.task_id = '${testCase.taskId}'`) === "2/2",
+    `${testCase.taskId}: both results must be non-final, uncounted IVR_TECHNICAL_EXCEPTION.`);
+
+  // The channel carried the call; it did not cause the fault. Blaming it would let a bad hour in
+  // our own audio stack quarantine the fleet one channel at a time, turning a software problem
+  // into a capacity outage -- and DT-04 locks a channel after three.
+  assert(
+    psql("SELECT COUNT(*) || '/' || COUNT(*) FILTER (WHERE status = 'IDLE' AND fail_count = 0) "
+      + "FROM ivr_sim_channels") === "1/1",
+    `${testCase.taskId}: the SIM channel was charged for a fault in our own stack.`);
+
+  // Same settle as the silent cases, and for the same reason -- plus one more: a retry budget that
+  // is not carried would show up here as a third dial rather than as a wrong counter above.
+  sleepSeconds(SILENT_SETTLE_SECONDS);
+  assert(
+    psql(`SELECT COUNT(*) FROM ivr_result_callbacks WHERE task_id = '${testCase.taskId}'`) === "0",
+    `${testCase.taskId}: a technical fault reached the callback outbox. Sales would be asked to `
+    + "act on an outcome that says nothing about the customer.");
+  assert(
+    psql("SELECT COUNT(*) FROM ivr_call_attempts a JOIN ivr_call_jobs j "
+      + `ON j.ivr_call_job_id = a.ivr_call_job_id WHERE j.task_id = '${testCase.taskId}'`) === "2",
+    `${testCase.taskId}: a third dial appeared after the retry budget was spent.`);
+
+  return correlation;
+}
+
+/** Pause the queue, let a window close with nothing dialled, resume. */
+function driveCapacityCase(testCase) {
+  const correlation = `corr-e2e-${testCase.taskId.replace("TASK-E2E-", "")}`;
+  const pause = JSON.parse(apiPost(
+    "/v1/ivr/order-confirmation/queue:pause",
+    JSON.stringify({
+      reason: "E2E capacity drill - hold dispatch so a confirmation window can close undialled",
+      evidence_ref: "evidence://compose/e2e-capacity",
+    }),
+    adminHeaders("IVR_QUEUE_PAUSE", correlation, "idem-e2e-pause")));
+  assert(
+    pause.status === "APPLIED",
+    `queue:pause returned ${JSON.stringify(pause)}.`);
+  // Accepted is not applied. The projection is read back because the whole case rests on dispatch
+  // actually being held, and a pause that returned 200 without taking effect would instead produce
+  // a confirmed call and a failure message pointing at the wrong component.
+  assert(
+    queueProjection(correlation).paused === true,
+    "the queue reports itself running after queue:pause; dispatch was never held.");
+
+  let released = false;
+  try {
+    admitCase(testCase);
+    awaitDelivery(
+      testCase,
+      "A confirmed or cancelled result means the pause did not hold dispatch and the task was "
+      + "dialled inside a window that was supposed to run out.");
+
+    // The claim the result type makes: no call was placed. Without this the case would also pass
+    // on a stack that dialled, failed, and happened to label the failure a capacity miss.
+    //
+    // Counted together with a case that certainly DID dial, in one query, because "no attempt
+    // rows" is also what a query that cannot see attempt rows returns. Zero on its own is the
+    // answer to both "nothing was dialled" and "this join is wrong", and only the pair separates
+    // them.
+    assert(
+      psql("SELECT (SELECT COUNT(*) FROM ivr_call_attempts a JOIN ivr_call_jobs j "
+        + `ON j.ivr_call_job_id = a.ivr_call_job_id WHERE j.task_id = '${testCase.taskId}') `
+        + "|| '/' || (SELECT COUNT(*) FROM ivr_call_attempts a JOIN ivr_call_jobs j "
+        + `ON j.ivr_call_job_id = a.ivr_call_job_id WHERE j.task_id = '${ATTEMPT_CONTROL_TASK}')`)
+      === "0/1",
+      `${testCase.taskId}: attempts for this task over attempts for ${ATTEMPT_CONTROL_TASK} should `
+      + "be 0/1. A left digit above zero means the window did not close undialled; a right digit of "
+      + "zero means the count cannot see attempts at all and the left digit proves nothing.");
+    assert(
+      psql("SELECT j.status || '|' || j.queue_status || '|' || COALESCE(i.shortage_reason, 'none') "
+        + "FROM ivr_call_jobs j LEFT JOIN ivr_capacity_incidents i "
+        + "ON i.capacity_incident_id = j.capacity_incident_id "
+        + `WHERE j.task_id = '${testCase.taskId}'`)
+      === "CAPACITY_MISSED|CLOSED_CAPACITY|NO_DISPATCH_BEFORE_DEADLINE",
+      `${testCase.taskId}: the closed job does not carry the capacity incident that explains it.`);
+  } finally {
+    // Released on the way out of a failure as well, so a red case never leaves the queue held for
+    // whatever runs next. Recorded rather than asserted HERE: this block also runs while an
+    // exception is in flight, and throwing from it would replace the real error with a symptom.
+    const resume = JSON.parse(apiPost(
+      "/v1/ivr/order-confirmation/queue:resume",
+      JSON.stringify({
+        reason: "E2E capacity drill complete - release dispatch",
+        evidence_ref: "evidence://compose/e2e-capacity",
+      }),
+      adminHeaders("IVR_QUEUE_RESUME", correlation, "idem-e2e-resume")));
+    released = resume.status === "APPLIED" && queueProjection(correlation).paused === false;
+  }
+
+  // Outside the finally, so it can only be reached when nothing above already failed.
+  assert(
+    released,
+    "the queue stayed paused after queue:resume; anything scheduled later would fail for the "
+    + "wrong reason.");
 
   return correlation;
 }
@@ -414,9 +785,18 @@ function checkEndToEnd() {
       });
 
     // Sequential, not parallel. One SIM channel is seeded on purpose: with a pool, a scheduling
-    // defect could hide behind a spare channel, and three cases sharing one channel also proves
-    // the lease is released between calls.
-    const correlations = new Map(E2E_CASES.map((testCase) => [testCase.taskId, driveCase(testCase)]));
+    // defect could hide behind a spare channel, and cases sharing one channel also prove the lease
+    // is released between calls. The capacity case runs LAST because it holds the whole queue
+    // still, and a paused queue would strand any case that came after it.
+    const correlations = new Map();
+    for (const testCase of E2E_DIALLED_CASES) {
+      correlations.set(testCase.taskId, driveDeliveredCase(testCase));
+    }
+    for (const testCase of E2E_SILENT_CASES) {
+      correlations.set(testCase.taskId, driveSilentCase(testCase));
+    }
+    correlations.set(E2E_TECHNICAL_CASE.taskId, driveTechnicalCase(E2E_TECHNICAL_CASE));
+    correlations.set(E2E_CAPACITY_CASE.taskId, driveCapacityCase(E2E_CAPACITY_CASE));
 
     // The other end. IVR believing it delivered and Sales having received are two different
     // claims, and the point of this check is that they were not the same claim for a long time.
@@ -425,7 +805,7 @@ function checkEndToEnd() {
       .filter((entry) => entry.request.url.includes("/ivr-result-callbacks"))
       .map((entry) => ({ headers: entry.request.headers, body: JSON.parse(entry.request.body) }));
 
-    for (const testCase of E2E_CASES) {
+    for (const testCase of E2E_DELIVERING_CASES) {
       const received = delivered.find((entry) => entry.body.task_id === testCase.taskId);
       assert(received, `fake Sales never received a callback for ${testCase.taskId}.`);
       assert(
@@ -440,16 +820,30 @@ function checkEndToEnd() {
         `${testCase.taskId}: the callback lost its correlation id between intake and Sales.`);
     }
 
-    // Each case must have arrived exactly once. A retry that duplicated a signal would still
-    // satisfy every assertion above, and a duplicate confirmation is not a harmless one.
+    // Asserted at the far end too, not only against our own outbox. An empty outbox proves IVR
+    // sent nothing; an empty journal proves Sales heard nothing, and only the second one is the
+    // promise being made to another team.
+    for (const taskId of E2E_SILENT_TASKS) {
+      assert(
+        !delivered.some((entry) => entry.body.task_id === taskId),
+        `${taskId}: fake Sales received a callback for a NON-final result.`);
+    }
+
+    // Each delivering case must have arrived exactly once, and nothing else may have arrived at
+    // all. A retry that duplicated a signal would still satisfy every assertion above, and a
+    // duplicate confirmation is not a harmless one.
     assert(
-      delivered.length === E2E_CASES.length,
-      `fake Sales received ${delivered.length} callbacks for ${E2E_CASES.length} tasks.`);
+      delivered.length === E2E_DELIVERING_CASES.length,
+      `fake Sales received ${delivered.length} callbacks for `
+      + `${E2E_DELIVERING_CASES.length} tasks that should notify it.`);
 
     process.stdout.write(
-      `IT-IMG-E2E-05 PASS — ${E2E_CASES.length} tasks crossed the whole stack on one SIM channel: `
-      + `${E2E_CASES.map((testCase) => `${testCase.program.split("_")[0]}/${testCase.expectedResult}`)
-        .join(", ")}, each ACCEPTED by fake Sales exactly once with its correlation id intact\n`);
+      `IT-IMG-E2E-05 PASS — ${E2E_DELIVERING_CASES.length + E2E_SILENT_TASKS.length} tasks `
+      + "crossed the whole stack on one SIM channel: "
+      + `${E2E_DELIVERING_CASES.map((testCase) => testCase.expectedResult).join(", ")} each `
+      + "ACCEPTED by fake Sales exactly once with its correlation id intact, and "
+      + `${[...E2E_SILENT_CASES, E2E_TECHNICAL_CASE].map((testCase) => testCase.expectedResult)
+        .join(", ")} reached Sales not at all\n`);
   } finally {
     try { docker([...COMPOSE_E2E, "down", "-v"], { inherit: true }); } catch { /* best effort */ }
   }

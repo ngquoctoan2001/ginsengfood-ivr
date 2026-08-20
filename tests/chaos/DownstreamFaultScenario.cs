@@ -23,7 +23,7 @@ public sealed class DownstreamFaultScenario(ChaosEnvironment chaos)
     public async Task WhenSalesIsDownTheResultIsHeldForBoundedRetryAndNeverReportedAsConfirmed()
     {
         string suffix = $"chaos01{Guid.NewGuid():N}"[..14];
-        ResultCallbackEntity queued = await SeedReadyCallbackAsync(suffix);
+        ResultCallbackEntity queued = await ChaosFixtures.SeedReadyCallbackAsync(chaos, suffix);
 
         var observed = new List<(string Instrument, string Outcome)>();
         using MeterListener listener = ListenForCallbackMetrics(observed);
@@ -82,7 +82,7 @@ public sealed class DownstreamFaultScenario(ChaosEnvironment chaos)
         // Held, never bypassed: an open breaker defers, it never turns into "assume confirmed".
         for (int extra = 0; extra < options.Value.CircuitFailureThreshold; extra++)
         {
-            await SeedReadyCallbackAsync($"{suffix}b{extra}");
+            await ChaosFixtures.SeedReadyCallbackAsync(chaos, $"{suffix}b{extra}");
         }
 
         await dispatcher.RunBatchAsync();
@@ -128,45 +128,6 @@ public sealed class DownstreamFaultScenario(ChaosEnvironment chaos)
         });
         listener.Start();
         return listener;
-    }
-
-    private async Task<ResultCallbackEntity> SeedReadyCallbackAsync(string suffix)
-    {
-        ConfirmationTaskEntity task = ChaosFixtures.ReadCanonicalTask(suffix);
-        CallJobEntity job = ChaosFixtures.CreateJob(
-            task,
-            task.MaxAttempts,
-            task.AttemptOffsetsSecondsJson);
-        CallResultEntity result = ChaosFixtures.CreateResult(task, job);
-
-        await using (IvrDbContext context = await chaos.DbContextFactory.CreateDbContextAsync())
-        {
-            context.AddRange(task, job, result);
-            await context.SaveChangesAsync();
-        }
-
-        string payload = $"{{\"task_id\":\"{task.TaskId}\",\"result_type\":\"IVR_CONFIRMED\"}}";
-        var callback = new ResultCallbackEntity
-        {
-            CallbackId = $"CALLBACK-{suffix}",
-            IvrCallResultId = result.IvrCallResultId,
-            TaskId = task.TaskId,
-            OfficialOrderId = task.OfficialOrderId,
-            IdempotencyKey = $"callback-idem-{suffix}",
-            ResultStatus = "IVR_CONFIRMED",
-            ResultState = "PENDING_CORE_REVALIDATION",
-            DeliveryStatus = "READY",
-            RequiresCoreRevalidation = true,
-            PayloadJson = payload,
-            PayloadSha256 = Convert.ToHexString(
-                System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(payload))),
-            CreatedAt = task.CreatedAt,
-        };
-        await chaos.Services
-            .GetRequiredService<ICallbackOutboxRepository>()
-            .EnqueueAsync(callback);
-        return callback;
     }
 
     /// <summary>Sales is there but answering nothing: the shape of a downstream outage.</summary>

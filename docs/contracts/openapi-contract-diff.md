@@ -11,8 +11,8 @@ Verified current Sales source: `ginsengfood-business-platform@a3aad246d986fbc273
 
 - Role/status: IVR server DTO source / `TARGET_DRAFT`
 - Source: `specs/api/openapi/ivr-order-confirmation.v1.yaml`
-- SHA-256: `55caf44a39e7f0ebf4c2f9c590533edb05d6bd2b64f16ccfedcf3b4d697dde2d`
-- Title/version: IVR Order Confirmation — Internal/Admin API (Target V1 Draft) / `1.0.0-draft.8`
+- SHA-256: `7a95a41e5e1153ed4441744f4a3aa97e658a7e65d4da55544a6ac41ce79b3530`
+- Title/version: IVR Order Confirmation — Internal/Admin API (Target V1 Draft) / `1.0.0-draft.9`
 - Generated: `src/Ivr.Contracts/Generated/IvrServer/V1/IvrServerModels.g.cs`
 - Operations (28): POST /tasks (intakeTask); POST /eligibility-checks (recordEligibility); GET /call-jobs (listCallJobs); POST /call-jobs (createCallJob); GET /call-jobs/{ivrCallJobId} (getCallJob); POST /call-attempts (recordAttempt); POST /call-results (recordResult); POST /result-callbacks (recordResultCallback); GET /queue (getQueue); GET /dashboard (getDashboard); GET /call-jobs/{ivrCallJobId}/detail (getCallJobDetail); GET /sim-channels (listSimChannels); GET /scripts (getScriptCatalog); GET /integration-status (getIntegrationStatus); GET /review-items (listReviewItems); GET /analytics/summary (getAnalyticsSummary); GET /analytics/trend (getAnalyticsTrend); GET /analytics/breakdown (getAnalyticsBreakdown); GET /analytics/export (exportAnalytics); POST /queue:pause (pauseQueue); POST /queue:resume (resumeQueue); POST /sim-channels/{simChannelId}:disable (disableSim); POST /sim-channels/{simChannelId}:enable (enableSim); POST /technical-retries (technicalRetry); POST /admin-reviews (adminReview); GET /feature-flags/{environment} (getFeatureFlags); POST /feature-flags/{environment} (mutateFeatureFlags); GET /feature-flags/{environment}/kill-switch (verifyFeatureFlagKillSwitch)
 - Schemas (66): AdminMutationRequest, AdminReviewRequest, CallAttemptLifecycleRequest, CallJobLifecycleRequest, CallResultLifecycleRequest, EligibilityLifecycleRequest, ErrorCode, ErrorEnvelope, FeatureFlagChangeSet, FeatureFlagMutationRequest, FeatureFlagMutationResult, FeatureFlagReadResult, FeatureFlagSnapshot, IvrAdminActionResult, IvrAdminReviewResult, IvrAnalyticsBreakdown, IvrAnalyticsBreakdownRow, IvrAnalyticsDataQuality, IvrAnalyticsExport, IvrAnalyticsFilter, IvrAnalyticsKpi, IvrAnalyticsSummary, IvrAnalyticsTrend, IvrAnalyticsTrendBucket, IvrCallAttempt, IvrCallAttemptDetail, IvrCallJob, IvrCallJobDetail, IvrCallJobListItem, IvrCallJobPage, IvrCallResult, IvrCallResultDetail, IvrCapacityIncidentSummary, IvrConfirmationTaskV1, IvrDashboardAttemptPanel, IvrDashboardProjection, IvrDashboardQueuePanel, IvrDashboardResultPanel, IvrDashboardSimPanel, IvrDependencyStatus, IvrDtmfKey, IvrEligibilityDecision, IvrFailClosedEvent, IvrIntegrationStatus, IvrQueueProjection, IvrResultCallbackDetail, IvrResultCallbackLifecycle, IvrReviewItemDetail, IvrReviewQueue, IvrReviewQueueItem, IvrScriptApproval, IvrScriptCatalog, IvrScriptVersion, IvrSimChannel, IvrSimChannelList, IvrTaskIntakeResult, IvrTechnicalExceptionDetail, IvrTechnicalRetryResult, KillSwitchVerification, OrderSpeechItem, PrivacySafeOrderSummary, ProgramCode, ResultCallbackLifecycleRequest, ResultType, SellableStatusLine, TechnicalRetryRequest
@@ -23,7 +23,7 @@ Verified current Sales source: `ginsengfood-business-platform@a3aad246d986fbc273
 
 - Role/status: Sales callback client source / `TARGET_DRAFT`
 - Source: `specs/api/openapi/order-core-ivr-callback.target-v1.yaml`
-- SHA-256: `1677d490eea5484e449ace3310e26e3c59acbb8011c7c1736e3f981afffa96ee`
+- SHA-256: `af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697`
 - Title/version: Sales Order Core — IVR Result Callback Target V1 / `1.0.0-draft`
 - Generated: `src/Ivr.Contracts/Generated/SalesTarget/V1/SalesTargetV1Client.g.cs`
 - Operations (1): POST /api/v1/internal/orders/{orderId}/ivr-result-callbacks (submitIvrOrderConfirmationResult)

@@ -8,7 +8,7 @@ Hai cơ chế, và chúng **không** chứng minh cùng một mức. Gộp lại
 
 | Cơ chế | Dùng ở | Mức |
 | --- | --- | --- |
-| **Toxiproxy** — cắt/làm chậm kết nối thật | `CHAOS-DB-02`, `CHAOS-RECOVERY-04` | **lỗi mạng thật**: socket bị cắt bởi một thứ nằm giữa tiến trình và Postgres, đúng hình dạng một partition |
+| **Toxiproxy** — cắt/làm chậm kết nối thật | `CHAOS-DB-02`, `CHAOS-RECOVERY-04`, `CHAOS-DUPLICATE-06` | **lỗi mạng thật**: socket bị cắt bởi một thứ nằm giữa tiến trình và Postgres, đúng hình dạng một partition |
 | **Chèn ở tầng mã** | `CHAOS-DOWNSTREAM-01`, `CHAOS-SIM-03` | biên phụ thuộc ngoài **chưa có endpoint thật** để cắt; `P6-3` §5 cho phép rõ ràng |
 
 ## 2. Kết quả từng scenario
@@ -78,6 +78,21 @@ ra đời — lệnh gửi sống sót qua sự cố còn bản ghi thì không.
 Mọi upstream trong `deploy/chaos/toxiproxy.staging.json` phải là alias container dùng-một-lần hoặc
 loopback. Kiểm âm: đổi thành một hostname có thể giải được → **đỏ**. Giới hạn blast radius là thứ
 được **ép**, không phải thứ được hứa.
+
+### `CHAOS-DUPLICATE-06` — partition **một phần** trên nhánh callback
+
+Worker vẫn tới được Sales nhưng **không tới được database**: callback đã giao, việc ghi lại thì
+không. Lease hết hạn trong lúc worker vẫn sống và vẫn đúng, worker khác nhặt dòng lên, Sales
+được báo **lần thứ hai**. Lần giao thứ hai là **không tránh khỏi** — thứ đo được là nó có
+**nhận ra được** không (cùng `callback_id`, cùng idempotency key, payload giống **từng byte**),
+và worker về muộn có **bị chặn** không.
+
+Kiểm âm: gỡ điều kiện lease → đỏ; gỡ nhánh nhặt-lại `SENDING` quá hạn → đỏ với **callback mất**,
+tệ hơn trùng lặp: Sales đã được báo một lần còn IVR tin rằng chưa báo lần nào.
+
+Bản đầu của khẳng định *"worker về muộn bị chặn"* **sống sót** khi gỡ lease, vì nó đặt sau lúc
+dòng đã acknowledge, và khi ấy thứ từ chối là **trạng thái** chứ không phải **lease**. Sửa
+bằng cách đổi **thời điểm** khẳng định, không phải đổi lời.
 
 ## 3. Điểm yếu phát hiện
 

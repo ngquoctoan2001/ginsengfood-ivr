@@ -19,16 +19,16 @@
     "styles.css"
   ],
   "sourceHashes": {
-    "docs/api-changelog.md": "2104bb8fd878db6a3f3ef01b74edc42c8f553a6c3cb8b955d76b2bac8585b593",
+    "docs/api-changelog.md": "d882dc9269b4a1d72a81dfce3036ebb25beb7498413ba63e0717b055ecba47be",
     "docs/api-versioning.md": "bef9515401e0baf6926d3e5f3d0ddcd00004cb327974897cb113f787e737114d",
-    "docs/api/changelog/ivr-order-confirmation.md": "adb1571b9d00ead35543ce69c6d151fa3400b13d054281c6fddff6294827a747",
+    "docs/api/changelog/ivr-order-confirmation.md": "7bd5b87eb0764109836b6ea1e09b11562d82aec33f03d89101a3d5b1f0ccaeb9",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md": "92ff570d5dfe289506afd14b140b300e200f242fa6e60bdf32821579a2c4fe70",
-    "docs/api/changelog/order-core-ivr-callback.md": "581b5550712f7bbd97269a1679cd803d3b1522037c4dfb29aae67c34b95363eb",
+    "docs/api/changelog/order-core-ivr-callback.md": "4e56a793bb3678e8370adff99885a2241bb87d5f0615b01e62e9d2cb392d14f1",
     "docs/integration-guide.md": "a6222a57f3fe73241318d3a7cef6453b3602204721039fe1ab3a54460abc9253",
     "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
     "specs/api/openapi/changelog-baseline.json": "e071abfaef70d792a2ce3fa61ecc16690cf5c7d0f7f40fc3205ea79e5cc36bf1",
-    "specs/api/openapi/contract-manifest.json": "e8d3e7005060f63590d426de5b7e1dc965072e530e98d2860647a49fac42c932",
-    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "55caf44a39e7f0ebf4c2f9c590533edb05d6bd2b64f16ccfedcf3b4d697dde2d",
-    "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "1677d490eea5484e449ace3310e26e3c59acbb8011c7c1736e3f981afffa96ee"
+    "specs/api/openapi/contract-manifest.json": "32890e6a8bd130ae50d2ec249236d518dd046272ef539228af2626602e48d71f",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "7a95a41e5e1153ed4441744f4a3aa97e658a7e65d4da55544a6ac41ce79b3530",
+    "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697"
   }
 }

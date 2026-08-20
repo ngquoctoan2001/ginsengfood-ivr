@@ -95,6 +95,7 @@ public sealed class AnalyticsApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal(Round(NoAnswerCount, TotalResults), summary.Kpi.No_answer_rate);
         Assert.Equal(Round(TechnicalCount, TotalResults), summary.Kpi.Technical_rate);
         Assert.Equal(0d, summary.Kpi.Cancel_rate);
+        Assert.Null(summary.Kpi.Operational_blocked_rate);
 
         // Only counted customer attempts move this number; the seeded technical
         // retries must not (DT-02).
