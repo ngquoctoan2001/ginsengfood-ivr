@@ -56,6 +56,20 @@ spec:
       ports:
         - protocol: TCP
           port: {{ .Values.networkPolicy.egress.otelPort }}
+    # The console calling the API, which the ingress policy already permits from the other side.
+    # NetworkPolicy needs BOTH ends to agree, and only one of them did: the console renders
+    # server-side against http://<release>-api:8080, so in any cluster that enforces policy the
+    # console could not load a page. IT-K8S-NETPOL-04 missed it because it only ever tested egress
+    # to the INTERNET -- a rule that is supposed to be denied. Nothing tested a hop that is supposed
+    # to work, and a policy suite that only checks its refusals will always pass.
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "ivr.name" . }}
+              app.kubernetes.io/component: api
+      ports:
+        - protocol: TCP
+          port: 8080
     {{- range .Values.networkPolicy.egress.external }}
     # {{ .name }} — an owner-supplied destination, never a wildcard.
     - to:

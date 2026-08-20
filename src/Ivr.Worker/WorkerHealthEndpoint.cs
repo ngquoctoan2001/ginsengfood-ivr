@@ -48,8 +48,10 @@ public sealed partial class WorkerHealthEndpoint(
         WorkerHealthOptions settings = options.Value;
         if (!settings.Enabled)
         {
-            // The run-once retention pod is the case this exists for: a CronJob that must terminate
-            // has no business holding a listening socket open.
+            // An operator opting out — a port already taken, or an environment that will not have
+            // a listening socket on this workload. NOT the run-once retention pod: that path never
+            // registers this service at all (Program.cs), so a CronJob cannot reach here to be
+            // switched off. Saying otherwise would document a safety this flag does not provide.
             LogDisabled(logger);
             return;
         }

@@ -3,12 +3,14 @@ using Ivr.Api.Application;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
+using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Ivr.IntegrationTests;
 
@@ -609,6 +611,190 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
             (await verification.ReviewItems.AsNoTracking().SingleAsync()).SourceId);
     }
 
+    /// <summary>
+    /// ARCH-05 §1, the four "before attempt" rows: Ops Sellable Gate, CRM do-not-call, Evidence
+    /// Registry, and the contact half of Trust/Contact resolver. Each promises the same thing —
+    /// the source cannot answer, so IVR does not dispatch.
+    /// <para>
+    /// Every test above proves the first half: the decision is a hold, and no attempt row exists
+    /// yet. None proved the second, because none ever ran the scheduler afterwards. "No attempt
+    /// exists" is a statement about the past; "no call will be placed" is a claim about a separate
+    /// component with its own claim query and its own predicates.
+    /// </para>
+    /// <para>
+    /// THREE guards stand between a hold and a dispatch, and the behavioural assertion alone
+    /// cannot tell them apart — which the first negative check proved by surviving: dropping
+    /// <c>job.eligible IS TRUE</c> from the claim query changed nothing, because the status and
+    /// queue-status predicates still refused the row on their own. A check that would have stayed
+    /// green through that regression is not the check its own comment claimed to be. So each guard
+    /// is asserted BY NAME as well, and a change to any one of them fails with a sentence naming
+    /// it rather than with a silence that some other predicate happened to cover.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "IT-ELIG-NODISPATCH-15")]
+    [InlineData("ops-sellable-gate", EligibilityReasonCodes.SellableSnapshotMissing)]
+    [InlineData("crm-do-not-call", EligibilityReasonCodes.PhoneCallRestrictionSourceUnavailable)]
+    [InlineData("evidence-registry", EligibilityReasonCodes.EvidenceMissing)]
+    [InlineData("eligibility-source", EligibilityReasonCodes.EligibilitySourceUnavailable)]
+    public async Task AHeldTaskIsNeverHandedToTheSchedulerForDispatch(
+        string row,
+        string expectedReason)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(row);
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        string taskId = $"TASK-NODISPATCH-{row.ToUpperInvariant()}";
+        await SeedUnavailableSourceAsync(factory, taskId, row);
+        await SeedDispatchChannelAsync(factory, $"SIM-{row}");
+
+        EligibilityEvaluation evaluation = await EvaluatorFor(factory)
+            .EvaluateAsync(taskId, $"corr-nodispatch-{row}");
+
+        Assert.False(evaluation.Eligible, $"{row}: still eligible with its source unavailable.");
+        Assert.Contains(evaluation.Reasons, reason => reason.Code == expectedReason);
+
+        // The half nothing measured: the component that actually places calls, asked directly.
+        SchedulerDispatchLease? lease = await ClaimFor(factory);
+        Assert.True(
+            lease is null,
+            $"{row}: the scheduler claimed {lease?.JobId} after the task was held. ARCH-05 says "
+            + "this row does not dispatch, and a hold on its own does not stop it.");
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(0, await verification.CallAttempts.CountAsync());
+
+        // Each guard named. The claim query needs eligible AND the ready status AND the queued
+        // queue-status; the hold has to close all three, or the next person to relax one of them
+        // finds out from production rather than from here.
+        CallJobEntity held = await verification.CallJobs
+            .AsNoTracking()
+            .SingleAsync(job => job.TaskId == taskId);
+        Assert.False(held.Eligible, $"{row}: the held job is still marked eligible.");
+        Assert.Equal("HELD_ADMIN_REVIEW", held.Status);
+        Assert.Equal("HELD_ADMIN_REVIEW", held.QueueStatus);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-ELIG-NODISPATCH-15")]
+    public async Task TheSameSchedulerDoesClaimAHealthyTask()
+    {
+        // The control, and the theory above means nothing without it. "The scheduler claimed
+        // nothing" is also exactly what a scheduler that CANNOT claim anything looks like — a
+        // missing channel, a window already closed, a policy row nobody seeded. Proving it claims
+        // here, with the same seeder and the same store, is what turns four refusals into evidence.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedUnavailableSourceAsync(factory, "TASK-NODISPATCH-CONTROL", "none");
+        await SeedDispatchChannelAsync(factory, "SIM-control");
+
+        EligibilityEvaluation evaluation = await EvaluatorFor(factory)
+            .EvaluateAsync("TASK-NODISPATCH-CONTROL", "corr-nodispatch-control");
+
+        Assert.True(
+            evaluation.Eligible,
+            "the control task was held: "
+            + string.Join(", ", evaluation.Reasons.Select(reason => reason.Code)));
+
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(await ClaimFor(factory));
+        Assert.Equal("JOB-TASK-NODISPATCH-CONTROL", lease.JobId);
+    }
+
+    private static EligibilityService EvaluatorFor(IDbContextFactory<IvrDbContext> factory) => new(
+        new PostgresEligibilityRepository(factory),
+        new SchedulerEligibilityCapacityProvider(
+            new MockSchedulerCapacityService(Options.Create(new SchedulerOptions
+            {
+                Enabled = true,
+                MockChannelCount = 4,
+                ExpectedCallDurationSeconds = 30,
+            }))),
+        new FixedTimeProvider(Now));
+
+    private static Task<SchedulerDispatchLease?> ClaimFor(IDbContextFactory<IvrDbContext> factory) =>
+        new PostgresSchedulerStore(factory, new FixedTimeProvider(Now))
+            .TryClaimDueDispatchAsync(
+                "nodispatch-worker",
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromMinutes(2));
+
+    /// <summary>One row of the ARCH-05 matrix, expressed as the data Sales would have sent.</summary>
+    private static Task SeedUnavailableSourceAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string taskId,
+        string row)
+    {
+        string jobId = $"JOB-{taskId}";
+        return row switch
+        {
+            // The gate answers "may this be sold". No snapshot at all is the shape an outage takes
+            // on the wire: Sales could not read it, so it sent nothing.
+            "ops-sellable-gate" => SeedPendingTaskAsync(
+                factory, taskId, jobId, "CREATED", "READY_FOR_ELIGIBILITY",
+                sellableStatusJson: "[]"),
+
+            // The do-not-call resolver saying, explicitly, that it could not answer. Not knowing
+            // whether a number is on the list is not permission to dial it.
+            "crm-do-not-call" => SeedPendingTaskAsync(
+                factory, taskId, jobId, "CREATED", "READY_FOR_ELIGIBILITY",
+                eligibilitySnapshotJson: JsonSerializer.Serialize(new
+                {
+                    decision = "ELIGIBLE",
+                    source_version = "sales-eligibility-v1",
+                    captured_at = Now.AddSeconds(-30),
+                    source_available = true,
+                    blockers = Array.Empty<string>(),
+                    voice_restriction = new
+                    {
+                        source_available = false,
+                        source_version = "sales-voice-v1",
+                    },
+                })),
+
+            // No evidence reference means nothing to point at afterwards. A call that cannot be
+            // evidenced cannot be defended, so it is not placed.
+            "evidence-registry" => SeedPendingTaskAsync(
+                factory, taskId, jobId, "CREATED", "READY_FOR_ELIGIBILITY",
+                evidenceRefsJson: "[]"),
+
+            // Sales telling IVR its own eligibility source was unreachable.
+            "eligibility-source" => SeedPendingTaskAsync(
+                factory, taskId, jobId, "CREATED", "READY_FOR_ELIGIBILITY",
+                eligibilitySnapshotJson: JsonSerializer.Serialize(new
+                {
+                    decision = "ELIGIBLE",
+                    source_version = "sales-eligibility-v1",
+                    captured_at = Now.AddSeconds(-30),
+                    source_available = false,
+                    blockers = Array.Empty<string>(),
+                })),
+
+            _ => SeedPendingTaskAsync(
+                factory, taskId, jobId, "CREATED", "READY_FOR_ELIGIBILITY"),
+        };
+    }
+
+    private static async Task SeedDispatchChannelAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string channelId)
+    {
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        context.SimChannels.Add(new SimChannelEntity
+        {
+            SimChannelId = channelId,
+            SimNumberRef = $"sim-ref-{channelId}",
+            Enabled = true,
+            Status = "IDLE",
+            AdapterMode = "VENDOR",
+            ExecutionMode = IvrOptions.LabRealSimExecutionMode,
+            ProviderName = "VENDOR",
+            LastHealthCheckAt = Now,
+        });
+        await context.SaveChangesAsync();
+    }
+
     private static async Task SeedPendingTaskAsync(
         IDbContextFactory<IvrDbContext> factory,
         string taskId,
@@ -619,7 +805,9 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         string? eligibilitySnapshotJson = null,
         bool omitSnapshotHash = false,
         string? customerTrustStatus = null,
-        bool trustedSkipAllowed = false)
+        bool trustedSkipAllowed = false,
+        string? sellableStatusJson = null,
+        string? evidenceRefsJson = null)
     {
         DateTimeOffset startedAt = Now.AddMinutes(-1);
         DateTimeOffset expiresAt = Now.AddMinutes(4);
@@ -664,7 +852,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
                 ? null
                 : DeterministicSnapshotHasher.Compute(
                     eligibilitySnapshotJson ?? EligibleSnapshotJson),
-            SellableStatusJson = JsonSerializer.Serialize(new[]
+            SellableStatusJson = sellableStatusJson ?? JsonSerializer.Serialize(new[]
             {
                 new SellableStatusLine
                 {
@@ -686,7 +874,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
             CreatedAt = startedAt,
             ExpiresAt = expiresAt,
             AcceptedAt = startedAt,
-            EvidenceRefsJson = "[\"evidence://integration/p2-2/task\"]",
+            EvidenceRefsJson = evidenceRefsJson ?? "[\"evidence://integration/p2-2/task\"]",
         });
         context.CallJobs.Add(new CallJobEntity
         {

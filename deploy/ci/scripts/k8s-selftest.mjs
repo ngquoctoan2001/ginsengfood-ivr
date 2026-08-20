@@ -241,12 +241,12 @@ function workerLivenessProbe() {
   const workerKeys = workerDocument
     .split(/\r?\n/)
     .filter((line) => !line.trimStart().startsWith("#"))
-    .join("|");
+    .join("\n");
   assert(
-    /(^|\|)\s*livenessProbe:/.test(workerKeys),
+    /^\s*livenessProbe:/m.test(workerKeys),
     "the worker deployment declares no livenessProbe.");
   assert(
-    !/(^|\|)\s*readinessProbe:/.test(workerKeys),
+    !/^\s*readinessProbe:/m.test(workerKeys),
     "the worker declares a readinessProbe; nothing routes traffic to it, so readiness has no "
     + "meaning here.");
 
@@ -327,9 +327,189 @@ function workerProbeFailures() {
     .length;
 }
 
+/** Whether a pod labelled as the console can reach the API service. */
+function consoleReachesApi() {
+  startProbePod(
+    "console-probe",
+    "app.kubernetes.io/name=ivr,app.kubernetes.io/instance=ivr,app.kubernetes.io/component=ui");
+  try {
+    return podReachesApi("console-probe");
+  } finally {
+    deleteProbePod("console-probe");
+  }
+}
+
+function consoleReachesApiFailure() {
+  return "a pod labelled as the console could not reach the API. Both ends of a NetworkPolicy have "
+    + "to permit a hop: the ingress rule names the console, and the egress allowlist has to name "
+    + "the API back. The console renders server-side, so without this it cannot load a page.";
+}
+
+function unlabelledPodReachesApi() {
+  startProbePod("stranger-probe", "role=netpol-probe");
+  try {
+    return podReachesApi("stranger-probe");
+  } finally {
+    deleteProbePod("stranger-probe");
+  }
+}
+
+/** A GET the API answers with anything at all. 000/no output means the connection never landed. */
+function podReachesApi(podName) {
+  const output = kubectlSoft(["-n", NS, "exec", podName, "--", "sh", "-c",
+    "wget -q -T 6 -S -O /dev/null http://ivr-ivr-api:8080/health/live 2>&1"]);
+  return /HTTP\/1\.[01] \d{3}/.test(output);
+}
+
 function workerRestartCount() {
   return kubectl(["-n", NS, "get", "pods", "-l", "app.kubernetes.io/component=worker",
     "-o", "jsonpath={.items[0].status.containerStatuses[0].restartCount}"]).trim();
+}
+
+/**
+ * kubectl that returns output instead of throwing on a non-zero exit.
+ *
+ * The rotation drill needs it: a 403 is the measurement, and wget reports a 403 by exiting
+ * non-zero. Losing that as an exception would turn the observation into a crash.
+ */
+function kubectlSoft(args) {
+  try {
+    return kubectl(args);
+  } catch (error) {
+    return String(error.stdout ?? "") + String(error.stderr ?? "");
+  }
+}
+
+// ---------------------------------------------------------------- IT-K8S-ROTATE-07
+//
+// The half of W-0047 that one container could not answer.
+//
+// The original drill proved the MIDDLEWARE across the retirement boundary: one process, both
+// tokens configured, old accepted until T and refused after. What it could not touch is FLEET
+// behaviour during a rolling restart, when pods carrying the old configuration and pods carrying
+// the new one are both serving. That is where a rotation actually hurts, and it is invisible to
+// any test with one replica.
+//
+// Two claims, and they point opposite ways -- which is the point. Measuring only the first would
+// read as "rotation is seamless", and it is seamless for exactly one of the two clients:
+//
+//   OLD token   never rejected, throughout.  Old pods hold it as current, new pods hold it as
+//               previous, so every pod in every state of the rollout accepts it.
+//   NEW token   rejected until the rollout finishes.  A pod that has not restarted has never
+//               heard of it, and no amount of overlap can fix that.
+//
+// The second is why the runbook ordering is what it is: roll the credential out FIRST, let the
+// fleet converge, and only then switch callers. Doing it the other way round fails every caller
+// for the length of a deploy.
+function rotationAcrossARollingRestart() {
+  const oldToken = "dev-ordercore-token-not-a-real-secret";
+  const newToken = "dev-ordercore-token-rotated-not-a-real-secret";
+
+  // Two replicas, because one replica has no "during" to observe: it is either old or new.
+  kubectl(["-n", NS, "scale", "deploy", "ivr-ivr-api", "--replicas=2"]);
+  waitFor("both api replicas to be ready", 240, () =>
+    kubectl(["-n", NS, "get", "deploy", "ivr-ivr-api",
+      "-o", "jsonpath={.status.readyReplicas}"]).trim() === "2");
+
+  // Labelled as the console, because that is the caller being simulated -- and because the policy
+  // only lets the console reach the API. A pod with arbitrary labels would be refused by the
+  // egress allowlist and every probe would read as a rejection, which is indistinguishable from
+  // the auth refusal this drill measures.
+  startProbePod(
+    "rotation-probe",
+    "app.kubernetes.io/name=ivr,app.kubernetes.io/instance=ivr,app.kubernetes.io/component=ui");
+  try {
+    // Baseline: the old token works before anything moves. Without this the "never rejected"
+    // claim below could be satisfied by a probe that never reached the service at all.
+    assert(
+      probeToken("rotation-probe", oldToken) !== 403,
+      "the old token was already rejected before the rotation started; the drill would prove "
+      + "nothing about the rollout.");
+    assert(
+      probeToken("rotation-probe", newToken) === 403,
+      "the new token was already accepted before the rotation; the fleet is not in the state this "
+      + "drill claims to start from.");
+
+    // Roll the credential out. The overlap is what the chart could not express until now: the new
+    // token becomes current and the old one stays valid until a fixed instant.
+    // Computed here, not in the container: busybox date has no relative -d, and the same
+    // limitation already cost a retention drill once. The pods run UTC, so an ISO instant needs no
+    // translation on the way in.
+    const retiresAt = new Date(Date.now() + 3_600_000).toISOString().replace(/\.\d+Z$/, "Z");
+    kubectl(["-n", NS, "set", "env", "deploy/ivr-ivr-api",
+      `ORDER_CORE_SERVICE_TOKEN=${newToken}`,
+      `ORDER_CORE_SERVICE_TOKEN_PREVIOUS=${oldToken}`,
+      `ORDER_CORE_SERVICE_TOKEN_PREVIOUS_RETIRES_AT=${retiresAt}`]);
+
+    // Probe both tokens continuously WHILE the rollout runs. Sampling before and after would miss
+    // the only interval this check exists to observe.
+    let oldRejections = 0;
+    let newRejections = 0;
+    let samples = 0;
+    let rolloutComplete = false;
+    for (let attempt = 0; attempt < 60 && !rolloutComplete; attempt += 1) {
+      if (probeToken("rotation-probe", oldToken) === 403) oldRejections += 1;
+      if (probeToken("rotation-probe", newToken) === 403) newRejections += 1;
+      samples += 1;
+      rolloutComplete = kubectlSoft(["-n", NS, "rollout", "status", "deploy/ivr-ivr-api",
+        "--timeout=2s"]).includes("successfully rolled out");
+    }
+    assert(rolloutComplete, `the api rollout did not finish within ${samples} probe rounds.`);
+    assert(samples >= 3, `only ${samples} samples were taken; the rollout was too fast to observe.`);
+
+    // Claim one: the overlap held. This is what the whole dual-key mechanism is for, and it is the
+    // half a single-container drill could already suggest but not prove for a fleet.
+    assert(
+      oldRejections === 0,
+      `the old token was rejected ${oldRejections} times out of ${samples} during the rollout. The `
+      + "overlap did not hold, so callers still using the outgoing credential saw failures.");
+
+    // Claim two: and it did NOT cover the new token. Asserted as a positive expectation rather
+    // than tolerated, because a run where the new token never failed would mean the rollout was
+    // over before probing began -- and then claim one measured nothing either.
+    assert(
+      newRejections > 0,
+      "the new token was never rejected during the rollout, which means no old pod was still "
+      + "serving when probing started. Both claims here are about the overlap WINDOW, and this run "
+      + "did not observe one.");
+
+    // After convergence both are accepted: new as current, old as previous until the instant above.
+    assert(
+      probeToken("rotation-probe", newToken) !== 403
+      && probeToken("rotation-probe", oldToken) !== 403,
+      "after the rollout the fleet does not accept both halves of the overlap.");
+
+    process.stdout.write(
+      `IT-K8S-ROTATE-07 PASS — across a 2-replica rolling restart the OLD token was rejected `
+      + `0/${samples} times and the NEW token ${newRejections}/${samples}: the overlap protects `
+      + "callers that have not switched yet, and cannot protect callers that switched early\n");
+  } finally {
+    deleteProbePod("rotation-probe");
+    kubectlSoft(["-n", NS, "scale", "deploy", "ivr-ivr-api", "--replicas=1"]);
+  }
+}
+
+/**
+ * One request through the api SERVICE, so it lands on whichever replica the round robin picks --
+ * probing a pod IP would pin the drill to one pod and measure the thing it is trying to avoid.
+ *
+ * 403 is the auth refusal. Anything else (400 for a body the schema rejects) means the request got
+ * PAST auth, which is the signal: the drill is about who is let in, not about what they sent.
+ */
+function probeToken(podName, token) {
+  // 2>&1 inside the container, not outside: wget reports the status line on STDERR, and
+  // execFileSync hands back stdout alone. Without the redirect every probe parsed as "no status"
+  // and the drill read a working fleet as a broken one.
+  const output = kubectlSoft(["-n", NS, "exec", podName, "--", "sh", "-c",
+    "wget -q -T 5 -S -O /dev/null --post-data '{}'"
+    + " --header 'Content-Type: application/json'"
+    + " --header 'X-Source-System: order-core'"
+    + ` --header 'Authorization: Bearer ${token}'`
+    + " --header 'X-Correlation-Id: rotation-drill'"
+    + " --header 'Idempotency-Key: rotation-drill'"
+    + " http://ivr-ivr-api:8080/v1/ivr/order-confirmation/tasks 2>&1"]);
+  const status = /HTTP\/1\.[01] (\d{3})/.exec(output);
+  return status ? Number(status[1]) : 0;
 }
 
 // ---------------------------------------------------------------- IT-K8S-NETPOL-04
@@ -359,7 +539,20 @@ function networkPolicy() {
 
   const escaped = reachesInternetAsIvrPod();
   assert(!escaped, "a pod matching the chart's selector reached the internet despite the egress allowlist.");
-  process.stdout.write("IT-K8S-NETPOL-04 PASS — egress outside the allowlist is blocked\n");
+
+  // A policy suite that only checks its REFUSALS always passes, and this one did: every case above
+  // asserts something is blocked. The console calling the API is the hop that has to work, both
+  // ends have to agree for it to, and only the ingress end ever did -- so on any enforcing cluster
+  // the console could not load a page. Measured now, in both directions.
+  assert(consoleReachesApi(), consoleReachesApiFailure());
+  assert(
+    !unlabelledPodReachesApi(),
+    "a pod with no console labels reached the API. The ingress policy names the console "
+    + "specifically; if anything in the namespace can call it, that rule is decoration.");
+
+  process.stdout.write(
+    "IT-K8S-NETPOL-04 PASS — egress outside the allowlist is blocked, the console reaches the API, "
+    + "and a pod that is not the console does not\n");
   return true;
 }
 
@@ -521,6 +714,7 @@ try {
   readinessRemovesFromRotation();
   netpolProven = networkPolicy();
   workerLivenessProbe();
+  rotationAcrossARollingRestart();
   const retentionProven = retentionCronJob();
 
   // Named individually rather than collapsed into one flag. "Something is unproven" tells the

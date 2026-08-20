@@ -127,6 +127,7 @@ một scanner hỏng — nửa dương này làm cho ba lần xanh kia có nghĩ
 | `IT-IMG-HEALTH-02` | `/health/live` healthy **không cần database** phía sau |
 | `IT-IMG-COMPOSE-03` | stack lên từ volume trắng, api healthy, mạng fake **không ra được internet** |
 | `IT-IMG-SCAN-04` | 3 image 0 HIGH/CRITICAL; đối chứng dương đỏ đúng |
+| `IT-IMG-SBOM-06` | 3 SBOM CycloneDX (24 / 96 / 43 thành phần); mỗi cái **quét sạch cả dưới dạng SBOM lẫn dưới dạng image**; base xấu đã biết **vẫn đỏ sau vòng khứ hồi** |
 | `IT-K8S-WORKER-06` | kubelet đọc được probe worker xuyên default-deny, pod khác **không**; 90s tắt DB → `0` probe hỏng, `0` restart; **2 lỗi tìm ra**, xem §12 |
 | `IT-WORKER-LIVENESS-12` | 6 ca: vòng dừng bị nêu tên; grace 3 chu kỳ nhưng tối thiểu 30s; hỏng-mọi-lượt **không** phải liveness failure; registry rỗng `stalled`; tất cả tắt → `idle` vẫn qua probe; một vòng bật giữa các vòng tắt vẫn bị canh |
 | `IT-IMG-E2E-05` | **3 task** đi hết stack trên **một kênh SIM**, cả hai chương trình → `IVR_CONFIRMED` / `IVR_CUSTOMER_CANCELLED` / `IVR_NO_ANSWER_FINAL`, mỗi cái `ACCEPTED` **đúng một lần**; **4 lỗi tìm ra**, xem §10–§11 |
@@ -368,6 +369,47 @@ Khẳng định về probe đo **sự kiện `Unhealthy` của kubelet**, không
 đỏ vì một restart **không liên quan gì tới probe** (chính là segfault ở trên) — đáng tìm, đáng sửa,
 nhưng không phải điều khẳng định này nói, và **một phép kiểm đỏ vì lý do khác sẽ bị đọc là nhiễu**.
 
+## 13. SBOM — sinh ra để **được dùng**, không phải để tồn tại
+
+`2026-08-19`. `P7-1` §6.6 ghi SBOM là **optional**, và một SBOM chỉ tồn tại thì trả lời được đúng
+số không câu hỏi. Tệ hơn: một SBOM **rỗng** trả lời **"không bị ảnh hưởng"** cho mọi CVE từng được
+hỏi — hình dạng nguy hiểm nhất mà một artifact bảo mật có thể mang, vì nó **trông như một giấy
+chứng nhận sạch**.
+
+Nên SBOM ở đây được kiểm bằng cách **đem ra dùng**:
+
+1. sinh CycloneDX cho cả ba image;
+2. đòi nó **liệt kê được thứ gì đó** — sàn 10 thành phần;
+3. đòi nó **nói đúng tên image** nó tự nhận mô tả;
+4. **đưa ngược cho scanner**: quét SBOM phải ra **cùng phán quyết** với quét image.
+
+Bước 4 là bước bắt được "SBOM đánh rơi dữ liệu gói": cùng mức nghiêm trọng, cùng ngưỡng, **khác đầu
+vào**.
+
+### Đối chứng dương ở đúng chỗ khác với `IT-IMG-SCAN-04`
+
+`IT-IMG-SCAN-04` đã chứng minh **scanner** đỏ trên image xấu. Ở đây đối chứng chứng minh một image
+xấu **vẫn đỏ sau khi đi qua SBOM rồi quay lại** — tức bước biến đổi không âm thầm làm rơi mất chính
+thứ nó tồn tại để mang.
+
+Không có nửa này, mọi kết quả xanh phía trên đều **rỗng nghĩa**.
+
+### Sàn 10, không phải 20
+
+Image nhỏ nhất liệt kê **24** thành phần. Một sàn cách giá trị thật bốn đơn vị sẽ đỏ ở lần bump base
+tiếp theo vì một lý do **không liên quan gì** tới điều nó đang kiểm. Câu hỏi là *"cái này có liệt kê
+được gì không"*, và mười trả lời được với chỗ thở.
+
+Kiểm âm: rút rỗng `components` của `ivr-api` → đỏ đúng câu *"An SBOM that enumerates nothing answers
+'not affected' to every CVE ever asked about it"*.
+
+### Không commit vào repo
+
+SBOM mô tả những image **đang trôi bên dưới nó**, nên một SBOM check-in sẽ già đi thành một mô tả
+đầy tự tin về thứ không còn tồn tại. Job CI **xuất bản chúng làm artifact** (`expire_in: 90 days`,
+`when: always`) — đó mới là thứ trả lời được câu hỏi CVE **sáu tháng sau, về đúng image đã ship**,
+mà không phải build lại; và build lại sáu tháng sau là **một image khác**.
+
 ## 9. Cái này KHÔNG chứng minh
 
 - **Chưa có registry.** §5 đánh dấu registry `NEED_CONFIRMATION`; image mới chỉ tồn tại local. Quy
@@ -379,9 +421,10 @@ nhưng không phải điều khẳng định này nói, và **một phép kiểm
 - ~~**Chưa seed attempt policy trong stack dev.**~~ **Đã đóng `2026-08-19`** —
   `deploy/docker/dev-seed/seed.sql`.
 - ~~**Worker không có healthcheck** (§2).~~ **Đã đóng `2026-08-19`** — xem §12. Vẫn chưa có:
-  probe cho **CronJob retention** (nó phải kết thúc, nên endpoint tắt ở chế độ run-once), và
-  vòng lặp `analytics` chưa đăng ký liveness.
-- **SBOM chưa sinh** (§6.6 ghi optional).
+  probe cho **CronJob retention**: chế độ run-once **không đăng ký** endpoint (`Program.cs`), nên
+  một pod phải-kết-thúc không giữ socket mở — nhưng cũng nghĩa là **không gì probe được nó**, và
+  tín hiệu duy nhất vẫn là mã thoát. (Vòng lặp `analytics` **đã đăng ký** `2026-08-19`.)
+- ~~**SBOM chưa sinh** (§6.6 ghi optional).~~ **Đã đóng `2026-08-19`** — `IT-IMG-SBOM-06`, xem §13.
 - **`mock-sim` và `mock-jwt` vẫn là placeholder** từ P0-1, cố ý: cả hai mock đều **in-process** ở
   chế độ MOCK, nên không có gì trong stack gọi tới container của chúng. Thay bằng server thật sẽ là
   thêm hai tiến trình không ai nói chuyện với, đọc như nhiều phủ hơn thực tế.

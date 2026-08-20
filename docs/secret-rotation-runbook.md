@@ -90,3 +90,29 @@ dù còn nằm trong cấu hình**.
 
 Boot sẽ **từ chối** nếu đặt `TOKEN_PREVIOUS` mà thiếu `TOKEN_PREVIOUS_RETIRES_AT`: một giá trị cũ
 không có hạn sẽ sống tới khi ai đó nhớ xoá biến, tức là rotation không bao giờ kết thúc.
+
+### 6.1 Thứ tự bước 2 → bước 3 **không đảo được**, và đây là số đo
+
+`IT-K8S-ROTATE-07` chạy đúng kịch bản này trên cluster k3s thật, api **2 replica**, dò liên tục
+bằng cả hai token **trong lúc** rolling restart:
+
+| Người gọi đang cầm | Bị từ chối trong lúc rollout |
+| --- | --- |
+| token **cũ** | **0/4** |
+| token **mới** | **2/4** |
+
+Cột đầu là thứ overlap mua được: pod cũ giữ `cũ` làm current, pod mới giữ `cũ` làm previous, nên
+**mọi pod ở mọi trạng thái của rollout** đều nhận nó.
+
+Cột thứ hai là thứ overlap **không thể** mua: một pod chưa restart **chưa từng nghe nói tới** token
+mới. Không có cấu hình nào sửa được điều đó, vì nó không phải vấn đề cấu hình — nó là vấn đề **thứ
+tự**.
+
+Nên nếu đảo bước 2 và bước 3 — cho người gọi chuyển sang token mới **trước** khi fleet hội tụ —
+mọi request sẽ hỏng trong **suốt độ dài một lần deploy**. Đó không phải rủi ro lý thuyết; đó là cột
+`2/4` ở trên, đo được.
+
+Trước `2026-08-19` chart **không diễn đạt được** rotation này: `_helpers.tpl` chỉ nối
+`ORDER_CORE_SERVICE_TOKEN`, không có `TOKEN_PREVIOUS` lẫn `TOKEN_PREVIOUS_RETIRES_AT`. Cơ chế
+overlap có trong code và có trong runbook này, còn trên Kubernetes hình dạng duy nhất khả dụng là
+**cắt cứng** — đúng cái cửa sổ mà `RotatingCredentialProvider` sinh ra để xoá.

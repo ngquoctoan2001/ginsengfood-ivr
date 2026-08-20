@@ -16,6 +16,7 @@ public sealed partial class AnalyticsEtlJobHost(
     IAnalyticsEtlJob etlJob,
     IOptions<AnalyticsEtlOptions> options,
     TimeProvider timeProvider,
+    WorkerLiveness liveness,
     ILogger<AnalyticsEtlJobHost> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -24,11 +25,20 @@ public sealed partial class AnalyticsEtlJobHost(
         if (!configured.Enabled)
         {
             LogDisabled(logger);
+            // Registered even though it will not run, so the health report can tell a loop that was
+            // turned OFF from a loop that was never wired: the first is a decision, the second is a
+            // defect, and only one of them is worth a restart.
+            liveness.RegisterDisabled("analytics");
             return;
         }
 
         var period = TimeSpan.FromSeconds(configured.IntervalSeconds);
         using PeriodicTimer timer = new(period, timeProvider);
+        // This loop has the longest interval in the worker, so its grace is the widest -- three of
+        // its own intervals rather than the thirty-second floor the fast loops land on. A slow
+        // reporting loop that stops still matters: the dashboard goes quietly stale rather than
+        // visibly empty, which is the harder kind of wrong to notice.
+        liveness.Register("analytics", period);
 
         do
         {
@@ -51,6 +61,8 @@ public sealed partial class AnalyticsEtlJobHost(
                     report.ReconcileStatus,
                     report.DurationMs);
 
+                liveness.Tick("analytics");
+
                 if (report.RejectedRows > 0)
                 {
                     // Separate from the completion line on purpose: a rejected row means the
@@ -68,6 +80,7 @@ public sealed partial class AnalyticsEtlJobHost(
 #pragma warning restore CA1031
             {
                 LogFailed(logger, exception);
+                liveness.Fault("analytics", exception);
             }
         }
         while (await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false));

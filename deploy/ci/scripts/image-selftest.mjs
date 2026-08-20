@@ -15,7 +15,7 @@
 //
 // Run: node deploy/ci/scripts/image-selftest.mjs [--skip-compose] [--skip-scan] [--skip-e2e]
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -410,7 +410,7 @@ function checkEndToEnd() {
         // `input` -- the seed appeared to apply and the stack then failed with
         // ATTEMPT_POLICY_NOT_FOUND several steps later.
         stdio: ["pipe", "pipe", "pipe"],
-        input: readFileSync(path.join(repositoryRoot, "deploy/docker/dev-seed/seed.sql"), "utf8"),
+        input: fs.readFileSync(path.join(repositoryRoot, "deploy/docker/dev-seed/seed.sql"), "utf8"),
       });
 
     // Sequential, not parallel. One SIM channel is seeded on purpose: with a pool, a scheduling
@@ -455,9 +455,107 @@ function checkEndToEnd() {
   }
 }
 
+// ------------------------------------------------------------------- IT-IMG-SBOM-06
+//
+// An SBOM is worth having because it answers "is this image affected by CVE-X" without rebuilding
+// it. A file that merely exists answers nothing, and an EMPTY one answers "no" to every question --
+// which is the most dangerous shape a security artifact can take, because it looks like a clean
+// bill of health.
+//
+// So the SBOM is checked by being USED. It is generated, asserted non-trivial, then handed back to
+// the scanner: scanning the SBOM must reach the same verdict as scanning the image. And the whole
+// path is proven against a base with known findings, because a pipeline that produces a green
+// answer from an empty document is indistinguishable from one that works.
+const SBOM_DIRECTORY = path.join(repositoryRoot, "artifacts", "sbom");
+
+function sbomFor(image) {
+  return docker([
+    "run", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock",
+    "aquasec/trivy:0.58.1", "image", "--format", "cyclonedx", "--quiet", image,
+  ]);
+}
+
+/** Scans an SBOM document. Copied into a container rather than bind-mounted: a mount would make
+ *  this depend on the host's path layout, and the same choice is already made for the alerts. */
+function scanSbom(document) {
+  const container = docker([
+    "create", "--entrypoint", "sleep", "aquasec/trivy:0.58.1", "300",
+  ]).trim();
+  try {
+    docker(["start", container]);
+    docker(["exec", "-i", container, "sh", "-c", "cat > /tmp/sbom.json"],
+      { stdio: ["pipe", "pipe", "pipe"], input: document });
+    docker(["exec", container, "trivy", "sbom", "--severity", "HIGH,CRITICAL",
+      "--exit-code", "1", "--quiet", "/tmp/sbom.json"]);
+    return true;
+  } catch {
+    return false;
+  } finally {
+    try { docker(["rm", "-f", container]); } catch { /* already gone */ }
+  }
+}
+
+function checkSbom() {
+  fs.mkdirSync(SBOM_DIRECTORY, { recursive: true });
+  const counts = {};
+
+  for (const image of IMAGES) {
+    const reference = `${image.name}:${TAG}`;
+    const document = sbomFor(reference);
+    const parsed = JSON.parse(document);
+    const components = parsed.components ?? [];
+
+    // A floor rather than an exact number: the count moves whenever a base image is bumped, and a
+    // check that had to be edited on every bump would be edited without being read. Zero, or a
+    // handful, means the generator looked at the image and found nothing -- which for a .NET
+    // runtime image is not possible and is the failure this floor exists to catch.
+    //
+    // Ten, not twenty. The smallest image here enumerates 24 components, and a floor four away
+    // from the real value fails on the next base bump for a reason that has nothing to do with
+    // what it is checking. The question is "did this enumerate anything", and ten answers it with
+    // room to spare.
+    assert(
+      components.length >= 10,
+      `${reference} produced an SBOM with ${components.length} components. An SBOM that enumerates `
+      + "nothing answers 'not affected' to every CVE ever asked about it.");
+
+    // It has to be an SBOM OF THIS IMAGE. A document naming something else would scan clean and
+    // mean nothing.
+    assert(
+      JSON.stringify(parsed.metadata?.component ?? {}).includes(image.name),
+      `${reference}'s SBOM does not name the image it claims to describe.`);
+
+    fs.writeFileSync(path.join(SBOM_DIRECTORY, `${image.name}.cdx.json`), document, "utf8");
+    counts[image.name] = components.length;
+
+    // The verdict has to survive the round trip. If the SBOM lost the package data that the image
+    // scan used, this is where it shows: same severities, same threshold, different input.
+    assert(
+      scanSbom(document),
+      `${reference} scans clean as an image but not as an SBOM. The SBOM is not carrying what the `
+      + "scanner needs, so nobody could answer a CVE question from it.");
+  }
+
+  // Positive control, and it is about the SBOM PATH rather than about the scanner -- IT-IMG-SCAN-04
+  // already proved the scanner fails on a bad image. This proves a bad image still fails after
+  // being turned into an SBOM and back, which is the step that could silently drop everything.
+  const knownBad = sbomFor("alpine:3.10");
+  assert(
+    !scanSbom(knownBad),
+    "an SBOM of a base with known HIGH/CRITICAL findings scanned clean. The SBOM path is dropping "
+    + "the very data it exists to carry, and every green result above is vacuous.");
+
+  process.stdout.write(
+    `IT-IMG-SBOM-06 PASS — CycloneDX SBOMs written for ${IMAGES.length} images (`
+    + `${IMAGES.map((image) => `${image.name}=${counts[image.name]}`).join(", ")} components), each `
+    + "scans clean as an SBOM as well as an image, and a known-bad base still fails after the round "
+    + `trip. Written to ${path.relative(repositoryRoot, SBOM_DIRECTORY)}\n`);
+}
+
 buildAndCheckUser();
 checkHealthcheck();
 if (!skipCompose) checkCompose();
 if (!skipScan) checkScan();
+if (!skipScan) checkSbom();
 if (!skipEndToEnd) checkEndToEnd();
 process.stdout.write("IMAGE_SELFTEST_PASS\n");

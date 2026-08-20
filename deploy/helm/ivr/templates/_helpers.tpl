@@ -108,4 +108,29 @@ the ordering.
     secretKeyRef:
       name: {{ .Values.secrets.existingSecret }}
       key: {{ .Values.secrets.orderCoreServiceTokenKey }}
+{{- if .Values.secrets.orderCoreServiceTokenPreviousKey }}
+# The outgoing half of a credential rotation. Optional, and absent by default: a previous token
+# that is always present is a second live credential rather than an overlap.
+#
+# Without these two the chart could not express a rotation at all. RotatingCredentialProvider and
+# the runbook both describe an overlap, and on Kubernetes the only available shape was a hard
+# cutover -- the exact window the provider exists to remove. IT-K8S-ROTATE-07 measures what the
+# overlap buys across a fleet, and what it does not.
+#
+# `optional: true` sits on the key, not on the reference: the secret always exists because it
+# carries the current token, and it is the ROTATION key inside it that comes and goes.
+- name: ORDER_CORE_SERVICE_TOKEN_PREVIOUS
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.secrets.existingSecret }}
+      key: {{ .Values.secrets.orderCoreServiceTokenPreviousKey }}
+      optional: true
+{{- end }}
+{{- if .Values.secrets.orderCoreServiceTokenPreviousRetiresAt }}
+# An instant, not a duration. A duration would restart with every pod, so a rotation would never
+# finish while anything was being rescheduled -- and "never finishes" is how an overlap becomes a
+# permanent second credential.
+- name: ORDER_CORE_SERVICE_TOKEN_PREVIOUS_RETIRES_AT
+  value: {{ .Values.secrets.orderCoreServiceTokenPreviousRetiresAt | quote }}
+{{- end }}
 {{- end -}}

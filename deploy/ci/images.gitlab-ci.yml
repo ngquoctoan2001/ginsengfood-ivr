@@ -29,3 +29,14 @@ image_selftest:
     - apk add --no-cache nodejs
   script:
     - node deploy/ci/scripts/image-selftest.mjs
+  artifacts:
+    # The SBOMs are the one output of this job worth keeping. They are what lets somebody answer
+    # "is our shipped image affected by CVE-X" months later, against the image that actually
+    # shipped, without rebuilding it -- and a rebuild months later is a different image.
+    #
+    # Not committed to the repository: they describe images that move underneath them, and a
+    # checked-in SBOM ages into a confident description of something that no longer exists.
+    paths:
+      - artifacts/sbom/
+    expire_in: 90 days
+    when: always

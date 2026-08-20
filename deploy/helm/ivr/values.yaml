@@ -90,6 +90,12 @@ secrets:
   existingSecret: ivr-app-secrets
   internalServiceTokenKey: internal-service-token
   orderCoreServiceTokenKey: order-core-service-token
+  # Rotation, both empty unless one is in progress. Setting the key alone is not enough and that is
+  # deliberate: OrderCoreCredentialSource ignores a previous token with no retirement instant, so a
+  # half-filled rotation fails closed to "one credential" instead of quietly opening a second one
+  # with no end date.
+  orderCoreServiceTokenPreviousKey: ""
+  orderCoreServiceTokenPreviousRetiresAt: ""
 
 retention:
   # W-0047 closed the run-once gap, so the CronJob can complete and is enabled again.

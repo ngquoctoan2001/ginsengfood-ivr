@@ -63,6 +63,62 @@ Kiểm âm: đổi upstream thành một hostname giải được → **đỏ**;
 `tests/Ivr.ChaosTests`. Không sửa thì bảng traceability báo phủ đủ trong khi 5 scenario nằm ngoài
 nó — đúng kiểu im lặng mà `P5-1` dựng bảng này để chặn.
 
+## 6. Bốn dòng `ARCH-05` — và một phép kiểm **tự nói dối về mình**
+
+`2026-08-19`. Các dòng "before attempt" đều hứa cùng một điều: nguồn không trả lời được ⇒
+**không dispatch**.
+
+Mọi test sẵn có chứng minh **nửa đầu**: quyết định là hold, và **chưa có dòng attempt nào**. Không
+test nào chứng minh nửa sau, vì **không test nào từng chạy scheduler sau đó**.
+
+Khác biệt không vụn: *"chưa có attempt"* là phát biểu **về quá khứ**; *"sẽ không có cuộc gọi nào"*
+là khẳng định **về một component khác**, có claim query riêng và predicate riêng.
+
+### Đặt ở `Ivr.IntegrationTests`, không phải `tests/chaos`
+
+Bản đầu viết trong project chaos rồi bỏ, vì hai lý do đo được:
+
+- collection chaos **không có `ResetAsync`** — các scenario dùng suffix ngẫu nhiên để khỏi giẫm chân
+  nhau;
+- `TryClaimDueDispatchAsync` **chọn theo deadline trên toàn bảng**, nên trong một fixture dùng
+  chung, *"scheduler không nhận gì"* và *"scheduler nhận job của test khác"* đều **không phân biệt
+  được** với điều cần đo.
+
+Nơi đã có sẵn cả cô lập lẫn seeder là file eligibility. Khẳng định vẫn là của `ARCH-05`; chỉ chỗ ở
+đổi.
+
+### Kiểm âm **sống sót** — và đó mới là phát hiện
+
+Kiểm âm đầu: gỡ `job.eligible IS TRUE` khỏi claim query, kỳ vọng đỏ. **Nó vẫn xanh.**
+
+Vì có **ba** guard đứng giữa một hold và một dispatch, không phải một: `eligible`, `status`,
+`queue_status`. Hold đóng cả ba, nên gỡ một cái thì hai cái kia vẫn từ chối.
+
+Nghĩa là bình luận tôi vừa viết cho chính phép kiểm đó — *"nếu ai đó bỏ predicate này, test vẫn xanh
+trong khi cuộc gọi vẫn đi ra"* — **mô tả sai** thứ nó kiểm. Một phép kiểm sống sót qua đúng
+regression mà nó tự nhận bắt được thì **không phải phép kiểm mà bình luận của nó nói**.
+
+Sửa: khẳng định **từng guard theo tên**, cạnh khẳng định hành vi. Nay đổi hold thành
+`READY_FOR_SCHEDULER`/`QUEUED` → đỏ, kèm đúng tên trường.
+
+### Đối chứng: cùng scheduler ấy **có** nhận một task khoẻ
+
+*"Scheduler không nhận gì"* cũng chính là hình dạng của một scheduler **không thể nhận gì** — thiếu
+kênh, cửa sổ đã đóng, policy chưa gieo. Đối chứng dùng **cùng seeder, cùng store**, đòi nó nhận đúng
+job đó. Đó là thứ biến ba lần từ chối thành **bằng chứng**.
+
+### Dòng Trust vẫn trống, và **cố ý**
+
+`ARCH-05` ghi "Trust/Contact resolver → Hold task / review". Nhưng trust trả lời câu *"có được **bỏ
+qua** cuộc gọi cho khách đã tin cậy không"* — và **không biết thì không bao giờ được suy ra là bỏ
+qua**. Hiện thực để nó thành **advisory** và **vẫn gọi** (`skipFeatureEnabled = false`).
+
+Fail-closed ở dòng này **ngược chiều**: hold sẽ để một đơn không được xác nhận chỉ vì một tính năng
+tiện lợi đang hỏng. Nửa **contact** của dòng (`CONTACT_INVALID`) mới dẫn tới hold.
+
+Tôi **không** viết khẳng định "trust unavailable ⇒ hold", vì làm thế là **mã hoá một sai lầm vào bộ
+test**. Dòng này cần **chủ sở hữu quyết** ma trận nói gì — không phải một phép kiểm đoán hộ.
+
 ## 5. Cái này KHÔNG chứng minh
 
 - **Không có staging.** `P6-3` §4 nói chaos chạy ở dev/staging. Ở đây nó chạy trong harness tự dựng
@@ -72,8 +128,9 @@ nó — đúng kiểu im lặng mà `P5-1` dựng bảng này để chặn.
 - **Không có alert-fire capture thật** (§10) — không có Alertmanager để bắt. Cái có là hai nửa
   ghép lại: chaos chứng minh **sự cố thật làm counter thật nhúc nhích**; `IT-SLO-ALERT-01` chứng
   minh **luật nổ** trên hình dạng đó. Không lượt nào chứng minh cả hai.
-- **4/7 dòng trong ma trận `ARCH-05` §1 chưa có scenario**: Ops Sellable Gate, Trust/Contact
-  resolver, CRM do-not-call, Evidence Registry. Đó là **chưa phủ**, không phải "không áp dụng".
+- ~~**4/7 dòng trong ma trận `ARCH-05` §1 chưa có scenario**.~~ **Đã đóng `2026-08-19`** bằng
+  `IT-ELIG-NODISPATCH-15` (3/4 dòng), và **không phải trong project chaos** — xem §6 để biết vì sao,
+  điều gì nó tìm ra về **chính nó**, và vì sao dòng Trust vẫn cố ý để trống.
 - **Chưa có partition một phần, webhook trùng lặp / sai thứ tự** (`P6-3` §6.1). Toxic `latency` đã
   dựng nhưng chưa scenario nào dùng.
 - ~~`IT-12..17` mà `P6-3` §3/§9 trỏ tới không tồn tại.~~ **Đã quyết `2026-08-19`**

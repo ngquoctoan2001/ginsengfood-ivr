@@ -88,6 +88,63 @@ IVR. Đọc nhầm nó thành "IVR giữ mapping" sẽ dẫn tới kết luận 
 | `test:traceability` | `TEST_TRACEABILITY_CURRENT=266` (+9) |
 | `scan-pii.sh` | `PII_SCAN_PASS` |
 
+## 10. `IT-K8S-ROTATE-07` — fleet, và **hai chiều ngược nhau**
+
+`2026-08-19`, trên cluster k3s thật, api **2 replica**, dò liên tục bằng cả hai token **trong lúc**
+rolling restart:
+
+| Người gọi đang cầm | Bị từ chối trong lúc rollout |
+| --- | --- |
+| token **cũ** | **0/4** |
+| token **mới** | **2/4** |
+
+Đo **một** cột thôi sẽ đọc thành "rotation liền mạch" — mà nó chỉ liền mạch với **một** trong hai
+người gọi.
+
+**Cột cũ** là thứ overlap mua được: pod cũ giữ `cũ` làm current, pod mới giữ `cũ` làm previous, nên
+mọi pod ở mọi trạng thái của rollout đều nhận nó.
+
+**Cột mới** là thứ overlap **không thể** mua: một pod chưa restart **chưa từng nghe nói tới** token
+mới. Không cấu hình nào sửa được, vì đó không phải vấn đề cấu hình — nó là vấn đề **thứ tự**. Và đó
+chính là lý do runbook §6 xếp "rollout credential" **trước** "chuyển người gọi": đảo lại thì mọi
+request hỏng suốt độ dài một lần deploy.
+
+Khẳng định `newRejections > 0` được viết như một **kỳ vọng dương**, không phải một sự khoan dung:
+một lần chạy mà token mới **không bao giờ** bị từ chối nghĩa là rollout đã xong trước khi bắt đầu
+dò — và khi đó cột `0/4` kia cũng **không đo được gì**.
+
+### 10.1 Chart trước đó **không diễn đạt nổi** rotation này
+
+`_helpers.tpl` chỉ nối `ORDER_CORE_SERVICE_TOKEN`. Không có `TOKEN_PREVIOUS`, không có
+`TOKEN_PREVIOUS_RETIRES_AT`. Cơ chế overlap tồn tại trong code (`RotatingCredentialProvider`) và
+trong runbook, còn trên Kubernetes hình dạng duy nhất khả dụng là **cắt cứng** — đúng cái cửa sổ mà
+provider sinh ra để xoá.
+
+Nay hai biến là **tuỳ chọn và vắng mặt mặc định**: một previous token luôn hiện diện không phải
+overlap, nó là **credential sống thứ hai**. `optional: true` đặt trên **key**, không trên
+reference — secret luôn tồn tại vì nó mang token hiện hành; chỉ **key rotation** bên trong mới đến
+rồi đi.
+
+`RETIRES_AT` là một **thời điểm**, không phải một khoảng: một khoảng sẽ khởi động lại theo từng pod,
+nên rotation **không bao giờ kết thúc** chừng nào còn có gì đó bị lập lịch lại — và "không bao giờ
+kết thúc" chính là cách một overlap biến thành credential thứ hai vĩnh viễn.
+
+### 10.2 Lỗi thứ hai drill lôi ra: **console không gọi được API**
+
+Pod dò phải mang nhãn console để đi qua policy — và đó là lúc lộ ra: policy **ingress** cho phép
+console → api cổng 8080, nhưng **egress** allowlist **chưa bao giờ** nhắc tới api. NetworkPolicy đòi
+**cả hai đầu** đồng ý.
+
+Console render **phía server** với `http://<release>-api:8080`, nên trên bất kỳ cluster nào thực thi
+policy, **console không tải nổi một trang**.
+
+`IT-K8S-NETPOL-04` không bắt được vì nó chỉ kiểm **egress ra Internet** — một thứ đáng lẽ **bị
+chặn**. Không phép kiểm nào từng thử một chặng **đáng lẽ chạy được**, và **một bộ kiểm policy chỉ
+kiểm những lần từ chối của nó thì luôn luôn xanh**.
+
+Nay nó đo cả hai chiều: console **tới được** api, và một pod **không mang nhãn console** thì
+**không** — vì nếu bất cứ thứ gì trong namespace gọi được api thì luật ingress kia chỉ là trang trí.
+
 ## 8. Cái này KHÔNG chứng minh
 
 - **Chưa lượt rotation nào chạy trên hệ triển khai.** `SEC-ROT-01`/`-03` chứng minh **cơ chế**
@@ -179,6 +236,12 @@ Ba tính chất được chứng minh cùng lúc: overlap **giữ** token cũ s�
 điểm cấu hình mà không ai can thiệp, và token mới **không rớt lượt nào** — tức rotation này
 zero-downtime trên lối HTTP thật, không phải chỉ trong test đơn vị.
 
-**Vẫn còn giới hạn:** drill chạy trên **một** container, không phải một rolling restart nhiều
-replica. Nó chứng minh hành vi của middleware qua ranh giới; nó **không** chứng minh hành vi của
-fleet trong lúc pod cũ và pod mới cùng tồn tại — cái đó vẫn cần một cluster có nhiều replica.
+~~**Vẫn còn giới hạn:** drill chạy trên **một** container.~~ **Đã đóng `2026-08-19`** —
+`IT-K8S-ROTATE-07`, xem §10.
+
+### 9.6 Điều một container **không thể** trả lời
+
+Drill §9.5 chứng minh hành vi **middleware** qua ranh giới `T`: một tiến trình, hai token cấu hình
+sẵn. Thứ nó không chạm tới được là hành vi **fleet** trong lúc rolling restart, khi pod mang cấu
+hình cũ và pod mang cấu hình mới **cùng đang phục vụ**. Đó mới là chỗ rotation thật sự đau, và nó
+**vô hình** với mọi test có một replica.
