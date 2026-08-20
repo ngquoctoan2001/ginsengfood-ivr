@@ -119,7 +119,7 @@ public sealed class PostgresTelephonyDispatchStore(
                 channel.Status = "ACTIVE_CALL";
                 job.Status = "ACTIVE_CALL";
                 context.AuditLog.Add(CreateAudit(
-                    "MOCK_SIM_CALL_STARTED",
+                    "SIM_CALL_STARTED",
                     attempt,
                     now,
                     new Dictionary<string, object?>
@@ -219,7 +219,9 @@ public sealed class PostgresTelephonyDispatchStore(
                     IvrCallAttemptId = attempt.IvrCallAttemptId,
                     IvrCallJobId = attempt.IvrCallJobId,
                     ProviderInternalPayloadRef = string.Concat(
-                        "mock://provider-event/",
+                        "provider://event/",
+                        lease.ProviderName.ToLowerInvariant(),
+                        "/",
                         attempt.IvrCallAttemptId),
                     RawCallStatus = rawStatus,
                     RawDtmf = dtmf,
@@ -253,7 +255,7 @@ public sealed class PostgresTelephonyDispatchStore(
                     : endedAt.Add(cooldown);
                 channel.DisabledReason = channelHealthy
                     ? null
-                    : technicalErrorCode ?? "MOCK_CHANNEL_UNHEALTHY";
+                    : technicalErrorCode ?? "CHANNEL_UNHEALTHY";
                 ReleaseLease(channel);
 
                 // W-0042 / P6-3, DT-04. The second place a channel is taken out of service, and
@@ -265,11 +267,11 @@ public sealed class PostgresTelephonyDispatchStore(
                 {
                     Observability.IvrTelemetry.RecordChannelQuarantine(
                         (Observability.TelemetryTags.ReasonCode,
-                            channel.DisabledReason ?? "MOCK_CHANNEL_UNHEALTHY"));
+                            channel.DisabledReason ?? "CHANNEL_UNHEALTHY"));
                 }
 
                 context.AuditLog.Add(CreateAudit(
-                    "MOCK_SIM_PROVIDER_EVENT_CAPTURED",
+                    "SIM_PROVIDER_EVENT_CAPTURED",
                     attempt,
                     now,
                     new Dictionary<string, object?>
@@ -362,7 +364,7 @@ public sealed class PostgresTelephonyDispatchStore(
         IReadOnlyDictionary<string, object?> data) => new()
         {
             AuditId = Guid.NewGuid(),
-            ActorId = "ivr-mock-telephony",
+            ActorId = "ivr-telephony",
             ActorType = "service",
             Action = action,
             TargetType = "call-attempt",

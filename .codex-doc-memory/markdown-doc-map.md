@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-20T09:01:21.385Z
+Generated: 2026-08-20T11:23:47.199Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 524
+- Markdown files: 526
 - Links resolved: 478
 - Unresolved links: 39
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 109
+- Orphan candidates: 111
 
 ## High Link Documents
 
@@ -124,6 +124,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 - CLAUDE.md
 - deploy/chaos/README.md
 - deploy/dr/README.md
+- deploy/lab/README.md
 - docs/compliance/data-inventory.md
 - docs/compliance/dsar-runbook.md
 - docs/compliance/ivr-data-inventory.md
@@ -196,6 +197,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0100/README.md
 - docs/evidence/W-0101/README.md
 - docs/evidence/W-0102/README.md
+- docs/evidence/W-0104/README.md
 - docs/integration-guide.md
 - docs/kpi-catalog.md
 - docs/lab/one-sim-lab-plan.md
@@ -243,6 +245,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | deploy/docker/README.md | Container images & dev stack — `W-0043` · `P7-1` | 1/10 | 1 | 0 | 0 | 748 |
 | deploy/dr/README.md | DR configuration — `W-0053` · `P10-2` | 1/5 | 0 | 0 | 0 | 257 |
 | deploy/helm/README.md | Helm chart — `W-0044` · `P7-2` | 1/9 | 1 | 0 | 0 | 820 |
+| deploy/lab/README.md | W-0104 — Free Asterisk + MicroSIP lab | 1/6 | 0 | 0 | 0 | 478 |
 | docs/api/changelog/ivr-order-confirmation.md | API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.9 | 1/13 | 1 | 0 | 0 | 75 |
 | docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md | API Changelog 1.0.0 vs. 1.0.0-draft.2 | 1/20 | 1 | 0 | 0 | 2694 |
 | docs/api/changelog/order-core-ivr-callback.md | API Changelog 1.0.0-draft vs. 1.0.0-draft | 1/1 | 1 | 0 | 0 | 15 |
@@ -497,7 +500,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0046/README.md | W-0046 — Evidence: Progressive delivery & canary (`P7-4`) | 1/9 | 0 | 1 | 0 | 1063 |
 | docs/evidence/W-0047/README.md | W-0047 — Evidence: Secret rotation & key lifecycle (`P7-5`) | 1/19 | 0 | 2 | 0 | 2195 |
 | docs/evidence/W-0048/external-input-request.md | W-0048 — Phiếu lấy đầu vào Sales và one-SIM lab | 1/12 | 0 | 0 | 0 | 1209 |
-| docs/evidence/W-0048/README.md | W-0048 — One-SIM lab + Sales integration readiness | 1/11 | 0 | 0 | 0 | 837 |
+| docs/evidence/W-0048/README.md | W-0048 — One-SIM lab + Sales integration readiness | 1/12 | 0 | 0 | 0 | 960 |
 | docs/evidence/W-0052/README.md | W-0052 — Evidence: PDPA / privacy compliance & consent (`P10-1`) | 1/10 | 0 | 0 | 0 | 1346 |
 | docs/evidence/W-0053/README.md | W-0053 — Evidence: Data governance, backup crypto & DR (`P10-2`) | 1/9 | 0 | 0 | 0 | 1596 |
 | docs/evidence/W-0054/README.md | W-0054 — Evidence: Capacity, cost & SIM sizing model (`P10-3`) | 1/10 | 0 | 0 | 0 | 1607 |
@@ -530,6 +533,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0101/README.md | W-0101 — Phase 3 spec conformance (UI-01 / UI-02 / UI-03) | 1/8 | 0 | 0 | 0 | 888 |
 | docs/evidence/W-0102/README.md | W-0102 — Phase 3 §10 live evidence capture | 1/8 | 0 | 0 | 0 | 1070 |
 | docs/evidence/W-0103/README.md | W-0103 — Current-system audit closure | 1/8 | 1 | 1 | 0 | 877 |
+| docs/evidence/W-0104/README.md | W-0104 — Free Asterisk/softphone telephony preflight | 1/6 | 0 | 0 | 0 | 677 |
 | docs/gameday-report.md | Game-day report — IVR Order Confirmation (`W-0042` · `P6-3`) | 1/12 | 1 | 0 | 0 | 1506 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
 | docs/kpi-catalog.md | KPI catalog — `W-0055` · `P10-4` | 1/11 | 0 | 0 | 0 | 1648 |
@@ -547,7 +551,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/secret-inventory.md | Secret inventory — `W-0047` · `P7-5` §6.1 | 1/6 | 1 | 0 | 0 | 696 |
 | docs/secret-rotation-runbook.md | Secret rotation runbook — `W-0047` · `P7-5` §6.4 | 1/8 | 1 | 0 | 0 | 1038 |
 | docs/slo.md | SLO / SLI — IVR Order Confirmation (`W-0041` · `P6-2`) | 1/14 | 0 | 0 | 0 | 2096 |
-| docs/traceability-tests.md | Test traceability — test ID to source | 1/3 | 0 | 0 | 0 | 3379 |
+| docs/traceability-tests.md | Test traceability — test ID to source | 1/3 | 0 | 0 | 0 | 3429 |
 | integration-requirements/00-index.md | Integration Requirements — Index (IVR Order Confirmation) | 1/4 | 0 | 5 | 0 | 224 |
 | integration-requirements/01-sales-platform-requirements.md | IR-01 — Sales Platform / Order Core Requirements | 1/8 | 1 | 0 | 0 | 692 |
 | integration-requirements/02-ops-core-requirements.md | IR-02 — Ops-Core Requirements (Module 1/2) | 1/3 | 1 | 0 | 0 | 457 |
@@ -595,7 +599,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 5 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 3 | 0 | 0 | 40685 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 3 | 0 | 0 | 41310 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |

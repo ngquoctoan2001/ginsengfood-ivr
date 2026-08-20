@@ -11,6 +11,7 @@ public sealed class TtsProviderOptions
 {
     public const string SectionName = "Ivr:Speech:Tts";
     public const string FakeProvider = "FAKE_DETERMINISTIC";
+    public const string StaticFileProvider = "STATIC_FILE";
     public const string ExternalProvider = "EXTERNAL_CONFIGURABLE";
     public const string UnselectedProvider = "UNSELECTED";
 
@@ -21,6 +22,10 @@ public sealed class TtsProviderOptions
     public string Endpoint { get; set; } = string.Empty;
 
     public string Credential { get; set; } = string.Empty;
+
+    public string FileMediaReference { get; set; } = "sound:ivr-lab-order-confirmation";
+
+    public int FileDurationSeconds { get; set; } = 18;
 
     public string OutputFormat { get; set; } = "audio/L16";
 
@@ -58,6 +63,10 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
         ArgumentNullException.ThrowIfNull(options);
         var failures = new List<string>();
         bool mock = string.Equals(options.ExecutionMode, "MOCK", StringComparison.OrdinalIgnoreCase);
+        bool lab = string.Equals(
+            options.ExecutionMode,
+            "LAB_REAL_SIM",
+            StringComparison.OrdinalIgnoreCase);
         if (mock && !string.Equals(
                 options.Provider,
                 TtsProviderOptions.FakeProvider,
@@ -80,9 +89,36 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
             failures.Add("The deterministic fake TTS provider is restricted to MOCK execution.");
         }
 
+        if (string.Equals(
+                options.Provider,
+                TtsProviderOptions.StaticFileProvider,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            if (!lab)
+            {
+                failures.Add("The static-file TTS provider is restricted to LAB_REAL_SIM execution.");
+            }
+
+            if (!options.FileMediaReference.StartsWith("sound:", StringComparison.Ordinal)
+                || options.FileMediaReference.Length > 160
+                || options.FileMediaReference.Any(character =>
+                    !(char.IsAsciiLetterOrDigit(character)
+                      || character is ':' or '-' or '_' or '/')))
+            {
+                failures.Add("FileMediaReference must be a safe Asterisk sound reference.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(options.Endpoint)
+                || !string.IsNullOrWhiteSpace(options.Credential))
+            {
+                failures.Add("The static-file TTS provider cannot configure network credentials.");
+            }
+        }
+
         if (!new[]
             {
                 TtsProviderOptions.FakeProvider,
+                TtsProviderOptions.StaticFileProvider,
                 TtsProviderOptions.ExternalProvider,
                 TtsProviderOptions.UnselectedProvider,
             }.Contains(options.Provider, StringComparer.OrdinalIgnoreCase))
@@ -100,6 +136,7 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
         if (options.SampleRate is < 8_000 or > 192_000
             || options.SpeakingRate is < 0.5m or > 2m
             || options.MaxDurationSeconds is < 1 or > 300
+            || options.FileDurationSeconds is < 1 or > 300
             || options.TimeoutMilliseconds is < 10 or > 120_000
             || options.CacheMaximumTtlSeconds is < 1 or > 86_400
             || options.SpeechSnapshotRetentionSeconds is < 1 or > 86_400
@@ -128,6 +165,10 @@ public static class SpeechServiceCollectionExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
         IConfigurationSection section = configuration.GetSection(TtsProviderOptions.SectionName);
         bool mock = string.Equals(executionMode, "MOCK", StringComparison.OrdinalIgnoreCase);
+        bool staticFile = string.Equals(
+            section[nameof(TtsProviderOptions.Provider)],
+            TtsProviderOptions.StaticFileProvider,
+            StringComparison.OrdinalIgnoreCase);
         services.AddOptions<TtsProviderOptions>()
             .Bind(section)
             .PostConfigure(options =>
@@ -161,6 +202,10 @@ public static class SpeechServiceCollectionExtensions
         if (mock)
         {
             services.TryAddSingleton<ITtsProvider, FakeDeterministicTtsProvider>();
+        }
+        else if (staticFile)
+        {
+            services.TryAddSingleton<ITtsProvider, StaticFileTtsProvider>();
         }
         else
         {

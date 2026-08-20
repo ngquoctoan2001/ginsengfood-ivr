@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T09:01:21.385Z",
+  "generatedAt": "2026-08-20T11:23:47.199Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -1050,6 +1050,56 @@
           "line": 7
         }
       ]
+    },
+    {
+      "path": "deploy/lab/README.md",
+      "title": "W-0104 — Free Asterisk + MicroSIP lab",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0104 — Free Asterisk + MicroSIP lab",
+          "line": 1,
+          "slug": "w-0104-free-asterisk-microsip-lab"
+        },
+        {
+          "depth": 2,
+          "text": "Safety boundary",
+          "line": 5,
+          "slug": "safety-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "Prerequisite",
+          "line": 13,
+          "slug": "prerequisite"
+        },
+        {
+          "depth": 2,
+          "text": "Chạy lab",
+          "line": 22,
+          "slug": "chạy-lab"
+        },
+        {
+          "depth": 2,
+          "text": "Dừng và dọn lab",
+          "line": 49,
+          "slug": "dừng-và-dọn-lab"
+        },
+        {
+          "depth": 2,
+          "text": "Tiêu chí đọc kết quả",
+          "line": 65,
+          "slug": "tiêu-chí-đọc-kết-quả"
+        }
+      ],
+      "links": [],
+      "lines": 74,
+      "words": 478,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
     },
     {
       "path": "docs/api/changelog/ivr-order-confirmation.md",
@@ -222273,11 +222323,17 @@
           "text": "6. Điều kiện để chuyển khỏi `BLOCKED_EXTERNAL`",
           "line": 108,
           "slug": "6-điều-kiện-để-chuyển-khỏi-blockedexternal"
+        },
+        {
+          "depth": 2,
+          "text": "7. Cập nhật sau baseline — W-0104 software preflight",
+          "line": 118,
+          "slug": "7-cập-nhật-sau-baseline-w-0104-software-preflight"
         }
       ],
       "links": [],
-      "lines": 117,
-      "words": 837,
+      "lines": 128,
+      "words": 960,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -224100,6 +224156,56 @@
       ]
     },
     {
+      "path": "docs/evidence/W-0104/README.md",
+      "title": "W-0104 — Free Asterisk/softphone telephony preflight",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0104 — Free Asterisk/softphone telephony preflight",
+          "line": 1,
+          "slug": "w-0104-free-asterisksoftphone-telephony-preflight"
+        },
+        {
+          "depth": 2,
+          "text": "1. Phạm vi đã triển khai",
+          "line": 9,
+          "slug": "1-phạm-vi-đã-triển-khai"
+        },
+        {
+          "depth": 2,
+          "text": "2. Automated evidence",
+          "line": 20,
+          "slug": "2-automated-evidence"
+        },
+        {
+          "depth": 2,
+          "text": "3. Runtime evidence đã quan sát",
+          "line": 39,
+          "slug": "3-runtime-evidence-đã-quan-sát"
+        },
+        {
+          "depth": 2,
+          "text": "4. Sự cố đã tìm và sửa trong preflight",
+          "line": 54,
+          "slug": "4-sự-cố-đã-tìm-và-sửa-trong-preflight"
+        },
+        {
+          "depth": 2,
+          "text": "5. Ranh giới kết luận",
+          "line": 61,
+          "slug": "5-ranh-giới-kết-luận"
+        }
+      ],
+      "links": [],
+      "lines": 66,
+      "words": 677,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
       "path": "docs/gameday-report.md",
       "title": "Game-day report — IVR Order Confirmation (`W-0042` · `P6-3`)",
       "frontmatter": {},
@@ -225658,13 +225764,13 @@
         {
           "depth": 2,
           "text": "Tests",
-          "line": 80,
+          "line": 81,
           "slug": "tests"
         }
       ],
       "links": [],
-      "lines": 415,
-      "words": 3379,
+      "lines": 421,
+      "words": 3429,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -230195,31 +230301,31 @@
         {
           "depth": 2,
           "text": "6. Unplanned work insertion template",
-          "line": 169,
+          "line": 170,
           "slug": "6-unplanned-work-insertion-template"
         },
         {
           "depth": 2,
           "text": "7. Activity log (append-only)",
-          "line": 181,
+          "line": 182,
           "slug": "7-activity-log-append-only"
         },
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 527,
+          "line": 537,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 548,
+          "line": 558,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 998,
-      "words": 40685,
+      "lines": 1008,
+      "words": 41310,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -245779,6 +245885,7 @@
       "CLAUDE.md",
       "deploy/chaos/README.md",
       "deploy/dr/README.md",
+      "deploy/lab/README.md",
       "docs/compliance/data-inventory.md",
       "docs/compliance/dsar-runbook.md",
       "docs/compliance/ivr-data-inventory.md",
@@ -245851,6 +245958,7 @@
       "docs/evidence/W-0100/README.md",
       "docs/evidence/W-0101/README.md",
       "docs/evidence/W-0102/README.md",
+      "docs/evidence/W-0104/README.md",
       "docs/integration-guide.md",
       "docs/kpi-catalog.md",
       "docs/lab/one-sim-lab-plan.md",

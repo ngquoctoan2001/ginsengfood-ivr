@@ -1,0 +1,9 @@
+[general]
+enabled=yes
+pretty=no
+allowed_origins=*
+
+[ivr-lab]
+type=user
+read_only=no
+password=__ARI_PASSWORD__

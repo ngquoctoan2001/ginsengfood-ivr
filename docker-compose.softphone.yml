@@ -1,0 +1,98 @@
+# W-0104 — explicit, disposable Asterisk + MicroSIP lab overlay.
+#
+# This file is never loaded by `docker compose up` on its own. It must be named
+# explicitly alongside docker-compose.dev.yml, and it remains pinned to one opaque
+# destination alias (LAB-A). It cannot dial a PSTN number or a real customer.
+
+x-asterisk-lab-env: &asterisk-lab-env
+  IVR_EXECUTION_MODE: LAB_REAL_SIM
+  IVR_ADAPTER_MODE: ASTERISK_ARI
+  REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  SALES_PROVIDER: FAKE_TARGET_V1
+  SIM_PROVIDER: VENDOR
+  Ivr__Telephony__Asterisk__Enabled: "true"
+  Ivr__Telephony__Asterisk__BaseUrl: "http://asterisk:8088"
+  Ivr__Telephony__Asterisk__Username: "ivr-lab"
+  Ivr__Telephony__Asterisk__Password: "${IVR_LAB_ARI_PASSWORD:?Set IVR_LAB_ARI_PASSWORD in .env}"
+  Ivr__Telephony__Asterisk__Application: "ivr-lab"
+  Ivr__Telephony__Asterisk__Environment: "lab"
+  Ivr__Telephony__Asterisk__DestinationAlias: "LAB-A"
+  Ivr__Telephony__Asterisk__SimChannelId: "SIM-ASTERISK-001"
+  Ivr__Telephony__Asterisk__AdapterMode: "ASTERISK_ARI"
+  Ivr__Telephony__Asterisk__ProviderName: "ASTERISK_ARI"
+  Ivr__Telephony__Asterisk__RecordingEnabled: "false"
+  Ivr__Telephony__Asterisk__DtmfTimeoutSeconds: "60"
+  Ivr__Speech__Tts__Provider: "STATIC_FILE"
+  Ivr__Speech__Tts__OutputFormat: "audio/wav"
+  Ivr__Speech__Tts__SampleRate: "8000"
+  Ivr__Speech__Tts__VoiceId: "w0104-static-file"
+  Ivr__Speech__Tts__FileMediaReference: "sound:ivr-lab-order-confirmation"
+  Ivr__Speech__Tts__FileDurationSeconds: "18"
+
+services:
+  asterisk:
+    build:
+      context: ./deploy/lab/asterisk
+      dockerfile: Dockerfile
+    image: ivr-asterisk-lab:w0104
+    environment:
+      IVR_LAB_ARI_PASSWORD: "${IVR_LAB_ARI_PASSWORD:?Set IVR_LAB_ARI_PASSWORD in .env}"
+      IVR_LAB_SIP_PASSWORD: "${IVR_LAB_SIP_PASSWORD:?Set IVR_LAB_SIP_PASSWORD in .env}"
+    ports:
+      - "127.0.0.1:${IVR_LAB_ARI_PORT:-18088}:8088/tcp"
+      - "127.0.0.1:${IVR_LAB_SIP_PORT:-5060}:5060/udp"
+      - "127.0.0.1:10000-10020:10000-10020/udp"
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/ivr-lab-healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    networks:
+      - ivr-database-local
+
+  lab-seed:
+    image: postgres:16
+    command:
+      - psql
+      - --set
+      - ON_ERROR_STOP=1
+      - --host
+      - postgres
+      - --username
+      - ivr
+      - --dbname
+      - ivr
+      - --file
+      - /lab/seed.sql
+    volumes:
+      - ./deploy/lab/seed.sql:/lab/seed.sql:ro
+    depends_on:
+      ivr-migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    networks:
+      - ivr-database-local
+
+  ivr-api:
+    environment:
+      <<: *asterisk-lab-env
+    depends_on:
+      lab-seed:
+        condition: service_completed_successfully
+
+  ivr-worker:
+    environment:
+      <<: *asterisk-lab-env
+      Ivr__Scheduler__Enabled: "true"
+      Ivr__Scheduler__PollIntervalMilliseconds: "500"
+      Ivr__Normalization__Enabled: "true"
+      Ivr__Normalization__PollIntervalMilliseconds: "500"
+      Ivr__CallbackDelivery__Enabled: "true"
+      Ivr__CallbackDelivery__PollIntervalMilliseconds: "500"
+      Ivr__CallbackDelivery__TargetBaseUrl: "http://fake-sales:8080"
+    depends_on:
+      asterisk:
+        condition: service_healthy
+      lab-seed:
+        condition: service_completed_successfully

@@ -13,6 +13,7 @@ ci-artifacts/
 # artifacts. Committing them would freeze a picture of images that move underneath it.
 artifacts/sbom/
 .tools/
+deploy/lab/.local-tools/
 
 # Node / Next.js
 **/node_modules/

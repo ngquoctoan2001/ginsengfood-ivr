@@ -114,3 +114,14 @@ Lane A và B độc lập, có thể chuẩn bị song song nhưng phải báo c
 5. Lab chỉ gọi số test do owner kiểm soát; `REAL_CUSTOMER_CALL_ALLOWED` giữ `NO`.
 
 Không có dòng nào ở trên tự đóng `W-0048`; physical lab và Sales CDC phải tạo evidence chạy thật.
+
+## 7. Cập nhật sau baseline — W-0104 software preflight
+
+W-0104 đã bổ sung một lane tiền kiểm miễn phí bằng Asterisk Docker + MicroSIP: scheduler đi qua `DispatchGate`, ARI gọi alias `LAB-A`, MicroSIP đăng ký/bắt máy và file audio được phát. Đây là bằng chứng software-only, không dùng số điện thoại, modem, SIM, PSTN hoặc carrier.
+
+Vì vậy lane B được tách rõ:
+
+- B0 — Asterisk/softphone software preflight: `TESTS_PASS`; SIP registration, ring/answer/audio, no-input và hai phím `1/0` đều có runtime evidence.
+- B1 — physical one-SIM lab: vẫn `BLOCKED_EXTERNAL/NOT_RUN`, cần thiết bị, SIM, giao thức adapter, allowlist và owner-controlled destination.
+
+W-0104 không thay đổi kết luận Sales ở tài liệu này và không đóng bất kỳ physical/external gate nào của W-0048.

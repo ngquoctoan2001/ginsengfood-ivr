@@ -41,6 +41,7 @@ else
         builder.Configuration.GetSection(WorkerHealthOptions.SectionName));
     builder.Services.AddHostedService<WorkerHealthEndpoint>();
     builder.Services.AddHostedService<MockSimChannelProvisioner>();
+    builder.Services.AddHostedService<AsteriskLabChannelProvisioner>();
     builder.Services.AddHostedService<IvrHeartbeat>();
     builder.Services.AddHostedService<RetentionJobHost>();
     builder.Services.AddHostedService<SchedulerJobHost>();

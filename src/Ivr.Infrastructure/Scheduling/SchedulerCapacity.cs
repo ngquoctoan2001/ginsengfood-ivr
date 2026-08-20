@@ -2,6 +2,7 @@ using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
 using Ivr.Domain.Scheduling;
+using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Security;
@@ -408,6 +409,13 @@ public static class SchedulerServiceCollectionExtensions
         IConfigurationSection section = configuration.GetSection(SchedulerOptions.SectionName);
         IConfigurationSection normalizationSection = configuration.GetSection(
             NormalizationOptions.SectionName);
+        IConfigurationSection asteriskSection = configuration.GetSection(
+            AsteriskAriOptions.SectionName);
+        bool asteriskLab = string.Equals(
+                executionMode,
+                IvrOptions.LabRealSimExecutionMode,
+                StringComparison.OrdinalIgnoreCase)
+            && asteriskSection.GetValue<bool>(nameof(AsteriskAriOptions.Enabled));
         services.AddOptions<SchedulerOptions>()
             .Configure(options =>
             {
@@ -460,6 +468,12 @@ public static class SchedulerServiceCollectionExtensions
             .ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
             IValidateOptions<MockTelephonyOptions>, MockTelephonyOptionsValidator>());
+        services.AddOptions<AsteriskAriOptions>()
+            .Bind(asteriskSection)
+            .PostConfigure(options => options.ExecutionMode = executionMode)
+            .ValidateOnStart();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IValidateOptions<AsteriskAriOptions>, AsteriskAriOptionsValidator>());
         services.TryAddSingleton(new SchedulerExecutionContext(executionMode));
         services.AddIvrSpeech(configuration, executionMode);
         if (useMockCapacity)
@@ -496,6 +510,23 @@ public static class SchedulerServiceCollectionExtensions
                 PostgresTelephonyDispatchStore>();
             services.TryAddSingleton<ISchedulerDispatchGateway,
                 MockSchedulerDispatchGateway>();
+        }
+        else if (asteriskLab)
+        {
+            services.TryAddSingleton<ISchedulerCapacityService,
+                PostgresSchedulerCapacityService>();
+            services.TryAddSingleton<LabDialTokenVault>();
+            services.Replace(ServiceDescriptor.Singleton<IOpaqueValueProtector>(provider =>
+                provider.GetRequiredService<LabDialTokenVault>()));
+            services.TryAddSingleton<IDialTokenResolver>(provider =>
+                provider.GetRequiredService<LabDialTokenVault>());
+            services.TryAddSingleton<ISpeechRenderer, ApprovedVietnameseSpeechRenderer>();
+            services.AddHttpClient(nameof(AsteriskAriSimGateway));
+            services.TryAddSingleton<ISimGateway, AsteriskAriSimGateway>();
+            services.TryAddSingleton<ITelephonyDispatchStore,
+                PostgresTelephonyDispatchStore>();
+            services.TryAddSingleton<ISchedulerDispatchGateway,
+                AsteriskSchedulerDispatchGateway>();
         }
         else
         {
