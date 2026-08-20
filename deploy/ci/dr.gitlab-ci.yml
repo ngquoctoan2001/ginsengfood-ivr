@@ -1,0 +1,31 @@
+# W-0053 / P10-2 §8. Data-governance and DR drills.
+#
+# Its own job, and not folded into the k8s one, because the failure means something different: a
+# chart job failing says a manifest is wrong, this one failing says the database is either not
+# encrypted in transit, or not restorable, or not recoverable. Those are the three claims that a
+# "DR plan" document makes and never tests.
+#
+# allow_failure: false. A restore nobody verified is a backup nobody has.
+dr_selftest:
+  stage: validate
+  image: node:22-alpine
+  allow_failure: false
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    # No application runs here at all: the drills work directly against PostgreSQL and the chart.
+    # Stated so nobody reads the DinD service as a place where IVR itself might dial out.
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  before_script:
+    - apk add --no-cache docker-cli
+  script:
+    - mkdir -p ci-artifacts/dr
+    - node deploy/ci/scripts/dr-selftest.mjs | tee ci-artifacts/dr/dr-selftest.log
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - ci-artifacts/dr/

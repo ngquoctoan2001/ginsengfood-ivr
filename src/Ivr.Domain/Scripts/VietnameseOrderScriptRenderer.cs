@@ -76,7 +76,35 @@ public interface IScriptPreviewRenderer
 
 public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
 {
-    private static readonly CultureInfo VietnameseCulture = CultureInfo.GetCultureInfo("vi-VN");
+    /// <summary>
+    /// Vietnamese number formatting, constructed here instead of looked up from ICU.
+    /// <para>
+    /// <c>CultureInfo.GetCultureInfo("vi-VN")</c> is what this used to be, and it made the SHIPPED
+    /// WORKER IMAGE unable to speak: the chiseled runtime base runs in globalization-invariant
+    /// mode, so the lookup threw <see cref="CultureNotFoundException"/> inside a static
+    /// constructor. That surfaces as <c>TypeInitializationException</c> on the first render, which
+    /// the dispatch gateway maps to a generic technical failure -- and after three of those DT-04
+    /// auto-disabled the only SIM channel. Every test passed, because tests run on a host with ICU.
+    /// </para>
+    /// <para>
+    /// Two separators is not enough locale data to be worth a runtime dependency, and building
+    /// them here buys something ICU cannot: a customer hears the same number on every machine,
+    /// rather than whatever the base image's ICU version happens to say this year.
+    /// <c>UT-SCRIPT-VI-FORMAT-08</c> pins the values against real ICU where ICU exists.
+    /// </para>
+    /// </summary>
+    private static readonly NumberFormatInfo VietnameseNumbers = CreateVietnameseNumbers();
+
+    private static NumberFormatInfo CreateVietnameseNumbers()
+    {
+        var format = (NumberFormatInfo)NumberFormatInfo.InvariantInfo.Clone();
+        format.NumberGroupSeparator = ".";
+        format.NumberDecimalSeparator = ",";
+        format.NumberGroupSizes = [3];
+        format.NumberNegativePattern = 1;
+        return format;
+    }
+
     private static readonly Regex WhitespacePattern = new(
         "\\s+",
         RegexOptions.CultureInvariant,
@@ -97,7 +125,7 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
             summary.PronunciationHints,
             effectiveOptions.MaximumSpokenItems);
         string totalAmount = string.Concat(
-            summary.Total.Amount.ToString("N0", VietnameseCulture),
+            summary.Total.Amount.ToString("N0", VietnameseNumbers),
             " đồng");
         string exactText = validTemplate
             .Replace("{{customer_display_name}}", summary.CustomerDisplayName, StringComparison.Ordinal)
@@ -177,5 +205,5 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
     }
 
     private static string FormatQuantity(decimal quantity) =>
-        quantity.ToString(quantity == decimal.Truncate(quantity) ? "0" : "0.##", VietnameseCulture);
+        quantity.ToString(quantity == decimal.Truncate(quantity) ? "0" : "0.##", VietnameseNumbers);
 }

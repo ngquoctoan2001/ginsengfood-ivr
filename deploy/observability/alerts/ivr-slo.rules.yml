@@ -78,6 +78,33 @@ groups:
           description: Ticket rather than page. The outbox already stopped retrying and the row is durable.
           runbook_url: docs/slo.md#callback-retry-exhausted
 
+      # ARCH-06 section 1. The threshold is zero, and that is derived rather than chosen: the
+      # capacity model (W-0054) says the pool prod ships covers the modelled peak, so under the
+      # model's own assumptions no confirmation window closes uncalled. Any miss therefore
+      # falsifies an assumption -- which is why the runbook sends the on-call to recalibration
+      # (W-0008) and not to procurement.
+      #
+      # A zero-tolerance rule is only honest while that premise holds. If the shipped pool ever
+      # drops below the modelled peak, the pool itself guarantees misses and this rule becomes
+      # noise by construction; `capacity-selftest.mjs` CAP-ALERT-04 asserts the two together so
+      # the rule cannot outlive its own justification.
+      #
+      # Ticket, not page: the job is already closed, the capacity incident is durable and the
+      # result carries REVALIDATE_AND_HOLD_ADMIN_REVIEW, so a human already owns the order. What
+      # is missing is someone noticing the pattern, and that is a queue, not a pager.
+      - alert: IvrConfirmationDeadlineMissed
+        expr: sum by (ivr_program) (increase(ivr_missed_deadline_total[15m])) > 0
+        for: 5m
+        labels:
+          severity: ticket
+          slo: capacity_deadline
+          decision: ARCH-06
+          slo_status: proposed
+        annotations:
+          summary: A confirmation window closed with no call placed
+          description: The capacity model says the shipped pool covers the modelled peak, so a miss on {{ $labels.ivr_program }} falsifies a model assumption. The fix is recalibration against a measured call duration (W-0008), not a bigger pool.
+          runbook_url: docs/slo.md#capacity-deadline-missed
+
       - alert: IvrIntakeRejectionRatioHigh
         expr: |
           (

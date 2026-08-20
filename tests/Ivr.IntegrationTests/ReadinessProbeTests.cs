@@ -48,6 +48,52 @@ public sealed class ReadinessProbeTests(PostgresPersistenceFixture fixture)
         });
     }
 
+    [Fact]
+    [Trait("TestId", "IT-OBS-HEALTH-04")]
+    public async Task AReachableButUnmigratedDatabaseIsNotReady()
+    {
+        // W-0046 named this gap and nothing closed it: the direction where NEW code meets an OLD
+        // schema. The chart runs migrations as a pre-upgrade hook, so the happy path is covered by
+        // ordering -- but a deploy with hooks skipped, a hook someone disabled, or a developer
+        // pointing at an un-migrated database all produce a pod that CONNECTS. Before this check,
+        // that pod reported Healthy, took traffic, and failed on the first query against a table
+        // that was not there.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+
+        await using (IvrDbContext context = await factory.CreateDbContextAsync())
+        {
+            // A real un-migrated database: reachable, and empty. Dropping the history table alone
+            // would be a cheaper fixture and a weaker one -- it would leave the tables in place, so
+            // a probe that only read history would pass while a probe that queried would too.
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync(CancellationToken.None);
+        }
+
+        ReadinessReport report = await new IvrReadinessProbe(factory)
+            .CheckAsync(CancellationToken.None);
+
+        Assert.False(report.Ready);
+        Assert.Equal(503, report.StatusCode);
+        ReadinessCheck database = Assert.Single(report.Checks, check => check.Name == "database");
+        Assert.False(database.Ready);
+
+        // A fixed phrase, and deliberately not the list of pending migrations: a readiness body is
+        // served to anything that asks, and the migrations a build expects describe the build.
+        Assert.Equal("schema_behind", database.Reason);
+
+        // And the control: migrate, and the same probe says yes. Without this the assertion above
+        // would also pass on a probe that had simply stopped working.
+        await fixture.ResetAsync();
+        ReadinessReport migrated = await new IvrReadinessProbe(factory)
+            .CheckAsync(CancellationToken.None);
+        Assert.True(migrated.Ready);
+        Assert.Equal("reachable", Assert.Single(
+            migrated.Checks,
+            check => check.Name == "database").Reason);
+    }
+
     private sealed class UnreachableDbContextFactory : IDbContextFactory<IvrDbContext>
     {
         public IvrDbContext CreateDbContext()

@@ -194,6 +194,57 @@ public sealed class ArchitectureDependencyTests
         Assert.Equal("Ivr.Contracts", GetReferencedProjectName(include, projectDirectory));
     }
 
+    [Fact]
+    [Trait("TestId", "UT-BOOT-05")]
+    public void NoProductionCodeLooksUpANamedCulture()
+    {
+        // The three deployables run on a chiseled runtime base, which is globalization-INVARIANT:
+        // there is no ICU, so CultureInfo.GetCultureInfo("vi-VN") throws. In a static constructor
+        // that becomes TypeInitializationException on first use, which the caller sees as some
+        // unrelated generic failure -- VietnameseOrderScriptRenderer hit exactly that, and the
+        // shipped worker could not speak a single script.
+        //
+        // A grep, deliberately. The runtime check cannot exist: a test host that HAS ICU resolves
+        // the lookup fine, so the only way to catch this in-process is to forbid the call.
+        string repositoryRoot = FindRepositoryRoot();
+        string[] offenders = Directory
+            .GetFiles(Path.Combine(repositoryRoot, "src"), "*.cs", SearchOption.AllDirectories)
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}Generated{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}Migrations{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Where(file => File.ReadLines(file).Any(LooksUpANamedCulture))
+            .Select(file => Path.GetRelativePath(repositoryRoot, file))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.True(
+            offenders.Length == 0,
+            "These files look up a named culture, which throws in the globalization-invariant "
+            + "runtime the deployables ship on. Build the NumberFormatInfo/DateTimeFormatInfo "
+            + $"explicitly instead: {string.Join(", ", offenders)}");
+    }
+
+    /// <summary>
+    /// Comment lines are skipped, and that is not a loophole -- it is the difference between the
+    /// rule and a string search. The fix for this defect documents the API it replaced, by name,
+    /// because a reader who does not know why the code is shaped that way will reach for the
+    /// obvious call again. A guard that cannot tell code from prose would push the explanation out
+    /// of the file, which costs more than it protects.
+    /// </summary>
+    private static bool LooksUpANamedCulture(string line)
+    {
+        string trimmed = line.TrimStart();
+        if (trimmed.StartsWith("//", StringComparison.Ordinal)
+            || trimmed.StartsWith('*')
+            || trimmed.StartsWith("/*", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return trimmed.Contains("CultureInfo.GetCultureInfo(", StringComparison.Ordinal)
+            || trimmed.Contains("new CultureInfo(", StringComparison.Ordinal)
+            || trimmed.Contains("CultureInfo.CreateSpecificCulture(", StringComparison.Ordinal);
+    }
+
     private static string GetReferencedProjectName(string include, string projectDirectory)
     {
         string platformPath = include

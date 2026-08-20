@@ -2,16 +2,23 @@
   "mappings": [
     {
       "name": "target-v1 result callback accepted",
+      "metadata": {
+        "contract": "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
+        "why_the_path_matters": "W-0043. The path, the status and the body shape all come from the Target V1 contract, which is what TargetV1CallbackTransport actually speaks. The first version of this stub matched /v1/orders/.*/ivr-result and answered 202 with {response_code, accepted}: three independent mismatches, so the stack answered 404 to every real callback. Nothing caught it because the compose smoke only asked whether the containers were healthy.",
+        "why_the_echo_matters": "callback_id and correlation_id are ECHOED, not canned. The transport compares both against the outbox row and reports CALLBACK_ACK_INVALID when either differs, so a fake returning constants would be rejected. The echo is what makes this a round trip rather than a stubbed 200."
+      },
       "request": {
         "method": "POST",
-        "urlPathPattern": "/v1/orders/.*/ivr-result"
+        "urlPathPattern": "/api/v1/internal/orders/[^/]+/ivr-result-callbacks"
       },
       "response": {
-        "status": 202,
+        "status": 200,
         "headers": { "Content-Type": "application/json" },
+        "transformers": ["response-template"],
         "jsonBody": {
-          "response_code": "CALLBACK_ACCEPTED_FOR_REVALIDATION",
-          "accepted": true
+          "code": "ACCEPTED",
+          "callback_id": "{{jsonPath request.body '$.callback_id'}}",
+          "correlation_id": "{{request.headers.X-Correlation-Id}}"
         }
       }
     },

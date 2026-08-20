@@ -398,6 +398,10 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonPropertyName("call_restriction")]
         public required bool Call_restriction { get; init; }
 
+        /// <summary>
+        /// Sales-owned eligibility evidence. The wire type stays an open object because the shape is not owner-approved yet (OD-V1-03). The shape IVR validates against is published as a linked evidence reference at specs/api/evidence/eligibility-snapshot.v1.schema.json: decision, source_version, captured_at, optional source_available and optional blockers[]. IVR fails closed on anything it cannot interpret rather than tightening this schema (W-0030 / P4-2).
+        /// <br/>
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("eligibility_snapshot")]
         [System.ComponentModel.DataAnnotations.Required]
         public required object Eligibility_snapshot { get; init; }
@@ -1945,7 +1949,7 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public required System.DateTimeOffset Generated_at { get; init; }
 
         /// <summary>
-        /// OPERATIONAL_READ_MODEL until the P10-4 warehouse exists.
+        /// Which store answered: ANALYTICS_WAREHOUSE once the P10-4 pipeline (W-0055) has loaded facts, OPERATIONAL_READ_MODEL before that. Deliberately not an enum — it is a diagnostic label the console prints rather than switches on, and a closed set here would make an older client fail to read a payload naming a source it predates. `warehouse_status` is the enum, because that one is switched on.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("source")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
@@ -1993,6 +1997,14 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("truncated")]
         public required bool Truncated { get; init; }
+
+        /// <summary>
+        /// State of the P10-4 pipeline, reported separately from `source`. Serving from the warehouse and the warehouse being complete are different claims; BACKLOG means a real but partial answer.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("warehouse_status")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrAnalyticsDataQualityWarehouse_status>))]
+        public required IvrAnalyticsDataQualityWarehouse_status Warehouse_status { get; init; }
 
     }
 
@@ -2849,6 +2861,28 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonStringEnumMemberName(@"NO_DATA")]
         [System.Runtime.Serialization.EnumMember(Value = @"NO_DATA")]
         NO_DATA = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrAnalyticsDataQualityWarehouse_status
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"NOT_RUN")]
+        [System.Runtime.Serialization.EnumMember(Value = @"NOT_RUN")]
+        NOT_RUN = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"COMPLETE")]
+        [System.Runtime.Serialization.EnumMember(Value = @"COMPLETE")]
+        COMPLETE = 1,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"BACKLOG")]
+        [System.Runtime.Serialization.EnumMember(Value = @"BACKLOG")]
+        BACKLOG = 2,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"MISMATCH")]
+        [System.Runtime.Serialization.EnumMember(Value = @"MISMATCH")]
+        MISMATCH = 3,
 
     }
 

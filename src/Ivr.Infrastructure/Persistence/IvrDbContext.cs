@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Ivr.Infrastructure.Analytics;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Scripts;
@@ -32,6 +33,28 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     public DbSet<ScriptVersionEntity> ScriptVersions => Set<ScriptVersionEntity>();
     public DbSet<ScriptApprovalEntity> ScriptApprovals => Set<ScriptApprovalEntity>();
 
+    // W-0055 / P10-4. Derived, PII-free star schema in the `analytics` schema. Same context so
+    // one migration keeps operational and derived schema in step; separate schema so a BI grant
+    // can reach the facts without reaching a single operational table.
+    public DbSet<AnalyticsFactCallOutcomeEntity> AnalyticsFacts =>
+        Set<AnalyticsFactCallOutcomeEntity>();
+
+    public DbSet<AnalyticsFactCallJobEntity> AnalyticsJobFacts =>
+        Set<AnalyticsFactCallJobEntity>();
+
+    public DbSet<AnalyticsDimProgramEntity> AnalyticsPrograms => Set<AnalyticsDimProgramEntity>();
+
+    public DbSet<AnalyticsDimScriptVariantEntity> AnalyticsScriptVariants =>
+        Set<AnalyticsDimScriptVariantEntity>();
+
+    public DbSet<AnalyticsDimResultTypeEntity> AnalyticsResultTypes =>
+        Set<AnalyticsDimResultTypeEntity>();
+
+    public DbSet<AnalyticsKpiDailyEntity> AnalyticsKpiDaily => Set<AnalyticsKpiDailyEntity>();
+
+    public DbSet<AnalyticsEtlCheckpointEntity> AnalyticsCheckpoints =>
+        Set<AnalyticsEtlCheckpointEntity>();
+
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         PersistenceInvariantValidator.Validate(ChangeTracker);
@@ -50,6 +73,10 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
         modelBuilder.ApplyConfiguration(new FeatureFlagEntityConfiguration());
+        // Analytics first: PersistenceModelConfiguration ends with the storage conventions
+        // pass that snake-cases every column in the model, and the analytics allowlist is
+        // written in the snake-case names that actually reach PostgreSQL.
+        AnalyticsWarehouseModel.Apply(modelBuilder);
         PersistenceModelConfiguration.Apply(modelBuilder);
     }
 }

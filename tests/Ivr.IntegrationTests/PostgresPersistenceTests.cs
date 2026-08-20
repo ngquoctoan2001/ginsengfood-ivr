@@ -479,6 +479,16 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         CallbackOutboxMessage leased = Assert.Single(batches.SelectMany(batch => batch));
         Assert.Equal(callback.PayloadSha256, leased.PayloadSha256);
 
+        // The assertion above compares the stored hash to itself. That is not nothing, but it is
+        // not the property the outbox depends on either -- and the gap between the two hid a
+        // defect that stopped EVERY callback from being delivered. `payload_json` was jsonb, so
+        // PostgreSQL reordered the keys on the way in; the text that came back no longer hashed to
+        // `payload_sha256`, CallbackPayloadIntegrity rejected it before the HTTP send, and the row
+        // dead-lettered as CALLBACK_PAYLOAD_INVALID. Re-deriving the hash from the round-tripped
+        // bytes is what makes the check mean what it claims.
+        Assert.Equal(leased.PayloadSha256, Sha256(leased.PayloadJson));
+        Assert.Equal(callback.PayloadJson, leased.PayloadJson);
+
         await using IvrDbContext verification = await Factory().CreateDbContextAsync();
         await Assert.ThrowsAsync<PostgresException>(
             () => verification.Database.ExecuteSqlRawAsync(

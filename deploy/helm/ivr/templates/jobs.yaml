@@ -25,7 +25,19 @@ spec:
         app.kubernetes.io/component: migrate
     spec:
       restartPolicy: Never
-      serviceAccountName: {{ include "ivr.fullname" . }}
+      # No serviceAccountName, unlike every other pod in this chart, and that is forced rather than
+      # chosen. This Job is a `pre-install` hook: Helm runs it BEFORE the release's own resources
+      # exist, so the ServiceAccount it would name has not been created yet and the Job cannot
+      # start at all -- `serviceaccount "ivr-ivr" not found`, retrying until the install times out.
+      #
+      # It never showed up because a fresh `helm install` had never been exercised: the selftest
+      # applied the whole render in one `kubectl apply`, where the account arrives in the same batch
+      # and the Job's retries outlast the gap. IT-K8S-WORKER-06's ordered deploy is what made the
+      # harness install in the order Helm actually does.
+      #
+      # The account existed so pods would not inherit `default` and its token. The token is what
+      # mattered, and this keeps it: no token is mounted either way.
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
       containers:
@@ -107,4 +119,102 @@ spec:
                 capabilities:
                   drop:
                     - ALL
+{{- end }}
+{{- if .Values.backup.enabled }}
+{{- if not .Values.backup.image }}
+{{- fail "backup.enabled is true but backup.image is empty. A backup job that cannot run is worse than no backup job: it teaches operators to ignore failed Jobs." }}
+{{- end }}
+{{- if not .Values.backup.existingSecret }}
+{{- fail "backup.enabled is true but backup.existingSecret is empty. The master key must come from a secret store; the chart references, it never carries." }}
+{{- end }}
+{{- if not .Values.backup.destination }}
+{{- fail "backup.enabled is true but backup.destination is empty. A backup written to the pod filesystem disappears with the pod." }}
+{{- end }}
+{{- if gt (int .Values.backup.maxAgeDays) 3650 }}
+{{- fail "backup.maxAgeDays exceeds ten years. Backup age is a retention period (DF-07); it must not outlive the data it copies." }}
+{{- end }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "ivr.fullname" . }}-backup
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backup
+  annotations:
+    ivr.ginsengfood/decision: DF-07
+    ivr.ginsengfood/encryption-note: >-
+      deploy/backup/backup.sh pipes pg_dump straight into the cipher, so no plaintext dump ever
+      reaches a filesystem, and authenticates with encrypt-then-MAC so a tampered artefact is
+      refused before a byte of it is decrypted. It refuses to run at all if openssl is missing
+      rather than falling back to writing plaintext.
+    ivr.ginsengfood/prune-note: >-
+      Backup age is a retention period. A 90-day backup of a 30-day table means the real period is
+      90 days and the number 30 is a description, so prune.sh runs in the same job and defaults to
+      dry run like the retention job it mirrors.
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            {{- include "ivr.labels" . | nindent 12 }}
+            app.kubernetes.io/component: backup
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ include "ivr.fullname" . }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          containers:
+            - name: backup
+              image: {{ .Values.backup.image | quote }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command: ["/bin/sh", "-c"]
+              args:
+                - >-
+                  /scripts/backup.sh &&
+                  IVR_BACKUP_DRY_RUN={{ .Values.backup.dryRunPrune }} /scripts/prune.sh
+              env:
+                - name: IVR_BACKUP_DIR
+                  value: {{ .Values.backup.destination | quote }}
+                - name: IVR_BACKUP_MAX_AGE_DAYS
+                  value: {{ .Values.backup.maxAgeDays | quote }}
+                - name: IVR_BACKUP_KEY_FILE
+                  value: "/secrets/{{ .Values.backup.keyFileKey }}"
+                - name: PGHOST
+                  value: {{ .Values.database.host | quote }}
+                - name: PGPORT
+                  value: {{ .Values.database.port | quote }}
+                - name: PGDATABASE
+                  value: {{ .Values.database.name | quote }}
+                - name: PGUSER
+                  value: {{ .Values.database.user | quote }}
+                - name: PGSSLMODE
+                  value: {{ eq (.Values.database.sslMode | default "Require") "Disable" | ternary "disable" "require" }}
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.database.existingSecret }}
+                      key: {{ .Values.database.existingSecretPasswordKey }}
+              volumeMounts:
+                - name: backup-key
+                  mountPath: /secrets
+                  readOnly: true
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+          volumes:
+            - name: backup-key
+              secret:
+                secretName: {{ .Values.backup.existingSecret }}
+                defaultMode: 0400
 {{- end }}

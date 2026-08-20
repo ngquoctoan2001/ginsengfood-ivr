@@ -38,7 +38,7 @@ try {
   process.stdout.write("UT-DOC-PII-03 PASS — docs sources contain no real phone or full street address examples\n");
   process.stdout.write("DOC_BOUNDARY_PASS — Target draft and current compatibility stay separate\n");
   process.stdout.write("DOC_LINKS_PASS — every generated local portal link resolves\n");
-  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, UI QA, observability, chaos, image, chart and delivery jobs are root-included\n");
+  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, UI QA, observability, chaos, image, chart, DR and delivery jobs are root-included\n");
   process.stdout.write("API_DOCS_SELFTEST_PASS\n");
 } finally {
   await fs.rm(temporaryRoot, { recursive: true, force: true });
@@ -148,7 +148,8 @@ async function assertCiTopology() {
   const qualityGate = YAML.parse(
     await fs.readFile(path.join(repositoryRoot, "deploy/ci/quality-gate.gitlab-ci.yml"), "utf8"),
   );
-  for (const jobName of ["review_gate_selftest", "mr_traceability_gate"]) {
+  for (const jobName of ["review_gate_selftest", "mr_traceability_gate", "compliance_pack_selftest",
+    "gate_status_mirror", "capacity_selftest"]) {
     assert(qualityGate[jobName], `Rendered quality gate is missing ${jobName}.`);
     assert(qualityGate[jobName].allow_failure === false, `${jobName} must fail closed.`);
   }
@@ -228,6 +229,23 @@ async function assertCiTopology() {
   );
   assert(k8s.k8s_selftest, "Rendered k8s pipeline is missing k8s_selftest.");
   assert(k8s.k8s_selftest.allow_failure === false, "k8s_selftest must fail closed.");
+
+  // W-0053 / P10-2 section 8. The DR drills, same treatment. This fragment is the one whose
+  // absence would be hardest to notice: nothing else in the pipeline touches backup, restore or
+  // promotion, so a DR job that runs nowhere leaves those three claims resting entirely on prose.
+  assert(
+    includes.includes("/deploy/ci/dr.gitlab-ci.yml"),
+    "Root GitLab config must include the dr fragment.",
+  );
+  const dr = YAML.parse(
+    await fs.readFile(path.join(repositoryRoot, "deploy/ci/dr.gitlab-ci.yml"), "utf8"),
+  );
+  assert(dr.dr_selftest, "Rendered DR pipeline is missing dr_selftest.");
+  assert(dr.dr_selftest.allow_failure === false, "dr_selftest must fail closed.");
+  assert(
+    (dr.dr_selftest.script ?? []).some((line) => String(line).includes("dr-selftest.mjs")),
+    "dr_selftest must actually run the drills rather than only declaring them.",
+  );
 
   // W-0045 / P7-3 section 8. The delivery pipeline and the gate that checks it.
   for (const fragment of ["cd.gitlab-ci.yml", "promote.gitlab-ci.yml"]) {

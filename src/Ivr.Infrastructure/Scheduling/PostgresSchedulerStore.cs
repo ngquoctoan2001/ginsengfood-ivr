@@ -2,6 +2,7 @@ using System.Data;
 using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Infrastructure.Callbacks;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -214,6 +215,21 @@ public sealed class PostgresSchedulerStore(
             }));
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+        // W-0041 left ivr_call_attempts_total declared with no call site, so confirm/cancel/
+        // no-answer rates (ARCH-06 section 1) had no denominator. Counted here, AFTER the commit:
+        // an attempt counted before it durably exists inflates the metric relative to the database
+        // every time a transaction rolls back, and a rate whose denominator is bigger than reality
+        // reads as better performance than reality.
+        //
+        // is_counted_customer_attempt is false at dispatch and only becomes true when the result
+        // normalizes (DT-02). Tagging it here as the attempt's state at dispatch, not as a
+        // prediction, keeps the two counts honest about what each moment knows.
+        IvrTelemetry.RecordAttempt(
+            (TelemetryTags.AttemptPolicyVersion, job.AttemptPolicyCode),
+            (TelemetryTags.AttemptNumber, attemptNumber),
+            (TelemetryTags.Counted, false));
+
         return new SchedulerDispatchLease(
             job.IvrCallJobId,
             attemptId,
@@ -380,6 +396,7 @@ public sealed class PostgresSchedulerStore(
                 StringComparer.Ordinal,
                 cancellationToken)
             .ConfigureAwait(false);
+        var closed = new List<(string Program, string ResultStatus)>(jobs.Count);
         foreach (CallJobEntity job in jobs)
         {
             string incidentId = string.Concat("CAP-", Guid.NewGuid().ToString("N"));
@@ -473,10 +490,30 @@ public sealed class PostgresSchedulerStore(
             job.ClosedAt = detectedAt;
             job.ClosedReason = "IVR_CAPACITY_EXCEPTION";
             context.AuditLog.Add(audit);
+            closed.Add((job.ProgramType, normalized.ResultStatus));
         }
 
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+        // Recorded after the commit and once per job, for the same reason as the dispatch counter:
+        // a metric moved before the rows are durable runs ahead of the database on every rollback.
+        //
+        // Two instruments, because this method is the ONE path where a job reaches a final result
+        // without passing through normalization -- the scheduler writes the IVR_CAPACITY_EXCEPTION
+        // row itself. Recording only the deadline counter would leave every capacity miss out of
+        // ivr_call_results_total, and a confirm_rate whose denominator omits the failures reads
+        // higher than the truth. The gap is largest exactly when capacity is worst.
+        foreach ((string program, string resultStatus) in closed)
+        {
+            IvrTelemetry.RecordMissedDeadline(
+                (TelemetryTags.Program, program),
+                (TelemetryTags.ReasonCode, "NO_DISPATCH_BEFORE_DEADLINE"));
+            IvrTelemetry.RecordResult(
+                (TelemetryTags.ResultType, resultStatus),
+                (TelemetryTags.Counted, false));
+        }
+
         return jobs.Count;
     }
 

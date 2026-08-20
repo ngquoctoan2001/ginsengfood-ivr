@@ -1,5 +1,6 @@
 using Ivr.Api.Admin;
 using Ivr.Domain.Errors;
+using Ivr.Infrastructure.Analytics;
 using Ivr.Domain.Privacy;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
@@ -70,6 +71,9 @@ public sealed class AnalyticsReadService(
     public const int MaxFactRows = 50_000;
 
     public const string SourceLabel = "OPERATIONAL_READ_MODEL";
+
+    /// <summary>Reported when the P10-4 star schema served the request.</summary>
+    public const string WarehouseSourceLabel = "ANALYTICS_WAREHOUSE";
     public const string PipelineWorkId = "W-0055";
     public const string ExportAuditAction = "IVR_ANALYTICS_EXPORT";
 
@@ -246,6 +250,16 @@ public sealed class AnalyticsReadService(
             dataQuality);
     }
 
+    /// <summary>
+    /// Picks the source and says which one it picked.
+    ///
+    /// <para>The warehouse wins whenever it holds facts, <b>including</b> when its
+    /// own reconcile reports a backlog. Falling back on a backlog would swap the
+    /// source underneath a reader mid-incident, so the same question would return
+    /// two different answers minutes apart with nothing in the payload to explain
+    /// it. A stated backlog is worse data honestly labelled; a silent source swap
+    /// is worse data that looks fine.</para>
+    /// </summary>
     private async Task<FactSet> LoadAsync(
         NormalizedFilter filter,
         CancellationToken cancellationToken)
@@ -253,6 +267,110 @@ public sealed class AnalyticsReadService(
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
             cancellationToken).ConfigureAwait(false);
 
+        AnalyticsEtlCheckpointEntity? checkpoint = await context.AnalyticsCheckpoints
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                row => row.PipelineName == AnalyticsEtlJob.PipelineName,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        bool warehouseHasFacts = await context.AnalyticsFacts
+            .AnyAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return warehouseHasFacts
+            ? await LoadFromWarehouseAsync(context, filter, checkpoint, cancellationToken)
+                .ConfigureAwait(false)
+            : await LoadFromOperationalAsync(context, filter, checkpoint, cancellationToken)
+                .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Reads the P10-4 star schema. Every filter the operational path supports is
+    /// applied to the same columns here, so switching source cannot silently
+    /// change what a filter means.
+    /// </summary>
+    private static async Task<FactSet> LoadFromWarehouseAsync(
+        IvrDbContext context,
+        NormalizedFilter filter,
+        AnalyticsEtlCheckpointEntity? checkpoint,
+        CancellationToken cancellationToken)
+    {
+        IQueryable<AnalyticsFactCallOutcomeEntity> facts = context.AnalyticsFacts.AsNoTracking();
+        IQueryable<AnalyticsFactCallJobEntity> jobFacts = context.AnalyticsJobFacts.AsNoTracking();
+
+        if (filter.Program is not null)
+        {
+            facts = facts.Where(fact => fact.ProgramKey == filter.Program);
+            jobFacts = jobFacts.Where(fact => fact.ProgramKey == filter.Program);
+        }
+
+        if (filter.ScriptVariant is not null)
+        {
+            facts = facts.Where(fact => fact.ScriptVariantKey == filter.ScriptVariant);
+            jobFacts = jobFacts.Where(fact => fact.ScriptVariantKey == filter.ScriptVariant);
+        }
+
+        if (filter.ResultType is not null)
+        {
+            facts = facts.Where(fact => fact.ResultTypeKey == filter.ResultType);
+        }
+
+        if (filter.From is not null)
+        {
+            facts = facts.Where(fact => fact.EventAt >= filter.From);
+        }
+
+        if (filter.To is not null)
+        {
+            facts = facts.Where(fact => fact.EventAt <= filter.To);
+        }
+
+        List<FactRow> rows = await facts
+            .OrderBy(fact => fact.EventAt)
+            .ThenBy(fact => fact.IvrCallResultId)
+            .Take(MaxFactRows + 1)
+            .Select(fact => new FactRow(
+                fact.IvrCallJobId,
+                fact.EventAt,
+                fact.ProgramKey,
+                fact.ScriptVariantKey,
+                fact.ResultTypeKey,
+                fact.IsFinal,
+                fact.SecondsToResult))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        bool truncated = rows.Count > MaxFactRows;
+        if (truncated)
+        {
+            rows.RemoveAt(rows.Count - 1);
+        }
+
+        int totalJobs = await jobFacts.CountAsync(cancellationToken).ConfigureAwait(false);
+        int eligibleTasks = await jobFacts
+            .CountAsync(fact => fact.Eligible, cancellationToken)
+            .ConfigureAwait(false);
+        int secondAttemptJobs = await jobFacts
+            .CountAsync(fact => fact.CountedAttemptCount >= 2, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new FactSet(
+            rows,
+            totalJobs,
+            eligibleTasks,
+            secondAttemptJobs,
+            truncated,
+            WarehouseSourceLabel,
+            checkpoint?.ReconcileStatus ?? AnalyticsReconcileStatus.NotRun);
+    }
+
+    private static async Task<FactSet> LoadFromOperationalAsync(
+        IvrDbContext context,
+        NormalizedFilter filter,
+        AnalyticsEtlCheckpointEntity? checkpoint,
+        CancellationToken cancellationToken)
+    {
         IQueryable<Ivr.Infrastructure.Persistence.Entities.CallJobEntity> jobs =
             context.CallJobs.AsNoTracking();
         if (filter.Program is not null)
@@ -287,20 +405,40 @@ public sealed class AnalyticsReadService(
         }
 
         // One extra row so a full page can be distinguished from a truncated one.
-        List<FactRow> rows = await joined
+        var projected = await joined
             .OrderBy(row => row.Result.CreatedAt)
             .ThenBy(row => row.Result.IvrCallJobId)
             .Take(MaxFactRows + 1)
-            .Select(row => new FactRow(
+            .Select(row => new
+            {
                 row.Result.IvrCallJobId,
                 row.Result.CreatedAt,
                 row.Job.ProgramType,
                 row.Job.ScriptVersion,
                 row.Result.ResultType,
                 row.Result.IsFinalForIvr,
-                row.Job.T0At))
+                row.Job.T0At,
+            })
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        // Elapsed seconds is derived here rather than in SQL so both sources hand
+        // BuildKpi the identical shape, and the same rule about negative values —
+        // a clock disagreement is dropped, not averaged in — applies to both.
+        List<FactRow> rows = projected
+            .Select(row =>
+            {
+                double seconds = (row.CreatedAt - row.T0At).TotalSeconds;
+                return new FactRow(
+                    row.IvrCallJobId,
+                    row.CreatedAt,
+                    row.ProgramType,
+                    row.ScriptVersion,
+                    row.ResultType,
+                    row.IsFinalForIvr,
+                    seconds is >= 0 and <= int.MaxValue ? (int)seconds : null);
+            })
+            .ToList();
 
         bool truncated = rows.Count > MaxFactRows;
         if (truncated)
@@ -325,7 +463,14 @@ public sealed class AnalyticsReadService(
             .CountAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        return new FactSet(rows, totalJobs, eligibleTasks, secondAttemptJobs, truncated);
+        return new FactSet(
+            rows,
+            totalJobs,
+            eligibleTasks,
+            secondAttemptJobs,
+            truncated,
+            SourceLabel,
+            checkpoint?.ReconcileStatus ?? AnalyticsReconcileStatus.NotRun);
     }
 
     private static AnalyticsKpiView BuildKpi(FactSet facts)
@@ -334,8 +479,8 @@ public sealed class AnalyticsReadService(
         int Count(Func<FactRow, bool> predicate) => facts.Rows.Count(predicate);
 
         double[] secondsToFinal = facts.Rows
-            .Where(row => row.IsFinal)
-            .Select(row => (row.CreatedAt - row.T0At).TotalSeconds)
+            .Where(row => row.IsFinal && row.SecondsToResult is not null)
+            .Select(row => (double)row.SecondsToResult!.Value)
             .Where(seconds => seconds >= 0)
             .ToArray();
 
@@ -403,8 +548,11 @@ public sealed class AnalyticsReadService(
 
         return new AnalyticsDataQualityView(
             now,
-            SourceLabel,
-            WarehouseBacked: false,
+            facts.Source,
+            WarehouseBacked: string.Equals(
+                facts.Source,
+                WarehouseSourceLabel,
+                StringComparison.Ordinal),
             PipelineWorkId,
             latest,
             freshnessSeconds,
@@ -412,7 +560,8 @@ public sealed class AnalyticsReadService(
             MinBucketSize,
             suppressedBuckets,
             facts.Rows.Count,
-            facts.Truncated);
+            facts.Truncated,
+            facts.WarehouseStatus);
     }
 
     private static string KeyOf(FactRow row, string dimension) => dimension switch
@@ -545,6 +694,11 @@ public sealed class AnalyticsReadService(
             new(Program, ResultType, ScriptVariant, Bucket, From, To);
     }
 
+    /// <summary>
+    /// Shared shape for both sources. Elapsed seconds is carried rather than the
+    /// job start, because the warehouse stores the elapsed value and rebuilding a
+    /// start time from it just to subtract it again would invent precision.
+    /// </summary>
     private sealed record FactRow(
         string IvrCallJobId,
         DateTimeOffset CreatedAt,
@@ -552,12 +706,14 @@ public sealed class AnalyticsReadService(
         string? ScriptVersion,
         string ResultType,
         bool IsFinal,
-        DateTimeOffset T0At);
+        int? SecondsToResult);
 
     private sealed record FactSet(
         List<FactRow> Rows,
         int TotalJobs,
         int EligibleTasks,
         int SecondAttemptJobs,
-        bool Truncated);
+        bool Truncated,
+        string Source,
+        string WarehouseStatus);
 }

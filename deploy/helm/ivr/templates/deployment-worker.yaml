@@ -44,8 +44,36 @@ spec:
             capabilities:
               drop:
                 - ALL
-          # No HTTP probes: the worker opens no socket at all (W-0043 §2). Kubernetes restarting the
-          # pod when the process exits is the only liveness signal that exists here, and inventing
-          # an exec probe would report health nobody measured.
+          ports:
+            - name: health
+              containerPort: {{ .Values.worker.health.port }}
+              protocol: TCP
+          # There IS something to measure now (W-0043 §2). It used to say "the worker opens no
+          # socket at all", which was true and left the real failure invisible: every job loop
+          # catches its own exceptions and keeps polling, so a loop failing forever -- or hanging
+          # inside a call that never returns -- looks exactly like a healthy one. The process does
+          # not exit, so the only signal Kubernetes had never fired.
+          #
+          # LIVENESS ONLY, deliberately. The endpoint reports 503 when a loop that was meant to be
+          # running has STOPPED, which a restart repairs. It reports 200 while loops are turning
+          # but failing, because restarting does not repair a dependency -- it would add a restart
+          # storm to an outage, at the worst possible moment. And it reports 200 for a worker whose
+          # loops are all configured off, because a restart cannot start those either.
+          #
+          # No readinessProbe: nothing routes traffic to the worker, so "ready" has no meaning here
+          # and adding one would only invent a second thing to be wrong about.
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.worker.health.path }}
+              port: health
+            # Loops register as they start. Probing before they have is the one window where the
+            # endpoint honestly reports stalled, so the delay is not padding -- it is the length of
+            # startup.
+            initialDelaySeconds: {{ .Values.worker.health.initialDelaySeconds }}
+            periodSeconds: {{ .Values.worker.health.periodSeconds }}
+            # Three consecutive failures, not one. The staleness threshold inside the worker is
+            # already three poll intervals; requiring three probe failures on top means a restart
+            # follows a loop that has genuinely stopped, not one slow moment observed twice.
+            failureThreshold: 3
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}

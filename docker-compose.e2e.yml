@@ -1,0 +1,68 @@
+# W-0043 / P7-1 — the overlay that turns the dev stack from "running" into "working".
+#
+# An overlay rather than an edit to docker-compose.dev.yml, and the reason is not tidiness. Every
+# worker job ships DISABLED (scheduler, normalization, callback delivery, MOCK telephony all
+# `false` in the worker's appsettings). That is the correct default for a stack a developer starts
+# to look at the console: nothing dials, nothing calls out. Turning those on by default would
+# change what `docker compose up` means for everybody in order to make one test convenient.
+#
+# So the E2E posture is explicit and reviewable in one file: `-f docker-compose.dev.yml -f
+# docker-compose.e2e.yml` is the only way to get a stack that places a call.
+#
+# What this deliberately does NOT relax: IVR_ADAPTER_MODE stays MOCK, REAL_CUSTOMER_CALL_ALLOWED
+# stays NO, SIM_PROVIDER stays MOCK. MockSchedulerDispatchGateway.IsReady requires all three, so a
+# stack built from this overlay physically cannot reach a vendor. The kill switch is the only
+# safety here that is lifted, and it is lifted against a fake gateway.
+
+services:
+  ivr-worker:
+    environment:
+      # The four jobs, in the order a task passes through them.
+      Ivr__Scheduler__Enabled: "true"
+      Ivr__Scheduler__PollIntervalMilliseconds: "500"
+      Ivr__Normalization__Enabled: "true"
+      Ivr__Normalization__PollIntervalMilliseconds: "500"
+      Ivr__CallbackDelivery__Enabled: "true"
+      Ivr__CallbackDelivery__PollIntervalMilliseconds: "500"
+      Ivr__CallbackDelivery__TargetBaseUrl: "http://fake-sales:8080"
+
+      Ivr__Telephony__Mock__Enabled: "true"
+      Ivr__Telephony__Mock__KillSwitchEngaged: "false"
+      # An OPAQUE reference, never a number. MockTelephonyOptionsValidator rejects anything that
+      # parses as phone data, which is the rule doing its job rather than a formatting preference:
+      # a dev stack is exactly where a real number would end up pasted and then committed.
+      Ivr__Telephony__Mock__TokenDestinations__*: "mock-destination-allowlisted"
+      Ivr__Telephony__Mock__DestinationAllowlist__0: "mock-destination-allowlisted"
+      # Scenarios are keyed by TASK ID. FakeSimGateway resolves attempt id -> task id -> "*", and
+      # attempt ids are generated at dispatch, so nothing written here in advance could name one.
+      # Keying by task means the smoke picks an outcome by choosing which task it posts, and the
+      # mapping is readable in one place rather than inferred from a wildcard.
+      #
+      # The ids are fixed rather than generated. The smoke tears the volume down after every run,
+      # so reuse is not a collision -- and a fixed id makes a failure say which CASE broke.
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CONFIRM__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CONFIRM__DtmfKey: "1"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CONFIRM__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CONFIRM__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CONFIRM__CaptureDelayMilliseconds: "0"
+
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CANCEL__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CANCEL__DtmfKey: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CANCEL__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CANCEL__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-CANCEL__CaptureDelayMilliseconds: "0"
+
+      # No DtmfKey: the phone rings out. Paired with the one-attempt policy in the dev seed, this
+      # reaches IVR_NO_ANSWER_FINAL on the first attempt instead of after the second offset.
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-NOANSWER__Disposition: "RingTimeout"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-NOANSWER__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-NOANSWER__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-E2E-NOANSWER__CaptureDelayMilliseconds: "0"
+
+      # The fallback stays, so a task the smoke did not name still dials rather than failing in a
+      # way that looks like a defect in the stack.
+      Ivr__Telephony__Mock__Scenarios__*__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__*__DtmfKey: "1"
+      Ivr__Telephony__Mock__Scenarios__*__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__*__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__*__CaptureDelayMilliseconds: "0"

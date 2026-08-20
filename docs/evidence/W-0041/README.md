@@ -37,8 +37,19 @@ viễn**, và vạch phẳng đọc như "khoẻ mạnh" chứ không đọc nh�
 không phải hệ thống không chứng minh được an toàn. Gộp lại sẽ làm một luật trust chạy đúng trông
 như sự cố downstream trên trang cảnh báo.
 
-`ivr_call_attempts_total` và `ivr_call_results_total` **vẫn chưa có call site**, và slice này **cố ý
-không** vẽ panel/alert nào dùng chúng — xem §6.
+~~`ivr_call_attempts_total` và `ivr_call_results_total` **vẫn chưa có call site**, và slice này
+**cố ý không** vẽ panel/alert nào dùng chúng.~~ **Đã đóng `2026-08-19`**: hai call site được nối ở
+`PostgresSchedulerStore` (lúc dispatch) và `ResultRepository` (lúc chuẩn hoá), **cả hai sau commit**
+— đếm trước commit thì mỗi lần rollback làm counter cao hơn database, và một tỉ lệ có mẫu số lớn hơn
+thực tế **đọc như hiệu năng tốt hơn thực tế**. Hai panel `ARCH-06` §1 đã vẽ; `IT-OBS-OUTCOME-09`
+khẳng định counter **nổ thật** và **không nổ** khi không có gì được ghi. Xem `docs/slo.md` §7–§8.
+
+`missed_deadline_count` **đã đóng cùng ngày**, và việc nối nó **làm lộ một lỗ hổng của chính hai
+call site vừa nối ở trên**: `CloseMissedDeadlinesAsync` là **nhánh duy nhất** một job đạt kết quả
+FINAL mà **không đi qua normalization** — scheduler tự ghi dòng `IVR_CAPACITY_EXCEPTION`. Nên mọi
+lần trượt deadline **vắng mặt** khỏi `ivr_call_results_total`, và `confirm_rate` có mẫu số **bỏ sót
+đúng phần thất bại** → đọc **cao hơn sự thật**, lệch **nhiều nhất đúng lúc dung lượng tệ nhất**.
+Call site mới ghi **cả hai** instrument. Xem `docs/slo.md` §9.
 
 ## 3. Alert được chứng minh là **nổ thật**, không phải chỉ khai báo
 
@@ -110,9 +121,16 @@ phục vụ (`Port=1`), nên "không có database" là **sự kiện**, không p
 - **`ivr_call_attempts_total` / `ivr_call_results_total` vẫn chưa có call site**, nên
   `confirm_rate`, `cancel_rate`, `no_answer_rate` của `ARCH-06` §1 **chưa đo được**. Không panel nào
   dùng chúng, và `UT-DASH-PII-04` sẽ đỏ nếu ai thêm.
-- **`missed_deadline_count`, `cost_per_confirmed_order`, `sim_failure_rate` theo slot** chưa có
-  instrument. Alert "capacity exhaustion" và "queue backlog" mà `P6-2` §4 liệt kê **chưa dựng được**
-  từ metric thật, nên chưa dựng.
+- ~~**`missed_deadline_count`** chưa có instrument.~~ **Đã đóng `2026-08-19`** —
+  `ivr_missed_deadline_total`, luật `IvrConfirmationDeadlineMissed`, panel #10,
+  `IT-SLO-CAPACITY-04` + `IT-OBS-DEADLINE-10`. Ngưỡng **suy ra từ mô hình dung lượng**, không phải
+  chọn: mô hình nói pool prod phủ được đỉnh, nên dưới giả định của nó **không lần trượt nào xảy ra**
+  — ngưỡng là **không**, và một lần trượt là **một giả định bị bác bỏ**.
+- **`cost_per_confirmed_order` và `sim_failure_rate` theo slot** vẫn **không có instrument**.
+  `cost_per_confirmed_order` **không thể** có: mẫu số đã đo được (`analytics.agg_kpi_daily`,
+  `W-0055`) nhưng **tử số cần một báo giá từ bên ngoài** — cả 6 dòng ở `docs/cost-model.md` §3 còn
+  trống (`W-0008`). `CAP-ALERT-04` khẳng định lý do đó vẫn còn đúng, nên nó **không sống lâu hơn sự
+  thật của nó**. Alert "queue backlog" mà `P6-2` §4 liệt kê vẫn chưa dựng.
 - **Panel burn-rate nhiều cửa sổ chưa có.** Ngân sách lỗi trong `docs/slo.md` mới là định nghĩa.
 - **Ngưỡng đánh dấu `proposed` chưa được chủ sở hữu phê duyệt** — 20% fail-closed và 30% rejection
   là suy luận, không phải baseline đo được. Chỉ D-04 (5s) và DT-04 (3/10′) là `LOCKED`.

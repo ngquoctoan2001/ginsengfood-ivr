@@ -8,6 +8,13 @@ governance:
   adapterMode: MOCK
   killSwitchEnabled: true
 
+# W-0053 / P10-2. TLS required. trustServerCertificate stays true until the cluster has a
+# trusted CA for its database (W-0063): encryption without validation stops passive
+# eavesdropping and not a machine in the middle, so this is a stated gap, not a setting.
+database:
+  sslMode: Require
+  trustServerCertificate: true
+
 image:
   tag: "0.1.0-staging"
 

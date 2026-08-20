@@ -48,6 +48,7 @@ include:
   - local: "/deploy/ci/chaos.gitlab-ci.yml"
   - local: "/deploy/ci/images.gitlab-ci.yml"
   - local: "/deploy/ci/k8s.gitlab-ci.yml"
+  - local: "/deploy/ci/dr.gitlab-ci.yml"
   - local: "/deploy/ci/cd.gitlab-ci.yml"
   - local: "/deploy/ci/promote.gitlab-ci.yml"
   - local: "/deploy/ci/registry.gitlab-ci.yml"

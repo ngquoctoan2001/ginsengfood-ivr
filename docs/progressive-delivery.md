@@ -89,5 +89,11 @@ riêng của `P9-1`.
   nào nhận metric (`W-0063`).
 - **Ngưỡng fail-closed 20% là đề xuất**, chưa có baseline production để hiệu chỉnh.
 - **Chưa diễn tập blue-green switch** trên cluster thật.
+- ~~**Chưa cổng nào ép chiều ngược lại** (code mới gặp schema cũ).~~ **Đã đóng `2026-08-19`**
+  (`W-0046` residual): `/health/ready` giờ đọc `GetPendingMigrationsAsync` và trả `schema_behind`
+  → 503. Chart chạy migration bằng pre-upgrade hook nên đường hạnh phúc vốn được **thứ tự** che;
+  cái không được che là deploy bỏ hook, hook bị tắt, hoặc ai đó trỏ vào database chưa migrate —
+  cả ba cho ra một pod **kết nối được**, báo Healthy, nhận traffic, rồi hỏng ở truy vấn đầu tiên
+  vào một bảng không tồn tại. `IT-OBS-HEALTH-04` có kiểm âm: tắt phép kiểm → đỏ.
 - **Chưa chứng minh hai phiên bản chạy song thật.** `IT-MIGRATE-03` chứng minh migration **cho phép**
   điều đó; nó không chứng minh đã có ai chạy hai phiên bản cùng lúc.

@@ -99,5 +99,5 @@ hai tên cho một bậc là cách hiểu nhầm bắt đầu.
 | --- | --- |
 | `RETENTION_EXECUTION` | **đã đóng** — `W-0047` thêm entrypoint run-once |
 | drill rotation "không request nào rớt" | **đã đóng** — `docs/evidence/W-0047` §9.5 |
-| `NETPOL_ENFORCEMENT` | vẫn `NOT_PROVEN` — cần CNI thực thi được (Calico/Cilium); là **hạ tầng**, không phải quyết định |
+| `NETPOL_ENFORCEMENT` | **đã đóng `2026-08-19`** — kết luận "cần CNI khác" là **sai**: cluster vẫn thực thi, phép đo bị đua. Xem `docs/evidence/W-0044` §5 |
 | migration "code mới chịu được schema cũ" | chưa có cổng; là **việc kỹ thuật** còn lại, không phải quyết định |

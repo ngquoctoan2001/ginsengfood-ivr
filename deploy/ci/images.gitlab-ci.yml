@@ -2,8 +2,15 @@
 #
 # Separate from every other fragment because it answers questions no code test can: whether the
 # published image runs as root, whether its healthcheck actually reports healthy, whether the dev
-# stack comes up from an empty volume, and whether the scan gate still fails on a known-bad base.
+# stack comes up from an empty volume, whether the scan gate still fails on a known-bad base, and
+# whether a task put in at one end of that stack comes out the other as a callback Sales accepted.
 # A green .NET suite says nothing about any of them.
+#
+# The last one is the expensive check and the one that pays. The other four passed for weeks on a
+# stack that could not complete a single call: the worker threw on the first Vietnamese number it
+# formatted, the mock dial-token vault could not resolve across two processes, the callback payload
+# lived in a column that reorders JSON keys and so never matched its own hash, and the fake Sales
+# answered a path IVR does not call. None of the four is visible to a health check.
 #
 # allow_failure: false. An image gate that may fail ships unscanned images.
 image_selftest:

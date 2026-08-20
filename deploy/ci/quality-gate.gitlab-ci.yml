@@ -31,3 +31,42 @@ mr_traceability_gate:
   script:
     # MASTER-05. The template has existed since P0-2; nothing verified it was filled in.
     - node deploy/ci/scripts/check-mr-traceability.mjs
+
+# W-0059 / P11-3 §8. The compliance pack, checked structurally on every pipeline.
+#
+# These artefacts are read by people, and the failure mode is not a crash: it is a document that
+# reads as approved, or complete, or traceable, and is none of those. The one that matters most is
+# SIGNOFF-DF03-04 — a DF-03 record without a signer is a sign-off nobody gave, and it would sit in
+# the repository looking exactly like one that was.
+compliance_pack_selftest:
+  stage: validate
+  image: node:24-bookworm-slim
+  allow_failure: false
+  script:
+    - node deploy/ci/scripts/compliance-pack-selftest.mjs
+
+# W-0060 / P11-4. The readiness view, checked against the tracker it mirrors.
+#
+# P11-4 forbids a second backlog, and the way a mirror becomes one is not a decision — it is a
+# month of the tracker moving while the board does not. This job regenerates the view and fails on
+# any difference, so a hand edit to the board is a red pipeline rather than a divergent truth.
+gate_status_mirror:
+  stage: validate
+  image: node:24-bookworm-slim
+  allow_failure: false
+  script:
+    - node deploy/ci/scripts/gate-status.mjs
+
+# W-0054 / P10-3 §8. The capacity model's arithmetic, and the pool the chart ships against it.
+#
+# A sizing model is the kind of artefact that gets quoted in a procurement meeting six months after
+# anyone remembers it was a model. This job keeps the arithmetic checkable and keeps the output
+# labelled UNCALIBRATED, so the label travels with the number.
+capacity_selftest:
+  stage: validate
+  image: node:24-bookworm-slim
+  allow_failure: false
+  before_script:
+    - npm --prefix deploy/ci ci
+  script:
+    - node deploy/ci/scripts/capacity-selftest.mjs

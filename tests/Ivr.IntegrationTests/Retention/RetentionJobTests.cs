@@ -335,6 +335,10 @@ public sealed class RetentionJobTests(RetentionJobFixture fixture)
         Assert.Equal("redacted", redacted.PhoneRef);
         Assert.Equal("***", redacted.PhoneMasked);
         Assert.Equal("enc:redacted", redacted.DialTokenCiphertext);
+        // W-0052 / P10-1. phone_validation_status joined the redaction when the field inventory
+        // was built: leaving VALID behind after redacting the reference it describes keeps a weak
+        // signal about a person whose data was supposed to be gone.
+        Assert.Equal("REDACTED", redacted.PhoneValidationStatus);
         Assert.Equal("{}", redacted.PrivacySafeOrderSummaryJson);
         Assert.NotNull(redacted.AnonymizedAt);
         string serialized = JsonSerializer.Serialize(redacted);

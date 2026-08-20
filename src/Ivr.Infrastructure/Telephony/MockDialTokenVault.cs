@@ -74,7 +74,18 @@ public sealed class MockDialTokenVault : IOpaqueValueProtector, IDialTokenResolv
         }
 
         string fingerprint = request.DialToken.RevealToTrustedResolver();
-        if (!destinationsByFingerprint.TryGetValue(fingerprint, out string? destination))
+        // The fingerprint map is populated by Protect(), which runs at INTAKE -- in the API
+        // process. Resolution runs at DISPATCH, in the worker. Those are separate deployables
+        // (DTS-04), so the worker's map is empty and a strict lookup can never succeed outside a
+        // single-process test. The mock stands in for a shared vault; being process-local is a
+        // fidelity gap, not a safety property.
+        //
+        // The wildcard closes it, and only when an operator has explicitly configured one:
+        // TokenDestinations:"*" already means "any token dials the fake destination" on the
+        // Protect side, and this makes the two sides agree. Without a wildcard the behaviour is
+        // unchanged -- an unknown fingerprint is still refused -- so the strict default survives.
+        if (!destinationsByFingerprint.TryGetValue(fingerprint, out string? destination)
+            && !configuredTokenDestinations.TryGetValue("*", out destination))
         {
             throw new KeyNotFoundException("MOCK dial-token fingerprint has no destination mapping.");
         }

@@ -3,6 +3,7 @@ using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Scheduling;
@@ -243,6 +244,19 @@ public sealed class ResultRepository(
         ApplyJobOutcome(job, normalized, now, executionContext.ExecutionMode);
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+        // The other half of the W-0041 gap. This is the single exit of normalization and it runs
+        // after the commit, so the counter and ivr_call_results agree by construction rather than
+        // by hope.
+        //
+        // The taxonomy tag is the RESULT TYPE (DT-02), which is what confirm_rate and its siblings
+        // are computed from. There is deliberately no separate is_final dimension: the taxonomy
+        // already distinguishes IVR_NO_ANSWER_ATTEMPT from IVR_NO_ANSWER_FINAL, so a second label
+        // would add a time series per value while carrying information the first one already has.
+        IvrTelemetry.RecordResult(
+            (TelemetryTags.ResultType, normalized.ResultStatus),
+            (TelemetryTags.Counted, normalized.IsCounted));
+
         return new NormalizationPersistenceResult(
             rawEvent.RawEventId,
             resultId,

@@ -58,9 +58,29 @@ public sealed class IvrReadinessProbe(
             bool reachable = await context.Database
                 .CanConnectAsync(cancellationToken)
                 .ConfigureAwait(false);
-            return reachable
-                ? new ReadinessCheck("database", true, "reachable")
-                : new ReadinessCheck("database", false, "unreachable");
+            if (!reachable)
+            {
+                return new ReadinessCheck("database", false, "unreachable");
+            }
+
+            // Reachable is not the same as usable. W-0046 recorded that nothing checked the
+            // direction where NEW code meets an OLD schema: the chart runs migrations as a
+            // pre-upgrade hook, but a deploy that skipped hooks, a hook that was disabled, or a
+            // developer pointing at an un-migrated database all produce a pod that connects,
+            // reports Healthy, takes traffic, and fails on the first query against a table that
+            // is not there. Answering "may traffic come in" has to include "does the schema this
+            // build was compiled against exist".
+            IEnumerable<string> pending = await context.Database
+                .GetPendingMigrationsAsync(cancellationToken)
+                .ConfigureAwait(false);
+            if (pending.Any())
+            {
+                // Fixed phrase, no migration names: a readiness body is served to anything that
+                // asks, and the list of migrations a build expects is a description of the build.
+                return new ReadinessCheck("database", false, "schema_behind");
+            }
+
+            return new ReadinessCheck("database", true, "reachable");
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

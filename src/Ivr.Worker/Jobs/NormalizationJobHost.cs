@@ -7,6 +7,7 @@ namespace Ivr.Worker.Jobs;
 public sealed partial class NormalizationJobHost(
     ResultNormalizer normalizer,
     IOptions<NormalizationOptions> options,
+    WorkerLiveness liveness,
     ILogger<NormalizationJobHost> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -15,11 +16,21 @@ public sealed partial class NormalizationJobHost(
         if (!snapshot.Enabled)
         {
             LogDisabled(logger);
+            // Registered even though it will not run, so the report can tell a loop that
+            // was turned OFF from a loop that was never wired: the first is a decision,
+            // the second is a defect, and only one of them is worth a restart.
+            liveness.RegisterDisabled("normalization");
             return;
         }
 
         string workerId = string.Concat("ivr-normalizer-", Guid.NewGuid().ToString("N"));
         using var timer = new PeriodicTimer(
+            TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds));
+        // Registered explicitly. A loop that forgot to register would be silently exempt
+        // from the liveness check, and the loops worth watching are exactly the ones
+        // somebody added without thinking about health.
+        liveness.Register(
+            "normalization",
             TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds));
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -34,6 +45,8 @@ public sealed partial class NormalizationJobHost(
                 {
                     LogBatch(logger, results.Count);
                 }
+
+                liveness.Tick("normalization");
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -42,6 +55,7 @@ public sealed partial class NormalizationJobHost(
             catch (Exception exception)
             {
                 LogFailure(logger, exception);
+                liveness.Fault("normalization", exception);
             }
 
             if (!await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))

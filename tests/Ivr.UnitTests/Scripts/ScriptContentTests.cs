@@ -1,3 +1,4 @@
+using System.Globalization;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Scripts;
 using Ivr.Infrastructure.Audit;
@@ -271,6 +272,72 @@ public sealed class ScriptContentTests
         Assert.Equal("vi-VN", preview.InputSnapshot.Locale);
         Assert.True(preview.EstimatedDuration > TimeSpan.Zero);
         Assert.Equal(64, preview.ContentHash.Length);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-SCRIPT-VI-FORMAT-08")]
+    public async Task VietnameseNumbersAreBuiltInsteadOfLookedUpFromIcu()
+    {
+        // The shipped worker image could not speak. Its chiseled runtime base runs in
+        // globalization-invariant mode, so CultureInfo.GetCultureInfo("vi-VN") in a static
+        // constructor threw, every render failed as a generic technical exception, and DT-04
+        // auto-disabled the only SIM channel after three of them. Every test here passed, because
+        // tests run on a host that has ICU -- which is exactly why this test cannot be the whole
+        // guard. IT-IMG-E2E-05 renders inside the real image; this pins the values.
+        using InMemoryScriptRegistry registry = CreateRegistry(productionFieldsApproved: false);
+        ApprovedScript approved = Assert.IsType<ApprovedScript>(await registry.TryGetApproved(
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.MockTemplateVersion,
+            ExecutionMode.Mock));
+
+        // Groups on '.', decimals on ',' -- the Vietnamese convention, and the opposite of the
+        // invariant one. Reading these as invariant would say "five hundred sixty" for 560.000.
+        ScriptPreview preview = new VietnameseOrderScriptRenderer().Render(
+            approved,
+            Summary([SpeechItem.Create("Trà sâm", 2.5m, "kg")], 560_000m, "Quận 7"));
+
+        Assert.Contains("2,5 kg Trà sâm", preview.ExactText, StringComparison.Ordinal);
+        Assert.Contains("560.000 đồng", preview.ExactText, StringComparison.Ordinal);
+
+        // The renderer must not read the ambient culture either: a worker started with a different
+        // LANG would otherwise speak a different number for the same order.
+        CultureInfo original = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            Assert.Equal(
+                preview.ExactText,
+                new VietnameseOrderScriptRenderer().Render(
+                    approved,
+                    Summary([SpeechItem.Create("Trà sâm", 2.5m, "kg")], 560_000m, "Quận 7"))
+                    .ExactText);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = original;
+        }
+
+        // Cross-check against real ICU where it exists, so a hand-built format cannot silently
+        // drift away from the locale it claims to be. Skipped rather than failed where ICU is
+        // absent -- that environment is the one this test exists because of.
+        CultureInfo? icu = TryGetVietnamese();
+        if (icu is not null)
+        {
+            Assert.Equal("560.000", 560_000m.ToString("N0", icu));
+            Assert.Equal("2,5", 2.5m.ToString("0.##", icu));
+        }
+    }
+
+    private static CultureInfo? TryGetVietnamese()
+    {
+        try
+        {
+            return CultureInfo.GetCultureInfo("vi-VN");
+        }
+        catch (CultureNotFoundException)
+        {
+            return null;
+        }
     }
 
     [Fact]

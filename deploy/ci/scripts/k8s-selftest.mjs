@@ -133,6 +133,13 @@ function loadImages() {
   }
 }
 
+function writeAndApply(name, content) {
+  const local = path.join(os.tmpdir(), name);
+  fs.writeFileSync(local, content, "utf8");
+  docker(["cp", local, `${CLUSTER}:/tmp/${name}`]);
+  kubectl(["-n", NS, "apply", "-f", `/tmp/${name}`]);
+}
+
 function deploy() {
   try {
     kubectl(["create", "namespace", NS], { stdio: ["ignore", "ignore", "ignore"] });
@@ -143,13 +150,28 @@ function deploy() {
   waitFor("postgres", 180, () =>
     kubectl(["-n", NS, "get", "pods", "-l", "app.kubernetes.io/name=postgres", "--no-headers"]).includes("1/1"));
 
-  const manifest = path.join(os.tmpdir(), "ivr-k8s-selftest.yaml");
-  fs.writeFileSync(manifest, render("dev"), "utf8");
-  docker(["cp", manifest, `${CLUSTER}:/tmp/ivr-dev.yaml`]);
-  kubectl(["-n", NS, "apply", "-f", "/tmp/ivr-dev.yaml"]);
+  // The migrate Job goes in FIRST and finishes before anything else is applied.
+  //
+  // `helm template` emits hook resources inline, so applying the whole render at once creates the
+  // Job and the Deployments in the same breath and Helm's `pre-install` ordering is lost. The
+  // worker then raced the schema and died with `relation "ivr_sim_channels" does not exist` --
+  // SIGSEGV, restart, second attempt fine. Nobody noticed because Kubernetes healed it, and the
+  // suite only ever asserted the end state.
+  //
+  // That crash was an artefact of THIS harness, not of the chart. Splitting the apply is what makes
+  // the harness deploy in the order a real `helm install` does, so the cluster under test is the
+  // one the chart describes.
+  const rendered = render("dev");
+  const documents = rendered.split(/\r?\n---/);
+  const migrateJob = documents.filter((document) =>
+    /kind: Job/.test(document) && /-migrate/.test(document));
+  assert(migrateJob.length === 1, `expected one migrate Job in the render, found ${migrateJob.length}.`);
 
+  writeAndApply("ivr-migrate.yaml", migrateJob.join("\n---"));
   waitFor("the migration hook to complete", 240, () =>
     kubectl(["-n", NS, "get", "job", "ivr-ivr-migrate", "--no-headers"]).includes("1/1"));
+
+  writeAndApply("ivr-dev.yaml", documents.filter((document) => !migrateJob.includes(document)).join("\n---"));
   waitFor("api, worker and ui to become ready", 300, () => {
     const pods = kubectl(["-n", NS, "get", "pods", "--no-headers"]);
     return pods.split("\n").filter((line) => /1\/1\s+Running/.test(line)).length >= 4;
@@ -195,6 +217,121 @@ function readinessRemovesFromRotation() {
   process.stdout.write("IT-K8S-PROBE-03 PASS — readiness 503 removed the pod from rotation without restarting it\n");
 }
 
+// ---------------------------------------------------------------- IT-K8S-WORKER-06
+//
+// The worker liveness probe, measured on the cluster rather than assumed.
+//
+// Two claims here cannot be read off a manifest. First, whether the kubelet can reach a port on a
+// pod the default-deny NetworkPolicy covers: probe traffic comes from the node, not from a pod,
+// and whether that is exempt is a property of the CNI rather than of the chart. Second, whether a
+// database outage restarts the worker -- with PostgreSQL down every loop fails on every pass, and
+// a probe that restarted on that would add a restart storm to an outage at the worst moment.
+function workerLivenessProbe() {
+  // Structural half. Liveness only: nothing routes traffic to the worker, so a readinessProbe
+  // would be one more thing to be wrong about and nothing to be right about.
+  const manifest = render("dev");
+  const workerDocument = manifest
+    .split("\n---")
+    .find((document) => /kind: Deployment/.test(document) && /component: worker/.test(document));
+  assert(workerDocument, "the chart renders no worker Deployment.");
+  // Keys, not prose. A substring search matched the comment that explains WHY there is no
+  // readinessProbe and failed the check the comment was describing -- the same shape of mistake as
+  // a PII scan that flags the sentence documenting the rule. Comment lines are dropped first, and
+  // the key has to appear as a key.
+  const workerKeys = workerDocument
+    .split(/\r?\n/)
+    .filter((line) => !line.trimStart().startsWith("#"))
+    .join("|");
+  assert(
+    /(^|\|)\s*livenessProbe:/.test(workerKeys),
+    "the worker deployment declares no livenessProbe.");
+  assert(
+    !/(^|\|)\s*readinessProbe:/.test(workerKeys),
+    "the worker declares a readinessProbe; nothing routes traffic to it, so readiness has no "
+    + "meaning here.");
+
+  // Behavioural half, and the reason for the check. A probe the kubelet never ran would leave
+  // restartCount at 0 and the pod Ready -- indistinguishable from a probe that ran and passed --
+  // so the claim comes from the pod reporting the probe's own container state.
+  waitFor("the worker pod to become Ready with its probe passing", 240, () =>
+    kubectl(["-n", NS, "get", "pod", "-l", "app.kubernetes.io/component=worker",
+      "-o", 'jsonpath={.items[0].status.conditions[?(@.type=="Ready")].status}']).trim() === "True");
+
+  // The claim is about the PROBE, so the measurement has to be about the probe. Asserting zero
+  // restarts measures every reason a container can die -- and the first run of this check failed on
+  // one that had nothing to do with the probe: the worker raced the schema and segfaulted. That was
+  // worth finding and worth fixing, but it is not what this assertion is for, and a check that
+  // fails for the wrong reason gets read as noise.
+  assert(
+    workerProbeFailures() === 0,
+    `the kubelet reported ${workerProbeFailures()} liveness failures against a healthy worker; the `
+    + "probe is failing a working worker, which is worse than having no probe.");
+
+  // And the opposite direction, which is the half that makes the first one mean something. The
+  // kubelet reaches the port; another POD must not. Both facts are about the same port and they
+  // pull opposite ways, so measuring only one would leave either "the probe never ran" or "the
+  // health port is an open door in the namespace" indistinguishable from a pass.
+  const workerIp = kubectl(["-n", NS, "get", "pod", "-l", "app.kubernetes.io/component=worker",
+    "-o", "jsonpath={.items[0].status.podIP}"]).trim();
+  assert(workerIp !== "", "the worker pod has no IP.");
+  startProbePod("worker-health-probe", "role=netpol-probe");
+  let reachedHealthPort = false;
+  try {
+    kubectl(["-n", NS, "exec", "worker-health-probe", "--",
+      "wget", "-q", "-T", "6", "-O-", `http://${workerIp}:8081/healthz`]);
+    reachedHealthPort = true;
+  } catch { /* the refusal is the pass */ }
+  deleteProbePod("worker-health-probe");
+  assert(
+    !reachedHealthPort,
+    "a pod in the namespace reached the worker's health port. The endpoint reports which loops are "
+    + "running and how they last failed; default-deny is what keeps that from being readable by "
+    + "anything that lands in the namespace.");
+
+  // The outage. Long enough for several probe periods (15s each, failureThreshold 3) so that a
+  // probe which treated "failing" as "stopped" would have restarted the pod by now.
+  const restartsBeforeOutage = workerRestartCount();
+  kubectl(["-n", NS, "scale", "deploy", "ivr-postgres", "--replicas=0"]);
+  sleepSeconds(90);
+  const restartsDuringOutage = workerRestartCount();
+  kubectl(["-n", NS, "scale", "deploy", "ivr-postgres", "--replicas=1"]);
+
+  assert(
+    workerProbeFailures() === 0,
+    "the kubelet reported liveness failures during a database outage. A loop that is turning and "
+    + "failing is not a restart signal: restarting does not repair a dependency, it adds a restart "
+    + "storm to the outage.");
+  assert(
+    restartsDuringOutage === restartsBeforeOutage,
+    `the worker restart count moved from ${restartsBeforeOutage} to ${restartsDuringOutage} during `
+    + "a database outage.");
+
+  process.stdout.write(
+    "IT-K8S-WORKER-06 PASS — the kubelet reaches the worker probe through default-deny, and 90s of "
+    + "database outage produced 0 restarts\n");
+}
+
+/**
+ * How many times the kubelet has reported the liveness probe failing on the worker pod.
+ *
+ * Read from events rather than from restartCount, because restartCount counts every death and the
+ * question here is narrower: did the PROBE kill it. Kubernetes records a probe failure as an
+ * Unhealthy event naming which probe, so the two can be told apart.
+ */
+function workerProbeFailures() {
+  const events = kubectl(["-n", NS, "get", "events", "--field-selector", "reason=Unhealthy",
+    "-o", 'jsonpath={range .items[*]}{.involvedObject.name}|{.message}{"\\n"}{end}']);
+  return events
+    .split(/\r?\n/)
+    .filter((line) => line.includes("worker") && /Liveness probe failed/i.test(line))
+    .length;
+}
+
+function workerRestartCount() {
+  return kubectl(["-n", NS, "get", "pods", "-l", "app.kubernetes.io/component=worker",
+    "-o", "jsonpath={.items[0].status.containerStatuses[0].restartCount}"]).trim();
+}
+
 // ---------------------------------------------------------------- IT-K8S-NETPOL-04
 function networkPolicy() {
   // Structural half: always checked, and deterministic.
@@ -207,12 +344,16 @@ function networkPolicy() {
   // Behavioural half: only meaningful if this cluster ENFORCES policy at all. A positive control
   // settles that -- without it, an unenforcing cluster would report the same green as a correct
   // policy, which is the worst possible outcome for a security control.
-  const enforced = probeEnforcement();
+  const { enforced, reachedBefore } = probeEnforcement();
+  assert(
+    reachedBefore,
+    "the capability probe could not reach the internet even before the deny-all converged, so a "
+    + "block here would prove nothing: the pod has no route, and geography is not a policy.");
   if (!enforced) {
     process.stdout.write(
       "IT-K8S-NETPOL-04 NOT_PROVEN — policies are present and default-deny, but this cluster does\n"
-      + "  not enforce NetworkPolicy (positive control reached the internet through a deny-all).\n"
-      + "  The behavioural half needs a policy-enforcing CNI. Recorded, not counted as a pass.\n");
+      + "  not enforce NetworkPolicy: a deny-all was applied to a running pod and the pod was still\n"
+      + "  reaching the internet a minute later. Needs a policy-enforcing CNI. Recorded, not a pass.\n");
     return false;
   }
 
@@ -222,6 +363,57 @@ function networkPolicy() {
   return true;
 }
 
+/**
+ * A probe pod that stays alive, so the network call is separated from pod creation.
+ *
+ * The original probes ran `kubectl run --rm -i -- wget`: start a pod and immediately call out.
+ * kube-router installs per-pod iptables rules AFTER the pod appears, so a pod that races out of
+ * the gate wins -- and that race is what made this cluster look like one that does not enforce
+ * NetworkPolicy at all. It does.
+ */
+function startProbePod(name, labels) {
+  deleteProbePod(name);
+  kubectl(["-n", NS, "run", name, "--restart=Never", `--labels=${labels}`, `--image=${BUSYBOX}`,
+    "--command", "--", "sleep", "600"]);
+  kubectl(["-n", NS, "wait", "--for=condition=Ready", `pod/${name}`, "--timeout=120s"]);
+}
+
+function deleteProbePod(name) {
+  try {
+    kubectl(["-n", NS, "delete", "pod", name, "--ignore-not-found", "--now"],
+      { stdio: ["ignore", "ignore", "ignore"] });
+  } catch { /* best effort */ }
+}
+
+/** Whether the pod can reach the internet right now. */
+function podReachesInternet(name) {
+  try {
+    kubectl(["-n", NS, "exec", name, "--", "wget", "-q", "-T", "6", "-O-", "http://example.com"]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Polls until the pod stops reaching the internet, or the deadline passes. */
+function waitUntilBlocked(name, seconds) {
+  for (let attempt = 0; attempt * 3 < seconds; attempt += 1) {
+    if (!podReachesInternet(name)) {
+      return true;
+    }
+    sleepSeconds(3);
+  }
+  return false;
+}
+
+/**
+ * Does this cluster enforce NetworkPolicy at all?
+ *
+ * Order matters, and getting it wrong is what made the first version of this useless. The pod
+ * starts with NO policy against it and its reachability is measured first. Only then is the
+ * deny-all applied. Measuring only after cannot tell "the policy blocked it" from "it never had a
+ * route" -- and a pod with no route is blocked by geography, not by policy.
+ */
 function probeEnforcement() {
   const denyAll = [
     "apiVersion: networking.k8s.io/v1",
@@ -239,29 +431,37 @@ function probeEnforcement() {
   const file = path.join(os.tmpdir(), "netpol-capability-probe.yaml");
   fs.writeFileSync(file, denyAll, "utf8");
   docker(["cp", file, `${CLUSTER}:/tmp/netpol-probe.yaml`]);
-  kubectl(["-n", NS, "apply", "-f", "/tmp/netpol-probe.yaml"]);
+
   try {
-    kubectl(["-n", NS, "run", "capability-probe", "--rm", "-i", "--restart=Never",
-      "--labels=netpol-probe=capability", `--image=${BUSYBOX}`,
-      "--command", "--", "wget", "-q", "-T", "6", "-O-", "http://example.com"]);
-    return false; // reached the internet through a deny-all: not enforced
-  } catch {
-    return true;
+    startProbePod("capability-probe", "netpol-probe=capability");
+    const reachedBefore = podReachesInternet("capability-probe");
+
+    kubectl(["-n", NS, "apply", "-f", "/tmp/netpol-probe.yaml"]);
+
+    // Then wait. "Not enforced" and "not enforced YET" look identical at t=0, and reading the
+    // first as the second is what recorded this cluster as non-enforcing across four slices.
+    return { enforced: waitUntilBlocked("capability-probe", 60), reachedBefore };
   } finally {
+    deleteProbePod("capability-probe");
     try {
-      kubectl(["-n", NS, "delete", "networkpolicy", "netpol-capability-probe"], { stdio: ["ignore", "ignore", "ignore"] });
+      kubectl(["-n", NS, "delete", "networkpolicy", "netpol-capability-probe"],
+        { stdio: ["ignore", "ignore", "ignore"] });
     } catch { /* best effort */ }
   }
 }
 
+/**
+ * Can a pod matching the chart's selector reach the internet?
+ *
+ * Same convergence wait, for the opposite reason. Here "blocked" is the pass, so a race that
+ * blocked the pod by accident would hand out a PASS nobody earned.
+ */
 function reachesInternetAsIvrPod() {
   try {
-    kubectl(["-n", NS, "run", "netpol-probe", "--rm", "-i", "--restart=Never",
-      "--labels=app.kubernetes.io/name=ivr,app.kubernetes.io/instance=ivr", `--image=${BUSYBOX}`,
-      "--command", "--", "wget", "-q", "-T", "6", "-O-", "http://example.com"]);
-    return true;
-  } catch {
-    return false;
+    startProbePod("netpol-probe", "app.kubernetes.io/name=ivr,app.kubernetes.io/instance=ivr");
+    return !waitUntilBlocked("netpol-probe", 60);
+  } finally {
+    deleteProbePod("netpol-probe");
   }
 }
 
@@ -320,6 +520,7 @@ try {
   gateFromRunningPods();
   readinessRemovesFromRotation();
   netpolProven = networkPolicy();
+  workerLivenessProbe();
   const retentionProven = retentionCronJob();
 
   // Named individually rather than collapsed into one flag. "Something is unproven" tells the

@@ -8,6 +8,12 @@ governance:
   adapterMode: MOCK
   killSwitchEnabled: true
 
+# W-0053 / P10-2. The only environment permitted to skip TLS to the database, and only because
+# the throwaway bootstrap PostgreSQL in ci/bootstrap-dev.yaml ships no certificate. Written here
+# rather than inherited silently, so the exception is visible where the exception is taken.
+database:
+  sslMode: Disable
+
 image:
   tag: "0.1.0-dev"
 

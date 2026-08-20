@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.7
+  version: 1.0.0-draft.8
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -366,9 +366,9 @@ paths:
         Business KPI over the filtered scope plus the result-taxonomy split. Every
         value is a count or a rate; no task, order code, phone or evidence ref is
         projected (D-05). Buckets below `min_bucket_size` are dropped server-side
-        and reported in `data_quality.suppressed_bucket_count`. Until the P10-4
-        pipeline (W-0055) exists, `warehouse_backed` is false and the numbers are
-        computed from the operational read model.
+        and reported in `data_quality.suppressed_bucket_count`. `data_quality.source`
+        names the store that answered, and `data_quality.warehouse_status` reports
+        whether the P10-4 pipeline (W-0055) is complete or still catching up.
       operationId: getAnalyticsSummary
       security: [ { bearerAuth: [] } ]
       parameters:
@@ -1735,11 +1735,18 @@ components:
         - suppressed_bucket_count
         - scanned_rows
         - truncated
+        - warehouse_status
       properties:
         generated_at: { type: string, format: date-time }
         source:
           type: string
-          description: OPERATIONAL_READ_MODEL until the P10-4 warehouse exists.
+          description: >-
+            Which store answered: ANALYTICS_WAREHOUSE once the P10-4 pipeline
+            (W-0055) has loaded facts, OPERATIONAL_READ_MODEL before that.
+            Deliberately not an enum — it is a diagnostic label the console
+            prints rather than switches on, and a closed set here would make an
+            older client fail to read a payload naming a source it predates.
+            `warehouse_status` is the enum, because that one is switched on.
         warehouse_backed:
           type: boolean
           description: False means these numbers are operational reads, not a BI pipeline.
@@ -1756,6 +1763,13 @@ components:
         truncated:
           type: boolean
           description: True when the scan cap was reached, so the numbers are partial.
+        warehouse_status:
+          type: string
+          enum: [NOT_RUN, COMPLETE, BACKLOG, MISMATCH]
+          description: >-
+            State of the P10-4 pipeline, reported separately from `source`.
+            Serving from the warehouse and the warehouse being complete are
+            different claims; BACKLOG means a real but partial answer.
     IvrAnalyticsFilter:
       type: object
       additionalProperties: false

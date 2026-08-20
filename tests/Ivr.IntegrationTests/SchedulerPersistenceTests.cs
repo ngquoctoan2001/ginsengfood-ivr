@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Text.Json;
 using Ivr.Api.Application;
@@ -5,6 +6,7 @@ using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Intake;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Repositories;
@@ -160,6 +162,111 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         Assert.Equal("CAPACITY_MISSED", job.Status);
         Assert.Equal(incident.CapacityIncidentId, job.CapacityIncidentId);
         Assert.Equal(0, await verification.CallAttempts.CountAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-OBS-DEADLINE-10")]
+    public async Task AMissedDeadlineMovesBothTheDeadlineAndTheResultCounters()
+    {
+        // W-0054 CAP-ALERT-04 could only report NOT_PROVEN while ivr_missed_deadline_total had no
+        // call site. This is the call site, measured through the real Meter rather than by reading
+        // the source.
+        //
+        // Both counters, and the second is the one worth having a test for. This method is the one
+        // path that writes a FINAL result without going through normalization, so before this the
+        // capacity misses were absent from ivr_call_results_total -- and a confirm_rate whose
+        // denominator omits the failures reads higher than the truth, by exactly the amount that
+        // matters most.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-OBS-DEADLINE-10",
+            "JOB-OBS-DEADLINE-10",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        List<(string Instrument, string Taxonomy)> observed = [];
+        using (MeterListener listener = ListenForCapacityMetrics(observed))
+        {
+            Assert.Equal(1, await store.CloseMissedDeadlinesAsync(Now, 16));
+            listener.RecordObservableInstruments();
+        }
+
+        Assert.Equal(2, observed.Count);
+        Assert.Contains(
+            observed,
+            measurement => measurement.Instrument == "ivr_missed_deadline_total"
+                && measurement.Taxonomy == "GOLDEN_HOUR");
+
+        // The taxonomy value the rate queries filter on, not a generic "failed".
+        Assert.Contains(
+            observed,
+            measurement => measurement.Instrument == "ivr_call_results_total"
+                && measurement.Taxonomy == "IVR_CAPACITY_EXCEPTION");
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-OBS-DEADLINE-10")]
+    public async Task ASweepThatFindsNothingMovesNoCounter()
+    {
+        // The half that makes the zero-tolerance alert usable at all. The sweep runs on every
+        // scheduler tick and finds nothing almost every time; a counter that moved on the empty
+        // sweeps would make an idle system fire IvrConfirmationDeadlineMissed continuously, and an
+        // alert that fires continuously is an alert that gets muted.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-OBS-DEADLINE-10B",
+            "JOB-OBS-DEADLINE-10B",
+            Now,
+            expiresAt: Now.AddHours(1));
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        List<(string Instrument, string Taxonomy)> observed = [];
+        using (MeterListener listener = ListenForCapacityMetrics(observed))
+        {
+            Assert.Equal(0, await store.CloseMissedDeadlinesAsync(Now, 16));
+            listener.RecordObservableInstruments();
+        }
+
+        Assert.Empty(observed);
+    }
+
+    private static MeterListener ListenForCapacityMetrics(
+        List<(string Instrument, string Taxonomy)> observed)
+    {
+        var listener = new MeterListener
+        {
+            InstrumentPublished = (instrument, target) =>
+            {
+                if (instrument.Meter.Name == IvrTelemetry.ServiceName
+                    && instrument.Name is "ivr_missed_deadline_total" or "ivr_call_results_total")
+                {
+                    target.EnableMeasurementEvents(instrument);
+                }
+            },
+        };
+        listener.SetMeasurementEventCallback<long>((instrument, _, tags, _) =>
+        {
+            string taxonomy = string.Empty;
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                if (tag.Key is TelemetryTags.Program or TelemetryTags.ResultType)
+                {
+                    taxonomy = tag.Value?.ToString() ?? string.Empty;
+                }
+            }
+
+            lock (observed)
+            {
+                observed.Add((instrument.Name, taxonomy));
+            }
+        });
+        listener.Start();
+        return listener;
     }
 
     [Fact]

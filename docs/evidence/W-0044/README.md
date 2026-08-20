@@ -1,6 +1,7 @@
 # W-0044 — Evidence: Kubernetes & Helm (`P7-2`)
 
-Ngày: `2026-08-18` · Trạng thái: 4/5 test §8 `PASS`; chỉ còn `IT-K8S-NETPOL-04` **NOT_PROVEN** (§5).
+Ngày: `2026-08-18` · Cập nhật `2026-08-19` · Trạng thái: **5/5 test §8 `PASS`**.
+`IT-K8S-NETPOL-04` không còn `NOT_PROVEN` — xem §5, và **kết luận cũ ở đó là sai**.
 `IT-K8S-RETENTION-05` đã đóng ở `W-0047` — xem §7
 
 Tài liệu chart: [`deploy/helm/README.md`](../../../deploy/helm/README.md).
@@ -70,20 +71,37 @@ không thừa chút nào — §2.1 là đúng trường hợp values file **đú
 Kiểm trên pod `api` và `worker` đang chạy: `IVR_EXECUTION_MODE=MOCK`, `REAL_CUSTOMER_CALL_ALLOWED=NO`,
 `IVR_KILL_SWITCH_ENABLED=true`, và **không env nào còn `$(...)` chưa expand**.
 
-## 5. `IT-K8S-NETPOL-04` — **chưa chứng minh được**, và tại sao điều đó quan trọng
+## 5. `IT-K8S-NETPOL-04` — kết luận cũ **sai**, và sai theo kiểu đáng ghi lại
 
-Ba policy tồn tại trong cluster với selector đúng, cấu trúc default-deny, không có `0.0.0.0/0`. Đó
-là **nửa cấu trúc**, và nó xanh.
+**Cập nhật `2026-08-19`: đã `PASS`.** Cluster **có** thực thi NetworkPolicy. Phần dưới giữ nguyên
+lập luận cũ vì cách nó sai mới là thứ đáng đọc.
 
-Nửa hành vi thì không: một pod mang đúng selector của chart vẫn **ra được internet**. Nguyên nhân
-không phải chính sách sai mà là **cluster k3s ở cấu hình này không thực thi NetworkPolicy**.
+Kết luận cũ: *"cluster k3s ở cấu hình này không thực thi NetworkPolicy; cần Calico/Cilium"*. Nó
+được ghi bốn lần qua bốn slice, và nó **không đúng**.
 
-Script phân biệt hai khả năng đó bằng **đối chứng dương**: nó áp một deny-all lên một pod thử và
-đòi pod đó *bị chặn*. Nếu đối chứng vẫn ra được internet, script in `NOT_PROVEN` thay vì `PASS`.
+Cái sai là **phép đo**, không phải cluster. Đối chứng dương chạy
+`kubectl run --rm -i -- wget`: tạo một pod rồi **gọi mạng ngay lập tức**. kube-router cài luật
+iptables cho từng pod **sau khi pod xuất hiện**, nên một pod phóng ra khỏi cổng ngay lập tức
+**thắng cuộc đua**. Log k3s vẫn ghi rõ `Starting network policy controller version v2.2.1` — bộ
+điều khiển luôn ở đó; không ai chờ nó.
 
-Nửa này quan trọng hơn nó trông có vẻ: nếu không có đối chứng, một cluster **không thực thi** sẽ
-cho ra đúng màu xanh như một chính sách **đúng** — kết cục tệ nhất có thể với một control bảo mật.
-Chứng minh hành vi cần một CNI thực thi được (Calico/Cilium); ghi lại, không tính là pass.
+Sửa: pod thử **sống lâu** (`sleep 600`), và phép đo tách làm hai thời điểm.
+
+| Bước | Vì sao |
+| --- | --- |
+| tạo pod **trước**, chưa có policy nào | đo được **mức nền**: pod này ra được internet |
+| áp deny-all **sau đó** | giờ mới có thứ để đo tác dụng |
+| **chờ** tới khi bị chặn (tối đa 60s) | "không thực thi" và "chưa thực thi kịp" trông y hệt nhau ở t=0 |
+
+Thứ tự là điểm mấu chốt: áp policy trước rồi mới đo thì **không phân biệt được** "policy chặn nó"
+với "nó vốn không có lối ra" — mà một pod không có lối ra thì bị chặn bởi **địa lý**, không
+phải bởi chính sách. Bản sửa đầu tiên của tôi mắc đúng lỗi đó và cổng mới đỏ với thông báo *"the
+pod has no route, and geography is not a policy"*.
+
+Bài học giữ nguyên và mạnh hơn: **đối chứng dương là đúng, nhưng một đối chứng có điều kiện đua thì
+đo thời điểm chứ không đo chính sách.** Nếu không có đối chứng, một cluster không thực thi sẽ cho
+ra đúng màu xanh như một chính sách đúng. Nếu có đối chứng mà không chờ, một cluster **thực thi
+được** bị ghi nhầm là không — và cả dự án đi tìm một CNI nó không cần.
 
 ## 6. `IT-K8S-PROBE-03` — đúng nửa quan trọng nhất
 
@@ -134,8 +152,7 @@ thêm PVC cho postgres trong bootstrap. Điều này cũng giải thích luôn h
 `Ivr__Retention__DryRun=true`, `Ivr__Retention__RunOnce=true`, kế thừa sàn governance — và một Job
 tạo từ nó **chạy xong** trong cluster.
 
-Dòng tổng kết của self-test giờ là `K8S_SELFTEST_PASS_WITH_NOT_PROVEN=NETPOL_ENFORCEMENT` — chỉ còn
-một mục chưa chứng minh thay vì hai.
+Dòng tổng kết của self-test giờ là **`K8S_SELFTEST_PASS`** — không còn mục nào `NOT_PROVEN`.
 
 ## 8. HPA và trần SIM
 
@@ -153,11 +170,11 @@ Ai bật thì `maxReplicas` vẫn bị kẹp ở `simPoolSize` bằng `min` tron
 | `IT-K8S-LINT-01` | `helm lint` 0 failed × 4 env; `kubeconform` Invalid: 0 × 4 env (12–13 object) |
 | `IT-K8S-GATE-02` | 3 kiểm âm ladder đỏ đúng lý do; pod api/worker đang chạy đều MOCK/NO/kill-switch-on |
 | `IT-K8S-PROBE-03` | endpoints rỗng khi DB mất, `restartCount=0`, quay lại khi DB về |
-| `IT-K8S-NETPOL-04` | **NOT_PROVEN** — policy đúng cấu trúc, cluster không thực thi |
+| `IT-K8S-NETPOL-04` | **PASS** (`2026-08-19`) — đối chứng dương ra được internet **trước** khi áp deny-all, rồi bị chặn sau khi luật hội tụ; pod mang selector của chart bị chặn |
 | `IT-K8S-RETENTION-05` | **PASS** (đóng ở `W-0047`) — Job tạo từ CronJob chạy xong trong cluster |
 | `docs-selftest.mjs` | `DOC_CI_TOPOLOGY_PASS` (mở rộng cho fragment k8s; kiểm âm đỏ) |
 | `scan-pii.sh` | `PII_SCAN_PASS` |
-| `k8s-selftest.mjs` | `K8S_SELFTEST_PASS_WITH_NOT_PROVEN=NETPOL_ENFORCEMENT,RETENTION_EXECUTION` |
+| `k8s-selftest.mjs` | `K8S_SELFTEST_PASS` (`2026-08-19`); trước đó `..._WITH_NOT_PROVEN=NETPOL_ENFORCEMENT,RETENTION_EXECUTION` |
 
 Dòng cuối là cả thiết kế lẫn kết quả: script **exit 0** nhưng **gọi tên** từng thứ chưa chứng
 minh thay vì gộp thành một cờ chung. "Có gì đó chưa chứng minh" bắt người đọc tiếp theo đi mò;

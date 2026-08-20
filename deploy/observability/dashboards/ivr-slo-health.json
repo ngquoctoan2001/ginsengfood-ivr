@@ -299,6 +299,112 @@
         },
         "overrides": []
       }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Business outcome rate (ARCH-06 §1)",
+      "description": "W-0041 declared these rates and could not draw them: ivr_call_results_total had no call site. It does now (ResultRepository, after commit). clamp_min keeps a division by an idle period from rendering as infinity, which reads like an incident rather than like silence. Runbook: docs/slo.md#business-outcome-rate",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(ivr_call_results_total{ivr_result_type=\"IVR_CONFIRMED\"}[15m])) / clamp_min(sum(rate(ivr_call_results_total[15m])), 0.0001)",
+          "legendFormat": "confirm_rate",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(ivr_call_results_total{ivr_result_type=\"IVR_CUSTOMER_CANCELLED\"}[15m])) / clamp_min(sum(rate(ivr_call_results_total[15m])), 0.0001)",
+          "legendFormat": "cancel_rate",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(ivr_call_results_total{ivr_result_type=~\"IVR_NO_ANSWER_.*\"}[15m])) / clamp_min(sum(rate(ivr_call_results_total[15m])), 0.0001)",
+          "legendFormat": "no_answer_rate",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "reqps"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Attempts dispatched vs results normalized",
+      "description": "The two counters bracket the call path. A persistent gap means attempts are leaving the scheduler and not coming back as results — dispatch succeeding while normalization stalls, which no single counter can show. Runbook: docs/slo.md#attempt-result-gap",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(ivr_call_attempts_total[15m]))",
+          "legendFormat": "attempts dispatched",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(ivr_call_results_total[15m]))",
+          "legendFormat": "results normalized",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "reqps"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Confirmation windows that closed uncalled (ARCH-06 §1)",
+      "description": "A COUNT per hour, deliberately not a rate. The alert threshold is zero, so the question this panel answers is \"how many orders\", and a rate renders one lost order as 0.0003/s -- a number nobody reads as an order. The capacity model (W-0054) says the shipped pool covers the modelled peak, so anything above the floor here means a model assumption is wrong, not that the pool needs topping up. Runbook: docs/slo.md#capacity-deadline-missed",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "targets": [
+        {
+          "expr": "sum by (ivr_program) (increase(ivr_missed_deadline_total[1h]))",
+          "legendFormat": "{{ivr_program}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      }
     }
   ]
 }

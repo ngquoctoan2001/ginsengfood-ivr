@@ -6,6 +6,7 @@ namespace Ivr.Worker.Jobs;
 public sealed partial class SchedulerJobHost(
     ISchedulerRuntime scheduler,
     IOptions<SchedulerOptions> options,
+    WorkerLiveness liveness,
     ILogger<SchedulerJobHost> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -13,6 +14,24 @@ public sealed partial class SchedulerJobHost(
         string workerId = string.Concat("ivr-scheduler-", Guid.NewGuid().ToString("N"));
         using var timer = new PeriodicTimer(
             TimeSpan.FromMilliseconds(options.Value.PollIntervalMilliseconds));
+        // Registered explicitly. A loop that forgot to register would be silently exempt
+        // from the liveness check, and the loops worth watching are exactly the ones
+        // somebody added without thinking about health.
+        //
+        // The scheduler differs from the other two loops: its enable gate lives inside
+        // SchedulerRuntime.RunOnceAsync, so with the scheduler off this loop still turns and does
+        // nothing on every pass. Registering it as ENABLED then would report a healthy loop that
+        // cannot dispatch, which is the exact shape of comfort this whole class exists to remove.
+        if (options.Value.Enabled)
+        {
+            liveness.Register(
+                "scheduler",
+                TimeSpan.FromMilliseconds(options.Value.PollIntervalMilliseconds));
+        }
+        else
+        {
+            liveness.RegisterDisabled("scheduler");
+        }
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -30,6 +49,8 @@ public sealed partial class SchedulerJobHost(
                         result.ClosedMissedDeadlines,
                         result.DispatchClaimed);
                 }
+
+                liveness.Tick("scheduler");
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -38,6 +59,7 @@ public sealed partial class SchedulerJobHost(
             catch (Exception exception)
             {
                 LogFailure(logger, exception);
+                liveness.Fault("scheduler", exception);
             }
 
             if (!await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))

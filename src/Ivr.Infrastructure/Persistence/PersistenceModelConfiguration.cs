@@ -453,13 +453,37 @@ internal static class PersistenceModelConfiguration
             {
                 property.SetColumnName(ToSnakeCase(property.Name));
                 if (property.ClrType == typeof(string)
-                    && property.Name.EndsWith("Json", StringComparison.Ordinal))
+                    && property.Name.EndsWith("Json", StringComparison.Ordinal)
+                    && !ByteExactJsonColumns.Contains(
+                        (entityType.ClrType.Name, property.Name)))
                 {
                     property.SetColumnType("jsonb");
                 }
             }
         }
     }
+
+    /// <summary>
+    /// Columns that keep <c>text</c> even though the name ends in <c>Json</c>.
+    /// <para>
+    /// <c>jsonb</c> stores the MEANING of a document, not its bytes: PostgreSQL reorders keys,
+    /// drops insignificant whitespace and collapses duplicates. That is exactly what makes it a
+    /// good default -- and exactly what makes it wrong for a value whose bytes are the subject of
+    /// a hash. The callback payload is sealed with <c>payload_sha256</c> at enqueue and verified
+    /// again before the HTTP send, so the text that comes back has to be the text that went in.
+    /// </para>
+    /// <para>
+    /// It was not. Every callback written through Postgres came back re-serialized, failed
+    /// <c>CallbackPayloadIntegrity</c>, and dead-lettered as <c>CALLBACK_PAYLOAD_INVALID</c>
+    /// without one request ever leaving the process. The unit tests hand the transport a message
+    /// they built in memory, so the round trip -- the only place the defect lives -- was never on
+    /// the path. <c>IT-IMG-E2E-05</c> and <c>IT-CB-ROUNDTRIP-11</c> are what close it.
+    /// </para>
+    /// </summary>
+    private static readonly HashSet<(string Entity, string Property)> ByteExactJsonColumns =
+    [
+        (nameof(ResultCallbackEntity), nameof(ResultCallbackEntity.PayloadJson)),
+    ];
 
     private static string ToSnakeCase(string value)
     {

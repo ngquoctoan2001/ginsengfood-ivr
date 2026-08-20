@@ -107,6 +107,10 @@ ladder **phụ thuộc vào pod nào trả lời request**.
 
 - **Chưa canary nào chạy**; chưa auto-rollback nào diễn ra; chưa blue-green switch nào được diễn tập.
   Argo Rollouts chưa cài, Prometheus chưa nhận gì (`W-0063`).
+- ~~**Chưa cổng nào ép chiều ngược lại** (migration mới phải đi kèm code chịu được schema cũ).~~
+  **Đã đóng `2026-08-19`**: readiness trả `schema_behind` → 503 khi có migration chưa áp, nên một
+  pod code-mới-schema-cũ **không nhận traffic** thay vì hỏng ở truy vấn đầu tiên. Xem
+  `docs/evidence/W-0046` §7 và `IT-OBS-HEALTH-04`.
 - **Chưa chứng minh hai phiên bản chạy song thật.** `IT-MIGRATE-03` chứng minh migration **cho phép**
   điều đó; nó **không** chứng minh đã có ai chạy hai phiên bản cùng lúc.
 - **Ngưỡng fail-closed 20% là đề xuất**, chưa có baseline production.

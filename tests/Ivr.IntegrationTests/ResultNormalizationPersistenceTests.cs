@@ -1,5 +1,7 @@
 using System.Text.Json;
 using Ivr.Infrastructure.Configuration;
+using System.Diagnostics.Metrics;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Outbox;
@@ -16,6 +18,93 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
 {
     private static readonly DateTimeOffset Now =
         new(2026, 8, 14, 3, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    [Trait("TestId", "IT-OBS-OUTCOME-09")]
+    public async Task NormalizingAResultRecordsTheOutcomeCounterThatConfirmRateIsBuiltOn()
+    {
+        // W-0041 declared ivr_call_results_total and left it with no call site, so confirm_rate,
+        // cancel_rate and no_answer_rate (ARCH-06 section 1) had nothing behind them. A panel over
+        // an instrument nobody writes draws a flat line, and a flat line reads as healthy rather
+        // than as silent -- which is the failure this asserts is gone.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedPendingAsync(factory, "ANSWERED", "1");
+
+        List<(string Instrument, string ResultType, object? Counted)> observed = [];
+        using (MeterListener listener = ListenForResultMetrics(observed))
+        {
+            await Repository(factory).NormalizeNextAsync("normalizer-test");
+            listener.RecordObservableInstruments();
+        }
+
+        (string instrument, string resultType, object? counted) = Assert.Single(observed);
+        Assert.Equal("ivr_call_results_total", instrument);
+
+        // The taxonomy value, because that is exactly what the rate queries filter on.
+        Assert.Equal("IVR_CONFIRMED", resultType);
+        Assert.Equal(true, counted);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-OBS-OUTCOME-09")]
+    public async Task ARejectedNormalizationRecordsNothing()
+    {
+        // The other half, and the one that makes the counter trustworthy: a rate is only as good
+        // as its denominator, and a counter that also fires on work that did not persist would
+        // report more outcomes than the database has.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+
+        List<(string Instrument, string ResultType, object? Counted)> observed = [];
+        using (MeterListener listener = ListenForResultMetrics(observed))
+        {
+            // Nothing pending: NormalizeNextAsync returns null without persisting anything.
+            Assert.Null(await Repository(factory).NormalizeNextAsync("normalizer-test"));
+            listener.RecordObservableInstruments();
+        }
+
+        Assert.Empty(observed);
+    }
+
+    private static MeterListener ListenForResultMetrics(
+        List<(string Instrument, string ResultType, object? Counted)> observed)
+    {
+        var listener = new MeterListener
+        {
+            InstrumentPublished = (instrument, target) =>
+            {
+                if (instrument.Meter.Name == IvrTelemetry.ServiceName
+                    && instrument.Name == "ivr_call_results_total")
+                {
+                    target.EnableMeasurementEvents(instrument);
+                }
+            },
+        };
+        listener.SetMeasurementEventCallback<long>((instrument, _, tags, _) =>
+        {
+            string resultType = string.Empty;
+            object? counted = null;
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                if (tag.Key == TelemetryTags.ResultType)
+                {
+                    resultType = tag.Value?.ToString() ?? string.Empty;
+                }
+                else if (tag.Key == TelemetryTags.Counted)
+                {
+                    counted = tag.Value;
+                }
+            }
+
+            lock (observed)
+            {
+                observed.Add((instrument.Name, resultType, counted));
+            }
+        });
+        listener.Start();
+        return listener;
+    }
 
     [Fact]
     [Trait("TestId", "IT-NORM-PERSIST-01")]

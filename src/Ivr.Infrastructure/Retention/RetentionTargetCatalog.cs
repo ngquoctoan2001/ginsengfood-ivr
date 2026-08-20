@@ -14,6 +14,22 @@ internal sealed record RetentionTarget(
 
 internal static class RetentionTargetCatalog
 {
+    /// <summary>
+    /// The redaction applied to a confirmation task's speech snapshot, shared with the P10-1 DSAR
+    /// erasure path (<c>W-0052</c>). One definition, so the scheduled path and the on-request path
+    /// cannot come to disagree about which columns are personal data -- and if they did, the one
+    /// that runs less often would be the stale one.
+    ///
+    /// phone_validation_status joined this list when the field inventory was built: it is a fact
+    /// about the customer's contact details, so leaving VALID behind after redacting the reference
+    /// it describes keeps a weak signal about a person whose data was supposed to be gone.
+    /// </summary>
+    internal const string SpeechSnapshotRedactionSql =
+        "phone_ref = 'redacted', phone_masked = '***', "
+        + "phone_validation_status = 'REDACTED', "
+        + "dial_token_ciphertext = 'enc:redacted', "
+        + "privacy_safe_order_summary_json = '{}'::jsonb";
+
     private static readonly Dictionary<string, IReadOnlyList<RetentionTarget>> Targets =
         new Dictionary<string, IReadOnlyList<RetentionTarget>>(StringComparer.Ordinal)
         {
@@ -54,9 +70,7 @@ internal static class RetentionTargetCatalog
                     "confirmation_task_speech",
                     "ivr_confirmation_tasks",
                     "created_at",
-                    "phone_ref = 'redacted', phone_masked = '***', "
-                    + "dial_token_ciphertext = 'enc:redacted', "
-                    + "privacy_safe_order_summary_json = '{}'::jsonb"),
+                    SpeechSnapshotRedactionSql),
             ],
             [RetentionDataClasses.EvidenceLink] =
             [

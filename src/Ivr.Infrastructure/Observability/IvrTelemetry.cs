@@ -109,6 +109,10 @@ public static class IvrTelemetry
         "ivr_channel_quarantines_total",
         description: "Channel auto-disable events by reason (DT-04).");
 
+    private static readonly Counter<long> MissedDeadlines = Meter.CreateCounter<long>(
+        "ivr_missed_deadline_total",
+        description: "Confirmation windows that closed with no call placed (ARCH-06 section 1).");
+
     private static readonly Histogram<double> CallbackLatency = Meter.CreateHistogram<double>(
         "ivr_result_callback_duration_seconds",
         unit: "s",
@@ -166,6 +170,20 @@ public static class IvrTelemetry
         ChannelQuarantines.Add(1, ToMetricTags(tags));
 
     /// <summary>
+    /// One confirmation window that closed with no call placed. Counted once per closed job, not
+    /// once per sweep: a sweep that finds nothing is the normal case, and a counter that also moved
+    /// on the empty sweeps would make an idle system look like a failing one.
+    /// <para>
+    /// This is the OBSERVED miss, not the predicted one. <c>SchedulerCapacityPlan.MissedDeadlineCount</c>
+    /// is a forecast recomputed on every eligibility evaluation, so the same pending job appears in
+    /// many forecasts; adding that to a counter would count one order dozens of times. The forecast
+    /// answers "will this fit", this answers "did it".
+    /// </para>
+    /// </summary>
+    public static void RecordMissedDeadline(params (string Key, object? Value)[] tags) =>
+        MissedDeadlines.Add(1, ToMetricTags(tags));
+
+    /// <summary>
     /// Which instrument each recorder feeds (W-0041 / P6-2 section 11). A dashboard panel or an
     /// alert rule may only name a metric that some production call site actually records -- an
     /// instrument that exists but is never called reads as a healthy flat line rather than as the
@@ -185,6 +203,7 @@ public static class IvrTelemetry
             [nameof(RecordIntakeLatency)] = Names("ivr_task_intake_duration_seconds"),
             [nameof(RecordFailClosed)] = Names("ivr_fail_closed_total"),
             [nameof(RecordChannelQuarantine)] = Names("ivr_channel_quarantines_total"),
+            [nameof(RecordMissedDeadline)] = Names("ivr_missed_deadline_total"),
         };
 
     private static HashSet<string> Names(params string[] names) =>

@@ -92,6 +92,16 @@ public sealed class SloAlertRuleTests(PromtoolFixture fixture)
         await AssertRuleTestPassesAsync("ivr-slo.latency.test.yml");
     }
 
+    [Fact]
+    [Trait("TestId", "IT-SLO-CAPACITY-04")]
+    public async Task AMissedConfirmationWindowTicketsAndAnOldOneStopsAlerting()
+    {
+        // ARCH-06 section 1. The threshold is zero, so the failure mode is not a rule that never
+        // fires but a rule that never stops: `> 0` read straight off a counter latches forever.
+        // The third case in the file is the one that proves `increase` unlatches it.
+        await AssertRuleTestPassesAsync("ivr-slo.capacity.test.yml");
+    }
+
     private async Task AssertRuleTestPassesAsync(string testFile)
     {
         (long exitCode, string output) = await fixture.RunAsync(testFile);

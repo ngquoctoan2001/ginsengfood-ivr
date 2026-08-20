@@ -36,6 +36,29 @@ and the only one that cannot be skipped by a hurried operator.
 {{- if and (ne .Values.governance.executionMode "MOCK") (not .Values.governance.killSwitchEnabled) -}}
   {{- fail "A non-MOCK execution mode requires the kill switch to remain enabled." -}}
 {{- end -}}
+{{- include "ivr.assertDatabaseTls" . -}}
+{{- end -}}
+
+{{/*
+W-0053 / P10-2. In-transit protection for the database, enforced at render.
+
+Prefer is refused everywhere, including dev. "Encrypt if convenient" is not a policy: it produces a
+plaintext connection under exactly the condition a policy exists to cover, and it does so without an
+error anyone would see. Disable is at least honest about what it is, which is why dev may use it and
+nothing else may.
+*/}}
+{{- define "ivr.assertDatabaseTls" -}}
+{{- $env := .Values.governance.environmentName | default "dev" -}}
+{{- $mode := .Values.database.sslMode | default "Require" -}}
+{{- if eq $mode "Prefer" -}}
+  {{- fail (printf "database.sslMode is 'Prefer' for environment '%s'. Prefer falls back to plaintext in silence; choose Require, or Disable in dev where the intent is explicit." $env) -}}
+{{- end -}}
+{{- if and (eq $mode "Disable") (ne $env "dev") -}}
+  {{- fail (printf "database.sslMode is 'Disable' for environment '%s'. Only dev may run without TLS to the database." $env) -}}
+{{- end -}}
+{{- if and .Values.database.trustServerCertificate (eq $env "prod") -}}
+  {{- fail "database.trustServerCertificate is true in prod. Encryption without certificate validation stops passive eavesdropping and not a machine in the middle." -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -71,7 +94,7 @@ the ordering.
       name: {{ .Values.database.existingSecret }}
       key: {{ .Values.database.existingSecretPasswordKey }}
 - name: ConnectionStrings__IvrDb
-  value: "Host={{ .Values.database.host }};Port={{ .Values.database.port }};Database={{ .Values.database.name }};Username={{ .Values.database.user }};Password=$(IVR_DB_PASSWORD)"
+  value: "Host={{ .Values.database.host }};Port={{ .Values.database.port }};Database={{ .Values.database.name }};Username={{ .Values.database.user }};Password=$(IVR_DB_PASSWORD);SSL Mode={{ .Values.database.sslMode | default "Require" }};Trust Server Certificate={{ .Values.database.trustServerCertificate | default false }}"
 {{- end -}}
 
 {{- define "ivr.appSecretEnv" -}}

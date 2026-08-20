@@ -11,9 +11,9 @@ namespace Ivr.Api.Admin;
 /// </summary>
 public sealed record AnalyticsDataQualityView(
     [property: JsonPropertyName("generated_at")] DateTimeOffset GeneratedAt,
-    /// `OPERATIONAL_READ_MODEL` until the P10-4 warehouse exists. The console
-    /// must state which one it is rather than implying a BI pipeline that has
-    /// not been built.
+    /// `ANALYTICS_WAREHOUSE` once the P10-4 pipeline has loaded facts,
+    /// `OPERATIONAL_READ_MODEL` before that. The console must state which one it
+    /// is rather than implying a BI pipeline that has not run.
     [property: JsonPropertyName("source")] string Source,
     [property: JsonPropertyName("warehouse_backed")] bool WarehouseBacked,
     /// The work that replaces this service with the real pipeline.
@@ -27,7 +27,12 @@ public sealed record AnalyticsDataQualityView(
     [property: JsonPropertyName("scanned_rows")] int ScannedRows,
     /// True when the scan cap was reached, so the numbers below are a partial
     /// view. Reported rather than silently truncated.
-    [property: JsonPropertyName("truncated")] bool Truncated);
+    [property: JsonPropertyName("truncated")] bool Truncated,
+    /// State of the P10-4 pipeline itself: `NOT_RUN`, `COMPLETE`, `BACKLOG` or
+    /// `MISMATCH`. Reported separately from `source` because a warehouse that is
+    /// serving and a warehouse that is complete are different claims, and the
+    /// console must not be able to show the first while implying the second.
+    [property: JsonPropertyName("warehouse_status")] string WarehouseStatus = "NOT_RUN");
 
 public sealed record AnalyticsFilterView(
     [property: JsonPropertyName("program")] string? Program,

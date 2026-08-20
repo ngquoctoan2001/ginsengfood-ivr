@@ -46,6 +46,15 @@ worker:
     # raising the SIM pool buys nothing and costs contention.
     maxReplicas: 2
     simPoolSize: 12
+  health:
+    # A port nothing else uses, on a component that had no listening socket until W-0043 §2. The
+    # NetworkPolicy default-deny still applies to pod-to-pod traffic here: kubelet probes originate
+    # from the node, which is why IT-K8S-WORKER-06 measures the probe on a real cluster rather than
+    # taking that on trust.
+    port: 8081
+    path: /healthz
+    initialDelaySeconds: 20
+    periodSeconds: 15
   resources:
     requests: { cpu: 100m, memory: 192Mi }
     limits: { cpu: 1000m, memory: 512Mi }
@@ -64,6 +73,17 @@ database:
   # Never a literal. The chart references a Secret; it does not carry one.
   existingSecret: ivr-database
   existingSecretPasswordKey: password
+  # W-0053 / P10-2 section 6. Before this existed the connection string carried no SSL Mode at
+  # all, so Npgsql applied its default of Prefer: try TLS, and fall back to plaintext in silence
+  # if the server does not offer it. A misconfigured server produced an unencrypted connection
+  # with no error, no log and no warning.
+  #
+  # Require is the floor. Only dev may set Disable, and only because the throwaway bootstrap
+  # PostgreSQL has no certificate; ivr.assertDatabaseTls fails the render anywhere else.
+  sslMode: Require
+  # Encryption without authentication stops passive eavesdropping and nothing else. Permitted
+  # while a cluster has no trusted CA for its database; refused in prod.
+  trustServerCertificate: false
 
 secrets:
   # P7-2 section 4: K8s Secret in dev, external store in prod. Either way the chart REFERENCES.
@@ -78,6 +98,29 @@ retention:
   # DF-07. Deleting customer data on a schedule is the one job where a wrong default is
   # unrecoverable, so the default reports what it WOULD delete and deletes nothing.
   dryRun: true
+
+# W-0053 / P10-2. Backup CronJob, off in every environment, and the reason is not caution.
+#
+# The job needs three things that do not exist: an image carrying both pg_dump and openssl, a
+# durable destination outside the cluster, and a master key from a secret store (W-0063). Shipping
+# it enabled would leave a permanently failing CronJob in every namespace, which is how operators
+# learn to ignore failed Jobs -- the lesson W-0044 already paid for once.
+#
+# The scripts themselves are real and drilled: deploy/backup/*.sh run in DG-BACKUP-02 against real
+# PostgreSQL every pipeline. What is missing is somewhere to put the result.
+backup:
+  enabled: false
+  schedule: "0 1 * * *"
+  # Must never exceed the longest configured retention period, or the backup becomes the real
+  # retention period and the configured one becomes a description (DF-07).
+  maxAgeDays: 30
+  dryRunPrune: true
+  # Image and secret are named but not defaulted: a placeholder that happens to resolve is worse
+  # than a value that fails loudly.
+  image: ""
+  existingSecret: ""
+  keyFileKey: "backup-master-key"
+  destination: ""
 
 networkPolicy:
   enabled: true

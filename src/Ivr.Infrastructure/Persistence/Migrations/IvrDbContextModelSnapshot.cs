@@ -22,6 +22,372 @@ namespace Ivr.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Ivr.Infrastructure.Analytics.AnalyticsDimProgramEntity", b =>
+                {
+                    b.Property<string>("ProgramKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("program_key");
+
+                    b.Property<int>("FactRowCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("fact_row_count");
+
+                    b.Property<DateTimeOffset>("FirstSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_seen_at");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_seen_at");
+
+                    b.HasKey("ProgramKey");
+
+                    b.ToTable("dim_program", "analytics");
+                });
+
+            modelBuilder.Entity("Ivr.Infrastructure.Analytics.AnalyticsDimResultTypeEntity", b =>
+                {
+                    b.Property<string>("ResultTypeKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("result_type_key");
+
+                    b.Property<int>("FactRowCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("fact_row_count");
+
+                    b.Property<DateTimeOffset>("FirstSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_seen_at");
+
+                    b.Property<bool>("IsFinal")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_final");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_seen_at");
+
+                    b.HasKey("ResultTypeKey");
+
+                    b.ToTable("dim_result_type", "analytics");
+                });
+
+            modelBuilder.Entity("Ivr.Infrastructure.Analytics.AnalyticsDimScriptVariantEntity", b =>
+                {
+                    b.Property<string>("ScriptVariantKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("script_variant_key");
+
+                    b.Property<int>("FactRowCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("fact_row_count");
+
+                    b.Property<DateTimeOffset>("FirstSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_seen_at");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_seen_at");
+
+                    b.HasKey("ScriptVariantKey");
+
+                    b.ToTable("dim_script_variant", "analytics");
+                });
+
+            modelBuilder.Entity("Ivr.Infrastructure.Analytics.AnalyticsEtlCheckpointEntity", b =>
+                {
+                    b.Property<string>("PipelineName")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("pipeline_name");
+
+                    b.Property<int>("FactRowCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("fact_row_count");
+
+                    b.Property<DateTimeOffset?>("HighWaterEventAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("high_water_event_at");
+
+                    b.Property<DateTimeOffset?>("LastReconciledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_reconciled_at");
+
+                    b.Property<DateTimeOffset?>("LastRunAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_run_at");
+
+                    b.Property<long>("LastRunDurationMs")
+                        .HasColumnType("bigint")
+                        .HasColumnName("last_run_duration_ms");
+
+                    b.Property<int>("LastRunLoadedRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_run_loaded_rows");
+
+                    b.Property<int>("LastRunRejectedRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_run_rejected_rows");
+
+                    b.Property<string>("ReconcileStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("reconcile_status");
+
+                    b.Property<int>("SourceRowCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_row_count");
+
+                    b.Property<long>("TotalLoadedRows")
+                        .HasColumnType("bigint")
+                        .HasColumnName("total_loaded_rows");
+
+                    b.Property<long>("TotalRejectedRows")
+                        .HasColumnType("bigint")
+                        .HasColumnName("total_rejected_rows");
+
+                    b.HasKey("PipelineName");
+
+                    b.ToTable("etl_checkpoint", "analytics");
+                });
+
+            modelBuilder.Entity("Ivr.Infrastructure.Analytics.AnalyticsFactCallJobEntity", b =>
+                {
+                    b.Property<string>("IvrCallJobId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ivr_call_job_id");
+
+                    b.Property<bool>("Closed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("closed");
+
+                    b.Property<int>("CountedAttemptCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("counted_attempt_count");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("CreatedDate")
+                        .HasColumnType("date")
+                        .HasColumnName("created_date");
+
+                    b.Property<bool>("Eligible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("eligible");
+
+                    b.Property<DateTimeOffset>("LoadedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("loaded_at");
+
+                    b.Property<string>("OrderRefHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("order_ref_hash");
+
+                    b.Property<string>("ProgramKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("program_key");
+
+                    b.Property<string>("ScriptVariantKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("script_variant_key");
+
+                    b.HasKey("IvrCallJobId");
+
+                    b.HasIndex("Closed");
+
+                    b.HasIndex("CreatedDate");
+
+                    b.ToTable("fact_call_job", "analytics", t =>
+                        {
+                            t.HasCheckConstraint("ck_analytics_job_order_ref_hash", "order_ref_hash ~ '^[a-f0-9]{64}$'");
+                        });
+                });
+
+            modelBuilder.Entity("Ivr.Infrastructure.Analytics.AnalyticsFactCallOutcomeEntity", b =>
+                {
+                    b.Property<string>("IvrCallResultId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ivr_call_result_id");
+
+                    b.Property<int>("CountedAttemptNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("counted_attempt_number");
+
+                    b.Property<string>("DtmfKey")
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("dtmf_key");
+
+                    b.Property<DateTimeOffset>("EventAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("event_at");
+
+                    b.Property<DateOnly>("EventDate")
+                        .HasColumnType("date")
+                        .HasColumnName("event_date");
+
+                    b.Property<int>("EventHour")
+                        .HasColumnType("integer")
+                        .HasColumnName("event_hour");
+
+                    b.Property<string>("FinalResultStatus")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("final_result_status");
+
+                    b.Property<bool>("IsCountedCustomerAttempt")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_counted_customer_attempt");
+
+                    b.Property<bool>("IsFinal")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_final");
+
+                    b.Property<string>("IvrCallJobId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ivr_call_job_id");
+
+                    b.Property<DateTimeOffset>("LoadedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("loaded_at");
+
+                    b.Property<string>("OrderRefHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("order_ref_hash");
+
+                    b.Property<string>("ProgramKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("program_key");
+
+                    b.Property<string>("ResultTypeKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("result_type_key");
+
+                    b.Property<string>("ScriptVariantKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("script_variant_key");
+
+                    b.Property<int?>("SecondsToResult")
+                        .HasColumnType("integer")
+                        .HasColumnName("seconds_to_result");
+
+                    b.HasKey("IvrCallResultId");
+
+                    b.HasIndex("EventDate");
+
+                    b.HasIndex("LoadedAt");
+
+                    b.HasIndex("EventDate", "ProgramKey");
+
+                    b.ToTable("fact_call_outcome", "analytics", t =>
+                        {
+                            t.HasCheckConstraint("ck_analytics_fact_dtmf", "dtmf_key IS NULL OR dtmf_key ~ '^[0-9*#]$'");
+
+                            t.HasCheckConstraint("ck_analytics_fact_event_hour", "event_hour BETWEEN 0 AND 23");
+
+                            t.HasCheckConstraint("ck_analytics_fact_order_ref_hash", "order_ref_hash ~ '^[a-f0-9]{64}$'");
+                        });
+                });
+
+            modelBuilder.Entity("Ivr.Infrastructure.Analytics.AnalyticsKpiDailyEntity", b =>
+                {
+                    b.Property<DateOnly>("BucketDate")
+                        .HasColumnType("date")
+                        .HasColumnName("bucket_date");
+
+                    b.Property<string>("ProgramKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("program_key");
+
+                    b.Property<string>("ScriptVariantKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("script_variant_key");
+
+                    b.Property<int>("CancelledCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("cancelled_count");
+
+                    b.Property<DateTimeOffset>("ComputedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("computed_at");
+
+                    b.Property<int>("ConfirmedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("confirmed_count");
+
+                    b.Property<int>("DistinctOrders")
+                        .HasColumnType("integer")
+                        .HasColumnName("distinct_orders");
+
+                    b.Property<int>("FinalResults")
+                        .HasColumnType("integer")
+                        .HasColumnName("final_results");
+
+                    b.Property<int>("InvalidPhoneCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("invalid_phone_count");
+
+                    b.Property<int>("NoAnswerCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("no_answer_count");
+
+                    b.Property<int>("OperationalBlockedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("operational_blocked_count");
+
+                    b.Property<int>("SecondAttemptResults")
+                        .HasColumnType("integer")
+                        .HasColumnName("second_attempt_results");
+
+                    b.Property<int>("SecondsToResultCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("seconds_to_result_count");
+
+                    b.Property<long>("SecondsToResultSum")
+                        .HasColumnType("bigint")
+                        .HasColumnName("seconds_to_result_sum");
+
+                    b.Property<int>("TechnicalCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("technical_count");
+
+                    b.Property<int>("TotalResults")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_results");
+
+                    b.HasKey("BucketDate", "ProgramKey", "ScriptVariantKey");
+
+                    b.ToTable("agg_kpi_daily", "analytics");
+                });
+
             modelBuilder.Entity("Ivr.Infrastructure.FeatureFlags.FeatureFlagEntity", b =>
                 {
                     b.Property<string>("Key")
@@ -2079,7 +2445,7 @@ namespace Ivr.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("PayloadJson")
                         .IsRequired()
-                        .HasColumnType("jsonb")
+                        .HasColumnType("text")
                         .HasColumnName("payload_json");
 
                     b.Property<string>("PayloadSha256")

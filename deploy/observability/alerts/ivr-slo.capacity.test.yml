@@ -1,0 +1,58 @@
+# W-0041 / W-0054 — promtool rule unit test backing IT-SLO-CAPACITY-04.
+#
+# The zero-tolerance rule is the easiest kind to get wrong in the direction that matters: a rule
+# whose threshold is `> 0` on a COUNTER fires forever once it has fired once, because a counter
+# never goes back down. `increase(...)` over a window is what makes it stop, and the third case
+# below is the one that proves it stops -- without that case the rule would look correct in review
+# and then page-storm on the first miss.
+rule_files:
+  - ivr-slo.rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    name: one missed confirmation window opens a ticket
+    input_series:
+      # Flat, then a single increment at minute 10: exactly one order whose window closed uncalled.
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="NO_DISPATCH_BEFORE_DEADLINE"}'
+        values: '0x10 1x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: IvrConfirmationDeadlineMissed
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              slo: capacity_deadline
+              decision: ARCH-06
+              slo_status: proposed
+              ivr_program: GOLDEN_HOUR
+            exp_annotations:
+              summary: A confirmation window closed with no call placed
+              description: The capacity model says the shipped pool covers the modelled peak, so a miss on GOLDEN_HOUR falsifies a model assumption. The fix is recalibration against a measured call duration (W-0008), not a bigger pool.
+              runbook_url: docs/slo.md#capacity-deadline-missed
+
+  - interval: 1m
+    name: a scheduler that never misses stays silent
+    input_series:
+      # The sweep runs continuously and finds nothing. This is the normal case, and the normal case
+      # must not alert -- an idle counter is silence, not health to be reported.
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="NO_DISPATCH_BEFORE_DEADLINE"}'
+        values: '0x40'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: IvrConfirmationDeadlineMissed
+        exp_alerts: []
+
+  - interval: 1m
+    name: an old miss stops alerting once it leaves the window
+    input_series:
+      # One miss at minute 5, then nothing for the rest of the hour. At minute 45 the increment is
+      # long outside the 15m window, so the rule must have gone quiet. A counter compared directly
+      # against zero would still be firing here, and would keep firing until the process restarted.
+      - series: 'ivr_missed_deadline_total{ivr_program="TWENTY_FOUR_SEVEN", ivr_reason_code="NO_DISPATCH_BEFORE_DEADLINE"}'
+        values: '0x5 1x55'
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: IvrConfirmationDeadlineMissed
+        exp_alerts: []

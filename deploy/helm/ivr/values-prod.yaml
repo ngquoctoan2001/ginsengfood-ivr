@@ -10,6 +10,13 @@ governance:
   # PRODUCTION_REAL is the only mode prod may eventually carry, and realCustomerCallAllowed
   # stays FALSE here until a DF-03 sign-off exists. Nobody may flip it by editing this file: the
   # render-time guard permits true only for lab and prod, and the sign-off is a separate gate.
+# W-0053 / P10-2. TLS required AND the certificate validated. The render guard refuses
+# trustServerCertificate here, so shipping prod without a trusted CA is a failed deploy
+# rather than a quietly weaker connection.
+database:
+  sslMode: Require
+  trustServerCertificate: false
+
 image:
   tag: "0.1.0"
 
