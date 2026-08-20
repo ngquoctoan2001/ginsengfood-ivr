@@ -16,6 +16,10 @@ export interface FreshnessBannerProps {
  * - While `warehouse_backed` is false the figures are operational reads, not the
  *   P10-4 pipeline. Presenting them as BI output would be a claim nobody has
  *   earned yet.
+ * - A warehouse that is serving is not the same as a warehouse that is caught
+ *   up, so `warehouse_status` is shown alongside the source rather than folded
+ *   into it. BACKLOG and MISMATCH are real but partial answers, and a reader who
+ *   only saw "from the pipeline" would have no way to know that.
  * - A suppressed bucket is announced with its count. Silently dropping rows
  *   would make a filtered view look complete when it is not.
  */
@@ -53,6 +57,12 @@ export function FreshnessBanner({ quality }: FreshnessBannerProps) {
           ? `${t("reports.sourceWarehouse")} (${quality.source})`
           : `${t("reports.sourceOperational")} (${quality.source}, ${quality.pipeline_work_id})`}
       </p>
+
+      {quality.warehouse_status === "BACKLOG" || quality.warehouse_status === "MISMATCH" ? (
+        <p className={styles.suppressed} data-testid="warehouse-status">
+          {t(`reports.warehouseStatus.${quality.warehouse_status}`)}
+        </p>
+      ) : null}
 
       {quality.suppressed_bucket_count > 0 ? (
         <p className={styles.suppressed} data-testid="suppressed-notice">

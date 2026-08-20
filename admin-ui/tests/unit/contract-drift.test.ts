@@ -158,6 +158,7 @@ describe("UT-UI-CONTRACT-06 OpenAPI drift", () => {
         | "suppressed_bucket_count"
         | "scanned_rows"
         | "truncated"
+        | "warehouse_status"
       >
     > = {
       generated_at: "2026-08-15T00:00:00Z",
@@ -169,6 +170,7 @@ describe("UT-UI-CONTRACT-06 OpenAPI drift", () => {
       suppressed_bucket_count: 0,
       scanned_rows: 0,
       truncated: false,
+      warehouse_status: "NOT_RUN",
     };
 
     expect(Object.keys(sample).sort()).toEqual(requiredOf("IvrAnalyticsDataQuality"));

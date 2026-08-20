@@ -437,9 +437,11 @@ export interface IvrAdminReviewResult {
 /**
  * OpenAPI `IvrAnalyticsDataQuality`.
  *
- * `warehouse_backed` is the honesty flag: while it is false the numbers come
- * from the operational read model, not the P10-4 BI pipeline, and the reporting
- * screen must say so.
+ * Two separate honesty flags, and they answer different questions.
+ * `warehouse_backed` says which store answered; `warehouse_status` says whether
+ * that store is caught up. A warehouse can serve a real but partial answer, so
+ * the screen must be able to show "from the pipeline" and "still catching up"
+ * at the same time rather than collapsing them into one reassuring line.
  */
 export interface IvrAnalyticsDataQuality {
   readonly generated_at: string;
@@ -453,6 +455,7 @@ export interface IvrAnalyticsDataQuality {
   readonly suppressed_bucket_count: number;
   readonly scanned_rows: number;
   readonly truncated: boolean;
+  readonly warehouse_status: "NOT_RUN" | "COMPLETE" | "BACKLOG" | "MISMATCH";
 }
 
 /** OpenAPI `IvrAnalyticsFilter` — the filter the server actually applied. */

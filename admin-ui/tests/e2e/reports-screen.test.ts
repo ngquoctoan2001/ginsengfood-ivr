@@ -33,6 +33,7 @@ const DATA_QUALITY = {
   generated_at: "2026-08-15T02:00:00Z",
   source: "OPERATIONAL_READ_MODEL",
   warehouse_backed: false,
+  warehouse_status: "NOT_RUN" as const,
   pipeline_work_id: "W-0055",
   latest_event_at: "2026-08-15T01:58:00Z",
   freshness_seconds: 120,
