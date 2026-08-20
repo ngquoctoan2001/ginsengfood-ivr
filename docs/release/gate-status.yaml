@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "4 of 102 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "4 of 103 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 15
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 48
+  rows_without_evidence_pack: 49
 
 gates:
   - id: "G-CONTRACT"
@@ -279,6 +279,10 @@ work:
     prompt: "Phase 3 §10 live evidence capture (Origin=UNPLANNED)"
     status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0102/README.md"
+  - id: "W-0103"
+    prompt: "Current-system audit closure (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0103/README.md"
   - id: "W-0029"
     prompt: "P4-1"
     status: "TESTS_PASS"
@@ -358,7 +362,7 @@ work:
   - id: "W-0048"
     prompt: "P8-1"
     status: "BLOCKED_EXTERNAL"
-    evidence: null
+    evidence: "docs/evidence/W-0048/README.md"
   - id: "W-0049"
     prompt: "P8-2"
     status: "BLOCKED_EXTERNAL"

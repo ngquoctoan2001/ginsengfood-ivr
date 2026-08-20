@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-20T08:35:28.468Z
+Generated: 2026-08-20T09:01:21.385Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 522
+- Markdown files: 524
 - Links resolved: 478
 - Unresolved links: 39
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 107
+- Orphan candidates: 109
 
 ## High Link Documents
 
@@ -166,6 +166,8 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0040/README.md
 - docs/evidence/W-0041/README.md
 - docs/evidence/W-0045/README.md
+- docs/evidence/W-0048/external-input-request.md
+- docs/evidence/W-0048/README.md
 - docs/evidence/W-0052/README.md
 - docs/evidence/W-0053/README.md
 - docs/evidence/W-0054/README.md
@@ -494,6 +496,8 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0045/README.md | W-0045 — Evidence: CD pipeline & environment promotion (`P7-3`) | 1/8 | 0 | 0 | 0 | 1050 |
 | docs/evidence/W-0046/README.md | W-0046 — Evidence: Progressive delivery & canary (`P7-4`) | 1/9 | 0 | 1 | 0 | 1063 |
 | docs/evidence/W-0047/README.md | W-0047 — Evidence: Secret rotation & key lifecycle (`P7-5`) | 1/19 | 0 | 2 | 0 | 2195 |
+| docs/evidence/W-0048/external-input-request.md | W-0048 — Phiếu lấy đầu vào Sales và one-SIM lab | 1/12 | 0 | 0 | 0 | 1209 |
+| docs/evidence/W-0048/README.md | W-0048 — One-SIM lab + Sales integration readiness | 1/11 | 0 | 0 | 0 | 837 |
 | docs/evidence/W-0052/README.md | W-0052 — Evidence: PDPA / privacy compliance & consent (`P10-1`) | 1/10 | 0 | 0 | 0 | 1346 |
 | docs/evidence/W-0053/README.md | W-0053 — Evidence: Data governance, backup crypto & DR (`P10-2`) | 1/9 | 0 | 0 | 0 | 1596 |
 | docs/evidence/W-0054/README.md | W-0054 — Evidence: Capacity, cost & SIM sizing model (`P10-3`) | 1/10 | 0 | 0 | 0 | 1607 |
@@ -529,7 +533,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/gameday-report.md | Game-day report — IVR Order Confirmation (`W-0042` · `P6-3`) | 1/12 | 1 | 0 | 0 | 1506 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
 | docs/kpi-catalog.md | KPI catalog — `W-0055` · `P10-4` | 1/11 | 0 | 0 | 0 | 1648 |
-| docs/lab/one-sim-lab-plan.md | Kế hoạch lab — 1 SIM thật + đơn hàng mock | 1/27 | 0 | 0 | 0 | 3159 |
+| docs/lab/one-sim-lab-plan.md | Kế hoạch lab — 1 SIM thật + đơn hàng mock | 1/28 | 0 | 0 | 0 | 3351 |
 | docs/operations/gitlab-runner-winhost.md | GitLab self-hosted Docker runner on Windows | 1/8 | 0 | 0 | 0 | 676 |
 | docs/owner-decisions-open.md | Quyết định đã chốt | 1/6 | 0 | 0 | 0 | 1059 |
 | docs/perf-security-report.md | Performance, capacity and security/privacy report | 1/8 | 1 | 0 | 0 | 922 |
@@ -591,7 +595,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 5 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 3 | 0 | 0 | 40429 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 3 | 0 | 0 | 40685 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |

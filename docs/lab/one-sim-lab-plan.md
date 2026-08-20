@@ -1,6 +1,6 @@
 # Kế hoạch lab — 1 SIM thật + đơn hàng mock
 
-Ngày: `2026-08-19` · Trạng thái: **`PLAN_PENDING_OWNER_INPUT`**
+Ngày: `2026-08-19` · Audit code cập nhật: `2026-08-20` · Trạng thái: **`CODE_AUDIT_REFRESHED / OWNER_DATA_REQUIRED`**
 Phạm vi: tập con rút gọn của `P8-1` (`W-0048`), chạy với **1 kênh**, chỉ gọi tới **số của chính chủ sở hữu**.
 
 ---
@@ -19,6 +19,17 @@ Phạm vi: tập con rút gọn của `P8-1` (`W-0048`), chạy với **1 kênh*
 
 Cái nó cho anh là thứ khác và có giá trị riêng: **bằng chứng đầu tiên rằng phần mềm này làm được việc nó sinh ra để làm.** Tám phase vừa qua chứng minh nó *đúng*; lab này chứng minh nó *chạy*.
 
+### 0.1 Đính chính sau khi đọc lại code ngày 2026-08-20
+
+Kế hoạch này mô tả topology đề xuất, **không phải topology đã được nối xong**. Audit trên `main@7195ba8c` xác nhận bốn khoảng trống phải đóng trước cuộc gọi thật:
+
+1. `DispatchGate` có logic và test riêng nhưng `EvaluateAsync` **chưa có caller trong đường dial runtime**.
+2. DI ngoài MOCK đang dùng `UnavailableSchedulerDispatchGateway`; `LAB_REAL_SIM` chưa có dispatch gateway thật.
+3. `FilePlaybackTtsProvider` trong kế hoạch mới là phương án; code hiện chưa có provider phát file.
+4. `CURRENT_GOLDEN_HOUR_COMPAT` của Sales và `LAB_REAL_SIM` chưa có tổ hợp runtime được validator phê duyệt. CDC Sales hiện hữu phải chạy ở lane MOCK riêng; one-SIM chạy với fake Sales; Target V1 chỉ nối sau khi Sales cung cấp producer/callback/auth thật.
+
+Chi tiết audit và phiếu lấy đầu vào nằm tại `docs/evidence/W-0048/`. Không được dùng các câu khẳng định cũ bên dưới để tuyên bố lab đã sẵn sàng chạy.
+
 ---
 
 ## 1. Đã có sẵn — không phải làm lại
@@ -28,17 +39,17 @@ Tôi đã đọc code để xác nhận, không dựa vào trí nhớ:
 | Thứ cần cho lab | Trạng thái | Ở đâu |
 | --- | --- | --- |
 | Chế độ `LAB_REAL_SIM` | ✅ có, có validator riêng | `IvrOptions.cs:14`, `FeatureFlagGuardrails.cs:75` |
-| Cổng chặn quay số | ✅ **hoàn chỉnh** | `DispatchGate.cs` — kill switch → mode → allowlist → release gate |
+| Cổng chặn quay số | ⚠️ logic/test có, **chưa nối đường dial runtime** | `DispatchGate.cs` — kill switch → mode → allowlist → release gate |
 | Allowlist đích lab | ✅ có trong snapshot cờ | `snapshot.LabDestinationAllowlist` |
 | Đăng ký kênh SIM + lease/fencing | ✅ có bảng + advisory lock | `PostgresTelephonyDispatchStore.cs` |
 | Bật/tắt kênh từ console | ✅ có API + màn hình | `IvrAdminEndpoints.cs:50-52` |
 | Cổng `ISimGateway` (6 phương thức) | ✅ **đã định nghĩa** | `ProviderPorts.cs:204` |
-| Cổng `ITtsProvider` + cache audio | ✅ đã định nghĩa | `Speech/ITtsProvider.cs`, `AudioCache.cs` |
+| Cổng `ITtsProvider` + cache audio | ⚠️ port/cache có; file provider chưa có, external provider vẫn fail-closed | `Speech/ITtsProvider.cs`, `AudioCache.cs` |
 | Đơn hàng mock | ✅ fake Sales + seed mẫu | `docker-compose.dev.yml`, `seed/*.sample.json` |
 | Nhận task | ✅ | `POST /v1/ivr/order-confirmation/tasks` |
 | Chính sách số lần gọi | ✅ dùng bản ứng viên `mock-lab-v1` | `OD-V1-08` cho phép ở MOCK/LAB |
 
-Nói cách khác: **toàn bộ phần "quyết định có được gọi không" đã xong và đã có test.** Thứ thiếu là phần "quay số thật".
+Nói chính xác: **các primitive quyết định có được gọi không đã có logic và test, nhưng chưa được nối hết vào đường quay số thật.** Phải nối gate + resolver + dispatch gateway + speech provider rồi mới được chạy lab.
 
 ---
 
