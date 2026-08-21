@@ -1,6 +1,6 @@
 # W-0045 — Evidence: CD pipeline & environment promotion (`P7-3`)
 
-Ngày: `2026-08-18` · Trạng thái: **`CONFIGURATION_ONLY`** — 5/5 test §8 xanh ở mức cấu hình;
+Ngày: `2026-08-18` · Trạng thái: **`TESTS_PASS` cho static/configuration gates** — 5/5 test §8 xanh ở mức cấu hình;
 **mọi evidence deploy là `NOT_RUN` / `BLOCKED_EXTERNAL`**
 
 ## 1. Điều phải nói trước mọi thứ khác

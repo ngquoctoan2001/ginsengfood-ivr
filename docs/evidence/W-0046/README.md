@@ -1,6 +1,6 @@
 # W-0046 — Evidence: Progressive delivery & canary (`P7-4`)
 
-Ngày: `2026-08-19` · Trạng thái: **1/4 test đọc code thật**, 3/4 `CONFIGURATION_ONLY`;
+Ngày: `2026-08-19` · Trạng thái: **`TESTS_PASS` cho static/configuration + migration gates**;
 canary run và auto-rollback demo (§10) **`NOT_RUN`**
 
 Chiến lược đầy đủ: [`docs/progressive-delivery.md`](../../progressive-delivery.md).

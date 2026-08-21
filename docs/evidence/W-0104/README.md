@@ -4,7 +4,7 @@ Ngày: 2026-08-20
 
 Baseline: `main@ce49f73`
 
-Trạng thái: `TESTS_PASS` — code, automated gates và hai disposition MicroSIP `1/0` đã đạt; owner có thể review/accept evidence riêng.
+Trạng thái: `TESTS_PASS` — code, automated gates và hai disposition MicroSIP `1/0` đã đạt; owner review ngày `2026-08-21` **không chấp nhận chất lượng giọng eSpeak**, nên chưa `ACCEPTED`.
 
 ## 1. Phạm vi đã triển khai
 
@@ -62,4 +62,6 @@ Các task trên chỉ chứa dữ liệu fake, không chứa số điện thoạ
 
 W-0104 chứng minh được preflight telephony software miễn phí, không chứng minh modem/SIM/PSTN/carrier/caller ID hay capacity 32 eSIM. Sales endpoint/auth/payload thật cũng không được chạy. Những mục đó vẫn thuộc W-0048 và các external gate hiện hữu.
 
-W-0104 đã đạt `TESTS_PASS`. Chuyển `ACCEPTED` chỉ sau khi owner review evidence theo quy tắc tracker. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.
+W-0104 đã đạt `TESTS_PASS`. Owner đã từ chối nghiệm thu audio hiện tại vì giọng tổng hợp máy móc/cũ; kết quả này không phủ nhận luồng gọi, playback hoặc DTMF đã PASS, nhưng chặn `ACCEPTED` cho trải nghiệm lời thoại. Phương án thay thế và tiêu chí A/B nằm ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md).
+
+Chỉ chuyển `ACCEPTED` sau khi owner nghe lại ít nhất hai neural voice, chọn một voice/version và xác nhận lời thoại rõ, tự nhiên, đúng số tiền/sản phẩm/khu vực/phím bấm. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.

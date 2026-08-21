@@ -134,7 +134,6 @@ async function collect() {
   const known = new Set([
     "PLANNED", "NOT_STARTED", "IN_PROGRESS", "CODE_DONE", "TESTS_PASS", "EVIDENCE_SUBMITTED",
     "ACCEPTED", "BLOCKED_INTERNAL", "BLOCKED_EXTERNAL", "DEFERRED_TARGET", "N/A", "CANCELLED",
-    "CONFIGURATION_ONLY", "CONFIGURATION_ONLY_PLUS_ONE_REAL_GATE",
   ]);
   const unknown = work.filter((row) => !known.has(row.status));
   assert.deepEqual(

@@ -65,7 +65,7 @@ kill switch chặn cuộc **mới**, không cắt ngang cuộc đang chạy.
 | --- | --- | --- | --- |
 | P5 quality | `W-0035`..`W-0039` | `docs/evidence/W-0035` … `W-0039` | `TESTS_PASS` |
 | P6 observability | `W-0040`..`W-0042` | `docs/evidence/W-0040` … `W-0042` | `TESTS_PASS` |
-| P7 deployment | `W-0043`..`W-0047` | `docs/evidence/W-0043` … `W-0047` | `TESTS_PASS` / `CONFIGURATION_ONLY` |
+| P7 deployment | `W-0043`..`W-0047` | `docs/evidence/W-0043` … `W-0047` | `TESTS_PASS`; deploy/canary runtime vẫn `NOT_RUN` |
 | P8 lab | `W-0048`, `W-0049` | — | `BLOCKED_EXTERNAL`, **chưa có** |
 | P10 compliance | `W-0052`, `W-0053`, `W-0055` | `docs/evidence/W-0052`, `W-0053`, `W-0055` | `TESTS_PASS` |
 | P11 closure | `W-0057`, `W-0058` | `docs/evidence/W-0057`, `W-0058` | `EVIDENCE_SUBMITTED` |

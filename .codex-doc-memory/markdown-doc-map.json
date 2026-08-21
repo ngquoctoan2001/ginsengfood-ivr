@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T11:23:47.199Z",
+  "generatedAt": "2026-08-21T09:28:13.270Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -19,62 +19,55 @@
         {
           "depth": 2,
           "text": "Commands",
-          "line": 12,
+          "line": 10,
           "slug": "commands"
         },
         {
           "depth": 3,
           "text": "analyze — Build or refresh the index",
-          "line": 14,
+          "line": 12,
           "slug": "analyze-build-or-refresh-the-index"
         },
         {
           "depth": 3,
           "text": "status — Check index freshness",
-          "line": 30,
+          "line": 28,
           "slug": "status-check-index-freshness"
         },
         {
           "depth": 3,
           "text": "clean — Delete the index",
-          "line": 38,
+          "line": 36,
           "slug": "clean-delete-the-index"
         },
         {
           "depth": 3,
           "text": "wiki — Generate documentation from the graph",
-          "line": 51,
+          "line": 49,
           "slug": "wiki-generate-documentation-from-the-graph"
         },
         {
           "depth": 3,
           "text": "list — Show all indexed repos",
-          "line": 68,
+          "line": 66,
           "slug": "list-show-all-indexed-repos"
         },
         {
           "depth": 2,
           "text": "After Indexing",
-          "line": 76,
+          "line": 74,
           "slug": "after-indexing"
         },
         {
           "depth": 2,
           "text": "Troubleshooting",
-          "line": 81,
+          "line": 79,
           "slug": "troubleshooting"
         }
       ],
-      "links": [
-        {
-          "kind": "markdown",
-          "text": "#1939",
-          "rawTarget": "https://github.com/abhigyanpatwari/GitNexus/issues/1939",
-          "line": 10
-        }
-      ],
-      "lines": 86,
-      "words": 581,
+      "links": [],
+      "lines": 84,
+      "words": 483,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -121,19 +114,19 @@
         {
           "depth": 2,
           "text": "Tools",
-          "line": 50,
+          "line": 49,
           "slug": "tools"
         },
         {
           "depth": 2,
           "text": "Example: \"Payment endpoint returns 500 intermittently\"",
-          "line": 87,
+          "line": 75,
           "slug": "example-payment-endpoint-returns-500-intermittently"
         }
       ],
       "links": [],
-      "lines": 102,
-      "words": 264,
+      "lines": 90,
+      "words": 201,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -231,45 +224,21 @@
           "slug": "tools-reference"
         },
         {
-          "depth": 3,
-          "text": "Paginating `list_repos`",
-          "line": 47,
-          "slug": "paginating-listrepos"
-        },
-        {
-          "depth": 3,
-          "text": "Taint findings (`explain`)",
-          "line": 78,
-          "slug": "taint-findings-explain"
-        },
-        {
-          "depth": 3,
-          "text": "Control & data dependence (`pdg_query`)",
-          "line": 88,
-          "slug": "control-data-dependence-pdgquery"
-        },
-        {
-          "depth": 3,
-          "text": "Shortest path between two symbols (`trace`)",
-          "line": 97,
-          "slug": "shortest-path-between-two-symbols-trace"
-        },
-        {
           "depth": 2,
           "text": "Resources Reference",
-          "line": 107,
+          "line": 43,
           "slug": "resources-reference"
         },
         {
           "depth": 2,
           "text": "Graph Schema",
-          "line": 120,
+          "line": 56,
           "slug": "graph-schema"
         }
       ],
       "links": [],
-      "lines": 129,
-      "words": 1015,
+      "lines": 65,
+      "words": 381,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -594,25 +563,25 @@
         {
           "depth": 2,
           "text": "Never Do",
-          "line": 17,
+          "line": 16,
           "slug": "never-do"
         },
         {
           "depth": 2,
           "text": "Resources",
-          "line": 24,
+          "line": 23,
           "slug": "resources"
         },
         {
           "depth": 2,
           "text": "CLI",
-          "line": 33,
+          "line": 32,
           "slug": "cli"
         }
       ],
       "links": [],
-      "lines": 45,
-      "words": 381,
+      "lines": 44,
+      "words": 340,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -638,25 +607,25 @@
         {
           "depth": 2,
           "text": "Never Do",
-          "line": 17,
+          "line": 16,
           "slug": "never-do"
         },
         {
           "depth": 2,
           "text": "Resources",
-          "line": 24,
+          "line": 23,
           "slug": "resources"
         },
         {
           "depth": 2,
           "text": "CLI",
-          "line": 33,
+          "line": 32,
           "slug": "cli"
         }
       ],
       "links": [],
-      "lines": 45,
-      "words": 381,
+      "lines": 44,
+      "words": 340,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -221922,7 +221891,7 @@
       ],
       "links": [],
       "lines": 102,
-      "words": 1050,
+      "words": 1053,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -221997,7 +221966,7 @@
         }
       ],
       "lines": 121,
-      "words": 1063,
+      "words": 1062,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -224197,13 +224166,86 @@
           "slug": "5-ranh-giới-kết-luận"
         }
       ],
+      "links": [
+        {
+          "kind": "markdown",
+          "text": "`voice-modernization-proposal.md`",
+          "rawTarget": "voice-modernization-proposal.md",
+          "line": 65
+        }
+      ],
+      "lines": 68,
+      "words": 750,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [
+        {
+          "from": "docs/evidence/W-0104/README.md",
+          "to": "docs/evidence/W-0104/voice-modernization-proposal.md",
+          "kind": "markdown",
+          "rawTarget": "voice-modernization-proposal.md",
+          "line": 65
+        }
+      ],
+      "unresolvedLinks": [],
+      "incomingLinks": []
+    },
+    {
+      "path": "docs/evidence/W-0104/voice-modernization-proposal.md",
+      "title": "W-0104 — Đề xuất hiện đại hóa giọng IVR",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0104 — Đề xuất hiện đại hóa giọng IVR",
+          "line": 1,
+          "slug": "w-0104-đề-xuất-hiện-đại-hóa-giọng-ivr"
+        },
+        {
+          "depth": 2,
+          "text": "1. Nguyên nhân hiện tại",
+          "line": 7,
+          "slug": "1-nguyên-nhân-hiện-tại"
+        },
+        {
+          "depth": 2,
+          "text": "2. Phương án khuyến nghị",
+          "line": 11,
+          "slug": "2-phương-án-khuyến-nghị"
+        },
+        {
+          "depth": 2,
+          "text": "3. Cách đọc đề xuất",
+          "line": 26,
+          "slug": "3-cách-đọc-đề-xuất"
+        },
+        {
+          "depth": 2,
+          "text": "4. Acceptance A/B",
+          "line": 34,
+          "slug": "4-acceptance-ab"
+        },
+        {
+          "depth": 2,
+          "text": "5. Ranh giới",
+          "line": 45,
+          "slug": "5-ranh-giới"
+        }
+      ],
       "links": [],
-      "lines": 66,
-      "words": 677,
+      "lines": 48,
+      "words": 518,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
-      "incomingLinks": []
+      "incomingLinks": [
+        {
+          "from": "docs/evidence/W-0104/README.md",
+          "to": "docs/evidence/W-0104/voice-modernization-proposal.md",
+          "kind": "markdown",
+          "rawTarget": "voice-modernization-proposal.md",
+          "line": 65
+        }
+      ]
     },
     {
       "path": "docs/gameday-report.md",
@@ -224949,7 +224991,7 @@
       ],
       "links": [],
       "lines": 103,
-      "words": 986,
+      "words": 988,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -224987,31 +225029,31 @@
         {
           "depth": 2,
           "text": "4. Cổng còn mở",
-          "line": 40,
+          "line": 38,
           "slug": "4-cổng-còn-mở"
         },
         {
           "depth": 2,
           "text": "5. Đầu vào go/no-go (`P11-4` §2.5)",
-          "line": 56,
+          "line": 54,
           "slug": "5-đầu-vào-gono-go-p11-4-25"
         },
         {
           "depth": 2,
           "text": "6. Kill switch và rollback",
-          "line": 71,
+          "line": 69,
           "slug": "6-kill-switch-và-rollback"
         },
         {
           "depth": 2,
           "text": "7. Cái bảng này KHÔNG nói",
-          "line": 80,
+          "line": 78,
           "slug": "7-cái-bảng-này-không-nói"
         }
       ],
       "links": [],
-      "lines": 88,
-      "words": 735,
+      "lines": 86,
+      "words": 725,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -230313,19 +230355,19 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 537,
+          "line": 538,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 558,
+          "line": 559,
           "slug": "9-completion-records"
         }
       ],
       "links": [],
-      "lines": 1008,
-      "words": 41310,
+      "lines": 1009,
+      "words": 41325,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -244228,6 +244270,13 @@
       "line": 25
     },
     {
+      "from": "docs/evidence/W-0104/README.md",
+      "to": "docs/evidence/W-0104/voice-modernization-proposal.md",
+      "kind": "markdown",
+      "rawTarget": "voice-modernization-proposal.md",
+      "line": 65
+    },
+    {
       "from": "docs/review-checklist.md",
       "to": ".gitlab/merge_request_templates/Default.md",
       "kind": "markdown",
@@ -245958,7 +246007,6 @@
       "docs/evidence/W-0100/README.md",
       "docs/evidence/W-0101/README.md",
       "docs/evidence/W-0102/README.md",
-      "docs/evidence/W-0104/README.md",
       "docs/integration-guide.md",
       "docs/kpi-catalog.md",
       "docs/lab/one-sim-lab-plan.md",

@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-08-20T11:23:47.199Z
+Generated: 2026-08-21T09:28:13.270Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
-- Markdown files: 526
-- Links resolved: 478
+- Markdown files: 527
+- Links resolved: 479
 - Unresolved links: 39
 - Duplicate titles: 1
 - Encoding/name anomalies: 16
-- Orphan candidates: 111
+- Orphan candidates: 110
 
 ## High Link Documents
 
@@ -197,7 +197,6 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0100/README.md
 - docs/evidence/W-0101/README.md
 - docs/evidence/W-0102/README.md
-- docs/evidence/W-0104/README.md
 - docs/integration-guide.md
 - docs/kpi-catalog.md
 - docs/lab/one-sim-lab-plan.md
@@ -227,18 +226,18 @@ Root: C:\Users\Administrator\Desktop\ivr
 
 | File | Title | H1/Headings | Incoming | Outgoing | Unresolved | Words |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| .claude/skills/gitnexus/gitnexus-cli/SKILL.md | GitNexus CLI Commands | 1/9 | 0 | 0 | 0 | 581 |
-| .claude/skills/gitnexus/gitnexus-debugging/SKILL.md | Debugging with GitNexus | 1/7 | 0 | 0 | 0 | 264 |
+| .claude/skills/gitnexus/gitnexus-cli/SKILL.md | GitNexus CLI Commands | 1/9 | 0 | 0 | 0 | 483 |
+| .claude/skills/gitnexus/gitnexus-debugging/SKILL.md | Debugging with GitNexus | 1/7 | 0 | 0 | 0 | 201 |
 | .claude/skills/gitnexus/gitnexus-exploring/SKILL.md | Exploring Codebases with GitNexus | 1/7 | 0 | 0 | 0 | 178 |
-| .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/10 | 0 | 0 | 0 | 1015 |
+| .claude/skills/gitnexus/gitnexus-guide/SKILL.md | GitNexus Guide | 1/6 | 0 | 0 | 0 | 381 |
 | .claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md | Impact Analysis with GitNexus | 1/8 | 0 | 0 | 0 | 225 |
 | .claude/skills/gitnexus/gitnexus-refactoring/SKILL.md | Refactoring with GitNexus | 1/10 | 0 | 0 | 0 | 187 |
 | .gitlab/merge_request_templates/Default.md | IVR change traceability | 1/5 | 1 | 2 | 0 | 250 |
 | admin-ui/AGENTS.md | This is NOT the Next.js you know | 1/1 | 0 | 0 | 0 | 95 |
 | admin-ui/CLAUDE.md | CLAUDE | 0/0 | 0 | 0 | 0 | 1 |
 | admin-ui/README.md | IVR Admin UI | 1/5 | 0 | 0 | 0 | 617 |
-| AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
-| CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 381 |
+| AGENTS.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
+| CLAUDE.md | GitNexus — Code Intelligence | 1/5 | 0 | 0 | 0 | 340 |
 | deploy/chaos/README.md | Chaos fault injection — `W-0042` · `P6-3` | 1/5 | 0 | 0 | 0 | 365 |
 | deploy/ci/README.md | GitLab CI baseline | 1/8 | 1 | 1 | 0 | 1471 |
 | deploy/ci/rollback.md | Rollback — `W-0045` · `P7-3` §8 | 1/6 | 1 | 0 | 0 | 495 |
@@ -496,8 +495,8 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0042/README.md | W-0042 — Evidence: Chaos & resilience game-days (`P6-3`) | 1/14 | 0 | 1 | 0 | 2257 |
 | docs/evidence/W-0043/README.md | W-0043 — Evidence: Docker images & dev compose (`P7-1`) | 1/46 | 0 | 3 | 0 | 6466 |
 | docs/evidence/W-0044/README.md | W-0044 — Evidence: Kubernetes & Helm (`P7-2`) | 1/16 | 0 | 1 | 0 | 1807 |
-| docs/evidence/W-0045/README.md | W-0045 — Evidence: CD pipeline & environment promotion (`P7-3`) | 1/8 | 0 | 0 | 0 | 1050 |
-| docs/evidence/W-0046/README.md | W-0046 — Evidence: Progressive delivery & canary (`P7-4`) | 1/9 | 0 | 1 | 0 | 1063 |
+| docs/evidence/W-0045/README.md | W-0045 — Evidence: CD pipeline & environment promotion (`P7-3`) | 1/8 | 0 | 0 | 0 | 1053 |
+| docs/evidence/W-0046/README.md | W-0046 — Evidence: Progressive delivery & canary (`P7-4`) | 1/9 | 0 | 1 | 0 | 1062 |
 | docs/evidence/W-0047/README.md | W-0047 — Evidence: Secret rotation & key lifecycle (`P7-5`) | 1/19 | 0 | 2 | 0 | 2195 |
 | docs/evidence/W-0048/external-input-request.md | W-0048 — Phiếu lấy đầu vào Sales và one-SIM lab | 1/12 | 0 | 0 | 0 | 1209 |
 | docs/evidence/W-0048/README.md | W-0048 — One-SIM lab + Sales integration readiness | 1/12 | 0 | 0 | 0 | 960 |
@@ -533,7 +532,8 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0101/README.md | W-0101 — Phase 3 spec conformance (UI-01 / UI-02 / UI-03) | 1/8 | 0 | 0 | 0 | 888 |
 | docs/evidence/W-0102/README.md | W-0102 — Phase 3 §10 live evidence capture | 1/8 | 0 | 0 | 0 | 1070 |
 | docs/evidence/W-0103/README.md | W-0103 — Current-system audit closure | 1/8 | 1 | 1 | 0 | 877 |
-| docs/evidence/W-0104/README.md | W-0104 — Free Asterisk/softphone telephony preflight | 1/6 | 0 | 0 | 0 | 677 |
+| docs/evidence/W-0104/README.md | W-0104 — Free Asterisk/softphone telephony preflight | 1/6 | 0 | 1 | 0 | 750 |
+| docs/evidence/W-0104/voice-modernization-proposal.md | W-0104 — Đề xuất hiện đại hóa giọng IVR | 1/6 | 1 | 0 | 0 | 518 |
 | docs/gameday-report.md | Game-day report — IVR Order Confirmation (`W-0042` · `P6-3`) | 1/12 | 1 | 0 | 0 | 1506 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 644 |
 | docs/kpi-catalog.md | KPI catalog — `W-0055` · `P10-4` | 1/11 | 0 | 0 | 0 | 1648 |
@@ -542,8 +542,8 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/owner-decisions-open.md | Quyết định đã chốt | 1/6 | 0 | 0 | 0 | 1059 |
 | docs/perf-security-report.md | Performance, capacity and security/privacy report | 1/8 | 1 | 0 | 0 | 922 |
 | docs/progressive-delivery.md | Progressive delivery — `W-0046` · `P7-4` | 1/7 | 1 | 0 | 0 | 1034 |
-| docs/release/df03-signoff-input.md | DF-03 sign-off input — `W-0059` · `P11-3` | 1/8 | 0 | 0 | 0 | 986 |
-| docs/release/readiness-board.md | Production readiness board — `W-0060` · `P11-4` | 1/8 | 0 | 0 | 0 | 735 |
+| docs/release/df03-signoff-input.md | DF-03 sign-off input — `W-0059` · `P11-3` | 1/8 | 0 | 0 | 0 | 988 |
+| docs/release/readiness-board.md | Production readiness board — `W-0060` · `P11-4` | 1/8 | 0 | 0 | 0 | 725 |
 | docs/reports/2026-08-15-bao-cao-tien-do-ivr.md | Báo cáo tiến độ — IVR Order Confirmation | 1/19 | 0 | 0 | 0 | 4100 |
 | docs/review/2026-08-14-phase-1-2-code-review.md | Rà soát Phase 1 + Phase 2 — IVR Order Confirmation | 1/26 | 0 | 0 | 0 | 3454 |
 | docs/review-checklist.md | IVR merge-request review checklist | 1/7 | 2 | 2 | 0 | 582 |
@@ -599,7 +599,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/questions-to-telephony-and-foundation.md | Câu hỏi tích hợp IVR — gửi Telephony/Infra (SIM Gateway) & Foundation | 3/19 | 0 | 1 | 0 | 1659 |
 | plan/ivr-orther/target-contract-v1-draft.md | Target Contract V1 Draft — IVR ↔ Sales Platform | 1/14 | 5 | 0 | 0 | 1749 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 3 | 0 | 0 | 41310 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 3 | 0 | 0 | 41325 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
