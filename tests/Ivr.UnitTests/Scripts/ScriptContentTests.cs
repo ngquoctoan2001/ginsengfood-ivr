@@ -266,7 +266,7 @@ public sealed class ScriptContentTests
         ScriptPreview preview = new VietnameseOrderScriptRenderer().Render(approved, summary);
 
         Assert.Equal(
-            "Xin chào anh/chị Anh Minh. Anh/chị có đơn DH-A1 gồm 2 hộp Cháo sâm Ginsengfood, tổng tiền 1.234.567 đồng, giao đến Quận 1. Bấm phím 1 để xác nhận đơn hàng, bấm phím 0 để hủy.",
+            "Xin chào Anh Minh. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Anh/chị có đơn hàng gồm 2 hộp Cháo sâm Ginsengfood, tổng tiền 1.234.567 đồng, giao đến Quận 1. Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
             preview.ExactText);
         Assert.Equal(summary.ComputeHash(), preview.InputSnapshot.InputHash);
         Assert.Equal("vi-VN", preview.InputSnapshot.Locale);

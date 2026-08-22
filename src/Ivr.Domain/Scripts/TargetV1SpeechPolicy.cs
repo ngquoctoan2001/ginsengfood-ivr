@@ -8,8 +8,16 @@ namespace Ivr.Domain.Scripts;
 public static class TargetV1SpeechPolicy
 {
     public const string MockTemplateId = "SCRIPT-ORDER-CONFIRM";
-    public const string MockTemplateVersion = "v1-test-approved";
+    public const string MockTemplateVersion = "v2-test-approved";
     public const string CanonicalVietnameseTemplate =
+        "Xin chào {{customer_display_name}}. "
+        + "Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. "
+        + "Anh/chị có đơn hàng gồm {{items_spoken}}, "
+        + "tổng tiền {{total_amount_display}}, giao đến {{delivery_area_short}}. "
+        + "Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.";
+
+    public const string LegacyMockTemplateVersion = "v1-test-approved";
+    public const string LegacyVietnameseTemplate =
         "Xin chào anh/chị {{customer_display_name}}. "
         + "Anh/chị có đơn {{order_code_short}} gồm {{items_spoken}}, "
         + "tổng tiền {{total_amount_display}}, giao đến {{delivery_area_short}}. "
@@ -28,7 +36,6 @@ public static class TargetV1SpeechPolicy
     private static readonly FrozenSet<string> RequiredPlaceholders = new[]
     {
         "customer_display_name",
-        "order_code_short",
         "items_spoken",
         "total_amount_display",
         "delivery_area_short",
@@ -87,8 +94,14 @@ public static class TargetV1SpeechPolicy
             throw new InvalidOperationException("Script template contains a malformed or unknown variable.");
         }
 
-        if (!normalized.Contains("Bấm phím 1", StringComparison.OrdinalIgnoreCase)
-            || !normalized.Contains("bấm phím 0", StringComparison.OrdinalIgnoreCase)
+        bool containsConfirmInstruction =
+            normalized.Contains("Bấm phím 1", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("Bấm phím một", StringComparison.OrdinalIgnoreCase);
+        bool containsCancelInstruction =
+            normalized.Contains("bấm phím 0", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("bấm phím không", StringComparison.OrdinalIgnoreCase);
+        if (!containsConfirmInstruction
+            || !containsCancelInstruction
             || normalized.Contains("phím 9", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("Script template must preserve the fixed 1/0 confirmation instructions.");

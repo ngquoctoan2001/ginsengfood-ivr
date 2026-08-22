@@ -287,7 +287,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             DialTokenExpiresAt = deadline,
             PrivacySafeOrderSummaryJson = summaryJson,
             CallScriptTemplateId = "SCRIPT-ORDER-CONFIRM",
-            CallScriptVersion = "v1-test-approved",
+            CallScriptVersion = Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             EvidencePolicyVersion = "evidence-v1",
             PrivacyPolicyVersion = "privacy-v1",
             EligibilityDecision = "ELIGIBLE",
@@ -320,7 +320,9 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             Eligible = true,
             EligibilityDecision = "ELIGIBLE",
             QueueStatus = "HELD_MOCK",
-            ScriptVersion = "SCRIPT-ORDER-CONFIRM:v1-test-approved",
+            ScriptVersion = string.Concat(
+                "SCRIPT-ORDER-CONFIRM:",
+                Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion),
             PrivacyPolicyVersion = "privacy-v1",
             CreatedAt = Now,
         });

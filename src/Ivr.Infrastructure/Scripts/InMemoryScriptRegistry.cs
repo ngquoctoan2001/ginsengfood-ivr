@@ -310,10 +310,22 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
 
     private void SeedMockTemplate()
     {
-        ScriptDraftDefinition definition = ScriptDraftDefinition.Create(
+        AddMockTemplate(
             TargetV1SpeechPolicy.MockTemplateId,
             TargetV1SpeechPolicy.MockTemplateVersion,
             TargetV1SpeechPolicy.CanonicalVietnameseTemplate);
+        AddMockTemplate(
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.LegacyMockTemplateVersion,
+            TargetV1SpeechPolicy.LegacyVietnameseTemplate);
+    }
+
+    private void AddMockTemplate(string templateId, string version, string templateText)
+    {
+        ScriptDraftDefinition definition = ScriptDraftDefinition.Create(
+            templateId,
+            version,
+            templateText);
         DateTimeOffset seededAt = new(2026, 8, 12, 0, 0, 0, TimeSpan.Zero);
         versions.Add(
             definition.Key.ToString(),

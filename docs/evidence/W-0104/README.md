@@ -6,7 +6,7 @@ Baseline: `main@ce49f73`
 
 Neural A/B change baseline: `main@3cd7613`
 
-Trạng thái: `TESTS_PASS` — code, automated gates và hai disposition MicroSIP `1/0` đã đạt; owner review ngày `2026-08-21` **không chấp nhận chất lượng giọng eSpeak**, nên chưa `ACCEPTED`.
+Trạng thái: `TESTS_PASS` — code, automated gates và hai disposition MicroSIP `1/0` đã đạt; owner không chấp nhận eSpeak hoặc neural A/B Edge. Candidate ElevenLabs `Trung Caha` và script v2 đã được chọn, nhưng audio v2 chưa được sinh/chạy lại nên chưa `ACCEPTED`.
 
 ## 1. Phạm vi đã triển khai
 
@@ -70,4 +70,6 @@ W-0104 đã đạt `TESTS_PASS`. Owner đã từ chối nghiệm thu audio hiệ
 
 Ngày 2026-08-22, hai file neural A/B đã được sinh bằng cùng script fake, chuẩn hóa PCM signed 16-bit/8 kHz/mono, ghim checksum và phát thành công qua media reference hiện hữu. Hai lượt MicroSIP đều được owner bắt máy và tạo `IVR_CONFIRMED`; kiểm tra checksum A/B đều PASS trước mỗi lần chuyển file. `edge-tts 7.2.8` chỉ là công cụ sinh mẫu dev, không phải provider production. Owner đã nghe đủ A/B nhưng chưa ghi lựa chọn cuối trong tracker, vì vậy trạng thái vẫn là `TESTS_PASS`.
 
-Chỉ chuyển `ACCEPTED` sau khi owner nghe lại ít nhất hai neural voice, chọn một voice/version và xác nhận lời thoại rõ, tự nhiên, đúng số tiền/sản phẩm/khu vực/phím bấm. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.
+Sau khi từ chối cả A/B, owner chọn candidate ElevenLabs `Trung Caha`. Code đã có immutable script `v2-test-approved` và migration MOCK tương ứng; script nhận diện Ginsengfood, không đọc mã đơn, dùng hướng dẫn phím “một/không”, đồng thời lab seed dùng Giang/cháo sâm/khu vực Phú Khương. MP3 candidate đã gửi vẫn chứa câu cũ nên chưa được đưa vào image. Chi tiết và các gate còn thiếu nằm ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md#7-candidate-elevenlabs-và-script-v2).
+
+Chỉ chuyển `ACCEPTED` sau khi owner nghe bản Trung Caha được sinh đúng script v2 qua MicroSIP và xác nhận lời thoại rõ, tự nhiên, đúng số tiền/sản phẩm/khu vực/phím bấm; DTMF `1/0` vẫn phải PASS. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.

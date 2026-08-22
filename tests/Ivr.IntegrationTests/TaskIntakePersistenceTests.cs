@@ -72,7 +72,9 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             .AsNoTracking()
             .SingleAsync();
         Assert.Equal("SCRIPT-ORDER-CONFIRM", task.CallScriptTemplateId);
-        Assert.Equal("v1-test-approved", task.CallScriptVersion);
+        Assert.Equal(
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
+            task.CallScriptVersion);
         Assert.StartsWith("enc:mock-sha256:", task.DialTokenCiphertext,
             StringComparison.Ordinal);
         Assert.DoesNotContain(source.Dial_token, task.DialTokenCiphertext,

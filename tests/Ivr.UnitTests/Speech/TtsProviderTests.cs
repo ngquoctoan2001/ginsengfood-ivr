@@ -260,7 +260,7 @@ public sealed class TtsProviderTests
         await new FakeSpeechRenderer().RenderAsync(
             summary,
             "SCRIPT-ORDER-CONFIRM",
-            "v1-test-approved",
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.Mock,
             CancellationToken.None);
 
@@ -271,7 +271,7 @@ public sealed class TtsProviderTests
         rendered,
         summary,
         "SCRIPT-ORDER-CONFIRM",
-        "v1-test-approved",
+        Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
         ExecutionMode.Mock,
         Now.AddMinutes(5),
         CancellationToken.None);

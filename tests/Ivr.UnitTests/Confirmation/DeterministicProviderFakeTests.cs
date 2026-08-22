@@ -34,7 +34,7 @@ public sealed class DeterministicProviderFakeTests
         RenderedSpeech speech = await renderer.RenderAsync(
             TestData.Summary(),
             "SCRIPT-ORDER-CONFIRM",
-            "v1-test-approved",
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.Mock,
             CancellationToken.None);
         var gateway = new FakeSimGateway(new Dictionary<string, FakeSimScenario>

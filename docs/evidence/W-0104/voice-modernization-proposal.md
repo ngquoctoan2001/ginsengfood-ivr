@@ -4,7 +4,7 @@ Ngày: `2026-08-21`
 
 Trạng thái: `OWNER_AUDIO_REJECTED` — đây là kết luận UX bên trong W-0104, không phải status mới của tracker. Tracker giữ `TESTS_PASS` vì telephony/DTMF đã đạt, nhưng chưa `ACCEPTED`.
 
-Cập nhật `2026-08-22`: A/B đã được triển khai và nghe qua MicroSIP; owner cần chọn rõ `A` hoặc `B` trước khi thay kết luận trên bằng acceptance.
+Cập nhật `2026-08-22`: A/B Edge đã được triển khai và nghe qua MicroSIP nhưng owner từ chối cả hai. Owner sau đó chọn candidate ElevenLabs `Trung Caha`; candidate này vẫn cần được sinh lại bằng script v2 và nghe qua MicroSIP trước khi acceptance.
 
 ## 1. Nguyên nhân hiện tại
 
@@ -56,3 +56,15 @@ Neural A/B trên MicroSIP vẫn chỉ là software-lab evidence. Nó không ch�
 | B | `vi-VN-NamMinhNeural` | PCM signed 16-bit, 8 kHz, mono; 15,312 giây | `6db1992b99903fdfa22ad03020bc888d454fa86bd3821ab84cb32d531ea13790` | `TASK-LAB-20260822013829` → `IVR_CONFIRMED` |
 
 Image Asterisk kiểm cả hai checksum khi boot; helper `Set-AsteriskLabVoice.ps1` kiểm lại checksum trước mỗi lần chuyển file bằng thao tác atomic. Hai voice dùng cùng nội dung fake và rate `-3%`. W-0104 vẫn `TESTS_PASS` cho đến khi owner ghi lựa chọn A/B và nhận xét chất lượng.
+
+## 7. Candidate ElevenLabs và script v2
+
+Owner đã chọn candidate `Trung Caha - Clear, Firm and Informative` trong ElevenLabs và gửi một MP3 preview. File có SHA-256 `0ac74bacee8f6e9d8ba75c71f9fe1e3e3f676d7cd01ed6ea9e4aaa6b7c48c56e`, MP3 44,1 kHz mono, dài 17,3975 giây. Preview này vẫn nói câu mở đầu cũ “Xin chào chị Giang”, nên chỉ là bằng chứng chọn chất giọng; file không được copy vào repo hay Asterisk runtime.
+
+Script MOCK mới được version hóa thành `v2-test-approved`:
+
+> Xin chào anh/chị Giang. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Anh/chị có đơn hàng gồm hai hộp cháo sâm diêm mạch - hạt sen, tổng tiền năm trăm sáu mươi nghìn đồng, giao đến phường Phú Khương, tỉnh Vĩnh Long. Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.
+
+Code renderer tạo số lượng/tổng tiền từ dữ liệu có cấu trúc; đoạn trên mô tả nội dung khách nghe chứ không phải text lưu cứng theo từng đơn. Phiên bản v1 được giữ để replay task dev cũ. Vị trí giao vẫn chỉ ở mức `delivery_area_short`; dữ liệu vị trí chi tiết không được mở trong W-0104.
+
+Các gate còn thiếu trước `ACCEPTED`: sinh lại MP3 Trung Caha đúng script v2; ghi voice ID và điều kiện API/license; chuyển asset sang PCM signed 16-bit/8 kHz/mono; pin checksum; chạy hai disposition MicroSIP `1/0`; owner xác nhận nội dung, âm lượng, tốc độ và độ tự nhiên. Cho đến lúc đó `REAL_CUSTOMER_CALL_ALLOWED=NO` và W-0105 chưa bắt đầu.

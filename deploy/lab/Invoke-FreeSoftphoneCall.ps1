@@ -61,18 +61,18 @@ $payload = [ordered]@{
     dial_token = "dial-token-lab-$suffix"
     dial_token_expires_at = $expires.ToString('yyyy-MM-ddTHH:mm:ssZ')
     privacy_safe_order_summary = [ordered]@{
-        customer_display_name = 'chị An'
+        customer_display_name = 'anh/chị Giang'
         order_code_short = 'E2E001'
         items = @(
             [ordered]@{
-                public_name = 'Nước hồng sâm'
+                public_name = 'Cháo sâm diêm mạch - hạt sen'
                 quantity = 2
                 unit_label = 'hộp'
             }
         )
         total_amount = 560000
         currency = 'VND'
-        delivery_area_short = 'Phường Bến Nghé, Quận Một'
+        delivery_area_short = 'Phường Phú Khương, tỉnh Vĩnh Long'
         program_display_name = 'Giờ Vàng'
         locale = 'vi-VN'
     }
@@ -103,7 +103,7 @@ $payload = [ordered]@{
         }
     }
     call_script_template_id = 'SCRIPT-ORDER-CONFIRM'
-    call_script_version = 'v1-test-approved'
+    call_script_version = 'v2-test-approved'
     evidence_policy_version = 'w0104-lab-evidence-v1'
     privacy_policy_version = 'w0104-lab-privacy-v1'
     evidence_ref = "evidence://w0104/$taskId"

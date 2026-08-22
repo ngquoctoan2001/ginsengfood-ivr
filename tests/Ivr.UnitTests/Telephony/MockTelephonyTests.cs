@@ -34,14 +34,15 @@ public sealed class MockTelephonyTests
         RenderedSpeech speech = await renderer.RenderAsync(
             TestData.Summary(),
             "SCRIPT-ORDER-CONFIRM",
-            "v1-test-approved",
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.Mock,
             CancellationToken.None);
 
         Assert.Equal(
-            "Xin chào anh/chị Anh Đạt. Anh/chị có đơn DH-2026-001 gồm 2 Hộp Sâm lát, "
+            "Xin chào Anh Đạt. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. "
+            + "Anh/chị có đơn hàng gồm 2 Hộp Sâm lát, "
             + "tổng tiền 1.250.000 đồng, giao đến Phường Bến Nghé, Quận 1. "
-            + "Bấm phím 1 để xác nhận đơn hàng, bấm phím 0 để hủy.",
+            + "Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
             speech.ExactText);
         Assert.Equal("vi-VN", speech.Locale);
         Assert.Equal("FAKE_TEXT_ONLY", speech.AudioFormat);
@@ -72,14 +73,14 @@ public sealed class MockTelephonyTests
         RenderedSpeech speech = await new FakeSpeechRenderer().RenderAsync(
             summary,
             "SCRIPT-ORDER-CONFIRM",
-            "v1-test-approved",
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.Mock,
             CancellationToken.None);
 
         Assert.Contains("và 1 sản phẩm khác", speech.ExactText, StringComparison.Ordinal);
         Assert.Contains("9.876.500 đồng", speech.ExactText, StringComparison.Ordinal);
-        Assert.Contains("Bấm phím 1", speech.ExactText, StringComparison.Ordinal);
-        Assert.Contains("bấm phím 0", speech.ExactText, StringComparison.Ordinal);
+        Assert.Contains("Bấm phím một", speech.ExactText, StringComparison.Ordinal);
+        Assert.Contains("bấm phím không", speech.ExactText, StringComparison.Ordinal);
         Assert.DoesNotContain("Kẹo sâm", speech.ExactText, StringComparison.Ordinal);
         Assert.Equal(1, speech.CollapsedItemCount);
     }
@@ -104,7 +105,7 @@ public sealed class MockTelephonyTests
         RenderedSpeech speech = await new FakeSpeechRenderer().RenderAsync(
             summary,
             "SCRIPT-ORDER-CONFIRM",
-            "v1-test-approved",
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.Mock,
             CancellationToken.None);
 
@@ -544,7 +545,7 @@ public sealed class MockTelephonyTests
         new FakeSpeechRenderer().RenderAsync(
             TestData.Summary(),
             "SCRIPT-ORDER-CONFIRM",
-            "v1-test-approved",
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.Mock,
             CancellationToken.None);
 }
