@@ -53,6 +53,11 @@ Xoá dữ liệu khách cần một **thẩm quyền IVR không sở hữu**: pe
 `IVR_RUNTIME_GATE_ADMIN` chưa gán cho vai trò nào (`OD-V1-20`). Treo chức năng xoá lên một permission
 vận hành sẵn có nghĩa là **ai xem được hàng đợi thì xoá được dữ liệu khách**.
 
+> **Đã bị thay thế 2026-08-22 — `OD-V1-20` đã duyệt.** `IVR_FLAG_READ` và `IVR_RUNTIME_GATE_ADMIN` nay được cấp cho role `Admin`. Câu trên ghi lại trạng thái tại baseline của gói evidence này nên giữ nguyên; trạng thái hiện tại nằm ở `plan/ivr-orther/decisions-log.md` và `specs/ui/08-role-permission-ui.md` §2.
+
+> Kết luận **không đổi**: `IVR_RUNTIME_GATE_ADMIN` là quyền đổi runtime gate, không phải quyền DSAR. Treo xoá lên nó chỉ đổi câu trên thành *ai bật/tắt được kill switch thì xoá được dữ liệu khách*. Xem `docs/compliance/dsar-runbook.md` §1.
+
+
 Nên `DsarService` chạy qua thủ tục tay **có audit** (`docs/compliance/dsar-runbook.md`), và endpoint
 chờ một permission có thật.
 

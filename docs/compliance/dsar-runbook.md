@@ -5,13 +5,16 @@ yêu cầu về những thứ đó phải đi tới Sales.
 
 ## 1. Vì sao không có endpoint HTTP
 
-Xoá dữ liệu khách cần một **thẩm quyền IVR không sở hữu**. Permission do Permission Core cấp (DF-01),
-`IVR_RUNTIME_GATE_ADMIN` vẫn **chưa gán cho vai trò nào** (`OD-V1-20`), và treo chức năng xoá lên một
-permission vận hành sẵn có — ví dụ `IVR_QUEUE_VIEW` — nghĩa là **ai xem được hàng đợi thì xoá được dữ
-liệu khách**.
+Xoá dữ liệu khách cần một **thẩm quyền riêng**. Treo chức năng xoá lên một permission vận hành sẵn
+có — ví dụ `IVR_QUEUE_VIEW` — nghĩa là **ai xem được hàng đợi thì xoá được dữ liệu khách**.
 
-Nên `DsarService` chạy qua thủ tục tay có audit dưới đây, và endpoint **chờ một permission có thật**.
-Đây là quyết định, không phải thiếu sót.
+Cập nhật 2026-08-22 (`OD-V1-20`): `IVR_RUNTIME_GATE_ADMIN` **đã được cấp cho role `Admin`**. Điều đó
+**không** làm nó thành permission đúng cho DSAR — nó là quyền đổi runtime gate (kill switch, allowlist,
+cho phép gọi khách thật), nên treo xoá lên nó chỉ đổi câu trên thành *ai bật/tắt được kill switch thì
+xoá được dữ liệu khách*. Cùng một lỗi ghép quyền, khác cái tên.
+
+Nên `DsarService` vẫn chạy qua thủ tục tay có audit dưới đây, và endpoint **chờ một permission DSAR
+riêng**. Đây là quyết định, không phải thiếu sót.
 
 ## 2. Ba điều nói với người yêu cầu **trước** khi bắt đầu
 

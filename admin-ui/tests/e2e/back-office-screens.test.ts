@@ -365,7 +365,10 @@ describe("E2E-UI-REVIEW-05 review queue and back-office screens", () => {
     expect(html).toContain("Quản trị viên");
     expect(html).toContain("Nhân viên vận hành");
     expect(html).toContain("IVR_RUNTIME_GATE_ADMIN");
-    expect(html).toContain("Chưa cấp cho vai trò nào");
+    // OD-V1-20 approved 2026-08-22: the runtime-gate row now names Admin as its holder, and
+    // no permission is left ungranted. The matrix stays read-only regardless.
+    expect(html).not.toContain('data-testid="ungranted-IVR_RUNTIME_GATE_ADMIN"');
+    expect(html).not.toContain('data-testid="ungranted-IVR_FLAG_READ"');
     expect(html).not.toMatch(/<button[^>]*>\s*(Gán|Thu hồi)/);
   });
 });

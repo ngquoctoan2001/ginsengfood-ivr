@@ -40,7 +40,7 @@ bearer request không fallback sang mock header.
 | `/admin-reviews` | POST | `IVR_RESULT_REVIEW` | `AdminReviewRequest` → `IvrAdminReviewResult` | Ghi review/annotation |
 | `/feature-flags/{environment}` | GET | `IVR_FLAG_READ` | `FeatureFlagReadResult` | Đọc fresh typed snapshot; provider lỗi trả fail-closed |
 | `/feature-flags/{environment}/kill-switch` | GET | `IVR_FLAG_READ` | `KillSwitchVerification` | Xác minh revision và trạng thái kill switch effective |
-| `/feature-flags/{environment}` | POST | `IVR_RUNTIME_GATE_ADMIN` *(OD-V1-20 pending)* | `FeatureFlagMutationRequest` | Mutation atomic, reason, idempotency, audit và four-eyes theo chiều rủi ro |
+| `/feature-flags/{environment}` | POST | `IVR_RUNTIME_GATE_ADMIN` *(OD-V1-20 duyệt 2026-08-22 — cấp cho `Admin`)* | `FeatureFlagMutationRequest` | Mutation atomic, reason, idempotency, audit và four-eyes theo chiều rủi ro |
 
 ## 2. Ràng buộc admin action (P0)
 Mỗi POST phải có: authenticated actor (`X-Actor-Id`), permission server-side, `reason`, `target_type`+`target_id`, audit record, evidence ref nếu ảnh hưởng queue/SIM/retry/result, `no_policy_bypass=true`.
@@ -68,11 +68,11 @@ Admin **KHÔNG** được:
 - Dev dùng mock channels; lab ban đầu có 1 SIM thật và destination allowlist; production target 32 eSIM channels. Channel count là config. UI/API phải hiển thị mode/provider và không được bật real call permission chỉ vì channel được enable.
 
 ## Báo cáo (admin)
-- **10 endpoint admin** (3 GET + 7 POST), mỗi cái map 1 permission `IVR_*`. Ba endpoint feature-flag do P0-4 bổ sung; quyền mutation `IVR_RUNTIME_GATE_ADMIN` vẫn fail-closed cho tới khi OD-V1-20 được owner phê duyệt. Không endpoint nào cho phép force order/bypass blocker.
+- **10 endpoint admin** (3 GET + 7 POST), mỗi cái map 1 permission `IVR_*`. Ba endpoint feature-flag do P0-4 bổ sung; quyền mutation `IVR_RUNTIME_GATE_ADMIN` được cấp cho role `Admin` từ 2026-08-22 (`OD-V1-20`), nhưng endpoint **vẫn fail-closed** ở tầng sau: `IRuntimeGateAuthorization` (bản production luôn `false`) trả `409 IVR_OPERATIONAL_BLOCKED`. Không endpoint nào cho phép force order/bypass blocker.
 
 ## Runtime-gate controls — bất đối xứng theo chiều an toàn
 
-`OD-V1-20` (chờ Security/Release owner) đề xuất quyền `IVR_RUNTIME_GATE_ADMIN`. Quy tắc áp cho mọi endpoint đổi runtime gate:
+`OD-V1-20` (duyệt 2026-08-22, owner module IVR) cấp quyền `IVR_RUNTIME_GATE_ADMIN` cho role `Admin`; chữ ký four-eyes của Security/Platform + Release owner vẫn còn thiếu. Permission không còn chặn ai, nhưng `IRuntimeGateAuthorization` thì có — mọi mutation hiện trả `409` trước khi tới các quy tắc dưới đây. Khi lớp đó được mở, những quy tắc này **là** biện pháp kiểm soát, không phải lớp phụ:
 
 - **Chiều giảm rủi ro luôn được phép** ở mọi environment: bật `globalDialKillSwitch`, thu hẹp/làm rỗng `labDestinationAllowlist`, đặt `realCustomerCallAllowed=false`. Chỉ cần permission + `reason` + audit; **không** four-eyes, **không** chờ deployment. Một kill switch không bật được trong sự cố là kill switch hỏng.
 - **Chiều tăng rủi ro luôn bị gate**: tắt kill switch, mở rộng allowlist → four-eyes + `reason`; ở `PRODUCTION_REAL` chỉ qua deployment có approval (P7-3/P9-1). `realCustomerCallAllowed=true` chỉ qua P9-1 sau DF-03. `v1NotificationEnabled`/`recordingEnabled` bật lên bị từ chối ở mọi mode.

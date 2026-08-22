@@ -36,7 +36,7 @@ Cột "Trạng thái hôm nay" là trạng thái đo được ngày `2026-08-19`
 | S-04 | Attempt policy production | Product/Core (`W-0007`) | ❌ mở |
 | S-05 | Cơ sở pháp lý cuộc gọi transactional | Legal | ❌ đề xuất kỹ thuật, chưa ký |
 | S-06 | Sign-off go-live (DF-03) | Release owner | ❌ mở |
-| S-07 | Permission sửa allowlist / kill switch | Permission Core (`OD-V1-20`) | ❌ chưa gán vai trò nào |
+| S-07 | Permission sửa allowlist / kill switch | Permission Core (`OD-V1-20`) | ⚠️ permission **đã cấp cho `Admin`** 2026-08-22 (owner module IVR); chưa ✅ vì thiếu **hai** thứ: chữ ký Security/Platform + Release owner, và một `IRuntimeGateAuthorization` duyệt thật (bản production vẫn `false` → `409`) |
 
 ## 4. Cổng hạ tầng — chờ `W-0063`
 

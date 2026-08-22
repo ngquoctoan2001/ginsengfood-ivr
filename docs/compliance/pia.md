@@ -57,8 +57,18 @@ Với `REAL_CUSTOMER_CALL_ALLOWED=NO` và `MOCK`, **không có xử lý dữ li�
 đang diễn ra** — seed dùng dải test `84xxxxx…`. Rủi ro hiện tại là **rủi ro của thiết kế**, không phải
 rủi ro đang xảy ra.
 
-Trước lab (một SIM thật): cần R-13 và R-05 được ký, và cần một quyết định về permission sửa allowlist
-(`OD-V1-20`).
+Trước lab (một SIM thật): cần R-13 và R-05 được ký. Quyết định về permission sửa allowlist
+(`OD-V1-20`) đã có ngày 2026-08-22: `IVR_FLAG_READ` và `IVR_RUNTIME_GATE_ADMIN` được cấp cho role
+`Admin`. Rủi ro **chưa** hiện thực hoá: `FeatureFlagAdminService` kiểm `IRuntimeGateAuthorization` trước
+mọi mutation, và bản đăng ký trong production (`PendingRuntimeGateAuthorization`) luôn trả `false`,
+nên phiên `Admin` gọi `POST /feature-flags/{env}` nhận `409 IVR_OPERATIONAL_BLOCKED` — đổi kiểu từ
+chối chứ không mở cổng. Cái thực sự mở là quyền **đọc** flag/kill-switch.
+
+Điều đã đổi là **thứ tự khoá**: permission không còn là lớp ngoài cùng. Ngày nào
+`PendingRuntimeGateAuthorization` được thay bằng một bản duyệt, mọi phiên `Admin` sẽ bật/tắt được
+`realCustomerCallAllowed`/`globalDialKillSwitch` ngay lập tức, không cần thêm quyết định permission
+nào nữa. Việc thay đó phải được coi là một thay đổi có tác động privacy, cần đánh giá lại PIA này,
+và chỉ làm sau khi có chữ ký four-eyes của `OD-V1-20` — hiện vẫn trống.
 
 Trước production: cần thêm R-06, R-11, R-12 và DF-03.
 

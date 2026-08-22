@@ -46,7 +46,7 @@ which re-derives permissions on every request.
 | Component library (§5 `NEED_CONFIRMATION`) | **Still open.** Built with plain CSS Modules + tokens, zero UI dependencies | The prompt's own default (Tailwind + headless) is unconfirmed. Adding no library keeps the choice reversible: adopting one later replaces these modules instead of unwinding a locked-in dependency. |
 | Session transport | HMAC-SHA256 signed cookie via `node:crypto` | No new dependency, and tamper detection is unit-testable. |
 | Sign-in mechanism | Route Handlers + plain form posts, not Server Actions | Works without JavaScript, and makes the auth flow reachable over plain HTTP so `E2E-UI-AUTH-05` can drive it without browser binaries. |
-| Runtime-gate permission | `IVR_RUNTIME_GATE_ADMIN` granted to **no** role | `OD-V1-20` is unapproved; a test asserts no seeded role carries it. |
+| Runtime-gate permission | `IVR_RUNTIME_GATE_ADMIN` granted to **no** role | `OD-V1-20` is unapproved; a test asserts no seeded role carries it. **Superseded 2026-08-22:** `OD-V1-20` approved, `Admin` now carries it and the test asserts the grant. |
 
 New dependencies: `server-only` (runtime, 1 file). Dev-only: `vitest`,
 `@vitejs/plugin-react`, `jsdom`, `@testing-library/*`, `js-yaml`,

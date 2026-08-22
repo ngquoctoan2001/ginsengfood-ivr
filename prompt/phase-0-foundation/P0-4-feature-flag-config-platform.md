@@ -37,7 +37,7 @@ Target V1 cần tách execution mode, Sales provider, telephony provider, policy
 3. **Kill-switch primitive**: `IKillSwitch.RealCallsEnabled` — flip → propagate nhanh; verify propagation API.
 4. Admin API đổi flag với **permission tường minh** (không dùng "RBAC" chung chung):
    - `IVR_FLAG_READ` — đọc flag.
-   - `IVR_RUNTIME_GATE_ADMIN` (**quyền mới, `OD-V1-20` chờ Security/Release owner phê duyệt**) — bắt buộc cho `labDestinationAllowlist`, `globalDialKillSwitch`, `executionMode`, `realCustomerCallAllowed`.
+   - `IVR_RUNTIME_GATE_ADMIN` (**`OD-V1-20` đã duyệt 2026-08-22 — cấp cho role `Admin`; four-eyes chưa ký, và `IRuntimeGateAuthorization` production vẫn `false` nên mutation trả `409`**) — bắt buộc cho `labDestinationAllowlist`, `globalDialKillSwitch`, `executionMode`, `realCustomerCallAllowed`.
    - Mọi mutation cần `reason` + audit append-only; **four-eyes** (actor đề xuất ≠ actor phê duyệt) cho nhóm `IVR_RUNTIME_GATE_ADMIN`.
    - Actor thực hiện call **không** được tự mở rộng allowlist cho chính đích mình sắp gọi (self-authorization bị chặn).
    - UI dùng ở P3-3.

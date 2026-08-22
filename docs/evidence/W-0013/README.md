@@ -113,6 +113,9 @@ audit entry and one revision increment.
 - OD-V1-20 is still pending Security/Release owner approval. The production
   `IRuntimeGateAuthorization` therefore returns false. Test fakes do not close
   this owner decision.
+
+> **Superseded 2026-08-22 — `OD-V1-20` approved.** `IVR_FLAG_READ` and `IVR_RUNTIME_GATE_ADMIN` are now granted to the `Admin` role. The statement above records the state at this evidence pack's baseline and is left unchanged; current state lives in `plan/ivr-orther/decisions-log.md` and `specs/ui/08-role-permission-ui.md` §2.
+
 - P1-2 owns the physical `ivr_feature_flags` migration and persistent atomic
   audit/flag/idempotency transaction. The P0-4 PostgreSQL mutation path remains
   deliberately `OPERATIONAL_BLOCKED` until that work is complete.

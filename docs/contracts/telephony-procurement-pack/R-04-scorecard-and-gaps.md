@@ -61,7 +61,7 @@ Ba khoảng cách đã biết trước, không phụ thuộc nhà cung cấp nà
 
 | # | Khoảng cách | Mức độ | Ghi chú |
 | --- | --- | --- | --- |
-| G-A | Chưa có quyền chỉnh `labDestinationAllowlist` / `globalDialKillSwitch` (`OD-V1-20`) | **chặn** | Chặn lịch lab, không chặn RFQ. Xem [R-02](R-02-lab-package.md) §5. |
+| G-A | Chưa sửa được `labDestinationAllowlist` / `globalDialKillSwitch` qua console. Permission `OD-V1-20` **đã cấp cho `Admin`** 2026-08-22, nhưng `PendingRuntimeGateAuthorization` vẫn chặn mọi mutation (`409 IVR_OPERATIONAL_BLOCKED`) | **chặn** | Còn thiếu **hai** thứ: chữ ký four-eyes, và một `IRuntimeGateAuthorization` duyệt thật. Chặn lịch lab, không chặn RFQ. Xem [R-02](R-02-lab-package.md) §5. |
 | G-B | Chưa chọn TTS (`OD-V1-19`) | **chặn** | `PlayAsync` chưa có nguồn audio. Xem [R-05](R-05-tts-audio-capability.md). |
 | G-C | Chưa chốt vị trí resolve `dial_token → E.164` (`OD-V1-18`) | **chặn** | Cần văn bản nhà cung cấp **và** quyết định Security. |
 

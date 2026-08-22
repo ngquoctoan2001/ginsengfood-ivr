@@ -133,8 +133,16 @@ describe("UT-UI-ROLE-04 role and permission matrix", () => {
     expect(mapping.IVR_SIM_DISABLE).not.toMatch(/sau|sắp|chưa có/i);
   });
 
-  it("shows the runtime-gate permission as held by nobody", () => {
-    expect(messages["roles.screen.IVR_RUNTIME_GATE_ADMIN"]).toContain("chờ owner");
+  // OD-V1-20 approved 2026-08-22: Admin holds the runtime-gate permission. The label is the
+  // only place the console tells an operator what that permission actually reaches, so it must
+  // name the gates rather than point at a decision that is now closed.
+  it("names the gates the runtime-gate permission reaches", () => {
+    const label = messages["roles.screen.IVR_RUNTIME_GATE_ADMIN"];
+    expect(label).not.toContain("OD-V1-20");
+    expect(label).not.toMatch(/chờ owner|chưa cấp/i);
+    expect(label).toMatch(/kill switch/i);
+    expect(label).toMatch(/khách thật/i);
+    // Still rendered for any permission a role stops holding later.
     expect(messages["roles.ungranted"]).toBeTruthy();
   });
 });

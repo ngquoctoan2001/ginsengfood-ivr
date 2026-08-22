@@ -69,8 +69,10 @@ Diễn giải an toàn của từ **“cố định”**:
 - Admin có toàn quyền trong **phạm vi console đã được phê duyệt** và toàn quyền quản lý tài khoản.
 - Operator được đăng nhập, xem profile của chính mình, xem queue, disable SIM, manual retry và đăng xuất.
 - Operator không được xem danh sách tài khoản/role matrix; không được pause/resume queue, enable SIM, review result, chỉnh config/integration/seed hay thực hiện bất kỳ account mutation nào.
-- `IVR_RUNTIME_GATE_ADMIN` vẫn không cấp cho role nào vì `OD-V1-20` chưa được duyệt. W-0105 không được dùng để mở runtime safety gate.
-- `IVR_FLAG_READ` giữ nguyên chưa cấp. Nếu cần mở quyền đọc feature flag cho Admin, phải xử lý cùng `OD-V1-20`, không lẫn vào account CRUD.
+- **Cập nhật 2026-08-22 — `OD-V1-20` đã duyệt (owner module IVR):** `IVR_FLAG_READ` và `IVR_RUNTIME_GATE_ADMIN` **được cấp cho `Admin`**; Operator không có cả hai. Hai câu bên dưới là trạng thái cũ của W-0105, giữ lại làm lịch sử.
+  - ~~`IVR_RUNTIME_GATE_ADMIN` vẫn không cấp cho role nào vì `OD-V1-20` chưa được duyệt. W-0105 không được dùng để mở runtime safety gate.~~
+  - ~~`IVR_FLAG_READ` giữ nguyên chưa cấp. Nếu cần mở quyền đọc feature flag cho Admin, phải xử lý cùng `OD-V1-20`, không lẫn vào account CRUD.~~
+- Hệ quả cần theo dõi: `IVR_FLAG_READ` có hiệu lực ngay (hai GET flag/kill-switch trả `200` cho Admin). `IVR_RUNTIME_GATE_ADMIN` **chưa mở được gì** — `FeatureFlagAdminService` kiểm `IRuntimeGateAuthorization` trước, bản production `PendingRuntimeGateAuthorization` luôn `false`, nên POST đổi từ `403` sang `409 IVR_OPERATIONAL_BLOCKED`. `REAL_CUSTOMER_CALL_ALLOWED=NO` từ nay được giữ bằng **lớp khóa đó** chứ không còn bằng việc thiếu permission. Chữ ký thứ hai của four-eyes chưa có — xem `decisions-log.md`.
 
 ### 2.4 Quản lý account
 

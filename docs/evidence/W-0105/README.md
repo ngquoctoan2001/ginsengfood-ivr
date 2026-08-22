@@ -17,6 +17,9 @@ calls, carrier/SIM use, or Sales integration.
 - `Operator` receives exactly `IVR_ACCOUNT_SELF_VIEW`, `IVR_QUEUE_VIEW`,
   `IVR_SIM_DISABLE`, and `IVR_MANUAL_RETRY`.
 - `IVR_FLAG_READ` and `IVR_RUNTIME_GATE_ADMIN` remain unassigned.
+
+> **Superseded 2026-08-22 — `OD-V1-20` approved.** `IVR_FLAG_READ` and `IVR_RUNTIME_GATE_ADMIN` are now granted to the `Admin` role. The statement above records the state at this evidence pack's baseline and is left unchanged; current state lives in `plan/ivr-orther/decisions-log.md` and `specs/ui/08-role-permission-ui.md` §2.
+
 - The browser stores only an opaque `HttpOnly`, `SameSite=Strict` session
   cookie. PostgreSQL stores SHA-256 session-token hashes and versioned
   PBKDF2-SHA512 password hashes, never raw values.

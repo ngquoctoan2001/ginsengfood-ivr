@@ -15,6 +15,31 @@ public static class IvrRoles
     /// </summary>
     public const string ConsoleSessionPolicy = "IVR_CONSOLE_SESSION";
 
+    /// <summary>
+    /// <para>
+    /// <c>OD-V1-20</c> approved 2026-08-22 by the IVR module owner: Admin now carries
+    /// <see cref="IvrPermissions.FlagRead"/> and <see cref="IvrPermissions.RuntimeGateAdmin"/>.
+    /// </para>
+    /// <para>
+    /// <see cref="IvrPermissions.RuntimeGateAdmin"/> is the permission on
+    /// <c>POST /v1/ivr/order-confirmation/feature-flags/{environment}</c>. Granting it moves an
+    /// Admin past the authorization layer only — it does not make the mutation succeed.
+    /// <c>FeatureFlagAdminService.MutateAsync</c> calls
+    /// <c>IRuntimeGateAuthorization.IsApprovedAsync</c> first, and the only implementation
+    /// registered outside tests is <c>PendingRuntimeGateAuthorization</c>, which returns
+    /// <see langword="false"/> unconditionally. So an Admin POST now returns
+    /// <c>409 IVR_OPERATIONAL_BLOCKED</c> where it previously returned
+    /// <c>403 IVR_FORBIDDEN_CALLER</c>: a different refusal, not an open door.
+    /// </para>
+    /// <para>
+    /// What did change for real is <see cref="IvrPermissions.FlagRead"/> — the two flag GETs now
+    /// answer 200 for an Admin. And the layering changed: permission is no longer the outermost
+    /// lock on the runtime gates, so anything that relied on "no role holds this" must now rely on
+    /// <c>PendingRuntimeGateAuthorization</c>, the flag values themselves, four-eyes on the
+    /// mutation, and the audit trail. Replacing that pending implementation is what would
+    /// actually open the gate.
+    /// </para>
+    /// </summary>
     private static readonly FrozenSet<string> AdminPermissions = new[]
         {
             IvrPermissions.QueueView,
@@ -24,6 +49,8 @@ public static class IvrRoles
             IvrPermissions.SimDisable,
             IvrPermissions.ManualRetry,
             IvrPermissions.ResultReview,
+            IvrPermissions.FlagRead,
+            IvrPermissions.RuntimeGateAdmin,
             IvrPermissions.AccountView,
             IvrPermissions.AccountManage,
             IvrPermissions.AccountPasswordReset,

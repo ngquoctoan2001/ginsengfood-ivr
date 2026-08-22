@@ -352,8 +352,20 @@ describe("RBAC vocabulary drift", () => {
     expect([...IVR_ROLES].sort()).toEqual([...declared].sort());
   });
 
-  it("grants no console role the runtime-gate permission pending OD-V1-20", () => {
+  // OD-V1-20 was approved on 2026-08-22 and Admin now carries both runtime-flag permissions.
+  // The assertion is inverted rather than deleted: the grant is a decision with a paper trail,
+  // and a silent revert would otherwise look like a routine tidy-up in review.
+  it("grants Admin the runtime-flag permissions per OD-V1-20", () => {
     const source = repoFile("src/Ivr.Api/Auth/IvrRoles.cs");
-    expect(source).not.toContain("IvrPermissions.RuntimeGateAdmin");
+    expect(source).toContain("IvrPermissions.FlagRead");
+    expect(source).toContain("IvrPermissions.RuntimeGateAdmin");
+    expect(source).toContain("OD-V1-20");
+  });
+
+  it("keeps the runtime-flag permissions off Operator", () => {
+    const source = repoFile("src/Ivr.Api/Auth/IvrRoles.cs");
+    const operatorBlock = source.slice(source.indexOf("OperatorPermissions"));
+    expect(operatorBlock).not.toContain("IvrPermissions.FlagRead");
+    expect(operatorBlock).not.toContain("IvrPermissions.RuntimeGateAdmin");
   });
 });

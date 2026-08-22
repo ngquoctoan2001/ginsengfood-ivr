@@ -49,7 +49,7 @@ kill switch chặn cuộc **mới**, không cắt ngang cuộc đang chạy.
 | P-04 | Cơ sở pháp lý cuộc gọi | ❌ đề xuất kỹ thuật, chưa ký |
 | P-05 | Whitelist trường script (`OD-V1-15`) | ❌ mở |
 | P-06 | Attempt policy production (`W-0007`) | ❌ mở |
-| P-07 | Permission sửa allowlist/kill switch (`OD-V1-20`) | ❌ chưa gán vai trò nào |
+| P-07 | Permission sửa allowlist/kill switch (`OD-V1-20`) | ⚠️ permission đã cấp cho `Admin` 2026-08-22; còn thiếu chữ ký four-eyes **và** `IRuntimeGateAuthorization` duyệt thật — mutation hiện vẫn `409` |
 | P-08 | Hợp đồng Sales Target V1 (`W-0002`..`W-0006`) | ❌ `BLOCKED_EXTERNAL` |
 | P-09 | Lab một SIM đạt (`W-0008`) | ❌ `BLOCKED_EXTERNAL` |
 | P-10 | 32 eSIM có năng lực đo được (`G-ESIM32`) | ❌ `BLOCKED_EXTERNAL` |

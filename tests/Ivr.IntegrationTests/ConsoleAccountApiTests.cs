@@ -51,6 +51,46 @@ public sealed class ConsoleAccountApiTests(PostgresPersistenceFixture fixture)
             (await SendBearerAsync(app.Client, HttpMethod.Get, "/account-roles", session)).StatusCode);
     }
 
+    /// <summary>
+    /// <c>OD-V1-20</c> (2026-08-22) granted <c>IVR_FLAG_READ</c> and <c>IVR_RUNTIME_GATE_ADMIN</c>
+    /// to Admin. The Operator case above pins a set that must not grow; this pins the Admin set,
+    /// which just did. It asserts the whole ordered list rather than only the two new entries, so
+    /// a later grant cannot ride into the session projection unnoticed on the back of this one.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-ACCOUNT-RBAC-02")]
+    public async Task AdminCarriesTheRuntimeFlagPermissionsGrantedByOdV120()
+    {
+        await fixture.ResetAsync();
+        await SeedRequestedAccountsAsync();
+        await using ConsoleAccountApiTestApplication app =
+            await ConsoleAccountApiTestApplication.StartAsync(fixture.ConnectionString);
+
+        ConsoleSignInApiResult session = await SignInAsync(
+            app.Client,
+            "admin",
+            Password,
+            HttpStatusCode.OK);
+
+        Assert.Equal(
+            [
+                "IVR_ACCOUNT_MANAGE",
+                "IVR_ACCOUNT_PASSWORD_RESET",
+                "IVR_ACCOUNT_SELF_VIEW",
+                "IVR_ACCOUNT_VIEW",
+                "IVR_FLAG_READ",
+                "IVR_MANUAL_RETRY",
+                "IVR_QUEUE_PAUSE",
+                "IVR_QUEUE_RESUME",
+                "IVR_QUEUE_VIEW",
+                "IVR_RESULT_REVIEW",
+                "IVR_RUNTIME_GATE_ADMIN",
+                "IVR_SIM_DISABLE",
+                "IVR_SIM_ENABLE",
+            ],
+            session.Session.Permissions);
+    }
+
     [Fact]
     [Trait("TestId", "IT-ACCOUNT-CRUD-02")]
     public async Task AdminCanCreateResetDisableAndDeleteWithoutReusingAUsername()

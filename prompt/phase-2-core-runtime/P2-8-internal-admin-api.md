@@ -30,7 +30,7 @@ Bạn là **Senior .NET Backend Engineer**. Bạn implement phần API còn thi�
 
 ## 4. DECISIONS & CONSTRAINTS
 - **DF-01 (LOCKED):** permission set hiện có `IVR_QUEUE_VIEW/PAUSE/RESUME`, `IVR_SIM_ENABLE/DISABLE`, `IVR_MANUAL_RETRY`, `IVR_RESULT_REVIEW`. Mỗi admin endpoint map đúng **một** permission.
-- **`OD-V1-20` (OWNER_DECISION_REQUIRED):** quyền `IVR_RUNTIME_GATE_ADMIN` cho allowlist/kill-switch **chưa được phê duyệt**; endpoint liên quan (thuộc `P0-4`) phải fail-closed cho tới khi có. Prompt này không tự cấp quyền mới.
+- **`OD-V1-20` (đã duyệt 2026-08-22):** quyền `IVR_RUNTIME_GATE_ADMIN` cho allowlist/kill-switch **đã cấp cho role `Admin`** (Operator không có). Endpoint liên quan (thuộc `P0-4`) vẫn fail-closed, nhưng ở tầng khác: `IRuntimeGateAuthorization` production luôn `false` → `409 IVR_OPERATIONAL_BLOCKED`. Prompt này không tự cấp quyền mới và **không** được thay `PendingRuntimeGateAuthorization`.
 - **D-02:** không endpoint nào ở đây được đổi order state hoặc ghi sang Sales. `recordResultCallback` chỉ ghi **lifecycle nội bộ**, không phải lời gọi Sales.
 - **DF-04:** mọi POST bắt buộc `Idempotency-Key` + `X-Correlation-Id`; replay cùng key+hash trả snapshot cũ; khác hash → `409 IVR_IDEMPOTENCY_CONFLICT`.
 - **Audit:** mọi admin action ghi `ivr_admin_actions` + `ivr_audit_log` append-only với `reason`, `actor_id`, `before_state`, `after_state`, `no_policy_bypass=true`.
@@ -39,7 +39,7 @@ Bạn là **Senior .NET Backend Engineer**. Bạn implement phần API còn thi�
 ## 5. INPUTS / DEPENDENCIES
 - `REAL_AVAILABLE`: OpenAPI contract, DB schema (P1-2), domain model (P1-3), idempotency/audit store (P0-3), flags/kill switch (P0-4).
 - `MOCK_REQUIRED`: fake Sales provider, mock SIM adapter cho các lifecycle endpoint.
-- `OWNER_DECISION_REQUIRED`: `OD-V1-20` runtime-gate permission.
+- `OWNER_DECISION_REQUIRED`: `OD-V1-20` đã đóng phần permission (2026-08-22); còn treo chữ ký four-eyes Security/Platform + Release owner.
 - `BLOCKED_EXTERNAL`: không có — slice này chạy trọn vẹn trong MOCK.
 
 ## 6. BUILD STEPS
@@ -92,7 +92,7 @@ Ghi vào `docs/evidence/W-0065/`: test report 10 nhóm test, sample 403 cho từ
 
 ## 11. FORBIDDEN
 - ❌ IVR transition/ghi order state (D-02).
-- ❌ Cấp permission mới ngoài DF-01 khi `OD-V1-20` chưa được owner duyệt.
+- ❌ Cấp permission mới ngoài DF-01 + `OD-V1-20` khi chưa có quyết định owner tương ứng.
 - ❌ Endpoint admin bypass blocker, kill switch, allowlist hoặc policy max.
 - ❌ Trả raw phone/full address/`dial_token` trong response hoặc log.
 - ❌ Trộn internal record DTO với outbound Sales callback DTO.

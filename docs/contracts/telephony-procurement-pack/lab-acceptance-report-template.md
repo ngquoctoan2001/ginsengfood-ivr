@@ -28,7 +28,7 @@
 | 4 | Danh sách số test đã duyệt, tất cả do đội mình sở hữu | `<điền>` | `<điền>` |
 | 5 | `labDestinationAllowlist` đã nạp đúng | `<điền>` | `<điền>` |
 | 6 | `globalDialKillSwitch` đã kiểm chứng chặn thật | `<điền>` | `<điền>` |
-| 7 | Permission sửa allowlist/kill switch đã duyệt (`OD-V1-20`) | `<điền>` | `<điền>` |
+| 7 | Four-eyes cho `OD-V1-20` đã ký (permission đã cấp cho `Admin` 2026-08-22) | `<điền>` | `<điền>` |
 | 8 | Nguồn audio sẵn sàng (`OD-V1-19`) | `<điền>` | `<điền>` |
 | 9 | Biểu mẫu này đã sao chép sẵn | `<điền>` | — |
 

@@ -183,10 +183,10 @@ Cách 1 nghe thô hơn nhưng **kiểm đúng thứ lab này cần kiểm**: aud
 | --- | --- | --- |
 | 1 | Bảng tra `tham chiếu → số thật` đặt ở Asterisk, **ngoài** IVR | đồng ý — giữ đúng D-05, và là lối duy nhất không phải sửa `OpaqueReferenceGuard` |
 | 2 | Lab dùng audio dựng sẵn, **chưa** chọn vendor TTS | đồng ý — `OD-V1-19` vẫn mở, không tự đóng |
-| 3 | Allowlist **chỉ** chứa số của chính anh; đổi allowlist phải qua config + khởi động lại, **không** qua API | đồng ý — tránh luôn `OD-V1-20`, và đổi bằng deploy thì an toàn hơn đổi bằng một lời gọi API |
+| 3 | Allowlist **chỉ** chứa số của chính anh; đổi allowlist phải qua config + khởi động lại, **không** qua API | đồng ý — đổi bằng deploy an toàn hơn đổi bằng một lời gọi API. Từ 2026-08-22 `Admin` có permission gọi API đó (`OD-V1-20`), nhưng `PendingRuntimeGateAuthorization` vẫn chặn (`409`), nên lối API thực tế **vẫn đóng**. Điều 3 giữ nguyên. |
 | 4 | `REAL_CUSTOMER_CALL_ALLOWED` giữ `NO` suốt lab | bắt buộc — không có nó thì đây không còn là lab |
 
-Điều 3 đáng nói thêm: endpoint đổi cờ (`FeatureFlagEndpoint.cs:65`) đòi quyền `RuntimeGateAdmin`, mà **chưa vai trò nào được cấp quyền đó** (`OD-V1-20`). Nạp allowlist qua config lúc khởi động vòng qua chuyện này một cách hợp lệ — nhưng nó **không đóng** `OD-V1-20`, chỉ là lab không cần tới.
+Điều 3 đáng nói thêm: endpoint đổi cờ (`FeatureFlagEndpoint.cs`) đòi quyền `RuntimeGateAdmin`. **Cập nhật 2026-08-22:** `OD-V1-20` đã duyệt và role `Admin` nay giữ quyền đó, nên câu cũ — *chưa vai trò nào được cấp* — không còn đúng. Nhưng kết luận thì không đổi: `FeatureFlagAdminService` kiểm `IRuntimeGateAuthorization` trước, bản production luôn trả `false`, nên lời gọi API vẫn hỏng — chỉ là hỏng bằng `409 IVR_OPERATIONAL_BLOCKED` thay vì `403`. Nạp allowlist qua config lúc khởi động vẫn là lối đi được của lab, và `OD-V1-20` vẫn **chưa** đủ để mở đường API.
 
 ---
 

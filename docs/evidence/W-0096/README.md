@@ -101,4 +101,7 @@ Build: 0 warnings.
   `P6-1` / `W-0040`.
 - `TARGET_CONTRACT_V1=DRAFT` unchanged; no external gate moved.
 - No new permission introduced; `IVR_RUNTIME_GATE_ADMIN` still ungranted.
+
+> **Superseded 2026-08-22 — `OD-V1-20` approved.** `IVR_FLAG_READ` and `IVR_RUNTIME_GATE_ADMIN` are now granted to the `Admin` role. The statement above records the state at this evidence pack's baseline and is left unchanged; current state lives in `plan/ivr-orther/decisions-log.md` and `specs/ui/08-role-permission-ui.md` §2.
+
 - Hosted GitLab pipeline evidence: `NOT_RUN`.

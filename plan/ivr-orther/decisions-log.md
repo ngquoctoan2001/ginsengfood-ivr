@@ -123,6 +123,7 @@ Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Teleph
 | **DF-06** (QF1) | Service token foundation; allowlist = **Order Core** cho `POST .../tasks`; SIM adapter **không** có order-write cred; Order Core service-cred có `SellableCheck`/`RecallHoldView` (nối DO-03). | ✅ LOCKED (owner tự cấp) | phase-8/02,/11; DO-03 |
 | **DF-07** (QF7) | Retention từng loại (call log/DTMF/recording/audit/raw phone-token). Đề xuất: raw phone/dial_token TTL ≤ confirmation window; audit theo foundation; recording OFF nên chưa cần. | ⏳ PENDING (owner + Legal chốt số) | phase-8/08,/12 §11 |
 | **OD-ACC-01** | Console chỉ có `Admin` và `Operator`. Operator có đúng `IVR_ACCOUNT_SELF_VIEW`, `IVR_QUEUE_VIEW`, `IVR_SIM_DISABLE`, `IVR_MANUAL_RETRY`; Admin có account CRUD/reset và các quyền vận hành đã duyệt. Username không tái sử dụng; bootstrap credential dùng local/lab, không production. | ✅ LOCKED — option B (owner 2026-08-22) | W-0105 §2, §5, §15 |
+| **OD-V1-20** | Cấp `IVR_FLAG_READ` **và** `IVR_RUNTIME_GATE_ADMIN` cho role `Admin`; Operator không có cả hai. Hệ quả thực tế **hẹp hơn tên gọi**: Admin qua được tầng permission của `POST /v1/ivr/order-confirmation/feature-flags/{env}`, nhưng `FeatureFlagAdminService.MutateAsync` gọi `IRuntimeGateAuthorization.IsApprovedAsync()` trước tiên và bản duy nhất đăng ký ngoài test là `PendingRuntimeGateAuthorization` → luôn `false`. Vì vậy POST nay trả **`409 IVR_OPERATIONAL_BLOCKED`** thay vì `403 IVR_FORBIDDEN_CALLER` — đổi kiểu từ chối, **không** mở cổng. Thay đổi có hiệu lực thật là hai GET flag/kill-switch nay trả `200` cho Admin (`IVR_FLAG_READ`). Muốn thật sự đổi được cờ phải **thay `PendingRuntimeGateAuthorization`** — chưa có bản duyệt nào trong production code. Gap `G-A` của lab do đó **chưa đóng**. | ⚠️ ACCEPTED — owner module IVR duyệt 2026-08-22; **chữ ký thứ hai của four-eyes (Security/Platform + Release owner) CHƯA có** | W-0105 §2.3; `specs/ui/08` §2; `FeatureFlagEndpoint.cs` |
 
 ## Telephony / Internal SIM Gateway (SIM **chưa mua** — làm trước bằng adapter port + mock)
 
@@ -142,6 +143,7 @@ Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Teleph
 - **SIM procurement:** DT-01 protocol, DT-04 số SIM thật, DT-06 caller-ID — điền khi mua gateway.
 - **Legal:** DF-07 retention, DT-05 recording (nếu muốn bật).
 - **Release sign-off:** DF-03 — owner (bạn) + security/privacy review khi tới release gate.
+- **Four-eyes cho `OD-V1-20`:** quyền runtime-gate đã cấp cho Admin trong code từ 2026-08-22 theo quyết định owner module IVR, nhưng chữ ký thứ hai (Security/Platform + Release owner) vẫn trống. Lab acceptance report và `release-compliance-checklist` S-07 chỉ được đánh ✅ khi có chữ ký đó.
 
 ## Tech Stack (DTS) — chốt 2026-07-03 (Owner)
 

@@ -54,11 +54,13 @@ Mục 7 và 8 hiện đang chặn. Không bật `REAL` khi bất kỳ dòng nào
 | Nhật ký | Không log số quay, không log token, không log nội dung thoại. `RenderedSpeech.ToString()` đã trả `[REDACTED_RENDERED_SPEECH]` — đừng vòng qua nó. |
 | Thu hồi | Trước khi bắt đầu, xác nhận thu hồi được credential trong bao lâu. Sau khi kết thúc lab, thu hồi ngay. |
 
-## 5. Khoảng trống về quyền — cần biết trước khi lên lịch lab
+## 5. Quyền sửa allowlist / kill switch — đã cấp, four-eyes còn thiếu
 
-`OD-V1-20`: bộ permission `DF-01` (LOCKED, 7 quyền) **không có quyền nào** cho phép sửa `labDestinationAllowlist` hay `globalDialKillSwitch`.
+**Cập nhật 2026-08-22 (`OD-V1-20`).** Trước đây bộ permission `DF-01` không có quyền nào cho phép sửa `labDestinationAllowlist` hay `globalDialKillSwitch`, nên hai control an toàn quan trọng nhất của lab không ai bấm được qua console. Owner module IVR đã duyệt: `IVR_FLAG_READ` và `IVR_RUNTIME_GATE_ADMIN` **được cấp cho role `Admin`**.
 
-Nghĩa là hôm nay, hai control an toàn quan trọng nhất của lab **không có ai được phép bấm** qua console. Cần Security/Platform + Release owner duyệt permission mới **kèm cơ chế bốn mắt**, rồi mới lên lịch lab. Đây là điều kiện tiên quyết, không phải việc dọn dẹp sau.
+**Nhưng khoảng trống chưa đóng.** Cấp permission mới chỉ đưa Admin qua tầng authorization. `FeatureFlagAdminService` kiểm `IRuntimeGateAuthorization` trước, và bản duy nhất đăng ký ngoài test — `PendingRuntimeGateAuthorization` — luôn trả `false`. Hôm nay Admin gọi `POST /feature-flags/{env}` nhận `409 IVR_OPERATIONAL_BLOCKED`, tức **vẫn không ai sửa được `labDestinationAllowlist` hay `globalDialKillSwitch` qua console**.
+
+Để lên lịch lab cần đủ **hai** thứ, không phải một: (1) chữ ký four-eyes của Security/Platform + Release owner cho `OD-V1-20`, và (2) thay `PendingRuntimeGateAuthorization` bằng một bản duyệt thật. Việc (2) chưa ai làm. Xem thêm [one-sim-lab-plan.md](../../lab/one-sim-lab-plan.md) §3 — lab hiện nạp allowlist qua config lúc khởi động và **không cần** đường API này.
 
 ## 6. Checklist kịch bản — phải chạy hết
 
@@ -116,6 +118,6 @@ Bốn điều này không phải "kết quả cần ghi nhận" — chúng là l
 - [ ] **Biểu mẫu nghiệm thu đã điền đủ** — [lab-acceptance-report-template.md](lab-acceptance-report-template.md) — với kết quả thật cho cả 7 dòng §6a và 15 dòng §6b.
 - [ ] **Bảng ánh xạ disposition đã xác minh trên thiết bị thật**, đối chiếu với bảng nhà cung cấp khai ở [R-01](R-01-vendor-requirements.md) §7. Lệch chỗ nào ghi chỗ đó.
 - [ ] **Bằng chứng kill switch và allowlist chặn thật** (L-09, L-15).
-- [ ] **Permission `OD-V1-20` đã duyệt** kèm four-eyes.
+- [ ] **Four-eyes cho `OD-V1-20` đã ký.** Bản thân permission đã cấp cho `Admin` ngày 2026-08-22; dòng này chỉ đóng khi có chữ ký Security/Platform + Release owner.
 
 Lắp xong thiết bị **không** đóng gate. Gọi thành công một cuộc **không** đóng gate. Chỉ biểu mẫu §8 điền đủ mới đóng.

@@ -145,5 +145,8 @@ for the first time.
 - Hosted GitLab pipeline evidence: `NOT_RUN`; all results above are local.
 - No new permission was introduced and no role gained one. `IVR_RUNTIME_GATE_ADMIN`
   remains ungranted pending `OD-V1-20`.
+
+> **Superseded 2026-08-22 — `OD-V1-20` approved.** `IVR_FLAG_READ` and `IVR_RUNTIME_GATE_ADMIN` are now granted to the `Admin` role. The statement above records the state at this evidence pack's baseline and is left unchanged; current state lives in `plan/ivr-orther/decisions-log.md` and `specs/ui/08-role-permission-ui.md` §2.
+
 - The endpoints read; they cannot transition an order, alter a result, change an
   attempt count or enable a SIM.

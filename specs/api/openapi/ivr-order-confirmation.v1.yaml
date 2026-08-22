@@ -623,7 +623,7 @@ paths:
         '409': { $ref: '#/components/responses/Error' }
     post:
       tags: [admin]
-      summary: Atomically mutate runtime controls (perm IVR_RUNTIME_GATE_ADMIN; OD-V1-20 pending)
+      summary: Atomically mutate runtime controls (perm IVR_RUNTIME_GATE_ADMIN granted to Admin per OD-V1-20; still 409 while IRuntimeGateAuthorization is pending)
       operationId: mutateFeatureFlags
       parameters:
         - $ref: '#/components/parameters/FeatureFlagEnvironment'
