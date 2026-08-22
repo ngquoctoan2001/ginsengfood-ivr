@@ -63,7 +63,8 @@ public static class PersonalDataInventory
     public static FrozenSet<string> PersonalDataIndicators { get; } = new[]
     {
         "phone", "msisdn", "contact", "customer", "address", "email", "recording",
-        "dial_token", "speech", "summary", "order_code", "transcript",
+        "dial_token", "speech", "summary", "order_code", "transcript", "username",
+        "display_name", "password", "account_id",
     }.ToFrozenSet(StringComparer.Ordinal);
 
     /// <summary>
@@ -96,6 +97,8 @@ public static class PersonalDataInventory
             ["ivr_confirmation_tasks.dial_token_expires_at"] =
                 "Expiry timestamp of the dialling token. A time, not the token, and the token it "
                 + "describes is itself only a ciphertext.",
+            ["ivr_console_accounts.password_changed_at"] =
+                "Timestamp of a credential change, not credential material.",
         }.ToFrozenDictionary(StringComparer.Ordinal);
 
     /// <summary>
@@ -175,6 +178,23 @@ public static class PersonalDataInventory
             + "they gave for it.",
             PersonalDataLegalBasis.LegalRecordKeeping,
             "NEVER erased, for the same reason as the audit log."),
+        new("ivr_console_accounts", "username",
+            "Stable staff actor identifier used for sign-in and audit correlation.",
+            PersonalDataLegalBasis.LegalRecordKeeping,
+            "Retained while active; a soft-deleted username is reserved until the owner-approved "
+            + "staff-account retention period runs so audit identity is never reassigned."),
+        new("ivr_console_accounts", "display_name",
+            "Human-readable staff name shown in account administration and the user's profile.",
+            PersonalDataLegalBasis.ContractPerformance,
+            "Deleted with the soft-deleted account after the owner-approved retention period."),
+        new("ivr_console_accounts", "password_hash",
+            "One-way PBKDF2 verifier used to authenticate a staff console user.",
+            PersonalDataLegalBasis.ContractPerformance,
+            "Deleted with the account; plaintext passwords are never stored or recoverable."),
+        new("ivr_console_sessions", "account_id",
+            "Foreign key connecting an opaque session hash to the authenticated staff account.",
+            PersonalDataLegalBasis.ContractPerformance,
+            "Deleted after expiry/revocation under the console-session retention class."),
         new("fact_call_outcome", "order_ref_hash",
             "SHA-256 of the Sales order id, so reporting can count distinct orders without "
             + "carrying the id.",

@@ -32,6 +32,8 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     public DbSet<RetentionCheckpointEntity> RetentionCheckpoints => Set<RetentionCheckpointEntity>();
     public DbSet<ScriptVersionEntity> ScriptVersions => Set<ScriptVersionEntity>();
     public DbSet<ScriptApprovalEntity> ScriptApprovals => Set<ScriptApprovalEntity>();
+    public DbSet<ConsoleAccountEntity> ConsoleAccounts => Set<ConsoleAccountEntity>();
+    public DbSet<ConsoleSessionEntity> ConsoleSessions => Set<ConsoleSessionEntity>();
 
     // W-0055 / P10-4. Derived, PII-free star schema in the `analytics` schema. Same context so
     // one migration keeps operational and derived schema in step; separate schema so a BI grant

@@ -169,6 +169,16 @@ public static class DataClassification
                 DataProtectionClass.AuditTrail,
                 "active_config",
                 "Who approved which script version. An approval record is an audit record."),
+            ["ivr_console_accounts"] = new(
+                DataProtectionClass.PiiDirect,
+                "staff_account",
+                "Staff username and display name identify a console user; password material is "
+                + "one-way hashed and still protected as authentication data."),
+            ["ivr_console_sessions"] = new(
+                DataProtectionClass.PiiDerived,
+                "console_session",
+                "Opaque session hashes resolve to a staff account while active; raw bearer tokens "
+                + "are never stored."),
 
             // W-0055. Derived reporting copies. Classified separately because they are the
             // tables a BI reader is granted, and that grant is only defensible while nothing
