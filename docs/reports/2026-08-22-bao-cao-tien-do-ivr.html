@@ -1,0 +1,247 @@
+<title>Tiến độ IVR tháng 8/2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap">
+
+<style>
+:root{
+  --ground:#F5F4EF; --surface:#FFFFFF; --surface-2:#EDECE5; --raise:#FAFAF7;
+  --ink:#15191A; --ink-2:#3F4749; --ink-3:#6C7679; --rule:#DCDAD1;
+  --accent:#0E5A63; --accent-soft:#DBE8E8;
+  --ok:#2C6B50; --ok-soft:#DCE9E1;
+  --wait:#87610F; --wait-soft:#F0E7CD;
+  --stop:#98382A; --stop-soft:#F2DFD9;
+  --track:#E2E0D7;
+  --shadow:0 1px 2px rgba(20,30,32,.06), 0 8px 24px -16px rgba(20,30,32,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1213; --surface:#161A1B; --surface-2:#1D2223; --raise:#1A1F20;
+    --ink:#EDEBE4; --ink-2:#C3C7C5; --ink-3:#8A9290; --rule:#2B3132;
+    --accent:#63B4B9; --accent-soft:#14302F;
+    --ok:#6FBF94; --ok-soft:#14291E;
+    --wait:#D8AB4C; --wait-soft:#2A2312;
+    --stop:#DB8471; --stop-soft:#2D1915;
+    --track:#252B2C;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1213; --surface:#161A1B; --surface-2:#1D2223; --raise:#1A1F20;
+  --ink:#EDEBE4; --ink-2:#C3C7C5; --ink-3:#8A9290; --rule:#2B3132;
+  --accent:#63B4B9; --accent-soft:#14302F;
+  --ok:#6FBF94; --ok-soft:#14291E;
+  --wait:#D8AB4C; --wait-soft:#2A2312;
+  --stop:#DB8471; --stop-soft:#2D1915;
+  --track:#252B2C;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif;
+  font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:58rem;margin:0 auto;padding:clamp(1.25rem,4vw,3.25rem) clamp(1rem,4vw,2.5rem) 4rem;display:flex;flex-direction:column;gap:2.5rem}
+
+h1,h2,h3{font-family:Lora,Georgia,serif;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(1.8rem,4.4vw,2.75rem);font-weight:600;letter-spacing:-.015em}
+h2{font-size:clamp(1.3rem,2.5vw,1.65rem);font-weight:600}
+h3{font-size:1rem;font-weight:600;color:var(--ink-2);font-family:"Be Vietnam Pro",sans-serif;letter-spacing:.01em}
+p{margin:0;max-width:68ch}
+strong{font-weight:600}
+
+.eyebrow{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0}
+
+header.mast{display:flex;flex-direction:column;gap:1rem;padding-bottom:1.5rem;border-bottom:2px solid var(--ink)}
+.mast .lede{font-size:1.02rem;color:var(--ink-2);max-width:62ch}
+.meta{display:flex;flex-wrap:wrap;gap:.3rem 1.75rem;font-size:.85rem;color:var(--ink-3)}
+.meta b{color:var(--ink-2);font-weight:600}
+.alert{display:flex;gap:.85rem;align-items:flex-start;background:var(--stop-soft);border-left:4px solid var(--stop);padding:.8rem 1.05rem;border-radius:0 6px 6px 0}
+.alert .k{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stop);white-space:nowrap;padding-top:.2rem}
+.alert p{font-size:.9rem;color:var(--ink-2)}
+
+section{display:flex;flex-direction:column;gap:1.05rem;scroll-margin-top:1rem}
+.sec-head{display:flex;flex-direction:column;gap:.25rem;padding-top:.4rem;border-top:1px solid var(--rule)}
+
+/* headline number */
+.big{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem 1rem;background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:1rem 1.25rem}
+.big .v{font-family:Lora,Georgia,serif;font-size:2.6rem;font-weight:600;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.big .l{font-size:.92rem;color:var(--ink-2);max-width:44ch}
+
+/* progress rows */
+.bars{display:flex;flex-direction:column;gap:.1rem;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:.4rem .2rem;box-shadow:var(--shadow)}
+.bar{display:grid;grid-template-columns:minmax(9rem,15rem) minmax(4rem,1fr) 3.1rem;gap:.9rem;align-items:center;padding:.5rem .95rem;border-bottom:1px solid var(--rule)}
+.bar:last-child{border-bottom:0}
+.bar .nm{font-size:.88rem;font-weight:500;color:var(--ink);line-height:1.35}
+.bar .nm small{display:block;font-weight:400;font-size:.76rem;color:var(--ink-3);line-height:1.4}
+.bar .tr{height:.5rem;border-radius:999px;background:var(--track);overflow:hidden}
+.bar .fl{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.bar .pc{font-size:.88rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.bar.done .fl{background:var(--ok)} .bar.done .pc{color:var(--ok)}
+.bar.mid .fl{background:var(--wait)} .bar.mid .pc{color:var(--wait)}
+.bar.low .fl{background:var(--stop)} .bar.low .pc{color:var(--stop)}
+
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.87rem;min-width:34rem}
+thead th{text-align:left;font-weight:600;font-size:.73rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);background:var(--surface-2);padding:.55rem .8rem;border-bottom:1px solid var(--rule);white-space:nowrap}
+tbody td{padding:.6rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--ink-2)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even) td{background:var(--raise)}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;font-weight:600;color:var(--ink)}
+td.k{color:var(--ink);font-weight:500;white-space:nowrap}
+td.wide{min-width:15rem}
+
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.74rem;font-weight:600;white-space:nowrap;line-height:1.55}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-wait{background:var(--wait-soft);color:var(--wait)}
+.p-stop{background:var(--stop-soft);color:var(--stop)}
+.p-flat{background:var(--surface-2);color:var(--ink-3)}
+
+.note{background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--wait);border-radius:0 8px 8px 0;padding:.8rem 1.05rem;font-size:.9rem;color:var(--ink-2);max-width:72ch}
+.stats{font-size:.88rem;color:var(--ink-2);max-width:72ch}
+.stats b{color:var(--ink)}
+footer{border-top:1px solid var(--rule);padding-top:1rem;font-size:.79rem;color:var(--ink-3);max-width:72ch}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">GinsengFood · Module 8 · Báo cáo nội bộ</p>
+  <h1>Tiến độ hệ thống IVR xác nhận đơn hàng</h1>
+  <p class="lede">Hệ thống tự động gọi điện cho khách xác nhận đơn: khách bấm phím <b>1</b> (đồng ý) hoặc <b>0</b> (huỷ), hệ thống ghi kết quả và trả về hệ thống bán hàng.</p>
+  <div class="meta">
+    <span><b>Kỳ báo cáo</b> 12/08 → 22/08/2026 (11 ngày)</span>
+    <span><b>Người thực hiện</b> Nguyễn Quốc Toàn</span>
+  </div>
+  <div class="alert">
+    <span class="k">Trạng thái an toàn</span>
+    <p>Đang chạy bằng <strong>dữ liệu giả</strong>. Khoá <strong>chưa cho phép gọi khách hàng thật</strong> vẫn bật ở mọi lớp.</p>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="s1">
+  <div class="sec-head"><p class="eyebrow">Phần 01</p><h2>Tiến độ</h2></div>
+
+  <div class="big">
+    <span class="v">~80%</span>
+    <span class="l">tổng thể, tính theo khối lượng công việc — và <strong>chỉ tính tới mức tự kiểm đạt, chưa tính phần nghiệm thu</strong>. Phần mềm <strong>đã gọi được, đọc được đơn bằng giọng người Việt, nhận được phím bấm và ghi đúng kết quả</strong> — hiện gọi trong phòng thử nghiệm với đơn hàng giả.</span>
+  </div>
+
+  <h3>1.1 · Mức hoàn thành theo từng hạng mục</h3>
+  <div class="bars">
+    <div class="bar done"><span class="nm">Cơ sở dữ liệu (DB)<small>17 bảng, nhật ký chống sửa, tự xoá dữ liệu hết hạn</small></span><span class="tr"><span class="fl" style="width:90%"></span></span><span class="pc">90%</span></div>
+    <div class="bar done"><span class="nm">Backend — lõi xử lý cuộc gọi<small>Nhận đơn → xếp lịch → gọi → nhận phím → trả kết quả</small></span><span class="tr"><span class="fl" style="width:85%"></span></span><span class="pc">85%</span></div>
+    <div class="bar done"><span class="nm">Giao diện quản trị (Frontend)<small>18 màn hình Việt/Anh, 176 bài kiểm thử xanh</small></span><span class="tr"><span class="fl" style="width:85%"></span></span><span class="pc">85%</span></div>
+    <div class="bar done"><span class="nm">Giám sát vận hành<small>Bảng theo dõi, cảnh báo, diễn tập sự cố</small></span><span class="tr"><span class="fl" style="width:85%"></span></span><span class="pc">85%</span></div>
+    <div class="bar done"><span class="nm">Kiểm thử chất lượng (QA)<small>650 bài kiểm thử tự động, phủ ~94% mã nguồn</small></span><span class="tr"><span class="fl" style="width:80%"></span></span><span class="pc">80%</span></div>
+    <div class="bar done"><span class="nm">Thiết kế giao diện (UI)<small>Đã chuẩn hoá bảng màu, bố cục thống nhất toàn hệ thống</small></span><span class="tr"><span class="fl" style="width:80%"></span></span><span class="pc">80%</span></div>
+    <div class="bar done"><span class="nm">Đăng nhập &amp; phân quyền<small>2 vai trò Quản trị/Vận hành; còn chờ lưu 158 file vào kho</small></span><span class="tr"><span class="fl" style="width:80%"></span></span><span class="pc">80%</span></div>
+    <div class="bar done"><span class="nm">Đóng gói &amp; triển khai<small>Đóng gói máy chủ, phát hành từng bước, quay lui được</small></span><span class="tr"><span class="fl" style="width:75%"></span></span><span class="pc">75%</span></div>
+    <div class="bar done"><span class="nm">Trải nghiệm sử dụng (UX)<small>Đã kiểm khả năng tiếp cận và song ngữ</small></span><span class="tr"><span class="fl" style="width:75%"></span></span><span class="pc">75%</span></div>
+    <div class="bar mid"><span class="nm">Kết nối tổng đài<small>Phần mềm xong, đã gọi thật trong lab; chờ SIM + thiết bị</small></span><span class="tr"><span class="fl" style="width:55%"></span></span><span class="pc">55%</span></div>
+    <div class="bar mid"><span class="nm">Giọng nói &amp; kịch bản gọi<small>1 giọng đã duyệt; còn 3 giọng vùng miền + cách đọc số tiền</small></span><span class="tr"><span class="fl" style="width:45%"></span></span><span class="pc">45%</span></div>
+    <div class="bar low"><span class="nm">Hồ sơ pháp lý &amp; nghiệm thu<small>Hồ sơ đã soạn xong, chờ chữ ký</small></span><span class="tr"><span class="fl" style="width:40%"></span></span><span class="pc">40%</span></div>
+    <div class="bar low"><span class="nm">Nối hệ thống bán hàng<small>Xong với bản giả lập; chờ API thật từ đội Sales</small></span><span class="tr"><span class="fl" style="width:35%"></span></span><span class="pc">35%</span></div>
+  </div>
+
+  <h3>1.2 · Con số tổng quan</h3>
+  <p class="stats"><b>105 hạng mục công việc:</b> 64 kiểm thử đạt (chờ nghiệm thu) · 19 đã nộp bằng chứng chờ ký · <b>15 bị chặn bởi bên ngoài</b> · 5 đã nghiệm thu · 2 cố ý hoãn (tính năng gửi SMS, bản 1 không làm).<br><b>Khối lượng:</b> 68 lần lưu công việc · ~185.000 dòng nội dung · 650 bài kiểm thử xanh · phủ ~94% mã nguồn · 72 bộ hồ sơ bằng chứng · 390 file tài liệu · 18 màn hình.</p>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <div class="sec-head"><p class="eyebrow">Phần 02</p><h2>Những việc đã làm</h2></div>
+  <div class="tw"><table>
+    <thead><tr><th>Ngày</th><th>Lưu</th><th>Nhóm việc</th><th>Kết quả</th></tr></thead>
+    <tbody>
+      <tr><td class="k">12/08</td><td class="num">11</td><td class="k">Dựng nền móng</td><td class="wide">Nạp 386 file tài liệu; dựng khung phần mềm 5 lớp; dây chuyền kiểm tra chất lượng tự động 6 chốt; công tắc dừng khẩn cấp; cơ sở dữ liệu 17 bảng</td></tr>
+      <tr><td class="k">13/08</td><td class="num">27</td><td class="k">Máy chủ thật + lõi vận hành</td><td class="wide">Dựng máy chủ kiểm thử riêng, khoá nhánh mã nguồn chính. Xong phần nhận đơn, kiểm điều kiện, xếp lịch gọi, quản lý kịch bản gọi</td></tr>
+      <tr><td class="k">14/08</td><td class="num">11</td><td class="k">Hoàn tất lõi + sửa lỗi</td><td class="wide">Xong đọc phím bấm, trả kết quả về Sales, 13 chức năng quản trị nội bộ. Tự rà soát và <strong>tự tìm ra 23 lỗi</strong>, sửa hết trong ngày</td></tr>
+      <tr><td class="k">15/08</td><td class="num">2</td><td class="k">Màn hình quản trị</td><td class="wide">Bảng điều khiển, nhật ký cuộc gọi, chi tiết cuộc gọi, cấu hình, báo cáo, phân quyền + chuẩn thiết kế thống nhất</td></tr>
+      <tr><td class="k">18–19/08</td><td class="num">4</td><td class="k">Tích hợp, kiểm thử, giám sát</td><td class="wide">Nối hệ thống bán hàng (giả lập), kiểm tồn kho trước khi gọi, kiểm hiệu năng/bảo mật/quyền riêng tư, bảng giám sát và cảnh báo</td></tr>
+      <tr><td class="k">20/08</td><td class="num">6</td><td class="k">Đóng gói triển khai</td><td class="wide">Đóng gói máy chủ đám mây, phát hành từng bước quay lui được, sao lưu &amp; khôi phục thảm hoạ. Đóng đợt kiểm toán toàn hệ thống</td></tr>
+      <tr><td class="k">20–22/08</td><td class="num">5</td><td class="k">Tổng đài thử nghiệm + giọng nói</td><td class="wide">Dựng tổng đài miễn phí, <strong>gọi ra máy thật, nghe được giọng đọc đơn, bấm 1/0 ghi đúng kết quả</strong>. Sếp chọn giọng C, chốt lời chào → <strong>đã nghiệm thu</strong></td></tr>
+      <tr><td class="k">22/08</td><td class="num"><span class="pill p-wait">chưa lưu</span></td><td class="k">Đăng nhập &amp; phân quyền</td><td class="wide">Tài khoản/mật khẩu thật, 2 vai trò, quản lý tài khoản, thu hồi phiên. Kiểm thử đạt 474 + 176 bài</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <div class="sec-head"><p class="eyebrow">Phần 03</p><h2>Dự kiến hoàn thành</h2></div>
+  <div class="tw"><table>
+    <thead><tr><th>Tuần</th><th>Thời gian</th><th>Nội dung</th><th>Kết quả bàn giao</th></tr></thead>
+    <tbody>
+      <tr><td class="k">T4/8</td><td class="k">24–30/08</td><td class="wide">Lưu phần đăng nhập; làm bộ đọc số tiền thành chữ; dựng 3 giọng vùng miền Bắc/Trung/Nam</td><td>Xong phần tự làm, sẵn sàng nghiệm thu</td></tr>
+      <tr><td class="k">T1/9</td><td class="k">01–06/09</td><td class="wide">Nghiệm thu đợt 1: lõi xử lý, cơ sở dữ liệu, giao diện quản trị. Lắp SIM + thiết bị, chạy thử cuộc gọi thật</td><td>Biên bản nghiệm thu đợt 1</td></tr>
+      <tr><td class="k">T2/9</td><td class="k">07–13/09</td><td class="wide">Nghiệm thu đợt 2: kiểm thử, giám sát, triển khai. Nối API thật của hệ thống bán hàng</td><td>Biên bản đợt 2 + kết nối thật</td></tr>
+      <tr><td class="k">T3/9</td><td class="k">14–20/09</td><td class="wide">Chạy thử toàn tuyến: đơn thật từ Sales → gọi qua SIM thật → trả kết quả. Sửa lỗi phát sinh</td><td>Báo cáo chạy thử toàn tuyến</td></tr>
+      <tr><td class="k">T4/9</td><td class="k">21–27/09</td><td class="wide">Hoàn tất hồ sơ pháp lý, bảo mật, kịch bản gọi; ký duyệt phát hành</td><td>Hồ sơ ký duyệt đầy đủ</td></tr>
+      <tr><td class="k">T5/9</td><td class="k">28–30/09</td><td class="wide">Bàn giao, chạy chính thức có giám sát</td><td><span class="pill p-ok">Hệ thống vận hành thật</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><strong>Điều kiện để giữ được lịch này:</strong> SIM + thiết bị gọi có trước <strong>01/09</strong>; đội Sales bàn giao API thật trước <strong>07/09</strong>; pháp chế duyệt kịch bản trước <strong>21/09</strong>. Chậm khâu nào, các tuần sau lùi theo đúng khâu đó.</div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <div class="sec-head"><p class="eyebrow">Phần 04</p><h2>Khó khăn &amp; cần gì để hoàn thiện</h2></div>
+
+  <h3>4.1 · Việc cần sếp quyết</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Ưu tiên</th><th>Việc cần làm</th><th>Ai làm</th><th>Hạn</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill p-stop">Cao</span></td><td class="wide"><strong>Cấp 1 SIM test + 1 thiết bị GSM gateway</strong>, duyệt 2–3 số nội bộ để gọi thử</td><td>Sếp / Hạ tầng</td><td class="k">trước 01/09</td></tr>
+      <tr><td><span class="pill p-stop">Cao</span></td><td class="wide">Thúc đội Sales điền <strong>phiếu đầu vào</strong> (đã soạn sẵn, chỉ cần điền)</td><td>Sếp</td><td class="k">trước 07/09</td></tr>
+      <tr><td><span class="pill p-stop">Cao</span></td><td class="wide">Chỉ định <strong>người nghiệm thu</strong> và lịch nghiệm thu theo đợt</td><td>Sếp</td><td class="k">trước 01/09</td></tr>
+      <tr><td><span class="pill p-wait">Vừa</span></td><td class="wide">Duyệt ngân sách mua gói <strong>giọng đọc có bản quyền thương mại</strong></td><td>Sếp</td><td class="k">trước 07/09</td></tr>
+      <tr><td><span class="pill p-wait">Vừa</span></td><td class="wide">Pháp chế duyệt kịch bản gọi + thời gian lưu dữ liệu</td><td>Pháp chế</td><td class="k">trước 21/09</td></tr>
+      <tr><td><span class="pill p-flat">Thấp</span></td><td class="wide">Cấp máy chủ thật (hoặc chọn hạ tầng đơn giản hơn)</td><td>Hạ tầng</td><td class="k">trước 14/09</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.2 · Vướng mắc đang chặn</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Vướng mắc</th><th>Mô tả</th><th>Hậu quả nếu không gỡ</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Chưa có SIM &amp; thiết bị gọi</td><td class="wide">Hiện chỉ gọi được trong phòng lab bằng phần mềm miễn phí</td><td>Không chứng minh được hệ thống gọi khách được</td></tr>
+      <tr><td class="k">Chưa có API thật của Sales</td><td class="wide">Đang chạy với hệ thống bán hàng giả lập</td><td>Không nhận được đơn thật, không trả kết quả thật</td></tr>
+      <tr><td class="k">Thiếu người nghiệm thu</td><td class="wide">100/105 hạng mục “tự kiểm thì đạt” nhưng chưa ai ký nhận</td><td>Không hạng mục nào được công nhận hoàn thành</td></tr>
+      <tr><td class="k">Bản quyền giọng đọc</td><td class="wide">Giọng bản miễn phí <strong>không được dùng thương mại</strong>; hết hạn 31/12/2026</td><td>Rủi ro pháp lý khi chạy thật</td></tr>
+      <tr><td class="k">Cách đọc số tiền chưa khớp</td><td class="wide">Hệ thống sinh “560.000 đồng” dạng chữ số, audio đã duyệt đọc thành chữ</td><td>Khách nghe sai / khó hiểu số tiền</td></tr>
+      <tr><td class="k">Chỉ có 1 người làm</td><td class="wide">Không có người review độc lập</td><td>Rủi ro lỗi lọt lưới</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.3 · Rủi ro đã có sẵn biện pháp phòng</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Rủi ro</th><th>Biện pháp đã làm</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Gọi nhầm khách thật khi chưa được phép</td><td>Khoá cứng nhiều lớp, chỉ gọi số trong danh sách trắng, có công tắc dừng khẩn cấp</td></tr>
+      <tr><td class="k">Lộ số điện thoại / thông tin khách</td><td>Che số ở mọi nhật ký, màn hình, báo cáo; có bộ quét tự động chặn rò rỉ</td></tr>
+      <tr><td class="k">Nhầm “lỗi kỹ thuật” thành “khách không nghe máy”</td><td>Đã tách riêng; lỗi kỹ thuật không bị tính là một lần gọi khách</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <div class="sec-head"><p class="eyebrow">Phần 05</p><h2>Kết luận</h2></div>
+  <div class="tw"><table>
+    <thead><tr><th>Câu hỏi</th><th>Trả lời</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Phần mềm làm được chưa?</td><td><strong>Rồi</strong> — đã gọi, đọc, nhận phím, ghi kết quả trong phòng thử nghiệm. Tổng thể <strong>~80%</strong></td></tr>
+      <tr><td class="k">Còn thiếu gì?</td><td>SIM + thiết bị gọi, API thật của Sales, chữ ký nghiệm thu và pháp lý</td></tr>
+      <tr><td class="k">Bao giờ vận hành thật?</td><td><strong>Cuối tháng 9/2026</strong>, nếu các việc ở mục 4.1 được quyết đúng hạn</td></tr>
+      <tr><td class="k">Cần sếp làm gì ngay?</td><td>Cấp SIM + thiết bị · thúc Sales trả phiếu đầu vào · chỉ định người nghiệm thu</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer>Lập ngày 22/08/2026 · Số liệu đếm trực tiếp từ 68 lần lưu công việc trong kho mã nguồn và sổ tiến độ nội bộ, không ước lượng.</footer>
+
+</div>
