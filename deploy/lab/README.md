@@ -19,6 +19,13 @@ Profile này kiểm tra miễn phí đường đi `scheduler -> DispatchGate -> 
 
 Asterisk 22.10.1 LTS được build từ source chính thức với SHA-256 đã ghim trong `asterisk/Dockerfile`. MicroSIP portable 3.22.12 được tải từ trang chính thức, kiểm SHA-256 đã ghim và lưu trong `deploy/lab/.local-tools/`; thư mục này không được commit.
 
+Audio chấp nhận UX dùng hai mẫu neural dev-only cùng lời thoại fake, đã chuyển về PCM 16-bit/8 kHz/mono và ghim SHA-256 trong `asterisk/audio/SHA256SUMS`:
+
+- `A`: `vi-VN-HoaiMyNeural` (nữ);
+- `B`: `vi-VN-NamMinhNeural` (nam).
+
+Các file này được sinh bằng `edge-tts 7.2.8` chỉ để A/B miễn phí trong lab. Đây không phải provider/API/SLA production và không được dùng với dữ liệu khách thật.
+
 ## Chạy lab
 
 Từ repository root:
@@ -45,6 +52,20 @@ Helper sau có thể click phím trên cửa sổ MicroSIP cho một lần test 
 ```powershell
 .\deploy\lab\Invoke-MicroSipDtmf.ps1 -Digit 1
 ```
+
+## Nghe và chọn giọng A/B
+
+Khi stack và MicroSIP đang chạy, chọn từng file qua media reference cố định rồi tạo cuộc gọi mới. Runner tự đưa cửa sổ MicroSIP đang ẩn ở system tray ra foreground trước khi queue task:
+
+```powershell
+.\deploy\lab\Set-AsteriskLabVoice.ps1 -Variant A
+.\deploy\lab\Invoke-FreeSoftphoneCall.ps1
+
+.\deploy\lab\Set-AsteriskLabVoice.ps1 -Variant B
+.\deploy\lab\Invoke-FreeSoftphoneCall.ps1
+```
+
+Mỗi cuộc gọi phải được trả lời và bấm `1` hoặc `0` để kiểm playback không làm hỏng DTMF. Chỉ sau khi owner chọn rõ `A` hoặc `B`, xác nhận nội dung/âm lượng/tốc độ/độ tự nhiên và hai disposition vẫn đúng thì W-0104 mới được chuyển từ `TESTS_PASS` sang `ACCEPTED`. Nếu chưa chọn, `REAL_CUSTOMER_CALL_ALLOWED=NO` và W-0105 chưa bắt đầu.
 
 ## Dừng và dọn lab
 

@@ -38,6 +38,7 @@ services:
     environment:
       IVR_LAB_ARI_PASSWORD: "${IVR_LAB_ARI_PASSWORD:?Set IVR_LAB_ARI_PASSWORD in .env}"
       IVR_LAB_SIP_PASSWORD: "${IVR_LAB_SIP_PASSWORD:?Set IVR_LAB_SIP_PASSWORD in .env}"
+      IVR_LAB_VOICE_VARIANT: "${IVR_LAB_VOICE_VARIANT:-A}"
     ports:
       - "127.0.0.1:${IVR_LAB_ARI_PORT:-18088}:8088/tcp"
       - "127.0.0.1:${IVR_LAB_SIP_PORT:-5060}:5060/udp"

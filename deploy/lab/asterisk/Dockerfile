@@ -9,8 +9,6 @@ RUN apt-get update \
         bzip2 \
         ca-certificates \
         curl \
-        espeak-ng \
-        ffmpeg \
         libedit-dev \
         libedit2 \
         libjansson-dev \
@@ -57,6 +55,7 @@ COPY rtp.conf /etc/asterisk/rtp.conf
 COPY extensions.conf /etc/asterisk/extensions.conf
 COPY ari.conf.template /opt/ivr-lab/ari.conf.template
 COPY pjsip.conf.template /opt/ivr-lab/pjsip.conf.template
+COPY audio /opt/ivr-lab/audio
 COPY entrypoint.sh /usr/local/bin/ivr-lab-entrypoint
 COPY healthcheck.sh /usr/local/bin/ivr-lab-healthcheck
 

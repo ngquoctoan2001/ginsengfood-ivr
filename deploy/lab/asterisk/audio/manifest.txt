@@ -1,0 +1,13 @@
+work_id=W-0104
+data_class=FAKE_ONLY
+generator=edge-tts-7.2.8-dev-sample-only
+rate=-3%
+output_format=pcm_s16le-8000hz-mono
+variant_a_voice=vi-VN-HoaiMyNeural
+variant_a_duration_seconds=14.880
+variant_a_sha256=ad3ea2bc67bf0264baa8065f8e537193f4367af7d1eef08f6acdb1a8cd56c797
+variant_b_voice=vi-VN-NamMinhNeural
+variant_b_duration_seconds=15.312
+variant_b_sha256=6db1992b99903fdfa22ad03020bc888d454fa86bd3821ab84cb32d531ea13790
+production_provider_authorized=NO
+real_customer_data_used=NO

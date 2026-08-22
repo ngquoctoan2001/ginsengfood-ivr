@@ -28,6 +28,8 @@ if (-not $registered) {
     throw 'LAB-A is not registered. Keep MicroSIP open and confirm its status shows Online.'
 }
 
+& (Join-Path $PSScriptRoot 'Show-MicroSipLab.ps1')
+
 $now = [DateTimeOffset]::UtcNow
 $started = $now.AddSeconds(-10)
 $expires = $started.AddMinutes(5)

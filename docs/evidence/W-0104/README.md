@@ -4,6 +4,8 @@ Ngày: 2026-08-20
 
 Baseline: `main@ce49f73`
 
+Neural A/B change baseline: `main@3cd7613`
+
 Trạng thái: `TESTS_PASS` — code, automated gates và hai disposition MicroSIP `1/0` đã đạt; owner review ngày `2026-08-21` **không chấp nhận chất lượng giọng eSpeak**, nên chưa `ACCEPTED`.
 
 ## 1. Phạm vi đã triển khai
@@ -48,6 +50,8 @@ Focused tests khóa các điểm: DI chỉ bật đúng profile lab, gate chặn
 | Playback được ghi `audio_status=PLAYED`; RTP PCMU đi tới Windows client | `PASS` |
 | DTMF `1` -> `IVR_CONFIRMED` | `PASS` — `TASK-LAB-20260820110825` |
 | DTMF `0` -> `IVR_CUSTOMER_CANCELLED` | `PASS` — `TASK-LAB-20260820110858` |
+| Neural A — `vi-VN-HoaiMyNeural`, PCM 8 kHz mono | `PASS` — `TASK-LAB-20260822013752` → `IVR_CONFIRMED` |
+| Neural B — `vi-VN-NamMinhNeural`, PCM 8 kHz mono | `PASS` — `TASK-LAB-20260822013829` → `IVR_CONFIRMED` |
 
 Các task trên chỉ chứa dữ liệu fake, không chứa số điện thoại, credential hay dữ liệu khách thật. Một lượt đối chứng không bấm phím kết thúc `IVR_NO_ANSWER_FINAL`; hai lượt click chính control `1/0` của MicroSIP được ARI thu và normalizer tạo đúng hai final result tương ứng.
 
@@ -63,5 +67,7 @@ Các task trên chỉ chứa dữ liệu fake, không chứa số điện thoạ
 W-0104 chứng minh được preflight telephony software miễn phí, không chứng minh modem/SIM/PSTN/carrier/caller ID hay capacity 32 eSIM. Sales endpoint/auth/payload thật cũng không được chạy. Những mục đó vẫn thuộc W-0048 và các external gate hiện hữu.
 
 W-0104 đã đạt `TESTS_PASS`. Owner đã từ chối nghiệm thu audio hiện tại vì giọng tổng hợp máy móc/cũ; kết quả này không phủ nhận luồng gọi, playback hoặc DTMF đã PASS, nhưng chặn `ACCEPTED` cho trải nghiệm lời thoại. Phương án thay thế và tiêu chí A/B nằm ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md).
+
+Ngày 2026-08-22, hai file neural A/B đã được sinh bằng cùng script fake, chuẩn hóa PCM signed 16-bit/8 kHz/mono, ghim checksum và phát thành công qua media reference hiện hữu. Hai lượt MicroSIP đều được owner bắt máy và tạo `IVR_CONFIRMED`; kiểm tra checksum A/B đều PASS trước mỗi lần chuyển file. `edge-tts 7.2.8` chỉ là công cụ sinh mẫu dev, không phải provider production. Owner đã nghe đủ A/B nhưng chưa ghi lựa chọn cuối trong tracker, vì vậy trạng thái vẫn là `TESTS_PASS`.
 
 Chỉ chuyển `ACCEPTED` sau khi owner nghe lại ít nhất hai neural voice, chọn một voice/version và xác nhận lời thoại rõ, tự nhiên, đúng số tiền/sản phẩm/khu vực/phím bấm. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.

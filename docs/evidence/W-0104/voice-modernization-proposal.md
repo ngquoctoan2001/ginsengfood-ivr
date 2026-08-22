@@ -4,6 +4,8 @@ Ngày: `2026-08-21`
 
 Trạng thái: `OWNER_AUDIO_REJECTED` — đây là kết luận UX bên trong W-0104, không phải status mới của tracker. Tracker giữ `TESTS_PASS` vì telephony/DTMF đã đạt, nhưng chưa `ACCEPTED`.
 
+Cập nhật `2026-08-22`: A/B đã được triển khai và nghe qua MicroSIP; owner cần chọn rõ `A` hoặc `B` trước khi thay kết luận trên bằng acceptance.
+
 ## 1. Nguyên nhân hiện tại
 
 Image lab tạo audio bằng `espeak-ng -v vi -s 145`, sau đó hạ về PCM mono 8 kHz. Chuỗi truyền Asterisk → MicroSIP và DTMF hoạt động đúng; engine eSpeak là nguyên nhân chính làm giọng máy móc, cũ và thiếu ngữ điệu tự nhiên.
@@ -45,3 +47,12 @@ W-0104 chỉ được owner chuyển `ACCEPTED` khi cả luồng gọi và UX đ
 ## 5. Ranh giới
 
 Neural A/B trên MicroSIP vẫn chỉ là software-lab evidence. Nó không chứng minh PSTN, SIM, carrier, caller ID, 32 eSIM, Sales API thật hay quyền gọi khách hàng. `REAL_CUSTOMER_CALL_ALLOWED=NO` giữ nguyên.
+
+## 6. Evidence A/B đã chạy
+
+| Variant | Voice | Codec | SHA-256 | Runtime |
+| --- | --- | --- | --- | --- |
+| A | `vi-VN-HoaiMyNeural` | PCM signed 16-bit, 8 kHz, mono; 14,880 giây | `ad3ea2bc67bf0264baa8065f8e537193f4367af7d1eef08f6acdb1a8cd56c797` | `TASK-LAB-20260822013752` → `IVR_CONFIRMED` |
+| B | `vi-VN-NamMinhNeural` | PCM signed 16-bit, 8 kHz, mono; 15,312 giây | `6db1992b99903fdfa22ad03020bc888d454fa86bd3821ab84cb32d531ea13790` | `TASK-LAB-20260822013829` → `IVR_CONFIRMED` |
+
+Image Asterisk kiểm cả hai checksum khi boot; helper `Set-AsteriskLabVoice.ps1` kiểm lại checksum trước mỗi lần chuyển file bằng thao tác atomic. Hai voice dùng cùng nội dung fake và rate `-3%`. W-0104 vẫn `TESTS_PASS` cho đến khi owner ghi lựa chọn A/B và nhận xét chất lượng.
