@@ -290,12 +290,18 @@ const sourceErrorCodes = extractMatches(
   await fs.readFile(path.join(repositoryRoot, "src/Ivr.Domain/Errors/IvrErrorCodes.cs"), "utf8"),
   /public const string \w+ = "(?<code>IVR_[A-Z0-9_]+)";/gu,
 );
-const openApiErrorCodes = ivrOpenApi.components?.schemas?.ErrorCode?.enum ?? [];
+const legacyOpenApiErrorCodes = ivrOpenApi.components?.schemas?.ErrorCode?.enum ?? [];
+const openApiErrorCodes =
+  ivrOpenApi.components?.schemas?.ConsoleAccountErrorCode?.enum ?? [];
 assert(
-  documentedErrorCodes.length === 16,
-  `Stable error catalog must contain 16 codes; found ${documentedErrorCodes.length}.`,
+  documentedErrorCodes.length === 18,
+  `Stable error catalog must contain 18 codes; found ${documentedErrorCodes.length}.`,
 );
 assertSameSet(openApiErrorCodes, documentedErrorCodes, "CT-CI-10 OpenAPI/API-06 parity");
+assert(
+  legacyOpenApiErrorCodes.every((code) => openApiErrorCodes.includes(code)),
+  "CT-CI-10 console error catalog must remain a superset of the legacy catalog.",
+);
 assertSameSet(sourceErrorCodes, documentedErrorCodes, "CT-CI-10 source/API-06 parity");
 
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");

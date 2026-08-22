@@ -37,3 +37,7 @@ pgdata/
 Thumbs.db
 
 .codex-doc-memory
+
+# W-0106 voice audition MP3. Source audio stays out of the repo (W-0104 precedent);
+# only pinned PCM 8 kHz plus SHA-256 ever gets committed.
+artifacts/w-0106-voice-audition/
