@@ -21,10 +21,13 @@ Không được tuyên bố `CONTRACT_LOCKED`, `PRODUCTION_READY` hoặc “ch�
 | `seed/` | Fake Sales/SIM data cho `MOCK`; phải bám Target V1 DTO. |
 | `prompt/` | Chuỗi prompt triển khai .NET/Next.js từ foundation đến release. |
 | `prompt/_execution/prompt-execution-tracker.md` | **Sổ tiến độ duy nhất**, bao gồm planned và unplanned theo thứ tự phát sinh. |
+| `W-0105-account-auth-rbac-plan.md` | Kế hoạch/implementation record cho console account, opaque session và RBAC đúng hai role `Admin`/`Operator`. |
 
 ## 3. Kiến trúc và scope
 
 - IVR: service riêng, backend .NET 10, PostgreSQL, admin Next.js, Docker/Kubernetes.
+- Console identity: Ivr.Api + PostgreSQL sở hữu account/session; Admin quản lý
+  account, Operator có đúng self-profile + queue view + SIM disable + manual retry.
 - Sales Platform: Java/Spring Boot + Next.js; giao tiếp qua versioned API, không chia sẻ DB/source.
 - Program V1: Golden Hour ONLINE và 24/7 COD theo ma trận `TV1-01`.
 - Dev trước bằng fake Sales provider + mock telephony; kiểm thử lab bằng 1 SIM thật/allowlist; target sau này 32 eSIM channels.

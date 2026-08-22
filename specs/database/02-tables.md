@@ -202,6 +202,24 @@ Task, call job, intake outbox, idempotency response snapshot and audit record ar
 
 Migration W-0024 seed duy nhất `SCRIPT-ORDER-CONFIRM:v1-test-approved` với `MOCK_TEST`; seed không cấp LAB/PROD. Bảng không chứa customer input, rendered speech, raw phone, full address hay recording.
 
+## 8.2. `ivr_console_accounts` và `ivr_console_sessions` (W-0105)
+
+`ivr_console_accounts` lưu subject console: UUID, username lowercase immutable
+(3–64 ký tự), display name tối đa 128, role `Admin|Operator`, status
+`ACTIVE|DISABLED|DELETED`, built-in marker, PBKDF2 verifier, durable lockout,
+login/password timestamps, optimistic version và retention/legal-hold columns.
+Không có plaintext password hoặc cơ chế “lấy lại” password; Admin chỉ đặt mật
+khẩu mới.
+
+`ivr_console_sessions` lưu SHA-256 hash của opaque bearer token, account FK,
+create/expiry/revoke metadata và retention/legal-hold columns. Token raw chỉ trả
+một lần cho client và không được ghi DB/log/audit. Session TTL là 8 giờ; đổi
+role/status, reset password hoặc soft-delete account phải revoke mọi session của
+account đó.
+
+Username unique trên toàn bảng, kể cả record đã soft-delete. FK session → account
+dùng `RESTRICT`; retention xoá session child trước account đã soft-delete.
+
 ## 9. Phân loại nguồn cột (chống DB↔OpenAPI inversion)
 
 Mỗi cột thuộc đúng một loại. `P1-2` và `P1-3` phải giữ phân loại này khi sinh entity/migration:

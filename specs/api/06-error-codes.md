@@ -39,6 +39,8 @@ Bám phase-8/11 §6. Quy tắc chốt để implementer không làm lệch:
 | `IVR_OPERATIONAL_BLOCKED` | 409 | blocker active (sellable/recall/sale-lock/do-not-call) | `TASK_BLOCKED_OPERATIONAL` |
 | `IVR_NOT_FOUND` | 404 | resource không tồn tại | — |
 | `IVR_RATE_LIMITED` | 429 | rate limit (nếu hỗ trợ) | — |
+| `IVR_ACCOUNT_CONFLICT` | 409 | Username đã từng được dùng hoặc optimistic version conflict khi quản lý account | — |
+| `IVR_ACCOUNT_POLICY_VIOLATION` | 422 | Vi phạm password/role/status, built-in admin hoặc last-active-admin invariant | — |
 | `IVR_INTERNAL_ERROR` | 500 | lỗi hệ thống (không che business) | — |
 
 > `code` là **chuỗi ổn định** (không đổi nghĩa giữa version). Admin action lỗi RBAC dùng `IVR_FORBIDDEN_CALLER` (403).
@@ -70,5 +72,5 @@ Order Core gọi ops sellable gate; các mã ổn định IVR/Core phải hiểu
 - Error envelope thống nhất `{error:{code,message,details,correlationId}}` (đồng bộ ops — DO-06).
 
 ## Báo cáo (error)
-- HTTP mapping (8) + **response model rõ (200-decision vs 4xx-envelope)** + **danh mục 16 `code` ổn định** (§1c); intake taxonomy 12 (5 → 200 body, 7 → 4xx); result taxonomy 11; consume 8 mã ops-core (fail-closed).
+- HTTP mapping (8) + **response model rõ (200-decision vs 4xx-envelope)** + **danh mục 18 `code` ổn định** (§1c); intake taxonomy 12 (5 → 200 body, 7 → 4xx); result taxonomy 11; consume 8 mã ops-core (fail-closed).
 - ✅ Cập nhật review 2026-07-02: bổ sung §1b (response model) + §1c (stable code catalog) — gỡ nhập nhằng reject 4xx vs 200 và khai báo `code` cho envelope.

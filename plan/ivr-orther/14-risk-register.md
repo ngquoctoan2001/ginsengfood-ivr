@@ -42,6 +42,7 @@ Impact/Probability: Cao/Trung bình/Thấp. Priority: P0 (chặn) / P1 / P2.
 | R-19 | **Lệch version tài liệu** (.docx V0.2 vs md; file tham chiếu thiếu) | TB | TB | P1 | p01 đối chiếu; ghi ADR chọn version; tạo source-map | IVR + Owner | 05-current-docs-review, decisions/ |
 | R-20 | **Scope creep sang inbound** (lookup/order-by-phone/tư vấn) | TB | TB | P1 | Khóa scope outbound; inbound chỉ khi owner duyệt + có nguồn | Product owner | context/scope |
 | R-21 | **Release gate bị bỏ qua / tuyên bố production-ready sớm** (FAIL) | Cao | TB | P0 | `REAL_CUSTOMER_CALL_ALLOWED=NO` tới khi gate pass; evidence/owner sign-off | Release owner | testing/*, phase-8/09 |
+| R-22 | **Console credential/session bị lộ, cấp quyền quá mức hoặc tái sử dụng actor identity** | Cao | TB | P0 | Hash password/token; generic 401 + lockout/rate limit; session revoke; username immutable/non-reusable; server-side RBAC đúng hai role; bootstrap local/lab qua secret input; retention cần Legal ký | Security + IVR owner | W-0105, api/03, ui/08, database/05 |
 
 ## Nhóm rủi ro lớn nhất (P0 nổi bật)
 1. Hợp đồng tích hợp chưa hiện thực (R-01) + order status/identity chưa chốt (R-03,R-04).
@@ -50,3 +51,4 @@ Impact/Probability: Cao/Trung bình/Thấp. Priority: P0 (chặn) / P1 / P2.
 4. Privacy/PII & recording (R-09, R-08).
 5. Fail-safe & realtime blocker (R-10,R-11,R-12,R-13).
 6. Giữ boundary IVR (R-17) + đóng open decisions (R-18) + release gate (R-21).
+7. Account/session và least privilege của console (R-22).

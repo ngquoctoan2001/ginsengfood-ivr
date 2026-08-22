@@ -9,6 +9,10 @@ specs/api/08-external-api-needs.md:generic-api-key:19
 docs/api/portal-manifest.json:generic-api-key:22
 docs/api/ivr-order-confirmation-v1.html:generic-api-key:707
 docs/api/ivr-order-confirmation-v1.html:generic-api-key:719
+# W-0105 regenerated the portal after adding the console-account contract.
+# These are the same reviewed Redoc placeholders at their new generated lines.
+docs/api/ivr-order-confirmation-v1.html:generic-api-key:904
+docs/api/ivr-order-confirmation-v1.html:generic-api-key:916
 # Preserve the reviewed fingerprints from the immutable P1-4 portal commit;
 # current generated line numbers above do not suppress historical findings.
 2b1a4d4166f53e3525b87eac99541603039f4f3b:docs/api/portal-manifest.json:generic-api-key:21
@@ -39,8 +43,39 @@ src/Ivr.Infrastructure/Persistence/Migrations/20260813111817_P2_1_TaskIntake.Des
 src/Ivr.Infrastructure/Persistence/Migrations/20260813111817_P2_1_TaskIntake.Designer.cs:generic-api-key:356
 src/Ivr.Infrastructure/Persistence/Migrations/20260813111817_P2_1_TaskIntake.Designer.cs:generic-api-key:455
 src/Ivr.Infrastructure/Persistence/Migrations/20260813111817_P2_1_TaskIntake.Designer.cs:generic-api-key:554
+# Later generated designers repeat the same reviewed v1NotificationEnabled
+# feature-flag seed; keep every exception line-specific.
+src/Ivr.Infrastructure/Persistence/Migrations/20260818030631_P4_2_EligibilityEvidenceHash.Designer.cs:generic-api-key:158
+src/Ivr.Infrastructure/Persistence/Migrations/20260818030631_P4_2_EligibilityEvidenceHash.Designer.cs:generic-api-key:257
+src/Ivr.Infrastructure/Persistence/Migrations/20260818030631_P4_2_EligibilityEvidenceHash.Designer.cs:generic-api-key:356
+src/Ivr.Infrastructure/Persistence/Migrations/20260818030631_P4_2_EligibilityEvidenceHash.Designer.cs:generic-api-key:455
+src/Ivr.Infrastructure/Persistence/Migrations/20260818030631_P4_2_EligibilityEvidenceHash.Designer.cs:generic-api-key:554
+src/Ivr.Infrastructure/Persistence/Migrations/20260819023138_P10_4_AnalyticsWarehouse.Designer.cs:generic-api-key:526
+src/Ivr.Infrastructure/Persistence/Migrations/20260819023138_P10_4_AnalyticsWarehouse.Designer.cs:generic-api-key:625
+src/Ivr.Infrastructure/Persistence/Migrations/20260819023138_P10_4_AnalyticsWarehouse.Designer.cs:generic-api-key:724
+src/Ivr.Infrastructure/Persistence/Migrations/20260819023138_P10_4_AnalyticsWarehouse.Designer.cs:generic-api-key:823
+src/Ivr.Infrastructure/Persistence/Migrations/20260819023138_P10_4_AnalyticsWarehouse.Designer.cs:generic-api-key:922
+src/Ivr.Infrastructure/Persistence/Migrations/20260819083610_P7_1_CallbackPayloadByteExact.Designer.cs:generic-api-key:524
+src/Ivr.Infrastructure/Persistence/Migrations/20260819083610_P7_1_CallbackPayloadByteExact.Designer.cs:generic-api-key:623
+src/Ivr.Infrastructure/Persistence/Migrations/20260819083610_P7_1_CallbackPayloadByteExact.Designer.cs:generic-api-key:722
+src/Ivr.Infrastructure/Persistence/Migrations/20260819083610_P7_1_CallbackPayloadByteExact.Designer.cs:generic-api-key:821
+src/Ivr.Infrastructure/Persistence/Migrations/20260819083610_P7_1_CallbackPayloadByteExact.Designer.cs:generic-api-key:920
+src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccountAuth.Designer.cs:generic-api-key:524
+src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccountAuth.Designer.cs:generic-api-key:623
+src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccountAuth.Designer.cs:generic-api-key:722
+src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccountAuth.Designer.cs:generic-api-key:821
+src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccountAuth.Designer.cs:generic-api-key:920
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:155
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:254
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:353
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:452
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:551
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:521
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:620
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:719
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:818
+src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:917
+
+# W-0025 stores correlation IDs, not credentials; retain exact-line exceptions.
+docs/evidence/W-0025/correlation-header-capture.txt:generic-api-key:17
+docs/evidence/W-0025/README.md:generic-api-key:126

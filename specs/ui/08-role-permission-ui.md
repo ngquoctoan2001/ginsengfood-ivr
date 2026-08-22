@@ -1,37 +1,77 @@
 # UI-08 — Role / Permission & Matrix
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` · Nguồn: DF-01 (`IVR_*` ở Permission Core), `api/03`, `seed/agents.sample.json`, `functional/07`.
+Trạng thái: `SRS_DRAFT` · Cập nhật bởi: `W-0105` · Nguồn: API OpenAPI `draft.10`, `api/03`, quyết định owner 2026-08-22.
 
-## 1. Permission `IVR_*` (DF-01)
-`IVR_QUEUE_VIEW` · `IVR_QUEUE_PAUSE` · `IVR_QUEUE_RESUME` · `IVR_SIM_ENABLE` · `IVR_SIM_DISABLE` · `IVR_MANUAL_RETRY` · `IVR_RESULT_REVIEW`. Enforce **server-side** (client chỉ ẩn/hiện; backend xác thực lại).
+## 1. Vai trò được hỗ trợ
 
-## 2. Role đề xuất (seed agents)
-| Role | Permissions |
-| --- | --- |
-| OpsViewer | `IVR_QUEUE_VIEW` |
-| Ops | `IVR_QUEUE_VIEW`, `IVR_MANUAL_RETRY`, `IVR_SIM_DISABLE` |
-| AdminIM | + `IVR_QUEUE_PAUSE/RESUME`, `IVR_SIM_ENABLE`, `IVR_RESULT_REVIEW` |
+Hệ thống chỉ có hai role canonical: `Admin` và `Operator`. Ivr.Api là nguồn sự
+thật cho role/permission; client chỉ dùng projection từ session để ẩn/hiện UI,
+không được tự cấp quyền hay tin claim do browser gửi.
 
-## 3. Ma trận Permission ↔ Màn/Action
-| Màn / Action | Permission | API |
+## 2. Permission canonical
+
+| Permission | Admin | Operator |
 | --- | --- | --- |
-| Dashboard / Call-log / Call-detail (view) | `IVR_QUEUE_VIEW` | `GET /queue`; admin backend/BFF → internal `GET /call-jobs/{id}` |
-| Pause queue | `IVR_QUEUE_PAUSE` | `POST /queue:pause` |
-| Resume queue | `IVR_QUEUE_RESUME` | `POST /queue:resume` |
-| Disable SIM | `IVR_SIM_DISABLE` | `POST /sim-channels/{id}:disable` |
-| Enable SIM | `IVR_SIM_ENABLE` | `POST /sim-channels/{id}:enable` |
-| Technical retry | `IVR_MANUAL_RETRY` | `POST /technical-retries` |
-| Admin review | `IVR_RESULT_REVIEW` | `POST /admin-reviews` |
-| Seed/mock mgmt (non-prod) | `IVR_SIM_ENABLE/DISABLE` + non-prod | — |
-| Script approve | owner sign-off | — |
+| `IVR_QUEUE_VIEW` | ✅ | ✅ |
+| `IVR_QUEUE_PAUSE` | ✅ | ❌ |
+| `IVR_QUEUE_RESUME` | ✅ | ❌ |
+| `IVR_SIM_ENABLE` | ✅ | ❌ |
+| `IVR_SIM_DISABLE` | ✅ | ✅ |
+| `IVR_MANUAL_RETRY` | ✅ | ✅ |
+| `IVR_RESULT_REVIEW` | ✅ | ❌ |
+| `IVR_ACCOUNT_VIEW` | ✅ | ❌ |
+| `IVR_ACCOUNT_MANAGE` | ✅ | ❌ |
+| `IVR_ACCOUNT_PASSWORD_RESET` | ✅ | ❌ |
+| `IVR_ACCOUNT_SELF_VIEW` | ✅ | ✅ |
 
-## 4. Ràng buộc P0 (mọi role)
-- **Không** role nào force confirm/cancel order (D-02), reset attempt count, vượt max attempt (D-10), bypass blocker (DO-*/DC-01), hay set `REAL` khi chưa release gate.
-- Mọi action ghi: `actor_id`, `permission`, `reason`, `target`, `before/after`, `correlation_id`, `evidence_ref`, `no_policy_bypass=true`.
-- UI phải gửi `X-Actor-Id` khớp authenticated subject; backend không tin actor/permission do client tự khai. Queue pause không được hiển thị như đã hủy active calls; review không được hiển thị như đã đổi normalized result/order state.
-- Browser không gọi trực tiếp internal lifecycle API và không nhận internal service token. Call-detail phải qua admin backend/BFF có server-side RBAC; BFF dùng service identity riêng khi đọc masked projection.
+`IVR_FLAG_READ` và `IVR_RUNTIME_GATE_ADMIN` không được cấp cho hai role trong
+W-0105; chúng tiếp tục fail-closed cho đến khi owner chốt gate riêng.
 
-## Báo cáo (p12)
-1. **Số màn:** 8 (dashboard, call-log, call-detail, menu-config, integration-status, callback-request, seed-mock, role-permission).
-2. **Ma trận permission↔màn:** mục 3 (7 permission `IVR_*` map đủ action + API).
-3. **Điểm privacy cần owner duyệt:** (a) có hiển thị `customer_name_short` không (mặc định ẩn); (b) retention/hiển thị call log (DF-07); (c) recording nếu bật (DT-05); (d) export nào được phép (mặc định không PII). Tất cả mặc định privacy-safe (chỉ masked).
+## 3. Ma trận màn hình và action
+
+| Màn / Action | Permission | Phạm vi |
+| --- | --- | --- |
+| `/dashboard`, `/calls`, `/calls/{id}` | `IVR_QUEUE_VIEW` | Admin + Operator; chỉ projection masked |
+| Pause/resume queue | `IVR_QUEUE_PAUSE` / `IVR_QUEUE_RESUME` | Admin |
+| Disable SIM | `IVR_SIM_DISABLE` | Admin + Operator |
+| Enable SIM | `IVR_SIM_ENABLE` | Admin |
+| Technical retry | `IVR_MANUAL_RETRY` | Admin + Operator; không reset customer attempt |
+| Admin review | `IVR_RESULT_REVIEW` | Admin |
+| `/accounts`, `/roles` | `IVR_ACCOUNT_VIEW` | Admin |
+| Create/update/disable/reactivate/delete account | `IVR_ACCOUNT_MANAGE` | Admin |
+| Reset password/revoke sessions | `IVR_ACCOUNT_PASSWORD_RESET` | Admin |
+| `/profile` | `IVR_ACCOUNT_SELF_VIEW` | Admin + Operator; chỉ subject hiện tại |
+| `/reports`, `/review`, `/config`, `/integration`, `/seed` | Admin role | Operator nhận 403/không render dữ liệu |
+
+Mọi page, Route Handler và server action phải kiểm quyền server-side. Ẩn nav hay
+button chỉ là UX; gọi thẳng API sai quyền vẫn phải nhận
+`403 IVR_FORBIDDEN_CALLER`.
+
+## 4. Authentication/session
+
+- Login dùng username/password và gọi Ivr.Api qua Next.js server.
+- Browser chỉ nhận opaque token trong cookie `httpOnly`, `SameSite=Strict`,
+  `Secure` ngoài development; không chứa permission directory hay password.
+- Mỗi request bearer phải resolve session chưa revoke/chưa hết hạn và account
+  đang `ACTIVE`, rồi derive permission từ role phía server.
+- Sign-out revoke session server-side rồi xóa cookie.
+- Operator chỉ xem profile chính mình; không có endpoint/client filter cho phép
+  chọn subject khác.
+
+## 5. Ràng buộc P0
+
+- Không role nào được force confirm/cancel order, reset attempt count, vượt max
+  attempt, bypass blocker, hoặc bật real-customer-call gate.
+- Mutation vận hành phải có actor khớp subject, reason, audit, correlation và
+  `no_policy_bypass=true` theo API contract.
+- Không hiển thị raw phone, full address, recording hay secret/session token.
+- `REAL_CUSTOMER_CALL_ALLOWED=NO` không thay đổi chỉ vì account login thành công.
+
+## 6. Test bắt buộc
+
+- Unit drift test khóa đúng hai role và permission matrix trên.
+- E2E kiểm Operator chỉ thấy dashboard/calls/profile, thực hiện được disable SIM
+  và technical retry, nhưng bị chặn accounts/roles/admin-only actions.
+- E2E kiểm Admin CRUD account, reset password, revoke session và soft-delete.
+- Direct API probes phải xác nhận 401 generic cho credential sai và 403 cho
+  permission thiếu; client-side hidden state không được tính là bằng chứng RBAC.

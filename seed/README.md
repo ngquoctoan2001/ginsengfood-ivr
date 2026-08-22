@@ -20,7 +20,7 @@ Nguồn: `specs/database/*`, `specs/data/*`, `specs/workflows/*`; smoke `phase-8
 | `ivr-tasks.sample.json` | **LEGACY** | Task shape **trước Target V1** — KHÔNG phải `IvrConfirmationTaskV1`, KHÔNG đẩy vào `POST /tasks` (thiếu 12 required field, thừa 11 field bị `additionalProperties:false` từ chối). Chỉ giữ để đọc lịch sử. |
 | `call-scenarios.sample.json` | **IVR-owned** | kịch bản SIM/DTMF → result mong đợi; `task_ref` trỏ vào `sales-target-v1.sample.json` |
 | `ivr-menu.sample.json` | **IVR-owned** | call script + phím 1/0 |
-| `agents.sample.json` | **IVR-owned** | admin/ops actor + permission |
+| `agents.sample.json` | **IVR-owned** | fake Admin/Operator RBAC fixture; không chứa credential và không phải nguồn sign-in |
 | `integration-status.sample.json` | **IVR-owned** | up/down của Order Core/ops/SIM/CRM (test fail-safe) |
 
 ## Cách dùng
@@ -29,6 +29,15 @@ Nguồn: `specs/database/*`, `specs/data/*`, `specs/workflows/*`; smoke `phase-8
 3. Fake Sales producer đẩy `sales-target-v1.sample.json` vào `POST /tasks`.
 4. Mock SIM adapter đọc `call-scenarios` để phát `raw_call_status` mô phỏng → Result Normalizer (DT-02).
 5. `integration-status` bật/tắt dependency để test fail-closed.
+
+### Account bootstrap W-0105
+
+Tài khoản console thật được tạo trong PostgreSQL bằng `tools/Ivr.AccountBootstrap`,
+không đọc từ JSON seed. Tool chỉ chấp nhận target `local` hoặc `lab`, nhận mật
+khẩu từ secret input/STDIN, không log credential, không ghi đè account đã tồn
+tại và từ chối production. Chạy migration trước hoặc để tool gọi migration;
+thao tác phải được ghi audit. Việc chạy tool vào database đích cần connection
+string do owner cung cấp và phải lưu evidence đã che secret.
 
 ## Cách gỡ mock khi có API thật (theo integration-requirements)
 | Seed | Thay bằng | Điều kiện |

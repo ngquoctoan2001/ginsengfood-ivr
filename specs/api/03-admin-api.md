@@ -3,6 +3,31 @@
 Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/11` §5,§8; `/08` (monitoring/privacy); DF-01 (RBAC).
 Base path `/v1/ivr/order-confirmation/*`. Admin RBAC server-side; mọi POST có `reason` + `X-Actor-Id` + audit + `Idempotency-Key`.
 
+## 0. Authentication và account API (W-0105)
+
+Ivr.Api phát opaque bearer session 8 giờ và là authority cho đúng hai role
+`Admin`/`Operator`. Login failure luôn dùng generic `401 IVR_UNAUTHENTICATED`;
+không phân biệt username sai, password sai, account disabled hay locked.
+
+| Endpoint | Method | Permission | Chức năng |
+| --- | --- | --- | --- |
+| `/auth/sign-in` | POST | anonymous + rate limit | username/password → opaque session projection |
+| `/auth/session` | GET | authenticated | resolve subject/role/permissions hiện tại |
+| `/auth/sign-out` | POST | authenticated | revoke session hiện tại |
+| `/accounts/me` | GET | `IVR_ACCOUNT_SELF_VIEW` | profile của chính subject |
+| `/accounts` | GET | `IVR_ACCOUNT_VIEW` | danh sách account |
+| `/accounts/{accountId}` | GET | `IVR_ACCOUNT_VIEW` | chi tiết account |
+| `/accounts` | POST | `IVR_ACCOUNT_MANAGE` | tạo account; username immutable/non-reusable |
+| `/accounts/{accountId}` | PATCH | `IVR_ACCOUNT_MANAGE` | sửa display name/role/status với version |
+| `/accounts/{accountId}:reset-password` | POST | `IVR_ACCOUNT_PASSWORD_RESET` | admin đặt password mới và revoke session đích |
+| `/accounts/{accountId}:delete` | DELETE | `IVR_ACCOUNT_MANAGE` | soft-delete và revoke session đích |
+| `/account-roles` | GET | `IVR_ACCOUNT_VIEW` | hai role và permission matrix canonical |
+
+Operator có đúng bốn quyền: `IVR_QUEUE_VIEW`, `IVR_SIM_DISABLE`,
+`IVR_MANUAL_RETRY`, `IVR_ACCOUNT_SELF_VIEW`. Admin có 11 quyền được liệt kê ở
+`specs/ui/08-role-permission-ui.md`. Backend luôn re-derive permission từ role;
+bearer request không fallback sang mock header.
+
 ## 1. Endpoint & permission
 | Endpoint | Method | Permission (DF-01) | Contract | Chức năng |
 | --- | --- | --- | --- | --- |

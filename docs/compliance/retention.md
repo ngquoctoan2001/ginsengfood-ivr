@@ -32,6 +32,8 @@ hành động. Một mặc định "30 ngày cho an toàn" sẽ xoá dữ liệu
 | `evidence_link` | `DELETE` | _(trống)_ | |
 | `idempotency_key` | `DELETE` | _(trống)_ | |
 | `review_item` | `ANONYMIZE` | _(trống)_ | |
+| `console_session` | `DELETE` | _(trống)_ | owner phải chốt thời gian sau expiry/revoke |
+| `staff_account` | `DELETE` | _(trống)_ | owner phải chốt thời gian sau soft-delete |
 | `audit_log` | `PRESERVE` | **không xoá** | append-only, ép bởi database |
 | `active_config` | `PRESERVE` | **không xoá** | cấu hình có phiên bản |
 | `analytics_derived` | **thừa kế** | **= chu kỳ nguồn** | fact tồn tại chỉ khi kết quả nguồn còn tồn tại |

@@ -26,6 +26,8 @@ nhóm, dữ liệu **nằm ở đâu**, và **cơ chế nào** thực sự xoá 
 | `evidence_link` | IVR owner | trung bình | `ivr_evidence_links`, `ivr_evidence` | `DELETE`, bảo vệ khi `accepted_at` khác null | `LEGAL_SIGNOFF_REQUIRED` |
 | `idempotency_key` | IVR owner | **cao** — chứa response snapshot | `ivr_idempotency_keys` | `DELETE`, P1-5 | `LEGAL_SIGNOFF_REQUIRED` |
 | `review_item` | Ops | trung bình | `ivr_review_items` | `ANONYMIZE`, chỉ item đã resolved | `LEGAL_SIGNOFF_REQUIRED` |
+| `console_session` | Security + IVR owner | **cao** — liên kết tới staff subject | `ivr_console_sessions` | `DELETE` sau expiry/revoke, child-first | `LEGAL_SIGNOFF_REQUIRED` |
+| `staff_account` | Security + IVR owner | **cao** — username/display name và password verifier | `ivr_console_accounts` | `DELETE` chỉ sau soft-delete và khi không còn session | `LEGAL_SIGNOFF_REQUIRED` |
 | `audit_log` | Security | **cao** — ai làm gì | `ivr_audit_log`, `ivr_admin_actions` | **không xoá** — append-only ép bởi database | vĩnh viễn theo thiết kế |
 | `active_config` | IVR owner | thấp | `ivr_feature_flags`, `ivr_attempt_policies`, `ivr_script_versions`, `ivr_sim_channels` | **không xoá** — cấu hình có phiên bản | vĩnh viễn theo thiết kế |
 | `retention_control` | IVR owner | thấp | `ivr_retention_checkpoints` | **không xoá** — chỉ số đếm tổng hợp | vĩnh viễn theo thiết kế |

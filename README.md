@@ -21,27 +21,16 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 ConnectionStrings__IvrDb=Host=localhost;Port=55433;Database=ivr;Username=ivr
 ```
 
-`ORDER_CORE_SERVICE_TOKEN` is required by the API allowlist and must be injected
-through the process environment or a secret provider. It is deliberately absent
-from `appsettings*.json` and tracked files. For a local MOCK process, set a
-disposable value without writing it to disk:
-
-```powershell
-$env:ORDER_CORE_SERVICE_TOKEN = Read-Host "Local MOCK Order Core token"
-```
+`ORDER_CORE_SERVICE_TOKEN` is required by the API allowlist. The Development
+configuration contains an obvious fake local-only value so `pnpm api:dev` does
+not require repeatedly setting an environment variable. Deployed environments
+must override it through an environment variable or secret provider.
 
 `IVR_INTERNAL_SERVICE_TOKEN` is independently required at startup for the six
-IVR-owned worker/adapter lifecycle endpoints. Keep it distinct from the Order
-Core token and inject it through the environment or a secret provider:
-
-```powershell
-$env:IVR_INTERNAL_SERVICE_TOKEN = Read-Host "Local MOCK IVR internal token"
-```
-
-The tracked `appsettings*.json` files contain only an empty declaration so a
-missing token fails startup. GitLab uses a synthetic MOCK-only value. The
-development Compose file does not run the API, so this host-process secret is
-not passed to any container.
+IVR-owned worker/adapter lifecycle endpoints. Development also contains a
+separate fake local-only value for this token. Non-Development startup remains
+fail-closed unless the deployment injects both real values. Never promote the
+Development values to staging or production.
 
 Do not introduce real provider credentials, customer data, shared Java entities,
 or access to the sales platform database. The Postgres `trust` configuration in
@@ -87,6 +76,51 @@ placeholder and is not a fail-closed dependency-readiness signal until W-0040.
 - Docker Engine with Compose
 
 ## Run locally
+
+The root `package.json` provides the canonical local commands. On first use:
+
+```powershell
+pnpm setup
+```
+
+Stop any running `pnpm dev` process before changing/installing frontend
+dependencies; Windows locks Next's native SWC binary while the dev server is
+running.
+
+Prepare PostgreSQL and apply every pending migration. This also stops the three
+Docker app containers so a host worker is never competing with a containerized
+worker for the same database:
+
+```powershell
+pnpm local:prepare
+```
+
+Then use three PowerShell terminals:
+
+```powershell
+pnpm dev
+pnpm api:dev
+pnpm worker
+```
+
+The frontend is available at `http://127.0.0.1:3005`, the API at
+`http://127.0.0.1:5005`, and PostgreSQL at `127.0.0.1:55433`.
+The worker's standalone HTTP health listener is disabled only in Development
+because Windows `HttpListener` requires a machine-level URLACL; container and
+deployment health configuration is unchanged.
+
+Database helpers:
+
+```powershell
+pnpm db:migration:list
+pnpm db:migration:add -- W0106ExampleChange
+pnpm db:migrate
+pnpm db:seed
+```
+
+`db:seed` asks for the bootstrap password without echoing it and is idempotent.
+Run it after a fresh database volume or whenever the controlled account seed
+definition changes. Do not commit that password into source.
 
 ### Ports
 

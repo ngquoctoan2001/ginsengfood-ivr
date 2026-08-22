@@ -69,3 +69,49 @@ Script MOCK cuối được version hóa thành `v3-test-approved`:
 Code renderer tạo số lượng/tổng tiền từ dữ liệu có cấu trúc; đoạn trên mô tả nội dung khách nghe chứ không phải text lưu cứng theo từng đơn. v1/v2 được giữ để replay task dev cũ. v3 không còn dùng `customer_display_name` trong template; trường tương thích vẫn được phép ở payload cũ nhưng không được render. Vị trí giao vẫn chỉ ở mức `delivery_area_short`; dữ liệu vị trí chi tiết không được mở trong W-0104.
 
 Đã hoàn tất các gate W-0104: đúng script v3, voice ID, MP3 hash, PCM signed 16-bit/8 kHz/mono, checksum image, migration `20260822110000_W0104GenericCustomerGreetingScript`, registry approval đúng `MOCK_TEST+LAB` và hai disposition MicroSIP `1/0`. Owner đã chấp nhận voice/nội dung; W-0104 chuyển `ACCEPTED`. 300 credits/free account chỉ chứng minh dev sample, không phải quyền production; trước production vẫn phải chốt license/quyền dùng voice, plan/quota/API, privacy/DPA, retention/data residency và fallback nếu voice ID biến mất. `REAL_CUSTOMER_CALL_ALLOWED=NO` giữ nguyên.
+
+## 8. Kế thừa bởi W-0106 — đa giọng theo vùng miền
+
+Cập nhật `2026-08-22`. W-0104 vẫn `ACCEPTED` và không bị mở lại; mục này ghi lại phần
+[`W-0106`](../W-0106/README.md) kế thừa và một chỗ mục 7 nói chưa chính xác.
+
+### 8.1 Đính chính mục 7
+
+Mục 7 viết *"Code renderer tạo số lượng/tổng tiền từ dữ liệu có cấu trúc"*. Tại thời điểm đó
+điều này **chưa đúng với cách đọc**: `VietnameseOrderScriptRenderer` sinh ra
+`"2 hộp"` và `"560.000 đồng"` dạng **chữ số**, trong khi kịch bản in ở mục 7 — và bản audio
+owner thực sự nghe rồi chấp nhận — đọc `"hai hộp"` và `"năm trăm sáu mươi nghìn đồng"` dạng
+**chữ**.
+
+Bản audio v3 được **gõ tay** trên web app ElevenLabs, nên nhánh chữ số của renderer chưa từng
+có ai nghe. Cách một engine TTS đọc chuỗi `"560.000"` là tùy engine, và đó lại đúng là con số
+khách được hỏi để bấm phím xác nhận.
+
+W-0106 đã sửa: `VietnameseNumberSpeller` chuyển số sang chữ trước khi vào template. Bảy test
+cũ đang ghim chính hành vi sai này đã được cập nhật. Từ nay text renderer sinh ra khớp với
+text đã được duyệt.
+
+### 8.2 Voice C không còn là giọng production dự kiến
+
+`Trung Caha` (`ueSxRO0nLF1bj93J2hVt`) là **giọng nam, một giọng cho mọi khách**. Yêu cầu mới
+là **ba giọng nữ theo ba miền**, nên bộ giọng của W-0104 bị thay thế về mặt nội dung:
+
+| | W-0104 | W-0106 |
+| --- | --- | --- |
+| Số giọng | 1 | 3, chọn theo `delivery_area_short` |
+| Giới tính | Nam | Nữ |
+| Giọng | `Trung Caha` | Thắm (Bắc) · Zara (Trung) · Giang (Nam) — `OD-VOICE-05` |
+| Chọn lúc nào | Lúc boot, qua `IVR_LAB_VOICE_VARIANT` | Theo **từng cuộc gọi** |
+
+File `a`/`b`/`c` và checksum của chúng **được giữ nguyên** làm evidence lịch sử. W-0106 dùng
+tên riêng `-region-north|central|south` để không đè lên — hậu tố `-c` đã thuộc về voice C.
+
+### 8.3 Điều W-0104 kết luận vẫn còn đúng
+
+- Neural A/B (`vi-VN-HoaiMyNeural`, `vi-VN-NamMinhNeural`) đã bị owner từ chối. W-0106 xác
+  nhận lại: cả hai đều là **giọng Bắc**, không có giọng Trung, nên kể cả nếu được chấp nhận
+  cũng không đáp ứng được yêu cầu ba miền.
+- eSpeak chỉ còn là fallback kỹ thuật.
+- Hướng dẫn cách đọc ở mục 3 (nghỉ nhịp, nhấn `phím một`/`phím không`, chuẩn hóa loudness
+  trước khi hạ 8 kHz) được W-0106 áp dụng nguyên vẹn cho cả ba giọng.
+- `REAL_CUSTOMER_CALL_ALLOWED=NO` không thay đổi.

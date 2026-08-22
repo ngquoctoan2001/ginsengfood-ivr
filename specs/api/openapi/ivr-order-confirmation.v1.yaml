@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.9
+  version: 1.0.0-draft.12
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -649,6 +649,187 @@ paths:
       responses:
         '200': { description: Effective fail-closed state, content: { application/json: { schema: { $ref: '#/components/schemas/KillSwitchVerification' } } } }
         '403': { $ref: '#/components/responses/Error' }
+  /auth/sign-in:
+    post:
+      tags: [admin]
+      summary: Create an opaque console session after password authentication
+      operationId: signInConsoleAccount
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConsoleSignInRequest' }
+      responses:
+        '200': { description: Authenticated console session, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleSignInResult' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '429': { $ref: '#/components/responses/ConsoleAccountError' }
+  /auth/session:
+    get:
+      tags: [admin]
+      summary: Resolve the current opaque console session
+      operationId: getConsoleSession
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200': { description: Current session, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleSession' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+  /auth/sign-out:
+    post:
+      tags: [admin]
+      summary: Revoke the current opaque console session
+      operationId: signOutConsoleAccount
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200': { description: Revocation result, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleSignOutResult' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+  /accounts:
+    get:
+      tags: [admin]
+      summary: List console accounts (perm IVR_ACCOUNT_VIEW)
+      operationId: listConsoleAccounts
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+        - name: include_deleted
+          in: query
+          description: >-
+            Include soft-deleted accounts. Defaults to false; a soft-deleted account is retained
+            only so audit identity survives and its username is never reassigned, so it is not an
+            administrable row. total_count follows the same filter.
+          schema: { type: boolean, default: false }
+      responses:
+        '200': { description: Account page, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleAccountPage' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '403': { $ref: '#/components/responses/ConsoleAccountError' }
+    post:
+      tags: [admin]
+      summary: Create a console account (perm IVR_ACCOUNT_MANAGE)
+      operationId: createConsoleAccount
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateConsoleAccountRequest' }
+      responses:
+        '200': { description: Created account or idempotent replay, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleAccount' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '403': { $ref: '#/components/responses/ConsoleAccountError' }
+        '409': { $ref: '#/components/responses/ConsoleAccountError' }
+        '422': { $ref: '#/components/responses/ConsoleAccountError' }
+  /accounts/me:
+    get:
+      tags: [admin]
+      summary: Read the current account profile (perm IVR_ACCOUNT_SELF_VIEW)
+      operationId: getMyConsoleAccount
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200': { description: Current account profile, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleAccount' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '403': { $ref: '#/components/responses/ConsoleAccountError' }
+  /accounts/{accountId}:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      tags: [admin]
+      summary: Read a console account (perm IVR_ACCOUNT_VIEW)
+      operationId: getConsoleAccount
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      responses:
+        '200': { description: Account, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleAccount' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '403': { $ref: '#/components/responses/ConsoleAccountError' }
+        '404': { $ref: '#/components/responses/ConsoleAccountError' }
+    patch:
+      tags: [admin]
+      summary: Update role, status, or display name (perm IVR_ACCOUNT_MANAGE)
+      operationId: updateConsoleAccount
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateConsoleAccountRequest' }
+      responses:
+        '200': { description: Updated account or idempotent replay, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleAccount' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '403': { $ref: '#/components/responses/ConsoleAccountError' }
+        '404': { $ref: '#/components/responses/ConsoleAccountError' }
+        '409': { $ref: '#/components/responses/ConsoleAccountError' }
+        '422': { $ref: '#/components/responses/ConsoleAccountError' }
+    delete:
+      tags: [admin]
+      summary: Soft-delete a console account and revoke sessions (perm IVR_ACCOUNT_MANAGE)
+      operationId: deleteConsoleAccount
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeleteConsoleAccountRequest' }
+      responses:
+        '200': { description: Soft-deleted account or idempotent replay, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleAccount' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '403': { $ref: '#/components/responses/ConsoleAccountError' }
+        '404': { $ref: '#/components/responses/ConsoleAccountError' }
+        '409': { $ref: '#/components/responses/ConsoleAccountError' }
+        '422': { $ref: '#/components/responses/ConsoleAccountError' }
+  /accounts/{accountId}:reset-password:
+    post:
+      tags: [admin]
+      summary: Replace a password, clear lockout, and revoke sessions (perm IVR_ACCOUNT_PASSWORD_RESET)
+      operationId: resetConsoleAccountPassword
+      parameters:
+        - $ref: '#/components/parameters/AccountId'
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResetConsolePasswordRequest' }
+      responses:
+        '200': { description: Updated account or idempotent replay, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleAccount' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '403': { $ref: '#/components/responses/ConsoleAccountError' }
+        '404': { $ref: '#/components/responses/ConsoleAccountError' }
+        '409': { $ref: '#/components/responses/ConsoleAccountError' }
+        '422': { $ref: '#/components/responses/ConsoleAccountError' }
+  /account-roles:
+    get:
+      tags: [admin]
+      summary: Read the immutable two-role permission matrix (perm IVR_ACCOUNT_VIEW)
+      operationId: getConsoleAccountRoles
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      responses:
+        '200': { description: Role matrix, content: { application/json: { schema: { $ref: '#/components/schemas/ConsoleRoleMatrix' } } } }
+        '401': { $ref: '#/components/responses/ConsoleAccountError' }
+        '403': { $ref: '#/components/responses/ConsoleAccountError' }
 components:
   securitySchemes:
     bearerAuth:
@@ -726,12 +907,22 @@ components:
       in: path
       required: true
       schema: { type: string, enum: [dev, staging, lab, pilot, prod] }
+    AccountId:
+      name: accountId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   responses:
     Error:
       description: Error envelope
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    ConsoleAccountError:
+      description: Console authentication/account error envelope
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ConsoleAccountErrorEnvelope' }
   schemas:
     ErrorCode:
       type: string
@@ -767,6 +958,175 @@ components:
             details:
               type: object
               additionalProperties: { type: string }
+    ConsoleAccountErrorCode:
+      type: string
+      description: Stable console auth/account error codes; isolated so existing endpoint response enums do not drift.
+      enum:
+        - IVR_UNAUTHENTICATED
+        - IVR_FORBIDDEN_CALLER
+        - IVR_MALFORMED_REQUEST
+        - IVR_MISSING_TRACE
+        - IVR_IDEMPOTENCY_CONFLICT
+        - IVR_VERSION_CONFLICT
+        - IVR_NOT_OFFICIAL_ORDER
+        - IVR_STATE_NOT_CALLABLE
+        - IVR_POLICY_MISMATCH
+        - IVR_CONTACT_INVALID
+        - IVR_SCRIPT_NOT_APPROVED
+        - IVR_PII_POLICY_VIOLATION
+        - IVR_OPERATIONAL_BLOCKED
+        - IVR_NOT_FOUND
+        - IVR_RATE_LIMITED
+        - IVR_ACCOUNT_CONFLICT
+        - IVR_ACCOUNT_POLICY_VIOLATION
+        - IVR_INTERNAL_ERROR
+    ConsoleAccountErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, correlationId]
+          properties:
+            code: { $ref: '#/components/schemas/ConsoleAccountErrorCode' }
+            message: { type: string }
+            correlationId: { type: string }
+            details:
+              type: object
+              additionalProperties: { type: string }
+    ConsoleRole:
+      type: string
+      enum: [Admin, Operator]
+    ConsoleAccountStatus:
+      type: string
+      enum: [ACTIVE, DISABLED, DELETED]
+    ConsoleSignInRequest:
+      type: object
+      additionalProperties: false
+      required: [username, password]
+      properties:
+        username: { type: string, pattern: '^[a-z][a-z0-9._-]{2,63}$' }
+        password: { type: string, format: password, minLength: 1, maxLength: 128, writeOnly: true }
+    ConsoleAccount:
+      type: object
+      additionalProperties: false
+      required: [account_id, username, display_name, role, status, is_builtin, is_locked, password_changed_at, created_at, updated_at, version]
+      properties:
+        account_id: { type: string, format: uuid }
+        username: { type: string }
+        display_name: { type: string }
+        role: { $ref: '#/components/schemas/ConsoleRole' }
+        status: { $ref: '#/components/schemas/ConsoleAccountStatus' }
+        is_builtin: { type: boolean }
+        is_locked: { type: boolean }
+        locked_until: { type: [string, 'null'], format: date-time }
+        last_login_at: { type: [string, 'null'], format: date-time }
+        password_changed_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        deleted_at: { type: [string, 'null'], format: date-time }
+        version: { type: integer, format: int64, minimum: 1 }
+    ConsoleSession:
+      type: object
+      additionalProperties: false
+      required: [account, permissions, expires_at]
+      properties:
+        account: { $ref: '#/components/schemas/ConsoleAccount' }
+        permissions:
+          type: array
+          uniqueItems: true
+          items: { type: string }
+        expires_at: { type: string, format: date-time }
+    ConsoleSignInResult:
+      type: object
+      additionalProperties: false
+      required: [access_token, token_type, session]
+      properties:
+        access_token: { type: string, minLength: 32, writeOnly: true }
+        token_type: { type: string, enum: [Bearer] }
+        session: { $ref: '#/components/schemas/ConsoleSession' }
+    ConsoleSignOutResult:
+      type: object
+      additionalProperties: false
+      required: [revoked]
+      properties:
+        revoked: { type: boolean }
+    ConsoleAccountPage:
+      type: object
+      additionalProperties: false
+      required: [page, page_size, total_count, items]
+      properties:
+        page: { type: integer, minimum: 1 }
+        page_size: { type: integer, minimum: 1, maximum: 100 }
+        total_count: { type: integer, minimum: 0 }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ConsoleAccount' }
+    CreateConsoleAccountRequest:
+      type: object
+      additionalProperties: false
+      required: [username, display_name, role, password, reason]
+      properties:
+        username: { type: string, pattern: '^[a-z][a-z0-9._-]{2,63}$' }
+        display_name: { type: string, minLength: 1, maxLength: 160 }
+        role: { $ref: '#/components/schemas/ConsoleRole' }
+        password: { type: string, format: password, minLength: 12, maxLength: 128, writeOnly: true }
+        reason: { type: string, minLength: 3, maxLength: 500 }
+    UpdateConsoleAccountRequest:
+      type: object
+      additionalProperties: false
+      required: [version, reason]
+      anyOf:
+        - required: [display_name]
+        - required: [role]
+        - required: [status]
+      properties:
+        display_name: { type: [string, 'null'], minLength: 1, maxLength: 160 }
+        role:
+          anyOf:
+            - $ref: '#/components/schemas/ConsoleRole'
+            - type: 'null'
+        status:
+          anyOf:
+            - $ref: '#/components/schemas/ConsoleAccountStatus'
+            - type: 'null'
+        version: { type: integer, format: int64, minimum: 1 }
+        reason: { type: string, minLength: 3, maxLength: 500 }
+    ResetConsolePasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [new_password, version, reason]
+      properties:
+        new_password: { type: string, format: password, minLength: 12, maxLength: 128, writeOnly: true }
+        version: { type: integer, format: int64, minimum: 1 }
+        reason: { type: string, minLength: 3, maxLength: 500 }
+    DeleteConsoleAccountRequest:
+      type: object
+      additionalProperties: false
+      required: [version, reason]
+      properties:
+        version: { type: integer, format: int64, minimum: 1 }
+        reason: { type: string, minLength: 3, maxLength: 500 }
+    ConsoleRoleMatrix:
+      type: object
+      additionalProperties: false
+      required: [roles]
+      properties:
+        roles:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            type: object
+            additionalProperties: false
+            required: [role, label, permissions]
+            properties:
+              role: { $ref: '#/components/schemas/ConsoleRole' }
+              label: { type: string }
+              permissions:
+                type: array
+                uniqueItems: true
+                items: { type: string }
     ProgramCode:
       type: string
       enum: [GOLDEN_HOUR, TWENTY_FOUR_SEVEN]
@@ -1474,6 +1834,23 @@ components:
           type: array
           description: Per-line snapshot captured at intake; never re-evaluated by IVR (DO-02).
           items: { $ref: '#/components/schemas/SellableStatusLine' }
+        voice_region:
+          type: string
+          enum: [North, Central, South]
+          description: >
+            W-0106. Region the stored delivery area maps to under the 34 provincial units of
+            Nghi quyet 202/2025/QH15, and therefore which regional voice this order routes to.
+            Absent when the delivery area names no recognisable province.
+
+            This is DERIVED AT READ TIME from the stored privacy-safe summary. It is not a
+            record of which voice was actually played: the regional voice map and its fallback
+            live in configuration, so a config change between the call and this read would make
+            the two differ. Auditing the voice actually played would require persisting it,
+            which W-0106 deliberately does not do.
+
+            The raw delivery area itself is NOT exposed here. A three-value region is far less
+            identifying than a ward-and-province string, and the console does not need the
+            latter to know which voice a customer heard.
         max_attempts: { type: integer, minimum: 0 }
         attempt_policy_code: { type: string }
         script_version: { type: string }

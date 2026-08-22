@@ -47,3 +47,16 @@ Trạng thái: `OPEN` · Cập nhật: `2026-08-12` (bổ sung `OD-V1-13..21` t�
 - Current Golden Hour callback remains compatibility-only và không được nhận kết quả 24/7.
 - `IMPLEMENTATION_COMPLETE_BEHIND_MOCKS` may be reached while all external rows remain open, but integration/production states must remain blocked.
 - Internal API (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) và outbound Sales callback (`order-core-ivr-callback.target-v1.yaml`) là **hai surface riêng biệt**; naming khác nhau là chủ ý và phải map bằng mapper tường minh.
+
+## P1 — mở bởi W-0106 (định tuyến giọng theo vùng miền, 2026-08-22)
+
+| ID | Decision/data | Owner | Current | Closure evidence | Gate |
+| --- | --- | --- | --- | --- | --- |
+| `OD-VOICE-01` | **Nguồn giọng production.** Đã đảo hướng 3 lần: ElevenLabs loại vì giá → vendor Việt loại vì chất lượng (`myan` không đạt, mỗi vendor chỉ có 1 giọng nữ miền Trung) → quay lại ElevenLabs Starter `$6`/tháng, vì phép tính ban đầu tính theo **số cuộc gọi** thay vì **số câu nói duy nhất**; script cố định nên phần cố định chỉ render 609 ký tự một lần. Nối tiếp `OD-V1-19` | Product + Infra + Privacy/Legal | `ELEVENLABS_STARTER_PROPOSED` | Gói đã mua + **xác nhận ToS về audio sinh trong kỳ trả phí** + DPA + data residency + cost model + fallback khi voice ID biến mất | production |
+| `OD-VOICE-02` | **Phân miền theo tỉnh/thành.** Chia thuần theo 34 đơn vị cấp tỉnh (NQ `202/2025/QH15`), không biệt lệ; Tây Nguyên → Trung | Owner + Product | ✅ `CLOSED` 2026-08-22 | Bảng 34→3 miền + `UT-VOICE-REGION-01..03` phủ 34 tỉnh mới và 29 tên cũ | — |
+| `OD-VOICE-03` | **Một template.** Giữ đúng 1 script version `v3-test-approved`; biến thể `nghìn`/`ngàn` và `linh`/`lẻ` nằm trong bộ đọc số, không nằm trong template ⇒ `TemplateHash` không đổi | Product + Privacy/Legal | ✅ `CLOSED` 2026-08-22 | `UT-SCRIPT-VI-REGION-09` chứng minh 3 miền cùng một `TemplateHash` | — |
+| `OD-VOICE-04` | **Tự host / thu âm người thật thay vì thuê vendor.** Không model tiếng Việt open-source nào vừa chất lượng vừa sạch license (`viXTTS` = CPML non-commercial và Coqui đã đóng cửa 1/2024 nên không còn ai bán license; `F5-TTS` weights = CC-BY-NC). Đường sạch duy nhất là dữ liệu giọng của chính mình | Owner + Product + Legal | `OPEN` | Hợp đồng + license giọng voice actor; bộ clip đã thu; bằng chứng mối nối nghe mượt; model tự host (nếu dùng) Apache/MIT + train trên data của mình | production |
+| `OD-VOICE-05` | **Chốt 3 giọng không qua bước nghe** — Thắm (Bắc), Zara (Trung), Giang (Nam). Cơ sở là **mô tả văn bản, không phải nghe**; không ai trong chuỗi quyết định đã nghe ba giọng đó | Owner | ✅ `CLOSED` 2026-08-22 | Voice ID đã verify trong ElevenLabs app + chữ ký sếp sau khi nghe (để đạt `ACCEPTED`) | LAB |
+
+> `OD-VOICE-05` đóng lựa chọn, **không** đóng nghiệm thu. Chừng nào sếp chưa nghe và ký, trần
+> trạng thái W-0106 là `TESTS_PASS` chứ không phải `ACCEPTED` — theo đúng tiền lệ W-0104.

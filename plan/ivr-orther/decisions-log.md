@@ -122,6 +122,7 @@ Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Teleph
 | **DF-05** (QF6) | `X-Correlation-Id` xuyên suốt (MASTER-03); event/outbox **tái dùng pattern ops-core** (`HttpWebhookOutboxEventDispatcher`), không tạo broker mới; event KHÔNG thay callback. | ✅ LOCKED (reuse) | MASTER-03; DO-04 |
 | **DF-06** (QF1) | Service token foundation; allowlist = **Order Core** cho `POST .../tasks`; SIM adapter **không** có order-write cred; Order Core service-cred có `SellableCheck`/`RecallHoldView` (nối DO-03). | ✅ LOCKED (owner tự cấp) | phase-8/02,/11; DO-03 |
 | **DF-07** (QF7) | Retention từng loại (call log/DTMF/recording/audit/raw phone-token). Đề xuất: raw phone/dial_token TTL ≤ confirmation window; audit theo foundation; recording OFF nên chưa cần. | ⏳ PENDING (owner + Legal chốt số) | phase-8/08,/12 §11 |
+| **OD-ACC-01** | Console chỉ có `Admin` và `Operator`. Operator có đúng `IVR_ACCOUNT_SELF_VIEW`, `IVR_QUEUE_VIEW`, `IVR_SIM_DISABLE`, `IVR_MANUAL_RETRY`; Admin có account CRUD/reset và các quyền vận hành đã duyệt. Username không tái sử dụng; bootstrap credential dùng local/lab, không production. | ✅ LOCKED — option B (owner 2026-08-22) | W-0105 §2, §5, §15 |
 
 ## Telephony / Internal SIM Gateway (SIM **chưa mua** — làm trước bằng adapter port + mock)
 
