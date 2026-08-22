@@ -30,6 +30,10 @@ public sealed class ScriptRegistryPersistenceTests(PostgresPersistenceFixture fi
             TargetV1SpeechPolicy.MockTemplateId,
             TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.ProductionReal));
+        Assert.NotNull(await registry.TryGetApproved(
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.PreviousMockTemplateVersion,
+            ExecutionMode.Mock));
     }
 
     [Fact]

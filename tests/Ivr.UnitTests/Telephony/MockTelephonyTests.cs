@@ -39,11 +39,12 @@ public sealed class MockTelephonyTests
             CancellationToken.None);
 
         Assert.Equal(
-            "Xin chào Anh Đạt. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. "
-            + "Anh/chị có đơn hàng gồm 2 Hộp Sâm lát, "
+            "Xin chào Quý khách. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. "
+            + "Quý khách có đơn hàng gồm 2 Hộp Sâm lát, "
             + "tổng tiền 1.250.000 đồng, giao đến Phường Bến Nghé, Quận 1. "
             + "Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
             speech.ExactText);
+        Assert.DoesNotContain("Anh Đạt", speech.ExactText, StringComparison.Ordinal);
         Assert.Equal("vi-VN", speech.Locale);
         Assert.Equal("FAKE_TEXT_ONLY", speech.AudioFormat);
         Assert.Equal(0, speech.CollapsedItemCount);

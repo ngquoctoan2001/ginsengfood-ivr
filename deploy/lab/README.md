@@ -25,7 +25,7 @@ Audio lab dùng ba mẫu cùng lời thoại fake, đã chuyển về PCM 16-bit
 - `B`: `vi-VN-NamMinhNeural` (nam);
 - `C`: ElevenLabs `Trung Caha - Clear, Firm and Informative`, voice ID `ueSxRO0nLF1bj93J2hVt`.
 
-A/B được sinh bằng `edge-tts 7.2.8`; C được owner tạo bằng 302 credits trên ElevenLabs web app với script `v2-test-approved`. Cả ba chỉ là asset lab, không phải provider/API/SLA production và không được dùng với dữ liệu khách thật. Trước production phải duyệt riêng license/quyền dùng voice, plan/quota, API, privacy/DPA và tính sẵn sàng của voice ID.
+A/B được sinh bằng `edge-tts 7.2.8`; C được owner tạo bằng 300 credits trên ElevenLabs web app với script `v3-test-approved` và lời chào “Xin chào Quý khách”. Cả ba chỉ là asset lab, không phải provider/API/SLA production và không được dùng với dữ liệu khách thật. Trước production phải duyệt riêng license/quyền dùng voice, plan/quota, API, privacy/DPA và tính sẵn sàng của voice ID.
 
 ## Chạy lab
 
@@ -75,7 +75,7 @@ Khi stack và MicroSIP đang chạy, chọn từng file qua media reference cố
 .\deploy\lab\Invoke-FreeSoftphoneCall.ps1
 ```
 
-Mỗi cuộc gọi phải được trả lời và bấm `1` hoặc `0` để kiểm playback không làm hỏng DTMF. Chỉ sau khi owner chấp nhận rõ một variant, xác nhận nội dung/âm lượng/tốc độ/độ tự nhiên và hai disposition vẫn đúng thì W-0104 mới được chuyển từ `TESTS_PASS` sang `ACCEPTED`. Nếu chưa chấp nhận, `REAL_CUSTOMER_CALL_ALLOWED=NO` và W-0105 chưa bắt đầu.
+Mỗi cuộc gọi phải được trả lời và bấm `1` hoặc `0` để kiểm playback không làm hỏng DTMF. Owner đã chấp nhận voice C và script v3 ngày 2026-08-22; task `TASK-LAB-20260822042001` (`1`) và `TASK-LAB-20260822042024` (`0`) xác nhận hai disposition cuối vẫn đúng. Acceptance chỉ thuộc software lab; `REAL_CUSTOMER_CALL_ALLOWED=NO` giữ nguyên.
 
 ## Dừng và dọn lab
 

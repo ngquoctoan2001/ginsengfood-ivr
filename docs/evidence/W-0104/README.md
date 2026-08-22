@@ -6,7 +6,7 @@ Baseline: `main@ce49f73`
 
 Neural A/B change baseline: `main@3cd7613`
 
-Trạng thái: `TESTS_PASS` — code, automated gates và hai disposition MicroSIP `1/0` đã đạt; owner không chấp nhận eSpeak hoặc neural A/B Edge. Voice C ElevenLabs `Trung Caha` đã được sinh đúng script v2, pin checksum/voice ID và chạy đủ `1/0`; owner chưa ghi quyết định chất lượng cuối nên chưa `ACCEPTED`.
+Trạng thái: `ACCEPTED` — owner chấp nhận voice C ElevenLabs `Trung Caha` và lời chào trung tính “Xin chào Quý khách” ngày 2026-08-22. Immutable script `v3-test-approved`, migration, PCM 8 kHz và cả hai disposition MicroSIP `1/0` đã được kiểm lại end-to-end. Acceptance này chỉ áp dụng cho software lab bằng dữ liệu fake; không mở quyền gọi khách thật.
 
 ## 1. Phạm vi đã triển khai
 
@@ -54,6 +54,8 @@ Focused tests khóa các điểm: DI chỉ bật đúng profile lab, gate chặn
 | Neural B — `vi-VN-NamMinhNeural`, PCM 8 kHz mono | `PASS` — `TASK-LAB-20260822013829` → `IVR_CONFIRMED` |
 | Voice C — ElevenLabs `Trung Caha`, PCM 8 kHz mono, phím `1` | `PASS` — `TASK-LAB-20260822033915` → `IVR_CONFIRMED` |
 | Voice C — ElevenLabs `Trung Caha`, PCM 8 kHz mono, phím `0` | `PASS` — `TASK-LAB-20260822034006` → `IVR_CUSTOMER_CANCELLED` |
+| Voice C v3 — lời chào “Quý khách”, phím `1` | `PASS` — `TASK-LAB-20260822042001` → `IVR_CONFIRMED|true|true` |
+| Voice C v3 — lời chào “Quý khách”, phím `0` | `PASS` — `TASK-LAB-20260822042024` → `IVR_CUSTOMER_CANCELLED|true|true` |
 
 Các task trên chỉ chứa dữ liệu fake, không chứa số điện thoại, credential hay dữ liệu khách thật. Một lượt đối chứng không bấm phím kết thúc `IVR_NO_ANSWER_FINAL`; hai lượt click chính control `1/0` của MicroSIP được ARI thu và normalizer tạo đúng hai final result tương ứng.
 
@@ -68,10 +70,10 @@ Các task trên chỉ chứa dữ liệu fake, không chứa số điện thoạ
 
 W-0104 chứng minh được preflight telephony software miễn phí, không chứng minh modem/SIM/PSTN/carrier/caller ID hay capacity 32 eSIM. Sales endpoint/auth/payload thật cũng không được chạy. Những mục đó vẫn thuộc W-0048 và các external gate hiện hữu.
 
-W-0104 đã đạt `TESTS_PASS`. Owner đã từ chối nghiệm thu audio hiện tại vì giọng tổng hợp máy móc/cũ; kết quả này không phủ nhận luồng gọi, playback hoặc DTMF đã PASS, nhưng chặn `ACCEPTED` cho trải nghiệm lời thoại. Phương án thay thế và tiêu chí A/B nằm ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md).
+Owner đã từ chối eSpeak và cả hai mẫu neural A/B Edge vì giọng máy móc/cũ. Kết quả này không phủ nhận luồng gọi, playback hoặc DTMF đã PASS; nó là lý do voice C ElevenLabs được bổ sung và kiểm lại. Lịch sử lựa chọn cùng tiêu chí audio nằm ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md).
 
-Ngày 2026-08-22, hai file neural A/B đã được sinh bằng cùng script fake, chuẩn hóa PCM signed 16-bit/8 kHz/mono, ghim checksum và phát thành công qua media reference hiện hữu. Hai lượt MicroSIP đều được owner bắt máy và tạo `IVR_CONFIRMED`; kiểm tra checksum A/B đều PASS trước mỗi lần chuyển file. `edge-tts 7.2.8` chỉ là công cụ sinh mẫu dev, không phải provider production. Owner đã nghe đủ A/B nhưng chưa ghi lựa chọn cuối trong tracker, vì vậy trạng thái vẫn là `TESTS_PASS`.
+Ngày 2026-08-22, hai file neural A/B đã được sinh bằng cùng script fake, chuẩn hóa PCM signed 16-bit/8 kHz/mono, ghim checksum và phát thành công qua media reference hiện hữu. Hai lượt MicroSIP đều được owner bắt máy và tạo `IVR_CONFIRMED`; kiểm tra checksum A/B đều PASS trước mỗi lần chuyển file. `edge-tts 7.2.8` chỉ là công cụ sinh mẫu dev, không phải provider production. Ở checkpoint A/B owner chưa chọn variant nên trạng thái khi đó giữ `TESTS_PASS`; quyết định sau cùng là voice C như phần dưới.
 
-Sau khi từ chối cả A/B, owner chọn candidate ElevenLabs `Trung Caha`. Code có immutable script `v2-test-approved` và migration MOCK tương ứng; script nhận diện Ginsengfood, không đọc mã đơn, dùng hướng dẫn phím “một/không”, đồng thời lab seed dùng Giang/cháo sâm/khu vực Phú Khương. Bản MP3 mới đúng 302 ký tự có voice ID `ueSxRO0nLF1bj93J2hVt`, được chuyển thành voice C PCM signed 16-bit/8 kHz/mono và image kiểm checksum trước khi phát. Hai disposition MicroSIP mới đều PASS. Chi tiết ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md#7-candidate-elevenlabs-và-script-v2).
+Sau khi từ chối cả A/B, owner chọn ElevenLabs `Trung Caha`. Bản v2 đã chứng minh voice và hai disposition; sau đó owner đổi lời mở đầu thành “Xin chào Quý khách”. Code vì vậy giữ v1/v2 để replay và thêm immutable `v3-test-approved`, không render tên khách, không đọc mã đơn, vẫn chỉ đọc sản phẩm/tổng tiền/`delivery_area_short` và hướng dẫn phím “một/không”. MP3 v3 dài 16,770563 giây, SHA-256 `6f89c520236049d57d6e2147cd5b503a43106f7ee5b52afa2dab484abb691217`; PCM signed 16-bit/8 kHz/mono dài 16,770625 giây, SHA-256 `38a6cb92ef59e70d457d08cd048470443d910f1389dcfdf7fd5eea32a780818a`. Image kiểm checksum trước khi phát và hai task v3 ở bảng trên đều PASS. Chi tiết ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md#7-voice-c-elevenlabs-và-script-v3).
 
-Chỉ chuyển `ACCEPTED` sau khi owner xác nhận rõ bản Trung Caha vừa nghe tự nhiên, âm lượng/tốc độ phù hợp và đúng số tiền/sản phẩm/khu vực/phím bấm. DTMF `1/0` đã PASS nhưng không tự thay thế quyết định UX. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.
+Owner đã ghi rõ `W-0104 ACCEPTED` sau khi nghe voice C; lượt v3 tiếp theo xác nhận lời chào trung tính và cả hai DTMF vẫn đúng. `REAL_CUSTOMER_CALL_ALLOWED=NO` giữ nguyên. Modem/SIM/PSTN/carrier/caller ID, capacity 32 eSIM, Sales API thật, quyền/licensing production của ElevenLabs và Privacy/Legal vẫn là các gate độc lập chưa đạt. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.

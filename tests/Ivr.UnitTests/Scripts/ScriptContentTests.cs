@@ -27,8 +27,13 @@ public sealed class ScriptContentTests
             TargetV1SpeechPolicy.MockTemplateId,
             TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.ProductionReal);
+        ApprovedScript? previousMock = await registry.TryGetApproved(
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.PreviousMockTemplateVersion,
+            ExecutionMode.Mock);
 
         Assert.NotNull(mock);
+        Assert.NotNull(previousMock);
         Assert.Null(lab);
         Assert.Null(production);
         Assert.Equal(ScriptLifecycleStatus.Approved, mock.Version.Status);
@@ -266,8 +271,9 @@ public sealed class ScriptContentTests
         ScriptPreview preview = new VietnameseOrderScriptRenderer().Render(approved, summary);
 
         Assert.Equal(
-            "Xin chào Anh Minh. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Anh/chị có đơn hàng gồm 2 hộp Cháo sâm Ginsengfood, tổng tiền 1.234.567 đồng, giao đến Quận 1. Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
+            "Xin chào Quý khách. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Quý khách có đơn hàng gồm 2 hộp Cháo sâm Ginsengfood, tổng tiền 1.234.567 đồng, giao đến Quận 1. Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
             preview.ExactText);
+        Assert.DoesNotContain("Anh Minh", preview.ExactText, StringComparison.Ordinal);
         Assert.Equal(summary.ComputeHash(), preview.InputSnapshot.InputHash);
         Assert.Equal("vi-VN", preview.InputSnapshot.Locale);
         Assert.True(preview.EstimatedDuration > TimeSpan.Zero);

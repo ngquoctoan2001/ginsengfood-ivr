@@ -316,6 +316,10 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
             TargetV1SpeechPolicy.CanonicalVietnameseTemplate);
         AddMockTemplate(
             TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.PreviousMockTemplateVersion,
+            TargetV1SpeechPolicy.PreviousVietnameseTemplate);
+        AddMockTemplate(
+            TargetV1SpeechPolicy.MockTemplateId,
             TargetV1SpeechPolicy.LegacyMockTemplateVersion,
             TargetV1SpeechPolicy.LegacyVietnameseTemplate);
     }

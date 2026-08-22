@@ -103,7 +103,7 @@ $payload = [ordered]@{
         }
     }
     call_script_template_id = 'SCRIPT-ORDER-CONFIRM'
-    call_script_version = 'v2-test-approved'
+    call_script_version = 'v3-test-approved'
     evidence_policy_version = 'w0104-lab-evidence-v1'
     privacy_policy_version = 'w0104-lab-privacy-v1'
     evidence_ref = "evidence://w0104/$taskId"

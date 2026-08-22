@@ -32,7 +32,7 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "4 of 104 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "5 of 104 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 15
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
@@ -285,7 +285,7 @@ work:
     evidence: "docs/evidence/W-0103/README.md"
   - id: "W-0104"
     prompt: "Free Asterisk/softphone telephony preflight (Origin=UNPLANNED, owner requested)"
-    status: "TESTS_PASS"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0104/README.md"
   - id: "W-0029"
     prompt: "P4-1"

@@ -8,8 +8,16 @@ namespace Ivr.Domain.Scripts;
 public static class TargetV1SpeechPolicy
 {
     public const string MockTemplateId = "SCRIPT-ORDER-CONFIRM";
-    public const string MockTemplateVersion = "v2-test-approved";
+    public const string MockTemplateVersion = "v3-test-approved";
     public const string CanonicalVietnameseTemplate =
+        "Xin chào Quý khách. "
+        + "Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. "
+        + "Quý khách có đơn hàng gồm {{items_spoken}}, "
+        + "tổng tiền {{total_amount_display}}, giao đến {{delivery_area_short}}. "
+        + "Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.";
+
+    public const string PreviousMockTemplateVersion = "v2-test-approved";
+    public const string PreviousVietnameseTemplate =
         "Xin chào {{customer_display_name}}. "
         + "Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. "
         + "Anh/chị có đơn hàng gồm {{items_spoken}}, "
@@ -35,7 +43,6 @@ public static class TargetV1SpeechPolicy
 
     private static readonly FrozenSet<string> RequiredPlaceholders = new[]
     {
-        "customer_display_name",
         "items_spoken",
         "total_amount_display",
         "delivery_area_short",
