@@ -49,6 +49,8 @@ public sealed class ApprovedVietnameseSpeechRenderer(
             summary.Locale,
             preview.EstimatedDuration,
             collapsed,
-            "FAKE_TEXT_ONLY");
+            "FAKE_TEXT_ONLY",
+            null,
+            preview.Segments);
     }
 }

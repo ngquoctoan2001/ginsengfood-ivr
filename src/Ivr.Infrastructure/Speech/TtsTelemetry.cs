@@ -25,6 +25,20 @@ public sealed record TtsVoiceRoutingSnapshot(
     long Unresolved);
 
 /// <summary>
+/// Hybrid playback counters (W-0106 §4.6).
+/// </summary>
+/// <param name="FixedFromCatalog">
+/// Pieces played from a recording. Each one is a vendor call that did not happen and order
+/// content that did not leave the network.
+/// </param>
+/// <param name="DynamicSynthesized">Variable pieces that reached the provider.</param>
+/// <param name="DynamicFromCache">Variable pieces served from a warm cache.</param>
+public sealed record TtsSegmentSnapshot(
+    long FixedFromCatalog,
+    long DynamicSynthesized,
+    long DynamicFromCache);
+
+/// <summary>
 /// Privacy-safe aggregate usage and cost-input metrics for TTS providers.
 /// </summary>
 public sealed class TtsUsageMeter
@@ -42,6 +56,8 @@ public sealed class TtsUsageMeter
         "ivr_tts_voice_selected_total");
     private static readonly Counter<long> RegionUnresolvedCounter = Meter.CreateCounter<long>(
         "ivr_tts_region_unresolved_total");
+    private static readonly Counter<long> SegmentCounter = Meter.CreateCounter<long>(
+        "ivr_tts_segments_total");
 
     private long providerRequests;
     private long characters;
@@ -52,6 +68,9 @@ public sealed class TtsUsageMeter
     private long centralSelected;
     private long southSelected;
     private long regionUnresolved;
+    private long fixedFromCatalog;
+    private long dynamicSynthesized;
+    private long dynamicFromCache;
 
     public void RecordProviderRequest(int characterCount)
     {
@@ -113,6 +132,40 @@ public sealed class TtsUsageMeter
             RegionUnresolvedCounter.Add(1);
         }
     }
+
+    /// <summary>
+    /// Records how one piece of a call was served. The segment text is never emitted; only
+    /// which of the three paths produced it.
+    /// </summary>
+    public void RecordSegment(SpeechSegmentKind kind, bool servedFromCatalog, bool cacheHit)
+    {
+        string source;
+        if (kind == SpeechSegmentKind.Fixed && servedFromCatalog)
+        {
+            Interlocked.Increment(ref fixedFromCatalog);
+            source = "catalog";
+        }
+        else if (cacheHit)
+        {
+            Interlocked.Increment(ref dynamicFromCache);
+            source = "cache";
+        }
+        else
+        {
+            Interlocked.Increment(ref dynamicSynthesized);
+            source = "provider";
+        }
+
+        SegmentCounter.Add(
+            1,
+            new KeyValuePair<string, object?>("kind", kind.ToString()),
+            new KeyValuePair<string, object?>("source", source));
+    }
+
+    public TtsSegmentSnapshot SegmentSnapshot() => new(
+        Interlocked.Read(ref fixedFromCatalog),
+        Interlocked.Read(ref dynamicSynthesized),
+        Interlocked.Read(ref dynamicFromCache));
 
     public TtsUsageSnapshot Snapshot() => new(
         Interlocked.Read(ref providerRequests),

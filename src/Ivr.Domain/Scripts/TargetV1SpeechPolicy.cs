@@ -2,8 +2,21 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using Ivr.Domain.Privacy;
+using Ivr.Domain.Speech;
 
 namespace Ivr.Domain.Scripts;
+
+/// <summary>
+/// One piece of an approved template before any order values are substituted.
+/// </summary>
+/// <param name="Text">
+/// Literal prose for a fixed piece; empty for a placeholder, whose text only exists per order.
+/// </param>
+public sealed record SpeechSegmentTemplate(
+    int Ordinal,
+    SpeechSegmentKind Kind,
+    string Text,
+    string? PlaceholderName);
 
 public static class TargetV1SpeechPolicy
 {
@@ -117,6 +130,81 @@ public static class TargetV1SpeechPolicy
         PiiGuard.EnsureSafeText(remainder);
         return normalized;
     }
+
+    /// <summary>
+    /// Splits an approved template at its placeholder boundaries into the pieces a call is
+    /// actually assembled from.
+    /// <para>
+    /// The prose between placeholders is identical for every order, so it can be recorded once
+    /// per voice and replayed forever; only the placeholder values need a synthesizer. For the
+    /// canonical v3 template that is four fixed pieces and three variable ones — the 68/32 split
+    /// measured in W-0106 §4.6.
+    /// </para>
+    /// <para>
+    /// Deriving the split here, from the same validated string the renderer substitutes into,
+    /// is what keeps recorded audio and script wording from parting company: change one word of
+    /// the template and every fixed piece downstream gets a new identity, so the old recording
+    /// stops resolving instead of quietly playing the old wording.
+    /// </para>
+    /// </summary>
+    public static ImmutableArray<SpeechSegmentTemplate> SegmentTemplate(string templateText)
+    {
+        string validTemplate = ValidateTemplate(templateText);
+        var segments = ImmutableArray.CreateBuilder<SpeechSegmentTemplate>();
+        int cursor = 0;
+        int ordinal = 0;
+        foreach (Match match in PlaceholderPattern.Matches(validTemplate))
+        {
+            if (match.Index > cursor)
+            {
+                string prose = validTemplate[cursor..match.Index];
+                if (string.IsNullOrWhiteSpace(prose))
+                {
+                    // Two variables with only a space between them would produce a fixed piece
+                    // that is a recording of a space. Rejecting the template is the honest
+                    // answer; silently merging the space into a neighbour would move it into
+                    // cached synthesized audio and change what that cache entry means.
+                    throw new InvalidOperationException(
+                        "Script template variables must be separated by spoken text, not whitespace alone.");
+                }
+
+                segments.Add(new SpeechSegmentTemplate(
+                    ++ordinal,
+                    SpeechSegmentKind.Fixed,
+                    prose,
+                    null));
+            }
+
+            segments.Add(new SpeechSegmentTemplate(
+                ++ordinal,
+                SpeechSegmentKind.Dynamic,
+                string.Empty,
+                match.Groups["name"].Value));
+            cursor = match.Index + match.Length;
+        }
+
+        if (cursor < validTemplate.Length)
+        {
+            segments.Add(new SpeechSegmentTemplate(
+                ++ordinal,
+                SpeechSegmentKind.Fixed,
+                validTemplate[cursor..],
+                null));
+        }
+
+        return segments.ToImmutable();
+    }
+
+    /// <summary>
+    /// Text hashes of every fixed piece of a template, in playback order. This is the exact list
+    /// a media catalog has to cover, and the list a pre-render script has to produce.
+    /// </summary>
+    public static ImmutableArray<string> FixedSegmentHashes(string templateText) =>
+    [
+        .. SegmentTemplate(templateText)
+            .Where(segment => segment.Kind == SpeechSegmentKind.Fixed)
+            .Select(segment => SpeechSegment.ComputeTextHash(segment.Text)),
+    ];
 
     public static bool UsesProductionDecisionFields(string templateText)
     {

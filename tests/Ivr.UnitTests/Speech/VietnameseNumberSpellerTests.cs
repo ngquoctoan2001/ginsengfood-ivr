@@ -141,4 +141,53 @@ public sealed class VietnameseNumberSpellerTests
         Assert.Equal(
             "năm trăm sáu mươi nghìn",
             VietnameseNumberSpeller.Spell(560_000m, VietnameseNumberStyle.Create("nghìn", "lẻ")));
+
+    /// <summary>
+    /// Fractional quantities, spoken (A7).
+    /// <para>
+    /// The fractional part is read digit by digit: 0,25 is "không phẩy hai năm", not "không phẩy
+    /// hai mươi lăm". Grouping invites hearing a different number, and this is the number the
+    /// customer is about to approve with a keypress.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "UT-VOICE-NUM-DEC-10")]
+    [InlineData(2, "hai")]
+    [InlineData(2.5, "hai phẩy năm")]
+    [InlineData(12.5, "mười hai phẩy năm")]
+    [InlineData(0.25, "không phẩy hai năm")]
+    [InlineData(1.05, "một phẩy không năm")]
+    [InlineData(3.125, "ba phẩy một hai năm")]
+    public void FractionalQuantitiesAreSpokenDigitByDigitAfterThePoint(
+        decimal quantity,
+        string expected) =>
+        Assert.Equal(expected, VietnameseNumberSpeller.SpellQuantity(quantity, VietnamRegion.North));
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-NUM-DEC-11")]
+    public void SpokenQuantitiesDropTrailingZerosAndRefuseExcessPrecision()
+    {
+        // 2,50 and 2,5 are the same order. Reading "hai phẩy năm không" invites hearing 2,50 as
+        // a different quantity.
+        Assert.Equal(
+            "hai phẩy năm",
+            VietnameseNumberSpeller.SpellQuantity(2.50m, VietnamRegion.North));
+        Assert.Equal(
+            VietnameseNumberSpeller.SpellQuantity(2.5m, VietnamRegion.South),
+            VietnameseNumberSpeller.SpellQuantity(2.500m, VietnamRegion.South));
+
+        // Four decimal places reads as a sentence and is far more likely a data error than an
+        // order, so it is refused rather than spoken.
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            VietnameseNumberSpeller.SpellQuantity(1.2345m, VietnamRegion.North));
+
+        // Money stays integral: VND has no spoken subunit, and Spell must keep saying so.
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            VietnameseNumberSpeller.Spell(560_000.5m, VietnamRegion.North));
+
+        // Region still selects the lexicon for the whole part.
+        Assert.Equal(
+            "một ngàn phẩy năm",
+            VietnameseNumberSpeller.SpellQuantity(1_000.5m, VietnamRegion.South));
+    }
 }

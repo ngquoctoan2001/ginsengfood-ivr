@@ -139,6 +139,66 @@ public static class VietnameseNumberSpeller
     public static string Spell(decimal amount, VietnamRegion region) =>
         Spell(amount, VietnameseNumberStyle.ForRegion(region));
 
+    /// <summary>
+    /// Highest number of decimal places a spoken quantity may carry. Three covers weight-based
+    /// units; beyond that the reading gets long enough that a customer stops tracking it, and a
+    /// quantity that precise is more likely a data error than an order.
+    /// </summary>
+    public const int MaximumQuantityDecimals = 3;
+
+    /// <summary>
+    /// Spells a quantity, including a fractional one.
+    /// <para>
+    /// Amounts of money are integral by definition — VND has no spoken subunit — but a quantity
+    /// is not: <c>2,5 kg</c> is an ordinary line on an order. Before this, the renderer emitted
+    /// the digit form <c>"2,5"</c> for those and left the reading to the engine. That was the
+    /// last place in the script where the customer's confirmation depended on a synthesizer's
+    /// guess, and it is the one thing concatenated audio cannot do at all: there is no recorded
+    /// clip for "2,5" and no way to glue one from clips of "2" and "5".
+    /// </para>
+    /// <para>
+    /// The fractional part is read digit by digit — <c>0,25</c> is "không phẩy hai năm", not
+    /// "không phẩy hai mươi lăm". Digit-by-digit is the unambiguous reading: grouping invites
+    /// hearing a different number, and this is a number the customer is about to approve.
+    /// </para>
+    /// </summary>
+    public static string SpellQuantity(decimal quantity, VietnameseNumberStyle style)
+    {
+        ArgumentNullException.ThrowIfNull(style);
+        ArgumentOutOfRangeException.ThrowIfNegative(quantity);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(quantity, MaximumAmount);
+        decimal whole = decimal.Truncate(quantity);
+        if (quantity == whole)
+        {
+            return Spell(whole, style);
+        }
+
+        // Trailing zeros carry no meaning in a spoken quantity: 2,50 and 2,5 are the same order,
+        // and reading "hai phẩy năm không" invites hearing 2,50 as a different number.
+        string fractionDigits = (quantity - whole)
+            .ToString("0.#########", System.Globalization.CultureInfo.InvariantCulture)
+            .Split('.')[1]
+            .TrimEnd('0');
+        if (fractionDigits.Length > MaximumQuantityDecimals)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(quantity),
+                "A spoken quantity carries at most three decimal places.");
+        }
+
+        StringBuilder spoken = new(Spell(whole, style));
+        spoken.Append(" phẩy");
+        foreach (char digit in fractionDigits)
+        {
+            spoken.Append(' ').Append(Digits[digit - '0']);
+        }
+
+        return spoken.ToString();
+    }
+
+    public static string SpellQuantity(decimal quantity, VietnamRegion region) =>
+        SpellQuantity(quantity, VietnameseNumberStyle.ForRegion(region));
+
     private static string SpellGroup(int group, bool padHundreds, VietnameseNumberStyle style)
     {
         int hundreds = group / 100;

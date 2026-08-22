@@ -110,6 +110,58 @@ public sealed class AsteriskLabTelephonyTests
         Assert.DoesNotContain("Nội dung", audio.ContentRef, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// A segmented call reaches ARI as one ordered media list, and any unusable piece stops the
+    /// whole thing.
+    /// <para>
+    /// Half a call is the dangerous outcome here, not a failed one. A customer who hears the
+    /// greeting, silence where the items were, and then an amount has been read a different
+    /// order — and they press 1 on it. A refused playback is retried; a wrong confirmation is
+    /// acted on.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-PLAYLIST-06")]
+    public void PlaylistBecomesOneOrderedMediaListAndRefusesAnyUnusablePiece()
+    {
+        RenderedAudio playlist = RenderedAudio.CreatePlaylist(
+            "audio/L16",
+            8_000,
+            [
+                new RenderedAudioSegment(string.Empty, "sound:ivr-fixed-greeting", TimeSpan.FromSeconds(4)),
+                new RenderedAudioSegment(string.Empty, "sound:ivr-dyn-items", TimeSpan.FromSeconds(2)),
+                new RenderedAudioSegment(string.Empty, "sound:ivr-fixed-total", TimeSpan.FromSeconds(1)),
+            ]);
+
+        Assert.Equal(
+            "sound:ivr-fixed-greeting,sound:ivr-dyn-items,sound:ivr-fixed-total",
+            AsteriskAriSimGateway.BuildMediaList(playlist));
+        Assert.Equal(TimeSpan.FromSeconds(7), playlist.Duration);
+
+        // A piece that is not a sound reference, anywhere in the list — not only first.
+        AsteriskAriOperationException notASound = Assert.Throws<AsteriskAriOperationException>(
+            () => AsteriskAriSimGateway.BuildMediaList(RenderedAudio.CreatePlaylist(
+                "audio/L16",
+                8_000,
+                [
+                    new RenderedAudioSegment(string.Empty, "sound:ivr-fixed-greeting", TimeSpan.FromSeconds(4)),
+                    new RenderedAudioSegment(string.Empty, "memory://tts/fake/abc", TimeSpan.FromSeconds(2)),
+                ])));
+        Assert.Equal("ASTERISK_AUDIO_REFERENCE_INVALID", notASound.TechnicalErrorCode);
+
+        // A comma inside one reference would split into two entries and shift the rest by one.
+        Assert.Throws<AsteriskAriOperationException>(
+            () => AsteriskAriSimGateway.BuildMediaList(RenderedAudio.CreatePlaylist(
+                "audio/L16",
+                8_000,
+                [
+                    new RenderedAudioSegment(string.Empty, "sound:ivr-a,sound:ivr-b", TimeSpan.FromSeconds(4)),
+                ])));
+
+        Assert.Throws<AsteriskAriOperationException>(
+            () => AsteriskAriSimGateway.BuildMediaList(null));
+    }
+
     [Fact]
     [Trait("TestId", "UT-AST-VAULT-04")]
     public async Task LabVaultFingerprintsTokenAndPinsSingleUseAlias()

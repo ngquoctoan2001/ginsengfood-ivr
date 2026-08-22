@@ -132,7 +132,9 @@ public sealed class FakeSpeechRenderer : ISpeechRenderer
             summary.Locale,
             preview.EstimatedDuration,
             collapsed,
-            "FAKE_TEXT_ONLY"));
+            "FAKE_TEXT_ONLY",
+            null,
+            preview.Segments));
     }
 
     private static ApprovedScript CreateCanonicalMockScript()

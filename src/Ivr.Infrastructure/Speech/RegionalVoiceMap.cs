@@ -18,6 +18,12 @@ public sealed class RegionalVoiceEntry
 
     public int FileDurationSeconds { get; set; }
 
+    /// <summary>
+    /// Pre-recorded fixed prose in this region's voice, keyed by what each file says. Empty
+    /// until segmentation is turned on with <see cref="FixedSegmentSource.Catalog"/>.
+    /// </summary>
+    public FixedSegmentMediaEntry[] FixedSegments { get; set; } = [];
+
     public override string ToString() => "[REDACTED_REGIONAL_VOICE_ENTRY]";
 }
 
@@ -126,5 +132,48 @@ public sealed class RegionalVoiceMap(IOptions<TtsProviderOptions> providerOption
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Recordings a voice has for the fixed prose of the script, keyed by segment text hash.
+    /// <para>
+    /// With regional voices on, each voice owns its own catalog; with them off, the single
+    /// global catalog applies. An unknown voice returns an empty catalog rather than falling
+    /// back to another voice's recordings, because a fallback here is precisely the failure
+    /// this design prevents: one region's sentences read in another region's voice.
+    /// </para>
+    /// </summary>
+    public IReadOnlyDictionary<string, FixedSegmentMediaEntry> FixedSegmentCatalog(string voiceId)
+    {
+        TtsProviderOptions configured = providerOptions.Value;
+        FixedSegmentMediaEntry[] entries = configured.FixedSegments;
+        if (configured.RegionalVoices.Enabled)
+        {
+            entries = [];
+            if (!string.IsNullOrWhiteSpace(voiceId))
+            {
+                foreach (VietnamRegion region in Enum.GetValues<VietnamRegion>())
+                {
+                    RegionalVoiceEntry entry = configured.RegionalVoices.For(region);
+                    if (string.Equals(entry.VoiceId, voiceId, StringComparison.Ordinal))
+                    {
+                        entries = entry.FixedSegments;
+                        break;
+                    }
+                }
+            }
+        }
+
+        var catalog = new Dictionary<string, FixedSegmentMediaEntry>(StringComparer.Ordinal);
+        foreach (FixedSegmentMediaEntry entry in entries)
+        {
+            string hash = entry.TextHash?.Trim().ToLowerInvariant() ?? string.Empty;
+            if (hash.Length > 0)
+            {
+                catalog[hash] = entry;
+            }
+        }
+
+        return catalog;
     }
 }

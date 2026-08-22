@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Ivr.Domain.Retention;
 using Ivr.Domain.Speech;
+using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Speech;
 
@@ -39,7 +40,49 @@ public sealed record AudioCacheKey
         return new AudioCacheKey(cacheId);
     }
 
+    /// <summary>
+    /// Key for one variable piece of a call, keyed by what it says rather than by which order
+    /// it belongs to.
+    /// <para>
+    /// This is where hybrid playback earns its cost: two different orders delivering to the same
+    /// ward share the delivery-area piece, so the second order plays it without a vendor call
+    /// even though the orders have nothing else in common. Keying by <c>summaryHash</c> — the
+    /// whole-call identity — would treat them as unrelated and pay twice.
+    /// </para>
+    /// <para>
+    /// The extra <c>segment</c> element gives this a different arity from
+    /// <see cref="Create"/>, so a segment key and a whole-call key can never collide.
+    /// </para>
+    /// </summary>
+    public static AudioCacheKey CreateForSegment(
+        string scriptTemplateId,
+        string scriptVersion,
+        string segmentTextHash,
+        string voiceId,
+        string locale)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(scriptTemplateId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(scriptVersion);
+        ArgumentException.ThrowIfNullOrWhiteSpace(segmentTextHash);
+        ArgumentException.ThrowIfNullOrWhiteSpace(voiceId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(locale);
+        string canonical = string.Join(
+            CanonicalSeparator,
+            scriptTemplateId,
+            scriptVersion,
+            segmentTextHash,
+            voiceId,
+            locale,
+            "segment");
+        string cacheId = Convert.ToHexString(
+            SHA256.HashData(Encoding.UTF8.GetBytes(canonical))).ToLowerInvariant();
+        return new AudioCacheKey(cacheId);
+    }
+
     public override string ToString() => "[REDACTED_AUDIO_CACHE_KEY]";
+
+    /// <summary>ASCII unit separator, written numerically so no control byte sits in source.</summary>
+    private const char CanonicalSeparator = (char)0x1f;
 }
 
 public sealed record AudioCacheResult(
@@ -198,6 +241,66 @@ public sealed class AudioCache(TimeProvider timeProvider) : IAudioCache
                 }
             }
         }
+    }
+}
+
+/// <summary>
+/// Deletes generated dynamic-segment audio once it is older than the speech snapshot retention
+/// window.
+/// <para>
+/// The in-memory cache expiring is not the same thing as the audio being gone: the external
+/// provider writes playable files to the media directory, and those outlive the process. Without
+/// this the directory grows for as long as the service runs, and it grows with files that speak
+/// order values — which is exactly the class of data <c>DF-07</c> puts a clock on.
+/// </para>
+/// </summary>
+public sealed class SpeechMediaFileRetentionHook(
+    IOptions<TtsProviderOptions> providerOptions) : IRetentionPurgeHook
+{
+    public string Name => "speech_media_files";
+
+    public Task<int> PurgeExpiredAsync(
+        DateTimeOffset now,
+        bool dryRun,
+        CancellationToken cancellationToken)
+    {
+        TtsProviderOptions configured = providerOptions.Value;
+        string directory = configured.External.MediaOutputDirectory;
+        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+        {
+            return Task.FromResult(0);
+        }
+
+        DateTimeOffset cutoff = now.AddSeconds(-configured.SpeechSnapshotRetentionSeconds);
+        int affected = 0;
+        foreach (string path in Directory.EnumerateFiles(directory, "*.sln*"))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (File.GetLastWriteTimeUtc(path) > cutoff.UtcDateTime)
+            {
+                continue;
+            }
+
+            affected++;
+            if (dryRun)
+            {
+                continue;
+            }
+
+            try
+            {
+                File.Delete(path);
+            }
+            catch (IOException)
+            {
+                // A call currently playing this file holds it open. It ages out on the next
+                // pass; failing the whole retention run over one busy file would leave every
+                // later file un-purged.
+                affected--;
+            }
+        }
+
+        return Task.FromResult(affected);
     }
 }
 

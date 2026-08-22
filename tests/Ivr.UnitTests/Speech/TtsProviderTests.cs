@@ -72,7 +72,9 @@ public sealed class TtsProviderTests
 
         RenderedSpeech text = await RenderAsync(summary);
 
-        Assert.Contains("12,5 hộp Sâm lát", text.ExactText, StringComparison.Ordinal);
+        // Fractional quantities are spoken now (W-0106 A7). The digit form was the one input
+        // segmented playback could not voice, and it was never verified by listening.
+        Assert.Contains("mười hai phẩy năm hộp Sâm lát", text.ExactText, StringComparison.Ordinal);
         Assert.Contains(
             "một trăm hai mươi ba triệu bốn trăm năm mươi sáu nghìn bảy trăm tám mươi chín đồng",
             text.ExactText,
@@ -192,17 +194,27 @@ public sealed class TtsProviderTests
         Assert.False(normalized.IsNoAnswer);
     }
 
+    /// <summary>
+    /// The external provider used to be a skeleton that threw unconditionally. It now speaks
+    /// HTTP, so "fails closed until a vendor decision exists" has to be re-proved rather than
+    /// assumed: an unconfigured deployment must still refuse, and must refuse **before** it
+    /// opens a socket. The stub factory throws if anyone asks it for a client, which is what
+    /// turns "no request was sent" from a claim into an assertion.
+    /// </summary>
     [Fact]
     [Trait("TestId", "UT-TTS-NOTCONFIGURED-06")]
-    public async Task ExternalSkeletonFailsClosedUntilVendorDecisionExists()
+    public async Task ExternalProviderFailsClosedAndSendsNothingUntilItIsConfigured()
     {
         TtsProviderOptions configured = new()
         {
             ExecutionMode = "LAB_REAL_SIM",
             Provider = TtsProviderOptions.UnselectedProvider,
         };
-        var provider = new ConfigurableExternalTtsProvider(Options.Create(configured));
+        var provider = new ConfigurableExternalTtsProvider(
+            new ThrowingHttpClientFactory(),
+            Options.Create(configured));
         Assert.Equal("[REDACTED_TTS_PROVIDER_OPTIONS]", configured.ToString());
+        Assert.Equal("[REDACTED_EXTERNAL_TTS_OPTIONS]", configured.External.ToString());
 
         TtsProviderNotConfiguredException failure =
             await Assert.ThrowsAsync<TtsProviderNotConfiguredException>(() =>
@@ -308,6 +320,13 @@ public sealed class TtsProviderTests
     private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
     {
         public override DateTimeOffset GetUtcNow() => now;
+    }
+
+    private sealed class ThrowingHttpClientFactory : IHttpClientFactory
+    {
+        public HttpClient CreateClient(string name) =>
+            throw new InvalidOperationException(
+                "An unconfigured external TTS provider must not reach for an HTTP client.");
     }
 
     private sealed class NeverCompletingTtsProvider : ITtsProvider

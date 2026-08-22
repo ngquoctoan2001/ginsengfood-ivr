@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using Ivr.Domain.Retention;
+using Ivr.Domain.Scripts;
 using Ivr.Domain.Speech;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +8,60 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Speech;
+
+/// <summary>
+/// One recorded file for one fixed piece of the approved script, in one voice.
+/// </summary>
+public sealed class FixedSegmentMediaEntry
+{
+    /// <summary>
+    /// <see cref="SpeechSegment.TextHash"/> of the sentence this file speaks.
+    /// <para>
+    /// The catalog is keyed by what the file says, not by where it sits in the script. Keying by
+    /// position would let a template edit that reorders sentences keep resolving — every lookup
+    /// would succeed and every call would play the sentences in the old order.
+    /// </para>
+    /// </summary>
+    public string TextHash { get; set; } = string.Empty;
+
+    public string MediaReference { get; set; } = string.Empty;
+
+    public int DurationMilliseconds { get; set; }
+
+    public override string ToString() => "[REDACTED_FIXED_SEGMENT_MEDIA_ENTRY]";
+}
+
+/// <summary>
+/// Where the fixed prose of a call comes from.
+/// </summary>
+public enum FixedSegmentSource
+{
+    /// <summary>
+    /// Synthesize fixed prose like any other text. Restricted to the MOCK fake provider: against
+    /// a real vendor this pays for the same 203 characters on every cold cache, which is the
+    /// cost model W-0106 §4.6 exists to avoid.
+    /// </summary>
+    Provider = 0,
+
+    /// <summary>
+    /// Play pre-recorded files pinned by text hash. Zero runtime synthesis cost, and the order
+    /// content in those sentences never leaves the network.
+    /// </summary>
+    Catalog = 1,
+}
+
+/// <summary>
+/// Hybrid playback: fixed prose from recordings, order values from a synthesizer (W-0106 §4.6).
+/// Disabled by default, so an unconfigured deployment keeps single-file playback.
+/// </summary>
+public sealed class SpeechSegmentationOptions
+{
+    public bool Enabled { get; set; }
+
+    public FixedSegmentSource FixedSegments { get; set; } = FixedSegmentSource.Provider;
+
+    public override string ToString() => "[REDACTED_SPEECH_SEGMENTATION_OPTIONS]";
+}
 
 public sealed class TtsProviderOptions
 {
@@ -58,6 +114,25 @@ public sealed class TtsProviderOptions
     /// the single-voice behaviour that shipped before.
     /// </summary>
     public RegionalVoiceOptions RegionalVoices { get; set; } = new();
+
+    /// <summary>
+    /// Hybrid segmented playback. Disabled by default: turning it on changes what a customer
+    /// hears, so it is a deployment decision rather than an upgrade side effect.
+    /// </summary>
+    public SpeechSegmentationOptions Segmentation { get; set; } = new();
+
+    /// <summary>
+    /// Fixed-segment recordings for the single global voice. Only read when regional voices are
+    /// off; with them on, each region carries its own catalog because the recording is of a
+    /// specific voice, not of a sentence.
+    /// </summary>
+    public FixedSegmentMediaEntry[] FixedSegments { get; set; } = [];
+
+    /// <summary>
+    /// Absolute HTTPS endpoint for the external provider, plus the credential and the request
+    /// shape it expects. Vendor choice lives in configuration; no vendor name appears in code.
+    /// </summary>
+    public ExternalTtsOptions External { get; set; } = new();
 
     public override string ToString() => "[REDACTED_TTS_PROVIDER_OPTIONS]";
 }
@@ -154,10 +229,186 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
         }
 
         ValidateRegionalVoices(options, failures);
+        ValidateSegmentation(options, failures);
+        ValidateExternal(options, failures);
 
         return failures.Count == 0
             ? ValidateOptionsResult.Success
             : ValidateOptionsResult.Fail(failures.Distinct(StringComparer.Ordinal));
+    }
+
+    /// <summary>
+    /// Proves at startup that every fixed sentence of the canonical script has a recording, in
+    /// every voice that can be selected.
+    /// <para>
+    /// The alternative is discovering it on the first call of the day, mid-conversation with a
+    /// customer. A missing recording is a deployment mistake, and a deployment mistake should
+    /// stop the deployment.
+    /// </para>
+    /// <para>
+    /// This checks the canonical template. A deployment serving a different approved version
+    /// from the database is still covered, but only at render time by
+    /// <c>TTS_FIXED_SEGMENT_NOT_RECORDED</c> — the validator has no database. Said plainly here
+    /// so nobody reads a green startup as proof of coverage for a custom template.
+    /// </para>
+    /// </summary>
+    private static void ValidateSegmentation(TtsProviderOptions options, List<string> failures)
+    {
+        SpeechSegmentationOptions segmentation = options.Segmentation;
+        if (!segmentation.Enabled)
+        {
+            return;
+        }
+
+        if (!Enum.IsDefined(segmentation.FixedSegments))
+        {
+            failures.Add("The configured fixed-segment source is unsupported.");
+            return;
+        }
+
+        if (segmentation.FixedSegments == FixedSegmentSource.Provider)
+        {
+            if (!string.Equals(
+                    options.Provider,
+                    TtsProviderOptions.FakeProvider,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                // Against a real vendor this re-synthesizes the same 203 fixed characters on
+                // every cold cache, which is the whole cost difference the hybrid buys back.
+                failures.Add(
+                    "Synthesizing fixed segments is restricted to the MOCK fake provider; configure a recorded catalog.");
+            }
+
+            return;
+        }
+
+        ImmutableArray<string> requiredHashes;
+        try
+        {
+            requiredHashes = TargetV1SpeechPolicy.FixedSegmentHashes(
+                TargetV1SpeechPolicy.CanonicalVietnameseTemplate);
+        }
+        catch (InvalidOperationException)
+        {
+            failures.Add("The canonical script template cannot be split into speech segments.");
+            return;
+        }
+
+        foreach ((string voiceLabel, FixedSegmentMediaEntry[] entries) in CatalogsByVoice(options))
+        {
+            var byHash = new Dictionary<string, FixedSegmentMediaEntry>(StringComparer.Ordinal);
+            foreach (FixedSegmentMediaEntry entry in entries)
+            {
+                string hash = entry.TextHash?.Trim().ToLowerInvariant() ?? string.Empty;
+                if (hash.Length != 64 || !hash.All(char.IsAsciiHexDigitLower))
+                {
+                    failures.Add(
+                        $"Fixed segment media for {voiceLabel} needs a 64-character lowercase SHA-256 text hash.");
+                    continue;
+                }
+
+                if (!IsSafeMediaReference(entry.MediaReference))
+                {
+                    failures.Add(
+                        $"Fixed segment media for {voiceLabel} needs a safe Asterisk sound reference.");
+                    continue;
+                }
+
+                if (entry.DurationMilliseconds is < 1 or > 300_000)
+                {
+                    failures.Add(
+                        $"Fixed segment media for {voiceLabel} needs a duration between 1 ms and 300 s.");
+                    continue;
+                }
+
+                byHash[hash] = entry;
+            }
+
+            foreach (string required in requiredHashes)
+            {
+                if (!byHash.ContainsKey(required))
+                {
+                    failures.Add(
+                        $"Fixed segment media for {voiceLabel} is missing a recording for part of the approved script.");
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<(string VoiceLabel, FixedSegmentMediaEntry[] Entries)>
+        CatalogsByVoice(TtsProviderOptions options)
+    {
+        if (!options.RegionalVoices.Enabled)
+        {
+            yield return ("the configured voice", options.FixedSegments);
+            yield break;
+        }
+
+        foreach (VietnamRegion region in Enum.GetValues<VietnamRegion>())
+        {
+            RegionalVoiceEntry entry = options.RegionalVoices.For(region);
+            yield return ($"the {region} voice", entry.FixedSegments);
+        }
+    }
+
+    private static void ValidateExternal(TtsProviderOptions options, List<string> failures)
+    {
+        if (!string.Equals(
+                options.Provider,
+                TtsProviderOptions.ExternalProvider,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        ExternalTtsOptions external = options.External;
+        if (!Uri.TryCreate(external.Endpoint, UriKind.Absolute, out Uri? endpoint)
+            || (endpoint.Scheme != Uri.UriSchemeHttps
+                && !(endpoint.Scheme == Uri.UriSchemeHttp && endpoint.IsLoopback)))
+        {
+            // Plain HTTP off-box would put order values on the wire in clear text. Loopback is
+            // allowed because that is how a converting sidecar is reached.
+            failures.Add("The external TTS endpoint must be an absolute HTTPS URI, or HTTP on loopback.");
+        }
+
+        if (string.IsNullOrWhiteSpace(external.RequestBodyTemplate)
+            || !external.RequestBodyTemplate.Contains("{{text}}", StringComparison.Ordinal))
+        {
+            failures.Add("The external TTS request body template must contain the {{text}} variable.");
+        }
+
+        if (string.IsNullOrWhiteSpace(external.MediaOutputDirectory))
+        {
+            failures.Add("The external TTS provider needs a media output directory.");
+        }
+
+        if (!IsSafeMediaReference(external.MediaReferencePrefix))
+        {
+            failures.Add("The external TTS media reference prefix must be a safe Asterisk sound reference.");
+        }
+
+        if (string.IsNullOrWhiteSpace(external.CredentialHeader))
+        {
+            failures.Add("The external TTS credential header name is required.");
+        }
+
+        if (external.MaxResponseBytes is < 1_024 or > 64 * 1024 * 1024)
+        {
+            failures.Add("The external TTS response bound must be between 1 KiB and 64 MiB.");
+        }
+
+        if (!string.Equals(
+                options.OutputFormat,
+                ConfigurableExternalTtsProvider.RequiredOutputFormat,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            failures.Add("The external TTS provider requires the audio/L16 output format.");
+        }
+
+        if (!ConfigurableExternalTtsProvider.IsSupportedSampleRate(options.SampleRate))
+        {
+            failures.Add("The external TTS sample rate has no raw signed-linear container.");
+        }
     }
 
     private static void ValidateRegionalVoices(TtsProviderOptions options, List<string> failures)
@@ -277,6 +528,8 @@ public static class SpeechServiceCollectionExtensions
         services.TryAddSingleton<IAudioCache, AudioCache>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
             IRetentionPurgeHook, SpeechAudioCacheRetentionHook>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IRetentionPurgeHook, SpeechMediaFileRetentionHook>());
         services.TryAddSingleton<ISpeechSynthesisService, SpeechSynthesisService>();
         if (mock)
         {
@@ -288,6 +541,10 @@ public static class SpeechServiceCollectionExtensions
         }
         else
         {
+            // No BaseAddress and no default headers: the endpoint is an absolute URI and the
+            // credential is attached per request, so a misconfigured client cannot send a
+            // credential to a host the options never named.
+            services.AddHttpClient(ConfigurableExternalTtsProvider.HttpClientName);
             services.TryAddSingleton<ITtsProvider, ConfigurableExternalTtsProvider>();
         }
 

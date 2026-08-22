@@ -1,0 +1,211 @@
+<#
+.SYNOPSIS
+    W-0106 A1 — chuyển 12 file MP3 đoạn cố định (4 đoạn × 3 miền) về PCM 8 kHz và ghim SHA-256.
+
+.DESCRIPTION
+    Bổ sung cho `Convert-LabVoiceAudio.ps1`, KHÔNG thay thế. File kia dựng bản thu nguyên cuộc
+    gọi của W-0106 (một file cho cả cuộc); file này dựng các ĐOẠN cố định để ghép động — cuộc
+    gọi được lắp từ đoạn thu sẵn cộng phần giá trị đơn do TTS sinh.
+
+    Danh sách đoạn KHÔNG viết tay ở đây. Nó đọc từ `deploy/lab/speech-segments.json`, vốn được
+    sinh từ chính template đã duyệt bằng `deploy/ci/scripts/generate-speech-segments.mjs`. Sửa
+    một chữ trong template ⇒ đổi `textSha256` ⇒ tên file đổi theo ⇒ bản thu cũ không còn được
+    tra ra. Đó là điểm mấu chốt: bản thu và lời thoại không thể lệch nhau trong im lặng.
+
+    Tên file: `ivr-seg-<miền>-<16 ký tự đầu của textSha256>.wav`. Đặt theo NỘI DUNG chứ không
+    theo thứ tự, để một lần đổi thứ tự câu trong template không làm mọi tra cứu vẫn "thành công"
+    mà phát sai thứ tự.
+
+    ffmpeg chạy bitexact + `-map_metadata -1` vì cùng lý do như W-0106 Giai đoạn 4: không có nó,
+    metadata encoder lọt vào WAV và cùng một MP3 nguồn ra hash khác nhau giữa hai bản ffmpeg.
+
+.PARAMETER SourceDirectory
+    Thư mục chứa MP3 nguồn, đặt tên `<miền>-s<ordinal>.mp3` — ví dụ `north-s1.mp3`, `north-s3.mp3`,
+    `central-s1.mp3`. `ordinal` lấy đúng từ `speech-segments.json` (đoạn cố định là 1, 3, 5, 7).
+
+.PARAMETER Region
+    Chỉ xử lý một miền. Bỏ trống để xử lý cả ba.
+
+.EXAMPLE
+    ./deploy/lab/Convert-LabSegmentAudio.ps1 -SourceDirectory ./artifacts/w-0106-segments
+
+.EXAMPLE
+    # In ra đúng những câu cần thu, trước khi mở ElevenLabs.
+    ./deploy/lab/Convert-LabSegmentAudio.ps1 -ListOnly
+#>
+[CmdletBinding()]
+param(
+    [string]$SourceDirectory,
+
+    [ValidateSet('north', 'central', 'south')]
+    [string[]]$Region,
+
+    [string]$FfmpegPath = 'ffmpeg',
+
+    [switch]$ListOnly,
+
+    [switch]$SkipManifestUpdate
+)
+
+$ErrorActionPreference = 'Stop'
+$audioDirectory = Join-Path $PSScriptRoot 'asterisk/audio'
+$manifestPath = Join-Path $PSScriptRoot 'speech-segments.json'
+
+if (-not (Test-Path -LiteralPath $manifestPath)) {
+    throw "Không thấy $manifestPath. Chạy: node deploy/ci/scripts/generate-speech-segments.mjs"
+}
+
+$plan = Get-Content -LiteralPath $manifestPath -Raw -Encoding utf8 | ConvertFrom-Json
+$fixedSegments = @($plan.segments | Where-Object { $_.kind -eq 'Fixed' })
+$regions = if ($Region) { $Region } else { $plan.regions }
+
+if ($fixedSegments.Count -eq 0) {
+    throw 'speech-segments.json không có đoạn cố định nào — template hỏng?'
+}
+
+# Bảng "cần thu những câu nào". In trước khi làm bất cứ việc gì, kể cả khi không -ListOnly:
+# người thu giọng cần đúng bảng này, và nó phải là thứ họ thấy đầu tiên chứ không phải thứ họ
+# phải đi tìm trong tài liệu.
+Write-Host ''
+Write-Host "Đoạn cố định cần thu — $($fixedSegments.Count) câu × $($regions.Count) miền = $($fixedSegments.Count * $regions.Count) file" -ForegroundColor Cyan
+Write-Host ''
+foreach ($segment in $fixedSegments) {
+    $shortHash = $segment.textSha256.Substring(0, 16)
+    Write-Host "  s$($segment.ordinal)  [$shortHash]" -ForegroundColor Yellow
+    Write-Host "      $($segment.text.Trim())"
+}
+Write-Host ''
+Write-Host 'Đọc liền mạch, KHÔNG thêm/bớt chữ. Dấu phẩy đầu câu là chỗ nối, đọc như nối câu.' -ForegroundColor DarkGray
+Write-Host ''
+
+if ($ListOnly) {
+    return
+}
+
+if (-not $SourceDirectory) {
+    throw 'Thiếu -SourceDirectory. Dùng -ListOnly nếu chỉ muốn xem danh sách câu cần thu.'
+}
+
+if (-not (Get-Command $FfmpegPath -ErrorAction SilentlyContinue)) {
+    throw "Không tìm thấy ffmpeg ('$FfmpegPath'). Cài rồi chạy lại, hoặc truyền -FfmpegPath."
+}
+
+$results = [System.Collections.Generic.List[object]]::new()
+
+foreach ($regionName in $regions) {
+    foreach ($segment in $fixedSegments) {
+        $sourcePath = Join-Path $SourceDirectory "$regionName-s$($segment.ordinal).mp3"
+        if (-not (Test-Path -LiteralPath $sourcePath)) {
+            throw "Thiếu file nguồn: $sourcePath"
+        }
+
+        $shortHash = $segment.textSha256.Substring(0, 16)
+        $targetName = "ivr-seg-$regionName-$shortHash.wav"
+        $targetPath = Join-Path $audioDirectory $targetName
+
+        Write-Host "[$regionName s$($segment.ordinal)] chuyển sang PCM 16-bit/8 kHz/mono..." -ForegroundColor Cyan
+
+        & $FfmpegPath -hide_banner -loglevel error -y `
+            -fflags +bitexact `
+            -i $sourcePath `
+            -af 'loudnorm=I=-16:TP=-1.5:LRA=11,aresample=8000' `
+            -ar 8000 -ac 1 -c:a pcm_s16le `
+            -flags +bitexact -fflags +bitexact -map_metadata -1 `
+            $targetPath
+        if ($LASTEXITCODE -ne 0) {
+            throw "ffmpeg thất bại: $regionName s$($segment.ordinal)."
+        }
+
+        $probe = & $FfmpegPath -hide_banner -i $targetPath 2>&1 | Out-String
+        if ($probe -notmatch '8000 Hz' -or $probe -notmatch 'mono' -or $probe -notmatch 'pcm_s16le') {
+            throw "File ra không đúng PCM s16le/8000 Hz/mono: $targetName"
+        }
+
+        $durationSeconds = 0.0
+        if ($probe -match 'Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)') {
+            $durationSeconds = ([int]$Matches[1] * 3600) + ([int]$Matches[2] * 60) + [double]$Matches[3]
+        }
+
+        if ($durationSeconds -le 0) {
+            throw "Không đọc được độ dài của $targetName — cấu hình cần DurationMilliseconds thật."
+        }
+
+        $results.Add([pscustomobject]@{
+            Region          = $regionName
+            Ordinal         = $segment.ordinal
+            TextHash        = $segment.textSha256
+            File            = $targetName
+            MediaReference  = "sound:ivr-seg-$regionName-$shortHash"
+            Milliseconds    = [int][math]::Round($durationSeconds * 1000)
+            Sha256          = (Get-FileHash -LiteralPath $targetPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            SourceHash      = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        })
+    }
+}
+
+# Giữ nguyên mọi dòng cũ của W-0104/W-0106; chỉ thay các dòng đoạn của chính lần chạy này.
+# entrypoint kiểm toàn bộ file lúc boot, nên xóa dòng cũ là làm hỏng evidence trước đó.
+$sumsPath = Join-Path $audioDirectory 'SHA256SUMS'
+$producedFiles = $results | ForEach-Object { $_.File }
+$existing = @(Get-Content -LiteralPath $sumsPath | Where-Object {
+    $line = $_
+    -not ($producedFiles | Where-Object { $line -match [regex]::Escape($_) + '$' })
+})
+$added = $results | ForEach-Object { "$($_.Sha256)  $($_.File)" }
+Set-Content -LiteralPath $sumsPath -Value ($existing + $added) -Encoding ascii
+
+if (-not $SkipManifestUpdate) {
+    $segmentManifestPath = Join-Path $audioDirectory 'segments-manifest.txt'
+    $lines = [System.Collections.Generic.List[string]]::new()
+    $lines.Add('work_id=W-0106-A1')
+    $lines.Add("template_id=$($plan.templateId)")
+    $lines.Add("template_version=$($plan.templateVersion)")
+    $lines.Add("template_sha256=$($plan.templateSha256)")
+    $lines.Add('output_format=pcm_s16le-8000hz-mono')
+    $lines.Add('production_provider_authorized=NO')
+    $lines.Add('real_customer_data_used=NO')
+    foreach ($row in $results) {
+        $key = "seg_$($row.Region)_s$($row.Ordinal)"
+        $lines.Add("${key}_text_sha256=$($row.TextHash)")
+        $lines.Add("${key}_media_reference=$($row.MediaReference)")
+        # Số nguyên mili giây: không có dấu thập phân thì không có chuyện culture đổi dấu phẩy
+        # thành dấu chấm trong một file evidence.
+        $lines.Add("${key}_duration_ms=$($row.Milliseconds)")
+        $lines.Add("${key}_source_sha256=$($row.SourceHash)")
+        $lines.Add("${key}_sha256=$($row.Sha256)")
+    }
+
+    Set-Content -LiteralPath $segmentManifestPath -Value $lines -Encoding utf8
+}
+
+# Khối cấu hình sinh sẵn. Người vận hành dán thẳng, không chép tay 12 mã băm 64 ký tự — chép tay
+# một ký tự sai ở đây là một câu không tra ra được, và nó chỉ lộ ra lúc đang gọi khách.
+$configuration = [ordered]@{}
+foreach ($regionName in $regions) {
+    $entries = @($results | Where-Object { $_.Region -eq $regionName } | ForEach-Object {
+        [ordered]@{
+            TextHash             = $_.TextHash
+            MediaReference       = $_.MediaReference
+            DurationMilliseconds = $_.Milliseconds
+        }
+    })
+    $configuration[(Get-Culture).TextInfo.ToTitleCase($regionName)] = [ordered]@{ FixedSegments = $entries }
+}
+
+$configurationPath = Join-Path $audioDirectory 'segments-appsettings.json'
+[ordered]@{
+    Ivr = [ordered]@{
+        Speech = [ordered]@{
+            Tts = [ordered]@{
+                Segmentation   = [ordered]@{ Enabled = $true; FixedSegments = 'Catalog' }
+                RegionalVoices = $configuration
+            }
+        }
+    }
+} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $configurationPath -Encoding utf8
+
+Write-Host ''
+$results | Format-Table Region, Ordinal, Milliseconds, MediaReference -AutoSize
+Write-Host ''
+Write-Host "Cấu hình đã sinh: $configurationPath" -ForegroundColor Green
+Write-Host 'Bước tiếp: dựng lại image Asterisk, bật Segmentation.Enabled=true, gọi thử MicroSIP.' -ForegroundColor Yellow

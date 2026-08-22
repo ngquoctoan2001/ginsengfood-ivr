@@ -303,7 +303,12 @@ public sealed class ScriptContentTests
             approved,
             Summary([SpeechItem.Create("Trà sâm", 2.5m, "kg")], 560_000m, "Quận 7"));
 
-        Assert.Contains("2,5 kg Trà sâm", preview.ExactText, StringComparison.Ordinal);
+        // Spoken, not the digit form. This assertion used to read "2,5 kg" and it was pinning a
+        // gap rather than a decision: nobody had heard how an engine says "2,5", and segmented
+        // playback cannot say it at all -- there is no recorded clip for a decimal and no way to
+        // glue one from clips of "2" and "5". The separators below still matter for quantities
+        // outside the speller's range, which keep the digit fallback.
+        Assert.Contains("hai phẩy năm kg Trà sâm", preview.ExactText, StringComparison.Ordinal);
         Assert.Contains("năm trăm sáu mươi nghìn đồng", preview.ExactText, StringComparison.Ordinal);
 
         // The renderer must not read the ambient culture either: a worker started with a different
@@ -371,7 +376,7 @@ public sealed class ScriptContentTests
         ScriptPreview second = new VietnameseOrderScriptRenderer().Render(approved, summary);
 
         Assert.Contains(
-            "một Sản phẩm A, hai gói Sản phẩm B, 3,5 kg Sản phẩm C, và hai sản phẩm khác",
+            "một Sản phẩm A, hai gói Sản phẩm B, ba phẩy năm kg Sản phẩm C, và hai sản phẩm khác",
             first.ExactText,
             StringComparison.Ordinal);
         Assert.Contains(

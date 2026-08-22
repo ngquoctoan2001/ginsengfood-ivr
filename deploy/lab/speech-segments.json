@@ -1,0 +1,66 @@
+{
+  "generatedBy": "deploy/ci/scripts/generate-speech-segments.mjs",
+  "templateId": "SCRIPT-ORDER-CONFIRM",
+  "templateVersion": "v3-test-approved",
+  "templateSha256": "2b98e5b695a03736e7749333e98099a71c7234c486494a37b7d2ca0dfe9dae51",
+  "fixedSegmentCount": 4,
+  "dynamicSegmentCount": 3,
+  "fixedCharacters": 203,
+  "templateCharacters": 266,
+  "regions": [
+    "north",
+    "central",
+    "south"
+  ],
+  "segments": [
+    {
+      "ordinal": 1,
+      "kind": "Fixed",
+      "placeholder": null,
+      "text": "Xin chào Quý khách. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Quý khách có đơn hàng gồm ",
+      "textSha256": "4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2"
+    },
+    {
+      "ordinal": 2,
+      "kind": "Dynamic",
+      "placeholder": "items_spoken",
+      "text": "",
+      "textSha256": null
+    },
+    {
+      "ordinal": 3,
+      "kind": "Fixed",
+      "placeholder": null,
+      "text": ", tổng tiền ",
+      "textSha256": "95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5"
+    },
+    {
+      "ordinal": 4,
+      "kind": "Dynamic",
+      "placeholder": "total_amount_display",
+      "text": "",
+      "textSha256": null
+    },
+    {
+      "ordinal": 5,
+      "kind": "Fixed",
+      "placeholder": null,
+      "text": ", giao đến ",
+      "textSha256": "53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e"
+    },
+    {
+      "ordinal": 6,
+      "kind": "Dynamic",
+      "placeholder": "delivery_area_short",
+      "text": "",
+      "textSha256": null
+    },
+    {
+      "ordinal": 7,
+      "kind": "Fixed",
+      "placeholder": null,
+      "text": ". Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
+      "textSha256": "764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Speech;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Telephony;
@@ -148,15 +149,22 @@ public sealed class AsteriskAriSimGateway(
         }
     }
 
-    public async ValueTask PlayAsync(
-        SimCallSession session,
-        RenderedSpeech speech,
-        CancellationToken cancellationToken)
+    /// <summary>
+    /// Turns rendered audio into the ARI <c>media</c> parameter.
+    /// <para>
+    /// ARI takes an ordered, comma-separated media list and plays it as one operation. Issuing
+    /// one request per piece would let a hangup between two of them leave the customer having
+    /// heard half an order — an opening and an amount with no items — and that half-call is
+    /// indistinguishable, from the dialplan's side, from a complete one.
+    /// </para>
+    /// <para>
+    /// Every piece is validated, not just the first. A playlist whose greeting is a valid sound
+    /// reference and whose total is not would otherwise start playing and stop partway.
+    /// </para>
+    /// </summary>
+    public static string BuildMediaList(RenderedAudio? audio)
     {
-        ArgumentNullException.ThrowIfNull(session);
-        ArgumentNullException.ThrowIfNull(speech);
-        if (speech.Audio is null
-            || !speech.Audio.ContentRef.StartsWith("sound:", StringComparison.Ordinal))
+        if (audio is null || audio.Segments.IsDefaultOrEmpty)
         {
             throw Failure(
                 SimProviderDisposition.AudioError,
@@ -165,6 +173,32 @@ public sealed class AsteriskAriSimGateway(
                 "ARI playback requires a safe Asterisk sound reference.");
         }
 
+        foreach (RenderedAudioSegment segment in audio.Segments)
+        {
+            if (!segment.ContentRef.StartsWith("sound:", StringComparison.Ordinal)
+                || segment.ContentRef.Contains(',', StringComparison.Ordinal))
+            {
+                // A comma inside one reference would split into two media entries and shift
+                // every sentence after it by one position.
+                throw Failure(
+                    SimProviderDisposition.AudioError,
+                    "ASTERISK_AUDIO_REFERENCE_INVALID",
+                    true,
+                    "ARI playback requires a safe Asterisk sound reference.");
+            }
+        }
+
+        return string.Join(',', audio.Segments.Select(segment => segment.ContentRef));
+    }
+
+    public async ValueTask PlayAsync(
+        SimCallSession session,
+        RenderedSpeech speech,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(speech);
+        string mediaList = BuildMediaList(speech.Audio);
         AriCallState state = GetCall(session.ProviderCallReference);
         if (state.EndedAt.HasValue)
         {
@@ -180,7 +214,7 @@ public sealed class AsteriskAriSimGateway(
             string.Concat("/ari/channels/", Uri.EscapeDataString(state.ChannelId), "/play"),
             new Dictionary<string, string>
             {
-                ["media"] = speech.Audio.ContentRef,
+                ["media"] = mediaList,
                 ["playbackId"] = string.Concat("play-", Guid.NewGuid().ToString("N")),
             },
             cancellationToken).ConfigureAwait(false);

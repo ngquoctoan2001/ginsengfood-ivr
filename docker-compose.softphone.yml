@@ -43,6 +43,18 @@ x-asterisk-lab-env: &asterisk-lab-env
   Ivr__Speech__Tts__RegionalVoices__South__VoiceId: "w0106-lab-south-giang"
   Ivr__Speech__Tts__RegionalVoices__South__FileMediaReference: "sound:ivr-lab-order-confirmation-region-south"
   Ivr__Speech__Tts__RegionalVoices__South__FileDurationSeconds: "18"
+  # W-0106 A1 hybrid playback: recorded prose plus synthesized order values, assembled per call.
+  #
+  # Off until BOTH halves exist. The recorded half comes from Convert-LabSegmentAudio.ps1, which
+  # writes a ready-to-paste block into deploy/lab/asterisk/audio/segments-appsettings.json — do
+  # not hand-copy the 64-character hashes, one wrong character is a sentence that cannot be
+  # found, and it only shows up mid-call.
+  #
+  # The synthesized half needs a vendor (OD-VOICE-01) reachable at Ivr__Speech__Tts__External__*.
+  # With Enabled=true and an incomplete recording catalog the service refuses to start, which is
+  # the intended failure: a missing sentence must stop a deployment, not shorten a call.
+  Ivr__Speech__Tts__Segmentation__Enabled: "false"
+  Ivr__Speech__Tts__Segmentation__FixedSegments: "Catalog"
 
 services:
   asterisk:

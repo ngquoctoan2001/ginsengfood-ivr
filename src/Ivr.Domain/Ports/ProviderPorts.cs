@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Speech;
 
@@ -53,7 +54,8 @@ public sealed record RenderedSpeech
         TimeSpan estimatedDuration,
         int collapsedItemCount,
         string audioFormat,
-        RenderedAudio? audio = null)
+        RenderedAudio? audio = null,
+        ImmutableArray<SpeechSegment> segments = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(scriptReference);
         ArgumentException.ThrowIfNullOrWhiteSpace(exactText);
@@ -70,6 +72,7 @@ public sealed record RenderedSpeech
         CollapsedItemCount = collapsedItemCount;
         AudioFormat = audioFormat;
         Audio = audio;
+        Segments = segments.IsDefault ? [] : segments;
     }
 
     public string ScriptReference { get; }
@@ -91,6 +94,12 @@ public sealed record RenderedSpeech
 
     public RenderedAudio? Audio { get; }
 
+    /// <summary>
+    /// Playback order split at the approved template's placeholder boundaries. Empty means the
+    /// renderer produced no split, and the whole text is spoken as one piece.
+    /// </summary>
+    public ImmutableArray<SpeechSegment> Segments { get; }
+
     public RenderedSpeech WithAudio(RenderedAudio audio)
     {
         ArgumentNullException.ThrowIfNull(audio);
@@ -102,7 +111,8 @@ public sealed record RenderedSpeech
             EstimatedDuration,
             CollapsedItemCount,
             audio.Format,
-            audio);
+            audio,
+            Segments);
     }
 
     public override string ToString() => "[REDACTED_RENDERED_SPEECH]";

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -81,7 +82,14 @@ public sealed record ScriptPreview(
     TimeSpan EstimatedDuration,
     ScriptInputSnapshot InputSnapshot,
     string TemplateHash,
-    string ContentHash);
+    string ContentHash)
+{
+    /// <summary>
+    /// Playback order split at the template's placeholder boundaries. Empty only for a preview
+    /// built by an older renderer; consumers treat empty as "speak the whole text in one piece".
+    /// </summary>
+    public ImmutableArray<SpeechSegment> Segments { get; init; } = [];
+}
 
 public interface IScriptPreviewRenderer
 {
@@ -159,13 +167,18 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         string totalAmount = string.Concat(
             VietnameseNumberSpeller.Spell(summary.Total.Amount, numberStyle),
             " đồng");
-        string exactText = validTemplate
-            .Replace("{{customer_display_name}}", summary.CustomerDisplayName, StringComparison.Ordinal)
-            .Replace("{{order_code_short}}", summary.OrderCodeShort, StringComparison.Ordinal)
-            .Replace("{{items_spoken}}", spokenItems, StringComparison.Ordinal)
-            .Replace("{{total_amount_display}}", totalAmount, StringComparison.Ordinal)
-            .Replace("{{delivery_area_short}}", summary.DeliveryArea.Value, StringComparison.Ordinal)
-            .Replace("{{program_display_name}}", summary.ProgramDisplayName, StringComparison.Ordinal)
+
+        // Substitution happens per segment rather than over the whole string, and the full text
+        // is then assembled from those segments. It is the same output as the previous chain of
+        // Replace calls, with one property added: the text the gates inspect and the pieces the
+        // call plays are produced by the same statement, so they cannot describe different calls.
+        ImmutableArray<SpeechSegment> segments = BuildSegments(
+            validTemplate,
+            summary,
+            spokenItems,
+            totalAmount);
+        string exactText = SpeechSegment
+            .Concatenate(segments)
             .Normalize(NormalizationForm.FormC);
 
         if (exactText.Length > effectiveOptions.MaximumCharacters)
@@ -203,7 +216,52 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
             TimeSpan.FromSeconds(estimatedSeconds),
             inputSnapshot,
             script.Version.TemplateHash,
-            contentHash);
+            contentHash)
+        {
+            Segments = segments,
+        };
+    }
+
+    /// <summary>
+    /// Substitutes order values into the template's variable pieces and keeps the prose pieces
+    /// verbatim, preserving playback order.
+    /// </summary>
+    private static ImmutableArray<SpeechSegment> BuildSegments(
+        string validTemplate,
+        PrivacySafeOrderSummary summary,
+        string spokenItems,
+        string totalAmount)
+    {
+        var segments = ImmutableArray.CreateBuilder<SpeechSegment>();
+        int ordinal = 0;
+        foreach (SpeechSegmentTemplate piece in TargetV1SpeechPolicy.SegmentTemplate(validTemplate))
+        {
+            if (piece.Kind == SpeechSegmentKind.Fixed)
+            {
+                segments.Add(SpeechSegment.CreateFixed(++ordinal, piece.Text));
+                continue;
+            }
+
+            string value = piece.PlaceholderName switch
+            {
+                "customer_display_name" => summary.CustomerDisplayName,
+                "order_code_short" => summary.OrderCodeShort,
+                "items_spoken" => spokenItems,
+                "total_amount_display" => totalAmount,
+                "delivery_area_short" => summary.DeliveryArea.Value,
+                "program_display_name" => summary.ProgramDisplayName,
+
+                // Unreachable while the template validator and this switch agree on the
+                // whitelist. Throwing rather than substituting an empty string means a widened
+                // whitelist fails loudly here instead of silently dropping a sentence from a
+                // customer's call.
+                _ => throw new InvalidOperationException(
+                    "The script template uses a variable the renderer cannot substitute."),
+            };
+            segments.Add(SpeechSegment.CreateDynamic(++ordinal, piece.PlaceholderName, value));
+        }
+
+        return segments.ToImmutable();
     }
 
     private static string FormatItems(
@@ -243,16 +301,38 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
     }
 
     /// <summary>
-    /// Whole quantities are spoken ("hai hộp", matching the approved W-0104 audio). A fractional
-    /// quantity keeps the decimal form: Vietnamese reads "2,5" as "hai phẩy năm" reliably enough,
-    /// and inventing a spoken form for fractions here would be guessing at wording nobody has
-    /// approved. Concatenative playback cannot glue a decimal from recorded clips, so this is the
-    /// one place that still needs a decision before W-0106 §4.8.6 ships.
+    /// Quantities are spoken, fractional ones included: "hai hộp", "hai phẩy năm ký".
+    /// <para>
+    /// Fractions used to keep the digit form <c>"2,5"</c> on the reasoning that engines read it
+    /// acceptably. Two things retired that. Segmented playback assembles a call from recorded
+    /// and cached pieces, and there is no clip for "2,5" — the digit form was the one input the
+    /// pipeline could not voice at all. And "acceptably" was never verified by listening; it was
+    /// the same assumption that produced <c>"560.000 đồng"</c> against approved audio saying
+    /// "năm trăm sáu mươi nghìn đồng".
+    /// </para>
+    /// <para>
+    /// The digit fallback survives only for quantities outside the speller's range, where a
+    /// wrong reading is better than a failed call — and a quantity that large is a data problem
+    /// the call itself cannot fix.
+    /// </para>
     /// </summary>
-    private static string FormatQuantity(decimal quantity, VietnameseNumberStyle numberStyle) =>
-        quantity == decimal.Truncate(quantity)
-            && quantity >= 0m
-            && quantity <= VietnameseNumberSpeller.MaximumAmount
-            ? VietnameseNumberSpeller.Spell(quantity, numberStyle)
-            : quantity.ToString("0.##", VietnameseNumbers);
+    private static string FormatQuantity(decimal quantity, VietnameseNumberStyle numberStyle)
+    {
+        if (quantity < 0m || quantity > VietnameseNumberSpeller.MaximumAmount)
+        {
+            return quantity.ToString("0.##", VietnameseNumbers);
+        }
+
+        try
+        {
+            return VietnameseNumberSpeller.SpellQuantity(quantity, numberStyle);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            // More decimal places than a spoken quantity carries. Reading it digit by digit
+            // would be a sentence long; the digit form at least stays short and wrong in a way
+            // the operator can see in the call log.
+            return quantity.ToString("0.##", VietnameseNumbers);
+        }
+    }
 }

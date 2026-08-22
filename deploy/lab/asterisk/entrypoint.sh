@@ -57,4 +57,30 @@ for region in north central south; do
   fi
 done
 
+# W-0106 A1: fixed-segment recordings for hybrid playback. A call is assembled from these plus
+# synthesized order values, so every file present is installed and none is selected at boot.
+#
+# Named by content hash, not by position: `ivr-seg-<region>-<16 hex>`. The application looks a
+# sentence up by that hash, so a template edit that changes the wording changes the name, the old
+# recording stops resolving, and the deployment fails loudly instead of playing wording nobody
+# approved. The checksum check above already covered these — SHA256SUMS is verified whole.
+segment_count=0
+for segment_source in /opt/ivr-lab/audio/ivr-seg-*.wav; do
+  [ -e "$segment_source" ] || break
+  segment_name=$(basename "$segment_source")
+  segment_target="/var/lib/asterisk/sounds/${segment_name}"
+  cp "$segment_source" "${segment_target}.tmp"
+  mv "${segment_target}.tmp" "$segment_target"
+  segment_count=$((segment_count + 1))
+done
+
+if [ "$segment_count" -gt 0 ]; then
+  echo "W-0106 A1 installed ${segment_count} fixed speech segments."
+else
+  # Absent is legitimate until the segment MP3s are rendered. The application fails closed on
+  # its own: startup validation refuses Segmentation.FixedSegments=Catalog without a complete
+  # catalog, so an empty directory cannot become a call that is missing a sentence.
+  echo "W-0106 A1 fixed speech segments not present; hybrid playback stays unavailable."
+fi
+
 exec /usr/sbin/asterisk -f -vvv
