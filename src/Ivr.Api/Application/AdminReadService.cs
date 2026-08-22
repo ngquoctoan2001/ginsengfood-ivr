@@ -2,6 +2,7 @@ using System.Text.Json;
 using Ivr.Api.Admin;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Privacy;
+using Ivr.Domain.Speech;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
@@ -435,6 +436,7 @@ public sealed class AdminReadService(
             task.CallRestriction,
             task.SellableCapturedAt,
             ReadSellableStatus(task.SellableStatusJson),
+            ReadVoiceRegion(task.PrivacySafeOrderSummaryJson),
             job.MaxAttempts,
             job.AttemptPolicyCode,
             job.ScriptVersion,
@@ -615,6 +617,35 @@ public sealed class AdminReadService(
     /// full order code stays in the database: only the short form is approved
     /// for display (specs/ui/02, specs/api/04).
     /// </summary>
+    /// <summary>
+    /// Derives the regional voice from the stored delivery area (W-0106). Reuses
+    /// <see cref="DeliveryRegionResolver"/> rather than reimplementing the province table here:
+    /// two copies of a 63-name mapping would drift, and the copy that drifted would be the one
+    /// the console shows while the one the customer hears stays right — the worst way round.
+    /// <para>
+    /// A malformed or absent summary yields null, matching how
+    /// <c>ReadSellableStatus</c> refuses to fail a whole detail screen over one bad snapshot.
+    /// </para>
+    /// </summary>
+    private static string? ReadVoiceRegion(string? summaryJson)
+    {
+        if (string.IsNullOrWhiteSpace(summaryJson))
+        {
+            return null;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(summaryJson);
+            string? deliveryArea = ReadString(document.RootElement, "delivery_area_short");
+            return DeliveryRegionResolver.TryResolve(deliveryArea)?.ToString();
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
     private static string ReadOrderCodeShort(string? summaryJson)
     {
         if (string.IsNullOrWhiteSpace(summaryJson))

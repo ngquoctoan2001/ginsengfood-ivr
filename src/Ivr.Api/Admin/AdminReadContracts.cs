@@ -138,6 +138,21 @@ public sealed record CallJobDetailApiResult(
     [property: JsonPropertyName("call_restriction")] bool CallRestriction,
     [property: JsonPropertyName("sellable_captured_at")] DateTimeOffset? SellableCapturedAt,
     [property: JsonPropertyName("sellable_status")] IReadOnlyList<SellableStatusLineView> SellableStatus,
+    /// W-0106. Which regional voice this order routes to, derived from the stored delivery
+    /// area under the 34 provincial units of Nghị quyết 202/2025/QH15. Null when the area
+    /// names no recognisable province.
+    /// <para>
+    /// Derived at READ time, so it is not an audit record of the voice actually played: the
+    /// voice map and its fallback live in configuration, and a config change between the call
+    /// and this read would make the two disagree. Auditing the played voice would need it
+    /// persisted, which W-0106 deliberately does not do.
+    /// </para>
+    /// <para>
+    /// The raw delivery area is deliberately NOT exposed. A three-value region tells an
+    /// operator which voice a customer heard without putting a ward-and-province string on
+    /// the console, which would be a privacy expansion needing its own review (OD-V1-15).
+    /// </para>
+    [property: JsonPropertyName("voice_region")] string? VoiceRegion,
     [property: JsonPropertyName("max_attempts")] int MaxAttempts,
     [property: JsonPropertyName("attempt_policy_code")] string AttemptPolicyCode,
     [property: JsonPropertyName("script_version")] string ScriptVersion,
