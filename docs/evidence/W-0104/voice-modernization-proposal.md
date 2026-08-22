@@ -4,7 +4,7 @@ Ngày: `2026-08-21`
 
 Trạng thái: `OWNER_AUDIO_REJECTED` — đây là kết luận UX bên trong W-0104, không phải status mới của tracker. Tracker giữ `TESTS_PASS` vì telephony/DTMF đã đạt, nhưng chưa `ACCEPTED`.
 
-Cập nhật `2026-08-22`: A/B Edge đã được triển khai và nghe qua MicroSIP nhưng owner từ chối cả hai. Owner sau đó chọn candidate ElevenLabs `Trung Caha`; candidate này vẫn cần được sinh lại bằng script v2 và nghe qua MicroSIP trước khi acceptance.
+Cập nhật `2026-08-22`: A/B Edge đã được triển khai và nghe qua MicroSIP nhưng owner từ chối cả hai. Voice C ElevenLabs `Trung Caha` sau đó được sinh đúng script v2, chuyển PCM 8 kHz, pin checksum/voice ID và chạy đủ hai disposition MicroSIP; quyết định chất lượng cuối của owner vẫn chờ ghi nhận.
 
 ## 1. Nguyên nhân hiện tại
 
@@ -37,8 +37,8 @@ Microsoft hiện liệt kê hai voice tiếng Việt neural trên trong tài li�
 
 W-0104 chỉ được owner chuyển `ACCEPTED` khi cả luồng gọi và UX đạt:
 
-- hai voice A/B đều phát đủ câu, không cắt đầu/cuối;
-- tên khách fake, mã đơn, sản phẩm, số lượng, tổng tiền và khu vực được đọc đúng;
+- candidate được chọn phát đủ câu, không cắt đầu/cuối;
+- tên khách fake, sản phẩm, số lượng, tổng tiền và khu vực được đọc đúng;
 - không đọc raw phone/full address hoặc dữ liệu ngoài whitelist;
 - lời mời bấm `1/0` rõ; DTMF vẫn ra đúng `IVR_CONFIRMED`/`IVR_CUSTOMER_CANCELLED`;
 - owner chọn một voice/version và xác nhận âm lượng, tốc độ, độ tự nhiên;
@@ -54,12 +54,13 @@ Neural A/B trên MicroSIP vẫn chỉ là software-lab evidence. Nó không ch�
 | --- | --- | --- | --- | --- |
 | A | `vi-VN-HoaiMyNeural` | PCM signed 16-bit, 8 kHz, mono; 14,880 giây | `ad3ea2bc67bf0264baa8065f8e537193f4367af7d1eef08f6acdb1a8cd56c797` | `TASK-LAB-20260822013752` → `IVR_CONFIRMED` |
 | B | `vi-VN-NamMinhNeural` | PCM signed 16-bit, 8 kHz, mono; 15,312 giây | `6db1992b99903fdfa22ad03020bc888d454fa86bd3821ab84cb32d531ea13790` | `TASK-LAB-20260822013829` → `IVR_CONFIRMED` |
+| C | ElevenLabs `Trung Caha`, voice ID `ueSxRO0nLF1bj93J2hVt` | PCM signed 16-bit, 8 kHz, mono; 17,1625 giây | `2341117f403acb20789821c9d8005b6e2a2cdfbc58fc14ffc5b4ce04dfcb2153` | `TASK-LAB-20260822033915` → `IVR_CONFIRMED`; `TASK-LAB-20260822034006` → `IVR_CUSTOMER_CANCELLED` |
 
-Image Asterisk kiểm cả hai checksum khi boot; helper `Set-AsteriskLabVoice.ps1` kiểm lại checksum trước mỗi lần chuyển file bằng thao tác atomic. Hai voice dùng cùng nội dung fake và rate `-3%`. W-0104 vẫn `TESTS_PASS` cho đến khi owner ghi lựa chọn A/B và nhận xét chất lượng.
+Image Asterisk kiểm cả ba checksum khi boot; helper `Set-AsteriskLabVoice.ps1` kiểm lại checksum trước mỗi lần chuyển file bằng thao tác atomic. A/B dùng rate `-3%`; C dùng Eleven v3/Auto language detection trên web app. W-0104 vẫn `TESTS_PASS` cho đến khi owner ghi nhận xét chất lượng cuối.
 
 ## 7. Candidate ElevenLabs và script v2
 
-Owner đã chọn candidate `Trung Caha - Clear, Firm and Informative` trong ElevenLabs và gửi một MP3 preview. File có SHA-256 `0ac74bacee8f6e9d8ba75c71f9fe1e3e3f676d7cd01ed6ea9e4aaa6b7c48c56e`, MP3 44,1 kHz mono, dài 17,3975 giây. Preview này vẫn nói câu mở đầu cũ “Xin chào chị Giang”, nên chỉ là bằng chứng chọn chất giọng; file không được copy vào repo hay Asterisk runtime.
+Owner chọn `Trung Caha - Clear, Firm and Informative` trong ElevenLabs. Voice library xác định voice ID `ueSxRO0nLF1bj93J2hVt`. Bản mới được tạo ngày 2026-08-22 bằng Eleven v3, 302 credits và đúng script v2: MP3 44,1 kHz/mono/128 kbps, dài 17,162438 giây, SHA-256 `bd046426b0d663921f43d1855d49753ee7c5190968a37e5212223ca248cfd76f`. MP3 nguồn nằm ngoài repo; image chỉ chứa PCM 8 kHz đã pin checksum.
 
 Script MOCK mới được version hóa thành `v2-test-approved`:
 
@@ -67,4 +68,4 @@ Script MOCK mới được version hóa thành `v2-test-approved`:
 
 Code renderer tạo số lượng/tổng tiền từ dữ liệu có cấu trúc; đoạn trên mô tả nội dung khách nghe chứ không phải text lưu cứng theo từng đơn. Phiên bản v1 được giữ để replay task dev cũ. Vị trí giao vẫn chỉ ở mức `delivery_area_short`; dữ liệu vị trí chi tiết không được mở trong W-0104.
 
-Các gate còn thiếu trước `ACCEPTED`: sinh lại MP3 Trung Caha đúng script v2; ghi voice ID và điều kiện API/license; chuyển asset sang PCM signed 16-bit/8 kHz/mono; pin checksum; chạy hai disposition MicroSIP `1/0`; owner xác nhận nội dung, âm lượng, tốc độ và độ tự nhiên. Cho đến lúc đó `REAL_CUSTOMER_CALL_ALLOWED=NO` và W-0105 chưa bắt đầu.
+Đã hoàn tất các gate kỹ thuật: đúng script v2, voice ID, MP3 hash, PCM signed 16-bit/8 kHz/mono, checksum image và hai disposition MicroSIP `1/0`. Còn đúng gate owner xác nhận nội dung, âm lượng, tốc độ và độ tự nhiên. Việc dùng 302 credits/free account chỉ chứng minh dev sample, không phải quyền production; trước production vẫn phải chốt license/quyền dùng voice, plan/quota/API, privacy/DPA, retention/data residency và fallback nếu voice ID biến mất. Cho đến khi owner xác nhận, `REAL_CUSTOMER_CALL_ALLOWED=NO`, W-0104 giữ `TESTS_PASS` và W-0105 chưa bắt đầu.

@@ -13,10 +13,10 @@ case "${IVR_LAB_ARI_PASSWORD}${IVR_LAB_SIP_PASSWORD}" in
 esac
 
 case "${IVR_LAB_VOICE_VARIANT}" in
-  A|B)
+  A|B|C)
     ;;
   *)
-    echo "IVR_LAB_VOICE_VARIANT must be A or B." >&2
+    echo "IVR_LAB_VOICE_VARIANT must be A, B or C." >&2
     exit 2
     ;;
 esac
@@ -35,6 +35,6 @@ voice_file="/opt/ivr-lab/audio/ivr-lab-order-confirmation-${voice_variant}.wav"
 cp "$voice_file" "${speech_file}.tmp"
 mv "${speech_file}.tmp" "$speech_file"
 
-echo "W-0104 neural voice variant ${IVR_LAB_VOICE_VARIANT} selected."
+echo "W-0104 pinned voice variant ${IVR_LAB_VOICE_VARIANT} selected."
 
 exec /usr/sbin/asterisk -f -vvv

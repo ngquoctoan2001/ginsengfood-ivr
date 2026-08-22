@@ -1,12 +1,16 @@
 [CmdletBinding()]
 param(
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+
+    [ValidateSet('A', 'B', 'C')]
+    [string]$VoiceVariant = 'A'
 )
 
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $env:IVR_LAB_ARI_PASSWORD = "ari-$([Guid]::NewGuid().ToString('N'))"
 $env:IVR_LAB_SIP_PASSWORD = "sip-$([Guid]::NewGuid().ToString('N'))"
+$env:IVR_LAB_VOICE_VARIANT = $VoiceVariant
 $compose = @(
     'compose',
     '-f', 'docker-compose.dev.yml',

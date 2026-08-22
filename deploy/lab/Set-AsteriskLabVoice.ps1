@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [ValidateSet('A', 'B')]
+    [ValidateSet('A', 'B', 'C')]
     [string]$Variant,
 
     [string]$AsteriskContainer = 'ginsengfood-ivr-dev-asterisk-1'
@@ -27,5 +27,9 @@ if ($LASTEXITCODE -ne 0) {
     throw "Unable to activate W-0104 voice variant $Variant."
 }
 
-$voiceId = if ($Variant -eq 'A') { 'vi-VN-HoaiMyNeural' } else { 'vi-VN-NamMinhNeural' }
+$voiceId = switch ($Variant) {
+    'A' { 'vi-VN-HoaiMyNeural' }
+    'B' { 'vi-VN-NamMinhNeural' }
+    'C' { 'ueSxRO0nLF1bj93J2hVt' }
+}
 Write-Host "W-0104 voice $Variant active: $voiceId (fake data, MicroSIP lab only)."

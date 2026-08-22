@@ -6,14 +6,14 @@ Baseline: `main@ce49f73`
 
 Neural A/B change baseline: `main@3cd7613`
 
-Trạng thái: `TESTS_PASS` — code, automated gates và hai disposition MicroSIP `1/0` đã đạt; owner không chấp nhận eSpeak hoặc neural A/B Edge. Candidate ElevenLabs `Trung Caha` và script v2 đã được chọn, nhưng audio v2 chưa được sinh/chạy lại nên chưa `ACCEPTED`.
+Trạng thái: `TESTS_PASS` — code, automated gates và hai disposition MicroSIP `1/0` đã đạt; owner không chấp nhận eSpeak hoặc neural A/B Edge. Voice C ElevenLabs `Trung Caha` đã được sinh đúng script v2, pin checksum/voice ID và chạy đủ `1/0`; owner chưa ghi quyết định chất lượng cuối nên chưa `ACCEPTED`.
 
 ## 1. Phạm vi đã triển khai
 
 - Asterisk 22.10.1 LTS Docker profile có base/source checksum đã ghim, ARI/Stasis, PJSIP endpoint `LAB-A`, RTP local và audio tiếng Việt sinh trong image.
 - `AsteriskAriSimGateway`, ARI event pump, health/originate/playback/DTMF/disposition/hangup; Basic auth không nằm trong URL.
 - `AsteriskSchedulerDispatchGateway` nối lease của scheduler vào `DispatchGate` trước mọi thao tác telephony.
-- `STATIC_FILE` speech provider trả media reference an toàn `sound:ivr-lab-order-confirmation`; không gửi/nắm giữ nội dung lời thoại ở dịch vụ ngoài.
+- `STATIC_FILE` speech provider trả media reference an toàn `sound:ivr-lab-order-confirmation`; runtime không gọi dịch vụ TTS ngoài. Lượt tạo voice C chỉ gửi script fake đã duyệt tới ElevenLabs web app.
 - Lab dial-token vault một lần, chỉ phân giải alias `LAB-A`; không có raw phone number.
 - Idempotent channel provisioner `SIM-ASTERISK-001`, fake policy/feature-flag seed, fake order/task runner và MicroSIP portable launcher.
 - MicroSIP archive/executable đều được kiểm SHA-256 đã ghim trước khi chạy.
@@ -52,6 +52,8 @@ Focused tests khóa các điểm: DI chỉ bật đúng profile lab, gate chặn
 | DTMF `0` -> `IVR_CUSTOMER_CANCELLED` | `PASS` — `TASK-LAB-20260820110858` |
 | Neural A — `vi-VN-HoaiMyNeural`, PCM 8 kHz mono | `PASS` — `TASK-LAB-20260822013752` → `IVR_CONFIRMED` |
 | Neural B — `vi-VN-NamMinhNeural`, PCM 8 kHz mono | `PASS` — `TASK-LAB-20260822013829` → `IVR_CONFIRMED` |
+| Voice C — ElevenLabs `Trung Caha`, PCM 8 kHz mono, phím `1` | `PASS` — `TASK-LAB-20260822033915` → `IVR_CONFIRMED` |
+| Voice C — ElevenLabs `Trung Caha`, PCM 8 kHz mono, phím `0` | `PASS` — `TASK-LAB-20260822034006` → `IVR_CUSTOMER_CANCELLED` |
 
 Các task trên chỉ chứa dữ liệu fake, không chứa số điện thoại, credential hay dữ liệu khách thật. Một lượt đối chứng không bấm phím kết thúc `IVR_NO_ANSWER_FINAL`; hai lượt click chính control `1/0` của MicroSIP được ARI thu và normalizer tạo đúng hai final result tương ứng.
 
@@ -70,6 +72,6 @@ W-0104 đã đạt `TESTS_PASS`. Owner đã từ chối nghiệm thu audio hiệ
 
 Ngày 2026-08-22, hai file neural A/B đã được sinh bằng cùng script fake, chuẩn hóa PCM signed 16-bit/8 kHz/mono, ghim checksum và phát thành công qua media reference hiện hữu. Hai lượt MicroSIP đều được owner bắt máy và tạo `IVR_CONFIRMED`; kiểm tra checksum A/B đều PASS trước mỗi lần chuyển file. `edge-tts 7.2.8` chỉ là công cụ sinh mẫu dev, không phải provider production. Owner đã nghe đủ A/B nhưng chưa ghi lựa chọn cuối trong tracker, vì vậy trạng thái vẫn là `TESTS_PASS`.
 
-Sau khi từ chối cả A/B, owner chọn candidate ElevenLabs `Trung Caha`. Code đã có immutable script `v2-test-approved` và migration MOCK tương ứng; script nhận diện Ginsengfood, không đọc mã đơn, dùng hướng dẫn phím “một/không”, đồng thời lab seed dùng Giang/cháo sâm/khu vực Phú Khương. MP3 candidate đã gửi vẫn chứa câu cũ nên chưa được đưa vào image. Chi tiết và các gate còn thiếu nằm ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md#7-candidate-elevenlabs-và-script-v2).
+Sau khi từ chối cả A/B, owner chọn candidate ElevenLabs `Trung Caha`. Code có immutable script `v2-test-approved` và migration MOCK tương ứng; script nhận diện Ginsengfood, không đọc mã đơn, dùng hướng dẫn phím “một/không”, đồng thời lab seed dùng Giang/cháo sâm/khu vực Phú Khương. Bản MP3 mới đúng 302 ký tự có voice ID `ueSxRO0nLF1bj93J2hVt`, được chuyển thành voice C PCM signed 16-bit/8 kHz/mono và image kiểm checksum trước khi phát. Hai disposition MicroSIP mới đều PASS. Chi tiết ở [`voice-modernization-proposal.md`](voice-modernization-proposal.md#7-candidate-elevenlabs-và-script-v2).
 
-Chỉ chuyển `ACCEPTED` sau khi owner nghe bản Trung Caha được sinh đúng script v2 qua MicroSIP và xác nhận lời thoại rõ, tự nhiên, đúng số tiền/sản phẩm/khu vực/phím bấm; DTMF `1/0` vẫn phải PASS. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.
+Chỉ chuyển `ACCEPTED` sau khi owner xác nhận rõ bản Trung Caha vừa nghe tự nhiên, âm lượng/tốc độ phù hợp và đúng số tiền/sản phẩm/khu vực/phím bấm. DTMF `1/0` đã PASS nhưng không tự thay thế quyết định UX. Hướng dẫn tái hiện đầy đủ ở `deploy/lab/README.md`.

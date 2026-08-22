@@ -25,6 +25,22 @@ VALUES (
     TIMESTAMPTZ '2026-08-20 00:00:00+00')
 ON CONFLICT (script_version_id, approval_type) DO NOTHING;
 
+INSERT INTO ivr_script_approvals (
+    id, script_version_id, approval_type, actor_id, reason, correlation_id, approved_at)
+SELECT
+    '27000000-0000-0000-0000-000000000105',
+    version.id,
+    'LAB',
+    'w0104-lab-reviewer',
+    'W-0104 synthetic softphone lab script v2 only',
+    'W-0104-SCRIPT-V2-LAB',
+    TIMESTAMPTZ '2026-08-22 03:40:00+00'
+FROM ivr_script_versions version
+WHERE version.template_id = 'SCRIPT-ORDER-CONFIRM'
+  AND version.version = 'v2-test-approved'
+  AND version.status = 'APPROVED'
+ON CONFLICT (script_version_id, approval_type) DO NOTHING;
+
 UPDATE ivr_feature_flags
 SET value_json = CASE key
         WHEN 'executionMode' THEN '"LAB_REAL_SIM"'::jsonb
@@ -70,11 +86,11 @@ BEGIN
         JOIN ivr_script_approvals approval
           ON approval.script_version_id = version.id
         WHERE version.template_id = 'SCRIPT-ORDER-CONFIRM'
-          AND version.version = 'v1-test-approved'
+          AND version.version = 'v2-test-approved'
           AND version.status = 'APPROVED'
           AND approval.approval_type = 'LAB')
     THEN
-        RAISE EXCEPTION 'W-0104 LAB script approval was not installed';
+        RAISE EXCEPTION 'W-0104 LAB script v2 approval was not installed';
     END IF;
 END $$;
 
