@@ -17,19 +17,21 @@ consistent loading/empty/error vocabulary.
 | `/config` | P3-3 | Script versions, approval matrix, DTMF map, variable whitelist — read-only |
 | `/integration` | P3-3 | Dependency status and recent fail-closed events — view only |
 | `/seed` | P3-3 | Adapter mode and test profiles — read-only, locked outside non-prod |
-| `/roles` | P3-3 | Role and permission reference matrix |
+| `/accounts` | W-0105 | Admin-only account list, create, edit, password reset, session revoke and soft-delete |
+| `/profile` | W-0105 | Current account profile; available to Admin and Operator |
+| `/roles` | W-0105 | API-backed Admin/Operator permission matrix; Admin only |
 
-The back-office screens are read-only on purpose. Script approval is an owner
-decision (`OD-V1-15`), permission assignment belongs to Permission Core (DF-01),
-and no seed write path is exposed from a browser. Dependency cards that IVR
+The configuration, integration and seed screens remain read-only. Script
+approval is an owner decision (`OD-V1-15`), and no seed write path is exposed
+from a browser. Dependency cards that IVR
 cannot probe are shown as `NOT_WIRED` rather than healthy until `P6-1`
 (`W-0040`) delivers real probing.
 
 ## Boundaries
 
 - **The browser never talks to Ivr.Api.** Every call goes through this Next.js
-  server, which holds the credentials and the API base URL. The browser holds
-  only an httpOnly session cookie (`specs/ui/08-role-permission-ui.md` §4).
+  server. The browser holds only the opaque API session token in an `httpOnly`,
+  `SameSite=Strict` cookie (`specs/ui/08-role-permission-ui.md`).
 - **No order transitions.** There is no confirm/cancel control and there will
   not be one: order state belongs to Order Core (D-02). The console can only
   hold and release IVR's own queue, retry technical exceptions, and annotate
@@ -44,15 +46,20 @@ cannot probe are shown as `NOT_WIRED` rather than healthy until `P6-1`
 
 ## Authentication
 
-`IVR_EXECUTION_MODE=MOCK` exposes the sign-in directory seeded from
-`seed/agents.sample.json` — three roles, no password, no real identity. Any
-other mode refuses to mint a session: platform SSO/JWT is gate `G-AUTH`
-(`W-0006`), still `BLOCKED_EXTERNAL`.
+The sign-in form accepts username/password in every execution mode and forwards
+them server-side to `POST /auth/sign-in`. Ivr.Api stores accounts and opaque
+8-hour sessions in PostgreSQL, resolves the current subject through
+`GET /auth/session`, and remains the authority for role and permission checks.
+The Next.js cookie is `httpOnly`, `SameSite=Strict`, and `Secure` outside
+development. Sign-in and sign-out are same-origin Route Handlers; sign-out also
+revokes the API session on a best-effort basis. Invalid username, password,
+disabled account and lockout deliberately share the same generic 401 response.
 
-The session is an HMAC-SHA256 signed cookie: `httpOnly`, `SameSite=Strict`,
-`Secure` outside development, 8-hour lifetime. Sign-in and sign-out are Route
-Handlers reached by plain form posts, so both work without JavaScript and both
-reject cross-site requests.
+Only two roles exist: `Admin` and `Operator`. Operator has exactly
+`IVR_QUEUE_VIEW`, `IVR_SIM_DISABLE`, `IVR_MANUAL_RETRY`, and
+`IVR_ACCOUNT_SELF_VIEW`; Admin receives the approved operational and account
+management permissions. `seed/agents.sample.json` is only a fake RBAC drift
+fixture and is not a credential source.
 
 ## Configuration
 
@@ -61,8 +68,7 @@ Copy `.env.example` to `.env.local`. All variables are read on the server only.
 | Variable | Purpose |
 | --- | --- |
 | `IVR_API_BASE_URL` | Ivr.Api origin (default `http://127.0.0.1:5005`) |
-| `IVR_EXECUTION_MODE` | Canonical mode key; only `MOCK` enables mock sign-in |
-| `IVR_ADMIN_UI_SESSION_SECRET` | Session HMAC key, ≥ 32 characters, required |
+| `IVR_EXECUTION_MODE` | Canonical runtime mode (`MOCK`, `LAB_REAL`, or governed production mode) |
 | `REAL_CUSTOMER_CALL_ALLOWED` | Drives the governance banner; anything but `YES` reads as off |
 | `IVR_ENVIRONMENT_LABEL` | Text shown in the environment badge |
 

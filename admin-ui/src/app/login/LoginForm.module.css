@@ -1,0 +1,11 @@
+/*
+ * The sign-in form.
+ *
+ * Credential controls and the submit button stay stacked at full width. The
+ * submit is `lg` and `block` because it is the only primary action.
+ */
+
+.form {
+  display: grid;
+  gap: var(--ivr-space-4);
+}

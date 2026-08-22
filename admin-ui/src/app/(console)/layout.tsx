@@ -22,6 +22,7 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
     >
       <AppShell
         actorId={session.actorId}
+        displayName={session.displayName}
         role={session.role}
         permissionCount={session.permissions.length}
         environmentLabel={config.environmentLabel}

@@ -1,6 +1,5 @@
 import { EnvironmentBadge } from "@/components/shell/EnvironmentBadge";
 import { GovernanceNotice } from "@/components/shell/GovernanceNotice";
-import { MOCK_DIRECTORY } from "@/lib/auth/directory";
 import {
   isSignInErrorCode,
   safeRedirectTarget,
@@ -39,20 +38,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
           isMockMode={config.isMockMode}
         />
 
-        {config.isMockMode ? (
-          <>
-            <LoginForm
-              directory={MOCK_DIRECTORY}
-              next={next}
-              errorMessage={errorMessage}
-            />
-            <p className={styles.notice}>{t("auth.signIn.mockNotice")}</p>
-          </>
-        ) : (
-          <p className={styles.blocked} role="alert">
-            {t("auth.signIn.unavailable")}
-          </p>
-        )}
+        <LoginForm next={next} errorMessage={errorMessage} />
 
         <GovernanceNotice realCustomerCallAllowed={config.realCustomerCallAllowed} />
       </section>

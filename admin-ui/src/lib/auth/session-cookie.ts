@@ -4,12 +4,13 @@ import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
 import { cache } from "react";
 
-import { readConfig, readSessionSecret } from "@/lib/config/env";
+import { IVR_API_BASE_PATH } from "@/lib/api/client";
+import { newCorrelationId } from "@/lib/api/correlation";
+import { readConfig } from "@/lib/config/env";
 
 import {
   SESSION_COOKIE_NAME,
-  sealSession,
-  unsealSession,
+  createSessionFromApi,
   type AdminSession,
 } from "./session";
 
@@ -20,7 +21,33 @@ import {
  */
 export const readSession = cache(async (): Promise<AdminSession | null> => {
   const store = await cookies();
-  return unsealSession(store.get(SESSION_COOKIE_NAME)?.value, readSessionSecret());
+  const accessToken = store.get(SESSION_COOKIE_NAME)?.value;
+  if (accessToken === undefined) {
+    return null;
+  }
+
+  const correlationId = newCorrelationId();
+  try {
+    const response = await fetch(
+      `${readConfig().apiBaseUrl}${IVR_API_BASE_PATH}/auth/session`,
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "X-Correlation-Id": correlationId,
+        },
+        cache: "no-store",
+        redirect: "error",
+      },
+    );
+    if (!response.ok) {
+      return null;
+    }
+
+    return createSessionFromApi(accessToken, await response.json());
+  } catch {
+    return null;
+  }
 });
 
 function cookieOptions(maxAge: number) {
@@ -43,7 +70,7 @@ export function applySessionCookie(
 ): NextResponse {
   response.cookies.set(
     SESSION_COOKIE_NAME,
-    sealSession(session, readSessionSecret()),
+    session.accessToken,
     cookieOptions(Math.max(0, session.expiresAt - Math.floor(Date.now() / 1000))),
   );
 

@@ -2,7 +2,7 @@ import "server-only";
 
 /**
  * Server-side configuration. Nothing here may be re-exported to a Client
- * Component: the API base URL, the session secret and the raw execution mode
+ * Component: the API base URL and the raw execution mode
  * all stay on the Next.js server (specs/ui/08 §4 — the browser never receives
  * an internal service token).
  */
@@ -37,8 +37,6 @@ const NON_PRODUCTION_ENVIRONMENTS: ReadonlySet<string> = new Set([
   "lab",
 ]);
 
-const SESSION_SECRET_MIN_LENGTH = 32;
-
 function readOptional(name: string): string | undefined {
   const value = process.env[name];
   return value === undefined || value.trim() === "" ? undefined : value.trim();
@@ -65,19 +63,4 @@ export function readConfig(): AdminUiConfig {
     isProductionRuntime: process.env.NODE_ENV === "production",
     isNonProductionEnvironment: NON_PRODUCTION_ENVIRONMENTS.has(environmentLabel),
   };
-}
-
-/**
- * The session signing key. Absent or too short is a hard startup error rather
- * than a silent fallback — an unsigned admin session is worse than no UI.
- */
-export function readSessionSecret(): string {
-  const secret = readOptional("IVR_ADMIN_UI_SESSION_SECRET");
-  if (secret === undefined || secret.length < SESSION_SECRET_MIN_LENGTH) {
-    throw new Error(
-      `IVR_ADMIN_UI_SESSION_SECRET is required and must be at least ${SESSION_SECRET_MIN_LENGTH} characters.`,
-    );
-  }
-
-  return secret;
 }

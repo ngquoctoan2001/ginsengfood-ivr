@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Fragment } from "react";
 
+import { usePermissions } from "@/components/rbac/PermissionProvider";
 import { RequirePermission } from "@/components/rbac/RequirePermission";
 import { t } from "@/lib/i18n";
 import type { IvrPermission } from "@/lib/rbac/permissions";
@@ -10,33 +12,44 @@ import type { IvrPermission } from "@/lib/rbac/permissions";
 import styles from "./ConsoleNav.module.css";
 import { NavIcon, type NavIconName } from "./NavIcon";
 
-interface NavItem {
+/**
+ * A route is shown either because the session carries a permission the route actually uses, or
+ * because the route is Admin-only.
+ *
+ * The admin-only entries previously borrowed `IVR_ACCOUNT_VIEW` as a stand-in for "is an admin".
+ * It worked only because that permission happens to be Admin-only today: grant it to a future
+ * support role and reports, config and seed would appear in their sidebar for no stated reason.
+ * The server pages behind these routes gate on `requireAdmin()`, and the API gates them with
+ * `IvrRoles.ConsoleAdminPolicy` — so the nav now states the same rule those two state.
+ */
+type NavItem = {
   readonly href: string;
   readonly label: string;
   readonly icon: NavIconName;
-  readonly perm: IvrPermission;
-}
+} & ({ readonly perm: IvrPermission } | { readonly adminOnly: true });
 
-/** Every entry is a route that exists; all are gated on IVR_QUEUE_VIEW. */
 const NAV_ITEMS: readonly NavItem[] = [
   { href: "/dashboard", label: t("nav.dashboard"), icon: "dashboard", perm: "IVR_QUEUE_VIEW" },
   { href: "/calls", label: t("nav.callLog"), icon: "callLog", perm: "IVR_QUEUE_VIEW" },
-  { href: "/reports", label: t("nav.reports"), icon: "reports", perm: "IVR_QUEUE_VIEW" },
-  { href: "/review", label: t("nav.review"), icon: "review", perm: "IVR_QUEUE_VIEW" },
-  { href: "/config", label: t("nav.config"), icon: "config", perm: "IVR_QUEUE_VIEW" },
-  { href: "/integration", label: t("nav.integration"), icon: "integration", perm: "IVR_QUEUE_VIEW" },
-  { href: "/seed", label: t("nav.seed"), icon: "seed", perm: "IVR_QUEUE_VIEW" },
-  { href: "/roles", label: t("nav.roles"), icon: "roles", perm: "IVR_QUEUE_VIEW" },
+  { href: "/profile", label: t("nav.profile"), icon: "roles", perm: "IVR_ACCOUNT_SELF_VIEW" },
+  { href: "/reports", label: t("nav.reports"), icon: "reports", adminOnly: true },
+  { href: "/review", label: t("nav.review"), icon: "review", adminOnly: true },
+  { href: "/config", label: t("nav.config"), icon: "config", adminOnly: true },
+  { href: "/integration", label: t("nav.integration"), icon: "integration", adminOnly: true },
+  { href: "/seed", label: t("nav.seed"), icon: "seed", adminOnly: true },
+  { href: "/accounts", label: t("nav.accounts"), icon: "roles", adminOnly: true },
+  { href: "/roles", label: t("nav.roles"), icon: "roles", adminOnly: true },
 ];
 
 export function ConsoleNav() {
   const pathname = usePathname();
+  const { role } = usePermissions();
 
   return (
     <nav className={styles.nav} aria-label={t("nav.sectionLabel")}>
       <ul className={styles.list}>
-        {NAV_ITEMS.map((item) => (
-          <RequirePermission key={item.href} perm={item.perm}>
+        {NAV_ITEMS.map((item) => {
+          const entry = (
             <li>
               <Link
                 href={item.href}
@@ -49,8 +62,19 @@ export function ConsoleNav() {
                 <span className={styles.label}>{item.label}</span>
               </Link>
             </li>
-          </RequirePermission>
-        ))}
+          );
+
+          if ("adminOnly" in item) {
+            // A Fragment, not a wrapper element: only <li> is valid inside <ul>.
+            return role === "Admin" ? <Fragment key={item.href}>{entry}</Fragment> : null;
+          }
+
+          return (
+            <RequirePermission key={item.href} perm={item.perm}>
+              {entry}
+            </RequirePermission>
+          );
+        })}
       </ul>
     </nav>
   );

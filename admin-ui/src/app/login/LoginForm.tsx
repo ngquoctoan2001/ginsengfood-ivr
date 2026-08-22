@@ -1,44 +1,49 @@
-import type { DirectoryEntry } from "@/lib/auth/directory";
-import { formatNumber, t } from "@/lib/i18n";
+import { Button, Callout, TextField } from "@/components/ui";
+import { t } from "@/lib/i18n";
 
-import controls from "@/components/forms/Controls.module.css";
+import styles from "./LoginForm.module.css";
 
 export interface LoginFormProps {
-  readonly directory: readonly DirectoryEntry[];
   /** Path to return to after sign-in, already validated as same-origin. */
   readonly next: string | null;
   readonly errorMessage: string | null;
 }
 
-export function LoginForm({ directory, next, errorMessage }: LoginFormProps) {
+export function LoginForm({ next, errorMessage }: LoginFormProps) {
   return (
-    <form method="post" action="/api/auth/sign-in" className={controls.stack}>
+    <form method="post" action="/api/auth/sign-in" className={styles.form}>
       {next === null ? null : <input type="hidden" name="next" value={next} />}
 
-      <label className={controls.field}>
-        <span className={controls.label}>{t("auth.signIn.actorLabel")}</span>
-        <select
-          name="actorId"
-          className={controls.control}
-          defaultValue={directory[0]?.actorId}
-        >
-          {directory.map((entry) => (
-            <option key={entry.actorId} value={entry.actorId}>
-              {`${entry.actorId} · ${entry.role} · ${formatNumber(entry.permissions.length)}`}
-            </option>
-          ))}
-        </select>
-      </label>
+      <TextField
+        label={t("auth.signIn.usernameLabel")}
+        name="username"
+        width="full"
+        autoComplete="username"
+        required
+        minLength={3}
+        maxLength={64}
+        mono
+      />
+
+      <TextField
+        label={t("auth.signIn.passwordLabel")}
+        name="password"
+        type="password"
+        width="full"
+        autoComplete="current-password"
+        required
+        maxLength={128}
+      />
 
       {errorMessage === null ? null : (
-        <p className={controls.invalid} role="alert">
+        <Callout tone="danger" role="alert">
           {errorMessage}
-        </p>
+        </Callout>
       )}
 
-      <button type="submit" className={controls.primary}>
+      <Button type="submit" variant="primary" size="lg" block>
         {t("auth.signIn.submit")}
-      </button>
+      </Button>
     </form>
   );
 }

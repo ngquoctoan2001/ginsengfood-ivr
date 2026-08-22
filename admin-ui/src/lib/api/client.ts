@@ -15,12 +15,8 @@ import { IvrApiError, parseErrorEnvelope } from "./errors";
 /** Admin/intake surface of Ivr.Api (`specs/api/03-admin-api.md`). */
 export const IVR_API_BASE_PATH = "/v1/ivr/order-confirmation";
 
-/** MOCK-mode authentication headers accepted by `MockPermissionAuthenticationHandler`. */
-const MOCK_ACTOR_HEADER = "X-Mock-Actor-Id";
-const MOCK_PERMISSIONS_HEADER = "X-Permissions";
-
 export interface IvrApiRequest {
-  readonly method: "GET" | "POST";
+  readonly method: "GET" | "POST" | "PATCH" | "DELETE";
   readonly path: string;
   readonly session: AdminSession | null;
   readonly config: AdminUiConfig;
@@ -99,7 +95,9 @@ function buildHeaders(request: IvrApiRequest, correlationId: string): Headers {
 
   if (request.body !== undefined) {
     headers.set("Content-Type", "application/json");
-    headers.set(IDEMPOTENCY_HEADER, request.idempotencyKey ?? newIdempotencyKey());
+    if (request.session !== null) {
+      headers.set(IDEMPOTENCY_HEADER, request.idempotencyKey ?? newIdempotencyKey());
+    }
   }
 
   if (request.session === null) {
@@ -109,23 +107,8 @@ function buildHeaders(request: IvrApiRequest, correlationId: string): Headers {
   // `InternalRequestGuard.RequireAdminActor` rejects the call unless X-Actor-Id
   // equals the authenticated subject, so the two are always set together.
   headers.set(ACTOR_HEADER, request.session.actorId);
-
-  if (request.config.isMockMode) {
-    headers.set(MOCK_ACTOR_HEADER, request.session.actorId);
-    headers.set(MOCK_PERMISSIONS_HEADER, request.session.permissions.join(","));
-    return headers;
-  }
-
-  // Outside MOCK the mock headers are a 403 (MockPermissionHeaderGuardMiddleware)
-  // and no production token issuer exists yet. Fail closed rather than emit an
-  // unauthenticated admin call.
-  throw new IvrApiError({
-    code: "IVR_UNAUTHENTICATED",
-    message:
-      "No production credential is configured for Ivr.Api. Real service authentication is BLOCKED_EXTERNAL (gate G-AUTH / W-0006).",
-    status: 0,
-    correlationId,
-  });
+  headers.set("Authorization", `Bearer ${request.session.accessToken}`);
+  return headers;
 }
 
 async function readJson(response: Response): Promise<unknown> {

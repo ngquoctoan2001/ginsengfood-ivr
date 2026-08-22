@@ -25,6 +25,8 @@ export const IVR_ERROR_CODES = [
   "IVR_OPERATIONAL_BLOCKED",
   "IVR_NOT_FOUND",
   "IVR_RATE_LIMITED",
+  "IVR_ACCOUNT_CONFLICT",
+  "IVR_ACCOUNT_POLICY_VIOLATION",
   "IVR_INTERNAL_ERROR",
 ] as const;
 
@@ -252,6 +254,14 @@ export interface IvrCallJobDetail {
   readonly call_restriction: boolean;
   readonly sellable_captured_at?: string;
   readonly sellable_status: readonly IvrSellableStatusLine[];
+  /**
+   * W-0106. Which regional voice this order routes to, derived server-side from the stored
+   * delivery area. Absent when no province could be identified.
+   *
+   * Derived at read time, not an audit record of the voice actually played — the voice map
+   * lives in configuration. The raw delivery area is deliberately not sent to the console.
+   */
+  readonly voice_region?: "North" | "Central" | "South";
   readonly max_attempts: number;
   readonly attempt_policy_code: string;
   readonly script_version: string;

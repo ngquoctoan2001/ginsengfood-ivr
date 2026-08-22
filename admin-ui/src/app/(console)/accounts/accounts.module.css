@@ -1,0 +1,51 @@
+/*
+ * Fields align to the top of the row, not the bottom.
+ *
+ * `align-items: end` looked right while every field was the same height, and
+ * broke the moment one carried a hint: the password field grew by two lines of
+ * help text, and bottom-alignment paid for that by lifting its label and its
+ * input above the rest of the row. Aligning to the start keeps every label on
+ * one line and every input on the next, and lets the hint hang below where it
+ * disturbs nothing.
+ */
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--ivr-space-4);
+  align-items: start;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+/*
+ * Takes whatever width is left on the row rather than starting a new one — for
+ * the reason field beside a single short input, where a full-width row would
+ * leave an obvious hole to its right.
+ *
+ * Below the breakpoint the grid is down to one column, where "the rest of the
+ * row" is the whole row.
+ */
+.rest {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 40rem) {
+  .rest {
+    grid-column: 2 / -1;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ivr-space-3);
+  align-items: center;
+}
+
+.dangerZone {
+  border: 1px solid var(--ivr-danger-border);
+  border-radius: var(--ivr-radius-md);
+  padding: var(--ivr-space-4);
+}

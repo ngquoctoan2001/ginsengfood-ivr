@@ -11,6 +11,7 @@ import { SignOutButton } from "./SignOutButton";
 
 export interface AppShellProps {
   readonly actorId: string;
+  readonly displayName: string;
   readonly role: IvrRole;
   readonly permissionCount: number;
   readonly environmentLabel: string;
@@ -22,6 +23,7 @@ export interface AppShellProps {
 
 export function AppShell({
   actorId,
+  displayName,
   role,
   permissionCount,
   environmentLabel,
@@ -46,7 +48,7 @@ export function AppShell({
         <div className={styles.actor}>
           <span className={styles.actorLine}>
             <span className={styles.actorKey}>{t("auth.signedInAs")}</span>
-            <span className={styles.actorValue}>{actorId}</span>
+            <span className={styles.actorValue}>{displayName} · {actorId}</span>
           </span>
           <span className={styles.actorLine}>
             <span className={styles.actorKey}>{t("auth.role")}</span>

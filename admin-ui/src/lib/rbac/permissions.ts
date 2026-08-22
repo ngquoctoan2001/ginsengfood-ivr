@@ -16,6 +16,10 @@ export const IVR_PERMISSIONS = [
   "IVR_RESULT_REVIEW",
   "IVR_FLAG_READ",
   "IVR_RUNTIME_GATE_ADMIN",
+  "IVR_ACCOUNT_VIEW",
+  "IVR_ACCOUNT_MANAGE",
+  "IVR_ACCOUNT_PASSWORD_RESET",
+  "IVR_ACCOUNT_SELF_VIEW",
 ] as const;
 
 export type IvrPermission = (typeof IVR_PERMISSIONS)[number];
@@ -27,11 +31,10 @@ export function isIvrPermission(value: string): value is IvrPermission {
 }
 
 /**
- * Roles proposed by `specs/ui/08-role-permission-ui.md` §2 and seeded in
- * `seed/agents.sample.json`. `tests/unit/rbac-directory-drift.test.ts` fails if
- * the two drift apart.
+ * W-0105 locks the console to exactly two roles. Ivr.Api remains the
+ * authorization source; this union only validates the session projection.
  */
-export const IVR_ROLES = ["OpsViewer", "Ops", "AdminIM"] as const;
+export const IVR_ROLES = ["Admin", "Operator"] as const;
 
 export type IvrRole = (typeof IVR_ROLES)[number];
 
