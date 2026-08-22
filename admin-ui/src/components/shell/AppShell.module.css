@@ -22,14 +22,16 @@
   text-decoration: none;
 }
 
-/* Sticky so the environment badge and the signed-in actor stay visible while
-   an operator scrolls a long table.
+/* Sticky so the environment badge stays visible while an operator scrolls a
+   long table. The signed-in actor used to ride along here; it now lives at the
+   foot of the sidebar rail, which is sticky for the same reason.
 
-   The header is the one navy band in a light console. Its children —
-   EnvironmentBadge, SignOutButton — are also rendered on white surfaces
-   elsewhere (the login card), so rather than teach them about navy, the tokens
-   are re-pointed here. Custom properties inherit, so each child styles itself
-   correctly for navy without knowing it is on navy. Ratios against #0B1F3A:
+   The header is the one navy band in a light console. Its child —
+   EnvironmentBadge — is also rendered on a white surface elsewhere (the login
+   card), so rather than teach it about navy, the tokens are re-pointed here.
+   Custom properties inherit, so each child styles itself correctly for navy
+   without knowing it is on navy, and the whole set is re-pointed rather than
+   the two tokens today's children happen to read. Ratios against #0B1F3A:
    text 15.41:1, muted 8.59:1, control border 6.74:1. The divider token becomes
    the gold hairline, which is 6.83:1 there. */
 .header {
@@ -67,30 +69,6 @@
   padding-bottom: 2px;
 }
 
-.actor {
-  margin-left: auto;
-  display: grid;
-  gap: 1px;
-  font-size: var(--ivr-text-xs);
-  text-align: right;
-}
-
-.actorLine {
-  display: inline-flex;
-  gap: var(--ivr-space-2);
-  justify-content: flex-end;
-  align-items: baseline;
-}
-
-.actorKey {
-  color: var(--ivr-text-subtle);
-}
-
-.actorValue {
-  font-family: var(--ivr-font-mono);
-  font-weight: 600;
-}
-
 .body {
   display: flex;
   flex: 1;
@@ -124,14 +102,5 @@
 
   .body {
     flex-direction: column;
-  }
-
-  .actor {
-    margin-left: 0;
-    text-align: left;
-  }
-
-  .actorLine {
-    justify-content: flex-start;
   }
 }

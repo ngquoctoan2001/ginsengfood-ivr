@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { DateField, SelectField } from "@/components/ui";
 import vi from "@/i18n/vi.json";
@@ -274,5 +274,127 @@ describe("UT-UI-CONTROL-03 the calendar", () => {
     expect(
       screen.getByRole("button", { name: messages["dashboard.filterFrom"] }),
     ).toHaveTextContent(messages["date.placeholder"]);
+  });
+});
+
+/**
+ * UT-UI-CONTROL-04 — a panel that opens upward stays attached to its trigger.
+ *
+ * Reported from the accounts screen: the role dropdown in the create form drew
+ * its two options roughly 190px clear of the field, over the table above, so it
+ * read as belonging to nothing. The cause is arithmetic rather than CSS.
+ * `maxHeight` is the room reserved for a panel, and `max-height` caps a box
+ * without ever stretching one, so a menu reserving 272px but rendering 84px,
+ * placed at `trigger.top - offset - 272`, ends 188px short of its own field.
+ *
+ * The fix pins the bottom edge, which does not depend on how tall the contents
+ * turn out to be. What follows asserts the placement numbers rather than
+ * `position: fixed` alone: the older check passed throughout the bug, because a
+ * panel can be fixed, on screen, and still in the wrong place.
+ *
+ * jsdom lays nothing out, so the trigger box and the viewport are pinned by
+ * hand — the hook reads both through the same two APIs a browser provides.
+ */
+describe("UT-UI-CONTROL-04 anchored panel placement", () => {
+  const OFFSET = 4;
+  const VIEWPORT = 900;
+  const TRIGGER_HEIGHT = 36;
+
+  const originalRect = HTMLElement.prototype.getBoundingClientRect;
+  const originalHeight = window.innerHeight;
+
+  /** Puts the control about to be rendered at a known place in a known viewport. */
+  function pinTriggerAt(top: number, viewportHeight = VIEWPORT): void {
+    const box = {
+      top,
+      bottom: top + TRIGGER_HEIGHT,
+      left: 160,
+      right: 460,
+      width: 300,
+      height: TRIGGER_HEIGHT,
+      x: 160,
+      y: top,
+    };
+
+    HTMLElement.prototype.getBoundingClientRect = () => ({ ...box, toJSON: () => box }) as DOMRect;
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: viewportHeight });
+  }
+
+  afterEach(() => {
+    HTMLElement.prototype.getBoundingClientRect = originalRect;
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: originalHeight });
+  });
+
+  it("pins the menu by its bottom edge when it opens upward, not by a guessed top", async () => {
+    // 164px of room below and 700px above: the menu flips up.
+    pinTriggerAt(700);
+    const user = userEvent.setup();
+    render(
+      <SelectField label={messages["dashboard.filterProgram"]} name="program" options={PROGRAMS} />,
+    );
+
+    await user.click(screen.getByRole("combobox"));
+    const listbox = screen.getByRole("listbox");
+
+    // Measured from the foot of the viewport, the panel's bottom edge sits
+    // OFFSET above the trigger's top — as true for two options as for twenty.
+    expect(listbox.style.bottom).toBe(`${VIEWPORT - 700 + OFFSET}px`);
+
+    // `top` must be absent. Setting both edges would stretch the panel to the
+    // reserved height and bring the gap back from the other side.
+    expect(listbox.style.top).toBe("");
+  });
+
+  it("hangs the menu directly under the trigger when it opens downward", async () => {
+    // 700px of room below leaves no reason to flip.
+    pinTriggerAt(160);
+    const user = userEvent.setup();
+    render(
+      <SelectField label={messages["dashboard.filterProgram"]} name="program" options={PROGRAMS} />,
+    );
+
+    await user.click(screen.getByRole("combobox"));
+    const listbox = screen.getByRole("listbox");
+
+    expect(listbox.style.top).toBe(`${160 + TRIGGER_HEIGHT + OFFSET}px`);
+    expect(listbox.style.bottom).toBe("");
+  });
+
+  it("keeps the calendar against its field when it opens upward", async () => {
+    // The calendar reserves 360px, so it flips well before the dropdown does.
+    pinTriggerAt(600);
+    const user = userEvent.setup();
+    render(
+      <DateField label={messages["dashboard.filterFrom"]} name="from" defaultValue="2026-08-14" />,
+    );
+
+    await user.click(screen.getByRole("button", { name: messages["dashboard.filterFrom"] }));
+    const dialog = screen.getByRole("dialog");
+
+    expect(dialog.style.bottom).toBe(`${VIEWPORT - 600 + OFFSET}px`);
+    expect(dialog.style.top).toBe("");
+  });
+
+  it("keeps a panel on screen when neither direction has room for it", async () => {
+    // A viewport too short for the panel either way. Overlapping the trigger is
+    // acceptable — it is still reachable — sliding off the edge is not.
+    pinTriggerAt(120, 340);
+    const user = userEvent.setup();
+    render(
+      <SelectField label={messages["dashboard.filterProgram"]} name="program" options={PROGRAMS} />,
+    );
+
+    await user.click(screen.getByRole("combobox"));
+    const listbox = screen.getByRole("listbox");
+
+    // Which edge it hangs from is the hook's call and not the point here; that
+    // it fits inside the viewport at its full reserved height is.
+    const maxHeight = Number.parseFloat(String(listbox.style.maxHeight));
+    const pinned = listbox.style.top === "" ? listbox.style.bottom : listbox.style.top;
+    const offset = Number.parseFloat(pinned);
+
+    expect(Number.isNaN(offset)).toBe(false);
+    expect(offset).toBeGreaterThanOrEqual(0);
+    expect(offset + maxHeight).toBeLessThanOrEqual(340);
   });
 });

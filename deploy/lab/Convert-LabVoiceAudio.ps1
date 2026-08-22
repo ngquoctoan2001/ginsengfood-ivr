@@ -116,9 +116,16 @@ if (-not $SkipManifestUpdate) {
     $manifest += 'w0106_script_version=v3-test-approved'
     $manifest += 'w0106_listening_acceptance=DEFERRED_OD_VOICE_05'
     foreach ($row in $results) {
+        # Invariant decimal separator, spelled out. PowerShell 7 already expands numbers with
+        # the invariant culture inside strings, so this is belt-and-braces rather than a fix —
+        # but this line ends up pinned next to a SHA-256 in an evidence file, and a reader
+        # should not have to know that quirk to trust that "16.770625" is not "16,770625" on
+        # some other machine. This host reports en-US with a COMMA decimal separator, which is
+        # exactly the kind of setup that turns an implicit assumption into corrupt evidence.
+        $seconds = $row.Seconds.ToString([System.Globalization.CultureInfo]::InvariantCulture)
         $manifest += "w0106_$($row.Region)_voice_name=$($row.Voice)"
         $manifest += "w0106_$($row.Region)_source_sha256=$($row.SourceHash)"
-        $manifest += "w0106_$($row.Region)_duration_seconds=$($row.Seconds)"
+        $manifest += "w0106_$($row.Region)_duration_seconds=$seconds"
         $manifest += "w0106_$($row.Region)_sha256=$($row.Sha256)"
     }
 

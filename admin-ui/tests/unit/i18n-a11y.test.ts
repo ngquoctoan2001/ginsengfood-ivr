@@ -33,6 +33,32 @@ const sources = collectSources(sourceRoot).map((file) => ({
  */
 const VIETNAMESE = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
 
+/**
+ * `pii-patterns.txt` is written for `grep -E`, which understands POSIX bracket expressions.
+ * JavaScript does not, and `new RegExp("[[:space:]]")` does not fail -- it quietly compiles to a
+ * character class of the literal letters. A pattern JavaScript misreads that way would make the
+ * check below green on the exact input it exists to catch, so an unrecognised class throws.
+ */
+const POSIX_CLASSES: Readonly<Record<string, string>> = {
+  "[:space:]": "\\s",
+  "[:digit:]": "\\d",
+  "[:alpha:]": "a-zA-Z",
+  "[:alnum:]": "a-zA-Z0-9",
+  "[:upper:]": "A-Z",
+  "[:lower:]": "a-z",
+};
+
+function toJavaScriptRegex(source: string): string {
+  return source.replaceAll(/\[:[a-z]+:\]/gu, (match) => {
+    const replacement = POSIX_CLASSES[match];
+    if (replacement === undefined) {
+      throw new Error(`pii-patterns.txt uses POSIX class ${match}, which this check cannot read.`);
+    }
+
+    return replacement;
+  });
+}
+
 describe("UI-I18N-02 the console speaks Vietnamese through one catalogue", () => {
   it("keeps every operator-facing string in vi.json rather than in a component", () => {
     const offenders: string[] = [];
@@ -108,6 +134,55 @@ describe("UI-I18N-02 the console speaks Vietnamese through one catalogue", () =>
           }
 
           offenders.push(`${source.file}:${index + 1}: ${match[0]}`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  /**
+   * W-0102 wrote the rule down after the PII gate stopped a capture twice: console prose that can
+   * reach an evidence file must avoid the address vocabulary in `deploy/ci/pii-patterns.txt`, even
+   * where the word carries another sense. What it did not leave was anything that enforces it.
+   *
+   * The gap is in the timing. `scan-pii.sh` runs over `docs/evidence`, so a catalogue string only
+   * becomes a pipeline failure once someone has copied it into an evidence file -- which is one
+   * commit too late, and lands on whoever ran the capture rather than whoever wrote the words.
+   * `nav.breadcrumbLabel` carried the word for exactly that reason: never captured, never caught,
+   * while the entry beside it in `enums.vi.json` was captured and turned the pipeline red. This
+   * checks the catalogues directly, where the words are written.
+   *
+   * The offending strings are described rather than quoted, here and below, for the reason the
+   * gate itself demonstrates: a file that reproduces the pattern to complain about it is a file
+   * the pattern matches.
+   *
+   * The patterns are read from the same file CI uses. A copy here would drift, and a drifted copy
+   * of a privacy gate is worse than no copy -- it would report PASS in the one case that matters.
+   */
+  it("keeps the address vocabulary out of both catalogues (W-0102 rule)", () => {
+    const patternFile = path.resolve(__dirname, "../../../deploy/ci/pii-patterns.txt");
+    const patterns = readFileSync(patternFile, "utf8")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "" && !line.startsWith("#"))
+      .map((source) => ({ source, expression: new RegExp(toJavaScriptRegex(source), "u") }));
+
+    expect(patterns.length).toBeGreaterThan(0);
+
+    const catalogues = ["src/i18n/vi.json", "src/i18n/enums.vi.json"];
+    const offenders: string[] = [];
+
+    for (const relative of catalogues) {
+      const text = readFileSync(path.resolve(__dirname, "../..", relative), "utf8");
+      for (const [index, line] of text.split("\n").entries()) {
+        for (const pattern of patterns) {
+          if (pattern.expression.test(line)) {
+            // The line is not echoed: reproducing a matched address string here would put it in a
+            // file the gate also scans, and the failure would then be unfixable without deleting
+            // the report of it. The location and the pattern are enough to find it.
+            offenders.push(`${relative}:${index + 1} matches /${pattern.source}/`);
+          }
         }
       }
     }

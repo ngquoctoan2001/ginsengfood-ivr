@@ -81,12 +81,34 @@ export function useAnchoredPosition(
      */
     const room = Math.max(MIN_HEIGHT, openUp ? spaceAbove : spaceBelow);
     const maxHeight = Math.min(estimatedHeight, room);
-    const top = openUp ? Math.max(EDGE, box.top - OFFSET - maxHeight) : box.bottom + OFFSET;
+
+    /*
+     * An upward panel is pinned by its BOTTOM edge, never by a top derived from
+     * maxHeight. maxHeight is the room reserved for the panel, not the height it
+     * takes: `max-height` caps a box, it never stretches one. So a two-option
+     * menu reserving 272px but rendering 84px was drawn from a top 272px above
+     * the trigger and ended 188px short of it — the menu appeared detached,
+     * floating over whatever sat above, which is what an operator reads as a
+     * dropdown opening in the wrong place. Pinning the bottom makes the panel
+     * grow upward from just above the trigger whatever its contents turn out to
+     * be, and needs no second measurement pass to do it.
+     *
+     * The clamps keep the panel on screen when neither direction has MIN_HEIGHT
+     * of room; there it overlaps its trigger, which is the documented intent and
+     * is still reachable, rather than sliding off the edge, which is not. On an
+     * ordinary viewport they never bite: the floor only applies when the chosen
+     * side has under 160px, and the flip rule means that takes both sides cramped
+     * at once — a viewport under roughly 370px tall.
+     */
+    const placement = openUp
+      ? { bottom: clamp(window.innerHeight - box.top + OFFSET, window.innerHeight, maxHeight) }
+      : { top: clamp(box.bottom + OFFSET, window.innerHeight, maxHeight) };
+
     const left = Math.max(EDGE, Math.min(box.left, window.innerWidth - width - EDGE));
 
     setStyle({
       position: "fixed",
-      top,
+      ...placement,
       left,
       maxHeight,
       overflowY: "auto",
@@ -110,4 +132,13 @@ export function useAnchoredPosition(
   }, [open, measure]);
 
   return { style, measure };
+}
+
+/**
+ * Keeps a panel's edge offset inside the viewport, leaving EDGE of margin on
+ * both sides. One function because the upward and downward branches need the
+ * same arithmetic, only measured from opposite edges.
+ */
+function clamp(offset: number, viewport: number, panelHeight: number): number {
+  return Math.max(EDGE, Math.min(offset, viewport - EDGE - panelHeight));
 }

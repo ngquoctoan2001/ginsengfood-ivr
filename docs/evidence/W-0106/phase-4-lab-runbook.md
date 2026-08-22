@@ -54,6 +54,16 @@ về voice C của W-0104; dùng lại sẽ đè lên evidence cũ.
 
 Script in ra bảng `Region / Voice / Seconds / Sha256` — **giữ lại độ dài thật cho bước 3**.
 
+> ⚠️ Cột `Seconds` trên console hiện theo culture của máy, nên có thể thấy `16,77` với dấu
+> **phẩy** — máy này khai `en-US` nhưng đặt dấu thập phân là phẩy. Đó chỉ là hiển thị:
+> `manifest.txt` luôn ghi dấu **chấm** (`16.77`), khớp định dạng W-0104. Đã kiểm bằng dry-run.
+
+**Đã chạy thử toàn chuỗi bằng audio giả (`2026-08-22`)** trước khi có MP3 thật, để bước 2–4
+không vỡ vì lỗi script. Kết quả: WAV ra đúng `pcm_s16le / 8000 Hz / mono`; `SHA256SUMS` giữ
+nguyên 3 dòng W-0104 và thêm đúng 3 dòng vùng miền; `manifest.txt` ghi UTF-8 đúng tên giọng
+có dấu; tên file khớp giữa script ↔ `entrypoint.sh` ↔ `docker-compose.softphone.yml`. Toàn bộ
+artefact giả đã được **hoàn tác**, repo không giữ checksum giả.
+
 ---
 
 ## Bước 3 — Bật định tuyến giọng trong compose

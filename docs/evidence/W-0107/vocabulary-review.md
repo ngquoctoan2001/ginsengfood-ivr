@@ -6,7 +6,11 @@
 Cột **Mã** luôn hiển thị cạnh nhãn trên giao diện (tooltip ở bảng, dòng mono ở màn chi tiết),
 nên một bản dịch sai là **thấy được và sửa được**, không âm thầm.
 
-Tổng: **39 họ / 212 giá trị**
+Tổng: **40 họ / 229 giá trị**
+
+> Bản đầu là 39 họ / 212 giá trị. Chênh lệch đến từ đợt rà bằng stack thật ngày `2026-08-22`:
+> thêm họ `attemptStatus` (10), bổ sung `deliveryStatus` (+8, xoá 4 mã không sinh ra được) và
+> `eligibilityDecision` (+3). Xem [`live-capture-findings.md`](live-capture-findings.md).
 
 ---
 
@@ -33,10 +37,16 @@ Dịch sai ở đây làm nhân viên hành động sai, không chỉ đọc kh�
 | `IVR_OPERATIONAL_BLOCKED` | Bị chặn do vận hành | |
 | `IVR_POLICY_BLOCKED` | Bị chặn do chính sách | |
 
-### `eligibilityDecision` — 12 giá trị
+### `eligibilityDecision` — 15 giá trị
 
 **Vì sao trọng yếu:** REJECTED (bỏ hẳn) và HELD (chạy tiếp) là hai kết cục trái ngược
 **Hiện ở:** Chi tiết cuộc gọi
+
+> **Bổ sung 3 giá trị (2026-08-22).** Họ này ban đầu chỉ dựng từ enum *quyết định tiếp nhận*
+> (12 mã `TASK_*`, có khai trong OpenAPI). Nhưng field mà màn chi tiết render là *quyết định điều
+> kiện gọi*, thẩm quyền là `EligibilityDecisions` trong `EligibilityRules.cs`. Ba mã cuối bảng là
+> phần thiếu — trong đó `ELIGIBLE_FOR_IVR` là trạng thái phổ biến nhất của field, nên ô này trước
+> đây hiện mã thô ở phần lớn đơn. Chi tiết: [`live-capture-findings.md`](live-capture-findings.md) §2.3.
 
 | Mã | Nhãn tiếng Việt | Sửa thành (nếu cần) |
 | --- | --- | --- |
@@ -52,6 +62,9 @@ Dịch sai ở đây làm nhân viên hành động sai, không chỉ đọc kh�
 | `TASK_BLOCKED_OPERATIONAL` | Bị chặn — có blocker vận hành | |
 | `TASK_HELD_ADMIN_REVIEW` | Giữ lại — chờ quản trị duyệt | |
 | `TASK_HELD_POLICY_MISSING` | Giữ lại — thiếu chính sách gọi | |
+| `PENDING_ELIGIBILITY` | Chờ kiểm điều kiện gọi | |
+| `ELIGIBLE_FOR_IVR` | Đủ điều kiện gọi | |
+| `IVR_CAPACITY_EXCEPTION` | Không đủ năng lực gọi | |
 
 ### `jobStatus` — 27 giá trị
 
@@ -194,19 +207,54 @@ Dịch sai ở đây làm nhân viên hành động sai, không chỉ đọc kh�
 | --- | --- |
 | `IVR_CAPACITY_EXCEPTION` | Đóng do không đủ năng lực gọi |
 
-### `deliveryStatus` — 7 giá trị
+### `deliveryStatus` — 11 giá trị
 
 **Hiện ở:** Chi tiết → Callback
+
+> **Đã sửa lại toàn bộ (2026-08-22).** Bản đầu gồm 7 giá trị dựng theo một vòng đời hình dung,
+> không phải theo code: 4 trong đó (`SENT`, `ACKED`, `FAILED`, `DEAD_LETTER`) **không nhánh thực
+> thi nào sinh ra được** và đã bị xoá; 8 giá trị có thật thì thiếu nhãn. Thẩm quyền là danh sách
+> trắng `CallbackOutboxRepository.AllowedDeliveryStatuses` cộng hai chỗ ghi trực tiếp
+> (`READY`, `SENDING`). Chi tiết: [`live-capture-findings.md`](live-capture-findings.md) §2.2.
 
 | Mã | Nhãn tiếng Việt |
 | --- | --- |
 | `READY` | Sẵn sàng gửi |
 | `SENDING` | Đang gửi |
 | `RETRY_PENDING` | Chờ gửi lại |
-| `SENT` | Đã gửi |
-| `ACKED` | Core đã nhận |
-| `FAILED` | Gửi thất bại |
-| `DEAD_LETTER` | Đưa vào hàng chờ xử lý tay |
+| `RETRY_EXHAUSTED` | Hết lượt gửi lại |
+| `DELIVERED_ACCEPTED` | Core đã nhận |
+| `DELIVERED_BLOCKED` | Core đã nhận — báo bị chặn |
+| `DELIVERED_REVIEW` | Core đã nhận — chuyển duyệt tay |
+| `REJECTED_STALE` | Core từ chối — kết quả đã cũ |
+| `IDEMPOTENCY_CONFLICT` | Trùng idempotency key |
+| `INVALID_DEAD_LETTER` | Không hợp lệ — đưa vào hàng chờ xử lý tay |
+| `AUTH_REJECTED` | Core từ chối xác thực |
+
+### `attemptStatus` — 10 giá trị
+
+**Hiện ở:** Chi tiết → dòng thời gian từng lần gọi
+
+> **Họ mới (2026-08-22).** Trước đây dòng thời gian lần gọi render qua `jobStatus`. Hai bộ phân
+> loại trùng nhau ở 5 trạng thái lúc đang gọi — nên nhìn có vẻ đúng suốt thời gian cuộc gọi còn
+> chạy, rồi hiện mã thô ngay khi chuẩn hoá xong, tức trên **mọi** lần gọi đã kết thúc. Chi tiết:
+> [`live-capture-findings.md`](live-capture-findings.md) §2.1.
+
+| Mã | Nhãn tiếng Việt |
+| --- | --- |
+| `LEASED_PENDING_DISPATCH` | Đã nhận lượt — chờ quay số |
+| `DIALING` | Đang quay số |
+| `ACTIVE_CALL` | Đang trong cuộc gọi |
+| `PROVIDER_EVENT_PENDING_NORMALIZATION` | Chờ chuẩn hoá sự kiện nhà mạng |
+| `NORMALIZED_ATTEMPT_COMPLETE` | Xong lượt gọi — chưa phải kết quả cuối |
+| `NORMALIZED_FINAL` | Xong lượt gọi — đã chốt kết quả cuối |
+| `NORMALIZED_TECHNICAL_RETRY` | Xong lượt gọi — sẽ gọi lại do lỗi kỹ thuật |
+| `NORMALIZED_REVIEW_REQUIRED` | Xong lượt gọi — cần người duyệt |
+| `TECHNICAL_RETRY_QUEUED` | Đã xếp lịch gọi lại do lỗi kỹ thuật |
+| `RECOVERY_REQUIRED` | Cần khôi phục |
+
+Năm nhãn đầu tiên trùng chữ với `jobStatus` là **cố ý**: cùng một trạng thái, người vận hành nên
+đọc cùng một câu dù nó nằm ở cột job hay ở dòng thời gian.
 
 ### `dependencyDetail` — 5 giá trị
 
@@ -385,7 +433,7 @@ Dịch sai ở đây làm nhân viên hành động sai, không chỉ đọc kh�
 | `CALLBACK_TRANSPORT_UNEXPECTED_FAILURE` | Lỗi truyền tải ngoài dự kiến |
 | `CALLBACK_AUTH_REJECTED` | Core từ chối xác thực |
 | `CALLBACK_PAYLOAD_INVALID` | Nội dung gửi không hợp lệ |
-| `CALLBACK_PATH_BODY_MISMATCH` | Đường dẫn và nội dung không khớp |
+| `CALLBACK_PATH_BODY_MISMATCH` | URL và nội dung không khớp |
 | `CALLBACK_ACK_INVALID` | Core phản hồi ACK không hợp lệ |
 | `CALLBACK_UNPROCESSABLE` | Core không xử lý được |
 | `CALLBACK_UNSUPPORTED_RESPONSE` | Core trả phản hồi không hỗ trợ |

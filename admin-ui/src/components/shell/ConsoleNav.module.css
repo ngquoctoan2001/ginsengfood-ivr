@@ -3,12 +3,42 @@
  * value that the divider, not a colour change, is what separates them. Navy
  * carries the labels and glyphs; the navy band in the shell is now the header
  * alone.
+ *
+ * The width is stated rather than left to the content. As `min-width` it was the
+ * longest string inside that decided it, so an operator with a long name would
+ * have widened the whole rail — and the account card would never have reached
+ * the ellipsis it is written for. 16rem clears the longest nav label with room
+ * to spare and still leaves the name its line when the rail carries a scrollbar.
  */
 .nav {
+  flex: none;
+  width: 16rem;
   border-right: 1px solid var(--ivr-border);
   background: var(--ivr-surface);
+}
+
+/*
+ * The rail is what sticks, not the link list alone.
+ *
+ * The account block is pinned to the bottom of the rail, so the column holding
+ * it has to be the height of the viewport rather than the height of the page —
+ * otherwise "bottom" lands wherever a long table happens to end. Anything that
+ * outgrows the viewport, a full admin list on a short screen, scrolls inside
+ * the rail instead of pushing the account block out of reach.
+ */
+.rail {
+  position: sticky;
+  top: var(--ivr-header-height);
+  height: calc(100dvh - var(--ivr-header-height));
+  display: flex;
+  flex-direction: column;
+  gap: var(--ivr-space-4);
   padding: var(--ivr-space-4) var(--ivr-space-3);
-  min-width: 14.5rem;
+  overflow-y: auto;
+  /* A classic 15px scrollbar is 6% of this rail, and it eats the width the
+     account name is measured against. Thin where the platform offers it;
+     platforms with overlay scrollbars already cost nothing. */
+  scrollbar-width: thin;
 }
 
 .list {
@@ -17,8 +47,15 @@
   padding: 0;
   display: grid;
   gap: 2px;
-  position: sticky;
-  top: 5rem;
+}
+
+/* The actor rather than the work. Held at the foot of the rail by `margin-top`,
+   and separated by a rule because it is a different kind of thing from the
+   routes above it. */
+.footer {
+  margin-top: auto;
+  padding-top: var(--ivr-space-3);
+  border-top: 1px solid var(--ivr-border);
 }
 
 .link {
@@ -76,18 +113,30 @@
 
 @media (max-width: 48rem) {
   .nav {
+    width: auto;
     border-right: none;
     border-bottom: 1px solid var(--ivr-border);
-    min-width: 0;
+  }
+
+  /* A strip above the content, not a column beside it: nothing to stick to and
+     no bottom to pin the account block to. */
+  .rail {
+    position: static;
+    height: auto;
     padding: var(--ivr-space-2) var(--ivr-space-4);
+    gap: var(--ivr-space-2);
     overflow-x: auto;
   }
 
   .list {
-    position: static;
     grid-auto-flow: column;
     justify-content: start;
     gap: var(--ivr-space-1);
+  }
+
+  .footer {
+    margin-top: 0;
+    padding-top: var(--ivr-space-2);
   }
 
   .link {

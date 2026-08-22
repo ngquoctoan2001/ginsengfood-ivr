@@ -147,6 +147,13 @@
   --ivr-space-6: 2rem;
 
   --ivr-shell-width: 88rem;
+
+  /* The header's own height, published as a token because the sidebar rail has
+     to stick directly beneath it and run to the foot of the viewport. Rounded
+     up from the measured band: too large only opens a hairline of sidebar above
+     the rail, while too small slides the rail's first link under the navy. */
+  --ivr-header-height: 3.5rem;
+
   --ivr-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
 
   /*

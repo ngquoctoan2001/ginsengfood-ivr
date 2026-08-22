@@ -73,8 +73,8 @@ const BOUNDARY_PAIRS: readonly (readonly [string, string, string])[] = [
   ["strong border on the page", "--ivr-border-strong", "--ivr-surface-sunken"],
   ["focus ring on a card", "--ivr-focus", "--ivr-surface"],
   ["focus ring on the page", "--ivr-focus", "--ivr-surface-sunken"],
-  // AppShell re-points --ivr-border-strong to this inside the navy header, so
-  // the sign-out control keeps a visible boundary there too.
+  // AppShell re-points --ivr-border-strong to this inside the navy header, so a
+  // bordered control placed in that band keeps a visible boundary there too.
   ["strong border on the shell", "--ivr-chrome-border-strong", "--ivr-chrome"],
   ["the gold rule on the shell", "--ivr-chrome-border", "--ivr-chrome"],
   // A chart bar is a graphical object under WCAG 1.4.11, and it sits in a track

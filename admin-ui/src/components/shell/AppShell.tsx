@@ -1,19 +1,16 @@
 import type { ReactNode } from "react";
 
-import { formatNumber, t } from "@/lib/i18n";
-import type { IvrRole } from "@/lib/rbac/permissions";
+import { t } from "@/lib/i18n";
 
 import styles from "./AppShell.module.css";
 import { ConsoleNav } from "./ConsoleNav";
 import { EnvironmentBadge } from "./EnvironmentBadge";
 import { GovernanceNotice } from "./GovernanceNotice";
-import { SignOutButton } from "./SignOutButton";
+import { SidebarAccount } from "./SidebarAccount";
 
 export interface AppShellProps {
   readonly actorId: string;
   readonly displayName: string;
-  readonly role: IvrRole;
-  readonly permissionCount: number;
   readonly environmentLabel: string;
   readonly executionMode: string;
   readonly isMockMode: boolean;
@@ -21,11 +18,17 @@ export interface AppShellProps {
   readonly children: ReactNode;
 }
 
+/**
+ * The header states what the console is driving; the sidebar states who is
+ * driving it. Identity, the profile route and sign-out are one card at the foot
+ * of the rail rather than three things scattered along the top band.
+ *
+ * The actor's role and permission count are no longer threaded through here:
+ * the card links to the profile page, which is where both are stated in full.
+ */
 export function AppShell({
   actorId,
   displayName,
-  role,
-  permissionCount,
   environmentLabel,
   executionMode,
   isMockMode,
@@ -45,23 +48,14 @@ export function AppShell({
           executionMode={executionMode}
           isMockMode={isMockMode}
         />
-        <div className={styles.actor}>
-          <span className={styles.actorLine}>
-            <span className={styles.actorKey}>{t("auth.signedInAs")}</span>
-            <span className={styles.actorValue}>{displayName} · {actorId}</span>
-          </span>
-          <span className={styles.actorLine}>
-            <span className={styles.actorKey}>{t("auth.role")}</span>
-            <span className={styles.actorValue}>{role}</span>
-            <span className={styles.actorKey}>{t("auth.permissionCount")}</span>
-            <span className={styles.actorValue}>{formatNumber(permissionCount)}</span>
-          </span>
-        </div>
-        <SignOutButton />
       </header>
 
       <div className={styles.body}>
-        <ConsoleNav />
+        <ConsoleNav
+          account={
+            <SidebarAccount actorId={actorId} displayName={displayName} />
+          }
+        />
         <main id="main-content" className={styles.main}>
           <GovernanceNotice realCustomerCallAllowed={realCustomerCallAllowed} />
           {children}

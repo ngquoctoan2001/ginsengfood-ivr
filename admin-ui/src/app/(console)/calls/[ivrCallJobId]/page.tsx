@@ -182,7 +182,11 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
                 title={
                   <>
                     {t("detail.attemptNumber")} {formatNumber(attempt.attempt_number)} ·{" "}
-                    <EnumLabel family="jobStatus" value={attempt.status} />
+                    {/* An attempt is not a job. The two taxonomies overlap on the five dispatch
+                        states, which is why rendering attempts through `jobStatus` looked correct
+                        for as long as a call was still in flight — and then showed a raw code the
+                        moment normalisation finished, on every attempt that ever completed. */}
+                    <EnumLabel family="attemptStatus" value={attempt.status} />
                   </>
                 }
                 meta={formatDateTime(attempt.scheduled_at)}

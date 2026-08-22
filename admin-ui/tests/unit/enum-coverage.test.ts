@@ -1,5 +1,6 @@
 // @vitest-environment node
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
@@ -10,6 +11,119 @@ import { enumFamilyValues, resetUntranslatedCounts, tEnum, untranslatedCounts } 
 
 function repoFile(relativePath: string): string {
   return readFileSync(fileURLToPath(new URL(`../../../${relativePath}`, import.meta.url)), "utf8");
+}
+
+/** Every `.cs` file under `src/`, so a new writer in a new file cannot escape the sweep below. */
+function csharpSources(): { path: string; text: string }[] {
+  const root = fileURLToPath(new URL("../../../src", import.meta.url));
+  const found: { path: string; text: string }[] = [];
+
+  const walk = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const full = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        // Generated migrations restate every historical value as EF model snapshots. Including
+        // them would assert labels for taxonomies that were replaced two migrations ago.
+        if (entry.name !== "Migrations" && entry.name !== "obj" && entry.name !== "bin") {
+          walk(full);
+        }
+      } else if (entry.name.endsWith(".cs")) {
+        found.push({ path: full, text: readFileSync(full, "utf8") });
+      }
+    }
+  };
+
+  walk(root);
+  return found;
+}
+
+/**
+ * Locates a declaration by name, on a word boundary.
+ *
+ * `indexOf` is not enough and the difference is not academic: a plain `indexOf("class Foo")`
+ * still matches after the class is renamed to `FooRenamed`, so the parser reads on happily and
+ * the whole check stays green through exactly the rename it is supposed to notice.
+ */
+function declarationStart(source: string, keyword: string, name: string): number {
+  const found = new RegExp(`${keyword}\\s+${name}\\b`, "u").exec(source);
+  return found === null ? -1 : found.index;
+}
+
+/** `public const string Whatever = "VALUE";` inside one class body. */
+function csharpConstants(relativePath: string, className: string): string[] {
+  const source = repoFile(relativePath);
+  const start = declarationStart(source, "class", className);
+  if (start < 0) {
+    throw new Error(`${className} no longer exists in ${relativePath}.`);
+  }
+
+  const opened = source.indexOf("{", start);
+  const closed = source.indexOf("\n}", opened);
+  const body = source.slice(opened, closed < 0 ? undefined : closed);
+
+  return [...body.matchAll(/const\s+string\s+\w+\s*=\s*"([^"]+)"/gu)].map((match) => match[1]);
+}
+
+/** The string literals of one collection initializer, e.g. a `HashSet<string>` whitelist. */
+function csharpLiteralSet(relativePath: string, fieldName: string): string[] {
+  const source = repoFile(relativePath);
+  const found = new RegExp(`\\b${fieldName}\\b`, "u").exec(source);
+  const start = found === null ? -1 : found.index;
+  if (start < 0) {
+    throw new Error(`${fieldName} no longer exists in ${relativePath}.`);
+  }
+
+  const opened = source.indexOf("[", start);
+  const closed = source.indexOf("]", opened);
+  if (opened < 0 || closed < 0) {
+    throw new Error(`${fieldName} in ${relativePath} is no longer a bracketed initializer.`);
+  }
+
+  return [...source.slice(opened, closed).matchAll(/"([A-Z][A-Z0-9_]+)"/gu)].map((m) => m[1]);
+}
+
+/** Every literal assigned to `<anything>.<propertyName> = "VALUE"` across `src/`. */
+function csharpAssignedLiterals(propertyName: string): string[] {
+  const pattern = new RegExp(`${propertyName}\\s*=\\s*"([A-Z][A-Z0-9_]+)"`, "gu");
+  return csharpSources().flatMap((file) => [...file.text.matchAll(pattern)].map((m) => m[1]));
+}
+
+/**
+ * Every value `CallAttemptEntity.Status` can hold.
+ *
+ * Unlike the other two, this taxonomy has no constants class — the values are string literals
+ * spread across the scheduler, the dispatch store, the normalizer and the admin service, which is
+ * precisely how it drifted out of the dictionary unnoticed. Until they are collected into one
+ * class, the sweep has to go and find them.
+ *
+ * The ternary in `ResultRepository.ApplyAttemptOutcome` assigns four values from a single
+ * `attempt.Status =`, so the scan takes the literals from the whole statement rather than the
+ * first line of it.
+ */
+function attemptStatusLiterals(): string[] {
+  const found = new Set<string>();
+
+  for (const file of csharpSources()) {
+    // `=(?!=)` — an assignment, never a comparison. Without the lookahead this collects the
+    // right-hand side of `attempt.Status == "DIALING"` too, and a value that is only ever read
+    // would be asserted as one the backend produces. That is how the four impossible entries got
+    // into `deliveryStatus` in the first place, and a checker that reintroduces the bug it was
+    // written to catch is worse than none.
+    for (const match of file.text.matchAll(/attempt\.Status\s*=(?!=)\s*([\s\S]{0,400}?);/gu)) {
+      for (const literal of match[1].matchAll(/"([A-Z][A-Z0-9_]+)"/gu)) {
+        found.add(literal[1]);
+      }
+    }
+
+    // The row is created with its opening status inside an object initializer, not an assignment.
+    for (const block of file.text.matchAll(/new CallAttemptEntity[\s\S]{0,1200}?\n\s*\}/gu)) {
+      for (const literal of block[0].matchAll(/Status\s*=\s*"([A-Z][A-Z0-9_]+)"/gu)) {
+        found.add(literal[1]);
+      }
+    }
+  }
+
+  return [...found];
 }
 
 /**
@@ -209,6 +323,60 @@ describe("UT-L10N-COVER-03 every rendered enum value has a Vietnamese label", ()
         );
       }
     }
+
+    expect(missing).toEqual([]);
+  });
+
+  /**
+   * The spec sweep above has one blind spot, and W-0107 shipped straight through it.
+   *
+   * It can only enumerate what the OpenAPI document enumerates. Three fields the call-detail
+   * screen renders are declared `{ type: string }` there — an open string with no `enum:` — so
+   * there is nothing to collect, the sweep reports full coverage, and the runtime fills them from
+   * C# anyway. A live capture found all three showing raw codes on the busiest screen in the
+   * console: the attempt timeline, the callback delivery row and the eligibility decision.
+   *
+   * So this reads the authorities themselves. Every parser below throws when it finds nothing,
+   * because a renamed class that silently yields an empty set would turn this test green in
+   * exactly the situation it exists for.
+   *
+   * The direction is deliberate and one-way: every value the backend can produce must have a
+   * label. The converse is not asserted — a family may legitimately hold spec values the runtime
+   * has not emitted yet, and failing on those would punish being early rather than being wrong.
+   */
+  it("covers every enum value the C# authorities can produce", () => {
+    const missing: string[] = [];
+
+    const check = (family: keyof typeof enums, values: readonly string[], authority: string) => {
+      expect(values.length, `no values parsed from ${authority}`).toBeGreaterThan(0);
+      for (const value of values) {
+        if (enums[family][value as keyof (typeof enums)[typeof family]] === undefined) {
+          missing.push(`${family}.${value} — produced by ${authority}`);
+        }
+      }
+    };
+
+    check(
+      "eligibilityDecision",
+      csharpConstants("src/Ivr.Domain/Policies/EligibilityRules.cs", "EligibilityDecisions"),
+      "EligibilityDecisions",
+    );
+
+    // READY and SENDING are written directly rather than through the whitelist, so the authority
+    // for this field is the union of the three writers, not the whitelist alone.
+    check(
+      "deliveryStatus",
+      [
+        ...csharpLiteralSet(
+          "src/Ivr.Infrastructure/Persistence/Outbox/CallbackOutboxRepository.cs",
+          "AllowedDeliveryStatuses",
+        ),
+        ...csharpAssignedLiterals("DeliveryStatus"),
+      ],
+      "AllowedDeliveryStatuses + direct DeliveryStatus writers",
+    );
+
+    check("attemptStatus", attemptStatusLiterals(), "every writer of CallAttemptEntity.Status");
 
     expect(missing).toEqual([]);
   });

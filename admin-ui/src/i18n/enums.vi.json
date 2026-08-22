@@ -25,7 +25,10 @@
     "TASK_REJECTED_INVALID_TRACE": "Từ chối — thiếu hoặc sai correlation id",
     "TASK_BLOCKED_OPERATIONAL": "Bị chặn — có blocker vận hành",
     "TASK_HELD_ADMIN_REVIEW": "Giữ lại — chờ quản trị duyệt",
-    "TASK_HELD_POLICY_MISSING": "Giữ lại — thiếu chính sách gọi"
+    "TASK_HELD_POLICY_MISSING": "Giữ lại — thiếu chính sách gọi",
+    "PENDING_ELIGIBILITY": "Chờ kiểm điều kiện gọi",
+    "ELIGIBLE_FOR_IVR": "Đủ điều kiện gọi",
+    "IVR_CAPACITY_EXCEPTION": "Không đủ năng lực gọi"
   },
 
   "recommendedCoreAction": {
@@ -68,6 +71,19 @@
     "CLOSED": "Đã đóng"
   },
 
+  "attemptStatus": {
+    "LEASED_PENDING_DISPATCH": "Đã nhận lượt — chờ quay số",
+    "DIALING": "Đang quay số",
+    "ACTIVE_CALL": "Đang trong cuộc gọi",
+    "PROVIDER_EVENT_PENDING_NORMALIZATION": "Chờ chuẩn hoá sự kiện nhà mạng",
+    "NORMALIZED_ATTEMPT_COMPLETE": "Xong lượt gọi — chưa phải kết quả cuối",
+    "NORMALIZED_FINAL": "Xong lượt gọi — đã chốt kết quả cuối",
+    "NORMALIZED_TECHNICAL_RETRY": "Xong lượt gọi — sẽ gọi lại do lỗi kỹ thuật",
+    "NORMALIZED_REVIEW_REQUIRED": "Xong lượt gọi — cần người duyệt",
+    "TECHNICAL_RETRY_QUEUED": "Đã xếp lịch gọi lại do lỗi kỹ thuật",
+    "RECOVERY_REQUIRED": "Cần khôi phục"
+  },
+
   "simStatus": {
     "IDLE": "Rảnh",
     "RESERVED": "Đã giữ chỗ",
@@ -83,10 +99,14 @@
     "READY": "Sẵn sàng gửi",
     "SENDING": "Đang gửi",
     "RETRY_PENDING": "Chờ gửi lại",
-    "SENT": "Đã gửi",
-    "ACKED": "Core đã nhận",
-    "FAILED": "Gửi thất bại",
-    "DEAD_LETTER": "Đưa vào hàng chờ xử lý tay"
+    "RETRY_EXHAUSTED": "Hết lượt gửi lại",
+    "DELIVERED_ACCEPTED": "Core đã nhận",
+    "DELIVERED_BLOCKED": "Core đã nhận — báo bị chặn",
+    "DELIVERED_REVIEW": "Core đã nhận — chuyển duyệt tay",
+    "REJECTED_STALE": "Core từ chối — kết quả đã cũ",
+    "IDEMPOTENCY_CONFLICT": "Trùng idempotency key",
+    "INVALID_DEAD_LETTER": "Không hợp lệ — đưa vào hàng chờ xử lý tay",
+    "AUTH_REJECTED": "Core từ chối xác thực"
   },
 
   "callbackResultState": {
@@ -144,7 +164,7 @@
     "CALLBACK_TRANSPORT_UNEXPECTED_FAILURE": "Lỗi truyền tải ngoài dự kiến",
     "CALLBACK_AUTH_REJECTED": "Core từ chối xác thực",
     "CALLBACK_PAYLOAD_INVALID": "Nội dung gửi không hợp lệ",
-    "CALLBACK_PATH_BODY_MISMATCH": "Đường dẫn và nội dung không khớp",
+    "CALLBACK_PATH_BODY_MISMATCH": "URL và nội dung không khớp",
     "CALLBACK_ACK_INVALID": "Core phản hồi ACK không hợp lệ",
     "CALLBACK_UNPROCESSABLE": "Core không xử lý được",
     "CALLBACK_UNSUPPORTED_RESPONSE": "Core trả phản hồi không hỗ trợ",

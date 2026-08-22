@@ -1,0 +1,144 @@
+W-0107 / W-0105 / W-0106 — live console capture (option A: no browser dependency)
+
+Captured from the running stack, not a stub:
+  Ivr.Api    http://127.0.0.1:5015
+  admin-ui   http://127.0.0.1:3007
+
+Every request below is a GET. The mock permission headers are refused by the API outside
+IVR_EXECUTION_MODE=MOCK, so this harness cannot authenticate against lab or production.
+
+=== A. Preflight — what the API says about its own governance state ===
+  execution_mode              MOCK
+  sim_provider                MOCK
+  real_customer_call_allowed  false
+
+=== B. Read-endpoint sweep ===
+  GET /dashboard               -> 200
+  GET /call-jobs               -> 200
+  GET /call-attempts           -> 405
+  GET /call-results            -> 405
+  GET /result-callbacks        -> 405
+  GET /eligibility-checks      -> 405
+  GET /technical-retries       -> 405
+  GET /admin-reviews           -> 405
+  GET /review-items            -> 200
+  GET /queue                   -> 200
+  GET /scripts                 -> 200
+  GET /sim-channels            -> 200
+  GET /integration-status      -> 200
+  GET /analytics/summary       -> 200
+  GET /analytics/breakdown     -> 200
+  GET /analytics/trend         -> 200
+
+  Job detail sampled: 12 of 25 returned by /call-jobs
+
+=== C. Live values, checked against the family each screen actually renders them through ===
+  Dictionary:    40 families / 229 values
+  Render map:    24 fields bound to a family by an EnumLabel call site
+
+  delivery_status  ->  deliveryStatus
+      DELIVERED_ACCEPTED                     Core đã nhận  (deliveryStatus)
+  dependency  ->  dependencyName | failClosedEffect
+      CRM_DO_NOT_CALL                        CRM — danh sách chặn gọi  (dependencyName)
+      DIAL_KILL_SWITCH                       Kill switch quay số  (dependencyName)
+      EVIDENCE_REGISTRY                      Kho bằng chứng  (dependencyName)
+      OPS_SELLABLE_GATE                      Cổng kiểm khả năng bán (Ops)  (dependencyName)
+      ORDER_CORE                             Order Core  (dependencyName)
+      SIM_GATEWAY                            Cổng SIM  (dependencyName)
+  eligibility_decision  ->  eligibilityDecision
+      ELIGIBLE_FOR_IVR                       Đủ điều kiện gọi  (eligibilityDecision)
+  meaning  ->  dtmfMeaning
+      NOT_ENABLED                            Chưa mở  (dtmfMeaning)
+  missing_approvals  ->  approvalType
+      PRIVACY_LEGAL                          Pháp lý & quyền riêng tư  (approvalType)
+  program_type  ->  programType
+      GOLDEN_HOUR                            Giờ vàng  (programType)
+  queue_status  ->  jobStatus
+      HELD_CALLBACK                          Giữ — chờ callback  (jobStatus)
+  recommended_core_action  ->  recommendedCoreAction
+      NO_STATE_CHANGE_WAIT_FOR_TIMEOUT       Giữ nguyên trạng thái — chờ hết hạn  (recommendedCoreAction)
+      REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST Huỷ theo yêu cầu khách — sau khi Core kiểm lại  (recommendedCoreAction)
+      REVALIDATE_AND_CONFIRM_ORDER           Xác nhận đơn — sau khi Core kiểm lại  (recommendedCoreAction)
+  result_state  ->  callbackResultState
+      PENDING_CORE_REVALIDATION              Chờ Core kiểm lại  (callbackResultState)
+  result_type  ->  resultType
+      IVR_CONFIRMED                          Khách đã xác nhận  (resultType)
+      IVR_CUSTOMER_CANCELLED                 Khách huỷ đơn  (resultType)
+      IVR_NO_ANSWER_FINAL                    Không nghe máy — đã hết lượt  (resultType)
+  source  ->  failClosedEventSource
+      ANALYTICS_WAREHOUSE                    -- adjudicated: not a gap
+  status  ->  accountStatus | attemptStatus | freshnessStatus | jobStatus | reviewStatus | scriptStatus | simStatus
+      NORMALIZED_FINAL                       Xong lượt gọi — đã chốt kết quả cuối  (attemptStatus)
+      RESULT_READY_FOR_CALLBACK              Kết quả sẵn sàng gửi Core  (jobStatus)
+  voice_region  ->  voiceRegion
+      South                                  Miền Nam  (voiceRegion)
+
+=== D. Result ===
+  live enum values checked                    23
+  values that reach a screen with no label    0
+
+  CANDIDATE, not verdict. The binding above is keyed on the bare field name, because that
+  is what a screen writes: `value={event.source}`. Two different payload fields can share
+  one name -- `data_quality.source` is printed inside a sentence by FreshnessBanner and
+  never passes through EnumLabel at all, yet it collides with the integration screen's
+  `event.source`. Each line above must be adjudicated against its binding file before it is
+  called a defect. The adjudication belongs in the evidence pack, not in this output.
+
+  candidates already adjudicated              1
+      source = ANALYTICS_WAREHOUSE
+          data_quality.source is interpolated into a sentence by FreshnessBanner and never passes through EnumLabel; it collides with the integration screen's event.source
+          settled by admin-ui/src/components/reports/FreshnessBanner.tsx
+
+  values on fields no screen renders          13 field(s)
+      adapter_mode: ASTERISK_ARI
+      approval_type: MOCK_TEST
+      closed_reason: IVR_CONFIRMED, IVR_CUSTOMER_CANCELLED, IVR_NO_ANSWER_FINAL
+      dimension: RESULT_TYPE
+      key: IVR_CONFIRMED, IVR_NO_ANSWER_FINAL
+      program: GOLDEN_HOUR
+      prohibited_variables: AI_CRM_CONTENT, FULL_ADDRESS, MEMBER_TIER, ORDER_HISTORY, PAYMENT_DETAIL
+      provider_name: ASTERISK_ARI
+      required_approval_types: MOCK_TEST, PRIVACY_LEGAL
+      result_reason: ANSWERED_NO_INPUT, CUSTOMER_PRESSED_0, CUSTOMER_PRESSED_1
+      result_status: IVR_CONFIRMED, IVR_CUSTOMER_CANCELLED, IVR_NO_ANSWER_FINAL
+      sales_provider: FAKE_TARGET_V1
+      state: NOT_WIRED
+  Those are not gaps. A field the console never displays needs no Vietnamese label; listing
+  it as missing would manufacture work and hide the real findings above.
+
+  A gap is not a crash. `tEnum` (NT-4) renders the raw code and marks it, because an open
+  family is a state the screen has to be able to say out loud. It is listed here so the
+  dictionary owner sees it before an operator does.
+
+=== E. W-0105 session guard — every console route, no session ===
+  GET /            -> 307  /login
+  GET /login       -> 200
+  GET /dashboard   -> 307  /login?next=%2Fdashboard
+  GET /calls       -> 307  /login?next=%2Fcalls
+  GET /queue       -> 307  /login?next=%2Fqueue
+  GET /reports     -> 307  /login?next=%2Freports
+  GET /review      -> 307  /login?next=%2Freview
+  GET /config      -> 307  /login?next=%2Fconfig
+  GET /integration -> 307  /login?next=%2Fintegration
+  GET /seed        -> 307  /login?next=%2Fseed
+  GET /roles       -> 307  /login?next=%2Froles
+  GET /accounts    -> 307  /login?next=%2Faccounts
+  GET /profile     -> 307  /login?next=%2Fprofile
+
+=== F. Login screen — visible text ===
+  <script> blocks and the RSC flight payload are stripped, so this records what an
+  operator sees rather than the data behind it.
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  IVR Order Confirmation — Bảng điều khiển nội bộ
+  Đăng nhập
+  Nhập tên đăng nhập và mật khẩu tài khoản IVR.
+  Môi trường
+  dev
+  Chế độ thực thi
+  MOCK
+  Tên đăng nhập
+  Mật khẩu
+  Đăng nhập
+  REAL_CUSTOMER_CALL_ALLOWED=NO — hệ thống không gọi khách hàng thật.
+  Giao diện này không chuyển trạng thái đơn hàng. Mọi quyết định trạng thái thuộc về Order Core (D-02).
+  Chỉ hiển thị dữ liệu đã che. Không có số điện thoại thật, địa chỉ đầy đủ hay bản ghi âm (D-05).

@@ -1,0 +1,84 @@
+/*
+ * The account card at the foot of the sidebar rail.
+ *
+ * One row: an avatar, the two lines that identify the session, and the way out.
+ * Everything else about the actor — role, permission count, last login — is the
+ * profile page's job, and the card is the link to it.
+ */
+.account {
+  display: flex;
+  align-items: center;
+  gap: var(--ivr-space-2);
+  min-width: 0;
+}
+
+.identity {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ivr-space-2);
+  padding: var(--ivr-space-2);
+  border-radius: var(--ivr-radius-sm);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--ivr-transition);
+}
+
+a.identity:hover {
+  background: var(--ivr-surface-hover);
+}
+
+/* Marked the same way the nav links mark themselves — ground plus weight, so
+   "you are on your own profile" survives greyscale. */
+.identity[aria-current="page"] {
+  background: var(--ivr-surface-hover);
+}
+
+.identity[aria-current="page"] .name {
+  font-weight: 700;
+}
+
+/* Navy fill, light initials: the one solid mark in a white rail, and the pair
+   the contrast test already holds at 15.41:1. It is `aria-hidden` in the markup
+   because it only re-states the name printed beside it. */
+.avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--ivr-radius-pill);
+  background: var(--ivr-chrome);
+  color: var(--ivr-chrome-text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.identityText {
+  display: grid;
+  min-width: 0;
+}
+
+/* Both lines truncate rather than wrap: a rail that resizes itself around a long
+   Vietnamese name would move every link in it. The full name is one hover — or
+   one click — away. */
+.name {
+  font-size: var(--ivr-text-sm);
+  font-weight: 600;
+  color: var(--ivr-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actorId {
+  font-family: var(--ivr-font-mono);
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

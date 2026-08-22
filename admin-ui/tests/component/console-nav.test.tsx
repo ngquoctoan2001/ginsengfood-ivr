@@ -1,11 +1,18 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PermissionProvider } from "@/components/rbac/PermissionProvider";
 import { ConsoleNav } from "@/components/shell/ConsoleNav";
+import { SidebarAccount } from "@/components/shell/SidebarAccount";
 import type { IvrPermission, IvrRole } from "@/lib/rbac/permissions";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/dashboard" }));
+// Mutable so the account card's `aria-current` can be exercised on the route it points at.
+const route = vi.hoisted(() => ({ pathname: "/dashboard" }));
+vi.mock("next/navigation", () => ({ usePathname: () => route.pathname }));
+
+afterEach(() => {
+  route.pathname = "/dashboard";
+});
 
 /** Decision B: exactly these four, and nothing that implies an admin surface. */
 const OPERATOR_PERMISSIONS: readonly IvrPermission[] = [
@@ -36,10 +43,16 @@ const ADMIN_ONLY_HREFS = [
   "/roles",
 ];
 
+/**
+ * The rail is rendered the way AppShell renders it — links plus the account card in the footer
+ * slot — because `/profile` is now reached by clicking that card, not by a tenth link.
+ */
 function renderNav(role: IvrRole, permissions: readonly IvrPermission[]) {
   render(
     <PermissionProvider actorId="test.user" role={role} permissions={permissions}>
-      <ConsoleNav />
+      <ConsoleNav
+        account={<SidebarAccount actorId="test.user" displayName="Quản trị hệ thống" />}
+      />
     </PermissionProvider>,
   );
 }
@@ -95,5 +108,43 @@ describe("UT-UI-NAV-07 console navigation", () => {
     for (const child of Array.from(list.children)) {
       expect(child.tagName).toBe("LI");
     }
+  });
+
+  /*
+   * The account card carries the profile route now, so the permission that used to gate a link
+   * in the list has to gate the card. Dropping the link entirely would be the easy failure: an
+   * operator who may not open the page would still see a control that answers 403.
+   */
+  it("names the actor on the card and points it at the profile route", () => {
+    renderNav("Operator", OPERATOR_PERMISSIONS);
+
+    const card = screen.getByRole("link", { name: /Quản trị hệ thống/ });
+    expect(card).toHaveAttribute("href", "/profile");
+    expect(card).toHaveTextContent("test.user");
+    // The purpose is stated after the visible name rather than replacing it (WCAG 2.5.3).
+    expect(card).toHaveAccessibleName(/Hồ sơ của tôi/);
+  });
+
+  it("keeps the actor readable but unlinked without IVR_ACCOUNT_SELF_VIEW", () => {
+    renderNav("Operator", ["IVR_QUEUE_VIEW"]);
+
+    expect(hrefs()).not.toContain("/profile");
+    expect(screen.getByText("Quản trị hệ thống")).toBeInTheDocument();
+    expect(screen.getByText("test.user")).toBeInTheDocument();
+  });
+
+  it("marks the card as the current page only while the profile route is open", () => {
+    renderNav("Operator", OPERATOR_PERMISSIONS);
+    expect(screen.getByRole("link", { name: /Quản trị hệ thống/ })).not.toHaveAttribute(
+      "aria-current",
+    );
+
+    cleanup();
+    route.pathname = "/profile";
+    renderNav("Operator", OPERATOR_PERMISSIONS);
+    expect(screen.getByRole("link", { name: /Quản trị hệ thống/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
   });
 });
