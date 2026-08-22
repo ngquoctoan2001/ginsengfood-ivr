@@ -219,6 +219,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             new AudioCache(timeProvider),
             new TtsRequestBudget(timeProvider),
             usage,
+            new RegionalVoiceMap(ttsOptions),
             ttsOptions,
             timeProvider);
         return new MockSchedulerDispatchGateway(

@@ -16,7 +16,6 @@ export default function setup(): void {
     env: {
       ...process.env,
       NODE_ENV: "production",
-      IVR_ADMIN_UI_SESSION_SECRET: "e2e-build-placeholder-secret-0123456789",
     },
     encoding: "utf8",
   });

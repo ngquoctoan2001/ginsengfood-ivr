@@ -28,7 +28,7 @@ describe("UT-UI-RBAC-01 permission-gated rendering", () => {
   it("hides children when the session lacks the permission", () => {
     render(
       withSession(
-        "OpsViewer",
+        "Operator",
         ["IVR_QUEUE_VIEW"],
         <RequirePermission perm="IVR_QUEUE_PAUSE">
           <button type="button">Tạm dừng hàng đợi</button>
@@ -42,7 +42,7 @@ describe("UT-UI-RBAC-01 permission-gated rendering", () => {
   it("renders children when the session holds the permission", () => {
     render(
       withSession(
-        "AdminIM",
+        "Admin",
         ["IVR_QUEUE_VIEW", "IVR_QUEUE_PAUSE"],
         <RequirePermission perm="IVR_QUEUE_PAUSE">
           <button type="button">Tạm dừng hàng đợi</button>
@@ -56,7 +56,7 @@ describe("UT-UI-RBAC-01 permission-gated rendering", () => {
   it("renders the fallback instead of the action when permission is missing", () => {
     render(
       withSession(
-        "OpsViewer",
+        "Operator",
         ["IVR_QUEUE_VIEW"],
         <RequirePermission
           perm="IVR_RESULT_REVIEW"
@@ -74,7 +74,7 @@ describe("UT-UI-RBAC-01 permission-gated rendering", () => {
   it("hides the whole admin action dialog, trigger and form, without the permission", () => {
     render(
       withSession(
-        "Ops",
+        "Operator",
         ["IVR_QUEUE_VIEW", "IVR_MANUAL_RETRY", "IVR_SIM_DISABLE"],
         <AdminActionDialog
           perm="IVR_QUEUE_PAUSE"
@@ -94,7 +94,7 @@ describe("UT-UI-RBAC-01 permission-gated rendering", () => {
   it("shows the admin action dialog with a mandatory reason field when permitted", () => {
     render(
       withSession(
-        "AdminIM",
+        "Admin",
         ["IVR_QUEUE_VIEW", "IVR_QUEUE_PAUSE"],
         <AdminActionDialog
           perm="IVR_QUEUE_PAUSE"

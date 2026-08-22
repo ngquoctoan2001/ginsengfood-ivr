@@ -1,9 +1,12 @@
 // @vitest-environment node
 import { spawn, type ChildProcess } from "node:child_process";
+import { createServer as createHttpServer, type Server } from "node:http";
 import { createServer } from "node:net";
 import { fileURLToPath } from "node:url";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
+import { ADMIN_USERNAME, handleConsoleAuthStub, signInBody } from "./console-auth-stub";
 
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const nextBin = fileURLToPath(new URL("../../node_modules/next/dist/bin/next", import.meta.url));
@@ -14,13 +17,10 @@ const serverEnv: NodeJS.ProcessEnv = {
   IVR_EXECUTION_MODE: "MOCK",
   IVR_ENVIRONMENT_LABEL: "test",
   REAL_CUSTOMER_CALL_ALLOWED: "NO",
-  IVR_ADMIN_UI_SESSION_SECRET: "e2e-session-secret-0123456789abcdefghij",
-  // Deliberately unreachable: the auth flow must not depend on Ivr.Api running,
-  // and this also exercises the error-envelope path on the queue screen.
-  IVR_API_BASE_URL: "http://127.0.0.1:1",
 };
 
 let server: ChildProcess | undefined;
+let apiServer: Server | undefined;
 let baseUrl = "";
 
 function findFreePort(): Promise<number> {
@@ -110,20 +110,29 @@ function request(
 }
 
 beforeAll(async () => {
+  const apiPort = await findFreePort();
+  apiServer = createHttpServer(async (request, response) => {
+    if (await handleConsoleAuthStub(request, response)) return;
+    response.writeHead(404, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ error: { code: "IVR_NOT_FOUND", message: "not found", correlationId: "e2e" } }));
+  });
+  await new Promise<void>((resolve) => apiServer!.listen(apiPort, "127.0.0.1", resolve));
+
   // The app is built once by tests/e2e/global-setup.ts.
   const port = await findFreePort();
   baseUrl = `http://127.0.0.1:${port}`;
   server = spawn(process.execPath, [nextBin, "start", "--port", String(port)], {
     cwd: projectRoot,
-    env: serverEnv,
+    env: { ...serverEnv, IVR_API_BASE_URL: `http://127.0.0.1:${apiPort}` },
     stdio: "ignore",
   });
 
   await waitForServer(`${baseUrl}/login`, 60_000);
 });
 
-afterAll(() => {
+afterAll(async () => {
   server?.kill();
+  await new Promise<void>((resolve) => apiServer?.close(() => resolve()) ?? resolve());
 });
 
 /** E2E-UI-AUTH-05 — unauthenticated redirect, sign-in, sign-out. */
@@ -154,7 +163,7 @@ describe("E2E-UI-AUTH-05 authentication flow", () => {
 
     const signIn = await request(jar, "/api/auth/sign-in", {
       method: "POST",
-      body: new URLSearchParams({ actorId: "AGT-ADMIN-01", next: "/dashboard" }),
+      body: new URLSearchParams({ ...Object.fromEntries(signInBody()), next: "/dashboard" }),
     });
     jar.accept(signIn);
 
@@ -173,10 +182,10 @@ describe("E2E-UI-AUTH-05 authentication flow", () => {
     const dashboardHtml = await dashboard.text();
     expect(dashboard.status).toBe(200);
     expect(dashboardHtml).toContain("Tổng quan vận hành IVR");
-    expect(dashboardHtml).toContain("AGT-ADMIN-01");
-    // Ivr.Api is unreachable in this fixture, so the typed envelope must render
-    // rather than an unhandled exception page.
-    expect(dashboardHtml).toContain("IVR_INTERNAL_ERROR");
+    expect(dashboardHtml).toContain(ADMIN_USERNAME);
+    // The auth-only stub has no dashboard projection, so the typed 404 envelope
+    // must render rather than an unhandled exception page.
+    expect(dashboardHtml).toContain("IVR_NOT_FOUND");
 
     const loginWhileAuthenticated = await request(jar, "/login");
     expect([302, 303, 307, 308]).toContain(loginWhileAuthenticated.status);
@@ -198,18 +207,18 @@ describe("E2E-UI-AUTH-05 authentication flow", () => {
     );
   });
 
-  it("rejects an actor outside the mock directory without issuing a session", async () => {
+  it("rejects invalid credentials without issuing a session", async () => {
     const jar = new CookieJar();
     const response = await request(jar, "/api/auth/sign-in", {
       method: "POST",
-      body: new URLSearchParams({ actorId: "AGT-GHOST-99" }),
+      body: new URLSearchParams({ username: "ghost", password: "wrong-password" }),
     });
     jar.accept(response);
 
     expect(response.status).toBe(303);
     const location = new URL(response.headers.get("Location") ?? "", baseUrl);
     expect(location.pathname).toBe("/login");
-    expect(location.searchParams.get("error")).toBe("invalidActor");
+    expect(location.searchParams.get("error")).toBe("invalidCredentials");
     expect(jar.has("ivr_admin_session")).toBe(false);
   });
 
@@ -217,7 +226,7 @@ describe("E2E-UI-AUTH-05 authentication flow", () => {
     const jar = new CookieJar();
     const response = await request(jar, "/api/auth/sign-in", {
       method: "POST",
-      body: new URLSearchParams({ actorId: "AGT-ADMIN-01", next: "//evil.example/steal" }),
+      body: new URLSearchParams({ ...Object.fromEntries(signInBody()), next: "//evil.example/steal" }),
     });
 
     const location = new URL(response.headers.get("Location") ?? "", baseUrl);
@@ -234,7 +243,7 @@ describe("E2E-UI-AUTH-05 authentication flow", () => {
       await request(jar, "/dashboard"),
       await request(jar, "/api/auth/sign-in", {
         method: "POST",
-        body: new URLSearchParams({ actorId: "AGT-ADMIN-01" }),
+        body: signInBody(),
       }),
       await request(jar, "/api/auth/sign-out", { method: "POST" }),
     ];
@@ -250,7 +259,7 @@ describe("E2E-UI-AUTH-05 authentication flow", () => {
       method: "POST",
       redirect: "manual",
       headers: { "Sec-Fetch-Site": "cross-site" },
-      body: new URLSearchParams({ actorId: "AGT-ADMIN-01" }),
+      body: signInBody(),
     });
 
     expect(response.status).toBe(403);

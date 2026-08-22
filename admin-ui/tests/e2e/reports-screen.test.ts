@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { ADMIN_USERNAME, handleConsoleAuthStub, OPERATOR_USERNAME, signInBody } from "./console-auth-stub";
+
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const nextBin = fileURLToPath(new URL("../../node_modules/next/dist/bin/next", import.meta.url));
 
@@ -26,8 +28,8 @@ let apiServer: Server | undefined;
 let devServer: ChildProcess | undefined;
 let baseUrl = "";
 
-const DENIED_ACTOR = "AGT-VIEWER-01";
-const ALLOWED_ACTOR = "AGT-ADMIN-01";
+const DENIED_ACTOR = OPERATOR_USERNAME;
+const ALLOWED_ACTOR = ADMIN_USERNAME;
 
 const DATA_QUALITY = {
   generated_at: "2026-08-15T02:00:00Z",
@@ -135,7 +137,6 @@ function startNext(port: number, apiPort: number): ChildProcess {
       IVR_EXECUTION_MODE: "MOCK",
       IVR_ENVIRONMENT_LABEL: "dev",
       REAL_CUSTOMER_CALL_ALLOWED: "NO",
-      IVR_ADMIN_UI_SESSION_SECRET: "e2e-reports-secret-0123456789abcdef",
       IVR_API_BASE_URL: `http://127.0.0.1:${apiPort}`,
     },
     stdio: "ignore",
@@ -162,7 +163,8 @@ async function waitFor(url: string): Promise<void> {
 
 beforeAll(async () => {
   const apiPort = await findFreePort();
-  apiServer = createHttpServer((request, response) => {
+  apiServer = createHttpServer(async (request, response) => {
+    if (await handleConsoleAuthStub(request, response)) return;
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     const base = "/v1/ivr/order-confirmation";
 
@@ -243,7 +245,7 @@ async function signedIn(actorId: string): Promise<string> {
   const response = await fetch(`${baseUrl}/api/auth/sign-in`, {
     method: "POST",
     redirect: "manual",
-    body: new URLSearchParams({ actorId }),
+    body: signInBody(actorId),
   });
   const header = response.headers
     .getSetCookie()
@@ -327,13 +329,12 @@ describe("E2E-UI-REPORT-05 reporting console", () => {
     expect(await tooSmall.text()).toContain("IVR_PII_POLICY_VIOLATION");
   });
 
-  it("shows the refusal rather than numbers when the API denies the caller", async () => {
+  it("redirects Operator away from the admin-only report route", async () => {
     const cookie = await signedIn(DENIED_ACTOR);
-    const html = await (await visit("/reports", cookie)).text();
+    const response = await visit("/reports", cookie);
 
-    expect(html).toContain("IVR_FORBIDDEN_CALLER");
-    expect(html).not.toContain("46,2%");
-    expect(html).not.toContain("54,6%");
+    expect([302, 303, 307, 308]).toContain(response.status);
+    expect(response.headers.get("location")).toContain("/dashboard?error=forbidden");
   });
 
   it("sends a signed-out visitor to login instead of the report", async () => {

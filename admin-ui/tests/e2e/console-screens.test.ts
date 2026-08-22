@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { ADMIN_USERNAME, handleConsoleAuthStub, OPERATOR_USERNAME, signInBody } from "./console-auth-stub";
+
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const nextBin = fileURLToPath(new URL("../../node_modules/next/dist/bin/next", import.meta.url));
 
@@ -171,6 +173,7 @@ const DETAIL_PAYLOAD = {
       captured_at: "2026-08-15T01:00:00Z",
     },
   ],
+  voice_region: "South",
   max_attempts: 2,
   attempt_policy_code: "mock-lab-v1",
   script_version: "SCRIPT-ORDER-CONFIRM:v1-test-approved",
@@ -294,7 +297,8 @@ const SIM_CHANNELS_PAYLOAD = {
 
 beforeAll(async () => {
   const apiPort = await findFreePort();
-  apiServer = createHttpServer((request, response) => {
+  apiServer = createHttpServer(async (request, response) => {
+    if (await handleConsoleAuthStub(request, response)) return;
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     apiRequests.push(`${request.method} ${url.pathname}${url.search}`);
 
@@ -336,7 +340,6 @@ beforeAll(async () => {
     IVR_EXECUTION_MODE: "MOCK",
     IVR_ENVIRONMENT_LABEL: "test",
     REAL_CUSTOMER_CALL_ALLOWED: "NO",
-    IVR_ADMIN_UI_SESSION_SECRET: "e2e-screen-secret-0123456789abcdefghij",
     IVR_API_BASE_URL: `http://127.0.0.1:${apiPort}`,
   };
 
@@ -376,11 +379,11 @@ afterAll(async () => {
   });
 });
 
-async function signedInCookie(actorId = "AGT-ADMIN-01"): Promise<string> {
+async function signedInCookie(username = ADMIN_USERNAME): Promise<string> {
   const response = await fetch(`${baseUrl}/api/auth/sign-in`, {
     method: "POST",
     redirect: "manual",
-    body: new URLSearchParams({ actorId }),
+    body: signInBody(username),
   });
   const header = response.headers
     .getSetCookie()
@@ -489,7 +492,7 @@ describe("E2E-UI-LOG-01 call log", () => {
     expect(markup).toContain("SIM-E2E-01");
     expect(markup).toContain("SIM-E2E-02");
     expect(markup).toContain("đang cách ly");
-    // AGT-ADMIN-01 holds both permissions, so an enabled channel offers
+    // The Admin test subject holds both permissions, so an enabled channel offers
     // disable and a disabled one offers enable.
     expect(markup).toContain("Tắt kênh");
     expect(markup).toContain("Bật kênh");
@@ -511,6 +514,11 @@ describe("E2E-UI-DETAIL-02 call detail", () => {
     expect(html).toContain("ATTEMPT-E2E-2");
     expect(html).toContain("MOCK_ADAPTER_FAULT");
     expect(html).toContain("1 — xác nhận");
+
+    // W-0106 — which regional voice this order routes to. The raw delivery area is
+    // deliberately absent from the payload, so the console can only show the region.
+    expect(html).toContain("Giọng đọc theo miền");
+    expect(html).toContain("Miền Nam");
 
     // Result plus its advisory framing.
     // W-0101 — the per-line sellable snapshot `specs/ui/03` puts in the trace,
@@ -546,9 +554,9 @@ describe("E2E-UI-DETAIL-02 call detail", () => {
     expect(html).toContain("Không tìm thấy tài nguyên.");
   });
 
-  it("hides both admin actions from a viewer and offers them to an admin", async () => {
-    const viewerHtml = await (await getHtml(`/calls/${JOB_ID}`, await signedInCookie("AGT-VIEWER-01"))).text();
-    expect(viewerHtml).not.toContain("Yêu cầu gọi lại kỹ thuật");
+  it("gives Operator manual retry but reserves result review for Admin", async () => {
+    const viewerHtml = await (await getHtml(`/calls/${JOB_ID}`, await signedInCookie(OPERATOR_USERNAME))).text();
+    expect(viewerHtml).toContain("Yêu cầu gọi lại kỹ thuật");
     expect(viewerHtml).not.toContain("Ghi kết luận duyệt");
 
     const adminHtml = await (await getHtml(`/calls/${JOB_ID}`, await signedInCookie())).text();

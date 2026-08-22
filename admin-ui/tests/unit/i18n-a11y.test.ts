@@ -59,6 +59,62 @@ describe("UI-I18N-02 the console speaks Vietnamese through one catalogue", () =>
     expect(offenders).toEqual([]);
   });
 
+  /**
+   * W-0107 / UT-L10N-NOENG-05. The diacritic scan above has a blind spot big
+   * enough to drive the whole of W-0107 through: it only catches Vietnamese
+   * prose that escaped the catalogue. English prose hardcoded into a display
+   * prop trips nothing at all, which is how `aria-label="Governance"` and a
+   * bare `fail-closed` survived in a console that is otherwise fully localised.
+   *
+   * Scope is deliberately narrow — props that end up as visible or announced
+   * text, and only values that read as prose (two or more words). `label="ID"`,
+   * `variant="mono"` and every testId stay legal, so the check has no false
+   * positives to train people to ignore.
+   */
+  it("keeps English prose out of props that reach the operator", () => {
+    const DISPLAY_PROP =
+      /(?:aria-label|placeholder|title|caption|subtitle|body|allLabel|keyLabel)=\{?"([^"\n]+)"/gu;
+
+    // OD-L10N-03: shared vocabulary with the runbooks, the logs and the API.
+    // Translating these would cost operators the ability to search for them.
+    const TECHNICAL = new Set([
+      "fail-closed",
+      "correlation id",
+      "idempotency key",
+      "kill switch",
+    ]);
+
+    const offenders: string[] = [];
+    for (const source of sources) {
+      if (source.file === "i18n/vi.json") {
+        continue;
+      }
+
+      for (const [index, line] of source.text.split("\n").entries()) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) {
+          continue;
+        }
+
+        for (const match of line.matchAll(DISPLAY_PROP)) {
+          const value = match[1];
+          if (!/^[\x20-\x7E]+$/u.test(value)) {
+            continue; // Non-ASCII: the diacritic check above owns this case.
+          }
+
+          const words = value.trim().split(/\s+/u);
+          if (words.length < 2 || TECHNICAL.has(value.trim().toLowerCase())) {
+            continue;
+          }
+
+          offenders.push(`${source.file}:${index + 1}: ${match[0]}`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
   it("resolves every catalogue key from somewhere, including dynamic families", () => {
     // A naive scan reports the error.* family as dead because ErrorAlert builds the key from a
     // response code, and messageKey values travel as data before anything calls t(). A checker
@@ -95,6 +151,24 @@ describe("UI-I18N-02 the console speaks Vietnamese through one catalogue", () =>
     // clock a timestamp came from.
     expect(formatDateTime("2026-08-18T00:30:00Z")).toContain("07:30");
     expect(formatDateTime("not-a-date")).toBe("—");
+  });
+
+  it("answers a value that is not a number with an em dash, never with NaN", () => {
+    // The casts are the point of the test, not a way around the compiler. `no_answer`,
+    // `invalid_phone` and `technical` are required and non-nullable in the contract
+    // (IvrAnalyticsTrendBucket), so the only way the trend table is handed a non-number is
+    // Ivr.Api breaking its own schema — and the numbers arrive as unchecked JSON, so the
+    // signature saying `number` does not make it one. The screen should go blank in that
+    // cell rather than print arithmetic on nothing at whoever is on shift.
+    expect(formatNumber(undefined as unknown as number)).toBe("—");
+    expect(formatNumber(Number.NaN)).toBe("—");
+    expect(formatNumber(null as unknown as number)).toBe("—");
+    expect(formatNumber(Number.POSITIVE_INFINITY)).toBe("—");
+
+    // The guard must not eat the ordinary path, and least of all the zero a genuinely
+    // empty bucket reports — a real 0 is an answer, not a missing value.
+    expect(formatNumber(0)).toBe("0");
+    expect(formatNumber(560_000)).toBe("560.000");
   });
 });
 

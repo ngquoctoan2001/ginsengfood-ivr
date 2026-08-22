@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import { DependencyBadge } from "@/components/data/DependencyBadge";
 import vi from "@/i18n/vi.json";
-import { MOCK_DIRECTORY } from "@/lib/auth/directory";
 import { IVR_PERMISSIONS } from "@/lib/rbac/permissions";
 
 const messages: Record<string, string> = vi;
@@ -101,12 +100,12 @@ describe("UT-UI-SEED-PROD-03 seed and mock guards", () => {
   });
 });
 
-/** UT-UI-ROLE-04 — the matrix is reference only; assignment lives in Permission Core. */
+/** UT-UI-ROLE-04 — the matrix is fixed to the two API-owned roles. */
 describe("UT-UI-ROLE-04 role and permission matrix", () => {
-  it("states that permissions are not managed in this console", () => {
-    expect(messages["roles.notManagedHere"]).toContain("Permission Core");
-    expect(messages["roles.notManagedHere"]).toMatch(/không có nút gán hay thu hồi/i);
-    expect(messages["roles.subtitle"]).toContain("DF-01");
+  it("states that permissions are mapped from one of two fixed roles", () => {
+    expect(messages["roles.notManagedHere"]).toContain("hai vai trò");
+    expect(messages["roles.notManagedHere"]).toContain("Ivr.Api");
+    expect(messages["roles.subtitle"]).toContain("hai vai trò");
   });
 
   it("maps every permission to the screen that uses it", () => {
@@ -126,19 +125,16 @@ describe("UT-UI-ROLE-04 role and permission matrix", () => {
       expect(mapping[permission], `${permission} has no screen mapping`).toBeTruthy();
     }
 
-    // The view permission gates every read screen in the nav, reporting included.
-    expect(mapping.IVR_QUEUE_VIEW).toContain(messages["nav.reports"]);
+    // Operators can read queue/calls; reports are admin-only under Decision B.
     expect(mapping.IVR_QUEUE_VIEW).toContain(messages["nav.dashboard"]);
+    expect(mapping.IVR_ACCOUNT_VIEW).toContain("tài khoản");
     // The SIM controls now exist; the mapping must not still promise them later.
     expect(mapping.IVR_SIM_ENABLE).not.toMatch(/sau|sắp|chưa có/i);
     expect(mapping.IVR_SIM_DISABLE).not.toMatch(/sau|sắp|chưa có/i);
   });
 
   it("shows the runtime-gate permission as held by nobody", () => {
-    const holders = MOCK_DIRECTORY.filter((entry) =>
-      (entry.permissions as readonly string[]).includes("IVR_RUNTIME_GATE_ADMIN"),
-    );
-    expect(holders).toHaveLength(0);
+    expect(messages["roles.screen.IVR_RUNTIME_GATE_ADMIN"]).toContain("chờ owner");
     expect(messages["roles.ungranted"]).toBeTruthy();
   });
 });

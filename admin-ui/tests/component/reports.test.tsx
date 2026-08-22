@@ -106,6 +106,52 @@ describe("UT-UI-REPORT-01 KPI cards", () => {
     expect(formatDuration(120)).toBe("2m");
   });
 
+  /**
+   * `operational_blocked_rate` is required-and-nullable in the contract, and
+   * null is its expected value today: a pre-call block leaves no call result to
+   * count (DT-06). The tile must say "not recorded", and it must not say 0% —
+   * an operator reading 0% would conclude no block occurred.
+   */
+  it("shows a null operational-blocked rate as unknown rather than as zero", () => {
+    render(
+      <MetricGrid
+        metrics={[
+          {
+            label: messages["reports.kpiOperationalBlockedRate"],
+            value: formatRate(KPI.operational_blocked_rate),
+            testId: "kpi-operational-blocked-rate",
+          },
+        ]}
+      />,
+    );
+
+    const tile = screen.getByTestId("kpi-operational-blocked-rate");
+    expect(tile).toHaveTextContent("—");
+    expect(tile).not.toHaveTextContent("0,0%");
+    expect(tile).not.toHaveTextContent("NaN");
+  });
+
+  /**
+   * The field is contractually required, so an absent one is Ivr.Api breaking
+   * its own schema. The screen still must not answer with arithmetic: before
+   * this guard the tile rendered "NaN%", which is neither a rate nor a warning.
+   */
+  it("survives a KPI payload that omits a required rate instead of rendering NaN", () => {
+    // Built by deleting the key, not by setting it to undefined: the failure
+    // being reproduced is a JSON payload that never carried the field at all.
+    const payload: Record<string, unknown> = { ...KPI };
+    delete payload.operational_blocked_rate;
+    const degraded = payload as unknown as IvrAnalyticsKpi;
+
+    expect(degraded.operational_blocked_rate).toBeUndefined();
+    expect(formatRate(degraded.operational_blocked_rate)).toBe("—");
+    expect(formatRate(Number.NaN)).toBe("—");
+    expect(formatRate(Number.POSITIVE_INFINITY)).toBe("—");
+    // A real rate is still formatted in vi-VN notation, unchanged.
+    expect(formatRate(0.955)).toBe("95,5%");
+    expect(formatRate(0)).toBe("0,0%");
+  });
+
   it("states the data source and the suppressed-bucket count rather than hiding them", () => {
     render(<FreshnessBanner quality={QUALITY} />);
 
@@ -241,6 +287,10 @@ describe("UT-UI-REPORT-EXPORT-04 export guard", () => {
       ]),
     );
 
+    // `dimension` is in here alongside the filter it travels with because the
+    // enhanced select keeps its value in a hidden input once hydrated — the
+    // control the operator sees is a listbox, and the form still posts the
+    // same field. Rendered in jsdom, that upgrade has already happened.
     expect(hidden).toEqual({
       program: "GOLDEN_HOUR",
       result_type: "IVR_CONFIRMED",
@@ -248,6 +298,7 @@ describe("UT-UI-REPORT-EXPORT-04 export guard", () => {
       bucket: "HOUR",
       from: "2026-08-01",
       to: "2026-08-14",
+      dimension: "PROGRAM",
     });
   });
 

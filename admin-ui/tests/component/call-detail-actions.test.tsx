@@ -54,7 +54,7 @@ const ADMIN_PERMISSIONS: IvrPermission[] = [
 /** UT-UI-NOORDER-03 — the console offers no order-state control (D-02). */
 describe("UT-UI-NOORDER-03 no order transition control", () => {
   it("offers exactly the two IVR admin actions, even to the fullest role", () => {
-    renderActions("AdminIM", ADMIN_PERMISSIONS);
+    renderActions("Admin", ADMIN_PERMISSIONS);
 
     const triggers = screen
       .getAllByRole("button")
@@ -68,7 +68,7 @@ describe("UT-UI-NOORDER-03 no order transition control", () => {
   });
 
   it("renders no control that could transition an order", () => {
-    renderActions("AdminIM", ADMIN_PERMISSIONS);
+    renderActions("Admin", ADMIN_PERMISSIONS);
 
     const forbidden =
       /(xác nhận|huỷ|hủy)\s+đơn|confirm\s+order|cancel\s+order|force|reset\s+attempt/i;
@@ -93,7 +93,7 @@ describe("UT-UI-NOORDER-03 no order transition control", () => {
 /** UT-UI-REVIEW-04 — review needs a reason and disappears without the permission. */
 describe("UT-UI-REVIEW-04 result review action", () => {
   it("requires both a reason and a resolution before it can be submitted", () => {
-    renderActions("AdminIM", ["IVR_QUEUE_VIEW", "IVR_RESULT_REVIEW"]);
+    renderActions("Admin", ["IVR_QUEUE_VIEW", "IVR_RESULT_REVIEW"]);
 
     expect(
       screen.getByRole("button", { name: /Ghi kết luận duyệt · REVIEW-1/ }),
@@ -113,7 +113,7 @@ describe("UT-UI-REVIEW-04 result review action", () => {
   });
 
   it("is hidden entirely when the session lacks IVR_RESULT_REVIEW", () => {
-    renderActions("Ops", ["IVR_QUEUE_VIEW", "IVR_MANUAL_RETRY"]);
+    renderActions("Operator", ["IVR_QUEUE_VIEW", "IVR_MANUAL_RETRY"]);
 
     expect(screen.queryByText(/Ghi kết luận duyệt/)).toBeNull();
     expect(screen.queryByLabelText("Kết luận")).toBeNull();
@@ -122,13 +122,13 @@ describe("UT-UI-REVIEW-04 result review action", () => {
   });
 
   it("renders nothing at all for a viewer with neither permission", () => {
-    const { container } = renderActions("OpsViewer", ["IVR_QUEUE_VIEW"]);
+    const { container } = renderActions("Operator", ["IVR_QUEUE_VIEW"]);
     expect(container).toBeEmptyDOMElement();
   });
 
   it("skips a technical exception that the API marked as not retryable", () => {
     render(
-      <PermissionProvider actorId="AGT-TEST-01" role="AdminIM" permissions={ADMIN_PERMISSIONS}>
+      <PermissionProvider actorId="AGT-TEST-01" role="Admin" permissions={ADMIN_PERMISSIONS}>
         <CallDetailActions
           technicalExceptions={[
             { ...TECHNICAL_EXCEPTIONS[0], technical_retry_allowed: false },

@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { ADMIN_USERNAME, handleConsoleAuthStub, signInBody } from "./console-auth-stub";
+
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const nextBin = fileURLToPath(new URL("../../node_modules/next/dist/bin/next", import.meta.url));
 
@@ -170,7 +172,6 @@ function startNext(port: number, apiPort: number, environmentLabel: string): Chi
       IVR_EXECUTION_MODE: "MOCK",
       IVR_ENVIRONMENT_LABEL: environmentLabel,
       REAL_CUSTOMER_CALL_ALLOWED: "NO",
-      IVR_ADMIN_UI_SESSION_SECRET: "e2e-backoffice-secret-0123456789abcdef",
       IVR_API_BASE_URL: `http://127.0.0.1:${apiPort}`,
     },
     stdio: "ignore",
@@ -197,7 +198,8 @@ async function waitFor(url: string): Promise<void> {
 
 beforeAll(async () => {
   const apiPort = await findFreePort();
-  apiServer = createHttpServer((request, response) => {
+  apiServer = createHttpServer(async (request, response) => {
+    if (await handleConsoleAuthStub(request, response)) return;
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     const base = "/v1/ivr/order-confirmation";
     const routes: Record<string, unknown> = {
@@ -246,11 +248,11 @@ afterAll(async () => {
   });
 });
 
-async function signedIn(baseUrl: string, actorId = "AGT-ADMIN-01"): Promise<string> {
+async function signedIn(baseUrl: string, actorId = ADMIN_USERNAME): Promise<string> {
   const response = await fetch(`${baseUrl}/api/auth/sign-in`, {
     method: "POST",
     redirect: "manual",
-    body: new URLSearchParams({ actorId }),
+    body: signInBody(actorId),
   });
   const header = response.headers
     .getSetCookie()
@@ -307,9 +309,16 @@ describe("E2E-UI-REVIEW-05 review queue and back-office screens", () => {
     expect(html).toContain("Đã duyệt đủ");
     expect(html).toContain("v2-draft");
     expect(html).toContain("Chưa duyệt đủ");
-    expect(html).toContain("MOCK_TEST, LAB, CONTENT, PRIVACY_LEGAL");
+    // W-0107. The approval types render as Vietnamese labels now, so the
+    // assertion matches on `data-enum-code` rather than on the prose: rewording
+    // the dictionary is not supposed to be able to turn this test red.
+    for (const approval of ["MOCK_TEST", "LAB", "CONTENT", "PRIVACY_LEGAL"]) {
+      expect(html).toContain(`data-enum-code="${approval}"`);
+    }
+
+    expect(html).toContain("Kiểm thử mô phỏng");
     expect(html).toContain("Template không còn hợp lệ");
-    expect(html).toContain("NOT_ENABLED");
+    expect(html).toContain('data-enum-code="NOT_ENABLED"');
     expect(html).toContain("ProductionTargetV1FieldsApproved=NO");
     // Read-only: no lifecycle control is rendered.
     expect(html).not.toMatch(/<button[^>]*>\s*(Phê duyệt|Gửi duyệt|Thu hồi)/);
@@ -352,8 +361,9 @@ describe("E2E-UI-REVIEW-05 review queue and back-office screens", () => {
     const cookie = await signedIn(devUrl);
     const html = await (await page(devUrl, "/roles", cookie)).text();
 
-    expect(html).toContain("Permission Core");
-    expect(html).toContain("AGT-ADMIN-01");
+    expect(html).toContain("Ivr.Api");
+    expect(html).toContain("Quản trị viên");
+    expect(html).toContain("Nhân viên vận hành");
     expect(html).toContain("IVR_RUNTIME_GATE_ADMIN");
     expect(html).toContain("Chưa cấp cho vai trò nào");
     expect(html).not.toMatch(/<button[^>]*>\s*(Gán|Thu hồi)/);

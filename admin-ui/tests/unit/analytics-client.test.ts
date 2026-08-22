@@ -22,10 +22,12 @@ const CONFIG: AdminUiConfig = {
 };
 
 const SESSION: AdminSession = {
-  actorId: "AGT-ADMIN-01",
-  role: "AdminIM",
+  accessToken: "opaque-test-token-that-is-at-least-thirty-two-characters",
+  accountId: "11111111-1111-4111-8111-111111111111",
+  actorId: "admin",
+  displayName: "Quản trị viên",
+  role: "Admin",
   permissions: ["IVR_QUEUE_VIEW"],
-  issuedAt: 0,
   expiresAt: 4_102_444_800,
 };
 

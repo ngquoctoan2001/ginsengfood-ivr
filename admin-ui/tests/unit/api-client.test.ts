@@ -18,10 +18,12 @@ const MOCK_CONFIG: AdminUiConfig = {
 };
 
 const SESSION: AdminSession = {
-  actorId: "AGT-ADMIN-01",
-  role: "AdminIM",
+  accessToken: "opaque-test-token-that-is-at-least-thirty-two-characters",
+  accountId: "11111111-1111-4111-8111-111111111111",
+  actorId: "admin",
+  displayName: "Quản trị viên",
+  role: "Admin",
   permissions: ["IVR_QUEUE_VIEW", "IVR_QUEUE_PAUSE"],
-  issuedAt: 0,
   expiresAt: 4_102_444_800,
 };
 
@@ -136,7 +138,7 @@ describe("UT-UI-CORR-03 correlation propagation", () => {
 });
 
 describe("Ivr.Api call contract", () => {
-  it("binds X-Actor-Id to the authenticated session and adds MOCK auth headers", async () => {
+  it("binds X-Actor-Id and the opaque bearer token to the authenticated session", async () => {
     const { fetchImpl, calls } = recordingFetch(jsonResponse({}));
 
     await callIvrApi({
@@ -148,12 +150,13 @@ describe("Ivr.Api call contract", () => {
     });
 
     const { headers } = calls[0];
-    expect(headers.get("X-Actor-Id")).toBe("AGT-ADMIN-01");
-    expect(headers.get("X-Mock-Actor-Id")).toBe("AGT-ADMIN-01");
-    expect(headers.get("X-Permissions")).toBe("IVR_QUEUE_VIEW,IVR_QUEUE_PAUSE");
+    expect(headers.get("X-Actor-Id")).toBe("admin");
+    expect(headers.get("Authorization")).toBe(`Bearer ${SESSION.accessToken}`);
+    expect(headers.get("X-Mock-Actor-Id")).toBeNull();
+    expect(headers.get("X-Permissions")).toBeNull();
   });
 
-  it("refuses to call outside MOCK mode instead of sending mock headers", async () => {
+  it("uses the same bearer session outside MOCK mode", async () => {
     const { fetchImpl, calls } = recordingFetch(jsonResponse({}));
     const labConfig: AdminUiConfig = {
       ...MOCK_CONFIG,
@@ -161,17 +164,16 @@ describe("Ivr.Api call contract", () => {
       isMockMode: false,
     };
 
-    await expect(
-      callIvrApi({
-        method: "GET",
-        path: "/queue",
-        session: SESSION,
-        config: labConfig,
-        fetchImpl,
-      }),
-    ).rejects.toMatchObject({ code: "IVR_UNAUTHENTICATED" });
+    await callIvrApi({
+      method: "GET",
+      path: "/queue",
+      session: SESSION,
+      config: labConfig,
+      fetchImpl,
+    });
 
-    expect(calls).toHaveLength(0);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].headers.get("Authorization")).toBe(`Bearer ${SESSION.accessToken}`);
   });
 
   it("turns an error response into a typed envelope with the server correlation id", async () => {

@@ -16,8 +16,7 @@ import type {
   TechnicalRetryRequest,
 } from "@/lib/api/types";
 import { IVR_ERROR_CODES } from "@/lib/api/types";
-import { MOCK_DIRECTORY } from "@/lib/auth/directory";
-import { IVR_PERMISSIONS } from "@/lib/rbac/permissions";
+import { IVR_PERMISSIONS, IVR_ROLES } from "@/lib/rbac/permissions";
 
 function repoFile(relativePath: string): string {
   return readFileSync(
@@ -54,10 +53,39 @@ function requiredOf(schema: string): string[] {
  * changing the contract breaks the comparison.
  */
 describe("UT-UI-CONTRACT-06 OpenAPI drift", () => {
-  it("mirrors the ErrorCode catalogue exactly", () => {
+  it("mirrors the console error-code superset exactly", () => {
     expect([...IVR_ERROR_CODES].sort()).toEqual(
-      [...(openapi.components.schemas.ErrorCode.enum as string[])].sort(),
+      [
+        ...(openapi.components.schemas.ConsoleAccountErrorCode.enum as string[]),
+      ].sort(),
     );
+  });
+
+  /**
+   * `ConsoleAccountErrorCode` was introduced as a superset so the pre-existing endpoint response
+   * enums would not have to change, and the assertion above moved onto it. That left `ErrorCode`
+   * — still referenced by `ErrorEnvelope` and therefore by every operation written before the
+   * console API — with no drift guard at all: a code could be added there and never reach the
+   * TypeScript mirror, and nothing would fail.
+   *
+   * These two assertions restore the guard and pin the relationship between the enums, so the
+   * split stays a deliberate superset rather than two catalogues drifting apart.
+   */
+  it("keeps every legacy ErrorCode in the TypeScript mirror", () => {
+    const legacy = openapi.components.schemas.ErrorCode.enum as string[];
+    expect(legacy.length).toBeGreaterThan(0);
+    expect([...legacy].sort()).toEqual(
+      [...legacy].filter((code) => (IVR_ERROR_CODES as readonly string[]).includes(code)).sort(),
+    );
+  });
+
+  it("keeps ConsoleAccountErrorCode a strict superset of ErrorCode", () => {
+    const legacy = new Set(openapi.components.schemas.ErrorCode.enum as string[]);
+    const console = openapi.components.schemas.ConsoleAccountErrorCode.enum as string[];
+    const missing = [...legacy].filter((code) => !console.includes(code));
+
+    expect(missing).toEqual([]);
+    expect(console.length).toBeGreaterThan(legacy.size);
   });
 
   it("mirrors AdminMutationRequest", () => {
@@ -258,13 +286,14 @@ function toPathPattern(path: string): string {
  *
  * A template literal is scanned rather than regex-replaced because
  * `${buildQuery({ a, b })}` contains braces of its own; the scanner tracks depth
- * and emits `*` for each interpolation. A trailing `*` is a query-string builder
- * and is dropped, an interior one is a route parameter and is kept.
+ * and emits `*` for route interpolations. A `buildQuery(...)` interpolation is
+ * dropped because it is not part of the OpenAPI path.
  */
 function reachablePaths(): string[] {
   const sources = [
     repoFile("admin-ui/src/lib/api/admin.ts"),
     repoFile("admin-ui/src/lib/analytics/client.ts"),
+    repoFile("admin-ui/src/lib/api/accounts.ts"),
   ].join("\n");
 
   const paths = new Set<string>();
@@ -276,7 +305,7 @@ function reachablePaths(): string[] {
     paths.add(collapseInterpolations(match[1]));
   }
 
-  return [...paths].map((path) => path.replace(/\*$/, "")).sort();
+  return [...paths].map((path) => path.split("?", 1)[0]).sort();
 }
 
 function collapseInterpolations(template: string): string {
@@ -285,6 +314,7 @@ function collapseInterpolations(template: string): string {
     if (template[index] === "$" && template[index + 1] === "{") {
       let depth = 1;
       index += 2;
+      const expressionStart = index;
       while (index < template.length && depth > 0) {
         if (template[index] === "{") depth++;
         else if (template[index] === "}") depth--;
@@ -292,7 +322,8 @@ function collapseInterpolations(template: string): string {
       }
 
       index--;
-      out += "*";
+      const expression = template.slice(expressionStart, index);
+      out += expression.includes("buildQuery(") ? "" : "*";
       continue;
     }
 
@@ -313,29 +344,16 @@ describe("RBAC vocabulary drift", () => {
     expect([...IVR_PERMISSIONS].sort()).toEqual([...declared].sort());
   });
 
-  it("mirrors the seeded agent directory", () => {
-    const seed = JSON.parse(repoFile("seed/agents.sample.json")) as {
-      agents: { actor_id: string; role: string; permissions: string[] }[];
-    };
+  it("mirrors the two domain roles", () => {
+    const source = repoFile("src/Ivr.Domain/Accounts/ConsoleAccountPolicies.cs");
+    const declared = [...source.matchAll(/public const string \w+ = "(Admin|Operator)";/g)]
+      .map((match) => match[1]);
 
-    expect(
-      MOCK_DIRECTORY.map((entry) => ({
-        actor_id: entry.actorId,
-        role: entry.role,
-        permissions: [...entry.permissions].sort(),
-      })),
-    ).toEqual(
-      seed.agents.map((agent) => ({
-        actor_id: agent.actor_id,
-        role: agent.role,
-        permissions: [...agent.permissions].sort(),
-      })),
-    );
+    expect([...IVR_ROLES].sort()).toEqual([...declared].sort());
   });
 
-  it("grants no seeded role the runtime-gate permission pending OD-V1-20", () => {
-    for (const entry of MOCK_DIRECTORY) {
-      expect(entry.permissions).not.toContain("IVR_RUNTIME_GATE_ADMIN");
-    }
+  it("grants no console role the runtime-gate permission pending OD-V1-20", () => {
+    const source = repoFile("src/Ivr.Api/Auth/IvrRoles.cs");
+    expect(source).not.toContain("IvrPermissions.RuntimeGateAdmin");
   });
 });

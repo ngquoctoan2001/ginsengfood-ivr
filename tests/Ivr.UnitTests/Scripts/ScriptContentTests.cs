@@ -1,6 +1,7 @@
 using System.Globalization;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Scripts;
+using Ivr.Domain.Speech;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Scripts;
 using Microsoft.Extensions.Options;
@@ -271,7 +272,7 @@ public sealed class ScriptContentTests
         ScriptPreview preview = new VietnameseOrderScriptRenderer().Render(approved, summary);
 
         Assert.Equal(
-            "Xin chào Quý khách. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Quý khách có đơn hàng gồm 2 hộp Cháo sâm Ginsengfood, tổng tiền 1.234.567 đồng, giao đến Quận 1. Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
+            "Xin chào Quý khách. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Quý khách có đơn hàng gồm hai hộp Cháo sâm Ginsengfood, tổng tiền một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy đồng, giao đến Quận 1. Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
             preview.ExactText);
         Assert.DoesNotContain("Anh Minh", preview.ExactText, StringComparison.Ordinal);
         Assert.Equal(summary.ComputeHash(), preview.InputSnapshot.InputHash);
@@ -303,7 +304,7 @@ public sealed class ScriptContentTests
             Summary([SpeechItem.Create("Trà sâm", 2.5m, "kg")], 560_000m, "Quận 7"));
 
         Assert.Contains("2,5 kg Trà sâm", preview.ExactText, StringComparison.Ordinal);
-        Assert.Contains("560.000 đồng", preview.ExactText, StringComparison.Ordinal);
+        Assert.Contains("năm trăm sáu mươi nghìn đồng", preview.ExactText, StringComparison.Ordinal);
 
         // The renderer must not read the ambient culture either: a worker started with a different
         // LANG would otherwise speak a different number for the same order.
@@ -370,10 +371,13 @@ public sealed class ScriptContentTests
         ScriptPreview second = new VietnameseOrderScriptRenderer().Render(approved, summary);
 
         Assert.Contains(
-            "1 Sản phẩm A, 2 gói Sản phẩm B, 3,5 kg Sản phẩm C, và 2 sản phẩm khác",
+            "một Sản phẩm A, hai gói Sản phẩm B, 3,5 kg Sản phẩm C, và hai sản phẩm khác",
             first.ExactText,
             StringComparison.Ordinal);
-        Assert.Contains("9.999.999.999 đồng", first.ExactText, StringComparison.Ordinal);
+        Assert.Contains(
+            "chín tỷ chín trăm chín mươi chín triệu chín trăm chín mươi chín nghìn chín trăm chín mươi chín đồng",
+            first.ExactText,
+            StringComparison.Ordinal);
         Assert.Equal(first.ContentHash, second.ContentHash);
     }
 
@@ -388,6 +392,55 @@ public sealed class ScriptContentTests
 
     private static ScriptActor Actor(string actorId, params string[] permissions) =>
         ScriptActor.Create(actorId, permissions);
+
+    [Fact]
+    [Trait("TestId", "UT-SCRIPT-VI-REGION-09")]
+    public async Task DeliveryRegionDecidesTheSpokenNumberLexiconInTheRenderedText()
+    {
+        // W-0106 / OD-VOICE-03. One approved template, three regional readings. The wording
+        // difference lives in the number speller, so TemplateHash is identical across all three
+        // and no migration or second approval is involved.
+        using InMemoryScriptRegistry registry = CreateRegistry(productionFieldsApproved: true);
+        ApprovedScript approved = Assert.IsType<ApprovedScript>(await registry.TryGetApproved(
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.MockTemplateVersion,
+            ExecutionMode.Mock));
+        var renderer = new VietnameseOrderScriptRenderer();
+        SpeechItem[] items = [SpeechItem.Create("Cháo sâm", 2, "hộp")];
+
+        // The exact area from the approved W-0104 sample. Phú Khương was a Bến Tre ward; the
+        // 2025 merger puts it in Vĩnh Long, which is Southern — so it reads "ngàn", while the
+        // W-0104 audio (one Northern male voice for every order) says "nghìn". That sample is
+        // therefore no longer a valid regression baseline for a Southern order.
+        ScriptPreview south = renderer.Render(
+            approved,
+            Summary(items, 560_000m, "phường Phú Khương, tỉnh Vĩnh Long"));
+        ScriptPreview north = renderer.Render(
+            approved,
+            Summary(items, 560_000m, "phường Cửa Nam, thành phố Hà Nội"));
+        ScriptPreview central = renderer.Render(
+            approved,
+            Summary(items, 560_000m, "phường Hải Châu, thành phố Đà Nẵng"));
+
+        Assert.Contains("năm trăm sáu mươi ngàn đồng", south.ExactText, StringComparison.Ordinal);
+        Assert.Contains("năm trăm sáu mươi nghìn đồng", north.ExactText, StringComparison.Ordinal);
+        Assert.Contains("năm trăm sáu mươi ngàn đồng", central.ExactText, StringComparison.Ordinal);
+        Assert.Contains("hai hộp Cháo sâm", north.ExactText, StringComparison.Ordinal);
+
+        // Same template everywhere; only the rendered text differs.
+        Assert.Equal(north.TemplateHash, south.TemplateHash);
+        Assert.Equal(north.TemplateHash, central.TemplateHash);
+        Assert.NotEqual(north.ExactText, south.ExactText);
+
+        // An area naming no province falls back to the configured region rather than guessing.
+        Assert.Contains(
+            "năm trăm sáu mươi ngàn đồng",
+            renderer.Render(
+                approved,
+                Summary(items, 560_000m, "Khu vực chưa xác định"),
+                ScriptRenderOptions.Create(3, 1_200, 150, VietnamRegion.South)).ExactText,
+            StringComparison.Ordinal);
+    }
 
     private static PrivacySafeOrderSummary Summary(
         IEnumerable<SpeechItem> items,

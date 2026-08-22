@@ -1,98 +1,55 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 
-import {
-  createSession,
-  isValidActorId,
-  sealSession,
-  SESSION_TTL_SECONDS,
-  unsealSession,
-} from "@/lib/auth/session";
+import { createSessionFromApi, isValidActorId } from "@/lib/auth/session";
 
-const SECRET = "unit-test-session-secret-0123456789abcdef";
-const OTHER_SECRET = "a-different-session-secret-0123456789abcd";
 const NOW = 1_800_000_000;
+const TOKEN = "a".repeat(43);
+const ACCOUNT_ID = "11111111-1111-4111-8111-111111111111";
 
-describe("admin session cookie", () => {
-  it("round-trips a sealed session", () => {
-    const session = createSession("AGT-ADMIN-01", "AdminIM", ["IVR_QUEUE_VIEW"], NOW);
-    const restored = unsealSession(sealSession(session, SECRET), SECRET, NOW);
-
-    expect(restored).toEqual(session);
-    expect(session.expiresAt - session.issuedAt).toBe(SESSION_TTL_SECONDS);
-  });
-
-  it("rejects a payload signed with a different key", () => {
-    const token = sealSession(
-      createSession("AGT-ADMIN-01", "AdminIM", ["IVR_QUEUE_VIEW"], NOW),
-      OTHER_SECRET,
-    );
-
-    expect(unsealSession(token, SECRET, NOW)).toBeNull();
-  });
-
-  it("rejects a payload edited to widen permissions", () => {
-    const token = sealSession(
-      createSession("AGT-VIEWER-01", "OpsViewer", ["IVR_QUEUE_VIEW"], NOW),
-      SECRET,
-    );
-
-    const [payload, signature] = token.split(".");
-    const decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-    decoded.permissions = ["IVR_QUEUE_VIEW", "IVR_QUEUE_PAUSE", "IVR_RUNTIME_GATE_ADMIN"];
-    const forged = `${Buffer.from(JSON.stringify(decoded), "utf8").toString("base64url")}.${signature}`;
-
-    expect(unsealSession(forged, SECRET, NOW)).toBeNull();
-  });
-
-  it("rejects an expired session", () => {
-    const token = sealSession(
-      createSession("AGT-ADMIN-01", "AdminIM", ["IVR_QUEUE_VIEW"], NOW),
-      SECRET,
-    );
-
-    expect(unsealSession(token, SECRET, NOW + SESSION_TTL_SECONDS + 1)).toBeNull();
-  });
-
-  it.each([undefined, "", "not-a-token", "a.b", "."])(
-    "rejects the malformed token %j",
-    (token) => {
-      expect(unsealSession(token, SECRET, NOW)).toBeNull();
+function payload(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    account: {
+      account_id: ACCOUNT_ID,
+      username: "admin",
+      display_name: "Quản trị viên",
+      role: "Admin",
+      status: "ACTIVE",
     },
-  );
+    permissions: ["IVR_QUEUE_VIEW", "IVR_ACCOUNT_SELF_VIEW"],
+    expires_at: new Date((NOW + 3600) * 1000).toISOString(),
+    ...overrides,
+  };
+}
 
-  it("rejects a session carrying an unknown role or permission", () => {
-    for (const mutate of [
-      (value: Record<string, unknown>) => {
-        value.role = "SuperAdmin";
-      },
-      (value: Record<string, unknown>) => {
-        value.permissions = ["IVR_MAKE_ME_ROOT"];
-      },
-      (value: Record<string, unknown>) => {
-        value.actorId = "actor with spaces";
-      },
-    ]) {
-      const session: Record<string, unknown> = {
-        ...createSession("AGT-ADMIN-01", "AdminIM", ["IVR_QUEUE_VIEW"], NOW),
-      };
-      mutate(session);
-
-      const payload = Buffer.from(JSON.stringify(session), "utf8").toString("base64url");
-      const token = sealSession(session as never, SECRET);
-      // Re-sign the mutated payload so only the content, not the signature, is at issue.
-      const resigned = `${payload}.${token.split(".")[1]}`;
-
-      expect(unsealSession(resigned, SECRET, NOW)).toBeNull();
-    }
+describe("opaque API session projection", () => {
+  it("accepts a currently active, known role and permission set", () => {
+    expect(createSessionFromApi(TOKEN, payload(), NOW)).toEqual({
+      accessToken: TOKEN,
+      accountId: ACCOUNT_ID,
+      actorId: "admin",
+      displayName: "Quản trị viên",
+      role: "Admin",
+      permissions: ["IVR_QUEUE_VIEW", "IVR_ACCOUNT_SELF_VIEW"],
+      expiresAt: NOW + 3600,
+    });
   });
 
-  it("constrains actor ids to values PiiGuard accepts", () => {
-    expect(isValidActorId("AGT-ADMIN-01")).toBe(true);
-    expect(isValidActorId("agent.ops:01")).toBe(true);
-    expect(isValidActorId("")).toBe(false);
+  it.each([
+    ["short token", "short", payload()],
+    ["expired", TOKEN, payload({ expires_at: new Date((NOW - 1) * 1000).toISOString() })],
+    ["unknown permission", TOKEN, payload({ permissions: ["IVR_MAKE_ME_ROOT"] })],
+    ["inactive account", TOKEN, payload({ account: { ...payload().account as object, status: "DISABLED" } })],
+    ["unknown role", TOKEN, payload({ account: { ...payload().account as object, role: "SuperAdmin" } })],
+  ])("rejects %s", (_name, token, value) => {
+    expect(createSessionFromApi(token as string, value, NOW)).toBeNull();
+  });
+
+  it("constrains usernames to the API policy", () => {
+    expect(isValidActorId("admin")).toBe(true);
+    expect(isValidActorId("ngquoctoan2001")).toBe(true);
+    expect(isValidActorId("AGT-ADMIN-01")).toBe(false);
     expect(isValidActorId("agent with space")).toBe(false);
     expect(isValidActorId("-leading-dash")).toBe(false);
-    expect(isValidActorId("a".repeat(65))).toBe(false);
   });
 });

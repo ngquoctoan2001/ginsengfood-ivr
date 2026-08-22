@@ -91,8 +91,8 @@ public sealed class AsteriskLabTelephonyTests
             FileDurationSeconds = 18,
             FileMediaReference = "sound:ivr-lab-order-confirmation",
         };
-        var provider = new StaticFileTtsProvider(
-            Microsoft.Extensions.Options.Options.Create(configured));
+        var labOptions = Microsoft.Extensions.Options.Options.Create(configured);
+        var provider = new StaticFileTtsProvider(labOptions, new RegionalVoiceMap(labOptions));
 
         RenderedAudio audio = await provider.SynthesizeAsync(
             Ivr.Domain.Speech.SpeechScript.Create(

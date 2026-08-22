@@ -297,6 +297,48 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
     }
 
     [Fact]
+    [Trait("TestId", "IT-ADMIN-READ-10")]
+    public async Task DetailDerivesTheVoiceRegionWithoutEverExposingTheDeliveryArea()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        // Asserted on the raw wire payload rather than a generated DTO: voice_region is a new
+        // response field and the generated client is only refreshed by the nswag codegen step.
+        using HttpResponseMessage southResponse = await SendAdminAsync(
+            app,
+            $"/v1/ivr/order-confirmation/call-jobs/{GoldenHourJob}/detail",
+            IvrPermissions.QueueView);
+        string southPayload = await southResponse.Content.ReadAsStringAsync();
+        using JsonDocument south = JsonDocument.Parse(southPayload);
+
+        using HttpResponseMessage northResponse = await SendAdminAsync(
+            app,
+            $"/v1/ivr/order-confirmation/call-jobs/{TwentyFourSevenJob}/detail",
+            IvrPermissions.QueueView);
+        string northPayload = await northResponse.Content.ReadAsStringAsync();
+        using JsonDocument north = JsonDocument.Parse(northPayload);
+
+        // Vĩnh Long absorbed Bến Tre in 2025 and is Southern; Hà Nội is Northern. Two jobs,
+        // two regions — a single-region result would pass a weaker assertion while regional
+        // routing was in fact broken.
+        Assert.Equal(
+            "South",
+            south.RootElement.GetProperty("voice_region").GetString());
+        Assert.Equal(
+            "North",
+            north.RootElement.GetProperty("voice_region").GetString());
+
+        // The console gets the three-value region and nothing more. Putting the ward and
+        // province on an admin screen would be a privacy expansion needing its own review.
+        Assert.DoesNotContain("Phú Khương", southPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain("Vĩnh Long", southPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain("delivery_area_short", southPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain("Cửa Nam", northPayload, StringComparison.Ordinal);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-ADMIN-READ-09")]
     public async Task DashboardAndDetailCarryTheTilesTheUiSpecsAskFor()
     {
@@ -640,8 +682,13 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
             PhoneValidationStatus = "VALID",
             DialTokenCiphertext = "enc:read-dial-token",
             DialTokenExpiresAt = deadline,
+            // W-0106: Golden Hour carries a Southern area and 24/7 a Northern one, so the
+            // derived voice_region has something real to resolve and the two jobs differ.
             PrivacySafeOrderSummaryJson =
-                $"{{\"order_code_short\":\"{orderCodeShort}\",\"currency\":\"VND\"}}",
+                $"{{\"order_code_short\":\"{orderCodeShort}\",\"currency\":\"VND\","
+                + $"\"delivery_area_short\":\"{(program == "GOLDEN_HOUR"
+                    ? "Phường Phú Khương, tỉnh Vĩnh Long"
+                    : "Phường Cửa Nam, thành phố Hà Nội")}\"}}",
             CallScriptTemplateId = "SCRIPT-ORDER-CONFIRM",
             CallScriptVersion = "v1-test-approved",
             EvidencePolicyVersion = "evidence-v1",

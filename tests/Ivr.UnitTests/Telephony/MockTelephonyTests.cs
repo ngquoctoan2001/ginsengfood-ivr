@@ -40,8 +40,8 @@ public sealed class MockTelephonyTests
 
         Assert.Equal(
             "Xin chào Quý khách. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. "
-            + "Quý khách có đơn hàng gồm 2 Hộp Sâm lát, "
-            + "tổng tiền 1.250.000 đồng, giao đến Phường Bến Nghé, Quận 1. "
+            + "Quý khách có đơn hàng gồm hai Hộp Sâm lát, "
+            + "tổng tiền một triệu hai trăm năm mươi nghìn đồng, giao đến Phường Bến Nghé, Quận 1. "
             + "Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
             speech.ExactText);
         Assert.DoesNotContain("Anh Đạt", speech.ExactText, StringComparison.Ordinal);
@@ -78,8 +78,11 @@ public sealed class MockTelephonyTests
             ExecutionMode.Mock,
             CancellationToken.None);
 
-        Assert.Contains("và 1 sản phẩm khác", speech.ExactText, StringComparison.Ordinal);
-        Assert.Contains("9.876.500 đồng", speech.ExactText, StringComparison.Ordinal);
+        Assert.Contains("và một sản phẩm khác", speech.ExactText, StringComparison.Ordinal);
+        Assert.Contains(
+            "chín triệu tám trăm bảy mươi sáu nghìn năm trăm đồng",
+            speech.ExactText,
+            StringComparison.Ordinal);
         Assert.Contains("Bấm phím một", speech.ExactText, StringComparison.Ordinal);
         Assert.Contains("bấm phím không", speech.ExactText, StringComparison.Ordinal);
         Assert.DoesNotContain("Kẹo sâm", speech.ExactText, StringComparison.Ordinal);
@@ -110,7 +113,7 @@ public sealed class MockTelephonyTests
             ExecutionMode.Mock,
             CancellationToken.None);
 
-        Assert.Contains("1 hộp K G C pờ lớt", speech.ExactText, StringComparison.Ordinal);
+        Assert.Contains("một hộp K G C pờ lớt", speech.ExactText, StringComparison.Ordinal);
         Assert.DoesNotContain("KGC Plus", speech.ExactText, StringComparison.Ordinal);
     }
 
