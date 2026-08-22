@@ -53,6 +53,12 @@ public sealed class TtsProviderOptions
 
     public string ProductionWhitelistApprovalRecord { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Three regional voices (W-0106). Disabled by default, so an unconfigured deployment keeps
+    /// the single-voice behaviour that shipped before.
+    /// </summary>
+    public RegionalVoiceOptions RegionalVoices { get; set; } = new();
+
     public override string ToString() => "[REDACTED_TTS_PROVIDER_OPTIONS]";
 }
 
@@ -147,10 +153,82 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
             failures.Add("One or more TTS numeric safety bounds are invalid.");
         }
 
+        ValidateRegionalVoices(options, failures);
+
         return failures.Count == 0
             ? ValidateOptionsResult.Success
             : ValidateOptionsResult.Fail(failures.Distinct(StringComparer.Ordinal));
     }
+
+    private static void ValidateRegionalVoices(TtsProviderOptions options, List<string> failures)
+    {
+        RegionalVoiceOptions regional = options.RegionalVoices;
+        if (!regional.Enabled)
+        {
+            return;
+        }
+
+        if (!Enum.IsDefined(regional.FallbackRegion))
+        {
+            failures.Add("The regional voice fallback region is not a defined region.");
+        }
+
+        VietnamRegion[] regions = Enum.GetValues<VietnamRegion>();
+        RegionalVoiceEntry[] entries = regions.Select(regional.For).ToArray();
+        if (entries.Any(entry => string.IsNullOrWhiteSpace(entry.VoiceId)
+                || entry.VoiceId.Trim().Length > 120))
+        {
+            failures.Add("Regional voices require a voice ID of 1-120 characters for every region.");
+        }
+
+        // Three regions configured to the same voice is the failure mode this whole work item
+        // exists to prevent, and it is invisible at runtime: every call simply sounds the same.
+        // Fail startup instead of shipping a silent single-voice deployment that claims three.
+        if (entries.Select(entry => entry.VoiceId.Trim())
+                .Where(voiceId => voiceId.Length > 0)
+                .Distinct(StringComparer.Ordinal)
+                .Count() != entries.Length)
+        {
+            failures.Add("Each region requires a distinct voice ID; duplicates disable regional routing silently.");
+        }
+
+        if (entries.Any(entry => entry.SpeakingRate != 0m && entry.SpeakingRate is < 0.5m or > 2m))
+        {
+            failures.Add("A regional speaking rate must be zero (inherit) or between 0.5 and 2.");
+        }
+
+        if (!string.Equals(
+                options.Provider,
+                TtsProviderOptions.StaticFileProvider,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (entries.Any(entry => !IsSafeMediaReference(entry.FileMediaReference)))
+        {
+            failures.Add("Regional static-file voices require a safe Asterisk sound reference per region.");
+        }
+
+        if (entries.Select(entry => entry.FileMediaReference.Trim())
+                .Where(reference => reference.Length > 0)
+                .Distinct(StringComparer.Ordinal)
+                .Count() != entries.Length)
+        {
+            failures.Add("Each region requires a distinct media reference; duplicates play one region's audio to all.");
+        }
+
+        if (entries.Any(entry => entry.FileDurationSeconds is < 1 or > 300))
+        {
+            failures.Add("Each regional media file requires a duration between 1 and 300 seconds.");
+        }
+    }
+
+    private static bool IsSafeMediaReference(string reference) =>
+        reference.StartsWith("sound:", StringComparison.Ordinal)
+        && reference.Length <= 160
+        && reference.All(character =>
+            char.IsAsciiLetterOrDigit(character) || character is ':' or '-' or '_' or '/');
 }
 
 public static class SpeechServiceCollectionExtensions
@@ -195,6 +273,7 @@ public static class SpeechServiceCollectionExtensions
             IValidateOptions<TtsProviderOptions>, TtsProviderOptionsValidator>());
         services.TryAddSingleton<TtsUsageMeter>();
         services.TryAddSingleton<TtsRequestBudget>();
+        services.TryAddSingleton<RegionalVoiceMap>();
         services.TryAddSingleton<IAudioCache, AudioCache>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
             IRetentionPurgeHook, SpeechAudioCacheRetentionHook>());

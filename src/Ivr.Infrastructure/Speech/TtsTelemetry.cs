@@ -1,4 +1,5 @@
 using System.Diagnostics.Metrics;
+using Ivr.Domain.Speech;
 
 namespace Ivr.Infrastructure.Speech;
 
@@ -8,6 +9,20 @@ public sealed record TtsUsageSnapshot(
     long CacheHits,
     long CacheMisses,
     long PurgedEntries);
+
+/// <summary>
+/// Regional voice routing counters, kept separate from <see cref="TtsUsageSnapshot"/> because
+/// that record is a cost/usage view and widening it would churn every caller that asserts on it.
+/// </summary>
+/// <param name="Unresolved">
+/// Calls whose delivery area named no province and fell back. This is a Sales data-quality
+/// signal, not a TTS one: if it climbs, master data is drifting away from the 34 units.
+/// </param>
+public sealed record TtsVoiceRoutingSnapshot(
+    long North,
+    long Central,
+    long South,
+    long Unresolved);
 
 /// <summary>
 /// Privacy-safe aggregate usage and cost-input metrics for TTS providers.
@@ -23,12 +38,20 @@ public sealed class TtsUsageMeter
         "ivr_tts_cache_operations_total");
     private static readonly Counter<long> PurgeCounter = Meter.CreateCounter<long>(
         "ivr_tts_cache_purged_total");
+    private static readonly Counter<long> VoiceSelectedCounter = Meter.CreateCounter<long>(
+        "ivr_tts_voice_selected_total");
+    private static readonly Counter<long> RegionUnresolvedCounter = Meter.CreateCounter<long>(
+        "ivr_tts_region_unresolved_total");
 
     private long providerRequests;
     private long characters;
     private long cacheHits;
     private long cacheMisses;
     private long purgedEntries;
+    private long northSelected;
+    private long centralSelected;
+    private long southSelected;
+    private long regionUnresolved;
 
     public void RecordProviderRequest(int characterCount)
     {
@@ -60,12 +83,49 @@ public sealed class TtsUsageMeter
         PurgeCounter.Add(count);
     }
 
+    /// <summary>
+    /// Records which regional voice a call was routed to. The region name is a bounded enum, so
+    /// it is safe as a metric dimension; the delivery area it was derived from is never emitted.
+    /// </summary>
+    public void RecordVoiceSelected(VietnamRegion region, bool resolvedFromDeliveryArea)
+    {
+        switch (region)
+        {
+            case VietnamRegion.North:
+                Interlocked.Increment(ref northSelected);
+                break;
+            case VietnamRegion.Central:
+                Interlocked.Increment(ref centralSelected);
+                break;
+            case VietnamRegion.South:
+                Interlocked.Increment(ref southSelected);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(region));
+        }
+
+        VoiceSelectedCounter.Add(
+            1,
+            new KeyValuePair<string, object?>("region", region.ToString()));
+        if (!resolvedFromDeliveryArea)
+        {
+            Interlocked.Increment(ref regionUnresolved);
+            RegionUnresolvedCounter.Add(1);
+        }
+    }
+
     public TtsUsageSnapshot Snapshot() => new(
         Interlocked.Read(ref providerRequests),
         Interlocked.Read(ref characters),
         Interlocked.Read(ref cacheHits),
         Interlocked.Read(ref cacheMisses),
         Interlocked.Read(ref purgedEntries));
+
+    public TtsVoiceRoutingSnapshot VoiceRoutingSnapshot() => new(
+        Interlocked.Read(ref northSelected),
+        Interlocked.Read(ref centralSelected),
+        Interlocked.Read(ref southSelected),
+        Interlocked.Read(ref regionUnresolved));
 }
 
 /// <summary>

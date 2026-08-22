@@ -4,12 +4,29 @@ param(
     [ValidateRange(10, 180)]
     [int]$RegistrationTimeoutSeconds = 60,
     [ValidateRange(20, 300)]
-    [int]$ResultTimeoutSeconds = 120
+    [int]$ResultTimeoutSeconds = 120,
+
+    # W-0106: which regional voice this call should exercise. The region is NOT sent as a
+    # field — the IVR derives it from delivery_area_short, exactly as it will in production.
+    # Passing it here only picks which fake delivery area the task carries.
+    [ValidateSet('North', 'Central', 'South')]
+    [string]$Region = 'South'
 )
 
 $ErrorActionPreference = 'Stop'
 $asteriskContainer = 'ginsengfood-ivr-dev-asterisk-1'
 $postgresContainer = 'ginsengfood-ivr-dev-postgres-1'
+
+# Fake delivery areas, one per region, each naming a province from the 34-unit table so
+# DeliveryRegionResolver has something real to resolve. 'South' keeps the exact W-0104 area
+# so the historical call stays reproducible.
+$deliveryAreas = @{
+    North   = 'Phường Cửa Nam, thành phố Hà Nội'
+    Central = 'Phường Hải Châu, thành phố Đà Nẵng'
+    South   = 'Phường Phú Khương, tỉnh Vĩnh Long'
+}
+$deliveryAreaShort = $deliveryAreas[$Region]
+Write-Host "W-0106 region under test: $Region ($deliveryAreaShort)" -ForegroundColor Cyan
 
 Write-Host 'Waiting for MicroSIP LAB-A registration...'
 $registered = $false
@@ -72,7 +89,7 @@ $payload = [ordered]@{
         )
         total_amount = 560000
         currency = 'VND'
-        delivery_area_short = 'Phường Phú Khương, tỉnh Vĩnh Long'
+        delivery_area_short = $deliveryAreaShort
         program_display_name = 'Giờ Vàng'
         locale = 'vi-VN'
     }

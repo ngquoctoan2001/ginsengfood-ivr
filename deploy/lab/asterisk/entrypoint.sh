@@ -37,4 +37,24 @@ mv "${speech_file}.tmp" "$speech_file"
 
 echo "W-0104 pinned voice variant ${IVR_LAB_VOICE_VARIANT} selected."
 
+# W-0106: all three regional voices are installed side by side, not selected at boot. The
+# application picks one per call from the delivery area, so Asterisk must be able to play any
+# of them at any time. IVR_LAB_VOICE_VARIANT above stays as the W-0104 single-voice path.
+#
+# The suffix is "-region-<name>", not "-n|-c|-s": "-c" already belongs to W-0104 voice C and
+# reusing it would overwrite that evidence file.
+for region in north central south; do
+  regional_source="/opt/ivr-lab/audio/ivr-lab-order-confirmation-region-${region}.wav"
+  regional_target="/var/lib/asterisk/sounds/ivr-lab-order-confirmation-region-${region}.wav"
+  if [ -f "$regional_source" ]; then
+    cp "$regional_source" "${regional_target}.tmp"
+    mv "${regional_target}.tmp" "$regional_target"
+    echo "W-0106 regional voice ${region} installed."
+  else
+    # Absent is legitimate until the MP3s are rendered. The app fails closed on its own:
+    # StaticFileTtsProvider throws when a selected voice has no media configured.
+    echo "W-0106 regional voice ${region} not present; regional routing stays unavailable."
+  fi
+done
+
 exec /usr/sbin/asterisk -f -vvv

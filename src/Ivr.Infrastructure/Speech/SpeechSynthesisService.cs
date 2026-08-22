@@ -26,6 +26,7 @@ public sealed class SpeechSynthesisService(
     IAudioCache cache,
     TtsRequestBudget requestBudget,
     TtsUsageMeter usageMeter,
+    RegionalVoiceMap regionalVoices,
     IOptions<TtsProviderOptions> providerOptions,
     TimeProvider timeProvider) : ISpeechSynthesisService
 {
@@ -65,13 +66,19 @@ public sealed class SpeechSynthesisService(
             hints[key] = value;
         }
 
+        // W-0106: the voice is chosen per order from the delivery area, not read from one global
+        // setting. AudioCacheKey already includes VoiceId, so three voices need no cache change —
+        // each region gets its own entry for free.
+        RegionalVoiceSelection voice = regionalVoices.Resolve(summary.DeliveryArea.Value);
+        usageMeter.RecordVoiceSelected(voice.Region, voice.ResolvedFromDeliveryArea);
+
         TtsOptions request;
         try
         {
             request = TtsOptions.Create(
                 summary.Locale,
-                configured.VoiceId,
-                configured.SpeakingRate,
+                voice.VoiceId,
+                voice.SpeakingRate,
                 hints,
                 TimeSpan.FromSeconds(configured.MaxDurationSeconds),
                 TimeSpan.FromMilliseconds(configured.TimeoutMilliseconds));

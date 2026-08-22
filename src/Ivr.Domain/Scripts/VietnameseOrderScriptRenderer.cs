@@ -3,12 +3,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Privacy;
+using Ivr.Domain.Speech;
 
 namespace Ivr.Domain.Scripts;
 
 public sealed record ScriptRenderOptions
 {
-    private ScriptRenderOptions(int maximumSpokenItems, int maximumCharacters, int wordsPerMinute)
+    private ScriptRenderOptions(
+        int maximumSpokenItems,
+        int maximumCharacters,
+        int wordsPerMinute,
+        VietnamRegion fallbackRegion)
     {
         if (maximumSpokenItems is < 1 or > 20)
         {
@@ -28,6 +33,7 @@ public sealed record ScriptRenderOptions
         MaximumSpokenItems = maximumSpokenItems;
         MaximumCharacters = maximumCharacters;
         WordsPerMinute = wordsPerMinute;
+        FallbackRegion = fallbackRegion;
     }
 
     public int MaximumSpokenItems { get; }
@@ -36,13 +42,24 @@ public sealed record ScriptRenderOptions
 
     public int WordsPerMinute { get; }
 
-    public static ScriptRenderOptions Default { get; } = new(3, 1_200, 150);
+    /// <summary>
+    /// Region used for spoken-number wording when the delivery area names no province.
+    /// <para>
+    /// This is the same fallback the regional voice map uses, and it is passed in rather than
+    /// defaulted independently on purpose: if the renderer fell back North while the voice map
+    /// fell back South, a Southern voice would say "nghìn" and nothing would fail.
+    /// </para>
+    /// </summary>
+    public VietnamRegion FallbackRegion { get; }
+
+    public static ScriptRenderOptions Default { get; } = new(3, 1_200, 150, VietnamRegion.North);
 
     public static ScriptRenderOptions Create(
         int maximumSpokenItems,
         int maximumCharacters,
-        int wordsPerMinute) =>
-        new(maximumSpokenItems, maximumCharacters, wordsPerMinute);
+        int wordsPerMinute,
+        VietnamRegion fallbackRegion = VietnamRegion.North) =>
+        new(maximumSpokenItems, maximumCharacters, wordsPerMinute, fallbackRegion);
 }
 
 public sealed record ScriptInputItemSnapshot(string PublicName, decimal Quantity, string? UnitLabel);
@@ -120,12 +137,27 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         ScriptRenderOptions effectiveOptions = options ?? ScriptRenderOptions.Default;
         string validTemplate = TargetV1SpeechPolicy.ValidateTemplate(script.Version.TemplateText);
 
+        // The region is derived here rather than carried on the summary. PrivacySafeOrderSummary
+        // has 95 dependent symbols across two execution flows, so adding a field to it would
+        // turn a voice change into a contract change; ShortDeliveryArea already holds everything
+        // the mapping needs.
+        VietnamRegion region =
+            DeliveryRegionResolver.TryResolve(summary.DeliveryArea.Value)
+            ?? effectiveOptions.FallbackRegion;
+        VietnameseNumberStyle numberStyle = VietnameseNumberStyle.ForRegion(region);
+
         string spokenItems = FormatItems(
             summary.Items,
             summary.PronunciationHints,
-            effectiveOptions.MaximumSpokenItems);
+            effectiveOptions.MaximumSpokenItems,
+            numberStyle);
+
+        // Spoken words, not digits. The renderer used to emit "560.000 đồng" while the audio the
+        // owner approved in W-0104 says "năm trăm sáu mươi nghìn đồng" — that sample had been
+        // typed by hand, so nobody had ever heard the digits path. How an engine reads "560.000"
+        // is engine-specific, and this is the number the customer is pressing a key to confirm.
         string totalAmount = string.Concat(
-            summary.Total.Amount.ToString("N0", VietnameseNumbers),
+            VietnameseNumberSpeller.Spell(summary.Total.Amount, numberStyle),
             " đồng");
         string exactText = validTemplate
             .Replace("{{customer_display_name}}", summary.CustomerDisplayName, StringComparison.Ordinal)
@@ -177,7 +209,8 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
     private static string FormatItems(
         IReadOnlyList<SpeechItem> items,
         IReadOnlyDictionary<string, string> pronunciationHints,
-        int maximumSpokenItems)
+        int maximumSpokenItems,
+        VietnameseNumberStyle numberStyle)
     {
         string[] spoken = items
             .Take(maximumSpokenItems)
@@ -185,7 +218,7 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
                 " ",
                 new[]
                 {
-                    FormatQuantity(item.Quantity),
+                    FormatQuantity(item.Quantity, numberStyle),
                     item.UnitLabel,
                     pronunciationHints.GetValueOrDefault(item.PublicName, item.PublicName),
                 }.Where(value => !string.IsNullOrWhiteSpace(value))))
@@ -193,7 +226,12 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         int remainder = items.Count - spoken.Length;
         if (remainder > 0)
         {
-            return string.Concat(string.Join(", ", spoken), ", và ", remainder, " sản phẩm khác");
+            // Spoken too: "và một sản phẩm khác", not "và 1 sản phẩm khác".
+            return string.Concat(
+                string.Join(", ", spoken),
+                ", và ",
+                VietnameseNumberSpeller.Spell(remainder, numberStyle),
+                " sản phẩm khác");
         }
 
         return spoken.Length switch
@@ -204,6 +242,17 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         };
     }
 
-    private static string FormatQuantity(decimal quantity) =>
-        quantity.ToString(quantity == decimal.Truncate(quantity) ? "0" : "0.##", VietnameseNumbers);
+    /// <summary>
+    /// Whole quantities are spoken ("hai hộp", matching the approved W-0104 audio). A fractional
+    /// quantity keeps the decimal form: Vietnamese reads "2,5" as "hai phẩy năm" reliably enough,
+    /// and inventing a spoken form for fractions here would be guessing at wording nobody has
+    /// approved. Concatenative playback cannot glue a decimal from recorded clips, so this is the
+    /// one place that still needs a decision before W-0106 §4.8.6 ships.
+    /// </summary>
+    private static string FormatQuantity(decimal quantity, VietnameseNumberStyle numberStyle) =>
+        quantity == decimal.Truncate(quantity)
+            && quantity >= 0m
+            && quantity <= VietnameseNumberSpeller.MaximumAmount
+            ? VietnameseNumberSpeller.Spell(quantity, numberStyle)
+            : quantity.ToString("0.##", VietnameseNumbers);
 }

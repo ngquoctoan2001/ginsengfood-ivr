@@ -44,7 +44,7 @@ public sealed class TtsProviderTests
         Assert.Equal("audio/L16", first.Audio.Format);
         Assert.Equal(8_000, first.Audio.SampleRate);
         Assert.StartsWith("memory://tts/fake/", first.Audio.ContentRef, StringComparison.Ordinal);
-        Assert.Contains("và 1 sản phẩm khác", collapsed.ExactText, StringComparison.Ordinal);
+        Assert.Contains("và một sản phẩm khác", collapsed.ExactText, StringComparison.Ordinal);
         Assert.Equal(1, collapsed.CollapsedItemCount);
         Assert.NotEqual(first.Audio.ContentRef, collapsed.Audio!.ContentRef);
         Assert.Equal(new TtsUsageSnapshot(2, firstText.ExactText.Length + manyText.ExactText.Length, 1, 2, 0),
@@ -73,7 +73,10 @@ public sealed class TtsProviderTests
         RenderedSpeech text = await RenderAsync(summary);
 
         Assert.Contains("12,5 hộp Sâm lát", text.ExactText, StringComparison.Ordinal);
-        Assert.Contains("123.456.789 đồng", text.ExactText, StringComparison.Ordinal);
+        Assert.Contains(
+            "một trăm hai mươi ba triệu bốn trăm năm mươi sáu nghìn bảy trăm tám mươi chín đồng",
+            text.ExactText,
+            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -291,12 +294,14 @@ public sealed class TtsProviderTests
         TtsProviderOptions? configured = null)
     {
         usage = new TtsUsageMeter();
+        IOptions<TtsProviderOptions> options = OptionsFor(configured);
         return new SpeechSynthesisService(
             provider,
             new AudioCache(timeProvider),
             new TtsRequestBudget(timeProvider),
             usage,
-            OptionsFor(configured),
+            new RegionalVoiceMap(options),
+            options,
             timeProvider);
     }
 

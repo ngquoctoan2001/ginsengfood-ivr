@@ -28,6 +28,21 @@ x-asterisk-lab-env: &asterisk-lab-env
   Ivr__Speech__Tts__VoiceId: "w0104-static-file"
   Ivr__Speech__Tts__FileMediaReference: "sound:ivr-lab-order-confirmation"
   Ivr__Speech__Tts__FileDurationSeconds: "18"
+  # W-0106 regional voice routing. Enabled is "false" until Convert-LabVoiceAudio.ps1 has
+  # produced the three PCM files and written their real durations here; the validator refuses
+  # to start with blank voice IDs, so flipping this early fails the lab loudly rather than
+  # quietly playing one region's audio to every caller.
+  Ivr__Speech__Tts__RegionalVoices__Enabled: "false"
+  Ivr__Speech__Tts__RegionalVoices__FallbackRegion: "North"
+  Ivr__Speech__Tts__RegionalVoices__North__VoiceId: "w0106-lab-north-tham"
+  Ivr__Speech__Tts__RegionalVoices__North__FileMediaReference: "sound:ivr-lab-order-confirmation-region-north"
+  Ivr__Speech__Tts__RegionalVoices__North__FileDurationSeconds: "18"
+  Ivr__Speech__Tts__RegionalVoices__Central__VoiceId: "w0106-lab-central-zara"
+  Ivr__Speech__Tts__RegionalVoices__Central__FileMediaReference: "sound:ivr-lab-order-confirmation-region-central"
+  Ivr__Speech__Tts__RegionalVoices__Central__FileDurationSeconds: "18"
+  Ivr__Speech__Tts__RegionalVoices__South__VoiceId: "w0106-lab-south-giang"
+  Ivr__Speech__Tts__RegionalVoices__South__FileMediaReference: "sound:ivr-lab-order-confirmation-region-south"
+  Ivr__Speech__Tts__RegionalVoices__South__FileDurationSeconds: "18"
 
 services:
   asterisk:
