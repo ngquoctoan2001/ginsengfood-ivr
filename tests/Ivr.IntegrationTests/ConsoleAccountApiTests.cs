@@ -72,6 +72,8 @@ public sealed class ConsoleAccountApiTests(PostgresPersistenceFixture fixture)
             Password,
             HttpStatusCode.OK);
 
+        // The exact set, not a "contains" check: this test exists to make a widened Admin role
+        // an explicit decision rather than something that arrives with a feature.
         Assert.Equal(
             [
                 "IVR_ACCOUNT_MANAGE",
@@ -85,10 +87,23 @@ public sealed class ConsoleAccountApiTests(PostgresPersistenceFixture fixture)
                 "IVR_QUEUE_VIEW",
                 "IVR_RESULT_REVIEW",
                 "IVR_RUNTIME_GATE_ADMIN",
+                "IVR_SCRIPT_APPROVE_CONTENT",
+                "IVR_SCRIPT_APPROVE_LAB",
+                "IVR_SCRIPT_APPROVE_MOCK",
+                "IVR_SCRIPT_APPROVE_PRIVACY_LEGAL",
+                "IVR_SCRIPT_EDIT",
+                "IVR_SCRIPT_RETIRE",
+                "IVR_SCRIPT_REVIEW",
                 "IVR_SIM_DISABLE",
                 "IVR_SIM_ENABLE",
             ],
             session.Session.Permissions);
+
+        // W-0109 puts Content and Privacy/Legal on the same role, so the role matrix cannot
+        // tell a Privacy/Legal officer from any other Admin. The control that still holds is
+        // per-account, and it is asserted where it lives: ScriptApprovalPolicy refuses when the
+        // two approvals share an ActorId. Recorded here because reading this list alone would
+        // suggest one Admin can complete a production sign-off alone, and they cannot.
     }
 
     [Fact]

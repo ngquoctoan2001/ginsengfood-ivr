@@ -18,6 +18,26 @@ public static class IvrPermissions
     public const string AccountPasswordReset = "IVR_ACCOUNT_PASSWORD_RESET";
     public const string AccountSelfView = "IVR_ACCOUNT_SELF_VIEW";
 
+    /// <summary>
+    /// Script lifecycle (W-0109). One console permission per domain permission in
+    /// <see cref="Ivr.Domain.Scripts.ScriptPermissions"/>, deliberately not collapsed into a
+    /// single "manage scripts" grant.
+    /// <para>
+    /// Today all seven land on <c>Admin</c>, so the separation buys nothing at the role level —
+    /// the real four-eyes control is that Content and Privacy/Legal approvals must come from
+    /// two different <em>accounts</em>. Keeping them apart is what makes it possible to hand
+    /// Privacy/Legal its own role later without a migration, and it keeps this catalogue
+    /// readable against `specs/ui/04`, which names all seven.
+    /// </para>
+    /// </summary>
+    public const string ScriptEdit = "IVR_SCRIPT_EDIT";
+    public const string ScriptReview = "IVR_SCRIPT_REVIEW";
+    public const string ScriptApproveMock = "IVR_SCRIPT_APPROVE_MOCK";
+    public const string ScriptApproveLab = "IVR_SCRIPT_APPROVE_LAB";
+    public const string ScriptApproveContent = "IVR_SCRIPT_APPROVE_CONTENT";
+    public const string ScriptApprovePrivacyLegal = "IVR_SCRIPT_APPROVE_PRIVACY_LEGAL";
+    public const string ScriptRetire = "IVR_SCRIPT_RETIRE";
+
     public static IReadOnlySet<string> All { get; } = new[]
         {
             QueueView,
@@ -33,6 +53,13 @@ public static class IvrPermissions
             AccountManage,
             AccountPasswordReset,
             AccountSelfView,
+            ScriptEdit,
+            ScriptReview,
+            ScriptApproveMock,
+            ScriptApproveLab,
+            ScriptApproveContent,
+            ScriptApprovePrivacyLegal,
+            ScriptRetire,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 
@@ -58,6 +85,19 @@ public static class IvrPermissions
             AccountManage,
             AccountPasswordReset,
             AccountSelfView,
+
+            // Script lifecycle joins the account surface here for the same reason, and it is
+            // the sharper case: the mock seam mints whatever X-Permissions asks for, MOCK is
+            // the default mode, and one of these permissions signs off the wording a customer
+            // is read before pressing a key. A header that can mint IVR_SCRIPT_APPROVE_CONTENT
+            // is a header that can approve production speech with no credential at all.
+            ScriptEdit,
+            ScriptReview,
+            ScriptApproveMock,
+            ScriptApproveLab,
+            ScriptApproveContent,
+            ScriptApprovePrivacyLegal,
+            ScriptRetire,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 

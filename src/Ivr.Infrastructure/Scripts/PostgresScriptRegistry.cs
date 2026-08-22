@@ -11,7 +11,8 @@ using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Scripts;
 
-public sealed class PostgresScriptRegistry : IScriptRegistry, IScriptContentManager
+public sealed class PostgresScriptRegistry
+    : IScriptRegistry, IScriptContentManager, IScriptVersionReader
 {
     private readonly IDbContextFactory<IvrDbContext> dbContextFactory;
     private readonly TimeProvider timeProvider;
@@ -57,6 +58,25 @@ public sealed class PostgresScriptRegistry : IScriptRegistry, IScriptContentMana
         return ScriptApprovalPolicy.Allows(snapshot, mode, productionTargetV1FieldsApproved)
             ? new ApprovedScript(snapshot, mode)
             : null;
+    }
+
+    public async ValueTask<ScriptVersionSnapshot?> TryGetSnapshotAsync(
+        ScriptVersionKey key,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        await using IvrDbContext context = await dbContextFactory
+            .CreateDbContextAsync(cancellationToken)
+            .ConfigureAwait(false);
+        ScriptVersionEntity? entity = await context.ScriptVersions
+            .AsNoTracking()
+            .Include(candidate => candidate.Approvals)
+            .SingleOrDefaultAsync(
+                candidate => candidate.TemplateId == key.TemplateId
+                    && candidate.Version == key.Version,
+                cancellationToken)
+            .ConfigureAwait(false);
+        return entity is null ? null : ScriptEntityMapper.ToSnapshot(entity);
     }
 
     public async ValueTask<ScriptVersionSnapshot> CreateDraftAsync(
@@ -157,7 +177,7 @@ public sealed class PostgresScriptRegistry : IScriptRegistry, IScriptContentMana
             (context, entity, now) =>
             {
                 ScriptVersionSnapshot current = ScriptEntityMapper.ToSnapshot(entity);
-                EnsureApprovalAllowed(current, approvalType, actor);
+                ScriptApprovalPolicy.EnsureApprovalAllowed(current, approvalType, actor);
                 entity.Status = ScriptEntityMapper.StatusToStorage(ScriptLifecycleStatus.Approved);
                 context.ScriptApprovals.Add(new ScriptApprovalEntity
                 {
@@ -235,40 +255,24 @@ public sealed class PostgresScriptRegistry : IScriptRegistry, IScriptContentMana
             .ConfigureAwait(false)
             ?? throw new KeyNotFoundException("The script version was not found.");
         DateTimeOffset now = timeProvider.GetUtcNow();
+
+        // Captured before the mutation runs, not read back after: the entity is tracked, so by
+        // the time the audit row is built its Status is already the new one.
+        string previousStatus = entity.Status;
         ScriptApprovalType? approvalType = mutation(context, entity, now);
-        AppendAudit(context, actor, action, entity, reason, correlationId, approvalType, now);
+        AppendAudit(
+            context,
+            actor,
+            action,
+            entity,
+            reason,
+            correlationId,
+            approvalType,
+            now,
+            previousStatus);
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
         return ScriptEntityMapper.ToSnapshot(entity);
-    }
-
-    private static void EnsureApprovalAllowed(
-        ScriptVersionSnapshot current,
-        ScriptApprovalType approvalType,
-        ScriptActor actor)
-    {
-        if (current.Status is not (ScriptLifecycleStatus.InReview or ScriptLifecycleStatus.Approved))
-        {
-            throw new InvalidOperationException("Only a reviewed script version can be approved.");
-        }
-
-        if (string.Equals(current.CreatedBy, actor.ActorId, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException("The script creator cannot approve the same version.");
-        }
-
-        if (current.Approvals.Any(approval => approval.Type == approvalType))
-        {
-            throw new InvalidOperationException("The script approval type already exists.");
-        }
-
-        if (approvalType is ScriptApprovalType.Content or ScriptApprovalType.PrivacyLegal
-            && current.Approvals.Any(approval =>
-                approval.Type is ScriptApprovalType.Content or ScriptApprovalType.PrivacyLegal
-                && string.Equals(approval.ActorId, actor.ActorId, StringComparison.Ordinal)))
-        {
-            throw new InvalidOperationException("Content and Privacy/Legal approvals require different actors.");
-        }
     }
 
     private static void AppendAudit(
@@ -279,12 +283,17 @@ public sealed class PostgresScriptRegistry : IScriptRegistry, IScriptContentMana
         string reason,
         string correlationId,
         ScriptApprovalType? approvalType,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        string? previousStatus = null)
     {
         var data = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             ["template_id"] = version.TemplateId,
             ["version"] = version.Version,
+            // Before and after, not just after. An audit row saying a version is APPROVED does
+            // not say whether that press was the one that approved it or a later no-op, and
+            // "who moved it out of review" is the question a sign-off review actually asks.
+            ["previous_status"] = previousStatus,
             ["status"] = version.Status,
             ["template_hash"] = version.TemplateHash,
             ["approval_type"] = approvalType?.ToString(),

@@ -20,6 +20,17 @@ export const IVR_PERMISSIONS = [
   "IVR_ACCOUNT_MANAGE",
   "IVR_ACCOUNT_PASSWORD_RESET",
   "IVR_ACCOUNT_SELF_VIEW",
+
+  // W-0109 script lifecycle. All seven sit on Admin today, so hiding buttons by
+  // permission is not what stops a bad approval — the server does, and it refuses
+  // Content and Privacy/Legal from the same account no matter what this list says.
+  "IVR_SCRIPT_EDIT",
+  "IVR_SCRIPT_REVIEW",
+  "IVR_SCRIPT_APPROVE_MOCK",
+  "IVR_SCRIPT_APPROVE_LAB",
+  "IVR_SCRIPT_APPROVE_CONTENT",
+  "IVR_SCRIPT_APPROVE_PRIVACY_LEGAL",
+  "IVR_SCRIPT_RETIRE",
 ] as const;
 
 export type IvrPermission = (typeof IVR_PERMISSIONS)[number];

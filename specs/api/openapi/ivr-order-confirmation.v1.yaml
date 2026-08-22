@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.12
+  version: 1.0.0-draft.13
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -302,8 +302,9 @@ paths:
       description: >-
         Versions with their approval matrix, the allowed and prohibited variable
         lists, and the DTMF map. KEY_9 is reported NOT_ENABLED (AS-07). Lifecycle
-        transitions are not exposed: approval is an owner action under OD-V1-15,
-        not a console button.
+        transitions live on the sibling routes below (W-0109); leaving them unexposed
+        left hand-edited rows as the only path for a Privacy/Legal signature, and
+        therefore no audit, no reason and no four-eyes.
       operationId: getScriptCatalog
       security: [ { bearerAuth: [] } ]
       parameters:
@@ -314,6 +315,131 @@ paths:
         '400': { $ref: '#/components/responses/Error' }
         '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/{templateId}/{version}:
+    get:
+      tags: [admin]
+      summary: One script version in any state, including drafts (perm IVR_QUEUE_VIEW)
+      description: >-
+        approved_for_modes is derived from the approvals at read time rather than
+        stored, because the same approval set means different things once the
+        OD-V1-15 whitelist is signed. production_blocked_reason names the missing
+        precondition instead of leaving an empty mode list to be interpreted.
+      operationId: getScriptVersion
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/ScriptTemplateId'
+        - $ref: '#/components/parameters/ScriptVersion'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptVersionDetail' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/:
+    post:
+      tags: [admin]
+      summary: Create a script version draft (perm IVR_SCRIPT_EDIT)
+      description: >-
+        A version is immutable once created, so a wording change is a new version
+        and the previous one keeps its own approvals and audit trail.
+      operationId: createScriptDraft
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptDraftRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/{templateId}/{version}:submit:
+    post:
+      tags: [admin]
+      summary: Move a draft into review (perm IVR_SCRIPT_REVIEW)
+      operationId: submitScriptForReview
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/ScriptTemplateId'
+        - $ref: '#/components/parameters/ScriptVersion'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptTransitionRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/{templateId}/{version}:approve:
+    post:
+      tags: [admin]
+      summary: Record one approval (perm IVR_SCRIPT_APPROVE_* per approval_type)
+      description: >-
+        403 when the caller is the wrong person for this version - the creator, or the
+        account that already signed the other half of the production pair. That is not a
+        state conflict: retrying cannot fix it, a second approver can. 409 when the
+        version's own state refuses, such as a duplicate approval type.
+      operationId: approveScriptVersion
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/ScriptTemplateId'
+        - $ref: '#/components/parameters/ScriptVersion'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptApprovalRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/{templateId}/{version}:retire:
+    post:
+      tags: [admin]
+      summary: Retire a script version (perm IVR_SCRIPT_RETIRE)
+      description: >-
+        A retired version fails closed in every execution mode and is never deleted.
+      operationId: retireScriptVersion
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/ScriptTemplateId'
+        - $ref: '#/components/parameters/ScriptVersion'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptTransitionRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
         '429': { $ref: '#/components/responses/Error' }
         '500': { $ref: '#/components/responses/Error' }
   /integration-status:
@@ -837,6 +963,16 @@ components:
       scheme: bearer
       description: Service token (allowlist Order Core, DF-06) or admin session (DF-01).
   parameters:
+    ScriptTemplateId:
+      name: templateId
+      in: path
+      required: true
+      schema: { type: string, maxLength: 120, pattern: '^[A-Za-z0-9._-]+$' }
+    ScriptVersion:
+      name: version
+      in: path
+      required: true
+      schema: { type: string, maxLength: 40, pattern: '^[A-Za-z0-9._-]+$' }
     CorrelationId:
       name: X-Correlation-Id
       in: header
@@ -1941,6 +2077,83 @@ components:
         key: { type: string }
         meaning: { type: string }
         enabled: { type: boolean }
+    IvrScriptVersionDetail:
+      type: object
+      additionalProperties: false
+      description: >-
+        Detail projection for one version, distinct from the catalogue's
+        IvrScriptVersion: it carries the template text and the derived
+        approved_for_modes, which a list view neither needs nor should carry.
+      required:
+        - template_id
+        - version
+        - status
+        - template_text
+        - template_hash
+        - allowed_input_fields
+        - approvals
+        - created_by
+        - created_at
+        - uses_production_decision_fields
+        - approved_for_modes
+      properties:
+        template_id: { type: string, maxLength: 120 }
+        version: { type: string, maxLength: 40 }
+        status: { type: string, enum: [DRAFT, IN_REVIEW, APPROVED, RETIRED] }
+        template_text: { type: string, maxLength: 2000 }
+        template_hash: { type: string, maxLength: 128 }
+        allowed_input_fields: { type: array, items: { type: string } }
+        approvals: { type: array, items: { $ref: '#/components/schemas/IvrScriptApproval' } }
+        created_by: { type: string, maxLength: 120 }
+        created_at: { type: string, format: date-time }
+        submitted_by: { type: [string, 'null'], maxLength: 120 }
+        submitted_at: { type: [string, 'null'], format: date-time }
+        retired_by: { type: [string, 'null'], maxLength: 120 }
+        retired_at: { type: [string, 'null'], format: date-time }
+        uses_production_decision_fields: { type: boolean }
+        approved_for_modes:
+          type: array
+          items: { type: string, enum: [MOCK, LAB_REAL_SIM, PRODUCTION_REAL] }
+        production_blocked_reason:
+          type: [string, 'null']
+          maxLength: 200
+          description: >-
+            The missing production precondition, named. Null once none remains. An
+            empty approved_for_modes with no reason would leave an operator to guess
+            whether the system is broken or Privacy/Legal simply has not signed.
+    IvrScriptDraftRequest:
+      type: object
+      additionalProperties: false
+      required: [template_id, version, template_text, reason]
+      properties:
+        template_id: { type: string, maxLength: 120, pattern: '^[A-Za-z0-9._-]+$' }
+        version: { type: string, maxLength: 40, pattern: '^[A-Za-z0-9._-]+$' }
+        template_text: { type: string, maxLength: 2000 }
+        reason: { type: string, maxLength: 500 }
+    IvrScriptTransitionRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason: { type: string, maxLength: 500 }
+    IvrScriptApprovalRequest:
+      type: object
+      additionalProperties: false
+      required: [approval_type, reason]
+      properties:
+        approval_type: { type: string, enum: [MOCK_TEST, LAB, CONTENT, PRIVACY_LEGAL] }
+        reason: { type: string, maxLength: 500 }
+    IvrScriptActionResult:
+      type: object
+      additionalProperties: false
+      required: [action_type, target_type, target_id, correlation_id, no_policy_bypass, version]
+      properties:
+        action_type: { type: string, maxLength: 80 }
+        target_type: { type: string, enum: [script_version] }
+        target_id: { type: string, maxLength: 200 }
+        correlation_id: { type: string, maxLength: 120 }
+        no_policy_bypass: { type: boolean, enum: [true] }
+        version: { $ref: '#/components/schemas/IvrScriptVersionDetail' }
     IvrScriptCatalog:
       type: object
       additionalProperties: false

@@ -15,25 +15,36 @@ describe("UT-UI-SCRIPT-01 script configuration", () => {
     expect(messages["config.approvedBadge"]).toBeTruthy();
     expect(messages["config.templateInvalid"]).toBeTruthy();
 
-    // The screen states plainly that approval is not a console action.
-    expect(messages["config.readOnlyNotice"]).toMatch(/không có nút/i);
-    expect(messages["config.readOnlyNotice"]).toContain("OD-V1-15");
+    // W-0109 opened the lifecycle on this screen, so "there is no button" is no
+    // longer the invariant. What replaced it is narrower and is what this now
+    // pins: the copy has to name the two controls that make an approval mean
+    // something — a reason on every action, and a second person for the second
+    // half. A notice that only said "you can approve here" would be a screen
+    // that lost the point of the gate it just opened.
+    expect(messages["config.lifecycleNotice"]).toMatch(/lý do/i);
+    expect(messages["config.lifecycleNotice"]).toMatch(/nhật ký/i);
+    expect(messages["config.lifecycleNotice"]).toMatch(/hai tài khoản khác nhau/i);
+    expect(messages["config.readOnlyNotice"]).toBeUndefined();
 
-    // No lifecycle action label exists for this screen, so none can be wired to
-    // a control. `config.approvedBadge` and `config.colApprovals` describe state
-    // and a column, not actions.
-    for (const forbidden of [
-      "config.approve",
+    // Each approval half is a separate label, because each is a separate
+    // permission and a separate signature. One combined "approve" would let a
+    // single press stand for both halves of the production gate.
+    for (const required of [
       "config.approveMock",
       "config.approveLab",
       "config.approveContent",
       "config.approvePrivacyLegal",
-      "config.submitForReview",
+      "config.submitReview",
       "config.retire",
-      "config.createDraft",
     ]) {
-      expect(messages[forbidden], forbidden).toBeUndefined();
+      expect(messages[required], required).toBeTruthy();
     }
+
+    // Still forbidden: a single catch-all approve action.
+    expect(messages["config.approve"]).toBeUndefined();
+
+    // The Privacy/Legal copy must say out loud that it cannot be the same person.
+    expect(messages["config.approvePrivacyLegalDescription"]).toMatch(/tài khoản khác|đã duyệt nội dung/i);
   });
 
   it("states that KEY_9 is NOT_ENABLED and cannot be turned on from the UI", () => {

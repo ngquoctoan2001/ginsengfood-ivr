@@ -64,6 +64,7 @@ public static class IvrAdminEndpoints
         adminGroup.MapPost("/admin-reviews", ReviewAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ResultReview));
         endpoints.MapIvrConsoleAccountEndpoints();
+        endpoints.MapIvrScriptLifecycleEndpoints();
         return endpoints;
     }
 

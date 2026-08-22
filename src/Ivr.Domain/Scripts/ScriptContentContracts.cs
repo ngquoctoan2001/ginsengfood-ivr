@@ -146,6 +146,26 @@ public interface IScriptRegistry
         CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// Reads one script version whatever state it is in.
+/// <para>
+/// Separate from <see cref="IScriptRegistry"/>, which answers "may this be spoken in this mode"
+/// and returns nothing for a draft — the right answer for the dial path and the wrong one for a
+/// console that has to show an operator the draft they just created.
+/// </para>
+/// <para>
+/// Separate from <see cref="IScriptContentManager"/> too, rather than a method added to it. That
+/// interface is the mutation port the worker and intake bind to; widening it to carry a read
+/// would put a read on every implementation of a write contract, for one caller's benefit.
+/// </para>
+/// </summary>
+public interface IScriptVersionReader
+{
+    public ValueTask<ScriptVersionSnapshot?> TryGetSnapshotAsync(
+        ScriptVersionKey key,
+        CancellationToken cancellationToken = default);
+}
+
 public interface IScriptContentManager
 {
     public ValueTask<ScriptVersionSnapshot> CreateDraftAsync(
@@ -178,8 +198,63 @@ public interface IScriptContentManager
         CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// An approval refused because of <em>who</em> is pressing, not because of the version's state.
+/// <para>
+/// A subclass rather than a new exception type so every existing catch of
+/// <see cref="InvalidOperationException"/> keeps behaving as it did. The distinction earns its
+/// keep at the API boundary: "the state is wrong" is a 409 the caller can wait out, while "you
+/// are not the one who may press this" is a 403 that stays true no matter how long they wait,
+/// and answering 409 to it sends an operator to retry instead of to find a colleague.
+/// </para>
+/// </summary>
+public sealed class ScriptApproverConflictException(string message)
+    : InvalidOperationException(message);
+
 public static class ScriptApprovalPolicy
 {
+    /// <summary>
+    /// The four-eyes rule, in one place.
+    /// <para>
+    /// This lived as a byte-identical private copy in both the in-memory and the PostgreSQL
+    /// registry. Two copies of a rule that decides who may approve customer-facing speech is a
+    /// rule that will eventually be enforced in MOCK and not in production, or the reverse, and
+    /// the difference would only surface as an approval that should not have been possible.
+    /// </para>
+    /// </summary>
+    public static void EnsureApprovalAllowed(
+        ScriptVersionSnapshot current,
+        ScriptApprovalType approvalType,
+        ScriptActor actor)
+    {
+        ArgumentNullException.ThrowIfNull(current);
+        ArgumentNullException.ThrowIfNull(actor);
+        if (current.Status is not (ScriptLifecycleStatus.InReview or ScriptLifecycleStatus.Approved))
+        {
+            throw new InvalidOperationException("Only a reviewed script version can be approved.");
+        }
+
+        if (string.Equals(current.CreatedBy, actor.ActorId, StringComparison.Ordinal))
+        {
+            throw new ScriptApproverConflictException(
+                "The script creator cannot approve the same version.");
+        }
+
+        if (current.Approvals.Any(approval => approval.Type == approvalType))
+        {
+            throw new InvalidOperationException("The script approval type already exists.");
+        }
+
+        if (approvalType is ScriptApprovalType.Content or ScriptApprovalType.PrivacyLegal
+            && current.Approvals.Any(approval =>
+                approval.Type is ScriptApprovalType.Content or ScriptApprovalType.PrivacyLegal
+                && string.Equals(approval.ActorId, actor.ActorId, StringComparison.Ordinal)))
+        {
+            throw new ScriptApproverConflictException(
+                "Content and Privacy/Legal approvals require different actors.");
+        }
+    }
+
     public static bool Allows(
         ScriptVersionSnapshot version,
         ExecutionMode mode,

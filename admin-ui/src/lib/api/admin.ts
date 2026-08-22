@@ -18,6 +18,11 @@ import type {
   IvrSimChannelList,
   IvrTechnicalRetryResult,
   TechnicalRetryRequest,
+  IvrScriptActionResult,
+  IvrScriptApprovalRequest,
+  IvrScriptDraftRequest,
+  IvrScriptTransitionRequest,
+  IvrScriptVersionDetail,
 } from "./types";
 
 interface AdminCallContext {
@@ -262,4 +267,88 @@ function buildQuery(
 
   const rendered = search.toString();
   return rendered === "" ? "" : `?${rendered}`;
+}
+
+/**
+ * Script lifecycle (W-0109).
+ *
+ * The version key travels in the path, and the reason in the body, matching the
+ * other admin mutations. Nothing here decides who may approve: Ivr.Api answers
+ * 403 when the caller is the creator or the account that already signed the
+ * other half of the production pair, and 409 when the version's state refuses.
+ */
+export function getScriptVersion(
+  context: AdminCallContext,
+  templateId: string,
+  version: string,
+): Promise<IvrApiResponse<IvrScriptVersionDetail>> {
+  return callIvrApi<IvrScriptVersionDetail>({
+    method: "GET",
+    path: `/scripts/${encodeURIComponent(templateId)}/${encodeURIComponent(version)}`,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function createScriptDraft(
+  context: AdminCallContext,
+  request: IvrScriptDraftRequest,
+): Promise<IvrApiResponse<IvrScriptActionResult>> {
+  return callIvrApi<IvrScriptActionResult>({
+    method: "POST",
+    path: "/scripts/",
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function submitScriptForReview(
+  context: AdminCallContext,
+  templateId: string,
+  version: string,
+  request: IvrScriptTransitionRequest,
+): Promise<IvrApiResponse<IvrScriptActionResult>> {
+  return callIvrApi<IvrScriptActionResult>({
+    method: "POST",
+    path: `/scripts/${encodeURIComponent(templateId)}/${encodeURIComponent(version)}:submit`,
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function approveScriptVersion(
+  context: AdminCallContext,
+  templateId: string,
+  version: string,
+  request: IvrScriptApprovalRequest,
+): Promise<IvrApiResponse<IvrScriptActionResult>> {
+  return callIvrApi<IvrScriptActionResult>({
+    method: "POST",
+    path: `/scripts/${encodeURIComponent(templateId)}/${encodeURIComponent(version)}:approve`,
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function retireScriptVersion(
+  context: AdminCallContext,
+  templateId: string,
+  version: string,
+  request: IvrScriptTransitionRequest,
+): Promise<IvrApiResponse<IvrScriptActionResult>> {
+  return callIvrApi<IvrScriptActionResult>({
+    method: "POST",
+    path: `/scripts/${encodeURIComponent(templateId)}/${encodeURIComponent(version)}:retire`,
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
 }

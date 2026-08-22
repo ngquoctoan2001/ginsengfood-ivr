@@ -242,7 +242,7 @@ const COVERED: Readonly<Record<string, readonly (keyof typeof enums)[]>> = {
   decision: ["sellableDecision", "eligibilityDecision"],
   payment_method_snapshot: ["paymentMethod"],
   state: ["dependencyState"],
-  status: ["freshnessStatus", "adminActionStatus"],
+  status: ["freshnessStatus", "adminActionStatus", "scriptStatus"],
   warehouse_status: ["warehouseStatus"],
   voice_region: ["voiceRegion"],
   bucket: ["bucket"],
@@ -252,6 +252,11 @@ const COVERED: Readonly<Record<string, readonly (keyof typeof enums)[]>> = {
   ConsoleRole: ["accountRole"],
   ConsoleAccountStatus: ["accountStatus"],
   result_type: ["resultType"],
+
+  // W-0109 script lifecycle. `items` is the element enum of `approved_for_modes`,
+  // which the spec names by its array item rather than by the field.
+  approval_type: ["approvalType"],
+  items: ["executionMode"],
 };
 
 /**
@@ -285,6 +290,7 @@ const EXEMPT: Readonly<Record<string, string>> = {
   token_type: "auth scheme, never rendered",
   "X-Source-System": "wire header, never rendered",
   "X-Service-Scope": "wire header, never rendered",
+  target_type: "audit target discriminator — one literal, rendered as a fixed label",
 };
 
 describe("UT-L10N-COVER-03 every rendered enum value has a Vietnamese label", () => {

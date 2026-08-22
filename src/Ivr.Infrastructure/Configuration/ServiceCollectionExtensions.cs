@@ -115,6 +115,8 @@ public static class ServiceCollectionExtensions
                 provider => provider.GetRequiredService<InMemoryScriptRegistry>());
             services.TryAddSingleton<IScriptContentManager>(
                 provider => provider.GetRequiredService<InMemoryScriptRegistry>());
+            services.TryAddSingleton<IScriptVersionReader>(
+                provider => provider.GetRequiredService<InMemoryScriptRegistry>());
             services.TryAddSingleton<IAttemptPolicyRegistry>(_ =>
                 new FakeAttemptPolicyRegistry(CandidateAttemptPolicies.Create()));
             services.TryAddSingleton<InMemoryTaskIntakeStore>();
@@ -138,6 +140,8 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IScriptRegistry>(
                 provider => provider.GetRequiredService<PostgresScriptRegistry>());
             services.TryAddSingleton<IScriptContentManager>(
+                provider => provider.GetRequiredService<PostgresScriptRegistry>());
+            services.TryAddSingleton<IScriptVersionReader>(
                 provider => provider.GetRequiredService<PostgresScriptRegistry>());
             services.TryAddSingleton<IAttemptPolicyRegistry, PostgresAttemptPolicyRegistry>();
             services.TryAddSingleton<IAttemptPolicyRegistryWriter,

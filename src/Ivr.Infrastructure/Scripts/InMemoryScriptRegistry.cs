@@ -5,7 +5,8 @@ using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Scripts;
 
-public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentManager, IDisposable
+public sealed class InMemoryScriptRegistry
+    : IScriptRegistry, IScriptContentManager, IScriptVersionReader, IDisposable
 {
     private readonly Dictionary<string, ScriptVersionSnapshot> versions = new(StringComparer.Ordinal);
     private readonly SemaphoreSlim gate = new(1, 1);
@@ -41,6 +42,24 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
                 && ScriptApprovalPolicy.Allows(snapshot, mode, productionTargetV1FieldsApproved)
                     ? new ApprovedScript(snapshot, mode)
                     : null;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async ValueTask<ScriptVersionSnapshot?> TryGetSnapshotAsync(
+        ScriptVersionKey key,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            return versions.TryGetValue(key.ToString(), out ScriptVersionSnapshot? snapshot)
+                ? snapshot
+                : null;
         }
         finally
         {
@@ -138,7 +157,8 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
                 safeReason,
                 safeCorrelation,
                 null,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken,
+                current.Status).ConfigureAwait(false);
             versions[key.ToString()] = updated;
             return updated;
         }
@@ -166,7 +186,7 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
         try
         {
             ScriptVersionSnapshot current = GetRequired(key);
-            EnsureApprovalAllowed(current, approvalType, actor);
+            ScriptApprovalPolicy.EnsureApprovalAllowed(current, approvalType, actor);
             ScriptApprovalSnapshot approval = new(
                 approvalType,
                 actor.ActorId,
@@ -185,7 +205,8 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
                 safeReason,
                 safeCorrelation,
                 approvalType,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken,
+                current.Status).ConfigureAwait(false);
             versions[key.ToString()] = updated;
             return updated;
         }
@@ -231,7 +252,8 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
                 safeReason,
                 safeCorrelation,
                 null,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken,
+                current.Status).ConfigureAwait(false);
             versions[key.ToString()] = updated;
             return updated;
         }
@@ -249,35 +271,6 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
     private static string RequireCorrelation(string correlationId) =>
         ScriptTextGuard.Identifier(correlationId, 120, nameof(correlationId));
 
-    private static void EnsureApprovalAllowed(
-        ScriptVersionSnapshot current,
-        ScriptApprovalType approvalType,
-        ScriptActor actor)
-    {
-        if (current.Status is not (ScriptLifecycleStatus.InReview or ScriptLifecycleStatus.Approved))
-        {
-            throw new InvalidOperationException("Only a reviewed script version can be approved.");
-        }
-
-        if (string.Equals(current.CreatedBy, actor.ActorId, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException("The script creator cannot approve the same version.");
-        }
-
-        if (current.Approvals.Any(approval => approval.Type == approvalType))
-        {
-            throw new InvalidOperationException("The script approval type already exists.");
-        }
-
-        if (approvalType is ScriptApprovalType.Content or ScriptApprovalType.PrivacyLegal
-            && current.Approvals.Any(approval =>
-                approval.Type is ScriptApprovalType.Content or ScriptApprovalType.PrivacyLegal
-                && string.Equals(approval.ActorId, actor.ActorId, StringComparison.Ordinal)))
-        {
-            throw new InvalidOperationException("Content and Privacy/Legal approvals require different actors.");
-        }
-    }
-
     private ScriptVersionSnapshot GetRequired(ScriptVersionKey key) =>
         versions.TryGetValue(key.ToString(), out ScriptVersionSnapshot? snapshot)
             ? snapshot
@@ -290,7 +283,8 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
         string reason,
         string correlationId,
         ScriptApprovalType? approvalType,
-        CancellationToken cancellationToken) =>
+        CancellationToken cancellationToken,
+        ScriptLifecycleStatus? previousStatus = null) =>
         auditLogger.AppendAsync(
             new AuditEvent(
                 actor.ActorId,
@@ -302,7 +296,11 @@ public sealed class InMemoryScriptRegistry : IScriptRegistry, IScriptContentMana
                 {
                     ["template_id"] = version.Key.TemplateId,
                     ["version"] = version.Key.Version,
-                    ["status"] = version.Status.ToString(),
+                    // Before and after, not just after. See the note in PostgresScriptRegistry.
+                    ["previous_status"] = previousStatus is null
+                        ? null
+                        : ScriptEntityMapper.StatusToStorage(previousStatus.Value),
+                    ["status"] = ScriptEntityMapper.StatusToStorage(version.Status),
                     ["template_hash"] = version.TemplateHash,
                     ["approval_type"] = approvalType?.ToString(),
                 }),

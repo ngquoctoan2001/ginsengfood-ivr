@@ -85,7 +85,10 @@ public sealed class ScriptContentTests
             reviewer,
             "Submit exact content for review",
             "corr-script-v2-review");
-        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        // The specific type, not the base: W-0109 maps an approver conflict to 403 and a state
+        // conflict to 409, and asserting the base class here would let that distinction be
+        // deleted without a single test going red.
+        await Assert.ThrowsAsync<ScriptApproverConflictException>(async () =>
             await registry.ApproveAsync(
                 definition.Key,
                 ScriptApprovalType.MockTest,
@@ -120,7 +123,7 @@ public sealed class ScriptContentTests
             contentApprover,
             "Approve Vietnamese content",
             "corr-script-v2-content");
-        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await Assert.ThrowsAsync<ScriptApproverConflictException>(async () =>
             await registry.ApproveAsync(
                 definition.Key,
                 ScriptApprovalType.PrivacyLegal,

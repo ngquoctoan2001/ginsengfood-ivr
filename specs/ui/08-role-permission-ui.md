@@ -25,6 +25,13 @@ không được tự cấp quyền hay tin claim do browser gửi.
 | `IVR_ACCOUNT_MANAGE` | ✅ | ❌ |
 | `IVR_ACCOUNT_PASSWORD_RESET` | ✅ | ❌ |
 | `IVR_ACCOUNT_SELF_VIEW` | ✅ | ✅ |
+| `IVR_SCRIPT_EDIT` | ✅ | ❌ |
+| `IVR_SCRIPT_REVIEW` | ✅ | ❌ |
+| `IVR_SCRIPT_APPROVE_MOCK` | ✅ | ❌ |
+| `IVR_SCRIPT_APPROVE_LAB` | ✅ | ❌ |
+| `IVR_SCRIPT_APPROVE_CONTENT` | ✅ | ❌ |
+| `IVR_SCRIPT_APPROVE_PRIVACY_LEGAL` | ✅ | ❌ |
+| `IVR_SCRIPT_RETIRE` | ✅ | ❌ |
 
 `IVR_FLAG_READ` và `IVR_RUNTIME_GATE_ADMIN` được cấp cho Admin từ 2026-08-22 theo
 `OD-V1-20`; Operator không có cả hai. Chữ ký thứ hai của four-eyes còn trống —
@@ -61,6 +68,19 @@ mutation, và audit log.
 | Đọc feature flag / kill switch (API, chưa có màn riêng) | `IVR_FLAG_READ` | Admin |
 | `POST /feature-flags/{env}` — đổi `executionMode`, `realCustomerCallAllowed`, `labDestinationAllowlist`, `globalDialKillSwitch`, `recordingEnabled` | `IVR_RUNTIME_GATE_ADMIN` | Admin qua được permission, nhưng hiện vẫn `409 IVR_OPERATIONAL_BLOCKED` do `PendingRuntimeGateAuthorization`; khi mở phải có `X-Actor-Id` khớp subject, `Idempotency-Key`, four-eyes, audit |
 | `/reports`, `/review`, `/config`, `/integration`, `/seed` | Admin role | Operator nhận 403/không render dữ liệu |
+| Tạo bản nháp / gửi duyệt / thu hồi kịch bản | `IVR_SCRIPT_EDIT` / `IVR_SCRIPT_REVIEW` / `IVR_SCRIPT_RETIRE` | Admin |
+| Duyệt kịch bản (4 loại) | `IVR_SCRIPT_APPROVE_*` tương ứng | Admin; **người tạo không được duyệt**, và duyệt nội dung ≠ duyệt pháp chế |
+
+### W-0109 — bảy quyền kịch bản và cái chúng **không** làm
+
+Cả bảy đều nằm trên `Admin`, nên ma trận role **không phân biệt được** người Pháp chế với
+một Admin bất kỳ. Kiểm soát còn hiệu lực là **theo tài khoản**: `ScriptApprovalPolicy` từ chối
+khi người duyệt trùng người tạo, và khi duyệt nội dung trùng người duyệt pháp chế — chặn cả lúc
+ghi lẫn lúc đọc. Hệ quả vận hành: một sign-off production cần **ba tài khoản khác nhau**
+(người tạo + hai người duyệt). Deployment ít hơn thế thì **không đạt** được approval production,
+và đó là câu trả lời fail-closed đúng, không phải lỗi.
+
+Muốn phân biệt Pháp chế ở mức role thì cần role thứ ba — một work item riêng, không phải W-0109.
 
 Mọi page, Route Handler và server action phải kiểm quyền server-side. Ẩn nav hay
 button chỉ là UX; gọi thẳng API sai quyền vẫn phải nhận

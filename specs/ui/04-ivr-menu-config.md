@@ -20,15 +20,27 @@ Xem/quản cấu hình call script (template + version + biến được phép).
 - KEY_9 = `NOT_ENABLED` (AS-07) — không cho bật ở UI giai đoạn đầu.
 
 ## Actions
-| Action | Permission | Ràng buộc |
+Trạng thái `IMPLEMENTED` từ `W-0109`. Cột permission dùng **quyền console** (`IVR_SCRIPT_*`);
+mỗi quyền ánh xạ 1-1 sang quyền domain `ivr.script.*` mà `ScriptActor` đòi.
+
+| Action | Permission (console) | Ràng buộc |
 | --- | --- | --- |
-| Create draft version | `ivr.script.edit` | tạo version mới; không overwrite version cũ |
-| Submit for review | `ivr.script.review` | `DRAFT → IN_REVIEW`; actor + reason + audit |
-| Approve MOCK | `ivr.script.approve.mock` | cần `MOCK_TEST`; creator không tự duyệt |
-| Approve LAB | `ivr.script.approve.lab` | cần `LAB`; không tự mở real-customer gate |
-| Approve production content | `ivr.script.approve.content` | một nửa production gate |
-| Approve Privacy/Legal | `ivr.script.approve.privacy-legal` | actor khác Content approver; vẫn chịu `OD-V1-15` |
-| Retire version | `ivr.script.retire` | không delete; retired version fail-closed mọi mode |
+| Create draft version | `IVR_SCRIPT_EDIT` | tạo version mới; version là **bất biến** sau khi tạo, không overwrite |
+| Submit for review | `IVR_SCRIPT_REVIEW` | `DRAFT → IN_REVIEW`; actor + reason + audit |
+| Approve MOCK | `IVR_SCRIPT_APPROVE_MOCK` | cần `MOCK_TEST`; creator không tự duyệt (`403`) |
+| Approve LAB | `IVR_SCRIPT_APPROVE_LAB` | cần `LAB`; không tự mở real-customer gate |
+| Approve production content | `IVR_SCRIPT_APPROVE_CONTENT` | một nửa production gate |
+| Approve Privacy/Legal | `IVR_SCRIPT_APPROVE_PRIVACY_LEGAL` | actor khác Content approver (`403`); vẫn chịu `OD-V1-15` |
+| Retire version | `IVR_SCRIPT_RETIRE` | không delete; retired version fail-closed mọi mode |
+
+**Vì sao màn này từng không có nút.** `W-0096` cố ý để read-only, lý do ghi trong
+`AdminConfigReadService`: duyệt là quyết định của owner theo `OD-V1-15`, không phải nút bấm.
+`W-0109` đảo lại **theo yêu cầu owner**, vì đường duy nhất còn lại để chữ ký Pháp chế vào hệ
+thống là **sửa tay dữ liệu** — mà sửa tay thì mất audit, mất `creator ≠ approver`, và mất luôn
+ý nghĩa của chính cái cổng đó. Mở qua khuôn admin mutation đặt chữ ký trở lại bên trong kiểm soát.
+
+Hai chốt cứng **không** đổi: màn không có ô nào thêm biến ngoài whitelist, và không có ô nào bật
+`KEY_9`. Cả hai nằm trong `TargetV1SpeechPolicy.ValidateTemplate`, chạy phía server cho mọi bản nháp.
 
 ## P0
 - UI **không** cho thêm biến ngoài whitelist; không cho bật KEY_9 nếu chưa có owner decision (Q-F2). Script chưa approved đúng mode → task reject (`IVR_SCRIPT_NOT_APPROVED`). Không có A/B/random version selection.

@@ -55,6 +55,20 @@ public static class IvrRoles
             IvrPermissions.AccountManage,
             IvrPermissions.AccountPasswordReset,
             IvrPermissions.AccountSelfView,
+
+            // W-0109. All seven script permissions land on Admin, which means the role matrix
+            // cannot tell a Privacy/Legal officer from any other Admin. The control that still
+            // holds is per-account: Content and Privacy/Legal approvals must come from two
+            // different signed-in accounts, enforced in ScriptApprovalPolicy and re-checked at
+            // read time. A deployment with one Admin account therefore cannot reach production
+            // approval at all — which is the correct fail-closed answer, not a bug.
+            IvrPermissions.ScriptEdit,
+            IvrPermissions.ScriptReview,
+            IvrPermissions.ScriptApproveMock,
+            IvrPermissions.ScriptApproveLab,
+            IvrPermissions.ScriptApproveContent,
+            IvrPermissions.ScriptApprovePrivacyLegal,
+            IvrPermissions.ScriptRetire,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 

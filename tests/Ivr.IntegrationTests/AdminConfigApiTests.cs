@@ -205,10 +205,10 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
         await SeedAsync();
         await using InternalAdminApiTestApplication app = await StartAsync();
 
-        // Script lifecycle, seed loading and permission assignment are absent by
-        // design: approval is an owner action (OD-V1-15) and permissions belong to
+        // Integration status and the review queue are still read-only surfaces, and seed
+        // loading and permission assignment are still absent by design: permissions belong to
         // Permission Core (DF-01).
-        foreach (string route in Routes)
+        foreach (string route in ReadOnlyRoutes)
         {
             using HttpRequestMessage request = new(HttpMethod.Post, route.Split('?')[0]);
             request.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, IvrPermissions.QueueView);
@@ -219,13 +219,49 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
             using HttpResponseMessage response = await app.Client.SendAsync(request);
             Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
         }
+
+        // Scripts is the one that changed, and the replacement assertion is stronger than the
+        // one it replaces. W-0109 opened the lifecycle so a Privacy/Legal signature has a path
+        // that carries audit, a reason and "creator cannot approve" -- the previous alternative
+        // was editing rows by hand, which carries none of them. What must NOT come with that
+        // opening is reachability from the mock permission seam: the seam mints whatever
+        // X-Permissions asks for, MOCK is the default mode, and one of these permissions signs
+        // off the wording a customer is read. 401, not 405 and not 200.
+        foreach (string route in ScriptMutationRoutes)
+        {
+            using HttpRequestMessage request = new(HttpMethod.Post, route);
+            request.Headers.Add(
+                MockPermissionAuthenticationHandler.HeaderName,
+                IvrPermissions.ScriptApproveContent);
+            request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-config");
+            request.Headers.Add("X-Actor-Id", "operator-config");
+            request.Headers.Add("X-Correlation-Id", string.Concat("corr-", Guid.NewGuid().ToString("N")));
+            request.Content = JsonContent.Create(new { reason = "attempted write" });
+            using HttpResponseMessage response = await app.Client.SendAsync(request);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
     }
 
+    /// <summary>Read surfaces. GET /scripts is unchanged by W-0109; only POST was added.</summary>
     private static readonly string[] Routes =
     [
         "/v1/ivr/order-confirmation/scripts",
         "/v1/ivr/order-confirmation/integration-status",
         "/v1/ivr/order-confirmation/review-items",
+    ];
+
+    private static readonly string[] ReadOnlyRoutes =
+    [
+        "/v1/ivr/order-confirmation/integration-status",
+        "/v1/ivr/order-confirmation/review-items",
+    ];
+
+    private static readonly string[] ScriptMutationRoutes =
+    [
+        "/v1/ivr/order-confirmation/scripts/",
+        "/v1/ivr/order-confirmation/scripts/SCRIPT-ORDER-CONFIRM/v3-test-approved:submit",
+        "/v1/ivr/order-confirmation/scripts/SCRIPT-ORDER-CONFIRM/v3-test-approved:approve",
+        "/v1/ivr/order-confirmation/scripts/SCRIPT-ORDER-CONFIRM/v3-test-approved:retire",
     ];
 
     private Task<InternalAdminApiTestApplication> StartAsync() =>

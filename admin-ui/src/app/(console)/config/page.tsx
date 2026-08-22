@@ -15,6 +15,8 @@ import {
   type Column,
 } from "@/components/ui";
 import { getScriptCatalog } from "@/lib/api/admin";
+
+import { ScriptLifecycleActions } from "./ScriptLifecycleActions";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrDtmfKey, IvrScriptCatalog, IvrScriptVersion } from "@/lib/api/types";
 import { requireAdmin, requireSession } from "@/lib/auth/guard";
@@ -38,8 +40,8 @@ export default async function ScriptConfigPage() {
           ],
         }}
       />
-      <Callout tone="locked" testId="config-read-only">
-        {t("config.readOnlyNotice")}
+      <Callout tone="neutral" testId="config-lifecycle-notice">
+        {t("config.lifecycleNotice")}
       </Callout>
       <Suspense fallback={<LoadingSkeleton rows={6} variant="table" />}>
         <ScriptCatalogPanels />
@@ -158,6 +160,17 @@ const VERSION_COLUMNS: readonly Column<IvrScriptVersion>[] = [
             : t("config.notApprovedBadge")}
         </StatusBadge>
       </>
+    ),
+  },
+  {
+    key: "actions",
+    header: t("config.colActions"),
+    cell: (version) => (
+      <ScriptLifecycleActions
+        templateId={version.template_id}
+        version={version.version}
+        status={version.status as "DRAFT" | "IN_REVIEW" | "APPROVED" | "RETIRED"}
+      />
     ),
   },
   {

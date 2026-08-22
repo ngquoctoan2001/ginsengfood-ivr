@@ -38,6 +38,23 @@ bearer request không fallback sang mock header.
 | `/sim-channels/{simChannelId}:enable` | POST | `IVR_SIM_ENABLE` | `AdminMutationRequest` → `IvrAdminActionResult` | Enable SIM sau health pass |
 | `/technical-retries` | POST | `IVR_MANUAL_RETRY` | `TechnicalRetryRequest` → `IvrTechnicalRetryResult` | Request technical retry (không tăng customer attempt) |
 | `/admin-reviews` | POST | `IVR_RESULT_REVIEW` | `AdminReviewRequest` → `IvrAdminReviewResult` | Ghi review/annotation |
+| `/scripts/{templateId}/{version}` | GET | `IVR_QUEUE_VIEW` | `IvrScriptVersionDetail` | Một phiên bản ở mọi trạng thái, gồm cả bản nháp |
+| `/scripts/` | POST | `IVR_SCRIPT_EDIT` | `IvrScriptDraftRequest` → `IvrScriptActionResult` | Tạo bản nháp; phiên bản là bất biến sau khi tạo |
+| `/scripts/{templateId}/{version}:submit` | POST | `IVR_SCRIPT_REVIEW` | `IvrScriptTransitionRequest` | Chuyển bản nháp sang chờ duyệt |
+| `/scripts/{templateId}/{version}:approve` | POST | `IVR_SCRIPT_APPROVE_*` theo `approval_type` | `IvrScriptApprovalRequest` | Ghi một chữ ký duyệt |
+| `/scripts/{templateId}/{version}:retire` | POST | `IVR_SCRIPT_RETIRE` | `IvrScriptTransitionRequest` | Thu hồi; fail-closed mọi chế độ, không xoá |
+
+### Vòng đời kịch bản (W-0109) — mã lỗi phân biệt *ai* với *trạng thái*
+
+`403` khi người gọi **sai người** cho chính phiên bản đó: là người tạo, hoặc là tài khoản đã ký
+nửa còn lại của cặp production. Bấm lại không đổi được điều đó — cần người thứ hai.
+`409` khi **trạng thái** từ chối: duyệt một bản nháp, thu hồi một bản nháp, hay trùng loại duyệt.
+
+Trả `409` cho vế đầu sẽ đẩy người vận hành đi bấm lại, trong khi việc cần làm là đi tìm đồng nghiệp.
+
+Bốn route mutation được ghim vào **console session scheme**. Seam quyền MOCK (`X-Permissions`)
+mint bất cứ quyền nào được yêu cầu, MOCK là chế độ mặc định, và một trong các quyền này ký duyệt
+lời thoại đọc cho khách nghe — nên seam đó không được chạm tới chúng.
 | `/feature-flags/{environment}` | GET | `IVR_FLAG_READ` | `FeatureFlagReadResult` | Đọc fresh typed snapshot; provider lỗi trả fail-closed |
 | `/feature-flags/{environment}/kill-switch` | GET | `IVR_FLAG_READ` | `KillSwitchVerification` | Xác minh revision và trạng thái kill switch effective |
 | `/feature-flags/{environment}` | POST | `IVR_RUNTIME_GATE_ADMIN` *(OD-V1-20 duyệt 2026-08-22 — cấp cho `Admin`)* | `FeatureFlagMutationRequest` | Mutation atomic, reason, idempotency, audit và four-eyes theo chiều rủi ro |

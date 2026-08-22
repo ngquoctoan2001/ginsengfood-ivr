@@ -589,3 +589,61 @@ export interface IvrSimChannelList {
   readonly real_customer_call_allowed: boolean;
   readonly channels: readonly IvrSimChannel[];
 }
+
+/** W-0109 script lifecycle. Mirrors the draft.13 schemas of the same names. */
+export interface IvrScriptApprovalDetail {
+  readonly approval_type: "MOCK_TEST" | "LAB" | "CONTENT" | "PRIVACY_LEGAL";
+  readonly actor_id: string;
+  readonly reason: string;
+  readonly correlation_id: string;
+  readonly approved_at: string;
+}
+
+export interface IvrScriptVersionDetail {
+  readonly template_id: string;
+  readonly version: string;
+  readonly status: "DRAFT" | "IN_REVIEW" | "APPROVED" | "RETIRED";
+  readonly template_text: string;
+  readonly template_hash: string;
+  readonly allowed_input_fields: readonly string[];
+  readonly approvals: readonly IvrScriptApprovalDetail[];
+  readonly created_by: string;
+  readonly created_at: string;
+  readonly submitted_by?: string | null;
+  readonly submitted_at?: string | null;
+  readonly retired_by?: string | null;
+  readonly retired_at?: string | null;
+  readonly uses_production_decision_fields: boolean;
+  readonly approved_for_modes: readonly ("MOCK" | "LAB_REAL_SIM" | "PRODUCTION_REAL")[];
+  /**
+   * The missing production precondition, named. Null once none remains — an empty
+   * approved_for_modes with no reason leaves an operator guessing whether the
+   * system is broken or Privacy/Legal simply has not signed.
+   */
+  readonly production_blocked_reason?: string | null;
+}
+
+export interface IvrScriptDraftRequest {
+  readonly template_id: string;
+  readonly version: string;
+  readonly template_text: string;
+  readonly reason: string;
+}
+
+export interface IvrScriptTransitionRequest {
+  readonly reason: string;
+}
+
+export interface IvrScriptApprovalRequest {
+  readonly approval_type: "MOCK_TEST" | "LAB" | "CONTENT" | "PRIVACY_LEGAL";
+  readonly reason: string;
+}
+
+export interface IvrScriptActionResult {
+  readonly action_type: string;
+  readonly target_type: "script_version";
+  readonly target_id: string;
+  readonly correlation_id: string;
+  readonly no_policy_bypass: true;
+  readonly version: IvrScriptVersionDetail;
+}

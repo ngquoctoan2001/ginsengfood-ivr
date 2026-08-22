@@ -1,6 +1,9 @@
 using Ivr.Api.Accounts;
+using Ivr.Api.Admin;
+using Ivr.Api.Application;
 using Ivr.Api.Auth;
 using Ivr.Api.Foundation;
+using Ivr.Api.Internal;
 using Ivr.Api.Middleware;
 using Ivr.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Builder;
@@ -41,14 +44,26 @@ internal sealed class ConsoleAccountApiTestApplication : IAsyncDisposable
             ["ConnectionStrings:IvrDb"] = connectionString,
             [OrderCoreAllowlistOptions.TokenConfigurationKey] =
                 "account-api-test-token-at-least-24-chars",
+            [InternalServiceOptions.TokenConfigurationKey] =
+                "console-api-internal-token-at-least-24-chars",
         });
         builder.Services.AddIvrFoundation(builder.Configuration);
         builder.Services.AddIvrApiFoundation(builder.Configuration);
+
+        // W-0109. The script lifecycle service lives in the internal-admin service set, and a
+        // minimal-API handler whose service parameter is unregistered is inferred as a body
+        // parameter instead — which fails route construction on the GET, not at the call.
+        builder.Services.AddIvrInternalAdminApi(builder.Configuration);
 
         WebApplication app = builder.Build();
         app.UseRouting();
         app.UseIvrApiFoundation();
         app.MapIvrConsoleAccountEndpoints();
+
+        // W-0109. Script lifecycle is mapped here rather than in the admin-config harness
+        // because its routes are pinned to the console session scheme, so they can only be
+        // exercised by a test that actually signs in.
+        app.MapIvrScriptLifecycleEndpoints();
         var probes = app.MapGroup("/v1/ivr/order-confirmation");
         probes.MapGet("/rbac/queue", static () => Results.Ok())
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
