@@ -1,13 +1,19 @@
+/*
+ * The export control row.
+ *
+ * The notice sits on its own line rather than beside the button: it states the
+ * k-anonymity floor and the fact that the reason is written to the audit log,
+ * and neither of those is a caption for a control — they are conditions on the
+ * whole action.
+ */
+
 .form {
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
-  gap: var(--ivr-space-3);
+  align-items: flex-end;
+  gap: var(--ivr-space-3) var(--ivr-space-4);
 }
 
 .notice {
   flex-basis: 100%;
-  margin: 0;
-  font-size: var(--ivr-text-xs);
-  color: var(--ivr-text-muted);
 }

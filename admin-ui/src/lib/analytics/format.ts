@@ -10,8 +10,29 @@ const percentFormatter = new Intl.NumberFormat(LOCALE, {
   maximumFractionDigits: 1,
 });
 
-/** Rates arrive as server-computed fractions; the console only formats them. */
-export function formatRate(rate: number): string {
+/**
+ * Rates arrive as server-computed fractions; the console only formats them.
+ *
+ * A missing rate renders as an em dash, never as `NaN%` and never as `0%`.
+ *
+ * Both halves of that matter. `operational_blocked_rate` is contractually
+ * required *and* nullable (DT-06): a pre-call block produces no call result, so
+ * the rate is null until an intake-block fact source exists, and showing `0%`
+ * would claim no block occurred when the truth is that none was recorded.
+ * `NaN%` is the other failure — it is not a number an operator can act on, and
+ * a KPI tile is the last place to leak one. Guarding on `Number.isFinite`
+ * rather than on null alone also covers a rate that arrives absent or
+ * unparsable, which is a contract violation the screen should survive rather
+ * than repeat back as arithmetic.
+ *
+ * This mirrors formatDuration and formatFreshness, which already answer a
+ * missing value with the same em dash.
+ */
+export function formatRate(rate: number | null | undefined): string {
+  if (rate === null || rate === undefined || !Number.isFinite(rate)) {
+    return "—";
+  }
+
   return `${percentFormatter.format(rate * 100)}%`;
 }
 

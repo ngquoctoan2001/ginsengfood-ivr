@@ -1,0 +1,175 @@
+/*
+ * The one button in the console.
+ *
+ * Five page modules and Controls.module.css each carried their own copy, which
+ * is how the console ended up with buttons at three different heights and two
+ * different hover treatments. Everything clickable that is not a link now comes
+ * from here.
+ *
+ * Rule 1 in globals.css governs the primary fill: gold ground, Dark Text label,
+ * never white. The secondary and ghost variants take --ivr-border-strong rather
+ * than gold, because a control boundary has to clear 3:1 and gold does not.
+ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ivr-space-2);
+  border-radius: var(--ivr-radius-sm);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: var(--ivr-text-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--ivr-transition), border-color var(--ivr-transition),
+    color var(--ivr-transition), box-shadow var(--ivr-transition),
+    transform var(--ivr-transition);
+}
+
+/* A 1px lift on press. Small enough not to reflow anything around it, large
+   enough that a click feels acknowledged before the server answers. */
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  transform: none;
+}
+
+/* Sizes. md is the default; sm is for in-row table actions where a full-height
+   button would blow the row height out. */
+.md {
+  min-height: 2.25rem;
+  padding: var(--ivr-space-2) var(--ivr-space-4);
+}
+
+.sm {
+  min-height: 1.875rem;
+  padding: var(--ivr-space-1) var(--ivr-space-3);
+  font-size: var(--ivr-text-xs);
+}
+
+.lg {
+  min-height: 2.75rem;
+  padding: var(--ivr-space-3) var(--ivr-space-5);
+  font-size: var(--ivr-text-base);
+}
+
+.primary {
+  background: var(--ivr-accent);
+  border-color: var(--ivr-accent);
+  color: var(--ivr-accent-contrast);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--ivr-accent-hover);
+  border-color: var(--ivr-accent-hover);
+  box-shadow: var(--ivr-shadow-raised);
+}
+
+.secondary {
+  background: var(--ivr-surface);
+  border-color: var(--ivr-border-strong);
+  color: var(--ivr-text);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--ivr-surface-hover);
+  border-color: var(--ivr-text-subtle);
+}
+
+/* No boundary until it is hovered — for the low-stakes third action in a row,
+   where a bordered button would compete with the one that matters. */
+.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ivr-link);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--ivr-surface-hover);
+  color: var(--ivr-text);
+}
+
+/*
+ * Danger is outlined, not filled. A filled red button is the most eye-catching
+ * thing on a screen, and in an ops console the destructive action is never the
+ * one an operator should be drawn to. The fill arrives on hover, once they have
+ * already aimed at it.
+ */
+.danger {
+  background: var(--ivr-surface);
+  border-color: var(--ivr-danger);
+  color: var(--ivr-danger);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--ivr-danger);
+  border-color: var(--ivr-danger);
+  color: var(--ivr-text-inverted);
+}
+
+.block {
+  width: 100%;
+}
+
+/* Icon-only: square, and its accessible name comes from the required label. */
+.iconOnly {
+  padding: 0;
+  aspect-ratio: 1;
+}
+
+.iconOnly.md {
+  width: 2.25rem;
+}
+
+.iconOnly.sm {
+  width: 1.875rem;
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+}
+
+/*
+ * Pending state. The label is replaced rather than sitting beside a spinner,
+ * because a button that changes width mid-submit shifts everything after it.
+ */
+.spinner {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 620ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* A row of buttons, aligned right — dialog footers and page-header actions. */
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ivr-space-2);
+}
+
+.groupEnd {
+  justify-content: flex-end;
+}
+
+@media (pointer: coarse) {
+  .md,
+  .sm {
+    min-height: 2.75rem;
+  }
+}

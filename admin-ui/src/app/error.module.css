@@ -1,28 +1,16 @@
+/*
+ * The route-level error boundary's own shell.
+ *
+ * It cannot rely on the console shell: this renders when a route below it threw,
+ * which may be before AppShell ever mounted. Hence the standalone centring here
+ * rather than a Card in a CardStack.
+ */
+
 .wrapper {
   display: grid;
-  gap: var(--ivr-space-3);
   justify-items: start;
-  padding: var(--ivr-space-6);
-}
-
-.title {
-  margin: 0;
-  font-size: 1.3rem;
-  color: var(--ivr-danger);
-}
-
-.digest {
-  margin: 0;
-  font-family: var(--ivr-font-mono);
-  font-size: 0.82rem;
-  color: var(--ivr-text-muted);
-}
-
-.retry {
-  border: 1px solid var(--ivr-accent);
-  background: var(--ivr-accent);
-  color: var(--ivr-accent-contrast);
-  border-radius: var(--ivr-radius);
-  padding: var(--ivr-space-2) var(--ivr-space-4);
-  cursor: pointer;
+  gap: var(--ivr-space-4);
+  max-width: 42rem;
+  margin: var(--ivr-space-7) auto;
+  padding: var(--ivr-space-5);
 }

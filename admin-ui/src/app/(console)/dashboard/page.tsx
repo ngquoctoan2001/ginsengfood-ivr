@@ -3,25 +3,40 @@ import { Suspense } from "react";
 import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorAlert";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
 import { BooleanCell } from "@/components/data/BooleanCell";
+import { EnumLabel } from "@/components/data/EnumLabel";
 import { MetricGrid, type Metric } from "@/components/data/MetricGrid";
+import {
+  Callout,
+  Card,
+  CardStack,
+  DataTable,
+  Meter,
+  PageHeader,
+  type Column,
+} from "@/components/ui";
 import { formatRate } from "@/lib/analytics/format";
 import { getDashboard, listSimChannels } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
-import type { IvrDashboardProjection, IvrSimChannelList } from "@/lib/api/types";
-import { requireSession } from "@/lib/auth/guard";
+import type {
+  IvrCapacityIncidentSummary,
+  IvrDashboardProjection,
+  IvrSimChannel,
+  IvrSimChannelList,
+} from "@/lib/api/types";
+import { requirePermission, requireSession } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
+import { tEnum } from "@/lib/i18n/enum";
 import { hasPermission } from "@/lib/rbac/permissions";
 
 import { DashboardFilters } from "./DashboardFilters";
 import { QueueActions } from "./QueueActions";
 import { SimChannelActions } from "./SimChannelActions";
-import table from "@/components/data/DataTable.module.css";
-import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
+  await requirePermission("IVR_QUEUE_VIEW");
   const params = await searchParams;
   const program = typeof params.program === "string" ? params.program : "";
   const from = typeof params.from === "string" ? params.from : "";
@@ -29,12 +44,12 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
   return (
     <>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{t("dashboard.title")}</h1>
-        <p className={styles.subtitle}>{t("dashboard.subtitle")}</p>
-      </header>
+      <PageHeader title={t("dashboard.title")} subtitle={t("dashboard.subtitle")} />
       <DashboardFilters program={program} from={from} to={to} />
-      <Suspense key={`${program}|${from}|${to}`} fallback={<LoadingSkeleton rows={6} />}>
+      <Suspense
+        key={`${program}|${from}|${to}`}
+        fallback={<LoadingSkeleton rows={8} variant="metrics" />}
+      >
         <DashboardPanels program={program} from={from} to={to} />
       </Suspense>
     </>
@@ -90,17 +105,11 @@ async function DashboardPanels({
     hasPermission(session.permissions, "IVR_QUEUE_RESUME");
 
   const rateMetrics: Metric[] = [
-    { label: t("dashboard.confirmRate"), value: percent(dashboard.results.confirm_rate) },
     { label: t("dashboard.cancelRate"), value: percent(dashboard.results.cancel_rate) },
     { label: t("dashboard.noAnswerRate"), value: percent(dashboard.results.no_answer_rate) },
     {
       label: t("dashboard.technicalRate"),
       value: percent(dashboard.results.technical_exception_rate),
-    },
-    {
-      label: t("dashboard.callSuccessRate"),
-      value: percent(dashboard.results.call_success_rate),
-      testId: "call-success-rate",
     },
     { label: t("dashboard.resultTotal"), value: formatNumber(dashboard.results.total) },
   ];
@@ -169,132 +178,192 @@ async function DashboardPanels({
       tone: dashboard.sim.quarantined > 0 ? "warning" : undefined,
     },
     {
-      label: t("dashboard.simFailureRate"),
-      value: percent(dashboard.sim.failure_rate),
-      tone: dashboard.sim.failure_rate > 0 ? "danger" : undefined,
-      testId: "sim-failure-rate",
+      // Metric.value is a plain string, so this reads the label directly rather
+      // than rendering EnumLabel. The raw code stays visible on the Seed screen,
+      // which is where the adapter mode is actually reasoned about.
+      label: t("dashboard.simAdapterMode"),
+      value: tEnum("executionMode", dashboard.sim.adapter_mode)?.label ?? "—",
     },
-    { label: t("dashboard.simAdapterMode"), value: dashboard.sim.adapter_mode },
   ];
 
   return (
-    <>
-      <p className={styles.generatedAt}>
-        {`${t("dashboard.generatedAt")}: ${formatDateTime(dashboard.generated_at)}`}
-      </p>
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("dashboard.kpiTitle")}</h2>
+    <CardStack>
+      {/*
+       * The three rates an operator is answerable for get a meter as well as a
+       * figure. The number is still the reading — the bar is a second channel
+       * for the same value, so nothing depends on judging a length.
+       */}
+      <Card
+        title={t("dashboard.kpiTitle")}
+        description={`${t("dashboard.generatedAt")}: ${formatDateTime(dashboard.generated_at)}`}
+        accent
+      >
+        <Meter
+          label={t("dashboard.confirmRate")}
+          value={percent(dashboard.results.confirm_rate)}
+          ratio={dashboard.results.confirm_rate}
+          tone="success"
+        />
+        <Meter
+          label={t("dashboard.callSuccessRate")}
+          value={percent(dashboard.results.call_success_rate)}
+          ratio={dashboard.results.call_success_rate}
+          testId="call-success-rate"
+        />
         <MetricGrid metrics={rateMetrics} />
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("dashboard.queueTitle")}</h2>
+      <Card
+        title={t("dashboard.queueTitle")}
+        actions={canAct ? <QueueActions /> : undefined}
+      >
         <MetricGrid metrics={queueMetrics} />
-        {canAct ? <QueueActions /> : <p className={styles.muted}>{t("queue.noPermission")}</p>}
-      </section>
+        {canAct ? null : <Callout tone="neutral">{t("queue.noPermission")}</Callout>}
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("dashboard.attemptTitle")}</h2>
+      <Card title={t("dashboard.attemptTitle")}>
         <MetricGrid metrics={attemptMetrics} />
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("dashboard.simTitle")}</h2>
+      <Card title={t("dashboard.simTitle")}>
         <MetricGrid metrics={simMetrics} />
-
+        <Meter
+          label={t("dashboard.simFailureRate")}
+          value={percent(dashboard.sim.failure_rate)}
+          ratio={dashboard.sim.failure_rate}
+          tone={dashboard.sim.failure_rate > 0 ? "danger" : undefined}
+          testId="sim-failure-rate"
+        />
         {simChannels.channels.length === 0 ? (
-          <p className={styles.muted}>{t("sim.noChannels")}</p>
+          <Callout tone="neutral">{t("sim.noChannels")}</Callout>
         ) : (
-          <div className={table.scroll}>
-            <table className={table.table} data-testid="sim-channel-table">
-              <caption className={styles.muted}>{t("sim.tableCaption")}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">{t("sim.colChannel")}</th>
-                  <th scope="col">{t("sim.colState")}</th>
-                  <th scope="col">{t("sim.colStatus")}</th>
-                  <th scope="col">{t("sim.colBusy")}</th>
-                  <th scope="col">{t("sim.colFailCount")}</th>
-                  <th scope="col">{t("sim.colHealthCheck")}</th>
-                  <th scope="col">{t("sim.colAction")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {simChannels.channels.map((channel) => (
-                  <tr key={channel.sim_channel_id}>
-                    <td className={table.mono}>{channel.sim_channel_id}</td>
-                    <td>
-                      {channel.enabled ? t("sim.stateEnabled") : t("sim.stateDisabled")}
-                      {channel.quarantined ? ` · ${t("sim.quarantined")}` : ""}
-                    </td>
-                    <td>{channel.status}</td>
-                    <td>
-                      <BooleanCell value={channel.busy} />
-                      {channel.busy && channel.active_call_job_id !== undefined
-                        ? ` ${channel.active_call_job_id}`
-                        : ""}
-                    </td>
-                    <td>{formatNumber(channel.fail_count)}</td>
-                    <td>
-                      {channel.last_health_check_at === undefined
-                        ? "—"
-                        : formatDateTime(channel.last_health_check_at)}
-                    </td>
-                    <td>
-                      <SimChannelActions
-                        simChannelId={channel.sim_channel_id}
-                        enabled={channel.enabled}
-                        busy={channel.busy}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            label={t("dashboard.simTitle")}
+            testId="sim-channel-table"
+            caption={t("sim.tableCaption")}
+            columns={SIM_COLUMNS}
+            rows={simChannels.channels}
+            rowKey={(channel) => channel.sim_channel_id}
+            density="compact"
+            pinFirstColumn
+          />
         )}
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("dashboard.incidentTitle")}</h2>
+      <Card
+        title={t("dashboard.incidentTitle")}
+        footer={`${t("dashboard.missedDeadlineTotal")}: ${formatNumber(dashboard.missed_deadline_count)}`}
+      >
         {dashboard.open_incidents.length === 0 ? (
-          <p className={styles.muted}>{t("dashboard.noIncident")}</p>
+          <Callout tone="success">{t("dashboard.noIncident")}</Callout>
         ) : (
-          <div className={table.scroll}>
-            <table className={table.table}>
-              <thead>
-                <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">{t("dashboard.incidentScope")}</th>
-                  <th scope="col">{t("dashboard.incidentHold")}</th>
-                  <th scope="col">{t("dashboard.incidentReason")}</th>
-                  <th scope="col">{t("dashboard.incidentMissedDeadline")}</th>
-                  <th scope="col">{t("dashboard.incidentOpenedAt")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dashboard.open_incidents.map((incident) => (
-                  <tr key={incident.capacity_incident_id}>
-                    <td className={table.mono}>{incident.capacity_incident_id}</td>
-                    <td>{incident.scope}</td>
-                    <td><BooleanCell value={incident.hold_new_calls} /></td>
-                    <td>{incident.shortage_reason ?? "—"}</td>
-                    <td>{formatNumber(incident.missed_deadline_count)}</td>
-                    <td>{formatDateTime(incident.opened_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            label={t("dashboard.incidentTitle")}
+            columns={INCIDENT_COLUMNS}
+            rows={dashboard.open_incidents}
+            rowKey={(incident) => incident.capacity_incident_id}
+            density="compact"
+          />
         )}
-        <p className={styles.muted}>
-          {`${t("dashboard.missedDeadlineTotal")}: ${formatNumber(dashboard.missed_deadline_count)}`}
-        </p>
-      </section>
-    </>
+      </Card>
+    </CardStack>
   );
 }
+
+const SIM_COLUMNS: readonly Column<IvrSimChannel>[] = [
+  {
+    key: "id",
+    header: t("sim.colChannel"),
+    variant: "mono",
+    cell: (channel) => channel.sim_channel_id,
+  },
+  {
+    key: "state",
+    header: t("sim.colState"),
+    cell: (channel) =>
+      `${channel.enabled ? t("sim.stateEnabled") : t("sim.stateDisabled")}${
+        channel.quarantined ? ` · ${t("sim.quarantined")}` : ""
+      }`,
+  },
+  {
+    key: "status",
+    header: t("sim.colStatus"),
+    cell: (channel) => <EnumLabel family="simStatus" value={channel.status} />,
+  },
+  {
+    key: "busy",
+    header: t("sim.colBusy"),
+    cell: (channel) => (
+      <>
+        <BooleanCell value={channel.busy} />
+        {channel.busy && channel.active_call_job_id !== undefined
+          ? ` ${channel.active_call_job_id}`
+          : ""}
+      </>
+    ),
+  },
+  {
+    key: "failCount",
+    header: t("sim.colFailCount"),
+    variant: "numeric",
+    cell: (channel) => formatNumber(channel.fail_count),
+  },
+  {
+    key: "healthCheck",
+    header: t("sim.colHealthCheck"),
+    cell: (channel) =>
+      channel.last_health_check_at === undefined
+        ? "—"
+        : formatDateTime(channel.last_health_check_at),
+  },
+  {
+    key: "action",
+    header: t("sim.colAction"),
+    cell: (channel) => (
+      <SimChannelActions
+        simChannelId={channel.sim_channel_id}
+        enabled={channel.enabled}
+        busy={channel.busy}
+      />
+    ),
+  },
+];
+
+const INCIDENT_COLUMNS: readonly Column<IvrCapacityIncidentSummary>[] = [
+  {
+    key: "id",
+    header: "ID",
+    variant: "mono",
+    cell: (incident) => incident.capacity_incident_id,
+  },
+  {
+    key: "scope",
+    header: t("dashboard.incidentScope"),
+    cell: (incident) => <EnumLabel family="incidentScope" value={incident.scope} />,
+  },
+  {
+    key: "hold",
+    header: t("dashboard.incidentHold"),
+    cell: (incident) => <BooleanCell value={incident.hold_new_calls} />,
+  },
+  {
+    key: "reason",
+    header: t("dashboard.incidentReason"),
+    variant: "wrap",
+    cell: (incident) => <EnumLabel family="shortageReason" value={incident.shortage_reason} />,
+  },
+  {
+    key: "missed",
+    header: t("dashboard.incidentMissedDeadline"),
+    variant: "numeric",
+    cell: (incident) => formatNumber(incident.missed_deadline_count),
+  },
+  {
+    key: "openedAt",
+    header: t("dashboard.incidentOpenedAt"),
+    cell: (incident) => formatDateTime(incident.opened_at),
+  },
+];
 
 /**
  * Rates arrive as API-computed fractions; the UI only formats them.

@@ -1,0 +1,91 @@
+/*
+ * The filter row above a data screen.
+ *
+ * Every filter in this console is a plain GET form: the state lives in the URL,
+ * so a filtered view is shareable, bookmarkable, survives a reload and works
+ * with client JavaScript switched off. That decision is why there is no
+ * "apply as you type" here and no client state to synchronise.
+ *
+ * The bar is a `search` landmark rather than a bare form, so an assistive
+ * technology user can jump to the filters the way they jump to the nav.
+ */
+
+/*
+ * Not `overflow: hidden`. The footer used to be tucked inside the rounded
+ * corners that way, but clipping the bar also clipped anything a control drew
+ * outside its own box — the 3px focus ring on the field nearest an edge, and
+ * (before those panels went `position: fixed`) an open dropdown or calendar.
+ * The footer rounds its own bottom corners instead, which costs one rule and
+ * clips nothing.
+ */
+.bar {
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius-lg);
+  background: var(--ivr-surface);
+  box-shadow: var(--ivr-shadow-card);
+}
+
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ivr-space-3) var(--ivr-space-4);
+  padding: var(--ivr-space-4);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ivr-space-3);
+  padding: var(--ivr-space-3) var(--ivr-space-4);
+  border-top: 1px solid var(--ivr-border);
+  background: var(--ivr-surface-raised);
+  border-radius: 0 0 calc(var(--ivr-radius-lg) - 1px) calc(var(--ivr-radius-lg) - 1px);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ivr-space-2);
+}
+
+/*
+ * Count of filters currently narrowing the view.
+ *
+ * A filter bar with eight controls hides its own state: an operator reading an
+ * unexpectedly short table has no fast way to tell whether the data is thin or
+ * whether a filter from twenty minutes ago is still on. The count is the answer,
+ * and it carries a word beside the number rather than standing on colour.
+ */
+.summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ivr-space-2);
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-muted);
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  padding: 0 var(--ivr-space-1);
+  border-radius: var(--ivr-radius-pill);
+  background: var(--ivr-accent-wash);
+  border: 1px solid var(--ivr-brand-gold);
+  color: var(--ivr-gold-ink);
+  font-size: var(--ivr-text-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.countZero {
+  background: var(--ivr-neutral-surface);
+  border-color: var(--ivr-neutral-border);
+  color: var(--ivr-text-muted);
+}

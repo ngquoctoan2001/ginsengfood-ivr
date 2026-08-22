@@ -1,21 +1,32 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { EnumLabel } from "@/components/data/EnumLabel";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorAlert";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
+import {
+  Callout,
+  CalloutStack,
+  DataTable,
+  FilterBar,
+  PageHeader,
+  SelectField,
+  type Column,
+} from "@/components/ui";
 import { listReviewItems } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
-import type { IvrReviewQueue } from "@/lib/api/types";
-import { requireSession } from "@/lib/auth/guard";
+import type { IvrReviewQueueItem, IvrReviewQueue } from "@/lib/api/types";
+import { requireAdmin, requireSession } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 
-import table from "@/components/data/DataTable.module.css";
-import controls from "@/components/forms/Controls.module.css";
-import styles from "./page.module.css";
-
 export const dynamic = "force-dynamic";
+
+const STATUSES = [
+  { value: "OPEN", label: "OPEN" },
+  { value: "RESOLVED", label: "RESOLVED" },
+];
 
 /**
  * UI-06 review queue.
@@ -26,38 +37,48 @@ export const dynamic = "force-dynamic";
  * owned by the outbox and its circuit breaker, not by an operator button.
  */
 export default async function ReviewQueuePage({ searchParams }: PageProps<"/review">) {
+  await requireAdmin();
   const params = await searchParams;
   const status = typeof params.status === "string" ? params.status : "OPEN";
 
   return (
     <>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{t("review.title")}</h1>
-        <p className={styles.subtitle}>{t("review.subtitle")}</p>
-      </header>
+      <PageHeader
+        title={t("review.title")}
+        subtitle={t("review.subtitle")}
+        breadcrumb={{
+          label: t("nav.breadcrumbLabel"),
+          items: [
+            { label: t("nav.console"), href: "/dashboard" },
+            { label: t("nav.review") },
+          ],
+        }}
+      />
 
-      <form method="get" className={controls.bar} aria-label={t("review.filterStatus")}>
-        <label className={controls.field}>
-          <span className={controls.label}>{t("review.filterStatus")}</span>
-          <select name="status" defaultValue={status} className={controls.control}>
-            <option value="OPEN">OPEN</option>
-            <option value="RESOLVED">RESOLVED</option>
-            <option value="">{t("dashboard.filterAll")}</option>
-          </select>
-        </label>
-        <button type="submit" className={controls.primary}>
-          {t("calls.filterSubmit")}
-        </button>
-      </form>
+      <FilterBar
+        label={t("review.filterStatus")}
+        submitLabel={t("calls.filterSubmit")}
+        resetHref="/review"
+      >
+        <SelectField
+          label={t("review.filterStatus")}
+          name="status"
+          defaultValue={status}
+          options={STATUSES}
+          includeAll
+        />
+      </FilterBar>
 
-      <Suspense key={status} fallback={<LoadingSkeleton rows={5} />}>
+      <Suspense key={status} fallback={<LoadingSkeleton rows={5} variant="table" />}>
         <ReviewQueueTable status={status} />
       </Suspense>
 
-      <p className={styles.notice}>{t("review.actionNotice")}</p>
-      <p className={styles.notice} data-testid="no-replay-notice">
-        {t("review.noReplay")}
-      </p>
+      <CalloutStack>
+        <Callout tone="info">{t("review.actionNotice")}</Callout>
+        <Callout tone="locked" testId="no-replay-notice">
+          {t("review.noReplay")}
+        </Callout>
+      </CalloutStack>
     </>
   );
 }
@@ -88,53 +109,69 @@ async function ReviewQueueTable({ status }: { status: string }) {
     return <ErrorAlert error={error!} />;
   }
 
-  if (queue.items.length === 0) {
-    return <EmptyState />;
-  }
-
   return (
-    <>
-      <div className={table.scroll}>
-        <table className={table.table}>
-          <thead>
-            <tr>
-              <th scope="col">{t("review.colId")}</th>
-              <th scope="col">{t("review.colSource")}</th>
-              <th scope="col">{t("review.colOrder")}</th>
-              <th scope="col">{t("review.colResult")}</th>
-              <th scope="col">{t("review.colReason")}</th>
-              <th scope="col">{t("review.colStatus")}</th>
-              <th scope="col">{t("review.colCreated")}</th>
-              <th scope="col">{t("review.colAction")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {queue.items.map((item) => (
-              <tr key={item.review_item_id}>
-                <td className={table.mono}>{item.review_item_id}</td>
-                <td>{item.source_type}</td>
-                <td className={table.mono}>{item.order_code_short ?? "—"}</td>
-                <td>{item.result_type ?? "—"}</td>
-                <td className={table.wrap}>{item.reason}</td>
-                <td>{item.status}</td>
-                <td>{formatDateTime(item.created_at)}</td>
-                <td>
-                  {item.ivr_call_job_id === undefined ? (
-                    <span className={styles.muted}>{t("review.noJob")}</span>
-                  ) : (
-                    <Link href={`/calls/${encodeURIComponent(item.ivr_call_job_id)}`}>
-                      {t("review.openDetail")}
-                    </Link>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className={styles.muted}>
-        {`${t("calls.total")}: ${formatNumber(queue.total_count)}`}
-      </p>
-    </>
+    <DataTable
+      label={t("review.title")}
+      caption={`${t("calls.total")}: ${formatNumber(queue.total_count)}`}
+      columns={REVIEW_COLUMNS}
+      rows={queue.items}
+      rowKey={(item) => item.review_item_id}
+      density="compact"
+      pinFirstColumn
+      empty={<EmptyState inTable />}
+    />
   );
 }
+
+const REVIEW_COLUMNS: readonly Column<IvrReviewQueueItem>[] = [
+  {
+    key: "id",
+    header: t("review.colId"),
+    variant: "mono",
+    cell: (item) => item.review_item_id,
+  },
+  {
+    key: "source",
+    header: t("review.colSource"),
+    cell: (item) => <EnumLabel family="reviewSourceType" value={item.source_type} />,
+  },
+  {
+    key: "order",
+    header: t("review.colOrder"),
+    variant: "mono",
+    cell: (item) => item.order_code_short ?? "—",
+  },
+  {
+    key: "result",
+    header: t("review.colResult"),
+    cell: (item) => <EnumLabel family="resultType" value={item.result_type} />,
+  },
+  {
+    key: "reason",
+    header: t("review.colReason"),
+    variant: "wrap",
+    cell: (item) => <EnumLabel family="reviewReason" value={item.reason} />,
+  },
+  {
+    key: "status",
+    header: t("review.colStatus"),
+    cell: (item) => <EnumLabel family="reviewStatus" value={item.status} />,
+  },
+  {
+    key: "created",
+    header: t("review.colCreated"),
+    cell: (item) => formatDateTime(item.created_at),
+  },
+  {
+    key: "action",
+    header: t("review.colAction"),
+    cell: (item) =>
+      item.ivr_call_job_id === undefined ? (
+        t("review.noJob")
+      ) : (
+        <Link href={`/calls/${encodeURIComponent(item.ivr_call_job_id)}`}>
+          {t("review.openDetail")}
+        </Link>
+      ),
+  },
+];

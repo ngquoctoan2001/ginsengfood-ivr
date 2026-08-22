@@ -1,3 +1,5 @@
+import { EnumLabel } from "@/components/data/EnumLabel";
+import { Callout, CalloutStack, DescriptionList } from "@/components/ui";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 import { formatFreshness } from "@/lib/analytics/format";
 import type { IvrAnalyticsDataQuality } from "@/lib/api/types";
@@ -11,7 +13,7 @@ export interface FreshnessBannerProps {
 /**
  * States where the reporting numbers came from and how far behind they are.
  *
- * Two things this deliberately refuses to hide:
+ * Three things this deliberately refuses to hide:
  *
  * - While `warehouse_backed` is false the figures are operational reads, not the
  *   P10-4 pipeline. Presenting them as BI output would be a claim nobody has
@@ -29,54 +31,64 @@ export function FreshnessBanner({ quality }: FreshnessBannerProps) {
 
   return (
     <section className={styles.banner} data-tone={tone} data-testid="freshness-banner">
-      <dl className={styles.facts}>
-        <div>
-          <dt>{t("reports.freshnessStatus")}</dt>
-          <dd data-testid="freshness-status">{t(`reports.freshness.${quality.status}`)}</dd>
-        </div>
-        <div>
-          <dt>{t("reports.freshnessLag")}</dt>
-          <dd>{formatFreshness(quality.freshness_seconds)}</dd>
-        </div>
-        <div>
-          <dt>{t("reports.latestEvent")}</dt>
-          <dd>
-            {quality.latest_event_at === undefined
-              ? "—"
-              : formatDateTime(quality.latest_event_at)}
-          </dd>
-        </div>
-        <div>
-          <dt>{t("reports.scannedRows")}</dt>
-          <dd>{formatNumber(quality.scanned_rows)}</dd>
-        </div>
-      </dl>
+      <DescriptionList
+        items={[
+          {
+            label: t("reports.freshnessStatus"),
+            value: <EnumLabel family="freshnessStatus" value={quality.status} />,
+            testId: "freshness-status",
+          },
+          {
+            label: t("reports.freshnessLag"),
+            value: formatFreshness(quality.freshness_seconds),
+          },
+          {
+            label: t("reports.latestEvent"),
+            value:
+              quality.latest_event_at === undefined
+                ? "—"
+                : formatDateTime(quality.latest_event_at),
+          },
+          {
+            label: t("reports.scannedRows"),
+            value: formatNumber(quality.scanned_rows),
+          },
+        ]}
+      />
 
-      <p className={styles.source} data-testid="analytics-source">
-        {quality.warehouse_backed
-          ? `${t("reports.sourceWarehouse")} (${quality.source})`
-          : `${t("reports.sourceOperational")} (${quality.source}, ${quality.pipeline_work_id})`}
-      </p>
+      <CalloutStack>
+        {/* The source is stated as a fact, not a warning — but an operational
+            read is not the pipeline, and the tone says which one you are
+            looking at without the reader having to parse the sentence. */}
+        <Callout
+          tone={quality.warehouse_backed ? "info" : "warning"}
+          testId="analytics-source"
+        >
+          {quality.warehouse_backed
+            ? `${t("reports.sourceWarehouse")} (${quality.source})`
+            : `${t("reports.sourceOperational")} (${quality.source}, ${quality.pipeline_work_id})`}
+        </Callout>
 
-      {quality.warehouse_status === "BACKLOG" || quality.warehouse_status === "MISMATCH" ? (
-        <p className={styles.suppressed} data-testid="warehouse-status">
-          {t(`reports.warehouseStatus.${quality.warehouse_status}`)}
-        </p>
-      ) : null}
+        {quality.warehouse_status === "BACKLOG" || quality.warehouse_status === "MISMATCH" ? (
+          <Callout tone="warning" testId="warehouse-status">
+            <EnumLabel family="warehouseStatus" value={quality.warehouse_status} />
+          </Callout>
+        ) : null}
 
-      {quality.suppressed_bucket_count > 0 ? (
-        <p className={styles.suppressed} data-testid="suppressed-notice">
-          {`${t("reports.suppressedNotice")} ${formatNumber(
-            quality.suppressed_bucket_count,
-          )} (k=${formatNumber(quality.min_bucket_size)})`}
-        </p>
-      ) : null}
+        {quality.suppressed_bucket_count > 0 ? (
+          <Callout tone="warning" testId="suppressed-notice">
+            {`${t("reports.suppressedNotice")} ${formatNumber(
+              quality.suppressed_bucket_count,
+            )} (k=${formatNumber(quality.min_bucket_size)})`}
+          </Callout>
+        ) : null}
 
-      {quality.truncated ? (
-        <p className={styles.suppressed} data-testid="truncated-notice">
-          {t("reports.truncatedNotice")}
-        </p>
-      ) : null}
+        {quality.truncated ? (
+          <Callout tone="warning" testId="truncated-notice">
+            {t("reports.truncatedNotice")}
+          </Callout>
+        ) : null}
+      </CalloutStack>
     </section>
   );
 }

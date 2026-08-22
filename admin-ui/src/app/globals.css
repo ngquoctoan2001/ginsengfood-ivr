@@ -148,6 +148,36 @@
 
   --ivr-shell-width: 88rem;
   --ivr-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /*
+   * Info. The console had no "this is context, not a problem" tone: every
+   * standing notice was painted with the warning surface, so a screen that was
+   * merely explaining a policy looked identical to one reporting trouble. Info
+   * reuses the Light Navy link hue rather than inventing a sixth brand colour.
+   */
+  --ivr-info: #16457f;
+  --ivr-info-surface: #eef3fa;
+  --ivr-info-border: #a9c3e2;
+
+  /* The gold at wash strength — a card's top rule, an active tab's ground, a
+     selected chip. Decorative only; rule 2 still keeps gold off control
+     boundaries. Dark ink and gold ink both clear AA on it. */
+  --ivr-accent-wash: #faf6e8;
+
+  /* Two more radii. The base 6px stays the control radius; lg is for cards and
+     dialogs, pill for chips and segmented controls. */
+  --ivr-radius-lg: 10px;
+  --ivr-radius-pill: 999px;
+
+  /* Elevation above a card: hover lift, and the modal/popover layer. */
+  --ivr-shadow-pop: 0 6px 20px rgb(11 31 58 / 12%);
+  --ivr-shadow-overlay: 0 18px 48px rgb(11 31 58 / 22%);
+
+  --ivr-space-7: 3rem;
+
+  /* A slower curve for anything that changes size or position rather than
+     colour, so a lift or a slide is not over before the eye catches it. */
+  --ivr-transition-slow: 260ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 *,

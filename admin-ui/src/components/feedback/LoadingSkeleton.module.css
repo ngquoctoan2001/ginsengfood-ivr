@@ -1,3 +1,15 @@
+/*
+ * The placeholder a Suspense boundary shows while a screen's data is in flight.
+ *
+ * The shimmer runs at 1.4s: fast enough to read as activity, slow enough not to
+ * strobe. It stops entirely under prefers-reduced-motion, which globals.css
+ * applies to every animation in the console.
+ *
+ * The shapes now vary by variant, because a skeleton that does not resemble
+ * what replaces it causes a visible jump when the data lands — the whole point
+ * of a skeleton is that the layout does not move.
+ */
+
 .skeleton {
   display: grid;
   gap: var(--ivr-space-2);
@@ -24,6 +36,45 @@
   );
   background-size: 400% 100%;
   animation: shimmer 1.4s ease infinite;
+}
+
+/* Table variant: a taller header bar over shorter rows, inside a card frame. */
+.table {
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius-lg);
+  background: var(--ivr-surface);
+  padding: var(--ivr-space-4);
+  gap: var(--ivr-space-3);
+}
+
+.table .header {
+  height: 1.75rem;
+}
+
+/* Metric variant: the tile grid the dashboard replaces it with. */
+.metrics {
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--ivr-space-3);
+}
+
+.metrics .row {
+  height: 4.5rem;
+  border-radius: var(--ivr-radius);
+}
+
+/* Each row is a shade narrower than the last, so the block reads as text
+   rather than as a stack of identical bars. */
+.row:nth-child(3n) {
+  width: 82%;
+}
+
+.row:nth-child(4n) {
+  width: 91%;
+}
+
+.metrics .row:nth-child(3n),
+.metrics .row:nth-child(4n) {
+  width: 100%;
 }
 
 @keyframes shimmer {

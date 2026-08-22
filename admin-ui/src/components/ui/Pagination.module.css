@@ -1,0 +1,64 @@
+/*
+ * Page controls under a table.
+ *
+ * The range readout ("26–50 of 412") is not decoration: with a page parameter
+ * in the URL an operator can land on page 7 from a shared link, and a bare
+ * previous/next pair leaves them no way to tell where in the set they are.
+ *
+ * Both controls are links, not buttons — each page is a real, shareable URL —
+ * and the unavailable end of the range renders as a disabled span rather than
+ * a link to nowhere.
+ */
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ivr-space-3);
+  padding: var(--ivr-space-3) var(--ivr-space-4);
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius-lg);
+  background: var(--ivr-surface);
+  box-shadow: var(--ivr-shadow-card);
+}
+
+.range {
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.rangeStrong {
+  color: var(--ivr-text);
+  font-weight: 700;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--ivr-space-2);
+}
+
+.position {
+  font-size: var(--ivr-text-xs);
+  font-weight: 600;
+  color: var(--ivr-text-muted);
+  font-variant-numeric: tabular-nums;
+  padding: 0 var(--ivr-space-2);
+}
+
+.disabled {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ivr-space-2);
+  padding: var(--ivr-space-2) var(--ivr-space-4);
+  min-height: 2.25rem;
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius-sm);
+  font-size: var(--ivr-text-sm);
+  font-weight: 600;
+  color: var(--ivr-text-subtle);
+  opacity: 0.55;
+  cursor: not-allowed;
+}

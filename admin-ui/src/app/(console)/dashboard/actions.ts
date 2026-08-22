@@ -7,9 +7,10 @@ import { IvrApiError } from "@/lib/api/errors";
 import type { IvrApiResponse } from "@/lib/api/client";
 import type { IvrAdminActionResult } from "@/lib/api/types";
 import { validateAdminMutation, type AdminActionState } from "@/lib/admin/action-state";
-import { requireSession } from "@/lib/auth/guard";
+import { requirePermission } from "@/lib/auth/guard";
 import type { AdminSession } from "@/lib/auth/session";
 import { readConfig, type AdminUiConfig } from "@/lib/config/env";
+import type { IvrPermission } from "@/lib/rbac/permissions";
 
 type QueueMutation = (
   context: { session: AdminSession; config: AdminUiConfig },
@@ -27,13 +28,14 @@ type QueueMutation = (
 async function runQueueMutation(
   formData: FormData,
   mutate: QueueMutation,
+  permission: IvrPermission,
 ): Promise<AdminActionState> {
   const validation = validateAdminMutation(formData);
   if (!validation.ok) {
     return { status: "invalid", messageKey: validation.messageKey };
   }
 
-  const session = await requireSession();
+  const session = await requirePermission(permission);
   const config = readConfig();
 
   try {
@@ -63,14 +65,14 @@ export async function pauseQueueAction(
   _state: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  return runQueueMutation(formData, pauseQueue);
+  return runQueueMutation(formData, pauseQueue, "IVR_QUEUE_PAUSE");
 }
 
 export async function resumeQueueAction(
   _state: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  return runQueueMutation(formData, resumeQueue);
+  return runQueueMutation(formData, resumeQueue, "IVR_QUEUE_RESUME");
 }
 
 type SimChannelMutation = (
@@ -90,6 +92,7 @@ type SimChannelMutation = (
 async function runSimChannelMutation(
   formData: FormData,
   mutate: SimChannelMutation,
+  permission: IvrPermission,
 ): Promise<AdminActionState> {
   const simChannelId = String(formData.get("simChannelId") ?? "").trim();
   if (simChannelId === "") {
@@ -101,7 +104,7 @@ async function runSimChannelMutation(
     return { status: "invalid", messageKey: validation.messageKey };
   }
 
-  const session = await requireSession();
+  const session = await requirePermission(permission);
   const config = readConfig();
 
   try {
@@ -132,12 +135,12 @@ export async function disableSimChannelAction(
   _state: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  return runSimChannelMutation(formData, disableSimChannel);
+  return runSimChannelMutation(formData, disableSimChannel, "IVR_SIM_DISABLE");
 }
 
 export async function enableSimChannelAction(
   _state: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  return runSimChannelMutation(formData, enableSimChannel);
+  return runSimChannelMutation(formData, enableSimChannel, "IVR_SIM_ENABLE");
 }

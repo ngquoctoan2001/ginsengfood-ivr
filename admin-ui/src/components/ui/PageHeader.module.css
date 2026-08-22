@@ -1,0 +1,110 @@
+/*
+ * The block every screen opens with.
+ *
+ * Nine page modules carried a near-identical `.header` / `.title` / `.subtitle`
+ * trio, at four different title sizes. This is the one of them that survives.
+ *
+ * The gold bar to the left of the title is the accent again — decorative, and
+ * the single most repeated 5% of the gold budget in the console, since it
+ * appears once per screen and nowhere else on the page.
+ */
+
+.header {
+  display: grid;
+  gap: var(--ivr-space-3);
+  padding-bottom: var(--ivr-space-4);
+  border-bottom: 1px solid var(--ivr-border);
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ivr-space-4);
+}
+
+.headingBlock {
+  display: grid;
+  gap: var(--ivr-space-2);
+  min-width: 0;
+}
+
+.eyebrow {
+  font-size: var(--ivr-text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ivr-gold-ink);
+}
+
+.title {
+  position: relative;
+  margin: 0;
+  padding-left: var(--ivr-space-3);
+  font-size: var(--ivr-text-2xl);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--ivr-text);
+}
+
+.title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.18em;
+  bottom: 0.18em;
+  width: 3px;
+  border-radius: var(--ivr-radius-pill);
+  background: var(--ivr-brand-gold);
+}
+
+.subtitle {
+  margin: 0;
+  padding-left: var(--ivr-space-3);
+  max-width: 62ch;
+  font-size: var(--ivr-text-sm);
+  color: var(--ivr-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ivr-space-2);
+}
+
+/* Facts about the screen itself — when it was generated, which id it is showing.
+   Sits under the title in the same row as the crumbs would if both were used. */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ivr-space-2) var(--ivr-space-4);
+  padding-left: var(--ivr-space-3);
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-subtle);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ivr-space-1);
+}
+
+.metaKey {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.metaValue {
+  color: var(--ivr-text-muted);
+  font-weight: 600;
+}
+
+.metaMono {
+  font-family: var(--ivr-font-mono);
+  font-size: var(--ivr-text-xs);
+  letter-spacing: 0;
+}

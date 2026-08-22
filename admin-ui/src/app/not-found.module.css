@@ -1,0 +1,8 @@
+/* Standalone, for the same reason as error.module.css: a 404 can be served
+   outside the console shell. */
+
+.wrapper {
+  max-width: 42rem;
+  margin: var(--ivr-space-7) auto;
+  padding: var(--ivr-space-5);
+}

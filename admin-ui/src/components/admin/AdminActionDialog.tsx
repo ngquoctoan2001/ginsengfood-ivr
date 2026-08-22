@@ -4,11 +4,18 @@ import { useActionState, useRef, type ReactNode } from "react";
 
 import { ErrorAlert } from "@/components/feedback/ErrorAlert";
 import { RequirePermission } from "@/components/rbac/RequirePermission";
+import {
+  Button,
+  ButtonGroup,
+  Callout,
+  DescriptionList,
+  TextField,
+  TextareaField,
+} from "@/components/ui";
 import { IDLE_ACTION_STATE, REASON_MAX_LENGTH, type AdminActionState } from "@/lib/admin/action-state";
 import { t } from "@/lib/i18n";
 import type { IvrPermission } from "@/lib/rbac/permissions";
 
-import controls from "@/components/forms/Controls.module.css";
 import styles from "./AdminActionDialog.module.css";
 
 export interface AdminActionDialogProps {
@@ -48,16 +55,16 @@ export function AdminActionDialog({
   return (
     <RequirePermission perm={perm}>
       <div className={styles.wrapper}>
-        <button
-          type="button"
-          className={controls.secondary}
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={() => dialogRef.current?.showModal?.()}
         >
           {label}
-        </button>
+        </Button>
 
         <dialog ref={dialogRef} className={styles.dialog} aria-label={label}>
-          <form action={formAction} className={controls.stack}>
+          <form action={formAction} className={styles.form}>
             <h2 className={styles.title}>{label}</h2>
             <p className={styles.description}>{description}</p>
 
@@ -66,34 +73,28 @@ export function AdminActionDialog({
             ))}
             {children}
 
-            <label className={controls.field}>
-              <span className={controls.label}>{t("action.reasonLabel")}</span>
-              <textarea
-                name="reason"
-                required
-                maxLength={REASON_MAX_LENGTH}
-                rows={3}
-                placeholder={t("action.reasonPlaceholder")}
-                className={controls.textarea}
-              />
-            </label>
+            <TextareaField
+              label={t("action.reasonLabel")}
+              name="reason"
+              required
+              maxLength={REASON_MAX_LENGTH}
+              rows={3}
+              placeholder={t("action.reasonPlaceholder")}
+            />
 
-            <label className={controls.field}>
-              <span className={controls.label}>{t("action.evidenceLabel")}</span>
-              <input
-                type="text"
-                name="evidenceRef"
-                placeholder={t("action.evidencePlaceholder")}
-                className={controls.control}
-              />
-            </label>
+            <TextField
+              label={t("action.evidenceLabel")}
+              name="evidenceRef"
+              width="full"
+              placeholder={t("action.evidencePlaceholder")}
+            />
 
-            <p className={styles.notice}>{t("action.auditNotice")}</p>
+            <Callout tone="info">{t("action.auditNotice")}</Callout>
 
             {state.status === "invalid" ? (
-              <p className={controls.invalid} role="alert">
+              <Callout tone="danger" role="alert">
                 {t(state.messageKey)}
-              </p>
+              </Callout>
             ) : null}
             {state.status === "error" ? <ErrorAlert error={state.error} /> : null}
             {/* The dialog stays open on success and shows the ids. Closing
@@ -102,30 +103,37 @@ export function AdminActionDialog({
                 an audit lookup needs. */}
             {state.status === "success" ? (
               <div className={styles.success} role="status" data-testid="action-success">
-                <p>{t("action.succeeded")}</p>
-                <dl className={styles.successMeta}>
-                  <dt>{t("action.adminActionId")}</dt>
-                  <dd data-testid="action-admin-action-id">{state.adminActionId}</dd>
-                  <dt>{t("error.correlationId")}</dt>
-                  <dd data-testid="action-correlation-id">{state.correlationId}</dd>
-                </dl>
+                <Callout tone="success">{t("action.succeeded")}</Callout>
+                <DescriptionList
+                  layout="rows"
+                  items={[
+                    {
+                      label: t("action.adminActionId"),
+                      value: state.adminActionId,
+                      mono: true,
+                      testId: "action-admin-action-id",
+                    },
+                    {
+                      label: t("error.correlationId"),
+                      value: state.correlationId,
+                      mono: true,
+                      testId: "action-correlation-id",
+                    },
+                  ]}
+                />
               </div>
             ) : null}
 
-            <div className={styles.actions}>
-              <button
-                type="button"
-                className={controls.secondary}
-                onClick={() => dialogRef.current?.close()}
-              >
+            <ButtonGroup align="end">
+              <Button variant="ghost" onClick={() => dialogRef.current?.close()}>
                 {succeeded ? t("action.close") : t("action.cancel")}
-              </button>
+              </Button>
               {succeeded ? null : (
-                <button type="submit" className={controls.primary} disabled={isPending}>
-                  {isPending ? t("action.submitting") : t("action.confirm")}
-                </button>
+                <Button type="submit" variant="primary" pending={isPending}>
+                  {t("action.confirm")}
+                </Button>
               )}
-            </div>
+            </ButtonGroup>
           </form>
         </dialog>
       </div>

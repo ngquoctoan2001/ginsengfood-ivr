@@ -35,7 +35,7 @@ export function DependencyBadge({ state, observed }: DependencyBadgeProps) {
       </StatusBadge>
       {failClosed ? (
         <span className={styles.failClosed} data-testid="fail-closed-badge">
-          fail-closed
+          {t("integration.failClosedTag")}
         </span>
       ) : null}
       <span className={styles.observed}>

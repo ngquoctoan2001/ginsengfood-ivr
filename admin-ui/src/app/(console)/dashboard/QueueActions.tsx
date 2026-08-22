@@ -1,10 +1,10 @@
 "use client";
 
 import { AdminActionDialog } from "@/components/admin/AdminActionDialog";
+import { ButtonGroup } from "@/components/ui";
 import { t } from "@/lib/i18n";
 
 import { pauseQueueAction, resumeQueueAction } from "./actions";
-import styles from "./QueueActions.module.css";
 
 /**
  * Admin controls for the queue.
@@ -15,7 +15,7 @@ import styles from "./QueueActions.module.css";
  */
 export function QueueActions() {
   return (
-    <div className={styles.actions} aria-label={t("queue.actionsLabel")}>
+    <ButtonGroup label={t("queue.actionsLabel")}>
       <AdminActionDialog
         perm="IVR_QUEUE_PAUSE"
         label={t("queue.pause")}
@@ -28,6 +28,6 @@ export function QueueActions() {
         description={t("queue.resumeDescription")}
         action={resumeQueueAction}
       />
-    </div>
+    </ButtonGroup>
   );
 }

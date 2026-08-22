@@ -3,30 +3,45 @@ import { Suspense } from "react";
 import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorAlert";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
 import { BooleanCell } from "@/components/data/BooleanCell";
+import { EnumLabel, EnumLabelList } from "@/components/data/EnumLabel";
 import { StatusBadge } from "@/components/data/StatusBadge";
+import {
+  Callout,
+  Card,
+  CardStack,
+  ChipList,
+  DataTable,
+  PageHeader,
+  type Column,
+} from "@/components/ui";
 import { getScriptCatalog } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
-import type { IvrScriptCatalog } from "@/lib/api/types";
-import { requireSession } from "@/lib/auth/guard";
+import type { IvrDtmfKey, IvrScriptCatalog, IvrScriptVersion } from "@/lib/api/types";
+import { requireAdmin, requireSession } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, t } from "@/lib/i18n";
 
-import table from "@/components/data/DataTable.module.css";
-import styles from "./page.module.css";
-
 export const dynamic = "force-dynamic";
 
-export default function ScriptConfigPage() {
+export default async function ScriptConfigPage() {
+  await requireAdmin();
   return (
     <>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{t("config.title")}</h1>
-        <p className={styles.subtitle}>{t("config.subtitle")}</p>
-      </header>
-      <p className={styles.notice} data-testid="config-read-only">
+      <PageHeader
+        title={t("config.title")}
+        subtitle={t("config.subtitle")}
+        breadcrumb={{
+          label: t("nav.breadcrumbLabel"),
+          items: [
+            { label: t("nav.console"), href: "/dashboard" },
+            { label: t("nav.config") },
+          ],
+        }}
+      />
+      <Callout tone="locked" testId="config-read-only">
         {t("config.readOnlyNotice")}
-      </p>
-      <Suspense fallback={<LoadingSkeleton rows={6} />}>
+      </Callout>
+      <Suspense fallback={<LoadingSkeleton rows={6} variant="table" />}>
         <ScriptCatalogPanels />
       </Suspense>
     </>
@@ -55,129 +70,151 @@ async function ScriptCatalogPanels() {
   }
 
   return (
-    <>
-      <p
-        className={
-          catalog.production_target_v1_fields_approved ? styles.notice : styles.locked
-        }
-        data-testid="od-v1-15-lock"
+    <CardStack>
+      <Callout
+        tone={catalog.production_target_v1_fields_approved ? "success" : "locked"}
+        testId="od-v1-15-lock"
       >
         {catalog.production_target_v1_fields_approved
           ? t("config.od15Open")
           : t("config.od15Locked")}
-      </p>
+      </Callout>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("config.versionsTitle")}</h2>
+      <Card title={t("config.versionsTitle")} flush={catalog.versions.length > 0}>
         {catalog.versions.length === 0 ? (
-          <p className={styles.muted}>{t("config.noVersions")}</p>
+          <Callout tone="neutral">{t("config.noVersions")}</Callout>
         ) : (
-          <div className={table.scroll}>
-            <table className={table.table}>
-              <thead>
-                <tr>
-                  <th scope="col">{t("config.colTemplate")}</th>
-                  <th scope="col">{t("config.colVersion")}</th>
-                  <th scope="col">{t("config.colStatus")}</th>
-                  <th scope="col">{t("config.colApprovals")}</th>
-                  <th scope="col">{t("config.colMissing")}</th>
-                  <th scope="col">{t("config.colTemplateValid")}</th>
-                  <th scope="col">{t("config.colCreated")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {catalog.versions.map((version) => (
-                  <tr key={`${version.template_id}:${version.version}`}>
-                    <td className={table.mono}>{version.template_id}</td>
-                    <td className={table.mono}>{version.version}</td>
-                    <td>
-                      {version.status}
-                      <span className={styles.badgeSlot}>
-                        <StatusBadge
-                          tone={version.missing_approvals.length === 0 ? "success" : "warning"}
-                          testId={`approval-badge-${version.version}`}
-                        >
-                          {version.missing_approvals.length === 0
-                            ? t("config.approvedBadge")
-                            : t("config.notApprovedBadge")}
-                        </StatusBadge>
-                      </span>
-                    </td>
-                    <td>
-                      {version.approvals.length === 0
-                        ? "—"
-                        : version.approvals
-                            .map((approval) => approval.approval_type)
-                            .join(", ")}
-                    </td>
-                    <td>
-                      {version.missing_approvals.length === 0
-                        ? "—"
-                        : version.missing_approvals.join(", ")}
-                    </td>
-                    <td>
-                      {version.template_valid ? (
-                        <BooleanCell value={true} />
-                      ) : (
-                        <span className={styles.invalid}>{t("config.templateInvalid")}</span>
-                      )}
-                    </td>
-                    <td>{formatDateTime(version.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            label={t("config.versionsTitle")}
+            columns={VERSION_COLUMNS}
+            rows={catalog.versions}
+            rowKey={(version) => `${version.template_id}:${version.version}`}
+            density="compact"
+            pinFirstColumn
+          />
         )}
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("config.dtmfTitle")}</h2>
-        <div className={table.scroll}>
-          <table className={table.table}>
-            <thead>
-              <tr>
-                <th scope="col">{t("config.dtmfKey")}</th>
-                <th scope="col">{t("config.dtmfMeaning")}</th>
-                <th scope="col">{t("config.dtmfEnabled")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {catalog.dtmf_map.map((key) => (
-                <tr key={key.key}>
-                  <td className={table.mono}>{key.key}</td>
-                  <td data-testid={`dtmf-meaning-${key.key}`}>{key.meaning}</td>
-                  <td data-testid={`dtmf-enabled-${key.key}`}>
-                    <BooleanCell value={key.enabled} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className={styles.notice} data-testid="key-9-notice">
-          {t("config.key9Notice")}
-        </p>
-      </section>
+      <Card title={t("config.dtmfTitle")} footer={t("config.key9Notice")} flush>
+        <DataTable
+          label={t("config.dtmfTitle")}
+          columns={DTMF_COLUMNS}
+          rows={catalog.dtmf_map}
+          rowKey={(key) => key.key}
+          density="compact"
+        />
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("config.allowedTitle")}</h2>
-        <ul className={styles.chips}>
-          {catalog.allowed_input_fields.map((field) => (
-            <li key={field} className={styles.chipOk}>
-              {field}
-            </li>
-          ))}
-        </ul>
-        <h2 className={styles.sectionTitle}>{t("config.prohibitedTitle")}</h2>
-        <ul className={styles.chips}>
-          {catalog.prohibited_variables.map((variable) => (
-            <li key={variable} className={styles.chipDanger}>
-              {variable}
-            </li>
-          ))}
-        </ul>
-      </section>
-    </>
+      <Card title={t("config.allowedTitle")}>
+        <ChipList
+          label={t("config.allowedTitle")}
+          items={catalog.allowed_input_fields.map((field) => ({
+            key: field,
+            label: field,
+            tone: "success" as const,
+          }))}
+        />
+      </Card>
+
+      <Card title={t("config.prohibitedTitle")}>
+        <ChipList
+          label={t("config.prohibitedTitle")}
+          items={catalog.prohibited_variables.map((variable) => ({
+            key: variable,
+            label: variable,
+            tone: "danger" as const,
+          }))}
+        />
+      </Card>
+    </CardStack>
   );
 }
+
+const VERSION_COLUMNS: readonly Column<IvrScriptVersion>[] = [
+  {
+    key: "template",
+    header: t("config.colTemplate"),
+    variant: "mono",
+    cell: (version) => version.template_id,
+  },
+  {
+    key: "version",
+    header: t("config.colVersion"),
+    variant: "mono",
+    cell: (version) => version.version,
+  },
+  {
+    key: "status",
+    header: t("config.colStatus"),
+    cell: (version) => (
+      <>
+        <EnumLabel family="scriptStatus" value={version.status} />{" "}
+        <StatusBadge
+          tone={version.missing_approvals.length === 0 ? "success" : "warning"}
+          testId={`approval-badge-${version.version}`}
+        >
+          {version.missing_approvals.length === 0
+            ? t("config.approvedBadge")
+            : t("config.notApprovedBadge")}
+        </StatusBadge>
+      </>
+    ),
+  },
+  {
+    key: "approvals",
+    header: t("config.colApprovals"),
+    variant: "wrap",
+    cell: (version) => (
+      <EnumLabelList
+        family="approvalType"
+        values={version.approvals.map((approval) => approval.approval_type)}
+      />
+    ),
+  },
+  {
+    key: "missing",
+    header: t("config.colMissing"),
+    variant: "wrap",
+    cell: (version) => (
+      <EnumLabelList family="approvalType" values={version.missing_approvals} />
+    ),
+  },
+  {
+    key: "templateValid",
+    header: t("config.colTemplateValid"),
+    cell: (version) =>
+      version.template_valid ? (
+        <BooleanCell value={true} />
+      ) : (
+        <StatusBadge tone="danger">{t("config.templateInvalid")}</StatusBadge>
+      ),
+  },
+  {
+    key: "created",
+    header: t("config.colCreated"),
+    cell: (version) => formatDateTime(version.created_at),
+  },
+];
+
+const DTMF_COLUMNS: readonly Column<IvrDtmfKey>[] = [
+  { key: "key", header: t("config.dtmfKey"), variant: "mono", cell: (key) => key.key },
+  {
+    key: "meaning",
+    header: t("config.dtmfMeaning"),
+    variant: "wrap",
+    cell: (key) => (
+      <span data-testid={`dtmf-meaning-${key.key}`}>
+        <EnumLabel family="dtmfMeaning" value={key.meaning} />
+      </span>
+    ),
+  },
+  {
+    key: "enabled",
+    header: t("config.dtmfEnabled"),
+    cell: (key) => (
+      <span data-testid={`dtmf-enabled-${key.key}`}>
+        <BooleanCell value={key.enabled} />
+      </span>
+    ),
+  },
+];

@@ -4,11 +4,10 @@ import { AdminActionDialog } from "@/components/admin/AdminActionDialog";
 import { usePermissions } from "@/components/rbac/PermissionProvider";
 import { REASON_MAX_LENGTH } from "@/lib/admin/action-state";
 import type { IvrReviewItemDetail, IvrTechnicalExceptionDetail } from "@/lib/api/types";
+import { ButtonGroup, TextareaField } from "@/components/ui";
 import { t } from "@/lib/i18n";
 
 import { adminReviewAction, technicalRetryAction } from "./actions";
-import controls from "@/components/forms/Controls.module.css";
-import styles from "./CallDetailActions.module.css";
 
 export interface CallDetailActionsProps {
   readonly technicalExceptions: readonly IvrTechnicalExceptionDetail[];
@@ -42,7 +41,7 @@ export function CallDetailActions({
   }
 
   return (
-    <div className={styles.actions}>
+    <ButtonGroup>
       {retryable.map((exception) => (
         <AdminActionDialog
           key={exception.technical_exception_id}
@@ -66,19 +65,16 @@ export function CallDetailActions({
           action={adminReviewAction}
           hiddenFields={{ reviewItemId: item.review_item_id }}
         >
-          <label className={controls.field}>
-            <span className={controls.label}>{t("detail.resolutionLabel")}</span>
-            <textarea
-              name="resolution"
-              required
-              rows={2}
-              maxLength={REASON_MAX_LENGTH}
-              placeholder={t("detail.resolutionPlaceholder")}
-              className={controls.textarea}
-            />
-          </label>
+          <TextareaField
+            label={t("detail.resolutionLabel")}
+            name="resolution"
+            required
+            rows={2}
+            maxLength={REASON_MAX_LENGTH}
+            placeholder={t("detail.resolutionPlaceholder")}
+          />
         </AdminActionDialog>
       ))}
-    </div>
+    </ButtonGroup>
   );
 }

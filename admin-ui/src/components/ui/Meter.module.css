@@ -1,0 +1,65 @@
+/*
+ * A rate, drawn as well as written.
+ *
+ * The number stays the primary reading — the bar is a second channel for the
+ * same value, not a replacement, so nothing here depends on the reader being
+ * able to judge a length. That is also why the track is labelled by the figure
+ * beside it rather than carrying its own tooltip.
+ *
+ * The fill is --ivr-data-fill, the same navy the trend chart uses: a bar is
+ * data, not an action, and must not read as the gold primary control.
+ */
+
+.meter {
+  display: grid;
+  gap: var(--ivr-space-1);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ivr-space-3);
+}
+
+.label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ivr-text-subtle);
+}
+
+.value {
+  font-size: var(--ivr-text-base);
+  font-weight: 700;
+  color: var(--ivr-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  height: 6px;
+  border-radius: var(--ivr-radius-pill);
+  background: var(--ivr-surface-sunken);
+  border: 1px solid var(--ivr-border);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: var(--ivr-radius-pill);
+  background: var(--ivr-data-fill);
+  transition: width var(--ivr-transition-slow);
+}
+
+.meter[data-tone="success"] .fill {
+  background: var(--ivr-success);
+}
+
+.meter[data-tone="warning"] .fill {
+  background: var(--ivr-warning);
+}
+
+.meter[data-tone="danger"] .fill {
+  background: var(--ivr-danger);
+}

@@ -1,0 +1,208 @@
+/*
+ * The table treatment for every data screen.
+ *
+ * Density is tuned for an operations console: compact rows, a sticky header so
+ * column meaning survives a long scroll, and tabular numerals so figures line
+ * up down a column.
+ *
+ * Three things here are load-bearing rather than decorative:
+ *
+ * - The header is sticky. An operator scrolling row 200 of a call log must not
+ *   have to scroll back up to find out which column holds the deadline.
+ * - The first column can be pinned. Nine-column tables scroll horizontally on a
+ *   laptop, and a row whose identifier has scrolled off screen is unreadable.
+ * - The scroll container is focusable and labelled. A pane that scrolls but
+ *   cannot be reached by keyboard fails WCAG 2.1.1.
+ */
+
+.frame {
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius-lg);
+  background: var(--ivr-surface);
+  box-shadow: var(--ivr-shadow-card);
+  overflow: hidden;
+}
+
+.scroll {
+  overflow-x: auto;
+  /* Fades the right edge while there is more table to the right, so a
+     horizontally scrollable table announces itself instead of looking cropped. */
+  background:
+    linear-gradient(to right, var(--ivr-surface) 30%, transparent),
+    linear-gradient(to left, var(--ivr-surface) 30%, transparent) 100% 0,
+    radial-gradient(farthest-side at 0 50%, rgb(11 31 58 / 12%), transparent),
+    radial-gradient(farthest-side at 100% 50%, rgb(11 31 58 / 12%), transparent) 100% 0;
+  background-repeat: no-repeat;
+  background-size: 3rem 100%, 3rem 100%, 0.75rem 100%, 0.75rem 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+
+.scroll:focus-visible {
+  outline: 2px solid var(--ivr-focus);
+  outline-offset: -2px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--ivr-text-sm);
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-align: left;
+  padding: var(--ivr-space-3);
+  background: var(--ivr-surface-raised);
+  border-bottom: 1px solid var(--ivr-border);
+  color: var(--ivr-text-subtle);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: var(--ivr-space-3);
+  border-bottom: 1px solid var(--ivr-border);
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.compact tbody td,
+.compact thead th {
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+}
+
+/*
+ * Column dividers.
+ *
+ * These tables run to nine columns of short, similar-looking values — enum
+ * names, timestamps, counts — and with only horizontal rules the eye drifts
+ * sideways between "trạng thái" and "hàng đợi" while reading down. The rule is
+ * the same hairline as the row separator so the grid reads as one weight
+ * rather than a cage, and the last column drops it: an edge already exists
+ * there, and doubling it thickens the frame.
+ */
+.table thead th,
+.table tbody td {
+  border-right: 1px solid var(--ivr-border);
+}
+
+.table thead th:last-child,
+.table tbody td:last-child {
+  border-right: none;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr {
+  transition: background-color var(--ivr-transition);
+}
+
+.table tbody tr:hover td {
+  background: var(--ivr-surface-hover);
+}
+
+/* Zebra banding for wide tables, where the eye loses the row between column 1
+   and column 9. Kept off narrow tables: there it is just noise. */
+.zebra tbody tr:nth-child(even) td {
+  background: var(--ivr-surface-raised);
+}
+
+.zebra tbody tr:hover td {
+  background: var(--ivr-surface-hover);
+}
+
+/*
+ * Pinned identifier column. The header cell needs the higher z-index because it
+ * is sticky on both axes at once.
+ *
+ * Its right edge is drawn heavier than the ordinary column divider, and carries
+ * a short shadow. Once every column has a hairline, a hairline no longer says
+ * "this column is standing still while the rest scrolls under it" — the weight
+ * and the shadow do.
+ */
+.pinned tbody td:first-child,
+.pinned thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--ivr-surface);
+  border-right: 1px solid var(--ivr-border-strong);
+  box-shadow: 2px 0 4px rgb(11 31 58 / 6%);
+}
+
+.pinned thead th:first-child {
+  z-index: 3;
+  background: var(--ivr-surface-raised);
+}
+
+.pinned tbody tr:hover td:first-child {
+  background: var(--ivr-surface-hover);
+}
+
+.pinned.zebra tbody tr:nth-child(even) td:first-child {
+  background: var(--ivr-surface-raised);
+}
+
+.caption {
+  caption-side: bottom;
+  text-align: left;
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-subtle);
+  border-top: 1px solid var(--ivr-border);
+  background: var(--ivr-surface-raised);
+}
+
+/** Identifiers, hashes and enum values. */
+.mono {
+  font-family: var(--ivr-font-mono);
+  font-size: var(--ivr-text-xs);
+}
+
+/*
+ * Prose cells that may wrap, such as a reason or a permission list.
+ *
+ * Scoped through `.table tbody td` deliberately. The base cell rule above is
+ * `.table tbody td` — one class and two type selectors — and it sets
+ * `white-space: nowrap`. A bare `.wrap` class is one class, so it lost the
+ * cascade on every `variant: "wrap"` column in the console: the cells never
+ * wrapped, the long ones ran on one line, and the table answered by scrolling
+ * sideways. Matching the base rule's specificity is what makes the variant
+ * mean anything.
+ *
+ * `overflow-wrap: break-word` is the floor under that: a single unbroken token
+ * wider than the column — `IVR_ACCOUNT_PASSWORD_RESET` on a narrow viewport —
+ * would otherwise push the column back out past the frame and bring the
+ * horizontal scroll with it.
+ */
+.table tbody td.wrap {
+  white-space: normal;
+  overflow-wrap: break-word;
+  min-width: 15rem;
+  max-width: 34rem;
+}
+
+/** Right-aligned numeric column. */
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.alignEnd {
+  text-align: right;
+}
+
+/* The empty row spans the full width so the message sits under the headers
+   rather than crushed into the first column. */
+.emptyCell {
+  padding: 0 !important;
+  border-bottom: none !important;
+}

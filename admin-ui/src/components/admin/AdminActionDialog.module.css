@@ -1,30 +1,50 @@
+/*
+ * The modal shell for a single admin mutation.
+ *
+ * A native `dialog` with `showModal()`: the browser supplies the focus trap,
+ * the inert background, Escape-to-close and the top layer. Re-implementing any
+ * of those would mean re-earning behaviour that already works with assistive
+ * technology.
+ *
+ * Everything inside the shell — fields, buttons, the audit notice, the success
+ * receipt — comes from the shared kit, so this file holds only the dialog
+ * itself.
+ */
+
 .wrapper {
   display: inline-block;
 }
 
 .dialog {
   border: 1px solid var(--ivr-border);
-  border-radius: var(--ivr-radius);
+  border-radius: var(--ivr-radius-lg);
   background: var(--ivr-surface);
   color: var(--ivr-text);
-  box-shadow: var(--ivr-shadow-raised);
+  box-shadow: var(--ivr-shadow-overlay);
   padding: 0;
   max-width: 34rem;
   width: calc(100vw - 2rem);
 }
 
 .dialog::backdrop {
-  background: rgb(15 23 42 / 55%);
+  background: rgb(11 31 58 / 55%);
+  backdrop-filter: blur(2px);
 }
 
-.dialog > form {
+/* The gold hairline again: this is the console's most consequential surface,
+   and the top edge is where the eye lands when the dialog opens. */
+.form {
+  display: grid;
+  gap: var(--ivr-space-4);
   padding: var(--ivr-space-5);
+  border-top: 3px solid var(--ivr-brand-gold);
+  border-radius: var(--ivr-radius-lg) var(--ivr-radius-lg) 0 0;
 }
 
 .title {
   margin: 0;
   font-size: var(--ivr-text-lg);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.015em;
 }
 
@@ -34,20 +54,8 @@
   font-size: var(--ivr-text-sm);
 }
 
-.notice {
-  margin: 0;
-  font-size: var(--ivr-text-xs);
-  color: var(--ivr-text-subtle);
-  border-left: 2px solid var(--ivr-border-strong);
-  padding-left: var(--ivr-space-3);
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--ivr-space-2);
-}
-
+/* The receipt an operator quotes in a ticket. It stays on screen after a
+   successful submit rather than the dialog closing out from under them. */
 .success {
   display: grid;
   gap: var(--ivr-space-2);
@@ -55,28 +63,4 @@
   border-radius: var(--ivr-radius);
   background: var(--ivr-success-surface);
   padding: var(--ivr-space-3);
-  font-size: var(--ivr-text-sm);
-}
-
-.success p {
-  margin: 0;
-  font-weight: 600;
-}
-
-.successMeta {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--ivr-space-1) var(--ivr-space-3);
-  margin: 0;
-  font-size: var(--ivr-text-xs);
-}
-
-.successMeta dt {
-  color: var(--ivr-text-subtle);
-}
-
-.successMeta dd {
-  margin: 0;
-  font-family: var(--ivr-font-mono);
-  word-break: break-all;
 }

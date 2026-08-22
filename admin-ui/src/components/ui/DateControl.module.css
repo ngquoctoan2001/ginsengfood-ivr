@@ -1,0 +1,261 @@
+/*
+ * The calendar that replaces the platform date popup once the page has
+ * hydrated.
+ *
+ * Same bargain as SelectControl: the server renders `input[type=date]` and the
+ * calendar takes over after mount, so the field still works with JavaScript
+ * off. The date popup is the strongest case for making that swap — it is the
+ * one control in this console the browser will not let a stylesheet touch, so
+ * a filter row that mixed it with everything else always read as two products
+ * bolted together.
+ */
+
+.anchor {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.trigger {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ivr-space-2);
+  background: var(--ivr-surface);
+  border: 1px solid var(--ivr-border-strong);
+  border-radius: var(--ivr-radius-sm);
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  min-height: 2.25rem;
+  font-family: inherit;
+  font-size: var(--ivr-text-sm);
+  font-weight: 500;
+  color: var(--ivr-text);
+  text-align: left;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: border-color var(--ivr-transition), box-shadow var(--ivr-transition),
+    background-color var(--ivr-transition);
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--ivr-text-subtle);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  border-color: var(--ivr-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivr-focus) 22%, transparent);
+}
+
+.trigger[aria-expanded="true"] {
+  border-color: var(--ivr-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivr-focus) 22%, transparent);
+}
+
+.trigger:disabled {
+  background: var(--ivr-surface-sunken);
+  color: var(--ivr-text-subtle);
+  cursor: not-allowed;
+}
+
+.trigger[aria-invalid="true"] {
+  border-color: var(--ivr-danger);
+}
+
+.placeholder {
+  color: var(--ivr-text-subtle);
+}
+
+.icon {
+  flex: none;
+  color: var(--ivr-text-subtle);
+}
+
+/*
+ * Fixed and positioned from JavaScript — see useAnchoredPosition. The filter
+ * bar clips its contents to round its corners, and an absolutely positioned
+ * calendar inside it came out with its header and its last week cut off.
+ * Placement arrives as inline style; the width is set here as a fallback and
+ * repeated to the hook so it can keep the panel inside the viewport.
+ */
+.calendar {
+  position: fixed;
+  z-index: 40;
+  width: 17.5rem;
+  padding: var(--ivr-space-3);
+  background: var(--ivr-surface);
+  border: 1px solid var(--ivr-border-strong);
+  border-radius: var(--ivr-radius);
+  box-shadow: var(--ivr-shadow-pop);
+  animation: popIn 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ivr-space-2);
+  margin-bottom: var(--ivr-space-3);
+}
+
+.month {
+  font-size: var(--ivr-text-sm);
+  font-weight: 700;
+  color: var(--ivr-text);
+  text-transform: capitalize;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius-sm);
+  background: var(--ivr-surface);
+  color: var(--ivr-text-muted);
+  cursor: pointer;
+  transition: background-color var(--ivr-transition), border-color var(--ivr-transition),
+    color var(--ivr-transition);
+}
+
+.nav:hover {
+  background: var(--ivr-surface-hover);
+  border-color: var(--ivr-border-strong);
+  color: var(--ivr-text);
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ivr-text-subtle);
+  padding: var(--ivr-space-1) 0;
+}
+
+/* Rows, not cells: the seven columns are laid out by `.week` below. */
+.grid {
+  display: grid;
+  gap: 2px;
+}
+
+.day {
+  aspect-ratio: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--ivr-radius-sm);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--ivr-text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ivr-text);
+  cursor: pointer;
+  transition: background-color var(--ivr-transition), color var(--ivr-transition);
+}
+
+.day:hover:not(:disabled) {
+  background: var(--ivr-surface-hover);
+}
+
+.day:focus-visible {
+  outline: 2px solid var(--ivr-focus);
+  outline-offset: -1px;
+}
+
+/* Days spilling in from a neighbouring month stay visible rather than blank:
+   an operator picking the 1st should see which weekday it lands on. */
+.outside {
+  color: var(--ivr-text-subtle);
+  opacity: 0.5;
+}
+
+.day:disabled {
+  color: var(--ivr-text-subtle);
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/*
+ * Today is outlined, the chosen day is filled. The two frequently coincide and
+ * must still be distinguishable — which is also why the chosen day is not
+ * signalled by colour alone: it carries aria-selected for assistive
+ * technology.
+ *
+ * The fill is brand gold with dark ink on top, never white (globals.css
+ * rule 1).
+ */
+.today {
+  border-color: var(--ivr-border-strong);
+  font-weight: 700;
+}
+
+.selected,
+.selected:hover:not(:disabled) {
+  background: var(--ivr-brand-gold);
+  border-color: var(--ivr-brand-gold);
+  color: var(--ivr-on-gold);
+  font-weight: 700;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ivr-space-2);
+  margin-top: var(--ivr-space-3);
+  padding-top: var(--ivr-space-2);
+  border-top: 1px solid var(--ivr-border);
+}
+
+.action {
+  border: none;
+  background: none;
+  padding: var(--ivr-space-1) var(--ivr-space-2);
+  border-radius: var(--ivr-radius-sm);
+  font-family: inherit;
+  font-size: var(--ivr-text-xs);
+  font-weight: 600;
+  color: var(--ivr-link);
+  cursor: pointer;
+}
+
+.action:hover {
+  background: var(--ivr-surface-hover);
+  color: var(--ivr-text);
+}
+
+@media (pointer: coarse) {
+  .trigger {
+    min-height: 2.75rem;
+  }
+}
+
+/* One row per calendar week — the grid's rows are real rows, so assistive
+   technology can announce a position rather than reading 42 loose cells. */
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}

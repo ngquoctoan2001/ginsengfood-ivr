@@ -17,7 +17,7 @@
   background: var(--ivr-surface);
   border: 1px solid var(--ivr-border);
   border-top: 3px solid var(--ivr-brand-gold);
-  border-radius: var(--ivr-radius);
+  border-radius: var(--ivr-radius-lg);
   padding: var(--ivr-space-6);
   box-shadow: var(--ivr-shadow-raised);
 }
@@ -44,19 +44,4 @@
   margin: 0;
   color: var(--ivr-text-muted);
   font-size: var(--ivr-text-sm);
-}
-
-.notice {
-  margin: 0;
-  font-size: var(--ivr-text-xs);
-  color: var(--ivr-text-muted);
-}
-
-.blocked {
-  margin: 0;
-  padding: var(--ivr-space-3);
-  border: 1px solid var(--ivr-warning);
-  background: var(--ivr-warning-surface);
-  border-radius: var(--ivr-radius);
-  font-size: 0.9rem;
 }

@@ -1,0 +1,106 @@
+/*
+ * The panel every section of the console sits in.
+ *
+ * Seven page modules each declared their own `.section` and `.sectionTitle`,
+ * and they had drifted into four different paddings and three different heading
+ * sizes. One component, one measurement.
+ *
+ * The optional gold top rule is the accent budget rule 2 in globals.css allows:
+ * a decorative hairline that carries no control state. It marks the card that
+ * matters on a screen — never every card, or it stops meaning anything.
+ */
+
+.card {
+  position: relative;
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius-lg);
+  background: var(--ivr-surface);
+  box-shadow: var(--ivr-shadow-card);
+  overflow: hidden;
+}
+
+/* The gold hairline. Drawn as a pseudo-element rather than a border-top so it
+   sits inside the rounded corner instead of squaring it off. */
+.accent::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--ivr-brand-gold) 0%,
+    var(--ivr-brand-gold) 38%,
+    color-mix(in srgb, var(--ivr-brand-gold) 30%, transparent) 100%
+  );
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ivr-space-3);
+  padding: var(--ivr-space-4) var(--ivr-space-5);
+  border-bottom: 1px solid var(--ivr-border);
+  background: var(--ivr-surface-raised);
+}
+
+.headingBlock {
+  display: grid;
+  gap: var(--ivr-space-1);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--ivr-text-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ivr-text);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--ivr-text-sm);
+  color: var(--ivr-text-muted);
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ivr-space-2);
+}
+
+.body {
+  padding: var(--ivr-space-5);
+  display: grid;
+  gap: var(--ivr-space-4);
+}
+
+/* For a card whose only child is a table or a chart: the child draws its own
+   edges, so the padding would double them up. */
+.flush {
+  padding: 0;
+  gap: 0;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ivr-space-3);
+  padding: var(--ivr-space-3) var(--ivr-space-5);
+  border-top: 1px solid var(--ivr-border);
+  background: var(--ivr-surface-raised);
+  font-size: var(--ivr-text-sm);
+  color: var(--ivr-text-muted);
+}
+
+/* A vertical run of cards down a page, at one consistent rhythm. */
+.stack {
+  display: grid;
+  gap: var(--ivr-space-5);
+  align-content: start;
+}

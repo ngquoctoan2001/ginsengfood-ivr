@@ -1,0 +1,163 @@
+/*
+ * The listbox that replaces the platform dropdown once the page has hydrated.
+ *
+ * Progressive enhancement, not replacement: the server renders a real `select`
+ * and the component swaps itself for this only after mount. With JavaScript
+ * off, the native control is what stays on screen and the filter form still
+ * submits — the property every GET filter in this console is built on.
+ *
+ * The trigger deliberately reuses the same box as Field.module.css `.control`:
+ * a filter row mixing an enhanced select with a plain text input must not show
+ * two different heights or two different borders.
+ */
+
+.anchor {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.trigger {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ivr-space-2);
+  background: var(--ivr-surface);
+  border: 1px solid var(--ivr-border-strong);
+  border-radius: var(--ivr-radius-sm);
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  min-height: 2.25rem;
+  font-family: inherit;
+  font-size: var(--ivr-text-sm);
+  font-weight: 500;
+  color: var(--ivr-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--ivr-transition), box-shadow var(--ivr-transition),
+    background-color var(--ivr-transition);
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--ivr-text-subtle);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  border-color: var(--ivr-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivr-focus) 22%, transparent);
+}
+
+.trigger[aria-expanded="true"] {
+  border-color: var(--ivr-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivr-focus) 22%, transparent);
+}
+
+.trigger[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+.trigger:disabled {
+  background: var(--ivr-surface-sunken);
+  color: var(--ivr-text-subtle);
+  cursor: not-allowed;
+}
+
+.trigger[aria-invalid="true"] {
+  border-color: var(--ivr-danger);
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "No constraint" sits in the subtle ramp, so an untouched filter reads
+   differently from a set one without needing a second glance. */
+.placeholder {
+  color: var(--ivr-text-subtle);
+}
+
+.chevron {
+  flex: none;
+  color: var(--ivr-text-subtle);
+  transition: transform var(--ivr-transition);
+}
+
+/*
+ * Fixed, not absolute, and positioned from JavaScript — see useAnchoredPosition
+ * for why. Short version: the filter bar and the card both clip their contents
+ * to round their corners, and an absolutely positioned menu inside either came
+ * out sliced. Fixed leaves that flow entirely, so `top`/`left`/`bottom` arrive
+ * as inline style rather than being declared here.
+ */
+.popover {
+  position: fixed;
+  z-index: 40;
+  max-height: 16rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--ivr-space-1);
+  list-style: none;
+  background: var(--ivr-surface);
+  border: 1px solid var(--ivr-border-strong);
+  border-radius: var(--ivr-radius);
+  box-shadow: var(--ivr-shadow-pop);
+  animation: popIn 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ivr-space-3);
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  border-radius: var(--ivr-radius-sm);
+  font-size: var(--ivr-text-sm);
+  color: var(--ivr-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/*
+ * Hover and keyboard position are the same visual state on purpose: DOM focus
+ * stays on the trigger and the active option is tracked with
+ * aria-activedescendant, so there is no second focus ring to reconcile.
+ */
+.option[data-active="true"] {
+  background: var(--ivr-surface-hover);
+}
+
+.option[aria-selected="true"] {
+  background: var(--ivr-info-surface);
+  color: var(--ivr-info);
+  font-weight: 600;
+}
+
+.option[aria-selected="true"][data-active="true"] {
+  background: color-mix(in srgb, var(--ivr-info-surface) 65%, var(--ivr-surface-hover));
+}
+
+.tick {
+  flex: none;
+  color: var(--ivr-info);
+}
+
+@media (pointer: coarse) {
+  .trigger {
+    min-height: 2.75rem;
+  }
+
+  .option {
+    min-height: 2.5rem;
+  }
+}

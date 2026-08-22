@@ -1,0 +1,70 @@
+/*
+ * A small, mutually exclusive choice — a time bucket, a breakdown dimension.
+ *
+ * Built from real radio inputs with the boxes hidden, not from buttons with
+ * click handlers. That keeps arrow-key navigation, the radiogroup role and the
+ * form submission the console's GET filters rely on, all without a line of
+ * client JavaScript. The selected pill is drawn with `:has(:checked)`.
+ *
+ * Use it up to about four options; past that a select reads better.
+ */
+
+.group {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--ivr-border-strong);
+  border-radius: var(--ivr-radius-pill);
+  background: var(--ivr-surface-sunken);
+}
+
+.option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ivr-space-1) var(--ivr-space-4);
+  border-radius: var(--ivr-radius-pill);
+  font-size: var(--ivr-text-xs);
+  font-weight: 600;
+  color: var(--ivr-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--ivr-transition), color var(--ivr-transition),
+    box-shadow var(--ivr-transition);
+}
+
+.option:hover {
+  color: var(--ivr-text);
+  background: var(--ivr-surface-hover);
+}
+
+/* The input stays in the accessibility tree and keeps its focus behaviour; it
+   is only visually replaced by the pill. */
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.option:has(.input:checked) {
+  background: var(--ivr-surface);
+  color: var(--ivr-text);
+  box-shadow: var(--ivr-shadow-card);
+}
+
+/* Focus has to be drawn on the pill, since the input it belongs to is invisible.
+   Without this the keyboard user loses the ring entirely. */
+.option:has(.input:focus-visible) {
+  outline: 2px solid var(--ivr-focus);
+  outline-offset: 1px;
+}
+
+@media (pointer: coarse) {
+  .option {
+    min-height: 2.5rem;
+  }
+}

@@ -1,15 +1,26 @@
+import { EnumLabel } from "@/components/data/EnumLabel";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { DataTable, type Column } from "@/components/ui";
 import { formatRate } from "@/lib/analytics/format";
 import type { IvrAnalyticsBreakdownRow } from "@/lib/api/types";
 import { formatNumber, t } from "@/lib/i18n";
-
-import table from "@/components/data/DataTable.module.css";
-import styles from "./BreakdownTable.module.css";
+import type { EnumFamily } from "@/lib/i18n/enum";
 
 export interface BreakdownTableProps {
   readonly caption: string;
   readonly keyLabel: string;
   readonly rows: readonly IvrAnalyticsBreakdownRow[];
   readonly testId: string;
+  /**
+   * Which dictionary `row.key` belongs to — it changes with the dimension being
+   * broken down: result types on one panel, programs on the next.
+   *
+   * Absent for SCRIPT_VARIANT, whose values are script version identifiers
+   * (`v3-test-approved`) rather than an enum. Rendering those through a
+   * dictionary would mark every one of them untranslated, which would be the
+   * warning glyph crying wolf on data that is working exactly as intended.
+   */
+  readonly family?: EnumFamily;
 }
 
 /**
@@ -17,40 +28,71 @@ export interface BreakdownTableProps {
  * cleared the k-anonymity threshold, so there is nothing here to drill into
  * beyond the bucket itself — which is exactly the intent of D-05.
  */
-export function BreakdownTable({ caption, keyLabel, rows, testId }: BreakdownTableProps) {
-  if (rows.length === 0) {
-    return (
-      <p className={styles.empty} data-testid={`${testId}-empty`}>
-        {t("reports.breakdownEmpty")}
-      </p>
-    );
-  }
-
+export function BreakdownTable({
+  caption,
+  keyLabel,
+  rows,
+  testId,
+  family,
+}: BreakdownTableProps) {
   return (
-    <div className={table.scroll}>
-      <table className={table.table} data-testid={testId}>
-        <caption className={styles.caption}>{caption}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{keyLabel}</th>
-            <th scope="col">{t("reports.colTotal")}</th>
-            <th scope="col">{t("reports.colConfirmed")}</th>
-            <th scope="col">{t("reports.colConfirmRate")}</th>
-            <th scope="col">{t("reports.colShare")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.key}>
-              <td className={table.mono}>{row.key}</td>
-              <td>{formatNumber(row.total)}</td>
-              <td>{formatNumber(row.confirmed)}</td>
-              <td>{formatRate(row.confirm_rate)}</td>
-              <td>{formatRate(row.share)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      label={caption}
+      caption={caption}
+      testId={testId}
+      columns={columnsFor(keyLabel, family)}
+      rows={rows}
+      rowKey={(row) => row.key}
+      density="compact"
+      zebra
+      empty={
+        <div data-testid={`${testId}-empty`}>
+          <EmptyState inTable body={t("reports.breakdownEmpty")} />
+        </div>
+      }
+    />
   );
+}
+
+/**
+ * Built per call because the first column's header is the dimension being
+ * broken down — result type on one panel, script variant on the next.
+ */
+function columnsFor(
+  keyLabel: string,
+  family: EnumFamily | undefined,
+): readonly Column<IvrAnalyticsBreakdownRow>[] {
+  return [
+    {
+      key: "key",
+      header: keyLabel,
+      variant: family === undefined ? "mono" : undefined,
+      cell: (row) =>
+        family === undefined ? row.key : <EnumLabel family={family} value={row.key} />,
+    },
+    {
+      key: "total",
+      header: t("reports.colTotal"),
+      variant: "numeric",
+      cell: (row) => formatNumber(row.total),
+    },
+    {
+      key: "confirmed",
+      header: t("reports.colConfirmed"),
+      variant: "numeric",
+      cell: (row) => formatNumber(row.confirmed),
+    },
+    {
+      key: "confirmRate",
+      header: t("reports.colConfirmRate"),
+      variant: "numeric",
+      cell: (row) => formatRate(row.confirm_rate),
+    },
+    {
+      key: "share",
+      header: t("reports.colShare"),
+      variant: "numeric",
+      cell: (row) => formatRate(row.share),
+    },
+  ];
 }

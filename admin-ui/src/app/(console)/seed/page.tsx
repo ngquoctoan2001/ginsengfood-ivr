@@ -1,9 +1,8 @@
 import { MetricGrid, type Metric } from "@/components/data/MetricGrid";
+import { Callout, Card, CardStack, ChipList, PageHeader } from "@/components/ui";
 import { readConfig } from "@/lib/config/env";
-import { requireSession } from "@/lib/auth/guard";
+import { requireAdmin } from "@/lib/auth/guard";
 import { t } from "@/lib/i18n";
-
-import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -19,18 +18,16 @@ export const dynamic = "force-dynamic";
  * console does not open a write path into the database.
  */
 export default async function SeedMockPage() {
-  await requireSession();
+  await requireAdmin();
   const config = readConfig();
 
   if (!config.isNonProductionEnvironment) {
     return (
       <>
-        <header className={styles.header}>
-          <h1 className={styles.title}>{t("seed.title")}</h1>
-        </header>
-        <p className={styles.locked} role="alert" data-testid="seed-prod-locked">
+        <PageHeader title={t("seed.title")} />
+        <Callout tone="locked" role="alert" testId="seed-prod-locked">
           {t("seed.prodLocked")}
-        </p>
+        </Callout>
       </>
     );
   }
@@ -52,37 +49,42 @@ export default async function SeedMockPage() {
 
   return (
     <>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{t("seed.title")}</h1>
-        <p className={styles.subtitle}>{t("seed.subtitle")}</p>
-      </header>
+      <PageHeader
+        title={t("seed.title")}
+        subtitle={t("seed.subtitle")}
+        breadcrumb={{
+          label: t("nav.breadcrumbLabel"),
+          items: [
+            { label: t("nav.console"), href: "/dashboard" },
+            { label: t("nav.seed") },
+          ],
+        }}
+      />
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("seed.adapterTitle")}</h2>
-        <MetricGrid metrics={adapterMetrics} />
-        <p className={styles.locked} data-testid="real-mode-locked">
-          {t("seed.realLocked")}
-        </p>
-      </section>
+      <CardStack>
+        <Card title={t("seed.adapterTitle")} accent>
+          <MetricGrid metrics={adapterMetrics} />
+          <Callout tone="locked" testId="real-mode-locked">
+            {t("seed.realLocked")}
+          </Callout>
+        </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("seed.loaderTitle")}</h2>
-        <p className={styles.notice} data-testid="seed-loader-unavailable">
-          {t("seed.loaderUnavailable")}
-        </p>
-      </section>
+        <Card title={t("seed.loaderTitle")}>
+          <Callout tone="locked" testId="seed-loader-unavailable">
+            {t("seed.loaderUnavailable")}
+          </Callout>
+        </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("seed.profilesTitle")}</h2>
-        <ul className={styles.chips}>
-          {INTEGRATION_STATUS_PROFILES.map((profile) => (
-            <li key={profile} className={styles.chip}>
-              {profile}
-            </li>
-          ))}
-        </ul>
-        <p className={styles.notice}>{t("seed.profileSource")}</p>
-      </section>
+        <Card title={t("seed.profilesTitle")} footer={t("seed.profileSource")}>
+          <ChipList
+            label={t("seed.profilesTitle")}
+            items={INTEGRATION_STATUS_PROFILES.map((profile) => ({
+              key: profile,
+              label: profile,
+            }))}
+          />
+        </Card>
+      </CardStack>
     </>
   );
 }

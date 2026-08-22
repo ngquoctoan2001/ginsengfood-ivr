@@ -1,0 +1,249 @@
+/*
+ * Every control the operator types into or picks from.
+ *
+ * This replaces components/forms/Controls.module.css, which five screens shared
+ * but three of them overrode locally. The rules that matter:
+ *
+ * - The boundary is --ivr-border-strong, never gold. WCAG 1.4.11 wants 3:1 for
+ *   a control edge and gold on white is 2.26:1 (globals.css rule 2).
+ * - Focus is a ring *and* a border-colour change, so it survives a Windows
+ *   high-contrast theme that drops box-shadow.
+ * - Invalid state is announced by the message under the control, not by the red
+ *   edge alone — colour never travels by itself here either.
+ */
+
+.field {
+  display: grid;
+  gap: var(--ivr-space-1);
+  min-width: 0;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ivr-space-1);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ivr-text-subtle);
+}
+
+/* An asterisk alone is a convention, not a label; the word travels with it in
+   an sr-only span from the component. */
+.required {
+  color: var(--ivr-danger);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-subtle);
+}
+
+.error {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ivr-space-1);
+  font-size: var(--ivr-text-xs);
+  font-weight: 600;
+  color: var(--ivr-danger);
+}
+
+/* ---------------------------------------------------------------- controls */
+
+.control {
+  width: 100%;
+  min-width: 0;
+  background: var(--ivr-surface);
+  border: 1px solid var(--ivr-border-strong);
+  border-radius: var(--ivr-radius-sm);
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  font-size: var(--ivr-text-sm);
+  color: var(--ivr-text);
+  min-height: 2.25rem;
+  transition: border-color var(--ivr-transition), box-shadow var(--ivr-transition),
+    background-color var(--ivr-transition);
+}
+
+.control::placeholder {
+  color: var(--ivr-text-subtle);
+  opacity: 1;
+}
+
+.control:hover:not(:disabled) {
+  border-color: var(--ivr-text-subtle);
+}
+
+.control:focus {
+  outline: none;
+  border-color: var(--ivr-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivr-focus) 22%, transparent);
+}
+
+.control:disabled {
+  background: var(--ivr-surface-sunken);
+  color: var(--ivr-text-subtle);
+  cursor: not-allowed;
+}
+
+.control[aria-invalid="true"] {
+  border-color: var(--ivr-danger);
+}
+
+.control[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ivr-danger) 22%, transparent);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+  line-height: 1.5;
+}
+
+.mono {
+  font-family: var(--ivr-font-mono);
+  letter-spacing: 0;
+}
+
+/* Width presets, so a row of filters lines up instead of every control sizing
+   itself to its own content. */
+.sizeSm {
+  max-width: 9rem;
+}
+
+.sizeMd {
+  max-width: 14rem;
+}
+
+.sizeLg {
+  max-width: 22rem;
+}
+
+.sizeFull {
+  max-width: none;
+}
+
+/* ------------------------------------------------------- input with adornment */
+
+.adorned {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.adorned .control {
+  padding-left: 2.1rem;
+}
+
+.adornment {
+  position: absolute;
+  left: var(--ivr-space-3);
+  display: inline-flex;
+  color: var(--ivr-text-subtle);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------- select */
+
+.selectWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/*
+ * A native `select` with the platform arrow removed and ours drawn in its
+ * place. Native is deliberate: it keeps the OS picker on mobile, needs no
+ * client JavaScript, and posts inside a plain GET form — which is how every
+ * filter on this console works.
+ */
+.select {
+  appearance: none;
+  padding-right: 2.1rem;
+  cursor: pointer;
+}
+
+.chevron {
+  position: absolute;
+  right: var(--ivr-space-3);
+  color: var(--ivr-text-subtle);
+  pointer-events: none;
+  transition: transform var(--ivr-transition);
+}
+
+.selectWrap:hover .chevron {
+  color: var(--ivr-text);
+}
+
+/* --------------------------------------------------------------- checkbox */
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ivr-space-2);
+  padding: var(--ivr-space-2) var(--ivr-space-3);
+  border: 1px solid var(--ivr-border);
+  border-radius: var(--ivr-radius-sm);
+  background: var(--ivr-surface);
+  font-size: var(--ivr-text-sm);
+  cursor: pointer;
+  min-height: 2.25rem;
+  transition: border-color var(--ivr-transition), background-color var(--ivr-transition);
+}
+
+.checkbox:hover {
+  border-color: var(--ivr-border-strong);
+  background: var(--ivr-surface-hover);
+}
+
+/* `accent-color` tints the native box, which keeps the platform's own focus and
+   indeterminate rendering rather than re-implementing them with a pseudo-box. */
+.checkboxInput {
+  accent-color: var(--ivr-focus);
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  cursor: pointer;
+}
+
+/* Checked state gets a ground as well as a tick, so a scanned column of filters
+   shows which ones are on without reading each box. */
+.checkbox:has(.checkboxInput:checked) {
+  border-color: var(--ivr-focus);
+  background: var(--ivr-info-surface);
+}
+
+/* --------------------------------------------------------------- date field */
+
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: var(--ivr-space-2);
+}
+
+.dateArrow {
+  color: var(--ivr-text-subtle);
+  flex: none;
+  margin-top: 1.1rem;
+}
+
+/* The native date control paints its own calendar button; tint it to the text
+   ramp so it does not sit at browser-default blue inside a navy console. */
+.date::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity var(--ivr-transition);
+}
+
+.date:hover::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  .control,
+  .checkbox {
+    min-height: 2.75rem;
+  }
+}

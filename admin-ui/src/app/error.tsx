@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { Button, Callout } from "@/components/ui";
 import { t } from "@/lib/i18n";
 
 import styles from "./error.module.css";
@@ -25,14 +26,13 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <div className={styles.wrapper} role="alert">
-      <h1 className={styles.title}>{t("state.errorTitle")}</h1>
-      {error.digest === undefined ? null : (
-        <p className={styles.digest}>{`digest: ${error.digest}`}</p>
-      )}
-      <button type="button" className={styles.retry} onClick={reset}>
+    <div className={styles.wrapper}>
+      <Callout tone="danger" title={t("state.errorTitle")} role="alert">
+        {error.digest === undefined ? "" : `digest: ${error.digest}`}
+      </Callout>
+      <Button variant="secondary" onClick={reset}>
         {t("state.retry")}
-      </button>
+      </Button>
     </div>
   );
 }

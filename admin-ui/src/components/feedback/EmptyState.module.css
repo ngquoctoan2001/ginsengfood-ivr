@@ -1,19 +1,58 @@
+/*
+ * Nothing to show — and why.
+ *
+ * The dashed edge is deliberate: it reads as "a container that could hold rows"
+ * rather than as a card asserting a result. What changed here is that the state
+ * now says what to do next, because "no data" and "your filter excluded
+ * everything" look identical to an operator and only one of them is fixable
+ * from the screen they are on.
+ */
+
 .empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--ivr-space-2);
   border: 1px dashed var(--ivr-border-strong);
-  border-radius: var(--ivr-radius);
-  padding: var(--ivr-space-6);
+  border-radius: var(--ivr-radius-lg);
+  padding: var(--ivr-space-7) var(--ivr-space-6);
   text-align: center;
   background: var(--ivr-surface);
 }
 
+/* Sits inside a DataTable's frame, which already draws the edge. */
+.inTable {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: var(--ivr-space-1);
+  border-radius: 50%;
+  background: var(--ivr-surface-sunken);
+  border: 1px solid var(--ivr-border);
+  color: var(--ivr-text-subtle);
+}
+
 .title {
-  margin: 0 0 var(--ivr-space-1);
-  font-weight: 600;
-  font-size: var(--ivr-text-sm);
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--ivr-text-base);
+  color: var(--ivr-text);
 }
 
 .body {
   margin: 0;
+  max-width: 44ch;
   color: var(--ivr-text-muted);
   font-size: var(--ivr-text-sm);
+}
+
+.action {
+  margin-top: var(--ivr-space-2);
 }

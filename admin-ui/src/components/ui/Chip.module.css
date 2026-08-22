@@ -1,0 +1,67 @@
+/*
+ * A short, self-describing token: a permission name, an allowed field, a
+ * scenario profile.
+ *
+ * Four page modules each grew their own `.chip`, `.chipOk`, `.chipDanger` and
+ * `.ungranted`, which is four rounding radii and four paddings for the same
+ * object.
+ *
+ * Tone here is emphasis, not state. Anything that reports an outcome — up,
+ * down, blocked, approved — belongs in StatusBadge instead, because that pairs
+ * its colour with a glyph and a word (globals.css rule 4). A chip carries only
+ * a name, so a tone on it can never be the sole carrier of meaning.
+ */
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ivr-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ivr-space-1);
+  padding: var(--ivr-space-1) var(--ivr-space-3);
+  border-radius: var(--ivr-radius-pill);
+  border: 1px solid var(--ivr-neutral-border);
+  background: var(--ivr-neutral-surface);
+  color: var(--ivr-text-muted);
+  font-family: var(--ivr-font-mono);
+  font-size: var(--ivr-text-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.success {
+  border-color: var(--ivr-success-border);
+  background: var(--ivr-success-surface);
+  color: var(--ivr-success);
+}
+
+.danger {
+  border-color: var(--ivr-danger-border);
+  background: var(--ivr-danger-surface);
+  color: var(--ivr-danger);
+}
+
+.info {
+  border-color: var(--ivr-info-border);
+  background: var(--ivr-info-surface);
+  color: var(--ivr-info);
+}
+
+.accent {
+  border-color: var(--ivr-brand-gold);
+  background: var(--ivr-accent-wash);
+  color: var(--ivr-gold-ink);
+}
+
+/* Not-in-mono variant, for chips whose content is prose rather than an identifier. */
+.prose {
+  font-family: var(--ivr-font-sans);
+  font-weight: 600;
+}

@@ -7,6 +7,7 @@ import { BreakdownTable } from "@/components/reports/BreakdownTable";
 import { ExportForm } from "@/components/reports/ExportForm";
 import { FreshnessBanner } from "@/components/reports/FreshnessBanner";
 import { TrendChart } from "@/components/reports/TrendChart";
+import { Callout, Card, CardStack, Meter, PageHeader } from "@/components/ui";
 import { getAnalyticsBreakdown, getAnalyticsSummary, getAnalyticsTrend } from "@/lib/analytics/client";
 import { formatDuration, formatRate } from "@/lib/analytics/format";
 import { IvrApiError } from "@/lib/api/errors";
@@ -17,12 +18,12 @@ import {
   type IvrAnalyticsSummary,
   type IvrAnalyticsTrend,
 } from "@/lib/api/types";
-import { requireSession } from "@/lib/auth/guard";
+import { requireAdmin, requireSession } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatNumber, t } from "@/lib/i18n";
+import { tEnum, type EnumFamily } from "@/lib/i18n/enum";
 
 import { ReportFilters } from "./ReportFilters";
-import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -35,25 +36,33 @@ export const dynamic = "force-dynamic";
  * confused for one another.
  */
 export default async function ReportsPage({ searchParams }: PageProps<"/reports">) {
+  await requireAdmin();
   const params = await searchParams;
   const query = readQuery(params);
 
   return (
     <>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{t("reports.title")}</h1>
-        <p className={styles.subtitle}>{t("reports.subtitle")}</p>
-      </header>
+      <PageHeader
+        title={t("reports.title")}
+        subtitle={t("reports.subtitle")}
+        breadcrumb={{
+          label: t("nav.breadcrumbLabel"),
+          items: [
+            { label: t("nav.console"), href: "/dashboard" },
+            { label: t("nav.reports") },
+          ],
+        }}
+      />
 
-      <p className={styles.scopeNotice} data-testid="reports-scope-notice">
+      <Callout tone="info" testId="reports-scope-notice">
         {t("reports.scopeNotice")}
-      </p>
+      </Callout>
 
       <ReportFilters {...query} />
 
       <Suspense
         key={Object.values(query).join("|")}
-        fallback={<LoadingSkeleton rows={8} />}
+        fallback={<LoadingSkeleton rows={8} variant="metrics" />}
       >
         <ReportPanels query={query} />
       </Suspense>
@@ -114,11 +123,6 @@ async function ReportPanels({ query }: { query: ReportQuery }) {
   // Every figure below is already computed by the analytics API; the console
   // formats, it never derives (P3-4 §4).
   const rateMetrics: Metric[] = [
-    {
-      label: t("reports.kpiConfirmRate"),
-      value: formatRate(summary.kpi.confirm_rate),
-      testId: "kpi-confirm-rate",
-    },
     { label: t("reports.kpiCancelRate"), value: formatRate(summary.kpi.cancel_rate) },
     { label: t("reports.kpiNoAnswerRate"), value: formatRate(summary.kpi.no_answer_rate) },
     {
@@ -131,16 +135,13 @@ async function ReportPanels({ query }: { query: ReportQuery }) {
       tone: summary.kpi.technical_rate > 0 ? "warning" : undefined,
     },
     {
+      // Null is the expected answer here, not an error: a pre-call block leaves
+      // no call result to count, so the rate stays null until an intake-block
+      // fact source exists (DT-06). formatRate renders that as an em dash — the
+      // screen must not round it to 0% and claim no block happened.
       label: t("reports.kpiOperationalBlockedRate"),
-      value:
-        summary.kpi.operational_blocked_rate === null
-          ? "—"
-          : formatRate(summary.kpi.operational_blocked_rate),
-    },
-    {
-      label: t("reports.kpiAttemptTwoRate"),
-      value: formatRate(summary.kpi.attempt_2_rate),
-      testId: "kpi-attempt-2-rate",
+      value: formatRate(summary.kpi.operational_blocked_rate),
+      testId: "kpi-operational-blocked-rate",
     },
     {
       label: t("reports.kpiTimeToFinal"),
@@ -164,46 +165,57 @@ async function ReportPanels({ query }: { query: ReportQuery }) {
   ];
 
   return (
-    <>
+    <CardStack>
       <FreshnessBanner quality={summary.data_quality} />
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("reports.kpiTitle")}</h2>
+      <Card title={t("reports.kpiTitle")} accent>
+        <Meter
+          label={t("reports.kpiConfirmRate")}
+          value={formatRate(summary.kpi.confirm_rate)}
+          ratio={summary.kpi.confirm_rate}
+          tone="success"
+          testId="kpi-confirm-rate"
+        />
+        <Meter
+          label={t("reports.kpiAttemptTwoRate")}
+          value={formatRate(summary.kpi.attempt_2_rate)}
+          ratio={summary.kpi.attempt_2_rate}
+          testId="kpi-attempt-2-rate"
+        />
         <MetricGrid metrics={rateMetrics} />
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("reports.volumeTitle")}</h2>
+      <Card title={t("reports.volumeTitle")}>
         <MetricGrid metrics={volumeMetrics} />
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("reports.trendTitle")}</h2>
+      <Card title={t("reports.trendTitle")}>
         <TrendChart buckets={trend.buckets} bucket={trend.filter.bucket} />
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("reports.taxonomyTitle")}</h2>
+      <Card title={t("reports.taxonomyTitle")} flush>
         <BreakdownTable
           caption={t("reports.taxonomyCaption")}
           keyLabel={t("reports.colResultType")}
           rows={summary.result_taxonomy}
           testId="taxonomy-table"
+          family="resultType"
         />
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("reports.breakdownTitle")}</h2>
+      <Card title={t("reports.breakdownTitle")} flush>
         <BreakdownTable
-          caption={`${t("reports.breakdownCaption")} — ${breakdown.dimension}`}
+          caption={`${t("reports.breakdownCaption")} — ${
+            tEnum("analyticsDimension", breakdown.dimension)?.label ?? breakdown.dimension
+          }`}
           keyLabel={t(`reports.dim${dimensionSuffix(breakdown.dimension)}`)}
           rows={breakdown.rows}
           testId="breakdown-table"
+          family={BREAKDOWN_FAMILY[breakdown.dimension]}
         />
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("reports.exportTitle")}</h2>
+      <Card title={t("reports.exportTitle")}>
         <ExportForm
           program={query.program}
           resultType={query.resultType}
@@ -214,8 +226,8 @@ async function ReportPanels({ query }: { query: ReportQuery }) {
           dimension={dimension}
           minBucketSize={summary.data_quality.min_bucket_size}
         />
-      </section>
-    </>
+      </Card>
+    </CardStack>
   );
 }
 
@@ -239,6 +251,19 @@ function asDimension(value: string): AnalyticsDimension {
     ? (value as AnalyticsDimension)
     : "RESULT_TYPE";
 }
+
+/**
+ * Which dictionary the breakdown's `key` column belongs to.
+ *
+ * SCRIPT_VARIANT is deliberately absent: its keys are script version strings,
+ * not enum values, so it renders as a raw code rather than through a dictionary
+ * that would flag every row as untranslated.
+ */
+const BREAKDOWN_FAMILY: Readonly<Record<AnalyticsDimension, EnumFamily | undefined>> = {
+  RESULT_TYPE: "resultType",
+  PROGRAM: "programType",
+  SCRIPT_VARIANT: undefined,
+};
 
 function dimensionSuffix(dimension: AnalyticsDimension): "ResultType" | "ScriptVariant" | "Program" {
   switch (dimension) {

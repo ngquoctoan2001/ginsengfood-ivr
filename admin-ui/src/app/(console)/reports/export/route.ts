@@ -7,7 +7,6 @@ import { ANALYTICS_DIMENSIONS, type AnalyticsDimension } from "@/lib/api/types";
 import { requireSession } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { t } from "@/lib/i18n";
-import { hasPermission } from "@/lib/rbac/permissions";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +24,7 @@ const MIN_REASON_LENGTH = 8;
  */
 export async function GET(request: Request): Promise<NextResponse> {
   const session = await requireSession();
-  if (!hasPermission(session.permissions, "IVR_QUEUE_VIEW")) {
+  if (session.role !== "Admin") {
     return problem(403, "IVR_FORBIDDEN_CALLER", t("reports.export.forbidden"));
   }
 

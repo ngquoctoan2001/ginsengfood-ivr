@@ -16,7 +16,7 @@ export function GovernanceNotice({ realCustomerCallAllowed }: GovernanceNoticePr
     <aside
       className={styles.notice}
       data-real-call={realCustomerCallAllowed ? "allowed" : "blocked"}
-      aria-label="Governance"
+      aria-label={t("governance.ariaLabel")}
     >
       <p className={styles.line} data-testid="real-call-notice">
         {realCustomerCallAllowed

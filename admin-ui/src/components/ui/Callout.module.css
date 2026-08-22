@@ -1,0 +1,115 @@
+/*
+ * A standing statement about the screen: a policy, a constraint, a caveat.
+ *
+ * Six page modules had grown their own version of this — `.notice`, `.locked`,
+ * `.warning`, `.blocked`, `.scopeNotice` — and because the only tinted surfaces
+ * in the palette were the status ones, a screen merely explaining that roles
+ * are managed elsewhere was painted the same orange as a screen reporting a
+ * dependency outage. The info tone exists to end that.
+ *
+ * Colour never carries the message: every callout renders a glyph and reads its
+ * meaning from the words inside it (globals.css rule 4). The tint is recognition
+ * speed, nothing more.
+ */
+
+.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ivr-space-3);
+  padding: var(--ivr-space-3) var(--ivr-space-4);
+  border: 1px solid var(--ivr-info-border);
+  border-left-width: 3px;
+  border-radius: var(--ivr-radius);
+  background: var(--ivr-info-surface);
+  color: var(--ivr-text);
+  font-size: var(--ivr-text-sm);
+}
+
+.icon {
+  flex: none;
+  margin-top: 0.15rem;
+  color: var(--ivr-info);
+}
+
+.content {
+  display: grid;
+  gap: var(--ivr-space-1);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--ivr-text-sm);
+  font-weight: 700;
+  color: var(--ivr-info);
+}
+
+.body {
+  margin: 0;
+  color: var(--ivr-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.callout[data-tone="success"] {
+  border-color: var(--ivr-success-border);
+  background: var(--ivr-success-surface);
+}
+
+.callout[data-tone="success"] .icon,
+.callout[data-tone="success"] .title {
+  color: var(--ivr-success);
+}
+
+.callout[data-tone="warning"] {
+  border-color: var(--ivr-warning-border);
+  background: var(--ivr-warning-surface);
+}
+
+.callout[data-tone="warning"] .icon,
+.callout[data-tone="warning"] .title {
+  color: var(--ivr-warning);
+}
+
+.callout[data-tone="danger"] {
+  border-color: var(--ivr-danger-border);
+  background: var(--ivr-danger-surface);
+}
+
+.callout[data-tone="danger"] .icon,
+.callout[data-tone="danger"] .title {
+  color: var(--ivr-danger);
+}
+
+.callout[data-tone="neutral"] {
+  border-color: var(--ivr-neutral-border);
+  background: var(--ivr-neutral-surface);
+}
+
+.callout[data-tone="neutral"] .icon,
+.callout[data-tone="neutral"] .title {
+  color: var(--ivr-neutral);
+}
+
+/*
+ * A locked capability — "this cannot be switched on from here".
+ *
+ * Deliberately not the danger tone: nothing is wrong, and painting a working
+ * guard red teaches operators to read red as noise. The padlock glyph and the
+ * dashed edge say "closed on purpose" instead.
+ */
+.callout[data-tone="locked"] {
+  border-style: dashed;
+  border-color: var(--ivr-border-strong);
+  background: var(--ivr-surface-sunken);
+}
+
+.callout[data-tone="locked"] .icon,
+.callout[data-tone="locked"] .title {
+  color: var(--ivr-text-muted);
+}
+
+/* A run of callouts under one heading, at a tighter gap than the card stack. */
+.stack {
+  display: grid;
+  gap: var(--ivr-space-2);
+}
