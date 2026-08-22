@@ -36,4 +36,13 @@ public static class IvrErrors
 
     public static IvrFailureException InternalError() =>
         new(IvrErrorCodes.InternalError, "An internal error occurred.");
+
+    public static IvrFailureException RateLimited() =>
+        new(IvrErrorCodes.RateLimited, "Too many requests. Try again later.");
+
+    public static IvrFailureException AccountConflict() =>
+        new(IvrErrorCodes.AccountConflict, "The account conflicts with an existing account.");
+
+    public static IvrFailureException AccountPolicyViolation(string safeMessage) =>
+        new(IvrErrorCodes.AccountPolicyViolation, safeMessage);
 }

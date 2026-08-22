@@ -35,9 +35,12 @@ public sealed class MockPermissionAuthenticationHandler(
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
+        // W-0105. IvrPermissions.IsMockGrantable, not IvrPermissions.All: this seam trusts the
+        // caller's own claim of authority, so it must never be able to mint the account
+        // permissions that create users and reset passwords. See IvrPermissions.ConsoleSessionOnly.
         claims.AddRange(
             requestedPermissions
-                .Where(IvrPermissions.All.Contains)
+                .Where(IvrPermissions.IsMockGrantable)
                 .Select(permission => new Claim(
                     ClaimsPermissionEvaluator.PermissionClaimType,
                     permission)));

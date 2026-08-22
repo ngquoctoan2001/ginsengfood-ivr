@@ -1,4 +1,5 @@
 using Ivr.Api.Application;
+using Ivr.Api.Accounts;
 using Ivr.Api.Auth;
 using Ivr.Api.Filters;
 using Ivr.Api.Internal;
@@ -27,22 +28,29 @@ public static class IvrAdminEndpoints
         adminGroup.MapGet("/sim-channels", ListSimChannelsAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
         adminGroup.MapGet("/scripts", GetScriptCatalogAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
+            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
         adminGroup.MapGet("/integration-status", GetIntegrationStatusAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
+            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
         adminGroup.MapGet("/review-items", ListReviewItemsAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
+            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
         adminGroup.MapGet("/analytics/summary", GetAnalyticsSummaryAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
+            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
         adminGroup.MapGet("/analytics/trend", GetAnalyticsTrendAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
+            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
         adminGroup.MapGet("/analytics/breakdown", GetAnalyticsBreakdownAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
+            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
         // GET, not POST: the extract is a read that is audited, and keeping the
         // verb read-only preserves the "no mutation surface" invariant the other
         // reporting routes are tested against.
         adminGroup.MapGet("/analytics/export", ExportAnalyticsAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
+            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
         adminGroup.MapPost("/queue:pause", PauseQueueAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueuePause));
         adminGroup.MapPost("/queue:resume", ResumeQueueAsync)
@@ -55,6 +63,7 @@ public static class IvrAdminEndpoints
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ManualRetry));
         adminGroup.MapPost("/admin-reviews", ReviewAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ResultReview));
+        endpoints.MapIvrConsoleAccountEndpoints();
         return endpoints;
     }
 

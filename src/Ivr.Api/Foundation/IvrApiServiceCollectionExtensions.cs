@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Ivr.Api.Accounts;
 using Ivr.Api.Auth;
 using Ivr.Api.Health;
 using Ivr.Api.Middleware;
@@ -41,15 +42,36 @@ public static class IvrApiServiceCollectionExtensions
                 "The mock permission provider may only be registered in MOCK mode.");
         }
 
-        string authenticationScheme = registerMockProvider
-            ? MockPermissionAuthenticationHandler.SchemeName
-            : FailClosedAuthenticationHandler.SchemeName;
         AuthenticationBuilder authentication = services.AddAuthentication(options =>
         {
-            options.DefaultAuthenticateScheme = authenticationScheme;
-            options.DefaultChallengeScheme = authenticationScheme;
-            options.DefaultForbidScheme = authenticationScheme;
+            options.DefaultAuthenticateScheme = "IvrAuthenticationSelector";
+            options.DefaultChallengeScheme = "IvrAuthenticationSelector";
+            options.DefaultForbidScheme = "IvrAuthenticationSelector";
         });
+
+        authentication.AddPolicyScheme(
+            "IvrAuthenticationSelector",
+            "IVR authentication selector",
+            options => options.ForwardDefaultSelector = context =>
+            {
+                string authorization = context.Request.Headers.Authorization.ToString();
+                if (authorization.StartsWith(
+                    "Bearer ivr_session_",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    return ConsoleSessionAuthenticationHandler.SchemeName;
+                }
+
+                return registerMockProvider
+                    ? MockPermissionAuthenticationHandler.SchemeName
+                    : FailClosedAuthenticationHandler.SchemeName;
+            });
+        authentication.AddScheme<AuthenticationSchemeOptions, ConsoleSessionAuthenticationHandler>(
+            ConsoleSessionAuthenticationHandler.SchemeName,
+            _ => { });
+        authentication.AddScheme<AuthenticationSchemeOptions, FailClosedAuthenticationHandler>(
+            FailClosedAuthenticationHandler.SchemeName,
+            _ => { });
 
         if (registerMockProvider)
         {
@@ -57,13 +79,6 @@ public static class IvrApiServiceCollectionExtensions
                 MockPermissionAuthenticationHandler.SchemeName,
                 _ => { });
         }
-        else
-        {
-            authentication.AddScheme<AuthenticationSchemeOptions, FailClosedAuthenticationHandler>(
-                FailClosedAuthenticationHandler.SchemeName,
-                _ => { });
-        }
-
         services.AddAuthorization(options =>
         {
             foreach (string permission in IvrPermissions.All)
@@ -72,12 +87,33 @@ public static class IvrApiServiceCollectionExtensions
                     permission,
                     policy => policy.Requirements.Add(new PermissionRequirement(permission)));
             }
+
+            // Existing MOCK permission tests are not user-console sessions. In a real console
+            // bearer session this policy narrows broad legacy QueueView reads to Admin only.
+            options.AddPolicy(
+                IvrRoles.ConsoleAdminPolicy,
+                policy => policy.RequireAssertion(context =>
+                    context.User.Identity?.AuthenticationType
+                        != ConsoleSessionAuthenticationHandler.SchemeName
+                    || context.User.IsInRole(IvrRoles.Admin)));
+
+            // W-0105. Naming the scheme makes the authorization middleware authenticate the
+            // request through the console handler alone. A caller presenting the MOCK
+            // X-Permissions header and no bearer token therefore arrives unauthenticated
+            // (401) rather than carrying whatever authority it wrote in that header.
+            options.AddPolicy(
+                IvrRoles.ConsoleSessionPolicy,
+                policy => policy
+                    .AddAuthenticationSchemes(ConsoleSessionAuthenticationHandler.SchemeName)
+                    .RequireAuthenticatedUser());
         });
         services.AddSingleton<IPermissionEvaluator, ClaimsPermissionEvaluator>();
         services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddSingleton<IAuthorizationMiddlewareResultHandler,
             IvrAuthorizationMiddlewareResultHandler>();
         services.AddSingleton<IvrErrorResponseWriter>();
+        services.AddSingleton<ConsoleAccountService>();
+        services.AddSingleton<ConsoleSignInRateLimiter>();
         services.ConfigureHttpJsonOptions(options =>
         {
             options.SerializerOptions.DefaultIgnoreCondition =

@@ -24,6 +24,8 @@ public static class IvrErrorCodes
     public const string NotFound = "IVR_NOT_FOUND";
     public const string RateLimited = "IVR_RATE_LIMITED";
     public const string InternalError = "IVR_INTERNAL_ERROR";
+    public const string AccountConflict = "IVR_ACCOUNT_CONFLICT";
+    public const string AccountPolicyViolation = "IVR_ACCOUNT_POLICY_VIOLATION";
 
     private static readonly FrozenSet<string> DefinedCodes = new[]
         {
@@ -43,6 +45,8 @@ public static class IvrErrorCodes
             NotFound,
             RateLimited,
             InternalError,
+            AccountConflict,
+            AccountPolicyViolation,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 
