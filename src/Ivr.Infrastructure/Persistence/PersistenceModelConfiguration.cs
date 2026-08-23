@@ -218,6 +218,18 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_call_attempts_retry_nonnegative",
                     "technical_retry_count >= 0");
+
+                // W-0111. All three termination columns move together. A row carrying a
+                // timestamp with no actor would be an operator action nobody can be asked
+                // about, which is the one thing an audited cut must never become.
+                table.HasCheckConstraint(
+                    "ck_ivr_call_attempts_termination_complete",
+                    "(termination_requested_at IS NULL"
+                    + " AND termination_requested_by IS NULL"
+                    + " AND termination_reason IS NULL)"
+                    + " OR (termination_requested_at IS NOT NULL"
+                    + " AND termination_requested_by IS NOT NULL"
+                    + " AND termination_reason IS NOT NULL)");
             });
         builder.HasKey(entity => entity.IvrCallAttemptId);
         builder.HasOne<CallJobEntity>()
@@ -238,6 +250,13 @@ internal static class PersistenceModelConfiguration
         builder.HasIndex(entity => entity.SimChannelId);
         builder.HasIndex(entity => entity.ProviderCallId);
         builder.HasIndex(entity => entity.RawCallEventId);
+
+        // Partial index: the dispatch loop asks "was this one asked to stop", and all but a
+        // handful of rows never carry a request at all.
+        builder.HasIndex(entity => entity.TerminationRequestedAt)
+            .HasFilter("termination_requested_at IS NOT NULL");
+        builder.Property(entity => entity.TerminationRequestedBy).HasMaxLength(120);
+        builder.Property(entity => entity.TerminationReason).HasMaxLength(500);
     }
 
     private static void ConfigureTaskIntakeOutbox(ModelBuilder modelBuilder)

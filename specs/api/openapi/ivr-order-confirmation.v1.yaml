@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.13
+  version: 1.0.0-draft.14
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -435,6 +435,68 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptTransitionRequest' } } }
       responses:
         '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-jobs:terminate-all:
+    post:
+      tags: [admin]
+      summary: Cut every call currently in progress (perm IVR_CALL_TERMINATE)
+      description: >-
+        Its own operation rather than a side effect of engaging the kill switch.
+        The kill switch stops the next call; this ends conversations already
+        happening with real people, so the two take separate presses and separate
+        reasons. Each cut is recorded exactly as the single-call version records
+        it. 409 when nothing is running.
+      operationId: terminateAllCallJobs
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: Termination requested for every live call, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-jobs/{ivrCallJobId}:terminate:
+    post:
+      tags: [admin]
+      summary: Cut a call that is already in progress (perm IVR_CALL_TERMINATE)
+      description: >-
+        Records the request; it does not end the call. Ivr.Api holds no telephony
+        gateway, so the worker's dispatch loop polls for this and performs the
+        hangup. A cut is recorded as IVR_TECHNICAL_EXCEPTION with
+        customer_attempt_counted false - the customer never got to answer, so
+        spending one of their attempts on an operator's decision would charge
+        them for it. 409 when the job has no call in progress, with nothing
+        written: a refused safety action that still leaves a partial record is
+        worse than one that leaves none.
+      operationId: terminateCallJob
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: ivrCallJobId
+          in: path
+          required: true
+          schema: { type: string, maxLength: 120 }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: Termination requested, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
         '400': { $ref: '#/components/responses/Error' }
         '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }

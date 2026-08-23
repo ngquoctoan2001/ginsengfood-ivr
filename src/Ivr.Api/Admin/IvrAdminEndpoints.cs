@@ -63,6 +63,17 @@ public static class IvrAdminEndpoints
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ManualRetry));
         adminGroup.MapPost("/admin-reviews", ReviewAsync)
             .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ResultReview));
+
+        // W-0111. Operator holds this as well as Admin: it is the risk-reducing direction, and
+        // an operator who has to find an admin is an operator watching a call they were told
+        // to end.
+        adminGroup.MapPost("/call-jobs/{ivrCallJobId}:terminate", TerminateCallAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.CallTerminate));
+
+        // Separate route, separate press, separate reason. Engaging the kill switch stops the
+        // next call; this ends conversations already under way.
+        adminGroup.MapPost("/call-jobs:terminate-all", TerminateAllCallsAsync)
+            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.CallTerminate));
         endpoints.MapIvrConsoleAccountEndpoints();
         endpoints.MapIvrScriptLifecycleEndpoints();
         return endpoints;
@@ -267,6 +278,32 @@ public static class IvrAdminEndpoints
         IInternalAdminApiService service,
         CancellationToken cancellationToken) =>
         service.PauseQueueAsync(
+            request,
+            InternalRequestGuard.RequireAdminActor(context),
+            InternalRequestGuard.RequireCorrelation(context),
+            InternalRequestGuard.RequireIdempotencyKey(context),
+            cancellationToken);
+
+    private static Task<AdminActionApiResult> TerminateCallAsync(
+        string ivrCallJobId,
+        AdminMutationRequest request,
+        HttpContext context,
+        IInternalAdminApiService service,
+        CancellationToken cancellationToken) =>
+        service.TerminateCallAsync(
+            ivrCallJobId,
+            request,
+            InternalRequestGuard.RequireAdminActor(context),
+            InternalRequestGuard.RequireCorrelation(context),
+            InternalRequestGuard.RequireIdempotencyKey(context),
+            cancellationToken);
+
+    private static Task<AdminActionApiResult> TerminateAllCallsAsync(
+        AdminMutationRequest request,
+        HttpContext context,
+        IInternalAdminApiService service,
+        CancellationToken cancellationToken) =>
+        service.TerminateAllActiveCallsAsync(
             request,
             InternalRequestGuard.RequireAdminActor(context),
             InternalRequestGuard.RequireCorrelation(context),

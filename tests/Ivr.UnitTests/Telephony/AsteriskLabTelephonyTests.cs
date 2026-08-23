@@ -368,6 +368,12 @@ public sealed class AsteriskLabTelephonyTests
 
     private sealed class CapturingStore : ITelephonyDispatchStore
     {
+        /// <summary>No operator cut in these scenarios; the gate tests never reach a call.</summary>
+        public Task<CallTerminationRequest?> ReadTerminationAsync(
+            SchedulerDispatchLease lease,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<CallTerminationRequest?>(null);
+
         public string? FailureCode { get; private set; }
 
         public Task<TelephonyDispatchContext> LoadAsync(

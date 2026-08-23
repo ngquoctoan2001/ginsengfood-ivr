@@ -34,6 +34,16 @@ public sealed class MockTelephonyOptions
 
     public int DtmfTimeoutSeconds { get; set; } = 10;
 
+    /// <summary>
+    /// How often the dispatch loop asks whether an operator has requested a cut (W-0111).
+    /// <para>
+    /// This is the upper bound on how long a customer keeps hearing a call somebody has already
+    /// decided to stop, so it is a safety number, not a tuning one. Floored at 200 ms in code so
+    /// a misconfiguration cannot turn it into a busy loop against the database.
+    /// </para>
+    /// </summary>
+    public int TerminationPollMilliseconds { get; set; } = 500;
+
     public int CooldownSeconds { get; set; } = 5;
 
     public Dictionary<string, string> TokenDestinations { get; set; } =
@@ -257,8 +267,9 @@ public sealed class MockSchedulerDispatchGateway(
             if (session.IsConnected)
             {
                 await simGateway.PlayAsync(session, speech, cancellationToken).ConfigureAwait(false);
-                dtmf = await simGateway.CaptureDtmfAsync(
+                dtmf = await CaptureDtmfOrTerminationAsync(
                     session,
+                    lease,
                     TimeSpan.FromSeconds(mockOptions.Value.DtmfTimeoutSeconds),
                     cancellationToken).ConfigureAwait(false);
             }
@@ -266,6 +277,12 @@ public sealed class MockSchedulerDispatchGateway(
             {
                 dtmf = new SimDtmfCapture(null, false, null);
             }
+
+            // Asked again after the capture returns, not only during it. A hangup issued by the
+            // operator can complete the capture normally, and without this check the loop would
+            // record an operator cut as a customer outcome — the customer pressed nothing, and
+            // "pressed nothing" is a very different fact from "we stopped talking to them".
+            await EnsureNotTerminatedAsync(session, lease, cancellationToken).ConfigureAwait(false);
             SimDispositionReport disposition = await simGateway.GetDispositionAsync(
                 session,
                 cancellationToken).ConfigureAwait(false);
@@ -294,6 +311,13 @@ public sealed class MockSchedulerDispatchGateway(
                         (SimProviderDisposition.AudioError, tts.TechnicalErrorCode, true),
                     IvrFailureException failure =>
                         (SimProviderDisposition.AudioError, failure.ErrorCode, true),
+                    CallTerminatedException =>
+                        (SimProviderDisposition.Dropped,
+                            CallTerminatedException.TechnicalCode,
+                            // The channel is healthy: an operator ended this call, so putting
+                            // the channel into cooldown for a fault it did not have would take
+                            // capacity away as a side effect of a safety control.
+                            true),
                     MockSimOperationException mock =>
                         (mock.Disposition, mock.TechnicalErrorCode, mock.ChannelHealthy),
                     KeyNotFoundException =>
@@ -314,6 +338,79 @@ public sealed class MockSchedulerDispatchGateway(
                 cooldown,
                 cancellationToken).ConfigureAwait(false);
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Waits for a keypress, but stops waiting if an operator asks for the call to be cut.
+    /// <para>
+    /// Polling rather than a signal: the request is written by <c>Ivr.Api</c> in another
+    /// process. The interval bounds how long a customer keeps hearing a call somebody has
+    /// already decided to stop, so it is deliberately short and deliberately configurable.
+    /// </para>
+    /// <para>
+    /// The hangup comes first and the throw second. Ending the channel is what actually stops
+    /// the customer hearing anything; unwinding the loop is only how the attempt gets recorded.
+    /// </para>
+    /// </summary>
+    private async Task<SimDtmfCapture> CaptureDtmfOrTerminationAsync(
+        SimCallSession session,
+        SchedulerDispatchLease lease,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
+        TimeSpan interval = TimeSpan.FromMilliseconds(
+            Math.Max(200, mockOptions.Value.TerminationPollMilliseconds));
+        Task<SimDtmfCapture> capture = simGateway
+            .CaptureDtmfAsync(session, timeout, cancellationToken)
+            .AsTask();
+        while (true)
+        {
+            Task completed = await Task.WhenAny(
+                capture,
+                Task.Delay(interval, timeProvider, cancellationToken)).ConfigureAwait(false);
+            if (completed == capture)
+            {
+                return await capture.ConfigureAwait(false);
+            }
+
+            CallTerminationRequest? request = await store
+                .ReadTerminationAsync(lease, cancellationToken)
+                .ConfigureAwait(false);
+            if (request is null)
+            {
+                continue;
+            }
+
+            await simGateway.HangupAsync(session, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                // Drained so the capture does not surface later as an unobserved fault. Its
+                // answer is discarded on purpose: whatever the customer pressed after the
+                // operator decided to stop is not an answer this call gets to record.
+                await capture.ConfigureAwait(false);
+            }
+            catch
+            {
+                // The gateway failing because the channel just ended is the expected outcome.
+            }
+
+            throw new CallTerminatedException(request);
+        }
+    }
+
+    private async Task EnsureNotTerminatedAsync(
+        SimCallSession session,
+        SchedulerDispatchLease lease,
+        CancellationToken cancellationToken)
+    {
+        CallTerminationRequest? request = await store
+            .ReadTerminationAsync(lease, cancellationToken)
+            .ConfigureAwait(false);
+        if (request is not null)
+        {
+            await TryHangupAsync(session, false, cancellationToken).ConfigureAwait(false);
+            throw new CallTerminatedException(request);
         }
     }
 

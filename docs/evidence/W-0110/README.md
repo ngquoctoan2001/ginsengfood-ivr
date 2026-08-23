@@ -149,6 +149,25 @@ API thật cùng lúc, nên bản này **không** khẳng định một chuỗi 
 
 ---
 
+## 6b. Bổ sung `2026-08-23` — nút hiện chưa đổi được cờ nào
+
+Phát hiện khi làm W-0111, và nó sửa một chỗ bản đầu nói thiếu.
+
+`FeatureFlagAdminService.MutateAsync` gọi `IRuntimeGateAuthorization.IsApprovedAsync` trước mọi
+thứ khác, và implementation duy nhất đăng ký ngoài test là `PendingRuntimeGateAuthorization`,
+trả `false` **vô điều kiện**. Nên **mọi** mutation cờ hiện trả `409 IVR_OPERATIONAL_BLOCKED` —
+kể cả chiều giảm rủi ro như bật kill switch.
+
+Bản đầu viết "dựng chỗ để bấm", đúng nhưng dễ đọc thành "bấm được". Nói cho đủ: bấm được, và
+nhận một lời từ chối rõ ràng. Màn hình vẫn đúng — đây là chỗ luật bất đối xứng được nhìn thấy,
+và cả hai lớp guard đều thật — nhưng **không** dùng được để dừng quay số cho tới khi
+`IRuntimeGateAuthorization` có implementation thật.
+
+Hệ quả cho vận hành: hôm nay kill switch chỉ đổi được qua deployment/cấu hình, không qua console.
+Đây là ràng buộc của `OD-V1-20` chưa đóng hết, không phải lỗi của W-0110.
+
+---
+
 ## 7. Những gì bản này **không** làm
 
 - **Không đổi backend feature-flag.** Ba endpoint, guardrail và four-eyes đều đã có; W-0110 chỉ

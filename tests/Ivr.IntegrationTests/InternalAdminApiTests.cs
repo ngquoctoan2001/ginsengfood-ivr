@@ -345,6 +345,78 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         }
     }
 
+    /// <summary>
+    /// Cutting a call that is not running (W-0111).
+    /// <para>
+    /// The seeded attempt has already ended, so there is no open channel for a hangup to reach.
+    /// A request written against it would be a row no dispatch loop will ever read, and an
+    /// operator left believing something is about to happen. It has to refuse, and it has to
+    /// refuse without writing anything — a rejected safety action that still leaves a partial
+    /// record is worse than one that leaves none.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-API-TERMINATE-09")]
+    public async Task TerminatingACallThatIsNotRunningIsRefusedAndWritesNothing()
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "COMPLETED");
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        int auditBefore;
+        await using (IvrDbContext before = await Factory().CreateDbContextAsync())
+        {
+            auditBefore = await before.AuditLog.AsNoTracking().CountAsync();
+        }
+
+        using HttpResponseMessage refused = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/call-jobs/JOB-P2-8:terminate",
+            new AdminMutationRequest("cut a call that already ended"),
+            IvrPermissions.CallTerminate);
+
+        Assert.Equal(HttpStatusCode.Conflict, refused.StatusCode);
+        await using IvrDbContext after = await Factory().CreateDbContextAsync();
+        CallAttemptEntity attempt = await after.CallAttempts.AsNoTracking().SingleAsync();
+        Assert.Null(attempt.TerminationRequestedAt);
+        Assert.Null(attempt.TerminationRequestedBy);
+        Assert.Null(attempt.TerminationReason);
+        Assert.Equal(auditBefore, await after.AuditLog.AsNoTracking().CountAsync());
+        Assert.Empty(await after.AdminActions.AsNoTracking().ToListAsync());
+    }
+
+    /// <summary>
+    /// Operator holds the permission, and an unknown job is still a 404 rather than a 409 —
+    /// "there is no such call" and "that call is not running" are different answers.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-API-TERMINATE-10")]
+    public async Task OperatorMayTerminateAndAnUnknownJobIsNotFound()
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "COMPLETED");
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        using HttpResponseMessage unknown = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/call-jobs/JOB-DOES-NOT-EXIST:terminate",
+            new AdminMutationRequest("cut an unknown call"),
+            IvrPermissions.CallTerminate);
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+
+        // Wrong permission is still refused, so granting Operator the cut did not widen anything
+        // else it can reach.
+        using HttpResponseMessage wrongPermission = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/call-jobs/JOB-P2-8:terminate",
+            new AdminMutationRequest("cut without the permission"),
+            IvrPermissions.QueueView);
+        Assert.Equal(HttpStatusCode.Forbidden, wrongPermission.StatusCode);
+    }
+
     [Fact]
     [Trait("TestId", "IT-API-QUEUE-08")]
     public async Task PauseBlocksOnlyNewClaimsAndResumeRestoresClaiming()

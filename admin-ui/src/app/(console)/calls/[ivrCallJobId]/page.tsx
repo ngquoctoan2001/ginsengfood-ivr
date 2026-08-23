@@ -375,6 +375,15 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
       <CallDetailActions
         technicalExceptions={detail.technical_exceptions}
         reviewItems={detail.review_items}
+        ivrCallJobId={detail.ivr_call_job_id}
+        // Started and not ended: the same definition the API uses to decide whether
+        // there is anything to cut. Derived here only to decide whether to draw the
+        // button — the server re-derives it and answers 409 if the call has since
+        // finished, so a stale page cannot cut a call that already ended.
+        hasCallInProgress={detail.attempts.some(
+          (attempt) =>
+            attempt.started_at !== undefined && attempt.ended_at === undefined,
+        )}
       />
 
       <Card title={t("detail.evidenceTitle")}>

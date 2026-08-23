@@ -36,6 +36,8 @@ function renderActions(role: IvrRole, permissions: readonly IvrPermission[]) {
       <CallDetailActions
         technicalExceptions={TECHNICAL_EXCEPTIONS}
         reviewItems={REVIEW_ITEMS}
+        ivrCallJobId="JOB-TEST"
+        hasCallInProgress={false}
       />
     </PermissionProvider>,
   );
@@ -134,10 +136,67 @@ describe("UT-UI-REVIEW-04 result review action", () => {
             { ...TECHNICAL_EXCEPTIONS[0], technical_retry_allowed: false },
           ]}
           reviewItems={[]}
+          ivrCallJobId="JOB-TEST"
+          hasCallInProgress={false}
         />
       </PermissionProvider>,
     );
 
     expect(screen.queryByText(/Yêu cầu gọi lại kỹ thuật/)).toBeNull();
+  });
+
+  /**
+   * W-0111. The cut is offered only while a call is actually running.
+   *
+   * Both halves are asserted because either alone would pass for the wrong reason: with no
+   * call in progress the component may render nothing regardless of permission, and an
+   * operator holding the permission proves nothing if the button never appears for anyone.
+   */
+  it("offers the cut only while a call is in progress and only with the permission", () => {
+    const { rerender } = render(
+      <PermissionProvider
+        actorId="AGT-TEST-01"
+        role="Operator"
+        permissions={["IVR_QUEUE_VIEW", "IVR_CALL_TERMINATE"]}
+      >
+        <CallDetailActions
+          technicalExceptions={[]}
+          reviewItems={[]}
+          ivrCallJobId="JOB-TEST"
+          hasCallInProgress
+        />
+      </PermissionProvider>,
+    );
+    expect(screen.queryAllByText(/Cắt cuộc gọi/).length).toBeGreaterThan(0);
+
+    // Same call, same operator, but nothing on the line any more.
+    rerender(
+      <PermissionProvider
+        actorId="AGT-TEST-01"
+        role="Operator"
+        permissions={["IVR_QUEUE_VIEW", "IVR_CALL_TERMINATE"]}
+      >
+        <CallDetailActions
+          technicalExceptions={[]}
+          reviewItems={[]}
+          ivrCallJobId="JOB-TEST"
+          hasCallInProgress={false}
+        />
+      </PermissionProvider>,
+    );
+    expect(screen.queryAllByText(/Cắt cuộc gọi/)).toHaveLength(0);
+
+    // Live call, but no permission.
+    rerender(
+      <PermissionProvider actorId="AGT-TEST-01" role="Operator" permissions={["IVR_QUEUE_VIEW"]}>
+        <CallDetailActions
+          technicalExceptions={[]}
+          reviewItems={[]}
+          ivrCallJobId="JOB-TEST"
+          hasCallInProgress
+        />
+      </PermissionProvider>,
+    );
+    expect(screen.queryAllByText(/Cắt cuộc gọi/)).toHaveLength(0);
   });
 });

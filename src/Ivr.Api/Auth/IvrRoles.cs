@@ -69,6 +69,7 @@ public static class IvrRoles
             IvrPermissions.ScriptApproveContent,
             IvrPermissions.ScriptApprovePrivacyLegal,
             IvrPermissions.ScriptRetire,
+            IvrPermissions.CallTerminate,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 
@@ -78,6 +79,11 @@ public static class IvrRoles
             IvrPermissions.SimDisable,
             IvrPermissions.ManualRetry,
             IvrPermissions.AccountSelfView,
+
+            // W-0111. Operator holds this for the same reason it holds SimDisable: both stop
+            // something that is already happening, and an operator who has to find an admin
+            // first is an operator watching a call they were told to end.
+            IvrPermissions.CallTerminate,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 

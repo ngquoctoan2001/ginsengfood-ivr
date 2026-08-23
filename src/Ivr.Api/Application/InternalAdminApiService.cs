@@ -32,6 +32,8 @@ public interface IInternalAdminApiService
     public Task<AdminActionApiResult> EnableChannelAsync(string channelId, AdminMutationRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
     public Task<TechnicalRetryApiResult> RetryTechnicalExceptionAsync(TechnicalRetryRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
     public Task<AdminReviewApiResult> ReviewAsync(AdminReviewRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
+    public Task<AdminActionApiResult> TerminateCallAsync(string ivrCallJobId, AdminMutationRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
+    public Task<AdminActionApiResult> TerminateAllActiveCallsAsync(AdminMutationRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
 }
 
 public sealed class InternalAdminApiService(
@@ -368,6 +370,178 @@ public sealed class InternalAdminApiService(
             actorId,
             correlationId,
             idempotencyKey,
+            cancellationToken);
+
+    /// <summary>
+    /// Asks for a call that is already in progress to be cut (W-0111).
+    /// <para>
+    /// This writes a request; it does not end the call. <c>Ivr.Api</c> has no telephony gateway,
+    /// so the only thing both processes can see is the database. The worker's dispatch loop
+    /// polls for this and does the hangup, which is why the response says the cut was requested
+    /// and carries no disposition.
+    /// </para>
+    /// <para>
+    /// Refuses when there is no live attempt to cut. Writing a request against a finished call
+    /// would leave a row that no loop will ever read and an operator believing something is
+    /// about to happen — so it is a 409 with nothing persisted, not a silent no-op.
+    /// </para>
+    /// </summary>
+    public Task<AdminActionApiResult> TerminateCallAsync(
+        string ivrCallJobId,
+        AdminMutationRequest request,
+        string actorId,
+        string correlationId,
+        string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        RequireSafe(ivrCallJobId, nameof(ivrCallJobId));
+        return ExecuteAdminAsync(
+            "terminate-call",
+            idempotencyKey,
+            new { ivrCallJobId, request },
+            actorId,
+            correlationId,
+            IvrPermissions.CallTerminate,
+            async (context, now, token) =>
+            {
+                CallJobEntity job = await context.CallJobs.SingleOrDefaultAsync(
+                    item => item.IvrCallJobId == ivrCallJobId,
+                    token).ConfigureAwait(false)
+                    ?? throw IvrErrors.NotFound("The call job was not found.");
+
+                // "Live" means the loop is between MarkActive and Finalize. Anything else —
+                // scheduled, already normalised, already cut — has no channel open, so there is
+                // nothing for a hangup to reach.
+                CallAttemptEntity? attempt = await context.CallAttempts
+                    .Where(item => item.IvrCallJobId == ivrCallJobId
+                        && item.EndedAt == null
+                        && item.StartedAt != null
+                        && item.ProviderCallId != null)
+                    .OrderByDescending(item => item.AttemptNumber)
+                    .FirstOrDefaultAsync(token)
+                    .ConfigureAwait(false);
+                if (attempt is null)
+                {
+                    throw new IvrFailureException(
+                        IvrErrorCodes.VersionConflict,
+                        "The call job has no call in progress to terminate.");
+                }
+
+                if (attempt.TerminationRequestedAt is not null)
+                {
+                    // Already asked for. Not an error the operator caused, but repeating it
+                    // would overwrite whose reason is on record for the cut.
+                    throw new IvrFailureException(
+                        IvrErrorCodes.VersionConflict,
+                        "This call already has a termination request.");
+                }
+
+                string before = JsonSerializer.Serialize(new
+                {
+                    attempt.IvrCallAttemptId,
+                    attempt.Status,
+                    attempt.TerminationRequestedAt,
+                }, JsonOptions);
+                attempt.TerminationRequestedAt = now;
+                attempt.TerminationRequestedBy = actorId;
+                attempt.TerminationReason = request.Reason.Trim();
+                string after = JsonSerializer.Serialize(new
+                {
+                    attempt.IvrCallAttemptId,
+                    attempt.Status,
+                    attempt.TerminationRequestedAt,
+                }, JsonOptions);
+                return CreateAdminMutation(
+                    "terminate-call",
+                    IvrPermissions.CallTerminate,
+                    actorId,
+                    "call_attempt",
+                    attempt.IvrCallAttemptId,
+                    request,
+                    correlationId,
+                    before,
+                    after,
+                    now);
+            },
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Asks for every call currently in progress to be cut (W-0111).
+    /// <para>
+    /// Deliberately its own action rather than a side effect of engaging the kill switch. The
+    /// kill switch stops the <em>next</em> call; this ends conversations already happening with
+    /// real people, and the two deserve separate presses and separate reasons. Bundling them
+    /// would mean an operator reaching for the ordinary stop button and silently dropping every
+    /// customer mid-sentence.
+    /// </para>
+    /// <para>
+    /// Refuses when nothing is running, for the same reason the single-call version does: a
+    /// request nobody will read, against a fleet that is already quiet, is a record that says
+    /// something happened when nothing did.
+    /// </para>
+    /// </summary>
+    public Task<AdminActionApiResult> TerminateAllActiveCallsAsync(
+        AdminMutationRequest request,
+        string actorId,
+        string correlationId,
+        string idempotencyKey,
+        CancellationToken cancellationToken) =>
+        ExecuteAdminAsync(
+            "terminate-all-calls",
+            idempotencyKey,
+            request,
+            actorId,
+            correlationId,
+            IvrPermissions.CallTerminate,
+            async (context, now, token) =>
+            {
+                List<CallAttemptEntity> live = await context.CallAttempts
+                    .Where(item => item.EndedAt == null
+                        && item.StartedAt != null
+                        && item.ProviderCallId != null
+                        && item.TerminationRequestedAt == null)
+                    .OrderBy(item => item.IvrCallAttemptId)
+                    .ToListAsync(token)
+                    .ConfigureAwait(false);
+                if (live.Count == 0)
+                {
+                    throw new IvrFailureException(
+                        IvrErrorCodes.VersionConflict,
+                        "No call is currently in progress.");
+                }
+
+                string before = JsonSerializer.Serialize(new
+                {
+                    active_calls = live.Count,
+                    attempts = live.Select(item => item.IvrCallAttemptId).ToArray(),
+                }, JsonOptions);
+                foreach (CallAttemptEntity attempt in live)
+                {
+                    attempt.TerminationRequestedAt = now;
+                    attempt.TerminationRequestedBy = actorId;
+                    attempt.TerminationReason = request.Reason.Trim();
+                }
+
+                string after = JsonSerializer.Serialize(new
+                {
+                    terminated_calls = live.Count,
+                    attempts = live.Select(item => item.IvrCallAttemptId).ToArray(),
+                }, JsonOptions);
+                return CreateAdminMutation(
+                    "terminate-all-calls",
+                    IvrPermissions.CallTerminate,
+                    actorId,
+                    "call_attempt_batch",
+                    // The count, not a list: a target id has to fit a column, and "how many
+                    // customers were cut off" is the number an incident review starts from.
+                    $"active:{live.Count}",
+                    request,
+                    correlationId,
+                    before,
+                    after,
+                    now);
+            },
             cancellationToken);
 
     public Task<TechnicalRetryApiResult> RetryTechnicalExceptionAsync(

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requestTechnicalRetry, submitAdminReview } from "@/lib/api/admin";
+import { requestTechnicalRetry, submitAdminReview, terminateCallJob } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import { validateAdminMutation, type AdminActionState } from "@/lib/admin/action-state";
 import { requirePermission } from "@/lib/auth/guard";
@@ -16,6 +16,54 @@ import { readConfig } from "@/lib/config/env";
  * API still re-checks every precondition — window, bounded limit, blockers —
  * and refuses otherwise; nothing here can widen the attempt policy (D-10).
  */
+/**
+ * Asks for the call on this job to be cut (W-0111).
+ *
+ * Operator holds this as well as Admin: it is the risk-reducing direction, and
+ * an operator who has to find an admin is an operator watching a call they were
+ * already told to end. The server refuses with 409 when nothing is running, so
+ * this action deliberately does not try to guess liveness from a rendered page.
+ */
+export async function terminateCallAction(
+  _state: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const validation = validateAdminMutation(formData);
+  if (!validation.ok) {
+    return { status: "invalid", messageKey: validation.messageKey };
+  }
+
+  const ivrCallJobId = String(formData.get("ivrCallJobId") ?? "").trim();
+  if (ivrCallJobId === "") {
+    return { status: "invalid", messageKey: "action.reasonRequired" };
+  }
+
+  const session = await requirePermission("IVR_CALL_TERMINATE");
+  const config = readConfig();
+
+  try {
+    const response = await terminateCallJob({ session, config }, ivrCallJobId, {
+      reason: validation.reason,
+      ...(validation.evidenceRef === undefined
+        ? {}
+        : { evidence_ref: validation.evidenceRef }),
+    });
+
+    revalidatePath(`/calls/${ivrCallJobId}`);
+    return {
+      status: "success",
+      adminActionId: response.data.admin_action_id,
+      correlationId: response.data.correlation_id,
+    };
+  } catch (cause) {
+    if (cause instanceof IvrApiError) {
+      return { status: "error", error: cause.toEnvelope() };
+    }
+
+    throw cause;
+  }
+}
+
 export async function technicalRetryAction(
   _state: AdminActionState,
   formData: FormData,

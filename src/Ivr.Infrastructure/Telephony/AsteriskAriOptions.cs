@@ -35,6 +35,13 @@ public sealed class AsteriskAriOptions
 
     public int DtmfTimeoutSeconds { get; set; } = 15;
 
+    /// <summary>
+    /// How often the dispatch loop asks whether an operator has requested a cut (W-0111).
+    /// The upper bound on how long a customer keeps hearing a call somebody already decided to
+    /// stop, so it is a safety number rather than a tuning one.
+    /// </summary>
+    public int TerminationPollMilliseconds { get; set; } = 500;
+
     public int CooldownSeconds { get; set; } = 2;
 
     public bool RecordingEnabled { get; set; }

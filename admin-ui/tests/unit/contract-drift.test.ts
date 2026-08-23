@@ -301,7 +301,10 @@ function reachablePaths(): string[] {
     paths.add(match[1]);
   }
 
-  for (const match of sources.matchAll(/path:\s*`([\s\S]*?)`,\n/g)) {
+  // `\r?\n`, not `\n`: with core.autocrlf=true every Windows checkout hands this file CRLF, so
+  // the terminator never matches and the lazy `[\s\S]*?` swallows whole function bodies into a
+  // single "path" — the guard then fails for a reason that has nothing to do with the contract.
+  for (const match of sources.matchAll(/path:\s*`([\s\S]*?)`,\r?\n/g)) {
     paths.add(collapseInterpolations(match[1]));
   }
 

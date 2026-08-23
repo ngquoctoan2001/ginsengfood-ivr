@@ -147,6 +147,19 @@ public sealed class CallAttemptEntity : RetainedEntity
     public string ScriptVersion { get; set; } = string.Empty;
     public string? EvidenceRefsJson { get; set; }
     public string? AuditRefsJson { get; set; }
+
+    /// <summary>
+    /// W-0111. Set when an operator asks for the in-flight call to be cut.
+    /// <para>
+    /// Kept on the attempt rather than on the job because the attempt is what the dispatch loop
+    /// holds, and the loop is the only thing that can end a call it is in the middle of. The
+    /// request is a fact recorded here; the cut happens when the worker next reaches a
+    /// checkpoint, which is why the console tells the operator "requested" and not "done".
+    /// </para>
+    /// </summary>
+    public DateTimeOffset? TerminationRequestedAt { get; set; }
+    public string? TerminationRequestedBy { get; set; }
+    public string? TerminationReason { get; set; }
 }
 
 public sealed class RawCallEventEntity : RetainedEntity

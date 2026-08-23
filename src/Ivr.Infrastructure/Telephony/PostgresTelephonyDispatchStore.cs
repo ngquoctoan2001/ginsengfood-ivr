@@ -18,8 +18,46 @@ public sealed record TelephonyDispatchContext(
     string ScriptTemplateId,
     string ScriptVersion);
 
+/// <summary>
+/// An operator's request to cut a call that is already in progress (W-0111).
+/// </summary>
+public sealed record CallTerminationRequest(
+    string ActorId,
+    string Reason,
+    DateTimeOffset RequestedAt);
+
+/// <summary>
+/// Thrown inside the dispatch loop when an operator has asked for the call to be cut.
+/// <para>
+/// A distinct type rather than a flag so it lands in the loop's existing failure path, which
+/// already releases the lease, returns the channel and records the attempt as a technical
+/// exception. A cut is not a customer outcome — the customer never got to answer.
+/// </para>
+/// </summary>
+public sealed class CallTerminatedException(CallTerminationRequest request)
+    : Exception("The call was terminated by an operator.")
+{
+    /// <summary>Recorded as the attempt's technical exception type.</summary>
+    public const string TechnicalCode = "CALL_TERMINATED_BY_OPERATOR";
+
+    public CallTerminationRequest Request { get; } = request;
+}
+
 public interface ITelephonyDispatchStore
 {
+    /// <summary>
+    /// Reads the termination request for the attempt this lease holds, or null.
+    /// <para>
+    /// A read rather than a signal because the request is written by <c>Ivr.Api</c> and acted on
+    /// by the worker: two processes, so the database is the only thing both can see. The loop
+    /// asks at its own checkpoints, which is also why a cut is reported to the operator as
+    /// requested rather than done.
+    /// </para>
+    /// </summary>
+    public Task<CallTerminationRequest?> ReadTerminationAsync(
+        SchedulerDispatchLease lease,
+        CancellationToken cancellationToken = default);
+
     public Task<TelephonyDispatchContext> LoadAsync(
         SchedulerDispatchLease lease,
         CancellationToken cancellationToken = default);
@@ -52,6 +90,33 @@ public sealed class PostgresTelephonyDispatchStore(
     SpeechSummaryLimits speechLimits,
     TimeProvider timeProvider) : ITelephonyDispatchStore
 {
+    public async Task<CallTerminationRequest?> ReadTerminationAsync(
+        SchedulerDispatchLease lease,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(lease);
+        await using IvrDbContext context = await dbContextFactory
+            .CreateDbContextAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var row = await context.CallAttempts
+            .AsNoTracking()
+            .Where(attempt => attempt.IvrCallAttemptId == lease.AttemptId)
+            .Select(attempt => new
+            {
+                attempt.TerminationRequestedAt,
+                attempt.TerminationRequestedBy,
+                attempt.TerminationReason,
+            })
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return row?.TerminationRequestedAt is null
+            ? null
+            : new CallTerminationRequest(
+                row.TerminationRequestedBy!,
+                row.TerminationReason!,
+                row.TerminationRequestedAt.Value);
+    }
+
     public async Task<TelephonyDispatchContext> LoadAsync(
         SchedulerDispatchLease lease,
         CancellationToken cancellationToken = default)

@@ -38,6 +38,16 @@ public static class IvrPermissions
     public const string ScriptApprovePrivacyLegal = "IVR_SCRIPT_APPROVE_PRIVACY_LEGAL";
     public const string ScriptRetire = "IVR_SCRIPT_RETIRE";
 
+    /// <summary>
+    /// Cutting a call that is already in progress (W-0111).
+    /// <para>
+    /// Granted to Operator as well as Admin. This is the risk-reducing direction, and making an
+    /// operator find an admin while a customer is being read the wrong script would be a control
+    /// that costs more than it protects.
+    /// </para>
+    /// </summary>
+    public const string CallTerminate = "IVR_CALL_TERMINATE";
+
     public static IReadOnlySet<string> All { get; } = new[]
         {
             QueueView,
@@ -60,6 +70,7 @@ public static class IvrPermissions
             ScriptApproveContent,
             ScriptApprovePrivacyLegal,
             ScriptRetire,
+            CallTerminate,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 

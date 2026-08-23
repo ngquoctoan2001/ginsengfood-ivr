@@ -6,6 +6,7 @@ import { t } from "@/lib/i18n";
 
 import {
   clearLabAllowlistAction,
+  terminateAllCallsAction,
   engageKillSwitchAction,
   releaseKillSwitchAction,
   revokeRealCustomerCallsAction,
@@ -55,6 +56,15 @@ export function RuntimeGateActions({ allowRiskIncrease }: RuntimeGateActionsProp
           label={t("flags.clearAllowlist")}
           description={t("flags.clearAllowlistDescription")}
           action={clearLabAllowlistAction}
+        />
+
+        {/* Next to the kill switch, never folded into it. Engaging the kill switch stops the
+            next call; this ends conversations already happening with real people. */}
+        <AdminActionDialog
+          perm="IVR_CALL_TERMINATE"
+          label={t("flags.terminateAll")}
+          description={t("flags.terminateAllDescription")}
+          action={terminateAllCallsAction}
         />
       </ButtonGroup>
 

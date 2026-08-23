@@ -404,3 +404,44 @@ export function mutateFeatureFlags(
     fetchImpl: context.fetchImpl,
   });
 }
+
+/**
+ * Cutting a call that is already in progress (W-0111).
+ *
+ * Records the request; the worker's dispatch loop performs the hangup. The
+ * response therefore says the cut was asked for, not that the line is down.
+ */
+export function terminateCallJob(
+  context: AdminCallContext,
+  ivrCallJobId: string,
+  request: AdminMutationRequest,
+): Promise<IvrApiResponse<IvrAdminActionResult>> {
+  return callIvrApi<IvrAdminActionResult>({
+    method: "POST",
+    path: `/call-jobs/${encodeURIComponent(ivrCallJobId)}:terminate`,
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+/**
+ * Cutting every call currently in progress (W-0111).
+ *
+ * A separate call from engaging the kill switch on purpose: that stops the next
+ * call, this ends conversations already under way.
+ */
+export function terminateAllCallJobs(
+  context: AdminCallContext,
+  request: AdminMutationRequest,
+): Promise<IvrApiResponse<IvrAdminActionResult>> {
+  return callIvrApi<IvrAdminActionResult>({
+    method: "POST",
+    path: "/call-jobs:terminate-all",
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}

@@ -31,6 +31,10 @@ export const IVR_PERMISSIONS = [
   "IVR_SCRIPT_APPROVE_CONTENT",
   "IVR_SCRIPT_APPROVE_PRIVACY_LEGAL",
   "IVR_SCRIPT_RETIRE",
+
+  // W-0111. On Operator as well as Admin — cutting a live call is the risk-reducing
+  // direction, and it cannot start anything.
+  "IVR_CALL_TERMINATE",
 ] as const;
 
 export type IvrPermission = (typeof IVR_PERMISSIONS)[number];

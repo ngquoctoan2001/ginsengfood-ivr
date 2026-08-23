@@ -31,8 +31,18 @@ public sealed class ConsoleAccountApiTests(PostgresPersistenceFixture fixture)
             "ngquoctoan2001",
             Password,
             HttpStatusCode.OK);
+        // W-0111 added IVR_CALL_TERMINATE, and this is the one place Operator's set is pinned,
+        // so the addition had to be made here deliberately rather than arriving with a feature.
+        // It belongs on Operator for the same reason IVR_SIM_DISABLE does: both stop something
+        // already happening, and neither can start anything.
         Assert.Equal(
-            ["IVR_ACCOUNT_SELF_VIEW", "IVR_MANUAL_RETRY", "IVR_QUEUE_VIEW", "IVR_SIM_DISABLE"],
+            [
+                "IVR_ACCOUNT_SELF_VIEW",
+                "IVR_CALL_TERMINATE",
+                "IVR_MANUAL_RETRY",
+                "IVR_QUEUE_VIEW",
+                "IVR_SIM_DISABLE",
+            ],
             session.Session.Permissions);
 
         Assert.Equal(HttpStatusCode.OK,
@@ -80,6 +90,7 @@ public sealed class ConsoleAccountApiTests(PostgresPersistenceFixture fixture)
                 "IVR_ACCOUNT_PASSWORD_RESET",
                 "IVR_ACCOUNT_SELF_VIEW",
                 "IVR_ACCOUNT_VIEW",
+                "IVR_CALL_TERMINATE",
                 "IVR_FLAG_READ",
                 "IVR_MANUAL_RETRY",
                 "IVR_QUEUE_PAUSE",

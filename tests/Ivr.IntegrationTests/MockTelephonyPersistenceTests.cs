@@ -125,6 +125,116 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         Assert.Equal(SimProviderEventType.HealthChecked, sim.Events.Single().Type);
     }
 
+    /// <summary>
+    /// Cutting a call that is already in progress (W-0111).
+    /// <para>
+    /// The load-bearing assertion is not that the call stopped — it is what the attempt says
+    /// afterwards. A cut customer never got to answer, so recording it as a customer outcome
+    /// would spend one of their attempts on a decision the operator made. It has to land as a
+    /// technical exception, uncounted, with the channel handed back.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-TEL-TERMINATE-04")]
+    public async Task TerminatingALiveCallReleasesTheLeaseAndRecordsAnUncountedTechnicalException()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-04", "JOB-TEL-04", "SIM-MOCK-04");
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-terminate",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        var sim = new FakeSimGateway(
+            new Dictionary<string, FakeSimScenario>
+            {
+                // The customer is "on the line" for two seconds while the operator decides.
+                // Without a slow capture the fake answers instantly and there is no call in
+                // progress left to cut.
+                [lease.AttemptId] = new(
+                    SimProviderDisposition.Answered,
+                    "1",
+                    CaptureDelay: TimeSpan.FromSeconds(2)),
+            },
+            timeProvider: TimeProvider.System);
+
+        MockSchedulerDispatchGateway gateway = CreateGateway(
+            CreateStore(factory),
+            lease,
+            sim,
+            includeToken: true,
+            terminationPollMilliseconds: 200);
+
+        Task dispatch = gateway.DispatchAsync(lease);
+        await WaitForActiveCallAsync(factory, lease.AttemptId);
+        await RequestTerminationAsync(factory, lease.AttemptId, "operator-1", "wrong script on air");
+
+        await Assert.ThrowsAsync<CallTerminatedException>(() => dispatch);
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallAttemptEntity attempt = await verification.CallAttempts.AsNoTracking().SingleAsync();
+        SimChannelEntity channel = await verification.SimChannels.AsNoTracking().SingleAsync();
+
+        Assert.Equal(CallTerminatedException.TechnicalCode, attempt.TechnicalExceptionType);
+        Assert.False(attempt.IsCountedCustomerAttempt);
+        Assert.NotNull(attempt.EndedAt);
+        Assert.Equal("operator-1", attempt.TerminationRequestedBy);
+
+        // Lease handed back and the channel usable again. A cut that left the channel pinned
+        // would cost capacity for the rest of the shift.
+        Assert.Equal("IDLE", channel.Status);
+        Assert.Null(channel.LeaseToken);
+        Assert.Null(channel.ActiveCallJobId);
+
+        // The customer's keypress is not recorded. They pressed 1 into a call the operator had
+        // already decided to end, and treating that as a confirmation is the specific mistake
+        // this whole work item exists to prevent.
+        Assert.Null(attempt.DtmfKey);
+        Assert.Contains(sim.Events, item => item.Type == SimProviderEventType.HangupCompleted);
+    }
+
+    private static async Task WaitForActiveCallAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string attemptId)
+    {
+        for (int attemptNumber = 0; attemptNumber < 100; attemptNumber++)
+        {
+            await using IvrDbContext context = await factory.CreateDbContextAsync();
+            bool active = await context.CallAttempts
+                .AsNoTracking()
+                .AnyAsync(item => item.IvrCallAttemptId == attemptId && item.ProviderCallId != null);
+            if (active)
+            {
+                return;
+            }
+
+            await Task.Delay(50);
+        }
+
+        Assert.Fail("The dispatch loop never marked the call active.");
+    }
+
+    /// <summary>
+    /// Writes what <c>InternalAdminApiService.TerminateCallAsync</c> writes. The API path has its
+    /// own coverage; this test is about what the dispatch loop does once the row exists.
+    /// </summary>
+    private static async Task RequestTerminationAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string attemptId,
+        string actorId,
+        string reason)
+    {
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        CallAttemptEntity attempt = await context.CallAttempts
+            .SingleAsync(item => item.IvrCallAttemptId == attemptId);
+        attempt.TerminationRequestedAt = DateTimeOffset.UtcNow;
+        attempt.TerminationRequestedBy = actorId;
+        attempt.TerminationReason = reason;
+        await context.SaveChangesAsync();
+    }
+
     [Fact]
     [Trait("TestId", "IT-TEL-HEALTH-03")]
     public async Task UnhealthyMockChannelIsQuarantinedBeforeDial()
@@ -186,7 +296,8 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         ITelephonyDispatchStore store,
         SchedulerDispatchLease lease,
         FakeSimGateway sim,
-        bool includeToken)
+        bool includeToken,
+        int terminationPollMilliseconds = 500)
     {
         Dictionary<string, string> tokens = includeToken
             ? new Dictionary<string, string>
@@ -206,6 +317,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             {
                 [lease.AttemptId] = new() { Disposition = "Answered", DtmfKey = "1" },
             },
+            TerminationPollMilliseconds = terminationPollMilliseconds,
         };
         var timeProvider = new FixedTimeProvider(Now);
         IOptions<TtsProviderOptions> ttsOptions = Options.Create(new TtsProviderOptions

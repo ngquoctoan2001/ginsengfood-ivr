@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { mutateFeatureFlags } from "@/lib/api/admin";
+import { mutateFeatureFlags, terminateAllCallJobs } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrFeatureFlagChangeSet } from "@/lib/api/types";
 import { validateAdminMutation, type AdminActionState } from "@/lib/admin/action-state";
@@ -90,6 +90,46 @@ export async function widenLabAllowlistAction(
   }
 
   return runMutation(formData, { labDestinationAllowlist: destinations }, true);
+}
+
+/**
+ * Cuts every call currently in progress.
+ *
+ * Not bundled into the kill switch. Engaging the kill switch stops the next call; this drops
+ * every customer mid-sentence, and an operator reaching for the ordinary stop button should
+ * never do that by accident. Risk-reducing, so it needs a reason and nothing more — but its own
+ * reason, describing why every live conversation had to end.
+ */
+export async function terminateAllCallsAction(
+  _state: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const validation = validateAdminMutation(formData);
+  if (!validation.ok) {
+    return { status: "invalid", messageKey: validation.messageKey };
+  }
+
+  const session = await requirePermission("IVR_CALL_TERMINATE");
+  const config = readConfig();
+
+  try {
+    const response = await terminateAllCallJobs(
+      { session, config },
+      { reason: validation.reason },
+    );
+    revalidatePath("/flags");
+    return {
+      status: "success",
+      adminActionId: response.data.admin_action_id,
+      correlationId: response.data.correlation_id,
+    };
+  } catch (cause) {
+    if (cause instanceof IvrApiError) {
+      return { status: "error", error: cause.toEnvelope() };
+    }
+
+    throw cause;
+  }
 }
 
 async function runMutation(

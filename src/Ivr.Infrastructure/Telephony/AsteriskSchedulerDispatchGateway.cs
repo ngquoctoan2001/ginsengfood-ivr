@@ -133,8 +133,9 @@ public sealed class AsteriskSchedulerDispatchGateway(
             if (session.IsConnected)
             {
                 await simGateway.PlayAsync(session, speech, cancellationToken).ConfigureAwait(false);
-                dtmf = await simGateway.CaptureDtmfAsync(
+                dtmf = await CaptureDtmfOrTerminationAsync(
                     session,
+                    lease,
                     TimeSpan.FromSeconds(configured.DtmfTimeoutSeconds),
                     cancellationToken).ConfigureAwait(false);
             }
@@ -143,6 +144,10 @@ public sealed class AsteriskSchedulerDispatchGateway(
                 dtmf = new SimDtmfCapture(null, false, null);
             }
 
+            // Asked again after the capture returns. An ARI hangup ends the channel, which can
+            // complete the capture normally, and without this the loop would record an operator
+            // cut as a customer outcome.
+            await EnsureNotTerminatedAsync(session, lease, cancellationToken).ConfigureAwait(false);
             SimDispositionReport disposition = await simGateway.GetDispositionAsync(
                 session,
                 cancellationToken).ConfigureAwait(false);
@@ -171,6 +176,13 @@ public sealed class AsteriskSchedulerDispatchGateway(
                         (SimProviderDisposition.AudioError, tts.TechnicalErrorCode, true),
                     IvrFailureException failure =>
                         (SimProviderDisposition.AudioError, failure.ErrorCode, true),
+                    CallTerminatedException =>
+                        (SimProviderDisposition.Dropped,
+                            CallTerminatedException.TechnicalCode,
+                            // Healthy: an operator ended this call, and putting the channel into
+                            // cooldown for a fault it did not have would take capacity away as a
+                            // side effect of a safety control.
+                            true),
                     AsteriskAriOperationException ari =>
                         (ari.Disposition, ari.TechnicalErrorCode, ari.ChannelHealthy),
                     KeyNotFoundException =>
@@ -191,6 +203,69 @@ public sealed class AsteriskSchedulerDispatchGateway(
                 cooldown,
                 cancellationToken).ConfigureAwait(false);
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Waits for a keypress, but stops waiting if an operator asks for the call to be cut.
+    /// See the note on the mock gateway's copy: the request crosses a process boundary through
+    /// the database, so the loop polls rather than being signalled.
+    /// </summary>
+    private async Task<SimDtmfCapture> CaptureDtmfOrTerminationAsync(
+        SimCallSession session,
+        SchedulerDispatchLease lease,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
+        TimeSpan interval = TimeSpan.FromMilliseconds(
+            Math.Max(200, ariOptions.Value.TerminationPollMilliseconds));
+        Task<SimDtmfCapture> capture = simGateway
+            .CaptureDtmfAsync(session, timeout, cancellationToken)
+            .AsTask();
+        while (true)
+        {
+            Task completed = await Task.WhenAny(
+                capture,
+                Task.Delay(interval, timeProvider, cancellationToken)).ConfigureAwait(false);
+            if (completed == capture)
+            {
+                return await capture.ConfigureAwait(false);
+            }
+
+            CallTerminationRequest? request = await store
+                .ReadTerminationAsync(lease, cancellationToken)
+                .ConfigureAwait(false);
+            if (request is null)
+            {
+                continue;
+            }
+
+            await simGateway.HangupAsync(session, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await capture.ConfigureAwait(false);
+            }
+            catch
+            {
+                // The capture failing because the channel just ended is the expected outcome.
+            }
+
+            throw new CallTerminatedException(request);
+        }
+    }
+
+    private async Task EnsureNotTerminatedAsync(
+        SimCallSession session,
+        SchedulerDispatchLease lease,
+        CancellationToken cancellationToken)
+    {
+        CallTerminationRequest? request = await store
+            .ReadTerminationAsync(lease, cancellationToken)
+            .ConfigureAwait(false);
+        if (request is not null)
+        {
+            await TryHangupAsync(session, false, cancellationToken).ConfigureAwait(false);
+            throw new CallTerminatedException(request);
         }
     }
 

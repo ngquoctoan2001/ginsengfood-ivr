@@ -43,6 +43,27 @@ bearer request không fallback sang mock header.
 | `/scripts/{templateId}/{version}:submit` | POST | `IVR_SCRIPT_REVIEW` | `IvrScriptTransitionRequest` | Chuyển bản nháp sang chờ duyệt |
 | `/scripts/{templateId}/{version}:approve` | POST | `IVR_SCRIPT_APPROVE_*` theo `approval_type` | `IvrScriptApprovalRequest` | Ghi một chữ ký duyệt |
 | `/scripts/{templateId}/{version}:retire` | POST | `IVR_SCRIPT_RETIRE` | `IvrScriptTransitionRequest` | Thu hồi; fail-closed mọi chế độ, không xoá |
+| `/call-jobs/{ivrCallJobId}:terminate` | POST | `IVR_CALL_TERMINATE` | `AdminMutationRequest` → `IvrAdminActionResult` | Cắt cuộc đang chạy; `409` nếu không có cuộc nào đang chạy |
+| `/call-jobs:terminate-all` | POST | `IVR_CALL_TERMINATE` | `AdminMutationRequest` → `IvrAdminActionResult` | Cắt mọi cuộc đang chạy; hành động riêng, không gộp vào kill switch |
+
+### Cắt ngang cuộc gọi (W-0111) — §2a được sửa lại
+
+`§2a` trước đây ghi: *"Queue pause … chỉ chặn claim mới; active lease/call không bị cancel"*.
+Câu đó vẫn đúng **cho queue pause**, nhưng nó từng là mô tả đầy đủ của hệ thống — không có cách
+nào cắt một cuộc đang chạy. Giờ có, qua route riêng ở trên; queue pause vẫn **không** cắt.
+
+Ba điểm ngữ nghĩa:
+
+- Cuộc bị cắt ghi `IVR_TECHNICAL_EXCEPTION`, `customer_attempt_counted=false`. Khách chưa kịp
+  trả lời, nên tiêu một lần gọi của họ cho quyết định của người vận hành là tính nhầm cho khách.
+  Ràng buộc `ck_ivr_call_attempts_technical_not_counted` ở CSDL cũng ép điều này.
+- Phím khách bấm sau khi người vận hành đã quyết định dừng **không** được ghi.
+- Kênh SIM trả về `IDLE` và **không** bị đưa vào cooldown: cuộc bị cắt là do ta, không phải thiết
+  bị hỏng, và phạt kênh sẽ lấy mất năng lực gọi như một tác dụng phụ của chốt an toàn.
+
+`Ivr.Api` không có SIM gateway, nên endpoint **ghi yêu cầu**, không tự cắt. Worker đọc và cắt ở
+lần kiểm tra kế tiếp (`TerminationPollMilliseconds`, mặc định `500 ms`, sàn cứng `200 ms`). Đây
+là lý do phản hồi nói "đã yêu cầu" chứ không nói "đã cắt".
 
 ### Vòng đời kịch bản (W-0109) — mã lỗi phân biệt *ai* với *trạng thái*
 
