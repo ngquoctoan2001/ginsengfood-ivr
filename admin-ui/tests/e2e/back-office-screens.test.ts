@@ -6,7 +6,12 @@ import { fileURLToPath } from "node:url";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { ADMIN_USERNAME, handleConsoleAuthStub, signInBody } from "./console-auth-stub";
+import {
+  ADMIN_USERNAME,
+  OPERATOR_USERNAME,
+  handleConsoleAuthStub,
+  signInBody,
+} from "./console-auth-stub";
 
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const nextBin = fileURLToPath(new URL("../../node_modules/next/dist/bin/next", import.meta.url));
@@ -24,6 +29,47 @@ const nextBin = fileURLToPath(new URL("../../node_modules/next/dist/bin/next", i
  * It also covers the production guard, which needs a second server started with
  * a production environment label.
  */
+
+interface CapturedFlagMutation {
+  readonly actorHeader: string;
+  readonly idempotencyKey: string;
+  readonly body: Record<string, unknown>;
+}
+
+const flagMutations: CapturedFlagMutation[] = [];
+
+const FLAG_SNAPSHOT = {
+  environment: "dev",
+  revision: 41,
+  executionMode: "MOCK",
+  salesProvider: "FAKE_TARGET_V1",
+  simProvider: "MOCK",
+  attemptPolicyVersion: "mock-lab-v1",
+  realCustomerCallAllowed: false,
+  labDestinationAllowlist: ["LAB-A"],
+  globalDialKillSwitch: true,
+  v1NotificationEnabled: false,
+  recordingEnabled: false,
+} as const;
+
+const FLAG_READ_RESULT = {
+  snapshot: FLAG_SNAPSHOT,
+  providerReadable: true,
+  fromCache: false,
+} as const;
+
+const KILL_SWITCH_ENGAGED = {
+  providerReadable: true,
+  revision: 41,
+  globalDialKillSwitch: true,
+  realCallsEnabled: false,
+} as const;
+
+const FLAG_MUTATION_RESULT = {
+  snapshot: { ...FLAG_SNAPSHOT, revision: 42 },
+  approvedBy: null,
+  increasedRiskKeys: [],
+} as const;
 
 let apiServer: Server | undefined;
 let devServer: ChildProcess | undefined;
@@ -202,10 +248,33 @@ beforeAll(async () => {
     if (await handleConsoleAuthStub(request, response)) return;
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     const base = "/v1/ivr/order-confirmation";
+
+    // W-0110. The mutation is captured rather than route-mapped, because what a
+    // console test can actually prove about an audited change is what the
+    // console sent: the actor header, and a reason. Whether the server writes
+    // the audit row is IT-FLAG-EMERGENCY-10's job, against a real database.
+    if (url.pathname === `${base}/feature-flags/dev` && request.method === "POST") {
+      const chunks: Buffer[] = [];
+      for await (const chunk of request) {
+        chunks.push(chunk as Buffer);
+      }
+
+      flagMutations.push({
+        actorHeader: String(request.headers["x-actor-id"] ?? ""),
+        idempotencyKey: String(request.headers["idempotency-key"] ?? ""),
+        body: JSON.parse(Buffer.concat(chunks).toString("utf8")) as Record<string, unknown>,
+      });
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify(FLAG_MUTATION_RESULT));
+      return;
+    }
+
     const routes: Record<string, unknown> = {
       [`${base}/scripts`]: SCRIPT_CATALOG,
       [`${base}/integration-status`]: INTEGRATION_STATUS,
       [`${base}/review-items`]: REVIEW_QUEUE,
+      [`${base}/feature-flags/dev`]: FLAG_READ_RESULT,
+      [`${base}/feature-flags/dev/kill-switch`]: KILL_SWITCH_ENGAGED,
     };
 
     const body = routes[url.pathname];
@@ -355,6 +424,61 @@ describe("E2E-UI-REVIEW-05 review queue and back-office screens", () => {
     expect(prodHtml).not.toContain("STATUS-all-up");
     // No adapter figure and therefore no way to read or change the mode here.
     expect(prodHtml).not.toContain("STATUS-order-core-down");
+  });
+
+  /**
+   * E2E-UI-FLAGS-06 (W-0110).
+   *
+   * OD-V1-20 moved the P0 constraint from "no role holds this permission" to
+   * "every press needs four-eyes, a matching actor and an audit record". These
+   * assert the console half of that: the screen renders the effective state,
+   * separates the two directions, and sends an actor header the server checks
+   * against the subject. The server half — that the audit row is written, and
+   * that a mismatched actor is refused — is IT-FLAG-EMERGENCY-10 and
+   * UT-FLAG-AUTHZ-05, against a real database.
+   */
+  it("shows the effective gate state and separates risk-reducing from risk-raising", async () => {
+    const cookie = await signedIn(devUrl);
+    const html = await (await page(devUrl, "/flags", cookie)).text();
+
+    expect(html).toContain("Cổng vận hành");
+    expect(html).toContain('data-testid="kill-switch-state"');
+    expect(html).toContain("ĐANG BẬT");
+
+    // Both directions are offered, and the labels say which is which. A screen
+    // that listed them together would be the same screen `curl` already was.
+    expect(html).toContain("Giảm rủi ro");
+    expect(html).toContain("Tăng rủi ro");
+    expect(html).toContain("Bật kill switch");
+    expect(html).toContain("Nhả kill switch");
+
+    // The allowlist entry is shown, because an operator deciding whether to
+    // widen it has to see what is already there.
+    expect(html).toContain("LAB-A");
+  });
+
+  it("refuses the whole screen to an operator rather than only hiding the buttons", async () => {
+    const cookie = await signedIn(devUrl, OPERATOR_USERNAME);
+    const response = await page(devUrl, "/flags", cookie);
+    const html = await response.text();
+
+    // No gate state at all, not a page with the controls removed: a rendered
+    // kill-switch state is itself operational information.
+    expect(html).not.toContain('data-testid="kill-switch-state"');
+    expect(html).not.toContain("Bật kill switch");
+    expect(html).not.toContain("LAB-A");
+  });
+
+  it("blocks risk-raising in a production environment and says where it moved", async () => {
+    const cookie = await signedIn(prodUrl);
+    const html = await (await page(prodUrl, "/flags", cookie)).text();
+
+    expect(html).toContain('data-testid="flags-production-blocked"');
+    expect(html).toContain("deployment");
+    // Risk reduction stays available in production. An incident is exactly when
+    // someone needs to stop dialling, and that is the direction that is safe.
+    expect(html).toContain("Bật kill switch");
+    expect(html).not.toContain("Nhả kill switch");
   });
 
   it("presents roles as a reference matrix with no assignment control", async () => {

@@ -65,7 +65,9 @@ mutation, và audit log.
 | Create/update/disable/reactivate/delete account | `IVR_ACCOUNT_MANAGE` | Admin |
 | Reset password/revoke sessions | `IVR_ACCOUNT_PASSWORD_RESET` | Admin |
 | `/profile` | `IVR_ACCOUNT_SELF_VIEW` | Admin + Operator; chỉ subject hiện tại |
-| Đọc feature flag / kill switch (API, chưa có màn riêng) | `IVR_FLAG_READ` | Admin |
+| `/flags` — đọc feature flag / kill switch | `IVR_FLAG_READ` | Admin; Operator nhận 403 và **không** render trạng thái cổng |
+| `/flags` — đổi cổng theo chiều **giảm** rủi ro | `IVR_RUNTIME_GATE_ADMIN` | Admin; chỉ cần `reason` |
+| `/flags` — đổi cổng theo chiều **tăng** rủi ro | `IVR_RUNTIME_GATE_ADMIN` | Admin; bắt buộc mã tham chiếu phê duyệt; **chặn hẳn** ở môi trường production hoặc `PRODUCTION_REAL` |
 | `POST /feature-flags/{env}` — đổi `executionMode`, `realCustomerCallAllowed`, `labDestinationAllowlist`, `globalDialKillSwitch`, `recordingEnabled` | `IVR_RUNTIME_GATE_ADMIN` | Admin qua được permission, nhưng hiện vẫn `409 IVR_OPERATIONAL_BLOCKED` do `PendingRuntimeGateAuthorization`; khi mở phải có `X-Actor-Id` khớp subject, `Idempotency-Key`, four-eyes, audit |
 | `/reports`, `/review`, `/config`, `/integration`, `/seed` | Admin role | Operator nhận 403/không render dữ liệu |
 | Tạo bản nháp / gửi duyệt / thu hồi kịch bản | `IVR_SCRIPT_EDIT` / `IVR_SCRIPT_REVIEW` / `IVR_SCRIPT_RETIRE` | Admin |
@@ -81,6 +83,24 @@ ghi lẫn lúc đọc. Hệ quả vận hành: một sign-off production cần *
 và đó là câu trả lời fail-closed đúng, không phải lỗi.
 
 Muốn phân biệt Pháp chế ở mức role thì cần role thứ ba — một work item riêng, không phải W-0109.
+
+### W-0110 — màn `/flags` và một chốt hiện **chưa** có hiệu lực
+
+Màn cổng vận hành thay cho việc gọi API bằng `curl`. Luật bất đối xứng của `specs/api/03`
+được thi hành ở hai lớp: form console từ chối gửi thay đổi tăng rủi ro khi thiếu mã phê duyệt
+(`UT-FLAGS-ASYMMETRY-01`), và Ivr.Api từ chối độc lập nếu có gì đó đi vòng qua form
+(`IT-FLAG-FOUREYES-14`).
+
+Chặn theo **môi trường** chứ không chỉ theo execution mode: đổi mode *sang* `PRODUCTION_REAL`
+tự nó là một thay đổi tăng rủi ro, và ở deployment production nó vẫn với tới được trong khi mode
+còn là `MOCK`. `isNonProductionEnvironment` là allowlist nên nhãn lạ sẽ khoá chứ không mở.
+
+> ⚠️ **Chốt "không được tự duyệt đích của chính mình" hiện KHÔNG có hiệu lực với phiên console.**
+> `RejectSelfAuthorization` chỉ chạy khi biết `ActorDestinationReference`, mà claim
+> `ivr_destination_ref` chỉ do `MockPermissionAuthenticationHandler` cấp —
+> `ConsoleSessionAuthenticationHandler` không cấp. Nghĩa là với đúng nhóm actor mà `OD-V1-20`
+> vừa trao quyền, chốt này im lặng không chạy. Chốt còn hiệu lực ở đây là **người duyệt thứ hai**.
+> Màn hình nói thẳng điều đó thay vì hiển thị một cảnh báo không có gì đứng sau.
 
 Mọi page, Route Handler và server action phải kiểm quyền server-side. Ẩn nav hay
 button chỉ là UX; gọi thẳng API sai quyền vẫn phải nhận

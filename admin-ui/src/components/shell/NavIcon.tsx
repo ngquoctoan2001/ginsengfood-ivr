@@ -6,6 +6,7 @@ export type NavIconName =
   | "config"
   | "integration"
   | "seed"
+  | "flags"
   | "roles";
 
 export interface NavIconProps {
@@ -46,6 +47,16 @@ export function NavIcon({ name }: NavIconProps) {
 
       {name === "callLog" ? (
         <path d="M3.1 2.7a1.1 1.1 0 0 1 1.2-.5l2 .5a1.1 1.1 0 0 1 .8 1.3l-.4 1.6a1 1 0 0 0 .3 1l2.4 2.4a1 1 0 0 0 1 .3l1.6-.4a1.1 1.1 0 0 1 1.3.8l.5 2a1.1 1.1 0 0 1-.5 1.2 2.5 2.5 0 0 1-1.7.3C6.9 12.6 3.4 9.1 2.8 4.4a2.5 2.5 0 0 1 .3-1.7Z" />
+      ) : null}
+
+      {/* A raised flag on a pole: the runtime gates, and the one screen whose
+          glyph should not read as a settings cog. Settings are adjusted; these
+          are raised and lowered. */}
+      {name === "flags" ? (
+        <>
+          <path d="M4 14V2.6" />
+          <path d="M4 3.2h7.6l-1.7 2.6 1.7 2.6H4" />
+        </>
       ) : null}
 
       {name === "reports" ? (

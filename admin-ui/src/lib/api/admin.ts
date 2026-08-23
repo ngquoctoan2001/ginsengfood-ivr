@@ -23,6 +23,10 @@ import type {
   IvrScriptDraftRequest,
   IvrScriptTransitionRequest,
   IvrScriptVersionDetail,
+  IvrFeatureFlagMutationRequest,
+  IvrFeatureFlagMutationResult,
+  IvrFeatureFlagReadResult,
+  IvrKillSwitchVerification,
 } from "./types";
 
 interface AdminCallContext {
@@ -346,6 +350,54 @@ export function retireScriptVersion(
   return callIvrApi<IvrScriptActionResult>({
     method: "POST",
     path: `/scripts/${encodeURIComponent(templateId)}/${encodeURIComponent(version)}:retire`,
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+/**
+ * Runtime gates (W-0110).
+ *
+ * The mutation needs an Idempotency-Key, which `callIvrApi` supplies for POSTs,
+ * and an X-Actor-Id the server checks against the authenticated subject — a
+ * mismatch is 403, so the header is never a client-chosen identity.
+ */
+export function getFeatureFlags(
+  context: AdminCallContext,
+  environment: string,
+): Promise<IvrApiResponse<IvrFeatureFlagReadResult>> {
+  return callIvrApi<IvrFeatureFlagReadResult>({
+    method: "GET",
+    path: `/feature-flags/${encodeURIComponent(environment)}`,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function verifyKillSwitch(
+  context: AdminCallContext,
+  environment: string,
+): Promise<IvrApiResponse<IvrKillSwitchVerification>> {
+  return callIvrApi<IvrKillSwitchVerification>({
+    method: "GET",
+    path: `/feature-flags/${encodeURIComponent(environment)}/kill-switch`,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function mutateFeatureFlags(
+  context: AdminCallContext,
+  environment: string,
+  request: IvrFeatureFlagMutationRequest,
+): Promise<IvrApiResponse<IvrFeatureFlagMutationResult>> {
+  return callIvrApi<IvrFeatureFlagMutationResult>({
+    method: "POST",
+    path: `/feature-flags/${encodeURIComponent(environment)}`,
     body: request,
     session: context.session,
     config: context.config,

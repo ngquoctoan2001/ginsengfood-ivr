@@ -38,6 +38,7 @@ const NAV_ITEMS: readonly NavItem[] = [
   { href: "/review", label: t("nav.review"), icon: "review", adminOnly: true },
   { href: "/config", label: t("nav.config"), icon: "config", adminOnly: true },
   { href: "/integration", label: t("nav.integration"), icon: "integration", adminOnly: true },
+  { href: "/flags", label: t("nav.flags"), icon: "flags", adminOnly: true },
   { href: "/seed", label: t("nav.seed"), icon: "seed", adminOnly: true },
   { href: "/accounts", label: t("nav.accounts"), icon: "roles", adminOnly: true },
   { href: "/roles", label: t("nav.roles"), icon: "roles", adminOnly: true },

@@ -138,6 +138,64 @@ public sealed class FeatureFlagApiTests
             FeatureFlagEnvironments.Production)).GlobalDialKillSwitch);
     }
 
+    /// <summary>
+    /// The four-eyes requirement outside production (W-0110).
+    /// <para>
+    /// <c>IT-FLAG-PRODGUARD-07</c> proves production refuses a risk increase outright. This is
+    /// the other half: in LAB, where a risk increase <em>is</em> reachable, it is reachable only
+    /// with a verified approval. Without that, "four-eyes is enforced" rests on a test that
+    /// never lets the change through in the first place — which would pass just as well if the
+    /// approval check did not exist.
+    /// </para>
+    /// <para>
+    /// It is the layer under the console form added in W-0110. The form refuses to submit a
+    /// risk increase with no approval reference; this is what happens when something bypasses
+    /// the form.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-FLAG-FOUREYES-14")]
+    public async Task LabRiskIncreaseWithoutAnApprovalReferenceIsRefused()
+    {
+        await using FeatureFlagApiTestApplication app =
+            await FeatureFlagApiTestApplication.StartAsync(
+                [LabRealSeed(true, Set("lab-destination-a"))]);
+
+        // Reducing risk needs nothing but a reason, and still works.
+        using HttpResponseMessage narrow = await SendMutationAsync(
+            app,
+            FeatureFlagEnvironments.Lab,
+            new FeatureFlagChangeSet(LabDestinationAllowlist: []),
+            "shrink the lab allowlist");
+        Assert.Equal(HttpStatusCode.OK, narrow.StatusCode);
+
+        // Raising it without an approval reference is refused.
+        using HttpResponseMessage releaseWithout = await SendMutationAsync(
+            app,
+            FeatureFlagEnvironments.Lab,
+            new FeatureFlagChangeSet(GlobalDialKillSwitch: false),
+            "resume lab dialling");
+        await AssertPolicyMismatchAsync(releaseWithout);
+
+        using HttpResponseMessage widenWithout = await SendMutationAsync(
+            app,
+            FeatureFlagEnvironments.Lab,
+            new FeatureFlagChangeSet(LabDestinationAllowlist: ["lab-destination-b"]),
+            "add a lab destination");
+        await AssertPolicyMismatchAsync(widenWithout);
+
+        // And the kill switch is still engaged afterwards: a refused mutation must not have
+        // moved the gate part of the way.
+        using HttpResponseMessage verified = await SendReadAsync(
+            app,
+            FeatureFlagEnvironments.Lab);
+        Assert.Equal(HttpStatusCode.OK, verified.StatusCode);
+        Assert.Contains(
+            "\"globalDialKillSwitch\":true",
+            await verified.Content.ReadAsStringAsync(),
+            StringComparison.Ordinal);
+    }
+
     [Fact]
     [Trait("TestId", "IT-FLAG-KILLSWITCH-08")]
     public async Task KillSwitchImmediatelyBlocksOtherwiseValidLabDispatch()
@@ -317,6 +375,19 @@ public sealed class FeatureFlagApiTests
             idempotencyKey ?? $"flag-test-{Guid.NewGuid():N}");
         request.Content = JsonContent.Create(
             new FeatureFlagMutationRequest(changes, reason, approvalReference));
+        return await app.Client.SendAsync(request);
+    }
+
+    private static async Task<HttpResponseMessage> SendReadAsync(
+        FeatureFlagApiTestApplication app,
+        string environment)
+    {
+        using HttpRequestMessage request = new(
+            HttpMethod.Get,
+            $"/v1/ivr/order-confirmation/feature-flags/{environment}");
+        request.Headers.Add("X-Permissions", IvrPermissions.FlagRead);
+        request.Headers.Add("X-Mock-Actor-Id", "operator-1");
+        request.Headers.Add("X-Actor-Id", "operator-1");
         return await app.Client.SendAsync(request);
     }
 

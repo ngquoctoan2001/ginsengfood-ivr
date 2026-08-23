@@ -647,3 +647,65 @@ export interface IvrScriptActionResult {
   readonly no_policy_bypass: true;
   readonly version: IvrScriptVersionDetail;
 }
+
+/**
+ * Runtime gates (W-0110).
+ *
+ * These serialize in **camelCase**, unlike every other admin payload in this file.
+ * The feature-flag records predate the snake_case convention and carry no
+ * `[JsonPropertyName]`, so they take the web-default casing. Renaming them would
+ * be a contract change to the one surface that must not break during an incident.
+ */
+export type IvrExecutionModeFlag = "MOCK" | "LAB_REAL_SIM" | "PRODUCTION_REAL";
+
+export interface IvrFeatureFlagSnapshot {
+  readonly environment: string;
+  readonly revision: number;
+  readonly executionMode: IvrExecutionModeFlag;
+  readonly salesProvider: "FAKE_TARGET_V1" | "CURRENT_GOLDEN_HOUR_COMPAT" | "TARGET_V1";
+  readonly simProvider: "MOCK" | "VENDOR";
+  readonly attemptPolicyVersion: string;
+  readonly realCustomerCallAllowed: boolean;
+  readonly labDestinationAllowlist: readonly string[];
+  readonly globalDialKillSwitch: boolean;
+  readonly v1NotificationEnabled: boolean;
+  readonly recordingEnabled: boolean;
+}
+
+export interface IvrFeatureFlagReadResult {
+  readonly snapshot: IvrFeatureFlagSnapshot;
+  readonly providerReadable: boolean;
+  readonly fromCache: boolean;
+}
+
+export interface IvrKillSwitchVerification {
+  readonly providerReadable: boolean;
+  readonly revision: number;
+  readonly globalDialKillSwitch: boolean;
+  readonly realCallsEnabled: boolean;
+}
+
+export interface IvrFeatureFlagChangeSet {
+  readonly executionMode?: IvrExecutionModeFlag;
+  readonly salesProvider?: "FAKE_TARGET_V1" | "CURRENT_GOLDEN_HOUR_COMPAT" | "TARGET_V1";
+  readonly simProvider?: "MOCK" | "VENDOR";
+  readonly attemptPolicyVersion?: string;
+  readonly realCustomerCallAllowed?: boolean;
+  readonly labDestinationAllowlist?: readonly string[];
+  readonly globalDialKillSwitch?: boolean;
+  readonly v1NotificationEnabled?: boolean;
+  readonly recordingEnabled?: boolean;
+}
+
+export interface IvrFeatureFlagMutationRequest {
+  readonly changes: IvrFeatureFlagChangeSet;
+  readonly reason: string;
+  /** Opaque reference the server verifies. Never an approver identity from the client. */
+  readonly approvalReference?: string;
+}
+
+export interface IvrFeatureFlagMutationResult {
+  readonly snapshot: IvrFeatureFlagSnapshot;
+  readonly approvedBy?: string | null;
+  readonly increasedRiskKeys: readonly string[];
+}
