@@ -160,6 +160,32 @@ public sealed class CallAttemptEntity : RetainedEntity
     public DateTimeOffset? TerminationRequestedAt { get; set; }
     public string? TerminationRequestedBy { get; set; }
     public string? TerminationReason { get; set; }
+
+    /// <summary>
+    /// W-0113. The voice this attempt dialled with, recorded at dispatch.
+    /// <para>
+    /// Recorded rather than re-derived. The console used to compute the region from the stored
+    /// delivery area whenever it was asked, which made the answer a function of today's
+    /// configuration; one voice-map change and every earlier evidence pack quietly starts
+    /// describing a voice nobody heard. That failure is silent — nothing goes red, the number
+    /// just stops being true — and evidence packs are what an owner signs.
+    /// </para>
+    /// <para>
+    /// Null on every attempt made before this column existed, and on any path that dials without
+    /// choosing a voice. Null means "not recorded", never "no voice".
+    /// </para>
+    /// </summary>
+    public string? VoiceId { get; set; }
+
+    public string? VoiceRegion { get; set; }
+
+    /// <summary>
+    /// Whether the region came from a recognised province rather than from the configured
+    /// fallback. Stored because "South because we recognised the address" and "South because
+    /// South is the default" are different claims, and only the first is evidence about this
+    /// customer.
+    /// </summary>
+    public bool? VoiceRegionResolved { get; set; }
 }
 
 public sealed class RawCallEventEntity : RetainedEntity

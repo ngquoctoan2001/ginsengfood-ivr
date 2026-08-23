@@ -5,6 +5,7 @@ import { CallDetailActions } from "@/app/(console)/calls/[ivrCallJobId]/CallDeta
 import { PermissionProvider } from "@/components/rbac/PermissionProvider";
 import type { IvrReviewItemDetail, IvrTechnicalExceptionDetail } from "@/lib/api/types";
 import vi from "@/i18n/vi.json";
+import enums from "@/i18n/enums.vi.json";
 import type { IvrPermission, IvrRole } from "@/lib/rbac/permissions";
 
 const TECHNICAL_EXCEPTIONS: IvrTechnicalExceptionDetail[] = [
@@ -89,6 +90,45 @@ describe("UT-UI-NOORDER-03 no order transition control", () => {
         expect(message, key).not.toMatch(/(xác nhận|huỷ|hủy)\s+đơn hàng/i);
       }
     }
+  });
+});
+
+/**
+ * UT-UI-VOICE-05 — W-0113. A derived voice region must be marked as derived.
+ *
+ * This is the whole point of the work item. The failure it prevents is silent: a config change
+ * after the call makes the derived value describe a voice nobody heard, nothing goes red, and
+ * the number ends up in an evidence pack an owner signs. So the copy has to say two things — that
+ * the value was recomputed just now, and that it is not usable for sign-off — and the recorded
+ * copy has to say the opposite without hedging.
+ */
+describe("UT-UI-VOICE-05 voice region provenance", () => {
+  it("warns in plain Vietnamese that a derived region is not a record of what was played", () => {
+    const messages: Record<string, string> = vi;
+    const warning = messages["detail.voiceRegionDerivedWarning"];
+
+    expect(warning).toMatch(/suy lại/i);
+    expect(warning).toMatch(/cấu hình/i);
+
+    // The consequence, not just the mechanism: an operator who reads only half of this must
+    // still come away knowing they cannot sign against it.
+    expect(warning).toMatch(/không dùng để ký/i);
+
+    const recorded = messages["detail.voiceRegionRecordedNote"];
+    expect(recorded).toMatch(/ghi tại thời điểm gọi/i);
+    expect(recorded).toMatch(/không suy lại/i);
+  });
+
+  it("keeps the two provenance values apart in the enum dictionary", () => {
+    const family = (enums as Record<string, Record<string, string>>).voiceRegionSource;
+
+    expect(family.RECORDED).toBeTruthy();
+    expect(family.DERIVED).toBeTruthy();
+    expect(family.RECORDED).not.toBe(family.DERIVED);
+
+    // Read by an operator at a glance, so the distinction has to survive being skimmed.
+    expect(family.DERIVED).toMatch(/suy lại/i);
+    expect(family.RECORDED).toMatch(/ghi/i);
   });
 });
 

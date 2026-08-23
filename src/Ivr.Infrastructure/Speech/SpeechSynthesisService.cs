@@ -128,7 +128,14 @@ public sealed class SpeechSynthesisService(
                 configured,
                 cacheExpiresAt,
                 cancellationToken).ConfigureAwait(false);
-        return renderedSpeech.WithAudio(audio);
+
+        // W-0113. The selection above is the only place that decides which voice a customer
+        // hears; attaching it here is what lets the dispatch loop record that decision instead
+        // of leaving the console to re-derive it from configuration that may since have changed.
+        return renderedSpeech.WithAudio(audio.WithVoice(DispatchedVoice.Create(
+            voice.VoiceId,
+            voice.Region,
+            voice.ResolvedFromDeliveryArea)));
     }
 
     private async Task<RenderedAudio> SynthesizeWholeAsync(

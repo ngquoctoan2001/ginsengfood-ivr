@@ -311,5 +311,9 @@
   "scenarioCoverage": {
     "REPLAYED": "Đã phát lại được",
     "NOT_REPLAYABLE": "Ngoài phạm vi phát lại"
+  },
+  "voiceRegionSource": {
+    "RECORDED": "Đã ghi lúc gọi",
+    "DERIVED": "Suy lại lúc đọc"
   }
 }

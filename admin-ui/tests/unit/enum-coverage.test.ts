@@ -262,6 +262,10 @@ const COVERED: Readonly<Record<string, readonly (keyof typeof enums)[]>> = {
   // answer is shown to whoever is running the rehearsal — so it is translated rather than
   // exempted as an internal discriminator.
   coverage: ["scenarioCoverage"],
+
+  // W-0113. Whether a region was recorded or re-derived is shown to whoever is deciding
+  // whether the number in front of them can be signed, so it is translated, not exempted.
+  voice_region_source: ["voiceRegionSource"],
 };
 
 /**

@@ -262,7 +262,13 @@ public sealed class MockSchedulerDispatchGateway(
                     authorization,
                     SimRecordingMode.Disabled),
                 cancellationToken).ConfigureAwait(false);
-            await store.MarkActiveAsync(lease, session, cancellationToken).ConfigureAwait(false);
+            // W-0113. The voice rides on the audio that was just produced, so what gets recorded
+            // is the voice this attempt actually holds rather than one re-derived later.
+            await store.MarkActiveAsync(
+                lease,
+                session,
+                speech.Audio?.Voice,
+                cancellationToken).ConfigureAwait(false);
             SimDtmfCapture dtmf;
             if (session.IsConnected)
             {

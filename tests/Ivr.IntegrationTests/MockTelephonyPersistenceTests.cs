@@ -83,6 +83,112 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             () => store.LoadAsync(lease));
     }
 
+    /// <summary>
+    /// W-0113. The voice reaches the attempt row, and it reaches the audit log too.
+    /// <para>
+    /// Both, on purpose. The column is what the console reads and it can be corrected by a later
+    /// write; the audit row is append-only. An evidence pack an owner signs deserves the copy
+    /// nobody can quietly amend, and the two agreeing is what makes either of them worth
+    /// believing.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-TEL-VOICE-05")]
+    public async Task DispatchRecordsTheVoiceItDialledWithOnTheAttemptAndInTheAudit()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-05", "JOB-TEL-05", "SIM-MOCK-05");
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-mock-voice",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        var sim = new FakeSimGateway(
+            new Dictionary<string, FakeSimScenario>
+            {
+                [lease.AttemptId] = new(SimProviderDisposition.Answered, "1"),
+            },
+            timeProvider: new FixedTimeProvider(Now));
+        PostgresTelephonyDispatchStore store = CreateStore(factory);
+        MockSchedulerDispatchGateway gateway = CreateGateway(store, lease, sim, includeToken: true);
+
+        await gateway.DispatchAsync(lease);
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallAttemptEntity attempt = await verification.CallAttempts.AsNoTracking().SingleAsync();
+
+        // The seed delivery area is Vietnamese but the harness leaves regional voices off, so the
+        // recorded region is the configured fallback and the flag says exactly that. Asserting
+        // the flag matters more than asserting the region: a recorded "North" that silently means
+        // "we could not tell" is the sort of number an owner would sign without knowing.
+        Assert.False(string.IsNullOrWhiteSpace(attempt.VoiceId));
+        Assert.Equal("North", attempt.VoiceRegion);
+        Assert.False(attempt.VoiceRegionResolved);
+
+        RenderedSpeech played = Assert.Single(sim.PlayedSpeech).Value;
+        Assert.Equal(played.Audio!.Voice!.VoiceId, attempt.VoiceId);
+        Assert.Equal(played.Audio.Voice.RegionWireForm, attempt.VoiceRegion);
+
+        List<string> startedAudits = await verification.AuditLog.AsNoTracking()
+            .Where(row => row.Action == "SIM_CALL_STARTED")
+            .Select(row => row.DataJson)
+            .ToListAsync();
+        string audit = Assert.Single(startedAudits);
+        Assert.Contains(attempt.VoiceId!, audit, StringComparison.Ordinal);
+        Assert.Contains("voice_region", audit, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Half a voice record is refused by the database, not just by the code that writes it.
+    /// A region with no voice id is a claim about what a customer heard that cannot be traced to
+    /// a configured voice — precisely the kind of half-fact these columns exist to replace.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-TEL-VOICE-06")]
+    public async Task ThePartialVoiceRecordIsRefusedByTheDatabase()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-06", "JOB-TEL-06", "SIM-MOCK-06");
+
+        // The attempt row is created by the scheduler claim, not by the seed.
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-mock-voice-constraint",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+
+        await using (IvrDbContext half = await factory.CreateDbContextAsync())
+        {
+            CallAttemptEntity attempt = await half.CallAttempts.SingleAsync();
+            attempt.VoiceRegion = "South";
+            await Assert.ThrowsAsync<DbUpdateException>(() => half.SaveChangesAsync());
+        }
+
+        await using (IvrDbContext unknown = await factory.CreateDbContextAsync())
+        {
+            CallAttemptEntity attempt = await unknown.CallAttempts.SingleAsync();
+            attempt.VoiceId = "voice-x";
+            attempt.VoiceRegion = "Northeast";
+            attempt.VoiceRegionResolved = true;
+            await Assert.ThrowsAsync<DbUpdateException>(() => unknown.SaveChangesAsync());
+        }
+
+        // And the complete, in-vocabulary record is accepted, so the two refusals above are
+        // about the shape of the record rather than about the column being unwritable.
+        await using (IvrDbContext whole = await factory.CreateDbContextAsync())
+        {
+            CallAttemptEntity attempt = await whole.CallAttempts.SingleAsync();
+            attempt.VoiceId = "voice-south";
+            attempt.VoiceRegion = "South";
+            attempt.VoiceRegionResolved = true;
+            await whole.SaveChangesAsync();
+        }
+    }
+
     [Fact]
     [Trait("TestId", "IT-TEL-TOKENFAIL-02")]
     public async Task MissingMockTokenFailsClosedReleasesLeaseAndDoesNotCountAttempt()

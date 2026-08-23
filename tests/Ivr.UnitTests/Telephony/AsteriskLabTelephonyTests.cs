@@ -389,6 +389,7 @@ public sealed class AsteriskLabTelephonyTests
         public Task MarkActiveAsync(
             SchedulerDispatchLease lease,
             SimCallSession session,
+            DispatchedVoice? voice = null,
             CancellationToken cancellationToken = default) =>
             throw new InvalidOperationException("No call may become active when the gate blocks.");
 

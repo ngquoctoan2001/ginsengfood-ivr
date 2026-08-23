@@ -230,6 +230,26 @@ internal static class PersistenceModelConfiguration
                     + " OR (termination_requested_at IS NOT NULL"
                     + " AND termination_requested_by IS NOT NULL"
                     + " AND termination_reason IS NOT NULL)");
+
+                // W-0113. Either the whole voice record is present or none of it is. A region
+                // with no voice id is a claim about what a customer heard that cannot be traced
+                // to a configured voice, which is exactly the kind of half-record this column
+                // exists to replace.
+                table.HasCheckConstraint(
+                    "ck_ivr_call_attempts_voice_complete",
+                    "(voice_id IS NULL"
+                    + " AND voice_region IS NULL"
+                    + " AND voice_region_resolved IS NULL)"
+                    + " OR (voice_id IS NOT NULL"
+                    + " AND voice_region IS NOT NULL"
+                    + " AND voice_region_resolved IS NOT NULL)");
+
+                // The three regions are a closed set. Enforced here as well as in code so a
+                // direct write cannot introduce a fourth region that no voice map knows about.
+                table.HasCheckConstraint(
+                    "ck_ivr_call_attempts_voice_region",
+                    "voice_region IS NULL"
+                    + " OR voice_region IN ('North', 'Central', 'South')");
             });
         builder.HasKey(entity => entity.IvrCallAttemptId);
         builder.HasOne<CallJobEntity>()
@@ -257,6 +277,14 @@ internal static class PersistenceModelConfiguration
             .HasFilter("termination_requested_at IS NOT NULL");
         builder.Property(entity => entity.TerminationRequestedBy).HasMaxLength(120);
         builder.Property(entity => entity.TerminationReason).HasMaxLength(500);
+        builder.Property(entity => entity.VoiceId).HasMaxLength(120);
+        builder.Property(entity => entity.VoiceRegion).HasMaxLength(16);
+
+        // Indexed because the question worth asking of this column is a count: how many attempts
+        // went out in each voice, and how many fell back. Without it that is a table scan over
+        // every attempt ever made.
+        builder.HasIndex(entity => entity.VoiceRegion)
+            .HasFilter("voice_region IS NOT NULL");
     }
 
     private static void ConfigureTaskIntakeOutbox(ModelBuilder modelBuilder)

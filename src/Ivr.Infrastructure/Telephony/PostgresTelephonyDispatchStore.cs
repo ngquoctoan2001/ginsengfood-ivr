@@ -2,6 +2,7 @@ using System.Data;
 using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Speech;
 using Ivr.Infrastructure.Contracts;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
@@ -62,9 +63,15 @@ public interface ITelephonyDispatchStore
         SchedulerDispatchLease lease,
         CancellationToken cancellationToken = default);
 
+    /// <param name="voice">
+    /// The voice this attempt dialled with (W-0113). Optional because not every dispatch path
+    /// chooses one — a static LAB file has no regional selection — and a null here means "not
+    /// recorded", which the console reports as a derived region rather than as an absence.
+    /// </param>
     public Task MarkActiveAsync(
         SchedulerDispatchLease lease,
         SimCallSession session,
+        DispatchedVoice? voice = null,
         CancellationToken cancellationToken = default);
 
     public Task CompleteAsync(
@@ -163,6 +170,7 @@ public sealed class PostgresTelephonyDispatchStore(
     public async Task MarkActiveAsync(
         SchedulerDispatchLease lease,
         SimCallSession session,
+        DispatchedVoice? voice = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(lease);
@@ -181,6 +189,17 @@ public sealed class PostgresTelephonyDispatchStore(
                 attempt.Status = "ACTIVE_CALL";
                 attempt.StartedAt = session.StartedAt;
                 attempt.ProviderCallId = session.ProviderCallReference;
+
+                // W-0113. Written here rather than at render time: the render may happen and the
+                // dial may still fail, and a voice recorded against an attempt that never
+                // connected is a claim about a call that did not happen.
+                if (voice is not null)
+                {
+                    attempt.VoiceId = voice.VoiceId;
+                    attempt.VoiceRegion = voice.RegionWireForm;
+                    attempt.VoiceRegionResolved = voice.ResolvedFromDeliveryArea;
+                }
+
                 channel.Status = "ACTIVE_CALL";
                 job.Status = "ACTIVE_CALL";
                 context.AuditLog.Add(CreateAudit(
@@ -194,6 +213,13 @@ public sealed class PostgresTelephonyDispatchStore(
                         ["fencing_generation"] = lease.FencingGeneration,
                         ["provider_call_ref"] = session.ProviderCallReference,
                         ["recording"] = "DISABLED",
+
+                        // Also in the audit log, which is append-only. The column can be
+                        // corrected by a later write; the audit row cannot, and an evidence pack
+                        // an owner signs deserves the version nobody can quietly amend.
+                        ["voice_id"] = voice?.VoiceId,
+                        ["voice_region"] = voice?.RegionWireForm,
+                        ["voice_region_resolved"] = voice?.ResolvedFromDeliveryArea,
                     }));
                 await Task.CompletedTask;
             },

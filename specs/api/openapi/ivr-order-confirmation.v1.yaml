@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.15
+  version: 1.0.0-draft.16
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -2100,6 +2100,30 @@ components:
         blocked_reason: { type: string }
         policy_version: { type: string }
         script_version: { type: string }
+        voice_id:
+          type: string
+          nullable: true
+          description: >
+            W-0113. The provider voice this attempt dialled with, recorded at dispatch rather
+            than re-derived at read time. Explicitly null - not omitted - when nothing was
+            recorded, because an absent field and a null one are indistinguishable to a reader
+            and "was this recorded" is the exact question this field exists to answer.
+        voice_region:
+          type: string
+          enum: [North, Central, South]
+          nullable: true
+          description: >
+            W-0113. The region recorded for this attempt at dispatch. Null on attempts made
+            before the columns existed and on any path that dials without choosing a voice; null
+            means "not recorded", never "no voice".
+        voice_region_resolved:
+          type: boolean
+          nullable: true
+          description: >
+            W-0113. True when the region came from a recognised province in the delivery area,
+            false when it came from the configured fallback. "South because we recognised the
+            address" and "South because South is the default" are different claims, and only the
+            first is evidence about this customer.
     IvrCallResultDetail:
       type: object
       additionalProperties: false
@@ -2242,15 +2266,30 @@ components:
             Nghi quyet 202/2025/QH15, and therefore which regional voice this order routes to.
             Absent when the delivery area names no recognisable province.
 
-            This is DERIVED AT READ TIME from the stored privacy-safe summary. It is not a
-            record of which voice was actually played: the regional voice map and its fallback
-            live in configuration, so a config change between the call and this read would make
-            the two differ. Auditing the voice actually played would require persisting it,
-            which W-0106 deliberately does not do.
+            W-0113 CHANGED WHERE THIS COMES FROM. It is now read from the attempt that dialled
+            whenever one recorded a voice, and only otherwise derived from the stored
+            privacy-safe summary. Read voice_region_source to know which of the two you have.
+
+            The derived answer is a function of TODAY'S configuration: the regional voice map
+            and its fallback live in config, so a change between the call and this read makes
+            the derived value describe a voice nobody heard. Nothing about that failure is
+            visible in the value itself, which is why the provenance is a separate field rather
+            than a footnote.
 
             The raw delivery area itself is NOT exposed here. A three-value region is far less
             identifying than a ward-and-province string, and the console does not need the
             latter to know which voice a customer heard.
+        voice_region_source:
+          type: string
+          enum: [RECORDED, DERIVED]
+          nullable: true
+          description: >
+            W-0113. RECORDED when voice_region comes from the attempt row, DERIVED when it was
+            computed from the stored delivery area. Null when there is no region at all.
+
+            A separate field rather than a suffix on the value, so a screen that ignores
+            provenance still shows a correct region and one that cares can refuse to put a
+            derived number into something an owner signs.
         max_attempts: { type: integer, minimum: 0 }
         attempt_policy_code: { type: string }
         script_version: { type: string }

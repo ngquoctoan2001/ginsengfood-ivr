@@ -33,7 +33,8 @@ public sealed record RenderedAudio
         TimeSpan duration,
         string contentRef,
         ImmutableArray<RenderedAudioSegment> segments,
-        string playlistHash)
+        string playlistHash,
+        DispatchedVoice? voice = null)
     {
         Format = format;
         SampleRate = sampleRate;
@@ -41,6 +42,35 @@ public sealed record RenderedAudio
         ContentRef = contentRef;
         Segments = segments;
         PlaylistHash = playlistHash;
+        Voice = voice;
+    }
+
+    /// <summary>
+    /// The voice this audio was produced with (W-0113). Null on audio built by a path that does
+    /// not choose a voice — a static LAB file, or a test double.
+    /// <para>
+    /// It rides on the audio rather than being passed alongside it because the audio is the thing
+    /// a customer hears, and a voice carried separately is a voice that can be handed to the
+    /// wrong recording by a later refactor.
+    /// </para>
+    /// </summary>
+    public DispatchedVoice? Voice { get; }
+
+    /// <summary>
+    /// Attaches the voice chosen for this order. Separate from <see cref="CreatePlaylist"/> so
+    /// every existing construction site keeps its exact signature and its exact behaviour.
+    /// </summary>
+    public RenderedAudio WithVoice(DispatchedVoice voice)
+    {
+        ArgumentNullException.ThrowIfNull(voice);
+        return new RenderedAudio(
+            Format,
+            SampleRate,
+            Duration,
+            ContentRef,
+            Segments,
+            PlaylistHash,
+            voice);
     }
 
     public string Format { get; }
@@ -144,10 +174,13 @@ public sealed record RenderedAudio
         && SampleRate == other.SampleRate
         && Duration == other.Duration
         && string.Equals(ContentRef, other.ContentRef, StringComparison.Ordinal)
-        && string.Equals(PlaylistHash, other.PlaylistHash, StringComparison.Ordinal);
+        && string.Equals(PlaylistHash, other.PlaylistHash, StringComparison.Ordinal)
+        // Two playlists of identical bytes read in different voices are not the same audio, and
+        // the point of W-0113 is that the difference is recorded rather than inferred.
+        && Equals(Voice, other.Voice);
 
     public override int GetHashCode() =>
-        HashCode.Combine(Format, SampleRate, Duration, ContentRef, PlaylistHash);
+        HashCode.Combine(Format, SampleRate, Duration, ContentRef, PlaylistHash, Voice);
 
     private const string EmptySegmentHash = "";
 

@@ -338,6 +338,86 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
         Assert.DoesNotContain("Cửa Nam", northPayload, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// W-0113. The recorded voice wins over the derived one, and the response says which it is.
+    /// <para>
+    /// The seeded attempts carry no voice, so this job reads as DERIVED — which is the honest
+    /// answer for every call made before the columns existed. Then one attempt is given a
+    /// recorded voice that deliberately DISAGREES with what the delivery area would derive, and
+    /// the recorded value is the one that comes back. Choosing a disagreeing value is the whole
+    /// test: a matching one would pass whether or not the read path had changed at all.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-ADMIN-READ-11")]
+    public async Task DetailPrefersTheRecordedVoiceAndSaysWhereTheRegionCameFrom()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        using (HttpResponseMessage derivedResponse = await SendAdminAsync(
+            app,
+            $"/v1/ivr/order-confirmation/call-jobs/{GoldenHourJob}/detail",
+            IvrPermissions.QueueView))
+        {
+            using JsonDocument derived = JsonDocument.Parse(
+                await derivedResponse.Content.ReadAsStringAsync());
+
+            // Vĩnh Long is Southern, and nothing recorded a voice, so the answer is derived.
+            Assert.Equal("South", derived.RootElement.GetProperty("voice_region").GetString());
+            Assert.Equal(
+                "DERIVED",
+                derived.RootElement.GetProperty("voice_region_source").GetString());
+            foreach (JsonElement attempt in derived.RootElement.GetProperty("attempts").EnumerateArray())
+            {
+                Assert.Equal(JsonValueKind.Null, attempt.GetProperty("voice_region").ValueKind);
+            }
+        }
+
+        // Now record a voice on the LAST attempt, and record a region the delivery area would
+        // never produce. A config change between the call and this read is exactly how the two
+        // come to disagree in real life.
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await using (IvrDbContext context = await factory.CreateDbContextAsync())
+        {
+            CallAttemptEntity attempt = await context.CallAttempts
+                .SingleAsync(row => row.IvrCallAttemptId == "ATTEMPT-READ-GH-2");
+            attempt.VoiceId = "voice-central-a";
+            attempt.VoiceRegion = "Central";
+            attempt.VoiceRegionResolved = true;
+            await context.SaveChangesAsync();
+        }
+
+        using HttpResponseMessage recordedResponse = await SendAdminAsync(
+            app,
+            $"/v1/ivr/order-confirmation/call-jobs/{GoldenHourJob}/detail",
+            IvrPermissions.QueueView);
+        string payload = await recordedResponse.Content.ReadAsStringAsync();
+        using JsonDocument recorded = JsonDocument.Parse(payload);
+
+        Assert.Equal("Central", recorded.RootElement.GetProperty("voice_region").GetString());
+        Assert.Equal(
+            "RECORDED",
+            recorded.RootElement.GetProperty("voice_region_source").GetString());
+
+        // The per-attempt rows keep their own answers. Attempt 1 recorded nothing and still
+        // says nothing — it is not back-filled from attempt 2, because two attempts of one job
+        // can genuinely have gone out in different voices.
+        JsonElement attempts = recorded.RootElement.GetProperty("attempts");
+        JsonElement first = attempts[0];
+        JsonElement second = attempts[1];
+        Assert.Equal(JsonValueKind.Null, first.GetProperty("voice_region").ValueKind);
+        Assert.Equal("Central", second.GetProperty("voice_region").GetString());
+        Assert.Equal("voice-central-a", second.GetProperty("voice_id").GetString());
+        Assert.True(second.GetProperty("voice_region_resolved").GetBoolean());
+
+        // Still no delivery area on the wire, recorded or derived.
+        Assert.DoesNotContain("Phú Khương", payload, StringComparison.Ordinal);
+        Assert.DoesNotContain("delivery_area_short", payload, StringComparison.Ordinal);
+    }
+
     [Fact]
     [Trait("TestId", "IT-ADMIN-READ-09")]
     public async Task DashboardAndDetailCarryTheTilesTheUiSpecsAskFor()

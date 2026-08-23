@@ -60,7 +60,25 @@ public sealed record CallAttemptDetail(
     [property: JsonPropertyName("sim_channel_id")] string? SimChannelId,
     [property: JsonPropertyName("blocked_reason")] string? BlockedReason,
     [property: JsonPropertyName("policy_version")] string PolicyVersion,
-    [property: JsonPropertyName("script_version")] string ScriptVersion);
+    [property: JsonPropertyName("script_version")] string ScriptVersion,
+    /// W-0113. The voice this attempt dialled with, recorded at dispatch. Null on attempts made
+    /// before the columns existed, and on any path that dials without choosing a voice — null
+    /// means "not recorded", never "no voice".
+    /// <para>
+    /// Written even when null, against the API's global "omit nulls" rule. An absent field and a
+    /// null one are indistinguishable to a reader, and the difference this work exists to make
+    /// visible is exactly "was this recorded or not". A field that simply vanishes cannot say
+    /// "no voice was recorded for this attempt", which is a thing an evidence pack has to be
+    /// able to state. Same reason <c>operational_blocked_rate</c> is pinned in
+    /// <c>AnalyticsContracts</c>.
+    /// </para>
+    [property: JsonPropertyName("voice_id")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] string? VoiceId = null,
+    [property: JsonPropertyName("voice_region")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] string? VoiceRegion = null,
+    /// Whether the region came from a recognised province rather than the configured fallback.
+    [property: JsonPropertyName("voice_region_resolved")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] bool? VoiceRegionResolved = null);
 
 public sealed record CallResultDetail(
     [property: JsonPropertyName("ivr_call_result_id")] string IvrCallResultId,
@@ -142,10 +160,11 @@ public sealed record CallJobDetailApiResult(
     /// area under the 34 provincial units of Nghị quyết 202/2025/QH15. Null when the area
     /// names no recognisable province.
     /// <para>
-    /// Derived at READ time, so it is not an audit record of the voice actually played: the
-    /// voice map and its fallback live in configuration, and a config change between the call
-    /// and this read would make the two disagree. Auditing the played voice would need it
-    /// persisted, which W-0106 deliberately does not do.
+    /// W-0113. Read from the attempt that dialled whenever one recorded it, and only otherwise
+    /// re-derived. <c>voice_region_source</c> says which of the two this is, because the derived
+    /// answer is a function of today's configuration: a voice-map change between the call and
+    /// this read makes it describe a voice nobody heard, and nothing about that failure is
+    /// visible in the value itself.
     /// </para>
     /// <para>
     /// The raw delivery area is deliberately NOT exposed. A three-value region tells an
@@ -153,6 +172,15 @@ public sealed record CallJobDetailApiResult(
     /// the console, which would be a privacy expansion needing its own review (OD-V1-15).
     /// </para>
     [property: JsonPropertyName("voice_region")] string? VoiceRegion,
+    /// <c>RECORDED</c> when the value above comes from the attempt row, <c>DERIVED</c> when it
+    /// was computed from the stored delivery area. Null when there is no region at all.
+    /// <para>
+    /// A separate field rather than a suffix on the value, so a screen that ignores provenance
+    /// still shows a correct region, and one that cares can refuse to put a derived number in
+    /// something an owner signs.
+    /// </para>
+    [property: JsonPropertyName("voice_region_source")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] string? VoiceRegionSource,
     [property: JsonPropertyName("max_attempts")] int MaxAttempts,
     [property: JsonPropertyName("attempt_policy_code")] string AttemptPolicyCode,
     [property: JsonPropertyName("script_version")] string ScriptVersion,

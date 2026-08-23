@@ -420,6 +420,12 @@ public sealed class AdminReadService(
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
+        // W-0113. The recorded voice wins over the derived one, and the LAST attempt that
+        // recorded a voice wins over earlier ones: configuration can change between two attempts
+        // of the same job, so "the voice this job used" is only well defined per attempt. The
+        // per-attempt values are on the rows below; this is the summary a screen leads with.
+        RecordedVoiceRegion recordedVoice = ReadRecordedVoiceRegion(attempts);
+
         return new CallJobDetailApiResult(
             job.IvrCallJobId,
             job.TaskId,
@@ -436,7 +442,9 @@ public sealed class AdminReadService(
             task.CallRestriction,
             task.SellableCapturedAt,
             ReadSellableStatus(task.SellableStatusJson),
-            ReadVoiceRegion(task.PrivacySafeOrderSummaryJson),
+            recordedVoice.Region ?? ReadVoiceRegion(task.PrivacySafeOrderSummaryJson),
+            recordedVoice.Source ?? (
+                ReadVoiceRegion(task.PrivacySafeOrderSummaryJson) is null ? null : DerivedVoiceRegion),
             job.MaxAttempts,
             job.AttemptPolicyCode,
             job.ScriptVersion,
@@ -462,7 +470,10 @@ public sealed class AdminReadService(
                 attempt.SimChannelId,
                 attempt.BlockedReason,
                 attempt.PolicyVersion,
-                attempt.ScriptVersion)).ToArray(),
+                attempt.ScriptVersion,
+                attempt.VoiceId,
+                attempt.VoiceRegion,
+                attempt.VoiceRegionResolved)).ToArray(),
             results.Select(result => new CallResultDetail(
                 result.IvrCallResultId,
                 result.ResultType,
@@ -627,6 +638,36 @@ public sealed class AdminReadService(
     /// <c>ReadSellableStatus</c> refuses to fail a whole detail screen over one bad snapshot.
     /// </para>
     /// </summary>
+    /// <summary>Where a rendered <c>voice_region</c> came from.</summary>
+    private readonly record struct RecordedVoiceRegion(string? Region, string? Source);
+
+    private const string RecordedVoiceRegionSource = "RECORDED";
+    private const string DerivedVoiceRegion = "DERIVED";
+
+    /// <summary>
+    /// The region recorded by the most recent attempt that recorded one (W-0113).
+    /// <para>
+    /// Attempts arrive ordered by attempt number, so the last one carrying a voice is the most
+    /// recent thing that actually happened. Earlier attempts are not overwritten or averaged —
+    /// they keep their own recorded voices on their own rows, because two attempts of one job
+    /// can genuinely have used different voices.
+    /// </para>
+    /// </summary>
+    private static RecordedVoiceRegion ReadRecordedVoiceRegion(
+        List<CallAttemptEntity> attempts)
+    {
+        for (int index = attempts.Count - 1; index >= 0; index--)
+        {
+            string? region = attempts[index].VoiceRegion;
+            if (!string.IsNullOrWhiteSpace(region))
+            {
+                return new RecordedVoiceRegion(region, RecordedVoiceRegionSource);
+            }
+        }
+
+        return new RecordedVoiceRegion(null, null);
+    }
+
     private static string? ReadVoiceRegion(string? summaryJson)
     {
         if (string.IsNullOrWhiteSpace(summaryJson))

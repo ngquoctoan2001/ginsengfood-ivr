@@ -136,11 +136,42 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
               ),
             },
             {
+              // W-0113. Shown beside the region, never folded into it. An operator deciding
+              // whether this number can go into something they sign needs to know whether it
+              // was recorded at the call or recomputed just now from configuration that may
+              // since have changed — and a value alone cannot tell them.
+              label: t("detail.voiceRegionSource"),
+              value: (
+                <EnumLabel
+                  family="voiceRegionSource"
+                  value={detail.voice_region_source ?? undefined}
+                  showCode
+                  fallback={t("detail.voiceRegionUnknown")}
+                  testId="voice-region-source"
+                />
+              ),
+            },
+            {
               label: t("detail.window"),
               value: `${formatDateTime(detail.t0_at)} → ${formatDateTime(detail.expires_at)}`,
             },
           ]}
         />
+
+        {/* W-0113. Said in words, not only as an enum chip. The derived value is the one that
+            goes quietly wrong — a config change after the call makes it describe a voice nobody
+            heard, and nothing about the value itself shows that — so the screen states plainly
+            which of the two is in front of the reader and whether it can be signed. */}
+        {detail.voice_region_source === "DERIVED" ? (
+          <Callout tone="warning" role="alert" testId="voice-region-derived">
+            {t("detail.voiceRegionDerivedWarning")}
+          </Callout>
+        ) : null}
+        {detail.voice_region_source === "RECORDED" ? (
+          <Callout tone="success" testId="voice-region-recorded">
+            {t("detail.voiceRegionRecordedNote")}
+          </Callout>
+        ) : null}
 
         {detail.blocked_reasons.length === 0 ? null : (
           <Callout tone="warning" title={t("detail.blockedReasons")}>

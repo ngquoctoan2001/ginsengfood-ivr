@@ -166,6 +166,15 @@ export interface IvrCallAttemptDetail {
   readonly blocked_reason?: string;
   readonly policy_version: string;
   readonly script_version: string;
+  /**
+   * W-0113. The voice this attempt dialled with, recorded at dispatch. Null — sent explicitly,
+   * not omitted — when nothing was recorded, which is every attempt made before the columns
+   * existed. Null means "not recorded", never "no voice".
+   */
+  readonly voice_id?: string | null;
+  readonly voice_region?: "North" | "Central" | "South" | null;
+  /** True when the region came from a recognised province, false when from the fallback. */
+  readonly voice_region_resolved?: boolean | null;
 }
 
 /** OpenAPI `IvrCallResultDetail`. */
@@ -258,10 +267,17 @@ export interface IvrCallJobDetail {
    * W-0106. Which regional voice this order routes to, derived server-side from the stored
    * delivery area. Absent when no province could be identified.
    *
-   * Derived at read time, not an audit record of the voice actually played — the voice map
-   * lives in configuration. The raw delivery area is deliberately not sent to the console.
+   * W-0113 changed where this comes from: it is read from the attempt that dialled whenever
+   * one recorded a voice, and only otherwise derived. `voice_region_source` says which.
+   * The raw delivery area is deliberately not sent to the console.
    */
   readonly voice_region?: "North" | "Central" | "South";
+  /**
+   * `RECORDED` when the region above is a fact from the attempt row, `DERIVED` when it was
+   * recomputed from the stored delivery area — and therefore a function of today's config
+   * rather than a record of what a customer heard.
+   */
+  readonly voice_region_source?: "RECORDED" | "DERIVED" | null;
   readonly max_attempts: number;
   readonly attempt_policy_code: string;
   readonly script_version: string;
