@@ -12,7 +12,6 @@
     "IVR_OPERATIONAL_BLOCKED": "Bị chặn do vận hành",
     "IVR_POLICY_BLOCKED": "Bị chặn do chính sách"
   },
-
   "eligibilityDecision": {
     "TASK_ACCEPTED_CALL_JOB_CREATED": "Đã nhận — đã tạo lệnh gọi",
     "TASK_ACCEPTED_DRY_RUN_ONLY": "Đã nhận — chỉ chạy thử, không gọi thật",
@@ -30,7 +29,6 @@
     "ELIGIBLE_FOR_IVR": "Đủ điều kiện gọi",
     "IVR_CAPACITY_EXCEPTION": "Không đủ năng lực gọi"
   },
-
   "recommendedCoreAction": {
     "REVALIDATE_AND_CONFIRM_ORDER": "Xác nhận đơn — sau khi Core kiểm lại",
     "REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST": "Huỷ theo yêu cầu khách — sau khi Core kiểm lại",
@@ -40,7 +38,6 @@
     "IGNORE_STALE_CALLBACK": "Bỏ qua — callback đã cũ",
     "BLOCK_DUE_TO_OPERATIONAL_CONSTRAINT": "Chặn — ràng buộc vận hành"
   },
-
   "jobStatus": {
     "OPEN": "Đang mở",
     "QUEUED": "Chờ gọi",
@@ -70,7 +67,6 @@
     "SKIPPED": "Đã bỏ qua",
     "CLOSED": "Đã đóng"
   },
-
   "attemptStatus": {
     "LEASED_PENDING_DISPATCH": "Đã nhận lượt — chờ quay số",
     "DIALING": "Đang quay số",
@@ -83,7 +79,6 @@
     "TECHNICAL_RETRY_QUEUED": "Đã xếp lịch gọi lại do lỗi kỹ thuật",
     "RECOVERY_REQUIRED": "Cần khôi phục"
   },
-
   "simStatus": {
     "IDLE": "Rảnh",
     "RESERVED": "Đã giữ chỗ",
@@ -94,7 +89,6 @@
     "QUARANTINED": "Đang cách ly",
     "HEALTH_FAILED": "Health check lỗi"
   },
-
   "deliveryStatus": {
     "READY": "Sẵn sàng gửi",
     "SENDING": "Đang gửi",
@@ -108,11 +102,9 @@
     "INVALID_DEAD_LETTER": "Không hợp lệ — đưa vào hàng chờ xử lý tay",
     "AUTH_REJECTED": "Core từ chối xác thực"
   },
-
   "callbackResultState": {
     "PENDING_CORE_REVALIDATION": "Chờ Core kiểm lại"
   },
-
   "disposition": {
     "Answered": "Khách bắt máy",
     "RingTimeout": "Đổ chuông không ai nghe",
@@ -126,7 +118,6 @@
     "AudioError": "Lỗi âm thanh",
     "DtmfError": "Lỗi nhận phím bấm"
   },
-
   "resultReason": {
     "CUSTOMER_PRESSED_1": "Khách bấm phím 1 (đồng ý)",
     "CUSTOMER_PRESSED_0": "Khách bấm phím 0 (huỷ)",
@@ -140,7 +131,6 @@
     "INVALID_DESTINATION": "Số không tồn tại",
     "CAPACITY_UNAVAILABLE": "Không còn kênh gọi"
   },
-
   "technicalExceptionType": {
     "PROVIDER_DROPPED": "Nhà mạng ngắt cuộc gọi",
     "NETWORK_ERROR": "Lỗi mạng",
@@ -149,14 +139,12 @@
     "DTMF_ERROR": "Lỗi nhận phím bấm",
     "UNMAPPED_PROVIDER_DISPOSITION": "Nhà mạng trả mã lạ, chưa ánh xạ được"
   },
-
   "reviewSourceType": {
     "IVR_CALL_RESULT": "Kết quả cuộc gọi",
     "IVR_RESULT_CALLBACK": "Callback gửi Core",
     "ELIGIBILITY_DECISION": "Quyết định eligibility",
     "IVR_OPTOUT_PROPOSAL": "Đề xuất chặn gọi (opt-out)"
   },
-
   "reviewReason": {
     "CALLBACK_TIMEOUT": "Gửi callback quá hạn",
     "CALLBACK_CIRCUIT_OPEN": "Ngắt mạch bảo vệ đang mở",
@@ -176,19 +164,16 @@
     "LEASE_EXPIRED_RECONCILIATION_REQUIRED": "Lượt điều phối hết hạn — cần đối soát",
     "NO_DISPATCH_BEFORE_DEADLINE": "Không kịp quay số trước hạn chót"
   },
-
   "reviewStatus": {
     "OPEN": "Đang mở",
     "RESOLVED": "Đã xử lý"
   },
-
   "sellableDecision": {
     "SELLABLE": "Bán được",
     "NOT_SELLABLE": "Không bán được",
     "BLOCKED": "Bị chặn",
     "UNKNOWN": "Chưa xác định"
   },
-
   "blockedReason": {
     "RECALL_HOLD_ACTIVE": "Đang giữ do thu hồi sản phẩm",
     "SALE_LOCK_ACTIVE": "Đang khoá bán",
@@ -199,72 +184,60 @@
     "TRUSTED_CUSTOMER_SKIP": "Bỏ qua vì khách quen tin cậy",
     "BLOCKED_BY_CORE": "Order Core chặn khi kiểm lại"
   },
-
   "closedReason": {
     "IVR_CAPACITY_EXCEPTION": "Đóng do không đủ năng lực gọi"
   },
-
   "shortageReason": {
     "NO_DISPATCH_BEFORE_DEADLINE": "Không kịp quay số trước hạn chót",
     "CAPACITY_DEADLINE_UNAVAILABLE": "Không xác định được deadline năng lực",
     "CAPACITY_SOURCE_UNAVAILABLE": "Không đọc được nguồn năng lực",
     "LEASE_EXPIRED_RECONCILIATION_REQUIRED": "Lượt điều phối hết hạn — cần đối soát"
   },
-
   "incidentScope": {
     "ADMIN_QUEUE_PAUSE": "Quản trị tạm dừng hàng đợi",
     "ELIGIBILITY_DEADLINE": "Trễ hạn xét eligibility",
     "SCHEDULER_DEADLINE": "Trễ hạn điều phối"
   },
-
   "incidentStatus": {
     "OPEN": "Đang mở",
     "RESOLVED": "Đã xử lý"
   },
-
   "programType": {
     "GOLDEN_HOUR": "Giờ vàng",
     "TWENTY_FOUR_SEVEN": "24/7"
   },
-
   "paymentMethod": {
     "ONLINE": "Thanh toán online",
     "COD": "Thu hộ khi giao (COD)"
   },
-
   "executionMode": {
     "MOCK": "Mô phỏng",
     "LAB_REAL_SIM": "Lab SIM thật",
     "PRODUCTION_REAL": "Vận hành thật"
   },
-
   "scriptStatus": {
     "DRAFT": "Bản nháp",
     "IN_REVIEW": "Đang duyệt",
     "APPROVED": "Đã duyệt",
     "RETIRED": "Đã ngừng"
   },
-
   "approvalType": {
     "MOCK_TEST": "Kiểm thử mô phỏng",
     "LAB": "Lab",
     "CONTENT": "Nội dung",
     "PRIVACY_LEGAL": "Pháp lý & quyền riêng tư"
   },
-
   "dtmfMeaning": {
     "CONFIRM": "Xác nhận",
     "CANCEL": "Huỷ",
     "NOT_ENABLED": "Chưa mở"
   },
-
   "dependencyState": {
     "UP": "Hoạt động",
     "DOWN": "Mất kết nối",
     "READY_503": "Sẵn sàng nhưng trả 503",
     "NOT_WIRED": "Chưa đấu nối"
   },
-
   "dependencyName": {
     "SIM_GATEWAY": "Cổng SIM",
     "DIAL_KILL_SWITCH": "Kill switch quay số",
@@ -273,7 +246,6 @@
     "CRM_DO_NOT_CALL": "CRM — danh sách chặn gọi",
     "EVIDENCE_REGISTRY": "Kho bằng chứng"
   },
-
   "failClosedEffect": {
     "SIM_GATEWAY": "SIM lỗi được ghi là IVR_TECHNICAL_EXCEPTION, không bao giờ ghi thành không nghe máy (DT-02).",
     "DIAL_KILL_SWITCH": "Khi đang bật, không cuộc gọi nào được quay số ở bất kỳ chế độ nào.",
@@ -282,7 +254,6 @@
     "CRM_DO_NOT_CALL": "CRM mất kết nối ⇒ không xác định được khách đã chặn gọi hay chưa, nên không quay số (DC-01).",
     "EVIDENCE_REGISTRY": "Kho bằng chứng mất kết nối ⇒ không gửi được callback cuối, phiếu bị giữ lại."
   },
-
   "dependencyDetail": {
     "OPS_SELLABLE_GATE": "Chưa có thăm dò health của Ops; /health/ready không mang tín hiệu dependency cho tới W-0040.",
     "CRM_DO_NOT_CALL": "Thông tin chặn gọi và mức tin cậy đi kèm trong task từ Sales (W-0031); IVR không giữ client CRM và không thăm dò gì (UT-ARCH-NO-CRM-EGRESS-06).",
@@ -290,61 +261,55 @@
     "DIAL_KILL_SWITCH_ENGAGED": "Kill switch đang bật; đã chặn quay số",
     "DIAL_KILL_SWITCH_RELEASED": "Kill switch đang tắt"
   },
-
   "failClosedEventSource": {
     "CAPACITY_INCIDENT": "Sự cố năng lực",
     "REVIEW_ITEM": "Mục chờ duyệt"
   },
-
   "accountRole": {
     "Admin": "Quản trị viên",
     "Operator": "Nhân viên vận hành"
   },
-
   "accountStatus": {
     "ACTIVE": "Đang hoạt động",
     "DISABLED": "Đã vô hiệu hoá",
     "DELETED": "Đã xoá mềm"
   },
-
   "intakeOutboxStatus": {
     "HELD_MOCK": "Giữ ở chế độ MOCK",
     "READY_FOR_ELIGIBILITY": "Chờ xét eligibility",
     "PUBLISHED": "Đã phát hành"
   },
-
   "adminActionStatus": {
     "APPLIED": "Đã thực hiện",
     "RESOLVED": "Đã xử lý"
   },
-
   "warehouseStatus": {
     "COMPLETE": "Pipeline đã nạp đủ",
     "BACKLOG": "Pipeline còn tồn — số liệu chưa đủ",
     "MISMATCH": "Pipeline lệch số dòng so với nguồn — cần rà soát",
     "NOT_RUN": "Pipeline chưa chạy lần nào"
   },
-
   "freshnessStatus": {
     "FRESH": "Mới",
     "STALE": "Đã cũ",
     "NO_DATA": "Chưa có dữ liệu"
   },
-
   "analyticsDimension": {
     "RESULT_TYPE": "Loại kết quả",
     "SCRIPT_VARIANT": "Biến thể kịch bản (A/B)",
     "PROGRAM": "Chương trình"
   },
-
   "bucket": {
     "DAY": "Ngày",
     "HOUR": "Giờ"
   },
-
   "voiceRegion": {
     "North": "Miền Bắc",
     "Central": "Miền Trung",
     "South": "Miền Nam"
+  },
+  "scenarioCoverage": {
+    "REPLAYED": "Đã phát lại được",
+    "NOT_REPLAYABLE": "Ngoài phạm vi phát lại"
   }
 }

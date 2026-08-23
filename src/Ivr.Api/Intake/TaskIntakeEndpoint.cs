@@ -344,7 +344,15 @@ public static class TaskIntakeEndpoint
         return false;
     }
 
-    private static string CanonicalJsonSha256(JsonElement root)
+    /// <summary>
+    /// The payload fingerprint intake stores and later compares idempotent replays against.
+    /// <para>
+    /// Internal rather than private because the UI-07 seed loader (W-0112) admits fixtures
+    /// through the same intake service and must produce the same fingerprint for the same body.
+    /// Two canonicalisations would agree until the day one of them changed.
+    /// </para>
+    /// </summary>
+    internal static string CanonicalJsonSha256(JsonElement root)
     {
         using var buffer = new MemoryStream();
         using (var writer = new Utf8JsonWriter(buffer))

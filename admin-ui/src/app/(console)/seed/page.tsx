@@ -1,4 +1,5 @@
 import { MetricGrid, type Metric } from "@/components/data/MetricGrid";
+import { SeedActions } from "./SeedActions";
 import { Callout, Card, CardStack, ChipList, PageHeader } from "@/components/ui";
 import { readConfig } from "@/lib/config/env";
 import { requireAdmin } from "@/lib/auth/guard";
@@ -14,8 +15,11 @@ export const dynamic = "force-dynamic";
  * change the adapter mode. Moving to REAL needs a purchased SIM (DT-01) and the
  * release gate (DF-03); it is not a toggle.
  *
- * Seed loading and scenario runs stay on the CLI: no API exists for them and the
- * console does not open a write path into the database.
+ * W-0112 gives the three UI-07 actions an API. What has not changed is where the guard lives:
+ * `Ivr.Api` does not map those routes outside a non-production deployment, so this screen hiding
+ * its controls in production is a courtesy to the reader rather than the control. Changing the
+ * adapter mode is still not offered — moving to REAL needs a purchased SIM (DT-01) and the
+ * release gate (DF-03), and it is not a toggle.
  */
 export default async function SeedMockPage() {
   await requireAdmin();
@@ -69,19 +73,17 @@ export default async function SeedMockPage() {
           </Callout>
         </Card>
 
-        <Card title={t("seed.loaderTitle")}>
-          <Callout tone="locked" testId="seed-loader-unavailable">
-            {t("seed.loaderUnavailable")}
-          </Callout>
-        </Card>
-
-        <Card title={t("seed.profilesTitle")} footer={t("seed.profileSource")}>
+        <Card title={t("seed.loaderTitle")} footer={t("seed.profileSource")}>
           <ChipList
             label={t("seed.profilesTitle")}
             items={INTEGRATION_STATUS_PROFILES.map((profile) => ({
               key: profile,
               label: profile,
             }))}
+          />
+          <SeedActions
+            scenarioIds={CALL_SCENARIOS}
+            profileIds={INTEGRATION_STATUS_PROFILES}
           />
         </Card>
       </CardStack>
@@ -90,9 +92,12 @@ export default async function SeedMockPage() {
 }
 
 /**
- * Names only, mirroring `seed/integration-status.sample.json`. Listing them makes
- * the available fail-closed rehearsals discoverable without giving the console a
- * way to apply one.
+ * Names only, mirroring `seed/integration-status.sample.json` and
+ * `seed/call-scenarios.sample.json`.
+ *
+ * Duplicated from the seed files rather than fetched, because this list only has to name the
+ * choices; the API reads the files itself and answers 404 for an id it does not find. A stale
+ * entry here therefore produces a clear refusal, not a silently wrong rehearsal.
  */
 const INTEGRATION_STATUS_PROFILES: readonly string[] = [
   "STATUS-all-up",
@@ -102,4 +107,22 @@ const INTEGRATION_STATUS_PROFILES: readonly string[] = [
   "STATUS-crm-down",
   "STATUS-sim-down",
   "STATUS-evidence-down",
+];
+
+const CALL_SCENARIOS: readonly string[] = [
+  "SCN-001-confirm",
+  "SCN-002-cancel",
+  "SCN-003-no-answer-final",
+  "SCN-004-busy-then-confirm",
+  "SCN-005-invalid-phone",
+  "SCN-006-technical-exception",
+  "SCN-007-window-expired",
+  "SCN-008-operational-block-recall",
+  "SCN-009-race-recall-after-key1",
+  "SCN-010-trusted-skip",
+  "SCN-011-duplicate-callback",
+  "SCN-012-opt-out-block",
+  "SCN-013-not-official-order",
+  "SCN-014-needs-support-key9",
+  "SCN-015-capacity-incident",
 ];

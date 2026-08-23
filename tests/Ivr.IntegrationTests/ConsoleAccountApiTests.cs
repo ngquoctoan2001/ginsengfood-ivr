@@ -91,6 +91,12 @@ public sealed class ConsoleAccountApiTests(PostgresPersistenceFixture fixture)
                 "IVR_ACCOUNT_SELF_VIEW",
                 "IVR_ACCOUNT_VIEW",
                 "IVR_CALL_TERMINATE",
+
+                // W-0112. Widened deliberately: the UI-07 developer surface is Admin-only.
+                // The permission opens nothing in production — those routes are not served
+                // there — but it does let an Admin write fixture tasks and move SIM channels
+                // in a non-production database, which is a change worth being listed here.
+                "IVR_DEV_TOOLING",
                 "IVR_FLAG_READ",
                 "IVR_MANUAL_RETRY",
                 "IVR_QUEUE_PAUSE",

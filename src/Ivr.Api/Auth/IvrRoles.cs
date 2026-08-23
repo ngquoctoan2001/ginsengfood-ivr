@@ -70,6 +70,11 @@ public static class IvrRoles
             IvrPermissions.ScriptApprovePrivacyLegal,
             IvrPermissions.ScriptRetire,
             IvrPermissions.CallTerminate,
+
+            // W-0112. Admin only. An Operator running an acceptance session can watch a
+            // rehearsal; loading fixtures and moving channels is a change to the environment
+            // everyone else is reading, and it belongs with the account that owns it.
+            IvrPermissions.DevTooling,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 

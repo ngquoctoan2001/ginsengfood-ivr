@@ -7,12 +7,14 @@ using Ivr.Domain.Errors;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.DevTooling;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Idempotency;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Api.Application;
@@ -1161,6 +1163,15 @@ public sealed class InternalAdminApiService(
 
 public static class InternalAdminApiServiceCollectionExtensions
 {
+    private static int ReadInt(IConfigurationSection section, string key, int fallback) =>
+        int.TryParse(
+            section[key],
+            System.Globalization.NumberStyles.Integer,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out int parsed)
+                ? parsed
+                : fallback;
+
     public static IServiceCollection AddIvrInternalAdminApi(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -1186,6 +1197,34 @@ public static class InternalAdminApiServiceCollectionExtensions
         services.AddSingleton<IAdminConfigReadService, AdminConfigReadService>();
         services.AddSingleton<IAnalyticsReadService, AnalyticsReadService>();
         services.AddSingleton<IScriptLifecycleApiService, ScriptLifecycleApiService>();
+
+        // W-0112. Registered unconditionally; the routes are what production refuses to map.
+        // Keeping the service available means NonProductionSurface is exercised by the same
+        // code in every environment, rather than by a registration branch nobody runs.
+        IConfigurationSection devSection = configuration.GetSection(DevToolingOptions.SectionName);
+        services.AddOptions<DevToolingOptions>()
+            .Configure(options =>
+            {
+                options.SeedDirectory =
+                    devSection[nameof(DevToolingOptions.SeedDirectory)] ?? string.Empty;
+                options.ScenarioWindowSeconds = ReadInt(
+                    devSection,
+                    nameof(DevToolingOptions.ScenarioWindowSeconds),
+                    options.ScenarioWindowSeconds);
+                options.ScenarioTechnicalRetryLimit = ReadInt(
+                    devSection,
+                    nameof(DevToolingOptions.ScenarioTechnicalRetryLimit),
+                    options.ScenarioTechnicalRetryLimit);
+                options.MaximumSeedTasks = ReadInt(
+                    devSection,
+                    nameof(DevToolingOptions.MaximumSeedTasks),
+                    options.MaximumSeedTasks);
+            })
+            .ValidateOnStart();
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IValidateOptions<DevToolingOptions>, DevToolingOptionsValidator>());
+        services.AddSingleton<SeedCatalog>();
+        services.AddSingleton<IDevToolingApiService, DevToolingApiService>();
         return services;
     }
 }

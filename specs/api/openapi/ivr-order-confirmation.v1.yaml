@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.14
+  version: 1.0.0-draft.15
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -435,6 +435,105 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptTransitionRequest' } } }
       responses:
         '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /dev/seed:load:
+    post:
+      tags: [admin]
+      summary: Load the seed fixtures (NON-PRODUCTION ONLY, perm IVR_DEV_TOOLING)
+      description: >-
+        Absent in production. The route is not mapped when the deployment is
+        production by environment, by execution mode or by
+        REAL_CUSTOMER_CALL_ALLOWED, so a production caller gets 404 rather than
+        403 - a 403 would confirm that a seed loader exists at this address.
+        Fixtures are admitted through the same intake service production uses,
+        so a do-not-call customer stays blocked and nothing bypasses policy.
+        Confirmation windows are rebased to now by default because the fixtures
+        carry absolute August-2026 instants and would otherwise all be refused
+        as expired.
+      operationId: loadDevSeed
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrSeedLoadRequest' } } }
+      responses:
+        '200': { description: Fixtures processed, content: { application/json: { schema: { $ref: '#/components/schemas/IvrSeedLoadResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /dev/scenarios/{scenarioId}:dry-run:
+    post:
+      tags: [admin]
+      summary: Replay a call scenario without dialling (NON-PRODUCTION ONLY, perm IVR_DEV_TOOLING)
+      description: >-
+        Replays the scenario's recorded attempts through disposition
+        normalisation and compares the result with what the seed file expects.
+        No call is placed, and that is structural rather than suppressed - the
+        replay engine holds no telephony port. A scenario whose expected result
+        comes from task intake or from the confirmation-window sweep answers
+        NOT_REPLAYABLE with no verdict, because calling it a mismatch would point
+        at the wrong file.
+      operationId: dryRunDevScenario
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - name: scenarioId
+          in: path
+          required: true
+          schema: { type: string, maxLength: 120 }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: Replay report, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScenarioDryRunResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /dev/integration-profiles/{profileId}:apply:
+    post:
+      tags: [admin]
+      summary: Apply an integration-status profile (NON-PRODUCTION ONLY, perm IVR_DEV_TOOLING)
+      description: >-
+        Applies what IVR actually controls and reports the rest as declared
+        only. SIM_GATEWAY is enforced by enabling or disabling channels through
+        the ordinary admin path, so the fail-closed re-enable check still holds.
+        ORDER_CORE, OPS_SELLABLE_GATE, CRM_DO_NOT_CALL and EVIDENCE_REGISTRY are
+        never probed by IVR and report NOT_WIRED, so a profile cannot switch
+        them; the response says which is which rather than implying five
+        dependencies moved.
+      operationId: applyDevIntegrationProfile
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string, maxLength: 120 }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: Profile applied, content: { application/json: { schema: { $ref: '#/components/schemas/IvrIntegrationProfileResult' } } } }
         '400': { $ref: '#/components/responses/Error' }
         '401': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
@@ -1547,6 +1646,109 @@ components:
       properties:
         callback_id: { type: string, minLength: 1 }
         ivr_call_result_id: { type: string, minLength: 1 }
+    IvrSeedLoadRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        evidence_ref: { type: string, maxLength: 200, nullable: true }
+        rebase_windows:
+          type: boolean
+          default: true
+          description: >-
+            Move each fixture's confirmation window so it starts now. False loads
+            the fixtures exactly as written, which refuses every one of them for
+            an expired window - useful for demonstrating that refusal, useless
+            for setting up a rehearsal.
+    IvrSeedTaskOutcome:
+      type: object
+      additionalProperties: false
+      required: [scenario, task_id, decision, blocked_reasons]
+      properties:
+        scenario: { type: string, maxLength: 200 }
+        task_id: { type: string, maxLength: 120 }
+        decision: { type: string, maxLength: 80 }
+        ivr_call_job_id: { type: string, maxLength: 120, nullable: true }
+        blocked_reasons: { type: array, items: { type: string, maxLength: 300 } }
+    IvrSeedLoadResult:
+      type: object
+      additionalProperties: false
+      required: [generated_at, dataset, execution_mode, task_count, accepted_count, windows_rebased, rebased_count, attempt_policies_registered, tasks, correlation_id]
+      properties:
+        generated_at: { type: string, format: date-time }
+        dataset: { type: string, maxLength: 80 }
+        execution_mode: { type: string, maxLength: 40 }
+        task_count: { type: integer, minimum: 0 }
+        accepted_count: { type: integer, minimum: 0 }
+        windows_rebased: { type: boolean }
+        rebased_count: { type: integer, minimum: 0 }
+        attempt_policies_registered:
+          type: integer
+          minimum: 0
+          description: >-
+            Candidate attempt policies registered by this load. Zero on a repeat
+            run - a policy version is immutable, and rewriting the policy every
+            existing task was admitted under would be worse than skipping it.
+        tasks: { type: array, items: { $ref: '#/components/schemas/IvrSeedTaskOutcome' } }
+        correlation_id: { type: string, maxLength: 120 }
+    IvrScenarioAttemptReplay:
+      type: object
+      additionalProperties: false
+      required: [attempt_number, raw_call_status, result_type, customer_attempt_counted, final, reason]
+      properties:
+        attempt_number: { type: integer, minimum: 1 }
+        raw_call_status: { type: string, maxLength: 40 }
+        raw_dtmf: { type: string, maxLength: 8, nullable: true }
+        result_type: { type: string, maxLength: 60 }
+        customer_attempt_counted: { type: boolean }
+        final: { type: boolean }
+        reason: { type: string, maxLength: 120 }
+    IvrScenarioDryRunResult:
+      type: object
+      additionalProperties: false
+      required: [generated_at, scenario_id, coverage, attempts, notes, correlation_id]
+      properties:
+        generated_at: { type: string, format: date-time }
+        scenario_id: { type: string, maxLength: 120 }
+        task_ref: { type: string, maxLength: 120, nullable: true }
+        coverage: { type: string, enum: [REPLAYED, NOT_REPLAYABLE] }
+        expected_result_type: { type: string, maxLength: 60, nullable: true }
+        expected_counted: { type: boolean, nullable: true }
+        actual_result_type: { type: string, maxLength: 60, nullable: true }
+        actual_counted: { type: boolean, nullable: true }
+        matches:
+          type: boolean
+          nullable: true
+          description: Null when coverage is NOT_REPLAYABLE - no verdict is claimed.
+        attempts: { type: array, items: { $ref: '#/components/schemas/IvrScenarioAttemptReplay' } }
+        notes: { type: array, items: { type: string, maxLength: 300 } }
+        correlation_id: { type: string, maxLength: 120 }
+    IvrIntegrationProfileEffect:
+      type: object
+      additionalProperties: false
+      required: [dependency, requested_state, enforced, detail]
+      properties:
+        dependency: { type: string, maxLength: 40 }
+        requested_state: { type: string, maxLength: 40 }
+        enforced:
+          type: boolean
+          description: >-
+            False when IVR declares the state but nothing in the running system
+            consults it, which is the case for every dependency it does not probe.
+        detail: { type: string, maxLength: 300 }
+    IvrIntegrationProfileResult:
+      type: object
+      additionalProperties: false
+      required: [generated_at, profile_id, expected, enforced_count, declared_only_count, effects, correlation_id]
+      properties:
+        generated_at: { type: string, format: date-time }
+        profile_id: { type: string, maxLength: 120 }
+        expected: { type: string, maxLength: 300 }
+        enforced_count: { type: integer, minimum: 0 }
+        declared_only_count: { type: integer, minimum: 0 }
+        effects: { type: array, items: { $ref: '#/components/schemas/IvrIntegrationProfileEffect' } }
+        correlation_id: { type: string, maxLength: 120 }
     AdminMutationRequest:
       type: object
       additionalProperties: false

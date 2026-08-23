@@ -26,6 +26,10 @@ app.MapIvrTaskIntakeEndpoint();
 app.MapIvrInternalLifecycleEndpoints();
 app.MapIvrAdminEndpoints();
 
+// W-0112. Maps nothing outside a non-production deployment, so production has no such route
+// to refuse — see DevToolingEndpoints.
+app.MapIvrDevToolingEndpoints();
+
 app.Run();
 
 public partial class Program;

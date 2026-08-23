@@ -33,6 +33,7 @@ không được tự cấp quyền hay tin claim do browser gửi.
 | `IVR_SCRIPT_APPROVE_PRIVACY_LEGAL` | ✅ | ❌ |
 | `IVR_SCRIPT_RETIRE` | ✅ | ❌ |
 | `IVR_CALL_TERMINATE` | ✅ | ✅ |
+| `IVR_DEV_TOOLING` | ✅ | ❌ |
 
 `IVR_FLAG_READ` và `IVR_RUNTIME_GATE_ADMIN` được cấp cho Admin từ 2026-08-22 theo
 `OD-V1-20`; Operator không có cả hai. Chữ ký thứ hai của four-eyes còn trống —
@@ -75,6 +76,7 @@ mutation, và audit log.
 | Duyệt kịch bản (4 loại) | `IVR_SCRIPT_APPROVE_*` tương ứng | Admin; **người tạo không được duyệt**, và duyệt nội dung ≠ duyệt pháp chế |
 | Chi tiết cuộc gọi → Cắt cuộc đang chạy | `IVR_CALL_TERMINATE` | Admin **và** Operator; nút chỉ hiện khi có cuộc đang chạy |
 | `/flags` → Cắt mọi cuộc đang chạy | `IVR_CALL_TERMINATE` | Admin; hành động riêng, **không** gộp vào kill switch |
+| `/seed` → Nạp seed / chạy scenario / áp profile | `IVR_DEV_TOOLING` | Admin; **chỉ non-prod** — production không đăng ký route, trả `404` |
 
 ### W-0109 — bảy quyền kịch bản và cái chúng **không** làm
 

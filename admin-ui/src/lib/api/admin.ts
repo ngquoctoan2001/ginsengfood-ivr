@@ -27,6 +27,10 @@ import type {
   IvrFeatureFlagMutationResult,
   IvrFeatureFlagReadResult,
   IvrKillSwitchVerification,
+  SeedLoadRequest,
+  IvrSeedLoadResult,
+  IvrScenarioDryRunResult,
+  IvrIntegrationProfileResult,
 } from "./types";
 
 interface AdminCallContext {
@@ -439,6 +443,55 @@ export function terminateAllCallJobs(
   return callIvrApi<IvrAdminActionResult>({
     method: "POST",
     path: "/call-jobs:terminate-all",
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+/**
+ * UI-07 developer surface (W-0112). Absent in production: the API does not map these routes when
+ * the deployment is production by environment, execution mode or REAL_CUSTOMER_CALL_ALLOWED, so a
+ * production console sees 404 rather than a permission error.
+ */
+export function loadDevSeed(
+  context: AdminCallContext,
+  request: SeedLoadRequest,
+): Promise<IvrApiResponse<IvrSeedLoadResult>> {
+  return callIvrApi<IvrSeedLoadResult>({
+    method: "POST",
+    path: "/dev/seed:load",
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function dryRunDevScenario(
+  context: AdminCallContext,
+  scenarioId: string,
+  request: AdminMutationRequest,
+): Promise<IvrApiResponse<IvrScenarioDryRunResult>> {
+  return callIvrApi<IvrScenarioDryRunResult>({
+    method: "POST",
+    path: `/dev/scenarios/${encodeURIComponent(scenarioId)}:dry-run`,
+    body: request,
+    session: context.session,
+    config: context.config,
+    fetchImpl: context.fetchImpl,
+  });
+}
+
+export function applyDevIntegrationProfile(
+  context: AdminCallContext,
+  profileId: string,
+  request: AdminMutationRequest,
+): Promise<IvrApiResponse<IvrIntegrationProfileResult>> {
+  return callIvrApi<IvrIntegrationProfileResult>({
+    method: "POST",
+    path: `/dev/integration-profiles/${encodeURIComponent(profileId)}:apply`,
     body: request,
     session: context.session,
     config: context.config,

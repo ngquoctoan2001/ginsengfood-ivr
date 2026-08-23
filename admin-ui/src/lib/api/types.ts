@@ -709,3 +709,77 @@ export interface IvrFeatureFlagMutationResult {
   readonly approvedBy?: string | null;
   readonly increasedRiskKeys: readonly string[];
 }
+
+/**
+ * UI-07 developer surface (W-0112). Mirrors `IvrSeedLoadRequest` and friends in
+ * `specs/api/openapi/ivr-order-confirmation.v1.yaml`.
+ */
+export interface SeedLoadRequest extends AdminMutationRequest {
+  /** Defaults to true server-side; the fixtures are otherwise all refused as expired. */
+  readonly rebase_windows?: boolean;
+}
+
+export interface IvrSeedTaskOutcome {
+  readonly scenario: string;
+  readonly task_id: string;
+  readonly decision: string;
+  readonly ivr_call_job_id?: string | null;
+  readonly blocked_reasons: readonly string[];
+}
+
+export interface IvrSeedLoadResult {
+  readonly generated_at: string;
+  readonly dataset: string;
+  readonly execution_mode: string;
+  readonly task_count: number;
+  readonly accepted_count: number;
+  readonly windows_rebased: boolean;
+  readonly rebased_count: number;
+  readonly attempt_policies_registered: number;
+  readonly tasks: readonly IvrSeedTaskOutcome[];
+  readonly correlation_id: string;
+}
+
+export interface IvrScenarioAttemptReplay {
+  readonly attempt_number: number;
+  readonly raw_call_status: string;
+  readonly raw_dtmf?: string | null;
+  readonly result_type: string;
+  readonly customer_attempt_counted: boolean;
+  readonly final: boolean;
+  readonly reason: string;
+}
+
+export interface IvrScenarioDryRunResult {
+  readonly generated_at: string;
+  readonly scenario_id: string;
+  readonly task_ref?: string | null;
+  readonly coverage: "REPLAYED" | "NOT_REPLAYABLE";
+  readonly expected_result_type?: string | null;
+  readonly expected_counted?: boolean | null;
+  readonly actual_result_type?: string | null;
+  readonly actual_counted?: boolean | null;
+  /** Null when coverage is NOT_REPLAYABLE — the runner claims no verdict there. */
+  readonly matches?: boolean | null;
+  readonly attempts: readonly IvrScenarioAttemptReplay[];
+  readonly notes: readonly string[];
+  readonly correlation_id: string;
+}
+
+export interface IvrIntegrationProfileEffect {
+  readonly dependency: string;
+  readonly requested_state: string;
+  /** False when IVR declares the state but never probes the dependency. */
+  readonly enforced: boolean;
+  readonly detail: string;
+}
+
+export interface IvrIntegrationProfileResult {
+  readonly generated_at: string;
+  readonly profile_id: string;
+  readonly expected: string;
+  readonly enforced_count: number;
+  readonly declared_only_count: number;
+  readonly effects: readonly IvrIntegrationProfileEffect[];
+  readonly correlation_id: string;
+}

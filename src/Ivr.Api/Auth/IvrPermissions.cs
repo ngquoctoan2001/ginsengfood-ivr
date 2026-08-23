@@ -48,6 +48,23 @@ public static class IvrPermissions
     /// </summary>
     public const string CallTerminate = "IVR_CALL_TERMINATE";
 
+    /// <summary>
+    /// The UI-07 non-production developer surface: seed loader, scenario runner and
+    /// integration-status profiles (W-0112).
+    /// <para>
+    /// One permission rather than reusing <see cref="SimEnable"/>/<see cref="SimDisable"/> as
+    /// `specs/ui/07` first proposed. Loading fixture tasks and replaying a scenario are not SIM
+    /// operations, and folding them into the SIM grants would mean an operator who may take a
+    /// faulty channel out of service could also write rows into the database.
+    /// </para>
+    /// <para>
+    /// The permission is not the control that keeps this out of production —
+    /// <see cref="Ivr.Infrastructure.Configuration.NonProductionSurface"/> is, and it refuses
+    /// whatever the caller holds.
+    /// </para>
+    /// </summary>
+    public const string DevTooling = "IVR_DEV_TOOLING";
+
     public static IReadOnlySet<string> All { get; } = new[]
         {
             QueueView,
@@ -71,6 +88,7 @@ public static class IvrPermissions
             ScriptApprovePrivacyLegal,
             ScriptRetire,
             CallTerminate,
+            DevTooling,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 
@@ -109,6 +127,12 @@ public static class IvrPermissions
             ScriptApproveContent,
             ScriptApprovePrivacyLegal,
             ScriptRetire,
+
+            // W-0112. The developer surface writes fixture tasks and moves SIM channels. The
+            // MOCK seam mints whatever X-Permissions asks for and MOCK is the default mode —
+            // which is also the mode every non-production deployment runs in, so this is
+            // precisely where the seam and the surface would otherwise overlap.
+            DevTooling,
         }
         .ToFrozenSet(StringComparer.Ordinal);
 

@@ -257,6 +257,11 @@ const COVERED: Readonly<Record<string, readonly (keyof typeof enums)[]>> = {
   // which the spec names by its array item rather than by the field.
   approval_type: ["approvalType"],
   items: ["executionMode"],
+
+  // W-0112. The scenario runner reports whether it could answer for a scenario at all, and that
+  // answer is shown to whoever is running the rehearsal — so it is translated rather than
+  // exempted as an internal discriminator.
+  coverage: ["scenarioCoverage"],
 };
 
 /**

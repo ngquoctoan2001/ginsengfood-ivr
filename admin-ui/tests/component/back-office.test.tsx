@@ -101,13 +101,46 @@ describe("UT-UI-SEED-PROD-03 seed and mock guards", () => {
     expect(messages["seed.realLocked"]).toMatch(/không thể đổi từ giao diện/i);
   });
 
-  it("says plainly that no seed write path exists from the console", () => {
-    // Wording note (W-0102): "đường" is avoided here on purpose. The PII gate
-    // scans docs/evidence/ with deliberately blunt literal patterns (W-0076), so
-    // console prose that reaches an evidence capture must not use the address
-    // vocabulary even in its "path" sense.
-    expect(messages["seed.loaderUnavailable"]).toMatch(/không mở lối ghi dữ liệu/i);
+  /**
+   * W-0112 reverses the claim this test used to make. The console does now have a seed write
+   * path, so the assertion moved to what has to stay true about it: the operator is told what
+   * the loader changes before pressing it, and told that a second run does not refresh anything.
+   *
+   * Wording note (W-0102): "đường" is avoided here on purpose. The PII gate scans docs/evidence/
+   * with deliberately blunt literal patterns (W-0076), so console prose that reaches an evidence
+   * capture must not use the address vocabulary even in its "path" sense.
+   */
+  it("tells the operator what the loader changes and what a reload does not", () => {
     expect(messages["seed.title"]).toContain("non-prod");
+
+    // The one thing the loader rewrites, and the reason it has to.
+    expect(messages["seed.rebaseNotice"]).toMatch(/cửa sổ xác nhận/i);
+    expect(messages["seed.rebaseNotice"]).toMatch(/hết hạn/i);
+
+    // And the limit that a rehearsal will meet on the second morning.
+    expect(messages["seed.rebaseNotice"]).toMatch(/không thêm gì/i);
+    expect(messages["seed.rebaseNotice"]).toMatch(/dựng lại cơ sở dữ liệu/i);
+  });
+
+  /**
+   * A profile that appears to switch five dependencies when it switches one is the failure this
+   * screen has to avoid: the operator would leave believing a fail-closed path was rehearsed.
+   * The four unenforced dependencies are named individually, because "một số phụ thuộc" would
+   * pass a looser check while telling the reader nothing.
+   */
+  it("names every dependency an integration profile cannot actually switch", () => {
+    const warning = messages["seed.profilePartialWarning"];
+    expect(warning).toContain("SIM_GATEWAY");
+    for (const dependency of [
+      "ORDER_CORE",
+      "OPS_SELLABLE_GATE",
+      "CRM_DO_NOT_CALL",
+      "EVIDENCE_REGISTRY",
+    ]) {
+      expect(warning, `${dependency} is not named`).toContain(dependency);
+    }
+
+    expect(warning).toMatch(/không thăm dò/i);
   });
 });
 

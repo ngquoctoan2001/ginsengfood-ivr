@@ -35,6 +35,11 @@ export const IVR_PERMISSIONS = [
   // W-0111. On Operator as well as Admin — cutting a live call is the risk-reducing
   // direction, and it cannot start anything.
   "IVR_CALL_TERMINATE",
+
+  // W-0112. Admin only, and non-production only. The permission is not what keeps this out of
+  // production — the routes are simply not served there — so hiding the buttons is a courtesy
+  // to the reader, not a control.
+  "IVR_DEV_TOOLING",
 ] as const;
 
 export type IvrPermission = (typeof IVR_PERMISSIONS)[number];

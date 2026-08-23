@@ -27,8 +27,8 @@
     "docs/integration-guide.md": "a6222a57f3fe73241318d3a7cef6453b3602204721039fe1ab3a54460abc9253",
     "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
     "specs/api/openapi/changelog-baseline.json": "e071abfaef70d792a2ce3fa61ecc16690cf5c7d0f7f40fc3205ea79e5cc36bf1",
-    "specs/api/openapi/contract-manifest.json": "a95327b3527de5a7162ddeaa421abcd4e524573d6da7fd27a3402f974d562275",
-    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "a53d96911984467a55364f19c0fb19813ace0820ae055583c110a4dd08040e46",
+    "specs/api/openapi/contract-manifest.json": "c5247bc49626c0af7c204fee748e1e42236eed7aaa9145154121eede4ae28c91",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "9b810b4fe7f97170c0602c9bbb61047a04e77db7a111eb6157de8130b7ec6e54",
     "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697"
   }
 }

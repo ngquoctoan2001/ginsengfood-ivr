@@ -45,6 +45,24 @@ bearer request không fallback sang mock header.
 | `/scripts/{templateId}/{version}:retire` | POST | `IVR_SCRIPT_RETIRE` | `IvrScriptTransitionRequest` | Thu hồi; fail-closed mọi chế độ, không xoá |
 | `/call-jobs/{ivrCallJobId}:terminate` | POST | `IVR_CALL_TERMINATE` | `AdminMutationRequest` → `IvrAdminActionResult` | Cắt cuộc đang chạy; `409` nếu không có cuộc nào đang chạy |
 | `/call-jobs:terminate-all` | POST | `IVR_CALL_TERMINATE` | `AdminMutationRequest` → `IvrAdminActionResult` | Cắt mọi cuộc đang chạy; hành động riêng, không gộp vào kill switch |
+| `/dev/seed:load` | POST | `IVR_DEV_TOOLING` | `IvrSeedLoadRequest` → `IvrSeedLoadResult` | **Chỉ non-prod.** Production không đăng ký route ⇒ `404` |
+| `/dev/scenarios/{scenarioId}:dry-run` | POST | `IVR_DEV_TOOLING` | `AdminMutationRequest` → `IvrScenarioDryRunResult` | **Chỉ non-prod.** Không phát cuộc gọi nào |
+| `/dev/integration-profiles/{profileId}:apply` | POST | `IVR_DEV_TOOLING` | `AdminMutationRequest` → `IvrIntegrationProfileResult` | **Chỉ non-prod.** Chỉ `SIM_GATEWAY` được thi hành |
+
+### Lối phát triển non-prod (W-0112) — vì sao `404` chứ không `403`
+
+`403` trả lời một câu người gọi chưa hỏi: rằng ở địa chỉ này **có** một seed loader, và thứ duy
+nhất chắn giữa họ với nó là một cái quyền. `404` không nói gì — và nó đúng theo nghĩa đen: ở
+production ba route đó không được đăng ký.
+
+Điều kiện phục vụ là **danh sách cho phép**, không phải danh sách cấm: tên môi trường phải nằm
+trong `{Development, Testing, Test, Staging, Lab}`, `IVR_EXECUTION_MODE` phải là `MOCK` hoặc
+`LAB_REAL_SIM`, và `REAL_CUSTOMER_CALL_ALLOWED` phải là `NO`. Mỗi điều kiện tự nó đủ để từ chối.
+Quên cập nhật danh sách khi thêm môi trường mới ⇒ mất công cụ dev, không phải mở seed loader vào
+một môi trường không ai kiểm.
+
+Chốt được kiểm **hai lần**: một lần lúc đăng ký route, một lần trong service. Cái thứ hai phòng
+đúng một tình huống — một thay đổi sau này thêm route hoặc caller mà quên chốt.
 
 ### Cắt ngang cuộc gọi (W-0111) — §2a được sửa lại
 
