@@ -393,6 +393,14 @@ nào (đếm bằng telemetry). Seed vào prod ⇒ không thể, có test.
 
 ### A6 · Lưu lại giọng **đã thực sự phát**, không suy lại lúc đọc
 
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-23` — `W-0113`, trạng thái `TESTS_PASS`.**
+> Bằng chứng: [`docs/evidence/W-0113/README.md`](../../docs/evidence/W-0113/README.md).
+> Ba cột `voice_id`/`voice_region`/`voice_region_resolved` ghi tại dispatch **và** vào audit log.
+> Contract đọc cột đã lưu, chỉ fallback suy-lại cho bản ghi cũ, kèm `voice_region_source` =
+> `RECORDED`/`DERIVED`; màn chi tiết cảnh báo bản suy lại **không dùng để ký nghiệm thu**.
+> ⚠️ Không sửa dữ liệu cũ — evidence lab đã sinh trước đây vẫn mang số suy lại.
+> `SpeakingRate` cũng suy lại được sai như vậy nhưng nằm ngoài phạm vi A6.
+
 > **Ưu tiên: 🟡 TRUNG BÌNH — phải xong trước khi dùng evidence lab để ký.**
 
 **Bằng chứng.** [`W-0106 plan §5`](W-0106-regional-voice-routing-plan.md) ghi rõ:
