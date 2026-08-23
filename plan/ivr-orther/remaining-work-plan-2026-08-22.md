@@ -359,6 +359,14 @@ không có gì dừng được — phải đợi khách cúp máy. Với `REAL_C
 
 ### A5 · Seed loader / scenario runner / integration-status profile (UI-07)
 
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-23` — `W-0112`, trạng thái `TESTS_PASS`.**
+> Bằng chứng: [`docs/evidence/W-0112/README.md`](../../docs/evidence/W-0112/README.md).
+> Ba điểm khác bản mô tả, đã ghi ngược vào `specs/ui/07`: quyền riêng `IVR_DEV_TOOLING` (không
+> dùng lại quyền SIM); production `404` vì **không đăng ký route**; "áp profile" chỉ thi hành
+> được `SIM_GATEWAY`, 4/5 phụ thuộc còn lại là khai báo vì IVR không thăm dò chúng.
+> ⚠️ File mẫu `sales-target-v1.sample.json` ghi mốc thời gian tuyệt đối đã hết hạn — loader dời
+> cửa sổ từng tác vụ về hiện tại; chạy lại **không** làm mới cửa sổ.
+
 > **Ưu tiên: 🟡 TRUNG BÌNH — nhưng có giá trị ngay cho các buổi nghiệm thu tháng 9.**
 
 **Bằng chứng.** [`admin-ui/src/i18n/vi.json:245`](../../admin-ui/src/i18n/vi.json) ghi
