@@ -180,6 +180,12 @@ nghiệm thu "gọi thật thành công" trước khi có A1 đều đang nghi�
 
 ### A2 · Script lifecycle: API + ràng buộc quyền + màn hình
 
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-23` — `W-0109`, trạng thái `TESTS_PASS`.**
+> Bằng chứng: [`docs/evidence/W-0109/README.md`](../../docs/evidence/W-0109/README.md).
+> Không cần role thứ ba: four-eyes đã có sẵn theo `ActorId`, thi hành ở hai chỗ độc lập.
+> Màn read-only là **quyết định có chủ đích của W-0096**, nên A2 là đảo ngược quyết định đó
+> chứ không phải vá một lỗ hổng.
+
 > **Ưu tiên: 🔴 CAO.** Không có nó thì cổng Legal không có đường thi hành.
 
 **Bằng chứng.**
@@ -255,6 +261,12 @@ tay dữ liệu. Sửa tay thì mất audit, mất `creator ≠ approver`, mất
 
 ### A3 · Màn hình feature-flag / runtime gate
 
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-23` — `W-0110`, trạng thái `TESTS_PASS`.**
+> Bằng chứng: [`docs/evidence/W-0110/README.md`](../../docs/evidence/W-0110/README.md).
+> ⚠️ Đọc §6b của evidence trước khi dùng: `PendingRuntimeGateAuthorization.IsApprovedAsync`
+> trả `false` vô điều kiện, nên **mọi** thay đổi cờ hiện trả `409 IVR_OPERATIONAL_BLOCKED`.
+> Màn hình đã xong; đường phê duyệt phía sau thì chưa.
+
 > **Ưu tiên: 🟠 CAO.** Quyền vừa được cấp mà không có nút để bấm.
 
 **Bằng chứng.**
@@ -301,6 +313,11 @@ nhìn thấy.
 ---
 
 ### A4 · Cắt ngang cuộc gọi đang diễn ra
+
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-23` — `W-0111`, trạng thái `TESTS_PASS`.**
+> Bằng chứng: [`docs/evidence/W-0111/README.md`](../../docs/evidence/W-0111/README.md).
+> Cắt qua CSDL vì `Ivr.Api` không đăng ký `ISimGateway`; độ trễ = chu kỳ poll (mặc định
+> `500 ms`). Cắt hàng loạt tách thành nút riêng, **không** gộp vào kill switch.
 
 > **Ưu tiên: 🟠 CAO — chốt an toàn trước pilot.**
 
