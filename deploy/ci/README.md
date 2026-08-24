@@ -24,6 +24,7 @@ The .NET jobs pin `mcr.microsoft.com/dotnet/sdk:10.0.201` to the SDK selected by
 | `ci_config_selftest` | workflow routing, local-fragment reachability, artifact topology, 16-code OpenAPI/API-06/source parity, no active GitHub Actions |
 | `openapi_lint` | Redocly lint, OpenAPI 3.1 parse/local refs, Target/current fixture schema validation, pinned contract drift |
 | `build_test_dotnet` | locked restore, warnings-as-errors build, semantic negative test/coverage/policy self-tests, xUnit/JUnit/Cobertura, PostgreSQL Testcontainers migration/concurrency tests, aggregate line coverage ≥ 60%; generated OpenAPI/EF migration sources excluded by `coverage.runsettings` |
+| `schema_compat_gate` | rolling-deploy schema compatibility in both directions: the shipping binary started against the previous migration's schema must refuse traffic, stay alive and recover without a restart; and no migration may carry an operation the previous release cannot survive — the typed-operation superset of `IT-MIGRATE-03`, which stays because it needs no .NET toolchain. Fails if its trait filter selects nothing |
 | `lint_dotnet` | locked restore, pinned NSwag regeneration/drift check, analyzers, `dotnet format --verify-no-changes` |
 | `build_lint_ui` | lockfile-based `npm ci`, ESLint, optional UI test script, production build |
 | `security_scan` | schema-validated fail-closed NuGet High/Critical policy, npm High/Critical policy, checksum-verified Gitleaks 8.30.0 |
@@ -80,7 +81,8 @@ so it declares `needs` with `artifacts: true` for every artifact producer:
 
 - `build_test_dotnet`;
 - `build_lint_ui`;
-- `openapi_lint`.
+- `openapi_lint`;
+- `schema_compat_gate`.
 
 `CT-CI-08` fails if any job gains `artifacts:` without being added to this list.
 `scan-pii.sh` scans every regular text file in evidence and downloaded artifact

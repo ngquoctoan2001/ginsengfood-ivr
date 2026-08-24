@@ -100,4 +100,4 @@ hai tên cho một bậc là cách hiểu nhầm bắt đầu.
 | `RETENTION_EXECUTION` | **đã đóng** — `W-0047` thêm entrypoint run-once |
 | drill rotation "không request nào rớt" | **đã đóng** — `docs/evidence/W-0047` §9.5 |
 | `NETPOL_ENFORCEMENT` | **đã đóng `2026-08-19`** — kết luận "cần CNI khác" là **sai**: cluster vẫn thực thi, phép đo bị đua. Xem `docs/evidence/W-0044` §5 |
-| migration "code mới chịu được schema cũ" | chưa có cổng; là **việc kỹ thuật** còn lại, không phải quyết định |
+| migration "code mới chịu được schema cũ" | **đã đóng `2026-08-24`** — `W-0114` thêm cổng `schema_compat_gate`. Kiểm cả hai chiều: binary mới trên schema cũ (`IT-SCHEMA-NEWCODE-01/02`) và migration mới dưới code cũ (`UT-SCHEMA-BACKCOMPAT-01`). Xem `docs/evidence/W-0114/README.md` |

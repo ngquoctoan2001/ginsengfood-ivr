@@ -68,6 +68,9 @@ const requiredJobs = [
   "openapi_lint",
   "security_scan",
   "pii_scan",
+  // W-0114. The rolling-deploy schema gate. Listed here so deleting the job is a red pipeline
+  // rather than a quiet loss of the only check on how migrations are written.
+  "schema_compat_gate",
 ];
 
 for (const jobName of requiredJobs) {
@@ -82,7 +85,12 @@ for (const [jobName, job] of Object.entries(jobs)) {
 }
 
 const expectedDotnetImage = `mcr.microsoft.com/dotnet/sdk:${globalJson.sdk.version}`;
-for (const jobName of ["build_test_dotnet", "lint_dotnet", "security_scan"]) {
+for (const jobName of [
+  "build_test_dotnet",
+  "lint_dotnet",
+  "security_scan",
+  "schema_compat_gate",
+]) {
   assert(
     jobs[jobName].image === expectedDotnetImage,
     `${jobName} image must match global.json: ${expectedDotnetImage}.`,

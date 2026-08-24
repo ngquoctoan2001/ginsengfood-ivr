@@ -92,6 +92,57 @@ build_test_dotnet:
         coverage_format: cobertura
         path: ci-artifacts/dotnet/coverage/**/coverage.cobertura.xml
 
+# W-0114 / plan §A8. The rolling-deploy schema gate.
+#
+# docs/owner-decisions-open.md listed "migration: new code tolerates the old schema" as the
+# technical item with no gate, and deploy/ci/rollback.md §3 wrote down the other half -- migrations
+# must stay compatible one step back, "và nó chưa có test nào ép". Both halves run here.
+#
+# Its own job rather than a line inside build_test_dotnet, because this gate answers a deployment
+# question, not a code question: when it goes red the fix is usually to change how a migration is
+# written, and that has to be legible in the pipeline as its own red light rather than as one of
+# several hundred test failures.
+#
+# TreatNoTestsAsError is not decoration. Both steps select by trait, and a filter that stops
+# matching -- a renamed trait, a moved file -- makes `dotnet test` exit 0 having run nothing. A
+# gate that passes because it did not run is worse than no gate.
+schema_compat_gate:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
+  services:
+    - name: docker:29.6.2-dind
+      alias: docker
+  extends: .dotnet_cache
+  allow_failure: false
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    TESTCONTAINERS_HOST_OVERRIDE: "docker"
+  script:
+    - dotnet restore Ivr.sln --locked-mode
+    - mkdir -p ci-artifacts/schema-compat
+    # The pair actually compared, recorded for whoever reads this pipeline months later. The tests
+    # derive it themselves from the migrations assembly; this is a report, not the input.
+    - ls src/Ivr.Infrastructure/Persistence/Migrations/*.cs | grep -v '\.Designer\.cs$' | sort | tail -2 > ci-artifacts/schema-compat/compared-migrations.txt
+    - >
+      dotnet test tests/Ivr.UnitTests/Ivr.UnitTests.csproj
+      --configuration Release --filter "TestId~UT-SCHEMA"
+      --logger:"junit;LogFilePath=../../ci-artifacts/schema-compat/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+      -- RunConfiguration.TreatNoTestsAsError=true
+    - >
+      dotnet test tests/Ivr.IntegrationTests/Ivr.IntegrationTests.csproj
+      --configuration Release --filter "TestId~IT-SCHEMA"
+      --logger:"junit;LogFilePath=../../ci-artifacts/schema-compat/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+      -- RunConfiguration.TreatNoTestsAsError=true
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/schema-compat/
+    reports:
+      junit:
+        - ci-artifacts/schema-compat/*-test-result.xml
+
 lint_dotnet:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:10.0.201
@@ -185,6 +236,11 @@ pii_scan:
     - job: build_lint_ui
       artifacts: true
     - job: openapi_lint
+      artifacts: true
+    # W-0114. Every job that publishes an artifact is scanned, without exception: the artefact
+    # here names migration files, but the invariant is that nothing reaches the artifact store
+    # unread, and an exemption is how that stops being true.
+    - job: schema_compat_gate
       artifacts: true
   script:
     - sh deploy/ci/scripts/selftest-pii.sh

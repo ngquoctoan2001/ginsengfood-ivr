@@ -50,7 +50,7 @@ lock; lựa chọn ở đây là **một trạng thái khó hiểu được phé
 `autoPromotionEnabled: false` vì worker **không mở socket nào** (`W-0043` §2) — không có gì để smoke,
 và promote tự động dựa trên "pod đã lên" là khẳng định một sức khoẻ không ai đo.
 
-## 4. Migration expand-contract — cổng thật duy nhất của slice này
+## 4. Migration expand-contract — cổng thật duy nhất của slice này (`W-0046`)
 
 `P7-3` §5 đã nêu cái bẫy: `helm rollback` đưa **manifest** về revision cũ nhưng **không** hoàn tác
 migration. Lùi image cũ trên schema mới nghĩa là chạy **code cũ trên schema mới**. Canary còn làm nó
@@ -68,8 +68,15 @@ Nên ràng buộc nằm ở **cách viết migration**, và giờ có cổng ép
 `Down()` **không** bị kiểm: xoá thứ `Up()` vừa tạo chính là định nghĩa của down migration, và một
 cổng bắt cả nó sẽ đỏ với **mọi** migration từng viết rồi bị tắt trong một tuần.
 
-Trạng thái hiện tại: 5 migration, 42 `AddColumn` trong `Up()`, **không** thao tác phá nào, **không**
-cột NOT NULL nào thiếu default. Cổng đang xanh vì code đang đúng, không phải vì cổng dễ.
+Trạng thái lúc `W-0046` viết cổng: 5 migration, 42 `AddColumn` trong `Up()`, **không** thao tác phá
+nào, **không** cột NOT NULL nào thiếu default. Cổng đang xanh vì code đang đúng, không phải vì cổng
+dễ — và vẫn xanh ở 12 migration.
+
+`W-0114` bổ sung `UT-SCHEMA-BACKCOMPAT-01`: cùng tính chất, nhưng đọc `Migration.UpOperations` thay
+vì quét văn bản. Nó thấy thêm ba dạng bảng trên không có (`AddUniqueConstraint`, unique index,
+`AddCheckConstraint` lên cột đã có từ trước) và phân biệt `AlterColumn` **nới rộng** — an toàn theo
+chiều này — với **thu hẹp**. Cổng ở đây vẫn giữ vì nó chạy trong image node không cần .NET nên đỏ
+sớm hơn; xem `deploy/ci/rollback.md` §3.
 
 ## 5. Deploy ≠ release
 

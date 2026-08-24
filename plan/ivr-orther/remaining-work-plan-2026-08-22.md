@@ -442,6 +442,22 @@ hoặc chốt quy tắc làm tròn ở tầng renderer. Đây là **quyết đ�
 
 ### A8 · Cổng "code mới chịu được schema cũ"
 
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-24` — `W-0114`, trạng thái `TESTS_PASS`.**
+> Bằng chứng: [`docs/evidence/W-0114/README.md`](../../docs/evidence/W-0114/README.md).
+> Job CI riêng `schema_compat_gate`, `allow_failure: false`, có trong `requiredJobs` của
+> `ci-config-selftest` nên xoá job là pipeline đỏ.
+> ⚠️ **Phạm vi rộng hơn đề bài, có chủ ý.** Chart chạy migration bằng Job `pre-upgrade`, nên
+> chiều mà `helm rollback --atomic` thật sự đi qua là **code cũ trên schema mới** — không phải
+> chiều A8 nêu. Cổng làm **cả hai**: `IT-SCHEMA-NEWCODE-01/02` (binary bản ship trên schema N-1)
+> và `UT-SCHEMA-BACKCOMPAT-01` (7 dạng thao tác migration release trước không sống nổi).
+> ℹ️ `rollback.md` §3 tự nhận *"chưa có test nào ép"* — câu đó **hết đúng từ `W-0046`**:
+> `IT-MIGRATE-03` đã quét mã nguồn migration từ đó. `W-0114` mở rộng nó sang mô hình thao tác có
+> kiểu (thêm 3 dạng, phân biệt nới rộng/thu hẹp `AlterColumn`) và **giữ cả hai** — bản quét văn
+> bản chạy trong image node nên đỏ sớm hơn. Câu trong `rollback.md` đã được sửa lại.
+> Không sửa một dòng production nào; danh sách miễn trừ rỗng là **kết quả đo**, không phải
+> mặc định bỏ qua.
+> Cổng đọc *hình dạng* migration, **không** đọc dữ liệu hiện có — phần đó là A9.
+
 > **Ưu tiên: 🟡 TRUNG BÌNH.**
 
 **Bằng chứng.** [`docs/owner-decisions-open.md`](../../docs/owner-decisions-open.md) §"Không

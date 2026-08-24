@@ -101,6 +101,13 @@ async function migrationsSurviveTwoVersions() {
   // The real check, and the one P7-3 §5 said was missing. During a canary or a rollback, the old
   // code runs against the new schema. Anything the old code cannot tolerate belongs in a later
   // release (expand-contract), not this one.
+  //
+  // W-0114 added UT-SCHEMA-BACKCOMPAT-01, which checks the same property against EF's typed
+  // operation model and covers three shapes this cannot see (unique constraints, unique indexes,
+  // and CHECK constraints over pre-existing columns). This one stays because it is the cheap half:
+  // it runs in a node image with no .NET toolchain, so a destructive Up() fails in `validate`
+  // rather than after a Release build. Reading text is also why every AlterColumn is flagged here
+  // and only narrowing ones are flagged there -- text sees the call, not its arguments.
   const files = (await fs.readdir(MIGRATIONS))
     .filter((name) => name.endsWith(".cs") && !name.includes("Designer") && !name.includes("Snapshot"));
   assert(files.length > 0, "no migrations found; the check would be vacuous.");
