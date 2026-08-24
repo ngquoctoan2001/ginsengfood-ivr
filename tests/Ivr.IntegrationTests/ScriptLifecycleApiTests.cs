@@ -306,7 +306,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
             using HttpResponseMessage response = await SendAsync(
                 session,
                 HttpMethod.Post,
-                $"{Root}/",
+                Root,
                 new
                 {
                     template_id = TargetV1SpeechPolicy.MockTemplateId,

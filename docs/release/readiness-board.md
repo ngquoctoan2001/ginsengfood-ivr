@@ -21,7 +21,7 @@ xong, trong khi 6% còn lại là toàn bộ những cổng **không ai đóng �
 | 3. `REAL_SALES_INTEGRATION_VERIFIED` | Target V1 is signed and contract tests run against a real Sales sandbox | ❌ |
 | 4. `PRODUCTION_REAL_ELIGIBLE` | 32 eSIM capacity measured, legal/security evidence accepted, DF-03 signed | ❌ |
 
-**Đang ở nấc 0.** 5/115 work item ở trạng thái `ACCEPTED`; phần còn lại
+**Đang ở nấc 0.** 5/116 work item ở trạng thái `ACCEPTED`; phần còn lại
 cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evidence đã được chấp nhận**
 (`MASTER-05`). Chỉ Release owner chuyển sang `ACCEPTED`.
 
@@ -29,7 +29,7 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 
 | Trạng thái | Số work item |
 | --- | --- |
-| `TESTS_PASS` | 74 |
+| `TESTS_PASS` | 75 |
 | `EVIDENCE_SUBMITTED` | 19 |
 | `BLOCKED_EXTERNAL` | 15 |
 | `ACCEPTED` | 5 |
@@ -73,7 +73,7 @@ Cả bảy đầu vào đều chưa đạt. **15** work item ở `BLOCKED_EXTERN
 | `REAL_CUSTOMER_CALL_ALLOWED` | `false` ở **cả 4** môi trường, ép lúc render chart |
 | kill switch | bắt buộc bật khi chế độ khác `MOCK`, ép lúc render |
 | rollback | `helm rollback --atomic` + `after_script`; **chưa lượt deploy nào từng chạy** |
-| cắt ngang cuộc đang gọi | **không có cơ chế nào** |
+| cắt ngang cuộc đang gọi | W-0111: Admin/Operator có `IVR_CALL_TERMINATE`; API ghi yêu cầu, worker poll (mặc định ≤500 ms) rồi gateway hang up. Đây là cơ chế riêng, không gộp vào kill switch; mới có evidence software/MOCK, chưa phải SIM/carrier UAT |
 
 ## 7. Cái bảng này KHÔNG nói
 

@@ -148,19 +148,7 @@ const VERSION_COLUMNS: readonly Column<IvrScriptVersion>[] = [
   {
     key: "status",
     header: t("config.colStatus"),
-    cell: (version) => (
-      <>
-        <EnumLabel family="scriptStatus" value={version.status} />{" "}
-        <StatusBadge
-          tone={version.missing_approvals.length === 0 ? "success" : "warning"}
-          testId={`approval-badge-${version.version}`}
-        >
-          {version.missing_approvals.length === 0
-            ? t("config.approvedBadge")
-            : t("config.notApprovedBadge")}
-        </StatusBadge>
-      </>
-    ),
+    cell: (version) => <EnumLabel family="scriptStatus" value={version.status} />,
   },
   {
     key: "actions",

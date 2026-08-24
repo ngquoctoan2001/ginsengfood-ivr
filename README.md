@@ -2,12 +2,12 @@
 
 [![GitLab pipeline](https://img.shields.io/badge/GitLab_pipeline-NOT_RUN-lightgrey)](deploy/ci/README.md#gitlab-project-settings--hosted-evidence)
 
-Standalone .NET 10 service for IVR order confirmation. The foundation includes
-health probes, cross-cutting security and traceability primitives, typed
-feature flags with fail-closed kill switches, an empty worker, an EF Core
-feature-flag model, and a Next.js admin placeholder.
-It contains no order-confirmation business logic and does not connect to the
-Java sales platform, a SIM, or a customer.
+Standalone .NET 10 service for IVR order confirmation. The repository now
+contains the order-confirmation workflow, PostgreSQL persistence, background
+dispatch/callback/retention jobs, fail-closed runtime gates, and a Next.js
+operations console. Local development remains MOCK/fake by default; connection
+to the real Sales sandbox, a carrier/SIM provider, or a real customer still
+requires the separately governed external gates.
 
 ## Safety baseline
 
@@ -54,20 +54,22 @@ Ivr.Worker -----------------+
 - `Ivr.Api`: health probes plus reusable correlation, stable error envelope,
   permission enforcement, the Order Core service allowlist, and the feature-
   flag read/admin endpoints.
-- `Ivr.Worker`: mock heartbeat every 30 seconds.
-- `Ivr.Infrastructure`: in-memory MOCK idempotency, append-only audit and
-  evidence stores; typed dynamic config, audited feature-flag mutations,
-  centralized dispatch/kill gates, and the `ivr_feature_flags` EF model. P1-2
-  still owns the physical migration and persistent command transaction.
+- `Ivr.Worker`: scheduler/dispatcher plus callback delivery, retention,
+  analytics and lifecycle jobs; real dispatch remains behind runtime gates.
+- `Ivr.Infrastructure`: EF/PostgreSQL repositories, append-only audit/evidence,
+  idempotency, speech/telephony adapters, typed dynamic config, audited
+  feature-flag mutations, and centralized dispatch/kill gates.
 - `Ivr.Domain`: stable error catalog and PII masking/guard primitives.
 - `Ivr.Contracts`: generated IVR DTOs and Sales Target V1 client plus a separate
   pinned Golden Hour current-compat client; see `docs/contracts/openapi-codegen.md`.
-- `admin-ui`: strict TypeScript App Router console. Session/RBAC/i18n foundation
-  (P3-1) plus the dashboard, call log and call detail screens (P3-2). The browser
-  talks only to the Next.js server, which is the sole caller of `Ivr.Api`.
+- `admin-ui`: strict TypeScript App Router operations console for dashboard,
+  queue/calls, scripts, runtime flags, integrations, review/reporting,
+  accounts/roles and non-production seed tools. The browser talks only to the
+  Next.js server, which is the sole caller of `Ivr.Api`.
 
-`/health/ready` always returns HTTP 200 in P0-1. It is only a bootstrap
-placeholder and is not a fail-closed dependency-readiness signal until W-0040.
+`/health/ready` is a fail-closed dependency-readiness probe: it returns `503`
+when PostgreSQL is unreachable, the schema is behind, or the callback circuit
+is open. W-0040 implemented this behavior; it is no longer a bootstrap probe.
 
 ## Prerequisites
 

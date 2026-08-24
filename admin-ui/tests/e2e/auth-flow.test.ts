@@ -147,14 +147,14 @@ describe("E2E-UI-AUTH-05 authentication flow", () => {
     expect(location.searchParams.get("next")).toBe("/dashboard");
   });
 
-  it("serves the login page in Vietnamese with the governance notice", async () => {
+  it("serves the login page in Vietnamese without the blocked-call notice", async () => {
     const jar = new CookieJar();
     const response = await request(jar, "/login");
     const html = await response.text();
 
     expect(response.status).toBe(200);
     expect(html).toContain("Đăng nhập");
-    expect(html).toContain("REAL_CUSTOMER_CALL_ALLOWED=NO");
+    expect(html).not.toContain("REAL_CUSTOMER_CALL_ALLOWED=NO");
     expect(html).toContain('lang="vi"');
   });
 

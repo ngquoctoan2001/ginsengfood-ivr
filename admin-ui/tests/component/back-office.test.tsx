@@ -10,9 +10,12 @@ const messages: Record<string, string> = vi;
 
 /** UT-UI-SCRIPT-01 — approval state is visible and KEY_9 stays NOT_ENABLED. */
 describe("UT-UI-SCRIPT-01 script configuration", () => {
-  it("ships copy that marks an unapproved version and never offers an approve action", () => {
-    expect(messages["config.notApprovedBadge"]).toBeTruthy();
-    expect(messages["config.approvedBadge"]).toBeTruthy();
+  it("separates lifecycle status from approval coverage", () => {
+    expect(messages["config.colStatus"]).toBe("Trạng thái vòng đời");
+    expect(messages["config.colApprovals"]).toBe("Đã phê duyệt");
+    expect(messages["config.colMissing"]).toBe("Còn thiếu để duyệt đủ");
+    expect(messages["config.notApprovedBadge"]).toBeUndefined();
+    expect(messages["config.approvedBadge"]).toBeUndefined();
     expect(messages["config.templateInvalid"]).toBeTruthy();
 
     // W-0109 opened the lifecycle on this screen, so "there is no button" is no

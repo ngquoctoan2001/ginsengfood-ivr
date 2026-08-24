@@ -20,12 +20,13 @@ không phân biệt username sai, password sai, account disabled hay locked.
 | `/accounts` | POST | `IVR_ACCOUNT_MANAGE` | tạo account; username immutable/non-reusable |
 | `/accounts/{accountId}` | PATCH | `IVR_ACCOUNT_MANAGE` | sửa display name/role/status với version |
 | `/accounts/{accountId}:reset-password` | POST | `IVR_ACCOUNT_PASSWORD_RESET` | admin đặt password mới và revoke session đích |
-| `/accounts/{accountId}:delete` | DELETE | `IVR_ACCOUNT_MANAGE` | soft-delete và revoke session đích |
+| `/accounts/{accountId}` | DELETE | `IVR_ACCOUNT_MANAGE` | soft-delete và revoke session đích |
 | `/account-roles` | GET | `IVR_ACCOUNT_VIEW` | hai role và permission matrix canonical |
 
-Operator có đúng bốn quyền: `IVR_QUEUE_VIEW`, `IVR_SIM_DISABLE`,
-`IVR_MANUAL_RETRY`, `IVR_ACCOUNT_SELF_VIEW`. Admin có 11 quyền được liệt kê ở
-`specs/ui/08-role-permission-ui.md`. Backend luôn re-derive permission từ role;
+Operator có đúng năm quyền: `IVR_QUEUE_VIEW`, `IVR_SIM_DISABLE`,
+`IVR_MANUAL_RETRY`, `IVR_ACCOUNT_SELF_VIEW`, `IVR_CALL_TERMINATE`. Admin có đúng
+22 quyền được liệt kê ở `specs/ui/08-role-permission-ui.md`. Backend luôn
+re-derive permission từ role;
 bearer request không fallback sang mock header.
 
 ## 1. Endpoint & permission
@@ -39,7 +40,7 @@ bearer request không fallback sang mock header.
 | `/technical-retries` | POST | `IVR_MANUAL_RETRY` | `TechnicalRetryRequest` → `IvrTechnicalRetryResult` | Request technical retry (không tăng customer attempt) |
 | `/admin-reviews` | POST | `IVR_RESULT_REVIEW` | `AdminReviewRequest` → `IvrAdminReviewResult` | Ghi review/annotation |
 | `/scripts/{templateId}/{version}` | GET | `IVR_QUEUE_VIEW` | `IvrScriptVersionDetail` | Một phiên bản ở mọi trạng thái, gồm cả bản nháp |
-| `/scripts/` | POST | `IVR_SCRIPT_EDIT` | `IvrScriptDraftRequest` → `IvrScriptActionResult` | Tạo bản nháp; phiên bản là bất biến sau khi tạo |
+| `/scripts` | POST | `IVR_SCRIPT_EDIT` | `IvrScriptDraftRequest` → `IvrScriptActionResult` | Tạo bản nháp; `/scripts/` vẫn là alias tương thích runtime; phiên bản là bất biến sau khi tạo |
 | `/scripts/{templateId}/{version}:submit` | POST | `IVR_SCRIPT_REVIEW` | `IvrScriptTransitionRequest` | Chuyển bản nháp sang chờ duyệt |
 | `/scripts/{templateId}/{version}:approve` | POST | `IVR_SCRIPT_APPROVE_*` theo `approval_type` | `IvrScriptApprovalRequest` | Ghi một chữ ký duyệt |
 | `/scripts/{templateId}/{version}:retire` | POST | `IVR_SCRIPT_RETIRE` | `IvrScriptTransitionRequest` | Thu hồi; fail-closed mọi chế độ, không xoá |

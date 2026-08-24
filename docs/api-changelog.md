@@ -12,7 +12,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.2` | `1.0.0-draft.17` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.2` | `1.0.0-draft.18` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,
@@ -78,7 +78,12 @@ remains unchanged for log lookup; `IvrFailClosedEvent.hold_new_calls` lets the c
 translate `CAPACITY_INCIDENT` without inferring a boolean from English prose. Both remain
 optional for draft.16/draft.17 rolling compatibility. No operation or permission changes.
 
-The pinned `oasdiff breaking --fail-on WARN` comparison from draft.2 through draft.17
+`1.0.0-draft.18` (W-0117) changes no DTO semantics or permissions. It replaces 13
+OpenAPI 3.0 `nullable: true` spellings with the equivalent OpenAPI 3.1 null unions and
+publishes script-draft creation at canonical `POST /scripts`. Runtime and integration
+tests keep `POST /scripts/` as a compatibility alias, so existing callers are not cut off.
+
+The pinned `oasdiff breaking --fail-on WARN` comparison from draft.2 through draft.18
 reports **no breaking changes**. This structural verdict does not approve a deployment or
 the external Sales contract; mutating operations added after draft.12 retain their separate
 permission, environment and governance gates.

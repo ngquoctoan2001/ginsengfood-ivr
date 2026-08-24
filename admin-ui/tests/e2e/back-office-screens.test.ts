@@ -121,8 +121,15 @@ const SCRIPT_CATALOG = {
           correlation_id: "corr-1",
           approved_at: "2026-08-15T01:00:00Z",
         },
+        {
+          approval_type: "LAB",
+          actor_id: "approver-lab",
+          reason: "lab ok",
+          correlation_id: "corr-2",
+          approved_at: "2026-08-15T01:10:00Z",
+        },
       ],
-      missing_approvals: [],
+      missing_approvals: ["CONTENT", "PRIVACY_LEGAL"],
       template_valid: true,
       uses_production_decision_fields: true,
       created_by: "author-01",
@@ -378,9 +385,12 @@ describe("E2E-UI-REVIEW-05 review queue and back-office screens", () => {
     const html = await (await page(devUrl, "/config", cookie)).text();
 
     expect(html).toContain("v1-approved");
-    expect(html).toContain("Đã duyệt đủ");
     expect(html).toContain("v2-draft");
-    expect(html).toContain("Chưa duyệt đủ");
+    expect(html).toContain("Trạng thái vòng đời");
+    expect(html).toContain("Đã phê duyệt");
+    expect(html).toContain("Còn thiếu để duyệt đủ");
+    expect(html).not.toContain("Đã duyệt đủ");
+    expect(html).not.toContain("Chưa duyệt đủ");
     // W-0107. The approval types render as Vietnamese labels now, so the
     // assertion matches on `data-enum-code` rather than on the prose: rewording
     // the dictionary is not supposed to be able to turn this test red.

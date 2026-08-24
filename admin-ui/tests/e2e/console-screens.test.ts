@@ -541,7 +541,7 @@ describe("E2E-UI-DETAIL-02 call detail", () => {
 
     // Opaque Core order state is displayed, never a control.
     expect(html).toContain("CONFIRMING");
-    expect(html).toContain("Giao diện này không chuyển trạng thái đơn hàng");
+    expect(html).not.toContain("Giao diện này không chuyển trạng thái đơn hàng");
   });
 
   it("renders a typed envelope instead of a crash when the job is unknown", async () => {

@@ -1,6 +1,7 @@
 # Kế hoạch phần việc còn lại — IVR Order Confirmation
 
-Trạng thái: `PROPOSED` · Lập: `2026-08-22` · Người lập: Claude (Opus 5) theo yêu cầu owner
+Trạng thái: `HISTORICAL_PLAN` · Lập: `2026-08-22` · Đối soát as-built: `2026-08-24`
+· Người lập: Claude (Opus 5) theo yêu cầu owner
 Phương pháp: đọc trực tiếp source `src/**`, `admin-ui/**`, `specs/**`, `docs/**`,
 `prompt/_execution/prompt-execution-tracker.md`; **không** suy luận từ báo cáo.
 
@@ -9,6 +10,28 @@ Phương pháp: đọc trực tiếp source `src/**`, `admin-ui/**`, `specs/**`,
 > File này chỉ trả lời một câu hỏi: **còn thiếu gì, và nên làm theo thứ tự nào.**
 > Mỗi hạng mục ở §4 khi bắt đầu mới cấp Work ID thật từ `NEXT_WORK_ID`; ở đây dùng
 > mã tạm `G-xx` để không đụng bộ đếm đang được ba luồng khác dùng.
+
+### Cập nhật as-built 2026-08-24
+
+Nhóm A của kế hoạch này đã được cấp Work ID và hoàn tất ở mức `TESTS_PASS`.
+Các phần mô tả “thiếu” và lịch dự kiến bên dưới được giữ lại làm lý do/ảnh chụp
+ngày 22/8; bảng này thay thế chúng khi đọc trạng thái hiện tại:
+
+| Hạng mục | Work ID | Trạng thái hiện tại | Bằng chứng |
+| --- | --- | --- | --- |
+| A1 · audio động | `W-0108` | `TESTS_PASS` | [`W-0108`](../../docs/evidence/W-0108/README.md) |
+| A2 · script lifecycle | `W-0109` | `TESTS_PASS` | [`W-0109`](../../docs/evidence/W-0109/README.md) |
+| A3 · runtime-gate console | `W-0110` | `TESTS_PASS` | [`W-0110`](../../docs/evidence/W-0110/README.md) |
+| A4 · terminate active call | `W-0111` | `TESTS_PASS` | [`W-0111`](../../docs/evidence/W-0111/README.md) |
+| A5 · seed/scenario tooling | `W-0112` | `TESTS_PASS` | [`W-0112`](../../docs/evidence/W-0112/README.md) |
+| A6 · recorded voice identity | `W-0113` | `TESTS_PASS` | [`W-0113`](../../docs/evidence/W-0113/README.md) |
+| A7 · số lượng thập phân | `W-0108` | `TESTS_PASS` | Gộp trong [`W-0108`](../../docs/evidence/W-0108/README.md) |
+| A8 · schema compatibility gate | `W-0114` | `TESTS_PASS` | [`W-0114`](../../docs/evidence/W-0114/README.md) |
+| A9 · database constraints | `W-0115` | `TESTS_PASS` | [`W-0115`](../../docs/evidence/W-0115/README.md) |
+| A10 · `detail_vi` | `W-0116` | `TESTS_PASS` | [`W-0116`](../../docs/evidence/W-0116/README.md) |
+
+`TESTS_PASS` không đồng nghĩa `ACCEPTED`, lab/SIM/carrier UAT hay production-ready;
+các cổng ngoài ở nhóm B và owner listening/UX approval vẫn giữ nguyên.
 
 ---
 
@@ -28,29 +51,16 @@ tiêu chí nghiệm thu, và phụ thuộc.
 
 ## 1. Kết luận một trang
 
-**Phần khung đã xong, phần "khách nghe được đơn của chính mình" thì chưa.**
+**Kết luận as-built ngày 24/8:** toàn bộ A1–A10 đã đạt `TESTS_PASS`; bảng ở đầu
+file là bản đồ Work ID/evidence hiện hành. API, console, readiness fail-closed,
+audio động, script/runtime controls, terminate active call, dev tooling, voice
+audit và schema gates đều đã có implementation/test ở phạm vi nội bộ.
 
-Đối chiếu contract và spec cho ra kết quả tốt hơn mong đợi ở lớp API và màn hình:
-
-- **34/34 path** trong [`ivr-order-confirmation.v1.yaml`](../../specs/api/openapi/ivr-order-confirmation.v1.yaml)
-  đều có handler thật trong `src/Ivr.Api`. Không endpoint nào bị khai mà chưa dựng.
-- **8/8 màn** trong `specs/ui/` đều có route trong `admin-ui/src/app/(console)/`, cộng
-  6 route phát sinh từ W-0105 (`/accounts`, `/accounts/[id]`, `/profile`, `/login`, `/queue`, `/reports/export`).
-- **0 `TODO` / `FIXME` / `NotImplementedException`** trong toàn bộ `src/` và `admin-ui/src/`.
-- Readiness probe đã là fail-closed thật (`503` khi DB unreachable/schema_behind hoặc
-  callback circuit hở) — [`IvrReadinessProbe.cs:16`](../../src/Ivr.Api/Health/IvrReadinessProbe.cs).
-
-Nhưng có **một lỗ hổng chức năng lớn** và **ba lỗ hổng vừa**, tất cả đều tự làm được:
-
-| # | Thiếu | Vì sao quan trọng |
-| --- | --- | --- |
-| **A1** | **Đường ống ghép audio động chưa có.** Cuộc gọi hiện phát **đúng một file WAV cố định**, không chứa dữ liệu đơn của khách | Đây là **lý do tồn tại** của hệ thống. Không có nó thì không thể pilot |
-| **A2** | **Script lifecycle có domain nhưng không có API và không có màn hình** | Không ai duyệt được kịch bản từ console ⇒ cổng Legal (`G-LEGAL`) không có đường thi hành |
-| **A3** | **Không có màn hình feature-flag / runtime gate** | `OD-V1-20` vừa cấp quyền `IVR_RUNTIME_GATE_ADMIN` cho Admin, nhưng quyền đó không có nút nào để bấm |
-| **A4** | **Không có cách cắt ngang cuộc đang gọi** | Kill switch chặn cuộc **mới**; cuộc đang nói chuyện với khách thì không dừng được |
-
-Ba lỗ hổng A2/A3/A4 đều là **an toàn vận hành**, không phải tính năng phụ. A1 là
-đường găng của toàn bộ lịch pilot.
+Điều đó chưa làm hệ thống production-ready. Nhóm B vẫn chờ contract/credential/
+sandbox/CDC từ bên ngoài; owner listening/UX, SIM/carrier UAT, hosted deploy và
+real-customer call chưa được kết luận. Các phần “Bằng chứng/Vì sao/Việc phải làm”
+trong §4 là ảnh chụp discovery ngày 22/8, được giữ để giải thích lý do các work
+item đã được mở, không phải backlog hiện tại.
 
 ---
 
@@ -122,11 +132,10 @@ Con số pass gần nhất ghi ở tracker `A-0322`: .NET `675/675`, admin-ui `2
 
 > **Ưu tiên: 🔴 CAO NHẤT.** Đây là việc then chốt của pilot.
 >
-> ✅ **ĐÃ TRIỂN KHAI `2026-08-22` — `W-0108`, trạng thái `CODE_DONE`.**
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-22` — `W-0108`, trạng thái `TESTS_PASS`.**
 > Bằng chứng: [`docs/evidence/W-0108/README.md`](../../docs/evidence/W-0108/README.md).
-> 4/5 tiêu chí nghiệm thu đã đạt bằng test tự động; tiêu chí thứ 5 (nghe thử MicroSIP) chờ 12
-> file MP3 mà chỉ owner render được. Integration/contract/chaos **chưa chạy** — 3 process dev
-> đang khoá DLL.
+> Automated gates đã chạy và work item đạt `TESTS_PASS`; owner nghe/UX approval
+> vẫn là residual riêng nên chưa phải `ACCEPTED` hay bằng chứng gọi thật.
 
 **Bằng chứng.**
 
@@ -323,8 +332,8 @@ nhìn thấy.
 
 **Bằng chứng.**
 
-- [`docs/release/readiness-board.md`](../../docs/release/readiness-board.md) §6 ghi:
-  *"cắt ngang cuộc đang gọi | **không có cơ chế nào**"*.
+- Ở ảnh chụp discovery ngày 22/8, readiness board còn ghi *"không có cơ chế nào"*.
+  W-0111 đã triển khai cơ chế; W-0117 đã sửa board sinh tự động cho khớp source.
 - `HangupAsync` **có tồn tại** nhưng chỉ ở trong vòng lặp dispatch:
   [`AsteriskSchedulerDispatchGateway.cs:149`](../../src/Ivr.Infrastructure/Telephony/AsteriskSchedulerDispatchGateway.cs)
   và `MockTelephonyDispatchGateway.cs:272`. Không endpoint nào gọi tới.
@@ -546,10 +555,10 @@ Giữ nguyên như tracker và [`readiness-board.md`](../../docs/release/readine
 
 | # | Vấn đề | Bằng chứng | Sửa gì |
 | --- | --- | --- | --- |
-| D1 | README nói `/health/ready` **luôn trả 200** và "không phải tín hiệu fail-closed cho tới W-0040" | [`README.md:69`](../../README.md) vs [`IvrReadinessProbe.cs:16`](../../src/Ivr.Api/Health/IvrReadinessProbe.cs) trả `503` thật | Cập nhật README — W-0040 đã xong |
-| D2 | README mô tả `admin-ui` chỉ có dashboard/call log/detail (P3-2) | README §Components vs 14 route thật | Cập nhật danh sách màn |
-| D3 | `specs/api/03` §0 khai `/accounts/{accountId}:delete` | OpenAPI và code đều dùng `DELETE /accounts/{accountId}` | Sửa spec cho khớp |
-| D4 | `specs/api/03` §1 ghi `IVR_RUNTIME_GATE_ADMIN` *(OD-V1-20 pending)* và §"Báo cáo" ghi "Admin có 11 quyền" | `OD-V1-20` đã chốt `2026-08-22`, Admin nay có **13** quyền | ⚠️ **Luồng L1 đang làm** — kiểm lại sau khi L1 commit, chỉ sửa phần còn sót |
+| D1 | README nói `/health/ready` **luôn trả 200** và "không phải tín hiệu fail-closed cho tới W-0040" | [`IvrReadinessProbe.cs`](../../src/Ivr.Api/Health/IvrReadinessProbe.cs) trả `503` thật | ✅ `W-0117`: README đã đồng bộ |
+| D2 | README mô tả `admin-ui` chỉ có dashboard/call log/detail (P3-2) | Console hiện có thêm queue/script/flag/integration/review/report/account/seed | ✅ `W-0117`: README mô tả theo capability hiện hành |
+| D3 | `specs/api/03` §0 khai `/accounts/{accountId}:delete` | OpenAPI và code đều dùng `DELETE /accounts/{accountId}` | ✅ `W-0117`: spec đã đồng bộ |
+| D4 | Admin API từng ghi role matrix cũ | Source hiện có Admin **22** quyền, Operator **5** | ✅ `W-0117`: spec đã đồng bộ; OD-V1-20 vẫn giữ fail-closed authorization layer |
 
 ---
 

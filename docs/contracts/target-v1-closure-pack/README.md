@@ -1,6 +1,6 @@
 # Target Contract V1 — Closure Pack
 
-Trạng thái: `OPEN` · Work `W-0058` (prompt `P11-2`) · Tạo `2026-08-18`
+Trạng thái: `OPEN` · Work `W-0058` (prompt `P11-2`) · Tạo `2026-08-18` · Rà soát lại `2026-08-24` trên `main@54ca239` (`draft.18`)
 
 Gói review duy nhất để Sales / Product / Privacy / Security trả lời bằng **code, OpenAPI và test** — không trả lời bằng ý kiến.
 
@@ -53,8 +53,8 @@ Mọi so sánh trong gói này chạy trên baseline đã ghim ở [`specs/api/o
 | Thứ | Giá trị |
 | --- | --- |
 | Sales current baseline | `ginsengfood-business-platform` @ `a3aad246d986fbc273cf41aaa93eec6659669656` |
-| IVR internal API (TARGET_DRAFT) | `sha256:8adc9d40eead27ca04cfdaa99e863df0e2f3aab7e58b2c332f442a276ae2c8d7` |
-| Sales callback target (TARGET_DRAFT) | `sha256:1677d490eea5484e449ace3310e26e3c59acbb8011c7c1736e3f981afffa96ee` |
+| IVR internal API (TARGET_DRAFT) | `sha256:b59a644e5bcaca3ad33b2b91523e14ec65196027b4a37a6b3c73d6842e8676b9` |
+| Sales callback target (TARGET_DRAFT) | `sha256:af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
 | Current Golden Hour compat fixture | `sha256:ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d` |
 
 Nếu Sales trả lời trên một commit khác, ghi commit đó vào ticket — **không** so sánh chéo hai baseline rồi kết luận.

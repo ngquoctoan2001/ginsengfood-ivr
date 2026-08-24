@@ -386,7 +386,7 @@ async function renderBoard({ gates, work, decisions }) {
     "| `REAL_CUSTOMER_CALL_ALLOWED` | `false` ở **cả 4** môi trường, ép lúc render chart |",
     "| kill switch | bắt buộc bật khi chế độ khác `MOCK`, ép lúc render |",
     "| rollback | `helm rollback --atomic` + `after_script`; **chưa lượt deploy nào từng chạy** |",
-    "| cắt ngang cuộc đang gọi | **không có cơ chế nào** |",
+    "| cắt ngang cuộc đang gọi | W-0111: Admin/Operator có `IVR_CALL_TERMINATE`; API ghi yêu cầu, worker poll (mặc định ≤500 ms) rồi gateway hang up. Đây là cơ chế riêng, không gộp vào kill switch; mới có evidence software/MOCK, chưa phải SIM/carrier UAT |",
     "",
     "## 7. Cái bảng này KHÔNG nói",
     "",

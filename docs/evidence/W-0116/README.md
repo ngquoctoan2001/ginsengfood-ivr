@@ -70,6 +70,10 @@ OAS 3.0 trong tài liệu đang khai 3.1 và route `/scripts/` có trailing slas
 chạm các dòng đó. Không sửa lẫn vào contract localization; đây vẫn là residual gate cần work
 item riêng.
 
+> Follow-up `W-0117` (`2026-08-24`) đã đóng residual này: lint còn `0` lỗi,
+> contract lên `draft.18`, và alias runtime `/scripts/` vẫn được test để không breaking.
+> Kết quả 14 lỗi ở trên vẫn được giữ như ảnh chụp đúng tại thời điểm W-0116 kết thúc.
+
 ---
 
 ## 4. Kết quả kiểm chứng

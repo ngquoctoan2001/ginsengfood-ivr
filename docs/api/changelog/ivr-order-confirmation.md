@@ -1,4 +1,4 @@
-# API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.17
+# API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.18
 
 
 ## API Changes
@@ -107,7 +107,7 @@
 -  endpoint added
 
 
-### POST /scripts/
+### POST /scripts
 -  endpoint added
 
 

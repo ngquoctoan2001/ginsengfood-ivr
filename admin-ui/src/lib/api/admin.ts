@@ -305,7 +305,7 @@ export function createScriptDraft(
 ): Promise<IvrApiResponse<IvrScriptActionResult>> {
   return callIvrApi<IvrScriptActionResult>({
     method: "POST",
-    path: "/scripts/",
+    path: "/scripts",
     body: request,
     session: context.session,
     config: context.config,

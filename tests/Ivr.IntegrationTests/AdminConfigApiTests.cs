@@ -264,6 +264,7 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
 
     private static readonly string[] ScriptMutationRoutes =
     [
+        "/v1/ivr/order-confirmation/scripts",
         "/v1/ivr/order-confirmation/scripts/",
         "/v1/ivr/order-confirmation/scripts/SCRIPT-ORDER-CONFIRM/v3-test-approved:submit",
         "/v1/ivr/order-confirmation/scripts/SCRIPT-ORDER-CONFIRM/v3-test-approved:approve",
