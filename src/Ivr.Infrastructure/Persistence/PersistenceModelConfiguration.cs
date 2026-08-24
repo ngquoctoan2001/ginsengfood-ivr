@@ -124,6 +124,12 @@ internal static class PersistenceModelConfiguration
                     "ck_ivr_confirmation_tasks_eligibility_hash",
                     "eligibility_snapshot_hash IS NULL "
                     + "OR eligibility_snapshot_hash ~ '^[a-f0-9]{64}$'");
+                table.HasCheckConstraint(
+                    "ck_ivr_confirmation_tasks_eligibility_decision",
+                    "eligibility_decision IS NULL OR eligibility_decision IN ("
+                    + "'PENDING_ELIGIBILITY','ELIGIBLE_FOR_IVR','TASK_BLOCKED_OPERATIONAL',"
+                    + "'TASK_HELD_ADMIN_REVIEW','TASK_SKIPPED_TRUSTED_CUSTOMER',"
+                    + "'IVR_CAPACITY_EXCEPTION')");
             });
         builder.HasKey(entity => entity.Id);
         builder.HasAlternateKey(entity => entity.TaskId);
@@ -181,6 +187,28 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_call_jobs_signal_only",
                     "input_signal_only IS TRUE AND no_direct_order_update IS TRUE");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_jobs_status",
+                    "status IN ('CREATED','DRY_RUN','OPEN','QUEUED','READY_FOR_SCHEDULER',"
+                    + "'LEASED','LEASED_PENDING_DISPATCH','DISPATCH_LEASED','DIALING',"
+                    + "'ACTIVE_CALL','DISPOSITION_PENDING_NORMALIZATION',"
+                    + "'PROVIDER_EVENT_PENDING_NORMALIZATION','RESULT_READY_FOR_CALLBACK',"
+                    + "'TECHNICAL_RETRY_QUEUED','HELD_MOCK','HELD_ADMIN_REVIEW',"
+                    + "'HELD_ELIGIBILITY','HELD_CAPACITY','HELD_CALLBACK',"
+                    + "'HELD_TECHNICAL_REVIEW','HELD_NORMALIZATION','HELD_LEASE_RECOVERY',"
+                    + "'CAPACITY_HELD','CAPACITY_MISSED','CLOSED_CAPACITY',"
+                    + "'RECOVERY_REQUIRED','BLOCKED','SKIPPED','CLOSED')");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_jobs_queue_status",
+                    "queue_status IN ('QUEUED','HELD_MOCK','HELD_ELIGIBILITY','LEASED',"
+                    + "'HELD_LEASE_RECOVERY','HELD_NORMALIZATION','HELD_CALLBACK',"
+                    + "'HELD_TECHNICAL_REVIEW','HELD_CAPACITY','HELD_ADMIN_REVIEW',"
+                    + "'SKIPPED','BLOCKED','CLOSED_CAPACITY')");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_jobs_eligibility_decision",
+                    "eligibility_decision IN ('PENDING_ELIGIBILITY','ELIGIBLE_FOR_IVR',"
+                    + "'TASK_BLOCKED_OPERATIONAL','TASK_HELD_ADMIN_REVIEW',"
+                    + "'TASK_SKIPPED_TRUSTED_CUSTOMER','IVR_CAPACITY_EXCEPTION')");
             });
         builder.HasKey(entity => entity.IvrCallJobId);
         builder.HasOne<ConfirmationTaskEntity>()
@@ -218,6 +246,20 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_call_attempts_retry_nonnegative",
                     "technical_retry_count >= 0");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_attempts_status",
+                    "status IN ('LEASED_PENDING_DISPATCH','DIALING','ACTIVE_CALL',"
+                    + "'PROVIDER_EVENT_PENDING_NORMALIZATION','NORMALIZED_ATTEMPT_COMPLETE',"
+                    + "'NORMALIZED_FINAL','NORMALIZED_TECHNICAL_RETRY',"
+                    + "'NORMALIZED_REVIEW_REQUIRED','TECHNICAL_RETRY_QUEUED',"
+                    + "'RECOVERY_REQUIRED')");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_attempts_result_status",
+                    "result_status IS NULL OR result_status IN ('IVR_CONFIRMED',"
+                    + "'IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL',"
+                    + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
+                    + "'IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
+                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
 
                 // W-0111. All three termination columns move together. A row carrying a
                 // timestamp with no actor would be an operator action nobody can be asked
@@ -342,10 +384,30 @@ internal static class PersistenceModelConfiguration
         var builder = modelBuilder.Entity<CallResultEntity>();
         builder.ToTable(
             "ivr_call_results",
-            table => table.HasCheckConstraint(
-                "ck_ivr_call_results_signal_only",
-                "input_signal_only IS TRUE AND no_direct_order_update IS TRUE "
-                + "AND no_payment_or_revenue_effect IS TRUE"));
+            table =>
+            {
+                table.HasCheckConstraint(
+                    "ck_ivr_call_results_signal_only",
+                    "input_signal_only IS TRUE AND no_direct_order_update IS TRUE "
+                    + "AND no_payment_or_revenue_effect IS TRUE");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_results_result_type",
+                    "result_type IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED',"
+                    + "'IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL',"
+                    + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
+                    + "'IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
+                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_results_recommended_core_action",
+                    "recommended_core_action IN ('REVALIDATE_AND_CONFIRM_ORDER',"
+                    + "'REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST',"
+                    + "'NO_STATE_CHANGE_WAIT_FOR_TIMEOUT','REVALIDATE_AND_EXPIRE_CONFIRMATION',"
+                    + "'REVALIDATE_AND_HOLD_ADMIN_REVIEW','IGNORE_STALE_CALLBACK',"
+                    + "'BLOCK_DUE_TO_OPERATIONAL_CONSTRAINT')");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_results_final_matches_type",
+                    "final_result_status = result_type");
+            });
         builder.HasKey(entity => entity.IvrCallResultId);
         builder.HasOne<CallJobEntity>()
             .WithMany()
@@ -379,6 +441,22 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_result_callbacks_hash",
                     "payload_sha256 ~ '^[A-F0-9]{64}$'");
+                table.HasCheckConstraint(
+                    "ck_ivr_result_callbacks_result_status",
+                    "result_status IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED',"
+                    + "'IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL',"
+                    + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
+                    + "'IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
+                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
+                table.HasCheckConstraint(
+                    "ck_ivr_result_callbacks_result_state",
+                    "result_state IN ('PENDING_CORE_REVALIDATION')");
+                table.HasCheckConstraint(
+                    "ck_ivr_result_callbacks_delivery_status",
+                    "delivery_status IN ('READY','SENDING','RETRY_PENDING','RETRY_EXHAUSTED',"
+                    + "'DELIVERED_ACCEPTED','DELIVERED_BLOCKED','DELIVERED_REVIEW',"
+                    + "'REJECTED_STALE','IDEMPOTENCY_CONFLICT','INVALID_DEAD_LETTER',"
+                    + "'AUTH_REJECTED')");
             });
         builder.HasKey(entity => entity.CallbackId);
         builder.HasOne<CallResultEntity>()
@@ -413,6 +491,10 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_sim_channels_mode",
                     "execution_mode IN ('MOCK','LAB_REAL_SIM','PRODUCTION_REAL')");
+                table.HasCheckConstraint(
+                    "ck_ivr_sim_channels_status",
+                    "status IN ('IDLE','RESERVED','LEASED','DIALING','ACTIVE_CALL','DISABLED',"
+                    + "'QUARANTINED','HEALTH_FAILED')");
             });
         builder.HasKey(entity => entity.SimChannelId);
         builder.HasIndex(entity => entity.LeaseToken).IsUnique()
@@ -425,7 +507,18 @@ internal static class PersistenceModelConfiguration
     private static void ConfigureOperations(ModelBuilder modelBuilder)
     {
         var capacity = modelBuilder.Entity<CapacityIncidentEntity>();
-        capacity.ToTable("ivr_capacity_incidents");
+        capacity.ToTable(
+            "ivr_capacity_incidents",
+            table =>
+            {
+                table.HasCheckConstraint(
+                    "ck_ivr_capacity_incidents_status",
+                    "status IN ('OPEN','RESOLVED')");
+                table.HasCheckConstraint(
+                    "ck_ivr_capacity_incidents_scope",
+                    "scope IN ('ADMIN_QUEUE_PAUSE','ELIGIBILITY_DEADLINE',"
+                    + "'SCHEDULER_DEADLINE')");
+            });
         capacity.HasKey(entity => entity.CapacityIncidentId);
         capacity.HasIndex(entity => new { entity.Status, entity.OpenedAt });
 
@@ -487,7 +580,18 @@ internal static class PersistenceModelConfiguration
         evidence.HasIndex(entity => entity.AcceptedAt);
 
         var review = modelBuilder.Entity<ReviewItemEntity>();
-        review.ToTable("ivr_review_items");
+        review.ToTable(
+            "ivr_review_items",
+            table =>
+            {
+                table.HasCheckConstraint(
+                    "ck_ivr_review_items_source_type",
+                    "source_type IN ('IVR_CALL_RESULT','IVR_RESULT_CALLBACK',"
+                    + "'ELIGIBILITY_DECISION','IVR_OPTOUT_PROPOSAL')");
+                table.HasCheckConstraint(
+                    "ck_ivr_review_items_status",
+                    "status IN ('OPEN','RESOLVED','PENDING_CRM','ACCEPTED_BY_CRM')");
+            });
         review.HasKey(entity => entity.ReviewItemId);
         review.HasIndex(entity => new { entity.Status, entity.CreatedAt });
         review.HasIndex(entity => entity.CorrelationId);

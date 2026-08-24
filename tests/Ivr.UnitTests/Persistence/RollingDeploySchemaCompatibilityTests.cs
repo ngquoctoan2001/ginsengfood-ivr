@@ -37,14 +37,42 @@ public sealed class RollingDeploySchemaCompatibilityTests
     /// the migration is edited, so an exemption cannot quietly cover a second change.
     /// </para>
     /// <para>
-    /// Empty, and that is the finding rather than the default: every migration in this repository
-    /// is already additive-only. The list exists because the legitimate way to drop a column is
-    /// expand/contract — add, ship the code that stops reading it, drop it a release later — and
-    /// the release that finally drops it needs a way to say so out loud.
+    /// W-0115 is the first reviewed exception. Its 16 enum sets were derived from every writer in
+    /// release N-1, and its migration runs a data preflight before adding any constraint. The
+    /// result equality has a separate reason because both N-1 write paths already assign the same
+    /// value to both columns. Keeping a reason beside every exact key makes an exemption reviewable
+    /// without teaching the classifier to silently accept a broader operation shape.
     /// </para>
     /// </summary>
-    private static readonly FrozenSet<string> ReviewedExemptions =
-        FrozenSet<string>.Empty;
+    private static readonly FrozenDictionary<string, string> ReviewedExemptions =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_sim_channels.status"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_review_items.source_type"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_review_items.status"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_result_callbacks.delivery_status"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_result_callbacks.result_state"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_result_callbacks.result_status"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_confirmation_tasks.eligibility_decision"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_capacity_incidents.scope"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_capacity_incidents.status"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_results.final_result_status+result_type"] = ResultEqualityReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_results.recommended_core_action"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_results.result_type"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_jobs.eligibility_decision"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_jobs.queue_status"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_jobs.status"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_attempts.result_status"] = EnumReason,
+            ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_attempts.status"] = EnumReason,
+        }.ToFrozenDictionary(StringComparer.Ordinal);
+
+    private const string EnumReason =
+        "W-0115 audited every N-1 writer and the migration preflights existing values before DDL; "
+        + "IT-DBENUM-MIGRATE-05 covers valid N-1 data, rejection, and all exact constraints.";
+
+    private const string ResultEqualityReason =
+        "W-0115 preflights existing rows; both N-1 writers assign final_result_status and "
+        + "result_type from the same normalized result, covered by IT-DBENUM-MIGRATE-05.";
 
     [Fact]
     [Trait("TestId", "UT-SCHEMA-BACKCOMPAT-01")]
@@ -58,12 +86,15 @@ public sealed class RollingDeploySchemaCompatibilityTests
         IModel model = BuildModel();
         var violations = new List<SchemaCompatibilityViolation>();
         var inspected = new List<MigrationOperation>();
+        Assert.DoesNotContain(
+            ReviewedExemptions.Values,
+            reason => string.IsNullOrWhiteSpace(reason));
         foreach ((string id, Migration migration) in DiscoverMigrations())
         {
             inspected.AddRange(RollingDeploySchemaCompatibility.OperationsOf(migration));
             violations.AddRange(RollingDeploySchemaCompatibility
                 .Inspect(id, migration, model)
-                .Where(violation => !ReviewedExemptions.Contains(violation.Key)));
+                .Where(violation => !ReviewedExemptions.ContainsKey(violation.Key)));
         }
 
         // Every assertion in this test is of the form "no operation of this shape", which is

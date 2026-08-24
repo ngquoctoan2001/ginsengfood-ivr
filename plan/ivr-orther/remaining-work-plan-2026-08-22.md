@@ -474,6 +474,10 @@ smoke pass. Đây là điều kiện để rolling deploy không gãy giữa ch�
 
 ### A9 · `CHECK` constraint cho 16 bảng còn thiếu
 
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-24` — `W-0115`, trạng thái `TESTS_PASS`.**
+> Audit theo cột chốt 16 tập enum trên 8 bảng và một bất biến kết quả; migration có preflight
+> dữ liệu fail-closed. Bằng chứng: [`docs/evidence/W-0115/README.md`](../../docs/evidence/W-0115/README.md).
+
 Đã được W-0107 tách ra tường minh (`OD-L10N-04`). Giá trị: mở rộng vùng phủ của guard
 `IT-L10N-DBENUM-04` và chặn dữ liệu rác ở tầng DB. **Ưu tiên: 🟢 THẤP**, làm khi rảnh.
 Ước lượng 1–2 ngày (chủ yếu là migration + kiểm dữ liệu hiện có có vi phạm không).
@@ -485,7 +489,8 @@ smoke pass. Đây là điều kiện để rolling deploy không gãy giữa ch�
 `detail` dạng telemetry (`provider=MOCK; channels 3/4 enabled`) và `event.effect` của
 `CAPACITY_INCIDENT`. W-0107 khuyến nghị **giữ nguyên** vì đây là dòng chẩn đoán `key=value`,
 dịch thì mất khả năng grep. **Ưu tiên: 🟢 THẤP** — và khuyến nghị là **không làm**, chỉ
-thêm cột phụ đã dịch nếu owner muốn. Cần đổi contract (`draft.13`) nếu làm.
+thêm cột phụ đã dịch nếu owner muốn. Contract hiện là `1.0.0-draft.16`; nếu làm thì cần đổi
+contract thành `draft.17` và re-pin manifest sau review.
 
 ---
 

@@ -110,7 +110,7 @@ public sealed class RetentionJobTests(RetentionJobFixture fixture)
             seed.ReviewItems.Add(new ReviewItemEntity
             {
                 ReviewItemId = "review-outside-class",
-                SourceType = "retention-test",
+                SourceType = "IVR_CALL_RESULT",
                 SourceId = "safe-source",
                 Reason = "test fixture",
                 Status = "OPEN",
@@ -177,7 +177,9 @@ public sealed class RetentionJobTests(RetentionJobFixture fixture)
             AttemptScheduleJson = "[]",
             T0At = old,
             ExpiresAt = old.AddMinutes(5),
-            QueueStatus = "CLOSED",
+            Eligible = true,
+            EligibilityDecision = "ELIGIBLE_FOR_IVR",
+            QueueStatus = "SKIPPED",
             ScriptVersion = "SCRIPT-ORDER-CONFIRM@v1-test-approved",
             CreatedAt = old,
             ClosedAt = old.AddMinutes(5),
@@ -435,7 +437,7 @@ public sealed class RetentionJobTests(RetentionJobFixture fixture)
             DialTokenExpiresAt = createdAt.AddMinutes(5),
             PrivacySafeOrderSummaryJson =
                 "{\"customer_display_name\":\"chị An\",\"items\":[{\"public_name\":\"Nước hồng sâm\",\"quantity\":1}]}",
-            EligibilityDecision = "ELIGIBLE",
+            EligibilityDecision = "ELIGIBLE_FOR_IVR",
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
             CallRestriction = false,
             CreatedAt = createdAt,

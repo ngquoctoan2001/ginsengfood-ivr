@@ -94,7 +94,7 @@ Probe đã gỡ; cả ba xanh lại sau khi khôi phục.
 | `event.effect` CAPACITY_INCIDENT | `OD-L10N-02b` — cần thêm `hold_new_calls` vào contract. |
 | CSV export | `NT-5` — giữ mã gốc. Test `reports-screen.test.ts:313` khoá `PROGRAM,GOLDEN_HOUR,11,6,…` **vẫn xanh, không sửa một ký tự**. |
 | Audit log, evidence | `NT-5` — không đụng. |
-| `CHECK` cho 16 bảng còn lại | `OD-L10N-04` — tách work item. |
+| `CHECK` cho các cột enum còn lại | `W-0115` — đã triển khai, xem [`docs/evidence/W-0115/`](../W-0115/). |
 | `script_variant` trong báo cáo | Giá trị là version id (`v3-test-approved`), không phải enum. Ép qua từ điển sẽ báo mọi dòng "chưa dịch" — cảnh báo giả. |
 
 ---

@@ -405,7 +405,12 @@ public sealed class AnalyticsApiTests(PostgresPersistenceFixture fixture)
             ResultType = resultType,
             IsCountedCustomerAttempt = resultType != "IVR_TECHNICAL_EXCEPTION",
             IsFinalForIvr = true,
-            RecommendedCoreAction = "CORE_REVALIDATE_AND_CONTINUE",
+            RecommendedCoreAction = resultType switch
+            {
+                "IVR_CONFIRMED" => "REVALIDATE_AND_CONFIRM_ORDER",
+                "IVR_NO_ANSWER_FINAL" => "NO_STATE_CHANGE_WAIT_FOR_TIMEOUT",
+                _ => "REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+            },
             CoreOrderHandoffRequired = true,
             HumanReviewRequired = false,
             InputSignalOnly = true,
@@ -447,7 +452,7 @@ public sealed class AnalyticsApiTests(PostgresPersistenceFixture fixture)
             ScheduledWindowExpiresAt = t0.AddHours(4),
             StartedAt = t0,
             EndedAt = ResultAt,
-            Status = "COMPLETED",
+            Status = "NORMALIZED_FINAL",
             IsCountedCustomerAttempt = counted,
             TechnicalRetryAllowed = true,
             PolicyVersion = "mock-lab-v1",

@@ -360,7 +360,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
     public async Task TerminatingACallThatIsNotRunningIsRefusedAndWritesNothing()
     {
         await fixture.ResetAsync();
-        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "COMPLETED");
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "NORMALIZED_FINAL");
         await using InternalAdminApiTestApplication app = await StartAsync();
 
         int auditBefore;
@@ -395,7 +395,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
     public async Task OperatorMayTerminateAndAnUnknownJobIsNotFound()
     {
         await fixture.ResetAsync();
-        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "COMPLETED");
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "NORMALIZED_FINAL");
         await using InternalAdminApiTestApplication app = await StartAsync();
 
         using HttpResponseMessage unknown = await SendAdminAsync(
@@ -422,7 +422,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
     public async Task PauseBlocksOnlyNewClaimsAndResumeRestoresClaiming()
     {
         await fixture.ResetAsync();
-        await SeedGraphAsync(includeTerminalResult: false, attemptStatus: "TECHNICAL_FAILED");
+        await SeedGraphAsync(includeTerminalResult: false, attemptStatus: "NORMALIZED_TECHNICAL_RETRY");
         await using InternalAdminApiTestApplication app = await StartAsync();
         using HttpResponseMessage pause = await SendAdminAsync(
             app,
@@ -434,7 +434,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         await using (IvrDbContext paused = await Factory().CreateDbContextAsync())
         {
             Assert.Equal(
-                "TECHNICAL_FAILED",
+                "NORMALIZED_TECHNICAL_RETRY",
                 (await paused.CallAttempts.AsNoTracking().SingleAsync()).Status);
             Assert.Contains(
                 await paused.AuditLog.AsNoTracking().ToListAsync(),
@@ -457,7 +457,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         await using (IvrDbContext resumed = await Factory().CreateDbContextAsync())
         {
             Assert.Equal(
-                "TECHNICAL_FAILED",
+                "NORMALIZED_TECHNICAL_RETRY",
                 (await resumed.CallAttempts.AsNoTracking().SingleAsync()).Status);
             Assert.Contains(
                 await resumed.AuditLog.AsNoTracking().ToListAsync(),
@@ -719,7 +719,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
 
     private async Task SeedGraphAsync(
         bool includeTerminalResult = true,
-        string attemptStatus = "TECHNICAL_FAILED",
+        string attemptStatus = "NORMALIZED_TECHNICAL_RETRY",
         bool activeChannel = false,
         bool eligible = true)
     {
@@ -874,7 +874,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
                 ResultReason = "MAX_CUSTOMER_ATTEMPTS_REACHED",
                 IsCountedCustomerAttempt = true,
                 IsFinalForIvr = true,
-                RecommendedCoreAction = "CORE_REVALIDATE_AND_EXPIRE_CONFIRMATION",
+                RecommendedCoreAction = "NO_STATE_CHANGE_WAIT_FOR_TIMEOUT",
                 CoreOrderHandoffRequired = true,
                 HumanReviewRequired = true,
                 InputSignalOnly = true,
@@ -891,8 +891,8 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
                 OfficialOrderId = "ORDER-P2-8",
                 IdempotencyKey = "callback-p2-8",
                 ResultStatus = "IVR_NO_ANSWER_FINAL",
-                ResultState = "PENDING",
-                DeliveryStatus = "PENDING",
+                ResultState = "PENDING_CORE_REVALIDATION",
+                DeliveryStatus = "READY",
                 RequiresCoreRevalidation = true,
                 PayloadJson = "{}",
                 PayloadSha256 = new string('A', 64),
@@ -901,7 +901,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             context.ReviewItems.Add(new ReviewItemEntity
             {
                 ReviewItemId = "REVIEW-P2-8",
-                SourceType = "call-result",
+                SourceType = "IVR_CALL_RESULT",
                 SourceId = "RESULT-P2-8",
                 Reason = "verify final result evidence",
                 Status = "OPEN",

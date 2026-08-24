@@ -141,7 +141,7 @@ public sealed class SimChannelReadApiTests(PostgresPersistenceFixture fixture)
                 SimChannelId = "SIM-02",
                 SimNumberRef = "sim-ref-secret-02",
                 Enabled = true,
-                Status = "ACTIVE",
+                Status = "ACTIVE_CALL",
                 AdapterMode = "MOCK",
                 ExecutionMode = IvrOptions.MockExecutionMode,
                 ProviderName = "MOCK",

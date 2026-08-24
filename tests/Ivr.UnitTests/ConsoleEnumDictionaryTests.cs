@@ -30,7 +30,24 @@ public sealed class ConsoleEnumDictionaryTests
         ["ck_ivr_console_accounts_role"] = "accountRole",
         ["ck_ivr_console_accounts_status"] = "accountStatus",
         ["ck_ivr_task_intake_outbox_status"] = "intakeOutboxStatus",
+        ["ck_ivr_confirmation_tasks_eligibility_decision"] = "eligibilityDecision",
+        ["ck_ivr_call_jobs_status"] = "jobStatus",
+        ["ck_ivr_call_jobs_queue_status"] = "jobStatus",
+        ["ck_ivr_call_jobs_eligibility_decision"] = "eligibilityDecision",
+        ["ck_ivr_call_attempts_status"] = "attemptStatus",
+        ["ck_ivr_call_attempts_result_status"] = "resultType",
+        ["ck_ivr_call_attempts_voice_region"] = "voiceRegion",
+        ["ck_ivr_call_results_result_type"] = "resultType",
+        ["ck_ivr_call_results_recommended_core_action"] = "recommendedCoreAction",
+        ["ck_ivr_result_callbacks_result_status"] = "resultType",
+        ["ck_ivr_result_callbacks_result_state"] = "callbackResultState",
+        ["ck_ivr_result_callbacks_delivery_status"] = "deliveryStatus",
         ["ck_ivr_sim_channels_mode"] = "executionMode",
+        ["ck_ivr_sim_channels_status"] = "simStatus",
+        ["ck_ivr_capacity_incidents_status"] = "incidentStatus",
+        ["ck_ivr_capacity_incidents_scope"] = "incidentScope",
+        ["ck_ivr_review_items_source_type"] = "reviewSourceType",
+        ["ck_ivr_review_items_status"] = "reviewStatus",
         ["ck_ivr_script_versions_status"] = "scriptStatus",
         ["ck_ivr_script_approvals_type"] = "approvalType",
     };
@@ -53,6 +70,9 @@ public sealed class ConsoleEnumDictionaryTests
         // which is exactly the drift the test exists to notice, so it fails
         // rather than silently covering fewer columns than it claims.
         Assert.NotEmpty(constrained);
+        Assert.Equal(
+            FamilyByConstraint.Keys.Order(StringComparer.Ordinal),
+            constrained.Keys.Order(StringComparer.Ordinal));
 
         using JsonDocument dictionary = JsonDocument.Parse(File.ReadAllText(Path.Combine(
             root,
@@ -91,22 +111,33 @@ public sealed class ConsoleEnumDictionaryTests
     }
 
     /// <summary>
-    /// Pulls <c>"column IN ('A','B')"</c> constraints out of the model source,
-    /// paired with the constraint name declared on the line above.
+    /// Pulls closed-set <c>IN</c> constraints out of the model source, including nullable
+    /// <c>column IS NULL OR column IN (...)</c> forms, paired with their constraint names.
     /// </summary>
     private static Dictionary<string, string[]> ReadCheckConstraints(string source)
     {
         Dictionary<string, string[]> found = new(StringComparer.Ordinal);
 
-        // HasCheckConstraint("name", "col IN ('A','B')") — the two arguments are
-        // routinely split across lines by the formatter, so the pattern spans
-        // whitespace rather than assuming they share one.
+        // The SQL argument is routinely split into concatenated C# literals. Capture every
+        // literal first, then parse the reconstructed SQL so a line break cannot hide a value.
         const string pattern =
-            @"HasCheckConstraint\(\s*""(?<name>[a-z0-9_]+)""\s*,\s*""(?<column>[a-z_]+) IN \((?<values>[^)]*)\)""";
+            @"HasCheckConstraint\(\s*""(?<name>[a-z0-9_]+)""\s*,\s*"
+            + @"(?<sql>(?:""(?:[^""]|"""")*""\s*(?:\+\s*)?)+)\s*\)";
 
         foreach (Match match in Regex.Matches(source, pattern, RegexOptions.Singleline))
         {
-            string[] values = Regex.Matches(match.Groups["values"].Value, @"'([^']+)'")
+            string sql = string.Concat(
+                Regex.Matches(match.Groups["sql"].Value, @"""(?<part>(?:[^""]|"""")*)""")
+                    .Select(literal => literal.Groups["part"].Value.Replace("\"\"", "\"", StringComparison.Ordinal)));
+            Match closedSet = Regex.Match(
+                sql,
+                @"^(?<column>[a-z_]+)(?: IS NULL OR \k<column>)? IN \((?<values>[^)]*)\)$");
+            if (!closedSet.Success)
+            {
+                continue;
+            }
+
+            string[] values = Regex.Matches(closedSet.Groups["values"].Value, @"'([^']+)'")
                 .Select(quoted => quoted.Groups[1].Value)
                 .ToArray();
 

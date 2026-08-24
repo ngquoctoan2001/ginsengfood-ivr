@@ -509,7 +509,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             CallScriptVersion = Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             EvidencePolicyVersion = "evidence-v1",
             PrivacyPolicyVersion = "privacy-v1",
-            EligibilityDecision = "ELIGIBLE",
+            EligibilityDecision = "ELIGIBLE_FOR_IVR",
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
             SellableStatusJson = "[]",
             CallRestriction = false,
@@ -537,7 +537,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             T0At = Now,
             ExpiresAt = deadline,
             Eligible = true,
-            EligibilityDecision = "ELIGIBLE",
+            EligibilityDecision = "ELIGIBLE_FOR_IVR",
             QueueStatus = "HELD_MOCK",
             ScriptVersion = string.Concat(
                 "SCRIPT-ORDER-CONFIRM:",

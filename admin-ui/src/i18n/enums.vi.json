@@ -39,6 +39,8 @@
     "BLOCK_DUE_TO_OPERATIONAL_CONSTRAINT": "Chặn — ràng buộc vận hành"
   },
   "jobStatus": {
+    "CREATED": "Đã tạo",
+    "DRY_RUN": "Chạy thử — không gọi thật",
     "OPEN": "Đang mở",
     "QUEUED": "Chờ gọi",
     "READY_FOR_SCHEDULER": "Sẵn sàng điều phối",
@@ -166,7 +168,9 @@
   },
   "reviewStatus": {
     "OPEN": "Đang mở",
-    "RESOLVED": "Đã xử lý"
+    "RESOLVED": "Đã xử lý",
+    "PENDING_CRM": "Đang chờ CRM tiếp nhận",
+    "ACCEPTED_BY_CRM": "CRM đã tiếp nhận"
   },
   "sellableDecision": {
     "SELLABLE": "Bán được",

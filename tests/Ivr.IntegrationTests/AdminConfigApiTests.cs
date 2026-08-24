@@ -442,7 +442,7 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
             ResultType = "IVR_CONFIRMED",
             IsCountedCustomerAttempt = true,
             IsFinalForIvr = true,
-            RecommendedCoreAction = "CORE_REVALIDATE_AND_CONTINUE",
+            RecommendedCoreAction = "REVALIDATE_AND_CONFIRM_ORDER",
             CoreOrderHandoffRequired = true,
             HumanReviewRequired = true,
             InputSignalOnly = true,
