@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.16
+  version: 1.0.0-draft.17
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -2497,7 +2497,14 @@ components:
       properties:
         dependency: { type: string }
         state: { type: string, enum: [UP, DOWN, READY_503, NOT_WIRED] }
-        detail: { type: string }
+        detail:
+          type: string
+          description: Raw diagnostic text retained for exact log/trace lookup.
+        detail_vi:
+          type: string
+          description: >
+            W-0116. Optional Vietnamese companion for interpolated telemetry. It never
+            replaces detail; absence is valid during a rolling deployment from draft.16.
         fail_closed_effect: { type: string }
         observed:
           type: boolean
@@ -2511,6 +2518,12 @@ components:
         source: { type: string }
         reference: { type: string }
         effect: { type: string }
+        hold_new_calls:
+          type: boolean
+          description: >
+            W-0116. Present for CAPACITY_INCIDENT so the console can translate the effect
+            without inferring a boolean from English prose; absent for other event sources
+            and from draft.16 servers during rolling deployment.
         correlation_id: { type: string }
         occurred_at: { type: string, format: date-time }
     IvrIntegrationStatus:

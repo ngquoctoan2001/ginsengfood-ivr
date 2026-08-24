@@ -1,4 +1,4 @@
-# API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.12
+# API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.17
 
 
 ## API Changes
@@ -71,7 +71,27 @@
 -  endpoint added
 
 
+### POST /call-jobs/{ivrCallJobId}:terminate
+-  endpoint added
+
+
+### POST /call-jobs:terminate-all
+-  endpoint added
+
+
 ### GET /dashboard
+-  endpoint added
+
+
+### POST /dev/integration-profiles/{profileId}:apply
+-  endpoint added
+
+
+### POST /dev/scenarios/{scenarioId}:dry-run
+-  endpoint added
+
+
+### POST /dev/seed:load
 -  endpoint added
 
 
@@ -84,6 +104,26 @@
 
 
 ### GET /scripts
+-  endpoint added
+
+
+### POST /scripts/
+-  endpoint added
+
+
+### GET /scripts/{templateId}/{version}
+-  endpoint added
+
+
+### POST /scripts/{templateId}/{version}:approve
+-  endpoint added
+
+
+### POST /scripts/{templateId}/{version}:retire
+-  endpoint added
+
+
+### POST /scripts/{templateId}/{version}:submit
 -  endpoint added
 
 

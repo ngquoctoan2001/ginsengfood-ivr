@@ -352,6 +352,8 @@ export interface IvrDependencyStatus {
   readonly dependency: string;
   readonly state: "UP" | "DOWN" | "READY_503" | "NOT_WIRED";
   readonly detail: string;
+  /** W-0116 additive companion; absent on draft.16 servers. */
+  readonly detail_vi?: string;
   readonly fail_closed_effect: string;
   readonly observed: boolean;
   readonly captured_at?: string;
@@ -362,6 +364,8 @@ export interface IvrFailClosedEvent {
   readonly source: string;
   readonly reference: string;
   readonly effect: string;
+  /** W-0116; present only for CAPACITY_INCIDENT on draft.17 servers. */
+  readonly hold_new_calls?: boolean;
   readonly correlation_id: string;
   readonly occurred_at: string;
 }

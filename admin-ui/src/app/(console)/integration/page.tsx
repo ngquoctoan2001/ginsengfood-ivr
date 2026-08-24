@@ -162,6 +162,12 @@ const DEPENDENCY_COLUMNS: readonly Column<IvrDependencyStatus>[] = [
     cell: (dependency) => <DependencyDetail dependency={dependency} />,
   },
   {
+    key: "detailRaw",
+    header: t("integration.colDetailRaw"),
+    variant: "wrap",
+    cell: (dependency) => <code>{dependency.detail}</code>,
+  },
+  {
     // OD-L10N-02a. `fail_closed_effect` reads like free prose but is not: the API
     // builds it from six hardcoded constants, one per dependency
     // (AdminConfigReadService.BuildDependencies). Since `dependency` is already a
@@ -189,13 +195,16 @@ const DEPENDENCY_COLUMNS: readonly Column<IvrDependencyStatus>[] = [
  * sentences on its state — all four are keyed off data the console already has,
  * so they translate without touching the contract.
  *
- * SIM_GATEWAY and ORDER_CORE are the exception: the API interpolates live
- * telemetry into them (`provider=MOCK; channels 3/4 enabled`). That is a
- * diagnostic string in the same family as a log line, and translating "channels"
- * and "enabled" would buy very little while costing greppability and agreement
- * with the logs. It stays in English on purpose, not by omission.
+ * W-0116 adds `detail_vi` only for the two interpolated telemetry rows. The raw
+ * `detail` remains visible in the adjacent column for exact log lookup. Keeping
+ * the old dictionary fallback is intentional: during a rolling deployment this
+ * UI can still receive a draft.16 response with no companion field.
  */
 function DependencyDetail({ dependency }: { readonly dependency: IvrDependencyStatus }) {
+  if (dependency.detail_vi !== undefined && dependency.detail_vi.trim().length > 0) {
+    return <>{dependency.detail_vi}</>;
+  }
+
   if (dependency.dependency === "DIAL_KILL_SWITCH") {
     const key = dependency.state === "DOWN" ? "ENGAGED" : "RELEASED";
     return <EnumLabel family="dependencyDetail" value={`DIAL_KILL_SWITCH_${key}`} />;
@@ -210,14 +219,32 @@ function DependencyDetail({ dependency }: { readonly dependency: IvrDependencySt
  * API concatenated, both of which already have dictionary entries. Splitting
  * them back apart costs one regex and translates the whole row.
  *
- * A capacity-incident event is left alone: telling "held" from "not held" needs
- * `hold_new_calls`, which `IvrFailClosedEvent` does not carry, so translating it
- * would mean either parsing English prose or changing the contract
- * (OD-L10N-02b).
+ * W-0116/draft.17 carries the capacity boolean separately. The scope remains a
+ * code before the first colon, so the console can translate it without deriving
+ * policy from English prose. Missing `hold_new_calls` falls back to the raw effect
+ * for rolling compatibility with draft.16.
  */
 const REVIEW_EFFECT = /^([A-Z_]+): ([A-Z_]+)$/u;
+const CAPACITY_EFFECT_SCOPE = /^([A-Z_]+):/u;
 
 function FailClosedEventEffect({ event }: { readonly event: IvrFailClosedEvent }) {
+  if (event.source === "CAPACITY_INCIDENT" && event.hold_new_calls !== undefined) {
+    const scope = CAPACITY_EFFECT_SCOPE.exec(event.effect)?.[1];
+    if (scope !== undefined) {
+      return (
+        <>
+          <EnumLabel family="incidentScope" value={scope} />
+          {": "}
+          {t(
+            event.hold_new_calls
+              ? "integration.capacityCallsHeld"
+              : "integration.capacityDispatchNotHeld",
+          )}
+        </>
+      );
+    }
+  }
+
   const parts = event.source === "REVIEW_ITEM" ? REVIEW_EFFECT.exec(event.effect) : null;
   if (parts === null) {
     return <>{event.effect}</>;

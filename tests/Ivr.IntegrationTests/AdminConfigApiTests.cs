@@ -139,6 +139,8 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
         Assert.Contains("provider=", orderCore.Detail, StringComparison.Ordinal);
         Assert.Contains("circuit=", orderCore.Detail, StringComparison.Ordinal);
         Assert.Contains("BLOCKED_EXTERNAL", orderCore.Detail, StringComparison.Ordinal);
+        Assert.Contains("Nhà cung cấp=", orderCore.Detail_vi, StringComparison.Ordinal);
+        Assert.Contains("endpoint thật vẫn BLOCKED_EXTERNAL", orderCore.Detail_vi, StringComparison.Ordinal);
 
         // W-0031 landed, so the CRM card no longer promises a provider that will never be wired.
         IvrServer.IvrDependencyStatus crm = status.Dependencies
@@ -151,10 +153,14 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
             .Single(item => item.Dependency == "SIM_GATEWAY");
         Assert.True(sim.Observed);
         Assert.Equal(IvrServer.IvrDependencyStatusState.UP, sim.State);
+        Assert.Contains("provider=MOCK", sim.Detail, StringComparison.Ordinal);
+        Assert.Contains("Nhà cung cấp=MOCK", sim.Detail_vi, StringComparison.Ordinal);
+        Assert.Contains("1/1 kênh đang bật", sim.Detail_vi, StringComparison.Ordinal);
 
         IvrServer.IvrFailClosedEvent incident = status.Recent_fail_closed_events
             .Single(item => item.Source == "CAPACITY_INCIDENT");
         Assert.Contains("SCHEDULER_DEADLINE", incident.Effect, StringComparison.Ordinal);
+        Assert.Equal(false, incident.Hold_new_calls);
     }
 
     [Fact]

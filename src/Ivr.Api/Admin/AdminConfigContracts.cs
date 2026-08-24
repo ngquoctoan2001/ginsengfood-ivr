@@ -56,6 +56,8 @@ public sealed record DependencyStatusView(
     /// One of `UP`, `DOWN`, `READY_503`, `NOT_WIRED`.
     [property: JsonPropertyName("state")] string State,
     [property: JsonPropertyName("detail")] string Detail,
+    [property: JsonPropertyName("detail_vi")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? DetailVi,
     [property: JsonPropertyName("fail_closed_effect")] string FailClosedEffect,
     [property: JsonPropertyName("observed")] bool Observed,
     [property: JsonPropertyName("captured_at")] DateTimeOffset? CapturedAt);
@@ -64,6 +66,8 @@ public sealed record FailClosedEventView(
     [property: JsonPropertyName("source")] string Source,
     [property: JsonPropertyName("reference")] string Reference,
     [property: JsonPropertyName("effect")] string Effect,
+    [property: JsonPropertyName("hold_new_calls")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? HoldNewCalls,
     [property: JsonPropertyName("correlation_id")] string CorrelationId,
     [property: JsonPropertyName("occurred_at")] DateTimeOffset OccurredAt);
 

@@ -12,7 +12,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.2` | `1.0.0-draft.9` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.2` | `1.0.0-draft.17` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,
@@ -61,11 +61,27 @@ fields that previously returned a misleading numeric zero now explicitly return
 after revalidation remains callback ACK `BLOCKED_BY_CORE` and never rewrites the
 observed customer result.
 
-All seven steps are additive or response-relaxing: `oasdiff breaking --fail-on WARN` reports **no
-breaking changes**. They add no request body field, alter no existing operation,
-and grant no new capability — all eleven require `IVR_QUEUE_VIEW` and return
-masked or aggregate projections only. No mutation operation was added for script
-lifecycle, seed loading or permission assignment.
+`1.0.0-draft.10` through `draft.12` are one combined reviewed candidate from the
+concurrent W-0105/W-0106 stream: console account/session and two-role RBAC operations,
+the OD-V1-20 runtime-gate authorization clarification, and the additive `voice_region`
+read field. The intermediate draft numbers were not committed as standalone baselines.
+
+`1.0.0-draft.13` (W-0109) adds the governed script lifecycle operations and detail
+schemas. `draft.14` (W-0111) adds single-call and bulk in-flight termination operations.
+`draft.15` (W-0112) adds the non-production seed loader, scenario dry-run and integration
+profile operations. `draft.16` (W-0113) records the voice actually dispatched and exposes
+its provenance instead of silently re-deriving audit history.
+
+`1.0.0-draft.17` (W-0116) adds two optional response facts to the read-only integration
+projection: `IvrDependencyStatus.detail_vi` is a Vietnamese companion while raw `detail`
+remains unchanged for log lookup; `IvrFailClosedEvent.hold_new_calls` lets the console
+translate `CAPACITY_INCIDENT` without inferring a boolean from English prose. Both remain
+optional for draft.16/draft.17 rolling compatibility. No operation or permission changes.
+
+The pinned `oasdiff breaking --fail-on WARN` comparison from draft.2 through draft.17
+reports **no breaking changes**. This structural verdict does not approve a deployment or
+the external Sales contract; mutating operations added after draft.12 retain their separate
+permission, environment and governance gates.
 
 The Sales callback report still says `No changes detected`. The previous IVR baseline is
 retained at `baselines/ivr-order-confirmation.v1.0.0.yaml`; its transition to

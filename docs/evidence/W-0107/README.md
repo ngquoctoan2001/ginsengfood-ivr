@@ -34,9 +34,9 @@ nên dịch được hoàn toàn ở frontend, **không đụng contract**.
 | `fail_closed_effect` | ✅ Dịch, khoá theo `dependency` (6/6 ô) |
 | `detail` — 3 dependency hằng | ✅ Dịch, khoá theo `dependency` |
 | `detail` — `DIAL_KILL_SWITCH` | ✅ Dịch, chọn theo `state` |
-| `detail` — `SIM_GATEWAY`, `ORDER_CORE` | ⏸ Giữ tiếng Anh **có chủ đích** — telemetry `key=value`, cùng họ với log |
+| `detail` — `SIM_GATEWAY`, `ORDER_CORE` | ✅ Follow-up `W-0116`: giữ raw, thêm companion `detail_vi` |
 | `event.effect` — `REVIEW_ITEM` | ✅ Tách `^([A-Z_]+): ([A-Z_]+)$`, dịch cả hai vế |
-| `event.effect` — `CAPACITY_INCIDENT` | ⏸ Hoãn (`OD-L10N-02b`) — thiếu `hold_new_calls` trong contract |
+| `event.effect` — `CAPACITY_INCIDENT` | ✅ Follow-up `W-0116`: draft.17 thêm `hold_new_calls` optional |
 
 ### Sửa lỗi tự phát hiện trong `§5.3` của plan
 
@@ -90,8 +90,8 @@ Probe đã gỡ; cả ba xanh lại sau khi khôi phục.
 | Hạng mục | Lý do |
 | --- | --- |
 | `order_state` | `NT-3` — Order Core sở hữu, contract khai `Opaque enum` (`D-02`). Miễn trừ **tường minh** trong `enum-coverage.test.ts` kèm giải thích, để người sau không tưởng là bug rồi bịa từ điển. |
-| `detail` telemetry (2 ô) | Dòng chẩn đoán `key=value`, dịch ra mất khả năng grep và lệch với log. |
-| `event.effect` CAPACITY_INCIDENT | `OD-L10N-02b` — cần thêm `hold_new_calls` vào contract. |
+| `detail` telemetry (2 ô) | Không làm **trong W-0107**. `W-0116` giữ nguyên dòng `key=value` và thêm cột phụ `detail_vi`, nên không mất khả năng grep. |
+| `event.effect` CAPACITY_INCIDENT | Không làm **trong W-0107**. `W-0116` thêm `hold_new_calls` vào draft.17 và dịch ở UI mà không suy boolean từ câu tiếng Anh. |
 | CSV export | `NT-5` — giữ mã gốc. Test `reports-screen.test.ts:313` khoá `PROGRAM,GOLDEN_HOUR,11,6,…` **vẫn xanh, không sửa một ký tự**. |
 | Audit log, evidence | `NT-5` — không đụng. |
 | `CHECK` cho các cột enum còn lại | `W-0115` — đã triển khai, xem [`docs/evidence/W-0115/`](../W-0115/). |

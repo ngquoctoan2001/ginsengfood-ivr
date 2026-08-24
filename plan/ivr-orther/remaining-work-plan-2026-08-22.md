@@ -486,6 +486,12 @@ smoke pass. Đây là điều kiện để rolling deploy không gãy giữa ch�
 
 ### A10 · Việt hóa phần văn xuôi backend còn hoãn (`OD-L10N-02b`)
 
+> ✅ **ĐÃ TRIỂN KHAI `2026-08-24` — `W-0116`, trạng thái `TESTS_PASS`.**
+> Owner chọn phương án companion: giữ `detail` thô, thêm `detail_vi` optional cho hai dòng
+> telemetry nội suy; thêm `hold_new_calls` optional cho `CAPACITY_INCIDENT`; contract
+> `draft.16 → draft.17`, codegen/portal/manifest đã sinh lại. Bằng chứng:
+> [`docs/evidence/W-0116/README.md`](../../docs/evidence/W-0116/README.md).
+
 `detail` dạng telemetry (`provider=MOCK; channels 3/4 enabled`) và `event.effect` của
 `CAPACITY_INCIDENT`. W-0107 khuyến nghị **giữ nguyên** vì đây là dòng chẩn đoán `key=value`,
 dịch thì mất khả năng grep. **Ưu tiên: 🟢 THẤP** — và khuyến nghị là **không làm**, chỉ
@@ -602,7 +608,7 @@ Làm được ngay, không chờ quyết định nào, và là điều kiện đ
 | --- | --- | --- |
 | A8 | Cổng schema forward-compat | 1–2 |
 | A9 | `CHECK` constraint 16 bảng | 1–2 |
-| A10 | (khuyến nghị **không làm**) văn xuôi telemetry | — |
+| A10 | Companion Việt hóa, giữ telemetry gốc (`W-0116`) | ✅ hoàn tất |
 
 **Tổng nhóm A: khoảng 17–24 ngày công**, chưa tính thời gian owner quyết định và chưa
 tính bất kỳ cổng ngoài nào.

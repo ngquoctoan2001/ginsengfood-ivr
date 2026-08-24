@@ -330,6 +330,7 @@ public sealed class AdminConfigReadService(
                 ? "DOWN"
                 : enabledChannels == 0 ? "DOWN" : "UP",
             $"provider={flags.SimProvider}; channels {enabledChannels}/{totalChannels} enabled",
+            $"Nhà cung cấp={flags.SimProvider}; {enabledChannels}/{totalChannels} kênh đang bật",
             "SIM down maps to IVR_TECHNICAL_EXCEPTION, never to no-answer (DT-02).",
             Observed: true,
             lastHealthCheck),
@@ -339,6 +340,7 @@ public sealed class AdminConfigReadService(
             flags.GlobalDialKillSwitch
                 ? "kill switch engaged; dispatch blocked"
                 : "kill switch released",
+            null,
             "While engaged no call is dispatched in any mode.",
             Observed: true,
             null),
@@ -363,6 +365,17 @@ public sealed class AdminConfigReadService(
                 (circuit?.ConsecutiveTransientFailures ?? 0).ToString(
                     System.Globalization.CultureInfo.InvariantCulture),
                 "; real endpoint still BLOCKED_EXTERNAL (G-CONTRACT / W-0002..W-0006)"),
+            string.Concat(
+                "Nhà cung cấp=",
+                callback?.Provider ?? "chưa cấu hình",
+                "; chuyển giao=",
+                callback is { Enabled: true } ? "đang bật" : "đang tắt",
+                "; circuit=",
+                circuit?.Readiness ?? "chưa chạy",
+                "; lỗi tạm thời liên tiếp=",
+                (circuit?.ConsecutiveTransientFailures ?? 0).ToString(
+                    System.Globalization.CultureInfo.InvariantCulture),
+                "; endpoint thật vẫn BLOCKED_EXTERNAL (G-CONTRACT / W-0002..W-0006)"),
             "Order Core down means no new task and bounded callback retry or admin review.",
             // Observed only when delivery is actually on. With delivery disabled there is
             // nothing being observed about Order Core, and saying otherwise would be the
@@ -373,6 +386,7 @@ public sealed class AdminConfigReadService(
             "OPS_SELLABLE_GATE",
             "NOT_WIRED",
             "No ops health probe; /health/ready has no dependency signal until W-0040.",
+            null,
             "ready=503 or down means fail-closed: no dispatch and no confirm (DO-06).",
             Observed: false,
             null),
@@ -381,6 +395,7 @@ public sealed class AdminConfigReadService(
             "NOT_WIRED",
             "Voice restriction and trust evidence arrive inside the Sales task (W-0031); "
             + "IVR holds no CRM client and probes nothing (UT-ARCH-NO-CRM-EGRESS-06).",
+            null,
             "CRM down means opt-out cannot be determined, so no dispatch (DC-01).",
             Observed: false,
             null),
@@ -388,6 +403,7 @@ public sealed class AdminConfigReadService(
             "EVIDENCE_REGISTRY",
             "NOT_WIRED",
             "Evidence is written locally; no external registry probe exists.",
+            null,
             "Evidence down means no final callback, so the job holds.",
             Observed: false,
             null),
@@ -403,12 +419,14 @@ public sealed class AdminConfigReadService(
             incident.HoldNewCalls
                 ? $"{incident.Scope}: new calls held"
                 : $"{incident.Scope}: open, dispatch not held",
+            incident.HoldNewCalls,
             incident.SessionId,
             incident.OpenedAt)),
         .. reviews.Select(item => new FailClosedEventView(
             "REVIEW_ITEM",
             item.ReviewItemId,
             $"{item.SourceType}: {item.Reason}",
+            null,
             item.CorrelationId,
             item.CreatedAt)),
     ];

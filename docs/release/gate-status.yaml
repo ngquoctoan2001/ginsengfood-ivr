@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "5 of 114 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "5 of 115 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 15
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 60
+  rows_without_evidence_pack: 61
 
 gates:
   - id: "G-CONTRACT"
@@ -327,6 +327,10 @@ work:
     prompt: "Mở rộng CHECK constraint enum ở tầng DB (Origin=UNPLANNED, owner requested — hạng mục A9)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0115/README.md"
+  - id: "W-0116"
+    prompt: "Việt hóa telemetry tích hợp bằng trường phụ (Origin=UNPLANNED, owner requested — hạng mục A10 / OD-L10N-02b)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0116/README.md"
   - id: "W-0029"
     prompt: "P4-1"
     status: "TESTS_PASS"

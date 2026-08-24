@@ -11,6 +11,8 @@ import type {
   IvrAdminActionResult,
   IvrAdminReviewResult,
   IvrAnalyticsDataQuality,
+  IvrDependencyStatus,
+  IvrFailClosedEvent,
   IvrSimChannel,
   IvrTechnicalRetryResult,
   TechnicalRetryRequest,
@@ -202,6 +204,32 @@ describe("UT-UI-CONTRACT-06 OpenAPI drift", () => {
     };
 
     expect(Object.keys(sample).sort()).toEqual(requiredOf("IvrAnalyticsDataQuality"));
+  });
+
+  it("tracks the additive draft.17 integration localization fields", () => {
+    const dependency: IvrDependencyStatus = {
+      dependency: "SIM_GATEWAY",
+      state: "UP",
+      detail: "provider=MOCK; channels 1/1 enabled",
+      detail_vi: "Nhà cung cấp=MOCK; 1/1 kênh đang bật",
+      fail_closed_effect: "raw effect",
+      observed: true,
+    };
+    const event: IvrFailClosedEvent = {
+      source: "CAPACITY_INCIDENT",
+      reference: "INCIDENT-01",
+      effect: "SCHEDULER_DEADLINE: open, dispatch not held",
+      hold_new_calls: false,
+      correlation_id: "corr-01",
+      occurred_at: "2026-08-24T00:00:00Z",
+    };
+
+    expect(dependency.detail_vi).toContain("Nhà cung cấp");
+    expect(event.hold_new_calls).toBe(false);
+    expect(openapi.components.schemas.IvrDependencyStatus.properties).toHaveProperty("detail_vi");
+    expect(openapi.components.schemas.IvrFailClosedEvent.properties).toHaveProperty("hold_new_calls");
+    expect(requiredOf("IvrDependencyStatus")).not.toContain("detail_vi");
+    expect(requiredOf("IvrFailClosedEvent")).not.toContain("hold_new_calls");
   });
 
   /**

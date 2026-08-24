@@ -159,6 +159,7 @@ const INTEGRATION_STATUS = {
       dependency: "SIM_GATEWAY",
       state: "UP",
       detail: "provider=MOCK; channels 1/1 enabled",
+      detail_vi: "Nhà cung cấp=MOCK; 1/1 kênh đang bật",
       fail_closed_effect: "SIM down maps to IVR_TECHNICAL_EXCEPTION.",
       observed: true,
       captured_at: "2026-08-15T01:59:00Z",
@@ -174,6 +175,7 @@ const INTEGRATION_STATUS = {
       dependency: "ORDER_CORE",
       state: "NOT_WIRED",
       detail: "No provider endpoint configured.",
+      detail_vi: "Nhà cung cấp=chưa cấu hình; endpoint thật vẫn BLOCKED_EXTERNAL",
       fail_closed_effect: "Order Core down means no new task.",
       observed: false,
     },
@@ -183,6 +185,7 @@ const INTEGRATION_STATUS = {
       source: "CAPACITY_INCIDENT",
       reference: "INCIDENT-E2E-CFG",
       effect: "SCHEDULER_DEADLINE: open, dispatch not held",
+      hold_new_calls: false,
       correlation_id: "corr-cfg-incident",
       occurred_at: "2026-08-15T01:00:00Z",
     },
@@ -402,6 +405,10 @@ describe("E2E-UI-REVIEW-05 review queue and back-office screens", () => {
     expect(html).toContain("NOT_WIRED");
     expect(html).toContain("Chưa có thăm dò");
     expect(html).toContain("W-0040");
+    expect(html).toContain("Nhà cung cấp=MOCK; 1/1 kênh đang bật");
+    expect(html).toContain("provider=MOCK; channels 1/1 enabled");
+    expect(html).toContain("Trễ hạn điều phối");
+    expect(html).toContain("sự cố đang mở; chưa giữ dispatch");
     // The kill switch is reported as engaged, not hidden.
     expect(html).toContain("ĐANG BẬT");
 
