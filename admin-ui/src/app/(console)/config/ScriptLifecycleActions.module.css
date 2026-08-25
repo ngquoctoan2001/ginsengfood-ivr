@@ -1,0 +1,9 @@
+/*
+ * DataTable cells intentionally inherit `white-space: nowrap` so compact
+ * operational values stay on one line. The native dialogs live inside this
+ * cell in the DOM, however, and would inherit that table rule too: descriptions
+ * and callouts could not wrap, forcing a horizontal scrollbar across the modal.
+ */
+.actions {
+  white-space: normal;
+}

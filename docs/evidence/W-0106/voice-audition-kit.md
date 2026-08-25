@@ -1,6 +1,6 @@
 # W-0106 — Bộ nghe thử giọng nữ 3 miền (ElevenLabs web app, 0đ)
 
-Ngày: `2026-08-22`
+Ngày: `2026-08-22` · Cập nhật cấu hình cố định: `2026-08-24`
 Trạng thái: `VOICES_SELECTED_WITHOUT_LISTENING` — owner chốt bỏ qua bước nghe ngày `2026-08-22`
 Tài khoản: ElevenLabs **free tier** — 10.000 credits/tháng, dùng trên web app
 
@@ -52,11 +52,11 @@ lý do không ai truy được.
 | Tham số | Giá trị | Lý do |
 | --- | --- | --- |
 | Model | **Eleven v3** | Đúng model đã dùng cho voice C được owner chấp nhận ở W-0104 |
-| Language | Auto detect | Như W-0104 |
-| `Stability` | **0.35 – 0.50** | Thấp hơn mặc định để có nhấn nhá. Dưới 0.30 giọng trôi giữa các lần render, phá tính lặp lại của evidence |
-| `Similarity` | **~0.75** | |
-| `Style` | thấp – vừa | Style cao tạo kịch tính giả, nghe như quảng cáo chứ không như gọi xác nhận đơn |
-| Speed | **-3% đến -5%** | Chậm hơn mặc định một chút |
+| Language | **Auto detect** | Như W-0104 |
+| `Stability` | **0.40** | Có nhấn nhá nhưng vẫn lặp lại đủ ổn định cho evidence |
+| `Similarity` | **0.75** | Ghim một giá trị chung cho cả ba giọng |
+| `Style` | **thấp** | Style cao tạo kịch tính giả, nghe như quảng cáo chứ không như gọi xác nhận đơn |
+| Speed | **-3%** | Chậm hơn mặc định một chút |
 
 Không nhạc nền. Không hiệu ứng.
 

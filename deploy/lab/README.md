@@ -41,7 +41,17 @@ Từ repository root:
 .\deploy\lab\Start-FreeSoftphoneLab.ps1 -VoiceVariant C
 ```
 
-Script tạo ARI/SIP password ngẫu nhiên chỉ trong process hiện tại, khởi động stack, tải/mở MicroSIP với account `LAB-A`, seed policy/flag fake và gửi một task fake. Khi MicroSIP đổ chuông:
+Script tạo ARI/SIP password ngẫu nhiên chỉ trong process hiện tại, khởi động stack và tải/mở
+MicroSIP với account `LAB-A`. Script **không tự gửi task gọi**; sau khi MicroSIP hiện `Online`, chạy:
+
+```powershell
+.\deploy\lab\Invoke-FreeSoftphoneCall.ps1
+```
+
+Nếu cần đúng hành vi một-lệnh cũ cho một lượt preflight có giám sát, dùng
+`Start-FreeSoftphoneLab.ps1 -InvokePreflightCall`.
+
+Khi MicroSIP đổ chuông:
 
 1. Bấm **Answer**.
 2. Nghe lời thoại đơn fake.

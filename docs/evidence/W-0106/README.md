@@ -1,6 +1,6 @@
-# W-0106 — Định tuyến giọng đọc theo vùng miền (3 giọng nữ Bắc/Trung/Nam)
+# W-0106 — Gói bằng chứng định tuyến giọng đọc theo vùng miền
 
-Ngày: `2026-08-22`
+Ngày: `2026-08-22` · Cập nhật hardening runbook: `2026-08-24`
 Baseline: `main@f7c9be9`
 Trạng thái: `TESTS_PASS` — Giai đoạn 2, 3, 5 xong; Giai đoạn 4 chờ 3 file MP3; Giai đoạn 1 bỏ bước nghe theo `OD-VOICE-05`. Rà soát as-built `2026-08-22`, xem §8.
 
@@ -232,3 +232,15 @@ Hai file test phủ trực tiếp thay đổi của W-0106 — `console-screens.
 lượng/tổng tiền từ dữ liệu có cấu trúc"* — câu này **không đúng tại thời điểm viết**, vì
 renderer sinh dạng chữ số còn bản audio được duyệt lại đọc dạng chữ. Đã thêm §8 vào doc đó để
 đính chính và ghi lại quan hệ kế thừa W-0104 → W-0106.
+
+### 8.3 Hardening runbook trước khi render (`2026-08-24`)
+
+- Cấu hình ElevenLabs được ghim tuyệt đối: Eleven v3, Auto detect, stability `0.40`,
+  similarity `0.75`, style thấp, speed `-3%`.
+- `Convert-LabVoiceAudio.ps1` nhận ba voice ID thật + thời điểm render + nhãn tài khoản và tự
+  ghi toàn bộ metadata vào manifest; thiếu mục nào thì fail-closed trước khi chạm file audio.
+- Probe WAV decode về null sink và trả exit code `0` khi hợp lệ; fixture 3 miền đã PASS.
+- `Start-FreeSoftphoneLab.ps1` mặc định chỉ dựng stack + mở MicroSIP. Cuộc gọi preflight chỉ
+  xảy ra khi truyền tường minh `-InvokePreflightCall`, nên sáu lượt evidence không có lượt
+  South ngoài kế hoạch.
+- §5.3 trong plan đã bỏ bản phác thảo trùng và chỉ còn một mô tả as-built.

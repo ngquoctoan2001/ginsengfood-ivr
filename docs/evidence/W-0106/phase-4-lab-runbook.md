@@ -1,6 +1,6 @@
 # W-0106 Giai đoạn 4 — Runbook lab: PCM 8 kHz, ghim SHA-256, 6 lượt MicroSIP
 
-Ngày: `2026-08-22`
+Ngày: `2026-08-22` · Cập nhật: `2026-08-24`
 Trạng thái: `PLUMBING_READY_AWAITING_MP3`
 
 > Toàn bộ chuỗi xử lý đã dựng và kiểm. Chỉ còn **bước 1 phải làm tay** — render 3 file MP3 —
@@ -21,7 +21,8 @@ báo ở [kit §5](voice-audition-kit.md)):
 | Trung | **Zara** | [kit §4.1](voice-audition-kit.md) — bản có `ngàn`, Đà Nẵng |
 | Nam | **Giang** | [kit §4.3](voice-audition-kit.md) — bản có `ngàn`, Vĩnh Long |
 
-Cấu hình: Eleven v3, stability `0.35–0.50`, similarity `~0.75`, style thấp, speed `-3%`.
+Cấu hình cố định: Eleven v3, Language `Auto detect`, stability `0.40`, similarity `0.75`,
+style thấp, speed `-3%`.
 Giữ **y hệt nhau** cả ba — khác cấu hình giữa các miền là ba giọng lệch nhau vì lý do
 không ai truy được.
 
@@ -38,12 +39,19 @@ ngày, tài khoản. Thiếu voice ID thì `manifest.txt` không đóng được
 ./deploy/lab/Convert-LabVoiceAudio.ps1 `
     -NorthMp3   ./artifacts/w-0106-voice-audition/tham.mp3 `
     -CentralMp3 ./artifacts/w-0106-voice-audition/zara.mp3 `
-    -SouthMp3   ./artifacts/w-0106-voice-audition/giang.mp3
+    -SouthMp3   ./artifacts/w-0106-voice-audition/giang.mp3 `
+    -NorthVoiceId '<ID Thắm copy từ app>' `
+    -CentralVoiceId '<ID Zara copy từ app>' `
+    -SouthVoiceId '<ID Giang copy từ app>' `
+    -ElevenLabsAccountLabel 'ssavigroup-owner' `
+    -GeneratedAt '<thời điểm render, ví dụ 2026-08-24T15:30:00+07:00>'
 ```
 
 Script làm: chuẩn hóa loudness **trước** khi hạ 8 kHz (ngược lại thì giọng nhỏ hoặc vỡ trên
 PCMU), xuất PCM signed 16-bit / 8 kHz / mono, tự verify lại định dạng đầu ra, rồi cập nhật
-`SHA256SUMS` và `manifest.txt`.
+`SHA256SUMS` và `manifest.txt`. Manifest tự ghi ba voice ID thật, model/language,
+`stability=0.40`, `similarity=0.75`, `style=low`, `speed=-3%`, thời điểm sinh và nhãn tài khoản.
+Không ghi email, API key hay token vào nhãn tài khoản.
 
 ffmpeg chạy `bitexact` + `-map_metadata -1` để không nhét metadata encoder vào WAV. Không có
 cái đó thì cùng một file nguồn ra hash khác nhau giữa hai phiên bản ffmpeg, và việc ghim
@@ -63,6 +71,11 @@ không vỡ vì lỗi script. Kết quả: WAV ra đúng `pcm_s16le / 8000 Hz / 
 nguyên 3 dòng W-0104 và thêm đúng 3 dòng vùng miền; `manifest.txt` ghi UTF-8 đúng tên giọng
 có dấu; tên file khớp giữa script ↔ `entrypoint.sh` ↔ `docker-compose.softphone.yml`. Toàn bộ
 artefact giả đã được **hoàn tác**, repo không giữ checksum giả.
+
+**Fixture metadata chạy lại `2026-08-24`: PASS.** Manifest ghi đủ 3 voice ID, 6 trường cấu
+hình, thời điểm và nhãn tài khoản; 3 checksum vùng miền được tạo; caller nhận exit code `0`. Lượt này
+cũng bắt được và sửa probe cũ dùng `ffmpeg -i` không có output — nó in metadata đúng nhưng trả
+exit code `1`, khiến conversion thành công vẫn có thể bị caller báo thất bại.
 
 ---
 
@@ -85,6 +98,9 @@ hoặc thiếu file nào — nên bật sớm sẽ đỏ ngay chứ không âm t
 ```powershell
 ./deploy/lab/Start-FreeSoftphoneLab.ps1
 ```
+
+Script dựng stack và mở MicroSIP nhưng **không tự gửi task gọi**. Cuộc gọi đầu tiên chỉ bắt đầu
+ở Bước 5, nên không có lượt South "số 0" chen trước sáu lượt evidence.
 
 Entrypoint sẽ `sha256sum --check --strict` **toàn bộ** `SHA256SUMS` (3 file W-0104 + 3 file
 W-0106) trước khi Asterisk chạy, rồi cài cả ba file vùng miền song song vào

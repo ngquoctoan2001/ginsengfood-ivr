@@ -2,7 +2,7 @@
 
 Trạng thái tài liệu: `PLAN_IN_EXECUTION`
 Trạng thái triển khai: `TESTS_PASS` — Giai đoạn 2/3/5 xong; Giai đoạn 4 chuỗi xử lý xong chờ 3 file MP3; Giai đoạn 1 bỏ bước nghe theo `OD-VOICE-05`
-Ngày lập: `2026-08-22` · Cập nhật: `2026-08-22` (chốt `OD-VOICE-02/03/05`; `OD-VOICE-01` đảo hướng lần 3 sang ElevenLabs Starter — §7.1; mở `OD-VOICE-04`)
+Ngày lập: `2026-08-22` · Cập nhật: `2026-08-24` (ghim cấu hình audition; đóng metadata manifest; dọn §5.3 as-built)
 Baseline source đã đọc: `main@f7c9be9`
 Origin: `UNPLANNED` — owner requested
 Prereq: `W-0104` (ACCEPTED)
@@ -274,15 +274,14 @@ khi ghim vào manifest. Coi bảng này là danh sách **tên giọng để tìm
 Áp dụng cho cả 3 giọng, bám theo mục 3 của
 [`voice-modernization-proposal.md`](../../docs/evidence/W-0104/voice-modernization-proposal.md):
 
-- Model **Eleven v3** (đã dùng cho voice C và được owner chấp nhận về chất lượng).
-- `stability` **0.35–0.50** — thấp hơn mặc định để có nhấn nhá; dưới 0.30 bắt đầu trôi giọng
-  giữa các lần render, phá tính lặp lại được của evidence.
-- `similarity_boost` ~**0.75**; `style` thấp–vừa. Không bật style cao: nó tạo kịch tính giả.
+- Model **Eleven v3**, Language **Auto detect** (đúng model đã dùng cho voice C).
+- `stability` **0.40** — đủ nhấn nhá nhưng không trôi giọng giữa các lần render.
+- `similarity_boost` **0.75**; `style` **thấp**. Không bật style cao: nó tạo kịch tính giả.
 - **Ngắt nhịp thật trong text**, không dựa vào dấu phẩy: nghỉ sau lời chào, sau danh sách
   hàng, sau tổng tiền, và **trước** câu hướng dẫn phím.
 - Nhấn rõ **"phím một"** và **"phím không"**. Không nhạc nền.
 - Chuẩn hóa loudness **trước** khi hạ 8 kHz, tránh giọng nhỏ hoặc vỡ trên PCMU.
-- Tốc độ ~`-3%` đến `-5%` so với mặc định.
+- Tốc độ **`-3%`** so với mặc định.
 
 ### 4.6 Kiến trúc lai — cắt 68% chi phí ký tự
 
@@ -502,11 +501,32 @@ Hình dạng **as-built** (khác bản phác thảo: mỗi miền mang cả medi
   "FallbackRegion": "North",          // dùng khi resolver trả null
   "North":   { "VoiceId": "…", "SpeakingRate": 0, "FileMediaReference": "sound:…", "FileDurationSeconds": 18 },
   "Central": { "VoiceId": "…", "SpeakingRate": 0, "FileMediaReference": "sound:…", "FileDurationSeconds": 18 },
-  "South":   { "VoiceId": "…", "SpeakingRate": 0, "FileMediaRe### 5.3 Lab assets (LAB_REAL_SIM) — as-built
+  "South":   { "VoiceId": "…", "SpeakingRate": 0, "FileMediaReference": "sound:…", "FileDurationSeconds": 18 }
+}
+```
+
+`Resolve` trả `RegionalVoiceSelection(Region, ResolvedFromDeliveryArea, VoiceId, SpeakingRate)`
+chứ không trả mỗi chuỗi — cờ `ResolvedFromDeliveryArea` là thứ tách "khách miền Nam thật" khỏi
+"không suy được nên fallback" trong metric.
+
+**(d) `src/Ivr.Infrastructure/Speech/SpeechSynthesisService.cs`**
+
+Chọn giọng đúng một lần bằng `RegionalVoiceMap.Resolve(summary.DeliveryArea.Value)`, rồi truyền
+`VoiceId` đã chọn xuyên suốt TTS, static-file lookup, telemetry và cache.
+
+**(e) `ScriptRenderOptions.FallbackRegion`** — *(bổ sung khi triển khai)*
+
+Renderer và voice map phải fallback về **cùng một miền**. Nếu mỗi bên tự mặc định thì một địa
+chỉ không suy được sẽ cho giọng Nam đọc "nghìn" mà không có gì báo lỗi.
+`ApprovedVietnameseSpeechRenderer` truyền `regionalVoices.FallbackRegion` xuống renderer.
+
+`AudioCacheKey` đã có `VoiceId` ⇒ **không sửa cache**. Mỗi miền có không gian cache riêng,
+tự nhiên, không cần đụng tới `AudioCache.cs`.
+
+### 5.3 Lab assets (LAB_REAL_SIM) — as-built
 
 Bản phác thảo ban đầu định thêm `FileMediaReferenceByRegion` và mở rộng
-`Set-AsteriskLabVoice.ps1` để **chuyển** giữa ba biến thể. Triển khai thật khác hai điểm, và
-cả hai đều là sửa lỗi chứ không phải đổi ý:
+`Set-AsteriskLabVoice.ps1` để **chuyển** giữa ba biến thể. As-built khác ở ba điểm:
 
 | | Phác thảo | **As-built** | Vì sao đổi |
 | --- | --- | --- | --- |
@@ -523,44 +543,8 @@ cả hai đều là sửa lỗi chứ không phải đổi ý:
 - `IVR_LAB_VOICE_VARIANT` (A/B/C) và `Set-AsteriskLabVoice.ps1` **giữ nguyên** cho nhánh
   một-giọng của W-0104. Không xóa file `a`/`b`/`c`.
 - [`Convert-LabVoiceAudio.ps1`](../../deploy/lab/Convert-LabVoiceAudio.ps1) chuẩn hóa loudness
-  **trước** khi hạ 8 kHz, và chạy ffmpeg `bitexact` + `-map_metadata -1` — không có cái đó thì
-  metadata encoder lọt vào WAV và cùng một nguồn ra hash khác nhau giữa hai phiên bản ffmpeg,
-  làm việc ghim checksum thành vô nghĩa.
-
-
-
-`Resolve` trả `RegionalVoiceSelection(Region, ResolvedFromDeliveryArea, VoiceId, SpeakingRate)`
-chứ không trả mỗi chuỗi — cờ `ResolvedFromDeliveryArea` là thứ tách "khách miền Nam thật" khỏi
-"không suy được nên fallback" trong metric.
-
-**(e) `ScriptRenderOptions.FallbackRegion`** — *(bổ sung khi triển khai)*
-
-Renderer và voice map phải fallback về **cùng một miền**. Nếu mỗi bên tự mặc định thì một địa
-chỉ không suy được sẽ cho giọng Nam đọc "nghìn" mà không có gì báo lỗi.
-`ApprovedVietnameseSpeechRenderer` truyền `regionalVoices.FallbackRegion` xuống renderer.
-
-`AudioCacheKey` đã có `VoiceId` ⇒ **không sửa cache**. Mỗi miền có không gian cache riêng,
-tự nhiên, không cần đụng tới `AudioCache.cs`.
-
-### 5.3 Lab assets (LAB_REAL_SIM)
-
-`StaticFileTtsProvider` hiện trả **một** `FileMediaReference` cố định. Cần mở rộng thành
-map theo miền:
-
-```jsonc
-"FileMediaReferenceByRegion": {
-  "North":   "sound:ivr-lab-order-confirmation-n",
-  "Central": "sound:ivr-lab-order-confirmation-c",
-  "South":   "sound:ivr-lab-order-confirmation-s"
-}
-```
-
-- 3 file PCM signed 16-bit / 8 kHz / mono, ghim SHA-256 trong
-  [`SHA256SUMS`](../../deploy/lab/asterisk/audio/SHA256SUMS) và `manifest.txt`.
-- Image Asterisk kiểm cả 3 checksum khi boot (cơ chế đã có, chỉ mở rộng số lượng).
-- [`Set-AsteriskLabVoice.ps1`](../../deploy/lab/Set-AsteriskLabVoice.ps1) mở rộng để chuyển
-  giữa 3 biến thể miền, vẫn atomic + verify checksum trước khi đổi.
-- Giữ nguyên `a`/`b`/`c` cũ làm evidence lịch sử — **không xóa**.
+  **trước** khi hạ 8 kHz, chạy ffmpeg `bitexact` + `-map_metadata -1`, và ghi voice ID thật
+  cùng cấu hình render cố định vào `manifest.txt`.
 
 ### 5.4 Sửa lỗi F2: số tiền phải đọc bằng chữ
 
@@ -757,7 +741,7 @@ Runbook đầy đủ: [`phase-4-lab-runbook.md`](../../docs/evidence/W-0106/phas
 | # | Việc | Trạng thái |
 | --- | --- | --- |
 | 4.1 | ⛔ **Render 3 MP3 từ ElevenLabs** | **Chỉ owner làm được** — cần phiên đăng nhập ElevenLabs |
-| 4.2 | [`Convert-LabVoiceAudio.ps1`](../../deploy/lab/Convert-LabVoiceAudio.ps1) — MP3 → PCM s16le/8 kHz/mono, loudnorm, tự verify định dạng, cập nhật `SHA256SUMS` + `manifest.txt` | ✅ đã viết |
+| 4.2 | [`Convert-LabVoiceAudio.ps1`](../../deploy/lab/Convert-LabVoiceAudio.ps1) — MP3 → PCM s16le/8 kHz/mono, loudnorm, tự verify định dạng, cập nhật `SHA256SUMS` + `manifest.txt` gồm voice ID/settings/date/account label | ✅ đã viết |
 | 4.3 | [`entrypoint.sh`](../../deploy/lab/asterisk/entrypoint.sh) cài **cả 3 file vùng miền song song**, boot-check toàn bộ checksum | ✅ đã sửa |
 | 4.4 | [`docker-compose.softphone.yml`](../../docker-compose.softphone.yml) — block `RegionalVoices`, mặc định `Enabled=false` | ✅ đã thêm, `docker compose config` merge sạch |
 | 4.5 | [`Invoke-FreeSoftphoneCall.ps1`](../../deploy/lab/Invoke-FreeSoftphoneCall.ps1) thêm `-Region North\|Central\|South` | ✅ đã sửa |

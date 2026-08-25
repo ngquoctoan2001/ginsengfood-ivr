@@ -24,17 +24,53 @@
 .PARAMETER SouthMp3
     MP3 giọng Nam (Giang).
 
+.PARAMETER NorthVoiceId
+    Voice ID thật của Thắm, copy trực tiếp từ ElevenLabs app.
+
+.PARAMETER CentralVoiceId
+    Voice ID thật của Zara, copy trực tiếp từ ElevenLabs app.
+
+.PARAMETER SouthVoiceId
+    Voice ID thật của Giang, copy trực tiếp từ ElevenLabs app.
+
+.PARAMETER ElevenLabsAccountLabel
+    Nhãn tài khoản không nhạy cảm dùng để truy nguồn lượt render, ví dụ
+    `ssavigroup-owner`. Không dùng email, API key hoặc token.
+
+.PARAMETER GeneratedAt
+    Thời điểm sinh MP3 nguồn, có múi giờ. Phải truyền tường minh để evidence không ghi nhầm
+    thời điểm chạy conversion thành thời điểm render ElevenLabs.
+
 .EXAMPLE
     ./deploy/lab/Convert-LabVoiceAudio.ps1 `
         -NorthMp3 ./artifacts/w-0106-voice-audition/tham.mp3 `
         -CentralMp3 ./artifacts/w-0106-voice-audition/zara.mp3 `
-        -SouthMp3 ./artifacts/w-0106-voice-audition/giang.mp3
+        -SouthMp3 ./artifacts/w-0106-voice-audition/giang.mp3 `
+        -NorthVoiceId '<THAM_VOICE_ID_FROM_APP>' `
+        -CentralVoiceId '<ZARA_VOICE_ID_FROM_APP>' `
+        -SouthVoiceId '<GIANG_VOICE_ID_FROM_APP>' `
+        -ElevenLabsAccountLabel 'ssavigroup-owner' `
+        -GeneratedAt '2026-08-24T15:30:00+07:00'
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$NorthMp3,
     [Parameter(Mandatory)][string]$CentralMp3,
     [Parameter(Mandatory)][string]$SouthMp3,
+
+    [ValidatePattern('^[A-Za-z0-9_-]{8,128}$')]
+    [string]$NorthVoiceId,
+
+    [ValidatePattern('^[A-Za-z0-9_-]{8,128}$')]
+    [string]$CentralVoiceId,
+
+    [ValidatePattern('^[A-Za-z0-9_-]{8,128}$')]
+    [string]$SouthVoiceId,
+
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$')]
+    [string]$ElevenLabsAccountLabel,
+
+    [DateTimeOffset]$GeneratedAt = [DateTimeOffset]::MinValue,
 
     [string]$FfmpegPath = 'ffmpeg',
 
@@ -44,14 +80,31 @@ param(
 $ErrorActionPreference = 'Stop'
 $audioDirectory = Join-Path $PSScriptRoot 'asterisk/audio'
 
+if (-not $SkipManifestUpdate) {
+    $requiredMetadata = @{
+        NorthVoiceId             = $NorthVoiceId
+        CentralVoiceId           = $CentralVoiceId
+        SouthVoiceId             = $SouthVoiceId
+        ElevenLabsAccountLabel   = $ElevenLabsAccountLabel
+    }
+    foreach ($entry in $requiredMetadata.GetEnumerator()) {
+        if ([string]::IsNullOrWhiteSpace($entry.Value)) {
+            throw "Thiếu -$($entry.Key). Manifest W-0106 không được ghi nếu thiếu voice ID thật hoặc nhãn tài khoản."
+        }
+    }
+    if ($GeneratedAt -eq [DateTimeOffset]::MinValue) {
+        throw 'Thiếu -GeneratedAt. Phải ghi thời điểm render ElevenLabs thật, không suy từ lúc conversion.'
+    }
+}
+
 if (-not (Get-Command $FfmpegPath -ErrorAction SilentlyContinue)) {
     throw "Không tìm thấy ffmpeg ('$FfmpegPath'). Cài rồi chạy lại, hoặc truyền -FfmpegPath."
 }
 
 $plan = @(
-    @{ Region = 'north';   Source = $NorthMp3;   Voice = 'Thắm'  }
-    @{ Region = 'central'; Source = $CentralMp3; Voice = 'Zara'  }
-    @{ Region = 'south';   Source = $SouthMp3;   Voice = 'Giang' }
+    @{ Region = 'north';   Source = $NorthMp3;   Voice = 'Thắm'; VoiceId = $NorthVoiceId     }
+    @{ Region = 'central'; Source = $CentralMp3; Voice = 'Zara'; VoiceId = $CentralVoiceId   }
+    @{ Region = 'south';   Source = $SouthMp3;   Voice = 'Giang'; VoiceId = $SouthVoiceId    }
 )
 
 $results = [System.Collections.Generic.List[object]]::new()
@@ -78,7 +131,13 @@ foreach ($item in $plan) {
         throw "ffmpeg thất bại khi chuyển đổi miền '$($item.Region)'."
     }
 
-    $probe = & $FfmpegPath -hide_banner -i $targetPath 2>&1 | Out-String
+    # Decode the generated WAV to a null sink instead of calling `ffmpeg -i` without an output.
+    # The latter prints valid stream metadata but deliberately exits 1, leaving callers with a
+    # false failure even though conversion and manifest writing succeeded.
+    $probe = & $FfmpegPath -hide_banner -loglevel info -i $targetPath -f null - 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        throw "ffmpeg không đọc lại được file đầu ra miền '$($item.Region)'."
+    }
     if ($probe -notmatch '8000 Hz' -or $probe -notmatch 'mono' -or $probe -notmatch 'pcm_s16le') {
         throw "File đầu ra miền '$($item.Region)' không đúng PCM s16le/8000 Hz/mono."
     }
@@ -91,6 +150,7 @@ foreach ($item in $plan) {
     $results.Add([pscustomobject]@{
         Region     = $item.Region
         Voice      = $item.Voice
+        VoiceId    = $item.VoiceId
         File       = $targetName
         Seconds    = [math]::Round($durationSeconds, 3)
         Sha256     = (Get-FileHash -LiteralPath $targetPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -112,6 +172,13 @@ if (-not $SkipManifestUpdate) {
     $manifest += 'work_id_regional=W-0106'
     $manifest += 'w0106_generator=elevenlabs-web-app'
     $manifest += 'w0106_model=eleven_v3'
+    $manifest += 'w0106_language=auto-detect'
+    $manifest += 'w0106_stability=0.40'
+    $manifest += 'w0106_similarity=0.75'
+    $manifest += 'w0106_style=low'
+    $manifest += 'w0106_speed=-3%'
+    $manifest += "w0106_generated_at=$($GeneratedAt.ToString('o', [System.Globalization.CultureInfo]::InvariantCulture))"
+    $manifest += "w0106_elevenlabs_account_label=$ElevenLabsAccountLabel"
     $manifest += 'w0106_output_format=pcm_s16le-8000hz-mono'
     $manifest += 'w0106_script_version=v3-test-approved'
     $manifest += 'w0106_listening_acceptance=DEFERRED_OD_VOICE_05'
@@ -124,6 +191,7 @@ if (-not $SkipManifestUpdate) {
         # exactly the kind of setup that turns an implicit assumption into corrupt evidence.
         $seconds = $row.Seconds.ToString([System.Globalization.CultureInfo]::InvariantCulture)
         $manifest += "w0106_$($row.Region)_voice_name=$($row.Voice)"
+        $manifest += "w0106_$($row.Region)_voice_id=$($row.VoiceId)"
         $manifest += "w0106_$($row.Region)_source_sha256=$($row.SourceHash)"
         $manifest += "w0106_$($row.Region)_duration_seconds=$seconds"
         $manifest += "w0106_$($row.Region)_sha256=$($row.Sha256)"
@@ -137,5 +205,10 @@ if (-not $SkipManifestUpdate) {
 Write-Host ''
 $results | Format-Table Region, Voice, Seconds, Sha256 -AutoSize
 Write-Host ''
-Write-Host 'CHƯA điền voice ID vào manifest — phải copy ID thật từ ElevenLabs app.' -ForegroundColor Yellow
-Write-Host 'Bước tiếp: dựng lại image Asterisk để nạp ba file mới, rồi gọi 6 lượt MicroSIP.' -ForegroundColor Yellow
+if ($SkipManifestUpdate) {
+    Write-Host 'Đã bỏ qua cập nhật manifest theo -SkipManifestUpdate.' -ForegroundColor Yellow
+}
+else {
+    Write-Host 'Manifest W-0106 đã ghi đủ voice ID và cấu hình render cố định.' -ForegroundColor Green
+}
+Write-Host 'Bước tiếp: điền duration thật trong compose, bật RegionalVoices, rồi dựng lại image Asterisk.' -ForegroundColor Yellow

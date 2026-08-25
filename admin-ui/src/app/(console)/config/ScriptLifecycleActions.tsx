@@ -5,6 +5,7 @@ import { ButtonGroup } from "@/components/ui";
 import { t } from "@/lib/i18n";
 
 import { approveScriptAction, retireScriptAction, submitScriptAction } from "./actions";
+import styles from "./ScriptLifecycleActions.module.css";
 
 export interface ScriptLifecycleActionsProps {
   readonly templateId: string;
@@ -36,59 +37,61 @@ export function ScriptLifecycleActions({
   }
 
   return (
-    <ButtonGroup label={t("config.actionsLabel")}>
-      {status === "DRAFT" ? (
-        <AdminActionDialog
-          perm="IVR_SCRIPT_REVIEW"
-          label={t("config.submitReview")}
-          description={t("config.submitReviewDescription")}
-          action={submitScriptAction}
-          hiddenFields={hiddenFields}
-        />
-      ) : null}
+    <div className={styles.actions}>
+      <ButtonGroup label={t("config.actionsLabel")}>
+        {status === "DRAFT" ? (
+          <AdminActionDialog
+            perm="IVR_SCRIPT_REVIEW"
+            label={t("config.submitReview")}
+            description={t("config.submitReviewDescription")}
+            action={submitScriptAction}
+            hiddenFields={hiddenFields}
+          />
+        ) : null}
 
-      {status === "IN_REVIEW" || status === "APPROVED" ? (
-        <>
-          <AdminActionDialog
-            perm="IVR_SCRIPT_APPROVE_MOCK"
-            label={t("config.approveMock")}
-            description={t("config.approveMockDescription")}
-            action={approveScriptAction}
-            hiddenFields={{ ...hiddenFields, approval_type: "MOCK_TEST" }}
-          />
-          <AdminActionDialog
-            perm="IVR_SCRIPT_APPROVE_LAB"
-            label={t("config.approveLab")}
-            description={t("config.approveLabDescription")}
-            action={approveScriptAction}
-            hiddenFields={{ ...hiddenFields, approval_type: "LAB" }}
-          />
-          <AdminActionDialog
-            perm="IVR_SCRIPT_APPROVE_CONTENT"
-            label={t("config.approveContent")}
-            description={t("config.approveContentDescription")}
-            action={approveScriptAction}
-            hiddenFields={{ ...hiddenFields, approval_type: "CONTENT" }}
-          />
-          <AdminActionDialog
-            perm="IVR_SCRIPT_APPROVE_PRIVACY_LEGAL"
-            label={t("config.approvePrivacyLegal")}
-            description={t("config.approvePrivacyLegalDescription")}
-            action={approveScriptAction}
-            hiddenFields={{ ...hiddenFields, approval_type: "PRIVACY_LEGAL" }}
-          />
-        </>
-      ) : null}
+        {status === "IN_REVIEW" || status === "APPROVED" ? (
+          <>
+            <AdminActionDialog
+              perm="IVR_SCRIPT_APPROVE_MOCK"
+              label={t("config.approveMock")}
+              description={t("config.approveMockDescription")}
+              action={approveScriptAction}
+              hiddenFields={{ ...hiddenFields, approval_type: "MOCK_TEST" }}
+            />
+            <AdminActionDialog
+              perm="IVR_SCRIPT_APPROVE_LAB"
+              label={t("config.approveLab")}
+              description={t("config.approveLabDescription")}
+              action={approveScriptAction}
+              hiddenFields={{ ...hiddenFields, approval_type: "LAB" }}
+            />
+            <AdminActionDialog
+              perm="IVR_SCRIPT_APPROVE_CONTENT"
+              label={t("config.approveContent")}
+              description={t("config.approveContentDescription")}
+              action={approveScriptAction}
+              hiddenFields={{ ...hiddenFields, approval_type: "CONTENT" }}
+            />
+            <AdminActionDialog
+              perm="IVR_SCRIPT_APPROVE_PRIVACY_LEGAL"
+              label={t("config.approvePrivacyLegal")}
+              description={t("config.approvePrivacyLegalDescription")}
+              action={approveScriptAction}
+              hiddenFields={{ ...hiddenFields, approval_type: "PRIVACY_LEGAL" }}
+            />
+          </>
+        ) : null}
 
-      {status === "IN_REVIEW" || status === "APPROVED" ? (
-        <AdminActionDialog
-          perm="IVR_SCRIPT_RETIRE"
-          label={t("config.retire")}
-          description={t("config.retireDescription")}
-          action={retireScriptAction}
-          hiddenFields={hiddenFields}
-        />
-      ) : null}
-    </ButtonGroup>
+        {status === "IN_REVIEW" || status === "APPROVED" ? (
+          <AdminActionDialog
+            perm="IVR_SCRIPT_RETIRE"
+            label={t("config.retire")}
+            description={t("config.retireDescription")}
+            action={retireScriptAction}
+            hiddenFields={hiddenFields}
+          />
+        ) : null}
+      </ButtonGroup>
+    </div>
   );
 }
