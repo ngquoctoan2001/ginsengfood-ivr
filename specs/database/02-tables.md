@@ -18,9 +18,9 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `payment_method_snapshot` | string | ✓ | idx | `ONLINE` for GH or `COD` for 24/7; IVR does not process payment |
 | `ivr_confirmation_required` | bool | ✓ | idx | must be true |
 | `customer_id` | string | ○ | idx | không full profile |
-| `customer_trust_status` | string | ○ | | **Sales-supplied optional** (OpenAPI optional); null ⇒ fail-closed trust=UNKNOWN (D-12) |
-| `trusted_skip_allowed` | bool | ○ | | **Sales-supplied optional**; null ⇒ `false` (fail-closed, D-12) |
-| `risk_flags_json` | json | ○ | | **Sales-supplied optional**; null ⇒ `[]` (D-13) |
+| `customer_trust_status` | string | ○ | | **Sales-supplied optional**; audit only since `OD-15` — không tham gia quyết định skip |
+| `trusted_skip_allowed` | bool | ○ | | **Sales-supplied optional**; `OD-15`: đây là **veto**, `false` buộc gọi. null ⇒ không veto (khác D-12 cũ, nơi null ⇒ `false`) |
+| `risk_flags_json` | json | ○ | | **Sales-supplied optional**; null ⇒ `[]` (D-13). `OD-15`: list rỗng chỉ được đọc là "không rủi ro" khi `eligibility_snapshot.trust.risk_evidence_available=true` |
 | `program_type` | string | ✓ | idx | `GOLDEN_HOUR`/`TWENTY_FOUR_SEVEN` |
 | `attempt_policy_version` | string | ✓ | idx | owner-approved in production; candidate allowed only MOCK/LAB |
 | `max_attempts` | int | ✓ | | bounded by app policy, not fixed to 2 |

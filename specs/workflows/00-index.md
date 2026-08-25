@@ -10,7 +10,7 @@ Trạng thái: `TARGET_V1_DRAFT`.
 | [04-invalid-phone.md](04-invalid-phone.md) | invalid contact; advisory only |
 | [05-technical-exception.md](05-technical-exception.md) | technical is not no-answer |
 | [06-race-condition-revalidation.md](06-race-condition-revalidation.md) | version/state/blocker revalidation |
-| [07-trusted-skip.md](07-trusted-skip.md) | future/feature-gated trust resolver |
+| [07-trusted-skip.md](07-trusted-skip.md) | không gọi khách cũ (`OD-15`) — chờ Sales gửi `trust.risk_evidence_available` |
 | [08-capacity-hold.md](08-capacity-hold.md) | capacity incident |
 | [09-state-machines.md](09-state-machines.md) | IVR lifecycle only |
 

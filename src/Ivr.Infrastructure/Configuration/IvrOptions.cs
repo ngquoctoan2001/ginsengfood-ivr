@@ -37,4 +37,20 @@ public sealed class IvrOptions
     public string ConnectionString { get; set; } = string.Empty;
 
     public bool RealCustomerCallAllowed { get; set; }
+
+    /// <summary>
+    /// Owner policy <c>OD-15</c>: do not place a confirmation call to a returning customer.
+    /// <para>
+    /// On by default — the owner decided the policy, not the deployment. It stays configurable
+    /// because turning it off is the one-switch rollback if Sales risk evidence turns out to be
+    /// wrong in production, and reaching for a redeploy in that moment would mean choosing
+    /// between calling everyone and calling no one.
+    /// </para>
+    /// <para>
+    /// Enabling it does not by itself skip anyone: <c>TrustResolverEvidence.CanSkip</c> still
+    /// requires Sales to send versioned risk evidence for the order. Until Sales does, every
+    /// eligible task is called and carries a <c>TRUST_RISK_EVIDENCE_UNAVAILABLE</c> advisory.
+    /// </para>
+    /// </summary>
+    public bool ReturningCustomerSkipEnabled { get; set; } = true;
 }

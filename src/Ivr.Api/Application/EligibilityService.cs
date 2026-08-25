@@ -3,10 +3,12 @@ using System.Text.Json;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
+using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Ivr.Api.Application;
 
@@ -83,7 +85,8 @@ public sealed class SchedulerEligibilityCapacityProvider(
 public sealed class EligibilityService(
     IEligibilityRepository repository,
     IEligibilityCapacityProvider capacityProvider,
-    TimeProvider timeProvider) : IEligibilityService
+    TimeProvider timeProvider,
+    IOptions<IvrOptions> ivrOptions) : IEligibilityService
 {
     private static readonly JsonSerializerOptions JsonOptions =
         new(JsonSerializerDefaults.Web);
@@ -117,7 +120,8 @@ public sealed class EligibilityService(
             capacityNotEvaluated,
             evidenceRef,
             evidenceAvailable,
-            now);
+            now,
+            ivrOptions.Value.ReturningCustomerSkipEnabled);
         EligibilityEvaluation evaluation = EligibilityRules.Evaluate(snapshot);
         EligibilityCapacitySnapshot capacity = capacityNotEvaluated;
         if (evaluation.Eligible)
@@ -201,7 +205,8 @@ public sealed class EligibilityService(
         EligibilityCapacitySnapshot capacity,
         string evidenceRef,
         bool evidenceAvailable,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        bool returningCustomerSkipEnabled)
     {
         SellableStatusLine[]? sourceLines = DeserializeOrNull<SellableStatusLine[]>(
             stored.Task.SellableStatusJson);
@@ -248,8 +253,9 @@ public sealed class EligibilityService(
             ReadTrustEvidence(
                 stored.Task.EligibilitySnapshotJson,
                 stored.Task.CustomerTrustStatus,
-                stored.Task.TrustedSkipAllowed == true,
-                riskFlags),
+                stored.Task.TrustedSkipAllowed,
+                riskFlags,
+                returningCustomerSkipEnabled),
             capacity,
             evidenceAvailable,
             evidenceRef,
@@ -368,22 +374,29 @@ public sealed class EligibilityService(
     }
 
     /// <summary>
-    /// Projects the trust/risk resolver decision (W-0031 / P4-3 §2.3).
-    /// The skip feature itself stays disabled: enabling it is an owner decision that needs a
-    /// versioned Sales resolver contract, which does not exist. Reading the surrounding evidence
-    /// anyway means the day it is approved, the checks around it are already in place and tested.
+    /// Projects the risk evidence behind the returning-customer skip (W-0031 / P4-3 §2.3,
+    /// owner decision <c>OD-15</c>).
+    /// <para>
+    /// <c>trust.resolver_version</c> falls back to the snapshot-level <c>source_version</c>, the
+    /// same way the voice decision does: the risk evaluation belongs to the same evidence
+    /// capture, and <c>source_version</c> is already mandatory in the rules that run before this
+    /// one. That fallback is what leaves Sales a single remaining obligation —
+    /// <c>trust.risk_evidence_available</c> — instead of a whole resolver contract.
+    /// </para>
+    /// Every read failure here leaves <c>riskEvidenceAvailable</c> false, which requires the call.
     /// </summary>
     private static TrustResolverEvidence ReadTrustEvidence(
         string? json,
         string? trustStatus,
-        bool skipAllowedBySales,
-        IReadOnlyList<string> riskFlags)
+        bool? skipAllowedBySales,
+        IReadOnlyList<string> riskFlags,
+        bool skipFeatureEnabled)
     {
-        const bool skipFeatureEnabled = false;
         if (string.IsNullOrWhiteSpace(json))
         {
             return TrustResolverEvidence.RequireIvr with
             {
+                SkipFeatureEnabled = skipFeatureEnabled,
                 SkipAllowedBySales = skipAllowedBySales,
                 TrustStatus = trustStatus,
                 RiskFlags = riskFlags,
@@ -397,13 +410,18 @@ public sealed class EligibilityService(
         {
             using JsonDocument document = JsonDocument.Parse(json);
             JsonElement root = document.RootElement;
-            if (root.ValueKind == JsonValueKind.Object
-                && root.TryGetProperty("trust", out JsonElement trust)
-                && trust.ValueKind == JsonValueKind.Object)
+            if (root.ValueKind == JsonValueKind.Object)
             {
-                resolverAvailable = ReadBoolean(trust, "resolver_available") ?? false;
-                resolverVersion = ReadString(trust, "resolver_version");
-                riskEvidenceAvailable = ReadBoolean(trust, "risk_evidence_available") ?? false;
+                string? inheritedVersion = ReadString(root, "source_version");
+                resolverVersion = inheritedVersion;
+                if (root.TryGetProperty("trust", out JsonElement trust)
+                    && trust.ValueKind == JsonValueKind.Object)
+                {
+                    resolverAvailable = ReadBoolean(trust, "resolver_available") ?? false;
+                    resolverVersion = ReadString(trust, "resolver_version") ?? inheritedVersion;
+                    riskEvidenceAvailable =
+                        ReadBoolean(trust, "risk_evidence_available") ?? false;
+                }
             }
         }
         catch (JsonException)

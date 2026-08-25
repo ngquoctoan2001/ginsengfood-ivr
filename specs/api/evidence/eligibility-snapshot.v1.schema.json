@@ -55,21 +55,21 @@
     "trust": {
       "type": "object",
       "additionalProperties": true,
-      "description": "Evidence backing the 'skip the call for a trusted customer' decision (W-0031 / P4-3 §2.3). Trust skip stays DISABLED regardless of this object: enabling it is an owner decision requiring a versioned Sales resolver contract that does not exist. IVR reads these keys so that the checks are already in place and tested the day the gate opens.",
+      "description": "Evidence backing the 'do not call a returning customer' decision (W-0031 / P4-3 §2.3, owner decision OD-15). OD-15 removed the customer-trust score from the skip predicate: a first-time buyer already arrives carrying NEW_CUSTOMER / VERIFIED_ORDER_COUNT_0 in the task-level `risk_flags`, so an empty flag list answers both halves of the question — returning customer, and ordinary order. What remains is proving Sales actually evaluated the order, which is the single key below that IVR still needs and Sales does not yet send.",
       "properties": {
-        "resolver_available": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether the Sales trust resolver answered. Absent or false means require-IVR."
-        },
-        "resolver_version": {
-          "type": "string",
-          "description": "Version of the resolver decision. Blank or absent means require-IVR — an unversioned skip decision cannot be audited later."
-        },
         "risk_evidence_available": {
           "type": "boolean",
           "default": false,
-          "description": "Whether risk evidence backing the trust status was available. Absent or false means require-IVR."
+          "description": "REQUIRED FOR ANY SKIP. True means Sales evaluated this order for risk and the resulting `risk_flags` list is complete. Absent or false means require-IVR, because an empty `risk_flags` is equally consistent with Sales never having looked — and reading 'nobody looked' as 'no risk' would cancel the confirmation call on exactly the fake orders this module exists to catch. This is the one field Sales must add to activate OD-15; while it is missing, every eligible task is called and carries the TRUST_RISK_EVIDENCE_UNAVAILABLE advisory."
+        },
+        "resolver_version": {
+          "type": "string",
+          "description": "Version of the source that produced the risk evaluation. Falls back to the snapshot-level `source_version` when absent, exactly as `voice_restriction.source_version` does, since the risk evaluation belongs to the same evidence capture. A skip with no version behind it at all cannot be audited later, so that case requires the call."
+        },
+        "resolver_available": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether a Sales customer-trust resolver answered. Read and stored for audit, but NOT part of the skip predicate since OD-15 — the skip rides on risk evidence, not on the trust scoring engine DC-06 records as unbuilt."
         }
       }
     }
@@ -81,6 +81,15 @@
       "captured_at": "2026-08-18T03:00:00Z",
       "source_available": true,
       "blockers": []
+    },
+    {
+      "$comment": "OD-15 skip, on the smallest payload that earns one. Paired with an empty task-level risk_flags this returns TASK_SKIPPED_TRUSTED_CUSTOMER and creates no CallJob. Note the absent resolver_version: it falls back to source_version above.",
+      "decision": "ELIGIBLE",
+      "source_version": "sales-eligibility-v1",
+      "captured_at": "2026-08-18T03:00:00Z",
+      "source_available": true,
+      "blockers": [],
+      "trust": { "risk_evidence_available": true }
     },
     {
       "decision": "BLOCKED",
@@ -108,7 +117,7 @@
   ],
   "x-ivr-fail-closed-directions": {
     "voice_restriction": "Closes toward BLOCKING. Restricted, unknown and source-unavailable all stop the dispatch — not knowing whether we may call a customer must never resolve to calling them. Reason codes: PHONE_CALL_RESTRICTION_SOURCE_UNAVAILABLE, PHONE_CALL_RESTRICTION_MISSING, PHONE_CALL_RESTRICTED.",
-    "trust": "Closes toward CALLING. Any missing or unversioned part of the skip decision means require-IVR — not knowing whether we may skip must never resolve to skipping. Advisories: TRUST_SKIP_DISABLED_REQUIRE_IVR, TRUST_RESOLVER_UNAVAILABLE, TRUST_RESOLVER_VERSION_MISSING, TRUST_RISK_EVIDENCE_UNAVAILABLE. These never block.",
+    "trust": "Closes toward CALLING. Any missing or unversioned part of the skip decision means require-IVR — not knowing whether we may skip must never resolve to skipping. Advisories: TRUST_SKIP_DISABLED_REQUIRE_IVR, TRUST_SKIP_VETOED_BY_SALES, TRUST_RESOLVER_VERSION_MISSING, TRUST_RISK_EVIDENCE_UNAVAILABLE, RISK_FLAGS_PRESENT_REQUIRE_IVR. These never block. TRUST_RESOLVER_UNAVAILABLE is retained vocabulary, no longer emitted since OD-15.",
     "why-the-asymmetry": "Both are fail-closed; they close in opposite directions because the harm differs. The failure mode of a wrong voice decision is an unwanted call to a customer who refused one. The failure mode of a wrong trust decision is one extra confirmation call. Collapsing them into a single flag would silently pick one harm over the other."
   },
   "x-ivr-notes": {

@@ -12,7 +12,7 @@ Sales owns source aggregation. IVR validates the task snapshot before dispatch; 
 | `FR-IVR-ELIG-004` | token/contact refs valid; no raw phone |
 | `FR-IVR-ELIG-005` | `call_restriction=true/unknown` blocks; voice semantics separate from SMS |
 | `FR-IVR-ELIG-006` | eligibility/sellable/recall/sale-lock/evidence blocked, stale, unknown or missing fails closed |
-| `FR-IVR-ELIG-007` | trust skip disabled unless Sales supplies versioned resolver evidence and no risk/blocker |
+| `FR-IVR-ELIG-007` | returning customer is not called (`OD-15`): skip only when Sales evidences risk evaluation (`trust.risk_evidence_available=true`) and `risk_flags` is empty; any flag, missing evidence or a `trusted_skip_allowed=false` veto keeps the call |
 | `FR-IVR-ELIG-008` | capacity cannot meet deadline → incident/hold, not silent accept |
 | `FR-IVR-ELIG-009` | IVR cannot extend window, bypass blocker or directly override Sales decision |
 

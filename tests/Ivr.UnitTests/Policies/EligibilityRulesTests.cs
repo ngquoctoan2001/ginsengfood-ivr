@@ -290,14 +290,17 @@ public sealed class EligibilityRulesTests
 
     [Fact]
     [Trait("TestId", "UT-ELIG-TRUST-16")]
-    public void IncompleteTrustEvidenceRequiresTheCallAndSaysWhichPartWasMissing()
+    public void IncompleteRiskEvidenceRequiresTheCallAndSaysWhichPartWasMissing()
     {
+        // OD-15: not a single customer-trust field is set here, and it still skips. That is the
+        // decision — the skip rides on Sales' risk evaluation, not on the scoring engine DC-06
+        // records as unbuilt.
         TrustResolverEvidence complete = new(
             SkipFeatureEnabled: true,
             SkipAllowedBySales: true,
-            ResolverAvailable: true,
-            ResolverVersion: "sales-trust-v1",
-            TrustStatus: "TRUSTED",
+            ResolverAvailable: false,
+            ResolverVersion: "sales-eligibility-v1",
+            TrustStatus: null,
             RiskEvidenceAvailable: true,
             RiskFlags: []);
 
@@ -310,12 +313,14 @@ public sealed class EligibilityRulesTests
         [
             (complete with { SkipFeatureEnabled = false },
                 EligibilityReasonCodes.TrustSkipDisabledRequireIvr),
-            (complete with { ResolverAvailable = false },
-                EligibilityReasonCodes.TrustResolverUnavailable),
+            (complete with { SkipAllowedBySales = false },
+                EligibilityReasonCodes.TrustSkipVetoedBySales),
             (complete with { ResolverVersion = "  " },
                 EligibilityReasonCodes.TrustResolverVersionMissing),
             (complete with { RiskEvidenceAvailable = false },
                 EligibilityReasonCodes.TrustRiskEvidenceUnavailable),
+            (complete with { RiskFlags = ["COD_FAIL_HISTORY"] },
+                EligibilityReasonCodes.RiskFlagsPresentRequireIvr),
         ];
 
         foreach ((TrustResolverEvidence trust, string advisory) in cases)
@@ -324,14 +329,66 @@ public sealed class EligibilityRulesTests
             EligibilityEvaluation evaluation = EligibilityRules.Evaluate(
                 CreateSnapshot(trust: trust));
 
-            // Missing trust evidence must never block — it must make the call happen.
+            // Missing risk evidence must never block — it must make the call happen.
             Assert.True(evaluation.Eligible);
             Assert.Equal(EligibilityDecisions.Eligible, evaluation.Decision);
             Assert.Contains(advisory, evaluation.Advisories);
         }
+    }
 
-        // A risk flag alone also cancels the skip, without needing any part to be missing.
-        Assert.False((complete with { RiskFlags = ["COD_FAIL_HISTORY"] }).CanSkip);
+    [Fact]
+    [Trait("TestId", "UT-ELIG-TRUST-18")]
+    public void AnEmptyRiskFlagListIsOnlyASkipWhenSalesSaysItEvaluatedRisk()
+    {
+        // The one confusion OD-15 could not survive. "Sales looked and found nothing" and "Sales
+        // never looked" both arrive as an empty list, and only the first may cancel the call.
+        // Collapsing them would drop confirmation on exactly the unevaluated orders this module
+        // exists to catch, and it would do so silently.
+        TrustResolverEvidence evaluated = new(
+            SkipFeatureEnabled: true,
+            SkipAllowedBySales: null,
+            ResolverAvailable: false,
+            ResolverVersion: "sales-eligibility-v1",
+            TrustStatus: null,
+            RiskEvidenceAvailable: true,
+            RiskFlags: []);
+        TrustResolverEvidence silent = evaluated with { RiskEvidenceAvailable = false };
+
+        Assert.Equal(evaluated.RiskFlags.Count, silent.RiskFlags.Count);
+        Assert.Equal(
+            EligibilityDecisions.SkippedTrustedCustomer,
+            EligibilityRules.Evaluate(CreateSnapshot(trust: evaluated)).Decision);
+        Assert.Equal(
+            EligibilityDecisions.Eligible,
+            EligibilityRules.Evaluate(CreateSnapshot(trust: silent)).Decision);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-ELIG-TRUST-19")]
+    public void AFirstTimeBuyerIsStillCalledBecauseNewCustomerIsARiskFlag()
+    {
+        // How "khách mới" actually reaches IVR: as a risk flag, exactly like COD_FAIL_HISTORY.
+        // One empty-list check therefore answers both halves of OD-15 — is this a returning
+        // customer, and is this order ordinary — with no second signal for Sales to build.
+        string[] firstTimeBuyerFlags = ["NEW_CUSTOMER", "VERIFIED_ORDER_COUNT_0"];
+        foreach (string flag in firstTimeBuyerFlags)
+        {
+            EligibilityEvaluation evaluation = EligibilityRules.Evaluate(
+                CreateSnapshot(trust: new TrustResolverEvidence(
+                    SkipFeatureEnabled: true,
+                    SkipAllowedBySales: true,
+                    ResolverAvailable: false,
+                    ResolverVersion: "sales-eligibility-v1",
+                    TrustStatus: null,
+                    RiskEvidenceAvailable: true,
+                    RiskFlags: [flag])));
+
+            Assert.True(evaluation.Eligible);
+            Assert.False(evaluation.TrustedCustomerSkipped);
+            Assert.Contains(
+                EligibilityReasonCodes.RiskFlagsPresentRequireIvr,
+                evaluation.Advisories);
+        }
     }
 
     [Fact]
@@ -362,7 +419,9 @@ public sealed class EligibilityRulesTests
         bool useDefaultSellable = true,
         bool? phoneCallRestriction = false,
         string? customerTrustStatus = null,
-        bool trustedSkipAllowed = false,
+        // Nullable on purpose: under OD-15 an explicit false is a Sales veto, so the default has
+        // to mean "Sales said nothing" or every future feature-on test starts silently vetoed.
+        bool? trustedSkipAllowed = null,
         bool trustSkipFeatureEnabled = false,
         bool evidenceAvailable = true,
         string? sourceEligibilityDecision = "ELIGIBLE",

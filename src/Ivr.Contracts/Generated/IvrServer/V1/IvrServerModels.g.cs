@@ -721,12 +721,21 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonPropertyName("customer_ref")]
         public string? Customer_ref { get; init; }
 
+        /// <summary>
+        /// Sales' customer-trust label, stored for audit only. Since OD-15 it takes no part in the skip decision — IVR reads `risk_flags` instead — so omitting it never causes a call that would otherwise be skipped.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("customer_trust_status")]
         public string? Customer_trust_status { get; init; }
 
+        /// <summary>
+        /// A VETO, not an opt-in (OD-15). `false` forces the confirmation call for this order even when every other skip condition is met. `true` and absent behave identically. Omit the field unless you mean to veto: sending `false` as a blanket default suppresses the returning-customer skip on every order.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("trusted_skip_allowed")]
         public bool? Trusted_skip_allowed { get; init; }
 
+        /// <summary>
+        /// Privacy-safe risk codes Sales found on this order, for example `NEW_CUSTOMER`, `VERIFIED_ORDER_COUNT_0`, `COD_FAIL_HISTORY`, `SUSPICIOUS_DUPLICATE`. Any entry forces the call — OD-15 keeps D-12's exception that a risk flag outranks the returning-customer skip. An EMPTY list cancels the call only when `eligibility_snapshot.trust.risk_evidence_available` is `true`: on its own an empty list cannot be told apart from an order Sales never evaluated, and IVR must not read the second as "no risk". Codes carry no customer data — they travel into IVR evidence and admin screens.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("risk_flags")]
         public System.Collections.Generic.ICollection<string>? Risk_flags { get; init; }
 
@@ -801,6 +810,9 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     public partial class IvrTaskIntakeResult
     {
 
+        /// <summary>
+        /// `TASK_SKIPPED_TRUSTED_CUSTOMER` reads as "returning customer, nothing on the order worth calling about" since OD-15; the name predates the decision and is kept because it is a persisted enum value. It means no CallJob was created and Order Core owns the continuation — it is not a failure and not a rejection.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("decision")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrTaskIntakeResultDecision>))]

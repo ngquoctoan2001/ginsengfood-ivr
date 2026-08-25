@@ -17,6 +17,7 @@ Nguồn điều khiển: `plan/ivr-orther/target-contract-v1-draft.md` → `deci
 
 | File | Owner | Nội dung |
 | --- | --- | --- |
+| **[06-module-3-api-handover.md](06-module-3-api-handover.md)** | **Module 3** (`ginsengfood-business-platform`) | **📤 Tài liệu bàn giao — gửi thẳng cho Module 3.** Gom toàn bộ "IVR cần gì": 2 chiều push, 22 field bắt buộc, payload mẫu, ACK taxonomy, checklist ký. Đọc file này trước, các file dưới là nguồn chi tiết |
 | [01-sales-platform-requirements.md](01-sales-platform-requirements.md) | Sales/Order Core | producer, speech data, dial-token, callback/revalidation, timeout |
 | [02-ops-core-requirements.md](02-ops-core-requirements.md) | Ops-Core qua Sales Core | sellable/recall/sale-lock evidence; IVR không gọi trực tiếp |
 | [03-telephony-sim-requirements.md](03-telephony-sim-requirements.md) | Telephony/Infra | mock → 1 SIM lab → 32 eSIM target |

@@ -26,7 +26,7 @@ Nguồn: `phase-8/00 §3`, `MASTER-03`, `docx` §6, §8, §13.
 | **T0** | Thời điểm Order Core mở IVR confirmation window / tạo task (KHÔNG phải lúc khách bấm đặt nếu task delay). ✅ D-10. |
 | **Attempt policy** | Quy tắc số cuộc + khoảng cách + window theo program. |
 | **Eligibility** | Kết quả kiểm điều kiện gọi (order/program/contact/trust/block/window/capacity). |
-| **Trusted skip** | Bỏ qua IVR cho khách đủ tin cậy theo Customer Trust Resolver (không hardcode). |
+| **Trusted skip** / **Returning-customer skip** | Bỏ qua cuộc gọi cho **khách cũ**: Sales xác nhận đã đánh giá rủi ro (`trust.risk_evidence_available=true`) và `risk_flags` rỗng (`OD-15`). Không dùng trust score, không hardcode ngưỡng. Decision vẫn mang tên `TASK_SKIPPED_TRUSTED_CUSTOMER` vì là enum đã persist. Có risk flag → vẫn gọi. |
 | **Official contact** | Số điện thoại đã duyệt để gọi; dùng `phone_ref`/`phone_masked`/dial token. |
 | **phone_ref / phone_masked / dial token** | Tham chiếu bảo mật / số che / token quay số TTL ngắn — thay cho raw phone. |
 | **Sale Lock (khóa bán)** | Ops-core chặn bán SKU/lô. ⚠️ **Hiện = recall-triggered** (`op_sale_lock_registry.recall_case_id` là FK bắt buộc); chưa có sale-lock thương mại độc lập. Owner: Operational Core. (DO-CORR-3) |

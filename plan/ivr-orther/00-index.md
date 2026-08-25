@@ -45,4 +45,4 @@ Các mục trên **không chặn build sau ports/mocks**, nhưng chặn integrat
 
 ## 5. Lịch sử
 
-`_archive/`, các file `questions-to-*` và `prompt/_legacy-mock/` là lịch sử/reference, không phải nguồn điều khiển implementation mới. Nhãn dùng: `CURRENT_COMPAT`, `TARGET_DRAFT`, `OWNER_DECISION_REQUIRED`, `BLOCKED_EXTERNAL`, `IMPLEMENTED`, `VERIFIED`.
+`_archive/`, các file `questions-to-*` và `prompt/_legacy-mock/` là lịch sử/reference, không phải nguồn điều khiển implementation mới. **Ngoại lệ:** [questions-to-module-3-od15-risk-evidence.md](questions-to-module-3-od15-risk-evidence.md) là yêu cầu **đang mở** (`OD-15`, 2026-08-25), chưa có trả lời. Nhãn dùng: `CURRENT_COMPAT`, `TARGET_DRAFT`, `OWNER_DECISION_REQUIRED`, `BLOCKED_EXTERNAL`, `IMPLEMENTED`, `VERIFIED`.

@@ -67,6 +67,14 @@ public static class ServiceCollectionExtensions
                         ?? section[nameof(IvrOptions.RealCustomerCallAllowed)],
                     "YES",
                     StringComparison.OrdinalIgnoreCase);
+                // OD-15 is on unless a deployment explicitly says NO. Read the opposite way
+                // round from the flags above: those default to the safe "off", this one carries
+                // an owner decision whose default is the decision itself.
+                options.ReturningCustomerSkipEnabled = !string.Equals(
+                    configuration["IVR_RETURNING_CUSTOMER_SKIP_ENABLED"]
+                        ?? section[nameof(IvrOptions.ReturningCustomerSkipEnabled)],
+                    "NO",
+                    StringComparison.OrdinalIgnoreCase);
             })
             .ValidateOnStart();
         services.TryAddEnumerable(
