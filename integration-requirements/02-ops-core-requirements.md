@@ -13,6 +13,21 @@ Trạng thái: `REQUIREMENTS` · Nguồn: DO-01..DO-09, DO-CORR-1/2/3; `data/03`
 | IR-OPS-06 | **Read chi tiết lock/recall cho evidence**: `GET /v1/sale-locks/{id}`, `GET /v1/recall-cases/{id}` trả `evidence_refs[]`/`audit_refs[]`; ids Guid + `recall_no`; link `BATCH_TO_RECALL` | P1 | in: id; out: detail | sync read | n/a | có | Ops | ✅ DO-07 (đã có) |
 | IR-OPS-07 | **Public trace (INBOUND — P2)**: `GET /api/v1/public/trace/{qrCode}` (theo `qrCode`, không batch_code); whitelist 12 field; recall qua `batch.releasePublicStatus` | P2 | in: qrCode; out: whitelist | sync | n/a | có | Ops | ✅ DO-08 (chỉ nếu mở inbound) |
 
+## Đối soát source thật — `2026-08-25`
+
+Bảng trên lập từ vòng hỏi/đáp, chưa đối chiếu code. Đọc lại `C:\Projects\ginsengfood-ops-core` và `C:\Projects\ginsengfood-business-platform` cho thấy **hai hạng mục đã xong**, và có **một nguồn nhầm lẫn** cần ghi rõ.
+
+| ID | Trạng thái bảng trên | Source thật | Kết luận |
+| --- | --- | --- | --- |
+| `IR-OPS-01` | cần chốt reuse vs GET | `POST /api/v1/admin/availability/check` **đã có** (`AvailabilityCheckRequest{skuId, warehouseId?, batchId?, requestedQuantity?, sourceRef?, correlation?}` → `AvailabilityCheckResponse.sellableStatus`) | ✅ **reuse — có sẵn** |
+| `IR-OPS-02` | cần **bổ sung `captured_at`** | `SellableStatusResponse` **đã có `resolvedAt`** | ✅ **đã thoả**, chỉ khác tên |
+| `IR-OPS-03` | cần mở service-auth cho Order Core | `db/seeds/38_svc01_service_principal_m3_dev.sql` — M3 client-credentials principal, perm `SELLABLE_CHECK` | ✅ **có ở dev**; ⏳ cần xác nhận staging/production |
+| `IR-OPS-04` | cần cam kết SLA + error codes | error codes có trong OpenAPI; `/health/live|ready|startup` có | ⏳ **SLA p95 chưa thấy cam kết bằng văn bản** |
+
+`SellableStatusResponse` của ops-core khớp **10/10** field mà `SellableStatusLine` của IVR cần: `skuId`, `batchId`, `decision`, `recallHold`, `saleLock`, `qualityHold`, `stockAvailable`, `batchReleased`, `traceReady`, `resolvedAt` (+ `warehouseReceiptConfirmed`, `inventoryLedgerPass`, `hsdValid`, `blockReasons[]`, `evidenceRefs[]` mà IVR không đọc).
+
+> ⚠️ **Hai thứ tên "sellable", đừng nhầm.** Module 3 có module riêng `com.ginsengfood.project.sellablegate` (`SellableGateBaseEligibilityResult`, API admin `/api/v1/admin/sellable-gate/**`) — đó là **cổng thương mại theo SKU** cho storefront/catalog, **không có chiều batch** và **không có** `batchReleased`/`traceReady`. Nó **không** thay thế được `sellable_status[]` mà IVR cần. Câu hỏi "nguồn nào feed IVR" đang mở, ghi ở [`06-module-3-api-handover.md` §3.6.2](06-module-3-api-handover.md).
+
 ## Ghi chú ranh giới (đính chính đã khóa)
 - **Ops không biết `order_id`** (DO-CORR-1) → fan-out là việc **Order Core** (IR-SALES-05), không phải ops.
 - **do-not-call/opt-out KHÔNG thuộc ops** (DO-CORR-2) → CRM/Customer Identity (**DC-01 resolved; IR-CRM-01 build P1**).

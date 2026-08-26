@@ -6,7 +6,7 @@
 
 > **Tài liệu này thay thế việc phải đọc 5 file khác.** Nó gom tất cả những gì IVR cần từ Module 3 vào một chỗ, kèm payload mẫu copy-paste được và ô ký ở cuối. Nguồn chi tiết: [IR-01](01-sales-platform-requirements.md), [API-05](../specs/api/05-order-core-contracts.md), [closure pack T-01…T-09](../docs/contracts/target-v1-closure-pack/README.md), [decisions-log](../plan/ivr-orther/decisions-log.md).
 >
-> **Về tên gọi:** Module 3 là **một** module — repository `ginsengfood-business-platform` — gồm cả Commerce/Order Core, Sales Extensions và CRM/Customer Identity. Các tài liệu cũ trong repo IVR tách thành "Module 3" và "Module 3.1" (ví dụ `questions-to-module-3-and-3.1.md`, mã quyết định `D-*` vs `DC-*`, đường dẫn `phase-3.1/07`). Đó là cách đánh số của **vòng hỏi 2026-07-02**, không phải hai đội. Khi đọc tài liệu cũ, hiểu `3.1` = cùng Module 3.
+> **Về tên gọi:** Module 3 là **một** module — repository `ginsengfood-business-platform` — gồm cả Commerce/Order Core, Sales Extensions và CRM/Customer Identity. Các tài liệu cũ trong repo IVR tách thành "Module 3" và "Module 3.1" (ví dụ `questions-to-module-3-and-3.1.md`, mã quyết định `D-*` vs `DC-*`, path `phase-3.1/07`). Đó là cách đánh số của **vòng hỏi 2026-07-02**, không phải hai đội. Khi đọc tài liệu cũ, hiểu `3.1` = cùng Module 3.
 
 ---
 
@@ -188,9 +188,9 @@ Contract khai `additionalProperties: false`, nên **field lạ không nằm tron
 
 ### 3.6. `sellable_status[]` — bằng chứng hàng còn bán được
 
-Mảng theo từng SKU/batch. IVR **không tự hỏi Ops** — Module 3 phải hợp nhất và gửi kèm.
+Mảng theo từng SKU/batch. IVR **không gọi ops-core** (`DO-03`, `DO-05`) — Module 3 lấy rồi gửi kèm trong task.
 
-| Field | Bắt buộc | Giá trị |
+| Field IVR | Bắt buộc | Giá trị |
 | --- | --- | --- |
 | `sku_id` | ✅ | string |
 | `decision` | ✅ | `SELLABLE` \| `NOT_SELLABLE` \| `BLOCKED` \| `UNKNOWN` |
@@ -199,7 +199,44 @@ Mảng theo từng SKU/batch. IVR **không tự hỏi Ops** — Module 3 phải 
 | `recall_hold` / `sale_lock` / `quality_hold` | ○ | bool — `true` bất kỳ cái nào → **chặn gọi** |
 | `stock_available` / `batch_released` / `trace_ready` | ○ | bool — `false` hoặc thiếu → **chặn gọi** |
 
-Ba field cuối thiếu (`null`) sẽ bị đọc là `SELLABLE_STATUS_UNKNOWN` → giữ chờ review. Gửi đủ cả 6 boolean.
+Sáu boolean trên thiếu (`null`) sẽ bị đọc là `SELLABLE_STATUS_UNKNOWN` → giữ chờ review, **không gọi**. Gửi đủ cả sáu.
+
+#### 3.6.1. Dữ liệu này lấy ở đâu — hai thứ tên giống nhau, đừng nhầm
+
+Trong hệ thống hiện có **hai** thứ tên "sellable", và chỉ một cái khớp với thứ IVR cần:
+
+| | **ops-core** `SellableStatusResponse` | **M3** `SellableGateBaseEligibilityResult` |
+| --- | --- | --- |
+| Đơn vị | **SKU + batch** | **SKU** (không có chiều batch) |
+| Nguồn | `POST /api/v1/admin/availability/check` → `sellableStatus` · hoặc `GET /v1/sellable-statuses/{id}` | module `com.ginsengfood.project.sellablegate` (port `SellableGateBaseEligibilityPort`), API admin `/api/v1/admin/sellable-gate/**` |
+| Mục đích | sự thật vận hành từng lô | cổng thương mại cho storefront/catalog |
+| Khớp shape IVR | **10/10 field** | thiếu `batch_id`, `batch_released`, `trace_ready` |
+
+**Ánh xạ 1:1 từ ops-core sang IVR** — không phải suy diễn, đây là hai schema trùng field:
+
+| IVR `SellableStatusLine` | ops-core `SellableStatusResponse` |
+| --- | --- |
+| `sku_id` | `skuId` |
+| `batch_id` | `batchId` |
+| `decision` | `decision` |
+| `recall_hold` | `recallHold` |
+| `sale_lock` | `saleLock` |
+| `quality_hold` | `qualityHold` |
+| `stock_available` | `stockAvailable` |
+| `batch_released` | `batchReleased` |
+| `trace_ready` | `traceReady` |
+| `captured_at` | `resolvedAt` |
+
+ops-core còn trả thêm `warehouseReceiptConfirmed`, `inventoryLedgerPass`, `hsdValid`, `blockReasons[]`, `evidenceRefs[]` — IVR **không đọc** những field đó, gửi thừa cũng không sao (`eligibility_snapshot` là object mở, nhưng `sellable_status[]` thì IVR chỉ lấy 10 field trên).
+
+**Module 3 phải tự fan-out:** ops-core **không biết `order_id`** (`DO-CORR-1`) — nó chỉ tra theo SKU/batch/QR. Nên M3 phải tách `order → từng dòng SKU/batch → gọi availability/check → gom mảng`. Service principal cho M3 gọi endpoint này **đã có seed** ở ops-core (`db/seeds/38_svc01_service_principal_m3_dev.sql`, perm `SELLABLE_CHECK`) — ít nhất ở môi trường dev.
+
+#### 3.6.2. ❓ Câu hỏi cho Module 3
+
+- [ ] **Nguồn nào feed `sellable_status[]`?** ops-core `availability/check` (khớp 10/10 field), hay sellable-gate của chính M3 (thiếu 3 field, không có chiều batch)?
+- [ ] Nếu M3 muốn dùng sellable-gate của mình: **`batch_released` và `trace_ready` lấy ở đâu?** Thiếu hai field này IVR sẽ giữ task lại với `SELLABLE_STATUS_UNKNOWN` và **không gọi đơn nào cả**.
+- [ ] Đơn hàng có luôn xác định được **batch** lúc mở confirmation window không? Nếu chưa gán batch, `availability/check` gọi với `batchId=null` trả về gì, và `batch_released`/`trace_ready` khi đó có ý nghĩa gì?
+- [ ] `SELLABLE_CHECK` principal đã có ở **staging/production** chưa, hay mới chỉ dev?
 
 ### 3.7. `eligibility_snapshot` — bằng chứng Module 3 đã kiểm điều kiện
 
