@@ -38,8 +38,6 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `evidence_policy_version` / `privacy_policy_version` | string | ✓ | | IVR-resolved policy snapshots; MOCK uses explicit synthetic defaults, non-MOCK must supply/resolve real versions |
 | `eligibility_decision` | string | ○ | idx | **IVR-derived** (P2-2 ghi sau intake); null tới khi eligibility chạy |
 | `blocked_reasons_json` | json | ○ | | **IVR-derived**; null tới khi eligibility chạy |
-| `sellable_status_json` | json | ○ | | **Sales-supplied optional** per-line SKU/batch snapshot (DO-02): `[{sku_id,batch_id?,decision,recall_hold,sale_lock,quality_hold,stock_available,batch_released?,trace_ready,captured_at}]`; null ⇒ **không dispatch** (fail-closed). `batch_released` optional — absent được coi là `false` (fail-closed) |
-| `sellable_captured_at` | datetime | ○ | | max độ tươi snapshot |
 | `call_restriction` | bool | ✓ | | **Sales-supplied**, required trên wire (OpenAPI) và NOT NULL ở đây; `true`/`unknown` → fail-closed (DC-01) |
 | `not_for_quote_cart_draft` | bool | ✓ | | **IVR-derived invariant**, server-default `true`; không nhận từ wire |
 | `no_direct_order_update` | bool | ✓ | | must true |
@@ -142,7 +140,7 @@ Task, call job, intake outbox, idempotency response snapshot and audit record ar
 | `id`/`ivr_call_result_id` | uuid/string | ✓ | PK/Unique | |
 | `ivr_call_job_id` | string | ✓ | FK/idx | |
 | `task_id`/`official_order_id` | string | ✓ | idx | |
-| `order_version_snapshot` | string | ○ | idx(target) | order version từ task nếu Core cung cấp; current Core stale guard bằng state/COD/sellable recheck (DS-04) |
+| `order_version_snapshot` | string | ○ | idx(target) | order version từ task nếu Core cung cấp; current Core stale guard bằng state/COD recheck (DS-04) |
 | `order_version_seen_by_ivr` | string | ✓ | idx | required Target V1 race guard; compatibility records use explicit legacy shape/provider |
 | `final_result_status`/`result_type` | string | ✓ | idx | |
 | `result_reason`/`dtmf_key` | string | ○ | | |

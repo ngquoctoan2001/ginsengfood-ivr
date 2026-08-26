@@ -19,7 +19,7 @@ import {
 } from "@/components/ui";
 import { getCallJobDetail } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
-import type { IvrCallJobDetail, IvrSellableStatusLine } from "@/lib/api/types";
+import type { IvrCallJobDetail } from "@/lib/api/types";
 import { requirePermission, requireSession } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
@@ -182,24 +182,6 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
         <Callout tone="locked" testId="no-order-control">
           {t("detail.noOrderControl")}
         </Callout>
-      </Card>
-
-      {/* `specs/ui/03` puts the per-line sellable snapshot in the trace. It is
-          what Order Core decided at intake, shown as captured — IVR never
-          re-evaluates sellability (DO-02). */}
-      <Card title={t("detail.sellableTitle")} flush={detail.sellable_status.length > 0}>
-        {detail.sellable_status.length === 0 ? (
-          <Callout tone="neutral">{t("detail.noSellable")}</Callout>
-        ) : (
-          <DataTable
-            label={t("detail.sellableTitle")}
-            testId="sellable-table"
-            columns={SELLABLE_COLUMNS}
-            rows={detail.sellable_status}
-            rowKey={(line) => `${line.sku_id}|${line.batch_id ?? ""}`}
-            density="compact"
-          />
-        )}
       </Card>
 
       <Card title={t("detail.attemptsTitle")}>
@@ -435,41 +417,6 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
     </CardStack>
   );
 }
-
-const SELLABLE_COLUMNS: readonly Column<IvrSellableStatusLine>[] = [
-  { key: "sku", header: t("detail.sellableSku"), variant: "mono", cell: (line) => line.sku_id },
-  {
-    key: "batch",
-    header: t("detail.sellableBatch"),
-    variant: "mono",
-    cell: (line) => line.batch_id ?? "—",
-  },
-  {
-    key: "decision",
-    header: t("detail.sellableDecision"),
-    cell: (line) => <EnumLabel family="sellableDecision" value={line.decision} />,
-  },
-  {
-    key: "recallHold",
-    header: t("detail.sellableRecallHold"),
-    cell: (line) => flag(line.recall_hold),
-  },
-  {
-    key: "saleLock",
-    header: t("detail.sellableSaleLock"),
-    cell: (line) => flag(line.sale_lock),
-  },
-  {
-    key: "qualityHold",
-    header: t("detail.sellableQualityHold"),
-    cell: (line) => flag(line.quality_hold),
-  },
-  {
-    key: "capturedAt",
-    header: t("detail.sellableCapturedAt"),
-    cell: (line) => (line.captured_at === undefined ? "—" : formatDateTime(line.captured_at)),
-  },
-];
 
 function ReferenceList({ title, items }: { title: string; items: readonly string[] }) {
   if (items.length === 0) {

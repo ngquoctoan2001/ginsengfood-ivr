@@ -40,7 +40,7 @@ production — theo tên môi trường (danh sách cho phép, không phải dan
 rằng có một seed loader ở địa chỉ này và chỉ còn một cái quyền chắn giữa họ với nó.
 
 **3. "Áp integration-status profile" chỉ thi hành được `SIM_GATEWAY`.** Bốn phụ thuộc còn lại
-(`ORDER_CORE`, `OPS_SELLABLE_GATE`, `CRM_DO_NOT_CALL`, `EVIDENCE_REGISTRY`) được **khai báo chứ
+(`ORDER_CORE`, `CRM_DO_NOT_CALL`, `EVIDENCE_REGISTRY`) được **khai báo chứ
 không thi hành**: IVR không thăm dò chúng và báo `NOT_WIRED` (xem `AdminConfigReadService`), nên
 không có gì trong hệ đang chạy đọc trạng thái vừa đặt. Phản hồi và màn hình nói rõ cái nào là
 cái nào. Đây là giới hạn thật, gỡ được khi `W-0040` có probe thật.

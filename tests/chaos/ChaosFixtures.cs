@@ -191,7 +191,6 @@ internal static class ChaosFixtures
             PrivacyPolicyVersion = "privacy-v1",
             EligibilityDecision = "ELIGIBLE_FOR_IVR",
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
-            SellableStatusJson = "[]",
             CallRestriction = false,
             CreatedAt = startedAt,
             ExpiresAt = deadline,

@@ -1,6 +1,9 @@
 # IR-04 — Shared Auth, Audit and Release Requirements
 
-Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-12`.
+Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-26`
+Owner: **Security / Platform** (auth, RBAC, audit) và **Legal / Privacy** (PII, retention, release).
+
+> `IR-FND-AUTH-01/02/03` là mặt Security của `IR-SALES-AUTH-01` — cùng một quyết định, hai bên cùng cần. Chi tiết integrator ở [IR-06 §7](06-module-3-api-handover.md); câu hỏi mở ở [IR-05](05-open-contract-questions.md) `OQ-AUTH-01`.
 
 | ID | Yêu cầu | IVR build ngay | External/owner closure |
 | --- | --- | --- | --- |
@@ -24,4 +27,4 @@ Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-12`.
 
 ## Notification boundary
 
-V1 notification is disabled. Foundation must not provision a notification credential to IVR. P4-5 proves no-op behavior only.
+V1 notification is disabled (`TV1-07`). Foundation must not provision a notification credential to IVR. P4-5 proves no-op behavior only.

@@ -10,7 +10,7 @@ Trạng thái: `TARGET_V1_DRAFT`.
 | raw address/profile/payment/history | Sales/CRM | none; forbidden |
 | phone truth/dial-token issue | Sales/Identity | refs/token only |
 | raw phone resolution | Telephony trust boundary | never persist/log in IVR |
-| eligibility/do-not-call/sellable/lock/recall | Sales aggregated from owners | task snapshot; Sales revalidates callback |
+| eligibility/do-not-call | Sales aggregated from owners | task snapshot; Sales revalidates blocker tồn kho/thu hồi ở callback |
 | call job/attempt/result/callback/outbox | IVR | owner |
 | SIM channel lease/health/capacity incident | IVR runtime + vendor observations | owner of operational state, not telco truth |
 | audit/evidence acceptance | IVR writes refs; Evidence/Release owner accepts | never self-mark accepted |

@@ -8,31 +8,6 @@ public sealed class EligibilityRulesTests
         new(2026, 8, 13, 7, 0, 0, TimeSpan.Zero);
 
     [Fact]
-    [Trait("TestId", "UT-ELIG-BLOCK-01")]
-    public void NotSellableLineBlocksWhileAllSellableLinesAreEligible()
-    {
-        EligibilityEvaluation blocked = EligibilityRules.Evaluate(
-            CreateSnapshot(sellableLines:
-            [
-                Sellable(EligibilitySellableDecision.NotSellable),
-            ]));
-        EligibilityEvaluation eligible = EligibilityRules.Evaluate(
-            CreateSnapshot(sellableLines:
-            [
-                Sellable(EligibilitySellableDecision.Sellable),
-                Sellable(EligibilitySellableDecision.Sellable),
-            ]));
-
-        Assert.False(blocked.Eligible);
-        Assert.Equal(EligibilityDecisions.BlockedOperational, blocked.Decision);
-        Assert.Equal(
-            EligibilityReasonCodes.InventoryNotSellable,
-            Assert.Single(blocked.Reasons).Code);
-        Assert.True(eligible.Eligible);
-        Assert.Equal(EligibilityDecisions.Eligible, eligible.Decision);
-    }
-
-    [Fact]
     [Trait("TestId", "UT-ELIG-DNC-02")]
     public void PhoneCallRestrictionBlocksAndMarketingConsentCannotReachTheVoiceDecision()
     {
@@ -82,41 +57,20 @@ public sealed class EligibilityRulesTests
 
     [Fact]
     [Trait("TestId", "UT-ELIG-FAILCLOSED-04")]
-    public void MissingRequiredSourcesAndUnknownSellableStateFailClosed()
+    public void MissingRequiredSourcesFailClosed()
     {
-        EligibilityEvaluation missingSellable = EligibilityRules.Evaluate(
-            CreateSnapshot(sellableLines: null, useDefaultSellable: false));
         EligibilityEvaluation missingRestriction = EligibilityRules.Evaluate(
             CreateSnapshot(phoneCallRestriction: null));
-        EligibilityEvaluation unknownSellable = EligibilityRules.Evaluate(
-            CreateSnapshot(sellableLines:
-            [
-                Sellable(EligibilitySellableDecision.Unknown),
-            ]));
         EligibilityEvaluation missingEvidence = EligibilityRules.Evaluate(
             CreateSnapshot(evidenceAvailable: false));
         EligibilityEvaluation missingEligibility = EligibilityRules.Evaluate(
             CreateSnapshot(sourceEligibilityDecision: null));
         EligibilityEvaluation blockedEligibility = EligibilityRules.Evaluate(
             CreateSnapshot(sourceEligibilityDecision: "BLOCKED"));
-        EligibilityEvaluation undefinedSellable = EligibilityRules.Evaluate(
-            CreateSnapshot(sellableLines:
-            [
-                Sellable((EligibilitySellableDecision)999),
-            ]));
 
-        Assert.Equal(
-            EligibilityDecisions.HeldAdminReview,
-            missingSellable.Decision);
-        Assert.Equal(
-            EligibilityReasonCodes.SellableSnapshotMissing,
-            Assert.Single(missingSellable.Reasons).Code);
         Assert.Equal(
             EligibilityReasonCodes.PhoneCallRestrictionMissing,
             Assert.Single(missingRestriction.Reasons).Code);
-        Assert.Equal(
-            EligibilityReasonCodes.SellableUnknown,
-            Assert.Single(unknownSellable.Reasons).Code);
         Assert.Equal(
             EligibilityReasonCodes.EvidenceMissing,
             Assert.Single(missingEvidence.Reasons).Code);
@@ -126,19 +80,13 @@ public sealed class EligibilityRulesTests
         Assert.Equal(
             EligibilityReasonCodes.EligibilitySnapshotBlocked,
             Assert.Single(blockedEligibility.Reasons).Code);
-        Assert.Equal(
-            EligibilityReasonCodes.SellableUnknown,
-            Assert.Single(undefinedSellable.Reasons).Code);
         Assert.All(
             new[]
             {
-                missingSellable,
                 missingRestriction,
-                unknownSellable,
                 missingEvidence,
                 missingEligibility,
                 blockedEligibility,
-                undefinedSellable,
             },
             evaluation => Assert.False(evaluation.IsCountedCustomerAttempt));
     }
@@ -415,8 +363,6 @@ public sealed class EligibilityRulesTests
     }
 
     private static EligibilitySnapshot CreateSnapshot(
-        IReadOnlyList<EligibilitySellableLine>? sellableLines = null,
-        bool useDefaultSellable = true,
         bool? phoneCallRestriction = false,
         string? customerTrustStatus = null,
         // Nullable on purpose: under OD-15 an explicit false is a Sales veto, so the default has
@@ -429,12 +375,6 @@ public sealed class EligibilityRulesTests
         VoiceContactEvidence? voiceContact = null,
         TrustResolverEvidence? trust = null)
     {
-        IReadOnlyList<EligibilitySellableLine>? resolvedSellable = sellableLines;
-        if (sellableLines is null && useDefaultSellable)
-        {
-            resolvedSellable = [Sellable(EligibilitySellableDecision.Sellable)];
-        }
-
         // Default evidence is structurally valid so existing assertions still exercise the
         // decision rules rather than tripping on the W-0030 structural checks that run first.
         EligibilityEvidence resolvedEvidence = sourceEligibility ?? Evidence(
@@ -447,7 +387,6 @@ public sealed class EligibilityRulesTests
             true,
             true,
             resolvedEvidence,
-            resolvedSellable,
             voiceContact ?? new VoiceContactEvidence(
                 phoneCallRestriction,
                 true,
@@ -479,16 +418,6 @@ public sealed class EligibilityRulesTests
             Now);
     }
 
-    private static EligibilitySellableLine Sellable(
-        EligibilitySellableDecision decision) => new(
-            decision,
-            false,
-            false,
-            false,
-            true,
-            true,
-            true,
-            Now.AddMinutes(-1));
 
     private static EligibilityEvidence Evidence(
         EligibilityEvidenceState state = EligibilityEvidenceState.Present,

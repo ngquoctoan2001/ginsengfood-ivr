@@ -5,7 +5,6 @@
     {
       "id": "STATUS-all-up",
       "order_core": "up",
-      "ops_sellable_gate": "up",
       "sim_gateway": "mock_up",
       "crm_do_not_call": "up",
       "evidence_registry": "up",
@@ -14,7 +13,6 @@
     {
       "id": "STATUS-order-core-down",
       "order_core": "down",
-      "ops_sellable_gate": "up",
       "sim_gateway": "mock_up",
       "crm_do_not_call": "up",
       "evidence_registry": "up",
@@ -24,7 +22,6 @@
     {
       "id": "STATUS-ops-down",
       "order_core": "up",
-      "ops_sellable_gate": "down",
       "sim_gateway": "mock_up",
       "crm_do_not_call": "up",
       "evidence_registry": "up",
@@ -34,7 +31,6 @@
     {
       "id": "STATUS-ops-ready-503",
       "order_core": "up",
-      "ops_sellable_gate": "ready_503",
       "sim_gateway": "mock_up",
       "crm_do_not_call": "up",
       "evidence_registry": "up",
@@ -44,7 +40,6 @@
     {
       "id": "STATUS-crm-down",
       "order_core": "up",
-      "ops_sellable_gate": "up",
       "sim_gateway": "mock_up",
       "crm_do_not_call": "down",
       "evidence_registry": "up",
@@ -54,7 +49,6 @@
     {
       "id": "STATUS-evidence-down",
       "order_core": "up",
-      "ops_sellable_gate": "up",
       "sim_gateway": "mock_up",
       "crm_do_not_call": "up",
       "evidence_registry": "down",
@@ -64,7 +58,6 @@
     {
       "id": "STATUS-sim-down",
       "order_core": "up",
-      "ops_sellable_gate": "up",
       "sim_gateway": "down",
       "crm_do_not_call": "up",
       "evidence_registry": "up",

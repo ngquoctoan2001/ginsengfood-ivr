@@ -109,7 +109,7 @@ Admin **KHÔNG** được:
 - **Force confirm/cancel order** (D-02: order state do Core; P0-IVR-002).
 - Enable SIM khi health check đang fail.
 - Resume queue khi capacity incident chưa xử lý.
-- Bỏ qua blocker (sellable/recall/sale-lock/do-not-call) — DO-*/DC-01.
+- Bỏ qua blocker do-not-call — DC-01.
 
 ## 2a. Semantics đã khóa ở P2-8
 

@@ -26,7 +26,6 @@ public sealed record SeedTaskFixture(
 public sealed record IntegrationStatusProfile(
     string Id,
     string OrderCore,
-    string OpsSellableGate,
     string SimGateway,
     string CrmDoNotCall,
     string EvidenceRegistry,
@@ -229,7 +228,6 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
                     ?? throw new SeedCatalogException(
                         $"{IntegrationStatusFileName} has a profile with no id."),
                 ReadString(entry, "order_core") ?? "unknown",
-                ReadString(entry, "ops_sellable_gate") ?? "unknown",
                 ReadString(entry, "sim_gateway") ?? "unknown",
                 ReadString(entry, "crm_do_not_call") ?? "unknown",
                 ReadString(entry, "evidence_registry") ?? "unknown",

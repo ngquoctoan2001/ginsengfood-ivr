@@ -1,30 +1,48 @@
-# IR-05 — Open Contract Questions and Closure Evidence
+# IR-05 — Open Contract Questions
 
-Trạng thái: `OPEN` · Cập nhật: `2026-08-12`. Không đóng bằng suy luận hoặc chỉ bằng code IVR.
+Trạng thái: `OPEN` · Cập nhật: `2026-08-26`
 
-| ID | Câu hỏi cần trả lời | Owner | Chặn | Evidence để đóng |
+Chỉ liệt kê thứ **chưa có lời đáp**. Không đóng bằng suy luận, và **không đóng chỉ bằng code IVR** — mock chạy xanh không biến `BLOCKED_EXTERNAL` thành `VERIFIED`.
+
+## 1. Module 3 — hỏi qua tài liệu bàn giao, không hỏi ở đây
+
+Toàn bộ câu hỏi cho Module 3 đã được gom thành checklist có ô tick trong **[06-module-3-api-handover.md §10](06-module-3-api-handover.md)**. Giữ một bản sao ở đây chỉ tạo ra hai danh sách lệch nhau — đó chính là lỗi bản trước mắc phải.
+
+Ba câu **chặn cứng**, trích lại để thấy mức độ:
+
+| Câu | Vì sao chặn |
+| --- | --- |
+| Ma trận `program × payment × order_state → callable` là gì? | Sai ma trận ⇒ **100% task bị `422`**, im lặng, không alert nào bắt được |
+| Bao giờ có endpoint callback generic? | Chưa có ⇒ chương trình **24/7 không có lối trả kết quả nào** |
+| `ivr_confirmation_required` do ai set, có bao giờ `false`? | Producer không set ⇒ không đơn nào được gọi |
+
+## 2. Câu hỏi cho owner **ngoài** Module 3
+
+| ID | Câu hỏi | Owner | Chặn | Evidence để đóng |
 | --- | --- | --- | --- | --- |
-| `OQ-SALES-01` | Xác nhận Golden Hour ONLINE và 24/7 COD đều tạo task khi `ivr_confirmation_required=true`; callable states cụ thể? | Sales/Product | real producer | signed matrix + tests |
-| `OQ-SALES-02` | Chấp nhận path callback Target V1 và ACK taxonomy hay cung cấp phương án thay thế? | Sales API owner | real callback | OpenAPI + contract tests |
-| `OQ-SALES-03` | `order_version` có bắt buộc, bump khi nào; stale/idempotency conflict xử lý ra sao? | Sales/Order Core | race safety | implementation tests |
-| `OQ-SALES-04` | Schema/sample `privacy_safe_order_summary`, limit item và quy tắc vùng giao rút gọn? | Sales/Product/Privacy | business acceptance | schema + fixtures + approval |
-| `OQ-SALES-05` | `dial_token` được issue/resolve ở đâu, TTL/one-use/redemption audit? | Sales/Security/Telephony | real call | threat model + API/tests |
-| `OQ-SALES-06` | No-answer timeout worker và revalidation order/state/version hoạt động cụ thể thế nào? | Sales/Product | end-to-end correctness | sequence + tests |
-| `OQ-POLICY-01` | Chốt max attempts/window/offset cho hai program | Product/Order Core | production policy | owner decision ID/version |
-| `OQ-AUTH-01` | JWT issuer/audience/scopes/TTL/JWKS; mTLS có bắt buộc? | Security/Platform | real integration | auth profile + test credential |
-| `OQ-TEL-01` | Protocol/SDK, DTMF, disposition, resolver, caller ID cho 1 SIM lab | Infra/vendor | lab | vendor docs + lab pass |
-| `OQ-TEL-02` | 32 eSIM concurrency/capacity/rate/cost/failover | Infra/procurement | production capacity | procurement + load evidence |
-| `OQ-LEGAL-01` | Script, legal basis, do-not-call, retention; recording giữ OFF | Legal/Privacy | customer calls | signed review |
+| `OQ-POLICY-01` | Chốt `attempt_policy_version` production: mỗi program → số attempt / offsets / window. ⚠️ `D-10` và tài liệu `phase-8` đang lệch **bốn con số** | Product / Order Core | production policy | owner decision ID + version, [T-09](../docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md) |
+| `OQ-AUTH-01` | JWT issuer / audience / scope / TTL / JWKS; mTLS có bắt buộc không; sandbox credential | Security / Platform | **mọi integration test thật** | auth profile + test credential, [T-07](../docs/contracts/target-v1-closure-pack/T-07-production-auth.md) |
+| `OQ-TEL-01` | Protocol/SDK, DTMF mode, disposition codes, vị trí resolver, caller ID cho 1 SIM lab | Infra / vendor | lab | vendor docs + lab pass, [IR-03](03-telephony-sim-requirements.md) |
+| `OQ-TEL-02` | 32 eSIM: concurrency, capacity, rate, cost, failover | Infra / procurement | production capacity | procurement + load evidence |
+| `OQ-LEGAL-01` | Whitelist lời thoại (bộ hẹp hay bộ rộng), legal basis, do-not-call, retention. Recording giữ **OFF** | Legal / Privacy | **gọi khách thật** | signed review + PIA, [T-03](../docs/contracts/target-v1-closure-pack/T-03-speech-summary.md) |
 | `OQ-REL-01` | Pilot scope, release authority, rollback/kill switch | Release owner | go-live | accepted go/no-go packet |
 
-## Được phép làm trước
+> `OQ-LEGAL-01` là câu duy nhất mà **rủi ro là pháp lý chứ không phải kỹ thuật**. Chạy thật với whitelist chưa duyệt nghĩa là mỗi cuộc gọi đọc thông tin đơn hàng cho một người chưa xác thực danh tính, trên kênh không ghi âm nên không chứng minh được đã đọc gì. Không rollback được sau khi đã gọi.
 
-Toàn bộ IVR side được xây qua interfaces và deterministic mocks/fakes. Khi thiếu field/API trong lúc implement, phải thêm Work ID tuần tự vào `prompt/_execution/prompt-execution-tracker.md`, thêm/update requirement tại đây hoặc file owner tương ứng, và đánh `BLOCKED_EXTERNAL`; không được tự invent production behavior.
+## 3. Câu hỏi đã đóng — đừng hỏi lại
 
-## Câu hỏi gửi dev Sales ngay
+| Câu cũ | Kết quả |
+| --- | --- |
+| `OQ-SALES-01…06` | Gom vào [IR-06 §10](06-module-3-api-handover.md) |
+| Ops-core cần build gì cho IVR? | **Không còn** — `OD-17`, xem [IR-02](02-ops-core-requirements.md) |
+| Trusted-skip cần `CustomerTrustResolver`? | **Không** — `OD-15` thay bằng một field `trust.risk_evidence_available` |
 
-1. Gửi OpenAPI/samples của current endpoints và target proposal phản hồi.
-2. Cho biết producer Golden Hour hiện enqueue ở điều kiện nào và nơi sẽ thêm producer 24/7 COD.
-3. Chỉ ra entity/projection có thể sinh speech summary không lộ full address.
-4. Chỉ ra token vault/resolver hiện có hoặc xác nhận cần build mới.
-5. Chỉ ra auth middleware/service-account convention hiện tại.
+## 4. Được phép làm trước khi có câu trả lời
+
+Toàn bộ phía IVR build qua interface + deterministic mock/fake. Khi thiếu field hoặc API lúc implement:
+
+1. Cấp Work ID tuần tự trong `prompt/_execution/prompt-execution-tracker.md`
+2. Thêm/cập nhật requirement ở [IR-01](01-sales-platform-requirements.md) hoặc file owner tương ứng
+3. Đánh `BLOCKED_EXTERNAL`
+
+**Không được tự bịa production behavior.**

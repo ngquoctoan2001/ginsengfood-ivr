@@ -31,9 +31,8 @@ Nguồn: `phase-8/00 §3`, `MASTER-03`, `docx` §6, §8, §13.
 | **phone_ref / phone_masked / dial token** | Tham chiếu bảo mật / số che / token quay số TTL ngắn — thay cho raw phone. |
 | **Sale Lock (khóa bán)** | Ops-core chặn bán SKU/lô. ⚠️ **Hiện = recall-triggered** (`op_sale_lock_registry.recall_case_id` là FK bắt buộc); chưa có sale-lock thương mại độc lập. Owner: Operational Core. (DO-CORR-3) |
 | **Recall (thu hồi)** | Trạng thái thu hồi sản phẩm/lô (owner: Operational Core); `recall_case_id`=Guid + `recall_no`. |
-| **Sellable gate / SellableStatus** | Quyết định blocker **gộp** của ops-core: `POST /api/v1/admin/availability/check` → `Decision∈{SELLABLE,NOT_SELLABLE,BLOCKED,UNKNOWN}` + cờ `RecallHold`/`SaleLock`/`BatchReleased`/`StockAvailable`/`WarehouseReceiptConfirmed`/`HsdValid`/`QualityHold`/`TraceReady`. Scope **SKU(±batch)**. (DO-01) |
 | **Suppression** | ⚠️ Hai nghĩa: **(thương mại) do-not-call/opt-out/call-restriction = CRM/business-platform** (blocker IVR thực dùng); **ops-core "suppression" = procurement/MRP (FRM-05)**, KHÔNG phải blocklist. (DO-CORR-2) |
-| **Blocker** | Ops-core: `SellableStatus.Decision∈{NOT_SELLABLE,BLOCKED}` (recall/sale-lock/quality/availability). CRM: do-not-call/opt-out/call-restriction. Bất kỳ cái nào active → không dispatch/confirm. |
+| **Blocker** | CRM: do-not-call/opt-out/call-restriction. Blocker tồn kho/thu hồi do **Order Core** kiểm lúc revalidate (`D-06`), IVR không đọc. Bất kỳ cái nào active → không dispatch/confirm. |
 | **Result normalizer** | Thành phần chuyển raw SIM/DTMF result thành result code chuẩn + reason + evidence. |
 | **Revalidation** | Order Core kiểm lại (version/state/blocker/evidence) trước khi transition theo signal IVR. |
 | **Idempotency key** | Khóa chống duplicate cho task/callback/admin/retry. |

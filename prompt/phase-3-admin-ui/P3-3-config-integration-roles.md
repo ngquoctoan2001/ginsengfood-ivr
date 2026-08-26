@@ -24,7 +24,7 @@ Ops cần cấu hình script/menu, xem trạng thái tích hợp downstream (fai
 
 ## 4. DECISIONS & CONSTRAINTS
 - **Script/menu config:** chỉ script **approved** mới dùng được (intake reject nếu chưa approved); UI đánh dấu trạng thái approve; KEY_9 hiển thị NOT_ENABLED (AS-07).
-- **Integration status:** hiển thị health Order Core/ops sellable gate/CRM/SIM; `ready=503` → badge đỏ "fail-closed: không dispatch" (DO-06).
+- **Integration status:** hiển thị health Order Core/CRM/SIM; `ready=503` → badge đỏ "fail-closed: không dispatch" (DO-06).
 - **Seed/mock:** chỉ **non-prod**; UI chặn ở prod; đổi `IVR_ADAPTER_MODE` chỉ dev/staging (không REAL từ UI).
 - **Roles:** gán permission `IVR_*` (nếu quyền admin); mọi thay đổi audit + reason.
 

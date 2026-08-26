@@ -123,22 +123,6 @@ public sealed record ReviewItemDetail(
     [property: JsonPropertyName("created_at")] DateTimeOffset CreatedAt,
     [property: JsonPropertyName("resolved_at")] DateTimeOffset? ResolvedAt);
 
-/// <summary>
-/// One line of the sellable snapshot Order Core sent at intake (UI-03). It is a
-/// captured decision, never a live lookup, and IVR never re-evaluates it.
-/// </summary>
-public sealed record SellableStatusLineView(
-    [property: JsonPropertyName("sku_id")] string SkuId,
-    [property: JsonPropertyName("batch_id")] string? BatchId,
-    [property: JsonPropertyName("decision")] string Decision,
-    [property: JsonPropertyName("recall_hold")] bool? RecallHold,
-    [property: JsonPropertyName("sale_lock")] bool? SaleLock,
-    [property: JsonPropertyName("quality_hold")] bool? QualityHold,
-    [property: JsonPropertyName("stock_available")] bool? StockAvailable,
-    [property: JsonPropertyName("batch_released")] bool? BatchReleased,
-    [property: JsonPropertyName("trace_ready")] bool? TraceReady,
-    [property: JsonPropertyName("captured_at")] DateTimeOffset? CapturedAt);
-
 public sealed record CallJobDetailApiResult(
     [property: JsonPropertyName("ivr_call_job_id")] string IvrCallJobId,
     [property: JsonPropertyName("task_id")] string TaskId,
@@ -154,8 +138,6 @@ public sealed record CallJobDetailApiResult(
     [property: JsonPropertyName("eligibility_decision")] string EligibilityDecision,
     [property: JsonPropertyName("blocked_reasons")] IReadOnlyList<string> BlockedReasons,
     [property: JsonPropertyName("call_restriction")] bool CallRestriction,
-    [property: JsonPropertyName("sellable_captured_at")] DateTimeOffset? SellableCapturedAt,
-    [property: JsonPropertyName("sellable_status")] IReadOnlyList<SellableStatusLineView> SellableStatus,
     /// W-0106. Which regional voice this order routes to, derived from the stored delivery
     /// area under the 34 provincial units of Nghị quyết 202/2025/QH15. Null when the area
     /// names no recognisable province.

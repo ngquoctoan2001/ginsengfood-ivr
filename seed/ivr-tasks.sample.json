@@ -21,11 +21,17 @@
       "max_attempts": 2,
       "confirmation_window_seconds": 300,
       "attempt_spacing_seconds": 150,
-      "attempt_schedule": [0, 150],
+      "attempt_schedule": [
+        0,
+        150
+      ],
       "customer_ref": "CUST-001",
       "customer_trust_status": "UNTRUSTED_NEW",
       "trusted_skip_allowed": false,
-      "risk_flags": ["NEW_CUSTOMER", "VERIFIED_ORDER_COUNT_0"],
+      "risk_flags": [
+        "NEW_CUSTOMER",
+        "VERIFIED_ORDER_COUNT_0"
+      ],
       "official_contact_id": "OC-0001",
       "phone_ref": "phref-test-0001",
       "phone_masked": "84xxxxx0001",
@@ -33,10 +39,10 @@
       "dial_token": "dtok-test-0001",
       "call_script_template_id": "SCRIPT-ORDER-CONFIRM",
       "call_script_version": "v1",
-      "allowed_script_variables": { "order_code_short": "0001", "total_amount_display": "560.000d" },
-      "sellable_status": [
-        { "sku_id": "SKU-A1", "batch_id": "BAT-2026-0001", "decision": "SELLABLE", "recall_hold": false, "sale_lock": false, "quality_hold": false, "stock_available": true, "trace_ready": true, "captured_at": "2026-07-02T02:59:59Z" }
-      ],
+      "allowed_script_variables": {
+        "order_code_short": "0001",
+        "total_amount_display": "560.000d"
+      },
       "call_restriction": false,
       "not_for_quote_cart_draft": true,
       "no_direct_order_update": true,
@@ -61,11 +67,16 @@
       "max_attempts": 2,
       "confirmation_window_seconds": 900,
       "attempt_spacing_seconds": 450,
-      "attempt_schedule": [0, 450],
+      "attempt_schedule": [
+        0,
+        450
+      ],
       "customer_ref": "CUST-006",
       "customer_trust_status": "UNTRUSTED_NEW",
       "trusted_skip_allowed": false,
-      "risk_flags": ["COD_FAIL_HISTORY"],
+      "risk_flags": [
+        "COD_FAIL_HISTORY"
+      ],
       "official_contact_id": "OC-0006",
       "phone_ref": "phref-test-0006",
       "phone_masked": "84xxxxx0006",
@@ -73,10 +84,10 @@
       "dial_token": "dtok-test-0006",
       "call_script_template_id": "SCRIPT-ORDER-CONFIRM",
       "call_script_version": "v1",
-      "allowed_script_variables": { "order_code_short": "0002", "total_amount_display": "1.120.000d" },
-      "sellable_status": [
-        { "sku_id": "SKU-A1", "batch_id": "BAT-2026-0001", "decision": "SELLABLE", "recall_hold": false, "sale_lock": false, "quality_hold": false, "stock_available": true, "trace_ready": true, "captured_at": "2026-07-02T02:59:59Z" }
-      ],
+      "allowed_script_variables": {
+        "order_code_short": "0002",
+        "total_amount_display": "1.120.000d"
+      },
       "call_restriction": false,
       "not_for_quote_cart_draft": true,
       "no_direct_order_update": true,
@@ -101,11 +112,16 @@
       "max_attempts": 2,
       "confirmation_window_seconds": 300,
       "attempt_spacing_seconds": 150,
-      "attempt_schedule": [0, 150],
+      "attempt_schedule": [
+        0,
+        150
+      ],
       "customer_ref": "CUST-004",
       "customer_trust_status": "TRUSTED",
       "trusted_skip_allowed": true,
-      "risk_flags": ["HIGH_RISK_GOLDEN_HOUR"],
+      "risk_flags": [
+        "HIGH_RISK_GOLDEN_HOUR"
+      ],
       "official_contact_id": "OC-0004",
       "phone_ref": "phref-test-0004",
       "phone_masked": "84xxxxx0004",
@@ -113,16 +129,16 @@
       "dial_token": "dtok-test-0004",
       "call_script_template_id": "SCRIPT-ORDER-CONFIRM",
       "call_script_version": "v1",
-      "allowed_script_variables": { "order_code_short": "0006", "total_amount_display": "1.400.000d" },
-      "sellable_status": [
-        { "sku_id": "SKU-C9", "batch_id": "BAT-2026-0009", "decision": "BLOCKED", "recall_hold": true, "sale_lock": true, "quality_hold": false, "stock_available": true, "trace_ready": true, "captured_at": "2026-07-02T02:59:59Z", "recall_case_id": "b6f0c9e2-0000-4000-8000-000000000009" }
-      ],
+      "allowed_script_variables": {
+        "order_code_short": "0006",
+        "total_amount_display": "1.400.000d"
+      },
       "call_restriction": false,
       "not_for_quote_cart_draft": true,
       "no_direct_order_update": true,
       "evidence_policy_version": "ev-v1",
       "privacy_policy_version": "pv-v1",
-      "_note": "RECALL trong snapshot -> pre-dispatch block; cũng dùng cho race (nếu recall xuất hiện lúc callback)"
+      "_note": "Khách có risk flag Giờ Vàng -> vẫn gọi. Recall/sale-lock do Order Core revalidate lúc callback (D-06), IVR không đọc."
     },
     {
       "task_id": "TASK-0007",
@@ -142,21 +158,26 @@
       "max_attempts": 2,
       "confirmation_window_seconds": 900,
       "attempt_spacing_seconds": 450,
-      "attempt_schedule": [0, 450],
+      "attempt_schedule": [
+        0,
+        450
+      ],
       "customer_ref": "CUST-003",
       "customer_trust_status": "UNTRUSTED_NEW",
       "trusted_skip_allowed": false,
-      "risk_flags": ["SUSPICIOUS_PHONE"],
+      "risk_flags": [
+        "SUSPICIOUS_PHONE"
+      ],
       "official_contact_id": "OC-0003",
       "phone_ref": "phref-test-0003",
       "phone_masked": "84xxxxx0003",
       "phone_validation_status": "INVALID",
       "call_script_template_id": "SCRIPT-ORDER-CONFIRM",
       "call_script_version": "v1",
-      "allowed_script_variables": { "order_code_short": "0007", "total_amount_display": "280.000d" },
-      "sellable_status": [
-        { "sku_id": "SKU-B2", "batch_id": "BAT-2026-0007", "decision": "NOT_SELLABLE", "recall_hold": false, "sale_lock": false, "quality_hold": false, "stock_available": false, "trace_ready": true, "captured_at": "2026-07-02T02:59:59Z" }
-      ],
+      "allowed_script_variables": {
+        "order_code_short": "0007",
+        "total_amount_display": "280.000d"
+      },
       "call_restriction": false,
       "not_for_quote_cart_draft": true,
       "no_direct_order_update": true,
@@ -182,11 +203,16 @@
       "max_attempts": 2,
       "confirmation_window_seconds": 300,
       "attempt_spacing_seconds": 150,
-      "attempt_schedule": [0, 150],
+      "attempt_schedule": [
+        0,
+        150
+      ],
       "customer_ref": "CUST-005",
       "customer_trust_status": "UNTRUSTED_NEW",
       "trusted_skip_allowed": false,
-      "risk_flags": ["ABNORMAL_VALUE"],
+      "risk_flags": [
+        "ABNORMAL_VALUE"
+      ],
       "official_contact_id": "OC-0005",
       "phone_ref": "phref-test-0005",
       "phone_masked": "84xxxxx0005",
@@ -194,10 +220,10 @@
       "dial_token": "dtok-test-0005",
       "call_script_template_id": "SCRIPT-ORDER-CONFIRM",
       "call_script_version": "v1",
-      "allowed_script_variables": { "order_code_short": "0008", "total_amount_display": "700.000d" },
-      "sellable_status": [
-        { "sku_id": "SKU-A1", "batch_id": "BAT-2026-0001", "decision": "SELLABLE", "recall_hold": false, "sale_lock": false, "quality_hold": false, "stock_available": true, "trace_ready": true, "captured_at": "2026-07-02T02:59:59Z" }
-      ],
+      "allowed_script_variables": {
+        "order_code_short": "0008",
+        "total_amount_display": "700.000d"
+      },
       "call_restriction": true,
       "not_for_quote_cart_draft": true,
       "no_direct_order_update": true,
@@ -223,7 +249,10 @@
       "max_attempts": 2,
       "confirmation_window_seconds": 300,
       "attempt_spacing_seconds": 150,
-      "attempt_schedule": [0, 150],
+      "attempt_schedule": [
+        0,
+        150
+      ],
       "customer_ref": "CUST-002",
       "customer_trust_status": "TRUSTED",
       "trusted_skip_allowed": true,
@@ -234,7 +263,9 @@
         "captured_at": "2026-07-02T02:59:30Z",
         "source_available": true,
         "blockers": [],
-        "trust": { "risk_evidence_available": true }
+        "trust": {
+          "risk_evidence_available": true
+        }
       },
       "official_contact_id": "OC-0002",
       "phone_ref": "phref-test-0002",
@@ -243,10 +274,10 @@
       "dial_token": "dtok-test-0002",
       "call_script_template_id": "SCRIPT-ORDER-CONFIRM",
       "call_script_version": "v1",
-      "allowed_script_variables": { "order_code_short": "0009", "total_amount_display": "560.000d" },
-      "sellable_status": [
-        { "sku_id": "SKU-A1", "batch_id": "BAT-2026-0001", "decision": "SELLABLE", "recall_hold": false, "sale_lock": false, "quality_hold": false, "stock_available": true, "trace_ready": true, "captured_at": "2026-07-02T02:59:59Z" }
-      ],
+      "allowed_script_variables": {
+        "order_code_short": "0009",
+        "total_amount_display": "560.000d"
+      },
       "call_restriction": false,
       "not_for_quote_cart_draft": true,
       "no_direct_order_update": true,
@@ -272,7 +303,10 @@
       "max_attempts": 2,
       "confirmation_window_seconds": 300,
       "attempt_spacing_seconds": 150,
-      "attempt_schedule": [0, 150],
+      "attempt_schedule": [
+        0,
+        150
+      ],
       "customer_ref": "CUST-001",
       "customer_trust_status": "UNTRUSTED_NEW",
       "trusted_skip_allowed": false,
@@ -284,7 +318,6 @@
       "call_script_template_id": "SCRIPT-ORDER-CONFIRM",
       "call_script_version": "v1",
       "allowed_script_variables": {},
-      "sellable_status": [],
       "call_restriction": false,
       "not_for_quote_cart_draft": true,
       "no_direct_order_update": true,

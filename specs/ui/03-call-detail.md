@@ -9,7 +9,7 @@ Xem toàn bộ vòng đời một task để review/khiếu nại: task intake �
 ```
 [ Header: order_code_short · phone_masked · program · order_state(đục) · order_version(target/optional) ]
 [ Timeline:
-   Task intake: decision · blocked_reasons · sellable_status[] (per-line: sku/decision/recall_hold/sale_lock) · captured_at
+   Task intake: decision · blocked_reasons · captured_at
    Eligibility: PASS/skip/block + reasons
    Attempts[1..2]: scheduled_at · status · disposition · dtmf_key · is_counted · sim_channel · technical_exception_type
    Result: result_type · is_final · recommended_core_action(advisory)

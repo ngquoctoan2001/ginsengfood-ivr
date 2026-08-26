@@ -454,14 +454,6 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
             IvrPermissions.QueueView);
         IvrServer.IvrCallJobDetail detail =
             (await detailResponse.Content.ReadFromJsonAsync<IvrServer.IvrCallJobDetail>())!;
-
-        // `specs/ui/03` wants the per-line snapshot, read back exactly as
-        // Order Core captured it.
-        IvrServer.SellableStatusLine line = Assert.Single(detail.Sellable_status);
-        Assert.Equal("SKU-READ-01", line.Sku_id);
-        Assert.Equal("BATCH-READ-01", line.Batch_id);
-        Assert.True(line.Sale_lock);
-        Assert.False(line.Recall_hold);
     }
 
     [Fact]
@@ -776,10 +768,6 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
             EligibilityDecision = "ELIGIBLE_FOR_IVR",
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE_FOR_IVR\"}",
             BlockedReasonsJson = "[\"DO_NOT_CALL\"]",
-            SellableStatusJson = "[{\"sku_id\":\"SKU-READ-01\",\"batch_id\":\"BATCH-READ-01\","
-                + "\"decision\":\"BLOCKED\",\"recall_hold\":false,\"sale_lock\":true,"
-                + "\"quality_hold\":false,\"captured_at\":\"2026-08-15T01:00:00+00:00\"}]",
-            SellableCapturedAt = startedAt,
             CallRestriction = false,
             NotForQuoteCartDraft = true,
             NoDirectOrderUpdate = true,

@@ -436,7 +436,7 @@ public static class TaskIntakeEndpoint
         "correlation_id", "created_at", "order_code_short", "is_ivr_callable",
         "customer_ref", "customer_trust_status", "trusted_skip_allowed", "risk_flags",
         "phone_validation_status", "call_script_template_id", "call_script_version",
-        "allowed_script_variables", "sellable_status", "evidence_policy_version",
+        "allowed_script_variables", "evidence_policy_version",
         "privacy_policy_version",
     ];
 

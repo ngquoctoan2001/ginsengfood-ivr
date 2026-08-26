@@ -210,7 +210,6 @@ public sealed class CallResultAndMapperTests
             Call_script_template_id = "ivr-confirm-v1",
             Call_script_version = "1",
             Allowed_script_variables = new { },
-            Sellable_status = [],
             Call_restriction = false,
             Eligibility_snapshot = new { eligible = true },
             Evidence_ref = "evidence-1",

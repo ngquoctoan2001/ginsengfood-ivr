@@ -21,14 +21,14 @@
   "sourceHashes": {
     "docs/api-changelog.md": "438e3fb7f339e9fd08a6fd50ceb5122f4de288273df1a7e32df7425ddb343fb3",
     "docs/api-versioning.md": "bef9515401e0baf6926d3e5f3d0ddcd00004cb327974897cb113f787e737114d",
-    "docs/api/changelog/ivr-order-confirmation.md": "823cc06ec82eff7ae8e69d68003078ef4b723120a5f21f87bd49d0086b7ef338",
+    "docs/api/changelog/ivr-order-confirmation.md": "8e17896e944e0a50bf9a83798e694bb1893ed6e4f7e118aebfe8224780e2c935",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md": "92ff570d5dfe289506afd14b140b300e200f242fa6e60bdf32821579a2c4fe70",
     "docs/api/changelog/order-core-ivr-callback.md": "4e56a793bb3678e8370adff99885a2241bb87d5f0615b01e62e9d2cb392d14f1",
-    "docs/integration-guide.md": "a6222a57f3fe73241318d3a7cef6453b3602204721039fe1ab3a54460abc9253",
+    "docs/integration-guide.md": "4154153d7fe61e10531d12820497a2384858957519f3fcc4aa28aca133f7f104",
     "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
     "specs/api/openapi/changelog-baseline.json": "e071abfaef70d792a2ce3fa61ecc16690cf5c7d0f7f40fc3205ea79e5cc36bf1",
-    "specs/api/openapi/contract-manifest.json": "4e4cfe497b454720d6e3eba305706a8820e0e74295d66ac7200cd3cf32508621",
-    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "da07432d5bba3de4f0ea4e88d7bc3ff8d29c0b0ef2037715e335f22f4d4db1a9",
+    "specs/api/openapi/contract-manifest.json": "6e989823c35bf0cb133ffe7d6a38dbe01238a42af1326a7fca353bc1cd9b8edb",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "e41b0fb97bd1bd01204106fe84146dd790c332c22eaaae6fe03e915849a4e2e3",
     "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697"
   }
 }

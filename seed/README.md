@@ -16,7 +16,6 @@ Nguồn: `specs/database/*`, `specs/data/*`, `specs/workflows/*`; smoke `phase-8
 | `customers.sample.json` | sim-sales | projection khách từ Order Core/CRM (trust, contact) |
 | `orders.sample.json` | sim-sales | Official Order (order_code, state, program) |
 | `products.sample.json` | sim-ops | SKU/batch public name |
-| `inventory.sample.json` | sim-ops | `SellableStatus` per sku/batch (sale-lock/recall/stock) |
 | `ivr-tasks.sample.json` | **LEGACY** | Task shape **trước Target V1** — KHÔNG phải `IvrConfirmationTaskV1`, KHÔNG đẩy vào `POST /tasks` (thiếu 12 required field, thừa 11 field bị `additionalProperties:false` từ chối). Chỉ giữ để đọc lịch sử. |
 | `call-scenarios.sample.json` | **IVR-owned** | kịch bản SIM/DTMF → result mong đợi; `task_ref` trỏ vào `sales-target-v1.sample.json` |
 | `ivr-menu.sample.json` | **IVR-owned** | call script + phím 1/0 |
@@ -42,13 +41,11 @@ string do owner cung cấp và phải lưu evidence đã che secret.
 ## Cách gỡ mock khi có API thật (theo integration-requirements)
 | Seed | Thay bằng | Điều kiện |
 | --- | --- | --- |
-| `orders`/`customers` | Order Core task push thật (IR-SALES-01) | có endpoint task |
-| `inventory` (sellable) | ops `availability/check` thật (IR-OPS-01/02) | có `captured_at` |
+| `orders`/`customers` | Order Core task push thật (IR-SALES-TASK-01) | có endpoint task |
 | `call-scenarios` (MOCK adapter) | SIM gateway thật (IR-TEL-01) | mua SIM + release gate |
-| `integration-status` | health thật (`/health/ready`, IR-OPS-04) | — |
-| `call_restriction` trong task | CRM do-not-call (DC-01/Q-C1 resolved; IR-CRM-01 rich fields P1) | có nguồn CRM |
+| `call_restriction` trong task | CRM do-not-call (DC-01 resolved; IR-SALES-CRM-01 rich fields P1) | có nguồn CRM |
 
-Ưu tiên gỡ sớm: task/callback (Sales), sellable gate (Ops) — vì P0.
+Ưu tiên gỡ sớm: task/callback (Sales) — vì P0.
 
 ## Lớp test của negative fixture
 

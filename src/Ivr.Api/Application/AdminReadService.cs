@@ -440,8 +440,6 @@ public sealed class AdminReadService(
             job.EligibilityDecision,
             ReadStringArray(task.BlockedReasonsJson),
             task.CallRestriction,
-            task.SellableCapturedAt,
-            ReadSellableStatus(task.SellableStatusJson),
             recordedVoice.Region ?? ReadVoiceRegion(task.PrivacySafeOrderSummaryJson),
             recordedVoice.Source ?? (
                 ReadVoiceRegion(task.PrivacySafeOrderSummaryJson) is null ? null : DerivedVoiceRegion),
@@ -634,8 +632,7 @@ public sealed class AdminReadService(
     /// two copies of a 63-name mapping would drift, and the copy that drifted would be the one
     /// the console shows while the one the customer hears stays right — the worst way round.
     /// <para>
-    /// A malformed or absent summary yields null, matching how
-    /// <c>ReadSellableStatus</c> refuses to fail a whole detail screen over one bad snapshot.
+    /// A malformed or absent summary yields null rather than failing the whole detail screen.
     /// </para>
     /// </summary>
     /// <summary>Where a rendered <c>voice_region</c> came from.</summary>
@@ -708,58 +705,8 @@ public sealed class AdminReadService(
         }
     }
 
-    /// <summary>
-    /// Projects the per-line sellable snapshot Order Core sent at intake
-    /// (`specs/ui/03`). It is read back exactly as captured — IVR never
-    /// re-evaluates sellability (DO-02) — and a malformed or absent snapshot
-    /// yields an empty list rather than failing the whole detail screen.
-    /// </summary>
     private static double Ratio(int value, int total) =>
         total == 0 ? 0d : Math.Round((double)value / total, 4);
-
-    private static SellableStatusLineView[] ReadSellableStatus(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return [];
-        }
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(json);
-            if (document.RootElement.ValueKind != JsonValueKind.Array)
-            {
-                return [];
-            }
-
-            List<SellableStatusLineView> lines = [];
-            foreach (JsonElement line in document.RootElement.EnumerateArray())
-            {
-                if (line.ValueKind != JsonValueKind.Object)
-                {
-                    continue;
-                }
-
-                lines.Add(new SellableStatusLineView(
-                    ReadString(line, "sku_id") ?? string.Empty,
-                    ReadString(line, "batch_id"),
-                    ReadString(line, "decision") ?? "UNKNOWN",
-                    ReadBool(line, "recall_hold"),
-                    ReadBool(line, "sale_lock"),
-                    ReadBool(line, "quality_hold"),
-                    ReadBool(line, "stock_available"),
-                    ReadBool(line, "batch_released"),
-                    ReadBool(line, "trace_ready"),
-                    ReadTimestamp(line, "captured_at")));
-            }
-
-            return [.. lines];
-        }
-        catch (JsonException)
-        {
-            return [];
-        }
-    }
 
     private static string? ReadString(JsonElement element, string name) =>
         element.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String

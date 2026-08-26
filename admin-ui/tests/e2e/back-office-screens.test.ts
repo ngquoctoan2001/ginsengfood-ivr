@@ -172,13 +172,6 @@ const INTEGRATION_STATUS = {
       captured_at: "2026-08-15T01:59:00Z",
     },
     {
-      dependency: "OPS_SELLABLE_GATE",
-      state: "READY_503",
-      detail: "ops reports not ready",
-      fail_closed_effect: "ready=503 means no dispatch and no confirm (DO-06).",
-      observed: false,
-    },
-    {
       dependency: "ORDER_CORE",
       state: "NOT_WIRED",
       detail: "No provider endpoint configured.",

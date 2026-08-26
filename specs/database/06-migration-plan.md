@@ -20,8 +20,8 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §12; D
 - Target V1 requires `order_version_seen_by_ivr`; current-compat data, if retained, stays in explicit compatibility columns/table and never weakens target validation. Store HTTP + semantic ACK separately.
 
 ## 4. Sau khi có nguồn thật (bỏ mock)
-- `call_restriction`: bật NOT NULL/logic sau khi IR-CRM-01 build rich response/Core wiring từ nguồn DC-01.
-- `sellable_captured_at`/policy_version: sau khi ops bổ sung (DO-02).
+- `call_restriction`: bật NOT NULL/logic sau khi IR-SALES-CRM-01 build rich response/Core wiring từ nguồn DC-01.
+- ⚠️ `sellable_status_json` / `sellable_captured_at`: **mồ côi** từ `OD-17` — model và code không còn map, cột vật lý giữ lại vì gate `W-0114` cấm `DropColumn` trong `Up()`. Có thể gỡ ở một release sau khi mọi pod đã chạy code mới.
 - `ivr_sim_channels.adapter_mode=REAL` + số SIM thật: sau khi mua SIM (DT-01/DT-04) và release gate pass (DF-03).
 - Retention: đặt TTL/purge job sau DF-07.
 

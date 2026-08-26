@@ -23,16 +23,6 @@ public static class EligibilityReasonCodes
     public const string EligibilitySnapshotStale = "ELIGIBILITY_SNAPSHOT_STALE";
     public const string EligibilitySourceUnavailable = "ELIGIBILITY_SOURCE_UNAVAILABLE";
     public const string EligibilitySourceVersionMissing = "ELIGIBILITY_SOURCE_VERSION_MISSING";
-    public const string SellableSnapshotMissing = "SELLABLE_SNAPSHOT_MISSING";
-    public const string SellableSnapshotStale = "SELLABLE_SNAPSHOT_STALE";
-    public const string SellableUnknown = "SELLABLE_STATUS_UNKNOWN";
-    public const string InventoryNotSellable = "INVENTORY_NOT_SELLABLE";
-    public const string RecallHoldActive = "RECALL_HOLD_ACTIVE";
-    public const string SaleLockActive = "SALE_LOCK_ACTIVE";
-    public const string QualityHoldActive = "QUALITY_HOLD_ACTIVE";
-    public const string StockUnavailable = "STOCK_UNAVAILABLE";
-    public const string BatchNotReleased = "BATCH_NOT_RELEASED";
-    public const string TraceNotReady = "TRACE_NOT_READY";
     public const string PhoneCallRestrictionMissing = "PHONE_CALL_RESTRICTION_MISSING";
     public const string PhoneCallRestricted = "PHONE_CALL_RESTRICTED";
     public const string PhoneCallRestrictionSourceUnavailable =
@@ -54,24 +44,6 @@ public static class EligibilityReasonCodes
     public const string RiskFlagsPresentRequireIvr = "RISK_FLAGS_PRESENT_REQUIRE_IVR";
     public const string TrustedCustomerSkip = "TRUSTED_CUSTOMER_SKIP";
 }
-
-public enum EligibilitySellableDecision
-{
-    Sellable,
-    NotSellable,
-    Blocked,
-    Unknown,
-}
-
-public sealed record EligibilitySellableLine(
-    EligibilitySellableDecision Decision,
-    bool? RecallHold,
-    bool? SaleLock,
-    bool? QualityHold,
-    bool? StockAvailable,
-    bool? BatchReleased,
-    bool? TraceReady,
-    DateTimeOffset CapturedAt);
 
 /// <summary>
 /// Readability of the Sales-supplied <c>eligibility_snapshot</c> as IVR received it.
@@ -210,7 +182,6 @@ public sealed record EligibilitySnapshot(
     bool IvrConfirmationRequired,
     bool NotForQuoteCartDraft,
     EligibilityEvidence SourceEligibility,
-    IReadOnlyList<EligibilitySellableLine>? SellableLines,
     VoiceContactEvidence VoiceContact,
     string PhoneValidationStatus,
     DateTimeOffset DialTokenExpiresAt,
@@ -293,12 +264,6 @@ public static class EligibilityRules
         if (sourceResult is not null)
         {
             return sourceResult;
-        }
-
-        EligibilityEvaluation? sellableResult = EvaluateSellable(snapshot, rootEvidence);
-        if (sellableResult is not null)
-        {
-            return sellableResult;
         }
 
         EligibilityEvaluation? voiceResult = EvaluateVoiceContact(snapshot, rootEvidence);
@@ -442,8 +407,8 @@ public static class EligibilityRules
                 snapshot.EvaluatedAt);
         }
 
-        // Same freshness window as the per-line sellable snapshot: evidence captured before the
-        // confirmation window opened describes a different order state, and evidence stamped in
+        // Evidence captured before the confirmation window opened describes a different order
+        // state, and evidence stamped in
         // the future is a clock or producer defect. Both are held, never dispatched.
         if (evidence.CapturedAt is not { } capturedAt
             || capturedAt < snapshot.ConfirmationWindowStartedAt
@@ -587,124 +552,6 @@ public static class EligibilityRules
         }
 
         return [.. advisories];
-    }
-
-    private static EligibilityEvaluation? EvaluateSellable(
-        EligibilitySnapshot snapshot,
-        string rootEvidence)
-    {
-        if (snapshot.SellableLines is not { Count: > 0 })
-        {
-            return Block(
-                EligibilityDecisions.HeldAdminReview,
-                EligibilityReasonCodes.SellableSnapshotMissing,
-                "sellable_status",
-                rootEvidence,
-                snapshot.EvaluatedAt);
-        }
-
-        for (int index = 0; index < snapshot.SellableLines.Count; index++)
-        {
-            EligibilitySellableLine line = snapshot.SellableLines[index];
-            string signal = string.Concat("sellable_status[", index, "]");
-            string evidence = Evidence(rootEvidence, string.Concat("sellable/", index));
-            if (line.CapturedAt < snapshot.ConfirmationWindowStartedAt
-                || line.CapturedAt > snapshot.EvaluatedAt)
-            {
-                return Block(
-                    EligibilityDecisions.HeldAdminReview,
-                    EligibilityReasonCodes.SellableSnapshotStale,
-                    signal,
-                    evidence,
-                    snapshot.EvaluatedAt);
-            }
-
-            if (!Enum.IsDefined(line.Decision))
-            {
-                return Block(
-                    EligibilityDecisions.HeldAdminReview,
-                    EligibilityReasonCodes.SellableUnknown,
-                    signal,
-                    evidence,
-                    snapshot.EvaluatedAt);
-            }
-
-            string? decisionReason = line.Decision switch
-            {
-                EligibilitySellableDecision.NotSellable or
-                    EligibilitySellableDecision.Blocked =>
-                    EligibilityReasonCodes.InventoryNotSellable,
-                EligibilitySellableDecision.Unknown => EligibilityReasonCodes.SellableUnknown,
-                _ => null,
-            };
-            if (decisionReason is not null)
-            {
-                string decision = line.Decision == EligibilitySellableDecision.Unknown
-                    ? EligibilityDecisions.HeldAdminReview
-                    : EligibilityDecisions.BlockedOperational;
-                return Block(decision, decisionReason, signal, evidence, snapshot.EvaluatedAt);
-            }
-
-            (string Code, bool? Value)[] gates =
-            [
-                (EligibilityReasonCodes.RecallHoldActive, line.RecallHold),
-                (EligibilityReasonCodes.SaleLockActive, line.SaleLock),
-                (EligibilityReasonCodes.QualityHoldActive, line.QualityHold),
-            ];
-            foreach ((string code, bool? value) in gates)
-            {
-                if (value is null)
-                {
-                    return Block(
-                        EligibilityDecisions.HeldAdminReview,
-                        EligibilityReasonCodes.SellableUnknown,
-                        signal,
-                        evidence,
-                        snapshot.EvaluatedAt);
-                }
-
-                if (value.Value)
-                {
-                    return Block(
-                        EligibilityDecisions.BlockedOperational,
-                        code,
-                        signal,
-                        evidence,
-                        snapshot.EvaluatedAt);
-                }
-            }
-
-            (string Code, bool? Value)[] requiredTrue =
-            [
-                (EligibilityReasonCodes.StockUnavailable, line.StockAvailable),
-                (EligibilityReasonCodes.BatchNotReleased, line.BatchReleased),
-                (EligibilityReasonCodes.TraceNotReady, line.TraceReady),
-            ];
-            foreach ((string code, bool? value) in requiredTrue)
-            {
-                if (value is null)
-                {
-                    return Block(
-                        EligibilityDecisions.HeldAdminReview,
-                        EligibilityReasonCodes.SellableUnknown,
-                        signal,
-                        evidence,
-                        snapshot.EvaluatedAt);
-                }
-
-                if (!value.Value)
-                {
-                    return Block(
-                        EligibilityDecisions.BlockedOperational,
-                        code,
-                        signal,
-                        evidence,
-                        snapshot.EvaluatedAt);
-                }
-            }
-        }
-
-        return null;
     }
 
     private static EligibilityEvaluation Block(

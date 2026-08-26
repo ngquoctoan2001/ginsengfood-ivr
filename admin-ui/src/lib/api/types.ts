@@ -228,23 +228,6 @@ export interface IvrReviewItemDetail {
   readonly resolved_at?: string;
 }
 
-/**
- * OpenAPI `SellableStatusLine` — the per-line snapshot Order Core sent at
- * intake. IVR displays it as captured and never re-evaluates it (DO-02).
- */
-export interface IvrSellableStatusLine {
-  readonly sku_id: string;
-  readonly batch_id?: string;
-  readonly decision: string;
-  readonly recall_hold?: boolean;
-  readonly sale_lock?: boolean;
-  readonly quality_hold?: boolean;
-  readonly stock_available?: boolean;
-  readonly batch_released?: boolean;
-  readonly trace_ready?: boolean;
-  readonly captured_at?: string;
-}
-
 /** OpenAPI `IvrCallJobDetail`. */
 export interface IvrCallJobDetail {
   readonly ivr_call_job_id: string;
@@ -261,8 +244,6 @@ export interface IvrCallJobDetail {
   readonly eligibility_decision: string;
   readonly blocked_reasons: readonly string[];
   readonly call_restriction: boolean;
-  readonly sellable_captured_at?: string;
-  readonly sellable_status: readonly IvrSellableStatusLine[];
   /**
    * W-0106. Which regional voice this order routes to, derived server-side from the stored
    * delivery area. Absent when no province could be identified.

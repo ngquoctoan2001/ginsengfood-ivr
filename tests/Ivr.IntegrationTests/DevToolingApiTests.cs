@@ -263,7 +263,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
 
     /// <summary>
     /// Applying a profile reports which dependencies it actually moved and which it only
-    /// declared. Four of the five are declared-only because IVR never probes them, and a screen
+    /// declared. Three of the four are declared-only because IVR never probes them, and a screen
     /// that showed all five as applied would be rehearsing a fail-closed path that does not run.
     /// </summary>
     [Fact]
@@ -282,9 +282,9 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
             .ReadFromJsonAsync<IntegrationProfileApiResult>())!;
 
         Assert.Equal("STATUS-order-core-down", result.ProfileId);
-        Assert.Equal(5, result.Effects.Count);
+        Assert.Equal(4, result.Effects.Count);
         Assert.Equal(1, result.EnforcedCount);
-        Assert.Equal(4, result.DeclaredOnlyCount);
+        Assert.Equal(3, result.DeclaredOnlyCount);
 
         IntegrationProfileEffectView orderCore = Assert.Single(
             result.Effects,

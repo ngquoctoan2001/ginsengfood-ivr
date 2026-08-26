@@ -20,7 +20,7 @@
     "captured_at": {
       "type": "string",
       "format": "date-time",
-      "description": "When Sales captured the evidence. Must fall inside [confirmation_window_started_at, evaluation time]. Earlier means the evidence describes a different order state; later means a clock or producer defect. Both hold the task. Same freshness rule as the per-line `sellable_status[].captured_at`."
+      "description": "When Sales captured the evidence. Must fall inside [confirmation_window_started_at, evaluation time]. Earlier means the evidence describes a different order state; later means a clock or producer defect. Both hold the task."
     },
     "source_available": {
       "type": "boolean",

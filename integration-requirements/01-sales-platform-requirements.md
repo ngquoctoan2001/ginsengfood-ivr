@@ -1,66 +1,57 @@
-# IR-01 — Sales Platform / Order Core Requirements
+# IR-01 — Module 3 Requirements Register (mã ổn định)
 
-Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-12`
-Owner cung cấp: Sales Platform/Order Core (Java). Consumer: IVR (.NET).
+Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-26`
+Owner: **Module 3** — `ginsengfood-business-platform` (Commerce/Order Core + Sales Extensions + CRM/Customer Identity)
 
-## 1. Chức năng bắt buộc
+> **File này là sổ đăng ký mã, không phải tài liệu bàn giao.**
+> Nội dung chi tiết — endpoint, 22 field, payload mẫu, ACK taxonomy, checklist ký — nằm ở **[06-module-3-api-handover.md](06-module-3-api-handover.md)**. Đó là file gửi cho Module 3 và là **authority** khi hai file lệch nhau.
+>
+> IR-01 tồn tại vì mã `IR-SALES-*` được trích dẫn từ `seed/README.md`, `specs/api/06-error-codes.md`, `specs/data/00-index.md` và `plan/ivr-orther/production-blockers-plan.md`. Đổi hoặc xoá mã ở đây sẽ làm gãy các trích dẫn đó.
 
-| ID | Yêu cầu Sales phải cung cấp | Priority | IVR build trước bằng mock | Trạng thái |
-| --- | --- | --- | --- | --- |
-| `IR-SALES-TASK-01` | Push task vào `POST /v1/ivr/order-confirmation/tasks` cho `GOLDEN_HOUR+ONLINE` và `TWENTY_FOUR_SEVEN+COD`; chỉ khi `ivr_confirmation_required=true` | P0 | intake API + fake producer | `TARGET_DRAFT`; GH partial, COD producer chưa có |
-| `IR-SALES-TASK-02` | Task có `order_version`, callable/window timestamps, policy version, eligibility evidence và call restriction | P0 | schema/validator/fixtures | `TARGET_DRAFT` |
-| `IR-SALES-SPEECH-01` | Cấp `privacy_safe_order_summary`: tên ngắn, mã đơn ngắn, public item names + qty, tổng tiền, vùng giao rút gọn, program name, locale | P0 | renderer/TTS port + fake summaries | `NOT_IMPLEMENTED_UPSTREAM` |
-| `IR-SALES-DIAL-01` | Cấp `dial_token` không lộ raw phone, TTL trong window, preferably one-use/attempt; có resolver tại telephony trust boundary | P0 | token-only persistence + fake resolver | `NOT_IMPLEMENTED_UPSTREAM` |
-| `IR-SALES-CB-01` | Nhận `POST /api/v1/internal/orders/{orderId}/ivr-result-callbacks` với auth/idempotency/correlation/version/result/evidence | P0 | target client + WireMock | `TARGET_DRAFT` |
-| `IR-SALES-CB-02` | ACK: 200 accepted/duplicate/blocked/review; 409 stale/conflict; 422 invalid; 429/5xx retryable | P0 | semantic mapping + retry/DLQ tests | `TARGET_DRAFT` |
-| `IR-SALES-REV-01` | Revalidate idempotency, order id/version/state, program/payment, sellable/recall/lock và evidence trước transition | P0 | contract expectations | `TARGET_DRAFT` |
-| `IR-SALES-TIMEOUT-01` | No-answer callback không hủy ngay; timeout worker revalidate rồi mới `EXPIRED`; technical exception không tính customer attempt | P0 | advisory result/no-transition tests | `TARGET_DRAFT` |
-| `IR-SALES-AUTH-01` | Service auth: issuer/audience/scope/JWKS/TTL; mTLS yes/no; sandbox credential | P0 | mock JWT + auth handler abstraction | `OWNER_DECISION_REQUIRED` |
-| `IR-SALES-OAS-01` | OpenAPI thật, examples, sandbox/base URL, compatibility/deprecation window và consumer-driven contract tests | P0 | pinned target OpenAPI + drift gate | `BLOCKED_EXTERNAL` |
+## 1. Sổ đăng ký
 
-## 2. Program invariant
+| ID | Yêu cầu | Prio | IVR chạy tạm bằng | Trạng thái | Chi tiết |
+| --- | --- | --- | --- | --- | --- |
+| `IR-SALES-TASK-01` | Push task vào `POST /v1/ivr/order-confirmation/tasks` cho `GOLDEN_HOUR+ONLINE` và `TWENTY_FOUR_SEVEN+COD`, chỉ khi `ivr_confirmation_required=true` | P0 | intake API + fake producer | `TARGET_V1_DRAFT` — Giờ Vàng partial, **producer 24/7 COD chưa có** | [IR-06 §3.1–3.3](06-module-3-api-handover.md) |
+| `IR-SALES-TASK-02` | Task mang `order_version`, window timestamps, policy version, eligibility evidence, call restriction | P0 | schema/validator/fixtures | `TARGET_V1_DRAFT` | [IR-06 §3.3](06-module-3-api-handover.md) |
+| `IR-SALES-TASK-03` | **Ma trận `program × payment × order_state → callable` đã ký** + định nghĩa `ivr_confirmation_required` | P0 | ma trận IVR tự đặt (4 tầng enforce) | `OWNER_DECISION_REQUIRED` — ⚠️ nghi ngờ số 1 | [IR-06 §3.2](06-module-3-api-handover.md), [T-01](../docs/contracts/target-v1-closure-pack/T-01-program-matrix.md) |
+| `IR-SALES-SPEECH-01` | `privacy_safe_order_summary`: tên ngắn, mã đơn ngắn, public item name + qty, tổng tiền, vùng giao rút gọn, program, locale | P0 | renderer/TTS port + fake summaries | `NOT_BUILT_UPSTREAM` | [IR-06 §3.5](06-module-3-api-handover.md) |
+| `IR-SALES-DIAL-01` | `dial_token` không lộ raw phone, TTL phủ hết window, resolver tại telephony trust boundary | P0 | token-only persistence + fake resolver | `NOT_BUILT_UPSTREAM` — 4 phương án chưa chọn | [IR-06 §5](06-module-3-api-handover.md), [T-04](../docs/contracts/target-v1-closure-pack/T-04-dial-token.md) |
+| `IR-SALES-CB-01` | Mở `POST /api/v1/internal/orders/{orderId}/ivr-result-callbacks` với auth/idempotency/correlation/version/result/evidence | P0 | target client + WireMock | `NOT_BUILT_UPSTREAM` — ⚠️ **endpoint generic chưa tồn tại**, 24/7 hiện không có lối trả kết quả | [IR-06 §4.1–4.2](06-module-3-api-handover.md) |
+| `IR-SALES-CB-02` | ACK taxonomy: `200` accepted/duplicate/blocked/review · `409` stale/conflict · `422` invalid · `429`/`5xx` retryable | P0 | semantic mapping + retry/DLQ tests | `TARGET_V1_DRAFT` | [IR-06 §4.4](06-module-3-api-handover.md) |
+| `IR-SALES-REV-01` | Revalidate idempotency, order id/version/state, program/payment, **blocker tồn kho/thu hồi (gọi ops)** và evidence trước transition | P0 | contract expectations | `TARGET_V1_DRAFT` — 🚨 xem cảnh báo §2 | [IR-06 §4.5](06-module-3-api-handover.md) |
+| `IR-SALES-TIMEOUT-01` | No-answer không huỷ ngay; timeout worker revalidate rồi mới `EXPIRED`; technical exception không tính customer attempt | P0 | advisory result/no-transition tests | `TARGET_V1_DRAFT` | [IR-06 §4.3](06-module-3-api-handover.md), [T-06](../docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md) |
+| `IR-SALES-RISK-01` | **`OD-15`** — gửi `eligibility_snapshot.trust.risk_evidence_available=true` kèm `risk_flags` đầy đủ, để IVR bỏ qua khách cũ | P1 | luôn gọi (an toàn) | `NOT_BUILT_UPSTREAM` — chỉ **một field** | [IR-06 §6](06-module-3-api-handover.md) |
+| `IR-SALES-CRM-01` | **`DC-01`** — read-contract do-not-call trả `do_not_call` / `opt_out_scope` / `reason` / `effective_at`; Module 3 hợp nhất vào `call_restriction` | P1 | `call_restriction` boolean trong task | `NOT_BUILT_UPSTREAM` | `decisions-log` `DC-01` |
+| `IR-SALES-EVT-01` | **`DC-05`** — publish `ORDER_CONFIRMED` / `CANCELLED` / `EXPIRED` sau Core decision để CRM tự thông báo. IVR **không** gửi (`D-14`) | P2 | không có | `NOT_BUILT_UPSTREAM` | `decisions-log` `DC-05` |
+| `IR-SALES-AUTH-01` | Service auth production: issuer / audience / scope / JWKS / TTL; mTLS yes-no; sandbox credential | P0 | mock JWT + auth abstraction | `OWNER_DECISION_REQUIRED` — Security/Platform, xem [IR-04](04-shared-auth-audit-requirements.md) | [IR-06 §7](06-module-3-api-handover.md) |
+| `IR-SALES-OAS-01` | OpenAPI thật + examples + sandbox URL + compatibility/deprecation window + consumer-driven contract tests | P0 | pinned target OpenAPI + drift gate | `BLOCKED_EXTERNAL` | [T-08](../docs/contracts/target-v1-closure-pack/T-08-openapi-compat-cdc.md) |
 
-| Program | Payment | Điều kiện |
-| --- | --- | --- |
-| `GOLDEN_HOUR` | `ONLINE` | Official Order + callable state + `ivr_confirmation_required=true`; IVR xác nhận ý định, không xác nhận payment |
-| `TWENTY_FOUR_SEVEN` | `COD` | Official Order + callable state + `ivr_confirmation_required=true` |
+## 2. 🚨 `IR-SALES-REV-01` nay gánh một mình
 
-Legacy `24_7` chỉ được normalize tại `CURRENT_COMPAT` boundary. Bất kỳ tổ hợp khác phải fail-closed.
+`OD-17` gỡ `sellable_status[]` khỏi IVR. Trước đó có hai tầng chặn đơn không bán được: IVR chặn trước khi quay số, và Module 3 chặn lúc revalidate. **Nay chỉ còn tầng thứ hai.**
 
-## 3. Target task fields
+Nếu Module 3 bỏ bước revalidate với ops khi nhận callback, không còn gì chặn việc xác nhận một đơn đã bị recall hoặc sale-lock — và IVR sẽ không phát hiện được, vì nó không còn nhìn thấy dữ liệu đó nữa.
 
-Required: `contract_version`, `task_id`, `order_id`, `order_code`, `order_version`, `order_state`, `program_code`, `payment_method_snapshot`, `ivr_confirmation_required`, `confirmation_window_started_at`, `confirmation_window_expires_at`, `attempt_policy_version`, `max_customer_attempts`, `attempt_offsets_seconds`, `phone_ref`, `phone_masked`, `dial_token`, `dial_token_expires_at`, `privacy_safe_order_summary`, `call_restriction`, `eligibility_snapshot`, `evidence_ref`.
+`IR-SALES-REV-01` vì vậy đổi từ "một yêu cầu đúng đắn" thành **một yêu cầu chặn an toàn**.
 
-Headers required: `Authorization`, `Idempotency-Key`, `X-Correlation-Id`.
+## 3. Mã cũ đã bị bỏ
 
-## 4. Speech payload privacy
+| Mã bị trích dẫn ở nơi khác | Thực tế |
+| --- | --- |
+| `IR-SALES-01` (`seed/README.md`) | → `IR-SALES-TASK-01` |
+| `IR-SALES-OC1` (`specs/api/06`, `specs/data/00`) | → `IR-SALES-TASK-02` (`order_version` là stale guard) |
+| `IR-CRM-01` (`seed/README.md`, `specs/architecture/05`) | → `IR-SALES-CRM-01` — CRM nằm **trong** Module 3, không phải owner riêng |
+| `IR-OPS-01…07` | **Không còn** — `OD-17`, xem [IR-02](02-ops-core-requirements.md) |
+| `IR-SALES-*-V1` (`production-blockers-plan.md`) | Hệ mã song song của file kế hoạch đó; không phải mã pack này |
 
-- `delivery_area_short` tuyệt đối không phải full address. **Ràng buộc kiểm được bằng máy:** không bắt đầu bằng chữ số, không chứa dạng `x/y` (số nhà). Đơn vị hành chính có số vẫn hợp lệ (`"Quận 7"`, `"Phường 12"`). Chuỗi không số nhưng vẫn là địa chỉ đường phố sẽ bị IVR chặn ở tầng semantic (`IVR_PII_POLICY_VIOLATION`).
-- `items[].public_name` phải là tên công khai phù hợp để đọc; Sales chịu trách nhiệm normalize.
-- Có limit/collapse policy khi đơn nhiều dòng; IVR không âm thầm bỏ tổng tiền hay đổi nghĩa đơn.
-- Fake fixtures phải có: 1 item, nhiều item/collapse, Unicode/tên khó đọc, total lớn, thiếu field, PII violation.
+## 4. Evidence Module 3 phải nộp để đóng
 
-## 5. Callback target và current compatibility
+1. Ma trận program/payment/callable đã ký + định nghĩa `ivr_confirmation_required` (`IR-SALES-TASK-03`)
+2. OpenAPI endpoint callback generic + bảng ACK (`IR-SALES-CB-01/02`)
+3. Test chứng minh idempotency, stale version, state changed, timeout race (`IR-SALES-REV-01`, `IR-SALES-TIMEOUT-01`)
+4. Sandbox URL + auth metadata + test credential (`IR-SALES-AUTH-01`)
+5. Schema + fixtures `privacy_safe_order_summary` + privacy sign-off (`IR-SALES-SPEECH-01`)
+6. Dial-token threat model + issue/resolve/TTL tests (`IR-SALES-DIAL-01`)
 
-Target path: `POST /api/v1/internal/orders/{orderId}/ivr-result-callbacks`.
-
-Current source chỉ có `POST /api/v1/internal/ivr/golden-hour/callbacks`. IVR được phép có `CurrentGoldenHourCallbackAdapter`, nhưng:
-
-- không coi nó là Target V1;
-- không route 24/7 COD qua đó nếu Sales chưa xác nhận;
-- không dùng raw phone;
-- phải có contract tests tách riêng và feature flag;
-- loại bỏ/disable dễ dàng khi generic endpoint sẵn.
-
-## 6. No-answer và notification
-
-`NO_ANSWER_FINAL` → callback advisory `CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT`. Core timeout worker mới quyết định `EXPIRED` sau revalidation. V1 **không yêu cầu SMS/CRM notification**; IVR không gửi.
-
-## 7. Acceptance evidence cần từ Sales
-
-1. Owner ký program/payment/flag matrix và D-10 policy.
-2. OpenAPI + examples + error/ACK table.
-3. Test chứng minh idempotency, stale version, state changed, blocked stock và timeout race.
-4. Sandbox URL + auth metadata/test credential.
-5. Payload speech privacy review và sample fixtures.
-6. Dial-token threat model + issue/resolve/TTL tests.
+Checklist đầy đủ có ô tick: [IR-06 §10](06-module-3-api-handover.md).

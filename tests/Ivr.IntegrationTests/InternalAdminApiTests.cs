@@ -758,8 +758,6 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             PrivacyPolicyVersion = "privacy-v1",
             EligibilityDecision = eligible ? EligibilityDecisions.Eligible : null,
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
-            SellableStatusJson = "[]",
-            SellableCapturedAt = Now,
             CallRestriction = false,
             NotForQuoteCartDraft = true,
             NoDirectOrderUpdate = true,

@@ -32,7 +32,7 @@ Trạng thái: `TARGET_V1_DRAFT` · Nguồn: `phase-8/12` §4-8,§12; DF-04, D-0
 - `ivr_task_intake_outbox (status, created_at)`, `(published_at)`, `(correlation_id)` — lifecycle/trace scan; MOCK rows stay `HELD_MOCK`.
 
 ## 3. Index race guard / lookup
-- Current lookup: `order_state`, `program_type`, `official_order_id`, `task_id`, `correlation_id`; stale guard hiện chạy bằng Core recheck state/COD/sellable.
+- Current lookup: `order_state`, `program_type`, `official_order_id`, `task_id`, `correlation_id`; stale guard hiện chạy bằng Core recheck state/COD.
 - Target race guard: required/indexed `order_version_snapshot` / `order_version_seen_by_ivr`; current-compat records are distinguishable and cannot weaken target validation.
 - `correlation_id` trên tasks/results/technical_exceptions/admin_actions (trace).
 - `official_order_id`, `task_id` trên các bảng con.

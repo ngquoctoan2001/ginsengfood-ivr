@@ -136,7 +136,6 @@ describe("UT-UI-SEED-PROD-03 seed and mock guards", () => {
     expect(warning).toContain("SIM_GATEWAY");
     for (const dependency of [
       "ORDER_CORE",
-      "OPS_SELLABLE_GATE",
       "CRM_DO_NOT_CALL",
       "EVIDENCE_REGISTRY",
     ]) {

@@ -162,17 +162,6 @@ const DETAIL_PAYLOAD = {
   eligibility_decision: "ELIGIBLE_FOR_IVR",
   blocked_reasons: ["DO_NOT_CALL"],
   call_restriction: false,
-  sellable_status: [
-    {
-      sku_id: "SKU-E2E-01",
-      batch_id: "BATCH-E2E-01",
-      decision: "BLOCKED",
-      recall_hold: false,
-      sale_lock: true,
-      quality_hold: false,
-      captured_at: "2026-08-15T01:00:00Z",
-    },
-  ],
   voice_region: "South",
   max_attempts: 2,
   attempt_policy_code: "mock-lab-v1",
@@ -521,11 +510,6 @@ describe("E2E-UI-DETAIL-02 call detail", () => {
     expect(html).toContain("Miền Nam");
 
     // Result plus its advisory framing.
-    // W-0101 — the per-line sellable snapshot `specs/ui/03` puts in the trace,
-    // shown as Order Core captured it.
-    expect(html).toContain("SKU-E2E-01");
-    expect(html).toContain("BATCH-E2E-01");
-    expect(html).toContain("Khoá bán");
     expect(html).toContain("IVR_CONFIRMED");
     expect(html).toContain("CORE_REVALIDATE_AND_CONTINUE");
     expect(html).toContain("Order Core mới quyết định trạng thái đơn");

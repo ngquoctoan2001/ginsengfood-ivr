@@ -459,11 +459,6 @@ public sealed class TaskIntakeService(
             PiiGuard.EnsureSafeText(JsonSerializer.Serialize(source.Risk_flags));
         }
 
-        if (source.Sellable_status is not null)
-        {
-            PiiGuard.EnsureSafeText(JsonSerializer.Serialize(source.Sellable_status));
-        }
-
         PiiGuard.EnsureSafeText(JsonSerializer.Serialize(source.Eligibility_snapshot));
     }
 
@@ -566,19 +561,11 @@ public sealed class TaskIntakeService(
         string? riskFlagsJson = source.Risk_flags is null
             ? null
             : JsonSerializer.Serialize(source.Risk_flags);
-        string? sellableJson = source.Sellable_status is null
-            ? null
-            : JsonSerializer.Serialize(source.Sellable_status);
         PiiGuard.EnsureSafeText(summaryJson);
         PiiGuard.EnsureSafeText(eligibilityJson);
         if (riskFlagsJson is not null)
         {
             PiiGuard.EnsureSafeText(riskFlagsJson);
-        }
-
-        if (sellableJson is not null)
-        {
-            PiiGuard.EnsureSafeText(sellableJson);
         }
 
         var task = new ConfirmationTaskEntity
@@ -617,10 +604,6 @@ public sealed class TaskIntakeService(
             EligibilityDecision = null,
             EligibilitySnapshotJson = eligibilityJson,
             EligibilitySnapshotHash = eligibilitySnapshotHash,
-            SellableStatusJson = sellableJson,
-            SellableCapturedAt = source.Sellable_status is { Count: > 0 }
-                ? source.Sellable_status.Max(line => line.Captured_at)
-                : null,
             CallRestriction = source.Call_restriction,
             NotForQuoteCartDraft = true,
             NoDirectOrderUpdate = true,

@@ -71,7 +71,6 @@ UI must show provider/mode, mock-vs-real evidence, policy version, callback sema
 | ID | Prompt | State |
 | --- | --- | --- |
 | P4-1 | [Sales wiring](phase-4-integration/P4-1-order-core-wiring.md) | build behind fakes now; real blocked on Sales contract/auth |
-| P4-2 | [sellable contract](phase-4-integration/P4-2-ops-sellable-gate.md) | Sales remains orchestration owner |
 | P4-3 | [CRM eligibility](phase-4-integration/P4-3-crm-eligibility-events.md) | mock/provider; fail-closed |
 | P4-4 | [shared auth/audit](phase-4-integration/P4-4-shared-auth-audit.md) | mock JWT now; prod JWT/mTLS pending |
 | P4-5 | [post-decision notification](phase-4-integration/P4-5-post-decision-notification.md) | `DEFERRED_TARGET`: disabled/no-op, prove no delivery |

@@ -585,55 +585,6 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class SellableStatusLine
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("sku_id")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public required string Sku_id { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("batch_id")]
-        public string? Batch_id { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("decision")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<SellableStatusLineDecision>))]
-        public required SellableStatusLineDecision Decision { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("recall_hold")]
-        public bool? Recall_hold { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("sale_lock")]
-        public bool? Sale_lock { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("quality_hold")]
-        public bool? Quality_hold { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("stock_available")]
-        public bool? Stock_available { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("batch_released")]
-        public bool? Batch_released { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("trace_ready")]
-        public bool? Trace_ready { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("captured_at")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public required System.DateTimeOffset Captured_at { get; init; }
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class IvrConfirmationTaskV1 : Anonymous
     {
 
@@ -773,12 +724,6 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
 
         [System.Text.Json.Serialization.JsonPropertyName("allowed_script_variables")]
         public object? Allowed_script_variables { get; init; }
-
-        /// <summary>
-        /// Per-line SKU/batch snapshot; Order Core fan-out (DO-02, DO-CORR-1)
-        /// </summary>
-        [System.Text.Json.Serialization.JsonPropertyName("sellable_status")]
-        public System.Collections.Generic.ICollection<SellableStatusLine>? Sellable_status { get; init; }
 
         /// <summary>
         /// Voice-call restriction already resolved by Sales; true blocks dispatch.
@@ -2129,16 +2074,6 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
 
         [System.Text.Json.Serialization.JsonPropertyName("call_restriction")]
         public required bool Call_restriction { get; init; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("sellable_captured_at")]
-        public System.DateTimeOffset? Sellable_captured_at { get; init; }
-
-        /// <summary>
-        /// Per-line snapshot captured at intake; never re-evaluated by IVR (DO-02).
-        /// </summary>
-        [System.Text.Json.Serialization.JsonPropertyName("sellable_status")]
-        [System.ComponentModel.DataAnnotations.Required]
-        public required System.Collections.Generic.ICollection<SellableStatusLine> Sellable_status { get; init; }
 
         /// <summary>
         /// W-0106. Region the stored delivery area maps to under the 34 provincial units of Nghi quyet 202/2025/QH15, and therefore which regional voice this order routes to. Absent when the delivery area names no recognisable province.
@@ -3674,28 +3609,6 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonStringEnumMemberName(@"vi-VN")]
         [System.Runtime.Serialization.EnumMember(Value = @"vi-VN")]
         ViVN = 0,
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum SellableStatusLineDecision
-    {
-
-        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"SELLABLE")]
-        [System.Runtime.Serialization.EnumMember(Value = @"SELLABLE")]
-        SELLABLE = 0,
-
-        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"NOT_SELLABLE")]
-        [System.Runtime.Serialization.EnumMember(Value = @"NOT_SELLABLE")]
-        NOT_SELLABLE = 1,
-
-        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"BLOCKED")]
-        [System.Runtime.Serialization.EnumMember(Value = @"BLOCKED")]
-        BLOCKED = 2,
-
-        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"UNKNOWN")]
-        [System.Runtime.Serialization.EnumMember(Value = @"UNKNOWN")]
-        UNKNOWN = 3,
 
     }
 

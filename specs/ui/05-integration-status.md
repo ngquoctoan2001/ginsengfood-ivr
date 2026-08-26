@@ -9,9 +9,8 @@ Theo dõi health các dependency để hiểu tại sao IVR fail-closed/hold.
 ```
 [ Dependency health cards:
    Order Core: up/down (task push, callback intake)
-   Ops Sellable Gate: up / ready_503 / down  (/health/ready)
    SIM Gateway: MOCK_up / down  (adapter_mode)
-   CRM do-not-call: up/down  (DC-01 source; IR-CRM-01 rich fields)
+   CRM do-not-call: up/down  (DC-01 source; IR-SALES-CRM-01 rich fields)
    Evidence Registry: up/down
  ]
 [ Effect note: khi dep down -> hành vi fail-closed (không dispatch / block / technical) ]

@@ -383,14 +383,6 @@ public sealed class AdminConfigReadService(
             Observed: callback is { Enabled: true } && circuit is not null,
             callback is { Enabled: true } && circuit is not null ? observedAt : null),
         new DependencyStatusView(
-            "OPS_SELLABLE_GATE",
-            "NOT_WIRED",
-            "No ops health probe; /health/ready has no dependency signal until W-0040.",
-            null,
-            "ready=503 or down means fail-closed: no dispatch and no confirm (DO-06).",
-            Observed: false,
-            null),
-        new DependencyStatusView(
             "CRM_DO_NOT_CALL",
             "NOT_WIRED",
             "Voice restriction and trust evidence arrive inside the Sales task (W-0031); "

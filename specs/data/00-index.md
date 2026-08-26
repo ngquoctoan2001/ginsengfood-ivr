@@ -8,12 +8,11 @@ Nguồn: `phase-8/02` §11 (data allowed/prohibited), `/04`,`/07`,`/08`,`/12`; `
 | --- | --- |
 | [01-data-ownership.md](01-data-ownership.md) | Nhóm dữ liệu → owner → IVR read/snapshot/write/none |
 | [02-mapping-sales-platform.md](02-mapping-sales-platform.md) | Field IVR ↔ Order Core/Sales, chiều, resolver |
-| [03-mapping-ops-core.md](03-mapping-ops-core.md) | `sellable_status[]` ↔ ops sellable gate; sale-lock/recall trace |
 | [04-missing-data.md](04-missing-data.md) | `GAP` dữ liệu chưa có nguồn + priority + owner |
 | [05-pii-policy.md](05-pii-policy.md) | phone_ref/masked/token; cấm raw phone/full profile; recording OFF |
 
 ## 2. Nguyên tắc dữ liệu (P0)
-- IVR chỉ giữ **snapshot / ref**; version snapshot là target/nullable IR-SALES-OC1. **KHÔNG** là source-of-truth của order state, payment, inventory, recall, customer profile (phase-8/00 §5; MASTER-01).
+- IVR chỉ giữ **snapshot / ref**; version snapshot là target/nullable IR-SALES-TASK-02. **KHÔNG** là source-of-truth của order state, payment, inventory, recall, customer profile (phase-8/00 §5; MASTER-01).
 - Order state không nằm trong DB IVR như chân lý — current dùng `order_state`(đục)+COD gate để revalidate; `order_version` chỉ bật khi OC1 expose.
 - Blocker realtime do **Order Core** gọi ops (DO-03); IVR consume snapshot + kết quả revalidate.
 - Trace-id theo MASTER-03: `order_code`, `ivr_call_id`(≈`ivr_call_job_id`), `ivr_call_result_event_id`(≈`ivr_call_result_id`), `correlation_id`, `idempotency_key`; blocker evidence kèm `sale_lock_id`/`recall_case_id` (DO-07).

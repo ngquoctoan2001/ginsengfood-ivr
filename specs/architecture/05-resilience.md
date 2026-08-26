@@ -7,9 +7,8 @@ Nguyên tắc tối cao: **fail-closed** — source-of-truth/policy/ops không k
 | Hệ thống down | Before attempt | During attempt | During callback |
 | --- | --- | --- | --- |
 | **Order Core** | Không tạo task mới | Tiếp tục call đã dispatch an toàn; callback retry bounded | Retry bounded / admin review |
-| **Ops Sellable Gate** (Core gọi) | **Không dispatch** (fail-closed DO-06) | Nếu call đã có result, Core revalidate trước khi hành động | Core **block** nếu không revalidate được |
 | **Trust/Contact resolver** | Hold task / review | Không đổi contact giữa cuộc gọi | Core quyết với source hiện có |
-| **CRM do-not-call** (DC-01) | **Không dispatch** nếu không xác định opt-out | Không đổi giữa cuộc gọi | Core quyết; IR-CRM-01 bổ sung rich fields |
+| **CRM do-not-call** (DC-01) | **Không dispatch** nếu không xác định opt-out | Không đổi giữa cuộc gọi | Core quyết; IR-SALES-CRM-01 bổ sung rich fields |
 | **Evidence Registry** | Không final-callback nếu thiếu evidence | Technical exception nếu ghi evidence fail | Hold / admin review |
 | **SIM Gateway** | `IVR_TECHNICAL_EXCEPTION` | Technical exception, **không** no-answer (P0-IVR-004) | N/A |
 | **Admin Web** | Không ảnh hưởng vận hành | Không ảnh hưởng | Không ảnh hưởng |
@@ -25,19 +24,17 @@ Nguyên tắc tối cao: **fail-closed** — source-of-truth/policy/ops không k
 - Không retry vô hạn → hết retry: admin review.
 
 ## 4. Circuit breaker
-- **Ops sellable gate** (phía Order Core): breaker mở khi lỗi liên tục → **fail-closed** (không dispatch), không "tạm bỏ qua blocker".
 - **Core callback** (phía IVR): breaker mở → hold callback + admin review; không duplicate transition.
 - **SIM channel**: `fail_count≥3/10′` → auto-disable + alert (docx §10).
 
 ## 5. Caching — quy tắc (P0)
 | Được cache (TTL ngắn) | KHÔNG cache |
 | --- | --- |
-| Script template/version (approved) | ❌ **Sellable/Sale-Lock/Recall blocker** — phải realtime lúc revalidate |
+| Script template/version (approved) | ❌ Order state và blocker tồn kho — Order Core kiểm realtime lúc revalidate |
 | Program policy config (window/spacing D-10) | ❌ Order state (revalidate ở Core) |
 | Permission/role lookup (DF-01) | ❌ do-not-call/opt-out ở thời điểm dispatch |
 | `phone_validation_status` (trong task) | ❌ availability tồn kho critical |
 
-- ⚠️ **Snapshot `sellable_status[]` trong task KHÔNG phải cache** — là ảnh chụp point-in-time để pre-dispatch block; **chân lý = Core revalidate realtime** (DO-02/DO-03). Không dùng snapshot thay revalidate.
 
 ## 6. Idempotency là lớp chống duplicate
 - Task/callback duplicate → trả kết quả cũ (DF-04); webhook ops dedupe `EventId` (DO-04).

@@ -537,7 +537,6 @@ public sealed class AnalyticsPipelineTests(PostgresPersistenceFixture fixture)
             EvidencePolicyVersion = "evidence-v1",
             PrivacyPolicyVersion = "privacy-v1",
             EligibilityDecision = "ELIGIBLE_FOR_IVR",
-            SellableStatusJson = "[]",
             CallRestriction = false,
             NotForQuoteCartDraft = true,
             NoDirectOrderUpdate = true,

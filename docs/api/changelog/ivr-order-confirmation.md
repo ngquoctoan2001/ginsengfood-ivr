@@ -1,4 +1,4 @@
-# API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.19
+# API Changelog 1.0.0-draft.2 vs. 1.0.0-draft.20
 
 
 ## API Changes
@@ -129,3 +129,13 @@
 
 ### GET /sim-channels
 -  endpoint added
+
+
+### POST /tasks
+- :warning: removed the request property `sellable_status`
+
+
+
+
+## Components
+-  removed the schema `SellableStatusLine`

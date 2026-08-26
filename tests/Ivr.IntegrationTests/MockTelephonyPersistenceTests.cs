@@ -511,7 +511,6 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             PrivacyPolicyVersion = "privacy-v1",
             EligibilityDecision = "ELIGIBLE_FOR_IVR",
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
-            SellableStatusJson = "[]",
             CallRestriction = false,
             CreatedAt = Now,
             ExpiresAt = deadline,

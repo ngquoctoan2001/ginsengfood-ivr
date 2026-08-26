@@ -228,7 +228,7 @@ function splitList(raw: string): readonly string[] {
  */
 /**
  * Several property names are reused across unrelated schemas — `decision` names
- * both the per-line sellable verdict and the eligibility outcome, `status` names
+ * the eligibility outcome and the script outcome, `status` names
  * data freshness and the admin-action result. So an owner maps to the set of
  * families that could answer for it, and the enum is covered when any one of
  * them holds every value.
@@ -239,7 +239,7 @@ function splitList(raw: string): readonly string[] {
  */
 const COVERED: Readonly<Record<string, readonly (keyof typeof enums)[]>> = {
   ResultType: ["resultType"],
-  decision: ["sellableDecision", "eligibilityDecision"],
+  decision: ["eligibilityDecision"],
   payment_method_snapshot: ["paymentMethod"],
   state: ["dependencyState"],
   status: ["freshnessStatus", "adminActionStatus", "scriptStatus"],

@@ -513,7 +513,6 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
             PrivacyPolicyVersion = "privacy-v1",
             EligibilityDecision = "ELIGIBLE_FOR_IVR",
             EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
-            SellableStatusJson = "[]",
             CreatedAt = Now,
             ExpiresAt = deadline,
             AcceptedAt = Now,

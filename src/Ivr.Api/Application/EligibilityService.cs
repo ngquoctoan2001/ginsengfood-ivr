@@ -208,27 +208,6 @@ public sealed class EligibilityService(
         DateTimeOffset now,
         bool returningCustomerSkipEnabled)
     {
-        SellableStatusLine[]? sourceLines = DeserializeOrNull<SellableStatusLine[]>(
-            stored.Task.SellableStatusJson);
-        EligibilitySellableLine[]? lines = sourceLines?.Select(line =>
-            new EligibilitySellableLine(
-                line.Decision switch
-                {
-                    SellableStatusLineDecision.SELLABLE =>
-                        EligibilitySellableDecision.Sellable,
-                    SellableStatusLineDecision.NOT_SELLABLE =>
-                        EligibilitySellableDecision.NotSellable,
-                    SellableStatusLineDecision.BLOCKED =>
-                        EligibilitySellableDecision.Blocked,
-                    _ => EligibilitySellableDecision.Unknown,
-                },
-                line.Recall_hold,
-                line.Sale_lock,
-                line.Quality_hold,
-                line.Stock_available,
-                line.Batch_released,
-                line.Trace_ready,
-                line.Captured_at)).ToArray();
         string[] riskFlags = DeserializeOrNull<string[]>(stored.Task.RiskFlagsJson)
             ?? (string.IsNullOrWhiteSpace(stored.Task.RiskFlagsJson)
                 ? []
@@ -242,7 +221,6 @@ public sealed class EligibilityService(
             ReadEligibilityEvidence(
                 stored.Task.EligibilitySnapshotJson,
                 stored.Task.EligibilitySnapshotHash),
-            lines,
             ReadVoiceContactEvidence(
                 stored.Task.EligibilitySnapshotJson,
                 stored.Task.CallRestriction),

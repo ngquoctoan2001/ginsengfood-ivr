@@ -677,8 +677,8 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
     }
 
     /// <summary>
-    /// ARCH-05 §1, the four "before attempt" rows: Ops Sellable Gate, CRM do-not-call, Evidence
-    /// Registry, and the contact half of Trust/Contact resolver. Each promises the same thing —
+    /// ARCH-05 §1, the "before attempt" rows: CRM do-not-call, Evidence Registry, and the
+    /// contact half of Trust/Contact resolver. Each promises the same thing —
     /// the source cannot answer, so IVR does not dispatch.
     /// <para>
     /// Every test above proves the first half: the decision is a hold, and no attempt row exists
@@ -698,7 +698,6 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
     /// </summary>
     [Theory]
     [Trait("TestId", "IT-ELIG-NODISPATCH-15")]
-    [InlineData("ops-sellable-gate", EligibilityReasonCodes.SellableSnapshotMissing)]
     [InlineData("crm-do-not-call", EligibilityReasonCodes.PhoneCallRestrictionSourceUnavailable)]
     [InlineData("evidence-registry", EligibilityReasonCodes.EvidenceMissing)]
     [InlineData("eligibility-source", EligibilityReasonCodes.EligibilitySourceUnavailable)]
@@ -795,12 +794,6 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         string jobId = $"JOB-{taskId}";
         return row switch
         {
-            // The gate answers "may this be sold". No snapshot at all is the shape an outage takes
-            // on the wire: Sales could not read it, so it sent nothing.
-            "ops-sellable-gate" => SeedPendingTaskAsync(
-                factory, taskId, jobId, "CREATED", "READY_FOR_ELIGIBILITY",
-                sellableStatusJson: "[]"),
-
             // The do-not-call resolver saying, explicitly, that it could not answer. Not knowing
             // whether a number is on the list is not permission to dial it.
             "crm-do-not-call" => SeedPendingTaskAsync(
@@ -874,7 +867,6 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         // Nullable since OD-15: an explicit false is a Sales veto on the skip, so the default has
         // to mean "Sales said nothing" rather than silently vetoing every seeded task.
         bool? trustedSkipAllowed = null,
-        string? sellableStatusJson = null,
         string? evidenceRefsJson = null,
         string? riskFlagsJson = null)
     {
@@ -921,22 +913,6 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
                 ? null
                 : DeterministicSnapshotHasher.Compute(
                     eligibilitySnapshotJson ?? EligibleSnapshotJson),
-            SellableStatusJson = sellableStatusJson ?? JsonSerializer.Serialize(new[]
-            {
-                new SellableStatusLine
-                {
-                    Sku_id = "SKU-CAP-05",
-                    Decision = SellableStatusLineDecision.SELLABLE,
-                    Recall_hold = false,
-                    Sale_lock = false,
-                    Quality_hold = false,
-                    Stock_available = true,
-                    Batch_released = true,
-                    Trace_ready = true,
-                    Captured_at = Now,
-                },
-            }),
-            SellableCapturedAt = Now,
             CallRestriction = callRestriction,
             NotForQuoteCartDraft = true,
             NoDirectOrderUpdate = true,

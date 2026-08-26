@@ -119,7 +119,6 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
         foreach (string dependency in new[]
         {
             "ORDER_CORE",
-            "OPS_SELLABLE_GATE",
             "CRM_DO_NOT_CALL",
             "EVIDENCE_REGISTRY",
         })
@@ -403,7 +402,6 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
             EvidencePolicyVersion = "evidence-v1",
             PrivacyPolicyVersion = "privacy-v1",
             EligibilityDecision = "ELIGIBLE_FOR_IVR",
-            SellableStatusJson = "[]",
             CallRestriction = false,
             NotForQuoteCartDraft = true,
             NoDirectOrderUpdate = true,

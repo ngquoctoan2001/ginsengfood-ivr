@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.19
+  version: 1.0.0-draft.20
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -514,10 +514,9 @@ paths:
         Applies what IVR actually controls and reports the rest as declared
         only. SIM_GATEWAY is enforced by enabling or disabling channels through
         the ordinary admin path, so the fail-closed re-enable check still holds.
-        ORDER_CORE, OPS_SELLABLE_GATE, CRM_DO_NOT_CALL and EVIDENCE_REGISTRY are
-        never probed by IVR and report NOT_WIRED, so a profile cannot switch
-        them; the response says which is which rather than implying five
-        dependencies moved.
+        ORDER_CORE, CRM_DO_NOT_CALL and EVIDENCE_REGISTRY are never probed by
+        IVR and report NOT_WIRED, so a profile cannot switch them; the response
+        says which is which rather than implying four dependencies moved.
       operationId: applyDevIntegrationProfile
       security: [ { bearerAuth: [] } ]
       parameters:
@@ -1474,20 +1473,6 @@ components:
         pronunciation_hints:
           type: object
           additionalProperties: { type: string }
-    SellableStatusLine:
-      type: object
-      required: [sku_id, decision, captured_at]
-      properties:
-        sku_id: { type: string }
-        batch_id: { type: string }
-        decision: { type: string, enum: [SELLABLE, NOT_SELLABLE, BLOCKED, UNKNOWN] }
-        recall_hold: { type: boolean }
-        sale_lock: { type: boolean }
-        quality_hold: { type: boolean }
-        stock_available: { type: boolean }
-        batch_released: { type: boolean }
-        trace_ready: { type: boolean }
-        captured_at: { type: string, format: date-time }
     IvrConfirmationTaskV1:
       type: object
       additionalProperties: false
@@ -1586,10 +1571,6 @@ components:
         allowed_script_variables:
           type: object
           additionalProperties: true
-        sellable_status:
-          type: array
-          description: Per-line SKU/batch snapshot; Order Core fan-out (DO-02, DO-CORR-1)
-          items: { $ref: '#/components/schemas/SellableStatusLine' }
         call_restriction:
           type: boolean
           description: Voice-call restriction already resolved by Sales; true blocks dispatch.
@@ -2237,7 +2218,6 @@ components:
         - eligibility_decision
         - blocked_reasons
         - call_restriction
-        - sellable_status
         - max_attempts
         - attempt_policy_code
         - script_version
@@ -2273,11 +2253,6 @@ components:
           type: array
           items: { type: string }
         call_restriction: { type: boolean }
-        sellable_captured_at: { type: string, format: date-time }
-        sellable_status:
-          type: array
-          description: Per-line snapshot captured at intake; never re-evaluated by IVR (DO-02).
-          items: { $ref: '#/components/schemas/SellableStatusLine' }
         voice_region:
           type: string
           enum: [North, Central, South]

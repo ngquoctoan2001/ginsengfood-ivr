@@ -49,8 +49,6 @@ public sealed class ConfirmationTaskEntity : RetainedEntity
     public string? EligibilitySnapshotJson { get; set; }
     public string? EligibilitySnapshotHash { get; set; }
     public string? BlockedReasonsJson { get; set; }
-    public string? SellableStatusJson { get; set; }
-    public DateTimeOffset? SellableCapturedAt { get; set; }
     public bool CallRestriction { get; set; }
     public bool NotForQuoteCartDraft { get; set; } = true;
     public bool NoDirectOrderUpdate { get; set; } = true;

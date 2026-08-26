@@ -98,7 +98,7 @@ isolated behind its own adapter and must have a reviewed sunset/disable path.
 
 ### Ops
 
-- expose/revalidate sellable, recall and sale-lock truth to Order Core;
+- revalidate inventory, recall and sale-lock truth for Order Core at callback time (D-06);
 - return stable fail-closed codes; no direct order transition is owned by IVR.
 
 ### CRM

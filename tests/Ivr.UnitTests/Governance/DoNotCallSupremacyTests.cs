@@ -108,17 +108,6 @@ internal static class DoNotCallSnapshotFactory
                 true,
                 [],
                 SnapshotHash),
-            [
-                new EligibilitySellableLine(
-                    EligibilitySellableDecision.Sellable,
-                    false,
-                    false,
-                    false,
-                    true,
-                    true,
-                    true,
-                    Now.AddMinutes(-1)),
-            ],
             new VoiceContactEvidence(phoneCallRestriction, true, "sales-voice-v1"),
             "VALID",
             Now.AddMinutes(3),

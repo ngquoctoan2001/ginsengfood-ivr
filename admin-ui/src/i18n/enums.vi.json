@@ -172,19 +172,7 @@
     "PENDING_CRM": "Đang chờ CRM tiếp nhận",
     "ACCEPTED_BY_CRM": "CRM đã tiếp nhận"
   },
-  "sellableDecision": {
-    "SELLABLE": "Bán được",
-    "NOT_SELLABLE": "Không bán được",
-    "BLOCKED": "Bị chặn",
-    "UNKNOWN": "Chưa xác định"
-  },
   "blockedReason": {
-    "RECALL_HOLD_ACTIVE": "Đang giữ do thu hồi sản phẩm",
-    "SALE_LOCK_ACTIVE": "Đang khoá bán",
-    "QUALITY_HOLD_ACTIVE": "Đang giữ do chất lượng",
-    "SELLABLE_SNAPSHOT_MISSING": "Thiếu ảnh chụp khả năng bán",
-    "SELLABLE_SNAPSHOT_STALE": "Ảnh chụp khả năng bán đã cũ",
-    "SELLABLE_STATUS_UNKNOWN": "Chưa rõ khả năng bán",
     "TRUSTED_CUSTOMER_SKIP": "Bỏ qua vì khách quen tin cậy",
     "BLOCKED_BY_CORE": "Order Core chặn khi kiểm lại"
   },
@@ -246,7 +234,6 @@
     "SIM_GATEWAY": "Cổng SIM",
     "DIAL_KILL_SWITCH": "Kill switch quay số",
     "ORDER_CORE": "Order Core",
-    "OPS_SELLABLE_GATE": "Cổng kiểm khả năng bán (Ops)",
     "CRM_DO_NOT_CALL": "CRM — danh sách chặn gọi",
     "EVIDENCE_REGISTRY": "Kho bằng chứng"
   },
@@ -254,12 +241,10 @@
     "SIM_GATEWAY": "SIM lỗi được ghi là IVR_TECHNICAL_EXCEPTION, không bao giờ ghi thành không nghe máy (DT-02).",
     "DIAL_KILL_SWITCH": "Khi đang bật, không cuộc gọi nào được quay số ở bất kỳ chế độ nào.",
     "ORDER_CORE": "Order Core mất kết nối ⇒ không nhận task mới; callback chỉ gửi lại có giới hạn rồi chuyển chờ quản trị duyệt.",
-    "OPS_SELLABLE_GATE": "Trả 503 hoặc mất kết nối ⇒ fail-closed: không quay số và không xác nhận (DO-06).",
     "CRM_DO_NOT_CALL": "CRM mất kết nối ⇒ không xác định được khách đã chặn gọi hay chưa, nên không quay số (DC-01).",
     "EVIDENCE_REGISTRY": "Kho bằng chứng mất kết nối ⇒ không gửi được callback cuối, phiếu bị giữ lại."
   },
   "dependencyDetail": {
-    "OPS_SELLABLE_GATE": "Chưa có thăm dò health của Ops; /health/ready không mang tín hiệu dependency cho tới W-0040.",
     "CRM_DO_NOT_CALL": "Thông tin chặn gọi và mức tin cậy đi kèm trong task từ Sales (W-0031); IVR không giữ client CRM và không thăm dò gì (UT-ARCH-NO-CRM-EGRESS-06).",
     "EVIDENCE_REGISTRY": "Bằng chứng được ghi tại chỗ; chưa có thăm dò kho bên ngoài.",
     "DIAL_KILL_SWITCH_ENGAGED": "Kill switch đang bật; đã chặn quay số",

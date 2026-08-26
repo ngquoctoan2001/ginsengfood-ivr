@@ -2066,14 +2066,6 @@ namespace Ivr.Infrastructure.Persistence.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("risk_flags_json");
 
-                    b.Property<DateTimeOffset?>("SellableCapturedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sellable_captured_at");
-
-                    b.Property<string>("SellableStatusJson")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("sellable_status_json");
-
                     b.Property<string>("TaskId")
                         .IsRequired()
                         .HasColumnType("text")

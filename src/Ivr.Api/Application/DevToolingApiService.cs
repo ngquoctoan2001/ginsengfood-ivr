@@ -254,8 +254,6 @@ public sealed class DevToolingApiService(
             // and a screen that looks like one.
             NotWired("ORDER_CORE", profile.OrderCore,
                 "Callback delivery is configuration; IVR runs no Order Core probe (W-0040)."),
-            NotWired("OPS_SELLABLE_GATE", profile.OpsSellableGate,
-                "No ops health probe exists; /health/ready carries no dependency signal."),
             NotWired("CRM_DO_NOT_CALL", profile.CrmDoNotCall,
                 "Voice restriction arrives inside the Sales task; IVR holds no CRM client."),
             NotWired("EVIDENCE_REGISTRY", profile.EvidenceRegistry,
