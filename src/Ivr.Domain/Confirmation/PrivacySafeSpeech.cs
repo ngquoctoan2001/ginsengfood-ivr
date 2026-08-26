@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
@@ -136,19 +137,72 @@ public sealed record ShortDeliveryArea
         return false;
     }
 
-    private static string RemoveDiacritics(string value)
+    /// <summary>
+    /// Folds Vietnamese diacritics for the address-marker scan.
+    /// <para>
+    /// This deliberately stays a separate copy from
+    /// <see cref="Ivr.Domain.Speech.VietnameseTextNormalizer"/>: that one is a lookup helper and
+    /// this one is a privacy guard, so widening place-name matching must not be able to loosen
+    /// the address check as a side effect. <c>UT-VOICE-REGION-09</c> pins the two against a
+    /// shared corpus.
+    /// </para>
+    /// <para>
+    /// It used to call <c>Normalize(NormalizationForm.FormD)</c>, which is a silent no-op in the
+    /// deployed chiseled runtime (no ICU, invariant globalization). The fold then returned its
+    /// input untouched, so the <c>"thanh pho "</c> exemption below never matched real Vietnamese
+    /// input and this guard rejected every "thành phố …" delivery area — the six centrally
+    /// governed cities — while passing on any developer machine. Restoring the intended
+    /// behaviour is a bug fix, not a policy change: the accepted set is exactly what the
+    /// with-ICU behaviour and the existing tests already describe.
+    /// </para>
+    /// <para>
+    /// The table below is a deliberate duplicate of the one in the normalizer. Sharing it would
+    /// re-merge the two folds that the class note above keeps apart; duplicating a fixed Unicode
+    /// table is the cheaper risk, and <c>UT-VOICE-REGION-09</c> fails if the two ever disagree.
+    /// </para>
+    /// </summary>
+    private const string AccentedLetters =
+        "àáảãạăằắẳẵặâầấẩẫậ" + "èéẻẽẹêềếểễệ" + "ìíỉĩị"
+        + "òóỏõọôồốổỗộơờớởỡợ" + "ùúủũụưừứửữự" + "ỳýỷỹỵ" + "đ"
+        + "ÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬ" + "ÈÉẺẼẸÊỀẾỂỄỆ" + "ÌÍỈĨỊ"
+        + "ÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢ" + "ÙÚỦŨỤƯỪỨỬỮỰ" + "ỲÝỶỸỴ" + "Đ";
+
+    private const string FoldedLetters =
+        "aaaaaaaaaaaaaaaaa" + "eeeeeeeeeee" + "iiiii"
+        + "ooooooooooooooooo" + "uuuuuuuuuuu" + "yyyyy" + "d"
+        + "AAAAAAAAAAAAAAAAA" + "EEEEEEEEEEE" + "IIIII"
+        + "OOOOOOOOOOOOOOOOO" + "UUUUUUUUUUU" + "YYYYY" + "D";
+
+    private static readonly FrozenDictionary<char, char> DiacriticFolds = BuildFolds();
+
+    private static FrozenDictionary<char, char> BuildFolds()
     {
-        string normalized = value.Normalize(NormalizationForm.FormD);
-        StringBuilder result = new(normalized.Length);
-        foreach (char character in normalized)
+        if (AccentedLetters.Length != FoldedLetters.Length)
         {
-            if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
-            {
-                result.Append(character == 'đ' ? 'd' : character == 'Đ' ? 'D' : character);
-            }
+            throw new InvalidOperationException(
+                "The delivery-area fold table is misaligned: the accented and folded strings differ in length.");
         }
 
-        return result.ToString().Normalize(NormalizationForm.FormC);
+        Dictionary<char, char> folds = new(AccentedLetters.Length);
+        for (int index = 0; index < AccentedLetters.Length; index++)
+        {
+            folds[AccentedLetters[index]] = FoldedLetters[index];
+        }
+
+        return folds.ToFrozenDictionary();
+    }
+
+    private static string RemoveDiacritics(string value)
+    {
+        StringBuilder result = new(value.Length);
+        foreach (char character in value)
+        {
+            result.Append(DiacriticFolds.TryGetValue(character, out char folded)
+                ? folded
+                : character);
+        }
+
+        return result.ToString();
     }
 }
 

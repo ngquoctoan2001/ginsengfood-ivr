@@ -734,18 +734,34 @@ có một hay ba giọng — nhưng nó **không phải** rollback về đúng h
 - Traceability: **372 tagged test** (từ 343); `UT-TRACE-01` xanh.
 - Không migration, không đổi OpenAPI, không đổi `TemplateHash`.
 
-### Giai đoạn 4 — Lab assets + gọi thật qua MicroSIP 🟡 **ĐƯỜNG ỐNG XONG, CHỜ MP3**
+### Giai đoạn 4 — Lab assets + gọi thật qua MicroSIP 🟡 **ASSET XONG `2026-08-26`, CHỜ 6 LƯỢT GỌI**
 
 Runbook đầy đủ: [`phase-4-lab-runbook.md`](../../docs/evidence/W-0106/phase-4-lab-runbook.md)
 
 | # | Việc | Trạng thái |
 | --- | --- | --- |
-| 4.1 | ⛔ **Render 3 MP3 từ ElevenLabs** | **Chỉ owner làm được** — cần phiên đăng nhập ElevenLabs |
-| 4.2 | [`Convert-LabVoiceAudio.ps1`](../../deploy/lab/Convert-LabVoiceAudio.ps1) — MP3 → PCM s16le/8 kHz/mono, loudnorm, tự verify định dạng, cập nhật `SHA256SUMS` + `manifest.txt` gồm voice ID/settings/date/account label | ✅ đã viết |
+| 4.1 | **Render 3 MP3 từ ElevenLabs** | ✅ **XONG `2026-08-26`** — owner render và **đã nghe trong app**; voice ID thật ghi ở `manifest.txt` |
+| 4.2 | [`Convert-LabVoiceAudio.ps1`](../../deploy/lab/Convert-LabVoiceAudio.ps1) — MP3 → PCM s16le/8 kHz/mono, loudnorm, tự verify định dạng, cập nhật `SHA256SUMS` + `manifest.txt` gồm voice ID/settings/date/account label | ✅ **đã chạy** — 3 PCM, checksum đã ghim, chạy hai lượt liên tiếp ra manifest y hệt |
 | 4.3 | [`entrypoint.sh`](../../deploy/lab/asterisk/entrypoint.sh) cài **cả 3 file vùng miền song song**, boot-check toàn bộ checksum | ✅ đã sửa |
-| 4.4 | [`docker-compose.softphone.yml`](../../docker-compose.softphone.yml) — block `RegionalVoices`, mặc định `Enabled=false` | ✅ đã thêm, `docker compose config` merge sạch |
+| 4.4 | [`docker-compose.softphone.yml`](../../docker-compose.softphone.yml) — block `RegionalVoices` | ✅ **`Enabled=true`** từ `2026-08-26`, duration thật `22/19/18` s (làm tròn LÊN từ `21,16/18,44/17,48`) |
 | 4.5 | [`Invoke-FreeSoftphoneCall.ps1`](../../deploy/lab/Invoke-FreeSoftphoneCall.ps1) thêm `-Region North\|Central\|South` | ✅ đã sửa |
-| 4.6 | Gọi 6 lượt MicroSIP (3 miền × phím `1`/`0`), xác nhận disposition | ⛔ chờ 4.1 |
+| 4.6 | Gọi 6 lượt MicroSIP (3 miền × phím `1`/`0`), xác nhận disposition **và nghe** | ⛔ **việc kế tiếp** — cần dựng lại image Asterisk trước |
+
+**Ba điều phát hiện khi nhận file thật `2026-08-26`** — ghi lại vì cả ba đều là thứ tài liệu
+trước đó khẳng định sai:
+
+1. **Voice ID miền Nam khác shortlist.** Giọng thật là `f5q6kePPoQAjCPYG6moa`, nhãn vendor
+   `Giang - Northern female Narrator`; shortlist ghi `X0V9HEDEuaVhVqzVPUKM`. Owner đã nghe và
+   xác nhận **giọng đúng chất Nam** — nhãn vendor đặt sai. Đây là lần thứ hai catalog bên thứ ba
+   sai, đúng như §5 của audition kit cảnh báo.
+2. **Settings lệch nhau giữa ba giọng** (`0.75/0.50/0.50`, speed `1.00/1.00/1.09`), trong khi
+   audition kit yêu cầu giữ y hệt. Đo được: Thắm dài hơn Giang **21%** trên cùng kịch bản.
+   **Owner chọn giữ nguyên**; ràng buộc "settings phải giống nhau" đã gỡ khỏi kit.
+3. **`Convert-LabVoiceAudio.ps1` ghi cứng settings sai vào manifest.** Nó bắt buộc `-VoiceId`
+   thật nhưng lại tự bịa `stability=0.40 / speed=-3%` cho mọi lượt render — bốn dòng sai nằm ngay
+   cạnh SHA-256 của chính file chúng mô tả. Đã đổi sang `-RenderSettings` per-region, fail-closed
+   như voice ID. Cùng lượt sửa: script **không idempotent** — bộ lọc `^w0106_` bỏ sót dòng
+   `work_id_regional=`, nên mỗi lần chạy lại thêm một header và một dòng trống.
 
 **Ba quyết định khi dựng, đáng ghi:**
 

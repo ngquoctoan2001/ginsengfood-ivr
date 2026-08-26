@@ -1,4 +1,4 @@
-using System.Globalization;
+using System.Collections.Frozen;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -23,23 +23,75 @@ public static class VietnameseTextNormalizer
         TimeSpan.FromMilliseconds(100));
 
     /// <summary>
+    /// Every precomposed Vietnamese letter, paired position-for-position with its ASCII fold.
+    /// <para>
+    /// This replaced <c>Normalize(NormalizationForm.FormD)</c> + non-spacing-mark filtering on
+    /// 2026-08-26. That approach is correct on a developer machine and a <b>silent no-op inside
+    /// the deployed container</b>: the runtime base image is <c>aspnet:10.0-noble-chiseled</c>,
+    /// which ships without ICU and reports
+    /// <c>DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true</c>, and in invariant mode
+    /// <c>Normalize</c> does not decompose. The fold then returned its input unchanged, which
+    /// made <c>ShortDeliveryArea</c> reject every delivery area containing "thành phố" — the six
+    /// centrally governed cities, the densest order areas there are — as if they were street
+    /// addresses. No test caught it because tests run where ICU exists.
+    /// </para>
+    /// <para>
+    /// An explicit table cannot degrade quietly. It also cannot depend on
+    /// <c>char.ToUpperInvariant</c> for the uppercase half, which is why both cases are spelled
+    /// out: invariant-mode casing rules for non-ASCII are exactly the kind of environment
+    /// dependency being removed here.
+    /// </para>
+    /// </summary>
+    private const string AccentedLetters =
+        "àáảãạăằắẳẵặâầấẩẫậ" + "èéẻẽẹêềếểễệ" + "ìíỉĩị"
+        + "òóỏõọôồốổỗộơờớởỡợ" + "ùúủũụưừứửữự" + "ỳýỷỹỵ" + "đ"
+        + "ÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬ" + "ÈÉẺẼẸÊỀẾỂỄỆ" + "ÌÍỈĨỊ"
+        + "ÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢ" + "ÙÚỦŨỤƯỪỨỬỮỰ" + "ỲÝỶỸỴ" + "Đ";
+
+    private const string FoldedLetters =
+        "aaaaaaaaaaaaaaaaa" + "eeeeeeeeeee" + "iiiii"
+        + "ooooooooooooooooo" + "uuuuuuuuuuu" + "yyyyy" + "d"
+        + "AAAAAAAAAAAAAAAAA" + "EEEEEEEEEEE" + "IIIII"
+        + "OOOOOOOOOOOOOOOOO" + "UUUUUUUUUUU" + "YYYYY" + "D";
+
+    private static readonly FrozenDictionary<char, char> DiacriticFolds = BuildFolds();
+
+    private static FrozenDictionary<char, char> BuildFolds()
+    {
+        // A typo that shortens one side would silently mis-fold every letter after it, so the
+        // pairing is checked rather than trusted.
+        if (AccentedLetters.Length != FoldedLetters.Length)
+        {
+            throw new InvalidOperationException(
+                "The Vietnamese fold table is misaligned: the accented and folded strings differ in length.");
+        }
+
+        Dictionary<char, char> folds = new(AccentedLetters.Length);
+        for (int index = 0; index < AccentedLetters.Length; index++)
+        {
+            folds[AccentedLetters[index]] = FoldedLetters[index];
+        }
+
+        return folds.ToFrozenDictionary();
+    }
+
+    /// <summary>
     /// Folds Vietnamese diacritics to ASCII, mapping đ/Đ to d/D which Unicode decomposition
-    /// does not do on its own.
+    /// does not do on its own. Uses an explicit table, so the result does not change when the
+    /// host has no ICU — see <see cref="AccentedLetters"/>.
     /// </summary>
     public static string RemoveDiacritics(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
-        string decomposed = value.Normalize(NormalizationForm.FormD);
-        StringBuilder result = new(decomposed.Length);
-        foreach (char character in decomposed)
+        StringBuilder result = new(value.Length);
+        foreach (char character in value)
         {
-            if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
-            {
-                result.Append(character == 'đ' ? 'd' : character == 'Đ' ? 'D' : character);
-            }
+            result.Append(DiacriticFolds.TryGetValue(character, out char folded)
+                ? folded
+                : character);
         }
 
-        return result.ToString().Normalize(NormalizationForm.FormC);
+        return result.ToString();
     }
 
     /// <summary>

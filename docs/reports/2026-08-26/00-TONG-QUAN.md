@@ -63,7 +63,7 @@ Thang bốn nấc theo `docs/release/readiness-board.md`:
 **Đang ở nấc 0.**
 
 Điều này cần được đọc đúng. Nấc 1 **không** đo "code đã viết xong chưa" — nó đo
-**"evidence đã được người có thẩm quyền chấp nhận chưa"**. 5/118 work item ở trạng thái
+**"evidence đã được người có thẩm quyền chấp nhận chưa"**. 5/119 work item ở trạng thái
 `ACCEPTED`; phần còn lại cao nhất là `EVIDENCE_SUBMITTED`. Đây là khoảng cách **thủ tục**,
 không phải khoảng cách **kỹ thuật** — nhưng governance của dự án (`MASTER-05`) không cho phép
 đánh đồng hai thứ đó, và báo cáo này giữ đúng nguyên tắc ấy.
@@ -74,16 +74,16 @@ không phải khoảng cách **kỹ thuật** — nhưng governance của dự �
 
 ---
 
-## 3. Phân bố 118 work item
+## 3. Phân bố 119 work item
 
 | Trạng thái | Số lượng | Nghĩa |
 | --- | ---: | --- |
-| `TESTS_PASS` | 77 | code xong, test xanh, chờ reviewer/owner ký |
+| `TESTS_PASS` | 78 | code xong, test xanh, chờ reviewer/owner ký |
 | `EVIDENCE_SUBMITTED` | 19 | đã nộp evidence pack, chờ chấp nhận |
 | `BLOCKED_EXTERNAL` | 15 | **chờ bên ngoài** — không tự gỡ được |
 | `ACCEPTED` | 5 | đã được owner chấp nhận |
 | `DEFERRED_TARGET` | 2 | cố ý hoãn (notification, opt-out loop) |
-| **Tổng** | **118** | |
+| **Tổng** | **119** | |
 
 ---
 

@@ -28,27 +28,33 @@ x-asterisk-lab-env: &asterisk-lab-env
   Ivr__Speech__Tts__VoiceId: "w0104-static-file"
   Ivr__Speech__Tts__FileMediaReference: "sound:ivr-lab-order-confirmation"
   Ivr__Speech__Tts__FileDurationSeconds: "18"
-  # W-0106 regional voice routing. Enabled is "false" until Convert-LabVoiceAudio.ps1 has
-  # produced the three PCM files and written their real durations here; the validator refuses
-  # to start with blank voice IDs, so flipping this early fails the lab loudly rather than
-  # quietly playing one region's audio to every caller.
-  Ivr__Speech__Tts__RegionalVoices__Enabled: "false"
+  # W-0106 regional voice routing. Turned on 2026-08-26: Convert-LabVoiceAudio.ps1 produced the
+  # three PCM files, SHA256SUMS carries their checksums and manifest.txt carries the real voice
+  # IDs. Durations below are the measured lengths rounded UP to whole seconds (21.16 / 18.44 /
+  # 17.48), because this value is a playback hint and rounding down would clip the tail.
+  # The three voices read at noticeably different paces - the owner accepted per-voice settings
+  # rather than one shared set, so north runs ~21% longer than south on the same script.
+  Ivr__Speech__Tts__RegionalVoices__Enabled: "true"
   Ivr__Speech__Tts__RegionalVoices__FallbackRegion: "North"
   Ivr__Speech__Tts__RegionalVoices__North__VoiceId: "w0106-lab-north-tham"
   Ivr__Speech__Tts__RegionalVoices__North__FileMediaReference: "sound:ivr-lab-order-confirmation-region-north"
-  Ivr__Speech__Tts__RegionalVoices__North__FileDurationSeconds: "18"
+  Ivr__Speech__Tts__RegionalVoices__North__FileDurationSeconds: "22"
   Ivr__Speech__Tts__RegionalVoices__Central__VoiceId: "w0106-lab-central-zara"
   Ivr__Speech__Tts__RegionalVoices__Central__FileMediaReference: "sound:ivr-lab-order-confirmation-region-central"
-  Ivr__Speech__Tts__RegionalVoices__Central__FileDurationSeconds: "18"
+  Ivr__Speech__Tts__RegionalVoices__Central__FileDurationSeconds: "19"
   Ivr__Speech__Tts__RegionalVoices__South__VoiceId: "w0106-lab-south-giang"
   Ivr__Speech__Tts__RegionalVoices__South__FileMediaReference: "sound:ivr-lab-order-confirmation-region-south"
   Ivr__Speech__Tts__RegionalVoices__South__FileDurationSeconds: "18"
   # W-0106 A1 hybrid playback: recorded prose plus synthesized order values, assembled per call.
   #
   # Off until BOTH halves exist. The recorded half comes from Convert-LabSegmentAudio.ps1, which
-  # writes a ready-to-paste block into deploy/lab/asterisk/audio/segments-appsettings.json — do
-  # not hand-copy the 64-character hashes, one wrong character is a sentence that cannot be
-  # found, and it only shows up mid-call.
+  # writes deploy/lab/asterisk/audio/segments-compose-env.yml — already indented for THIS anchor,
+  # and it also carries RegionalVoices__Enabled, without which the per-region catalogs are never
+  # read. Paste that file here; do not hand-copy the 64-character hashes, one wrong character is
+  # a sentence that cannot be found, and it only shows up mid-call.
+  # The sibling segments-appsettings.json holds the same values as nested JSON, for a deployment
+  # that mounts appsettings. Nothing here mounts one, so it is not the file to paste. See
+  # docs/evidence/W-0108/README.md section 9.2.
   #
   # The synthesized half needs a vendor (OD-VOICE-01) reachable at Ivr__Speech__Tts__External__*.
   # With Enabled=true and an incomplete recording catalog the service refuses to start, which is

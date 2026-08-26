@@ -56,7 +56,49 @@ Trạng thái: `OPEN` · Cập nhật: `2026-08-12` (bổ sung `OD-V1-13..21` t�
 | `OD-VOICE-02` | **Phân miền theo tỉnh/thành.** Chia thuần theo 34 đơn vị cấp tỉnh (NQ `202/2025/QH15`), không biệt lệ; Tây Nguyên → Trung | Owner + Product | ✅ `CLOSED` 2026-08-22 | Bảng 34→3 miền + `UT-VOICE-REGION-01..03` phủ 34 tỉnh mới và 29 tên cũ | — |
 | `OD-VOICE-03` | **Một template.** Giữ đúng 1 script version `v3-test-approved`; biến thể `nghìn`/`ngàn` và `linh`/`lẻ` nằm trong bộ đọc số, không nằm trong template ⇒ `TemplateHash` không đổi | Product + Privacy/Legal | ✅ `CLOSED` 2026-08-22 | `UT-SCRIPT-VI-REGION-09` chứng minh 3 miền cùng một `TemplateHash` | — |
 | `OD-VOICE-04` | **Tự host / thu âm người thật thay vì thuê vendor.** Không model tiếng Việt open-source nào vừa chất lượng vừa sạch license (`viXTTS` = CPML non-commercial và Coqui đã đóng cửa 1/2024 nên không còn ai bán license; `F5-TTS` weights = CC-BY-NC). Đường sạch duy nhất là dữ liệu giọng của chính mình | Owner + Product + Legal | `OPEN` | Hợp đồng + license giọng voice actor; bộ clip đã thu; bằng chứng mối nối nghe mượt; model tự host (nếu dùng) Apache/MIT + train trên data của mình | production |
-| `OD-VOICE-05` | **Chốt 3 giọng không qua bước nghe** — Thắm (Bắc), Zara (Trung), Giang (Nam). Cơ sở là **mô tả văn bản, không phải nghe**; không ai trong chuỗi quyết định đã nghe ba giọng đó | Owner | ✅ `CLOSED` 2026-08-22 | Voice ID đã verify trong ElevenLabs app + chữ ký sếp sau khi nghe (để đạt `ACCEPTED`) | LAB |
+| `OD-VOICE-05` | **Chốt 3 giọng không qua bước nghe** — Thắm (Bắc), Zara (Trung), Giang (Nam). Cơ sở là **mô tả văn bản, không phải nghe**; không ai trong chuỗi quyết định đã nghe ba giọng đó | Owner | ✅ `CLOSED` 2026-08-22 · **owner đã nghe trong app và chốt lại `2026-08-26`** — xem ghi chú dưới bảng | Voice ID đã verify trong ElevenLabs app ✅ `2026-08-26` + chữ ký sếp sau khi nghe **qua MicroSIP 8 kHz** (để đạt `ACCEPTED`) — ⏳ chưa có | LAB |
 
 > `OD-VOICE-05` đóng lựa chọn, **không** đóng nghiệm thu. Chừng nào sếp chưa nghe và ký, trần
 > trạng thái W-0106 là `TESTS_PASS` chứ không phải `ACCEPTED` — theo đúng tiền lệ W-0104.
+
+### `OD-VOICE-05` — cập nhật `2026-08-26`: owner đã nghe trong app
+
+Bước nghe bị hoãn từ `2026-08-22` nay **đã làm**. Owner render cả ba giọng trong ElevenLabs web
+app, nghe, và giữ cả ba. Voice ID lấy trực tiếp từ app, không lấy từ catalog bên thứ ba.
+
+| Miền | Giọng | Voice ID **đã verify** | Khớp bảng §5 của audition kit? |
+| --- | --- | --- | --- |
+| Bắc | Thắm — *Giọng Nữ Miền Bắc* | `0ggMuQ1r9f9jqBu50nJn` | ✅ khớp |
+| Trung | Zara — *Warm, Natural and Expressive* | `QocxxnxEa0x8mrL2d4VT` | ✅ khớp |
+| Nam | Giang — *Northern female Narrator* | `f5q6kePPoQAjCPYG6moa` | ❌ **khác** — kit ghi `X0V9HEDEuaVhVqzVPUKM` |
+
+**Hai điều bất thường đã được nêu và owner đã quyết, ghi lại để sau này không ai phải đoán:**
+
+1. **Giọng miền Nam mang nhãn `Northern female Narrator`.** Đây là giọng **khác** với giọng
+   `Giang` trong shortlist (ID khác hẳn), và tên vendor đặt nói ngược lại vùng nó được gán.
+   Owner **đã nghe và xác nhận giọng đúng chất Nam**; nhãn của vendor là đặt tên sai.
+   Đây đúng là kiểu sai mà audition kit đã cảnh báo về catalog bên thứ ba — lần này bắt được
+   vì owner nghe, không phải vì tra ID.
+
+2. **Settings lệch nhau giữa ba giọng**, trong khi audition kit §3 yêu cầu giữ y hệt:
+
+   | Giọng | Stability | Similarity | Speed | Độ dài cùng một kịch bản |
+   | --- | --- | --- | --- | ---: |
+   | Thắm | `0.75` | `0.75` | `1.00` | **21,16 s** |
+   | Zara | `0.50` | `0.75` | `1.00` | 18,44 s |
+   | Giang | `0.50` | `0.75` | `1.09` | 17,48 s |
+   | *kit đề xuất* | *0.40* | *0.75* | *0.97* | — |
+
+   Chênh lệch đo được: Thắm dài hơn Giang **21%** trên cùng một kịch bản.
+   **Owner chọn giữ nguyên** — đã nghe và ưng cả ba. Ràng buộc "settings phải giống nhau" của
+   kit vì vậy **không còn hiệu lực**; thay vào đó settings thật của từng giọng được ghi ở đây và
+   trong `deploy/lab/asterisk/audio/manifest.txt` để truy nguồn được.
+
+**Còn lại để đạt `ACCEPTED`:** owner nghe **qua MicroSIP ở 8 kHz** rồi ký — tiền lệ W-0104. Nghe
+trong app là 44,1 kHz studio; khách nghe 8 kHz qua PCMU, và W-0104 đã có tiền lệ một cặp giọng
+bị từ chối **sau** khi nghe qua điện thoại.
+
+**Chưa đóng `OD-VOICE-01`:** chưa xác nhận ba file này render trên gói trả phí. Nếu là free tier
+thì chúng dùng được cho **lab** (dữ liệu fake, không khách nào nghe) nhưng **không** dùng được cho
+production, và phải render lại sau khi mua. `manifest.txt` giữ
+`w0106_production_provider_authorized=NO`.

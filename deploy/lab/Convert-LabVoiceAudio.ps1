@@ -70,6 +70,11 @@ param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$')]
     [string]$ElevenLabsAccountLabel,
 
+    # Per-region ElevenLabs settings, exactly as used. ElevenLabs encodes them in the file it
+    # hands you — `..._pvc_sp100_s75_sb75_v3.mp3` means speed 1.00, stability 0.75, similarity
+    # 0.75 — so read them off the filename rather than from memory.
+    [hashtable]$RenderSettings = @{},
+
     [DateTimeOffset]$GeneratedAt = [DateTimeOffset]::MinValue,
 
     [string]$FfmpegPath = 'ffmpeg',
@@ -94,6 +99,22 @@ if (-not $SkipManifestUpdate) {
     }
     if ($GeneratedAt -eq [DateTimeOffset]::MinValue) {
         throw 'Thiếu -GeneratedAt. Phải ghi thời điểm render ElevenLabs thật, không suy từ lúc conversion.'
+    }
+
+    # Fail closed on settings the same way the script already fails closed on voice IDs. Three
+    # regions, three settings triples, no defaults: a default here is how "0.40" ended up in an
+    # evidence file next to a render that used 0.75.
+    foreach ($regionName in @('north', 'central', 'south')) {
+        $settings = $RenderSettings[$regionName]
+        if ($null -eq $settings) {
+            throw "Thiếu -RenderSettings['$regionName']. Ví dụ: -RenderSettings @{ north = @{ stability = '0.75'; similarity = '0.75'; speed = '1.00' }; ... }"
+        }
+        foreach ($key in @('stability', 'similarity', 'speed')) {
+            $value = [string]$settings[$key]
+            if ($value -notmatch '^\d+(\.\d+)?$') {
+                throw "-RenderSettings['$regionName']['$key'] phải là số thập phân đọc thẳng từ tên file ElevenLabs (ví dụ '0.75', '1.09'). Nhận được: '$value'."
+            }
+        }
     }
 }
 
@@ -167,16 +188,26 @@ Set-Content -LiteralPath $sumsPath -Value ($existing + $added) -Encoding ascii
 
 if (-not $SkipManifestUpdate) {
     $manifestPath = Join-Path $audioDirectory 'manifest.txt'
-    $manifest = @(Get-Content -LiteralPath $manifestPath | Where-Object { $_ -notmatch '^w0106_' })
+    # Drop the whole previous W-0106 block, header included. Filtering only `^w0106_` left the
+    # `work_id_regional=` header behind, so every re-run stacked another header and another blank
+    # line onto an evidence file whose job is to be stable. Trailing blanks go too, otherwise the
+    # gap grows by one line per run.
+    $manifest = @(Get-Content -LiteralPath $manifestPath |
+        Where-Object { $_ -notmatch '^w0106_' -and $_ -notmatch '^work_id_regional=' })
+    while ($manifest.Count -gt 0 -and [string]::IsNullOrWhiteSpace($manifest[-1])) {
+        $manifest = $manifest[0..($manifest.Count - 2)]
+    }
     $manifest += ''
     $manifest += 'work_id_regional=W-0106'
     $manifest += 'w0106_generator=elevenlabs-web-app'
     $manifest += 'w0106_model=eleven_v3'
     $manifest += 'w0106_language=auto-detect'
-    $manifest += 'w0106_stability=0.40'
-    $manifest += 'w0106_similarity=0.75'
-    $manifest += 'w0106_style=low'
-    $manifest += 'w0106_speed=-3%'
+    # Settings are recorded PER VOICE, from -RenderSettings, and never assumed. They used to be
+    # four hardcoded lines claiming stability=0.40 / speed=-3% for every render. On 2026-08-26
+    # the owner rendered with 0.75/0.50/0.50 and speed 1.00/1.00/1.09 and chose to keep that
+    # spread, which made those four lines false while sitting next to the SHA-256 of the very
+    # files they described. A manifest that demands the real voice ID but invents the settings
+    # is only half an evidence file.
     $manifest += "w0106_generated_at=$($GeneratedAt.ToString('o', [System.Globalization.CultureInfo]::InvariantCulture))"
     $manifest += "w0106_elevenlabs_account_label=$ElevenLabsAccountLabel"
     $manifest += 'w0106_output_format=pcm_s16le-8000hz-mono'
@@ -190,13 +221,18 @@ if (-not $SkipManifestUpdate) {
         # some other machine. This host reports en-US with a COMMA decimal separator, which is
         # exactly the kind of setup that turns an implicit assumption into corrupt evidence.
         $seconds = $row.Seconds.ToString([System.Globalization.CultureInfo]::InvariantCulture)
+        $settings = $RenderSettings[$row.Region]
         $manifest += "w0106_$($row.Region)_voice_name=$($row.Voice)"
         $manifest += "w0106_$($row.Region)_voice_id=$($row.VoiceId)"
+        $manifest += "w0106_$($row.Region)_stability=$($settings.stability)"
+        $manifest += "w0106_$($row.Region)_similarity=$($settings.similarity)"
+        $manifest += "w0106_$($row.Region)_speed=$($settings.speed)"
         $manifest += "w0106_$($row.Region)_source_sha256=$($row.SourceHash)"
         $manifest += "w0106_$($row.Region)_duration_seconds=$seconds"
         $manifest += "w0106_$($row.Region)_sha256=$($row.Sha256)"
     }
 
+    $manifest += 'w0106_settings_shared_across_voices=NO'
     $manifest += 'w0106_production_provider_authorized=NO'
     $manifest += 'w0106_real_customer_data_used=NO'
     Set-Content -LiteralPath $manifestPath -Value $manifest -Encoding utf8
@@ -209,6 +245,6 @@ if ($SkipManifestUpdate) {
     Write-Host 'Đã bỏ qua cập nhật manifest theo -SkipManifestUpdate.' -ForegroundColor Yellow
 }
 else {
-    Write-Host 'Manifest W-0106 đã ghi đủ voice ID và cấu hình render cố định.' -ForegroundColor Green
+    Write-Host 'Manifest W-0106 đã ghi đủ voice ID và settings render THẬT của từng giọng.' -ForegroundColor Green
 }
 Write-Host 'Bước tiếp: điền duration thật trong compose, bật RegionalVoices, rồi dựng lại image Asterisk.' -ForegroundColor Yellow

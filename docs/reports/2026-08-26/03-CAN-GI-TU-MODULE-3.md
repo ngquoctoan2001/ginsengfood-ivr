@@ -140,7 +140,7 @@ Contract khai `additionalProperties: false` — field lạ sẽ bị từ chối
 | Field | Có bắt buộc thật không |
 | --- | --- |
 | `phone_validation_status` | 🔴 **THỰC CHẤT BẮT BUỘC** — phải đúng chuỗi `"VALID"`. Thiếu hoặc giá trị khác (kể cả `"PASS"`) → `CONTACT_INVALID` |
-| `sellable_status[]` | 🔴 **THỰC CHẤT BẮT BUỘC** — thiếu → `SELLABLE_SNAPSHOT_MISSING` → giữ chờ admin review, không gọi |
+| ~~`sellable_status[]`~~ | ⛔ **ĐÃ GỠ KHỎI CONTRACT `2026-08-26`** — gửi nó nay làm task bị `400 IVR_MALFORMED_REQUEST`. Xem §3.6 |
 | `risk_flags` | 🟡 cần cho `OD-15` — xem §6 |
 | `trusted_skip_allowed` | ⚠️ đây là **VETO** — xem §6.1 |
 
@@ -170,22 +170,27 @@ Contract khai `additionalProperties: false` — field lạ sẽ bị từ chối
 > khi tới phần bấm phím. Cần Module 3 + Product chốt: đọc tối đa bao nhiêu dòng, phần dư diễn đạt
 > sao (`"và 12 sản phẩm khác"`), ai quyết thứ tự dòng.
 
-### 3.6 · `sellable_status[]` — bằng chứng hàng còn bán được
+### 3.6 · Tồn kho / thu hồi — Module 3 **không** phải gửi gì
 
-Mảng theo từng SKU/batch. **IVR không tự hỏi Ops** — Module 3 phải hợp nhất và gửi kèm
-(quyết định `DO-01`/`DO-02`/`DO-05`: Order Core fan-out order → lines → gọi
-`POST /api/v1/admin/availability/check` của ops-core → nhúng mảng vào task).
+> ⚠️ **Sửa `2026-08-26`.** Bản đầu của báo cáo này ghi `sellable_status[]` là "🔴 THỰC CHẤT BẮT
+> BUỘC" và đặc tả cả shape. **Sai.** Owner Module 8 đã gỡ field đó khỏi contract, database và
+> console cùng ngày (commit `8cd106c`, [IR-06 §3.6](../../../integration-requirements/06-module-3-api-handover.md)).
+> Vì task schema là `additionalProperties: false`, Module 3 mà code theo bản cũ sẽ bị
+> **`400 IVR_MALFORMED_REQUEST` trên 100% task** — đúng lỗi đã xảy ra thật với script lab hôm nay.
 
-| Field | Bắt buộc | Giá trị |
-| --- | --- | --- |
-| `sku_id` | ✅ | string |
-| `decision` | ✅ | `SELLABLE` \| `NOT_SELLABLE` \| `BLOCKED` \| `UNKNOWN` |
-| `captured_at` | ✅ | phải nằm **trong** `[confirmation_window_started_at, thời điểm đánh giá]` |
-| `batch_id` | ○ | string |
-| `recall_hold` / `sale_lock` / `quality_hold` | ○ | `true` bất kỳ cái nào → **chặn gọi** |
-| `stock_available` / `batch_released` / `trace_ready` | ○ | `false` hoặc thiếu → **chặn gọi** |
+IVR **không đọc** tồn kho, thu hồi, sale-lock hay quality-hold. Đã có **hai** tầng kiểm, và tầng
+thứ hai mới là tầng quyết định:
 
-Ba field cuối thiếu (`null`) → `SELLABLE_STATUS_UNKNOWN` → giữ chờ review. **Gửi đủ cả 6 boolean.**
+| Tầng | Ai kiểm | Khi nào | Chặn được đơn không bán được? |
+| --- | --- | --- | --- |
+| `eligibility_snapshot.decision` | Module 3 | trước khi đẩy task | ✅ nếu M3 đánh `BLOCKED` |
+| ~~`sellable_status[]`~~ | ~~IVR~~ | ~~trước khi quay số~~ | **đã gỡ** |
+| **Revalidate với ops (`D-06`)** | **Module 3** | **lúc nhận callback** | ✅ **tầng quyết định** |
+
+> 🚨 **Đánh đổi Module 3 phải biết:** IVR nay có thể gọi khách về một đơn vừa bị recall hoặc
+> sale-lock trong 5–15 phút của cửa sổ xác nhận. Khách bấm `1`, Module 3 revalidate rồi trả
+> `BLOCKED_BY_CORE` → đơn vẫn huỷ dù khách đã đồng ý. Tần suất thấp, nhưng **`D-06` là lưới an
+> toàn duy nhất còn lại**.
 
 ### 3.7 · `eligibility_snapshot` và vấn đề `order_state`
 
@@ -196,7 +201,7 @@ Shape IVR thực sự đọc:
 | --- | --- | --- |
 | `decision` | ✅ | chỉ `"ELIGIBLE"` mới được gọi; giá trị lạ → giữ chờ review |
 | `source_version` | ✅ | thiếu/rỗng → giữ lại (không quy trách nhiệm được thì không gọi) |
-| `captured_at` | ✅ | cùng quy tắc tươi như `sellable_status[].captured_at` |
+| `captured_at` | ✅ | phải nằm trong `[confirmation_window_started_at, thời điểm đánh giá]` — sớm hơn là mô tả trạng thái khác, muộn hơn là lỗi đồng hồ |
 | `source_available` | ○ | mặc định `true`; `false` = "tôi không đọc được nguồn của mình" → giữ lại |
 | `blockers[]` | ○ | **không rỗng → chặn, kể cả khi `decision=ELIGIBLE`** |
 | `voice_restriction{}` | ○ | provenance cho quyết định do-not-call |
@@ -437,7 +442,7 @@ Cần:
 | Tự tạo order, tự sinh `order_code` | ngoài scope |
 | Xác nhận thanh toán / doanh thu | `IVR_CONFIRMED` ≠ `PAID` ≠ Verified Revenue |
 | Huỷ đơn | kể cả khi khách bấm `0` — IVR chỉ báo tín hiệu |
-| Gọi trực tiếp Ops-core | Module 3 hợp nhất `sellable_status` rồi gửi kèm |
+| Gọi trực tiếp Ops-core | IVR không đọc tồn kho/thu hồi; `D-06` buộc Module 3 revalidate với ops lúc nhận callback |
 | Truy vấn/polling đơn hàng | xem §1 |
 | Gửi SMS / notification | `TV1-07` — tắt trong V1 |
 | Ghi note vào CRM | `D-14` — chỉ audit nội bộ |
@@ -453,7 +458,7 @@ Cần:
 | **1** | §3.2 chốt ma trận + định nghĩa `ivr_confirmation_required` | **chặn tất cả** — sai ma trận = 100% task bị từ chối, im lặng |
 | **2** | §4.1 xây endpoint callback generic | chương trình 24/7 **không có lối trả kết quả** |
 | **3** | §7 auth + sandbox credential | **không chạy được test tích hợp thật nào** |
-| **4** | §3.7 chốt shape `eligibility_snapshot` + `sellable_status` bắt buộc hay optional | IVR không fail-closed đúng trên thứ nó không hiểu |
+| **4** | §3.7 chốt shape `eligibility_snapshot` | IVR không fail-closed đúng trên thứ nó không hiểu |
 | **5** | §5 chọn phương án `dial_token` | không quay số thật được |
 | **6** | §3.5 duyệt whitelist lời thoại (cần Privacy/Legal) | **rủi ro pháp lý** — không rollback được sau khi đã gọi |
 | **7** | §6 thêm `trust.risk_evidence_available` | chỉ mất tối ưu — vẫn gọi tất cả, an toàn |
@@ -479,7 +484,7 @@ Cần:
 ### Cần sớm
 
 - [ ] **Schema `eligibility_snapshot`** + ví dụ pass/block/stale/source-unavailable
-- [ ] **`sellable_status[]` bắt buộc hay optional?** Nếu optional, IVR fail-closed bằng gì thay thế?
+- [ ] **Xác nhận đã bỏ `sellable_status[]` khỏi producer.** Gửi nó nay làm task bị `400 IVR_MALFORMED_REQUEST` (`additionalProperties: false`), không phải bị bỏ qua
 - [ ] **Phương án `dial_token`**: chọn (a)/(b)/(c)/(d) ở §5, kèm chữ ký Security + sơ đồ trust boundary
 - [ ] **Giới hạn `items[]`**: đọc tối đa bao nhiêu dòng, phần dư diễn đạt sao?
 - [ ] **Quy tắc normalize `delivery_area_short`**

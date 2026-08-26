@@ -225,4 +225,62 @@ public sealed class DeliveryRegionResolverTests
             Assert.Equal((VietnamRegion)row[1]!, DeliveryRegionResolver.TryResolve(area.Value));
         }
     }
+
+    /// <summary>
+    /// The six centrally governed cities, written the way Sales actually writes them.
+    /// </summary>
+    public static TheoryData<string, VietnamRegion> CentrallyGovernedCities() => new()
+    {
+        { "Hà Nội", VietnamRegion.North },
+        { "Hải Phòng", VietnamRegion.North },
+        { "Huế", VietnamRegion.Central },
+        { "Đà Nẵng", VietnamRegion.Central },
+        { "Hồ Chí Minh", VietnamRegion.South },
+        { "Cần Thơ", VietnamRegion.South },
+    };
+
+    [Theory]
+    [MemberData(nameof(CentrallyGovernedCities))]
+    [Trait("TestId", "UT-VOICE-REGION-11")]
+    public void ACentrallyGovernedCityIsNotMistakenForAStreetAddress(
+        string city,
+        VietnamRegion expected)
+    {
+        // UT-VOICE-REGION-10 writes every unit as "tỉnh {province}", so nothing above ever
+        // exercised "thành phố" — and "phố" is one of the street markers the privacy guard
+        // rejects. The guard exempts the "thành phố " prefix, but that exemption is applied to
+        // diacritic-folded text, so it only works when the folding actually folds.
+        //
+        // On 2026-08-26 it did not: the deployed runtime is a chiseled image with no ICU, where
+        // string.Normalize is a silent no-op, so the fold returned its input untouched and every
+        // one of these six cities was rejected as a full address. Six cities is not an edge case;
+        // it is where the orders are.
+        ShortDeliveryArea area = ShortDeliveryArea.Create($"phường Trung Tâm, thành phố {city}");
+
+        Assert.Equal(expected, DeliveryRegionResolver.TryResolve(area.Value));
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-REGION-12")]
+    public void DiacriticFoldingDoesNotDependOnUnicodeNormalization()
+    {
+        // Precomposed (NFC) input is what arrives on the wire, and NFC is exactly the form that
+        // needs decomposition to fold. Asserting the folded value directly — rather than only
+        // asserting lengths, which UT-VOICE-REGION-09 does — is what makes this fail if the
+        // implementation ever goes back to depending on the host having ICU.
+        Assert.Equal(
+            "thanh pho Ha Noi",
+            VietnameseTextNormalizer.RemoveDiacritics("thành phố Hà Nội"));
+        Assert.Equal(
+            "Duong Nguyen Hue",
+            VietnameseTextNormalizer.RemoveDiacritics("Đường Nguyễn Huệ"));
+        Assert.Equal(
+            "Dak Lak, Ba Ria - Vung Tau",
+            VietnameseTextNormalizer.RemoveDiacritics("Đắk Lắk, Bà Rịa - Vũng Tàu"));
+
+        // Same property through the privacy guard: the exemption fires, the street marker does
+        // not, and a real street is still refused.
+        ShortDeliveryArea.Create("thành phố Hà Nội");
+        Assert.Throws<InvalidOperationException>(() => ShortDeliveryArea.Create("phố Hà Nội"));
+    }
 }

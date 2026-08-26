@@ -4,7 +4,7 @@
 **Phạm vi:** từ trạng thái hiện tại (nấc 0) đến `PRODUCTION_REAL_ELIGIBLE` (nấc 4).
 
 > **Kế hoạch này không phải tracker.** Khi bắt đầu một hạng mục, **cấp Work ID thật** từ
-> `NEXT_WORK_ID` (hiện `W-0119`) và chuyển trạng thái **ở tracker**, không ở đây. Mã tạm dưới đây
+> `NEXT_WORK_ID` (hiện `W-0120`) và chuyển trạng thái **ở tracker**, không ở đây. Mã tạm dưới đây
 > (`K-xx`) chỉ để tham chiếu trong kế hoạch, **không** đụng bộ đếm Work ID.
 >
 > **Không có ngày cụ thể cho các mốc phụ thuộc bên ngoài.** Ghi một ngày cho việc mình không kiểm
@@ -44,7 +44,7 @@ test trên sandbox thật vẫn cần một hệ thống chứng minh được n
         ▼                           ▼                            ▼
   ┌───────────────┐  ┌──────────────────────────┐  ┌─────────────────────────┐
   │ ĐỢT 3 · Legal │  │ ĐỢT 4 · Nghiệm thu nội bộ│  │ ĐỢT 5 · Cổng ngoài      │
-  │ ký kịch bản + │  │ 118 work item → ACCEPTED │  │ (song song, từ HÔM NAY) │
+  │ ký kịch bản + │  │ 119 work item → ACCEPTED │  │ (song song, từ HÔM NAY) │
   │ retention     │  │ ⇒ NẤC 1                  │  │ Module 3 · Security ·   │
   │ ⇒ mở G-LEGAL  │  │                          │  │ Infra · Platform        │
   └───────────────┘  └──────────────────────────┘  └─────────────────────────┘
@@ -74,9 +74,23 @@ cổng ngoài mở.
 
 | # | Việc | Ai | Đầu ra | Chặn bởi |
 | --- | --- | --- | --- | --- |
-| **C-1** | Nghe 3 giọng (Thắm/Bắc, Zara/Trung, Giang/Nam) và **ký** | Owner | chữ ký trong `OD-VOICE-05` | — |
-| **C-2** | Mua **ElevenLabs Starter `$6`** + **đọc và trích dẫn ToS** về audio sinh trong kỳ trả phí | Owner | gói đã mua + trích ToS trong `OD-VOICE-01` | C-1 |
-| **C-3** | Render **12 MP3** = 4 câu cố định × 3 miền | Owner | 12 file MP3 | C-2 |
+| **C-2** | Mua **ElevenLabs Starter `$6`** + **đọc và trích dẫn ToS** về audio sinh trong kỳ trả phí | Owner | gói đã mua + trích ToS trong `OD-VOICE-01` | — |
+| **C-1** | Nghe 3 giọng (Thắm/Bắc, Zara/Trung, Giang/Nam) **trong app** và **ký** | Owner | chữ ký trong `OD-VOICE-05` | C-2 |
+| **C-3** | Render **12 MP3** = 4 câu cố định × 3 miền | Owner | 12 file MP3 | C-1 |
+
+> ⚠️ **Thứ tự đã đảo so với bản đầu: mua TRƯỚC, nghe SAU.** Không có file mẫu nào của ba giọng
+> này tồn tại — `OD-VOICE-05` chốt giọng **không qua bước nghe**, dựa trên mô tả văn bản. Nghĩa là
+> muốn nghe thì phải render, mà render ở free tier tạo ra audio **không có commercial license**
+> (`R17`). Mua trước rồi mới mở app thì mọi file sinh ra trong phiên đó đều dùng được, kể cả file
+> anh vừa nghe và ưng. `$6` cho 30.000 credits, một lượt audition tốn ~300 — nghe thử bao nhiêu
+> lần cũng không đáng kể.
+
+> ✅ **Cập nhật `2026-08-26` — `W-0119`.** Phần dev của Đợt 1 đã xong: bộ hướng dẫn từng bước
+> cho owner là [`docs/evidence/W-0108/segment-render-kit.md`](../../evidence/W-0108/segment-render-kit.md),
+> và toàn bộ chuỗi công cụ đã được **chạy khô bằng audio giả** để 12 file thật chạy đúng ngay lần
+> đầu. Lượt chạy khô tìm ra 2 lỗi, cả hai đã sửa —
+> [`W-0108` §9](../../evidence/W-0108/README.md#9-kiểm-chứng-khô-chuỗi-bàn-giao-2026-08-26).
+> **C-1/C-2/C-3 vẫn nguyên vẹn: chỉ owner làm được.**
 
 **Lệnh in ra đúng 4 câu cần thu** (không phải đi tìm trong tài liệu):
 
@@ -107,7 +121,7 @@ pwsh ./deploy/lab/Convert-LabSegmentAudio.ps1 -ListOnly
 | --- | --- | --- | --- | --- |
 | **K-01** | Chuyển 12 MP3 → PCM s16le/8 kHz/mono, loudnorm, cập nhật `SHA256SUMS` + `manifest.txt` | Dev | `pwsh ./deploy/lab/Convert-LabSegmentAudio.ps1 -SourceDirectory ...` | C-3 |
 | **K-02** | Cấu hình **endpoint TTS thật** cho 3 đoạn biến thiên (endpoint + credential từ secret provider, **không hard-code vendor**) | Dev + Infra | `ConfigurableExternalTtsProvider` | C-2 |
-| **K-03** | Dán khối `segments-appsettings.json` vào compose, bật `Segmentation.Enabled=true` | Dev | `docker-compose.softphone.yml` | K-01, K-02 |
+| **K-03** | Dán khối `segments-compose-env.yml` (script tự sinh, đã thụt sẵn cho anchor `x-asterisk-lab-env`) vào compose | Dev | `docker-compose.softphone.yml` | K-01, K-02 |
 | **K-04** | Test đo **cache hit trên dữ liệu thật**, không chỉ trên fixture | Dev | test mới | K-03 |
 | **C-4** | **Gọi 6 lượt MicroSIP** (3 miền × phím `1`/`0`) và **NGHE** | Owner + Dev | `Invoke-FreeSoftphoneCall.ps1 -Region North\|Central\|South` | K-03 |
 

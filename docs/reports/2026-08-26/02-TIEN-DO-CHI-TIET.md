@@ -159,7 +159,7 @@
 
 ## 4. Việc phát sinh ngoài kế hoạch — 40 work item
 
-Đây là phần thường bị bỏ sót khi báo cáo theo phase. **34 trong 118 work item không có prompt** —
+Đây là phần thường bị bỏ sót khi báo cáo theo phase. **35 trong 119 work item không có prompt** —
 chúng phát sinh trong lúc làm, và phần lớn là **kết quả của rà soát đối kháng**.
 
 ### 4.1 · Nhóm `RED_TEAM_REMEDIATION` — 26 work item

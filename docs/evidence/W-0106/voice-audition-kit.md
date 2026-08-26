@@ -49,6 +49,13 @@ Còn dư ~9.100 credits — thừa sức render lại nếu sau này đổi gi�
 Giữ **y hệt nhau** ở cả ba miền. Khác cấu hình giữa các miền là ba giọng nghe lệch nhau vì
 lý do không ai truy được.
 
+> ⚠️ **`2026-08-26` — ràng buộc này KHÔNG còn hiệu lực.** Lượt render thật dùng settings khác
+> nhau ở từng giọng (Thắm `s0.75/sp1.00`, Zara `s0.50/sp1.00`, Giang `s0.50/sp1.09`), đo được
+> chênh **21%** độ dài trên cùng một kịch bản (21,16 / 18,44 / 17,48 s). **Owner đã nghe và chọn
+> giữ nguyên.** Lý do gốc ở trên được giữ lại để lần sau ai đọc còn thấy đánh đổi — nhưng settings
+> thật hiện nằm ở [`manifest.txt`](../../../deploy/lab/asterisk/audio/manifest.txt) và
+> `OD-VOICE-05`, không phải ở bảng dưới.
+
 | Tham số | Giá trị | Lý do |
 | --- | --- | --- |
 | Model | **Eleven v3** | Đúng model đã dùng cho voice C được owner chấp nhận ở W-0104 |
@@ -105,6 +112,21 @@ Nếu một giọng cần đổi, đi thẳng xuống fallback 1 rồi fallback 
 đó đã sai ít nhất một lần: nó gán `ueSxRO0nLF1bj93J2hVt` cho một giọng nam miền Bắc tên khác,
 trong khi [`manifest.txt`](../../../deploy/lab/asterisk/audio/manifest.txt) của chính repo ghi
 ID đó là `Trung Caha`. **Phải copy ID thật từ ElevenLabs app** khi chốt.
+
+> ✅ **`2026-08-26` — đã copy ID thật từ app. Cảnh báo trên đúng lần thứ hai.**
+>
+> | Miền | Voice ID đã verify | So với bảng dưới |
+> | --- | --- | --- |
+> | Bắc — Thắm | `0ggMuQ1r9f9jqBu50nJn` | ✅ khớp |
+> | Trung — Zara | `QocxxnxEa0x8mrL2d4VT` | ✅ khớp |
+> | Nam — **Giang** | `f5q6kePPoQAjCPYG6moa` | ❌ **khác** `X0V9HEDEuaVhVqzVPUKM` |
+>
+> Giọng miền Nam thực tế mang nhãn vendor là **`Giang - Northern female Narrator`** — tên nói
+> ngược vùng nó được gán. Owner đã nghe và xác nhận **giọng đúng chất Nam**; nhãn là đặt tên sai
+> của vendor. Chi tiết và các bất thường khác:
+> [`open-decisions-register.md` → `OD-VOICE-05` cập nhật 26/08](../../../specs/_review/open-decisions-register.md).
+>
+> Bảng §5.1–5.3 bên dưới giữ nguyên làm lịch sử lựa chọn; **nguồn ID hiện hành là `manifest.txt`**.
 
 ### 5.1 Miền Trung
 

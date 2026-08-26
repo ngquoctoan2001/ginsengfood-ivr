@@ -94,19 +94,12 @@ $payload = [ordered]@{
         locale = 'vi-VN'
     }
     call_restriction = $false
-    sellable_status = @(
-        [ordered]@{
-            sku_id = 'SKU-LAB-FAKE-1'
-            decision = 'SELLABLE'
-            captured_at = $started.ToString('yyyy-MM-ddTHH:mm:ssZ')
-            recall_hold = $false
-            sale_lock = $false
-            quality_hold = $false
-            stock_available = $true
-            batch_released = $true
-            trace_ready = $true
-        }
-    )
+    # `sellable_status` used to be sent here. The owner removed it from the contract, the
+    # database and the console on 2026-08-26 (IR-06 §3.6): IVR no longer reads stock, recall,
+    # sale-lock or quality-hold, because D-06 makes Module 3 revalidate with ops at callback
+    # time anyway, and that is the layer that actually decides. Because the task schema is
+    # `additionalProperties: false`, still sending it is not merely redundant — every task is
+    # rejected with `IVR_MALFORMED_REQUEST` before a single digit is dialled.
     eligibility_snapshot = [ordered]@{
         decision = 'ELIGIBLE'
         source_version = 'w0104-fake-sales-v1'

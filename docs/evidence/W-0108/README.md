@@ -171,9 +171,9 @@ Theo tiền lệ `A-0318`/`A-0319`:
 
 | # | Việc | Ai | Chặn bởi |
 | --- | --- | --- | --- |
-| 6.1 | Thu/render **12 MP3** đoạn cố định (4 câu × 3 miền) | Owner | phiên ElevenLabs; `OD-VOICE-01` |
+| 6.1 | Thu/render **12 MP3** đoạn cố định (4 câu × 3 miền) — hướng dẫn từng bước: [`segment-render-kit.md`](segment-render-kit.md) | Owner | phiên ElevenLabs; `OD-VOICE-01` |
 | 6.2 | Chạy `Convert-LabSegmentAudio.ps1 -SourceDirectory ...` | Dev | 6.1 |
-| 6.3 | Dán khối `segments-appsettings.json` vào compose, bật `Segmentation.Enabled=true` | Dev | 6.2 |
+| 6.3 | Dán khối `segments-compose-env.yml` vào anchor `x-asterisk-lab-env` (khối này đã gồm `Segmentation__Enabled=true` và `RegionalVoices__Enabled=true`). Bản `segments-appsettings.json` chỉ dùng cho deployment có mount appsettings — **không** dán được vào compose, xem §9.2 | Dev | 6.2 |
 | 6.4 | Gọi 6 lượt MicroSIP × 3 miền, **nghe** đúng đơn của từng lượt | Owner | 6.3 |
 | 6.5 | Cấu hình endpoint TTS thật cho đoạn biến thiên | Dev + Infra | `OD-VOICE-01` (mua gói) |
 
@@ -233,3 +233,73 @@ dotnet test tests/Ivr.UnitTests/Ivr.UnitTests.csproj --nologo
 node deploy/ci/scripts/generate-test-traceability.mjs --check
 pwsh ./deploy/lab/Convert-LabSegmentAudio.ps1 -ListOnly
 ```
+
+---
+
+## 9. Kiểm chứng khô chuỗi bàn giao (`2026-08-26`)
+
+Chạy trước khi owner tốn tiền và thời gian render, bằng **audio giả** (12 sine tone sinh bằng
+ffmpeg, đặt đúng tên `<miền>-s<số>.mp3`) trong sandbox tách khỏi repo. Mục đích duy nhất: chứng
+minh 12 file thật sẽ chạy đúng ngay lần đầu.
+
+Kết quả: **12 MP3 vào → 12 PCM s16le/8 kHz/mono ra**, `SHA256SUMS` + `segments-manifest.txt` +
+khối cấu hình đều sinh đúng. Nhưng lượt chạy phát hiện **hai lỗi thật**, cả hai đã sửa.
+
+### 9.1 · `$LASTEXITCODE=1` sau một lượt chạy thành công
+
+`Convert-LabSegmentAudio.ps1` kiểm định dạng file ra bằng `ffmpeg -hide_banner -i <file>` — gọi
+ffmpeg **không có output file**. Lệnh đó in metadata stream hợp lệ nhưng **luôn thoát mã 1**, nên
+một lượt chuyển đổi thành công hoàn toàn vẫn để lại `$LASTEXITCODE=1`. Mọi caller dùng `&&`, hoặc
+CI, đọc kết quả đó là **thất bại**.
+
+Đây là **lỗi đã từng được tìm ra và sửa ở file anh em**: `Convert-LabVoiceAudio.ps1:137` dùng
+`-loglevel info -i <file> -f null -` kèm kiểm `$LASTEXITCODE`, và có sẵn comment giải thích đúng
+cơ chế này. `Convert-LabSegmentAudio.ps1` (viết cho W-0108) giữ dạng cũ.
+
+Đã sửa về đúng dạng của file anh em, kèm comment nói rõ hai probe không được lệch nhau lần nữa.
+Sau khi sửa: `LASTEXITCODE = 0`, 12 file ra.
+
+### 9.2 · Khối cấu hình "dán thẳng được" **không dán được vào lab**
+
+Script sinh `segments-appsettings.json` — JSON lồng, đúng shape của `TtsProviderOptions`.
+`docker-compose.softphone.yml:49` mô tả nó là *"ready-to-paste block"*.
+
+Nhưng lab cấu hình service **hoàn toàn** bằng biến môi trường double-underscore trong anchor
+`x-asterisk-lab-env`; **không có chỗ nào mount `appsettings.json`** (kiểm cả
+`docker-compose.dev.yml` lẫn `docker-compose.softphone.yml`). JSON lồng **không dán được** vào
+một `environment:` mapping.
+
+Hệ quả thực tế: ai đó sẽ phải dịch tay 12 mục × 3 trường = **36 biến có chỉ số mảng**, trong đó có
+**12 mã băm 64 ký tự** — đúng thứ mà cả script lẫn compose đều ghi rõ là không được chép tay, vì
+một ký tự sai chỉ lộ ra lúc đang gọi khách.
+
+Đã bổ sung: script nay sinh **thêm** `segments-compose-env.yml` — khối biến môi trường thụt 2
+khoảng trắng, dán thẳng vào anchor. Giữ nguyên bản JSON cho deployment có appsettings.
+
+Khối này gồm cả `RegionalVoices__Enabled: "true"`: thiếu nó thì `CatalogsByVoice` đọc catalog
+**toàn cục** (rỗng) thay vì ba catalog theo miền, và service từ chối khởi động vì "missing a
+recording for part of the approved script" — một lỗi đúng nhưng khó truy.
+
+Nếu chạy kèm `-Region` (một hoặc hai miền), file sinh ra mang cảnh báo **CHẠY MỘT PHẦN** ngay
+trong header, vì validator đòi đủ ba miền.
+
+### 9.3 · Bằng chứng
+
+| Phép đo | Kết quả |
+| --- | --- |
+| 12 MP3 giả → PCM | 12/12, đúng `pcm_s16le` / `8000 Hz` / `mono` |
+| `$LASTEXITCODE` sau khi sửa 9.1 | **0** (trước khi sửa: 1) |
+| Khối env splice vào `x-asterisk-lab-env` + `docker compose config --quiet` | **exit 0** |
+| Số khoá `FixedSegments__*` sau khi compose resolve | **36** trên `ivr-api`, **36** trên `ivr-worker` |
+| `Ivr__Speech__Tts__Segmentation__Enabled` sau resolve | `true` |
+| `docker compose config` trên hai file compose **chưa sửa** | exit 0 (không hồi quy) |
+| GitNexus impact `Convert-LabSegmentAudio.ps1` upstream | **LOW** — 0 symbol, 0 execution flow |
+| PII scan `docs/evidence/W-0108` | `PII_SCAN_PASS files=2` |
+
+### 9.4 · Ranh giới của lượt kiểm này
+
+Nó chứng minh **chuỗi công cụ** chạy. Nó **không** chứng minh gì về âm thanh: audio đầu vào là
+sine tone. Tiêu chí nghiệm thu thứ 5 ở §3 — *nghe đúng tên/món/số tiền của đơn tương ứng* — vẫn
+`⛔ chưa`, và vẫn cần 12 file thật cộng một buổi nghe trên MicroSIP.
+
+Hướng dẫn render cho owner: [`segment-render-kit.md`](segment-render-kit.md).

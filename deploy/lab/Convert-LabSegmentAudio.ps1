@@ -116,7 +116,14 @@ foreach ($regionName in $regions) {
             throw "ffmpeg thất bại: $regionName s$($segment.ordinal)."
         }
 
-        $probe = & $FfmpegPath -hide_banner -i $targetPath 2>&1 | Out-String
+        # Decode the generated WAV to a null sink instead of calling `ffmpeg -i` without an output.
+        # The latter prints valid stream metadata but deliberately exits 1, so a fully successful
+        # run left $LASTEXITCODE=1 and any `&&`/CI caller read it as a failure. Same fix, same
+        # reason as Convert-LabVoiceAudio.ps1 — the two probes must not drift apart again.
+        $probe = & $FfmpegPath -hide_banner -loglevel info -i $targetPath -f null - 2>&1 | Out-String
+        if ($LASTEXITCODE -ne 0) {
+            throw "ffmpeg không đọc lại được file đầu ra: $targetName"
+        }
         if ($probe -notmatch '8000 Hz' -or $probe -notmatch 'mono' -or $probe -notmatch 'pcm_s16le') {
             throw "File ra không đúng PCM s16le/8000 Hz/mono: $targetName"
         }
@@ -204,8 +211,48 @@ $configurationPath = Join-Path $audioDirectory 'segments-appsettings.json'
     }
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $configurationPath -Encoding utf8
 
+# Cùng nội dung, dạng biến môi trường double-underscore. Lý do phải có bản thứ hai: lab cấu hình
+# service HOÀN TOÀN bằng `environment:` trong `docker-compose.softphone.yml` — không có chỗ nào
+# mount appsettings.json. Nên khối JSON ở trên, dù đúng shape, KHÔNG dán được vào lab; ai đó sẽ
+# phải dịch tay 12 mục × 3 trường, tức là chép tay đúng 12 mã băm 64 ký tự mà cả file này lẫn
+# compose đều ghi rõ là không được chép tay.
+$envPath = Join-Path $audioDirectory 'segments-compose-env.yml'
+$envLines = [System.Collections.Generic.List[string]]::new()
+$envLines.Add('# SINH TỰ ĐỘNG bởi deploy/lab/Convert-LabSegmentAudio.ps1 — không sửa tay.')
+$envLines.Add('#')
+$envLines.Add('# Dán vào anchor `x-asterisk-lab-env` của docker-compose.softphone.yml, thay hai dòng')
+$envLines.Add('# Segmentation__* đang là "false" ở đó.')
+$envLines.Add('#')
+$envLines.Add('# Trước khi bật, CẢ HAI nửa phải có thật:')
+$envLines.Add('#   - nửa thu sẵn: 12 file PCM đã nằm trong image Asterisk (script này vừa ghi + SHA256SUMS);')
+$envLines.Add('#   - nửa tổng hợp: endpoint TTS thật ở Ivr__Speech__Tts__External__* (OD-VOICE-01).')
+$envLines.Add('# Bật khi catalog còn thiếu một câu ⇒ service TỪ CHỐI khởi động. Đó là hành vi đúng:')
+$envLines.Add('# một câu thiếu phải chặn deploy, không phải làm ngắn cuộc gọi.')
+if ($regions.Count -lt 3) {
+    $envLines.Add('#')
+    $envLines.Add("# ⚠️ CHẠY MỘT PHẦN: chỉ có miền $($regions -join ', '). Thiếu miền nào thì validator chặn")
+    $envLines.Add('# khởi động. Chạy lại không kèm -Region để sinh đủ ba miền trước khi dán.')
+}
+$envLines.Add('')
+$envLines.Add('  Ivr__Speech__Tts__RegionalVoices__Enabled: "true"')
+$envLines.Add('  Ivr__Speech__Tts__Segmentation__Enabled: "true"')
+$envLines.Add('  Ivr__Speech__Tts__Segmentation__FixedSegments: "Catalog"')
+foreach ($regionName in $regions) {
+    $regionKey = (Get-Culture).TextInfo.ToTitleCase($regionName)
+    $prefix = "  Ivr__Speech__Tts__RegionalVoices__${regionKey}__FixedSegments"
+    $index = 0
+    foreach ($row in @($results | Where-Object { $_.Region -eq $regionName })) {
+        $envLines.Add("${prefix}__${index}__TextHash: `"$($row.TextHash)`"")
+        $envLines.Add("${prefix}__${index}__MediaReference: `"$($row.MediaReference)`"")
+        $envLines.Add("${prefix}__${index}__DurationMilliseconds: `"$($row.Milliseconds)`"")
+        $index++
+    }
+}
+Set-Content -LiteralPath $envPath -Value $envLines -Encoding utf8
+
 Write-Host ''
 $results | Format-Table Region, Ordinal, Milliseconds, MediaReference -AutoSize
 Write-Host ''
-Write-Host "Cấu hình đã sinh: $configurationPath" -ForegroundColor Green
+Write-Host "Cấu hình đã sinh (JSON, cho deployment có appsettings): $configurationPath" -ForegroundColor Green
+Write-Host "Cấu hình đã sinh (env, DÁN VÀO COMPOSE LAB):            $envPath" -ForegroundColor Green
 Write-Host 'Bước tiếp: dựng lại image Asterisk, bật Segmentation.Enabled=true, gọi thử MicroSIP.' -ForegroundColor Yellow
