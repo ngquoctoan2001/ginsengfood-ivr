@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "work_id": "W-0122",
+  "script_file": "audition-script.txt",
+  "script_sha256": "c20592a263a0864e5ed9af9ba9dc077b895934b507566c96606023425e1e51e5",
+  "source_commit": "36c4b501b0634a8f59805e6b529a058fbd30190b",
+  "model_revision": "2da0efab622a1722125991736524f080b751ef5b",
+  "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
+  "results": [
+    { "voice_id": "v3t-north-truc-ly", "preset": "Trúc Ly", "region": "North", "speaking_rate": 1, "file": "audition-v3t-north-truc-ly.wav", "bytes": 282284, "sha256": "a8c89820069e4d018a8da0614d776afebf8c866ac813eb3ba5dd1373bf9c4964" },
+    { "voice_id": "v3t-north-ngoc-linh", "preset": "Ngọc Linh", "region": "North", "speaking_rate": 1, "file": "audition-v3t-north-ngoc-linh.wav", "bytes": 409004, "sha256": "fdab79e39f3b29d55fe36d3870e4c20f09df5f08ec0b4eee3c804e71542d7c3d" },
+    { "voice_id": "v3t-north-doan-trang", "preset": "Đoan Trang", "region": "North", "speaking_rate": 1, "file": "audition-v3t-north-doan-trang.wav", "bytes": 274604, "sha256": "22ffb14f7d7490d7f55e55120cb4489b3b2d0f4731aac0c9edfadf4b629f5403" },
+    { "voice_id": "v3t-north-mai-anh", "preset": "Mai Anh", "region": "North", "speaking_rate": 1, "file": "audition-v3t-north-mai-anh.wav", "bytes": 265644, "sha256": "3ebedfc4c746e18293d3b4f414f19ba85e50d774d054855b6605c63ab44fcffb" },
+    { "voice_id": "v3t-north-quynh-anh", "preset": "Quỳnh Anh", "region": "North", "speaking_rate": 1, "file": "audition-v3t-north-quynh-anh.wav", "bytes": 263084, "sha256": "deaabcb43ec054221cd9323a551842af219dcb8e5030a348e453a06c1057244c" },
+    { "voice_id": "v3t-north-ngoc-huyen", "preset": "Ngọc Huyền", "region": "North", "speaking_rate": 1, "file": "audition-v3t-north-ngoc-huyen.wav", "bytes": 251564, "sha256": "7a084c9f59ae3b18c651f79e5691dbd3053097015f5853ea91a299c5dd40d420" },
+    { "voice_id": "v3t-central-ngoc-tran", "preset": "Ngọc Trân", "region": "Central", "speaking_rate": 1, "file": "audition-v3t-central-ngoc-tran.wav", "bytes": 288684, "sha256": "246caece9e5a3ff60a4c39fb1f1923abe9d949c36122e22ebfa47ae316b4d465" },
+    { "voice_id": "v3t-south-thuc-doan", "preset": "Thục Đoan", "region": "South", "speaking_rate": 1, "file": "audition-v3t-south-thuc-doan.wav", "bytes": 311724, "sha256": "74c665bbb54bcb148073688233a024d3147a8d72cb81e89f1ec239f21f324e9d" },
+    { "voice_id": "v3t-south-thuy-dung", "preset": "Thùy Dung", "region": "South", "speaking_rate": 1, "file": "audition-v3t-south-thuy-dung.wav", "bytes": 223404, "sha256": "0b023016ce0da906ea3546fbaeca20b589f1f7eee6d484c86d220349510861c0" },
+    { "voice_id": "v3t-south-my-duyen", "preset": "Mỹ Duyên", "region": "South", "speaking_rate": 1, "file": "audition-v3t-south-my-duyen.wav", "bytes": 460204, "sha256": "e747a8e9f3d3d4b97c57fd0996b4be51e985c041886afe2cb83ec556e18afc40" },
+    { "voice_id": "v3t-south-kim-thanh", "preset": "Kim Thanh", "region": "South", "speaking_rate": 1, "file": "audition-v3t-south-kim-thanh.wav", "bytes": 356524, "sha256": "de9c3028b5857d6ddc0170fd5718674a3736cec61e76d7803e08e5176ac014ec" }
+  ]
+}

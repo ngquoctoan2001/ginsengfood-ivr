@@ -2,17 +2,19 @@
 
 | Metadata | Giá trị |
 | --- | --- |
-| Trạng thái tài liệu | `PLAN_FOR_OWNER_APPROVAL` |
-| Trạng thái triển khai | `NOT_STARTED` |
+| Trạng thái tài liệu | `OWNER_APPROVED_FOR_EXECUTION` |
+| Trạng thái triển khai | `IN_PROGRESS — LOCAL_IMPLEMENTATION_READY; RELEASE_BLOCKED_BY_EXTERNAL_GATES_AND_BASE_OS_CVES` |
 | Ngày lập | `2026-08-27` |
 | Ngày rà soát/sửa plan | `2026-08-27` |
-| Baseline source đã đọc | `main@ce800e1` |
+| Baseline source đã đọc | `main@f291f44` |
+| Owner duyệt triển khai | `2026-08-27` |
 | Origin | `UNPLANNED` — owner requested (`2026-08-27`) |
 | Prereq | `W-0106 ACCEPTED`; `W-0108 TESTS_PASS` — còn nghiệm thu audio thật bởi owner; `W-0119 ACCEPTED` — chỉ xác nhận toolchain/sine-tone handoff; `W-0120 ACCEPTED` |
 | Liên quan | `OD-VOICE-01`, `OD-VOICE-04`, `OD-V1-19`, `G-LEGAL`, `G-PLATFORM`, `G-DIAL`, `G-ESIM32` |
 
-> Tracker đang ghi `NEXT_WORK_ID=W-0122`, nhưng tài liệu này **chưa phải quyền thực thi**.
-> Không ghi `START`, không đổi tracker và không gọi work item hoàn tất trước khi owner duyệt.
+> Owner đã cấp quyền triển khai ngày `2026-08-27`; tracker đã ghi `W-0122 IN_PROGRESS` và
+> Activity `A-0359 START`. Quyền này không thay thế các gate Legal/Privacy, voice listening,
+> target-hardware performance, telephony, production topology hoặc release approval.
 
 Tài liệu nguồn:
 
@@ -140,22 +142,42 @@ xóa các file `.sln*` quá hạn. W-0122 không mở rộng TTL và shim không
 | Source commit đầy đủ | `36c4b501b0634a8f59805e6b529a058fbd30190b` |
 | Model repo | `pnnbao-ump/VieNeu-TTS-v3-Turbo` |
 | Model revision đầy đủ | `2da0efab622a1722125991736524f080b751ef5b` |
+| Codec model transitively required | `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX` |
+| Codec revision đầy đủ | `ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae` |
 | Model card | SDK `v3.3.0`; roster phụ thuộc đúng SDK/source revision |
-| Tuyên bố license upstream | Apache-2.0 cho candidate package; preset voices được upstream tuyên bố cho phép commercial use |
-| Khoảng trống | Training data không công bố/gated; dự án chưa có Legal acceptance |
+| Tuyên bố license upstream | Source có file Apache-2.0; hai model card khai báo Apache-2.0 |
+| Khoảng trống đã xác minh | Hai model revision không chứa file `LICENSE`; training data không công bố/gated; quyền exact preset và distribution chưa có Legal acceptance |
 
 Nguồn upstream để Phase 0 đối chiếu, không được dùng như floating dependency:
 
 - [VieNeu-TTS-v3-Turbo model card](https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo)
+- [MOSS Audio Tokenizer Nano ONNX model card](https://huggingface.co/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX)
 - [Voice manifest tại candidate source commit](https://github.com/pnnbao97/VieNeu-TTS/blob/36c4b501b0634a8f59805e6b529a058fbd30190b/src/vieneu/assets/voices_v3_turbo.json)
 - [Upstream LICENSE tại candidate source commit](https://github.com/pnnbao97/VieNeu-TTS/blob/36c4b501b0634a8f59805e6b529a058fbd30190b/LICENSE)
 - [Biến thể 0.3B-q4-gguf có license NC — phải bị từ chối](https://huggingface.co/pnnbao-ump/VieNeu-TTS-0.3B-q4-gguf)
 - [Hugging Face revision pinning](https://huggingface.co/docs/huggingface_hub/main/guides/download)
 
-Các SHA trên chỉ là candidate cho plan. Phase 0 phải tải đúng revision, kiểm hash từng artifact,
-đối chiếu license/NOTICE và tạo lock; không được coi việc ghi SHA trong Markdown là provenance gate.
+Phase 0 đã xác nhận VieNeu ONNX gọi MOSS codec ở runtime; đây là dependency transitively required
+không được liệt kê ở bản plan đầu. `MODELS.lock` hiện khóa 13 file của cả hai repo theo exact
+path/size/SHA-256. Việc ghi SHA trong Markdown vẫn không thay thế gate machine-readable, và việc
+model card khai báo license không thay thế file license/ý kiến Legal.
 
-### 2.5 Roster nữ tại candidate voice manifest
+### 2.5 Checkpoint triển khai ngày 2026-08-27
+
+| Hạng mục | Trạng thái/evidence |
+| --- | --- |
+| Source + dependency lock | Vendored exact commit/tree; `UPSTREAM.md`; source LICENSE hash đã khóa; production runtime lock 24 packages SHA-256 `a2f18ce29167f97e1e11f9b1d9802378c6dc4997ddcfcdc99d04a54c77956304` |
+| Model bundle | 13/13 artifact nonprod khớp path/size/SHA-256; production verifier fail đúng vì thiếu license-file evidence/internal mirror |
+| Shim/container | Unit/negative `12/12`, contract container và real ONNX request pass; non-root/read-only/no-port/no-network selftest pass; thiếu/pending acceptance hoặc production audition đều readiness `503`; builder tách khỏi runtime, 9 nhóm tool/UI/training/test/sample bị loại; local image `sha256:4c76d318e24110267c908594031863cd7dbe3f31c92569c4e02b4de3ba9ba30d` (`126,109,579` bytes) |
+| Audition | 11/11 WAV PCM s16le/8 kHz/mono + tracked manifest; isolated Asterisk profile checksum/decode/route/deny probes pass; `PENDING_OWNER_MICROSIP_LISTENING` |
+| Voice acceptance authority | Node/Python strict validator + Compose bind + Helm ConfigMap mount; pending template và 11 mutation fail closed; renderer/source/model/lock/audition/profile/results đều hash-bound; Owner artifact vẫn `NOT_RUN` |
+| Converter | MP3 regression bitexact 12/12; WAV 12/12; unknown/missing source fail closed |
+| Compose/media | Config/topology pass; UID 1654 write, Asterisk read-only/write-denied probe pass |
+| Helm | Candidate sidecar/PVC/catalog wiring mặc định tắt; 4 default lint pass; positive `TEST_ONLY` fixture và negative guards pass |
+| SBOM/vulnerability | SPDX 152 package entries; Trivy candidate cuối `13 HIGH`, `3 CRITICAL`, `0 fixable`, chỉ còn Debian 13.6; Python target `0 HIGH/CRITICAL`; `RELEASE_BLOCKED` chờ base fix/Security disposition |
+| Fixed catalog/calls/retention/rollback | Chờ Owner chọn 3 voices; chưa được phép suy từ audition render |
+
+### 2.6 Roster nữ tại candidate voice manifest
 
 Candidate manifest có 20 preset voices, trong đó **11 giọng nữ**:
 
@@ -347,19 +369,27 @@ Quy tắc fail-closed:
 
 ### 4.3 Voice acceptance manifest
 
-Owner chốt đúng một preset cho mỗi miền sau khi nghe đủ 11 candidate. Manifest acceptance phải
-gắn với:
+Owner chốt đúng một preset cho mỗi miền sau khi nghe đủ 11 candidate. Đây là manifest **chọn
+voice**, dùng để mở Phase 3; nó phải gắn với:
 
 - source commit đầy đủ;
 - model repo + full revision;
 - hash voice manifest;
 - hash `uv.lock`/dependency lock;
+- hash production runtime lock và `MODELS.lock`;
 - voice ID/tên preset cho từng miền;
-- conversion tool/version/command;
-- SHA-256 của source audition WAV, fixed-catalog `.wav` PCM 8 kHz và script text/version;
+- hash renderer audition, script text và audition manifest chứa exact size/SHA-256 của đủ 11 WAV;
+- listening profile/tuyến Asterisk/MicroSIP 8 kHz đã khóa;
 - người nghe, ngày nghe, thiết bị/tuyến lab, kết quả từng giọng.
 
-Một pin/hash trên đổi thì manifest chuyển `STALE_RELISTEN_REQUIRED`.
+Manifest chọn voice **không** chứa fixed-catalog hash vì 12 file đó chỉ được tạo sau khi Owner chọn
+voice. Phase 3 sinh `source-manifest.json`, converter manifests/SHA256SUMS và Owner seam/call evidence
+riêng để đóng acceptance catalog; không dùng manifest chọn voice để suy rằng catalog đã được nghe.
+
+Runtime production/lab non-audition chỉ ready khi manifest riêng có `OWNER_ACCEPTED`, đủ 11 kết quả,
+đúng ba voice khác nhau theo miền và khớp exact ba routing ID. Template pending/fixture `TEST_ONLY`,
+manifest thiếu, extra field hoặc bất kỳ pin/hash trên đổi đều fail closed; bản đã ký phải chuyển
+`STALE_RELISTEN_REQUIRED` và được nghe lại.
 
 ### 4.4 `MODELS.lock` và provenance gate
 
@@ -543,19 +573,19 @@ không phải production media sink.
 
 | Gate | Bằng chứng bắt buộc | Trạng thái tại thời điểm lập plan |
 | --- | --- | --- |
-| Plan authority | Owner duyệt plan; tracker ghi `START` | `NOT_STARTED` |
-| Provenance | Full pins, exact paths/sizes/hashes, frozen deps, internal mirror digest | `NOT_RUN` |
+| Plan authority | Owner duyệt plan; tracker ghi `START` | `PASS` |
+| Provenance | Full pins, exact paths/sizes/hashes, frozen deps, internal mirror digest | `NONPROD_PASS — INTERNAL_MIRROR_REQUIRED` |
 | Legal/privacy | Ý kiến bằng văn bản trên đúng locked artifact/voices/retention | `OWNER_DATA_REQUIRED` |
-| Voice quality | Owner nghe 11 candidate qua 8 kHz và ký 3 lựa chọn | `NOT_RUN` |
-| Shim correctness | Contract, explicit `audio/L16`/8 kHz override, raw PCM, health, no-log, overload/negative tests | `NOT_RUN` |
-| Supply chain/security | SBOM, notice, vuln scan, non-root/read-only/drop caps/seccomp | `NOT_RUN` |
-| Performance | Target hardware per-request và cold/warm full-playlist p95; lease/request/character headroom; RSS/concurrency | `ENV_BLOCKED` cho tới khi có target |
-| Media permissions | Init owner/group/mode; worker UID 1654 write; Asterisk read-only; production fsGroup/CSI decision | `NOT_RUN` |
-| Fixed catalog | 12 `.wav` PCM 8 kHz + checksums/manifests + rebuilt Asterisk + install count + owner listening | `NOT_RUN` |
+| Voice quality | Owner nghe 11 candidate qua 8 kHz và ký 3 lựa chọn; strict manifest gate khớp exact candidate | `FILES_READY; RUNTIME_GATE_PASS — OWNER_LISTENING_REQUIRED` |
+| Shim correctness | Contract, explicit `audio/L16`/8 kHz override, raw PCM, health, no-log, overload/negative tests | `LOCAL_PASS` |
+| Supply chain/security | SBOM, notice, vuln scan, non-root/read-only/drop caps/seccomp | `LOCAL_HARDENING_PASS; RELEASE_BLOCKED — 13 HIGH/3 CRITICAL BASE_OS_UNFIXED` |
+| Performance | Target hardware per-request và cold/warm full-playlist p95; lease/request/character headroom; RSS/concurrency | `LOCAL_OBSERVATION_ONLY — ENV_BLOCKED` |
+| Media permissions | Init owner/group/mode; worker UID 1654 write; Asterisk read-only; production fsGroup/CSI decision | `LAB_PASS — PRODUCTION_DECISION_REQUIRED` |
+| Fixed catalog | 12 `.wav` PCM 8 kHz + checksums/manifests + rebuilt Asterisk + install count + owner listening | `BLOCKED_BY_OD-VOICE-06` |
 | Lab real audio | 2 đơn × 3 miền, content/region/seam approval | `NOT_RUN` |
 | Media lifecycle | Worker write → Asterisk play; controlled one-shot purge xóa expired dynamic nhưng giữ fresh/fixed/baseline | `NOT_RUN` |
 | Rollback | Previous image/config/provider restored deliberately | `NOT_RUN` |
-| Production topology | Sidecar + media sink + telephony routing được owner duyệt | `OWNER_DECISION_REQUIRED` |
+| Production topology | Sidecar + media sink + telephony routing được owner duyệt | `HELM_CANDIDATE_FAIL_CLOSED — OWNER_DECISION_REQUIRED` |
 | Real customer call | Release/telephony/legal gates và quyền riêng | `NO` |
 
 Không được tổng hợp các test xanh cục bộ thành `ACCEPTED`, `PRODUCTION_READY` hoặc
@@ -616,11 +646,16 @@ Không được tổng hợp các test xanh cục bộ thành `ACCEPTED`, `PRODU
 
 ---
 
-## 10. Việc đầu tiên nếu owner duyệt
+## 10. Gate tiếp theo sau local implementation
 
-1. Ghi `START` cho `W-0122` theo tracker trong thay đổi có kiểm soát.
-2. Chạy Phase 0: đóng băng exact source/model/voice/dependency artifacts, license evidence và mirror.
-3. Chỉ sau khi Phase 0 pass mới render đủ 11 giọng cho owner nghe.
+1. Owner chạy `deploy/lab/Start-W0122VoiceAudition.ps1 -SkipBuild`, gọi `12200`/`12201`–`12211`,
+   nghe 11 WAV đã khóa qua Asterisk/MicroSIP 8 kHz, điền manifest và chọn đúng một giọng
+   Bắc/Trung/Nam; nếu Ngọc Trân không đạt thì dừng.
+2. Sau lựa chọn đó mới render/convert/install 12 fixed segments và thực hiện 2 đơn × 3 miền.
+3. Legal/Privacy đánh giá exact VieNeu + MOSS + preset set; Infra tạo internal mirror/digest và
+   cung cấp target hardware; Security/Release owner xử lý/disposition 13 HIGH + 3 CRITICAL base-OS
+   chưa có fixed version; Platform/Telephony chốt `OD-VOICE-08`.
+4. Chỉ sau real-audio calls mới chạy retention/rollback drill và cân nhắc release rehearsal.
 
-Không bắt đầu bằng clone floating `main`, không nghe file từ revision chưa ghim, không sửa C# và
-không gọi W-0122 production-ready chỉ vì local render thành công.
+Không sửa C#, không gọi W-0122 `ACCEPTED`/`PRODUCTION_READY`, và không đổi
+`REAL_CUSTOMER_CALL_ALLOWED=NO` từ các local test trên.
