@@ -45,6 +45,8 @@ V0.2 được viết khi chưa có dòng code nào. Sau 101 commit, nhiều phá
 | 16    | (sửa 27/08) §11 ghi DTMF timeout "15 giây (lab đặt 60)"    | Sai. 15 chỉ là default code, bị appsettings ghi đè xuống 10. Thêm §11.1 liệt kê đủ bốn nơi đặt giá trị, và cảnh báo lab đo ở 60 giây sẽ thổi phồng số liệu đưa vào §14.3. |
 | 17    | (sửa 27/08) §20.2 tuyên bố chặn số thô rộng hơn thực tế   | Guard cũ chỉ bắt khi TOÀN BỘ chuỗi có hình dạng số. "tel:0912345678", "sip:...@gw", "PHONE_09..." đều lọt. Đã siết trong code (W-0119) và mô tả lại §20.2 cho đúng. |
 | 18    | (sửa 27/08) §26 thiếu OD-V1-14                            | Không phải lỗi đánh số — quyết định này có thật trong sổ đăng ký và là mục nghiêm trọng nhất (có thể làm 100% task bị từ chối ngày cắm thật). Đã bổ sung, kèm con trỏ tới sổ đăng ký làm nguồn có thẩm quyền. |
+| 19    | (sửa 27/08, sau review M3) §10 ghi "ba nguồn mâu thuẫn"    | Thành **bốn**. Contract submodule của M3 dùng Giờ Vàng `[0,300]`/10 phút và 24/7 3 cuộc `[0,300,600]`. Nặng hơn: M3 nêu **không nguồn nào đỡ cho `[0,150]`** — chính con số IVR đang chạy. |
+| 20    | (sửa 27/08, sau review M3) OD-V1-13 ghi "chưa có nguồn business" | Sai, đã cũ. M3 dẫn Flow 04/05 khóa `24_7+COD` và `GOLDEN_HOUR+ONLINE`. Bảng ép trong code IVR khớp nghiệp vụ. Hạ từ CHẶN xuống "ký wire mapping". |
 
 # **1\. Mục đích tài liệu**
 
@@ -183,7 +185,7 @@ Resolver đọc snapshot từ Order Core, Customer Trust, Official Contact, Oper
 
 # **10\. Attempt Policy và xung đột nguồn**
 
-<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>BA NGUỒN ĐANG MÂU THUẪN — CHƯA ĐÓNG</strong></p><ul><li>Nguồn A — tài liệu phase-8 business: Giờ Vàng 2 cuộc trong 10 phút; 24/7 3 cuộc trong 15 phút.</li><li>Nguồn B — PACK-09 IVR Input Baseline V1.0: Giờ Vàng 5 phút, 2 cuộc, cách 2 phút 30 giây; 24/7 15 phút, 2 cuộc, cách 7 phút 30 giây.</li><li>Nguồn C — code đang chạy: đúng theo nguồn B, dưới version mock-lab-v1, chỉ được phép ở chế độ MOCK và LAB.</li><li>V0.3 giữ nguồn B làm rule triển khai, giống V0.2. Nhưng đây vẫn là ĐỀ XUẤT, không phải quyết định: production sẽ từ chối version mock-lab-v1 cho tới khi owner ký một version khác. Xem B-04 và OD-V1-16.</li></ul></th></tr></tbody></table></div>
+<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>BỐN NGUỒN ĐANG MÂU THUẪN — CHƯA ĐÓNG</strong></p><ul><li>Nguồn A — tài liệu phase-8 business: Giờ Vàng 2 cuộc trong 10 phút; 24/7 3 cuộc trong 15 phút.</li><li>Nguồn B — PACK-09 IVR Input Baseline V1.0: Giờ Vàng 5 phút, 2 cuộc, cách 2 phút 30 giây; 24/7 15 phút, 2 cuộc, cách 7 phút 30 giây.</li><li>Nguồn C — code đang chạy: đúng theo nguồn B, dưới version mock-lab-v1, chỉ được phép ở chế độ MOCK và LAB.</li><li><strong>Nguồn D — contract submodule của Module 3</strong> (phát hiện 27/08/2026 qua review của M3): Giờ Vàng 2 cuộc, offsets <code>[0,300]</code>, window <strong>10 phút</strong>; 24/7 <strong>3 cuộc</strong>, offsets <code>[0,300,600]</code>, window 15 phút. Runtime backend của họ lại đang đặt <code>maxCalls=1</code>.</li><li><strong>Điểm nặng nhất:</strong> M3 nêu rằng <strong>không nguồn nào hiện có đỡ cho offsets <code>[0,150]</code></strong> — tức chính con số code IVR đang chạy. V0.3 vẫn giữ nguồn B làm rule triển khai, nhưng nay phải nói rõ nó không chỉ là "chưa ký", nó là "chưa nguồn nào xác nhận".</li><li>Đây vẫn là ĐỀ XUẤT, không phải quyết định: production sẽ từ chối version mock-lab-v1 cho tới khi owner ký một version khác. Với bốn nguồn mâu thuẫn thay vì ba, OD-V1-16 nặng thêm chứ không nhẹ đi. Xem B-04 và OD-V1-16.</li></ul></th></tr></tbody></table></div>
 
 ## **10.1. Rule chung**
 
@@ -228,7 +230,7 @@ V0.2 chỉ nêu một ngưỡng số duy nhất, nên mọi giá trị khác n�
 | MAX_ATTEMPT_PER_ORDER     | 2                          | PACK-09              | Chờ owner ký (B-04)              |
 | Window Giờ Vàng           | 5 phút                     | PACK-09              | Chờ owner ký (B-04)              |
 | Window 24/7               | 15 phút                    | PACK-09              | Chờ owner ký (B-04)              |
-| Attempt offsets GH        | 0s, 150s                   | registry mock-lab-v1 | Chờ owner ký (B-04)              |
+| Attempt offsets GH        | 0s, 150s                   | registry mock-lab-v1 | **KHÔNG NGUỒN NÀO ĐỠ** — M3 review 27/08 nêu không tài liệu nào hỗ trợ `[0,150]`. Xem §10 |
 | Attempt offsets 24/7      | 0s, 450s                   | registry mock-lab-v1 | Chờ owner ký (B-04)              |
 | SIM cooldown sau cuộc gọi | 5 giây                     | mặc định mock        | CHƯA — cần lab L-07              |
 | Ngưỡng quarantine kênh    | fail_count ≥ 3             | mặc định mock        | CHƯA — cần lab L-08              |
@@ -659,7 +661,7 @@ V0.2 nêu 6 quyết định. Rà soát thực tế cho thấy còn nhiều hơn 
 | OD-V1-08 / 16 | Attempt policy cuối cùng dùng rule nào, khi ba nguồn đang mâu thuẫn?                            | Product + Order Core    | Production (B-04)      |
 | OD-V1-09      | Giao thức lab 1 SIM, DTMF, disposition, danh sách số cho phép.                                  | Infra + vendor          | Lab (B-01)             |
 | OD-V1-10      | Năng lực nhiều kênh, failover, caller ID, chi phí.                                              | Infra + Procurement     | Production (B-07)      |
-| OD-V1-13      | Giờ Vàng thanh toán online có thuộc phạm vi IVR không? Nguồn business hiện đọc được chỉ có COD. | Product/Business        | Tích hợp thật (B-03)   |
+| OD-V1-13      | ~~Giờ Vàng thanh toán online có thuộc phạm vi IVR không?~~ **ĐÃ CÓ NGUỒN 27/08/2026.** M3 dẫn Flow 04 (dòng 838–850) và Flow 05 (dòng 426–435): khóa `24_7+COD` và `GOLDEN_HOUR+ONLINE`, Giờ Vàng phải từ chối `COD_NOT_ALLOWED`. Bảng ép trong code IVR **khớp nghiệp vụ**. Còn lại chỉ là ký wire mapping, không phải quyết lại business. | Product/Business        | Hạ từ CHẶN xuống ký mapping (IR-06 §3.10 R3, §3.11) |
 | OD-V1-14      | MỚI 27/08 (đã tồn tại trong sổ đăng ký nhưng thiếu ở bảng này): `ivr_confirmation_required` **không có nguồn business nào**. OpenAPI khai `enum:[true]` và DB ép `must be true`, tức cả hệ đang gate trên một field chưa ai định nghĩa. Nếu producer bên Sales không set field này thì **100% task bị từ chối 422 ngay ngày cắm thật**. | Product/Business + Sales Core | Tích hợp thật (B-03). Mức nghiêm trọng cao nhất bảng này. |
 | OD-V1-15      | Whitelist biến đọc trong call script: bộ hẹp 4 biến hay bộ rộng có danh sách sản phẩm?          | Product + Privacy/Legal | Nghiệm thu nghiệp vụ   |
 | OD-V1-17      | Một dial_token cho nhiều lượt gọi thì xử lý ra sao?                                             | Sales + Security        | Gọi thật (B-02)        |
