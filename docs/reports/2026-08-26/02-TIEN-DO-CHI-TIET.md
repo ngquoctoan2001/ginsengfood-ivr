@@ -259,7 +259,7 @@ kế hoạch 22/08 đã được đối soát lại với source hiện tại.
 | **Chưa chạy trên Sales thật** | mọi test tích hợp chạy với fake provider + WireMock |
 | **Chưa có credential sandbox** | không có credential ⇒ **không chạy được một test tích hợp thật nào** |
 | **Chưa deploy lần nào** | `helm rollback --atomic` đã cấu hình nhưng **chưa lượt deploy nào từng chạy** |
-| **Hosted CI đang `NOT_RUN`** | `remote.origin.pushurl` trỏ GitHub trong khi `remote.origin.url` fetch từ GitLab ⇒ mọi gate hiện **chỉ chạy local** |
+| **Hosted CI đang `NOT_RUN`** | `remote.origin.pushurl` trỏ GitHub trong khi `remote.origin.url` fetch từ GitLab ⇒ mọi gate hiện **chỉ chạy local**. *(Cập nhật `2026-08-27` — `W-0121` đã sửa lối đẩy: `origin` nay push tới cả GitLab lẫn GitHub. Vẫn `NOT_RUN` vì chưa push lượt nào.)* |
 | **Chưa có chữ ký nào của Legal/Privacy** | `DF-07` retention và `DT-05` recording đều `LEGAL_SIGNOFF_REQUIRED` |
 | **`OD-15` chưa skip ai** | Module 3 chưa gửi `trust.risk_evidence_available` ⇒ **mọi task vẫn được gọi** |
 | **Four-eyes chưa đủ chữ ký** | `OD-V1-20` mới có chữ ký owner module IVR; chữ ký Security/Platform + Release owner **vẫn trống** |

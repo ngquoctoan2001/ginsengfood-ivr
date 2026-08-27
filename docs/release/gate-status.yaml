@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "5 of 120 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 121 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 15
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 66
+  rows_without_evidence_pack: 67
 
 gates:
   - id: "G-CONTRACT"
@@ -293,7 +293,7 @@ work:
     evidence: "docs/evidence/W-0105/README.md"
   - id: "W-0106"
     prompt: "Regional voice routing — 3 giọng nữ Bắc/Trung/Nam (Origin=UNPLANNED, owner requested)"
-    status: "TESTS_PASS"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0106/README.md"
   - id: "W-0107"
     prompt: "Việt hóa giao diện + dữ liệu hiển thị (Origin=UNPLANNED, owner requested)"
@@ -345,11 +345,15 @@ work:
     evidence: "docs/evidence/W-0118/README.md"
   - id: "W-0119"
     prompt: "Bàn giao render 12 đoạn audio: sửa 2 lỗi chuỗi công cụ + bộ hướng dẫn owner (Origin=UNPLANNED, owner requested — Đợt 1 của kế hoạch 26/08)"
-    status: "TESTS_PASS"
+    status: "ACCEPTED"
     evidence: null
   - id: "W-0120"
     prompt: "Normalize là no-op trong runtime đã triển khai — địa chỉ \"thành phố\" bị từ chối (Origin=UNPLANNED, phát hiện khi chạy lab W-0106 §4.6)"
-    status: "TESTS_PASS"
+    status: "ACCEPTED"
+    evidence: null
+  - id: "W-0121"
+    prompt: "Lối đẩy code không tới GitLab nên hosted CI không thể chạy (Origin=UNPLANNED, owner requested)"
+    status: "CODE_DONE"
     evidence: null
   - id: "W-0029"
     prompt: "P4-1"

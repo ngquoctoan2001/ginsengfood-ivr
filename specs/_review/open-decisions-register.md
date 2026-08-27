@@ -1,6 +1,6 @@
 # REVIEW — Open Decisions Register
 
-Trạng thái: `OPEN` · Cập nhật: `2026-08-12` (bổ sung `OD-V1-13..21` từ red-team remediation W-0062). Không đóng bằng suy luận.
+Trạng thái: `OPEN` · Cập nhật: `2026-08-27` (`OD-VOICE-01` tách phạm vi lab/production; `OD-V1-21` sửa một mô tả đã lỗi thời). Không đóng bằng suy luận.
 
 > Mock/fake fixture **không bao giờ** đóng một dòng nào trong bảng này. Mock chỉ cho phép code tiếp tục.
 
@@ -38,7 +38,7 @@ Trạng thái: `OPEN` · Cập nhật: `2026-08-12` (bổ sung `OD-V1-13..21` t�
 | `OD-V1-18` | **Vị trí resolve `dial_token→E.164`.** `specs/api/04-sim-adapter-contract.md` nói adapter **không** nhận số; `P2-4` đặt resolver trong IVR. Gateway GSM/SIP thương mại quay số E.164. Trust boundary chưa được định nghĩa ở đâu. | Security + Telephony vendor | contradictory | Sơ đồ trust boundary đã duyệt + threat model + vendor capability statement | LAB_REAL_SIM |
 | `OD-V1-19` | **TTS/speech synthesis provider.** Không prompt nào implement audio thật; `P8-1` gọi `play` mà không có nguồn audio. Chọn vendor kéo theo PDPA (nội dung đơn rời mạng), cost và pronunciation acceptance. | Product + Infra + Privacy/Legal | `NOT_SELECTED` | Vendor decision + DPA/privacy review + pronunciation acceptance set + cost model | LAB_REAL_SIM |
 | `OD-V1-20` | **Production RBAC cho runtime-gate controls.** Bộ permission `DF-01` (LOCKED, 7 quyền) không có quyền nào cho phép sửa `labDestinationAllowlist` hoặc `globalDialKillSwitch`. Cần permission mới + four-eyes. | Security/Platform + Release owner | gap | Approved permission set + four-eyes policy + negative authz tests | LAB_REAL_SIM |
-| `OD-V1-21` | **GitLab platform provisioning.** TV1-12 khóa GitLab CI nhưng remote duy nhất hiện tại là GitHub. Cần GitLab project/mirror, Runner, Container Registry, protected branch, MR approvals, “Pipelines must succeed”, masked/protected variables. | Platform/Infra | `BLOCKED_EXTERNAL` (W-0061) | GitLab project URL + remote verification + runner identity + hosted MR pipeline + protected-branch export + registry push/pull proof | P0-2 hosted evidence |
+| `OD-V1-21` | **GitLab platform provisioning.** ~~TV1-12 khóa GitLab CI nhưng remote duy nhất hiện tại là GitHub.~~ **Sửa `2026-08-27`: vế này đã sai từ W-0011** — GitLab project tồn tại và chính là `origin`; runner `#55115499`, Container Registry, protected branch và hosted MR pipeline đều đã PASS trong evidence W-0011. Cái hỏng suốt từ đó là **lối đẩy code**: `remote.origin.pushurl` trỏ GitHub nên GitLab không nhận commit mới (`W-0121` sửa, GitLab đang thiếu 3 commit lúc phát hiện). Cần GitLab project/mirror, Runner, Container Registry, protected branch, MR approvals, “Pipelines must succeed”, masked/protected variables. | Platform/Infra | `BLOCKED_EXTERNAL` (W-0061) | GitLab project URL + remote verification + runner identity + hosted MR pipeline + protected-branch export + registry push/pull proof | P0-2 hosted evidence |
 
 ## Explicit non-decisions
 
@@ -52,11 +52,11 @@ Trạng thái: `OPEN` · Cập nhật: `2026-08-12` (bổ sung `OD-V1-13..21` t�
 
 | ID | Decision/data | Owner | Current | Closure evidence | Gate |
 | --- | --- | --- | --- | --- | --- |
-| `OD-VOICE-01` | **Nguồn giọng production.** Đã đảo hướng 3 lần: ElevenLabs loại vì giá → vendor Việt loại vì chất lượng (`myan` không đạt, mỗi vendor chỉ có 1 giọng nữ miền Trung) → quay lại ElevenLabs Starter `$6`/tháng, vì phép tính ban đầu tính theo **số cuộc gọi** thay vì **số câu nói duy nhất**; script cố định nên phần cố định chỉ render 609 ký tự một lần. Nối tiếp `OD-V1-19` | Product + Infra + Privacy/Legal | `ELEVENLABS_STARTER_PROPOSED` | Gói đã mua + **xác nhận ToS về audio sinh trong kỳ trả phí** + DPA + data residency + cost model + fallback khi voice ID biến mất | production |
+| `OD-VOICE-01` | **Nguồn giọng production.** Đã đảo hướng 3 lần: ElevenLabs loại vì giá → vendor Việt loại vì chất lượng (`myan` không đạt, mỗi vendor chỉ có 1 giọng nữ miền Trung) → quay lại ElevenLabs Starter `$6`/tháng, vì phép tính ban đầu tính theo **số cuộc gọi** thay vì **số câu nói duy nhất**; script cố định nên phần cố định chỉ render 609 ký tự một lần. Nối tiếp `OD-V1-19` | Product + Infra + Privacy/Legal | **lab `APPROVED` `2026-08-27`** (free tier, owner quyết) · **production vẫn `OPEN`** — xem ghi chú dưới bảng | Gói đã mua + **xác nhận ToS về audio sinh trong kỳ trả phí** + DPA + data residency + cost model + fallback khi voice ID biến mất | production |
 | `OD-VOICE-02` | **Phân miền theo tỉnh/thành.** Chia thuần theo 34 đơn vị cấp tỉnh (NQ `202/2025/QH15`), không biệt lệ; Tây Nguyên → Trung | Owner + Product | ✅ `CLOSED` 2026-08-22 | Bảng 34→3 miền + `UT-VOICE-REGION-01..03` phủ 34 tỉnh mới và 29 tên cũ | — |
 | `OD-VOICE-03` | **Một template.** Giữ đúng 1 script version `v3-test-approved`; biến thể `nghìn`/`ngàn` và `linh`/`lẻ` nằm trong bộ đọc số, không nằm trong template ⇒ `TemplateHash` không đổi | Product + Privacy/Legal | ✅ `CLOSED` 2026-08-22 | `UT-SCRIPT-VI-REGION-09` chứng minh 3 miền cùng một `TemplateHash` | — |
 | `OD-VOICE-04` | **Tự host / thu âm người thật thay vì thuê vendor.** Không model tiếng Việt open-source nào vừa chất lượng vừa sạch license (`viXTTS` = CPML non-commercial và Coqui đã đóng cửa 1/2024 nên không còn ai bán license; `F5-TTS` weights = CC-BY-NC). Đường sạch duy nhất là dữ liệu giọng của chính mình | Owner + Product + Legal | `OPEN` | Hợp đồng + license giọng voice actor; bộ clip đã thu; bằng chứng mối nối nghe mượt; model tự host (nếu dùng) Apache/MIT + train trên data của mình | production |
-| `OD-VOICE-05` | **Chốt 3 giọng không qua bước nghe** — Thắm (Bắc), Zara (Trung), Giang (Nam). Cơ sở là **mô tả văn bản, không phải nghe**; không ai trong chuỗi quyết định đã nghe ba giọng đó | Owner | ✅ `CLOSED` 2026-08-22 · **owner đã nghe trong app và chốt lại `2026-08-26`** — xem ghi chú dưới bảng | Voice ID đã verify trong ElevenLabs app ✅ `2026-08-26` + chữ ký sếp sau khi nghe **qua MicroSIP 8 kHz** (để đạt `ACCEPTED`) — ⏳ chưa có | LAB |
+| `OD-VOICE-05` | **Chốt 3 giọng không qua bước nghe** — Thắm (Bắc), Zara (Trung), Giang (Nam). Cơ sở là **mô tả văn bản, không phải nghe**; không ai trong chuỗi quyết định đã nghe ba giọng đó | Owner | ✅ `CLOSED` 2026-08-22 · **owner đã nghe trong app và chốt lại `2026-08-26`** — xem ghi chú dưới bảng | ✅ **ĐÓNG ĐỦ `2026-08-26`**: voice ID đã verify trong app **và** owner đã nghe cả ba miền qua MicroSIP 8 kHz rồi chấp nhận. W-0106 chuyển `ACCEPTED` (phạm vi lab, dữ liệu fake — đúng tiền lệ W-0104) | LAB |
 
 > `OD-VOICE-05` đóng lựa chọn, **không** đóng nghiệm thu. Chừng nào sếp chưa nghe và ký, trần
 > trạng thái W-0106 là `TESTS_PASS` chứ không phải `ACCEPTED` — theo đúng tiền lệ W-0104.
@@ -94,11 +94,46 @@ app, nghe, và giữ cả ba. Voice ID lấy trực tiếp từ app, không lấ
    kit vì vậy **không còn hiệu lực**; thay vào đó settings thật của từng giọng được ghi ở đây và
    trong `deploy/lab/asterisk/audio/manifest.txt` để truy nguồn được.
 
-**Còn lại để đạt `ACCEPTED`:** owner nghe **qua MicroSIP ở 8 kHz** rồi ký — tiền lệ W-0104. Nghe
-trong app là 44,1 kHz studio; khách nghe 8 kHz qua PCMU, và W-0104 đã có tiền lệ một cặp giọng
-bị từ chối **sau** khi nghe qua điện thoại.
+**✅ Bước nghe qua MicroSIP đã xong `2026-08-26`.** Owner nghe cả ba lượt ở 8 kHz — đúng chất
+lượng đầu dây, không phải bản studio 44,1 kHz trong app — và chấp nhận cả ba giọng. Đây là bước
+mà W-0104 đã có tiền lệ một cặp giọng bị **từ chối** sau khi nghe qua điện thoại, nên nó không
+phải thủ tục.
+
+Bằng chứng máy đo đi kèm: ba cuộc `IVR_CONFIRMED`, `voice_id` lần lượt
+`w0106-lab-north-tham` / `-central-zara` / `-south-giang`, `voice_region_resolved=true` cả ba.
+
+`W-0106` chuyển `TESTS_PASS → ACCEPTED`, **phạm vi đúng bằng tiền lệ W-0104: software lab, dữ
+liệu fake.** Không mở quyền gọi khách thật.
 
 **Chưa đóng `OD-VOICE-01`:** chưa xác nhận ba file này render trên gói trả phí. Nếu là free tier
 thì chúng dùng được cho **lab** (dữ liệu fake, không khách nào nghe) nhưng **không** dùng được cho
 production, và phải render lại sau khi mua. `manifest.txt` giữ
 `w0106_production_provider_authorized=NO`.
+
+### `OD-VOICE-01` — cập nhật `2026-08-27`: owner quyết dùng free tier cho lab
+
+Câu hỏi của owner: *“giờ đang dev test mà, dùng cái đó được không? chừng nào lên production rồi
+tính tới mua api.”* **Được** — và quyết định này không nới lỏng ràng buộc nào đang có.
+
+| Phạm vi | Trạng thái | Vì sao |
+| --- | --- | --- |
+| **Lab / dev / test** | ✅ `APPROVED` `2026-08-27` | Free tier không có commercial license, nhưng lab chạy **dữ liệu fake** và `REAL_CUSTOMER_CALL_ALLOWED=NO` — không khách nào nghe, nên không có “thương mại” để mà cần license |
+| **Production** | 🔴 vẫn `OPEN` | Cần gói trả phí + **xác nhận ToS về audio sinh ra trong kỳ trả phí** + DPA + data residency + cost model + fallback khi voice ID biến mất |
+
+Ba file MP3 hiện có, cùng 12 file đoạn cố định sắp render, vì vậy là **tài sản lab**.
+`manifest.txt` giữ nguyên `w0106_production_provider_authorized=NO`, và dòng đó là thứ chặn
+chúng rò sang production — không phải trí nhớ của ai.
+
+**Một rủi ro cần nói trước, vì nó có hạn sử dụng.** Thắm/Zara/Giang là **community voice**:
+chủ giọng có quyền gỡ khỏi thư viện bất cứ lúc nào, và ElevenLabs không cam kết giữ hộ. Nếu một
+giọng biến mất trước lúc mua gói thì thứ mất **không phải file đã render** (chúng nằm trong repo,
+ghim bằng SHA-256) mà là **khả năng render thêm** — tức là buổi nghe và ký vừa xong `2026-08-26`
+phải làm lại từ đầu với một giọng khác. Đây đúng là điều kiện “fallback khi voice ID biến mất”
+mà bảng trên đã liệt kê, chỉ là bây giờ nó có thật chứ không còn là giả định.
+
+Cách giảm rủi ro rẻ nhất, và tình cờ cũng là việc kế tiếp trên đường găng: **render 12 đoạn cố
+định ngay bây giờ.** Toàn bộ phần cố định của cả ba miền chỉ **609 ký tự** (203 ký tự × 3), nằm
+gọn trong hạn mức free tier. Làm xong thì phần văn xuôi — phần chiếm 203/266 ký tự mỗi kịch bản —
+được ghim vĩnh viễn bằng hash nội dung và không còn phụ thuộc vào việc giọng còn nằm trong thư
+viện hay không. Chỉ còn phần biến thiên (tên, tiền, số lượng) là cần endpoint TTS sống, và phần
+đó dù sao cũng phải chờ gói trả phí.

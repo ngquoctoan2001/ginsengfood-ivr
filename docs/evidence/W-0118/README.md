@@ -112,6 +112,6 @@ Bật cờ chính sách không tự nó skip ai. Chừng nào Module 3 chưa g�
 | Sales gửi `trust.risk_evidence_available` | `BLOCKED_EXTERNAL` — Module 3, xem [tài liệu bàn giao §6](../../../integration-requirements/06-module-3-api-handover.md) |
 | Module 3 xác nhận **không** gửi `trusted_skip_allowed=false` mặc định | `OWNER_DATA_REQUIRED` — nếu họ đang gửi, **không đơn nào skip được** |
 | Xác nhận tên mã `risk_flags` cuối cùng | `OWNER_DATA_REQUIRED` — `OD-15` dựa hoàn toàn vào tính đầy đủ của list này |
-| Hosted GitLab CI | `NOT_RUN` — `remote.origin.pushurl` trỏ GitHub trong khi `remote.origin.url` fetch từ GitLab, nên **mọi gate ở §8 chỉ chạy local** |
+| Hosted GitLab CI | `NOT_RUN` — **mọi gate ở §8 chỉ chạy local**. Nguyên nhân (`remote.origin.pushurl` trỏ GitHub trong khi `remote.origin.url` fetch từ GitLab, nên GitLab không nhận commit) **đã sửa `2026-08-27` ở `W-0121`**; verdict vẫn `NOT_RUN` cho tới khi có một lượt push thật và pipeline chạy xanh |
 | Owner/reviewer sign-off | Giữ `TESTS_PASS`, **không** `ACCEPTED` |
 | Real call / SIM / carrier evidence | `NOT_RUN`; `REAL_CUSTOMER_CALL_ALLOWED=NO` |

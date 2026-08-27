@@ -229,7 +229,7 @@ và `creator ≠ approver` được ép ở tầng code — **không** phải b�
 
 | # | Việc | Ai | Ghi chú |
 | --- | --- | --- | --- |
-| **K-60** | Sửa `remote.origin.pushurl` hoặc chốt lại chính sách CI, để gate chạy **hosted** thay vì local | Dev + Platform | rủi ro `N-2`: mọi gate của W-0104..W-0118 hiện chỉ chạy local |
+| **K-60** | ✅ **xong `2026-08-27` (`W-0121`)** — `remote.origin.pushurl` nay có hai giá trị (GitLab trước, GitHub sau), một `git push origin main` chạm cả hai | Dev + Platform | rủi ro `N-2` **chưa đóng**: sửa lối đẩy ≠ đã chạy hosted. Còn phải push thật. Protected `main` **không** chặn — fast-forward đã đi lọt `2026-08-25` (`bdde72c`); thứ chưa kiểm được là runner `#55115499` có online không |
 | **K-61** | Chạy lại toàn bộ gate trên hosted runner, lưu artifact | CI | |
 | **K-62** | Reviewer độc lập đọc 19 evidence pack `EVIDENCE_SUBMITTED` | Reviewer | `G-GITLAB` cần reviewer thứ hai — cùng người |
 | **K-63** | Owner chuyển trạng thái sang `ACCEPTED` cho từng work item đạt | Release owner | **chỉ Release owner** làm được (`MASTER-05`) |

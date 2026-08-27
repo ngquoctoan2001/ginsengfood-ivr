@@ -115,6 +115,17 @@ với SIM/carrier thật**. Cần vendor cung cấp protocol/SDK (`OD-V1-09`).
 từ **GitLab**. Hệ quả: **mọi gate CI hiện chỉ chạy local**, không có bằng chứng hosted cho các
 work item gần đây (W-0104 → W-0118).
 
+> **Cập nhật `2026-08-27` (`W-0121`).** Lối đẩy đã sửa: `remote.origin.pushurl` nay có hai giá
+> trị, GitLab trước rồi GitHub, nên một `git push origin main` chạm cả hai. Đo lúc phát hiện:
+> GitLab `main` đứng ở `8cd106c` còn local/GitHub ở `f4f4734` — **GitLab thiếu 3 commit**.
+> Điều này định lại bản chất của rủi ro: pipeline chưa bao giờ hỏng, nó chưa bao giờ **có gì để
+> chạy**. Verdict `NOT_RUN` **giữ nguyên** cho tới khi một lượt push thật đi qua. 
+>
+> Về dòng `Allowed to push and merge: No one` trong bảng ngay trên: cách đọc đó **đã cũ**. Một
+> lượt push fast-forward thẳng vào GitLab `main` đã **thành công `2026-08-25`** tại commit
+> `bdde72c`. Thứ còn lại chưa kiểm được từ máy là runner `#55115499` có online không — mọi job
+> kế thừa `tags: [ginsengfood-docker]`, thiếu runner thì pipeline sinh ra rồi treo `pending`.
+
 ---
 
 ## 3. Nhóm C — chỉ owner làm được (4 hạng mục)
@@ -229,7 +240,7 @@ retention · `OD-V1-12` thẩm quyền pilot/release + kill switch.
 | # | Rủi ro | Mức | Vì sao đáng lo | Giảm thiểu |
 | --- | --- | --- | --- | --- |
 | **N-1** | **"Đã gọi được trong lab" bị đọc thành "A1 đã xong"** | 🔴 CAO | Lab W-0104 phát **một file cố định**. Một kết quả "gọi được, khách bấm 1, disposition đúng" chứng minh **chặng quay số**, không chứng minh khách nghe đúng đơn của mình | Tiêu chí nghiệm thu A1 đòi **hai đơn khác nhau ⇒ hai chuỗi audio khác nhau** (so bằng `PlaylistHash`) — đó là phép thử phân biệt được hai thứ |
-| **N-2** | **Hosted CI không chạy** ⇒ mọi gate của W-0104..W-0118 chỉ là local | 🔴 CAO | `remote.origin.pushurl` trỏ GitHub. Evidence pack ghi "PASS" nhưng đó là PASS trên máy dev, không phải trên runner | Nêu rõ `NOT_RUN` trong từng evidence pack; cần đẩy về GitLab hoặc chốt lại chính sách CI |
+| **N-2** | **Hosted CI không chạy** ⇒ mọi gate của W-0104..W-0120 chỉ là local | 🔴 CAO | `remote.origin.pushurl` trỏ GitHub. Evidence pack ghi "PASS" nhưng đó là PASS trên máy dev, không phải trên runner | **Nguyên nhân đã sửa `2026-08-27` (`W-0121`)** — `origin` nay push tới cả hai remote. Rủi ro **chưa hạ mức**: phải có một lượt push và một pipeline xanh mới hạ được. Vẫn nêu rõ `NOT_RUN` trong từng evidence pack |
 | **N-3** | **`OD-15` bị Module 3 vô hiệu bằng default `false`** | 🟡 TB | Nếu Module 3 gửi `trusted_skip_allowed=false` như giá trị mặc định, **mọi đơn bị veto và không bao giờ skip** — mà không ai biết | Đã ghi thành mục checklist riêng trong tài liệu bàn giao; cần Module 3 xác nhận bằng văn bản |
 | **N-4** | **`order_state` hard-code `"CONFIRMING"`** | 🟡 TB | Module 3 đổi tên state ⇒ IVR trả `ORDER_STATE_NOT_CALLABLE` cho **toàn bộ** task mới, **im lặng, không alert nào bắt được** | Cần Module 3 chọn: công bố state callable như dữ liệu, hoặc cam kết hằng số hợp đồng |
 | **N-5** | **Chưa deploy lần nào** | 🟡 TB | `helm rollback --atomic` đã cấu hình nhưng chưa lượt deploy nào từng chạy. Rollback chưa từng được kiểm chứng trên hạ tầng thật | Chờ `G-PLATFORM`; DR selftest hiện chạy trên compose local |

@@ -171,11 +171,11 @@ Theo tiền lệ `A-0318`/`A-0319`:
 
 | # | Việc | Ai | Chặn bởi |
 | --- | --- | --- | --- |
-| 6.1 | Thu/render **12 MP3** đoạn cố định (4 câu × 3 miền) — hướng dẫn từng bước: [`segment-render-kit.md`](segment-render-kit.md) | Owner | phiên ElevenLabs; `OD-VOICE-01` |
+| 6.1 | Thu/render **12 MP3** đoạn cố định (4 câu × 3 miền) — hướng dẫn từng bước: [`segment-render-kit.md`](segment-render-kit.md) | Owner | ~~`OD-VOICE-01`~~ **đã gỡ chặn `2026-08-27`**: owner quyết dùng free tier cho lab. Chỉ còn cần một phiên ElevenLabs; tốn **609 ký tự** |
 | 6.2 | Chạy `Convert-LabSegmentAudio.ps1 -SourceDirectory ...` | Dev | 6.1 |
 | 6.3 | Dán khối `segments-compose-env.yml` vào anchor `x-asterisk-lab-env` (khối này đã gồm `Segmentation__Enabled=true` và `RegionalVoices__Enabled=true`). Bản `segments-appsettings.json` chỉ dùng cho deployment có mount appsettings — **không** dán được vào compose, xem §9.2 | Dev | 6.2 |
 | 6.4 | Gọi 6 lượt MicroSIP × 3 miền, **nghe** đúng đơn của từng lượt | Owner | 6.3 |
-| 6.5 | Cấu hình endpoint TTS thật cho đoạn biến thiên | Dev + Infra | `OD-VOICE-01` (mua gói) |
+| 6.5 | Cấu hình endpoint TTS thật cho đoạn biến thiên | Dev + Infra | `OD-VOICE-01` **nửa production** (mua gói) — nửa lab đã mở, nhưng phần biến thiên cần endpoint sống nên vẫn chờ |
 
 Lệnh in ra đúng 4 câu cần thu, không phải đi tìm trong tài liệu:
 

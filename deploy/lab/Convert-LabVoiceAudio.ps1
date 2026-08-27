@@ -75,6 +75,13 @@ param(
     # 0.75 — so read them off the filename rather than from memory.
     [hashtable]$RenderSettings = @{},
 
+    # Whether the owner has listened through MicroSIP at 8 kHz and accepted (OD-VOICE-05).
+    # Defaults to the not-yet state: a manifest that claims acceptance nobody gave is the one
+    # error this file must never make. Hardcoding it was how it kept claiming DEFERRED after the
+    # owner had in fact accepted, on 2026-08-26.
+    [ValidateSet('DEFERRED_OD_VOICE_05', 'ACCEPTED_OD_VOICE_05')]
+    [string]$ListeningAcceptance = 'DEFERRED_OD_VOICE_05',
+
     [DateTimeOffset]$GeneratedAt = [DateTimeOffset]::MinValue,
 
     [string]$FfmpegPath = 'ffmpeg',
@@ -212,7 +219,7 @@ if (-not $SkipManifestUpdate) {
     $manifest += "w0106_elevenlabs_account_label=$ElevenLabsAccountLabel"
     $manifest += 'w0106_output_format=pcm_s16le-8000hz-mono'
     $manifest += 'w0106_script_version=v3-test-approved'
-    $manifest += 'w0106_listening_acceptance=DEFERRED_OD_VOICE_05'
+    $manifest += "w0106_listening_acceptance=$ListeningAcceptance"
     foreach ($row in $results) {
         # Invariant decimal separator, spelled out. PowerShell 7 already expands numbers with
         # the invariant culture inside strings, so this is belt-and-braces rather than a fix —

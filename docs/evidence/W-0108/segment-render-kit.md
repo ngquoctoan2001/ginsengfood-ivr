@@ -5,7 +5,11 @@ Dành cho: **owner** (mục 6.1 của [`README.md`](README.md) §6 — việc du
 Nối tiếp: [`voice-audition-kit.md`](../W-0106/voice-audition-kit.md) — bộ kia chọn **giọng**, bộ này lấy **file**
 
 > Dữ liệu trong bộ này là **fake toàn bộ**. `REAL_CUSTOMER_CALL_ALLOWED=NO` không thay đổi.
-> Bộ này không đóng `OD-VOICE-01` và không cấp quyền gọi khách thật.
+> Bộ này không đóng nửa **production** của `OD-VOICE-01` và không cấp quyền gọi khách thật.
+>
+> **Cập nhật `2026-08-27`:** owner đã quyết dùng **free tier** cho lab, mua gói để dành tới lúc
+> lên production. §2 dưới đây đã viết lại theo quyết định đó — **không còn việc chặn nào** trước
+> khi mở ElevenLabs.
 
 ---
 
@@ -35,36 +39,48 @@ pwsh ./deploy/lab/Convert-LabSegmentAudio.ps1 -ListOnly
 
 ---
 
-## 2. Ba việc chặn — làm trước khi mở ElevenLabs
+## 2. Không còn việc chặn — nhưng có một ranh giới phải giữ
 
-### 2.1 · Mua gói Starter (`OD-VOICE-01`)
+### 2.1 · Free tier dùng được cho lượt render này (`OD-VOICE-01`, quyết `2026-08-27`)
 
-**Free tier không có commercial license.** File sinh ở free tier chỉ để nghe thử, **không** được
-dùng cho cuộc gọi thật. Đây không phải thủ tục hình thức: nó là rủi ro pháp lý **không rollback
-được sau khi đã gọi**.
+Owner đã quyết: đang dev/test thì dùng free tier, chuyện mua API để dành tới lúc lên production.
+Quyết định này **hợp lệ** — và lý do nó hợp lệ chính là ranh giới phải giữ:
 
 | | |
 | --- | --- |
-| Gói | **Starter** |
-| Giá | **`$6`/tháng** |
-| Đủ dùng không | 12 lần render × ~110 ký tự trung bình ≈ **1.300 ký tự**. Thừa rất nhiều |
+| Free tier có commercial license không | **Không** |
+| Vậy sao lab vẫn dùng được | Vì lab chạy **dữ liệu fake** và `REAL_CUSTOMER_CALL_ALLOWED=NO` — **không khách nào nghe**, nên không có hành vi thương mại nào để mà cần license |
+| Cái gì giữ ranh giới đó | Dòng `w0106_production_provider_authorized=NO` trong `manifest.txt`, chứ không phải trí nhớ của ai |
+| Lượt render này tốn bao nhiêu | Phần cố định là **203 ký tự/miền × 3 = 609 ký tự**. Phương án B (render rời từng câu) tốn đúng 609; phương án A (render cả câu liền rồi cắt) tốn 266 × 3 = **798** |
 
-### 2.2 · Đọc và **trích dẫn** điều khoản trước khi huỷ (`R18`)
+> Con số cũ trong bộ này ghi *"12 × ~110 ≈ 1.300 ký tự"* — **sai**, vì nó nhân đều 12 lần render
+> với nhau trong khi bốn câu dài rất lệch: `107` / `12` / `11` / `73` ký tự. Số đúng đo từ
+> `deploy/lab/speech-segments.json` (`fixedCharacters: 203`) là **609**.
 
-Câu hỏi phải có câu trả lời **bằng văn bản trích từ ToS**, không phải bằng suy đoán:
+**Hệ quả với production:** 12 file sinh ra ở đây là **tài sản lab**. Khi mua gói, chúng phải được
+**render lại** rồi ghim checksum mới — không được chép sang.
 
-> *Huỷ gói sau một tháng thì license thương mại của audio **đã sinh trong kỳ trả phí** còn hiệu
-> lực không?*
+### 2.2 · Vì sao nên render **ngay bây giờ**, không đợi mua gói
 
-| Trả lời | Việc phải làm |
-| --- | --- |
-| Còn hiệu lực | dán trích dẫn + link vào §7 dưới, huỷ được |
-| Không rõ / không tìm thấy | **duy trì gói trả phí**. `$6`/tháng vẫn rẻ hơn mọi phương án khác |
+Thắm/Zara/Giang là **community voice**. Chủ giọng có quyền gỡ khỏi Voice Library bất cứ lúc nào
+và ElevenLabs không cam kết giữ hộ. Nếu một giọng biến mất trước lúc mua gói thì thứ mất **không
+phải** ba file đã render — chúng nằm trong repo, ghim bằng SHA-256 — mà là **khả năng render
+thêm**. Tức là buổi nghe và ký vừa xong `2026-08-26` phải làm lại từ đầu với một giọng khác.
 
-### 2.3 · Tài khoản doanh nghiệp, không phải cá nhân (`R16`)
+Render 12 đoạn bây giờ ghim vĩnh viễn **203/266 ký tự mỗi kịch bản** bằng hash nội dung. Phần còn
+lại (tên, tiền, số lượng) vẫn cần endpoint TTS sống, và phần đó dù sao cũng phải chờ gói trả phí.
 
-Ghi lại nhãn tài khoản đã dùng. FPT.AI đã ngừng phục vụ khách hàng cá nhân từ `6/7/2026` — đó là
-tín hiệu vendor đổi chính sách, và ElevenLabs không miễn nhiễm.
+### 2.3 · Hai việc chuyển sang **điều kiện production**, không chặn lượt này
+
+Vẫn phải làm, chỉ là làm trước khi lên production chứ không phải trước khi mở ElevenLabs:
+
+| # | Việc | Vì sao |
+| --- | --- | --- |
+| `R18` | Đọc và **trích dẫn** ToS: *huỷ gói sau một tháng thì license thương mại của audio đã sinh trong kỳ trả phí còn hiệu lực không?* | Câu này phải có câu trả lời **bằng văn bản trích từ ToS**, không phải bằng suy đoán. Không rõ ⇒ **duy trì gói trả phí**; `$6`/tháng vẫn rẻ hơn mọi phương án khác |
+| `R16` | Dùng **tài khoản doanh nghiệp**, không phải cá nhân, và ghi lại nhãn tài khoản | FPT.AI đã ngừng phục vụ khách hàng cá nhân từ `6/7/2026` — tín hiệu vendor đổi chính sách, và ElevenLabs không miễn nhiễm |
+
+Nhãn tài khoản thì **ghi ngay từ lượt này** (§7 mục 5), kể cả khi đang là free tier — để sau này
+truy được file nào sinh từ tài khoản nào.
 
 ---
 
@@ -234,17 +250,20 @@ Hai lỗi tìm thấy trong lượt kiểm đó đã được sửa — xem [`RE
 | 3 | Model + settings đã dùng | v3 · stability ____ · similarity ____ · style ____ · speed ____ |
 | 4 | SHA-256 của từng MP3 nguồn | script tự ghi vào `segments-manifest.txt` |
 | 5 | Ngày render + nhãn tài khoản | ______ · ______ |
-| 6 | **Trích dẫn ToS** về audio sinh trong kỳ trả phí (§2.2) | ______ |
+| 6 | **Trích dẫn ToS** về audio sinh trong kỳ trả phí (§2.3 `R18`) | *bỏ trống được ở lượt free-tier này — bắt buộc trước production* |
 | 7 | Phương án đã dùng: A (cắt) hay B (rời) | ______ |
 
 ---
 
 ## 8. Ranh giới — bộ này **không** làm gì
 
-- **Không** đóng `OD-VOICE-01`. Mua gói mới là một nửa; DPA, data residency, cost model và
-  phương án lui khi voice ID biến mất khỏi Voice Library vẫn còn mở.
-- **Không** đóng `OD-VOICE-05`. Owner vẫn phải **nghe qua MicroSIP** rồi ký; chưa ký thì trần
-  trạng thái W-0106/W-0108 là `TESTS_PASS`, không phải `ACCEPTED`.
+- **Không** đóng nửa **production** của `OD-VOICE-01`. Nửa **lab** đã `APPROVED` `2026-08-27`
+  (free tier). Nửa còn lại vẫn mở: gói trả phí, trích dẫn ToS, DPA, data residency, cost model và
+  phương án lui khi voice ID biến mất khỏi Voice Library.
+- `OD-VOICE-05` **đã đóng** `2026-08-26` — owner nghe cả ba giọng qua MicroSIP ở 8 kHz và chấp
+  nhận; W-0106 đã lên `ACCEPTED` (phạm vi lab, dữ liệu fake). Điều đó **không** miễn bước 6.4:
+  nghe ba giọng ≠ nghe **mối nối** giữa đoạn thu sẵn và đoạn tổng hợp, và mối nối mới là thứ bộ
+  này sinh ra.
 - **Không** mở quyền gọi khách thật. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 - **Không** thay nửa còn lại. 3 mảnh động vẫn cần endpoint TTS thật
   (`Ivr__Speech__Tts__External__*`). Bật `Segmentation.Enabled=true` khi catalog thiếu một câu ⇒
