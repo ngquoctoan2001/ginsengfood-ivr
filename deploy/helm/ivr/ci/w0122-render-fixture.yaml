@@ -1,0 +1,58 @@
+# TEST_ONLY_RENDER_FIXTURE — never deploy. Synthetic approvals, voices, digests and PVC names exist
+# solely to prove that every W-0122 fail-closed Helm guard can be satisfied together and produces
+# structurally valid YAML. No value in this file represents Owner/Legal/Infra acceptance.
+governance:
+  environmentName: prod
+  executionMode: PRODUCTION_REAL
+  realCustomerCallAllowed: false
+
+worker:
+  tts:
+    enabled: true
+    image:
+      repository: registry.invalid/ivr/vieneu-tts
+      digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+    modelBundle:
+      existingClaim: test-only-vieneu-models
+      lockSha256: "1111111111111111111111111111111111111111111111111111111111111111"
+    voiceAcceptance:
+      existingConfigMap: test-only-voice-acceptance
+      key: voice-acceptance-manifest.json
+      mountPath: /run/ivr-tts/voice-acceptance-manifest.json
+    mediaSink:
+      type: rwx-pvc
+      existingClaim: test-only-speech-media
+    approvals:
+      legalRef: TEST_ONLY_RENDER_FIXTURE
+      platformRef: TEST_ONLY_RENDER_FIXTURE
+      telephonyRef: TEST_ONLY_RENDER_FIXTURE
+      internalMirrorRef: TEST_ONLY_RENDER_FIXTURE
+      voiceAcceptanceRef: TEST_ONLY_RENDER_FIXTURE
+    resources:
+      requests: { cpu: 500m, memory: 512Mi }
+      limits: { cpu: "2", memory: 2Gi }
+    voices:
+      North:
+        voiceId: test-only-north
+        speakingRate: 1.0
+        fixedSegments: &testFixedSegments
+          - { textHash: 4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2, mediaReference: "sound:generated/north-s1", durationMilliseconds: 1000 }
+          - { textHash: 95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5, mediaReference: "sound:generated/north-s3", durationMilliseconds: 1000 }
+          - { textHash: 53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e, mediaReference: "sound:generated/north-s5", durationMilliseconds: 1000 }
+          - { textHash: 764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3, mediaReference: "sound:generated/north-s7", durationMilliseconds: 1000 }
+      Central:
+        voiceId: test-only-central
+        speakingRate: 1.0
+        fixedSegments:
+          - { textHash: 4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2, mediaReference: "sound:generated/central-s1", durationMilliseconds: 1000 }
+          - { textHash: 95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5, mediaReference: "sound:generated/central-s3", durationMilliseconds: 1000 }
+          - { textHash: 53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e, mediaReference: "sound:generated/central-s5", durationMilliseconds: 1000 }
+          - { textHash: 764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3, mediaReference: "sound:generated/central-s7", durationMilliseconds: 1000 }
+      South:
+        voiceId: test-only-south
+        speakingRate: 1.0
+        fixedSegments:
+          - { textHash: 4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2, mediaReference: "sound:generated/south-s1", durationMilliseconds: 1000 }
+          - { textHash: 95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5, mediaReference: "sound:generated/south-s3", durationMilliseconds: 1000 }
+          - { textHash: 53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e, mediaReference: "sound:generated/south-s5", durationMilliseconds: 1000 }
+          - { textHash: 764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3, mediaReference: "sound:generated/south-s7", durationMilliseconds: 1000 }

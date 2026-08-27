@@ -34,6 +34,10 @@ worker:
     minReplicas: 1
     maxReplicas: 2
     simPoolSize: 32
+  # W-0122 stays fail-closed until OD-VOICE-06/07/08, G-LEGAL/G-PLATFORM/G-DIAL/G-ESIM32,
+  # internal mirror and target-hardware evidence are all supplied.
+  tts:
+    enabled: false
 
 ui:
   replicas: 2

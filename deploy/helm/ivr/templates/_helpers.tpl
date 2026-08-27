@@ -37,6 +37,85 @@ and the only one that cannot be skipped by a hurried operator.
   {{- fail "A non-MOCK execution mode requires the kill switch to remain enabled." -}}
 {{- end -}}
 {{- include "ivr.assertDatabaseTls" . -}}
+{{- include "ivr.assertTtsCandidate" . -}}
+{{- end -}}
+
+{{/*
+W-0122. A self-hosted TTS sidecar changes the worker Pod's supply chain, resource footprint and
+media trust boundary. The default is disabled. If an operator enables it, every unresolved owner
+gate must become an explicit render failure rather than a half-configured Pod.
+*/}}
+{{- define "ivr.assertTtsCandidate" -}}
+{{- $tts := .Values.worker.tts -}}
+{{- if $tts.enabled -}}
+  {{- $env := .Values.governance.environmentName | default "dev" -}}
+  {{- if ne $env "prod" -}}
+    {{- fail (printf "worker.tts.enabled is true in '%s'. W-0122 Helm wiring is a production candidate; lab must use the explicit Compose overlay." $env) -}}
+  {{- end -}}
+  {{- if ne .Values.governance.executionMode "PRODUCTION_REAL" -}}
+    {{- fail "worker.tts.enabled requires governance.executionMode=PRODUCTION_REAL; the external provider is forbidden in MOCK." -}}
+  {{- end -}}
+  {{- if or (not $tts.image.repository) (regexMatch "@|:[^/]+$" $tts.image.repository) -}}
+    {{- fail "worker.tts.image.repository must name an internal repository without a tag or embedded digest." -}}
+  {{- end -}}
+  {{- if not (regexMatch "^sha256:[a-f0-9]{64}$" $tts.image.digest) -}}
+    {{- fail "worker.tts.image.digest must be an exact sha256 digest." -}}
+  {{- end -}}
+  {{- if or (not $tts.modelBundle.existingClaim) (not (regexMatch "^[a-f0-9]{64}$" $tts.modelBundle.lockSha256)) -}}
+    {{- fail "worker.tts.modelBundle requires an existingClaim and the approved 64-character MODELS.lock SHA-256." -}}
+  {{- end -}}
+  {{- if or
+        (not $tts.voiceAcceptance.existingConfigMap)
+        (gt (len $tts.voiceAcceptance.existingConfigMap) 253)
+        (not (regexMatch "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$" $tts.voiceAcceptance.existingConfigMap))
+        (ne $tts.voiceAcceptance.key "voice-acceptance-manifest.json")
+        (ne $tts.voiceAcceptance.mountPath "/run/ivr-tts/voice-acceptance-manifest.json") -}}
+    {{- fail "worker.tts.voiceAcceptance requires a valid existingConfigMap and the fixed voice-acceptance-manifest.json key/mount path." -}}
+  {{- end -}}
+  {{- if or (ne $tts.mediaSink.type "rwx-pvc") (not $tts.mediaSink.existingClaim) -}}
+    {{- fail "worker.tts.mediaSink must be an owner-approved rwx-pvc with an existingClaim; OD-VOICE-08 is not inferred by the chart." -}}
+  {{- end -}}
+  {{- range $name, $value := dict
+        "legalRef" $tts.approvals.legalRef
+        "platformRef" $tts.approvals.platformRef
+        "telephonyRef" $tts.approvals.telephonyRef
+        "internalMirrorRef" $tts.approvals.internalMirrorRef
+        "voiceAcceptanceRef" $tts.approvals.voiceAcceptanceRef -}}
+    {{- if not $value -}}
+      {{- fail (printf "worker.tts.approvals.%s is required before the production candidate can render." $name) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if or
+        (not $tts.resources.requests.cpu)
+        (not $tts.resources.requests.memory)
+        (not $tts.resources.limits.cpu)
+        (not $tts.resources.limits.memory) -}}
+    {{- fail "worker.tts.resources needs measured CPU/memory requests and limits; laptop defaults are forbidden." -}}
+  {{- end -}}
+  {{- range $region, $voice := $tts.voices -}}
+    {{- if or (not $voice.voiceId) (lt (float64 $voice.speakingRate) 0.5) (gt (float64 $voice.speakingRate) 2.0) -}}
+      {{- fail (printf "worker.tts.voices.%s needs an owner-accepted voiceId and speakingRate between 0.5 and 2.0." $region) -}}
+    {{- end -}}
+    {{- if ne (len $voice.fixedSegments) 4 -}}
+      {{- fail (printf "worker.tts.voices.%s must carry exactly four accepted fixed-segment entries." $region) -}}
+    {{- end -}}
+    {{- range $segment := $voice.fixedSegments -}}
+      {{- if or
+            (not (regexMatch "^[a-f0-9]{64}$" $segment.textHash))
+            (not (regexMatch "^sound:[A-Za-z0-9/_-]+$" $segment.mediaReference))
+            (lt (int $segment.durationMilliseconds) 1)
+            (gt (int $segment.durationMilliseconds) 300000) -}}
+        {{- fail (printf "worker.tts.voices.%s contains an invalid fixed-segment hash/reference/duration." $region) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if or
+        (eq $tts.voices.North.voiceId $tts.voices.Central.voiceId)
+        (eq $tts.voices.North.voiceId $tts.voices.South.voiceId)
+        (eq $tts.voices.Central.voiceId $tts.voices.South.voiceId) -}}
+    {{- fail "worker.tts requires three distinct owner-accepted regional voice IDs." -}}
+  {{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{/*

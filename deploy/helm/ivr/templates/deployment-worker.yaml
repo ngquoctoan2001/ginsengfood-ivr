@@ -31,6 +31,10 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+        {{- if .Values.worker.tts.enabled }}
+        fsGroup: 1654
+        fsGroupChangePolicy: OnRootMismatch
+        {{- end }}
       containers:
         - name: worker
           image: "{{ include "ivr.image" . }}ivr-worker:{{ .Values.image.tag }}"
@@ -38,6 +42,50 @@ spec:
           env:
             {{- include "ivr.governanceEnv" . | nindent 12 }}
             {{- include "ivr.dbEnv" . | nindent 12 }}
+            {{- if .Values.worker.tts.enabled }}
+            - name: Ivr__Speech__Tts__Provider
+              value: EXTERNAL_CONFIGURABLE
+            - name: Ivr__Speech__Tts__VoiceId
+              value: {{ .Values.worker.tts.voices.North.voiceId | quote }}
+            - name: Ivr__Speech__Tts__SpeakingRate
+              value: {{ .Values.worker.tts.voices.North.speakingRate | quote }}
+            - name: Ivr__Speech__Tts__OutputFormat
+              value: audio/L16
+            - name: Ivr__Speech__Tts__SampleRate
+              value: "8000"
+            - name: Ivr__Speech__Tts__TimeoutMilliseconds
+              value: {{ .Values.worker.tts.timeoutMilliseconds | quote }}
+            - name: Ivr__Speech__Tts__ProductionWhitelistApprovalRecord
+              value: {{ .Values.worker.tts.approvals.voiceAcceptanceRef | quote }}
+            - name: Ivr__Speech__Tts__External__Endpoint
+              value: {{ printf "http://127.0.0.1:%v/synthesize" .Values.worker.tts.port | quote }}
+            - name: Ivr__Speech__Tts__External__RequestBodyTemplate
+              value: {{ .Values.worker.tts.requestBodyTemplate | quote }}
+            - name: Ivr__Speech__Tts__External__MediaOutputDirectory
+              value: {{ .Values.worker.tts.mediaSink.mountPath | quote }}
+            - name: Ivr__Speech__Tts__External__MediaReferencePrefix
+              value: {{ .Values.worker.tts.mediaSink.mediaReferencePrefix | quote }}
+            - name: Ivr__Speech__Tts__RegionalVoices__Enabled
+              value: "true"
+            - name: Ivr__Speech__Tts__Segmentation__Enabled
+              value: "true"
+            - name: Ivr__Speech__Tts__Segmentation__FixedSegments
+              value: Catalog
+            {{- range $region, $voice := .Values.worker.tts.voices }}
+            - name: {{ printf "Ivr__Speech__Tts__RegionalVoices__%s__VoiceId" $region }}
+              value: {{ $voice.voiceId | quote }}
+            - name: {{ printf "Ivr__Speech__Tts__RegionalVoices__%s__SpeakingRate" $region }}
+              value: {{ $voice.speakingRate | quote }}
+            {{- range $index, $segment := $voice.fixedSegments }}
+            - name: {{ printf "Ivr__Speech__Tts__RegionalVoices__%s__FixedSegments__%d__TextHash" $region $index }}
+              value: {{ $segment.textHash | quote }}
+            - name: {{ printf "Ivr__Speech__Tts__RegionalVoices__%s__FixedSegments__%d__MediaReference" $region $index }}
+              value: {{ $segment.mediaReference | quote }}
+            - name: {{ printf "Ivr__Speech__Tts__RegionalVoices__%s__FixedSegments__%d__DurationMilliseconds" $region $index }}
+              value: {{ $segment.durationMilliseconds | quote }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -77,3 +125,104 @@ spec:
             failureThreshold: 3
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}
+          {{- if .Values.worker.tts.enabled }}
+          volumeMounts:
+            - name: speech-media
+              mountPath: {{ .Values.worker.tts.mediaSink.mountPath }}
+          {{- end }}
+        {{- if .Values.worker.tts.enabled }}
+        - name: vieneu-tts
+          image: "{{ .Values.worker.tts.image.repository }}@{{ .Values.worker.tts.image.digest }}"
+          imagePullPolicy: {{ .Values.worker.tts.image.pullPolicy }}
+          env:
+            - name: IVR_EXECUTION_MODE
+              value: {{ .Values.governance.executionMode | quote }}
+            - name: REAL_CUSTOMER_CALL_ALLOWED
+              value: {{ ternary "YES" "NO" .Values.governance.realCustomerCallAllowed | quote }}
+            - name: VIE_NEU_BACKEND
+              value: vieneu-onnx
+            - name: VIE_NEU_HOST
+              value: 127.0.0.1
+            - name: VIE_NEU_PORT
+              value: {{ .Values.worker.tts.port | quote }}
+            - name: VIE_NEU_AUDITION_MODE
+              value: "0"
+            - name: VIE_NEU_VOICE_ACCEPTANCE_MANIFEST
+              value: {{ .Values.worker.tts.voiceAcceptance.mountPath | quote }}
+            - name: VIE_NEU_ALLOWED_VOICE_IDS
+              value: {{ printf "%s,%s,%s" .Values.worker.tts.voices.North.voiceId .Values.worker.tts.voices.Central.voiceId .Values.worker.tts.voices.South.voiceId | quote }}
+            - name: VIE_NEU_MAX_CONCURRENCY
+              value: {{ .Values.worker.tts.maxConcurrency | quote }}
+            - name: VIE_NEU_MAX_TEXT_CHARS
+              value: {{ .Values.worker.tts.maxTextChars | quote }}
+            - name: VIE_NEU_MAX_DURATION_SECONDS
+              value: {{ .Values.worker.tts.maxDurationSeconds | quote }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1654
+            runAsGroup: 1654
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          startupProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - {{ printf "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:%v/health/ready', timeout=2).status == 200" .Values.worker.tts.port | quote }}
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - {{ printf "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:%v/health/ready', timeout=2).status == 200" .Values.worker.tts.port | quote }}
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - {{ printf "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:%v/health/live', timeout=2).status == 200" .Values.worker.tts.port | quote }}
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.worker.tts.resources | nindent 12 }}
+          volumeMounts:
+            - name: tts-model
+              mountPath: {{ .Values.worker.tts.modelBundle.mountPath }}
+              readOnly: true
+            - name: tts-voice-acceptance
+              mountPath: {{ .Values.worker.tts.voiceAcceptance.mountPath }}
+              subPath: {{ .Values.worker.tts.voiceAcceptance.key }}
+              readOnly: true
+            - name: tts-tmp
+              mountPath: /tmp
+        {{- end }}
+      {{- if .Values.worker.tts.enabled }}
+      volumes:
+        - name: tts-model
+          persistentVolumeClaim:
+            claimName: {{ .Values.worker.tts.modelBundle.existingClaim }}
+            readOnly: true
+        - name: speech-media
+          persistentVolumeClaim:
+            claimName: {{ .Values.worker.tts.mediaSink.existingClaim }}
+        - name: tts-voice-acceptance
+          configMap:
+            name: {{ .Values.worker.tts.voiceAcceptance.existingConfigMap }}
+            items:
+              - key: {{ .Values.worker.tts.voiceAcceptance.key }}
+                path: {{ .Values.worker.tts.voiceAcceptance.key }}
+        - name: tts-tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi
+      {{- end }}

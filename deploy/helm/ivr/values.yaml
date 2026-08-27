@@ -58,6 +58,55 @@ worker:
   resources:
     requests: { cpu: 100m, memory: 192Mi }
     limits: { cpu: 1000m, memory: 512Mi }
+  # W-0122 production candidate. Off by default and guarded at Helm render time. Lab uses the
+  # explicit docker-compose.vieneu-tts.yml overlay; this block must never be enabled merely to
+  # reproduce a laptop test.
+  tts:
+    enabled: false
+    image:
+      # Exact internal repository plus sha256 digest; tags are deliberately unsupported here.
+      repository: ""
+      digest: ""
+      pullPolicy: IfNotPresent
+    port: 8090
+    modelBundle:
+      # Pre-populated from the owner-approved internal mirror. The chart performs no model fetch.
+      existingClaim: ""
+      lockSha256: ""
+      mountPath: /models
+    voiceAcceptance:
+      # ConfigMap data must contain the completed Owner artifact. The chart references it; the
+      # pending template and synthetic CI fixture carry no approval authority.
+      existingConfigMap: ""
+      key: voice-acceptance-manifest.json
+      mountPath: /run/ivr-tts/voice-acceptance-manifest.json
+    mediaSink:
+      # Current chart supports only a shared RWX PVC because the telephony consumer is not in this
+      # Pod. Co-locating that consumer is a separate topology change under OD-VOICE-08.
+      type: UNDECIDED
+      existingClaim: ""
+      mountPath: /var/lib/ivr/speech
+      mediaReferencePrefix: "sound:generated/"
+    approvals:
+      legalRef: ""
+      platformRef: ""
+      telephonyRef: ""
+      internalMirrorRef: ""
+      voiceAcceptanceRef: ""
+    timeoutMilliseconds: 30000
+    maxConcurrency: 1
+    maxTextChars: 1200
+    maxDurationSeconds: 120
+    requestBodyTemplate: >-
+      {"text":"{{text}}","voice_id":"{{voice_id}}","locale":"{{locale}}","speaking_rate":{{speaking_rate}},"output_format":"{{output_format}}","sample_rate":{{sample_rate}}}
+    resources:
+      # Placeholders remain intentionally empty until target-hardware measurement is approved.
+      requests: {}
+      limits: {}
+    voices:
+      North: { voiceId: "", speakingRate: 1.0, fixedSegments: [] }
+      Central: { voiceId: "", speakingRate: 1.0, fixedSegments: [] }
+      South: { voiceId: "", speakingRate: 1.0, fixedSegments: [] }
 
 ui:
   replicas: 2
