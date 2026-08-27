@@ -1,0 +1,35 @@
+# W-0122 — isolated Asterisk/MicroSIP voice-audition overlay.
+#
+# This profile mounts only the 11 locked 8 kHz audition WAVs and a dialplan that can play them
+# from the registered LAB-A softphone. It has no trunk, no Dial()/Stasis() application and the
+# catch-all extension hangs up, so it cannot call a customer or enter the order-call workflow.
+
+services:
+  w0122-audition-verify:
+    image: busybox:1.37.0-musl@sha256:29989570aeecad61a019f684218ea74d4b8c1c74f9e0abeb34ca926b81174ee1
+    command:
+      - sh
+      - -ec
+      - |
+        cd /audio
+        sha256sum -c -w /checks/SHA256SUMS
+        set -- audition-*.wav
+        [ "$${#}" -eq 11 ]
+        echo "W0122_AUDITION_VERIFY_PASS files=11"
+    volumes:
+      - ./artifacts/w-0122-voice-audition:/audio:ro
+      - ./deploy/lab/asterisk/w0122-audition/SHA256SUMS:/checks/SHA256SUMS:ro
+    network_mode: none
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt:
+      - no-new-privileges:true
+    restart: "no"
+
+  asterisk:
+    volumes:
+      - ./artifacts/w-0122-voice-audition:/var/lib/asterisk/sounds/w0122-audition:ro
+      - ./deploy/lab/asterisk/w0122-audition/extensions.conf:/etc/asterisk/extensions.conf:ro
+    depends_on:
+      w0122-audition-verify:
+        condition: service_completed_successfully

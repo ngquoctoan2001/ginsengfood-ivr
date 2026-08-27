@@ -3,6 +3,10 @@
 # This file is never loaded by `docker compose up` on its own. It must be named
 # explicitly alongside docker-compose.dev.yml, and it remains pinned to one opaque
 # destination alias (LAB-A). It cannot dial a PSTN number or a real customer.
+#
+# W-0122 self-hosted TTS is a third, explicit overlay: docker-compose.vieneu-tts.yml. Keeping it
+# separate is a fail-closed boundary: the accepted W-0106 static lab remains runnable while model,
+# three voice selections and the 12 fixed-segment catalog are still owner-gated.
 
 x-asterisk-lab-env: &asterisk-lab-env
   IVR_EXECUTION_MODE: LAB_REAL_SIM

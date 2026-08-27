@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    W-0106 A1 — chuyển 12 file MP3 đoạn cố định (4 đoạn × 3 miền) về PCM 8 kHz và ghim SHA-256.
+    W-0106/W-0122 — chuyển 12 file MP3 hoặc WAV đoạn cố định về PCM 8 kHz và ghim SHA-256.
 
 .DESCRIPTION
     Bổ sung cho `Convert-LabVoiceAudio.ps1`, KHÔNG thay thế. File kia dựng bản thu nguyên cuộc
@@ -20,8 +20,16 @@
     metadata encoder lọt vào WAV và cùng một MP3 nguồn ra hash khác nhau giữa hai bản ffmpeg.
 
 .PARAMETER SourceDirectory
-    Thư mục chứa MP3 nguồn, đặt tên `<miền>-s<ordinal>.mp3` — ví dụ `north-s1.mp3`, `north-s3.mp3`,
-    `central-s1.mp3`. `ordinal` lấy đúng từ `speech-segments.json` (đoạn cố định là 1, 3, 5, 7).
+    Thư mục chứa file nguồn, đặt tên `<miền>-s<ordinal><SourceExtension>` — ví dụ
+    `north-s1.mp3` hoặc `north-s1.wav`. `ordinal` lấy đúng từ `speech-segments.json`.
+
+.PARAMETER SourceExtension
+    Định dạng nguồn tường minh: `.mp3` (mặc định, giữ đường W-0119) hoặc `.wav` (VieNeu/W-0122).
+    Script không tự đoán và không dò fallback sang extension khác.
+
+.PARAMETER OutputDirectory
+    Thư mục nhận PCM/manifests. Bỏ trống để dùng `deploy/lab/asterisk/audio` như trước. Tham số
+    này cho phép regression chạy trong sandbox mà không ghi đè evidence audio của repo.
 
 .PARAMETER Region
     Chỉ xử lý một miền. Bỏ trống để xử lý cả ba.
@@ -30,12 +38,21 @@
     ./deploy/lab/Convert-LabSegmentAudio.ps1 -SourceDirectory ./artifacts/w-0106-segments
 
 .EXAMPLE
+    ./deploy/lab/Convert-LabSegmentAudio.ps1 -SourceDirectory ./artifacts/w-0122-fixed `
+        -SourceExtension .wav
+
+.EXAMPLE
     # In ra đúng những câu cần thu, trước khi mở ElevenLabs.
     ./deploy/lab/Convert-LabSegmentAudio.ps1 -ListOnly
 #>
 [CmdletBinding()]
 param(
     [string]$SourceDirectory,
+
+    [ValidateSet('.mp3', '.wav')]
+    [string]$SourceExtension = '.mp3',
+
+    [string]$OutputDirectory,
 
     [ValidateSet('north', 'central', 'south')]
     [string[]]$Region,
@@ -48,7 +65,11 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$audioDirectory = Join-Path $PSScriptRoot 'asterisk/audio'
+$audioDirectory = if ($OutputDirectory) {
+    [System.IO.Path]::GetFullPath($OutputDirectory)
+} else {
+    Join-Path $PSScriptRoot 'asterisk/audio'
+}
 $manifestPath = Join-Path $PSScriptRoot 'speech-segments.json'
 
 if (-not (Test-Path -LiteralPath $manifestPath)) {
@@ -86,6 +107,14 @@ if (-not $SourceDirectory) {
     throw 'Thiếu -SourceDirectory. Dùng -ListOnly nếu chỉ muốn xem danh sách câu cần thu.'
 }
 
+if (-not (Test-Path -LiteralPath $SourceDirectory -PathType Container)) {
+    throw "Thư mục nguồn không tồn tại: $SourceDirectory"
+}
+
+if (-not (Test-Path -LiteralPath $audioDirectory -PathType Container)) {
+    throw "Thư mục đầu ra không tồn tại: $audioDirectory"
+}
+
 if (-not (Get-Command $FfmpegPath -ErrorAction SilentlyContinue)) {
     throw "Không tìm thấy ffmpeg ('$FfmpegPath'). Cài rồi chạy lại, hoặc truyền -FfmpegPath."
 }
@@ -94,7 +123,7 @@ $results = [System.Collections.Generic.List[object]]::new()
 
 foreach ($regionName in $regions) {
     foreach ($segment in $fixedSegments) {
-        $sourcePath = Join-Path $SourceDirectory "$regionName-s$($segment.ordinal).mp3"
+        $sourcePath = Join-Path $SourceDirectory "$regionName-s$($segment.ordinal)$SourceExtension"
         if (-not (Test-Path -LiteralPath $sourcePath)) {
             throw "Thiếu file nguồn: $sourcePath"
         }
@@ -146,6 +175,7 @@ foreach ($regionName in $regions) {
             Milliseconds    = [int][math]::Round($durationSeconds * 1000)
             Sha256          = (Get-FileHash -LiteralPath $targetPath -Algorithm SHA256).Hash.ToLowerInvariant()
             SourceHash      = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash.ToLowerInvariant()
+            SourceExtension = $SourceExtension
         })
     }
 }
@@ -154,7 +184,12 @@ foreach ($regionName in $regions) {
 # entrypoint kiểm toàn bộ file lúc boot, nên xóa dòng cũ là làm hỏng evidence trước đó.
 $sumsPath = Join-Path $audioDirectory 'SHA256SUMS'
 $producedFiles = $results | ForEach-Object { $_.File }
-$existing = @(Get-Content -LiteralPath $sumsPath | Where-Object {
+$existingLines = if (Test-Path -LiteralPath $sumsPath) {
+    @(Get-Content -LiteralPath $sumsPath)
+} else {
+    @()
+}
+$existing = @($existingLines | Where-Object {
     $line = $_
     -not ($producedFiles | Where-Object { $line -match [regex]::Escape($_) + '$' })
 })
@@ -164,11 +199,12 @@ Set-Content -LiteralPath $sumsPath -Value ($existing + $added) -Encoding ascii
 if (-not $SkipManifestUpdate) {
     $segmentManifestPath = Join-Path $audioDirectory 'segments-manifest.txt'
     $lines = [System.Collections.Generic.List[string]]::new()
-    $lines.Add('work_id=W-0106-A1')
+    $lines.Add($(if ($SourceExtension -eq '.wav') { 'work_id=W-0122' } else { 'work_id=W-0106-A1' }))
     $lines.Add("template_id=$($plan.templateId)")
     $lines.Add("template_version=$($plan.templateVersion)")
     $lines.Add("template_sha256=$($plan.templateSha256)")
     $lines.Add('output_format=pcm_s16le-8000hz-mono')
+    $lines.Add("source_extension=$SourceExtension")
     $lines.Add('production_provider_authorized=NO')
     $lines.Add('real_customer_data_used=NO')
     foreach ($row in $results) {

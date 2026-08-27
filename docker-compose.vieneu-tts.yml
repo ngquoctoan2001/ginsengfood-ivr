@@ -1,0 +1,94 @@
+# W-0122 — explicit self-hosted VieNeu-TTS lab overlay.
+# Load only after docker-compose.dev.yml and docker-compose.softphone.yml.
+# No port is published. The TTS process joins the worker network namespace and is reachable only
+# at worker loopback. This file cannot make a real-customer call; the governance NO stays fixed.
+
+services:
+  ivr-speech-media-init:
+    image: busybox:1.37.0-musl@sha256:29989570aeecad61a019f684218ea74d4b8c1c74f9e0abeb34ca926b81174ee1
+    user: "0:0"
+    command: ["sh", "-ec", "chown 1654:1654 /media && chmod 0750 /media"]
+    volumes:
+      - ivr-speech-media:/media
+    read_only: true
+    cap_drop: ["ALL"]
+    cap_add: ["CHOWN", "FOWNER"]
+    security_opt:
+      - no-new-privileges:true
+    restart: "no"
+
+  ivr-worker:
+    environment:
+      IVR_EXECUTION_MODE: LAB_REAL_SIM
+      REAL_CUSTOMER_CALL_ALLOWED: "NO"
+      Ivr__Speech__Tts__Provider: EXTERNAL_CONFIGURABLE
+      Ivr__Speech__Tts__OutputFormat: audio/L16
+      Ivr__Speech__Tts__SampleRate: "8000"
+      Ivr__Speech__Tts__External__Endpoint: http://127.0.0.1:8090/synthesize
+      Ivr__Speech__Tts__External__RequestBodyTemplate: >-
+        {"text":"{{text}}","voice_id":"{{voice_id}}","locale":"{{locale}}","speaking_rate":{{speaking_rate}},"output_format":"{{output_format}}","sample_rate":{{sample_rate}}}
+      Ivr__Speech__Tts__External__MediaOutputDirectory: /var/lib/ivr/speech
+      Ivr__Speech__Tts__External__MediaReferencePrefix: "sound:generated/"
+      Ivr__Speech__Tts__RegionalVoices__Enabled: "true"
+      Ivr__Speech__Tts__RegionalVoices__North__VoiceId: "${IVR_VIENEU_NORTH_VOICE_ID:?Set the owner-accepted North voice ID}"
+      Ivr__Speech__Tts__RegionalVoices__North__SpeakingRate: "${IVR_VIENEU_NORTH_SPEAKING_RATE:-1.0}"
+      Ivr__Speech__Tts__RegionalVoices__Central__VoiceId: "${IVR_VIENEU_CENTRAL_VOICE_ID:?Set the owner-accepted Central voice ID}"
+      Ivr__Speech__Tts__RegionalVoices__Central__SpeakingRate: "${IVR_VIENEU_CENTRAL_SPEAKING_RATE:-1.0}"
+      Ivr__Speech__Tts__RegionalVoices__South__VoiceId: "${IVR_VIENEU_SOUTH_VOICE_ID:?Set the owner-accepted South voice ID}"
+      Ivr__Speech__Tts__RegionalVoices__South__SpeakingRate: "${IVR_VIENEU_SOUTH_SPEAKING_RATE:-1.0}"
+      # Remains off until render-fixed-speech.mjs + Convert-LabSegmentAudio.ps1 have produced and
+      # pinned all 12 entries. The generated segment env block is then added in the acceptance
+      # change; an incomplete catalog must make worker startup fail, never shorten a call.
+      Ivr__Speech__Tts__Segmentation__Enabled: "false"
+      Ivr__Speech__Tts__Segmentation__FixedSegments: Catalog
+    volumes:
+      - ivr-speech-media:/var/lib/ivr/speech
+    depends_on:
+      ivr-speech-media-init:
+        condition: service_completed_successfully
+
+  ivr-tts:
+    build:
+      context: .
+      dockerfile: deploy/tts/Dockerfile.tts
+    image: ivr-tts:w0122
+    network_mode: "service:ivr-worker"
+    environment:
+      IVR_EXECUTION_MODE: LAB_REAL_SIM
+      REAL_CUSTOMER_CALL_ALLOWED: "NO"
+      VIE_NEU_ALLOWED_VOICE_IDS: "${IVR_VIENEU_NORTH_VOICE_ID:?Set North},${IVR_VIENEU_CENTRAL_VOICE_ID:?Set Central},${IVR_VIENEU_SOUTH_VOICE_ID:?Set South}"
+      VIE_NEU_AUDITION_MODE: "0"
+      VIE_NEU_VOICE_ACCEPTANCE_MANIFEST: /run/ivr-tts/voice-acceptance-manifest.json
+      VIE_NEU_MAX_CONCURRENCY: "1"
+      VIE_NEU_MAX_TEXT_CHARS: "1200"
+      VIE_NEU_MAX_DURATION_SECONDS: "120"
+    volumes:
+      - "${IVR_VIENEU_MODEL_BUNDLE:?Set exact verified model bundle directory}:/models:ro"
+      - "${IVR_VIENEU_VOICE_ACCEPTANCE_MANIFEST:?Set the Owner-signed voice acceptance manifest}:/run/ivr-tts/voice-acceptance-manifest.json:ro"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=0750,uid=1654,gid=1654
+    cap_drop: ["ALL"]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:8090/health/ready', timeout=2).status == 200"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    depends_on:
+      ivr-speech-media-init:
+        condition: service_completed_successfully
+
+  asterisk:
+    group_add:
+      - "1654"
+    volumes:
+      - ivr-speech-media:/var/lib/asterisk/sounds/generated:ro
+    depends_on:
+      ivr-speech-media-init:
+        condition: service_completed_successfully
+
+volumes:
+  ivr-speech-media:
