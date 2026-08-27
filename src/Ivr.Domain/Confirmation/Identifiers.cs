@@ -1,3 +1,5 @@
+using Ivr.Domain.Privacy;
+
 namespace Ivr.Domain.Confirmation;
 
 public abstract record DomainStringValue
@@ -95,6 +97,18 @@ public sealed record DialTokenReference
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         OpaqueReferenceGuard.EnsureNotRawPhone(value);
+
+        // W-0119. EnsureNotRawPhone only fires when the WHOLE value is phone-shaped, so a raw
+        // number carrying any prefix walked straight past it: "tel:0912345678",
+        // "sip:0912345678@gw" and "PHONE_0912345678" were all accepted as opaque references.
+        // P0-10 says a raw number must never reach IVR, and a prefix does not make one opaque.
+        //
+        // PiiGuard already owns the phone shape this codebase recognises, including the grouped
+        // and +84 forms, so this reuses it rather than growing a second pattern that would drift.
+        // Its lookarounds require a non-alphanumeric boundary, which is why a digit run inside a
+        // hex or base64 ciphertext cannot trip it -- measured at zero false positives over the
+        // protector's own output.
+        PiiGuard.EnsureSafeContactText(value);
         if (value.Length > 500)
         {
             throw new ArgumentOutOfRangeException(nameof(value), "Dial-token reference exceeds 500 characters.");
@@ -124,7 +138,7 @@ internal static class OpaqueReferenceGuard
             char.IsDigit(character) || character == '+'));
         bool containsOnlyPhoneCharacters = value.All(character =>
             char.IsDigit(character)
-            || character is '+' or '-' or '(' or ')' or ' '
+            || character is '+' or '-' or '.' or '(' or ')' or ' '
             || char.IsWhiteSpace(character));
         string digits = string.Concat(compact.Where(char.IsDigit));
         if (containsOnlyPhoneCharacters

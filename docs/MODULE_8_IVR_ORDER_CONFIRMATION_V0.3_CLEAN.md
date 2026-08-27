@@ -39,6 +39,12 @@ V0.2 được viết khi chưa có dòng code nào. Sau 101 commit, nhiều phá
 | 10    | Không có mục retention/DSAR                                 | Thêm §20.3 với trạng thái OWNER_DATA_REQUIRED và danh sách lớp dữ liệu cần chốt.                                                       |
 | 11    | Hệ số capacity 35 giây / 50 giây trình bày như dữ kiện      | Đánh dấu rõ là giả định chưa đo, kèm công thức thay thế khi có số thật.                                                                |
 | 12    | Không nêu ràng buộc chương trình ↔ phương thức thanh toán   | Code đang ép GOLDEN_HOUR↔ONLINE và TWENTY_FOUR_SEVEN↔COD. Ràng buộc này chưa có nguồn business đã duyệt — ghi vào §26 (OD-V1-13).      |
+| 13    | (sửa 27/08) §13.2 yêu cầu thiết bị phân biệt "11 giá trị ở §16" | Trỏ nhầm bảng — §16 là result code của phần mềm, thiết bị không thấy được. Thêm §13.3 là bảng call disposition thật (11 giá trị, lấy từ SimProviderDisposition trong code). Hai bảng tình cờ cùng có 11 dòng, đó là nguồn nhầm lẫn. |
+| 14    | (sửa 27/08) §14 dùng từ "phiên" mà không định nghĩa       | §14.1/§14.2/§23 chứa ba phát biểu không thể cùng đúng. Đã nêu rõ ba đơn vị thời gian khác nhau, viết lại §14.2 theo giả định phiên = 45 phút (con số duy nhất làm ba câu khớp nhau), và mở M8-OD-C để owner chốt. |
+| 15    | (sửa 27/08) §10.3/§16 mô tả sai hành vi hết window        | Xem ghi chú trong §16. Kèm ba migration W-0116/0117/0118 đưa bất biến "không tính lượt" xuống tầng schema. |
+| 16    | (sửa 27/08) §11 ghi DTMF timeout "15 giây (lab đặt 60)"    | Sai. 15 chỉ là default code, bị appsettings ghi đè xuống 10. Thêm §11.1 liệt kê đủ bốn nơi đặt giá trị, và cảnh báo lab đo ở 60 giây sẽ thổi phồng số liệu đưa vào §14.3. |
+| 17    | (sửa 27/08) §20.2 tuyên bố chặn số thô rộng hơn thực tế   | Guard cũ chỉ bắt khi TOÀN BỘ chuỗi có hình dạng số. "tel:0912345678", "sip:...@gw", "PHONE_09..." đều lọt. Đã siết trong code (W-0119) và mô tả lại §20.2 cho đúng. |
+| 18    | (sửa 27/08) §26 thiếu OD-V1-14                            | Không phải lỗi đánh số — quyết định này có thật trong sổ đăng ký và là mục nghiêm trọng nhất (có thể làm 100% task bị từ chối ngày cắm thật). Đã bổ sung, kèm con trỏ tới sổ đăng ký làm nguồn có thẩm quyền. |
 
 # **1\. Mục đích tài liệu**
 
@@ -227,11 +233,26 @@ V0.2 chỉ nêu một ngưỡng số duy nhất, nên mọi giá trị khác n�
 | SIM cooldown sau cuộc gọi | 5 giây                     | mặc định mock        | CHƯA — cần lab L-07              |
 | Ngưỡng quarantine kênh    | fail_count ≥ 3             | mặc định mock        | CHƯA — cần lab L-08              |
 | Ring timeout              | 30 giây                    | cấu hình adapter lab | CHƯA — phụ thuộc nhà mạng        |
-| DTMF timeout              | 15 giây (lab đặt 60)       | cấu hình adapter lab | CHƯA — cần lab L-01, L-05        |
+| DTMF timeout              | **10 giây thực tế** (xem §11.1) | appsettings API + Worker | CHƯA — cần lab L-01, L-05        |
 | AVERAGE_CALL_DURATION     | 35 giây                    | giả định V0.2 §11    | CHƯA — chưa có cuộc gọi thật nào |
 | CONSERVATIVE_CALL_CYCLE   | 50 giây/cuộc/SIM           | giả định V0.2 §11    | CHƯA — chưa có cuộc gọi thật nào |
 | Technical retry limit     | có giới hạn, cấu hình được | code normalizer      | Chưa chốt con số cuối            |
 | Rate limit API            | CHƯA CÓ                    | —                    | Chưa duyệt ngưỡng (B-05)         |
+
+## **11.1. DTMF timeout — bốn giá trị khác nhau, sửa 27/08/2026**
+
+Bản V0.3 đầu tiên ghi "15 giây (lab đặt 60)". Sai ở con số đầu: 15 chỉ là **default trong code** của adapter Asterisk, và nó bị appsettings ghi đè xuống 10 ở cả API lẫn Worker. Giá trị thực tế đang chạy là **10 giây**, không phải 15.
+
+| **Nơi đặt** | **Giá trị** | **Có hiệu lực khi** |
+| ----------- | ----------- | ------------------- |
+| `src/Ivr.Api/appsettings.json` | **10 giây** | API runtime — đây là giá trị thật |
+| `src/Ivr.Worker/appsettings.json` | **10 giây** | Worker runtime — đây là giá trị thật |
+| `AsteriskAriOptions.cs` (default code) | 15 giây | Chỉ khi không có appsettings nào ghi đè |
+| `MockTelephonyDispatchGateway.cs` (default code) | 10 giây | Chế độ MOCK |
+| `docker-compose.softphone.yml` | **60 giây** | **Chỉ lab softphone** — ghi đè bằng biến môi trường |
+| Khoảng hợp lệ (cả hai adapter) | 1–120 giây | Ngoài khoảng này thì ứng dụng từ chối khởi động |
+
+<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>VÌ SAO CHÊNH LỆCH NÀY QUAN TRỌNG</strong></p><ul><li>Lab softphone đặt 60 giây vì người test cần thời gian nhìn màn hình rồi bấm phím. Đó là lựa chọn hợp lý cho lab, <strong>không phải lỗi</strong>.</li><li>Nhưng chính buổi lab đó là nơi sẽ đo ra thời lượng cuộc gọi thật để thay thế hai giả định 35 giây và 50 giây ở §14. Đo ở 60 giây rồi đem áp cho hệ chạy 10 giây là <strong>lệch 6 lần ở phần chờ phím</strong>, và mọi con số SIM suy ra từ đó sẽ bị thổi lên.</li><li>Trước khi lấy số đo lab đưa vào công thức §14.3, phải làm một trong hai: hạ DTMF timeout của lab về đúng giá trị production, hoặc trừ phần chờ phím dư ra khỏi thời lượng đo được. Ghi rõ đã làm cách nào vào biểu mẫu nghiệm thu lab.</li><li>Giá trị 10 giây tự nó cũng chưa được đo với khách thật — người lớn tuổi cầm điện thoại có thể cần lâu hơn. Đây là một trong các câu hỏi lab L-01/L-05 phải trả lời.</li></ul></th></tr></tbody></table></div>
 
 **Hai dòng tô đậm cuối là nền của toàn bộ mô hình capacity ở §14. Chúng chưa từng được đo. Mọi con số SIM suy ra từ chúng đều là giả định, kể cả con số 12 cho pilot.**
 
@@ -311,7 +332,7 @@ V0.2 nói "Internal SIM Gateway Server" nhưng không nêu một yêu cầu thi�
 | **#** | **Yêu cầu**                                                                                    | **Vì sao là điều kiện loại trừ**                                                                     |
 | ----- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | 1     | Có API kiểm tra sức khỏe từng kênh, trả về được cờ trạng thái ghi âm để đọc ngược lại.         | Chính sách khóa ghi âm ở trạng thái TẮT. Không đọc ngược được thì không chứng minh được nó đang tắt. |
-| 2     | Bảng mã trạng thái cuộc gọi phân biệt được đủ 11 giá trị ở §16.                                | Ánh xạ nhầm "khách bấm từ chối" thành "khách hủy đơn" là hủy đơn của khách không hề yêu cầu.         |
+| 2     | Bảng mã kết thúc cuộc gọi (call disposition) phân biệt được đủ 11 giá trị ở §13.3. KHÔNG phải bảng result code ở §16. | Ánh xạ nhầm "khách bấm từ chối" thành "khách hủy đơn" là hủy đơn của khách không hề yêu cầu.         |
 | 3     | DTMF hỗ trợ RFC 2833/4733; nêu rõ có bắt được phím trong lúc đang phát thoại (barge-in) không. | Không có barge-in thì cuộc gọi dài hơn, tỉ lệ khách cúp giữa chừng tăng.                             |
 | 4     | Một SIM tại một thời điểm chỉ mang một cuộc gọi, hoặc nêu rõ nếu khác.                         | Toàn bộ mô hình lease/fencing và capacity dựa trên giả định này.                                     |
 | 5     | Tắt được từng kênh qua API; nêu rõ hành vi khi kênh đang bận.                                  | Cần cho kill switch và cho việc thay SIM lỗi mà không dừng cả hệ thống.                              |
@@ -320,29 +341,60 @@ V0.2 nói "Internal SIM Gateway Server" nhưng không nêu một yêu cầu thi�
 
 <div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>ĐƯỜNG TÍCH HỢP RẺ NHẤT</strong></p><ul><li>IVR → adapter Asterisk (đã có) → Asterisk → SIP trunk → GSM Gateway → SIM → nhà mạng.</li><li>Chỉ phần "SIP trunk → GSM Gateway" là mới. Không cần viết lại adapter từ đầu bằng SDK riêng của hãng.</li><li>Bộ resolve alias → số thật phải nằm NGOÀI process IVR, để giữ nguyên ràng buộc IVR không bao giờ cầm số điện thoại thô.</li></ul></th></tr></tbody></table></div>
 
+## **13.3. Bảng call disposition — từ vựng để hỏi vendor**
+
+Mục này thêm ngày 27/08/2026 để sửa một lỗi trỏ nhầm bảng. Bản V0.3 đầu tiên yêu cầu thiết bị "phân biệt được đủ 11 giá trị ở §16". Sai. §16 là bảng **result code của IVR** — thứ do phần mềm suy ra sau khi đã có kết quả cuộc gọi. Ít nhất 4 mã trong đó (IVR_POLICY_BLOCKED, IVR_OPERATIONAL_BLOCKED, IVR_CAPACITY_EXCEPTION, và phần lớn IVR_CONFIRMATION_WINDOW_EXPIRED) phát sinh **trước hoặc ngoài** cuộc gọi, nên thiết bị không bao giờ nhìn thấy chúng. Gửi §16 cho vendor sẽ nhận về câu trả lời "có" một cách hình thức.
+
+_Nguyên nhân của nhầm lẫn: cả hai bảng tình cờ đều có đúng 11 dòng._
+
+Cái thật sự cần hỏi là bảng dưới đây — đúng tập giá trị mà adapter IVR đang chờ nhận (`SimProviderDisposition` trong `src/Ivr.Domain/Ports/ProviderPorts.cs`). Nếu thiết bị không phân biệt được một dòng nào trong đây, dòng đó phải được nêu rõ trong hồ sơ năng lực trước khi ký.
+
+| **#** | **Disposition** | **Nghĩa** | **IVR ánh xạ thành** | **Tính lượt khách** |
+| ----- | --------------- | --------- | -------------------- | ------------------- |
+| 1 | Answered | Khách nhấc máy. | Theo phím bấm: 1 → CONFIRMED, 0 → CUSTOMER_CANCELLED, không bấm → NO_ANSWER, sai phím → WRONG_INPUT | Có |
+| 2 | RingTimeout | Đổ chuông hết giờ, không ai nghe. | NO_ANSWER_ATTEMPT / NO_ANSWER_FINAL | Có |
+| 3 | Busy | Máy bận. | NO_ANSWER_ATTEMPT / NO_ANSWER_FINAL | Có |
+| 4 | Rejected | **Khách chủ động bấm nút từ chối.** | NO_ANSWER + cờ cần review. **KHÔNG PHẢI hủy đơn.** | Có |
+| 5 | Unreachable | Thuê bao không liên lạc được. | INVALID_PHONE_FINAL | Không |
+| 6 | InvalidDestination | Số không tồn tại / sai định dạng. | INVALID_PHONE_FINAL | Không |
+| 7 | Dropped | Cuộc gọi rớt giữa chừng. | TECHNICAL_EXCEPTION | Không |
+| 8 | NetworkError | Lỗi mạng nhà mạng. | TECHNICAL_EXCEPTION | Không |
+| 9 | SimError | Lỗi SIM / kênh. | TECHNICAL_EXCEPTION + quarantine kênh | Không |
+| 10 | AudioError | Lỗi phát thoại. | TECHNICAL_EXCEPTION | Không |
+| 11 | DtmfError | Lỗi bắt phím. | TECHNICAL_EXCEPTION | Không |
+
+<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>HAI DÒNG PHẢI HỎI KỸ NHẤT</strong></p><ul><li><strong>Dòng 4 (Rejected).</strong> Nhiều thiết bị gộp "khách bấm từ chối" chung với "không nghe máy" vào một mã duy nhất. Gộp thì chấp nhận được — cả hai đều ra NO_ANSWER. Nhưng nếu thiết bị lại gộp Rejected chung với Answered, hoặc trả một mã ngụ ý "khách từ chối đơn hàng", thì phải biết trước khi ký: ánh xạ nhầm dòng này thành hủy đơn là hủy đơn của khách không hề yêu cầu. Đây là M8-P0-013.</li><li><strong>Hộp thư thoại.</strong> Không có dòng riêng trong bảng trên, vì phần lớn thiết bị báo nó là Answered. Nếu vậy IVR sẽ phát script cho hộp thư và ghi nhận "khách đã nghe" — sai. Phải hỏi thiết bị có cờ phân biệt voicemail/AMD không, và nếu có thì cờ đó đọc ra sao. Đây là M8-P0-014.</li></ul></th></tr></tbody></table></div>
+
+
 # **14\. Capacity và kế hoạch mở rộng**
 
 <div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>CẢNH BÁO VỀ NGUỒN SỐ LIỆU</strong></p><ul><li>Hai hệ số nền — 35 giây mỗi cuộc và 50 giây mỗi chu kỳ — là GIẢ ĐỊNH THẬN TRỌNG, chưa từng đo trên thiết bị và mạng thật.</li><li>Mọi con số kênh dưới đây, kể cả 12 cho pilot, là hệ quả của hai giả định đó. Chúng phải được tính lại ngay sau khi lab đo được thời lượng cuộc gọi thật.</li><li>Số kênh cho pilot chưa được quyết định chính thức ở bất kỳ đâu. Con số 12 là khuyến nghị của tài liệu này, không phải kết luận đã đo.</li></ul></th></tr></tbody></table></div>
 
 ## **14.1. Năng lực theo số SIM (dưới giả định hiện tại)**
 
-| **Số SIM** | **Trong 5 phút** | **Trong 15 phút** | **Trong 45 phút (rolling)** |
-| ---------- | ---------------- | ----------------- | --------------------------- |
-| 12 SIM     | ~72 cuộc         | ~216 cuộc         | ~648 cuộc                   |
-| 24 SIM     | ~144 cuộc        | ~432 cuộc         | ~1.296 cuộc                 |
-| 32 SIM     | ~192 cuộc        | ~576 cuộc         | ~1.728 cuộc                 |
+Công thức: `số cuộc = số SIM × (số giây trôi qua ÷ 50 giây mỗi chu kỳ)`. Cột nào cũng tính lại được bằng tay, để không ai phải tin bảng này.
 
-**Lưu ý cách đọc: đó là số CUỘC GỌI, không phải số ĐƠN. Với policy 2 lượt và tỉ lệ không nghe máy 30–40%, mỗi đơn tốn trung bình khoảng 1,4 cuộc. Nghĩa là 12 SIM phục vụ được khoảng 50 đơn mỗi phiên Giờ Vàng, không phải 72.**
+| **Số SIM** | **Trong 5 phút trôi qua** | **Trong 15 phút trôi qua** | **Trong 45 phút trôi qua** |
+| ---------- | ------------------------- | -------------------------- | -------------------------- |
+| 12 SIM     | ~72 cuộc                  | ~216 cuộc                  | ~648 cuộc                  |
+| 24 SIM     | ~144 cuộc                 | ~432 cuộc                  | ~1.296 cuộc                |
+| 32 SIM     | ~192 cuộc                 | ~576 cuộc                  | ~1.728 cuộc                |
+
+**Lưu ý cách đọc: đó là số CUỘC GỌI, không phải số ĐƠN. Với policy 2 lượt và tỉ lệ không nghe máy 30–40%, mỗi đơn tốn trung bình khoảng 1,4 cuộc. Nghĩa là 12 SIM phục vụ được khoảng 50 đơn trong 5 phút trôi qua, không phải 72.**
+
+<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>BA ĐƠN VỊ THỜI GIAN KHÁC NHAU — ĐỪNG GỘP</strong></p><ul><li><strong>Confirmation window (5 hoặc 15 phút).</strong> Thuộc về MỘT đơn. Đồng hồ bắt đầu chạy khi đơn đó cần xác nhận, và nó là hạn chót của riêng đơn đó. Đây là con số ở §10.</li><li><strong>Độ dài một phiên Giờ Vàng.</strong> Khoảng thời gian đơn LIÊN TỤC đổ vào. Nhiều đơn, mỗi đơn có window 5 phút riêng, gối lên nhau. Con số này <strong>chưa được chốt ở đâu</strong> — xem cảnh báo ngay dưới.</li><li><strong>Tốc độ đơn đổ vào.</strong> 800 đơn rải đều trong 45 phút và 800 đơn ập đến trong 5 phút là hai bài toán khác hẳn nhau, dù tổng số bằng nhau. Cái thứ hai là kịch bản M8-P0-009 ở §23, và nó PHẢI ra capacity incident.</li><li>Cột trong bảng trên là <strong>thời gian trôi qua</strong>, không phải độ dài phiên và cũng không phải confirmation window. Bản V0.3 đầu tiên viết cột thứ ba là "45 phút (rolling)" rồi ở §14.2 lại viết "cuộc/phiên", khiến người đọc tưởng hai thứ là một.</li></ul></th></tr></tbody></table></div>
 
 ## **14.2. Lộ trình theo giai đoạn**
 
 | **Giai đoạn**    | **Khuyến nghị** | **Điều kiện**                                                                                |
 | ---------------- | --------------- | -------------------------------------------------------------------------------------------- |
 | Lab kỹ thuật     | 1 SIM           | Chạy đủ biểu mẫu nghiệm thu lab trước khi mua thêm. Đây là bước bắt buộc, không bỏ qua được. |
-| Pilot kỹ thuật   | 12 SIM          | Chỉ sau khi lab 1 SIM PASS. Phục vụ khoảng 50 đơn/phiên — là pilot, chưa chạy thật được.     |
-| Launch tháng 1–2 | 24–32 SIM       | Chạy thật nếu rolling queue ổn; 32 SIM an toàn hơn cho 800–1.200 cuộc/phiên.                 |
-| Tháng 3–4        | 64 SIM          | Nếu volume IVR tăng khoảng 100% hoặc 1.600–2.400 cuộc/phiên.                                 |
-| Tháng 5–6        | 96 SIM          | Nếu volume lên 2.400–3.600 cuộc/phiên.                                                       |
+| Pilot kỹ thuật   | 12 SIM          | Chỉ sau khi lab 1 SIM PASS. Phục vụ ~50 đơn trong 5 phút trôi qua — là pilot, chưa chạy thật được. |
+| Launch tháng 1–2 | 24–32 SIM       | Chạy thật nếu rolling queue ổn; 32 SIM đủ cho 800–1.200 cuộc **trải trong 45 phút** (năng lực ~1.728). Con số này KHÔNG đúng nếu 800 cuộc dồn vào 5 phút — xem cảnh báo dưới. |
+| Tháng 3–4        | 64 SIM          | Nếu volume IVR tăng khoảng 100%, tức 1.600–2.400 cuộc trải trong 45 phút.                    |
+| Tháng 5–6        | 96 SIM          | Nếu volume lên 2.400–3.600 cuộc trải trong 45 phút.                                          |
+
+<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>"PHIÊN" DÀI BAO NHIÊU — CHƯA AI CHỐT (M8-OD-C)</strong></p><ul><li>Từ "phiên" được dùng xuyên suốt §14 nhưng <strong>không được định nghĩa ở bất kỳ đâu</strong> trong tài liệu này, trong PACK-09, hay trong code. Không có hằng số nào tên session length.</li><li>Sửa ngày 27/08/2026: bản V0.3 đầu tiên chứa ba phát biểu không thể cùng đúng — §14.1 ghi 32 SIM làm được 192 cuộc trong 5 phút, §14.2 ghi 32 SIM "an toàn cho 800–1.200 cuộc/phiên", còn §23 lấy đúng "32 SIM nhận 800 job trong 5 phút" làm kịch bản QUÁ TẢI.</li><li>Ba câu đó chỉ hòa giải được nếu "phiên" nghĩa là <strong>45 phút</strong>: 32 × (2.700 ÷ 50) = 1.728 ≥ 1.200. Với phiên 15 phút chỉ được 576, với phiên 5 phút chỉ được 192 — đều không đủ.</li><li>Nhưng con số 45 phút cũng chưa có nguồn. Nó xuất hiện đúng một lần, ở tiêu đề cột bảng §14.1, không kèm căn cứ. V0.3 đã viết lại §14.2 theo giả định 45 phút để tài liệu tự nhất quán, <strong>nhưng đây là giả định, không phải quyết định</strong>.</li><li>Owner phải chốt hai con số trước khi ký đơn mua sắm: (1) một phiên Giờ Vàng kéo dài bao lâu, (2) trong phiên đó cao điểm có bao nhiêu đơn. Thiếu chúng thì mọi con số SIM ở §14 — kể cả 12 cho pilot — vẫn là phỏng đoán. Xem M8-OD-A và M8-OD-C ở §26.</li></ul></th></tr></tbody></table></div>
 
 ## **14.3. Công thức thay thế khi có số đo thật**
 
@@ -479,7 +531,7 @@ Về chỉ số cuối: hiện một ô trống hay một số 0 đều tệ hơ
 
 | **Ràng buộc**                           | **Cách thực thi**                                                                               |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Số điện thoại thô không đi vào hệ thống | Chuỗi 10–12 chữ số bắt đầu bằng 0 hoặc 84 bị từ chối ở tầng kiểu dữ liệu khi dùng làm đích gọi. |
+| Số điện thoại thô không đi vào hệ thống | Kiểu `DialTokenReference` từ chối ở constructor, qua hai lớp: (1) toàn chuỗi có hình dạng số — 10–12 chữ số bắt đầu 0 hoặc 84, chấp nhận dấu cách, `-`, `.`, `()`, `+84`; (2) từ W-0119, quét thêm bằng `PiiGuard` để bắt số thô mang tiền tố hoặc hậu tố. Không lọt được `tel:09…`, `sip:09…@gw`, `PHONE_09…`, `09…@carrier`. Đo trên 10.000 ciphertext của bộ mã hoá: 0 false positive. |
 | Không gọi khách thật trước release      | Đặt cờ cho phép gọi khách thành YES làm ứng dụng từ chối khởi động.                             |
 | Ghi âm không bật nhầm                   | Cờ ghi âm là bất biến-tắt; API quản trị từ chối yêu cầu bật.                                    |
 | Chỉ gọi số trong danh sách cho phép     | Cổng dispatch kiểm danh sách trước khi chạm nhà cung cấp.                                       |
@@ -538,7 +590,7 @@ V0.2 liệt kê 8 slice nhưng không có cột trạng thái, vì lúc đó ch�
 | M8-P0-006   | Không nghe sau 2 cuộc.                           | IVR_NO_ANSWER_FINAL; không xin đổi trạng thái.                | PASS (mock)              |
 | M8-P0-007   | SIM/DTMF/server lỗi.                             | IVR_TECHNICAL_EXCEPTION; không tiêu lượt khách.               | PASS (mock)              |
 | M8-P0-008   | Sale Lock/Recall active trước dispatch.          | Không gọi; task bị chặn.                                      | PASS (mock)              |
-| M8-P0-009   | 32 SIM nhận 800 job trong 5 phút.                | Không batch; ghi capacity incident nếu vượt năng lực.         | PASS (simulator)         |
+| M8-P0-009   | 32 SIM nhận 800 job DỒN trong 5 phút (năng lực 5 phút chỉ ~192). | Không batch; ghi capacity incident. Đây là kịch bản quá tải CÓ CHỦ Ý, không phải mức tải bình thường của một phiên — xem §14.1. | PASS (simulator) |
 | M8-P0-010   | Duplicate callback.                              | Idempotency chặn double processing.                           | PASS (mock)              |
 | M8-P0-011   | Admin cố sửa order state từ IVR dashboard.       | Bị chặn bởi RBAC/boundary.                                    | PASS (mock)              |
 | M8-P0-012   | No evidence nhưng completion PASS.               | Fail Gate; không release.                                     | PASS (gate)              |
@@ -608,6 +660,7 @@ V0.2 nêu 6 quyết định. Rà soát thực tế cho thấy còn nhiều hơn 
 | OD-V1-09      | Giao thức lab 1 SIM, DTMF, disposition, danh sách số cho phép.                                  | Infra + vendor          | Lab (B-01)             |
 | OD-V1-10      | Năng lực nhiều kênh, failover, caller ID, chi phí.                                              | Infra + Procurement     | Production (B-07)      |
 | OD-V1-13      | Giờ Vàng thanh toán online có thuộc phạm vi IVR không? Nguồn business hiện đọc được chỉ có COD. | Product/Business        | Tích hợp thật (B-03)   |
+| OD-V1-14      | MỚI 27/08 (đã tồn tại trong sổ đăng ký nhưng thiếu ở bảng này): `ivr_confirmation_required` **không có nguồn business nào**. OpenAPI khai `enum:[true]` và DB ép `must be true`, tức cả hệ đang gate trên một field chưa ai định nghĩa. Nếu producer bên Sales không set field này thì **100% task bị từ chối 422 ngay ngày cắm thật**. | Product/Business + Sales Core | Tích hợp thật (B-03). Mức nghiêm trọng cao nhất bảng này. |
 | OD-V1-15      | Whitelist biến đọc trong call script: bộ hẹp 4 biến hay bộ rộng có danh sách sản phẩm?          | Product + Privacy/Legal | Nghiệm thu nghiệp vụ   |
 | OD-V1-17      | Một dial_token cho nhiều lượt gọi thì xử lý ra sao?                                             | Sales + Security        | Gọi thật (B-02)        |
 | OD-V1-18      | Bộ resolve dial_token thành số thật đặt ở đâu?                                                  | Security + vendor       | Lab (B-02)             |
@@ -616,8 +669,12 @@ V0.2 nêu 6 quyết định. Rà soát thực tế cho thấy còn nhiều hơn 
 | OD-V1-12      | Ai có thẩm quyền cho phép pilot và ai được bấm kill switch.                                     | Release owner           | Production (B-08)      |
 | M8-OD-A       | MỚI: pilot dùng bao nhiêu SIM, khi 12 chỉ phục vụ khoảng 50 đơn/phiên?                          | Owner + Business        | Mua sắm (§14)          |
 | M8-OD-B       | MỚI: ngưỡng rate limit cho API.                                                                 | Ops                     | Production (B-05)      |
+| M8-OD-C       | MỚI 27/08: một phiên Giờ Vàng kéo dài bao lâu? Từ "phiên" chưa được định nghĩa ở đâu, mà mọi con số SIM ở §14 đều tính theo nó. | Owner + Business        | Mua sắm (§14), chặn cả M8-OD-A |
+| M8-OD-D       | MỚI 27/08: thiết bị có phân biệt được hộp thư thoại với khách nhấc máy không? Nếu không, IVR sẽ ghi nhận "khách đã nghe" cho một hộp thư. | Infra + vendor          | Lab (B-01), M8-P0-014  |
 
 **Quy tắc bất biến: mock và fixture không bao giờ đóng một dòng nào trong bảng này. Mock chỉ cho phép code đi tiếp.**
+
+_Bảng trên là bản **lọc** — chỉ những quyết định ảnh hưởng trực tiếp tới Module 8. Nguồn đầy đủ và có thẩm quyền là_ `specs/_review/open-decisions-register.md` _(21 mục tính đến 27/08/2026). Các mục OD-V1-01…07 là quyết định hợp đồng Target V1, theo dõi gộp ở rào B-03; OD-V1-20 (RBAC runtime-gate) trùng phạm vi với OD-V1-12; OD-V1-21 (provisioning GitLab) theo dõi ở B-08. Khi hai nơi lệch nhau, sổ đăng ký thắng._
 
 # **27\. Kết luận khóa Module 8**
 

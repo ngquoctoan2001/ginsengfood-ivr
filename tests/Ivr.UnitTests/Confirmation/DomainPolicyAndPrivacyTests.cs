@@ -119,15 +119,34 @@ public sealed class DomainPolicyAndPrivacyTests
             SpeechSummaryLimits.Create(1, 0)));
     }
 
+    /// <summary>
+    /// W-0119 widened this from two cases to eight. The first two were the only shapes the
+    /// original whole-string guard could see: a value made of nothing but phone characters.
+    /// Everything after "prefixed-" carries a prefix, and every one of them was ACCEPTED before
+    /// W-0119 — a raw number reached the dial path as long as something was glued to its front,
+    /// which P0-10 forbids in as many words.
+    /// </summary>
     [Theory]
     [InlineData("local")]
     [InlineData("international-spaced")]
+    [InlineData("dot-grouped")]
+    [InlineData("dot-grouped-standard")]
+    [InlineData("prefixed-tel")]
+    [InlineData("prefixed-sip")]
+    [InlineData("prefixed-underscore")]
+    [InlineData("suffixed")]
     public void DialTokenReferenceRejectsRawPhoneData(string caseId)
     {
         string rawPhone = caseId switch
         {
             "local" => "0901234567",
             "international-spaced" => "+84 901 234 567",
+            "dot-grouped" => "0901.234.567",
+            "dot-grouped-standard" => "090.123.4567",
+            "prefixed-tel" => "tel:0901234567",
+            "prefixed-sip" => "sip:0901234567@gateway",
+            "prefixed-underscore" => "PHONE_0901234567",
+            "suffixed" => "0901234567@carrier",
             _ => throw new ArgumentOutOfRangeException(nameof(caseId)),
         };
 
@@ -135,6 +154,28 @@ public sealed class DomainPolicyAndPrivacyTests
             DialTokenReference.Create(
                 rawPhone,
                 new DateTimeOffset(2026, 8, 13, 1, 0, 0, TimeSpan.Zero)));
+    }
+
+    /// <summary>
+    /// W-0119. The half that keeps the widening honest. A guard that rejects everything would
+    /// pass the theory above and break every dispatch, so these are the shapes the dial path
+    /// actually carries: the protector's own ciphertext, the lab fingerprint, and plain opaque
+    /// aliases. The ciphertext case matters most — it is hex, so it holds long digit runs, and
+    /// it must still be accepted.
+    /// </summary>
+    [Theory]
+    [InlineData("enc:mock-sha256:2D711642B726B04401627CA9FBAC32B14F0870F5B8E1C6F5A9E0C4D3B2A19087")]
+    [InlineData("enc:lab-sha256:SAFE")]
+    [InlineData("dial-token-1")]
+    [InlineData("token-ok")]
+    [InlineData("LAB-A")]
+    public void DialTokenReferenceAcceptsGenuinelyOpaqueValues(string opaqueValue)
+    {
+        DialTokenReference reference = DialTokenReference.Create(
+            opaqueValue,
+            new DateTimeOffset(2026, 8, 13, 1, 0, 0, TimeSpan.Zero));
+
+        Assert.Equal("[REDACTED_DIAL_TOKEN]", reference.ToString());
     }
 
     [Fact]
