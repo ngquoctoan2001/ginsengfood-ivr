@@ -196,14 +196,14 @@ internal static class PersistenceModelConfiguration
                     + "'TECHNICAL_RETRY_QUEUED','HELD_MOCK','HELD_ADMIN_REVIEW',"
                     + "'HELD_ELIGIBILITY','HELD_CAPACITY','HELD_CALLBACK',"
                     + "'HELD_TECHNICAL_REVIEW','HELD_NORMALIZATION','HELD_LEASE_RECOVERY',"
-                    + "'CAPACITY_HELD','CAPACITY_MISSED','CLOSED_CAPACITY',"
+                    + "'CAPACITY_HELD','CAPACITY_MISSED','CLOSED_CAPACITY','WINDOW_EXPIRED',"
                     + "'RECOVERY_REQUIRED','BLOCKED','SKIPPED','CLOSED')");
                 table.HasCheckConstraint(
                     "ck_ivr_call_jobs_queue_status",
                     "queue_status IN ('QUEUED','HELD_MOCK','HELD_ELIGIBILITY','LEASED',"
                     + "'HELD_LEASE_RECOVERY','HELD_NORMALIZATION','HELD_CALLBACK',"
                     + "'HELD_TECHNICAL_REVIEW','HELD_CAPACITY','HELD_ADMIN_REVIEW',"
-                    + "'SKIPPED','BLOCKED','CLOSED_CAPACITY')");
+                    + "'SKIPPED','BLOCKED','CLOSED_CAPACITY','CLOSED_WINDOW_EXPIRED')");
                 table.HasCheckConstraint(
                     "ck_ivr_call_jobs_eligibility_decision",
                     "eligibility_decision IN ('PENDING_ELIGIBILITY','ELIGIBLE_FOR_IVR',"
@@ -243,6 +243,25 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_call_attempts_technical_not_counted",
                     "technical_exception_type IS NULL OR is_counted_customer_attempt IS FALSE");
+
+                // W-0118. The sibling of ck_ivr_call_results_non_customer_not_counted, on the
+                // table the scheduler reads to decide how many attempts the customer has left.
+                //
+                // The constraint above it is not made redundant by this one and does not make this
+                // one redundant either: that one keys off technical_exception_type, so it still
+                // catches a technically failed attempt whose result_status has not been written
+                // yet, while this one covers capacity, operational and policy — which have no
+                // exception type and were therefore uncovered.
+                //
+                // TryClaimDueDispatchAsync counts rows here to decide whether another call is
+                // owed. A non-customer result counted on this table does not merely misreport;
+                // it silently spends one of the two attempts the policy promised the customer.
+                table.HasCheckConstraint(
+                    "ck_ivr_call_attempts_non_customer_not_counted",
+                    "result_status IS NULL"
+                    + " OR result_status NOT IN ('IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
+                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')"
+                    + " OR is_counted_customer_attempt IS FALSE");
                 table.HasCheckConstraint(
                     "ck_ivr_call_attempts_retry_nonnegative",
                     "technical_retry_count >= 0");
@@ -407,6 +426,25 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_call_results_final_matches_type",
                     "final_result_status = result_type");
+
+                // W-0117. The counted-attempt invariant, enforced by the schema rather than by the
+                // agreement of every writer.
+                //
+                // §16 says a technical, capacity, operational or policy result must never be
+                // marked as one of the customer's attempts, and CallResultSnapshot.Create refuses
+                // to build one. But this table has a second writer -- the scheduler's
+                // confirmation-window sweep -- that constructs the entity directly and never meets
+                // that guard. So the invariant held by convention, not by construction, and the
+                // one path exempt from the guard is the one nobody reads when they change it.
+                //
+                // Getting this wrong is not a reporting bug. A system failure recorded as a
+                // customer attempt spends a quota the customer never used, and the order can be
+                // cancelled for a call that was never placed.
+                table.HasCheckConstraint(
+                    "ck_ivr_call_results_non_customer_not_counted",
+                    "result_type NOT IN ('IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
+                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')"
+                    + " OR is_counted_customer_attempt IS FALSE");
             });
         builder.HasKey(entity => entity.IvrCallResultId);
         builder.HasOne<CallJobEntity>()

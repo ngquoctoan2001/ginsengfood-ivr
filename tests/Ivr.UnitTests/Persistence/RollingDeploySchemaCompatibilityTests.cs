@@ -64,11 +64,43 @@ public sealed class RollingDeploySchemaCompatibilityTests
             ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_jobs.status"] = EnumReason,
             ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_attempts.result_status"] = EnumReason,
             ["20260824021636_W0115ClosedEnumChecks::AddCheckConstraint::ivr_call_attempts.status"] = EnumReason,
+            ["20260827020347_W0116WindowExpiredCloseStatus::AddCheckConstraint::ivr_call_jobs.queue_status"] = WideningReason,
+            ["20260827020347_W0116WindowExpiredCloseStatus::AddCheckConstraint::ivr_call_jobs.status"] = WideningReason,
+            ["20260827022343_W0117CountedAttemptInvariant::AddCheckConstraint::ivr_call_results.is_counted_customer_attempt+result_type"] = CountedAttemptReason,
+            ["20260827024438_W0118AttemptCountedInvariant::AddCheckConstraint::ivr_call_attempts.is_counted_customer_attempt+result_status"] = AttemptCountedReason,
         }.ToFrozenDictionary(StringComparer.Ordinal);
 
     private const string EnumReason =
         "W-0115 audited every N-1 writer and the migration preflights existing values before DDL; "
         + "IT-DBENUM-MIGRATE-05 covers valid N-1 data, rejection, and all exact constraints.";
+
+    private const string WideningReason =
+        "W-0116 only adds values to two closed sets ('WINDOW_EXPIRED', 'CLOSED_WINDOW_EXPIRED'); "
+        + "every value the N-1 release writes stays allowed, so the constraint cannot reject a row "
+        + "the old replicas are still producing. The N-1 direction is the one this test guards, "
+        + "and it is the safe one here — the unsafe direction is Down, which narrows the sets and "
+        + "will refuse to run while any job still carries the new values, by design.";
+
+    private const string CountedAttemptReason =
+        "W-0117 narrows rather than widens, so the N-1 writers were audited one by one. "
+        + "ivr_call_results has exactly two: ResultRepository.CreateResult and the scheduler's "
+        + "confirmation-window sweep, and both assign the column from NormalizedResult.IsCounted. "
+        + "DispositionMapper returns IsCounted=false for every technical and capacity result, "
+        + "and never returns the operational or policy types at all — those are decided at "
+        + "eligibility, before any result row exists. No N-1 writer can produce a rejected row. "
+        + "The migration preflights anyway and names offending result ids, so a schema that "
+        + "disagrees with this audit fails loudly instead of on an opaque check violation.";
+
+    private const string AttemptCountedReason =
+        "W-0118 narrows, so the N-1 writers were audited one by one. ivr_call_attempts has four: "
+        + "PostgresSchedulerStore (attempt creation), InternalAdminApiService (technical retry) "
+        + "and PostgresTelephonyDispatchStore (disposition recorded) all assign the literal false, "
+        + "and ResultRepository.NormalizeNextAsync assigns result_status and "
+        + "is_counted_customer_attempt from the same NormalizedResult on adjacent lines, so the "
+        + "two cannot disagree. DispositionMapper returns IsCounted=false for every technical and "
+        + "capacity result and never returns the operational or policy types. No N-1 writer can "
+        + "produce a rejected row, and the migration preflights anyway, naming offending "
+        + "attempt ids rather than failing on an opaque check violation.";
 
     private const string ResultEqualityReason =
         "W-0115 preflights existing rows; both N-1 writers assign final_result_status and "

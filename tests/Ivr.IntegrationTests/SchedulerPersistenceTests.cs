@@ -13,6 +13,7 @@ using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace Ivr.IntegrationTests;
 
@@ -269,9 +270,15 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         return listener;
     }
 
+    /// <summary>
+    /// W-0116. A job held for admin review still closes at its deadline, but it closes as a window
+    /// expiry rather than as a capacity miss. It was kept back deliberately; no channel was ever
+    /// requested for it, so calling its deadline a channel shortage would spell an operational
+    /// decision into the counter that sizes the SIM order.
+    /// </summary>
     [Fact]
     [Trait("TestId", "IT-SCH-DEADLINE-09")]
-    public async Task HeldAdminReviewJobStillClosesAtItsDeadline()
+    public async Task HeldAdminReviewJobClosesAsWindowExpiredNotCapacityMiss()
     {
         await fixture.ResetAsync();
         IDbContextFactory<IvrDbContext> factory = Factory();
@@ -294,9 +301,319 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         Assert.Equal(1, await store.CloseMissedDeadlinesAsync(Now, 16));
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
         CallJobEntity closed = await verification.CallJobs.AsNoTracking().SingleAsync();
-        Assert.Equal("CAPACITY_MISSED", closed.Status);
+        Assert.Equal("WINDOW_EXPIRED", closed.Status);
+        Assert.Equal("CLOSED_WINDOW_EXPIRED", closed.QueueStatus);
         Assert.NotNull(closed.ClosedAt);
-        Assert.False((await verification.CapacityIncidents.AsNoTracking().SingleAsync()).HoldNewCalls);
+        Assert.Null(closed.CapacityIncidentId);
+
+        // The point of the change: no incident at all, not merely one that does not hold calls.
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+
+        CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        Assert.Equal("IVR_CONFIRMATION_WINDOW_EXPIRED", result.ResultType);
+        Assert.False(result.IsCountedCustomerAttempt);
+        Assert.True(result.IsFinalForIvr);
+
+        // Nobody called this customer, so the order must not expire on its own.
+        Assert.Equal("REVALIDATE_AND_HOLD_ADMIN_REVIEW", result.RecommendedCoreAction);
+        Assert.True(result.HumanReviewRequired);
+    }
+
+    /// <summary>
+    /// W-0116. The customer was reached once and the window ran out before the policy's second
+    /// attempt was due. The confirmation genuinely lapsed, so Core is advised to expire it rather
+    /// than to park it in a review queue -- the outcome that keeps the queue small enough to stay
+    /// meaningful for the cases where nobody was reached at all.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-SCH-DEADLINE-11")]
+    public async Task ReachedCustomerWhoseWindowLapsedIsAdvisedToExpireNotToReview()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        DateTimeOffset startedAt = Now.AddMinutes(-5);
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-DEADLINE-11",
+            "JOB-SCH-DEADLINE-11",
+            startedAt,
+            expiresAt: Now);
+        await using (IvrDbContext seed = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await seed.CallJobs.SingleAsync();
+            seed.CallAttempts.Add(new CallAttemptEntity
+            {
+                IvrCallAttemptId = "ATTEMPT-SCH-DEADLINE-11",
+                IvrCallJobId = job.IvrCallJobId,
+                TaskId = job.TaskId,
+                AttemptNumber = 1,
+                MaxAttemptsSnapshot = 2,
+                ScheduledAt = startedAt,
+                ScheduledWindowExpiresAt = Now,
+                StartedAt = startedAt,
+                Status = "NORMALIZED_ATTEMPT_COMPLETE",
+                ResultStatus = "IVR_NO_ANSWER_ATTEMPT",
+                IsCountedCustomerAttempt = true,
+                PolicyVersion = job.AttemptPolicyCode,
+                ScriptVersion = job.ScriptVersion,
+            });
+            await seed.SaveChangesAsync();
+        }
+
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        Assert.Equal(1, await store.CloseMissedDeadlinesAsync(Now, 16));
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+
+        // One real call went out, so this is not a shortage story either.
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        Assert.Equal("IVR_CONFIRMATION_WINDOW_EXPIRED", result.ResultType);
+        Assert.Equal("REVALIDATE_AND_EXPIRE_CONFIRMATION", result.RecommendedCoreAction);
+        Assert.False(result.HumanReviewRequired);
+
+        // The sweep placed no call of its own, so the customer's quota is untouched by it.
+        Assert.False(result.IsCountedCustomerAttempt);
+    }
+
+    /// <summary>
+    /// W-0117. The counted-attempt invariant, proven against a writer that bypasses the domain
+    /// guard entirely.
+    /// <para>
+    /// §16 claims this rule is enforced "at the data layer". Until W-0117 it was enforced by
+    /// <c>CallResultSnapshot.Create</c>, which the scheduler sweep never calls — so the claim was
+    /// true of one writer and merely conventional for the other. This test writes the entity
+    /// straight to the table, exactly as the sweep does, and requires the database itself to say
+    /// no.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "IT-SCH-COUNTED-13")]
+    [InlineData("IVR_TECHNICAL_EXCEPTION")]
+    [InlineData("IVR_CAPACITY_EXCEPTION")]
+    [InlineData("IVR_OPERATIONAL_BLOCKED")]
+    [InlineData("IVR_POLICY_BLOCKED")]
+    public async Task ANonCustomerResultCannotBeStoredAsACustomerAttempt(string resultType)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-COUNTED-13",
+            "JOB-SCH-COUNTED-13",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+
+        await using IvrDbContext seed = await factory.CreateDbContextAsync();
+        CallJobEntity job = await seed.CallJobs.SingleAsync();
+        seed.CallResults.Add(new CallResultEntity
+        {
+            IvrCallResultId = string.Concat("RESULT-COUNTED-13-", resultType),
+            IvrCallJobId = job.IvrCallJobId,
+            TaskId = job.TaskId,
+            OfficialOrderId = job.OfficialOrderId,
+            OrderVersionSnapshot = job.OrderVersionSnapshot,
+            OrderVersionSeenByIvr = job.OrderVersionSnapshot,
+            FinalResultStatus = resultType,
+            ResultType = resultType,
+            IsCountedCustomerAttempt = true,
+            IsFinalForIvr = true,
+            RecommendedCoreAction = "REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+            CoreOrderHandoffRequired = true,
+            HumanReviewRequired = true,
+            CreatedAt = Now,
+        });
+
+        DbUpdateException failure = await Assert.ThrowsAsync<DbUpdateException>(
+            () => seed.SaveChangesAsync());
+
+        PostgresException rejected = Assert.IsType<PostgresException>(failure.InnerException);
+        Assert.Equal(PostgresErrorCodes.CheckViolation, rejected.SqlState);
+        Assert.Equal("ck_ivr_call_results_non_customer_not_counted", rejected.ConstraintName);
+    }
+
+    /// <summary>
+    /// W-0118. The same invariant on the table the scheduler actually counts.
+    /// <para>
+    /// <c>TryClaimDueDispatchAsync</c> decides whether another call is owed by counting rows in
+    /// <c>ivr_call_attempts</c> where <c>is_counted_customer_attempt IS TRUE</c>. So a non-customer
+    /// outcome counted here does not merely misreport — it spends one of the two attempts the
+    /// policy promised, and the order can reach its final attempt without the phone having rung
+    /// twice.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "IT-SCH-COUNTED-15")]
+    [InlineData("IVR_TECHNICAL_EXCEPTION")]
+    [InlineData("IVR_CAPACITY_EXCEPTION")]
+    [InlineData("IVR_OPERATIONAL_BLOCKED")]
+    [InlineData("IVR_POLICY_BLOCKED")]
+    public async Task ANonCustomerAttemptCannotBeStoredAsACustomerAttempt(string resultStatus)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-COUNTED-15",
+            "JOB-SCH-COUNTED-15",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+
+        await using IvrDbContext seed = await factory.CreateDbContextAsync();
+        CallJobEntity job = await seed.CallJobs.SingleAsync();
+        seed.CallAttempts.Add(new CallAttemptEntity
+        {
+            IvrCallAttemptId = string.Concat("ATTEMPT-COUNTED-15-", resultStatus),
+            IvrCallJobId = job.IvrCallJobId,
+            TaskId = job.TaskId,
+            AttemptNumber = 1,
+            MaxAttemptsSnapshot = 2,
+            ScheduledAt = Now.AddMinutes(-5),
+            ScheduledWindowExpiresAt = Now,
+            Status = "NORMALIZED_FINAL",
+            ResultStatus = resultStatus,
+            IsCountedCustomerAttempt = true,
+            PolicyVersion = job.AttemptPolicyCode,
+            ScriptVersion = job.ScriptVersion,
+        });
+
+        DbUpdateException failure = await Assert.ThrowsAsync<DbUpdateException>(
+            () => seed.SaveChangesAsync());
+
+        PostgresException rejected = Assert.IsType<PostgresException>(failure.InnerException);
+        Assert.Equal(PostgresErrorCodes.CheckViolation, rejected.SqlState);
+        Assert.Equal("ck_ivr_call_attempts_non_customer_not_counted", rejected.ConstraintName);
+    }
+
+    /// <summary>
+    /// W-0118. An attempt row exists before its outcome is known, and the constraint must not
+    /// stand in the way of that. A leased attempt has no result_status yet, so the rule has
+    /// nothing to judge and must let the row through.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-SCH-COUNTED-16")]
+    public async Task AnAttemptWithNoResultYetIsNotJudgedByTheInvariant()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-COUNTED-16",
+            "JOB-SCH-COUNTED-16",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+
+        await using IvrDbContext seed = await factory.CreateDbContextAsync();
+        CallJobEntity job = await seed.CallJobs.SingleAsync();
+        seed.CallAttempts.Add(new CallAttemptEntity
+        {
+            IvrCallAttemptId = "ATTEMPT-COUNTED-16",
+            IvrCallJobId = job.IvrCallJobId,
+            TaskId = job.TaskId,
+            AttemptNumber = 1,
+            MaxAttemptsSnapshot = 2,
+            ScheduledAt = Now.AddMinutes(-5),
+            ScheduledWindowExpiresAt = Now,
+            Status = "LEASED_PENDING_DISPATCH",
+            ResultStatus = null,
+            IsCountedCustomerAttempt = false,
+            PolicyVersion = job.AttemptPolicyCode,
+            ScriptVersion = job.ScriptVersion,
+        });
+
+        await seed.SaveChangesAsync();
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallAttemptEntity stored = await verification.CallAttempts.AsNoTracking().SingleAsync();
+        Assert.Null(stored.ResultStatus);
+        Assert.False(stored.IsCountedCustomerAttempt);
+    }
+
+    /// <summary>
+    /// W-0117. The other half: the constraint must not have been written so broadly that it also
+    /// refuses the results that genuinely are customer attempts. A rule that rejects everything
+    /// passes the negative test above while quietly breaking every confirmed order.
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "IT-SCH-COUNTED-14")]
+    [InlineData("IVR_CONFIRMED", "REVALIDATE_AND_CONFIRM_ORDER")]
+    [InlineData("IVR_CUSTOMER_CANCELLED", "REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST")]
+    [InlineData("IVR_NO_ANSWER_FINAL", "NO_STATE_CHANGE_WAIT_FOR_TIMEOUT")]
+    public async Task AGenuineCustomerAttemptIsStillAccepted(string resultType, string coreAction)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-COUNTED-14",
+            "JOB-SCH-COUNTED-14",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+
+        await using IvrDbContext seed = await factory.CreateDbContextAsync();
+        CallJobEntity job = await seed.CallJobs.SingleAsync();
+        seed.CallResults.Add(new CallResultEntity
+        {
+            IvrCallResultId = string.Concat("RESULT-COUNTED-14-", resultType),
+            IvrCallJobId = job.IvrCallJobId,
+            TaskId = job.TaskId,
+            OfficialOrderId = job.OfficialOrderId,
+            OrderVersionSnapshot = job.OrderVersionSnapshot,
+            OrderVersionSeenByIvr = job.OrderVersionSnapshot,
+            FinalResultStatus = resultType,
+            ResultType = resultType,
+            IsCountedCustomerAttempt = true,
+            IsFinalForIvr = true,
+            RecommendedCoreAction = coreAction,
+            CoreOrderHandoffRequired = true,
+            HumanReviewRequired = false,
+            CreatedAt = Now,
+        });
+
+        await seed.SaveChangesAsync();
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallResultEntity stored = await verification.CallResults.AsNoTracking().SingleAsync();
+        Assert.Equal(resultType, stored.ResultType);
+        Assert.True(stored.IsCountedCustomerAttempt);
+    }
+
+    /// <summary>
+    /// W-0116. A dry run never asks for a channel, so its deadline cannot be evidence of a channel
+    /// shortage. This is the case that made the old counter unusable for procurement: mock traffic
+    /// and real queue pressure were indistinguishable once both closed as CAPACITY_MISSED.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-SCH-DEADLINE-12")]
+    public async Task DryRunDeadlineIsNeverReportedAsCapacityShortage()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-DEADLINE-12",
+            "JOB-SCH-DEADLINE-12",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+        await using (IvrDbContext seed = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await seed.CallJobs.SingleAsync();
+            job.Status = "DRY_RUN";
+            job.QueueStatus = "HELD_MOCK";
+            await seed.SaveChangesAsync();
+        }
+
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        Assert.Equal(1, await store.CloseMissedDeadlinesAsync(Now, 16));
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        Assert.Equal(
+            "IVR_CONFIRMATION_WINDOW_EXPIRED",
+            (await verification.CallResults.AsNoTracking().SingleAsync()).ResultType);
+        Assert.Equal(
+            "WINDOW_EXPIRED",
+            (await verification.CallJobs.AsNoTracking().SingleAsync()).Status);
     }
 
     [Fact]

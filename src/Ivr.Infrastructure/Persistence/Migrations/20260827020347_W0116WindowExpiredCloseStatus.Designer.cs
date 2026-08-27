@@ -3,6 +3,7 @@ using System;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Ivr.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(IvrDbContext))]
-    partial class IvrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260827020347_W0116WindowExpiredCloseStatus")]
+    partial class W0116WindowExpiredCloseStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1397,8 +1400,6 @@ namespace Ivr.Infrastructure.Persistence.Migrations
 
                     b.ToTable("ivr_call_attempts", null, t =>
                         {
-                            t.HasCheckConstraint("ck_ivr_call_attempts_non_customer_not_counted", "result_status IS NULL OR result_status NOT IN ('IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION','IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED') OR is_counted_customer_attempt IS FALSE");
-
                             t.HasCheckConstraint("ck_ivr_call_attempts_number_snapshot", "attempt_number >= 1 AND attempt_number <= max_attempts_snapshot AND max_attempts_snapshot BETWEEN 1 AND 10");
 
                             t.HasCheckConstraint("ck_ivr_call_attempts_result_status", "result_status IS NULL OR result_status IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION','IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
@@ -1747,8 +1748,6 @@ namespace Ivr.Infrastructure.Persistence.Migrations
                     b.ToTable("ivr_call_results", null, t =>
                         {
                             t.HasCheckConstraint("ck_ivr_call_results_final_matches_type", "final_result_status = result_type");
-
-                            t.HasCheckConstraint("ck_ivr_call_results_non_customer_not_counted", "result_type NOT IN ('IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION','IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED') OR is_counted_customer_attempt IS FALSE");
 
                             t.HasCheckConstraint("ck_ivr_call_results_recommended_core_action", "recommended_core_action IN ('REVALIDATE_AND_CONFIRM_ORDER','REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST','NO_STATE_CHANGE_WAIT_FOR_TIMEOUT','REVALIDATE_AND_EXPIRE_CONFIRMATION','REVALIDATE_AND_HOLD_ADMIN_REVIEW','IGNORE_STALE_CALLBACK','BLOCK_DUE_TO_OPERATIONAL_CONSTRAINT')");
 

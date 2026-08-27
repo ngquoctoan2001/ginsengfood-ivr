@@ -436,21 +436,5 @@ public sealed class ResultRepository(
     }
 
     private static string ToCoreAction(CoreActionRecommendation recommendation) =>
-        recommendation switch
-        {
-            CoreActionRecommendation.RevalidateAndConfirmOrder =>
-                "REVALIDATE_AND_CONFIRM_ORDER",
-            CoreActionRecommendation.RevalidateAndCancelCustomerRequest =>
-                "REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST",
-            CoreActionRecommendation.NoStateChangeWaitForTimeout =>
-                "NO_STATE_CHANGE_WAIT_FOR_TIMEOUT",
-            CoreActionRecommendation.RevalidateAndExpireConfirmation =>
-                "REVALIDATE_AND_EXPIRE_CONFIRMATION",
-            CoreActionRecommendation.RevalidateAndHoldAdminReview =>
-                "REVALIDATE_AND_HOLD_ADMIN_REVIEW",
-            CoreActionRecommendation.IgnoreStaleCallback => "IGNORE_STALE_CALLBACK",
-            CoreActionRecommendation.BlockDueToOperationalConstraint =>
-                "BLOCK_DUE_TO_OPERATIONAL_CONSTRAINT",
-            _ => throw new InvalidOperationException("Unsupported Core action recommendation."),
-        };
+        ResultStorageVocabulary.ToCoreAction(recommendation);
 }

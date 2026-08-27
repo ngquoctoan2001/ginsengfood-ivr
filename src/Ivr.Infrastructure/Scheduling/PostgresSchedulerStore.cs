@@ -381,68 +381,118 @@ public sealed class PostgresSchedulerStore(
             candidate => candidate.Eligible && candidate.ClosedAt == null,
             cancellationToken).ConfigureAwait(false);
         string[] jobIds = [.. jobs.Select(job => job.IvrCallJobId)];
-        Dictionary<string, int> lastAttemptNumbers = await context.CallAttempts
+
+        // Three numbers per job, not one. The attempt number alone cannot tell the two ways a job
+        // reaches this sweep apart, and they call for opposite handling: a job that sat in the
+        // queue and never dialled is a system failure the customer never heard about, while a job
+        // that dialled and ran out of window gave the customer a real chance. Deciding both from
+        // Max(attempt_number) would collapse them into whichever the last row happened to be.
+        Dictionary<string, AttemptProgress> attemptProgress = await context.CallAttempts
             .AsNoTracking()
             .Where(attempt => jobIds.Contains(attempt.IvrCallJobId))
             .GroupBy(attempt => attempt.IvrCallJobId)
             .Select(group => new
             {
                 JobId = group.Key,
-                AttemptNumber = group.Max(attempt => attempt.AttemptNumber),
+                Progress = new AttemptProgress(
+                    group.Max(attempt => attempt.AttemptNumber),
+                    group.Count(),
+                    group.Count(attempt => attempt.IsCountedCustomerAttempt)),
             })
             .ToDictionaryAsync(
                 item => item.JobId,
-                item => item.AttemptNumber,
+                item => item.Progress,
                 StringComparer.Ordinal,
                 cancellationToken)
             .ConfigureAwait(false);
-        var closed = new List<(string Program, string ResultStatus)>(jobs.Count);
+        var closed = new List<(string Program, string ResultStatus, string ReasonCode)>(jobs.Count);
         foreach (CallJobEntity job in jobs)
         {
+            AttemptProgress progress = attemptProgress.TryGetValue(
+                job.IvrCallJobId,
+                out AttemptProgress recorded)
+                ? recorded
+                : AttemptProgress.None;
+
+            // A capacity miss is a claim about why the deadline passed, and this is the only shape
+            // that supports it: the job was queued for dispatch and no channel ever came. A job
+            // held for review was kept back on purpose, a dry run never wanted a channel, and a
+            // leased job already had one. Reporting those as capacity shortage inflates the very
+            // counter that sizes the SIM order (M8-OD-A), so they close as what they are -- a
+            // confirmation window that ran out.
+            bool capacityMiss = progress.TotalAttempts == 0
+                && string.Equals(job.Status, "READY_FOR_SCHEDULER", StringComparison.Ordinal);
+
+            // The customer side of the same question, and it is not the same question. Reaching
+            // the customer at least once means the confirmation genuinely lapsed and Core can
+            // expire it. Never reaching them means the order would die for a call that was never
+            // placed, which is the outcome the technical-error boundary exists to prevent, so it
+            // goes to a human instead.
+            bool customerWasReached = progress.CountedAttempts > 0;
+
             string incidentId = string.Concat("CAP-", Guid.NewGuid().ToString("N"));
-            context.CapacityIncidents.Add(new CapacityIncidentEntity
+            if (capacityMiss)
             {
-                CapacityIncidentId = incidentId,
-                SessionId = string.Concat("SCHED-DEADLINE-", job.IvrCallJobId),
-                ProgramCode = job.ProgramType,
-                Status = "OPEN",
-                Scope = "SCHEDULER_DEADLINE",
-                HoldNewCalls = false,
-                ActiveSimCount = activeChannels,
-                PendingCallJobs = pendingJobs,
-                ExpiredCallJobs = 1,
-                MissedDeadlineCount = 1,
-                ShortageReason = "NO_DISPATCH_BEFORE_DEADLINE",
-                OpenedAt = detectedAt,
-                Reason = "IVR_CAPACITY_EXCEPTION",
-            });
+                context.CapacityIncidents.Add(new CapacityIncidentEntity
+                {
+                    CapacityIncidentId = incidentId,
+                    SessionId = string.Concat("SCHED-DEADLINE-", job.IvrCallJobId),
+                    ProgramCode = job.ProgramType,
+                    Status = "OPEN",
+                    Scope = "SCHEDULER_DEADLINE",
+                    HoldNewCalls = false,
+                    ActiveSimCount = activeChannels,
+                    PendingCallJobs = pendingJobs,
+                    ExpiredCallJobs = 1,
+                    MissedDeadlineCount = 1,
+                    ShortageReason = "NO_DISPATCH_BEFORE_DEADLINE",
+                    OpenedAt = detectedAt,
+                    Reason = "IVR_CAPACITY_EXCEPTION",
+                });
+            }
+
             string resultId = string.Concat("RESULT-", Guid.NewGuid().ToString("N"));
             string evidenceRef = string.Concat(
-                "evidence://ivr/p2-3/capacity-miss/",
+                capacityMiss
+                    ? "evidence://ivr/p2-3/capacity-miss/"
+                    : "evidence://ivr/p2-3/window-expired/",
                 job.IvrCallJobId);
             AuditLogEntity audit = CreateAudit(
-                "SCHEDULER_DEADLINE_MISSED",
+                capacityMiss
+                    ? "SCHEDULER_DEADLINE_MISSED"
+                    : "SCHEDULER_WINDOW_EXPIRED",
                 "call-job",
                 job.IvrCallJobId,
                 job.TaskId,
                 detectedAt,
                 new Dictionary<string, object?>
                 {
-                    ["capacity_incident_id"] = incidentId,
+                    ["capacity_incident_id"] = capacityMiss ? incidentId : null,
                     ["result_id"] = resultId,
                     ["deadline"] = job.ExpiresAt,
                     ["is_counted_customer_attempt"] = false,
+                    ["counted_attempts_before_deadline"] = progress.CountedAttempts,
+                    ["customer_was_reached"] = customerWasReached,
                 });
             string auditRef = string.Concat("audit://ivr/", audit.AuditId.ToString("D"));
+            string reasonCode = capacityMiss
+                ? "NO_DISPATCH_BEFORE_DEADLINE"
+                : "WINDOW_EXPIRED_BEFORE_FINAL_RESULT";
             var normalized = new NormalizedResult(
-                IvrResultType.IvrCapacityException,
+                capacityMiss
+                    ? IvrResultType.IvrCapacityException
+                    : IvrResultType.IvrConfirmationWindowExpired,
+                // Never counted, in either branch. No call was placed by this sweep, so no
+                // customer attempt was consumed by it.
                 false,
                 true,
-                "NO_DISPATCH_BEFORE_DEADLINE",
+                reasonCode,
                 null,
-                "CAPACITY_UNAVAILABLE",
-                CoreActionRecommendation.RevalidateAndHoldAdminReview,
-                true,
+                capacityMiss ? "CAPACITY_UNAVAILABLE" : null,
+                customerWasReached
+                    ? CoreActionRecommendation.RevalidateAndExpireConfirmation
+                    : CoreActionRecommendation.RevalidateAndHoldAdminReview,
+                !customerWasReached,
                 false,
                 0);
             context.CallResults.Add(new CallResultEntity
@@ -453,14 +503,15 @@ public sealed class PostgresSchedulerStore(
                 OfficialOrderId = job.OfficialOrderId,
                 OrderVersionSnapshot = job.OrderVersionSnapshot,
                 OrderVersionSeenByIvr = job.OrderVersionSnapshot,
-                FinalResultStatus = "IVR_CAPACITY_EXCEPTION",
-                ResultType = "IVR_CAPACITY_EXCEPTION",
-                ResultReason = "NO_DISPATCH_BEFORE_DEADLINE",
-                IsCountedCustomerAttempt = false,
+                FinalResultStatus = normalized.ResultStatus,
+                ResultType = normalized.ResultStatus,
+                ResultReason = reasonCode,
+                IsCountedCustomerAttempt = normalized.IsCounted,
                 IsFinalForIvr = true,
-                RecommendedCoreAction = "REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+                RecommendedCoreAction = ResultStorageVocabulary.ToCoreAction(
+                    normalized.RecommendedCoreAction),
                 CoreOrderHandoffRequired = true,
-                HumanReviewRequired = true,
+                HumanReviewRequired = normalized.HumanReviewRequired,
                 InputSignalOnly = true,
                 NoDirectOrderUpdate = true,
                 NoPaymentOrRevenueEffect = true,
@@ -471,10 +522,8 @@ public sealed class PostgresSchedulerStore(
                 }),
                 AuditRefsJson = JsonSerializer.Serialize(new[] { auditRef }),
             });
-            int attemptNumber = lastAttemptNumbers.TryGetValue(
-                job.IvrCallJobId,
-                out int lastAttemptNumber)
-                ? Math.Min(checked(lastAttemptNumber + 1), job.MaxAttempts)
+            int attemptNumber = progress.LastAttemptNumber > 0
+                ? Math.Min(checked(progress.LastAttemptNumber + 1), job.MaxAttempts)
                 : 1;
             context.ResultCallbacks.Add(CallbackOutboxSnapshotFactory.Create(
                 resultId,
@@ -484,13 +533,13 @@ public sealed class PostgresSchedulerStore(
                 evidenceRef,
                 auditRef,
                 detectedAt));
-            job.CapacityIncidentId = incidentId;
-            job.Status = "CAPACITY_MISSED";
-            job.QueueStatus = "CLOSED_CAPACITY";
+            job.CapacityIncidentId = capacityMiss ? incidentId : null;
+            job.Status = capacityMiss ? "CAPACITY_MISSED" : "WINDOW_EXPIRED";
+            job.QueueStatus = capacityMiss ? "CLOSED_CAPACITY" : "CLOSED_WINDOW_EXPIRED";
             job.ClosedAt = detectedAt;
-            job.ClosedReason = "IVR_CAPACITY_EXCEPTION";
+            job.ClosedReason = normalized.ResultStatus;
             context.AuditLog.Add(audit);
-            closed.Add((job.ProgramType, normalized.ResultStatus));
+            closed.Add((job.ProgramType, normalized.ResultStatus, reasonCode));
         }
 
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -504,11 +553,16 @@ public sealed class PostgresSchedulerStore(
         // row itself. Recording only the deadline counter would leave every capacity miss out of
         // ivr_call_results_total, and a confirm_rate whose denominator omits the failures reads
         // higher than the truth. The gap is largest exactly when capacity is worst.
-        foreach ((string program, string resultStatus) in closed)
+        //
+        // The reason tag carries the branch. Every job here did miss its deadline, so the deadline
+        // counter still moves for both -- but only one of them is evidence of a channel shortage.
+        // Without the tag, procurement reads a single number that mixes real shortage with jobs
+        // that were held on purpose, and buys SIMs against noise.
+        foreach ((string program, string resultStatus, string reasonCode) in closed)
         {
             IvrTelemetry.RecordMissedDeadline(
                 (TelemetryTags.Program, program),
-                (TelemetryTags.ReasonCode, "NO_DISPATCH_BEFORE_DEADLINE"));
+                (TelemetryTags.ReasonCode, reasonCode));
             IvrTelemetry.RecordResult(
                 (TelemetryTags.ResultType, resultStatus),
                 (TelemetryTags.Counted, false));
@@ -566,5 +620,23 @@ public sealed class PostgresSchedulerStore(
         {
             throw new ArgumentOutOfRangeException(nameof(batchSize));
         }
+    }
+
+    /// <summary>
+    /// What a job's attempt rows say about it at the moment its window closed.
+    /// <para>
+    /// <paramref name="TotalAttempts"/> answers "was this job ever dispatched", and
+    /// <paramref name="CountedAttempts"/> answers "did the customer ever get a real call". They
+    /// differ whenever an attempt failed technically, and the sweep needs both: the first decides
+    /// whether a channel shortage is a supportable claim, the second decides whether Core may
+    /// expire the order or must route it to a human.
+    /// </para>
+    /// </summary>
+    private readonly record struct AttemptProgress(
+        int LastAttemptNumber,
+        int TotalAttempts,
+        int CountedAttempts)
+    {
+        public static AttemptProgress None => new(0, 0, 0);
     }
 }

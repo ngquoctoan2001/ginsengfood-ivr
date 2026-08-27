@@ -64,6 +64,8 @@
     "CAPACITY_HELD": "Bị giữ do năng lực",
     "CAPACITY_MISSED": "Trễ deadline do năng lực",
     "CLOSED_CAPACITY": "Đóng do thiếu năng lực",
+    "WINDOW_EXPIRED": "Hết hạn cửa sổ xác nhận",
+    "CLOSED_WINDOW_EXPIRED": "Đóng do hết hạn cửa sổ xác nhận",
     "RECOVERY_REQUIRED": "Cần khôi phục",
     "BLOCKED": "Bị chặn",
     "SKIPPED": "Đã bỏ qua",
@@ -177,7 +179,8 @@
     "BLOCKED_BY_CORE": "Order Core chặn khi kiểm lại"
   },
   "closedReason": {
-    "IVR_CAPACITY_EXCEPTION": "Đóng do không đủ năng lực gọi"
+    "IVR_CAPACITY_EXCEPTION": "Đóng do không đủ năng lực gọi",
+    "IVR_CONFIRMATION_WINDOW_EXPIRED": "Đóng do hết hạn cửa sổ xác nhận"
   },
   "shortageReason": {
     "NO_DISPATCH_BEFORE_DEADLINE": "Không kịp quay số trước hạn chót",

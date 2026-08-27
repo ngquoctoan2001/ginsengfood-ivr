@@ -207,7 +207,9 @@ _Cột cuối là giá trị đang nạp trong registry attempt policy, để đ
 | Cuộc 2 nghe + bấm 1     | IVR_CONFIRMED                   | Revalidate rồi tiếp tục xử lý đơn.                                                                                |
 | Cuộc 2 nghe + bấm 0     | IVR_CUSTOMER_CANCELLED          | Revalidate rồi hủy theo yêu cầu khách.                                                                            |
 | Cuộc 2 không nghe       | IVR_NO_ANSWER_FINAL             | KHÔNG đổi trạng thái. IVR đóng phần việc của mình và chờ window hết hạn; Order Core tự xử lý theo timeout policy. |
-| Hết confirmation window | IVR_CONFIRMATION_WINDOW_EXPIRED | Order Core hủy/expire order hoặc quote theo policy.                                                               |
+| Hết window, khách ĐÃ được gọi ít nhất 1 lượt | IVR_CONFIRMATION_WINDOW_EXPIRED | Revalidate rồi expire. Khách đã có cơ hội xác nhận thật.                                                          |
+| Hết window, khách CHƯA từng được gọi | IVR_CONFIRMATION_WINDOW_EXPIRED | KHÔNG tự expire. Giữ lại chờ admin review — đơn không được chết vì một cuộc gọi chưa từng phát sinh.               |
+| Hết window vì đang xếp hàng chờ kênh, chưa dispatch lần nào | IVR_CAPACITY_EXCEPTION | Giữ lại chờ admin review, kèm capacity incident. Đây là ca DUY NHẤT được ghi là sự cố năng lực.                    |
 
 **Khác biệt so với V0.2: V0.2 ghi rằng không nghe sau 2 cuộc thì IVR xin Order Core hủy đơn. Code không làm vậy và không nên làm vậy — không nghe máy không phải là ý chí hủy của khách. IVR chỉ báo cáo sự kiện; việc hết hạn mới là thứ dẫn tới hủy, và nó do Order Core quyết.**
 
@@ -380,16 +382,20 @@ V0.2 liệt kê 9 mã. Thực tế có 11. Hai cột "Tính lượt" và "Kết 
 | IVR_NO_ANSWER_ATTEMPT           | Một lượt không nghe, còn lượt.                       | Có            | Không        | Không đổi trạng thái.                         |
 | IVR_NO_ANSWER_FINAL             | Không nghe sau lượt cuối.                            | Có            | Có           | Không đổi trạng thái; chờ hết window.         |
 | IVR_WRONG_INPUT                 | Bấm phím không hợp lệ, còn lượt.                     | Có            | Không        | Không đổi trạng thái.                         |
-| IVR_CONFIRMATION_WINDOW_EXPIRED | Hết window chưa có xác nhận hợp lệ.                  | Có            | Có           | Revalidate rồi expire.                        |
+| IVR_CONFIRMATION_WINDOW_EXPIRED | Hết window chưa có xác nhận hợp lệ.                  | Không         | Có           | Expire nếu khách đã được gọi; giữ lại chờ admin review nếu chưa. |
 | IVR_INVALID_PHONE_FINAL         | Số không hợp lệ/không tồn tại.                       | Không         | Có           | Giữ lại chờ admin review.                     |
 | IVR_TECHNICAL_EXCEPTION         | Lỗi SIM/server/DTMF/audio/callback/scheduler.        | Không         | Không        | Giữ lại chờ admin review hoặc retry kỹ thuật. |
-| IVR_CAPACITY_EXCEPTION          | Không đủ kênh trong window. MỚI so với V0.2.         | Không         | Có           | Giữ lại chờ admin review.                     |
+| IVR_CAPACITY_EXCEPTION          | Xếp hàng chờ kênh tới hết window, chưa dispatch lần nào. MỚI so với V0.2. | Không         | Có           | Giữ lại chờ admin review + capacity incident. |
 | IVR_OPERATIONAL_BLOCKED         | Bị chặn bởi ràng buộc vận hành. MỚI so với V0.2.     | Không         | Có           | Chặn theo ràng buộc vận hành.                 |
 | IVR_POLICY_BLOCKED              | Bị chặn bởi policy, gồm cả opt-out. MỚI so với V0.2. | Không         | Có           | Không gọi. Tôn trọng opt-out.                 |
 
+Về hai mã khi hết window — sửa ngày 27/08/2026: bản V0.3 đầu tiên ghi IVR_CONFIRMATION_WINDOW_EXPIRED có tính lượt khách và luôn dẫn tới expire. Cả hai đều sai. Hết window không phải là một cuộc gọi tới khách, nên nó không tiêu lượt nào. Và việc expire chỉ đúng khi khách đã thực sự được gọi ít nhất một lượt; nếu chưa từng gọi được ai thì đơn phải chờ người xem, vì để nó tự hết hạn là hủy đơn của một khách hàng chưa từng nghe chuông — đúng hình dạng thảm họa mà §18 tồn tại để ngăn.
+
+Về ranh giới giữa hai mã: IVR_CAPACITY_EXCEPTION là một khẳng định về NGUYÊN NHÂN, nên nó chỉ được dùng khi nguyên nhân đó thực sự chứng minh được — job đã xếp hàng chờ kênh (READY_FOR_SCHEDULER) và chưa dispatch được lần nào cho tới hết window. Job bị giữ chờ admin review là quyết định vận hành có chủ đích; job dry-run theo định nghĩa không cần kênh nào. Trước ngày 27/08/2026 cả ba đều bị ghi là sự cố năng lực, làm nhiễu chính chỉ số missed_deadline dùng để trả lời M8-OD-A (pilot mua bao nhiêu SIM). Nay chỉ ca thứ nhất tạo capacity incident.
+
 Về IVR_OPT_OUT: V0.2 liệt kê nó như một result code, nhưng điều đó ngụ ý đã có một cuộc gọi phát sinh rồi mới biết khách từ chối. Thực tế opt-out bị chặn ở tầng eligibility nên không bao giờ có cuộc gọi nào, và kết quả ghi nhận là IVR_POLICY_BLOCKED. Cách làm này đúng hơn và V0.3 ghi lại theo đúng hành vi.
 
-<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>BẤT BIẾN ĐƯỢC THỰC THI Ở TẦNG DỮ LIỆU</strong></p><ul><li>Kết quả kỹ thuật, capacity, operational và policy KHÔNG được đánh dấu là một lượt gọi của khách. Vi phạm làm việc ghi dữ liệu thất bại, chứ không âm thầm trôi qua.</li><li>Kết quả không-nghe-máy không được kèm đề nghị đổi trạng thái đơn.</li><li>Một kết quả không-nghe-máy chưa phải cuối cùng thì không được đóng phần việc IVR.</li></ul></th></tr></tbody></table></div>
+<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>BẤT BIẾN ĐƯỢC THỰC THI Ở TẦNG DỮ LIỆU</strong></p><ul><li>Kết quả kỹ thuật, capacity, operational và policy KHÔNG được đánh dấu là một lượt gọi của khách. Từ 27/08/2026 điều này được thực thi bằng CHECK constraint trên CẢ HAI bảng mang cột này: <code>ck_ivr_call_results_non_customer_not_counted</code> (W-0117) và <code>ck_ivr_call_attempts_non_customer_not_counted</code> (W-0118). Vi phạm làm lệnh ghi thất bại ngay cả khi writer không đi qua guard tầng domain. Bảng attempt là bảng quan trọng hơn trong hai: scheduler đếm chính cột này để quyết định khách còn được gọi thêm lượt nào không, nên một kết quả không-phải-của-khách bị tính ở đây không chỉ sai báo cáo — nó tiêu mất một trong hai lượt mà policy đã hứa với khách. Trước đó ràng buộc chỉ nằm ở <code>CallResultSnapshot.Create</code>, mà scheduler sweep thì không gọi hàm này — tức bất biến chỉ đúng theo thoả thuận giữa các writer, không đúng theo cấu trúc.</li><li>Kết quả không-nghe-máy không được kèm đề nghị đổi trạng thái đơn.</li><li>Một kết quả không-nghe-máy chưa phải cuối cùng thì không được đóng phần việc IVR.</li></ul></th></tr></tbody></table></div>
 
 # **17\. Callback về Order Core và State Machine Boundary**
 

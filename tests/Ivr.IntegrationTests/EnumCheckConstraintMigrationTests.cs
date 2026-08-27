@@ -44,8 +44,9 @@ public sealed class EnumCheckConstraintMigrationTests(PostgresPersistenceFixture
 
         try
         {
-            (string previous, string latest) = await RebuildAtPreviousMigrationAsync(factory);
-            Assert.EndsWith("_W0115ClosedEnumChecks", latest, StringComparison.Ordinal);
+            (string previous, string latest) = await RebuildBeforeMigrationAsync(
+                factory,
+                "_W0115ClosedEnumChecks");
 
             await using (IvrDbContext legacy = await factory.CreateDbContextAsync())
             {
@@ -98,17 +99,34 @@ public sealed class EnumCheckConstraintMigrationTests(PostgresPersistenceFixture
         }
     }
 
-    private static async Task<(string Previous, string Latest)> RebuildAtPreviousMigrationAsync(
-        IDbContextFactory<IvrDbContext> factory)
+    /// <summary>
+    /// Rebuilds the schema at the migration immediately before <paramref name="targetSuffix"/>.
+    /// <para>
+    /// Anchored by name rather than by position in the list. This test is about one specific
+    /// migration's preflight, and taking the last two entries made it assert that migration was
+    /// still the newest one in the repository — a claim it never meant to make, and one that the
+    /// next migration to be added breaks for reasons that have nothing to do with what is under
+    /// test.
+    /// </para>
+    /// </summary>
+    private static async Task<(string Previous, string Target)> RebuildBeforeMigrationAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string targetSuffix)
     {
         await using IvrDbContext context = await factory.CreateDbContextAsync();
         await context.Database.EnsureDeletedAsync();
         string[] migrations = [.. context.Database.GetMigrations()];
-        Assert.True(migrations.Length >= 2);
-        string previous = migrations[^2];
-        string latest = migrations[^1];
+        int index = Array.FindIndex(
+            migrations,
+            migration => migration.EndsWith(targetSuffix, StringComparison.Ordinal));
+        Assert.True(
+            index > 0,
+            $"Expected a migration ending in '{targetSuffix}' with at least one migration before "
+                + $"it, but the chain is [{string.Join(", ", migrations)}].");
+        string previous = migrations[index - 1];
+        string target = migrations[index];
         await context.GetService<IMigrator>().MigrateAsync(previous);
-        return (previous, latest);
+        return (previous, target);
     }
 
     private static Task<int> InsertReviewAsync(
