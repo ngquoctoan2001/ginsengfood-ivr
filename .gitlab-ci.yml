@@ -52,3 +52,4 @@ include:
   - local: "/deploy/ci/cd.gitlab-ci.yml"
   - local: "/deploy/ci/promote.gitlab-ci.yml"
   - local: "/deploy/ci/registry.gitlab-ci.yml"
+  - local: "/deploy/ci/tts.gitlab-ci.yml"
