@@ -41,3 +41,11 @@ Thumbs.db
 # W-0106 voice audition MP3. Source audio stays out of the repo (W-0104 precedent);
 # only pinned PCM 8 kHz plus SHA-256 ever gets committed.
 artifacts/w-0106-voice-audition/
+
+# W-0122 model bundles and rendered speech are reproducible local/CI artifacts.
+# Only pins, hashes, manifests and evidence metadata belong in Git.
+artifacts/w-0122-models/
+artifacts/w-0122-voice-audition/
+artifacts/w-0122-fixed-speech/
+**/__pycache__/
+*.py[cod]

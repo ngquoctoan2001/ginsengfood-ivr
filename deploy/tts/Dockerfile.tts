@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1.7
+ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.8.14@sha256:d97bc3f40af096399f67e8e69e10b7735f3dbc6fed300391637ecb00f37af981
+ARG PYTHON_IMAGE=python:3.12.14-slim-trixie@sha256:7a8b475003c4fe15a2cd4e55e5cfc2f3560bdc9333d624f24cdd6d4340fd7a17
+
+FROM ${UV_IMAGE} AS uv
+FROM ${PYTHON_IMAGE} AS builder
+
+COPY --from=uv /uv /usr/local/bin/uv
+
+WORKDIR /opt/vieneu
+COPY deploy/tts/runtime-requirements.lock /opt/ivr-runtime/runtime-requirements.lock
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv venv --python /usr/local/bin/python /opt/vieneu/.venv \
+    && uv pip sync \
+        --python /opt/vieneu/.venv/bin/python \
+        --require-hashes \
+        --only-binary :all: \
+        /opt/ivr-runtime/runtime-requirements.lock
+
+FROM ${PYTHON_IMAGE} AS runtime
+
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        libssl3t64=3.5.7-1~deb13u2 \
+        openssl=3.5.7-1~deb13u2 \
+        openssl-provider-legacy=3.5.7-1~deb13u2 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid 1654 ivr \
+    && useradd --uid 1654 --gid 1654 --no-create-home --home-dir /nonexistent \
+        --shell /usr/sbin/nologin ivr
+
+WORKDIR /opt/vieneu
+COPY --from=builder /opt/vieneu/.venv /opt/vieneu/.venv
+COPY --from=builder /opt/ivr-runtime/runtime-requirements.lock /opt/ivr-runtime/runtime-requirements.lock
+COPY third_party/vieneu-tts/src/ /opt/vieneu/src/
+COPY third_party/vieneu-tts/uv.lock /opt/vieneu/uv.lock
+COPY third_party/vieneu-tts/LICENSE /opt/vieneu/LICENSE
+
+WORKDIR /opt/ivr-tts
+COPY deploy/tts/shim/ /opt/ivr-tts/shim/
+COPY deploy/tts/models/MODELS.lock /opt/ivr-tts/models/MODELS.lock
+
+ENV PATH="/opt/vieneu/.venv/bin:${PATH}" \
+    PYTHONPATH="/opt/ivr-tts:/opt/vieneu/src" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HF_HUB_OFFLINE=1 \
+    VIE_NEU_BACKEND=vieneu-onnx \
+    VIE_NEU_HOST=127.0.0.1 \
+    VIE_NEU_PORT=8090 \
+    VIE_NEU_BUNDLE_ROOT=/models \
+    VIE_NEU_MODEL_LOCK=/opt/ivr-tts/models/MODELS.lock \
+    VIE_NEU_RUNTIME_LOCK=/opt/ivr-runtime/runtime-requirements.lock \
+    VIE_NEU_DEPENDENCY_LOCK=/opt/vieneu/uv.lock \
+    VIE_NEU_VOICE_CONFIG=/opt/ivr-tts/shim/voices.json \
+    VIE_NEU_VOICE_ACCEPTANCE_MANIFEST=/run/ivr-tts/voice-acceptance-manifest.json \
+    VIE_NEU_UPSTREAM_VOICE_MANIFEST=/opt/vieneu/src/vieneu/assets/voices_v3_turbo.json
+
+USER 1654:1654
+
+ENTRYPOINT ["python", "-m", "shim.server"]

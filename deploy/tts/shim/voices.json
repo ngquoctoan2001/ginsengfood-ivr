@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "source_commit": "36c4b501b0634a8f59805e6b529a058fbd30190b",
+  "model_revision": "2da0efab622a1722125991736524f080b751ef5b",
+  "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
+  "codec_revision": "ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae",
+  "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+  "runtime_lock_sha256": "a2f18ce29167f97e1e11f9b1d9802378c6dc4997ddcfcdc99d04a54c77956304",
+  "model_lock_sha256": "7bcf23be8d42be51b98b765394edc565ba6c104fd90001fee44d8483312e5651",
+  "audition_script_sha256": "c20592a263a0864e5ed9af9ba9dc077b895934b507566c96606023425e1e51e5",
+  "audition_manifest_sha256": "0cfbeacf6a60403c974354fc205e12591c12304f5b68a0abcac5d40afb8326cf",
+  "audition_renderer_sha256": "3c77abd04ffa6e764fad19e2b5dcb43cf8afc8970cc19e625cf3cfee85720ac2",
+  "listening_profile_id": "w0122-asterisk-microsip-8khz-v1",
+  "selection_authority": "OWNER_VOICE_ACCEPTANCE_MANIFEST_REQUIRED",
+  "voices": [
+    { "voice_id": "v3t-north-truc-ly", "preset": "Trúc Ly", "region": "North", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-north-ngoc-linh", "preset": "Ngọc Linh", "region": "North", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-north-doan-trang", "preset": "Đoan Trang", "region": "North", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-north-mai-anh", "preset": "Mai Anh", "region": "North", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-north-quynh-anh", "preset": "Quỳnh Anh", "region": "North", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-north-ngoc-huyen", "preset": "Ngọc Huyền", "region": "North", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-central-ngoc-tran", "preset": "Ngọc Trân", "region": "Central", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-south-thuc-doan", "preset": "Thục Đoan", "region": "South", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-south-thuy-dung", "preset": "Thùy Dung", "region": "South", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-south-my-duyen", "preset": "Mỹ Duyên", "region": "South", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true },
+    { "voice_id": "v3t-south-kim-thanh", "preset": "Kim Thanh", "region": "South", "gender": "female", "speaking_rate": 1.0, "audition_enabled": true }
+  ]
+}

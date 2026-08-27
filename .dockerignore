@@ -39,3 +39,13 @@ deploy/chaos/
 **/*.pfx
 **/*.pem
 **/*.key
+
+# W-0122 builds only the preset ONNX runtime. Reference samples, cloning/training apps, web UI,
+# upstream deployment files and tests remain vendored for provenance but cannot enter image layers.
+third_party/vieneu-tts/apps/
+third_party/vieneu-tts/client/
+third_party/vieneu-tts/docker/
+third_party/vieneu-tts/examples/
+third_party/vieneu-tts/finetune/
+third_party/vieneu-tts/tests/
+third_party/vieneu-tts/src/vieneu/assets/samples/

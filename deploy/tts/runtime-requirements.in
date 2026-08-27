@@ -1,0 +1,8 @@
+# W-0122 production inference path only (local, preset-based ONNX synthesis).
+# Voice cloning, upstream web UI/API, model downloads and training dependencies
+# are deliberately excluded from the release image.
+numpy==2.3.4
+onnxruntime==1.24.4
+sea-g2p==0.9.0
+soxr==1.0.0
+tokenizers==0.22.2
