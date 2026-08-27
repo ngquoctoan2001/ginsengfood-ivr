@@ -10,12 +10,10 @@ import {
   Card,
   CardStack,
   ChipList,
-  DataTable,
   DescriptionList,
   PageHeader,
   Timeline,
   TimelineItem,
-  type Column,
 } from "@/components/ui";
 import { getCallJobDetail } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
@@ -432,15 +430,6 @@ function ReferenceList({ title, items }: { title: string; items: readonly string
 }
 
 /** DTMF is shown as business semantics, never as a raw provider payload (D-05). */
-/**
- * A tri-state snapshot flag: set, not set, or not captured at all.
- * W-0039: returns words rather than glyphs. This feeds string-typed places (CSV, title text)
- * where an sr-only span cannot go, and "Chưa ghi nhận" is not the same claim as "Không".
- */
-function flag(value: boolean | undefined): string {
-  return value === undefined ? t("boolean.unknown") : value ? t("boolean.yes") : t("boolean.no");
-}
-
 function describeDtmf(key: string | undefined): string {
   if (key === undefined || key === "") {
     return "—";
