@@ -1,5 +1,9 @@
 # Tiến độ chi tiết — đã làm những gì
 
+> **HISTORICAL_EVIDENCE / SUPERSEDED — 2026-08-27:** Báo cáo này khóa tại baseline ngày
+> 2026-08-26. Mọi mô tả IVR tự phân loại khách cũ/khách mới hoặc trusted-skip đã bị `OD-18`/
+> `W-0123` thay thế: Module 3 quyết định task cần gọi, IVR chỉ thực thi. Giữ số liệu cũ để audit.
+
 **Ngày:** 2026-08-26 · **Baseline:** `main@bdde72c`
 **Nguồn:** [`prompt/_execution/prompt-execution-tracker.md`](../../../prompt/_execution/prompt-execution-tracker.md)
 (§2–§5) đối chiếu với source thật.

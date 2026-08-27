@@ -1,5 +1,9 @@
 # PROMPT P2-2 — Eligibility & Blockers
 
+> **HISTORICAL_EXECUTION_PROMPT / SUPERSEDED — 2026-08-27:** Các bước giữ hoặc kiểm
+> trusted-skip bên dưới đã bị `OD-18`/`W-0123` thay thế. Active runtime không còn nhánh đó; M3
+> quyết định task cần gọi, IVR chỉ giữ contract và gate kỹ thuật/an toàn.
+
 ## 0. Meta
 | | |
 | --- | --- |

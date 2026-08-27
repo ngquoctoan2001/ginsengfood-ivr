@@ -4,7 +4,9 @@ Ngày lập: `2026-08-27`
 
 Baseline phân tích: `main@f291f449d540`
 
-Trạng thái: `PLANNED`
+Baseline triển khai: `main@ef09a062597f8f43dad41be751ace03ef5f5973f`
+
+Trạng thái: `TESTS_PASS` cho local implementation · `BLOCKED_EXTERNAL` cho acceptance/integration thật
 
 Origin: `UNPLANNED` — owner làm rõ ranh giới tích hợp ngày `2026-08-27`
 
@@ -17,6 +19,21 @@ bộ với code/spec còn lại.
 > hiện được xếp **HIGH** theo source inventory: contract + domain + persistence + generated code +
 > UI + seed + tài liệu. GitNexus MCP không được expose trong phiên lập plan; Phase 0 bắt buộc chạy
 > lại upstream impact cho từng symbol trước edit theo `AGENTS.md`.
+
+---
+
+## 0. Tiến độ triển khai
+
+| Phase | Trạng thái | Cập nhật 2026-08-27 |
+| --- | --- | --- |
+| Phase 0 — authority/baseline/impact/data | `PARTIAL_PASS` | OD-18 đã khóa; baseline sạch `ef09a06`; GitNexus re-index 51.242 nodes/71.624 edges/300 flows; impact `HIGH` cho `EligibilityRules.Evaluate`, `IvrOptions`, `SchedulerCapacityMapper.RiskScore`; local không có IVR DB nên data preflight `ENV_BLOCKED`; M3 field/enum usage `OWNER_DATA_REQUIRED` |
+| Phase 1 — red/mutation tests | `PASS` | Red trước cutover đúng assertion; 3 mutation đều bị bắt: reintroduce Trust, risk flags đổi eligibility, weaken call restriction |
+| Phase 2 — runtime cutover | `CODE_DONE` | Domain không còn trust predicate/result; service không đọc trust; config flag và persistence skip branch đã gỡ; build 0 warning; focused 4 unit + 5 integration xanh |
+| Phase 3 — contract/data compatibility | `CODE_DONE_EXTERNAL_GATES` | draft.21 deprecate/ignore non-breaking từ draft.20; codegen/hash/lint/validate/drift/CT/history-read xanh; target DB/M3 usage còn external; cumulative oasdiff draft.2 vẫn đỏ do pre-existing OD-17 `sellable_status` removal |
+| Phase 4 — UI/seed/docs | `CODE_DONE` | Active spec/IR-06/seed/UI/SLO đồng bộ OD-18; evidence/report/phase-8 cũ gắn `HISTORICAL`/`SUPERSEDED`; JSON parse xanh |
+| Phase 5 — verification/rollout | `LOCAL_PASS_EXTERNAL_GATES_OPEN` | .NET 801/801; admin UI 223/223 + typecheck/build; OpenAPI/docs/traceability/config/map/exact-search/diff-check xanh; GitNexus LOW/0 flow. Target DB, M3 evidence/sign-off, hosted CI còn mở |
+
+Evidence đang tích lũy tại `docs/evidence/W-0123/README.md`.
 
 ---
 
@@ -326,7 +343,10 @@ Chạy tuần tự khi DLL lock có thể xảy ra:
 11. `npm --prefix deploy/ci run docs:build` và `test:docs`.
 12. `npm --prefix deploy/ci run traceability:write`, review diff, rồi `test:traceability`.
 13. `npm --prefix deploy/ci run test:config`.
-14. `pnpm --dir admin-ui typecheck`, `test`, `build` nếu UI vocabulary thay đổi.
+14. `npm --prefix admin-ui run typecheck`, `test`, `build` nếu UI vocabulary thay đổi.
+    Dùng `npm` chứ không `pnpm`: `deploy/ci/ui-qa.gitlab-ci.yml` cài bằng `npm ci` và lockfile
+    được commit là `package-lock.json`. Gọi `pnpm` sẽ bootstrap lockfile/workspace riêng và
+    lệch khỏi chính gate đang cần tái lập (`W-0124` F6).
 15. Data/rolling-deploy compatibility tests.
 16. `gitnexus_detect_changes()` trước commit.
 17. Hosted GitLab CI; local green không thay thế runner evidence.

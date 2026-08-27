@@ -1,5 +1,9 @@
 # IVR-04 - Order Core -> IVR Task Contract
 
+> **HISTORICAL_BASELINE / SUPERSEDED OVERLAY — 2026-08-27:** Theo `OD-18`, task hợp lệ là chỉ thị
+> M3 đã quyết định cần gọi. Trust fields cũ chỉ còn `LEGACY_READ`; xem OpenAPI `draft.21` và
+> `W-0123`. Giữ contract text cũ bên dưới để truy vết.
+
 > [!IMPORTANT]
 > Superseded by D-10 (2026-07-02): cac rule attempt cu trong file nay chi con gia tri lich su. Rule hien hanh: `MAX_ATTEMPT = 2` cho ca `GOLDEN_HOUR` va `TWENTY_FOUR_SEVEN`; GH window 5 phut A2@`T0+2:30`; 24/7 window 15 phut A2@`T0+7:30`. Xem `plan/ivr-orther/decisions-log.md` D-10.
 

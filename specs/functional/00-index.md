@@ -6,7 +6,7 @@ Trạng thái: `TARGET_V1_DRAFT` · Phạm vi: outbound confirmation cho GH+ONLI
 | File | Domain |
 | --- | --- |
 | [01-task-intake.md](01-task-intake.md) | Nhận task từ Order Core, validate, idempotency |
-| [02-eligibility-and-blockers.md](02-eligibility-and-blockers.md) | Entry gate, returning-customer skip (`OD-15`), phone, Sale Lock/Recall/Suppression |
+| [02-eligibility-and-blockers.md](02-eligibility-and-blockers.md) | `OD-18` execution gates: contract, contact/do-not-call, window, capacity; không re-decide khách cũ/khách mới |
 | [03-scheduler-attempt-policy.md](03-scheduler-attempt-policy.md) | Golden Hour / 24/7, deadline-aware rolling queue |
 | [04-call-execution-dtmf.md](04-call-execution-dtmf.md) | Call script, phím 1/0, no-answer, invalid, wrong input |
 | [05-result-normalization-callback.md](05-result-normalization-callback.md) | Result taxonomy, callback, revalidation |

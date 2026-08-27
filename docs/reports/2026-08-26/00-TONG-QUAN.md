@@ -1,5 +1,9 @@
 # Báo cáo tiến độ IVR Order Confirmation — Tổng quan
 
+> **HISTORICAL_EVIDENCE / SUPERSEDED — 2026-08-27:** Báo cáo này khóa tại baseline ngày
+> 2026-08-26. Mọi mô tả IVR tự phân loại khách cũ/khách mới hoặc trusted-skip đã bị `OD-18`/
+> `W-0123` thay thế: Module 3 quyết định task cần gọi, IVR chỉ thực thi. Giữ số liệu cũ để audit.
+
 **Ngày lập:** 2026-08-26 · **Module:** 8 — IVR Order Confirmation (`ginsengfood-ivr`)
 **Baseline:** `main@bdde72c` (W-0118 / OD-15, 2026-08-25)
 **Phương pháp:** đọc trực tiếp `src/**`, `admin-ui/**`, `tests/**`, `specs/**`, `docs/**`,

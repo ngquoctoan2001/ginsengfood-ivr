@@ -1,5 +1,8 @@
 # DEV PROMPT 03 — M8.2B Eligibility Resolver
 
+> **HISTORICAL_EXECUTION_PROMPT / SUPERSEDED — 2026-08-27:** Trusted-skip phía IVR bên dưới đã
+> bị `OD-18`/`W-0123` thay thế. File nằm trong `_legacy-mock` và không được dùng làm active spec.
+
 ## Mục tiêu
 Quyết định eligible/skip/block trước dispatch, consume snapshot (không hardcode).
 

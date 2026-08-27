@@ -2,6 +2,8 @@
 
 > Sinh tự động từ `admin-ui/src/i18n/enums.vi.json`. Đây là từ vựng nhân viên vận hành
 > đọc hằng ngày. Sửa nhãn = sửa một chuỗi JSON, không ảnh hưởng code hay test.
+> Overlay W-0123 cập nhật hai nhãn trusted-skip thành ngữ nghĩa lịch sử; enum vẫn tồn tại để đọc
+> dữ liệu cũ, không phải active outcome.
 
 Cột **Mã** luôn hiển thị cạnh nhãn trên giao diện (tooltip ở bảng, dòng mono ở màn chi tiết),
 nên một bản dịch sai là **thấy được và sửa được**, không âm thầm.
@@ -52,7 +54,7 @@ Dịch sai ở đây làm nhân viên hành động sai, không chỉ đọc kh�
 | --- | --- | --- |
 | `TASK_ACCEPTED_CALL_JOB_CREATED` | Đã nhận — đã tạo lệnh gọi | |
 | `TASK_ACCEPTED_DRY_RUN_ONLY` | Đã nhận — chỉ chạy thử, không gọi thật | |
-| `TASK_SKIPPED_TRUSTED_CUSTOMER` | Bỏ qua — khách quen tin cậy | |
+| `TASK_SKIPPED_TRUSTED_CUSTOMER` | Lịch sử — đã bỏ qua theo chính sách cũ (không còn phát sinh) | `LEGACY_READ` |
 | `TASK_REJECTED_NOT_OFFICIAL_ORDER` | Từ chối — không phải đơn chính thức | |
 | `TASK_REJECTED_STATE_NOT_CALLABLE` | Từ chối — trạng thái đơn không cho gọi | |
 | `TASK_REJECTED_POLICY_MISMATCH` | Từ chối — sai chính sách gọi lại | |
@@ -181,7 +183,7 @@ Dịch sai ở đây làm nhân viên hành động sai, không chỉ đọc kh�
 | `SELLABLE_SNAPSHOT_MISSING` | Thiếu ảnh chụp khả năng bán |
 | `SELLABLE_SNAPSHOT_STALE` | Ảnh chụp khả năng bán đã cũ |
 | `SELLABLE_STATUS_UNKNOWN` | Chưa rõ khả năng bán |
-| `TRUSTED_CUSTOMER_SKIP` | Bỏ qua vì khách quen tin cậy |
+| `TRUSTED_CUSTOMER_SKIP` | Lịch sử — trusted-skip đã ngừng phát sinh |
 | `BLOCKED_BY_CORE` | Order Core chặn khi kiểm lại |
 
 ### `bucket` — 2 giá trị

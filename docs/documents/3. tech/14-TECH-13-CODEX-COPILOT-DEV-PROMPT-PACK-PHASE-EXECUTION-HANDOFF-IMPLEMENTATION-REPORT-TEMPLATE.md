@@ -1,5 +1,8 @@
 # TECH-13 - CODEX COPILOT DEV PROMPT PACK PHASE EXECUTION HANDOFF IMPLEMENTATION REPORT TEMPLATE
 
+> **HISTORICAL_PROMPT_PACK / SUPERSEDED OVERLAY — 2026-08-27:** Prompt nào yêu cầu triển khai
+> trusted-skip phía IVR đã bị `OD-18`/`W-0123` thay thế và không được replay như active authority.
+
 ## Pham Vi Tai Lieu
 
 Tài liệu này là bản rewrite clean từ nguồn TECH, giữ phạm vi kỹ thuật của section và chuẩn hóa wording để không xung đột với MASTER/PACK.

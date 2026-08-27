@@ -1,5 +1,9 @@
 # Tồn đọng và rủi ro — còn gì chưa xong
 
+> **HISTORICAL_EVIDENCE / SUPERSEDED — 2026-08-27:** Báo cáo này khóa tại baseline ngày
+> 2026-08-26. Mọi blocker trust/risk-evidence để IVR tự skip đã bị `OD-18`/`W-0123` thay thế;
+> giữ nguyên số liệu và rủi ro cũ để audit.
+
 **Ngày:** 2026-08-26 · **Baseline:** `main@bdde72c`
 
 > Bảng này phân loại theo **ai gỡ được**, không theo độ khó. Vì câu hỏi thực sự cần trả lời khi

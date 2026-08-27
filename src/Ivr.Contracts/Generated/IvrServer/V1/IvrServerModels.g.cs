@@ -673,19 +673,21 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public string? Customer_ref { get; init; }
 
         /// <summary>
-        /// Sales' customer-trust label, stored for audit only. Since OD-15 it takes no part in the skip decision — IVR reads `risk_flags` instead — so omitting it never causes a call that would otherwise be skipped.
+        /// LEGACY_READ compatibility field. Accepted and stored for rolling-deploy/history compatibility, but ignored by active IVR eligibility under OD-18. M3 decides whether the order needs a call before sending the task; new producers should omit this field.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("customer_trust_status")]
+        [System.Obsolete]
         public string? Customer_trust_status { get; init; }
 
         /// <summary>
-        /// A VETO, not an opt-in (OD-15). `false` forces the confirmation call for this order even when every other skip condition is met. `true` and absent behave identically. Omit the field unless you mean to veto: sending `false` as a blanket default suppresses the returning-customer skip on every order.
+        /// LEGACY_READ compatibility field. Accepted and stored so an older producer can roll alongside draft.21, but ignored by active IVR eligibility under OD-18. IVR never uses true, false, or absence to call/skip; new producers should omit this field.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("trusted_skip_allowed")]
+        [System.Obsolete]
         public bool? Trusted_skip_allowed { get; init; }
 
         /// <summary>
-        /// Privacy-safe risk codes Sales found on this order, for example `NEW_CUSTOMER`, `VERIFIED_ORDER_COUNT_0`, `COD_FAIL_HISTORY`, `SUSPICIOUS_DUPLICATE`. Any entry forces the call — OD-15 keeps D-12's exception that a risk flag outranks the returning-customer skip. An EMPTY list cancels the call only when `eligibility_snapshot.trust.risk_evidence_available` is `true`: on its own an empty list cannot be told apart from an order Sales never evaluated, and IVR must not read the second as "no risk". Codes carry no customer data — they travel into IVR evidence and admin screens.
+        /// Privacy-safe risk codes Sales found on this order, for example `NEW_CUSTOMER`, `VERIFIED_ORDER_COUNT_0`, `COD_FAIL_HISTORY`, `SUSPICIOUS_DUPLICATE`. Under OD-18 the field is audit/scheduler-priority metadata only: empty, absent, and non-empty values never change IVR eligibility. Codes carry no customer data and must not be used by IVR to re-decide M3's call instruction.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("risk_flags")]
         public System.Collections.Generic.ICollection<string>? Risk_flags { get; init; }
@@ -732,7 +734,7 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public required bool Call_restriction { get; init; }
 
         /// <summary>
-        /// Sales-owned eligibility evidence. The wire type stays an open object because the shape is not owner-approved yet (OD-V1-03). The shape IVR validates against is published as a linked evidence reference at specs/api/evidence/eligibility-snapshot.v1.schema.json: decision, source_version, captured_at, optional source_available and optional blockers[]. IVR fails closed on anything it cannot interpret rather than tightening this schema (W-0030 / P4-2).
+        /// Sales-owned eligibility evidence. The wire type stays an open object because the shape is not owner-approved yet (OD-V1-03). The shape IVR validates against is published as a linked evidence reference at specs/api/evidence/eligibility-snapshot.v1.schema.json: decision, source_version, captured_at, optional source_available and optional blockers[]. IVR fails closed on anything it cannot interpret rather than tightening this schema (W-0030 / P4-2). Legacy `trust` keys are accepted during the compatibility window but ignored for call/skip; M3 has already decided that the order requires a call.
         /// <br/>
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("eligibility_snapshot")]
@@ -756,7 +758,7 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
     {
 
         /// <summary>
-        /// `TASK_SKIPPED_TRUSTED_CUSTOMER` reads as "returning customer, nothing on the order worth calling about" since OD-15; the name predates the decision and is kept because it is a persisted enum value. It means no CallJob was created and Order Core owns the continuation — it is not a failure and not a rejection.
+        /// `TASK_SKIPPED_TRUSTED_CUSTOMER` is a LEGACY_READ compatibility enum value retained so older generated clients and historical records remain readable. Draft.21 runtime no longer emits it. M3 must filter no-call orders before POST /tasks and must not wait for this decision from IVR.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("decision")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]

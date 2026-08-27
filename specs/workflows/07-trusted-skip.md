@@ -1,63 +1,54 @@
-# Workflow — Returning Customer Skip
+# WF-07 — M3 authoritative call decision
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p04` · Nguồn: `phase-8/03`; `docx` §7 (M8-OD-002); `phase-8/04 §12`; owner decision `OD-15` (2026-08-25).
+Trạng thái: `SUPERSEDED` cho workflow trusted-skip cũ · Authority hiện hành: `OD-18`.
 
-**Kết quả:** `TASK_SKIPPED_TRUSTED_CUSTOMER` — không tạo CallJob; Order Core tiếp tục workflow. Tên decision giữ nguyên vì đã nằm trong wire enum và DB check constraint; nghĩa hiện tại là **khách cũ, đơn không có risk flag**.
+> **Tên file `07-trusted-skip.md` được giữ nguyên làm ID tài liệu ổn định**, không phải vì nội
+> dung còn mô tả trusted skip. `workflows/07` đang được `specs/api/06-error-codes.md`,
+> `specs/workflows/00-index.md` và các evidence/tracker lịch sử (`W-0118`, `W-0123`) trỏ tới;
+> đổi tên sẽ làm hỏng chính những bản ghi audit không được phép viết lại. Đây cùng một lý do
+> giữ enum `TASK_SKIPPED_TRUSTED_CUSTOMER`: tên là tham chiếu đã persist, nội dung mới nằm
+> ngay bên dưới (`W-0124` F5).
 
-> **`OD-15` (owner, 2026-08-25) — không gọi IVR cho khách cũ.** Quyết định này **supersede `OD-08`** và phần trust-score của **`D-12`**. Skip **không còn** phụ thuộc `CustomerTrustResolver` mà `DC-06` ghi là chưa build.
->
-> **Điều kiện skip (tất cả phải đúng):**
-> 1. `IVR_RETURNING_CUSTOMER_SKIP_ENABLED` ≠ `NO` (mặc định ON).
-> 2. `trusted_skip_allowed` **không phải** `false` — `false` là veto của Sales cho riêng đơn đó; absent = im lặng, không veto.
-> 3. `eligibility_snapshot.trust.risk_evidence_available = true`.
-> 4. Có version quy trách nhiệm: `trust.resolver_version`, fallback về `source_version` cấp snapshot.
-> 5. `risk_flags` **rỗng**.
->
-> **Vì sao không cần trust score:** khách mới đã tự mang cờ `NEW_CUSTOMER` / `VERIFIED_ORDER_COUNT_0` đúng như `COD_FAIL_HISTORY` hay `SUSPICIOUS_DUPLICATE` (xem `seed/customers.sample.json`). Một phép kiểm "list rỗng" trả lời cả hai vế — *có phải khách cũ không* và *đơn có bất thường không* — nên phần Sales còn phải làm rút xuống **đúng một field**: `trust.risk_evidence_available`.
+## Quy tắc hiện hành
 
-## Ngoại lệ vẫn giữ nguyên (`D-12`)
+Module 3 quyết định nghiệp vụ đơn nào cần gọi. Khi Module 3 gửi một
+`IvrConfirmationTaskV1` hợp lệ tới IVR, task đó là **chỉ thị thực thi cuộc gọi**; IVR không phân
+loại lại khách cũ/khách mới và không bỏ gọi dựa trên trust metadata hay `risk_flags`.
 
-Khách cũ **vẫn bị gọi** khi đơn mang bất kỳ risk flag nào: COD fail history, nghi trùng đơn, địa chỉ giao rủi ro, phone pattern nghi ngờ, giá trị đơn bất thường, hành vi Giờ Vàng rủi ro, contact vừa đổi. "Không gọi khách cũ" là **mặc định**, không phải miễn trừ khỏi kiểm soát đơn ảo.
+IVR vẫn giữ các gate kỹ thuật/an toàn thuộc phạm vi của mình:
 
-## Fail-closed — hướng đóng không đổi
+- service auth, idempotency và schema;
+- official contact/dial token và privacy-safe speech;
+- `call_restriction`/do-not-call;
+- window, policy, script, capacity và runtime kill switch.
 
-`risk_flags` rỗng có **hai** nguyên nhân không phân biệt được khi nhìn dữ liệu tĩnh: *Sales đã đánh giá và không thấy gì*, và *Sales chưa đánh giá bao giờ*. `risk_evidence_available` là thứ duy nhất tách được hai trường hợp đó. Thiếu nó → **vẫn gọi**.
-
-Giữ nguyên bất đối xứng với `voice_restriction`: thiếu bằng chứng do-not-call thì **chặn gọi**; thiếu bằng chứng risk thì **vẫn gọi**. Cả hai đều fail-closed, đóng ngược chiều nhau vì thiệt hại khác nhau — một bên là cuộc gọi tới người đã từ chối, bên kia là đơn ảo không được xác minh.
+`risk_flags` chỉ phục vụ audit/scheduler priority. Các field trust cũ được chấp nhận trong cửa sổ
+rolling compatibility nhưng bị bỏ qua bởi active eligibility.
 
 ```mermaid
 sequenceDiagram
-    participant OrderCore
-    participant IVR
-    participant Evid
-    OrderCore->>IVR: IvrConfirmationTaskV1 (risk_flags, trusted_skip_allowed, eligibility_snapshot.trust)
-    alt policy ON && không veto && risk_evidence_available && có version && risk_flags rỗng
-        IVR->>Evid: eligibility SKIP_TRUSTED_CUSTOMER
-        IVR-->>OrderCore: TASK_SKIPPED_TRUSTED_CUSTOMER (no CallJob)
-        Note over OrderCore: Order Core owns continuation
-    else có risk flag
-        Note over IVR: advisory RISK_FLAGS_PRESENT_REQUIRE_IVR → CallJob
-    else thiếu risk evidence
-        Note over IVR: advisory TRUST_RISK_EVIDENCE_UNAVAILABLE → CallJob
+    participant M3 as Module 3
+    participant IVR as IVR
+    participant TEL as Telephony
+
+    M3->>M3: Lọc nghiệp vụ và quyết định đơn cần gọi
+    M3->>IVR: POST /v1/ivr/order-confirmation/tasks
+    IVR->>IVR: Kiểm tra contract + gate kỹ thuật/an toàn
+    alt hợp lệ và an toàn
+        IVR->>TEL: Thực thi cuộc gọi
+        IVR-->>M3: POST .../ivr-result-callbacks
+    else gate kỹ thuật/an toàn không đạt
+        IVR-->>M3: reject/hold theo contract
     end
 ```
 
-## Advisory codes (không bao giờ block)
+## Legacy compatibility
 
-| Code | Nghĩa |
-| --- | --- |
-| `TRUSTED_CUSTOMER_SKIP` | Đã skip — khách cũ, đơn sạch. |
-| `RISK_FLAGS_PRESENT_REQUIRE_IVR` | Sales đã đánh giá và có flag → gọi. Đây là nhánh bình thường của khách mới. |
-| `TRUST_RISK_EVIDENCE_UNAVAILABLE` | Sales chưa gửi `risk_evidence_available` → gọi. **Đây là tín hiệu theo dõi gap `DC-06`:** còn thấy code này nghĩa là Sales chưa bật field. |
-| `TRUST_SKIP_VETOED_BY_SALES` | `trusted_skip_allowed=false` cho đơn này. |
-| `TRUST_SKIP_DISABLED_REQUIRE_IVR` | `IVR_RETURNING_CUSTOMER_SKIP_ENABLED=NO` — tắt bằng config, không phải gap upstream. |
-| `TRUST_RESOLVER_VERSION_MISSING` | Không có version nào quy trách nhiệm được cho quyết định skip. |
-| `TRUST_RESOLVER_UNAVAILABLE` | **Không còn phát ra từ `OD-15`.** Giữ trong vocabulary để đọc được các evidence row ghi trước quyết định. |
+- `TASK_SKIPPED_TRUSTED_CUSTOMER`: `LEGACY_READ`; runtime từ OpenAPI `draft.21` không emit.
+- `trusted_skip_allowed`, `customer_trust_status` và `trust.risk_evidence_available`:
+  `LEGACY_READ`, deprecated/ignored; Module 3 không phải gửi để IVR quyết định gọi.
+- DB enum/cột/status cũ được giữ để đọc history và rollback; không tạo skip row mới.
 
-## Trạng thái vận hành hiện tại
-
-Bật cờ chính sách **không tự nó skip ai**. Chừng nào Sales chưa gửi `trust.risk_evidence_available`, mọi task đủ điều kiện vẫn được gọi và mang advisory `TRUST_RISK_EVIDENCE_UNAVAILABLE`. Đó là cách đo tiến độ đóng gap: khi advisory này biến mất khỏi log, Sales đã bật field.
-
-**Rollback:** đặt `IVR_RETURNING_CUSTOMER_SKIP_ENABLED=NO` → quay lại gọi tất cả, không cần redeploy.
-
-**Backing tests:** `UT-ELIG-TRUST-16` (từng phần bằng chứng thiếu → vẫn gọi, kèm lý do), `UT-ELIG-TRUST-18` (list rỗng chỉ là skip khi Sales nói đã đánh giá), `UT-ELIG-TRUST-19` (khách mới bị gọi vì `NEW_CUSTOMER` là risk flag), `IT-ELIG-TRUST-14` (skip end-to-end, không tạo CallAttempt), `IT-ELIG-TRUST-15` (risk flag và thiếu evidence đều giữ cuộc gọi).
+Workflow trusted-skip theo `OD-15` là `SUPERSEDED` bởi `OD-18`. Evidence lịch sử nằm tại
+[`W-0118`](../../docs/evidence/W-0118/README.md); cutover hiện hành nằm tại
+[`W-0123`](../../docs/evidence/W-0123/README.md).

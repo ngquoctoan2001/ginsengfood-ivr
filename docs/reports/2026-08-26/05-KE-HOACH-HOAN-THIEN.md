@@ -1,5 +1,9 @@
 # Kế hoạch chi tiết đến khi hoàn thiện hệ thống
 
+> **HISTORICAL_PLAN / SUPERSEDED — 2026-08-27:** Kế hoạch này khóa tại baseline ngày 2026-08-26.
+> Các bước yêu cầu IVR tự phân loại/trusted-skip đã bị `OD-18`/`W-0123` thay thế. Không dùng các
+> bước đó làm work queue hiện hành; giữ nguyên nội dung cũ để truy vết.
+
 **Ngày lập:** 2026-08-26 · **Baseline:** `main@bdde72c`
 **Phạm vi:** từ trạng thái hiện tại (nấc 0) đến `PRODUCTION_REAL_ELIGIBLE` (nấc 4).
 

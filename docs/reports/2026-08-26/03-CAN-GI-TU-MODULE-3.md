@@ -1,5 +1,10 @@
 # Cần gì từ Module 3 — và từ các bên ngoài khác
 
+> **HISTORICAL_EVIDENCE / SUPERSEDED — 2026-08-27:** Báo cáo này khóa tại baseline ngày
+> 2026-08-26. Yêu cầu Module 3 gửi trust/risk-evidence để IVR tự skip đã bị `OD-18`/`W-0123`
+> thay thế. Module 3 quyết định task cần gọi; authority bàn giao hiện hành là
+> [`IR-06`](../../../integration-requirements/06-module-3-api-handover.md).
+
 **Ngày:** 2026-08-26 · **Baseline:** `main@bdde72c`
 **Tài liệu bàn giao đầy đủ (có payload copy-paste được + ô ký):**
 [`integration-requirements/06-module-3-api-handover.md`](../../../integration-requirements/06-module-3-api-handover.md)

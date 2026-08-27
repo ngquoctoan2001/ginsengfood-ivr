@@ -7,9 +7,9 @@ Nguồn: `docs/documents/4. phase/phase-8/02` (§3, §9); `docx` §1, §16, §18
 
 | Actor | Vai trò với IVR | IVR được làm | IVR KHÔNG được làm |
 | --- | --- | --- | --- |
-| Commerce Order Core / Order State Machine | Tạo `IvrConfirmationTaskV1`; nhận callback; **quyết định transition** | Nhận task, gửi result signal | Tự transition order |
+| Commerce Order Core / Order State Machine (Module 3) | Quyết định đơn cần gọi, tạo `IvrConfirmationTaskV1`; nhận callback; **quyết định transition** | Nhận task đã call-required, gửi result signal | Tự transition order hoặc tái phân loại khách |
 | Operational Core | Cấp/kiểm blocker: Sale Lock, Recall, Suppression, availability | Consume blocker | Override/bỏ qua blocker |
-| Customer Trust / Customer Memory Resolver | Cấp trust decision, risk flags, trusted skip | Consume quyết định | Hardcode trusted |
+| Customer Trust / Customer Memory Resolver (nội bộ Module 3) | Cung cấp dữ liệu cho quyết định business phía Module 3 | Không tích hợp trực tiếp; trust wire fields chỉ `LEGACY_READ` | Dùng trust/risk metadata để đảo quyết định task đã nhận (`OD-18`) |
 | Official Contact / Customer Profile Resolver | Cấp `phone_ref`/`phone_masked`/dial token | Gọi contact đã duyệt | Đọc full profile/address |
 | SIM Gateway Adapter (Internal) | Dial, phát script, capture DTMF/call status | Dial, capture, health check | Gửi SMS / ghi order |
 | Evidence Registry / Audit | Nơi ghi evidence/audit | Ghi evidence/audit | Tự mark accepted/PASS |

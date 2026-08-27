@@ -430,6 +430,10 @@ public static class TaskIntakeEndpoint
         "evidence_ref",
     ];
 
+    // OD-18 compatibility window: customer_trust_status and trusted_skip_allowed stay in the
+    // strict allowlist as LEGACY_READ inputs so an older M3 producer is not rejected during a
+    // rolling deploy. Runtime eligibility ignores both. risk_flags remains audit/scheduler
+    // priority metadata and likewise cannot decide call/skip.
     private static readonly HashSet<string> TaskProperties =
     [
         .. RequiredTaskProperties,

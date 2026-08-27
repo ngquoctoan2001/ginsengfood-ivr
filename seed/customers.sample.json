@@ -7,8 +7,6 @@
       "phone_ref": "phref-test-0001",
       "phone_masked": "84xxxxx0001",
       "phone_validation_status": "PASS",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": ["NEW_CUSTOMER", "VERIFIED_ORDER_COUNT_0"],
       "call_restriction": false
     },
@@ -17,18 +15,15 @@
       "phone_ref": "phref-test-0002",
       "phone_masked": "84xxxxx0002",
       "phone_validation_status": "PASS",
-      "customer_trust_status": "TRUSTED",
-      "trusted_skip_allowed": true,
       "risk_flags": [],
-      "call_restriction": false
+      "call_restriction": false,
+      "_note": "Phân loại lịch sử khách hàng thuộc Module 3; IVR không nhận hoặc suy ra để quyết định call/skip."
     },
     {
       "customer_ref": "CUST-003",
       "phone_ref": "phref-test-0003",
       "phone_masked": "84xxxxx0003",
       "phone_validation_status": "INVALID",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": ["SUSPICIOUS_PHONE"],
       "call_restriction": false
     },
@@ -37,10 +32,8 @@
       "phone_ref": "phref-test-0004",
       "phone_masked": "84xxxxx0004",
       "phone_validation_status": "PASS",
-      "customer_trust_status": "TRUSTED",
-      "trusted_skip_allowed": true,
       "risk_flags": ["HIGH_RISK_GOLDEN_HOUR"],
-      "_note": "trusted nhưng có risk flag -> vẫn phải IVR (D-12)",
+      "_note": "risk_flags chỉ phục vụ scheduler/audit phía IVR; Module 3 đã quyết định gửi task này để gọi.",
       "call_restriction": false
     },
     {
@@ -48,8 +41,6 @@
       "phone_ref": "phref-test-0005",
       "phone_masked": "84xxxxx0005",
       "phone_validation_status": "PASS",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": ["ABNORMAL_VALUE"],
       "call_restriction": true,
       "_note": "khách opt-out (do-not-call) -> block dispatch (DC-01 mock source)"
@@ -59,8 +50,6 @@
       "phone_ref": "phref-test-0006",
       "phone_masked": "84xxxxx0006",
       "phone_validation_status": "PASS",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": ["COD_FAIL_HISTORY"],
       "call_restriction": false,
       "_note": "khách nhiều đơn"

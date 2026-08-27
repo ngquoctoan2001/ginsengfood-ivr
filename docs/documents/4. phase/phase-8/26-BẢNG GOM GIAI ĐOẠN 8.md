@@ -1,5 +1,9 @@
 # BẢNG GÔM PHASE 8
 
+> **HISTORICAL_INDEX / SUPERSEDED OVERLAY — 2026-08-27:** Mọi mục trusted-skip phía IVR được gom
+> bên dưới đã bị `OD-18`/`W-0123` thay thế. Giữ bảng để truy vết Phase 8; authority hiện hành là
+> M3 quyết định task cần gọi, IVR chỉ thực thi.
+
 > [!IMPORTANT]
 > Superseded by D-10 (2026-07-02): cac rule attempt cu trong file nay chi con gia tri lich su. Rule hien hanh: `MAX_ATTEMPT = 2` cho ca `GOLDEN_HOUR` va `TWENTY_FOUR_SEVEN`; GH window 5 phut A2@`T0+2:30`; 24/7 window 15 phut A2@`T0+7:30`. Xem `plan/ivr-orther/decisions-log.md` D-10.
 

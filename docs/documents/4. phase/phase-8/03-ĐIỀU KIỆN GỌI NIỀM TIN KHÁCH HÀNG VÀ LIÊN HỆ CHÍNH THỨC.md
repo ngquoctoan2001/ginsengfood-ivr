@@ -1,5 +1,9 @@
 # IVR-03 - Eligibility Rule / Customer Trust / Official Contact
 
+> **HISTORICAL_BASELINE / SUPERSEDED OVERLAY — 2026-08-27:** Toàn bộ customer-trust call/skip
+> rule bên dưới đã bị `OD-18`/`W-0123` thay thế. M3 lọc và quyết định trước khi gửi task; IVR
+> không tái phân loại khách, nhưng vẫn giữ official-contact/do-not-call/safety gates.
+
 Trạng thái: `SRS_BASELINE`  
 Phase: 8 - IVR Order Confirmation  
 Mục tiêu: Khóa điều kiện đơn/khách nào cần IVR, khách trusted được skip thế nào và contact nào được phép gọi.

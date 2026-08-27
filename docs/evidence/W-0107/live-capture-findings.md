@@ -1,5 +1,9 @@
 # W-0107 — Rà soát bằng stack thật: 3 lỗi từ điển mà test không thấy được
 
+> **HISTORICAL_EVIDENCE — overlay 2026-08-27:** Capture này thuộc baseline 2026-08-22.
+> `TASK_SKIPPED_TRUSTED_CUSTOMER` trong inventory bên dưới chỉ còn `LEGACY_READ` sau
+> `OD-18`/W-0123; không dùng dấu ✅ tại đây để suy ra runtime hiện hành còn emit.
+
 | | |
 | --- | --- |
 | Nguồn | Chạy `tools/dev/Capture-ConsoleEvidence.mjs` trên stack đang chạy |

@@ -187,8 +187,6 @@ public sealed class CallResultAndMapperTests
             Max_customer_attempts = 2,
             Attempt_offsets_seconds = [0, 150],
             Customer_ref = "customer-ref-1",
-            Customer_trust_status = "STANDARD",
-            Trusted_skip_allowed = false,
             Risk_flags = [],
             Phone_ref = "phone-ref-1",
             Phone_masked = "***1234",

@@ -124,6 +124,9 @@ internal static class PersistenceModelConfiguration
                     "ck_ivr_confirmation_tasks_eligibility_hash",
                     "eligibility_snapshot_hash IS NULL "
                     + "OR eligibility_snapshot_hash ~ '^[a-f0-9]{64}$'");
+                // OD-18 LEGACY_READ: retain the old value for historical rows and rollback.
+                // New runtime code has no branch that emits it; do not narrow this constraint
+                // until target-environment counts and the rollback window are closed.
                 table.HasCheckConstraint(
                     "ck_ivr_confirmation_tasks_eligibility_decision",
                     "eligibility_decision IS NULL OR eligibility_decision IN ("
@@ -187,6 +190,8 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_call_jobs_signal_only",
                     "input_signal_only IS TRUE AND no_direct_order_update IS TRUE");
+                // SKIPPED remains LEGACY_READ because older jobs and retention paths may carry it.
+                // OD-18 removes only the new trusted-customer write path, not historical reads.
                 table.HasCheckConstraint(
                     "ck_ivr_call_jobs_status",
                     "status IN ('CREATED','DRY_RUN','OPEN','QUEUED','READY_FOR_SCHEDULER',"
@@ -204,6 +209,8 @@ internal static class PersistenceModelConfiguration
                     + "'HELD_LEASE_RECOVERY','HELD_NORMALIZATION','HELD_CALLBACK',"
                     + "'HELD_TECHNICAL_REVIEW','HELD_CAPACITY','HELD_ADMIN_REVIEW',"
                     + "'SKIPPED','BLOCKED','CLOSED_CAPACITY','CLOSED_WINDOW_EXPIRED')");
+                // OD-18 LEGACY_READ: see the task constraint above. No new eligibility evaluation
+                // may produce TASK_SKIPPED_TRUSTED_CUSTOMER.
                 table.HasCheckConstraint(
                     "ck_ivr_call_jobs_eligibility_decision",
                     "eligibility_decision IN ('PENDING_ELIGIBILITY','ELIGIBLE_FOR_IVR',"

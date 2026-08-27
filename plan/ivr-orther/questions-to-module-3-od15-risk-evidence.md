@@ -1,5 +1,12 @@
 # Yêu cầu tích hợp — gửi Module 3 (`ginsengfood-business-platform`)
 
+> **SUPERSEDED — 2026-08-27:** Toàn bộ phiếu `OD-15` này đã bị `OD-18` thay thế. Module 3
+> quyết định đơn nào cần gọi; IVR chỉ thực thi và không còn yêu cầu
+> `eligibility_snapshot.trust.risk_evidence_available` để quyết định call/skip. Giữ nguyên phần
+> dưới làm lịch sử; authority hiện hành là
+> [IR-06](../../integration-requirements/06-module-3-api-handover.md) và
+> [W-0123](W-0123-m3-authoritative-call-decision-cleanup-plan.md).
+
 **Chủ đề:** bật `OD-15` — IVR không gọi khách cũ
 **Người gửi:** Team IVR / Module 8 (IVR Order Confirmation)
 **Ngày gửi:** 2026-08-25 · **Trạng thái:** ⏳ CHỜ TRẢ LỜI

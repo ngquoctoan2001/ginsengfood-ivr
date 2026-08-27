@@ -119,7 +119,7 @@ const CALL_SCENARIOS: readonly string[] = [
   "SCN-007-window-expired",
   "SCN-008-operational-block-recall",
   "SCN-009-race-recall-after-key1",
-  "SCN-010-trusted-skip",
+  "SCN-010-m3-authoritative-call",
   "SCN-011-duplicate-callback",
   "SCN-012-opt-out-block",
   "SCN-013-not-official-order",

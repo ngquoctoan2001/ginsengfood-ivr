@@ -6,7 +6,6 @@ public static class EligibilityDecisions
     public const string Eligible = "ELIGIBLE_FOR_IVR";
     public const string BlockedOperational = "TASK_BLOCKED_OPERATIONAL";
     public const string HeldAdminReview = "TASK_HELD_ADMIN_REVIEW";
-    public const string SkippedTrustedCustomer = "TASK_SKIPPED_TRUSTED_CUSTOMER";
     public const string CapacityException = "IVR_CAPACITY_EXCEPTION";
 }
 
@@ -27,22 +26,10 @@ public static class EligibilityReasonCodes
     public const string PhoneCallRestricted = "PHONE_CALL_RESTRICTED";
     public const string PhoneCallRestrictionSourceUnavailable =
         "PHONE_CALL_RESTRICTION_SOURCE_UNAVAILABLE";
-    /// <summary>
-    /// Retained vocabulary, no longer emitted since <c>OD-15</c> dropped the customer-trust score
-    /// from the skip predicate. Rows persisted before that decision still carry it, so the code
-    /// stays readable rather than becoming an unknown value on an old evidence record.
-    /// </summary>
-    public const string TrustResolverUnavailable = "TRUST_RESOLVER_UNAVAILABLE";
-    public const string TrustResolverVersionMissing = "TRUST_RESOLVER_VERSION_MISSING";
-    public const string TrustRiskEvidenceUnavailable = "TRUST_RISK_EVIDENCE_UNAVAILABLE";
     public const string ContactInvalid = "CONTACT_INVALID";
     public const string ConfirmationWindowExpired = "CONFIRMATION_WINDOW_EXPIRED";
     public const string CapacitySourceUnavailable = "CAPACITY_SOURCE_UNAVAILABLE";
     public const string CapacityDeadlineUnavailable = "CAPACITY_DEADLINE_UNAVAILABLE";
-    public const string TrustSkipDisabledRequireIvr = "TRUST_SKIP_DISABLED_REQUIRE_IVR";
-    public const string TrustSkipVetoedBySales = "TRUST_SKIP_VETOED_BY_SALES";
-    public const string RiskFlagsPresentRequireIvr = "RISK_FLAGS_PRESENT_REQUIRE_IVR";
-    public const string TrustedCustomerSkip = "TRUSTED_CUSTOMER_SKIP";
 }
 
 /// <summary>
@@ -110,60 +97,6 @@ public sealed record VoiceContactEvidence(
     public static VoiceContactEvidence Unknown { get; } = new(null, true, null);
 }
 
-/// <summary>
-/// Risk evidence backing the "do not call a returning customer" decision (W-0031 / P4-3 §2.3,
-/// owner decision <c>OD-15</c>). The decision it produces is still reported as
-/// <c>TASK_SKIPPED_TRUSTED_CUSTOMER</c>: the wire enum and the database check constraints predate
-/// <c>OD-15</c> and renaming them would break stored rows for a wording change.
-/// <para>
-/// Note the asymmetry with <see cref="VoiceContactEvidence"/>, which is deliberate. Missing voice
-/// evidence <b>blocks</b>: not knowing whether we may call must never resolve to calling. Missing
-/// trust evidence <b>requires the call</b>: not knowing whether we may skip must never resolve to
-/// skipping. Both are fail-closed; they close in opposite directions because the harm differs —
-/// one is an unwanted call, the other is an unconfirmed order.
-/// </para>
-/// </summary>
-public sealed record TrustResolverEvidence(
-    bool SkipFeatureEnabled,
-    bool? SkipAllowedBySales,
-    bool ResolverAvailable,
-    string? ResolverVersion,
-    string? TrustStatus,
-    bool RiskEvidenceAvailable,
-    IReadOnlyList<string> RiskFlags)
-{
-    /// <summary>Default posture: require IVR. No risk decision is contractually available.</summary>
-    public static TrustResolverEvidence RequireIvr { get; } =
-        new(false, null, false, null, null, false, []);
-
-    /// <summary>
-    /// True only when Sales has evidenced that this is a returning customer with nothing on the
-    /// order worth calling about, and that evidence is attributable to a version.
-    /// <para>
-    /// The predicate reads risk, not a trust score. Under <c>OD-15</c> "returning customer" is the
-    /// <em>absence</em> of a risk flag, because that is how Sales already reports it: a first-time
-    /// buyer arrives carrying <c>NEW_CUSTOMER</c> / <c>VERIFIED_ORDER_COUNT_0</c>, exactly like
-    /// <c>COD_FAIL_HISTORY</c> or <c>SUSPICIOUS_DUPLICATE</c> arrive. One empty list therefore
-    /// answers both halves of the question — is this a returning customer, and is this order
-    /// ordinary — without waiting on the customer-trust scoring engine that <c>DC-06</c> records
-    /// as unbuilt.
-    /// </para>
-    /// <para>
-    /// <see cref="RiskEvidenceAvailable"/> is what keeps that safe, and it is not optional. An
-    /// empty <see cref="RiskFlags"/> means "Sales looked and found nothing" only when Sales says
-    /// it looked; on its own, an empty list is equally consistent with Sales never having
-    /// evaluated the order — and silently reading that as "no risk" would skip the confirmation
-    /// call on precisely the fake orders this module exists to catch.
-    /// </para>
-    /// </summary>
-    public bool CanSkip =>
-        SkipFeatureEnabled
-        && SkipAllowedBySales is not false
-        && RiskEvidenceAvailable
-        && !string.IsNullOrWhiteSpace(ResolverVersion)
-        && RiskFlags.Count == 0;
-}
-
 public sealed record EligibilityCapacitySnapshot(
     bool SourceAvailable,
     bool CanMeetDeadline,
@@ -187,7 +120,6 @@ public sealed record EligibilitySnapshot(
     DateTimeOffset DialTokenExpiresAt,
     DateTimeOffset ConfirmationWindowStartedAt,
     DateTimeOffset ConfirmationWindowExpiresAt,
-    TrustResolverEvidence Trust,
     EligibilityCapacitySnapshot Capacity,
     bool EvidenceAvailable,
     string EvidenceRef,
@@ -204,7 +136,6 @@ public sealed record EligibilityEvaluation(
     IReadOnlyList<EligibilityReason> Reasons,
     IReadOnlyList<string> Advisories,
     IReadOnlyList<string> EvidenceRefs,
-    bool TrustedCustomerSkipped,
     bool IsCountedCustomerAttempt,
     DateTimeOffset EvaluatedAt,
     string? CapacityIncidentId = null);
@@ -318,22 +249,7 @@ public static class EligibilityRules
                 snapshot.EvaluatedAt);
         }
 
-        if (snapshot.Trust.CanSkip)
-        {
-            string skipEvidence = Evidence(rootEvidence, "trust-skip");
-            return new EligibilityEvaluation(
-                false,
-                EligibilityDecisions.SkippedTrustedCustomer,
-                [],
-                [EligibilityReasonCodes.TrustedCustomerSkip],
-                [skipEvidence],
-                true,
-                false,
-                snapshot.EvaluatedAt);
-        }
-
         string evaluationEvidence = Evidence(rootEvidence, "eligible");
-        string[] advisories = DescribeRequiredIvr(snapshot.Trust);
 
         // P4-2 §2.3: the immutable snapshot hash travels with the evaluation evidence so the
         // result callback can be traced back to the exact evidence bag the decision was made on.
@@ -345,11 +261,10 @@ public static class EligibilityRules
             true,
             EligibilityDecisions.Eligible,
             [],
-            advisories,
+            [],
             evidenceRefs
                 .Distinct(StringComparer.Ordinal)
                 .ToArray(),
-            false,
             false,
             snapshot.EvaluatedAt);
     }
@@ -508,52 +423,6 @@ public static class EligibilityRules
         return null;
     }
 
-    /// <summary>
-    /// Explains, as advisories, why this order is being called instead of skipped (P4-3 §2.3,
-    /// <c>OD-15</c>). These never block: requiring the call is the safe direction whenever the
-    /// skip cannot be fully evidenced. Naming <em>which</em> part was missing is what makes the
-    /// default auditable rather than merely conservative, and it is the signal that separates
-    /// "Sales says this order carries risk" from "Sales is not sending risk evidence yet".
-    /// </summary>
-    private static string[] DescribeRequiredIvr(TrustResolverEvidence trust)
-    {
-        if (trust.CanSkip)
-        {
-            return [];
-        }
-
-        if (!trust.SkipFeatureEnabled)
-        {
-            // Nothing below is actionable while the policy switch itself is off, and reporting
-            // the rest would read as an upstream gap when the cause is a local setting.
-            return [EligibilityReasonCodes.TrustSkipDisabledRequireIvr];
-        }
-
-        var advisories = new List<string>();
-        if (trust.SkipAllowedBySales is false)
-        {
-            advisories.Add(EligibilityReasonCodes.TrustSkipVetoedBySales);
-        }
-
-        if (!trust.RiskEvidenceAvailable)
-        {
-            advisories.Add(EligibilityReasonCodes.TrustRiskEvidenceUnavailable);
-        }
-        else if (trust.RiskFlags.Count > 0)
-        {
-            // The ordinary first-time-buyer path. Sales evaluated the order and flagged it —
-            // NEW_CUSTOMER and VERIFIED_ORDER_COUNT_0 arrive here like any other risk flag.
-            advisories.Add(EligibilityReasonCodes.RiskFlagsPresentRequireIvr);
-        }
-
-        if (string.IsNullOrWhiteSpace(trust.ResolverVersion))
-        {
-            advisories.Add(EligibilityReasonCodes.TrustResolverVersionMissing);
-        }
-
-        return [.. advisories];
-    }
-
     private static EligibilityEvaluation Block(
         string decision,
         string code,
@@ -568,7 +437,6 @@ public static class EligibilityRules
             [new EligibilityReason(code, signal, safeEvidence)],
             [],
             [safeEvidence],
-            false,
             false,
             evaluatedAt);
     }

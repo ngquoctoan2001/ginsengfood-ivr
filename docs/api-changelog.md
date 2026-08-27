@@ -12,7 +12,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.2` | `1.0.0-draft.18` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.20` | `1.0.0-draft.21` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,
@@ -83,10 +83,31 @@ OpenAPI 3.0 `nullable: true` spellings with the equivalent OpenAPI 3.1 null unio
 publishes script-draft creation at canonical `POST /scripts`. Runtime and integration
 tests keep `POST /scripts/` as a compatibility alias, so existing callers are not cut off.
 
-The pinned `oasdiff breaking --fail-on WARN` comparison from draft.2 through draft.18
-reports **no breaking changes**. This structural verdict does not approve a deployment or
-the external Sales contract; mutating operations added after draft.12 retain their separate
-permission, environment and governance gates.
+`1.0.0-draft.19` (W-0118) documented the former `OD-15` trusted-skip placement. It added
+descriptions without changing the three optional wire shapes. `draft.20` (OD-17) removed the
+read-only `sellable_status` projection after IVR stopped consuming ops-core sellability data.
+
+`1.0.0-draft.21` (W-0123/OD-18) makes Module 3 authoritative for the business call decision.
+Trust fields/evidence remain deprecated `LEGACY_READ` inputs for rolling compatibility but active
+eligibility ignores them; `risk_flags` is scheduler/audit metadata only. The persisted
+`TASK_SKIPPED_TRUSTED_CUSTOMER` enum stays readable for historical clients/rows, while runtime
+`draft.21` does not emit it. The incremental `draft.20 → draft.21` comparison has no breaking
+change.
+
+W-0124 rotated the IVR comparison baseline from `1.0.0-draft.2` to `1.0.0-draft.20`, and the
+gate reports **no breaking changes** again. The rotation is a repair, not a suppression. OD-17
+removed `sellable_status` with owner approval at draft.20 — a genuinely breaking change that
+`--fail-on WARN` is built to report. Leaving draft.2 as the live baseline therefore left
+`api_contract_diff` (`allow_failure: false`) red on every pipeline for a decision that had already
+been signed off, which W-0123 recorded honestly as `PREEXISTING_GATE_FAILURE` but which no future
+work item could have turned green either. A gate that cannot pass stops being read, and the next
+unapproved breaking change would have arrived as one more red among reds.
+
+What keeps the rotation auditable is that the closed window is frozen, not deleted: the full
+`draft.2 → draft.20` comparison, `sellable_status` removal included, is preserved in
+[the archived transition report](api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md),
+exactly as the earlier `1.0.0 → draft.2` reset was. Neither verdict approves a deployment or the
+external Sales contract.
 
 The Sales callback report still says `No changes detected`. The previous IVR baseline is
 retained at `baselines/ivr-order-confirmation.v1.0.0.yaml`; its transition to

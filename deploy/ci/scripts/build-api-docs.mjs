@@ -16,6 +16,7 @@ export const generatedPortalFiles = [
   "index.html",
   "integration-guide.html",
   "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
+  "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
   "ivr-order-confirmation-v1.html",
   "ivr-order-confirmation-changelog.html",
   "order-core-ivr-callback-changelog.html",
@@ -50,12 +51,25 @@ const markdownDefinitions = [
       "api/changelog/order-core-ivr-callback.md": "order-core-ivr-callback-changelog.html",
       "api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md":
         "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
+      "api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md":
+        "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
     },
   },
   {
     source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md",
     output: "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
     title: "Archived IVR Contract Transition",
+  },
+  // W-0124 F2. The draft.2 comparison window is closed, not deleted. OD-17 removed
+  // `sellable_status` with owner approval, which is a breaking change the cumulative gate is
+  // supposed to report — so leaving draft.2 as the live baseline left `--fail-on WARN` red on
+  // every pipeline for a change that was already signed off, and a gate that always fails stops
+  // being read. Rotating the baseline restores the signal; keeping this frozen report is what
+  // stops the rotation from erasing the removal it was rotated past.
+  {
+    source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md",
+    output: "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
+    title: "Archived IVR Contract Transition (draft.2 → draft.20)",
   },
   {
     source: "docs/api/changelog/ivr-order-confirmation.md",

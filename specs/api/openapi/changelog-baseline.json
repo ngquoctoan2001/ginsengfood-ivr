@@ -8,8 +8,8 @@
   "contracts": [
     {
       "id": "ivr-owned-target-v1-draft",
-      "baseline": "specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.2.yaml",
-      "baselineSha256": "f49f4b18362df88d68ebcdc6737632d18158eb926529a7b63cabbb93c1848112",
+      "baseline": "specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.20.yaml",
+      "baselineSha256": "e41b0fb97bd1bd01204106fe84146dd790c332c22eaaae6fe03e915849a4e2e3",
       "current": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
       "generatedChangelog": "docs/api/changelog/ivr-order-confirmation.md"
     },

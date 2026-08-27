@@ -1,6 +1,6 @@
 # Integration Requirements — Index (IVR Order Confirmation)
 
-Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-26`
+Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-27`
 
 ## Mục đích
 
@@ -52,5 +52,6 @@ Ba mode: `MOCK`, `LAB_REAL_SIM`, `PRODUCTION_REAL`. `REAL_CUSTOMER_CALL_ALLOWED=
 
 | Ngày | Quyết định | Ảnh hưởng tới pack |
 | --- | --- | --- |
+| `2026-08-27` | `OD-18` — M3 quyết định, IVR chỉ thực thi | M3 chỉ gửi task đã quyết định cần gọi; IVR không cần field trust/risk-evidence để phân loại khách; trust wire fields chỉ còn `LEGACY_READ` |
 | `2026-08-26` | `OD-17` — gỡ `sellable_status[]` khỏi IVR | `02` thành `SUPERSEDED`; IVR không còn lối dữ liệu nào tới ops-core; `D-06` (Module 3 revalidate với ops lúc callback) nay là **lưới an toàn duy nhất** |
-| `2026-08-25` | `OD-15` — không gọi khách cũ | Module 3 cần thêm **một field** `eligibility_snapshot.trust.risk_evidence_available`; xem [IR-06 §6](06-module-3-api-handover.md) |
+| `2026-08-25` | `OD-15` — không gọi khách cũ | `SUPERSEDED` bởi `OD-18`; không còn yêu cầu Module 3 gửi risk-evidence cho IVR |

@@ -3,7 +3,7 @@
   "$id": "urn:ginsengfood:ivr:eligibility-snapshot:v1",
   "title": "EligibilitySnapshotEvidenceV1",
   "status": "TARGET_DRAFT_NOT_OWNER_APPROVED",
-  "description": "Shape IVR expects inside the Target V1 task field `eligibility_snapshot` (W-0030 / prompt P4-2). This is a LINKED EVIDENCE REFERENCE, not a wire contract: `eligibility_snapshot` stays an open object in specs/api/openapi/ivr-order-confirmation.v1.yaml because its shape is not owner-approved yet (OD-V1-03, closure ticket docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md). IVR validates received snapshots against this schema and FAILS CLOSED — it does not tighten a contract Sales has not agreed to. Sales proposing a different shape closes OD-V1-03; this file then follows, together with the OpenAPI description that points at it.",
+  "description": "Shape IVR expects inside the Target V1 task field `eligibility_snapshot` (W-0030 / prompt P4-2). This is a LINKED EVIDENCE REFERENCE, not a wire contract: `eligibility_snapshot` stays an open object in specs/api/openapi/ivr-order-confirmation.v1.yaml because its shape is not owner-approved yet (OD-V1-03, closure ticket docs/contracts/target-v1-closure-pack/T-02-task-data-order-version.md). M3 owns business call selection before task intake. IVR validates source, timing, blockers and transactional voice safety FAIL-CLOSED, but never reads customer trust or order risk metadata to reverse M3's call instruction (OD-18).",
   "type": "object",
   "additionalProperties": true,
   "properties": {
@@ -55,21 +55,25 @@
     "trust": {
       "type": "object",
       "additionalProperties": true,
-      "description": "Evidence backing the 'do not call a returning customer' decision (W-0031 / P4-3 §2.3, owner decision OD-15). OD-15 removed the customer-trust score from the skip predicate: a first-time buyer already arrives carrying NEW_CUSTOMER / VERIFIED_ORDER_COUNT_0 in the task-level `risk_flags`, so an empty flag list answers both halves of the question — returning customer, and ordinary order. What remains is proving Sales actually evaluated the order, which is the single key below that IVR still needs and Sales does not yet send.",
+      "deprecated": true,
+      "description": "LEGACY_READ compatibility object retained so older M3 producers can roll alongside OD-18. Active IVR eligibility ignores this entire object. New producers should omit it; M3 decides no-call cases before task intake.",
       "properties": {
         "risk_evidence_available": {
           "type": "boolean",
           "default": false,
-          "description": "REQUIRED FOR ANY SKIP. True means Sales evaluated this order for risk and the resulting `risk_flags` list is complete. Absent or false means require-IVR, because an empty `risk_flags` is equally consistent with Sales never having looked — and reading 'nobody looked' as 'no risk' would cancel the confirmation call on exactly the fake orders this module exists to catch. This is the one field Sales must add to activate OD-15; while it is missing, every eligible task is called and carries the TRUST_RISK_EVIDENCE_UNAVAILABLE advisory."
+          "deprecated": true,
+          "description": "LEGACY_READ compatibility value. True, false and absence are all ignored by active IVR eligibility under OD-18."
         },
         "resolver_version": {
           "type": "string",
-          "description": "Version of the source that produced the risk evaluation. Falls back to the snapshot-level `source_version` when absent, exactly as `voice_restriction.source_version` does, since the risk evaluation belongs to the same evidence capture. A skip with no version behind it at all cannot be audited later, so that case requires the call."
+          "deprecated": true,
+          "description": "LEGACY_READ audit value; ignored by active IVR eligibility."
         },
         "resolver_available": {
           "type": "boolean",
           "default": false,
-          "description": "Whether a Sales customer-trust resolver answered. Read and stored for audit, but NOT part of the skip predicate since OD-15 — the skip rides on risk evidence, not on the trust scoring engine DC-06 records as unbuilt."
+          "deprecated": true,
+          "description": "LEGACY_READ audit value; ignored by active IVR eligibility."
         }
       }
     }
@@ -83,7 +87,7 @@
       "blockers": []
     },
     {
-      "$comment": "OD-15 skip, on the smallest payload that earns one. Paired with an empty task-level risk_flags this returns TASK_SKIPPED_TRUSTED_CUSTOMER and creates no CallJob. Note the absent resolver_version: it falls back to source_version above.",
+      "$comment": "LEGACY_READ compatibility example from OD-15. Under OD-18 the trust object is accepted but ignored; this valid M3 task remains call-required after IVR safety gates.",
       "decision": "ELIGIBLE",
       "source_version": "sales-eligibility-v1",
       "captured_at": "2026-08-18T03:00:00Z",
@@ -117,13 +121,14 @@
   ],
   "x-ivr-fail-closed-directions": {
     "voice_restriction": "Closes toward BLOCKING. Restricted, unknown and source-unavailable all stop the dispatch — not knowing whether we may call a customer must never resolve to calling them. Reason codes: PHONE_CALL_RESTRICTION_SOURCE_UNAVAILABLE, PHONE_CALL_RESTRICTION_MISSING, PHONE_CALL_RESTRICTED.",
-    "trust": "Closes toward CALLING. Any missing or unversioned part of the skip decision means require-IVR — not knowing whether we may skip must never resolve to skipping. Advisories: TRUST_SKIP_DISABLED_REQUIRE_IVR, TRUST_SKIP_VETOED_BY_SALES, TRUST_RESOLVER_VERSION_MISSING, TRUST_RISK_EVIDENCE_UNAVAILABLE, RISK_FLAGS_PRESENT_REQUIRE_IVR. These never block. TRUST_RESOLVER_UNAVAILABLE is retained vocabulary, no longer emitted since OD-15.",
-    "why-the-asymmetry": "Both are fail-closed; they close in opposite directions because the harm differs. The failure mode of a wrong voice decision is an unwanted call to a customer who refused one. The failure mode of a wrong trust decision is one extra confirmation call. Collapsing them into a single flag would silently pick one harm over the other."
+    "trust": "LEGACY_READ only. Active IVR ignores trust metadata and never uses it to decide call/skip; M3 owns that business decision before task intake.",
+    "why-the-separation": "Transactional voice restriction remains an IVR safety gate. Customer trust/order risk is M3 business selection metadata and cannot override a task M3 already selected for calling."
   },
   "x-ivr-notes": {
     "marketing-consent-separation": "IVR reads no SMS, email, marketing-consent, newsletter or promo key from this bag, and the domain type carrying the voice decision has no field that could hold one. A customer who declined marketing has not declined a transactional order-confirmation call; the two rest on different legal bases. Sales may include such keys — they are ignored, and a test drives a bag containing all of them to prove the outcome does not change.",
     "structural-before-content": "Structural failures are reported before content failures so the reason code names the real defect. A snapshot IVR could not read must never surface as a decision IVR disagrees with.",
     "immutability": "At intake IVR stores the snapshot verbatim and records a SHA-256 digest of it in ivr_confirmation_tasks.eligibility_snapshot_hash, constrained to lowercase hex. The digest — never the body — is carried into the eligibility evaluation evidence refs so a result callback can be traced to the exact evidence the decision was made on.",
-    "not-an-ops-client": "IVR consumes this evidence only. It holds no Ops credential, client or webhook, and never writes order state (D-02). recommended_core_action on the outbound callback stays advisory."
+    "not-an-ops-client": "IVR consumes this evidence only. It holds no Ops credential, client or webhook, and never writes order state (D-02). recommended_core_action on the outbound callback stays advisory.",
+    "m3-authority": "OD-18: M3 sends only call-required orders. IVR validates technical and safety preconditions, executes the call, and returns a result signal; it does not classify old/new customers."
   }
 }

@@ -3,12 +3,10 @@ using System.Text.Json;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
-using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace Ivr.Api.Application;
 
@@ -85,8 +83,7 @@ public sealed class SchedulerEligibilityCapacityProvider(
 public sealed class EligibilityService(
     IEligibilityRepository repository,
     IEligibilityCapacityProvider capacityProvider,
-    TimeProvider timeProvider,
-    IOptions<IvrOptions> ivrOptions) : IEligibilityService
+    TimeProvider timeProvider) : IEligibilityService
 {
     private static readonly JsonSerializerOptions JsonOptions =
         new(JsonSerializerDefaults.Web);
@@ -120,8 +117,7 @@ public sealed class EligibilityService(
             capacityNotEvaluated,
             evidenceRef,
             evidenceAvailable,
-            now,
-            ivrOptions.Value.ReturningCustomerSkipEnabled);
+            now);
         EligibilityEvaluation evaluation = EligibilityRules.Evaluate(snapshot);
         EligibilityCapacitySnapshot capacity = capacityNotEvaluated;
         if (evaluation.Eligible)
@@ -155,9 +151,8 @@ public sealed class EligibilityService(
 
     /// <summary>
     /// Decisions that mean the system refused to proceed because it could not prove it was safe
-    /// to. <c>TASK_SKIPPED_TRUSTED_CUSTOMER</c> is deliberately absent: that is policy choosing
-    /// not to call, not the system failing closed, and folding the two together would make a
-    /// working trust rule look like a downstream outage on the alert.
+    /// to. Business selection is upstream in M3; every non-eligible result here is therefore an
+    /// IVR safety/technical fail-closed result.
     /// </summary>
     private static readonly HashSet<string> FailClosedDecisions = new(StringComparer.Ordinal)
     {
@@ -205,13 +200,8 @@ public sealed class EligibilityService(
         EligibilityCapacitySnapshot capacity,
         string evidenceRef,
         bool evidenceAvailable,
-        DateTimeOffset now,
-        bool returningCustomerSkipEnabled)
+        DateTimeOffset now)
     {
-        string[] riskFlags = DeserializeOrNull<string[]>(stored.Task.RiskFlagsJson)
-            ?? (string.IsNullOrWhiteSpace(stored.Task.RiskFlagsJson)
-                ? []
-                : ["RISK_SNAPSHOT_UNREADABLE"]);
         return new EligibilitySnapshot(
             stored.Task.OrderState,
             stored.Task.ProgramType,
@@ -228,12 +218,6 @@ public sealed class EligibilityService(
             stored.Task.DialTokenExpiresAt,
             stored.Task.ConfirmationWindowStartedAt,
             stored.Task.ConfirmationWindowExpiresAt,
-            ReadTrustEvidence(
-                stored.Task.EligibilitySnapshotJson,
-                stored.Task.CustomerTrustStatus,
-                stored.Task.TrustedSkipAllowed,
-                riskFlags,
-                returningCustomerSkipEnabled),
             capacity,
             evidenceAvailable,
             evidenceRef,
@@ -349,72 +333,6 @@ public sealed class EligibilityService(
         {
             return VoiceContactEvidence.Unknown;
         }
-    }
-
-    /// <summary>
-    /// Projects the risk evidence behind the returning-customer skip (W-0031 / P4-3 §2.3,
-    /// owner decision <c>OD-15</c>).
-    /// <para>
-    /// <c>trust.resolver_version</c> falls back to the snapshot-level <c>source_version</c>, the
-    /// same way the voice decision does: the risk evaluation belongs to the same evidence
-    /// capture, and <c>source_version</c> is already mandatory in the rules that run before this
-    /// one. That fallback is what leaves Sales a single remaining obligation —
-    /// <c>trust.risk_evidence_available</c> — instead of a whole resolver contract.
-    /// </para>
-    /// Every read failure here leaves <c>riskEvidenceAvailable</c> false, which requires the call.
-    /// </summary>
-    private static TrustResolverEvidence ReadTrustEvidence(
-        string? json,
-        string? trustStatus,
-        bool? skipAllowedBySales,
-        IReadOnlyList<string> riskFlags,
-        bool skipFeatureEnabled)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return TrustResolverEvidence.RequireIvr with
-            {
-                SkipFeatureEnabled = skipFeatureEnabled,
-                SkipAllowedBySales = skipAllowedBySales,
-                TrustStatus = trustStatus,
-                RiskFlags = riskFlags,
-            };
-        }
-
-        bool resolverAvailable = false;
-        string? resolverVersion = null;
-        bool riskEvidenceAvailable = false;
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(json);
-            JsonElement root = document.RootElement;
-            if (root.ValueKind == JsonValueKind.Object)
-            {
-                string? inheritedVersion = ReadString(root, "source_version");
-                resolverVersion = inheritedVersion;
-                if (root.TryGetProperty("trust", out JsonElement trust)
-                    && trust.ValueKind == JsonValueKind.Object)
-                {
-                    resolverAvailable = ReadBoolean(trust, "resolver_available") ?? false;
-                    resolverVersion = ReadString(trust, "resolver_version") ?? inheritedVersion;
-                    riskEvidenceAvailable =
-                        ReadBoolean(trust, "risk_evidence_available") ?? false;
-                }
-            }
-        }
-        catch (JsonException)
-        {
-            // Fall through to the require-IVR defaults already assigned above.
-        }
-
-        return new TrustResolverEvidence(
-            skipFeatureEnabled,
-            skipAllowedBySales,
-            resolverAvailable,
-            resolverVersion,
-            trustStatus,
-            riskEvidenceAvailable,
-            riskFlags);
     }
 
     private static string? ReadString(JsonElement root, string property) =>

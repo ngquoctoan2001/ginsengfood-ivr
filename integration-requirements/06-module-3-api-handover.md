@@ -5,13 +5,13 @@
 **Từ:** Team Module 8 — IVR Order Confirmation (.NET, service tách biệt)
 
 **Cập nhật:** 2026-08-27
-**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR còn phải đồng bộ implementation theo ranh giới trách nhiệm mới
+**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở
 
 > **Ranh giới đã được owner làm rõ ngày 2026-08-27:** **Module 3 quyết định nghiệp vụ; IVR thực thi cuộc gọi.**
 >
 > Module 3 chỉ gửi task sau khi đã quyết định đơn đó cần gọi. IVR không tự phân loại khách cũ/khách mới, không tự tính rủi ro bán hàng và không tự bỏ qua cuộc gọi vì “khách quen”. IVR vẫn được phép từ chối hoặc giữ task vì lỗi contract, auth, idempotency, dữ liệu quay số, privacy, policy thực thi, cửa sổ thời gian hoặc năng lực hệ thống.
 >
-> Ranh giới này **thay thế phần placement của `OD-15` cũ** vốn đặt quyết định bỏ qua khách cũ trong IVR. Mục tiêu business “không gọi khách cũ nếu Module 3 xác định không cần gọi” không đổi; nơi ra quyết định chuyển về Module 3. Khi tài liệu cũ mâu thuẫn với file này về trách nhiệm khách cũ/khách mới, file này là nguồn bàn giao ưu tiên cho Target V1.
+> Ranh giới này đánh dấu placement của `OD-15` cũ là **`SUPERSEDED`**: quyết định bỏ qua khách cũ không còn nằm trong IVR. Mục tiêu business “không gọi khách cũ nếu Module 3 xác định không cần gọi” không đổi; nơi ra quyết định chuyển về Module 3. Khi tài liệu cũ mâu thuẫn với file này về trách nhiệm khách cũ/khách mới, file này là nguồn bàn giao ưu tiên cho Target V1.
 
 Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repository IVR** (`ginsengfood-ivr`), không phải từ thư mục chứa file này:
 
@@ -222,12 +222,12 @@ Contract dùng `additionalProperties: false`; không gửi field ngoài danh sá
 | `customer_ref` | Optional, privacy-safe reference |
 | `customer_trust_status` | Optional, **audit-only**; IVR không dùng để quyết định gọi/skip |
 | `risk_flags` | Optional; có thể dùng cho audit/ưu tiên thực thi, nhưng **không được quyết định gọi/skip** |
-| `trusted_skip_allowed` | **Deprecated cho Target mới; không gửi** |
+| `trusted_skip_allowed` | `LEGACY_READ`; **deprecated cho Target mới, không gửi** |
 | `call_script_template_id` / `call_script_version` | Optional; nếu thiếu, IVR chọn script đã duyệt theo mode |
 | `allowed_script_variables` | Optional; chỉ biến nằm trong whitelist |
 | `evidence_policy_version` / `privacy_policy_version` | Target xem đây là IVR-owned/optional; code non-MOCK hiện đang hold khi thiếu — `CONTRACT_DRIFT`, không biến thành nghĩa vụ M3 trước khi hai bên ký |
 
-Không còn yêu cầu Module 3 gửi `trust.risk_evidence_available` để IVR tự skip. Nếu Module 3 vẫn gửi trust/risk metadata phục vụ audit, IVR không được dùng chúng để đảo quyết định `CALL_REQUIRED` đã được Module 3 đưa ra.
+`trust.risk_evidence_available` chỉ còn `LEGACY_READ`; không còn yêu cầu Module 3 gửi field này để IVR tự skip. Nếu Module 3 vẫn gửi trust/risk metadata phục vụ audit, IVR không được dùng chúng để đảo quyết định `CALL_REQUIRED` đã được Module 3 đưa ra.
 
 ### 3.6. `privacy_safe_order_summary`
 
@@ -345,7 +345,7 @@ Các decision Module 3 cần xử lý:
 | `409` | Idempotency hoặc policy conflict | Không đổi key/body tuỳ tiện; audit |
 | `422` | Contract không hợp lệ: state/profile/contact/privacy… | Sửa dữ liệu/contract |
 
-> **`TASK_SKIPPED_TRUSTED_CUSTOMER` bị deprecated trong ranh giới mới.** Module 3 không được dựa vào decision này. Khách cũ/khách không cần gọi phải được Module 3 lọc trước khi gọi API.
+> **`TASK_SKIPPED_TRUSTED_CUSTOMER` là `LEGACY_READ` và bị deprecated trong ranh giới mới.** Module 3 không được dựa vào decision này. Khách cũ/khách không cần gọi phải được Module 3 lọc trước khi gọi API.
 
 Target guarantee cần đạt trước integration thật:
 
@@ -611,20 +611,26 @@ Module 3 tự sở hữu tiêu chí khách cũ/khách mới, verified-order hist
 | Cơ chế cũ | Target mới |
 | --- | --- |
 | IVR đọc `risk_flags` để quyết định gọi/skip | `risk_flags` không được đảo quyết định call/skip; nếu giữ thì chỉ phục vụ audit/ưu tiên thực thi |
-| IVR cần `trust.risk_evidence_available=true` để skip | Không còn yêu cầu tích hợp |
-| `trusted_skip_allowed=false` là veto | Field deprecated; Module 3 không gửi |
-| IVR trả `TASK_SKIPPED_TRUSTED_CUSTOMER` | Decision deprecated; M3 lọc trước khi push |
+| IVR cần `trust.risk_evidence_available=true` để skip | `LEGACY_READ`; không còn yêu cầu tích hợp |
+| `trusted_skip_allowed=false` là veto | `LEGACY_READ`; field deprecated, Module 3 không gửi |
+| IVR trả `TASK_SKIPPED_TRUSTED_CUSTOMER` | `LEGACY_READ`; decision deprecated, M3 lọc trước khi push |
 | Thiếu trust evidence thì IVR gọi mặc định | Không áp dụng; M3 không gửi khi chưa quyết định |
 
-### 5.3. Implementation delta phải đóng trước integration thật
+### 5.3. Trạng thái alignment phía IVR
 
-Code/OpenAPI/test hiện tại của IVR vẫn chứa nhánh `TASK_SKIPPED_TRUSTED_CUSTOMER` và `OD-15` IVR-side. Vì vậy:
+`W-0123` đã alignment repo IVR theo ranh giới mới:
 
-- Bản IR-06 này mô tả **target responsibility đã được owner làm rõ**, không phải bằng chứng code hiện tại đã đồng bộ.
-- IVR team phải cập nhật contract/OpenAPI/domain logic/persistence/test/evidence tương ứng trước khi tuyên bố Target V1 ready.
-- Trước khi gap này đóng, không được dùng kết quả MOCK hoặc selected tests để nói luồng M3→IVR đã sẵn sàng production.
+- active domain/service/config/persistence không còn tạo trusted-skip;
+- OpenAPI `draft.21` đánh dấu trust fields là deprecated/ignored và giữ
+  `TASK_SKIPPED_TRUSTED_CUSTOMER` ở mức `LEGACY_READ` cho client/row lịch sử;
+- authority tests chứng minh trust/risk metadata không đảo quyết định gọi, trong khi
+  do-not-call/contact/window/capacity gates vẫn fail-closed;
+- không drop migration/cột/enum cũ trong rolling compatibility window.
 
-Trạng thái gate: `IMPLEMENTATION_ALIGNMENT_REQUIRED`.
+Đây là `LOCAL_CODE_DONE`, **không** phải production readiness. Target DB preflight, M3 consumer
+evidence, sandbox/auth, callback endpoint, hosted CI và owner sign-off vẫn phải đóng độc lập.
+
+Trạng thái gate: `LOCAL_ALIGNMENT_IMPLEMENTED_EXTERNAL_GATES_OPEN`.
 
 ---
 
@@ -693,7 +699,7 @@ Không có sandbox credential thì chưa chạy được integration test thật
 | Ưu tiên | Việc | Owner | Trạng thái |
 | --- | --- | --- | --- |
 | **1** | Ký ranh giới “M3 quyết định, IVR thực thi” và rule producer chỉ gửi `CALL_REQUIRED` | M3 + M8 | `OWNER_SIGNOFF_REQUIRED` |
-| **2** | Gỡ IVR-side trusted skip khỏi Target contract/code/test; deprecate `TASK_SKIPPED_TRUSTED_CUSTOMER` | M8 | `IMPLEMENTATION_ALIGNMENT_REQUIRED` |
+| **2** | Gỡ IVR-side trusted skip khỏi Target contract/code/test; giữ `TASK_SKIPPED_TRUSTED_CUSTOMER` là `LEGACY_READ` | M8 | `CODE_DONE_LOCAL` — `W-0123`; external gates không suy xanh |
 | **3** | Xây callback generic phủ Golden Hour + 24/7 | M3 | `NOT_BUILT_UPSTREAM` |
 | **4** | Ký wire mapping program/payment/state và nguồn `ivr_confirmation_required`. Business pair **đã có nguồn** (Flow 04/05, xem §3.10 R3) nên không cần Product quyết lại; còn lại là ký chuỗi trên dây theo **§3.11** và gắn `attempt_policy_version` | M3 + Product | `OWNER_DECISION_REQUIRED` |
 | **4b** | Sửa 3 field lệch chuỗi ở **§3.11** — M3 map `24_7`→`TWENTY_FOUR_SEVEN`, `PHONE_VALID`→`VALID`, `ELIGIBLE_FOR_IVR`→`ELIGIBLE` | M3 | `IMPLEMENTATION_ALIGNMENT_REQUIRED` |
@@ -726,7 +732,7 @@ Chưa được gọi integration/production ready khi các gate P0 trên chưa �
 - [ ] Xác định khi nào `order_version` bump.
 - [ ] Ký attempt policy theo từng program: window, số attempt, offsets.
 - [ ] Chốt cách normalize `delivery_area_short` và giới hạn `items[]`.
-- [ ] Xác nhận không gửi `trusted_skip_allowed`; trust/risk metadata nếu giữ không được dùng phía IVR để quyết định gọi/skip.
+- [ ] Xác nhận không gửi `trusted_skip_allowed` (`LEGACY_READ`); trust/risk metadata nếu giữ không được dùng phía IVR để quyết định gọi/skip.
 
 ### Callback
 

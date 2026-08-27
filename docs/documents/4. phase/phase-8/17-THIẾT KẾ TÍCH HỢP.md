@@ -1,5 +1,9 @@
 # IVR-17 - Integration Design
 
+> **HISTORICAL_BASELINE / SUPERSEDED OVERLAY — 2026-08-27:** Nghĩa vụ trust/risk-evidence để
+> IVR tự call/skip bên dưới đã bị `OD-18`/`W-0123` thay thế. Contract hiện hành xem OpenAPI
+> `draft.21` và `integration-requirements/06-module-3-api-handover.md`.
+
 Trạng thái: `SDS_BASELINE`  
 Phase: 8 - IVR Order Confirmation  
 Vai trò: Thiết kế tích hợp giữa IVR và các hệ thống liên quan.

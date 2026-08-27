@@ -300,12 +300,6 @@ internal static class EligibilityPersistence
                 job.Status = "HELD_ADMIN_REVIEW";
                 job.QueueStatus = "HELD_ADMIN_REVIEW";
                 break;
-            case EligibilityDecisions.SkippedTrustedCustomer:
-                job.Status = "SKIPPED";
-                job.QueueStatus = "SKIPPED";
-                job.ClosedAt = evaluation.EvaluatedAt;
-                job.ClosedReason = evaluation.Decision;
-                break;
             default:
                 job.Status = "BLOCKED";
                 job.QueueStatus = "BLOCKED";

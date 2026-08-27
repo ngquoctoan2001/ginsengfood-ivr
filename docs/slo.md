@@ -57,11 +57,45 @@ Alert đặt trên **tỷ lệ**, không phải trên số tuyệt đối. Hai l
 theo thiết kế** (DO-06) nên một vài lần giữ không phải sự cố; và tỷ lệ sống sót qua thay đổi lưu
 lượng, còn ngưỡng tuyệt đối thì không.
 
-`TASK_SKIPPED_TRUSTED_CUSTOMER` **không** được tính là fail-closed: đó là chính sách chọn không gọi,
-không phải hệ thống không chứng minh được an toàn. Gộp hai thứ sẽ làm một luật trust đang chạy đúng
-trông như một sự cố downstream.
+Historical rows mang `TASK_SKIPPED_TRUSTED_CUSTOMER` là `LEGACY_READ` và **không** được tính vào
+active fail-closed numerator. Từ `OD-18`/OpenAPI `draft.21`, runtime không phát sinh trusted-skip
+mới; mọi occurrence mới của decision này phải được coi là contract/runtime regression.
 
 **Ngưỡng 20% là đề xuất**, chưa có baseline production để hiệu chỉnh.
+
+<a id="legacy-skip-candidates"></a>
+
+## 3b. Đơn từng thuộc diện trusted-skip — quan sát, không phải SLO (`OD-18`)
+
+| | |
+| --- | --- |
+| **Đo bằng** | `sum by (ivr_program) (increase(ivr_legacy_skip_candidate_total[1h]))` |
+| **Kỳ vọng** | `0` |
+| **Alert** | **không có** — xem lý do bên dưới |
+
+Đây **không** phải SLO và cố ý không gắn alert. Nó trả lời đúng một câu hỏi mà `W-0123` không có
+cách nào trả lời bằng số: cutover `OD-18` thực sự làm tăng bao nhiêu cuộc gọi?
+
+Lập luận của `W-0123` là Module 3 chưa gửi `trust.risk_evidence_available` (theo `W-0118`), nên
+nhánh skip cũ chưa từng bỏ qua ai và gỡ nó không đổi hành vi của bất kỳ đơn nào. Lập luận đó hợp lý
+nhưng **không có target database nào truy cập được để xác nhận** — evidence ghi `ENV_BLOCKED`.
+Counter này biến suy luận thành số đo: đứng yên ở `0` là bằng chứng lập luận đúng; nhảy lên `n` thì
+`n` chính là số đơn trước kia được bỏ qua và nay bị gọi.
+
+Mỗi increment đếm một task mà Module 3 gửi kèm đúng hình dạng của predicate đã nghỉ hưu: không có
+veto `trusted_skip_allowed=false`, `risk_flags` rỗng, và `trust.risk_evidence_available=true`.
+Snapshot hỏng hoặc thiếu trả `false` — predicate cũ cũng đòi bằng chứng dương, nên "không xác định
+được" chưa bao giờ là skip, và một counter đoán mò sẽ thổi phồng chính con số nó tồn tại để đo.
+
+Không alert vì đây **không phải lỗi phía IVR** và không có hành động runtime nào để gọi ai đó dậy
+lúc 2 giờ sáng. Non-zero nghĩa là producer phía Module 3 vẫn gửi tín hiệu đã được yêu cầu ngừng
+gửi — việc cần làm là một cuộc trao đổi tích hợp với `IR-06`, không phải một trang page. Nhưng mỗi
+đơn ở đây là một cuộc gọi thật tới một khách hàng thật, nên nó phải nằm trên dashboard chứ không
+nằm trong log.
+
+Counter được ghi ở **intake**, không phải ở eligibility. Đọc trust metadata để *quyết định* là điều
+`OD-18` cấm; đọc để *đếm nhà sản xuất đã gửi gì* là kiểm toán. `UT-M3-AUTHORITY-11` giữ hai việc đó
+tách nhau theo file, `IT-M3-AUTHORITY-12` chứng minh chính payload đó vẫn được gọi.
 
 <a id="channel-auto-disable"></a>
 

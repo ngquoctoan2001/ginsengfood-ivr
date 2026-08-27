@@ -1,5 +1,9 @@
 # IVR-02 - Ownership Boundary / Connected Systems
 
+> **HISTORICAL_BASELINE / SUPERSEDED OVERLAY — 2026-08-27:** Ranh giới hiện hành theo `OD-18` là
+> M3 sở hữu quyết định nghiệp vụ call/no-call; IVR sở hữu thực thi và gate kỹ thuật/an toàn. Mọi
+> placement trusted-skip phía IVR bên dưới chỉ còn là lịch sử.
+
 Trạng thái: `SRS_BASELINE`  
 Phase: 8 - IVR Order Confirmation  
 Mục tiêu: Khóa hệ thống IVR kết nối với hệ thống nào, bằng gì và theo ranh giới ownership nào.

@@ -1,6 +1,9 @@
 # SRS-05 — Current Docs Review (IVR Order Confirmation)
 
-> **HISTORICAL REVIEW:** kết luận COD-only/D-10 khóa trong file này đã bị Target V1 Round 5 ngày 2026-08-12 supersede. Xem `plan/ivr-orther/target-contract-v1-draft.md`. Nội dung dưới đây chỉ để truy vết, không phải implementation source.
+> **HISTORICAL REVIEW / SUPERSEDED:** kết luận COD-only/D-10 khóa trong file này đã bị Target V1
+> Round 5 ngày 2026-08-12 supersede; các mô tả trusted-skip phía IVR tiếp tục bị `OD-18`/`W-0123`
+> thay thế ngày 2026-08-27. Xem `plan/ivr-orther/target-contract-v1-draft.md`. Nội dung dưới đây
+> chỉ để truy vết, không phải implementation source.
 
 Trạng thái: `DOCS_REVIEW — DRAFT` (chưa phải specs nghiệp vụ; đây là bước rà soát nguồn)
 Sinh bởi: prompt `plan/ivr-orther/prompts/p01-generate-docs-review.md`

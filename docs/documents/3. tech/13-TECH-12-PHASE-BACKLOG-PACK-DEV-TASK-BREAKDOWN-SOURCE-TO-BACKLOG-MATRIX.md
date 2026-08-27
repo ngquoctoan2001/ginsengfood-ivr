@@ -1,5 +1,8 @@
 # TECH-12 - PHASE BACKLOG PACK DEV TASK BREAKDOWN SOURCE TO BACKLOG MATRIX
 
+> **HISTORICAL_PLAN / SUPERSEDED OVERLAY — 2026-08-27:** Task/matrix trusted-skip phía IVR bên
+> dưới đã bị `OD-18`/`W-0123` thay thế; M3 là business decision owner.
+
 ## Pham Vi Tai Lieu
 
 Tài liệu này là bản rewrite clean từ nguồn TECH, giữ phạm vi kỹ thuật của section và chuẩn hóa wording để không xung đột với MASTER/PACK.

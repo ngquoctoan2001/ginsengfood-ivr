@@ -41,3 +41,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# W-0124: CI installs this app with `npm ci` (deploy/ci/ui-qa.gitlab-ci.yml) and the
+# committed lockfile is package-lock.json. A stray `pnpm` invocation bootstraps its own
+# lockfile plus a pnpm-workspace.yaml carrying an unanswered `allowBuilds` placeholder,
+# which then makes every later `pnpm` command fail and shows up as repo changes that are
+# not the work in hand. Ignore both so the mistake stays local and self-correcting.
+pnpm-lock.yaml
+pnpm-workspace.yaml

@@ -14,7 +14,7 @@ Nguồn: `phase-8/00 §3`, `MASTER-03`, `docx` §6, §8, §13.
 | **ORDER_VERIFIED** | Gate downstream (CRM/commission/reporting) = `DELIVERED` + `payment_status=PAID` + `verification_status∈{VERIFIED,TRUSTED}` (DS-05). Không liên quan trực tiếp IVR. |
 | **order_code / order_code_short** | Mã đơn chính thức / mã rút gọn được phép đọc trong call script. |
 | **order_version** | Sales-owned optimistic version. Target V1 bắt buộc trong task/callback; current Sales còn GAP nên real integration bị chặn. |
-| **IVR task** (`IvrConfirmationTaskV1`) | Yêu cầu nội bộ do Order Core tạo để IVR xét/gọi xác nhận. |
+| **IVR task** (`IvrConfirmationTaskV1`) | Chỉ thị nội bộ do Module 3 tạo sau khi đã quyết định nghiệp vụ rằng đơn cần gọi; IVR kiểm gate kỹ thuật/an toàn rồi thực thi (`OD-18`). |
 | **IVR result** | Kết quả đã normalize từ cuộc gọi; là **signal**, không phải state cuối. |
 | **Result callback** (`IvrConfirmationResultCallbackV1`) | Bản tin IVR gửi result về Order Core để revalidate. |
 | **CallJob / call_job** | Vòng đời gọi cho một task; chứa các attempt. |
@@ -25,8 +25,8 @@ Nguồn: `phase-8/00 §3`, `MASTER-03`, `docx` §6, §8, §13.
 | **24/7 (TWENTY_FOUR_SEVEN)** | Chương trình thường; window **15′** (A1@T0, A2@T0+7:30, expire T0+15:00). ✅ D-10. |
 | **T0** | Thời điểm Order Core mở IVR confirmation window / tạo task (KHÔNG phải lúc khách bấm đặt nếu task delay). ✅ D-10. |
 | **Attempt policy** | Quy tắc số cuộc + khoảng cách + window theo program. |
-| **Eligibility** | Kết quả kiểm điều kiện gọi (order/program/contact/trust/block/window/capacity). |
-| **Trusted skip** / **Returning-customer skip** | Bỏ qua cuộc gọi cho **khách cũ**: Sales xác nhận đã đánh giá rủi ro (`trust.risk_evidence_available=true`) và `risk_flags` rỗng (`OD-15`). Không dùng trust score, không hardcode ngưỡng. Decision vẫn mang tên `TASK_SKIPPED_TRUSTED_CUSTOMER` vì là enum đã persist. Có risk flag → vẫn gọi. |
+| **Eligibility** | Kết quả kiểm contract và gate kỹ thuật/an toàn của IVR (source/contact/block/window/capacity); không phân loại lại khách cũ/khách mới. |
+| **Trusted skip** / **Returning-customer skip** | `SUPERSEDED` bởi `OD-18`. `TASK_SKIPPED_TRUSTED_CUSTOMER` chỉ còn `LEGACY_READ` cho enum/row lịch sử; runtime hiện hành không phát sinh quyết định này. |
 | **Official contact** | Số điện thoại đã duyệt để gọi; dùng `phone_ref`/`phone_masked`/dial token. |
 | **phone_ref / phone_masked / dial token** | Tham chiếu bảo mật / số che / token quay số TTL ngắn — thay cho raw phone. |
 | **Sale Lock (khóa bán)** | Ops-core chặn bán SKU/lô. ⚠️ **Hiện = recall-triggered** (`op_sale_lock_registry.recall_case_id` là FK bắt buộc); chưa có sale-lock thương mại độc lập. Owner: Operational Core. (DO-CORR-3) |

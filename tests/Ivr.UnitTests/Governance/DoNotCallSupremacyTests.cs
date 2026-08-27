@@ -20,24 +20,13 @@ namespace Ivr.UnitTests.Governance;
 /// </summary>
 public sealed class DoNotCallSupremacyTests
 {
-    [Theory]
+    [Fact]
     [Trait("TestId", "COMP-DNC-03")]
-    // Every other signal set as favourably as it can be, one axis at a time.
-    [InlineData(true, false, false)]
-    [InlineData(true, true, false)]
-    [InlineData(true, false, true)]
-    [InlineData(true, true, true)]
-    public void ARestrictedCustomerIsNeverCallableWhateverElseIsTrue(
-        bool trustedCustomer,
-        bool trustSkipEnabled,
-        bool trustedSkipAllowed)
+    [Trait("TestId", "UT-M3-AUTHORITY-03")]
+    public void ARestrictedCustomerIsNeverCallable()
     {
         EligibilityEvaluation evaluation = EligibilityRules.Evaluate(
-            DoNotCallSnapshotFactory.Create(
-                phoneCallRestriction: true,
-                customerTrustStatus: trustedCustomer ? "TRUSTED" : null,
-                trustSkipFeatureEnabled: trustSkipEnabled,
-                trustedSkipAllowed: trustedSkipAllowed));
+            DoNotCallSnapshotFactory.Create(phoneCallRestriction: true));
 
         Assert.False(evaluation.Eligible);
         Assert.Equal(EligibilityDecisions.BlockedOperational, evaluation.Decision);
@@ -70,11 +59,7 @@ public sealed class DoNotCallSupremacyTests
         EligibilityEvaluation restricted = EligibilityRules.Evaluate(
             DoNotCallSnapshotFactory.Create(phoneCallRestriction: true));
 
-        // Neither of the two decisions that lead to a dial: Eligible, and the trust skip that
-        // closes the task without calling. The second matters because a "skip" that suppressed the
-        // restriction would also suppress the audit trail explaining why nobody was called.
         Assert.NotEqual(EligibilityDecisions.Eligible, restricted.Decision);
-        Assert.NotEqual(EligibilityDecisions.SkippedTrustedCustomer, restricted.Decision);
     }
 }
 
@@ -90,11 +75,7 @@ internal static class DoNotCallSnapshotFactory
     private const string SnapshotHash =
         "1111111111111111111111111111111111111111111111111111111111111111";
 
-    public static EligibilitySnapshot Create(
-        bool? phoneCallRestriction,
-        string? customerTrustStatus = null,
-        bool trustSkipFeatureEnabled = false,
-        bool trustedSkipAllowed = false) => new(
+    public static EligibilitySnapshot Create(bool? phoneCallRestriction) => new(
             "CONFIRMING",
             "GOLDEN_HOUR",
             "ONLINE",
@@ -113,14 +94,6 @@ internal static class DoNotCallSnapshotFactory
             Now.AddMinutes(3),
             Now.AddMinutes(-2),
             Now.AddMinutes(3),
-            new TrustResolverEvidence(
-                trustSkipFeatureEnabled,
-                trustedSkipAllowed,
-                trustSkipFeatureEnabled,
-                trustSkipFeatureEnabled ? "sales-trust-v1" : null,
-                customerTrustStatus,
-                trustSkipFeatureEnabled,
-                []),
             new EligibilityCapacitySnapshot(
                 true,
                 true,

@@ -58,9 +58,13 @@ That command only pins a new reviewed draft baseline. It does not mean Sales has
 implemented or approved Target V1, and it must not change
 `TARGET_CONTRACT_V1=DRAFT` without the external owner artifact.
 
-The IVR draft comparison baseline is `1.0.0-draft.2`. The superseded `1.0.0`
-baseline and its generated transition report remain committed as audit history;
-never overwrite them when rotating a future reviewed draft.
+The IVR draft comparison baseline is `1.0.0-draft.20` (rotated from `1.0.0-draft.2`
+by W-0124, after OD-17's owner-approved `sellable_status` removal made the older
+window permanently red). Every superseded baseline — `1.0.0`, `1.0.0-draft.2` —
+and its generated transition report remain committed as audit history; never
+overwrite them when rotating a future reviewed draft. Rotating the baseline is
+how an approved breaking change stops masking the next unapproved one; deleting
+the report it rotated past is how the approval itself gets lost.
 
 ## Current compatibility and deprecation
 

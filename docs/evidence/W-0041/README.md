@@ -33,9 +33,9 @@ viễn**, và vạch phẳng đọc như "khoẻ mạnh" chứ không đọc nh�
 | `EligibilityService.EvaluateAsync` | `ivr_fail_closed_total` | ở trạng thái nghỉ, một task **bị giữ** và một task **chưa ai gửi** trông giống hệt nhau; chỉ tại điểm quyết định mới phân biệt được |
 | `PostgresSchedulerStore` (quarantine) | `ivr_channel_quarantines_total` *(instrument mới)* | dòng dữ liệu sau đó chỉ cho biết kênh **đang** bị khoá, không bao giờ cho biết nó **vừa mới** bị khoá — mà "ba lần trong mười phút" cần đúng thời điểm chuyển |
 
-`TASK_SKIPPED_TRUSTED_CUSTOMER` **cố ý không** tính là fail-closed: đó là chính sách chọn không gọi,
-không phải hệ thống không chứng minh được an toàn. Gộp lại sẽ làm một luật trust chạy đúng trông
-như sự cố downstream trên trang cảnh báo.
+`TASK_SKIPPED_TRUSTED_CUSTOMER` trong evidence W-0041 là `HISTORICAL_EVIDENCE` và vẫn không tính
+vào fail-closed của baseline cũ. Từ `OD-18`/W-0123, runtime không phát sinh decision này; occurrence
+mới phải được cảnh báo như regression thay vì policy outcome hợp lệ.
 
 ~~`ivr_call_attempts_total` và `ivr_call_results_total` **vẫn chưa có call site**, và slice này
 **cố ý không** vẽ panel/alert nào dùng chúng.~~ **Đã đóng `2026-08-19`**: hai call site được nối ở

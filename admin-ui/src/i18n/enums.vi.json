@@ -15,7 +15,7 @@
   "eligibilityDecision": {
     "TASK_ACCEPTED_CALL_JOB_CREATED": "Đã nhận — đã tạo lệnh gọi",
     "TASK_ACCEPTED_DRY_RUN_ONLY": "Đã nhận — chỉ chạy thử, không gọi thật",
-    "TASK_SKIPPED_TRUSTED_CUSTOMER": "Bỏ qua — khách quen tin cậy",
+    "TASK_SKIPPED_TRUSTED_CUSTOMER": "Lịch sử — đã bỏ qua theo chính sách cũ (không còn phát sinh)",
     "TASK_REJECTED_NOT_OFFICIAL_ORDER": "Từ chối — không phải đơn chính thức",
     "TASK_REJECTED_STATE_NOT_CALLABLE": "Từ chối — trạng thái đơn không cho gọi",
     "TASK_REJECTED_POLICY_MISMATCH": "Từ chối — sai chính sách gọi lại",
@@ -175,7 +175,7 @@
     "ACCEPTED_BY_CRM": "CRM đã tiếp nhận"
   },
   "blockedReason": {
-    "TRUSTED_CUSTOMER_SKIP": "Bỏ qua vì khách quen tin cậy",
+    "TRUSTED_CUSTOMER_SKIP": "Lịch sử — trusted-skip đã ngừng phát sinh",
     "BLOCKED_BY_CORE": "Order Core chặn khi kiểm lại"
   },
   "closedReason": {
@@ -248,7 +248,7 @@
     "EVIDENCE_REGISTRY": "Kho bằng chứng mất kết nối ⇒ không gửi được callback cuối, phiếu bị giữ lại."
   },
   "dependencyDetail": {
-    "CRM_DO_NOT_CALL": "Thông tin chặn gọi và mức tin cậy đi kèm trong task từ Sales (W-0031); IVR không giữ client CRM và không thăm dò gì (UT-ARCH-NO-CRM-EGRESS-06).",
+    "CRM_DO_NOT_CALL": "Thông tin chặn gọi đi kèm task từ Module 3; IVR không giữ client CRM, không thăm dò trực tiếp và không tái phân loại khách (OD-18).",
     "EVIDENCE_REGISTRY": "Bằng chứng được ghi tại chỗ; chưa có thăm dò kho bên ngoài.",
     "DIAL_KILL_SWITCH_ENGAGED": "Kill switch đang bật; đã chặn quay số",
     "DIAL_KILL_SWITCH_RELEASED": "Kill switch đang tắt"

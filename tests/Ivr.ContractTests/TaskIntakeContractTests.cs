@@ -32,6 +32,52 @@ public sealed class TaskIntakeContractTests
     }
 
     [Fact]
+    [Trait("TestId", "CT-M3-AUTHORITY-08")]
+    public async Task OpenApiPublishesM3AuthorityAndOnlyLegacyTrustCompatibility()
+    {
+        string openApi = await File.ReadAllTextAsync(FindRepositoryFile(
+            "specs", "api", "openapi", "ivr-order-confirmation.v1.yaml"));
+
+        Assert.Contains("version: 1.0.0-draft.21", openApi, StringComparison.Ordinal);
+        Assert.Contains(
+            "M3 has already decided that the order requires a call",
+            openApi,
+            StringComparison.Ordinal);
+        Assert.Contains("LEGACY_READ compatibility field", openApi, StringComparison.Ordinal);
+        Assert.Contains(
+            "Draft.21 runtime no",
+            openApi,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("Any entry forces the call", openApi, StringComparison.Ordinal);
+        Assert.DoesNotContain("An EMPTY list cancels the call", openApi, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    [Trait("TestId", "CT-M3-AUTHORITY-09")]
+    public async Task LinkedEvidenceSchemaMarksTrustAsIgnoredLegacyInput()
+    {
+        using JsonDocument schema = JsonDocument.Parse(await File.ReadAllTextAsync(
+            FindRepositoryFile(
+                "specs", "api", "evidence", "eligibility-snapshot.v1.schema.json")));
+        JsonElement trust = schema.RootElement
+            .GetProperty("properties")
+            .GetProperty("trust");
+
+        Assert.True(trust.GetProperty("deprecated").GetBoolean());
+        Assert.Contains(
+            "Active IVR eligibility ignores this entire object",
+            trust.GetProperty("description").GetString(),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "M3 owns that business decision",
+            schema.RootElement
+                .GetProperty("x-ivr-fail-closed-directions")
+                .GetProperty("trust")
+                .GetString(),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     [Trait("TestId", "CT-INTAKE-FIXTURES-02")]
     public async Task CanonicalFakeCatalogCoversAllP21AcceptanceClasses()
     {

@@ -53,6 +53,16 @@ public sealed class TaskIntakeService(
         IvrTelemetry.RecordIntakeLatency(
             System.Diagnostics.Stopwatch.GetElapsedTime(startedTicks).TotalSeconds,
             tags);
+
+        // W-0124 F1. Measures the one thing OD-18 changed that no local test can observe: how
+        // many orders IVR now calls that the retired predicate would have skipped. Recorded at
+        // the same exit and with the same tags as the decision above, so the two can be divided
+        // without joining two events.
+        if (HasRetiredSkipShape(command.Source))
+        {
+            IvrTelemetry.RecordLegacySkipCandidate(tags);
+        }
+
         return outcome;
     }
 
@@ -435,11 +445,12 @@ public sealed class TaskIntakeService(
 
     private static void ValidatePersistedMetadata(IvrConfirmationTaskV1 source)
     {
+        (string? legacyCustomerTrustStatus, _) = ReadLegacyTrustMetadata(source);
         string?[] optionalValues =
         [
             source.Order_code_short,
             source.Customer_ref,
-            source.Customer_trust_status,
+            legacyCustomerTrustStatus,
             source.Phone_validation_status,
             source.Call_script_template_id,
             source.Call_script_version,
@@ -460,6 +471,55 @@ public sealed class TaskIntakeService(
         }
 
         PiiGuard.EnsureSafeText(JsonSerializer.Serialize(source.Eligibility_snapshot));
+    }
+
+    /// <summary>
+    /// True when the task matches the retired <c>OD-15</c> skip predicate: Sales did not veto,
+    /// reported that it evaluated the order for risk, and found no flag. Under <c>OD-18</c> this
+    /// changes nothing about the outcome — it is read for the counter only, which is why it lives
+    /// here at the observability exit and not anywhere the decision can see it.
+    /// <para>
+    /// A malformed or absent snapshot answers false. The retired predicate required positive
+    /// evidence too, so "could not tell" was never a skip, and a counter that guessed would
+    /// overstate the change it exists to size.
+    /// </para>
+    /// </summary>
+    private static bool HasRetiredSkipShape(IvrConfirmationTaskV1 source)
+    {
+        (_, bool? trustedSkipAllowed) = ReadLegacyTrustMetadata(source);
+        if (trustedSkipAllowed is false || source.Risk_flags is { Count: > 0 })
+        {
+            return false;
+        }
+
+        try
+        {
+            JsonElement snapshot = JsonSerializer.SerializeToElement(source.Eligibility_snapshot);
+            return snapshot.ValueKind == JsonValueKind.Object
+                && snapshot.TryGetProperty("trust", out JsonElement trust)
+                && trust.ValueKind == JsonValueKind.Object
+                && trust.TryGetProperty("risk_evidence_available", out JsonElement evaluated)
+                && evaluated.ValueKind == JsonValueKind.True;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+        catch (NotSupportedException)
+        {
+            return false;
+        }
+    }
+
+    private static (string? CustomerTrustStatus, bool? TrustedSkipAllowed)
+        ReadLegacyTrustMetadata(IvrConfirmationTaskV1 source)
+    {
+        // OD-18 LEGACY_READ compatibility window. NSwag correctly marks both properties obsolete
+        // for new producers; this one boundary intentionally reads them so rolling producers and
+        // historical audit rows are not broken before M3 usage and target DB counts are known.
+#pragma warning disable CS0612
+        return (source.Customer_trust_status, source.Trusted_skip_allowed);
+#pragma warning restore CS0612
     }
 
     private static TaskIntakePersistencePlan? ValidateEligibilityAndEvidence(
@@ -537,6 +597,8 @@ public sealed class TaskIntakeService(
         string privacyPolicy,
         DateTimeOffset now)
     {
+        (string? legacyCustomerTrustStatus, bool? legacyTrustedSkipAllowed) =
+            ReadLegacyTrustMetadata(source);
         string callJobId = string.Concat("JOB-", Guid.NewGuid().ToString("N"));
         string decision = command.ExecutionMode == ExecutionMode.Mock
             ? TaskIntakeDecisions.AcceptedDryRunOnly
@@ -582,8 +644,11 @@ public sealed class TaskIntakeService(
             PaymentMethodSnapshot = source.Payment_method_snapshot.ToString(),
             IvrConfirmationRequired = true,
             CustomerId = source.Customer_ref,
-            CustomerTrustStatus = source.Customer_trust_status,
-            TrustedSkipAllowed = source.Trusted_skip_allowed,
+            // OD-18 LEGACY_READ: keep exact producer values for history/rolling compatibility.
+            // EligibilityService does not map these fields into its decision graph.
+            CustomerTrustStatus = legacyCustomerTrustStatus,
+            TrustedSkipAllowed = legacyTrustedSkipAllowed,
+            // Active only for audit/scheduler priority; never for call/skip eligibility.
             RiskFlagsJson = riskFlagsJson,
             ProgramType = source.Program_code.ToString(),
             AttemptPolicyVersion = snapshot.AttemptPolicy.Version.Value,

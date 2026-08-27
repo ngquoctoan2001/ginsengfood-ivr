@@ -1,6 +1,6 @@
 # IR-05 — Open Contract Questions
 
-Trạng thái: `OPEN` · Cập nhật: `2026-08-26`
+Trạng thái: `OPEN` · Cập nhật: `2026-08-27`
 
 Chỉ liệt kê thứ **chưa có lời đáp**. Không đóng bằng suy luận, và **không đóng chỉ bằng code IVR** — mock chạy xanh không biến `BLOCKED_EXTERNAL` thành `VERIFIED`.
 
@@ -35,7 +35,7 @@ Ba câu **chặn cứng**, trích lại để thấy mức độ:
 | --- | --- |
 | `OQ-SALES-01…06` | Gom vào [IR-06 §10](06-module-3-api-handover.md) |
 | Ops-core cần build gì cho IVR? | **Không còn** — `OD-17`, xem [IR-02](02-ops-core-requirements.md) |
-| Trusted-skip cần `CustomerTrustResolver`? | **Không** — `OD-15` thay bằng một field `trust.risk_evidence_available` |
+| Trusted-skip cần `CustomerTrustResolver` hoặc risk-evidence field? | **Không** — toàn bộ placement `OD-15` đã `SUPERSEDED` bởi `OD-18`; M3 quyết định đơn cần gọi, IVR chỉ thực thi |
 
 ## 4. Được phép làm trước khi có câu trả lời
 

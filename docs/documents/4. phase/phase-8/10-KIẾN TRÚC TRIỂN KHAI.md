@@ -1,5 +1,9 @@
 # IVR-10 - Implementation Architecture
 
+> **HISTORICAL_BASELINE / SUPERSEDED OVERLAY — 2026-08-27:** Thành phần/flag trusted-skip phía
+> IVR bên dưới không còn active từ `OD-18`/`W-0123`. Kiến trúc hiện hành giữ M3 làm business
+> decision owner và IVR làm execution/safety owner.
+
 Trạng thái: `SDS_BASELINE`  
 Phase: 8 - IVR Order Confirmation  
 Vai trò: Tài liệu thiết kế kiến trúc triển khai cho Phase 8, nối từ SRS `IVR-00` đến `IVR-09` sang backlog kỹ thuật.

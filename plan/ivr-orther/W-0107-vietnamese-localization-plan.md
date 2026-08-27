@@ -1,5 +1,8 @@
 # W-0107 — Việt hóa toàn diện: giao diện + dữ liệu hiển thị
 
+> **HISTORICAL_PLAN OVERLAY — 2026-08-27:** Hai nhãn trusted-skip trong bảng dưới đã được W-0123
+> đổi sang ngữ nghĩa `LEGACY_READ`; enum còn để đọc history nhưng runtime không phát sinh mới.
+
 Trạng thái tài liệu: `PLAN_EXECUTED`
 Trạng thái triển khai: `TESTS_PASS` — GĐ 1–8 xong; chờ owner duyệt từ vựng (`OD-L10N-05`). Bằng chứng: `docs/evidence/W-0107/`
 Ngày lập: `2026-08-22`
@@ -341,7 +344,7 @@ Nguồn: [`ivr-order-confirmation.v1.yaml:1300`](../../specs/api/openapi/ivr-ord
 | --- | --- |
 | `TASK_ACCEPTED_CALL_JOB_CREATED` | Đã nhận — đã tạo lệnh gọi |
 | `TASK_ACCEPTED_DRY_RUN_ONLY` | Đã nhận — chỉ chạy thử, không gọi thật |
-| `TASK_SKIPPED_TRUSTED_CUSTOMER` | Bỏ qua — khách quen tin cậy |
+| `TASK_SKIPPED_TRUSTED_CUSTOMER` | Lịch sử — đã bỏ qua theo chính sách cũ (không còn phát sinh) |
 | `TASK_REJECTED_NOT_OFFICIAL_ORDER` | Từ chối — không phải đơn chính thức |
 | `TASK_REJECTED_STATE_NOT_CALLABLE` | Từ chối — trạng thái đơn không cho gọi |
 | `TASK_REJECTED_POLICY_MISMATCH` | Từ chối — sai chính sách gọi lại |
@@ -506,7 +509,7 @@ Nguồn: [`ivr-order-confirmation.v1.yaml:1187`](../../specs/api/openapi/ivr-ord
 | `SELLABLE_SNAPSHOT_MISSING` | Thiếu ảnh chụp khả năng bán |
 | `SELLABLE_SNAPSHOT_STALE` | Ảnh chụp khả năng bán đã cũ |
 | `SELLABLE_STATUS_UNKNOWN` | Chưa rõ khả năng bán |
-| `TRUSTED_CUSTOMER_SKIP` | Bỏ qua vì khách quen tin cậy |
+| `TRUSTED_CUSTOMER_SKIP` | Lịch sử — trusted-skip đã ngừng phát sinh |
 | `BLOCKED_BY_CORE` | Order Core chặn khi kiểm lại |
 
 ### 5.12 Các họ nhỏ

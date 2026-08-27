@@ -91,12 +91,15 @@
       "smoke_ref": "IVR-SMK-race / phase-8/07 P0-007"
     },
     {
-      "id": "SCN-010-trusted-skip",
+      "id": "SCN-010-m3-authoritative-call",
       "task_ref": "TASK-TARGET-GH-0002",
-      "attempts": [],
-      "expected_intake_decision": "TASK_SKIPPED_TRUSTED_CUSTOMER",
-      "_note": "CUST-002 trusted + trusted_skip_allowed + no risk/blocker (D-12)",
-      "smoke_ref": "IVR-SMK-trusted-skip"
+      "attempts": [{ "attempt_number": 1, "raw_call_status": "answered", "raw_dtmf": "1" }],
+      "expected_intake_decision": "TASK_ACCEPTED_CALL_JOB_CREATED",
+      "expected_result_type": "IVR_CONFIRMED",
+      "expected_counted": true,
+      "expected_core_response": "ACCEPTED",
+      "_note": "OD-18: task tồn tại nghĩa là Module 3 đã quyết định cần gọi; IVR thực thi sau gate kỹ thuật/an toàn.",
+      "smoke_ref": "W-0123 / IT-M3-AUTHORITY-05"
     },
     {
       "id": "SCN-011-duplicate-callback",

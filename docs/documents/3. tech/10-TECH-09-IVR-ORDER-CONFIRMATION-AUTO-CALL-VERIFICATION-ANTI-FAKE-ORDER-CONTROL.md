@@ -1,5 +1,9 @@
 # TECH-09 - IVR ORDER CONFIRMATION AUTO CALL VERIFICATION ANTI FAKE ORDER CONTROL
 
+> **HISTORICAL_ARCHITECTURE / SUPERSEDED OVERLAY — 2026-08-27:** Mọi placement để IVR tự quyết
+> định customer-trust/trusted-skip bên dưới đã bị `OD-18`/`W-0123` thay thế. M3 quyết định task
+> cần gọi; IVR chỉ thực thi qua gate kỹ thuật/an toàn.
+
 > [!IMPORTANT]
 > Superseded by D-10 (2026-07-02): cac rule attempt cu trong file nay nhu `Golden Hour 2 attempts/10 phut` va `24/7 3 attempts/15 phut` chi con gia tri lich su. Rule hien hanh: `MAX_ATTEMPT = 2` cho ca hai chuong trinh; `GOLDEN_HOUR` window 5 phut voi A2@`T0+2:30`; `TWENTY_FOUR_SEVEN` window 15 phut voi A2@`T0+7:30`. Nguon canonical: `plan/ivr-orther/decisions-log.md` D-10 va `specs/functional/03-scheduler-attempt-policy.md`.
 

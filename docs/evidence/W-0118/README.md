@@ -1,5 +1,11 @@
 # W-0118 — Không gọi IVR cho khách cũ (`OD-15`)
 
+> **HISTORICAL_EVIDENCE / SUPERSEDED — 2026-08-27:** Evidence này phản ánh đúng implementation
+> tại baseline ghi bên dưới nhưng hành vi đã bị `OD-18`/`W-0123` thay thế. Runtime hiện hành không
+> tự quyết định trusted-skip; Module 3 quyết định task cần gọi và IVR chỉ thực thi. Không dùng số
+> liệu hoặc hướng dẫn rollout trong file này làm authority hiện tại; xem
+> [W-0123](../W-0123/README.md).
+
 Ngày: `2026-08-25`
 
 Baseline: `main@ee31c76`

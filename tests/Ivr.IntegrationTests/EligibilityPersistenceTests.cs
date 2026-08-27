@@ -20,13 +20,6 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
     private static readonly DateTimeOffset Now =
         new(2026, 8, 13, 7, 0, 0, TimeSpan.Zero);
 
-    // OD-15 as shipped: the returning-customer skip policy is ON by default. Every fixture below
-    // still reaches a call, because none of them sets trust.risk_evidence_available — which is
-    // the property worth holding onto. Turning the policy on does not skip anybody; Sales sending
-    // risk evidence does. Wiring the default in here rather than a disabled stub keeps that true
-    // in the suite instead of only in the comment.
-    private static readonly IOptions<IvrOptions> SkipPolicyOn = Options.Create(new IvrOptions());
-
     // W-0030 / P4-2. The old fixture carried only {"decision":"ELIGIBLE"}; the typed evidence
     // rules now also require a source version and a fresh capture stamp, so the fixture supplies
     // them. The rule was not relaxed to keep the old fixture passing — the fixture was corrected.
@@ -55,8 +48,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new CapacityShortageProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             "TASK-ELIG-CAP-05",
@@ -111,8 +103,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new CapacityAvailableProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             "TASK-ELIG-MOCK-06",
@@ -151,8 +142,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new UnexpectedCapacityProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             "TASK-ELIG-DNC-07",
@@ -188,8 +178,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new MissingEvidenceCapacityProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             "TASK-ELIG-FAILCLOSED-08",
@@ -240,8 +229,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new CapacityAvailableProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             taskId,
@@ -337,8 +325,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new CapacityAvailableProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             taskId,
@@ -355,15 +342,16 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
     }
 
     [Fact]
-    [Trait("TestId", "IT-ELIG-TRUST-14")]
-    public async Task AReturningCustomerIsSkippedOnceSalesEvidencesTheRisk()
+    [Trait("TestId", "IT-M3-AUTHORITY-05")]
+    [Trait("TestId", "IT-M3-AUTHORITY-06")]
+    public async Task TrustedMetadataCannotCreateASkipDecisionOrSkippedJob()
     {
         await fixture.ResetAsync();
         IDbContextFactory<IvrDbContext> factory = fixture.Services
             .GetRequiredService<IDbContextFactory<IvrDbContext>>();
-        // OD-15 end to end, on the smallest payload Sales can actually send: no trust status, no
-        // resolver, no resolver_version — one flag saying risk was evaluated, and an empty flag
-        // list. Everything the skip needs beyond that is already on the wire.
+        // OD-18 compatibility case: an older M3 producer may still send the complete OD-15 trust
+        // bag. IVR accepts the payload during the compatibility window but must ignore it for the
+        // call/no-call decision. A valid M3 task therefore remains eligible and queued.
         await SeedPendingTaskAsync(
             factory,
             "TASK-ELIG-TRUST-14",
@@ -381,33 +369,81 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new CapacityAvailableProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             "TASK-ELIG-TRUST-14",
             "corr-elig-trust-14");
 
-        Assert.Equal(EligibilityDecisions.SkippedTrustedCustomer, result.Decision);
-        Assert.True(result.TrustedCustomerSkipped);
+        Assert.True(result.Eligible);
+        Assert.Equal(EligibilityDecisions.Eligible, result.Decision);
         Assert.False(result.IsCountedCustomerAttempt);
-        Assert.Contains(EligibilityReasonCodes.TrustedCustomerSkip, result.Advisories);
+        Assert.Empty(result.Advisories);
 
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
         Assert.Equal(0, await verification.CallAttempts.CountAsync());
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks
+            .SingleAsync(item => item.TaskId == "TASK-ELIG-TRUST-14");
+        CallJobEntity job = await verification.CallJobs
+            .SingleAsync(item => item.TaskId == "TASK-ELIG-TRUST-14");
+        Assert.Equal(EligibilityDecisions.Eligible, task.EligibilityDecision);
+        Assert.Equal(EligibilityDecisions.Eligible, job.EligibilityDecision);
+        Assert.Equal("READY_FOR_SCHEDULER", job.Status);
+        Assert.Equal("QUEUED", job.QueueStatus);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-M3-AUTHORITY-08")]
+    public async Task HistoricalTrustedSkipRowsRemainReadableDuringTheRollbackWindow()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-M3-AUTHORITY-LEGACY-08",
+            "JOB-M3-AUTHORITY-LEGACY-08",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY");
+
+        // HISTORICAL_EVIDENCE / LEGACY_READ only. New runtime has no producer for this value;
+        // inserting it here proves old rows and a previous-image rollback remain readable.
+        const string legacyDecision = "TASK_SKIPPED_TRUSTED_CUSTOMER";
+        await using (IvrDbContext writer = await factory.CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = await writer.ConfirmationTasks.SingleAsync(
+                item => item.TaskId == "TASK-M3-AUTHORITY-LEGACY-08");
+            CallJobEntity job = await writer.CallJobs.SingleAsync(
+                item => item.TaskId == "TASK-M3-AUTHORITY-LEGACY-08");
+            task.EligibilityDecision = legacyDecision;
+            job.EligibilityDecision = legacyDecision;
+            job.Status = "SKIPPED";
+            job.QueueStatus = "SKIPPED";
+            job.ClosedAt = Now;
+            job.ClosedReason = legacyDecision;
+            await writer.SaveChangesAsync();
+        }
+
+        await using IvrDbContext reader = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity storedTask = await reader.ConfirmationTasks
+            .AsNoTracking()
+            .SingleAsync(item => item.TaskId == "TASK-M3-AUTHORITY-LEGACY-08");
+        CallJobEntity storedJob = await reader.CallJobs
+            .AsNoTracking()
+            .SingleAsync(item => item.TaskId == "TASK-M3-AUTHORITY-LEGACY-08");
+        Assert.Equal(legacyDecision, storedTask.EligibilityDecision);
+        Assert.Equal(legacyDecision, storedJob.EligibilityDecision);
+        Assert.Equal("SKIPPED", storedJob.Status);
+        Assert.Equal("SKIPPED", storedJob.QueueStatus);
     }
 
     [Theory]
-    [Trait("TestId", "IT-ELIG-TRUST-15")]
-    // A risk flag on a returning customer's order. OD-15 keeps D-12's exception: "do not call
-    // returning customers" is the default, never an exemption from anti-fake-order control.
+    [Trait("TestId", "IT-M3-AUTHORITY-07")]
+    [InlineData("legacy-empty-evaluated", "[]", true)]
     [InlineData("risk-flagged", """["COD_FAIL_HISTORY"]""", true)]
-    // The first-time buyer, arriving the way Sales actually reports one.
     [InlineData("new-customer", """["NEW_CUSTOMER","VERIFIED_ORDER_COUNT_0"]""", true)]
-    // Empty flags, but Sales never said it evaluated risk. Indistinguishable at rest from the
-    // skip case above — and it must not skip. This is the row that keeps OD-15 honest.
     [InlineData("unevaluated", "[]", false)]
-    public async Task RiskFlagsAndMissingRiskEvidenceBothKeepTheCall(
+    public async Task TrustAndRiskMetadataNeverChangeTheEligibilityDecision(
         string caseId,
         string riskFlagsJson,
         bool riskEvidenceAvailable)
@@ -433,8 +469,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new CapacityAvailableProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             $"TASK-ELIG-TRUST-15-{caseId}",
@@ -442,12 +477,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
 
         Assert.True(result.Eligible);
         Assert.Equal(EligibilityDecisions.Eligible, result.Decision);
-        Assert.False(result.TrustedCustomerSkipped);
-        Assert.Contains(
-            riskEvidenceAvailable
-                ? EligibilityReasonCodes.RiskFlagsPresentRequireIvr
-                : EligibilityReasonCodes.TrustRiskEvidenceUnavailable,
-            result.Advisories);
+        Assert.Empty(result.Advisories);
     }
 
     private static string VoiceSnapshotFor(string caseId)
@@ -514,8 +544,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new UnavailableCapacityProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation[] evaluations = await Task.WhenAll(
             Enumerable.Range(0, taskCount).Select(index => service.EvaluateAsync(
@@ -566,8 +595,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         var service = new EligibilityService(
             new PostgresEligibilityRepository(factory),
             new CapacityShortageProvider(),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
         await Task.WhenAll(Enumerable.Range(0, taskCount).Select(index => service.EvaluateAsync(
             string.Concat(
                 "TASK-SEC-PII-",
@@ -656,8 +684,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
             new PostgresEligibilityRepository(factory),
             new SchedulerEligibilityCapacityProvider(
                 new UnavailableSchedulerCapacityService()),
-            new FixedTimeProvider(Now),
-            SkipPolicyOn);
+            new FixedTimeProvider(Now));
 
         EligibilityEvaluation result = await service.EvaluateAsync(
             "TASK-ELIG-SCHED-09",
@@ -775,8 +802,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
                 MockChannelCount = 4,
                 ExpectedCallDurationSeconds = 30,
             }))),
-        new FixedTimeProvider(Now),
-        SkipPolicyOn);
+        new FixedTimeProvider(Now));
 
     private static Task<SchedulerDispatchLease?> ClaimFor(IDbContextFactory<IvrDbContext> factory) =>
         new PostgresSchedulerStore(factory, new FixedTimeProvider(Now))
@@ -864,8 +890,8 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         string? eligibilitySnapshotJson = null,
         bool omitSnapshotHash = false,
         string? customerTrustStatus = null,
-        // Nullable since OD-15: an explicit false is a Sales veto on the skip, so the default has
-        // to mean "Sales said nothing" rather than silently vetoing every seeded task.
+        // LEGACY_READ fixture input retained for OD-15 rollback rows. OD-18 runtime ignores it;
+        // nullable preserves the historical wire/database shape without assigning active meaning.
         bool? trustedSkipAllowed = null,
         string? evidenceRefsJson = null,
         string? riskFlagsJson = null)

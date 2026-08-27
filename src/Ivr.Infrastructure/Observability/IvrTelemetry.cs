@@ -89,6 +89,32 @@ public static class IvrTelemetry
         "ivr_intake_decisions_total",
         description: "Task intake decisions by program, payment, mode and provider.");
 
+    /// <summary>
+    /// Tasks Module 3 sent that carry the retired <c>OD-15</c> skip shape — Sales said it
+    /// evaluated risk, found none, and did not veto. Under <c>OD-18</c> these are called like any
+    /// other task, so this counter is the size of the behaviour change the cutover actually made
+    /// on live traffic (<c>W-0124</c> F1).
+    /// <para>
+    /// It exists because the alternative was an argument. <c>W-0123</c> reasoned from
+    /// <c>W-0118</c> that no environment sends <c>trust.risk_evidence_available</c>, so nobody was
+    /// being skipped and removing the branch changed nothing — a sound inference that no target
+    /// database was available to confirm. A counter that stays at zero proves the inference; a
+    /// counter that moves names the orders that used to be skipped and now get a call, before an
+    /// operator has to discover them one complaint at a time.
+    /// </para>
+    /// <para>
+    /// It is deliberately recorded at intake, never in the eligibility path. Reading trust
+    /// metadata to decide anything is precisely what <c>OD-18</c> forbids; reading it to count
+    /// what M3 sent is an audit of the producer, and <c>UT-M3-AUTHORITY-11</c> keeps the two
+    /// apart by file.
+    /// </para>
+    /// </summary>
+    private static readonly Counter<long> LegacySkipCandidates = Meter.CreateCounter<long>(
+        "ivr_legacy_skip_candidate_total",
+        description:
+            "Tasks whose LEGACY_READ trust metadata would have been skipped before OD-18, "
+            + "tagged with the intake decision they actually got.");
+
     private static readonly Counter<long> Attempts = Meter.CreateCounter<long>(
         "ivr_call_attempts_total",
         description: "Call attempts by policy version and whether the attempt counted (DT-02).");
@@ -147,6 +173,13 @@ public static class IvrTelemetry
     public static void RecordIntakeDecision(params (string Key, object? Value)[] tags) =>
         IntakeDecisions.Add(1, ToMetricTags(tags));
 
+    /// <summary>
+    /// One task that the retired OD-15 predicate would have skipped. See
+    /// <see cref="LegacySkipCandidates"/> for why this is counted rather than argued.
+    /// </summary>
+    public static void RecordLegacySkipCandidate(params (string Key, object? Value)[] tags) =>
+        LegacySkipCandidates.Add(1, ToMetricTags(tags));
+
     public static void RecordAttempt(params (string Key, object? Value)[] tags) =>
         Attempts.Add(1, ToMetricTags(tags));
 
@@ -195,6 +228,7 @@ public static class IvrTelemetry
         new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal)
         {
             [nameof(RecordIntakeDecision)] = Names("ivr_intake_decisions_total"),
+            [nameof(RecordLegacySkipCandidate)] = Names("ivr_legacy_skip_candidate_total"),
             [nameof(RecordAttempt)] = Names("ivr_call_attempts_total"),
             [nameof(RecordResult)] = Names("ivr_call_results_total"),
             [nameof(RecordCallback)] = Names(

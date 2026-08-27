@@ -1,5 +1,8 @@
 # TECH-11 - IMPLEMENTATION ROADMAP DEV PHASE PLAN BACKLOG GOVERNANCE CODE HANDOFF CONTROL
 
+> **HISTORICAL_PLAN / SUPERSEDED OVERLAY — 2026-08-27:** Backlog trusted-skip phía IVR bên dưới
+> đã bị `OD-18`/`W-0123` thay thế; giữ nội dung để truy vết, không dùng làm work queue hiện hành.
+
 ## Pham Vi Tai Lieu
 
 Tài liệu này là bản rewrite clean từ nguồn TECH, giữ phạm vi kỹ thuật của section và chuẩn hóa wording để không xung đột với MASTER/PACK.

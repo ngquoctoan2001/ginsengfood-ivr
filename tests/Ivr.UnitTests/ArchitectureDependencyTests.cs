@@ -182,6 +182,58 @@ public sealed class ArchitectureDependencyTests
         }
     }
 
+    [Fact]
+    [Trait("TestId", "UT-M3-AUTHORITY-11")]
+    public void ThePreDialDecisionPathCannotReadCustomerTrustOrOrderRiskMetadata()
+    {
+        // W-0124 F3. OD-18 puts business call selection in Module 3. The reflection guard in
+        // UT-M3-AUTHORITY-02 only catches a re-introduction that rebuilds the deleted domain
+        // types; the cheaper regression is somebody reading the persisted columns straight into
+        // the decision, which leaves those types untouched. This bounds the two files that own
+        // the pre-dial decision instead of the type names.
+        string repositoryRoot = FindRepositoryRoot();
+        string domainRules = Path.Combine(
+            repositoryRoot, "src", "Ivr.Domain", "Policies", "EligibilityRules.cs");
+        string applicationService = Path.Combine(
+            repositoryRoot, "src", "Ivr.Api", "Application", "EligibilityService.cs");
+
+        // Persisted/wire names of Module 3's customer classification. None of them may appear in
+        // the decision path at all — reading one is the regression, whatever it is then used for.
+        string[] forbiddenEverywhere =
+        [
+            "TrustedSkipAllowed",
+            "CustomerTrustStatus",
+            "trusted_skip_allowed",
+            "customer_trust_status",
+            "risk_evidence_available",
+            "TASK_SKIPPED_TRUSTED_CUSTOMER",
+        ];
+
+        foreach (string file in new[] { domainRules, applicationService })
+        {
+            string content = File.ReadAllText(file);
+            foreach (string symbol in forbiddenEverywhere)
+            {
+                Assert.DoesNotContain(symbol, content, StringComparison.Ordinal);
+            }
+        }
+
+        // risk_flags is the one that cannot simply be banned: OD-18 keeps it as scheduler
+        // priority input, and SchedulerEligibilityCapacityProvider lives in the same file as the
+        // eligibility service. So bound WHERE it may be read rather than whether — every
+        // occurrence must be handing the column to the capacity/priority mapper, never to the
+        // snapshot the decision is made on.
+        Assert.DoesNotContain("RiskFlagsJson", File.ReadAllText(domainRules), StringComparison.Ordinal);
+
+        string[] riskFlagLines = [.. File.ReadAllLines(applicationService)
+            .Where(line => line.Contains("RiskFlagsJson", StringComparison.Ordinal))];
+
+        Assert.NotEmpty(riskFlagLines);
+        Assert.All(
+            riskFlagLines,
+            line => Assert.Contains("RiskScore", line, StringComparison.Ordinal));
+    }
+
     [Theory]
     [Trait("TestId", "UT-BOOT-03-LINUX-PATH")]
     [InlineData(@"..\Ivr.Contracts\Ivr.Contracts.csproj")]

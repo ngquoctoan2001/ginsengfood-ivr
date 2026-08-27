@@ -1,7 +1,6 @@
 {
   "_layer": "ivr-owned-input",
-  "_note": "IvrConfirmationTaskV1 mẫu (do Order Core push). max_attempts=2; GH window=300 spacing=150; 24-7 window=900 spacing=450 (D-10). attempt_schedule = offset giây từ t0.",
-  "_note_od15": "OD-15 (2026-08-25): trusted_skip_allowed nay là VETO, không phải opt-in. false = chặn skip cho riêng đơn đó; muốn 'không có ý kiến' thì BỎ HẲN field, đừng gửi false. Các task bên dưới còn để false đều đã mang risk_flag nên vẫn bị gọi dù sao — đừng copy dòng đó sang đơn không có risk flag. Xem TASK-0009 để biết payload skip trông thế nào.",
+  "_note": "OD-18: IvrConfirmationTaskV1 mẫu do Module 3 push sau khi đã quyết định đơn cần gọi. IVR không phân loại khách cũ/khách mới; risk_flags chỉ dùng audit/scheduler. max_attempts=2; GH window=300 spacing=150; 24-7 window=900 spacing=450 (D-10). attempt_schedule = offset giây từ t0.",
   "tasks": [
     {
       "task_id": "TASK-0001",
@@ -26,8 +25,6 @@
         150
       ],
       "customer_ref": "CUST-001",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": [
         "NEW_CUSTOMER",
         "VERIFIED_ORDER_COUNT_0"
@@ -72,8 +69,6 @@
         450
       ],
       "customer_ref": "CUST-006",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": [
         "COD_FAIL_HISTORY"
       ],
@@ -117,8 +112,6 @@
         150
       ],
       "customer_ref": "CUST-004",
-      "customer_trust_status": "TRUSTED",
-      "trusted_skip_allowed": true,
       "risk_flags": [
         "HIGH_RISK_GOLDEN_HOUR"
       ],
@@ -163,8 +156,6 @@
         450
       ],
       "customer_ref": "CUST-003",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": [
         "SUSPICIOUS_PHONE"
       ],
@@ -208,8 +199,6 @@
         150
       ],
       "customer_ref": "CUST-005",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": [
         "ABNORMAL_VALUE"
       ],
@@ -254,18 +243,13 @@
         150
       ],
       "customer_ref": "CUST-002",
-      "customer_trust_status": "TRUSTED",
-      "trusted_skip_allowed": true,
       "risk_flags": [],
       "eligibility_snapshot": {
         "decision": "ELIGIBLE",
         "source_version": "sales-eligibility-v1",
         "captured_at": "2026-07-02T02:59:30Z",
         "source_available": true,
-        "blockers": [],
-        "trust": {
-          "risk_evidence_available": true
-        }
+        "blockers": []
       },
       "official_contact_id": "OC-0002",
       "phone_ref": "phref-test-0002",
@@ -283,7 +267,7 @@
       "no_direct_order_update": true,
       "evidence_policy_version": "ev-v1",
       "privacy_policy_version": "pv-v1",
-      "_note": "OD-15: khách cũ -> TASK_SKIPPED_TRUSTED_CUSTOMER, không tạo CallJob. Điều kiện thật sự là trust.risk_evidence_available=true + risk_flags rỗng; customer_trust_status=TRUSTED giữ ở đây chỉ để đọc, KHÔNG còn tham gia quyết định. Bỏ eligibility_snapshot.trust đi thì task này quay lại bị gọi."
+      "_note": "OD-18 authority fixture: Module 3 đã gửi task thì IVR tạo CallJob sau khi các gate kỹ thuật/an toàn đạt; risk_flags rỗng không tạo special-case skip."
     },
     {
       "task_id": "TASK-0010",
@@ -308,8 +292,6 @@
         150
       ],
       "customer_ref": "CUST-001",
-      "customer_trust_status": "UNTRUSTED_NEW",
-      "trusted_skip_allowed": false,
       "risk_flags": [],
       "official_contact_id": "OC-0001",
       "phone_ref": "phref-test-0001",

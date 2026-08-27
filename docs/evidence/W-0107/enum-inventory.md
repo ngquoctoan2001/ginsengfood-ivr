@@ -2,6 +2,8 @@
 
 > File này do `enum-inventory.mjs` sinh ra ở GĐ 1. Không sửa tay.
 > Ba nguồn độc lập; một họ chỉ được coi là **đóng** khi có mặt ở nguồn 1 hoặc 2.
+> `TASK_SKIPPED_TRUSTED_CUSTOMER` vẫn có mặt do `LEGACY_READ` compatibility; `OD-18`/W-0123 đã
+> dừng active runtime emission. Inventory enum không đồng nghĩa enum còn là active outcome.
 
 ## Nguồn 1 — OpenAPI (enum khai báo tĩnh)
 

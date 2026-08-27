@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -11,6 +12,7 @@ using Ivr.Domain.Errors;
 using Ivr.Infrastructure.Auth;
 using Ivr.Infrastructure.Correlation;
 using Ivr.Infrastructure.Intake;
+using Ivr.Infrastructure.Observability;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -40,6 +42,95 @@ public sealed class TaskIntakeApiTests
         Assert.NotNull(result.Ivr_call_job_id);
         Assert.Equal(1, app.Store.CallJobCount);
         Assert.Equal(1, app.Store.OutboxCount);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-M3-AUTHORITY-12")]
+    public async Task TheRetiredSkipShapeIsCountedAndStillCalled()
+    {
+        // W-0124 F1. W-0123 argued from W-0118 that no producer sends risk evidence, so removing
+        // the skip branch changed nobody's outcome — an inference no available database could
+        // confirm. This asserts the two halves that make the argument checkable in production:
+        // the population is counted, and it is still called.
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+
+        var counted = new List<string>();
+        using MeterListener listener = ListenForLegacySkipCandidates(counted);
+
+        JsonObject legacySkipShape = CreateBody();
+        legacySkipShape["task_id"] = "TASK-API-LEGACY-SKIP";
+        legacySkipShape["order_id"] = "ORDER-API-LEGACY-SKIP";
+        legacySkipShape["risk_flags"] = new JsonArray();
+        legacySkipShape["eligibility_snapshot"] = new JsonObject
+        {
+            ["decision"] = "ELIGIBLE",
+            ["source"] = "api-test",
+            ["trust"] = new JsonObject { ["risk_evidence_available"] = true },
+        };
+
+        using HttpResponseMessage skipShapeResponse = await SendAsync(app.Client, legacySkipShape);
+
+        Assert.Equal(HttpStatusCode.OK, skipShapeResponse.StatusCode);
+        IvrTaskIntakeResult accepted = (await skipShapeResponse.Content
+            .ReadFromJsonAsync<IvrTaskIntakeResult>())!;
+
+        // The point of OD-18: this exact payload used to end as TASK_SKIPPED_TRUSTED_CUSTOMER.
+        Assert.Equal(IvrTaskIntakeResultDecision.TASK_ACCEPTED_DRY_RUN_ONLY, accepted.Decision);
+        Assert.NotNull(accepted.Ivr_call_job_id);
+        Assert.Equal(1, app.Store.CallJobCount);
+
+        // A risk flag is what the retired predicate itself treated as "do call", so a payload
+        // carrying one was never a skip candidate and must not be counted as the change OD-18
+        // made. Without this half the counter would report the whole intake volume.
+        JsonObject riskFlagged = CreateBody();
+        riskFlagged["task_id"] = "TASK-API-RISK-FLAGGED";
+        riskFlagged["order_id"] = "ORDER-API-RISK-FLAGGED";
+        riskFlagged["risk_flags"] = new JsonArray("COD_FAIL_HISTORY");
+        riskFlagged["eligibility_snapshot"] = new JsonObject
+        {
+            ["decision"] = "ELIGIBLE",
+            ["source"] = "api-test",
+            ["trust"] = new JsonObject { ["risk_evidence_available"] = true },
+        };
+
+        using HttpResponseMessage riskFlaggedResponse = await SendAsync(app.Client, riskFlagged);
+
+        Assert.Equal(HttpStatusCode.OK, riskFlaggedResponse.StatusCode);
+        Assert.Equal(2, app.Store.CallJobCount);
+
+        listener.Dispose();
+
+        // Exactly one measurement, not "at least one": the second send proving nothing was counted
+        // is half the assertion. A MeterListener is process-wide and xUnit runs collections in
+        // parallel, so this holds because no other fixture in this assembly sends
+        // trust.risk_evidence_available through intake. If you add one, this is the test it breaks,
+        // and the fix is to give that fixture a risk flag rather than to loosen the count.
+        Assert.Equal(["ivr_legacy_skip_candidate_total"], counted);
+    }
+
+    private static MeterListener ListenForLegacySkipCandidates(List<string> observed)
+    {
+        var listener = new MeterListener
+        {
+            InstrumentPublished = (instrument, target) =>
+            {
+                if (instrument.Meter.Name == IvrTelemetry.ServiceName
+                    && instrument.Name == "ivr_legacy_skip_candidate_total")
+                {
+                    target.EnableMeasurementEvents(instrument);
+                }
+            },
+        };
+        listener.SetMeasurementEventCallback<long>((instrument, _, _, _) =>
+        {
+            lock (observed)
+            {
+                observed.Add(instrument.Name);
+            }
+        });
+        listener.Start();
+        return listener;
     }
 
     [Fact]

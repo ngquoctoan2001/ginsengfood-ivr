@@ -405,6 +405,37 @@
         },
         "overrides": []
       }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Orders the retired trusted-skip would have skipped (OD-18)",
+      "description": "A COUNT per hour, not a rate: the unit that matters is orders, and a rate renders one of them as a number nobody reads as an order. Every increment is an order Module 3 still marks with the old skip evidence and IVR now calls anyway -- the exact size of the behaviour change W-0123 could only infer, because no target database was reachable to count it. Zero confirms the inference. Non-zero is not an IVR fault and not an alert: it means M3 is still sending a producer-side signal it was asked to stop sending, and each one is a real extra call to a real customer. Runbook: docs/slo.md#legacy-skip-candidates",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "targets": [
+        {
+          "expr": "sum by (ivr_program) (increase(ivr_legacy_skip_candidate_total[1h]))",
+          "legendFormat": "{{ivr_program}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      }
     }
   ]
 }

@@ -39,24 +39,88 @@ public sealed class EligibilityRulesTests
     }
 
     [Fact]
-    [Trait("TestId", "UT-ELIG-TRUST-03")]
-    public void DisabledTrustSkipStillRequiresIvrForTrustedCustomer()
+    [Trait("TestId", "UT-M3-AUTHORITY-01")]
+    [Trait("TestId", "UT-M3-AUTHORITY-02")]
+    public void M3AuthorityIsNotRepresentedByAnIvrTrustPredicate()
     {
-        EligibilityEvaluation evaluation = EligibilityRules.Evaluate(
-            CreateSnapshot(
-                customerTrustStatus: "TRUSTED",
-                trustedSkipAllowed: true,
-                trustSkipFeatureEnabled: false));
+        EligibilityEvaluation evaluation = EligibilityRules.Evaluate(CreateSnapshot());
 
         Assert.True(evaluation.Eligible);
-        Assert.False(evaluation.TrustedCustomerSkipped);
-        Assert.Contains(
-            EligibilityReasonCodes.TrustSkipDisabledRequireIvr,
-            evaluation.Advisories);
+        Assert.Equal(EligibilityDecisions.Eligible, evaluation.Decision);
+        Assert.Empty(evaluation.Advisories);
+        Assert.Null(typeof(EligibilitySnapshot).GetProperty("Trust"));
+        Assert.Null(typeof(EligibilitySnapshot).Assembly.GetType(
+            "Ivr.Domain.Policies.TrustResolverEvidence"));
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-M3-AUTHORITY-10")]
+    public void TheActiveDecisionVocabularyHasNoBusinessSkipAndEvaluateNeverLeavesIt()
+    {
+        // W-0124 F5 closes a gap in UT-M3-AUTHORITY-02: that test proves the OLD trust types are
+        // gone, so it only catches a re-introduction that rebuilds them by name. This one is
+        // shape-independent — it pins the vocabulary itself. A new decision constant, or an
+        // Evaluate path returning anything outside the active set, fails here no matter how the
+        // re-introduction is spelled.
+        // What Evaluate is allowed to RETURN. Pending is the pre-evaluation state a task carries
+        // before this method runs, so it belongs to the vocabulary but never to an outcome.
+        string[] active =
+        [
+            EligibilityDecisions.Eligible,
+            EligibilityDecisions.BlockedOperational,
+            EligibilityDecisions.HeldAdminReview,
+            EligibilityDecisions.CapacityException,
+        ];
+        string[] vocabulary = [EligibilityDecisions.Pending, .. active];
+
+        string[] declared = [.. typeof(EligibilityDecisions)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(field => field.IsLiteral && field.FieldType == typeof(string))
+            .Select(field => (string)field.GetRawConstantValue()!)
+            .Order(StringComparer.Ordinal)];
+
+        Assert.Equal([.. vocabulary.Order(StringComparer.Ordinal)], declared);
+
+        // Every axis the domain can still see, crossed. Business selection is upstream in M3, so
+        // no combination of what IVR does see may produce a fifth decision.
+        var observed = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string orderState in new[] { "CONFIRMING", "QUOTE", "PAID" })
+        {
+            foreach (bool required in new[] { true, false })
+            {
+                foreach (bool evidenceAvailable in new[] { true, false })
+                {
+                    foreach (string? sourceDecision in new[] { "ELIGIBLE", "BLOCKED", null })
+                    {
+                        foreach (bool? restriction in new bool?[] { false, true, null })
+                        {
+                            foreach (bool capacityOk in new[] { true, false })
+                            {
+                                observed.Add(EligibilityRules.Evaluate(CreateSnapshot(
+                                    phoneCallRestriction: restriction,
+                                    evidenceAvailable: evidenceAvailable,
+                                    sourceEligibilityDecision: sourceDecision,
+                                    orderState: orderState,
+                                    ivrConfirmationRequired: required,
+                                    capacityCanMeetDeadline: capacityOk)).Decision);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Assert.All(observed, decision => Assert.Contains(decision, active));
+
+        // Not vacuous: the matrix must actually reach the eligible branch and at least one
+        // fail-closed branch, otherwise a rule that blocked everything would also pass.
+        Assert.Contains(EligibilityDecisions.Eligible, observed);
+        Assert.Contains(EligibilityDecisions.BlockedOperational, observed);
     }
 
     [Fact]
     [Trait("TestId", "UT-ELIG-FAILCLOSED-04")]
+    [Trait("TestId", "UT-M3-AUTHORITY-04")]
     public void MissingRequiredSourcesFailClosed()
     {
         EligibilityEvaluation missingRestriction = EligibilityRules.Evaluate(
@@ -236,144 +300,17 @@ public sealed class EligibilityRulesTests
         Assert.False(unknown.IsCountedCustomerAttempt);
     }
 
-    [Fact]
-    [Trait("TestId", "UT-ELIG-TRUST-16")]
-    public void IncompleteRiskEvidenceRequiresTheCallAndSaysWhichPartWasMissing()
-    {
-        // OD-15: not a single customer-trust field is set here, and it still skips. That is the
-        // decision — the skip rides on Sales' risk evaluation, not on the scoring engine DC-06
-        // records as unbuilt.
-        TrustResolverEvidence complete = new(
-            SkipFeatureEnabled: true,
-            SkipAllowedBySales: true,
-            ResolverAvailable: false,
-            ResolverVersion: "sales-eligibility-v1",
-            TrustStatus: null,
-            RiskEvidenceAvailable: true,
-            RiskFlags: []);
-
-        Assert.True(complete.CanSkip);
-        Assert.Equal(
-            EligibilityDecisions.SkippedTrustedCustomer,
-            EligibilityRules.Evaluate(CreateSnapshot(trust: complete)).Decision);
-
-        (TrustResolverEvidence Trust, string Advisory)[] cases =
-        [
-            (complete with { SkipFeatureEnabled = false },
-                EligibilityReasonCodes.TrustSkipDisabledRequireIvr),
-            (complete with { SkipAllowedBySales = false },
-                EligibilityReasonCodes.TrustSkipVetoedBySales),
-            (complete with { ResolverVersion = "  " },
-                EligibilityReasonCodes.TrustResolverVersionMissing),
-            (complete with { RiskEvidenceAvailable = false },
-                EligibilityReasonCodes.TrustRiskEvidenceUnavailable),
-            (complete with { RiskFlags = ["COD_FAIL_HISTORY"] },
-                EligibilityReasonCodes.RiskFlagsPresentRequireIvr),
-        ];
-
-        foreach ((TrustResolverEvidence trust, string advisory) in cases)
-        {
-            Assert.False(trust.CanSkip);
-            EligibilityEvaluation evaluation = EligibilityRules.Evaluate(
-                CreateSnapshot(trust: trust));
-
-            // Missing risk evidence must never block — it must make the call happen.
-            Assert.True(evaluation.Eligible);
-            Assert.Equal(EligibilityDecisions.Eligible, evaluation.Decision);
-            Assert.Contains(advisory, evaluation.Advisories);
-        }
-    }
-
-    [Fact]
-    [Trait("TestId", "UT-ELIG-TRUST-18")]
-    public void AnEmptyRiskFlagListIsOnlyASkipWhenSalesSaysItEvaluatedRisk()
-    {
-        // The one confusion OD-15 could not survive. "Sales looked and found nothing" and "Sales
-        // never looked" both arrive as an empty list, and only the first may cancel the call.
-        // Collapsing them would drop confirmation on exactly the unevaluated orders this module
-        // exists to catch, and it would do so silently.
-        TrustResolverEvidence evaluated = new(
-            SkipFeatureEnabled: true,
-            SkipAllowedBySales: null,
-            ResolverAvailable: false,
-            ResolverVersion: "sales-eligibility-v1",
-            TrustStatus: null,
-            RiskEvidenceAvailable: true,
-            RiskFlags: []);
-        TrustResolverEvidence silent = evaluated with { RiskEvidenceAvailable = false };
-
-        Assert.Equal(evaluated.RiskFlags.Count, silent.RiskFlags.Count);
-        Assert.Equal(
-            EligibilityDecisions.SkippedTrustedCustomer,
-            EligibilityRules.Evaluate(CreateSnapshot(trust: evaluated)).Decision);
-        Assert.Equal(
-            EligibilityDecisions.Eligible,
-            EligibilityRules.Evaluate(CreateSnapshot(trust: silent)).Decision);
-    }
-
-    [Fact]
-    [Trait("TestId", "UT-ELIG-TRUST-19")]
-    public void AFirstTimeBuyerIsStillCalledBecauseNewCustomerIsARiskFlag()
-    {
-        // How "khách mới" actually reaches IVR: as a risk flag, exactly like COD_FAIL_HISTORY.
-        // One empty-list check therefore answers both halves of OD-15 — is this a returning
-        // customer, and is this order ordinary — with no second signal for Sales to build.
-        string[] firstTimeBuyerFlags = ["NEW_CUSTOMER", "VERIFIED_ORDER_COUNT_0"];
-        foreach (string flag in firstTimeBuyerFlags)
-        {
-            EligibilityEvaluation evaluation = EligibilityRules.Evaluate(
-                CreateSnapshot(trust: new TrustResolverEvidence(
-                    SkipFeatureEnabled: true,
-                    SkipAllowedBySales: true,
-                    ResolverAvailable: false,
-                    ResolverVersion: "sales-eligibility-v1",
-                    TrustStatus: null,
-                    RiskEvidenceAvailable: true,
-                    RiskFlags: [flag])));
-
-            Assert.True(evaluation.Eligible);
-            Assert.False(evaluation.TrustedCustomerSkipped);
-            Assert.Contains(
-                EligibilityReasonCodes.RiskFlagsPresentRequireIvr,
-                evaluation.Advisories);
-        }
-    }
-
-    [Fact]
-    [Trait("TestId", "UT-ELIG-TRUST-17")]
-    public void VoiceEvidenceAndTrustEvidenceFailClosedInOppositeDirections()
-    {
-        // The whole point of separating these two types. Both are fail-closed, but "closed"
-        // means the opposite thing for each, because the harm is asymmetric: not knowing whether
-        // we may call must not produce a call; not knowing whether we may skip must not produce
-        // a skip. Collapsing them into one flag would silently pick one harm over the other.
-        EligibilityEvaluation voiceUnknown = EligibilityRules.Evaluate(
-            CreateSnapshot(voiceContact: VoiceContactEvidence.Unknown));
-        EligibilityEvaluation trustUnknown = EligibilityRules.Evaluate(
-            CreateSnapshot(trust: TrustResolverEvidence.RequireIvr with
-            {
-                TrustStatus = "TRUSTED",
-            }));
-
-        Assert.False(voiceUnknown.Eligible);
-        Assert.True(trustUnknown.Eligible);
-        Assert.NotEqual(
-            EligibilityDecisions.SkippedTrustedCustomer,
-            trustUnknown.Decision);
-    }
-
     private static EligibilitySnapshot CreateSnapshot(
         bool? phoneCallRestriction = false,
-        string? customerTrustStatus = null,
-        // Nullable on purpose: under OD-15 an explicit false is a Sales veto, so the default has
-        // to mean "Sales said nothing" or every future feature-on test starts silently vetoed.
-        bool? trustedSkipAllowed = null,
-        bool trustSkipFeatureEnabled = false,
         bool evidenceAvailable = true,
         string? sourceEligibilityDecision = "ELIGIBLE",
         EligibilityEvidence? sourceEligibility = null,
         VoiceContactEvidence? voiceContact = null,
-        TrustResolverEvidence? trust = null)
+        // W-0124: only the decision-vocabulary matrix varies these. Defaults keep every existing
+        // assertion on the same fixture it was written against.
+        string orderState = "CONFIRMING",
+        bool ivrConfirmationRequired = true,
+        bool capacityCanMeetDeadline = true)
     {
         // Default evidence is structurally valid so existing assertions still exercise the
         // decision rules rather than tripping on the W-0030 structural checks that run first.
@@ -381,10 +318,10 @@ public sealed class EligibilityRulesTests
             decision: sourceEligibilityDecision);
 
         return new EligibilitySnapshot(
-            "CONFIRMING",
+            orderState,
             "GOLDEN_HOUR",
             "ONLINE",
-            true,
+            ivrConfirmationRequired,
             true,
             resolvedEvidence,
             voiceContact ?? new VoiceContactEvidence(
@@ -395,23 +332,15 @@ public sealed class EligibilityRulesTests
             Now.AddMinutes(3),
             Now.AddMinutes(-2),
             Now.AddMinutes(3),
-            trust ?? new TrustResolverEvidence(
-                trustSkipFeatureEnabled,
-                trustedSkipAllowed,
-                trustSkipFeatureEnabled,
-                trustSkipFeatureEnabled ? "sales-trust-v1" : null,
-                customerTrustStatus,
-                trustSkipFeatureEnabled,
-                []),
             new EligibilityCapacitySnapshot(
                 true,
-                true,
+                capacityCanMeetDeadline,
                 "UNIT-CAPACITY",
                 1,
                 0,
                 0,
                 0,
-                null,
+                capacityCanMeetDeadline ? null : "CAPACITY_DEADLINE_UNREACHABLE",
                 "evidence://unit/p2-2/capacity"),
             evidenceAvailable,
             "evidence://unit/p2-2/task",
