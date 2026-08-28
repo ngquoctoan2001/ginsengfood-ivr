@@ -39,8 +39,6 @@ Bám phase-8/11 §6. Quy tắc chốt để implementer không làm lệch:
 | `IVR_OPERATIONAL_BLOCKED` | 409 | blocker active (do-not-call, eligibility snapshot blocked) | `TASK_BLOCKED_OPERATIONAL` |
 | `IVR_NOT_FOUND` | 404 | resource không tồn tại | — |
 | `IVR_RATE_LIMITED` | 429 | rate limit (nếu hỗ trợ) | — |
-| `IVR_ACCOUNT_CONFLICT` | 409 | Username đã từng được dùng hoặc optimistic version conflict khi quản lý account | — |
-| `IVR_ACCOUNT_POLICY_VIOLATION` | 422 | Vi phạm password/role/status, built-in admin hoặc last-active-admin invariant | — |
 | `IVR_INTERNAL_ERROR` | 500 | lỗi hệ thống (không che business) | — |
 
 > `code` là **chuỗi ổn định** (không đổi nghĩa giữa version). Admin action lỗi RBAC dùng `IVR_FORBIDDEN_CALLER` (403).

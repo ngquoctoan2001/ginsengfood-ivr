@@ -65,8 +65,6 @@ internal static class IvrErrorHttpStatus
         IvrErrorCodes.NotFound => StatusCodes.Status404NotFound,
         IvrErrorCodes.RateLimited => StatusCodes.Status429TooManyRequests,
         IvrErrorCodes.InternalError => StatusCodes.Status500InternalServerError,
-        IvrErrorCodes.AccountConflict => StatusCodes.Status409Conflict,
-        IvrErrorCodes.AccountPolicyViolation => StatusCodes.Status422UnprocessableEntity,
         _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unknown IVR error code."),
     };
 }

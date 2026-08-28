@@ -17,6 +17,7 @@ export const generatedPortalFiles = [
   "integration-guide.html",
   "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
   "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
+  "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
   "ivr-order-confirmation-v1.html",
   "ivr-order-confirmation-changelog.html",
   "order-core-ivr-callback-changelog.html",
@@ -53,6 +54,8 @@ const markdownDefinitions = [
         "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
       "api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md":
         "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
+      "api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md":
+        "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
     },
   },
   {
@@ -70,6 +73,16 @@ const markdownDefinitions = [
     source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md",
     output: "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
     title: "Archived IVR Contract Transition (draft.2 → draft.20)",
+  },
+  // W-0122. Second rotation, same reason as the one above. Deleting the account system removed
+  // eleven paths with owner approval, which the cumulative gate reports as eleven warnings --
+  // enough to hold `--fail-on WARN` red on every pipeline for a decision already made. Rotating
+  // to draft.22 restores the signal; freezing this report is what stops the rotation from
+  // erasing the removals it was rotated past.
+  {
+    source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md",
+    output: "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
+    title: "Archived IVR Contract Transition (draft.20 → draft.22)",
   },
   {
     source: "docs/api/changelog/ivr-order-confirmation.md",

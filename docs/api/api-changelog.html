@@ -22,8 +22,8 @@ and does not approve the external Sales contract.</p>
 </thead>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
-<td><code>1.0.0-draft.20</code></td>
-<td><code>1.0.0-draft.21</code></td>
+<td><code>1.0.0-draft.22</code></td>
+<td><code>1.0.0-draft.22</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>
@@ -73,7 +73,6 @@ fields that previously returned a misleading numeric zero now explicitly return
 after revalidation remains callback ACK <code>BLOCKED_BY_CORE</code> and never rewrites the
 observed customer result.</p>
 <p><code>1.0.0-draft.10</code> through <code>draft.12</code> are one combined reviewed candidate from the
-concurrent W-0105/W-0106 stream: console account/session and two-role RBAC operations,
 the OD-V1-20 runtime-gate authorization clarification, and the additive <code>voice_region</code>
 read field. The intermediate draft numbers were not committed as standalone baselines.</p>
 <p><code>1.0.0-draft.13</code> (W-0109) adds the governed script lifecycle operations and detail
@@ -112,7 +111,24 @@ unapproved breaking change would have arrived as one more red among reds.</p>
 <a href="ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html">the archived transition report</a>,
 exactly as the earlier <code>1.0.0 → draft.2</code> reset was. Neither verdict approves a deployment or the
 external Sales contract.</p>
-<p>The Sales callback report still says <code>No changes detected</code>. The previous IVR baseline is
+<p><code>1.0.0-draft.22</code> (W-0122) removes console account authentication from the contract. Eleven paths
+go: <code>POST /auth/sign-in</code>, <code>GET /auth/session</code>, <code>POST /auth/sign-out</code>, the six <code>/accounts*</code>
+operations and <code>GET /account-roles</code>, together with fifteen <code>Console*</code> schemas, the <code>AccountId</code>
+parameter and the <code>ConsoleAccountError</code> response. IVR no longer issues or stores identities —
+Module 3 owns the operator console and reaches this service as a peer, with three tier tokens and
+<code>X-Service-Scope</code>/<code>X-Actor-Id</code>/<code>X-Action-Reason</code> headers. The full wire contract is
+<code>integration-requirements/06-module-3-api-handover.md</code> §4A (trong repo IVR, ngoài portal này).</p>
+<p>W-0122 rotated the IVR comparison baseline a second time, from <code>1.0.0-draft.20</code> to
+<code>1.0.0-draft.22</code>, for the same reason W-0124 rotated the first one. Removing eleven paths is
+eleven <code>api path removed without deprecation</code> warnings, and <code>--fail-on WARN</code> would have stayed red
+on every pipeline for a removal the owner had already ordered. The closed window is frozen rather
+than deleted: the full <code>draft.20 → draft.22</code> comparison is preserved in
+<a href="ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html">the archived transition report</a>.</p>
+<p>A reader who wants the whole removal history now reads three archived reports in sequence —
+<code>1.0.0 → draft.2</code>, <code>draft.2 → draft.20</code>, <code>draft.20 → draft.22</code> — plus the live incremental report.
+That chain is the audit trail; the live gate only answers &quot;has anything broken since the last
+approved rotation&quot;.
+The Sales callback report still says <code>No changes detected</code>. The previous IVR baseline is
 retained at <code>baselines/ivr-order-confirmation.v1.0.0.yaml</code>; its transition to
 draft.2 contained <code>143</code> changes (<code>63</code> errors and <code>80</code> warnings) and is preserved
 in <a href="ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html">the archived transition report</a>.

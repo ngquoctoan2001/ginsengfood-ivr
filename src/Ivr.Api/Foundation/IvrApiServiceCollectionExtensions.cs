@@ -3,7 +3,6 @@ using Ivr.Api.Auth;
 using Ivr.Api.Health;
 using Ivr.Api.Middleware;
 using Ivr.Infrastructure.Auth;
-using Ivr.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
@@ -14,32 +13,12 @@ namespace Ivr.Api.Foundation;
 
 public static class IvrApiServiceCollectionExtensions
 {
-    public const string RegisterMockPermissionProviderKey =
-        "REGISTER_MOCK_PERMISSION_PROVIDER";
-
     public static IServiceCollection AddIvrApiFoundation(
         this IServiceCollection services,
         IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
-
-        string executionMode = configuration["IVR_EXECUTION_MODE"]
-            ?? configuration[$"{IvrOptions.SectionName}:{nameof(IvrOptions.ExecutionMode)}"]
-            ?? IvrOptions.MockExecutionMode;
-        bool isMock = string.Equals(
-            executionMode,
-            IvrOptions.MockExecutionMode,
-            StringComparison.OrdinalIgnoreCase);
-        bool registerMockProvider = configuration.GetValue<bool?>(
-                RegisterMockPermissionProviderKey)
-            ?? isMock;
-
-        if (registerMockProvider && !isMock)
-        {
-            throw new InvalidOperationException(
-                "The mock permission provider may only be registered in MOCK mode.");
-        }
 
         // W-0122. Bound from configuration keys rather than a section so the three secrets can
         // arrive as plain environment variables, which is how every other IVR credential is

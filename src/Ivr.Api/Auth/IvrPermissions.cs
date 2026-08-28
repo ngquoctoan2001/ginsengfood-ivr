@@ -1,9 +1,28 @@
-using System.Collections.Frozen;
-
 namespace Ivr.Api.Auth;
 
+/// <summary>
+/// The permission strings this module still writes down.
+/// <para>
+/// This is no longer an authorisation catalogue. Endpoints name a tier
+/// (<see cref="AdminPolicies"/>), and W-0122 deleted the console accounts these used to be
+/// granted to. What survives are the strings some other contract still spells out: the
+/// <c>Permission</c> stamped on every admin action, and the wire vocabulary of
+/// <c>X-Script-Permissions</c>. Nothing here grants anything.
+/// </para>
+/// </summary>
 public static class IvrPermissions
 {
+    /// <summary>
+    /// Operation names stamped into <c>AdminAction.Permission</c>. <c>InternalAdminApiService</c>
+    /// passes one alongside every mutation and refuses to persist an action whose builder chose a
+    /// different string, so these still have to match the operation they sit beside.
+    /// <para>
+    /// <see cref="QueueView"/>, <see cref="FlagRead"/> and <see cref="RuntimeGateAdmin"/> are
+    /// stamped on nothing. They survive only as the vocabulary
+    /// <c>TestAdminTokens.ScopeForPermission</c> maps to a tier, for tests that vary the
+    /// permission as a parameter rather than naming a tier. They go when those tests stop.
+    /// </para>
+    /// </summary>
     public const string QueueView = "IVR_QUEUE_VIEW";
     public const string QueuePause = "IVR_QUEUE_PAUSE";
     public const string QueueResume = "IVR_QUEUE_RESUME";
@@ -15,15 +34,19 @@ public static class IvrPermissions
     public const string RuntimeGateAdmin = "IVR_RUNTIME_GATE_ADMIN";
 
     /// <summary>
-    /// Script lifecycle (W-0109). One console permission per domain permission in
-    /// <see cref="Ivr.Domain.Scripts.ScriptPermissions"/>, deliberately not collapsed into a
-    /// single "manage scripts" grant.
+    /// Script lifecycle (W-0109). The wire values of <c>X-Script-Permissions</c>: Module 3 declares
+    /// what its actor holds, and <c>ScriptLifecycleApiService</c> maps each one onto the matching
+    /// <see cref="Ivr.Domain.Scripts.ScriptPermissions"/> entry so <c>ScriptActor.Demand</c> stays a
+    /// real check rather than a formality that always passes.
     /// <para>
-    /// Today all seven land on <c>Admin</c>, so the separation buys nothing at the role level —
-    /// the real four-eyes control is that Content and Privacy/Legal approvals must come from
-    /// two different <em>accounts</em>. Keeping them apart is what makes it possible to hand
-    /// Privacy/Legal its own role later without a migration, and it keeps this catalogue
-    /// readable against `specs/ui/04`, which names all seven.
+    /// Seven strings rather than one "manage scripts" grant. The four-eyes control is that Content
+    /// and Privacy/Legal approvals must come from two different actors; collapsing them would erase
+    /// that distinction on the wire, where it is now the only place it exists. It also keeps this
+    /// list readable against `specs/ui/04`, which names all seven.
+    /// </para>
+    /// <para>
+    /// These values are published in `integration-requirements/06-module-3-api-handover.md` §4A.5.
+    /// Renaming one is a breaking change for Module 3, not a local rename.
     /// </para>
     /// </summary>
     public const string ScriptEdit = "IVR_SCRIPT_EDIT";
@@ -35,96 +58,8 @@ public static class IvrPermissions
     public const string ScriptRetire = "IVR_SCRIPT_RETIRE";
 
     /// <summary>
-    /// Cutting a call that is already in progress (W-0111).
-    /// <para>
-    /// Granted to Operator as well as Admin. This is the risk-reducing direction, and making an
-    /// operator find an admin while a customer is being read the wrong script would be a control
-    /// that costs more than it protects.
-    /// </para>
+    /// Cutting a call that is already in progress (W-0111). Stamped on the admin action like the
+    /// queue and SIM operations above; the tier that reaches the endpoint is <c>danger</c>.
     /// </summary>
     public const string CallTerminate = "IVR_CALL_TERMINATE";
-
-    /// <summary>
-    /// The UI-07 non-production developer surface: seed loader, scenario runner and
-    /// integration-status profiles (W-0112).
-    /// <para>
-    /// One permission rather than reusing <see cref="SimEnable"/>/<see cref="SimDisable"/> as
-    /// `specs/ui/07` first proposed. Loading fixture tasks and replaying a scenario are not SIM
-    /// operations, and folding them into the SIM grants would mean an operator who may take a
-    /// faulty channel out of service could also write rows into the database.
-    /// </para>
-    /// <para>
-    /// The permission is not the control that keeps this out of production —
-    /// <see cref="Ivr.Infrastructure.Configuration.NonProductionSurface"/> is, and it refuses
-    /// whatever the caller holds.
-    /// </para>
-    /// </summary>
-    public const string DevTooling = "IVR_DEV_TOOLING";
-
-    public static IReadOnlySet<string> All { get; } = new[]
-        {
-            QueueView,
-            QueuePause,
-            QueueResume,
-            SimEnable,
-            SimDisable,
-            ManualRetry,
-            ResultReview,
-            FlagRead,
-            RuntimeGateAdmin,
-            ScriptEdit,
-            ScriptReview,
-            ScriptApproveMock,
-            ScriptApproveLab,
-            ScriptApproveContent,
-            ScriptApprovePrivacyLegal,
-            ScriptRetire,
-            CallTerminate,
-            DevTooling,
-        }
-        .ToFrozenSet(StringComparer.Ordinal);
-
-    /// <summary>
-    /// W-0105. Permissions that only a signed-in console session may ever carry.
-    /// <para>
-    /// <see cref="MockPermissionAuthenticationHandler"/> mints whatever a caller writes in
-    /// <c>X-Permissions</c>. That is an acceptable seam for the queue and SIM surfaces, whose
-    /// tests predate console login — but account administration is the surface that hands out
-    /// and resets passwords. Letting the seam mint these would make every account endpoint
-    /// reachable with no credential at all whenever <c>IVR_EXECUTION_MODE=MOCK</c>, which is
-    /// the default mode and the one development runs on.
-    /// </para>
-    /// <para>
-    /// This is the source-level half of the control; the endpoint-level half pins those routes
-    /// to <c>ConsoleSessionAuthenticationHandler</c> so the seam is never even consulted. Both
-    /// exist so a future route that forgets the pin still cannot be reached by a mock caller.
-    /// </para>
-    /// </summary>
-    public static IReadOnlySet<string> ConsoleSessionOnly { get; } = new[]
-        {
-
-            // Script lifecycle joins the account surface here for the same reason, and it is
-            // the sharper case: the mock seam mints whatever X-Permissions asks for, MOCK is
-            // the default mode, and one of these permissions signs off the wording a customer
-            // is read before pressing a key. A header that can mint IVR_SCRIPT_APPROVE_CONTENT
-            // is a header that can approve production speech with no credential at all.
-            ScriptEdit,
-            ScriptReview,
-            ScriptApproveMock,
-            ScriptApproveLab,
-            ScriptApproveContent,
-            ScriptApprovePrivacyLegal,
-            ScriptRetire,
-
-            // W-0112. The developer surface writes fixture tasks and moves SIM channels. The
-            // MOCK seam mints whatever X-Permissions asks for and MOCK is the default mode —
-            // which is also the mode every non-production deployment runs in, so this is
-            // precisely where the seam and the surface would otherwise overlap.
-            DevTooling,
-        }
-        .ToFrozenSet(StringComparer.Ordinal);
-
-    /// <summary>Whether the MOCK permission seam is allowed to mint this permission.</summary>
-    public static bool IsMockGrantable(string permission) =>
-        All.Contains(permission) && !ConsoleSessionOnly.Contains(permission);
 }

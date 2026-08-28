@@ -1,53 +1,51 @@
 # API-03 — Admin API
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/11` §5,§8; `/08` (monitoring/privacy); DF-01 (RBAC).
-Base path `/v1/ivr/order-confirmation/*`. Admin RBAC server-side; mọi POST có `reason` + `X-Actor-Id` + audit + `Idempotency-Key`.
+Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/11` §5,§8; `/08` (monitoring/privacy).
+Base path `/v1/ivr/order-confirmation/*`. Mọi POST có `reason` + `X-Actor-Id` + audit + `Idempotency-Key`.
 
+`W-0122`: IVR **không còn** phát hành hay lưu tài khoản. Không có `/auth/*`, không có `/accounts*`,
+không có session và không có role. Module 3 sở hữu identity của nhân viên và gọi sang đây bằng
+credential của service.
 
-Ivr.Api phát opaque bearer session 8 giờ và là authority cho đúng hai role
-`Admin`/`Operator`. Login failure luôn dùng generic `401 IVR_UNAUTHENTICATED`;
-không phân biệt username sai, password sai, account disabled hay locked.
+Uỷ quyền chạy theo **ba tầng**, không theo permission catalogue:
 
-| Endpoint | Method | Permission | Chức năng |
-| --- | --- | --- | --- |
-| `/auth/sign-in` | POST | anonymous + rate limit | username/password → opaque session projection |
-| `/auth/session` | GET | authenticated | resolve subject/role/permissions hiện tại |
-| `/auth/sign-out` | POST | authenticated | revoke session hiện tại |
-| `/accounts/me` | GET | `IVR_ACCOUNT_SELF_VIEW` | profile của chính subject |
-| `/accounts` | GET | `IVR_ACCOUNT_VIEW` | danh sách account |
-| `/accounts/{accountId}` | GET | `IVR_ACCOUNT_VIEW` | chi tiết account |
-| `/accounts` | POST | `IVR_ACCOUNT_MANAGE` | tạo account; username immutable/non-reusable |
-| `/accounts/{accountId}` | PATCH | `IVR_ACCOUNT_MANAGE` | sửa display name/role/status với version |
-| `/accounts/{accountId}:reset-password` | POST | `IVR_ACCOUNT_PASSWORD_RESET` | admin đặt password mới và revoke session đích |
-| `/accounts/{accountId}` | DELETE | `IVR_ACCOUNT_MANAGE` | soft-delete và revoke session đích |
-| `/account-roles` | GET | `IVR_ACCOUNT_VIEW` | hai role và permission matrix canonical |
+| Tầng | Credential | Header bắt buộc thêm |
+| --- | --- | --- |
+| `read` | `IVR_ADMIN_READ_TOKEN` | `X-Service-Scope: ivr.admin.read` |
+| `write` | `IVR_ADMIN_WRITE_TOKEN` | `X-Service-Scope: ivr.admin.write` |
+| `danger` | `IVR_ADMIN_DANGER_TOKEN` | `X-Service-Scope: ivr.admin.danger` + `X-Action-Reason` |
 
-Operator có đúng năm quyền: `IVR_QUEUE_VIEW`, `IVR_SIM_DISABLE`,
-`IVR_MANUAL_RETRY`, `IVR_ACCOUNT_SELF_VIEW`, `IVR_CALL_TERMINATE`. Admin có đúng
-22 quyền được liệt kê ở `specs/ui/08-role-permission-ui.md`. Backend luôn
-re-derive permission từ role;
-bearer request không fallback sang mock header.
+Tầng lồng nhau: `danger` ⊇ `write` ⊇ `read`. `X-Service-Scope` khai theo **tầng của token đang
+cầm**, không phải tầng endpoint yêu cầu — khai theo endpoint sẽ vỡ tính lồng nhau và bị `403`.
+`X-Actor-Id` bắt buộc trên mọi endpoint ở bảng dưới.
 
-## 1. Endpoint & permission
-| Endpoint | Method | Permission (DF-01) | Contract | Chức năng |
+Hợp đồng đầy đủ cho Module 3, kể cả các bẫy `403`, nằm ở
+[`integration-requirements/06-module-3-api-handover.md`](../../integration-requirements/06-module-3-api-handover.md) §4A.
+
+Chuỗi `IVR_SCRIPT_*` vẫn tồn tại nhưng **không còn là permission**: chúng là từ vựng trên dây của
+header `X-Script-Permissions`, do Module 3 tự khai cho từng actor. Bốn mắt vẫn do IVR cưỡng chế
+theo **danh tính** (`X-Actor-Id`), không theo quyền.
+
+## 1. Endpoint & tầng
+| Endpoint | Method | Tầng | Contract | Chức năng |
 | --- | --- | --- | --- | --- |
-| `/queue` | GET | `IVR_QUEUE_VIEW` | Queue projection (masked) | Xem queue/capacity/incident |
-| `/queue:pause` | POST | `IVR_QUEUE_PAUSE` | `AdminMutationRequest` → `IvrAdminActionResult` | Pause queue (reason/evidence) |
-| `/queue:resume` | POST | `IVR_QUEUE_RESUME` | `AdminMutationRequest` → `IvrAdminActionResult` | Resume sau khi incident resolved |
-| `/sim-channels/{simChannelId}:disable` | POST | `IVR_SIM_DISABLE` | `AdminMutationRequest` → `IvrAdminActionResult` | Disable SIM (health/failure reason) |
-| `/sim-channels/{simChannelId}:enable` | POST | `IVR_SIM_ENABLE` | `AdminMutationRequest` → `IvrAdminActionResult` | Enable SIM sau health pass |
-| `/technical-retries` | POST | `IVR_MANUAL_RETRY` | `TechnicalRetryRequest` → `IvrTechnicalRetryResult` | Request technical retry (không tăng customer attempt) |
-| `/admin-reviews` | POST | `IVR_RESULT_REVIEW` | `AdminReviewRequest` → `IvrAdminReviewResult` | Ghi review/annotation |
-| `/scripts/{templateId}/{version}` | GET | `IVR_QUEUE_VIEW` | `IvrScriptVersionDetail` | Một phiên bản ở mọi trạng thái, gồm cả bản nháp |
-| `/scripts` | POST | `IVR_SCRIPT_EDIT` | `IvrScriptDraftRequest` → `IvrScriptActionResult` | Tạo bản nháp; `/scripts/` vẫn là alias tương thích runtime; phiên bản là bất biến sau khi tạo |
-| `/scripts/{templateId}/{version}:submit` | POST | `IVR_SCRIPT_REVIEW` | `IvrScriptTransitionRequest` | Chuyển bản nháp sang chờ duyệt |
-| `/scripts/{templateId}/{version}:approve` | POST | `IVR_SCRIPT_APPROVE_*` theo `approval_type` | `IvrScriptApprovalRequest` | Ghi một chữ ký duyệt |
-| `/scripts/{templateId}/{version}:retire` | POST | `IVR_SCRIPT_RETIRE` | `IvrScriptTransitionRequest` | Thu hồi; fail-closed mọi chế độ, không xoá |
-| `/call-jobs/{ivrCallJobId}:terminate` | POST | `IVR_CALL_TERMINATE` | `AdminMutationRequest` → `IvrAdminActionResult` | Cắt cuộc đang chạy; `409` nếu không có cuộc nào đang chạy |
-| `/call-jobs:terminate-all` | POST | `IVR_CALL_TERMINATE` | `AdminMutationRequest` → `IvrAdminActionResult` | Cắt mọi cuộc đang chạy; hành động riêng, không gộp vào kill switch |
-| `/dev/seed:load` | POST | `IVR_DEV_TOOLING` | `IvrSeedLoadRequest` → `IvrSeedLoadResult` | **Chỉ non-prod.** Production không đăng ký route ⇒ `404` |
-| `/dev/scenarios/{scenarioId}:dry-run` | POST | `IVR_DEV_TOOLING` | `AdminMutationRequest` → `IvrScenarioDryRunResult` | **Chỉ non-prod.** Không phát cuộc gọi nào |
-| `/dev/integration-profiles/{profileId}:apply` | POST | `IVR_DEV_TOOLING` | `AdminMutationRequest` → `IvrIntegrationProfileResult` | **Chỉ non-prod.** Chỉ `SIM_GATEWAY` được thi hành |
+| `/queue` | GET | `read` | Queue projection (masked) | Xem queue/capacity/incident |
+| `/queue:pause` | POST | `danger` | `AdminMutationRequest` → `IvrAdminActionResult` | Pause queue (reason/evidence) |
+| `/queue:resume` | POST | `danger` | `AdminMutationRequest` → `IvrAdminActionResult` | Resume sau khi incident resolved |
+| `/sim-channels/{simChannelId}:disable` | POST | `danger` | `AdminMutationRequest` → `IvrAdminActionResult` | Disable SIM (health/failure reason) |
+| `/sim-channels/{simChannelId}:enable` | POST | `danger` | `AdminMutationRequest` → `IvrAdminActionResult` | Enable SIM sau health pass |
+| `/technical-retries` | POST | `danger` | `TechnicalRetryRequest` → `IvrTechnicalRetryResult` | Request technical retry (không tăng customer attempt) |
+| `/admin-reviews` | POST | `write` | `AdminReviewRequest` → `IvrAdminReviewResult` | Ghi review/annotation |
+| `/scripts/{templateId}/{version}` | GET | `read` | `IvrScriptVersionDetail` | Một phiên bản ở mọi trạng thái, gồm cả bản nháp |
+| `/scripts` | POST | `write` | `IvrScriptDraftRequest` → `IvrScriptActionResult` | Tạo bản nháp; `/scripts/` vẫn là alias tương thích runtime; phiên bản là bất biến sau khi tạo |
+| `/scripts/{templateId}/{version}:submit` | POST | `write` | `IvrScriptTransitionRequest` | Chuyển bản nháp sang chờ duyệt |
+| `/scripts/{templateId}/{version}:approve` | POST | `write` + `X-Script-Permissions` chứa `IVR_SCRIPT_APPROVE_*` theo `approval_type` | `IvrScriptApprovalRequest` | Ghi một chữ ký duyệt |
+| `/scripts/{templateId}/{version}:retire` | POST | `write` + `X-Script-Permissions` chứa `IVR_SCRIPT_RETIRE` | `IvrScriptTransitionRequest` | Thu hồi; fail-closed mọi chế độ, không xoá |
+| `/call-jobs/{ivrCallJobId}:terminate` | POST | `danger` | `AdminMutationRequest` → `IvrAdminActionResult` | Cắt cuộc đang chạy; `409` nếu không có cuộc nào đang chạy |
+| `/call-jobs:terminate-all` | POST | `danger` | `AdminMutationRequest` → `IvrAdminActionResult` | Cắt mọi cuộc đang chạy; hành động riêng, không gộp vào kill switch |
+| `/dev/seed:load` | POST | `write` | `IvrSeedLoadRequest` → `IvrSeedLoadResult` | **Chỉ non-prod.** Production không đăng ký route ⇒ `404` |
+| `/dev/scenarios/{scenarioId}:dry-run` | POST | `write` | `AdminMutationRequest` → `IvrScenarioDryRunResult` | **Chỉ non-prod.** Không phát cuộc gọi nào |
+| `/dev/integration-profiles/{profileId}:apply` | POST | `write` | `AdminMutationRequest` → `IvrIntegrationProfileResult` | **Chỉ non-prod.** Chỉ `SIM_GATEWAY` được thi hành |
 
 ### Lối phát triển non-prod (W-0112) — vì sao `404` chứ không `403`
 
@@ -91,17 +89,20 @@ nửa còn lại của cặp production. Bấm lại không đổi được đi�
 
 Trả `409` cho vế đầu sẽ đẩy người vận hành đi bấm lại, trong khi việc cần làm là đi tìm đồng nghiệp.
 
-Bốn route mutation được ghim vào **console session scheme**. Seam quyền MOCK (`X-Permissions`)
-mint bất cứ quyền nào được yêu cầu, MOCK là chế độ mặc định, và một trong các quyền này ký duyệt
-lời thoại đọc cho khách nghe — nên seam đó không được chạm tới chúng.
-| `/feature-flags/{environment}` | GET | `IVR_FLAG_READ` | `FeatureFlagReadResult` | Đọc fresh typed snapshot; provider lỗi trả fail-closed |
-| `/feature-flags/{environment}/kill-switch` | GET | `IVR_FLAG_READ` | `KillSwitchVerification` | Xác minh revision và trạng thái kill switch effective |
-| `/feature-flags/{environment}` | POST | `IVR_RUNTIME_GATE_ADMIN` *(OD-V1-20 duyệt 2026-08-22 — cấp cho `Admin`)* | `FeatureFlagMutationRequest` | Mutation atomic, reason, idempotency, audit và four-eyes theo chiều rủi ro |
+Bốn route mutation kịch bản chạy ở tầng `write`. Seam quyền MOCK (`X-Permissions`) đã bị gỡ cùng
+`W-0122`; thứ thay nó là `X-Script-Permissions`, do Module 3 khai và IVR ghi nhận — nhưng bốn mắt
+vẫn cưỡng chế theo `X-Actor-Id`, nên một actor tự khai đủ bảy quyền vẫn không ký được cả hai nửa của cặp duyệt production.
+
+| Endpoint | Method | Tầng | Contract | Chức năng |
+| --- | --- | --- | --- | --- |
+| `/feature-flags/{environment}` | GET | `read` | `FeatureFlagReadResult` | Đọc fresh typed snapshot; provider lỗi trả fail-closed |
+| `/feature-flags/{environment}/kill-switch` | GET | `read` | `KillSwitchVerification` | Xác minh revision và trạng thái kill switch effective |
+| `/feature-flags/{environment}` | POST | `danger` + `Idempotency-Key` *(OD-V1-20 duyệt 2026-08-22)* | `FeatureFlagMutationRequest` | Mutation atomic, reason, idempotency, audit và four-eyes theo chiều rủi ro |
 
 ## 2. Ràng buộc admin action (P0)
-Mỗi POST phải có: authenticated actor (`X-Actor-Id`), permission server-side, `reason`, `target_type`+`target_id`, audit record, evidence ref nếu ảnh hưởng queue/SIM/retry/result, `no_policy_bypass=true`.
+Mỗi POST phải có: `X-Actor-Id`, tầng đủ mạnh cho endpoint, `reason`, `target_type`+`target_id`, audit record, evidence ref nếu ảnh hưởng queue/SIM/retry/result, `no_policy_bypass=true`.
 
-P2-8 thực thi `X-Actor-Id == authenticated NameIdentifier`; mỗi mutation commit business state + `ivr_admin_actions` + append-only `ivr_audit_log` trong cùng transaction, gồm `before/after`, permission, correlation và `no_policy_bypass=true`.
+`X-Actor-Id` là **nguồn**, không còn được đối chiếu với chủ thể phiên đăng nhập — `W-0122` xoá phiên đó và Module 3 khai actor theo từng request. IVR kiểm header có mặt, ≤ 128 ký tự, qua bộ lọc PII, rồi ghi thẳng vào audit. Mỗi mutation commit business state + `ivr_admin_actions` + append-only `ivr_audit_log` trong cùng transaction, gồm `before/after`, tên thao tác, correlation và `no_policy_bypass=true`.
 
 Admin **KHÔNG** được:
 - Gọi khách ngoài attempt policy (D-10) hoặc reset customer attempt count.
@@ -124,13 +125,13 @@ Admin **KHÔNG** được:
 - Dev dùng mock channels; lab ban đầu có 1 SIM thật và destination allowlist; production target 32 eSIM channels. Channel count là config. UI/API phải hiển thị mode/provider và không được bật real call permission chỉ vì channel được enable.
 
 ## Báo cáo (admin)
-- **10 endpoint admin** (3 GET + 7 POST), mỗi cái map 1 permission `IVR_*`. Ba endpoint feature-flag do P0-4 bổ sung; quyền mutation `IVR_RUNTIME_GATE_ADMIN` được cấp cho role `Admin` từ 2026-08-22 (`OD-V1-20`), nhưng endpoint **vẫn fail-closed** ở tầng sau: `IRuntimeGateAuthorization` (bản production luôn `false`) trả `409 IVR_OPERATIONAL_BLOCKED`. Không endpoint nào cho phép force order/bypass blocker.
+- **10 endpoint admin** (3 GET + 7 POST) chia theo ba tầng ở §1. Ba endpoint feature-flag do P0-4 bổ sung; mutation feature flag nằm ở tầng `danger` (`OD-V1-20`, 2026-08-22), nhưng endpoint **vẫn fail-closed** ở tầng sau: `IRuntimeGateAuthorization` (bản production luôn `false`) trả `409 IVR_OPERATIONAL_BLOCKED`. Không endpoint nào cho phép force order/bypass blocker.
 
 ## Runtime-gate controls — bất đối xứng theo chiều an toàn
 
-`OD-V1-20` (duyệt 2026-08-22, owner module IVR) cấp quyền `IVR_RUNTIME_GATE_ADMIN` cho role `Admin`; chữ ký four-eyes của Security/Platform + Release owner vẫn còn thiếu. Permission không còn chặn ai, nhưng `IRuntimeGateAuthorization` thì có — mọi mutation hiện trả `409` trước khi tới các quy tắc dưới đây. Khi lớp đó được mở, những quy tắc này **là** biện pháp kiểm soát, không phải lớp phụ:
+`OD-V1-20` (duyệt 2026-08-22, owner module IVR) đặt mutation runtime-gate vào tầng `danger`; chữ ký four-eyes của Security/Platform + Release owner vẫn còn thiếu. Tầng không chặn ai khi Module 3 cầm đúng token, nhưng `IRuntimeGateAuthorization` thì có — mọi mutation hiện trả `409` trước khi tới các quy tắc dưới đây. Khi lớp đó được mở, những quy tắc này **là** biện pháp kiểm soát, không phải lớp phụ:
 
-- **Chiều giảm rủi ro luôn được phép** ở mọi environment: bật `globalDialKillSwitch`, thu hẹp/làm rỗng `labDestinationAllowlist`, đặt `realCustomerCallAllowed=false`. Chỉ cần permission + `reason` + audit; **không** four-eyes, **không** chờ deployment. Một kill switch không bật được trong sự cố là kill switch hỏng.
+- **Chiều giảm rủi ro luôn được phép** ở mọi environment: bật `globalDialKillSwitch`, thu hẹp/làm rỗng `labDestinationAllowlist`, đặt `realCustomerCallAllowed=false`. Chỉ cần token tầng `danger` + `X-Actor-Id` + `reason` + audit; **không** four-eyes, **không** chờ deployment. Một kill switch không bật được trong sự cố là kill switch hỏng.
 - **Chiều tăng rủi ro luôn bị gate**: tắt kill switch, mở rộng allowlist → four-eyes + `reason`; ở `PRODUCTION_REAL` chỉ qua deployment có approval (P7-3/P9-1). `realCustomerCallAllowed=true` chỉ qua P9-1 sau DF-03. `v1NotificationEnabled`/`recordingEnabled` bật lên bị từ chối ở mọi mode.
 - Không đọc được trạng thái kill switch ⇒ coi như **ON** (fail-closed).
 - Actor thực hiện call không được tự mở rộng allowlist cho đích mình sắp gọi.

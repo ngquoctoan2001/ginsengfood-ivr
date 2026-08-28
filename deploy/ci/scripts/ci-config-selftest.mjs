@@ -298,18 +298,18 @@ const sourceErrorCodes = extractMatches(
   await fs.readFile(path.join(repositoryRoot, "src/Ivr.Domain/Errors/IvrErrorCodes.cs"), "utf8"),
   /public const string \w+ = "(?<code>IVR_[A-Z0-9_]+)";/gu,
 );
-const legacyOpenApiErrorCodes = ivrOpenApi.components?.schemas?.ErrorCode?.enum ?? [];
-const openApiErrorCodes =
-  ivrOpenApi.components?.schemas?.ConsoleAccountErrorCode?.enum ?? [];
+// W-0122. One catalogue again, not two. `ConsoleAccountErrorCode` existed so the account API
+// could add codes without touching the enum every older operation already referenced; deleting
+// that API deleted the reason for the split, and the two account-only codes went with it —
+// 18 down to 16. The parity check is what matters and it is unchanged: the spec, `API-06` and
+// `IvrErrorCodes.cs` must name the same set, so a code added to any one of them fails here until
+// it reaches the other two.
+const openApiErrorCodes = ivrOpenApi.components?.schemas?.ErrorCode?.enum ?? [];
 assert(
-  documentedErrorCodes.length === 18,
-  `Stable error catalog must contain 18 codes; found ${documentedErrorCodes.length}.`,
+  documentedErrorCodes.length === 16,
+  `Stable error catalog must contain 16 codes; found ${documentedErrorCodes.length}.`,
 );
 assertSameSet(openApiErrorCodes, documentedErrorCodes, "CT-CI-10 OpenAPI/API-06 parity");
-assert(
-  legacyOpenApiErrorCodes.every((code) => openApiErrorCodes.includes(code)),
-  "CT-CI-10 console error catalog must remain a superset of the legacy catalog.",
-);
 assertSameSet(sourceErrorCodes, documentedErrorCodes, "CT-CI-10 source/API-06 parity");
 
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");

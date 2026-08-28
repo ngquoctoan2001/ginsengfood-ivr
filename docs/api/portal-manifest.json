@@ -12,6 +12,7 @@
     "integration-guide.html",
     "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
     "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
+    "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
     "ivr-order-confirmation-v1.html",
     "ivr-order-confirmation-changelog.html",
     "order-core-ivr-callback-changelog.html",
@@ -20,17 +21,18 @@
     "styles.css"
   ],
   "sourceHashes": {
-    "docs/api-changelog.md": "cdadf5289301c4059d8a9c9a91222c0389227b95b1eba1529159991021b8fd6f",
+    "docs/api-changelog.md": "5579ed1c533ad777e578b510239fde8fd22c8a4cc9fa14a1fd97369f7b80b19c",
     "docs/api-versioning.md": "bef9515401e0baf6926d3e5f3d0ddcd00004cb327974897cb113f787e737114d",
-    "docs/api/changelog/ivr-order-confirmation.md": "6e1f659f6ee0e844a73bc38f7c953c2ef47f7c1e8db8730a5bf4f9eca591d4c6",
+    "docs/api/changelog/ivr-order-confirmation.md": "aa839bec9856bcb02b1e670feea1f8a146bb65396c2ff5d5afef635c4f456ceb",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md": "8e17896e944e0a50bf9a83798e694bb1893ed6e4f7e118aebfe8224780e2c935",
+    "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md": "59335a78951c3de1af4d58ef249260380309021a38bef4e417a64ba0114bf036",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md": "92ff570d5dfe289506afd14b140b300e200f242fa6e60bdf32821579a2c4fe70",
     "docs/api/changelog/order-core-ivr-callback.md": "4e56a793bb3678e8370adff99885a2241bb87d5f0615b01e62e9d2cb392d14f1",
     "docs/integration-guide.md": "4154153d7fe61e10531d12820497a2384858957519f3fcc4aa28aca133f7f104",
     "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
     "specs/api/openapi/changelog-baseline.json": "33f86a25d7b4d186a24fb6da6c007ae04e5904f46eedc2c223e536b5f1a519fb",
-    "specs/api/openapi/contract-manifest.json": "f2b9e3a631efc05650bed60d8a64d1b1c66e9bb2ebf91a83c6e0b7c3d9b5ae36",
-    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "1ee23809c0c09b6785edf17ce6f30a5db3a334c3ee68d826829f093c5c97dc36",
+    "specs/api/openapi/contract-manifest.json": "361d756571bf0d48e28e3ddda86eaece98358c394973666e63392950ccb6a2a8",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "d61a448e6ad3b025a8578192def095041eea0c8b345a6986eadcbd2afb3d086e",
     "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697"
   }
 }

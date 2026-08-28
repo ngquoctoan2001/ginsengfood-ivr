@@ -13,17 +13,20 @@ import styles from "./ConsoleNav.module.css";
 import { NavIcon, type NavIconName } from "./NavIcon";
 
 /**
- * A route is shown either because the session carries a permission the route actually uses, or
- * because the route is Admin-only.
+ * A route is shown either because the viewer holds a permission the route actually uses, or
+ * because the route is admin-only.
  *
- * The admin-only entries previously borrowed `IVR_ACCOUNT_VIEW` as a stand-in for "is an admin".
- * It worked only because that permission happens to be Admin-only today: grant it to a future
- * support role and reports, config and seed would appear in their sidebar for no stated reason.
- * The server pages behind these routes gate on `requireAdmin()`, and the API gates them with
- * `IvrRoles.ConsoleAdminPolicy` — so the nav now states the same rule those two state.
+ * W-0122 left this as a rendering rule and nothing more. There is no session and no role behind
+ * it any more — the API decides by credential tier, and will refuse an action this nav happened
+ * to reveal. What the rule still buys is that a screen is not offered to someone whose console
+ * cannot use it, which is exactly the job Module 3's own nav will have.
  *
- * `/profile` is not in this list: it describes the actor rather than the work, so it is reached
- * by clicking the account card in the rail's footer.
+ * The admin-only entries once borrowed `IVR_ACCOUNT_VIEW` as a stand-in for "is an admin". That
+ * worked only while the permission happened to be admin-only, and the account system it came from
+ * is gone; naming the intent directly is what survives a permission model changing owner.
+ *
+ * `/accounts`, `/roles` and `/profile` are not in this list because those screens no longer
+ * exist: Module 3 owns operator identity, so the console has nothing to show about it.
  */
 type NavItem = {
   readonly href: string;
@@ -40,8 +43,6 @@ const NAV_ITEMS: readonly NavItem[] = [
   { href: "/integration", label: t("nav.integration"), icon: "integration", adminOnly: true },
   { href: "/flags", label: t("nav.flags"), icon: "flags", adminOnly: true },
   { href: "/seed", label: t("nav.seed"), icon: "seed", adminOnly: true },
-  { href: "/accounts", label: t("nav.accounts"), icon: "roles", adminOnly: true },
-  { href: "/roles", label: t("nav.roles"), icon: "roles", adminOnly: true },
 ];
 
 export interface ConsoleNavProps {

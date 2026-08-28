@@ -8,10 +8,17 @@ namespace Ivr.Api.Admin;
 /// <summary>
 /// Script lifecycle transitions (W-0109).
 /// <para>
-/// Every route is pinned to the console session scheme rather than left on the default. The
-/// MOCK permission seam mints whatever <c>X-Permissions</c> asks for, MOCK is the default mode,
-/// and one of these permissions signs off the wording a customer is read before pressing a key.
-/// A route that forgot this pin would be an approval endpoint reachable with no credential.
+/// Every route sits on the admin token scheme: reading a version needs the read tier, the four
+/// transitions need write. The tier is not the interesting control here. One of these routes
+/// signs off the wording a customer is read before pressing a key, and a tier cannot express
+/// "two different people" — so the approval itself is decided further in, by
+/// <see cref="Ivr.Domain.Scripts.ScriptActor"/> against the <c>X-Actor-Id</c> Module 3 asserts.
+/// </para>
+/// <para>
+/// W-0122 removed the MOCK permission seam that used to mint whatever <c>X-Permissions</c> asked
+/// for. What replaced it is <c>X-Script-Permissions</c>, which Module 3 self-asserts — so it is a
+/// declaration, not a credential, and the four-eyes rules deliberately do not rest on it: an
+/// actor claiming all seven approvals still cannot sign both halves of a production pair.
 /// </para>
 /// </summary>
 public static class ScriptLifecycleEndpoints

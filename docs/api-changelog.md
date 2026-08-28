@@ -12,7 +12,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.20` | `1.0.0-draft.21` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.22` | `1.0.0-draft.22` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,
@@ -108,6 +108,26 @@ What keeps the rotation auditable is that the closed window is frozen, not delet
 exactly as the earlier `1.0.0 → draft.2` reset was. Neither verdict approves a deployment or the
 external Sales contract.
 
+
+`1.0.0-draft.22` (W-0122) removes console account authentication from the contract. Eleven paths
+go: `POST /auth/sign-in`, `GET /auth/session`, `POST /auth/sign-out`, the six `/accounts*`
+operations and `GET /account-roles`, together with fifteen `Console*` schemas, the `AccountId`
+parameter and the `ConsoleAccountError` response. IVR no longer issues or stores identities —
+Module 3 owns the operator console and reaches this service as a peer, with three tier tokens and
+`X-Service-Scope`/`X-Actor-Id`/`X-Action-Reason` headers. The full wire contract is
+`integration-requirements/06-module-3-api-handover.md` §4A (trong repo IVR, ngoài portal này).
+
+W-0122 rotated the IVR comparison baseline a second time, from `1.0.0-draft.20` to
+`1.0.0-draft.22`, for the same reason W-0124 rotated the first one. Removing eleven paths is
+eleven `api path removed without deprecation` warnings, and `--fail-on WARN` would have stayed red
+on every pipeline for a removal the owner had already ordered. The closed window is frozen rather
+than deleted: the full `draft.20 → draft.22` comparison is preserved in
+[the archived transition report](api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md).
+
+A reader who wants the whole removal history now reads three archived reports in sequence —
+`1.0.0 → draft.2`, `draft.2 → draft.20`, `draft.20 → draft.22` — plus the live incremental report.
+That chain is the audit trail; the live gate only answers "has anything broken since the last
+approved rotation".
 The Sales callback report still says `No changes detected`. The previous IVR baseline is
 retained at `baselines/ivr-order-confirmation.v1.0.0.yaml`; its transition to
 draft.2 contained `143` changes (`63` errors and `80` warnings) and is preserved

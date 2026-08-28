@@ -55,40 +55,23 @@ function requiredOf(schema: string): string[] {
  * changing the contract breaks the comparison.
  */
 describe("UT-UI-CONTRACT-06 OpenAPI drift", () => {
-  it("mirrors the console error-code superset exactly", () => {
-    expect([...IVR_ERROR_CODES].sort()).toEqual(
-      [
-        ...(openapi.components.schemas.ConsoleAccountErrorCode.enum as string[]),
-      ].sort(),
-    );
-  });
-
   /**
-   * `ConsoleAccountErrorCode` was introduced as a superset so the pre-existing endpoint response
-   * enums would not have to change, and the assertion above moved onto it. That left `ErrorCode`
-   * — still referenced by `ErrorEnvelope` and therefore by every operation written before the
-   * console API — with no drift guard at all: a code could be added there and never reach the
-   * TypeScript mirror, and nothing would fail.
+   * W-0122. This used to compare the mirror against `ConsoleAccountErrorCode`, a superset the
+   * account API introduced so the older endpoint enums would not have to change. Deleting that
+   * API deleted the superset, and with it the reason the catalogue was ever split — so the guard
+   * moves back onto `ErrorCode`, which `ErrorEnvelope` and every operation actually reference.
    *
-   * These two assertions restore the guard and pin the relationship between the enums, so the
-   * split stays a deliberate superset rather than two catalogues drifting apart.
+   * Equality in both directions, not containment. A code in the spec that never reaches the
+   * mirror is a response the console cannot name; a code in the mirror that no longer exists in
+   * the spec is what `IVR_ACCOUNT_CONFLICT` and `IVR_ACCOUNT_POLICY_VIOLATION` had just become,
+   * and a one-directional assertion would have kept both indefinitely.
    */
-  it("keeps every legacy ErrorCode in the TypeScript mirror", () => {
-    const legacy = openapi.components.schemas.ErrorCode.enum as string[];
-    expect(legacy.length).toBeGreaterThan(0);
-    expect([...legacy].sort()).toEqual(
-      [...legacy].filter((code) => (IVR_ERROR_CODES as readonly string[]).includes(code)).sort(),
-    );
+  it("mirrors the OpenAPI error-code catalogue exactly", () => {
+    const declared = openapi.components.schemas.ErrorCode.enum as string[];
+    expect(declared.length).toBeGreaterThan(0);
+    expect([...IVR_ERROR_CODES].sort()).toEqual([...declared].sort());
   });
 
-  it("keeps ConsoleAccountErrorCode a strict superset of ErrorCode", () => {
-    const legacy = new Set(openapi.components.schemas.ErrorCode.enum as string[]);
-    const console = openapi.components.schemas.ConsoleAccountErrorCode.enum as string[];
-    const missing = [...legacy].filter((code) => !console.includes(code));
-
-    expect(missing).toEqual([]);
-    expect(console.length).toBeGreaterThan(legacy.size);
-  });
 
   it("mirrors AdminMutationRequest", () => {
     const sample: AdminMutationRequest = { reason: "capacity incident" };
@@ -321,7 +304,6 @@ function reachablePaths(): string[] {
   const sources = [
     repoFile("admin-ui/src/lib/api/admin.ts"),
     repoFile("admin-ui/src/lib/analytics/client.ts"),
-    repoFile("admin-ui/src/lib/api/accounts.ts"),
   ].join("\n");
 
   const paths = new Set<string>();
@@ -365,14 +347,31 @@ function collapseInterpolations(template: string): string {
 }
 
 describe("RBAC vocabulary drift", () => {
-  it("mirrors IvrPermissions.cs", () => {
+  /**
+   * W-0122. Containment, not equality — the two lists stopped being the same list.
+   *
+   * `IvrPermissions.cs` now holds only strings the service itself still writes down: the
+   * operation name stamped on each admin action, and the `X-Script-Permissions` wire vocabulary.
+   * The console keeps a slightly larger vocabulary because it also gates what it *draws*, and
+   * `IVR_DEV_TOOLING` is the live example — the seed screen hides its buttons behind that name,
+   * while the API gates those routes by tier plus a non-production route registration and never
+   * needs the string.
+   *
+   * Asserting equality would force one of two wrong fixes: reviving a constant nothing stamps, or
+   * dropping a name a screen still renders against. Containment keeps the part that matters — a
+   * permission the service names must be one the console knows — and lets the console hold more.
+   */
+  it("knows every permission IvrPermissions.cs still names", () => {
     const source = repoFile("src/Ivr.Api/Auth/IvrPermissions.cs");
     const declared = [...source.matchAll(/public const string \w+ = "(IVR_[A-Z_]+)";/g)].map(
       (match) => match[1],
     );
 
     expect(declared.length).toBeGreaterThan(0);
-    expect([...IVR_PERMISSIONS].sort()).toEqual([...declared].sort());
+    const known = new Set<string>(IVR_PERMISSIONS);
+    const unknown = declared.filter((permission) => !known.has(permission));
+    expect(unknown, "IvrPermissions.cs names a permission the console cannot map to a tier")
+      .toEqual([]);
   });
 
 

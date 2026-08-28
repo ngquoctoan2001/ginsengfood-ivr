@@ -306,8 +306,6 @@ const COVERED: Readonly<Record<string, readonly (keyof typeof enums)[]>> = {
   dimension: ["analyticsDimension"],
   program: ["programType"],
   ProgramCode: ["programType"],
-  ConsoleRole: ["accountRole"],
-  ConsoleAccountStatus: ["accountStatus"],
   result_type: ["resultType"],
 
   // W-0109 script lifecycle. `items` is the element enum of `approved_for_modes`,
@@ -344,7 +342,6 @@ const EXEMPT: Readonly<Record<string, string>> = {
   "ivr-order-confirmation.v1": "contract id, never rendered",
   environment: "deployment target, shown as-is in ops tooling",
   ErrorCode: "translated through vi.json error.* keys, not the enum dictionary",
-  ConsoleAccountErrorCode: "translated through vi.json error.* keys",
   order_state: "NT-3 — opaque enum owned by Order Core (D-02)",
   ivr_confirmation_required: "boolean literal constraint, not a value set",
   input_signal_only: "boolean literal constraint",
