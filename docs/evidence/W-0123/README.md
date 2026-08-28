@@ -200,8 +200,8 @@ tạo ngoài baseline đã được loại khỏi worktree.
 
 | Gate | Trạng thái | Lý do |
 | --- | --- | --- |
-| M3 producer/consumer usage + sign-off | `OWNER_DATA_REQUIRED` | Chưa có commit/OpenAPI/runtime capture hoặc chữ ký M3 |
-| Target/staging/production DB preflight | `ENV_BLOCKED` | Không có endpoint/credential; local chỉ có DB project khác |
+| M3 producer/consumer usage + sign-off | `OWNER_DATA_REQUIRED` | Chưa có commit/OpenAPI/runtime capture hoặc chữ ký M3. Phiếu để M3 trả lời: `plan/ivr-orther/questions-to-module-3-od18-authority.md` (`W-0125`) |
+| Target/staging/production DB preflight | `ENV_BLOCKED` | Không có endpoint/credential; local chỉ có DB project khác. Query đã sẵn và được CI chạy: `tools/ops/od18-legacy-skip-preflight.sql` (`W-0125`) |
 | Cumulative oasdiff baseline | `PREEXISTING_GATE_FAILURE` | OD-17 đã remove `sellable_status` từ draft.20 |
 | Hosted GitLab CI | `NOT_RUN` | Không push/không có pipeline trong authority lượt này |
 | Real customer call | `NO` | Không cần cho W-0123 và không được mở bởi work này |

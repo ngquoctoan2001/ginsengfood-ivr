@@ -437,6 +437,150 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         Assert.Equal("SKIPPED", storedJob.QueueStatus);
     }
 
+    [Fact]
+    [Trait("TestId", "IT-M3-AUTHORITY-13")]
+    public async Task ThePreflightSqlRunsOnTheRealSchemaAndCountsTheRetiredShape()
+    {
+        // W-0125. tools/ops/od18-legacy-skip-preflight.sql is the query somebody will run against a
+        // production database the day credentials exist. Checked-in SQL that has never touched the
+        // real schema is a promise, not a tool: a wrong column name or a text-vs-jsonb comparison
+        // would surface at the worst moment, on the environment that matters, to whoever inherited
+        // it. Running it here against the migrated schema makes every future edit to it a test
+        // subject, and pins its predicate to the runtime counter's.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+
+        // One row of trusted-skip history, exactly as an OD-15 deployment would have left it.
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-M3-PREFLIGHT-HISTORY",
+            "JOB-M3-PREFLIGHT-HISTORY",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY",
+            eligibilitySnapshotJson: """
+                {"decision":"ELIGIBLE","source_version":"sales-eligibility-v1",
+                 "captured_at":"2026-08-13T06:59:00+00:00","source_available":true,
+                 "blockers":[],"trust":{"risk_evidence_available":true}}
+                """,
+            customerTrustStatus: "TRUSTED",
+            trustedSkipAllowed: true,
+            riskFlagsJson: "[]");
+        await using (IvrDbContext writer = await factory.CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = await writer.ConfirmationTasks.SingleAsync(
+                item => item.TaskId == "TASK-M3-PREFLIGHT-HISTORY");
+            CallJobEntity job = await writer.CallJobs.SingleAsync(
+                item => item.TaskId == "TASK-M3-PREFLIGHT-HISTORY");
+            task.EligibilityDecision = "TASK_SKIPPED_TRUSTED_CUSTOMER";
+            job.EligibilityDecision = "TASK_SKIPPED_TRUSTED_CUSTOMER";
+            job.Status = "SKIPPED";
+            job.QueueStatus = "SKIPPED";
+            await writer.SaveChangesAsync();
+        }
+
+        // A task carrying the retired shape but never skipped, and a risk-flagged one. Together
+        // they stop every count collapsing into "one row matches everything".
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-M3-PREFLIGHT-SHAPE-ONLY",
+            "JOB-M3-PREFLIGHT-SHAPE-ONLY",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY",
+            eligibilitySnapshotJson: """
+                {"decision":"ELIGIBLE","source_version":"sales-eligibility-v1",
+                 "captured_at":"2026-08-13T06:59:00+00:00","source_available":true,
+                 "blockers":[],"trust":{"risk_evidence_available":true}}
+                """,
+            riskFlagsJson: "[]");
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-M3-PREFLIGHT-RISK-FLAGGED",
+            "JOB-M3-PREFLIGHT-RISK-FLAGGED",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY",
+            eligibilitySnapshotJson: """
+                {"decision":"ELIGIBLE","source_version":"sales-eligibility-v1",
+                 "captured_at":"2026-08-13T06:59:00+00:00","source_available":true,
+                 "blockers":[],"trust":{"risk_evidence_available":true}}
+                """,
+            riskFlagsJson: """["COD_FAIL_HISTORY"]""");
+
+        Dictionary<string, string?> metrics = await RunPreflightAsync(factory);
+
+        Assert.Equal("1", metrics["tasks_with_retired_decision"]);
+        Assert.Equal("1", metrics["jobs_with_retired_decision"]);
+        Assert.Equal("1", metrics["jobs_in_skipped_status"]);
+        Assert.Equal("1", metrics["jobs_skipped_status_from_trusted_skip"]);
+        Assert.Equal("1", metrics["tasks_with_trusted_skip_allowed_sent"]);
+        Assert.Equal("1", metrics["tasks_with_customer_trust_status_sent"]);
+
+        // The row with a risk flag is excluded, exactly as the runtime counter excludes it.
+        Assert.Equal("2", metrics["tasks_matching_retired_skip_shape"]);
+        Assert.NotNull(metrics["retired_decision_first_seen"]);
+    }
+
+    /// <summary>
+    /// Executes the checked-in preflight against the migrated test schema. The psql meta-commands
+    /// are dropped rather than emulated — they only frame the output for a human reading a
+    /// terminal, and a test that needed them would be testing psql instead of the query.
+    /// </summary>
+    private static async Task<Dictionary<string, string?>> RunPreflightAsync(
+        IDbContextFactory<IvrDbContext> factory)
+    {
+        string sql = await File.ReadAllTextAsync(FindRepositoryFile(
+            "tools", "ops", "od18-legacy-skip-preflight.sql"));
+        // Strip psql meta-commands and comments BEFORE splitting on the statement separator.
+        // Dropping comments is not cosmetic: a semicolon inside English prose — "Run it per
+        // environment; the numbers decide..." — splits mid-sentence and hands Postgres the second
+        // half as a statement. The runner must not be breakable by someone writing a comment well.
+        string[] statements = [.. string
+            .Join(
+                '\n',
+                sql.Split('\n')
+                    .Where(line => !line.TrimStart().StartsWith('\\'))
+                    .Select(line => line.Split("--", StringSplitOptions.None)[0]))
+            .Split(';')
+            .Select(statement => statement.Trim())
+            .Where(statement => statement.Contains("SELECT", StringComparison.Ordinal))];
+
+        Assert.Equal(9, statements.Length);
+
+        var metrics = new Dictionary<string, string?>(StringComparer.Ordinal);
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        System.Data.Common.DbConnection connection = context.Database.GetDbConnection();
+        await connection.OpenAsync();
+        foreach (string statement in statements)
+        {
+            await using System.Data.Common.DbCommand command = connection.CreateCommand();
+            command.CommandText = statement;
+            await using System.Data.Common.DbDataReader reader = await command.ExecuteReaderAsync();
+            Assert.True(await reader.ReadAsync(), $"preflight statement returned no row: {statement}");
+            metrics[reader.GetString(0)] = await reader.IsDBNullAsync(1)
+                ? null
+                : reader.GetValue(1).ToString();
+        }
+
+        return metrics;
+    }
+
+    private static string FindRepositoryFile(params string[] segments)
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            string candidate = segments.Aggregate(directory.FullName, Path.Combine);
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new FileNotFoundException(Path.Combine(segments));
+    }
+
     [Theory]
     [Trait("TestId", "IT-M3-AUTHORITY-07")]
     [InlineData("legacy-empty-evaluated", "[]", true)]

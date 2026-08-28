@@ -214,3 +214,8 @@ chứ không giấu: đó là gate làm đúng việc của nó.
 | Real customer call | `NO` | Không cần và không được mở |
 
 `W-0124` làm `api_contract_diff` có thể xanh; nó không chứng minh pipeline đã chạy.
+
+> **Tiếp theo — `W-0125`.** Ba gate trên vẫn mở, nhưng khoảng cách tới chúng đã ngắn lại:
+> phiếu sign-off `OD18-C1..C5` cho M3, preflight DB đã chạy được và được `IT-M3-AUTHORITY-13`
+> kiểm trên schema thật, và số đo sẵn sàng của hosted CI. Xem
+> [`docs/evidence/W-0125/README.md`](../W-0125/README.md).
