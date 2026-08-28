@@ -200,7 +200,6 @@ Các lỗi này đều thuộc loại **"cổng xanh giả"**: gate CI báo PASS
 | Work | Yêu cầu |
 | --- | --- |
 | **W-0104** `ACCEPTED` | preflight Asterisk/softphone **miễn phí** — kiểm toàn tuyến scheduler→gate→ARI→audio→DTMF trước khi tốn tiền SIM |
-| **W-0105** | thay MOCK directory bằng **account/password + session opaque thu hồi được**; đúng 2 role |
 | **W-0106** | 3 giọng nữ Bắc/Trung/Nam theo **34 đơn vị hành chính mới**; sửa lỗi đọc tiền/số lượng bằng chữ số |
 | **W-0107** | Việt hoá **dữ liệu** (41 điểm trên 8 màn vẫn render enum thô); từ điển 39 họ/212 giá trị |
 | **W-0108** | **ghép audio động** — trước đó một cuộc gọi phát đúng một file, nên bản thu LAB không chứng minh được khách nghe đúng đơn của mình |

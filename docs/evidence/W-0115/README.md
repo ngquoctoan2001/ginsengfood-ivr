@@ -20,8 +20,6 @@ thực tế đã có **7** CHECK enum, không còn là 6 như ghi chú W-0107: W
 
 | Bảng trong model (22) | Quyết định W-0115 | Lý do |
 | --- | --- | --- |
-| `ivr_console_accounts` | giữ 2 CHECK cũ | `role`, `status` đã khóa |
-| `ivr_console_sessions` | không thêm | `revoke_reason` là lý do mở, các luật còn lại là bất biến |
 | `ivr_confirmation_tasks` | thêm 1 | `eligibility_decision` là tập đóng; `order_state` do Core sở hữu nên giữ mở |
 | `ivr_attempt_policies` | không thêm | version/program là khóa cấu hình có thể mở rộng, không phải lifecycle của một dòng |
 | `ivr_call_jobs` | thêm 3 | `status`, `queue_status`, `eligibility_decision` đều do IVR ghi từ tập hữu hạn |

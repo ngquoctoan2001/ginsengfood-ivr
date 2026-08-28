@@ -3,7 +3,6 @@
 Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/11` §5,§8; `/08` (monitoring/privacy); DF-01 (RBAC).
 Base path `/v1/ivr/order-confirmation/*`. Admin RBAC server-side; mọi POST có `reason` + `X-Actor-Id` + audit + `Idempotency-Key`.
 
-## 0. Authentication và account API (W-0105)
 
 Ivr.Api phát opaque bearer session 8 giờ và là authority cho đúng hai role
 `Admin`/`Operator`. Login failure luôn dùng generic `401 IVR_UNAUTHENTICATED`;

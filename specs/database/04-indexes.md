@@ -18,8 +18,6 @@ Trạng thái: `TARGET_V1_DRAFT` · Nguồn: `phase-8/12` §4-8,§12; DF-04, D-0
 | `ivr_idempotency_keys` | `key` (scope) | replay/conflict detection (P0-3) |
 | `ivr_feature_flags` | `(key, env)` | 1 giá trị/flag/env (P0-4) |
 | `ivr_sim_channels` | `sim_channel_id`; `lease_token` (partial, khi not null) | 1 lease sống/channel |
-| `ivr_console_accounts` | `username` | username immutable và không tái sử dụng sau soft-delete |
-| `ivr_console_sessions` | `token_hash` | lookup opaque bearer mà không lưu raw token |
 
 ## 2. Index scheduler (deadline-aware — phase-8/12 §5)
 - `ivr_call_jobs (status, expires_at)` — query job sắp hết window (rolling queue).
@@ -64,7 +62,6 @@ Attempt policy là **data/config gắn `attempt_policy_version`**, không phải
 | signal-only invariants | `not_for_quote_cart_draft`, `no_direct_order_update`, `input_signal_only`, `no_payment_or_revenue_effect` = true | |
 | PII | không cột nào bắt buộc lưu **full phone**, **full address** hay **raw recording** (D-05/DT-05) | |
 | lease exclusivity | tối đa 1 hàng `ivr_sim_channels` có `status='ACTIVE_CALL'` cho mỗi `sim_channel_id`; `active_call_job_id` không null ⇒ `lease_token` không null | one active call per channel (`FR-IVR-SCH-003`) |
-| console role/status | `role IN ('Admin','Operator')`; `status IN ('ACTIVE','DISABLED','DELETED')` | đúng hai role W-0105 |
 | built-in admin | `is_builtin=false OR (username='admin' AND role='Admin' AND status='ACTIVE')` | không hạ quyền/vô hiệu/xoá admin cố định |
 | session integrity | `token_hash` là 64 hex lowercase; `expires_at > created_at`; revoke time/reason cùng null hoặc cùng non-null | không lưu raw bearer; trạng thái revoke nhất quán |
 

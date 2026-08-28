@@ -52,10 +52,6 @@ lợi ích chính đáng đem ra cân đo. Xem `COMP-DNC-03`.
 | `ivr_result_callbacks.payload_json` | bản sao bất biến của thứ đã gửi Sales, để tranh chấp giao nhận có câu trả lời | ghi chép pháp lý | xoá cùng dòng callback khi hết hạn; **không** xoá sớm được — một bản ghi giao nhận đã bỏ payload không giải quyết được tranh chấp nó tồn tại vì |
 | `ivr_audit_log.actor_id` | ai đã thực hiện hành động quản trị | ghi chép pháp lý | **KHÔNG BAO GIỜ xoá** |
 | `ivr_admin_actions.actor_id` | ai đã thực hiện hành động nào lên đối tượng nào, kèm lý do | ghi chép pháp lý | **KHÔNG BAO GIỜ xoá** |
-| `ivr_console_accounts.username` | định danh staff ổn định cho sign-in và audit; không tái gán sau soft-delete | ghi chép pháp lý | giữ khi active; xoá account soft-deleted sau chu kỳ `staff_account` được ký |
-| `ivr_console_accounts.display_name` | tên nhân viên hiển thị trong quản trị account/profile | hợp đồng | xoá cùng account soft-deleted sau chu kỳ được ký |
-| `ivr_console_accounts.password_hash` | verifier PBKDF2 một chiều; không phải plaintext và không thể “lấy lại” mật khẩu | hợp đồng | xoá cùng account; không log/export |
-| `ivr_console_sessions.account_id` | liên kết hash của opaque session với staff subject | hợp đồng | xoá session sau expiry/revoke theo chu kỳ `console_session` được ký |
 | `fact_call_outcome.order_ref_hash` | SHA-256 mã đơn, để báo cáo đếm số đơn phân biệt mà không mang mã | hợp đồng | xoá khi kết quả nguồn bị xoá — hook retention làm chu kỳ warehouse **bằng** chu kỳ nguồn |
 | `fact_call_job.order_ref_hash` | cùng hash ở hạt job | hợp đồng | xoá khi job nguồn bị xoá |
 

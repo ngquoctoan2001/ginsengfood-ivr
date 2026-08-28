@@ -21,7 +21,6 @@ Không được tuyên bố `CONTRACT_LOCKED`, `PRODUCTION_READY` hoặc “ch�
 | `seed/` | Fake Sales/SIM data cho `MOCK`; phải bám Target V1 DTO. |
 | `prompt/` | Chuỗi prompt triển khai .NET/Next.js từ foundation đến release. |
 | `prompt/_execution/prompt-execution-tracker.md` | **Sổ tiến độ duy nhất**, bao gồm planned và unplanned theo thứ tự phát sinh. |
-| `W-0105-account-auth-rbac-plan.md` | Kế hoạch/implementation record cho console account, opaque session và RBAC đúng hai role `Admin`/`Operator`. |
 
 ## 3. Kiến trúc và scope
 

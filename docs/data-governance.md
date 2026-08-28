@@ -55,8 +55,6 @@ cách một bản backup được mã hoá **vì nó cũ** chứ không phải *
 | `ivr_retention_checkpoints` | `Operational` | `retention_control` |
 | `ivr_script_versions` | `Configuration` | `active_config` |
 | `ivr_script_approvals` | `AuditTrail` | `active_config` |
-| `ivr_console_accounts` | `PiiDirect` | `staff_account` (`OWNER_DATA_REQUIRED`) |
-| `ivr_console_sessions` | `PiiDerived` | `console_session` (`OWNER_DATA_REQUIRED`) |
 | `fact_call_outcome` | `PiiDerived` | `analytics_derived` |
 | `fact_call_job` | `PiiDerived` | `analytics_derived` |
 | `dim_program` | `Operational` | `analytics_derived` |

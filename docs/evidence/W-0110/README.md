@@ -88,7 +88,6 @@ Và `ActorDestinationReference` lấy từ claim `ivr_destination_ref`, mà clai
 `MockPermissionAuthenticationHandler` cấp (từ header `X-Mock-Destination-Ref`).
 `ConsoleSessionAuthenticationHandler` cấp bảy claim, không có claim này.
 
-⇒ **Với mọi phiên đăng nhập console, chốt này im lặng không chạy** — đúng nhóm actor mà
 `OD-V1-20` vừa trao quyền mở allowlist.
 
 Bản này **không** tự vá, vì vá đúng cần một ánh xạ tài khoản → đích gọi, và đó là quyết định mô

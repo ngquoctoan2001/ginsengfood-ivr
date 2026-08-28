@@ -310,7 +310,6 @@ evidence (giữ mã gốc để đối soát).
 
 ## 4. Bảo mật, quyền và quyền riêng tư
 
-### 4.1 Định danh console ✅ (W-0105)
 
 | | |
 | --- | --- |
@@ -372,7 +371,6 @@ phủ **mọi** endpoint (W-0100 đã đóng lỗ hổng 10 endpoint thiếu gua
 | Vận hành | `ivr_sim_channels`, `ivr_capacity_incidents`, `ivr_review_items`, `ivr_admin_actions` |
 | Chính sách & kịch bản | `ivr_attempt_policies`, `ivr_script_versions`, `ivr_script_approvals` |
 | Nền tảng | `ivr_audit_log`, `ivr_evidence`, `ivr_evidence_links`, `ivr_idempotency_keys`, `ivr_feature_flags`, `ivr_retention_checkpoints` |
-| Tài khoản | `ivr_console_accounts`, `ivr_console_sessions` |
 | Analytics | `fact_call_job`, `fact_call_outcome`, `agg_kpi_daily`, `dim_program`, `dim_result_type`, `dim_script_variant`, `etl_checkpoint` |
 
 **13 migration EF Core**, tất cả đều apply/rollback/recreate được (có test).

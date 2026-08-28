@@ -62,7 +62,6 @@ after revalidation remains callback ACK `BLOCKED_BY_CORE` and never rewrites the
 observed customer result.
 
 `1.0.0-draft.10` through `draft.12` are one combined reviewed candidate from the
-concurrent W-0105/W-0106 stream: console account/session and two-role RBAC operations,
 the OD-V1-20 runtime-gate authorization clarification, and the additive `voice_region`
 read field. The intermediate draft numbers were not committed as standalone baselines.
 

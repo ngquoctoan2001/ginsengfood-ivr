@@ -54,8 +54,6 @@ Trạng thái: `TESTS_PASS` cho cơ chế P1-5 · Giá trị retention productio
 | `ivr_feature_flags` | `active_config` | `PRESERVE` | cấu hình runtime hiện hành, thay đổi qua audited flag service |
 | `ivr_review_items` | `review_item` | `ANONYMIZE` | chỉ item đã resolved; giữ trạng thái/thời điểm để audit |
 | `ivr_retention_checkpoints` | `retention_control` | `PRESERVE/UPSERT` | checkpoint aggregate, không chứa PII; job quản lý theo `(data_class, segment)` |
-| `ivr_console_sessions` | `console_session` | `DELETE` | raw token không lưu; expiry là retention clock; legal hold được tôn trọng |
-| `ivr_console_accounts` | `staff_account` | `DELETE` | chỉ `deleted_at != null`; username reserved cho đến khi purge; session child phải hết |
 
 ## 4. Thuật toán, batch và khả năng resume
 

@@ -143,7 +143,6 @@ không phải cảnh báo.
 | Khẳng định | Bằng chứng |
 | --- | --- |
 | `voice_region` của W-0106 đã sống trên API | `detail.voice_region = "South"` → nhãn `Miền Nam` |
-| Cổng phiên W-0105 chặn đúng | 11/11 route bảo vệ trả `307 → /login?next=…`; `/login` trả `200` |
 | 19 giá trị enum khác dịch đúng trên dữ liệu thật | §C của bản capture |
 | API cũ cổng 5005 vẫn thiếu `/analytics`, `/sim-channels` | 404; capture chạy trên cổng 5015 riêng, không đụng tiến trình của owner |
 
@@ -241,7 +240,6 @@ Ba ô trên màn chi tiết giờ đọc được: `Xong lượt gọi — đã 
 
 - Tracker chưa cập nhật. Bản sửa này chưa được cấp Work ID và chưa có Activity entry — chờ owner (§5).
 - Chưa chụp được màn hình **sau khi đăng nhập** — cần một phiên console thật, mà mật khẩu
-  bootstrap không nằm trong repo (đúng như W-0105 yêu cầu). Phần §E chỉ chứng minh cổng chặn,
   không chứng minh nội dung màn hình bên trong.
 - Bộ dữ liệu là fixture MOCK có sẵn trong DB dev (`ivr_call_jobs` 35 dòng, `ivr_call_results`
   10 dòng; `/call-jobs` trả 25, capture lấy mẫu 12 job detail), **không** phải fixture 18 job/14

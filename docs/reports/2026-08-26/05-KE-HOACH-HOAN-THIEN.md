@@ -203,7 +203,6 @@ cuối. Toàn bộ tài liệu cần gửi **đã viết xong** — chúng chỉ
 
 | ID | Câu hỏi | Đề xuất |
 | --- | --- | --- |
-| `OD-SCRIPT-01` | Content approver và Privacy/Legal approver phải là **hai người khác nhau**, nhưng hệ thống chỉ có 2 role. Thêm role thứ ba, hay ràng buộc theo `accountId`? | **Ràng buộc theo `accountId`** — thêm role thứ ba làm phình ma trận RBAC vừa khoá ở W-0105; ràng buộc "approver ≠ approver trước đó" thi hành được ngay trong `EnsureApprovalAllowed` |
 
 ---
 

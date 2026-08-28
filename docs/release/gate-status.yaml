@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 121 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 126 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 15
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 67
+  rows_without_evidence_pack: 72
 
 gates:
   - id: "G-CONTRACT"
@@ -340,7 +340,7 @@ work:
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0117/README.md"
   - id: "W-0118"
-    prompt: "HISTORICAL/SUPERSEDED bởi W-0123 — Không gọi IVR cho khách cũ, thực thi OD-15 (Origin=UNPLANNED, owner requested)"
+    prompt: "Không gọi IVR cho khách cũ — thực thi OD-15 (Origin=UNPLANNED, owner requested)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0118/README.md"
   - id: "W-0119"
@@ -355,18 +355,26 @@ work:
     prompt: "Lối đẩy code không tới GitLab nên hosted CI không thể chạy (Origin=UNPLANNED, owner requested)"
     status: "CODE_DONE"
     evidence: null
+  - id: "W-0122"
+    prompt: "Tự host VieNeu-TTS, loại phụ thuộc SaaS TTS ở runtime (Origin=UNPLANNED, owner requested)"
+    status: "IN_PROGRESS"
+    evidence: "docs/evidence/W-0122/README.md"
   - id: "W-0123"
-    prompt: "M3 quyết định gọi, IVR chỉ thực thi — cleanup trusted-skip phía IVR (Origin=UNPLANNED, owner clarified boundary)"
+    prompt: "M3 quyết định gọi, IVR chỉ thực thi: cleanup trusted-skip phía IVR (Origin=UNPLANNED, owner clarified boundary)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0123/README.md"
   - id: "W-0124"
-    prompt: "Khắc phục phát hiện rà soát W-0123: đo delta OD-18, xoay baseline oasdiff, siết guard, dọn lệch tài liệu/môi trường (Origin=UNPLANNED, owner requested)"
+    prompt: "Khắc phục phát hiện rà soát W-0123 (Origin=UNPLANNED, owner requested)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0124/README.md"
   - id: "W-0125"
-    prompt: "Mở khoá ba gate còn treo của W-0123: phiếu sign-off M3, preflight DB chạy được và có test, đo sẵn sàng hosted CI (Origin=UNPLANNED, owner requested)"
+    prompt: "Mở khoá ba gate còn treo của W-0123 (Origin=UNPLANNED, owner requested)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0125/README.md"
+  - id: "W-0126"
+    prompt: "Khắc phục phát hiện rà soát W-0122 (Origin=UNPLANNED, owner requested)"
+    status: "TESTS_PASS"
+    evidence: null
   - id: "W-0029"
     prompt: "P4-1"
     status: "TESTS_PASS"

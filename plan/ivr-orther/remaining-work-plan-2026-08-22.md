@@ -78,7 +78,6 @@ plan này **phải tránh chạm vào chúng** cho tới khi luồng tương ứ
 
 **Việc đã xong rồi, đừng đưa lại vào plan** (đã kiểm chứng trong source, không phải theo lời kể):
 
-- ✅ Đăng nhập username/password + session opaque + 2 role + CRUD account (W-0105) — đã commit.
 - ✅ Việt hóa dữ liệu: `enums.vi.json` **39 họ**, `EnumLabel.tsx`, `lib/i18n/enum.ts` (W-0107) — đã có trong cây làm việc.
 - ✅ Phân miền 34 tỉnh + đọc số tiền/số lượng bằng chữ: `DeliveryRegionResolver`,
   `VietnameseNumberSpeller`, `VietnameseTextNormalizer` (W-0106 GĐ 2) — đã có.
@@ -99,7 +98,6 @@ plan này **phải tránh chạm vào chúng** cho tới khi luồng tương ứ
 | Admin read | 11 | ✅ [`IvrAdminEndpoints.cs`](../../src/Ivr.Api/Admin/IvrAdminEndpoints.cs) |
 | Admin mutation | 6 | ✅ cùng file |
 | Feature flag | 3 | ✅ [`FeatureFlagEndpoint.cs`](../../src/Ivr.Api/Admin/FeatureFlagEndpoint.cs) |
-| Auth + account | 10 | ✅ W-0105 |
 | Health | 3 | ✅ [`HealthEndpointRouteBuilderExtensions.cs`](../../src/Ivr.Api/Health/HealthEndpointRouteBuilderExtensions.cs) |
 
 Lệnh kiểm chứng ở §9.
@@ -221,7 +219,6 @@ tay dữ liệu. Sửa tay thì mất audit, mất `creator ≠ approver`, mất
    buộc theo `ActorId` chứ không theo role, và được thi hành ở **hai** chỗ độc lập:
    `InMemoryScriptRegistry.EnsureApprovalAllowed` chặn lúc ghi (creator ≠ approver, và Content
    approver ≠ Privacy/Legal approver), còn `ScriptApprovalPolicy.ProductionAllows` kiểm lại lúc
-   đọc. Không cần role thứ ba. Hệ quả vận hành phải nói rõ: four-eyes = **hai tài khoản console
    khác nhau**, và hệ thống **không phân biệt được** một người Pháp chế với một Admin bất kỳ —
    muốn phân biệt thì đó là role thứ ba và là một work item khác.
 
@@ -566,7 +563,6 @@ Giữ nguyên như tracker và [`readiness-board.md`](../../docs/release/readine
 
 | ID | Câu hỏi | Chặn hạng mục | Đề xuất |
 | --- | --- | --- | --- |
-| `OD-SCRIPT-01` | Content approver và Privacy/Legal approver phải là **hai người khác nhau**, nhưng hệ thống chỉ có 2 role. Thêm role thứ ba, hay ràng buộc theo `accountId`? | **A2** | **Ràng buộc theo `accountId`.** Thêm role thứ ba làm phình ma trận RBAC vừa mới khóa ở W-0105; ràng buộc "approver ≠ approver trước đó" thi hành được ngay trong `EnsureApprovalAllowed` |
 | `OD-SCRIPT-02` | Số lượng thập phân: đọc "hai phẩy năm" hay làm tròn? | **A7**, và **A1** nếu chọn thu âm người thật | **Đọc thành chữ.** Làm tròn số lượng hàng bán là đổi thông tin đơn — không phải việc của tầng đọc |
 | `OD-CALL-01` | Cắt ngang cuộc gọi: cấp cho cả Operator hay chỉ Admin? | **A4** | **Cả hai.** Đây là chiều giảm rủi ro; bắt Operator đi tìm Admin trong lúc cuộc gọi đang chạy là thiết kế sai |
 | `OD-VOICE-01` | Nguồn giọng production (đang mở từ W-0106) | **A1** phần biến thiên | ElevenLabs Starter `$6` — đã phân tích ở W-0106 §7.1 |
@@ -683,7 +679,6 @@ git status --porcelain
 
 `prompt/_execution/prompt-execution-tracker.md` (§2, §3, §5, `A-0321`, `A-0322`) ·
 `plan/ivr-orther/00-index.md` · `production-blockers-plan.md` ·
-`W-0105`/`W-0106`/`W-0107` plan · `specs/_review/open-decisions-register.md` ·
 `specs/api/03-admin-api.md` · `specs/api/openapi/ivr-order-confirmation.v1.yaml` ·
 `specs/functional/01..08` · `specs/ui/00..08` · `docs/release/readiness-board.md` ·
 `docs/owner-decisions-open.md` · `docs/reports/2026-08-22-bao-cao-tien-do-ivr.md` ·

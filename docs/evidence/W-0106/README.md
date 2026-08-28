@@ -49,7 +49,6 @@ Plan: [`W-0106-regional-voice-routing-plan.md`](../../../plan/ivr-orther/W-0106-
 | Gate | Kết quả |
 | --- | --- |
 | Unit suite | `419/419 PASS` |
-| Integration suite | `225/226` — cái đỏ duy nhất là `IT-ACCOUNT-LOCK-03` của **W-0105**, xem §5 |
 | `AdminReadApiTests` (gồm `IT-ADMIN-READ-10` mới) | `10/10 PASS` |
 | Contract suite | `22/22 PASS` |
 | Chaos suite | `6/6 PASS` |
@@ -99,7 +98,6 @@ của `ShortDeliveryArea.Value`, nên không đổi contract intake, không migr
 Sales bổ sung field. `TtsProviderOptions` là MEDIUM duy nhất và chỉ thêm property lồng nhau.
 
 `detect_changes` báo `critical` cho toàn working tree, nhưng **0 execution flow** thuộc
-W-0106 — toàn bộ flow bị ảnh hưởng đi qua `readSession`/`requireAdmin` của **W-0105** đang
 chưa commit. Chi tiết §9.1 của plan.
 
 ---
@@ -130,9 +128,7 @@ thuộc về voice C của W-0104 và sẽ **đè lên evidence cũ**. Đổi sa
 | 4 | ✅ **Đã xong** — codegen C# regenerate được sau khi gỡ manifest lạc, xem §7 | — |
 | 5 | Sếp nghe và ký nhận 3 giọng | Hoãn theo `OD-VOICE-05` |
 
-### `IT-ACCOUNT-LOCK-03` đỏ — thuộc W-0105, không phải W-0106
 
-`ConsoleAccountApiTests.FifthBadPasswordLocksTheAccountAndResponsesStayGeneric`:
 `Expected: Unauthorized · Actual: TooManyRequests`.
 
 `ConsoleSignInRateLimiter` mới thêm đặt `PerUsernameLimit = 5`, đúng bằng ngưỡng lockout.
@@ -141,9 +137,7 @@ kiểm lockout — lần đó đếm `6 > 5` nên limiter trả `429` **trước
 mất `401`.
 
 Chính doc comment của limiter viết *"per-username limit is intentionally lower than the lockout
-threshold"* — nhưng code để **bằng**, không thấp hơn. Đây là mâu thuẫn nội bộ của W-0105 và
 việc chọn hướng sửa (hạ `PerUsernameLimit`, hay viết lại kỳ vọng của test) là quyết định
-chính sách bảo mật của owner W-0105, không phải lỗi đánh máy. W-0106 không đụng vào.
 
 ---
 
@@ -176,9 +170,6 @@ manifest ở `.config/` — và `.config/` được ưu tiên, che mất manifes
 Đã gỡ file untracked đó (`dotnet-ef` cùng version `10.0.11` đã có sẵn trong manifest repo nên
 không mất gì). Bản sao lưu nằm ngoài repo.
 
-**Hệ quả rộng hơn W-0106**: file generated còn thiếu **toàn bộ contract console account của
-W-0105** (`draft.10`) chứ không chỉ `voice_region` (`draft.12`). Lần regenerate này thêm
-**497 dòng** — 20 type của W-0105 cộng `IvrCallJobDetailVoice_region`. Codegen đã hỏng cho cả
 hai work item và không ai phát hiện.
 
 **Khuyến nghị (chưa làm, ngoài phạm vi W-0106)**: chuyển `dotnet-tools.json` về

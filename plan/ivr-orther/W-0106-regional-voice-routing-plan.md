@@ -934,18 +934,14 @@ Chạy theo yêu cầu bắt buộc của `CLAUDE.md` trước khi sửa symbol.
 Chạy `gitnexus_detect_changes(scope: "all")` theo `CLAUDE.md`. Kết quả tổng:
 **790 symbol / 137 file / `risk_level: critical`**.
 
-⚠️ **Con số đó KHÔNG phải của W-0106.** Working tree đang chứa cả phần W-0105 chưa commit
 (console auth, `IvrDbContext`, migration, admin-ui). Lọc riêng `affected_processes`:
 
 | | Kết quả |
 | --- | --- |
 | Execution flow bị ảnh hưởng bởi W-0106 | **0** |
-| Tên flow xuất hiện | Toàn bộ là `AccountDetailPage`, `AccountsPage`, `CallDetailPage`, `ScriptConfigPage`… — đều đi qua `readSession`/`requireAdmin` của **W-0105** |
 | Từ khóa `speech`/`tts`/`voice`/`synthes` trong `affected_processes` | **0 hit** |
 
 Kết luận: W-0106 **không chạm execution flow nào**. Điều này khớp với impact analysis từng
-symbol ở §9 (tất cả `processes_affected: 0`). Mức `critical` là của W-0105, và cần được đánh
-giá khi commit W-0105 — không phải khi commit W-0106.
 
 > Nếu commit chung hai work item, mức `critical` sẽ che mất việc W-0106 vốn rất hẹp.
 > **Nên commit tách riêng.**
@@ -964,7 +960,6 @@ giá khi commit W-0105 — không phải khi commit W-0106.
 - [x] Giọng không có file media ⇒ **ném lỗi**, không phát nhầm file miền khác (`UT-TTS-STATIC-REGION-05`).
 - [x] 3 miền ⇒ 3 entry cache riêng, không đụng nhau (`UT-SPEECH-VOICE-03`).
 - [x] `voice_region` ra console **không kèm địa chỉ** (`IT-ADMIN-READ-10`).
-- [x] Full regression: unit `419/419`, integration `225/226`, contract `22/22`, chaos `6/6`, admin-ui `193/193`; `dotnet build Ivr.sln` 0 warning/0 error. *(Cái đỏ duy nhất là `IT-ACCOUNT-LOCK-03` của W-0105 — xem evidence §5.)*
 - [x] `gitnexus_detect_changes()` đã chạy — **0 execution flow** thuộc W-0106 (§9.1).
 - [x] PII scan `PASS` (297 file) · `dotnet format --verify-no-changes` `PASS` · OpenAPI drift baseline accepted · codegen `OPENAPI_CODEGEN_COMPLETE=YES`.
 - [x] Không API key nào vào git. Script audition đọc key từ `$env:FPT_AI_API_KEY`; MP3 audition nằm trong `.gitignore`.

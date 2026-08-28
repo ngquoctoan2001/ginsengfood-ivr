@@ -2,7 +2,6 @@
 
 Trạng thái: `TESTS_PASS` — **chưa** `ACCEPTED`
 Ngày: `2026-08-22`
-Baseline: `main@f7c9be9` (+ WIP `W-0105`/`W-0106` chưa commit)
 Plan: [`plan/ivr-orther/W-0107-vietnamese-localization-plan.md`](../../../plan/ivr-orther/W-0107-vietnamese-localization-plan.md)
 
 ---
@@ -108,7 +107,6 @@ Probe đã gỡ; cả ba xanh lại sau khi khôi phục.
 nếu sai. Xác nhận bằng `tsc` + `200/200` test + build production.
 
 `gitnexus detect_changes`: `risk_level: critical`, 859 symbol / 151 file. Con số này là **tổng hợp
-trên toàn worktree**, bao gồm 206 file WIP của `W-0105`/`W-0106` chưa commit (persistence/auth/API
 client) — đúng như `A-0316` đã ghi nhận. Tập thay đổi của riêng W-0107 là **9 file mới + 19 file sửa**,
 toàn bộ ở lớp render UI, từ điển, test và tài liệu; **không sửa file `.cs` production nào**.
 

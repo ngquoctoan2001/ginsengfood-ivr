@@ -8,7 +8,6 @@ Trạng thái triển khai: `TESTS_PASS` — GĐ 1–8 xong; chờ owner duyệt
 Ngày lập: `2026-08-22`
 Baseline source đã đọc: `main@f7c9be9` (+ WIP admin-ui chưa commit, 206 file)
 Origin: `UNPLANNED` — owner requested
-Prereq: `W-0105` (`TESTS_PASS`, chưa `ACCEPTED`) · Đồng thời: `W-0106` (`PHASE_2_3_TESTS_PASS`)
 
 > `NEXT_WORK_ID` trong tracker §2 đang là `W-0106`, nhưng `W-0106` đã được dùng cho
 > plan regional-voice-routing. Tài liệu này **đề xuất** `W-0107`. Chưa ghi `START`,
@@ -406,23 +405,39 @@ Nguồn: grep write-site trong `src/Ivr.Infrastructure/Repositories/`, `Scheduli
 | `OPEN` | Đang mở |
 | `RECOVERY_REQUIRED` | Cần khôi phục |
 
-### 5.5 `disposition` — Phân loại cuộc gọi từ nhà mạng (11 giá trị)
+### 5.5 `disposition` — Phân loại cuộc gọi từ nhà mạng (12 giá trị)
 
-Nguồn: [`DispositionMapper.cs:71`](../../src/Ivr.Domain/Confirmation/DispositionMapper.cs#L71) (`SimProviderDisposition`)
+Nguồn: [`PostgresTelephonyDispatchStore.cs:306`](../../src/Ivr.Infrastructure/Telephony/PostgresTelephonyDispatchStore.cs#L306)
+— **không phải** tên member của `SimProviderDisposition`.
+
+> **Sửa lỗi (2026-08-28).** Bản đầu của mục này lấy nguồn là
+> [`DispositionMapper.cs:71`](../../src/Ivr.Domain/Confirmation/DispositionMapper.cs#L71) và key
+> theo tên member C# (`Answered`, `RingTimeout`, …). Nhưng cột `ivr_call_attempts.disposition`
+> được ghi bằng `disposition.ToString().ToUpperInvariant()`, nên giá trị API thật sự trả về là
+> `ANSWERED`, `RINGTIMEOUT` — viết hoa và **không** chèn dấu gạch dưới. Hệ quả: cả 11 nhãn đều
+> không bao giờ khớp, mọi dòng attempt trên màn hình chi tiết cuộc gọi hiện ⚠ + mã thô.
+>
+> Vòng quét spec không bắt được vì `disposition` khai báo là `string` mở trong OpenAPI, và
+> `enum-coverage.test.ts` khi đó chưa gọi tên family này. Nay đã có `dispositionLiterals()` áp
+> đúng phép biến đổi đó thay vì chép tay danh sách — xem mục 6.
 
 | Mã | Nhãn tiếng Việt |
 | --- | --- |
-| `Answered` | Khách bắt máy |
-| `RingTimeout` | Đổ chuông không ai nghe |
-| `Busy` | Máy bận |
-| `Rejected` | Khách từ chối cuộc gọi |
-| `Unreachable` | Không liên lạc được |
-| `InvalidDestination` | Số không tồn tại |
-| `Dropped` | Rớt cuộc gọi |
-| `NetworkError` | Lỗi mạng |
-| `SimError` | Lỗi SIM |
-| `AudioError` | Lỗi âm thanh |
-| `DtmfError` | Lỗi nhận phím bấm |
+| `ANSWERED` | Khách bắt máy |
+| `RINGTIMEOUT` | Đổ chuông không ai nghe |
+| `BUSY` | Máy bận |
+| `REJECTED` | Khách từ chối cuộc gọi |
+| `UNREACHABLE` | Không liên lạc được |
+| `INVALIDDESTINATION` | Số không tồn tại |
+| `DROPPED` | Rớt cuộc gọi |
+| `NETWORKERROR` | Lỗi mạng |
+| `SIMERROR` | Lỗi SIM |
+| `AUDIOERROR` | Lỗi âm thanh |
+| `DTMFERROR` | Lỗi nhận phím bấm |
+| `CAPACITY_EXCEPTION` | Không còn kênh gọi |
+
+`CAPACITY_EXCEPTION` do [`ResultRepository.cs:327`](../../src/Ivr.Infrastructure/Repositories/ResultRepository.cs#L327)
+ghi đè trên nhánh capacity; nó không phải một `SimProviderDisposition` ở bất kỳ dạng chữ nào.
 
 ### 5.6 `resultReason` — Lý do kết quả (11 giá trị)
 
@@ -469,7 +484,38 @@ Nguồn: grep `SourceType = "…"` trong `src/`
 | `ELIGIBILITY_DECISION` | Quyết định eligibility |
 | `IVR_OPTOUT_PROPOSAL` | Đề xuất chặn gọi (opt-out) |
 
-### 5.9 `reviewReason` — Lý do vào hàng chờ duyệt (họ `CALLBACK_*` / `CAPACITY_*`)
+### 5.9 `reviewReason` — Lý do vào hàng chờ duyệt
+
+> **Sửa lỗi (2026-08-28).** Tiêu đề cũ của mục này là "(họ `CALLBACK_*` / `CAPACITY_*`)", và
+> bảng dưới đây đúng là chỉ liệt kê hai họ đó. Nhưng `ivr_review_items.reason` là **hợp của năm
+> nguồn ghi**, không phải một taxonomy:
+>
+> | Nơi ghi | Giá trị đưa vào `Reason` |
+> | --- | --- |
+> | [`CallbackOutboxRepository.cs:266`](../../src/Ivr.Infrastructure/Persistence/Outbox/CallbackOutboxRepository.cs#L266) | `CoreResponseCode ?? LastError ?? DeliveryStatus` — họ `CALLBACK_*` |
+> | [`PostgresSchedulerStore.cs:450`](../../src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs#L450) | `IVR_CAPACITY_EXCEPTION` |
+> | [`ResultRepository.cs:194`](../../src/Ivr.Infrastructure/Repositories/ResultRepository.cs#L194) | `NormalizedResult.Reason` — tập `resultReason` **hoặc** một mã kỹ thuật |
+> | [`EligibilityRepository.cs:270`](../../src/Ivr.Infrastructure/Repositories/EligibilityRepository.cs#L270) | `Reasons[0].Code` — toàn bộ `EligibilityReasonCodes` |
+> | [`SuppressionProposer.cs:93`](../../src/Ivr.Infrastructure/Crm/SuppressionProposer.cs#L93) | chuỗi ghép `CODE;channel=…;signals=N;admin_confirmed=…` |
+>
+> Hai nguồn giữa đã được bổ sung vào từ điển (bảng mở rộng bên dưới) và nay có
+> `enum-coverage.test.ts` canh.
+>
+> **Chuỗi ghép của `SuppressionProposer`** đã xử lý ở phía hiển thị, không phải ở từ điển: một
+> key từ điển không bao giờ khớp được một chuỗi mang dữ liệu có cấu trúc. `parseReviewReason`
+> ([`lib/review/reason.ts`](../../admin-ui/src/lib/review/reason.ts)) tách `CODE` khỏi các đoạn
+> `k=v`, còn [`ReviewReason`](../../admin-ui/src/components/data/ReviewReason.tsx) dịch phần mã
+> qua `reviewReason` rồi đọc phần bằng chứng thành câu — *"kênh Gọi điện · 3 tín hiệu · chưa có
+> admin xác nhận"*. Việc tách nằm ở call site chứ **không** ở `tEnum`: `tEnum` phục vụ hơn ba
+> chục family, chỉ riêng cột này mang dữ liệu có cấu trúc, và blast radius của nó là toàn bộ
+> module `Ui`. Kèm theo: family mới `suppressionChannel`, và `REVIEW_EFFECT` ở màn Trạng thái
+> tích hợp được nới từ `([A-Z_]+)$` sang `(\S.*)$` — regex cũ không khớp chuỗi ghép nên cả dòng
+> rơi xuống nhánh in thô.
+>
+> Trường hợp **duy nhất còn cố ý** rơi vào NT-4: mã kỹ thuật do nhà cung cấp trả là **tập mở** —
+> `DispositionMapper.NormalizeTechnicalCode` nhận bất kỳ chuỗi upper-snake ≤80 ký tự nào. Chỉ hai
+> mã do chính repo này sinh ra (`ASTERISK_RECORDING_NOT_DISABLED`,
+> `ASTERISK_CHANNEL_HEALTH_NOT_READY`) là liệt kê được, và đã có nhãn.
 
 | Mã | Nhãn tiếng Việt |
 | --- | --- |
@@ -487,6 +533,21 @@ Nguồn: grep `SourceType = "…"` trong `src/`
 | `CALLBACK_ADAPTER_SELECTION_REJECTED` | Không chọn được adapter |
 | `CAPACITY_DEADLINE_UNAVAILABLE` | Không xác định được deadline năng lực |
 | `CAPACITY_SOURCE_UNAVAILABLE` | Không đọc được nguồn năng lực |
+
+Bổ sung 2026-08-28 — ba nhóm còn thiếu, mỗi nhóm truy được về đúng nơi ghi (xem
+[`enums.vi.json`](../../admin-ui/src/i18n/enums.vi.json) để có bảng đầy đủ 65 giá trị):
+
+| Nhóm | Nguồn | Số giá trị |
+| --- | --- | --- |
+| Lý do kết quả | `ResultRepository` ghi `NormalizedResult.Reason` — trùng tập §5.6 | 11 |
+| Lỗi kỹ thuật | trùng tập §5.7, cộng 2 mã Asterisk của repo này | 8 |
+| Lý do eligibility | `EligibilityRepository` ghi `Reasons[0].Code` — trùng `EligibilityReasonCodes` | 26 + `TASK_HELD_ADMIN_REVIEW` |
+| Đề xuất chặn gọi | `SuppressionProposer` — trùng `OptOutReasonCodes` | 4 |
+
+Cả bốn nhóm nay bị `enum-coverage.test.ts` canh trực tiếp từ phía C#. Bảng này **cố ý phủ dư**:
+`HumanReviewRequired` là `false` với khoảng một nửa số giá trị, nhưng mô hình hoá điều kiện đó
+đồng nghĩa giữ một bản sao thứ hai của nhánh rẽ trong `DispositionMapper` — một nhãn thừa tốn một
+dòng JSON, một nhãn thiếu tốn một operator đang đọc mã thô giữa sự cố.
 
 ### 5.10 `sellableDecision` — Khả năng bán theo dòng (4 giá trị)
 
@@ -594,7 +655,6 @@ Hai lớp trên chỉ phủ **enum đóng, khai báo tĩnh**. Chúng **không** 
 - Giá trị legacy còn nằm trong DB từ migration cũ
 
 Với những thứ này, `⚠ + mã gốc` của `NT-4` **là** cơ chế phủ. Bổ sung một bộ đếm gửi lên
-observability (`ivr_console_untranslated_enum_total{family,value}`) để đội vận hành thấy
 được giá trị lạ xuất hiện bao nhiêu lần mà không cần ai báo.
 
 ### 6.4 Lớp 4 — Quy trình
@@ -662,7 +722,6 @@ Theo quy tắc `CLAUDE.md`, phải chạy `gitnexus_impact` trước khi sửa t
 | # | Rủi ro | Mức | Giảm thiểu |
 | --- | --- | --- | --- |
 | R1 | Dịch sai từ vựng nghiệp vụ ⇒ nhân viên hiểu nhầm trạng thái đơn | **CAO** | GĐ 2 bắt buộc owner vận hành duyệt. Không dev nào tự chốt từ vựng. `NT-1` giữ mã bên cạnh nhãn nên vẫn đối chiếu được. |
-| R2 | Xung đột với WIP `W-0105`/`W-0106` (206 file chưa commit) | **CAO** | GĐ 3–5 chỉ đụng `admin-ui/src/i18n/`, `lib/i18n/`, `components/data/`. Trùng với WIP của `W-0105` ở `accounts/page.tsx`. **Phải đợi `W-0105` commit xong** hoặc phối hợp trực tiếp. |
 | R3 | §5 sót giá trị ⇒ ô hiển thị `⚠ MÃ_LẠ` khi lên production | TRUNG BÌNH | Đúng thiết kế (`NT-4`), không phải lỗi. GĐ 1 đối chiếu `SELECT DISTINCT` từ DB thật để giảm thiểu. |
 | R4 | Trôi ngược: người sau thêm enum mà quên dịch | TRUNG BÌNH | Chính là §6. Bốn lớp + quy trình. |
 | R5 | Ô bảng dài ra, vỡ layout (nhãn tiếng Việt dài hơn mã) | THẤP | `showCode=false` ở bảng danh sách. Kiểm ở 1280px và 1440px trong GĐ 4. |
