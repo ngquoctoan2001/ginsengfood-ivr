@@ -13,6 +13,7 @@ Phạm vi: software lab, fake/non-customer audio, không có outbound trunk
 | Asterisk media decode | `PASS` — 11/11 WAV → `.sln`, 8 kHz source contract |
 | Asterisk route probe | `PASS` — `12201` executed `Playback(...truc-ly)` và channel drain sạch |
 | Catch-all deny probe | `PASS` — `5555` chỉ `NoOp` → `Hangup`, không `Dial()`/`Stasis()` |
+| Profile probe `2026-08-28` | `PASS` — dựng thật với `-NoLaunchMicroSip`: verifier `11/11`, Asterisk healthy, `12200` load đủ 24 priority, `W0122_AUDITION_PROFILE_READY`, rồi dừng sạch |
 | MicroSIP listening/Owner decision | `NOT_RUN — OWNER_REQUIRED` |
 
 Automated probe chỉ chứng minh file/dialplan có thể phát. Nó không nghe được chất giọng, ngữ điệu,
@@ -51,8 +52,22 @@ Trong MicroSIP gọi `12200` để nghe đủ 11 giọng theo manifest. Gọi t�
 Owner phải nghe đủ 11 ở chính tuyến này rồi chọn đúng một Bắc, một Trung và một Nam. Nếu Ngọc
 Trân không đạt thì dừng W-0122; không tự thay bằng voice clone hoặc giọng không thuộc roster.
 
-Điền bản sao của `voice-acceptance-manifest.template.json`; không sửa template gốc thành bằng
-chứng ký. Phải ghi kết quả đủ 11 candidate, đúng ba lựa chọn và Owner reference, rồi kiểm:
+Manifest có 23 key chính xác, 11 kết quả đúng thứ tự roster và tám binding hash. Viết tay gần như
+chắc chắn bị gate từ chối vài lần, và mỗi lần từ chối là một lần dễ nảy ra ý "sửa cho nó qua".
+Dùng script; nó lấy binding từ `voices.json` và chỉ hỏi thứ chỉ Owner mới biết:
+
+```powershell
+.\deploy\lab\New-W0122VoiceAcceptance.ps1 `
+  -North "Trúc Ly" -Central "Ngọc Trân" -South "Thùy Dung" `
+  -Rejected "Mai Anh","Kim Thanh" `
+  -Listener "<ten owner>" `
+  -DeviceAndLabRoute "MicroSIP -> Asterisk lab 8 kHz, tai nghe có dây" `
+  -ApprovalReference "OD-VOICE-06 owner sign-off <ngay>" `
+  -ConfirmAllElevenHeard
+```
+
+Script tự chạy gate và tự xoá file nếu gate đỏ. Nếu vẫn muốn điền tay thì copy
+`voice-acceptance-manifest.template.json` (không sửa template gốc) rồi kiểm bằng:
 
 ```powershell
 node deploy/ci/scripts/tts-voice-acceptance-gate.mjs `

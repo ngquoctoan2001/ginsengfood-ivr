@@ -39,6 +39,18 @@ Startup không được đo như benchmark độc lập trong lượt này. Targ
 queue wait, expected concurrency, request/character budget và lease/pre-dial headroom vẫn
 `ENV_BLOCKED` cho tới khi Infra cung cấp môi trường đích.
 
+## Re-scan `2026-08-28` trên image đã rebuild sau W-0126
+
+| Mục | Giá trị |
+| --- | --- |
+| Image | `ivr-tts:w0122-selftest`, ID `sha256:63fe84e6e090a79a044a495e4faff9fce1bf1e8d4c8f1de4f41ea381ad00a910` |
+| Kích thước | `126,109,393` bytes — nhỏ hơn bản `2026-08-27` đúng `186` bytes, đúng bằng chênh lệch line ending của `uv.lock` |
+| Trivy report | `artifacts/sbom/w0122-trivy-image-lf.json`, SHA-256 `28fa73ad4fc7a9728161e85b4dfd77e6c3d2c2c2072b551533be68841991ec80` |
+| SPDX SBOM | `artifacts/sbom/w0122-ivr-tts-lf.spdx.json`, SHA-256 `77e1c65754c7a6dd94655db726732a640f0266d6f19cb6d60e838a0e7dc098e3`; `114` package entry ở lượt scan này |
+| Kết quả | `13 HIGH`, `3 CRITICAL`, `0 fixable` — **không đổi**; toàn bộ thuộc Debian 13.6; Python target `0` |
+
+`114` package khác `152` của lượt trước là do lượt scan/format khác, **không** phải image nhỏ đi; nội dung package không đổi. Reachability của 16 finding đã được đo trong chính image và gửi kèm [phiếu disposition](../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md): entrypoint là `python -m shim.server`; shim không có đường spawn process nào; `vieneu/serve.py` — file duy nhất chứa `subprocess` — không nằm trên import path; và `subprocess` không được import ở cả hai lượt kiểm.
+
 ## SBOM và vulnerability scan
 
 | Artifact/tool | Kết quả |
