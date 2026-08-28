@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Ivr.Api.Accounts;
 using Ivr.Api.Auth;
 using Ivr.Api.Health;
 using Ivr.Api.Middleware;
@@ -42,78 +41,50 @@ public static class IvrApiServiceCollectionExtensions
                 "The mock permission provider may only be registered in MOCK mode.");
         }
 
-        AuthenticationBuilder authentication = services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = "IvrAuthenticationSelector";
-            options.DefaultChallengeScheme = "IvrAuthenticationSelector";
-            options.DefaultForbidScheme = "IvrAuthenticationSelector";
-        });
-
-        authentication.AddPolicyScheme(
-            "IvrAuthenticationSelector",
-            "IVR authentication selector",
-            options => options.ForwardDefaultSelector = context =>
+        // W-0122. Bound from configuration keys rather than a section so the three secrets can
+        // arrive as plain environment variables, which is how every other IVR credential is
+        // delivered. A tier left unset stays empty and its token never matches — fail-closed.
+        services.AddOptions<AdminAccessOptions>()
+            .Configure<IConfiguration>((options, configuration) =>
             {
-                string authorization = context.Request.Headers.Authorization.ToString();
-                if (authorization.StartsWith(
-                    "Bearer ivr_session_",
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    return ConsoleSessionAuthenticationHandler.SchemeName;
-                }
-
-                return registerMockProvider
-                    ? MockPermissionAuthenticationHandler.SchemeName
-                    : FailClosedAuthenticationHandler.SchemeName;
+                options.ReadToken =
+                    configuration[AdminAccessOptions.ReadTokenConfigurationKey] ?? string.Empty;
+                options.WriteToken =
+                    configuration[AdminAccessOptions.WriteTokenConfigurationKey] ?? string.Empty;
+                options.DangerToken =
+                    configuration[AdminAccessOptions.DangerTokenConfigurationKey] ?? string.Empty;
             });
-        authentication.AddScheme<AuthenticationSchemeOptions, ConsoleSessionAuthenticationHandler>(
-            ConsoleSessionAuthenticationHandler.SchemeName,
-            _ => { });
-        authentication.AddScheme<AuthenticationSchemeOptions, FailClosedAuthenticationHandler>(
-            FailClosedAuthenticationHandler.SchemeName,
+
+        // W-0122. One scheme, three policies. The console account system it replaced needed a
+        // scheme selector, a session handler and a policy per permission because it authenticated
+        // people; this authenticates a peer service, and Module 3 owns the operators now.
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = AdminTokenAuthenticationHandler.SchemeName;
+            options.DefaultChallengeScheme = AdminTokenAuthenticationHandler.SchemeName;
+            options.DefaultForbidScheme = AdminTokenAuthenticationHandler.SchemeName;
+        }).AddScheme<AuthenticationSchemeOptions, AdminTokenAuthenticationHandler>(
+            AdminTokenAuthenticationHandler.SchemeName,
             _ => { });
 
-        if (registerMockProvider)
-        {
-            authentication.AddScheme<AuthenticationSchemeOptions, MockPermissionAuthenticationHandler>(
-                MockPermissionAuthenticationHandler.SchemeName,
-                _ => { });
-        }
+        services.AddHttpContextAccessor();
+        services.AddSingleton<IAuthorizationHandler, AdminScopeAuthorizationHandler>();
         services.AddAuthorization(options =>
         {
-            foreach (string permission in IvrPermissions.All)
+            foreach (AdminScope scope in Enum.GetValues<AdminScope>())
             {
                 options.AddPolicy(
-                    permission,
-                    policy => policy.Requirements.Add(new PermissionRequirement(permission)));
+                    AdminPolicies.NameOf(scope),
+                    policy => policy
+                        .AddAuthenticationSchemes(AdminTokenAuthenticationHandler.SchemeName)
+                        .RequireAuthenticatedUser()
+                        .AddRequirements(new AdminScopeRequirement(scope)));
             }
-
-            // Existing MOCK permission tests are not user-console sessions. In a real console
-            // bearer session this policy narrows broad legacy QueueView reads to Admin only.
-            options.AddPolicy(
-                IvrRoles.ConsoleAdminPolicy,
-                policy => policy.RequireAssertion(context =>
-                    context.User.Identity?.AuthenticationType
-                        != ConsoleSessionAuthenticationHandler.SchemeName
-                    || context.User.IsInRole(IvrRoles.Admin)));
-
-            // W-0105. Naming the scheme makes the authorization middleware authenticate the
-            // request through the console handler alone. A caller presenting the MOCK
-            // X-Permissions header and no bearer token therefore arrives unauthenticated
-            // (401) rather than carrying whatever authority it wrote in that header.
-            options.AddPolicy(
-                IvrRoles.ConsoleSessionPolicy,
-                policy => policy
-                    .AddAuthenticationSchemes(ConsoleSessionAuthenticationHandler.SchemeName)
-                    .RequireAuthenticatedUser());
         });
-        services.AddSingleton<IPermissionEvaluator, ClaimsPermissionEvaluator>();
-        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
         services.AddSingleton<IAuthorizationMiddlewareResultHandler,
             IvrAuthorizationMiddlewareResultHandler>();
         services.AddSingleton<IvrErrorResponseWriter>();
-        services.AddSingleton<ConsoleAccountService>();
-        services.AddSingleton<ConsoleSignInRateLimiter>();
         services.ConfigureHttpJsonOptions(options =>
         {
             options.SerializerOptions.DefaultIgnoreCondition =

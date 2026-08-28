@@ -1,3 +1,4 @@
+using Ivr.Api.Internal;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -39,7 +40,7 @@ public static class FeatureFlagEndpoint
 
                     return Results.Ok(result);
                 })
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.FlagRead));
+            .RequireAuthorization(AdminPolicies.Read);
 
         group.MapGet(
                 "/{environment}/kill-switch",
@@ -60,12 +61,12 @@ public static class FeatureFlagEndpoint
                         result.Snapshot.GlobalDialKillSwitch,
                         realCallsEnabled));
                 })
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.FlagRead));
+            .RequireAuthorization(AdminPolicies.Read);
 
         group.MapPost(
                 "/{environment}",
                 ExecuteMutationAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.RuntimeGateAdmin));
+            .RequireAuthorization(AdminPolicies.Danger);
         return endpoints;
     }
 
@@ -78,14 +79,10 @@ public static class FeatureFlagEndpoint
         ICorrelationContext correlationContext,
         CancellationToken cancellationToken)
     {
-        string actorId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw IvrErrors.ForbiddenCaller();
-        string actorHeader = httpContext.Request.Headers[ActorHeaderName].FirstOrDefault()
-            ?? throw IvrErrors.MalformedRequest("X-Actor-Id is required.");
-        if (!string.Equals(actorId, actorHeader, StringComparison.Ordinal))
-        {
-            throw IvrErrors.ForbiddenCaller();
-        }
+        // W-0122. The header is the source now: there is no console session to cross-check it
+        // against, because Module 3 owns operator identity. The danger-tier policy has already
+        // required this header to be present and safe before the endpoint runs.
+        string actorId = InternalRequestGuard.RequireAdminActor(httpContext);
 
         string idempotencyKey = httpContext.Request.Headers[IdempotencyHeaderName]
             .FirstOrDefault()
@@ -95,7 +92,8 @@ public static class FeatureFlagEndpoint
             request.Changes,
             request.Reason,
             actorId,
-            httpContext.User.FindFirstValue(FeatureFlagClaims.DestinationRef),
+            httpContext.Request.Headers[FeatureFlagClaims.DestinationRefHeaderName]
+                .FirstOrDefault(),
             request.ApprovalReference,
             correlationContext.GetOrCreate());
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(

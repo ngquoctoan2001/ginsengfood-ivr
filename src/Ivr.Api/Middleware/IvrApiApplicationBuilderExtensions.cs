@@ -10,7 +10,6 @@ public static class IvrApiApplicationBuilderExtensions
 
         app.UseMiddleware<CorrelationMiddleware>();
         app.UseMiddleware<ErrorEnvelopeMiddleware>();
-        app.UseMiddleware<MockPermissionHeaderGuardMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseMiddleware<OrderCoreAllowlistMiddleware>();

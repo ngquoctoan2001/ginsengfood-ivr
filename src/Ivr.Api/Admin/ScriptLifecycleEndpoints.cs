@@ -22,24 +22,23 @@ public static class ScriptLifecycleEndpoints
         ArgumentNullException.ThrowIfNull(endpoints);
         RouteGroupBuilder group = endpoints
             .MapGroup("/v1/ivr/order-confirmation/scripts")
-            .AddEndpointFilter<PiiMaskingFilter>()
-            .RequireAuthorization(IvrRoles.ConsoleSessionPolicy);
+            .AddEndpointFilter<PiiMaskingFilter>();
 
         group.MapGet("/{templateId}/{version}", GetAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .RequireAuthorization(AdminPolicies.Read);
         group.MapPost("/", CreateDraftAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ScriptEdit));
+            .RequireAuthorization(AdminPolicies.Write);
         group.MapPost("/{templateId}/{version}:submit", SubmitAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ScriptReview));
+            .RequireAuthorization(AdminPolicies.Write);
 
         // One route for all four approval types rather than four routes. The permission is not
         // the same for each, so the route-level attribute can only assert the weakest of them —
         // ScriptLifecycleApiService builds the actor from the session's own permissions and the
         // domain demands the specific one, which is where the real check lives.
         group.MapPost("/{templateId}/{version}:approve", ApproveAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ScriptApproveMock));
+            .RequireAuthorization(AdminPolicies.Write);
         group.MapPost("/{templateId}/{version}:retire", RetireAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ScriptRetire));
+            .RequireAuthorization(AdminPolicies.Write);
         return endpoints;
     }
 

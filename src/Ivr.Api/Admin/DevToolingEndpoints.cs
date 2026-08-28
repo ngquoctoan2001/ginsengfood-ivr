@@ -42,15 +42,14 @@ public static class DevToolingEndpoints
         // MOCK permission header alone could load fixtures and move channels, and MOCK is the
         // mode every non-production deployment runs in — the exact deployments this serves.
         RouteGroupBuilder group = endpoints.MapGroup(RoutePrefix)
-            .AddEndpointFilter<PiiMaskingFilter>()
-            .RequireAuthorization(IvrRoles.ConsoleSessionPolicy);
+            .AddEndpointFilter<PiiMaskingFilter>();
 
         group.MapPost("/seed:load", LoadSeedAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.DevTooling));
+            .RequireAuthorization(AdminPolicies.Write);
         group.MapPost("/scenarios/{scenarioId}:dry-run", DryRunScenarioAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.DevTooling));
+            .RequireAuthorization(AdminPolicies.Write);
         group.MapPost("/integration-profiles/{profileId}:apply", ApplyProfileAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.DevTooling));
+            .RequireAuthorization(AdminPolicies.Write);
         return endpoints;
     }
 

@@ -1,5 +1,4 @@
 using Ivr.Api.Application;
-using Ivr.Api.Accounts;
 using Ivr.Api.Auth;
 using Ivr.Api.Filters;
 using Ivr.Api.Internal;
@@ -18,63 +17,55 @@ public static class IvrAdminEndpoints
             "/v1/ivr/order-confirmation")
             .AddEndpointFilter<PiiMaskingFilter>();
         adminGroup.MapGet("/queue", GetQueueAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/dashboard", GetDashboardAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/call-jobs", ListCallJobsAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/call-jobs/{ivrCallJobId}/detail", GetCallJobDetailAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/sim-channels", ListSimChannelsAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView));
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/scripts", GetScriptCatalogAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
-            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/integration-status", GetIntegrationStatusAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
-            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/review-items", ListReviewItemsAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
-            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/analytics/summary", GetAnalyticsSummaryAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
-            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/analytics/trend", GetAnalyticsTrendAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
-            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapGet("/analytics/breakdown", GetAnalyticsBreakdownAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
-            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
+            .RequireAuthorization(AdminPolicies.Read);
         // GET, not POST: the extract is a read that is audited, and keeping the
         // verb read-only preserves the "no mutation surface" invariant the other
         // reporting routes are tested against.
         adminGroup.MapGet("/analytics/export", ExportAnalyticsAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueView))
-            .RequireAuthorization(IvrRoles.ConsoleAdminPolicy);
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapPost("/queue:pause", PauseQueueAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueuePause));
+            .RequireAuthorization(AdminPolicies.Danger);
         adminGroup.MapPost("/queue:resume", ResumeQueueAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueueResume));
+            .RequireAuthorization(AdminPolicies.Danger);
         adminGroup.MapPost("/sim-channels/{simChannelId}:disable", DisableChannelAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.SimDisable));
+            .RequireAuthorization(AdminPolicies.Danger);
         adminGroup.MapPost("/sim-channels/{simChannelId}:enable", EnableChannelAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.SimEnable));
+            .RequireAuthorization(AdminPolicies.Danger);
         adminGroup.MapPost("/technical-retries", RetryTechnicalExceptionAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ManualRetry));
+            .RequireAuthorization(AdminPolicies.Danger);
         adminGroup.MapPost("/admin-reviews", ReviewAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.ResultReview));
+            .RequireAuthorization(AdminPolicies.Write);
 
         // W-0111. Operator holds this as well as Admin: it is the risk-reducing direction, and
         // an operator who has to find an admin is an operator watching a call they were told
         // to end.
         adminGroup.MapPost("/call-jobs/{ivrCallJobId}:terminate", TerminateCallAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.CallTerminate));
+            .RequireAuthorization(AdminPolicies.Danger);
 
         // Separate route, separate press, separate reason. Engaging the kill switch stops the
         // next call; this ends conversations already under way.
         adminGroup.MapPost("/call-jobs:terminate-all", TerminateAllCallsAsync)
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.CallTerminate));
-        endpoints.MapIvrConsoleAccountEndpoints();
+            .RequireAuthorization(AdminPolicies.Danger);
         endpoints.MapIvrScriptLifecycleEndpoints();
         return endpoints;
     }

@@ -250,12 +250,23 @@ public sealed class ScriptLifecycleApiService(
                 cancellationToken).ConfigureAwait(false));
     }
 
+    /// <summary>
+    /// W-0122. Script approval keeps its segregation of duties, but the source of truth for who
+    /// holds which approval moved out of IVR along with the console accounts.
+    /// <para>
+    /// Module 3 owns operator identity now, so it asserts the approvals its user carries in
+    /// <c>X-Script-Permissions</c>; the authentication handler turns that header into claims and
+    /// this method reads them. The domain rules are unchanged — <see cref="ScriptActor"/> still
+    /// enforces that an actor cannot approve what it edited. What changed is only who is trusted
+    /// to say what an actor holds.
+    /// </para>
+    /// </summary>
     private static ScriptActor Actor(ClaimsPrincipal principal, string actorId)
     {
         ArgumentNullException.ThrowIfNull(principal);
         ImmutableArray<string> granted =
         [
-            .. principal.FindAll(ClaimsPermissionEvaluator.PermissionClaimType)
+            .. principal.FindAll(AdminTokenAuthenticationHandler.ScriptPermissionClaimType)
                 .Select(claim => claim.Value)
                 .Where(DomainPermissions.ContainsKey)
                 .Select(permission => DomainPermissions[permission]),

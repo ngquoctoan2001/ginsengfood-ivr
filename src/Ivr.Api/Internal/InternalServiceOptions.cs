@@ -36,12 +36,6 @@ internal static class InternalRequestGuard
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(options);
 
-        if (context.Request.Headers.ContainsKey(MockPermissionAuthenticationHandler.HeaderName)
-            || context.Request.Headers.ContainsKey(MockPermissionAuthenticationHandler.ActorHeaderName))
-        {
-            throw IvrErrors.ForbiddenCaller();
-        }
-
         string source = context.Request.Headers[OrderCoreAllowlistMiddleware.SourceHeaderName]
             .ToString();
         if (!AllowedSources.Contains(source)
@@ -96,14 +90,20 @@ internal static class InternalRequestGuard
         return key;
     }
 
+    /// <summary>
+    /// The operator an admin action is attributed to.
+    /// <para>
+    /// W-0122. This used to cross-check the header against the signed-in console subject. There is
+    /// no console subject any more — Module 3 owns operator identity and asserts it per request —
+    /// so the header is the source, and what is left to enforce is that it is present and safe to
+    /// write into an audit row.
+    /// </para>
+    /// </summary>
     public static string RequireAdminActor(HttpContext context)
     {
-        string actor = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
-            ?.Value
-            ?? throw IvrErrors.ForbiddenCaller();
-        string supplied = context.Request.Headers[ActorHeaderName].ToString();
-        if (string.IsNullOrWhiteSpace(supplied)
-            || !string.Equals(actor, supplied, StringComparison.Ordinal))
+        ArgumentNullException.ThrowIfNull(context);
+        string actor = context.Request.Headers[ActorHeaderName].ToString();
+        if (string.IsNullOrWhiteSpace(actor) || actor.Length > 128)
         {
             throw IvrErrors.ForbiddenCaller();
         }

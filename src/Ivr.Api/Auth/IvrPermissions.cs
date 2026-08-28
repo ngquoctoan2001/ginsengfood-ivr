@@ -13,10 +13,6 @@ public static class IvrPermissions
     public const string ResultReview = "IVR_RESULT_REVIEW";
     public const string FlagRead = "IVR_FLAG_READ";
     public const string RuntimeGateAdmin = "IVR_RUNTIME_GATE_ADMIN";
-    public const string AccountView = "IVR_ACCOUNT_VIEW";
-    public const string AccountManage = "IVR_ACCOUNT_MANAGE";
-    public const string AccountPasswordReset = "IVR_ACCOUNT_PASSWORD_RESET";
-    public const string AccountSelfView = "IVR_ACCOUNT_SELF_VIEW";
 
     /// <summary>
     /// Script lifecycle (W-0109). One console permission per domain permission in
@@ -76,10 +72,6 @@ public static class IvrPermissions
             ResultReview,
             FlagRead,
             RuntimeGateAdmin,
-            AccountView,
-            AccountManage,
-            AccountPasswordReset,
-            AccountSelfView,
             ScriptEdit,
             ScriptReview,
             ScriptApproveMock,
@@ -110,10 +102,6 @@ public static class IvrPermissions
     /// </summary>
     public static IReadOnlySet<string> ConsoleSessionOnly { get; } = new[]
         {
-            AccountView,
-            AccountManage,
-            AccountPasswordReset,
-            AccountSelfView,
 
             // Script lifecycle joins the account surface here for the same reason, and it is
             // the sharper case: the mock seam mints whatever X-Permissions asks for, MOCK is
