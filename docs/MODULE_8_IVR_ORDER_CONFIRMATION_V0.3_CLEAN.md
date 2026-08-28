@@ -47,6 +47,7 @@ V0.2 được viết khi chưa có dòng code nào. Sau 101 commit, nhiều phá
 | 18    | (sửa 27/08) §26 thiếu OD-V1-14                            | Không phải lỗi đánh số — quyết định này có thật trong sổ đăng ký và là mục nghiêm trọng nhất (có thể làm 100% task bị từ chối ngày cắm thật). Đã bổ sung, kèm con trỏ tới sổ đăng ký làm nguồn có thẩm quyền. |
 | 19    | (sửa 27/08, sau review M3) §10 ghi "ba nguồn mâu thuẫn"    | Thành **bốn**. Contract submodule của M3 dùng Giờ Vàng `[0,300]`/10 phút và 24/7 3 cuộc `[0,300,600]`. Nặng hơn: M3 nêu **không nguồn nào đỡ cho `[0,150]`** — chính con số IVR đang chạy. |
 | 20    | (sửa 27/08, sau review M3) OD-V1-13 ghi "chưa có nguồn business" | Sai, đã cũ. M3 dẫn Flow 04/05 khóa `24_7+COD` và `GOLDEN_HOUR+ONLINE`. Bảng ép trong code IVR khớp nghiệp vụ. Hạ từ CHẶN xuống "ký wire mapping". |
+| 21    | (sửa 28/08, `W-0136`) §13.2 không có yêu cầu công nghệ vô tuyến nào, và cả tài liệu không có chữ "VoLTE" | Bảy tiêu chí của §13.2 nói về API, disposition, DTMF, CDR, SIP — **không tiêu chí nào nói thiết bị chạy sóng gì**, trong khi đường tích hợp lại đặt tên "GSM Gateway", tức thiết bị 2G, loại ngừng hoạt động **15/09/2026**. Hồ sơ mua sắm (`R-00`/`R-06`) đã chuyển sang 4G/VoLTE ở `W-0135`, nhưng spec nguồn thì chưa — nên bất kỳ ai gộp hồ sơ lại từ spec đều ra bản 2G một lần nữa. Thêm yêu cầu **#0 (VoLTE)** vào §13.2 và đổi tên thiết bị trong đường tích hợp. Mốc: 2G `15/09/2026`, 3G **tháng 9/2028** (không phải 2026). **Cố ý chưa đổi:** tên bước 5 "GSM/SIM Call Execution" (§6) và mô tả "Thực hiện cuộc gọi qua GSM/SIM" (§10) giữ nguyên — đó là tên bước và tên component, không phải yêu cầu thiết bị, và đổi sẽ lan sang `phase-8/22`. Đọc chúng như tên gọi, không phải ràng buộc mua. |
 
 # **1\. Mục đích tài liệu**
 
@@ -333,6 +334,7 @@ V0.2 nói "Internal SIM Gateway Server" nhưng không nêu một yêu cầu thi�
 
 | **#** | **Yêu cầu**                                                                                    | **Vì sao là điều kiện loại trừ**                                                                     |
 | ----- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **0** | **Thoại chạy trên VoLTE (4G).** Nêu rõ model có module VoLTE, hay chỉ có LTE data và thoại rơi về CSFB. Model cụ thể, không phải tên dòng sản phẩm. | 2G tắt toàn quốc **15/09/2026**, 3G chạy tới **tháng 9/2028**. Thiết bị 2G thuần chết ngay tại mốc đầu; thiết bị CSFB không chết cùng lúc mà còn rơi về 3G tới 2028, nhưng đó vẫn là mua một thiết bị đã đếm ngược hạn dùng cho hệ thống dự kiến chạy quá mốc đó. **Không đạt mục này thì không cần xét các mục còn lại.** |
 | 1     | Có API kiểm tra sức khỏe từng kênh, trả về được cờ trạng thái ghi âm để đọc ngược lại.         | Chính sách khóa ghi âm ở trạng thái TẮT. Không đọc ngược được thì không chứng minh được nó đang tắt. |
 | 2     | Bảng mã kết thúc cuộc gọi (call disposition) phân biệt được đủ 11 giá trị ở §13.3. KHÔNG phải bảng result code ở §16. | Ánh xạ nhầm "khách bấm từ chối" thành "khách hủy đơn" là hủy đơn của khách không hề yêu cầu.         |
 | 3     | DTMF hỗ trợ RFC 2833/4733; nêu rõ có bắt được phím trong lúc đang phát thoại (barge-in) không. | Không có barge-in thì cuộc gọi dài hơn, tỉ lệ khách cúp giữa chừng tăng.                             |
@@ -341,7 +343,7 @@ V0.2 nói "Internal SIM Gateway Server" nhưng không nêu một yêu cầu thi�
 | 6     | Có CDR với mã tham chiếu cuộc gọi nối được sang attempt_id của IVR.                            | Không nối được thì mọi tranh chấp hóa đơn đều không giải quyết được.                                 |
 | 7     | Nói SIP chuẩn, ưu tiên hơn SDK độc quyền.                                                      | Hệ thống đã có Asterisk; thiết bị SIP nối vào bằng trunk, tái dùng gần hết phần đã làm.              |
 
-<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>ĐƯỜNG TÍCH HỢP RẺ NHẤT</strong></p><ul><li>IVR → adapter Asterisk (đã có) → Asterisk → SIP trunk → GSM Gateway → SIM → nhà mạng.</li><li>Chỉ phần "SIP trunk → GSM Gateway" là mới. Không cần viết lại adapter từ đầu bằng SDK riêng của hãng.</li><li>Bộ resolve alias → số thật phải nằm NGOÀI process IVR, để giữ nguyên ràng buộc IVR không bao giờ cầm số điện thoại thô.</li></ul></th></tr></tbody></table></div>
+<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>ĐƯỜNG TÍCH HỢP RẺ NHẤT</strong></p><ul><li>IVR → adapter Asterisk (đã có) → Asterisk → SIP trunk → cổng thoại 4G/VoLTE → SIM → nhà mạng.</li><li>Chỉ phần "SIP trunk → cổng thoại" là mới. Không cần viết lại adapter từ đầu bằng SDK riêng của hãng.</li><li>Bộ resolve alias → số thật phải nằm NGOÀI process IVR, để giữ nguyên ràng buộc IVR không bao giờ cầm số điện thoại thô.</li></ul></th></tr></tbody></table></div>
 
 ## **13.3. Bảng call disposition — từ vựng để hỏi vendor**
 
