@@ -48,6 +48,49 @@ export const CALL_DURATION_ASSUMPTIONS = {
 };
 
 /**
+ * W-0134 / OD-19 — the time base `peakShare` is a fraction OF, and nobody has supplied it.
+ *
+ * `poolForProgramme` sizes against `policy.windowSeconds` -- the per-order confirmation window,
+ * 300s for Golden Hour. That is not a session. It is a deliberately conservative substitute that
+ * assumes the whole peak lands at once, and it is why `peakShare` has no time base: 0.15 is a
+ * fraction of the day's eligible orders with nothing saying how long that 15% takes to arrive.
+ *
+ * M8-OD-C (spec §14.2) asks the business half -- how long a Golden Hour session runs, and how many
+ * orders peak inside it. It is unanswered.
+ *
+ * There is a third question nobody has asked, and it is the dangerous one. Substituting a session
+ * length for the confirmation window does not merely rescale the model; it silently adopts a
+ * uniform-arrival assumption. Measured on the Golden Hour branch of UNCALIBRATED_SCENARIO, sizing
+ * against 2700s instead of 300s takes the answer from 16 channels to 2 -- and computing the same
+ * thing the honest way, by thinning the peak across 300-second slices, lands on 2 as well. The two
+ * agree because they are the same assumption wearing different clothes.
+ *
+ * On a purchase decision that is the difference between buying 32 channels and buying 4. So
+ * `sessionSeconds` stays null and the sizing math is untouched until both the session length AND an
+ * arrival profile are decided. CAP-SESSION-06 enforces exactly that pairing.
+ */
+export const SESSION_LENGTH = {
+  answered: false,
+  decisionId: "M8-OD-C",
+
+  /** No value, on purpose. A number here without `arrivalProfile` is how the 8x under-size happens. */
+  sessionSeconds: null,
+
+  /** How peak orders are distributed across the session. Nobody has decided this either. */
+  arrivalProfile: null,
+
+  /** What the model actually sizes against today, and it is not a session. */
+  sizedAgainst: "policy.windowSeconds",
+
+  /**
+   * 45 minutes. Appears once in a §14.1 column header with nothing behind it; the spec's own note
+   * calls it an assumption rather than a decision. Recorded so it can be recognised and refused,
+   * never so it can be used as a default.
+   */
+  unsourcedSpecCandidateSeconds: 2700,
+};
+
+/**
  * Candidate attempt policies. MOCK/LAB only — the production policy is unsigned (W-0007), and the
  * model takes a policy as input precisely so that signing a different one does not require
  * touching this file.

@@ -137,6 +137,50 @@ nào được quay (`W-0008`). Việc gom lại chỉ biến sự bất đồng 
 Khi `W-0008` có số đo: đặt giá trị đo được, bật `calibrated`, trỏ `calibratedBy` vào evidence.
 `CAP-DRIFT-05` khi đó sẽ **đòi** ba con số phải thống nhất.
 
+## 4b. Độ dài phiên — input chưa có đáp án, và cái bẫy khi thay ẩu (`W-0134`)
+
+Model **không có input độ dài phiên**. `poolForProgramme` sizing bằng `policy.windowSeconds` —
+`300s` cho Giờ Vàng — tức **confirmation window của từng đơn**, không phải phiên. Đó là phép thay
+bảo thủ: nó giả định toàn bộ cao điểm ập đến cùng lúc.
+
+Đây cũng là lý do `peakShare` mất gốc thời gian: `0.15` là tỉ lệ của đơn eligible trong **ngày**,
+không có câu nào nói 15% đó đến trong bao lâu.
+
+### Cái bẫy
+
+`M8-OD-C` hỏi phiên dài bao lâu. Nhưng có một câu hỏi thứ ba **chưa ai hỏi**, và nó mới nguy hiểm:
+thay `windowSeconds` bằng `sessionSeconds` **không phải** một phép đổi thang trung tính — nó âm
+thầm nhận lấy giả định **khách đến đều**.
+
+Đo trên nhánh Giờ Vàng của `UNCALIBRATED_SCENARIO`:
+
+| Sizing | Kênh |
+| --- | --- |
+| `windowSeconds = 300` (hiện tại) | **16** |
+| `sessionSeconds = 2700` (thay thẳng) | **2** |
+| Làm tử tế: rải cao điểm ra từng lát 300s của phiên 2700s | **2** |
+
+Hai dòng cuối trùng nhau — vì chúng **là cùng một giả định**, chỉ khác cách mặc áo. Với một quyết
+định mua sắm, đó là chênh giữa mua 32 kênh và mua 4.
+
+### Vì vậy `W-0134` không đổi phép tính
+
+`SESSION_LENGTH` trong `tools/capacity-sim/capacity-model.mjs` khai báo input với
+`sessionSeconds: null`, `arrivalProfile: null`, `decisionId: "M8-OD-C"`, và ghi lại con số
+`2700s` **chỉ để nhận diện và từ chối**, không bao giờ để làm mặc định.
+
+`CAP-SESSION-06` canh:
+
+- độ dài phiên còn để mở và còn nêu đúng tên `M8-OD-C`;
+- **đo lại chính cái bẫy mỗi lần chạy** — nếu thay `2700s` không còn làm sizing sụp thì gate đỏ, vì
+  model đã đổi hình và phải suy lại;
+- đặt `sessionSeconds` mà `answered` vẫn `false` → đỏ;
+- đặt `sessionSeconds` mà **không có `arrivalProfile`** → đỏ, kèm đúng con số `16 → 2`;
+- đặt `sessionSeconds` = `2700` → đỏ, vì đó là con số ở tiêu đề cột §14.1 mà chính spec gọi là giả
+  định, không phải quyết định;
+- và model phải còn đang sizing đúng như `sizedAgainst` khai — kiểm bằng cách chạy thật
+  `poolForProgramme` rồi so, không tin lời khai.
+
 ## 5. Pool đang ship vs mô hình
 
 `CAP-ALERT-04` đọc `worker.hpa.simPoolSize` của cả 4 môi trường và đòi:

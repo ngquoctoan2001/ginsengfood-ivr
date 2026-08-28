@@ -18,7 +18,9 @@ import {
   CALL_DURATION_ASSUMPTIONS,
   CANDIDATE_POLICIES,
   CHANNEL_CONSTRAINTS,
+  SESSION_LENGTH,
   UNCALIBRATED_SCENARIO,
+  attemptsFor,
   channelsForWindow,
   costPerConfirmedOrder,
   monthlyCost,
@@ -335,6 +337,88 @@ async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
     + "is the work that would settle it\n");
 }
 
+// ------------------------------------------------------------- CAP-SESSION-06
+
+function sessionLengthStaysUnansweredAndCannotBeSubstitutedQuietly() {
+  // W-0134 / OD-19. The model has no session-length input, and adding one naively is not a neutral
+  // refactor -- it swaps a conservative "the peak lands at once" for an unapproved "the peak
+  // arrives evenly", and the sizing collapses. This check keeps the input declared, keeps the
+  // unsourced 45-minute figure out of the arithmetic, and refuses a session length that arrives
+  // without an arrival profile beside it.
+  assert.equal(SESSION_LENGTH.decisionId, "M8-OD-C",
+    "the decision that would answer session length is no longer named.");
+
+  // The danger is measured here rather than described in a comment, so it fails if it stops being
+  // true. Golden Hour branch of UNCALIBRATED_SCENARIO, sized both ways.
+  const gh = UNCALIBRATED_SCENARIO.programmes.GOLDEN_HOUR;
+  const peakOrders = UNCALIBRATED_SCENARIO.dailyOrders * gh.share
+    * UNCALIBRATED_SCENARIO.eligibleRate * gh.peakShare;
+  const attempts = attemptsFor({
+    orders: peakOrders,
+    noAnswerRate: UNCALIBRATED_SCENARIO.noAnswerRate,
+    maxAttempts: gh.policy.maxAttempts,
+  });
+  const sizing = (windowSeconds) => channelsForWindow({
+    attempts,
+    windowSeconds,
+    callSeconds: CALL_DURATION_ASSUMPTIONS.modelCallSeconds,
+    cooldownSeconds: CHANNEL_CONSTRAINTS.cooldownSeconds,
+  });
+
+  const asWindow = sizing(gh.policy.windowSeconds);
+  const asSession = sizing(SESSION_LENGTH.unsourcedSpecCandidateSeconds);
+  assert(
+    asSession * 4 < asWindow,
+    `substituting the session length used to collapse the sizing (${asWindow} -> ${asSession} `
+    + "channels) and no longer does. If the model changed shape, re-derive whether the "
+    + "uniform-arrival assumption is still hiding inside the substitution before relaxing this.");
+
+  // A session length may only enter the model together with the assumption that makes it mean
+  // something. One without the other is the 8x under-size with a decision-shaped label on it.
+  if (SESSION_LENGTH.sessionSeconds !== null) {
+    assert.equal(SESSION_LENGTH.answered, true,
+      "a session length was set while the decision is still recorded as unanswered.");
+    assert(
+      SESSION_LENGTH.arrivalProfile !== null,
+      `a session length (${SESSION_LENGTH.sessionSeconds}s) was set with no arrivalProfile. `
+      + `Sizing against it instead of the ${gh.policy.windowSeconds}s confirmation window takes `
+      + `Golden Hour from ${asWindow} channels to ${asSession}, which is only correct if orders `
+      + "really do arrive evenly across the session. Decide that, or leave the window in place.");
+    assert.notEqual(
+      SESSION_LENGTH.sessionSeconds, SESSION_LENGTH.unsourcedSpecCandidateSeconds,
+      "the session length was set to the 45-minute figure from the §14.1 column header, which the "
+      + "spec itself calls an assumption rather than a decision. It needs its own source.");
+  } else {
+    assert.equal(SESSION_LENGTH.answered, false,
+      "session length is declared answered but carries no value.");
+    assert.equal(SESSION_LENGTH.arrivalProfile, null,
+      "an arrival profile was declared without a session length for it to apply to.");
+  }
+
+  // And the model must still be sizing the way this check assumes it is.
+  assert.equal(SESSION_LENGTH.sizedAgainst, "policy.windowSeconds",
+    "the declared sizing base changed; CAP-SESSION-06 is no longer describing the model.");
+  const live = poolForProgramme({
+    dailyOrders: UNCALIBRATED_SCENARIO.dailyOrders * gh.share,
+    eligibleRate: UNCALIBRATED_SCENARIO.eligibleRate,
+    peakShare: gh.peakShare,
+    noAnswerRate: UNCALIBRATED_SCENARIO.noAnswerRate,
+    callSeconds: UNCALIBRATED_SCENARIO.callSeconds,
+    policy: gh.policy,
+  });
+  assert.equal(live.channels, asWindow,
+    `the model sized Golden Hour at ${live.channels} channels while the declared base `
+    + `(${SESSION_LENGTH.sizedAgainst}) gives ${asWindow}. Something started substituting a `
+    + "different time base.");
+
+  process.stdout.write(
+    `CAP-SESSION-06 PASS_UNANSWERED — session length is declared open under `
+    + `${SESSION_LENGTH.decisionId} and the model still sizes against `
+    + `${SESSION_LENGTH.sizedAgainst}. Substituting the unsourced 45-minute figure would take `
+    + `Golden Hour from ${asWindow} to ${asSession} channels, so a session length is refused `
+    + `unless an arrival profile is decided with it\n`);
+}
+
 // ------------------------------------------------------------------------ main
 
 const model = sizesFromPeakNotAverage();
@@ -342,6 +426,7 @@ theAnswerIsARangeWithANamedDriver();
 await calibrationAgainstWhatWasActuallyMeasured();
 await theShippedPoolMatchesTheModel(model);
 await callDurationHasOneDeclaredSourceAndDoesNotDriftSilently();
+sessionLengthStaysUnansweredAndCannotBeSubstitutedQuietly();
 
 const monthly = monthlyCost({
   channels: 32, simMonthlyCost: 1, gatewayMonthlyCost: 1, infraMonthlyCost: 1,
