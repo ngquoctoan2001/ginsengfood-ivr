@@ -934,6 +934,242 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
             .ToListAsync());
     }
 
+    [Fact]
+    [Trait("TestId", "PT-CAP-02")]
+    public async Task DeliberateOverloadRecordsCapacityIncidentForEveryJobThatNeverGotAChannel()
+    {
+        // W-0131 / M8-P0-009 (spec §23). PT-CAP-01 already proves contention is safe at 1/8 and
+        // 4/24, but it never asserts the one thing the SIM order is actually sized by: that a burst
+        // which cannot fit leaves a capacity incident behind. The cross-audit flagged this exact
+        // acceptance as missing, so this test is that scenario and nothing else -- 32 channels, 800
+        // jobs dropped into a single 5-minute window, where five-minute capacity is only ~192. The
+        // shortfall has to be recorded, not quietly absorbed.
+        //
+        // Scope kept deliberately narrow: this does NOT model channels recycling between calls, so
+        // it does not prove the ~192-per-five-minutes throughput figure. That number stays
+        // UNCALIBRATED until W-0008 supplies a measured call duration.
+        const int channels = 32;
+        const int jobs = 800;
+
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        DateTimeOffset windowExpiresAt = Now.AddMinutes(5);
+
+        await SeedChannelPoolAsync(factory, channels);
+        await SeedReadyJobBurstAsync(factory, jobs, Now, windowExpiresAt);
+
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+
+        // All 800 want a channel at once. Parallelism is bounded because the point is database
+        // contention, not exhausting the Npgsql pool -- 64 in flight is still twice the channel
+        // count, which is what makes the ONE_SIM_ONE_ACTIVE_CALL assertion below mean something.
+        using var gate = new SemaphoreSlim(64);
+        SchedulerDispatchLease?[] leases = await Task.WhenAll(
+            Enumerable.Range(0, jobs).Select(async worker =>
+            {
+                await gate.WaitAsync();
+                try
+                {
+                    return await store.TryClaimDueDispatchAsync(
+                        string.Concat("worker-", worker.ToString(CultureInfo.InvariantCulture)),
+                        IvrOptions.LabRealSimExecutionMode,
+                        TimeSpan.FromMinutes(2));
+                }
+                finally
+                {
+                    gate.Release();
+                }
+            }));
+
+        // ONE_SIM_ONE_ACTIVE_CALL under a burst 25x the channel count.
+        List<SchedulerDispatchLease> granted = [.. leases.OfType<SchedulerDispatchLease>()];
+        Assert.True(granted.Count <= channels, $"granted {granted.Count} leases for {channels} channels");
+
+        // SKIP LOCKED lets a racing worker miss a channel that was only briefly locked, which would
+        // make the count below flaky. A short sequential top-up removes the flake without weakening
+        // the claim: given an unhurried chance the scheduler fills every channel it has, and only
+        // what is left over after that is honestly a shortage.
+        while (granted.Count < channels)
+        {
+            SchedulerDispatchLease? extra = await store.TryClaimDueDispatchAsync(
+                string.Concat("worker-topup-", granted.Count.ToString(CultureInfo.InvariantCulture)),
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromMinutes(2));
+            if (extra is null)
+            {
+                break;
+            }
+
+            granted.Add(extra);
+        }
+
+        Assert.Equal(channels, granted.Count);
+
+        await using (IvrDbContext underLoad = await factory.CreateDbContextAsync())
+        {
+            List<SimChannelEntity> reserved = await underLoad.SimChannels.AsNoTracking()
+                .Where(channel => channel.Status == "RESERVED")
+                .ToListAsync();
+            Assert.Equal(channels, reserved.Count);
+            Assert.Equal(
+                reserved.Count,
+                reserved.Select(channel => channel.ActiveCallJobId).Distinct(StringComparer.Ordinal).Count());
+        }
+
+        // The window closes with 768 jobs that never got dispatched. Sweeping in a loop is required
+        // because the store caps batchSize at 512, and it doubles as the "khong batch" half of
+        // M8-P0-009: draining until the sweep returns zero proves nothing was left behind by the
+        // batch boundary.
+        int closed = 0;
+        int swept;
+        do
+        {
+            swept = await store.CloseMissedDeadlinesAsync(windowExpiresAt.AddSeconds(1), 512);
+            closed += swept;
+        }
+        while (swept > 0);
+
+        int expectedMisses = jobs - channels;
+        Assert.Equal(expectedMisses, closed);
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+
+        // Nothing lost under overload: every seeded job survives the sweep.
+        Assert.Equal(jobs, await verification.CallJobs.AsNoTracking().CountAsync());
+
+        // The assertion PT-CAP-01 does not make. Overload has to be visible as a capacity incident,
+        // because that counter is what sizes the SIM purchase (M8-OD-A). A silent shortage would
+        // read as "we had enough channels".
+        List<CapacityIncidentEntity> incidents =
+            await verification.CapacityIncidents.AsNoTracking().ToListAsync();
+        Assert.Equal(expectedMisses, incidents.Count);
+        Assert.All(incidents, incident =>
+        {
+            Assert.Equal("SCHEDULER_DEADLINE", incident.Scope);
+            Assert.Equal("NO_DISPATCH_BEFORE_DEADLINE", incident.ShortageReason);
+            Assert.Equal("IVR_CAPACITY_EXCEPTION", incident.Reason);
+            Assert.Equal("OPEN", incident.Status);
+            Assert.Equal(channels, incident.ActiveSimCount);
+        });
+
+        // Overload must never spend a customer's limited attempts (DT-02 / DT-04). The 768 that
+        // missed were never called, so no counted attempt may exist anywhere.
+        Assert.Empty(await verification.CallAttempts.AsNoTracking()
+            .Where(attempt => attempt.IsCountedCustomerAttempt)
+            .ToListAsync());
+    }
+
+    // Bulk seeders for PT-CAP-02 only. SeedReadyJobAsync/SeedChannelAsync open one DbContext and
+    // one SaveChanges per row, which is right for a handful of rows and wrong for 832 of them, so
+    // these batch into a single context rather than changing the behaviour of a shared helper that
+    // twenty other tests depend on.
+    private static async Task SeedChannelPoolAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        int channels)
+    {
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        for (int index = 0; index < channels; index++)
+        {
+            string channelId = string.Concat(
+                "SIM-PT-CAP2-",
+                index.ToString("D3", CultureInfo.InvariantCulture));
+            context.SimChannels.Add(new SimChannelEntity
+            {
+                SimChannelId = channelId,
+                SimNumberRef = string.Concat("sim-ref-", channelId),
+                Enabled = true,
+                Status = "IDLE",
+                AdapterMode = "VENDOR",
+                ExecutionMode = IvrOptions.LabRealSimExecutionMode,
+                ProviderName = "VENDOR",
+                LastHealthCheckAt = Now,
+            });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedReadyJobBurstAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        int jobs,
+        DateTimeOffset startedAt,
+        DateTimeOffset expiresAt)
+    {
+        string schedule = JsonSerializer.Serialize(new[]
+        {
+            startedAt,
+            startedAt.AddSeconds(150),
+        });
+
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        for (int index = 0; index < jobs; index++)
+        {
+            string suffix = index.ToString("D4", CultureInfo.InvariantCulture);
+            string taskId = string.Concat("TASK-PT-CAP2-", suffix);
+            context.ConfirmationTasks.Add(new ConfirmationTaskEntity
+            {
+                Id = Guid.NewGuid(),
+                TaskId = taskId,
+                ContractVersion = "ivr-order-confirmation.v1",
+                IdempotencyKey = string.Concat("scheduler:", taskId),
+                CorrelationId = string.Concat("corr-", taskId),
+                OfficialOrderId = string.Concat("ORDER-", taskId),
+                OrderCode = string.Concat("GF-", taskId),
+                OrderVersion = "1",
+                OrderState = "CONFIRMING",
+                PaymentMethodSnapshot = "ONLINE",
+                IvrConfirmationRequired = true,
+                RiskFlagsJson = "[]",
+                ProgramType = "GOLDEN_HOUR",
+                AttemptPolicyVersion = CandidateAttemptPolicies.Version,
+                MaxAttempts = 2,
+                AttemptOffsetsSecondsJson = "[0,150]",
+                ConfirmationWindowStartedAt = startedAt,
+                ConfirmationWindowExpiresAt = expiresAt,
+                PhoneRef = string.Concat("phone-ref-", taskId),
+                PhoneMasked = "84xxxxx0020",
+                PhoneValidationStatus = "VALID",
+                DialTokenCiphertext = string.Concat("enc:", taskId),
+                DialTokenExpiresAt = expiresAt,
+                PrivacySafeOrderSummaryJson = "{}",
+                CallScriptTemplateId = "SCRIPT-ORDER-CONFIRM",
+                CallScriptVersion = "v1-test-approved",
+                EvidencePolicyVersion = "evidence-v1",
+                PrivacyPolicyVersion = "privacy-v1",
+                EligibilityDecision = "ELIGIBLE_FOR_IVR",
+                EligibilitySnapshotJson = "{\"decision\":\"ELIGIBLE\"}",
+                CallRestriction = false,
+                CreatedAt = startedAt,
+                ExpiresAt = expiresAt,
+                AcceptedAt = startedAt,
+            });
+            context.CallJobs.Add(new CallJobEntity
+            {
+                IvrCallJobId = string.Concat("JOB-PT-CAP2-", suffix),
+                TaskId = taskId,
+                OfficialOrderId = string.Concat("ORDER-", taskId),
+                OrderVersionSnapshot = "1",
+                ProgramType = "GOLDEN_HOUR",
+                AttemptPolicyCode = CandidateAttemptPolicies.Version,
+                Status = "READY_FOR_SCHEDULER",
+                MaxAttempts = 2,
+                AttemptOffsetsSecondsJson = "[0,150]",
+                ConfirmationWindowSeconds = 300,
+                AttemptScheduleJson = schedule,
+                T0At = startedAt,
+                ExpiresAt = expiresAt,
+                Eligible = true,
+                EligibilityDecision = "ELIGIBLE_FOR_IVR",
+                QueueStatus = "QUEUED",
+                ScriptVersion = "SCRIPT-ORDER-CONFIRM:v1-test-approved",
+                PrivacyPolicyVersion = "privacy-v1",
+                CreatedAt = startedAt,
+            });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services
         .GetRequiredService<IDbContextFactory<IvrDbContext>>();
 
