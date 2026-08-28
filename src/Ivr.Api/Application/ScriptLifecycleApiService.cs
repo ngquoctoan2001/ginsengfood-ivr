@@ -251,7 +251,7 @@ public sealed class ScriptLifecycleApiService(
     }
 
     /// <summary>
-    /// W-0122. Script approval keeps its segregation of duties, but the source of truth for who
+    /// W-0128. Script approval keeps its segregation of duties, but the source of truth for who
     /// holds which approval moved out of IVR along with the console accounts.
     /// <para>
     /// Module 3 owns operator identity now, so it asserts the approvals its user carries in

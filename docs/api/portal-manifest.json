@@ -21,7 +21,7 @@
     "styles.css"
   ],
   "sourceHashes": {
-    "docs/api-changelog.md": "5579ed1c533ad777e578b510239fde8fd22c8a4cc9fa14a1fd97369f7b80b19c",
+    "docs/api-changelog.md": "a543cd97925f5e08055c58fd46211341e17a648813629d5bf8daaffcfac98afe",
     "docs/api-versioning.md": "bef9515401e0baf6926d3e5f3d0ddcd00004cb327974897cb113f787e737114d",
     "docs/api/changelog/ivr-order-confirmation.md": "aa839bec9856bcb02b1e670feea1f8a146bb65396c2ff5d5afef635c4f456ceb",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md": "8e17896e944e0a50bf9a83798e694bb1893ed6e4f7e118aebfe8224780e2c935",
@@ -31,8 +31,8 @@
     "docs/integration-guide.md": "4154153d7fe61e10531d12820497a2384858957519f3fcc4aa28aca133f7f104",
     "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
     "specs/api/openapi/changelog-baseline.json": "33f86a25d7b4d186a24fb6da6c007ae04e5904f46eedc2c223e536b5f1a519fb",
-    "specs/api/openapi/contract-manifest.json": "361d756571bf0d48e28e3ddda86eaece98358c394973666e63392950ccb6a2a8",
-    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "d61a448e6ad3b025a8578192def095041eea0c8b345a6986eadcbd2afb3d086e",
+    "specs/api/openapi/contract-manifest.json": "1fb3638ce1ffb0f81e5976ae67e52bd4875cc0304ea6eedcd30c1a2a2e637e78",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "5809f8b06f52ab3979040885280a7c9a35bba5fc97624b3e0a8360a3df096bb3",
     "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697"
   }
 }

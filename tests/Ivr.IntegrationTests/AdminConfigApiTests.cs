@@ -232,7 +232,7 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
         // off the wording a customer is read. 401, not 405 and not 200.
         foreach (string route in ScriptMutationRoutes)
         {
-            // W-0122. The mock permission seam this guarded against is gone; what replaces it as
+            // W-0128. The mock permission seam this guarded against is gone; what replaces it as
             // the thing worth proving is that these routes are unreachable without a credential
             // at all. Sending none must answer 401, not 405 and not 200.
             using HttpRequestMessage request = new(HttpMethod.Post, route);

@@ -369,13 +369,13 @@ afterAll(async () => {
 });
 
 /**
- * W-0122. The console has no sign-in any more, so there is no session to obtain.
+ * W-0128. The console has no sign-in any more, so there is no session to obtain.
  *
  * Kept as a no-op rather than removed from every call site: what these tests are
  * for is the screens, and the screens are still worth covering. Whoever rebuilds
  * them inside Module 3's console will put a real session back here.
  */
-async function signedInCookie(_username?: string): Promise<string> {
+async function signedInCookie(): Promise<string> {
   return "";
 }
 

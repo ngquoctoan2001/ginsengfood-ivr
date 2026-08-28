@@ -111,14 +111,14 @@ unapproved breaking change would have arrived as one more red among reds.</p>
 <a href="ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html">the archived transition report</a>,
 exactly as the earlier <code>1.0.0 → draft.2</code> reset was. Neither verdict approves a deployment or the
 external Sales contract.</p>
-<p><code>1.0.0-draft.22</code> (W-0122) removes console account authentication from the contract. Eleven paths
+<p><code>1.0.0-draft.22</code> (W-0128) removes console account authentication from the contract. Eleven paths
 go: <code>POST /auth/sign-in</code>, <code>GET /auth/session</code>, <code>POST /auth/sign-out</code>, the six <code>/accounts*</code>
 operations and <code>GET /account-roles</code>, together with fifteen <code>Console*</code> schemas, the <code>AccountId</code>
 parameter and the <code>ConsoleAccountError</code> response. IVR no longer issues or stores identities —
 Module 3 owns the operator console and reaches this service as a peer, with three tier tokens and
 <code>X-Service-Scope</code>/<code>X-Actor-Id</code>/<code>X-Action-Reason</code> headers. The full wire contract is
 <code>integration-requirements/06-module-3-api-handover.md</code> §4A (trong repo IVR, ngoài portal này).</p>
-<p>W-0122 rotated the IVR comparison baseline a second time, from <code>1.0.0-draft.20</code> to
+<p>W-0128 rotated the IVR comparison baseline a second time, from <code>1.0.0-draft.20</code> to
 <code>1.0.0-draft.22</code>, for the same reason W-0124 rotated the first one. Removing eleven paths is
 eleven <code>api path removed without deprecation</code> warnings, and <code>--fail-on WARN</code> would have stayed red
 on every pipeline for a removal the owner had already ordered. The closed window is frozen rather

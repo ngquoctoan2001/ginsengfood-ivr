@@ -89,6 +89,24 @@ describe("UT-UI-CORR-03 correlation propagation", () => {
     expect(init.body).toBe(JSON.stringify({ reason: "capacity incident" }));
   });
 
+  it("carries danger evidence only when the caller supplies it explicitly", async () => {
+    const { fetchImpl, calls } = recordingFetch(jsonResponse({ admin_action_id: "A2" }));
+    const dangerSession: AdminSession = { ...SESSION, scope: "danger" };
+
+    await callIvrApi({
+      method: "POST",
+      path: "/queue:pause",
+      body: { reason: "capacity incident" },
+      actionReason: "capacity incident",
+      session: dangerSession,
+      config: MOCK_CONFIG,
+      fetchImpl,
+    });
+
+    expect(calls[0].headers.get("X-Service-Scope")).toBe("ivr.admin.danger");
+    expect(calls[0].headers.get("X-Action-Reason")).toBe("capacity incident");
+  });
+
   it("attaches X-Correlation-Id even without a session", async () => {
     const { fetchImpl, calls } = recordingFetch(jsonResponse({}));
 

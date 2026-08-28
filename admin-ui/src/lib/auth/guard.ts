@@ -1,7 +1,7 @@
 import "server-only";
 
 /**
- * W-0122. What is left of the console's authorization layer after the account
+ * W-0128. What is left of the console's authorization layer after the account
  * system was retired.
  *
  * This console is no longer a deployed service. Module 3 owns operator identity

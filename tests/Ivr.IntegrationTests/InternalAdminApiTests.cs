@@ -175,7 +175,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             IvrPermissions.QueueView);
         Assert.Equal(HttpStatusCode.OK, queue.StatusCode);
 
-        // W-0122. Tiers nest, so a danger credential legitimately reads the queue. The negative
+        // W-0128. Tiers nest, so a danger credential legitimately reads the queue. The negative
         // that still means something is arriving with no credential at all.
         using HttpResponseMessage queueNoCredential = await SendAdminAsync(
             app,
@@ -212,7 +212,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             Assert.NotEqual(IvrPermissions.QueueView, required);
         }
 
-        // W-0122. The old assertion here was that the actor header had to match the signed-in
+        // W-0128. The old assertion here was that the actor header had to match the signed-in
         // console subject. There is no console subject any more — Module 3 owns operator identity
         // and asserts it per request — so what remains enforceable is that the header is present.
         // An admin action with no named actor writes an audit row nobody can be asked about, and

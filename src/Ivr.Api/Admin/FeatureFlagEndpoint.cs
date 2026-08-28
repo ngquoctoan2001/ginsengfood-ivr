@@ -79,7 +79,7 @@ public static class FeatureFlagEndpoint
         ICorrelationContext correlationContext,
         CancellationToken cancellationToken)
     {
-        // W-0122. The header is the source now: there is no console session to cross-check it
+        // W-0128. The header is the source now: there is no console session to cross-check it
         // against, because Module 3 owns operator identity. The danger-tier policy has already
         // required this header to be present and safe before the endpoint runs.
         string actorId = InternalRequestGuard.RequireAdminActor(httpContext);

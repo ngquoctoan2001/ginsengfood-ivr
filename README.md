@@ -52,7 +52,7 @@ Ivr.Worker -----------------+
 ```
 
 - `Ivr.Api`: health probes plus reusable correlation, stable error envelope,
-  permission enforcement, the Order Core service allowlist, and the feature-
+  three-tier service-token enforcement, the Order Core service allowlist, and the feature-
   flag read/admin endpoints.
 - `Ivr.Worker`: scheduler/dispatcher plus callback delivery, retention,
   analytics and lifecycle jobs; real dispatch remains behind runtime gates.
@@ -62,10 +62,10 @@ Ivr.Worker -----------------+
 - `Ivr.Domain`: stable error catalog and PII masking/guard primitives.
 - `Ivr.Contracts`: generated IVR DTOs and Sales Target V1 client plus a separate
   pinned Golden Hour current-compat client; see `docs/contracts/openapi-codegen.md`.
-- `admin-ui`: strict TypeScript App Router operations console for dashboard,
-  queue/calls, scripts, runtime flags, integrations, review/reporting,
-  accounts/roles and non-production seed tools. The browser talks only to the
-  Next.js server, which is the sole caller of `Ivr.Api`.
+- `admin-ui`: local reference implementation for the Module 3 operations UI:
+  dashboard, queue/calls, scripts, runtime flags, integrations, review/reporting
+  and non-production tools. IVR does not deploy it and it has no account/session
+  store. Its Next.js server is the only local caller of `Ivr.Api`.
 
 `/health/ready` is a fail-closed dependency-readiness probe: it returns `503`
 when PostgreSQL is unreachable, the schema is behind, or the callback circuit
@@ -89,7 +89,7 @@ Stop any running `pnpm dev` process before changing/installing frontend
 dependencies; Windows locks Next's native SWC binary while the dev server is
 running.
 
-Prepare PostgreSQL and apply every pending migration. This also stops the three
+Prepare PostgreSQL and apply every pending migration. This also stops the two
 Docker app containers so a host worker is never competing with a containerized
 worker for the same database:
 
@@ -117,12 +117,7 @@ Database helpers:
 pnpm db:migration:list
 pnpm db:migration:add -- W0106ExampleChange
 pnpm db:migrate
-pnpm db:seed
 ```
-
-`db:seed` asks for the bootstrap password without echoing it and is idempotent.
-Run it after a fresh database volume or whenever the controlled account seed
-definition changes. Do not commit that password into source.
 
 ### Ports
 
@@ -188,7 +183,7 @@ docker compose -f docker-compose.dev.yml config --quiet
 ```
 
 Foundation test IDs include `UT-BOOT-01`, `IT-BOOT-02`, `UT-BOOT-03`, and the
-`UT-FND-*` suite for configuration, idempotency, correlation, RBAC, service
+`UT-FND-*` suite for configuration, idempotency, tier authorization, service
 allowlisting, error envelopes, audit, and PII. CI is implemented by P0-2 using
 GitLab CI. Until W-0061 provisions the GitLab project, runner, protected branch,
 and merge checks, the badge and hosted evidence remain `NOT_RUN`; see [the CI

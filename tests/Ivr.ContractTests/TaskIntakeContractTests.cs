@@ -38,7 +38,7 @@ public sealed class TaskIntakeContractTests
         string openApi = await File.ReadAllTextAsync(FindRepositoryFile(
             "specs", "api", "openapi", "ivr-order-confirmation.v1.yaml"));
 
-        Assert.Contains("version: 1.0.0-draft.21", openApi, StringComparison.Ordinal);
+        Assert.Contains("version: 1.0.0-draft.22", openApi, StringComparison.Ordinal);
         Assert.Contains(
             "M3 has already decided that the order requires a call",
             openApi,

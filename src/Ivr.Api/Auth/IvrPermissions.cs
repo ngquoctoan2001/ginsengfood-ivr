@@ -4,7 +4,7 @@ namespace Ivr.Api.Auth;
 /// The permission strings this module still writes down.
 /// <para>
 /// This is no longer an authorisation catalogue. Endpoints name a tier
-/// (<see cref="AdminPolicies"/>), and W-0122 deleted the console accounts these used to be
+/// (<see cref="AdminPolicies"/>), and W-0128 deleted the console accounts these used to be
 /// granted to. What survives are the strings some other contract still spells out: the
 /// <c>Permission</c> stamped on every admin action, and the wire vocabulary of
 /// <c>X-Script-Permissions</c>. Nothing here grants anything.

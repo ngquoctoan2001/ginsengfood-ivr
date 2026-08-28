@@ -106,7 +106,9 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
         app.UseRouting();
         app.UseIvrApiFoundation();
         app.MapIvrInternalLifecycleEndpoints();
+        app.MapIvrFeatureFlagEndpoints();
         app.MapIvrAdminEndpoints();
+        app.MapIvrDevToolingEndpoints();
         await app.StartAsync();
         return new InternalAdminApiTestApplication(app, logs);
     }

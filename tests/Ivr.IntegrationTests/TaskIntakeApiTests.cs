@@ -44,6 +44,46 @@ public sealed class TaskIntakeApiTests
         Assert.Equal(1, app.Store.OutboxCount);
     }
 
+    /// <summary>
+    /// W-0129. Detailed service reasons are not permission to change the public intake contract:
+    /// invalid policy shapes still fail schema validation, and invalid contact still uses the
+    /// stable 422 error envelope.
+    /// </summary>
+    [Theory]
+    [InlineData("required-flag", HttpStatusCode.BadRequest, IvrErrorCodes.MalformedRequest)]
+    [InlineData("program-payment", HttpStatusCode.BadRequest, IvrErrorCodes.MalformedRequest)]
+    [InlineData("contact", HttpStatusCode.UnprocessableEntity, IvrErrorCodes.ContactInvalid)]
+    [Trait("TestId", "IT-INTAKE-REASON-WIRE-15")]
+    public async Task ReasonRefinementPreservesTheWireStatusAndErrorCode(
+        string scenario,
+        HttpStatusCode expectedStatus,
+        string expectedCode)
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        switch (scenario)
+        {
+            case "required-flag":
+                body["ivr_confirmation_required"] = false;
+                break;
+            case "program-payment":
+                body["payment_method_snapshot"] = "COD";
+                break;
+            case "contact":
+                body["phone_validation_status"] = "PHONE_VALID";
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(scenario));
+        }
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(expectedStatus, response.StatusCode);
+        Assert.Equal(expectedCode, await ErrorCodeAsync(response));
+        Assert.Equal(0, app.Store.CallJobCount);
+    }
+
     [Fact]
     [Trait("TestId", "IT-M3-AUTHORITY-12")]
     public async Task TheRetiredSkipShapeIsCountedAndStillCalled()

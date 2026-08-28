@@ -56,7 +56,7 @@ function requiredOf(schema: string): string[] {
  */
 describe("UT-UI-CONTRACT-06 OpenAPI drift", () => {
   /**
-   * W-0122. This used to compare the mirror against `ConsoleAccountErrorCode`, a superset the
+   * W-0128. This used to compare the mirror against `ConsoleAccountErrorCode`, a superset the
    * account API introduced so the older endpoint enums would not have to change. Deleting that
    * API deleted the superset, and with it the reason the catalogue was ever split — so the guard
    * moves back onto `ErrorCode`, which `ErrorEnvelope` and every operation actually reference.
@@ -348,7 +348,7 @@ function collapseInterpolations(template: string): string {
 
 describe("RBAC vocabulary drift", () => {
   /**
-   * W-0122. Containment, not equality — the two lists stopped being the same list.
+   * W-0128. Containment, not equality — the two lists stopped being the same list.
    *
    * `IvrPermissions.cs` now holds only strings the service itself still writes down: the
    * operation name stamped on each admin action, and the `X-Script-Permissions` wire vocabulary.

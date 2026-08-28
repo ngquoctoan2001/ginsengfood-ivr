@@ -29,14 +29,11 @@ Nguồn: `specs/database/*`, `specs/data/*`, `specs/workflows/*`; smoke `phase-8
 4. Mock SIM adapter đọc `call-scenarios` để phát `raw_call_status` mô phỏng → Result Normalizer (DT-02).
 5. `integration-status` bật/tắt dependency để test fail-closed.
 
-### Account bootstrap W-0105
+### Lịch sử account bootstrap W-0105
 
-Tài khoản console thật được tạo trong PostgreSQL bằng `tools/Ivr.AccountBootstrap`,
-không đọc từ JSON seed. Tool chỉ chấp nhận target `local` hoặc `lab`, nhận mật
-khẩu từ secret input/STDIN, không log credential, không ghi đè account đã tồn
-tại và từ chối production. Chạy migration trước hoặc để tool gọi migration;
-thao tác phải được ghi audit. Việc chạy tool vào database đích cần connection
-string do owner cung cấp và phải lưu evidence đã che secret.
+W-0128 đã loại bỏ account/session khỏi IVR. `agents.sample.json` chỉ còn là fixture
+giao diện lịch sử, không phải identity, credential hay nguồn phân quyền. Không còn
+tool `db:seed` cho account; Module 3 sở hữu operator identity và ánh xạ role → tier.
 
 ## Cách gỡ mock khi có API thật (theo integration-requirements)
 | Seed | Thay bằng | Điều kiện |

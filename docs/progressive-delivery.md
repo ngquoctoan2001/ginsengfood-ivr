@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | `ivr-api` | **canary** 10% → 50% → 100%, gate theo SLO | stateless, theo request; hai phiên bản phục vụ hai request khác nhau là trạng thái bình thường |
 | `ivr-worker` | **blue-green**, đổi service nguyên tử | xem §3 |
-| `ivr-admin-ui` | không progressive | đọc-thuần; sai sót ở đây không chạm dữ liệu khách |
+| `admin-ui` | `NOT_DEPLOYED_BY_IVR` | W-0128: reference local; Module 3 sở hữu UI/identity/deployment |
 
 ## 2. Canary API — cổng SLO chính là ngưỡng paging
 

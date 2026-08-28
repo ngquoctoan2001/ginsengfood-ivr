@@ -20,7 +20,7 @@ public static class IvrApiServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        // W-0122. Bound from configuration keys rather than a section so the three secrets can
+        // W-0128. Bound from configuration keys rather than a section so the three secrets can
         // arrive as plain environment variables, which is how every other IVR credential is
         // delivered. A tier left unset stays empty and its token never matches — fail-closed.
         services.AddOptions<AdminAccessOptions>()
@@ -28,13 +28,29 @@ public static class IvrApiServiceCollectionExtensions
             {
                 options.ReadToken =
                     configuration[AdminAccessOptions.ReadTokenConfigurationKey] ?? string.Empty;
+                options.ReadTokenPrevious = configuration[
+                    AdminAccessOptions.ReadTokenPreviousConfigurationKey] ?? string.Empty;
+                options.ReadTokenPreviousRetiresAt = ParseInstant(configuration[
+                    AdminAccessOptions.ReadTokenPreviousRetiresAtConfigurationKey]);
                 options.WriteToken =
                     configuration[AdminAccessOptions.WriteTokenConfigurationKey] ?? string.Empty;
+                options.WriteTokenPrevious = configuration[
+                    AdminAccessOptions.WriteTokenPreviousConfigurationKey] ?? string.Empty;
+                options.WriteTokenPreviousRetiresAt = ParseInstant(configuration[
+                    AdminAccessOptions.WriteTokenPreviousRetiresAtConfigurationKey]);
                 options.DangerToken =
                     configuration[AdminAccessOptions.DangerTokenConfigurationKey] ?? string.Empty;
-            });
+                options.DangerTokenPrevious = configuration[
+                    AdminAccessOptions.DangerTokenPreviousConfigurationKey] ?? string.Empty;
+                options.DangerTokenPreviousRetiresAt = ParseInstant(configuration[
+                    AdminAccessOptions.DangerTokenPreviousRetiresAtConfigurationKey]);
+            })
+            .Validate(AdminAccessOptionsAreValid, "Admin token rotation configuration is invalid.")
+            .ValidateOnStart();
 
-        // W-0122. One scheme, three policies. The console account system it replaced needed a
+        services.TryAddSingleton<AdminCredentialSource>();
+
+        // W-0128. One scheme, three policies. The console account system it replaced needed a
         // scheme selector, a session handler and a policy per permission because it authenticated
         // people; this authenticates a peer service, and Module 3 owns the operators now.
         services.AddAuthentication(options =>
@@ -125,5 +141,37 @@ public static class IvrApiServiceCollectionExtensions
         services.TryAddScoped<IIvrReadinessProbe, IvrReadinessProbe>();
 
         return services;
+    }
+
+    private static DateTimeOffset? ParseInstant(string? value) =>
+        DateTimeOffset.TryParse(
+            value,
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeUniversal
+                | System.Globalization.DateTimeStyles.AdjustToUniversal,
+            out DateTimeOffset parsed)
+            ? parsed
+            : null;
+
+    private static bool AdminAccessOptionsAreValid(AdminAccessOptions options)
+    {
+        (string Current, string Previous, DateTimeOffset? RetiresAt)[] tiers =
+        [
+            (options.ReadToken, options.ReadTokenPrevious, options.ReadTokenPreviousRetiresAt),
+            (options.WriteToken, options.WriteTokenPrevious, options.WriteTokenPreviousRetiresAt),
+            (options.DangerToken, options.DangerTokenPrevious, options.DangerTokenPreviousRetiresAt),
+        ];
+        string[] configured = tiers
+            .SelectMany(tier => new[] { tier.Current, tier.Previous })
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .ToArray();
+        return tiers.All(tier =>
+                (string.IsNullOrWhiteSpace(tier.Current)
+                    || tier.Current.Length >= RotatingCredentialProvider.MinimumSecretLength)
+                && (string.IsNullOrWhiteSpace(tier.Previous)
+                    || tier.Previous.Length >= RotatingCredentialProvider.MinimumSecretLength)
+                && (string.IsNullOrWhiteSpace(tier.Previous)
+                    || (!string.IsNullOrWhiteSpace(tier.Current) && tier.RetiresAt is not null)))
+            && configured.Distinct(StringComparer.Ordinal).Count() == configured.Length;
     }
 }

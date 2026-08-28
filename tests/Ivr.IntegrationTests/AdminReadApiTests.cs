@@ -53,7 +53,7 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
             .ToArray();
         Assert.Equal(expected.Order(StringComparer.Ordinal), actual);
 
-        // W-0122. Tiers nest, so a higher credential legitimately reads. The negative that
+        // W-0128. Tiers nest, so a higher credential legitimately reads. The negative that
 
 
         // still means something is no credential at all: fail-closed must answer 401, not

@@ -93,7 +93,7 @@ internal static class InternalRequestGuard
     /// <summary>
     /// The operator an admin action is attributed to.
     /// <para>
-    /// W-0122. This used to cross-check the header against the signed-in console subject. There is
+    /// W-0128. This used to cross-check the header against the signed-in console subject. There is
     /// no console subject any more — Module 3 owns operator identity and asserts it per request —
     /// so the header is the source, and what is left to enforce is that it is present and safe to
     /// write into an audit row.

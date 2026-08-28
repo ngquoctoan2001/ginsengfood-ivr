@@ -28,8 +28,6 @@ Trạng thái: `TESTS_PASS` cho cơ chế P1-5 · Giá trị retention productio
 | `evidence_link` | `DELETE` | `Ivr:Retention:PeriodDays:evidence_link` | evidence/link chưa accepted; accepted evidence luôn protected |
 | `idempotency_key` | `DELETE` | `Ivr:Retention:PeriodDays:idempotency_key` | idempotency response snapshot đã quá hạn |
 | `review_item` | `ANONYMIZE` | `Ivr:Retention:PeriodDays:review_item` | chỉ item đã resolved; xoá source ID, reason, assignee và resolution nhạy cảm |
-| `console_session` | `DELETE` | `Ivr:Retention:PeriodDays:console_session` | session đã hết hạn/revoke; xoá trước account |
-| `staff_account` | `DELETE` | `Ivr:Retention:PeriodDays:staff_account` | chỉ account đã soft-delete và không còn session phụ thuộc |
 
 ## 3. Phủ bảng `02-tables.md` §1–§8
 
@@ -57,7 +55,7 @@ Trạng thái: `TESTS_PASS` cho cơ chế P1-5 · Giá trị retention productio
 
 ## 4. Thuật toán, batch và khả năng resume
 
-1. Resolve class theo thứ tự child-first: console session → soft-deleted staff account; callback → raw event → attempt → result → speech → evidence → idempotency → review → intake outbox → task/job.
+1. Resolve class theo thứ tự child-first: callback → raw event → attempt → result → speech → evidence → idempotency → review → intake outbox → task/job.
 2. Resolve period. Thiếu period thì upsert checkpoint `NOT_CONFIGURED`, phát metric/alert age và không chạy mutation.
 3. Đếm `actionable`, `legal hold`, `protected`, `dependency blocked` cho dry-run/report.
 4. Real-run chọn tối đa `BatchSize` bằng `FOR UPDATE SKIP LOCKED`, mutate trong transaction `READ COMMITTED` ngắn và upsert checkpoint trong cùng transaction.

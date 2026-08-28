@@ -15,11 +15,20 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/11` §9; DO
 | `500` | Lỗi hệ thống ngoài dự kiến; **không** dùng để che business reject |
 
 ## 1b. Response model — khi nào `200 + decision` vs `4xx + envelope`
-Bám phase-8/11 §6. Quy tắc chốt để implementer không làm lệch:
-- **`200` + body `IvrTaskIntakeResult.decision`** cho **kết quả nghiệp vụ thành công/soft**: `TASK_ACCEPTED_CALL_JOB_CREATED`, `TASK_ACCEPTED_DRY_RUN_ONLY`, `TASK_HELD_ADMIN_REVIEW`, `TASK_HELD_POLICY_MISSING` (Order Core consume như signal, không phải lỗi giao thức). `TASK_SKIPPED_TRUSTED_CUSTOMER` chỉ còn `LEGACY_READ`, runtime `draft.21` không emit.
-- **`4xx` + error envelope** (`code` = lý do) cho **reject cứng / protocol**: auth, allowlist, malformed, thiếu idempotency/correlation, duplicate conflict, không phải Official Order, state không callable, policy mismatch, contact invalid, script chưa duyệt, operational blocked.
-- `HELD` = soft (200/202); `REJECTED`/`BLOCKED` = 4xx; `ACCEPTED*` = 200. `SKIPPED` không còn là outcome active — nếu một client cũ vẫn đọc giá trị lịch sử thì nó cũng nằm ở nhánh 200, nhưng runtime `draft.21` không phát sinh (`OD-18`).
-- `NEED_CONFIRMATION` (nhẹ): nếu repo có convention "envelope 200 cho mọi outcome" thì có thể để tất cả trong 200-decision; mặc định theo phase-8/11 (reject = 4xx). Không chặn — chọn 1 và giữ nhất quán ở OpenAPI.
+W-0129 khóa theo runtime hiện hành, không suy từ prefix của decision:
+
+- `TaskIntakeEndpoint.ValidateSchema` chạy trước service. `ivr_confirmation_required=false` và cặp
+  program/payment không được phép trả `400 IVR_MALFORMED_REQUEST`; chúng không tạo
+  `IvrTaskIntakeResult`.
+- Service outcome có `FailureCode=null` mới được serialize thành `200 IvrTaskIntakeResult`.
+  Accepted/dry-run và policy hold đi theo nhánh này. Một số nhánh phòng vệ dành cho caller nội bộ
+  cũng có thể mang `TASK_REJECTED_*`, nhưng không vì thế mà chúng trở thành public wire promise.
+- Outcome có `FailureCode` được endpoint chuyển thành `4xx` error envelope. Contact invalid hiện là
+  `422 IVR_CONTACT_INVALID`; attempt-policy mismatch là `409 IVR_POLICY_MISMATCH`.
+- M3 phải rẽ nhánh theo HTTP trước; chỉ đọc `decision`/`blocked_reasons` khi body thật sự là
+  `IvrTaskIntakeResult`. Không được giả định mọi `TASK_REJECTED_*` đều trả `200`.
+
+`TASK_SKIPPED_TRUSTED_CUSTOMER` chỉ còn `LEGACY_READ`; runtime `draft.22` không emit (`OD-18`).
 
 ## 1c. Danh mục `code` ổn định (error envelope 4xx/5xx)
 | `code` | HTTP | Dùng khi | Decision tương ứng (nếu có) |
@@ -44,7 +53,37 @@ Bám phase-8/11 §6. Quy tắc chốt để implementer không làm lệch:
 > `code` là **chuỗi ổn định** (không đổi nghĩa giữa version). Admin action lỗi RBAC dùng `IVR_FORBIDDEN_CALLER` (403).
 
 ## 2. Business intake outcome codes (200 body — phase-8/04 §12)
-Đây là active intake taxonomy. Theo §1b: **200 body** = `TASK_ACCEPTED_CALL_JOB_CREATED` · `TASK_ACCEPTED_DRY_RUN_ONLY` · `TASK_HELD_ADMIN_REVIEW` · `TASK_HELD_POLICY_MISSING`. **4xx envelope** (map sang `code` ở §1c) = `TASK_REJECTED_NOT_OFFICIAL_ORDER` · `TASK_REJECTED_STATE_NOT_CALLABLE` · `TASK_REJECTED_POLICY_MISMATCH` · `TASK_REJECTED_CONTACT_INVALID` · `TASK_REJECTED_SCRIPT_NOT_APPROVED` · `TASK_REJECTED_INVALID_TRACE` · `TASK_BLOCKED_OPERATIONAL`. `TASK_SKIPPED_TRUSTED_CUSTOMER` được giữ `LEGACY_READ` cho client/row cũ, không phải active outcome.
+Đây là enum decision của domain/DTO, không phải cam kết rằng mọi giá trị đều xuất hiện trong body
+`200` trên route intake. Wire mapping authoritative là §1b và OpenAPI `responses`; `4xx` chỉ có
+error envelope. `TASK_SKIPPED_TRUSTED_CUSTOMER` được giữ `LEGACY_READ` cho client/row cũ, không
+phải active outcome.
+
+## 2a. W-0129 — rejection-reason taxonomy và compatibility
+
+Các mã dưới đây chi tiết hóa `TaskIntakeOutcome.BlockedReasons` ở service boundary. Chúng không
+đổi decision, không tạo job và không đổi HTTP contract:
+
+| Nhóm | Điều kiện đầu tiên thất bại | Decision service | Reason service | Wire hiện hành |
+| --- | --- | --- | --- | --- |
+| Policy | `ivr_confirmation_required != true` | `TASK_REJECTED_POLICY_MISMATCH` | `IVR_CONFIRMATION_REQUIRED_NOT_TRUE` | schema chặn trước service → `400 IVR_MALFORMED_REQUEST` |
+| Policy | cặp `program_code × payment_method_snapshot` sai | `TASK_REJECTED_POLICY_MISMATCH` | `PROGRAM_PAYMENT_MATRIX_REJECTED` | schema chặn trước service → `400 IVR_MALFORMED_REQUEST` |
+| Contact | `phone_validation_status != VALID` | `TASK_REJECTED_CONTACT_INVALID` | `PHONE_VALIDATION_STATUS_NOT_VALID` | `422 IVR_CONTACT_INVALID` |
+| Contact | `phone_masked` không có `x`, `X` hoặc `*` | `TASK_REJECTED_CONTACT_INVALID` | `PHONE_MASKED_NOT_MASKED` | `422 IVR_CONTACT_INVALID` |
+| Contact | dial token đã hết hạn tại intake | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_ALREADY_EXPIRED` | `422 IVR_CONTACT_INVALID` |
+| Contact | dial token còn hạn nhưng hết trước confirmation window | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW` | `422 IVR_CONTACT_INVALID` |
+| Contact | `phone_ref` có hình dạng số điện thoại thô | `TASK_REJECTED_CONTACT_INVALID` | `PHONE_REF_LOOKS_LIKE_RAW_PHONE` | `422 IVR_CONTACT_INVALID` |
+| Contact | `dial_token` có hình dạng số điện thoại thô | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_LOOKS_LIKE_RAW_PHONE` | `422 IVR_CONTACT_INVALID` |
+| Contact | opaque reference vi phạm privacy guard | `TASK_REJECTED_CONTACT_INVALID` | `CONTACT_FAILED_PRIVACY_GUARD` | `422 IVR_CONTACT_INVALID` |
+
+Compatibility:
+
+- `blocked_reasons` vẫn là open `string[]`; OpenAPI không có enum mới và `draft.22` không đổi.
+- `CONTACT_OR_DIAL_TOKEN_INVALID` là mã tổng quát cũ, service hiện không emit. Consumer phải có
+  unknown/fallback handling thay vì exhaustive switch trên reason string.
+- `PROGRAM_PAYMENT_MATRIX_REJECTED` giữ đúng nghĩa cho matrix; required flag có mã nội bộ riêng.
+- M3 **chưa nhìn thấy** chín mã chi tiết qua public intake route theo mapping hiện hành. Muốn đưa
+  safe reason vào error envelope hoặc đổi reject thành `200 decision` là thay đổi contract riêng,
+  cần owner/M3 ký; W-0129 không tự mở rộng quyền đó.
 
 ## 2b. Eligibility advisory codes cũ
 

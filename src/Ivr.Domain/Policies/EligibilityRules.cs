@@ -28,10 +28,10 @@ public static class EligibilityReasonCodes
         "PHONE_CALL_RESTRICTION_SOURCE_UNAVAILABLE";
     public const string ContactInvalid = "CONTACT_INVALID";
 
-    // W-0120. One bool used to collapse seven distinct contact failures into a single opaque
-    // code, so a producer that got one field wrong learned only that "contact or dial token" was
-    // invalid and had to ask which. Each cause now names the field it is about, because the
-    // rejection is delivered as HTTP 200 and is therefore the only signal the caller ever gets.
+    // W-0129. One bool used to collapse seven distinct contact failures into a single opaque
+    // internal reason. The reason now names the first failed field without changing the
+    // TASK_REJECTED_CONTACT_INVALID decision. The HTTP endpoint still maps that decision to the
+    // stable 422 IVR_CONTACT_INVALID envelope; these detailed values are not a new wire enum.
     public const string PhoneValidationStatusNotValid = "PHONE_VALIDATION_STATUS_NOT_VALID";
     public const string PhoneMaskedNotMasked = "PHONE_MASKED_NOT_MASKED";
     public const string DialTokenExpiresBeforeWindow = "DIAL_TOKEN_EXPIRES_BEFORE_WINDOW";
@@ -40,10 +40,10 @@ public static class EligibilityReasonCodes
     public const string DialTokenLooksLikeRawPhone = "DIAL_TOKEN_LOOKS_LIKE_RAW_PHONE";
     public const string ContactFailedPrivacyGuard = "CONTACT_FAILED_PRIVACY_GUARD";
 
-    // W-0120. Same problem on the policy gate: ProgramPaymentPolicy.EnsureAllowed guards two
-    // unrelated rules and threw one message for both, and the single reason code named only the
-    // program/payment matrix -- so a task rejected for ivr_confirmation_required pointed the
-    // investigator at the wrong field entirely.
+    // W-0129. The direct service boundary also distinguishes a false required flag from an invalid
+    // program/payment pair. TaskIntakeEndpoint rejects both shapes during schema validation, so
+    // this remains defensive classification for trusted in-process callers rather than a promise
+    // that Module 3 receives either value in IvrTaskIntakeResult.blocked_reasons.
     public const string IvrConfirmationNotRequired = "IVR_CONFIRMATION_REQUIRED_NOT_TRUE";
     public const string ConfirmationWindowExpired = "CONFIRMATION_WINDOW_EXPIRED";
     public const string CapacitySourceUnavailable = "CAPACITY_SOURCE_UNAVAILABLE";

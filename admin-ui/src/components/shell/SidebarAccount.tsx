@@ -28,7 +28,7 @@ function initialsOf(displayName: string, actorId: string): string {
 /**
  * Who the console is acting as, at the foot of the sidebar rail.
  *
- * W-0122 turned this from a link into a label. It used to open `/profile` and
+ * W-0128 turned this from a link into a label. It used to open `/profile` and
  * hide itself behind `IVR_ACCOUNT_SELF_VIEW`; there is no profile page, no
  * self-view permission and no signed-in user any more — Module 3 owns operator
  * identity and asserts it per request as `X-Actor-Id`.

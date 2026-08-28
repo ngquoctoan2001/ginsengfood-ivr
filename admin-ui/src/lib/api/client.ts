@@ -24,6 +24,8 @@ export interface IvrApiRequest {
   readonly body?: unknown;
   readonly correlationId?: string;
   readonly idempotencyKey?: string;
+  /** Required by Ivr.Api for danger-tier operations; never inferred from an arbitrary body. */
+  readonly actionReason?: string;
   readonly signal?: AbortSignal;
   readonly fetchImpl?: typeof fetch;
 }
@@ -105,10 +107,12 @@ function buildHeaders(request: IvrApiRequest, correlationId: string): Headers {
     return headers;
   }
 
-  // W-0122. Tier credential plus the acting operator. The danger tier also needs
+  // W-0128. Tier credential plus the acting operator. The danger tier also needs
   // X-Action-Reason; the call sites that use it set that header themselves.
   headers.set(ACTOR_HEADER, request.session.actorId);
-  for (const [name, value] of Object.entries(authorizationHeaders(request.session))) {
+  for (const [name, value] of Object.entries(
+    authorizationHeaders(request.session, request.actionReason),
+  )) {
     headers.set(name, value);
   }
   return headers;

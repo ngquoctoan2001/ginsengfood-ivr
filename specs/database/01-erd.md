@@ -28,5 +28,6 @@ erDiagram
 | Bảng | Field chính | Invariant |
 | --- | --- | --- |
 
-Username đã soft-delete vẫn giữ unique để không tái gán audit identity. Session bị
-revoke khi account đổi role/status, reset password hoặc bị xoá.
+> **W-0128:** account/session từng được thêm bởi migration W-0105 đã bị migration
+> `20260828040458_W0122DropConsoleAccounts` xoá. Tên migration drop là nhãn lịch sử
+> đã được áp dụng và không được đổi; công việc khắc phục/canonical owner là W-0128.

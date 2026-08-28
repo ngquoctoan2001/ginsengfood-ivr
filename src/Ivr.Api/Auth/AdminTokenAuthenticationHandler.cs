@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace Ivr.Api.Auth;
 
 /// <summary>
-/// W-0122. The only authentication scheme on the admin surface once console accounts are gone.
+/// W-0128. The only authentication scheme on the admin surface once console accounts are gone.
 /// <para>
 /// It answers one question — which of the three tiers does this caller hold — by matching the
 /// bearer token against the configured credentials. It deliberately does not decide whether the
@@ -23,7 +23,7 @@ public sealed class AdminTokenAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    IOptions<AdminAccessOptions> adminAccess)
+    AdminCredentialSource adminCredentials)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     public const string SchemeName = "IvrAdminServiceToken";
@@ -53,12 +53,10 @@ public sealed class AdminTokenAuthenticationHandler(
         }
 
         string supplied = authorization[BearerPrefix.Length..];
-        AdminAccessOptions configured = adminAccess.Value;
-
         // Highest tier first: a token configured for danger also satisfies write and read, and
         // checking downward keeps that ordering explicit rather than implied by claim arithmetic
         // somewhere else.
-        AdminScope? scope = AdminTokenMatcher.Match(supplied, configured);
+        AdminScope? scope = AdminTokenMatcher.Match(supplied, adminCredentials);
         if (scope is null)
         {
             return Task.FromResult(AuthenticateResult.NoResult());
@@ -90,21 +88,8 @@ internal static class AdminTokenMatcher
     /// required".
     /// </para>
     /// </summary>
-    public static AdminScope? Match(string supplied, AdminAccessOptions configured)
-    {
-        ArgumentNullException.ThrowIfNull(configured);
-        if (Matches(supplied, configured.DangerToken))
-        {
-            return AdminScope.Danger;
-        }
-
-        if (Matches(supplied, configured.WriteToken))
-        {
-            return AdminScope.Write;
-        }
-
-        return Matches(supplied, configured.ReadToken) ? AdminScope.Read : null;
-    }
+    public static AdminScope? Match(string supplied, AdminCredentialSource credentials) =>
+        credentials.Match(supplied);
 
     /// <summary>Ranks a tier so policies can express "at least this much".</summary>
     public static int RankOf(AdminScope scope) => scope switch
@@ -124,22 +109,4 @@ internal static class AdminTokenMatcher
             _ => false,
         };
 
-    /// <summary>
-    /// Length is compared before content, matching <c>InternalRequestGuard.TokensMatch</c>. The
-    /// comparison itself stays fixed-time so a wrong token cannot be narrowed one byte at a time.
-    /// </summary>
-    private static bool Matches(string supplied, string expected)
-    {
-        if (string.IsNullOrWhiteSpace(expected))
-        {
-            return false;
-        }
-
-        byte[] suppliedBytes = System.Text.Encoding.UTF8.GetBytes(supplied);
-        byte[] expectedBytes = System.Text.Encoding.UTF8.GetBytes(expected);
-        return suppliedBytes.Length == expectedBytes.Length
-            && System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(
-                suppliedBytes,
-                expectedBytes);
-    }
 }

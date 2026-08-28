@@ -1,6 +1,6 @@
 apiVersion: v2
 name: ivr
-description: IVR Order Confirmation — three deployables (DTS-04) plus retention CronJob.
+description: IVR Order Confirmation — API and worker deployables plus retention CronJob.
 type: application
 version: 0.1.0
 appVersion: "1.0.0"

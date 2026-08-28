@@ -1,7 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 /**
- * W-0122. What is left of the console's request proxy after sign-in was retired.
+ * W-0128. What is left of the console's request proxy after sign-in was retired.
  *
  * This used to redirect anyone without a session cookie to `/login`. There is no
  * session cookie and no `/login`: Module 3 owns operator identity, and this
@@ -19,6 +19,6 @@ import { NextResponse, type NextRequest } from "next/server";
  * session check here and keep sending the tier credential onward — the API will
  * not accept the session in its place.
  */
-export function proxy(_request: NextRequest): NextResponse {
+export function proxy(): NextResponse {
   return NextResponse.next();
 }

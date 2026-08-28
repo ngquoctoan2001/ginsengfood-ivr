@@ -105,7 +105,7 @@ public sealed class RollingDeploySchemaCompatibilityTests
         + "attempt ids rather than failing on an opaque check violation.";
 
     private const string ConsoleRetirementReason =
-        "W-0122 retires console account authentication outright: Module 3 owns operator identity "
+        "W-0128 retires console account authentication outright: Module 3 owns operator identity "
         + "now and reaches IVR as a service across three credential tiers. The guard's warning is "
         + "correct in general -- an N-1 replica would query these tables -- and does not apply "
         + "here because the N-1 code that queried them is deleted in the same change, not merely "

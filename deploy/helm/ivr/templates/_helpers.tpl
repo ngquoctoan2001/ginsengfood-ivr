@@ -206,6 +206,21 @@ the ordering.
     secretKeyRef:
       name: {{ .Values.secrets.existingSecret }}
       key: {{ .Values.secrets.orderCoreServiceTokenKey }}
+- name: IVR_ADMIN_READ_TOKEN
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.secrets.existingSecret }}
+      key: {{ .Values.secrets.adminReadTokenKey }}
+- name: IVR_ADMIN_WRITE_TOKEN
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.secrets.existingSecret }}
+      key: {{ .Values.secrets.adminWriteTokenKey }}
+- name: IVR_ADMIN_DANGER_TOKEN
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.secrets.existingSecret }}
+      key: {{ .Values.secrets.adminDangerTokenKey }}
 {{- if .Values.secrets.orderCoreServiceTokenPreviousKey }}
 # The outgoing half of a credential rotation. Optional, and absent by default: a previous token
 # that is always present is a second live credential rather than an overlap.
@@ -230,5 +245,24 @@ the ordering.
 # permanent second credential.
 - name: ORDER_CORE_SERVICE_TOKEN_PREVIOUS_RETIRES_AT
   value: {{ .Values.secrets.orderCoreServiceTokenPreviousRetiresAt | quote }}
+{{- end }}
+{{- range $tier := list "Read" "Write" "Danger" }}
+{{- $lower := lower $tier }}
+{{- $keyName := printf "admin%sTokenPreviousKey" $tier }}
+{{- $retireName := printf "admin%sTokenPreviousRetiresAt" $tier }}
+{{- $previousKey := index $.Values.secrets $keyName }}
+{{- $retiresAt := index $.Values.secrets $retireName }}
+{{- if ne (empty $previousKey) (empty $retiresAt) }}
+{{- fail (printf "secrets.%s and secrets.%s must be configured together" $keyName $retireName) }}
+{{- end }}
+{{- if $previousKey }}
+- name: IVR_ADMIN_{{ upper $tier }}_TOKEN_PREVIOUS
+  valueFrom:
+    secretKeyRef:
+      name: {{ $.Values.secrets.existingSecret }}
+      key: {{ $previousKey }}
+- name: IVR_ADMIN_{{ upper $tier }}_TOKEN_PREVIOUS_RETIRES_AT
+  value: {{ $retiresAt | quote }}
+{{- end }}
 {{- end }}
 {{- end -}}

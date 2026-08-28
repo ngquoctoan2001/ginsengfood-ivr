@@ -34,6 +34,11 @@ helm upgrade --install ivr deploy/helm/ivr -n ivr-dev --create-namespace -f depl
 Chart **tham chiếu** Secret, không mang Secret (§11). Cluster phải có sẵn `ivr-database` và
 `ivr-app-secrets`; `deploy/helm/ivr/ci/bootstrap-dev.yaml` là bản dev-only cho cluster thử.
 
+W-0128 loại `admin-ui` khỏi deployable topology. `ui.enabled=true` bị Helm từ chối: UI trong repo
+chỉ là reference local, còn Module 3 sở hữu identity và UI triển khai. `ivr-app-secrets` phải có ba
+key current `admin-read-token`, `admin-write-token`, `admin-danger-token`; key `*_PREVIOUS` chỉ được
+khai cùng một retirement instant tuyệt đối để overlap tự đóng.
+
 Kiểm toàn bộ như CI:
 
 ```bash
@@ -84,6 +89,9 @@ luật khác: tên ngừng phân giải, và triệu chứng chỉ vào database
 
 `networkPolicy.egress.external` mặc định **rỗng** — không có egress ngoài nào cho tới khi chủ sở hữu
 cung cấp endpoint thật. Không có wildcard, và `k8s-selftest.mjs` đỏ nếu ai thêm `0.0.0.0/0`.
+
+API ingress cũng mặc định rỗng. Platform phải bật `networkPolicy.ingress.module3` với **cả** nhãn
+namespace và pod của Module 3 BFF; dev selftest dùng identity giả `module3/bff` để đo positive hop.
 
 ## 8. Retention CronJob
 

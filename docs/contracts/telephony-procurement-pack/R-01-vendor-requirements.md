@@ -7,10 +7,12 @@ Owner: **Infra** (yêu cầu kỹ thuật), **Security** (ranh giới tin cậy)
 Due: hoàn thiện **trước khi gửi RFQ**. Ngày cam kết của owner: `<owner điền>`.
 
 > Cách dùng: gửi nguyên file này cho nhà cung cấp. Mỗi bảng có cột cuối để họ điền. Câu trả lời "có, qua tuỳ chỉnh" phải kèm mô tả tuỳ chỉnh là gì và ai chịu chi phí.
+>
+> **Gửi [R-00](R-00-voice-gateway-rfq.md) trước.** R-00 là bản rút gọn để mở cuộc nói chuyện đầu tiên; file này là annex kỹ thuật cho vòng đàm phán sau.
 
 ## 1. Cổng adapter — đây là hợp đồng, không phải mong muốn
 
-IVR nói chuyện với telephony qua đúng **6 operation** đã có trong code tại [`src/Ivr.Domain/Ports/ProviderPorts.cs:204`](../../../src/Ivr.Domain/Ports/ProviderPorts.cs) (`ISimGateway`). Nhà cung cấp không cần đoán:
+IVR nói chuyện với telephony qua đúng **6 operation** đã có trong code tại [`src/Ivr.Domain/Ports/ProviderPorts.cs:214`](../../../src/Ivr.Domain/Ports/ProviderPorts.cs) (`ISimGateway`). Nhà cung cấp không cần đoán:
 
 | # | Operation | IVR gửi | IVR cần nhận lại | Nhà cung cấp ánh xạ bằng gì? |
 | --- | --- | --- | --- | --- |
@@ -93,7 +95,9 @@ Mô hình MOCK hiện tại dùng **mono 8 kHz, 16-bit linear PCM (`audio/L16`)*
 
 ## 7. Disposition — ánh xạ thô sang 11 giá trị của IVR
 
-IVR chuẩn hoá mọi kết quả thành 11 giá trị (`SimProviderDisposition` trong [`ProviderPorts.cs:144`](../../../src/Ivr.Domain/Ports/ProviderPorts.cs)). Nhà cung cấp điền cột giữa:
+IVR chuẩn hoá mọi kết quả thành 11 giá trị (`SimProviderDisposition` trong [`ProviderPorts.cs:154`](../../../src/Ivr.Domain/Ports/ProviderPorts.cs)). Nhà cung cấp điền cột giữa:
+
+> Bản đầy đủ của bảng này — kèm cột "có tính lượt khách", danh sách Q.850 đã ánh xạ sẵn và hai ca `Rejected`/hộp thư thoại — nằm ở [R-00 §4–§5](R-00-voice-gateway-rfq.md). Khi hai bên lệch nhau, **R-00 là bản đúng**; bảng dưới đây chỉ giữ lại phần ràng buộc kỹ thuật.
 
 | IVR cần | Trạng thái thô tương ứng của nhà cung cấp | Ghi chú ràng buộc |
 | --- | --- | --- |

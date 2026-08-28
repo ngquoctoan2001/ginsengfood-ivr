@@ -36,9 +36,6 @@ worker:
     maxReplicas: 2
     simPoolSize: 12
 
-ui:
-  replicas: 2
-
 retention:
   enabled: true
   schedule: "30 2 * * *"

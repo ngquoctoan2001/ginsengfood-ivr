@@ -32,8 +32,17 @@ worker:
     maxReplicas: 1
     simPoolSize: 4
 
-ui:
-  replicas: 1
+networkPolicy:
+  ingress:
+    # CI/dev contract probe standing in for the Module 3 BFF. Deployed environments must replace
+    # these labels with the platform-owned identity before enabling their ingress.
+    module3:
+      enabled: true
+      namespaceLabels:
+        kubernetes.io/metadata.name: ivr-dev
+      podLabels:
+        app.kubernetes.io/name: module3
+        app.kubernetes.io/component: bff
 
 retention:
   enabled: true

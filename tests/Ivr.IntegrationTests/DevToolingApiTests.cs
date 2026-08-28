@@ -308,7 +308,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     public async Task AnOperatorAndTheMockHeaderAreBothRefused()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
-        // W-0122. The read tier is the closest thing left to the operator this test used to sign
+        // W-0128. The read tier is the closest thing left to the operator this test used to sign
         // in as: a real credential that simply does not reach a write endpoint.
         using HttpResponseMessage forbidden = await SendAsync(
             app,

@@ -200,20 +200,9 @@ Task, call job, intake outbox, idempotency response snapshot and audit record ar
 
 Migration W-0024 seed duy nhất `SCRIPT-ORDER-CONFIRM:v1-test-approved` với `MOCK_TEST`; seed không cấp LAB/PROD. Bảng không chứa customer input, rendered speech, raw phone, full address hay recording.
 
-
-(3–64 ký tự), display name tối đa 128, role `Admin|Operator`, status
-`ACTIVE|DISABLED|DELETED`, built-in marker, PBKDF2 verifier, durable lockout,
-login/password timestamps, optimistic version và retention/legal-hold columns.
-Không có plaintext password hoặc cơ chế “lấy lại” password; Admin chỉ đặt mật
-khẩu mới.
-
-create/expiry/revoke metadata và retention/legal-hold columns. Token raw chỉ trả
-một lần cho client và không được ghi DB/log/audit. Session TTL là 8 giờ; đổi
-role/status, reset password hoặc soft-delete account phải revoke mọi session của
-account đó.
-
-Username unique trên toàn bảng, kể cả record đã soft-delete. FK session → account
-dùng `RESTRICT`; retention xoá session child trước account đã soft-delete.
+> **W-0128:** IVR không còn bảng account/session. Hai migration W-0105 và
+> `20260828040458_W0122DropConsoleAccounts` được giữ nguyên tên như lịch sử schema;
+> migration sau đã xoá hai bảng trước khi W-0128 chuẩn hoá ownership về Module 3.
 
 ## 9. Phân loại nguồn cột (chống DB↔OpenAPI inversion)
 

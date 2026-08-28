@@ -5,7 +5,7 @@
 **Từ:** Team Module 8 — IVR Order Confirmation (.NET, service tách biệt)
 
 **Cập nhật:** 2026-08-28
-**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0122`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI đã lên `1.0.0-draft.22`:** 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7).
+**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI đã lên `1.0.0-draft.22`:** 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7).
 
 > **Ranh giới đã được owner làm rõ ngày 2026-08-27:** **Module 3 quyết định nghiệp vụ; IVR thực thi cuộc gọi.**
 >
@@ -27,7 +27,7 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 
 _Sửa 27/08/2026: bản trước dùng đường dẫn tương đối, nên khi IR-06 được gửi đi dạng file rời thì cả năm link đều không mở được — M3 báo lại ở review §3.3. Cả năm file đều tồn tại trong repo IVR; nếu cần bản sao, yêu cầu owner IVR gửi kèm._
 
-_Thêm 28/08/2026: **§4A** là mục mới và là phần duy nhất trong bản này M3 chưa từng đọc. Nó mô tả bề mặt quản trị sau khi IVR xoá sạch hệ thống tài khoản/vai trò của chính mình (`W-0122`), theo đúng ranh giới dev M3 đề xuất: IVR là module chức năng, M3 giữ tài khoản và quyền. §0, §7, §9 và §10 được cập nhật để trỏ tới nó; các mục §1–§4 về luồng đơn hàng **không đổi**._
+_Thêm 28/08/2026: **§4A** là mục mới và là phần duy nhất trong bản này M3 chưa từng đọc. Nó mô tả bề mặt quản trị sau khi IVR xoá sạch hệ thống tài khoản/vai trò của chính mình (`W-0128`), theo đúng ranh giới dev M3 đề xuất: IVR là module chức năng, M3 giữ tài khoản và quyền. §0, §7, §9 và §10 được cập nhật để trỏ tới nó; các mục §1–§4 về luồng đơn hàng **không đổi**._
 
 ---
 
@@ -342,12 +342,12 @@ Các decision Module 3 cần xử lý:
 | `200 TASK_ACCEPTED_DRY_RUN_ONLY` | Chỉ ghi nhận MOCK, không gọi thật | Không chờ callback khách thật |
 | `200 TASK_HELD_ADMIN_REVIEW` | IVR chưa thể thực thi vì gate kỹ thuật/an toàn | Không coi là đã gọi; đưa vận hành xử lý |
 | `200 TASK_HELD_POLICY_MISSING` | Policy/version thực thi chưa sẵn sàng | Sửa cấu hình/payload; không chờ callback |
-| `200 TASK_REJECTED_NOT_OFFICIAL_ORDER` | `order_state` là `QUOTE`/`CART`/`DRAFT`, hoặc định danh đơn không hợp lệ | **Không chờ callback.** Sửa producer: chỉ gửi Official Order |
-| `200 TASK_REJECTED_STATE_NOT_CALLABLE` | `is_ivr_callable=false`, hoặc `order_state` không nằm trong tập được gọi | **Không chờ callback.** M3 tự tiếp tục workflow của mình |
-| `200 TASK_REJECTED_POLICY_MISMATCH` | `ivr_confirmation_required=false`, **hoặc** cặp `program_code × payment_method_snapshot` không được phép, **hoặc** attempt policy/cửa sổ trong payload lệch snapshot đã duyệt. Xem `blocked_reasons` để phân biệt | **Không chờ callback.** Đây là mã nguy hiểm nhất — xem §3.10 |
-| `200 TASK_REJECTED_CONTACT_INVALID` | `phone_ref`/`dial_token` không dùng được, hoặc cửa sổ xác nhận đã hết hạn | **Không chờ callback.** Sửa dữ liệu liên lạc |
-| `200 TASK_REJECTED_SCRIPT_NOT_APPROVED` | Chưa có script version được duyệt cho chế độ đang chạy | **Không chờ callback.** Vấn đề cấu hình phía IVR; báo IVR |
-| `200 TASK_BLOCKED_OPERATIONAL` | `call_restriction=true` hoặc blocker vận hành đang active | **Không chờ callback.** Tôn trọng chặn; không retry |
+| `422 IVR_NOT_OFFICIAL_ORDER` | `order_state` là `QUOTE`/`CART`/`DRAFT`, hoặc định danh đơn không hợp lệ | **Không chờ callback.** Sửa producer: chỉ gửi Official Order |
+| `422 IVR_STATE_NOT_CALLABLE` | `is_ivr_callable=false`, hoặc `order_state` không nằm trong tập được gọi | **Không chờ callback.** M3 tự tiếp tục workflow của mình |
+| `409 IVR_POLICY_MISMATCH` | attempt policy/cửa sổ trong payload lệch snapshot đã duyệt | **Không chờ callback.** Sửa policy version/payload |
+| `422 IVR_CONTACT_INVALID` | `phone_ref`/`dial_token` không dùng được hoặc không đủ hạn | **Không chờ callback.** Sửa dữ liệu liên lạc |
+| `422 IVR_SCRIPT_NOT_APPROVED` | Chưa có script version được duyệt cho chế độ đang chạy | **Không chờ callback.** Vấn đề cấu hình phía IVR; báo IVR |
+| `409 IVR_OPERATIONAL_BLOCKED` | `call_restriction=true` hoặc blocker vận hành đang active | **Không chờ callback.** Tôn trọng chặn; không retry |
 | `400` | JSON/schema sai | Sửa producer |
 | `401/403` | Auth/scope/source sai | Sửa auth/allowlist |
 | `409` | Idempotency hoặc policy conflict | Không đổi key/body tuỳ tiện; audit |
@@ -365,13 +365,17 @@ Target guarantee cần đạt trước integration thật:
 
 > **Trạng thái: ĐỀ XUẤT CỦA IVR, CHỜ M3 + PRODUCT XÁC NHẬN.** Mục này viết ra để M3 có cái cụ thể mà gật hoặc phản bác, thay vì một câu hỏi mở. Nó **chưa** đóng ưu tiên #4 ở §9; đóng bằng chữ ký, không bằng việc mục này tồn tại. Thêm 27/08/2026.
 
-#### R1 — `200 OK` KHÔNG có nghĩa là thành công
+#### R1 — Phải đọc đúng response shape, không suy từ HTTP hay tên decision
 
 Đây là quy định quan trọng nhất trong mục này.
 
-IVR trả `200 OK` cho **cả 10 decision**, kể cả mọi `TASK_REJECTED_*` và `TASK_BLOCKED_*`. Task bị từ chối **không** ghi dòng nào vào cơ sở dữ liệu IVR, và **không** có callback nào được sinh ra.
+Correction W-0129: runtime **không** trả `200` cho cả 10 decision. Endpoint validate schema trước
+service; reject cứng có error envelope `4xx`. Chỉ response `200` mới có
+`IvrTaskIntakeResult.decision` và `blocked_reasons`.
 
-Producer của M3 **PHẢI** rẽ nhánh theo trường `decision` trong body. Producer nào chỉ kiểm HTTP status sẽ coi mọi lần từ chối là thành công, đánh dấu đơn "đã đẩy IVR", rồi chờ một callback không bao giờ tới — trong khi phía IVR không có gì để hiển thị, nên dashboard trông như đang rảnh chứ không phải đang hỏng. Sai lệch này **im lặng ở cả hai đầu**.
+Producer của M3 **PHẢI** rẽ nhánh theo HTTP/response shape trước, rồi mới đọc `decision` khi body là
+`IvrTaskIntakeResult`. Nếu chỉ kiểm `2xx` mà không đọc decision, M3 vẫn có thể chờ callback cho
+`DRY_RUN`/`HELD`; nếu cố đọc decision từ `4xx`, nó sẽ bỏ qua stable `error.code`.
 
 Chỉ đúng một decision nghĩa là IVR đã nhận trách nhiệm gọi: `TASK_ACCEPTED_CALL_JOB_CREATED`. Mọi giá trị khác đều là "M3 tự xử lý tiếp".
 
@@ -383,9 +387,9 @@ Chỉ đúng một decision nghĩa là IVR đã nhận trách nhiệm gọi: `TA
 | --- | --- |
 | `true` | Bình thường |
 | Không có field | Deserialize lỗi → `400`. Ồn ào, phát hiện được ngay |
-| **`false`** | **Qua cổng trót lọt** (bool hợp lệ, runtime không ép `enum:[true]`) rồi bị loại ở tầng nghiệp vụ → `200 TASK_REJECTED_POLICY_MISMATCH` |
+| **`false`** | Schema validator từ chối trước service → `400 IVR_MALFORMED_REQUEST` |
 
-Ca thứ ba là ca nguy hiểm, vì nó im lặng. Nếu producer dùng chung một payload cho mọi đơn rồi để field này phản ánh "đơn này có cần gọi không", thì mọi đơn không cần gọi sẽ được đẩy sang IVR kèm `false` và nhận `200` — chính xác cái bẫy R1 mô tả.
+Ca thứ ba hiện fail ồn bằng `400`, nhưng vẫn là lỗi producer: đơn không cần gọi thì M3 không gửi task.
 
 M3 cần trả lời trong §10: **producer set field này ở bước nào, điều kiện nào làm nó thành `true`, và có đường nào gửi `false` sang IVR không.**
 
@@ -397,8 +401,8 @@ IVR hiện chỉ nhận hai tổ hợp:
 | --- | --- | --- |
 | `GOLDEN_HOUR` | `ONLINE` | Nhận |
 | `TWENTY_FOUR_SEVEN` | `COD` | Nhận |
-| `GOLDEN_HOUR` | `COD` | **Loại** — `200 TASK_REJECTED_POLICY_MISMATCH` |
-| `TWENTY_FOUR_SEVEN` | `ONLINE` | **Loại** — `200 TASK_REJECTED_POLICY_MISMATCH` |
+| `GOLDEN_HOUR` | `COD` | **Loại tại schema** — `400 IVR_MALFORMED_REQUEST` |
+| `TWENTY_FOUR_SEVEN` | `ONLINE` | **Loại tại schema** — `400 IVR_MALFORMED_REQUEST` |
 
 **Cập nhật 27/08/2026 — đã có nguồn business, đóng thắc mắc cũ.** Bản trước của mục này cảnh báo rằng cặp `GOLDEN_HOUR + ONLINE` chưa có nguồn business duyệt và lo rằng Giờ Vàng thật có thể là COD. **Thông tin đó đã cũ.** M3 dẫn source of truth trong review ngày 27/08:
 
@@ -413,31 +417,34 @@ Việc còn lại **không phải** hỏi Product quyết định lại business
 
 _Hai file nguồn nằm trong repo Module 3 (`ginsengfood`), owner IVR không đọc trực tiếp được; ghi nhận theo dẫn chiếu của M3._
 
-#### R4 — Một decision, ba nguyên nhân, và chỉ phân biệt được hai
+#### R4 — W-0129: reason chi tiết nằm ở service boundary, chưa phải wire contract
 
-`TASK_REJECTED_POLICY_MISMATCH` phát sinh từ ba nguyên nhân. `blocked_reasons` hiện **không** tách được hết:
+Service hiện phân loại riêng `IVR_CONFIRMATION_REQUIRED_NOT_TRUE` và
+`PROGRAM_PAYMENT_MATRIX_REJECTED`, cùng bảy lỗi contact cụ thể. Nhưng public route có một tầng trước/
+sau service:
 
-| Nguyên nhân | `blocked_reasons` trả về |
-| --- | --- |
-| Lệch attempt-policy snapshot | `ATTEMPT_POLICY_SNAPSHOT_MISMATCH` |
-| Cửa sổ xác nhận không hợp lệ | `CONFIRMATION_WINDOW_INVALID` |
-| **R2** (`ivr_confirmation_required=false`) | `PROGRAM_PAYMENT_MATRIX_REJECTED` |
-| **R3** (cặp program × payment sai) | `PROGRAM_PAYMENT_MATRIX_REJECTED` |
+| Nhóm | Reason service | M3 nhận hiện hành |
+| --- | --- | --- |
+| `ivr_confirmation_required=false` | `IVR_CONFIRMATION_REQUIRED_NOT_TRUE` | `400 IVR_MALFORMED_REQUEST`; schema chặn trước service |
+| program/payment sai | `PROGRAM_PAYMENT_MATRIX_REJECTED` | `400 IVR_MALFORMED_REQUEST`; schema chặn trước service |
+| attempt-policy snapshot lệch | `ATTEMPT_POLICY_SNAPSHOT_MISMATCH` | `409 IVR_POLICY_MISMATCH` |
+| contact/dial-token sai | một trong bảy mã W-0129 | `422 IVR_CONTACT_INVALID` |
 
-Hai dòng cuối dùng **chung một mã**, nên khi nhận nó M3 không biết mình sai ở field nào. Tệ hơn: tên mã nói "program payment matrix", tức nếu nguyên nhân thật là R2 thì nó chỉ người điều tra sang đúng nhánh sai.
-
-**Việc phía IVR:** tách mã này thành hai mã riêng trước khi cắm thật. Đến khi đó, nhận `PROGRAM_PAYMENT_MATRIX_REJECTED` thì phải kiểm **cả hai** field trong payload đã gửi, đừng tin tên mã.
+Vì vậy M3 không được branch trên các reason chi tiết này ở public client. Đưa safe reason vào error
+details hoặc đổi reject sang `200 decision` là contract change cần M3/owner ký; W-0129 chỉ khóa
+taxonomy nội bộ và giữ nguyên wire semantics.
 
 ### 3.11. Từ vựng trên dây — giá trị chuỗi chính xác IVR chờ nhận
 
-> Thêm 27/08/2026 sau review của M3. Mục này tồn tại vì review đó tìm ra **ba** field mà M3 và IVR đang dùng hai chuỗi khác nhau cho cùng một khái niệm. Hai trong ba hỏng theo kiểu `200` im lặng, tức đúng cái bẫy §3.10 R1 mô tả.
+> Thêm 27/08/2026 sau review của M3; correction W-0129: các mismatch dưới đây không cùng một
+> response shape. Bảng ghi đúng status/error hiện hành.
 
 Bảng này là **danh sách đối chiếu bắt buộc trước buổi lab**. Mọi giá trị dưới đây đã được đối chiếu trực tiếp với code IVR, không phải chép từ tài liệu.
 
 | Field | IVR chờ đúng chuỗi | M3 hiện dùng | Sai thì hỏng thế nào |
 | --- | --- | --- | --- |
 | `program_code` | `GOLDEN_HOUR` / `TWENTY_FOUR_SEVEN` | `24_7` | Enum deserialize lỗi → **`400`**. Ồn ào, phát hiện ngay |
-| `phone_validation_status` | `VALID` | `PHONE_VALID` | → `200 TASK_REJECTED_CONTACT_INVALID`. **Im lặng** |
+| `phone_validation_status` | `VALID` | `PHONE_VALID` | → `422 IVR_CONTACT_INVALID` |
 | `eligibility_snapshot.decision` | `ELIGIBLE` | `ELIGIBLE_FOR_IVR` | → `200 TASK_HELD_ADMIN_REVIEW`. **Im lặng**, và mọi task dồn vào hàng đợi review |
 | `order_state` | `CONFIRMING` | khớp | — |
 | `payment_method_snapshot` | `ONLINE` / `COD` | khớp | — |
@@ -456,7 +463,7 @@ Lý do chọn hướng này thay vì để IVR nhận cả hai:
 
 Review của M3 không nêu hai điều này vì chúng chỉ đọc được từ code IVR. Ghi ra đây để M3 không mất thời gian dò:
 
-1. **`phone_masked` bắt buộc chứa ít nhất một ký tự che** (`x`, `X` hoặc `*`). Gửi số chưa che → `200 TASK_REJECTED_CONTACT_INVALID`, im lặng.
+1. **`phone_masked` bắt buộc chứa ít nhất một ký tự che** (`x`, `X` hoặc `*`). Gửi số chưa che → `422 IVR_CONTACT_INVALID`.
 2. **`dial_token_expires_at` phải lớn hơn `confirmation_window_expires_at`** và phải còn hạn tại thời điểm intake. Token hết hạn sớm hơn cửa sổ → cùng mã từ chối đó.
 
 #### Ghi chú cho người đọc code IVR
@@ -606,7 +613,7 @@ Body ACK `200` hoặc `409` có các field:
 
 > **Mục này mới, thêm 28/08/2026.** Nó **không** thuộc luồng đơn hàng ở §3–§4. Đây là bề mặt thứ ba: những endpoint mà **màn hình quản trị** gọi — xem hàng đợi, bật/tắt kill switch, cắt cuộc gọi đang chạy, duyệt lời thoại.
 >
-> Trước đây IVR tự giữ tài khoản nhân viên, vai trò, mật khẩu và màn hình đăng nhập riêng. **Toàn bộ phần đó đã bị xoá khỏi code, database và tài liệu (`W-0122`, ngày 28/08/2026).** Module 3 sở hữu identity của nhân viên; IVR chỉ còn nhận **credential của service** kèm lời khai *ai bên M3 đang bấm nút*.
+> Trước đây IVR tự giữ tài khoản nhân viên, vai trò, mật khẩu và màn hình đăng nhập riêng. **Toàn bộ phần đó đã bị xoá khỏi code, database và tài liệu (`W-0128`, ngày 28/08/2026).** Module 3 sở hữu identity của nhân viên; IVR chỉ còn nhận **credential của service** kèm lời khai *ai bên M3 đang bấm nút*.
 >
 > Đây là hợp đồng M3 phải code theo khi dựng giao diện quản trị IVR. Client viết theo bản IR-06 trước 28/08 sẽ **401/403 toàn bộ**.
 
@@ -623,6 +630,21 @@ Body ACK `200` hoặc `409` có các field:
 **Tầng lồng nhau:** `danger` ⊇ `write` ⊇ `read`. Token danger gọi được endpoint read. Chiều ngược lại thì không. Nhờ vậy M3 không phải mang cả ba token qua mọi code path.
 
 **Fail-closed:** tầng nào **chưa cấu hình token** (chuỗi rỗng) thì **không bao giờ khớp**. Môi trường mới deploy mà quên set biến sẽ **từ chối sạch**, chứ không hiểu nhầm "chưa cấu hình" thành "không cần credential".
+
+#### Rotation không downtime, nhưng overlap có hạn
+
+Mỗi tier có hai biến tùy chọn: `IVR_ADMIN_<TIER>_TOKEN_PREVIOUS` và
+`IVR_ADMIN_<TIER>_TOKEN_PREVIOUS_RETIRES_AT`. Quy tắc runtime:
+
+- previous chỉ hợp lệ khi có current và retirement instant ISO-8601 tuyệt đối;
+- mọi current/previous của cả ba tier phải khác nhau và dài tối thiểu 24 ký tự;
+- trong overlap, current và previous cùng phân giải về đúng **một** tier;
+- đúng retirement instant, previous bị từ chối dù biến chưa bị xoá khỏi secret store;
+- cấu hình thiếu/trùng/ngắn làm startup validation fail, không hạ xuống chế độ permissive.
+
+Trình tự rollout: cấp current mới + previous cũ + instant kết thúc → rollout IVR cho hội tụ → đổi
+caller M3 sang current → chờ qua instant → xoá previous. Nếu nghi rò rỉ, không dùng overlap: thay
+khẩn và retire cũ ngay. Token chỉ nằm trong secret store/BFF, không bao giờ tới browser.
 
 ### 4A.2. Header trên request quản trị
 
@@ -809,7 +831,10 @@ Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Ngu
 > rồi sinh lại. So sánh đầy đủ hai bản nằm ở
 > `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md`.
 
-**Admin UI trong repo IVR giữ lại làm bản mẫu tham chiếu.** Nó không còn là dịch vụ để ai đăng nhập. Mục đích duy nhất là để M3 đọc và dựng lại nhanh trong console của mình: các màn hình gọi API bằng đúng ba credential trên, nên đây là ví dụ chạy được của hợp đồng ở mục này.
+**Admin UI trong repo IVR giữ lại làm bản mẫu tham chiếu local.** Helm từ chối deploy nó; không có
+Service/UI pod của IVR. Module 3 BFF là caller duy nhất được platform cấu hình NetworkPolicy tới
+API. Mục đích của mẫu là để M3 đọc và dựng lại nhanh trong console của mình: route handler server
+chọn credential tier, còn browser không thấy credential.
 
 Những gì bản mẫu **đã bỏ** và M3 phải tự dựng ở phía mình: màn hình đăng nhập, quản trị tài khoản, quản trị vai trò và trang hồ sơ cá nhân. Thẻ danh tính ở chân sidebar nay chỉ còn là **nhãn tĩnh** hiển thị `X-Actor-Id`, không phải link — đúng chỗ để M3 gắn lại link hồ sơ khi có phiên đăng nhập thật.
 
@@ -819,7 +844,7 @@ Khi M3 dựng lại, phần kiểm tra phiên đăng nhập đặt ở **phía M
 
 | # | Quyết định | Vì sao không thể để mặc định |
 | --- | --- | --- |
-| 1 | Ai giữ ba token, cất ở đâu, xoay vòng thế nào | `IVR_ADMIN_DANGER_TOKEN` dừng được cả tổng đài |
+| 1 | Ai giữ ba token, secret-store path nào, lịch/owner rotation nào | Runtime overlap hữu hạn đã có; custody và thao tác production vẫn thuộc M3/Platform |
 | 2 | Vai trò nào bên M3 ánh xạ sang tầng nào | Nếu mọi vai trò đều nhận token danger thì việc tách ba tầng vô nghĩa |
 | 3 | Định dạng `X-Actor-Id` | Đẩy tên hiển thị vào sẽ vỡ theo họ của nhân viên — Bẫy 3 |
 | 4 | UI bắt nhập lý do ở tầng danger thế nào | Thiếu `X-Action-Reason` là 403; UI cần chặn trước khi gửi |

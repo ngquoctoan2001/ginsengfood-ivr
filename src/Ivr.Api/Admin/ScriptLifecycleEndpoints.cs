@@ -15,7 +15,7 @@ namespace Ivr.Api.Admin;
 /// <see cref="Ivr.Domain.Scripts.ScriptActor"/> against the <c>X-Actor-Id</c> Module 3 asserts.
 /// </para>
 /// <para>
-/// W-0122 removed the MOCK permission seam that used to mint whatever <c>X-Permissions</c> asked
+/// W-0128 removed the MOCK permission seam that used to mint whatever <c>X-Permissions</c> asked
 /// for. What replaced it is <c>X-Script-Permissions</c>, which Module 3 self-asserts — so it is a
 /// declaration, not a credential, and the four-eyes rules deliberately do not rest on it: an
 /// actor claiming all seven approvals still cannot sign both halves of a production pair.

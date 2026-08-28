@@ -16,7 +16,7 @@ import { NavIcon, type NavIconName } from "./NavIcon";
  * A route is shown either because the viewer holds a permission the route actually uses, or
  * because the route is admin-only.
  *
- * W-0122 left this as a rendering rule and nothing more. There is no session and no role behind
+ * W-0128 left this as a rendering rule and nothing more. There is no session and no role behind
  * it any more — the API decides by credential tier, and will refuse an action this nav happened
  * to reveal. What the rule still buys is that a screen is not offered to someone whose console
  * cannot use it, which is exactly the job Module 3's own nav will have.

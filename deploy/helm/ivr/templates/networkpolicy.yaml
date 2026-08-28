@@ -1,4 +1,7 @@
 {{- if .Values.networkPolicy.enabled }}
+{{- if and .Values.networkPolicy.ingress.module3.enabled (or (empty .Values.networkPolicy.ingress.module3.namespaceLabels) (empty .Values.networkPolicy.ingress.module3.podLabels)) }}
+{{- fail "networkPolicy.ingress.module3 requires non-empty namespaceLabels and podLabels" }}
+{{- end }}
 # W-0044 / P7-2 §4 — least-privilege egress.
 #
 # Default-deny first, then name what may leave. The order matters for a reader: a policy that opens
@@ -56,20 +59,6 @@ spec:
       ports:
         - protocol: TCP
           port: {{ .Values.networkPolicy.egress.otelPort }}
-    # The console calling the API, which the ingress policy already permits from the other side.
-    # NetworkPolicy needs BOTH ends to agree, and only one of them did: the console renders
-    # server-side against http://<release>-api:8080, so in any cluster that enforces policy the
-    # console could not load a page. IT-K8S-NETPOL-04 missed it because it only ever tested egress
-    # to the INTERNET -- a rule that is supposed to be denied. Nothing tested a hop that is supposed
-    # to work, and a policy suite that only checks its refusals will always pass.
-    - to:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: {{ include "ivr.name" . }}
-              app.kubernetes.io/component: api
-      ports:
-        - protocol: TCP
-          port: 8080
     {{- range .Values.networkPolicy.egress.external }}
     # {{ .name }} — an owner-supplied destination, never a wildcard.
     - to:
@@ -94,14 +83,20 @@ spec:
       app.kubernetes.io/component: api
   policyTypes:
     - Ingress
+  {{- if .Values.networkPolicy.ingress.module3.enabled }}
   ingress:
-    # Only the console reaches the API. Nothing else in the namespace has a reason to.
+    # Module 3's BFF is the only admin caller. Both selectors are owner/platform supplied.
     - from:
-        - podSelector:
+        - namespaceSelector:
             matchLabels:
-              app.kubernetes.io/name: {{ include "ivr.name" . }}
-              app.kubernetes.io/component: ui
+              {{- toYaml .Values.networkPolicy.ingress.module3.namespaceLabels | nindent 14 }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.ingress.module3.podLabels | nindent 14 }}
       ports:
         - protocol: TCP
           port: 8080
+  {{- else }}
+  ingress: []
+  {{- end }}
 {{- end }}

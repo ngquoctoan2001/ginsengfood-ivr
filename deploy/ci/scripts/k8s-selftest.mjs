@@ -94,6 +94,12 @@ function gateRefusesToOpenTheLadder() {
     { environment: "dev", overrides: ["governance.realCustomerCallAllowed=true"], expect: "Only lab and prod" },
     { environment: "lab", overrides: ["governance.executionMode=LAB_REAL_SIM"], expect: "labDestinationAllowlist" },
     { environment: "prod", overrides: ["governance.executionMode=PRODUCTION_REAL", "governance.killSwitchEnabled=false"], expect: "kill switch" },
+    { environment: "dev", overrides: ["ui.enabled=true"], expect: "Module 3 owns" },
+    {
+      environment: "prod",
+      overrides: ["networkPolicy.ingress.module3.enabled=true"],
+      expect: "requires non-empty namespaceLabels and podLabels",
+    },
   ];
   for (const testCase of cases) {
     const failure = renderFails(testCase.environment, testCase.overrides);
@@ -126,7 +132,7 @@ function startCluster() {
 }
 
 function loadImages() {
-  for (const image of ["ivr-api", "ivr-worker", "ivr-admin-ui", "ivr-migrate"]) {
+  for (const image of ["ivr-api", "ivr-worker", "ivr-migrate"]) {
     docker(["tag", `${image}:${process.env.IVR_IMAGE_TAG ?? "p7-1"}`, `${image}:0.1.0-dev`]);
     execSync(`docker save ${image}:0.1.0-dev | docker exec -i ${CLUSTER} ctr -n k8s.io images import -`,
       { cwd: repositoryRoot, stdio: ["ignore", "ignore", "inherit"] });
@@ -172,9 +178,9 @@ function deploy() {
     kubectl(["-n", NS, "get", "job", "ivr-ivr-migrate", "--no-headers"]).includes("1/1"));
 
   writeAndApply("ivr-dev.yaml", documents.filter((document) => !migrateJob.includes(document)).join("\n---"));
-  waitFor("api, worker and ui to become ready", 300, () => {
+  waitFor("postgres, api and worker to become ready", 300, () => {
     const pods = kubectl(["-n", NS, "get", "pods", "--no-headers"]);
-    return pods.split("\n").filter((line) => /1\/1\s+Running/.test(line)).length >= 4;
+    return pods.split("\n").filter((line) => /1\/1\s+Running/.test(line)).length >= 3;
   });
 }
 
@@ -327,22 +333,21 @@ function workerProbeFailures() {
     .length;
 }
 
-/** Whether a pod labelled as the console can reach the API service. */
-function consoleReachesApi() {
+/** Whether a pod labelled as the Module 3 BFF can reach the API service. */
+function module3ReachesApi() {
   startProbePod(
-    "console-probe",
-    "app.kubernetes.io/name=ivr,app.kubernetes.io/instance=ivr,app.kubernetes.io/component=ui");
+    "module3-probe",
+    "app.kubernetes.io/name=module3,app.kubernetes.io/component=bff");
   try {
-    return podReachesApi("console-probe");
+    return podReachesApi("module3-probe");
   } finally {
-    deleteProbePod("console-probe");
+    deleteProbePod("module3-probe");
   }
 }
 
-function consoleReachesApiFailure() {
-  return "a pod labelled as the console could not reach the API. Both ends of a NetworkPolicy have "
-    + "to permit a hop: the ingress rule names the console, and the egress allowlist has to name "
-    + "the API back. The console renders server-side, so without this it cannot load a page.";
+function module3ReachesApiFailure() {
+  return "a pod labelled as the configured Module 3 BFF could not reach the API. The IVR chart "
+    + "must name both its namespace and pod identity; the default remains no ingress.";
 }
 
 function unlabelledPodReachesApi() {
@@ -411,13 +416,11 @@ function rotationAcrossARollingRestart() {
     kubectl(["-n", NS, "get", "deploy", "ivr-ivr-api",
       "-o", "jsonpath={.status.readyReplicas}"]).trim() === "2");
 
-  // Labelled as the console, because that is the caller being simulated -- and because the policy
-  // only lets the console reach the API. A pod with arbitrary labels would be refused by the
-  // egress allowlist and every probe would read as a rejection, which is indistinguishable from
-  // the auth refusal this drill measures.
+  // Labelled as the configured Module 3 BFF, because arbitrary pods are refused before auth and
+  // that refusal would be indistinguishable from the credential rejection this drill measures.
   startProbePod(
     "rotation-probe",
-    "app.kubernetes.io/name=ivr,app.kubernetes.io/instance=ivr,app.kubernetes.io/component=ui");
+    "app.kubernetes.io/name=module3,app.kubernetes.io/component=bff");
   try {
     // Baseline: the old token works before anything moves. Without this the "never rejected"
     // claim below could be satisfied by a probe that never reached the service at all.
@@ -540,19 +543,16 @@ function networkPolicy() {
   const escaped = reachesInternetAsIvrPod();
   assert(!escaped, "a pod matching the chart's selector reached the internet despite the egress allowlist.");
 
-  // A policy suite that only checks its REFUSALS always passes, and this one did: every case above
-  // asserts something is blocked. The console calling the API is the hop that has to work, both
-  // ends have to agree for it to, and only the ingress end ever did -- so on any enforcing cluster
-  // the console could not load a page. Measured now, in both directions.
-  assert(consoleReachesApi(), consoleReachesApiFailure());
+  // Measure both the configured positive identity and an arbitrary negative identity.
+  assert(module3ReachesApi(), module3ReachesApiFailure());
   assert(
     !unlabelledPodReachesApi(),
-    "a pod with no console labels reached the API. The ingress policy names the console "
+    "a pod with no Module 3 BFF labels reached the API. The ingress policy names that BFF "
     + "specifically; if anything in the namespace can call it, that rule is decoration.");
 
   process.stdout.write(
-    "IT-K8S-NETPOL-04 PASS — egress outside the allowlist is blocked, the console reaches the API, "
-    + "and a pod that is not the console does not\n");
+    "IT-K8S-NETPOL-04 PASS — egress outside the allowlist is blocked, the configured Module 3 BFF "
+    + "reaches the API, and an arbitrary pod does not\n");
   return true;
 }
 

@@ -39,9 +39,6 @@ worker:
   tts:
     enabled: false
 
-ui:
-  replicas: 2
-
 retention:
   enabled: true
   schedule: "30 2 * * *"

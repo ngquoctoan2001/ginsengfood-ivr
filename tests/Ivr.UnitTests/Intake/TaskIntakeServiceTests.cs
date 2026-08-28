@@ -75,20 +75,62 @@ public sealed class TaskIntakeServiceTests
     }
 
     /// <summary>
-    /// W-0120. Every rejection here leaves as HTTP 200, so <c>blocked_reasons</c> is the only
-    /// thing the producer ever learns about why its task died. Before this, two unrelated policy
-    /// failures both reported <c>PROGRAM_PAYMENT_MATRIX_REJECTED</c> and seven unrelated contact
-    /// failures all reported <c>CONTACT_OR_DIAL_TOKEN_INVALID</c> — so an integrating team that
-    /// got one field wrong could not tell which, and had to ask.
+    /// W-0129. Covers every refined service-level reason and proves the decision/failure boundary
+    /// did not move. TaskIntakeEndpoint has its own wire-compatibility test because policy schema
+    /// failures never reach this service and contact failures remain a 422 envelope.
     /// </summary>
     [Theory]
-    [InlineData("confirmation-not-required", "IVR_CONFIRMATION_REQUIRED_NOT_TRUE")]
-    [InlineData("program-payment-pair", "PROGRAM_PAYMENT_MATRIX_REJECTED")]
-    [InlineData("phone-status", "PHONE_VALIDATION_STATUS_NOT_VALID")]
-    [InlineData("phone-not-masked", "PHONE_MASKED_NOT_MASKED")]
+    [InlineData(
+        "confirmation-not-required",
+        EligibilityReasonCodes.IvrConfirmationNotRequired,
+        TaskIntakeDecisions.RejectedPolicyMismatch,
+        null)]
+    [InlineData(
+        "program-payment-pair",
+        EligibilityReasonCodes.ProgramPaymentMatrixRejected,
+        TaskIntakeDecisions.RejectedPolicyMismatch,
+        null)]
+    [InlineData(
+        "phone-status",
+        EligibilityReasonCodes.PhoneValidationStatusNotValid,
+        TaskIntakeDecisions.RejectedContactInvalid,
+        IvrErrorCodes.ContactInvalid)]
+    [InlineData(
+        "phone-not-masked",
+        EligibilityReasonCodes.PhoneMaskedNotMasked,
+        TaskIntakeDecisions.RejectedContactInvalid,
+        IvrErrorCodes.ContactInvalid)]
+    [InlineData(
+        "dial-expires-before-window",
+        EligibilityReasonCodes.DialTokenExpiresBeforeWindow,
+        TaskIntakeDecisions.RejectedContactInvalid,
+        IvrErrorCodes.ContactInvalid)]
+    [InlineData(
+        "dial-already-expired",
+        EligibilityReasonCodes.DialTokenAlreadyExpired,
+        TaskIntakeDecisions.RejectedContactInvalid,
+        IvrErrorCodes.ContactInvalid)]
+    [InlineData(
+        "phone-ref-raw",
+        EligibilityReasonCodes.PhoneRefLooksLikeRawPhone,
+        TaskIntakeDecisions.RejectedContactInvalid,
+        IvrErrorCodes.ContactInvalid)]
+    [InlineData(
+        "dial-token-raw",
+        EligibilityReasonCodes.DialTokenLooksLikeRawPhone,
+        TaskIntakeDecisions.RejectedContactInvalid,
+        IvrErrorCodes.ContactInvalid)]
+    [InlineData(
+        "privacy-guard",
+        EligibilityReasonCodes.ContactFailedPrivacyGuard,
+        TaskIntakeDecisions.RejectedContactInvalid,
+        IvrErrorCodes.ContactInvalid)]
+    [Trait("TestId", "UT-INTAKE-REASON-TAXONOMY-13")]
     public async Task EachRejectionNamesTheFieldThatCausedIt(
         string caseId,
-        string expectedReason)
+        string expectedReason,
+        string expectedDecision,
+        string? expectedFailureCode)
     {
         IvrConfirmationTaskV1 source = caseId switch
         {
@@ -98,25 +140,35 @@ public sealed class TaskIntakeServiceTests
                 payment: IvrConfirmationTaskV1Payment_method_snapshot.COD),
             "phone-status" => CreateTask(phoneStatus: "PHONE_VALID"),
             "phone-not-masked" => CreateTask(phoneMasked: "84901234567"),
+            "dial-expires-before-window" => CreateTask(
+                dialTokenExpiresAt: Now.AddMinutes(1)),
+            "dial-already-expired" => CreateTask(
+                dialTokenExpiresAt: Now.AddSeconds(-1)),
+            "phone-ref-raw" => CreateTask(phoneRef: "0901234567"),
+            "dial-token-raw" => CreateTask(dialToken: "0901234567"),
+            "privacy-guard" => CreateTask(phoneRef: "contact 0912345678"),
             _ => throw new ArgumentOutOfRangeException(nameof(caseId)),
         };
         TestContext test = CreateContext();
 
         TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
 
-        Assert.Contains(expectedReason, outcome.BlockedReasons);
+        Assert.Equal(expectedDecision, outcome.Decision);
+        Assert.Equal(expectedFailureCode, outcome.FailureCode);
+        Assert.Equal(new[] { expectedReason }, outcome.BlockedReasons);
         Assert.Null(outcome.IvrCallJobId);
         Assert.Equal(0, test.Store.CallJobCount);
     }
 
     /// <summary>
-    /// W-0120. The reason code must be specific, but the decision must not have moved: these are
+    /// W-0129. The reason code may be specific, but the decision must not have moved: these are
     /// the two shapes M3's producer will send once it maps its enums, and both must still be
     /// accepted exactly as before.
     /// </summary>
     [Theory]
     [InlineData(ProgramCode.GOLDEN_HOUR, IvrConfirmationTaskV1Payment_method_snapshot.ONLINE)]
     [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, IvrConfirmationTaskV1Payment_method_snapshot.COD)]
+    [Trait("TestId", "UT-INTAKE-REASON-COMPAT-14")]
     public async Task TheTwoBusinessApprovedPairsAreStillAccepted(
         ProgramCode program,
         IvrConfirmationTaskV1Payment_method_snapshot payment)
@@ -330,7 +382,10 @@ public sealed class TaskIntakeServiceTests
         string? customerRef = null,
         DateTimeOffset? windowStart = null,
         bool ivrConfirmationRequired = true,
-        string phoneMasked = "84xxxxx0001")
+        string phoneMasked = "84xxxxx0001",
+        string phoneRef = "phone-ref-p2-1",
+        string dialToken = "dial-token-p2-1",
+        DateTimeOffset? dialTokenExpiresAt = null)
     {
         DateTimeOffset start = windowStart ?? Now.AddMinutes(-1);
         int windowSeconds = program == ProgramCode.GOLDEN_HOUR ? 300 : 900;
@@ -356,11 +411,11 @@ public sealed class TaskIntakeServiceTests
             Max_customer_attempts = maxAttempts,
             Attempt_offsets_seconds = [0, secondOffset],
             Customer_ref = customerRef,
-            Phone_ref = "phone-ref-p2-1",
+            Phone_ref = phoneRef,
             Phone_masked = phoneMasked,
             Phone_validation_status = phoneStatus,
-            Dial_token = "dial-token-p2-1",
-            Dial_token_expires_at = start.AddSeconds(windowSeconds),
+            Dial_token = dialToken,
+            Dial_token_expires_at = dialTokenExpiresAt ?? start.AddSeconds(windowSeconds),
             Privacy_safe_order_summary = new Ivr.Contracts.Generated.IvrServer.V1.PrivacySafeOrderSummary
             {
                 Customer_display_name = customerDisplayName,

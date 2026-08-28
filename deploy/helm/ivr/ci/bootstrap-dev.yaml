@@ -19,6 +19,9 @@ type: Opaque
 stringData:
   internal-service-token: dev-internal-token-not-a-real-secret
   order-core-service-token: dev-ordercore-token-not-a-real-secret
+  admin-read-token: dev-admin-read-token-not-a-real-secret
+  admin-write-token: dev-admin-write-token-not-a-real-secret
+  admin-danger-token: dev-admin-danger-token-not-a-real-secret
 ---
 apiVersion: v1
 kind: Service

@@ -3,7 +3,7 @@
 Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/11` §5,§8; `/08` (monitoring/privacy).
 Base path `/v1/ivr/order-confirmation/*`. Mọi POST có `reason` + `X-Actor-Id` + audit + `Idempotency-Key`.
 
-`W-0122`: IVR **không còn** phát hành hay lưu tài khoản. Không có `/auth/*`, không có `/accounts*`,
+`W-0128`: IVR **không còn** phát hành hay lưu tài khoản. Không có `/auth/*`, không có `/accounts*`,
 không có session và không có role. Module 3 sở hữu identity của nhân viên và gọi sang đây bằng
 credential của service.
 
@@ -18,6 +18,14 @@ Uỷ quyền chạy theo **ba tầng**, không theo permission catalogue:
 Tầng lồng nhau: `danger` ⊇ `write` ⊇ `read`. `X-Service-Scope` khai theo **tầng của token đang
 cầm**, không phải tầng endpoint yêu cầu — khai theo endpoint sẽ vỡ tính lồng nhau và bị `403`.
 `X-Actor-Id` bắt buộc trên mọi endpoint ở bảng dưới.
+
+Mỗi tier có cặp rotation tùy chọn `*_PREVIOUS` + `*_PREVIOUS_RETIRES_AT`. Hai biến phải đi cùng
+nhau; retirement là ISO-8601 instant tuyệt đối, không phải duration. Current/previous và mọi tier
+phải dùng giá trị khác nhau, tối thiểu 24 ký tự. Runtime từ chối cấu hình thiếu, ngắn hoặc trùng để
+không biến token `read` thành capability `danger`. Sau instant, previous bị từ chối dù biến còn tồn tại.
+
+IVR không quyết định role người dùng nào được tier nào. Mapping role → tier thuộc Module 3 và hiện
+`OWNER_DECISION_REQUIRED`; role lạ không nhận tier nào, còn `danger` phải grant tường minh.
 
 Hợp đồng đầy đủ cho Module 3, kể cả các bẫy `403`, nằm ở
 [`integration-requirements/06-module-3-api-handover.md`](../../integration-requirements/06-module-3-api-handover.md) §4A.
@@ -90,7 +98,7 @@ nửa còn lại của cặp production. Bấm lại không đổi được đi�
 Trả `409` cho vế đầu sẽ đẩy người vận hành đi bấm lại, trong khi việc cần làm là đi tìm đồng nghiệp.
 
 Bốn route mutation kịch bản chạy ở tầng `write`. Seam quyền MOCK (`X-Permissions`) đã bị gỡ cùng
-`W-0122`; thứ thay nó là `X-Script-Permissions`, do Module 3 khai và IVR ghi nhận — nhưng bốn mắt
+`W-0128`; thứ thay nó là `X-Script-Permissions`, do Module 3 khai và IVR ghi nhận — nhưng bốn mắt
 vẫn cưỡng chế theo `X-Actor-Id`, nên một actor tự khai đủ bảy quyền vẫn không ký được cả hai nửa của cặp duyệt production.
 
 | Endpoint | Method | Tầng | Contract | Chức năng |
@@ -102,7 +110,7 @@ vẫn cưỡng chế theo `X-Actor-Id`, nên một actor tự khai đủ bảy q
 ## 2. Ràng buộc admin action (P0)
 Mỗi POST phải có: `X-Actor-Id`, tầng đủ mạnh cho endpoint, `reason`, `target_type`+`target_id`, audit record, evidence ref nếu ảnh hưởng queue/SIM/retry/result, `no_policy_bypass=true`.
 
-`X-Actor-Id` là **nguồn**, không còn được đối chiếu với chủ thể phiên đăng nhập — `W-0122` xoá phiên đó và Module 3 khai actor theo từng request. IVR kiểm header có mặt, ≤ 128 ký tự, qua bộ lọc PII, rồi ghi thẳng vào audit. Mỗi mutation commit business state + `ivr_admin_actions` + append-only `ivr_audit_log` trong cùng transaction, gồm `before/after`, tên thao tác, correlation và `no_policy_bypass=true`.
+`X-Actor-Id` là **nguồn**, không còn được đối chiếu với chủ thể phiên đăng nhập — `W-0128` xoá phiên đó và Module 3 khai actor theo từng request. IVR kiểm header có mặt, ≤ 128 ký tự, qua bộ lọc PII, rồi ghi thẳng vào audit. Mỗi mutation commit business state + `ivr_admin_actions` + append-only `ivr_audit_log` trong cùng transaction, gồm `before/after`, tên thao tác, correlation và `no_policy_bypass=true`.
 
 Admin **KHÔNG** được:
 - Gọi khách ngoài attempt policy (D-10) hoặc reset customer attempt count.
@@ -125,7 +133,7 @@ Admin **KHÔNG** được:
 - Dev dùng mock channels; lab ban đầu có 1 SIM thật và destination allowlist; production target 32 eSIM channels. Channel count là config. UI/API phải hiển thị mode/provider và không được bật real call permission chỉ vì channel được enable.
 
 ## Báo cáo (admin)
-- **10 endpoint admin** (3 GET + 7 POST) chia theo ba tầng ở §1. Ba endpoint feature-flag do P0-4 bổ sung; mutation feature flag nằm ở tầng `danger` (`OD-V1-20`, 2026-08-22), nhưng endpoint **vẫn fail-closed** ở tầng sau: `IRuntimeGateAuthorization` (bản production luôn `false`) trả `409 IVR_OPERATIONAL_BLOCKED`. Không endpoint nào cho phép force order/bypass blocker.
+- OpenAPI có **31 operation admin**: 15 `read`, 5 `write`, 8 `danger` và 3 route dev `write` chỉ non-prod. Production không map ba route dev nên còn 28 operation runtime. Hai GET feature-flag không cần actor; 29 operation còn lại bắt buộc `X-Actor-Id`. Mutation feature flag nằm ở tầng `danger` (`OD-V1-20`, 2026-08-22), nhưng endpoint **vẫn fail-closed** ở tầng sau: `IRuntimeGateAuthorization` (bản production luôn `false`) trả `409 IVR_OPERATIONAL_BLOCKED`. Không endpoint nào cho phép force order/bypass blocker.
 
 ## Runtime-gate controls — bất đối xứng theo chiều an toàn
 

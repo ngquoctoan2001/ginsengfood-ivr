@@ -21,18 +21,20 @@ IVR hiện chạy hoàn toàn trên `MockTelephonyDispatchGateway`. Toàn bộ P
 
 | File | Nội dung | Owner | Due (chặn cái gì) |
 | --- | --- | --- | --- |
-| [R-01](R-01-vendor-requirements.md) | Yêu cầu nhà cung cấp: protocol/SDK, auth, 6 operation, DTMF, codec, disposition, health, caller ID, CDR, secret, bảo mật | Infra + Telephony vendor | trước khi gửi RFQ |
+| [R-00](R-00-voice-gateway-rfq.md) | **Bản gửi thẳng nhà cung cấp.** Gộp §13.2 (7 điều kiện loại trừ thiết bị) + §13.3 (bảng 11 call disposition) của tài liệu Module 8, cộng 9 câu hỏi. Gửi file này **trước** | Infra (soạn) + owner IVR (quyết định gửi) | gửi được ngay — mở khoá `B-01` |
+| [R-01](R-01-vendor-requirements.md) | Annex kỹ thuật cho vòng đàm phán sau R-00: protocol/SDK, auth, 6 operation, DTMF, codec, disposition, health, caller ID, CDR, secret, bảo mật | Infra + Telephony vendor | trước khi gửi RFQ |
 | [R-02](R-02-lab-package.md) | Gói lab 1 SIM: topology, allowlist số test, kill switch, checklist kịch bản disposition | Infra + Security | trước `P8-1` |
 | [R-03](R-03-esim32-package.md) | Gói production nhiều kênh: lifecycle, pooling/failover/quarantine, throughput, cost, observability, disaster mode | Infra + Procurement | trước `P9-1` |
 | [R-04](R-04-scorecard-and-gaps.md) | Scorecard có trọng số, gap register, điều khoản hợp đồng | Procurement + Infra | trước khi chọn nhà cung cấp |
 | [R-05](R-05-tts-audio-capability.md) | Năng lực TTS/audio (`OD-V1-19`) — vendor, DPA, phát âm tiếng Việt, codec | Product + Infra + Privacy/Legal | trước `P8-1` |
+| [R-06](R-06-to-trinh-mua-thiet-bi.md) | **Tờ trình duyệt mua** cho người không làm IT — điền giá vào rồi trình sếp | Nguyễn Quốc Toàn | sau khi có báo giá, **trước 15/09/2026** |
 | [lab-acceptance-report-template.md](lab-acceptance-report-template.md) | Biểu mẫu báo cáo nghiệm thu lab — điền khi chạy `P8-1` | Infra | dùng ở `P8-1` |
 
 ## 3. Quyết định mở mà gói này phục vụ
 
 | ID | Nội dung | Owner | Artifact ở đây |
 | --- | --- | --- | --- |
-| `OD-V1-09` | Giao thức lab 1 SIM, DTMF, disposition, allowlist | Infra/vendor | [R-01](R-01-vendor-requirements.md), [R-02](R-02-lab-package.md) |
+| `OD-V1-09` | Giao thức lab 1 SIM, DTMF, disposition, allowlist | Infra/vendor | [R-00](R-00-voice-gateway-rfq.md), [R-01](R-01-vendor-requirements.md), [R-02](R-02-lab-package.md) |
 | `OD-V1-10` | Năng lực 32 eSIM, failover, caller ID, chi phí | Infra/procurement | [R-03](R-03-esim32-package.md) |
 | `OD-V1-18` | Vị trí resolve `dial_token → E.164` | Security + vendor | [R-01](R-01-vendor-requirements.md) §4 — cần **vendor capability statement**, xem thêm [T-04](../target-v1-closure-pack/T-04-dial-token.md) |
 | `OD-V1-19` | Nhà cung cấp TTS/audio | Product + Infra + Privacy/Legal | [R-05](R-05-tts-audio-capability.md) |

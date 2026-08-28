@@ -81,10 +81,10 @@ public sealed class TaskIntakeService(
 
         (IvrProgramCode program, PaymentMethod payment) = MapProgramPayment(source);
 
-        // W-0120. Checked before EnsureAllowed rather than by catching it, because that method
-        // guards two unrelated rules and throws one message for both. Reporting them separately
-        // matters more here than anywhere else: the rejection goes back as HTTP 200, so this
-        // reason code is the only thing the producer ever learns about why its task died.
+        // W-0129. Checked before EnsureAllowed so direct service callers can distinguish a false
+        // required flag from a rejected program/payment pair. The HTTP endpoint rejects both
+        // shapes at schema validation before this method; this branch does not change that wire
+        // behaviour.
         if (!source.Ivr_confirmation_required)
         {
             return Rejected(
@@ -369,8 +369,8 @@ public sealed class TaskIntakeService(
 
     /// <summary>
     /// Returns the reason code for the first contact rule this task fails, or <c>null</c> when
-    /// every rule passes. W-0120 — see EligibilityReasonCodes for why a single bool was not
-    /// enough.
+    /// every rule passes. W-0129 keeps this internal classification separate from the stable
+    /// HTTP 422 envelope; see EligibilityReasonCodes.
     /// </summary>
     private static string? ContactRejectionReason(
         IvrConfirmationTaskV1 source,
@@ -389,14 +389,14 @@ public sealed class TaskIntakeService(
             return EligibilityReasonCodes.PhoneMaskedNotMasked;
         }
 
-        if (source.Dial_token_expires_at < window.ExpiresAt)
-        {
-            return EligibilityReasonCodes.DialTokenExpiresBeforeWindow;
-        }
-
         if (source.Dial_token_expires_at <= now)
         {
             return EligibilityReasonCodes.DialTokenAlreadyExpired;
+        }
+
+        if (source.Dial_token_expires_at < window.ExpiresAt)
+        {
+            return EligibilityReasonCodes.DialTokenExpiresBeforeWindow;
         }
 
         if (LooksLikeRawPhone(source.Phone_ref))

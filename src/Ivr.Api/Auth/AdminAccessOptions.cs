@@ -3,7 +3,7 @@ using Ivr.Domain.Privacy;
 namespace Ivr.Api.Auth;
 
 /// <summary>
-/// W-0122. Service credentials for the IVR admin surface, split into three tiers.
+/// W-0128. Service credentials for the IVR admin surface, split into three tiers.
 /// <para>
 /// This replaces the console account system. IVR no longer holds human identities: Module 3 owns
 /// the operator console and its accounts, and reaches IVR as a service. What IVR still owes is a
@@ -16,14 +16,35 @@ namespace Ivr.Api.Auth;
 public sealed class AdminAccessOptions
 {
     public const string ReadTokenConfigurationKey = "IVR_ADMIN_READ_TOKEN";
+    public const string ReadTokenPreviousConfigurationKey = "IVR_ADMIN_READ_TOKEN_PREVIOUS";
+    public const string ReadTokenPreviousRetiresAtConfigurationKey =
+        "IVR_ADMIN_READ_TOKEN_PREVIOUS_RETIRES_AT";
     public const string WriteTokenConfigurationKey = "IVR_ADMIN_WRITE_TOKEN";
+    public const string WriteTokenPreviousConfigurationKey = "IVR_ADMIN_WRITE_TOKEN_PREVIOUS";
+    public const string WriteTokenPreviousRetiresAtConfigurationKey =
+        "IVR_ADMIN_WRITE_TOKEN_PREVIOUS_RETIRES_AT";
     public const string DangerTokenConfigurationKey = "IVR_ADMIN_DANGER_TOKEN";
+    public const string DangerTokenPreviousConfigurationKey = "IVR_ADMIN_DANGER_TOKEN_PREVIOUS";
+    public const string DangerTokenPreviousRetiresAtConfigurationKey =
+        "IVR_ADMIN_DANGER_TOKEN_PREVIOUS_RETIRES_AT";
 
     public string ReadToken { get; set; } = string.Empty;
 
+    public string ReadTokenPrevious { get; set; } = string.Empty;
+
+    public DateTimeOffset? ReadTokenPreviousRetiresAt { get; set; }
+
     public string WriteToken { get; set; } = string.Empty;
 
+    public string WriteTokenPrevious { get; set; } = string.Empty;
+
+    public DateTimeOffset? WriteTokenPreviousRetiresAt { get; set; }
+
     public string DangerToken { get; set; } = string.Empty;
+
+    public string DangerTokenPrevious { get; set; } = string.Empty;
+
+    public DateTimeOffset? DangerTokenPreviousRetiresAt { get; set; }
 }
 
 /// <summary>

@@ -298,7 +298,7 @@ const sourceErrorCodes = extractMatches(
   await fs.readFile(path.join(repositoryRoot, "src/Ivr.Domain/Errors/IvrErrorCodes.cs"), "utf8"),
   /public const string \w+ = "(?<code>IVR_[A-Z0-9_]+)";/gu,
 );
-// W-0122. One catalogue again, not two. `ConsoleAccountErrorCode` existed so the account API
+// W-0128. One catalogue again, not two. `ConsoleAccountErrorCode` existed so the account API
 // could add codes without touching the enum every older operation already referenced; deleting
 // that API deleted the reason for the split, and the two account-only codes went with it —
 // 18 down to 16. The parity check is what matters and it is unchanged: the spec, `API-06` and

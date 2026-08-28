@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Ivr.Api.Auth;
 
-/// <summary>W-0122. The tier an endpoint requires.</summary>
+/// <summary>W-0128. The tier an endpoint requires.</summary>
 public sealed class AdminScopeRequirement(AdminScope scope) : IAuthorizationRequirement
 {
     public AdminScope Scope { get; } = scope;
 }
 
 /// <summary>
-/// W-0122. Checks the tier claim, the scope header, and — on the danger tier — the acting
+/// W-0128. Checks the tier claim, the scope header, and — on the danger tier — the acting
 /// operator and reason.
 /// <para>
 /// The header checks read the request through <see cref="IHttpContextAccessor"/> rather than

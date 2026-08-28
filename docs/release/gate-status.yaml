@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 126 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 128 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 15
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 72
+  rows_without_evidence_pack: 74
 
 gates:
   - id: "G-CONTRACT"
@@ -288,25 +288,17 @@ work:
     status: "ACCEPTED"
     evidence: "docs/evidence/W-0104/README.md"
   - id: "W-0105"
-    prompt: "Console account authentication + two-role RBAC (Origin=UNPLANNED, owner requested)"
-    status: "TESTS_PASS"
+    prompt: "Console account authentication/RBAC (HISTORICAL; superseded bởi W-0128)"
+    status: "N/A"
     evidence: "docs/evidence/W-0105/README.md"
   - id: "W-0106"
     prompt: "Regional voice routing — 3 giọng nữ Bắc/Trung/Nam (Origin=UNPLANNED, owner requested)"
     status: "ACCEPTED"
     evidence: "docs/evidence/W-0106/README.md"
-  - id: "W-0107"
-    prompt: "Việt hóa giao diện + dữ liệu hiển thị (Origin=UNPLANNED, owner requested)"
-    status: "TESTS_PASS"
-    evidence: "docs/evidence/W-0107/README.md"
   - id: "W-0108"
     prompt: "Chuỗi ghép audio động (Origin=UNPLANNED, owner requested)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0108/README.md"
-  - id: "W-0109"
-    prompt: "Vòng đời kịch bản: API + ràng buộc quyền + màn hình (Origin=UNPLANNED, owner requested)"
-    status: "TESTS_PASS"
-    evidence: "docs/evidence/W-0109/README.md"
   - id: "W-0110"
     prompt: "Màn hình cổng vận hành / runtime gate (Origin=UNPLANNED, owner requested)"
     status: "TESTS_PASS"
@@ -374,6 +366,22 @@ work:
   - id: "W-0126"
     prompt: "Khắc phục phát hiện rà soát W-0122 (Origin=UNPLANNED, owner requested)"
     status: "TESTS_PASS"
+    evidence: null
+  - id: "W-0127"
+    prompt: "Rút ngắn khoảng cách tới sáu gate còn treo của W-0122 (Origin=UNPLANNED, owner requested)"
+    status: "TESTS_PASS"
+    evidence: null
+  - id: "W-0128"
+    prompt: "Admin/auth transition remediation (Origin=UNPLANNED, owner requested)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0128/README.md"
+  - id: "W-0129"
+    prompt: "Intake rejection-reason traceability (Origin=UNPLANNED, cross-audit remediation)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0129/README.md"
+  - id: "W-0131"
+    prompt: "Exact M8-P0-009 capacity overload acceptance test (Origin=UNPLANNED, cross-audit F-08)"
+    status: "IN_PROGRESS"
     evidence: null
   - id: "W-0029"
     prompt: "P4-1"

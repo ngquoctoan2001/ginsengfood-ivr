@@ -109,7 +109,7 @@ exactly as the earlier `1.0.0 → draft.2` reset was. Neither verdict approves a
 external Sales contract.
 
 
-`1.0.0-draft.22` (W-0122) removes console account authentication from the contract. Eleven paths
+`1.0.0-draft.22` (W-0128) removes console account authentication from the contract. Eleven paths
 go: `POST /auth/sign-in`, `GET /auth/session`, `POST /auth/sign-out`, the six `/accounts*`
 operations and `GET /account-roles`, together with fifteen `Console*` schemas, the `AccountId`
 parameter and the `ConsoleAccountError` response. IVR no longer issues or stores identities —
@@ -117,7 +117,7 @@ Module 3 owns the operator console and reaches this service as a peer, with thre
 `X-Service-Scope`/`X-Actor-Id`/`X-Action-Reason` headers. The full wire contract is
 `integration-requirements/06-module-3-api-handover.md` §4A (trong repo IVR, ngoài portal này).
 
-W-0122 rotated the IVR comparison baseline a second time, from `1.0.0-draft.20` to
+W-0128 rotated the IVR comparison baseline a second time, from `1.0.0-draft.20` to
 `1.0.0-draft.22`, for the same reason W-0124 rotated the first one. Removing eleven paths is
 eleven `api path removed without deprecation` warnings, and `--fail-on WARN` would have stayed red
 on every pipeline for a removal the owner had already ordered. The closed window is frozen rather

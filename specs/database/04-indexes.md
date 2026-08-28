@@ -36,9 +36,6 @@ Trạng thái: `TARGET_V1_DRAFT` · Nguồn: `phase-8/12` §4-8,§12; DF-04, D-0
 - `official_order_id`, `task_id` trên các bảng con.
 - `result_type`, `is_final_for_ivr`, `human_review_required` (query review).
 - `core_http_status` (current), `core_response_code` (target), `next_retry_at` trên callbacks (retry scan).
-- Account/session: `(status, role)`, `deleted_at`, `retain_until`,
-  `legal_hold_until`; session `(account_id, expires_at)`, `revoked_at`,
-  `retain_until`, `legal_hold_until`.
 
 ## 4. Constraint P0 — **bounds và invariant only**
 
@@ -62,8 +59,6 @@ Attempt policy là **data/config gắn `attempt_policy_version`**, không phải
 | signal-only invariants | `not_for_quote_cart_draft`, `no_direct_order_update`, `input_signal_only`, `no_payment_or_revenue_effect` = true | |
 | PII | không cột nào bắt buộc lưu **full phone**, **full address** hay **raw recording** (D-05/DT-05) | |
 | lease exclusivity | tối đa 1 hàng `ivr_sim_channels` có `status='ACTIVE_CALL'` cho mỗi `sim_channel_id`; `active_call_job_id` không null ⇒ `lease_token` không null | one active call per channel (`FR-IVR-SCH-003`) |
-| built-in admin | `is_builtin=false OR (username='admin' AND role='Admin' AND status='ACTIVE')` | không hạ quyền/vô hiệu/xoá admin cố định |
-| session integrity | `token_hash` là 64 hex lowercase; `expires_at > created_at`; revoke time/reason cùng null hoặc cùng non-null | không lưu raw bearer; trạng thái revoke nhất quán |
 
 > **Giới hạn của `CHECK` trong PostgreSQL.** `CHECK` chỉ đánh giá biểu thức trên **một hàng của chính bảng chứa nó**; nó **không** đọc được bảng khác (subquery trong CHECK bị cấm, và kể cả hàm `STABLE` cũng không an toàn vì CHECK không được re-evaluate khi bảng kia đổi). Do đó mọi ràng buộc liên bảng ở đây phải hiện thực bằng **(a)** cột snapshot denormalize + same-row CHECK, **(b)** trigger, hoặc **(c)** application/domain validation. `P1-2` phải chọn đúng cơ chế cho từng dòng trong bảng trên và ghi rõ trong migration.
 

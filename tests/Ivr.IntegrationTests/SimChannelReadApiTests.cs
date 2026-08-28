@@ -34,7 +34,7 @@ public sealed class SimChannelReadApiTests(PostgresPersistenceFixture fixture)
         using HttpResponseMessage allowed = await SendAsync(app, IvrPermissions.QueueView);
         Assert.Equal(HttpStatusCode.OK, allowed.StatusCode);
 
-        // W-0122. Tiers nest, so a higher credential legitimately reads. The negative that still
+        // W-0128. Tiers nest, so a higher credential legitimately reads. The negative that still
         // means something is no credential at all.
         using HttpResponseMessage forbidden = await SendAsync(app, null);
         Assert.Equal(HttpStatusCode.Unauthorized, forbidden.StatusCode);

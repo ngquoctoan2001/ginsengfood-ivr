@@ -949,8 +949,10 @@ components:
         IVR_ADMIN_WRITE_TOKEN or IVR_ADMIN_DANGER_TOKEN -- and additionally
         require X-Service-Scope naming the tier the token resolves to, plus
         X-Actor-Id, plus X-Action-Reason on the danger tier. There is no console
-        session: W-0122 removed account authentication from this service and
-        Module 3 owns operator identity. See
+        session: W-0128 removed account authentication from this service and
+        Module 3 owns operator identity. Each tier may carry a distinct
+        *_PREVIOUS token only together with an absolute *_PREVIOUS_RETIRES_AT;
+        the previous value is rejected at that instant. See
         integration-requirements/06-module-3-api-handover.md section 4A.
   parameters:
     ScriptTemplateId:
