@@ -7,10 +7,10 @@ const repoRoot = resolve(import.meta.dirname, "../../..");
 const lockPath = resolve(repoRoot, "deploy/tts/models/MODELS.lock");
 const lock = JSON.parse(readFileSync(lockPath, "utf8"));
 const selftest = process.argv.includes("--selftest");
-const expectedArtifactSetSha256 = "bc54bafb6d0f2ecbb97a565d990dedeb6b7595bda6ac532830d8c083b67f2456";
+const expectedArtifactSetSha256 = "84eeb006ab695c875707cdb3ed56409468ab8394ddf25bbf11409e08539bfd94";
 const expectedRuntimeLockSha256 = "a2f18ce29167f97e1e11f9b1d9802378c6dc4997ddcfcdc99d04a54c77956304";
-const expectedVoiceConfigSha256 = "0db8d87ecda4e543e252879099e1174da671749dfbf96f25bf15b58f015b91fb";
-const expectedAcceptanceTemplateSha256 = "976b93e3df3f03bb9ef8d89b61b96be84646ee4baf3f4bc52fc27937dfcee1f8";
+const expectedVoiceConfigSha256 = "9a76fdabca3ad58994caa1b59c0c76f3a98facb22f11e2f9ec9210a9371ccae2";
+const expectedAcceptanceTemplateSha256 = "c70230fa2b3c20007c78286e150b5b83f718c3b3c1da2e354dc98887eb7951f6";
 const artifactFingerprintFields = [
   "component", "runtime_required", "model_repo", "full_revision", "allowed_file_path",
   "bundle_path", "size_bytes", "sha256", "declared_spdx", "license_file_sha256",
@@ -92,7 +92,7 @@ function validate(candidate) {
   if (voiceHash !== candidate.voice_manifest_sha256) throw new Error("voice manifest drift");
   if (dependencyHash !== candidate.dependency_lock_sha256) throw new Error("dependency lock drift");
   if (runtimeLockHash !== expectedRuntimeLockSha256) throw new Error("runtime lock drift");
-  if (licenseHash !== "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6") {
+  if (licenseHash !== "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4") {
     throw new Error("source license drift");
   }
   for (const item of candidate.artifacts) {

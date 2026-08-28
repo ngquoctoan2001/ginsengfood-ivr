@@ -10,8 +10,8 @@ adapter code lives under `deploy/tts/`; do not patch the vendored implementation
 | Git tree | `16632c30c2484aa4f86c8cde68a074192bd52736` |
 | Retrieved | `2026-08-27` |
 | Upstream commit date | `2026-08-20T09:19:34+07:00` |
-| License file SHA-256 | `1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6` |
-| Dependency lock SHA-256 | `bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9` |
+| License file SHA-256 | `c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4` |
+| Dependency lock SHA-256 | `f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e` |
 | Voice manifest SHA-256 | `574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8` |
 | Upstream NOTICE | Absent at the pinned tree |
 

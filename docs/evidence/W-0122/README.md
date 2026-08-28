@@ -17,13 +17,30 @@ Trạng thái: `IN_PROGRESS — RELEASE_BLOCKED`
 | MOSS codec transitively required | `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX@ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae` |
 | Runtime allowlist | 13 exact files trong `deploy/tts/models/MODELS.lock` |
 | Voice manifest | SHA-256 `574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8` |
-| Dependency lock | SHA-256 `bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9` |
+| Dependency lock | SHA-256 `f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e` |
 | Production runtime lock | 24 packages; SHA-256 `a2f18ce29167f97e1e11f9b1d9802378c6dc4997ddcfcdc99d04a54c77956304` |
-| Hardened local image | `sha256:4c76d318e24110267c908594031863cd7dbe3f31c92569c4e02b4de3ba9ba30d`; `126,109,579` bytes |
+| Hardened local image | `sha256:4c76d318e24110267c908594031863cd7dbe3f31c92569c4e02b4de3ba9ba30d`; `126,109,579` bytes — `STALE_REBUILD_REQUIRED`, xem re-pin bên dưới |
 
 Model cards của cả hai model repo khai báo `Apache-2.0`, nhưng hai revision đã khóa không chứa
 file `LICENSE`. Chưa có ý kiến Legal về commercial use của đúng preset voice/training-data gap,
 và chưa có internal mirror URI/digest. Vì vậy production provenance giữ `RELEASE_BLOCKED`.
+
+### Re-pin `2026-08-28` — chuẩn hoá line ending
+
+Hai pin ban đầu được tính trên working tree Windows nên mang byte CRLF, trong khi blob đã
+commit là LF: `third_party/vieneu-tts/uv.lock` (`bc375e3d…` → `f04d0713…`) và
+`third_party/vieneu-tts/LICENSE` (`1eb85fc9…` → `c71d239d…`). Hệ quả đã tái lập được: trên
+GitLab runner Linux `tts-provenance-gate.mjs` đỏ ngay lệnh đầu của job với `dependency lock
+drift`, và image build từ checkout Linux làm shim raise `dependency lock binding drift` nên
+`/health/ready` giữ `503` vĩnh viễn. Toàn bộ path được hash nay đã ghim `text eol=lf` trong
+`.gitattributes`; pin tính lại từ đúng byte đã commit, kéo theo `model_lock_sha256` →
+`voices.json` → `expectedArtifactSetSha256`/`expectedVoiceConfigSha256`/
+`expectedAcceptanceTemplateSha256`. Nội dung artifact không đổi, chỉ đường ghi line ending.
+Đã chứng minh checkout sạch trên Windows và byte trên Linux cho cùng một hash ở cả 9 file
+được hash.
+
+`sha256:4c76d318…` là image build từ working tree CRLF cũ nên không còn tái lập được. Phải
+build lại và chạy lại SBOM/Trivy trên digest mới trước khi trích dẫn lại con số đó.
 
 ## Evidence tự động hiện có
 
@@ -33,7 +50,7 @@ và chưa có internal mirror URI/digest. Vì vậy production provenance giữ 
 | Production model verifier | `EXPECTED_FAIL` — thiếu license-file evidence và internal mirror |
 | Provenance mutations | `PASS` — revision/path/hash/license/extra artifact/voice-config/acceptance-template drift đều bị từ chối |
 | Converter regression | `PASS` — MP3 cũ bitexact 12/12; WAV 12/12 PCM s16le/8 kHz/mono; unknown/missing source bị từ chối |
-| Owner-manifest gate | `PASS` fail-closed — 11 mutation + pending template bị từ chối; production thiếu/pending manifest hoặc bật audition đều readiness `503` |
+| Owner-manifest gate | `PASS` fail-closed — pending template + 9 acceptance mutation + 6 voices.json binding mutation bị từ chối; production thiếu/pending manifest hoặc bật audition đều readiness `503` |
 | Container contract | `12/12 PASS` — non-root `1654:1654`, read-only, no network, no exposed port, drop caps |
 | Minimal runtime content | `PASS` — không có `uv`, web UI, upstream deploy/docs/examples, training, tests hoặc reference samples; chỉ venv + source runtime + locks/license |
 | Real ONNX smoke | `PASS` nonprod — ready; request `200`, raw `audio/L16` 8 kHz, 20,480 bytes; không phải voice acceptance |

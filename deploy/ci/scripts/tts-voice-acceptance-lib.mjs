@@ -4,6 +4,25 @@ import { resolve } from "node:path";
 
 const REGIONS = ["North", "Central", "South"];
 const LISTENING_PROFILE_ID = "w0122-asterisk-microsip-8khz-v1";
+const VIENEU_MODEL_REPO = "pnnbao-ump/VieNeu-TTS-v3-Turbo";
+const MOSS_CODEC_REPO = "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX";
+
+// `deploy/tts/shim/voices.json` is the single declared authority for what this candidate binds
+// to. It is the artifact baked into the runtime image, and `deploy/tts/shim/acceptance.py`
+// validates the Owner manifest against exactly these strings. This gate therefore reads its
+// expectations from the same place instead of recomputing them from the working tree: when the
+// two validators derive expectations independently they can disagree, and then no single Owner
+// artifact satisfies both. Drift is still caught — but in one explicit place, by proving every
+// declared string still describes the real file.
+const DECLARED_FILE_BINDINGS = [
+  ["voice_manifest_sha256", "third_party/vieneu-tts/src/vieneu/assets/voices_v3_turbo.json"],
+  ["dependency_lock_sha256", "third_party/vieneu-tts/uv.lock"],
+  ["runtime_lock_sha256", "deploy/tts/runtime-requirements.lock"],
+  ["model_lock_sha256", "deploy/tts/models/MODELS.lock"],
+  ["audition_manifest_sha256", "docs/evidence/W-0122/audition-manifest.json"],
+  ["audition_renderer_sha256", "deploy/ci/scripts/render-voice-audition.mjs"],
+];
+
 const TOP_LEVEL_KEYS = [
   "schema_version", "work_id", "status", "stale_relisten_required", "source_commit",
   "model_artifacts", "voice_manifest_sha256", "dependency_lock_sha256",
@@ -14,35 +33,82 @@ const TOP_LEVEL_KEYS = [
   "all_11_candidates_listened", "selections", "candidate_results", "notes",
 ];
 
+export function loadVoiceAcceptanceSources(repoRoot) {
+  return {
+    voiceConfig: readJson(resolve(repoRoot, "deploy/tts/shim/voices.json")),
+    modelLock: readJson(resolve(repoRoot, "deploy/tts/models/MODELS.lock")),
+    auditionManifest: readJson(resolve(repoRoot, "docs/evidence/W-0122/audition-manifest.json")),
+  };
+}
+
+// Proves the declared authority still describes the tree it claims to describe. Everything the
+// Owner manifest is checked against flows from here, so a stale or hand-edited voices.json fails
+// the gate instead of silently redefining what "this candidate" means.
+export function verifyVoiceConfigBindings(repoRoot, sources) {
+  const { voiceConfig, modelLock, auditionManifest } = sources;
+  for (const [field, path] of DECLARED_FILE_BINDINGS) {
+    assert(
+      voiceConfig[field] === sha256File(resolve(repoRoot, path)),
+      `voices.json ${field} does not match ${path}`,
+    );
+  }
+  assert(
+    voiceConfig.audition_script_sha256 === auditionManifest.script_sha256,
+    "voices.json audition_script_sha256 does not match the audition manifest",
+  );
+  assert(
+    voiceConfig.source_commit === auditionManifest.source_commit,
+    "voices.json source_commit does not match the audition manifest",
+  );
+  assert(
+    voiceConfig.listening_profile_id === LISTENING_PROFILE_ID,
+    "voices.json listening_profile_id drift",
+  );
+  const declared = declaredModelArtifacts(voiceConfig);
+  const locked = [...new Map(modelLock.artifacts.map(item => [
+    item.model_repo,
+    { repo: item.model_repo, revision: item.full_revision },
+  ])).values()];
+  assert(
+    JSON.stringify(byRepo(declared)) === JSON.stringify(byRepo(locked)),
+    "voices.json model/codec revision does not match MODELS.lock",
+  );
+  return declared;
+}
+
 export function loadVoiceAcceptanceContext(repoRoot) {
-  const voiceConfig = readJson(resolve(repoRoot, "deploy/tts/shim/voices.json"));
-  const modelLockPath = resolve(repoRoot, "deploy/tts/models/MODELS.lock");
-  const auditionManifestPath = resolve(repoRoot, "docs/evidence/W-0122/audition-manifest.json");
-  const auditionManifest = readJson(auditionManifestPath);
-  const modelArtifacts = [...new Map(
-    readJson(modelLockPath).artifacts.map(item => [
-      item.model_repo,
-      { repo: item.model_repo, revision: item.full_revision },
-    ]),
-  ).values()];
+  const sources = loadVoiceAcceptanceSources(repoRoot);
+  const modelArtifacts = verifyVoiceConfigBindings(repoRoot, sources);
+  const { voiceConfig } = sources;
   return {
     voiceConfig,
     roster: voiceConfig.voices,
     modelArtifacts,
     expected: {
       source_commit: voiceConfig.source_commit,
-      voice_manifest_sha256: sha256File(resolve(repoRoot, "third_party/vieneu-tts/src/vieneu/assets/voices_v3_turbo.json")),
-      dependency_lock_sha256: sha256File(resolve(repoRoot, "third_party/vieneu-tts/uv.lock")),
-      runtime_lock_sha256: sha256File(resolve(repoRoot, "deploy/tts/runtime-requirements.lock")),
-      model_lock_sha256: sha256File(modelLockPath),
-      audition_script_sha256: auditionManifest.script_sha256,
-      audition_manifest_sha256: sha256File(auditionManifestPath),
-      audition_renderer_sha256: sha256File(
-        resolve(repoRoot, "deploy/ci/scripts/render-voice-audition.mjs"),
-      ),
-      listening_profile_id: LISTENING_PROFILE_ID,
+      voice_manifest_sha256: voiceConfig.voice_manifest_sha256,
+      dependency_lock_sha256: voiceConfig.dependency_lock_sha256,
+      runtime_lock_sha256: voiceConfig.runtime_lock_sha256,
+      model_lock_sha256: voiceConfig.model_lock_sha256,
+      audition_script_sha256: voiceConfig.audition_script_sha256,
+      audition_manifest_sha256: voiceConfig.audition_manifest_sha256,
+      audition_renderer_sha256: voiceConfig.audition_renderer_sha256,
+      listening_profile_id: voiceConfig.listening_profile_id,
     },
   };
+}
+
+// Same two repositories in the same order the shim builds them, so a manifest that satisfies one
+// validator satisfies the other byte-for-byte.
+function declaredModelArtifacts(voiceConfig) {
+  return [
+    { repo: VIENEU_MODEL_REPO, revision: voiceConfig.model_revision },
+    { repo: MOSS_CODEC_REPO, revision: voiceConfig.codec_revision },
+  ];
+}
+
+function byRepo(artifacts) {
+  return [...artifacts].sort((left, right) => left.repo.localeCompare(right.repo));
 }
 
 export function validateVoiceAcceptance(candidate, context) {

@@ -168,9 +168,9 @@ model card khai báo license không thay thế file license/ý kiến Legal.
 | --- | --- |
 | Source + dependency lock | Vendored exact commit/tree; `UPSTREAM.md`; source LICENSE hash đã khóa; production runtime lock 24 packages SHA-256 `a2f18ce29167f97e1e11f9b1d9802378c6dc4997ddcfcdc99d04a54c77956304` |
 | Model bundle | 13/13 artifact nonprod khớp path/size/SHA-256; production verifier fail đúng vì thiếu license-file evidence/internal mirror |
-| Shim/container | Unit/negative `12/12`, contract container và real ONNX request pass; non-root/read-only/no-port/no-network selftest pass; thiếu/pending acceptance hoặc production audition đều readiness `503`; builder tách khỏi runtime, 9 nhóm tool/UI/training/test/sample bị loại; local image `sha256:4c76d318e24110267c908594031863cd7dbe3f31c92569c4e02b4de3ba9ba30d` (`126,109,579` bytes) |
+| Shim/container | Unit/negative `12/12`, contract container và real ONNX request pass; non-root/read-only/no-port/no-network selftest pass; thiếu/pending acceptance hoặc production audition đều readiness `503`; builder tách khỏi runtime, 9 nhóm tool/UI/training/test/sample bị loại; local image `sha256:4c76d318e24110267c908594031863cd7dbe3f31c92569c4e02b4de3ba9ba30d` (`126,109,579` bytes) — `STALE_REBUILD_REQUIRED` sau khi chuẩn hoá line ending ngày `2026-08-28` |
 | Audition | 11/11 WAV PCM s16le/8 kHz/mono + tracked manifest; isolated Asterisk profile checksum/decode/route/deny probes pass; `PENDING_OWNER_MICROSIP_LISTENING` |
-| Voice acceptance authority | Node/Python strict validator + Compose bind + Helm ConfigMap mount; pending template và 11 mutation fail closed; renderer/source/model/lock/audition/profile/results đều hash-bound; Owner artifact vẫn `NOT_RUN` |
+| Voice acceptance authority | Node/Python strict validator đọc chung `voices.json` làm declared authority + Compose bind + Helm ConfigMap mount; pending template, 9 acceptance mutation và 6 binding mutation fail closed; renderer/source/model/lock/audition/profile/results đều hash-bound; Owner artifact vẫn `NOT_RUN` |
 | Converter | MP3 regression bitexact 12/12; WAV 12/12; unknown/missing source fail closed |
 | Compose/media | Config/topology pass; UID 1654 write, Asterisk read-only/write-denied probe pass |
 | Helm | Candidate sidecar/PVC/catalog wiring mặc định tắt; 4 default lint pass; positive `TEST_ONLY` fixture và negative guards pass |

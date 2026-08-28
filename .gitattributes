@@ -27,3 +27,29 @@ deploy/lab/asterisk/audio/*.wav binary
 # the working tree during local verification. Without eol=lf a Windows checkout
 # rewrites them to CRLF and `sh` rejects the very first line as `set -eu\r`.
 deploy/ci/scripts/*.sh text eol=lf
+
+# W-0122. Every path below is hashed byte-for-byte by the TTS provenance and Owner
+# voice-acceptance gates, and three of them are re-hashed inside the runtime image by
+# the shim before `/health/ready` opens. Without eol=lf a Windows checkout rewrites
+# them and the pins stop describing the same bytes on every platform: the gate goes
+# red on the Linux runner while passing locally, and an image built on Windows passes
+# a readiness check that the same image built on Linux fails.
+third_party/vieneu-tts/uv.lock text eol=lf
+third_party/vieneu-tts/LICENSE text eol=lf
+third_party/vieneu-tts/src/vieneu/assets/voices_v3_turbo.json text eol=lf
+deploy/tts/Dockerfile.tts text eol=lf
+deploy/tts/models/MODELS.lock text eol=lf
+deploy/tts/runtime-requirements.in text eol=lf
+deploy/tts/runtime-requirements.lock text eol=lf
+deploy/tts/scripts/*.py text eol=lf
+deploy/tts/shim/*.py text eol=lf
+deploy/tts/shim/voices.json text eol=lf
+deploy/tts/tests/*.py text eol=lf
+deploy/ci/scripts/*.mjs text eol=lf
+docs/evidence/W-0122/*.json text eol=lf
+docs/evidence/W-0122/audition-script.txt text eol=lf
+
+# The audition dialplan is read by Asterisk inside a Linux container and its roster is
+# verified with BusyBox `sha256sum -c`, which treats a trailing CR as part of the name.
+deploy/lab/asterisk/w0122-audition/SHA256SUMS text eol=lf
+deploy/lab/asterisk/w0122-audition/extensions.conf text eol=lf

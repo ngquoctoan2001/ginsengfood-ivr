@@ -6,7 +6,7 @@
   "source_commit": "36c4b501b0634a8f59805e6b529a058fbd30190b",
   "source_tree": "16632c30c2484aa4f86c8cde68a074192bd52736",
   "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-  "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+  "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
   "legal_gate": {
     "status": "OWNER_DATA_REQUIRED",
     "reason": "Both model repositories declare apache-2.0 in model-card metadata but neither pinned revision contains a LICENSE file. Training-data and exact preset commercial-use review are also unresolved."
@@ -28,7 +28,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -44,7 +44,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -60,7 +60,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -76,7 +76,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -92,7 +92,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -108,7 +108,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -124,7 +124,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -140,7 +140,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -156,7 +156,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -172,7 +172,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -188,7 +188,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -204,7 +204,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     },
@@ -220,7 +220,7 @@
       "declared_spdx": "Apache-2.0",
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
-      "dependency_lock_sha256": "bc375e3d5a64bcef007133781703a5689b8bba226f108437b812a97c00cbcec9",
+      "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
       "internal_mirror_uri": null,
       "internal_mirror_digest": null
     }
