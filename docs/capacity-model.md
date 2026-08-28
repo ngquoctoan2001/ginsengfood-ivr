@@ -111,6 +111,32 @@ hình thức trung thực: khẳng định mô hình **tự khai là chưa hiệ
 chỉnh nó (`W-0008`). `CAP-CALIB-03` kiểm đúng hai điều đó, và kiểm thêm rằng báo cáo hiệu năng
 **không** tuyên bố đã đo thời lượng cuộc gọi.
 
+## 4a. Ba con số chu kỳ cuộc gọi — một nguồn khai báo (`W-0132`)
+
+Thời lượng một cuộc gọi từng sống ở ba nơi độc lập, và **không gate nào so chúng với nhau**:
+
+| Con số | Ở đâu | Nghĩa |
+| --- | --- | --- |
+| **40s** (+5s cooldown) | `capacity-model.mjs`, `capacity-selftest.mjs` | giả định của chính mô hình này |
+| **50s** | hàm ý bởi spec §23 `M8-P0-009` | 32 SIM × `floor(300/50)` = `~192` cuộc mỗi window 5 phút |
+| **60s** | `SchedulerOptions.ExpectedCallDurationSeconds` | mặc định runtime |
+
+`W-0132` gom chúng vào `CALL_DURATION_ASSUMPTIONS` trong `tools/capacity-sim/capacity-model.mjs`
+và **không hợp nhất giá trị**. Hợp nhất nghĩa là tuyên bố một thời lượng đã đo, mà chưa có cuộc gọi
+nào được quay (`W-0008`). Việc gom lại chỉ biến sự bất đồng từ **tình cờ** thành **được khai báo**.
+
+`CAP-DRIFT-05` giữ điều đó:
+
+- ba con số phải đúng bằng giá trị đã ghim — một con số nhúc nhích một mình là đỏ;
+- `~192` của spec phải còn khớp số học với 50s, nếu không thì 50s không còn là điều spec nói;
+- mặc định C# được **đọc ngược từ `SchedulerCapacity.cs`**, không tin bản sao trong JS;
+- sweep độ nhạy phải còn xoay quanh giả định hiện hành, không phải một giá trị cũ;
+- và cửa thoát có khóa: nếu ba con số **được làm cho bằng nhau** mà `calibrated` vẫn `false` thì
+  đỏ — đồng thuận trên một con số chưa ai đo chính là cách một giả định trở thành sự thật do vô ý.
+
+Khi `W-0008` có số đo: đặt giá trị đo được, bật `calibrated`, trỏ `calibratedBy` vào evidence.
+`CAP-DRIFT-05` khi đó sẽ **đòi** ba con số phải thống nhất.
+
 ## 5. Pool đang ship vs mô hình
 
 `CAP-ALERT-04` đọc `worker.hpa.simPoolSize` của cả 4 môi trường và đòi:

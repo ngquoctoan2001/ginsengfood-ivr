@@ -15,6 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import {
+  CALL_DURATION_ASSUMPTIONS,
   CANDIDATE_POLICIES,
   CHANNEL_CONSTRAINTS,
   UNCALIBRATED_SCENARIO,
@@ -28,6 +29,10 @@ import {
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, "../../..");
+
+// Much faster and much slower than the model assumes. The middle corner is the assumption
+// itself, which CAP-DRIFT-05 keeps honest.
+const SENSITIVITY_CALL_SECONDS = [25, CALL_DURATION_ASSUMPTIONS.modelCallSeconds, 70];
 
 // Every input `cost_per_confirmed_order` needs before it can exist. Pinned, so that answering a
 // row and deleting a row are equally visible -- both change the count.
@@ -58,17 +63,17 @@ function sizesFromPeakNotAverage() {
   // fits 300/45 = 6 times into a Golden Hour window, so 13 attempts need 3 channels — not 2, which
   // is what floor() would give and what a pool that misses deadlines is built on.
   assert.equal(
-    channelsForWindow({ attempts: 13, windowSeconds: 300, callSeconds: 40, cooldownSeconds: 5 }),
+    channelsForWindow({ attempts: 13, windowSeconds: 300, callSeconds: CALL_DURATION_ASSUMPTIONS.modelCallSeconds, cooldownSeconds: 5 }),
     3,
     "the channel formula is not rounding up.");
 
   // Cooldown must cost capacity. Removing it must produce a strictly smaller pool, or it is being
   // applied somewhere that does not bite.
   const withCooldown = channelsForWindow({
-    attempts: 100, windowSeconds: 300, callSeconds: 40, cooldownSeconds: 5,
+    attempts: 100, windowSeconds: 300, callSeconds: CALL_DURATION_ASSUMPTIONS.modelCallSeconds, cooldownSeconds: 5,
   });
   const withoutCooldown = channelsForWindow({
-    attempts: 100, windowSeconds: 300, callSeconds: 40, cooldownSeconds: 0,
+    attempts: 100, windowSeconds: 300, callSeconds: CALL_DURATION_ASSUMPTIONS.modelCallSeconds, cooldownSeconds: 0,
   });
   assert(
     withCooldown > withoutCooldown,
@@ -78,17 +83,17 @@ function sizesFromPeakNotAverage() {
   // A call that does not fit in the window is a design error, reported as such rather than as a
   // very large pool that reads like a procurement problem.
   assert.equal(
-    channelsForWindow({ attempts: 1, windowSeconds: 30, callSeconds: 40, cooldownSeconds: 5 }),
+    channelsForWindow({ attempts: 1, windowSeconds: 30, callSeconds: CALL_DURATION_ASSUMPTIONS.modelCallSeconds, cooldownSeconds: 5 }),
     Number.POSITIVE_INFINITY,
     "a call longer than the window did not report as unservable.");
 
   // Programmes sum rather than max: they overlap in time.
   const golden = poolForProgramme({
-    dailyOrders: 800, eligibleRate: 0.6, peakShare: 0.15, noAnswerRate: 0.3, callSeconds: 40,
+    dailyOrders: 800, eligibleRate: 0.6, peakShare: 0.15, noAnswerRate: 0.3, callSeconds: CALL_DURATION_ASSUMPTIONS.modelCallSeconds,
     policy: CANDIDATE_POLICIES.GOLDEN_HOUR,
   }).channels;
   const round = poolForProgramme({
-    dailyOrders: 1_200, eligibleRate: 0.6, peakShare: 0.1, noAnswerRate: 0.3, callSeconds: 40,
+    dailyOrders: 1_200, eligibleRate: 0.6, peakShare: 0.1, noAnswerRate: 0.3, callSeconds: CALL_DURATION_ASSUMPTIONS.modelCallSeconds,
     policy: CANDIDATE_POLICIES.TWENTY_FOUR_SEVEN,
   }).channels;
   assert.equal(
@@ -107,7 +112,7 @@ function sizesFromPeakNotAverage() {
 function theAnswerIsARangeWithANamedDriver() {
   const result = sweep(UNCALIBRATED_SCENARIO, {
     dailyOrders: [1_000, 2_000, 4_000],
-    callSeconds: [25, 40, 70],
+    callSeconds: SENSITIVITY_CALL_SECONDS,
     noAnswerRate: [0.15, 0.3, 0.5],
   });
 
@@ -257,12 +262,86 @@ async function theShippedPoolMatchesTheModel({ peak }) {
     + "cost inputs are still blocked on a vendor quote (W-0008)\n");
 }
 
+// --------------------------------------------------------------- CAP-DRIFT-05
+
+async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
+  // W-0132. The three call-duration numbers used to live in three files with nothing comparing
+  // them, so any one of them could move and every gate stayed green. This check does not unify
+  // them -- unifying means claiming a measurement nobody took -- it makes the disagreement
+  // declared, and fails the moment a number moves without the declaration moving with it.
+  const declared = CALL_DURATION_ASSUMPTIONS;
+
+  assert.equal(declared.modelCallSeconds, 40,
+    "the model's call-duration assumption moved. That is allowed, but it must be a deliberate "
+    + "update to CALL_DURATION_ASSUMPTIONS with evidence, not an edit to a scenario literal.");
+  assert.equal(declared.specConservativeSeconds, 50,
+    "the spec-implied call duration moved; re-derive it from spec §23 before changing it.");
+  assert.equal(declared.schedulerDefaultSeconds, 60,
+    "the declared scheduler default moved; it must track SchedulerCapacity.cs.");
+
+  // The spec never writes 50s down -- it writes ~192 calls for 32 SIM in a five-minute window.
+  // If that arithmetic stops holding, the declared 50s is no longer what the spec means.
+  const specImpliedCalls = 32 * Math.floor(300 / declared.specConservativeSeconds);
+  assert.equal(specImpliedCalls, 192,
+    `spec §23 sizes 32 SIM at ~192 calls per 300s window, but the declared `
+    + `${declared.specConservativeSeconds}s gives ${specImpliedCalls}.`);
+
+  // The runtime default is the one number that lives in C#, so read it rather than trust the copy.
+  const schedulerSource = await fs.readFile(
+    path.join(repositoryRoot, "src/Ivr.Infrastructure/Scheduling/SchedulerCapacity.cs"), "utf8");
+  const runtimeDefault = /ExpectedCallDurationSeconds\s*{\s*get;\s*set;\s*}\s*=\s*(\d+)\s*;/
+    .exec(schedulerSource);
+  assert(runtimeDefault, "could not find the ExpectedCallDurationSeconds default in "
+    + "SchedulerCapacity.cs; the declaration can no longer be checked against the runtime.");
+  assert.equal(Number(runtimeDefault[1]), declared.schedulerDefaultSeconds,
+    `SchedulerCapacity.cs defaults ExpectedCallDurationSeconds to ${runtimeDefault[1]}s while `
+    + `CALL_DURATION_ASSUMPTIONS declares ${declared.schedulerDefaultSeconds}s. One of them moved `
+    + "alone, which is exactly the drift this check exists to catch.");
+
+  // The sensitivity sweep has to explore around the assumption it is testing, or it is sweeping
+  // around a number nobody uses any more.
+  assert(
+    SENSITIVITY_CALL_SECONDS.includes(declared.modelCallSeconds),
+    `the sensitivity sweep varies ${SENSITIVITY_CALL_SECONDS.join("/")}s but the model now assumes `
+    + `${declared.modelCallSeconds}s; the sweep is centred on a stale value.`);
+
+  // The escape hatch, guarded. Making the three agree is the right outcome -- but only once a
+  // measurement justifies it, never as a tidy-up.
+  const distinct = new Set([
+    declared.modelCallSeconds,
+    declared.specConservativeSeconds,
+    declared.schedulerDefaultSeconds,
+  ]);
+  if (distinct.size === 1) {
+    assert.equal(declared.calibrated, true,
+      "the three call-duration numbers were made to agree while the model still declares itself "
+      + "uncalibrated. Agreeing on an unmeasured number is how an assumption becomes a fact by "
+      + "accident; calibrate via W-0008 and cite the evidence.");
+    assert(
+      typeof declared.calibratedBy === "string" && declared.calibratedBy.length > 0,
+      "calibrated is true but calibratedBy names no evidence.");
+  } else {
+    assert.equal(declared.calibrated, false,
+      "the model claims calibration while its three call-duration inputs still disagree.");
+    assert.equal(declared.calibrationWork, "W-0008",
+      "the work that would calibrate this is no longer named.");
+  }
+
+  process.stdout.write(
+    `CAP-DRIFT-05 ${distinct.size === 1 ? "PASS_CALIBRATED" : "PASS_DECLARED_DISAGREEMENT"} — `
+    + `call duration has one declared source; model ${declared.modelCallSeconds}s, spec-implied `
+    + `${declared.specConservativeSeconds}s, runtime default ${declared.schedulerDefaultSeconds}s `
+    + `(read back from SchedulerCapacity.cs). They disagree by design and ${declared.calibrationWork} `
+    + "is the work that would settle it\n");
+}
+
 // ------------------------------------------------------------------------ main
 
 const model = sizesFromPeakNotAverage();
 theAnswerIsARangeWithANamedDriver();
 await calibrationAgainstWhatWasActuallyMeasured();
 await theShippedPoolMatchesTheModel(model);
+await callDurationHasOneDeclaredSourceAndDoesNotDriftSilently();
 
 const monthly = monthlyCost({
   channels: 32, simMonthlyCost: 1, gatewayMonthlyCost: 1, infraMonthlyCost: 1,

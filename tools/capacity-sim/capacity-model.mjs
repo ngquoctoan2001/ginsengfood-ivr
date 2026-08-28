@@ -15,6 +15,39 @@ export const CHANNEL_CONSTRAINTS = {
 };
 
 /**
+ * W-0132 — the one place that says how long a call is assumed to take.
+ *
+ * Three numbers were living independently, and nothing compared them:
+ *
+ *   40s + 5s cooldown  this model and its self-test
+ *   50s                implied by spec §23 M8-P0-009, which sizes 32 SIM at ~192 calls per
+ *                      five-minute window (32 x floor(300 / 50) = 192)
+ *   60s                SchedulerOptions.ExpectedCallDurationSeconds, the runtime default
+ *
+ * They are NOT unified here, and unifying them is not a code decision. Picking one number means
+ * claiming a measured call duration, and no call has been dialled (W-0008). What this constant
+ * does is make the disagreement declared instead of accidental, so CAP-DRIFT-05 can fail the
+ * moment any of the three moves without the others being reconsidered.
+ *
+ * When W-0008 produces a measurement: set the measured value, flip `calibrated`, and point
+ * `calibratedBy` at the evidence. CAP-DRIFT-05 will then require the three to agree.
+ */
+export const CALL_DURATION_ASSUMPTIONS = {
+  calibrated: false,
+  calibratedBy: null,
+  calibrationWork: "W-0008",
+
+  /** What this model and its self-test assume. */
+  modelCallSeconds: 40,
+
+  /** Implied by spec §23 M8-P0-009: 32 SIM serving ~192 calls in a 300s window. */
+  specConservativeSeconds: 50,
+
+  /** SchedulerOptions.ExpectedCallDurationSeconds default in SchedulerCapacity.cs. */
+  schedulerDefaultSeconds: 60,
+};
+
+/**
  * Candidate attempt policies. MOCK/LAB only — the production policy is unsigned (W-0007), and the
  * model takes a policy as input precisely so that signing a different one does not require
  * touching this file.
@@ -185,7 +218,7 @@ export const UNCALIBRATED_SCENARIO = {
   dailyOrders: 2_000,
   eligibleRate: 0.6,
   noAnswerRate: 0.3,
-  callSeconds: 40,
+  callSeconds: CALL_DURATION_ASSUMPTIONS.modelCallSeconds,
   programmes: {
     GOLDEN_HOUR: {
       share: 0.4,
