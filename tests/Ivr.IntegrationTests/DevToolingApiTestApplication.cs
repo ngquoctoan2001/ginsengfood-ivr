@@ -1,4 +1,3 @@
-using Ivr.Api.Accounts;
 using Ivr.Api.Admin;
 using Ivr.Api.Application;
 using Ivr.Api.Auth;
@@ -65,6 +64,9 @@ internal sealed class DevToolingApiTestApplication : IAsyncDisposable
             [$"{TtsProviderOptions.SectionName}:{nameof(TtsProviderOptions.Provider)}"] =
                 production ? TtsProviderOptions.UnselectedProvider : TtsProviderOptions.FakeProvider,
             ["ConnectionStrings:IvrDb"] = connectionString,
+            [Ivr.Api.Auth.AdminAccessOptions.ReadTokenConfigurationKey] = TestAdminTokens.Read,
+            [Ivr.Api.Auth.AdminAccessOptions.WriteTokenConfigurationKey] = TestAdminTokens.Write,
+            [Ivr.Api.Auth.AdminAccessOptions.DangerTokenConfigurationKey] = TestAdminTokens.Danger,
             [OrderCoreAllowlistOptions.TokenConfigurationKey] =
                 "dev-tooling-test-token-at-least-24-chars",
             [InternalServiceOptions.TokenConfigurationKey] =
@@ -86,7 +88,6 @@ internal sealed class DevToolingApiTestApplication : IAsyncDisposable
         WebApplication app = builder.Build();
         app.UseRouting();
         app.UseIvrApiFoundation();
-        app.MapIvrConsoleAccountEndpoints();
         app.MapIvrDevToolingEndpoints();
         await app.StartAsync();
         return new DevToolingApiTestApplication(app);

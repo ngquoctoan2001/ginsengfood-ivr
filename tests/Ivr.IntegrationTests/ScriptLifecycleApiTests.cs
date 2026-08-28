@@ -2,9 +2,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Ivr.Api.Accounts;
+using Ivr.Api.Auth;
 using Ivr.Api.Admin;
-using Ivr.Domain.Accounts;
 using Ivr.Domain.Scripts;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence;
@@ -25,8 +24,6 @@ namespace Ivr.IntegrationTests;
 [Collection(PostgresPersistenceTestGroup.Name)]
 public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
 {
-    private const string Password = ConsoleAccountTestAccounts.Password;
-
     /// <summary>
     /// Three Admins, and the count is the point. The creator cannot approve, and Content and
     /// Privacy/Legal cannot be the same account, so a production sign-off needs three distinct
@@ -34,19 +31,23 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
     /// intended fail-closed answer, and the first draft of this test got it wrong by trying to
     /// let the author sign one of the two halves.
     /// </summary>
-    private static readonly ConsoleAccountSeed[] ThreeAdmins =
-    [
-        new("admin", "Quản trị hệ thống", ConsoleAccountRoles.Admin, true),
-        new("admin2", "Quản trị thứ hai", ConsoleAccountRoles.Admin, false),
-        new("admin3", "Quản trị thứ ba", ConsoleAccountRoles.Admin, false),
-        new("ngquoctoan2001", "Nguyễn Quốc Toàn", ConsoleAccountRoles.Operator, false),
-    ];
+    private static readonly ScriptTestActor Author =
+        new("script-author", ScriptPermissionSets.Full);
+
+    private static readonly ScriptTestActor Approver =
+        new("script-approver-1", ScriptPermissionSets.Full);
+
+    private static readonly ScriptTestActor SecondApprover =
+        new("script-approver-2", ScriptPermissionSets.Full);
+
+    private static readonly ScriptTestActor OperatorActor =
+        new("script-operator", ScriptPermissionSets.None);
 
     [Fact]
     [Trait("TestId", "IT-SCRIPT-LIFECYCLE-01")]
     public async Task DraftMovesThroughReviewAndApprovalAndBecomesSpeakable()
     {
-        await using ConsoleAccountApiTestApplication app = await StartAppAsync();
+        await using InternalAdminApiTestApplication app = await StartAppAsync();
         ScriptLifecycleHarness harness = await HarnessAsync(app);
 
         await harness.CreateDraftAsync(harness.Author, "v9-console", HttpStatusCode.OK);
@@ -62,7 +63,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal("APPROVED", version.Status);
         Assert.Equal(["MOCK"], version.ApprovedForModes);
         Assert.Single(version.Approvals);
-        Assert.Equal("admin2", version.Approvals[0].ActorId);
+        Assert.Equal(Approver.ActorId, version.Approvals[0].ActorId);
 
         // SCREAMING_SNAKE, matching the keys in admin-ui/src/i18n/enums.vi.json. Enum.ToString()
         // would give "Approved"/"Mock"/"MockTest" here and the console would render a warning
@@ -83,7 +84,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
     [Trait("TestId", "IT-SCRIPT-FOUREYES-02")]
     public async Task TheCreatorCannotApproveAndOneAccountCannotHoldBothProductionApprovals()
     {
-        await using ConsoleAccountApiTestApplication app = await StartAppAsync();
+        await using InternalAdminApiTestApplication app = await StartAppAsync();
         ScriptLifecycleHarness harness = await HarnessAsync(app);
         await harness.CreateDraftAsync(harness.Author, "v9-eyes", HttpStatusCode.OK);
         await harness.PostAsync(harness.Author, "v9-eyes:submit", new { reason = "Ready for review" });
@@ -122,7 +123,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
     [Trait("TestId", "IT-SCRIPT-PRODGATE-03")]
     public async Task BothProductionApprovalsStillLeaveProductionBlockedByTheUnsignedWhitelist()
     {
-        await using ConsoleAccountApiTestApplication app = await StartAppAsync();
+        await using InternalAdminApiTestApplication app = await StartAppAsync();
         ScriptLifecycleHarness harness = await HarnessAsync(app);
         await harness.CreateDraftAsync(harness.Author, "v9-prod", HttpStatusCode.OK);
         await harness.PostAsync(harness.Author, "v9-prod:submit", new { reason = "Ready for review" });
@@ -149,7 +150,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
     [Trait("TestId", "IT-SCRIPT-RETIRED-04")]
     public async Task ARetiredVersionFailsClosedInEveryMode()
     {
-        await using ConsoleAccountApiTestApplication app = await StartAppAsync();
+        await using InternalAdminApiTestApplication app = await StartAppAsync();
         ScriptLifecycleHarness harness = await HarnessAsync(app);
         await harness.CreateDraftAsync(harness.Author, "v9-retire", HttpStatusCode.OK);
         await harness.PostAsync(harness.Author, "v9-retire:submit", new { reason = "Ready for review" });
@@ -188,7 +189,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
     [Trait("TestId", "IT-SCRIPT-AUDIT-05")]
     public async Task EveryTransitionIsAuditedWithBeforeAndAfterAndWithoutScriptText()
     {
-        await using ConsoleAccountApiTestApplication app = await StartAppAsync();
+        await using InternalAdminApiTestApplication app = await StartAppAsync();
         ScriptLifecycleHarness harness = await HarnessAsync(app);
         await harness.CreateDraftAsync(harness.Author, "v9-audit", HttpStatusCode.OK);
         await harness.PostAsync(harness.Author, "v9-audit:submit", new { reason = "Ready for review" });
@@ -229,7 +230,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
     [Trait("TestId", "IT-SCRIPT-OPERATOR-06")]
     public async Task OperatorIsRefusedEveryScriptTransition()
     {
-        await using ConsoleAccountApiTestApplication app = await StartAppAsync();
+        await using InternalAdminApiTestApplication app = await StartAppAsync();
         ScriptLifecycleHarness harness = await HarnessAsync(app);
         await harness.CreateDraftAsync(harness.Author, "v9-operator", HttpStatusCode.OK);
 
@@ -254,52 +255,46 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
                 new { reason = "Operator retiring" })).StatusCode);
     }
 
-    private async Task<ConsoleAccountApiTestApplication> StartAppAsync()
+    private async Task<InternalAdminApiTestApplication> StartAppAsync()
     {
         await fixture.ResetAsync();
-        await ConsoleAccountTestAccounts.SeedAsync(
-            fixture.Services.GetRequiredService<IDbContextFactory<IvrDbContext>>(),
-            ThreeAdmins);
-        return await ConsoleAccountApiTestApplication.StartAsync(fixture.ConnectionString);
+        return await InternalAdminApiTestApplication.StartAsync(fixture.ConnectionString);
     }
 
     /// <summary>
     /// The harness borrows the application rather than owning it, so each test keeps the
     /// `await using` and there is exactly one place that decides when the server stops.
     /// </summary>
-    private static async Task<ScriptLifecycleHarness> HarnessAsync(
-        ConsoleAccountApiTestApplication app) => new(
-        app,
-        await ConsoleAccountTestAccounts.SignInAsync(
-            app.Client, "admin", Password, HttpStatusCode.OK),
-        await ConsoleAccountTestAccounts.SignInAsync(
-            app.Client, "admin2", Password, HttpStatusCode.OK),
-        await ConsoleAccountTestAccounts.SignInAsync(
-            app.Client, "admin3", Password, HttpStatusCode.OK),
-        await ConsoleAccountTestAccounts.SignInAsync(
-            app.Client, "ngquoctoan2001", Password, HttpStatusCode.OK));
+    private static Task<ScriptLifecycleHarness> HarnessAsync(
+        InternalAdminApiTestApplication app) =>
+        Task.FromResult(new ScriptLifecycleHarness(
+            app,
+            Author,
+            Approver,
+            SecondApprover,
+            OperatorActor));
 
     private sealed class ScriptLifecycleHarness(
-        ConsoleAccountApiTestApplication app,
-        ConsoleSignInApiResult author,
-        ConsoleSignInApiResult approver,
-        ConsoleSignInApiResult secondApprover,
-        ConsoleSignInApiResult @operator)
+        InternalAdminApiTestApplication app,
+        ScriptTestActor author,
+        ScriptTestActor approver,
+        ScriptTestActor secondApprover,
+        ScriptTestActor @operator)
     {
         private const string Root = "/v1/ivr/order-confirmation/scripts";
 
-        public ConsoleAccountApiTestApplication App { get; } = app;
+        public InternalAdminApiTestApplication App { get; } = app;
 
-        public ConsoleSignInApiResult Author { get; } = author;
+        public ScriptTestActor Author { get; } = author;
 
-        public ConsoleSignInApiResult Approver { get; } = approver;
+        public ScriptTestActor Approver { get; } = approver;
 
-        public ConsoleSignInApiResult SecondApprover { get; } = secondApprover;
+        public ScriptTestActor SecondApprover { get; } = secondApprover;
 
-        public ConsoleSignInApiResult Operator { get; } = @operator;
+        public ScriptTestActor Operator { get; } = @operator;
 
         public async Task CreateDraftAsync(
-            ConsoleSignInApiResult session,
+            ScriptTestActor session,
             string version,
             HttpStatusCode expected)
         {
@@ -318,7 +313,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
         }
 
         public Task<HttpResponseMessage> PostAsync(
-            ConsoleSignInApiResult session,
+            ScriptTestActor session,
             string suffix,
             object body) =>
             SendAsync(
@@ -328,7 +323,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
                 body);
 
         public async Task<ScriptVersionApiResult> GetAsync(
-            ConsoleSignInApiResult session,
+            ScriptTestActor session,
             string version)
         {
             using HttpResponseMessage response = await SendAsync(
@@ -341,16 +336,17 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
         }
 
         private async Task<HttpResponseMessage> SendAsync(
-            ConsoleSignInApiResult session,
+            ScriptTestActor session,
             HttpMethod method,
             string path,
             object? body)
         {
             using var request = new HttpRequestMessage(method, path);
-            request.Headers.Authorization =
-                new AuthenticationHeaderValue("Bearer", session.AccessToken);
+            TestAdminTokens.Authorize(request, AdminScope.Write, session.ActorId);
             request.Headers.Add("X-Correlation-Id", $"corr-script-{Guid.NewGuid():N}");
-            request.Headers.Add("X-Actor-Id", session.Session.Account.Username);
+            request.Headers.Add(
+                AdminTokenAuthenticationHandler.ScriptPermissionsHeaderName,
+                session.Permissions);
             if (body is not null)
             {
                 request.Content = JsonContent.Create(body);

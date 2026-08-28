@@ -56,6 +56,9 @@ internal sealed class FeatureFlagApiTestApplication : IAsyncDisposable
                 ["IVR_EXECUTION_MODE"] = IvrOptions.MockExecutionMode,
                 ["SALES_PROVIDER"] = FeatureFlagValues.FakeTargetV1,
                 ["SIM_PROVIDER"] = FeatureFlagValues.MockSimProvider,
+                [Ivr.Api.Auth.AdminAccessOptions.ReadTokenConfigurationKey] = TestAdminTokens.Read,
+                [Ivr.Api.Auth.AdminAccessOptions.WriteTokenConfigurationKey] = TestAdminTokens.Write,
+                [Ivr.Api.Auth.AdminAccessOptions.DangerTokenConfigurationKey] = TestAdminTokens.Danger,
                 ["ConnectionStrings:IvrDb"] =
                     "Host=localhost;Database=ivr_test;Username=ivr;Password=unused",
                 ["REAL_CUSTOMER_CALL_ALLOWED"] = "NO",

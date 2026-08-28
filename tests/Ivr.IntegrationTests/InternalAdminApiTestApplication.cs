@@ -60,6 +60,9 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
             ["SIM_PROVIDER"] = FeatureFlagValues.MockSimProvider,
             ["REAL_CUSTOMER_CALL_ALLOWED"] = "NO",
             ["ConnectionStrings:IvrDb"] = connectionString,
+            [Ivr.Api.Auth.AdminAccessOptions.ReadTokenConfigurationKey] = TestAdminTokens.Read,
+            [Ivr.Api.Auth.AdminAccessOptions.WriteTokenConfigurationKey] = TestAdminTokens.Write,
+            [Ivr.Api.Auth.AdminAccessOptions.DangerTokenConfigurationKey] = TestAdminTokens.Danger,
             [OrderCoreAllowlistOptions.TokenConfigurationKey] =
                 FoundationApiTestApplication.ServiceToken,
             [InternalServiceOptions.TokenConfigurationKey] = InternalToken,

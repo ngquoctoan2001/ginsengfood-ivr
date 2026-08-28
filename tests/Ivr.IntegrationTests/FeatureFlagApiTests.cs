@@ -285,7 +285,7 @@ public sealed class FeatureFlagApiTests
         using HttpRequestMessage verifyRequest = new(
             HttpMethod.Get,
             $"/v1/ivr/order-confirmation/feature-flags/{FeatureFlagEnvironments.Lab}/kill-switch");
-        verifyRequest.Headers.Add("X-Permissions", IvrPermissions.FlagRead);
+        TestAdminTokens.Authorize(verifyRequest, AdminScope.Read, "operator-1");
         using HttpResponseMessage verification = await app.Client.SendAsync(verifyRequest);
         Assert.Equal(HttpStatusCode.OK, verification.StatusCode);
         KillSwitchVerification? body = await verification.Content
@@ -367,9 +367,7 @@ public sealed class FeatureFlagApiTests
         using HttpRequestMessage request = new(
             HttpMethod.Post,
             $"/v1/ivr/order-confirmation/feature-flags/{environment}");
-        request.Headers.Add("X-Permissions", permissions);
-        request.Headers.Add("X-Mock-Actor-Id", "operator-1");
-        request.Headers.Add("X-Actor-Id", "operator-1");
+        TestAdminTokens.AuthorizeForPermission(request, permissions, "operator-1");
         request.Headers.Add(
             "Idempotency-Key",
             idempotencyKey ?? $"flag-test-{Guid.NewGuid():N}");
@@ -385,9 +383,7 @@ public sealed class FeatureFlagApiTests
         using HttpRequestMessage request = new(
             HttpMethod.Get,
             $"/v1/ivr/order-confirmation/feature-flags/{environment}");
-        request.Headers.Add("X-Permissions", IvrPermissions.FlagRead);
-        request.Headers.Add("X-Mock-Actor-Id", "operator-1");
-        request.Headers.Add("X-Actor-Id", "operator-1");
+        TestAdminTokens.Authorize(request, AdminScope.Read, "operator-1");
         return await app.Client.SendAsync(request);
     }
 

@@ -1,9 +1,8 @@
+using Ivr.Api.Auth;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Ivr.Api.Accounts;
 using Ivr.Api.Admin;
-using Ivr.Domain.Accounts;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -25,12 +24,6 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
 {
     private const string Root = "/v1/ivr/order-confirmation/dev";
 
-    private static readonly ConsoleAccountSeed[] Accounts =
-    [
-        new("admin", "Quản trị hệ thống", ConsoleAccountRoles.Admin, true),
-        new("ngquoctoan2001", "Nguyễn Quốc Toàn", ConsoleAccountRoles.Operator, false),
-    ];
-
     /// <summary>
     /// The acceptance criterion, and the reason it is 404 rather than 403: a 403 tells a caller
     /// that a seed loader exists at this address in production and that only a permission stands
@@ -43,7 +36,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
         await using DevToolingApiTestApplication app = await StartAsync(
             environmentName: "Production",
             executionMode: IvrOptions.ProductionRealExecutionMode);
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
 
         foreach (string path in Paths())
         {
@@ -79,7 +72,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
         await using DevToolingApiTestApplication app = await StartAsync(
             environmentName: environmentName,
             executionMode: executionMode);
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
 
         using HttpResponseMessage response = await SendAsync(app, admin, $"{Root}/seed:load");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -90,7 +83,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     public async Task ASeedLoadAdmitsTheFixturesThroughTheRealIntakePath()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
 
         using HttpResponseMessage response = await SendAsync(app, admin, $"{Root}/seed:load");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -136,7 +129,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     public async Task WithoutRebasingEveryFixtureIsRefusedForAnExpiredWindow()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
 
         using HttpResponseMessage response = await SendAsync(
             app,
@@ -177,7 +170,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     public async Task LoadingTwiceReportsTheConflictPerTaskAndAddsNothing()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
 
         using (HttpResponseMessage first = await SendAsync(app, admin, $"{Root}/seed:load"))
         {
@@ -210,7 +203,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     public async Task AScenarioDryRunReplaysTheResultAndDispatchesNothing()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
         (int attemptsBefore, int eventsBefore) = await CallActivityAsync(app);
 
         using HttpResponseMessage response = await SendAsync(
@@ -240,7 +233,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     public async Task AnOutOfScopeScenarioAnswersWithoutAVerdict()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
 
         using HttpResponseMessage response = await SendAsync(
             app,
@@ -271,7 +264,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     public async Task ApplyingAProfileSeparatesWhatItEnforcesFromWhatItOnlyDeclares()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
 
         using HttpResponseMessage response = await SendAsync(
             app,
@@ -315,11 +308,11 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     public async Task AnOperatorAndTheMockHeaderAreBothRefused()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
-        ConsoleSignInApiResult @operator = await SignInAsync(app, "ngquoctoan2001");
-
+        // W-0122. The read tier is the closest thing left to the operator this test used to sign
+        // in as: a real credential that simply does not reach a write endpoint.
         using HttpResponseMessage forbidden = await SendAsync(
             app,
-            @operator,
+            AdminScope.Read,
             $"{Root}/seed:load");
         Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
 
@@ -345,7 +338,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     {
         await using DevToolingApiTestApplication app = await StartAsync(
             configureSeedDirectory: false);
-        ConsoleSignInApiResult admin = await SignInAsync(app, "admin");
+        const AdminScope admin = AdminScope.Write;
 
         using HttpResponseMessage response = await SendAsync(app, admin, $"{Root}/seed:load");
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
@@ -365,9 +358,6 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
         bool configureSeedDirectory = true)
     {
         await fixture.ResetAsync();
-        await ConsoleAccountTestAccounts.SeedAsync(
-            fixture.Services.GetRequiredService<IDbContextFactory<IvrDbContext>>(),
-            Accounts);
         return await DevToolingApiTestApplication.StartAsync(
             fixture.ConnectionString,
             environmentName,
@@ -375,25 +365,15 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
             configureSeedDirectory);
     }
 
-    private static Task<ConsoleSignInApiResult> SignInAsync(
-        DevToolingApiTestApplication app,
-        string username) =>
-        ConsoleAccountTestAccounts.SignInAsync(
-            app.Client,
-            username,
-            ConsoleAccountTestAccounts.Password);
-
     private static async Task<HttpResponseMessage> SendAsync(
         DevToolingApiTestApplication app,
-        ConsoleSignInApiResult session,
+        AdminScope scope,
         string path,
         object? body = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, path);
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", session.AccessToken);
+        TestAdminTokens.Authorize(request, scope);
         request.Headers.Add("X-Correlation-Id", $"corr-dev-{Guid.NewGuid():N}");
-        request.Headers.Add("X-Actor-Id", session.Session.Account.Username);
         request.Headers.Add("Idempotency-Key", $"idem-dev-{Guid.NewGuid():N}");
         request.Content = JsonContent.Create(body ?? new { reason = "Acceptance rehearsal" });
         return await app.Client.SendAsync(request);

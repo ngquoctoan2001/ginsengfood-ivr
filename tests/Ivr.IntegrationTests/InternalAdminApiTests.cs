@@ -153,8 +153,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         using HttpRequestMessage adminImpersonation = CreateInternalRequest(
             HttpMethod.Get,
             "/v1/ivr/order-confirmation/call-jobs/missing");
-        adminImpersonation.Headers.Add(MockPermissionAuthenticationHandler.HeaderName,
-            IvrPermissions.QueueView);
+        TestAdminTokens.Authorize(adminImpersonation, AdminScope.Read);
         using HttpResponseMessage impersonated = await app.Client.SendAsync(adminImpersonation);
         await AssertErrorAsync(
             impersonated,
@@ -176,16 +175,18 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             IvrPermissions.QueueView);
         Assert.Equal(HttpStatusCode.OK, queue.StatusCode);
 
-        using HttpResponseMessage queueWrongPermission = await SendAdminAsync(
+        // W-0122. Tiers nest, so a danger credential legitimately reads the queue. The negative
+        // that still means something is arriving with no credential at all.
+        using HttpResponseMessage queueNoCredential = await SendAdminAsync(
             app,
             HttpMethod.Get,
             "/v1/ivr/order-confirmation/queue",
             null,
-            IvrPermissions.ManualRetry);
+            null);
         await AssertErrorAsync(
-            queueWrongPermission,
-            HttpStatusCode.Forbidden,
-            IvrErrorCodes.ForbiddenCaller);
+            queueNoCredential,
+            HttpStatusCode.Unauthorized,
+            IvrErrorCodes.Unauthenticated);
 
         (string Route, string RequiredPermission)[] protectedRoutes =
         [
@@ -211,17 +212,24 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
             Assert.NotEqual(IvrPermissions.QueueView, required);
         }
 
-        using HttpResponseMessage actorMismatch = await SendAdminAsync(
-            app,
-            HttpMethod.Get,
-            "/v1/ivr/order-confirmation/queue",
-            null,
-            IvrPermissions.QueueView,
-            actorHeader: "different-actor");
-        await AssertErrorAsync(
-            actorMismatch,
-            HttpStatusCode.Forbidden,
-            IvrErrorCodes.ForbiddenCaller);
+        // W-0122. The old assertion here was that the actor header had to match the signed-in
+        // console subject. There is no console subject any more — Module 3 owns operator identity
+        // and asserts it per request — so what remains enforceable is that the header is present.
+        // An admin action with no named actor writes an audit row nobody can be asked about, and
+        // that is the thing this test now keeps out.
+        using HttpRequestMessage missingActor = new(
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/queue:pause");
+        TestAdminTokens.Authorize(missingActor, AdminScope.Danger, actorId: " ");
+        missingActor.Headers.Add(
+            "X-Correlation-Id",
+            string.Concat("corr-", Guid.NewGuid().ToString("N")));
+        missingActor.Headers.Add(
+            "Idempotency-Key",
+            string.Concat("idem-", Guid.NewGuid().ToString("N")));
+        missingActor.Content = JsonContent.Create(new AdminMutationRequest("no actor"));
+        using HttpResponseMessage refused = await app.Client.SendAsync(missingActor);
+        Assert.Equal(HttpStatusCode.Forbidden, refused.StatusCode);
     }
 
     [Fact]
@@ -960,14 +968,19 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         HttpMethod method,
         string route,
         object? body,
-        string permission,
+        string? permission,
         string actorHeader = "operator-p2-8",
         string? idempotencyKey = null)
     {
         using HttpRequestMessage request = new(method, route);
-        request.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, permission);
-        request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-p2-8");
-        request.Headers.Add("X-Actor-Id", actorHeader);
+        if (permission is not null)
+        {
+            TestAdminTokens.AuthorizeForPermission(request, permission, actorHeader);
+        }
+        else
+        {
+            request.Headers.Add("X-Actor-Id", actorHeader);
+        }
         request.Headers.Add("X-Correlation-Id", string.Concat("corr-", Guid.NewGuid().ToString("N")));
         if (method != HttpMethod.Get)
         {

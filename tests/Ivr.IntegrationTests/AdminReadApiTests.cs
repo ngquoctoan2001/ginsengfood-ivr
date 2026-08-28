@@ -53,8 +53,13 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
             .ToArray();
         Assert.Equal(expected.Order(StringComparer.Ordinal), actual);
 
-        // An actor holding only an unrelated permission must be refused by the
-        // server, whatever the console chose to render.
+        // W-0122. Tiers nest, so a higher credential legitimately reads. The negative that
+
+
+        // still means something is no credential at all: fail-closed must answer 401, not
+
+
+        // serve the page.
         foreach (string route in new[]
         {
             "/v1/ivr/order-confirmation/dashboard",
@@ -65,12 +70,12 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
             using HttpResponseMessage forbidden = await SendAdminAsync(
                 app,
                 route,
-                IvrPermissions.ManualRetry);
-            Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
+                null);
+            Assert.Equal(HttpStatusCode.Unauthorized, forbidden.StatusCode);
             using JsonDocument envelope = JsonDocument.Parse(
                 await forbidden.Content.ReadAsStringAsync());
             Assert.Equal(
-                IvrErrorCodes.ForbiddenCaller,
+                IvrErrorCodes.Unauthenticated,
                 envelope.RootElement.GetProperty("error").GetProperty("code").GetString());
         }
     }
@@ -515,12 +520,17 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
     private static Task<HttpResponseMessage> SendAdminAsync(
         InternalAdminApiTestApplication app,
         string route,
-        string permission)
+        string? permission)
     {
         using HttpRequestMessage request = new(HttpMethod.Get, route);
-        request.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, permission);
-        request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-read");
-        request.Headers.Add("X-Actor-Id", "operator-read");
+        if (permission is not null)
+        {
+            TestAdminTokens.AuthorizeForPermission(request, permission, "operator-read");
+        }
+        else
+        {
+            request.Headers.Add("X-Actor-Id", "operator-read");
+        }
         request.Headers.Add(
             "X-Correlation-Id",
             string.Concat("corr-", Guid.NewGuid().ToString("N")));

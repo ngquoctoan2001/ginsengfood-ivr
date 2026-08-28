@@ -47,6 +47,9 @@ internal sealed class TaskIntakeApiTestApplication : IAsyncDisposable
                 ["IVR_EXECUTION_MODE"] = IvrOptions.MockExecutionMode,
                 ["SALES_PROVIDER"] = "FAKE_TARGET_V1",
                 ["SIM_PROVIDER"] = "MOCK",
+                [Ivr.Api.Auth.AdminAccessOptions.ReadTokenConfigurationKey] = TestAdminTokens.Read,
+                [Ivr.Api.Auth.AdminAccessOptions.WriteTokenConfigurationKey] = TestAdminTokens.Write,
+                [Ivr.Api.Auth.AdminAccessOptions.DangerTokenConfigurationKey] = TestAdminTokens.Danger,
                 ["ConnectionStrings:IvrDb"] =
                     "Host=localhost;Database=ivr_test;Username=ivr;Password=unused",
                 ["REAL_CUSTOMER_CALL_ALLOWED"] = "NO",

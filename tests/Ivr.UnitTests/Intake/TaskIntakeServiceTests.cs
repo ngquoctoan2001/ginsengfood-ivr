@@ -74,6 +74,61 @@ public sealed class TaskIntakeServiceTests
         Assert.Equal(1, test.Store.CallJobCount);
     }
 
+    /// <summary>
+    /// W-0120. Every rejection here leaves as HTTP 200, so <c>blocked_reasons</c> is the only
+    /// thing the producer ever learns about why its task died. Before this, two unrelated policy
+    /// failures both reported <c>PROGRAM_PAYMENT_MATRIX_REJECTED</c> and seven unrelated contact
+    /// failures all reported <c>CONTACT_OR_DIAL_TOKEN_INVALID</c> — so an integrating team that
+    /// got one field wrong could not tell which, and had to ask.
+    /// </summary>
+    [Theory]
+    [InlineData("confirmation-not-required", "IVR_CONFIRMATION_REQUIRED_NOT_TRUE")]
+    [InlineData("program-payment-pair", "PROGRAM_PAYMENT_MATRIX_REJECTED")]
+    [InlineData("phone-status", "PHONE_VALIDATION_STATUS_NOT_VALID")]
+    [InlineData("phone-not-masked", "PHONE_MASKED_NOT_MASKED")]
+    public async Task EachRejectionNamesTheFieldThatCausedIt(
+        string caseId,
+        string expectedReason)
+    {
+        IvrConfirmationTaskV1 source = caseId switch
+        {
+            "confirmation-not-required" => CreateTask(ivrConfirmationRequired: false),
+            "program-payment-pair" => CreateTask(
+                program: ProgramCode.GOLDEN_HOUR,
+                payment: IvrConfirmationTaskV1Payment_method_snapshot.COD),
+            "phone-status" => CreateTask(phoneStatus: "PHONE_VALID"),
+            "phone-not-masked" => CreateTask(phoneMasked: "84901234567"),
+            _ => throw new ArgumentOutOfRangeException(nameof(caseId)),
+        };
+        TestContext test = CreateContext();
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+
+        Assert.Contains(expectedReason, outcome.BlockedReasons);
+        Assert.Null(outcome.IvrCallJobId);
+        Assert.Equal(0, test.Store.CallJobCount);
+    }
+
+    /// <summary>
+    /// W-0120. The reason code must be specific, but the decision must not have moved: these are
+    /// the two shapes M3's producer will send once it maps its enums, and both must still be
+    /// accepted exactly as before.
+    /// </summary>
+    [Theory]
+    [InlineData(ProgramCode.GOLDEN_HOUR, IvrConfirmationTaskV1Payment_method_snapshot.ONLINE)]
+    [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, IvrConfirmationTaskV1Payment_method_snapshot.COD)]
+    public async Task TheTwoBusinessApprovedPairsAreStillAccepted(
+        ProgramCode program,
+        IvrConfirmationTaskV1Payment_method_snapshot payment)
+    {
+        TestContext test = CreateContext();
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(
+            Command(CreateTask(program: program, payment: payment)));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+    }
+
     [Theory]
     [InlineData("unknown-policy", 2, false, "VALID", TaskIntakeDecisions.HeldPolicyMissing)]
     [InlineData(CandidateAttemptPolicies.Version, 3, false, "VALID", TaskIntakeDecisions.RejectedPolicyMismatch)]
@@ -273,7 +328,9 @@ public sealed class TaskIntakeServiceTests
         string? scriptTemplateId = null,
         string? scriptVersion = null,
         string? customerRef = null,
-        DateTimeOffset? windowStart = null)
+        DateTimeOffset? windowStart = null,
+        bool ivrConfirmationRequired = true,
+        string phoneMasked = "84xxxxx0001")
     {
         DateTimeOffset start = windowStart ?? Now.AddMinutes(-1);
         int windowSeconds = program == ProgramCode.GOLDEN_HOUR ? 300 : 900;
@@ -290,7 +347,7 @@ public sealed class TaskIntakeServiceTests
             Order_version = "17",
             Order_state = "CONFIRMING",
             Payment_method_snapshot = payment,
-            Ivr_confirmation_required = true,
+            Ivr_confirmation_required = ivrConfirmationRequired,
             Is_ivr_callable = true,
             Program_code = program,
             Confirmation_window_started_at = start,
@@ -300,7 +357,7 @@ public sealed class TaskIntakeServiceTests
             Attempt_offsets_seconds = [0, secondOffset],
             Customer_ref = customerRef,
             Phone_ref = "phone-ref-p2-1",
-            Phone_masked = "84xxxxx0001",
+            Phone_masked = phoneMasked,
             Phone_validation_status = phoneStatus,
             Dial_token = "dial-token-p2-1",
             Dial_token_expires_at = start.AddSeconds(windowSeconds),

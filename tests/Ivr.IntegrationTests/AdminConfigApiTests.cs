@@ -38,12 +38,12 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
                 $"{route} -> {allowed.StatusCode}: {await allowed.Content.ReadAsStringAsync()} || "
                     + string.Join(" || ", app.Logs.Entries.TakeLast(10)));
 
-            using HttpResponseMessage forbidden = await SendAsync(app, route, IvrPermissions.ManualRetry);
-            Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
+            using HttpResponseMessage forbidden = await SendAsync(app, route, null);
+            Assert.Equal(HttpStatusCode.Unauthorized, forbidden.StatusCode);
             using JsonDocument envelope = JsonDocument.Parse(
                 await forbidden.Content.ReadAsStringAsync());
             Assert.Equal(
-                IvrErrorCodes.ForbiddenCaller,
+                IvrErrorCodes.Unauthenticated,
                 envelope.RootElement.GetProperty("error").GetProperty("code").GetString());
         }
     }
@@ -216,9 +216,7 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
         foreach (string route in ReadOnlyRoutes)
         {
             using HttpRequestMessage request = new(HttpMethod.Post, route.Split('?')[0]);
-            request.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, IvrPermissions.QueueView);
-            request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-config");
-            request.Headers.Add("X-Actor-Id", "operator-config");
+            TestAdminTokens.Authorize(request, AdminScope.Read, "operator-config");
             request.Headers.Add("X-Correlation-Id", string.Concat("corr-", Guid.NewGuid().ToString("N")));
             request.Content = JsonContent.Create(new { reason = "attempted write" });
             using HttpResponseMessage response = await app.Client.SendAsync(request);
@@ -234,11 +232,10 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
         // off the wording a customer is read. 401, not 405 and not 200.
         foreach (string route in ScriptMutationRoutes)
         {
+            // W-0122. The mock permission seam this guarded against is gone; what replaces it as
+            // the thing worth proving is that these routes are unreachable without a credential
+            // at all. Sending none must answer 401, not 405 and not 200.
             using HttpRequestMessage request = new(HttpMethod.Post, route);
-            request.Headers.Add(
-                MockPermissionAuthenticationHandler.HeaderName,
-                IvrPermissions.ScriptApproveContent);
-            request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-config");
             request.Headers.Add("X-Actor-Id", "operator-config");
             request.Headers.Add("X-Correlation-Id", string.Concat("corr-", Guid.NewGuid().ToString("N")));
             request.Content = JsonContent.Create(new { reason = "attempted write" });
@@ -276,11 +273,13 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
     private static Task<HttpResponseMessage> SendAsync(
         InternalAdminApiTestApplication app,
         string route,
-        string permission)
+        string? permission)
     {
         using HttpRequestMessage request = new(HttpMethod.Get, route);
-        request.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, permission);
-        request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-config");
+        if (permission is not null)
+        {
+            TestAdminTokens.AuthorizeForPermission(request, permission, "operator-config");
+        }
         request.Headers.Add("X-Actor-Id", "operator-config");
         request.Headers.Add(
             "X-Correlation-Id",

@@ -27,8 +27,6 @@ public sealed class ConsoleEnumDictionaryTests
     /// </summary>
     private static readonly Dictionary<string, string> FamilyByConstraint = new(StringComparer.Ordinal)
     {
-        ["ck_ivr_console_accounts_role"] = "accountRole",
-        ["ck_ivr_console_accounts_status"] = "accountStatus",
         ["ck_ivr_task_intake_outbox_status"] = "intakeOutboxStatus",
         ["ck_ivr_confirmation_tasks_eligibility_decision"] = "eligibilityDecision",
         ["ck_ivr_call_jobs_status"] = "jobStatus",

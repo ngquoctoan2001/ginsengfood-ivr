@@ -56,49 +56,6 @@ public sealed class CrossCuttingFoundationTests
     }
 
     [Fact]
-    [Trait("TestId", "UT-FND-RBAC-03")]
-    public async Task MockPermissionProviderEnforcesTheFixedPermissionCatalog()
-    {
-        await using FoundationApiTestApplication application =
-            await FoundationApiTestApplication.StartAsync();
-
-        using HttpResponseMessage denied = await application.Client.GetAsync("/permission");
-        Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
-        using JsonDocument deniedBody = JsonDocument.Parse(
-            await denied.Content.ReadAsStringAsync());
-        Assert.Equal(
-            IvrErrorCodes.ForbiddenCaller,
-            deniedBody.RootElement.GetProperty("error").GetProperty("code").GetString());
-
-        using HttpRequestMessage allowedRequest = new(HttpMethod.Get, "/permission");
-        allowedRequest.Headers.Add("X-Permissions", IvrPermissions.QueuePause);
-        using HttpResponseMessage allowed = await application.Client.SendAsync(allowedRequest);
-        Assert.Equal(HttpStatusCode.OK, allowed.StatusCode);
-    }
-
-    [Fact]
-    [Trait("TestId", "UT-FND-RBAC-08")]
-    public async Task MockPermissionHeaderIsRejectedOutsideMockAndCannotBeRegistered()
-    {
-        await using FoundationApiTestApplication application =
-            await FoundationApiTestApplication.StartAsync(Ivr.Infrastructure.Configuration.IvrOptions.LabRealSimExecutionMode);
-        using HttpRequestMessage request = new(HttpMethod.Get, "/correlation-outbound");
-        request.Headers.Add("X-Permissions", IvrPermissions.QueuePause);
-        request.Headers.Add("X-Mock-Actor-Id", "actor-1");
-        request.Headers.Add("X-Mock-Destination-Ref", "destination-ref-1");
-
-        using HttpResponseMessage response = await application.Client.SendAsync(request);
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-
-        using ConfigurationManager configuration = new();
-        configuration["IVR_EXECUTION_MODE"] = Ivr.Infrastructure.Configuration.IvrOptions.LabRealSimExecutionMode;
-        configuration[IvrApiServiceCollectionExtensions.RegisterMockPermissionProviderKey] = "true";
-        ServiceCollection services = new();
-        Assert.Throws<InvalidOperationException>(
-            () => services.AddIvrApiFoundation(configuration));
-    }
-
-    [Fact]
     [Trait("TestId", "UT-FND-ALLOW-04")]
     public async Task OrderCoreAllowlistRequiresExactSourceAndServiceToken()
     {

@@ -61,6 +61,9 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
                 ["Ivr:Speech:Tts:Provider"] = executionMode == IvrOptions.MockExecutionMode
                     ? TtsProviderOptions.FakeProvider
                     : TtsProviderOptions.UnselectedProvider,
+                [Ivr.Api.Auth.AdminAccessOptions.ReadTokenConfigurationKey] = TestAdminTokens.Read,
+                [Ivr.Api.Auth.AdminAccessOptions.WriteTokenConfigurationKey] = TestAdminTokens.Write,
+                [Ivr.Api.Auth.AdminAccessOptions.DangerTokenConfigurationKey] = TestAdminTokens.Danger,
                 ["ConnectionStrings:IvrDb"] =
                     "Host=localhost;Port=5432;Database=ivr_test;Username=ivr;Password=unused",
                 ["REAL_CUSTOMER_CALL_ALLOWED"] = "NO",
@@ -94,7 +97,7 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
         app.UseIvrApiFoundation();
 
         app.MapGet("/permission", static () => Results.Ok())
-            .WithMetadata(new RequirePermissionAttribute(IvrPermissions.QueuePause));
+            .RequireAuthorization(AdminPolicies.Danger);
         app.MapGet("/order-core", static () => Results.Ok())
             .AllowAnonymous()
             .WithMetadata(new RequireOrderCoreAttribute());

@@ -34,20 +34,20 @@ public sealed class SimChannelReadApiTests(PostgresPersistenceFixture fixture)
         using HttpResponseMessage allowed = await SendAsync(app, IvrPermissions.QueueView);
         Assert.Equal(HttpStatusCode.OK, allowed.StatusCode);
 
-        using HttpResponseMessage forbidden = await SendAsync(app, IvrPermissions.ManualRetry);
-        Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
+        // W-0122. Tiers nest, so a higher credential legitimately reads. The negative that still
+        // means something is no credential at all.
+        using HttpResponseMessage forbidden = await SendAsync(app, null);
+        Assert.Equal(HttpStatusCode.Unauthorized, forbidden.StatusCode);
         using JsonDocument envelope = JsonDocument.Parse(
             await forbidden.Content.ReadAsStringAsync());
         Assert.Equal(
-            IvrErrorCodes.ForbiddenCaller,
+            IvrErrorCodes.Unauthenticated,
             envelope.RootElement.GetProperty("error").GetProperty("code").GetString());
 
         // The roster itself is a read. Enabling and disabling stay on their own
         // permission-gated POST routes.
         using HttpRequestMessage write = new(HttpMethod.Post, Route);
-        write.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, IvrPermissions.QueueView);
-        write.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-sim");
-        write.Headers.Add("X-Actor-Id", "operator-sim");
+        TestAdminTokens.Authorize(write, AdminScope.Read, "operator-sim");
         write.Headers.Add("X-Correlation-Id", string.Concat("corr-", Guid.NewGuid().ToString("N")));
         write.Content = JsonContent.Create(new { reason = "attempted write" });
         using HttpResponseMessage rejected = await app.Client.SendAsync(write);
@@ -108,12 +108,13 @@ public sealed class SimChannelReadApiTests(PostgresPersistenceFixture fixture)
 
     private static Task<HttpResponseMessage> SendAsync(
         InternalAdminApiTestApplication app,
-        string permission)
+        string? permission)
     {
         using HttpRequestMessage request = new(HttpMethod.Get, Route);
-        request.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, permission);
-        request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-sim");
-        request.Headers.Add("X-Actor-Id", "operator-sim");
+        if (permission is not null)
+        {
+            TestAdminTokens.AuthorizeForPermission(request, permission, "operator-sim");
+        }
         request.Headers.Add(
             "X-Correlation-Id",
             string.Concat("corr-", Guid.NewGuid().ToString("N")));

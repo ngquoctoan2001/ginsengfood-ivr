@@ -63,12 +63,12 @@ public sealed class AnalyticsApiTests(PostgresPersistenceFixture fixture)
                 allowed.StatusCode == HttpStatusCode.OK,
                 $"{route} -> {allowed.StatusCode}: {await allowed.Content.ReadAsStringAsync()}");
 
-            using HttpResponseMessage forbidden = await SendAsync(app, route, IvrPermissions.ManualRetry);
-            Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
+            using HttpResponseMessage forbidden = await SendAsync(app, route, null);
+            Assert.Equal(HttpStatusCode.Unauthorized, forbidden.StatusCode);
             using JsonDocument envelope = JsonDocument.Parse(
                 await forbidden.Content.ReadAsStringAsync());
             Assert.Equal(
-                IvrErrorCodes.ForbiddenCaller,
+                IvrErrorCodes.Unauthenticated,
                 envelope.RootElement.GetProperty("error").GetProperty("code").GetString());
         }
     }
@@ -244,9 +244,7 @@ public sealed class AnalyticsApiTests(PostgresPersistenceFixture fixture)
         foreach (string route in Routes)
         {
             using HttpRequestMessage request = new(HttpMethod.Post, route.Split('?')[0]);
-            request.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, IvrPermissions.QueueView);
-            request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-analytics");
-            request.Headers.Add("X-Actor-Id", "operator-analytics");
+            TestAdminTokens.Authorize(request, AdminScope.Read, "operator-analytics");
             request.Headers.Add("X-Correlation-Id", string.Concat("corr-", Guid.NewGuid().ToString("N")));
             request.Content = JsonContent.Create(new { reason = "attempted write" });
             using HttpResponseMessage response = await app.Client.SendAsync(request);
@@ -278,12 +276,13 @@ public sealed class AnalyticsApiTests(PostgresPersistenceFixture fixture)
     private static Task<HttpResponseMessage> SendAsync(
         InternalAdminApiTestApplication app,
         string route,
-        string permission)
+        string? permission)
     {
         using HttpRequestMessage request = new(HttpMethod.Get, route);
-        request.Headers.Add(MockPermissionAuthenticationHandler.HeaderName, permission);
-        request.Headers.Add(MockPermissionAuthenticationHandler.ActorHeaderName, "operator-analytics");
-        request.Headers.Add("X-Actor-Id", "operator-analytics");
+        if (permission is not null)
+        {
+            TestAdminTokens.AuthorizeForPermission(request, permission, "operator-analytics");
+        }
         request.Headers.Add(
             "X-Correlation-Id",
             string.Concat("corr-", Guid.NewGuid().ToString("N")));
