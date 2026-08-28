@@ -99,21 +99,6 @@ internal static class RetentionTargetCatalog
                     + "assigned_to = NULL, resolution = NULL",
                     extraEligibilitySql: "t.resolved_at IS NOT NULL"),
             ],
-            [RetentionDataClasses.ConsoleSession] =
-            [
-                Delete("console_sessions", "ivr_console_sessions", "expires_at"),
-            ],
-            [RetentionDataClasses.StaffAccount] =
-            [
-                Delete(
-                    "console_accounts",
-                    "ivr_console_accounts",
-                    "deleted_at",
-                    extraEligibilitySql: "t.deleted_at IS NOT NULL",
-                    dependencyBlockedSql:
-                        "EXISTS (SELECT 1 FROM ivr_console_sessions child "
-                        + "WHERE child.account_id = t.id)"),
-            ],
             [RetentionDataClasses.TaskMetadata] =
             [
                 Delete("task_intake_outbox", "ivr_task_intake_outbox", "created_at"),

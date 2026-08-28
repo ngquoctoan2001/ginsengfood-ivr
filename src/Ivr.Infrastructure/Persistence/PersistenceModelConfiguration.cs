@@ -22,68 +22,7 @@ internal static class PersistenceModelConfiguration
         ConfigureFoundation(modelBuilder);
         ConfigureRetention(modelBuilder);
         ConfigureScripts(modelBuilder);
-        ConfigureConsoleAccounts(modelBuilder);
         ApplyStorageConventions(modelBuilder);
-    }
-
-    private static void ConfigureConsoleAccounts(ModelBuilder modelBuilder)
-    {
-        var account = modelBuilder.Entity<ConsoleAccountEntity>();
-        account.ToTable(
-            "ivr_console_accounts",
-            table =>
-            {
-                table.HasCheckConstraint(
-                    "ck_ivr_console_accounts_username",
-                    "username ~ '^[a-z][a-z0-9._-]{2,63}$'");
-                table.HasCheckConstraint(
-                    "ck_ivr_console_accounts_role",
-                    "role IN ('Admin','Operator')");
-                table.HasCheckConstraint(
-                    "ck_ivr_console_accounts_status",
-                    "status IN ('ACTIVE','DISABLED','DELETED')");
-                table.HasCheckConstraint(
-                    "ck_ivr_console_accounts_failed_login_count",
-                    "failed_login_count BETWEEN 0 AND 100");
-                table.HasCheckConstraint(
-                    "ck_ivr_console_accounts_builtin",
-                    "is_builtin IS FALSE OR (username = 'admin' AND role = 'Admin' AND status = 'ACTIVE')");
-            });
-        account.HasKey(entity => entity.Id);
-        account.Property(entity => entity.Username).HasMaxLength(64);
-        account.Property(entity => entity.DisplayName).HasMaxLength(128);
-        account.Property(entity => entity.Role).HasMaxLength(16);
-        account.Property(entity => entity.Status).HasMaxLength(16);
-        account.Property(entity => entity.Version).IsConcurrencyToken();
-        account.HasIndex(entity => entity.Username).IsUnique();
-        account.HasIndex(entity => new { entity.Status, entity.Role });
-        account.HasIndex(entity => entity.DeletedAt);
-
-        var session = modelBuilder.Entity<ConsoleSessionEntity>();
-        session.ToTable(
-            "ivr_console_sessions",
-            table =>
-            {
-                table.HasCheckConstraint(
-                    "ck_ivr_console_sessions_token_hash",
-                    "token_hash ~ '^[a-f0-9]{64}$'");
-                table.HasCheckConstraint(
-                    "ck_ivr_console_sessions_expiry",
-                    "expires_at > created_at");
-                table.HasCheckConstraint(
-                    "ck_ivr_console_sessions_revocation",
-                    "(revoked_at IS NULL AND revoke_reason IS NULL) OR (revoked_at IS NOT NULL AND revoke_reason IS NOT NULL)");
-            });
-        session.HasKey(entity => entity.Id);
-        session.Property(entity => entity.TokenHash).HasMaxLength(64);
-        session.Property(entity => entity.RevokeReason).HasMaxLength(64);
-        session.HasOne<ConsoleAccountEntity>()
-            .WithMany()
-            .HasForeignKey(entity => entity.AccountId)
-            .OnDelete(DeleteBehavior.Restrict);
-        session.HasIndex(entity => entity.TokenHash).IsUnique();
-        session.HasIndex(entity => new { entity.AccountId, entity.ExpiresAt });
-        session.HasIndex(entity => entity.RevokedAt);
     }
 
     private static void ConfigureTask(ModelBuilder modelBuilder)

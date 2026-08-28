@@ -16,8 +16,6 @@ public static class RetentionDataClasses
     public const string EvidenceLink = "evidence_link";
     public const string IdempotencyKey = "idempotency_key";
     public const string ReviewItem = "review_item";
-    public const string StaffAccount = "staff_account";
-    public const string ConsoleSession = "console_session";
 
     /// <summary>
     /// Child-first order prevents parent rows from being removed ahead of dependent evidence.
@@ -32,8 +30,6 @@ public static class RetentionDataClasses
         EvidenceLink,
         IdempotencyKey,
         ReviewItem,
-        ConsoleSession,
-        StaffAccount,
         TaskMetadata,
     ];
 
