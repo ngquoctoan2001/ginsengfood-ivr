@@ -80,6 +80,19 @@ public sealed class TaskIntakeService(
         }
 
         (IvrProgramCode program, PaymentMethod payment) = MapProgramPayment(source);
+
+        // W-0120. Checked before EnsureAllowed rather than by catching it, because that method
+        // guards two unrelated rules and throws one message for both. Reporting them separately
+        // matters more here than anywhere else: the rejection goes back as HTTP 200, so this
+        // reason code is the only thing the producer ever learns about why its task died.
+        if (!source.Ivr_confirmation_required)
+        {
+            return Rejected(
+                source,
+                TaskIntakeDecisions.RejectedPolicyMismatch,
+                EligibilityReasonCodes.IvrConfirmationNotRequired);
+        }
+
         try
         {
             _ = ProgramPaymentPolicy.EnsureAllowed(
@@ -92,7 +105,7 @@ public sealed class TaskIntakeService(
             return Rejected(
                 source,
                 TaskIntakeDecisions.RejectedPolicyMismatch,
-                "PROGRAM_PAYMENT_MATRIX_REJECTED");
+                EligibilityReasonCodes.ProgramPaymentMatrixRejected);
         }
 
         AttemptPolicySnapshot policy;
@@ -138,14 +151,15 @@ public sealed class TaskIntakeService(
                 "ATTEMPT_POLICY_SNAPSHOT_MISMATCH");
         }
 
-        if (!ContactIsValid(source, window, now))
+        string? contactRejection = ContactRejectionReason(source, window, now);
+        if (contactRejection is not null)
         {
             return Failed(
                 source,
                 TaskIntakeDecisions.RejectedContactInvalid,
                 IvrErrorCodes.ContactInvalid,
                 "The task contact or dial token is not valid for the confirmation window.",
-                "CONTACT_OR_DIAL_TOKEN_INVALID");
+                contactRejection);
         }
 
         Ivr.Domain.Confirmation.PrivacySafeOrderSummary speech;
@@ -353,19 +367,46 @@ public sealed class TaskIntakeService(
             && window.Duration == policy.ConfirmationWindowDuration;
     }
 
-    private static bool ContactIsValid(
+    /// <summary>
+    /// Returns the reason code for the first contact rule this task fails, or <c>null</c> when
+    /// every rule passes. W-0120 — see EligibilityReasonCodes for why a single bool was not
+    /// enough.
+    /// </summary>
+    private static string? ContactRejectionReason(
         IvrConfirmationTaskV1 source,
         ConfirmationWindow window,
         DateTimeOffset now)
     {
-        if (!string.Equals(source.Phone_validation_status, "VALID", StringComparison.Ordinal)
-            || !source.Phone_masked.Any(character => character is 'x' or 'X' or '*')
-            || source.Dial_token_expires_at < window.ExpiresAt
-            || source.Dial_token_expires_at <= now
-            || LooksLikeRawPhone(source.Phone_ref)
-            || LooksLikeRawPhone(source.Dial_token))
+        // Order matters only for which single reason is reported first; the accept/reject
+        // outcome is identical to the boolean this replaced.
+        if (!string.Equals(source.Phone_validation_status, "VALID", StringComparison.Ordinal))
         {
-            return false;
+            return EligibilityReasonCodes.PhoneValidationStatusNotValid;
+        }
+
+        if (!source.Phone_masked.Any(character => character is 'x' or 'X' or '*'))
+        {
+            return EligibilityReasonCodes.PhoneMaskedNotMasked;
+        }
+
+        if (source.Dial_token_expires_at < window.ExpiresAt)
+        {
+            return EligibilityReasonCodes.DialTokenExpiresBeforeWindow;
+        }
+
+        if (source.Dial_token_expires_at <= now)
+        {
+            return EligibilityReasonCodes.DialTokenAlreadyExpired;
+        }
+
+        if (LooksLikeRawPhone(source.Phone_ref))
+        {
+            return EligibilityReasonCodes.PhoneRefLooksLikeRawPhone;
+        }
+
+        if (LooksLikeRawPhone(source.Dial_token))
+        {
+            return EligibilityReasonCodes.DialTokenLooksLikeRawPhone;
         }
 
         try
@@ -373,12 +414,14 @@ public sealed class TaskIntakeService(
             _ = DialTokenReference.Create(source.Dial_token, source.Dial_token_expires_at);
             PiiGuard.EnsureSafeText(source.Phone_ref);
             PiiGuard.EnsureSafeText(source.Phone_masked);
-            return true;
+            return null;
         }
         catch (Exception exception) when (
             exception is ArgumentException or InvalidOperationException)
         {
-            return false;
+            // Deliberately not echoing the guard's message: it was built from the offending
+            // value, and the whole point of these guards is that the value never leaves.
+            return EligibilityReasonCodes.ContactFailedPrivacyGuard;
         }
     }
 

@@ -27,6 +27,24 @@ public static class EligibilityReasonCodes
     public const string PhoneCallRestrictionSourceUnavailable =
         "PHONE_CALL_RESTRICTION_SOURCE_UNAVAILABLE";
     public const string ContactInvalid = "CONTACT_INVALID";
+
+    // W-0120. One bool used to collapse seven distinct contact failures into a single opaque
+    // code, so a producer that got one field wrong learned only that "contact or dial token" was
+    // invalid and had to ask which. Each cause now names the field it is about, because the
+    // rejection is delivered as HTTP 200 and is therefore the only signal the caller ever gets.
+    public const string PhoneValidationStatusNotValid = "PHONE_VALIDATION_STATUS_NOT_VALID";
+    public const string PhoneMaskedNotMasked = "PHONE_MASKED_NOT_MASKED";
+    public const string DialTokenExpiresBeforeWindow = "DIAL_TOKEN_EXPIRES_BEFORE_WINDOW";
+    public const string DialTokenAlreadyExpired = "DIAL_TOKEN_ALREADY_EXPIRED";
+    public const string PhoneRefLooksLikeRawPhone = "PHONE_REF_LOOKS_LIKE_RAW_PHONE";
+    public const string DialTokenLooksLikeRawPhone = "DIAL_TOKEN_LOOKS_LIKE_RAW_PHONE";
+    public const string ContactFailedPrivacyGuard = "CONTACT_FAILED_PRIVACY_GUARD";
+
+    // W-0120. Same problem on the policy gate: ProgramPaymentPolicy.EnsureAllowed guards two
+    // unrelated rules and threw one message for both, and the single reason code named only the
+    // program/payment matrix -- so a task rejected for ivr_confirmation_required pointed the
+    // investigator at the wrong field entirely.
+    public const string IvrConfirmationNotRequired = "IVR_CONFIRMATION_REQUIRED_NOT_TRUE";
     public const string ConfirmationWindowExpired = "CONFIRMATION_WINDOW_EXPIRED";
     public const string CapacitySourceUnavailable = "CAPACITY_SOURCE_UNAVAILABLE";
     public const string CapacityDeadlineUnavailable = "CAPACITY_DEADLINE_UNAVAILABLE";
