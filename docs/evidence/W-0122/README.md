@@ -42,6 +42,18 @@ drift`, và image build từ checkout Linux làm shim raise `dependency lock bin
 `sha256:4c76d318…` là image build từ working tree CRLF cũ nên không còn tái lập được. Phải
 build lại và chạy lại SBOM/Trivy trên digest mới trước khi trích dẫn lại con số đó.
 
+### Cách tái lập `audition_script_sha256`
+
+Pin này là hash của **text đã trim** mà renderer nạp cho model, không phải hash byte của file,
+nên `sha256sum docs/evidence/W-0122/audition-script.txt` cho giá trị khác (`c0e7e237…`). Gate nay
+tự dựng lại giá trị từ file bằng đúng normalisation của renderer, nên sửa nội dung kịch bản
+audition sẽ làm gate đỏ — trước đây đây là mắt xích duy nhất không được kiểm với file thật.
+Lệnh tái lập:
+
+```powershell
+node -e "const {createHash}=require('node:crypto');const {readFileSync}=require('node:fs');console.log(createHash('sha256').update(Buffer.from(readFileSync('docs/evidence/W-0122/audition-script.txt','utf8').trim(),'utf8')).digest('hex'))"
+```
+
 ## Evidence tự động hiện có
 
 | Gate | Kết quả hiện tại |
@@ -50,7 +62,7 @@ build lại và chạy lại SBOM/Trivy trên digest mới trước khi trích d
 | Production model verifier | `EXPECTED_FAIL` — thiếu license-file evidence và internal mirror |
 | Provenance mutations | `PASS` — revision/path/hash/license/extra artifact/voice-config/acceptance-template drift đều bị từ chối |
 | Converter regression | `PASS` — MP3 cũ bitexact 12/12; WAV 12/12 PCM s16le/8 kHz/mono; unknown/missing source bị từ chối |
-| Owner-manifest gate | `PASS` fail-closed — pending template + 9 acceptance mutation + 6 voices.json binding mutation bị từ chối; production thiếu/pending manifest hoặc bật audition đều readiness `503` |
+| Owner-manifest gate | `PASS` fail-closed — pending template + 9 acceptance mutation + 7 voices.json binding mutation bị từ chối (gồm sửa thẳng `audition-script.txt`); production thiếu/pending manifest hoặc bật audition đều readiness `503` |
 | Container contract | `12/12 PASS` — non-root `1654:1654`, read-only, no network, no exposed port, drop caps |
 | Minimal runtime content | `PASS` — không có `uv`, web UI, upstream deploy/docs/examples, training, tests hoặc reference samples; chỉ venv + source runtime + locks/license |
 | Real ONNX smoke | `PASS` nonprod — ready; request `200`, raw `audio/L16` 8 kHz, 20,480 bytes; không phải voice acceptance |
@@ -58,6 +70,7 @@ build lại và chạy lại SBOM/Trivy trên digest mới trước khi trích d
 | Asterisk/MicroSIP audition harness | `RUNTIME_PASS` — 11/11 checksum/decode, `12201` playback pass, catch-all hangup pass; Owner listening vẫn `NOT_RUN` |
 | Compose/media permissions | `PASS` local — loopback/no port/shared volume; UID 1654 write, Asterisk read-only/write-denied |
 | Helm candidate | `PASS` local render — mặc định tắt; positive TEST_ONLY fixture và negative prod/lab guards pass |
+| Pre-dial budget guard | `PASS` — `timeoutMilliseconds` trả về baseline `5000`; nâng lên `30000` bị từ chối (thiếu `approvals.performanceRef`, và vẫn thủng budget kể cả khi có); `16000` có measurement ref thì render |
 | SBOM/vulnerability | `RELEASE_BLOCKED` — SPDX 152 entries; Trivy `13 HIGH`, `3 CRITICAL`, `0 fixable`; toàn bộ finding còn lại thuộc Debian 13.6 |
 | Fixed catalog 12 file | `BLOCKED_BY_OD-VOICE-06` |
 | 6 MicroSIP calls | `NOT_RUN` |

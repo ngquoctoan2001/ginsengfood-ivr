@@ -93,7 +93,19 @@ worker:
       telephonyRef: ""
       internalMirrorRef: ""
       voiceAcceptanceRef: ""
-    timeoutMilliseconds: 30000
+      # Required only to raise timeoutMilliseconds above the accepted worker baseline. Name the
+      # target-hardware measurement, not an intention to measure later.
+      performanceRef: ""
+    # Per-provider-request timeout, kept at the accepted worker baseline. The three dynamic
+    # segments of a cold playlist are synthesised sequentially before dial, so the chart budgets
+    # dynamicSegmentsPerCall x timeoutMilliseconds against the pre-dial window and refuses to
+    # render without the 20% headroom W-0122 §4.6 requires. Raising this is not a substitute for
+    # capacity: §4.6 says reduce concurrency or add capacity, not lengthen the timeout.
+    timeoutMilliseconds: 5000
+    dynamicSegmentsPerCall: 3
+    # Scheduler lease (120 s) minus the expected call duration (60 s) in the accepted worker
+    # appsettings. Pre-dial synthesis may consume this window, not the whole lease.
+    preDialBudgetMilliseconds: 60000
     maxConcurrency: 1
     maxTextChars: 1200
     maxDurationSeconds: 120

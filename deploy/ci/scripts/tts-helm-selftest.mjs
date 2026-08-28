@@ -48,6 +48,8 @@ const required = [
   if (/containerPort: 8090|targetPort: 8090/.test(rendered)) {
     throw new Error("TTS port was exposed outside the worker Pod");
   }
+  // The accepted worker baseline, not the 30000 the candidate briefly shipped.
+  assertEnvValue(rendered, "Ivr__Speech__Tts__TimeoutMilliseconds", "5000");
 
 expectRenderFailure(
   ["template", "ivr", "/ivr", "-f", "/ivr/values-prod.yaml", "--set", "worker.tts.enabled=true"],
@@ -65,9 +67,36 @@ expectRenderFailure(
   ],
   "worker.tts.voiceAcceptance requires a valid existingConfigMap",
 );
+// W-0122 4.6. A longer per-request timeout is not capacity: it has to be measured, and the
+// three sequential dynamic segments still have to fit the pre-dial window with headroom.
+expectRenderFailure(
+  [
+    "template", "ivr", "/ivr", "-f", "/ivr/values-prod.yaml",
+    "-f", "/ivr/ci/w0122-render-fixture.yaml",
+    "--set", "worker.tts.timeoutMilliseconds=30000",
+  ],
+  "above the accepted worker baseline of 5000",
+);
+expectRenderFailure(
+  [
+    "template", "ivr", "/ivr", "-f", "/ivr/values-prod.yaml",
+    "-f", "/ivr/ci/w0122-render-fixture.yaml",
+    "--set", "worker.tts.timeoutMilliseconds=30000",
+    "--set", "worker.tts.approvals.performanceRef=TEST_ONLY_MEASUREMENT",
+  ],
+  "leaves less than the 20 percent headroom",
+);
+// The guard must be a budget, not a blanket refusal: a measured raise that still fits renders.
+const approvedRaise = helm([
+  "template", "ivr", "/ivr", "-f", "/ivr/values-prod.yaml",
+  "-f", "/ivr/ci/w0122-render-fixture.yaml",
+  "--set", "worker.tts.timeoutMilliseconds=16000",
+  "--set", "worker.tts.approvals.performanceRef=TEST_ONLY_MEASUREMENT",
+]).stdout;
+assertEnvValue(approvedRaise, "Ivr__Speech__Tts__TimeoutMilliseconds", "16000");
 
   process.stdout.write(
-    "TTS_HELM_SELFTEST_PASS defaults=4 fail_closed=YES acceptance_configmap=REQUIRED test_fixture=YES fixed_catalog=12 port_exposed=NO\n",
+    "TTS_HELM_SELFTEST_PASS defaults=4 fail_closed=YES acceptance_configmap=REQUIRED test_fixture=YES fixed_catalog=12 port_exposed=NO timeout_baseline=5000 predial_budget=ENFORCED\n",
   );
 } finally {
   spawnSync("docker", ["rm", "--force", helmContainer], { stdio: "ignore" });
@@ -92,5 +121,16 @@ function expectRenderFailure(arguments_, expectedMessage) {
   const output = result.stdout + result.stderr;
   if (result.status === 0 || !output.includes(expectedMessage)) {
     throw new Error(`expected fail-closed Helm guard: ${expectedMessage}`);
+  }
+}
+
+// Env vars render as an adjacent name/value pair, so compare the pair rather than searching the
+// whole document for the number: a lazy cross-document regex would accept the right value
+// appearing under some other key.
+function assertEnvValue(rendered, name, expected) {
+  const lines = rendered.split("\n").map(line => line.trim());
+  const index = lines.indexOf(`- name: ${name}`);
+  if (index < 0 || lines[index + 1] !== `value: "${expected}"`) {
+    throw new Error(`expected ${name} to render as "${expected}"`);
   }
 }

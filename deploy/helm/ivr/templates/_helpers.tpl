@@ -85,6 +85,25 @@ gate must become an explicit render failure rather than a half-configured Pod.
       {{- fail (printf "worker.tts.approvals.%s is required before the production candidate can render." $name) -}}
     {{- end -}}
   {{- end -}}
+  {{- $timeoutMs := int $tts.timeoutMilliseconds -}}
+  {{- $segments := int $tts.dynamicSegmentsPerCall -}}
+  {{- $preDialBudgetMs := int $tts.preDialBudgetMilliseconds -}}
+  {{- if or (lt $timeoutMs 1000) (gt $timeoutMs 60000) -}}
+    {{- fail "worker.tts.timeoutMilliseconds must be between 1000 and 60000." -}}
+  {{- end -}}
+  {{- if or (lt $segments 1) (gt $segments 8) -}}
+    {{- fail "worker.tts.dynamicSegmentsPerCall must be between 1 and 8." -}}
+  {{- end -}}
+  {{- if or (lt $preDialBudgetMs 1000) (gt $preDialBudgetMs 600000) -}}
+    {{- fail "worker.tts.preDialBudgetMilliseconds must be between 1000 and 600000." -}}
+  {{- end -}}
+  {{- if and (gt $timeoutMs 5000) (not $tts.approvals.performanceRef) -}}
+    {{- fail (printf "worker.tts.timeoutMilliseconds is %d, above the accepted worker baseline of 5000. Raising the per-request timeout is not a substitute for capacity (W-0122 4.6); set worker.tts.approvals.performanceRef to the target-hardware measurement that justifies it." $timeoutMs) -}}
+  {{- end -}}
+  {{- $coldPreDialMs := mul $segments $timeoutMs -}}
+  {{- if gt (mul $coldPreDialMs 100) (mul $preDialBudgetMs 80) -}}
+    {{- fail (printf "cold pre-dial synthesis can consume %d ms (%d dynamic segments x %d ms, synthesised sequentially) which leaves less than the 20 percent headroom W-0122 4.6 requires under the %d ms pre-dial budget." $coldPreDialMs $segments $timeoutMs $preDialBudgetMs) -}}
+  {{- end -}}
   {{- if or
         (not $tts.resources.requests.cpu)
         (not $tts.resources.requests.memory)

@@ -6,6 +6,7 @@ const REGIONS = ["North", "Central", "South"];
 const LISTENING_PROFILE_ID = "w0122-asterisk-microsip-8khz-v1";
 const VIENEU_MODEL_REPO = "pnnbao-ump/VieNeu-TTS-v3-Turbo";
 const MOSS_CODEC_REPO = "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX";
+const AUDITION_SCRIPT_PATH = "docs/evidence/W-0122/audition-script.txt";
 
 // `deploy/tts/shim/voices.json` is the single declared authority for what this candidate binds
 // to. It is the artifact baked into the runtime image, and `deploy/tts/shim/acceptance.py`
@@ -55,6 +56,19 @@ export function verifyVoiceConfigBindings(repoRoot, sources) {
   assert(
     voiceConfig.audition_script_sha256 === auditionManifest.script_sha256,
     "voices.json audition_script_sha256 does not match the audition manifest",
+  );
+  // Every other link in this chain is a file hash; this one used to be only a string the
+  // manifest declared about itself, so the one input the Owner actually judges the voices on
+  // could be edited with no gate noticing. Re-derive it from the file using the renderer's own
+  // normalisation: it hashes the text fed to the model, not the raw bytes, so `sha256sum` on
+  // audition-script.txt does not reproduce the pin unless the text is trimmed first. If the
+  // renderer ever normalises differently, the next render writes a manifest this check rejects.
+  assert(
+    auditionManifest.script_sha256 === sha256(Buffer.from(
+      readFileSync(resolve(repoRoot, AUDITION_SCRIPT_PATH), "utf8").trim(),
+      "utf8",
+    )),
+    "audition-script.txt no longer matches the hash the renderer recorded",
   );
   assert(
     voiceConfig.source_commit === auditionManifest.source_commit,

@@ -36,6 +36,13 @@ if (args.includes("--selftest")) {
     ["file-hash", value => { value.voiceConfig.dependency_lock_sha256 = "0".repeat(64); }],
     ["model-lock", value => { value.voiceConfig.model_lock_sha256 = "0".repeat(64); }],
     ["audition-script", value => { value.voiceConfig.audition_script_sha256 = "0".repeat(64); }],
+    // Both declarations agree with each other and disagree only with the file on disk, so only
+    // the re-derived script hash can catch this one.
+    ["audition-script-file", value => {
+      const drifted = "0".repeat(64);
+      value.voiceConfig.audition_script_sha256 = drifted;
+      value.auditionManifest.script_sha256 = drifted;
+    }],
     ["audition-source", value => { value.voiceConfig.source_commit = "0".repeat(40); }],
     ["listening-profile", value => { value.voiceConfig.listening_profile_id = "w0122-direct-wav"; }],
     ["codec-revision", value => { value.voiceConfig.codec_revision = "0".repeat(40); }],

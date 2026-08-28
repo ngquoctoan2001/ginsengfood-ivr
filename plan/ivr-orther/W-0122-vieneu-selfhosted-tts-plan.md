@@ -170,7 +170,7 @@ model card khai báo license không thay thế file license/ý kiến Legal.
 | Model bundle | 13/13 artifact nonprod khớp path/size/SHA-256; production verifier fail đúng vì thiếu license-file evidence/internal mirror |
 | Shim/container | Unit/negative `12/12`, contract container và real ONNX request pass; non-root/read-only/no-port/no-network selftest pass; thiếu/pending acceptance hoặc production audition đều readiness `503`; builder tách khỏi runtime, 9 nhóm tool/UI/training/test/sample bị loại; local image `sha256:4c76d318e24110267c908594031863cd7dbe3f31c92569c4e02b4de3ba9ba30d` (`126,109,579` bytes) — `STALE_REBUILD_REQUIRED` sau khi chuẩn hoá line ending ngày `2026-08-28` |
 | Audition | 11/11 WAV PCM s16le/8 kHz/mono + tracked manifest; isolated Asterisk profile checksum/decode/route/deny probes pass; `PENDING_OWNER_MICROSIP_LISTENING` |
-| Voice acceptance authority | Node/Python strict validator đọc chung `voices.json` làm declared authority + Compose bind + Helm ConfigMap mount; pending template, 9 acceptance mutation và 6 binding mutation fail closed; renderer/source/model/lock/audition/profile/results đều hash-bound; Owner artifact vẫn `NOT_RUN` |
+| Voice acceptance authority | Node/Python strict validator đọc chung `voices.json` làm declared authority + Compose bind + Helm ConfigMap mount; pending template, 9 acceptance mutation và 7 binding mutation fail closed; renderer/source/model/lock/audition/profile/results đều hash-bound; Owner artifact vẫn `NOT_RUN` |
 | Converter | MP3 regression bitexact 12/12; WAV 12/12; unknown/missing source fail closed |
 | Compose/media | Config/topology pass; UID 1654 write, Asterisk read-only/write-denied probe pass |
 | Helm | Candidate sidecar/PVC/catalog wiring mặc định tắt; 4 default lint pass; positive `TEST_ONLY` fixture và negative guards pass |
@@ -459,6 +459,14 @@ resource request/limit; test laptop không đại diện production.
 Vì ba dynamic segments được tổng hợp tuần tự trước khi dial, báo cáo performance phải tách cold
 cache, warm cache, queue wait, inference time, conversion/write time và tổng pre-dial elapsed.
 Không đạt end-to-end/lease headroom thì giảm concurrency hoặc tăng capacity; không chỉ tăng timeout.
+
+Quy tắc này nay được Helm enforce ở render time thay vì chỉ nằm trong plan. Candidate ban đầu đặt
+`worker.tts.timeoutMilliseconds=30000`, gấp 6 lần baseline `5000` đã nghiệm thu của worker và không
+được ghi ở đâu; giá trị đã trả về `5000`. Chart tính `dynamicSegmentsPerCall × timeoutMilliseconds`
+so với `preDialBudgetMilliseconds` (lease `120s` trừ `ExpectedCallDurationSeconds` `60s`) và fail
+closed nếu còn dưới 20% headroom. Mọi giá trị vượt baseline còn phải có
+`worker.tts.approvals.performanceRef` trỏ tới measurement trên target hardware — nâng timeout là
+quyết định có bằng chứng, không phải một dòng values.
 
 ### 4.7 Procedure chứng minh retention trong lab
 
