@@ -22,13 +22,11 @@ const CONFIG: AdminUiConfig = {
 };
 
 const SESSION: AdminSession = {
-  accessToken: "opaque-test-token-that-is-at-least-thirty-two-characters",
-  accountId: "11111111-1111-4111-8111-111111111111",
   actorId: "admin",
   displayName: "Quản trị viên",
-  role: "Admin",
+  scope: "read" as const,
+  role: "admin",
   permissions: ["IVR_QUEUE_VIEW"],
-  expiresAt: 4_102_444_800,
 };
 
 function recordingFetch(body: unknown, status = 200): {

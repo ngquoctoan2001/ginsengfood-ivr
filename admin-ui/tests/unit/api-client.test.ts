@@ -18,13 +18,11 @@ const MOCK_CONFIG: AdminUiConfig = {
 };
 
 const SESSION: AdminSession = {
-  accessToken: "opaque-test-token-that-is-at-least-thirty-two-characters",
-  accountId: "11111111-1111-4111-8111-111111111111",
   actorId: "admin",
   displayName: "Quản trị viên",
-  role: "Admin",
+  scope: "read" as const,
+  role: "admin",
   permissions: ["IVR_QUEUE_VIEW", "IVR_QUEUE_PAUSE"],
-  expiresAt: 4_102_444_800,
 };
 
 interface Capture {
@@ -151,7 +149,8 @@ describe("Ivr.Api call contract", () => {
 
     const { headers } = calls[0];
     expect(headers.get("X-Actor-Id")).toBe("admin");
-    expect(headers.get("Authorization")).toBe(`Bearer ${SESSION.accessToken}`);
+    expect(headers.get("X-Actor-Id")).toBe(SESSION.actorId);
+    expect(headers.get("X-Service-Scope")).toBe("ivr.admin.read");
     expect(headers.get("X-Mock-Actor-Id")).toBeNull();
     expect(headers.get("X-Permissions")).toBeNull();
   });
@@ -173,7 +172,8 @@ describe("Ivr.Api call contract", () => {
     });
 
     expect(calls).toHaveLength(1);
-    expect(calls[0].headers.get("Authorization")).toBe(`Bearer ${SESSION.accessToken}`);
+    expect(calls[0].headers.get("X-Actor-Id")).toBe(SESSION.actorId);
+    expect(calls[0].headers.get("X-Service-Scope")).toBe("ivr.admin.read");
   });
 
   it("turns an error response into a typed envelope with the server correlation id", async () => {

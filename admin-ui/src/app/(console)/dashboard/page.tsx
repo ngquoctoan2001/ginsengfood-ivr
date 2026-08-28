@@ -1,3 +1,4 @@
+import { hasPermission } from "@/lib/rbac/permissions";
 import { Suspense } from "react";
 
 import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorAlert";
@@ -23,11 +24,11 @@ import type {
   IvrSimChannel,
   IvrSimChannelList,
 } from "@/lib/api/types";
-import { requirePermission, requireSession } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 import { tEnum } from "@/lib/i18n/enum";
-import { hasPermission } from "@/lib/rbac/permissions";
+
 
 import { DashboardFilters } from "./DashboardFilters";
 import { QueueActions } from "./QueueActions";
@@ -36,7 +37,7 @@ import { SimChannelActions } from "./SimChannelActions";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
-  await requirePermission("IVR_QUEUE_VIEW");
+  await requireScope("read");
   const params = await searchParams;
   const program = typeof params.program === "string" ? params.program : "";
   const from = typeof params.from === "string" ? params.from : "";
@@ -65,7 +66,7 @@ async function DashboardPanels({
   from: string;
   to: string;
 }) {
-  const session = await requireSession();
+  const session = await requireScope("read");
   const config = readConfig();
 
   let dashboard: IvrDashboardProjection | null = null;

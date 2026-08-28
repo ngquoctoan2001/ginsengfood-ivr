@@ -9,7 +9,7 @@ import {
 } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import { validateAdminMutation, type AdminActionState } from "@/lib/admin/action-state";
-import { requirePermission } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 
 /**
@@ -32,7 +32,7 @@ export async function loadSeedAction(
     return { status: "invalid", messageKey: validation.messageKey };
   }
 
-  const session = await requirePermission("IVR_DEV_TOOLING");
+  const session = await requireScope("write");
   const config = readConfig();
 
   try {
@@ -74,7 +74,7 @@ export async function dryRunScenarioAction(
     return { status: "invalid", messageKey: "seed.scenarioRequired" };
   }
 
-  const session = await requirePermission("IVR_DEV_TOOLING");
+  const session = await requireScope("write");
   const config = readConfig();
 
   try {
@@ -119,7 +119,7 @@ export async function applyIntegrationProfileAction(
     return { status: "invalid", messageKey: "seed.profileRequired" };
   }
 
-  const session = await requirePermission("IVR_DEV_TOOLING");
+  const session = await requireScope("write");
   const config = readConfig();
 
   try {

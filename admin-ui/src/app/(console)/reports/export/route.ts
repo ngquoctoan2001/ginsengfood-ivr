@@ -4,7 +4,7 @@ import { exportAnalytics } from "@/lib/analytics/client";
 import { toCsv } from "@/lib/analytics/format";
 import { IvrApiError } from "@/lib/api/errors";
 import { ANALYTICS_DIMENSIONS, type AnalyticsDimension } from "@/lib/api/types";
-import { requireSession } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { t } from "@/lib/i18n";
 
@@ -23,8 +23,8 @@ const MIN_REASON_LENGTH = 8;
  * a refused export must read as refused, not as an empty file.
  */
 export async function GET(request: Request): Promise<NextResponse> {
-  const session = await requireSession();
-  if (session.role !== "Admin") {
+  const session = await requireScope("read");
+  if (session.role !== "admin") {
     return problem(403, "IVR_FORBIDDEN_CALLER", t("reports.export.forbidden"));
   }
 

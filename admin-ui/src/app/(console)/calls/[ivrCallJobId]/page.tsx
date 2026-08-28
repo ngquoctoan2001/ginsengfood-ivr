@@ -5,6 +5,7 @@ import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
 import { MaskedPhone } from "@/components/privacy/MaskedPhone";
 import { BooleanCell } from "@/components/data/BooleanCell";
 import { EnumLabel, EnumLabelList } from "@/components/data/EnumLabel";
+import { ReviewReason } from "@/components/data/ReviewReason";
 import {
   Callout,
   Card,
@@ -18,7 +19,7 @@ import {
 import { getCallJobDetail } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrCallJobDetail } from "@/lib/api/types";
-import { requirePermission, requireSession } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 
@@ -29,7 +30,7 @@ export const dynamic = "force-dynamic";
 export default async function CallDetailPage({
   params,
 }: PageProps<"/calls/[ivrCallJobId]">) {
-  await requirePermission("IVR_QUEUE_VIEW");
+  await requireScope("read");
   const { ivrCallJobId } = await params;
 
   return (
@@ -54,7 +55,7 @@ export default async function CallDetailPage({
 }
 
 async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
-  const session = await requireSession();
+  const session = await requireScope("read");
   const config = readConfig();
 
   let detail: IvrCallJobDetail | null = null;
@@ -366,7 +367,7 @@ async function CallDetailBody({ ivrCallJobId }: { ivrCallJobId: string }) {
                 { label: "ID", value: item.review_item_id, mono: true },
                 {
                   label: t("detail.reviewReason"),
-                  value: <EnumLabel family="reviewReason" value={item.reason} showCode />,
+                  value: <ReviewReason value={item.reason} showCode />,
                 },
                 {
                   label: t("detail.reviewStatus"),

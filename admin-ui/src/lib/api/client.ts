@@ -1,3 +1,4 @@
+import { authorizationHeaders } from "@/lib/auth/guard";
 import "server-only";
 
 import type { AdminSession } from "@/lib/auth/session";
@@ -104,10 +105,12 @@ function buildHeaders(request: IvrApiRequest, correlationId: string): Headers {
     return headers;
   }
 
-  // `InternalRequestGuard.RequireAdminActor` rejects the call unless X-Actor-Id
-  // equals the authenticated subject, so the two are always set together.
+  // W-0122. Tier credential plus the acting operator. The danger tier also needs
+  // X-Action-Reason; the call sites that use it set that header themselves.
   headers.set(ACTOR_HEADER, request.session.actorId);
-  headers.set("Authorization", `Bearer ${request.session.accessToken}`);
+  for (const [name, value] of Object.entries(authorizationHeaders(request.session))) {
+    headers.set(name, value);
+  }
   return headers;
 }
 

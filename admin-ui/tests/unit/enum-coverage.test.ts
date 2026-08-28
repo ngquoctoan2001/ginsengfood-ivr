@@ -126,6 +126,63 @@ function attemptStatusLiterals(): string[] {
   return [...found];
 }
 
+/** The member names of one C# enum, in declaration order. */
+function csharpEnumMembers(relativePath: string, enumName: string): string[] {
+  const source = repoFile(relativePath);
+  const start = declarationStart(source, "enum", enumName);
+  if (start < 0) {
+    throw new Error(`${enumName} no longer exists in ${relativePath}.`);
+  }
+
+  const opened = source.indexOf("{", start);
+  const closed = source.indexOf("}", opened);
+  return source
+    .slice(opened + 1, closed)
+    .split(",")
+    .map((member) => member.replace(/\/\/.*$/gmu, "").trim())
+    .filter((member) => /^[A-Za-z_]\w*$/u.test(member));
+}
+
+/**
+ * Every value `CallAttemptEntity.Disposition` can hold.
+ *
+ * The column is not the enum, and the difference is the whole point of this parser.
+ * `PostgresTelephonyDispatchStore` writes `disposition.ToString().ToUpperInvariant()`, so
+ * `RingTimeout` reaches the console as `RINGTIMEOUT` — uppercased, with no underscore inserted.
+ *
+ * W-0107 keyed this family off the C# member names it read in `DispositionMapper` instead, so all
+ * eleven labels were unreachable and every attempt row on the call-detail screen rendered a raw
+ * code behind a ⚠. Nothing caught it: the field is an open `string` in the spec, so the sweep
+ * above had nothing to collect, and this test did not name the family. The transform is applied
+ * here rather than restated as a literal list precisely so the next reader cannot repeat the
+ * mistake by eye.
+ */
+function dispositionLiterals(): string[] {
+  return [
+    ...csharpEnumMembers("src/Ivr.Domain/Ports/ProviderPorts.cs", "SimProviderDisposition").map(
+      (member) => member.toUpperCase(),
+    ),
+    // `ResultRepository.ApplyAttemptOutcome` overwrites the column on the capacity path, and that
+    // value is not a `SimProviderDisposition` in any casing.
+    "CAPACITY_EXCEPTION",
+  ];
+}
+
+/** Every technical code this repo's own provider adapter can raise. */
+function providerTechnicalCodes(): string[] {
+  const found = new Set<string>();
+
+  for (const file of csharpSources()) {
+    for (const match of file.text.matchAll(
+      /AsteriskAriOperationException\([\s\S]{0,240}?"([A-Z][A-Z0-9_]+)"/gu,
+    )) {
+      found.add(match[1]);
+    }
+  }
+
+  return [...found];
+}
+
 /**
  * Every enum the OpenAPI spec declares, wherever it is declared.
  *
@@ -392,6 +449,56 @@ describe("UT-L10N-COVER-03 every rendered enum value has a Vietnamese label", ()
     );
 
     check("attemptStatus", attemptStatusLiterals(), "every writer of CallAttemptEntity.Status");
+
+    check(
+      "disposition",
+      dispositionLiterals(),
+      "SimProviderDisposition uppercased as PostgresTelephonyDispatchStore writes it",
+    );
+
+    /**
+     * `ReviewItemEntity.Reason` is a union, not a taxonomy, and that is why it drifted.
+     *
+     * Five writers fill the column and W-0107 wrote the dictionary for one of them — §5.9 is even
+     * titled "họ CALLBACK_* / CAPACITY_*", so the other four were never in scope rather than
+     * overlooked. `ResultRepository` puts `NormalizedResult.Reason` there, `EligibilityRepository`
+     * puts `Reasons[0].Code` there, and both sets were absent entirely.
+     *
+     * The coupling to `resultReason` and `technicalExceptionType` is deliberate: those two
+     * families ARE the closed part of `NormalizedResult.Reason`, so requiring the review queue to
+     * speak every word the result screen speaks is the same claim, stated where it can be checked.
+     *
+     * This deliberately over-covers. `HumanReviewRequired` is false for about half of these, so
+     * `CUSTOMER_PRESSED_1` will never open a review item — but modelling that condition would mean
+     * keeping a second copy of `DispositionMapper`'s branching here, and a checker that has to be
+     * re-derived every time the mapper moves is one that goes stale silently. A spare label costs
+     * a line of JSON; a missing one costs an operator reading a raw code mid-incident.
+     */
+    check(
+      "reviewReason",
+      [
+        ...csharpConstants("src/Ivr.Domain/Policies/EligibilityRules.cs", "EligibilityReasonCodes"),
+        ...csharpConstants("src/Ivr.Domain/Policies/OptOutSuppression.cs", "OptOutReasonCodes"),
+        ...enumFamilyValues("resultReason"),
+        ...enumFamilyValues("technicalExceptionType"),
+        ...providerTechnicalCodes(),
+      ],
+      "EligibilityReasonCodes + OptOutReasonCodes + NormalizedResult.Reason + provider codes",
+    );
+
+    /**
+     * `SuppressionChannel` reaches the console appended to a reason rather than in a field of its
+     * own, so `ReviewReason` splits it out and looks it up here. Same uppercasing trap as
+     * `disposition`: `SuppressionProposer` writes `Channel.ToString().ToUpperInvariant()`, so
+     * `PhoneCall` arrives as `PHONECALL`, and the transform is applied rather than transcribed.
+     */
+    check(
+      "suppressionChannel",
+      csharpEnumMembers("src/Ivr.Domain/Policies/OptOutSuppression.cs", "SuppressionChannel").map(
+        (member) => member.toUpperCase(),
+      ),
+      "SuppressionChannel uppercased as SuppressionProposer writes it",
+    );
 
     expect(missing).toEqual([]);
   });

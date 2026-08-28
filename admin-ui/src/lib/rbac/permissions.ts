@@ -1,77 +1,85 @@
 /**
- * DF-01 permission vocabulary. Mirrors `IvrPermissions` in
- * `src/Ivr.Api/Auth/IvrPermissions.cs` and `specs/ui/08-role-permission-ui.md` §1.
+ * W-0122. The permission names this console used to gate on, kept only as a map
+ * to the three tiers that replaced them.
  *
- * The client copy exists only to hide actions the actor cannot perform.
- * Authorization itself is decided server-side by Ivr.Api on every request —
- * a forged client permission changes nothing.
+ * IVR no longer authorises per permission. It authorises per tier — read, write,
+ * danger — because the surface has one caller and the question that matters at
+ * the call site is how much damage an operation can do, not which of nineteen
+ * names it was filed under.
+ *
+ * This map exists so screens can keep naming the operation they perform and let
+ * one place decide which credential that needs. Module 3 will have its own
+ * permission model; what it needs from this file is the right-hand column.
  */
-export const IVR_PERMISSIONS = [
-  "IVR_QUEUE_VIEW",
-  "IVR_QUEUE_PAUSE",
-  "IVR_QUEUE_RESUME",
-  "IVR_SIM_ENABLE",
-  "IVR_SIM_DISABLE",
-  "IVR_MANUAL_RETRY",
-  "IVR_RESULT_REVIEW",
-  "IVR_FLAG_READ",
-  "IVR_RUNTIME_GATE_ADMIN",
-  "IVR_ACCOUNT_VIEW",
-  "IVR_ACCOUNT_MANAGE",
-  "IVR_ACCOUNT_PASSWORD_RESET",
-  "IVR_ACCOUNT_SELF_VIEW",
+import type { AdminScope } from "@/lib/auth/guard";
 
-  // W-0109 script lifecycle. All seven sit on Admin today, so hiding buttons by
-  // permission is not what stops a bad approval — the server does, and it refuses
-  // Content and Privacy/Legal from the same account no matter what this list says.
-  "IVR_SCRIPT_EDIT",
-  "IVR_SCRIPT_REVIEW",
-  "IVR_SCRIPT_APPROVE_MOCK",
-  "IVR_SCRIPT_APPROVE_LAB",
-  "IVR_SCRIPT_APPROVE_CONTENT",
-  "IVR_SCRIPT_APPROVE_PRIVACY_LEGAL",
-  "IVR_SCRIPT_RETIRE",
+export type IvrPermission =
+  | "IVR_QUEUE_VIEW"
+  | "IVR_FLAG_READ"
+  | "IVR_RESULT_REVIEW"
+  | "IVR_DEV_TOOLING"
+  | "IVR_SCRIPT_EDIT"
+  | "IVR_SCRIPT_REVIEW"
+  | "IVR_SCRIPT_APPROVE_MOCK"
+  | "IVR_SCRIPT_APPROVE_LAB"
+  | "IVR_SCRIPT_APPROVE_CONTENT"
+  | "IVR_SCRIPT_APPROVE_PRIVACY_LEGAL"
+  | "IVR_SCRIPT_RETIRE"
+  | "IVR_RUNTIME_GATE_ADMIN"
+  | "IVR_CALL_TERMINATE"
+  | "IVR_SIM_DISABLE"
+  | "IVR_SIM_ENABLE"
+  | "IVR_MANUAL_RETRY"
+  | "IVR_QUEUE_PAUSE"
+  | "IVR_QUEUE_RESUME";
 
-  // W-0111. On Operator as well as Admin — cutting a live call is the risk-reducing
-  // direction, and it cannot start anything.
-  "IVR_CALL_TERMINATE",
+const SCOPE_OF: Record<IvrPermission, AdminScope> = {
+  IVR_QUEUE_VIEW: "read",
+  IVR_FLAG_READ: "read",
+  IVR_RESULT_REVIEW: "write",
+  IVR_DEV_TOOLING: "write",
+  IVR_SCRIPT_EDIT: "write",
+  IVR_SCRIPT_REVIEW: "write",
+  IVR_SCRIPT_APPROVE_MOCK: "write",
+  IVR_SCRIPT_APPROVE_LAB: "write",
+  IVR_SCRIPT_APPROVE_CONTENT: "write",
+  IVR_SCRIPT_APPROVE_PRIVACY_LEGAL: "write",
+  IVR_SCRIPT_RETIRE: "write",
+  IVR_RUNTIME_GATE_ADMIN: "danger",
+  IVR_CALL_TERMINATE: "danger",
+  IVR_SIM_DISABLE: "danger",
+  IVR_SIM_ENABLE: "danger",
+  IVR_MANUAL_RETRY: "danger",
+  IVR_QUEUE_PAUSE: "danger",
+  IVR_QUEUE_RESUME: "danger",
+};
 
-  // W-0112. Admin only, and non-production only. The permission is not what keeps this out of
-  // production — the routes are simply not served there — so hiding the buttons is a courtesy
-  // to the reader, not a control.
-  "IVR_DEV_TOOLING",
-] as const;
-
-export type IvrPermission = (typeof IVR_PERMISSIONS)[number];
-
-const PERMISSION_LOOKUP: ReadonlySet<string> = new Set(IVR_PERMISSIONS);
-
-export function isIvrPermission(value: string): value is IvrPermission {
-  return PERMISSION_LOOKUP.has(value);
+export function scopeFor(permission: IvrPermission): AdminScope {
+  return SCOPE_OF[permission];
 }
+
+/** Legacy role name, kept so old imports resolve while the console is read as a sample. */
+export type IvrRole = "admin" | "operator";
 
 /**
- * W-0105 locks the console to exactly two roles. Ivr.Api remains the
- * authorization source; this union only validates the session projection.
+ * Client-side rendering gate: does the viewer hold this permission?
+ *
+ * The API no longer consults it — authorisation there is by credential tier — but
+ * the pattern is kept because Module 3's console needs exactly this: showing a
+ * viewer only the actions their own role allows. It decides what is drawn, never
+ * what is permitted; the server decides that, and will refuse an action this
+ * function happened to reveal.
  */
-export const IVR_ROLES = ["Admin", "Operator"] as const;
-
-export type IvrRole = (typeof IVR_ROLES)[number];
-
-export function isIvrRole(value: string): value is IvrRole {
-  return (IVR_ROLES as readonly string[]).includes(value);
-}
-
 export function hasPermission(
-  granted: readonly string[],
+  held: readonly string[] | undefined,
   required: IvrPermission,
 ): boolean {
-  return granted.includes(required);
+  return held?.includes(required) ?? false;
 }
 
-export function hasEveryPermission(
-  granted: readonly string[],
-  required: readonly IvrPermission[],
-): boolean {
-  return required.every((permission) => hasPermission(granted, permission));
-}
+/** The full list, kept so component tests can enumerate the surface. */
+export const IVR_PERMISSIONS: readonly IvrPermission[] = Object.keys(
+  SCOPE_OF,
+) as IvrPermission[];
+
+export const IVR_ROLES: readonly IvrRole[] = ["admin", "operator"];

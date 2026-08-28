@@ -13,7 +13,7 @@ function withPermissions(
   children: React.ReactNode,
 ): React.ReactElement {
   return (
-    <PermissionProvider actorId="AGT-TEST-01" role="Admin" permissions={granted}>
+    <PermissionProvider actorId="AGT-TEST-01" role="admin" permissions={granted}>
       {children}
     </PermissionProvider>
   );

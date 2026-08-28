@@ -15,7 +15,7 @@ import {
 import { getFeatureFlags, verifyKillSwitch } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrFeatureFlagReadResult, IvrKillSwitchVerification } from "@/lib/api/types";
-import { requireAdmin, requireSession } from "@/lib/auth/guard";
+import { requireAdmin, requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { t } from "@/lib/i18n";
 
@@ -52,7 +52,7 @@ export default async function RuntimeGatesPage() {
 }
 
 async function RuntimeGatePanels() {
-  const session = await requireSession();
+  const session = await requireScope("read");
   const config = readConfig();
   const context = { session, config };
   const environment = config.environmentLabel;

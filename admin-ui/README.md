@@ -17,9 +17,6 @@ consistent loading/empty/error vocabulary.
 | `/config` | P3-3 | Script versions, approval matrix, DTMF map, variable whitelist — read-only |
 | `/integration` | P3-3 | Dependency status and recent fail-closed events — view only |
 | `/seed` | P3-3 | Adapter mode and test profiles — read-only, locked outside non-prod |
-| `/accounts` | W-0105 | Admin-only account list, create, edit, password reset, session revoke and soft-delete |
-| `/profile` | W-0105 | Current account profile; available to Admin and Operator |
-| `/roles` | W-0105 | API-backed Admin/Operator permission matrix; Admin only |
 
 The configuration, integration and seed screens remain read-only. Script
 approval is an owner decision (`OD-V1-15`), and no seed write path is exposed

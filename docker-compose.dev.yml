@@ -127,21 +127,6 @@ services:
       - ivr-internal
       - ivr-database-local
 
-  ivr-admin-ui:
-    build:
-      context: ./admin-ui
-      dockerfile: ../deploy/docker/Dockerfile.ui
-    image: ivr-admin-ui:dev
-    environment:
-      IVR_API_BASE_URL: "http://ivr-api:8080"
-      IVR_ENVIRONMENT_LABEL: development
-    ports:
-      - "127.0.0.1:${IVR_UI_PORT:-53000}:3000"
-    depends_on:
-      - ivr-api
-    networks:
-      - ivr-internal
-      - ivr-database-local
 
   fake-sales:
     build:
@@ -170,3 +155,10 @@ networks:
 
 volumes:
   ivr-postgres-data:
+
+# W-0122. The IVR admin console is no longer a service in this stack.
+#
+# Module 3 owns operator identity and builds the console its staff use; what is
+# left under admin-ui/ is a reference implementation for that team to read, not
+# something to run. It has no sign-in, so deploying it would publish an admin
+# surface with a kill switch and no way to say who pressed it.

@@ -19,7 +19,7 @@ import { getScriptCatalog } from "@/lib/api/admin";
 import { ScriptLifecycleActions } from "./ScriptLifecycleActions";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrDtmfKey, IvrScriptCatalog, IvrScriptVersion } from "@/lib/api/types";
-import { requireAdmin, requireSession } from "@/lib/auth/guard";
+import { requireAdmin, requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, t } from "@/lib/i18n";
 
@@ -51,7 +51,7 @@ export default async function ScriptConfigPage() {
 }
 
 async function ScriptCatalogPanels() {
-  const session = await requireSession();
+  const session = await requireScope("read");
   const config = readConfig();
 
   let catalog: IvrScriptCatalog | null = null;

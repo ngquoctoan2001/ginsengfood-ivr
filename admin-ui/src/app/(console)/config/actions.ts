@@ -9,9 +9,9 @@ import {
 } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import { validateAdminMutation, type AdminActionState } from "@/lib/admin/action-state";
-import { requirePermission } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
-import type { IvrPermission } from "@/lib/rbac/permissions";
+import { scopeFor, type IvrPermission } from "@/lib/rbac/permissions";
 
 const APPROVAL_PERMISSIONS = {
   MOCK_TEST: "IVR_SCRIPT_APPROVE_MOCK",
@@ -89,7 +89,7 @@ async function runTransition(
     return { status: "invalid", messageKey: "action.reasonRequired" };
   }
 
-  const session = await requirePermission(permission);
+  const session = await requireScope(scopeFor(permission));
   const config = readConfig();
 
   try {

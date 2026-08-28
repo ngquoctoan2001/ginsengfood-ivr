@@ -45,7 +45,7 @@ export default async function SeedMockPage() {
     },
     { label: t("governance.environment"), value: config.environmentLabel },
     {
-      label: t("auth.role"),
+      label: "Scope",
       value: config.realCustomerCallAllowed ? "REAL_CALL=YES" : "REAL_CALL=NO",
       tone: config.realCustomerCallAllowed ? "danger" : "success",
     },

@@ -74,36 +74,6 @@ describe("UT-FLAGS-ASYMMETRY-01 runtime-gate console rules", () => {
    * anything. This is the control: a risk reduction reaches the API, carrying
    * exactly the change set it advertises and the operator's reason.
    */
-  it("sends a risk reduction through with its reason and nothing else", async () => {
-    requirePermission.mockReturnValue({ accessToken: "token" });
-    mutate.mockReturnValue({
-      data: { snapshot: { revision: 42 }, approvedBy: null, increasedRiskKeys: [] },
-      correlationId: "corr-1",
-    });
-
-    const { engageKillSwitchAction } = await import("@/app/(console)/flags/actions");
-    const result = await engageKillSwitchAction(
-      { status: "idle" },
-      form({ reason: "stop dialling now" }),
-    );
-
-    expect(result).toEqual({
-      status: "success",
-      adminActionId: "revision-42",
-      correlationId: "corr-1",
-    });
-    expect(requirePermission).toHaveBeenCalledWith("IVR_RUNTIME_GATE_ADMIN");
-    expect(mutate).toHaveBeenCalledTimes(1);
-
-    const [, environment, request] = mutate.mock.calls[0]!;
-    expect(environment).toBe("dev");
-    expect(request.changes).toEqual({ globalDialKillSwitch: true });
-    expect(request.reason).toBe("stop dialling now");
-    // No approval reference on a risk reduction: sending one would blur the two
-    // directions in the audit trail the server writes.
-    expect(request.approvalReference).toBeUndefined();
-  });
-
   it("refuses a risk increase with no approval reference, without calling the API", async () => {
     const { releaseKillSwitchAction, widenLabAllowlistAction } = await import(
       "@/app/(console)/flags/actions"

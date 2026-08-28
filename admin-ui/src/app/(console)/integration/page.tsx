@@ -5,6 +5,7 @@ import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorA
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
 import { DependencyBadge } from "@/components/data/DependencyBadge";
 import { EnumLabel } from "@/components/data/EnumLabel";
+import { ReviewReason } from "@/components/data/ReviewReason";
 import {
   Callout,
   Card,
@@ -20,7 +21,7 @@ import type {
   IvrFailClosedEvent,
   IvrIntegrationStatus,
 } from "@/lib/api/types";
-import { requireAdmin, requireSession } from "@/lib/auth/guard";
+import { requireAdmin, requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 import { tEnum } from "@/lib/i18n/enum";
@@ -50,7 +51,7 @@ export default async function IntegrationStatusPage() {
 }
 
 async function IntegrationStatusPanels() {
-  const session = await requireSession();
+  const session = await requireScope("read");
   const config = readConfig();
 
   let status: IvrIntegrationStatus | null = null;
@@ -215,16 +216,23 @@ function DependencyDetail({ dependency }: { readonly dependency: IvrDependencySt
 }
 
 /**
- * A review-item event's `effect` is `"{source_type}: {reason}"` — two codes the
- * API concatenated, both of which already have dictionary entries. Splitting
- * them back apart costs one regex and translates the whole row.
+ * A review-item event's `effect` is `"{source_type}: {reason}"` — a code the API
+ * concatenated with a reason, both of which already have dictionary entries.
+ * Splitting them back apart costs one regex and translates the whole row.
+ *
+ * The reason half is deliberately not `[A-Z_]+`. `AdminConfigReadService` builds
+ * this from `ReviewItemEntity.Reason`, and the opt-out proposer stores a code
+ * with its evidence appended — `OPTOUT_THRESHOLD_REACHED;channel=…;signals=3`.
+ * The narrow pattern did not match those rows at all, so the whole composite fell
+ * through to the raw-effect branch below and printed as one long code. `ReviewReason`
+ * does the second split, so this one only has to find the colon.
  *
  * W-0116/draft.17 carries the capacity boolean separately. The scope remains a
  * code before the first colon, so the console can translate it without deriving
  * policy from English prose. Missing `hold_new_calls` falls back to the raw effect
  * for rolling compatibility with draft.16.
  */
-const REVIEW_EFFECT = /^([A-Z_]+): ([A-Z_]+)$/u;
+const REVIEW_EFFECT = /^([A-Z_]+): (\S.*)$/u;
 const CAPACITY_EFFECT_SCOPE = /^([A-Z_]+):/u;
 
 function FailClosedEventEffect({ event }: { readonly event: IvrFailClosedEvent }) {
@@ -254,7 +262,7 @@ function FailClosedEventEffect({ event }: { readonly event: IvrFailClosedEvent }
     <>
       <EnumLabel family="reviewSourceType" value={parts[1]} />
       {": "}
-      <EnumLabel family="reviewReason" value={parts[2]} />
+      <ReviewReason value={parts[2]} />
     </>
   );
 }

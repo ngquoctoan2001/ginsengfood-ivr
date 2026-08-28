@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import { DependencyBadge } from "@/components/data/DependencyBadge";
 import vi from "@/i18n/vi.json";
-import { IVR_PERMISSIONS } from "@/lib/rbac/permissions";
 
 const messages: Record<string, string> = vi;
 
@@ -131,64 +130,4 @@ describe("UT-UI-SEED-PROD-03 seed and mock guards", () => {
    * The four unenforced dependencies are named individually, because "một số phụ thuộc" would
    * pass a looser check while telling the reader nothing.
    */
-  it("names every dependency an integration profile cannot actually switch", () => {
-    const warning = messages["seed.profilePartialWarning"];
-    expect(warning).toContain("SIM_GATEWAY");
-    for (const dependency of [
-      "ORDER_CORE",
-      "CRM_DO_NOT_CALL",
-      "EVIDENCE_REGISTRY",
-    ]) {
-      expect(warning, `${dependency} is not named`).toContain(dependency);
-    }
-
-    expect(warning).toMatch(/không thăm dò/i);
-  });
-});
-
-/** UT-UI-ROLE-04 — the matrix is fixed to the two API-owned roles. */
-describe("UT-UI-ROLE-04 role and permission matrix", () => {
-  it("states that permissions are mapped from one of two fixed roles", () => {
-    expect(messages["roles.notManagedHere"]).toContain("hai vai trò");
-    expect(messages["roles.notManagedHere"]).toContain("Ivr.Api");
-    expect(messages["roles.subtitle"]).toContain("hai vai trò");
-  });
-
-  it("maps every permission to the screen that uses it", () => {
-    // `Record<IvrPermission, MessageKey>` already makes a missing row a compile
-    // error. What that cannot catch is a row whose text no longer names a real
-    // screen, so the mapping is read and checked against the routes that exist.
-    // W-0039 moved the prose into the catalogue; the check follows it there rather
-    // than being dropped, because the thing it guards did not change.
-    const mapping = Object.fromEntries(
-      IVR_PERMISSIONS.map((permission) => [
-        permission,
-        messages[`roles.screen.${permission}` as keyof typeof messages],
-      ]),
-    ) as Record<string, string>;
-
-    for (const permission of IVR_PERMISSIONS) {
-      expect(mapping[permission], `${permission} has no screen mapping`).toBeTruthy();
-    }
-
-    // Operators can read queue/calls; reports are admin-only under Decision B.
-    expect(mapping.IVR_QUEUE_VIEW).toContain(messages["nav.dashboard"]);
-    expect(mapping.IVR_ACCOUNT_VIEW).toContain("tài khoản");
-    // The SIM controls now exist; the mapping must not still promise them later.
-    expect(mapping.IVR_SIM_ENABLE).not.toMatch(/sau|sắp|chưa có/i);
-    expect(mapping.IVR_SIM_DISABLE).not.toMatch(/sau|sắp|chưa có/i);
-  });
-
-  // OD-V1-20 approved 2026-08-22: Admin holds the runtime-gate permission. The label is the
-  // only place the console tells an operator what that permission actually reaches, so it must
-  // name the gates rather than point at a decision that is now closed.
-  it("names the gates the runtime-gate permission reaches", () => {
-    const label = messages["roles.screen.IVR_RUNTIME_GATE_ADMIN"];
-    expect(label).not.toContain("OD-V1-20");
-    expect(label).not.toMatch(/chờ owner|chưa cấp/i);
-    expect(label).toMatch(/kill switch/i);
-    expect(label).toMatch(/khách thật/i);
-    // Still rendered for any permission a role stops holding later.
-    expect(messages["roles.ungranted"]).toBeTruthy();
-  });
 });

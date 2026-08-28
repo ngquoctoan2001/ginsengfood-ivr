@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { EnumLabel } from "@/components/data/EnumLabel";
+import { ReviewReason } from "@/components/data/ReviewReason";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { ErrorAlert, type ErrorEnvelopeView } from "@/components/feedback/ErrorAlert";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
@@ -17,7 +18,7 @@ import {
 import { listReviewItems } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrReviewQueueItem, IvrReviewQueue } from "@/lib/api/types";
-import { requireAdmin, requireSession } from "@/lib/auth/guard";
+import { requireAdmin, requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 
@@ -84,7 +85,7 @@ export default async function ReviewQueuePage({ searchParams }: PageProps<"/revi
 }
 
 async function ReviewQueueTable({ status }: { status: string }) {
-  const session = await requireSession();
+  const session = await requireScope("read");
   const config = readConfig();
 
   let queue: IvrReviewQueue | null = null;
@@ -150,7 +151,7 @@ const REVIEW_COLUMNS: readonly Column<IvrReviewQueueItem>[] = [
     key: "reason",
     header: t("review.colReason"),
     variant: "wrap",
-    cell: (item) => <EnumLabel family="reviewReason" value={item.reason} />,
+    cell: (item) => <ReviewReason value={item.reason} />,
   },
   {
     key: "status",

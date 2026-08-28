@@ -6,7 +6,7 @@ import { mutateFeatureFlags, terminateAllCallJobs } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrFeatureFlagChangeSet } from "@/lib/api/types";
 import { validateAdminMutation, type AdminActionState } from "@/lib/admin/action-state";
-import { requirePermission } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 
 /**
@@ -109,7 +109,7 @@ export async function terminateAllCallsAction(
     return { status: "invalid", messageKey: validation.messageKey };
   }
 
-  const session = await requirePermission("IVR_CALL_TERMINATE");
+  const session = await requireScope("danger");
   const config = readConfig();
 
   try {
@@ -163,7 +163,7 @@ async function runMutation(
     }
   }
 
-  const session = await requirePermission("IVR_RUNTIME_GATE_ADMIN");
+  const session = await requireScope("danger");
 
   try {
     const response = await mutateFeatureFlags({ session, config }, config.environmentLabel, {

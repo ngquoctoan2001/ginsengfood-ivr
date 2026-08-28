@@ -1,0 +1,13 @@
+.wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* The evidence behind a proposal, under the label rather than beside it: the label answers
+   "what", this answers "on what basis", and a reader scanning the column wants the first
+   without the second. Same weight as EnumLabel's code line, for the same reason. */
+.detail {
+  font-size: var(--ivr-text-xs);
+  color: var(--ivr-text-subtle);
+}

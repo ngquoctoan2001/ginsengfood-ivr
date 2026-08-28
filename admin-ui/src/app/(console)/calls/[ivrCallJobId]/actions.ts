@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requestTechnicalRetry, submitAdminReview, terminateCallJob } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import { validateAdminMutation, type AdminActionState } from "@/lib/admin/action-state";
-import { requirePermission } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 
 /**
@@ -38,7 +38,7 @@ export async function terminateCallAction(
     return { status: "invalid", messageKey: "action.reasonRequired" };
   }
 
-  const session = await requirePermission("IVR_CALL_TERMINATE");
+  const session = await requireScope("danger");
   const config = readConfig();
 
   try {
@@ -79,7 +79,7 @@ export async function technicalRetryAction(
     return { status: "invalid", messageKey: "action.reasonRequired" };
   }
 
-  const session = await requirePermission("IVR_MANUAL_RETRY");
+  const session = await requireScope("danger");
   const config = readConfig();
 
   try {
@@ -136,7 +136,7 @@ export async function adminReviewAction(
     return { status: "invalid", messageKey: "detail.resolutionRequired" };
   }
 
-  const session = await requirePermission("IVR_RESULT_REVIEW");
+  const session = await requireScope("write");
   const config = readConfig();
 
   try {

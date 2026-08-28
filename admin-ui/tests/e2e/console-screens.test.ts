@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { ADMIN_USERNAME, handleConsoleAuthStub, OPERATOR_USERNAME, signInBody } from "./console-auth-stub";
+import { handleConsoleAuthStub } from "./console-auth-stub";
 
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const nextBin = fileURLToPath(new URL("../../node_modules/next/dist/bin/next", import.meta.url));
@@ -175,11 +175,11 @@ const DETAIL_PAYLOAD = {
       ivr_call_attempt_id: "ATTEMPT-E2E-1",
       attempt_number: 1,
       scheduled_at: "2026-08-15T01:55:00Z",
-      status: "TECHNICAL_FAILED",
+      status: "NORMALIZED_TECHNICAL_RETRY",
       result_status: "IVR_TECHNICAL_EXCEPTION",
       is_counted_customer_attempt: false,
       technical_retry_count: 1,
-      technical_exception_type: "MOCK_ADAPTER_FAULT",
+      technical_exception_type: "SIM_ERROR",
       sim_channel_id: "SIM-MOCK-001",
       policy_version: "mock-lab-v1",
       script_version: "v1-test-approved",
@@ -188,9 +188,9 @@ const DETAIL_PAYLOAD = {
       ivr_call_attempt_id: "ATTEMPT-E2E-2",
       attempt_number: 2,
       scheduled_at: "2026-08-15T01:57:30Z",
-      status: "COMPLETED",
+      status: "NORMALIZED_FINAL",
       result_status: "IVR_CONFIRMED",
-      disposition: "CONFIRMED",
+      disposition: "ANSWERED",
       dtmf_key: "1",
       is_counted_customer_attempt: true,
       technical_retry_count: 0,
@@ -368,20 +368,15 @@ afterAll(async () => {
   });
 });
 
-async function signedInCookie(username = ADMIN_USERNAME): Promise<string> {
-  const response = await fetch(`${baseUrl}/api/auth/sign-in`, {
-    method: "POST",
-    redirect: "manual",
-    body: signInBody(username),
-  });
-  const header = response.headers
-    .getSetCookie()
-    .find((cookie) => cookie.startsWith("ivr_admin_session="));
-  if (header === undefined) {
-    throw new Error("sign-in did not issue a session");
-  }
-
-  return header.split(";")[0];
+/**
+ * W-0122. The console has no sign-in any more, so there is no session to obtain.
+ *
+ * Kept as a no-op rather than removed from every call site: what these tests are
+ * for is the screens, and the screens are still worth covering. Whoever rebuilds
+ * them inside Module 3's console will put a real session back here.
+ */
+async function signedInCookie(_username?: string): Promise<string> {
+  return "";
 }
 
 function getHtml(path: string, cookie: string): Promise<Response> {
@@ -538,12 +533,4 @@ describe("E2E-UI-DETAIL-02 call detail", () => {
     expect(html).toContain("Không tìm thấy tài nguyên.");
   });
 
-  it("gives Operator manual retry but reserves result review for Admin", async () => {
-    const viewerHtml = await (await getHtml(`/calls/${JOB_ID}`, await signedInCookie(OPERATOR_USERNAME))).text();
-    expect(viewerHtml).toContain("Yêu cầu gọi lại kỹ thuật");
-    expect(viewerHtml).not.toContain("Ghi kết luận duyệt");
-
-    const adminHtml = await (await getHtml(`/calls/${JOB_ID}`, await signedInCookie())).text();
-    expect(adminHtml).toContain("Ghi kết luận duyệt");
-  });
 });

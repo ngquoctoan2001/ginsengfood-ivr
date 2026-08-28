@@ -18,7 +18,7 @@ import {
   type IvrAnalyticsSummary,
   type IvrAnalyticsTrend,
 } from "@/lib/api/types";
-import { requireAdmin, requireSession } from "@/lib/auth/guard";
+import { requireAdmin, requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatNumber, t } from "@/lib/i18n";
 import { tEnum, type EnumFamily } from "@/lib/i18n/enum";
@@ -81,7 +81,7 @@ interface ReportQuery {
 }
 
 async function ReportPanels({ query }: { query: ReportQuery }) {
-  const session = await requireSession();
+  const session = await requireScope("read");
   const config = readConfig();
   const dimension = asDimension(query.dimension);
   const filter = {

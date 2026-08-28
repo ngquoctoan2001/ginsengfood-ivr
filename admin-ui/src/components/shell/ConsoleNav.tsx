@@ -78,7 +78,7 @@ export function ConsoleNav({ account }: ConsoleNavProps) {
 
             if ("adminOnly" in item) {
               // A Fragment, not a wrapper element: only <li> is valid inside <ul>.
-              return role === "Admin" ? <Fragment key={item.href}>{entry}</Fragment> : null;
+              return role === "admin" ? <Fragment key={item.href}>{entry}</Fragment> : null;
             }
 
             return (

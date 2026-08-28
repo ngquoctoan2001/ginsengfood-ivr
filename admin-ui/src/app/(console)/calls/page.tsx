@@ -11,7 +11,7 @@ import { DataTable, LinkButton, PageHeader, Pagination, type Column } from "@/co
 import { listCallJobs } from "@/lib/api/admin";
 import { IvrApiError } from "@/lib/api/errors";
 import type { IvrCallJobPage, IvrCallJobListItem } from "@/lib/api/types";
-import { requirePermission, requireSession } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import { readConfig } from "@/lib/config/env";
 import { formatDateTime, formatNumber, t } from "@/lib/i18n";
 
@@ -35,7 +35,7 @@ interface CallLogQuery {
 }
 
 export default async function CallLogPage({ searchParams }: PageProps<"/calls">) {
-  await requirePermission("IVR_QUEUE_VIEW");
+  await requireScope("read");
   const params = await searchParams;
   const query: CallLogQuery = {
     program: readParam(params.program),
@@ -72,7 +72,7 @@ export default async function CallLogPage({ searchParams }: PageProps<"/calls">)
 }
 
 async function CallLogTable({ query }: { query: CallLogQuery }) {
-  const session = await requireSession();
+  const session = await requireScope("read");
   const config = readConfig();
 
   let page: IvrCallJobPage | null = null;

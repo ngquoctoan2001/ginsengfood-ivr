@@ -7,7 +7,6 @@ import { RequirePermission } from "@/components/rbac/RequirePermission";
 import { t } from "@/lib/i18n";
 
 import styles from "./SidebarAccount.module.css";
-import { SignOutButton } from "./SignOutButton";
 
 const PROFILE_HREF = "/profile";
 
@@ -67,7 +66,7 @@ export function SidebarAccount({ actorId, displayName }: SidebarAccountProps) {
   return (
     <div className={styles.account}>
       <RequirePermission
-        perm="IVR_ACCOUNT_SELF_VIEW"
+        perm="IVR_QUEUE_VIEW"
         fallback={<span className={styles.identity}>{identity}</span>}
       >
         <Link
@@ -81,8 +80,6 @@ export function SidebarAccount({ actorId, displayName }: SidebarAccountProps) {
           <span className="sr-only">{t("nav.profile")}</span>
         </Link>
       </RequirePermission>
-
-      <SignOutButton />
     </div>
   );
 }

@@ -7,10 +7,10 @@ import { IvrApiError } from "@/lib/api/errors";
 import type { IvrApiResponse } from "@/lib/api/client";
 import type { IvrAdminActionResult } from "@/lib/api/types";
 import { validateAdminMutation, type AdminActionState } from "@/lib/admin/action-state";
-import { requirePermission } from "@/lib/auth/guard";
+import { requireScope } from "@/lib/auth/guard";
 import type { AdminSession } from "@/lib/auth/session";
 import { readConfig, type AdminUiConfig } from "@/lib/config/env";
-import type { IvrPermission } from "@/lib/rbac/permissions";
+import { scopeFor, type IvrPermission } from "@/lib/rbac/permissions";
 
 type QueueMutation = (
   context: { session: AdminSession; config: AdminUiConfig },
@@ -35,7 +35,7 @@ async function runQueueMutation(
     return { status: "invalid", messageKey: validation.messageKey };
   }
 
-  const session = await requirePermission(permission);
+  const session = await requireScope(scopeFor(permission));
   const config = readConfig();
 
   try {
@@ -104,7 +104,7 @@ async function runSimChannelMutation(
     return { status: "invalid", messageKey: validation.messageKey };
   }
 
-  const session = await requirePermission(permission);
+  const session = await requireScope(scopeFor(permission));
   const config = readConfig();
 
   try {

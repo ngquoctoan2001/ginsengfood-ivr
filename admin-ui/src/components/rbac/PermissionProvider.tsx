@@ -1,8 +1,12 @@
 "use client";
 
+import { hasPermission } from "@/lib/rbac/permissions";
+
+import type { IvrPermission, IvrRole } from "@/lib/rbac/permissions";
+
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 
-import { hasPermission, type IvrPermission, type IvrRole } from "@/lib/rbac/permissions";
+
 
 export interface PermissionContextValue {
   readonly actorId: string;
