@@ -1,0 +1,86 @@
+{
+  "Ivr": {
+    "Speech": {
+      "Tts": {
+        "Segmentation": {
+          "Enabled": true,
+          "FixedSegments": "Catalog"
+        },
+        "RegionalVoices": {
+          "North": {
+            "FixedSegments": [
+              {
+                "TextHash": "4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2",
+                "MediaReference": "sound:ivr-seg-north-4612fb85a1d0c3df",
+                "DurationMilliseconds": 6400
+              },
+              {
+                "TextHash": "95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5",
+                "MediaReference": "sound:ivr-seg-north-95f78c510d802cdf",
+                "DurationMilliseconds": 800
+              },
+              {
+                "TextHash": "53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e",
+                "MediaReference": "sound:ivr-seg-north-53d482dfd9119b91",
+                "DurationMilliseconds": 800
+              },
+              {
+                "TextHash": "764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3",
+                "MediaReference": "sound:ivr-seg-north-764af2bea49c72c8",
+                "DurationMilliseconds": 3920
+              }
+            ]
+          },
+          "Central": {
+            "FixedSegments": [
+              {
+                "TextHash": "4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2",
+                "MediaReference": "sound:ivr-seg-central-4612fb85a1d0c3df",
+                "DurationMilliseconds": 7040
+              },
+              {
+                "TextHash": "95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5",
+                "MediaReference": "sound:ivr-seg-central-95f78c510d802cdf",
+                "DurationMilliseconds": 880
+              },
+              {
+                "TextHash": "53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e",
+                "MediaReference": "sound:ivr-seg-central-53d482dfd9119b91",
+                "DurationMilliseconds": 1120
+              },
+              {
+                "TextHash": "764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3",
+                "MediaReference": "sound:ivr-seg-central-764af2bea49c72c8",
+                "DurationMilliseconds": 4880
+              }
+            ]
+          },
+          "South": {
+            "FixedSegments": [
+              {
+                "TextHash": "4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2",
+                "MediaReference": "sound:ivr-seg-south-4612fb85a1d0c3df",
+                "DurationMilliseconds": 8720
+              },
+              {
+                "TextHash": "95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5",
+                "MediaReference": "sound:ivr-seg-south-95f78c510d802cdf",
+                "DurationMilliseconds": 1760
+              },
+              {
+                "TextHash": "53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e",
+                "MediaReference": "sound:ivr-seg-south-53d482dfd9119b91",
+                "DurationMilliseconds": 2800
+              },
+              {
+                "TextHash": "764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3",
+                "MediaReference": "sound:ivr-seg-south-764af2bea49c72c8",
+                "DurationMilliseconds": 5120
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

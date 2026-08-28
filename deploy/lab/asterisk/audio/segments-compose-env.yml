@@ -1,0 +1,50 @@
+# SINH TỰ ĐỘNG bởi deploy/lab/Convert-LabSegmentAudio.ps1 — không sửa tay.
+#
+# Dán vào anchor `x-asterisk-lab-env` của docker-compose.softphone.yml, thay hai dòng
+# Segmentation__* đang là "false" ở đó.
+#
+# Trước khi bật, CẢ HAI nửa phải có thật:
+#   - nửa thu sẵn: 12 file PCM đã nằm trong image Asterisk (script này vừa ghi + SHA256SUMS);
+#   - nửa tổng hợp: endpoint TTS thật ở Ivr__Speech__Tts__External__* (OD-VOICE-01).
+# Bật khi catalog còn thiếu một câu ⇒ service TỪ CHỐI khởi động. Đó là hành vi đúng:
+# một câu thiếu phải chặn deploy, không phải làm ngắn cuộc gọi.
+
+  Ivr__Speech__Tts__RegionalVoices__Enabled: "true"
+  Ivr__Speech__Tts__Segmentation__Enabled: "true"
+  Ivr__Speech__Tts__Segmentation__FixedSegments: "Catalog"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__0__TextHash: "4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__0__MediaReference: "sound:ivr-seg-north-4612fb85a1d0c3df"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__0__DurationMilliseconds: "6400"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__1__TextHash: "95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__1__MediaReference: "sound:ivr-seg-north-95f78c510d802cdf"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__1__DurationMilliseconds: "800"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__2__TextHash: "53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__2__MediaReference: "sound:ivr-seg-north-53d482dfd9119b91"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__2__DurationMilliseconds: "800"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__3__TextHash: "764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__3__MediaReference: "sound:ivr-seg-north-764af2bea49c72c8"
+  Ivr__Speech__Tts__RegionalVoices__North__FixedSegments__3__DurationMilliseconds: "3920"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__0__TextHash: "4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__0__MediaReference: "sound:ivr-seg-central-4612fb85a1d0c3df"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__0__DurationMilliseconds: "7040"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__1__TextHash: "95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__1__MediaReference: "sound:ivr-seg-central-95f78c510d802cdf"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__1__DurationMilliseconds: "880"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__2__TextHash: "53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__2__MediaReference: "sound:ivr-seg-central-53d482dfd9119b91"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__2__DurationMilliseconds: "1120"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__3__TextHash: "764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__3__MediaReference: "sound:ivr-seg-central-764af2bea49c72c8"
+  Ivr__Speech__Tts__RegionalVoices__Central__FixedSegments__3__DurationMilliseconds: "4880"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__0__TextHash: "4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__0__MediaReference: "sound:ivr-seg-south-4612fb85a1d0c3df"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__0__DurationMilliseconds: "8720"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__1__TextHash: "95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__1__MediaReference: "sound:ivr-seg-south-95f78c510d802cdf"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__1__DurationMilliseconds: "1760"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__2__TextHash: "53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__2__MediaReference: "sound:ivr-seg-south-53d482dfd9119b91"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__2__DurationMilliseconds: "2800"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__3__TextHash: "764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__3__MediaReference: "sound:ivr-seg-south-764af2bea49c72c8"
+  Ivr__Speech__Tts__RegionalVoices__South__FixedSegments__3__DurationMilliseconds: "5120"

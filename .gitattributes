@@ -21,6 +21,10 @@ src/Ivr.Contracts/Generated/** -whitespace
 deploy/lab/asterisk/*.sh text eol=lf
 deploy/lab/asterisk/audio/SHA256SUMS text eol=lf
 deploy/lab/asterisk/audio/manifest.txt text eol=lf
+# Sinh bởi Convert-LabSegmentAudio.ps1 và đọc trong container Linux; giữ LF như SHA256SUMS.
+deploy/lab/asterisk/audio/segments-manifest.txt text eol=lf
+deploy/lab/asterisk/audio/segments-appsettings.json text eol=lf
+deploy/lab/asterisk/audio/segments-compose-env.yml text eol=lf
 deploy/lab/asterisk/audio/*.wav binary
 
 # CI gate scripts execute inside Linux containers and are also run straight from

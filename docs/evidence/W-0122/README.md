@@ -2,7 +2,7 @@
 
 Ngày: `2026-08-27`  
 Baseline triển khai: `main@f291f44` (đọc); commit W-0122 đầu tiên là `e1b6b4b` trên `54d285d`  
-Trạng thái: `IN_PROGRESS — RELEASE_BLOCKED`
+Trạng thái: `IN_PROGRESS — RELEASE_BLOCKED`; `OD-VOICE-06` **đã đóng** `2026-08-28`
 
 > Evidence trong thư mục này tách rõ local/nonprod proof với Owner/Legal/Infra/telephony
 > acceptance. Test xanh không cấp quyền production hoặc gọi khách thật.
@@ -76,7 +76,8 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 | Helm candidate | `PASS` local render — mặc định tắt; positive TEST_ONLY fixture và negative prod/lab guards pass |
 | Pre-dial budget guard | `PASS` — `timeoutMilliseconds` trả về baseline `5000`; nâng lên `30000` bị từ chối (thiếu `approvals.performanceRef`, và vẫn thủng budget kể cả khi có); `16000` có measurement ref thì render |
 | SBOM/vulnerability | `RELEASE_BLOCKED` — SPDX 152 entries; Trivy `13 HIGH`, `3 CRITICAL`, `0 fixable`; toàn bộ finding còn lại thuộc Debian 13.6 |
-| Fixed catalog 12 file | `BLOCKED_BY_OD-VOICE-06` |
+| Owner voice acceptance | `OWNER_ACCEPTED` `2026-08-28` — Bắc `Ngọc Linh`, Trung `Ngọc Trân`, Nam `Mỹ Duyên`; manifest SHA-256 `90927e16…`; shim chuyển từ `503` sang `/health/ready=200` |
+| Fixed catalog 12 file | `FILES_READY` — render `12/12` bằng ba giọng đã ký, convert PCM s16le/8 kHz/mono, `sha256sum --check --strict` `18/18 OK` trong image, entrypoint báo `installed 12 fixed speech segments`, 12 media reference đối chiếu khớp file/hash/TextHash. **Owner chưa nghe đoạn và mối nối** |
 | 6 MicroSIP calls | `NOT_RUN` |
 | Retention + rollback drill | `NOT_RUN` |
 | Target-hardware performance | `ENV_BLOCKED` |
@@ -95,6 +96,11 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 - `deploy/tts/models/MODELS.lock`: allowlist/hashes và release blockers machine-readable.
 - `artifacts/w-0122-models/`: bundle local đã xác minh, bị Git ignore.
 - `artifacts/w-0122-voice-audition/`: 11 WAV + manifest local, bị Git ignore.
+
+## Hai lỗi phát hiện khi chạy thật Phase 3 (`2026-08-28`)
+
+1. **Converter ghi CRLF.** `Convert-LabSegmentAudio.ps1` dùng `Set-Content`, nối dòng bằng CRLF trên Windows. Entrypoint chạy `sha256sum --check --strict` trong container Linux, ở đó `` cuối dòng thành một phần tên file ⇒ **cả 18 dòng fail**. Cùng họ với F1: `.gitattributes` giữ bản commit ở LF nên `git status` vẫn sạch, nhưng `docker build` đọc working tree. Sửa ba lớp: ghi LF tường minh; converter tự đọc lại byte vừa ghi và throw nếu có CR (git normalise lúc commit nên CI không bao giờ thấy bản CRLF — chỗ duy nhất bắt được là trên máy đã ghi); thêm assertion vào `lab-converter-selftest.mjs`.
+2. **Không build lại được image lab.** `asterisk-22.10.1.tar.gz` đã bị dời sang `old-releases/`; URL ghim trả `404`, `old-releases/` trả `200`. Image chỉ còn tồn tại nhờ bản build cũ trên máy này. Đã thêm fallback hai đường, giữ nguyên `ASTERISK_SHA256` nên provenance không đổi. Đây đúng kịch bản mà gate internal mirror của W-0122 đang lo, nhưng xảy ra ở một dependency chưa ai để ý.
 
 ## Gate còn cần con người/hạ tầng
 

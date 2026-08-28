@@ -175,7 +175,8 @@ model card khai báo license không thay thế file license/ý kiến Legal.
 | Compose/media | Config/topology pass; UID 1654 write, Asterisk read-only/write-denied probe pass |
 | Helm | Candidate sidecar/PVC/catalog wiring mặc định tắt; 4 default lint pass; positive `TEST_ONLY` fixture và negative guards pass |
 | SBOM/vulnerability | SPDX 152 package entries; Trivy candidate cuối `13 HIGH`, `3 CRITICAL`, `0 fixable`, chỉ còn Debian 13.6; Python target `0 HIGH/CRITICAL`; `RELEASE_BLOCKED` chờ base fix/Security disposition |
-| Fixed catalog/calls/retention/rollback | Chờ Owner chọn 3 voices; chưa được phép suy từ audition render |
+| Fixed catalog | `2026-08-28`: Owner đã ký 3 giọng; 12 file render/convert/checksum/install đều pass trong image thật. Chạy thật lộ hai lỗi đã sửa: converter ghi CRLF làm hỏng checksum boot, và tarball Asterisk bị dời sang `old-releases/` nên image không build lại được |
+| Calls/retention/rollback | Chờ Owner nghe đoạn và mối nối; chưa được phép suy từ render |
 
 ### 2.6 Roster nữ tại candidate voice manifest
 
@@ -584,12 +585,12 @@ không phải production media sink.
 | Plan authority | Owner duyệt plan; tracker ghi `START` | `PASS` |
 | Provenance | Full pins, exact paths/sizes/hashes, frozen deps, internal mirror digest | `NONPROD_PASS — INTERNAL_MIRROR_REQUIRED` |
 | Legal/privacy | Ý kiến bằng văn bản trên đúng locked artifact/voices/retention | `OWNER_DATA_REQUIRED` |
-| Voice quality | Owner nghe 11 candidate qua 8 kHz và ký 3 lựa chọn; strict manifest gate khớp exact candidate | `FILES_READY; RUNTIME_GATE_PASS — OWNER_LISTENING_REQUIRED` |
+| Voice quality | Owner nghe 11 candidate qua 8 kHz và ký 3 lựa chọn; strict manifest gate khớp exact candidate | `OWNER_ACCEPTED 2026-08-28` — Ngọc Linh/Ngọc Trân/Mỹ Duyên |
 | Shim correctness | Contract, explicit `audio/L16`/8 kHz override, raw PCM, health, no-log, overload/negative tests | `LOCAL_PASS` |
 | Supply chain/security | SBOM, notice, vuln scan, non-root/read-only/drop caps/seccomp | `LOCAL_HARDENING_PASS; RELEASE_BLOCKED — 13 HIGH/3 CRITICAL BASE_OS_UNFIXED` |
 | Performance | Target hardware per-request và cold/warm full-playlist p95; lease/request/character headroom; RSS/concurrency | `LOCAL_OBSERVATION_ONLY — ENV_BLOCKED` |
 | Media permissions | Init owner/group/mode; worker UID 1654 write; Asterisk read-only; production fsGroup/CSI decision | `LAB_PASS — PRODUCTION_DECISION_REQUIRED` |
-| Fixed catalog | 12 `.wav` PCM 8 kHz + checksums/manifests + rebuilt Asterisk + install count + owner listening | `BLOCKED_BY_OD-VOICE-06` |
+| Fixed catalog | 12 `.wav` PCM 8 kHz + checksums/manifests + rebuilt Asterisk + install count + owner listening | `FILES_AND_IMAGE_PASS — OWNER_SEAM_LISTENING_REQUIRED` |
 | Lab real audio | 2 đơn × 3 miền, content/region/seam approval | `NOT_RUN` |
 | Media lifecycle | Worker write → Asterisk play; controlled one-shot purge xóa expired dynamic nhưng giữ fresh/fixed/baseline | `NOT_RUN` |
 | Rollback | Previous image/config/provider restored deliberately | `NOT_RUN` |

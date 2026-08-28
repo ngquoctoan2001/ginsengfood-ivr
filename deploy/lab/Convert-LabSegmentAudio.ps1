@@ -65,6 +65,25 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Asterisk chạy `sha256sum --check --strict` trên chính những file này bên trong container
+# Linux, nơi một ký tự CR cuối dòng trở thành một phần của tên file. `Set-Content` nối dòng
+# bằng [Environment]::NewLine — tức CRLF trên Windows — nên mỗi lần chạy script này trên
+# Windows lại sinh ra một SHA256SUMS mà image Asterisk từ chối boot, trong khi bản đã commit
+# vẫn LF nhờ .gitattributes và `git status` vẫn sạch. Ghi LF tường minh, không phụ thuộc máy.
+function Write-LfFile {
+    param([Parameter(Mandatory)][string]$Path, [string[]]$Lines)
+
+    $text = ($Lines -join "`n") + "`n"
+    [System.IO.File]::WriteAllText($Path, $text, [System.Text.UTF8Encoding]::new($false))
+
+    # Kiểm ngay trên máy vừa ghi. Git normalise lúc commit nên CI không bao giờ nhìn thấy bản
+    # CRLF; chỗ duy nhất bắt được là ở đây, hoặc lúc Asterisk từ chối boot.
+    if ([System.IO.File]::ReadAllBytes($Path) -contains 13) {
+        throw "Ghi ra ky tu CR trong $Path. Asterisk kiem file nay bang sha256sum trong container Linux, o do CR thanh mot phan cua ten file."
+    }
+}
+
 $audioDirectory = if ($OutputDirectory) {
     [System.IO.Path]::GetFullPath($OutputDirectory)
 } else {
@@ -194,7 +213,7 @@ $existing = @($existingLines | Where-Object {
     -not ($producedFiles | Where-Object { $line -match [regex]::Escape($_) + '$' })
 })
 $added = $results | ForEach-Object { "$($_.Sha256)  $($_.File)" }
-Set-Content -LiteralPath $sumsPath -Value ($existing + $added) -Encoding ascii
+Write-LfFile -Path $sumsPath -Lines ($existing + $added)
 
 if (-not $SkipManifestUpdate) {
     $segmentManifestPath = Join-Path $audioDirectory 'segments-manifest.txt'
@@ -218,7 +237,7 @@ if (-not $SkipManifestUpdate) {
         $lines.Add("${key}_sha256=$($row.Sha256)")
     }
 
-    Set-Content -LiteralPath $segmentManifestPath -Value $lines -Encoding utf8
+    Write-LfFile -Path $segmentManifestPath -Lines $lines
 }
 
 # Khối cấu hình sinh sẵn. Người vận hành dán thẳng, không chép tay 12 mã băm 64 ký tự — chép tay
@@ -245,7 +264,7 @@ $configurationPath = Join-Path $audioDirectory 'segments-appsettings.json'
             }
         }
     }
-} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $configurationPath -Encoding utf8
+} | ConvertTo-Json -Depth 8 | ForEach-Object { Write-LfFile -Path $configurationPath -Lines ($_ -split "`r?`n") }
 
 # Cùng nội dung, dạng biến môi trường double-underscore. Lý do phải có bản thứ hai: lab cấu hình
 # service HOÀN TOÀN bằng `environment:` trong `docker-compose.softphone.yml` — không có chỗ nào
@@ -284,7 +303,7 @@ foreach ($regionName in $regions) {
         $index++
     }
 }
-Set-Content -LiteralPath $envPath -Value $envLines -Encoding utf8
+Write-LfFile -Path $envPath -Lines $envLines
 
 Write-Host ''
 $results | Format-Table Region, Ordinal, Milliseconds, MediaReference -AutoSize

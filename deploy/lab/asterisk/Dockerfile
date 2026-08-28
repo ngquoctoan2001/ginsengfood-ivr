@@ -28,9 +28,15 @@ RUN apt-get update \
         patch \
         pkg-config \
         uuid-dev \
-    && curl --fail --show-error --location \
-        "https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-${ASTERISK_VERSION}.tar.gz" \
-        --output /tmp/asterisk.tar.gz \
+    # Upstream dời tarball sang old-releases/ khi phát hành bản mới, nên URL cũ trả 404 và
+    # image không build lại được dù version vẫn ghim. Thử cả hai đường; SHA-256 bên dưới mới
+    # là thứ quyết định provenance, nên lấy ở đường nào cũng không nới lỏng gì.
+    && ( curl --fail --show-error --location \
+            "https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-${ASTERISK_VERSION}.tar.gz" \
+            --output /tmp/asterisk.tar.gz \
+       || curl --fail --show-error --location \
+            "https://downloads.asterisk.org/pub/telephony/asterisk/old-releases/asterisk-${ASTERISK_VERSION}.tar.gz" \
+            --output /tmp/asterisk.tar.gz ) \
     && echo "${ASTERISK_SHA256}  /tmp/asterisk.tar.gz" | sha256sum --check --strict \
     && mkdir /tmp/asterisk-source \
     && tar --extract --gzip --file /tmp/asterisk.tar.gz \

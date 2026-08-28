@@ -5,7 +5,7 @@
 // container: the segment roster it derives filenames from, and every input it must refuse.
 import { randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
@@ -46,6 +46,19 @@ try {
     throw new Error(`-ListOnly did not report "${expectedCount}"`);
   }
   process.stdout.write(`LAB_CONVERTER_ROSTER_PASS segments=${fixed.length} regions=${plan.regions.length}\n`);
+
+  // Asterisk verifies these with `sha256sum --check --strict` inside a Linux container, where a
+  // trailing CR becomes part of the filename and every single line fails. Git normalises on
+  // commit so CI only ever sees the LF form; this guards the committed bytes, and the converter
+  // checks what it writes on the machine that writes it.
+  for (const name of ["SHA256SUMS", "segments-manifest.txt", "segments-appsettings.json", "segments-compose-env.yml"]) {
+    const file = resolve(repoRoot, "deploy/lab/asterisk/audio", name);
+    if (!existsSync(file)) continue;
+    if (readFileSync(file).includes(13)) {
+      throw new Error(`${name} contains CR; the Asterisk boot checksum would reject every line`);
+    }
+    process.stdout.write(`LAB_CONVERTER_EOL_PASS file=${name}\n`);
+  }
 
   // Every way of asking the converter to guess instead of being told. -FfmpegPath /bin/sh is not a
   // converter: it only lets the missing-source case reach the file check without pulling ffmpeg
