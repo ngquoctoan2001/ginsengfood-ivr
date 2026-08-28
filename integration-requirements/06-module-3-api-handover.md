@@ -4,8 +4,8 @@
 
 **Từ:** Team Module 8 — IVR Order Confirmation (.NET, service tách biệt)
 
-**Cập nhật:** 2026-08-27
-**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở
+**Cập nhật:** 2026-08-28
+**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0122`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng.
 
 > **Ranh giới đã được owner làm rõ ngày 2026-08-27:** **Module 3 quyết định nghiệp vụ; IVR thực thi cuộc gọi.**
 >
@@ -25,6 +25,8 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 
 _Sửa 27/08/2026: bản trước dùng đường dẫn tương đối, nên khi IR-06 được gửi đi dạng file rời thì cả năm link đều không mở được — M3 báo lại ở review §3.3. Cả năm file đều tồn tại trong repo IVR; nếu cần bản sao, yêu cầu owner IVR gửi kèm._
 
+_Thêm 28/08/2026: **§4A** là mục mới và là phần duy nhất trong bản này M3 chưa từng đọc. Nó mô tả bề mặt quản trị sau khi IVR xoá sạch hệ thống tài khoản/vai trò của chính mình (`W-0122`), theo đúng ranh giới dev M3 đề xuất: IVR là module chức năng, M3 giữ tài khoản và quyền. §0, §7, §9 và §10 được cập nhật để trỏ tới nó; các mục §1–§4 về luồng đơn hàng **không đổi**._
+
 ---
 
 ## 0. Đọc trong 2 phút
@@ -36,7 +38,11 @@ Luồng runtime có **2 API chính**:
 | **Module 3 → IVR** | `POST {ivr}/v1/ivr/order-confirmation/tasks` | Module 3 đã quyết định cần gọi và giao task cho IVR thực thi |
 | **IVR → Module 3** | `POST {sales}/api/v1/internal/orders/{orderId}/ivr-result-callbacks` | IVR trả tín hiệu kết quả; Module 3 revalidate và quyết định trạng thái đơn |
 
-Ngoài hai API nghiệp vụ trên còn hai dependency cần chốt:
+Ngoài hai API nghiệp vụ trên còn **một bề mặt thứ ba** và hai dependency cần chốt:
+
+| Hướng | API | Ý nghĩa |
+| --- | --- | --- |
+| **Màn hình quản trị M3 → IVR** | `{ivr}/v1/ivr/order-confirmation/...` (31 endpoint) | Xem hàng đợi, kill switch, cắt cuộc gọi, duyệt lời thoại — **§4A**, hợp đồng mới ngày 28/08/2026 |
 
 1. Cơ chế cấp/resolve/refresh `dial_token` để IVR lấy số E.164 lúc quay số.
 2. Service auth production: issuer, JWKS, audience, scope, credential và quyết định mTLS.
@@ -594,6 +600,220 @@ Body ACK `200` hoặc `409` có các field:
 
 ---
 
+## 4A. API C — Bề mặt quản trị: Module 3 điều khiển và quan sát IVR
+
+> **Mục này mới, thêm 28/08/2026.** Nó **không** thuộc luồng đơn hàng ở §3–§4. Đây là bề mặt thứ ba: những endpoint mà **màn hình quản trị** gọi — xem hàng đợi, bật/tắt kill switch, cắt cuộc gọi đang chạy, duyệt lời thoại.
+>
+> Trước đây IVR tự giữ tài khoản nhân viên, vai trò, mật khẩu và màn hình đăng nhập riêng. **Toàn bộ phần đó đã bị xoá khỏi code, database và tài liệu (`W-0122`, ngày 28/08/2026).** Module 3 sở hữu identity của nhân viên; IVR chỉ còn nhận **credential của service** kèm lời khai *ai bên M3 đang bấm nút*.
+>
+> Đây là hợp đồng M3 phải code theo khi dựng giao diện quản trị IVR. Client viết theo bản IR-06 trước 28/08 sẽ **401/403 toàn bộ**.
+
+### 4A.1. Ba token riêng biệt, chia theo mức thiệt hại khi lộ
+
+| Biến cấu hình phía IVR | Tầng | Phủ những gì | Nếu credential này lộ |
+| --- | --- | --- | --- |
+| `IVR_ADMIN_READ_TOKEN` | `read` | Dashboard, hàng đợi, chi tiết call job, báo cáo, danh sách review, trạng thái SIM, đọc feature flag | Rò rỉ dữ liệu vận hành. **Không** dừng được cuộc gọi nào |
+| `IVR_ADMIN_WRITE_TOKEN` | `write` | Mở phiếu admin review, vòng đời kịch bản (tạo draft, submit, approve, retire) | Ghi thêm dữ liệu. Vẫn **không** cắt được cuộc gọi đang chạy |
+| `IVR_ADMIN_DANGER_TOKEN` | `danger` | Kill switch, pause/resume hàng đợi, disable/enable SIM, manual retry, cắt 1 cuộc gọi, cắt **toàn bộ** cuộc gọi | Dừng được mọi cuộc gọi đang phục vụ khách |
+
+**Vì sao ba token chứ không phải một token + header khai scope:** header là thứ chính người gọi tự viết ra. Ai cầm được token thì viết header nào cũng được, nên header một mình không phải ranh giới. Tách **bí mật** ra làm ba mới là thứ khiến credential nằm sau màn hình báo cáo không đồng thời dừng được cả tổng đài.
+
+**Tầng lồng nhau:** `danger` ⊇ `write` ⊇ `read`. Token danger gọi được endpoint read. Chiều ngược lại thì không. Nhờ vậy M3 không phải mang cả ba token qua mọi code path.
+
+**Fail-closed:** tầng nào **chưa cấu hình token** (chuỗi rỗng) thì **không bao giờ khớp**. Môi trường mới deploy mà quên set biến sẽ **từ chối sạch**, chứ không hiểu nhầm "chưa cấu hình" thành "không cần credential".
+
+### 4A.2. Header trên request quản trị
+
+```http
+POST {ivr_base_url}/v1/ivr/order-confirmation/queue:pause
+Authorization: Bearer <IVR_ADMIN_DANGER_TOKEN>
+X-Service-Scope: ivr.admin.danger
+X-Actor-Id: <id tài khoản M3 đang thao tác>
+X-Action-Reason: <lý do, ghi vào audit>
+```
+
+| Header | Bắt buộc | Giá trị | Ý nghĩa |
+| --- | --- | --- | --- |
+| `Authorization` | Có | `Bearer <token>` | Một trong ba token ở §4A.1 |
+| `X-Service-Scope` | Có | `ivr.admin.read` \| `ivr.admin.write` \| `ivr.admin.danger` | **Khai đúng tầng của token vừa gửi** — xem Bẫy 1 |
+| `X-Actor-Id` | Có, gần như mọi endpoint | ≤ 128 ký tự | Nhân viên M3 chịu trách nhiệm hành động — xem Bẫy 2 và §4A.4 |
+| `X-Action-Reason` | Chỉ tầng `danger` | ≤ 500 ký tự | Lý do, ghi vào audit |
+| `X-Script-Permissions` | Chỉ endpoint kịch bản | CSV, tối đa 16 mục | Quyền duyệt kịch bản M3 tự khai — §4A.5 |
+| `X-Destination-Ref` | Không | chuỗi | Phạm vi đích của một lần đổi feature flag |
+| `Idempotency-Key` | Chỉ `POST feature-flags/{environment}` | chuỗi | Thiếu là `400` |
+
+> ### ⚠️ Bẫy 1 — `X-Service-Scope` khai theo **token đang cầm**, không phải theo endpoint
+>
+> Header này phải khớp tầng mà **token của bạn** phân giải ra, chứ không phải tầng mà endpoint yêu cầu.
+>
+> Gọi endpoint read bằng token danger thì vẫn phải khai `ivr.admin.danger`. Khai `ivr.admin.read` cho "đúng với endpoint" sẽ bị **403**.
+>
+> Lý do: nếu so header với yêu cầu của endpoint thì tầng lồng nhau sẽ vỡ — token write hợp lệ gọi endpoint read sẽ bị từ chối chỉ vì nó khai thật rằng nó là write.
+
+> ### ⚠️ Bẫy 2 — `X-Actor-Id` bắt buộc trên **29/31** endpoint quản trị, không riêng tầng danger
+>
+> Kể cả `GET /queue` và `GET /dashboard` cũng đòi header này. Thiếu là **403**, không phải 401.
+>
+> Chỉ hai endpoint không đòi: `GET feature-flags/{environment}` và `GET feature-flags/{environment}/kill-switch`.
+>
+> Khác biệt giữa các tầng nằm ở `X-Action-Reason`: chỉ tầng `danger` mới đòi thêm nó.
+
+### 4A.3. Bảng endpoint → tầng bắt buộc
+
+Đường dẫn gốc: `{ivr_base_url}/v1/ivr/order-confirmation`
+
+**Tầng `read` — 15 endpoint**
+
+| Method | Đường dẫn | `X-Actor-Id` |
+| --- | --- | --- |
+| `GET` | `/queue` | Có |
+| `GET` | `/dashboard` | Có |
+| `GET` | `/call-jobs` | Có |
+| `GET` | `/call-jobs/{ivrCallJobId}/detail` | Có |
+| `GET` | `/sim-channels` | Có |
+| `GET` | `/scripts` | Có |
+| `GET` | `/integration-status` | Có |
+| `GET` | `/review-items` | Có |
+| `GET` | `/analytics/summary` | Có |
+| `GET` | `/analytics/trend` | Có |
+| `GET` | `/analytics/breakdown` | Có |
+| `GET` | `/analytics/export` | Có |
+| `GET` | `/scripts/{templateId}/{version}` | Có |
+| `GET` | `/feature-flags/{environment}` | **Không** |
+| `GET` | `/feature-flags/{environment}/kill-switch` | **Không** |
+
+`GET /analytics/export` cố tình là `GET` chứ không phải `POST`: bản trích xuất là thao tác **đọc có audit**, giữ verb read-only để bảo toàn tính chất "nhóm báo cáo không có bề mặt ghi".
+
+**Tầng `write` — 5 endpoint** *(+3 endpoint dev chỉ tồn tại ngoài production)*
+
+| Method | Đường dẫn | Ghi chú |
+| --- | --- | --- |
+| `POST` | `/admin-reviews` | Mở phiếu review |
+| `POST` | `/scripts` | Tạo draft kịch bản |
+| `POST` | `/scripts/{templateId}/{version}:submit` | Trình duyệt |
+| `POST` | `/scripts/{templateId}/{version}:approve` | Cần `X-Script-Permissions` — §4A.5 |
+| `POST` | `/scripts/{templateId}/{version}:retire` | Cần `X-Script-Permissions` |
+| `POST` | `/dev/seed:load` | **Chỉ non-production** |
+| `POST` | `/dev/scenarios/{scenarioId}:dry-run` | **Chỉ non-production** |
+| `POST` | `/dev/integration-profiles/{profileId}:apply` | **Chỉ non-production** |
+
+Ba route `/dev` **không được đăng ký** khi môi trường là production hoặc khi đang cho phép gọi khách thật. Chúng không tồn tại chứ không phải bị chặn — M3 sẽ nhận `404`, không phải `403`.
+
+**Tầng `danger` — 8 endpoint** *(mọi endpoint đều đòi thêm `X-Action-Reason`)*
+
+| Method | Đường dẫn | Hậu quả tức thì |
+| --- | --- | --- |
+| `POST` | `/queue:pause` | Ngừng phát cuộc gọi mới |
+| `POST` | `/queue:resume` | Phát lại |
+| `POST` | `/sim-channels/{simChannelId}:disable` | Rút một kênh khỏi vận hành |
+| `POST` | `/sim-channels/{simChannelId}:enable` | Đưa kênh trở lại |
+| `POST` | `/technical-retries` | Quay lại thủ công |
+| `POST` | `/call-jobs/{ivrCallJobId}:terminate` | **Cắt một cuộc đang nói với khách** |
+| `POST` | `/call-jobs:terminate-all` | **Cắt toàn bộ cuộc đang chạy** |
+| `POST` | `/feature-flags/{environment}` | Kill switch. Đòi thêm `Idempotency-Key`; nhận `X-Destination-Ref` tuỳ chọn |
+
+`:terminate` và `:terminate-all` là **hai route riêng, hai lần bấm riêng, hai lý do riêng**. Kill switch chặn cuộc *tiếp theo*; `:terminate-all` cắt cuộc *đang nói*. Giao diện M3 không nên gộp hai nút này.
+
+### 4A.4. Tầng `danger` đòi thêm một con người và một lý do
+
+Token chứng minh **tầng**; `X-Actor-Id` + `X-Action-Reason` chứng minh **ai bên M3 yêu cầu và vì sao**. Thiếu cả hai thì dòng audit "ai đã dừng toàn bộ cuộc gọi lúc 3 giờ sáng" chỉ ghi được chữ `service` — sáng hôm sau không trả lời được gì.
+
+Ràng buộc IVR áp:
+
+| Header | Rỗng | Độ dài | Nội dung |
+| --- | --- | --- | --- |
+| `X-Actor-Id` | Không được | ≤ 128 | Qua bộ lọc PII |
+| `X-Action-Reason` | Không được | ≤ 500 | Qua bộ lọc PII |
+
+> ### ⚠️ Bẫy 3 — đừng đặt **tên người** vào `X-Actor-Id`
+>
+> Bộ lọc PII từ chối chuỗi trông giống địa chỉ Việt Nam. Nhánh không dấu bắt các từ `duong`, `so nha`, `ngo`, `hem`, `ngach`, `thon`, `ap` khi theo sau là khoảng trắng rồi chữ hoặc số. Hệ quả đã kiểm chứng:
+>
+> | `X-Actor-Id` | Kết quả |
+> | --- | --- |
+> | `Duong Minh Tuan` | ❌ `403` |
+> | `Ngo Van A` | ❌ `403` |
+> | `Ap Bac 3` | ❌ `403` |
+> | `Tran Van Duong` | ✅ qua |
+> | `ngo-van-a` | ✅ qua |
+> | `op-8842` | ✅ qua |
+>
+> Dương và Ngô là họ phổ biến. Nếu M3 đẩy tên hiển thị vào header này, **nhân viên họ Dương/Ngô sẽ bị 403 còn người khác thì không** — lỗi rất khó truy vì nó phụ thuộc vào người đang trực.
+>
+> **Khuyến nghị:** gửi **id tài khoản đục** (`op-8842`, `m3-user-1193`, hoặc UUID). Tên hiển thị tra ở phía M3 khi đọc audit. Áp dụng y hệt cho `X-Action-Reason`: câu lý do có chữ "đường Lê Lợi" cũng bị chặn.
+
+### 4A.5. `X-Script-Permissions` — quyền duyệt kịch bản do M3 tự khai
+
+Chỉ dùng cho nhóm `/scripts`. Định dạng CSV, IVR đọc tối đa 16 mục.
+
+| Giá trị | Cho phép |
+| --- | --- |
+| `IVR_SCRIPT_EDIT` | Tạo/sửa draft |
+| `IVR_SCRIPT_REVIEW` | Trình duyệt |
+| `IVR_SCRIPT_APPROVE_MOCK` | Duyệt cho môi trường mock |
+| `IVR_SCRIPT_APPROVE_LAB` | Duyệt cho lab |
+| `IVR_SCRIPT_APPROVE_CONTENT` | Duyệt **nội dung** cho production |
+| `IVR_SCRIPT_APPROVE_PRIVACY_LEGAL` | Duyệt **privacy/pháp lý** cho production |
+| `IVR_SCRIPT_RETIRE` | Ngừng một version |
+
+**Đây là lời khai, không phải bằng chứng.** M3 sở hữu identity nên M3 là nguồn có thẩm quyền về việc nhân viên của mình có quyền gì; IVR ghi nhận lời khai đó. Nghĩa là: quyền này chỉ mạnh bằng đúng khả năng M3 bảo vệ token và không để client tự viết header.
+
+**Nhưng IVR vẫn tự giữ hai luật bốn mắt, không nhường:**
+
+1. Người **tạo** một version không được **duyệt** chính version đó.
+2. Duyệt **nội dung** và duyệt **privacy/pháp lý** phải là **hai `X-Actor-Id` khác nhau**.
+
+Hai luật này chạy theo **danh tính**, không theo quyền. Cấp đủ cả 7 quyền cho một actor vẫn không vượt được. Giao diện M3 phải chuẩn bị cho việc một thao tác duyệt bị từ chối dù người bấm "có đủ quyền".
+
+### 4A.6. Lỗi và cách chẩn đoán
+
+| HTTP | `error.code` | Nghĩa |
+| --- | --- | --- |
+| `401` | `IVR_UNAUTHENTICATED` | Không có `Authorization`, sai định dạng, hoặc token không khớp tầng nào |
+| `403` | `IVR_FORBIDDEN_CALLER` | Token hợp lệ nhưng request bị từ chối |
+| `400` | `IVR_MALFORMED_REQUEST` | Thiếu `Idempotency-Key` ở endpoint feature flag |
+| `404` | — | Route `/dev` không tồn tại ở môi trường này |
+
+`403` gộp nhiều nguyên nhân vào một mã. Thứ tự kiểm tra khi M3 gặp `403`:
+
+| # | Kiểm tra | Triệu chứng đặc trưng |
+| --- | --- | --- |
+| 1 | `X-Service-Scope` có khớp tầng **token đang cầm** không? | Sai ở **mọi** endpoint, kể cả read |
+| 2 | `X-Actor-Id` có mặt và ≤ 128 ký tự không? | Sai ở 29/31 endpoint |
+| 3 | `X-Actor-Id` có dính bộ lọc PII không? | Sai **chỉ với một số nhân viên** — xem Bẫy 3 |
+| 4 | Endpoint tầng danger: có `X-Action-Reason` chưa? | Chỉ sai ở nhóm danger |
+| 5 | Token có đủ tầng cho endpoint không? | Token read gọi endpoint danger |
+| 6 | Endpoint kịch bản: có vi phạm luật bốn mắt không? | Chỉ sai ở `:approve` |
+
+Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Nguyên nhân 6 chặn trong domain, sau khi đã qua auth.
+
+### 4A.7. Những thứ **không còn tồn tại** — đừng đi tìm
+
+| Đã xoá | Thay bằng |
+| --- | --- |
+| Bảng tài khoản console và bảng vai trò trong DB | Không có. M3 giữ tài khoản |
+| `POST /api/auth/sign-in`, `/api/auth/sign-out` | Không có |
+| Trang `/login`, session cookie, màn hình đổi mật khẩu | Không có |
+| Catalogue 19 permission và policy theo từng permission | Ba tầng ở §4A.1 |
+| Header `X-Permissions` (seam mock cũ) | Đã gỡ, không còn được đọc ở bất kỳ đâu |
+| Màn hình quản trị tài khoản/vai trò trong admin UI | Đã xoá khỏi UI |
+
+**Admin UI trong repo IVR giữ lại làm bản mẫu tham chiếu.** Nó không còn là dịch vụ để ai đăng nhập. Mục đích duy nhất là để M3 đọc và dựng lại nhanh trong console của mình: các màn hình gọi API bằng đúng ba credential trên, nên đây là ví dụ chạy được của hợp đồng ở mục này.
+
+Khi M3 dựng lại, phần kiểm tra phiên đăng nhập đặt ở **phía M3**, rồi vẫn gửi token tầng xuống IVR — **IVR không nhận session của M3 thay cho token**.
+
+### 4A.8. Việc Module 3 phải quyết
+
+| # | Quyết định | Vì sao không thể để mặc định |
+| --- | --- | --- |
+| 1 | Ai giữ ba token, cất ở đâu, xoay vòng thế nào | `IVR_ADMIN_DANGER_TOKEN` dừng được cả tổng đài |
+| 2 | Vai trò nào bên M3 ánh xạ sang tầng nào | Nếu mọi vai trò đều nhận token danger thì việc tách ba tầng vô nghĩa |
+| 3 | Định dạng `X-Actor-Id` | Đẩy tên hiển thị vào sẽ vỡ theo họ của nhân viên — Bẫy 3 |
+| 4 | UI bắt nhập lý do ở tầng danger thế nào | Thiếu `X-Action-Reason` là 403; UI cần chặn trước khi gửi |
+| 5 | Ai bên M3 giữ quyền duyệt nội dung và ai giữ quyền duyệt privacy/pháp lý | Phải là hai người khác nhau, IVR cưỡng chế |
+
+---
+
 ## 5. Khách cũ/khách mới và risk policy — Module 3 xử lý hoàn toàn
 
 ### 5.1. Quy tắc tích hợp
@@ -675,6 +895,10 @@ Cần Security/Platform cung cấp:
 
 Không có sandbox credential thì chưa chạy được integration test thật.
 
+**Mục này chỉ nói về hai API nghiệp vụ ở §3–§4.** Bề mặt quản trị (§4A) dùng **credential riêng, không dùng chung** với service JWT ở đây: ba token tĩnh `IVR_ADMIN_READ/WRITE/DANGER_TOKEN`. Hai hệ credential tách rời có chủ đích — token mà giao diện quản trị cầm không được đồng thời giao được task, và ngược lại.
+
+Khi Security/Platform chốt auth profile production, cần trả lời thêm cho §4A: ba token này có chuyển sang cùng issuer/JWKS không, ai cấp và xoay vòng thế nào, và cất ở đâu phía Module 3.
+
 ---
 
 ## 8. Những gì IVR không làm
@@ -707,6 +931,7 @@ Không có sandbox credential thì chưa chạy được integration test thật
 | **6** | Ký minimal `eligibility_snapshot` dùng làm evidence, không phải IVR business decision | M3 + M8 | `OWNER_SIGNOFF_REQUIRED` |
 | **7** | Chọn `dial_token` model và trust boundary | M3 + Security + M8 | `OWNER_DECISION_REQUIRED` |
 | **8** | Duyệt lời thoại/privacy và giới hạn `items[]` | Product + Privacy/Legal | `OWNER_APPROVAL_REQUIRED` |
+| **9** | Nhận bàn giao bề mặt quản trị **§4A**: ai giữ ba token, vai trò M3 nào ánh xạ sang tầng nào, định dạng `X-Actor-Id` | M3 + Security | `OWNER_DECISION_REQUIRED` — mới 28/08/2026 |
 
 Chưa được gọi integration/production ready khi các gate P0 trên chưa đóng.
 
@@ -742,6 +967,16 @@ Chưa được gọi integration/production ready khi các gate P0 trên chưa �
 - [ ] Xác nhận revalidate version/state/inventory/recall/sale-lock/quality-hold trước transition.
 - [ ] Xác nhận tôn trọng `is_counted_customer_attempt`.
 - [ ] Chốt timeout worker sau `IVR_NO_ANSWER_FINAL`.
+
+### Bề mặt quản trị (§4A — mới 28/08/2026)
+
+- [ ] Xác nhận M3 sẽ dựng giao diện quản trị IVR và nhận bàn giao hợp đồng §4A.
+- [ ] Chỉ định nơi cất ba token `IVR_ADMIN_READ/WRITE/DANGER_TOKEN` và chu kỳ xoay vòng.
+- [ ] Ký ánh xạ **vai trò M3 → tầng IVR**. Nêu rõ vai trò nào được chạm `danger`.
+- [ ] Chốt định dạng `X-Actor-Id` là **id đục**, không phải tên hiển thị (Bẫy 3, §4A.4).
+- [ ] Xác nhận UI bắt buộc nhập `X-Action-Reason` trước khi gửi mọi thao tác tầng `danger`.
+- [ ] Chỉ định hai người khác nhau giữ quyền duyệt **nội dung** và **privacy/pháp lý** (§4A.5).
+- [ ] Xác nhận M3 không kỳ vọng IVR còn màn hình đăng nhập, bảng tài khoản hay endpoint `/api/auth/*` (§4A.7).
 
 ### Platform
 
