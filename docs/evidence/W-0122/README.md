@@ -1,7 +1,7 @@
 # W-0122 — Evidence index cho VieNeu-TTS self-hosted
 
 Ngày: `2026-08-27`  
-Baseline triển khai: `main@f291f44`  
+Baseline triển khai: `main@f291f44` (đọc); commit W-0122 đầu tiên là `e1b6b4b` trên `54d285d`  
 Trạng thái: `IN_PROGRESS — RELEASE_BLOCKED`
 
 > Evidence trong thư mục này tách rõ local/nonprod proof với Owner/Legal/Infra/telephony
@@ -63,12 +63,15 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 | Provenance mutations | `PASS` — revision/path/hash/license/extra artifact/voice-config/acceptance-template drift đều bị từ chối |
 | Converter regression | `PASS` — MP3 cũ bitexact 12/12; WAV 12/12 PCM s16le/8 kHz/mono; unknown/missing source bị từ chối |
 | Owner-manifest gate | `PASS` fail-closed — pending template + 9 acceptance mutation + 7 voices.json binding mutation bị từ chối (gồm sửa thẳng `audition-script.txt`); production thiếu/pending manifest hoặc bật audition đều readiness `503` |
-| Container contract | `12/12 PASS` — non-root `1654:1654`, read-only, no network, no exposed port, drop caps |
+| Container contract | `PASS` — non-root `1654:1654`, read-only, no network, no exposed port, drop caps; chạy `15/15` shim test bên trong image — cùng bộ test ở dòng `Shim unit/negative` của `security-performance.md`, không phải hai lượt đếm |
 | Minimal runtime content | `PASS` — không có `uv`, web UI, upstream deploy/docs/examples, training, tests hoặc reference samples; chỉ venv + source runtime + locks/license |
 | Real ONNX smoke | `PASS` nonprod — ready; request `200`, raw `audio/L16` 8 kHz, 20,480 bytes; không phải voice acceptance |
 | Voice audition render | `FILES_READY` — 11/11 WAV PCM s16le/8 kHz/mono, tracked manifest SHA-256 `0cfbeacf6a60403c974354fc205e12591c12304f5b68a0abcac5d40afb8326cf`; owner chưa nghe/ký |
 | Asterisk/MicroSIP audition harness | `RUNTIME_PASS` — 11/11 checksum/decode, `12201` playback pass, catch-all hangup pass; Owner listening vẫn `NOT_RUN` |
 | Compose/media permissions | `PASS` local — loopback/no port/shared volume; UID 1654 write, Asterisk read-only/write-denied |
+| Converter regression | `PASS` — `Convert-LabSegmentAudio.ps1` chạy trong container PowerShell ghim digest: roster `4×3` khớp `speech-segments.json`, 7 input sai đều fail closed |
+| Fixed-render guards | `PASS` — `render-fixed-speech.mjs` từ chối 6 input sai (non-loopback, pending template, thiếu manifest) và đi tới synthesis với manifest hợp lệ |
+| Readiness path thật | `PASS` — 3 test drive `VieNeuBackend.load()` với bundle tổng hợp: 5 lock binding drift và 3 guard audition/acceptance đều fail closed |
 | Helm candidate | `PASS` local render — mặc định tắt; positive TEST_ONLY fixture và negative prod/lab guards pass |
 | Pre-dial budget guard | `PASS` — `timeoutMilliseconds` trả về baseline `5000`; nâng lên `30000` bị từ chối (thiếu `approvals.performanceRef`, và vẫn thủng budget kể cả khi có); `16000` có measurement ref thì render |
 | SBOM/vulnerability | `RELEASE_BLOCKED` — SPDX 152 entries; Trivy `13 HIGH`, `3 CRITICAL`, `0 fixable`; toàn bộ finding còn lại thuộc Debian 13.6 |
@@ -85,6 +88,7 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 - `deploy/ci/scripts/tts-voice-acceptance-gate.mjs`: validator Owner artifact; template pending và fixture `TEST_ONLY` không có authority.
 - `lab-runbook.md`: lệnh dựng lab, readiness, permission probe, call/retention/rollback procedure.
 - `voice-audition-runbook.md`: profile Compose cô lập và mapping `12200`/`12201`–`12211` để Owner nghe đúng tuyến 8 kHz.
+- `audition-environment.md`: pin của lần render, cơ sở determinism và rủi ro evidence Phase 1 chỉ có một bản.
 - `security-performance.md`: image digest, runtime lock, container/ONNX proof, SBOM, exact residual CVE và performance boundary.
 - `deploy/tts/models/MODELS.lock`: allowlist/hashes và release blockers machine-readable.
 - `artifacts/w-0122-models/`: bundle local đã xác minh, bị Git ignore.

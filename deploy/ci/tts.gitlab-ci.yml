@@ -1,7 +1,8 @@
 # W-0122 — self-hosted TTS candidate gates. This job never downloads model weights and never
 # enables a real-call mode. It validates immutable provenance metadata, the network-free contract
-# image and the fail-closed Helm candidate. Legal, internal mirror, Owner listening and target
-# performance remain separate external gates.
+# image, the fail-closed Helm candidate, and the two lab tools that turn an Owner voice decision
+# into the fixed catalog. Legal, internal mirror, Owner listening and target performance remain
+# separate external gates.
 tts_candidate_selftest:
   stage: validate
   image: docker:27-cli
@@ -20,5 +21,7 @@ tts_candidate_selftest:
     - node deploy/ci/scripts/tts-provenance-gate.mjs --selftest
     - node deploy/ci/scripts/tts-audition-selftest.mjs
     - node deploy/ci/scripts/tts-voice-acceptance-gate.mjs --selftest
+    - node deploy/ci/scripts/tts-fixed-render-selftest.mjs
     - node deploy/ci/scripts/tts-helm-selftest.mjs
     - node deploy/ci/scripts/tts-container-selftest.mjs
+    - node deploy/ci/scripts/lab-converter-selftest.mjs

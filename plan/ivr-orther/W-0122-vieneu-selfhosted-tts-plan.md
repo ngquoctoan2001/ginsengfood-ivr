@@ -6,7 +6,7 @@
 | Trạng thái triển khai | `IN_PROGRESS — LOCAL_IMPLEMENTATION_READY; RELEASE_BLOCKED_BY_EXTERNAL_GATES_AND_BASE_OS_CVES` |
 | Ngày lập | `2026-08-27` |
 | Ngày rà soát/sửa plan | `2026-08-27` |
-| Baseline source đã đọc | `main@f291f44` |
+| Baseline source đã đọc | `main@f291f44` — code thực tế landed trên `54d285d` (sau `cf2d884`, `00a115b`, `54d285d`); không có thay đổi nào trong ba commit đó chạm phạm vi W-0122 |
 | Owner duyệt triển khai | `2026-08-27` |
 | Origin | `UNPLANNED` — owner requested (`2026-08-27`) |
 | Prereq | `W-0106 ACCEPTED`; `W-0108 TESTS_PASS` — còn nghiệm thu audio thật bởi owner; `W-0119 ACCEPTED` — chỉ xác nhận toolchain/sine-tone handoff; `W-0120 ACCEPTED` |
@@ -97,8 +97,8 @@ assembly, prosody, retention và test. Đây là thay đổi C#; phải chạy G
   không được ghi `ACCEPTED` chỉ từ sine tone, unit test hoặc file render thành công.
 - `W-0119`: `ACCEPTED` cho toolchain/handoff bằng sine tone; không chứng minh chất giọng VieNeu.
 - `W-0120`: `ACCEPTED`.
-- `W-0122`: đúng next ID nhưng vẫn `NOT_STARTED` cho tới khi owner phê duyệt và tracker ghi
-  `START` trong một bước riêng.
+- `W-0122`: `IN_PROGRESS` từ `2026-08-27` (tracker `A-0359 START`). Câu "vẫn `NOT_STARTED`" ở
+  bản plan đầu đã hết hiệu lực khi owner duyệt; giữ lại sẽ mâu thuẫn với header và tracker.
 
 ### 2.2 Hợp đồng provider hiện có
 

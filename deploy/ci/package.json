@@ -20,7 +20,9 @@
     "test:tts-voice-acceptance": "node scripts/tts-voice-acceptance-gate.mjs --selftest",
     "test:tts-provenance": "node scripts/tts-provenance-gate.mjs --selftest",
     "test:tts-container": "node scripts/tts-container-selftest.mjs",
-    "test:tts-helm": "node scripts/tts-helm-selftest.mjs"
+    "test:tts-helm": "node scripts/tts-helm-selftest.mjs",
+    "test:tts-fixed-render": "node scripts/tts-fixed-render-selftest.mjs",
+    "test:lab-converter": "node scripts/lab-converter-selftest.mjs"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "12.1.0",

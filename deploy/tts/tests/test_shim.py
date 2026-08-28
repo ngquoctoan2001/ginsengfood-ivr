@@ -8,14 +8,20 @@ import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 import numpy as np
 
 from shim.acceptance import VoiceAcceptanceError, validate_voice_acceptance
-from shim.backend import BackendError, DeterministicTestBackend, _split_text
+from shim.backend import (
+    BackendError,
+    DeterministicTestBackend,
+    VieNeuBackend,
+    _split_text,
+)
 from shim.convert import ConversionError, float32_to_l16
-from shim.model_lock import ModelLockError, verify_bundle
+from shim.model_lock import ModelLockError, sha256_file, verify_bundle
 from shim.server import RequestError, _parse_request
 
 
@@ -151,6 +157,76 @@ class BackendGuardTests(unittest.TestCase):
         self.assertEqual(source.split(), " ".join(chunks).split())
 
 
+# Shared so the acceptance contract and the readiness path are checked against the same shape
+# of Owner artifact rather than two fixtures that can drift apart.
+def owner_acceptance_fixture(voice_config: dict[str, Any]) -> dict[str, object]:
+    selected = {
+        region: next(
+            item for item in voice_config["voices"] if item["region"] == region
+        )
+        for region in ("North", "Central", "South")
+    }
+    selected_ids = {item["voice_id"] for item in selected.values()}
+    return {
+        "schema_version": 1,
+        "work_id": "W-0122",
+        "status": "OWNER_ACCEPTED",
+        "stale_relisten_required": False,
+        "source_commit": voice_config["source_commit"],
+        "model_artifacts": [
+            {
+                "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
+                "revision": voice_config["model_revision"],
+            },
+            {
+                "repo": "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX",
+                "revision": voice_config["codec_revision"],
+            },
+        ],
+        **{
+            field: voice_config[field]
+            for field in (
+                "voice_manifest_sha256",
+                "dependency_lock_sha256",
+                "runtime_lock_sha256",
+                "model_lock_sha256",
+                "audition_script_sha256",
+                "audition_manifest_sha256",
+                "audition_renderer_sha256",
+                "listening_profile_id",
+            )
+        },
+        "listening_route": "ASTERISK_MICROSIP_8KHZ",
+        "listener": "TEST_ONLY_OWNER_FIXTURE",
+        "listened_at": "2026-08-27T00:00:00+07:00",
+        "device_and_lab_route": "TEST_ONLY_ASTERISK_MICROSIP_8KHZ",
+        "approval_reference": "TEST_ONLY_NO_AUTHORITY",
+        "all_11_candidates_listened": True,
+        "selections": {
+            region: {
+                "voice_id": item["voice_id"],
+                "preset": item["preset"],
+                "speaking_rate": item["speaking_rate"],
+                "owner_notes": "TEST_ONLY",
+            }
+            for region, item in selected.items()
+        },
+        "candidate_results": [
+            {
+                "voice_id": item["voice_id"],
+                "region": item["region"],
+                "listened": True,
+                "verdict": (
+                    "SELECTED" if item["voice_id"] in selected_ids else "NOT_SELECTED"
+                ),
+                "notes": "TEST_ONLY",
+            }
+            for item in voice_config["voices"]
+        ],
+        "notes": "TEST_ONLY fixture; never an Owner approval.",
+    }
+
+
 class VoiceAcceptanceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -162,71 +238,7 @@ class VoiceAcceptanceTests(unittest.TestCase):
         )
 
     def fixture(self) -> dict[str, object]:
-        selected = {
-            region: next(
-                item for item in self.voice_config["voices"] if item["region"] == region
-            )
-            for region in ("North", "Central", "South")
-        }
-        selected_ids = {item["voice_id"] for item in selected.values()}
-        return {
-            "schema_version": 1,
-            "work_id": "W-0122",
-            "status": "OWNER_ACCEPTED",
-            "stale_relisten_required": False,
-            "source_commit": self.voice_config["source_commit"],
-            "model_artifacts": [
-                {
-                    "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
-                    "revision": self.voice_config["model_revision"],
-                },
-                {
-                    "repo": "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX",
-                    "revision": self.voice_config["codec_revision"],
-                },
-            ],
-            **{
-                field: self.voice_config[field]
-                for field in (
-                    "voice_manifest_sha256",
-                    "dependency_lock_sha256",
-                    "runtime_lock_sha256",
-                    "model_lock_sha256",
-                    "audition_script_sha256",
-                    "audition_manifest_sha256",
-                    "audition_renderer_sha256",
-                    "listening_profile_id",
-                )
-            },
-            "listening_route": "ASTERISK_MICROSIP_8KHZ",
-            "listener": "TEST_ONLY_OWNER_FIXTURE",
-            "listened_at": "2026-08-27T00:00:00+07:00",
-            "device_and_lab_route": "TEST_ONLY_ASTERISK_MICROSIP_8KHZ",
-            "approval_reference": "TEST_ONLY_NO_AUTHORITY",
-            "all_11_candidates_listened": True,
-            "selections": {
-                region: {
-                    "voice_id": item["voice_id"],
-                    "preset": item["preset"],
-                    "speaking_rate": item["speaking_rate"],
-                    "owner_notes": "TEST_ONLY",
-                }
-                for region, item in selected.items()
-            },
-            "candidate_results": [
-                {
-                    "voice_id": item["voice_id"],
-                    "region": item["region"],
-                    "listened": True,
-                    "verdict": (
-                        "SELECTED" if item["voice_id"] in selected_ids else "NOT_SELECTED"
-                    ),
-                    "notes": "TEST_ONLY",
-                }
-                for item in self.voice_config["voices"]
-            ],
-            "notes": "TEST_ONLY fixture; never an Owner approval.",
-        }
+        return owner_acceptance_fixture(self.voice_config)
 
     def test_exact_owner_acceptance_contract_passes(self) -> None:
         selections = validate_voice_acceptance(self.fixture(), self.voice_config)
@@ -250,6 +262,138 @@ class VoiceAcceptanceTests(unittest.TestCase):
             mutate(candidate)
             with self.subTest(mutation=name), self.assertRaises(VoiceAcceptanceError):
                 validate_voice_acceptance(candidate, self.voice_config)
+
+
+def _write_json(path: Path, payload: object) -> None:
+    path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+
+class VieNeuBackendVerificationTests(unittest.TestCase):
+    """The readiness path CI never used to reach.
+
+    The container selftest starts the shim with the deterministic backend, so nothing exercised
+    VieNeuBackend.load() - the chain that compares the two dependency locks, the model lock, the
+    upstream voice manifest and the Owner acceptance artifact before /health/ready opens. That is
+    how a line-ending difference could make one build of an image ready and the next build of the
+    same source permanently 503, with every test still green.
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        source_path = Path(__file__).parents[1] / "shim" / "voices.json"
+        runtime_path = Path("/opt/ivr-tts/shim/voices.json")
+        voice_config_path = runtime_path if runtime_path.is_file() else source_path
+        cls.voice_config = json.loads(voice_config_path.read_text(encoding="utf-8"))
+
+    def build(self, root: Path) -> dict[str, str]:
+        """A synthetic but internally consistent candidate: real roster, throwaway artifacts."""
+        bundle = root / "bundle"
+        bundle.mkdir()
+        payload = b"locked-model-artifact"
+        (bundle / "model.bin").write_bytes(payload)
+
+        upstream = root / "voices_v3_turbo.json"
+        _write_json(upstream, {
+            "presets": {
+                item["preset"]: {"synthetic": True}
+                for item in self.voice_config["voices"]
+            },
+        })
+        runtime_lock = root / "runtime-requirements.lock"
+        runtime_lock.write_text("synthetic-runtime-lock", encoding="utf-8")
+        dependency_lock = root / "uv.lock"
+        dependency_lock.write_text("synthetic-dependency-lock", encoding="utf-8")
+
+        lock_path = root / "MODELS.lock"
+        _write_json(lock_path, {
+            "schema_version": 1,
+            "voice_manifest_sha256": sha256_file(upstream),
+            "artifacts": [{
+                "bundle_path": "model.bin",
+                "size_bytes": len(payload),
+                "sha256": hashlib.sha256(payload).hexdigest(),
+            }],
+        })
+
+        config = deepcopy(self.voice_config)
+        config["voice_manifest_sha256"] = sha256_file(upstream)
+        config["model_lock_sha256"] = sha256_file(lock_path)
+        config["runtime_lock_sha256"] = sha256_file(runtime_lock)
+        config["dependency_lock_sha256"] = sha256_file(dependency_lock)
+        config_path = root / "voices.json"
+        _write_json(config_path, config)
+
+        acceptance = owner_acceptance_fixture(config)
+        acceptance_path = root / "voice-acceptance-manifest.json"
+        _write_json(acceptance_path, acceptance)
+        accepted = sorted(
+            selection["voice_id"] for selection in acceptance["selections"].values()
+        )
+        return {
+            "VIE_NEU_BUNDLE_ROOT": str(bundle),
+            "VIE_NEU_MODEL_LOCK": str(lock_path),
+            "VIE_NEU_VOICE_CONFIG": str(config_path),
+            "VIE_NEU_UPSTREAM_VOICE_MANIFEST": str(upstream),
+            "VIE_NEU_RUNTIME_LOCK": str(runtime_lock),
+            "VIE_NEU_DEPENDENCY_LOCK": str(dependency_lock),
+            "VIE_NEU_VOICE_ACCEPTANCE_MANIFEST": str(acceptance_path),
+            "VIE_NEU_ALLOWED_VOICE_IDS": ",".join(accepted),
+            "VIE_NEU_AUDITION_MODE": "0",
+            "IVR_EXECUTION_MODE": "PRODUCTION_REAL",
+        }
+
+    def load_expecting_failure(self, environment: dict[str, str]) -> str:
+        with patch.dict(os.environ, environment, clear=False):
+            backend = VieNeuBackend()
+            with self.assertRaises(BackendError) as raised:
+                backend.load()
+        return str(raised.exception)
+
+    def test_whole_chain_is_verified_before_the_engine_is_touched(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            # Reaching the engine at all means every lock, manifest and acceptance check passed;
+            # the synthetic bundle holds no real weights, so the engine is where it stops.
+            message = self.load_expecting_failure(self.build(Path(directory)))
+        self.assertEqual("model load failed", message)
+
+    def test_lock_binding_drift_fails_closed(self) -> None:
+        cases = [
+            ("voice manifest drift", "VIE_NEU_UPSTREAM_VOICE_MANIFEST", None),
+            ("voice allowlist drift", "VIE_NEU_VOICE_CONFIG", "voice_manifest_sha256"),
+            ("model lock binding drift", "VIE_NEU_VOICE_CONFIG", "model_lock_sha256"),
+            ("runtime lock binding drift", "VIE_NEU_VOICE_CONFIG", "runtime_lock_sha256"),
+            ("dependency lock binding drift", "VIE_NEU_VOICE_CONFIG", "dependency_lock_sha256"),
+        ]
+        for message, variable, field in cases:
+            with self.subTest(binding=message), tempfile.TemporaryDirectory() as directory:
+                environment = self.build(Path(directory))
+                target = Path(environment[variable])
+                if field is None:
+                    _write_json(target, {"presets": {}})
+                else:
+                    payload = json.loads(target.read_text(encoding="utf-8"))
+                    payload[field] = "0" * 64
+                    _write_json(target, payload)
+                self.assertEqual(message, self.load_expecting_failure(environment))
+
+    def test_audition_and_acceptance_guards_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            environment = self.build(Path(directory))
+            cases = [
+                ("audition mode forbidden", {"VIE_NEU_AUDITION_MODE": "1"}),
+                ("voice acceptance missing or invalid", {
+                    "VIE_NEU_VOICE_ACCEPTANCE_MANIFEST": str(Path(directory) / "absent.json"),
+                }),
+                ("accepted voice routing drift", {
+                    "VIE_NEU_ALLOWED_VOICE_IDS": "not-an-accepted-voice",
+                }),
+            ]
+            for message, override in cases:
+                with self.subTest(guard=message):
+                    self.assertEqual(
+                        message,
+                        self.load_expecting_failure({**environment, **override}),
+                    )
 
 
 if __name__ == "__main__":

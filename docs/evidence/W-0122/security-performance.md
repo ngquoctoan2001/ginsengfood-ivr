@@ -25,7 +25,7 @@ phải dùng model bundle từ internal mirror đã duyệt.
 
 | Gate | Kết quả |
 | --- | --- |
-| Shim unit/negative | `12/12 PASS`, gồm positive + mutation tests cho Owner voice-acceptance contract |
+| Shim unit/negative | `15/15 PASS` — positive + mutation cho Owner voice-acceptance contract, cộng ba test mới đi thẳng vào readiness path thật (`VieNeuBackend.load()`). Đây là chính bộ test mà container selftest chạy bên trong image, không phải một lượt đếm riêng |
 | Container contract | `PASS` — non-root, read-only, no network, no port |
 | Runtime imports | `PASS` — NumPy, ONNX Runtime, SEA-G2P, soxr, tokenizers |
 | Minimal content | `PASS` — `uv` cùng 8 nhóm upstream UI/deploy/example/training/test/reference-sample path không tồn tại trong runtime |
