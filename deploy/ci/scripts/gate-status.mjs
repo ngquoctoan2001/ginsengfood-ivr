@@ -141,8 +141,33 @@ async function collect() {
     [],
     "the tracker parser read something that is not a status; the column map has drifted.");
 
-  const decisionIds = [...decisions.matchAll(/^\| `(OD-V1-\d{2})`/gmu)].map((match) => match[1]);
-  assert(decisionIds.length > 0, "no OD-V1-* decisions found in the register.");
+  // Read every row, whatever prefix it carries. Matching a single prefix is how OD-VOICE-01..05
+  // were added on 27/08 and never counted: the board reported 21 open decisions while the
+  // register held 26, and the five it dropped were the production voice ones.
+  const decisionRows = [...decisions.matchAll(/^\| `(OD-[A-Z0-9-]+)` \|(.+)$/gmu)].map((match) => {
+    const cells = match[2].split("|");
+    assert(
+      cells.length >= 4,
+      `register row ${match[1]} does not have the expected Decision/Owner/Current/Closure columns.`);
+    return { id: match[1], current: cells[2] };
+  });
+  assert(decisionRows.length > 0, "no OD-* decisions found in the register.");
+
+  // The pattern has to keep covering the file. A row it cannot read is a decision the board would
+  // drop without saying so, which is the failure this check exists to prevent.
+  const everyRowId = [...decisions.matchAll(/^\| `([^`]+)`/gmu)].map((match) => match[1]);
+  const readIds = decisionRows.map((row) => row.id);
+  assert.deepEqual(
+    everyRowId.filter((id) => !readIds.includes(id)),
+    [],
+    "the register contains decision rows the id pattern does not match. They would be left out\n"
+    + "of gate-status.yaml silently; widen the pattern rather than letting the board under-report.");
+
+  // Counting every row would swap under-reporting for over-reporting: three voice decisions are
+  // already closed, and a field named open_decisions must not carry them.
+  const decisionIds = decisionRows
+    .filter((row) => !/\bCLOSED\b/u.test(row.current))
+    .map((row) => row.id);
 
   return { gates, work, decisions: decisionIds };
 }
