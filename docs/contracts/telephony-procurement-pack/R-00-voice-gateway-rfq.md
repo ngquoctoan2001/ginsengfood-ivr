@@ -4,7 +4,7 @@ External work `W-0008` · quyết định `OD-V1-09`, `OD-V1-18` · gate `G-LAB-
 
 > ⛔ **ĐỌC TRƯỚC — đây không phải hồ sơ mua "GSM gateway".**
 >
-> Việt Nam **tắt sóng 2G ngày 15/09/2026** và **tắt sóng 3G ngày 30/09/2026**. Mọi thiết bị bán dưới tên "GSM gateway" (2G) hoặc "3G/WCDMA gateway" đều **hết dùng được trong vòng một tháng kể từ hôm nay**.
+> Việt Nam **tắt sóng 2G ngày 15/09/2026**. **3G chạy tới tháng 9/2028** — Cục Viễn thông đặt lộ trình dừng hẳn 3G năm 2028, không phải 2026. Thiết bị bán dưới tên "GSM gateway" (2G thuần) hết dùng được từ 15/09/2026; thiết bị 3G/WCDMA còn khoảng hai năm. Nguồn: [VNPT](https://vnpt.vn/gioi-thieu/tin-tuc/15-9-2026-he-thong-2g-se-ngung-hoat-dong-tai-viet-nam.html) (2G) · [VietnamNet](https://vietnamnet.vn/thang-9-2028-se-khai-tu-cong-nghe-3g-tai-viet-nam-2303408.html) và [Nhân Dân](https://nhandan.vn/viet-nam-se-tat-song-3g-vao-nam-2028-post819850.html) (3G).
 >
 > Chúng tôi chỉ xét thiết bị **4G/LTE có VoLTE**. Thiết bị 4G nhưng thoại phải rơi về CSFB (2G/3G) cũng bị loại vì lý do y hệt.
 
@@ -45,7 +45,7 @@ Vì vậy thiết bị **nói SIP chuẩn** được ưu tiên hơn hẳn thiế
 
 | **#** | **Yêu cầu** | **Vì sao đây là điều kiện loại trừ** | **Thiết bị của quý công ty** |
 | --- | --- | --- | --- |
-| **0** | **Thoại chạy trên VoLTE (4G).** Nêu rõ model có module VoLTE hay chỉ có LTE data + CSFB. | 2G tắt 15/09/2026, 3G tắt 30/09/2026. Thiết bị 2G/3G, hoặc 4G nhưng thoại rơi về CSFB, đều ngừng hoạt động trong vòng một tháng. **Đây là điều kiện đầu tiên; không đạt thì không cần trả lời các mục còn lại.** | `<điền>` |
+| **0** | **Thoại chạy trên VoLTE (4G).** Nêu rõ model có module VoLTE hay chỉ có LTE data + CSFB. | 2G tắt **15/09/2026**, 3G tắt **tháng 9/2028**. Thiết bị 2G thuần chết từ 15/09/2026. Thiết bị 4G dùng CSFB **không** chết ngay: sau khi 2G tắt nó còn rơi về 3G tới 2028 — nhưng đó là mua một thiết bị có hạn dùng đã đếm ngược, cho một hệ thống dự kiến chạy quá mốc đó. Vì vậy VoLTE là bắt buộc, lý do là **horizon**, không phải "chết sau một tháng". **Đây là điều kiện đầu tiên; không đạt thì không cần trả lời các mục còn lại.** | `<điền>` |
 | 1 | Có API kiểm tra sức khoẻ **từng kênh**, và **đọc ngược lại được cờ trạng thái ghi âm**. | Chính sách của chúng tôi khoá ghi âm ở trạng thái TẮT. Không đọc ngược được thì không chứng minh được nó đang tắt. | `<điền>` |
 | 2 | Bảng **mã kết thúc cuộc gọi (call disposition)** phân biệt được 11 giá trị ở **mục 4** bên dưới. | Ánh xạ nhầm "khách bấm nút từ chối" thành "khách huỷ đơn" là huỷ đơn của một khách không hề yêu cầu huỷ. | `<điền>` |
 | 3 | DTMF theo **RFC 2833/4733**; nêu rõ có bắt được phím **trong lúc đang phát thoại** (barge-in) không. | Không có barge-in thì cuộc gọi dài hơn, tỉ lệ khách cúp máy giữa chừng tăng. | `<điền>` |
@@ -72,7 +72,7 @@ Vì vậy thiết bị **nói SIP chuẩn** được ưu tiên hơn hẳn thiế
 | 10 | AudioError | Lỗi phát thoại. | `<điền>` | Không |
 | 11 | DtmfError | Lỗi bắt phím. | `<điền>` | Không |
 
-**Cột cuối là cột đắt tiền nhất.** Mỗi khách chỉ được làm phiền tối đa 2 lần. Dòng 1–4 là những ca khách **đã có cơ hội nghe máy thật**, nên tiêu một lượt. Dòng 5–11 là lỗi của **thiết bị hoặc mạng**, không được tính vào lượt của khách — nếu SIM hỏng hai lần mà bị ghi thành "khách không nghe máy", đơn của một khách chưa từng nghe chuông lần nào sẽ bị đóng.
+**Cột cuối là cột đắt tiền nhất.** Số lần được gọi mỗi khách **chưa được ký**: `T-09` còn trạng thái `OPEN`, và ngay các bản đề xuất trong đó cũng chưa thống nhất với nhau — Giờ Vàng 2 lần, còn 24/7 là **3** lần. Vendor **không cần** đáp ứng con số nào ở đây. Điều chúng tôi cần là thiết bị **trả về disposition đủ phân biệt** để bên chúng tôi tự đếm: phân biệt được "khách đã có cơ hội nghe máy" với "lỗi thiết bị/mạng" là yêu cầu thật, còn con số lần gọi là chuyện nội bộ chưa chốt. Ví dụ dưới dùng hai lần chỉ để minh hoạ cách phân loại. Dòng 1–4 là những ca khách **đã có cơ hội nghe máy thật**, nên tiêu một lượt. Dòng 5–11 là lỗi của **thiết bị hoặc mạng**, không được tính vào lượt của khách — nếu SIM hỏng hai lần mà bị ghi thành "khách không nghe máy", đơn của một khách chưa từng nghe chuông lần nào sẽ bị đóng.
 
 **Nếu thiết bị trả mã nguyên nhân Q.850**, xin nói rõ — như vậy là đủ, không cần bảng riêng. Chúng tôi đã ánh xạ sẵn các cause sau: `16` → Answered, `17` → Busy, `18`/`19` → RingTimeout, `21` → Rejected, `1`/`3`/`20` → Unreachable, `28` → InvalidDestination, `34`/`38`/`41`/`42`/`44` → lỗi mạng.
 
@@ -96,7 +96,7 @@ Xin trả lời rõ: thiết bị **có cờ phân biệt hộp thư thoại / A
 
 ## 6. Chín câu hỏi xin trả lời bằng văn bản
 
-0. **Model này gọi thoại bằng VoLTE hay bằng CSFB?** Sau 15/09/2026 (tắt 2G) và 30/09/2026 (tắt 3G), model còn gọi được không? Xin trả lời bằng tên model cụ thể, không trả lời bằng tên dòng sản phẩm.
+0. **Model này gọi thoại bằng VoLTE hay bằng CSFB?** Sau 15/09/2026 (tắt 2G) model còn gọi được không, và sau **tháng 9/2028** (tắt 3G) thì sao? Xin trả lời bằng tên model cụ thể, không trả lời bằng tên dòng sản phẩm.
 1. Thiết bị trả về những **mã kết thúc cuộc gọi** nào? Xin gửi bảng đầy đủ.
 2. Trong bảng đó, có phân biệt được **khách chủ động bấm từ chối** với **đổ chuông không ai nghe** không? Nếu gộp thì gộp thành mã gì?
 3. Có cờ nào cho biết cuộc gọi rơi vào **hộp thư thoại** không, hay nó cũng báo là "answered"?
@@ -137,7 +137,7 @@ Trả lời "có, qua tuỳ chỉnh" cho bất kỳ mục nào — xin nêu rõ 
 | `Rejected` → không nghe máy + cờ cần review | `MapNoAnswer("REJECTED_REVIEW_REQUIRED", humanReviewRequired: true)` — [`DispositionMapper.cs:76`](../../../src/Ivr.Domain/Confirmation/DispositionMapper.cs) |
 | Danh sách Q.850 ở mục 4 | `MapHangup` — [`AsteriskAriSimGateway.cs:361`](../../../src/Ivr.Infrastructure/Telephony/AsteriskAriSimGateway.cs) |
 
-**Sửa 28/08/2026 — mốc tắt sóng.** Bản đầu của file này (và `§13.2` gốc) viết "GSM Gateway", tức thiết bị 2G. Tra lại nguồn chính thức: 2G tắt toàn quốc **15/09/2026**, 3G tắt **30/09/2026**. Toàn bộ hồ sơ đổi sang **4G/VoLTE**, thêm điều kiện loại trừ #0 và câu hỏi #0. `§13.2` của tài liệu Module 8 **vẫn còn dùng từ "GSM" và chưa có ràng buộc VoLTE** — cần sửa nguồn, nếu không lần sau lại gộp ra bản sai.
+**Sửa 28/08/2026 — mốc tắt sóng.** Bản đầu của file này (và `§13.2` gốc) viết "GSM Gateway", tức thiết bị 2G. **Đính chính lần hai, cùng ngày (`W-0135`):** lượt sửa đầu ghi 3G tắt `30/09/2026` và tự khai đã tra nguồn chính thức. Con số đó **sai hai năm** — 3G chạy tới **tháng 9/2028**. Mốc 2G `15/09/2026` tra lại thấy đúng, giữ nguyên. Nguồn: [VNPT](https://vnpt.vn/gioi-thieu/tin-tuc/15-9-2026-he-thong-2g-se-ngung-hoat-dong-tai-viet-nam.html) (2G) · [VietnamNet](https://vietnamnet.vn/thang-9-2028-se-khai-tu-cong-nghe-3g-tai-viet-nam-2303408.html) và [Nhân Dân](https://nhandan.vn/viet-nam-se-tat-song-3g-vao-nam-2028-post819850.html) (3G). Toàn bộ hồ sơ đổi sang **4G/VoLTE**, thêm điều kiện loại trừ #0 và câu hỏi #0. `§13.2` của tài liệu Module 8 **vẫn còn dùng từ "GSM" và chưa có ràng buộc VoLTE** — cần sửa nguồn, nếu không lần sau lại gộp ra bản sai.
 
 **Không nêu trong phần gửi vendor vì chưa chốt nội bộ:** số kênh cho pilot (`M8-OD-A`, đang bị chặn bởi `M8-OD-C`); thời gian chờ DTMF (tài liệu ghi 15s, cấu hình lab đang 60s — nên chỉ hỏi *dải cấu hình*, không tuyên bố con số); attempt policy còn ở version `mock-lab-v1` chưa ký.
 

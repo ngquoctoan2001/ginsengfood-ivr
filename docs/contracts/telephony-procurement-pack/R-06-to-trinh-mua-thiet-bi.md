@@ -32,9 +32,9 @@ Chưa có nó thì mọi thứ đã làm vẫn chỉ là chạy trên giấy.
 | Mốc | Ngày | Ảnh hưởng |
 | --- | --- | --- |
 | Nhà nước **tắt sóng 2G** toàn quốc | **15/09/2026** | Thiết bị đời cũ (loại phổ biến, rẻ nhất trên thị trường) **ngừng hoạt động hoàn toàn** |
-| Nhà nước **tắt sóng 3G** | **30/09/2026** | Thiết bị đời giữa cũng ngừng hoạt động |
+| Nhà nước **tắt sóng 3G** | **tháng 9/2028** | Thiết bị đời giữa còn khoảng hai năm, không chết cùng lúc với 2G |
 
-Đây là lý do tờ trình này ghi rõ **"4G/VoLTE"**. Phần lớn thiết bị đang bán trên thị trường với tên "GSM gateway" là loại 2G — rẻ hơn, nhưng mua về sẽ thành sắt vụn trong vòng chưa tới một tháng.
+Đây là lý do tờ trình này ghi rõ **"4G/VoLTE"**. Phần lớn thiết bị đang bán với tên "GSM gateway" là loại 2G — rẻ hơn, nhưng mua về sẽ thành sắt vụn từ 15/09/2026. Thiết bị 3G, và thiết bị 4G phải rơi về CSFB, **không** chết cùng lúc: chúng còn dùng được tới **tháng 9/2028**. Mua chúng vẫn là mua một thiết bị đã đếm ngược hạn dùng cho một hệ thống dự kiến chạy quá mốc đó — đó mới là lý do loại, không phải "chết trong một tháng". Nguồn: [VNPT](https://vnpt.vn/gioi-thieu/tin-tuc/15-9-2026-he-thong-2g-se-ngung-hoat-dong-tai-viet-nam.html) (2G) · [VietnamNet](https://vietnamnet.vn/thang-9-2028-se-khai-tu-cong-nghe-3g-tai-viet-nam-2303408.html) và [Nhân Dân](https://nhandan.vn/viet-nam-se-tat-song-3g-vao-nam-2028-post819850.html) (3G).
 
 **Rủi ro nếu duyệt chậm:** thời gian đặt hàng thiết bị viễn thông tính bằng tuần. Nếu quyết sau mốc trên, thị trường sẽ dồn vào hàng 4G và giá cùng thời gian chờ đều tăng.
 
@@ -43,11 +43,13 @@ Chưa có nó thì mọi thứ đã làm vẫn chỉ là chạy trên giấy.
 - Toàn bộ hạng mục nghiệm thu của dự án đứng lại — không có thiết bị thì không có cuộc gọi thật, không có cuộc gọi thật thì không nghiệm thu được.
 - Không thể biết hệ thống chịu được bao nhiêu cuộc gọi cùng lúc. Con số đó quyết định **lần mua lớn sau này** tốn bao nhiêu. Mua thiết bị thử nghiệm nhỏ bây giờ chính là để **không mua thừa** ở lần sau.
 
-## 5. Vì sao chọn 4 kênh, không phải 1 kênh cho rẻ
+## 5. Đề xuất 4 kênh — một lựa chọn cần báo giá, chưa phải con số đã chốt
 
 Loại 1 kênh rẻ hơn, nhưng chỉ gọi được **một cuộc tại một thời điểm** — nên không kiểm chứng được điều quan trọng nhất: nhiều cuộc gọi chạy song song có ổn định không.
 
-Đó chính là con số quyết định lần mua sau. Mua 1 kênh bây giờ thì lần sau vẫn phải mua lại để đo. Chênh lệch giá giữa 1 kênh và 4 kênh nhỏ hơn nhiều so với việc mua hai lần.
+Đó chính là con số quyết định lần mua sau. Mua 1 kênh bây giờ thì lần sau vẫn phải mua lại để đo.
+
+> **Chưa chốt (`W-0135`).** `README` của chính bộ hồ sơ này ghi *"Không chốt số kênh cho pilot"*. Con số **4** ở đây là **đề xuất**, không phải kết luận đã được model năng lực chứng minh — model tự khai `UNCALIBRATED` và không được dùng để chốt mua (`W-0008`). Câu "chênh lệch giá nhỏ hơn mua hai lần" cũng **chưa có báo giá nào chống lưng**. Trước khi ký: lấy báo giá cho **cả phương án 1 kênh và 4 kênh**, rồi Owner chọn dựa trên chênh lệch thật.
 
 ## 6. Phạm vi của lần mua này
 

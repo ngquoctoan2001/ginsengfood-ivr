@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 128 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 133 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 15
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 74
+  rows_without_evidence_pack: 79
 
 gates:
   - id: "G-CONTRACT"
@@ -379,10 +379,30 @@ work:
     prompt: "Intake rejection-reason traceability (Origin=UNPLANNED, cross-audit remediation)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0129/README.md"
+  - id: "W-0130"
+    prompt: "Freeze exact candidate W-0128/W-0129 (Origin=UNPLANNED, cross-audit Gate 0; reservation của luồng W-0129)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0130/README.md"
   - id: "W-0131"
     prompt: "Exact M8-P0-009 capacity overload acceptance test (Origin=UNPLANNED, cross-audit F-08)"
-    status: "IN_PROGRESS"
-    evidence: null
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0131/README.md"
+  - id: "W-0132"
+    prompt: "Single declared source cho call-duration assumption (Origin=UNPLANNED, B1 sub-task 1 phần làm được trước W-0008)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0132/README.md"
+  - id: "W-0133"
+    prompt: "Escalation Owner: đơn vị volume + độ dài phiên Giờ Vàng (Origin=UNPLANNED, B1 sub-task 2)"
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0133/README.md"
+  - id: "W-0134"
+    prompt: "Khai báo độ dài phiên như input chưa-có-đáp-án + gate chặn thay ngây thơ (Origin=UNPLANNED, OD-19)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0134/README.md"
+  - id: "W-0135"
+    prompt: "Sửa sự thật trong hồ sơ procurement (Origin=UNPLANNED, cross-audit Gate 1 / F-07,F-08,F-09)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0135/README.md"
   - id: "W-0029"
     prompt: "P4-1"
     status: "TESTS_PASS"
