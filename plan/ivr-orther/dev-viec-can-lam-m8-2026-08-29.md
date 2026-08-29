@@ -2,7 +2,9 @@
 
 **Ngày rà soát:** 29/08/2026
 
-**Snapshot kiểm tra:** main @ **0baed74cd384cd661aed068c263a92ef97ead1f4**
+**Snapshot đối chiếu ban đầu:** main @ **0baed74cd384cd661aed068c263a92ef97ead1f4**
+
+**Cập nhật thực thi gần nhất:** `W-0143` trên baseline `main@b082ed1`; trạng thái hiện hành lấy từ tracker/readiness mirror, không lấy từ snapshot ban đầu.
 
 **Mục đích:** dùng để phản hồi bản giao việc cũ và tiếp tục công việc hôm nay/tuần sau.
 
@@ -28,6 +30,7 @@
 | “Chỉ có main branch” | **Sai thực tế Git.** Repo còn branch local/remote khác. | Không dùng nhận định này làm bằng chứng phạm vi. |
 | Intake/callback “không đổi một byte” | **Sai theo literal diff.** Có thay đổi mô tả/comment/admin; wire shape chính vẫn giữ. | Chỉ được nói **wire shape không đổi**, và contract vẫn là draft. |
 | Không được sửa file V0.3 Markdown | **Sai phạm vi bảo toàn.** Vùng bất biến là docs/documents, không phải file clean Markdown đang dùng. | Được sửa tài liệu clean khi có bằng chứng; không tự ý sửa business source bất biến. |
+| B4/M8-03 phải “ký ownership rồi bổ sung audit-evidence/capacity-incident endpoints” | **Lỗi thời và giao trùng.** S-03 phía M8 đã ký; W-0128/IR-06 đã giao identity/UI cho M3. Dashboard đã trả capacity incidents; call-job detail đã trả evidence/audit refs; OpenAPI, tests và reference UI đều có. | Không thêm route/UI để diễn lại cái đã tồn tại. M8 bàn giao exact route/field/test contract; M3/Security/Platform phải ký và chạy shared evidence. Route mới chỉ mở khi có signed use case + data/security contract. |
 
 **Phản hồi cần gửi lại bên giao việc:** mọi đầu việc phải chỉ ra source of truth, owner có quyền quyết định, dependency và bằng chứng hoàn tất. Các câu kiểu “đã chuẩn”, “không phải chờ” hoặc phần trăm tự ước lượng sẽ bị bác bỏ nếu không có gate tương ứng.
 
@@ -42,7 +45,7 @@
   - OpenAPI lint/validate/drift: pass.
   - Traceability: **TEST_TRACEABILITY_CURRENT=466**.
 - Capacity self-test chỉ đạt **PASS_UNCALIBRATED**; mô hình 40/50/60 giây chưa được thay bằng dữ liệu thật.
-- Readiness hiện vẫn ở **Rung 0**; readiness board ghi **8/139 ACCEPTED** sau W-0141.
+- Readiness hiện vẫn ở **Rung 0**; readiness board ghi **8/141 ACCEPTED** sau W-0143.
 - Gate mirror hiện có **11 external gates** và **23 open decisions**.
 - **REAL_CUSTOMER_CALL_ALLOWED=NO**.
 
@@ -271,8 +274,8 @@ Kết quả:
 |---|---|---|---|
 | M8-01 Capacity calibration | B1 | **DATA_INTAKE_READY / BLOCKED_EXTERNAL / CALIBRATION_NOT_RUN** | W-0142 đã sửa đường calibrated để không tính cooldown hai lần và khóa schema/stop rule. Còn phải nhận W-0008 per-attempt timing, M3 arrival buckets/session, production attempt policy + outcome rate và Infra reserve/failure factor; sau đó mới thay assumption, chạy calibrated model và trình Owner chốt kênh. PT-CAP-02 đã pass nhưng không phải capacity measurement. |
 | M8-02 TTS production closure | B3 | **LOCAL_HANDOFF_READY / OWNER/LEGAL/SECURITY/PLATFORM_REQUIRED** | Local gate đã fail-closed đúng authority; handoff pack đã khóa. Vẫn phải hoàn thành listening, 6 MicroSIP calls, retention/rollback, target hardware, mirror/topology và CVE disposition trước khi bật production config. |
-| M8-03 Admin audit/capacity surface | B4, liên quan admin handoff trong C6 | OWNER_SIGNOFF_REQUIRED | Ký ownership trước. Nếu M8 sở hữu read API thì bổ sung audit-evidence/capacity-incident endpoints; nếu M3 sở hữu UI thì bàn giao contract để M3 triển khai. Không làm song trùng. |
-| M8-04 Production telephony adapter | B5 | BLOCKED_EXTERNAL | Chốt vendor, trust boundary, credential custody, production resolver và disposition mapping; sau đó mới triển khai gateway/health. Sửa chính sách auto-disable thành 3 lỗi trong cửa sổ 10 phút nếu Owner ký. |
+| M8-03 Admin audit/capacity surface | B4, liên quan admin handoff trong C6 | **M8_LOCAL_COMPLETE / EXISTING_SURFACE_VERIFIED / M3_SECURITY_ACCEPTANCE_REQUIRED** | W-0143 xác nhận endpoint/field/test đã tồn tại và bác yêu cầu làm lại. M3 phải nhận IR-06 §4A, regenerate client, giữ token trong BFF, map role→tier và chạy shared E2E; Security/Platform phải giao custody/network/rotation evidence. Không thêm raw/global audit-evidence hoặc capacity route nếu chưa có signed use case/data contract. |
+| M8-04 Production telephony adapter | B5 | **DT04_LOCAL_COMPLETE / PRODUCTION_ADAPTER_BLOCKED_EXTERNAL** | W-0144 đã sửa/persist policy auto-disable 3 lỗi theo từng kênh trong cửa sổ 10 phút và phủ provider failure + lease-expiry. Production adapter vẫn chưa được phép viết: phải có vendor đã chọn, vendor code/disposition matrix, recording-off proof, trust boundary, resolver/credential custody và Security/Platform sign-off. |
 | M8-05 Program/result contract sign-off | C1, C3 | DRAFT_SIGNOFF_REQUIRED | M3 ký program mapping, policy version và 11-result taxonomy hiện hành. Không phát minh result code mới. |
 | M8-06 Upstream session trace | C4, C5, phần C7 | CONTRACT_DECISION_REQUIRED | Chọn đúng một field name/type/nullability/owner; nêu semantics cho Golden Hour và 24/7; sau chữ ký mới propagate qua intake, DB, jobs, incidents và tests. |
 | M8-07 Target V1 shared callback | C8, C9 | LOCAL_CANDIDATE_VERIFIED / SHARED_E2E_BLOCKED | M3 cung cấp consumer, auth/token custody, reachable sandbox và acknowledgement; sau đó chạy shared E2E trước khi gỡ fail-closed delivery guard. |
@@ -304,6 +307,55 @@ Kết quả:
 >
 > Chữ ký xác nhận handoff và stop rule; không ký thay external owner và không phê duyệt số kênh.
 
+### M8-03 — W-0143 admin audit/capacity surface reconciliation
+
+> ## **HANDOFF M8-03 — SURFACE ĐÃ CÓ; KHÔNG GIAO IVR LÀM LẠI**
+>
+> - **Kết luận:** mô tả cũ “ký ownership rồi bổ sung endpoint” đã lỗi thời. S-03 phía M8 đã ký;
+>   W-0128/IR-06 §4A đã khóa M3 sở hữu operator identity/UI và IVR sở hữu admin API.
+> - **Capacity:** `GET /dashboard` đã trả `open_incidents` + `missed_deadline_count`; integration
+>   test đã seed/assert capacity incident và reference dashboard đã render bảng incident.
+> - **Audit/evidence:** `GET /call-jobs/{ivrCallJobId}/detail` đã trả `evidence_refs` +
+>   `audit_refs`; integration test và reference call-detail UI đã dùng trực tiếp.
+> - **Không làm:** không thêm endpoint tổng quát để dump audit/evidence; không dựng hoặc deploy
+>   IVR-hosted UI; không đưa admin token xuống browser; không nhận lại identity/RBAC của M3.
+> - **M3 phải làm:** ký §4A, regenerate client draft.22, map role/claim → tier, giữ token trong BFF,
+>   map actor từ authenticated subject và chạy shared positive/negative E2E.
+> - **Security/Platform phải làm:** cung cấp secret custody/rotation, selector/NetworkPolicy/ingress
+>   thật và credential smoke. Chưa có các artifact này thì không được ghi `ACCEPTED`.
+> - **Evidence/contract handoff:** [W-0143](../../docs/evidence/W-0143/README.md).
+>
+> **Trạng thái:** **`EVIDENCE_SUBMITTED / M3_SECURITY_ACCEPTANCE_REQUIRED`**.
+>
+> **Người ký:** **Tôi — Module 8 / Project Owner** · **29/08/2026**.
+>
+> Chữ ký này xác nhận phần IVR và stop rule; không thay chữ ký M3, Security, Platform hoặc Privacy.
+
+### M8-04 — W-0144 DT-04 window enforcement và production-adapter preflight
+
+> ## **HANDOFF M8-04 — DT-04 ĐÃ SỬA; PRODUCTION ADAPTER VẪN BỊ CHẶN**
+>
+> - **Đã làm:** thêm `failure_window_started_at` nullable; dùng một policy chung cho provider failure
+>   và lease-expiry; lỗi thứ ba trong 10 phút chuyển `HEALTH_FAILED`; healthy hoặc khoảng cách hơn
+>   10 phút reset. Migration up/down và compatibility gate đã chạy trên PostgreSQL.
+> - **Đã test:** provider failure trong/hết cửa sổ, healthy reset, lease-expiry chạm ngưỡng và chaos
+>   `CHAOS-SIM-03`. Không dùng test mock/chaos này để giả nhận là đã quay qua vendor thật.
+> - **Không làm:** không dựng `ProductionSimGateway`, không nối E.164/resolver, không thêm secret,
+>   không đo caller-ID/DTMF/recording/capacity và không bật `PRODUCTION_REAL`.
+> - **Bên giao task phải cung cấp:** tên + API/spec/credential sandbox của vendor; bảng code thô →
+>   11 disposition; xác nhận recording OFF; resolver/trust-boundary đã Security ký; Vault/KMS owner,
+>   rotation/audit; caller-ID/DTMF/health/disable capability; kết quả lab R-02 và scorecard R-04.
+> - **Reject thẳng:** “chọn vendor sau”, screenshot marketing, credential gửi tay, mapping suy đoán,
+>   hoặc yêu cầu code production trước khi các artifact trên tồn tại.
+> - **Evidence:** [W-0144](../../docs/evidence/W-0144/README.md).
+>
+> **Trạng thái:** **`TESTS_PASS / DT04_LOCAL_COMPLETE / PRODUCTION_ADAPTER_BLOCKED_EXTERNAL`**.
+>
+> **Người ký:** **Tôi — Module 8 / Project Owner** · **29/08/2026**.
+>
+> Chữ ký phê duyệt semantics DT-04 và phần local; không ký thay vendor, Security, Platform,
+> Procurement hoặc Release.
+
 ---
 
 ## 6. Thứ tự triển khai tuần sau
@@ -312,7 +364,7 @@ Chỉ triển khai nhánh tương ứng khi gate của nhánh đó đã có ch�
 
 1. **Contract trước code:** chốt M8-05, M8-06, M8-08, M8-09, M8-10 và M8-11.
 2. **Schema/OpenAPI/migration sau chữ ký:** triển khai additive change, backward compatibility và test cho contract đã khóa; không sửa draft theo phỏng đoán.
-3. **Admin ownership:** thực hiện M8-03 theo đúng một owner đã chọn.
+3. **Admin ownership:** M8-03/W-0143 đã xong phần IVR; M3/Security/Platform nhận exact contract và hoàn thành client/BFF/custody/shared E2E. Không mở endpoint hoặc UI trùng lặp.
 4. **Shared integration:** nối M8-07 với M3 sandbox, auth thật và shared E2E.
 5. **Production infrastructure:** thực hiện M8-04 và M8-02 sau procurement/Security/Legal/Platform approvals.
 6. **Capacity closure:** thực hiện M8-01 sau khi có dữ liệu real-call/session profile.

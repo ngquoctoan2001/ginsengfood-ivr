@@ -244,6 +244,7 @@ internal static class ChaosFixtures
             // Lets a scenario start one failure below the DT-04 threshold so the next one crosses
             // it, without cycling three leases to get there.
             FailCount = priorFailCount,
+            FailureWindowStartedAt = priorFailCount > 0 ? Now.AddMinutes(-5) : null,
         });
         await context.SaveChangesAsync();
     }

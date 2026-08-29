@@ -335,12 +335,22 @@ public sealed class PostgresTelephonyDispatchStore(
                 job.Status = "DISPOSITION_PENDING_NORMALIZATION";
                 job.QueueStatus = "HELD_NORMALIZATION";
 
-                channel.FailCount = channelHealthy ? 0 : channel.FailCount + 1;
+                bool autoDisabled;
+                if (channelHealthy)
+                {
+                    SimChannelFailurePolicy.RecordHealthy(channel);
+                    autoDisabled = false;
+                }
+                else
+                {
+                    autoDisabled = SimChannelFailurePolicy.RecordFailure(channel, endedAt);
+                }
+
                 channel.LastHealthCheckAt = endedAt;
                 channel.CooldownUntil = endedAt.Add(cooldown);
                 channel.Status = channelHealthy
                     ? "IDLE"
-                    : channel.FailCount >= 3 ? "HEALTH_FAILED" : "QUARANTINED";
+                    : autoDisabled ? "HEALTH_FAILED" : "QUARANTINED";
                 channel.QuarantineUntil = channelHealthy
                     ? null
                     : endedAt.Add(cooldown);
@@ -349,11 +359,9 @@ public sealed class PostgresTelephonyDispatchStore(
                     : technicalErrorCode ?? "CHANNEL_UNHEALTHY";
                 ReleaseLease(channel);
 
-                // W-0042 / P6-3, DT-04. The second place a channel is taken out of service, and
-                // the one DT-04 actually names: fail_count crossing its threshold. W-0041 counted
-                // only the lease-expiry path, so the alert that claimed to cover DT-04 was reading
-                // a metric the DT-04 transition never touched -- an alert wired to the wrong
-                // event, which is worse than none because it looks covered.
+                // W-0042 / P6-3, DT-04. Count every unhealthy-provider transition. The shared
+                // failure policy owns the per-channel ten-minute threshold; this metric separately
+                // gives operations a team-wide burst signal and also covers the lease-expiry path.
                 if (!channelHealthy)
                 {
                     Observability.IvrTelemetry.RecordChannelQuarantine(
@@ -371,6 +379,9 @@ public sealed class PostgresTelephonyDispatchStore(
                         ["raw_call_status"] = rawStatus,
                         ["technical_error_code"] = technicalErrorCode,
                         ["channel_healthy"] = channelHealthy,
+                        ["channel_fail_count"] = channel.FailCount,
+                        ["failure_window_started_at"] = channel.FailureWindowStartedAt,
+                        ["channel_auto_disabled"] = autoDisabled,
                         ["recording"] = "DISABLED",
                         ["is_counted_customer_attempt"] = false,
                     }));

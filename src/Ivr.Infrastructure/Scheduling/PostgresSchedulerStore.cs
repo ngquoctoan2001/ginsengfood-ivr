@@ -5,6 +5,7 @@ using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
+using Ivr.Infrastructure.Telephony;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ivr.Infrastructure.Scheduling;
@@ -318,8 +319,8 @@ public sealed class PostgresSchedulerStore(
                 }
             }
 
-            channel.Status = "QUARANTINED";
-            channel.FailCount++;
+            bool autoDisabled = SimChannelFailurePolicy.RecordFailure(channel, detectedAt);
+            channel.Status = autoDisabled ? "HEALTH_FAILED" : "QUARANTINED";
             channel.QuarantineUntil = detectedAt.Add(quarantineDuration);
             channel.DisabledReason = "LEASE_EXPIRED_RECONCILIATION_REQUIRED";
             channel.ActiveCallJobId = null;
@@ -339,12 +340,14 @@ public sealed class PostgresSchedulerStore(
                     ["active_job_id"] = activeJobId,
                     ["fencing_generation"] = channel.LeaseFencingGeneration,
                     ["reason"] = channel.DisabledReason,
+                    ["fail_count"] = channel.FailCount,
+                    ["failure_window_started_at"] = channel.FailureWindowStartedAt,
+                    ["auto_disabled"] = autoDisabled,
                 }));
 
-            // W-0041 / P6-2, DT-04. The auto-disable moment is the one ops must be woken for, and
-            // it is only observable here: the row afterwards shows a channel that is quarantined,
-            // never that it just became so. Counting at the transition is what lets an alert say
-            // "three in ten minutes" instead of "some channels are down".
+            // W-0041 / P6-2, DT-04. Count every transition caused by an expired lease. The shared
+            // failure policy owns the per-channel ten-minute threshold; this metric separately
+            // gives operations a team-wide burst signal without reconstructing events from rows.
             Observability.IvrTelemetry.RecordChannelQuarantine(
                 (Observability.TelemetryTags.ReasonCode, channel.DisabledReason));
         }

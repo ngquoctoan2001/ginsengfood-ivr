@@ -78,7 +78,7 @@ IVR đã có sẵn mô hình trạng thái kênh và đang phơi qua `GET /sim-c
 | --- | --- |
 | `enabled` | operator bật/tắt thủ công |
 | `busy` | đang mang cuộc gọi; tắt sẽ có hiệu lực sau khi cuộc kết thúc |
-| `fail_count` | đếm lỗi liên tiếp; `≥ 3` → quarantine (`DT-04`) |
+| `fail_count` | đếm lỗi của kênh trong cửa sổ 10 phút; lỗi thứ ba → `HEALTH_FAILED`; healthy hoặc khoảng cách >10 phút reset (`DT-04`) |
 | `quarantined` / `quarantine_until` | tự cách ly |
 | `cooldown_until` | nghỉ giữa hai cuộc (mặc định 5 giây) |
 | `last_health_check_at` | lần kiểm tra sức khoẻ gần nhất |

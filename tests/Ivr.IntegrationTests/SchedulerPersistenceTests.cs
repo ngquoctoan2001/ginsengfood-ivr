@@ -119,6 +119,45 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
     }
 
     [Fact]
+    [Trait("TestId", "IT-SCH-FAIL-WINDOW-12")]
+    public async Task ThirdLeaseFailureInsideTenMinuteWindowAutoDisablesChannel()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        DateTimeOffset recoveryAt = Now.AddSeconds(31);
+        await SeedReadyJobAsync(factory, "TASK-SCH-WINDOW-12", "JOB-SCH-WINDOW-12", Now);
+        await SeedChannelAsync(factory, "SIM-LAB-WINDOW-012");
+        await using (IvrDbContext setup = await factory.CreateDbContextAsync())
+        {
+            SimChannelEntity channel = await setup.SimChannels.SingleAsync();
+            channel.FailCount = 2;
+            channel.FailureWindowStartedAt = recoveryAt.AddMinutes(-10);
+            await setup.SaveChangesAsync();
+        }
+
+        var claimStore = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        _ = Assert.IsType<SchedulerDispatchLease>(await claimStore.TryClaimDueDispatchAsync(
+            "worker-window-crashed",
+            IvrOptions.LabRealSimExecutionMode,
+            TimeSpan.FromSeconds(30)));
+        var recoveryStore = new PostgresSchedulerStore(
+            factory,
+            new FixedTimeProvider(recoveryAt));
+
+        Assert.Equal(1, await recoveryStore.QuarantineExpiredLeasesAsync(
+            recoveryAt,
+            TimeSpan.FromMinutes(10),
+            16));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        SimChannelEntity persisted = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.Equal(3, persisted.FailCount);
+        Assert.Equal(recoveryAt.AddMinutes(-10), persisted.FailureWindowStartedAt);
+        Assert.Equal("HEALTH_FAILED", persisted.Status);
+        Assert.Equal("LEASE_EXPIRED_RECONCILIATION_REQUIRED", persisted.DisabledReason);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-SCH-DEADLINE-03")]
     public async Task MissedDeadlineCreatesCapacityIncidentAndFinalNonCountedResult()
     {

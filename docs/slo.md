@@ -24,7 +24,7 @@ của observability — nó không im lặng, nó nói dối.
 | fail-closed ratio | `ivr_fail_closed_total` | `EligibilityService` |
 | intake decision mix | `ivr_intake_decisions_total` | `TaskIntakeService` |
 | intake latency | `ivr_task_intake_duration_seconds` | `TaskIntakeService` |
-| channel auto-disable | `ivr_channel_quarantines_total` | `PostgresSchedulerStore` |
+| channel failure/quarantine transition | `ivr_channel_quarantines_total` | `PostgresSchedulerStore`, `PostgresTelephonyDispatchStore` |
 
 <a id="callback-revalidate-latency"></a>
 
@@ -117,17 +117,20 @@ chỉ cho biết kênh đang bị khoá, không bao giờ cho biết nó **vừa
 
 | | Ở đâu | Phạm vi |
 | --- | --- | --- |
-| *auto-disable* — `fail_count ≥ 3` thì khoá kênh | **trong code**, `PostgresTelephonyDispatchStore` | **từng kênh** |
-| *+ alert* — báo cho vận hành | luật Prometheus ở đây | **toàn đội**, ≥3 lần khoá trong 10 phút |
+| *auto-disable* — lỗi thứ ba trong cửa sổ 10 phút thì khoá kênh | **trong code**, policy dùng chung bởi `PostgresTelephonyDispatchStore` và `PostgresSchedulerStore` | **từng kênh** |
+| *+ alert* — báo cho vận hành | luật Prometheus ở đây | **toàn đội**, ≥3 failure/quarantine transition trong 10 phút |
 
 Luật per-kênh không phải một alert và không thể là alert: nó phải chạy đồng bộ tại thời điểm sự
-kiện để kênh hỏng không được cấp phát tiếp. Alert ở đây là nửa "báo cho người", và ngưỡng toàn đội
-của nó là **đề xuất**, không phải con số DT-04 chốt.
+kiện để kênh hỏng không được cấp phát tiếp. Lỗi đầu mở cửa sổ; lỗi thứ ba tại hoặc trước mốc 10 phút
+chuyển kênh sang `HEALTH_FAILED`. Một kết quả healthy xóa `fail_count` và mốc cửa sổ; lỗi tiếp theo
+sau hơn 10 phút mở cửa sổ mới với `fail_count=1`. Alert ở đây là nửa "báo cho người", và ngưỡng
+toàn đội của nó là **đề xuất**, không phải counter per-kênh DT-04.
 
-Cả **hai** nơi kênh bị đưa ra khỏi phục vụ đều được đếm: lease hết hạn (`PostgresSchedulerStore`) và
-`fail_count` vượt ngưỡng (`PostgresTelephonyDispatchStore`). `W-0041` mới đếm nơi thứ nhất, nên alert
-mang nhãn DT-04 lại đọc một metric mà chính chuyển trạng thái DT-04 không bao giờ chạm vào — phát
-hiện lúc discovery của `P6-3` và sửa ở đó.
+Cả **hai** nơi ghi nhận lỗi kênh đều dùng cùng policy/cửa sổ: lease hết hạn
+(`PostgresSchedulerStore`) và provider báo kênh unhealthy (`PostgresTelephonyDispatchStore`). Cả hai
+đều tăng `ivr_channel_quarantines_total`; `W-0144` bổ sung mốc cửa sổ bền vững trong DB để restart
+process không làm mất semantics. `W-0041` trước đó mới đếm nơi thứ nhất; `P6-3` đã nối metric cho nơi
+thứ hai nhưng vẫn chỉ đếm lỗi liên tiếp không giới hạn thời gian — lỗ hổng đó được đóng ở `W-0144`.
 
 <a id="callback-retry-exhausted"></a>
 

@@ -389,6 +389,78 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         Assert.Equal(SimProviderEventType.HealthChecked, sim.Events.Single().Type);
     }
 
+    [Fact]
+    [Trait("TestId", "IT-TEL-HEALTH-WINDOW-07")]
+    public async Task FailureAfterTenMinuteWindowStartsANewCounterInsteadOfAutoDisabling()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-07", "JOB-TEL-07", "SIM-MOCK-07");
+        await using (IvrDbContext setup = await factory.CreateDbContextAsync())
+        {
+            SimChannelEntity channel = await setup.SimChannels.SingleAsync();
+            channel.FailCount = 2;
+            channel.FailureWindowStartedAt = Now.AddMinutes(-10).AddTicks(-1);
+            await setup.SaveChangesAsync();
+        }
+
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-health-window-expired",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        await CreateStore(factory).FailAsync(
+            lease,
+            session: null,
+            SimProviderDisposition.NetworkError,
+            "PROVIDER_NETWORK_ERROR",
+            channelHealthy: false,
+            TimeSpan.FromSeconds(5));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        SimChannelEntity persisted = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.Equal(1, persisted.FailCount);
+        Assert.Equal(Now, persisted.FailureWindowStartedAt);
+        Assert.Equal("QUARANTINED", persisted.Status);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-TEL-HEALTH-RESET-08")]
+    public async Task HealthyOutcomeClearsFailureCounterAndWindow()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-08", "JOB-TEL-08", "SIM-MOCK-08");
+        await using (IvrDbContext setup = await factory.CreateDbContextAsync())
+        {
+            SimChannelEntity channel = await setup.SimChannels.SingleAsync();
+            channel.FailCount = 2;
+            channel.FailureWindowStartedAt = Now.AddMinutes(-5);
+            await setup.SaveChangesAsync();
+        }
+
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-health-window-reset",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        await CreateStore(factory).FailAsync(
+            lease,
+            session: null,
+            SimProviderDisposition.NetworkError,
+            "PROVIDER_NETWORK_ERROR",
+            channelHealthy: true,
+            TimeSpan.FromSeconds(5));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        SimChannelEntity persisted = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.Equal(0, persisted.FailCount);
+        Assert.Null(persisted.FailureWindowStartedAt);
+        Assert.Equal("IDLE", persisted.Status);
+    }
+
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services
         .GetRequiredService<IDbContextFactory<IvrDbContext>>();
 

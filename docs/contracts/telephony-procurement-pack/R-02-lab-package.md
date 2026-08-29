@@ -89,7 +89,7 @@ Nguồn: `seed/call-scenarios.sample.json`. Mục đích là **so sánh**, nên 
 | L-05 | Bấm nhiều phím liên tiếp | Lấy phím đầu hay phím cuối; có ổn định không | `<điền>` |
 | L-06 | Chất lượng thoại thật trên mạng di động | Khách nghe rõ không: mã đơn, số tiền, tên sản phẩm | `<điền>` |
 | L-07 | Cooldown 5 giây giữa hai cuộc trên cùng SIM | Có đủ không, hay thiết bị cần lâu hơn | `<điền>` |
-| L-08 | 3 lần lỗi liên tiếp → quarantine | `fail_count` tăng đúng; kênh bị cách ly; alert phát ra | `<điền>` |
+| L-08 | 3 lỗi trên cùng kênh trong cửa sổ 10 phút → `HEALTH_FAILED` | `fail_count`/mốc cửa sổ tăng đúng; healthy hoặc khoảng cách >10 phút reset; kênh bị cách ly; alert phát ra | `<điền>` |
 | L-09 | **Kill switch trong lúc đang có cuộc gọi** | Cuộc đang chạy xử lý ra sao; cuộc tiếp theo **phải** bị chặn | `<điền>` |
 | L-10 | Tắt kênh trong lúc `busy=true` | Tắt có hiệu lực sau khi cuộc kết thúc, đúng như mô tả trong `IvrSimChannel` | `<điền>` |
 | L-11 | Rút mạng / mất kết nối giữa cuộc | Ra `Dropped` hay `NetworkError`; IVR có treo không | `<điền>` |

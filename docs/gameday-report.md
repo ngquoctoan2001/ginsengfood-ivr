@@ -55,7 +55,7 @@ bằng bộ đánh giá luật của Prometheus. Không lượt chạy nào ch�
 | --- | --- |
 | rớt cuộc = no-answer? | **không** — `IVR_TECHNICAL_EXCEPTION`, kiểm trên **cả 5** disposition lỗi thiết bị |
 | có tính vào lượt của khách? | **không** — `is_counted_customer_attempt=false` (DT-02) |
-| auto-disable đúng ngưỡng? | **có** — lần hỏng thứ 3 chuyển kênh sang `HEALTH_FAILED` (DT-04) |
+| auto-disable đúng ngưỡng? | **có, sau W-0144** — lần hỏng thứ 3 trong cửa sổ 10 phút chuyển kênh sang `HEALTH_FAILED`; healthy hoặc lỗi sau hơn 10 phút reset (DT-04) |
 | counter mà alert DT-04 đọc? | **có** — `ivr_channel_quarantines_total` tăng |
 
 Bất biến được kiểm trên **toàn bộ** tập disposition lỗi thiết bị chứ không một ví dụ: một disposition
@@ -99,7 +99,7 @@ bằng cách đổi **thời điểm** khẳng định, không phải đổi l�
 | # | Điểm yếu | Trạng thái |
 | --- | --- | --- |
 | 1 | **Alert DT-04 của `W-0041` đang theo dõi sai sự kiện.** `ivr_channel_quarantines_total` mới đếm nơi lease hết hạn; auto-disable theo `fail_count` xảy ra ở `PostgresTelephonyDispatchStore` và **không** chạm vào counter đó. Alert mang nhãn DT-04 nhưng đọc một metric mà chuyển trạng thái DT-04 không bao giờ raise — tệ hơn không có alert, vì nó **trông như đã phủ**. | **đã sửa trong slice này**; `CHAOS-SIM-03` giữ cho nó không tái diễn |
-| 2 | `docs/slo.md` §4 gộp luật per-kênh của DT-04 với alert toàn đội thành một thứ. | **đã sửa** — tách rõ hai nửa |
+| 2 | `docs/slo.md` §4 từng gộp luật per-kênh của DT-04 với alert toàn đội, rồi runtime chỉ đếm 3 lỗi liên tiếp mà không giữ cửa sổ 10 phút. | **đã sửa đầy đủ tại W-0144** — tách hai nửa và persist mốc cửa sổ dùng chung cho cả provider failure/lease-expiry |
 | 3 | `P6-3` §3/§9 trỏ tới "fail-closed profiles `IT-12..17`" trong `specs/testing/03-integration-test-plan.md`. **Dải ID đó không tồn tại** ở đâu trong `specs/` hay `plan/`; file đó có 10 mục đánh số. Scenario được map vào mục **4**, **8**, **10** và ma trận `ARCH-05` §1 thay vì tuyên bố phủ một dải ID không có thật. | **cần chủ sở hữu quyết**: sửa prompt hay bổ sung spec |
 | 4 | `ivr_call_attempts_total` và `ivr_call_results_total` vẫn chưa có call site (mang từ `W-0041`). | **chưa sửa** — không panel/alert nào dùng, cổng `UT-DASH-PII-04` chặn nếu ai thêm |
 

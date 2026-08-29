@@ -265,6 +265,7 @@ public sealed class SimChannelEntity : RetainedEntity
     public string ProviderName { get; set; } = "MOCK";
     public string? ActiveCallJobId { get; set; }
     public int FailCount { get; set; }
+    public DateTimeOffset? FailureWindowStartedAt { get; set; }
     public DateTimeOffset? LastHealthCheckAt { get; set; }
     public DateTimeOffset? CooldownUntil { get; set; }
     public DateTimeOffset? QuarantineUntil { get; set; }
