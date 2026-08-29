@@ -33,6 +33,18 @@ public sealed class TaskIntakeService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(command);
+        using System.Diagnostics.Activity? span = IvrTelemetry.StartSpan(
+            "ivr.intake",
+            (TelemetryTags.CorrelationId, command.CorrelationId),
+            (TelemetryTags.TaskId, command.Source.Task_id),
+            (TelemetryTags.Program, command.Source.Program_code.ToString()),
+            (TelemetryTags.ExecutionMode, command.ExecutionMode.ToString()));
+        TraceContextSnapshot? traceContext = TraceContextSnapshot.Capture(span);
+        if (traceContext is not null)
+        {
+            command = command with { TraceContext = traceContext };
+        }
+
         long startedTicks = System.Diagnostics.Stopwatch.GetTimestamp();
         TaskIntakeOutcome outcome = await store.ExecuteAsync(
             command,
@@ -62,6 +74,8 @@ public sealed class TaskIntakeService(
         {
             IvrTelemetry.RecordLegacySkipCandidate(tags);
         }
+
+        span?.SetTag(TelemetryTags.Decision, outcome.Decision);
 
         return outcome;
     }
@@ -680,6 +694,8 @@ public sealed class TaskIntakeService(
             ContractVersion = "ivr-order-confirmation.v1",
             IdempotencyKey = command.ScopedIdempotencyKey,
             CorrelationId = command.CorrelationId,
+            TraceParent = command.TraceContext?.TraceParent,
+            TraceState = command.TraceContext?.TraceState,
             OfficialOrderId = snapshot.OrderId.Value,
             OrderCode = source.Order_code,
             OrderVersion = snapshot.OrderVersion.Value,

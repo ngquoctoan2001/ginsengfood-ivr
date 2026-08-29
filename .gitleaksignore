@@ -65,6 +65,11 @@ src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccount
 src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccountAuth.Designer.cs:generic-api-key:722
 src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccountAuth.Designer.cs:generic-api-key:821
 src/Ivr.Infrastructure/Persistence/Migrations/20260822120000_W0105ConsoleAccountAuth.Designer.cs:generic-api-key:920
+src/Ivr.Infrastructure/Persistence/Migrations/20260829012708_W0139ObservabilityTraceContext.Designer.cs:generic-api-key:524
+src/Ivr.Infrastructure/Persistence/Migrations/20260829012708_W0139ObservabilityTraceContext.Designer.cs:generic-api-key:623
+src/Ivr.Infrastructure/Persistence/Migrations/20260829012708_W0139ObservabilityTraceContext.Designer.cs:generic-api-key:722
+src/Ivr.Infrastructure/Persistence/Migrations/20260829012708_W0139ObservabilityTraceContext.Designer.cs:generic-api-key:821
+src/Ivr.Infrastructure/Persistence/Migrations/20260829012708_W0139ObservabilityTraceContext.Designer.cs:generic-api-key:920
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:155
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:254
 src/Ivr.Infrastructure/Persistence/Migrations/IvrDbContextModelSnapshot.cs:generic-api-key:353

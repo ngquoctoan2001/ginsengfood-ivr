@@ -19,18 +19,21 @@ export const CHANNEL_CONSTRAINTS = {
  *
  * Three numbers were living independently, and nothing compared them:
  *
- *   40s + 5s cooldown  this model and its self-test
- *   50s                implied by spec §23 M8-P0-009, which sizes 32 SIM at ~192 calls per
- *                      five-minute window (32 x floor(300 / 50) = 192)
- *   60s                SchedulerOptions.ExpectedCallDurationSeconds, the runtime default
+ *   40s + 5s cooldown  this model and its self-test: 40s channel occupancy, then 5s cooldown
+ *   50s                full channel cycle implied by spec §23 M8-P0-009, which sizes 32 SIM at
+ *                      ~192 calls per five-minute window (32 x floor(300 / 50) = 192)
+ *   60s                SchedulerOptions.ExpectedCallDurationSeconds: runtime occupancy estimate
  *
  * They are NOT unified here, and unifying them is not a code decision. Picking one number means
  * claiming a measured call duration, and no call has been dialled (W-0008). What this constant
  * does is make the disagreement declared instead of accidental, so CAP-DRIFT-05 can fail the
  * moment any of the three moves without the others being reconsidered.
  *
- * When W-0008 produces a measurement: set the measured value, flip `calibrated`, and point
- * `calibratedBy` at the evidence. CAP-DRIFT-05 will then require the three to agree.
+ * When W-0008 produces measurements: set model/runtime to measured channel occupancy, set the
+ * spec full-cycle value to occupancy + measured cooldown, update CHANNEL_CONSTRAINTS if needed,
+ * flip `calibrated`, and point `calibratedBy` at the evidence. CAP-DRIFT-05 checks those semantics;
+ * it deliberately does NOT require all three numbers to be equal, which would double-count
+ * cooldown in channelsForWindow.
  */
 export const CALL_DURATION_ASSUMPTIONS = {
   calibrated: false,
@@ -40,10 +43,10 @@ export const CALL_DURATION_ASSUMPTIONS = {
   /** What this model and its self-test assume. */
   modelCallSeconds: 40,
 
-  /** Implied by spec §23 M8-P0-009: 32 SIM serving ~192 calls in a 300s window. */
+  /** Full channel cycle implied by spec §23: occupancy plus cooldown. */
   specConservativeSeconds: 50,
 
-  /** SchedulerOptions.ExpectedCallDurationSeconds default in SchedulerCapacity.cs. */
+  /** Channel-occupancy estimate used by SchedulerOptions in SchedulerCapacity.cs. */
   schedulerDefaultSeconds: 60,
 };
 

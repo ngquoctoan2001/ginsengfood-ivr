@@ -2075,6 +2075,16 @@ namespace Ivr.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("task_id");
 
+                    b.Property<string>("TraceParent")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("trace_parent");
+
+                    b.Property<string>("TraceState")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("trace_state");
+
                     b.Property<bool?>("TrustedSkipAllowed")
                         .HasColumnType("boolean")
                         .HasColumnName("trusted_skip_allowed");

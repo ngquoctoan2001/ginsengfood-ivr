@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 136 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
-  blocked_external_count: 15
+  reason: "8 of 140 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  blocked_external_count: 16
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 82
+  rows_without_evidence_pack: 86
 
 gates:
   - id: "G-CONTRACT"
@@ -351,7 +351,7 @@ work:
     evidence: null
   - id: "W-0122"
     prompt: "Tự host VieNeu-TTS, loại phụ thuộc SaaS TTS ở runtime (Origin=UNPLANNED, owner requested)"
-    status: "IN_PROGRESS"
+    status: "BLOCKED_EXTERNAL"
     evidence: "docs/evidence/W-0122/README.md"
   - id: "W-0123"
     prompt: "M3 quyết định gọi, IVR chỉ thực thi: cleanup trusted-skip phía IVR (Origin=UNPLANNED, owner clarified boundary)"
@@ -417,6 +417,22 @@ work:
     prompt: "gate-status bỏ đếm 5 open decision (Origin=UNPLANNED, phát hiện khi làm W-0137)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0138/README.md"
+  - id: "W-0139"
+    prompt: "Hoàn tất phần triển khai còn lại của B-06 Observability (Origin=UNPLANNED, owner yêu cầu 2026-08-29)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0139/README.md"
+  - id: "W-0140"
+    prompt: "Đồng bộ TODAY-01..04 vào tracker/readiness, không tạo ledger thứ hai (Origin=UNPLANNED, owner yêu cầu tiếp tục TODAY-05 ngày 2026-08-29)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0140/README.md"
+  - id: "W-0141"
+    prompt: "Thực thi OD-20: thu hồi DOCX V0.3 lỗi thời bằng rename có thể hoàn tác (Origin=UNPLANNED, owner đã ký OPTION_1_WITHDRAW)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0141/README.md"
+  - id: "W-0142"
+    prompt: "M8-01 capacity calibration preflight và data-intake handoff (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-08-29)"
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0142/README.md"
   - id: "W-0029"
     prompt: "P4-1"
     status: "TESTS_PASS"

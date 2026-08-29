@@ -38,6 +38,30 @@ and the only one that cannot be skipped by a hurried operator.
 {{- end -}}
 {{- include "ivr.assertDatabaseTls" . -}}
 {{- include "ivr.assertTtsCandidate" . -}}
+{{- include "ivr.assertObservability" . -}}
+{{- end -}}
+
+{{/* W-0139. Refuse half-configured OTLP and broad/unnamed collector egress at render time. */}}
+{{- define "ivr.assertObservability" -}}
+{{- $otel := .Values.observability -}}
+{{- if $otel.enabled -}}
+  {{- if or (not $otel.endpoint) (not (regexMatch "^https?://[^[:space:]]+$" $otel.endpoint)) -}}
+    {{- fail "observability.enabled requires an absolute HTTP(S) observability.endpoint." -}}
+  {{- end -}}
+  {{- if not (has $otel.protocol (list "grpc" "http/protobuf")) -}}
+    {{- fail "observability.protocol must be grpc or http/protobuf." -}}
+  {{- end -}}
+  {{- $ratio := float64 $otel.traceSamplingRatio -}}
+  {{- if or (lt $ratio 0.0) (gt $ratio 1.0) -}}
+    {{- fail "observability.traceSamplingRatio must be between 0 and 1." -}}
+  {{- end -}}
+  {{- if or (empty $otel.collector.namespaceLabels) (empty $otel.collector.podLabels) -}}
+    {{- fail "observability.enabled requires non-empty collector.namespaceLabels and collector.podLabels for least-privilege egress." -}}
+  {{- end -}}
+  {{- if ne (empty $otel.headersSecret.existingSecret) (empty $otel.headersSecret.key) -}}
+    {{- fail "observability.headersSecret.existingSecret and key must be configured together." -}}
+  {{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -263,6 +287,39 @@ the ordering.
       key: {{ $previousKey }}
 - name: IVR_ADMIN_{{ upper $tier }}_TOKEN_PREVIOUS_RETIRES_AT
   value: {{ $retiresAt | quote }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/* Shared OTLP environment. Pass dict "root" . and "serviceName" per workload. */}}
+{{- define "ivr.observabilityEnv" -}}
+{{- $root := .root -}}
+{{- $otel := $root.Values.observability -}}
+- name: Ivr__Observability__Enabled
+  value: {{ $otel.enabled | quote }}
+{{- if $otel.enabled }}
+- name: Ivr__Observability__ExportTraces
+  value: {{ $otel.exportTraces | quote }}
+- name: Ivr__Observability__ExportMetrics
+  value: {{ $otel.exportMetrics | quote }}
+- name: Ivr__Observability__ExportLogs
+  value: {{ $otel.exportLogs | quote }}
+- name: Ivr__Observability__TraceSamplingRatio
+  value: {{ $otel.traceSamplingRatio | quote }}
+- name: Ivr__Observability__DeploymentEnvironmentName
+  value: {{ $root.Values.governance.environmentName | quote }}
+- name: OTEL_SERVICE_NAME
+  value: {{ .serviceName | quote }}
+- name: OTEL_EXPORTER_OTLP_ENDPOINT
+  value: {{ $otel.endpoint | quote }}
+- name: OTEL_EXPORTER_OTLP_PROTOCOL
+  value: {{ $otel.protocol | quote }}
+{{- if $otel.headersSecret.existingSecret }}
+- name: OTEL_EXPORTER_OTLP_HEADERS
+  valueFrom:
+    secretKeyRef:
+      name: {{ $otel.headersSecret.existingSecret | quote }}
+      key: {{ $otel.headersSecret.key | quote }}
 {{- end }}
 {{- end }}
 {{- end -}}

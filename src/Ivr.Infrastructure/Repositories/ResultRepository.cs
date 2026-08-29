@@ -114,6 +114,18 @@ public sealed class ResultRepository(
                 candidate => candidate.TaskId == attempt.TaskId,
                 cancellationToken)
             .ConfigureAwait(false);
+        TraceContextSnapshot? traceContext = TraceContextSnapshot.FromPersisted(
+            task.TraceParent,
+            task.TraceState);
+        using System.Diagnostics.Activity? span = IvrTelemetry.StartWorkflowSpan(
+            "ivr.result.normalize",
+            System.Diagnostics.ActivityKind.Consumer,
+            traceContext,
+            linkCurrent: false,
+            (TelemetryTags.CorrelationId, task.CorrelationId),
+            (TelemetryTags.TaskId, task.TaskId),
+            (TelemetryTags.JobId, job.IvrCallJobId),
+            (TelemetryTags.AttemptId, attempt.IvrCallAttemptId));
         int priorTechnicalRetryCount = await (
             from technical in context.TechnicalExceptions.AsNoTracking()
             join priorAttempt in context.CallAttempts.AsNoTracking()
@@ -256,6 +268,8 @@ public sealed class ResultRepository(
         IvrTelemetry.RecordResult(
             (TelemetryTags.ResultType, normalized.ResultStatus),
             (TelemetryTags.Counted, normalized.IsCounted));
+        span?.SetTag(TelemetryTags.ResultType, normalized.ResultStatus);
+        span?.SetTag(TelemetryTags.Counted, normalized.IsCounted);
 
         return new NormalizationPersistenceResult(
             rawEvent.RawEventId,

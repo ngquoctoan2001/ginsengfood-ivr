@@ -8,13 +8,8 @@
   "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
   "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
   "legal_gate": {
-    "status": "PASS",
-    "decided_on": "2026-08-28",
-    "decided_by": "Owner module IVR",
-    "evidence": "model-card declaration pinned at exact revision",
-    "reason": "Owner accepts model-card level licence evidence. Both model repositories declare apache-2.0 in model-card metadata, and each repository's README.md is pinned by sha256 at a fixed revision in this lock, so the declaration itself is immutable and auditable. Neither repository ships a standalone LICENSE file, and upstream has not published training data or an explicit commercial-use statement for the preset voices; the owner accepts that residual gap rather than blocking release on it. The non-commercial 0.3B-q4-gguf variant stays rejected by the licence allowlist in tts-provenance-gate.mjs.",
-    "residual_risk": "If upstream later clarifies the licence more restrictively, the voice source must be replaced and every audio segment re-rendered.",
-    "follow_up": "Ask the upstream author to add a LICENSE file to the model repositories. Does not block release."
+    "status": "OWNER_DATA_REQUIRED",
+    "reason": "Both model repositories declare apache-2.0 in model-card metadata but neither pinned revision contains a LICENSE file. Training-data and exact preset commercial-use review are also unresolved."
   },
   "internal_mirror_gate": {
     "status": "OWNER_DATA_REQUIRED",

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Ivr.Infrastructure.Observability;
 
 namespace Ivr.Infrastructure.Scheduling;
 
@@ -83,7 +84,31 @@ public sealed class SchedulerRuntime(
             return new SchedulerRunResult(true, true, quarantined, closed, false);
         }
 
-        await dispatchGateway.DispatchAsync(lease, cancellationToken).ConfigureAwait(false);
+        TraceContextSnapshot? traceContext = TraceContextSnapshot.FromPersisted(
+            lease.TraceParent,
+            lease.TraceState);
+        using System.Diagnostics.Activity? span = IvrTelemetry.StartWorkflowSpan(
+            "ivr.scheduler.dispatch",
+            System.Diagnostics.ActivityKind.Consumer,
+            traceContext,
+            linkCurrent: false,
+            (TelemetryTags.CorrelationId, lease.CorrelationId),
+            (TelemetryTags.TaskId, lease.TaskId),
+            (TelemetryTags.JobId, lease.JobId),
+            (TelemetryTags.AttemptId, lease.AttemptId),
+            (TelemetryTags.AttemptNumber, lease.AttemptNumber),
+            (TelemetryTags.SimProvider, lease.ProviderName));
+        try
+        {
+            await dispatchGateway.DispatchAsync(lease, cancellationToken).ConfigureAwait(false);
+            span?.SetTag(TelemetryTags.Outcome, "DISPATCHED");
+        }
+        catch
+        {
+            span?.SetStatus(System.Diagnostics.ActivityStatusCode.Error);
+            throw;
+        }
+
         return new SchedulerRunResult(true, true, quarantined, closed, true);
     }
 }

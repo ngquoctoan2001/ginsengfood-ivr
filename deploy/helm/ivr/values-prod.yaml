@@ -20,6 +20,10 @@ database:
 image:
   tag: "0.1.0"
 
+observability:
+  # Parent-based sampling preserves this root decision through persisted W3C context.
+  traceSamplingRatio: 0.10
+
 api:
   replicas: 3
   hpa:

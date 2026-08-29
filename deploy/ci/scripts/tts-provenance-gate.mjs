@@ -38,9 +38,23 @@ const allowedArtifactKeys = new Set([
   "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX:moss_audio_tokenizer_decode_step.onnx",
 ]);
 
+function hasLegalPrivacyApproval(gate) {
+  return gate?.status === "PASS"
+    && gate?.decision_authority === "LEGAL_PRIVACY"
+    && typeof gate?.decided_by === "string"
+    && gate.decided_by.trim().length > 0
+    && typeof gate?.approval_reference === "string"
+    && gate.approval_reference.trim().length > 0
+    && typeof gate?.decided_on === "string"
+    && /^\d{4}-\d{2}-\d{2}$/.test(gate.decided_on);
+}
+
 function validate(candidate) {
   if (candidate.schema_version !== 1 || !Array.isArray(candidate.artifacts)) {
     throw new Error("invalid lock schema");
+  }
+  if (candidate.legal_gate?.status === "PASS" && !hasLegalPrivacyApproval(candidate.legal_gate)) {
+    throw new Error("legal approval authority invalid");
   }
   if (candidate.source_commit !== "36c4b501b0634a8f59805e6b529a058fbd30190b") {
     throw new Error("source revision drift");
@@ -140,6 +154,15 @@ if (selftest) {
   expectFailure("path", value => { value.artifacts[0].bundle_path = value.artifacts[1].bundle_path; });
   expectFailure("hash", value => { value.artifacts[0].sha256 = "0".repeat(64); });
   expectFailure("license", value => { value.artifacts[0].declared_spdx = "CC-BY-NC-4.0"; });
+  expectFailure("legal-authority", value => {
+    value.legal_gate = {
+      status: "PASS",
+      decided_on: "2026-08-29",
+      decided_by: "Owner module IVR",
+      decision_authority: "MODULE_8_OWNER",
+      approval_reference: "owner-only-is-not-legal-approval",
+    };
+  });
   expectFailure("extra", value => { value.artifacts.push({ ...value.artifacts[0], bundle_path: "extra.bin" }); });
   try {
     validateSupportingFiles("0".repeat(64), expectedAcceptanceTemplateSha256);
@@ -155,10 +178,20 @@ if (selftest) {
     if (error.message === "acceptance template mutation was not rejected") throw error;
     process.stdout.write("TTS_PROVENANCE_MUTATION_PASS mutation=acceptance-template\n");
   }
+  if (!hasLegalPrivacyApproval({
+    ...lock.legal_gate,
+    status: "PASS",
+    decided_on: "2026-08-29",
+    decided_by: "Legal/Privacy test fixture",
+    decision_authority: "LEGAL_PRIVACY",
+    approval_reference: "OD-VOICE-07:test-only-positive-fixture",
+  })) {
+    throw new Error("legal/privacy authority fixture was rejected");
+  }
 }
 
 const blockers = [];
-if (lock.legal_gate?.status !== "PASS") blockers.push("LEGAL");
+if (!hasLegalPrivacyApproval(lock.legal_gate)) blockers.push("LEGAL");
 if (lock.internal_mirror_gate?.status !== "PASS") blockers.push("INTERNAL_MIRROR");
 process.stdout.write(
   `TTS_PROVENANCE_STRUCTURE_PASS artifacts=${lock.artifacts.length} release_blockers=${blockers.join(",") || "NONE"}\n`,

@@ -18,6 +18,8 @@ public sealed class ConfirmationTaskEntity : RetainedEntity
     public string ContractVersion { get; set; } = string.Empty;
     public string IdempotencyKey { get; set; } = string.Empty;
     public string CorrelationId { get; set; } = string.Empty;
+    public string? TraceParent { get; set; }
+    public string? TraceState { get; set; }
     public string OfficialOrderId { get; set; } = string.Empty;
     public string OrderCode { get; set; } = string.Empty;
     public string OrderVersion { get; set; } = string.Empty;

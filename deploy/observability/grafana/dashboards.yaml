@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: IVR SLO dashboards
+    type: file
+    disableDeletion: true
+    updateIntervalSeconds: 30
+    options:
+      path: /otel-lgtm/grafana/conf/provisioning/dashboards/custom
+      foldersFromFilesStructure: false

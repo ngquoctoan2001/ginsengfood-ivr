@@ -1,0 +1,11 @@
+# W-0139 positive render fixture. Names are synthetic; no credential or real endpoint is stored.
+observability:
+  enabled: true
+  endpoint: https://otel-collector.telemetry.svc:4317
+  protocol: grpc
+  traceSamplingRatio: 1.0
+  collector:
+    namespaceLabels:
+      kubernetes.io/metadata.name: telemetry
+    podLabels:
+      app.kubernetes.io/name: otel-collector

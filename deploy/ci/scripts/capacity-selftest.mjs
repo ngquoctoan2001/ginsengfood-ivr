@@ -135,29 +135,41 @@ function theAnswerIsARangeWithANamedDriver() {
 // ---------------------------------------------------------------- CAP-CALIB-03
 
 async function calibrationAgainstWhatWasActuallyMeasured() {
-  // The only throughput evidence that exists is P5-3, and it measured the API and the scheduler --
-  // never a dial, because no dial has happened. So calibration has exactly one honest form: assert
-  // that the model's call-duration input is declared UNMEASURED and that the documents say so.
   const capacityDoc = await fs.readFile(
     path.join(repositoryRoot, "docs/capacity-model.md"), "utf8");
 
-  assert(
-    capacityDoc.includes("UNCALIBRATED"),
-    "docs/capacity-model.md does not declare the model uncalibrated.");
-  assert(
-    /W-0008/.test(capacityDoc),
-    "docs/capacity-model.md does not name the work that would calibrate it.");
-
-  // And the perf report must not be cited as if it had measured call duration.
+  // The perf report measured API/scheduler throughput, not a dial. This remains forbidden even
+  // after W-0008 exists: calibration must cite the real-call evidence, never relabel P5-3.
   const perfDoc = await fs.readFile(
     path.join(repositoryRoot, "docs/perf-security-report.md"), "utf8");
   assert(
     !/call duration measured|đo thời lượng cuộc gọi/i.test(perfDoc),
-    "the performance report claims a measured call duration; no call has been placed.");
+    "the performance report claims a measured call duration, but it never measured a dial.");
 
+  if (!CALL_DURATION_ASSUMPTIONS.calibrated) {
+    assert(
+      capacityDoc.includes("UNCALIBRATED"),
+      "docs/capacity-model.md does not declare the model uncalibrated.");
+    assert(
+      /W-0008/.test(capacityDoc),
+      "docs/capacity-model.md does not name the work that would calibrate it.");
+    process.stdout.write(
+      "CAP-CALIB-03 PASS_UNCALIBRATED — the model declares itself uncalibrated and names W-0008 "
+      + "as the work that would calibrate it; no document relabels P5-3 as call evidence\n");
+    return;
+  }
+
+  const evidence = CALL_DURATION_ASSUMPTIONS.calibratedBy;
+  assert(
+    typeof evidence === "string" && /^docs\/evidence\/W-0008\//.test(evidence),
+    "calibratedBy must point to an artifact under docs/evidence/W-0008/.");
+  await fs.access(path.join(repositoryRoot, evidence));
+  assert(
+    capacityDoc.includes("CALIBRATED") && capacityDoc.includes(evidence),
+    "docs/capacity-model.md must declare CALIBRATED and cite the exact W-0008 artifact.");
   process.stdout.write(
-    "CAP-CALIB-03 PASS_UNCALIBRATED — the model declares itself uncalibrated and names W-0008 as "
-    + "the work that would calibrate it; no document claims a measured call duration\n");
+    `CAP-CALIB-03 PASS_CALIBRATED — real-call evidence exists at ${evidence}; P5-3 remains `
+    + "scheduler/API evidence only\n");
 }
 
 // ---------------------------------------------------------------- CAP-ALERT-04
@@ -266,6 +278,19 @@ async function theShippedPoolMatchesTheModel({ peak }) {
 
 // --------------------------------------------------------------- CAP-DRIFT-05
 
+function assertCalibratedDurationSemantics(declared, label) {
+  assert.equal(
+    declared.schedulerDefaultSeconds,
+    declared.modelCallSeconds,
+    `${label}: the scheduler estimate and model callSeconds must describe the same channel `
+    + "occupancy measurement.");
+  assert.equal(
+    declared.specConservativeSeconds,
+    declared.modelCallSeconds + CHANNEL_CONSTRAINTS.cooldownSeconds,
+    `${label}: the spec cycle must equal measured channel occupancy plus cooldown. Making all `
+    + "three values equal would make channelsForWindow add cooldown twice.");
+}
+
 async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
   // W-0132. The three call-duration numbers used to live in three files with nothing comparing
   // them, so any one of them could move and every gate stayed green. This check does not unify
@@ -273,20 +298,47 @@ async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
   // declared, and fails the moment a number moves without the declaration moving with it.
   const declared = CALL_DURATION_ASSUMPTIONS;
 
-  assert.equal(declared.modelCallSeconds, 40,
-    "the model's call-duration assumption moved. That is allowed, but it must be a deliberate "
-    + "update to CALL_DURATION_ASSUMPTIONS with evidence, not an edit to a scenario literal.");
-  assert.equal(declared.specConservativeSeconds, 50,
-    "the spec-implied call duration moved; re-derive it from spec §23 before changing it.");
-  assert.equal(declared.schedulerDefaultSeconds, 60,
-    "the declared scheduler default moved; it must track SchedulerCapacity.cs.");
+  // Exercise the future calibrated relationship without pretending this TEST_ONLY shape is a
+  // measurement. This keeps the exit path executable before W-0008 exists.
+  assert.throws(
+    () => assertCalibratedDurationSemantics({
+      modelCallSeconds: 40,
+      specConservativeSeconds: 40,
+      schedulerDefaultSeconds: 40,
+    }, "TEST_ONLY equal-values mutation"),
+    /Making all three values equal would make channelsForWindow add cooldown twice/,
+    "the historical equal-values escape hatch must stay rejected because it double-counts cooldown.");
+  assertCalibratedDurationSemantics({
+    modelCallSeconds: 40,
+    specConservativeSeconds: 45,
+    schedulerDefaultSeconds: 40,
+  }, "TEST_ONLY calibrated shape");
 
-  // The spec never writes 50s down -- it writes ~192 calls for 32 SIM in a five-minute window.
-  // If that arithmetic stops holding, the declared 50s is no longer what the spec means.
-  const specImpliedCalls = 32 * Math.floor(300 / declared.specConservativeSeconds);
-  assert.equal(specImpliedCalls, 192,
-    `spec §23 sizes 32 SIM at ~192 calls per 300s window, but the declared `
-    + `${declared.specConservativeSeconds}s gives ${specImpliedCalls}.`);
+  if (declared.calibrated) {
+    assertCalibratedDurationSemantics(declared, "calibrated declaration");
+    assert(
+      typeof declared.calibratedBy === "string" && declared.calibratedBy.length > 0,
+      "calibrated is true but calibratedBy names no evidence.");
+  } else {
+    assert.equal(declared.modelCallSeconds, 40,
+      "the model's call-duration assumption moved. That is allowed only with W-0008 evidence and "
+      + "a calibrated declaration, not as an edit to a scenario literal.");
+    assert.equal(declared.specConservativeSeconds, 50,
+      "the spec-implied full channel cycle moved; re-derive it from spec §23 or W-0008 evidence.");
+    assert.equal(declared.schedulerDefaultSeconds, 60,
+      "the declared scheduler default moved; it must track SchedulerCapacity.cs.");
+    assert.equal(declared.calibratedBy, null,
+      "an uncalibrated model must not cite calibration evidence.");
+    assert.equal(declared.calibrationWork, "W-0008",
+      "the work that would calibrate this is no longer named.");
+
+    // The spec never writes 50s down -- it writes ~192 calls for 32 SIM in a five-minute window.
+    // If that arithmetic stops holding, the declared 50s is no longer what the current spec means.
+    const specImpliedCalls = 32 * Math.floor(300 / declared.specConservativeSeconds);
+    assert.equal(specImpliedCalls, 192,
+      `spec §23 sizes 32 SIM at ~192 calls per 300s window, but the declared `
+      + `${declared.specConservativeSeconds}s gives ${specImpliedCalls}.`);
+  }
 
   // The runtime default is the one number that lives in C#, so read it rather than trust the copy.
   const schedulerSource = await fs.readFile(
@@ -307,34 +359,14 @@ async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
     `the sensitivity sweep varies ${SENSITIVITY_CALL_SECONDS.join("/")}s but the model now assumes `
     + `${declared.modelCallSeconds}s; the sweep is centred on a stale value.`);
 
-  // The escape hatch, guarded. Making the three agree is the right outcome -- but only once a
-  // measurement justifies it, never as a tidy-up.
-  const distinct = new Set([
-    declared.modelCallSeconds,
-    declared.specConservativeSeconds,
-    declared.schedulerDefaultSeconds,
-  ]);
-  if (distinct.size === 1) {
-    assert.equal(declared.calibrated, true,
-      "the three call-duration numbers were made to agree while the model still declares itself "
-      + "uncalibrated. Agreeing on an unmeasured number is how an assumption becomes a fact by "
-      + "accident; calibrate via W-0008 and cite the evidence.");
-    assert(
-      typeof declared.calibratedBy === "string" && declared.calibratedBy.length > 0,
-      "calibrated is true but calibratedBy names no evidence.");
-  } else {
-    assert.equal(declared.calibrated, false,
-      "the model claims calibration while its three call-duration inputs still disagree.");
-    assert.equal(declared.calibrationWork, "W-0008",
-      "the work that would calibrate this is no longer named.");
-  }
-
   process.stdout.write(
-    `CAP-DRIFT-05 ${distinct.size === 1 ? "PASS_CALIBRATED" : "PASS_DECLARED_DISAGREEMENT"} — `
-    + `call duration has one declared source; model ${declared.modelCallSeconds}s, spec-implied `
-    + `${declared.specConservativeSeconds}s, runtime default ${declared.schedulerDefaultSeconds}s `
-    + `(read back from SchedulerCapacity.cs). They disagree by design and ${declared.calibrationWork} `
-    + "is the work that would settle it\n");
+    `CAP-DRIFT-05 ${declared.calibrated ? "PASS_CALIBRATED" : "PASS_DECLARED_DISAGREEMENT"} — `
+    + `model occupancy ${declared.modelCallSeconds}s, spec full-cycle `
+    + `${declared.specConservativeSeconds}s, runtime occupancy estimate `
+    + `${declared.schedulerDefaultSeconds}s (read back from SchedulerCapacity.cs). `
+    + (declared.calibrated
+      ? `Calibration evidence: ${declared.calibratedBy}\n`
+      : `They disagree by design and ${declared.calibrationWork} is the work that would settle them\n`));
 }
 
 // ------------------------------------------------------------- CAP-SESSION-06

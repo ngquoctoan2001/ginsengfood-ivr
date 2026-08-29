@@ -2,11 +2,26 @@
 
 Ngày: `2026-08-27`  
 Baseline triển khai: `main@f291f44` (đọc); commit W-0122 đầu tiên là `e1b6b4b` trên `54d285d`  
-Trạng thái: `IN_PROGRESS — RELEASE_BLOCKED`; `OD-VOICE-06` **đã đóng** `2026-08-28`
+Trạng thái: `LOCAL_HANDOFF_READY — RELEASE_BLOCKED`; `OD-VOICE-06` **đã đóng** `2026-08-28`
 
 > Evidence trong thư mục này tách rõ local/nonprod proof với Owner/Legal/Infra/telephony
 > acceptance. Test xanh không cấp quyền production hoặc gọi khách thật.
 > `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## Governance correction `2026-08-29`
+
+Commit `2a4f45d` đã đổi `MODELS.lock.legal_gate` từ `OWNER_DATA_REQUIRED` sang `PASS` với
+`decided_by=Owner module IVR` **sau khi** Owner voice manifest được ký. Thay đổi đó vừa sai thẩm
+quyền — Owner dự án không thay chữ ký Legal/Privacy — vừa làm hash lock lệch khỏi manifest đã ký.
+
+TODAY-03 đã khôi phục đúng block `OWNER_DATA_REQUIRED` trước commit trên. SHA-256 của
+`MODELS.lock` trở lại `bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d`, đúng binding trong
+`voices.json` và Owner manifest; voice-acceptance gate PASS lại mà không sửa artifact chữ ký.
+
+Defense-in-depth cũng được thêm vào CI provenance gate và production model verifier: một quyết
+định `PASS` về sau chỉ hợp lệ khi có `decision_authority=LEGAL_PRIVACY`, người/ngày quyết định và
+`approval_reference`. Source hiện tại báo `release_blockers=LEGAL,INTERNAL_MIRROR`; production
+tiếp tục fail closed cho tới khi có phản hồi external thật.
 
 ## Artifact đã đóng băng
 
@@ -59,15 +74,15 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 | Gate | Kết quả hiện tại |
 | --- | --- |
 | Source/model exact pin | `PASS` ở nonprod; 13/13 size + SHA-256 khớp |
-| Production model verifier | `EXPECTED_FAIL` — thiếu license-file evidence và internal mirror |
+| Production model verifier | `EXPECTED_FAIL` — thiếu Legal/Privacy authority, license-file evidence và internal mirror |
 | Provenance mutations | `PASS` — revision/path/hash/license/extra artifact/voice-config/acceptance-template drift đều bị từ chối |
 | Converter regression | `PASS` — MP3 cũ bitexact 12/12; WAV 12/12 PCM s16le/8 kHz/mono; unknown/missing source bị từ chối |
 | Owner-manifest gate | `PASS` fail-closed — pending template + 9 acceptance mutation + 7 voices.json binding mutation bị từ chối (gồm sửa thẳng `audition-script.txt`); production thiếu/pending manifest hoặc bật audition đều readiness `503` |
 | Container contract | `PASS` — non-root `1654:1654`, read-only, no network, no exposed port, drop caps; chạy `15/15` shim test bên trong image — cùng bộ test ở dòng `Shim unit/negative` của `security-performance.md`, không phải hai lượt đếm |
 | Minimal runtime content | `PASS` — không có `uv`, web UI, upstream deploy/docs/examples, training, tests hoặc reference samples; chỉ venv + source runtime + locks/license |
 | Real ONNX smoke | `PASS` nonprod — ready; request `200`, raw `audio/L16` 8 kHz, 20,480 bytes; không phải voice acceptance |
-| Voice audition render | `FILES_READY` — 11/11 WAV PCM s16le/8 kHz/mono, tracked manifest SHA-256 `0cfbeacf6a60403c974354fc205e12591c12304f5b68a0abcac5d40afb8326cf`; owner chưa nghe/ký |
-| Owner audition profile | `READY` — probe `2026-08-28` dựng thật profile cô lập: verifier `11/11`, Asterisk healthy, dialplan `12200`/`12201`–`12211` load đủ, catch-all `Hangup`; `W0122_AUDITION_PROFILE_READY`. Owner chỉ còn mở MicroSIP và gọi |
+| Voice audition render | `OWNER_ACCEPTED` — 11/11 WAV PCM s16le/8 kHz/mono, tracked manifest SHA-256 `0cfbeacf6a60403c974354fc205e12591c12304f5b68a0abcac5d40afb8326cf`; Owner đã nghe đủ và ký `2026-08-28` |
+| Owner audition profile | `OWNER_ACCEPTED` — profile cô lập đã phát đủ 11 candidate qua Asterisk/MicroSIP 8 kHz; Owner chọn Ngọc Linh / Ngọc Trân / Mỹ Duyên; acceptance artifact gate PASS |
 | Asterisk/MicroSIP audition harness | `RUNTIME_PASS` — 11/11 checksum/decode, `12201` playback pass, catch-all hangup pass; Owner listening vẫn `NOT_RUN` |
 | Compose/media permissions | `PASS` local — loopback/no port/shared volume; UID 1654 write, Asterisk read-only/write-denied |
 | Converter regression | `PASS` — `Convert-LabSegmentAudio.ps1` chạy trong container PowerShell ghim digest: roster `4×3` khớp `speech-segments.json`, 7 input sai đều fail closed |
@@ -106,8 +121,9 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 
 Mỗi gate dưới đây nay có **một** hành động cụ thể và một phiếu để điền, thay vì một mô tả.
 
-1. **Owner** nghe đủ 11 file qua Asterisk/MicroSIP 8 kHz rồi ký đúng một giọng Bắc/Trung/Nam.
-   Profile đã được probe ngày `2026-08-28`; ký bằng [`New-W0122VoiceAcceptance.ps1`](../../../deploy/lab/New-W0122VoiceAcceptance.ps1), không sửa JSON tay.
+1. **Owner voice selection: DONE `2026-08-28`.** Đã nghe đủ 11 file qua Asterisk/MicroSIP 8 kHz
+   và ký Bắc Ngọc Linh / Trung Ngọc Trân / Nam Mỹ Duyên. Không mở lại vòng chọn nếu exact audio
+   binding không đổi.
 2. **Legal/Privacy** — [`questions-to-legal-od-voice-07.md`](../../../plan/ivr-orther/questions-to-legal-od-voice-07.md).
 3. **Security/Release** — 16 finding không có bản vá: [`questions-to-security-w0122-cve-disposition.md`](../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md).
 4. **Platform/Infra/Telephony** — internal mirror, target hardware, `OD-VOICE-08`: [`questions-to-platform-w0122-infrastructure.md`](../../../plan/ivr-orther/questions-to-platform-w0122-infrastructure.md).

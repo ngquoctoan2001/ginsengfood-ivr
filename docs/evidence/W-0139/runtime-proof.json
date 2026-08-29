@@ -1,0 +1,39 @@
+{
+  "taskId": "TASK-E2E-CONFIRM",
+  "traceId": "a1df526923273604d064695e50d0aed2",
+  "requiredStageSpans": [
+    "ivr.intake",
+    "ivr.eligibility.evaluate",
+    "ivr.scheduler.dispatch",
+    "ivr.result.normalize",
+    "ivr.callback.deliver"
+  ],
+  "observedSpanNames": [
+    "Microsoft.AspNetCore",
+    "POST",
+    "POST /v1/ivr/order-confirmation/tasks",
+    "System.Net.Http",
+    "ivr-order-confirmation",
+    "ivr.callback.deliver",
+    "ivr.eligibility.evaluate",
+    "ivr.intake",
+    "ivr.result.normalize",
+    "ivr.scheduler.dispatch"
+  ],
+  "metricResultCounts": {
+    "ivr_intake_decisions_total": 1,
+    "ivr_call_attempts_total": 1,
+    "ivr_call_results_total": 1,
+    "ivr_result_callbacks_total": 1
+  },
+  "logStreamCount": 466,
+  "dashboards": [
+    {
+      "uid": "ivr-order-confirmation-slo",
+      "title": "IVR Order Confirmation — SLO & health"
+    }
+  ],
+  "piiValuesPersisted": false,
+  "traceAndCorrelationContextPresent": true,
+  "realCustomerCallAllowed": false
+}

@@ -3,7 +3,9 @@
 **Chủ đề:** Ba gate hạ tầng còn mở của W-0122 — internal mirror, target hardware, và
 `OD-VOICE-08` production media sink
 **Người gửi:** Team IVR / Module 8 (IVR Order Confirmation)
-**Ngày gửi:** `2026-08-28` · **Trạng thái:** ⏳ CHỜ TRẢ LỜI
+**Ngày lập:** `2026-08-28` · **Routing cập nhật:** `2026-08-29`
+
+**Trạng thái:** `READY_TO_DISPATCH / NOT_SENT / EXTERNAL_RESPONSE_REQUIRED`
 **Ưu tiên:** P1 — cả ba chặn production. **Không** chặn Owner voice audition hay lab
 
 > Ba mục dưới đây độc lập nhau; trả lời được mục nào thì đóng mục đó, không cần chờ đủ ba.

@@ -47,10 +47,14 @@ W-0132 chỉ biến bất đồng từ **tình cờ** thành **được khai bá
 - `~192` của spec phải còn khớp số học với 50s.
 - Mặc định C# được **đọc ngược từ `SchedulerCapacity.cs`** bằng regex, không tin bản sao trong JS.
 - Sweep độ nhạy phải còn chứa giả định hiện hành.
-- **Cửa thoát có khóa**: nếu ba con số được làm cho bằng nhau mà `calibrated` vẫn `false` → đỏ.
+- **Cửa thoát có khóa**: khi còn `calibrated:false`, ba giá trị hiện hành 40/50/60 bị ghim và mọi
+  động tác “dọn cho bằng nhau” đều đỏ. W-0142 đính chính semantics của nhánh calibrated: model và
+  runtime cùng channel occupancy; chu kỳ spec bằng `occupancy + cooldown`, không phải cả ba bằng
+  nhau — nếu không công thức sẽ cộng cooldown hai lần.
 
-Khi W-0008 có số đo: đặt giá trị, bật `calibrated`, trỏ `calibratedBy` vào evidence — gate khi đó
-sẽ **đòi** ba con số thống nhất.
+Khi W-0008 có số đo: đặt model/runtime bằng occupancy đã chọn, chu kỳ spec bằng occupancy +
+cooldown đã đo, bật `calibrated`, trỏ `calibratedBy` vào artifact thật dưới `docs/evidence/W-0008/`.
+Chi tiết data-intake và correction: [`W-0142`](../W-0142/README.md).
 
 ## 5. Mutation proof
 

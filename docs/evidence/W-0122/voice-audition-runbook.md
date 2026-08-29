@@ -1,6 +1,7 @@
 # W-0122 — Owner voice-audition runbook qua Asterisk/MicroSIP 8 kHz
 
-Trạng thái: `FILES_AND_PROFILE_READY — OWNER_LISTENING_REQUIRED`  
+Trạng thái: `OWNER_ACCEPTED 2026-08-28 — RE-RUN ONLY IF BINDING DRIFTS`
+
 Phạm vi: software lab, fake/non-customer audio, không có outbound trunk  
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
@@ -14,10 +15,11 @@ Phạm vi: software lab, fake/non-customer audio, không có outbound trunk
 | Asterisk route probe | `PASS` — `12201` executed `Playback(...truc-ly)` và channel drain sạch |
 | Catch-all deny probe | `PASS` — `5555` chỉ `NoOp` → `Hangup`, không `Dial()`/`Stasis()` |
 | Profile probe `2026-08-28` | `PASS` — dựng thật với `-NoLaunchMicroSip`: verifier `11/11`, Asterisk healthy, `12200` load đủ 24 priority, `W0122_AUDITION_PROFILE_READY`, rồi dừng sạch |
-| MicroSIP listening/Owner decision | `NOT_RUN — OWNER_REQUIRED` |
+| MicroSIP listening/Owner decision | `OWNER_ACCEPTED 2026-08-28` — đủ 11 candidate; chọn Ngọc Linh / Ngọc Trân / Mỹ Duyên; artifact `voice-acceptance-manifest.json` |
 
-Automated probe chỉ chứng minh file/dialplan có thể phát. Nó không nghe được chất giọng, ngữ điệu,
-âm lượng hoặc méo tiếng ở đầu softphone, nên không thay thế bước Owner dưới đây.
+Automated probe chỉ chứng minh file/dialplan có thể phát. Owner đã hoàn tất phần nghe riêng ngày
+`2026-08-28`; hướng dẫn bên dưới được giữ làm procedure bắt buộc nếu binding thay đổi và gate yêu
+cầu nghe lại, không phải một việc còn mở ở TODAY-03.
 
 ## 1. Khởi động profile cô lập
 

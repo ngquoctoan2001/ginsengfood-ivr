@@ -88,16 +88,34 @@ Trạng thái thô nào **không** ánh xạ được vào 11 giá trị trên: 
 
 ## 5. Số đo
 
-| Chỉ số | Giá trị | Cách đo |
+Không nộp một con số trung bình đứng một mình. Capacity cần phân biệt **channel occupancy**
+(`started_at → ended_at`) với **full channel cycle** (`occupancy + cooldown`). Nếu trộn hai nghĩa,
+model sẽ cộng cooldown hai lần hoặc bỏ sót nó.
+
+| Chỉ số | N | p50 | p95 | p99 | Cách đo / nguồn |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `dial` → đổ chuông | `<điền>` | `<điền>` | `<điền>` | `<điền>` | gateway event / CDR |
+| Channel occupancy: `started_at` → `ended_at` | `<điền>` | `<điền>` | `<điền>` | `<điền>` | IVR attempt + provider CDR |
+| Cooldown thực tế | `<điền>` | `<điền>` | `<điền>` | `<điền>` | `ended_at` → `cooldown_until` hoặc lúc kênh thật sự available |
+| Full channel cycle | `<điền>` | `<điền>` | `<điền>` | `<điền>` | occupancy + cooldown |
+
+Nếu số mẫu không đủ để một percentile có ý nghĩa, ghi **`INSUFFICIENT_SAMPLE`** và giữ `N`; không
+nội suy cho đẹp. Giữ bảng dòng nguồn sau đây trong evidence PII-safe để reviewer tái tính được:
+
+| Run | Attempt label | Programme | Carrier label | Scenario / disposition | `started_at` | `ended_at` | `cooldown_until` / available again | Occupancy (s) | Full cycle (s) | CDR correlation ref |
+| --- | --- | --- | --- | --- | --- | --- | --- | ---: | ---: | --- |
+| `<điền>` | `<không dùng số điện thoại>` | `<điền>` | `LAB-A/B/C` | `<điền>` | `<UTC>` | `<UTC>` | `<UTC>` | `<điền>` | `<điền>` | `<không chứa PII>` |
+
+| Chỉ số phiên | Giá trị | Cách đo |
 | --- | --- | --- |
-| Tổng số cuộc gọi trong phiên | `<điền>` | `<điền>` |
-| Thời gian từ `dial` tới đổ chuông (p50/p95) | `<điền>` | `<điền>` |
-| Thời lượng trung bình một cuộc hoàn chỉnh | `<điền>` | `<điền>` |
+| Tổng số attempt hợp lệ | `<điền>` | `<điền>` |
 | Tỉ lệ bắt DTMF thành công | `<điền>` | `<điền>` |
-| Thời gian tối thiểu giữa hai cuộc trên cùng SIM | `<điền>` | `<điền>` |
+| Tỉ lệ theo từng disposition | `<điền>` | `<điền>` |
 | Số cuộc tối đa quan sát được trong 1 giờ trên 1 SIM | `<điền>` | `<điền>` |
 
-Dòng cuối là **input duy nhất hợp lệ** cho mô hình nhiều kênh ở [R-03](R-03-esim32-package.md). Không suy ra năng lực n kênh bằng phép nhân đơn thuần — ghi số đo được, để R-03 xử lý.
+Các dòng per-attempt và percentile là input timing cho `W-0142`/M8-01. **Không** suy năng lực
+nhiều kênh bằng cách nhân kết quả 1 SIM; R-03 còn cần arrival profile, attempt policy, tỉ lệ
+no-answer/retry và reserve/failure factor.
 
 ## 6. Sự cố trong phiên
 

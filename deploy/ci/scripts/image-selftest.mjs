@@ -18,11 +18,13 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { verifyObservabilityRuntime } from "./observability-runtime-selftest.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const skipCompose = process.argv.includes("--skip-compose");
 const skipScan = process.argv.includes("--skip-scan");
 const skipEndToEnd = process.argv.includes("--skip-e2e");
+const observabilityRuntime = process.argv.includes("--observability-runtime");
 
 const TAG = process.env.IVR_IMAGE_TAG ?? "p7-1-selftest";
 const IMAGES = [
@@ -55,7 +57,10 @@ function assert(condition, message) {
 
 // ---------------------------------------------------------------- IT-IMG-BUILD-01
 function buildAndCheckUser() {
-  for (const image of IMAGES) {
+  const images = observabilityRuntime
+    ? IMAGES.filter((image) => image.name !== "ivr-admin-ui")
+    : IMAGES;
+  for (const image of images) {
     docker(["build", "-f", image.dockerfile, "-t", `${image.name}:${TAG}`, image.context], { inherit: true });
 
     const user = docker(["inspect", "--format", "{{.Config.User}}", `${image.name}:${TAG}`]).trim();
@@ -82,7 +87,9 @@ function buildAndCheckUser() {
     const size = Number(docker(["image", "inspect", "--format", "{{.Size}}", `${image.name}:${TAG}`]).trim());
     process.stdout.write(`  ${image.name}: USER=${user}, ${Math.round(size / 1048576)} MB\n`);
   }
-  process.stdout.write("IT-IMG-BUILD-01 PASS — three images build, none runs as root\n");
+  process.stdout.write(
+    `IT-IMG-BUILD-01 PASS — ${images.length} images build, none runs as root\n`,
+  );
 }
 
 // ---------------------------------------------------------------- IT-IMG-HEALTH-02
@@ -210,7 +217,14 @@ function checkScan() {
 // disabled, which is right for `docker compose up` and useless for a smoke, so the E2E posture
 // lives in docker-compose.e2e.yml where it can be read in one screen.
 
-const COMPOSE_E2E = ["compose", "-f", "docker-compose.dev.yml", "-f", "docker-compose.e2e.yml"];
+const COMPOSE_E2E = [
+  "compose",
+  "-f",
+  "docker-compose.dev.yml",
+  "-f",
+  "docker-compose.e2e.yml",
+  ...(observabilityRuntime ? ["-f", "docker-compose.observability.yml"] : []),
+];
 const ORDER_CORE_TOKEN = "dev-ordercore-token-not-a-real-secret";
 const INTERNAL_TOKEN = "dev-internal-token-not-a-real-secret";
 const ADMIN_ACTOR = "e2e-smoke-operator";
@@ -484,11 +498,6 @@ function confirmationTask(testCase) {
       locale: "vi-VN",
     },
     call_restriction: false,
-    sellable_status: [{
-      sku_id: "SKU-E2E-1", decision: "SELLABLE", captured_at: started,
-      recall_hold: false, sale_lock: false, quality_hold: false,
-      stock_available: true, batch_released: true, trace_ready: true,
-    }],
     eligibility_snapshot: {
       decision: "ELIGIBLE",
       source_version: "sales-eligibility-v1",
@@ -502,13 +511,13 @@ function confirmationTask(testCase) {
 }
 
 /** Intake plus eligibility. Returns the correlation id the rest of the case is tracked by. */
-function admitCase(testCase) {
+function admitCase(testCase, taskBody = confirmationTask(testCase)) {
   const suffix = testCase.taskId.replace("TASK-E2E-", "");
   const correlation = `corr-e2e-${suffix}`;
 
   const intake = JSON.parse(apiPost(
     "/v1/ivr/order-confirmation/tasks",
-    JSON.stringify(confirmationTask(testCase)),
+    JSON.stringify(taskBody),
     {
       "X-Source-System": "order-core",
       Authorization: `Bearer ${ORDER_CORE_TOKEN}`,
@@ -576,6 +585,42 @@ function driveDeliveredCase(testCase) {
     "A capacity or technical result means the stack accepted the task and then could not "
     + "complete it.");
   return correlation;
+}
+
+function proveCollectorOutageDoesNotBreakBusinessFlow(
+  testCase,
+  taskBody,
+  expectedCorrelation,
+) {
+  docker([...COMPOSE_E2E, "stop", "otel-lgtm"], { inherit: true });
+
+  const liveStatus = docker([
+    "run", "--rm", "--network", "host", "curlimages/curl:8.11.1",
+    "--silent", "--output", "/dev/null", "--write-out", "%{http_code}",
+    `http://127.0.0.1:${process.env.IVR_API_PORT ?? "58080"}/health/live`,
+  ]).trim();
+  assert(liveStatus === "200", `collector outage changed /health/live to HTTP ${liveStatus}.`);
+
+  const replayCorrelation = admitCase(testCase, taskBody);
+  assert(
+    replayCorrelation === expectedCorrelation,
+    "collector outage changed the idempotent replay correlation id.",
+  );
+  const journal = JSON.parse(curlInternal(["http://fake-sales:8080/__admin/requests?limit=100"]));
+  const received = journal.requests
+    .filter((entry) => entry.request.url.includes("/ivr-result-callbacks"))
+    .map((entry) => ({ headers: entry.request.headers, body: JSON.parse(entry.request.body) }))
+    .filter((entry) => entry.body.task_id === testCase.taskId);
+  assert(received.length === 1, "collector outage prevented or duplicated the business callback.");
+  assert(
+    received[0].headers["X-Correlation-Id"] === expectedCorrelation,
+    "collector outage changed the callback correlation id.",
+  );
+
+  process.stdout.write(
+    "IT-OBS-RESILIENCE-12 PASS — LGTM stopped; liveness stayed 200 and the same MOCK task "
+    + "replayed idempotently without duplicating its accepted callback\n",
+  );
 }
 
 /** A case that must produce a result and then produce NOTHING for Sales. */
@@ -762,7 +807,10 @@ function driveCapacityCase(testCase) {
 
 function checkEndToEnd() {
   try {
-    docker([...COMPOSE_E2E, "up", "-d", "--build"], { inherit: true });
+    const runtimeServices = observabilityRuntime
+      ? ["otel-lgtm", "fake-sales", "ivr-api", "ivr-worker"]
+      : [];
+    docker([...COMPOSE_E2E, "up", "-d", "--build", ...runtimeServices], { inherit: true });
     for (let attempt = 0; attempt < 60; attempt += 1) {
       const services = JSON.parse(`[${docker([...COMPOSE_E2E, "ps", "--format", "json"])
         .trim().split("\n").filter(Boolean).join(",")}]`);
@@ -783,6 +831,39 @@ function checkEndToEnd() {
         stdio: ["pipe", "pipe", "pipe"],
         input: fs.readFileSync(path.join(repositoryRoot, "deploy/docker/dev-seed/seed.sql"), "utf8"),
       });
+
+    if (observabilityRuntime) {
+      const testCase = E2E_DIALLED_CASES[0];
+      const taskBody = confirmationTask(testCase);
+      const correlation = admitCase(testCase, taskBody);
+      awaitDelivery(testCase, "The single observability proof task did not complete.");
+      const journal = JSON.parse(curlInternal(["http://fake-sales:8080/__admin/requests?limit=100"]));
+      const received = journal.requests
+        .filter((entry) => entry.request.url.includes("/ivr-result-callbacks"))
+        .map((entry) => ({ headers: entry.request.headers, body: JSON.parse(entry.request.body) }))
+        .filter((entry) => entry.body.task_id === testCase.taskId);
+      assert(received.length === 1, `${testCase.taskId}: callback was not accepted exactly once.`);
+      assert(
+        received[0].body.result_type === testCase.expectedResult
+        && received[0].body.recommended_core_action === testCase.expectedAction
+        && received[0].headers["X-Correlation-Id"] === correlation,
+        `${testCase.taskId}: callback taxonomy or correlation is wrong.`,
+      );
+
+      verifyObservabilityRuntime({
+        docker,
+        compose: COMPOSE_E2E,
+        psql,
+        sleepSeconds,
+        repositoryRoot,
+      });
+      proveCollectorOutageDoesNotBreakBusinessFlow(testCase, taskBody, correlation);
+      process.stdout.write(
+        "IT-IMG-E2E-05 PASS — exactly one MOCK task crossed intake, eligibility, dispatch, "
+        + "normalization and callback\n",
+      );
+      return;
+    }
 
     // Sequential, not parallel. One SIM channel is seeded on purpose: with a pool, a scheduling
     // defect could hide behind a spare channel, and cases sharing one channel also prove the lease

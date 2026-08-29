@@ -4,14 +4,14 @@
 # Bases pinned by digest, same reasoning as Dockerfile.api: a tag is a moving pointer, so a build
 # that "passed the scan" could otherwise ship bits nobody scanned.
 #
-# Runtime, not aspnet: the worker is Microsoft.NET.Sdk.Worker on Host.CreateApplicationBuilder and
-# opens no socket at all. Shipping the ASP.NET stack here would add attack surface for a server
-# that never starts.
+# W-0139: OpenTelemetry.AspNetCore instrumentation is registered by the shared observability
+# composition code (and enabled only in the API), so the Worker assembly now references the
+# Microsoft.AspNetCore.App shared framework even though it still opens no socket.
 # Pinned to the 10.0.2xx band because global.json pins 10.0.201 with rollForward=latestPatch,
 # which refuses a different feature band. Matching the repository rather than loosening
 # global.json: the pin is there so every build uses the SDK the tests were run against.
 ARG SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.203@sha256:6d7f69bc7bc9d4510ca255977b1f53ce52a79307e048a91450b2aecd63627cc3
-ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/runtime:10.0-noble-chiseled@sha256:221ee342027993567b03715e015576c6c3f9950fb263ffb13cd1685d3af5244e
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled@sha256:edec6ea65a92f432083a8f75fc3c18addd004015bbd4d523ce1d13e23b347008
 
 FROM ${SDK_IMAGE} AS build
 WORKDIR /src

@@ -216,6 +216,25 @@ customer calls không nằm trong evidence hiện tại.
 > chuyển tiếp đóng băng nên chạy lại hôm nay sẽ ra `13`. Số cũ được giữ nguyên vì nó đúng tại thời
 > điểm đo. Xem [`docs/evidence/W-0124/README.md`](../W-0124/README.md).
 
+### 6.3. TODAY-04 target-DB preflight update — 2026-08-29
+
+Trạng thái hiện tại:
+**`COMPLETE_AS_BLOCKED — PREFLIGHT_READY / OWNER_DATA_REQUIRED / TARGET_DB_NOT_RUN`**.
+
+- [`od18-legacy-skip-preflight.sql`](../../../tools/ops/od18-legacy-skip-preflight.sql) giờ xuất
+  migration inventory, legacy schema/constraint inventory và data counts; SHA-256
+  `203c5fd173384cc0c09e51b115ff841fdf40eb91b8cd6510d7a962c84961dd7a`.
+- Static check: PowerShell parser `PASS`; SQL có 18/18 câu `SELECT`, 0 non-SELECT.
+- `IT-M3-AUTHORITY-13`: `PASS` 1/1 trên migrated PostgreSQL test schema của working tree hiện tại;
+  đây không phải immutable release candidate.
+- Target preflight vẫn **không chạy**: máy kiểm tra không có `psql`, `Get-Secret`, env/file secret,
+  target endpoint, credential hoặc authority/ticket. Container PostgreSQL local không có authority
+  xác nhận là target IVR nên không được dùng làm target.
+- Owner Module 8 đã xác nhận blocker; xác nhận này không thay target authority/evidence.
+
+Handoff đầy đủ:
+[`today-04-target-db-preflight-handoff-2026-08-29.md`](../../../plan/ivr-orther/today-04-target-db-preflight-handoff-2026-08-29.md).
+
 ## 7. Thay đổi ngoài phạm vi mang trong cùng diff
 
 Ba thay đổi dưới đây **không** thuộc `OD-18` nhưng nằm trong cùng worktree. Chúng được ghi ở đây để

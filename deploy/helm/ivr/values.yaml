@@ -198,6 +198,24 @@ backup:
   keyFileKey: "backup-master-key"
   destination: ""
 
+# W-0139 / B-06. Vendor-neutral OTLP contract shared by API and Worker. Disabled until Platform
+# supplies the environment's collector endpoint, identity labels and optional auth secret.
+observability:
+  enabled: false
+  endpoint: ""
+  protocol: grpc
+  exportTraces: true
+  exportMetrics: true
+  exportLogs: true
+  traceSamplingRatio: 1.0
+  port: 4317
+  headersSecret:
+    existingSecret: ""
+    key: ""
+  collector:
+    namespaceLabels: {}
+    podLabels: {}
+
 networkPolicy:
   enabled: true
   # Least privilege: everything not named here is denied. DNS is separate because a policy that
@@ -211,7 +229,6 @@ networkPolicy:
       podLabels: {}
   egress:
     databasePort: 5432
-    otelPort: 4317
     # Named destinations only. An empty list means no external egress at all, which is the correct
     # state until an owner supplies the real endpoints.
     external: []

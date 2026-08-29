@@ -42,6 +42,7 @@ spec:
           env:
             {{- include "ivr.governanceEnv" . | nindent 12 }}
             {{- include "ivr.dbEnv" . | nindent 12 }}
+            {{- include "ivr.observabilityEnv" (dict "root" . "serviceName" "ginsengfood-ivr-worker") | nindent 12 }}
             {{- if .Values.worker.tts.enabled }}
             - name: Ivr__Speech__Tts__Provider
               value: EXTERNAL_CONFIGURABLE

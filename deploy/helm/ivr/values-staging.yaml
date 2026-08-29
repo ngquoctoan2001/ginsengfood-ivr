@@ -18,6 +18,10 @@ database:
 image:
   tag: "0.1.0-staging"
 
+observability:
+  # Staging exports every root trace once Platform supplies an endpoint/credential overlay.
+  traceSamplingRatio: 1.0
+
 api:
   replicas: 2
   hpa:

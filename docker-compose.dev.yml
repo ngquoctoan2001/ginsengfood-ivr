@@ -137,17 +137,6 @@ services:
     networks:
       - ivr-internal
 
-  otel-collector:
-    build:
-      context: ./deploy/docker
-      dockerfile: Dockerfile.otel
-    image: ivr-otel-collector:dev
-    # Receives nothing today: no OTLP exporter is wired (W-0063, BLOCKED_EXTERNAL). Present so the
-    # wiring exists the day one is, and labelled so nobody reads it as a working pipeline.
-    networks:
-      - ivr-internal
-
-
 networks:
   ivr-database-local:
   ivr-internal:

@@ -657,10 +657,10 @@ Không được tổng hợp các test xanh cục bộ thành `ACCEPTED`, `PRODU
 
 ## 10. Gate tiếp theo sau local implementation
 
-1. Owner chạy `deploy/lab/Start-W0122VoiceAudition.ps1 -SkipBuild`, gọi `12200`/`12201`–`12211`,
-   nghe 11 WAV đã khóa qua Asterisk/MicroSIP 8 kHz, điền manifest và chọn đúng một giọng
-   Bắc/Trung/Nam; nếu Ngọc Trân không đạt thì dừng.
-2. Sau lựa chọn đó mới render/convert/install 12 fixed segments và thực hiện 2 đơn × 3 miền.
+1. **DONE `2026-08-28`:** Owner đã nghe 11 WAV khóa qua Asterisk/MicroSIP 8 kHz và ký Ngọc Linh /
+   Ngọc Trân / Mỹ Duyên trong manifest. Chỉ nghe lại khi binding drift.
+2. 12 fixed segments đã render/convert/install; việc còn mở là Owner nghe đủ 12 đoạn, các mối nối
+   fixed ↔ dynamic đại diện và thực hiện 2 đơn × 3 miền.
 3. Legal/Privacy đánh giá exact VieNeu + MOSS + preset set; Infra tạo internal mirror/digest và
    cung cấp target hardware; Security/Release owner xử lý/disposition 13 HIGH + 3 CRITICAL base-OS
    chưa có fixed version; Platform/Telephony chốt `OD-VOICE-08`.

@@ -45,6 +45,7 @@ spec:
             {{- include "ivr.governanceEnv" . | nindent 12 }}
             {{- include "ivr.dbEnv" . | nindent 12 }}
             {{- include "ivr.appSecretEnv" . | nindent 12 }}
+            {{- include "ivr.observabilityEnv" (dict "root" . "serviceName" "ginsengfood-ivr-api") | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

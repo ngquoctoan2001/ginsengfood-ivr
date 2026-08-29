@@ -88,6 +88,11 @@ if ($LASTEXITCODE -ne 0) {
 Write-Output ""
 Write-Output @"
 Next steps:
+  - Record migration_count, migration_latest and migration_inventory with the deployment evidence.
+    Any mismatch with the approved target manifest is SCHEMA_DRIFT; stop before interpreting rows.
+  - task_legacy_column_count must be 5, job_legacy_column_count must be 3 and
+    legacy_constraint_count must be 3. All three constraint-presence metrics must be true. Any
+    other result is SCHEMA_DRIFT; do not rename a migration or repair the target from this script.
   - tasks_with_retired_decision > 0  => the enum value must stay in the check constraint. Any work
     item proposing to remove it has to state a retention and archive plan first.
   - jobs_in_skipped_status > jobs_skipped_status_from_trusted_skip => the difference is unrelated

@@ -7,9 +7,17 @@ using Ivr.Api.Internal;
 using Ivr.Api.Middleware;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.FeatureFlags;
+using Ivr.Infrastructure.Observability;
 
+System.Diagnostics.Activity.DefaultIdFormat = System.Diagnostics.ActivityIdFormat.W3C;
+System.Diagnostics.Activity.ForceDefaultIdFormat = true;
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddIvrObservability(
+    builder.Configuration,
+    builder.Environment,
+    "ginsengfood-ivr-api",
+    instrumentAspNetCore: true);
 builder.Services.AddIvrFoundation(builder.Configuration);
 builder.Services.AddIvrEligibility(builder.Configuration);
 builder.Services.AddIvrFeatureFlags(builder.Configuration);

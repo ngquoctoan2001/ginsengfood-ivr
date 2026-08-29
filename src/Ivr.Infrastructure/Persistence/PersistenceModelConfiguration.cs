@@ -75,6 +75,10 @@ internal static class PersistenceModelConfiguration
             });
         builder.HasKey(entity => entity.Id);
         builder.HasAlternateKey(entity => entity.TaskId);
+        builder.Property(entity => entity.TraceParent)
+            .HasMaxLength(Observability.TraceContextSnapshot.TraceParentMaxLength);
+        builder.Property(entity => entity.TraceState)
+            .HasMaxLength(Observability.TraceContextSnapshot.TraceStateMaxLength);
         builder.HasIndex(entity => entity.IdempotencyKey).IsUnique();
         builder.HasIndex(entity => entity.CorrelationId);
         builder.HasIndex(entity => entity.OfficialOrderId);

@@ -100,6 +100,17 @@ public sealed class EligibilityService(
         EligibilityTaskRecord stored = await repository.FindAsync(taskId, cancellationToken)
             .ConfigureAwait(false)
             ?? throw new KeyNotFoundException("The confirmation task was not found.");
+        TraceContextSnapshot? traceContext = TraceContextSnapshot.FromPersisted(
+            stored.Task.TraceParent,
+            stored.Task.TraceState);
+        using System.Diagnostics.Activity? span = IvrTelemetry.StartWorkflowSpan(
+            "ivr.eligibility.evaluate",
+            System.Diagnostics.ActivityKind.Internal,
+            traceContext,
+            linkCurrent: true,
+            (TelemetryTags.CorrelationId, stored.Task.CorrelationId),
+            (TelemetryTags.TaskId, stored.Task.TaskId),
+            (TelemetryTags.Program, stored.Task.ProgramType));
         DateTimeOffset now = timeProvider.GetUtcNow();
         (string evidenceRef, bool evidenceAvailable) = FirstEvidenceOrFailClosed(stored);
         EligibilityCapacitySnapshot capacityNotEvaluated = new(
@@ -141,12 +152,14 @@ public sealed class EligibilityService(
                     : "UNSPECIFIED"));
         }
 
-        return await repository.PersistAsync(
+        EligibilityEvaluation persisted = await repository.PersistAsync(
             taskId,
             evaluation,
             capacity,
             correlationId,
             cancellationToken).ConfigureAwait(false);
+        span?.SetTag(TelemetryTags.Decision, persisted.Decision);
+        return persisted;
     }
 
     /// <summary>

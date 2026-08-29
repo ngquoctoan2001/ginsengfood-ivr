@@ -20,7 +20,16 @@ public sealed record SchedulerDispatchLease(
     long FencingGeneration,
     DateTimeOffset LeaseExpiresAt,
     string AdapterMode,
-    string ProviderName);
+    string ProviderName)
+{
+    public string TaskId { get; init; } = string.Empty;
+
+    public string CorrelationId { get; init; } = string.Empty;
+
+    public string? TraceParent { get; init; }
+
+    public string? TraceState { get; init; }
+}
 
 public interface IPostgresSchedulerStore
 {
@@ -134,6 +143,12 @@ public sealed class PostgresSchedulerStore(
             return null;
         }
 
+        ConfirmationTaskEntity task = await context.ConfirmationTasks.AsNoTracking()
+            .SingleAsync(
+                candidate => candidate.TaskId == job.TaskId,
+                cancellationToken)
+            .ConfigureAwait(false);
+
         SimChannelEntity? channel = await context.SimChannels.FromSqlInterpolated($$"""
             SELECT channel.*
             FROM ivr_sim_channels channel
@@ -241,7 +256,13 @@ public sealed class PostgresSchedulerStore(
             channel.LeaseFencingGeneration,
             leaseExpiresAt,
             channel.AdapterMode,
-            channel.ProviderName);
+            channel.ProviderName)
+        {
+            TaskId = task.TaskId,
+            CorrelationId = task.CorrelationId,
+            TraceParent = task.TraceParent,
+            TraceState = task.TraceState,
+        };
     }
 
     public async Task<int> QuarantineExpiredLeasesAsync(

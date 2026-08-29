@@ -3,12 +3,20 @@ using Ivr.Infrastructure.Analytics;
 using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.FeatureFlags;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Retention;
 using Ivr.Worker.Jobs;
 using Ivr.Worker.Normalization;
 
+System.Diagnostics.Activity.DefaultIdFormat = System.Diagnostics.ActivityIdFormat.W3C;
+System.Diagnostics.Activity.ForceDefaultIdFormat = true;
 var builder = Host.CreateApplicationBuilder(args);
 
+builder.Services.AddIvrObservability(
+    builder.Configuration,
+    builder.Environment,
+    "ginsengfood-ivr-worker",
+    instrumentAspNetCore: false);
 builder.Services.AddIvrFoundation(builder.Configuration);
 builder.Services.AddIvrFeatureFlags(builder.Configuration);
 builder.Services.AddIvrRetention(builder.Configuration);
@@ -53,3 +61,7 @@ else
 
 var host = builder.Build();
 host.Run();
+
+// Keep the worker entrypoint internal so integration tests that also reference the public API
+// Program type cannot resolve an ambiguous top-level Program from two assemblies.
+internal partial class Program;

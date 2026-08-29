@@ -1,0 +1,55 @@
+# W-0139 / B-06. Explicit development/test overlay for the local OTLP backend.
+#
+# This is not a production topology. grafana/otel-lgtm intentionally bundles collector,
+# Prometheus, Tempo, Loki and Grafana into one process boundary for demos and tests. Production
+# uses the same OTLP application contract with a Platform-owned backend instead.
+
+x-ivr-observability: &ivr-observability
+  Ivr__Observability__Enabled: "true"
+  Ivr__Observability__ExportTraces: "true"
+  Ivr__Observability__ExportMetrics: "true"
+  Ivr__Observability__ExportLogs: "true"
+  Ivr__Observability__TraceSamplingRatio: "1.0"
+  Ivr__Observability__DeploymentEnvironmentName: "development"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-lgtm:4317"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+  # The default metric interval is one minute; a bounded runtime test must not sleep that long.
+  OTEL_METRIC_EXPORT_INTERVAL: "5000"
+
+services:
+  ivr-api:
+    environment:
+      <<: *ivr-observability
+    depends_on:
+      otel-lgtm:
+        condition: service_healthy
+
+  ivr-worker:
+    environment:
+      <<: *ivr-observability
+    depends_on:
+      otel-lgtm:
+        condition: service_healthy
+
+  otel-lgtm:
+    image: grafana/otel-lgtm:0.30.0
+    environment:
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: >-
+        /otel-lgtm/grafana/conf/provisioning/dashboards/custom/ivr-slo-health.json
+    ports:
+      - "127.0.0.1:${IVR_GRAFANA_PORT:-53000}:3000"
+      - "127.0.0.1:${IVR_PROMETHEUS_PORT:-59090}:9090"
+      - "127.0.0.1:${IVR_TEMPO_PORT:-53200}:3200"
+      - "127.0.0.1:${IVR_LOKI_PORT:-53100}:3100"
+    volumes:
+      - ./deploy/observability/dashboards/ivr-slo-health.json:/otel-lgtm/grafana/conf/provisioning/dashboards/custom/ivr-slo-health.json:ro
+      - ./deploy/observability/grafana/dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:3000/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+    networks:
+      - ivr-internal
+      - ivr-database-local

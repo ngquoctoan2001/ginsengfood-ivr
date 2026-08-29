@@ -17,6 +17,9 @@ database:
 image:
   tag: "0.1.0-dev"
 
+observability:
+  traceSamplingRatio: 1.0
+
 api:
   replicas: 1
   hpa:

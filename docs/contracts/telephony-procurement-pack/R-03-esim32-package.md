@@ -14,28 +14,34 @@ Mục này tồn tại để thay một con số bằng một phép tính có đ
 
 ## 2. Mô hình nhu cầu — công thức, chưa phải kết quả
 
-Số kênh cần thiết bị chi phối bởi **đỉnh đồng thời**, không phải tổng số cuộc gọi/ngày. Golden Hour ép mọi cuộc vào một cửa sổ 5 phút, nên đỉnh rất nhọn.
+Số kênh bị chi phối bởi **đỉnh đồng thời**, không phải tổng số cuộc gọi/ngày. Mỗi đơn Golden Hour
+có deadline 5 phút, nhưng điều đó **không** có nghĩa toàn bộ đơn của một phiên business cùng đến ở
+một thời điểm. `W-0134` đã đo rằng thay ẩu phiên 45 phút vào model làm sizing tụt 16 → 2 kênh vì
+nó giấu giả định khách đến đều.
 
 ```text
-kenh_can = ceil( don_dinh_trong_cua_so
-                 × lan_goi_trung_binh_moi_don
-                 × thoi_luong_mot_cuoc_ke_ca_cooldown
-                 / do_dai_cua_so
-                 × he_so_du_phong )
+attempts_window = eligible_orders_arriving_in_window + retries_scheduled_in_window
+calls_per_channel = floor(window_seconds / (channel_occupancy_seconds + cooldown_seconds))
+base_channels = ceil(attempts_window / calls_per_channel)
+required_channels = ceil(base_channels × reserve_factor)
 ```
 
-Đầu vào bắt buộc, chưa có cái nào:
+Phải tính cho **mọi rolling window** của từng programme rồi lấy đỉnh; không chia đều tổng phiên.
+Đầu vào bắt buộc hiện chưa đủ:
 
 | Đầu vào | Nguồn | Giá trị |
 | --- | --- | --- |
-| Số đơn Golden Hour trong 1 cửa sổ 5 phút, ở giờ cao điểm | Business/Sales | `<điền>` |
-| Số đơn 24/7 trong 1 cửa sổ 15 phút, ở giờ cao điểm | Business/Sales | `<điền>` |
-| Số lần gọi trung bình mỗi đơn (phụ thuộc tỉ lệ nghe máy) | đo ở pilot | `<điền>` |
-| Thời lượng một cuộc hoàn chỉnh, gồm đổ chuông + thoại + chờ phím | [lab §5](lab-acceptance-report-template.md) | `<điền>` |
-| Cooldown tối thiểu giữa hai cuộc trên cùng kênh | [lab §5](lab-acceptance-report-template.md) | `<điền>` |
+| Định nghĩa phiên, timezone, thời điểm bắt đầu/kết thúc | Business/M3 qua `M8-OD-C` | `<điền>` |
+| Arrival profile: số eligible order theo bucket đủ để tính rolling 5 phút GH / 15 phút 24/7 | Business/M3, dữ liệu PII-safe | `<điền>` |
+| Attempt policy production: max attempt, offset, window | Product/Order Core qua W-0007 | `<điền>` |
+| Tỉ lệ outcome/no-answer/retry theo programme | pilot/lab thật; ghi `N` + phân bố | `<điền>` |
+| Channel occupancy p50/p95/p99 | [lab §5](lab-acceptance-report-template.md), W-0008 | `<điền>` |
+| Cooldown p50/p95/p99 và cấu hình được duyệt | [lab §5](lab-acceptance-report-template.md), W-0008 | `<điền>` |
 | Hệ số dự phòng cho kênh hỏng/quarantine | Infra | `<điền>` |
 
-**Ba đầu vào đầu tiên là câu hỏi business, không phải câu hỏi kỹ thuật.** Không có chúng thì mọi con số kênh đều là phỏng đoán — kể cả `32`.
+Business/M3 chịu trách nhiệm cho volume/session/arrival; Product/Order Core cho attempt policy; lab
+cho timing/outcome; Infra cho reserve. IVR không được ký thay bất kỳ nguồn nào. Thiếu một nhóm thì
+mọi số kênh vẫn là sensitivity, **không phải quyết định mua** — kể cả `32`.
 
 Ràng buộc cứng: **một SIM tại một thời điểm chỉ mang một cuộc gọi** (`ONE_SIM_ONE_ACTIVE_CALL`). Nếu nhà cung cấp phá được giả định này ([R-01](R-01-vendor-requirements.md) §8), toàn bộ mô hình đổi.
 

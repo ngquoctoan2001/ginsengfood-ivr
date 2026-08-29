@@ -175,7 +175,14 @@ async function assertCiTopology() {
   const observability = YAML.parse(
     await fs.readFile(path.join(repositoryRoot, "deploy/ci/observability.gitlab-ci.yml"), "utf8"),
   );
-  for (const jobName of ["observability_rules", "observability_contract"]) {
+  for (const jobName of [
+    "observability_rules",
+    "observability_contract",
+    "observability_helm",
+    "observability_runtime",
+    "observability_staging_contract",
+    "observability_staging_evidence",
+  ]) {
     assert(observability[jobName], `Rendered observability pipeline is missing ${jobName}.`);
     assert(observability[jobName].allow_failure === false, `${jobName} must fail closed.`);
   }
@@ -186,6 +193,43 @@ async function assertCiTopology() {
       && observability.observability_rules.image.entrypoint.length === 1
       && observability.observability_rules.image.entrypoint[0] === "",
     "observability_rules must blank the Prometheus image entrypoint.",
+  );
+  assert(
+    observability.observability_runtime.services?.some((service) => service.alias === "docker"),
+    "observability_runtime must run against its declared Docker service.",
+  );
+  assert(
+    (observability.observability_runtime.script ?? []).some((line) =>
+      String(line).includes("--observability-runtime")
+    ),
+    "observability_runtime must execute the LGTM runtime proof.",
+  );
+  assert(
+    (observability.observability_staging_contract.script ?? []).some((line) =>
+      String(line).includes("observability-staging-evidence.mjs --self-test")
+    ),
+    "observability_staging_contract must exercise the fail-closed verifier.",
+  );
+  assert(
+    (observability.observability_staging_evidence.script ?? []).some((line) =>
+      String(line).includes("observability-staging-evidence.mjs --capture")
+    ),
+    "observability_staging_evidence must capture real backend evidence.",
+  );
+  assert(
+    (observability.observability_staging_evidence.rules ?? []).some((rule) =>
+      rule.when === "manual" && String(rule.if).includes("CI_DEFAULT_BRANCH")
+    ),
+    "observability_staging_evidence must be manual on the default branch.",
+  );
+  assert(
+    observability.observability_staging_evidence.environment?.name === "staging"
+      && observability.observability_staging_evidence.environment?.action === "verify",
+    "observability_staging_evidence must target the staging environment as a verification action.",
+  );
+  assert(
+    observability.observability_staging_evidence.variables?.REAL_CUSTOMER_CALL_ALLOWED === "NO",
+    "observability_staging_evidence must forbid real customer calls.",
   );
 
   // W-0042 / P6-3 section 7. The chaos fragment, same treatment. A resilience gate that runs

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "environment": "staging",
+  "deployment": {
+    "gitSha": "0000000000000000000000000000000000000000",
+    "apiImage": "registry.example.invalid/ivr-api@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "workerImage": "registry.example.invalid/ivr-worker@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "sourceRef": "replace-with-platform-deployment-capture-reference",
+    "capturedAt": "2026-08-29T00:00:00Z"
+  },
+  "collector": {
+    "otlpEndpoint": "https://replace-with-staging-collector.example.invalid",
+    "protocol": "grpc",
+    "namespaceLabels": {
+      "kubernetes.io/metadata.name": "replace-with-collector-namespace"
+    },
+    "podLabels": {
+      "app.kubernetes.io/name": "replace-with-collector-pod-label"
+    },
+    "headersSecretReference": "replace-with-kubernetes-secret-name:replace-with-key"
+  },
+  "task": {
+    "taskId": "TASK-STAGING-MOCK-REPLACE",
+    "correlationId": "corr-staging-replace",
+    "traceId": "00000000000000000000000000000000"
+  },
+  "observationWindow": {
+    "start": "2026-08-29T00:00:00Z",
+    "end": "2026-08-29T00:30:00Z"
+  },
+  "backends": {
+    "tempoUrl": "https://replace-with-tempo.example.invalid",
+    "prometheusUrl": "https://replace-with-prometheus.example.invalid",
+    "lokiUrl": "https://replace-with-loki.example.invalid",
+    "grafanaUrl": "https://replace-with-grafana.example.invalid",
+    "dashboardUid": "ivr-order-confirmation-slo"
+  },
+  "alert": {
+    "name": "IvrChannelAutoDisableBurst",
+    "start": "2026-08-29T00:00:00Z",
+    "end": "2026-08-29T00:30:00Z",
+    "stepSeconds": 30
+  },
+  "retentionAccess": {
+    "metricsDays": 30,
+    "tracesDays": 14,
+    "logsDays": 30,
+    "accessRoles": [
+      "replace-with-approved-read-role"
+    ],
+    "ownerRef": "replace-with-platform-owner-reference",
+    "sourceRef": "replace-with-approved-policy-reference",
+    "approvedAt": "2026-08-29T00:00:00Z"
+  },
+  "dashboardScreenshotFile": "replace-with-GitLab-file-variable-path"
+}

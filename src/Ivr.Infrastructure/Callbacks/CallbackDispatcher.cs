@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Ivr.Contracts.Sales;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence.Outbox;
 using Microsoft.Extensions.Options;
 
@@ -45,10 +46,18 @@ public sealed class CallbackDispatcher(
             // W-0040 / P6-1 §6.2. One span per delivery, carrying the correlation id the task
             // arrived with, so an investigation can follow a single order across the boundary
             // instead of guessing which of a batch's log lines belong together.
-            using System.Diagnostics.Activity? span = Observability.IvrTelemetry.StartSpan(
+            TraceContextSnapshot? traceContext = TraceContextSnapshot.FromPersisted(
+                message.TraceParent,
+                message.TraceState);
+            using System.Diagnostics.Activity? span = IvrTelemetry.StartWorkflowSpan(
                 "ivr.callback.deliver",
-                (Observability.TelemetryTags.CorrelationId, message.CorrelationId),
-                (Observability.TelemetryTags.Program, message.ProgramCode));
+                System.Diagnostics.ActivityKind.Consumer,
+                traceContext,
+                linkCurrent: false,
+                (TelemetryTags.CorrelationId, message.CorrelationId),
+                (TelemetryTags.TaskId, message.TaskId),
+                (TelemetryTags.CallbackId, message.CallbackId),
+                (TelemetryTags.Program, message.ProgramCode));
             long startedTicks = System.Diagnostics.Stopwatch.GetTimestamp();
             CallbackTransportResult transportResult;
             if (!circuitBreaker.TryEnter())
@@ -70,6 +79,8 @@ public sealed class CallbackDispatcher(
                     transportResult.Code,
                     deferred.RetryCount,
                     persisted));
+                span?.SetTag(TelemetryTags.Outcome, deferred.DeliveryStatus);
+                span?.SetStatus(System.Diagnostics.ActivityStatusCode.Error);
                 continue;
             }
 
@@ -137,13 +148,19 @@ public sealed class CallbackDispatcher(
 
             // Measured from the real elapsed time of this delivery, not estimated: P6-1 §11
             // forbids reporting a KPI that was inferred rather than observed.
-            Observability.IvrTelemetry.RecordCallback(
+            IvrTelemetry.RecordCallback(
                 System.Diagnostics.Stopwatch.GetElapsedTime(startedTicks).TotalSeconds,
-                (Observability.TelemetryTags.Program, message.ProgramCode),
-                (Observability.TelemetryTags.Outcome, update.DeliveryStatus),
-                (Observability.TelemetryTags.AckCode, transportResult.Code ?? "NONE"),
-                (Observability.TelemetryTags.HttpStatus, transportResult.HttpStatus ?? 0));
-            span?.SetTag(Observability.TelemetryTags.Outcome, update.DeliveryStatus);
+                (TelemetryTags.Program, message.ProgramCode),
+                (TelemetryTags.Outcome, update.DeliveryStatus),
+                (TelemetryTags.AckCode, transportResult.Code ?? "NONE"),
+                (TelemetryTags.HttpStatus, transportResult.HttpStatus ?? 0));
+            span?.SetTag(TelemetryTags.Outcome, update.DeliveryStatus);
+            if (transportResult.Outcome is CallbackTransportOutcome.TransientFailure
+                or CallbackTransportOutcome.Invalid
+                or CallbackTransportOutcome.AuthRejected)
+            {
+                span?.SetStatus(System.Diagnostics.ActivityStatusCode.Error);
+            }
         }
 
         return results;

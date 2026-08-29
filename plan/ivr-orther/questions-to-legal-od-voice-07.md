@@ -3,7 +3,9 @@
 **Chủ đề:** `OD-VOICE-07` — chấp nhận hay từ chối rủi ro pháp lý/quyền riêng tư của đúng bộ
 artifact VieNeu-TTS tự host (W-0122)
 **Người gửi:** Team IVR / Module 8 (IVR Order Confirmation)
-**Ngày gửi:** `2026-08-28` · **Trạng thái:** ⏳ CHỜ TRẢ LỜI
+**Ngày lập:** `2026-08-28` · **Routing cập nhật:** `2026-08-29`
+
+**Trạng thái:** `READY_TO_DISPATCH / NOT_SENT / EXTERNAL_RESPONSE_REQUIRED`
 **Ưu tiên:** P1 — chặn production. **Không** chặn lab: lab chạy dữ liệu giả và
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
@@ -41,9 +43,10 @@ Nghĩa là câu hỏi cho Legal có **hai nửa tách rời**:
 - 13 file artifact được khóa theo path + size + SHA-256 trong `deploy/tts/models/MODELS.lock`.
 - Biến thể `pnnbao-ump/VieNeu-TTS-0.3B-q4-gguf` mang license **NC (non-commercial)** và đã bị gate
   chặn cứng bằng allowlist; dự án **không** dùng bản đó.
-- Bộ giọng: 11 preset nữ trong voice manifest, Owner sẽ chọn đúng 3 (Bắc/Trung/Nam). Đây là
-  **preset của model**, không phải clone giọng người thật. Voice cloning nằm ngoài phạm vi W-0122
-  và sẽ là work item riêng nếu cần.
+- Bộ giọng Owner đã ký ngày `2026-08-28`: Bắc **Ngọc Linh**, Trung **Ngọc Trân**, Nam
+  **Mỹ Duyên**, theo `voice-acceptance-manifest.json`. Ý kiến Legal phải áp dụng cho đúng ba preset
+  này và exact pin ở trên. Đây là **preset của model**, không phải clone giọng người thật. Voice
+  cloning nằm ngoài phạm vi W-0122 và sẽ là work item riêng nếu cần.
 
 ## 3. Ba khoảng trống dự án đã tự xác định
 
@@ -101,8 +104,8 @@ Xin trả lời kèm cơ sở (điều khoản/quy định/án lệ nội bộ).
 ☐ Cần xác nhận riêng cho từng preset
 ☐ Cần tránh preset nào mô phỏng giọng người có thật — nếu vậy nêu tiêu chí: `______________`
 
-> Owner sẽ chọn 3 trong 11 preset **sau** khi nghe. Nếu Legal có ràng buộc loại trừ, xin nêu **trước**
-> buổi nghe để không phải nghe lại.
+> Owner đã nghe đủ 11 candidate và chọn Ngọc Linh / Ngọc Trân / Mỹ Duyên. Legal không được trả lời
+> chung cho “một model bất kỳ”; quyết định phải nêu rõ có chấp nhận đúng ba preset này hay không.
 
 ### `L4` — Nghĩa vụ attribution / NOTICE khi phân phối image nội bộ (P2)
 
@@ -134,7 +137,7 @@ phần production còn `OPEN`.
 
 | Trả lời | Hành động |
 | --- | --- |
-| `L1`–`L3` đều chấp nhận | Ghi reference vào `MODELS.lock.legal_gate`, đóng `OD-VOICE-07`; các gate khác vẫn mở |
+| `L1`–`L3` đều chấp nhận | Ghi reference vào `MODELS.lock.legal_gate` với `decision_authority=LEGAL_PRIVACY`, `approval_reference` và người/ngày ký; đóng `OD-VOICE-07`; các gate khác vẫn mở |
 | Bất kỳ mục nào từ chối | Dừng nhánh self-host, giữ provider hiện tại, mở work item theo hướng Legal chỉ định |
 | Có điều kiện | Thực hiện điều kiện rồi xin ý kiến lại trên **cùng bộ pin**; pin đổi thì xin lại từ đầu |
 | Không trả lời | `MODELS.lock.legal_gate` giữ `OWNER_DATA_REQUIRED`; **không** suy ra chấp nhận từ CI xanh hay từ model card |

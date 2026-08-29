@@ -508,6 +508,15 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
 
         Dictionary<string, string?> metrics = await RunPreflightAsync(factory);
 
+        Assert.Matches("^[1-9][0-9]*$", metrics["migration_count"]!);
+        Assert.False(string.IsNullOrWhiteSpace(metrics["migration_latest"]));
+        Assert.Contains(metrics["migration_latest"]!, metrics["migration_inventory"]!);
+        Assert.Equal("5", metrics["task_legacy_column_count"]);
+        Assert.Equal("3", metrics["job_legacy_column_count"]);
+        Assert.Equal("3", metrics["legacy_constraint_count"]);
+        Assert.Equal("true", metrics["task_constraint_has_retired_decision"]);
+        Assert.Equal("true", metrics["job_constraint_has_retired_decision"]);
+        Assert.Equal("true", metrics["job_queue_constraint_has_skipped"]);
         Assert.Equal("1", metrics["tasks_with_retired_decision"]);
         Assert.Equal("1", metrics["jobs_with_retired_decision"]);
         Assert.Equal("1", metrics["jobs_in_skipped_status"]);
@@ -544,7 +553,7 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
             .Select(statement => statement.Trim())
             .Where(statement => statement.Contains("SELECT", StringComparison.Ordinal))];
 
-        Assert.Equal(9, statements.Length);
+        Assert.Equal(18, statements.Length);
 
         var metrics = new Dictionary<string, string?>(StringComparer.Ordinal);
         await using IvrDbContext context = await factory.CreateDbContextAsync();

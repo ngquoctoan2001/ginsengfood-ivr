@@ -1,0 +1,5 @@
+# W-0139 negative fixture: endpoint exists but least-privilege destination identity does not.
+observability:
+  enabled: true
+  endpoint: https://otel-collector.telemetry.svc:4317
+  protocol: grpc

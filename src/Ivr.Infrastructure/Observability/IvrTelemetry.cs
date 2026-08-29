@@ -15,6 +15,11 @@ namespace Ivr.Infrastructure.Observability;
 public static class TelemetryTags
 {
     public const string CorrelationId = "ivr.correlation_id";
+    public const string TaskId = "ivr.task_id";
+    public const string JobId = "ivr.job_id";
+    public const string AttemptId = "ivr.attempt_id";
+    public const string CallbackId = "ivr.callback_id";
+    public const string TraceContextMissing = "ivr.trace_context_missing";
     public const string Program = "ivr.program";
     public const string PaymentMethod = "ivr.payment_method";
     public const string Decision = "ivr.decision";
@@ -34,6 +39,11 @@ public static class TelemetryTags
     public static IReadOnlySet<string> Allowed { get; } = new HashSet<string>(StringComparer.Ordinal)
     {
         CorrelationId,
+        TaskId,
+        JobId,
+        AttemptId,
+        CallbackId,
+        TraceContextMissing,
         Program,
         PaymentMethod,
         Decision,
@@ -60,7 +70,72 @@ public static class TelemetryTags
     public static IReadOnlySet<string> TraceOnly { get; } = new HashSet<string>(StringComparer.Ordinal)
     {
         CorrelationId,
+        TaskId,
+        JobId,
+        AttemptId,
+        CallbackId,
+        TraceContextMissing,
     };
+}
+
+/// <summary>
+/// A privacy-checked W3C propagation snapshot that can cross the database/worker boundary.
+/// Invalid or unsafe input is treated as missing observability context and never blocks work.
+/// </summary>
+public sealed record TraceContextSnapshot(string TraceParent, string? TraceState)
+{
+    public const int TraceParentMaxLength = 256;
+    public const int TraceStateMaxLength = 512;
+
+    public static TraceContextSnapshot? Capture(Activity? activity)
+    {
+        if (activity?.Id is not { Length: > 0 } traceParent
+            || traceParent.Length > TraceParentMaxLength
+            || !PiiGuard.IsSafeText(traceParent)
+            || !ActivityContext.TryParse(
+                traceParent,
+                activity.TraceStateString,
+                isRemote: false,
+                out _))
+        {
+            return null;
+        }
+
+        string? traceState = activity.TraceStateString;
+        if (traceState is { Length: > 0 }
+            && (traceState.Length > TraceStateMaxLength || !PiiGuard.IsSafeText(traceState)))
+        {
+            traceState = null;
+        }
+
+        return new TraceContextSnapshot(traceParent, traceState);
+    }
+
+    public static TraceContextSnapshot? FromPersisted(string? traceParent, string? traceState)
+    {
+        if (string.IsNullOrWhiteSpace(traceParent)
+            || traceParent.Length > TraceParentMaxLength
+            || !PiiGuard.IsSafeText(traceParent))
+        {
+            return null;
+        }
+
+        if (traceState is { Length: > 0 }
+            && (traceState.Length > TraceStateMaxLength || !PiiGuard.IsSafeText(traceState)))
+        {
+            return null;
+        }
+
+        return ActivityContext.TryParse(traceParent, traceState, isRemote: true, out _)
+            ? new TraceContextSnapshot(traceParent, traceState)
+            : null;
+    }
+
+    public bool TryParse(out ActivityContext context) => ActivityContext.TryParse(
+        TraceParent,
+        TraceState,
+        isRemote: true,
+        out context);
 }
 
 /// <summary>
@@ -70,11 +145,7 @@ public static class TelemetryTags
 /// address reaching a log line is the same leak whether it arrives through an audit row or a
 /// metric label, so the check lives here rather than in each call site's good intentions.
 /// </para>
-/// <para>
-/// No OTLP exporter is wired: the collector/backend is <c>W-0063</c> and still
-/// <c>BLOCKED_EXTERNAL</c>. Instrumentation is a BCL <see cref="ActivitySource"/> and
-/// <see cref="Meter"/>, so an exporter can be attached later without touching a call site.
-/// </para>
+/// <para>W-0139 attaches this BCL source and meter to a vendor-neutral OTLP pipeline.</para>
 /// </summary>
 public static class IvrTelemetry
 {
@@ -162,6 +233,45 @@ public static class IvrTelemetry
             return null;
         }
 
+        foreach ((string key, object? value) in tags)
+        {
+            activity.SetTag(key, RequireSafeTag(key, value, allowTraceOnly: true));
+        }
+
+        return activity;
+    }
+
+    /// <summary>
+    /// Starts an asynchronous workflow stage from the task context persisted at intake. When the
+    /// context is missing or invalid, work continues on a local span carrying an explicit marker.
+    /// An ambient request span is linked, rather than made parent, so all five business stages
+    /// retain the task TraceId.
+    /// </summary>
+    public static Activity? StartWorkflowSpan(
+        string name,
+        ActivityKind kind,
+        TraceContextSnapshot? parent,
+        bool linkCurrent,
+        params (string Key, object? Value)[] tags)
+    {
+        ArgumentNullException.ThrowIfNull(tags);
+        ActivityContext ambient = Activity.Current?.Context ?? default;
+        bool parsed = parent is not null && parent.TryParse(out ActivityContext parentContext);
+        ActivityLink[]? links = parsed
+            && linkCurrent
+            && ambient != default
+            && ambient.TraceId != parentContext.TraceId
+                ? [new ActivityLink(ambient)]
+                : null;
+        Activity? activity = parsed
+            ? Source.StartActivity(name, kind, parentContext, tags: null, links)
+            : Source.StartActivity(name, kind);
+        if (activity is null)
+        {
+            return null;
+        }
+
+        activity.SetTag(TelemetryTags.TraceContextMissing, !parsed);
         foreach ((string key, object? value) in tags)
         {
             activity.SetTag(key, RequireSafeTag(key, value, allowTraceOnly: true));

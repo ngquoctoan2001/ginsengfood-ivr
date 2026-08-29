@@ -52,13 +52,18 @@ spec:
       ports:
         - protocol: TCP
           port: {{ .Values.networkPolicy.egress.databasePort }}
+    {{- if .Values.observability.enabled }}
     - to:
-        - podSelector:
+        - namespaceSelector:
             matchLabels:
-              app.kubernetes.io/name: otel-collector
+              {{- toYaml .Values.observability.collector.namespaceLabels | nindent 14 }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.observability.collector.podLabels | nindent 14 }}
       ports:
         - protocol: TCP
-          port: {{ .Values.networkPolicy.egress.otelPort }}
+          port: {{ .Values.observability.port }}
+    {{- end }}
     {{- range .Values.networkPolicy.egress.external }}
     # {{ .name }} — an owner-supplied destination, never a wildcard.
     - to:

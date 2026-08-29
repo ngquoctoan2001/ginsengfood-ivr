@@ -5,6 +5,11 @@ Baseline: `main@79f17b0`
 Trạng thái: `TESTS_PASS`
 Quyền gọi khách thật: `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
+> **Cập nhật `2026-08-29` — W-0141:** các mục bên dưới giữ nguyên snapshot W-0137 tại thời điểm
+> `OD-20` còn `PENDING`. Sau đó Module 8 / Project Owner đã ký phương án thu hồi và W-0141 đã đổi
+> tên DOCX thành `MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN_SUPERSEDED.docx`, giữ nguyên bytes.
+> Xem §8 và [`docs/evidence/W-0141/README.md`](../W-0141/README.md).
+
 ## 1. Nợ do W-0136 để lại
 
 `W-0136` sửa spec `.md` sang 4G/VoLTE và **tự ghi nợ** rằng bản `.docx` cùng tên không được cập
@@ -75,3 +80,15 @@ khi Owner trả lời `OD-20` là làm ngược thứ tự — nếu chọn hư�
   câu đó thì lệch lại tái diễn.
 - Bản **V0.2 `.docx`** (`1.9 MB`, tháng 6) vẫn là thứ nhiều tài liệu đang trỏ tới. W-0137 không
   đụng, nhưng đáng soi ở lượt sau: các `specs/` đang lấy V0.2 làm nguồn trong khi V0.3 đã supersede.
+
+## 8. Follow-up W-0141 — quyết định đã thực thi
+
+- `OD-20`: `IMPLEMENTED / OPTION_1_WITHDRAW`.
+- Người ký: **Tôi — Module 8 / Project Owner**, `2026-08-29`.
+- Source cũ: `docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.docx` — không còn tồn tại.
+- Artifact giữ lại:
+  `docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN_SUPERSEDED.docx` — tồn tại, `45.101` byte.
+- SHA-256 trước/sau rename:
+  `b2b95c9cb62e14b8138538b8447117040207641e5c565e4e1881f3a55af0935c` — không đổi.
+- Không sửa nội dung DOCX, không xóa binary, không đụng bản V0.2 hoặc report DOCX.
+- W-0137 giữ `TESTS_PASS`; rename không phải Release acceptance và không đóng external gate.

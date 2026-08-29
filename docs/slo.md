@@ -238,10 +238,14 @@ và khoảng lệch **lớn nhất đúng lúc dung lượng tệ nhất**. Nên
 
 ## 10. Cái này KHÔNG đo được, và tại sao
 
-- **Chưa có metric nào rời khỏi tiến trình.** Không có exporter OTLP; collector/backend là `W-0063`,
-  vẫn `BLOCKED_EXTERNAL`. Instrument dùng `Meter` của BCL nên gắn exporter sau **không phải sửa call
-  site nào**, nhưng cho tới lúc đó Prometheus không scrape được gì. Dashboard và alert ở đây là
-  **artifact as-code đã được kiểm bằng bộ đánh giá luật thật**, không phải thứ đang chạy production.
+- ~~**Chưa có metric nào rời khỏi tiến trình.**~~ **Đã đóng ở mức code + local runtime bởi
+  `W-0139`**: API và Worker cùng xuất trace/metric/log qua OTLP tới LGTM local; proof một MOCK task
+  thấy đủ bốn nhóm metric và đủ năm stage span. Đây là
+  `B06_CODE_AND_LOCAL_RUNTIME_PASS`, **không phải staging/production evidence**. Endpoint,
+  credential, retention, access policy, screenshot/query staging và alert fire/recovery thật vẫn
+  thuộc Platform/`W-0063`; do đó B-06 chưa đóng và dashboard/alert chưa được gọi là production-ready.
+  `observability-staging-evidence.mjs` cùng manual CI job đã chuẩn hóa cách thu các bằng chứng này,
+  nhưng contract self-test của verifier không thay thế một lần query staging thật.
 - ~~**`ivr_call_attempts_total` và `ivr_call_results_total` chưa có call site.**~~ **Đã đóng
   `2026-08-19`** — xem §7 và §8. `confirm_rate`, `cancel_rate`, `no_answer_rate` (`ARCH-06` §1) giờ
   đo được.

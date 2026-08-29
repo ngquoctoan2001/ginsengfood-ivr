@@ -14,13 +14,31 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p08` · Nguồn: `phase-8/16`,`/18`; 
 | `sim_failure_rate` | SIM lỗi theo slot | tự disable/thay SIM |
 | `cost_per_confirmed_order` | chi phí/đơn xác nhận | tài chính vận hành |
 
-## 2. Health probes (đồng bộ convention ops — DO-06)
-`GET /health/live` (process), `GET /health/ready` (503 nếu DB/dep unhealthy), `GET /health/startup`, `GET /metrics` (Prometheus). Order Core dùng `/health/ready` để fail-closed khi revalidate.
+## 2. Health probes và telemetry surface (đồng bộ convention ops — DO-06)
 
-## 3. Tracing & audit
-- `X-Correlation-Id` xuyên chuỗi; mỗi bước log `task_id/order_id/correlation_id/idempotency_key/evidence_ref`; `order_version` log optional/target khi IR-SALES-OC1 expose.
+`GET /health/live` (process), `GET /health/ready` (503 nếu DB/dep unhealthy) và
+`GET /health/startup`. Order Core dùng `/health/ready` để fail-closed khi revalidate.
+
+Không có `GET /metrics` trên API. API endpoint đó sẽ bỏ sót toàn bộ metric của Worker và tạo hai
+surface vận hành khác nhau. API và Worker đều xuất trace, metric và log qua OTLP; collector/backend
+là Prometheus surface chuẩn. Collector mất kết nối không được làm business request, liveness hoặc
+readiness fail.
+
+## 3. Tracing, log & audit
+
+- W3C `TraceId` được capture tại `ivr.intake`, lưu nullable cùng task và dùng làm parent cho
+  `ivr.eligibility.evaluate` → `ivr.scheduler.dispatch` → `ivr.result.normalize` →
+  `ivr.callback.deliver`. Task cũ thiếu context vẫn chạy với `ivr.trace_context_missing=true`.
+- `X-Correlation-Id` xuyên chuỗi. `task/job/attempt/callback` là trace/log attribute để điều tra,
+  không bao giờ là metric label.
+- OTLP log chỉ xuất template/attribute allowlist qua `PiiGuard`; không xuất raw phone, địa chỉ,
+  DTMF, payload, token, header/credential, formatted message hoặc exception message.
 - Audit append-only (TECH-01) cho: intake, eligibility, attempt dispatch, SIM reserve/release, DTMF, normalization, callback sent/ack/reject, admin action, technical exception, capacity incident.
 - Blocker evidence kèm `sale_lock_id`/`recall_case_id` (DO-07).
+
+Sampling là `ParentBased(TraceIdRatioBased)`: dev/lab/staging mặc định `1.0`, production `0.1`, có
+thể override qua cấu hình. Endpoint/protocol/header dùng chuẩn `OTEL_EXPORTER_OTLP_*`; bật
+observability với endpoint sai phải fail host startup.
 
 ## 4. Alerts
 - SIM `fail_count≥3/10′` → disable + alert. 

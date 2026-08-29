@@ -117,9 +117,9 @@ Thời lượng một cuộc gọi từng sống ở ba nơi độc lập, và *
 
 | Con số | Ở đâu | Nghĩa |
 | --- | --- | --- |
-| **40s** (+5s cooldown) | `capacity-model.mjs`, `capacity-selftest.mjs` | giả định của chính mô hình này |
-| **50s** | hàm ý bởi spec §23 `M8-P0-009` | 32 SIM × `floor(300/50)` = `~192` cuộc mỗi window 5 phút |
-| **60s** | `SchedulerOptions.ExpectedCallDurationSeconds` | mặc định runtime |
+| **40s** (+5s cooldown) | `capacity-model.mjs`, `capacity-selftest.mjs` | giả định **channel occupancy** của model; cooldown được cộng riêng |
+| **50s** | hàm ý bởi spec §23 `M8-P0-009` | **full channel cycle**; 32 SIM × `floor(300/50)` = `~192` cuộc mỗi window 5 phút |
+| **60s** | `SchedulerOptions.ExpectedCallDurationSeconds` | ước lượng **channel occupancy** mặc định của runtime |
 
 `W-0132` gom chúng vào `CALL_DURATION_ASSUMPTIONS` trong `tools/capacity-sim/capacity-model.mjs`
 và **không hợp nhất giá trị**. Hợp nhất nghĩa là tuyên bố một thời lượng đã đo, mà chưa có cuộc gọi
@@ -131,11 +131,15 @@ nào được quay (`W-0008`). Việc gom lại chỉ biến sự bất đồng 
 - `~192` của spec phải còn khớp số học với 50s, nếu không thì 50s không còn là điều spec nói;
 - mặc định C# được **đọc ngược từ `SchedulerCapacity.cs`**, không tin bản sao trong JS;
 - sweep độ nhạy phải còn xoay quanh giả định hiện hành, không phải một giá trị cũ;
-- và cửa thoát có khóa: nếu ba con số **được làm cho bằng nhau** mà `calibrated` vẫn `false` thì
-  đỏ — đồng thuận trên một con số chưa ai đo chính là cách một giả định trở thành sự thật do vô ý.
+- đường thoát calibrated được selftest bằng một shape `TEST_ONLY`: model/runtime phải cùng nghĩa
+  **channel occupancy**, còn chu kỳ spec phải bằng `occupancy + cooldown`;
+- `calibratedBy` phải trỏ đúng artifact dưới `docs/evidence/W-0008/`, artifact phải tồn tại và
+  tài liệu này phải dẫn lại nó.
 
-Khi `W-0008` có số đo: đặt giá trị đo được, bật `calibrated`, trỏ `calibratedBy` vào evidence.
-`CAP-DRIFT-05` khi đó sẽ **đòi** ba con số phải thống nhất.
+Khi `W-0008` có số đo: đặt model/runtime bằng channel occupancy đã chọn, đặt chu kỳ spec bằng
+`occupancy + cooldown` đã đo, cập nhật `CHANNEL_CONSTRAINTS.cooldownSeconds` nếu cần, bật
+`calibrated` và trỏ `calibratedBy` vào evidence. **Không làm ba con số bằng nhau**: công thức
+`channelsForWindow` vốn đã cộng cooldown, nên làm vậy sẽ tính cooldown hai lần.
 
 ## 4b. Độ dài phiên — input chưa có đáp án, và cái bẫy khi thay ẩu (`W-0134`)
 
@@ -180,6 +184,13 @@ Hai dòng cuối trùng nhau — vì chúng **là cùng một giả định**, c
   định, không phải quyết định;
 - và model phải còn đang sizing đúng như `sizedAgainst` khai — kiểm bằng cách chạy thật
   `poolForProgramme` rồi so, không tin lời khai.
+
+## 4c. Data-intake để đóng M8-01 (`W-0142`)
+
+Preflight `W-0142` xác nhận calibration vẫn `NOT_RUN`: chưa có artifact W-0008, dữ liệu arrival
+theo rolling window, attempt policy production hoặc reserve/failure factor. Contract đầu vào và
+stop rule nằm tại [`docs/evidence/W-0142/README.md`](evidence/W-0142/README.md). Cho tới khi đủ bộ
+đó, mọi kết quả của model chỉ là sensitivity range và **không được dùng để chốt mua**.
 
 ## 5. Pool đang ship vs mô hình
 

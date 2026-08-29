@@ -17,7 +17,12 @@ public sealed record CallbackOutboxMessage(
     string PayloadJson,
     string PayloadSha256,
     int RetryCount,
-    string LeaseToken);
+    string LeaseToken)
+{
+    public string? TraceParent { get; init; }
+
+    public string? TraceState { get; init; }
+}
 
 public sealed record CallbackDeliveryUpdate(
     string DeliveryStatus,
@@ -149,7 +154,11 @@ public sealed class CallbackOutboxRepository(
                 row.PayloadJson,
                 row.PayloadSha256,
                 row.RetryCount,
-                leaseToken))
+                leaseToken)
+        {
+            TraceParent = tasks[row.TaskId].TraceParent,
+            TraceState = tasks[row.TaskId].TraceState,
+        })
             .ToArray();
     }
 

@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Intake;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Security;
@@ -54,6 +56,13 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             source.Correlation_id!,
             new string('A', 64),
             ExecutionMode.Mock);
+        using var activityListener = new ActivityListener
+        {
+            ShouldListenTo = source => source.Name == IvrTelemetry.ServiceName,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) =>
+                ActivitySamplingResult.AllDataAndRecorded,
+        };
+        ActivitySource.AddActivityListener(activityListener);
 
         TaskIntakeOutcome[] outcomes = await Task.WhenAll(
             Enumerable.Range(0, 8).Select(_ => service.IntakeAsync(command)));
@@ -71,6 +80,13 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         ConfirmationTaskEntity task = await verification.ConfirmationTasks
             .AsNoTracking()
             .SingleAsync();
+        Assert.NotNull(task.TraceParent);
+        Assert.True(ActivityContext.TryParse(
+            task.TraceParent,
+            task.TraceState,
+            isRemote: true,
+            out ActivityContext persistedContext));
+        Assert.NotEqual(default, persistedContext.TraceId);
         Assert.Equal("SCRIPT-ORDER-CONFIRM", task.CallScriptTemplateId);
         Assert.Equal(
             Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
@@ -96,7 +112,9 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
                   'call_script_template_id',
                   'call_script_version',
                   'evidence_policy_version',
-                  'privacy_policy_version')
+                  'privacy_policy_version',
+                  'trace_parent',
+                  'trace_state')
               AND column_default IS NOT NULL
             """,
             (NpgsqlConnection)verification.Database.GetDbConnection()))

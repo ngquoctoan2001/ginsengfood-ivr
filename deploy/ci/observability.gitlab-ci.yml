@@ -1,6 +1,6 @@
 # W-0041 / P6-2 §7. Alert rules and dashboards are validated as code.
 #
-# Two jobs because they answer two different questions, and merging them would hide which one
+# Six jobs because they answer different questions, and merging them would hide which one
 # broke. `observability_rules` asks whether the alert rules still parse and still fire on the
 # series they were written for -- evaluated by the real Prometheus rule engine, not read as text.
 # `observability_contract` asks whether those rules and the dashboards still name metrics that a
@@ -36,7 +36,7 @@ observability_contract:
   script:
     - dotnet restore Ivr.sln --locked-mode
     - dotnet test tests/Ivr.UnitTests/Ivr.UnitTests.csproj --configuration Release
-        --filter "TestId~UT-DASH"
+        --filter "TestId~UT-DASH|TestId~UT-OBS"
         --logger:"junit;LogFilePath=../../ci-artifacts/observability/{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
   artifacts:
     when: always
@@ -46,3 +46,104 @@ observability_contract:
     reports:
       junit:
         - ci-artifacts/observability/*-test-result.xml
+
+observability_helm:
+  stage: validate
+  image:
+    name: alpine/helm:3.16.3
+    entrypoint: [""]
+  allow_failure: false
+  script:
+    - mkdir -p ci-artifacts/observability
+    - helm template ivr deploy/helm/ivr -f deploy/helm/ivr/values-dev.yaml
+        -f deploy/helm/ivr/ci/observability-staging.yaml
+        > ci-artifacts/observability/helm-observability.yaml
+    - grep -q 'name: OTEL_EXPORTER_OTLP_ENDPOINT' ci-artifacts/observability/helm-observability.yaml
+    - grep -q 'namespaceSelector:' ci-artifacts/observability/helm-observability.yaml
+    - grep -q 'podSelector:' ci-artifacts/observability/helm-observability.yaml
+    - if helm template ivr deploy/helm/ivr -f deploy/helm/ivr/values-dev.yaml
+        --set observability.enabled=true >/tmp/missing-endpoint.yaml 2>/tmp/missing-endpoint.err;
+        then echo 'missing endpoint unexpectedly rendered' >&2; exit 1; fi
+    - grep -q 'requires an absolute HTTP(S)' /tmp/missing-endpoint.err
+    - if helm template ivr deploy/helm/ivr -f deploy/helm/ivr/values-dev.yaml
+        -f deploy/helm/ivr/ci/observability-missing-selector.yaml
+        >/tmp/missing-selector.yaml 2>/tmp/missing-selector.err;
+        then echo 'missing selectors unexpectedly rendered' >&2; exit 1; fi
+    - grep -q 'requires non-empty collector.namespaceLabels' /tmp/missing-selector.err
+    - if helm template ivr deploy/helm/ivr -f deploy/helm/ivr/values-dev.yaml
+        -f deploy/helm/ivr/ci/observability-secret-half.yaml
+        >/tmp/secret-half.yaml 2>/tmp/secret-half.err;
+        then echo 'half configured header secret unexpectedly rendered' >&2; exit 1; fi
+    - grep -q 'must be configured together' /tmp/secret-half.err
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - ci-artifacts/observability/
+
+observability_runtime:
+  stage: test
+  image: docker:27-cli
+  services:
+    - name: docker:27-dind
+      alias: docker
+  allow_failure: false
+  timeout: 30m
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  before_script:
+    - apk add --no-cache nodejs
+  script:
+    - node deploy/ci/scripts/image-selftest.mjs
+        --skip-compose --skip-scan --observability-runtime
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - artifacts/observability/
+
+# This is a hermetic contract test for the staging verifier. It proves that the closure artifact is
+# derived from backend-shaped responses and that weak identity/credential/transport inputs fail
+# closed. It does not claim that staging itself was queried.
+observability_staging_contract:
+  stage: validate
+  image: node:22-alpine
+  allow_failure: false
+  script:
+    - node deploy/ci/scripts/observability-staging-evidence.mjs --self-test
+
+# Platform runs this manually from the protected default branch after a controlled MOCK-only
+# staging exercise and alert drill. All non-secret inputs arrive in a GitLab file variable; query
+# credentials remain masked variables and are never written to the artifact.
+observability_staging_evidence:
+  stage: promote
+  image: node:22-alpine
+  allow_failure: false
+  resource_group: ivr-staging-observability-evidence
+  needs:
+    - observability_rules
+    - observability_contract
+    - observability_helm
+    - observability_runtime
+    - observability_staging_contract
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+    - when: never
+  environment:
+    name: staging
+    action: verify
+  variables:
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+    IVR_STAGING_EVIDENCE_DIR: "$CI_PROJECT_DIR/artifacts/observability/staging"
+  script:
+    - node deploy/ci/scripts/observability-staging-evidence.mjs --capture
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - artifacts/observability/staging/

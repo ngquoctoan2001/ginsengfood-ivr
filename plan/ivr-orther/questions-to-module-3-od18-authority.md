@@ -2,13 +2,13 @@
 
 **Chủ đề:** `OD-18` — Module 3 quyết định gọi, IVR chỉ thực thi
 **Người gửi:** Team IVR / Module 8 (IVR Order Confirmation)
-**Ngày gửi:** `2026-08-27` · **Trạng thái:** ⏳ CHỜ TRẢ LỜI
+**Ngày gửi:** `2026-08-27` · **Hiệu chỉnh routing:** `2026-08-29` · **Trạng thái:** ⏳ CHỜ TRẢ LỜI
 **Ưu tiên:** P1 — chặn `ACCEPTED` của `W-0123`, **không** chặn hành vi runtime hiện tại
 
 > Phiếu này thay thế [questions-to-module-3-od15-risk-evidence.md](questions-to-module-3-od15-risk-evidence.md)
 > (`SUPERSEDED`). Toàn cảnh bàn giao hai chiều nằm ở
 > [IR-06](../../integration-requirements/06-module-3-api-handover.md); đây là phiếu hẹp chỉ để
-> đóng `OD18-C1..C4`.
+> đóng `OD18-C1..C5`.
 
 ---
 
@@ -73,7 +73,7 @@ sản.
 
 ### `OD18-C4` — Xoá enum/field ngay ở draft kế tiếp, hay giữ một cửa sổ tương thích? (P2)
 
-☐ Remove ngay ở `draft.22` (chỉ chọn được nếu `OD18-C1` toàn "Không")
+☐ Remove ở draft kế tiếp sau current `1.0.0-draft.22` (chỉ chọn được nếu `OD18-C1` toàn "Không")
 ☐ Giữ `deprecated` thêm `___` tuần rồi mới remove
 
 Remove là **breaking change**: cần chạy `oasdiff` và consumer contract test hai phía trước khi
@@ -111,8 +111,9 @@ Không cần build gì cho nó. Nếu đang làm dở thì dừng lại.
 | Vai trò | Tên | Ngày | Kết luận |
 | --- | --- | --- | --- |
 | Module 3 — owner contract | | | ☐ Đồng ý `OD-18` ☐ Cần bàn thêm |
-| Module 8 — IVR owner | | | |
+| Module 8 — IVR owner | **Tôi — Module 8 / Project Owner** | **2026-08-29** | ✅ Đồng ý `OD-18` phía M8; không ký thay M3/Privacy |
 | Privacy (chỉ cho `OD18-C3`) | | | |
 
-Sau khi có chữ ký, IVR cập nhật `IR-06` §9 và chuyển `W-0123` từ `TESTS_PASS` sang đề nghị
-`ACCEPTED`. Chưa có chữ ký thì `W-0123` giữ nguyên `TESTS_PASS`.
+Sau khi có **đủ chữ ký bắt buộc**, IVR cập nhật `IR-06` §9 và chuyển `W-0123` từ `TESTS_PASS`
+sang đề nghị `ACCEPTED`. Hiện mới có chữ ký phía M8; chưa có M3/Privacy nên `W-0123` giữ nguyên
+`TESTS_PASS / BLOCKED_EXTERNAL`.

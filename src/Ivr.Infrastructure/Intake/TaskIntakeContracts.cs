@@ -1,5 +1,6 @@
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence.Entities;
 
 namespace Ivr.Infrastructure.Intake;
@@ -25,6 +26,8 @@ public sealed record TaskIntakeCommand(
     string PayloadHash,
     ExecutionMode ExecutionMode)
 {
+    public TraceContextSnapshot? TraceContext { get; init; }
+
     public string TaskScope => string.Concat("order-core:", Source.Task_id, ":");
 
     public string ScopedIdempotencyKey => string.Concat(TaskScope, IdempotencyKey);
