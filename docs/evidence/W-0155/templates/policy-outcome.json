@@ -1,0 +1,37 @@
+{
+  "schema_version": "m8-capacity-policy-outcome.v1",
+  "data_group": "POLICY_OUTCOME",
+  "policy_rows": [
+    {
+      "policy_version": "<new-production-policy-version>",
+      "programme": "GOLDEN_HOUR",
+      "execution_mode": "PRODUCTION",
+      "max_customer_attempts": 0,
+      "offsets_seconds": [],
+      "confirmation_window_seconds": 0,
+      "effective_from_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "retire_at_utc": null,
+      "bundle_sha256": "<signed-two-program-bundle-sha256>",
+      "product_signer": "<authorized-product-signer-alias>",
+      "order_core_signer": "<authorized-order-core-signer-alias>",
+      "m3_producer_version": "<m3-producer-version-or-commit>"
+    }
+  ],
+  "outcome_rows": [
+    {
+      "dataset_id": "<aggregate-outcome-dataset-id>",
+      "programme": "GOLDEN_HOUR",
+      "policy_version": "<matching-policy-version>",
+      "attempt_ordinal": 0,
+      "normalized_disposition": "<NORMALIZED_DISPOSITION>",
+      "outcome_count": 0,
+      "total_valid_attempts": 0,
+      "observation_start_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "observation_end_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "retry_eligible": false,
+      "technical_retry_classification": "<NORMALIZED_TECHNICAL_RETRY_CLASS>",
+      "data_quality_flag": "OK"
+    }
+  ]
+}
+

@@ -1,0 +1,26 @@
+{
+  "schema_version": "m8-capacity-timing.v1",
+  "data_group": "TIMING",
+  "rows": [
+    {
+      "run_label": "<lab-run-alias>",
+      "attempt_label": "<attempt-alias>",
+      "programme": "GOLDEN_HOUR",
+      "execution_mode": "LAB_REAL_SIM",
+      "carrier_label": "<carrier-alias-no-msisdn>",
+      "scenario": "<normalized-scenario>",
+      "disposition": "<NORMALIZED_DISPOSITION>",
+      "started_at_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "ended_at_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "available_again_at_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "occupancy_ms": 0,
+      "cooldown_ms": 0,
+      "full_cycle_ms": 0,
+      "cdr_correlation_ref": "<pii-safe-correlation-alias>",
+      "gateway_model": "<exact-model>",
+      "firmware_version": "<exact-firmware>",
+      "codec_profile": "<exact-codec-profile>"
+    }
+  ]
+}
+

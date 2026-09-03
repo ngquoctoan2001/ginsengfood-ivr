@@ -1,0 +1,37 @@
+{
+  "schema_version": "m8-capacity-infra-reserve.v1",
+  "data_group": "INFRA_RESERVE",
+  "topology_rows": [
+    {
+      "submission_id": "<topology-submission-id>",
+      "topology_version": "<exact-topology-version>",
+      "vendor_model": "<exact-vendor-model>",
+      "firmware_version": "<exact-firmware-version>",
+      "carrier_scope": "<carrier-scope-alias>",
+      "tested_channel_count": 0,
+      "per_channel_concurrency": 1,
+      "account_quota": 0,
+      "reserve_factor": 0,
+      "reserve_rationale": "<sourced-rationale>",
+      "quarantine_policy_ref": "<policy-reference>",
+      "failover_policy_ref": "<policy-reference>",
+      "test_report_sha256": "<test-report-sha256>",
+      "observation_start_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "observation_end_utc": "<YYYY-MM-DDTHH:mm:ssZ>"
+    }
+  ],
+  "scenario_rows": [
+    {
+      "scenario_id": "<scenario-id>",
+      "available_channels": 0,
+      "quarantined_channels": 0,
+      "failed_provider_or_gateway": "NONE",
+      "offered_attempts": 0,
+      "completed_attempts": 0,
+      "deadline_expired_attempts": 0,
+      "recovery_seconds": 0,
+      "result": "<PASS-or-FAIL>",
+      "evidence_ref": "<exact-hash-or-report-reference>"
+    }
+  ]
+}

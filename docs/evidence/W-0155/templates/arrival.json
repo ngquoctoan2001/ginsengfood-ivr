@@ -1,0 +1,19 @@
+{
+  "schema_version": "m8-capacity-arrival.v1",
+  "data_group": "ARRIVAL",
+  "rows": [
+    {
+      "dataset_id": "<aggregate-dataset-id>",
+      "programme": "GOLDEN_HOUR",
+      "session_definition_id": "<signed-session-definition-id>",
+      "business_timezone": "Asia/Bangkok",
+      "bucket_start_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "bucket_end_utc": "<YYYY-MM-DDTHH:mm:ssZ>",
+      "eligible_order_count": 0,
+      "source_query_version": "<query-version-or-hash>",
+      "eligibility_filter_version": "<filter-version-or-hash>",
+      "data_quality_flag": "OK"
+    }
+  ]
+}
+
