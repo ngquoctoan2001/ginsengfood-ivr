@@ -1,101 +1,138 @@
 # T-09 — `attempt_policy_version` cho production
 
-External work `W-0007` · quyết định `OD-V1-16` (kèm `OD-V1-08`) · gate **production** · trạng thái `OPEN`
+External work `W-0007` · `OD-V1-08` + `OD-V1-16` · correction `W-0151` · gate
+**production** · trạng thái `W0151_EVIDENCE_SUBMITTED / OPEN_EXTERNAL`
 
-Owner: **Product / Order Core**.
+Owner quyết định bắt buộc: **Product + Order Core + Module 3**.
 
-Due: chốt **trước release gate `P9-1`** — MOCK/LAB chạy được bằng candidate, production thì không. Ngày cam kết của owner: `<owner điền>`.
+Decision sheet chi tiết:
+[M8-11 attempt-policy production decision pack](../../../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
 
-## 1. Current evidence — đã đọc từ nguồn
+Due: trước release gate `P9-1`. Ngày cam kết: `<owner điền>`.
 
-**Code đang chạy candidate `mock-lab-v1`, và nó implement đúng `D-10`.** [`src/Ivr.Infrastructure/Intake/AttemptPolicyRegistries.cs:10`](../../../src/Ivr.Infrastructure/Intake/AttemptPolicyRegistries.cs):
+## 1. Current evidence
+
+### Candidate, không phải production
+
+`src/Ivr.Infrastructure/Intake/AttemptPolicyRegistries.cs` khai báo `mock-lab-v1`:
 
 | Program | Attempts | Offsets | Window | Approval |
-| --- | --- | --- | --- | --- |
-| Golden Hour | 2 | `0`, `150` giây | 5 phút | `CandidateMockLabOnly` |
-| 24/7 | 2 | `0`, `450` giây | 15 phút | `CandidateMockLabOnly` |
+| --- | ---: | --- | ---: | --- |
+| Golden Hour | 2 | `[0,150]` giây | 300 giây | `CandidateMockLabOnly` |
+| 24/7 | 2 | `[0,450]` giây | 900 giây | `CandidateMockLabOnly` |
 
-Khớp `D-10` trong [`specs/04-glossary.md:23-25`](../../../specs/04-glossary.md): Giờ Vàng window 5′ (A1@T0, A2@T0+2:30), 24/7 window 15′ (A1@T0, A2@T0+7:30).
+Phạm vi seed cần đọc chính xác:
 
-**Hai tài liệu business ghi con số khác.** Cả hai **không** mang banner `D-10`:
+- dev seed đăng ký `mock-lab-v1` chỉ cho `MOCK`, `approved=false`;
+- dev UI loader có thể đăng ký candidate cho `MOCK` + `LAB_REAL_SIM`;
+- lab seed mặc định không dùng `mock-lab-v1`, mà dùng `lab-softphone-v1` với một attempt.
 
-[`docs/documents/4. phase/phase-8/10-KIẾN TRÚC TRIỂN KHAI.md:121`](<../../../docs/documents/4. phase/phase-8/10-KIẾN TRÚC TRIỂN KHAI.md>) §8 Runtime invariants:
+Không artifact nào ở trên là production approval.
 
-> Golden Hour: đúng 2 customer-counted attempts trong **10 phút**.
-> 24/7: đúng **3** customer-counted attempts trong 15 phút.
+### Hai bộ số xung đột
 
-[`docs/documents/4. phase/phase-8/16-YÊU CẦU PHI CHỨC NĂNG.md:26`](<../../../docs/documents/4. phase/phase-8/16-YÊU CẦU PHI CHỨC NĂNG.md>):
+`D-10` và candidate dùng bộ số ở bảng trên. Hai tài liệu phase-8 business không có banner
+supersession lại ghi:
 
-> Golden Hour | 2 customer-counted attempts trong **10 phút**, offsets `0`, `300` giây.
-> 24/7 | **3** customer-counted attempts trong 15 phút, offsets `0`, `300`, `600` giây.
+- Golden Hour: 2 attempts, offsets `[0,300]`, window 600 giây;
+- 24/7: 3 attempts, offsets `[0,300,600]`, window 900 giây.
 
-Dev Sales đã nêu xung đột này là `OWNER_DECISION_REQUIRED`.
-
-## 2. Target delta — chính xác là gì
-
-Bốn con số lệch nhau, không phải một:
-
-| Thông số | `D-10` + code hiện tại | Business docs phase-8 | Lệch |
-| --- | --- | --- | --- |
-| GH window | **5 phút** | **10 phút** | gấp đôi |
-| GH offset lần 2 | **150 giây** | **300 giây** | gấp đôi |
-| 24/7 số attempt | **2** | **3** | thêm một lần gọi khách |
-| 24/7 offsets | `0`, `450` | `0`, `300`, `600` | khác cả số lượng lẫn thời điểm |
-
-Hai hệ quả cụ thể:
-
-**(a) Nếu bản business đúng, IVR đang gọi thiếu một lần cho mọi đơn 24/7.** Không lỗi, không alert — chỉ là tỉ lệ xác nhận thấp hơn mức business kỳ vọng, và không ai truy được vì sao.
-
-**(b) Nếu bản `D-10` đúng, hai tài liệu business đang mô tả một hệ thống không tồn tại.** Bất kỳ ai đọc chúng để viết test hay để báo cáo KPI đều sẽ lệch.
-
-**(c) `attempt_policy_version` là field bắt buộc trên task, do Sales phát.** Nghĩa là Sales tuyên bố phiên bản policy, IVR tra trong registry. Nếu Sales phát một version IVR không có, intake fail-closed (đã có test: `CreateTask(policyVersion: "not-yet-present")` trong `TaskIntakePersistenceTests.cs`). Cần chốt: **ai là nguồn chân lý của bảng policy** — Sales phát cả tham số, hay chỉ phát version còn IVR giữ bảng? Hiện IVR giữ bảng.
-
-**(d) `max_customer_attempts` và `attempt_offsets_seconds` cũng nằm trên task.** Tức là task mang **cả version lẫn tham số**. Nếu hai thứ mâu thuẫn nhau, ai thắng? Hiện chưa có quy tắc nào trên wire.
-
-## 3. Sample payload
-
-```json
-{
-  "attempt_policy_version": "mock-lab-v1",
-  "max_customer_attempts": 2,
-  "attempt_offsets_seconds": [0, 150],
-  "confirmation_window_started_at": "2026-08-18T03:00:00Z",
-  "confirmation_window_expires_at": "2026-08-18T03:05:00Z"
-}
-```
-
-Nếu bản business phase-8 được chọn cho 24/7, payload thành:
-
-```json
-{
-  "attempt_policy_version": "<version production đã ký>",
-  "max_customer_attempts": 3,
-  "attempt_offsets_seconds": [0, 300, 600],
-  "confirmation_window_started_at": "2026-08-18T03:00:00Z",
-  "confirmation_window_expires_at": "2026-08-18T03:15:00Z"
-}
-```
-
-## 4. Acceptance test — phải xanh khi đóng
-
-| Test | Ở đâu | Khẳng định |
+| Delta | Candidate / `D-10` | Phase-8 business |
 | --- | --- | --- |
-| `PolicyAndContactFailuresCreateNoJob` | [`tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs:81`](../../../tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs) | Version không có trong registry → không tạo job |
-| `IT-ELIG-SCHED-09` | `tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs` | Lịch attempt đúng offsets, nằm trong window |
-| `ck_ivr_call_attempts_technical_not_counted` | migration `20260812142435` | `DT-02` enforce ở database |
-| **`CDC-POLICY-01`** *(Sales viết)* | producer phía Sales | `attempt_policy_version` phát ra luôn là version đã ký, và tham số kèm theo khớp bảng |
+| GH offset lần 2 | 150s | 300s |
+| GH window | 300s | 600s |
+| 24/7 attempts | 2 | 3 |
+| 24/7 offsets | `[0,450]` | `[0,300,600]` |
 
-## 5. Mock fallback
+Chưa có chữ ký Product/Order Core/M3 chọn bộ nào. Module 8 không tự sửa business source.
 
-`mock-lab-v1` được đánh dấu `CandidateMockLabOnly` ngay trong kiểu dữ liệu — không phải comment, mà là giá trị enum. Feature flag `MockLabAttemptPolicy` và seed bootstrap trong migration đều trỏ về nó. Chạy MOCK/LAB được; **production thì không**.
+## 2. Wire rule hiện có — correction của W-0151
 
-## 6. Closure artifact — owner điền
+Task bắt buộc mang **cả version lẫn snapshot**:
 
-- [ ] **`attempt_policy_version` production đã ký**, kèm bảng đầy đủ: mỗi program → số attempt, offsets, window.
-- [ ] **Giải quyết xung đột `D-10` vs phase-8**: chọn một bộ số. Nếu chọn bộ business, IVR sửa registry; nếu chọn `D-10`, **owner business** sửa hoặc gắn banner cho hai file phase-8 — **IVR không sửa `docs/documents/`**.
-- [ ] **Chốt nguồn chân lý**: Sales phát tham số hay chỉ phát version.
-- [ ] **Quy tắc khi version và tham số mâu thuẫn** trên cùng một task.
+- `attempt_policy_version`;
+- `max_customer_attempts`;
+- `attempt_offsets_seconds`;
+- `confirmation_window_started_at` và `confirmation_window_expires_at`.
 
-## 7. Rủi ro nếu để mở
+Current intake không tin payload một chiều. Nó:
 
-Không chặn build, không chặn lab. Chặn **production** — và chặn cả khả năng nói chuyện về hiệu quả: chừng nào chưa chốt, mọi báo cáo tỉ lệ xác nhận đều đo trên một policy chưa ai duyệt, nên không so sánh được với kỳ vọng business.
+1. resolve registry theo `(version, program, execution_mode)`;
+2. so exact max attempts, ordered offsets và window duration;
+3. trả `409 IVR_POLICY_MISMATCH`, không tạo job, nếu bất kỳ giá trị nào lệch.
+
+Vì vậy claim cũ “hiện chưa có quy tắc khi version và tham số mâu thuẫn” là **sai và đã được
+thu hồi**. Câu hỏi còn mở không phải mismatch behavior hiện tại, mà là Product/M3 có ký giữ
+contract `version + snapshot + exact 409` cho production hay không.
+
+Khi task được accepted, IVR ghi immutable snapshot vào task/job và scheduler dùng schedule đã lưu.
+Registry đổi sau đó không rewrite job đang chạy.
+
+## 3. Registry và runtime gap
+
+Current registry đủ làm primitive nhưng chưa đủ production governance:
+
+- mỗi `(version, program)` là một row; chưa có atomic two-program bundle;
+- writer có audit hash nhưng không có approval reference, signer authority hoặc four-eyes verifier;
+- không có effective/retire/active state hay environment rollout record;
+- update bị chặn, nhưng delete protection/lifecycle chưa được chứng minh;
+- DB chỉ CHECK max bounds và positive window; full offset invariants nằm ở EF/domain path;
+- không tìm thấy governed production registration route; caller hiện thấy là dev seed loader.
+
+Feature flag pre-dial từ chối exact literal `mock-lab-v1`/`UNAPPROVED`, nhưng không resolve registry
+và không so flag version với policy snapshot của job. Do đó intake gate và pre-dial gate đang là hai
+nguồn có thể drift; production coherence phải được ký trước khi sửa code.
+
+## 4. Counting/retry/temporal gap
+
+Scheduler dùng counted attempts để chọn offset kế tiếp. Technical exception không đốt customer
+attempt; `TechnicalRetryLimit` mặc định `1` là config riêng và không nằm trong versioned policy.
+Retry có thể requeue cùng attempt number mà chưa có signed production backoff.
+
+Wire/registry cũng không có timezone, quiet-hours, holiday hoặc window-crossing rule. Product và M3
+phải quyết định producer tránh giờ cấm, hay IVR defer/truncate/reject; Module 8 không tự suy.
+
+## 5. M3 producer evidence
+
+Audit snapshot `ginsengfood-business-platform` `PhucApu@a3aad246d986fbc273cf41aaa93eec6659669656`
+không tìm thấy Target V1 producer/schema cho version, max attempts, offsets và confirmation window.
+Chỉ kết luận `M3_ATTEMPT_POLICY_PRODUCER_NOT_FOUND` trên snapshot đã ghim; M3 cần giao producer SHA,
+OpenAPI/schema, CDC và sandbox payload thật.
+
+## 6. Owner phải trả lời
+
+Mọi dòng `ATP-01..ATP-15` trong decision pack phải có signer/date/reference. Tối thiểu:
+
+- authority và nguồn nào supersede nguồn nào;
+- một version production **mới**, canonical bundle/hash đủ hai program;
+- exact attempts/offsets/window/T0/clock skew;
+- counted/terminal taxonomy và technical retry/backoff/manual retry;
+- timezone/quiet-hours/holiday/window-crossing;
+- giữ hay đổi wire `version + snapshot`, source of truth và mismatch behavior;
+- producer/distribution ordering; registry four-eyes/lifecycle/database validation;
+- effective/cutover/retire/in-flight behavior;
+- coherent pre-dial rule giữa active policy và job snapshot;
+- capacity, dial-token, rollout, rollback, audit và retention.
+
+## 7. Acceptance evidence để đóng T-09
+
+- [ ] Product + Order Core + M3 ký `ATP-01..ATP-15` đúng phạm vi.
+- [ ] Signed two-program policy bundle có canonical SHA-256 và production version mới.
+- [ ] M3 producer commit/OpenAPI/schema/CDC phát version + snapshot exact.
+- [ ] Owner business sửa hoặc supersede các tài liệu số xung đột.
+- [ ] Registry governance, four-eyes, DB validation và pre-dial coherence implementation đã review.
+- [ ] Shared tests phủ unknown/disallowed/mismatch/partial/drift/cutover/rollback/retry/window.
+- [ ] Capacity/telephony/dial-token recalibration theo signed policy đã hoàn tất.
+- [ ] Production release packet được đúng authority chấp nhận.
+
+## 8. Mock fallback và stop rule
+
+MOCK/dev/lab có thể tiếp tục dùng candidate đúng environment seed. Production không được:
+
+- promote, rename hoặc flip approval cho `mock-lab-v1`;
+- chọn số từ một nguồn bất kỳ rồi sửa scheduler/registry/OpenAPI/DB/seed/config;
+- gọi local/mock test là owner approval;
+- bật real-customer call trước shared evidence và release sign-off.
+
+W-0151 chỉ nộp audit và decision pack. Production policy vẫn `NOT_APPROVED` và
+`REAL_CUSTOMER_CALL_ALLOWED=NO`.

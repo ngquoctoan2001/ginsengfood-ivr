@@ -30,9 +30,9 @@ Cột: `type semantic · required · index · note`. Tên bảng đề xuất; g
 | `official_contact_id` | string | ○ | idx | **IVR-derived** từ `phone_ref`; không có trên task contract, nullable tới khi resolver cung cấp |
 | `phone_ref` | string | ✓ | | secure ref (D-05) — **không raw** |
 | `phone_masked` | string | ✓ | | admin-safe |
-| `phone_validation_status` | string | ○ | idx | **Sales-supplied optional**; null/`unknown` ⇒ **không dispatch** (fail-closed) |
-| `dial_token` | string/encrypted | ✓ | | opaque token only; never raw phone |
-| `dial_token_expires_at` | datetime | ✓ | idx | must not exceed call window |
+| `phone_validation_status` | string | ○ | idx | DB nullable/OpenAPI optional nhưng current intake chỉ nhận exact `VALID`; mismatch chờ `DTK-02`, null/khác VALID fail-closed |
+| `dial_token_ciphertext` | string/protected | ✓ | | prefix `enc:`; opaque only, never raw phone; MOCK/LAB là fingerprint chứ không phải reversible encryption |
+| `dial_token_expires_at` | datetime | ✓ | idx | DB không cho vượt window end; intake không cho sớm hơn window end, nên current accepted value bằng đúng window end (`W-0150`) |
 | `privacy_safe_order_summary_json` | json | ✓ | | short name/code, public items+qty, total, short area; schema validated |
 | `call_script_template_id` / `call_script_version` | string | ✓ | | exact approved script snapshot resolved by IVR at intake; immutable |
 | `evidence_policy_version` / `privacy_policy_version` | string | ✓ | | IVR-resolved policy snapshots; MOCK uses explicit synthetic defaults, non-MOCK must supply/resolve real versions |
@@ -176,6 +176,11 @@ Task, call job, intake outbox, idempotency response snapshot and audit record ar
 | `ivr_technical_exceptions` | `technical_exception_id`(PK), `ivr_call_attempt_id`, `exception_type`, `customer_attempt_counted=false`, `technical_retry_allowed`, `technical_retry_count`, `retry_reason`, `correlation_id`, `created_at` |
 | `ivr_admin_actions` | `admin_action_id`(PK), `action_type`, `permission`, `actor_id`, `target_type`, `target_id`, `reason`, `before_state`, `after_state`, `correlation_id`, `evidence_ref`, `no_policy_bypass=true`, `created_at` |
 | `ivr_evidence_links` | `owner_table`, `owner_id`, `evidence_ref`, `audit_ref` |
+
+`ivr_capacity_incidents.session_id` hiện là ID scope/evaluation nội bộ do scheduler/capacity/admin
+sinh, không phải upstream Golden Hour session. W-0146 đề xuất thêm
+`golden_hour_session_id varchar(128) NULL` riêng cho task-scoped Golden Hour incident **sau chữ ký
+M3**; current schema chưa có cột này và không được backfill từ `session_id`.
 
 ## 8. Bảng foundation / platform (định nghĩa entity ở P0-3/P0-4, migration ở P1-2)
 

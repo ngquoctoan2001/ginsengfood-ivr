@@ -6,6 +6,19 @@ Owner: **Sales Core**.
 
 Due: chốt **trước khi bắt đầu `P4-2`** — cùng lúc với [T-01](T-01-program-matrix.md). Ngày cam kết của owner: `<owner điền>`.
 
+> **Current correction `OD-17` / `W-0149` (03/09/2026):** các đoạn bên dưới nói
+> `sellable_status[]` còn trên wire/runtime là historical và đã bị `OD-17` supersede. Current IVR
+> không đọc inventory/recall/sale-lock/quality-hold và không có Ops egress. Eligibility evidence đã
+> có linked JSON schema proposal, nhưng vẫn `TARGET_DRAFT_NOT_OWNER_APPROVED`; freshness current chỉ
+> kiểm `captured_at` trong confirmation window và không ở tương lai. Không có maximum age,
+> `valid_until`, source revision ordering, mid-window revoke hoặc per-attempt business recheck.
+> `order_version` vẫn được echo bất biến để M3 revalidate. Xem
+> [M8-09 decision pack](../../../plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md).
+>
+> Vì vậy không dùng các mục historical `(b)/(c)` hay sample `sellable_status[]` dưới đây để build
+> producer mới. Closure hiện tại thuộc một trong hai hướng: M3 chứng minh D-06 callback revalidation
+> (A), hoặc hai bên ký revoke/freshness command/race matrix (B/hybrid).
+
 ## 1. Current evidence — đã đọc từ nguồn
 
 **`order_version` là bắt buộc trên task và bắt buộc echo lại trên callback.**

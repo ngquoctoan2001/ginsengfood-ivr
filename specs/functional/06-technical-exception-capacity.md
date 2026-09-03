@@ -44,7 +44,7 @@ CONFIRMED: **Lỗi kỹ thuật tuyệt đối không được tính là khách 
 | FR-IVR-TECH-004 | `INTERNAL_CALLBACK_ERROR` → retry callback bounded cùng idempotency; hết retry → admin review | phase-8/07 §14 | Không duplicate transition |
 | FR-IVR-CAP-001 | Mở `capacity_incident` khi pending/expired/missed-deadline vượt ngưỡng; **không im lặng để đơn hết hạn** | docx §11,§12 | Miss deadline không log → FAIL (P0) |
 | FR-IVR-CAP-002 | Không nhận call job vượt capacity nếu chắc chắn miss deadline (Capacity Gate) | docx §7,§11 | Vượt capacity → incident + alert |
-| FR-IVR-CAP-003 | Capacity incident chứa: `session_id`, `program_code`, `active_sim_count`, `pending/expired/missed_deadline_count`, `shortage_reason` | docx §6 | Incident đủ trường |
+| FR-IVR-CAP-003 | Capacity incident chứa internal capacity-scope `session_id`, `program_code`, `active_sim_count`, `pending/expired/missed_deadline_count`, `shortage_reason`. Không map đè upstream Golden Hour session vào `session_id`; W-0146 đề xuất cột nullable riêng `golden_hour_session_id` sau chữ ký M3 | docx §6 + W-0146 | Incident đủ trường và giữ tách hai identity |
 | FR-IVR-CAP-004 | Result khi capacity không xử lý kịp: `IVR_CAPACITY_EXCEPTION` (không tính no-answer) → Core/review | phase-8/07 §10 | Capacity → review |
 
 ## Owner Decision

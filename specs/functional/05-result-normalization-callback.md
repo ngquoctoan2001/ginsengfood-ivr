@@ -4,21 +4,29 @@ Trạng thái: `TARGET_V1_DRAFT`.
 
 ## Canonical results
 
-IVR V1 có thể phát: `IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`,
-`IVR_NO_ANSWER_ATTEMPT`, `IVR_NO_ANSWER_FINAL`, `IVR_INVALID_PHONE_FINAL`,
-`IVR_WRONG_INPUT`, `IVR_TECHNICAL_EXCEPTION`, `IVR_CAPACITY_EXCEPTION`.
+Contract dùng chung giữ **11 mã**. Runtime IVR hiện có producer path cho **9 mã**:
 
-Ba mã còn lại được giữ trong taxonomy dùng chung để tương thích nhưng **IVR không phát**:
+- final và có callback: `IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`, `IVR_NO_ANSWER_FINAL`,
+  `IVR_CONFIRMATION_WINDOW_EXPIRED`, `IVR_INVALID_PHONE_FINAL`, `IVR_CAPACITY_EXCEPTION`;
+- non-final, được persist nhưng không vào callback outbox: `IVR_NO_ANSWER_ATTEMPT`,
+  `IVR_WRONG_INPUT`, `IVR_TECHNICAL_EXCEPTION`.
 
-- `IVR_CONFIRMATION_WINDOW_EXPIRED` do timeout worker của Sales sở hữu.
+Hai mã còn lại được giữ để tương thích nhưng **không phải call result do IVR phát**:
+
 - `IVR_OPERATIONAL_BLOCKED` và `IVR_POLICY_BLOCKED` là quyết định trước cuộc gọi; không tạo
   call result và không callback.
 - Nếu Sales revalidate sau cuộc gọi rồi chặn vì Sale Lock/Recall, Sales trả ACK
   `BLOCKED_BY_CORE`; kết quả quan sát (`IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`, ...) không bị
   viết lại.
 
-Technical/capacity exceptions are not customer attempts. IVR never transitions the order. Quyết
-định chi tiết và nguồn KPI nằm ở [DT-06](../decisions/DT-06-blocked-result-semantics.md).
+`IVR_CONFIRMATION_WINDOW_EXPIRED` do scheduler IVR tạo khi cửa sổ hết trước final result. Sweep
+không tính thêm customer attempt. Nếu đã có counted attempt, advisory là revalidate rồi expire;
+nếu chưa từng có counted attempt, advisory là revalidate rồi hold admin review. Sales/Order Core
+vẫn là bên duy nhất được đổi order state.
+Technical/capacity/window-sweep exceptions are not customer attempts. IVR never transitions the
+order. Quyết định chi tiết và nguồn KPI nằm ở
+[DT-06](../decisions/DT-06-blocked-result-semantics.md); gói ký hiện hành nằm ở
+[M8-05/W-0145](../../plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md).
 
 ## Target callback
 
@@ -48,3 +56,4 @@ Current Golden Hour endpoint is an isolated compatibility adapter, not Target V1
 | `FR-IVR-RES-005` | Version/state/blocker race belongs to Sales revalidation; IVR displays ACK truth |
 | `FR-IVR-RES-006` | Auth/downstream outage fail safely; no duplicate result/attempt |
 | `FR-IVR-RES-007` | V1 notification path is disabled/no-op and tested |
+| `FR-IVR-RES-008` | Chỉ final result vào callback outbox; hai blocked code phải bị outbound mapper từ chối |

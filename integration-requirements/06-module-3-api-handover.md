@@ -4,8 +4,8 @@
 
 **Từ:** Team Module 8 — IVR Order Confirmation (.NET, service tách biệt)
 
-**Cập nhật:** 2026-08-28
-**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI đã lên `1.0.0-draft.22`:** 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7).
+**Cập nhật:** 2026-09-03
+**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI đã lên `1.0.0-draft.22`:** 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7). **Thêm §3.5A ngày 03/09/2026:** M8 ký đề xuất `golden_hour_session_id`; code/OpenAPI/DB chưa được phép đổi trước chữ ký M3 (`W-0146`).
 
 > **Ranh giới đã được owner làm rõ ngày 2026-08-27:** **Module 3 quyết định nghiệp vụ; IVR thực thi cuộc gọi.**
 >
@@ -24,6 +24,7 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 | Decisions log | `plan/ivr-orther/decisions-log.md` |
 | **OpenAPI IVR — bản mới `1.0.0-draft.22`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
 | **So sánh draft.20 → draft.22** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md` |
+| **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md` |
 
 _Sửa 27/08/2026: bản trước dùng đường dẫn tương đối, nên khi IR-06 được gửi đi dạng file rời thì cả năm link đều không mở được — M3 báo lại ở review §3.3. Cả năm file đều tồn tại trong repo IVR; nếu cần bản sao, yêu cầu owner IVR gửi kèm._
 
@@ -216,6 +217,21 @@ Trước khi gọi API, Module 3 xác nhận:
 | `eligibility_snapshot` | object | Evidence cho quyết định call-ready của Module 3 |
 | `evidence_ref` | string | Con trỏ evidence để đối soát |
 
+#### 3.4A. W-0151 correction — attempt policy
+
+Current IVR wire cố ý mang **version + snapshot**. Intake resolve registry theo
+`(attempt_policy_version, program_code, execution_mode)` rồi so exact
+`max_customer_attempts`, ordered `attempt_offsets_seconds` và window duration. Nếu lệch, IVR trả
+`409 IVR_POLICY_MISMATCH` và không tạo job. Vì vậy M3 không được tự sửa payload cho “gần đúng” hoặc
+chỉ đổi version string.
+
+Chưa có version/matrix production được ký. `mock-lab-v1` là candidate; dev seed chỉ cho MOCK và
+lab seed mặc định dùng `lab-softphone-v1`. Snapshot M3
+`PhucApu@a3aad246d986fbc273cf41aaa93eec6659669656` chưa cho thấy Target V1 producer/schema phát
+năm field window/policy ở trên. Trước code, Product + Order Core + M3 phải ký `ATP-01..ATP-15`,
+M3 giao producer SHA/OpenAPI/schema/CDC và payload sandbox. Xem
+[M8-11 decision pack](../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
+
 ### 3.5. Field optional và field bắt buộc trên thực tế
 
 Contract dùng `additionalProperties: false`; không gửi field ngoài danh sách được công bố.
@@ -236,6 +252,38 @@ Contract dùng `additionalProperties: false`; không gửi field ngoài danh sá
 | `evidence_policy_version` / `privacy_policy_version` | Target xem đây là IVR-owned/optional; code non-MOCK hiện đang hold khi thiếu — `CONTRACT_DRIFT`, không biến thành nghĩa vụ M3 trước khi hai bên ký |
 
 `trust.risk_evidence_available` chỉ còn `LEGACY_READ`; không còn yêu cầu Module 3 gửi field này để IVR tự skip. Nếu Module 3 vẫn gửi trust/risk metadata phục vụ audit, IVR không được dùng chúng để đảo quyết định `CALL_REQUIRED` đã được Module 3 đưa ra.
+
+### 3.5A. W-0146 — đề xuất upstream Golden Hour session
+
+Current `IvrConfirmationTaskV1` **chưa có** session field. Current
+`ivr_capacity_incidents.session_id` là capacity scope ID nội bộ/synthetic của IVR, gồm cả
+`ADMIN-QUEUE-*` cho incident global `ProgramCode=ALL`; không được dùng nó như Golden Hour business
+session.
+
+M8 ký đề xuất sau, chờ M3 đồng ký:
+
+| Thuộc tính | Đề xuất |
+| --- | --- |
+| Field | `golden_hour_session_id`; không alias `session_id`/`source_session_id` |
+| Type | opaque string `1..128`, case-sensitive, no control/edge whitespace, không PII |
+| `GOLDEN_HOUR` | required, non-null |
+| `TWENTY_FOUR_SEVEN` | prohibited/absent; `null` cũng không hợp lệ |
+| Owner | M3 / Golden Hour Core phát trước khi tạo IVR task |
+| Stability | giữ nguyên qua retry/replay và mọi task thuộc cùng business session |
+| Multiplicity | một session có thể có nhiều task; không unique index, không idempotency key |
+| Persistence | task → job → cột nullable riêng trên task-scoped GH incident |
+| Internal capacity ID | giữ nguyên `capacity_incident.session_id`; tuyệt đối không map đè |
+
+Rollout bắt buộc theo store phase → M3 producer/CDC → shared E2E → enforce phase. Thêm property
+có thể additive, nhưng bắt nó required cho Golden Hour là breaking với producer cũ; không được bỏ
+qua cutover. Không backfill từ task/order/correlation/internal ID và không thêm field vào callback
+nếu chưa có signed use case riêng.
+
+**M8 signature:** **Tôi — Module 8 / Project Owner** · **2026-09-03** — ký đề xuất và stop rule.
+
+**M3 signature/producer artifact:** **NOT_RECEIVED**. Vì vậy OpenAPI, generated DTO, domain, DB,
+scheduler và test vẫn **CODE_NOT_AUTHORIZED**. Mẫu phản hồi/CDC đầy đủ nằm trong
+[gói M8-06](../plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md).
 
 ### 3.6. `privacy_safe_order_summary`
 
@@ -273,7 +321,9 @@ Shape tối thiểu Module 3 gửi:
 
 IVR được kiểm tra snapshot có đủ, còn hạn và không tự mâu thuẫn; IVR không tự tính lại risk/customer classification của Module 3.
 
-### 3.8. Payload mẫu Module 3 → IVR
+### 3.8. Payload minh họa Module 3 → IVR
+
+Các giá trị policy dưới đây chỉ minh họa shape candidate, **không phải production approval**.
 
 ```json
 {
@@ -290,7 +340,7 @@ IVR được kiểm tra snapshot có đủ, còn hạn và không tự mâu thu�
   "is_ivr_callable": true,
   "confirmation_window_started_at": "2026-08-12T03:00:00Z",
   "confirmation_window_expires_at": "2026-08-12T03:05:00Z",
-  "attempt_policy_version": "gh-v1",
+  "attempt_policy_version": "mock-lab-v1",
   "max_customer_attempts": 2,
   "attempt_offsets_seconds": [0, 150],
   "customer_ref": "CUST-001",
@@ -535,6 +585,14 @@ Module 3 phải tôn trọng `is_counted_customer_attempt`; không suy ra attemp
 
 Schema chung giữ đủ 11 giá trị để tương thích. `IVR_OPERATIONAL_BLOCKED` và `IVR_POLICY_BLOCKED` là pre-call/compatibility outcome, không được hiểu là khách đã nghe máy hoặc đã đưa ra lựa chọn.
 
+**Correction `W-0145` / M8-05:** 11 là contract vocabulary, không phải số callback producer.
+Runtime IVR hiện persist 9 result type; 6 final type đi vào callback outbox
+(`CONFIRMED`, `CUSTOMER_CANCELLED`, `NO_ANSWER_FINAL`, `CONFIRMATION_WINDOW_EXPIRED`,
+`INVALID_PHONE_FINAL`, `CAPACITY_EXCEPTION`), còn `NO_ANSWER_ATTEMPT`, `WRONG_INPUT`,
+`TECHNICAL_EXCEPTION` là non-final và không callback. Hai blocked code không được persist/send như
+call result. Bảng đầy đủ và chữ ký phía M8 nằm ở
+[M8-05](../plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md).
+
 ### 4.4. `recommended_core_action`
 
 | Giá trị | Ý nghĩa |
@@ -606,6 +664,27 @@ Body ACK `200` hoặc `409` có các field:
 | `500/503/timeout` | error body | Retry bounded với cùng key và body |
 
 `ACCEPTED` nghĩa là Module 3 đã nhận tín hiệu vào decision path, không đảm bảo đơn đã được xác nhận.
+
+### 4.8. Correction W-0149 — revoke/freshness không được suy từ ACK callback
+
+Audit ngày `03/09/2026` xác nhận IVR current không có revoke/update command hoặc business recheck từ
+scheduler claim tới dial. ACK `BLOCKED_BY_CORE`/`REJECTED_STALE` ở §4.7 chỉ là outcome của M3 khi xử
+lý callback; không phải ACK cho một revoke command và không được dùng để tuyên bố task đã bị dừng.
+
+Snapshot Module 3 `PhucApu@a3aad246d986` chưa có exact hit cho generic Target V1 callback consumer
+hoặc các ACK trên. M3 phải cung cấp code/OAS/CDC khác nếu implementation nằm ngoài snapshot này.
+Trước khi có bằng chứng đó, D-06 là **contract requirement chưa được chứng minh runtime**.
+
+Nếu Owner giữ phương án A, M3 phải hoàn thành §4.6 và shared E2E trước production. Nếu chọn B/hybrid,
+hai bên phải ký `RVK-01..RVK-12` trong
+[M8-09 decision pack](../plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md)
+trước mọi thay đổi OpenAPI/runtime/DB. Không tái dùng intake POST hoặc admin terminate.
+
+**Correction `W-0147` / M8-07:** phía M8 đã sửa local defect từng bỏ qua `Retry-After` trên `429`.
+Transport nay chuyển positive server delay sang dispatcher; `next_retry_at` không sớm hơn delay đó,
+vẫn giữ bounded retry budget và cùng immutable key/body. Phần M8 local đã có unit/contract proof,
+nhưng endpoint generic M3, auth thật, sandbox và shared E2E vẫn chưa được cung cấp. Xem
+[M8-07 handoff](../plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md).
 
 ---
 
@@ -894,6 +973,15 @@ Trạng thái gate: `LOCAL_ALIGNMENT_IMPLEMENTED_EXTERNAL_GATES_OPEN`.
 
 ## 6. `dial_token` — chưa chốt
 
+**Correction `W-0150` (03/09/2026):** production path vẫn fail-closed và chưa được phép code.
+OpenAPI current cho phép thiếu `phone_validation_status` nhưng runtime chỉ nhận exact `VALID`;
+intake + persistence cùng nhau ép token expiry bằng đúng confirmation-window end. MOCK/LAB chỉ ngăn
+resolve lặp theo `(token fingerprint, attempt_id)` và có thể reuse scalar token ở attempt khác.
+`DialAuthorization` current chỉ nhận opaque provider destination reference, không nhận E.164.
+M3/Security/Platform/Telephony phải trả `DTK-01..DTK-15` trong
+[M8-10 decision pack](../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md)
+trước mọi OpenAPI/resolver/vault/adapter change.
+
 Task hiện mang một `dial_token`, nhưng một task có thể cần nhiều attempt và retry kỹ thuật. Module 3 + Security cần chọn một trong các phương án:
 
 | Phương án | Đánh đổi |
@@ -905,7 +993,7 @@ Task hiện mang một `dial_token`, nhưng một task có thể cần nhiều a
 
 Cần xác nhận thêm:
 
-- service nào giữ mapping `dial_token → E.164`;
+- service nào giữ mapping `dial_token → provider destination/E.164`, và IVR có được thấy gì;
 - ai vận hành/audit vault;
 - TTL và số lần resolve;
 - cơ chế rotation/revocation;
@@ -963,11 +1051,14 @@ Khi Security/Platform chốt auth profile production, cần trả lời thêm ch
 | **1** | Ký ranh giới “M3 quyết định, IVR thực thi” và rule producer chỉ gửi `CALL_REQUIRED` | M3 + M8 | `OWNER_SIGNOFF_REQUIRED` |
 | **2** | Gỡ IVR-side trusted skip khỏi Target contract/code/test; giữ `TASK_SKIPPED_TRUSTED_CUSTOMER` là `LEGACY_READ` | M8 | `CODE_DONE_LOCAL` — `W-0123`; external gates không suy xanh |
 | **3** | Xây callback generic phủ Golden Hour + 24/7 | M3 | `NOT_BUILT_UPSTREAM` |
-| **4** | Ký wire mapping program/payment/state và nguồn `ivr_confirmation_required`. Business pair **đã có nguồn** (Flow 04/05, xem §3.10 R3) nên không cần Product quyết lại; còn lại là ký chuỗi trên dây theo **§3.11** và gắn `attempt_policy_version` | M3 + Product | `OWNER_DECISION_REQUIRED` |
+| **4** | Ký wire mapping program/payment/state và nguồn `ivr_confirmation_required`. Business pair **đã có nguồn** (Flow 04/05, xem §3.10 R3) nên không cần Product quyết lại; còn lại là ký chuỗi trên dây theo **§3.11** và gắn `attempt_policy_version` | M3 + Product | `M8_SIGNED_W0145 / M3_PRODUCT_ARTIFACT_REQUIRED` |
 | **4b** | Sửa 3 field lệch chuỗi ở **§3.11** — M3 map `24_7`→`TWENTY_FOUR_SEVEN`, `PHONE_VALID`→`VALID`, `ELIGIBLE_FOR_IVR`→`ELIGIBLE` | M3 | `IMPLEMENTATION_ALIGNMENT_REQUIRED` |
+| **4c** | Đồng ký `golden_hour_session_id`, namespace/program semantics, store→enforce cutover và producer CDC theo §3.5A | M3 + M8 | `M8_POSITION_SIGNED_W0146 / M3_CONTRACT_SIGNOFF_REQUIRED / CODE_NOT_AUTHORIZED` |
 | **5** | Auth profile + sandbox credential | Security/Platform | `BLOCKED_EXTERNAL` |
 | **6** | Ký minimal `eligibility_snapshot` dùng làm evidence, không phải IVR business decision | M3 + M8 | `OWNER_SIGNOFF_REQUIRED` |
 | **7** | Chọn `dial_token` model và trust boundary | M3 + Security + M8 | `OWNER_DECISION_REQUIRED` |
+| **7a** | Ký `DTK-01..DTK-15`: contact producer/requiredness, issuer/scope, TTL, resolver output, custody, replay/failure/audit/retention/rollout | M3 + Security + Platform + Telephony + M8 | `W0150_EVIDENCE_SUBMITTED / EXTERNAL_DECISIONS_REQUIRED / CODE_NOT_AUTHORIZED` |
+| **7b** | Ký `ATP-01..ATP-15`: authority/version bundle, program matrix/T0, counting/retry/quiet-hours, wire/producer, registry lifecycle, cutover/pre-dial coherence, capacity/audit/rollback | Product + Order Core + M3; Platform/M8/Release ở dòng kỹ thuật | `W0151_EVIDENCE_SUBMITTED / M3_ATTEMPT_POLICY_PRODUCER_NOT_FOUND / PRODUCTION_POLICY_NOT_APPROVED / CODE_NOT_AUTHORIZED` |
 | **8** | Duyệt lời thoại/privacy và giới hạn `items[]` | Product + Privacy/Legal | `OWNER_APPROVAL_REQUIRED` |
 | **9** | Nhận bàn giao bề mặt quản trị **§4A**: ai giữ ba token, vai trò M3 nào ánh xạ sang tầng nào, định dạng `X-Actor-Id` | M3 + Security | `OWNER_DECISION_REQUIRED` — mới 28/08/2026 |
 
@@ -993,9 +1084,14 @@ Chưa được gọi integration/production ready khi các gate P0 trên chưa �
 - [ ] Xác nhận tổ hợp `program_code × payment_method_snapshot` thật sẽ gửi (§3.10 R3). **Đã đóng 27/08** bằng Flow 04/05; chỉ còn ký wire mapping.
 - [ ] Đối chiếu đủ 5 dòng bảng từ vựng §3.11 và 5 ô checklist cuối mục đó. Ba field đang lệch chuỗi, hai trong ba hỏng im lặng.
 - [ ] Xác định khi nào `order_version` bump.
-- [ ] Ký attempt policy theo từng program: window, số attempt, offsets.
+- [ ] Ký đủ `ATP-01..ATP-15` theo [M8-11](../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md), đặc biệt canonical two-program version/bundle hash, window/attempts/offsets/T0, counting/retry/quiet-hours, cutover và pre-dial coherence.
+- [ ] Giao exact producer commit/OpenAPI/schema/CDC cho `attempt_policy_version`, `max_customer_attempts`, `attempt_offsets_seconds`, `confirmation_window_started_at`, `confirmation_window_expires_at`; payload sandbox phải khớp signed registry snapshot và chứng minh `409 IVR_POLICY_MISMATCH` được xử lý, không retry mù.
 - [ ] Chốt cách normalize `delivery_area_short` và giới hạn `items[]`.
 - [ ] Xác nhận không gửi `trusted_skip_allowed` (`LEGACY_READ`); trust/risk metadata nếu giữ không được dùng phía IVR để quyết định gọi/skip.
+- [ ] Đồng ký đúng field `golden_hour_session_id`; nếu reject phải trả exact replacement + business source, không gửi hai alias.
+- [ ] Xác nhận Golden Hour required/non-null và 24/7 prohibited/absent; nêu namespace, thời điểm phát, uniqueness và stability qua retry/replay.
+- [ ] Giao producer commit/client revision + store/enforce cutover/rollback + CDC exact SHA trước khi yêu cầu M8 sửa code.
+- [ ] Xác nhận không map upstream ID vào `capacity_incident.session_id` current và không synthesize từ task/order/correlation ID.
 
 ### Callback
 
@@ -1005,6 +1101,16 @@ Chưa được gọi integration/production ready khi các gate P0 trên chưa �
 - [ ] Xác nhận revalidate version/state/inventory/recall/sale-lock/quality-hold trước transition.
 - [ ] Xác nhận tôn trọng `is_counted_customer_attempt`.
 - [ ] Chốt timeout worker sau `IVR_NO_ANSWER_FINAL`.
+- [ ] Giao consumer commit + authoritative OpenAPI/CDC cho cả Golden Hour và 24/7; endpoint compat
+  Golden Hour không được dùng thay.
+- [ ] Chứng minh `429` trả `Retry-After` hợp lệ và shared E2E persist `next_retry_at` không sớm hơn
+  header, với cùng key/body.
+- [ ] Chạy shared E2E exact SHA cho accepted/duplicate/conflict/stale/block/review/auth/invalid/outage;
+  local fake hoặc Postman screenshot không được tính.
+- [ ] Cung cấp code pointer exact SHA chứng minh D-06 revalidate version/state/recall/sale-lock/
+  quality hold thực sự chạy trước transition; fixture phía IVR không được tính.
+- [ ] Ký phương án A/B/hybrid và approval provenance. Nếu B/hybrid, trả đủ `RVK-01..RVK-12`,
+  authoritative command OAS/CDC và race/fencing tests trước khi yêu cầu IVR code.
 
 ### Bề mặt quản trị (§4A — mới 28/08/2026)
 

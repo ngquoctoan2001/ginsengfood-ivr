@@ -38,6 +38,12 @@ Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Teleph
 | **D-07** | Availability do **Commerce/Sellable Gate** tổng hợp; **IVR không gọi Operational Core lot-level**. | Q7 / Q-O2 (phần commerce) → **RESOLVED** |
 | **D-08** | **Giữ outbound-only.** Inbound lookup payment/shipping/status → **future scope** (chưa làm). | Q8 / Q-B1 → **RESOLVED (outbound-only)** |
 
+> **Correction W-0150 (03/09/2026):** D-05 chỉ khóa high-level privacy/authority intent; không đóng
+> production issue/resolve contract. `OD-V1-05/17/18` vẫn mở. Current intake + persistence ép token
+> expiry bằng window end, MOCK/LAB reuse theo `attempt_id`, và domain resolver chỉ trả opaque provider
+> destination reference. M3/Security/Platform/Telephony phải ký `DTK-01..DTK-15` trong
+> [M8-10 decision pack](m8-10-contact-dial-token-production-decision-pack-2026-09-03.md) trước code.
+
 ## Module 3.1 — Sales Extensions
 
 | ID | Quyết định (LOCKED) | Thay cho open question |
@@ -48,6 +54,14 @@ Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Teleph
 | **D-12** | **Không hardcode ngưỡng trust trong IVR.** Skip IVR **chỉ khi**: `Customer Trust Resolver = TRUSTED` **và** `trusted_skip_allowed=true` **và** contact ổn định **và** không blocker **và** không risk flag. **Risk flags buộc gọi/review:** COD fail, duplicate, high-risk address, suspicious phone, abnormal value, high-risk Golden Hour, contact mới đổi, **trust resolver unavailable**. | Q12 / Q-F3 → **RESOLVED** |
 | **D-13** | Danh sách điều kiện "IVR required" theo phase-3.1/07 được xác nhận; **ngưỡng cụ thể thuộc Risk Policy/Resolver**. IVR **chỉ consume boolean/source-backed `risk_flags`**; **không tự định nghĩa "abnormal order value" bằng số tiền** trong scheduler. | Q13 → **RESOLVED** |
 | **D-14** | IVR **chỉ ghi audit/evidence nội bộ**; **KHÔNG ghi CRM note**. Nếu CRM cần outcome → nhận **event sau Core decision** và CRM tự ghi theo policy. | Q14 / Q-D2 → **RESOLVED** |
+
+> **Correction W-0151 — 2026-09-03:** trạng thái `RESOLVED` của D-10 chỉ còn giá trị lịch
+> sử/candidate, không phải production approval. Hai tài liệu phase-8 business vẫn ghi GH
+> `2/[0,300]/600s` và 24/7 `3/[0,300,600]/900s`, trái D-10/candidate GH
+> `2/[0,150]/300s`, 24/7 `2/[0,450]/900s`. Product + Order Core + M3 phải ký
+> `ATP-01..ATP-15` và một production version/bundle mới. Không promote/rename
+> `mock-lab-v1` hoặc sửa scheduler/registry từ D-10. Xem
+> [M8-11 decision pack](m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
 
 ## Hệ quả cập nhật (đã áp dụng vào plan/specs)
 

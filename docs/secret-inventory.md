@@ -26,7 +26,7 @@ trọng: nếu đọc nhầm nó thành "IVR giữ mapping" thì sẽ kết lu�
 | `ORDER_CORE_SERVICE_TOKEN` | **cao** — cho phép tạo task | IVR + Sales | 90 ngày | chỉ compat; `TARGET_V1` **từ chối** hoàn toàn (W-0032) |
 | mật khẩu database | **cao** | Platform | 90 ngày | K8s Secret tham chiếu; chart không mang giá trị |
 | `CurrentGoldenHourInternalToken` | trung bình | IVR + Sales | 90 ngày | chỉ dùng ở lối compat |
-| credential gọi **dial-token resolver** | **cao nhất** (D-05) | IVR + token vault | **30 ngày** | mock; thật thuộc `W-0008` |
+| credential gọi **dial-token resolver** | **cao nhất** (D-05) | IVR + token vault | **30 ngày** | đề xuất chưa duyệt; ExternalSecret chỉ là template, workload chưa mount/use; thật thuộc `W-0008`/`W-0150` |
 | SIM gateway credential | **cao** | Platform | 30 ngày | **chưa tồn tại** — `BLOCKED_EXTERNAL` (DT-01, `W-0008`) |
 | khoá ký JWT service identity | cao | Platform | 30 ngày | `MockOidcIssuer` sinh RSA **theo tiến trình**; không persist, không rotate được — mock-only |
 
@@ -62,3 +62,7 @@ Nên `RotatingCredentialProvider` **ép** độ dài tối thiểu 24 ký tự v
   một issuer thật, thuộc `W-0006`/`W-0063`.
 - **Chưa lượt rotation nào chạy trên hệ triển khai.** `SEC-ROT-01`/`-03` chứng minh **cơ chế**
   zero-downtime trong test; chưa có drill nào trên cluster.
+- **Dial-token resolver credential chưa có consumption path.** `deploy/secrets/external-secrets.yaml`
+  khai tên `ivr-dial-token-resolver`, nhưng Helm workload/config không tham chiếu secret này và external
+  egress mặc định rỗng. `W-0150` giữ production path fail-closed tới khi Security/Platform ký
+  `DTK-08..10` và giao cluster evidence.

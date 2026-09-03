@@ -1,6 +1,6 @@
 # IR-01 — Module 3 Requirements Register (mã ổn định)
 
-Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-27`
+Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-09-03`
 Owner: **Module 3** — `ginsengfood-business-platform` (Commerce/Order Core + Sales Extensions + CRM/Customer Identity)
 
 > **File này là sổ đăng ký mã, không phải tài liệu bàn giao.**
@@ -22,7 +22,7 @@ Owner: **Module 3** — `ginsengfood-business-platform` (Commerce/Order Core + S
 | `IR-SALES-REV-01` | Revalidate idempotency, order id/version/state, program/payment, **blocker tồn kho/thu hồi (gọi ops)** và evidence trước transition | P0 | contract expectations | `TARGET_V1_DRAFT` — 🚨 xem cảnh báo §2 | [IR-06 §4.5](06-module-3-api-handover.md) |
 | `IR-SALES-TIMEOUT-01` | No-answer không huỷ ngay; timeout worker revalidate rồi mới `EXPIRED`; technical exception không tính customer attempt | P0 | advisory result/no-transition tests | `TARGET_V1_DRAFT` | [IR-06 §4.3](06-module-3-api-handover.md), [T-06](../docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md) |
 | `IR-SALES-RISK-01` | `SUPERSEDED` bởi `OD-18`: Module 3 tự phân loại/ra quyết định; IVR không yêu cầu `risk_evidence_available` hay trust metadata để call/skip. `risk_flags` nếu gửi chỉ dùng scheduler/audit | — | không áp dụng | `SUPERSEDED` | [IR-06 §6](06-module-3-api-handover.md) |
-| `IR-SALES-CRM-01` | **`DC-01`** — read-contract do-not-call trả `do_not_call` / `opt_out_scope` / `reason` / `effective_at`; Module 3 hợp nhất vào `call_restriction` | P1 | `call_restriction` boolean trong task | `NOT_BUILT_UPSTREAM` | `decisions-log` `DC-01` |
+| `IR-SALES-CRM-01` | **`DC-01`** — CRM Customer Identity sở hữu do-not-call; Module 3 hợp nhất vào `call_restriction`. Snapshot `PhucApu@a3aad246d986` có eligibility read trả `eligible/denyReason/suppressionMarkerId` và user-auth consent mutation, nhưng chưa có signed service proposal/read contract cho M3/IVR, detailed scope/effective fields hoặc ACK | P1 | `call_restriction` boolean trong task; IVR fail-closed | `READ_PRIMITIVE_PRESENT / SERVICE_CONTRACT_AND_PROPOSAL_NOT_SIGNED` | `decisions-log` `DC-01`; [W-0148](../docs/evidence/W-0148/README.md) |
 | `IR-SALES-EVT-01` | **`DC-05`** — publish `ORDER_CONFIRMED` / `CANCELLED` / `EXPIRED` sau Core decision để CRM tự thông báo. IVR **không** gửi (`D-14`) | P2 | không có | `NOT_BUILT_UPSTREAM` | `decisions-log` `DC-05` |
 | `IR-SALES-AUTH-01` | Service auth production: issuer / audience / scope / JWKS / TTL; mTLS yes-no; sandbox credential | P0 | mock JWT + auth abstraction | `OWNER_DECISION_REQUIRED` — Security/Platform, xem [IR-04](04-shared-auth-audit-requirements.md) | [IR-06 §7](06-module-3-api-handover.md) |
 | `IR-SALES-OAS-01` | OpenAPI thật + examples + sandbox URL + compatibility/deprecation window + consumer-driven contract tests | P0 | pinned target OpenAPI + drift gate | `BLOCKED_EXTERNAL` | [T-08](../docs/contracts/target-v1-closure-pack/T-08-openapi-compat-cdc.md) |
@@ -53,5 +53,7 @@ Nếu Module 3 bỏ bước revalidate với ops khi nhận callback, không cò
 4. Sandbox URL + auth metadata + test credential (`IR-SALES-AUTH-01`)
 5. Schema + fixtures `privacy_safe_order_summary` + privacy sign-off (`IR-SALES-SPEECH-01`)
 6. Dial-token threat model + issue/resolve/TTL tests (`IR-SALES-DIAL-01`)
+7. Signed `OPT-01..OPT-11`, CRM proposal/write/read/lifecycle/reversal contract, Legal approval và
+   shared E2E chứng minh marker hiệu lực luôn thành `call_restriction=true` (`IR-SALES-CRM-01`)
 
 Checklist đầy đủ có ô tick: [IR-06 §10](06-module-3-api-handover.md).

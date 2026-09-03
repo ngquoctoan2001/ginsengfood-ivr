@@ -12,7 +12,11 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p06` · Nguồn: `phase-8/02 §11`, `
 | **PUBLIC-SAFE (Target V1 proposal)** | thêm `items[].public_name`, `items[].quantity`, optional `items[].unit_label`, `delivery_area_short` (không bắt đầu bằng chữ số, không chứa `x/y`; đơn vị hành chính có số vẫn hợp lệ) | có | có | W-0024 đã enforce whitelist + test MOCK; ⏳ `OD-V1-15` vẫn **OWNER_DECISION_REQUIRED** (Product + Privacy/Legal) cho PROD. Fixture MOCK **không** đóng gate production. |
 
 ## 2. Quy tắc P0 (phase-8/02 §11, /08)
-- ✅ Chỉ dùng `phone_ref`/`phone_masked`/`dial_token` để gọi; **cấm** raw phone trong log/UI/DB IVR (D-05; P0-IVR-007). `dial_token` TTL ≤ confirmation window, one-use/attempt; mapping token→số thật **nằm ở SIM adapter/token vault**, không ở IVR.
+- ✅ Chỉ dùng `phone_ref`/`phone_masked`/`dial_token` để gọi; **cấm** raw phone trong log/UI/DB IVR
+  (D-05; P0-IVR-007). Audit `W-0150`: TTL/one-use vẫn là target decision, chưa phải production
+  contract. Current persistence ép expiry bằng window end; MOCK/LAB chỉ chặn duplicate cùng
+  `(token, attempt)` và cho reuse ở attempt khác. Mapping/token key và raw E.164 phải nằm sau external
+  resolver/gateway boundary, không ở IVR.
 - ✅ **Cấm đọc/log**: full address, payment/COD detail, member tier, Diamond, order history, health/sensitive note, AI/CRM content (phase-8/02 §11; call script whitelist `functional/04`).
 - ✅ **Recording OFF** mặc định (DT-05); bật chỉ khi có consent + legal + retention (DF-07/DG-08); nếu bật chỉ lưu `recording_ref` + audit truy cập.
 - ✅ DTMF chỉ lưu **semantic** (`1`/`0`/none/invalid) — không lưu audio nhạy cảm (phase-8/12 §11).
@@ -22,7 +26,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p06` · Nguồn: `phase-8/02 §11`, `
 ## 3. Retention (đề xuất — số cụ thể chờ DF-07/Legal)
 | Dữ liệu | Đề xuất | Trạng thái |
 | --- | --- | --- |
-| raw phone / dial_token | TTL ngắn nhất (≤ window) | ⏳ DF-07 |
+| raw phone / dial-token ciphertext/reference/resolve receipt | TTL ngắn nhất theo signed token + audit policy; current token expiry bằng window end | ⏳ DF-07 + `DTK-06/13` |
 | DTMF evidence | chỉ key + timestamp | ⏳ DF-07 |
 | Recording | OFF (nếu bật: theo legal) | ⏳ DG-08 |
 | Call log kỹ thuật (sanitized) | ⏳ số cụ thể | ⏳ DF-07 |

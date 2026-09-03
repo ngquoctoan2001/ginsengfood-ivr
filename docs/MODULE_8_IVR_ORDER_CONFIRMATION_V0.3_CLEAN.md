@@ -90,9 +90,9 @@ Chín rào chắn dưới đây được rà ra từ code và sổ tiến độ 
 | **ID** | **Rào chắn**                                                                                                                                                                                   | **Mức**        | **Chủ sở hữu**            | **Điều kiện thoát**                                                                                                                                                    |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | B-01   | Không có adapter telephony thật. Chỉ có FakeSimGateway (mock) và AsteriskAriSimGateway (softphone, không ra PSTN). Nhánh còn lại của DI là UnavailableSchedulerDispatchGateway, ném exception. | CHẶN           | Infra + vendor            | Thiết bị/gateway đã lắp; adapter implement đủ 6 operation của ISimGateway; biểu mẫu nghiệm thu lab R-02 §6 điền đủ 7+15 dòng. Gate G-LAB-SIM (W-0048).                 |
-| B-02   | Dial-token resolver là giả. LabDialTokenVault luôn trả về đúng một alias LAB-A; không có mapping alias → số thật.                                                                              | CHẶN           | Security + Sales + vendor | Chốt vị trí resolve dial_token → E.164 (OD-V1-18), có sơ đồ trust boundary đã duyệt, threat model và vendor capability statement. Resolver phải nằm NGOÀI process IVR. |
+| B-02   | Dial-token resolver là giả. LabDialTokenVault luôn trả về đúng một alias LAB-A; không có production issuer/resolver/custody/network/audit path. Audit W-0150 còn phát hiện contact requiredness và TTL/reuse contract drift. | CHẶN | M3 + Security + Platform + vendor | Ký `DTK-01..15`, sơ đồ trust boundary/threat model/vendor capability. Raw E.164 chỉ được lộ sau external vault/gateway boundary; resolver/custody phải ngoài process IVR. |
 | B-03   | Contract Sales/Order Core vẫn DRAFT. Chín hạng mục W-0002…W-0009 ở BLOCKED_EXTERNAL: chưa có OpenAPI ký duyệt, chưa có profile JWT/mTLS.                                                       | CHẶN           | Sales API/Core + Security | OpenAPI Target V1 đã ký; contract test hai chiều xanh trên sandbox thật; profile auth đã ký và credential sandbox hoạt động. Gate G-CONTRACT, G-AUTH.                  |
-| B-04   | Attempt policy chưa được owner ký. Version đang dùng là mock-lab-v1, đánh dấu CandidateMockLabOnly; chế độ production sẽ từ chối chính version này.                                            | CẦN QUYẾT ĐỊNH | Product + Order Core      | Owner ký một attempt_policy_version, kèm giải quyết xung đột ba nguồn ở §10. Nạp vào registry với approved_for_production = true. OD-V1-08, OD-V1-16.                  |
+| B-04   | W-0151 xác nhận attempt policy production chưa được ký. `mock-lab-v1` là candidate; current wire đã exact-compare version+snapshot và trả `409`, nhưng registry thiếu production bundle/four-eyes/lifecycle, technical retry chưa versioned, pre-dial flag có thể drift và M3 producer chưa thấy trên snapshot đã ghim. | CẦN QUYẾT ĐỊNH | Product + Order Core + M3; Platform/M8/Release ở dòng kỹ thuật | Ký `ATP-01..15`, canonical bundle/hash đủ hai program, M3 producer/CDC, registry governance, cutover/pre-dial coherence và shared tests. Không promote/rename candidate. OD-V1-08, OD-V1-16; M8-11. |
 | B-05   | Chưa có rate limiting. Hiện chỉ có ánh xạ mã 429, không có middleware thực thi.                                                                                                                | CẦN QUYẾT ĐỊNH | Infra + Ops               | Owner vận hành duyệt ngưỡng (req/giây theo caller, theo endpoint). Sau đó implement middleware + test âm chứng minh chặn thật.                                         |
 | B-06   | Code + local runtime đã đạt `B06_CODE_AND_LOCAL_RUNTIME_PASS`: một MOCK task giữ cùng TraceId qua đủ 5/5 chặng và API/Worker xuất OTLP trace/metric/log tới LGTM. Staging verifier/CI manual gate đã sẵn và fail-closed, nhưng chưa có staging evidence thật. | CẦN XỬ LÝ      | Platform + Infra          | Platform cấp staging endpoint/credential/retention/access và chạy `observability_staging_evidence`; lưu exact image/SHA, task/correlation/TraceId, dashboard, query trace/metric/log-redaction, alert fire/recovery. Chỉ khi đó mới đóng B-06 và chỉ gạch phần observability của W-0063. |
 | B-07   | Chưa chạy soak 4–8 giờ. Năng lực 32 kênh mới có simulator, chưa đo trên thiết bị thật.                                                                                                         | CẦN XỬ LÝ      | Infra + QA                | Soak test có báo cáo; đo throughput/failover trên số kênh thật đã mua. Gate G-ESIM32. Không suy ra năng lực n kênh từ 1 kênh.                                          |
@@ -161,13 +161,13 @@ Nguyên tắc fail-closed: khi một nguồn dữ liệu của gate không đọ
 
 | **Object**          | **Trường tối thiểu**                                                                                                                                                                 | **Ghi chú owner/boundary**                                            |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| ivr_task            | task_id, order_id, order_code, program_code, confirmation_window_start/end, eligibility_snapshot, correlation/idempotency metadata, status | Module 3 phát task sau quyết định `CALL_REQUIRED`. Active upstream contract hiện không có `session_id` hoặc field `priority`; IVR chỉ tự suy priority thực thi từ `risk_flags`. |
+| ivr_task            | task_id, order_id, order_code, program_code, confirmation_window_start/end, eligibility_snapshot, correlation/idempotency metadata, status | Module 3 phát task sau quyết định `CALL_REQUIRED`. Active upstream contract chưa có session field hoặc `priority`; W-0146 đề xuất `golden_hour_session_id` nhưng chưa được M3 ký và chưa được phép triển khai. IVR chỉ tự suy priority thực thi từ `risk_flags`. |
 | ivr_call_job        | call_job_id, ivr_task_id, attempt_no, sim_slot_id, scheduled_at, deadline_at, started_at, ended_at, call_duration, ring_duration, status                                             | Scheduler quản lý; không tạo duplicate attempt.                       |
 | sim_channel         | sim_slot_id, sim_number_ref, status, current_call_job_id, fail_count, last_health_check_at, cooldown_until, quarantine_until, disabled_reason, lease_token, lease_fencing_generation | Một SIM chỉ một active call, thực thi bằng row-lock và fencing token. |
 | ivr_raw_call_event  | raw_event_id, call_job_id, provider_internal_payload_ref, dtmf_raw, audio_status, recording_ref, received_at                                                                         | Không lưu PII thô nếu không cần.                                      |
 | ivr_result          | ivr_result_id, call_job_id, order_id, ivr_result_code, dtmf_key, failure_code, is_counted_customer_attempt, is_final_for_ivr, normalized_at, evidence_ref                            | Là signal, không phải state cuối.                                     |
 | order_core_callback | callback_id, ivr_result_id, order_id, recommended_core_action, reason_code, order_core_ack, rejected_reason, correlation_id, idempotency_key                                         | Order Core quyết định accept/reject.                                  |
-| capacity_incident   | incident_id, session_id, program_code, status, scope, hold_new_calls, active_sim_count, pending_call_jobs, expired_call_jobs, missed_deadline_count, shortage_reason, created_at     | Bắt buộc khi quá tải. `session_id` hiện là định danh nội bộ/synthetic của IVR; không được diễn giải thành upstream session trước khi quyết định contract S-04 được ký. |
+| capacity_incident   | incident_id, session_id, program_code, status, scope, hold_new_calls, active_sim_count, pending_call_jobs, expired_call_jobs, missed_deadline_count, shortage_reason, created_at     | Bắt buộc khi quá tải. `session_id` là capacity scope ID nội bộ/synthetic của IVR. W-0146 cấm map đè upstream ID; sau chữ ký M3 chỉ được thêm cột nullable riêng `golden_hour_session_id`. |
 | ivr_audit_evidence  | evidence_id, object_type, object_id, actor/system, action, timestamp, before/after, reason, file_refs/log_refs                                                                       | Ghi append-only.                                                      |
 
 # **9\. IVR Eligibility Resolver**
@@ -185,29 +185,31 @@ Module 3 là business authority và chỉ phát task sau khi đã quyết địn
 | quote_expiry / order_deadline              | Commerce Runtime                 | Không gọi nếu quote/order đã hết hiệu lực.                                                                                    |
 | capacity_available                         | SIM Gateway Monitor              | Không nhận call job vượt capacity nếu chắc chắn miss deadline.                                                                |
 
-**Authority/field boundary đã khóa:** Module 3 sở hữu quyết định nghiệp vụ `CALL_REQUIRED`; IVR chỉ validate, thực thi và báo kết quả. Active intake không có upstream `priority` hoặc `session_id`. Mọi field session mới phải đi qua quyết định contract S-04; bước dọn tài liệu này không thay wire schema hoặc result taxonomy.
+**Authority/field boundary đã khóa:** Module 3 sở hữu quyết định nghiệp vụ `CALL_REQUIRED`; IVR chỉ validate, thực thi và báo kết quả. Active intake không có upstream `priority` hoặc session field. W-0146 đã ký đề xuất phía M8 là `golden_hour_session_id` — required cho Golden Hour, absent cho 24/7 — nhưng M3 chưa ký nên wire/DB/runtime vẫn không đổi. Current capacity `session_id` là ID nội bộ và không phải alias.
 
 # **10\. Attempt Policy và xung đột nguồn**
 
-<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>BỐN NGUỒN ĐANG MÂU THUẪN — CHƯA ĐÓNG</strong></p><ul><li>Nguồn A — tài liệu phase-8 business: Giờ Vàng 2 cuộc trong 10 phút; 24/7 3 cuộc trong 15 phút.</li><li>Nguồn B — PACK-09 IVR Input Baseline V1.0: Giờ Vàng 5 phút, 2 cuộc, cách 2 phút 30 giây; 24/7 15 phút, 2 cuộc, cách 7 phút 30 giây.</li><li>Nguồn C — code đang chạy: đúng theo nguồn B, dưới version mock-lab-v1, chỉ được phép ở chế độ MOCK và LAB.</li><li><strong>Nguồn D — contract submodule của Module 3</strong> (phát hiện 27/08/2026 qua review của M3): Giờ Vàng 2 cuộc, offsets <code>[0,300]</code>, window <strong>10 phút</strong>; 24/7 <strong>3 cuộc</strong>, offsets <code>[0,300,600]</code>, window 15 phút. Runtime backend của họ lại đang đặt <code>maxCalls=1</code>.</li><li><strong>Điểm nặng nhất:</strong> M3 nêu rằng <strong>không nguồn nào hiện có đỡ cho offsets <code>[0,150]</code></strong> — tức chính con số code IVR đang chạy. V0.3 vẫn giữ nguồn B làm rule triển khai, nhưng nay phải nói rõ nó không chỉ là "chưa ký", nó là "chưa nguồn nào xác nhận".</li><li>Đây vẫn là ĐỀ XUẤT, không phải quyết định: production sẽ từ chối version mock-lab-v1 cho tới khi owner ký một version khác. Với bốn nguồn mâu thuẫn thay vì ba, OD-V1-16 nặng thêm chứ không nhẹ đi. Xem B-04 và OD-V1-16.</li></ul></th></tr></tbody></table></div>
+<div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>W-0151 — NGUỒN SỐ VẪN MÂU THUẪN, PRODUCTION CHƯA ĐƯỢC KÝ</strong></p><ul><li>Nguồn A — phase-8 business: Golden Hour <code>2/[0,300]/600s</code>; 24/7 <code>3/[0,300,600]/900s</code>.</li><li>Nguồn B — D-10/PACK-09: Golden Hour <code>2/[0,150]/300s</code>; 24/7 <code>2/[0,450]/900s</code>.</li><li>Nguồn C — code candidate <code>mock-lab-v1</code> khớp nguồn B, nhưng dev seed chỉ cho MOCK; dev loader có thể đăng ký MOCK/LAB; lab seed mặc định dùng version riêng <code>lab-softphone-v1</code>. Không seed nào là production approval.</li><li>Nguồn D — snapshot M3 <code>PhucApu@a3aad246d986</code> chưa cho thấy Target V1 producer/schema phát version/max/offset/window. Claim cũ rằng runtime M3 đang dùng <code>maxCalls=1</code> không được tái xác nhận trên snapshot này và không được dùng làm current evidence.</li><li>Current IVR wire đã có exact mismatch rule: registry là bản đối chiếu, lệch max/offset/window trả <code>409 IVR_POLICY_MISMATCH</code> và không tạo job; accepted job giữ immutable snapshot.</li><li>Còn mở: exact numbers/T0/counting/retry/quiet-hours, atomic bundle/four-eyes/lifecycle, M3 producer/cutover và pre-dial active-policy coherence. Product + Order Core + M3 phải ký <code>ATP-01..15</code> trước code. Xem B-04, OD-V1-08/16 và M8-11.</li></ul></th></tr></tbody></table></div>
 
-## **10.1. Rule chung**
+## **10.1. Rule chung đã verify trong current runtime**
 
-- MAX_ATTEMPT_PER_ORDER = 2 (lượt gọi tính cho khách).
-- ATTEMPT_INTERVAL = một nửa confirmation window.
 - SIM_GATEWAY_DIRECT_ORDER_UPDATE = NO.
 - ORDER_STATE_CHANGE_MUST_PASS_CORE_STATE_MACHINE = YES.
-- Nếu cuộc 1 có kết quả cuối, không gọi cuộc 2.
+- Nếu một attempt có kết quả final, không gọi attempt sau.
 - Lỗi kỹ thuật KHÔNG tiêu một lượt của khách; nó dùng quota technical retry riêng.
+- Task/job accepted giữ immutable version/max/offset/window/schedule snapshot.
+- `TechnicalRetryLimit` hiện là scheduler config riêng, mặc định 1; chưa phải policy production ký.
+- Không có quiet-hours/timezone/holiday rule trên current policy wire/registry.
 
-## **10.2. Bảng chương trình**
+## **10.2. Bảng candidate hiện tại — không phải production decision**
 
 | **Chương trình** | **Window** | **Attempt 1** | **Attempt 2**  | **Hết hạn**  | **Offsets thực thi** |
 | ---------------- | ---------- | ------------- | -------------- | ------------ | -------------------- |
 | Giờ Vàng Tri Ân  | 5 phút     | T0            | T0 + 2 phút 30 | T0 + 5 phút  | 0s, 150s             |
 | 24/7             | 15 phút    | T0            | T0 + 7 phút 30 | T0 + 15 phút | 0s, 450s             |
 
-_Cột cuối là giá trị đang nạp trong registry attempt policy, để đối chiếu khi kiểm chứng._
+_Đây là `mock-lab-v1` candidate. Dev seed chỉ cho MOCK; lab seed dùng policy khác. Production phải
+dùng version mới sau khi ATP-01..15 được ký._
 
 ## **10.3. Ánh xạ tình huống**
 
@@ -231,18 +233,18 @@ V0.2 chỉ nêu một ngưỡng số duy nhất, nên mọi giá trị khác n�
 
 | **Hằng số**               | **Giá trị hiện tại**       | **Nguồn**            | **Đã đo thật chưa**              |
 | ------------------------- | -------------------------- | -------------------- | -------------------------------- |
-| MAX_ATTEMPT_PER_ORDER     | 2                          | PACK-09              | Chờ owner ký (B-04)              |
-| Window Giờ Vàng           | 5 phút                     | PACK-09              | Chờ owner ký (B-04)              |
-| Window 24/7               | 15 phút                    | PACK-09              | Chờ owner ký (B-04)              |
-| Attempt offsets GH        | 0s, 150s                   | registry mock-lab-v1 | **KHÔNG NGUỒN NÀO ĐỠ** — M3 review 27/08 nêu không tài liệu nào hỗ trợ `[0,150]`. Xem §10 |
-| Attempt offsets 24/7      | 0s, 450s                   | registry mock-lab-v1 | Chờ owner ký (B-04)              |
+| MAX_ATTEMPT_PER_ORDER     | 2 trong candidate          | D-10/mock-lab-v1     | Production chưa ký; business 24/7 ghi 3 |
+| Window Giờ Vàng           | 5 phút trong candidate     | D-10/mock-lab-v1     | Production chưa ký; phase-8 ghi 10 phút |
+| Window 24/7               | 15 phút trong candidate    | D-10/mock-lab-v1     | Production chưa ký               |
+| Attempt offsets GH        | 0s, 150s trong candidate   | registry mock-lab-v1 | Production chưa ký; phase-8 ghi `[0,300]` |
+| Attempt offsets 24/7      | 0s, 450s trong candidate   | registry mock-lab-v1 | Production chưa ký; phase-8 ghi `[0,300,600]` |
 | SIM cooldown sau cuộc gọi | 5 giây                     | mặc định mock        | CHƯA — cần lab L-07              |
 | Ngưỡng quarantine kênh    | fail_count ≥ 3             | mặc định mock        | CHƯA — cần lab L-08              |
 | Ring timeout              | 30 giây                    | cấu hình adapter lab | CHƯA — phụ thuộc nhà mạng        |
 | DTMF timeout              | **10 giây thực tế** (xem §11.1) | appsettings API + Worker | CHƯA — cần lab L-01, L-05        |
 | AVERAGE_CALL_DURATION     | 35 giây                    | giả định V0.2 §11    | CHƯA — chưa có cuộc gọi thật nào |
 | CONSERVATIVE_CALL_CYCLE   | 50 giây/cuộc/SIM           | giả định V0.2 §11    | CHƯA — chưa có cuộc gọi thật nào |
-| Technical retry limit     | có giới hạn, cấu hình được | code normalizer      | Chưa chốt con số cuối            |
+| Technical retry limit     | config mặc định 1         | scheduler/normalizer | Chưa versioned/chưa ký backoff và quan hệ với policy |
 | Rate limit API            | CHƯA CÓ                    | —                    | Chưa duyệt ngưỡng (B-05)         |
 
 ## **11.1. DTMF timeout — bốn giá trị khác nhau, sửa 27/08/2026**
@@ -663,7 +665,7 @@ V0.2 nêu 6 quyết định. Rà soát thực tế cho thấy còn nhiều hơn 
 
 | **ID**        | **Câu hỏi owner cần chốt**                                                                      | **Chủ sở hữu**          | **Chặn cái gì**        |
 | ------------- | ----------------------------------------------------------------------------------------------- | ----------------------- | ---------------------- |
-| OD-V1-08 / 16 | Attempt policy cuối cùng dùng rule nào, khi ba nguồn đang mâu thuẫn?                            | Product + Order Core    | Production (B-04)      |
+| OD-V1-08 / 16 | Ký `ATP-01..15`: source authority, version/bundle, exact numbers/T0/counting/retry/quiet-hours, M3 producer, registry/cutover/pre-dial coherence và rollback. | Product + Order Core + M3; technical owner theo dòng | Production (B-04) |
 | OD-V1-09      | Giao thức lab 1 SIM, DTMF, disposition, danh sách số cho phép.                                  | Infra + vendor          | Lab (B-01)             |
 | OD-V1-10      | Năng lực nhiều kênh, failover, caller ID, chi phí.                                              | Infra + Procurement     | Production (B-07)      |
 | OD-V1-13      | ~~Giờ Vàng thanh toán online có thuộc phạm vi IVR không?~~ **ĐÃ CÓ NGUỒN 27/08/2026.** M3 dẫn Flow 04 (dòng 838–850) và Flow 05 (dòng 426–435): khóa `24_7+COD` và `GOLDEN_HOUR+ONLINE`, Giờ Vàng phải từ chối `COD_NOT_ALLOWED`. Bảng ép trong code IVR **khớp nghiệp vụ**. Còn lại chỉ là ký wire mapping, không phải quyết lại business. | Product/Business        | Hạ từ CHẶN xuống ký mapping (IR-06 §3.10 R3, §3.11) |
@@ -687,6 +689,9 @@ _Bảng trên là bản **lọc** — chỉ những quyết định ảnh hưở
 
 <div class="joplin-table-wrapper"><table><tbody><tr><th><p><strong>MODULE 8 — TRẠNG THÁI V0.3</strong></p><ul><li>MODULE 8 V0.3 = READY FOR OWNER / TECH LEAD / DEV REVIEW.</li><li>IMPLEMENTATION STATUS = IMPLEMENTATION_COMPLETE_BEHIND_MOCKS (khác V0.2, vốn ghi nhầm là NOT_STARTED).</li><li>IVR_GATE = BLOCKED.</li><li>REAL_CUSTOMER_CALL_ALLOWED = NO.</li><li>PRODUCTION_READY = NO.</li><li>DOWNSTREAM_IVR_DEPENDENCY_ALLOWED = NO cho tới khi evidence pass.</li><li>Ba rào chắn ở mức CHẶN là B-01 (thiết bị viễn thông), B-02 (bộ resolve số) và B-03 (hợp đồng Sales). Không cái nào giải quyết được bằng cách viết thêm code.</li></ul></th></tr></tbody></table></div>
 
-Bước tiếp theo đúng thứ tự: đóng B-03 song song với mua thiết bị cho lab 1 SIM → chạy đủ biểu mẫu nghiệm thu lab → owner ký attempt policy và giọng đọc → quyết định số SIM cho pilot dựa trên số đo thật → smoke và evidence → owner sign-off → pilot giới hạn.
+Bước tiếp theo đúng thứ tự: gửi ATP-01..15 cho Product/Order Core/M3 và nhận canonical policy
+bundle + producer artifact; song song đóng B-03 và mua thiết bị lab 1 SIM → chạy đủ biểu mẫu lab →
+recalibrate capacity/token theo signed policy → smoke/shared evidence → đúng owner sign-off → pilot
+giới hạn. Không promote `mock-lab-v1` hoặc sửa scheduler trước chữ ký.
 
 **Nói rõ cho dev: Module 8 không phải "viết code gọi điện". Đây là một service runtime có state, queue, scheduler, SIM capacity, DTMF, callback, audit, evidence và release gate. Phần đó đã làm gần xong. Phần còn lại không nằm trong tầm tay đội phát triển, và cách duy nhất để nó tiến là đưa ba rào chắn CHẶN ở §3 ra trước owner với ngày cam kết cụ thể.**

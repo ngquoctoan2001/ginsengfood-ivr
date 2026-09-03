@@ -4,6 +4,12 @@ Trạng thái: `TARGET_V1_DRAFT`.
 
 Sales owns source aggregation. IVR validates the task snapshot before dispatch; Sales revalidates current truth on callback.
 
+`W-0149` clarification: current IVR validation is intake/evaluation-time only. `captured_at` is checked
+against the confirmation window and evaluation time, but there is no signed max-age/`valid_until`,
+mid-window invalidation command or per-attempt business recheck. This is the recorded option-A
+behavior, not proof that M3 D-06 exists. Any option-B/hybrid revoke path requires a separately signed
+command, race/fencing matrix and audit contract; IVR must not query Ops/CRM directly.
+
 | ID | Requirement |
 | --- | --- |
 | `FR-IVR-ELIG-001` | Official order/version/callable state and required flag present |

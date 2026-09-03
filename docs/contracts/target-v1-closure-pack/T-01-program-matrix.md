@@ -1,89 +1,90 @@
 # T-01 — Ma trận program / payment / IVR-required / callable
 
-External work `W-0002` · quyết định `OD-V1-01`, `OD-V1-13`, `OD-V1-14` · gate **real integration** · trạng thái `OPEN`
+External work `W-0002` · quyết định `OD-V1-01`, `OD-V1-13`, `OD-V1-14` · gate **real integration**
 
-Owner: **Sales Product/Core** (ma trận + producer) và **Product/Business** (scope Golden Hour ONLINE, field `ivr_confirmation_required`).
+Trạng thái: **`M8_POSITION_SIGNED / M3_PRODUCT_ARTIFACT_PENDING`**
 
-Due: chốt **trước khi bắt đầu `P4-2`** — mọi slice adapter đều đọc ma trận này. Ngày cam kết của owner: `<owner điền>`.
+Rà soát hiện hành: `W-0145` · `2026-09-03` · baseline `main@b21ec676e490`
 
-## 1. Current evidence — đã đọc từ nguồn
+Owner phải trả artifact: **Module 3 / Product / Order Core**.
 
-**Business source hiện đọc được là COD-only.** [`plan/ivr-orther/decisions-log.md:91`](../../../plan/ivr-orther/decisions-log.md) `DS-01`, source-read từ Sales platform:
+> **Correction W-0145:** bản cũ của ticket này nói business pair chưa được duyệt và yêu cầu
+> quyết định lại Golden Hour COD/ONLINE. Kết luận đó đã lỗi thời. IR-06 ghi nhận nguồn Flow 04/05
+> phía Module 3 đã khóa hai cặp business. Không dùng lại phần phân tích cũ để giao Module 8 sửa
+> matrix hoặc nới schema.
 
-> IVR-callable = CHỈ `CONFIRMING` VÀ CHỈ khi `payment_method_snapshot=COD`. Mọi state khác + mọi đơn non-COD = không callable. `is_ivr_callable` **không phải field** — là rule derive từ state machine.
+## 1. Vị trí đã ký của Module 8
 
-**IVR hiện enforce một ma trận khác, ở bốn nơi độc lập:**
+Module 8 nhận đúng hai tổ hợp sau:
 
-| Nơi enforce | Vị trí | Luật |
+| `program_code` trên wire IVR | `payment_method_snapshot` | Kết quả |
 | --- | --- | --- |
-| OpenAPI (wire) | [`specs/api/openapi/ivr-order-confirmation.v1.yaml:839`](../../../specs/api/openapi/ivr-order-confirmation.v1.yaml) `oneOf` | `(GOLDEN_HOUR ∧ ONLINE) ∨ (TWENTY_FOUR_SEVEN ∧ COD)` |
-| Intake endpoint | [`src/Ivr.Api/Intake/TaskIntakeEndpoint.cs:209`](../../../src/Ivr.Api/Intake/TaskIntakeEndpoint.cs) | cùng luật, `422` nếu sai |
-| Eligibility | [`src/Ivr.Domain/Policies/EligibilityRules.cs:139`](../../../src/Ivr.Domain/Policies/EligibilityRules.cs) | `PROGRAM_PAYMENT_MATRIX_REJECTED` |
-| Database | migration `20260812142435` — `ck_ivr_confirmation_tasks_matrix` | CHECK constraint, không ghi được row sai |
+| `GOLDEN_HOUR` | `ONLINE` | Được nhận nếu các gate task khác hợp lệ |
+| `TWENTY_FOUR_SEVEN` | `COD` | Được nhận nếu các gate task khác hợp lệ |
+| `GOLDEN_HOUR` | `COD` | Reject tại schema; không phải business pair được duyệt |
+| `TWENTY_FOUR_SEVEN` | `ONLINE` | Reject tại schema; không phải business pair được duyệt |
 
-Bốn nơi này **nhất quán với nhau** và đều đang mã hoá một **đề xuất chưa được duyệt**.
+Đây là receiver contract hiện hành. Module 8 **không** nhận alias `24_7`, không tự suy payment và
+không tự quyết định đơn nào cần gọi.
 
-## 2. Target delta — chính xác là gì
+Module 3 phải map tại producer/assembler:
 
-Ma trận IVR và `DS-01` lệch nhau theo **hai chiều ngược nhau**. Cả hai đều nguy hiểm:
+| Giá trị phía Module 3 | Giá trị phải gửi sang IVR |
+| --- | --- |
+| `24_7` | `TWENTY_FOUR_SEVEN` |
+| `PHONE_VALID` | `VALID` |
+| `ELIGIBLE_FOR_IVR` | `ELIGIBLE` |
 
-| Cặp giá trị | `DS-01` (business) | IVR hiện tại | Hậu quả nếu chạy thật |
+`ivr_confirmation_required` là assertion rằng Module 3 đã quyết định `CALL_REQUIRED`:
+
+- đơn không cần gọi: **không gửi task**;
+- task được gửi: field phải có giá trị `true`;
+- thiếu field hoặc gửi `false`: schema từ chối; IVR không biến cờ này thành business-decision engine.
+
+## 2. Evidence hiện hành
+
+| Lớp | Evidence | Kết luận |
+| --- | --- | --- |
+| Business routing | [IR-06 §3.10–3.11](../../../integration-requirements/06-module-3-api-handover.md) ghi nhận Flow 04/05 phía M3 | `24_7 + COD`; `GOLDEN_HOUR + ONLINE`; còn thiếu producer artifact/chữ ký M3 |
+| Wire schema | [OpenAPI IVR](../../../specs/api/openapi/ivr-order-confirmation.v1.yaml) | `oneOf` chỉ nhận hai cặp; `ivr_confirmation_required` chỉ nhận `true` |
+| Runtime receiver | `ProgramPaymentPolicy` + `TargetV1TaskMapper` | Enforce cùng matrix; policy version/parameters phải khớp registry snapshot |
+| Contract/runtime tests | `CT-INTAKE-OPENAPI-01`, `IT-INTAKE-DB-01/02`, intake tests | Chứng minh phía IVR trên local/test; không chứng minh producer M3 |
+
+Nguồn Flow 04/05 nằm ở repository Module 3 và được IR-06 dẫn chiếu. Module 8 không thay chữ ký của
+owner nguồn đó; M3 phải trả commit/source reference hiện hành trong artifact sign-off.
+
+## 3. Module 3 / Product phải trả gì
+
+Không trả lời bằng “OK”. Ticket chỉ đủ điều kiện đóng khi có đủ:
+
+- [ ] Bảng matrix/wire mapping ở §1 có tên owner, vai trò và ngày ký.
+- [ ] Commit assembler phía M3 chứng minh ba mapping chuỗi ở §1.
+- [ ] Producer CDC chứng minh chỉ phát hai business pair và luôn gửi
+  `ivr_confirmation_required=true` cho task `CALL_REQUIRED`.
+- [ ] Test chứng minh producer rẽ nhánh theo HTTP/response shape và chỉ chờ callback sau
+  `TASK_ACCEPTED_CALL_JOB_CREATED`.
+- [ ] Mô tả thời điểm bump `order_version` và minimal eligibility snapshot đã ký.
+- [ ] Production `attempt_policy_version` đã được Product/Order Core ký theo
+  [T-09](T-09-attempt-policy.md); version và parameters khớp nhau.
+
+Mục cuối **chưa được Module 8 phê duyệt**. `mock-lab-v1` chỉ là candidate MOCK/LAB và không được
+đưa vào production bằng cách gộp chữ ký T-01 với chữ ký policy.
+
+## 4. Stop rule
+
+- Không nới IVR để nhận `24_7`, `PHONE_VALID`, `ELIGIBLE_FOR_IVR` hoặc business pair ngoài bảng.
+- Không yêu cầu Product quyết lại business pair đã có nguồn; việc còn thiếu là artifact producer
+  và chữ ký chịu trách nhiệm.
+- Không triển khai real integration khi chưa có producer CDC, production policy và sandbox/auth.
+- Không dùng local IVR tests để tuyên bố M3 đã tích hợp hoặc contract đã `ACCEPTED`.
+
+## 5. Chữ ký
+
+| Bên | Người ký | Ngày | Phạm vi |
 | --- | --- | --- | --- |
-| `GOLDEN_HOUR` + `COD` | **callable** | **từ chối `422`** | Sales đẩy task hợp lệ, IVR chặn hết. Một lớp đơn không bao giờ được gọi, im lặng. |
-| `GOLDEN_HOUR` + `ONLINE` | **không callable** | **chấp nhận** | IVR gọi khách trên nhóm đơn business chưa cho phép. |
-| `TWENTY_FOUR_SEVEN` + `COD` | callable | chấp nhận | khớp |
-| `TWENTY_FOUR_SEVEN` + `ONLINE` | không callable | từ chối | khớp |
+| Module 8 / Project Owner | **Tôi — Module 8 / Project Owner** | **2026-09-03** | Receiver matrix, wire values và stop rule; không ký thay producer/policy owner |
+| Module 3 contract owner | `<chưa nhận>` | `<chưa nhận>` | Producer mapping, lifecycle và CDC |
+| Product / Order Core | `<chưa nhận>` | `<chưa nhận>` | Production attempt policy/version |
 
-**`OD-V1-14` — `ivr_confirmation_required` không có nguồn business.** `grep -rl ivr_confirmation_required "docs/documents/"` → **0 file**. Nhưng OpenAPI khai `enum: [true]` và intake từ chối `422` nếu thiếu hoặc `false`. Nếu producer của Sales không set field này, **100% task bị từ chối** ngay ngày cắm thật.
-
-`is_ivr_callable` cũng vậy: `DS-01` nói đây **không phải field**, OpenAPI khai nó là optional convenience flag. Không xung đột về hành vi, nhưng cần xác nhận Sales có phát nó không, và nếu có thì derive từ đâu.
-
-## 3. Sample payload
-
-Task tối thiểu hợp lệ theo contract hiện tại (đã lược field không liên quan ticket này):
-
-```json
-{
-  "contract_version": "ivr-order-confirmation.v1",
-  "task_id": "TASK-0001",
-  "order_id": "ORDER-0001",
-  "order_code": "GF-2026-0001",
-  "order_version": "17",
-  "order_state": "CONFIRMING",
-  "program_code": "GOLDEN_HOUR",
-  "payment_method_snapshot": "ONLINE",
-  "ivr_confirmation_required": true,
-  "is_ivr_callable": true
-}
-```
-
-Đổi `payment_method_snapshot` thành `COD` mà giữ `program_code: GOLDEN_HOUR` → `422` ở cả bốn tầng bảng §1.
-
-## 4. Acceptance test — phải xanh khi đóng
-
-| Test | Ở đâu | Khẳng định |
-| --- | --- | --- |
-| `TaskIntakeServiceTests` theory 2 nhánh | [`tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs:24`](../../../tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs) | Hai cặp giá trị được duyệt đều tạo đúng 1 call job |
-| `IT-INTAKE-DB-01/02` | `tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs` | Ghi bền + idempotency trên Postgres thật |
-| `CT-INTAKE-OPENAPI-01` | `tests/Ivr.ContractTests/TaskIntakeContractTests.cs` | Payload khớp schema đã ghim |
-| **`CDC-MATRIX-01`** *(Sales phải viết)* | producer phía Sales | Producer chỉ phát đúng những cặp giá trị trong ma trận đã ký, kèm `ivr_confirmation_required` |
-
-Khi ma trận được ký khác với hiện tại, **cả bốn nơi ở §1 phải sửa cùng lúc** — sửa lệch một nơi là tạo lỗ hổng im lặng.
-
-## 5. Mock fallback — IVR đang chạy bằng gì
-
-Fake Sales producer phát cả hai cặp giá trị đã duyệt; toàn bộ Phase 2–3 chạy trên đó. Fixture MOCK **không** đóng gate.
-
-## 6. Closure artifact — owner điền
-
-Đóng `OD-V1-01`, `OD-V1-13`, `OD-V1-14` cần **cả ba**:
-
-- [ ] **Ma trận đã ký**: bảng `program_code × payment_method_snapshot × order_state → IVR-callable`, có tên người duyệt và ngày. Trả lời dứt khoát: `GOLDEN_HOUR + COD` có callable không, và `GOLDEN_HOUR + ONLINE` có thuộc scope IVR V1 không.
-- [ ] **Định nghĩa `ivr_confirmation_required`**: nguồn business, ai set, set khi nào, có bao giờ `false` không. Nếu field bị bỏ, phải nói rõ IVR gate bằng gì thay thế.
-- [ ] **Producer test đã merge** phía Sales chứng minh producer chỉ phát đúng ma trận đã ký.
-
-Đóng bằng "dev Sales nói vậy" là **không hợp lệ** — cần chữ ký owner Product/Business cho `OD-V1-13` và `OD-V1-14`.
-
-## 7. Rủi ro nếu để mở
-
-Đây là ticket **chặn cứng ngày cắm thật**. Hai chiều lệch ở §2 không gây lỗi ồn ào: chiều thứ nhất làm đơn biến mất khỏi hàng đợi mà không ai báo, chiều thứ hai gọi khách ngoài scope đã duyệt. Cả hai chỉ lộ ra khi đã chạy trên khách thật.
+Vì hai chữ ký external còn trống, trạng thái đúng vẫn là
+**`M8_POSITION_SIGNED / M3_PRODUCT_ARTIFACT_PENDING`**, không phải `SIGNED_OFF` toàn hệ thống.

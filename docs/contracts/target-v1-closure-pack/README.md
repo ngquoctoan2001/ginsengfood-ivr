@@ -1,6 +1,19 @@
 # Target Contract V1 — Closure Pack
 
-Trạng thái: `OPEN` · Work `W-0058` (prompt `P11-2`) · Tạo `2026-08-18` · Rà soát lại `2026-08-24` trên `main@54ca239` (`draft.18`)
+Trạng thái: `OPEN_EXTERNAL` · Work `W-0058` (prompt `P11-2`) · Tạo `2026-08-18` · baseline lịch sử `main@54ca239` (`draft.18`)
+
+Correction hiện hành: `W-0145` · `2026-09-03` · T-01 và producer/result semantics đã được đối
+chiếu lại trên `main@b21ec676e490`; đọc cùng
+[M8-05 sign-off](../../../plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md).
+
+Dial-token correction: `W-0150` · `2026-09-03` · T-04 đã được đối chiếu lại về contact requiredness,
+TTL equality, scalar/reuse semantics, opaque resolver output và production fail-closed; đọc cùng
+[M8-10 decision pack](../../../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md).
+
+Attempt-policy correction: `W-0151` · `2026-09-03` · T-09 đã được đối chiếu lại về exact wire
+mismatch `409`, immutable task/job snapshot, seed scope, registry lifecycle/four-eyes gap,
+technical-retry config và pre-dial flag drift; đọc cùng
+[M8-11 decision pack](../../../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
 
 Gói review duy nhất để Sales / Product / Privacy / Security trả lời bằng **code, OpenAPI và test** — không trả lời bằng ý kiến.
 
@@ -14,15 +27,15 @@ IVR là service standalone; Sales giữ chân lý về đơn hàng (D-02: IVR **
 
 | Ticket | Chủ đề | External W | OD-V1 | Owner | Due (chặn cái gì) | Gate | Trạng thái |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [T-01](T-01-program-matrix.md) | Ma trận program/payment/IVR-required/callable | `W-0002` | `01`, `13`, `14` | Sales Product/Core + Product/Business | trước `P4-2` | real integration | `OPEN` |
+| [T-01](T-01-program-matrix.md) | Ma trận program/payment/IVR-required/callable | `W-0002` | `01`, `13`, `14` | Sales Product/Core + Product/Business | trước `P4-2` | real integration | `M8_SIGNED / M3_PRODUCT_PENDING` |
 | [T-02](T-02-task-data-order-version.md) | Task data: `order_version`, eligibility/restriction evidence | `W-0002` | `03` | Sales Core | trước `P4-2` | real integration | `OPEN` |
 | [T-03](T-03-speech-summary.md) | Privacy-safe order summary + whitelist biến lời thoại | `W-0003` | `04`, `15` | Sales/Product + Privacy/Legal | whitelist trước script production; nội dung trước `P8-2` | business acceptance | `OPEN` |
-| [T-04](T-04-dial-token.md) | Dial-token: issue/resolve/TTL/one-use/audit | `W-0004` | `05`, `17`, `18` | Sales/Security/Telephony | trước `P8-1` | real call · `LAB_REAL_SIM` | `OPEN` |
+| [T-04](T-04-dial-token.md) | Dial-token: issue/resolve/TTL/one-use/audit | `W-0004` | `05`, `17`, `18` | M3/Security/Platform/Telephony | trước `P8-1` | real call · `LAB_REAL_SIM` | `W0150_EVIDENCE_SUBMITTED / OPEN_EXTERNAL` |
 | [T-05](T-05-callback-ack.md) | Generic callback target + ACK taxonomy + idempotency/version | `W-0005` | `02` | Sales API/Core | trước `P4-1` | real integration | `OPEN` |
 | [T-06](T-06-no-answer-timeout.md) | No-answer / wait-for-timeout / revalidation race | `W-0005` | `06` | Sales Product/Core | trước `P8-2` | real integration | `OPEN` |
 | [T-07](T-07-production-auth.md) | Production JWT issuer/audience/scope/TTL/JWKS + mTLS | `W-0006` | `07` | Security/Platform | trước `P4-4` | real integration | `OPEN` |
 | [T-08](T-08-openapi-compat-cdc.md) | OpenAPI compatibility/deprecation + sở hữu CDC | `W-0002`,`W-0005` | — (process) | Sales API + IVR | trước `P9-1` | real integration | `OPEN` |
-| [T-09](T-09-attempt-policy.md) | `attempt_policy_version` production | `W-0007` | `16` (+`08`) | Product/Order Core | trước `P9-1` | production | `OPEN` |
+| [T-09](T-09-attempt-policy.md) | `attempt_policy_version` production | `W-0007` | `16` (+`08`) | Product + Order Core + M3 | trước `P9-1` | production | `W0151_EVIDENCE_SUBMITTED / OPEN_EXTERNAL` |
 
 Cột **Due** là hạn suy ra từ phụ thuộc kỹ thuật — nó nói ticket này chặn việc gì, không phải ngày trên lịch. Ngày cam kết thật do owner điền vào từng ticket.
 
@@ -68,7 +81,10 @@ Nếu Sales trả lời trên một commit khác, ghi commit đó vào ticket �
 ## 6. Cái gói này KHÔNG làm
 
 - Không đóng `W-0002…W-0007`. Chỉ tạo con đường để đóng.
-- Không phê duyệt Golden Hour ONLINE (`OD-V1-13`), `ivr_confirmation_required` (`OD-V1-14`), attempt policy (`OD-V1-16`), whitelist lời thoại (`OD-V1-15`) hay dial-token semantics (`OD-V1-17`).
+- M8 đã ký receiver matrix `GOLDEN_HOUR+ONLINE` / `TWENTY_FOUR_SEVEN+COD` và semantics
+  `ivr_confirmation_required=true` tại W-0145; gói này **không** ký thay producer M3 hoặc đóng
+  artifact/CDC external. Attempt policy (`OD-V1-16`), whitelist lời thoại (`OD-V1-15`) và
+  dial-token semantics (`OD-V1-17`) vẫn chưa được external owner phê duyệt.
 - Không sửa business source trong `docs/documents/`. Chỗ nào business source mâu thuẫn, ticket ghi mâu thuẫn và để owner business sửa.
 - Không gửi gì ra ngoài. IVR soạn gói; owner IVR quyết định gửi cho ai và khi nào.
 

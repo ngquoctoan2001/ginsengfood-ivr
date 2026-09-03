@@ -18,6 +18,18 @@ Trước `OD-17` có hai tầng chặn đơn không bán được: IVR chặn tr
 
 Yêu cầu ops-core ↔ Module 3 là việc giữa hai module đó. Ghi lại ở đây chỉ để người đọc IVR biết mắt xích nào đang gánh.
 
+## Current verification W-0149 — 03/09/2026
+
+Đối chiếu read-only snapshot Module 3 `PhucApu@a3aad246d986` không tìm thấy generic Target V1
+callback consumer, ACK `BLOCKED_BY_CORE`/`REJECTED_STALE` hoặc IVR revoke path trong
+`back-end/src/main` và tests. Kết quả này không chứng minh M3 không có artifact ở nơi khác; nó chứng
+minh repo/snapshot hiện được cung cấp **chưa đủ để xác nhận D-06 đã chạy**.
+
+Do đó current topology chỉ là `CURRENT_OPTION_A_BEHAVIOR_PRESENT / M3_D06_RUNTIME_NOT_FOUND`.
+Không khôi phục IVR→Ops egress để vá khoảng trống. Owner/M3 phải hoặc giao D-06 runtime + shared E2E
+cho phương án A, hoặc ký lifecycle command qua M3 theo
+[M8-09 decision pack](../plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md).
+
 ## Ghi chú ranh giới vẫn đúng
 
 - Ops-core **không biết `order_id`** (`DO-CORR-1`) — chỉ tra theo SKU / batch / QR. Fan-out là việc của Order Core.
@@ -28,4 +40,4 @@ Yêu cầu ops-core ↔ Module 3 là việc giữa hai module đó. Ghi lại �
 
 Nội dung `IR-OPS-01…07` và các đối soát source ngày `2026-08-25` nằm trong lịch sử git của file này. Không khôi phục để dùng làm yêu cầu mới mà không có quyết định owner thay `OD-17`.
 
-Liên quan: [06-module-3-api-handover.md §3.6](06-module-3-api-handover.md) · [decisions-log `OD-17`](../plan/ivr-orther/decisions-log.md)
+Liên quan: [06-module-3-api-handover.md §4.6](06-module-3-api-handover.md) · [decisions-log `OD-17`](../plan/ivr-orther/decisions-log.md)

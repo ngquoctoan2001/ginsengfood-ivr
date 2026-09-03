@@ -2,9 +2,15 @@
 
 External work `W-0004` · quyết định `OD-V1-05`, `OD-V1-17`, `OD-V1-18` · gate **real call** · `LAB_REAL_SIM` · trạng thái `OPEN`
 
-Owner: **Sales** (phát token), **Security** (trust boundary, threat model), **Telephony vendor** (khả năng gateway).
+Owner: **Module 3 / Official Contact service** (chọn contact, phát token), **Security** (trust boundary,
+threat model), **Platform** (custody/network) và **Telephony vendor** (khả năng gateway).
 
 Due: chốt **trước `P8-1`** (real SIM lab) — không quay số thật khi chưa có semantics token. Ngày cam kết của owner: `<owner điền>`.
+
+Correction hiện hành: `W-0150` · `2026-09-03` · đọc ticket này cùng
+[M8-10 decision pack](../../../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md).
+Audit không đóng T-04; nó sửa factual drift về TTL, reuse và resolver output, đồng thời chuyển câu hỏi
+thành `DTK-01..DTK-15` để M3/Security/Platform/Telephony ký.
 
 ## 1. Current evidence — đã đọc từ nguồn
 
@@ -17,18 +23,25 @@ dial_token_expires_at: { type: string, format: date-time }
 
 Cả hai đều `required`. Không có mảng, không có endpoint reissue, không có refresh — trong **bất kỳ** contract nào của dự án.
 
-**Cùng task đó bắt buộc phải quay ít nhất hai lần.** Cùng schema:
+**Cùng task đó có thể cần nhiều lần quay.** Wire cho phép policy từ 1 đến 10 customer attempt;
+production policy còn chờ owner ký. Cùng schema:
 
 ```yaml
 max_customer_attempts: { type: integer, minimum: 1, maximum: 10 }
 attempt_offsets_seconds: { type: array, minItems: 1, maxItems: 10, items: { type: integer, minimum: 0 } }
 ```
 
-Cộng thêm `DT-02`: **technical exception không tính là customer attempt**. Nghĩa là số lần quay thật > `max_customer_attempts`.
+Cộng thêm `DT-02`: **technical exception không tính là customer attempt**. Vì vậy số lần dial có thể
+lớn hơn số customer attempt nếu policy retry kỹ thuật cho phép.
 
-**Năm tài liệu ghi token là one-use/attempt.** Ví dụ [`specs/data/05-pii-policy.md`](../../../specs/data/05-pii-policy.md) §2: "Token TTL ≤ window, one-use/attempt (D-05); mapping token→số thật nằm ở SIM adapter/token vault, không ở IVR."
+**Nhiều tài liệu cũ ghi token là one-use/attempt.** Đây là target proposal cần owner ký, không phải
+behavior production đã có. Implementation MOCK/LAB hiện chỉ ngăn resolve trùng theo cặp
+`(token fingerprint, attempt_id)`; một scalar token vẫn dùng được cho attempt khác.
 
-**IVR đã dựng seam nhưng chưa có nguồn thật.** [`src/Ivr.Domain/Ports/ProviderPorts.cs:34`](../../../src/Ivr.Domain/Ports/ProviderPorts.cs) khai `IDialTokenResolver`; `DialAuthorization` chỉ lộ số qua `RevealToTrustedGateway()` và `ToString()` trả `[REDACTED_DIAL_AUTHORIZATION]`. Hai implementation hiện có: `FakeDialTokenResolver` và `MockDialTokenVault`.
+**IVR đã dựng seam nhưng chưa có nguồn thật.** [`ProviderPorts.cs`](../../../src/Ivr.Domain/Ports/ProviderPorts.cs)
+khai `IDialTokenResolver`; `DialAuthorization` chứa `providerDestinationReference`, từ chối raw phone,
+chỉ lộ opaque reference qua `RevealToTrustedGateway()` và `ToString()` trả
+`[REDACTED_DIAL_AUTHORIZATION]`. Implementation hiện có chỉ là fake/MOCK/LAB.
 
 ## 2. Target delta — chính xác là gì
 
@@ -36,8 +49,8 @@ Cộng thêm `DT-02`: **technical exception không tính là customer attempt**.
 
 | Cần | Có |
 | --- | --- |
-| ≥ 2 lần quay khách + n lần retry kỹ thuật | 1 token scalar |
-| Token one-use/attempt | không có cách lấy token thứ hai |
+| 1..10 customer attempt + retry kỹ thuật theo policy | 1 token scalar |
+| Nếu chọn token globally/per-attempt one-use | không có cách lấy token tiếp theo trên contract current |
 
 Bốn phương án, Sales/Security chọn một:
 
@@ -50,13 +63,23 @@ Bốn phương án, Sales/Security chọn một:
 
 Đây **không** phải quyết định IVR được tự chọn: token là thứ Sales/Security phát ra.
 
-**(b) `OD-V1-18` — resolve `dial_token → E.164` xảy ra ở đâu.** Hai tài liệu nói khác nhau, và [`specs/api/04-sim-adapter-contract.md:18`](../../../specs/api/04-sim-adapter-contract.md) đã ghi thẳng mâu thuẫn này:
+**(b) `OD-V1-18` — resolve `dial_token → destination` xảy ra ở đâu.** Hai tài liệu cũ nói khác
+nhau. Type contract current không cho resolver trả raw E.164 vào IVR; nó chỉ cho một opaque provider
+destination reference. Nếu vendor cuối cùng bắt buộc E.164, bước biến reference thành E.164 phải nằm
+sau external vault/gateway boundary đã được Security/vendor duyệt.
 
-> tài liệu này ghi adapter chỉ nhận `dial_token`, trong khi `P2-4` đặt `IDialTokenResolver` bên trong IVR và gateway thương mại quay số E.164.
+> Task/intake/storage của IVR chỉ được thấy opaque token/ciphertext. Raw E.164, nếu vendor cần, chỉ
+> được lộ bên trong external trusted gateway/vault chứ không quay lại IVR application/domain/log.
 
-Ranh giới **mục tiêu** đã được phác: `IVR → opaque dial_token → trusted resolver/gateway → E.164`, và IVR không giữ mapping key. Nhưng "phác" không phải "đã duyệt". Câu hỏi thật là: **cái vault giữ mapping chạy ở đâu, ai vận hành, ai audit nó**. Nếu câu trả lời là "trong process của IVR", thì `D-05` bị vi phạm trên thực tế dù code có che `ToString()` đi nữa.
+Ranh giới **mục tiêu** đã được phác: `IVR → opaque token/ciphertext → external trusted
+resolver/gateway → provider destination/E.164`, và IVR không giữ mapping key. Nhưng "phác" không
+phải "đã duyệt". Câu hỏi thật là: **vault/mapping chạy ở đâu, ai vận hành, ai audit và vendor nhận
+opaque handle hay bắt buộc E.164**.
 
-**(c) TTL chưa nối với window.** `dial_token_expires_at` là timestamp độc lập; quy tắc "TTL ≤ confirmation window" nằm trong tài liệu chứ không có ràng buộc nào trên wire. Nếu Sales phát token hết hạn trước lần quay thứ hai, lần đó chết mà không ai lường trước.
+**(c) TTL current bị ép thành exact equality nhưng wire không nói rõ.** Intake đòi expiry không sớm
+hơn window end; persistence lại đòi expiry không muộn hơn window end. Accepted persisted task vì vậy
+chỉ hợp lệ khi hai timestamp bằng nhau. OpenAPI chưa diễn đạt cross-field invariant này; owner phải ký
+exact equality hoặc invariant min/max khác.
 
 **(d) Audit chưa được định nghĩa.** Ai ghi lại việc một token được resolve? Nếu vault ở phía Sales/vendor thì log ở đó; IVR chỉ có `attempt_id`. Cần chốt để điều tra sự cố "tại sao số này bị gọi" có đường đi rõ ràng.
 
@@ -89,16 +112,21 @@ Nếu chọn phương án (a), delta sẽ là:
 | --- | --- | --- |
 | `IT-API-PII-05` | `tests/Ivr.IntegrationTests/` | Token không rò ra API surface |
 | PII gate CI | [`deploy/ci/scripts/scan-pii.sh`](../../../deploy/ci/scripts/scan-pii.sh) + `deploy/ci/pii-patterns.txt` | Pattern chặn `dial_token: <giá trị>` xuất hiện trong evidence |
-| `MockDialTokenVault` suite | `tests/Ivr.IntegrationTests/MockTelephonyPersistenceTests.cs` | Resolve chỉ qua port, không lưu mapping ở IVR |
+| `MockDialTokenVault` suite | `tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs` | Expiry/allowlist/per-attempt duplicate fail-closed; không suy thành production one-use |
 | **`CDC-DIALTOKEN-01`** *(Sales/Security viết)* | phía phát token | Token hết hạn → resolve fail; token đã dùng → resolve fail theo đúng semantics đã chọn |
 | **`CDC-DIALTOKEN-02`** *(Sales/Security viết)* | phía phát token | Replay: cùng token, hai attempt khác nhau → hành vi đúng như phương án đã chốt |
 
 ## 5. Mock fallback
 
-`FakeDialTokenResolver` + `MockDialTokenVault` cho phép toàn bộ Phase 2 chạy. Mock **cố tình dễ dãi** về reuse — nó không mô phỏng one-use, vì one-use chưa được định nghĩa. Đây là chỗ mock và thực tế lệch nhau nhiều nhất trong cả dự án; đừng đọc "test xanh" ở đây thành "đã sẵn sàng".
+`FakeDialTokenResolver` + `MockDialTokenVault` cho phép Phase 2 chạy. MOCK/LAB fingerprint không đảo
+ngược, nhưng state là process-local; API `Protect()` và Worker `ResolveAsync()` là hai deployable nên
+strict map không dùng được cross-process nếu không có wildcard fake. Reuse current là một lần cho mỗi
+`(fingerprint, attempt_id)`, không phải globally one-use. Đừng đọc test xanh thành production semantics.
 
 ## 6. Closure artifact — owner điền
 
+- [ ] Ký đủ `DTK-01..DTK-15` trong M8-10, gồm contact requiredness, issuer, scope/audience,
+  TTL, custody, error/audit/retention và rollout.
 - [ ] **Chọn phương án (a)/(b)/(c)/(d)** cho `OD-V1-17`, có chữ ký Security. Kèm contract issue/resolve/reissue tương ứng.
 - [ ] **Sơ đồ trust boundary đã duyệt** cho `OD-V1-18`: vault ở đâu, ai vận hành, IVR thấy gì, gateway thấy gì.
 - [ ] **Threat model** + **vendor capability statement**: gateway có nhận token mờ không, hay bắt buộc E.164 ở API của nó.

@@ -1,6 +1,6 @@
 # IR-03 — Telephony / SIM Gateway Requirements
 
-Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-26`
+Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-09-03`
 Owner: **Telephony / Infra** — một trong hai owner ngoài Module 3.
 
 ## 1. Lộ trình đã được owner chỉ đạo
@@ -19,7 +19,7 @@ Số channel, concurrency, cooldown và rate limits phải cấu hình động; 
 | --- | --- | --- | --- | --- |
 | `IR-TEL-01` | Port `dial`, `play`, `capture_dtmf`, `hangup`, `disposition`, `health`; adapter vendor cô lập | code | có | `TARGET_V1_DRAFT` — port đã dựng |
 | `IR-TEL-02` | Protocol/SDK/API, auth, timeout, webhook/poll semantics và version support | lab | có | `BLOCKED_EXTERNAL` |
-| `IR-TEL-03` | Resolve `dial_token` tại trust boundary; IVR không persist/log raw phone | lab | fake resolver | `BLOCKED_EXTERNAL` |
+| `IR-TEL-03` | Resolve `dial_token` tại trust boundary; IVR không persist/log raw phone | lab | fake resolver | `W0150_AUDITED / BLOCKED_EXTERNAL` — current output là opaque provider destination reference; issuer/protocol/custody/vendor boundary chưa ký |
 | `IR-TEL-04` | DTMF 1/0 và invalid/no-input; xác định RFC2833/in-band/vendor event | lab | có | `BLOCKED_EXTERNAL` |
 | `IR-TEL-05` | Disposition truth table: answered, busy, rejected, unreachable, invalid number, dropped, network/SIM/audio/DTMF error | lab | có | `BLOCKED_EXTERNAL` — mapping `DT-02` cần re-verify với disposition code telco thật |
 | `IR-TEL-06` | One active call/channel, lease/fencing, cooldown, health, quarantine/auto-disable/alert | code+lab | có | `TARGET_V1_DRAFT` |
@@ -40,6 +40,10 @@ Số channel, concurrency, cooldown và rate limits phải cấu hình động; 
 - callback vẫn chạy qua fake/sandbox Sales theo mode cấu hình.
 
 Lab pass **không phải** production proof và **không** mở gọi khách. Câu hỏi còn mở: [IR-05 §2](05-open-contract-questions.md) `OQ-TEL-01/02`.
+
+Correction `W-0150`: MOCK/LAB chỉ chứng minh local fail-closed và per-attempt duplicate guard. Không
+chứng minh globally one-use, cross-process vault, issuer/auth/rotation, resolver audit hoặc vendor có
+thể quay bằng opaque handle. Xem [M8-10 decision pack](../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md).
 
 ## 4. Thông tin cần vendor/Infra trả
 

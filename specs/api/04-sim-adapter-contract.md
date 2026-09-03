@@ -15,9 +15,15 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
 
 ## 2. Ràng buộc (P0)
 - Adapter **KHÔNG** có credential ghi order, **không** gửi SMS (phase-8/02 FR-004; P0-IVR-005).
-- **Trust boundary `dial_token` (`OD-V1-18` — chưa chốt):** tài liệu này ghi adapter chỉ nhận `dial_token`, trong khi `P2-4` đặt `IDialTokenResolver` bên trong IVR và gateway thương mại quay số E.164. Ranh giới mục tiêu: `IVR → opaque dial_token → trusted resolver/gateway → E.164`. IVR **không** giữ mapping key `dial_token→số thật` (D-05). Phương án cuối cần Security + vendor xác nhận trước `LAB_REAL_SIM`.
+- **Trust boundary `dial_token` (`OD-V1-18` — chưa chốt, audit `W-0150`):** type contract
+  current cho `IDialTokenResolver` trả một opaque provider destination reference và chủ động từ chối
+  raw phone. Ranh giới đề xuất là `IVR → opaque token/ciphertext → external trusted
+  resolver/gateway → provider destination/E.164`; IVR **không** giữ mapping/key và không nhận lại
+  E.164 (D-05). Security + Platform + vendor phải ký topology/output trước `LAB_REAL_SIM`.
 - **Recording:** `dial()` phải mang tham số `recording: DISABLED` và adapter phải expose read-back qua `health()`; giá trị khác `DISABLED` bị từ chối fail-closed cho tới khi có legal sign-off (DT-05).
-- Chỉ dùng `dial_token`/`phone_ref`; **không** nhận/lưu raw phone (D-05; P0-IVR-007). Token TTL ≤ window, one-use/attempt (D-05).
+- Chỉ dùng `dial_token`/`phone_ref`; **không** nhận/lưu raw phone (D-05; P0-IVR-007). TTL và
+  one-use/reuse vẫn `OWNER_DECISION_REQUIRED`: current accepted persistence ép expiry bằng window end,
+  còn MOCK/LAB chỉ one-resolve per `(token, attempt)` và cho reuse ở attempt khác.
 - `ONE_SIM_ONE_ACTIVE_CALL`; cooldown 5s; `fail_count≥3/10′` → disable+alert (DT-04).
 - Recording **OFF** mặc định (DT-05); nếu bật, chỉ lưu `recording_ref` + retention (DF-07 PENDING).
 
