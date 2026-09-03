@@ -1,0 +1,59 @@
+{
+  "schema_version": "m8-external-decision-response-bundle.v1",
+  "work_id": "W-0165",
+  "status": "PENDING_EXTERNAL_RESPONSE",
+  "source": {
+    "dispatch_pack_path": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
+    "dispatch_pack_sha256": "691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0",
+    "artifact_manifest_path": "docs/evidence/W-0152/artifact-sha256.txt",
+    "artifact_manifest_sha256": "49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406"
+  },
+  "responses": [
+    {
+      "response_id": "PENDING_EXTERNAL_RESPONSE",
+      "dispatch_batch": "PENDING_EXTERNAL_RESPONSE",
+      "dispatch_receipt_ref": "PENDING_EXTERNAL_RESPONSE",
+      "sheet_id": "PENDING_EXTERNAL_RESPONSE",
+      "decision_ids": [
+        "PENDING_EXTERNAL_RESPONSE"
+      ],
+      "decision": "PENDING_EXTERNAL_RESPONSE",
+      "decision_text": "PENDING_EXTERNAL_RESPONSE",
+      "signer_identity_alias": "PENDING_EXTERNAL_RESPONSE",
+      "signer_role": "PENDING_EXTERNAL_RESPONSE",
+      "signer_organization": "PENDING_EXTERNAL_RESPONSE",
+      "authority_source_ref": "PENDING_EXTERNAL_RESPONSE",
+      "accepted_artifacts": [],
+      "responded_at": "PENDING_EXTERNAL_RESPONSE",
+      "received_at": "PENDING_EXTERNAL_RESPONSE",
+      "scope_environments": [
+        "PENDING_EXTERNAL_RESPONSE"
+      ],
+      "effective_cutover": {
+        "effective_at": "PENDING_EXTERNAL_RESPONSE",
+        "cutover_at": "PENDING_EXTERNAL_RESPONSE",
+        "compatibility_window": "PENDING_EXTERNAL_RESPONSE"
+      },
+      "rollback_or_rejection_path": "PENDING_EXTERNAL_RESPONSE",
+      "evidence_references": [
+        "PENDING_EXTERNAL_RESPONSE"
+      ],
+      "residual_blockers": [],
+      "external_response_ref": "PENDING_EXTERNAL_RESPONSE",
+      "external_response_sha256": "PENDING_EXTERNAL_RESPONSE",
+      "limitations": [
+        "PENDING_EXTERNAL_RESPONSE"
+      ],
+      "state": "NOT_READY"
+    }
+  ],
+  "safety": {
+    "contains_personal_contact_details": false,
+    "contains_credentials_or_secrets": false,
+    "raw_external_response_embedded": false,
+    "external_authority_verified": false,
+    "approval_ledger_updated": false,
+    "production_gate_promoted": false,
+    "real_customer_call_allowed": false
+  }
+}

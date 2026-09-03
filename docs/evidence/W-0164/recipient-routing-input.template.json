@@ -1,0 +1,81 @@
+{
+  "schema_version": "m8-external-decision-routing.v1",
+  "work_id": "W-0164",
+  "status": "PENDING_OWNER_INPUT",
+  "source": {
+    "dispatch_pack_path": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
+    "dispatch_pack_sha256": "691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0",
+    "artifact_manifest_path": "docs/evidence/W-0152/artifact-sha256.txt",
+    "artifact_manifest_sha256": "49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406",
+    "message_kit_path": "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
+    "message_kit_sha256": "261b33fd4832793240b837e090efe7424929278d454da98a9a454cfdcfacc103"
+  },
+  "batches": [
+    {
+      "batch": "D-01",
+      "recipient_identity": "PENDING_OWNER_INPUT",
+      "role_organization": "PENDING_OWNER_INPUT",
+      "authority_source_ref": "PENDING_OWNER_INPUT",
+      "channel_kind": "PENDING_OWNER_INPUT",
+      "destination_ref": "PENDING_OWNER_INPUT",
+      "due_at": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_by": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_at": "PENDING_OWNER_INPUT",
+      "state": "NOT_READY"
+    },
+    {
+      "batch": "D-02",
+      "recipient_identity": "PENDING_OWNER_INPUT",
+      "role_organization": "PENDING_OWNER_INPUT",
+      "authority_source_ref": "PENDING_OWNER_INPUT",
+      "channel_kind": "PENDING_OWNER_INPUT",
+      "destination_ref": "PENDING_OWNER_INPUT",
+      "due_at": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_by": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_at": "PENDING_OWNER_INPUT",
+      "state": "NOT_READY"
+    },
+    {
+      "batch": "D-03",
+      "recipient_identity": "PENDING_OWNER_INPUT",
+      "role_organization": "PENDING_OWNER_INPUT",
+      "authority_source_ref": "PENDING_OWNER_INPUT",
+      "channel_kind": "PENDING_OWNER_INPUT",
+      "destination_ref": "PENDING_OWNER_INPUT",
+      "due_at": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_by": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_at": "PENDING_OWNER_INPUT",
+      "state": "NOT_READY"
+    },
+    {
+      "batch": "D-04",
+      "recipient_identity": "PENDING_OWNER_INPUT",
+      "role_organization": "PENDING_OWNER_INPUT",
+      "authority_source_ref": "PENDING_OWNER_INPUT",
+      "channel_kind": "PENDING_OWNER_INPUT",
+      "destination_ref": "PENDING_OWNER_INPUT",
+      "due_at": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_by": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_at": "PENDING_OWNER_INPUT",
+      "state": "NOT_READY"
+    },
+    {
+      "batch": "D-05",
+      "recipient_identity": "PENDING_OWNER_INPUT",
+      "role_organization": "PENDING_OWNER_INPUT",
+      "authority_source_ref": "PENDING_OWNER_INPUT",
+      "channel_kind": "PENDING_OWNER_INPUT",
+      "destination_ref": "PENDING_OWNER_INPUT",
+      "due_at": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_by": "PENDING_OWNER_INPUT",
+      "dispatch_authorized_at": "PENDING_OWNER_INPUT",
+      "state": "NOT_READY"
+    }
+  ],
+  "safety": {
+    "contains_personal_contact_details": false,
+    "contains_credentials_or_secrets": false,
+    "external_dispatch_performed": false,
+    "receipt_recorded": false
+  }
+}
