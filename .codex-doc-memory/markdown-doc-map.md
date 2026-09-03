@@ -1,6 +1,6 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-09-03T09:46:02.170Z
+Generated: 2026-09-03T10:00:53.944Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
@@ -18,7 +18,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | --- | --- | ---: | ---: | ---: |
 | docs/documents/00-DOC-READING-ORDER.md | Documentation Reading Order | 0 | 177 | 4269 |
 | prompt/00-index.md | IVR Prompt Library — Master Index | 1 | 58 | 772 |
-| plan/toan-viec-can-lam-m8-2026-09-03.md | Tóm tắt tiến độ sau đợt fix 29/08 | 3 | 46 | 14467 |
+| plan/toan-viec-can-lam-m8-2026-09-03.md | Tóm tắt tiến độ sau đợt fix 29/08 | 3 | 46 | 14606 |
 | integration-requirements/06-module-3-api-handover.md | IR-06 — Bàn giao API Module 3 ↔ IVR | 38 | 7 | 10535 |
 | plan/ivr-orther/dev-viec-can-lam-m8-2026-08-29.md | Module 8 — Worklist đã hiệu chỉnh sau đối chiếu code | 1 | 38 | 6945 |
 | plan/ivr-orther/remaining-work-plan-2026-08-22.md | Kế hoạch phần việc còn lại — IVR Order Confirmation | 10 | 29 | 6089 |
@@ -35,7 +35,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/contracts/telephony-procurement-pack/R-05-tts-audio-capability.md | R-05 — Năng lực TTS và nguồn audio | 7 | 5 | 1441 |
 | docs/evidence/W-0106/voice-audition-kit.md | W-0106 — Bộ nghe thử giọng nữ 3 miền (ElevenLabs web app, 0đ) | 10 | 2 | 1921 |
 | plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md | M8-11 — Attempt-policy production decision pack | 12 | 0 | 2258 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 10 | 2 | 73056 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 10 | 2 | 73291 |
 | docs/contracts/target-v1-closure-pack/T-01-program-matrix.md | T-01 — Ma trận program / payment / IVR-required / callable | 9 | 2 | 787 |
 | docs/contracts/telephony-procurement-pack/R-04-scorecard-and-gaps.md | R-04 — Scorecard nhà cung cấp, gap register và điều khoản hợp đồng | 2 | 9 | 1430 |
 | docs/evidence/W-0161/README.md | W-0161 — Close local PostgreSQL integration evidence gaps | 11 | 0 | 609 |
@@ -903,9 +903,9 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/W-0122-vieneu-selfhosted-tts-plan.md | W-0122 — Tự host VieNeu-TTS, loại phụ thuộc SaaS TTS ở runtime | 1/39 | 0 | 3 | 10 | 6017 |
 | plan/ivr-orther/W-0123-m3-authoritative-call-decision-cleanup-plan.md | W-0123 — M3 quyết định gọi, IVR chỉ thực thi: cleanup trusted-skip phía IVR | 1/31 | 1 | 0 | 0 | 3855 |
 | plan/ivr-orther/W-0124-w0123-review-remediation-plan.md | W-0124 — Khắc phục phát hiện rà soát W-0123 | 1/11 | 1 | 0 | 0 | 1343 |
-| plan/toan-viec-can-lam-m8-2026-09-03.md | Tóm tắt tiến độ sau đợt fix 29/08 | 7/18 | 3 | 46 | 0 | 14467 |
+| plan/toan-viec-can-lam-m8-2026-09-03.md | Tóm tắt tiến độ sau đợt fix 29/08 | 7/18 | 3 | 46 | 0 | 14606 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 10 | 2 | 0 | 73056 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 10 | 2 | 0 | 73291 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |

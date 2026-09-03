@@ -2,14 +2,14 @@
 
 Ngày lập: 30/08/2026 · Người lập: chief auditor (phiên D:\\9 module) · Dev phụ trách: (dev M8)
 
-Căn cứ: spec V0.2 + tài liệu bổ sung Owner 25-27/08 (thắng V0.2 khi mâu thuẫn) · Code đã đối chiếu: ginsengfood-ivr @ baseline `b21ec67`; candidate local W-0167/W-0168 `f7ef231` (chưa push)
+Căn cứ: spec V0.2 + tài liệu bổ sung Owner 25-27/08 (thắng V0.2 khi mâu thuẫn) · Code đã đối chiếu: ginsengfood-ivr @ baseline `b21ec67`; candidate local W-0167/W-0168 `a07780c` (chưa push)
 
 _Bản kế tiếp của danh sách 29/08 sau khi dev fix: từng mục của bản cũ được kiểm lại trên code mới (verdict xong / một phần / chưa làm, có bằng chứng file:dòng@commit mới); mục đã xong chuyển xuống nhóm D; mục làm dở giữ nguyên chỗ kèm dòng "Cập nhật 30/08". Mã cũ ghi kèm trong cột Mã để đối chiếu._
 
 Cách đọc: làm theo thứ tự nhóm A (khẩn) → B (code lõi theo spec) → C (kết nối hệ thống); trong mỗi nhóm đã xếp từ dễ đến khó. Mỗi việc có bằng chứng file:dòng@commit — sai thì phản hồi lại chief auditor kèm bằng chứng, đừng sửa im lặng. Không đơn phương đổi tên event/endpoint/enum/field mà module khác tiêu thụ; vướng contract thì dừng và ghi ESCALATION. Nhóm D là những gì đã đạt (không cần làm — để khỏi làm thừa). Nhóm E là giới hạn của đợt kiểm.
 
 **Tổng hợp hiện hành 03/09: 13 workstream sau khi gộp mục trùng · D8 full offline solution
-`765/765 PASS`; D7 current security/secret/vulnerability gate PASS qua `W-0168`; hai gói đã được review và đóng thành candidate local `f7ef231` (chưa push) · 0/12 workstream applicable hoàn tất end-to-end · các gate
+`765/765 PASS`; D7 current security/secret/vulnerability gate PASS qua `W-0168`; candidate sạch `a07780c` PASS `763/763` và security wrapper (chưa push) · 0/12 workstream applicable hoàn tất end-to-end · các gate
 M3/Owner/vendor vẫn chặn production. Không dùng phần trăm baseline cũ để kết luận readiness.**
 
 # Tóm tắt tiến độ sau đợt fix 29/08
@@ -121,7 +121,8 @@ Kết luận chung: **`WORKLIST_REFRESHED / LOCAL_GATES_PARTIAL_PASS / EXTERNAL_
 | 03/09/2026 — lượt 24 | `WORKLIST CONSISTENCY / W-0166` | **EVIDENCE_SUBMITTED / CURRENT_STATE_RECONCILED / DOCS_ONLY / NO_GATE_PROMOTION** | Sửa current summary 10→13 workstream; đánh dấu % là snapshot; bổ sung W-0154..W-0159 vào B1 overlay; gắn W-0161 supersession cho claim dotnet cũ; cập nhật next-action qua W-0164/W-0165. Counts 23 package/22 Work ID từ W-0145/19 từ C9/164 historical; PII 1/1, docs 14, traceability 476, gate 11/164/23 false, map 654/target 0 unresolved, diff PASS. Evidence: [W-0166](../docs/evidence/W-0166/README.md) | **Đề xuất bước kế tiếp: owner cung cấp ít nhất một routing row và authority/destination cho W-0164→W-0163; không còn current-state wording local nào cần sửa** |
 | 03/09/2026 — lượt 25 | `D8 / FULL OFFLINE SUITE / W-0167` | **TESTS_PASS_LOCAL / FULL_OFFLINE_SOLUTION_PASS / NO_SOURCE_CHANGE / NO_GATE_PROMOTION** | Full `Ivr.sln` Release/no-restore **765/765 PASS**, 0 fail/skip: Contract 24, Unit 497, Integration 236, Chaos 8; PostgreSQL Integration 2m59 và Testcontainers cleanup. PII 1/1, docs 14, traceability 476, mirror 11/165/23 false, map 655/target 0 unresolved, diff PASS. Không sửa runtime/test. Evidence: [W-0167](../docs/evidence/W-0167/README.md) | **Đề xuất bước kế tiếp: external owner cung cấp artifact/chữ ký/routing hoặc phê duyệt một implementation đang CODE_NOT_AUTHORIZED; không còn test local thiếu bằng chứng trong D8 current tree** |
 | 03/09/2026 — lượt 26 | `D7 / SECURITY GATE / W-0168` | **TESTS_PASS_LOCAL / SECURITY_GATE_PASS / CURRENT_TREE_GITLEAKS_PASS / HOSTED_CI_NOT_RUN / NO_GATE_PROMOTION** | Phát hiện và sửa `fast-uri` dev-lock 3.1.5→3.1.7 (HIGH→0) cùng wrapper Windows tải nhầm Linux binary. Review exact 58 history + 50 current-tree false-positive fingerprint; không broad allowlist. NuGet HIGH 0, hai npm HIGH 0, checksum/negative control PASS, history 141 commit và current tree ~256 MB không leak; CI config, PII 1/1, docs 14, traceability 476, mirror 11/166/23 false, map 656/target 0 unresolved, diff PASS. Evidence: [W-0168](../docs/evidence/W-0168/README.md) | **Đề xuất bước kế tiếp: external owner cung cấp artifact/chữ ký/routing hoặc phê duyệt implementation đang CODE_NOT_AUTHORIZED; D7/D8 local current evidence đã đóng** |
-| 03/09/2026 — lượt 27 | `W-0167 + W-0168 candidate packaging` | **REVIEW_PASS / LOCAL_COMMIT_CREATED / EXACT_CANDIDATE_SECURITY_PASS / NOT_PUSHED / HOSTED_CI_NOT_RUN / NO_GATE_PROMOTION** | Review staged scope và tạo commit local `f7ef231825211530bbb558642845d84f32c9698f` trên `main`, parent `b21ec67`: đúng 5 file (`.gitleaksignore`, deploy-ci lock, security wrapper, hai evidence README), 277 insertions/8 deletions. `git diff --cached --check` PASS; GitNexus staged detect không có symbol/flow; CI config PASS; security wrapper chạy lại trên exact candidate PASS: checksum, NuGet/npm HIGH=0, negative control từ chối đúng và 142-commit history không leak. Tracker/plan/gate/map và mọi WIP cũ được loại khỏi commit | **Đề xuất bước kế tiếp: review commit `f7ef231`; nếu chấp nhận thì cho phép push/mở MR để chạy hosted CI trên exact SHA. Chưa push/deploy và không mở W-0169 khi chưa có input/quyết định mới** |
+| 03/09/2026 — lượt 27 | `W-0167 + W-0168 initial candidate` | **SUPERSEDED / CLEAN_CHECKOUT_CONTRACT_FAIL / NOT_PUSHED** | Candidate đầu `f7ef231` có đúng 5 file và exact security wrapper PASS, nhưng detached clean checkout phát hiện Contract **23/24**, 1 FAIL: fixture hash actual `cd6b...` khác pin `ad2f...`; Unit 495/495, Integration 236/236, Chaos 8/8 PASS. Root cause: `core.autocrlf=true` đổi fixture `specs/api/compat/**` sang CRLF vì guard LF P0-R1 đang ở shared WIP và bị loại khỏi commit quá chặt. Worktree tạm đã cleanup | **Đã xử lý ở lượt 28 bằng cách thêm đúng `.gitattributes` guard; không sửa contract hash hoặc fixture để ép xanh** |
+| 03/09/2026 — lượt 28 | `W-0167 + W-0168 final candidate` | **REVIEW_PASS / LOCAL_COMMIT_CREATED / CLEAN_CANDIDATE_763_PASS / EXACT_CANDIDATE_SECURITY_PASS / NOT_PUSHED / HOSTED_CI_NOT_RUN / NO_GATE_PROMOTION** | Amend candidate thành `a07780c64ae564e7eeda339226edb8365c359254`, parent `b21ec67`: 6 file, 281 insertions/8 deletions. Thêm duy nhất `.gitattributes` P0-R1 để ghim bốn nhóm hash-bound docs/compat về LF; không kéo `admin-ui/package.json` hoặc WIP khác. Detached clean worktree PASS **763/763**: Contract 24, Unit 495, Integration 236, Chaos 8; cleanup PASS. Exact SHA security wrapper PASS: checksum, NuGet/npm HIGH=0, negative control và 142-commit history không leak. GitNexus staged detect không có symbol/flow | **Đề xuất bước kế tiếp: review commit `a07780c`; nếu chấp nhận thì cho phép push/mở MR để chạy hosted CI trên exact SHA. Chưa push/deploy và không mở W-0169 khi chưa có input/quyết định mới** |
 
 ## Chi tiết trạng thái từng task — đã làm gì, còn thiếu gì
 
@@ -188,9 +189,11 @@ trong các snapshot trước W-0167/W-0168 là số lịch sử tại thời đi
   gate và D8 full solution current-tree đều PASS. Phần còn lại cần external routing/response/authority,
   hạ tầng/target thật hoặc đang mang `CODE_NOT_AUTHORIZED`.
   W-0163 dừng đúng ở recipient/authority/destination input, không tạo delivery/approval evidence giả.
-- **Candidate local:** W-0167/W-0168 đã được review và commit tại `f7ef231`; exact-candidate
-  security wrapper PASS trên 142-commit history. Commit chưa push và hosted CI chưa chạy. Các file
-  plan/tracker/gate/map dùng chung được giữ ngoài commit để không kéo theo WIP W-0145..W-0166.
+- **Candidate local:** candidate đầu `f7ef231` bị supersede sau clean-checkout Contract 23/24 do
+  thiếu LF guard. Candidate cuối `a07780c` đã thêm đúng `.gitattributes` P0-R1, clean suite PASS
+  763/763 và exact-candidate security wrapper PASS trên 142-commit history. Commit chưa push và
+  hosted CI chưa chạy. Các file plan/tracker/gate/map dùng chung được giữ ngoài commit để không kéo
+  theo WIP W-0145..W-0166.
 - **Input đang chờ cho W-0163:** chỉ cần **ít nhất một** batch `D-01..D-05` với 9 trường:
   recipient identity; role/organization; authority source reference; channel kind; destination
   reference; due time; người cấp quyền dispatch; thời điểm cấp quyền; state
