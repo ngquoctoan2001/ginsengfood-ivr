@@ -4,7 +4,7 @@
 
 **Snapshot đối chiếu ban đầu:** main @ **0baed74cd384cd661aed068c263a92ef97ead1f4**
 
-**Cập nhật thực thi gần nhất:** `W-0143` trên baseline `main@b082ed1`; trạng thái hiện hành lấy từ tracker/readiness mirror, không lấy từ snapshot ban đầu.
+**Cập nhật thực thi gần nhất:** `W-0150` trên baseline `main@b21ec676e490`; trạng thái hiện hành lấy từ tracker/readiness mirror, không lấy từ snapshot ban đầu.
 
 **Mục đích:** dùng để phản hồi bản giao việc cũ và tiếp tục công việc hôm nay/tuần sau.
 
@@ -276,12 +276,12 @@ Kết quả:
 | M8-02 TTS production closure | B3 | **LOCAL_HANDOFF_READY / OWNER/LEGAL/SECURITY/PLATFORM_REQUIRED** | Local gate đã fail-closed đúng authority; handoff pack đã khóa. Vẫn phải hoàn thành listening, 6 MicroSIP calls, retention/rollback, target hardware, mirror/topology và CVE disposition trước khi bật production config. |
 | M8-03 Admin audit/capacity surface | B4, liên quan admin handoff trong C6 | **M8_LOCAL_COMPLETE / EXISTING_SURFACE_VERIFIED / M3_SECURITY_ACCEPTANCE_REQUIRED** | W-0143 xác nhận endpoint/field/test đã tồn tại và bác yêu cầu làm lại. M3 phải nhận IR-06 §4A, regenerate client, giữ token trong BFF, map role→tier và chạy shared E2E; Security/Platform phải giao custody/network/rotation evidence. Không thêm raw/global audit-evidence hoặc capacity route nếu chưa có signed use case/data contract. |
 | M8-04 Production telephony adapter | B5 | **DT04_LOCAL_COMPLETE / PRODUCTION_ADAPTER_BLOCKED_EXTERNAL** | W-0144 đã sửa/persist policy auto-disable 3 lỗi theo từng kênh trong cửa sổ 10 phút và phủ provider failure + lease-expiry. Production adapter vẫn chưa được phép viết: phải có vendor đã chọn, vendor code/disposition matrix, recording-off proof, trust boundary, resolver/credential custody và Security/Platform sign-off. |
-| M8-05 Program/result contract sign-off | C1, C3 | DRAFT_SIGNOFF_REQUIRED | M3 ký program mapping, policy version và 11-result taxonomy hiện hành. Không phát minh result code mới. |
-| M8-06 Upstream session trace | C4, C5, phần C7 | CONTRACT_DECISION_REQUIRED | Chọn đúng một field name/type/nullability/owner; nêu semantics cho Golden Hour và 24/7; sau chữ ký mới propagate qua intake, DB, jobs, incidents và tests. |
-| M8-07 Target V1 shared callback | C8, C9 | LOCAL_CANDIDATE_VERIFIED / SHARED_E2E_BLOCKED | M3 cung cấp consumer, auth/token custody, reachable sandbox và acknowledgement; sau đó chạy shared E2E trước khi gỡ fail-closed delivery guard. |
-| M8-08 Opt-out feedback loop | C10 | CRM/M3/LEGAL_DECISION_REQUIRED | Chốt explicit signal, threshold, key, retention và feedback owner. Không map Rejected thành opt-out và không tự thêm IVR_OPT_OUT. |
-| M8-09 Revoke/freshness lifecycle | C11, C12, C14 | OWNER/M3_CONTRACT_REQUIRED | Thiết kế một command lifecycle gồm ACK, idempotency, state transition, race/fencing, active-call behavior và audit. Owner phải chấp nhận stale-call tradeoff hoặc yêu cầu M3 phát revoke/update. |
-| M8-10 Contact/dial token production path | C13 | OWNER/SECURITY/M3_REQUIRED | Chốt issuer/resolver, token TTL, vault/rotation, trust boundary và audit; chỉ sau đó mới nối production path. Không khôi phục trusted-skip authority. |
+| M8-05 Program/result contract sign-off | C1, C3 | **M8_OWNER_SIGNED / M3_PRODUCT_SIGNOFF_REQUIRED / PRODUCTION_POLICY_PENDING** | W-0145 đã khóa receiver matrix, ba wire mapping và taxonomy `11 contract / 9 runtime producer / 6 final callback / 2 pre-call compatibility`; sửa tài liệu cũ gán sai window-expired cho Sales. M3 phải giao producer/consumer commit + CDC; Product/Order Core phải ký production policy. Không phát minh result code mới. |
+| M8-06 Upstream session trace | C4, C5, phần C7 | **M8_POSITION_SIGNED / M3_CONTRACT_SIGNOFF_REQUIRED / CODE_NOT_AUTHORIZED** | W-0146 đề xuất đúng một upstream field `golden_hour_session_id`: required/non-null cho Golden Hour, prohibited/absent cho 24/7. Giữ `capacity_incident.session_id` là capacity scope ID nội bộ; không map đè. Chỉ mở code/OpenAPI/DB sau chữ ký M3 + producer CDC/cutover. |
+| M8-07 Target V1 shared callback | C8, C9 | **M8_LOCAL_CALLBACK_READY / RETRY_AFTER_FIXED / M3_SECURITY_PLATFORM_REQUIRED / SHARED_E2E_NOT_RUN / DELIVERY_DISABLED** | W-0147 đã trace callback seam và sửa defect `429` bỏ qua `Retry-After`; local retry nay giữ immutable key/body và không chạy sớm hơn server delay. M3 phải giao consumer/OAS/CDC; Security giao auth/custody; Platform giao sandbox/network/TLS; sau đó chạy full shared E2E exact SHA trước khi xem xét gỡ guard. |
+| M8-08 Opt-out feedback loop | C10 | **M8_POSITION_SIGNED / CURRENT_LOOP_NOT_WIRED / EXPLICIT_ONLY_V1_PROPOSED / CRM_M3_LEGAL_SIGNOFF_REQUIRED / RUNTIME_NOT_AUTHORIZED** | W-0148 xác nhận inbound `call_restriction` đã fail-closed, nhưng outbound chỉ có dormant policy/proposer: không counter/orchestrator/delivery/ACK/terminal retention. `Rejected` và DTMF `0` không phải opt-out; threshold 2/3 chỉ TEST_ONLY candidate. CRM/M3/Legal/Product phải trả `OPT-01..11` trước code. |
+| M8-09 Revoke/freshness lifecycle | C10, C11, C13 | **W-0149 EVIDENCE_SUBMITTED / CURRENT_OPTION_A_BEHAVIOR_PRESENT / OWNER_PROVENANCE_REQUIRED / M3_D06_RUNTIME_NOT_FOUND / OPTION_B_NOT_IMPLEMENTED / CODE_NOT_AUTHORIZED** | Audit xác nhận current IVR chỉ kiểm snapshot lúc intake; scheduler/claim→dial không recheck business state và không có revoke route/state/fence. Option A chỉ an toàn khi M3 thực thi D-06, nhưng consumer/runtime đó không thấy ở snapshot M3 hiện có. Owner/M3 phải ký A/B/hybrid và trả `RVK-01..12`; chưa sửa code. |
+| M8-10 Contact/dial token production path | B5, C12 | **W-0150 EVIDENCE_SUBMITTED / LOCAL_PRIVACY_SEAM_PRESENT / PRODUCTION_PATH_FAIL_CLOSED / CONTRACT_RUNTIME_MISMATCH_FOUND / EXTERNAL_DECISIONS_REQUIRED / CODE_NOT_AUTHORIZED** | Audit đã khóa contact requiredness mismatch, TTL equality, scalar/per-attempt reuse, opaque destination output, production DI/secret/network/audit gaps và M3 producer chưa thấy. M3/Security/Platform/Telephony ký `DTK-01..15` trước mọi adapter/vault/OpenAPI/runtime change. |
 | M8-11 Attempt policy | D6 | LOCAL_CANDIDATE_VERIFIED / OWNER_POLICY_REQUIRED | Owner ký attempt count, spacing, quiet hours, terminal behavior và policy version; mock-lab-v1 không được coi là production policy. |
 | M8-12 Authority/compatibility cleanup | C2, D9 | **DONE — LOCAL_VERIFIED / DOC_CLEANUP_ONLY** | W-0123 đã loại active trusted-skip authority khỏi runtime; TODAY-02 đã dọn reference còn sót. Legacy fields tiếp tục read-only cho compatibility/audit. |
 
@@ -356,6 +356,181 @@ Kết quả:
 > Chữ ký phê duyệt semantics DT-04 và phần local; không ký thay vendor, Security, Platform,
 > Procurement hoặc Release.
 
+### M8-05 — W-0145 program/result contract sign-off
+
+> ## **HANDOFF M8-05 — M8 ĐÃ KÝ; M3/PRODUCT CHƯA GIAO ARTIFACT THÌ CHƯA ĐƯỢC NHẬN LÀ XONG**
+>
+> - **Program đã khóa:** chỉ nhận `GOLDEN_HOUR + ONLINE` và
+>   `TWENTY_FOUR_SEVEN + COD`. M3 map `24_7 → TWENTY_FOUR_SEVEN`,
+>   `PHONE_VALID → VALID`, `ELIGIBLE_FOR_IVR → ELIGIBLE`; IVR không nhận alias để che lỗi producer.
+> - **Result đã khóa:** giữ đúng 11 code. Runtime IVR có 9 producer path; 6 final result vào callback
+>   outbox; `NO_ANSWER_ATTEMPT`, `WRONG_INPUT`, `TECHNICAL_EXCEPTION` là non-final; hai blocked code
+>   là compatibility/pre-call và bị cấm gửi như call result.
+> - **Đã sửa factual error:** `IVR_CONFIRMATION_WINDOW_EXPIRED` hiện do scheduler IVR persist final
+>   result + enqueue callback. Core vẫn phải revalidate và là bên duy nhất đổi order state.
+> - **M3 phải giao:** assembler commit, producer CDC, generic callback consumer cho cả hai program,
+>   ACK/idempotency/revalidation contract, auth/sandbox và shared E2E. “OK” bằng văn xuôi không tính.
+> - **Product/Order Core phải giao:** production `attempt_policy_version`, window/attempt/offsets,
+>   source-of-truth và CDC version-parameters. `mock-lab-v1` không được promote thành production.
+> - **Reject thẳng:** thêm alias/result code cho vừa code M3, gọi local mock là integration, hoặc gộp
+>   chữ ký M8 thành chữ ký của M3/Product/Security.
+> - **Gói ký:** [M8-05 contract sign-off](m8-05-program-result-contract-signoff-2026-09-03.md).
+> - **Evidence:** [W-0145](../../docs/evidence/W-0145/README.md).
+>
+> **Trạng thái:** **`EVIDENCE_SUBMITTED / M8_OWNER_SIGNED / M3_PRODUCT_SIGNOFF_REQUIRED / SHARED_E2E_NOT_RUN`**.
+>
+> **Người ký:** **Tôi — Module 8 / Project Owner** · **03/09/2026**.
+>
+> Chữ ký này xác nhận contract/stop rule phía Module 8; không đóng `G-CONTRACT`, `G-POLICY`,
+> không ký thay M3/Product/Security và không cho phép real customer call.
+
+### M8-06 — W-0146 upstream session trace
+
+> ## **HANDOFF M8-06 — M8 ĐÃ CHỌN MỘT FIELD; KHÔNG ĐƯỢC TRỘN BUSINESS SESSION VỚI CAPACITY SCOPE ID**
+>
+> - **Đề xuất M8:** đúng một upstream wire field `golden_hour_session_id`, lấy theo master
+>   traceability; không dùng alias `session_id` hoặc `source_session_id`.
+> - **Program semantics:** Golden Hour bắt buộc/non-null; 24/7 phải vắng mặt, kể cả `null` cũng
+>   không hợp lệ. M3/Golden Hour Core phát ID trước khi tạo task và giữ ổn định qua retry/replay.
+> - **Factual boundary:** active task/OpenAPI/domain/task DB/job DB chưa có upstream session.
+>   `capacity_incident.session_id` hiện nhận `MOCK-SCHED-*`, `SCHED-*`, `SCHED-DEADLINE-*`,
+>   `ADMIN-QUEUE-*` và unavailable/error marker; có incident `ProgramCode=ALL`.
+> - **Cấm map đè:** current `capacity_incident.session_id` tiếp tục là internal scope ID. Sau chữ
+>   ký chỉ được thêm cột nullable riêng `golden_hour_session_id` cho task/job/incident liên quan.
+> - **Migration/cutover:** additive nullable store phase trước; M3 producer + CDC/shared E2E; sau
+>   đó mới enforce required cho Golden Hour. Không backfill từ task/order/correlation/internal ID.
+> - **M3 phải giao:** signer/name/date/scope, xác nhận namespace/format/uniqueness/stability,
+>   producer commit + client revision, OpenAPI acceptance, cutover/rollback và CDC exact SHA.
+> - **Reject thẳng:** “cứ dùng `session_id` cho gọn”, gửi hai alias, code trước ký sau, hoặc gọi
+>   required-field cutover là non-breaking.
+> - **Gói ký:** [M8-06 upstream session sign-off](m8-06-upstream-session-trace-signoff-2026-09-03.md).
+> - **Evidence:** [W-0146](../../docs/evidence/W-0146/README.md).
+>
+> **Trạng thái:** **`EVIDENCE_SUBMITTED / M8_POSITION_SIGNED / M3_CONTRACT_SIGNOFF_REQUIRED / CODE_NOT_AUTHORIZED`**.
+>
+> **Người ký:** **Tôi — Module 8 / Project Owner** · **03/09/2026**.
+>
+> Chữ ký này khóa đề xuất và stop rule phía M8; không ký thay M3, không đóng `G-CONTRACT`, không
+> cho phép sửa shared contract/DB hoặc gọi khách thật.
+
+### M8-07 — W-0147 Target V1 shared callback
+
+> ## **HANDOFF M8-07 — M8 ĐÃ SỬA PHẦN CỦA M8; CONSUMER/AUTH/SANDBOX KHÔNG PHẢI THỨ CÓ THỂ GIAO MỒM**
+>
+> - **Đã làm:** trace final result → immutable outbox → dispatcher → Target transport →
+>   ACK/retry/circuit → audit/review; xác nhận Target V1 dùng cho cả Golden Hour + 24/7 và current
+>   Golden Hour endpoint chỉ là compatibility.
+> - **Defect đã sửa:** `429` trước đây retryable nhưng bỏ qua `Retry-After`; nay transport mang
+>   positive server delay sang dispatcher và retry không chạy sớm hơn header. Retry budget, payload,
+>   hash, callback ID và idempotency key không đổi.
+> - **Local proof:** focused callback unit `38/38`, Sales contract `20/20`; full gate/evidence ghi tại
+>   W-0147. Local mock/fake không phải M3 integration.
+> - **M3 phải giao:** consumer commit cho đúng generic endpoint, authoritative OAS, ACK/idempotency/
+>   revalidation decision, CDC và owner/signature. Endpoint compat không được dùng để lấp 24/7.
+> - **Security/Platform phải giao:** issuer/JWKS/audience/scope/TTL/rotation/mTLS, secret reference,
+>   reachable sandbox, DNS/TLS/network policy, smoke và rollback/runbook.
+> - **Shared E2E bắt buộc:** hai program, accepted, exact replay, changed-body conflict, stale,
+>   block/review, auth, invalid, `429 Retry-After`, outage/circuit/recovery; report ghim SHA hai repo.
+> - **Reject thẳng:** yêu cầu M8 dựng consumer Sales, gỡ fail-start guard vì unit test xanh, dùng GH
+>   compat cho 24/7, gọi WireMock/Postman là shared E2E, hoặc coi `ACCEPTED` là order đã confirmed.
+> - **Gói ký:** [M8-07 callback handoff](m8-07-target-v1-shared-callback-handoff-2026-09-03.md).
+> - **Evidence:** [W-0147](../../docs/evidence/W-0147/README.md).
+>
+> **Trạng thái:** **`M8_LOCAL_CALLBACK_READY / RETRY_AFTER_FIXED / M3_SECURITY_PLATFORM_REQUIRED / SHARED_E2E_NOT_RUN / DELIVERY_DISABLED`**.
+>
+> **Người ký:** **Tôi — Module 8 / Project Owner** · **03/09/2026**.
+>
+> Chữ ký này xác nhận local callback behavior, fix và stop rule; không ký thay M3/Security/Platform/
+> Release, không đóng external gate và không cho phép real customer call.
+
+### M8-08 — W-0148 opt-out / suppression
+
+> ## **HANDOFF M8-08 — ĐỪNG GỌI HAI COMPONENT ĐỨNG RIÊNG LÀ “FEEDBACK LOOP”**
+>
+> - **Inbound:** M3/CRM cung cấp `call_restriction`; IVR chặn restricted/unknown/unavailable theo
+>   fail-closed. Đây là pre-call veto, không phải call result.
+> - **Rejected:** giữ `NO_ANSWER` counted + review. Không phải customer cancellation và không phải
+>   explicit opt-out; DTMF `0/1` cũng không được đổi nghĩa.
+> - **Dormant local pieces:** capture review item, `OptOutSuppressionPolicy` và queue-only proposer có
+>   test, nhưng production không gọi policy/proposer; không có counter, stable CRM key, orchestration,
+>   delivery, ACK hoặc reversal.
+> - **Queue chưa vận hành:** proposal ở `PENDING_CRM`; admin mutation chỉ nhận `OPEN`; không writer
+>   nào chuyển `ACCEPTED_BY_CRM`; unresolved row chưa có terminal retention path.
+> - **Threshold:** `AbsoluteFloor=2`/`Default=3` chỉ `TEST_ONLY_CANDIDATE`, không phải policy đã ký.
+> - **Đề xuất M8:** V1 explicit-only; chỉ customer action có wording/script/proof đã Product + Legal
+>   ký mới được tạo proposal. Inference từ weak signal phải là contract V2 riêng.
+> - **CRM current snapshot:** registry/read/user-consent primitives có thật, nhưng chưa có signed
+>   service proposal contract cho M3/IVR. IVR V1 vẫn bị architecture guard cấm CRM mutation egress.
+> - **External phải giao:** `OPT-01..OPT-11` — explicit signal, threshold/window, identity key,
+>   route, idempotency, ACK, writer authority, reversal, retention, freshness và admin permission.
+> - **Reject thẳng:** thêm `IVR_OPT_OUT`, map repeated rejection thành consent mutation, tạo bảng
+>   trước retention/key contract, gọi thẳng CRM hoặc coi W-0034 test là shared integration.
+> - **Gói ký:** [M8-08 opt-out/suppression decision pack](m8-08-opt-out-suppression-decision-pack-2026-09-03.md).
+> - **Evidence:** [W-0148](../../docs/evidence/W-0148/README.md).
+>
+> **Trạng thái:** **`EVIDENCE_SUBMITTED / M8_POSITION_SIGNED / CURRENT_LOOP_NOT_WIRED / EXPLICIT_ONLY_V1_PROPOSED / CRM_M3_LEGAL_SIGNOFF_REQUIRED / RUNTIME_NOT_AUTHORIZED`**.
+>
+> **Người ký:** **Tôi — Module 8 / Project Owner** · **03/09/2026**.
+>
+> Chữ ký này khóa M8 position/stop rule; không ký thay CRM/M3/Legal/Product/Security, không mở
+> runtime hoặc cho phép real customer call.
+
+### M8-09 — W-0149 revoke / recall / freshness
+
+> ## **HANDOFF M8-09 — BEHAVIOR A ĐANG CÓ, NHƯNG LƯỚI AN TOÀN D-06 CHƯA CÓ BẰNG CHỨNG RUNTIME**
+>
+> - **Current IVR:** chỉ `POST /tasks`; re-POST body mới conflict, không phải update. Snapshot freshness
+>   được kiểm lúc intake; scheduler và pre-dial fence không đọc current recall/sale-lock/order state.
+> - **Option A:** khớp behavior hiện tại và trade-off ghi trong `OD-17`: stale call có thể xảy ra,
+>   còn M3 phải revalidate mọi callback trước business transition.
+> - **Gap quan trọng:** snapshot M3 `PhucApu@a3aad246d986` không có exact hit cho generic Target V1
+>   callback consumer, `BLOCKED_BY_CORE`/`REJECTED_STALE` hoặc revoke path. Fixture IVR tự ghi blocked
+>   ACK không phải shared runtime proof.
+> - **Option B:** chưa có revoke command, persisted generation/state, claim filter, pre-dial fence,
+>   active-call policy hoặc ACK contract. Chỉ thêm scheduler condition không đóng claim→dial race.
+> - **Admin controls:** queue pause là global operational control; terminate chỉ cho live attempt.
+>   Không tái dùng hai đường này thành business revoke.
+> - **Owner phải trả:** `RVK-01..RVK-12` về strategy, triggers, authority, command/auth, version,
+>   idempotency/order, state/race, fencing, active-call behavior, ACK/result, audit/retention và rollout.
+> - **Gói ký:** [M8-09 revoke/freshness decision pack](m8-09-revoke-freshness-decision-pack-2026-09-03.md).
+> - **Evidence:** [W-0149](../../docs/evidence/W-0149/README.md).
+>
+> **Trạng thái:** **`EVIDENCE_SUBMITTED / CURRENT_OPTION_A_BEHAVIOR_PRESENT /
+> M8_POSITION_RECORDED / OWNER_PROVENANCE_REQUIRED / M3_D06_RUNTIME_NOT_FOUND /
+> OPTION_B_NOT_IMPLEMENTED / CODE_NOT_AUTHORIZED`**.
+>
+> Không sửa source/OpenAPI/DB trong W-0149; không bật Target delivery hoặc real customer call.
+
+### M8-10 — W-0150 contact / dial-token production path
+
+> ## **HANDOFF M8-10 — LOCAL SEAM FAIL-CLOSED; PRODUCTION TRUST BOUNDARY CHƯA ĐƯỢC KÝ**
+>
+> - **Contact contract gap:** OpenAPI có `phone_validation_status` optional string; runtime chỉ nhận
+>   exact `VALID`. Không tự sửa wire trước M3 field matrix/CDC.
+> - **TTL current:** intake đòi token phủ hết window, persistence không cho vượt window; accepted
+>   persisted task vì vậy ép expiry bằng đúng window end, dù shared contract chưa nói rõ invariant.
+> - **Scalar/retry:** một task có một token nhưng nhiều attempt/retry. MOCK/LAB chỉ chặn duplicate
+>   cùng `(fingerprint, attempt_id)` và cho reuse ở attempt khác; không phải globally one-use proof.
+> - **Privacy boundary:** token được fingerprint/protect trước persistence; destination trong domain
+>   là opaque reference và cấm raw phone. Nếu vendor cần E.164, nó chỉ được lộ sau external
+>   vault/gateway boundary đã duyệt.
+> - **Production path:** non-MOCK foundation/gateway đều unavailable; không production resolver,
+>   protector, adapter, credential mount, endpoint/egress hoặc resolution audit. Helm prod vẫn MOCK,
+>   real call NO.
+> - **M3 snapshot:** exact search không thấy contact producer/issuer fields/resolver; M3 phải giao
+>   artifact owner + exact SHA hoặc chỉ rõ repo/service authoritative khác.
+> - **Owner phải trả:** `DTK-01..DTK-15` về producer/requiredness, issuer/scope, token model/TTL,
+>   resolver output/topology, auth/custody/rotation, replay/failure, audit/retention, vendor và rollout.
+> - **Gói ký:** [M8-10 contact/dial-token decision pack](m8-10-contact-dial-token-production-decision-pack-2026-09-03.md).
+> - **Evidence:** [W-0150](../../docs/evidence/W-0150/README.md).
+>
+> **Trạng thái:** **`EVIDENCE_SUBMITTED / LOCAL_PRIVACY_SEAM_PRESENT /
+> PRODUCTION_PATH_FAIL_CLOSED / CONTRACT_RUNTIME_MISMATCH_FOUND /
+> M3_CONTACT_PRODUCER_NOT_FOUND / EXTERNAL_DECISIONS_REQUIRED / CODE_NOT_AUTHORIZED`**.
+>
+> Không sửa source/OpenAPI/DB/Helm/secret trong W-0150; không bật production adapter/vault,
+> external egress, Target delivery hoặc real customer call.
+
 ---
 
 ## 6. Thứ tự triển khai tuần sau
@@ -394,7 +569,8 @@ Nếu owner/gate chưa được chốt trong tuần sau, kết quả đúng là 
 - **Xóa B2:** mô tả softphone WIP/untracked đã lỗi thời.
 - **Đóng C2 tại TODAY-02:** runtime authority đã xử lý ở W-0123; phần DOC_CLEANUP_ONLY của M8-12 đã hoàn tất và không được dùng làm cớ mở lại trusted-skip trong IVR.
 - **Gộp C4 + C5 + phần C7 → M8-06:** một quyết định session trace duy nhất.
-- **Gộp C11 + C12 + C14 → M8-09:** một lifecycle revoke/freshness duy nhất.
+- **Gộp C10 + C11 + C13 → M8-09:** một lifecycle revoke/freshness duy nhất.
+- **Gộp B5 + C12 → M8-10:** production telephony và contact/dial-token cùng một trust boundary.
 - **Sửa C3 → M8-05/M8-08:** taxonomy 11 codes không thiếu IVR_OPT_OUT; opt-out loop là quyết định riêng.
 - **Sửa D6 → M8-11:** local candidate chưa phải production policy.
 - **Bỏ toàn bộ phần trăm tiến độ:** không có nguồn chuẩn và dễ gây hiểu sai.
