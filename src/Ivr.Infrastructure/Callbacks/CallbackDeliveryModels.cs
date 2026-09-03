@@ -21,7 +21,8 @@ public sealed record CallbackTransportResult(
     CallbackTransportOutcome Outcome,
     int? HttpStatus,
     string Code,
-    string? SafeError = null);
+    string? SafeError = null,
+    TimeSpan? RetryAfter = null);
 
 public static class CallbackPayloadIntegrity
 {

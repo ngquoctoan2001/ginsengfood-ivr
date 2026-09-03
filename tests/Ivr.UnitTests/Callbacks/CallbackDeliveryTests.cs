@@ -81,6 +81,27 @@ public sealed class CallbackDeliveryTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-CALLBACK-RETRY-AFTER-02B")]
+    public async Task RateLimitCarriesRetryAfterIntoTheTransportResult()
+    {
+        CallbackOutboxMessage message = CreateMessage();
+        using ScriptedHandler handler = new(_ =>
+        {
+            HttpResponseMessage response = Response(429, "RATE_LIMITED", message);
+            response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(3));
+            return response;
+        });
+        using TargetTransportHarness harness = CreateTargetTransport(handler);
+
+        CallbackTransportResult result = await harness.Transport.SendAsync(
+            message,
+            CancellationToken.None);
+
+        Assert.Equal(CallbackTransportOutcome.TransientFailure, result.Outcome);
+        Assert.Equal(TimeSpan.FromSeconds(3), result.RetryAfter);
+    }
+
+    [Fact]
     [Trait("TestId", "UT-CALLBACK-TIMEOUT-03")]
     public async Task TargetTimeoutIsRetryableWithoutLeakingTransportDetails()
     {
@@ -400,6 +421,28 @@ public sealed class CallbackDeliveryTests
         Assert.Equal(1, outbox.Update?.RetryCount);
         Assert.True(outbox.Update?.RequiresReview);
         Assert.Null(outbox.Update?.NextRetryAt);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-CALLBACK-RETRY-AFTER-09B")]
+    public async Task DispatcherDoesNotRetryBeforeTheServerRetryAfter()
+    {
+        CallbackDeliveryOptions settings = CreateOptions();
+        var outbox = new MemoryOutbox(CreateMessage());
+        CallbackDispatcher dispatcher = CreateDispatcher(
+            outbox,
+            new StubTargetTransport(new CallbackTransportResult(
+                CallbackTransportOutcome.TransientFailure,
+                429,
+                "CALLBACK_RETRYABLE_RESPONSE",
+                "CALLBACK_RETRYABLE_RESPONSE",
+                TimeSpan.FromSeconds(3))),
+            settings);
+
+        await dispatcher.RunBatchAsync();
+
+        Assert.Equal("RETRY_PENDING", outbox.Update?.DeliveryStatus);
+        Assert.Equal(Now.AddSeconds(3), outbox.Update?.NextRetryAt);
     }
 
     [Fact]

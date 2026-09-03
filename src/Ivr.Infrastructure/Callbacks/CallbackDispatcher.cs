@@ -221,16 +221,22 @@ public sealed class CallbackDispatcher(
                 true);
         }
 
+        TimeSpan retryDelay = ComputeRetryDelay(
+            message.CallbackId,
+            nextRetryCount,
+            settings);
+        if (result.RetryAfter is { } serverDelay && serverDelay > retryDelay)
+        {
+            retryDelay = serverDelay;
+        }
+
         return new CallbackDeliveryUpdate(
             "RETRY_PENDING",
             result.HttpStatus,
             result.Code,
             result.SafeError,
             nextRetryCount,
-            timeProvider.GetUtcNow().Add(ComputeRetryDelay(
-                message.CallbackId,
-                nextRetryCount,
-                settings)),
+            timeProvider.GetUtcNow().Add(retryDelay),
             false,
             false);
     }

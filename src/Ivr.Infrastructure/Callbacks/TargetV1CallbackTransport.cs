@@ -201,7 +201,10 @@ public sealed class TargetV1CallbackTransport(
                 CallbackTransportOutcome.TransientFailure,
                 status,
                 "CALLBACK_RETRYABLE_RESPONSE",
-                "CALLBACK_RETRYABLE_RESPONSE");
+                "CALLBACK_RETRYABLE_RESPONSE",
+                response.StatusCode == HttpStatusCode.TooManyRequests
+                    ? PositiveRetryAfter(response)
+                    : null);
         }
 
         return Result(
@@ -242,5 +245,12 @@ public sealed class TargetV1CallbackTransport(
         CallbackTransportOutcome outcome,
         int status,
         string code,
-        string? safeError = null) => new(outcome, status, code, safeError);
+        string? safeError = null,
+        TimeSpan? retryAfter = null) => new(outcome, status, code, safeError, retryAfter);
+
+    private static TimeSpan? PositiveRetryAfter(HttpResponseMessage response)
+    {
+        TimeSpan? retryAfter = response.Headers.RetryAfter?.Delta;
+        return retryAfter > TimeSpan.Zero ? retryAfter : null;
+    }
 }
