@@ -3,13 +3,27 @@ set -eu
 
 repository_root=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 gitleaks_version="${GITLEAKS_VERSION:-8.30.0}"
-archive="gitleaks_${gitleaks_version}_linux_x64.tar.gz"
 checksums="gitleaks_${gitleaks_version}_checksums.txt"
 release_base="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}"
 work_directory=$(mktemp -d)
 negative_file="$repository_root/.ci-secret-selftest.env"
 scan_commit="${CI_COMMIT_SHA:-HEAD}"
 trap 'rm -rf "$work_directory"; rm -f "$negative_file"' EXIT HUP INT TERM
+
+case "$(uname -s)" in
+  Linux*)
+    archive="gitleaks_${gitleaks_version}_linux_x64.tar.gz"
+    gitleaks_executable="gitleaks"
+    ;;
+  MINGW*|MSYS*|CYGWIN*)
+    archive="gitleaks_${gitleaks_version}_windows_x64.zip"
+    gitleaks_executable="gitleaks.exe"
+    ;;
+  *)
+    echo "Unsupported local platform for Gitleaks: $(uname -s)" >&2
+    exit 1
+    ;;
+esac
 
 if ! git -C "$repository_root" rev-parse --verify --quiet \
   "${scan_commit}^{commit}" >/dev/null; then
@@ -27,7 +41,10 @@ curl --fail --silent --show-error --location \
 (
   cd "$work_directory"
   grep " $archive" "$checksums" | sha256sum --check --strict
-  tar -xzf "$archive" gitleaks
+  case "$archive" in
+    *.zip) unzip -q "$archive" "$gitleaks_executable" ;;
+    *.tar.gz) tar -xzf "$archive" "$gitleaks_executable" ;;
+  esac
 )
 
 dotnet restore "$repository_root/Ivr.sln" --locked-mode
@@ -49,7 +66,7 @@ printf 'GITHUB_TOKEN=%s%s\n' \
   > "$work_directory/negative/fake.env"
 
 set +e
-"$work_directory/gitleaks" dir "$work_directory/negative" \
+"$work_directory/$gitleaks_executable" dir "$work_directory/negative" \
   --config "$repository_root/.gitleaks.toml" \
   --exit-code 42 --no-banner --redact
 negative_status=$?
@@ -66,12 +83,12 @@ if [ "${CI_SECRET_SELFTEST:-0}" = "1" ]; then
     'ghp_123456789012345678' \
     '901234567890123456' \
     > "$negative_file"
-  "$work_directory/gitleaks" dir "$repository_root" \
+  "$work_directory/$gitleaks_executable" dir "$repository_root" \
     --config "$repository_root/.gitleaks.toml" \
     --no-banner --redact
 fi
 
-"$work_directory/gitleaks" git "$repository_root" \
+"$work_directory/$gitleaks_executable" git "$repository_root" \
   --config "$repository_root/.gitleaks.toml" \
   --log-opts="$scan_commit" \
   --no-banner --redact

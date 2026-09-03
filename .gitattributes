@@ -3,8 +3,12 @@
 # checkout (core.autocrlf=true) rewrites them to CRLF and the contract-manifest,
 # changelog-baseline and API-docs gates fail locally while passing in CI.
 specs/api/openapi/** text eol=lf
+specs/api/compat/** text eol=lf
 docs/api/** text eol=lf
 docs/api-changelog.md text eol=lf
+docs/api-versioning.md text eol=lf
+docs/integration-guide.md text eol=lf
+docs/contracts/openapi-contract-diff.md text eol=lf
 
 # dotnet format evaluates the physical working-tree bytes. Pin C# to LF so the
 # same format gate is reproducible on Windows (including core.autocrlf=true) and
