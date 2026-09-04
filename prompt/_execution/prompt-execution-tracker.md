@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0178` |
 | Last allocated | `W-0177` |
-| Last activity sequence | `A-0514` |
+| Last activity sequence | `A-0515` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -818,6 +818,7 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0512` | 2026-09-04 | `W-0177` | START/INVENTORY | Cấp W-0177 để đóng băng toàn bộ accepted shared WIP hiện tại thành một candidate local có SHA bất biến. Dirty inventory chỉ gồm W-0170, W-0172..W-0176 và generated governance artifacts; W-0171 đã ở commit `710c81c` | Codex | Stage bằng explicit paths, không `git add -A`; pre-commit bắt buộc gate/diff/GitNexus detect. Không push/hosted trigger. Docker pipe sẽ được kiểm lại nhưng thiếu engine không được đổi thành test PASS; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | `A-0513` | 2026-09-04 | `W-0172` | POSTGRES_VERIFY/FIXTURE_REPAIR/FINISH | Docker server đã sẵn sàng. Focused đầu chạy thật 5/7: hai pre-call case bị constraint action chặn hợp lệ nhưng assertion chưa chấp nhận; sau sửa đạt 7/7. Full đầu 215/239 phát hiện 24 test dùng fixture tuple cũ; sửa ba fixture để technical exception non-final và no-answer-final counted, cùng expectation aggregate; không nới domain/DB constraint | Codex | Regression 24/24 và full Integration 239/239 PASS, 0 fail/skip; full chạy trên build biệt lập dưới repo trong 9m33s để tránh shared DLL lock. W-0172 chuyển `TESTS_PASS`; M3/Product/shared-E2E/exact-candidate/hosted gates vẫn external; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | `A-0514` | 2026-09-04 | `W-0177` | EXACT_VERIFY_FAIL/ROOT_CAUSE/REPIN | Detached checkout `973df3c` chạy hash validators: W-0164 và W-0174 PASS nhưng W-0165 từ chối R-00, W-0170 đỏ downstream. Scan 18 member xác nhận chỉ R-00/R-06 lệch vì manifest giữ SHA CRLF cũ sau LF policy; committed physical blobs đã là LF đúng, không semantic content drift | Codex | Xoay hai source → M8-12 → manifest → M8-13 → W-0164/W-0165/W-0170 pins/templates. Impact ba SOURCE_PINS LOW/0 process; shared tree trở lại W-0164 2/19, W-0165 2/27, W-0170 1/21, W-0174 1/46; candidate mới và exact full verification còn pending; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
+| `A-0515` | 2026-09-04 | `W-0177` | SECOND_EXACT_VERIFY_FAIL/LF_POLICY_FIX | Candidate `0ae156d7` xoay đúng W-0170 provenance chain và exact UI PASS lint/typecheck/Vitest 176/176/build, nhưng W-0174 template manifest pin byte LF `381b6b…` trong khi `core.autocrlf=true` checkout thành CRLF `0971c3…`; schema/template validator vẫn PASS nên đây là cross-platform byte-provenance failure, không semantic drift | Codex | Loại `0ae156d7`; thêm LF policy chỉ cho W-0174 JSON/TXT, giữ nguyên template/manifest/schema/runtime. Candidate mới và exact validators/docs/security/full .NET vẫn pending; không push/hosted trigger, external E2E vẫn NOT_RUN, `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 
 ## 8. Per-work completion record template
 

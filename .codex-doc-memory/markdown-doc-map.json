@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T03:55:09.039Z",
+  "generatedAt": "2026-09-04T04:12:33.123Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -233340,37 +233340,43 @@
         {
           "depth": 2,
           "text": "1. Phạm vi",
-          "line": 7,
+          "line": 8,
           "slug": "1-phạm-vi"
         },
         {
           "depth": 2,
           "text": "2. Finding từ exact checkout",
-          "line": 14,
+          "line": 15,
           "slug": "2-finding-từ-exact-checkout"
         },
         {
           "depth": 2,
           "text": "3. Bounded remediation",
-          "line": 32,
+          "line": 33,
           "slug": "3-bounded-remediation"
         },
         {
           "depth": 2,
           "text": "4. Verification đang thực hiện",
-          "line": 45,
+          "line": 46,
           "slug": "4-verification-đang-thực-hiện"
         },
         {
           "depth": 2,
           "text": "5. Boundary",
-          "line": 59,
+          "line": 60,
           "slug": "5-boundary"
+        },
+        {
+          "depth": 2,
+          "text": "6. Finding thứ hai từ exact checkout",
+          "line": 67,
+          "slug": "6-finding-thứ-hai-từ-exact-checkout"
         }
       ],
       "links": [],
-      "lines": 68,
-      "words": 433,
+      "lines": 86,
+      "words": 562,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -244291,7 +244297,7 @@
         }
       ],
       "lines": 23,
-      "words": 1525,
+      "words": 1534,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -244456,13 +244462,13 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 822,
+          "line": 823,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 843,
+          "line": 844,
           "slug": "9-completion-records"
         }
       ],
@@ -244480,8 +244486,8 @@
           "line": 106
         }
       ],
-      "lines": 1327,
-      "words": 77439,
+      "lines": 1328,
+      "words": 77521,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {

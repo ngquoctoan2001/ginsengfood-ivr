@@ -1,8 +1,9 @@
 # W-0177 — Exact local candidate freeze and verification
 
 Ngày: `2026-09-04`
-Pre-fix candidate: `973df3c50554125f7b96892d4a0ea3a84d779cc9`
-Trạng thái: `IN_PROGRESS / CLEAN_CHECKOUT_PIN_DRIFT_FOUND / CANDIDATE_REBUILD_REQUIRED`.
+Rejected candidates: `973df3c50554125f7b96892d4a0ea3a84d779cc9`,
+`0ae156d7d6e7dd424e362f8ee8e19ccffd2f2fe6`
+Trạng thái: `IN_PROGRESS / SECOND_CLEAN_CHECKOUT_PIN_DRIFT_FOUND / CANDIDATE_REBUILD_REQUIRED`.
 
 ## 1. Phạm vi
 
@@ -51,7 +52,7 @@ guard. GitNexus impact của ba `SOURCE_PINS` đều **LOW**, `0` direct caller,
 | W-0170 | **PASS** `valid=1 refusals=21` sau re-pin |
 | W-0174 | **PASS** `valid=1 refusals=46` |
 | Ba pending template | **PASS valid-not-ready**; không có routing/response/receipt thật |
-| Detached clean candidate mới | **PENDING** |
+| Detached clean candidate `0ae156d7` | **REJECTED** — W-0174 template bị checkout thành CRLF trong khi manifest pin LF |
 | Full .NET Integration/Chaos | **PENDING** |
 | Security wrapper | **PENDING** |
 | Hosted GitLab CI | **AUTH_BLOCKED / NOT_RUN** |
@@ -63,5 +64,22 @@ tạo candidate mới; không được hồi tố ghi `973df3c` là PASS. Extern
 M3/Product/Security/Platform/Telephony evidence và shared E2E vẫn chưa nhận.
 `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-Next action: commit bounded re-pin thành candidate mới, tạo detached clean checkout mới và chạy lại
-toàn bộ gate. Chỉ cập nhật `TESTS_PASS` sau khi exact SHA trả kết quả xanh.
+## 6. Finding thứ hai từ exact checkout
+
+Candidate re-pin `0ae156d7` sửa đúng W-0170 chain nhưng exact Windows checkout phát hiện
+`docs/evidence/W-0174/shared-e2e-report.template.json` chưa được pin `eol=lf`:
+
+- manifest/README W-0174 pin SHA-256 LF canonical
+  `381b6b59126955182f53a90fab2c8032547f296e57a80ad9206ee54da958d91a`;
+- shared tree hiện đúng LF và đúng hash trên;
+- detached checkout `core.autocrlf=true` đổi file thành CRLF, SHA-256
+  `0971c37ed2af098ccfe568197c472a62792c706436cf701f03b919f1df8e2f2e`;
+- validator vẫn kiểm schema và trả `SHARED_E2E_TEMPLATE_VALID_NOT_READY cases=11`, nhưng manifest
+  byte provenance không còn đúng, vì vậy candidate phải bị loại.
+
+Remediation chỉ mở rộng LF policy cho `docs/evidence/W-0174/*.json` và `*.txt`; không đổi template,
+manifest pin, schema, validator hoặc runtime. UI exact-checkout riêng trên `0ae156d7` đã PASS lint,
+typecheck, Vitest `176/176` và production build, nhưng không thể bù cho provenance failure.
+
+Next action: commit LF policy thành candidate mới, tạo detached clean checkout mới và chạy lại toàn
+bộ gate. Chỉ cập nhật `TESTS_PASS` sau khi exact SHA trả kết quả xanh.
