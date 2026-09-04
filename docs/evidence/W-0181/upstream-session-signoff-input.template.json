@@ -1,0 +1,76 @@
+{
+  "schema_version": "m8-upstream-session-signoff.v1",
+  "work_id": "W-0181",
+  "status": "PENDING_M3_SIGNOFF",
+  "source": {
+    "w0146_evidence_path": "docs/evidence/W-0146/README.md",
+    "w0146_evidence_sha256_lf": "0bce4b3fcc0e6d1145f676e619405d8319e0480d4d0af255fd693adfb73b849b",
+    "m3_handover_path": "integration-requirements/06-module-3-api-handover.md",
+    "m3_handover_sha256_lf": "b676a32d4ba51b9f345eb3d32e21d793216f4011e98bbfc9dc8d2867997ba08a"
+  },
+  "decision": {
+    "outcome": "PENDING",
+    "field_name": "golden_hour_session_id",
+    "type": "STRING",
+    "min_length": 1,
+    "max_length": 128,
+    "format": "OPAQUE_NO_CONTROL_NO_EDGE_WHITESPACE",
+    "case_sensitive": true,
+    "golden_hour_required": true,
+    "twenty_four_seven_prohibited": true,
+    "null_prohibited": true,
+    "owner_service_alias": "MODULE3_GOLDEN_HOUR_CORE",
+    "issue_point_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "namespace_rule_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "stability_rule_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "retention_policy_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "privacy_classification": "TECHNICAL_IDENTIFIER_NO_PII"
+  },
+  "producer": {
+    "repository_alias": "PENDING_EXTERNAL_ARTIFACT",
+    "commit_sha": "PENDING_EXTERNAL_ARTIFACT",
+    "client_revision_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "contract_artifact_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "contract_artifact_sha256": "PENDING_EXTERNAL_ARTIFACT"
+  },
+  "cdc": {
+    "report_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "report_sha256": "PENDING_EXTERNAL_ARTIFACT",
+    "m8_candidate_sha": "PENDING_EXTERNAL_ARTIFACT",
+    "m3_candidate_sha": "PENDING_EXTERNAL_ARTIFACT",
+    "golden_hour_case_passed": false,
+    "twenty_four_seven_case_passed": false,
+    "replay_case_passed": false,
+    "changed_session_conflict_passed": false,
+    "capacity_incident_case_passed": false
+  },
+  "cutover": {
+    "store_phase_at": "PENDING_EXTERNAL_ARTIFACT",
+    "producer_enable_at": "PENDING_EXTERNAL_ARTIFACT",
+    "enforce_phase_at": "PENDING_EXTERNAL_ARTIFACT",
+    "compatibility_window_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "rollback_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "target_db_inventory_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "migration_not_started": true
+  },
+  "signoff": {
+    "signer_identity_alias": "PENDING_EXTERNAL_ARTIFACT",
+    "signer_role": "PENDING_EXTERNAL_ARTIFACT",
+    "signer_organization_alias": "PENDING_EXTERNAL_ARTIFACT",
+    "signed_at": "PENDING_EXTERNAL_ARTIFACT",
+    "authority_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "signature_ref": "PENDING_EXTERNAL_ARTIFACT",
+    "signature_sha256": "PENDING_EXTERNAL_ARTIFACT",
+    "independent_verifier_alias": "PENDING_EXTERNAL_ARTIFACT",
+    "verification_at": "PENDING_EXTERNAL_ARTIFACT"
+  },
+  "safety": {
+    "contains_personal_contact_details": false,
+    "contains_credentials_or_secrets": false,
+    "raw_external_payload_embedded": false,
+    "openapi_changed": false,
+    "runtime_or_database_changed": false,
+    "production_gate_promoted": false,
+    "real_customer_call_allowed": false
+  }
+}

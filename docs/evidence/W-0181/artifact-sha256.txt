@@ -1,0 +1,4 @@
+01f967629afc066cd8315a3622b3b277b76402ef1d082f2f1d9292639ea7d350  deploy/ci/scripts/upstream-session-signoff-validator.mjs
+c95902cc27268c0947b672b27f6c675d99b0c49cf875747756da852102e44292  docs/evidence/W-0181/upstream-session-signoff-input.template.json
+0bce4b3fcc0e6d1145f676e619405d8319e0480d4d0af255fd693adfb73b849b  docs/evidence/W-0146/README.md
+b676a32d4ba51b9f345eb3d32e21d793216f4011e98bbfc9dc8d2867997ba08a  integration-requirements/06-module-3-api-handover.md
