@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-03T10:00:53.944Z",
+  "generatedAt": "2026-09-04T00:29:00.431Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -231368,13 +231368,6 @@
           "kind": "markdown",
           "rawTarget": "../../docs/evidence/W-0145/README.md",
           "line": 378
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0145/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0145/README.md",
-          "line": 149
         }
       ]
     },
@@ -231460,13 +231453,6 @@
           "kind": "markdown",
           "rawTarget": "../../docs/evidence/W-0146/README.md",
           "line": 407
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0146/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0146/README.md",
-          "line": 150
         }
       ]
     },
@@ -231572,13 +231558,6 @@
           "kind": "markdown",
           "rawTarget": "../../docs/evidence/W-0147/README.md",
           "line": 437
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0147/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0147/README.md",
-          "line": 152
         }
       ]
     },
@@ -231679,13 +231658,6 @@
           "kind": "markdown",
           "rawTarget": "../../docs/evidence/W-0148/README.md",
           "line": 230
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0148/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0148/README.md",
-          "line": 153
         }
       ]
     },
@@ -231772,13 +231744,6 @@
           "kind": "markdown",
           "rawTarget": "../../docs/evidence/W-0149/README.md",
           "line": 496
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0149/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0149/README.md",
-          "line": 154
         }
       ]
     },
@@ -231917,13 +231882,6 @@
           "kind": "markdown",
           "rawTarget": "../../docs/evidence/W-0150/README.md",
           "line": 525
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0150/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0150/README.md",
-          "line": 155
         }
       ]
     },
@@ -232028,15 +231986,7 @@
         }
       ],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0151/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0151/README.md",
-          "line": 156
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0152/README.md",
@@ -232133,15 +232083,7 @@
         }
       ],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0152/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0152/README.md",
-          "line": 104
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0153/README.md",
@@ -232206,15 +232148,7 @@
         }
       ],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0153/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0153/README.md",
-          "line": 105
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0154/README.md",
@@ -232264,22 +232198,7 @@
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0154/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0154/README.md",
-          "line": 107
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0154/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0154/README.md",
-          "line": 145
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0155/README.md",
@@ -232392,22 +232311,7 @@
         }
       ],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0155/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0155/README.md",
-          "line": 108
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0155/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0155/README.md",
-          "line": 145
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0155/templates/README.md",
@@ -232524,22 +232428,7 @@
         }
       ],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0156/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0156/README.md",
-          "line": 109
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0156/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0156/README.md",
-          "line": 145
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0157/README.md",
@@ -232629,20 +232518,6 @@
           "kind": "markdown",
           "rawTarget": "../W-0157/README.md",
           "line": 81
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0157/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0157/README.md",
-          "line": 110
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0157/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0157/README.md",
-          "line": 145
         }
       ]
     },
@@ -232734,20 +232609,6 @@
           "kind": "markdown",
           "rawTarget": "../W-0158/README.md",
           "line": 78
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0158/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0158/README.md",
-          "line": 111
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0158/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0158/README.md",
-          "line": 145
         }
       ]
     },
@@ -232839,20 +232700,6 @@
           "kind": "markdown",
           "rawTarget": "../W-0159/README.md",
           "line": 86
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0159/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0159/README.md",
-          "line": 112
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0159/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0159/README.md",
-          "line": 145
         }
       ]
     },
@@ -232931,22 +232778,7 @@
         }
       ],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0160/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0160/README.md",
-          "line": 113
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0160/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0160/README.md",
-          "line": 145
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0161/README.md",
@@ -233043,48 +232875,6 @@
           "kind": "markdown",
           "rawTarget": "../W-0161/README.md",
           "line": 68
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 114
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 149
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 153
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 154
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 155
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 156
         }
       ]
     },
@@ -233164,20 +232954,6 @@
           "kind": "markdown",
           "rawTarget": "../W-0162/README.md",
           "line": 82
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0162/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0162/README.md",
-          "line": 115
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0162/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0162/README.md",
-          "line": 152
         }
       ]
     },
@@ -233295,15 +233071,7 @@
         }
       ],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0163/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0163/README.md",
-          "line": 116
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0163/recipient-routing-input.template.md",
@@ -233348,13 +233116,6 @@
           "kind": "markdown",
           "rawTarget": "recipient-routing-input.template.md",
           "line": 32
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0163/recipient-routing-input.template.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0163/recipient-routing-input.template.md",
-          "line": 118
         }
       ]
     },
@@ -233425,28 +233186,7 @@
           "to": "docs/evidence/W-0164/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 88
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0164/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 119
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0164/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 151
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0164/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 208
+          "line": 12
         }
       ]
     },
@@ -233510,28 +233250,7 @@
           "to": "docs/evidence/W-0165/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 88
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0165/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 120
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0165/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 151
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0165/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 213
+          "line": 12
         }
       ]
     },
@@ -233598,15 +233317,7 @@
         }
       ],
       "unresolvedLinks": [],
-      "incomingLinks": [
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0166/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0166/README.md",
-          "line": 121
-        }
-      ]
+      "incomingLinks": []
     },
     {
       "path": "docs/evidence/W-0167/README.md",
@@ -233668,7 +233379,7 @@
           "to": "docs/evidence/W-0167/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0167/README.md",
-          "line": 122
+          "line": 9
         }
       ]
     },
@@ -233732,7 +233443,7 @@
           "to": "docs/evidence/W-0168/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0168/README.md",
-          "line": 123
+          "line": 8
         }
       ]
     },
@@ -244707,13 +244418,6 @@
           "kind": "markdown",
           "rawTarget": "m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
           "line": 417
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
-          "kind": "markdown",
-          "rawTarget": "ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
-          "line": 32
         }
       ]
     },
@@ -245104,13 +244808,6 @@
           "kind": "markdown",
           "rawTarget": "../../../plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
           "line": 8
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
-          "kind": "markdown",
-          "rawTarget": "ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
-          "line": 113
         }
       ]
     },
@@ -250832,721 +250529,86 @@
     },
     {
       "path": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "title": "Tóm tắt tiến độ sau đợt fix 29/08",
+      "title": "Module 8 — Bảng việc cần làm hiện hành",
       "frontmatter": {},
       "headings": [
         {
           "depth": 1,
-          "text": "Tóm tắt tiến độ sau đợt fix 29/08",
-          "line": 15,
-          "slug": "tóm-tắt-tiến-độ-sau-đợt-fix-2908"
-        },
-        {
-          "depth": 1,
-          "text": "Trạng thái thực thi hiện hành — 03/09/2026",
-          "line": 72,
-          "slug": "trạng-thái-thực-thi-hiện-hành-03092026"
-        },
-        {
-          "depth": 2,
-          "text": "Nhật ký cập nhật của phiên xử lý này",
-          "line": 94,
-          "slug": "nhật-ký-cập-nhật-của-phiên-xử-lý-này"
-        },
-        {
-          "depth": 2,
-          "text": "Chi tiết trạng thái từng task — đã làm gì, còn thiếu gì",
-          "line": 127,
-          "slug": "chi-tiết-trạng-thái-từng-task-đã-làm-gì-còn-thiếu-gì"
-        },
-        {
-          "depth": 3,
-          "text": "Bộ đếm tiến độ hiện hành",
-          "line": 158,
-          "slug": "bộ-đếm-tiến-độ-hiện-hành"
-        },
-        {
-          "depth": 3,
-          "text": "Tổng kết phần đã làm và chưa làm",
-          "line": 173,
-          "slug": "tổng-kết-phần-đã-làm-và-chưa-làm"
-        },
-        {
-          "depth": 1,
-          "text": "Bắt đầu từ đâu (đề xuất tuần này)",
-          "line": 206,
-          "slug": "bắt-đầu-từ-đâu-đề-xuất-tuần-này"
-        },
-        {
-          "depth": 1,
-          "text": "B. Code lõi theo spec (xếp dễ → khó)",
-          "line": 220,
-          "slug": "b-code-lõi-theo-spec-xếp-dễ-khó"
-        },
-        {
-          "depth": 2,
-          "text": "B-dễ (2 việc)",
-          "line": 222,
-          "slug": "b-dễ-2-việc"
-        },
-        {
-          "depth": 2,
-          "text": "B-vừa (2 việc)",
-          "line": 229,
-          "slug": "b-vừa-2-việc"
-        },
-        {
-          "depth": 2,
-          "text": "B-khó (1 việc)",
-          "line": 236,
-          "slug": "b-khó-1-việc"
-        },
-        {
-          "depth": 1,
-          "text": "C. Kết nối hệ thống — seam với module khác (xếp dễ → khó)",
-          "line": 242,
-          "slug": "c-kết-nối-hệ-thống-seam-với-module-khác-xếp-dễ-khó"
-        },
-        {
-          "depth": 2,
-          "text": "C.0 — Định hướng đồng bộ hệ thống (đọc trước khi làm bất kỳ mục C nào)",
-          "line": 244,
-          "slug": "c0-định-hướng-đồng-bộ-hệ-thống-đọc-trước-khi-làm-bất-kỳ-mục-c-nào"
-        },
-        {
-          "depth": 2,
-          "text": "C-dễ (5 việc)",
-          "line": 262,
-          "slug": "c-dễ-5-việc"
-        },
-        {
-          "depth": 2,
-          "text": "C-vừa (6 việc)",
-          "line": 272,
-          "slug": "c-vừa-6-việc"
-        },
-        {
-          "depth": 2,
-          "text": "C-khó (2 việc)",
-          "line": 283,
-          "slug": "c-khó-2-việc"
-        },
-        {
-          "depth": 1,
-          "text": "D. Đã đạt / đã xong — không cần làm (kiểm rồi, đừng làm thừa)",
-          "line": 290,
-          "slug": "d-đã-đạt-đã-xong-không-cần-làm-kiểm-rồi-đừng-làm-thừa"
-        },
-        {
-          "depth": 1,
-          "text": "E. Giới hạn của đợt kiểm (đã kiểm gì / chưa kiểm được gì)",
-          "line": 307,
-          "slug": "e-giới-hạn-của-đợt-kiểm-đã-kiểm-gì-chưa-kiểm-được-gì"
+          "text": "Module 8 — Bảng việc cần làm hiện hành",
+          "line": 1,
+          "slug": "module-8-bảng-việc-cần-làm-hiện-hành"
         }
       ],
       "links": [
         {
           "kind": "markdown",
-          "text": "M8-12",
-          "rawTarget": "ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
-          "line": 32
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0164 routing validator",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 88
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0165 response validator",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 88
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0152",
-          "rawTarget": "../docs/evidence/W-0152/README.md",
-          "line": 104
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0153",
-          "rawTarget": "../docs/evidence/W-0153/README.md",
-          "line": 105
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0154",
-          "rawTarget": "../docs/evidence/W-0154/README.md",
-          "line": 107
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0155",
-          "rawTarget": "../docs/evidence/W-0155/README.md",
-          "line": 108
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0156",
-          "rawTarget": "../docs/evidence/W-0156/README.md",
-          "line": 109
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0157",
-          "rawTarget": "../docs/evidence/W-0157/README.md",
-          "line": 110
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0158",
-          "rawTarget": "../docs/evidence/W-0158/README.md",
-          "line": 111
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0159",
-          "rawTarget": "../docs/evidence/W-0159/README.md",
-          "line": 112
-        },
-        {
-          "kind": "markdown",
-          "text": "M8-15",
-          "rawTarget": "ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
-          "line": 113
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0160",
-          "rawTarget": "../docs/evidence/W-0160/README.md",
-          "line": 113
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0161",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 114
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0162",
-          "rawTarget": "../docs/evidence/W-0162/README.md",
-          "line": 115
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0163",
-          "rawTarget": "../docs/evidence/W-0163/README.md",
-          "line": 116
-        },
-        {
-          "kind": "markdown",
-          "text": "recipient-routing-input.template.md",
-          "rawTarget": "../docs/evidence/W-0163/recipient-routing-input.template.md",
-          "line": 118
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0164",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 119
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0165",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 120
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0166",
-          "rawTarget": "../docs/evidence/W-0166/README.md",
-          "line": 121
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0167",
-          "rawTarget": "../docs/evidence/W-0167/README.md",
-          "line": 122
+          "text": "IVR Master Implementation Progress Ledger",
+          "rawTarget": "../prompt/_execution/prompt-execution-tracker.md",
+          "line": 3
         },
         {
           "kind": "markdown",
           "text": "W-0168",
           "rawTarget": "../docs/evidence/W-0168/README.md",
-          "line": 123
+          "line": 8
         },
         {
           "kind": "markdown",
-          "text": "W-0154",
-          "rawTarget": "../docs/evidence/W-0154/README.md",
-          "line": 145
+          "text": "W-0167",
+          "rawTarget": "../docs/evidence/W-0167/README.md",
+          "line": 9
         },
         {
           "kind": "markdown",
-          "text": "W-0155",
-          "rawTarget": "../docs/evidence/W-0155/README.md",
-          "line": 145
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0156",
-          "rawTarget": "../docs/evidence/W-0156/README.md",
-          "line": 145
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0157",
-          "rawTarget": "../docs/evidence/W-0157/README.md",
-          "line": 145
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0158",
-          "rawTarget": "../docs/evidence/W-0158/README.md",
-          "line": 145
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0159",
-          "rawTarget": "../docs/evidence/W-0159/README.md",
-          "line": 145
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0160",
-          "rawTarget": "../docs/evidence/W-0160/README.md",
-          "line": 145
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0145",
-          "rawTarget": "../docs/evidence/W-0145/README.md",
-          "line": 149
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0161",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 149
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0146",
-          "rawTarget": "../docs/evidence/W-0146/README.md",
-          "line": 150
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0164",
+          "text": "routing validator W-0164",
           "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 151
+          "line": 12
         },
         {
           "kind": "markdown",
-          "text": "W-0165",
+          "text": "response validator W-0165",
           "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 151
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0147",
-          "rawTarget": "../docs/evidence/W-0147/README.md",
-          "line": 152
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0162",
-          "rawTarget": "../docs/evidence/W-0162/README.md",
-          "line": 152
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0148",
-          "rawTarget": "../docs/evidence/W-0148/README.md",
-          "line": 153
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0161",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 153
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0149",
-          "rawTarget": "../docs/evidence/W-0149/README.md",
-          "line": 154
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0161",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 154
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0150",
-          "rawTarget": "../docs/evidence/W-0150/README.md",
-          "line": 155
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0161",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 155
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0151",
-          "rawTarget": "../docs/evidence/W-0151/README.md",
-          "line": 156
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0161",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 156
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0164",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 208
-        },
-        {
-          "kind": "markdown",
-          "text": "W-0165",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 213
+          "line": 12
         }
       ],
-      "lines": 318,
-      "words": 14606,
+      "lines": 23,
+      "words": 1299,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
+          "to": "prompt/_execution/prompt-execution-tracker.md",
           "kind": "markdown",
-          "rawTarget": "ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
-          "line": 32
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0164/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 88
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0165/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 88
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0152/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0152/README.md",
-          "line": 104
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0153/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0153/README.md",
-          "line": 105
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0154/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0154/README.md",
-          "line": 107
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0155/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0155/README.md",
-          "line": 108
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0156/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0156/README.md",
-          "line": 109
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0157/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0157/README.md",
-          "line": 110
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0158/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0158/README.md",
-          "line": 111
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0159/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0159/README.md",
-          "line": 112
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
-          "kind": "markdown",
-          "rawTarget": "ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
-          "line": 113
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0160/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0160/README.md",
-          "line": 113
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 114
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0162/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0162/README.md",
-          "line": 115
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0163/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0163/README.md",
-          "line": 116
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0163/recipient-routing-input.template.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0163/recipient-routing-input.template.md",
-          "line": 118
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0164/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 119
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0165/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 120
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0166/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0166/README.md",
-          "line": 121
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0167/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0167/README.md",
-          "line": 122
+          "rawTarget": "../prompt/_execution/prompt-execution-tracker.md",
+          "line": 3
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0168/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0168/README.md",
-          "line": 123
+          "line": 8
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0154/README.md",
+          "to": "docs/evidence/W-0167/README.md",
           "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0154/README.md",
-          "line": 145
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0155/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0155/README.md",
-          "line": 145
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0156/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0156/README.md",
-          "line": 145
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0157/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0157/README.md",
-          "line": 145
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0158/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0158/README.md",
-          "line": 145
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0159/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0159/README.md",
-          "line": 145
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0160/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0160/README.md",
-          "line": 145
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0145/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0145/README.md",
-          "line": 149
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 149
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0146/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0146/README.md",
-          "line": 150
+          "rawTarget": "../docs/evidence/W-0167/README.md",
+          "line": 9
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0164/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 151
+          "line": 12
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0165/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 151
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0147/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0147/README.md",
-          "line": 152
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0162/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0162/README.md",
-          "line": 152
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0148/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0148/README.md",
-          "line": 153
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 153
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0149/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0149/README.md",
-          "line": 154
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 154
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0150/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0150/README.md",
-          "line": 155
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 155
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0151/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0151/README.md",
-          "line": 156
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0161/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0161/README.md",
-          "line": 156
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0164/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0164/README.md",
-          "line": 208
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0165/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0165/README.md",
-          "line": 213
+          "line": 12
         }
       ],
       "unresolvedLinks": [],
@@ -251682,13 +250744,13 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 785,
+          "line": 786,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 806,
+          "line": 807,
           "slug": "9-completion-records"
         }
       ],
@@ -251706,8 +250768,8 @@
           "line": 106
         }
       ],
-      "lines": 1290,
-      "words": 73291,
+      "lines": 1291,
+      "words": 73427,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -251789,6 +250851,13 @@
           "kind": "markdown",
           "rawTarget": "../../prompt/_execution/prompt-execution-tracker.md",
           "line": 21
+        },
+        {
+          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
+          "to": "prompt/_execution/prompt-execution-tracker.md",
+          "kind": "markdown",
+          "rawTarget": "../prompt/_execution/prompt-execution-tracker.md",
+          "line": 3
         },
         {
           "from": "prompt/00-index.md",
@@ -270229,325 +269298,38 @@
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
+      "to": "prompt/_execution/prompt-execution-tracker.md",
       "kind": "markdown",
-      "rawTarget": "ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
-      "line": 32
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0164/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0164/README.md",
-      "line": 88
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0165/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0165/README.md",
-      "line": 88
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0152/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0152/README.md",
-      "line": 104
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0153/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0153/README.md",
-      "line": 105
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0154/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0154/README.md",
-      "line": 107
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0155/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0155/README.md",
-      "line": 108
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0156/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0156/README.md",
-      "line": 109
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0157/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0157/README.md",
-      "line": 110
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0158/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0158/README.md",
-      "line": 111
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0159/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0159/README.md",
-      "line": 112
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
-      "kind": "markdown",
-      "rawTarget": "ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
-      "line": 113
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0160/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0160/README.md",
-      "line": 113
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0161/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0161/README.md",
-      "line": 114
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0162/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0162/README.md",
-      "line": 115
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0163/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0163/README.md",
-      "line": 116
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0163/recipient-routing-input.template.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0163/recipient-routing-input.template.md",
-      "line": 118
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0164/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0164/README.md",
-      "line": 119
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0165/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0165/README.md",
-      "line": 120
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0166/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0166/README.md",
-      "line": 121
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0167/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0167/README.md",
-      "line": 122
+      "rawTarget": "../prompt/_execution/prompt-execution-tracker.md",
+      "line": 3
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0168/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0168/README.md",
-      "line": 123
+      "line": 8
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0154/README.md",
+      "to": "docs/evidence/W-0167/README.md",
       "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0154/README.md",
-      "line": 145
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0155/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0155/README.md",
-      "line": 145
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0156/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0156/README.md",
-      "line": 145
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0157/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0157/README.md",
-      "line": 145
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0158/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0158/README.md",
-      "line": 145
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0159/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0159/README.md",
-      "line": 145
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0160/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0160/README.md",
-      "line": 145
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0145/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0145/README.md",
-      "line": 149
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0161/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0161/README.md",
-      "line": 149
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0146/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0146/README.md",
-      "line": 150
+      "rawTarget": "../docs/evidence/W-0167/README.md",
+      "line": 9
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0164/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0164/README.md",
-      "line": 151
+      "line": 12
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0165/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0165/README.md",
-      "line": 151
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0147/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0147/README.md",
-      "line": 152
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0162/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0162/README.md",
-      "line": 152
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0148/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0148/README.md",
-      "line": 153
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0161/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0161/README.md",
-      "line": 153
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0149/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0149/README.md",
-      "line": 154
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0161/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0161/README.md",
-      "line": 154
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0150/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0150/README.md",
-      "line": 155
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0161/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0161/README.md",
-      "line": 155
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0151/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0151/README.md",
-      "line": 156
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0161/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0161/README.md",
-      "line": 156
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0164/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0164/README.md",
-      "line": 208
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0165/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0165/README.md",
-      "line": 213
+      "line": 12
     },
     {
       "from": "prompt/_execution/prompt-execution-tracker.md",
@@ -272903,6 +271685,7 @@
       "docs/evidence/W-0133/README.md",
       "docs/evidence/W-0134/README.md",
       "docs/evidence/W-0136/README.md",
+      "docs/evidence/W-0154/README.md",
       "docs/integration-guide.md",
       "docs/kpi-catalog.md",
       "docs/operations/gitlab-runner-winhost.md",

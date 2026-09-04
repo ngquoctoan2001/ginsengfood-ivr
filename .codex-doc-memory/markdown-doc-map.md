@@ -1,16 +1,16 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-09-03T10:00:53.944Z
+Generated: 2026-09-04T00:29:00.431Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
 
 - Markdown files: 656
-- Links resolved: 871
+- Links resolved: 830
 - Unresolved links: 199
 - Duplicate titles: 3
 - Encoding/name anomalies: 16
-- Orphan candidates: 134
+- Orphan candidates: 135
 
 ## High Link Documents
 
@@ -18,29 +18,29 @@ Root: C:\Users\Administrator\Desktop\ivr
 | --- | --- | ---: | ---: | ---: |
 | docs/documents/00-DOC-READING-ORDER.md | Documentation Reading Order | 0 | 177 | 4269 |
 | prompt/00-index.md | IVR Prompt Library — Master Index | 1 | 58 | 772 |
-| plan/toan-viec-can-lam-m8-2026-09-03.md | Tóm tắt tiến độ sau đợt fix 29/08 | 3 | 46 | 14606 |
 | integration-requirements/06-module-3-api-handover.md | IR-06 — Bàn giao API Module 3 ↔ IVR | 38 | 7 | 10535 |
 | plan/ivr-orther/dev-viec-can-lam-m8-2026-08-29.md | Module 8 — Worklist đã hiệu chỉnh sau đối chiếu code | 1 | 38 | 6945 |
 | plan/ivr-orther/remaining-work-plan-2026-08-22.md | Kế hoạch phần việc còn lại — IVR Order Confirmation | 10 | 29 | 6089 |
 | plan/ivr-orther/today-01-decision-signoff-pack-2026-08-29.md | TODAY-01 — Decision / Sign-off Pack hiện hành cho Module 8 | 3 | 34 | 4292 |
 | plan/ivr-orther/decisions-log.md | Decisions Log — IVR (lịch sử quyết định + Target V1 overlay) | 22 | 4 | 5009 |
-| plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md | M8-12 — External decision provenance and dispatch-ready pack | 5 | 18 | 1445 |
 | docs/contracts/telephony-procurement-pack/README.md | Telephony Procurement Pack — 1 SIM lab và 32 eSIM production | 2 | 20 | 955 |
 | integration-requirements/01-sales-platform-requirements.md | IR-01 — Module 3 Requirements Register (mã ổn định) | 2 | 20 | 959 |
+| plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md | M8-12 — External decision provenance and dispatch-ready pack | 4 | 18 | 1445 |
 | docs/contracts/telephony-procurement-pack/R-01-vendor-requirements.md | R-01 — Yêu cầu nhà cung cấp telephony | 15 | 6 | 2443 |
 | docs/contracts/target-v1-closure-pack/README.md | Target Contract V1 — Closure Pack | 3 | 14 | 1094 |
 | plan/ivr-orther/_archive/prompts/00-index.md | Prompts Index — IVR-Orther | 1 | 16 | 572 |
 | integration-requirements/05-open-contract-questions.md | IR-05 — Open Contract Questions | 3 | 11 | 747 |
 | plan/ivr-orther/W-0106-regional-voice-routing-plan.md | W-0106 — Định tuyến giọng đọc theo vùng miền (3 giọng nữ Bắc/Trung/Nam) | 6 | 7 | 10691 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 11 | 2 | 73427 |
 | docs/contracts/telephony-procurement-pack/R-05-tts-audio-capability.md | R-05 — Năng lực TTS và nguồn audio | 7 | 5 | 1441 |
 | docs/evidence/W-0106/voice-audition-kit.md | W-0106 — Bộ nghe thử giọng nữ 3 miền (ElevenLabs web app, 0đ) | 10 | 2 | 1921 |
 | plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md | M8-11 — Attempt-policy production decision pack | 12 | 0 | 2258 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 10 | 2 | 73291 |
 | docs/contracts/target-v1-closure-pack/T-01-program-matrix.md | T-01 — Ma trận program / payment / IVR-required / callable | 9 | 2 | 787 |
 | docs/contracts/telephony-procurement-pack/R-04-scorecard-and-gaps.md | R-04 — Scorecard nhà cung cấp, gap register và điều khoản hợp đồng | 2 | 9 | 1430 |
-| docs/evidence/W-0161/README.md | W-0161 — Close local PostgreSQL integration evidence gaps | 11 | 0 | 609 |
 | docs/contracts/target-v1-closure-pack/T-04-dial-token.md | T-04 — Dial-token: issue / resolve / TTL / one-use / audit | 9 | 1 | 1128 |
 | docs/contracts/target-v1-closure-pack/T-08-openapi-compat-cdc.md | T-08 — OpenAPI compatibility, deprecation và sở hữu consumer-driven test | 5 | 5 | 886 |
+| docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md | T-09 — `attempt_policy_version` cho production | 9 | 1 | 939 |
+| docs/contracts/telephony-procurement-pack/R-00-voice-gateway-rfq.md | R-00 — Hồ sơ hỏi mua cổng thoại di động 4G/VoLTE (bản gửi thẳng nhà cung cấp) | 7 | 3 | 2448 |
 
 ## Unresolved Links
 
@@ -371,6 +371,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 - docs/evidence/W-0133/README.md
 - docs/evidence/W-0134/README.md
 - docs/evidence/W-0136/README.md
+- docs/evidence/W-0154/README.md
 - docs/integration-guide.md
 - docs/kpi-catalog.md
 - docs/operations/gitlab-runner-winhost.md
@@ -776,30 +777,30 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0142/README.md | W-0142 — M8-01 capacity calibration preflight và data-intake handoff | 1/13 | 3 | 1 | 0 | 1088 |
 | docs/evidence/W-0143/README.md | W-0143 — M8-03 admin audit/capacity surface reconciliation và M3 handoff | 1/9 | 1 | 3 | 0 | 1015 |
 | docs/evidence/W-0144/README.md | W-0144 — M8-04 DT-04 window enforcement và production-adapter preflight | 1/6 | 1 | 0 | 0 | 497 |
-| docs/evidence/W-0145/README.md | W-0145 — M8-05 program/result contract sign-off | 1/10 | 2 | 2 | 0 | 778 |
-| docs/evidence/W-0146/README.md | W-0146 — M8-06 upstream session trace sign-off | 1/8 | 2 | 1 | 0 | 656 |
-| docs/evidence/W-0147/README.md | W-0147 — M8-07 Target V1 shared callback readiness | 1/8 | 3 | 2 | 0 | 695 |
-| docs/evidence/W-0148/README.md | W-0148 — M8-08 opt-out/suppression decision reconciliation | 1/6 | 4 | 2 | 0 | 450 |
-| docs/evidence/W-0149/README.md | W-0149 — M8-09 revoke/recall/freshness reconciliation | 1/6 | 2 | 2 | 0 | 484 |
-| docs/evidence/W-0150/README.md | W-0150 — M8-10 contact / dial-token production-path audit evidence | 1/6 | 2 | 6 | 0 | 522 |
-| docs/evidence/W-0151/README.md | W-0151 — Attempt-policy production audit evidence | 1/8 | 1 | 3 | 0 | 673 |
-| docs/evidence/W-0152/README.md | W-0152 — External decision provenance and dispatch-ready consolidation | 1/7 | 1 | 3 | 0 | 572 |
-| docs/evidence/W-0153/README.md | W-0153 — External decision dispatch-message kit evidence | 1/6 | 1 | 1 | 0 | 505 |
-| docs/evidence/W-0154/README.md | W-0154 — B1 capacity calibration unified data-intake evidence | 1/6 | 2 | 0 | 0 | 471 |
-| docs/evidence/W-0155/README.md | W-0155 — B1 D-06 four-submission offline validator evidence | 1/14 | 2 | 1 | 0 | 775 |
+| docs/evidence/W-0145/README.md | W-0145 — M8-05 program/result contract sign-off | 1/10 | 1 | 2 | 0 | 778 |
+| docs/evidence/W-0146/README.md | W-0146 — M8-06 upstream session trace sign-off | 1/8 | 1 | 1 | 0 | 656 |
+| docs/evidence/W-0147/README.md | W-0147 — M8-07 Target V1 shared callback readiness | 1/8 | 2 | 2 | 0 | 695 |
+| docs/evidence/W-0148/README.md | W-0148 — M8-08 opt-out/suppression decision reconciliation | 1/6 | 3 | 2 | 0 | 450 |
+| docs/evidence/W-0149/README.md | W-0149 — M8-09 revoke/recall/freshness reconciliation | 1/6 | 1 | 2 | 0 | 484 |
+| docs/evidence/W-0150/README.md | W-0150 — M8-10 contact / dial-token production-path audit evidence | 1/6 | 1 | 6 | 0 | 522 |
+| docs/evidence/W-0151/README.md | W-0151 — Attempt-policy production audit evidence | 1/8 | 0 | 3 | 0 | 673 |
+| docs/evidence/W-0152/README.md | W-0152 — External decision provenance and dispatch-ready consolidation | 1/7 | 0 | 3 | 0 | 572 |
+| docs/evidence/W-0153/README.md | W-0153 — External decision dispatch-message kit evidence | 1/6 | 0 | 1 | 0 | 505 |
+| docs/evidence/W-0154/README.md | W-0154 — B1 capacity calibration unified data-intake evidence | 1/6 | 0 | 0 | 0 | 471 |
+| docs/evidence/W-0155/README.md | W-0155 — B1 D-06 four-submission offline validator evidence | 1/14 | 0 | 1 | 0 | 775 |
 | docs/evidence/W-0155/templates/README.md | W-0155 capacity data-intake pending templates | 1/2 | 1 | 0 | 0 | 189 |
-| docs/evidence/W-0156/README.md | W-0156 — Immutable PII-safe capacity validation receipt evidence | 1/9 | 2 | 1 | 0 | 590 |
-| docs/evidence/W-0157/README.md | W-0157 — Independent capacity-validation receipt verifier evidence | 1/9 | 3 | 1 | 0 | 671 |
-| docs/evidence/W-0158/README.md | W-0158 — Append-only verified-receipt capacity intake ledger evidence | 1/9 | 3 | 1 | 0 | 746 |
-| docs/evidence/W-0159/README.md | W-0159 — Ledger-head checkpoint/verifier evidence | 1/9 | 3 | 1 | 0 | 720 |
-| docs/evidence/W-0160/README.md | W-0160 — Monotonic ledger-checkpoint registry contract evidence | 1/8 | 2 | 1 | 0 | 697 |
-| docs/evidence/W-0161/README.md | W-0161 — Close local PostgreSQL integration evidence gaps | 1/8 | 11 | 0 | 0 | 609 |
-| docs/evidence/W-0162/README.md | W-0162 — W-0147 local callback PostgreSQL and Chaos rerun | 1/7 | 3 | 1 | 0 | 569 |
-| docs/evidence/W-0163/README.md | W-0163 — External decision dispatch execution preflight | 1/8 | 1 | 4 | 0 | 702 |
-| docs/evidence/W-0163/recipient-routing-input.template.md | W-0163 — Recipient routing input template | 1/4 | 2 | 0 | 0 | 345 |
-| docs/evidence/W-0164/README.md | W-0164 — Offline external-decision routing input validator | 1/7 | 5 | 0 | 0 | 506 |
-| docs/evidence/W-0165/README.md | W-0165 — Offline external decision response validator | 1/7 | 4 | 0 | 0 | 584 |
-| docs/evidence/W-0166/README.md | W-0166 — Current-state worklist consistency reconciliation | 1/6 | 1 | 1 | 0 | 437 |
+| docs/evidence/W-0156/README.md | W-0156 — Immutable PII-safe capacity validation receipt evidence | 1/9 | 0 | 1 | 0 | 590 |
+| docs/evidence/W-0157/README.md | W-0157 — Independent capacity-validation receipt verifier evidence | 1/9 | 1 | 1 | 0 | 671 |
+| docs/evidence/W-0158/README.md | W-0158 — Append-only verified-receipt capacity intake ledger evidence | 1/9 | 1 | 1 | 0 | 746 |
+| docs/evidence/W-0159/README.md | W-0159 — Ledger-head checkpoint/verifier evidence | 1/9 | 1 | 1 | 0 | 720 |
+| docs/evidence/W-0160/README.md | W-0160 — Monotonic ledger-checkpoint registry contract evidence | 1/8 | 0 | 1 | 0 | 697 |
+| docs/evidence/W-0161/README.md | W-0161 — Close local PostgreSQL integration evidence gaps | 1/8 | 5 | 0 | 0 | 609 |
+| docs/evidence/W-0162/README.md | W-0162 — W-0147 local callback PostgreSQL and Chaos rerun | 1/7 | 1 | 1 | 0 | 569 |
+| docs/evidence/W-0163/README.md | W-0163 — External decision dispatch execution preflight | 1/8 | 0 | 4 | 0 | 702 |
+| docs/evidence/W-0163/recipient-routing-input.template.md | W-0163 — Recipient routing input template | 1/4 | 1 | 0 | 0 | 345 |
+| docs/evidence/W-0164/README.md | W-0164 — Offline external-decision routing input validator | 1/7 | 2 | 0 | 0 | 506 |
+| docs/evidence/W-0165/README.md | W-0165 — Offline external decision response validator | 1/7 | 1 | 0 | 0 | 584 |
+| docs/evidence/W-0166/README.md | W-0166 — Current-state worklist consistency reconciliation | 1/6 | 0 | 1 | 0 | 437 |
 | docs/evidence/W-0167/README.md | W-0167 — Current-worktree full offline .NET suite verification | 1/7 | 1 | 0 | 0 | 447 |
 | docs/evidence/W-0168/README.md | W-0168 — Current security, secret and vulnerability gate rerun | 1/7 | 1 | 0 | 0 | 553 |
 | docs/gameday-report.md | Game-day report — IVR Order Confirmation (`W-0042` · `P6-3`) | 1/12 | 1 | 0 | 0 | 1548 |
@@ -878,10 +879,10 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md | M8-09 — Revoke / recall / freshness decision pack và handoff | 1/14 | 8 | 0 | 0 | 2127 |
 | plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md | M8-10 — Contact / dial-token production-path decision pack và handoff | 1/10 | 10 | 0 | 0 | 2326 |
 | plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md | M8-11 — Attempt-policy production decision pack | 1/15 | 12 | 0 | 0 | 2258 |
-| plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md | M8-12 — External decision provenance and dispatch-ready pack | 1/8 | 5 | 18 | 0 | 1445 |
+| plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md | M8-12 — External decision provenance and dispatch-ready pack | 1/8 | 4 | 18 | 0 | 1445 |
 | plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md | M8-13 — External decision copy/paste dispatch-message kit | 1/9 | 2 | 0 | 0 | 682 |
 | plan/ivr-orther/m8-14-capacity-calibration-data-intake-bundle-2026-09-03.md | M8-14 — Capacity calibration unified data-intake bundle | 1/23 | 0 | 0 | 0 | 1518 |
-| plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md | M8-15 — Capacity ledger checkpoint monotonic registry contract | 1/21 | 3 | 0 | 0 | 2980 |
+| plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md | M8-15 — Capacity ledger checkpoint monotonic registry contract | 1/21 | 2 | 0 | 0 | 2980 |
 | plan/ivr-orther/production-blockers-plan.md | External Closure Plan — IVR Order Confirmation | 1/9 | 1 | 0 | 0 | 595 |
 | plan/ivr-orther/questions-to-crm-3.1-followup.md | Câu hỏi bổ sung IVR — gửi CRM / Module 3.1 (vòng 2: do-not-call / opt-out / thông báo sau gọi) | 1/10 | 1 | 1 | 0 | 1166 |
 | plan/ivr-orther/questions-to-legal-od-voice-07.md | Phiếu ý kiến — gửi Legal / Privacy | 1/14 | 3 | 0 | 0 | 1325 |
@@ -903,9 +904,9 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/W-0122-vieneu-selfhosted-tts-plan.md | W-0122 — Tự host VieNeu-TTS, loại phụ thuộc SaaS TTS ở runtime | 1/39 | 0 | 3 | 10 | 6017 |
 | plan/ivr-orther/W-0123-m3-authoritative-call-decision-cleanup-plan.md | W-0123 — M3 quyết định gọi, IVR chỉ thực thi: cleanup trusted-skip phía IVR | 1/31 | 1 | 0 | 0 | 3855 |
 | plan/ivr-orther/W-0124-w0123-review-remediation-plan.md | W-0124 — Khắc phục phát hiện rà soát W-0123 | 1/11 | 1 | 0 | 0 | 1343 |
-| plan/toan-viec-can-lam-m8-2026-09-03.md | Tóm tắt tiến độ sau đợt fix 29/08 | 7/18 | 3 | 46 | 0 | 14606 |
+| plan/toan-viec-can-lam-m8-2026-09-03.md | Module 8 — Bảng việc cần làm hiện hành | 1/1 | 3 | 5 | 0 | 1299 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 10 | 2 | 0 | 73291 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 11 | 2 | 0 | 73427 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |
 | prompt/_legacy-mock/01-foundation-and-contracts.md | DEV PROMPT 01 — Foundation & Contracts | 1/10 | 1 | 0 | 0 | 240 |
 | prompt/_legacy-mock/02-m8-2a-task-intake.md | DEV PROMPT 02 — M8.2A Task Intake | 1/9 | 1 | 0 | 0 | 190 |
