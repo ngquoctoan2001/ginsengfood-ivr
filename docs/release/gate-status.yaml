@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 175 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 182 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 17
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 121
+  rows_without_evidence_pack: 128
 
 gates:
   - id: "G-CONTRACT"
@@ -829,6 +829,34 @@ work:
     prompt: "Freeze and verify exact local candidate for W-0170/W-0172..W-0176 (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0177/README.md"
+  - id: "W-0178"
+    prompt: "C10+C11+C13 offline D-06 callback revalidation evidence validator (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0178/README.md"
+  - id: "W-0179"
+    prompt: "C9 opt-out/suppression S-06 closure-path focused self-test (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0179/README.md"
+  - id: "W-0180"
+    prompt: "D6/M8-11 offline attempt-policy production bundle validator (Origin=UNPLANNED, owner yêu cầu phân tích và triển khai khắc phục 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0180/README.md"
+  - id: "W-0181"
+    prompt: "C3+C4+C6 offline upstream-session M3 sign-off intake validator (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0181/README.md"
+  - id: "W-0182"
+    prompt: "B1/W-0160 offline monotonic-registry decision/sign-off intake validator (Origin=UNPLANNED, owner yêu cầu tiếp tục B1 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0182/README.md"
+  - id: "W-0183"
+    prompt: "B5+C12 offline contact/dial-token production-bundle validator (Origin=UNPLANNED, owner yêu cầu mở W-0182 nhưng ID đó đã được cấp cho B1; cấp ID kế tiếp 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0183/README.md"
+  - id: "W-0184"
+    prompt: "B5+C12 contact/dial-token S-08 closure-path focused self-test (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0184/README.md"
 
 production_flag:
   real_customer_call_allowed: false
