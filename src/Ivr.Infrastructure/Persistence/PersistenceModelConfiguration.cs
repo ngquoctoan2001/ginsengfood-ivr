@@ -207,11 +207,14 @@ internal static class PersistenceModelConfiguration
                 // owed. A non-customer result counted on this table does not merely misreport;
                 // it silently spends one of the two attempts the policy promised the customer.
                 table.HasCheckConstraint(
-                    "ck_ivr_call_attempts_non_customer_not_counted",
+                    "ck_ivr_call_attempts_counted_matches_type",
                     "result_status IS NULL"
-                    + " OR result_status NOT IN ('IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
-                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')"
-                    + " OR is_counted_customer_attempt IS FALSE");
+                    + " OR (is_counted_customer_attempt IS TRUE AND result_status IN ("
+                    + "'IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT',"
+                    + "'IVR_NO_ANSWER_FINAL','IVR_WRONG_INPUT'))"
+                    + " OR (is_counted_customer_attempt IS FALSE AND result_status IN ("
+                    + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
+                    + "'IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION'))");
                 table.HasCheckConstraint(
                     "ck_ivr_call_attempts_retry_nonnegative",
                     "technical_retry_count >= 0");
@@ -227,8 +230,7 @@ internal static class PersistenceModelConfiguration
                     "result_status IS NULL OR result_status IN ('IVR_CONFIRMED',"
                     + "'IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL',"
                     + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
-                    + "'IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
-                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
+                    + "'IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION')");
 
                 // W-0111. All three termination columns move together. A row carrying a
                 // timestamp with no actor would be an operator action nobody can be asked
@@ -364,8 +366,7 @@ internal static class PersistenceModelConfiguration
                     "result_type IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED',"
                     + "'IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL',"
                     + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
-                    + "'IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
-                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
+                    + "'IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION')");
                 table.HasCheckConstraint(
                     "ck_ivr_call_results_recommended_core_action",
                     "recommended_core_action IN ('REVALIDATE_AND_CONFIRM_ORDER',"
@@ -377,24 +378,37 @@ internal static class PersistenceModelConfiguration
                     "ck_ivr_call_results_final_matches_type",
                     "final_result_status = result_type");
 
-                // W-0117. The counted-attempt invariant, enforced by the schema rather than by the
-                // agreement of every writer.
-                //
-                // §16 says a technical, capacity, operational or policy result must never be
-                // marked as one of the customer's attempts, and CallResultSnapshot.Create refuses
-                // to build one. But this table has a second writer -- the scheduler's
-                // confirmation-window sweep -- that constructs the entity directly and never meets
-                // that guard. So the invariant held by convention, not by construction, and the
-                // one path exempt from the guard is the one nobody reads when they change it.
-                //
-                // Getting this wrong is not a reporting bug. A system failure recorded as a
-                // customer attempt spends a quota the customer never used, and the order can be
-                // cancelled for a call that was never placed.
                 table.HasCheckConstraint(
-                    "ck_ivr_call_results_non_customer_not_counted",
-                    "result_type NOT IN ('IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
-                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')"
-                    + " OR is_counted_customer_attempt IS FALSE");
+                    "ck_ivr_call_results_counted_matches_type",
+                    "(is_counted_customer_attempt IS TRUE AND result_type IN ("
+                    + "'IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT',"
+                    + "'IVR_NO_ANSWER_FINAL','IVR_WRONG_INPUT'))"
+                    + " OR (is_counted_customer_attempt IS FALSE AND result_type IN ("
+                    + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
+                    + "'IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION'))");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_results_finality_matches_type",
+                    "(is_final_for_ivr IS TRUE AND result_type IN ("
+                    + "'IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_FINAL',"
+                    + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
+                    + "'IVR_CAPACITY_EXCEPTION'))"
+                    + " OR (is_final_for_ivr IS FALSE AND result_type IN ("
+                    + "'IVR_NO_ANSWER_ATTEMPT','IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION'))");
+                table.HasCheckConstraint(
+                    "ck_ivr_call_results_action_matches_type",
+                    "(result_type = 'IVR_CONFIRMED' AND recommended_core_action = "
+                    + "'REVALIDATE_AND_CONFIRM_ORDER')"
+                    + " OR (result_type = 'IVR_CUSTOMER_CANCELLED' AND recommended_core_action = "
+                    + "'REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST')"
+                    + " OR (result_type IN ('IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL',"
+                    + "'IVR_WRONG_INPUT') AND recommended_core_action = "
+                    + "'NO_STATE_CHANGE_WAIT_FOR_TIMEOUT')"
+                    + " OR (result_type = 'IVR_CONFIRMATION_WINDOW_EXPIRED' AND "
+                    + "recommended_core_action IN ('REVALIDATE_AND_EXPIRE_CONFIRMATION',"
+                    + "'REVALIDATE_AND_HOLD_ADMIN_REVIEW'))"
+                    + " OR (result_type IN ('IVR_INVALID_PHONE_FINAL','IVR_TECHNICAL_EXCEPTION',"
+                    + "'IVR_CAPACITY_EXCEPTION') AND recommended_core_action = "
+                    + "'REVALIDATE_AND_HOLD_ADMIN_REVIEW')");
             });
         builder.HasKey(entity => entity.IvrCallResultId);
         builder.HasOne<CallJobEntity>()
@@ -432,10 +446,9 @@ internal static class PersistenceModelConfiguration
                 table.HasCheckConstraint(
                     "ck_ivr_result_callbacks_result_status",
                     "result_status IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED',"
-                    + "'IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL',"
+                    + "'IVR_NO_ANSWER_FINAL',"
                     + "'IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL',"
-                    + "'IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION',"
-                    + "'IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
+                    + "'IVR_CAPACITY_EXCEPTION')");
                 table.HasCheckConstraint(
                     "ck_ivr_result_callbacks_result_state",
                     "result_state IN ('PENDING_CORE_REVALIDATION')");

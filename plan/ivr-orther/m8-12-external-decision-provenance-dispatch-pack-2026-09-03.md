@@ -2,6 +2,9 @@
 
 Work: `W-0152` · ngày lập: `2026-09-03`
 
+Pin rotation hiện hành: `W-0170` ngày `2026-09-04`. Bản W-0152 gốc và hash cũ vẫn được giữ
+trong git history; rotation chỉ thay artifact `OD-18` đã được sửa liên kết tới tài liệu superseded.
+
 Baseline code được audit: `main@b21ec676e490`
 
 Trạng thái:
@@ -25,7 +28,7 @@ Phần tự chủ còn lại của `C5` đã được gom thành một đầu m�
 
 Hash được tính trên byte hiện tại của từng artifact. Nếu một artifact đổi dù chỉ một byte, chữ ký
 gắn với hash cũ không còn dùng được; phải tạo hash mới và yêu cầu signer xác nhận lại exact version.
-Manifest máy đọc nằm tại `docs/evidence/W-0152/artifact-sha256.txt`.
+Manifest máy đọc hiện hành nằm tại `docs/evidence/W-0170/artifact-sha256.txt`.
 
 ## 2. Dispatch matrix chuẩn
 
@@ -47,10 +50,10 @@ Manifest máy đọc nằm tại `docs/evidence/W-0152/artifact-sha256.txt`.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `plan/ivr-orther/questions-to-module-3-od18-authority.md` | `62e4be4eec391ceea5f9c3a4cab63c8d941b29eeb6a8f856cfef3b9ccf3248d4` |
+| `plan/ivr-orther/questions-to-module-3-od18-authority.md` | `fed2fe7a68dc41ac6f658fc6479163ac89e007e1ea1b6fa0126522bab54c6b0d` |
 | `plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md` | `6525d2df4ef0894ded69190e3d72af1e2482e752cbba5ae63b5520a43318a540` |
 | `plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md` | `a742a657d88eba2c876257a3296149063349d3138cefe6383bc1c4f5a44ab85e` |
-| `plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md` | `72ddb92347fc88fad8607d2f9ceef40546274f828642a041fe021049c6a7e426` |
+| `plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md` | `c4bb79fa8b06c0f06a8b959b698084f9d02444a5cb1a25e14413b87ae74c1aa0` |
 | `plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md` | `ec0c4e9be8500b094295a66809a8994f5c2724a74bff05f299b87fdb8becd047` |
 | `plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md` | `3d95031375026d7fd7c902ca17cded084eb789fc300df2af975194fd6af8e820` |
 | `plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md` | `816392f8ae8b8b486564dd282ddf8e2e9d639936d4bca4f2e0df013f23cb6249` |
@@ -88,7 +91,7 @@ Mỗi signer trả một record cho đúng sheet và exact hash:
 | --- | --- |
 | Sheet / decision IDs | `S-xx` + `OD/OPT/RVK/DTK/ATP/T-xx` áp dụng |
 | Decision | Giá trị dứt khoát; không dùng “OK”, “tùy dev” hoặc im lặng |
-| Signer identity | Họ tên hoặc định danh tổ chức có thể kiểm chứng |
+| Signer identity | Họ tên hoặc định danh đơn vị có thể kiểm chứng |
 | Role / organization | Vai trò và đơn vị chịu trách nhiệm cho quyết định |
 | Authority source | Charter, ticket, role assignment hoặc approval chain trao quyền ký |
 | Artifact path + SHA-256 | Exact artifact/hash mà signer đã đọc và chấp nhận |

@@ -4,7 +4,7 @@
 
 **Baseline kiểm tra:** `main@b21ec676e490`
 
-**Trạng thái:** **`M8_LOCAL_CALLBACK_READY / RETRY_AFTER_FIXED / M3_SECURITY_PLATFORM_REQUIRED / SHARED_E2E_NOT_RUN / DELIVERY_DISABLED`**
+**Trạng thái:** **`M8_LOCAL_CALLBACK_READY / RETRY_AFTER_FIXED / ACK_MEDIA_FAIL_CLOSED_W0173 / OFFLINE_REPORT_VALIDATOR_READY_W0174 / M3_SECURITY_PLATFORM_REQUIRED / SHARED_E2E_NOT_RUN / DELIVERY_DISABLED`**
 
 **Người ký phía Module 8:** **Tôi — Module 8 / Project Owner** · **2026-09-03**
 
@@ -26,7 +26,11 @@
 4. W-0147 đã sửa lỗi local: response `429` trước đây bị coi retryable nhưng bỏ qua
    `Retry-After`. Runtime nay mang server delay sang dispatcher và không retry trước thời điểm đó;
    nếu header vắng/không dương thì dùng bounded exponential backoff + jitter hiện có.
-5. Real `TARGET_V1` vẫn bị validator từ chối boot. Không được gỡ guard này trước khi có đủ
+5. W-0173 đã sửa lỗi local thứ hai: ACK `200/409` malformed hoặc sai media type không còn bị biến
+   thành transient retry; nó đi terminal `CALLBACK_ACK_INVALID` và giữ HTTP status để audit.
+6. W-0174 đã thêm validator offline cho report shared E2E: exact M8/M3 SHA, OAS/auth/platform hash,
+   đủ 11 case cùng candidate và năm sign-off. PASS chỉ là đủ điều kiện review guard, không tự gỡ.
+7. Real `TARGET_V1` vẫn bị validator từ chối boot. Không được gỡ guard này trước khi có đủ
    consumer/auth/sandbox/shared E2E và approval đúng owner.
 
 ## 2. Current callback path đã đối chiếu
@@ -68,6 +72,15 @@ sở hữu. Source hiện hành chỉ có outbound transport, fake fixture và a
 Phạm vi impact đã được cảnh báo trước sửa: GitNexus xếp `ClassifyAsync` và `CreateUpdate` **HIGH**,
 ảnh hưởng chuỗi transport → dispatcher → worker cùng chaos flow. Thay đổi không chạm producer,
 payload schema, order state hoặc production enablement.
+
+### Follow-up W-0173 — malformed/media-type ACK
+
+`ReadFromJsonAsync` ném `NotSupportedException` với ACK như `text/html`; trước đó exception thoát khỏi
+transport và dispatcher retry như lỗi bất ngờ. W-0173 thêm parse boundary fail-closed cho cả
+`JsonException` và `NotSupportedException`, trả `CALLBACK_ACK_INVALID` với HTTP status gốc. Test
+`UT-CALLBACK-ACK-MEDIA-02C` phủ `200 text/html` và `409` JSON bị cắt; focused callback `40/40`, full
+Unit `499/499`, Contract `24/24`, build 0 warning/error. Current PostgreSQL/Chaos rerun không chạy
+được vì Docker server pipe vắng; bằng chứng W-0162 `7/7 + 8/8` giữ nguyên ở baseline lịch sử riêng.
 
 ## 4. ACK và retry contract phía M8 đã khóa
 
@@ -134,6 +147,18 @@ WireMock **không** phải artifact chấp nhận.
 Report phải ghim exact SHA repo M8 và M3, environment/config version, thời gian, request/ACK đã che
 secret, các state row trước/sau và kết quả từng case. Selected green cases không được đổi thành
 “shared E2E pass”.
+
+### 6.1. Intake report offline — W-0174
+
+- Template pending: [`shared-e2e-report.template.json`](../../docs/evidence/W-0174/shared-e2e-report.template.json).
+- Validator: [`target-v1-shared-e2e-report-validator.mjs`](../../deploy/ci/scripts/target-v1-shared-e2e-report-validator.mjs).
+- Evidence/hướng dẫn: [`W-0174`](../../docs/evidence/W-0174/README.md).
+- Chế độ report thật bắt buộc reviewer truyền độc lập exact M8/M3 SHA và hash M3 OAS,
+  consumer/CDC, Security auth/custody, Platform sandbox/network/TLS.
+- Local verification: `1 valid / 46 refusal`; template đủ `11/11` case nhưng giữ
+  `EXTERNAL_E2E_NOT_RUN`.
+- Output PASS là `SHARED_E2E_REPORT_VALID_ELIGIBLE_FOR_GUARD_REVIEW_ONLY`; không phải lệnh gỡ
+  guard, enable production hoặc cho phép gọi khách thật.
 
 ## 7. Điều kiện gỡ fail-closed delivery guard
 

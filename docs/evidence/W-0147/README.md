@@ -4,8 +4,8 @@ Ngày: `2026-09-03`
 
 Baseline: `main@b21ec676e490`
 
-Trạng thái: **`M8_LOCAL_CALLBACK_READY / RETRY_AFTER_FIXED / LOCAL_POSTGRES_CHAOS_PASS /
-M3_SECURITY_PLATFORM_REQUIRED / SHARED_E2E_NOT_RUN`**
+Trạng thái: **`M8_LOCAL_CALLBACK_READY / RETRY_AFTER_FIXED / ACK_MEDIA_FAIL_CLOSED_W0173 /
+LOCAL_POSTGRES_CHAOS_PASS_HISTORICAL / M3_SECURITY_PLATFORM_REQUIRED / SHARED_E2E_NOT_RUN`**
 
 Người ký phía M8: **Tôi — Module 8 / Project Owner**.
 
@@ -52,6 +52,11 @@ Test mới:
 - `UT-CALLBACK-RETRY-AFTER-02B` — transport giữ `Retry-After`;
 - `UT-CALLBACK-RETRY-AFTER-09B` — `next_retry_at` không sớm hơn server delay.
 
+Follow-up `W-0173` phát hiện ACK `200/409` có media type không hỗ trợ từng thoát khỏi transport và
+bị dispatcher coi là transient unexpected failure. `ReadAckAsync<T>` nay fail-closed cả JSON hỏng
+và unsupported media thành `CALLBACK_ACK_INVALID`, giữ HTTP status và không retry. Negative test
+`UT-CALLBACK-ACK-MEDIA-02C` khóa `200 text/html` cùng `409` JSON bị cắt.
+
 ## 4. Artifact cập nhật
 
 - `src/Ivr.Infrastructure/Callbacks/CallbackDeliveryModels.cs`
@@ -65,15 +70,15 @@ Test mới:
 
 | Gate | Kết quả |
 | --- | --- |
-| Callback unit tests | **PASS** — 38/38 |
+| Callback unit tests | **PASS** — 40/40 tại W-0173 |
 | Sales callback contract tests | **PASS** — 20/20 |
 | Release build | **PASS** — 0 warning, 0 error |
 | C# format | **PASS** — modified source/tests clean |
-| Full local Unit / Contract | **PASS** — 497/497 + 24/24 |
-| PostgreSQL callback/chaos | **PASS_LOCAL** — W-0162 focused callback PostgreSQL `7/7` + full Chaos `8/8`, 0 fail/skip; Docker/Testcontainers assertions đã chạy thật |
+| Full local Unit / Contract | **PASS** — 499/499 + 24/24 tại W-0173 |
+| PostgreSQL callback/chaos | **PASS_LOCAL_HISTORICAL** — W-0162 focused callback PostgreSQL `7/7` + full Chaos `8/8`; current W-0173 rerun `ENV_BLOCKED/NOT_RUN assertions` vì Docker server pipe không có |
 | OpenAPI | **PASS** — lint 2 spec; parse 2; task fixture 9; schema negative 12; domain negative 13; compat 1; invalid OAS rejected; 3 pinned hash current |
 | API docs | **PASS** — 14 generated artifact; boundary/link/topology/PII gates pass |
-| Test traceability | **PASS** — regenerated/current 476 tagged test |
+| Test traceability | **PASS** — regenerated/current 477 tagged test |
 | Official Markdown map | **PASS** — 625 Markdown file; W-0147 evidence/handoff 0 unresolved |
 | Gate mirror/readiness | **PASS** — 11 gate, 145 work item, 23 open decision; rung 0; production flag false |
 | `git diff --check` | **PASS** |

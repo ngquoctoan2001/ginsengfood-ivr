@@ -12,6 +12,8 @@ using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 
@@ -430,8 +432,6 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
     [Trait("TestId", "IT-SCH-COUNTED-13")]
     [InlineData("IVR_TECHNICAL_EXCEPTION")]
     [InlineData("IVR_CAPACITY_EXCEPTION")]
-    [InlineData("IVR_OPERATIONAL_BLOCKED")]
-    [InlineData("IVR_POLICY_BLOCKED")]
     public async Task ANonCustomerResultCannotBeStoredAsACustomerAttempt(string resultType)
     {
         await fixture.ResetAsync();
@@ -456,7 +456,7 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
             FinalResultStatus = resultType,
             ResultType = resultType,
             IsCountedCustomerAttempt = true,
-            IsFinalForIvr = true,
+            IsFinalForIvr = resultType == "IVR_CAPACITY_EXCEPTION",
             RecommendedCoreAction = "REVALIDATE_AND_HOLD_ADMIN_REVIEW",
             CoreOrderHandoffRequired = true,
             HumanReviewRequired = true,
@@ -468,7 +468,158 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
 
         PostgresException rejected = Assert.IsType<PostgresException>(failure.InnerException);
         Assert.Equal(PostgresErrorCodes.CheckViolation, rejected.SqlState);
-        Assert.Equal("ck_ivr_call_results_non_customer_not_counted", rejected.ConstraintName);
+        Assert.Equal("ck_ivr_call_results_counted_matches_type", rejected.ConstraintName);
+    }
+
+    [Theory]
+    [Trait("TestId", "IT-RESULT-CONTRACT-PRECALL-17")]
+    [InlineData("IVR_OPERATIONAL_BLOCKED")]
+    [InlineData("IVR_POLICY_BLOCKED")]
+    public async Task APreCallCompatibilityValueCannotBeStoredAsACallResult(string resultType)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-RESULT-PRECALL-17",
+            "JOB-RESULT-PRECALL-17",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+
+        await using IvrDbContext seed = await factory.CreateDbContextAsync();
+        CallJobEntity job = await seed.CallJobs.SingleAsync();
+        seed.CallResults.Add(CreateResult(
+            job,
+            string.Concat("RESULT-PRECALL-17-", resultType),
+            resultType,
+            counted: false,
+            final: false));
+
+        DbUpdateException failure = await Assert.ThrowsAsync<DbUpdateException>(
+            () => seed.SaveChangesAsync());
+        PostgresException rejected = Assert.IsType<PostgresException>(failure.InnerException);
+
+        Assert.Equal(PostgresErrorCodes.CheckViolation, rejected.SqlState);
+        Assert.True(
+            rejected.ConstraintName is "ck_ivr_call_results_result_type"
+                or "ck_ivr_call_results_counted_matches_type"
+                or "ck_ivr_call_results_finality_matches_type"
+                or "ck_ivr_call_results_action_matches_type",
+            $"Unexpected constraint: {rejected.ConstraintName}");
+    }
+
+    [Theory]
+    [Trait("TestId", "IT-RESULT-CONTRACT-FINALITY-18")]
+    [InlineData("IVR_CONFIRMED", true, false)]
+    [InlineData("IVR_WRONG_INPUT", true, true)]
+    public async Task ResultFinalityMustMatchTheClosedTaxonomy(
+        string resultType,
+        bool counted,
+        bool final)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-RESULT-FINALITY-18",
+            "JOB-RESULT-FINALITY-18",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+
+        await using IvrDbContext seed = await factory.CreateDbContextAsync();
+        CallJobEntity job = await seed.CallJobs.SingleAsync();
+        seed.CallResults.Add(CreateResult(
+            job,
+            string.Concat("RESULT-FINALITY-18-", resultType),
+            resultType,
+            counted,
+            final));
+
+        DbUpdateException failure = await Assert.ThrowsAsync<DbUpdateException>(
+            () => seed.SaveChangesAsync());
+        PostgresException rejected = Assert.IsType<PostgresException>(failure.InnerException);
+
+        Assert.Equal(PostgresErrorCodes.CheckViolation, rejected.SqlState);
+        Assert.Equal("ck_ivr_call_results_finality_matches_type", rejected.ConstraintName);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-RESULT-CONTRACT-ACTION-19")]
+    public async Task RecommendedCoreActionMustMatchTheResultType()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-RESULT-ACTION-19",
+            "JOB-RESULT-ACTION-19",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+
+        await using IvrDbContext seed = await factory.CreateDbContextAsync();
+        CallJobEntity job = await seed.CallJobs.SingleAsync();
+        CallResultEntity result = CreateResult(
+            job,
+            "RESULT-ACTION-19",
+            "IVR_CONFIRMED",
+            counted: true,
+            final: true);
+        result.RecommendedCoreAction = "REVALIDATE_AND_HOLD_ADMIN_REVIEW";
+        seed.CallResults.Add(result);
+
+        DbUpdateException failure = await Assert.ThrowsAsync<DbUpdateException>(
+            () => seed.SaveChangesAsync());
+        PostgresException rejected = Assert.IsType<PostgresException>(failure.InnerException);
+
+        Assert.Equal(PostgresErrorCodes.CheckViolation, rejected.SqlState);
+        Assert.Equal("ck_ivr_call_results_action_matches_type", rejected.ConstraintName);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-RESULT-CONTRACT-OUTBOX-19")]
+    public async Task CallbackOutboxAcceptsOnlyTheSixFinalResultTypes()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-RESULT-OUTBOX-19",
+            "JOB-RESULT-OUTBOX-19",
+            Now.AddMinutes(-5),
+            expiresAt: Now);
+
+        await using IvrDbContext seed = await factory.CreateDbContextAsync();
+        CallJobEntity job = await seed.CallJobs.SingleAsync();
+        CallResultEntity result = CreateResult(
+            job,
+            "RESULT-OUTBOX-19",
+            "IVR_CONFIRMED",
+            counted: true,
+            final: true);
+        seed.CallResults.Add(result);
+        await seed.SaveChangesAsync();
+        seed.ResultCallbacks.Add(new ResultCallbackEntity
+        {
+            CallbackId = "CALLBACK-OUTBOX-19",
+            IvrCallResultId = result.IvrCallResultId,
+            TaskId = job.TaskId,
+            OfficialOrderId = job.OfficialOrderId,
+            IdempotencyKey = "callback-outbox-19",
+            ResultStatus = "IVR_WRONG_INPUT",
+            ResultState = "PENDING_CORE_REVALIDATION",
+            DeliveryStatus = "READY",
+            RequiresCoreRevalidation = true,
+            PayloadJson = "{}",
+            PayloadSha256 = new string('A', 64),
+            CreatedAt = Now,
+        });
+
+        DbUpdateException failure = await Assert.ThrowsAsync<DbUpdateException>(
+            () => seed.SaveChangesAsync());
+        PostgresException rejected = Assert.IsType<PostgresException>(failure.InnerException);
+
+        Assert.Equal(PostgresErrorCodes.CheckViolation, rejected.SqlState);
+        Assert.Equal("ck_ivr_result_callbacks_result_status", rejected.ConstraintName);
     }
 
     /// <summary>
@@ -485,8 +636,6 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
     [Trait("TestId", "IT-SCH-COUNTED-15")]
     [InlineData("IVR_TECHNICAL_EXCEPTION")]
     [InlineData("IVR_CAPACITY_EXCEPTION")]
-    [InlineData("IVR_OPERATIONAL_BLOCKED")]
-    [InlineData("IVR_POLICY_BLOCKED")]
     public async Task ANonCustomerAttemptCannotBeStoredAsACustomerAttempt(string resultStatus)
     {
         await fixture.ResetAsync();
@@ -521,7 +670,60 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
 
         PostgresException rejected = Assert.IsType<PostgresException>(failure.InnerException);
         Assert.Equal(PostgresErrorCodes.CheckViolation, rejected.SqlState);
-        Assert.Equal("ck_ivr_call_attempts_non_customer_not_counted", rejected.ConstraintName);
+        Assert.Equal("ck_ivr_call_attempts_counted_matches_type", rejected.ConstraintName);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-RESULT-CONTRACT-PREFLIGHT-20")]
+    public async Task MigrationPreflightNamesLegacyRowsThatViolateTheSignedTaxonomy()
+    {
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        try
+        {
+            await using IvrDbContext migration = await factory.CreateDbContextAsync();
+            await migration.Database.EnsureDeletedAsync();
+            string[] migrations = [.. migration.Database.GetMigrations()];
+            int targetIndex = Array.FindIndex(
+                migrations,
+                item => item.EndsWith(
+                    "_W0172ProgramResultContractInvariants",
+                    StringComparison.Ordinal));
+            Assert.True(targetIndex > 0);
+            string previous = migrations[targetIndex - 1];
+            string target = migrations[targetIndex];
+            await migration.GetService<IMigrator>().MigrateAsync(previous);
+
+            await SeedReadyJobAsync(
+                factory,
+                "TASK-RESULT-PREFLIGHT-20",
+                "JOB-RESULT-PREFLIGHT-20",
+                Now.AddMinutes(-5),
+                expiresAt: Now);
+            await using IvrDbContext legacy = await factory.CreateDbContextAsync();
+            CallJobEntity job = await legacy.CallJobs.SingleAsync();
+            legacy.CallResults.Add(CreateResult(
+                job,
+                "RESULT-PREFLIGHT-20",
+                "IVR_CONFIRMED",
+                counted: false,
+                final: true));
+            await legacy.SaveChangesAsync();
+
+            PostgresException blocked = await Assert.ThrowsAsync<PostgresException>(
+                () => legacy.GetService<IMigrator>().MigrateAsync(target));
+
+            Assert.Equal(PostgresErrorCodes.CheckViolation, blocked.SqlState);
+            Assert.Contains(
+                "W-0172 program/result preflight blocked",
+                blocked.MessageText,
+                StringComparison.Ordinal);
+            Assert.Contains("result:RESULT-PREFLIGHT-20", blocked.MessageText, StringComparison.Ordinal);
+            Assert.Equal(previous, (await legacy.Database.GetAppliedMigrationsAsync()).Last());
+        }
+        finally
+        {
+            await fixture.ResetAsync();
+        }
     }
 
     /// <summary>
@@ -1211,6 +1413,34 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
 
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services
         .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+
+    private static CallResultEntity CreateResult(
+        CallJobEntity job,
+        string resultId,
+        string resultType,
+        bool counted,
+        bool final) => new()
+        {
+            IvrCallResultId = resultId,
+            IvrCallJobId = job.IvrCallJobId,
+            TaskId = job.TaskId,
+            OfficialOrderId = job.OfficialOrderId,
+            OrderVersionSnapshot = job.OrderVersionSnapshot,
+            OrderVersionSeenByIvr = job.OrderVersionSnapshot ?? "1",
+            FinalResultStatus = resultType,
+            ResultType = resultType,
+            IsCountedCustomerAttempt = counted,
+            IsFinalForIvr = final,
+            RecommendedCoreAction = resultType switch
+            {
+                "IVR_CONFIRMED" => "REVALIDATE_AND_CONFIRM_ORDER",
+                "IVR_WRONG_INPUT" => "NO_STATE_CHANGE_WAIT_FOR_TIMEOUT",
+                _ => "REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+            },
+            CoreOrderHandoffRequired = final,
+            HumanReviewRequired = false,
+            CreatedAt = Now,
+        };
 
     private static async Task SeedReadyJobAsync(
         IDbContextFactory<IvrDbContext> factory,

@@ -4,11 +4,11 @@
   "status": "PENDING_OWNER_INPUT",
   "source": {
     "dispatch_pack_path": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
-    "dispatch_pack_sha256": "691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0",
-    "artifact_manifest_path": "docs/evidence/W-0152/artifact-sha256.txt",
-    "artifact_manifest_sha256": "49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406",
+    "dispatch_pack_sha256": "9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499",
+    "artifact_manifest_path": "docs/evidence/W-0170/artifact-sha256.txt",
+    "artifact_manifest_sha256": "3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471",
     "message_kit_path": "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
-    "message_kit_sha256": "261b33fd4832793240b837e090efe7424929278d454da98a9a454cfdcfacc103"
+    "message_kit_sha256": "95632b90ab99df6892ba6f0a231e9429c5021fd200d982609c52584e1b920ca3"
   },
   "batches": [
     {

@@ -70,6 +70,13 @@ public sealed class RollingDeploySchemaCompatibilityTests
             ["20260827024438_W0118AttemptCountedInvariant::AddCheckConstraint::ivr_call_attempts.is_counted_customer_attempt+result_status"] = AttemptCountedReason,
             ["20260828040458_W0122DropConsoleAccounts::DropTable::ivr_console_accounts"] = ConsoleRetirementReason,
             ["20260828040458_W0122DropConsoleAccounts::DropTable::ivr_console_sessions"] = ConsoleRetirementReason,
+            ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_attempts.is_counted_customer_attempt+result_status"] = ProgramResultReason,
+            ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_attempts.result_status"] = ProgramResultReason,
+            ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_results.is_counted_customer_attempt+result_type"] = ProgramResultReason,
+            ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_results.is_final_for_ivr+result_type"] = ProgramResultReason,
+            ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_results.recommended_core_action+result_type"] = ProgramResultReason,
+            ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_results.result_type"] = ProgramResultReason,
+            ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_result_callbacks.result_status"] = ProgramResultReason,
         }.ToFrozenDictionary(StringComparer.Ordinal);
 
     private const string EnumReason =
@@ -113,6 +120,14 @@ public sealed class RollingDeploySchemaCompatibilityTests
         + "migration and needs these tables, so the rolling-deploy hazard the rule protects "
         + "against cannot arise. Deploy note: this one is not safe to roll back past, and Down "
         + "restores the empty shape rather than the accounts.";
+
+    private const string ProgramResultReason =
+        "W-0172 narrows the stored result vocabulary to the nine runtime producers and the "
+        + "callback outbox to the six final producers signed in W-0145. The N-1 normalizer, "
+        + "scheduler sweep, telephony updater and admin technical-retry path were audited: each "
+        + "writes result type, counted and finality from the same normalized decision; pre-call "
+        + "operational/policy blocks are never result rows. The migration preflights all attempt, "
+        + "result and callback rows and names any offender before replacing the constraints.";
 
     private const string ResultEqualityReason =
         "W-0115 preflights existing rows; both N-1 writers assign final_result_status and "

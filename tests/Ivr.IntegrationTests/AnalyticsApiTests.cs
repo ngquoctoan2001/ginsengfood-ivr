@@ -402,7 +402,7 @@ public sealed class AnalyticsApiTests(PostgresPersistenceFixture fixture)
             FinalResultStatus = resultType,
             ResultType = resultType,
             IsCountedCustomerAttempt = resultType != "IVR_TECHNICAL_EXCEPTION",
-            IsFinalForIvr = true,
+            IsFinalForIvr = resultType != "IVR_TECHNICAL_EXCEPTION",
             RecommendedCoreAction = resultType switch
             {
                 "IVR_CONFIRMED" => "REVALIDATE_AND_CONFIRM_ORDER",

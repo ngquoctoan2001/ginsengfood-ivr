@@ -1397,11 +1397,11 @@ namespace Ivr.Infrastructure.Persistence.Migrations
 
                     b.ToTable("ivr_call_attempts", null, t =>
                         {
-                            t.HasCheckConstraint("ck_ivr_call_attempts_non_customer_not_counted", "result_status IS NULL OR result_status NOT IN ('IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION','IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED') OR is_counted_customer_attempt IS FALSE");
+                            t.HasCheckConstraint("ck_ivr_call_attempts_counted_matches_type", "result_status IS NULL OR (is_counted_customer_attempt IS TRUE AND result_status IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_WRONG_INPUT')) OR (is_counted_customer_attempt IS FALSE AND result_status IN ('IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION'))");
 
                             t.HasCheckConstraint("ck_ivr_call_attempts_number_snapshot", "attempt_number >= 1 AND attempt_number <= max_attempts_snapshot AND max_attempts_snapshot BETWEEN 1 AND 10");
 
-                            t.HasCheckConstraint("ck_ivr_call_attempts_result_status", "result_status IS NULL OR result_status IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION','IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
+                            t.HasCheckConstraint("ck_ivr_call_attempts_result_status", "result_status IS NULL OR result_status IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION')");
 
                             t.HasCheckConstraint("ck_ivr_call_attempts_retry_nonnegative", "technical_retry_count >= 0");
 
@@ -1748,11 +1748,15 @@ namespace Ivr.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("ck_ivr_call_results_final_matches_type", "final_result_status = result_type");
 
-                            t.HasCheckConstraint("ck_ivr_call_results_non_customer_not_counted", "result_type NOT IN ('IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION','IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED') OR is_counted_customer_attempt IS FALSE");
+                            t.HasCheckConstraint("ck_ivr_call_results_counted_matches_type", "(is_counted_customer_attempt IS TRUE AND result_type IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_WRONG_INPUT')) OR (is_counted_customer_attempt IS FALSE AND result_type IN ('IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION'))");
+
+                            t.HasCheckConstraint("ck_ivr_call_results_action_matches_type", "(result_type = 'IVR_CONFIRMED' AND recommended_core_action = 'REVALIDATE_AND_CONFIRM_ORDER') OR (result_type = 'IVR_CUSTOMER_CANCELLED' AND recommended_core_action = 'REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST') OR (result_type IN ('IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_WRONG_INPUT') AND recommended_core_action = 'NO_STATE_CHANGE_WAIT_FOR_TIMEOUT') OR (result_type = 'IVR_CONFIRMATION_WINDOW_EXPIRED' AND recommended_core_action IN ('REVALIDATE_AND_EXPIRE_CONFIRMATION','REVALIDATE_AND_HOLD_ADMIN_REVIEW')) OR (result_type IN ('IVR_INVALID_PHONE_FINAL','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION') AND recommended_core_action = 'REVALIDATE_AND_HOLD_ADMIN_REVIEW')");
+
+                            t.HasCheckConstraint("ck_ivr_call_results_finality_matches_type", "(is_final_for_ivr IS TRUE AND result_type IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_FINAL','IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_CAPACITY_EXCEPTION')) OR (is_final_for_ivr IS FALSE AND result_type IN ('IVR_NO_ANSWER_ATTEMPT','IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION'))");
 
                             t.HasCheckConstraint("ck_ivr_call_results_recommended_core_action", "recommended_core_action IN ('REVALIDATE_AND_CONFIRM_ORDER','REVALIDATE_AND_CANCEL_CUSTOMER_REQUEST','NO_STATE_CHANGE_WAIT_FOR_TIMEOUT','REVALIDATE_AND_EXPIRE_CONFIRMATION','REVALIDATE_AND_HOLD_ADMIN_REVIEW','IGNORE_STALE_CALLBACK','BLOCK_DUE_TO_OPERATIONAL_CONSTRAINT')");
 
-                            t.HasCheckConstraint("ck_ivr_call_results_result_type", "result_type IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION','IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
+                            t.HasCheckConstraint("ck_ivr_call_results_result_type", "result_type IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION')");
 
                             t.HasCheckConstraint("ck_ivr_call_results_signal_only", "input_signal_only IS TRUE AND no_direct_order_update IS TRUE AND no_payment_or_revenue_effect IS TRUE");
                         });
@@ -2597,7 +2601,7 @@ namespace Ivr.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_ivr_result_callbacks_result_state", "result_state IN ('PENDING_CORE_REVALIDATION')");
 
-                            t.HasCheckConstraint("ck_ivr_result_callbacks_result_status", "result_status IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_ATTEMPT','IVR_NO_ANSWER_FINAL','IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_WRONG_INPUT','IVR_TECHNICAL_EXCEPTION','IVR_CAPACITY_EXCEPTION','IVR_OPERATIONAL_BLOCKED','IVR_POLICY_BLOCKED')");
+                            t.HasCheckConstraint("ck_ivr_result_callbacks_result_status", "result_status IN ('IVR_CONFIRMED','IVR_CUSTOMER_CANCELLED','IVR_NO_ANSWER_FINAL','IVR_CONFIRMATION_WINDOW_EXPIRED','IVR_INVALID_PHONE_FINAL','IVR_CAPACITY_EXCEPTION')");
 
                             t.HasCheckConstraint("ck_ivr_result_callbacks_retry_nonnegative", "retry_count >= 0");
 

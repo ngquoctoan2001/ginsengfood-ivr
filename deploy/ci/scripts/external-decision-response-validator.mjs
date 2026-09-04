@@ -24,10 +24,10 @@ const SOURCE_PINS = Object.freeze({
   dispatch_pack_path:
     "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
   dispatch_pack_sha256:
-    "691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0",
-  artifact_manifest_path: "docs/evidence/W-0152/artifact-sha256.txt",
+    "9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499",
+  artifact_manifest_path: "docs/evidence/W-0170/artifact-sha256.txt",
   artifact_manifest_sha256:
-    "49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406",
+    "3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471",
 });
 
 const DISPATCH_PACK = SOURCE_PINS.dispatch_pack_path;

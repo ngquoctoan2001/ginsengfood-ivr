@@ -4,6 +4,9 @@ Ngày: `2026-09-03`
 
 Baseline: `main@b21ec676e490`
 
+> Pin rotation W-0170 (`2026-09-04`): current response input dùng manifest
+> `docs/evidence/W-0170/artifact-sha256.txt`; hash W-0165 gốc bên dưới được supersede bởi bảng current.
+
 Trạng thái: **`TESTS_PASS_LOCAL / RESPONSE_PROVENANCE_VALIDATOR_READY /
 EXTERNAL_RESPONSES_NOT_RECEIVED / EXTERNAL_AUTHORITY_UNVERIFIED /
 W-0163_BLOCKED_EXTERNAL / NO_GATE_PROMOTION`**
@@ -80,8 +83,8 @@ JSON, oversized input và path ngoài root.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `deploy/ci/scripts/external-decision-response-validator.mjs` | `746a4ced431ca06736d95ce979c8803958623606b964c930a4d8953b7ed83f8b` |
-| `decision-response-input.template.json` | `bd1008b6057d0dd2c0bde2951372a27b4984859b6474421ff58a84733a99dc8e` |
+| `deploy/ci/scripts/external-decision-response-validator.mjs` | `1d14a46eeceb4a59586e23cd84668be50836831ef71c3a50c53a85386d72e1dc` |
+| `decision-response-input.template.json` | `5e19f8a9342135ecb503050cc208262c8b4081b2a96007d381124c191d6437da` |
 
 ## 5. Impact và non-inference
 

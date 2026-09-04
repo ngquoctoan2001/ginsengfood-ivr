@@ -101,6 +101,32 @@ public sealed class CallbackDeliveryTests
         Assert.Equal(TimeSpan.FromSeconds(3), result.RetryAfter);
     }
 
+    [Theory]
+    [Trait("TestId", "UT-CALLBACK-ACK-MEDIA-02C")]
+    [InlineData(200, "text/html", "<html>not-an-ack</html>")]
+    [InlineData(409, "application/json", "{")]
+    public async Task MalformedOrUnsupportedAckIsTerminalInvalid(
+        int status,
+        string mediaType,
+        string responseBody)
+    {
+        CallbackOutboxMessage message = CreateMessage();
+        using ScriptedHandler handler = new(_ => new HttpResponseMessage((HttpStatusCode)status)
+        {
+            Content = new StringContent(responseBody, Encoding.UTF8, mediaType),
+        });
+        using TargetTransportHarness harness = CreateTargetTransport(handler);
+
+        CallbackTransportResult result = await harness.Transport.SendAsync(
+            message,
+            CancellationToken.None);
+
+        Assert.Equal(CallbackTransportOutcome.Invalid, result.Outcome);
+        Assert.Equal(status, result.HttpStatus);
+        Assert.Equal("CALLBACK_ACK_INVALID", result.Code);
+        Assert.Null(result.RetryAfter);
+    }
+
     [Fact]
     [Trait("TestId", "UT-CALLBACK-TIMEOUT-03")]
     public async Task TargetTimeoutIsRetryableWithoutLeakingTransportDetails()

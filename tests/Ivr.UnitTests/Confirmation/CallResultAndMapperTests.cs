@@ -46,18 +46,16 @@ public sealed class CallResultAndMapperTests
     [Theory]
     [InlineData(IvrResultType.IvrOperationalBlocked)]
     [InlineData(IvrResultType.IvrPolicyBlocked)]
-    public void PreCallBlockedTaxonomyCannotBeSentAsAnIvrCallback(IvrResultType resultType)
+    public void PreCallBlockedTaxonomyCannotBecomeACallResult(IvrResultType resultType)
     {
-        CallResultSnapshot reserved = TestData.Result(
-            resultType,
-            counted: false,
-            CoreActionRecommendation.RevalidateAndHoldAdminReview);
-
         InvalidOperationException failure = Assert.Throws<InvalidOperationException>(
-            () => TargetV1CallbackMapper.ToSalesWire(reserved));
+            () => TestData.Result(
+                resultType,
+                counted: false,
+                CoreActionRecommendation.RevalidateAndHoldAdminReview));
 
         Assert.Equal(
-            "Pre-call operational and policy blocks are not IVR callback results.",
+            "Pre-call operational and policy blocks cannot become IVR call results.",
             failure.Message);
     }
 
@@ -122,7 +120,7 @@ public sealed class CallResultAndMapperTests
             CurrentGoldenHourCompatMapper.ToCompatibilityWire(
                 identity,
                 TestData.Result(
-                    IvrResultType.IvrPolicyBlocked,
+                    IvrResultType.IvrCapacityException,
                     counted: false,
                     CoreActionRecommendation.RevalidateAndHoldAdminReview),
                 "idempotency-3"));

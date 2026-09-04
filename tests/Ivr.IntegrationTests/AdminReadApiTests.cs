@@ -116,7 +116,7 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal(1, dashboard.Results.By_result_type["IVR_NO_ANSWER_FINAL"]);
 
         Assert.Equal(3, dashboard.Attempts.Total);
-        Assert.Equal(1, dashboard.Attempts.Counted_customer_attempts);
+        Assert.Equal(2, dashboard.Attempts.Counted_customer_attempts);
         Assert.Equal(1, dashboard.Attempts.Technical_retries);
 
         Assert.Equal(2, dashboard.Sim.Total);
@@ -633,7 +633,7 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
                 ScheduledWindowExpiresAt = Now.AddHours(4),
                 Status = "NORMALIZED_FINAL",
                 ResultStatus = "IVR_NO_ANSWER_FINAL",
-                IsCountedCustomerAttempt = false,
+                IsCountedCustomerAttempt = true,
                 NoAnswer = true,
                 PolicyVersion = "247-v1-candidate",
                 ScriptVersion = "v1-test-approved",

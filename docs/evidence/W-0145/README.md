@@ -96,3 +96,11 @@ M8 đã ký phần receiver/result semantics và stop rule. Bên giao task khôn
 xuôi, mock test phía IVR hoặc một bảng mapping không có commit/CDC đều bị từ chối.
 
 **Người ký:** **Tôi — Module 8 / Project Owner** · **03/09/2026**.
+
+## 8. Local hardening follow-up — W-0172
+
+Ngày `04/09/2026`, W-0172 bổ sung domain/outbox/DB invariants cho đúng taxonomy `11/9/6/3/2` đã
+reconcile tại đây. Build, full unit `510/510`, contract `24/24`, format và EF model check PASS;
+PostgreSQL focused `7/7`, fixture regression `24/24` và full integration `239/239` đều PASS sau khi
+Docker engine sẵn sàng; production constraint không bị nới để sửa fixture cũ.
+Xem [evidence W-0172](../W-0172/README.md). External M3/Product/shared-E2E gates không đổi.

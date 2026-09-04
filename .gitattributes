@@ -57,6 +57,19 @@ deploy/ci/scripts/*.mjs text eol=lf
 docs/evidence/W-0122/*.json text eol=lf
 docs/evidence/W-0122/audition-script.txt text eol=lf
 
+# Generated release mirrors and external-decision provenance artifacts are
+# byte-compared by their validators. Keep their bytes stable on Windows and on
+# the Linux runner so a clean checkout cannot manufacture false drift.
+docs/traceability-tests.md text eol=lf
+docs/release/gate-status.yaml text eol=lf
+docs/release/readiness-board.md text eol=lf
+docs/evidence/W-0164/*.json text eol=lf
+docs/evidence/W-0165/*.json text eol=lf
+docs/evidence/W-0170/*.json text eol=lf
+docs/evidence/W-0170/*.txt text eol=lf
+plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md text eol=lf
+plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md text eol=lf
+
 # The audition dialplan is read by Asterisk inside a Linux container and its roster is
 # verified with BusyBox `sha256sum -c`, which treats a trailing CR as part of the name.
 deploy/lab/asterisk/w0122-audition/SHA256SUMS text eol=lf

@@ -57,6 +57,12 @@ public static class CallbackOutboxSnapshotFactory
             throw new InvalidOperationException("Only final IVR results may enter the callback outbox.");
         }
 
+        if (!ResultContractPolicy.IsFinalCallbackResult(normalized.ResultType))
+        {
+            throw new InvalidOperationException(
+                "Only the six final IVR result types may enter the callback outbox.");
+        }
+
         string callbackId = string.Concat("CALLBACK-", resultId);
         CallResultSnapshot snapshot = CallResultSnapshot.Create(
             CallbackId.Create(callbackId),

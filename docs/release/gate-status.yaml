@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 167 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 175 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 17
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 113
+  rows_without_evidence_pack: 121
 
 gates:
   - id: "G-CONTRACT"
@@ -541,6 +541,14 @@ work:
     prompt: "Documentation estate cleanup — gỡ tài liệu SUPERSEDED/HISTORICAL (Origin=UNPLANNED, owner chỉ đạo trực tiếp 2026-09-04 sau khi được cảnh báo rằng governance hiện hành cấm xóa lịch sử; owner tái khẳng định \"xóa hẳn khỏi repo\")"
     status: "CODE_DONE"
     evidence: null
+  - id: "W-0170"
+    prompt: "C5 external-decision receipt hash và sheet-quorum closure validator (Origin=UNPLANNED, owner duyệt triển khai đề xuất 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0170/README.md"
+  - id: "W-0171"
+    prompt: "Doc↔code conflict audit và reconciliation (Origin=UNPLANNED, owner yêu cầu \"rà soát tài liệu và codebase xem có conflict gì không\" rồi \"sửa docs cho khớp code\" 2026-09-04)"
+    status: "CODE_DONE"
+    evidence: null
   - id: "W-0029"
     prompt: "P4-1"
     status: "TESTS_PASS"
@@ -797,6 +805,30 @@ work:
     prompt: "Phase 1/2 lifecycle and dead-code remediation"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0094/README.md"
+  - id: "W-0172"
+    prompt: "C1+C2 program/result contract invariant hardening (Origin=UNPLANNED, owner yêu cầu triển khai khắc phục 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0172/README.md"
+  - id: "W-0173"
+    prompt: "C7+C8 Target V1 malformed ACK fail-closed remediation (Origin=UNPLANNED, owner yêu cầu phân tích và triển khai khắc phục 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0173/README.md"
+  - id: "W-0174"
+    prompt: "C7+C8 offline shared-E2E report validator (Origin=UNPLANNED, owner yêu cầu 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0174/README.md"
+  - id: "W-0175"
+    prompt: "R0 remote-head, hosted-CI và clean-checkout reproducibility audit (Origin=UNPLANNED, owner yêu cầu tiếp tục R0 2026-09-04)"
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0175/README.md"
+  - id: "W-0176"
+    prompt: "Final W-0170 provenance-chain pin rotation after W-0173/W-0174/W-0175 stabilization (Origin=UNPLANNED, owner yêu cầu tiếp tục task khác 2026-09-04)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0176/README.md"
+  - id: "W-0177"
+    prompt: "Freeze and verify exact local candidate for W-0170/W-0172..W-0176 (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)"
+    status: "IN_PROGRESS"
+    evidence: null
 
 production_flag:
   real_customer_call_allowed: false

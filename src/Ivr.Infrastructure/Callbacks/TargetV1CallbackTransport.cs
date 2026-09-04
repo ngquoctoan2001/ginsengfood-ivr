@@ -119,8 +119,8 @@ public sealed class TargetV1CallbackTransport(
         int status = (int)response.StatusCode;
         if (response.StatusCode == HttpStatusCode.OK)
         {
-            CallbackAck200? ack = await response.Content.ReadFromJsonAsync<CallbackAck200>(
-                SerializerOptions,
+            CallbackAck200? ack = await ReadAckAsync<CallbackAck200>(
+                response.Content,
                 cancellationToken);
             if (ack is null
                 || !string.Equals(ack.Callback_id, message.CallbackId, StringComparison.Ordinal)
@@ -153,8 +153,8 @@ public sealed class TargetV1CallbackTransport(
 
         if (response.StatusCode == HttpStatusCode.Conflict)
         {
-            CallbackAck409? ack = await response.Content.ReadFromJsonAsync<CallbackAck409>(
-                SerializerOptions,
+            CallbackAck409? ack = await ReadAckAsync<CallbackAck409>(
+                response.Content,
                 cancellationToken);
             if (ack is null
                 || !string.Equals(ack.Callback_id, message.CallbackId, StringComparison.Ordinal)
@@ -240,6 +240,20 @@ public sealed class TargetV1CallbackTransport(
         status,
         "CALLBACK_ACK_INVALID",
         "CALLBACK_ACK_INVALID");
+
+    private static async Task<T?> ReadAckAsync<T>(
+        HttpContent content,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await content.ReadFromJsonAsync<T>(SerializerOptions, cancellationToken);
+        }
+        catch (Exception exception) when (exception is JsonException or NotSupportedException)
+        {
+            return default;
+        }
+    }
 
     private static CallbackTransportResult Result(
         CallbackTransportOutcome outcome,

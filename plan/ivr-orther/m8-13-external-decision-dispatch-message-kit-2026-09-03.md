@@ -9,9 +9,9 @@ EXTERNAL_DISPATCH_NOT_PERFORMED / EXTERNAL_APPROVAL_NOT_RECEIVED`**
 Nguồn dispatch bất biến:
 
 - M8-12: `plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md`
-- M8-12 SHA-256: `691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0`
-- Manifest: `docs/evidence/W-0152/artifact-sha256.txt`
-- Manifest SHA-256: `49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406`
+- M8-12 SHA-256: `9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499`
+- Manifest: `docs/evidence/W-0170/artifact-sha256.txt`
+- Manifest SHA-256: `3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471`
 
 Người lập: **Codex — message preparation only**. W-0153 không biết danh tính người nhận thật,
 không gửi message/ticket và không ký hoặc duyệt thay owner.
@@ -25,7 +25,8 @@ Trước khi copy bất kỳ message nào:
 2. Verify lại SHA-256 của M8-12 và manifest. Nếu lệch, dừng gửi, tạo manifest mới và cập nhật message.
 3. Đính kèm đúng artifact liệt kê cho batch; không thay bằng screenshot hoặc bản export không có hash.
 4. Không ghi `approved`, `accepted`, `delivered` hoặc `production-ready` trước khi có receipt/response.
-5. Sau khi gửi, điền receipt tại §7; sau khi nhận trả lời, đối chiếu đủ signature fields trong M8-12 §5.
+5. Sau khi gửi, ghi receipt/hash ở ticket hoặc audit system-of-record và đưa metadata vào W-0170;
+   không sửa file message kit đang được hash-pin. Sau khi nhận trả lời, đối chiếu đủ M8-12 §5.
 
 ## 2. Message D-01 — M3 contract/business/producer
 
@@ -48,9 +49,9 @@ Module 8 gửi batch D-01 để xin quyết định và artifact thuộc thẩm 
 - S-07: revoke/freshness strategy và D-06 evidence.
 
 Nguồn điều khiển: M8-12 SHA-256
-691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0.
+9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499.
 Manifest SHA-256:
-49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406.
+3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471.
 
 Vui lòng trả lời từng sheet theo M8-12 §5, gồm signer identity, role/organization,
 authority source, exact artifact hash, decision, scope/environment, approval timestamp,
@@ -86,9 +87,9 @@ Module 8 gửi batch D-02 cho:
 - S-08: contact/dial-token issuer, resolver, TTL/reissue, custody, vendor API, egress và audit.
 
 M8-12 SHA-256:
-691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0.
+9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499.
 Manifest SHA-256:
-49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406.
+3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471.
 
 Vui lòng trả lời từng sheet theo M8-12 §5 và DTK-01..DTK-15. Mỗi phản hồi phải có
 authority source, exact hash, scope/environment, cutover/rollback và evidence thực tế.
@@ -119,9 +120,9 @@ Module 8 gửi batch D-03 cho S-06 opt-out/suppression. Current inbound call_res
 fail-closed; outbound feedback chưa được wire. IVR không coi Rejected là opt-out.
 
 M8-12 SHA-256:
-691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0.
+9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499.
 Manifest SHA-256:
-49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406.
+3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471.
 
 Vui lòng trả OPT-01..OPT-11: explicit signal, subject/scope, threshold nếu có, registry/store owner,
 write/read/ACK/reversal lifecycle, retention/legal basis, auth/audit và shared-test artifact.
@@ -154,9 +155,9 @@ candidate. Wire đã exact-compare snapshot và fail 409 khi mismatch, nhưng ch
 production bundle hoặc M3 producer evidence.
 
 M8-12 SHA-256:
-691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0.
+9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499.
 Manifest SHA-256:
-49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406.
+3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471.
 
 Vui lòng trả ATP-01..ATP-15 và giao canonical two-program bundle + SHA-256, signer provenance,
 M3 producer SHA/OpenAPI/CDC, registry lifecycle/four-eyes, effective/cutover/rollback, pre-dial
@@ -186,9 +187,9 @@ Module 8 gửi batch D-05 cho S-11. Fact đã hiệu chỉnh: 2G toàn quốc 15
 VoLTE là yêu cầu cho horizon dài hạn sau 09/2028, không phải claim thiết bị CSFB chết sau một tháng.
 
 M8-12 SHA-256:
-691568b3fa48e613ecab1c52835e40f483073698d4aa1c8b1a41df5d42d34fe0.
+9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499.
 Manifest SHA-256:
-49ed4c153bb71db1cad6c1af446fe3c3c1892cd40b4d8355441868d60c349406.
+3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471.
 
 Vui lòng giao exact model/SKU, vendor datasheet/capability statement chứng minh VoLTE, support
 lifecycle, báo giá 1 và 4 kênh, approved channel count, target-carrier acceptance plan/result,
@@ -204,7 +205,10 @@ fact correction không phải model/procurement approval.
 **Attachments:** W-0135 evidence; Module 8 V0.3 Markdown/Errata 21; R-00; R-06; M8-12;
 SHA-256 manifest.
 
-## 7. Receipt capture — chỉ điền sau khi gửi thật
+## 7. Receipt field reference — không sửa trực tiếp file hash-bound
+
+Bảng dưới là baseline trước dispatch, không phải ledger để ghi đè. Receipt thật phải được giữ ở
+ticket/audit system-of-record; W-0170 bind reference/hash và kiểm quorum mà không làm drift message kit.
 
 | Dispatch | Actual recipient identity | Role / authority source | Channel + message/ticket ID | Sent timestamp with timezone | M8-12 hash verified | Manifest hash verified | Delivery state | Response artifact/reference |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -224,5 +228,5 @@ W-0153 hoàn tất phía local khi 5 message, receipt template, tracker/readines
 Markdown map khớp nhau. Trạng thái tối đa là `EVIDENCE_SUBMITTED / LOCAL_MESSAGE_KIT_READY`.
 
 **Bước kế tiếp:** Module 8 Owner/chief auditor điền danh tính/role/channel/due date thật, verify hai
-hash, gửi từng batch, rồi ghi receipt §7. Nếu chưa có recipient có authority, giữ
+hash, gửi từng batch, lưu receipt ngoài artifact hash-bound và chạy W-0170. Nếu chưa có recipient có authority, giữ
 `EXTERNAL_DISPATCH_NOT_PERFORMED`; không gửi đại tới nhóm chung để tạo cảm giác đã handoff.

@@ -1,0 +1,37 @@
+{
+  "schema_version": "m8-external-decision-closure.v1",
+  "work_id": "W-0170",
+  "status": "PENDING_EXTERNAL_EVIDENCE",
+  "source": {
+    "dispatch_pack_path": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
+    "dispatch_pack_sha256": "9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499",
+    "artifact_manifest_path": "docs/evidence/W-0170/artifact-sha256.txt",
+    "artifact_manifest_sha256": "3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471",
+    "message_kit_path": "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
+    "message_kit_sha256": "95632b90ab99df6892ba6f0a231e9429c5021fd200d982609c52584e1b920ca3",
+    "routing_validator_path": "deploy/ci/scripts/external-decision-routing-validator.mjs",
+    "routing_validator_sha256": "e70eb8b90e2a5697219f375baab7e6c0d6cb7d58053310ca8fd47caf07180d45",
+    "response_validator_path": "deploy/ci/scripts/external-decision-response-validator.mjs",
+    "response_validator_sha256": "1d14a46eeceb4a59586e23cd84668be50836831ef71c3a50c53a85386d72e1dc"
+  },
+  "routing_input": {
+    "path": "PENDING_EXTERNAL_EVIDENCE",
+    "sha256": "PENDING_EXTERNAL_EVIDENCE"
+  },
+  "response_bundle": {
+    "path": "PENDING_EXTERNAL_EVIDENCE",
+    "sha256": "PENDING_EXTERNAL_EVIDENCE"
+  },
+  "dispatch_receipts": [],
+  "authority_attestations": [],
+  "sheet_closures": [],
+  "safety": {
+    "contains_personal_contact_details": false,
+    "contains_credentials_or_secrets": false,
+    "raw_external_artifact_embedded": false,
+    "external_authority_assumed": false,
+    "approval_ledger_updated": false,
+    "production_gate_promoted": false,
+    "real_customer_call_allowed": false
+  }
+}

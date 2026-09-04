@@ -4,6 +4,9 @@ Ngày: `2026-09-03`
 
 Baseline: `main@b21ec676e490`
 
+> Pin rotation W-0170 (`2026-09-04`): current routing input dùng manifest
+> `docs/evidence/W-0170/artifact-sha256.txt`; hash W-0164 gốc bên dưới được supersede bởi bảng current.
+
 Trạng thái: **`TESTS_PASS_LOCAL / OFFLINE_ROUTING_VALIDATOR_READY /
 EXTERNAL_ROUTING_INPUT_NOT_RECEIVED / W-0163_BLOCKED_EXTERNAL / NO_GATE_PROMOTION`**
 
@@ -70,8 +73,8 @@ safety flag, malformed JSON, duplicate JSON key, oversized input và path ngoài
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `deploy/ci/scripts/external-decision-routing-validator.mjs` | `3f6746d65b88378cdd7afa2e9293d12099edea73e657d9168819f21abdeba144` |
-| `recipient-routing-input.template.json` | `e2e4da39334d13b5b4213dcc23cc1d448d60dac8f3dbcbe5c45621914b1d4b5b` |
+| `deploy/ci/scripts/external-decision-routing-validator.mjs` | `e70eb8b90e2a5697219f375baab7e6c0d6cb7d58053310ca8fd47caf07180d45` |
+| `recipient-routing-input.template.json` | `5fc84bee77beff876511cc41737123d7362806590e6015018b723ffdfd95abeb` |
 
 ## 5. Impact và giới hạn
 

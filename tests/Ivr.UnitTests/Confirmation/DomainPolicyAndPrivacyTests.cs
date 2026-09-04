@@ -242,7 +242,8 @@ internal static class TestData
         IvrResultType resultType = IvrResultType.IvrConfirmed,
         bool counted = true,
         CoreActionRecommendation action = CoreActionRecommendation.RevalidateAndConfirmOrder,
-        IvrProgramCode program = IvrProgramCode.GoldenHour) =>
+        IvrProgramCode program = IvrProgramCode.GoldenHour,
+        bool? final = null) =>
         CallResultSnapshot.Create(
             CallbackId.Create("callback-1"),
             TaskId.Create("task-1"),
@@ -252,7 +253,7 @@ internal static class TestData
             resultType,
             "safe-result",
             counted,
-            true,
+            final ?? ResultContractPolicy.IsFinalCallbackResult(resultType),
             2,
             new DateTimeOffset(2026, 8, 13, 1, 2, 3, TimeSpan.Zero),
             action,

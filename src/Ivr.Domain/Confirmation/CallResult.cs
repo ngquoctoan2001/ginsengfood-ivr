@@ -123,35 +123,17 @@ public sealed class CallResultSnapshot
             throw new ArgumentOutOfRangeException(nameof(attemptNumber));
         }
 
-        bool technicalOrPolicyResult = resultType is IvrResultType.IvrTechnicalException
-            or IvrResultType.IvrCapacityException
-            or IvrResultType.IvrOperationalBlocked
-            or IvrResultType.IvrPolicyBlocked;
-        if (technicalOrPolicyResult && isCountedCustomerAttempt)
-        {
-            throw new InvalidOperationException("Technical, capacity, operational and policy results cannot count as customer attempts.");
-        }
-
         bool noAnswer = resultType is IvrResultType.IvrNoAnswerAttempt or IvrResultType.IvrNoAnswerFinal;
         if (noAnswer && recommendedCoreAction != CoreActionRecommendation.NoStateChangeWaitForTimeout)
         {
             throw new InvalidOperationException("No-answer is advisory and cannot request an order transition.");
         }
 
-        if (noAnswer && !isCountedCustomerAttempt)
-        {
-            throw new InvalidOperationException("A valid no-answer call counts as a customer attempt.");
-        }
-
-        if (resultType == IvrResultType.IvrNoAnswerAttempt && isFinalForIvr)
-        {
-            throw new InvalidOperationException("A non-final no-answer attempt cannot close IVR processing.");
-        }
-
-        if (resultType == IvrResultType.IvrNoAnswerFinal && !isFinalForIvr)
-        {
-            throw new InvalidOperationException("A final no-answer result must close IVR processing.");
-        }
+        ResultContractPolicy.EnsureSnapshotSemantics(
+            resultType,
+            isCountedCustomerAttempt,
+            isFinalForIvr,
+            recommendedCoreAction);
 
         string? safeReason = string.IsNullOrWhiteSpace(resultReason)
             ? null
