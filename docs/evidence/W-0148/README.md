@@ -62,3 +62,10 @@ acceptance hoặc shared E2E.
 - Shared E2E: `NOT_RUN`.
 
 Không nâng `ACCEPTED`; `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## 6. Focused closure-path follow-up — W-0179
+
+[W-0179](../W-0179/README.md) bổ sung positive end-to-end self-test riêng cho `D-03 / S-06` qua
+nguyên W-0164/W-0165/W-0170: đủ 5 authority group và `OPT-01..OPT-11`; 6 mutation thiếu/sai
+quorum, decision, batch, approval hoặc separation-of-duties đều bị từ chối. Đây là synthetic local
+proof, không phải dispatch/receipt/signature thật và không đổi `RUNTIME_NOT_AUTHORIZED`.
