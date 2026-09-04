@@ -68,3 +68,9 @@ Infra reserve/failure factor. Vì vậy không tạo thêm B1 pack hoặc đổi
 > **Bước kế tiếp:** Module 8 Owner/chief auditor điền actual recipient identity, authority source,
 > channel/ticket và due date; verify exact M8-12/manifest hashes; gửi D-01..D-05 và ghi receipt.
 > Chỉ sau phản hồi hợp lệ mới cấp work item implementation riêng.
+
+## 6. Current-head recovery — W-0186
+
+M8-13 đã được xoay sang exact M8-12/manifest current tại [W-0186](../W-0186/README.md). Message text,
+owner routing, required fields và stop rule không đổi; mọi placeholder vẫn phải được owner điền và
+external dispatch vẫn chưa thực hiện.

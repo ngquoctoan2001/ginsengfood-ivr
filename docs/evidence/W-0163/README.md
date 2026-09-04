@@ -90,3 +90,4 @@ receipt vào M8-13 §7. Nếu artifact drift, dừng gửi và regenerate manife
 | --- | --- | --- | --- | --- |
 | `1` | Owner yêu cầu “tiếp” | **PASS** — 18/18 artifact, M8-12 và manifest không drift | Không có recipient/authority/channel/due date hoặc quyền gửi | Giữ `BLOCKED_EXTERNAL`; 0/5 dispatch, không mutation receipt |
 | `2` | Owner yêu cầu “tiếp” lần nữa | Không cần đổi control hash; pack giữ nguyên | Chưa có identity/authority/destination | Tạo routing-input template 5 batch, hash-pin; vẫn 0/5 dispatch |
+| `3 / W-0186` | Owner yêu cầu hoàn thiện C5 sau regression `8ed62e9` | **PASS** — restore/re-pin current manifest `18/18`, W-0164/W-0165/W-0170 và dependent closure self-test đều xanh | Không có recipient/authority/destination/receipt mới | Local provenance chain sạch; giữ `BLOCKED_EXTERNAL`, `0/5` dispatch |

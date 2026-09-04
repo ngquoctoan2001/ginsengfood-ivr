@@ -133,3 +133,6 @@ production evidence chưa nhận. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 Next action: Release reviewer cho phép publish đúng `59597e2` và cung cấp pipeline URL hoặc GitLab
 session/token có `read_api`; chỉ sau hosted pipeline PASS mới cập nhật hosted verdict. Không amend
 candidate và không trộn kết quả của các SHA bị loại.
+
+W-0186 sau đó phục hồi/re-pin C5 trên working tree hiện hành. Việc đó không thay verdict lịch sử của
+`59597e2` và cũng chưa tạo candidate exact mới; xem [W-0186](../W-0186/README.md).

@@ -94,3 +94,11 @@ Module 8 Owner/chief auditor copy JSON template, điền ít nhất một batch 
 authority reference, approved channel/destination và hai timestamp có timezone; chạy `--input`.
 Chỉ sau PASS mới tiếp tục W-0163 để recheck exact hash và thực hiện dispatch thật trong kênh đã được
 cấp quyền.
+
+## 7. Current-head pin refresh — W-0186
+
+Commit `8ed62e9` đã xóa source set mà validator pin; W-0186 phục hồi đúng bytes từ `e7184e7`, chấp
+nhận riêng phần T-09 W-0180 additive/fail-closed và xoay dependency chain mà không đổi rule. Current
+validator SHA-256 là `de192cb4f14435247a149e2d0cd27c4e0b054a5746ff3e228e72670f6a37be91`;
+template SHA-256 là `590b4682905c62162f7d612558d6036f5f1497fd152bfaad104d50f977aabef9`.
+Self-test current: `W0164_SELFTEST_PASS template=1 valid=2 refusals=19`.

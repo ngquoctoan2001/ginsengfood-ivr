@@ -104,3 +104,11 @@ Sau khi W-0163 có dispatch receipt thật và external owner trả lời, tạo
 template, chạy `--input`, lưu exact output + input hash trong evidence intake. Chief auditor chỉ cập
 nhật approval ledger sau khi kiểm độc lập identity, authority source, external response artifact và
 phạm vi ký.
+
+## 7. Current-head pin refresh — W-0186
+
+W-0186 phục hồi đủ 18 artifact mà response validator kiểm, xoay T-09/M8-12/manifest và không thay
+sheet/artifact/quorum rule. Current validator SHA-256 là
+`33b341e1d11c6383cd9f72ede018d510d103d348134c40d98a9f67a5d736e538`; template SHA-256 là
+`056ee7b325950da4380d167cd876d40195b44a96ef81df2f97365fdb5cea5be3`.
+Self-test current: `W0165_SELFTEST_PASS template=1 valid=2 refusals=27`.

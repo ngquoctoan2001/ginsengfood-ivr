@@ -70,3 +70,9 @@ M8-12 SHA-256 tại thời điểm nộp evidence:
 > signer identity, authority source, artifact hash, scope, cutover/rollback và evidence. Sau đó mới
 > cấp work item implementation riêng cho sheet đã đủ chữ ký; `REAL_CUSTOMER_CALL_ALLOWED=NO` giữ
 > nguyên.
+
+## 7. Current-head recovery — W-0186
+
+Source pack và 18-member current manifest đã được phục hồi/re-pin trên `main@8ed62e9`; xem
+[W-0186](../W-0186/README.md). Dùng W-0170 current manifest, không dùng W-0152 historical manifest
+để dispatch. External state vẫn `0/5`, không có recipient/receipt/response/authority mới.

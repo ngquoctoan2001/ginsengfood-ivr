@@ -1,0 +1,10 @@
+4046e3c1cbeb8d3983da0745f25056968d0960b04b410904369bdb20e987eb11  docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md
+59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e  plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md
+f4c04e4a3104ce02923230932ffd3e3140ae092b536b836db278da8312779288  docs/evidence/W-0170/artifact-sha256.txt
+a6e43aa1493d07bf03fba1de699e11300326ae87d5dcbbf47311602d1575cd39  plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md
+de192cb4f14435247a149e2d0cd27c4e0b054a5746ff3e228e72670f6a37be91  deploy/ci/scripts/external-decision-routing-validator.mjs
+590b4682905c62162f7d612558d6036f5f1497fd152bfaad104d50f977aabef9  docs/evidence/W-0164/recipient-routing-input.template.json
+33b341e1d11c6383cd9f72ede018d510d103d348134c40d98a9f67a5d736e538  deploy/ci/scripts/external-decision-response-validator.mjs
+056ee7b325950da4380d167cd876d40195b44a96ef81df2f97365fdb5cea5be3  docs/evidence/W-0165/decision-response-input.template.json
+1c5d2539010ca2a38d3dd60954a993d57be6f4dd8ef1d81990d21e8fe880d06e  deploy/ci/scripts/external-decision-closure-validator.mjs
+a5907f34c7a24feff635fa3e1633fc4664111550e11e804e2b93d39218195a98  docs/evidence/W-0170/decision-closure-input.template.json

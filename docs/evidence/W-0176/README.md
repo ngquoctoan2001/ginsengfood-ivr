@@ -108,3 +108,9 @@ Bảng hash ở §2 là snapshot trước khi W-0177 pin thêm `R-00`/`R-06` th�
 `973df3c` phát hiện manifest vẫn giữ SHA của byte CRLF cũ nên W-0165/W-0170 đỏ. W-0177 xoay lại
 toàn bộ chain theo byte LF canonical; xem [evidence W-0177](../W-0177/README.md). Không dùng các hash
 §2 cho dispatch cycle mới.
+
+## 8. Supersession — W-0186
+
+Sau commit `8ed62e9` xóa source set và W-0180 làm T-09 đổi byte hợp lệ, W-0186 đã restore/re-pin
+current chain. Dùng bảng current tại [W-0170 §7](../W-0170/README.md#7-current-head-restore-và-pin-rotation--w-0186),
+không dùng snapshot §2/§7 của tài liệu này để mở dispatch cycle mới.

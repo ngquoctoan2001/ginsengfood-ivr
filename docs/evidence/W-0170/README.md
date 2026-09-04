@@ -23,7 +23,7 @@ SHEET_QUORUM_VALIDATOR_READY / EXTERNAL_EVIDENCE_NOT_RECEIVED /
 - chỉ nhận unconditional `APPROVE`, không residual blocker và xuất trạng thái
   `DECISION_PROVENANCE_CLOSED`; trạng thái này không phải implementation/release/production approval.
 
-Template pending nằm tại [decision-closure-input.template.json](decision-closure-input.template.json).
+Template pending nằm tại `docs/evidence/W-0170/decision-closure-input.template.json`.
 CLI không gửi message, không đọc raw external response, không ghi approval ledger và không cho phép
 real-customer call.
 
@@ -34,8 +34,10 @@ Self-test W-0170 phát hiện manifest W-0152 đã drift đúng một artifact: 
 `fed2fe7a68dc41ac6f658fc6479163ac89e007e1ea1b6fa0126522bab54c6b0d`, khác pin lịch sử
 `62e4be4e...`.
 
-Không sửa manifest W-0152 lịch sử. W-0170 tạo [manifest hiện hành](artifact-sha256.txt), cập nhật
-M8-12/M8-13 bằng một controlled pin rotation và xoay source pin của W-0164/W-0165. Kết quả current:
+Không sửa manifest W-0152 lịch sử. W-0170 tạo manifest hiện hành
+`docs/evidence/W-0170/artifact-sha256.txt`, cập nhật
+M8-12/M8-13 bằng một controlled pin rotation và xoay source pin của W-0164/W-0165. Bảng sau là
+snapshot W-0170 lịch sử; current W-0186 nằm tại §7:
 
 | Artifact | SHA-256 |
 | --- | --- |
@@ -148,3 +150,26 @@ separation-of-duties, PII-like alias, missing/wrong quorum, receipt set, decisio
 **Bước tiếp theo:** Module 8 Owner/chief auditor chọn ticket/audit system-of-record và cung cấp một
 routing row thật cho D-01. Chạy W-0164 → dispatch/receipt → W-0165 → authority attestation → W-0170;
 sau pilot mới route D-02..D-05 song song.
+
+## 7. Current-head restore và pin rotation — W-0186
+
+W-0186 phục hồi đúng byte 9 manifest member bị `8ed62e9` xóa cùng M8-13/TODAY-01. `17/18` member
+khớp manifest cũ ngay sau restore; member duy nhất khác là T-09 do W-0180 append section
+hardening fail-closed. Rotation giữ nguyên schema, sheet, decision ID, quorum và stop rule:
+
+| Artifact hiện hành | SHA-256 |
+| --- | --- |
+| T-09 | `4046e3c1cbeb8d3983da0745f25056968d0960b04b410904369bdb20e987eb11` |
+| M8-12 | `59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e` |
+| Manifest 18 member | `f4c04e4a3104ce02923230932ffd3e3140ae092b536b836db278da8312779288` |
+| M8-13 | `a6e43aa1493d07bf03fba1de699e11300326ae87d5dcbbf47311602d1575cd39` |
+| W-0164 validator | `de192cb4f14435247a149e2d0cd27c4e0b054a5746ff3e228e72670f6a37be91` |
+| W-0164 template | `590b4682905c62162f7d612558d6036f5f1497fd152bfaad104d50f977aabef9` |
+| W-0165 validator | `33b341e1d11c6383cd9f72ede018d510d103d348134c40d98a9f67a5d736e538` |
+| W-0165 template | `056ee7b325950da4380d167cd876d40195b44a96ef81df2f97365fdb5cea5be3` |
+| W-0170 validator | `1c5d2539010ca2a38d3dd60954a993d57be6f4dd8ef1d81990d21e8fe880d06e` |
+| W-0170 template | `a5907f34c7a24feff635fa3e1633fc4664111550e11e804e2b93d39218195a98` |
+
+Current self-tests PASS W-0164 `2/19`, W-0165 `2/27`, W-0170 `1/21`; dependent W-0179 `1/6`
+và W-0184 `1/8` cũng PASS. Đây chỉ là local provenance-chain recovery; dispatch vẫn `0/5`, external
+response/authority vẫn `NOT_RECEIVED` và không có gate production nào được mở.

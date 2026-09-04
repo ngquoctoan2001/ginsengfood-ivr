@@ -4,9 +4,9 @@
   "status": "PENDING_EXTERNAL_RESPONSE",
   "source": {
     "dispatch_pack_path": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
-    "dispatch_pack_sha256": "311e2feda84bac04a51d2177c095ec15757763293753b0537320fbe0d25c119d",
+    "dispatch_pack_sha256": "59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e",
     "artifact_manifest_path": "docs/evidence/W-0170/artifact-sha256.txt",
-    "artifact_manifest_sha256": "945663bb3d3b12a18c506f8bad47e1cddda44b1f5cb47ce36ba43578c26a5e92"
+    "artifact_manifest_sha256": "f4c04e4a3104ce02923230932ffd3e3140ae092b536b836db278da8312779288"
   },
   "responses": [
     {
