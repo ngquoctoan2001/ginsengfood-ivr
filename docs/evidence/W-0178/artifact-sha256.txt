@@ -1,0 +1,2 @@
+c70d09a128c9e970980898869e01f1a87d7c1024f3d5ef82b2107ff5110824e0  deploy/ci/scripts/d06-revalidation-evidence-validator.mjs
+02c922b9a2b5f92247fc43779d0e43aa0a4dcc8fde9fc85dc2e1f85670a2bd45  docs/evidence/W-0178/d06-revalidation-evidence.template.json
