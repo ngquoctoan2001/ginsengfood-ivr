@@ -69,3 +69,19 @@ Không nâng `ACCEPTED`; `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 nguyên W-0164/W-0165/W-0170: đủ 5 authority group và `OPT-01..OPT-11`; 6 mutation thiếu/sai
 quorum, decision, batch, approval hoặc separation-of-duties đều bị từ chối. Đây là synthetic local
 proof, không phải dispatch/receipt/signature thật và không đổi `RUNTIME_NOT_AUTHORIZED`.
+
+## 7. Current-head repair và structured bundle — W-0186/W-0187
+
+[W-0186](../W-0186/README.md) đã restore exact source M8-08/M8-12 và repair controlled provenance
+chain trên `main@8ed62e9`; W-0164 `2/19`, W-0165 `2/27`, W-0170 `1/21` và W-0179 `1/6` đều
+PASS lại trên current checkout. Đây là repair hash/source, không thay decision rule hoặc authority.
+
+[W-0187](../W-0187/README.md) bổ sung validator metadata-only cho structured production decision
+bundle: exact `OPT-01..OPT-11`, explicit-signal boundary, weak-signal review-only, opaque identity,
+topology/idempotency/ACK/writer/reversal/retention/freshness/admin, 13 signed test plan, tám external
+artifact và sáu sign-off. Self-test PASS `1 template / 2 valid / 52 refusal`; pending template không
+thể mở implementation review.
+
+Local tooling hiện đủ để nhận và kiểm bundle khi được gửi tới. Completed bundle, routing D-03,
+receipt, external response/authority, sandbox/shared E2E vẫn `NOT_RECEIVED/NOT_RUN`; runtime giữ
+`NOT_AUTHORIZED`, `REAL_CUSTOMER_CALL_ALLOWED=NO`.

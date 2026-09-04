@@ -70,10 +70,10 @@ Supporting gates tại verification snapshot:
 
 ## 4. Boundary và phương pháp kiểm
 
-- Shared checkout đang có 29 deletion WIP trong `plan/ivr-orther`, gồm các source hash-bound của
-  W-0164/W-0165/W-0170. W-0179 không khôi phục, stage hoặc sửa các deletion đó.
-- Vì vậy self-test được chạy trong detached clean worktree tại exact baseline, sau đó copy duy nhất
-  script W-0179 vào checkout tạm. Checkout tạm được dọn sau khi PASS.
+- Tại snapshot W-0179 ban đầu, shared checkout có 29 deletion WIP trong `plan/ivr-orther`, gồm các
+  source hash-bound của W-0164/W-0165/W-0170. Lượt đó không khôi phục hoặc stage các deletion.
+- Vì vậy lượt gốc chạy trong detached clean worktree tại exact baseline, sau đó copy duy nhất script
+  W-0179 vào checkout tạm. W-0186 sau đó đã restore controlled source set và re-pin chain hiện hành.
 - GitNexus impact cho `runSelfTest` hiện hữu là LOW: 1 caller trực tiếp, 2 symbol, 0 process. Phương
   án cuối không sửa symbol này; bốn symbol mới của harness đều chưa có trong graph và có 0 impacted
   symbol trước edit.
@@ -93,3 +93,18 @@ orchestrator/schema/sender. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 **Bước tiếp theo:** khi có routing và authority thật, chạy W-0164 → dispatch/receipt → W-0165 →
 independent authority attestation → W-0170 cho `S-06`. Chỉ sau closure hợp lệ mới mở một Work ID
 riêng để review implementation; không tự chuyển closure thành runtime authorization.
+
+## 6. Current-head follow-up — W-0186/W-0187
+
+Trên `main@8ed62e9` + W-0186 repair, current self-test PASS lại:
+
+```text
+W0164_SELFTEST_PASS template=1 valid=2 refusals=19
+W0165_SELFTEST_PASS template=1 valid=2 refusals=27
+W0170_SELFTEST_PASS valid=1 refusals=21
+W0179_C9_SELFTEST_PASS valid=1 refusals=6 authorities=5 decisions=11
+```
+
+[W-0187](../W-0187/README.md) đóng thêm khoảng trống structure: W-0179 vẫn là provenance/quorum
+guard, còn W-0187 kiểm nội dung production bundle và independent pins trước implementation review.
+Hai lớp đều local/synthetic; không thay chữ ký, dispatch receipt, CRM contract hoặc shared E2E thật.

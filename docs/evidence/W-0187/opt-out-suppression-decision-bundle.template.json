@@ -1,0 +1,426 @@
+{
+  "schema_version": "m8-opt-out-suppression-decision-bundle.v1",
+  "work_id": "W-0187",
+  "status": "PENDING_EXTERNAL_INPUT",
+  "source_artifacts": [
+    {
+      "path": "plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md",
+      "sha256": "ec0c4e9be8500b094295a66809a8994f5c2724a74bff05f299b87fdb8becd047"
+    },
+    {
+      "path": "docs/evidence/W-0161/README.md",
+      "sha256": "9a9de5faad8c9fe4a7c45866ca38561dffda6423d2e63ddf9ba3595a369d832b"
+    },
+    {
+      "path": "integration-requirements/01-sales-platform-requirements.md",
+      "sha256": "68fc49cdd979fee66153a6fa5748623a69dfff68bb06054304009d46011ba894"
+    },
+    {
+      "path": "integration-requirements/05-open-contract-questions.md",
+      "sha256": "51a7734983a82b64d4610e24825ec055a9055492485f578e81f02eb2fb86d5c6"
+    },
+    {
+      "path": "integration-requirements/06-module-3-api-handover.md",
+      "sha256": "b676a32d4ba51b9f345eb3d32e21d793216f4011e98bbfc9dc8d2867997ba08a"
+    },
+    {
+      "path": "src/Ivr.Domain/Policies/OptOutSuppression.cs",
+      "sha256": "77f980556ee188c2e5bbbed9850229e0f5aa2a9973ae5965b9e1cf2bb4667c2c"
+    },
+    {
+      "path": "src/Ivr.Domain/Policies/EligibilityRules.cs",
+      "sha256": "e8cb49ae03ccfd178b20002f977e1de9e0f1d425383c0d2192864a7d61ef3a58"
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Crm/SuppressionProposer.cs",
+      "sha256": "04eb94fe74de4ebc8613b37c0bdaf17ebb9e2171d639368291bd6abe311be78e"
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
+      "sha256": "6cf48edf19bb31dd4befb1e211bcf468e3d32b8fc39d0ea742ef9e2d934fbd4d"
+    }
+  ],
+  "context": {
+    "contract_version": "PENDING_EXTERNAL_INPUT",
+    "m8_candidate_sha": "PENDING_EXTERNAL_INPUT",
+    "m3_candidate_sha": "PENDING_EXTERNAL_INPUT",
+    "decision_bundle_sha256": "PENDING_EXTERNAL_INPUT",
+    "reviewed_at": "PENDING_EXTERNAL_INPUT"
+  },
+  "decisions": [
+    {
+      "decision_id": "OPT-01",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-02",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-03",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-04",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-05",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-06",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-07",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-08",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-09",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-10",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "decision_id": "OPT-11",
+      "state": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT"
+    }
+  ],
+  "production_contract": {
+    "signal": {
+      "signal_kind": "PENDING_EXTERNAL_INPUT",
+      "wording_script_version": "PENDING_EXTERNAL_INPUT",
+      "wording_approval_ref": "PENDING_EXTERNAL_INPUT",
+      "proof_schema_ref": "PENDING_EXTERNAL_INPUT",
+      "proof_retention_class": "PENDING_EXTERNAL_INPUT",
+      "proof_required": "PENDING_EXTERNAL_INPUT",
+      "rejected_is_opt_out": "PENDING_EXTERNAL_INPUT",
+      "dtmf_zero_is_opt_out": "PENDING_EXTERNAL_INPUT",
+      "dtmf_one_is_opt_out": "PENDING_EXTERNAL_INPUT"
+    },
+    "weak_signal": {
+      "mode": "PENDING_EXTERNAL_INPUT",
+      "threshold_count": "PENDING_EXTERNAL_INPUT",
+      "window_seconds": "PENDING_EXTERNAL_INPUT",
+      "dedupe_key_ref": "PENDING_EXTERNAL_INPUT",
+      "auto_registry_mutation": "PENDING_EXTERNAL_INPUT",
+      "creates_review_only": "PENDING_EXTERNAL_INPUT"
+    },
+    "identity": {
+      "reference_field": "PENDING_EXTERNAL_INPUT",
+      "namespace": "PENDING_EXTERNAL_INPUT",
+      "issuer": "PENDING_EXTERNAL_INPUT",
+      "stability_contract_ref": "PENDING_EXTERNAL_INPUT",
+      "rotation_merge_contract_ref": "PENDING_EXTERNAL_INPUT",
+      "opaque_only": "PENDING_EXTERNAL_INPUT",
+      "raw_phone_allowed": "PENDING_EXTERNAL_INPUT",
+      "ivr_owned_hashing": "PENDING_EXTERNAL_INPUT"
+    },
+    "topology": {
+      "route": "PENDING_EXTERNAL_INPUT",
+      "contract_ref": "PENDING_EXTERNAL_INPUT",
+      "service_identity_ref": "PENDING_EXTERNAL_INPUT",
+      "network_path_ref": "PENDING_EXTERNAL_INPUT",
+      "direct_ivr_to_crm_egress": "PENDING_EXTERNAL_INPUT"
+    },
+    "idempotency": {
+      "key_components": "PENDING_EXTERNAL_INPUT",
+      "same_body_outcome": "PENDING_EXTERNAL_INPUT",
+      "changed_body_outcome": "PENDING_EXTERNAL_INPUT",
+      "retention_seconds": "PENDING_EXTERNAL_INPUT"
+    },
+    "ack_lifecycle": {
+      "states": "PENDING_EXTERNAL_INPUT",
+      "correlation_field": "PENDING_EXTERNAL_INPUT",
+      "retry_policy_ref": "PENDING_EXTERNAL_INPUT",
+      "dlq_ref": "PENDING_EXTERNAL_INPUT"
+    },
+    "writer": {
+      "registry_owner": "PENDING_EXTERNAL_INPUT",
+      "authorization_ref": "PENDING_EXTERNAL_INPUT",
+      "audit_actor_field": "PENDING_EXTERNAL_INPUT",
+      "negative_authorization_test_ref": "PENDING_EXTERNAL_INPUT",
+      "delegated_writer_authority": "PENDING_EXTERNAL_INPUT",
+      "ivr_writes_effective_suppression": "PENDING_EXTERNAL_INPUT"
+    },
+    "reversal": {
+      "state_machine_ref": "PENDING_EXTERNAL_INPUT",
+      "newer_proof_required": "PENDING_EXTERNAL_INPUT",
+      "effective_timestamp_field": "PENDING_EXTERNAL_INPUT",
+      "reversal_timestamp_field": "PENDING_EXTERNAL_INPUT",
+      "merge_unlink_contract_ref": "PENDING_EXTERNAL_INPUT",
+      "appeal_procedure_ref": "PENDING_EXTERNAL_INPUT"
+    },
+    "retention": {
+      "pending_crm_bounded": "PENDING_EXTERNAL_INPUT",
+      "legal_hold_supported": "PENDING_EXTERNAL_INPUT",
+      "rows": []
+    },
+    "inbound_freshness": {
+      "authority": "PENDING_EXTERNAL_INPUT",
+      "pre_task_revalidation": "PENDING_EXTERNAL_INPUT",
+      "pre_attempt_revalidation": "PENDING_EXTERNAL_INPUT",
+      "mid_window_strategy": "PENDING_EXTERNAL_INPUT",
+      "unknown_outcome": "PENDING_EXTERNAL_INPUT",
+      "unavailable_outcome": "PENDING_EXTERNAL_INPUT",
+      "active_restriction_blocks_dispatch": "PENDING_EXTERNAL_INPUT",
+      "d06_contract_ref": "PENDING_EXTERNAL_INPUT"
+    },
+    "admin_authority": {
+      "permission": "PENDING_EXTERNAL_INPUT",
+      "review_action": "PENDING_EXTERNAL_INPUT",
+      "review_outcome_contract_ref": "PENDING_EXTERNAL_INPUT",
+      "audit_ref": "PENDING_EXTERNAL_INPUT",
+      "dual_control_required": "PENDING_EXTERNAL_INPUT",
+      "direct_registry_mutation": "PENDING_EXTERNAL_INPUT"
+    }
+  },
+  "test_plans": [
+    {
+      "test_id": "C9-T01-EXPLICIT-SIGNAL-PROOF",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T02-REJECTED-NON-MUTATION",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T03-DTMF-NON-OPTOUT",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T04-OPAQUE-IDENTITY-NO-RAW-CONTACT",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T05-IDEMPOTENT-DUPLICATE",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T06-CHANGED-BODY-CONFLICT",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T07-ACK-INVALID-RETRY-DLQ",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T08-OUTAGE-RECOVERY",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T09-REVERSAL-NEWER-PROOF",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T10-ACTIVE-RESTRICTION-BLOCK",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T11-FRESHNESS-REVOKE",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T12-RETENTION-DSAR-LEGAL-HOLD",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "test_id": "C9-T13-ADMIN-AUTHORIZATION",
+      "state": "PLANNED_NOT_RUN",
+      "owner": "PENDING_EXTERNAL_INPUT",
+      "plan_ref": "PENDING_EXTERNAL_INPUT",
+      "plan_sha256": "PENDING_EXTERNAL_INPUT"
+    }
+  ],
+  "external_artifacts": [
+    {
+      "artifact_id": "CRM_PROPOSAL_CONTRACT",
+      "ref": "PENDING_EXTERNAL_INPUT",
+      "sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "artifact_id": "CRM_REGISTRY_CONTRACT",
+      "ref": "PENDING_EXTERNAL_INPUT",
+      "sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "artifact_id": "CRM_IDENTITY_CONTRACT",
+      "ref": "PENDING_EXTERNAL_INPUT",
+      "sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "artifact_id": "M3_RELAY_PRODUCER_CONTRACT",
+      "ref": "PENDING_EXTERNAL_INPUT",
+      "sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "artifact_id": "LEGAL_PRIVACY_PACKET",
+      "ref": "PENDING_EXTERNAL_INPUT",
+      "sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "artifact_id": "SECURITY_PLATFORM_PACKET",
+      "ref": "PENDING_EXTERNAL_INPUT",
+      "sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "artifact_id": "SHARED_E2E_PLAN",
+      "ref": "PENDING_EXTERNAL_INPUT",
+      "sha256": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "artifact_id": "RELEASE_PACKET",
+      "ref": "PENDING_EXTERNAL_INPUT",
+      "sha256": "PENDING_EXTERNAL_INPUT"
+    }
+  ],
+  "signoffs": [
+    {
+      "role": "PROJECT_OWNER_M8",
+      "signer_alias": "PENDING_EXTERNAL_INPUT",
+      "verifier_alias": "PENDING_EXTERNAL_INPUT",
+      "authority_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT",
+      "approved_at": "PENDING_EXTERNAL_INPUT",
+      "scope": "PENDING_EXTERNAL_INPUT",
+      "bound_decision_bundle_sha256": "PENDING_EXTERNAL_INPUT",
+      "state": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "role": "CRM_M31",
+      "signer_alias": "PENDING_EXTERNAL_INPUT",
+      "verifier_alias": "PENDING_EXTERNAL_INPUT",
+      "authority_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT",
+      "approved_at": "PENDING_EXTERNAL_INPUT",
+      "scope": "PENDING_EXTERNAL_INPUT",
+      "bound_decision_bundle_sha256": "PENDING_EXTERNAL_INPUT",
+      "state": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "role": "M3_ORDER_CORE",
+      "signer_alias": "PENDING_EXTERNAL_INPUT",
+      "verifier_alias": "PENDING_EXTERNAL_INPUT",
+      "authority_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT",
+      "approved_at": "PENDING_EXTERNAL_INPUT",
+      "scope": "PENDING_EXTERNAL_INPUT",
+      "bound_decision_bundle_sha256": "PENDING_EXTERNAL_INPUT",
+      "state": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "role": "LEGAL_PRIVACY",
+      "signer_alias": "PENDING_EXTERNAL_INPUT",
+      "verifier_alias": "PENDING_EXTERNAL_INPUT",
+      "authority_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT",
+      "approved_at": "PENDING_EXTERNAL_INPUT",
+      "scope": "PENDING_EXTERNAL_INPUT",
+      "bound_decision_bundle_sha256": "PENDING_EXTERNAL_INPUT",
+      "state": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "role": "PRODUCT",
+      "signer_alias": "PENDING_EXTERNAL_INPUT",
+      "verifier_alias": "PENDING_EXTERNAL_INPUT",
+      "authority_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT",
+      "approved_at": "PENDING_EXTERNAL_INPUT",
+      "scope": "PENDING_EXTERNAL_INPUT",
+      "bound_decision_bundle_sha256": "PENDING_EXTERNAL_INPUT",
+      "state": "PENDING_EXTERNAL_INPUT"
+    },
+    {
+      "role": "SECURITY_PLATFORM",
+      "signer_alias": "PENDING_EXTERNAL_INPUT",
+      "verifier_alias": "PENDING_EXTERNAL_INPUT",
+      "authority_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_ref": "PENDING_EXTERNAL_INPUT",
+      "approval_sha256": "PENDING_EXTERNAL_INPUT",
+      "approved_at": "PENDING_EXTERNAL_INPUT",
+      "scope": "PENDING_EXTERNAL_INPUT",
+      "bound_decision_bundle_sha256": "PENDING_EXTERNAL_INPUT",
+      "state": "PENDING_EXTERNAL_INPUT"
+    }
+  ],
+  "safety": {
+    "contains_raw_contact": false,
+    "contains_credentials_or_secrets": false,
+    "raw_external_response_embedded": false,
+    "consent_inferred_from_rejected_or_dtmf": false,
+    "direct_ivr_crm_egress_enabled": false,
+    "local_effective_suppression_writer_enabled": false,
+    "production_gate_promoted": false,
+    "real_customer_call_allowed": false
+  }
+}
