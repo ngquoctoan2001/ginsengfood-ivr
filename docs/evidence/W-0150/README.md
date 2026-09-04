@@ -56,6 +56,17 @@ Ghi chú lịch sử: lần chạy W-0150 ban đầu dừng ở fixture. W-0161 
 Docker/Testcontainers; xem [evidence W-0161](../W-0161/README.md). Kết quả không chứng minh
 production issuer/resolver/vault hoặc external trust boundary.
 
+Follow-up W-0184 đã chạy focused synthetic closure path `D-02 → S-08` trên detached clean
+`5c0b170`: **PASS `1 positive / 8 refusal / 7 authority / 15 DTK decision`**, đồng thời regression
+W-0164 `2/19`, W-0165 `2/27`, W-0170 `1/21` đều PASS. Xem [evidence W-0184](../W-0184/README.md).
+Đây chỉ là bằng chứng validator-chain local; external decision, issuer/resolver/vault, contact
+producer và shared E2E vẫn `NOT_RECEIVED/NOT_RUN`.
+
+Follow-up W-0183 bổ sung validator metadata-only cho production decision bundle: **PASS
+`1 template / 4 model valid / 64 refusal`**, khóa đủ `DTK-01..DTK-15`, `14` test-plan scenario, `9`
+authority sign-off và `8` external evidence pin. Xem [evidence W-0183](../W-0183/README.md).
+Output cao nhất chỉ cho phép implementation review; không phải production approval.
+
 ## Stop rule
 
 - Không code production adapter/vault/resolver trước khi `DTK-01..DTK-15` được đúng owner ký.

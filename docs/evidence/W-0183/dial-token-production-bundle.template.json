@@ -1,0 +1,783 @@
+{
+  "schema_version": "m8-contact-dial-token-production-bundle.v1",
+  "work_id": "W-0183",
+  "status": "CONTACT_DIAL_TOKEN_DECISIONS_NOT_RECEIVED",
+  "source": {
+    "audit_evidence_path": "docs/evidence/W-0150/README.md",
+    "audit_evidence_sha256": "cae6e65885e951c4fcbda0d2344b4c13d763205a6b5f9ce729352e10ee71dc98",
+    "closure_contract_path": "docs/contracts/target-v1-closure-pack/T-04-dial-token.md",
+    "closure_contract_sha256": "e7df35e7711a59ed21076a4330a2e6c67e08d3213cd62813981cd89efc184f9f",
+    "telephony_requirements_path": "integration-requirements/03-telephony-sim-requirements.md",
+    "telephony_requirements_sha256": "8025bb2809c026d7c04340373a600e8ef70399cf394320ca2ce6e6e58b28811e",
+    "m3_handover_path": "integration-requirements/06-module-3-api-handover.md",
+    "m3_handover_sha256": "b676a32d4ba51b9f345eb3d32e21d793216f4011e98bbfc9dc8d2867997ba08a",
+    "task_oas_path": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
+    "task_oas_sha256": "5809f8b06f52ab3979040885280a7c9a35bba5fc97624b3e0a8360a3df096bb3",
+    "resolver_port_path": "src/Ivr.Domain/Ports/ProviderPorts.cs",
+    "resolver_port_sha256": "24fd793c268c3f1aad1955615ce6535f235ccb301b69d6517905bb6ce7b8db5e",
+    "intake_service_path": "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
+    "intake_service_sha256": "6cf48edf19bb31dd4befb1e211bcf468e3d32b8fc39d0ea742ef9e2d934fbd4d",
+    "requirement_scope": "B5-C12-DTK.2026-09-04"
+  },
+  "candidate": {
+    "m8_repo_ref": "PENDING_EXTERNAL_DECISION",
+    "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+    "m3_repo_ref": "PENDING_EXTERNAL_DECISION",
+    "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+    "environment_id": "PENDING_EXTERNAL_DECISION",
+    "config_version": "PENDING_EXTERNAL_DECISION",
+    "run_started_at": "PENDING_EXTERNAL_DECISION",
+    "run_completed_at": "PENDING_EXTERNAL_DECISION"
+  },
+  "bundle": {
+    "bundle_id": "PENDING_EXTERNAL_DECISION",
+    "contract_version": "PENDING_EXTERNAL_DECISION",
+    "bundle_sha256": "PENDING_EXTERNAL_DECISION",
+    "decision_coverage_sha256": "PENDING_EXTERNAL_DECISION",
+    "issued_at": "PENDING_EXTERNAL_DECISION",
+    "effective_at": "PENDING_EXTERNAL_DECISION",
+    "contact_contract": {
+      "authority_alias": "PENDING_EXTERNAL_DECISION",
+      "producer_ref": "PENDING_EXTERNAL_DECISION",
+      "phone_validation_contract": "PENDING_EXTERNAL_DECISION",
+      "invalid_contact_action": "PENDING_EXTERNAL_DECISION",
+      "raw_e164_in_task": null
+    },
+    "token_model": {
+      "model": "PENDING_EXTERNAL_DECISION",
+      "requires_wire_change": null,
+      "reissue_contract_ref": "PENDING_EXTERNAL_DECISION",
+      "token_opaque": null,
+      "token_contains_pii": null,
+      "same_attempt_behavior": "PENDING_EXTERNAL_DECISION",
+      "different_attempt_behavior": "PENDING_EXTERNAL_DECISION"
+    },
+    "ttl_policy": {
+      "coverage": "PENDING_EXTERNAL_DECISION",
+      "clock_skew_seconds": null,
+      "not_before_required": null,
+      "mid_window_expiry_action": "PENDING_EXTERNAL_DECISION",
+      "cross_field_invariant_ref": "PENDING_EXTERNAL_DECISION"
+    },
+    "trust_boundary": {
+      "ivr_sees_raw_e164": null,
+      "ivr_stores_mapping_key": null,
+      "resolver_output_to_ivr": "PENDING_EXTERNAL_DECISION",
+      "raw_e164_location": "PENDING_EXTERNAL_DECISION",
+      "vendor_destination_mode": "PENDING_EXTERNAL_DECISION",
+      "diagram_ref": "PENDING_EXTERNAL_DECISION",
+      "diagram_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    "resolve_protocol": {
+      "spec_ref": "PENDING_EXTERNAL_DECISION",
+      "spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "protocol_version": "PENDING_EXTERNAL_DECISION",
+      "auth_mode": "PENDING_EXTERNAL_DECISION",
+      "audience": "PENDING_EXTERNAL_DECISION",
+      "scope": "PENDING_EXTERNAL_DECISION",
+      "timeout_milliseconds": null,
+      "idempotency_contract_ref": "PENDING_EXTERNAL_DECISION",
+      "error_taxonomy_ref": "PENDING_EXTERNAL_DECISION",
+      "sandbox_conformance_ref": "PENDING_EXTERNAL_DECISION"
+    },
+    "custody": {
+      "secret_store_alias": "PENDING_EXTERNAL_DECISION",
+      "workload_identity_alias": "PENDING_EXTERNAL_DECISION",
+      "mapping_or_decryption_keys_in_ivr": null,
+      "least_privilege_enforced": null,
+      "rotation_overlap_seconds": null,
+      "emergency_revoke_supported": null,
+      "access_review_ref": "PENDING_EXTERNAL_DECISION",
+      "access_review_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    "replay_concurrency": {
+      "atomic_consumption": null,
+      "cross_task_denied": null,
+      "cross_environment_denied": null,
+      "cross_provider_denied": null,
+      "same_attempt_behavior": "PENDING_EXTERNAL_DECISION",
+      "different_attempt_behavior": "PENDING_EXTERNAL_DECISION",
+      "parallel_test_ref": "PENDING_EXTERNAL_DECISION",
+      "parallel_test_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    "failure_retry": {
+      "resolver_fail_closed": null,
+      "technical_failure_counted_as_customer_attempt": null,
+      "bounded_retry": null,
+      "max_technical_retries": null,
+      "breaker_enabled": null,
+      "deadline_enforced": null,
+      "retry_policy_ref": "PENDING_EXTERNAL_DECISION",
+      "refresh_route": "PENDING_EXTERNAL_DECISION"
+    },
+    "audit_privacy": {
+      "ivr_audit_outcome_only": null,
+      "logs_raw_token": null,
+      "logs_ciphertext": null,
+      "logs_destination_handle": null,
+      "logs_raw_e164": null,
+      "correlation_joinable": null,
+      "retention_policy_ref": "PENDING_EXTERNAL_DECISION",
+      "retention_policy_sha256": "PENDING_EXTERNAL_DECISION",
+      "purge_proof_ref": "PENDING_EXTERNAL_DECISION",
+      "purge_proof_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    "telephony_safety": {
+      "capability_ref": "PENDING_EXTERNAL_DECISION",
+      "capability_sha256": "PENDING_EXTERNAL_DECISION",
+      "recording_disabled": null,
+      "allowlist_enforced": null,
+      "kill_switch_available": null,
+      "caller_id_policy_ref": "PENDING_EXTERNAL_DECISION",
+      "disposition_matrix_ref": "PENDING_EXTERNAL_DECISION",
+      "dtmf_contract_ref": "PENDING_EXTERNAL_DECISION"
+    },
+    "cutover_rollback": {
+      "shared_e2e_plan_ref": "PENDING_EXTERNAL_DECISION",
+      "shared_e2e_plan_sha256": "PENDING_EXTERNAL_DECISION",
+      "contract_before_runtime": null,
+      "sandbox_required": null,
+      "allowlisted_lab_required": null,
+      "pilot_required": null,
+      "rollback_ref": "PENDING_EXTERNAL_DECISION",
+      "rollback_sha256": "PENDING_EXTERNAL_DECISION",
+      "kill_switch_default_on": null,
+      "production_real_enabled": false,
+      "exact_candidate_binding": null
+    }
+  },
+  "decision_coverage": [
+    {
+      "decision_id": "DTK-01",
+      "topic": "CONTACT_AUTHORITY_AND_PRODUCER",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "authority_named",
+        "producer_contract_pinned",
+        "positive_negative_cdc_attached"
+      ]
+    },
+    {
+      "decision_id": "DTK-02",
+      "topic": "CONTACT_REQUIREDNESS_AND_TAXONOMY",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "validation_rule_explicit",
+        "invalid_inconclusive_action_explicit",
+        "compatibility_plan_signed"
+      ]
+    },
+    {
+      "decision_id": "DTK-03",
+      "topic": "ISSUER_AND_TOKEN_FORMAT",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "issuer_versioned",
+        "token_opaque_non_pii",
+        "entropy_and_size_limits_signed"
+      ]
+    },
+    {
+      "decision_id": "DTK-04",
+      "topic": "SUBJECT_SCOPE_AUDIENCE_BINDING",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "task_environment_provider_binding",
+        "cross_scope_replay_denied",
+        "negative_tests_attached"
+      ]
+    },
+    {
+      "decision_id": "DTK-05",
+      "topic": "SCALAR_REISSUE_OR_BUNDLE_MODEL",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "one_model_selected",
+        "wire_delta_declared",
+        "migration_cutover_declared"
+      ]
+    },
+    {
+      "decision_id": "DTK-06",
+      "topic": "TTL_AND_TIME_SEMANTICS",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "window_coverage_signed",
+        "clock_skew_signed",
+        "mid_window_expiry_action_signed"
+      ]
+    },
+    {
+      "decision_id": "DTK-07",
+      "topic": "RESOLVER_TOPOLOGY_AND_OUTPUT",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "raw_e164_boundary_named",
+        "ivr_receives_opaque_reference",
+        "data_flow_diagram_approved"
+      ]
+    },
+    {
+      "decision_id": "DTK-08",
+      "topic": "RESOLVE_PROTOCOL_AND_AUTH",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "authoritative_protocol_pinned",
+        "auth_audience_scope_signed",
+        "timeout_error_idempotency_signed"
+      ]
+    },
+    {
+      "decision_id": "DTK-09",
+      "topic": "CUSTODY_KEY_AND_CREDENTIAL",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "no_mapping_key_in_ivr",
+        "workload_identity_least_privilege",
+        "cluster_evidence_attached"
+      ]
+    },
+    {
+      "decision_id": "DTK-10",
+      "topic": "ROTATION_AND_REVOCATION",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "key_version_overlap_signed",
+        "emergency_revoke_defined",
+        "drill_evidence_attached"
+      ]
+    },
+    {
+      "decision_id": "DTK-11",
+      "topic": "REPLAY_CONCURRENCY_AND_ONE_USE",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "same_attempt_behavior_signed",
+        "different_attempt_behavior_signed",
+        "atomic_parallel_proof_attached"
+      ]
+    },
+    {
+      "decision_id": "DTK-12",
+      "topic": "FAILURE_RETRY_AND_REFRESH",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "fail_closed_not_counted",
+        "bounded_deadline_retry",
+        "refresh_route_explicit"
+      ]
+    },
+    {
+      "decision_id": "DTK-13",
+      "topic": "AUDIT_PRIVACY_AND_RETENTION",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "split_audit_correlation",
+        "sensitive_values_forbidden",
+        "retention_purge_access_signed"
+      ]
+    },
+    {
+      "decision_id": "DTK-14",
+      "topic": "TELEPHONY_CAPABILITY_AND_SAFETY",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "vendor_destination_capability",
+        "recording_off_and_caller_id",
+        "allowlist_kill_switch_and_failure_matrix"
+      ]
+    },
+    {
+      "decision_id": "DTK-15",
+      "topic": "ROLLOUT_ROLLBACK_AND_RELEASE",
+      "state": "PENDING",
+      "selection_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_sha256": "PENDING_EXTERNAL_DECISION",
+      "assertions_passed": [
+        "contract_custody_network_first",
+        "sandbox_lab_pilot_sequence",
+        "exact_sha_e2e_rollback_go_no_go"
+      ]
+    }
+  ],
+  "external_evidence": {
+    "m3_contact_producer_contract": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "issuer_token_spec_and_cdc": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "security_threat_model": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "platform_custody_auth_network": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "telephony_vendor_capability": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "privacy_retention_and_purge": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "shared_cdc_e2e_plan": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "cutover_rollback_release_packet": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    }
+  },
+  "validation_matrix": [
+    {
+      "case_id": "DTK-E2E-01",
+      "scenario": "VALID_CONTACT_AND_AUTHORIZATION",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "AUTHORIZED_TO_TRUSTED_GATEWAY",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "contact_validated",
+        "token_bound_and_current",
+        "opaque_destination_only"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-02",
+      "scenario": "MISSING_OR_INVALID_CONTACT_STATUS",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "CONTACT_REJECTED_FAIL_CLOSED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "producer_or_intake_rejected",
+        "no_resolution",
+        "no_dial"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-03",
+      "scenario": "TOKEN_EXPIRED_AT_INTAKE",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "TOKEN_REJECTED_EXPIRED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "issuer_time_checked",
+        "no_persistence_plaintext",
+        "no_dial"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-04",
+      "scenario": "TOKEN_EXPIRES_BEFORE_WINDOW_END",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "TOKEN_REJECTED_TTL_COVERAGE",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "window_coverage_checked",
+        "no_resolution",
+        "no_dial"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-05",
+      "scenario": "TTL_MAX_OR_EXACT_BOUNDARY",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "TTL_POLICY_ENFORCED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "signed_cross_field_invariant_used",
+        "clock_skew_applied",
+        "boundary_result_recorded"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-06",
+      "scenario": "CROSS_TASK_ENVIRONMENT_OR_PROVIDER_REPLAY",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "REPLAY_REJECTED_SCOPE_MISMATCH",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "subject_scope_audience_checked",
+        "no_destination_disclosed",
+        "no_dial"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-07",
+      "scenario": "SAME_ATTEMPT_REPLAY",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "SAME_ATTEMPT_POLICY_ENFORCED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "same_attempt_rule_used",
+        "deterministic_receipt_returned",
+        "no_duplicate_dial"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-08",
+      "scenario": "DIFFERENT_ATTEMPT_REUSE",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "TOKEN_MODEL_POLICY_ENFORCED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "different_attempt_rule_used",
+        "selected_model_enforced",
+        "result_audited"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-09",
+      "scenario": "RESOLVER_TIMEOUT_OR_OUTAGE",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "TECHNICAL_FAILURE_FAIL_CLOSED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "bounded_timeout",
+        "customer_attempt_not_counted",
+        "deadline_and_alert_enforced"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-10",
+      "scenario": "KEY_ROTATION_AND_EMERGENCY_REVOKE",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "ROTATION_REVOCATION_ENFORCED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "key_version_checked",
+        "overlap_bounded",
+        "revoked_authorization_denied"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-11",
+      "scenario": "CONCURRENT_RESOLVE_CONSUMPTION",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "ATOMIC_CONSUMPTION_ENFORCED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "parallel_race_executed",
+        "single_authorization_outcome",
+        "no_duplicate_dial"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-12",
+      "scenario": "RESOLVE_OR_DIAL_RESPONSE_LOST",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "IDEMPOTENT_RECOVERY_NO_DUPLICATE_DIAL",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "stable_idempotency_key",
+        "receipt_reconciled",
+        "no_second_call_created"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-13",
+      "scenario": "AUDIT_REDACTION_RETENTION_AND_PURGE",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "PRIVACY_CONTROLS_ENFORCED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "correlation_joinable",
+        "sensitive_values_absent",
+        "retention_and_purge_verified"
+      ]
+    },
+    {
+      "case_id": "DTK-E2E-14",
+      "scenario": "ROLLBACK_AND_KILL_SWITCH",
+      "state": "PENDING_TEST_PLAN",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "test_owner_alias": "PENDING_EXTERNAL_DECISION",
+      "test_spec_ref": "PENDING_EXTERNAL_DECISION",
+      "test_spec_sha256": "PENDING_EXTERNAL_DECISION",
+      "expected_outcome": "ROLLBACK_FAIL_CLOSED",
+      "expected_customer_attempt_counted": false,
+      "real_customer_call_required": false,
+      "assertions_covered": [
+        "production_flag_remained_false",
+        "kill_switch_default_on",
+        "rollback_restored_safe_state"
+      ]
+    }
+  ],
+  "matrix_summary": {
+    "required_cases": 14,
+    "approved_test_plans": 0,
+    "pending_cases": 14,
+    "complete_matrix": false,
+    "all_cases_same_candidate": false,
+    "green_cases_selected_only": false,
+    "runtime_execution_claimed": false
+  },
+  "signoffs": [
+    {
+      "role": "PROJECT_OWNER",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "role": "M8_OWNER",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "role": "M3_CONTACT_OWNER",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "role": "PRODUCT_OWNER",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "role": "SECURITY",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "role": "PLATFORM",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "role": "TELEPHONY_VENDOR",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "role": "PRIVACY_LEGAL",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "role": "RELEASE_OWNER",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "verifier_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "authority_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "m8_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "m3_commit_sha": "PENDING_EXTERNAL_DECISION",
+      "bundle_sha256": "PENDING_EXTERNAL_DECISION"
+    }
+  ],
+  "safety": {
+    "contains_raw_contact_or_e164": false,
+    "contains_raw_token": false,
+    "contains_ciphertext": false,
+    "contains_destination_handle": false,
+    "contains_credentials_or_secrets": false,
+    "contains_customer_data": false,
+    "mock_or_lab_claimed_as_production": false,
+    "vault_resolver_or_adapter_added": false,
+    "secret_mounted_or_egress_enabled": false,
+    "production_real_enabled": false,
+    "real_customer_call_allowed": false,
+    "validator_claims_production_authorization": false
+  }
+}

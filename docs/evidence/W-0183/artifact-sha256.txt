@@ -1,0 +1,9 @@
+e1b4445289257b0134c9571fdb4421b2706288c88ca254dd50f6c5f2aca2d6b1  deploy/ci/scripts/dial-token-production-bundle-validator.mjs
+31ae0ee58c88b666faf8362f386cb2512ac5dcfc35bb18c2107034e49fcd1bc8  docs/evidence/W-0183/dial-token-production-bundle.template.json
+cae6e65885e951c4fcbda0d2344b4c13d763205a6b5f9ce729352e10ee71dc98  docs/evidence/W-0150/README.md
+e7df35e7711a59ed21076a4330a2e6c67e08d3213cd62813981cd89efc184f9f  docs/contracts/target-v1-closure-pack/T-04-dial-token.md
+8025bb2809c026d7c04340373a600e8ef70399cf394320ca2ce6e6e58b28811e  integration-requirements/03-telephony-sim-requirements.md
+b676a32d4ba51b9f345eb3d32e21d793216f4011e98bbfc9dc8d2867997ba08a  integration-requirements/06-module-3-api-handover.md
+5809f8b06f52ab3979040885280a7c9a35bba5fc97624b3e0a8360a3df096bb3  specs/api/openapi/ivr-order-confirmation.v1.yaml
+24fd793c268c3f1aad1955615ce6535f235ccb301b69d6517905bb6ce7b8db5e  src/Ivr.Domain/Ports/ProviderPorts.cs
+6cf48edf19bb31dd4befb1e211bcf468e3d32b8fc39d0ea742ef9e2d934fbd4d  src/Ivr.Infrastructure/Intake/TaskIntakeService.cs
