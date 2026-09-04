@@ -1,6 +1,6 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-09-04T04:15:27.393Z
+Generated: 2026-09-04T04:50:56.041Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
@@ -39,7 +39,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md | M8-05 — Program/result contract sign-off | 7 | 3 | 1103 |
 | plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md | M8-10 — Contact / dial-token production-path decision pack và handoff | 10 | 0 | 2326 |
 | plan/ivr-orther/W-0106-regional-voice-routing-plan.md | W-0106 — Định tuyến giọng đọc theo vùng miền (3 giọng nữ Bắc/Trung/Nam) | 3 | 7 | 10691 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 8 | 2 | 77623 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 8 | 2 | 77683 |
 | docs/contracts/target-v1-closure-pack/T-04-dial-token.md | T-04 — Dial-token: issue / resolve / TTL / one-use / audit | 8 | 1 | 1128 |
 
 ## Unresolved Links
@@ -780,7 +780,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/evidence/W-0174/README.md | W-0174 — Offline shared-E2E report validator | 1/8 | 2 | 0 | 3 | 800 |
 | docs/evidence/W-0175/README.md | W-0175 — R0 remote-head, hosted-CI and clean-checkout audit | 1/6 | 0 | 0 | 0 | 997 |
 | docs/evidence/W-0176/README.md | W-0176 — Final external-decision provenance pin rotation | 1/8 | 1 | 2 | 0 | 801 |
-| docs/evidence/W-0177/README.md | W-0177 — Exact local candidate freeze and verification | 1/8 | 1 | 0 | 0 | 785 |
+| docs/evidence/W-0177/README.md | W-0177 — Exact local candidate freeze and verification | 1/9 | 1 | 0 | 0 | 1011 |
 | docs/gameday-report.md | Game-day report — IVR Order Confirmation (`W-0042` · `P6-3`) | 1/12 | 1 | 0 | 0 | 1548 |
 | docs/integration-guide.md | IVR Integration Guide — Order Core, Ops and CRM | 1/12 | 0 | 0 | 0 | 648 |
 | docs/kpi-catalog.md | KPI catalog — `W-0055` · `P10-4` | 1/11 | 0 | 0 | 0 | 1648 |
@@ -791,7 +791,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | docs/perf-security-report.md | Performance, capacity and security/privacy report | 1/8 | 1 | 0 | 0 | 922 |
 | docs/progressive-delivery.md | Progressive delivery — `W-0046` · `P7-4` | 1/7 | 1 | 0 | 0 | 1112 |
 | docs/release/df03-signoff-input.md | DF-03 sign-off input — `W-0059` · `P11-3` | 1/8 | 0 | 0 | 0 | 1003 |
-| docs/release/readiness-board.md | Production readiness board — `W-0060` · `P11-4` | 1/8 | 3 | 0 | 0 | 771 |
+| docs/release/readiness-board.md | Production readiness board — `W-0060` · `P11-4` | 1/8 | 3 | 0 | 0 | 766 |
 | docs/reports/2026-08-29-bao-cao-tien-do-ivr.md | BÁO CÁO TIẾN ĐỘ — HỆ THỐNG IVR XÁC NHẬN ĐƠN HÀNG | 1/9 | 0 | 0 | 0 | 1178 |
 | docs/review/2026-08-14-phase-1-2-code-review.md | Rà soát Phase 1 + Phase 2 — IVR Order Confirmation | 1/26 | 0 | 0 | 0 | 3454 |
 | docs/review/2026-08-28-capacity-volume-unit-and-session-length.md | Đơn vị volume và độ dài phiên — phần mà `M8-OD-C` chưa phủ | 1/11 | 0 | 1 | 0 | 916 |
@@ -839,9 +839,9 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/W-0122-vieneu-selfhosted-tts-plan.md | W-0122 — Tự host VieNeu-TTS, loại phụ thuộc SaaS TTS ở runtime | 1/39 | 0 | 3 | 10 | 6017 |
 | plan/ivr-orther/W-0123-m3-authoritative-call-decision-cleanup-plan.md | W-0123 — M3 quyết định gọi, IVR chỉ thực thi: cleanup trusted-skip phía IVR | 1/31 | 0 | 0 | 0 | 3858 |
 | plan/ivr-orther/W-0124-w0123-review-remediation-plan.md | W-0124 — Khắc phục phát hiện rà soát W-0123 | 1/11 | 1 | 0 | 0 | 1343 |
-| plan/toan-viec-can-lam-m8-2026-09-03.md | Module 8 — Bảng việc cần làm hiện hành | 1/1 | 3 | 4 | 0 | 1540 |
+| plan/toan-viec-can-lam-m8-2026-09-03.md | Module 8 — Bảng việc cần làm hiện hành | 1/1 | 3 | 4 | 0 | 1338 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
-| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 8 | 2 | 0 | 77623 |
+| prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 8 | 2 | 0 | 77683 |
 | prompt/_TEMPLATE.md | PROMPT {ID} — {Tên slice} | 1/16 | 0 | 0 | 0 | 857 |
 | prompt/00-index.md | IVR Prompt Library — Master Index | 1/10 | 0 | 58 | 0 | 772 |
 | prompt/phase-0-foundation/P0-1-repo-and-solution-bootstrap.md | PROMPT P0-1 — Repo & Solution Bootstrap | 1/14 | 1 | 0 | 0 | 913 |

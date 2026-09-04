@@ -1,10 +1,12 @@
 # W-0177 — Exact local candidate freeze and verification
 
 Ngày: `2026-09-04`
-Rejected candidates: `973df3c50554125f7b96892d4a0ea3a84d779cc9`,
+Rejected candidates: `f4201b1c9ec31790ae657f32cabd51918344f5e3`,
+`973df3c50554125f7b96892d4a0ea3a84d779cc9`,
 `0ae156d7d6e7dd424e362f8ee8e19ccffd2f2fe6`
-Current base: `1dd8dc0` + local deterministic Chaos fix.
-Trạng thái: `IN_PROGRESS / CHAOS_TIMING_RACE_FIXED_LOCAL / FINAL_CANDIDATE_REQUIRED`.
+Verified candidate: `59597e20246072ddc4309051e9903c264274e4d1`
+Tree: `7054ee4313e11b6d1f7589fe2261d4ee323ff9f7`
+Trạng thái: `TESTS_PASS_LOCAL / EXACT_CANDIDATE_VERIFIED / HOSTED_CI_AUTH_BLOCKED / NO_PUSH`.
 
 ## 1. Phạm vi
 
@@ -54,8 +56,8 @@ guard. GitNexus impact của ba `SOURCE_PINS` đều **LOW**, `0` direct caller,
 | W-0174 | **PASS** `valid=1 refusals=46` |
 | Ba pending template | **PASS valid-not-ready**; không có routing/response/receipt thật |
 | Detached clean candidate `0ae156d7` | **REJECTED** — W-0174 template bị checkout thành CRLF trong khi manifest pin LF |
-| Full .NET Integration/Chaos | superseded `f4201b1`: Integration **239/239**, Chaos **7/8**; local fix: focused **1/1**, full Chaos **8/8**; final exact SHA **PENDING** |
-| Security wrapper | **PENDING** |
+| Full .NET | exact `59597e2`: **PASS `781/781`** — Contract 24, Unit 510, Integration 239, Chaos 8 |
+| Security wrapper | **PASS** — NuGet/npm HIGH=0, Gitleaks negative control, history 159 commits |
 | Hosted GitLab CI | **AUTH_BLOCKED / NOT_RUN** |
 
 ## 5. Boundary
@@ -103,6 +105,31 @@ GitNexus trước edit cho method/class: **LOW**, `0` upstream/process/module. P
 **MEDIUM**, `1` file, `6` symbols, `4` test flows; không có runtime flow. Verification local sau fix:
 build Chaos `0 warning/0 error`, focused **1/1** và full Chaos **8/8**.
 
-Next action: commit test fix cùng factual evidence/gate/map thành candidate mới, tạo detached clean
-checkout và chạy lại validators/docs/security/admin cùng full .NET `781/781`. Chỉ cập nhật
-`TESTS_PASS` sau khi exact SHA trả toàn bộ kết quả xanh.
+## 8. Exact candidate cuối
+
+Candidate `59597e20246072ddc4309051e9903c264274e4d1` (tree
+`7054ee4313e11b6d1f7589fe2261d4ee323ff9f7`) được checkout detached sạch với
+`core.autocrlf=true`. GitLab và GitHub `main` vẫn ở `c213bf7`; candidate local ahead `6`, chưa push.
+
+| Gate trên exact SHA | Kết quả |
+| --- | --- |
+| LF provenance | **PASS** — W-0174 template và W-0170 manifest member đều `i/lf w/lf` |
+| W-0164 / W-0165 / W-0170 / W-0174 | **PASS** — `2/19`, `2/27`, `1/21`, `1/46` |
+| Release build | **PASS** — 0 warning, 0 error |
+| `dotnet format --verify-no-changes` | **PASS** |
+| Contract / Unit | **PASS** — `24/24`, `510/510` |
+| PostgreSQL Integration | **PASS** — `239/239` |
+| Chaos | **PASS** — `8/8` |
+| Admin UI | **PASS** — npm 0 vulnerability; lint; typecheck; Vitest `176/176`; production build |
+| CI/docs/traceability/gate | **PASS** — docs 14; trace 485; mirror `11/175/23`, production=false |
+| PII | **PASS** — `12/12` provenance/evidence artifact; scanner self-test `CT-CI-06..06h` |
+| Security wrapper | **PASS** — checksum, NuGet/npm HIGH=0, negative control, Gitleaks 159 commits |
+| Candidate integrity | **PASS** — detached HEAD/tree đúng; commit diff check và worktree status sạch |
+
+W-0177 chỉ đóng local verification. Hosted GitLab pipeline vẫn `AUTH_BLOCKED / NOT_RUN`; external
+dispatch vẫn `0/5`; M3/Product/Security/Platform/Telephony artifact, shared E2E, staging/UAT và
+production evidence chưa nhận. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+Next action: Release reviewer cho phép publish đúng `59597e2` và cung cấp pipeline URL hoặc GitLab
+session/token có `read_api`; chỉ sau hosted pipeline PASS mới cập nhật hosted verdict. Không amend
+candidate và không trộn kết quả của các SHA bị loại.

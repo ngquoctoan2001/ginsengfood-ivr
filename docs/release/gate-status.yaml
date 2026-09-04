@@ -827,7 +827,7 @@ work:
     evidence: "docs/evidence/W-0176/README.md"
   - id: "W-0177"
     prompt: "Freeze and verify exact local candidate for W-0170/W-0172..W-0176 (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)"
-    status: "IN_PROGRESS"
+    status: "TESTS_PASS"
     evidence: "docs/evidence/W-0177/README.md"
 
 production_flag:

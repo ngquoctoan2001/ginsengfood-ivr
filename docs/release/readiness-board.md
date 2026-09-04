@@ -29,14 +29,13 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 
 | Trạng thái | Số work item |
 | --- | --- |
-| `TESTS_PASS` | 108 |
+| `TESTS_PASS` | 109 |
 | `EVIDENCE_SUBMITTED` | 35 |
 | `BLOCKED_EXTERNAL` | 17 |
 | `ACCEPTED` | 8 |
 | `CODE_DONE` | 3 |
 | `DEFERRED_TARGET` | 2 |
 | `N/A` | 1 |
-| `IN_PROGRESS` | 1 |
 
 ## 4. Cổng còn mở
 
