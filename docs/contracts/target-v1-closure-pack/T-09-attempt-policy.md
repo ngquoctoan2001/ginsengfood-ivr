@@ -136,3 +136,10 @@ MOCK/dev/lab có thể tiếp tục dùng candidate đúng environment seed. Pro
 
 W-0151 chỉ nộp audit và decision pack. Production policy vẫn `NOT_APPROVED` và
 `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## 9. Offline intake hardening — W-0180
+
+W-0180 thêm [production-bundle validator](../../evidence/W-0180/README.md) để kiểm machine-readable
+bundle khi Product, Order Core và M3 gửi quyết định thật. PASS của validator chỉ cho phép mở review
+implementation riêng; nó không tự đóng checklist §7, không chọn strategy ATP-11 và không cho phép
+promote `mock-lab-v1` hoặc bật production.

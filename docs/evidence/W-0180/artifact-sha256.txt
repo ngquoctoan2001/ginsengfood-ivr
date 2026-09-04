@@ -1,0 +1,6 @@
+7c25e10f12ac13012ea18d13a6cdc7027c6dd19ce2a0728366d47bb8df3e1cdb  deploy/ci/scripts/attempt-policy-production-bundle-validator.mjs
+4695ff51be56dd208682f80a32b7dedaf748ede09066da2ae6039f51b1e1f4df  docs/evidence/W-0180/attempt-policy-production-bundle.template.json
+b0134983a9449a8f85db38d90cc62df2ac3413dc7aec465a9148440a394a1eca  docs/evidence/W-0151/README.md
+4046e3c1cbeb8d3983da0745f25056968d0960b04b410904369bdb20e987eb11  docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md
+aebad839f97f3585c5ca28356d0031e40433857f2902c0a23d1c5447035ee5a9  specs/functional/03-scheduler-attempt-policy.md
+ae072510f5d2d65a4567ec1a3cff2e38abbd15238369d466306d077c51ceae8d  src/Ivr.Domain/Confirmation/AttemptPolicy.cs

@@ -82,3 +82,16 @@ signatures, M3 producer hoặc production acceptance.
 
 Route ATP-01..ATP-15 to Product, Order Core and M3. Do not open scheduler/registry implementation
 until the signed bundle and producer artifacts are attached to this evidence folder.
+
+## W-0180 follow-up — offline production-bundle intake
+
+Ngày `04/09/2026`, W-0180 bổ sung validator metadata-only và pending template để nhận bộ quyết định
+thật sau này. Validator khóa canonical hash của bundle hai program, đủ `ATP-01..ATP-15`, chữ ký
+Product/Order Core/M3, M3 producer/CDC, registry custody/recovery, capacity/token, shared E2E và
+release packet bằng các SHA-256 reviewer truyền độc lập.
+
+Đây là hardening local không phụ thuộc việc chọn số policy. W-0180 **không** sửa scheduler,
+registry, OpenAPI, DB, seed hoặc config; không promote `mock-lab-v1`. Vì chưa có input ngoài thật,
+trạng thái production của W-0151 vẫn `NOT_APPROVED / CODE_NOT_AUTHORIZED`.
+
+Artifact và hướng dẫn chạy: [W-0180](../W-0180/README.md).

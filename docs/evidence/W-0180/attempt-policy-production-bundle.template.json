@@ -1,0 +1,160 @@
+{
+  "schema_version": "m8-attempt-policy-production-bundle.v1",
+  "work_id": "W-0180",
+  "status": "OWNER_DECISION_REQUIRED",
+  "source": {
+    "audit_evidence_path": "docs/evidence/W-0151/README.md",
+    "audit_evidence_sha256": "b0134983a9449a8f85db38d90cc62df2ac3413dc7aec465a9148440a394a1eca",
+    "closure_contract_path": "docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md",
+    "closure_contract_sha256": "4046e3c1cbeb8d3983da0745f25056968d0960b04b410904369bdb20e987eb11",
+    "functional_spec_path": "specs/functional/03-scheduler-attempt-policy.md",
+    "functional_spec_sha256": "aebad839f97f3585c5ca28356d0031e40433857f2902c0a23d1c5447035ee5a9",
+    "domain_policy_path": "src/Ivr.Domain/Confirmation/AttemptPolicy.cs",
+    "domain_policy_sha256": "ae072510f5d2d65a4567ec1a3cff2e38abbd15238369d466306d077c51ceae8d"
+  },
+  "bundle": {
+    "bundle_id": "PENDING_EXTERNAL_DECISION",
+    "policy_version": "PENDING_EXTERNAL_DECISION",
+    "bundle_sha256": "PENDING_EXTERNAL_DECISION",
+    "issued_at": "PENDING_EXTERNAL_DECISION",
+    "effective_at": "PENDING_EXTERNAL_DECISION",
+    "retire_previous_at": "PENDING_EXTERNAL_DECISION",
+    "authority_provenance": {
+      "decision_pack_ref": "PENDING_EXTERNAL_DECISION",
+      "decision_pack_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision_coverage_sha256": "PENDING_EXTERNAL_DECISION",
+      "signed_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "programs": [
+      {
+        "program": "GOLDEN_HOUR",
+        "max_customer_attempts": "PENDING_EXTERNAL_DECISION",
+        "offsets_seconds": [],
+        "attempt_window_seconds": "PENDING_EXTERNAL_DECISION"
+      },
+      {
+        "program": "ALWAYS_ON",
+        "max_customer_attempts": "PENDING_EXTERNAL_DECISION",
+        "offsets_seconds": [],
+        "attempt_window_seconds": "PENDING_EXTERNAL_DECISION"
+      }
+    ],
+    "timing": {
+      "t0_definition": "PENDING_EXTERNAL_DECISION",
+      "clock_skew_seconds": "PENDING_EXTERNAL_DECISION"
+    },
+    "counting": {
+      "customer_counted_outcomes": [],
+      "terminal_outcomes": [],
+      "invalid_input_counted": "PENDING_EXTERNAL_DECISION",
+      "technical_failure_counted": "PENDING_EXTERNAL_DECISION",
+      "manual_retry_rule": "PENDING_EXTERNAL_DECISION"
+    },
+    "technical_retry": {
+      "config_version": "PENDING_EXTERNAL_DECISION",
+      "max_retries_per_customer_attempt": "PENDING_EXTERNAL_DECISION",
+      "backoff_schedule_seconds": [],
+      "retry_window_rule": "PENDING_EXTERNAL_DECISION"
+    },
+    "temporal_policy": {
+      "timezone": "PENDING_EXTERNAL_DECISION",
+      "quiet_hours_policy_ref": "PENDING_EXTERNAL_DECISION",
+      "holiday_policy_ref": "PENDING_EXTERNAL_DECISION",
+      "window_crossing_rule": "PENDING_EXTERNAL_DECISION"
+    },
+    "wire_contract": {
+      "authoritative_source": "PENDING_EXTERNAL_DECISION",
+      "version_required": "PENDING_EXTERNAL_DECISION",
+      "snapshot_required": "PENDING_EXTERNAL_DECISION",
+      "mismatch_http_status": "PENDING_EXTERNAL_DECISION",
+      "mismatch_code": "PENDING_EXTERNAL_DECISION",
+      "producer_artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "producer_artifact_sha256": "PENDING_EXTERNAL_DECISION",
+      "cdc_artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "cdc_artifact_sha256": "PENDING_EXTERNAL_DECISION"
+    },
+    "registry_governance": {
+      "controlled_writer_ref": "PENDING_EXTERNAL_DECISION",
+      "controlled_reader_ref": "PENDING_EXTERNAL_DECISION",
+      "four_eyes": "PENDING_EXTERNAL_DECISION",
+      "atomic_bundle_publish": "PENDING_EXTERNAL_DECISION",
+      "immutable_versions": "PENDING_EXTERNAL_DECISION",
+      "hard_delete_allowed": "PENDING_EXTERNAL_DECISION",
+      "effective_retire_rule": "PENDING_EXTERNAL_DECISION",
+      "custody_ref": "PENDING_EXTERNAL_DECISION",
+      "recovery_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "audit_hash_required": "PENDING_EXTERNAL_DECISION"
+    },
+    "pre_dial_coherence": {
+      "strategy": "PENDING_EXTERNAL_DECISION",
+      "consistency_rule_ref": "PENDING_EXTERNAL_DECISION",
+      "checked_at": "PENDING_EXTERNAL_DECISION",
+      "unknown_policy_behavior": "PENDING_EXTERNAL_DECISION",
+      "registry_unavailable_behavior": "PENDING_EXTERNAL_DECISION",
+      "drift_behavior": "PENDING_EXTERNAL_DECISION"
+    },
+    "capacity_and_token": {
+      "model_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "recalibrated_for_bundle": "PENDING_EXTERNAL_DECISION",
+      "channel_token_policy_ref": "PENDING_EXTERNAL_DECISION",
+      "rate_limit_policy_ref": "PENDING_EXTERNAL_DECISION"
+    },
+    "cutover_and_rollback": {
+      "previous_policy_version": "PENDING_EXTERNAL_DECISION",
+      "in_flight_rule": "PENDING_EXTERNAL_DECISION",
+      "rollback_policy_version": "PENDING_EXTERNAL_DECISION",
+      "rollback_trigger_ref": "PENDING_EXTERNAL_DECISION",
+      "canary_plan_ref": "PENDING_EXTERNAL_DECISION"
+    },
+    "rollout": {
+      "environments": [],
+      "shared_e2e_ref": "PENDING_EXTERNAL_DECISION",
+      "shared_e2e_sha256": "PENDING_EXTERNAL_DECISION",
+      "release_packet_ref": "PENDING_EXTERNAL_DECISION",
+      "release_packet_sha256": "PENDING_EXTERNAL_DECISION",
+      "production_default_disabled": "PENDING_EXTERNAL_DECISION",
+      "real_customer_call_allowed": "PENDING_EXTERNAL_DECISION"
+    }
+  },
+  "decision_coverage": [
+    { "decision_id": "ATP-01", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-02", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-03", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-04", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-05", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-06", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-07", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-08", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-09", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-10", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-11", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-12", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-13", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-14", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "decision_id": "ATP-15", "state": "PENDING", "decision_ref": "PENDING_EXTERNAL_DECISION", "decision_sha256": "PENDING_EXTERNAL_DECISION" }
+  ],
+  "external_evidence": {
+    "m3_producer_and_cdc": { "artifact_ref": "PENDING_EXTERNAL_DECISION", "sha256": "PENDING_EXTERNAL_DECISION", "producer_alias": "PENDING_EXTERNAL_DECISION", "produced_at": "PENDING_EXTERNAL_DECISION" },
+    "registry_custody_and_recovery": { "artifact_ref": "PENDING_EXTERNAL_DECISION", "sha256": "PENDING_EXTERNAL_DECISION", "producer_alias": "PENDING_EXTERNAL_DECISION", "produced_at": "PENDING_EXTERNAL_DECISION" },
+    "capacity_and_token_recalibration": { "artifact_ref": "PENDING_EXTERNAL_DECISION", "sha256": "PENDING_EXTERNAL_DECISION", "producer_alias": "PENDING_EXTERNAL_DECISION", "produced_at": "PENDING_EXTERNAL_DECISION" },
+    "shared_e2e": { "artifact_ref": "PENDING_EXTERNAL_DECISION", "sha256": "PENDING_EXTERNAL_DECISION", "producer_alias": "PENDING_EXTERNAL_DECISION", "produced_at": "PENDING_EXTERNAL_DECISION" },
+    "production_release_packet": { "artifact_ref": "PENDING_EXTERNAL_DECISION", "sha256": "PENDING_EXTERNAL_DECISION", "producer_alias": "PENDING_EXTERNAL_DECISION", "produced_at": "PENDING_EXTERNAL_DECISION" }
+  },
+  "signoffs": [
+    { "role": "PRODUCT", "signer_alias": "PENDING_EXTERNAL_DECISION", "verifier_alias": "PENDING_EXTERNAL_DECISION", "authority_ref": "PENDING_EXTERNAL_DECISION", "authority_sha256": "PENDING_EXTERNAL_DECISION", "decision": "PENDING", "signed_at": "PENDING_EXTERNAL_DECISION", "policy_version": "PENDING_EXTERNAL_DECISION", "bundle_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "role": "ORDER_CORE", "signer_alias": "PENDING_EXTERNAL_DECISION", "verifier_alias": "PENDING_EXTERNAL_DECISION", "authority_ref": "PENDING_EXTERNAL_DECISION", "authority_sha256": "PENDING_EXTERNAL_DECISION", "decision": "PENDING", "signed_at": "PENDING_EXTERNAL_DECISION", "policy_version": "PENDING_EXTERNAL_DECISION", "bundle_sha256": "PENDING_EXTERNAL_DECISION" },
+    { "role": "M3_OWNER", "signer_alias": "PENDING_EXTERNAL_DECISION", "verifier_alias": "PENDING_EXTERNAL_DECISION", "authority_ref": "PENDING_EXTERNAL_DECISION", "authority_sha256": "PENDING_EXTERNAL_DECISION", "decision": "PENDING", "signed_at": "PENDING_EXTERNAL_DECISION", "policy_version": "PENDING_EXTERNAL_DECISION", "bundle_sha256": "PENDING_EXTERNAL_DECISION" }
+  ],
+  "safety": {
+    "contains_raw_rows_or_payload": false,
+    "contains_contact_or_personal_data": false,
+    "contains_credentials_or_secrets": false,
+    "mock_lab_promoted": false,
+    "scheduler_or_registry_changed": false,
+    "production_enabled": false,
+    "real_customer_call_allowed": false,
+    "validator_claims_production_authorization": false
+  }
+}
