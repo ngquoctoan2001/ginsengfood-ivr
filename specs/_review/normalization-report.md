@@ -2,7 +2,7 @@
 
 ## Round 5 — Target V1 realignment (2026-08-12)
 
-Source/code review superseded several earlier conclusions. Active plan/spec/prompt now use `plan/ivr-orther/target-contract-v1-draft.md`:
+Source/code review superseded several earlier conclusions. Active plan/spec/prompt now use `docs/contracts/target-v1-closure-pack/README.md` cùng hai OpenAPI hiện hành:
 
 - scope is Golden Hour ONLINE plus 24/7 COD, not global COD-only;
 - D-10 timings are configurable candidate values for MOCK/LAB, not production-locked;

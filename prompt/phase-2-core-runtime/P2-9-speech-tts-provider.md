@@ -19,7 +19,7 @@ Bạn là **Senior .NET Engineer (Voice/Media)**. Bạn xây **port + adapter** 
 `README-governance` §3 liệt kê “speech renderer + TTS provider” là provider bắt buộc. `P2-4` mới chỉ có `ISpeechRenderer` trả **text** và một fake TTS; chính `P2-4` ghi “Do not claim TTS pronunciation is live-verified”. `P8-1` gọi `play` trên vendor adapter nhưng **không nêu nguồn audio**. Không prompt nào trong thư viện implement audio thật. Vì nghiệp vụ cốt lõi là “khách nghe đơn của mình rồi bấm 1 hoặc 0”, một câu đọc sai/không hiểu được là lỗi business, không phải lỗi kỹ thuật nhỏ. Slice này đóng lỗ hổng ở mức port/adapter/test, để `P8-1` có thứ để phát.
 
 ## 3. SOURCE SPECS (đọc trước khi code — bắt buộc)
-- `plan/ivr-orther/target-contract-v1-draft.md` §6 (payload lời thoại)
+- `docs/contracts/target-v1-closure-pack/T-03-speech-summary.md` (payload lời thoại)
 - `specs/functional/04-call-execution-dtmf.md` (danh sách biến canonical + forbidden)
 - `specs/api/04-sim-adapter-contract.md` (`play_script`, trust boundary, recording)
 - `specs/data/05-pii-policy.md`, `specs/database/05-retention-and-privacy.md`

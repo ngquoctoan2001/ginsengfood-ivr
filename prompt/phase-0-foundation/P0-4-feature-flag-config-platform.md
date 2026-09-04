@@ -18,7 +18,7 @@ Target V1 cần tách execution mode, Sales provider, telephony provider, policy
 ## 3. SOURCE SPECS (đọc trước)
 - `prompt/README-governance.md` §2 (bất biến), §6 (ladder→env)
 - `specs/architecture/04-deployment-architecture.md`
-- `plan/ivr-orther/decisions-log.md` §DF-03 (gate), §DS-03/04 (target flags), §DC-06 · `plan/ivr-orther/production-blockers-plan.md` §B (flag mapping)
+- `plan/ivr-orther/decisions-log.md` §DF-03 (gate), §DS-03/04 (target flags), §DC-06 · `plan/toan-viec-can-lam-m8-2026-09-03.md` (flag/runtime blockers hiện hành)
 
 ## 4. DECISIONS & CONSTRAINTS
 - **Default an toàn:** mọi flag rủi ro default **off**; `REAL_CUSTOMER_CALL_ALLOWED` không bật được ngoài prod-approved (P7-3/P9-1).

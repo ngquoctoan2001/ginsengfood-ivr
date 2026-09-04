@@ -11,7 +11,7 @@ Bạn là Senior .NET API/Contract Engineer. Tạo typed contracts và drift gat
 ## 2. Read first
 
 - `prompt/README-governance.md`, tracker Work W-0014;
-- `plan/ivr-orther/target-contract-v1-draft.md`;
+- `docs/contracts/target-v1-closure-pack/README.md` cùng hai OpenAPI hiện hành;
 - `specs/api/00-index.md`, `05-order-core-contracts.md`;
 - cả hai file `specs/api/openapi/*.yaml`;
 - `integration-requirements/01-sales-platform-requirements.md`.

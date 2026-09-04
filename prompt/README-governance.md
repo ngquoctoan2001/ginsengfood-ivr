@@ -10,7 +10,7 @@ Hoàn thiện IVR .NET/Next.js/PostgreSQL đến `IMPLEMENTATION_COMPLETE_BEHIND
 
 Khi tài liệu mâu thuẫn, ưu tiên theo thứ tự:
 
-1. `plan/ivr-orther/target-contract-v1-draft.md`;
+1. `docs/contracts/target-v1-closure-pack/README.md` và hai OpenAPI hiện hành;
 2. Target V1 overlay `TV1-*` trong `plan/ivr-orther/decisions-log.md` và `specs/_review/open-decisions-register.md`;
 3. OpenAPI target/current-compat (`specs/api/openapi/*.yaml`);
 4. `specs/` và `integration-requirements/`;

@@ -10,7 +10,10 @@ Trạng thái: `TESTS_PASS` — Giai đoạn 2, 3, 5 xong; Giai đoạn 4 chờ 
 >
 > `REAL_CUSTOMER_CALL_ALLOWED=NO` không thay đổi.
 
-Plan: [`W-0106-regional-voice-routing-plan.md`](../../../plan/ivr-orther/W-0106-regional-voice-routing-plan.md)
+Nguồn hiện hành: [`DeliveryRegionResolver.cs`](../../../src/Ivr.Domain/Speech/DeliveryRegionResolver.cs),
+[`VietnameseNumberSpeller.cs`](../../../src/Ivr.Domain/Speech/VietnameseNumberSpeller.cs) và
+[`RegionalVoiceMap.cs`](../../../src/Ivr.Infrastructure/Speech/RegionalVoiceMap.cs). Plan lịch sử đã được
+gỡ khỏi cây active; evidence và source này là điểm đọc hiện hành.
 
 ---
 

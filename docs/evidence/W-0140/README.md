@@ -18,7 +18,7 @@ Thứ tự thẩm quyền được giữ nguyên:
 2. [`readiness-board.md`](../../release/readiness-board.md) và
    [`gate-status.yaml`](../../release/gate-status.yaml) chỉ là mirror sinh bằng
    `deploy/ci/scripts/gate-status.mjs`.
-3. [Module 8 worklist](../../../plan/ivr-orther/dev-viec-can-lam-m8-2026-08-29.md) chỉ điều phối và
+3. [Module 8 worklist hiện hành](../../../plan/toan-viec-can-lam-m8-2026-09-03.md) chỉ điều phối và
    trỏ tới evidence; không có status độc lập.
 
 Không tạo phần trăm và không sửa tay readiness mirror.

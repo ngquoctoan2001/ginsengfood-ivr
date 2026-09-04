@@ -2,7 +2,10 @@
 
 Trạng thái: `TESTS_PASS` — **chưa** `ACCEPTED`
 Ngày: `2026-08-22`
-Plan: [`plan/ivr-orther/W-0107-vietnamese-localization-plan.md`](../../../plan/ivr-orther/W-0107-vietnamese-localization-plan.md)
+Nguồn hiện hành: [`enums.vi.json`](../../../admin-ui/src/i18n/enums.vi.json),
+[`enum.ts`](../../../admin-ui/src/lib/i18n/enum.ts) và
+[`EnumLabel.tsx`](../../../admin-ui/src/components/data/EnumLabel.tsx). Plan lịch sử đã được gỡ khỏi
+cây active; evidence và source này là điểm đọc hiện hành.
 
 ---
 

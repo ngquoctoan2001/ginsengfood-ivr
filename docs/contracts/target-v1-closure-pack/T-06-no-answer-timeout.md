@@ -8,7 +8,7 @@ Due: chốt **trước pilot `P8-2`** — race chỉ xuất hiện khi có hai h
 
 ## 1. Current evidence — đã đọc từ nguồn
 
-**Đề xuất Target V1 hiện tại** — [`plan/ivr-orther/target-contract-v1-draft.md:127`](../../../plan/ivr-orther/target-contract-v1-draft.md) §9:
+**Đề xuất Target V1 hiện tại** — xem [closure-pack index](README.md) và contract được kiểm ở dưới:
 
 - `NO_ANSWER_FINAL` **không** yêu cầu Sales huỷ ngay. Callback là advisory với `recommended_core_action = CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT`.
 - Sales timeout worker **có thể** chuyển `EXPIRED` khi hết window, nhưng **phải revalidate** state/version/blocker trước khi transition.

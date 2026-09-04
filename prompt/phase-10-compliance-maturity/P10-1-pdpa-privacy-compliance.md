@@ -17,7 +17,7 @@ Gọi khách hàng = xử lý dữ liệu cá nhân. Không tuân thủ = rủi 
 
 ## 3. SOURCE SPECS (đọc trước)
 - `specs/data/05-pii-policy.md`, `specs/functional/08-evidence-audit-privacy.md`, `specs/database/05-retention-and-privacy.md`
-- `plan/ivr-orther/decisions-log.md` §DC-01..04 (consent/do-not-call), §D-05, §DF-07 (retention), §DT-05 (recording) · `plan/ivr-orther/production-blockers-plan.md` §C
+- `plan/ivr-orther/decisions-log.md` §DC-01..04 (consent/do-not-call), §D-05, §DF-07 (retention), §DT-05 (recording) · `plan/toan-viec-can-lam-m8-2026-09-03.md` — C9/C10/C11/C13 hiện hành
 
 ## 4. DECISIONS & CONSTRAINTS
 - **Legal basis:** cuộc gọi confirm COD = transactional/hợp đồng — xác lập cơ sở pháp lý (phối hợp Legal); do-not-call/consent theo CRM registry (DC-01).

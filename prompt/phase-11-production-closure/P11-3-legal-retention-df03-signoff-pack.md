@@ -16,7 +16,7 @@ Bạn là **Privacy/Compliance Release Coordinator**. Bạn chuẩn bị hồ s�
 DF-07 retention và DF-03 sign-off là hard production blockers. P10-1/P10-2 xây privacy/data-governance implementation, nhưng production cần decision records được owner/legal/security chấp nhận. Prompt này gom policy, risk, evidence và sign-off checklist thành hồ sơ release.
 
 ## 3. SOURCE SPECS (đọc trước)
-- `plan/ivr-orther/production-blockers-plan.md` §C
+- `plan/toan-viec-can-lam-m8-2026-09-03.md` — các dòng privacy, suppression, freshness và telephony hiện hành
 - `specs/data/05-pii-policy.md`
 - `specs/testing/08-acceptance-criteria.md`
 - `specs/_review/open-decisions-register.md`

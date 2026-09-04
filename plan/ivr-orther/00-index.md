@@ -4,7 +4,7 @@ Trạng thái: `LIVING` · Cập nhật: `2026-08-12` · Module: **IVR Order Con
 
 ## 1. Thứ tự nguồn điều khiển
 
-1. [target-contract-v1-draft.md](target-contract-v1-draft.md) — Target V1 để build song song; còn các owner/external gates.
+1. [Target Contract V1 closure pack](../../docs/contracts/target-v1-closure-pack/README.md) — contract/OAS-backed handoff hiện hành; còn các owner/external gates.
 2. [decisions-log.md](decisions-log.md) — lịch sử quyết định và current-compat; `TV1-*` supersede các giả định cũ khi mâu thuẫn.
 3. `specs/api/openapi/*` — machine-readable contract; Target Sales callback vẫn là draft cho tới khi hai team ký.
 4. `specs/*`, `integration-requirements/*`, rồi `prompt/*`.
@@ -40,8 +40,8 @@ Không được tuyên bố `CONTRACT_LOCKED`, `PRODUCTION_READY` hoặc “ch�
 - Telephony: protocol/SDK, DTMF/disposition, 1 SIM lab rồi 32 eSIM capacity.
 - Legal/Privacy/Release: nội dung lời thoại, retention, allowlist/pilot và go-live sign-off.
 
-Các mục trên **không chặn build sau ports/mocks**, nhưng chặn integration thật hoặc production tương ứng. Xem [production-blockers-plan.md](production-blockers-plan.md) và `integration-requirements/05-open-contract-questions.md`.
+Các mục trên **không chặn build sau ports/mocks**, nhưng chặn integration thật hoặc production tương ứng. Xem [Module 8 worklist hiện hành](../toan-viec-can-lam-m8-2026-09-03.md) và `integration-requirements/05-open-contract-questions.md`.
 
 ## 5. Lịch sử
 
-Ngày `2026-09-04` đã gỡ khỏi cây làm việc: `_archive/`, `prompt/_legacy-mock/`, `prompt/_review/`, các phiếu `questions-to-*` đã `SUPERSEDED` (vòng 2026-07-02 và `OD-15`), `remaining-work-plan-2026-08-22.md`, báo cáo tiến độ 15/08–26/08 và hai `.docx` Module 8 đã thu hồi. Nội dung vẫn truy được trong git history; không dùng chúng làm nguồn điều khiển. `OD-15` đã bị `OD-18`/`W-0123` thay thế — Module 3 không còn nợ trust/risk-evidence field cho IVR tự skip. Lượt rà soát `W-0123` và phần khắc phục của nó nằm ở [W-0124-w0123-review-remediation-plan.md](W-0124-w0123-review-remediation-plan.md); `W-0124` xoay baseline so sánh OpenAPI sang `draft.20` nhưng **giữ** baseline `draft.2` và báo cáo chuyển tiếp của nó làm lịch sử audit. Phiếu đang hoạt động gửi Module 3 là [questions-to-module-3-od18-authority.md](questions-to-module-3-od18-authority.md) (`W-0125`). Nhãn dùng: `CURRENT_COMPAT`, `TARGET_DRAFT`, `OWNER_DECISION_REQUIRED`, `BLOCKED_EXTERNAL`, `IMPLEMENTED`, `VERIFIED`.
+Ngày `2026-09-04` đã gỡ khỏi cây làm việc: `_archive/`, `prompt/_legacy-mock/`, `prompt/_review/`, các phiếu `questions-to-*` đã `SUPERSEDED` (vòng 2026-07-02 và `OD-15`), `remaining-work-plan-2026-08-22.md`, báo cáo tiến độ 15/08–26/08 và hai `.docx` Module 8 đã thu hồi. Nội dung vẫn truy được trong git history; không dùng chúng làm nguồn điều khiển. `OD-15` đã bị `OD-18`/`W-0123` thay thế — Module 3 không còn nợ trust/risk-evidence field cho IVR tự skip. Lượt rà soát `W-0123` và phần khắc phục của nó nằm ở [W-0124 evidence](../../docs/evidence/W-0124/README.md); `W-0124` xoay baseline so sánh OpenAPI sang `draft.20` nhưng **giữ** baseline `draft.2` và báo cáo chuyển tiếp của nó làm lịch sử audit. Phiếu đang hoạt động gửi Module 3 là [questions-to-module-3-od18-authority.md](questions-to-module-3-od18-authority.md) (`W-0125`). Nhãn dùng: `CURRENT_COMPAT`, `TARGET_DRAFT`, `OWNER_DECISION_REQUIRED`, `BLOCKED_EXTERNAL`, `IMPLEMENTED`, `VERIFIED`.

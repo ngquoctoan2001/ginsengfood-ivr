@@ -50,7 +50,7 @@ Chi tiết counted/final/action nằm ở
 ## 4. Artifact đã cập nhật
 
 - `plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md`
-- `plan/ivr-orther/dev-viec-can-lam-m8-2026-08-29.md` — row + handoff nổi bật ngay dưới M8-05
+- `plan/toan-viec-can-lam-m8-2026-09-03.md` — worklist hiện hành; bản worklist 29/08 đã gỡ khỏi cây active
 - `plan/ivr-orther/today-01-decision-signoff-pack-2026-08-29.md`
 - `docs/contracts/target-v1-closure-pack/{README,T-01-program-matrix,T-05-callback-ack}.md`
 - `integration-requirements/06-module-3-api-handover.md`

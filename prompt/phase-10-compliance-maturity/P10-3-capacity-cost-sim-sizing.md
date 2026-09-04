@@ -17,7 +17,7 @@ Số SIM là ràng buộc vật lý + chi phí lớn. Đặt sai → hoặc khô
 
 ## 3. SOURCE SPECS (đọc trước)
 - `specs/functional/03-scheduler-attempt-policy.md` (D-10 window/spacing), `specs/testing/06-performance-test-plan.md`
-- `plan/ivr-orther/decisions-log.md` §D-10 · §DT-04 (SIM pool, cooldown 5s, one-call) · `plan/ivr-orther/production-blockers-plan.md` §A
+- `plan/ivr-orther/decisions-log.md` §D-10 · §DT-04 (SIM pool, cooldown 5s, one-call) · `plan/toan-viec-can-lam-m8-2026-09-03.md` — B1/B3 hiện hành
 
 ## 4. DECISIONS & CONSTRAINTS
 - **Ràng buộc:** one-channel-one-active-call; cooldown/policy là versioned config. Candidate GH 300/[0,150] và 24/7 900/[0,450] chỉ dùng scenario MOCK/LAB; mô hình phải nhận policy khác và không hard-code.

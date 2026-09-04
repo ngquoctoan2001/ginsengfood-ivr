@@ -4,7 +4,7 @@ Trạng thái: `READY_FOR_IMPLEMENTATION_WITH_MOCKS_AFTER_BASELINE_FREEZE` · C�
 
 > Điều kiện còn lại trước W-0010: owner freeze/commit baseline tài liệu (xem `_execution/defaults-and-confirmations.md` §Must-decide gates). Hosted CI evidence phụ thuộc `W-0061`/`G-GITLAB`.
 
-Đọc theo thứ tự: [Governance](README-governance.md) → [Runbook](RUNBOOK-execute-prompts.md) → [Target V1](../plan/ivr-orther/target-contract-v1-draft.md) → [Defaults](./_execution/defaults-and-confirmations.md) → [Canonical tracker](./_execution/prompt-execution-tracker.md).
+Đọc theo thứ tự: [Governance](README-governance.md) → [Runbook](RUNBOOK-execute-prompts.md) → [Target V1](../docs/contracts/target-v1-closure-pack/README.md) → [Defaults](./_execution/defaults-and-confirmations.md) → [Canonical tracker](./_execution/prompt-execution-tracker.md).
 
 Mục tiêu gần: implementation-complete bằng fake Sales + mock SIM. Sau đó test 1 SIM thật/allowlist. Production cần Sales API/auth/policy/legal và target 32 eSIM được nghiệm thu.
 

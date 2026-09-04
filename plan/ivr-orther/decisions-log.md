@@ -1,6 +1,6 @@
 # Decisions Log — IVR (lịch sử quyết định + Target V1 overlay)
 
-> **Hiệu lực 2026-08-12:** các quyết định `TV1-*` trong [target-contract-v1-draft.md](target-contract-v1-draft.md) là lớp điều khiển mới cho plan/spec/prompt. Chúng **supersede** mọi câu cũ nói toàn hệ thống “COD-only”, D-10 đã khóa, callback cũ là target cuối, notification phải build trong V1, hoặc pilot mặc định 12 SIM. Các bảng `D-*`/`DS-*` bên dưới được giữ nguyên làm lịch sử/current-compat; không được dùng để phủ định `TV1-*`.
+> **Hiệu lực 2026-08-12:** các quyết định `TV1-*`, nay được duy trì qua [Target Contract V1 closure pack](../../docs/contracts/target-v1-closure-pack/README.md), là lớp điều khiển mới cho plan/spec/prompt. Chúng **supersede** mọi câu cũ nói toàn hệ thống “COD-only”, D-10 đã khóa, callback cũ là target cuối, notification phải build trong V1, hoặc pilot mặc định 12 SIM. Các bảng `D-*`/`DS-*` bên dưới được giữ nguyên làm lịch sử/current-compat; không được dùng để phủ định `TV1-*`.
 
 ## Target V1 overlay — trạng thái DRAFT
 
@@ -19,7 +19,7 @@
 | `TV1-11` | Dev dùng mock JWT; production target short-lived service JWT, mTLS chờ Security/Platform quyết định. | `TARGET_DRAFT` |
 | `TV1-12` | CI provider là GitLab CI; entrypoint `.gitlab-ci.yml`, Merge Request pipeline và GitLab merge/protected-branch gates. Không dùng GitHub Actions cho IVR. | `OWNER_CONFIRMED` |
 
-Nguồn chi tiết và tiêu chí closure: [target-contract-v1-draft.md](target-contract-v1-draft.md).
+Nguồn chi tiết và tiêu chí closure: [Target Contract V1 closure pack](../../docs/contracts/target-v1-closure-pack/README.md).
 
 Nguồn: trả lời chính thức từ **Module 3 (Commerce Order Core)** và **Module 3.1 (Sales Extensions)** ngày 2026-07-02 (phiếu `questions-to-module-3-and-3.1.md` đã gỡ 2026-09-04; nội dung còn trong git history).
 Trạng thái các quyết định dưới đây: **LOCKED** (đã có owner trả lời) — nâng từ `ASSUMPTION`/`NEED_CONFIRMATION` lên `CONFIRMED`.

@@ -5,11 +5,12 @@ Ngày: `2026-09-04`
 Baseline: `main@5c0b17085030cd69722a8422fe635bbcfbd9f5de` + shared WIP được bảo toàn.
 
 Trạng thái: **`TESTS_PASS_LOCAL / OFFLINE_REGISTRY_DECISION_VALIDATOR_READY /
-EXTERNAL_PROVIDER_AND_SIGNATURES_REQUIRED / CODE_NOT_AUTHORIZED / CALIBRATION_NOT_RUN`**
+EXTERNAL_INTAKE_DEFERRED_BY_OWNER / EXTERNAL_PROVIDER_AND_SIGNATURES_REQUIRED /
+CODE_NOT_AUTHORIZED / CALIBRATION_NOT_RUN`**
 
-Current-head recovery: W-0188 đã phục hồi exact M8-14/M8-15 trên `main@8ed62e9` và bổ sung
-M8-15 vào tập local source được validator recompute. Không đổi contract hash, schema, decision,
-quorum hoặc external state.
+Current-head recovery: W-0188 đã phục hồi exact M8-14/M8-15 trên baseline `main@8ed62e9`, bổ sung
+M8-15 vào tập local source được validator recompute và đã được đóng gói tại `main@6cae4ed`.
+Không đổi contract hash, schema, decision, quorum hoặc external state.
 
 ## 1. Kết quả audit B1
 
@@ -155,9 +156,10 @@ clean-checkout verification riêng.
 - Calibration/freeze/shared E2E/production: `NOT_RUN`.
 - `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-## 8. Bước tiếp theo
+## 8. Bước tiếp theo — deferred
 
-Phần local không cần quyết định đã sạch. Platform, Security và Module 8 điền completed pack, giao sáu
-evidence bundle và bảy independent pins. Chỉ sau completed-input W-0182 PASS mới mở provider-specific
-adapter review. Nếu chưa có artifact thật, B1 dừng đúng ở
-`LOCAL_TOOLCHAIN_READY / DATA_0_OF_4 / BLOCKED_EXTERNAL`.
+Owner quyết định ngày `2026-09-04`: **chưa yêu cầu external submission hoặc chữ ký ở giai đoạn này**.
+B1 dừng tại `LOCAL_TOOLCHAIN_READY / DATA_0_OF_4 / EXTERNAL_INTAKE_DEFERRED_BY_OWNER`; không dispatch
+yêu cầu, không chạy calibration và không mở adapter review. Khi owner mở lại, Platform, Security và
+Module 8 mới điền completed pack, giao sáu evidence bundle cùng bảy independent pins; chỉ sau
+completed-input W-0182 PASS mới mở provider-specific adapter review.

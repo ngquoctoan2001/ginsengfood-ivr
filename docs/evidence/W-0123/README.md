@@ -233,7 +233,7 @@ Trạng thái hiện tại:
 - Owner Module 8 đã xác nhận blocker; xác nhận này không thay target authority/evidence.
 
 Handoff đầy đủ:
-[`today-04-target-db-preflight-handoff-2026-08-29.md`](../../../plan/ivr-orther/today-04-target-db-preflight-handoff-2026-08-29.md).
+Current preflight handoff và stop rule nằm trong [W-0125 evidence](../W-0125/README.md); TODAY-04 lịch sử đã được gỡ khỏi cây active.
 
 ## 7. Thay đổi ngoài phạm vi mang trong cùng diff
 

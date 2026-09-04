@@ -124,9 +124,9 @@ Mỗi gate dưới đây nay có **một** hành động cụ thể và một ph
 1. **Owner voice selection: DONE `2026-08-28`.** Đã nghe đủ 11 file qua Asterisk/MicroSIP 8 kHz
    và ký Bắc Ngọc Linh / Trung Ngọc Trân / Nam Mỹ Duyên. Không mở lại vòng chọn nếu exact audio
    binding không đổi.
-2. **Legal/Privacy** — [`questions-to-legal-od-voice-07.md`](../../../plan/ivr-orther/questions-to-legal-od-voice-07.md).
-3. **Security/Release** — 16 finding không có bản vá: [`questions-to-security-w0122-cve-disposition.md`](../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md).
-4. **Platform/Infra/Telephony** — internal mirror, target hardware, `OD-VOICE-08`: [`questions-to-platform-w0122-infrastructure.md`](../../../plan/ivr-orther/questions-to-platform-w0122-infrastructure.md).
+2. **Legal/Privacy** — dùng current structured intake [W-0185](../W-0185/README.md); phiếu lịch sử đã gỡ khỏi cây active.
+3. **Security/Release** — 16 finding không có bản vá được giữ trong evidence này; disposition hiện hành đi qua [W-0185](../W-0185/README.md).
+4. **Platform/Infra/Telephony** — internal mirror, target hardware và `OD-VOICE-08` được nhận qua [W-0185](../W-0185/README.md).
 5. Owner thực hiện 2 đơn × 3 miền, nghe nội dung/giọng/mối nối; sau đó mới chạy retention và rollback drill.
 
 Không mục nào ở trên được suy ra từ local smoke hoặc file metadata.

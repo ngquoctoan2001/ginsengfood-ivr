@@ -6,7 +6,7 @@ Baseline: `main@8ed62e93f5ec0ff7a4c694181ac73ee04f1eb34b` + shared W-0185..W-018
 
 Trạng thái: **`TESTS_PASS_LOCAL / CAPACITY_INTAKE_CHAIN_CLEAN /
 REGISTRY_VALIDATOR_CLEAN / DATA_0_OF_4 / CALIBRATION_NOT_RUN /
-EXTERNAL_SIGNATURES_REQUIRED / CODE_NOT_AUTHORIZED`**
+EXTERNAL_INTAKE_DEFERRED_BY_OWNER / EXTERNAL_SIGNATURES_REQUIRED / CODE_NOT_AUTHORIZED`**
 
 ## 1. Root cause
 
@@ -73,9 +73,10 @@ riêng bằng `CT-CI-06..06h`.
 - Không chọn provider, không kết nối trust store và không code adapter.
 - `DATA_0_OF_4`; `CALIBRATION_NOT_RUN`; `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-## 6. Bước tiếp theo
+## 6. Bước tiếp theo — deferred
 
-Phần local không cần quyết định đã sạch sau khi các final gate PASS. Bước external là nhận đủ bốn
-submission `TIMING`, `ARRIVAL`, `POLICY_OUTCOME`, `INFRA_RESERVE`; đồng thời Platform/Security/M8
-giao completed W-0182 bundle cùng sáu evidence artifact và bảy trusted hash. Chỉ sau hai nhánh PASS
-mới freeze calibration input hoặc mở provider-adapter review.
+Owner quyết định ngày `2026-09-04`: chưa thực hiện external intake ở giai đoạn này. Không dispatch
+yêu cầu bốn submission, không yêu cầu chữ ký và không mở calibration/adapter review. Khi owner mở lại,
+nhận đủ `TIMING`, `ARRIVAL`, `POLICY_OUTCOME`, `INFRA_RESERVE`; đồng thời Platform/Security/M8 giao
+completed W-0182 bundle cùng sáu evidence artifact và bảy trusted hash. Chỉ sau hai nhánh PASS mới
+freeze calibration input hoặc mở provider-adapter review.

@@ -2,7 +2,7 @@
 
 Trạng thái: `TARGET_V1_DRAFT` · Nguồn: `phase-8/12` §4-8,§12; DF-04, D-02; **TV1-02** (attempt policy versioned/configurable).
 
-> **Realigned 2026-08-12 (W-0062).** §4 trước đây ghi `max_attempts = 2`, `window=300 ∧ spacing=150`, `window=900 ∧ spacing=450` và `attempt_number ≤ 2` như constraint P0. Điều này mâu thuẫn với `plan/ivr-orther/target-contract-v1-draft.md:83` (“Không hard-code candidate vào database constraint hoặc domain constant”), `specs/database/02-tables.md` §header, `specs/functional/03-scheduler-attempt-policy.md` (“Database không CHECK exact `2/300/150/900/450`”) và cả hai OpenAPI (`minimum: 1, maximum: 10`). Các giá trị candidate đã được chuyển sang **config/policy registry**; DB chỉ enforce bounds/invariant.
+> **Realigned 2026-08-12 (W-0062).** §4 trước đây ghi `max_attempts = 2`, `window=300 ∧ spacing=150`, `window=900 ∧ spacing=450` và `attempt_number ≤ 2` như constraint P0. Điều này mâu thuẫn với `plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md` (“Không hard-code candidate vào database constraint hoặc domain constant”), `specs/database/02-tables.md` §header, `specs/functional/03-scheduler-attempt-policy.md` (“Database không CHECK exact `2/300/150/900/450`”) và cả hai OpenAPI (`minimum: 1, maximum: 10`). Các giá trị candidate đã được chuyển sang **config/policy registry**; DB chỉ enforce bounds/invariant.
 
 ## 1. Unique (idempotency / trace)
 | Bảng | Unique | Mục đích |

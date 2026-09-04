@@ -1,6 +1,6 @@
 # 14 — Risk Register
 
-> **Target V1 update 2026-08-12:** ưu tiên hiện tại gồm Sales producer cho hai program, speech summary, dial-token, generic callback/version/ACK, auth và owner attempt policy; lab dùng 1 SIM thật/allowlist, production target 32 eSIM. Các risk/closure cũ bên dưới là lịch sử nếu mâu thuẫn với `target-contract-v1-draft.md`.
+> **Target V1 update 2026-08-12:** ưu tiên hiện tại gồm Sales producer cho hai program, speech summary, dial-token, generic callback/version/ACK, auth và owner attempt policy; lab dùng 1 SIM thật/allowlist, production target 32 eSIM. Các risk/closure cũ bên dưới là lịch sử nếu mâu thuẫn với `docs/contracts/target-v1-closure-pack/README.md` hoặc hai OpenAPI hiện hành.
 
 | ID | New/changed Target V1 risk | Priority | Mitigation/owner |
 | --- | --- | --- | --- |

@@ -2,7 +2,7 @@
 
 Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-12`.
 
-Nguồn: tài liệu gốc `docs/documents/4. phase/phase-8`, các tài liệu master/pack/tech; current Sales source/OpenAPI đã rà soát; và `plan/ivr-orther/target-contract-v1-draft.md`.
+Nguồn: tài liệu gốc `docs/documents/4. phase/phase-8`, các tài liệu master/pack/tech; current Sales source/OpenAPI đã rà soát; và `docs/contracts/target-v1-closure-pack/README.md`.
 
 ## System context
 

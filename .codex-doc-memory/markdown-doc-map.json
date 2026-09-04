@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T09:10:24.934Z",
+  "generatedAt": "2026-09-04T09:39:58.926Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -2898,6 +2898,13 @@
       ],
       "incomingLinks": [
         {
+          "from": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "README.md",
+          "line": 11
+        },
+        {
           "from": "docs/contracts/telephony-procurement-pack/README.md",
           "to": "docs/contracts/target-v1-closure-pack/README.md",
           "kind": "markdown",
@@ -2905,11 +2912,39 @@
           "line": 61
         },
         {
+          "from": "plan/ivr-orther/00-index.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+          "line": 7
+        },
+        {
+          "from": "plan/ivr-orther/decisions-log.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+          "line": 3
+        },
+        {
+          "from": "plan/ivr-orther/decisions-log.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+          "line": 22
+        },
+        {
           "from": "plan/ivr-orther/today-01-decision-signoff-pack-2026-08-29.md",
           "to": "docs/contracts/target-v1-closure-pack/README.md",
           "kind": "markdown",
           "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
           "line": 23
+        },
+        {
+          "from": "prompt/00-index.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "../docs/contracts/target-v1-closure-pack/README.md",
+          "line": 7
         }
       ]
     },
@@ -3824,8 +3859,8 @@
       "links": [
         {
           "kind": "markdown",
-          "text": "`plan/ivr-orther/target-contract-v1-draft.md:127`",
-          "rawTarget": "../../../plan/ivr-orther/target-contract-v1-draft.md",
+          "text": "closure-pack index",
+          "rawTarget": "README.md",
           "line": 11
         },
         {
@@ -3860,9 +3895,16 @@
         }
       ],
       "lines": 119,
-      "words": 890,
+      "words": 897,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
+        {
+          "from": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "README.md",
+          "line": 11
+        },
         {
           "from": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
           "to": "docs/contracts/target-v1-closure-pack/T-04-dial-token.md",
@@ -3879,12 +3921,6 @@
         }
       ],
       "unresolvedLinks": [
-        {
-          "file": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
-          "line": 11,
-          "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/target-contract-v1-draft.md"
-        },
         {
           "file": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
           "line": 17,
@@ -225599,80 +225635,92 @@
         {
           "depth": 2,
           "text": "1. Phạm vi đã triển khai",
-          "line": 17,
+          "line": 20,
           "slug": "1-phạm-vi-đã-triển-khai"
         },
         {
           "depth": 2,
           "text": "2. Automated evidence",
-          "line": 47,
+          "line": 50,
           "slug": "2-automated-evidence"
         },
         {
           "depth": 2,
           "text": "3. Impact analysis (GitNexus)",
-          "line": 83,
+          "line": 86,
           "slug": "3-impact-analysis-gitnexus"
         },
         {
           "depth": 2,
           "text": "4. Lỗi phát hiện và đã sửa",
-          "line": 105,
+          "line": 108,
           "slug": "4-lỗi-phát-hiện-và-đã-sửa"
         },
         {
           "depth": 2,
           "text": "5. Việc còn nợ",
-          "line": 121,
+          "line": 124,
           "slug": "5-việc-còn-nợ"
         },
         {
           "depth": 2,
           "text": "6. Ranh giới",
-          "line": 144,
+          "line": 147,
           "slug": "6-ranh-giới"
         },
         {
           "depth": 2,
           "text": "7. Sự cố hạ tầng đã sửa: manifest `dotnet tool` lạc",
-          "line": 156,
+          "line": 159,
           "slug": "7-sự-cố-hạ-tầng-đã-sửa-manifest-dotnet-tool-lạc"
         },
         {
           "depth": 2,
           "text": "8. Rà soát as-built (`2026-08-22`) — chênh lệch giữa plan và code",
-          "line": 181,
+          "line": 184,
           "slug": "8-rà-soát-as-built-2026-08-22-chênh-lệch-giữa-plan-và-code"
         },
         {
           "depth": 3,
           "text": "8.1 Hòa hợp với W-0107 (hệ từ điển enum)",
-          "line": 193,
+          "line": 196,
           "slug": "81-hòa-hợp-với-w-0107-hệ-từ-điển-enum"
         },
         {
           "depth": 3,
           "text": "8.2 Đính chính doc W-0104",
-          "line": 220,
+          "line": 223,
           "slug": "82-đính-chính-doc-w-0104"
         },
         {
           "depth": 3,
           "text": "8.3 Hardening runbook trước khi render (`2026-08-24`)",
-          "line": 227,
+          "line": 230,
           "slug": "83-hardening-runbook-trước-khi-render-2026-08-24"
         }
       ],
       "links": [
         {
           "kind": "markdown",
-          "text": "`W-0106-regional-voice-routing-plan.md`",
-          "rawTarget": "../../../plan/ivr-orther/W-0106-regional-voice-routing-plan.md",
+          "text": "`DeliveryRegionResolver.cs`",
+          "rawTarget": "../../../src/Ivr.Domain/Speech/DeliveryRegionResolver.cs",
           "line": 13
+        },
+        {
+          "kind": "markdown",
+          "text": "`VietnameseNumberSpeller.cs`",
+          "rawTarget": "../../../src/Ivr.Domain/Speech/VietnameseNumberSpeller.cs",
+          "line": 14
+        },
+        {
+          "kind": "markdown",
+          "text": "`RegionalVoiceMap.cs`",
+          "rawTarget": "../../../src/Ivr.Infrastructure/Speech/RegionalVoiceMap.cs",
+          "line": 15
         }
       ],
-      "lines": 238,
-      "words": 2095,
+      "lines": 241,
+      "words": 2118,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [
@@ -225680,7 +225728,19 @@
           "file": "docs/evidence/W-0106/README.md",
           "line": 13,
           "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/W-0106-regional-voice-routing-plan.md"
+          "rawTarget": "../../../src/Ivr.Domain/Speech/DeliveryRegionResolver.cs"
+        },
+        {
+          "file": "docs/evidence/W-0106/README.md",
+          "line": 14,
+          "kind": "markdown",
+          "rawTarget": "../../../src/Ivr.Domain/Speech/VietnameseNumberSpeller.cs"
+        },
+        {
+          "file": "docs/evidence/W-0106/README.md",
+          "line": 15,
+          "kind": "markdown",
+          "rawTarget": "../../../src/Ivr.Infrastructure/Speech/RegionalVoiceMap.cs"
         }
       ],
       "incomingLinks": [
@@ -225962,7 +226022,7 @@
           "to": "docs/evidence/W-0107/enum-inventory.md",
           "kind": "markdown",
           "rawTarget": "enum-inventory.md",
-          "line": 13
+          "line": 16
         }
       ]
     },
@@ -226175,110 +226235,122 @@
         {
           "depth": 2,
           "text": "1. Đã làm gì",
-          "line": 9,
+          "line": 12,
           "slug": "1-đã-làm-gì"
         },
         {
           "depth": 3,
           "text": "Thực thi `OD-L10N-02a` (khác plan gốc)",
-          "line": 22,
+          "line": 25,
           "slug": "thực-thi-od-l10n-02a-khác-plan-gốc"
         },
         {
           "depth": 3,
           "text": "Sửa lỗi tự phát hiện trong `§5.3` của plan",
-          "line": 40,
+          "line": 43,
           "slug": "sửa-lỗi-tự-phát-hiện-trong-53-của-plan"
         },
         {
           "depth": 2,
           "text": "2. Kết quả kiểm thử",
-          "line": 48,
+          "line": 51,
           "slug": "2-kết-quả-kiểm-thử"
         },
         {
           "depth": 3,
           "text": "Test mới",
-          "line": 64,
+          "line": 67,
           "slug": "test-mới"
         },
         {
           "depth": 3,
           "text": "Mutation test — chứng minh guard có răng",
-          "line": 73,
+          "line": 76,
           "slug": "mutation-test-chứng-minh-guard-có-răng"
         },
         {
           "depth": 2,
           "text": "3. Điều **không** làm, và vì sao",
-          "line": 87,
+          "line": 90,
           "slug": "3-điều-không-làm-và-vì-sao"
         },
         {
           "depth": 2,
           "text": "4. Ảnh hưởng",
-          "line": 101,
+          "line": 104,
           "slug": "4-ảnh-hưởng"
         },
         {
           "depth": 2,
           "text": "5. Gate còn lại",
-          "line": 115,
+          "line": 118,
           "slug": "5-gate-còn-lại"
         },
         {
           "depth": 2,
           "text": "6. Ghi tracker",
-          "line": 128,
+          "line": 131,
           "slug": "6-ghi-tracker"
         },
         {
           "depth": 2,
           "text": "7. Cách kiểm chứng lại",
-          "line": 146,
+          "line": 149,
           "slug": "7-cách-kiểm-chứng-lại"
         }
       ],
       "links": [
         {
           "kind": "markdown",
-          "text": "`plan/ivr-orther/W-0107-vietnamese-localization-plan.md`",
-          "rawTarget": "../../../plan/ivr-orther/W-0107-vietnamese-localization-plan.md",
+          "text": "`enums.vi.json`",
+          "rawTarget": "../../../admin-ui/src/i18n/enums.vi.json",
           "line": 5
+        },
+        {
+          "kind": "markdown",
+          "text": "`enum.ts`",
+          "rawTarget": "../../../admin-ui/src/lib/i18n/enum.ts",
+          "line": 6
+        },
+        {
+          "kind": "markdown",
+          "text": "`EnumLabel.tsx`",
+          "rawTarget": "../../../admin-ui/src/components/data/EnumLabel.tsx",
+          "line": 7
         },
         {
           "kind": "markdown",
           "text": "`enum-inventory.md`",
           "rawTarget": "enum-inventory.md",
-          "line": 13
+          "line": 16
         },
         {
           "kind": "markdown",
           "text": "`AdminConfigReadService.BuildDependencies`",
           "rawTarget": "../../../src/Ivr.Api/Application/AdminConfigReadService.cs",
-          "line": 25
+          "line": 28
         },
         {
           "kind": "markdown",
           "text": "`docs/evidence/W-0115/`",
           "rawTarget": "../W-0115/",
-          "line": 96
-        },
-        {
-          "kind": "markdown",
-          "text": "`vocabulary-review.md`",
-          "rawTarget": "vocabulary-review.md",
-          "line": 119
+          "line": 99
         },
         {
           "kind": "markdown",
           "text": "`vocabulary-review.md`",
           "rawTarget": "vocabulary-review.md",
           "line": 122
+        },
+        {
+          "kind": "markdown",
+          "text": "`vocabulary-review.md`",
+          "rawTarget": "vocabulary-review.md",
+          "line": 125
         }
       ],
-      "lines": 161,
-      "words": 1314,
+      "lines": 164,
+      "words": 1337,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -226286,14 +226358,7 @@
           "to": "docs/evidence/W-0107/enum-inventory.md",
           "kind": "markdown",
           "rawTarget": "enum-inventory.md",
-          "line": 13
-        },
-        {
-          "from": "docs/evidence/W-0107/README.md",
-          "to": "docs/evidence/W-0107/vocabulary-review.md",
-          "kind": "markdown",
-          "rawTarget": "vocabulary-review.md",
-          "line": 119
+          "line": 16
         },
         {
           "from": "docs/evidence/W-0107/README.md",
@@ -226301,6 +226366,13 @@
           "kind": "markdown",
           "rawTarget": "vocabulary-review.md",
           "line": 122
+        },
+        {
+          "from": "docs/evidence/W-0107/README.md",
+          "to": "docs/evidence/W-0107/vocabulary-review.md",
+          "kind": "markdown",
+          "rawTarget": "vocabulary-review.md",
+          "line": 125
         }
       ],
       "unresolvedLinks": [
@@ -226308,17 +226380,29 @@
           "file": "docs/evidence/W-0107/README.md",
           "line": 5,
           "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/W-0107-vietnamese-localization-plan.md"
+          "rawTarget": "../../../admin-ui/src/i18n/enums.vi.json"
         },
         {
           "file": "docs/evidence/W-0107/README.md",
-          "line": 25,
+          "line": 6,
+          "kind": "markdown",
+          "rawTarget": "../../../admin-ui/src/lib/i18n/enum.ts"
+        },
+        {
+          "file": "docs/evidence/W-0107/README.md",
+          "line": 7,
+          "kind": "markdown",
+          "rawTarget": "../../../admin-ui/src/components/data/EnumLabel.tsx"
+        },
+        {
+          "file": "docs/evidence/W-0107/README.md",
+          "line": 28,
           "kind": "markdown",
           "rawTarget": "../../../src/Ivr.Api/Application/AdminConfigReadService.cs"
         },
         {
           "file": "docs/evidence/W-0107/README.md",
-          "line": 96,
+          "line": 99,
           "kind": "markdown",
           "rawTarget": "../W-0115/"
         }
@@ -226655,14 +226739,14 @@
           "to": "docs/evidence/W-0107/vocabulary-review.md",
           "kind": "markdown",
           "rawTarget": "vocabulary-review.md",
-          "line": 119
+          "line": 122
         },
         {
           "from": "docs/evidence/W-0107/README.md",
           "to": "docs/evidence/W-0107/vocabulary-review.md",
           "kind": "markdown",
           "rawTarget": "vocabulary-review.md",
-          "line": 122
+          "line": 125
         }
       ]
     },
@@ -228262,47 +228346,50 @@
       "links": [
         {
           "kind": "markdown",
-          "text": "`questions-to-legal-od-voice-07.md`",
-          "rawTarget": "../../../plan/ivr-orther/questions-to-legal-od-voice-07.md",
+          "text": "W-0185",
+          "rawTarget": "../W-0185/README.md",
           "line": 127
         },
         {
           "kind": "markdown",
-          "text": "`questions-to-security-w0122-cve-disposition.md`",
-          "rawTarget": "../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md",
+          "text": "W-0185",
+          "rawTarget": "../W-0185/README.md",
           "line": 128
         },
         {
           "kind": "markdown",
-          "text": "`questions-to-platform-w0122-infrastructure.md`",
-          "rawTarget": "../../../plan/ivr-orther/questions-to-platform-w0122-infrastructure.md",
+          "text": "W-0185",
+          "rawTarget": "../W-0185/README.md",
           "line": 129
         }
       ],
       "lines": 146,
-      "words": 1687,
+      "words": 1713,
       "encodingNameAnomaly": false,
-      "resolvedLinks": [],
-      "unresolvedLinks": [
+      "resolvedLinks": [
         {
-          "file": "docs/evidence/W-0122/README.md",
-          "line": 127,
+          "from": "docs/evidence/W-0122/README.md",
+          "to": "docs/evidence/W-0185/README.md",
           "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/questions-to-legal-od-voice-07.md"
+          "rawTarget": "../W-0185/README.md",
+          "line": 127
         },
         {
-          "file": "docs/evidence/W-0122/README.md",
-          "line": 128,
+          "from": "docs/evidence/W-0122/README.md",
+          "to": "docs/evidence/W-0185/README.md",
           "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md"
+          "rawTarget": "../W-0185/README.md",
+          "line": 128
         },
         {
-          "file": "docs/evidence/W-0122/README.md",
-          "line": 129,
+          "from": "docs/evidence/W-0122/README.md",
+          "to": "docs/evidence/W-0185/README.md",
           "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/questions-to-platform-w0122-infrastructure.md"
+          "rawTarget": "../W-0185/README.md",
+          "line": 129
         }
       ],
+      "unresolvedLinks": [],
       "incomingLinks": []
     },
     {
@@ -228350,23 +228437,24 @@
       "links": [
         {
           "kind": "markdown",
-          "text": "phiếu disposition",
-          "rawTarget": "../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md",
+          "text": "W-0185",
+          "rawTarget": "../W-0185/README.md",
           "line": 52
         }
       ],
       "lines": 90,
-      "words": 842,
+      "words": 845,
       "encodingNameAnomaly": false,
-      "resolvedLinks": [],
-      "unresolvedLinks": [
+      "resolvedLinks": [
         {
-          "file": "docs/evidence/W-0122/security-performance.md",
-          "line": 52,
+          "from": "docs/evidence/W-0122/security-performance.md",
+          "to": "docs/evidence/W-0185/README.md",
           "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md"
+          "rawTarget": "../W-0185/README.md",
+          "line": 52
         }
       ],
+      "unresolvedLinks": [],
       "incomingLinks": []
     },
     {
@@ -228518,13 +228606,13 @@
         },
         {
           "kind": "markdown",
-          "text": "`today-04-target-db-preflight-handoff-2026-08-29.md`",
-          "rawTarget": "../../../plan/ivr-orther/today-04-target-db-preflight-handoff-2026-08-29.md",
+          "text": "W-0125 evidence",
+          "rawTarget": "../W-0125/README.md",
           "line": 236
         }
       ],
       "lines": 280,
-      "words": 2141,
+      "words": 2159,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -228533,6 +228621,13 @@
           "kind": "markdown",
           "rawTarget": "../W-0124/README.md",
           "line": 217
+        },
+        {
+          "from": "docs/evidence/W-0123/README.md",
+          "to": "docs/evidence/W-0125/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0125/README.md",
+          "line": 236
         }
       ],
       "unresolvedLinks": [
@@ -228541,12 +228636,6 @@
           "line": 224,
           "kind": "markdown",
           "rawTarget": "../../../tools/ops/od18-legacy-skip-preflight.sql"
-        },
-        {
-          "file": "docs/evidence/W-0123/README.md",
-          "line": 236,
-          "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/today-04-target-db-preflight-handoff-2026-08-29.md"
         }
       ],
       "incomingLinks": [
@@ -228653,6 +228742,13 @@
           "kind": "markdown",
           "rawTarget": "../W-0124/README.md",
           "line": 217
+        },
+        {
+          "from": "plan/ivr-orther/00-index.md",
+          "to": "docs/evidence/W-0124/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/evidence/W-0124/README.md",
+          "line": 47
         }
       ]
     },
@@ -228751,6 +228847,13 @@
         }
       ],
       "incomingLinks": [
+        {
+          "from": "docs/evidence/W-0123/README.md",
+          "to": "docs/evidence/W-0125/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0125/README.md",
+          "line": 236
+        },
         {
           "from": "docs/evidence/W-0124/README.md",
           "to": "docs/evidence/W-0125/README.md",
@@ -229768,8 +229871,8 @@
         },
         {
           "kind": "markdown",
-          "text": "Module 8 worklist",
-          "rawTarget": "../../../plan/ivr-orther/dev-viec-can-lam-m8-2026-08-29.md",
+          "text": "Module 8 worklist hiện hành",
+          "rawTarget": "../../../plan/toan-viec-can-lam-m8-2026-09-03.md",
           "line": 21
         },
         {
@@ -229780,7 +229883,7 @@
         }
       ],
       "lines": 94,
-      "words": 652,
+      "words": 654,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -229799,6 +229902,13 @@
         },
         {
           "from": "docs/evidence/W-0140/README.md",
+          "to": "plan/toan-viec-can-lam-m8-2026-09-03.md",
+          "kind": "markdown",
+          "rawTarget": "../../../plan/toan-viec-can-lam-m8-2026-09-03.md",
+          "line": 21
+        },
+        {
+          "from": "docs/evidence/W-0140/README.md",
           "to": "docs/evidence/W-0141/README.md",
           "kind": "markdown",
           "rawTarget": "../W-0141/README.md",
@@ -229811,12 +229921,6 @@
           "line": 19,
           "kind": "markdown",
           "rawTarget": "../../release/gate-status.yaml"
-        },
-        {
-          "file": "docs/evidence/W-0140/README.md",
-          "line": 21,
-          "kind": "markdown",
-          "rawTarget": "../../../plan/ivr-orther/dev-viec-can-lam-m8-2026-08-29.md"
         }
       ],
       "incomingLinks": []
@@ -230321,7 +230425,7 @@
         }
       ],
       "lines": 107,
-      "words": 847,
+      "words": 850,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -232450,7 +232554,7 @@
           "to": "docs/evidence/W-0167/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0167/README.md",
-          "line": 9
+          "line": 10
         }
       ]
     },
@@ -232514,7 +232618,7 @@
           "to": "docs/evidence/W-0168/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0168/README.md",
-          "line": 8
+          "line": 9
         }
       ]
     },
@@ -232835,7 +232939,7 @@
           "to": "docs/evidence/W-0174/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0174/README.md",
-          "line": 15
+          "line": 16
         }
       ]
     },
@@ -233163,7 +233267,7 @@
           "to": "docs/evidence/W-0178/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0178/README.md",
-          "line": 18
+          "line": 19
         }
       ]
     },
@@ -233249,7 +233353,7 @@
           "to": "docs/evidence/W-0179/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0179/README.md",
-          "line": 17
+          "line": 18
         }
       ]
     },
@@ -233327,7 +233431,7 @@
           "to": "docs/evidence/W-0180/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0180/README.md",
-          "line": 19
+          "line": 20
         }
       ]
     },
@@ -233403,7 +233507,7 @@
           "to": "docs/evidence/W-0181/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0181/README.md",
-          "line": 16
+          "line": 17
         }
       ]
     },
@@ -233421,55 +233525,55 @@
         {
           "depth": 2,
           "text": "1. Kết quả audit B1",
-          "line": 14,
+          "line": 15,
           "slug": "1-kết-quả-audit-b1"
         },
         {
           "depth": 2,
           "text": "2. Điều kiện completed pack",
-          "line": 37,
+          "line": 38,
           "slug": "2-điều-kiện-completed-pack"
         },
         {
           "depth": 2,
           "text": "3. Trust boundary",
-          "line": 60,
+          "line": 61,
           "slug": "3-trust-boundary"
         },
         {
           "depth": 2,
           "text": "4. Cách dùng khi có artifact thật",
-          "line": 80,
+          "line": 81,
           "slug": "4-cách-dùng-khi-có-artifact-thật"
         },
         {
           "depth": 2,
           "text": "5. Verification local",
-          "line": 103,
+          "line": 104,
           "slug": "5-verification-local"
         },
         {
           "depth": 2,
           "text": "6. Current-head provenance boundary — W-0188",
-          "line": 137,
+          "line": 138,
           "slug": "6-current-head-provenance-boundary-w-0188"
         },
         {
           "depth": 2,
           "text": "7. Phần còn lại",
-          "line": 147,
+          "line": 148,
           "slug": "7-phần-còn-lại"
         },
         {
           "depth": 2,
-          "text": "8. Bước tiếp theo",
-          "line": 158,
-          "slug": "8-bước-tiếp-theo"
+          "text": "8. Bước tiếp theo — deferred",
+          "line": 159,
+          "slug": "8-bước-tiếp-theo-deferred"
         }
       ],
       "links": [],
-      "lines": 164,
-      "words": 1019,
+      "lines": 166,
+      "words": 1050,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -233479,7 +233583,7 @@
           "to": "docs/evidence/W-0182/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0182/README.md",
-          "line": 21
+          "line": 22
         }
       ]
     },
@@ -233556,7 +233660,7 @@
           "to": "docs/evidence/W-0183/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0183/README.md",
-          "line": 20
+          "line": 21
         }
       ]
     },
@@ -233621,7 +233725,7 @@
           "to": "docs/evidence/W-0184/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0184/README.md",
-          "line": 20
+          "line": 21
         }
       ]
     },
@@ -233703,11 +233807,39 @@
       "unresolvedLinks": [],
       "incomingLinks": [
         {
+          "from": "docs/evidence/W-0122/README.md",
+          "to": "docs/evidence/W-0185/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0185/README.md",
+          "line": 127
+        },
+        {
+          "from": "docs/evidence/W-0122/README.md",
+          "to": "docs/evidence/W-0185/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0185/README.md",
+          "line": 128
+        },
+        {
+          "from": "docs/evidence/W-0122/README.md",
+          "to": "docs/evidence/W-0185/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0185/README.md",
+          "line": 129
+        },
+        {
+          "from": "docs/evidence/W-0122/security-performance.md",
+          "to": "docs/evidence/W-0185/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0185/README.md",
+          "line": 52
+        },
+        {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0185/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0185/README.md",
-          "line": 22
+          "line": 23
         }
       ]
     },
@@ -233799,7 +233931,7 @@
           "to": "docs/evidence/W-0186/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0186/README.md",
-          "line": 12
+          "line": 13
         }
       ]
     },
@@ -233877,7 +234009,7 @@
           "to": "docs/evidence/W-0187/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0187/README.md",
-          "line": 17
+          "line": 18
         }
       ]
     },
@@ -233924,14 +234056,14 @@
         },
         {
           "depth": 2,
-          "text": "6. Bước tiếp theo",
+          "text": "6. Bước tiếp theo — deferred",
           "line": 76,
-          "slug": "6-bước-tiếp-theo"
+          "slug": "6-bước-tiếp-theo-deferred"
         }
       ],
       "links": [],
-      "lines": 82,
-      "words": 630,
+      "lines": 83,
+      "words": 649,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -233941,9 +234073,59 @@
           "to": "docs/evidence/W-0188/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0188/README.md",
-          "line": 21
+          "line": 22
         }
       ]
+    },
+    {
+      "path": "docs/evidence/W-0189/README.md",
+      "title": "W-0189 — Current documentation-to-code alignment cleanup",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0189 — Current documentation-to-code alignment cleanup",
+          "line": 1,
+          "slug": "w-0189-current-documentation-to-code-alignment-cleanup"
+        },
+        {
+          "depth": 2,
+          "text": "1. Phạm vi",
+          "line": 10,
+          "slug": "1-phạm-vi"
+        },
+        {
+          "depth": 2,
+          "text": "2. Findings đã xử lý",
+          "line": 17,
+          "slug": "2-findings-đã-xử-lý"
+        },
+        {
+          "depth": 2,
+          "text": "3. Cách cleanup",
+          "line": 27,
+          "slug": "3-cách-cleanup"
+        },
+        {
+          "depth": 2,
+          "text": "4. Verification",
+          "line": 38,
+          "slug": "4-verification"
+        },
+        {
+          "depth": 2,
+          "text": "5. Bước tiếp theo",
+          "line": 52,
+          "slug": "5-bước-tiếp-theo"
+        }
+      ],
+      "links": [],
+      "lines": 56,
+      "words": 493,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": []
     },
     {
       "path": "docs/gameday-report.md",
@@ -237456,8 +237638,8 @@
       "links": [
         {
           "kind": "markdown",
-          "text": "target-contract-v1-draft.md",
-          "rawTarget": "target-contract-v1-draft.md",
+          "text": "Target Contract V1 closure pack",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
           "line": 7
         },
         {
@@ -237468,14 +237650,14 @@
         },
         {
           "kind": "markdown",
-          "text": "production-blockers-plan.md",
-          "rawTarget": "production-blockers-plan.md",
+          "text": "Module 8 worklist hiện hành",
+          "rawTarget": "../toan-viec-can-lam-m8-2026-09-03.md",
           "line": 43
         },
         {
           "kind": "markdown",
-          "text": "W-0124-w0123-review-remediation-plan.md",
-          "rawTarget": "W-0124-w0123-review-remediation-plan.md",
+          "text": "W-0124 evidence",
+          "rawTarget": "../../docs/evidence/W-0124/README.md",
           "line": 47
         },
         {
@@ -237486,9 +237668,16 @@
         }
       ],
       "lines": 48,
-      "words": 502,
+      "words": 509,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
+        {
+          "from": "plan/ivr-orther/00-index.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+          "line": 7
+        },
         {
           "from": "plan/ivr-orther/00-index.md",
           "to": "plan/ivr-orther/decisions-log.md",
@@ -237498,32 +237687,27 @@
         },
         {
           "from": "plan/ivr-orther/00-index.md",
+          "to": "plan/toan-viec-can-lam-m8-2026-09-03.md",
+          "kind": "markdown",
+          "rawTarget": "../toan-viec-can-lam-m8-2026-09-03.md",
+          "line": 43
+        },
+        {
+          "from": "plan/ivr-orther/00-index.md",
+          "to": "docs/evidence/W-0124/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/evidence/W-0124/README.md",
+          "line": 47
+        },
+        {
+          "from": "plan/ivr-orther/00-index.md",
           "to": "plan/ivr-orther/questions-to-module-3-od18-authority.md",
           "kind": "markdown",
           "rawTarget": "questions-to-module-3-od18-authority.md",
           "line": 47
         }
       ],
-      "unresolvedLinks": [
-        {
-          "file": "plan/ivr-orther/00-index.md",
-          "line": 7,
-          "kind": "markdown",
-          "rawTarget": "target-contract-v1-draft.md"
-        },
-        {
-          "file": "plan/ivr-orther/00-index.md",
-          "line": 43,
-          "kind": "markdown",
-          "rawTarget": "production-blockers-plan.md"
-        },
-        {
-          "file": "plan/ivr-orther/00-index.md",
-          "line": 47,
-          "kind": "markdown",
-          "rawTarget": "W-0124-w0123-review-remediation-plan.md"
-        }
-      ],
+      "unresolvedLinks": [],
       "incomingLinks": [
         {
           "from": "plan/ivr-orther/today-01-decision-signoff-pack-2026-08-29.md",
@@ -237561,7 +237745,7 @@
         }
       ],
       "lines": 54,
-      "words": 1174,
+      "words": 1179,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -237662,14 +237846,14 @@
       "links": [
         {
           "kind": "markdown",
-          "text": "target-contract-v1-draft.md",
-          "rawTarget": "target-contract-v1-draft.md",
+          "text": "Target Contract V1 closure pack",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
           "line": 3
         },
         {
           "kind": "markdown",
-          "text": "target-contract-v1-draft.md",
-          "rawTarget": "target-contract-v1-draft.md",
+          "text": "Target Contract V1 closure pack",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
           "line": 22
         },
         {
@@ -237686,9 +237870,23 @@
         }
       ],
       "lines": 179,
-      "words": 5018,
+      "words": 5030,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
+        {
+          "from": "plan/ivr-orther/decisions-log.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+          "line": 3
+        },
+        {
+          "from": "plan/ivr-orther/decisions-log.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+          "line": 22
+        },
         {
           "from": "plan/ivr-orther/decisions-log.md",
           "to": "plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md",
@@ -237704,20 +237902,7 @@
           "line": 64
         }
       ],
-      "unresolvedLinks": [
-        {
-          "file": "plan/ivr-orther/decisions-log.md",
-          "line": 3,
-          "kind": "markdown",
-          "rawTarget": "target-contract-v1-draft.md"
-        },
-        {
-          "file": "plan/ivr-orther/decisions-log.md",
-          "line": 22,
-          "kind": "markdown",
-          "rawTarget": "target-contract-v1-draft.md"
-        }
-      ],
+      "unresolvedLinks": [],
       "incomingLinks": [
         {
           "from": "docs/evidence/W-0141/README.md",
@@ -240373,89 +240558,89 @@
           "kind": "markdown",
           "text": "W-0168",
           "rawTarget": "../docs/evidence/W-0168/README.md",
-          "line": 8
+          "line": 9
         },
         {
           "kind": "markdown",
           "text": "W-0167",
           "rawTarget": "../docs/evidence/W-0167/README.md",
-          "line": 9
+          "line": 10
         },
         {
           "kind": "markdown",
           "text": "W-0186",
           "rawTarget": "../docs/evidence/W-0186/README.md",
-          "line": 12
+          "line": 13
         },
         {
           "kind": "markdown",
           "text": "W-0174",
           "rawTarget": "../docs/evidence/W-0174/README.md",
-          "line": 15
+          "line": 16
         },
         {
           "kind": "markdown",
           "text": "W-0181",
           "rawTarget": "../docs/evidence/W-0181/README.md",
-          "line": 16
+          "line": 17
         },
         {
           "kind": "markdown",
           "text": "W-0179",
           "rawTarget": "../docs/evidence/W-0179/README.md",
-          "line": 17
+          "line": 18
         },
         {
           "kind": "markdown",
           "text": "W-0187",
           "rawTarget": "../docs/evidence/W-0187/README.md",
-          "line": 17
+          "line": 18
         },
         {
           "kind": "markdown",
           "text": "W-0178",
           "rawTarget": "../docs/evidence/W-0178/README.md",
-          "line": 18
+          "line": 19
         },
         {
           "kind": "markdown",
           "text": "W-0180",
           "rawTarget": "../docs/evidence/W-0180/README.md",
-          "line": 19
+          "line": 20
         },
         {
           "kind": "markdown",
           "text": "W-0183",
           "rawTarget": "../docs/evidence/W-0183/README.md",
-          "line": 20
+          "line": 21
         },
         {
           "kind": "markdown",
           "text": "W-0184",
           "rawTarget": "../docs/evidence/W-0184/README.md",
-          "line": 20
+          "line": 21
         },
         {
           "kind": "markdown",
           "text": "W-0182",
           "rawTarget": "../docs/evidence/W-0182/README.md",
-          "line": 21
+          "line": 22
         },
         {
           "kind": "markdown",
           "text": "W-0188",
           "rawTarget": "../docs/evidence/W-0188/README.md",
-          "line": 21
+          "line": 22
         },
         {
           "kind": "markdown",
           "text": "W-0185",
           "rawTarget": "../docs/evidence/W-0185/README.md",
-          "line": 22
+          "line": 23
         }
       ],
-      "lines": 23,
-      "words": 1772,
+      "lines": 24,
+      "words": 1852,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -240470,102 +240655,109 @@
           "to": "docs/evidence/W-0168/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0168/README.md",
-          "line": 8
+          "line": 9
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0167/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0167/README.md",
-          "line": 9
+          "line": 10
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0186/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0186/README.md",
-          "line": 12
+          "line": 13
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0174/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0174/README.md",
-          "line": 15
+          "line": 16
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0181/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0181/README.md",
-          "line": 16
+          "line": 17
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0179/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0179/README.md",
-          "line": 17
+          "line": 18
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0187/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0187/README.md",
-          "line": 17
+          "line": 18
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0178/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0178/README.md",
-          "line": 18
+          "line": 19
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0180/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0180/README.md",
-          "line": 19
+          "line": 20
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0183/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0183/README.md",
-          "line": 20
+          "line": 21
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0184/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0184/README.md",
-          "line": 20
+          "line": 21
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0182/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0182/README.md",
-          "line": 21
+          "line": 22
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0188/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0188/README.md",
-          "line": 21
+          "line": 22
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
           "to": "docs/evidence/W-0185/README.md",
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0185/README.md",
-          "line": 22
+          "line": 23
         }
       ],
       "unresolvedLinks": [],
       "incomingLinks": [
+        {
+          "from": "docs/evidence/W-0140/README.md",
+          "to": "plan/toan-viec-can-lam-m8-2026-09-03.md",
+          "kind": "markdown",
+          "rawTarget": "../../../plan/toan-viec-can-lam-m8-2026-09-03.md",
+          "line": 21
+        },
         {
           "from": "docs/evidence/W-0150/README.md",
           "to": "plan/toan-viec-can-lam-m8-2026-09-03.md",
@@ -240586,6 +240778,13 @@
           "kind": "markdown",
           "rawTarget": "../../../plan/toan-viec-can-lam-m8-2026-09-03.md",
           "line": 13
+        },
+        {
+          "from": "plan/ivr-orther/00-index.md",
+          "to": "plan/toan-viec-can-lam-m8-2026-09-03.md",
+          "kind": "markdown",
+          "rawTarget": "../toan-viec-can-lam-m8-2026-09-03.md",
+          "line": 43
         }
       ]
     },
@@ -240685,35 +240884,29 @@
         {
           "depth": 2,
           "text": "6. Unplanned work insertion template",
-          "line": 254,
+          "line": 255,
           "slug": "6-unplanned-work-insertion-template"
         },
         {
           "depth": 2,
           "text": "7. Activity log (append-only)",
-          "line": 266,
+          "line": 267,
           "slug": "7-activity-log-append-only"
         },
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 864,
+          "line": 867,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 885,
+          "line": 888,
           "slug": "9-completion-records"
         }
       ],
       "links": [
-        {
-          "kind": "markdown",
-          "text": "`plan/ivr-orther/W-0106-regional-voice-routing-plan.md`",
-          "rawTarget": "../../plan/ivr-orther/W-0106-regional-voice-routing-plan.md",
-          "line": 106
-        },
         {
           "kind": "markdown",
           "text": "`docs/evidence/W-0106/README.md`",
@@ -240721,8 +240914,8 @@
           "line": 106
         }
       ],
-      "lines": 1369,
-      "words": 81529,
+      "lines": 1372,
+      "words": 81886,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -240733,14 +240926,7 @@
           "line": 106
         }
       ],
-      "unresolvedLinks": [
-        {
-          "file": "prompt/_execution/prompt-execution-tracker.md",
-          "line": 106,
-          "kind": "markdown",
-          "rawTarget": "../../plan/ivr-orther/W-0106-regional-voice-routing-plan.md"
-        }
-      ],
+      "unresolvedLinks": [],
       "incomingLinks": [
         {
           "from": "docs/contracts/target-v1-closure-pack/README.md",
@@ -240971,7 +241157,7 @@
         {
           "kind": "markdown",
           "text": "Target V1",
-          "rawTarget": "../plan/ivr-orther/target-contract-v1-draft.md",
+          "rawTarget": "../docs/contracts/target-v1-closure-pack/README.md",
           "line": 7
         },
         {
@@ -241321,6 +241507,13 @@
           "to": "prompt/RUNBOOK-execute-prompts.md",
           "kind": "markdown",
           "rawTarget": "RUNBOOK-execute-prompts.md",
+          "line": 7
+        },
+        {
+          "from": "prompt/00-index.md",
+          "to": "docs/contracts/target-v1-closure-pack/README.md",
+          "kind": "markdown",
+          "rawTarget": "../docs/contracts/target-v1-closure-pack/README.md",
           "line": 7
         },
         {
@@ -241709,14 +241902,7 @@
           "line": 103
         }
       ],
-      "unresolvedLinks": [
-        {
-          "file": "prompt/00-index.md",
-          "line": 7,
-          "kind": "markdown",
-          "rawTarget": "../plan/ivr-orther/target-contract-v1-draft.md"
-        }
-      ],
+      "unresolvedLinks": [],
       "incomingLinks": []
     },
     {
@@ -242129,7 +242315,7 @@
       ],
       "links": [],
       "lines": 93,
-      "words": 1111,
+      "words": 1112,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -242199,7 +242385,7 @@
       ],
       "links": [],
       "lines": 47,
-      "words": 306,
+      "words": 311,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -242651,7 +242837,7 @@
       ],
       "links": [],
       "lines": 69,
-      "words": 698,
+      "words": 701,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -242863,7 +243049,7 @@
       ],
       "links": [],
       "lines": 67,
-      "words": 668,
+      "words": 671,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -243309,7 +243495,7 @@
       ],
       "links": [],
       "lines": 82,
-      "words": 726,
+      "words": 735,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -244117,7 +244303,7 @@
       ],
       "links": [],
       "lines": 110,
-      "words": 1275,
+      "words": 1274,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -246682,7 +246868,7 @@
       ],
       "links": [],
       "lines": 133,
-      "words": 1096,
+      "words": 1101,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -247093,7 +247279,7 @@
       ],
       "links": [],
       "lines": 130,
-      "words": 1451,
+      "words": 1456,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -247162,7 +247348,7 @@
         }
       ],
       "lines": 141,
-      "words": 2582,
+      "words": 2581,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -253348,16 +253534,10 @@
           "text": "test_utils.py",
           "rawTarget": "test_utils.py",
           "line": 22
-        },
-        {
-          "kind": "markdown",
-          "text": "benchmark.py",
-          "rawTarget": "benchmark.py",
-          "line": 27
         }
       ],
-      "lines": 28,
-      "words": 98,
+      "lines": 27,
+      "words": 92,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [
@@ -253390,12 +253570,6 @@
           "line": 22,
           "kind": "markdown",
           "rawTarget": "test_utils.py"
-        },
-        {
-          "file": "third_party/vieneu-tts/tests/README.md",
-          "line": 27,
-          "kind": "markdown",
-          "rawTarget": "benchmark.py"
         }
       ],
       "incomingLinks": []
@@ -253694,6 +253868,13 @@
       "kind": "markdown",
       "rawTarget": "../../../plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md",
       "line": 127
+    },
+    {
+      "from": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
+      "to": "docs/contracts/target-v1-closure-pack/README.md",
+      "kind": "markdown",
+      "rawTarget": "README.md",
+      "line": 11
     },
     {
       "from": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
@@ -255590,14 +255771,7 @@
       "to": "docs/evidence/W-0107/enum-inventory.md",
       "kind": "markdown",
       "rawTarget": "enum-inventory.md",
-      "line": 13
-    },
-    {
-      "from": "docs/evidence/W-0107/README.md",
-      "to": "docs/evidence/W-0107/vocabulary-review.md",
-      "kind": "markdown",
-      "rawTarget": "vocabulary-review.md",
-      "line": 119
+      "line": 16
     },
     {
       "from": "docs/evidence/W-0107/README.md",
@@ -255605,6 +255779,13 @@
       "kind": "markdown",
       "rawTarget": "vocabulary-review.md",
       "line": 122
+    },
+    {
+      "from": "docs/evidence/W-0107/README.md",
+      "to": "docs/evidence/W-0107/vocabulary-review.md",
+      "kind": "markdown",
+      "rawTarget": "vocabulary-review.md",
+      "line": 125
     },
     {
       "from": "docs/evidence/W-0107/vocabulary-review.md",
@@ -255705,11 +255886,46 @@
       "line": 19
     },
     {
+      "from": "docs/evidence/W-0122/README.md",
+      "to": "docs/evidence/W-0185/README.md",
+      "kind": "markdown",
+      "rawTarget": "../W-0185/README.md",
+      "line": 127
+    },
+    {
+      "from": "docs/evidence/W-0122/README.md",
+      "to": "docs/evidence/W-0185/README.md",
+      "kind": "markdown",
+      "rawTarget": "../W-0185/README.md",
+      "line": 128
+    },
+    {
+      "from": "docs/evidence/W-0122/README.md",
+      "to": "docs/evidence/W-0185/README.md",
+      "kind": "markdown",
+      "rawTarget": "../W-0185/README.md",
+      "line": 129
+    },
+    {
+      "from": "docs/evidence/W-0122/security-performance.md",
+      "to": "docs/evidence/W-0185/README.md",
+      "kind": "markdown",
+      "rawTarget": "../W-0185/README.md",
+      "line": 52
+    },
+    {
       "from": "docs/evidence/W-0123/README.md",
       "to": "docs/evidence/W-0124/README.md",
       "kind": "markdown",
       "rawTarget": "../W-0124/README.md",
       "line": 217
+    },
+    {
+      "from": "docs/evidence/W-0123/README.md",
+      "to": "docs/evidence/W-0125/README.md",
+      "kind": "markdown",
+      "rawTarget": "../W-0125/README.md",
+      "line": 236
     },
     {
       "from": "docs/evidence/W-0124/README.md",
@@ -255766,6 +255982,13 @@
       "kind": "markdown",
       "rawTarget": "../../release/readiness-board.md",
       "line": 18
+    },
+    {
+      "from": "docs/evidence/W-0140/README.md",
+      "to": "plan/toan-viec-can-lam-m8-2026-09-03.md",
+      "kind": "markdown",
+      "rawTarget": "../../../plan/toan-viec-can-lam-m8-2026-09-03.md",
+      "line": 21
     },
     {
       "from": "docs/evidence/W-0140/README.md",
@@ -256525,10 +256748,31 @@
     },
     {
       "from": "plan/ivr-orther/00-index.md",
+      "to": "docs/contracts/target-v1-closure-pack/README.md",
+      "kind": "markdown",
+      "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+      "line": 7
+    },
+    {
+      "from": "plan/ivr-orther/00-index.md",
       "to": "plan/ivr-orther/decisions-log.md",
       "kind": "markdown",
       "rawTarget": "decisions-log.md",
       "line": 8
+    },
+    {
+      "from": "plan/ivr-orther/00-index.md",
+      "to": "plan/toan-viec-can-lam-m8-2026-09-03.md",
+      "kind": "markdown",
+      "rawTarget": "../toan-viec-can-lam-m8-2026-09-03.md",
+      "line": 43
+    },
+    {
+      "from": "plan/ivr-orther/00-index.md",
+      "to": "docs/evidence/W-0124/README.md",
+      "kind": "markdown",
+      "rawTarget": "../../docs/evidence/W-0124/README.md",
+      "line": 47
     },
     {
       "from": "plan/ivr-orther/00-index.md",
@@ -256543,6 +256787,20 @@
       "kind": "markdown",
       "rawTarget": "decisions-log.md",
       "line": 18
+    },
+    {
+      "from": "plan/ivr-orther/decisions-log.md",
+      "to": "docs/contracts/target-v1-closure-pack/README.md",
+      "kind": "markdown",
+      "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+      "line": 3
+    },
+    {
+      "from": "plan/ivr-orther/decisions-log.md",
+      "to": "docs/contracts/target-v1-closure-pack/README.md",
+      "kind": "markdown",
+      "rawTarget": "../../docs/contracts/target-v1-closure-pack/README.md",
+      "line": 22
     },
     {
       "from": "plan/ivr-orther/decisions-log.md",
@@ -256969,98 +257227,98 @@
       "to": "docs/evidence/W-0168/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0168/README.md",
-      "line": 8
+      "line": 9
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0167/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0167/README.md",
-      "line": 9
+      "line": 10
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0186/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0186/README.md",
-      "line": 12
+      "line": 13
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0174/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0174/README.md",
-      "line": 15
+      "line": 16
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0181/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0181/README.md",
-      "line": 16
+      "line": 17
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0179/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0179/README.md",
-      "line": 17
+      "line": 18
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0187/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0187/README.md",
-      "line": 17
+      "line": 18
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0178/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0178/README.md",
-      "line": 18
+      "line": 19
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0180/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0180/README.md",
-      "line": 19
+      "line": 20
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0183/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0183/README.md",
-      "line": 20
+      "line": 21
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0184/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0184/README.md",
-      "line": 20
+      "line": 21
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0182/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0182/README.md",
-      "line": 21
+      "line": 22
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0188/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0188/README.md",
-      "line": 21
+      "line": 22
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
       "to": "docs/evidence/W-0185/README.md",
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0185/README.md",
-      "line": 22
+      "line": 23
     },
     {
       "from": "prompt/_execution/prompt-execution-tracker.md",
@@ -257081,6 +257339,13 @@
       "to": "prompt/RUNBOOK-execute-prompts.md",
       "kind": "markdown",
       "rawTarget": "RUNBOOK-execute-prompts.md",
+      "line": 7
+    },
+    {
+      "from": "prompt/00-index.md",
+      "to": "docs/contracts/target-v1-closure-pack/README.md",
+      "kind": "markdown",
+      "rawTarget": "../docs/contracts/target-v1-closure-pack/README.md",
       "line": 7
     },
     {
@@ -258100,12 +258365,6 @@
       },
       {
         "file": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
-        "line": 11,
-        "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/target-contract-v1-draft.md"
-      },
-      {
-        "file": "docs/contracts/target-v1-closure-pack/T-06-no-answer-timeout.md",
         "line": 17,
         "kind": "markdown",
         "rawTarget": "../../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml"
@@ -258240,7 +258499,19 @@
         "file": "docs/evidence/W-0106/README.md",
         "line": 13,
         "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/W-0106-regional-voice-routing-plan.md"
+        "rawTarget": "../../../src/Ivr.Domain/Speech/DeliveryRegionResolver.cs"
+      },
+      {
+        "file": "docs/evidence/W-0106/README.md",
+        "line": 14,
+        "kind": "markdown",
+        "rawTarget": "../../../src/Ivr.Domain/Speech/VietnameseNumberSpeller.cs"
+      },
+      {
+        "file": "docs/evidence/W-0106/README.md",
+        "line": 15,
+        "kind": "markdown",
+        "rawTarget": "../../../src/Ivr.Infrastructure/Speech/RegionalVoiceMap.cs"
       },
       {
         "file": "docs/evidence/W-0106/voice-audition-kit.md",
@@ -258288,17 +258559,29 @@
         "file": "docs/evidence/W-0107/README.md",
         "line": 5,
         "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/W-0107-vietnamese-localization-plan.md"
+        "rawTarget": "../../../admin-ui/src/i18n/enums.vi.json"
       },
       {
         "file": "docs/evidence/W-0107/README.md",
-        "line": 25,
+        "line": 6,
+        "kind": "markdown",
+        "rawTarget": "../../../admin-ui/src/lib/i18n/enum.ts"
+      },
+      {
+        "file": "docs/evidence/W-0107/README.md",
+        "line": 7,
+        "kind": "markdown",
+        "rawTarget": "../../../admin-ui/src/components/data/EnumLabel.tsx"
+      },
+      {
+        "file": "docs/evidence/W-0107/README.md",
+        "line": 28,
         "kind": "markdown",
         "rawTarget": "../../../src/Ivr.Api/Application/AdminConfigReadService.cs"
       },
       {
         "file": "docs/evidence/W-0107/README.md",
-        "line": 96,
+        "line": 99,
         "kind": "markdown",
         "rawTarget": "../W-0115/"
       },
@@ -258405,40 +258688,10 @@
         "rawTarget": "../../../deploy/tts/shim/backend.py"
       },
       {
-        "file": "docs/evidence/W-0122/README.md",
-        "line": 127,
-        "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/questions-to-legal-od-voice-07.md"
-      },
-      {
-        "file": "docs/evidence/W-0122/README.md",
-        "line": 128,
-        "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md"
-      },
-      {
-        "file": "docs/evidence/W-0122/README.md",
-        "line": 129,
-        "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/questions-to-platform-w0122-infrastructure.md"
-      },
-      {
-        "file": "docs/evidence/W-0122/security-performance.md",
-        "line": 52,
-        "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md"
-      },
-      {
         "file": "docs/evidence/W-0123/README.md",
         "line": 224,
         "kind": "markdown",
         "rawTarget": "../../../tools/ops/od18-legacy-skip-preflight.sql"
-      },
-      {
-        "file": "docs/evidence/W-0123/README.md",
-        "line": 236,
-        "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/today-04-target-db-preflight-handoff-2026-08-29.md"
       },
       {
         "file": "docs/evidence/W-0125/README.md",
@@ -258465,12 +258718,6 @@
         "rawTarget": "../../release/gate-status.yaml"
       },
       {
-        "file": "docs/evidence/W-0140/README.md",
-        "line": 21,
-        "kind": "markdown",
-        "rawTarget": "../../../plan/ivr-orther/dev-viec-can-lam-m8-2026-08-29.md"
-      },
-      {
         "file": "docs/evidence/W-0174/README.md",
         "line": 13,
         "kind": "markdown",
@@ -258489,36 +258736,6 @@
         "rawTarget": "artifact-sha256.txt"
       },
       {
-        "file": "plan/ivr-orther/00-index.md",
-        "line": 7,
-        "kind": "markdown",
-        "rawTarget": "target-contract-v1-draft.md"
-      },
-      {
-        "file": "plan/ivr-orther/00-index.md",
-        "line": 43,
-        "kind": "markdown",
-        "rawTarget": "production-blockers-plan.md"
-      },
-      {
-        "file": "plan/ivr-orther/00-index.md",
-        "line": 47,
-        "kind": "markdown",
-        "rawTarget": "W-0124-w0123-review-remediation-plan.md"
-      },
-      {
-        "file": "plan/ivr-orther/decisions-log.md",
-        "line": 3,
-        "kind": "markdown",
-        "rawTarget": "target-contract-v1-draft.md"
-      },
-      {
-        "file": "plan/ivr-orther/decisions-log.md",
-        "line": 22,
-        "kind": "markdown",
-        "rawTarget": "target-contract-v1-draft.md"
-      },
-      {
         "file": "plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md",
         "line": 153,
         "kind": "markdown",
@@ -258529,18 +258746,6 @@
         "line": 154,
         "kind": "markdown",
         "rawTarget": "../../deploy/ci/scripts/target-v1-shared-e2e-report-validator.mjs"
-      },
-      {
-        "file": "prompt/_execution/prompt-execution-tracker.md",
-        "line": 106,
-        "kind": "markdown",
-        "rawTarget": "../../plan/ivr-orther/W-0106-regional-voice-routing-plan.md"
-      },
-      {
-        "file": "prompt/00-index.md",
-        "line": 7,
-        "kind": "markdown",
-        "rawTarget": "../plan/ivr-orther/target-contract-v1-draft.md"
       },
       {
         "file": "third_party/vieneu-tts/README_PYPI.md",
@@ -258601,12 +258806,6 @@
         "line": 22,
         "kind": "markdown",
         "rawTarget": "test_utils.py"
-      },
-      {
-        "file": "third_party/vieneu-tts/tests/README.md",
-        "line": 27,
-        "kind": "markdown",
-        "rawTarget": "benchmark.py"
       }
     ],
     "duplicateTitles": [
@@ -258743,8 +258942,6 @@
       "docs/evidence/W-0116/README.md",
       "docs/evidence/W-0117/README.md",
       "docs/evidence/W-0122/audition-environment.md",
-      "docs/evidence/W-0122/README.md",
-      "docs/evidence/W-0122/security-performance.md",
       "docs/evidence/W-0122/voice-audition-runbook.md",
       "docs/evidence/W-0130/README.md",
       "docs/evidence/W-0131/README.md",
@@ -258757,6 +258954,7 @@
       "docs/evidence/W-0165/README.md",
       "docs/evidence/W-0173/README.md",
       "docs/evidence/W-0175/README.md",
+      "docs/evidence/W-0189/README.md",
       "docs/integration-guide.md",
       "docs/kpi-catalog.md",
       "docs/operations/gitlab-runner-winhost.md",

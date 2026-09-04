@@ -49,7 +49,7 @@ queue wait, expected concurrency, request/character budget và lease/pre-dial he
 | SPDX SBOM | `artifacts/sbom/w0122-ivr-tts-lf.spdx.json`, SHA-256 `77e1c65754c7a6dd94655db726732a640f0266d6f19cb6d60e838a0e7dc098e3`; `114` package entry ở lượt scan này |
 | Kết quả | `13 HIGH`, `3 CRITICAL`, `0 fixable` — **không đổi**; toàn bộ thuộc Debian 13.6; Python target `0` |
 
-`114` package khác `152` của lượt trước là do lượt scan/format khác, **không** phải image nhỏ đi; nội dung package không đổi. Reachability của 16 finding đã được đo trong chính image và gửi kèm [phiếu disposition](../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md): entrypoint là `python -m shim.server`; shim không có đường spawn process nào; `vieneu/serve.py` — file duy nhất chứa `subprocess` — không nằm trên import path; và `subprocess` không được import ở cả hai lượt kiểm.
+`114` package khác `152` của lượt trước là do lượt scan/format khác, **không** phải image nhỏ đi; nội dung package không đổi. Reachability của 16 finding đã được đo trong chính image; structured disposition hiện hành được nhận qua [W-0185](../W-0185/README.md): entrypoint là `python -m shim.server`; shim không có đường spawn process nào; `vieneu/serve.py` — file duy nhất chứa `subprocess` — không nằm trên import path; và `subprocess` không được import ở cả hai lượt kiểm.
 
 ## SBOM và vulnerability scan
 
