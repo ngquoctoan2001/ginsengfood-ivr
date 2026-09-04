@@ -67,8 +67,25 @@ docs/evidence/W-0164/*.json text eol=lf
 docs/evidence/W-0165/*.json text eol=lf
 docs/evidence/W-0170/*.json text eol=lf
 docs/evidence/W-0170/*.txt text eol=lf
+plan/ivr-orther/questions-to-module-3-od18-authority.md text eol=lf
+plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md text eol=lf
+plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md text eol=lf
+plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md text eol=lf
+plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md text eol=lf
+plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md text eol=lf
+plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md text eol=lf
+plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md text eol=lf
 plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md text eol=lf
 plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md text eol=lf
+docs/evidence/W-0128/README.md text eol=lf
+docs/evidence/W-0135/README.md text eol=lf
+docs/evidence/W-0141/README.md text eol=lf
+docs/contracts/target-v1-closure-pack/T-01-program-matrix.md text eol=lf
+docs/contracts/target-v1-closure-pack/T-04-dial-token.md text eol=lf
+docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md text eol=lf
+docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.md text eol=lf
+docs/contracts/telephony-procurement-pack/R-00-voice-gateway-rfq.md text eol=lf
+docs/contracts/telephony-procurement-pack/R-06-to-trinh-mua-thiet-bi.md text eol=lf
 
 # The audition dialplan is read by Asterisk inside a Linux container and its roster is
 # verified with BusyBox `sha256sum -c`, which treats a trailing CR as part of the name.
