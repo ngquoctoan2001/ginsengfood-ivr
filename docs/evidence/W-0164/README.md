@@ -73,8 +73,8 @@ safety flag, malformed JSON, duplicate JSON key, oversized input và path ngoài
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `deploy/ci/scripts/external-decision-routing-validator.mjs` | `e70eb8b90e2a5697219f375baab7e6c0d6cb7d58053310ca8fd47caf07180d45` |
-| `recipient-routing-input.template.json` | `5fc84bee77beff876511cc41737123d7362806590e6015018b723ffdfd95abeb` |
+| `deploy/ci/scripts/external-decision-routing-validator.mjs` | `d6c6dc92bb02479295c5271da9e7e2370a507cd76c4e7f7c4649ce50d11ee6f4` |
+| `recipient-routing-input.template.json` | `1ed18e3344a8d60b61e7d7a1bd88818dfb1d6f09014e3ccbce85d2bb68df0454` |
 
 ## 5. Impact và giới hạn
 

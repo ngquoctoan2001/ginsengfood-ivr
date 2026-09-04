@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T03:40:55.715Z",
+  "generatedAt": "2026-09-04T03:55:09.039Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -232939,7 +232939,15 @@
           "rawTarget": "artifact-sha256.txt"
         }
       ],
-      "incomingLinks": []
+      "incomingLinks": [
+        {
+          "from": "docs/evidence/W-0176/README.md",
+          "to": "docs/evidence/W-0170/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0170/README.md",
+          "line": 63
+        }
+      ]
     },
     {
       "path": "docs/evidence/W-0172/README.md",
@@ -233252,27 +233260,61 @@
         {
           "depth": 2,
           "text": "4. Phạm vi ảnh hưởng",
-          "line": 78,
+          "line": 83,
           "slug": "4-phạm-vi-ảnh-hưởng"
         },
         {
           "depth": 2,
           "text": "5. Ranh giới và phần còn lại",
-          "line": 84,
+          "line": 89,
           "slug": "5-ranh-giới-và-phần-còn-lại"
         },
         {
           "depth": 2,
           "text": "6. Bước tiếp theo",
-          "line": 94,
+          "line": 99,
           "slug": "6-bước-tiếp-theo"
+        },
+        {
+          "depth": 2,
+          "text": "7. Exact-checkout correction — W-0177",
+          "line": 105,
+          "slug": "7-exact-checkout-correction-w-0177"
         }
       ],
-      "links": [],
-      "lines": 99,
-      "words": 687,
+      "links": [
+        {
+          "kind": "markdown",
+          "text": "W-0170",
+          "rawTarget": "../W-0170/README.md",
+          "line": 63
+        },
+        {
+          "kind": "markdown",
+          "text": "evidence W-0177",
+          "rawTarget": "../W-0177/README.md",
+          "line": 109
+        }
+      ],
+      "lines": 111,
+      "words": 801,
       "encodingNameAnomaly": false,
-      "resolvedLinks": [],
+      "resolvedLinks": [
+        {
+          "from": "docs/evidence/W-0176/README.md",
+          "to": "docs/evidence/W-0170/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0170/README.md",
+          "line": 63
+        },
+        {
+          "from": "docs/evidence/W-0176/README.md",
+          "to": "docs/evidence/W-0177/README.md",
+          "kind": "markdown",
+          "rawTarget": "../W-0177/README.md",
+          "line": 109
+        }
+      ],
       "unresolvedLinks": [],
       "incomingLinks": [
         {
@@ -233281,13 +233323,64 @@
           "kind": "markdown",
           "rawTarget": "../W-0176/README.md",
           "line": 54
+        }
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0177/README.md",
+      "title": "W-0177 — Exact local candidate freeze and verification",
+      "frontmatter": {},
+      "headings": [
+        {
+          "depth": 1,
+          "text": "W-0177 — Exact local candidate freeze and verification",
+          "line": 1,
+          "slug": "w-0177-exact-local-candidate-freeze-and-verification"
         },
         {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0176/README.md",
+          "depth": 2,
+          "text": "1. Phạm vi",
+          "line": 7,
+          "slug": "1-phạm-vi"
+        },
+        {
+          "depth": 2,
+          "text": "2. Finding từ exact checkout",
+          "line": 14,
+          "slug": "2-finding-từ-exact-checkout"
+        },
+        {
+          "depth": 2,
+          "text": "3. Bounded remediation",
+          "line": 32,
+          "slug": "3-bounded-remediation"
+        },
+        {
+          "depth": 2,
+          "text": "4. Verification đang thực hiện",
+          "line": 45,
+          "slug": "4-verification-đang-thực-hiện"
+        },
+        {
+          "depth": 2,
+          "text": "5. Boundary",
+          "line": 59,
+          "slug": "5-boundary"
+        }
+      ],
+      "links": [],
+      "lines": 68,
+      "words": 433,
+      "encodingNameAnomaly": false,
+      "resolvedLinks": [],
+      "unresolvedLinks": [],
+      "incomingLinks": [
+        {
+          "from": "docs/evidence/W-0176/README.md",
+          "to": "docs/evidence/W-0177/README.md",
           "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0176/README.md",
-          "line": 12
+          "rawTarget": "../W-0177/README.md",
+          "line": 109
         }
       ]
     },
@@ -244192,19 +244285,13 @@
         },
         {
           "kind": "markdown",
-          "text": "W-0176",
-          "rawTarget": "../docs/evidence/W-0176/README.md",
-          "line": 12
-        },
-        {
-          "kind": "markdown",
           "text": "W-0174",
           "rawTarget": "../docs/evidence/W-0174/README.md",
           "line": 15
         }
       ],
       "lines": 23,
-      "words": 1541,
+      "words": 1525,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -244227,13 +244314,6 @@
           "kind": "markdown",
           "rawTarget": "../docs/evidence/W-0167/README.md",
           "line": 9
-        },
-        {
-          "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-          "to": "docs/evidence/W-0176/README.md",
-          "kind": "markdown",
-          "rawTarget": "../docs/evidence/W-0176/README.md",
-          "line": 12
         },
         {
           "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
@@ -244376,13 +244456,13 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 821,
+          "line": 822,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 842,
+          "line": 843,
           "slug": "9-completion-records"
         }
       ],
@@ -244400,8 +244480,8 @@
           "line": 106
         }
       ],
-      "lines": 1326,
-      "words": 77333,
+      "lines": 1327,
+      "words": 77439,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -259832,6 +259912,20 @@
       "line": 54
     },
     {
+      "from": "docs/evidence/W-0176/README.md",
+      "to": "docs/evidence/W-0170/README.md",
+      "kind": "markdown",
+      "rawTarget": "../W-0170/README.md",
+      "line": 63
+    },
+    {
+      "from": "docs/evidence/W-0176/README.md",
+      "to": "docs/evidence/W-0177/README.md",
+      "kind": "markdown",
+      "rawTarget": "../W-0177/README.md",
+      "line": 109
+    },
+    {
       "from": "docs/review/2026-08-28-capacity-volume-unit-and-session-length.md",
       "to": "docs/capacity-model.md",
       "kind": "markdown",
@@ -261062,13 +261156,6 @@
       "kind": "markdown",
       "rawTarget": "../docs/evidence/W-0167/README.md",
       "line": 9
-    },
-    {
-      "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",
-      "to": "docs/evidence/W-0176/README.md",
-      "kind": "markdown",
-      "rawTarget": "../docs/evidence/W-0176/README.md",
-      "line": 12
     },
     {
       "from": "plan/toan-viec-can-lam-m8-2026-09-03.md",

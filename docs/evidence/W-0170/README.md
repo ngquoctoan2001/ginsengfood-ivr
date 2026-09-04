@@ -39,15 +39,15 @@ M8-12/M8-13 bằng một controlled pin rotation và xoay source pin của W-016
 
 | Artifact | SHA-256 |
 | --- | --- |
-| M8-12 | `9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499` |
-| W-0170 manifest — 18 artifact | `3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471` |
-| M8-13 | `95632b90ab99df6892ba6f0a231e9429c5021fd200d982609c52584e1b920ca3` |
-| W-0164 routing validator | `e70eb8b90e2a5697219f375baab7e6c0d6cb7d58053310ca8fd47caf07180d45` |
-| W-0164 routing template | `5fc84bee77beff876511cc41737123d7362806590e6015018b723ffdfd95abeb` |
-| W-0165 response validator | `1d14a46eeceb4a59586e23cd84668be50836831ef71c3a50c53a85386d72e1dc` |
-| W-0165 response template | `5e19f8a9342135ecb503050cc208262c8b4081b2a96007d381124c191d6437da` |
-| W-0170 closure validator | `8ef4881404fce45d0905cdf74a763938919138ad2ca99520b60aaff2cba3bda0` |
-| W-0170 closure template | `611c2481faf4d1b4741b8468a3977203286c6c6875e4bdc9db85f3166a7d2a1d` |
+| M8-12 | `311e2feda84bac04a51d2177c095ec15757763293753b0537320fbe0d25c119d` |
+| W-0170 manifest — 18 artifact | `945663bb3d3b12a18c506f8bad47e1cddda44b1f5cb47ce36ba43578c26a5e92` |
+| M8-13 | `dd1b972a4a402cd7e6929a7d06ceeba5b286e917125d8186a509d66cc3045a34` |
+| W-0164 routing validator | `d6c6dc92bb02479295c5271da9e7e2370a507cd76c4e7f7c4649ce50d11ee6f4` |
+| W-0164 routing template | `1ed18e3344a8d60b61e7d7a1bd88818dfb1d6f09014e3ccbce85d2bb68df0454` |
+| W-0165 response validator | `f39891979b9fcf37974070567be5000f601f78f4a5fdaeaa08ea71585338fa8c` |
+| W-0165 response template | `77039df220cca033d02cf51e3c991390f3bc34cdc557e2d754f8c1b64ab74af4` |
+| W-0170 closure validator | `a06e3c2aff52c89ef17e507ade3e3fafeb98fa6b6d31801dcddc2a41c1b4bce9` |
+| W-0170 closure template | `2b0dcf77731e2ed782ceb50cc4d8de61e1aa0b6597dbacada7abca95e32f9820` |
 
 W-0176 thực hiện rotation thứ hai sau khi W-0173/W-0174 làm M8-07 đổi byte. Preflight xác nhận
 chỉ M8-07 drift; rotation đi theo dependency M8-12 → manifest → M8-13 → W-0164/W-0165 → W-0170

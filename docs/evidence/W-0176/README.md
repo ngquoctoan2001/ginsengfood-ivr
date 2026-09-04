@@ -56,6 +56,11 @@ Pin được xoay theo đúng thứ tự, không sửa schema hay business rule:
 | Test traceability | **PASS `485`** |
 | PII scan, deliverables | **PASS `11/11`** |
 | PII scanner self-test | **PASS `CT-CI-06..06h`** |
+
+Các SHA trong bảng trên là snapshot lịch sử đúng tại thời điểm W-0176. Detached candidate W-0177
+sau đó phát hiện hai RFQ trong manifest còn phụ thuộc CRLF của shared Windows checkout. W-0177
+canonicalize hai member đó sang LF và cập nhật current chain; dùng bảng current trong
+[W-0170](../W-0170/README.md), không dùng snapshot W-0176 để dispatch.
 | API docs self-test | **PASS `14` generated artifacts** |
 | CI config self-test | **PASS** |
 | PII deliverables | **PASS `11` text files** |
@@ -96,3 +101,10 @@ scheduler, callback runtime, DB, outbound connector hoặc delivery guard.
 Review và đóng gói W-0176 pin set cùng W-0175 LF rules thành một exact candidate; chạy lại ba
 validator từ detached clean worktree. Sau đó mới dùng routing template khi Module 8 Owner/chief
 auditor cung cấp recipient alias, authority ref, approved destination và receipt system-of-record.
+
+## 7. Exact-checkout correction — W-0177
+
+Bảng hash ở §2 là snapshot trước khi W-0177 pin thêm `R-00`/`R-06` thành LF. Exact checkout
+`973df3c` phát hiện manifest vẫn giữ SHA của byte CRLF cũ nên W-0165/W-0170 đỏ. W-0177 xoay lại
+toàn bộ chain theo byte LF canonical; xem [evidence W-0177](../W-0177/README.md). Không dùng các hash
+§2 cho dispatch cycle mới.

@@ -31,14 +31,14 @@ const SOURCE_PINS = Object.freeze({
   dispatch_pack_path:
     "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
   dispatch_pack_sha256:
-    "9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499",
+    "311e2feda84bac04a51d2177c095ec15757763293753b0537320fbe0d25c119d",
   artifact_manifest_path: "docs/evidence/W-0170/artifact-sha256.txt",
   artifact_manifest_sha256:
-    "3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471",
+    "945663bb3d3b12a18c506f8bad47e1cddda44b1f5cb47ce36ba43578c26a5e92",
   message_kit_path:
     "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
   message_kit_sha256:
-    "95632b90ab99df6892ba6f0a231e9429c5021fd200d982609c52584e1b920ca3",
+    "dd1b972a4a402cd7e6929a7d06ceeba5b286e917125d8186a509d66cc3045a34",
 });
 
 const ROOT_KEYS = ["schema_version", "work_id", "status", "source", "batches", "safety"];

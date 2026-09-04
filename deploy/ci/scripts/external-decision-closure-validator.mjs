@@ -32,20 +32,20 @@ const SOURCE_PINS = Object.freeze({
   dispatch_pack_path:
     "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
   dispatch_pack_sha256:
-    "9da8e5698bc99df73338b3d6886e61f18c93e492431d07cb730074f6ef3aa499",
+    "311e2feda84bac04a51d2177c095ec15757763293753b0537320fbe0d25c119d",
   artifact_manifest_path: "docs/evidence/W-0170/artifact-sha256.txt",
   artifact_manifest_sha256:
-    "3352479690e424b88138654b1a91aa5c55908b19d47ee63870795b113e616471",
+    "945663bb3d3b12a18c506f8bad47e1cddda44b1f5cb47ce36ba43578c26a5e92",
   message_kit_path:
     "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
   message_kit_sha256:
-    "95632b90ab99df6892ba6f0a231e9429c5021fd200d982609c52584e1b920ca3",
+    "dd1b972a4a402cd7e6929a7d06ceeba5b286e917125d8186a509d66cc3045a34",
   routing_validator_path: "deploy/ci/scripts/external-decision-routing-validator.mjs",
   routing_validator_sha256:
-    "e70eb8b90e2a5697219f375baab7e6c0d6cb7d58053310ca8fd47caf07180d45",
+    "d6c6dc92bb02479295c5271da9e7e2370a507cd76c4e7f7c4649ce50d11ee6f4",
   response_validator_path: "deploy/ci/scripts/external-decision-response-validator.mjs",
   response_validator_sha256:
-    "1d14a46eeceb4a59586e23cd84668be50836831ef71c3a50c53a85386d72e1dc",
+    "f39891979b9fcf37974070567be5000f601f78f4a5fdaeaa08ea71585338fa8c",
 });
 
 const SHEET_RULES = new Map([

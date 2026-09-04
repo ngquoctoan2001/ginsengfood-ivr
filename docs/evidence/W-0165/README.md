@@ -83,8 +83,8 @@ JSON, oversized input và path ngoài root.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `deploy/ci/scripts/external-decision-response-validator.mjs` | `1d14a46eeceb4a59586e23cd84668be50836831ef71c3a50c53a85386d72e1dc` |
-| `decision-response-input.template.json` | `5e19f8a9342135ecb503050cc208262c8b4081b2a96007d381124c191d6437da` |
+| `deploy/ci/scripts/external-decision-response-validator.mjs` | `f39891979b9fcf37974070567be5000f601f78f4a5fdaeaa08ea71585338fa8c` |
+| `decision-response-input.template.json` | `77039df220cca033d02cf51e3c991390f3bc34cdc557e2d754f8c1b64ab74af4` |
 
 ## 5. Impact và non-inference
 

@@ -65,8 +65,8 @@ Manifest máy đọc hiện hành nằm tại `docs/evidence/W-0170/artifact-sha
 | `docs/contracts/target-v1-closure-pack/T-04-dial-token.md` | `e7df35e7711a59ed21076a4330a2e6c67e08d3213cd62813981cd89efc184f9f` |
 | `docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md` | `f9be81414aa6aa66e2fb401e422b389081fd09528c2e179477ea5133647e2945` |
 | `docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.md` | `0be9c9e8be2b05d043e060374cb526c81f349a9ace45b2efd6f8025116fd3635` |
-| `docs/contracts/telephony-procurement-pack/R-00-voice-gateway-rfq.md` | `dd0701538f1c6f2462129bd2ff5410ffd5ea0810830afd6fd78b104a859d4e42` |
-| `docs/contracts/telephony-procurement-pack/R-06-to-trinh-mua-thiet-bi.md` | `b8b05ad316bd35c6ee0fe54baa4a0c5f3c3a1b739b6efb3f86008476315332dd` |
+| `docs/contracts/telephony-procurement-pack/R-00-voice-gateway-rfq.md` | `ae483fa33e5741b49a0d6c3e71bfedf51df14eec46d2a69935f45809f0e7ab37` |
+| `docs/contracts/telephony-procurement-pack/R-06-to-trinh-mua-thiet-bi.md` | `341153903009c37fb7fcf5ea3c5bdb253a6c7cd49f908676ff7c0612e681eea4` |
 
 ## 4. Dispatch batches
 
