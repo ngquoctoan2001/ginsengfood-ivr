@@ -1,0 +1,7 @@
+933c55255c538987d1b86ff6d8f46b6657c68821cd00a232a55827cc751fa879  plan/ivr-orther/m8-14-capacity-calibration-data-intake-bundle-2026-09-03.md
+e1d0fd37d610a1696b8e6b4117469ea3f8e929eff72dc95121e3ce9679200417  plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md
+4208614b44f55e8b9dc39b304021a7004e693b7dbb72ead84ab6d2cc2ed9ef83  deploy/ci/scripts/capacity-data-intake-validator.mjs
+7ff3a7798fffdf2afec0ba1083685bb655ccb988f3d945e053a9b317fde7f78b  deploy/ci/scripts/capacity-registry-decision-pack-validator.mjs
+de94b9b39103682fd338903302625eb47269af821edde994518f4547d6e8859e  docs/evidence/W-0182/capacity-registry-decision-pack.template.json
+01d27f785fd96e7aadfad2ac659b26c6247d7cba8a72174cdba2270ebafe02e7  docs/evidence/W-0160/README.md
+ce32fa252ad5987bc3fa90a1ea238252fecd50945499ddf160ce492c7f0b0a43  docs/evidence/W-0182/artifact-sha256.txt

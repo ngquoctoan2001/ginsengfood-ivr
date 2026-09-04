@@ -7,6 +7,10 @@ Baseline: `main@5c0b17085030cd69722a8422fe635bbcfbd9f5de` + shared WIP được 
 Trạng thái: **`TESTS_PASS_LOCAL / OFFLINE_REGISTRY_DECISION_VALIDATOR_READY /
 EXTERNAL_PROVIDER_AND_SIGNATURES_REQUIRED / CODE_NOT_AUTHORIZED / CALIBRATION_NOT_RUN`**
 
+Current-head recovery: W-0188 đã phục hồi exact M8-14/M8-15 trên `main@8ed62e9` và bổ sung
+M8-15 vào tập local source được validator recompute. Không đổi contract hash, schema, decision,
+quorum hoặc external state.
+
 ## 1. Kết quả audit B1
 
 Chuỗi local hiện có đã bao phủ:
@@ -105,23 +109,23 @@ analysis rồi mới viết adapter và provider conformance tests.
 | Decision/approval coverage | **PASS `15 decisions / 3 approvals`** |
 | Pending template | **PASS** — `CAPACITY_REGISTRY_DECISION_TEMPLATE_VALID_NOT_READY` |
 | Template SHA-256 | `de94b9b39103682fd338903302625eb47269af821edde994518f4547d6e8859e` |
-| Validator SHA-256 | `8fdbe90f08c5fd0ad2afb2a2083921ed4a1d5735b4c4840dffb4e1e06e8a894e` |
+| Validator SHA-256 | `7ff3a7798fffdf2afec0ba1083685bb655ccb988f3d945e053a9b317fde7f78b` |
 | W-0160 evidence SHA-256 | `01d27f785fd96e7aadfad2ac659b26c6247d7cba8a72174cdba2270ebafe02e7` |
 | M8-15 contract SHA-256 LF | `e1d0fd37d610a1696b8e6b4117469ea3f8e929eff72dc95121e3ce9679200417` |
 | W-0159 capacity validator SHA-256 | `4208614b44f55e8b9dc39b304021a7004e693b7dbb72ead84ab6d2cc2ed9ef83` |
-| Exact committed W-0154..W-0159 intake regression | **PASS** — `valid=1, mode=2, template=1, receipt=7, receipt verify=12, ledger=9, checkpoint=13, refusals=14` |
+| Current W-0154..W-0159 intake regression | **PASS** — `valid=1, mode=2, template=1, receipt=7, receipt verify=12, ledger=9, checkpoint=13, refusals=14` |
 | Current capacity-model self-test | **PASS `6/6`**, vẫn `CAPACITY_SELFTEST_PASS_UNCALIBRATED` |
-| Shared-tree intake regression | `ENV_BLOCKED_BY_EXTERNAL_PLAN_DELETION` — M8-14 đang absent; không restore/stage |
+| Shared-tree intake regression | **PASS W-0188** — exact M8-14/M8-15 hiện diện và khớp hash lịch sử |
 | Detached capacity-model rerun | `ENV_BLOCKED_DEPENDENCY_ONLY` — clean worktree không có package `yaml`; current-tree same source PASS 6/6 |
 | Artifact manifest | `docs/evidence/W-0182/artifact-sha256.txt` |
 | Artifact hash verification | **PASS `4/4`** |
-| PII scan | **PASS `4 files / 0 binary`**; scanner negative/clean control PASS |
+| PII scan | **PASS current W-0182/W-0188 deliverables `6 files / 0 binary`**; scanner negative/clean control PASS |
 | API docs self-test | **PASS** — 14 generated artifacts |
 | CI config self-test | **PASS** |
 | Test traceability | **PASS `485` current entries** |
-| Readiness mirror | **PASS `11 gates / 182 work items / 23 open decisions`**, production=false |
-| Markdown map | **PASS W-0182 `0 unresolved`** |
-| GitNexus detect | **LOW aggregate tracked tree `11 files / 12 symbols / 0 process`**; CLI mới chưa có trong stale index và không có runtime caller |
+| Readiness mirror | **PASS W-0188 `11 gates / 186 work items / 23 open decisions`**, production=false |
+| Markdown map | **PASS `598` files / `653` resolved; B1 critical set `0 unresolved`** |
+| GitNexus detect | **LOW aggregate shared tree `29 files / 47 symbols / 0 process`**; `verifySourcePins` LOW `5/1/0` |
 | Scoped diff check | **PASS** |
 
 Self-test refusal bao phủ source/contract và sáu external pin drift; thiếu/trùng/pending/sai owner hoặc
@@ -130,12 +134,15 @@ client max, cache và last-write-wins; registry scope/sequence/latest/atomicity/
 thiếu/sai/conditional approval; signer-verifier collision; chronology; safety flags; placeholder;
 PII/phone/secret; malformed/duplicate/BOM/oversized JSON và path ngoài repository.
 
-## 6. Dirty-tree boundary
+## 6. Current-head provenance boundary — W-0188
 
-Hai source contract M8-14/M8-15 dưới `plan/ivr-orther/` đang bị xóa trong external WIP cùng nhiều plan
-file khác. W-0182 không restore, stage hay nhận quyền sở hữu các deletion đó. Validator pin W-0160
-evidence và current capacity CLI từ file còn sống; M8-15 hash phải đồng thời khớp input và reviewer pin.
-Candidate implementation sau này phải resolve tình trạng contract artifact trước code review.
+W-0182 ban đầu không nhận ownership của hai deletion M8-14/M8-15. W-0188 xác minh đây là regression
+do commit `8ed62e9`, phục hồi đúng byte từ parent và giữ nguyên hai SHA-256 đã công bố. Validator nay
+recompute cả W-0160 evidence, M8-15 và W-0159 capacity validator; vì vậy xóa hoặc sửa M8-15 sẽ làm
+self-test/template check fail closed thay vì chỉ dựa vào hash tự khai trong input.
+
+Current shared-tree PASS chưa phải immutable candidate; release vẫn phải freeze exact commit và chạy
+clean-checkout verification riêng.
 
 ## 7. Phần còn lại
 
@@ -150,6 +157,7 @@ Candidate implementation sau này phải resolve tình trạng contract artifact
 
 ## 8. Bước tiếp theo
 
-Platform, Security và Module 8 điền completed pack, giao sáu evidence bundle và bảy independent pins.
-Chỉ sau W-0182 PASS mới mở provider-specific adapter review. Nếu chưa có artifact thật, B1 dừng đúng ở
+Phần local không cần quyết định đã sạch. Platform, Security và Module 8 điền completed pack, giao sáu
+evidence bundle và bảy independent pins. Chỉ sau completed-input W-0182 PASS mới mở provider-specific
+adapter review. Nếu chưa có artifact thật, B1 dừng đúng ở
 `LOCAL_TOOLCHAIN_READY / DATA_0_OF_4 / BLOCKED_EXTERNAL`.

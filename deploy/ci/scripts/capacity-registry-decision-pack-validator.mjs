@@ -31,6 +31,7 @@ const SOURCE_PINS = Object.freeze({
 
 const LOCAL_SOURCE_PAIRS = [
   ["w0160_evidence_path", "w0160_evidence_sha256"],
+  ["m8_15_contract_path", "m8_15_contract_sha256"],
   ["capacity_validator_path", "capacity_validator_sha256"],
 ];
 
