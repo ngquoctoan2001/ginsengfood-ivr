@@ -3,7 +3,7 @@
 Ngày: `2026-08-23`
 Baseline: `main@790931f`
 Trạng thái: `TESTS_PASS`
-Plan: [`remaining-work-plan-2026-08-22.md` §A2](../../../plan/ivr-orther/remaining-work-plan-2026-08-22.md)
+Plan: `remaining-work-plan-2026-08-22.md` §A2 (kế hoạch đã gỡ 2026-09-04; nội dung còn trong git history)
 
 > **Đây là đảo ngược một quyết định đã ghi, theo yêu cầu owner.** `W-0096` cố ý để màn
 > `/config` read-only. Xem §1. `REAL_CUSTOMER_CALL_ALLOWED=NO` không thay đổi.

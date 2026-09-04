@@ -33,7 +33,7 @@ plan hoặc evidence thật của W-0120.
 ## 3. Taxonomy và compatibility
 
 Taxonomy chín reason cùng visibility matrix nằm ở
-[`specs/api/06-error-codes.md` §2a](../../specs/api/06-error-codes.md). IR-06 §3.9–3.11 được sửa
+[`specs/api/06-error-codes.md` §2a](../../../specs/api/06-error-codes.md). IR-06 §3.9–3.11 được sửa
 theo đúng response shape runtime.
 
 Compatibility được khóa như sau:

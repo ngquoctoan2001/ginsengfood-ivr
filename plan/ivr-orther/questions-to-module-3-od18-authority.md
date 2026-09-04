@@ -5,8 +5,8 @@
 **Ngày gửi:** `2026-08-27` · **Hiệu chỉnh routing:** `2026-08-29` · **Trạng thái:** ⏳ CHỜ TRẢ LỜI
 **Ưu tiên:** P1 — chặn `ACCEPTED` của `W-0123`, **không** chặn hành vi runtime hiện tại
 
-> Phiếu này thay thế [questions-to-module-3-od15-risk-evidence.md](questions-to-module-3-od15-risk-evidence.md)
-> (`SUPERSEDED`). Toàn cảnh bàn giao hai chiều nằm ở
+> Phiếu này thay thế phiếu `OD-15` `questions-to-module-3-od15-risk-evidence.md`
+> (đã `SUPERSEDED` và gỡ khỏi cây ngày `2026-09-04`; còn trong git history). Toàn cảnh bàn giao hai chiều nằm ở
 > [IR-06](../../integration-requirements/06-module-3-api-handover.md); đây là phiếu hẹp chỉ để
 > đóng `OD18-C1..C5`.
 

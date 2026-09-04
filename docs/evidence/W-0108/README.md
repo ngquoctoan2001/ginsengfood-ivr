@@ -3,7 +3,7 @@
 Ngày: `2026-08-22`
 Baseline: `main@573dc8a`
 Trạng thái: `TESTS_PASS` — cả 4 suite đã chạy: **704 / 705** pass; lỗi duy nhất thuộc luồng khác (§7).
-Plan: [`remaining-work-plan-2026-08-22.md` §A1](../../../plan/ivr-orther/remaining-work-plan-2026-08-22.md)
+Plan: `remaining-work-plan-2026-08-22.md` §A1 (kế hoạch đã gỡ 2026-09-04; nội dung còn trong git history)
 Nối tiếp: `W-0106` §4.6 (kiến trúc lai), `OD-VOICE-01`, `OD-V1-19`
 
 > Trạng thái này **không phải** owner UAT và **không phải** `ACCEPTED`.

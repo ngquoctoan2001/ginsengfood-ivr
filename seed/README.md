@@ -2,8 +2,8 @@
 
 > **Target V1 canonical fixture (2026-08-12):** use `sales-target-v1.sample.json`. Các JSON cũ là legacy/current-compat scenarios với giả định COD-only/D-10 cũ; không dùng để sinh Target V1 domain/DTO.
 
-Trạng thái: `SEED_MOCK` · Sinh bởi: `plan/ivr-orther/_archive/prompts/p10-generate-seed-data.md` (lịch sử)
-Nguồn: `specs/database/*`, `specs/data/*`, `specs/workflows/*`; smoke `phase-8/09`. (Chiến lược seed gốc nằm ở `plan/ivr-orther/_archive/13-seed-and-mock-strategy-plan.md` — lịch sử, không phải authority.)
+Trạng thái: `SEED_MOCK` · Sinh bởi: `p10-generate-seed-data.md` (prompt sinh tài liệu đã nghỉ hưu 2026-09-04; còn trong git history)
+Nguồn: `specs/database/*`, `specs/data/*`, `specs/workflows/*`; smoke `phase-8/09`. (Chiến lược seed gốc nằm ở `13-seed-and-mock-strategy-plan.md` — đã gỡ 2026-09-04, còn trong git history; không phải authority.)
 
 ## ⚠️ Cảnh báo
 - **CHỈ dùng non-production.** KHÔNG seed vào production.

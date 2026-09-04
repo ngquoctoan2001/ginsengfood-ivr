@@ -3,7 +3,7 @@
 Ngày: `2026-08-23`
 Baseline: `main@83979d6`
 Trạng thái: `TESTS_PASS`
-Plan: [`remaining-work-plan-2026-08-22.md` §A4](../../../plan/ivr-orther/remaining-work-plan-2026-08-22.md)
+Plan: `remaining-work-plan-2026-08-22.md` §A4 (kế hoạch đã gỡ 2026-09-04; nội dung còn trong git history)
 
 > `REAL_CUSTOMER_CALL_ALLOWED` vẫn `false` ở cả bốn môi trường. Bản này thêm một chốt **dừng**,
 > không mở thêm gì.

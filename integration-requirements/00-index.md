@@ -12,7 +12,7 @@ Contract pack gửi các team ngoài để IVR (.NET, Module 8) tích hợp đư
 | --- | --- | --- | --- |
 | **[06-module-3-api-handover.md](06-module-3-api-handover.md)** | **Module 3** — `ginsengfood-business-platform` | 📤 **Tài liệu bàn giao, gửi thẳng cho Module 3.** Hai chiều push, 22 field bắt buộc, payload mẫu, ACK taxonomy, checklist ký | `TARGET_V1_DRAFT` |
 | [01-sales-platform-requirements.md](01-sales-platform-requirements.md) | Module 3 | **Sổ đăng ký ID** `IR-SALES-*` — mã ổn định để file khác trích dẫn. Nội dung chi tiết ở IR-06 | `TARGET_V1_DRAFT` |
-| [02-ops-core-requirements.md](02-ops-core-requirements.md) | — | **`SUPERSEDED`** bởi `OD-17`: IVR không còn yêu cầu gì từ ops-core | `SUPERSEDED` |
+| ~~`02-ops-core-requirements.md`~~ (đã gỡ) | — | `OD-17` loại bỏ toàn bộ phụ thuộc ops-core: IVR không đọc tồn kho, thu hồi, sale-lock hay quality-hold từ bất kỳ nguồn nào, và không có lối dữ liệu nào giữa IVR và `ginsengfood-ops-core` | `N/A` |
 | [03-telephony-sim-requirements.md](03-telephony-sim-requirements.md) | Telephony / Infra | mock → 1 SIM lab → 32 eSIM target | `TARGET_V1_DRAFT` |
 | [04-shared-auth-audit-requirements.md](04-shared-auth-audit-requirements.md) | Security / Platform / Legal | auth, RBAC, audit, retention, release gate | `TARGET_V1_DRAFT` |
 | [05-open-contract-questions.md](05-open-contract-questions.md) | nhiều owner | Câu hỏi **chưa có lời đáp**, kèm evidence để đóng | `OPEN` |

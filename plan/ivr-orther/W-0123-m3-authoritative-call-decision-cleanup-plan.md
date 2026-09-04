@@ -311,7 +311,7 @@ Active sources cần đồng bộ tối thiểu:
 - `specs/database/02-tables.md`, `specs/04-glossary.md`, workflow indexes.
 - `integration-requirements/00`, `01`, `05`; giữ IR-06 làm authority handover.
 - `plan/ivr-orther/decisions-log.md`: thêm quyết định mới, mark `OD-15` placement superseded.
-- `questions-to-module-3-od15-risk-evidence.md`: close/superseded; M3 không còn nghĩa vụ field đó.
+- `questions-to-module-3-od15-risk-evidence.md`: close/superseded, đã gỡ 2026-09-04; M3 không còn nghĩa vụ field đó.
 - `seed/ivr-tasks.sample.json`, `seed/call-scenarios.sample.json`, `seed/customers.sample.json`:
   không còn fixture kỳ vọng IVR trusted-skip.
 - `admin-ui/src/i18n/enums.vi.json`: active vs legacy wording.

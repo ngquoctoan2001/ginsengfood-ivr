@@ -3,7 +3,7 @@
 Ngày: `2026-08-24`  
 Baseline: `main@fd7d7373f92aa3d89045cf0bf74c39bf71a69d34`  
 Trạng thái: `TESTS_PASS`  
-Plan: [`remaining-work-plan-2026-08-22.md` §A9](../../../plan/ivr-orther/remaining-work-plan-2026-08-22.md)
+Plan: `remaining-work-plan-2026-08-22.md` §A9 (kế hoạch đã gỡ 2026-09-04; nội dung còn trong git history)
 
 W-0115 thêm **16 CHECK cho cột enum đóng trên 8 bảng**, cộng một bất biến kết quả. Migration
 chạy preflight trước DDL và từ chối toàn bộ transaction nếu thấy một giá trị cũ không hợp lệ.

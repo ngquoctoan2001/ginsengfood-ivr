@@ -65,7 +65,7 @@ Xin cho biết: cách lấy snapshot, có `captured_at`/version không, scope t�
 Khi IVR callback, cần kiểm blocker **realtime** trước khi Core transition (phòng trường hợp phím `1` nhưng Sale Lock vừa bật).
 
 **Đề xuất từ IVR:** **Order Core** (không phải IVR) gọi ops-core realtime lúc revalidate. Ops-core cam kết endpoint QO1 sẵn sàng cho lần gọi này.
-Xin xác nhận: (a) đồng ý caller là Order Core; (b) ops-core chịu tải thêm cho bước revalidate này. *(Liên quan Q6 trong `questions-to-module-3-and-3.1.md`.)*
+Xin xác nhận: (a) đồng ý caller là Order Core; (b) ops-core chịu tải thêm cho bước revalidate này. *(Liên quan Q6 trong `questions-to-module-3-and-3.1.md` — phiếu đã gỡ 2026-09-04, còn trong git history.)*
 
 - [ ] Xác nhận (Core gọi) · [ ] Điều chỉnh (muốn IVR gọi trực tiếp?)
 - **Trả lời:** ______________________________________________

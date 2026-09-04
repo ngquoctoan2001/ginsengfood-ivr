@@ -21,7 +21,7 @@
 
 Nguồn chi tiết và tiêu chí closure: [target-contract-v1-draft.md](target-contract-v1-draft.md).
 
-Nguồn: trả lời chính thức từ **Module 3 (Commerce Order Core)** và **Module 3.1 (Sales Extensions)** ngày 2026-07-02 (xem `questions-to-module-3-and-3.1.md`).
+Nguồn: trả lời chính thức từ **Module 3 (Commerce Order Core)** và **Module 3.1 (Sales Extensions)** ngày 2026-07-02 (phiếu `questions-to-module-3-and-3.1.md` đã gỡ 2026-09-04; nội dung còn trong git history).
 Trạng thái các quyết định dưới đây: **LOCKED** (đã có owner trả lời) — nâng từ `ASSUMPTION`/`NEED_CONFIRMATION` lên `CONFIRMED`.
 Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Telephony.
 

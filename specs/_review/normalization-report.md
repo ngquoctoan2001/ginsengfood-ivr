@@ -14,7 +14,7 @@ Source/code review superseded several earlier conclusions. Active plan/spec/prom
 
 Earlier Round 1–4 text below is retained as historical evidence and is **not authoritative where it conflicts with Round 5**.
 
-Trạng thái: `REVIEW` · Sinh bởi: `plan/ivr-orther/prompts/p14-review-and-normalize-specs.md`
+Trạng thái: `REVIEW` · Sinh bởi: `p14-review-and-normalize-specs.md` (prompt sinh tài liệu đã nghỉ hưu 2026-09-04; còn trong git history)
 Phạm vi: rà soát toàn bộ `specs/srs/*` + `integration-requirements/*` + `seed/*`. Chuẩn đánh giá: `00-AI-EVALUATION-DEV-READINESS.md`, `MASTER-05`.
 
 ## 1. Nhất quán attempt policy (D-10) — ✅ PASS

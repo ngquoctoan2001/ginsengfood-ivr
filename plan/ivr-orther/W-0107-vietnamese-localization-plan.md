@@ -69,7 +69,7 @@ Sáu phát hiện làm thay đổi phạm vi, cần owner đọc kỹ §3 và §
 | --- | --- | --- |
 | [`DependencyBadge.tsx:38`](../../admin-ui/src/components/data/DependencyBadge.tsx#L38) | `fail-closed` | Thuật ngữ kỹ thuật — cân nhắc giữ nguyên, xem `OD-L10N-03` |
 | [`GovernanceNotice.tsx:19`](../../admin-ui/src/components/shell/GovernanceNotice.tsx#L19) | `aria-label="Governance"` | Screen-reader đọc tiếng Anh trong ngữ cảnh tiếng Việt — **lỗi a11y thật** |
-| [`ReportFilters.tsx:57`](../../admin-ui/src/app/(console)/reports/ReportFilters.tsx#L57) | `placeholder="IVR_CONFIRMED"` | Sẽ tự biến mất khi đổi sang `<select>` ở §4.4 |
+| [`ReportFilters.tsx:57`](../../admin-ui/src/app/%28console%29/reports/ReportFilters.tsx#L57) | `placeholder="IVR_CONFIRMED"` | Sẽ tự biến mất khi đổi sang `<select>` ở §4.4 |
 
 ### 2.2 Lớp dữ liệu — chưa Việt hóa (phần việc chính)
 
@@ -81,14 +81,14 @@ Sáu phát hiện làm thay đổi phạm vi, cần owner đọc kỹ §3 và §
 
 | Màn hình | File | Định vị | Trường render thô |
 | --- | --- | --- | --- |
-| Nhật ký cuộc gọi | [`calls/page.tsx`](../../admin-ui/src/app/(console)/calls/page.tsx) | `CALL_COLUMNS` → `program`, `status`, `queueStatus`, `result` | `program_type`, `status`, `queue_status`, `result_type` |
-| Chi tiết cuộc gọi | [`calls/[ivrCallJobId]/page.tsx`](../../admin-ui/src/app/(console)/calls/[ivrCallJobId]/page.tsx) | `DescriptionList` phần đầu; `attempts`/`results`/`callbacks`/`technical`/`review` blocks; `SELLABLE_COLUMNS` → `decision` | `program_type`, `order_state`, `status`, `queue_status`, `eligibility_decision`, `blocked_reasons[]`, `attempt.status`, `disposition`, `result_type`, `recommended_core_action`, `result_state`, `delivery_status`, `exception_type`, `review.reason`, `review.status`, `resolution`, `sellable.decision` |
-| Chờ duyệt | [`review/page.tsx`](../../admin-ui/src/app/(console)/review/page.tsx) | cột `source`, `result`, `reason`, `status` | `source_type`, `result_type`, `reason`, `status` |
-| Tổng quan | [`dashboard/page.tsx`](../../admin-ui/src/app/(console)/dashboard/page.tsx) | cột `status` (SIM), `scope`, `shortageReason`; `MetricGrid` | `sim.status`, `incident.scope`, `shortage_reason`, `adapter_mode`, `execution_mode` |
-| Trạng thái tích hợp | [`integration/page.tsx`](../../admin-ui/src/app/(console)/integration/page.tsx) | `DEPENDENCY_COLUMNS`, `EVENT_COLUMNS` | `dependency`, `state`, `detail`, `fail_closed_effect`, `event.source`, `event.effect` |
-| Cấu hình kịch bản | [`config/page.tsx`](../../admin-ui/src/app/(console)/config/page.tsx) | cột `status`, `approvals`, `missing`, `meaning` | `version.status`, `approval_type[]`, `missing_approvals[]`, `dtmf.meaning` |
+| Nhật ký cuộc gọi | [`calls/page.tsx`](../../admin-ui/src/app/%28console%29/calls/page.tsx) | `CALL_COLUMNS` → `program`, `status`, `queueStatus`, `result` | `program_type`, `status`, `queue_status`, `result_type` |
+| Chi tiết cuộc gọi | [`calls/[ivrCallJobId]/page.tsx`](../../admin-ui/src/app/%28console%29/calls/[ivrCallJobId]/page.tsx) | `DescriptionList` phần đầu; `attempts`/`results`/`callbacks`/`technical`/`review` blocks; `SELLABLE_COLUMNS` → `decision` | `program_type`, `order_state`, `status`, `queue_status`, `eligibility_decision`, `blocked_reasons[]`, `attempt.status`, `disposition`, `result_type`, `recommended_core_action`, `result_state`, `delivery_status`, `exception_type`, `review.reason`, `review.status`, `resolution`, `sellable.decision` |
+| Chờ duyệt | [`review/page.tsx`](../../admin-ui/src/app/%28console%29/review/page.tsx) | cột `source`, `result`, `reason`, `status` | `source_type`, `result_type`, `reason`, `status` |
+| Tổng quan | [`dashboard/page.tsx`](../../admin-ui/src/app/%28console%29/dashboard/page.tsx) | cột `status` (SIM), `scope`, `shortageReason`; `MetricGrid` | `sim.status`, `incident.scope`, `shortage_reason`, `adapter_mode`, `execution_mode` |
+| Trạng thái tích hợp | [`integration/page.tsx`](../../admin-ui/src/app/%28console%29/integration/page.tsx) | `DEPENDENCY_COLUMNS`, `EVENT_COLUMNS` | `dependency`, `state`, `detail`, `fail_closed_effect`, `event.source`, `event.effect` |
+| Cấu hình kịch bản | [`config/page.tsx`](../../admin-ui/src/app/%28console%29/config/page.tsx) | cột `status`, `approvals`, `missing`, `meaning` | `version.status`, `approval_type[]`, `missing_approvals[]`, `dtmf.meaning` |
 | Báo cáo | [`BreakdownTable.tsx`](../../admin-ui/src/components/reports/BreakdownTable.tsx) | cột `key` | `row.key` (giá trị của chiều đang phân tích) |
-| Tài khoản | [`accounts/page.tsx`](../../admin-ui/src/app/(console)/accounts/page.tsx) | `ACCOUNT_COLUMNS` → `role`, `status` | `role`, `status` |
+| Tài khoản | `accounts/page.tsx` (màn hình account đã bị `W-0128` gỡ; identity thuộc Module 3) | `ACCOUNT_COLUMNS` → `role`, `status` | `role`, `status` |
 
 ### 2.3 Lớp backend
 
@@ -123,7 +123,7 @@ Sáu phát hiện làm thay đổi phạm vi, cần owner đọc kỹ §3 và §
 nhỏ hơn nhiều so với con số 175 gợi ý.
 
 Một assertion đặc biệt quan trọng:
-[`reports-screen.test.ts:313`](../../admin-ui/tests/e2e/reports-screen.test.ts#L313) khóa
+`reports-screen.test.ts:313` (đã hợp nhất vào `admin-ui/tests/e2e/console-screens.test.ts`) khóa
 nội dung CSV `PROGRAM,GOLDEN_HOUR,11,6,0.5455,0.8462`. Test này **phải giữ nguyên** —
 nó chính là bằng chứng cho `NT-5` §3.
 
@@ -192,7 +192,7 @@ báo "tôi không biết cái này" thì tốt hơn nhiều so với một ô tr
 ### NT-5 — CSV, bộ lọc, audit giữ **mã gốc**
 
 - CSV export: cột và dòng do server sinh, đã qua k-anonymity và đã ghi audit
-  ([`export/route.ts`](../../admin-ui/src/app/(console)/reports/export/route.ts) không thêm gì).
+  ([`export/route.ts`](../../admin-ui/src/app/%28console%29/reports/export/route.ts) không thêm gì).
   **Không dịch.** Người nhận file cần mã để đối chiếu với hệ thống khác.
 - Bộ lọc: giá trị gửi lên API là mã; chỉ **nhãn trong dropdown** là tiếng Việt.
 - Audit/evidence: không đụng.
@@ -299,7 +299,7 @@ theo từng lần đổi câu chữ.
 
 ### 4.4 Bộ lọc: ô text → dropdown
 
-[`CallLogFilters.tsx`](../../admin-ui/src/app/(console)/calls/CallLogFilters.tsx) hiện bắt
+[`CallLogFilters.tsx`](../../admin-ui/src/app/%28console%29/calls/CallLogFilters.tsx) hiện bắt
 nhân viên **gõ tay** `status`, `queue_status`, `result_type` vào ô mono. Gõ sai một ký tự thì
 ra bảng rỗng mà không có lời giải thích nào.
 
@@ -307,7 +307,7 @@ ra bảng rỗng mà không có lời giải thích nào.
 vừa sửa một lỗi khả dụng có thật.
 
 `PROGRAMS` đang hardcode nhãn trùng mã
-([`CallLogFilters.tsx:25`](../../admin-ui/src/app/(console)/calls/CallLogFilters.tsx#L25))
+([`CallLogFilters.tsx:25`](../../admin-ui/src/app/%28console%29/calls/CallLogFilters.tsx#L25))
 cũng chuyển sang từ điển.
 
 ---

@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 166 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 167 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 17
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 112
+  rows_without_evidence_pack: 113
 
 gates:
   - id: "G-CONTRACT"
@@ -292,7 +292,7 @@ work:
   - id: "W-0105"
     prompt: "Console account authentication/RBAC (HISTORICAL; superseded bởi W-0128)"
     status: "N/A"
-    evidence: "docs/evidence/W-0105/README.md"
+    evidence: null
   - id: "W-0106"
     prompt: "Regional voice routing — 3 giọng nữ Bắc/Trung/Nam (Origin=UNPLANNED, owner requested)"
     status: "ACCEPTED"
@@ -336,7 +336,7 @@ work:
   - id: "W-0118"
     prompt: "Không gọi IVR cho khách cũ — thực thi OD-15 (Origin=UNPLANNED, owner requested)"
     status: "TESTS_PASS"
-    evidence: "docs/evidence/W-0118/README.md"
+    evidence: null
   - id: "W-0119"
     prompt: "Bàn giao render 12 đoạn audio: sửa 2 lỗi chuỗi công cụ + bộ hướng dẫn owner (Origin=UNPLANNED, owner requested — Đợt 1 của kế hoạch 26/08)"
     status: "ACCEPTED"
@@ -537,6 +537,10 @@ work:
     prompt: "D7 current security/secret/vulnerability gate rerun (Origin=UNPLANNED, owner yêu cầu tiếp tục việc local không cần quyết định 2026-09-03)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0168/README.md"
+  - id: "W-0169"
+    prompt: "Documentation estate cleanup — gỡ tài liệu SUPERSEDED/HISTORICAL (Origin=UNPLANNED, owner chỉ đạo trực tiếp 2026-09-04 sau khi được cảnh báo rằng governance hiện hành cấm xóa lịch sử; owner tái khẳng định \"xóa hẳn khỏi repo\")"
+    status: "CODE_DONE"
+    evidence: null
   - id: "W-0029"
     prompt: "P4-1"
     status: "TESTS_PASS"

@@ -3,7 +3,7 @@
 Ngày: `2026-08-23`
 Baseline: `main@31242a5`
 Trạng thái: `TESTS_PASS`
-Plan: [`remaining-work-plan-2026-08-22.md` §A5](../../../plan/ivr-orther/remaining-work-plan-2026-08-22.md)
+Plan: `remaining-work-plan-2026-08-22.md` §A5 (kế hoạch đã gỡ 2026-09-04; nội dung còn trong git history)
 
 > `REAL_CUSTOMER_CALL_ALLOWED` vẫn `false` ở cả bốn môi trường. Toàn bộ bản này **không tồn tại**
 > ở production — không phải bị chặn, mà là không được đăng ký.

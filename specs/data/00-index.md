@@ -1,6 +1,6 @@
 # Data SRS — Index
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `plan/ivr-orther/prompts/p06-generate-data-mapping.md`
+Trạng thái: `SRS_DRAFT` · Sinh bởi: `p06-generate-data-mapping.md` (prompt sinh tài liệu đã nghỉ hưu 2026-09-04; còn trong git history)
 Nguồn: `phase-8/02` §11 (data allowed/prohibited), `/04`,`/07`,`/08`,`/12`; `MASTER-01` (source-of-truth), `MASTER-03` (trace-id); `specs/srs/api/*`; decisions D-*/DO-*/DF-*/DT-*.
 
 ## 1. Cấu trúc

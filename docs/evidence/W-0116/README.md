@@ -6,7 +6,7 @@ Baseline: `main@220ebfc9373f3b8a3fd641d71b7d7c6610eeefb6`
 
 Trạng thái: `TESTS_PASS`
 
-Plan: [`remaining-work-plan-2026-08-22.md` §A10](../../../plan/ivr-orther/remaining-work-plan-2026-08-22.md)
+Plan: `remaining-work-plan-2026-08-22.md` §A10 (kế hoạch đã gỡ 2026-09-04; nội dung còn trong git history)
 
 Owner chốt `OD-L10N-02b`: thêm `detail_vi` và nâng contract lên
 `1.0.0-draft.17`. Phương án triển khai không thay văn bản chẩn đoán gốc và không suy

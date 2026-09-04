@@ -49,6 +49,6 @@ sequenceDiagram
   `LEGACY_READ`, deprecated/ignored; Module 3 không phải gửi để IVR quyết định gọi.
 - DB enum/cột/status cũ được giữ để đọc history và rollback; không tạo skip row mới.
 
-Workflow trusted-skip theo `OD-15` là `SUPERSEDED` bởi `OD-18`. Evidence lịch sử nằm tại
-[`W-0118`](../../docs/evidence/W-0118/README.md); cutover hiện hành nằm tại
+Workflow trusted-skip theo `OD-15` là `SUPERSEDED` bởi `OD-18`. Evidence lịch sử `W-0118` đã
+được gỡ ngày `2026-09-04` (còn trong git history); cutover hiện hành nằm tại
 [`W-0123`](../../docs/evidence/W-0123/README.md).

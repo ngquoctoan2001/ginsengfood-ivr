@@ -1,6 +1,6 @@
 # UI SRS — Index (Admin/Ops Console)
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `plan/ivr-orther/prompts/p12-generate-ui-specs.md`
+Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12-generate-ui-specs.md` (prompt sinh tài liệu đã nghỉ hưu 2026-09-04; còn trong git history)
 Nguồn: `phase-8/08` (giám sát/audit/privacy), `/11 §5` (admin API); `specs/srs/functional/07`, `api/03`, `data/05`, `architecture/06`; IR-06 §4A.
 Cấp độ: **reference spec** — Module 3 sở hữu identity, role và UI deploy; IVR chỉ giữ reference implementation privacy-safe.
 

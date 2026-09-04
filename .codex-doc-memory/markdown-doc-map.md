@@ -1,6 +1,6 @@
 ﻿# Markdown Documentation Map
 
-Generated: 2026-09-04T00:29:00.431Z
+Generated: 2026-09-04T00:45:23.690Z
 Root: C:\Users\Administrator\Desktop\ivr
 
 ## Summary
@@ -904,7 +904,7 @@ Root: C:\Users\Administrator\Desktop\ivr
 | plan/ivr-orther/W-0122-vieneu-selfhosted-tts-plan.md | W-0122 — Tự host VieNeu-TTS, loại phụ thuộc SaaS TTS ở runtime | 1/39 | 0 | 3 | 10 | 6017 |
 | plan/ivr-orther/W-0123-m3-authoritative-call-decision-cleanup-plan.md | W-0123 — M3 quyết định gọi, IVR chỉ thực thi: cleanup trusted-skip phía IVR | 1/31 | 1 | 0 | 0 | 3855 |
 | plan/ivr-orther/W-0124-w0123-review-remediation-plan.md | W-0124 — Khắc phục phát hiện rà soát W-0123 | 1/11 | 1 | 0 | 0 | 1343 |
-| plan/toan-viec-can-lam-m8-2026-09-03.md | Module 8 — Bảng việc cần làm hiện hành | 1/1 | 3 | 5 | 0 | 1299 |
+| plan/toan-viec-can-lam-m8-2026-09-03.md | Module 8 — Bảng việc cần làm hiện hành | 1/1 | 3 | 5 | 0 | 1450 |
 | prompt/_execution/defaults-and-confirmations.md | Defaults and Confirmations — IVR Execution | 1/5 | 1 | 0 | 0 | 722 |
 | prompt/_execution/prompt-execution-tracker.md | IVR Master Implementation Progress Ledger | 1/10 | 11 | 2 | 0 | 73427 |
 | prompt/_legacy-mock/00-index.md | IVR Dev Prompt Library — Index | 1/4 | 0 | 9 | 0 | 369 |

@@ -16,7 +16,7 @@ Xác thực service-to-service hiện tại là **so chuỗi bí mật tĩnh**:
 | --- | --- | --- |
 | Sales → IVR (`POST /tasks`) | biến `ORDER_CORE_SERVICE_TOKEN`, so sánh hằng thời gian | [`src/Ivr.Api/Auth/OrderCoreAllowlistMiddleware.cs:46`](../../../src/Ivr.Api/Auth/OrderCoreAllowlistMiddleware.cs) |
 | IVR worker/adapter → IVR internal | biến `IVR_INTERNAL_SERVICE_TOKEN` | [`src/Ivr.Api/Internal/InternalServiceOptions.cs:16`](../../../src/Ivr.Api/Internal/InternalServiceOptions.cs) |
-| Admin console → IVR | header `X-Permissions` + `X-Mock-Actor-Id`, scheme `IvrMockPermissions` | [`src/Ivr.Api/Auth/MockPermissionAuthenticationHandler.cs:14`](../../../src/Ivr.Api/Auth/MockPermissionAuthenticationHandler.cs) |
+| Admin console → IVR | bearer token ba tier (read/write/danger), scheme `IvrAdminServiceToken` | [`src/Ivr.Api/Auth/AdminTokenAuthenticationHandler.cs:29`](../../../src/Ivr.Api/Auth/AdminTokenAuthenticationHandler.cs) |
 | IVR → Sales (callback) | port `IServiceTokenProvider`, chưa có implementation production | [`src/Ivr.Domain/Ports/ProviderPorts.cs:261`](../../../src/Ivr.Domain/Ports/ProviderPorts.cs) |
 
 Phần đã làm đúng: so sánh token dùng `CryptographicOperations.FixedTimeEquals`, và token in ra log là `[REDACTED_SERVICE_TOKEN]`. **Vấn đề không phải chất lượng cài đặt — vấn đề là cơ chế.** Chuỗi tĩnh không có hạn dùng, không xoay được mà không downtime, không phân biệt được caller nào, và không mang scope.

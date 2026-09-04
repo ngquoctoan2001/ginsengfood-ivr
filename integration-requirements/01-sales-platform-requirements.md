@@ -42,7 +42,7 @@ Nếu Module 3 bỏ bước revalidate với ops khi nhận callback, không cò
 | `IR-SALES-01` (`seed/README.md`) | → `IR-SALES-TASK-01` |
 | `IR-SALES-OC1` (`specs/api/06`, `specs/data/00`) | → `IR-SALES-TASK-02` (`order_version` là stale guard) |
 | `IR-CRM-01` (`seed/README.md`, `specs/architecture/05`) | → `IR-SALES-CRM-01` — CRM nằm **trong** Module 3, không phải owner riêng |
-| `IR-OPS-01…07` | **Không còn** — `OD-17`, xem [IR-02](02-ops-core-requirements.md) |
+| `IR-OPS-01…07` | **Không còn** — `OD-17` gỡ toàn bộ phụ thuộc ops-core; IR-02 đã được gỡ khỏi pack |
 | `IR-SALES-*-V1` (`production-blockers-plan.md`) | Hệ mã song song của file kế hoạch đó; không phải mã pack này |
 
 ## 4. Evidence Module 3 phải nộp để đóng

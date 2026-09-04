@@ -36,7 +36,7 @@ Ba câu **chặn cứng**, trích lại để thấy mức độ:
 | Câu cũ | Kết quả |
 | --- | --- |
 | `OQ-SALES-01…06` | Gom vào [IR-06 §10](06-module-3-api-handover.md) |
-| Ops-core cần build gì cho IVR? | **Không còn** — `OD-17`, xem [IR-02](02-ops-core-requirements.md) |
+| Ops-core cần build gì cho IVR? | **Không còn** — `OD-17` gỡ toàn bộ phụ thuộc ops-core; IR-02 đã được gỡ khỏi pack |
 | Trusted-skip cần `CustomerTrustResolver` hoặc risk-evidence field? | **Không** — toàn bộ placement `OD-15` đã `SUPERSEDED` bởi `OD-18`; M3 quyết định đơn cần gọi, IVR chỉ thực thi |
 
 ## 4. Được phép làm trước khi có câu trả lời

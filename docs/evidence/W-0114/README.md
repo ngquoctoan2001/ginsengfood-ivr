@@ -3,7 +3,7 @@
 Ngày: `2026-08-24`
 Baseline: `main@d4ceb38`
 Trạng thái: `TESTS_PASS`
-Plan: [`remaining-work-plan-2026-08-22.md` §A8](../../../plan/ivr-orther/remaining-work-plan-2026-08-22.md)
+Plan: `remaining-work-plan-2026-08-22.md` §A8 (kế hoạch đã gỡ 2026-09-04; nội dung còn trong git history)
 
 > Không đổi một dòng production nào. Bản này chỉ thêm cổng và tài liệu — cùng lý do: một cổng mà
 > phải sửa code mới xanh được thì không còn là phép đo nữa.
