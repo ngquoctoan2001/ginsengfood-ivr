@@ -51,7 +51,7 @@ P3-2 phục vụ vận hành realtime theo call log/detail; P3-4 phục vụ ph�
 | `admin-ui/app/reports/**` | Reporting/analytics routes |
 | `admin-ui/components/reports/**` | KPI cards, charts, breakdown tables, export dialog |
 | `admin-ui/lib/analytics/**` | Client + types for analytics API |
-| `admin-ui/i18n/vi.json` | Chuỗi UI tiếng Việt cho reporting |
+| `admin-ui/src/i18n/vi.json` | Chuỗi UI tiếng Việt cho reporting |
 
 ## 8. TESTS TO WRITE
 | Test ID | Loại | Assert |

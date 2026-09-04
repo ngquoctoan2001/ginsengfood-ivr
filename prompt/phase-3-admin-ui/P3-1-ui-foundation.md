@@ -46,7 +46,7 @@ Ops/admin cần màn theo dõi hàng đợi IVR, xem call log/evidence, cấu h�
 | `admin-ui/app/**` | Layout, auth, route guard |
 | `admin-ui/lib/api/**` | API client + error envelope parser |
 | `admin-ui/lib/auth/**`, `rbac/**` | Session + permission |
-| `admin-ui/i18n/vi.json` | Chuỗi tiếng Việt |
+| `admin-ui/src/i18n/vi.json` | Chuỗi tiếng Việt |
 | `admin-ui/components/**` | Shell, RequirePermission, dialogs, states |
 
 ## 8. TESTS TO WRITE

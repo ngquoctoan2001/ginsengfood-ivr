@@ -22,4 +22,10 @@ sequenceDiagram
     end
 ```
 
-**P0:** Không cộng vào customer attempt count; không map thành `IVR_NO_ANSWER_*`. `INTERNAL_CALLBACK_ERROR` → retry callback bounded cùng idempotency. `Owner Decision Required` OD-10 (retry count/backoff), OD-11 (mapping tín hiệu SIM thật).
+**P0:** Không cộng vào customer attempt count; không map thành `IVR_NO_ANSWER_*`. Lỗi callback → retry bounded cùng idempotency. `Owner Decision Required` OD-10 (retry count/backoff), OD-11 (mapping tín hiệu SIM thật).
+
+> **Đối soát code `2026-09-04` (`W-0171`).** Hành vi trên đã thực thi: `delivery_status` đi
+> `RETRY_PENDING` → `RETRY_EXHAUSTED`, và DB cấm mọi result kỹ thuật mang
+> `is_counted_customer_attempt = true`. Nhưng nhãn `INTERNAL_CALLBACK_ERROR` **không tồn tại
+> trong runtime** — `exception_type` là string tự do chứa mã gốc của gateway. Chi tiết và
+> owner decision còn mở: `specs/functional/06-technical-exception-capacity.md`.

@@ -120,7 +120,7 @@ Task, call job, intake outbox, idempotency response snapshot and audit record ar
 
 > **PostgreSQL:** `CHECK` chỉ đánh giá được trên **một hàng của chính bảng đó** — không tham chiếu được `ivr_call_jobs`. Vì vậy bound policy được denormalize thành `max_attempts_snapshot`. Tính nhất quán `max_attempts_snapshot == ivr_call_jobs.max_attempts` được bảo đảm bằng **trigger `BEFORE INSERT`** (copy giá trị) hoặc bằng application invariant, **không** bằng CHECK. Xem DB-04 §4.
 
-## 4. `ivr_raw_call_event` (MỚI — OD-DR-03)
+## 4. `ivr_raw_call_events` (MỚI — OD-DR-03)
 | Column | Type | Req | Index | Note |
 | --- | --- | --- | --- | --- |
 | `id`/`raw_event_id` | uuid/string | ✓ | PK/Unique | |
@@ -208,6 +208,42 @@ Migration W-0024 seed duy nhất `SCRIPT-ORDER-CONFIRM:v1-test-approved` với `
 > **W-0128:** IVR không còn bảng account/session. Hai migration W-0105 và
 > `20260828040458_W0122DropConsoleAccounts` được giữ nguyên tên như lịch sử schema;
 > migration sau đã xoá hai bảng trước khi W-0128 chuẩn hoá ownership về Module 3.
+
+## 8.2. Bảng chỉ có trong code, bổ sung `2026-09-04` (`W-0171`)
+
+> Cùng lý do như §8: các bảng dưới đây tồn tại trong migration/EF model nhưng **không** có trong
+> DB spec, nên bất kỳ ai đọc `specs/database/*` làm nguồn đều không biết chúng tồn tại.
+
+### Policy và retention (schema `public`)
+
+| Bảng | Field | Migration |
+| --- | --- | --- |
+| `ivr_attempt_policies` | `policy_version`, `program_type`, `max_attempts`, `attempt_offsets_seconds_json` (jsonb), `confirmation_window_seconds`, `allowed_execution_modes_json` (jsonb), `approved_for_production` (bool), `created_at`, `retention_class`, `retain_until` | `P1_2_InitialTargetV1Persistence` |
+| `ivr_retention_checkpoints` | `data_class`, `segment`, `run_id` (uuid), `status`, `processed_count` (bigint), `first_not_configured_at`, `last_run_at`, `updated_at` | `P1_5_RetentionLifecycle` |
+
+`approved_for_production = false` là lý do attempt policy hiện chỉ chạy được ở MOCK/LAB — gate
+`G-POLICY` chưa đóng.
+
+### Analytics warehouse — schema **`analytics`** (migration `20260819023138_P10_4_AnalyticsWarehouse`)
+
+Bảy bảng này nằm ở **schema riêng `analytics`**, không phải `public`, và không tham gia luồng
+runtime. Chúng chỉ chứa dữ liệu đã khử định danh: `order_ref_hash` thay cho order id, không có
+số điện thoại, địa chỉ hay nội dung DTMF thô (trừ `dtmf_key` một ký tự).
+
+| Bảng | PK | Field |
+| --- | --- | --- |
+| `fact_call_outcome` | `ivr_call_result_id` | `ivr_call_job_id`, `order_ref_hash`, `program_key`, `script_variant_key`, `result_type_key`, `final_result_status`, `dtmf_key`, `is_final`, `is_counted_customer_attempt`, `counted_attempt_number`, `event_at`, `event_date`, `event_hour`, `seconds_to_result`, `loaded_at` |
+| `fact_call_job` | `ivr_call_job_id` | `order_ref_hash`, `program_key`, `script_variant_key`, `eligible`, `counted_attempt_count`, `closed`, `created_at`, `created_date`, `loaded_at` |
+| `agg_kpi_daily` | (`bucket_date`, `program_key`, `script_variant_key`) | `total_results`, `final_results`, `distinct_orders`, `confirmed_count`, `cancelled_count`, `no_answer_count`, `invalid_phone_count`, `technical_count`, `operational_blocked_count`, `second_attempt_results`, `seconds_to_result_sum`, `seconds_to_result_count`, `computed_at` |
+| `dim_program` | `program_key` | `first_seen_at`, `last_seen_at`, `fact_row_count` |
+| `dim_result_type` | `result_type_key` | `is_final`, `first_seen_at`, `last_seen_at`, `fact_row_count` |
+| `dim_script_variant` | `script_variant_key` | `first_seen_at`, `last_seen_at`, `fact_row_count` |
+| `etl_checkpoint` | `pipeline_name` | `last_run_at`, `last_run_loaded_rows`, `last_run_rejected_rows`, `last_run_duration_ms`, `total_loaded_rows`, `total_rejected_rows`, `high_water_event_at`, `last_reconciled_at`, `source_row_count`, `fact_row_count`, `reconcile_status` |
+
+Các bảng `dim_*` là **degenerate dimension tự sinh**: ETL thấy key mới thì thêm dòng, nên chúng
+không có CHECK constraint và **không** ràng buộc theo enum ở `03-enums-and-status.md`. Đừng coi
+`dim_result_type.result_type_key` là nguồn sự thật của result type — nguồn là
+`ck_ivr_call_results_result_type`.
 
 ## 9. Phân loại nguồn cột (chống DB↔OpenAPI inversion)
 

@@ -117,7 +117,7 @@ PASS — 414 files / 375 resolved links / 0 unresolved
 - `src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs`
 - `src/Ivr.Infrastructure/Scheduling/SchedulerRuntime.cs`
 - `src/Ivr.Infrastructure/Intake/AttemptPolicyRegistryWriter.cs`
-- `src/Ivr.Infrastructure/Persistence/Channels/SimChannelLeaseRepository.cs`
+- `src/Ivr.Infrastructure/Persistence/Channels/SimChannelLeaseRepository.cs` — **đính chính `2026-09-04` (`W-0171`): file/thư mục này không tồn tại.** Lease/fencing của SIM channel nằm ở `PostgresSchedulerStore.cs` và `PersistenceModelConfiguration.cs`
 - `src/Ivr.Api/Application/EligibilityService.cs`
 - `src/Ivr.Worker/Jobs/SchedulerJobHost.cs`
 - `tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs`

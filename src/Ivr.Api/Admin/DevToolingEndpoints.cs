@@ -38,9 +38,11 @@ public static class DevToolingEndpoints
             return endpoints;
         }
 
-        // Pinned to the console session scheme, like the script lifecycle. Without the pin the
-        // MOCK permission header alone could load fixtures and move channels, and MOCK is the
-        // mode every non-production deployment runs in — the exact deployments this serves.
+        // Write tier, not read: loading fixtures and moving channels are mutations. W-0128
+        // replaced the console session scheme this used to pin to, so the boundary is now the
+        // separate write token rather than a self-declared permission header — a header the
+        // caller writes about itself would not have been a boundary at all in MOCK, the mode
+        // every non-production deployment runs in, which is exactly what this serves.
         RouteGroupBuilder group = endpoints.MapGroup(RoutePrefix)
             .AddEndpointFilter<PiiMaskingFilter>();
 

@@ -1,12 +1,12 @@
 # DB-01 — ERD
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §3 + OD-DR-03 (`ivr_raw_call_event`).
+Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §3 + OD-DR-03 (`ivr_raw_call_events`).
 
 ```mermaid
 erDiagram
   ivr_confirmation_tasks ||--o{ ivr_call_jobs : creates
   ivr_call_jobs ||--o{ ivr_call_attempts : schedules
-  ivr_call_attempts ||--o| ivr_raw_call_event : captures
+  ivr_call_attempts ||--o| ivr_raw_call_events : captures
   ivr_call_jobs ||--o{ ivr_call_results : produces
   ivr_call_results ||--o{ ivr_result_callbacks : sends
   ivr_call_attempts ||--o{ ivr_technical_exceptions : may_open

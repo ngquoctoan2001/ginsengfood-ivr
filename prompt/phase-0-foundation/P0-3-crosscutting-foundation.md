@@ -51,7 +51,7 @@ Trước khi build intake/scheduler/callback (Phase 2), cần bộ khung ngang b
 ## 7. OUTPUT ARTIFACTS
 | Path | Nội dung |
 | --- | --- |
-| `src/Ivr.Infrastructure/Config/IvrOptions.cs` | Options + validation |
+| `src/Ivr.Infrastructure/Configuration/IvrOptions.cs` | Options + validation |
 | `src/Ivr.Api/Middleware/CorrelationMiddleware.cs`, `ErrorEnvelopeMiddleware.cs` | Correlation + error |
 | `src/Ivr.Api/Auth/*` | RBAC evaluator, RequirePermission, allowlist middleware |
 | `src/Ivr.Infrastructure/Idempotency/*`, `Audit/*`, `Evidence/*` | Store + entity + interface |

@@ -244,7 +244,7 @@ ranh giới commit là một quyết định được viết ra chứ không ph�
 | Thay đổi | Vì sao có mặt | Vì sao không revert |
 | --- | --- | --- |
 | `admin-ui/src/app/(console)/calls/[ivrCallJobId]/page.tsx` — gỡ `DataTable`, `Column`, `flag()` | Admin gate chặn vì unused symbol | Đã chết sẵn tại `HEAD` (kiểm bằng `git show HEAD:…` — chỉ còn dòng import và định nghĩa, không call site). Revert là trả lại một gate đỏ |
-| `admin-ui/tests/e2e/back-office-screens.test.ts` — fixture `READY_503` | Fixture tự đòi `READY_503` nhưng không tạo state đó | Revert là trả lại một test khẳng định điều nó không dựng |
+| `admin-ui/tests/e2e/back-office-screens.test.ts` (nay là `console-screens.test.ts`) — fixture `READY_503` | Fixture tự đòi `READY_503` nhưng không tạo state đó | Revert là trả lại một test khẳng định điều nó không dựng |
 | `AGENTS.md`, `CLAUDE.md` — số đếm GitNexus | `npx gitnexus analyze` ghi lại count sau re-index | Count cũ nay sai; giữ lại là để tài liệu nói sai về chính index |
 
 Ranh giới commit — ba commit, **theo thứ tự này**:

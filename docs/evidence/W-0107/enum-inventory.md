@@ -1,6 +1,9 @@
 # W-0107 — Inventory enum (sinh tự động)
 
 > File này do `enum-inventory.mjs` sinh ra ở GĐ 1. Không sửa tay.
+> **Đính chính `2026-09-04` (`W-0171`):** script `enum-inventory.mjs` **chưa từng được commit** —
+> inventory dưới đây không tái sinh được. Nguồn sự thật của enum là DB CHECK constraint, xem
+> `specs/database/03-enums-and-status.md`.
 > Ba nguồn độc lập; một họ chỉ được coi là **đóng** khi có mặt ở nguồn 1 hoặc 2.
 > `TASK_SKIPPED_TRUSTED_CUSTOMER` vẫn có mặt do `LEGACY_READ` compatibility; `OD-18`/W-0123 đã
 > dừng active runtime emission. Inventory enum không đồng nghĩa enum còn là active outcome.

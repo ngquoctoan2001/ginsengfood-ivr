@@ -43,7 +43,7 @@ Gọi khách hàng = xử lý dữ liệu cá nhân. Không tuân thủ = rủi 
 | --- | --- |
 | `docs/compliance/data-inventory.md`, `pia.md`, `retention.md` | Inventory + PIA + retention (ký Legal) |
 | `docs/compliance/dsar-runbook.md` | Quy trình DSAR |
-| `src/Ivr.Api/Admin/DsarEndpoint.cs` (nếu cần) | Hỗ trợ tìm/xoá theo scope |
+| `src/Ivr.Infrastructure/Governance/DsarService.cs` | Hỗ trợ tìm/xoá theo scope. **Đối soát `2026-09-04` (`W-0171`):** đã thực thi ở tầng Infrastructure, không phải endpoint `Ivr.Api/Admin/DsarEndpoint.cs` như prompt dự kiến |
 | `docs/compliance/release-compliance-checklist.md` | Gate P9-1 |
 
 ## 8. TESTS TO WRITE

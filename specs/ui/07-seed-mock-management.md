@@ -1,6 +1,6 @@
 # UI-07 — Seed / Mock Management (NON-PROD only)
 
-Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` · Permission: `IVR_SIM_ENABLE`/`IVR_SIM_DISABLE` (+ non-prod guard). Nguồn: `seed/*`, DT-01.
+Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` (prompt đã nghỉ hưu) · Auth: **tier `write`** (`AdminPolicies.Write`) + non-prod guard. Nguồn: `seed/*`, DT-01.
 
 ## Mục đích
 Điều khiển môi trường test: `adapter_mode` (MOCK/REAL), nạp seed, chọn call-scenario, bật/tắt integration-status profile để chạy dry-run/smoke.
@@ -16,11 +16,14 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` · Permission: `IVR_SIM_ENABLE`/
 ```
 
 ## Actions
-| Action | Permission | Ràng buộc |
+| Action | Auth (như code) | Ràng buộc |
 | --- | --- | --- |
-| Đổi adapter_mode | `IVR_SIM_ENABLE` + non-prod | **REAL bị khóa** tới khi mua SIM (DT-01) + release gate (DF-03) |
-| Chạy scenario dry-run | ops non-prod | không gọi khách thật |
-| Áp integration-status profile | ops non-prod | để test fail-closed |
+| Đổi adapter_mode | tier `write` + non-prod | **REAL bị khóa** tới khi mua SIM (DT-01) + release gate (DF-03) |
+| Nạp seed | tier `write` + non-prod | `POST {prefix}/seed:load` |
+| Chạy scenario dry-run | tier `write` + non-prod | `POST {prefix}/scenarios/{scenarioId}:dry-run`; không gọi khách thật |
+| Áp integration-status profile | tier `write` + non-prod | `POST {prefix}/integration-profiles/{profileId}:apply`; để test fail-closed |
+
+`{prefix}` = `/v1/ivr/order-confirmation/dev` (`DevToolingEndpoints.RoutePrefix`).
 
 ## P0
 - Màn này **chỉ hiện ở non-prod**; production ẩn. Không cho set `REAL` khi chưa pass release gate. Không seed vào prod.
@@ -30,9 +33,18 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` · Permission: `IVR_SIM_ENABLE`/
 Ba action ở trên giờ có API. Ba điểm khác với bản draft này, ghi lại để bản sau không "sửa lại
 cho đúng spec" một cách sai:
 
-**1. Quyền là `IVR_DEV_TOOLING`, không phải `IVR_SIM_ENABLE`/`IVR_SIM_DISABLE`.** Nạp seed và
-chạy scenario không phải thao tác SIM. Gộp vào quyền SIM nghĩa là một operator được phép tắt kênh
-hỏng cũng ghi được dữ liệu vào cơ sở dữ liệu. Quyền mới chỉ cấp cho Admin.
+**1. Không dùng `IVR_SIM_ENABLE`/`IVR_SIM_DISABLE`.** Nạp seed và chạy scenario không phải thao
+tác SIM. Gộp vào quyền SIM nghĩa là một operator được phép tắt kênh hỏng cũng ghi được dữ liệu
+vào cơ sở dữ liệu.
+
+> **Đính chính `2026-09-04` (`W-0171`).** Bản trước của mục này ghi *"Quyền là `IVR_DEV_TOOLING`…
+> chỉ cấp cho Admin"*. **Sai so với code.** `W-0128` đã bỏ mô hình per-permission cùng với console
+> account, thay bằng ba service token lồng nhau (`danger` ⊃ `write` ⊃ `read`). Ba route dev-tooling
+> hiện chắn bằng `AdminPolicies.Write`
+> (`src/Ivr.Api/Admin/DevToolingEndpoints.cs`), và **không có hằng `IVR_DEV_TOOLING` nào trong
+> `IvrPermissions.cs`**. Tách khỏi quyền SIM vẫn đạt được — nhưng bằng tier token, không bằng
+> một quyền riêng. Hệ quả cần biết: **bất kỳ ai giữ `IVR_ADMIN_WRITE_TOKEN` đều nạp được seed**,
+> không còn giới hạn ở Admin.
 
 **2. Production trả `404`, không phải `403`.** Route **không được đăng ký** khi triển khai là
 production — theo tên môi trường (danh sách cho phép, không phải danh sách cấm), theo

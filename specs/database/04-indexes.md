@@ -14,7 +14,7 @@ Trạng thái: `TARGET_V1_DRAFT` · Nguồn: `phase-8/12` §4-8,§12; DF-04, D-0
 | `ivr_call_attempts` | `ivr_call_attempt_id`; `(ivr_call_job_id, attempt_number)` | 1 attempt-number/job |
 | `ivr_call_results` | `ivr_call_result_id` | |
 | `ivr_result_callbacks` | `callback_id`; `idempotency_key` (scope callback) | chống duplicate transition |
-| `ivr_raw_call_event` | `raw_event_id` | |
+| `ivr_raw_call_events` | `raw_event_id` | |
 | `ivr_idempotency_keys` | `key` (scope) | replay/conflict detection (P0-3) |
 | `ivr_feature_flags` | `(key, env)` | 1 giá trị/flag/env (P0-4) |
 | `ivr_sim_channels` | `sim_channel_id`; `lease_token` (partial, khi not null) | 1 lease sống/channel |
