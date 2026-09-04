@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T04:12:33.123Z",
+  "generatedAt": "2026-09-04T04:15:27.393Z",
   "root": "C:\\Users\\Administrator\\Desktop\\ivr",
   "files": [
     {
@@ -233340,43 +233340,49 @@
         {
           "depth": 2,
           "text": "1. Phạm vi",
-          "line": 8,
+          "line": 9,
           "slug": "1-phạm-vi"
         },
         {
           "depth": 2,
           "text": "2. Finding từ exact checkout",
-          "line": 15,
+          "line": 16,
           "slug": "2-finding-từ-exact-checkout"
         },
         {
           "depth": 2,
           "text": "3. Bounded remediation",
-          "line": 33,
+          "line": 34,
           "slug": "3-bounded-remediation"
         },
         {
           "depth": 2,
           "text": "4. Verification đang thực hiện",
-          "line": 46,
+          "line": 47,
           "slug": "4-verification-đang-thực-hiện"
         },
         {
           "depth": 2,
           "text": "5. Boundary",
-          "line": 60,
+          "line": 61,
           "slug": "5-boundary"
         },
         {
           "depth": 2,
           "text": "6. Finding thứ hai từ exact checkout",
-          "line": 67,
+          "line": 68,
           "slug": "6-finding-thứ-hai-từ-exact-checkout"
+        },
+        {
+          "depth": 2,
+          "text": "7. Finding thứ ba: Chaos test phụ thuộc wall clock",
+          "line": 87,
+          "slug": "7-finding-thứ-ba-chaos-test-phụ-thuộc-wall-clock"
         }
       ],
       "links": [],
-      "lines": 86,
-      "words": 562,
+      "lines": 109,
+      "words": 785,
       "encodingNameAnomaly": false,
       "resolvedLinks": [],
       "unresolvedLinks": [],
@@ -244297,7 +244303,7 @@
         }
       ],
       "lines": 23,
-      "words": 1534,
+      "words": 1540,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {
@@ -244462,13 +244468,13 @@
         {
           "depth": 2,
           "text": "8. Per-work completion record template",
-          "line": 823,
+          "line": 824,
           "slug": "8-per-work-completion-record-template"
         },
         {
           "depth": 2,
           "text": "9. Completion records",
-          "line": 844,
+          "line": 845,
           "slug": "9-completion-records"
         }
       ],
@@ -244486,8 +244492,8 @@
           "line": 106
         }
       ],
-      "lines": 1328,
-      "words": 77521,
+      "lines": 1329,
+      "words": 77623,
       "encodingNameAnomaly": false,
       "resolvedLinks": [
         {

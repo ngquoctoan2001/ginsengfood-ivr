@@ -5,7 +5,6 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Outbox;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.ChaosTests;
@@ -24,6 +23,7 @@ public sealed class DownstreamFaultScenario(ChaosEnvironment chaos)
     {
         string suffix = $"chaos01{Guid.NewGuid():N}"[..14];
         ResultCallbackEntity queued = await ChaosFixtures.SeedReadyCallbackAsync(chaos, suffix);
+        var timeProvider = new FixedTimeProvider(DateTimeOffset.UtcNow);
 
         var observed = new List<(string Instrument, string Outcome)>();
         using MeterListener listener = ListenForCallbackMetrics(observed);
@@ -35,14 +35,15 @@ public sealed class DownstreamFaultScenario(ChaosEnvironment chaos)
             BatchSize = 8,
             MaxRetries = 3,
         });
-        var breaker = new CallbackCircuitBreaker(TimeProvider.System, options);
+        var breaker = new CallbackCircuitBreaker(timeProvider, options);
+        var outbox = new CallbackOutboxRepository(chaos.DbContextFactory, timeProvider);
         var dispatcher = new CallbackDispatcher(
-            chaos.Services.GetRequiredService<ICallbackOutboxRepository>(),
+            outbox,
             new UnreachableSalesTransport(),
             new UnreachableSalesTransport(),
             breaker,
             options,
-            TimeProvider.System);
+            timeProvider);
 
         IReadOnlyList<CallbackDispatchResult> results = await dispatcher.RunBatchAsync();
         CallbackDispatchResult attempt = Assert.Single(results);
@@ -128,6 +129,11 @@ public sealed class DownstreamFaultScenario(ChaosEnvironment chaos)
         });
         listener.Start();
         return listener;
+    }
+
+    private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
     }
 
     /// <summary>Sales is there but answering nothing: the shape of a downstream outage.</summary>

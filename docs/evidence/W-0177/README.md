@@ -3,7 +3,8 @@
 Ngày: `2026-09-04`
 Rejected candidates: `973df3c50554125f7b96892d4a0ea3a84d779cc9`,
 `0ae156d7d6e7dd424e362f8ee8e19ccffd2f2fe6`
-Trạng thái: `IN_PROGRESS / SECOND_CLEAN_CHECKOUT_PIN_DRIFT_FOUND / CANDIDATE_REBUILD_REQUIRED`.
+Current base: `1dd8dc0` + local deterministic Chaos fix.
+Trạng thái: `IN_PROGRESS / CHAOS_TIMING_RACE_FIXED_LOCAL / FINAL_CANDIDATE_REQUIRED`.
 
 ## 1. Phạm vi
 
@@ -53,7 +54,7 @@ guard. GitNexus impact của ba `SOURCE_PINS` đều **LOW**, `0` direct caller,
 | W-0174 | **PASS** `valid=1 refusals=46` |
 | Ba pending template | **PASS valid-not-ready**; không có routing/response/receipt thật |
 | Detached clean candidate `0ae156d7` | **REJECTED** — W-0174 template bị checkout thành CRLF trong khi manifest pin LF |
-| Full .NET Integration/Chaos | **PENDING** |
+| Full .NET Integration/Chaos | superseded `f4201b1`: Integration **239/239**, Chaos **7/8**; local fix: focused **1/1**, full Chaos **8/8**; final exact SHA **PENDING** |
 | Security wrapper | **PENDING** |
 | Hosted GitLab CI | **AUTH_BLOCKED / NOT_RUN** |
 
@@ -81,5 +82,27 @@ Remediation chỉ mở rộng LF policy cho `docs/evidence/W-0174/*.json` và `*
 manifest pin, schema, validator hoặc runtime. UI exact-checkout riêng trên `0ae156d7` đã PASS lint,
 typecheck, Vitest `176/176` và production build, nhưng không thể bù cho provenance failure.
 
-Next action: commit LF policy thành candidate mới, tạo detached clean checkout mới và chạy lại toàn
-bộ gate. Chỉ cập nhật `TESTS_PASS` sau khi exact SHA trả kết quả xanh.
+LF policy và finding này đã được đóng gói ở `1dd8dc0`; SHA đó là base cho vòng candidate tiếp theo.
+
+## 7. Finding thứ ba: Chaos test phụ thuộc wall clock
+
+Trên detached `f4201b1`, sau khi Integration đạt `239/239`, full Chaos đạt `7/8` và riêng
+`CHAOS-DOWNSTREAM-01` tiếp tục FAIL lần hai. Batch thứ hai trả một row `RETRY_PENDING` với
+`RetryCount=2` thay vì rỗng. Code runtime không đổi từ `f4201b1` qua `1dd8dc0`, nên finding này phải
+được sửa trước candidate cuối.
+
+Nguyên nhân là test gọi hành vi “immediately” nhưng dùng `TimeProvider.System`; retry mặc định chỉ
+`250ms + jitter`. Các DB query/assertion giữa hai batch có thể vượt khoảng đó trên checkout sạch,
+biến retry hợp lệ của runtime thành test fail. Khắc phục chỉ ở test:
+
+- tạo `FixedTimeProvider` tại thời điểm bắt đầu scenario;
+- dùng cùng clock cho `CallbackOutboxRepository`, `CallbackCircuitBreaker` và `CallbackDispatcher`;
+- không đổi production dispatcher, retry delay, DB schema hay safety guard.
+
+GitNexus trước edit cho method/class: **LOW**, `0` upstream/process/module. Post-change detect:
+**MEDIUM**, `1` file, `6` symbols, `4` test flows; không có runtime flow. Verification local sau fix:
+build Chaos `0 warning/0 error`, focused **1/1** và full Chaos **8/8**.
+
+Next action: commit test fix cùng factual evidence/gate/map thành candidate mới, tạo detached clean
+checkout và chạy lại validators/docs/security/admin cùng full .NET `781/781`. Chỉ cập nhật
+`TESTS_PASS` sau khi exact SHA trả toàn bộ kết quả xanh.
