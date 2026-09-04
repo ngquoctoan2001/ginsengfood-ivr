@@ -1,0 +1,4 @@
+8fdbe90f08c5fd0ad2afb2a2083921ed4a1d5735b4c4840dffb4e1e06e8a894e  deploy/ci/scripts/capacity-registry-decision-pack-validator.mjs
+de94b9b39103682fd338903302625eb47269af821edde994518f4547d6e8859e  docs/evidence/W-0182/capacity-registry-decision-pack.template.json
+01d27f785fd96e7aadfad2ac659b26c6247d7cba8a72174cdba2270ebafe02e7  docs/evidence/W-0160/README.md
+4208614b44f55e8b9dc39b304021a7004e693b7dbb72ead84ab6d2cc2ed9ef83  deploy/ci/scripts/capacity-data-intake-validator.mjs

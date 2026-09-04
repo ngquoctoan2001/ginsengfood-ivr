@@ -1,0 +1,281 @@
+{
+  "schema_version": "m8-capacity-checkpoint-registry-decision-pack.v1",
+  "work_id": "W-0182",
+  "status": "PENDING_EXTERNAL_APPROVAL",
+  "source": {
+    "w0160_evidence_path": "docs/evidence/W-0160/README.md",
+    "w0160_evidence_sha256": "01d27f785fd96e7aadfad2ac659b26c6247d7cba8a72174cdba2270ebafe02e7",
+    "m8_15_contract_path": "plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md",
+    "m8_15_contract_sha256": "e1d0fd37d610a1696b8e6b4117469ea3f8e929eff72dc95121e3ce9679200417",
+    "capacity_validator_path": "deploy/ci/scripts/capacity-data-intake-validator.mjs",
+    "capacity_validator_sha256": "4208614b44f55e8b9dc39b304021a7004e693b7dbb72ead84ab6d2cc2ed9ef83"
+  },
+  "provider_profile": {
+    "provider_alias": "PENDING_EXTERNAL_DECISION",
+    "product_profile_ref": "PENDING_EXTERNAL_DECISION",
+    "target_environment": "PRODUCTION",
+    "account_boundary_alias": "PENDING_EXTERNAL_DECISION",
+    "region_alias": "PENDING_EXTERNAL_DECISION",
+    "consistency_model": "PENDING_EXTERNAL_DECISION",
+    "native_revision_token_supported": false,
+    "strong_read_supported": false,
+    "atomic_record_head_audit_cas_supported": false,
+    "immutable_sequence_records_supported": false,
+    "immutable_audit_supported": false,
+    "server_assigned_utc_supported": false,
+    "delete_history_allowed": false,
+    "client_max_selection_allowed": false,
+    "cache_fallback_allowed": false,
+    "last_write_wins_allowed": false,
+    "capability_artifact_ref": "PENDING_EXTERNAL_DECISION",
+    "capability_artifact_sha256": "PENDING_EXTERNAL_DECISION"
+  },
+  "registry_contract": {
+    "registry_scope": "CAPACITY_DATA_INTAKE_LEDGER",
+    "ledger_id": "PENDING_EXTERNAL_DECISION",
+    "partition_ref": "PENDING_EXTERNAL_DECISION",
+    "record_schema_version": "m8-capacity-intake-checkpoint-registry-record.v1",
+    "canonical_encoding_ref": "PENDING_EXTERNAL_DECISION",
+    "canonical_encoding_sha256": "PENDING_EXTERNAL_DECISION",
+    "sequence_format": "POSITIVE_DECIMAL_STRING_NO_LEADING_ZERO",
+    "genesis_rule": "STRONG_READ_AND_CREATE_IF_ABSENT_SEQUENCE_1",
+    "latest_read_rule": "AUTHORITATIVE_LINEARIZABLE_COMMITTED_ONLY",
+    "commit_atomicity": "RECORD_HEAD_AUDIT_SINGLE_TRANSACTION",
+    "request_id_scope": "UNIQUE_WITHIN_PARTITION_SAME_PAYLOAD_IDEMPOTENT",
+    "writer_principal_alias": "PENDING_EXTERNAL_DECISION",
+    "reader_principal_alias": "PENDING_EXTERNAL_DECISION",
+    "auditor_principal_alias": "PENDING_EXTERNAL_DECISION",
+    "retention_policy_ref": "PENDING_EXTERNAL_DECISION",
+    "break_glass_ref": "PENDING_EXTERNAL_DECISION",
+    "recovery_ref": "PENDING_EXTERNAL_DECISION",
+    "cutover_ref": "PENDING_EXTERNAL_DECISION"
+  },
+  "decision_coverage": [
+    {
+      "decision_id": "CHK-01",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "SECURITY", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "provider_capability",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-02",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "MODULE8", "SECURITY"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "canonical_schema_fixtures",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-03",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "MODULE8", "SECURITY"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "canonical_schema_fixtures",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-04",
+      "state": "PENDING",
+      "owners": ["MODULE8", "PLATFORM", "SECURITY"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "canonical_schema_fixtures",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-05",
+      "state": "PENDING",
+      "owners": ["MODULE8", "SECURITY", "PLATFORM"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "canonical_schema_fixtures",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-06",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "SECURITY", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "provider_capability",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-07",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "SECURITY", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "provider_capability",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-08",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "MODULE8", "SECURITY"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "sandbox_cutover_conformance",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-09",
+      "state": "PENDING",
+      "owners": ["SECURITY", "PLATFORM", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "iam_kms_network_retention",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-10",
+      "state": "PENDING",
+      "owners": ["SECURITY", "PLATFORM", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "iam_kms_network_retention",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-11",
+      "state": "PENDING",
+      "owners": ["SECURITY", "PLATFORM", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "iam_kms_network_retention",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-12",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "SECURITY", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "recovery_failover_drill",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-13",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "SECURITY", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "recovery_failover_drill",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-14",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "SECURITY", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "sandbox_cutover_conformance",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    },
+    {
+      "decision_id": "CHK-15",
+      "state": "PENDING",
+      "owners": ["PLATFORM", "SECURITY", "MODULE8"],
+      "decision_ref": "PENDING_EXTERNAL_DECISION",
+      "evidence_key": "sandbox_cutover_conformance",
+      "evidence_sha256": "PENDING_EXTERNAL_DECISION",
+      "decided_at": "PENDING_EXTERNAL_DECISION"
+    }
+  ],
+  "external_evidence": {
+    "provider_capability": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "canonical_schema_fixtures": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "iam_kms_network_retention": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "recovery_failover_drill": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "sandbox_cutover_conformance": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    },
+    "approval_signature_bundle": {
+      "artifact_ref": "PENDING_EXTERNAL_DECISION",
+      "sha256": "PENDING_EXTERNAL_DECISION",
+      "producer_alias": "PENDING_EXTERNAL_DECISION",
+      "produced_at": "PENDING_EXTERNAL_DECISION"
+    }
+  },
+  "approvals": [
+    {
+      "role": "PLATFORM_OWNER",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "approval_ref": "PENDING_EXTERNAL_DECISION",
+      "signature_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "contract_sha256": "e1d0fd37d610a1696b8e6b4117469ea3f8e929eff72dc95121e3ce9679200417"
+    },
+    {
+      "role": "SECURITY_OWNER",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "approval_ref": "PENDING_EXTERNAL_DECISION",
+      "signature_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "contract_sha256": "e1d0fd37d610a1696b8e6b4117469ea3f8e929eff72dc95121e3ce9679200417"
+    },
+    {
+      "role": "MODULE8_PROJECT_OWNER",
+      "signer_alias": "PENDING_EXTERNAL_DECISION",
+      "authority_ref": "PENDING_EXTERNAL_DECISION",
+      "approval_ref": "PENDING_EXTERNAL_DECISION",
+      "signature_sha256": "PENDING_EXTERNAL_DECISION",
+      "decision": "PENDING",
+      "signed_at": "PENDING_EXTERNAL_DECISION",
+      "contract_sha256": "e1d0fd37d610a1696b8e6b4117469ea3f8e929eff72dc95121e3ce9679200417"
+    }
+  ],
+  "independent_verification": {
+    "verifier_alias": "PENDING_EXTERNAL_DECISION",
+    "verification_ref": "PENDING_EXTERNAL_DECISION",
+    "verified_at": "PENDING_EXTERNAL_DECISION",
+    "contract_sha256": "e1d0fd37d610a1696b8e6b4117469ea3f8e929eff72dc95121e3ce9679200417",
+    "approval_bundle_sha256": "PENDING_EXTERNAL_DECISION"
+  },
+  "safety": {
+    "contains_raw_rows_or_payload": false,
+    "contains_source_paths": false,
+    "contains_personal_signer_identity": false,
+    "contains_credentials_or_secrets": false,
+    "provider_selected_by_validator": false,
+    "adapter_implementation_started": false,
+    "external_registry_connected": false,
+    "external_submissions_received": false,
+    "calibration_started": false,
+    "production_gate_promoted": false,
+    "real_customer_call_allowed": false,
+    "validator_claims_production_authorization": false
+  }
+}
