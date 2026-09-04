@@ -56,6 +56,11 @@ deploy/tts/tests/*.py text eol=lf
 deploy/ci/scripts/*.mjs text eol=lf
 docs/evidence/W-0122/*.json text eol=lf
 docs/evidence/W-0122/audition-script.txt text eol=lf
+docs/evidence/W-0122/lab-runbook.md text eol=lf
+docs/lab/one-sim-lab-plan.md text eol=lf
+docs/contracts/telephony-procurement-pack/lab-acceptance-report-template.md text eol=lf
+docs/contracts/telephony-procurement-pack/R-01-vendor-requirements.md text eol=lf
+docs/contracts/telephony-procurement-pack/R-05-tts-audio-capability.md text eol=lf
 
 # Generated release mirrors and external-decision provenance artifacts are
 # byte-compared by their validators. Keep their bytes stable on Windows and on
@@ -76,11 +81,17 @@ docs/evidence/W-0180/*.txt text eol=lf
 docs/evidence/W-0181/*.json text eol=lf
 docs/evidence/W-0181/*.txt text eol=lf
 docs/evidence/W-0160/README.md text eol=lf
+plan/ivr-orther/m8-14-capacity-calibration-data-intake-bundle-2026-09-03.md text eol=lf
 plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md text eol=lf
 docs/evidence/W-0182/*.json text eol=lf
 docs/evidence/W-0182/*.txt text eol=lf
 docs/evidence/W-0183/*.json text eol=lf
 docs/evidence/W-0183/*.txt text eol=lf
+docs/evidence/W-0185/*.json text eol=lf
+docs/evidence/W-0185/*.txt text eol=lf
+docs/evidence/W-0187/*.json text eol=lf
+docs/evidence/W-0187/*.txt text eol=lf
+docs/evidence/W-0188/*.txt text eol=lf
 docs/evidence/W-0149/README.md text eol=lf
 docs/evidence/W-0150/README.md text eol=lf
 docs/evidence/W-0151/README.md text eol=lf
