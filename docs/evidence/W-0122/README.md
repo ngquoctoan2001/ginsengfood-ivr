@@ -130,3 +130,16 @@ Mỗi gate dưới đây nay có **một** hành động cụ thể và một ph
 5. Owner thực hiện 2 đơn × 3 miền, nghe nội dung/giọng/mối nối; sau đó mới chạy retention và rollback drill.
 
 Không mục nào ở trên được suy ra từ local smoke hoặc file metadata.
+
+## Follow-up W-0185 — evidence intake cho real-SIM/production
+
+Ngày 2026-09-04, W-0185 bổ sung
+`deploy/ci/scripts/b3-telephony-evidence-validator.mjs`
+và template metadata-only `docs/evidence/W-0185/b3-telephony-evidence.template.json`. Validator kiểm exact sáu
+TTS call, tám one-SIM scenario, candidate/source hash, model/SKU/VoLTE/topology,
+retention/rollback, mười external artifact và bảy sign-off; nó từ chối raw E.164, audio/transcript,
+credential, customer data và mọi cờ cho phép production/call khách thật.
+
+Đây chỉ là công cụ intake khi evidence thật được gửi tới. Các dòng `6 MicroSIP calls`,
+`Retention + rollback drill`, `Target-hardware performance` và external approval ở bảng trên vẫn
+`NOT_RUN` / `ENV_BLOCKED` / `OWNER_DATA_REQUIRED`; W-0185 không tự nâng trạng thái của W-0122.

@@ -25,3 +25,5 @@ tts_candidate_selftest:
     - node deploy/ci/scripts/tts-helm-selftest.mjs
     - node deploy/ci/scripts/tts-container-selftest.mjs
     - node deploy/ci/scripts/lab-converter-selftest.mjs
+    - node deploy/ci/scripts/b3-telephony-evidence-validator.mjs --self-test
+    - node deploy/ci/scripts/b3-telephony-evidence-validator.mjs --check-template docs/evidence/W-0185/b3-telephony-evidence.template.json

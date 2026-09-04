@@ -1,0 +1,13 @@
+0a6dedd0fb4dd9d4fbc94edfab192c9082e3e32922cac6fd858cdc5e9fda5651  deploy/ci/scripts/b3-telephony-evidence-validator.mjs
+af27eba79fa818d63c51bbaa1a557f6b922c7bfc7fbbaeb151b16ade8e81aaac  docs/evidence/W-0185/b3-telephony-evidence.template.json
+60f16560dd7a97c14bcd874fe342388c3662fc539a750827205b6381f1e0b502  docs/evidence/W-0185/README.md
+2d9054a9da24dfd666edc25e39793d90415b3ef777357be4701eae53b8664f0f  deploy/ci/tts.gitlab-ci.yml
+bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d  deploy/tts/models/MODELS.lock
+9a76fdabca3ad58994caa1b59c0c76f3a98facb22f11e2f9ec9210a9371ccae2  deploy/tts/shim/voices.json
+90927e16cbe5b4e27f48e31ba396c9069f1ae908eaadc15757e72fbc0d8558b9  docs/evidence/W-0122/voice-acceptance-manifest.json
+76496a7260f84053296ffabea617b7a7203eb2252ab440b76c213c21f71e3bb4  docs/evidence/W-0122/lab-runbook.md
+be8b1f7a7dd3ac6c287bfab342fa54b63735795e13c6f515e904f25a054d2ae2  docs/lab/one-sim-lab-plan.md
+5b7ab1e0b1a796f7c1e0bb8643fefb313a76afa626a6200bf17519e306c2dbaa  docs/contracts/telephony-procurement-pack/lab-acceptance-report-template.md
+1f5d7ead649e4b688301da2af6b4e72eae3907a0120c5c5bd66fd19c980fb1a0  docs/contracts/telephony-procurement-pack/R-01-vendor-requirements.md
+a1716a0747e2bd90f05252ed8fa9ec4a6a1ee0f5c7f0b19cf85cb36eb75eae8a  docs/contracts/telephony-procurement-pack/R-05-tts-audio-capability.md
+341153903009c37fb7fcf5ea3c5bdb253a6c7cd49f908676ff7c0612e681eea4  docs/contracts/telephony-procurement-pack/R-06-to-trinh-mua-thiet-bi.md
