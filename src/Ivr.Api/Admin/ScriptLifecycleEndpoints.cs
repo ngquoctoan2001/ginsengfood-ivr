@@ -29,7 +29,8 @@ public static class ScriptLifecycleEndpoints
         ArgumentNullException.ThrowIfNull(endpoints);
         RouteGroupBuilder group = endpoints
             .MapGroup("/v1/ivr/order-confirmation/scripts")
-            .AddEndpointFilter<PiiMaskingFilter>();
+            .AddEndpointFilter<PiiMaskingFilter>()
+            .AddEndpointFilter(new MutationReplayFilter(keyRequired: false));
 
         group.MapGet("/{templateId}/{version}", GetAsync)
             .RequireAuthorization(AdminPolicies.Read);

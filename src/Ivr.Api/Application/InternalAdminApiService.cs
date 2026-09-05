@@ -397,6 +397,7 @@ public sealed class InternalAdminApiService(
         CancellationToken cancellationToken)
     {
         RequireSafe(ivrCallJobId, nameof(ivrCallJobId));
+        Validate(request);
         return ExecuteAdminAsync(
             "terminate-call",
             idempotencyKey,
@@ -488,8 +489,10 @@ public sealed class InternalAdminApiService(
         string actorId,
         string correlationId,
         string idempotencyKey,
-        CancellationToken cancellationToken) =>
-        ExecuteAdminAsync(
+        CancellationToken cancellationToken)
+    {
+        Validate(request);
+        return ExecuteAdminAsync(
             "terminate-all-calls",
             idempotencyKey,
             request,
@@ -545,6 +548,8 @@ public sealed class InternalAdminApiService(
                     now);
             },
             cancellationToken);
+
+    }
 
     public Task<TechnicalRetryApiResult> RetryTechnicalExceptionAsync(
         TechnicalRetryRequest request,

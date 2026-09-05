@@ -19,7 +19,15 @@ public static class FeatureFlagEndpoint
     {
         ArgumentNullException.ThrowIfNull(endpoints);
         RouteGroupBuilder group = endpoints.MapGroup(
-            "/v1/ivr/order-confirmation/feature-flags");
+            "/v1/ivr/order-confirmation/feature-flags")
+            .AddEndpointFilter(async (context, next) =>
+            {
+                // Omitted IDs retain the established generated-ID behavior. A supplied ID must
+                // still obey the same syntax/privacy boundary as the other API surfaces.
+                if (context.HttpContext.Request.Headers.ContainsKey("X-Correlation-Id"))
+                    _ = InternalRequestGuard.RequireCorrelation(context.HttpContext);
+                return await next(context);
+            });
 
         group.MapGet(
                 "/{environment}",
@@ -102,14 +110,15 @@ public static class FeatureFlagEndpoint
     {
         RequireKnownEnvironment(environment);
 
+        if (request.Changes is null || string.IsNullOrWhiteSpace(request.Reason))
+            throw IvrErrors.MalformedRequest("Feature flag changes and reason are required.");
+
         // W-0128. The header is the source now: there is no console session to cross-check it
         // against, because Module 3 owns operator identity. The danger-tier policy has already
         // required this header to be present and safe before the endpoint runs.
         string actorId = InternalRequestGuard.RequireAdminActor(httpContext);
 
-        string idempotencyKey = httpContext.Request.Headers[IdempotencyHeaderName]
-            .FirstOrDefault()
-            ?? throw IvrErrors.MalformedRequest("Idempotency-Key is required.");
+        string idempotencyKey = InternalRequestGuard.RequireIdempotencyKey(httpContext);
         FeatureFlagMutationCommand command = new(
             environment,
             request.Changes,

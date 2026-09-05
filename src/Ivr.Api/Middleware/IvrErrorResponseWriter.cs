@@ -26,6 +26,8 @@ public sealed class IvrErrorResponseWriter(
         }
 
         context.Response.Clear();
+        // Clear removes the header installed by CorrelationMiddleware as well as the body.
+        context.Response.Headers[CorrelationPropagationHandler.HeaderName] = correlationContext.GetOrCreate();
         context.Response.StatusCode = IvrErrorHttpStatus.FromCode(failure.ErrorCode);
         IvrErrorEnvelope envelope = new(
             new IvrErrorBody(

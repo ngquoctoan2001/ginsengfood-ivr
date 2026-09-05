@@ -47,10 +47,12 @@ public static class DevToolingEndpoints
             .AddEndpointFilter<PiiMaskingFilter>();
 
         group.MapPost("/seed:load", LoadSeedAsync)
+            .AddEndpointFilter(new MutationReplayFilter())
             .RequireAuthorization(AdminPolicies.Write);
         group.MapPost("/scenarios/{scenarioId}:dry-run", DryRunScenarioAsync)
             .RequireAuthorization(AdminPolicies.Write);
         group.MapPost("/integration-profiles/{profileId}:apply", ApplyProfileAsync)
+            .AddEndpointFilter(new MutationReplayFilter())
             .RequireAuthorization(AdminPolicies.Write);
         return endpoints;
     }

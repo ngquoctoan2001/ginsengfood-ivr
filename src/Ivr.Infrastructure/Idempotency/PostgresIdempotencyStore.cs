@@ -16,11 +16,32 @@ public sealed class PostgresIdempotencyStore(
     private static readonly JsonSerializerOptions SerializerOptions =
         CreateSerializerOptions();
 
-    public async Task<TResponse> ExecuteAsync<TResponse>(
+    public Task<TResponse> ExecuteAsync<TResponse>(
         string key,
         string payloadHash,
         Func<CancellationToken, Task<TResponse>> factory,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        ExecuteCoreAsync(key, payloadHash, factory, IsolationLevel.Serializable, cancellationToken);
+
+    /// <summary>
+    /// Coordinates HTTP response replay around commands that commit their own transactions.
+    /// The per-key advisory lock serializes contenders. ReadCommitted also lets a waiter see
+    /// its predecessor's receipt and avoids SSI conflicts with nested command receipts.
+    /// This is not an atomic transaction encompassing the independently committed commands.
+    /// </summary>
+    public Task<TResponse> ExecuteCoordinatedAsync<TResponse>(
+        string key,
+        string payloadHash,
+        Func<CancellationToken, Task<TResponse>> factory,
+        CancellationToken cancellationToken = default) =>
+        ExecuteCoreAsync(key, payloadHash, factory, IsolationLevel.ReadCommitted, cancellationToken);
+
+    private async Task<TResponse> ExecuteCoreAsync<TResponse>(
+        string key,
+        string payloadHash,
+        Func<CancellationToken, Task<TResponse>> factory,
+        IsolationLevel isolationLevel,
+        CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
         ArgumentException.ThrowIfNullOrWhiteSpace(payloadHash);
@@ -31,7 +52,7 @@ public sealed class PostgresIdempotencyStore(
         await using IvrDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
             cancellationToken);
         await using var transaction = await dbContext.Database.BeginTransactionAsync(
-            IsolationLevel.Serializable,
+            isolationLevel,
             cancellationToken);
         await AcquireKeyLockAsync(dbContext, key, cancellationToken);
         IdempotencyKeyEntity? existing = await dbContext.IdempotencyKeys.FindAsync(

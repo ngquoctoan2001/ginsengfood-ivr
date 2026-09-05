@@ -8,6 +8,7 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace Ivr.Infrastructure.Scripts;
 
@@ -114,7 +115,17 @@ public sealed class PostgresScriptRegistry
             .ConfigureAwait(false);
         context.ScriptVersions.Add(entity);
         AppendAudit(context, actor, "ADMIN_SCRIPT_DRAFT_CREATED", entity, safeReason, safeCorrelation, null, now);
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (DbUpdateException exception) when (exception.InnerException is PostgresException
+        { SqlState: PostgresErrorCodes.UniqueViolation })
+        {
+            // Duplicate immutable version is a client state conflict, not an opaque HTTP 500.
+            // Do not expose PostgreSQL detail (which may contain the supplied script text).
+            throw new InvalidOperationException("The script version already exists.");
+        }
         await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
         return ScriptEntityMapper.ToSnapshot(entity);
     }
