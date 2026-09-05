@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 188 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 189 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 17
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 134
+  rows_without_evidence_pack: 135
 
 gates:
   - id: "G-CONTRACT"
@@ -87,29 +87,10 @@ gates:
     closure_evidence_required: "provisioned endpoints + credentials + smoke"
 
 open_decisions:
-  - id: "OD-V1-01"
-  - id: "OD-V1-02"
-  - id: "OD-V1-03"
-  - id: "OD-V1-04"
-  - id: "OD-V1-05"
-  - id: "OD-V1-06"
-  - id: "OD-V1-07"
-  - id: "OD-V1-08"
   - id: "OD-V1-09"
   - id: "OD-V1-10"
   - id: "OD-V1-11"
-  - id: "OD-V1-12"
-  - id: "OD-V1-13"
-  - id: "OD-V1-14"
-  - id: "OD-V1-15"
-  - id: "OD-V1-16"
-  - id: "OD-V1-17"
-  - id: "OD-V1-18"
-  - id: "OD-V1-19"
-  - id: "OD-V1-20"
   - id: "OD-V1-21"
-  - id: "OD-VOICE-01"
-  - id: "OD-VOICE-04"
 
 go_no_go_inputs:
   - input: "two-program Sales flow"
@@ -879,6 +860,10 @@ work:
     evidence: "docs/evidence/W-0189/README.md"
   - id: "W-0190"
     prompt: "Local-run defect remediation và một lệnh chạy hết vòng đời (Origin=UNPLANNED, owner duyệt \"GĐ 0\" của lộ trình hoàn thiện 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: null
+  - id: "W-0191"
+    prompt: "Owner sign-off 19 quyết định OD-V1/OD-VOICE (Origin=UNPLANNED, owner chỉ đạo \"toàn bộ ký theo đề xuất\" 2026-09-05 sau khi đọc phiếu GĐ 1)"
     status: "TESTS_PASS"
     evidence: null
 
