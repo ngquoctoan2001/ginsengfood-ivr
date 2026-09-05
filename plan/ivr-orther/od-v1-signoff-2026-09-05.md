@@ -1,6 +1,6 @@
 # Gói ký quyết định OD-V1 — 2026-09-05
 
-Trạng thái: `SIGNED` · Work ID: `W-0191` · Baseline: `main@2a6d290`
+Trạng thái: `SIGNED` · Work ID: `W-0194` · Baseline: `main@2a6d290`
 Người ký: IVR owner (`marketingssv2024@gmail.com`) · Người soạn phương án: Claude
 Nguồn: [open-decisions-register.md](../../specs/_review/open-decisions-register.md)
 

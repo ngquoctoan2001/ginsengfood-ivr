@@ -30,7 +30,7 @@ Kế hoạch này mô tả topology đề xuất, **không phải topology đã 
 
 Chi tiết audit và phiếu lấy đầu vào nằm tại `docs/evidence/W-0048/`. Không được dùng các câu khẳng định cũ bên dưới để tuyên bố lab đã sẵn sàng chạy.
 
-### 0.2 Trạng thái bốn khoảng trống — đối soát code `2026-09-05` (`W-0190`)
+### 0.2 Trạng thái bốn khoảng trống — đối soát code `2026-09-05` (`W-0193`)
 
 Bốn mục ở §0.1 là ảnh chụp ngày `2026-08-20`. Ba mục đầu **đã được nối xong** kể từ đó; giữ nguyên §0.1 làm lịch sử audit, đọc bảng này để biết hiện trạng.
 

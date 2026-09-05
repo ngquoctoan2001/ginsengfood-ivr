@@ -167,7 +167,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     /// </para>
     /// </summary>
     /// <summary>
-    /// W-0190 changed what a repeat load <em>says</em>, not what it does.
+    /// W-0193 changed what a repeat load <em>says</em>, not what it does.
     /// <para>
     /// It still writes nothing, which is the property that matters. What it no longer does is
     /// report nine <c>IVR_IDEMPOTENCY_CONFLICT</c> rows, which read as nine faults and gave an

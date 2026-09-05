@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 namespace Ivr.IntegrationTests;
 
 /// <summary>
-/// W-0190. Assertions about the container the service actually builds, rather than about a
+/// W-0193. Assertions about the container the service actually builds, rather than about a
 /// container a test assembled for itself.
 /// <para>
 /// Every other feature-flag test substitutes the store — <c>RemoveAll</c>, then a hand-built
@@ -80,7 +80,7 @@ public sealed class CompositionRootTests
     }
 
     /// <summary>
-    /// W-0190. A relative seed directory is resolved against the content root.
+    /// W-0193. A relative seed directory is resolved against the content root.
     /// <para>
     /// The value committed for development is <c>../../seed</c>. Resolved against the process
     /// working directory it points at whatever directory the runner happened to start in — which

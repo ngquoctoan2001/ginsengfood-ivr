@@ -13,7 +13,7 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
 {
     public DbSet<FeatureFlagEntity> FeatureFlags => Set<FeatureFlagEntity>();
 
-    /// <summary>W-0192. Recorded authorisations to move a runtime gate (OD-V1-20).</summary>
+    /// <summary>W-0195. Recorded authorisations to move a runtime gate (OD-V1-20).</summary>
     public DbSet<RuntimeGateApprovalEntity> RuntimeGateApprovals =>
         Set<RuntimeGateApprovalEntity>();
     public DbSet<ConfirmationTaskEntity> ConfirmationTasks => Set<ConfirmationTaskEntity>();

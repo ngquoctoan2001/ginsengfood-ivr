@@ -19,7 +19,7 @@ import { NavIcon, type NavIconName } from "./NavIcon";
  * the rule still buys is that a screen is not offered to someone whose console cannot use it,
  * which is exactly the job Module 3's own nav will have.
  *
- * W-0190 removed the `adminOnly` escape hatch, which hid six of these eight entries from every
+ * W-0193 removed the `adminOnly` escape hatch, which hid six of these eight entries from every
  * viewer. It resolved against `role`, and `role` came from the tier the SHELL was rendered with
  * (`requireScope("read")` in the console layout) rather than from anything the viewer holds — so
  * it was permanently `operator`, and Reports, Review, Config, Integration, Runtime gates and Seed

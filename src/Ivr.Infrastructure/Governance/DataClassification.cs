@@ -155,7 +155,7 @@ public static class DataClassification
             ["ivr_runtime_gate_approvals"] = new(
                 DataProtectionClass.AuditTrail,
                 "audit_log",
-                "W-0192. Who authorised moving a runtime gate, and for which exact change. "
+                "W-0195. Who authorised moving a runtime gate, and for which exact change. "
                 + "Append-only apart from revocation, and preserved: an approval that can be "
                 + "deleted is an approval nobody can be held to."),
             ["ivr_review_items"] = new(

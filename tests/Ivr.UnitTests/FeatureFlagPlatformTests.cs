@@ -37,7 +37,7 @@ public sealed class FeatureFlagPlatformTests
     }
 
     /// <summary>
-    /// W-0190. A fail-closed fallback has to say so.
+    /// W-0193. A fail-closed fallback has to say so.
     /// <para>
     /// The fallback itself was always right — an unreadable store degrades to the safe default
     /// rather than to the last permissive value. What it did not do was leave a trace, and a
@@ -76,7 +76,7 @@ public sealed class FeatureFlagPlatformTests
     }
 
     /// <summary>
-    /// W-0192. Stopping something must never need a permission that has not been granted yet.
+    /// W-0195. Stopping something must never need a permission that has not been granted yet.
     /// <para>
     /// <c>W-0068</c> settled the asymmetry — engaging the kill switch is always available, only
     /// disengaging it needs approval — but <c>MutateAsync</c> asked the runtime-gate

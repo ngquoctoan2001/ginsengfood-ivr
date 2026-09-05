@@ -54,7 +54,7 @@ function withSession(
 }
 
 /**
- * UT-UI-NAV-01 — W-0190.
+ * UT-UI-NAV-01 — W-0193.
  *
  * The regression: six of the eight entries were gated on `role === "admin"`, and `role` came from
  * the tier the SHELL was rendered with rather than from anything the viewer held. The console

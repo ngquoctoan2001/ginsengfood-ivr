@@ -7,7 +7,7 @@ namespace Ivr.Infrastructure.FeatureFlags;
 /// <summary>
 /// Reads the runtime flag snapshot, with a fail-closed fallback when the store cannot answer.
 /// <para>
-/// W-0190 added the log line and the fail-closed count. The fallback was already correct - an
+/// W-0193 added the log line and the fail-closed count. The fallback was already correct - an
 /// unreadable provider must degrade to the safe default rather than to the last permissive value -
 /// but it was silent, and a silent fallback is indistinguishable from a working read. That is how
 /// an empty store survived: every caller saw plausible safe values and nothing anywhere said the

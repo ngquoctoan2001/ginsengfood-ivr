@@ -1,6 +1,6 @@
 # REVIEW — Open Decisions Register
 
-Trạng thái: `OPEN` · Cập nhật: `2026-09-05` (`W-0191` — owner ký 19 dòng trong một lượt; xem
+Trạng thái: `OPEN` · Cập nhật: `2026-09-05` (`W-0194` — owner ký 19 dòng trong một lượt; xem
 [gói ký OD-V1](../../plan/ivr-orther/od-v1-signoff-2026-09-05.md)). Không đóng bằng suy luận.
 
 > Mock/fake fixture **không bao giờ** đóng một dòng nào trong bảng này. Mock chỉ cho phép code tiếp tục.
@@ -26,7 +26,7 @@ và merge request đòi một approval độc lập. Chữ ký không tạo ra n
 
 ## P0 — lab/production calls
 
-Cột `Current` được thêm `2026-09-05` (`W-0191`). Trước đó bảng này chỉ có bốn cột, nên
+Cột `Current` được thêm `2026-09-05` (`W-0194`). Trước đó bảng này chỉ có bốn cột, nên
 `gate-status.mjs` đọc nhầm cột `Gate` làm trạng thái — một dòng đã đóng ở đây sẽ không bao giờ
 được đếm là đóng. Bốn cột như các bảng khác là điều kiện để bảng điều khiển nói đúng.
 

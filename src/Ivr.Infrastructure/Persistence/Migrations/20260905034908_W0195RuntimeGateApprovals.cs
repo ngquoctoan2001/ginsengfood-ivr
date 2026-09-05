@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Ivr.Infrastructure.Persistence.Migrations;
 
 /// <summary>
-/// W-0192 / <c>OD-V1-20</c>. Gives the three runtime gates something to read.
+/// W-0195 / <c>OD-V1-20</c>. Gives the three runtime gates something to read.
 /// <para>
 /// The gates shipped as <c>Pending*</c> classes returning a hard-coded <c>false</c>, because no
 /// permission existed to move the kill switch or the lab allowlist. The owner signed that
@@ -20,7 +20,7 @@ namespace Ivr.Infrastructure.Persistence.Migrations;
 /// flag change must carry the fingerprint of the exact change it approves.
 /// </para>
 /// </summary>
-public partial class W0192RuntimeGateApprovals : Migration
+public partial class W0195RuntimeGateApprovals : Migration
 {
     private static readonly string[] LiveApprovalIndexColumns =
         ["approval_kind", "revoked_at", "expires_at"];
@@ -96,7 +96,7 @@ public partial class W0192RuntimeGateApprovals : Migration
         migrationBuilder.Sql(
             """
             CREATE OR REPLACE FUNCTION ivr_runtime_gate_approvals_append_only()
-            RETURNS trigger AS $w0192$
+            RETURNS trigger AS $w0195$
             BEGIN
                 IF TG_OP = 'DELETE' THEN
                     RAISE EXCEPTION
@@ -125,7 +125,7 @@ public partial class W0192RuntimeGateApprovals : Migration
 
                 RETURN NEW;
             END;
-            $w0192$ LANGUAGE plpgsql;
+            $w0195$ LANGUAGE plpgsql;
             """);
 
         migrationBuilder.Sql(

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Ivr.Infrastructure.FeatureFlags;
 
 /// <summary>
-/// W-0192 / <c>OD-V1-20</c>. The three runtime gates, answered from a signed approval record
+/// W-0195 / <c>OD-V1-20</c>. The three runtime gates, answered from a signed approval record
 /// instead of from a hard-coded <c>false</c>.
 /// <para>
 /// Until the owner signed <c>OD-V1-20</c> there was no permission that allowed anyone to move
@@ -135,7 +135,7 @@ internal static class RuntimeGateApprovalReader
 }
 
 /// <summary>
-/// W-0192. Runtime-gate administration is permitted because <c>OD-V1-20</c> is signed and the
+/// W-0195. Runtime-gate administration is permitted because <c>OD-V1-20</c> is signed and the
 /// signature is recorded as a row, not as a constant in code.
 /// </summary>
 public sealed class PostgresRuntimeGateAuthorization(
@@ -151,7 +151,7 @@ public sealed class PostgresRuntimeGateAuthorization(
 }
 
 /// <summary>
-/// W-0192. The release gate behind real customer dialling. Answers <c>false</c> until a
+/// W-0195. The release gate behind real customer dialling. Answers <c>false</c> until a
 /// <c>PRODUCTION_CALL</c> approval exists, which no migration creates.
 /// </summary>
 public sealed class PostgresProductionCallGate(
@@ -167,7 +167,7 @@ public sealed class PostgresProductionCallGate(
 }
 
 /// <summary>
-/// W-0192. Resolves a four-eyes approval to the actor who granted it.
+/// W-0195. Resolves a four-eyes approval to the actor who granted it.
 /// <para>
 /// The approval has to name the exact change. Without the fingerprint an approver could sign
 /// "widen the allowlist by one test number" and the same reference would then authorize widening

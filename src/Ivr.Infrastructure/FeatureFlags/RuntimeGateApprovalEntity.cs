@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Ivr.Infrastructure.FeatureFlags;
 
 /// <summary>
-/// W-0192 / <c>OD-V1-20</c>. One recorded authorisation to move a runtime gate.
+/// W-0195 / <c>OD-V1-20</c>. One recorded authorisation to move a runtime gate.
 /// <para>
 /// The gates read this table with raw SQL, so the entity exists for the model rather than for the
 /// query: <c>DataClassification</c> derives what is shipped from the EF model, and a table the

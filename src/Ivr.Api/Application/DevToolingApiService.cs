@@ -70,7 +70,7 @@ public sealed class DevToolingApiService(
     public const string TaskDataset = "sales-target-v1";
 
     /// <summary>
-    /// W-0190. Reported for a fixture this database already holds, instead of the raw
+    /// W-0193. Reported for a fixture this database already holds, instead of the raw
     /// idempotency-conflict code. Not a wire enum - <c>IvrSeedTaskOutcome.decision</c> is a free
     /// string in the contract - so naming the case costs no schema change.
     /// </summary>
@@ -128,7 +128,7 @@ public sealed class DevToolingApiService(
                 // Reported against the fixture rather than failing the whole load: one
                 // conflicting fixture must not hide the eight that loaded.
                 //
-                // W-0190. The overwhelmingly common case is a second run of the same dataset.
+                // W-0193. The overwhelmingly common case is a second run of the same dataset.
                 // The fixture key is the same but the rebased window makes the body different, so
                 // intake answers IVR_IDEMPOTENCY_CONFLICT - correctly, and unhelpfully: an
                 // operator pressing "load seed" twice got nine red conflicts and no way to tell

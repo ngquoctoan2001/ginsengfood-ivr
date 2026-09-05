@@ -15,7 +15,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
 
 ## 2. Ràng buộc (P0)
 - Adapter **KHÔNG** có credential ghi order, **không** gửi SMS (phase-8/02 FR-004; P0-IVR-005).
-- **Trust boundary `dial_token` (`OD-V1-18` — ✅ ĐÃ CHỐT `2026-09-05`, `W-0191`):** resolver nằm
+- **Trust boundary `dial_token` (`OD-V1-18` — ✅ ĐÃ CHỐT `2026-09-05`, `W-0194`):** resolver nằm
   **trong IVR**, bên trong biên adapter telephony. Ranh giới là `IVR task → dial_token → IVR
   resolver (trong tiến trình) → gateway`. Số E.164 tồn tại **chỉ trong bộ nhớ tiến trình** cho
   đúng một lần quay số: không ghi DB, không vào log, không vào evidence, không vào callback

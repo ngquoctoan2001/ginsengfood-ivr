@@ -7,7 +7,7 @@ using Npgsql;
 namespace Ivr.IntegrationTests;
 
 /// <summary>
-/// W-0192 / <c>OD-V1-20</c>. The three runtime gates, read from the approval table the owner's
+/// W-0195 / <c>OD-V1-20</c>. The three runtime gates, read from the approval table the owner's
 /// signature is recorded in.
 /// <para>
 /// These run against real PostgreSQL because the properties under test are database properties:

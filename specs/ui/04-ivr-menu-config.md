@@ -15,8 +15,8 @@ Xem/quản cấu hình call script (template + version + biến được phép).
 
 ## Dữ liệu / ràng buộc
 - `allowed_input_fields` Target V1: `customer_display_name`, `order_code_short`, `items[].public_name`, `items[].quantity`, optional `items[].unit_label`, `total_amount`, `currency`, `delivery_area_short`, `program_display_name`, `locale`, optional `pronunciation_hints`.
-- `OD-V1-15` ✅ **ĐÃ KÝ `2026-09-05`** (`W-0191`): bộ rộng ở trên là whitelist production, và
-  `ProductionTargetV1FieldsApproved` mặc định `YES` từ `W-0192`. UI vẫn phải hiển thị giá trị thật
+- `OD-V1-15` ✅ **ĐÃ KÝ `2026-09-05`** (`W-0194`): bộ rộng ở trên là whitelist production, và
+  `ProductionTargetV1FieldsApproved` mặc định `YES` từ `W-0195`. UI vẫn phải hiển thị giá trị thật
   của khóa này thay vì giả định — nó có thể bị đặt lại `NO` cho một deployment cụ thể.
 - Khóa đó **không** phải thứ duy nhất chặn production, và UI không được trình bày như vậy:
   `CONTENT` + `PRIVACY_LEGAL` phải đến từ **hai actor khác nhau**, và người tạo bản kịch bản không

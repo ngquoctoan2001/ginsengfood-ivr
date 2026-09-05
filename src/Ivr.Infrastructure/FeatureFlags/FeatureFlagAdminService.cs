@@ -51,7 +51,7 @@ public sealed class FeatureFlagAdminService(
                 before,
                 after,
                 changedKeys);
-        // W-0192 / OD-V1-20. The authorization gate is asked here rather than at the top of the
+        // W-0195 / OD-V1-20. The authorization gate is asked here rather than at the top of the
         // method, and it is not asked at all for an unconditional risk reduction.
         //
         // W-0068 settled the asymmetry: engaging the kill switch, turning real customer calls off

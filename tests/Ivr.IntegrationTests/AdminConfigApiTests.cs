@@ -63,7 +63,7 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
         IvrServer.IvrScriptCatalog catalog =
             (await response.Content.ReadFromJsonAsync<IvrServer.IvrScriptCatalog>())!;
 
-        // W-0192. OD-V1-15 was signed on 2026-09-05, so the catalogue reports the Target V1
+        // W-0195. OD-V1-15 was signed on 2026-09-05, so the catalogue reports the Target V1
         // field set as production approved. It reports the live value rather than a stored one,
         // which is why this assertion is worth keeping: a deployment that turns the flag back off
         // must be visible here rather than remembered.

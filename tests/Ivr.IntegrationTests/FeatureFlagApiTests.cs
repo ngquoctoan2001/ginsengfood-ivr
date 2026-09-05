@@ -34,7 +34,7 @@ public sealed class FeatureFlagApiTests
     }
 
     /// <summary>
-    /// W-0192 changed which direction this gate blocks, and the change is the point.
+    /// W-0195 changed which direction this gate blocks, and the change is the point.
     /// <para>
     /// It used to assert that an ungranted owner permission refused <em>engaging</em> the kill
     /// switch. That was the behaviour, and it was wrong: <c>W-0068</c> settled that stopping calls
@@ -381,7 +381,7 @@ public sealed class FeatureFlagApiTests
         };
 
     /// <summary>
-    /// W-0190. An environment name the catalogue does not carry is a client mistake, and has to
+    /// W-0193. An environment name the catalogue does not carry is a client mistake, and has to
     /// read as one.
     /// <para>
     /// The name arrives as a path segment. Unchecked it reached <c>SafeDefault</c>, which throws

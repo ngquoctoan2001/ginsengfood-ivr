@@ -123,7 +123,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
     [Trait("TestId", "IT-SCRIPT-PRODGATE-03")]
     public async Task TheSignedWhitelistReleasesProductionAndAnUnsignedOneStillHoldsIt()
     {
-        // W-0192. OD-V1-15 was signed on 2026-09-05, so the shipped default is now YES and two
+        // W-0195. OD-V1-15 was signed on 2026-09-05, so the shipped default is now YES and two
         // distinct approvals do reach production. What this asserts is that the lock is still a
         // lock: a deployment that sets the flag back to NO gets the same refusal it always did.
         // Both halves matter — the first is the behaviour change, the second is the reason the

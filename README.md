@@ -184,7 +184,7 @@ hand every time.
 pnpm e2e:local
 ```
 
-W-0190 wrote that configuration down. The command starts PostgreSQL, applies
+W-0193 wrote that configuration down. The command starts PostgreSQL, applies
 migrations, starts a fake Sales endpoint, runs the API and worker with MOCK
 telephony armed, admits five tasks and asserts the result taxonomy each one must
 produce — including that a technical exception is never counted as a customer

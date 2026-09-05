@@ -858,16 +858,16 @@ work:
     prompt: "Current documentation-to-code alignment cleanup (Origin=UNPLANNED, owner yêu cầu clean tài liệu theo code 2026-09-04)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0189/README.md"
-  - id: "W-0190"
+  - id: "W-0193"
     prompt: "Local-run defect remediation và một lệnh chạy hết vòng đời (Origin=UNPLANNED, owner duyệt \"GĐ 0\" của lộ trình hoàn thiện 2026-09-05)"
     status: "TESTS_PASS"
     evidence: null
-  - id: "W-0191"
+  - id: "W-0194"
     prompt: "Owner sign-off 19 quyết định OD-V1/OD-VOICE (Origin=UNPLANNED, owner chỉ đạo \"toàn bộ ký theo đề xuất\" 2026-09-05 sau khi đọc phiếu GĐ 1)"
     status: "TESTS_PASS"
     evidence: null
-  - id: "W-0192"
-    prompt: "GĐ 2 đợt 1: ba cổng runtime thực thi + sửa bất đối xứng kill switch (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-20/OD-V1-15/OD-V1-18 đã ký ở W-0191)"
+  - id: "W-0195"
+    prompt: "GĐ 2 đợt 1: ba cổng runtime thực thi + sửa bất đối xứng kill switch (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-20/OD-V1-15/OD-V1-18 đã ký ở W-0194)"
     status: "TESTS_PASS"
     evidence: null
 

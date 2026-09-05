@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Ivr.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(IvrDbContext))]
-    [Migration("20260905034908_W0192RuntimeGateApprovals")]
-    partial class W0192RuntimeGateApprovals
+    [Migration("20260905034908_W0195RuntimeGateApprovals")]
+    partial class W0195RuntimeGateApprovals
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

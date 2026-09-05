@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Drives one complete confirmation-call lifecycle locally, in MOCK, and checks the result of
-    every scenario against what the specification says it must be (W-0190).
+    every scenario against what the specification says it must be (W-0193).
 
 .DESCRIPTION
     The worker ships with scheduler, normalisation, callback delivery and MOCK telephony all
