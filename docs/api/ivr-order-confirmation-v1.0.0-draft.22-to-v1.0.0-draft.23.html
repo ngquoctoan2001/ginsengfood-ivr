@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Archived IVR Contract Transition (draft.22 → draft.23) · Ginsengfood IVR</title><link rel="stylesheet" href="styles.css"></head>
+<body><main class="container document"><nav><a href="index.html">← Portal home</a></nav>
+<header><div class="badge warning">NON-PRODUCTION ONLY</div><h1>Archived IVR Contract Transition (draft.22 → draft.23)</h1>
+<p class="source">Source: <code>docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md</code></p></header><h1>API Changelog 1.0.0-draft.22 vs. 1.0.0-draft.23</h1>
+<h2>API Changes</h2>
+<h3>GET /call-jobs/{ivrCallJobId}/detail</h3>
+<ul>
+<li>:warning: added the new <code>undefined</code> enum value to the <code>attempts/items/voice_region</code> response property for the response status <code>200</code></li>
+<li>:warning: added the new <code>undefined</code> enum value to the <code>voice_region_source</code> response property for the response status <code>200</code></li>
+</ul>
+<h3>GET /feature-flags/{environment}</h3>
+<ul>
+<li>:warning: for the <code>header</code> request parameter <code>x-correlation-id</code>, the minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: added the pattern <code>^[A-Za-z0-9._:-]+$</code> to the <code>header</code> request parameter <code>x-correlation-id</code></li>
+<li>:warning: for the <code>header</code> request parameter <code>x-correlation-id</code>, the maxLength was set to <code>128</code></li>
+<li>the <code>header</code> request parameter <code>x-correlation-id</code> became optional</li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /feature-flags/{environment}</h3>
+<ul>
+<li>:warning: for the <code>header</code> request parameter <code>x-correlation-id</code>, the minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: added the pattern <code>^[A-Za-z0-9._:-]+$</code> to the <code>header</code> request parameter <code>x-correlation-id</code></li>
+<li>:warning: for the <code>header</code> request parameter <code>x-correlation-id</code>, the maxLength was set to <code>128</code></li>
+<li>the <code>header</code> request parameter <code>x-correlation-id</code> became optional</li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>GET /feature-flags/{environment}/kill-switch</h3>
+<ul>
+<li>:warning: for the <code>header</code> request parameter <code>x-correlation-id</code>, the minLength was increased from <code>0</code> to <code>1</code></li>
+<li>:warning: added the pattern <code>^[A-Za-z0-9._:-]+$</code> to the <code>header</code> request parameter <code>x-correlation-id</code></li>
+<li>:warning: for the <code>header</code> request parameter <code>x-correlation-id</code>, the maxLength was set to <code>128</code></li>
+<li>the <code>header</code> request parameter <code>x-correlation-id</code> became optional</li>
+<li>added the non-success response with the status <code>400</code></li>
+<li>added the non-success response with the status <code>401</code></li>
+<li>added the non-success response with the status <code>404</code></li>
+<li>added the non-success response with the status <code>422</code></li>
+<li>added the non-success response with the status <code>429</code></li>
+<li>added the non-success response with the status <code>500</code></li>
+</ul>
+<h3>POST /scripts</h3>
+<ul>
+<li>added the new optional <code>header</code> request parameter <code>idempotency-key</code></li>
+</ul>
+<h3>POST /scripts/{templateId}/{version}:approve</h3>
+<ul>
+<li>added the new optional <code>header</code> request parameter <code>idempotency-key</code></li>
+</ul>
+<h3>POST /scripts/{templateId}/{version}:retire</h3>
+<ul>
+<li>added the new optional <code>header</code> request parameter <code>idempotency-key</code></li>
+</ul>
+<h3>POST /scripts/{templateId}/{version}:submit</h3>
+<ul>
+<li>added the new optional <code>header</code> request parameter <code>idempotency-key</code></li>
+</ul>
+
+<footer>Generated content. Edit the named source, not this HTML.</footer></main></body></html>

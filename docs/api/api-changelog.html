@@ -22,8 +22,8 @@ and does not approve the external Sales contract.</p>
 </thead>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
-<td><code>1.0.0-draft.22</code></td>
-<td><code>1.0.0-draft.22</code></td>
+<td><code>1.0.0-draft.23</code></td>
+<td><code>1.0.0-draft.23</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>
@@ -124,8 +124,28 @@ eleven <code>api path removed without deprecation</code> warnings, and <code>--f
 on every pipeline for a removal the owner had already ordered. The closed window is frozen rather
 than deleted: the full <code>draft.20 → draft.22</code> comparison is preserved in
 <a href="ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html">the archived transition report</a>.</p>
-<p>A reader who wants the whole removal history now reads three archived reports in sequence —
-<code>1.0.0 → draft.2</code>, <code>draft.2 → draft.20</code>, <code>draft.20 → draft.22</code> — plus the live incremental report.
+<h2><code>1.0.0-draft.23</code> — the HTTP behaviour matrix tightens the wire (W-0197, rotated W-0202)</h2>
+<p><code>1.0.0-draft.23</code> declares the idempotency key on mutations that already honoured it in code, and
+constrains <code>x-correlation-id</code> across many operations: <code>minLength</code> from <code>0</code> to <code>1</code>, a
+<code>^[A-Za-z0-9._:-]+$</code> pattern, and <code>maxLength</code> <code>128</code>. The behaviour matrix built in <code>W-0197</code> is what
+made the gap visible — a contract that accepted an empty or arbitrary correlation id while the
+runtime rejected it.</p>
+<p><code>oasdiff</code> reports those constraints as eleven warnings, and <code>--fail-on WARN</code> is <code>allow_failure: false</code>, so the comparison gate went red on a change the owner had approved. W-0202 rotated the IVR
+baseline a third time, from <code>1.0.0-draft.22</code> to <code>1.0.0-draft.23</code>, for the same reason W-0124 and
+W-0128 rotated the first two: a gate that cannot pass stops being read, and the next unapproved
+breaking change would arrive as one more red among reds.</p>
+<p>The closed window is frozen, not deleted. The full <code>draft.22 → draft.23</code> comparison — every one of
+those eleven warnings — is preserved in
+<a href="ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html">the archived transition report</a>.
+Rotating is not approval: it says the owner accepted this change, not that any consumer has
+migrated, and <code>TARGET_CONTRACT_V1</code> stays <code>DRAFT</code>.</p>
+<p>One thing this rotation does <strong>not</strong> carry is the <code>1.0.0</code> release prepared under <code>OD-V1-02</code>. That
+bump rested on the contract text being frozen; draft.23 changed it while the work was in flight, so
+the release was withdrawn (<code>W-0200</code>, <code>CANCELLED</code>) rather than published against a moving document.
+It is re-doable on top of draft.23 whenever the document actually stops moving.</p>
+<p>A reader who wants the whole removal history now reads four archived reports in sequence —
+<code>1.0.0 → draft.2</code>, <code>draft.2 → draft.20</code>, <code>draft.20 → draft.22</code>, <code>draft.22 → draft.23</code> — plus the
+live incremental report.
 That chain is the audit trail; the live gate only answers &quot;has anything broken since the last
 approved rotation&quot;.
 The Sales callback report still says <code>No changes detected</code>. The previous IVR baseline is

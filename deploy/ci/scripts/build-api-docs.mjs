@@ -18,6 +18,7 @@ export const generatedPortalFiles = [
   "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
   "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
   "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
+  "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
   "ivr-order-confirmation-v1.html",
   "ivr-order-confirmation-changelog.html",
   "order-core-ivr-callback-changelog.html",
@@ -56,6 +57,8 @@ const markdownDefinitions = [
         "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
       "api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md":
         "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
+      "api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md":
+        "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
     },
   },
   {
@@ -83,6 +86,16 @@ const markdownDefinitions = [
     source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md",
     output: "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
     title: "Archived IVR Contract Transition (draft.20 → draft.22)",
+  },
+  // W-0202. Third rotation, and the first one that archives a tightening rather than a
+  // removal. draft.23 constrained x-correlation-id across many operations, which oasdiff reports
+  // as eleven warnings — enough to hold `--fail-on WARN` red on every pipeline for a change the
+  // owner approved. Rotating restores the signal; freezing this report is what stops the rotation
+  // from erasing the constraint it was rotated past.
+  {
+    source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md",
+    output: "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
+    title: "Archived IVR Contract Transition (draft.22 → draft.23)",
   },
   {
     source: "docs/api/changelog/ivr-order-confirmation.md",

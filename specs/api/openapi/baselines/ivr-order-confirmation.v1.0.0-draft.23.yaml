@@ -1,0 +1,2663 @@
+openapi: 3.1.0
+info:
+  title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
+  version: 1.0.0-draft.23
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+  description: >
+    Target V1 draft for the standalone .NET IVR service. Not a public API. The
+    Sales Platform owns business call selection, eligibility, revalidation, and order-state
+    transitions. A task accepted by IVR is a call instruction already selected by M3; IVR may
+    still hold or reject it only at contract, authorization, safety, privacy, timing, or capacity
+    gates.
+    Supports GOLDEN_HOUR+ONLINE and TWENTY_FOUR_SEVEN+COD. External Sales callback
+    is specified separately in order-core-ivr-callback.target-v1.yaml.
+servers:
+  - url: /v1/ivr/order-confirmation
+    description: Internal base path
+security:
+  - bearerAuth: []
+tags:
+  - name: internal
+    description: Service-to-service operations owned by the standalone IVR service.
+  - name: admin
+    description: Masked, permission-gated operator controls and projections.
+paths:
+  /tasks:
+    post:
+      tags: [internal]
+      summary: Task intake (Order Core -> IVR, push sync)
+      operationId: intakeTask
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/SourceSystem'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IvrConfirmationTaskV1' }
+      responses:
+        '200': { description: Intake decision, content: { application/json: { schema: { $ref: '#/components/schemas/IvrTaskIntakeResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /eligibility-checks:
+    post:
+      tags: [internal]
+      summary: Persist eligibility decision
+      operationId: recordEligibility
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/EligibilityLifecycleRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrEligibilityDecision' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-jobs:
+    post:
+      tags: [internal]
+      summary: Create/record CallJob
+      operationId: createCallJob
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CallJobLifecycleRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJob' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+    get:
+      tags: [admin]
+      summary: Call-job list, masked and paginated (perm IVR_QUEUE_VIEW)
+      description: >-
+        `order_code` is a filter input only and is never echoed; the response
+        carries the script-approved `order_code_short` (D-05, specs/ui/02).
+      operationId: listCallJobs
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: program, in: query, required: false, schema: { $ref: '#/components/schemas/ProgramCode' } }
+        - { name: status, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: queue_status, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: result_type, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: order_code, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: correlation_id, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: near_expiry, in: query, required: false, schema: { type: boolean, default: false } }
+        - { name: from, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: to, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: page, in: query, required: false, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: page_size, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJobPage' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-jobs/{ivrCallJobId}:
+    get:
+      tags: [internal]
+      summary: Read CallJob (masked)
+      operationId: getCallJob
+      parameters:
+        - name: ivrCallJobId
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJob' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-attempts:
+    post:
+      tags: [internal]
+      summary: Record call attempt
+      operationId: recordAttempt
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CallAttemptLifecycleRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallAttempt' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-results:
+    post:
+      tags: [internal]
+      summary: Record normalized result
+      operationId: recordResult
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CallResultLifecycleRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /result-callbacks:
+    post:
+      tags: [internal]
+      summary: Record callback lifecycle (delivery to Order Core is outbound)
+      operationId: recordResultCallback
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/InternalSourceSystem'
+        - $ref: '#/components/parameters/InternalServiceScope'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ResultCallbackLifecycleRequest' } } }
+      responses:
+        '200': { description: Recorded internal delivery lifecycle, content: { application/json: { schema: { $ref: '#/components/schemas/IvrResultCallbackLifecycle' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /queue:
+    get:
+      tags: [admin]
+      summary: Queue/capacity projection (masked)
+      operationId: getQueue
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrQueueProjection' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /dashboard:
+    get:
+      tags: [admin]
+      summary: Operational dashboard projection, masked (perm IVR_QUEUE_VIEW)
+      description: >-
+        Aggregates are computed server-side so the console never derives a KPI
+        from raw rows. SIM pool and open incidents are pool-wide and ignore the
+        program/time filter.
+      operationId: getDashboard
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: program, in: query, required: false, schema: { $ref: '#/components/schemas/ProgramCode' } }
+        - { name: from, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: to, in: query, required: false, schema: { type: string, format: date-time } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrDashboardProjection' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-jobs/{ivrCallJobId}/detail:
+    get:
+      tags: [admin]
+      summary: Full masked lifecycle trace for one call job (perm IVR_QUEUE_VIEW)
+      description: >-
+        task intake to eligibility to attempts to result to callback, plus the
+        technical-exception and review-item ids the admin mutations require.
+        `order_state` is the opaque Core enum; IVR displays it and never changes
+        it (D-02).
+      operationId: getCallJobDetail
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - { name: ivrCallJobId, in: path, required: true, schema: { type: string, minLength: 1, maxLength: 128 } }
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrCallJobDetail' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /sim-channels:
+    get:
+      tags: [admin]
+      summary: SIM channel roster, read-only (perm IVR_QUEUE_VIEW)
+      description: >-
+        The roster behind the dashboard SIM panel, so the enable/disable
+        operations in specs/ui/08 §3 have a console surface. `sim_number_ref` is
+        deliberately not projected: it points at a phone identity the console has
+        no use for (D-05). Lease internals are omitted as scheduler mechanics.
+      operationId: listSimChannels
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrSimChannelList' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts:
+    get:
+      tags: [admin]
+      summary: Call-script catalogue, read-only (perm IVR_QUEUE_VIEW)
+      description: >-
+        Versions with their approval matrix, the allowed and prohibited variable
+        lists, and the DTMF map. KEY_9 is reported NOT_ENABLED (AS-07). Lifecycle
+        transitions live on the sibling routes below (W-0109); leaving them unexposed
+        left hand-edited rows as the only path for a Privacy/Legal signature, and
+        therefore no audit, no reason and no four-eyes.
+      operationId: getScriptCatalog
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptCatalog' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+    post:
+      tags: [admin]
+      summary: Create a script version draft (perm IVR_SCRIPT_EDIT)
+      description: >-
+        A version is immutable once created, so a wording change is a new version
+        and the previous one keeps its own approvals and audit trail.
+      operationId: createScriptDraft
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/OptionalIdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptDraftRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/{templateId}/{version}:
+    get:
+      tags: [admin]
+      summary: One script version in any state, including drafts (perm IVR_QUEUE_VIEW)
+      description: >-
+        approved_for_modes is derived from the approvals at read time rather than
+        stored, because the same approval set means different things once the
+        OD-V1-15 whitelist is signed. production_blocked_reason names the missing
+        precondition instead of leaving an empty mode list to be interpreted.
+      operationId: getScriptVersion
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/ScriptTemplateId'
+        - $ref: '#/components/parameters/ScriptVersion'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptVersionDetail' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/{templateId}/{version}:submit:
+    post:
+      tags: [admin]
+      summary: Move a draft into review (perm IVR_SCRIPT_REVIEW)
+      operationId: submitScriptForReview
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/OptionalIdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/ScriptTemplateId'
+        - $ref: '#/components/parameters/ScriptVersion'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptTransitionRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/{templateId}/{version}:approve:
+    post:
+      tags: [admin]
+      summary: Record one approval (perm IVR_SCRIPT_APPROVE_* per approval_type)
+      description: >-
+        403 when the caller is the wrong person for this version - the creator, or the
+        account that already signed the other half of the production pair. That is not a
+        state conflict: retrying cannot fix it, a second approver can. 409 when the
+        version's own state refuses, such as a duplicate approval type.
+      operationId: approveScriptVersion
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/OptionalIdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/ScriptTemplateId'
+        - $ref: '#/components/parameters/ScriptVersion'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptApprovalRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /scripts/{templateId}/{version}:retire:
+    post:
+      tags: [admin]
+      summary: Retire a script version (perm IVR_SCRIPT_RETIRE)
+      description: >-
+        A retired version fails closed in every execution mode and is never deleted.
+      operationId: retireScriptVersion
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/OptionalIdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/ScriptTemplateId'
+        - $ref: '#/components/parameters/ScriptVersion'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptTransitionRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScriptActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /dev/seed:load:
+    post:
+      tags: [admin]
+      summary: Load the seed fixtures (NON-PRODUCTION ONLY, perm IVR_DEV_TOOLING)
+      description: >-
+        Absent in production. The route is not mapped when the deployment is
+        production by environment, by execution mode or by
+        REAL_CUSTOMER_CALL_ALLOWED, so a production caller gets 404 rather than
+        403 - a 403 would confirm that a seed loader exists at this address.
+        Fixtures are admitted through the same intake service production uses,
+        so a do-not-call customer stays blocked and nothing bypasses policy.
+        Confirmation windows are rebased to now by default because the fixtures
+        carry absolute August-2026 instants and would otherwise all be refused
+        as expired.
+      operationId: loadDevSeed
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IvrSeedLoadRequest' } } }
+      responses:
+        '200': { description: Fixtures processed, content: { application/json: { schema: { $ref: '#/components/schemas/IvrSeedLoadResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /dev/scenarios/{scenarioId}:dry-run:
+    post:
+      tags: [admin]
+      summary: Replay a call scenario without dialling (NON-PRODUCTION ONLY, perm IVR_DEV_TOOLING)
+      description: >-
+        Replays the scenario's recorded attempts through disposition
+        normalisation and compares the result with what the seed file expects.
+        No call is placed, and that is structural rather than suppressed - the
+        replay engine holds no telephony port. A scenario whose expected result
+        comes from task intake or from the confirmation-window sweep answers
+        NOT_REPLAYABLE with no verdict, because calling it a mismatch would point
+        at the wrong file.
+      operationId: dryRunDevScenario
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - name: scenarioId
+          in: path
+          required: true
+          schema: { type: string, maxLength: 120 }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: Replay report, content: { application/json: { schema: { $ref: '#/components/schemas/IvrScenarioDryRunResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /dev/integration-profiles/{profileId}:apply:
+    post:
+      tags: [admin]
+      summary: Apply an integration-status profile (NON-PRODUCTION ONLY, perm IVR_DEV_TOOLING)
+      description: >-
+        Applies what IVR actually controls and reports the rest as declared
+        only. SIM_GATEWAY is enforced by enabling or disabling channels through
+        the ordinary admin path, so the fail-closed re-enable check still holds.
+        ORDER_CORE, CRM_DO_NOT_CALL and EVIDENCE_REGISTRY are never probed by
+        IVR and report NOT_WIRED, so a profile cannot switch them; the response
+        says which is which rather than implying four dependencies moved.
+      operationId: applyDevIntegrationProfile
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string, maxLength: 120 }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: Profile applied, content: { application/json: { schema: { $ref: '#/components/schemas/IvrIntegrationProfileResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-jobs:terminate-all:
+    post:
+      tags: [admin]
+      summary: Cut every call currently in progress (perm IVR_CALL_TERMINATE)
+      description: >-
+        Its own operation rather than a side effect of engaging the kill switch.
+        The kill switch stops the next call; this ends conversations already
+        happening with real people, so the two take separate presses and separate
+        reasons. Each cut is recorded exactly as the single-call version records
+        it. 409 when nothing is running.
+      operationId: terminateAllCallJobs
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: Termination requested for every live call, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /call-jobs/{ivrCallJobId}:terminate:
+    post:
+      tags: [admin]
+      summary: Cut a call that is already in progress (perm IVR_CALL_TERMINATE)
+      description: >-
+        Records the request; it does not end the call. Ivr.Api holds no telephony
+        gateway, so the worker's dispatch loop polls for this and performs the
+        hangup. A cut is recorded as IVR_TECHNICAL_EXCEPTION with
+        customer_attempt_counted false - the customer never got to answer, so
+        spending one of their attempts on an operator's decision would charge
+        them for it. 409 when the job has no call in progress, with nothing
+        written: a refused safety action that still leaves a partial record is
+        worse than one that leaves none.
+      operationId: terminateCallJob
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: ivrCallJobId
+          in: path
+          required: true
+          schema: { type: string, maxLength: 120 }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: Termination requested, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /integration-status:
+    get:
+      tags: [admin]
+      summary: Downstream dependency status, read-only (perm IVR_QUEUE_VIEW)
+      description: >-
+        Reports what IVR can observe about itself and marks every unprobed
+        dependency NOT_WIRED. `dependency_probing_available` stays false until
+        P6-1 (W-0040) delivers real probing, so no card may be read as verified
+        fail-closed before then.
+      operationId: getIntegrationStatus
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: environment, in: query, required: false, schema: { type: string, maxLength: 40 } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrIntegrationStatus' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /review-items:
+    get:
+      tags: [admin]
+      summary: Human review queue, masked and paginated (perm IVR_QUEUE_VIEW)
+      operationId: listReviewItems
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: status, in: query, required: false, schema: { type: string, maxLength: 128 } }
+        - { name: page, in: query, required: false, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: page_size, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrReviewQueue' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /analytics/summary:
+    get:
+      tags: [admin]
+      summary: Aggregate reporting KPI summary, read-only (perm IVR_QUEUE_VIEW)
+      description: >-
+        Business KPI over the filtered scope plus the result-taxonomy split. Every
+        value is a count or a rate; no task, order code, phone or evidence ref is
+        projected (D-05). Buckets below `min_bucket_size` are dropped server-side
+        and reported in `data_quality.suppressed_bucket_count`. `data_quality.source`
+        names the store that answered, and `data_quality.warehouse_status` reports
+        whether the P10-4 pipeline (W-0055) is complete or still catching up.
+      operationId: getAnalyticsSummary
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/AnalyticsProgram'
+        - $ref: '#/components/parameters/AnalyticsResultType'
+        - $ref: '#/components/parameters/AnalyticsScriptVariant'
+        - $ref: '#/components/parameters/AnalyticsBucket'
+        - $ref: '#/components/parameters/AnalyticsFrom'
+        - $ref: '#/components/parameters/AnalyticsTo'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAnalyticsSummary' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /analytics/trend:
+    get:
+      tags: [admin]
+      summary: Aggregate trend series per time bucket and program (perm IVR_QUEUE_VIEW)
+      description: >-
+        A bucket holding fewer than `min_bucket_size` results is omitted from the
+        series rather than returned with zeroed counts, because a zero row reads
+        as "no calls" and that would be a false statement.
+      operationId: getAnalyticsTrend
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/AnalyticsProgram'
+        - $ref: '#/components/parameters/AnalyticsResultType'
+        - $ref: '#/components/parameters/AnalyticsScriptVariant'
+        - $ref: '#/components/parameters/AnalyticsBucket'
+        - $ref: '#/components/parameters/AnalyticsFrom'
+        - $ref: '#/components/parameters/AnalyticsTo'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAnalyticsTrend' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /analytics/breakdown:
+    get:
+      tags: [admin]
+      summary: Aggregate breakdown by result type, script variant or program (perm IVR_QUEUE_VIEW)
+      operationId: getAnalyticsBreakdown
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - $ref: '#/components/parameters/AnalyticsDimension'
+        - $ref: '#/components/parameters/AnalyticsProgram'
+        - $ref: '#/components/parameters/AnalyticsResultType'
+        - $ref: '#/components/parameters/AnalyticsScriptVariant'
+        - $ref: '#/components/parameters/AnalyticsBucket'
+        - $ref: '#/components/parameters/AnalyticsFrom'
+        - $ref: '#/components/parameters/AnalyticsTo'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAnalyticsBreakdown' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /analytics/export:
+    get:
+      tags: [admin]
+      summary: Sanitized aggregate extract with mandatory reason (perm IVR_QUEUE_VIEW)
+      description: >-
+        Returns a column-oriented aggregate extract. `reason` is mandatory and is
+        written to the audit log with the resolved filter and row counts. Rows
+        below `min_bucket_size` are excluded; when data exists but nothing
+        survives suppression the export is refused with
+        `IVR_PII_POLICY_VIOLATION` rather than returned empty. This is a GET
+        because it is a read that is audited, not a state change.
+      operationId: exportAnalytics
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/ActorId'
+        - { name: reason, in: query, required: true, schema: { type: string, minLength: 8, maxLength: 200 } }
+        - $ref: '#/components/parameters/AnalyticsDimension'
+        - $ref: '#/components/parameters/AnalyticsProgram'
+        - $ref: '#/components/parameters/AnalyticsResultType'
+        - $ref: '#/components/parameters/AnalyticsScriptVariant'
+        - $ref: '#/components/parameters/AnalyticsBucket'
+        - $ref: '#/components/parameters/AnalyticsFrom'
+        - $ref: '#/components/parameters/AnalyticsTo'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAnalyticsExport' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /queue:pause:
+    post:
+      tags: [admin]
+      summary: Pause queue (perm IVR_QUEUE_PAUSE)
+      operationId: pauseQueue
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /queue:resume:
+    post:
+      tags: [admin]
+      summary: Resume queue (perm IVR_QUEUE_RESUME)
+      operationId: resumeQueue
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /sim-channels/{simChannelId}:disable:
+    post:
+      tags: [admin]
+      summary: Disable SIM channel (perm IVR_SIM_DISABLE)
+      operationId: disableSim
+      parameters:
+        - name: simChannelId
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /sim-channels/{simChannelId}:enable:
+    post:
+      tags: [admin]
+      summary: Enable SIM channel after health pass (perm IVR_SIM_ENABLE)
+      operationId: enableSim
+      parameters:
+        - name: simChannelId
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminMutationRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminActionResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /technical-retries:
+    post:
+      tags: [admin]
+      summary: Request technical retry (perm IVR_MANUAL_RETRY; not a customer attempt)
+      operationId: technicalRetry
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/TechnicalRetryRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrTechnicalRetryResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /admin-reviews:
+    post:
+      tags: [admin]
+      summary: Record review/annotation (perm IVR_RESULT_REVIEW)
+      operationId: adminReview
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AdminReviewRequest' } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/IvrAdminReviewResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+  /feature-flags/{environment}:
+    get:
+      tags: [admin]
+      summary: Read a fresh typed feature-flag snapshot (perm IVR_FLAG_READ)
+      operationId: getFeatureFlags
+      parameters:
+        - $ref: '#/components/parameters/FeatureFlagEnvironment'
+        - $ref: '#/components/parameters/GeneratedCorrelationId'
+      responses:
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+        '200': { description: Fresh snapshot, content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagReadResult' } } } }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+    post:
+      tags: [admin]
+      summary: Atomically mutate runtime controls (perm IVR_RUNTIME_GATE_ADMIN granted to Admin per OD-V1-20; still 409 while IRuntimeGateAuthorization is pending)
+      operationId: mutateFeatureFlags
+      parameters:
+        - $ref: '#/components/parameters/FeatureFlagEnvironment'
+        - $ref: '#/components/parameters/GeneratedCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/ActorId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagMutationRequest' } } }
+      responses:
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+        '200': { description: Audited mutation and verified revision, content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagMutationResult' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /feature-flags/{environment}/kill-switch:
+    get:
+      tags: [admin]
+      summary: Verify effective kill-switch state (perm IVR_FLAG_READ)
+      operationId: verifyFeatureFlagKillSwitch
+      parameters:
+        - $ref: '#/components/parameters/FeatureFlagEnvironment'
+        - $ref: '#/components/parameters/GeneratedCorrelationId'
+      responses:
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
+        '200': { description: Effective fail-closed state, content: { application/json: { schema: { $ref: '#/components/schemas/KillSwitchVerification' } } } }
+        '403': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        Bearer token. Two disjoint credential families reach this service.
+        Service-to-service routes take the Order Core allowlist token (DF-06).
+        Admin routes take one of three tier tokens -- IVR_ADMIN_READ_TOKEN,
+        IVR_ADMIN_WRITE_TOKEN or IVR_ADMIN_DANGER_TOKEN -- and additionally
+        require X-Service-Scope naming the tier the token resolves to, plus
+        X-Actor-Id, plus X-Action-Reason on the danger tier. There is no console
+        session: W-0128 removed account authentication from this service and
+        Module 3 owns operator identity. Each tier may carry a distinct
+        *_PREVIOUS token only together with an absolute *_PREVIOUS_RETIRES_AT;
+        the previous value is rejected at that instant. See
+        integration-requirements/06-module-3-api-handover.md section 4A.
+  parameters:
+    ScriptTemplateId:
+      name: templateId
+      in: path
+      required: true
+      schema: { type: string, maxLength: 120, pattern: '^[A-Za-z0-9._-]+$' }
+    ScriptVersion:
+      name: version
+      in: path
+      required: true
+      schema: { type: string, maxLength: 40, pattern: '^[A-Za-z0-9._-]+$' }
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: true
+      schema: { type: string }
+    GeneratedCorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Generated when omitted on feature-flag routes; a supplied value must be safe and valid.
+      schema: { type: string, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:-]+$' }
+    OptionalIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: Recommended for script mutations. Same key and payload replays the stored response; changed payload or actor conflicts. Omission preserves legacy lifecycle behavior.
+      schema: { type: string, minLength: 1, maxLength: 128 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string }
+    ActorId:
+      name: X-Actor-Id
+      in: header
+      required: true
+      schema: { type: string }
+    SourceSystem:
+      name: X-Source-System
+      in: header
+      required: true
+      schema: { type: string, enum: [sales-platform, order-core] }
+    InternalSourceSystem:
+      name: X-Source-System
+      in: header
+      required: true
+      schema: { type: string, enum: [ivr-worker, ivr-adapter] }
+    AnalyticsProgram:
+      name: program
+      in: query
+      required: false
+      schema: { type: string, enum: [GOLDEN_HOUR, TWENTY_FOUR_SEVEN] }
+    AnalyticsResultType:
+      name: result_type
+      in: query
+      required: false
+      schema: { type: string, maxLength: 200 }
+    AnalyticsScriptVariant:
+      name: script_variant
+      in: query
+      required: false
+      schema: { type: string, maxLength: 200 }
+    AnalyticsBucket:
+      name: bucket
+      in: query
+      required: false
+      schema: { type: string, enum: [DAY, HOUR], default: DAY }
+    AnalyticsDimension:
+      name: dimension
+      in: query
+      required: false
+      schema: { type: string, enum: [RESULT_TYPE, SCRIPT_VARIANT, PROGRAM], default: RESULT_TYPE }
+    AnalyticsFrom:
+      name: from
+      in: query
+      required: false
+      schema: { type: string, format: date-time }
+    AnalyticsTo:
+      name: to
+      in: query
+      required: false
+      schema: { type: string, format: date-time }
+    InternalServiceScope:
+      name: X-Service-Scope
+      in: header
+      required: true
+      schema: { type: string, enum: [ivr.internal.write] }
+    FeatureFlagEnvironment:
+      name: environment
+      in: path
+      required: true
+      schema: { type: string, enum: [dev, staging, lab, pilot, prod] }
+  responses:
+    Error:
+      description: Error envelope
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+  schemas:
+    ErrorCode:
+      type: string
+      description: Stable IVR error envelope code catalog (api/06 §1c).
+      enum:
+        - IVR_UNAUTHENTICATED
+        - IVR_FORBIDDEN_CALLER
+        - IVR_MALFORMED_REQUEST
+        - IVR_MISSING_TRACE
+        - IVR_IDEMPOTENCY_CONFLICT
+        - IVR_VERSION_CONFLICT
+        - IVR_NOT_OFFICIAL_ORDER
+        - IVR_STATE_NOT_CALLABLE
+        - IVR_POLICY_MISMATCH
+        - IVR_CONTACT_INVALID
+        - IVR_SCRIPT_NOT_APPROVED
+        - IVR_PII_POLICY_VIOLATION
+        - IVR_OPERATIONAL_BLOCKED
+        - IVR_NOT_FOUND
+        - IVR_RATE_LIMITED
+        - IVR_INTERNAL_ERROR
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, correlationId]
+          properties:
+            code: { $ref: '#/components/schemas/ErrorCode' }
+            message: { type: string }
+            correlationId: { type: string }
+            details:
+              type: object
+              additionalProperties: { type: string }
+    ProgramCode:
+      type: string
+      enum: [GOLDEN_HOUR, TWENTY_FOUR_SEVEN]
+    OrderSpeechItem:
+      type: object
+      additionalProperties: false
+      required: [public_name, quantity]
+      properties:
+        public_name: { type: string, minLength: 1, maxLength: 160 }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        unit_label: { type: string, maxLength: 40 }
+    PrivacySafeOrderSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - customer_display_name
+        - order_code_short
+        - items
+        - total_amount
+        - currency
+        - delivery_area_short
+        - program_display_name
+        - locale
+      properties:
+        customer_display_name: { type: string, minLength: 1, maxLength: 80 }
+        order_code_short: { type: string, minLength: 1, maxLength: 40 }
+        items:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/OrderSpeechItem' }
+        total_amount: { type: number, minimum: 0 }
+        currency: { type: string, enum: [VND] }
+        delivery_area_short:
+          type: string
+          minLength: 1
+          maxLength: 160
+          pattern: '^(?!\s*\d)(?!.*\d+\s*/\s*\d+).*$'
+          description: >
+            Privacy-reviewed short area only (phường/xã, quận/huyện, tỉnh/thành).
+            The pattern rejects a house-number prefix (a leading digit, e.g. "123 Nguyen Hue")
+            and slash-form house numbers ("12/3 Le Loi"), while still ACCEPTING legitimate
+            numbered administrative units such as "Quan 7" or "Phuong 12".
+            It is only the machine-enforceable half of the rule: a digit-free street address
+            ("Duong Nguyen Hue, Phuong Ben Nghe") still passes the schema and MUST be rejected
+            by the IVR-side semantic full-address detector at intake (FR-IVR-INTAKE-005) with
+            IVR_PII_POLICY_VIOLATION. Sales remains responsible for normalising the value.
+        program_display_name: { type: string, minLength: 1, maxLength: 80 }
+        locale: { type: string, enum: [vi-VN] }
+        pronunciation_hints:
+          type: object
+          additionalProperties: { type: string }
+    IvrConfirmationTaskV1:
+      type: object
+      additionalProperties: false
+      allOf:
+        - oneOf:
+            - properties:
+                program_code: { const: GOLDEN_HOUR }
+                payment_method_snapshot: { const: ONLINE }
+            - properties:
+                program_code: { const: TWENTY_FOUR_SEVEN }
+                payment_method_snapshot: { const: COD }
+      required:
+        - contract_version
+        - task_id
+        - order_id
+        - order_code
+        - order_version
+        - order_state
+        - payment_method_snapshot
+        - program_code
+        - ivr_confirmation_required
+        - confirmation_window_started_at
+        - confirmation_window_expires_at
+        - attempt_policy_version
+        - max_customer_attempts
+        - attempt_offsets_seconds
+        - phone_ref
+        - phone_masked
+        - dial_token
+        - dial_token_expires_at
+        - privacy_safe_order_summary
+        - call_restriction
+        - eligibility_snapshot
+        - evidence_ref
+      properties:
+        contract_version: { type: string, enum: [ivr-order-confirmation.v1] }
+        task_id: { type: string }
+        # Optional in body; the X-Correlation-Id header is the source of truth.
+        # If both are present they MUST match, otherwise 422.
+        correlation_id: { type: string }
+        created_at: { type: string, format: date-time }
+        order_id: { type: string }
+        order_code: { type: string }
+        order_code_short: { type: string }
+        order_version: { type: string, description: Required Target V1 stale-result guard snapshot. }
+        order_state: { type: string, description: Opaque enum owned by Order Core (D-02) }
+        payment_method_snapshot: { type: string, enum: [ONLINE, COD] }
+        ivr_confirmation_required: { type: boolean, enum: [true] }
+        is_ivr_callable: { type: boolean, description: Optional convenience flag; Sales remains source of truth. }
+        program_code: { $ref: '#/components/schemas/ProgramCode' }
+        confirmation_window_started_at: { type: string, format: date-time }
+        confirmation_window_expires_at: { type: string, format: date-time }
+        attempt_policy_version: { type: string }
+        max_customer_attempts: { type: integer, minimum: 1, maximum: 10 }
+        attempt_offsets_seconds:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: { type: integer, minimum: 0 }
+        customer_ref: { type: string }
+        customer_trust_status:
+          type: string
+          deprecated: true
+          description: >-
+            LEGACY_READ compatibility field. Accepted and stored for rolling-deploy/history
+            compatibility, but ignored by active IVR eligibility under OD-18. M3 decides whether
+            the order needs a call before sending the task; new producers should omit this field.
+        trusted_skip_allowed:
+          type: boolean
+          deprecated: true
+          description: >-
+            LEGACY_READ compatibility field. Accepted and stored so an older producer can roll
+            alongside draft.21, but ignored by active IVR eligibility under OD-18. IVR never uses
+            true, false, or absence to call/skip; new producers should omit this field.
+        risk_flags:
+          type: array
+          description: >-
+            Privacy-safe risk codes Sales found on this order, for example `NEW_CUSTOMER`,
+            `VERIFIED_ORDER_COUNT_0`, `COD_FAIL_HISTORY`, `SUSPICIOUS_DUPLICATE`. Under OD-18 the
+            field is audit/scheduler-priority metadata only: empty, absent, and non-empty values
+            never change IVR eligibility. Codes carry no customer data and must not be used by
+            IVR to re-decide M3's call instruction.
+          items: { type: string }
+        phone_ref: { type: string }
+        phone_masked: { type: string }
+        phone_validation_status: { type: string }
+        dial_token: { type: string, description: Opaque token; never a raw phone number. }
+        dial_token_expires_at: { type: string, format: date-time }
+        privacy_safe_order_summary: { $ref: '#/components/schemas/PrivacySafeOrderSummary' }
+        # IVR-owned (P2-7 script lifecycle). Optional on the wire: if Sales omits them,
+        # IVR resolves the mode-approved script version itself. Never a Sales obligation.
+        call_script_template_id: { type: string }
+        call_script_version: { type: string }
+        allowed_script_variables:
+          type: object
+          additionalProperties: true
+        call_restriction:
+          type: boolean
+          description: Voice-call restriction already resolved by Sales; true blocks dispatch.
+        eligibility_snapshot:
+          type: object
+          additionalProperties: true
+          description: >
+            Sales-owned eligibility evidence. The wire type stays an open object because the
+            shape is not owner-approved yet (OD-V1-03). The shape IVR validates against is
+            published as a linked evidence reference at
+            specs/api/evidence/eligibility-snapshot.v1.schema.json: decision, source_version,
+            captured_at, optional source_available and optional blockers[]. IVR fails closed on
+            anything it cannot interpret rather than tightening this schema (W-0030 / P4-2).
+            Legacy `trust` keys are accepted during the compatibility window but ignored for
+            call/skip; M3 has already decided that the order requires a call.
+        evidence_ref: { type: string }
+        # IVR-derived policy snapshots; optional on the wire.
+        evidence_policy_version: { type: string }
+        privacy_policy_version: { type: string }
+    IvrTaskIntakeResult:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          description: >-
+            `TASK_SKIPPED_TRUSTED_CUSTOMER` is a LEGACY_READ compatibility enum value retained so
+            older generated clients and historical records remain readable. Draft.21 runtime no
+            longer emits it. M3 must filter no-call orders before POST /tasks and must not wait for
+            this decision from IVR.
+          enum:
+            - TASK_ACCEPTED_CALL_JOB_CREATED
+            - TASK_ACCEPTED_DRY_RUN_ONLY
+            - TASK_SKIPPED_TRUSTED_CUSTOMER
+            - TASK_REJECTED_NOT_OFFICIAL_ORDER
+            - TASK_REJECTED_STATE_NOT_CALLABLE
+            - TASK_REJECTED_POLICY_MISMATCH
+            - TASK_REJECTED_CONTACT_INVALID
+            - TASK_REJECTED_SCRIPT_NOT_APPROVED
+            - TASK_REJECTED_INVALID_TRACE
+            - TASK_BLOCKED_OPERATIONAL
+            - TASK_HELD_ADMIN_REVIEW
+            - TASK_HELD_POLICY_MISSING
+        ivr_call_job_id: { type: string }
+        blocked_reasons:
+          type: array
+          items: { type: string }
+        evidence_ref: { type: string }
+    EligibilityLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [task_id]
+      properties:
+        task_id: { type: string, minLength: 1 }
+    CallJobLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [ivr_call_job_id, task_id]
+      properties:
+        ivr_call_job_id: { type: string, minLength: 1 }
+        task_id: { type: string, minLength: 1 }
+    CallAttemptLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [ivr_call_attempt_id, ivr_call_job_id]
+      properties:
+        ivr_call_attempt_id: { type: string, minLength: 1 }
+        ivr_call_job_id: { type: string, minLength: 1 }
+    CallResultLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [ivr_call_result_id, ivr_call_job_id]
+      properties:
+        ivr_call_result_id: { type: string, minLength: 1 }
+        ivr_call_job_id: { type: string, minLength: 1 }
+    ResultCallbackLifecycleRequest:
+      type: object
+      additionalProperties: false
+      required: [callback_id, ivr_call_result_id]
+      properties:
+        callback_id: { type: string, minLength: 1 }
+        ivr_call_result_id: { type: string, minLength: 1 }
+    IvrSeedLoadRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        evidence_ref: { type: [string, "null"], maxLength: 200 }
+        rebase_windows:
+          type: boolean
+          default: true
+          description: >-
+            Move each fixture's confirmation window so it starts now. False loads
+            the fixtures exactly as written, which refuses every one of them for
+            an expired window - useful for demonstrating that refusal, useless
+            for setting up a rehearsal.
+    IvrSeedTaskOutcome:
+      type: object
+      additionalProperties: false
+      required: [scenario, task_id, decision, blocked_reasons]
+      properties:
+        scenario: { type: string, maxLength: 200 }
+        task_id: { type: string, maxLength: 120 }
+        decision: { type: string, maxLength: 80 }
+        ivr_call_job_id: { type: [string, "null"], maxLength: 120 }
+        blocked_reasons: { type: array, items: { type: string, maxLength: 300 } }
+    IvrSeedLoadResult:
+      type: object
+      additionalProperties: false
+      required: [generated_at, dataset, execution_mode, task_count, accepted_count, windows_rebased, rebased_count, attempt_policies_registered, tasks, correlation_id]
+      properties:
+        generated_at: { type: string, format: date-time }
+        dataset: { type: string, maxLength: 80 }
+        execution_mode: { type: string, maxLength: 40 }
+        task_count: { type: integer, minimum: 0 }
+        accepted_count: { type: integer, minimum: 0 }
+        windows_rebased: { type: boolean }
+        rebased_count: { type: integer, minimum: 0 }
+        attempt_policies_registered:
+          type: integer
+          minimum: 0
+          description: >-
+            Candidate attempt policies registered by this load. Zero on a repeat
+            run - a policy version is immutable, and rewriting the policy every
+            existing task was admitted under would be worse than skipping it.
+        tasks: { type: array, items: { $ref: '#/components/schemas/IvrSeedTaskOutcome' } }
+        correlation_id: { type: string, maxLength: 120 }
+    IvrScenarioAttemptReplay:
+      type: object
+      additionalProperties: false
+      required: [attempt_number, raw_call_status, result_type, customer_attempt_counted, final, reason]
+      properties:
+        attempt_number: { type: integer, minimum: 1 }
+        raw_call_status: { type: string, maxLength: 40 }
+        raw_dtmf: { type: [string, "null"], maxLength: 8 }
+        result_type: { type: string, maxLength: 60 }
+        customer_attempt_counted: { type: boolean }
+        final: { type: boolean }
+        reason: { type: string, maxLength: 120 }
+    IvrScenarioDryRunResult:
+      type: object
+      additionalProperties: false
+      required: [generated_at, scenario_id, coverage, attempts, notes, correlation_id]
+      properties:
+        generated_at: { type: string, format: date-time }
+        scenario_id: { type: string, maxLength: 120 }
+        task_ref: { type: [string, "null"], maxLength: 120 }
+        coverage: { type: string, enum: [REPLAYED, NOT_REPLAYABLE] }
+        expected_result_type: { type: [string, "null"], maxLength: 60 }
+        expected_counted: { type: [boolean, "null"] }
+        actual_result_type: { type: [string, "null"], maxLength: 60 }
+        actual_counted: { type: [boolean, "null"] }
+        matches:
+          type: [boolean, "null"]
+          description: Null when coverage is NOT_REPLAYABLE - no verdict is claimed.
+        attempts: { type: array, items: { $ref: '#/components/schemas/IvrScenarioAttemptReplay' } }
+        notes: { type: array, items: { type: string, maxLength: 300 } }
+        correlation_id: { type: string, maxLength: 120 }
+    IvrIntegrationProfileEffect:
+      type: object
+      additionalProperties: false
+      required: [dependency, requested_state, enforced, detail]
+      properties:
+        dependency: { type: string, maxLength: 40 }
+        requested_state: { type: string, maxLength: 40 }
+        enforced:
+          type: boolean
+          description: >-
+            False when IVR declares the state but nothing in the running system
+            consults it, which is the case for every dependency it does not probe.
+        detail: { type: string, maxLength: 300 }
+    IvrIntegrationProfileResult:
+      type: object
+      additionalProperties: false
+      required: [generated_at, profile_id, expected, enforced_count, declared_only_count, effects, correlation_id]
+      properties:
+        generated_at: { type: string, format: date-time }
+        profile_id: { type: string, maxLength: 120 }
+        expected: { type: string, maxLength: 300 }
+        enforced_count: { type: integer, minimum: 0 }
+        declared_only_count: { type: integer, minimum: 0 }
+        effects: { type: array, items: { $ref: '#/components/schemas/IvrIntegrationProfileEffect' } }
+        correlation_id: { type: string, maxLength: 120 }
+    AdminMutationRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        evidence_ref: { type: string }
+    TechnicalRetryRequest:
+      type: object
+      additionalProperties: false
+      required: [technical_exception_id, target_attempt_id, reason]
+      properties:
+        technical_exception_id: { type: string, minLength: 1 }
+        target_attempt_id: { type: string, minLength: 1 }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        evidence_ref: { type: string }
+    AdminReviewRequest:
+      type: object
+      additionalProperties: false
+      required: [review_item_id, resolution, reason]
+      properties:
+        review_item_id: { type: string, minLength: 1 }
+        resolution: { type: string, minLength: 1, maxLength: 500 }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        evidence_ref: { type: string }
+    IvrEligibilityDecision:
+      type: object
+      additionalProperties: false
+      required: [task_id, decision, blocked_reasons, evidence_ref]
+      properties:
+        task_id: { type: string }
+        decision: { type: string }
+        blocked_reasons:
+          type: array
+          items: { type: string }
+        skip_trusted: { type: boolean }
+        evidence_ref: { type: string }
+    IvrCallJob:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_job_id
+        - task_id
+        - program_type
+        - status
+        - queue_status
+        - eligible
+        - max_attempts
+        - expires_at
+        - input_signal_only
+        - no_direct_order_update
+      properties:
+        ivr_call_job_id: { type: string }
+        task_id: { type: string }
+        official_order_id: { type: string }
+        order_version: { type: string, description: Required Target V1 snapshot. }
+        program_type: { $ref: '#/components/schemas/ProgramCode' }
+        status: { type: string }
+        attempt_policy_version: { type: string }
+        max_attempts: { type: integer, minimum: 1, maximum: 10 }
+        attempt_spacing_seconds: { type: integer }
+        confirmation_window_seconds: { type: integer, minimum: 1 }
+        queue_status: { type: string }
+        eligible: { type: boolean }
+        expires_at: { type: string, format: date-time }
+        input_signal_only: { type: boolean, enum: [true] }
+        no_direct_order_update: { type: boolean, enum: [true] }
+    IvrCallAttempt:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_attempt_id
+        - ivr_call_job_id
+        - attempt_number
+        - status
+        - is_counted_customer_attempt
+        - technical_retry_count
+      properties:
+        ivr_call_attempt_id: { type: string }
+        ivr_call_job_id: { type: string }
+        attempt_number: { type: integer, minimum: 1, maximum: 10 }
+        status: { type: string }
+        result_status: { type: string }
+        dtmf_key: { type: string }
+        is_counted_customer_attempt: { type: boolean }
+        technical_retry_count: { type: integer, minimum: 0 }
+        disposition: { type: string }
+        sim_channel_id: { type: string }
+    IvrCallResult:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_result_id
+        - ivr_call_job_id
+        - result_type
+        - is_counted_customer_attempt
+        - is_final_for_ivr
+        - recommended_core_action
+        - input_signal_only
+        - no_direct_order_update
+        - no_payment_or_revenue_effect
+      properties:
+        ivr_call_result_id: { type: string }
+        ivr_call_job_id: { type: string }
+        final_result_status: { type: string }
+        result_reason: { type: string }
+        result_type: { $ref: '#/components/schemas/ResultType' }
+        is_counted_customer_attempt: { type: boolean }
+        is_final_for_ivr: { type: boolean }
+        recommended_core_action: { type: string }
+        input_signal_only: { type: boolean, enum: [true] }
+        no_direct_order_update: { type: boolean, enum: [true] }
+        no_payment_or_revenue_effect: { type: boolean, enum: [true] }
+    ResultType:
+      type: string
+      description: >-
+        Shared compatibility taxonomy. IVR does not emit
+        IVR_OPERATIONAL_BLOCKED or IVR_POLICY_BLOCKED as call results: those are
+        pre-call decisions. A Sales revalidation block after a real call is the
+        callback ACK BLOCKED_BY_CORE and never rewrites the observed result.
+      enum:
+        - IVR_CONFIRMED
+        - IVR_CUSTOMER_CANCELLED
+        - IVR_NO_ANSWER_ATTEMPT
+        - IVR_NO_ANSWER_FINAL
+        - IVR_CONFIRMATION_WINDOW_EXPIRED
+        - IVR_INVALID_PHONE_FINAL
+        - IVR_WRONG_INPUT
+        - IVR_TECHNICAL_EXCEPTION
+        - IVR_CAPACITY_EXCEPTION
+        - IVR_OPERATIONAL_BLOCKED
+        - IVR_POLICY_BLOCKED
+    IvrResultCallbackLifecycle:
+      type: object
+      additionalProperties: false
+      required:
+        - callback_id
+        - ivr_call_result_id
+        - result_state
+        - delivery_status
+        - retry_count
+        - requires_core_revalidation
+      properties:
+        callback_id: { type: string }
+        ivr_call_result_id: { type: string }
+        result_state: { type: string }
+        delivery_status: { type: string }
+        retry_count: { type: integer, minimum: 0 }
+        requires_core_revalidation: { type: boolean, enum: [true] }
+    IvrQueueProjection:
+      type: object
+      additionalProperties: false
+      required:
+        - paused
+        - pending_jobs
+        - active_attempts
+        - enabled_channels
+        - open_hold_incidents
+        - projected_at
+      properties:
+        paused: { type: boolean }
+        pending_jobs: { type: integer, minimum: 0 }
+        active_attempts: { type: integer, minimum: 0 }
+        enabled_channels: { type: integer, minimum: 0 }
+        open_hold_incidents: { type: integer, minimum: 0 }
+        projected_at: { type: string, format: date-time }
+    IvrDashboardQueuePanel:
+      type: object
+      additionalProperties: false
+      required: [paused, queued, held_mock, held_admin_review, dispatching, open_total, closed_total, near_expiry, attempt_two_pending, blocked]
+      properties:
+        paused: { type: boolean }
+        queued: { type: integer, minimum: 0 }
+        held_mock: { type: integer, minimum: 0 }
+        held_admin_review: { type: integer, minimum: 0 }
+        dispatching: { type: integer, minimum: 0 }
+        open_total: { type: integer, minimum: 0 }
+        closed_total: { type: integer, minimum: 0 }
+        near_expiry: { type: integer, minimum: 0 }
+        attempt_two_pending:
+          type: integer
+          minimum: 0
+          description: >-
+            Open jobs holding exactly one counted customer attempt with one left.
+            specs/ui/01 calls the tile "attempt2-due"; due-ness needs each job's
+            own offset schedule, which this aggregate does not parse.
+        blocked:
+          type: integer
+          minimum: 0
+          description: Open jobs the eligibility gate refused.
+    IvrDashboardResultPanel:
+      type: object
+      additionalProperties: false
+      required: [total, by_result_type, confirm_rate, cancel_rate, no_answer_rate, technical_exception_rate, call_success_rate]
+      properties:
+        total: { type: integer, minimum: 0 }
+        by_result_type:
+          type: object
+          additionalProperties: { type: integer, minimum: 0 }
+        confirm_rate: { type: number, minimum: 0, maximum: 1 }
+        cancel_rate: { type: number, minimum: 0, maximum: 1 }
+        no_answer_rate: { type: number, minimum: 0, maximum: 1 }
+        technical_exception_rate: { type: number, minimum: 0, maximum: 1 }
+        call_success_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: >-
+            Share of results where IVR reached the customer and got an input —
+            confirmed, cancelled or wrong-input. A cancel counts: the call
+            succeeded, the answer was no. Formula pending owner confirmation.
+    IvrDashboardAttemptPanel:
+      type: object
+      additionalProperties: false
+      required: [total, counted_customer_attempts, technical_retries, active]
+      properties:
+        total: { type: integer, minimum: 0 }
+        counted_customer_attempts: { type: integer, minimum: 0 }
+        technical_retries: { type: integer, minimum: 0 }
+        active: { type: integer, minimum: 0 }
+    IvrDashboardSimPanel:
+      type: object
+      additionalProperties: false
+      required: [total, enabled, idle, active, disabled, health_failed, quarantined, failure_rate, adapter_mode]
+      properties:
+        total: { type: integer, minimum: 0 }
+        enabled: { type: integer, minimum: 0 }
+        idle: { type: integer, minimum: 0 }
+        active: { type: integer, minimum: 0 }
+        disabled: { type: integer, minimum: 0 }
+        health_failed: { type: integer, minimum: 0 }
+        quarantined: { type: integer, minimum: 0 }
+        failure_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Channels in HEALTH_FAILED over the whole pool.
+        adapter_mode: { type: string }
+    IvrCapacityIncidentSummary:
+      type: object
+      additionalProperties: false
+      required: [capacity_incident_id, scope, status, hold_new_calls, missed_deadline_count, opened_at]
+      properties:
+        capacity_incident_id: { type: string }
+        scope: { type: string }
+        status: { type: string }
+        hold_new_calls: { type: boolean }
+        shortage_reason: { type: string }
+        missed_deadline_count: { type: integer, minimum: 0 }
+        opened_at: { type: string, format: date-time }
+    IvrDashboardProjection:
+      type: object
+      additionalProperties: false
+      required:
+        - generated_at
+        - execution_mode
+        - sim_provider
+        - real_customer_call_allowed
+        - queue
+        - results
+        - attempts
+        - sim
+        - open_incidents
+        - missed_deadline_count
+      properties:
+        generated_at: { type: string, format: date-time }
+        execution_mode: { type: string }
+        sim_provider: { type: string }
+        real_customer_call_allowed: { type: boolean }
+        program_filter: { $ref: '#/components/schemas/ProgramCode' }
+        from: { type: string, format: date-time }
+        to: { type: string, format: date-time }
+        queue: { $ref: '#/components/schemas/IvrDashboardQueuePanel' }
+        results: { $ref: '#/components/schemas/IvrDashboardResultPanel' }
+        attempts: { $ref: '#/components/schemas/IvrDashboardAttemptPanel' }
+        sim: { $ref: '#/components/schemas/IvrDashboardSimPanel' }
+        open_incidents:
+          type: array
+          items: { $ref: '#/components/schemas/IvrCapacityIncidentSummary' }
+        missed_deadline_count: { type: integer, minimum: 0 }
+    IvrCallJobListItem:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_job_id
+        - task_id
+        - order_code_short
+        - phone_masked
+        - program_type
+        - status
+        - queue_status
+        - attempt_count
+        - max_attempts
+        - expires_at
+        - created_at
+        - near_expiry
+      properties:
+        ivr_call_job_id: { type: string }
+        task_id: { type: string }
+        order_code_short: { type: string, maxLength: 40 }
+        phone_masked: { type: string, description: Masked contact only; the raw number never leaves the token vault (D-05). }
+        program_type: { $ref: '#/components/schemas/ProgramCode' }
+        status: { type: string }
+        queue_status: { type: string }
+        attempt_count: { type: integer, minimum: 0 }
+        max_attempts: { type: integer, minimum: 0 }
+        result_type: { type: string }
+        expires_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        closed_at: { type: string, format: date-time }
+        near_expiry: { type: boolean }
+    IvrCallJobPage:
+      type: object
+      additionalProperties: false
+      required: [page, page_size, total_count, items]
+      properties:
+        page: { type: integer, minimum: 1 }
+        page_size: { type: integer, minimum: 1, maximum: 100 }
+        total_count: { type: integer, minimum: 0 }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/IvrCallJobListItem' }
+    IvrCallAttemptDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_attempt_id
+        - attempt_number
+        - scheduled_at
+        - status
+        - is_counted_customer_attempt
+        - technical_retry_count
+        - policy_version
+        - script_version
+      properties:
+        ivr_call_attempt_id: { type: string }
+        attempt_number: { type: integer, minimum: 1 }
+        scheduled_at: { type: string, format: date-time }
+        started_at: { type: string, format: date-time }
+        ended_at: { type: string, format: date-time }
+        status: { type: string }
+        result_status: { type: string }
+        disposition: { type: string }
+        dtmf_key: { type: string, description: Business semantic only (1 confirm / 0 cancel); never a raw payload. }
+        is_counted_customer_attempt: { type: boolean }
+        technical_retry_count: { type: integer, minimum: 0 }
+        technical_exception_type: { type: string }
+        sim_channel_id: { type: string }
+        blocked_reason: { type: string }
+        policy_version: { type: string }
+        script_version: { type: string }
+        voice_id:
+          type: [string, "null"]
+          description: >
+            W-0113. The provider voice this attempt dialled with, recorded at dispatch rather
+            than re-derived at read time. Explicitly null - not omitted - when nothing was
+            recorded, because an absent field and a null one are indistinguishable to a reader
+            and "was this recorded" is the exact question this field exists to answer.
+        voice_region:
+          type: [string, "null"]
+          enum: [North, Central, South, null]
+          description: >
+            W-0113. The region recorded for this attempt at dispatch. Null on attempts made
+            before the columns existed and on any path that dials without choosing a voice; null
+            means "not recorded", never "no voice".
+        voice_region_resolved:
+          type: [boolean, "null"]
+          description: >
+            W-0113. True when the region came from a recognised province in the delivery area,
+            false when it came from the configured fallback. "South because we recognised the
+            address" and "South because South is the default" are different claims, and only the
+            first is evidence about this customer.
+    IvrCallResultDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_result_id
+        - result_type
+        - is_counted_customer_attempt
+        - is_final_for_ivr
+        - recommended_core_action
+        - human_review_required
+        - created_at
+      properties:
+        ivr_call_result_id: { type: string }
+        result_type: { type: string }
+        result_reason: { type: string }
+        dtmf_key: { type: string }
+        is_counted_customer_attempt: { type: boolean }
+        is_final_for_ivr: { type: boolean }
+        recommended_core_action: { type: string, description: Advisory only; Order Core owns the transition (D-02). }
+        human_review_required: { type: boolean }
+        created_at: { type: string, format: date-time }
+    IvrResultCallbackDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - callback_id
+        - ivr_call_result_id
+        - result_state
+        - delivery_status
+        - retry_count
+        - requires_core_revalidation
+        - created_at
+      properties:
+        callback_id: { type: string }
+        ivr_call_result_id: { type: string }
+        result_state: { type: string }
+        delivery_status: { type: string }
+        core_http_status: { type: integer }
+        core_response_code: { type: string }
+        retry_count: { type: integer, minimum: 0 }
+        requires_core_revalidation: { type: boolean }
+        created_at: { type: string, format: date-time }
+        sent_at: { type: string, format: date-time }
+        acknowledged_at: { type: string, format: date-time }
+    IvrTechnicalExceptionDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - technical_exception_id
+        - ivr_call_attempt_id
+        - exception_type
+        - customer_attempt_counted
+        - technical_retry_allowed
+        - technical_retry_count
+        - created_at
+      properties:
+        technical_exception_id: { type: string }
+        ivr_call_attempt_id: { type: string }
+        exception_type: { type: string }
+        customer_attempt_counted: { type: boolean }
+        technical_retry_allowed: { type: boolean }
+        technical_retry_count: { type: integer, minimum: 0 }
+        created_at: { type: string, format: date-time }
+    IvrReviewItemDetail:
+      type: object
+      additionalProperties: false
+      required: [review_item_id, source_type, source_id, reason, status, created_at]
+      properties:
+        review_item_id: { type: string }
+        source_type: { type: string }
+        source_id: { type: string }
+        reason: { type: string }
+        status: { type: string }
+        resolution: { type: string }
+        created_at: { type: string, format: date-time }
+        resolved_at: { type: string, format: date-time }
+    IvrCallJobDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - ivr_call_job_id
+        - task_id
+        - order_code_short
+        - phone_masked
+        - program_type
+        - order_state
+        - order_version_snapshot
+        - status
+        - queue_status
+        - eligible
+        - eligibility_decision
+        - blocked_reasons
+        - call_restriction
+        - max_attempts
+        - attempt_policy_code
+        - script_version
+        - privacy_policy_version
+        - t0_at
+        - expires_at
+        - created_at
+        - attempts
+        - results
+        - callbacks
+        - technical_exceptions
+        - review_items
+        - evidence_refs
+        - audit_refs
+        - correlation_id
+        - input_signal_only
+        - no_direct_order_update
+      properties:
+        ivr_call_job_id: { type: string }
+        task_id: { type: string }
+        order_code_short: { type: string, maxLength: 40 }
+        phone_masked: { type: string }
+        program_type: { $ref: '#/components/schemas/ProgramCode' }
+        order_state:
+          type: string
+          description: Opaque enum owned by Order Core (D-02); displayed, never derived.
+        order_version_snapshot: { type: string }
+        status: { type: string }
+        queue_status: { type: string }
+        eligible: { type: boolean }
+        eligibility_decision: { type: string }
+        blocked_reasons:
+          type: array
+          items: { type: string }
+        call_restriction: { type: boolean }
+        voice_region:
+          type: string
+          enum: [North, Central, South]
+          description: >
+            W-0106. Region the stored delivery area maps to under the 34 provincial units of
+            Nghi quyet 202/2025/QH15, and therefore which regional voice this order routes to.
+            Absent when the delivery area names no recognisable province.
+
+            W-0113 CHANGED WHERE THIS COMES FROM. It is now read from the attempt that dialled
+            whenever one recorded a voice, and only otherwise derived from the stored
+            privacy-safe summary. Read voice_region_source to know which of the two you have.
+
+            The derived answer is a function of TODAY'S configuration: the regional voice map
+            and its fallback live in config, so a change between the call and this read makes
+            the derived value describe a voice nobody heard. Nothing about that failure is
+            visible in the value itself, which is why the provenance is a separate field rather
+            than a footnote.
+
+            The raw delivery area itself is NOT exposed here. A three-value region is far less
+            identifying than a ward-and-province string, and the console does not need the
+            latter to know which voice a customer heard.
+        voice_region_source:
+          type: [string, "null"]
+          enum: [RECORDED, DERIVED, null]
+          description: >
+            W-0113. RECORDED when voice_region comes from the attempt row, DERIVED when it was
+            computed from the stored delivery area. Null when there is no region at all.
+
+            A separate field rather than a suffix on the value, so a screen that ignores
+            provenance still shows a correct region and one that cares can refuse to put a
+            derived number into something an owner signs.
+        max_attempts: { type: integer, minimum: 0 }
+        attempt_policy_code: { type: string }
+        script_version: { type: string }
+        privacy_policy_version: { type: string }
+        t0_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        closed_at: { type: string, format: date-time }
+        closed_reason: { type: string }
+        attempts:
+          type: array
+          items: { $ref: '#/components/schemas/IvrCallAttemptDetail' }
+        results:
+          type: array
+          items: { $ref: '#/components/schemas/IvrCallResultDetail' }
+        callbacks:
+          type: array
+          items: { $ref: '#/components/schemas/IvrResultCallbackDetail' }
+        technical_exceptions:
+          type: array
+          items: { $ref: '#/components/schemas/IvrTechnicalExceptionDetail' }
+        review_items:
+          type: array
+          items: { $ref: '#/components/schemas/IvrReviewItemDetail' }
+        evidence_refs:
+          type: array
+          items: { type: string }
+        audit_refs:
+          type: array
+          items: { type: string }
+        correlation_id: { type: string }
+        input_signal_only: { type: boolean, enum: [true] }
+        no_direct_order_update: { type: boolean, enum: [true] }
+    IvrScriptApproval:
+      type: object
+      additionalProperties: false
+      required: [approval_type, actor_id, reason, correlation_id, approved_at]
+      properties:
+        approval_type: { type: string }
+        actor_id: { type: string }
+        reason: { type: string }
+        correlation_id: { type: string }
+        approved_at: { type: string, format: date-time }
+    IvrScriptVersion:
+      type: object
+      additionalProperties: false
+      required:
+        - template_id
+        - version
+        - status
+        - template_hash
+        - allowed_input_fields
+        - approvals
+        - missing_approvals
+        - template_valid
+        - uses_production_decision_fields
+        - created_by
+        - created_at
+      properties:
+        template_id: { type: string }
+        version: { type: string }
+        status: { type: string }
+        template_hash: { type: string }
+        allowed_input_fields:
+          type: array
+          items: { type: string }
+        approvals:
+          type: array
+          items: { $ref: '#/components/schemas/IvrScriptApproval' }
+        missing_approvals:
+          type: array
+          items: { type: string }
+        template_valid:
+          type: boolean
+          description: False when the stored template no longer satisfies the Target V1 whitelist.
+        uses_production_decision_fields: { type: boolean }
+        created_by: { type: string }
+        created_at: { type: string, format: date-time }
+        submitted_by: { type: string }
+        submitted_at: { type: string, format: date-time }
+        retired_by: { type: string }
+        retired_at: { type: string, format: date-time }
+    IvrDtmfKey:
+      type: object
+      additionalProperties: false
+      required: [key, meaning, enabled]
+      properties:
+        key: { type: string }
+        meaning: { type: string }
+        enabled: { type: boolean }
+    IvrScriptVersionDetail:
+      type: object
+      additionalProperties: false
+      description: >-
+        Detail projection for one version, distinct from the catalogue's
+        IvrScriptVersion: it carries the template text and the derived
+        approved_for_modes, which a list view neither needs nor should carry.
+      required:
+        - template_id
+        - version
+        - status
+        - template_text
+        - template_hash
+        - allowed_input_fields
+        - approvals
+        - created_by
+        - created_at
+        - uses_production_decision_fields
+        - approved_for_modes
+      properties:
+        template_id: { type: string, maxLength: 120 }
+        version: { type: string, maxLength: 40 }
+        status: { type: string, enum: [DRAFT, IN_REVIEW, APPROVED, RETIRED] }
+        template_text: { type: string, maxLength: 2000 }
+        template_hash: { type: string, maxLength: 128 }
+        allowed_input_fields: { type: array, items: { type: string } }
+        approvals: { type: array, items: { $ref: '#/components/schemas/IvrScriptApproval' } }
+        created_by: { type: string, maxLength: 120 }
+        created_at: { type: string, format: date-time }
+        submitted_by: { type: [string, 'null'], maxLength: 120 }
+        submitted_at: { type: [string, 'null'], format: date-time }
+        retired_by: { type: [string, 'null'], maxLength: 120 }
+        retired_at: { type: [string, 'null'], format: date-time }
+        uses_production_decision_fields: { type: boolean }
+        approved_for_modes:
+          type: array
+          items: { type: string, enum: [MOCK, LAB_REAL_SIM, PRODUCTION_REAL] }
+        production_blocked_reason:
+          type: [string, 'null']
+          maxLength: 200
+          description: >-
+            The missing production precondition, named. Null once none remains. An
+            empty approved_for_modes with no reason would leave an operator to guess
+            whether the system is broken or Privacy/Legal simply has not signed.
+    IvrScriptDraftRequest:
+      type: object
+      additionalProperties: false
+      required: [template_id, version, template_text, reason]
+      properties:
+        template_id: { type: string, maxLength: 120, pattern: '^[A-Za-z0-9._-]+$' }
+        version: { type: string, maxLength: 40, pattern: '^[A-Za-z0-9._-]+$' }
+        template_text: { type: string, maxLength: 2000 }
+        reason: { type: string, maxLength: 500 }
+    IvrScriptTransitionRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason: { type: string, maxLength: 500 }
+    IvrScriptApprovalRequest:
+      type: object
+      additionalProperties: false
+      required: [approval_type, reason]
+      properties:
+        approval_type: { type: string, enum: [MOCK_TEST, LAB, CONTENT, PRIVACY_LEGAL] }
+        reason: { type: string, maxLength: 500 }
+    IvrScriptActionResult:
+      type: object
+      additionalProperties: false
+      required: [action_type, target_type, target_id, correlation_id, no_policy_bypass, version]
+      properties:
+        action_type: { type: string, maxLength: 80 }
+        target_type: { type: string, enum: [script_version] }
+        target_id: { type: string, maxLength: 200 }
+        correlation_id: { type: string, maxLength: 120 }
+        no_policy_bypass: { type: boolean, enum: [true] }
+        version: { $ref: '#/components/schemas/IvrScriptVersionDetail' }
+    IvrScriptCatalog:
+      type: object
+      additionalProperties: false
+      required:
+        - generated_at
+        - execution_mode
+        - production_target_v1_fields_approved
+        - allowed_input_fields
+        - prohibited_variables
+        - dtmf_map
+        - required_approval_types
+        - versions
+      properties:
+        generated_at: { type: string, format: date-time }
+        execution_mode: { type: string }
+        production_target_v1_fields_approved:
+          type: boolean
+          description: OD-V1-15. While false the Target V1 field set is not production approved.
+        allowed_input_fields:
+          type: array
+          items: { type: string }
+        prohibited_variables:
+          type: array
+          items: { type: string }
+        dtmf_map:
+          type: array
+          items: { $ref: '#/components/schemas/IvrDtmfKey' }
+        required_approval_types:
+          type: array
+          items: { type: string }
+        versions:
+          type: array
+          items: { $ref: '#/components/schemas/IvrScriptVersion' }
+    IvrDependencyStatus:
+      type: object
+      additionalProperties: false
+      required: [dependency, state, detail, fail_closed_effect, observed]
+      properties:
+        dependency: { type: string }
+        state: { type: string, enum: [UP, DOWN, READY_503, NOT_WIRED] }
+        detail:
+          type: string
+          description: Raw diagnostic text retained for exact log/trace lookup.
+        detail_vi:
+          type: string
+          description: >
+            W-0116. Optional Vietnamese companion for interpolated telemetry. It never
+            replaces detail; absence is valid during a rolling deployment from draft.16.
+        fail_closed_effect: { type: string }
+        observed:
+          type: boolean
+          description: False means IVR has no probe for this dependency yet (W-0040).
+        captured_at: { type: string, format: date-time }
+    IvrFailClosedEvent:
+      type: object
+      additionalProperties: false
+      required: [source, reference, effect, correlation_id, occurred_at]
+      properties:
+        source: { type: string }
+        reference: { type: string }
+        effect: { type: string }
+        hold_new_calls:
+          type: boolean
+          description: >
+            W-0116. Present for CAPACITY_INCIDENT so the console can translate the effect
+            without inferring a boolean from English prose; absent for other event sources
+            and from draft.16 servers during rolling deployment.
+        correlation_id: { type: string }
+        occurred_at: { type: string, format: date-time }
+    IvrIntegrationStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - generated_at
+        - execution_mode
+        - sales_provider
+        - sim_provider
+        - real_customer_call_allowed
+        - global_dial_kill_switch
+        - attempt_policy_version
+        - flag_revision
+        - dependency_probing_available
+        - dependencies
+        - recent_fail_closed_events
+      properties:
+        generated_at: { type: string, format: date-time }
+        execution_mode: { type: string }
+        sales_provider: { type: string }
+        sim_provider: { type: string }
+        real_customer_call_allowed: { type: boolean }
+        global_dial_kill_switch: { type: boolean }
+        attempt_policy_version: { type: string }
+        flag_revision: { type: integer }
+        dependency_probing_available:
+          type: boolean
+          description: False until P6-1 (W-0040); no card may be read as verified fail-closed.
+        dependencies:
+          type: array
+          items: { $ref: '#/components/schemas/IvrDependencyStatus' }
+        recent_fail_closed_events:
+          type: array
+          items: { $ref: '#/components/schemas/IvrFailClosedEvent' }
+    IvrReviewQueueItem:
+      type: object
+      additionalProperties: false
+      required:
+        - review_item_id
+        - source_type
+        - source_id
+        - reason
+        - status
+        - correlation_id
+        - created_at
+      properties:
+        review_item_id: { type: string }
+        source_type: { type: string }
+        source_id: { type: string }
+        reason: { type: string }
+        status: { type: string }
+        resolution: { type: string }
+        correlation_id: { type: string }
+        ivr_call_job_id: { type: string }
+        order_code_short: { type: string, maxLength: 40 }
+        result_type: { type: string }
+        created_at: { type: string, format: date-time }
+        resolved_at: { type: string, format: date-time }
+    IvrReviewQueue:
+      type: object
+      additionalProperties: false
+      required: [page, page_size, total_count, items]
+      properties:
+        page: { type: integer, minimum: 1 }
+        page_size: { type: integer, minimum: 1, maximum: 100 }
+        total_count: { type: integer, minimum: 0 }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/IvrReviewQueueItem' }
+    IvrSimChannel:
+      type: object
+      additionalProperties: false
+      required:
+        - sim_channel_id
+        - enabled
+        - status
+        - adapter_mode
+        - provider_name
+        - busy
+        - fail_count
+        - quarantined
+      properties:
+        sim_channel_id: { type: string }
+        enabled: { type: boolean }
+        status: { type: string }
+        adapter_mode: { type: string }
+        provider_name: { type: string }
+        busy:
+          type: boolean
+          description: Carrying a call; a disable then takes effect after it ends.
+        active_call_job_id: { type: string }
+        fail_count: { type: integer, minimum: 0 }
+        quarantined: { type: boolean }
+        quarantine_until: { type: string, format: date-time }
+        cooldown_until: { type: string, format: date-time }
+        last_health_check_at: { type: string, format: date-time }
+        disabled_reason: { type: string }
+    IvrSimChannelList:
+      type: object
+      additionalProperties: false
+      required: [generated_at, execution_mode, real_customer_call_allowed, channels]
+      properties:
+        generated_at: { type: string, format: date-time }
+        execution_mode: { type: string }
+        real_customer_call_allowed: { type: boolean }
+        channels:
+          type: array
+          items: { $ref: '#/components/schemas/IvrSimChannel' }
+    IvrAnalyticsDataQuality:
+      type: object
+      additionalProperties: false
+      required:
+        - generated_at
+        - source
+        - warehouse_backed
+        - pipeline_work_id
+        - status
+        - min_bucket_size
+        - suppressed_bucket_count
+        - scanned_rows
+        - truncated
+        - warehouse_status
+      properties:
+        generated_at: { type: string, format: date-time }
+        source:
+          type: string
+          description: >-
+            Which store answered: ANALYTICS_WAREHOUSE once the P10-4 pipeline
+            (W-0055) has loaded facts, OPERATIONAL_READ_MODEL before that.
+            Deliberately not an enum — it is a diagnostic label the console
+            prints rather than switches on, and a closed set here would make an
+            older client fail to read a payload naming a source it predates.
+            `warehouse_status` is the enum, because that one is switched on.
+        warehouse_backed:
+          type: boolean
+          description: False means these numbers are operational reads, not a BI pipeline.
+        pipeline_work_id: { type: string }
+        latest_event_at: { type: string, format: date-time }
+        freshness_seconds: { type: integer, format: int64, minimum: 0 }
+        status: { type: string, enum: [FRESH, STALE, NO_DATA] }
+        min_bucket_size:
+          type: integer
+          minimum: 1
+          description: Server-side k-anonymity threshold; never settable by the caller.
+        suppressed_bucket_count: { type: integer, minimum: 0 }
+        scanned_rows: { type: integer, minimum: 0 }
+        truncated:
+          type: boolean
+          description: True when the scan cap was reached, so the numbers are partial.
+        warehouse_status:
+          type: string
+          enum: [NOT_RUN, COMPLETE, BACKLOG, MISMATCH]
+          description: >-
+            State of the P10-4 pipeline, reported separately from `source`.
+            Serving from the warehouse and the warehouse being complete are
+            different claims; BACKLOG means a real but partial answer.
+    IvrAnalyticsFilter:
+      type: object
+      additionalProperties: false
+      required: [bucket]
+      properties:
+        program: { type: string, enum: [GOLDEN_HOUR, TWENTY_FOUR_SEVEN] }
+        result_type: { type: string, maxLength: 200 }
+        script_variant: { type: string, maxLength: 200 }
+        bucket: { type: string, enum: [DAY, HOUR] }
+        from: { type: string, format: date-time }
+        to: { type: string, format: date-time }
+    IvrAnalyticsKpi:
+      type: object
+      additionalProperties: false
+      required:
+        - total_results
+        - total_final_results
+        - total_call_jobs
+        - total_eligible_tasks
+        - confirm_rate
+        - cancel_rate
+        - no_answer_rate
+        - invalid_phone_rate
+        - technical_rate
+        - operational_blocked_rate
+        - attempt_2_rate
+      properties:
+        total_results: { type: integer, minimum: 0 }
+        total_final_results: { type: integer, minimum: 0 }
+        total_call_jobs: { type: integer, minimum: 0 }
+        total_eligible_tasks: { type: integer, minimum: 0 }
+        confirm_rate: { type: number, format: double, minimum: 0, maximum: 1 }
+        cancel_rate: { type: number, format: double, minimum: 0, maximum: 1 }
+        no_answer_rate: { type: number, format: double, minimum: 0, maximum: 1 }
+        invalid_phone_rate: { type: number, format: double, minimum: 0, maximum: 1 }
+        technical_rate: { type: number, format: double, minimum: 0, maximum: 1 }
+        operational_blocked_rate:
+          type: [number, 'null']
+          format: double
+          minimum: 0
+          maximum: 1
+          description: >-
+            Null until a dedicated intake-block fact source exists. It must not
+            be derived from call results because pre-call blocks create no call
+            result; zero would falsely mean no block occurred.
+        attempt_2_rate:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 1
+          description: Counted customer attempts only; a technical retry never counts (DT-02).
+        avg_seconds_to_final: { type: number, format: double, minimum: 0 }
+    IvrAnalyticsBreakdownRow:
+      type: object
+      additionalProperties: false
+      required: [key, total, confirmed, confirm_rate, share]
+      properties:
+        key: { type: string, maxLength: 200 }
+        total: { type: integer, minimum: 0 }
+        confirmed: { type: integer, minimum: 0 }
+        confirm_rate: { type: number, format: double, minimum: 0, maximum: 1 }
+        share: { type: number, format: double, minimum: 0, maximum: 1 }
+    IvrAnalyticsTrendBucket:
+      type: object
+      additionalProperties: false
+      required:
+        - bucket_start
+        - program
+        - total
+        - confirmed
+        - cancelled
+        - no_answer
+        - invalid_phone
+        - technical
+        - operational_blocked
+        - confirm_rate
+      properties:
+        bucket_start: { type: string, format: date-time }
+        program: { type: string }
+        total: { type: integer, minimum: 0 }
+        confirmed: { type: integer, minimum: 0 }
+        cancelled: { type: integer, minimum: 0 }
+        no_answer: { type: integer, minimum: 0 }
+        invalid_phone: { type: integer, minimum: 0 }
+        technical: { type: integer, minimum: 0 }
+        operational_blocked:
+          type: [integer, 'null']
+          minimum: 0
+          description: >-
+            Null for the current system. Pre-call operational/policy blocks are
+            not result events and therefore cannot be counted in a result trend.
+        confirm_rate: { type: number, format: double, minimum: 0, maximum: 1 }
+    IvrAnalyticsSummary:
+      type: object
+      additionalProperties: false
+      required: [filter, execution_mode, kpi, result_taxonomy, data_quality]
+      properties:
+        filter: { $ref: '#/components/schemas/IvrAnalyticsFilter' }
+        execution_mode: { type: string }
+        kpi: { $ref: '#/components/schemas/IvrAnalyticsKpi' }
+        result_taxonomy:
+          type: array
+          items: { $ref: '#/components/schemas/IvrAnalyticsBreakdownRow' }
+        data_quality: { $ref: '#/components/schemas/IvrAnalyticsDataQuality' }
+    IvrAnalyticsTrend:
+      type: object
+      additionalProperties: false
+      required: [filter, buckets, data_quality]
+      properties:
+        filter: { $ref: '#/components/schemas/IvrAnalyticsFilter' }
+        buckets:
+          type: array
+          items: { $ref: '#/components/schemas/IvrAnalyticsTrendBucket' }
+        data_quality: { $ref: '#/components/schemas/IvrAnalyticsDataQuality' }
+    IvrAnalyticsBreakdown:
+      type: object
+      additionalProperties: false
+      required: [filter, dimension, rows, data_quality]
+      properties:
+        filter: { $ref: '#/components/schemas/IvrAnalyticsFilter' }
+        dimension: { type: string, enum: [RESULT_TYPE, SCRIPT_VARIANT, PROGRAM] }
+        rows:
+          type: array
+          items: { $ref: '#/components/schemas/IvrAnalyticsBreakdownRow' }
+        data_quality: { $ref: '#/components/schemas/IvrAnalyticsDataQuality' }
+    IvrAnalyticsExport:
+      type: object
+      additionalProperties: false
+      required:
+        - filter
+        - dimension
+        - reason
+        - actor_id
+        - correlation_id
+        - audit_ref
+        - columns
+        - rows
+        - suppressed_row_count
+        - data_quality
+      properties:
+        filter: { $ref: '#/components/schemas/IvrAnalyticsFilter' }
+        dimension: { type: string, enum: [RESULT_TYPE, SCRIPT_VARIANT, PROGRAM] }
+        reason: { type: string, minLength: 8, maxLength: 200 }
+        actor_id: { type: string }
+        correlation_id: { type: string }
+        audit_ref:
+          type: string
+          description: Identifier of the audit entry written for this export.
+        columns:
+          type: array
+          items: { type: string }
+        rows:
+          type: array
+          description: Formatted aggregate values only; there is no object shape a customer field could travel in.
+          items:
+            type: array
+            items: { type: string }
+        suppressed_row_count: { type: integer, minimum: 0 }
+        data_quality: { $ref: '#/components/schemas/IvrAnalyticsDataQuality' }
+    IvrAdminActionResult:
+      type: object
+      additionalProperties: false
+      required:
+        - admin_action_id
+        - action_type
+        - target_type
+        - target_id
+        - status
+        - correlation_id
+        - no_policy_bypass
+      properties:
+        admin_action_id: { type: string }
+        action_type: { type: string }
+        target_type: { type: string }
+        target_id: { type: string }
+        status: { type: string, enum: [APPLIED] }
+        correlation_id: { type: string }
+        no_policy_bypass: { type: boolean, enum: [true] }
+    IvrTechnicalRetryResult:
+      type: object
+      additionalProperties: false
+      required:
+        - admin_action_id
+        - technical_exception_id
+        - target_attempt_id
+        - technical_retry_count
+        - customer_attempt_counted
+        - queue_status
+        - no_policy_bypass
+      properties:
+        admin_action_id: { type: string }
+        technical_exception_id: { type: string }
+        target_attempt_id: { type: string }
+        technical_retry_count: { type: integer, minimum: 1 }
+        customer_attempt_counted: { type: boolean, enum: [false] }
+        queue_status: { type: string }
+        no_policy_bypass: { type: boolean, enum: [true] }
+    IvrAdminReviewResult:
+      type: object
+      additionalProperties: false
+      required:
+        - admin_action_id
+        - review_item_id
+        - status
+        - resolution
+        - result_unchanged
+        - no_policy_bypass
+      properties:
+        admin_action_id: { type: string }
+        review_item_id: { type: string }
+        status: { type: string, enum: [RESOLVED] }
+        resolution: { type: string }
+        result_unchanged: { type: boolean, enum: [true] }
+        no_policy_bypass: { type: boolean, enum: [true] }
+    FeatureFlagSnapshot:
+      type: object
+      additionalProperties: false
+      required:
+        - environment
+        - revision
+        - executionMode
+        - salesProvider
+        - simProvider
+        - attemptPolicyVersion
+        - realCustomerCallAllowed
+        - labDestinationAllowlist
+        - globalDialKillSwitch
+        - v1NotificationEnabled
+        - recordingEnabled
+      properties:
+        environment: { type: string, enum: [dev, staging, lab, pilot, prod] }
+        revision: { type: integer, format: int64, minimum: 0 }
+        executionMode: { type: string, enum: [MOCK, LAB_REAL_SIM, PRODUCTION_REAL] }
+        salesProvider: { type: string, enum: [FAKE_TARGET_V1, CURRENT_GOLDEN_HOUR_COMPAT, TARGET_V1] }
+        simProvider: { type: string, enum: [MOCK, VENDOR] }
+        attemptPolicyVersion: { type: string }
+        realCustomerCallAllowed: { type: boolean }
+        labDestinationAllowlist:
+          type: array
+          uniqueItems: true
+          items: { type: string }
+        globalDialKillSwitch: { type: boolean }
+        v1NotificationEnabled: { type: boolean, enum: [false] }
+        recordingEnabled: { type: boolean, enum: [false] }
+    FeatureFlagReadResult:
+      type: object
+      additionalProperties: false
+      required: [snapshot, providerReadable, fromCache]
+      properties:
+        snapshot: { $ref: '#/components/schemas/FeatureFlagSnapshot' }
+        providerReadable: { type: boolean }
+        fromCache: { type: boolean }
+    FeatureFlagChangeSet:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        executionMode: { type: string, enum: [MOCK, LAB_REAL_SIM, PRODUCTION_REAL] }
+        salesProvider: { type: string, enum: [FAKE_TARGET_V1, CURRENT_GOLDEN_HOUR_COMPAT, TARGET_V1] }
+        simProvider: { type: string, enum: [MOCK, VENDOR] }
+        attemptPolicyVersion: { type: string }
+        realCustomerCallAllowed: { type: boolean }
+        labDestinationAllowlist:
+          type: array
+          uniqueItems: true
+          items: { type: string }
+        globalDialKillSwitch: { type: boolean }
+        v1NotificationEnabled: { type: boolean }
+        recordingEnabled: { type: boolean }
+    FeatureFlagMutationRequest:
+      type: object
+      additionalProperties: false
+      required: [changes, reason]
+      properties:
+        changes: { $ref: '#/components/schemas/FeatureFlagChangeSet' }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+        approvalReference:
+          type: string
+          description: Opaque reference verified server-side; never a client-supplied approver identity.
+    FeatureFlagMutationResult:
+      type: object
+      additionalProperties: false
+      required: [snapshot, increasedRiskKeys]
+      properties:
+        snapshot: { $ref: '#/components/schemas/FeatureFlagSnapshot' }
+        approvedBy: { type: [string, 'null'] }
+        increasedRiskKeys:
+          type: array
+          uniqueItems: true
+          items: { type: string }
+    KillSwitchVerification:
+      type: object
+      additionalProperties: false
+      required: [providerReadable, revision, globalDialKillSwitch, realCallsEnabled]
+      properties:
+        providerReadable: { type: boolean }
+        revision: { type: integer, format: int64, minimum: 0 }
+        globalDialKillSwitch: { type: boolean }
+        realCallsEnabled: { type: boolean }
