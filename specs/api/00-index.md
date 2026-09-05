@@ -12,7 +12,7 @@ Trạng thái: `TARGET_V1_DRAFT` · Cập nhật: `2026-08-12`.
 | [06-error-codes.md](06-error-codes.md) | IVR error taxonomy |
 | [07-idempotency-and-correlation.md](07-idempotency-and-correlation.md) | replay/conflict/trace rules |
 | [08-external-api-needs.md](08-external-api-needs.md) | external dependencies |
-| `openapi/ivr-order-confirmation.v1.yaml` | IVR-owned internal/admin API Target V1 draft |
+| `openapi/ivr-order-confirmation.v1.yaml` | IVR-owned internal/admin API Target V1 (`1.0.0`; lifecycle still `TARGET_CONTRACT_V1=DRAFT` pending Sales approval) |
 | `openapi/order-core-ivr-callback.target-v1.yaml` | Sales-owned callback proposal; chưa implemented/locked |
 
 ## Invariants

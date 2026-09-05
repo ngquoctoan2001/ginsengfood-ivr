@@ -38,7 +38,11 @@ public sealed class TaskIntakeContractTests
         string openApi = await File.ReadAllTextAsync(FindRepositoryFile(
             "specs", "api", "openapi", "ivr-order-confirmation.v1.yaml"));
 
-        Assert.Contains("version: 1.0.0-draft.22", openApi, StringComparison.Ordinal);
+        // W-0198 / OD-V1-02. The version string is pinned here on purpose: it is the one
+        // line in the file that claims something about approval state, and a silent bump is
+        // exactly the change that should have to be made deliberately.
+        Assert.Contains("version: 1.0.0", openApi, StringComparison.Ordinal);
+        Assert.DoesNotContain("version: 1.0.0-draft", openApi, StringComparison.Ordinal);
         Assert.Contains(
             "M3 has already decided that the order requires a call",
             openApi,

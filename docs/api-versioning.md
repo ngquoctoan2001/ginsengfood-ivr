@@ -5,8 +5,29 @@ Status: `TARGET_CONTRACT_V1=DRAFT` · Applies to IVR-owned APIs and the proposed
 ## Contract identity
 
 - The major wire version is present in the path (`/v1/`) and in `contract_version` where the DTO defines it.
-- OpenAPI `info.version` follows SemVer. Draft suffixes such as `1.0.0-draft` do not represent an approved production contract.
+- OpenAPI `info.version` follows SemVer.
 - Current Golden Hour compatibility is a separately pinned provider contract. It is not a synonym for Target V1.
+
+### Version string and lifecycle state are two axes (`OD-V1-02`, W-0198)
+
+Until `1.0.0` these were conflated, and the earlier wording here — "draft suffixes do not
+represent an approved production contract" — is what conflated them. A `-draft` suffix was being
+used to carry two unrelated claims at once:
+
+| Axis | Question it answers | Where it is recorded |
+| --- | --- | --- |
+| `info.version` | Is the contract text still moving? | the OpenAPI file |
+| Lifecycle state | Has every owning team approved it? | `TARGET_CONTRACT_V1` in the tracker |
+
+They came apart when `OD-V1-02` was signed: the IVR-owned text stopped moving, but Sales still has
+not approved anything, and there is no version string that can honestly say "frozen but not
+approved". So the version string stopped trying to.
+
+**Reading the pair.** `info.version: 1.0.0` with `TARGET_CONTRACT_V1=DRAFT` — the current state —
+means the contract is frozen and owner-signed on the IVR side and carries no external approval. A
+non-draft version string is therefore **not** evidence of approval, and no gate, runbook or
+integration document may treat it as such; the lifecycle value is the only thing that answers that
+question. `APPROVED` below still requires both owning teams, unchanged.
 
 ## SemVer rules
 

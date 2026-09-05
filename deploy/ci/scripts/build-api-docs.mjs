@@ -18,6 +18,7 @@ export const generatedPortalFiles = [
   "ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html",
   "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
   "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
+  "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0.html",
   "ivr-order-confirmation-v1.html",
   "ivr-order-confirmation-changelog.html",
   "order-core-ivr-callback-changelog.html",
@@ -30,7 +31,7 @@ const referenceDefinitions = [
   {
     source: "specs/api/openapi/ivr-order-confirmation.v1.yaml",
     output: "ivr-order-confirmation-v1.html",
-    title: "IVR Order Confirmation — Target V1 Draft",
+    title: "IVR Order Confirmation — Target V1",
   },
   {
     source: "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
@@ -56,6 +57,8 @@ const markdownDefinitions = [
         "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
       "api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md":
         "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
+      "api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0.md":
+        "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0.html",
     },
   },
   {
@@ -83,6 +86,14 @@ const markdownDefinitions = [
     source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md",
     output: "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
     title: "Archived IVR Contract Transition (draft.20 → draft.22)",
+  },
+  // W-0198 / OD-V1-02. Third rotation. Unlike the two above it archives no removals: the
+  // contract text did not move at all, only the version string did, so this report exists to
+  // record WHEN the draft suffix came off rather than what changed underneath it.
+  {
+    source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0.md",
+    output: "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0.html",
+    title: "Archived IVR Contract Transition (draft.22 → 1.0.0)",
   },
   {
     source: "docs/api/changelog/ivr-order-confirmation.md",

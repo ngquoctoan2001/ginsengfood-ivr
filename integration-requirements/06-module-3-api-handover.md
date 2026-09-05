@@ -5,7 +5,7 @@
 **Từ:** Team Module 8 — IVR Order Confirmation (.NET, service tách biệt)
 
 **Cập nhật:** 2026-09-03
-**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI đã lên `1.0.0-draft.22`:** 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7). **Thêm §3.5A ngày 03/09/2026:** M8 ký đề xuất `golden_hour_session_id`; code/OpenAPI/DB chưa được phép đổi trước chữ ký M3 (`W-0146`).
+**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI đã lên `1.0.0`** (từ `1.0.0-draft.22`, `OD-V1-02` ký 05/09/2026 — hợp đồng không đổi byte nào, chỉ bỏ hậu tố draft)**:** 11 endpoint auth/accounts đã bị gỡ khỏi spec ở `draft.22`, M3 cần sinh lại client nếu còn ở bản trước đó (§4A.7). **Thêm §3.5A ngày 03/09/2026:** M8 ký đề xuất `golden_hour_session_id`; code/OpenAPI/DB chưa được phép đổi trước chữ ký M3 (`W-0146`).
 
 > **Ranh giới đã được owner làm rõ ngày 2026-08-27:** **Module 3 quyết định nghiệp vụ; IVR thực thi cuộc gọi.**
 >
@@ -22,7 +22,7 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 | Callback OpenAPI Target V1 | `specs/api/openapi/order-core-ivr-callback.target-v1.yaml` |
 | Closure pack T-01…T-09 | `docs/contracts/target-v1-closure-pack/README.md` |
 | Decisions log | `plan/ivr-orther/decisions-log.md` |
-| **OpenAPI IVR — bản mới `1.0.0-draft.22`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
+| **OpenAPI IVR — bản mới `1.0.0`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
 | **So sánh draft.20 → draft.22** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md` |
 | **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md` |
 
@@ -906,9 +906,16 @@ Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Ngu
 > (`1.0.0-draft.21` trở về trước) **vẫn còn** 11 endpoint đó. Sinh client từ bản cũ sẽ ra
 > `signInConsoleAccount()`, `listConsoleAccounts()`, `createConsoleAccount()`… — gọi vào là `404`.
 >
-> Lấy lại spec ở `specs/api/openapi/ivr-order-confirmation.v1.yaml`, phiên bản **`1.0.0-draft.22`**,
+> Lấy lại spec ở `specs/api/openapi/ivr-order-confirmation.v1.yaml`, phiên bản **`1.0.0`**,
 > rồi sinh lại. So sánh đầy đủ hai bản nằm ở
 > `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md`.
+>
+> **`draft.22` → `1.0.0` không đổi một byte nào của hợp đồng** (`OD-V1-02`, W-0198): báo cáo
+> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0.md` ghi `No changes to
+> report`, và sinh lại DTO ra `no change detected`. Nếu M3 đã sinh client từ `draft.22` thì
+> **không cần sinh lại** — chỉ đổi con số phiên bản trong tài liệu. Bỏ hậu tố `-draft` nghĩa là
+> phần hợp đồng do IVR sở hữu đã đóng băng, **không** nghĩa là M3 đã duyệt: trạng thái vòng đời
+> vẫn là `TARGET_CONTRACT_V1=DRAFT` cho tới khi có chữ ký của M3.
 
 **Admin UI trong repo IVR giữ lại làm bản mẫu tham chiếu local.** Helm từ chối deploy nó; không có
 Service/UI pod của IVR. Module 3 BFF là caller duy nhất được platform cấu hình NetworkPolicy tới
@@ -1121,7 +1128,7 @@ Chưa được gọi integration/production ready khi các gate P0 trên chưa �
 - [ ] Xác nhận UI bắt buộc nhập `X-Action-Reason` trước khi gửi mọi thao tác tầng `danger`.
 - [ ] Chỉ định hai người khác nhau giữ quyền duyệt **nội dung** và **privacy/pháp lý** (§4A.5).
 - [ ] Xác nhận M3 không kỳ vọng IVR còn màn hình đăng nhập, bảng tài khoản hay endpoint `/api/auth/*` (§4A.7).
-- [ ] **Sinh lại client từ OpenAPI `1.0.0-draft.22`.** Bản trước đó vẫn công bố 11 endpoint `auth`/`accounts` nay đã bị gỡ (§4A.7).
+- [ ] **Sinh lại client từ OpenAPI `1.0.0`.** Bản trước `draft.22` vẫn công bố 11 endpoint `auth`/`accounts` nay đã bị gỡ (§4A.7). Ai đã sinh từ `draft.22` thì không cần làm lại — `draft.22` và `1.0.0` giống hệt nhau về mặt hợp đồng.
 
 ### Platform
 

@@ -1,18 +1,23 @@
 openapi: 3.1.0
 info:
-  title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.22
+  title: IVR Order Confirmation — Internal/Admin API (Target V1)
+  version: 1.0.0
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
   description: >
-    Target V1 draft for the standalone .NET IVR service. Not a public API. The
+    Target V1 for the standalone .NET IVR service. Not a public API. The
     Sales Platform owns business call selection, eligibility, revalidation, and order-state
     transitions. A task accepted by IVR is a call instruction already selected by M3; IVR may
     still hold or reject it only at contract, authorization, safety, privacy, timing, or capacity
     gates.
     Supports GOLDEN_HOUR+ONLINE and TWENTY_FOUR_SEVEN+COD. External Sales callback
     is specified separately in order-core-ivr-callback.target-v1.yaml.
+    Version 1.0.0 (OD-V1-02, signed 2026-09-05) means the IVR-owned contract text is
+    frozen, not that it is externally approved. Those are two different facts and this
+    file only carries the first; lifecycle state is recorded once, in
+    TARGET_CONTRACT_V1, and remains DRAFT until Sales approves the exact contract and
+    auth profile. See docs/api-versioning.md.
 servers:
   - url: /v1/ivr/order-confirmation
     description: Internal base path

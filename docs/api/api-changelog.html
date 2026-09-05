@@ -21,9 +21,9 @@ and does not approve the external Sales contract.</p>
 </tr>
 </thead>
 <tbody><tr>
-<td>IVR-owned Target V1 draft</td>
-<td><code>1.0.0-draft.22</code></td>
-<td><code>1.0.0-draft.22</code></td>
+<td>IVR-owned Target V1</td>
+<td><code>1.0.0</code></td>
+<td><code>1.0.0</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>
@@ -124,16 +124,37 @@ eleven <code>api path removed without deprecation</code> warnings, and <code>--f
 on every pipeline for a removal the owner had already ordered. The closed window is frozen rather
 than deleted: the full <code>draft.20 → draft.22</code> comparison is preserved in
 <a href="ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html">the archived transition report</a>.</p>
-<p>A reader who wants the whole removal history now reads three archived reports in sequence —
-<code>1.0.0 → draft.2</code>, <code>draft.2 → draft.20</code>, <code>draft.20 → draft.22</code> — plus the live incremental report.
+<p>A reader who wants the whole removal history now reads four archived reports in sequence —
+<code>1.0.0-scaffold → draft.2</code>, <code>draft.2 → draft.20</code>, <code>draft.20 → draft.22</code>, <code>draft.22 → 1.0.0</code> —
+plus the live incremental report.
 That chain is the audit trail; the live gate only answers &quot;has anything broken since the last
 approved rotation&quot;.
-The Sales callback report still says <code>No changes detected</code>. The previous IVR baseline is
-retained at <code>baselines/ivr-order-confirmation.v1.0.0.yaml</code>; its transition to
+The Sales callback report still says <code>No changes detected</code>. The first IVR baseline is
+retained at <code>baselines/ivr-order-confirmation.v1.0.0-scaffold.yaml</code>; its transition to
 draft.2 contained <code>143</code> changes (<code>63</code> errors and <code>80</code> warnings) and is preserved
 in <a href="ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html">the archived transition report</a>.
 This reviewed draft reset repairs the comparison gate; it does not claim that
 Target V1 is live, backward compatible, or approved by Sales.</p>
+<h2><code>1.0.0</code> — the draft suffix comes off (<code>OD-V1-02</code>, W-0198)</h2>
+<p><code>1.0.0</code> (W-0198) is the first rotation in this file that archives <strong>no</strong> contract change. The
+<code>draft.22 → 1.0.0</code> report says <code>No changes to report, but the specs are different</code>, and that is
+the whole content of the release: the wire contract did not move, only the version string and the
+<code>info</code> prose did. Regenerating the DTOs produced <code>no change detected</code>, which is the same fact
+stated by the code generator.</p>
+<p>What the bump does mean is that the IVR-owned contract text is <strong>frozen</strong>: the owner signed
+<code>OD-V1-02</code> on 2026-09-05 (callback path plus the 200/409 ACK taxonomy), so there is no longer an
+open question about the shape, and a further change is now a versioned change rather than another
+draft number.</p>
+<p>What it does <strong>not</strong> mean is approval. Sales has approved nothing, and this is worth stating
+plainly because dropping a <code>-draft</code> suffix reads like an approval claim. The two facts are now
+tracked on two separate axes — see <a href="api-versioning.html">API versioning policy</a> — and the lifecycle
+axis is unchanged: <code>TARGET_CONTRACT_V1=DRAFT</code>.</p>
+<p>The first baseline was renamed from <code>baselines/ivr-order-confirmation.v1.0.0.yaml</code> to
+<code>baselines/ivr-order-confirmation.v1.0.0-scaffold.yaml</code> in the same change. It had to move: it
+carries <code>info.version: 1.0.0</code> from the P1-1 scaffold, so the version string <code>1.0.0</code> was already
+taken by a 777-line contract that is not this one. Keeping both under one name would have made the
+rotation silently overwrite a retained audit artifact — the archived <code>1.0.0 → draft.2</code> report
+would then have described a file that no longer existed.</p>
 <h2>Change procedure</h2>
 <ol>
 <li>Change the authoritative OpenAPI file only after reviewing the consumer and provider impact.</li>

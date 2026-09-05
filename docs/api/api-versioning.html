@@ -8,9 +8,40 @@
 <h2>Contract identity</h2>
 <ul>
 <li>The major wire version is present in the path (<code>/v1/</code>) and in <code>contract_version</code> where the DTO defines it.</li>
-<li>OpenAPI <code>info.version</code> follows SemVer. Draft suffixes such as <code>1.0.0-draft</code> do not represent an approved production contract.</li>
+<li>OpenAPI <code>info.version</code> follows SemVer.</li>
 <li>Current Golden Hour compatibility is a separately pinned provider contract. It is not a synonym for Target V1.</li>
 </ul>
+<h3>Version string and lifecycle state are two axes (<code>OD-V1-02</code>, W-0198)</h3>
+<p>Until <code>1.0.0</code> these were conflated, and the earlier wording here — &quot;draft suffixes do not
+represent an approved production contract&quot; — is what conflated them. A <code>-draft</code> suffix was being
+used to carry two unrelated claims at once:</p>
+<table>
+<thead>
+<tr>
+<th>Axis</th>
+<th>Question it answers</th>
+<th>Where it is recorded</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>info.version</code></td>
+<td>Is the contract text still moving?</td>
+<td>the OpenAPI file</td>
+</tr>
+<tr>
+<td>Lifecycle state</td>
+<td>Has every owning team approved it?</td>
+<td><code>TARGET_CONTRACT_V1</code> in the tracker</td>
+</tr>
+</tbody></table>
+<p>They came apart when <code>OD-V1-02</code> was signed: the IVR-owned text stopped moving, but Sales still has
+not approved anything, and there is no version string that can honestly say &quot;frozen but not
+approved&quot;. So the version string stopped trying to.</p>
+<p><strong>Reading the pair.</strong> <code>info.version: 1.0.0</code> with <code>TARGET_CONTRACT_V1=DRAFT</code> — the current state —
+means the contract is frozen and owner-signed on the IVR side and carries no external approval. A
+non-draft version string is therefore <strong>not</strong> evidence of approval, and no gate, runbook or
+integration document may treat it as such; the lifecycle value is the only thing that answers that
+question. <code>APPROVED</code> below still requires both owning teams, unchanged.</p>
 <h2>SemVer rules</h2>
 <table>
 <thead>

@@ -12,7 +12,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.22` | `1.0.0-draft.22` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 | `1.0.0` | `1.0.0` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,
@@ -124,16 +124,42 @@ on every pipeline for a removal the owner had already ordered. The closed window
 than deleted: the full `draft.20 → draft.22` comparison is preserved in
 [the archived transition report](api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md).
 
-A reader who wants the whole removal history now reads three archived reports in sequence —
-`1.0.0 → draft.2`, `draft.2 → draft.20`, `draft.20 → draft.22` — plus the live incremental report.
+A reader who wants the whole removal history now reads four archived reports in sequence —
+`1.0.0-scaffold → draft.2`, `draft.2 → draft.20`, `draft.20 → draft.22`, `draft.22 → 1.0.0` —
+plus the live incremental report.
 That chain is the audit trail; the live gate only answers "has anything broken since the last
 approved rotation".
-The Sales callback report still says `No changes detected`. The previous IVR baseline is
-retained at `baselines/ivr-order-confirmation.v1.0.0.yaml`; its transition to
+The Sales callback report still says `No changes detected`. The first IVR baseline is
+retained at `baselines/ivr-order-confirmation.v1.0.0-scaffold.yaml`; its transition to
 draft.2 contained `143` changes (`63` errors and `80` warnings) and is preserved
 in [the archived transition report](api/changelog/ivr-order-confirmation.v1.0.0-to-v1.0.0-draft.2.md).
 This reviewed draft reset repairs the comparison gate; it does not claim that
 Target V1 is live, backward compatible, or approved by Sales.
+
+## `1.0.0` — the draft suffix comes off (`OD-V1-02`, W-0198)
+
+`1.0.0` (W-0198) is the first rotation in this file that archives **no** contract change. The
+`draft.22 → 1.0.0` report says `No changes to report, but the specs are different`, and that is
+the whole content of the release: the wire contract did not move, only the version string and the
+`info` prose did. Regenerating the DTOs produced `no change detected`, which is the same fact
+stated by the code generator.
+
+What the bump does mean is that the IVR-owned contract text is **frozen**: the owner signed
+`OD-V1-02` on 2026-09-05 (callback path plus the 200/409 ACK taxonomy), so there is no longer an
+open question about the shape, and a further change is now a versioned change rather than another
+draft number.
+
+What it does **not** mean is approval. Sales has approved nothing, and this is worth stating
+plainly because dropping a `-draft` suffix reads like an approval claim. The two facts are now
+tracked on two separate axes — see [API versioning policy](api-versioning.md) — and the lifecycle
+axis is unchanged: `TARGET_CONTRACT_V1=DRAFT`.
+
+The first baseline was renamed from `baselines/ivr-order-confirmation.v1.0.0.yaml` to
+`baselines/ivr-order-confirmation.v1.0.0-scaffold.yaml` in the same change. It had to move: it
+carries `info.version: 1.0.0` from the P1-1 scaffold, so the version string `1.0.0` was already
+taken by a 777-line contract that is not this one. Keeping both under one name would have made the
+rotation silently overwrite a retained audit artifact — the archived `1.0.0 → draft.2` report
+would then have described a file that no longer existed.
 
 ## Change procedure
 
