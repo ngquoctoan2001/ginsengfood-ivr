@@ -15,11 +15,20 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
 
 ## 2. Ràng buộc (P0)
 - Adapter **KHÔNG** có credential ghi order, **không** gửi SMS (phase-8/02 FR-004; P0-IVR-005).
-- **Trust boundary `dial_token` (`OD-V1-18` — chưa chốt, audit `W-0150`):** type contract
-  current cho `IDialTokenResolver` trả một opaque provider destination reference và chủ động từ chối
-  raw phone. Ranh giới đề xuất là `IVR → opaque token/ciphertext → external trusted
-  resolver/gateway → provider destination/E.164`; IVR **không** giữ mapping/key và không nhận lại
-  E.164 (D-05). Security + Platform + vendor phải ký topology/output trước `LAB_REAL_SIM`.
+- **Trust boundary `dial_token` (`OD-V1-18` — ✅ ĐÃ CHỐT `2026-09-05`, `W-0194`):** resolver nằm
+  **trong IVR**, bên trong biên adapter telephony. Ranh giới là `IVR task → dial_token → IVR
+  resolver (trong tiến trình) → gateway`. Số E.164 tồn tại **chỉ trong bộ nhớ tiến trình** cho
+  đúng một lần quay số: không ghi DB, không vào log, không vào evidence, không vào callback
+  payload. `IDialTokenResolver` vẫn trả `DialAuthorization` opaque ở mọi biên khác.
+
+  Phương án cũ — đẩy việc resolve sang gateway để IVR "không bao giờ thấy số" — đã bị loại, và lý
+  do đáng ghi lại: nó nghe an toàn hơn nhưng giao toàn bộ ánh xạ token→số cho nhà cung cấp, tức là
+  giao họ cả danh bạ khách. Phương án đã chốt đo được: có test cấm số điện thoại xuất hiện trong
+  log và evidence, còn phương án kia chỉ kiểm được bằng lời hứa của vendor.
+
+  `W-0150` audit nói đúng rằng ba tài liệu từng mâu thuẫn nhau ở điểm này; đoạn trên là bản đã ký
+  và supersede các câu cũ. Vendor vẫn phải ký capability statement trước `LAB_REAL_SIM`, nhưng nó
+  không còn là điều kiện để biết resolver nằm ở đâu.
 - **Recording:** `dial()` phải mang tham số `recording: DISABLED` và adapter phải expose read-back qua `health()`; giá trị khác `DISABLED` bị từ chối fail-closed cho tới khi có legal sign-off (DT-05).
 - Chỉ dùng `dial_token`/`phone_ref`; **không** nhận/lưu raw phone (D-05; P0-IVR-007). TTL và
   one-use/reuse vẫn `OWNER_DECISION_REQUIRED`: current accepted persistence ép expiry bằng window end,

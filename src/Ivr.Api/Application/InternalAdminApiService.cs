@@ -1205,7 +1205,7 @@ public static class InternalAdminApiServiceCollectionExtensions
         services.AddOptions<DevToolingOptions>()
             .Configure<IHostEnvironment>((options, environment) =>
             {
-                // W-0191. A relative path is resolved against the content root, not the process
+                // W-0193. A relative path is resolved against the content root, not the process
                 // working directory.
                 //
                 // The option is a filesystem path, and `dotnet run`, `dotnet test` and the
@@ -1237,7 +1237,7 @@ public static class InternalAdminApiServiceCollectionExtensions
     }
 
     /// <summary>
-    /// W-0191. Turns the configured seed path into one the process can actually open.
+    /// W-0193. Turns the configured seed path into one the process can actually open.
     /// <para>
     /// Empty stays empty: an unconfigured seed directory disables the developer surface, and that
     /// is the correct default outside development. An absolute path is taken as given. Only a

@@ -73,7 +73,7 @@ public static class FeatureFlagEndpoint
     }
 
     /// <summary>
-    /// W-0190. Refuses an environment name the catalogue does not carry, before it reaches the
+    /// W-0193. Refuses an environment name the catalogue does not carry, before it reaches the
     /// platform.
     /// <para>
     /// The name arrives as a path segment, so it is caller input. Left unchecked it reached

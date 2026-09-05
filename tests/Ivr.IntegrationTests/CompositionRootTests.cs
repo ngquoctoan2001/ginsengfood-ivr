@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 namespace Ivr.IntegrationTests;
 
 /// <summary>
-/// W-0190. Assertions about the container the service actually builds, rather than about a
+/// W-0193. Assertions about the container the service actually builds, rather than about a
 /// container a test assembled for itself.
 /// <para>
 /// Every other feature-flag test substitutes the store — <c>RemoveAll</c>, then a hand-built
@@ -80,7 +80,7 @@ public sealed class CompositionRootTests
     }
 
     /// <summary>
-    /// W-0191. A relative seed directory is resolved against the content root.
+    /// W-0193. A relative seed directory is resolved against the content root.
     /// <para>
     /// The value committed for development is <c>../../seed</c>. Resolved against the process
     /// working directory it points at whatever directory the runner happened to start in — which
@@ -94,9 +94,7 @@ public sealed class CompositionRootTests
     public void ARelativeSeedDirectoryResolvesAgainstTheContentRootNotTheWorkingDirectory()
     {
         string contentRoot = Path.Combine(Path.GetTempPath(), $"ivr-root-{Guid.NewGuid():N}");
-        string seedDirectory = Path.Combine(contentRoot, "fixtures");
-        Directory.CreateDirectory(seedDirectory);
-        CreateRequiredSeedFiles(seedDirectory);
+        Directory.CreateDirectory(Path.Combine(contentRoot, "fixtures"));
         try
         {
             using ServiceProvider provider = BuildProvider(
@@ -143,7 +141,6 @@ public sealed class CompositionRootTests
     {
         string absolute = Path.Combine(Path.GetTempPath(), $"ivr-seed-{Guid.NewGuid():N}");
         Directory.CreateDirectory(absolute);
-        CreateRequiredSeedFiles(absolute);
         try
         {
             using ServiceProvider provider = BuildProvider(seedDirectory: absolute);
@@ -156,13 +153,6 @@ public sealed class CompositionRootTests
         {
             Directory.Delete(absolute, recursive: true);
         }
-    }
-
-    private static void CreateRequiredSeedFiles(string directory)
-    {
-        File.WriteAllText(Path.Combine(directory, SeedCatalog.TaskFileName), "{}");
-        File.WriteAllText(Path.Combine(directory, SeedCatalog.ScenarioFileName), "{}");
-        File.WriteAllText(Path.Combine(directory, SeedCatalog.IntegrationStatusFileName), "{}");
     }
 
     /// <summary>

@@ -51,6 +51,7 @@ cách một bản backup được mã hoá **vì nó cũ** chứ không phải *
 | `ivr_audit_log` | `AuditTrail` | `audit_log` |
 | `ivr_evidence` | `PiiDerived` | `evidence_link` |
 | `ivr_feature_flags` | `Configuration` | `active_config` |
+| `ivr_runtime_gate_approvals` | `AuditTrail` | `audit_log` |
 | `ivr_review_items` | `PiiDerived` | `review_item` |
 | `ivr_retention_checkpoints` | `Operational` | `retention_control` |
 | `ivr_script_versions` | `Configuration` | `active_config` |

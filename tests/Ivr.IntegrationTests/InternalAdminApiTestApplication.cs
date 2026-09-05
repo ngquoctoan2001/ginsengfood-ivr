@@ -46,7 +46,8 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
     public static async Task<InternalAdminApiTestApplication> StartAsync(
         string connectionString,
         bool retryKillSwitch = false,
-        bool retryDestinationAllowed = true)
+        bool retryDestinationAllowed = true,
+        bool productionWhitelistApproved = true)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(
             new WebApplicationOptions { EnvironmentName = "Testing" });
@@ -68,6 +69,11 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
             [InternalServiceOptions.TokenConfigurationKey] = InternalToken,
             ["Ivr:Scheduler:Enabled"] = "true",
             ["Ivr:Scheduler:TechnicalRetryLimit"] = "1",
+            // W-0195. Set explicitly rather than inherited from appsettings, so a test says which
+            // side of OD-V1-15 it is asserting instead of depending on whatever the shipped
+            // default happens to be that week.
+            ["IVR_PRODUCTION_TARGET_V1_FIELDS_APPROVED"] =
+                productionWhitelistApproved ? "YES" : "NO",
         });
 
         builder.Services.AddIvrFoundation(builder.Configuration);

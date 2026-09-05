@@ -37,7 +37,7 @@ public sealed class FeatureFlagPlatformTests
     }
 
     /// <summary>
-    /// W-0190. A fail-closed fallback has to say so.
+    /// W-0193. A fail-closed fallback has to say so.
     /// <para>
     /// The fallback itself was always right — an unreadable store degrades to the safe default
     /// rather than to the last permissive value. What it did not do was leave a trace, and a
@@ -73,6 +73,49 @@ public sealed class FeatureFlagPlatformTests
         // line is written on the path that runs before every dispatch decision.
         Assert.Contains(nameof(IvrFailureException), warning, StringComparison.Ordinal);
         Assert.DoesNotContain("unavailable", warning, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// W-0195. Stopping something must never need a permission that has not been granted yet.
+    /// <para>
+    /// <c>W-0068</c> settled the asymmetry — engaging the kill switch is always available, only
+    /// disengaging it needs approval — but <c>MutateAsync</c> asked the runtime-gate
+    /// authorization before it looked at what the change was. With the gate ungranted the API
+    /// could not engage the kill switch either, so the one control that exists for an emergency
+    /// was removed by the absence of a permission. This asserts both halves of the asymmetry
+    /// against the same ungranted gate.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-FLAG-KILLSWITCH-12")]
+    public async Task AnUngrantedRuntimeGateStillLetsTheKillSwitchBeEngaged()
+    {
+        TestPlatform test = TestPlatform.Create(runtimeGateApproved: false);
+        await using (test)
+        {
+            FeatureFlagMutationResult engaged = await test.Admin.MutateAsync(
+                new FeatureFlagMutationCommand(
+                    FeatureFlagEnvironments.Lab,
+                    new FeatureFlagChangeSet(GlobalDialKillSwitch: true),
+                    "emergency stop",
+                    "operator-1",
+                    null,
+                    null,
+                    "corr-killswitch-on"));
+            Assert.True(engaged.Snapshot.GlobalDialKillSwitch);
+
+            // The other direction is exactly what the ungranted gate is for.
+            IvrFailureException blocked = await Assert.ThrowsAsync<IvrFailureException>(
+                () => test.Admin.MutateAsync(new FeatureFlagMutationCommand(
+                    FeatureFlagEnvironments.Lab,
+                    new FeatureFlagChangeSet(GlobalDialKillSwitch: false),
+                    "resume dialling",
+                    "operator-1",
+                    null,
+                    "approval-1",
+                    "corr-killswitch-off")));
+            Assert.Equal(IvrErrorCodes.OperationalBlocked, blocked.ErrorCode);
+        }
     }
 
     [Fact]
@@ -284,7 +327,7 @@ public sealed class FeatureFlagPlatformTests
 
         public FeatureFlagAdminService Admin { get; }
 
-        public static TestPlatform Create()
+        public static TestPlatform Create(bool runtimeGateApproved = true)
         {
             InMemoryAuditLogger audit = new(TimeProvider.System);
             InMemoryFeatureFlagStore store = new(audit);
@@ -293,7 +336,9 @@ public sealed class FeatureFlagPlatformTests
                 platform,
                 store,
                 platform,
-                new ApprovedRuntimeGateAuthorization(),
+                runtimeGateApproved
+                    ? new ApprovedRuntimeGateAuthorization()
+                    : new PendingRuntimeGateAuthorization(),
                 new ApprovedFourEyesVerifier());
             return new TestPlatform(audit, store, admin);
         }

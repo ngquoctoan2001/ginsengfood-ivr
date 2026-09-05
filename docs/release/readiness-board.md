@@ -66,7 +66,7 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 | legal, security and release evidence | W-0009 |
 
 Cả bảy đầu vào đều chưa đạt. **17** work item ở `BLOCKED_EXTERNAL`, và
-**23** quyết định `OD-V1-*` còn mở.
+**4** quyết định `OD-V1-*` còn mở.
 
 ## 6. Kill switch và rollback
 
