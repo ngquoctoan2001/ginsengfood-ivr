@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 namespace Ivr.Infrastructure.Scheduling;
 
 /// <summary>
-/// W-0196 / <c>OD-V1-16</c>. The hours of day a customer may be telephoned.
+/// W-0197 / <c>OD-V1-16</c>. The hours of day a customer may be telephoned.
 /// <para>
 /// Until this existed there was no such rule anywhere in the code. A task arriving at three in
 /// the morning was dispatched at three in the morning, and nothing in the scheduler, the policy
@@ -98,7 +98,7 @@ public sealed record CallingWindowDecision(
 }
 
 /// <summary>
-/// W-0196. Answers whether a call may start now, from configuration rather than from a constant.
+/// W-0197. Answers whether a call may start now, from configuration rather than from a constant.
 /// </summary>
 public sealed class CallingWindow(IOptions<CallingWindowOptions> options)
 {

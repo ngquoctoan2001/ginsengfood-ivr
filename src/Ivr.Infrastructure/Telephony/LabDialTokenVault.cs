@@ -18,7 +18,7 @@ public sealed class LabDialTokenVault(
 {
     private const string DialTokenPurpose = "ivr-confirmation-task-dial-token";
 
-    // W-0197. Same ledger as the MOCK vault. The lab dials a real softphone alias, so the rule it
+    // W-0198. Same ledger as the MOCK vault. The lab dials a real softphone alias, so the rule it
     // enforces has to be the rule production will enforce, not a lab-shaped approximation of it.
     private readonly DialTokenResolveLedger ledger = new();
 

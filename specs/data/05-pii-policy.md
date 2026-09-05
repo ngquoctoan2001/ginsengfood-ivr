@@ -13,7 +13,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p06` · Nguồn: `phase-8/02 §11`, `
 
 ## 2. Quy tắc P0 (phase-8/02 §11, /08)
 - ✅ Chỉ dùng `phone_ref`/`phone_masked`/`dial_token` để gọi; **cấm** raw phone trong log/UI/DB IVR
-  (D-05; P0-IVR-007). `OD-V1-17`/`OD-V1-05` đã ký 2026-09-05 (W-0197): token dùng lại được, gắn
+  (D-05; P0-IVR-007). `OD-V1-17`/`OD-V1-05` đã ký 2026-09-05 (W-0198): token dùng lại được, gắn
   `task_id`, TTL ≥ hết cửa sổ xác nhận, **trần số lần resolve** = `max_attempts` + trần technical
   retry, mỗi lần resolve ghi audit kèm `attempt_id`. Câu "one-use" của `W-0150` không còn đúng và
   không nên chép lại. Mapping/token key và raw E.164 phải nằm sau external

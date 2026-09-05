@@ -910,7 +910,7 @@ Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Ngu
 > rồi sinh lại. So sánh đầy đủ hai bản nằm ở
 > `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md`.
 >
-> **`draft.22` → `1.0.0` không đổi một byte nào của hợp đồng** (`OD-V1-02`, W-0198): báo cáo
+> **`draft.22` → `1.0.0` không đổi một byte nào của hợp đồng** (`OD-V1-02`, W-0199): báo cáo
 > `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0.md` ghi `No changes to
 > report`, và sinh lại DTO ra `no change detected`. Nếu M3 đã sinh client từ `draft.22` thì
 > **không cần sinh lại** — chỉ đổi con số phiên bản trong tài liệu. Bỏ hậu tố `-draft` nghĩa là

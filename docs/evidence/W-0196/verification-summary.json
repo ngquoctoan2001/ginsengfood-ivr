@@ -1,0 +1,47 @@
+{
+  "status": "TESTS_PASS",
+  "candidate_sha": "c8dc3c44ee803717d952541f0d90383545230da2",
+  "tests": [
+    {
+      "file": "unit.trx",
+      "sha256": "5AF2BFDE4D04F48A43F750D975D4A505F0A5C654761685CE0E4741328C41E71F",
+      "total": 528,
+      "executed": 528,
+      "passed": 528,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    {
+      "file": "schema-integration.trx",
+      "sha256": "54AEACF36F6C26EAEEA527D17ED9A823D493388574D30C1EDAA3FFC421C3A0A5",
+      "total": 5,
+      "executed": 5,
+      "passed": 5,
+      "failed": 0,
+      "notExecuted": 0
+    }
+  ],
+  "progressive_selftest": {
+    "status": "PASS",
+    "migrations": 22,
+    "negative_controls": 15,
+    "pinned_pre_baseline_sql_files": 2
+  },
+  "ci_config_selftest": "PASS",
+  "cd_selftest": "PASS",
+  "pending_model_changes": false,
+  "scoped_format": "PASS",
+  "git_diff_check": "PASS",
+  "gitnexus": {
+    "status": "PASS_AFTER_INDEX_COMPLETED",
+    "files": 22,
+    "symbols": 86,
+    "affected_processes": 0,
+    "risk": "LOW"
+  },
+  "runtime_evidence": "rollback-evidence.json",
+  "source_code_unchanged_after_candidate": true,
+  "full_integration_suite": "NOT_RUN_IN_W0196; focused schema suite only",
+  "hosted_ci": "NOT_RUN",
+  "cluster_rollout": "NOT_RUN"
+}

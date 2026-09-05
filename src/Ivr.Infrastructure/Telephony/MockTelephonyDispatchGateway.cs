@@ -332,7 +332,7 @@ public sealed class MockSchedulerDispatchGateway(
                         (SimProviderDisposition.NetworkError, "MOCK_DEPENDENCY_NOT_FOUND", true),
                     UnauthorizedAccessException =>
                         (SimProviderDisposition.NetworkError, "MOCK_DESTINATION_NOT_ALLOWLISTED", true),
-                    // W-0197. Before the generic InvalidOperationException arm, so the rule that
+                    // W-0198. Before the generic InvalidOperationException arm, so the rule that
                     // refused the token reaches the operator instead of being flattened into
                     // "policy or token rejected". OD-V1-05 asked that an over-limit resolve open a
                     // review, and a review starts with knowing which rule fired.

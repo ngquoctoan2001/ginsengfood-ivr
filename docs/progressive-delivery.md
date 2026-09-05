@@ -68,9 +68,9 @@ Nên ràng buộc nằm ở **cách viết migration**, và giờ có cổng ép
 `Down()` **không** bị kiểm: xoá thứ `Up()` vừa tạo chính là định nghĩa của down migration, và một
 cổng bắt cả nó sẽ đỏ với **mọi** migration từng viết rồi bị tắt trong một tuần.
 
-Trạng thái lúc `W-0046` viết cổng: 5 migration, 42 `AddColumn` trong `Up()`, **không** thao tác phá
-nào, **không** cột NOT NULL nào thiếu default. Cổng đang xanh vì code đang đúng, không phải vì cổng
-dễ — và vẫn xanh ở 12 migration.
+`W-0196` sửa W0122 thành bridge không drop và thêm repair schema tương thích. Cổng kiểm raw SQL
+và chạy kiểm âm; hai migration SQL trước baseline W0118 được ghim nguyên byte, không phải proof
+cho rolling upgrade lịch sử. Xem [expand-contract](database/expand-contract.md).
 
 `W-0114` bổ sung `UT-SCHEMA-BACKCOMPAT-01`: cùng tính chất, nhưng đọc `Migration.UpOperations` thay
 vì quét văn bản. Nó thấy thêm ba dạng bảng trên không có (`AddUniqueConstraint`, unique index,
@@ -102,5 +102,6 @@ riêng của `P9-1`.
   cái không được che là deploy bỏ hook, hook bị tắt, hoặc ai đó trỏ vào database chưa migrate —
   cả ba cho ra một pod **kết nối được**, báo Healthy, nhận traffic, rồi hỏng ở truy vấn đầu tiên
   vào một bảng không tồn tại. `IT-OBS-HEALTH-04` có kiểm âm: tắt phép kiểm → đỏ.
-- **Chưa chứng minh hai phiên bản chạy song thật.** `IT-MIGRATE-03` chứng minh migration **cho phép**
-  điều đó; nó không chứng minh đã có ai chạy hai phiên bản cùng lúc.
+- `IT-MIGRATE-03` không tự chứng minh chạy song hai binary. Evidence local hai SHA, PostgreSQL
+  copy, rollback và forward recovery được ghi riêng ở [W-0196](evidence/W-0196/README.md);
+  không thay thế cluster/staging proof.

@@ -417,7 +417,7 @@ public static class SchedulerServiceCollectionExtensions
                 IvrOptions.LabRealSimExecutionMode,
                 StringComparison.OrdinalIgnoreCase)
             && asteriskSection.GetValue<bool>(nameof(AsteriskAriOptions.Enabled));
-        // W-0196 / OD-V1-16. The hours a customer may be telephoned. Bound and validated at
+        // W-0197 / OD-V1-16. The hours a customer may be telephoned. Bound and validated at
         // startup so an inverted or empty window is a deployment that refuses to start, rather
         // than a night on which nobody was called and nothing said why.
         IConfigurationSection callingWindowSection =

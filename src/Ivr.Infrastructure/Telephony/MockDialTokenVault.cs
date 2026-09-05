@@ -21,7 +21,7 @@ public sealed class MockDialTokenVault : IOpaqueValueProtector, IDialTokenResolv
     private readonly ConcurrentDictionary<string, string> destinationsByFingerprint =
         new(StringComparer.Ordinal);
 
-    // W-0197. Replaces the per-(fingerprint, attempt) consumed set. That set stopped an attempt
+    // W-0198. Replaces the per-(fingerprint, attempt) consumed set. That set stopped an attempt
     // being dialled twice and nothing else - a token could be resolved without limit as long as
     // each resolve carried a fresh attempt id, which is the opposite of what "one-use" was meant
     // to guarantee.

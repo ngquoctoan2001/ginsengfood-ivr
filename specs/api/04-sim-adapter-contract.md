@@ -31,7 +31,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
   không còn là điều kiện để biết resolver nằm ở đâu.
 - **Recording:** `dial()` phải mang tham số `recording: DISABLED` và adapter phải expose read-back qua `health()`; giá trị khác `DISABLED` bị từ chối fail-closed cho tới khi có legal sign-off (DT-05).
 - Chỉ dùng `dial_token`/`phone_ref`; **không** nhận/lưu raw phone (D-05; P0-IVR-007). TTL và
-  reuse **đã ký** `OD-V1-17`/`OD-V1-05` ngày 2026-09-05 (W-0197): token **dùng lại được**, gắn vào
+  reuse **đã ký** `OD-V1-17`/`OD-V1-05` ngày 2026-09-05 (W-0198): token **dùng lại được**, gắn vào
   `task_id` đầu tiên dùng nó, TTL ≥ hết cửa sổ xác nhận, và **trần số lần resolve** =
   `max_attempts` của policy + `TechnicalRetryLimit`. Trần đó thay cho "one-use": token rò rỉ vẫn
   không quay số quá số lần chính sách cho phép, trong khi one-use thì không thể thực thi được vì

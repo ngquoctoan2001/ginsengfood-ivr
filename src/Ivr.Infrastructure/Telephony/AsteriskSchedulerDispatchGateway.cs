@@ -197,7 +197,7 @@ public sealed class AsteriskSchedulerDispatchGateway(
                         (SimProviderDisposition.NetworkError, "ASTERISK_DEPENDENCY_NOT_FOUND", true),
                     UnauthorizedAccessException =>
                         (SimProviderDisposition.NetworkError, "ASTERISK_DESTINATION_NOT_ALLOWLISTED", true),
-                    // W-0197. Ahead of the generic arm so the refusing rule survives into the
+                    // W-0198. Ahead of the generic arm so the refusing rule survives into the
                     // technical error code rather than being flattened away.
                     DialTokenRefusedException refused =>
                         (SimProviderDisposition.NetworkError, refused.RefusalCode, true),

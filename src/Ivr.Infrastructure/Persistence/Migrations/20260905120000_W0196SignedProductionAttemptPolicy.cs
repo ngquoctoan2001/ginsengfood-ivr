@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Ivr.Infrastructure.Persistence.Migrations;
 
 /// <summary>
-/// W-0196 / <c>OD-V1-08</c> + <c>OD-V1-16</c>. Registers the attempt policy the owner signed.
+/// W-0197 / <c>OD-V1-08</c> + <c>OD-V1-16</c>. Registers the attempt policy the owner signed.
 /// <para>
 /// A new version, never a promotion of <c>mock-lab-v1</c>. <c>W-0151</c> asked for exactly that:
 /// re-approving the candidate in place would change what an already-admitted job was admitted
@@ -17,6 +17,17 @@ namespace Ivr.Infrastructure.Persistence.Migrations;
 /// still has to arrive carrying <c>gh-247-prod-v1</c> before anything runs on it, and
 /// <c>PRODUCTION_REAL</c> remains gated by everything else that gates it. This migration adds a
 /// version that <em>may</em> be used in production, not a decision to use it.
+/// </para>
+/// <para>
+/// <b>The class and migration id still say <c>W0196</c> while the ledger entry is now
+/// <c>W-0197</c>, and that mismatch is deliberate.</b> This work was authored as W-0196 and
+/// renumbered when a concurrent session turned out to have issued the same id; the ledger can be
+/// renumbered, a migration id cannot. The id in the attribute below is the string
+/// <c>__EFMigrationsHistory</c> stores, so changing it makes an applied migration look unapplied
+/// and EF tries to create the table again - which is exactly what happened when the previous
+/// collision renamed <c>W0192RuntimeGateApprovals</c>, and would be an unrecoverable chain break
+/// on a deployed environment rather than a local annoyance. The name records when the file was
+/// written; the ledger records which work item owns it.
 /// </para>
 /// </summary>
 [DbContext(typeof(IvrDbContext))]
@@ -60,7 +71,7 @@ public partial class W0196SignedProductionAttemptPolicy : Migration
         // untrue and the thing several suites reasonably assume is false.
         //
         // The provenance still exists where provenance belongs: signed_decision_ref on the
-        // decision register entry, the sign-off pack, and the tracker record for W-0196.
+        // decision register entry, the sign-off pack, and the tracker record for W-0197.
     }
 
     /// <inheritdoc />

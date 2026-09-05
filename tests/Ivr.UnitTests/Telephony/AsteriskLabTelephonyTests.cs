@@ -186,7 +186,7 @@ public sealed class AsteriskLabTelephonyTests
         Assert.DoesNotContain("opaque-lab-token", fingerprint, StringComparison.Ordinal);
         Assert.Equal("LAB-A", authorization.RevealToTrustedGateway());
 
-        // W-0197. The same attempt resolving twice is a replay. A second, genuine attempt on the
+        // W-0198. The same attempt resolving twice is a replay. A second, genuine attempt on the
         // same token is allowed now - that is the change OD-V1-17 signed, and the lab has to
         // behave the way production will.
         DialTokenRefusedException replay =

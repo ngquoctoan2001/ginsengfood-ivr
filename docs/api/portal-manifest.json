@@ -22,8 +22,8 @@
     "styles.css"
   ],
   "sourceHashes": {
-    "docs/api-changelog.md": "5ee2acb0ee446fa8d60ba48c006440b6fef9ce097cc6e03136618ba860491478",
-    "docs/api-versioning.md": "4c9c5c9a6d5f591fcea8a5cb79c5b33ae036df59558b73dfb9275e0c217890f1",
+    "docs/api-changelog.md": "1c7b3ab8ea6e21143c8034d644cb75086ed4f7df71e60e3e270af7ea643353fc",
+    "docs/api-versioning.md": "eef379b1e6658472ef24d24f74029b84e13a88a578bef0c8af35cd70164f8d97",
     "docs/api/changelog/ivr-order-confirmation.md": "bc99d71b12b5867a35e47a756060faa893ac8de4865af2f01e1377ad2f6444c3",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md": "8e17896e944e0a50bf9a83798e694bb1893ed6e4f7e118aebfe8224780e2c935",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md": "59335a78951c3de1af4d58ef249260380309021a38bef4e417a64ba0114bf036",

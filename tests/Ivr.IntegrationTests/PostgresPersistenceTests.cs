@@ -119,7 +119,7 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         Assert.Contains(applied, name => name.EndsWith(
             "P1_2_InitialTargetV1Persistence",
             StringComparison.Ordinal));
-        Assert.Equal(22, await CountIvrTablesAsync(dbContext));
+        Assert.Equal(24, await CountIvrTablesAsync(dbContext));
         IRuntimeSafetyHealth runtimeSafety = fixture.Services
             .GetRequiredService<IRuntimeSafetyHealth>();
         Assert.True(await runtimeSafety.IsAuditProviderHealthyAsync());
@@ -130,7 +130,7 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         Assert.False(await runtimeSafety.IsAuditProviderHealthyAsync());
 
         await dbContext.Database.MigrateAsync();
-        Assert.Equal(22, await CountIvrTablesAsync(dbContext));
+        Assert.Equal(24, await CountIvrTablesAsync(dbContext));
         Assert.Equal(45, await dbContext.FeatureFlags.CountAsync());
         Assert.True(await runtimeSafety.IsAuditProviderHealthyAsync());
     }
@@ -157,7 +157,7 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         await dbContext.SaveChangesAsync();
 
         Assert.Equal(1, await dbContext.ConfirmationTasks.CountAsync());
-        // W-0196. Named rather than SingleAsync(): the shipped schema now seeds the signed
+        // W-0197. Named rather than SingleAsync(): the shipped schema now seeds the signed
         // gh-247-prod-v1 rows, so "the only policy in the table" stopped being a way to say "the
         // policy this test wrote". The claim under test is unchanged - three attempts came from
         // the row and not from a CHECK constraint.

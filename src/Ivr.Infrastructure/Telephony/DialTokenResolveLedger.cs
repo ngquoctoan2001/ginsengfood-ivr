@@ -6,7 +6,7 @@ using Ivr.Infrastructure.Observability;
 namespace Ivr.Infrastructure.Telephony;
 
 /// <summary>
-/// W-0197 / <c>OD-V1-17</c> + <c>OD-V1-05</c>. Why a dial token was refused.
+/// W-0198 / <c>OD-V1-17</c> + <c>OD-V1-05</c>. Why a dial token was refused.
 /// <para>
 /// Each value is safe to log, to put in a technical error code and to show an operator: it names
 /// the rule that refused, never the token, the fingerprint or the destination.
@@ -182,7 +182,7 @@ public sealed class DialTokenRefusedException : InvalidOperationException
 }
 
 /// <summary>
-/// W-0197 / <c>OD-V1-05</c>. Every resolve leaves a record, allowed or refused.
+/// W-0198 / <c>OD-V1-05</c>. Every resolve leaves a record, allowed or refused.
 /// <para>
 /// The signed wording was "audit each resolve with the attempt id, and a refusal opens a review
 /// rather than passing silently". A refused resolve is the interesting half - it is either a

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace Ivr.UnitTests.Scheduling;
 
 /// <summary>
-/// W-0196 / <c>OD-V1-16</c>. The hours a customer may be telephoned.
+/// W-0197 / <c>OD-V1-16</c>. The hours a customer may be telephoned.
 /// <para>
 /// Before this existed the answer was "any", and it was an absence rather than a decision: a task
 /// arriving at three in the morning was dispatched at three in the morning and nothing anywhere

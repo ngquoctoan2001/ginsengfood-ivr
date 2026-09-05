@@ -4,7 +4,7 @@ using Ivr.Infrastructure.Observability;
 namespace Ivr.Infrastructure.Scheduling;
 
 /// <param name="CallingWindowOpen">
-/// W-0196. Whether the hour of day permits a call. Reported separately from
+/// W-0197. Whether the hour of day permits a call. Reported separately from
 /// <paramref name="DispatchGatewayReady"/> on purpose: "the gateway is not ready" and "it is
 /// half past three in the morning" are different facts, and collapsing them would let a
 /// perfectly healthy night look like a broken telephony stack.
@@ -82,7 +82,7 @@ public sealed class SchedulerRuntime(
             return new SchedulerRunResult(true, false, quarantined, closed, false);
         }
 
-        // W-0196 / OD-V1-16. The hour gate sits AFTER lease recovery and missed-deadline closing
+        // W-0197 / OD-V1-16. The hour gate sits AFTER lease recovery and missed-deadline closing
         // and BEFORE claiming a dial, and that order is the design.
         //
         // A window that closed at nine in the evening must not also stop the scheduler noticing

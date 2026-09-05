@@ -97,6 +97,21 @@ worker for the same database:
 pnpm local:prepare
 ```
 
+To prepare the database, start a temporary Development API, load all nine task
+fixtures and verify `SCN-001-confirm` in one repeatable command, run:
+
+```powershell
+pnpm dev:bootstrap
+```
+
+The command validates the three required seed files before starting Docker. It
+uses only the documented fake Development credentials, pins execution to
+`MOCK / MOCK / NO`, starts no worker, and chooses a free loopback port rather
+than competing with an API already running on port 5005. Eight fixtures become
+dry-run-only jobs; `TASK-TARGET-247-0005` remains safely blocked by its
+`call_restriction`. Re-running the command reports the existing jobs instead of
+duplicating them. Logs are written under `ci-artifacts/dev-bootstrap/`.
+
 Then use three PowerShell terminals:
 
 ```powershell
@@ -184,7 +199,7 @@ hand every time.
 pnpm e2e:local
 ```
 
-W-0193 wrote that configuration down. The command starts PostgreSQL, applies
+W-0190 wrote that configuration down. The command starts PostgreSQL, applies
 migrations, starts a fake Sales endpoint, runs the API and worker with MOCK
 telephony armed, admits five tasks and asserts the result taxonomy each one must
 produce — including that a technical exception is never counted as a customer

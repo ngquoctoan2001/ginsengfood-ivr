@@ -8,7 +8,7 @@ Status: `TARGET_CONTRACT_V1=DRAFT` · Applies to IVR-owned APIs and the proposed
 - OpenAPI `info.version` follows SemVer.
 - Current Golden Hour compatibility is a separately pinned provider contract. It is not a synonym for Target V1.
 
-### Version string and lifecycle state are two axes (`OD-V1-02`, W-0198)
+### Version string and lifecycle state are two axes (`OD-V1-02`, W-0199)
 
 Until `1.0.0` these were conflated, and the earlier wording here — "draft suffixes do not
 represent an approved production contract" — is what conflated them. A `-draft` suffix was being

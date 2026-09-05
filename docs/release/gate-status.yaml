@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 193 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 198 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 17
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 139
+  rows_without_evidence_pack: 144
 
 gates:
   - id: "G-CONTRACT"
@@ -858,6 +858,18 @@ work:
     prompt: "Current documentation-to-code alignment cleanup (Origin=UNPLANNED, owner yêu cầu clean tài liệu theo code 2026-09-04)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0189/README.md"
+  - id: "W-0190"
+    prompt: "P0.1 feature-flag API remediation (Origin=UNPLANNED, owner yêu cầu 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0190/README.md"
+  - id: "W-0191"
+    prompt: "P0.2 Development seed/scenario bootstrap (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0191/README.md"
+  - id: "W-0192"
+    prompt: "One-command full-lifecycle local run và đối soát lab plan theo code (Origin=UNPLANNED, owner yêu cầu dọn và commit cây làm việc 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: null
   - id: "W-0193"
     prompt: "Local-run defect remediation và một lệnh chạy hết vòng đời (Origin=UNPLANNED, owner duyệt \"GĐ 0\" của lộ trình hoàn thiện 2026-09-05)"
     status: "TESTS_PASS"
@@ -871,15 +883,23 @@ work:
     status: "TESTS_PASS"
     evidence: null
   - id: "W-0196"
+    prompt: "P0.3 Migration expand-contract (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0196/README.md"
+  - id: "W-0197"
     prompt: "GĐ 2 đợt 2: khung giờ được phép gọi + bản attempt policy production đã ký (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-08/OD-V1-16 đã ký ở W-0194)"
     status: "TESTS_PASS"
     evidence: null
-  - id: "W-0197"
+  - id: "W-0198"
     prompt: "GĐ 2 đợt 3: ngữ nghĩa dial token dùng lại (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-17/OD-V1-05 đã ký ở W-0194)"
     status: "TESTS_PASS"
     evidence: null
-  - id: "W-0198"
+  - id: "W-0199"
     prompt: "GĐ 2 đợt 4: OpenAPI 1.0.0-draft.22 → 1.0.0 + tách hai trục phiên bản/vòng đời (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-02 đã ký ở W-0194)"
+    status: "TESTS_PASS"
+    evidence: null
+  - id: "W-0200"
+    prompt: "Hoà giải hai luồng đồng thời vào main (Origin=UNPLANNED, owner chỉ đạo \"merge vào main, chỉ làm trên một nhánh\" 2026-09-05)"
     status: "TESTS_PASS"
     evidence: null
 

@@ -55,3 +55,7 @@ artifacts/w-0122-voice-audition/
 artifacts/w-0122-fixed-speech/
 **/__pycache__/
 *.py[cod]
+
+# Linked git worktrees live here. They are checkouts of this same repository, so adding one to the
+# index would either commit a stray gitlink or, worse, a second copy of the whole tree.
+.claude/worktrees/

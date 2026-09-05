@@ -1072,7 +1072,7 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
                 "corr-policy-prod-06"));
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
 
-        // W-0196. The claim is "the refused registration wrote nothing", which used to be said as
+        // W-0197. The claim is "the refused registration wrote nothing", which used to be said as
         // "the table is empty". The shipped schema now seeds the signed gh-247-prod-v1 rows, so
         // emptiness no longer means what it did - the refused version's absence does, and says it
         // more precisely than a count ever did.

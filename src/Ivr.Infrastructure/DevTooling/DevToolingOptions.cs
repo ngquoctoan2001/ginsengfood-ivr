@@ -27,10 +27,39 @@ public sealed class DevToolingOptions
 
 public sealed class DevToolingOptionsValidator : IValidateOptions<DevToolingOptions>
 {
+    private static readonly string[] RequiredSeedFiles =
+    [
+        SeedCatalog.TaskFileName,
+        SeedCatalog.ScenarioFileName,
+        SeedCatalog.IntegrationStatusFileName,
+    ];
+
     public ValidateOptionsResult Validate(string? name, DevToolingOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         List<string> failures = [];
+        if (!string.IsNullOrWhiteSpace(options.SeedDirectory))
+        {
+            if (!Directory.Exists(options.SeedDirectory))
+            {
+                failures.Add(
+                    $"Ivr:DevTooling:SeedDirectory '{options.SeedDirectory}' does not exist. "
+                    + "Restore the repository seed/ folder or configure its absolute path.");
+            }
+            else
+            {
+                foreach (string fileName in RequiredSeedFiles)
+                {
+                    if (!File.Exists(Path.Combine(options.SeedDirectory, fileName)))
+                    {
+                        failures.Add(
+                            $"Ivr:DevTooling:SeedDirectory is missing required file "
+                            + $"'{fileName}'. Restore seed/{fileName} before starting the API.");
+                    }
+                }
+            }
+        }
+
         if (options.ScenarioWindowSeconds is < 1 or > 86_400)
         {
             failures.Add("Ivr:DevTooling:ScenarioWindowSeconds must be between 1 and 86400.");

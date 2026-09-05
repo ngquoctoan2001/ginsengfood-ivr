@@ -41,11 +41,11 @@ public interface IDialTokenResolver
 }
 
 /// <param name="TaskId">
-/// W-0197 / <c>OD-V1-17</c>. The task this dial belongs to. The token is bound to it, so a token
+/// W-0198 / <c>OD-V1-17</c>. The task this dial belongs to. The token is bound to it, so a token
 /// turning up under a second task is refused rather than dialled.
 /// </param>
 /// <param name="MaxResolves">
-/// W-0197 / <c>OD-V1-05</c>. How many times this token may ever be resolved:
+/// W-0198 / <c>OD-V1-05</c>. How many times this token may ever be resolved:
 /// <c>max_customer_attempts</c> plus the technical-retry limit. This is what replaced the
 /// "one-use per attempt" language that five documents carried and no contract could support -
 /// policy needs at least two customer dials and nothing anywhere can re-issue a token.

@@ -3,6 +3,7 @@
 Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §12; D-10, DT-01/05, DF-07.
 
 ## 1. Migration gates (trước khi merge)
+- Expand/contract hiện hành: [W-0196 runbook](../../docs/database/expand-contract.md). Giữ bảng retired qua overlap; không destructive DDL trong expand; cleanup cần release sau và evidence hết consumer.
 - [ ] Unique index cho `task_id`, `callback_id`, các `idempotency_key` (DF-04).
 - [ ] Index scheduler-deadline (`ivr_call_jobs(status, expires_at)`, `t0_at`).
 - [ ] Constraint/app-guard: `max_attempts BETWEEN 1 AND 10`; offsets ordered/nonnegative/before expiry; `attempt_number ≤ max_attempts`; technical ≠ counted attempt. Candidate timings live in versioned config, not DB CHECK.

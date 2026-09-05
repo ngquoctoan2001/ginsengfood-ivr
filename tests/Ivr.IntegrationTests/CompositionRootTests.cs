@@ -94,7 +94,7 @@ public sealed class CompositionRootTests
     public void ARelativeSeedDirectoryResolvesAgainstTheContentRootNotTheWorkingDirectory()
     {
         string contentRoot = Path.Combine(Path.GetTempPath(), $"ivr-root-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(Path.Combine(contentRoot, "fixtures"));
+        CreateSeedFixture(Path.Combine(contentRoot, "fixtures"));
         try
         {
             using ServiceProvider provider = BuildProvider(
@@ -140,7 +140,7 @@ public sealed class CompositionRootTests
     public void AnAbsoluteSeedDirectoryIsTakenAsGiven()
     {
         string absolute = Path.Combine(Path.GetTempPath(), $"ivr-seed-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(absolute);
+        CreateSeedFixture(absolute);
         try
         {
             using ServiceProvider provider = BuildProvider(seedDirectory: absolute);
@@ -207,4 +207,34 @@ public sealed class CompositionRootTests
         public IFileProvider ContentRootFileProvider { get; set; } =
             new NullFileProvider();
     }
+
+    /// <summary>
+    /// A seed directory that exists <em>and</em> holds the three sample files.
+    /// <para>
+    /// W-0196 added a startup validator requiring exactly that, and these two tests used to make
+    /// an empty directory because all they care about is where the path resolves to. Both rules
+    /// are right and they are about different things - one is "did we compute the correct
+    /// absolute path", the other is "is there anything at the end of it" - so the fixture now
+    /// satisfies the second rather than either rule being weakened to let the other pass.
+    /// </para>
+    /// <para>
+    /// The contents are never read here; only the validator's existence check runs. Deliberately
+    /// empty JSON objects, so nothing in this file can be mistaken for a seed fixture worth
+    /// copying.
+    /// </para>
+    /// </summary>
+    private static void CreateSeedFixture(string directory)
+    {
+        Directory.CreateDirectory(directory);
+        foreach (string fileName in new[]
+        {
+            SeedCatalog.TaskFileName,
+            SeedCatalog.ScenarioFileName,
+            SeedCatalog.IntegrationStatusFileName,
+        })
+        {
+            File.WriteAllText(Path.Combine(directory, fileName), "{}");
+        }
+    }
+
 }

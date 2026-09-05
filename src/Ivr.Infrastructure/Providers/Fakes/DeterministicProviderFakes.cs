@@ -40,7 +40,7 @@ public sealed class FakeDialTokenResolver : IDialTokenResolver
     private readonly ImmutableDictionary<string, string> _destinations;
     private readonly ImmutableHashSet<string> _allowedDestinations;
 
-    // W-0197. The fake shares the real ledger rather than approximating it. A fake that is more
+    // W-0198. The fake shares the real ledger rather than approximating it. A fake that is more
     // permissive than the vault it stands in for turns every test that uses it into evidence for
     // a rule the system does not actually enforce.
     private readonly DialTokenResolveLedger ledger = new();

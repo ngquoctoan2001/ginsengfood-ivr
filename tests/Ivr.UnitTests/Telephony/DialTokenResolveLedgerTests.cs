@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace Ivr.UnitTests.Telephony;
 
 /// <summary>
-/// W-0197 / <c>OD-V1-17</c> + <c>OD-V1-05</c>. The reusable dial token.
+/// W-0198 / <c>OD-V1-17</c> + <c>OD-V1-05</c>. The reusable dial token.
 /// <para>
 /// Five documents described the token as "one-use per attempt". Policy needs at least two
 /// customer dials plus technical retries, and no contract anywhere can re-issue a token - so

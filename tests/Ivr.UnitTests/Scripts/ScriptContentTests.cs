@@ -390,7 +390,7 @@ public sealed class ScriptContentTests
     }
 
     /// <summary>
-    /// W-0197 / <c>OD-V1-04</c>. The collapse rule was already here; the half nobody had written
+    /// W-0198 / <c>OD-V1-04</c>. The collapse rule was already here; the half nobody had written
     /// down was "tổng tiền không đổi".
     /// <para>
     /// It matters because collapsing is the one place the script stops naming everything the

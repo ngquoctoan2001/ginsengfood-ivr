@@ -211,7 +211,7 @@ public sealed class DeadlineSchedulerTests
     }
 
     /// <summary>
-    /// W-0196. These assert scheduler mechanics, not the hour of day, so they run against a
+    /// W-0197. These assert scheduler mechanics, not the hour of day, so they run against a
     /// window that is always open. The window itself is covered by UT-SCH-WINDOW-*.
     /// </summary>
     private static readonly CallingWindow AlwaysOpenWindow =
@@ -286,7 +286,7 @@ public sealed class DeadlineSchedulerTests
     }
 
     /// <summary>
-    /// W-0196 / OD-V1-16. Outside the calling window no dial is claimed — and the recovery work
+    /// W-0197 / OD-V1-16. Outside the calling window no dial is claimed — and the recovery work
     /// still runs.
     /// <para>
     /// The second half is the part worth pinning. Suspending the whole loop overnight would mean

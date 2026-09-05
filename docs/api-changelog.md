@@ -136,9 +136,9 @@ in [the archived transition report](api/changelog/ivr-order-confirmation.v1.0.0-
 This reviewed draft reset repairs the comparison gate; it does not claim that
 Target V1 is live, backward compatible, or approved by Sales.
 
-## `1.0.0` — the draft suffix comes off (`OD-V1-02`, W-0198)
+## `1.0.0` — the draft suffix comes off (`OD-V1-02`, W-0199)
 
-`1.0.0` (W-0198) is the first rotation in this file that archives **no** contract change. The
+`1.0.0` (W-0199) is the first rotation in this file that archives **no** contract change. The
 `draft.22 → 1.0.0` report says `No changes to report, but the specs are different`, and that is
 the whole content of the release: the wire contract did not move, only the version string and the
 `info` prose did. Regenerating the DTOs produced `no change detected`, which is the same fact

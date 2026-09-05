@@ -141,7 +141,7 @@ public sealed class MockTelephonyTests
 
         Assert.Equal("[REDACTED_DIAL_AUTHORIZATION]", authorization.ToString());
 
-        // W-0197. Still refused, and now the refusal says which rule refused. Replaying the same
+        // W-0198. Still refused, and now the refusal says which rule refused. Replaying the same
         // attempt is a replay; it was never the ceiling, and conflating the two used to be the
         // only thing this resolver enforced.
         DialTokenRefusedException replay =

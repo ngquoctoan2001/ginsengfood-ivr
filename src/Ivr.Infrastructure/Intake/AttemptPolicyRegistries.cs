@@ -31,7 +31,7 @@ public static class CandidateAttemptPolicies
 }
 
 /// <summary>
-/// W-0196 / <c>OD-V1-08</c> + <c>OD-V1-16</c>. The attempt policy the owner signed on 2026-09-05.
+/// W-0197 / <c>OD-V1-08</c> + <c>OD-V1-16</c>. The attempt policy the owner signed on 2026-09-05.
 /// <para>
 /// The numbers are <c>D-10</c>'s, and the choice between three conflicting sources was made on
 /// one ground: phase-8 gave Golden Hour a 600-second window, and "Giờ Vàng" is a five-minute

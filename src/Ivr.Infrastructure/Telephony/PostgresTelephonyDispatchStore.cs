@@ -14,7 +14,7 @@ using Server = Ivr.Contracts.Generated.IvrServer.V1;
 namespace Ivr.Infrastructure.Telephony;
 
 /// <param name="MaxDialTokenResolves">
-/// W-0197 / <c>OD-V1-05</c>. The token's resolve ceiling for this task: the attempt policy's
+/// W-0198 / <c>OD-V1-05</c>. The token's resolve ceiling for this task: the attempt policy's
 /// <c>max_customer_attempts</c> plus the scheduler's technical-retry limit.
 /// <para>
 /// Read here rather than assumed by the vault because both halves are per-deployment numbers that
@@ -178,7 +178,7 @@ public sealed class PostgresTelephonyDispatchStore(
             task.CallScriptTemplateId,
             task.CallScriptVersion,
 
-            // W-0197. From the task's own snapshot, not from a fresh read of the policy table.
+            // W-0198. From the task's own snapshot, not from a fresh read of the policy table.
             // The task already records the max_attempts it was admitted under - that is the whole
             // reason intake snapshots it - so the dial budget comes from the number this task was
             // accepted with rather than from whatever the policy row says today. It also removes

@@ -205,9 +205,10 @@ M3**; current schema chưa có cột này và không được backfill từ `ses
 
 Migration W-0024 seed duy nhất `SCRIPT-ORDER-CONFIRM:v1-test-approved` với `MOCK_TEST`; seed không cấp LAB/PROD. Bảng không chứa customer input, rendered speech, raw phone, full address hay recording.
 
-> **W-0128:** IVR không còn bảng account/session. Hai migration W-0105 và
-> `20260828040458_W0122DropConsoleAccounts` được giữ nguyên tên như lịch sử schema;
-> migration sau đã xoá hai bảng trước khi W-0128 chuẩn hoá ownership về Module 3.
+> **W-0196 / P0.3:** `ivr_console_accounts` và `ivr_console_sessions` là bảng tương thích
+> vật lý, ngoài runtime EF model; không cấp lại chức năng đăng nhập. W0122 giữ ID nhưng ngừng drop,
+> P03 tạo lại schema nếu bản drop cũ đã chạy; dữ liệu mất cần backup. Cleanup chỉ sau khi hết
+> consumer và đóng cửa sổ rollback ở release sau: [runbook](../../docs/database/expand-contract.md).
 
 ## 8.2. Bảng chỉ có trong code, bổ sung `2026-09-04` (`W-0171`)
 
