@@ -123,7 +123,8 @@ schema_compat_gate:
     - mkdir -p ci-artifacts/schema-compat
     # The pair actually compared, recorded for whoever reads this pipeline months later. The tests
     # derive it themselves from the migrations assembly; this is a report, not the input.
-    - ls src/Ivr.Infrastructure/Persistence/Migrations/*.cs | grep -v '\.Designer\.cs$' | sort | tail -2 > ci-artifacts/schema-compat/compared-migrations.txt
+    - git rev-parse HEAD > ci-artifacts/schema-compat/candidate-sha.txt
+    - ls src/Ivr.Infrastructure/Persistence/Migrations/*.cs | grep -v -E '(\.Designer|ModelSnapshot)\.cs$' | sort | tail -2 > ci-artifacts/schema-compat/compared-migrations.txt
     - >
       dotnet test tests/Ivr.UnitTests/Ivr.UnitTests.csproj
       --configuration Release --filter "TestId~UT-SCHEMA"

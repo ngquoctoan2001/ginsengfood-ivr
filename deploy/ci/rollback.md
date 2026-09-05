@@ -1,6 +1,8 @@
 # Rollback — `W-0045` · `P7-3` §8
 
-> **Chưa lần nào chạy.** Không có runner, registry hay credential cluster cho môi trường thật
+> **Cluster rollback chưa chạy.** P0.3 có quy trình diễn tập hai binary trên bản sao PostgreSQL local,
+> xem [W-0196](../../docs/evidence/W-0196/README.md) và [expand-contract](../../docs/database/expand-contract.md).
+> Không có runner, registry hay credential cluster cho môi trường thật
 > (`W-0061`, `W-0063` — cả hai `BLOCKED_EXTERNAL`). Đây là quy trình đã viết, **không phải** quy
 > trình đã diễn tập. `P7-3` §10 nói rõ YAML và mô phỏng local không được gọi là deploy proof, và
 > tài liệu này không tự nhận khác.
@@ -57,11 +59,11 @@ không cần .NET nên đỏ sớm hơn và rẻ hơn — nên **cả hai đều
 là `AlterColumn`: quét văn bản thấy lời gọi chứ không thấy tham số nên phải chặn mọi `AlterColumn`,
 còn đọc thao tác thì phân biệt được nới rộng (an toàn theo chiều này) với thu hẹp.
 
-Cổng có **danh sách miễn trừ**, và nó đang rỗng. Rỗng vì mọi migration trong repo hiện đã thuần bổ
-sung, không phải vì mặc định là bỏ qua: cách hợp lệ để xoá một cột là expand/contract — thêm, ship
-code thôi đọc cột cũ, rồi mới xoá ở release sau — và release cuối cùng ấy cần chỗ để nói ra điều
-đó. Danh sách nằm ngay trong file test chứ không phải một JSON bên cạnh, để việc thêm miễn trừ hiện
-lên trong review là "có người sửa cổng tương thích schema".
+Cổng có các miễn trừ constraint được giải thích trong test; hai miễn trừ drop bảng W0122 đã bị bỏ
+bởi W-0196. Raw SQL cũng bị kiểm tra, kể cả SQL sinh qua helper. Hai migration SQL trước baseline
+W0118 được ghim nguyên nội dung lịch sử, không được xem là upgrade rolling đã được chứng minh.
+Release expand hiện hành không có miễn trừ drop bảng; cleanup là release riêng sau inventory
+consumer, quan sát triển khai và đóng cửa sổ rollback. Xem runbook W-0196 phía trên.
 
 ## 3a. Chiều còn lại — code mới trên schema cũ
 

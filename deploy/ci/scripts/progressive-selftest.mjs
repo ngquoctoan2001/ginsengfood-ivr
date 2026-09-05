@@ -11,9 +11,11 @@
 //
 // Run: node deploy/ci/scripts/progressive-selftest.mjs
 import fs from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
+import { inspectExpandSource, verifyExpandGuard } from "./migration-expand-guard.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const ROLLOUTS = path.join(repositoryRoot, "deploy/rollouts");
@@ -112,8 +114,16 @@ async function migrationsSurviveTwoVersions() {
     .filter((name) => name.endsWith(".cs") && !name.includes("Designer") && !name.includes("Snapshot"));
   assert(files.length > 0, "no migrations found; the check would be vacuous.");
 
-  const destructive = /migrationBuilder\.(DropColumn|DropTable|RenameColumn|RenameTable|AlterColumn)/g;
+  verifyExpandGuard();
   const violations = [];
+  const baseline = JSON.parse(await fs.readFile(path.join(repositoryRoot, "deploy/ci/migration-expand-baseline.json"), "utf8"));
+  assert(Object.keys(baseline.legacySqlSourceSha256).length === 2, "historical baseline must remain a bounded two-file inventory");
+  for (const [id, expected] of Object.entries(baseline.legacySqlSourceSha256)) {
+    assert(id < baseline.supportedLegacySchema, `${id}: cannot exempt current expand DDL`);
+    const source = (await fs.readFile(path.join(MIGRATIONS, `${id}.cs`), "utf8")).replaceAll("\r\n", "\n");
+    assert(createHash("sha256").update(source).digest("hex").toUpperCase() === expected,
+      `${id}: historical SQL changed; its baseline pin is no longer valid`);
+  }
 
   for (const file of files) {
     const text = await fs.readFile(path.join(MIGRATIONS, file), "utf8");
@@ -124,26 +134,15 @@ async function migrationsSurviveTwoVersions() {
     // that flagged it would fire on every migration ever written and be switched off within a week.
     const up = downStart > upStart ? text.slice(upStart, downStart) : text.slice(upStart);
 
-    for (const match of up.matchAll(destructive)) {
-      violations.push(`${file}: ${match[1]} in Up() breaks a two-version overlap.`);
-    }
-
-    // A NOT NULL column with no default is the subtler half: the schema accepts it, and then the
-    // previous version's INSERT — which does not know the column — fails at runtime.
-    for (const match of up.matchAll(/migrationBuilder\.AddColumn<[^>]+>\(([\s\S]*?)\);/g)) {
-      const block = match[1];
-      const name = /name:\s*"([^"]+)"/.exec(block)?.[1] ?? "?";
-      const nullable = /nullable:\s*(true|false)/.exec(block)?.[1];
-      if (nullable === "false" && !block.includes("defaultValue")) {
-        violations.push(`${file}: column ${name} is NOT NULL with no default; the previous version's INSERT would fail.`);
-      }
-    }
+    const pinnedLegacySql = baseline.legacySqlSourceSha256[file.replace(/\.cs$/, "")];
+    violations.push(...inspectExpandSource(up)
+      .filter((reason) => !(pinnedLegacySql && reason === "destructive or dynamic raw SQL in expand phase"))
+      .map((reason) => `${file}: ${reason}`));
   }
 
   assert(violations.length === 0, `migrations are not expand-contract safe:\n  ${violations.join("\n  ")}`);
   process.stdout.write(
-    `IT-MIGRATE-03 PASS — ${files.length} migrations, no destructive operation in any Up() and no `
-    + "NOT NULL column without a default\n");
+    `IT-MIGRATE-03 PASS — ${files.length} migrations, expand DDL guarded; 2 byte-pinned legacy SQL migrations outside the supported overlap window\n`);
 }
 
 // ---------------------------------------------------------------- IT-FLAG-RAMP-04

@@ -28,6 +28,7 @@ erDiagram
 | Bảng | Field chính | Invariant |
 | --- | --- | --- |
 
-> **W-0128:** account/session từng được thêm bởi migration W-0105 đã bị migration
-> `20260828040458_W0122DropConsoleAccounts` xoá. Tên migration drop là nhãn lịch sử
-> đã được áp dụng và không được đổi; công việc khắc phục/canonical owner là W-0128.
+> **W-0196 / P0.3:** account/session W-0105 được giữ vật lý trong cửa sổ tương thích;
+> runtime không đọc/ghi, Module 3 vẫn sở hữu identity. W0122 giữ ID lịch sử nhưng không còn drop;
+> migration P03 sửa schema thiếu, không khôi phục dữ liệu đã mất. Cleanup chỉ ở release sau;
+> xem [expand-contract](../../docs/database/expand-contract.md).

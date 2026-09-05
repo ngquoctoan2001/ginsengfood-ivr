@@ -136,6 +136,14 @@ internal static partial class RollingDeploySchemaCompatibility
         Dictionary<string, HashSet<string>> newColumns,
         IModel model) => operation switch
         {
+            SqlOperation sql when DestructiveSql().IsMatch(SqlComments().Replace(sql.Sql, " "))
+                && !HistoricalExpandBaseline.IsPinned(migrationId) =>
+                new SchemaCompatibilityViolation(
+                    migrationId,
+                    "Sql",
+                    "destructive-or-dynamic-ddl",
+                    "raw SQL must not bypass the expand gate; dynamic SQL requires a separately reviewed contract release."),
+
             DropColumnOperation drop => new SchemaCompatibilityViolation(
                 migrationId,
                 "DropColumn",
@@ -307,4 +315,10 @@ internal static partial class RollingDeploySchemaCompatibility
 
     [GeneratedRegex("[A-Za-z_][A-Za-z0-9_]*", RegexOptions.CultureInvariant)]
     private static partial Regex Identifiers();
+
+    [GeneratedRegex(@"/\*[\s\S]*?\*/|--[^\r\n]*", RegexOptions.CultureInvariant)]
+    private static partial Regex SqlComments();
+
+    [GeneratedRegex(@"\b(?:DROP\s+(?:TABLE|SCHEMA|DATABASE|OWNED)\b|TRUNCATE\b|ALTER\s+TABLE\b[^;]*(?:\bDROP\s+(?!CONSTRAINT\b)|\bRENAME\b|\bTYPE\b|\bSET\s+NOT\s+NULL\b)|EXECUTE\s+(?!FUNCTION\b|PROCEDURE\b))", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex DestructiveSql();
 }

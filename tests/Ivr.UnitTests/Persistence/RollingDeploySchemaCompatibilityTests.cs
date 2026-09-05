@@ -68,8 +68,6 @@ public sealed class RollingDeploySchemaCompatibilityTests
             ["20260827020347_W0116WindowExpiredCloseStatus::AddCheckConstraint::ivr_call_jobs.status"] = WideningReason,
             ["20260827022343_W0117CountedAttemptInvariant::AddCheckConstraint::ivr_call_results.is_counted_customer_attempt+result_type"] = CountedAttemptReason,
             ["20260827024438_W0118AttemptCountedInvariant::AddCheckConstraint::ivr_call_attempts.is_counted_customer_attempt+result_status"] = AttemptCountedReason,
-            ["20260828040458_W0122DropConsoleAccounts::DropTable::ivr_console_accounts"] = ConsoleRetirementReason,
-            ["20260828040458_W0122DropConsoleAccounts::DropTable::ivr_console_sessions"] = ConsoleRetirementReason,
             ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_attempts.is_counted_customer_attempt+result_status"] = ProgramResultReason,
             ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_attempts.result_status"] = ProgramResultReason,
             ["20260904090000_W0172ProgramResultContractInvariants::AddCheckConstraint::ivr_call_results.is_counted_customer_attempt+result_type"] = ProgramResultReason,
@@ -110,16 +108,6 @@ public sealed class RollingDeploySchemaCompatibilityTests
         + "capacity result and never returns the operational or policy types. No N-1 writer can "
         + "produce a rejected row, and the migration preflights anyway, naming offending "
         + "attempt ids rather than failing on an opaque check violation.";
-
-    private const string ConsoleRetirementReason =
-        "W-0128 retires console account authentication outright: Module 3 owns operator identity "
-        + "now and reaches IVR as a service across three credential tiers. The guard's warning is "
-        + "correct in general -- an N-1 replica would query these tables -- and does not apply "
-        + "here because the N-1 code that queried them is deleted in the same change, not merely "
-        + "stopped from writing. There is no release in which a replica both survives this "
-        + "migration and needs these tables, so the rolling-deploy hazard the rule protects "
-        + "against cannot arise. Deploy note: this one is not safe to roll back past, and Down "
-        + "restores the empty shape rather than the accounts.";
 
     private const string ProgramResultReason =
         "W-0172 narrows the stored result vocabulary to the nine runtime producers and the "

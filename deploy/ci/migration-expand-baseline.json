@@ -1,0 +1,8 @@
+{
+  "supportedLegacySchema": "20260827024438_W0118AttemptCountedInvariant",
+  "note": "Only these unchanged, pre-baseline SQL migrations are historical. They are NOT evidence of safe historical rolling upgrades. No drop-table exception is permitted in the current expand phase.",
+  "legacySqlSourceSha256": {
+    "20260813111817_P2_1_TaskIntake": "78DB56951D06661C77B1BBC3C409F65C4102DEF1B879DE6AD85656E290920588",
+    "20260819083610_P7_1_CallbackPayloadByteExact": "F1AE7D00B56A4BADBCF1BE632298F3CC1865DA09E49D0302E7E1C2E5C9E760D0"
+  }
+}
