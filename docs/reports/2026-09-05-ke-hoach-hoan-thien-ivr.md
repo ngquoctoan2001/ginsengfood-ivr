@@ -68,13 +68,13 @@ Thời gian kỹ thuật tối thiểu khoảng 20–34 ngày làm việc tập 
 
 **Exit đạt:** `pnpm dev:bootstrap` chuẩn bị DB, khởi động API MOCK ở cổng trống, trả 9/9 seed outcome (8 dry-run job + 1 restricted) và replay `SCN-001-confirm` đúng. Evidence: [`W-0191`](../evidence/W-0191/README.md).
 
-### P0.3 Migration expand-contract
+### P0.3 Migration expand-contract — `TESTS_PASS` (05/09/2026, local/PostgreSQL)
 
 - Thay migration drop trực tiếp bằng chuỗi: ngừng ghi/đọc → deploy phiên bản tương thích → xác nhận không còn consumer → cleanup migration ở release sau.
 - Chứng minh upgrade N-1→N, N/N+1 overlap, rollback N và forward recovery trên bản sao PostgreSQL.
 - Cấm destructive DDL trong pha expand bằng static/CI guard.
 
-**Exit:** `progressive-selftest.mjs` PASS và có rollback evidence cho đúng SHA.
+**Exit đạt:** `progressive-selftest.mjs` PASS; hai binary trên PostgreSQL copy qua upgrade/overlap/rollback/forward đều đạt, ghim candidate `c8dc3c4`; unit `528/528`, integration schema `5/5`. Evidence: [`W-0196`](../evidence/W-0196/README.md). Cleanup vẫn ở release sau, cần xác nhận hết consumer và đóng cửa sổ rollback; không suy ra staging/production-ready.
 
 ## 5. P1 — Đóng chức năng local/MOCK
 
