@@ -69,7 +69,33 @@ public sealed class DevToolingApiService(
 {
     public const string TaskDataset = "sales-target-v1";
 
+    /// <summary>
+    /// W-0191. Reported for a fixture this database already holds, instead of the raw
+    /// idempotency-conflict code. Not a wire enum - <c>IvrSeedTaskOutcome.decision</c> is a free
+    /// string in the contract - so naming the case costs no schema change.
+    /// </summary>
+    public const string AlreadySeededDecision = "SEED_TASK_ALREADY_LOADED";
+
     private static readonly JsonSerializerOptions CanonicalJson = new(JsonSerializerDefaults.Web);
+
+    /// <summary>
+    /// The call job a previously loaded fixture produced, or <c>null</c> if the conflict was not
+    /// a reload of this dataset.
+    /// </summary>
+    private async Task<string?> FindSeededJobIdAsync(
+        string taskId,
+        CancellationToken cancellationToken)
+    {
+        await using IvrDbContext dbContext = await dbContextFactory
+            .CreateDbContextAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return await dbContext.CallJobs
+            .AsNoTracking()
+            .Where(job => job.TaskId == taskId)
+            .Select(job => job.IvrCallJobId)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
 
     public async Task<SeedLoadApiResult> LoadSeedAsync(
         SeedLoadRequest request,
@@ -118,16 +144,31 @@ public sealed class DevToolingApiService(
             }
             catch (IvrFailureException exception)
             {
-                // Reported against the fixture rather than failing the whole load. The common
-                // case is a second run: the fixture key is the same but the rebased window makes
-                // the body different, which is an idempotency conflict by definition. One
+                // Reported against the fixture rather than failing the whole load: one
                 // conflicting fixture must not hide the eight that loaded.
+                //
+                // W-0191. The overwhelmingly common case is a second run of the same dataset.
+                // The fixture key is the same but the rebased window makes the body different, so
+                // intake answers IVR_IDEMPOTENCY_CONFLICT - correctly, and unhelpfully: an
+                // operator pressing "load seed" twice got nine red conflicts and no way to tell
+                // "already loaded" from "broken". Suffixing the key to force a fresh admission is
+                // NOT the fix: task_id carries a unique index, so a second load under a new key
+                // trades a clean conflict for a constraint violation.
+                //
+                // So the reload is reported as what it is. The existing job id comes with it,
+                // which is the thing a rehearsal actually wants next.
+                string? existingJobId = exception.ErrorCode == IvrErrorCodes.IdempotencyConflict
+                    ? await FindSeededJobIdAsync(taskId, cancellationToken).ConfigureAwait(false)
+                    : null;
                 outcomes.Add(new SeedTaskOutcomeView(
                     fixture.Scenario,
                     taskId,
-                    exception.ErrorCode,
-                    null,
-                    [exception.Message]));
+                    existingJobId is null ? exception.ErrorCode : AlreadySeededDecision,
+                    existingJobId,
+                    [existingJobId is null
+                        ? exception.Message
+                        : "This fixture is already loaded in this database; the existing call job "
+                          + "is unchanged."]));
                 continue;
             }
 

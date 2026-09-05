@@ -1,6 +1,7 @@
 using Ivr.Domain.Errors;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.FeatureFlags;
+using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -33,6 +34,45 @@ public sealed class FeatureFlagPlatformTests
         Assert.True(failed.Snapshot.GlobalDialKillSwitch);
         Assert.False(await new KillSwitch(platform).RealCallsEnabledAsync(
             FeatureFlagEnvironments.Lab));
+    }
+
+    /// <summary>
+    /// W-0190. A fail-closed fallback has to say so.
+    /// <para>
+    /// The fallback itself was always right — an unreadable store degrades to the safe default
+    /// rather than to the last permissive value. What it did not do was leave a trace, and a
+    /// silent fallback is indistinguishable from a working read: every caller saw plausible safe
+    /// values, so a store holding no environments at all looked exactly like a healthy one.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-FLAG-FALLBACKLOG-11")]
+    public async Task AFallbackToTheSafeDefaultIsLoggedRatherThanSwallowed()
+    {
+        InMemoryAuditLogger audit = new(TimeProvider.System);
+        using InMemoryFeatureFlagStore store = new(audit);
+        CapturingLogger<FeatureFlagPlatform> logger = new();
+        FeatureFlagPlatform platform = new(store, TimeProvider.System, logger);
+
+        FeatureFlagReadResult healthy = await platform.GetSnapshotAsync(
+            FeatureFlagEnvironments.Lab,
+            forceFresh: true);
+        Assert.True(healthy.ProviderReadable);
+        Assert.Empty(logger.Warnings);
+
+        store.Available = false;
+        FeatureFlagReadResult degraded = await platform.GetSnapshotAsync(
+            FeatureFlagEnvironments.Lab,
+            forceFresh: true);
+
+        Assert.False(degraded.ProviderReadable);
+        string warning = Assert.Single(logger.Warnings);
+        Assert.Contains(FeatureFlagEnvironments.Lab, warning, StringComparison.Ordinal);
+
+        // The exception TYPE, never its message: the message can carry a store detail, and this
+        // line is written on the path that runs before every dispatch decision.
+        Assert.Contains(nameof(IvrFailureException), warning, StringComparison.Ordinal);
+        Assert.DoesNotContain("unavailable", warning, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -198,6 +238,33 @@ public sealed class FeatureFlagPlatformTests
                 ["lab-destination-a"],
                 StringComparer.Ordinal),
         };
+
+    /// <summary>Records warning-level lines so a test can assert the platform said something.</summary>
+    private sealed class CapturingLogger<T> : ILogger<T>
+    {
+        private readonly List<string> warnings = [];
+
+        public IReadOnlyList<string> Warnings => warnings;
+
+        public IDisposable? BeginScope<TState>(TState state)
+            where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            ArgumentNullException.ThrowIfNull(formatter);
+            if (logLevel >= LogLevel.Warning)
+            {
+                warnings.Add(formatter(state, exception));
+            }
+        }
+    }
 
     private sealed class TestPlatform : IAsyncDisposable
     {

@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 187 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 190 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 17
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 133
+  rows_without_evidence_pack: 136
 
 gates:
   - id: "G-CONTRACT"
@@ -877,6 +877,18 @@ work:
     prompt: "Current documentation-to-code alignment cleanup (Origin=UNPLANNED, owner yêu cầu clean tài liệu theo code 2026-09-04)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0189/README.md"
+  - id: "W-0190"
+    prompt: "P0.1 feature-flag API remediation (Origin=UNPLANNED, owner yêu cầu 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0190/README.md"
+  - id: "W-0191"
+    prompt: "P0.2 Development seed/scenario bootstrap (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0191/README.md"
+  - id: "W-0192"
+    prompt: "One-command full-lifecycle local run và đối soát lab plan theo code (Origin=UNPLANNED, owner yêu cầu dọn và commit cây làm việc 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: null
 
 production_flag:
   real_customer_call_allowed: false

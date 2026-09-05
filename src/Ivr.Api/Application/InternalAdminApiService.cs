@@ -1203,10 +1203,18 @@ public static class InternalAdminApiServiceCollectionExtensions
         // code in every environment, rather than by a registration branch nobody runs.
         IConfigurationSection devSection = configuration.GetSection(DevToolingOptions.SectionName);
         services.AddOptions<DevToolingOptions>()
-            .Configure(options =>
+            .Configure<IHostEnvironment>((options, environment) =>
             {
-                options.SeedDirectory =
-                    devSection[nameof(DevToolingOptions.SeedDirectory)] ?? string.Empty;
+                // W-0191. A relative path is resolved against the content root, not the process
+                // working directory.
+                //
+                // The option is a filesystem path, and `dotnet run`, `dotnet test` and the
+                // container image each start the process in a different directory. Anchoring on
+                // the content root is what lets one committed value ("../../seed") work in all
+                // three instead of working in whichever one it was last tried in.
+                options.SeedDirectory = ResolveSeedDirectory(
+                    devSection[nameof(DevToolingOptions.SeedDirectory)],
+                    environment.ContentRootPath);
                 options.ScenarioWindowSeconds = ReadInt(
                     devSection,
                     nameof(DevToolingOptions.ScenarioWindowSeconds),
@@ -1226,5 +1234,27 @@ public static class InternalAdminApiServiceCollectionExtensions
         services.AddSingleton<SeedCatalog>();
         services.AddSingleton<IDevToolingApiService, DevToolingApiService>();
         return services;
+    }
+
+    /// <summary>
+    /// W-0191. Turns the configured seed path into one the process can actually open.
+    /// <para>
+    /// Empty stays empty: an unconfigured seed directory disables the developer surface, and that
+    /// is the correct default outside development. An absolute path is taken as given. Only a
+    /// relative path is rewritten, and it is anchored on the content root so the same committed
+    /// value resolves identically however the process was started.
+    /// </para>
+    /// </summary>
+    internal static string ResolveSeedDirectory(string? configured, string contentRootPath)
+    {
+        if (string.IsNullOrWhiteSpace(configured))
+        {
+            return string.Empty;
+        }
+
+        string trimmed = configured.Trim();
+        return Path.IsPathRooted(trimmed)
+            ? trimmed
+            : Path.GetFullPath(Path.Combine(contentRootPath, trimmed));
     }
 }

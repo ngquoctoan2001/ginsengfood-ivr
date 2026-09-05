@@ -28,6 +28,7 @@ public static class FeatureFlagEndpoint
                     IFeatureFlags featureFlags,
                     CancellationToken cancellationToken) =>
                 {
+                    RequireKnownEnvironment(environment);
                     FeatureFlagReadResult result = await featureFlags.GetSnapshotAsync(
                         environment,
                         true,
@@ -49,6 +50,7 @@ public static class FeatureFlagEndpoint
                     IFeatureFlags featureFlags,
                     CancellationToken cancellationToken) =>
                 {
+                    RequireKnownEnvironment(environment);
                     FeatureFlagReadResult result = await featureFlags.GetSnapshotAsync(
                         environment,
                         true,
@@ -70,6 +72,25 @@ public static class FeatureFlagEndpoint
         return endpoints;
     }
 
+    /// <summary>
+    /// W-0190. Refuses an environment name the catalogue does not carry, before it reaches the
+    /// platform.
+    /// <para>
+    /// The name arrives as a path segment, so it is caller input. Left unchecked it reached
+    /// <c>FeatureFlagSnapshot.SafeDefault</c>, which throws <c>ArgumentOutOfRangeException</c> -
+    /// an unhandled exception, and therefore a <c>500</c>. A typo in a URL is a client mistake and
+    /// has to read as one; a <c>500</c> tells the caller the service is broken and tells whoever is
+    /// on call to go looking for a fault that is not there.
+    /// </para>
+    /// </summary>
+    private static void RequireKnownEnvironment(string environment)
+    {
+        if (!FeatureFlagEnvironments.All.Contains(environment))
+        {
+            throw IvrErrors.NotFound("The feature flag environment was not found.");
+        }
+    }
+
     private static async Task<IResult> ExecuteMutationAsync(
         string environment,
         FeatureFlagMutationRequest request,
@@ -79,6 +100,8 @@ public static class FeatureFlagEndpoint
         ICorrelationContext correlationContext,
         CancellationToken cancellationToken)
     {
+        RequireKnownEnvironment(environment);
+
         // W-0128. The header is the source now: there is no console session to cross-check it
         // against, because Module 3 owns operator identity. The danger-tier policy has already
         // required this header to be present and safe before the endpoint runs.

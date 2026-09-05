@@ -30,6 +30,19 @@ Kế hoạch này mô tả topology đề xuất, **không phải topology đã 
 
 Chi tiết audit và phiếu lấy đầu vào nằm tại `docs/evidence/W-0048/`. Không được dùng các câu khẳng định cũ bên dưới để tuyên bố lab đã sẵn sàng chạy.
 
+### 0.2 Trạng thái bốn khoảng trống — đối soát code `2026-09-05` (`W-0190`)
+
+Bốn mục ở §0.1 là ảnh chụp ngày `2026-08-20`. Ba mục đầu **đã được nối xong** kể từ đó; giữ nguyên §0.1 làm lịch sử audit, đọc bảng này để biết hiện trạng.
+
+| §0.1 | Trạng thái hôm nay | Bằng chứng trong code |
+| --- | --- | --- |
+| 1. `DispatchGate` chưa có caller | ✅ **đã nối** | `AsteriskSchedulerDispatchGateway.cs:73` gọi `dispatchGate.EvaluateAsync` **trước** thao tác ARI đầu tiên |
+| 2. `LAB_REAL_SIM` chưa có dispatch gateway thật | ✅ **đã có** | `AsteriskSchedulerDispatchGateway` + `AsteriskAriSimGateway` + `AsteriskLabChannelProvisioner`; overlay `docker-compose.softphone.yml` |
+| 3. Chưa có provider phát file | ✅ **đã có** | `Speech/StaticFileTtsProvider.cs`; ba giọng miền cấu hình qua `Ivr__Speech__Tts__RegionalVoices__*` |
+| 4. Chưa có tổ hợp `CURRENT_GOLDEN_HOUR_COMPAT` + `LAB_REAL_SIM` được duyệt | ⛔ **vẫn đúng** | one-SIM vẫn chạy với fake Sales; Target V1 chỉ nối sau khi có producer/callback/auth thật |
+
+Nói chính xác: **phần mềm đã sẵn sàng cho lab; cái còn thiếu là SIM và thiết bị**, chứ không còn là bốn chỗ chưa nối. Điều kiện chặn thật sự nằm ở `OD-V1-09`, `OD-V1-19`, `OD-V1-20` và việc mua phần cứng.
+
 ---
 
 ## 1. Đã có sẵn — không phải làm lại

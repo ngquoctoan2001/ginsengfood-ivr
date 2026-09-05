@@ -355,6 +355,50 @@ public sealed class FeatureFlagApiTests
             GlobalDialKillSwitch = globalDialKillSwitch,
         };
 
+    /// <summary>
+    /// W-0190. An environment name the catalogue does not carry is a client mistake, and has to
+    /// read as one.
+    /// <para>
+    /// The name arrives as a path segment. Unchecked it reached <c>SafeDefault</c>, which throws
+    /// <c>ArgumentOutOfRangeException</c> — so <c>GET .../feature-flags/development</c> (the
+    /// plausible typo for <c>dev</c>) answered <c>500</c>. A 500 sends whoever is on call looking
+    /// for a fault that is not there, and it is the one status a caller-supplied path segment must
+    /// never be able to produce.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [InlineData("development")]
+    [InlineData("production")]
+    [InlineData("DEV")]
+    [InlineData("nonesuch")]
+    [Trait("TestId", "IT-FLAG-UNKNOWNENV-13")]
+    public async Task AnUnknownEnvironmentIsNotFoundRatherThanAnInternalError(string environment)
+    {
+        await using FeatureFlagApiTestApplication app =
+            await FeatureFlagApiTestApplication.StartAsync();
+
+        using HttpResponseMessage read = await SendReadAsync(app, environment);
+        Assert.Equal(HttpStatusCode.NotFound, read.StatusCode);
+        Assert.Equal(IvrErrorCodes.NotFound, await ReadErrorCodeAsync(read));
+
+        using HttpRequestMessage killSwitchRequest = new(
+            HttpMethod.Get,
+            $"/v1/ivr/order-confirmation/feature-flags/{environment}/kill-switch");
+        TestAdminTokens.Authorize(killSwitchRequest, AdminScope.Read, "operator-1");
+        using HttpResponseMessage killSwitch = await app.Client.SendAsync(killSwitchRequest);
+        Assert.Equal(HttpStatusCode.NotFound, killSwitch.StatusCode);
+
+        using HttpResponseMessage mutation = await SendMutationAsync(
+            app,
+            environment,
+            new FeatureFlagChangeSet(GlobalDialKillSwitch: true),
+            "emergency stop");
+        Assert.Equal(HttpStatusCode.NotFound, mutation.StatusCode);
+
+        // And the refusal happened before anything was written.
+        Assert.Empty(app.Audit.Entries);
+    }
+
     private static async Task<HttpResponseMessage> SendMutationAsync(
         FeatureFlagApiTestApplication app,
         string environment,
