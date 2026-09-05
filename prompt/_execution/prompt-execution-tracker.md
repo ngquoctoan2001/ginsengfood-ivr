@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0197` |
-| Last allocated | `W-0196` |
-| Last activity sequence | `A-0559` |
+| `NEXT_WORK_ID` | `W-0198` |
+| Last allocated | `W-0197` |
+| Last activity sequence | `A-0561` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -258,6 +258,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0194` | Owner sign-off 19 quyết định OD-V1/OD-VOICE (Origin=`UNPLANNED`, owner chỉ đạo "toàn bộ ký theo đề xuất" 2026-09-05 sau khi đọc phiếu GĐ 1) | Soạn phương án cho 23 dòng đang mở, đối chiếu từng dòng với code đang chạy chứ không chỉ với tài liệu, rồi ghi chữ ký vào register. 19 dòng → `CLOSED`; bốn dòng giữ mở có lý do nêu rõ. Sửa luôn một lỗi đếm: bảng `P0 — lab/production calls` chỉ có bốn cột nên `gate-status.mjs` đọc nhầm cột `Gate` làm trạng thái — một dòng đóng ở bảng đó sẽ không bao giờ được đếm là đóng | `W-0193` | TESTS_PASS | Claude (owner sign-off 2026-09-05) | `specs/_review/open-decisions-register.md`; `plan/ivr-orther/od-v1-signoff-2026-09-05.md` (mới); `docs/release/gate-status.yaml`; `docs/release/readiness-board.md` | `gate-status.mjs --write` → `decisions=4` (từ `23`); bảng điều khiển sinh lại khớp register | Docs-only, không đổi runtime/OpenAPI/migration. Bốn dòng còn mở: `OD-V1-09` nửa sau và `OD-V1-10` chờ số đo; `OD-V1-11` và `OD-V1-21` chờ **người thứ hai** — chữ ký không tạo ra người. Việc code mà chữ ký mở ra thuộc GĐ 2, liệt kê ở §4 của gói ký. `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | `W-0195` | GĐ 2 đợt 1: ba cổng runtime thực thi + sửa bất đối xứng kill switch (Origin=`UNPLANNED`, hệ quả trực tiếp của `OD-V1-20`/`OD-V1-15`/`OD-V1-18` đã ký ở W-0194) | Thay ba lớp `Pending*` trả cứng `false` bằng ba hiện thực đọc bảng phê duyệt append-only `ivr_runtime_gate_approvals`; chữ ký `OD-V1-20` được ghi thành một dòng dữ liệu thay vì một hằng số trong code. Bốn mắt, tính bất biến và ràng buộc fingerprint đều cưỡng chế ở tầng DB. **Sửa một lỗi thật phát hiện khi làm**: `MutateAsync` hỏi cổng phê duyệt **trước** khi nhìn thay đổi là gì, nên khi cổng chưa được cấp thì API **không bật được kill switch** — trái thẳng `W-0068`. Bật `ProductionTargetV1FieldsApproved` theo `OD-V1-15`; đồng bộ 3 spec whitelist và sửa `api/04` đang nói ngược với `OD-V1-18` | `W-0194` | TESTS_PASS | Claude (owner chỉ đạo tiếp GĐ 2 2026-09-05) | `src/Ivr.Infrastructure/FeatureFlags/{RuntimeGateApprovals,RuntimeGateApprovalEntity}.cs` (mới); `FeatureFlagAdminService.cs`; `FeatureFlagServiceCollectionExtensions.cs`; `Persistence/Migrations/20260905034908_W0195RuntimeGateApprovals.cs` (mới); `IvrDbContext.cs`; `Governance/DataClassification.cs`; `docs/data-governance.md`; `specs/api/04-sim-adapter-contract.md`; `specs/data/05-pii-policy.md`; `specs/ui/04-ivr-menu-config.md`; 4 appsettings; 3 test file | Unit `512/512`; `IT-GATE-APPROVAL-01..09` mới; `UT-FLAG-KILLSWITCH-12` mới chứng minh bật kill switch luôn được còn tắt thì không; `IT-FLAG-OWNERGATE-12` viết lại theo hướng đúng | `PRODUCTION_CALL` **không** được seed nên quay số thật vẫn bị từ chối ở mọi môi trường. Vế bốn mắt vẫn cần người thứ hai (`OD-V1-11`/`OD-V1-21`). Còn lại của GĐ 2: attempt policy production + khung giờ (`OD-V1-08`/`16`), dial token dùng lại (`OD-V1-17`/`05`), OpenAPI `1.0.0` (`OD-V1-02`), quy tắc gộp dòng hàng (`OD-V1-04`). `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 | `W-0196` | P0.3 Migration expand-contract (Origin=`UNPLANNED`) | Retain retired console tables; additive repair for already-applied drop; no destructive expand DDL; PostgreSQL copy upgrade/overlap/rollback/forward evidence pinned to candidate SHA | `W-0192`, `W-0195` | TESTS_PASS | Codex | `docs/database/expand-contract.md`; `docs/evidence/W-0196/` | `c8dc3c4`: progressive/CD/CI-config PASS; Unit 528/528; schema integration 5/5; actual two-binary PostgreSQL backup/restore, overlap, rollback and forward recovery PASS; `rollback-evidence.json` | Cleanup only in a later release after consumer inventory/observation and rollback-window closure; MOCK/MOCK/NO |
+| `W-0197` | P1.1 Ma trận HTTP API đầy đủ (Origin=`UNPLANNED`) | Sinh 38 operation từ OpenAPI; đối chiếu runtime; HTTP happy/malformed/auth/tier/scope/not-found-conflict/correlation; write retry/replay/conflict; 11 wire result + pre-call blocked; response allowlist/PII | `W-0196 TESTS_PASS`; baseline `d5539ba`; PostgreSQL local MOCK | TESTS_PASS | Codex | `docs/evidence/W-0197/README.md`; `docs/evidence/W-0197/api-matrix.json`; composition-root suite + CI verifier | 38/38 operation, 417 HTTP request PASS; final matrix/replay 3/3; Unit 528/528; Contract 24/24; validator 18/18; PII/schema/drift/CI-config PASS | Content-hash-bound working-tree evidence, không clean exact-SHA/hosted proof; crash/full-worker thuộc P1.2; không vendor/customer call; giữ WIP báo cáo tuần |
 
 ## 6. Unplanned work insertion template
 
@@ -885,6 +886,8 @@ Never reuse or renumber an issued ID, even if cancelled.
 | `A-0557` | 2026-09-05 | `W-0195` | FIX/VERIFY | Bảng `ivr_runtime_gate_approvals` + trigger append-only + bốn mắt/fingerprint/expiry ở tầng DB; ba hiện thực Postgres cho `IRuntimeGateAuthorization`/`IFourEyesApprovalVerifier`/`IProductionCallGate`; chuyển cổng phê duyệt xuống sau khi biết thay đổi là gì; bật whitelist lời thoại; đồng bộ spec theo `OD-V1-15`/`OD-V1-18` | Claude | Build `0/0`; Unit `512/512`; 9 test mới cho bảng phê duyệt chạy với PostgreSQL thật; `EF migrations add` sinh đúng một bảng và không drift gì khác, xác nhận model snapshot khớp. Số bảng `ivr_%` 21 → 22, đã cập nhật assertion cố định trong `IT-DB-MIGRATE-01` |
 | `A-0558` | 2026-09-05 | `W-0196` | START/IMPACT | Reproduced progressive failure at W0122 direct drops. Isolated concurrent merge; rebased worktree onto `ba43605` after merge completion. Preserve rows, repair absent schema, remove drop exemptions, add SQL guard and exact-SHA local rollback drill | Codex | W0122 LOW/1; classifier LOW/5; schema-test class CRITICAL/183 (broad index coupling), warning reported; no auth/dial/production enablement |
 | `A-0559` | 2026-09-05 | `W-0196` | FIX/VERIFY/HANDOFF | W0122 ngừng drop, migration P03 giữ/tạo lại schema tương thích; bỏ miễn trừ drop; guard raw SQL + byte-pin hai migration SQL trước baseline; thêm PostgreSQL clone regression và diễn tập hai binary trên bản sao pg_dump/restore | Codex | Candidate `c8dc3c44ee803717d952541f0d90383545230da2`, previous `ba43605`: progressive/CD/CI-config PASS, Unit 528/528, schema 5/5, ready/seed 9 outcome + 8 job/confirm qua upgrade-overlap-rollback-forward đều PASS; EF no drift; format/diff PASS; final GitNexus LOW/22 file/86 symbol/0 flow. W-0196 TESTS_PASS, không tự ACCEPTED; cleanup/consumer observation ở release sau, hosted CI/cluster NOT_RUN, MOCK/MOCK/NO |
+| `A-0560` | 2026-09-05 | `W-0197` | START/AUDIT | Bắt đầu P1.1 từ `d5539ba`; inventory trực tiếp OpenAPI và test HTTP hiện có. Dùng shipping Program/PostgreSQL cho ma trận mới; trường hợp N/A phải có căn cứ contract. Index GitNexus FTS lỗi nên rebuild index-only; không sửa WIP báo cáo tuần | Codex | Acceptance: đủ 38 operation × các chiều áp dụng, raw-result allowlist + 11 result wire invariants; MOCK/MOCK/NO |
+| `A-0561` | 2026-09-05 | `W-0197` | FIX/VERIFY/HANDOFF | Sửa correlation error header, malformed feature-flag/terminate, script duplicate 409; thêm script/dev mutation replay và đường coordinated PostgreSQL tránh nested SSI 40001. OpenAPI draft.23 + reviewed hash; matrix chạy Program thật, không DI replacement; JSON từng case + mandatory CI verifier | Codex | 38/38 operation, 417 HTTP PASS; final 3/3; rộng 135 PASS và 1 lỗi fixture taxonomy đã sửa/rerun PASS; Unit 528/528, Contract 24/24, validator 18/18, PII scan PASS. W-0197 TESTS_PASS; source hash trong evidence, không tự ACCEPTED/production-ready; P1.2 vẫn mở |
 
 ## 8. Per-work completion record template
 
@@ -1458,5 +1461,22 @@ Local/MOCK evidence: COMPLETE; no worker, telephony or customer calls; temporary
 Production evidence: NOT_RUN; hosted CI/cluster rollout NOT_RUN
 Residual: cleanup deferred to later release after real consumer inventory/observation and rollback-window closure; missing historical rows need verified pre-drop backup; no arbitrary future-binary compatibility claim
 Next allowed Work ID(s): W-0197 (next module item); consumer/cleanup gate is a later separately authorized release
+Final status: TESTS_PASS, not ACCEPTED
+```
+
+## W-0197 — P1.1 API behavior matrix completion (2026-09-05)
+
+```text
+Work ID: W-0197
+Prompt: Owner P1.1 full API matrix
+Baseline: d5539bad779bf2c5bba1987254c3506e47dc063a; working-tree source hash e864b345-7b0cf9e1-f1187252-c6213f88-4dddb093-5e759e83-3f7bf631-c4095689
+Implemented: OpenAPI-derived operation inventory; real Program/PostgreSQL HTTP matrix; schema/allowlist/PII verifier; mandatory CI artifacts and 18-case negative validator; bounded API/replay fixes
+Evidence: docs/evidence/W-0197/README.md; docs/evidence/W-0197/api-matrix.json (38/38 PASS, 417 HTTP requests, 11 wire codes)
+Tests: final matrix/replay transaction 3/3 PASS; broad regression 135 PASS plus one taxonomy-fixture failure corrected and rerun PASS; Unit 528/528; Contract 24/24; validator 18/18; PII/OpenAPI/hash/CI-config/traceability/diff PASS
+Impact: existing Postgres ExecuteAsync HIGH, 2 direct callers and 2 affected processes, warned before edit; existing Serializable callers preserved, coordinated path isolated and concurrent/nested replay verified
+Local/MOCK evidence: COMPLETE for P1.1; 16 GET + 22 POST (one pure simulation); documented N/A is not counted as an executed request
+Hosted CI / lab / staging / production evidence: NOT_RUN; no worker/vendor/customer calls
+Residual: independent business commit and replay receipt are not crash-atomic; full-worker/crash/lease/duplicate-delivery E2E remains P1.2; no clean exact-commit release claim or automatic ACCEPTED status
+Next allowed Work ID(s): W-0198 / P1.2, not started by this task
 Final status: TESTS_PASS, not ACCEPTED
 ```
