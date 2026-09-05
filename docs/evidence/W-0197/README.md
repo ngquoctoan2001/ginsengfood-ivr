@@ -1,6 +1,16 @@
 # W-0197 — P1.1 Ma trận hành vi HTTP API
 
-Ngày: 2026-09-05. Trạng thái: **IN_PROGRESS — chờ lượt xác minh cuối**.
+Ngày: 2026-09-05. Trạng thái: **TESTS_PASS — P1.1 local/MOCK đạt exit 38/38**, không tự ACCEPTED.
+
+## Kết quả xác minh
+
+- Ma trận: **38/38 operation PASS** (16 GET, 22 POST), **417 request HTTP**; 0 lỗi schema/allowlist/PII; đủ 11 wire code và hai ranh giới pre-call.
+- Lượt cuối `matrix-final.trx`: **3/3 PASS**, gồm ma trận và hai test transaction replay (8 request cùng key chỉ chạy một factory; failed factory không lưu error receipt).
+- Hồi quy rộng `api-regression.trx`: **135 PASS, 1 FAIL do fixture taxonomy**; fixture được sửa và test đó đã rerun PASS ở lượt cuối. Không ghi sai lượt hồi quy cũ thành 136/136.
+- Unit **528/528**, contract **24/24** PASS; TRX local lưu tại `.artifacts/api-matrix/`.
+- Validator selftest **18/18 PASS** (1 valid, 17 refusal); PII artifact scan PASS. SQLSTATE cuối chỉ còn `23505` từ negative duplicate-version chủ động, không còn `40001`.
+- OpenAPI lint/schema/hash-drift, CI-config, traceability **514 TestId**, scoped format và `git diff --check` PASS; codegen không đổi DTO/client.
+- JSON được chạy lúc `2026-09-05T09:24Z`; base `d5539ba`, source SHA-256 nhóm 8 ký tự: `e864b345-7b0cf9e1-f1187252-c6213f88-4dddb093-5e759e83-3f7bf631-c4095689`.
 
 ## Phạm vi và evidence
 
