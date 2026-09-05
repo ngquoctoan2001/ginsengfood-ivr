@@ -21,7 +21,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p11` · Nguồn: `data/05-pii-policy`
 | ID | Given | Then |
 | --- | --- | --- |
 | SEC-08 (neg) | scan log/UI/DB | **không** raw phone/full profile/payment/health (chỉ `phone_masked`) |
-| SEC-09 | `dial_token` | TTL ≤ window, one-use/attempt; mapping token→số **không** ở IVR (SIM vault) |
+| SEC-09 | `dial_token` | TTL ≥ window end; dùng lại được nhưng gắn `task_id` và có trần số lần resolve (`OD-V1-17`); mapping token→số **không** ở IVR (SIM vault) |
 | SEC-10 | recording | OFF mặc định; `recording_ref=null`; bật cần consent+legal |
 | SEC-11 | DTMF lưu trữ | chỉ semantic (`1/0/invalid`), không audio |
 | SEC-12 | call script | chỉ biến whitelist; field cấm → reject |

@@ -210,6 +210,13 @@ public sealed class DeadlineSchedulerTests
         Assert.Equal(6, Assert.IsAssignableFrom<IEnumerable<string>>(result.Failures).Count());
     }
 
+    /// <summary>
+    /// W-0198. These assert scheduler mechanics, not the hour of day, so they run against a
+    /// window that is always open. The window itself is covered by UT-SCH-WINDOW-*.
+    /// </summary>
+    private static readonly CallingWindow AlwaysOpenWindow =
+        new(Options.Create(new CallingWindowOptions { Enabled = false }));
+
     [Fact]
     [Trait("TestId", "UT-SCH-RUNTIME-08")]
     public async Task RuntimeIsDisabledByDefaultAndCannotClaimWithoutReadyGateway()
@@ -221,6 +228,7 @@ public sealed class DeadlineSchedulerTests
             unavailable,
             Options.Create(new SchedulerOptions()),
             new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
+            AlwaysOpenWindow,
             new FixedTimeProvider(T0));
 
         SchedulerRunResult disabledResult = await disabled.RunOnceAsync("worker-disabled");
@@ -232,6 +240,7 @@ public sealed class DeadlineSchedulerTests
             unavailable,
             Options.Create(new SchedulerOptions { Enabled = true }),
             new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
+            AlwaysOpenWindow,
             new FixedTimeProvider(T0));
         SchedulerRunResult held = await enabled.RunOnceAsync("worker-held");
         Assert.True(held.Enabled);
@@ -265,6 +274,7 @@ public sealed class DeadlineSchedulerTests
             gateway,
             Options.Create(new SchedulerOptions { Enabled = true }),
             new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
+            AlwaysOpenWindow,
             new FixedTimeProvider(T0));
 
         SchedulerRunResult result = await runtime.RunOnceAsync("worker-ready");
@@ -273,6 +283,60 @@ public sealed class DeadlineSchedulerTests
         Assert.Equal(1, store.ClaimCalls);
         Assert.Equal(IvrOptions.MockExecutionMode, store.LastExecutionMode);
         Assert.Same(store.Lease, gateway.Lease);
+    }
+
+    /// <summary>
+    /// W-0198 / OD-V1-16. Outside the calling window no dial is claimed — and the recovery work
+    /// still runs.
+    /// <para>
+    /// The second half is the part worth pinning. Suspending the whole loop overnight would mean
+    /// every morning started with a backlog of leases nobody released and confirmation windows
+    /// that expired hours earlier with no record. Only dialling stops; bookkeeping wakes nobody.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-WINDOW-07")]
+    public async Task OutsideTheCallingWindowNothingDialsButRecoveryStillRuns()
+    {
+        var store = new RecordingSchedulerStore
+        {
+            Lease = new SchedulerDispatchLease(
+                "JOB-NIGHT",
+                "ATTEMPT-NIGHT",
+                1,
+                T0,
+                T0.AddMinutes(5),
+                "CHANNEL-NIGHT",
+                Guid.NewGuid(),
+                7,
+                T0.AddMinutes(2),
+                "MOCK",
+                "MOCK"),
+        };
+        var gateway = new RecordingDispatchGateway();
+
+        // 03:00 in Vietnam, expressed as the instant it happens at.
+        DateTimeOffset threeInTheMorning =
+            new DateTimeOffset(2026, 9, 5, 3, 0, 0, TimeSpan.FromHours(7)).ToUniversalTime();
+        var runtime = new SchedulerRuntime(
+            store,
+            gateway,
+            Options.Create(new SchedulerOptions { Enabled = true }),
+            new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
+            new FixedTimeProvider(threeInTheMorning));
+
+        SchedulerRunResult result = await runtime.RunOnceAsync("worker-night");
+
+        Assert.False(result.CallingWindowOpen);
+        Assert.False(result.DispatchClaimed);
+        Assert.Equal(0, store.ClaimCalls);
+        Assert.Null(gateway.Lease);
+
+        // Reported separately from gateway readiness: a healthy night must not read as a broken
+        // telephony stack.
+        Assert.True(result.DispatchGatewayReady);
+        Assert.True(store.MaintenanceCalls > 0);
     }
 
     private static SchedulerCapacityRequest Request(

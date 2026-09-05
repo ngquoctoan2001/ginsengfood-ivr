@@ -2,6 +2,7 @@ using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
 using Ivr.Domain.Scheduling;
+using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
@@ -416,6 +417,33 @@ public static class SchedulerServiceCollectionExtensions
                 IvrOptions.LabRealSimExecutionMode,
                 StringComparison.OrdinalIgnoreCase)
             && asteriskSection.GetValue<bool>(nameof(AsteriskAriOptions.Enabled));
+        // W-0198 / OD-V1-16. The hours a customer may be telephoned. Bound and validated at
+        // startup so an inverted or empty window is a deployment that refuses to start, rather
+        // than a night on which nobody was called and nothing said why.
+        IConfigurationSection callingWindowSection =
+            configuration.GetSection(CallingWindowOptions.SectionName);
+        services.AddOptions<CallingWindowOptions>()
+            .Configure(options =>
+            {
+                options.Enabled = callingWindowSection.GetValue(
+                    nameof(CallingWindowOptions.Enabled),
+                    options.Enabled);
+                options.UtcOffsetMinutes = callingWindowSection.GetValue(
+                    nameof(CallingWindowOptions.UtcOffsetMinutes),
+                    options.UtcOffsetMinutes);
+                options.StartMinuteOfLocalDay = callingWindowSection.GetValue(
+                    nameof(CallingWindowOptions.StartMinuteOfLocalDay),
+                    options.StartMinuteOfLocalDay);
+                options.EndMinuteOfLocalDay = callingWindowSection.GetValue(
+                    nameof(CallingWindowOptions.EndMinuteOfLocalDay),
+                    options.EndMinuteOfLocalDay);
+            })
+            .ValidateOnStart();
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IValidateOptions<CallingWindowOptions>,
+                CallingWindowOptionsValidator>());
+        services.TryAddSingleton<CallingWindow>();
+
         services.AddOptions<SchedulerOptions>()
             .Configure(options =>
             {
@@ -480,7 +508,9 @@ public static class SchedulerServiceCollectionExtensions
         {
             services.TryAddSingleton<ISchedulerCapacityService,
                 MockSchedulerCapacityService>();
-            services.TryAddSingleton<MockDialTokenVault>();
+            services.TryAddSingleton(provider => new MockDialTokenVault(
+                provider.GetRequiredService<IOptions<MockTelephonyOptions>>(),
+                provider.GetRequiredService<IAuditLogger>()));
             services.Replace(ServiceDescriptor.Singleton<IOpaqueValueProtector>(provider =>
                 provider.GetRequiredService<MockDialTokenVault>()));
             services.TryAddSingleton<IDialTokenResolver>(provider =>
@@ -515,7 +545,9 @@ public static class SchedulerServiceCollectionExtensions
         {
             services.TryAddSingleton<ISchedulerCapacityService,
                 PostgresSchedulerCapacityService>();
-            services.TryAddSingleton<LabDialTokenVault>();
+            services.TryAddSingleton(provider => new LabDialTokenVault(
+                provider.GetRequiredService<IOptions<AsteriskAriOptions>>(),
+                provider.GetRequiredService<IAuditLogger>()));
             services.Replace(ServiceDescriptor.Singleton<IOpaqueValueProtector>(provider =>
                 provider.GetRequiredService<LabDialTokenVault>()));
             services.TryAddSingleton<IDialTokenResolver>(provider =>

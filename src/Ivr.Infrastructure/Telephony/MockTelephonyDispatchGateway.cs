@@ -249,7 +249,9 @@ public sealed class MockSchedulerDispatchGateway(
             DialAuthorization authorization = await dialTokenResolver.ResolveAsync(
                 new DialTokenResolutionRequest(
                     dispatch.DialToken,
-                    AttemptId.Create(lease.AttemptId)),
+                    AttemptId.Create(lease.AttemptId),
+                    dispatch.TaskId,
+                    dispatch.MaxDialTokenResolves),
                 timeProvider.GetUtcNow(),
                 cancellationToken).ConfigureAwait(false);
             session = await simGateway.DialAsync(
@@ -330,6 +332,12 @@ public sealed class MockSchedulerDispatchGateway(
                         (SimProviderDisposition.NetworkError, "MOCK_DEPENDENCY_NOT_FOUND", true),
                     UnauthorizedAccessException =>
                         (SimProviderDisposition.NetworkError, "MOCK_DESTINATION_NOT_ALLOWLISTED", true),
+                    // W-0199. Before the generic InvalidOperationException arm, so the rule that
+                    // refused the token reaches the operator instead of being flattened into
+                    // "policy or token rejected". OD-V1-05 asked that an over-limit resolve open a
+                    // review, and a review starts with knowing which rule fired.
+                    DialTokenRefusedException refused =>
+                        (SimProviderDisposition.NetworkError, refused.RefusalCode, true),
                     InvalidOperationException =>
                         (SimProviderDisposition.NetworkError, "MOCK_POLICY_OR_TOKEN_REJECTED", true),
                     _ =>

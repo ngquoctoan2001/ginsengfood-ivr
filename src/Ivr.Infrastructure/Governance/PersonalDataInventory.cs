@@ -116,7 +116,8 @@ public static class PersonalDataInventory
             PersonalDataLegalBasis.ContractPerformance,
             "Replaced with a redacted value."),
         new("ivr_confirmation_tasks", "dial_token_ciphertext",
-            "Encrypted one-use dialling token, TTL bounded by the confirmation window.",
+            "Encrypted dialling token. Reusable within one task up to a resolve ceiling "
+                + "(OD-V1-17), TTL bounded below by the confirmation window.",
             PersonalDataLegalBasis.ContractPerformance,
             "Replaced with a redacted value; the token has expired long before erasure is possible."),
         new("ivr_confirmation_tasks", "privacy_safe_order_summary_json",

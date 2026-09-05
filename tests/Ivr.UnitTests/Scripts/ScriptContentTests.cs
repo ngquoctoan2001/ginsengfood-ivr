@@ -389,6 +389,60 @@ public sealed class ScriptContentTests
         Assert.Equal(first.ContentHash, second.ContentHash);
     }
 
+    /// <summary>
+    /// W-0199 / <c>OD-V1-04</c>. The collapse rule was already here; the half nobody had written
+    /// down was "tổng tiền không đổi".
+    /// <para>
+    /// It matters because collapsing is the one place the script stops naming everything the
+    /// customer ordered, and the amount is what they press a key to confirm. A renderer that
+    /// summed only the items it read aloud would produce a call that is quieter, shorter, and
+    /// asking about the wrong money - and it would look right in every test that reads the item
+    /// list rather than the amount.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCRIPT-COLLAPSE-19")]
+    public async Task CollapsingItemsLeavesTheSpokenTotalWordForWordIdentical()
+    {
+        using InMemoryScriptRegistry registry = CreateRegistry(productionFieldsApproved: false);
+        ApprovedScript approved = Assert.IsType<ApprovedScript>(await registry.TryGetApproved(
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.MockTemplateVersion,
+            ExecutionMode.Mock));
+        SpeechItem[] three =
+        [
+            SpeechItem.Create("Sản phẩm A", 1, null),
+            SpeechItem.Create("Sản phẩm B", 2, "gói"),
+            SpeechItem.Create("Sản phẩm C", 3, null),
+        ];
+        SpeechItem[] seven =
+        [
+            .. three,
+            SpeechItem.Create("Sản phẩm D", 4, null),
+            SpeechItem.Create("Sản phẩm E", 5, null),
+            SpeechItem.Create("Sản phẩm F", 6, null),
+            SpeechItem.Create("Sản phẩm G", 7, null),
+        ];
+        const string SpokenTotal =
+            "năm trăm sáu mươi nghìn đồng";
+
+        var renderer = new VietnameseOrderScriptRenderer();
+        ScriptPreview atTheLimit = renderer.Render(
+            approved,
+            Summary(three, 560_000m, "Khu vực Thủ Đức"));
+        ScriptPreview collapsed = renderer.Render(
+            approved,
+            Summary(seven, 560_000m, "Khu vực Thủ Đức"));
+
+        // Only three items are ever spoken, and the four that are not become a count.
+        Assert.DoesNotContain("Sản phẩm D", collapsed.ExactText, StringComparison.Ordinal);
+        Assert.Contains("và bốn sản phẩm khác", collapsed.ExactText, StringComparison.Ordinal);
+
+        // The amount is the same words in both, which is the claim OD-V1-04 actually makes.
+        Assert.Contains(SpokenTotal, atTheLimit.ExactText, StringComparison.Ordinal);
+        Assert.Contains(SpokenTotal, collapsed.ExactText, StringComparison.Ordinal);
+    }
+
     private static InMemoryScriptRegistry CreateRegistry(bool productionFieldsApproved) =>
         new(
             new InMemoryAuditLogger(TimeProvider.System),

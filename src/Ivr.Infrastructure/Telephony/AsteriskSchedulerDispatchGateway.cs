@@ -66,7 +66,9 @@ public sealed class AsteriskSchedulerDispatchGateway(
             DialAuthorization authorization = await dialTokenResolver.ResolveAsync(
                 new DialTokenResolutionRequest(
                     dispatch.DialToken,
-                    AttemptId.Create(lease.AttemptId)),
+                    AttemptId.Create(lease.AttemptId),
+                    dispatch.TaskId,
+                    dispatch.MaxDialTokenResolves),
                 timeProvider.GetUtcNow(),
                 cancellationToken).ConfigureAwait(false);
             string destination = authorization.RevealToTrustedGateway();
@@ -195,6 +197,10 @@ public sealed class AsteriskSchedulerDispatchGateway(
                         (SimProviderDisposition.NetworkError, "ASTERISK_DEPENDENCY_NOT_FOUND", true),
                     UnauthorizedAccessException =>
                         (SimProviderDisposition.NetworkError, "ASTERISK_DESTINATION_NOT_ALLOWLISTED", true),
+                    // W-0199. Ahead of the generic arm so the refusing rule survives into the
+                    // technical error code rather than being flattened away.
+                    DialTokenRefusedException refused =>
+                        (SimProviderDisposition.NetworkError, refused.RefusalCode, true),
                     InvalidOperationException =>
                         (SimProviderDisposition.NetworkError, "ASTERISK_POLICY_OR_TOKEN_REJECTED", true),
                     _ =>

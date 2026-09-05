@@ -3,12 +3,19 @@ using Ivr.Infrastructure.Observability;
 
 namespace Ivr.Infrastructure.Scheduling;
 
+/// <param name="CallingWindowOpen">
+/// W-0198. Whether the hour of day permits a call. Reported separately from
+/// <paramref name="DispatchGatewayReady"/> on purpose: "the gateway is not ready" and "it is
+/// half past three in the morning" are different facts, and collapsing them would let a
+/// perfectly healthy night look like a broken telephony stack.
+/// </param>
 public sealed record SchedulerRunResult(
     bool Enabled,
     bool DispatchGatewayReady,
     int QuarantinedLeases,
     int ClosedMissedDeadlines,
-    bool DispatchClaimed);
+    bool DispatchClaimed,
+    bool CallingWindowOpen = true);
 
 public interface ISchedulerDispatchGateway
 {
@@ -46,6 +53,7 @@ public sealed class SchedulerRuntime(
     ISchedulerDispatchGateway dispatchGateway,
     IOptions<SchedulerOptions> options,
     SchedulerExecutionContext executionContext,
+    CallingWindow callingWindow,
     TimeProvider timeProvider) : ISchedulerRuntime
 {
     public async Task<SchedulerRunResult> RunOnceAsync(
@@ -72,6 +80,20 @@ public sealed class SchedulerRuntime(
         if (!dispatchGateway.IsReady)
         {
             return new SchedulerRunResult(true, false, quarantined, closed, false);
+        }
+
+        // W-0198 / OD-V1-16. The hour gate sits AFTER lease recovery and missed-deadline closing
+        // and BEFORE claiming a dial, and that order is the design.
+        //
+        // A window that closed at nine in the evening must not also stop the scheduler noticing
+        // that a lease died or that a confirmation window expired overnight - those are
+        // bookkeeping, they wake nobody, and suspending them would mean every morning started
+        // with a backlog of jobs that had silently missed their deadline hours earlier. Only
+        // dialling stops.
+        CallingWindowDecision window = callingWindow.Evaluate(now);
+        if (!window.Open)
+        {
+            return new SchedulerRunResult(true, true, quarantined, closed, false, false);
         }
 
         SchedulerDispatchLease? lease = await store.TryClaimDueDispatchAsync(

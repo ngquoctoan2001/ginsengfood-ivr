@@ -164,7 +164,7 @@ public sealed class AsteriskLabTelephonyTests
 
     [Fact]
     [Trait("TestId", "UT-AST-VAULT-04")]
-    public async Task LabVaultFingerprintsTokenAndPinsSingleUseAlias()
+    public async Task LabVaultFingerprintsTokenAndPinsTheAliasAndRefusesAReplay()
     {
         var vault = new LabDialTokenVault(
             Microsoft.Extensions.Options.Options.Create(Options()));
@@ -173,7 +173,9 @@ public sealed class AsteriskLabTelephonyTests
             "opaque-lab-token");
         var request = new DialTokenResolutionRequest(
             DialTokenReference.Create(fingerprint, Now.AddMinutes(5)),
-            AttemptId.Create("attempt-lab-vault"));
+            AttemptId.Create("attempt-lab-vault"),
+            TaskId.Create("TASK-LAB-VAULT-1"),
+            3);
 
         DialAuthorization authorization = await vault.ResolveAsync(
             request,
@@ -183,8 +185,24 @@ public sealed class AsteriskLabTelephonyTests
         Assert.StartsWith("enc:lab-sha256:", fingerprint, StringComparison.Ordinal);
         Assert.DoesNotContain("opaque-lab-token", fingerprint, StringComparison.Ordinal);
         Assert.Equal("LAB-A", authorization.RevealToTrustedGateway());
-        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await vault.ResolveAsync(request, Now, CancellationToken.None));
+
+        // W-0199. The same attempt resolving twice is a replay. A second, genuine attempt on the
+        // same token is allowed now - that is the change OD-V1-17 signed, and the lab has to
+        // behave the way production will.
+        DialTokenRefusedException replay =
+            await Assert.ThrowsAsync<DialTokenRefusedException>(async () =>
+                await vault.ResolveAsync(request, Now, CancellationToken.None));
+        Assert.Equal(DialTokenRefusalCodes.AttemptReplay, replay.RefusalCode);
+
+        DialAuthorization second = await vault.ResolveAsync(
+            new DialTokenResolutionRequest(
+                DialTokenReference.Create(fingerprint, Now.AddMinutes(5)),
+                AttemptId.Create("attempt-lab-vault-2"),
+                TaskId.Create("TASK-LAB-VAULT-1"),
+                3),
+            Now,
+            CancellationToken.None);
+        Assert.Equal("LAB-A", second.RevealToTrustedGateway());
     }
 
     [Fact]
@@ -384,7 +402,8 @@ public sealed class AsteriskLabTelephonyTests
                 DialTokenReference.Create("enc:lab-sha256:SAFE", Now.AddMinutes(5)),
                 TestData.Summary(),
                 "SCRIPT-ORDER-CONFIRM",
-                "v1-test-approved"));
+                "v1-test-approved",
+                3));
 
         public Task MarkActiveAsync(
             SchedulerDispatchLease lease,
