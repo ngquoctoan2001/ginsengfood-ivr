@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
 using Ivr.Domain.Scripts;
+using Ivr.Infrastructure.Telephony;
 
 namespace Ivr.Infrastructure.Providers.Fakes;
 
@@ -38,7 +39,11 @@ public sealed class FakeDialTokenResolver : IDialTokenResolver
 {
     private readonly ImmutableDictionary<string, string> _destinations;
     private readonly ImmutableHashSet<string> _allowedDestinations;
-    private readonly ConcurrentDictionary<(string Token, string AttemptId), byte> _consumed = new();
+
+    // W-0197. The fake shares the real ledger rather than approximating it. A fake that is more
+    // permissive than the vault it stands in for turns every test that uses it into evidence for
+    // a rule the system does not actually enforce.
+    private readonly DialTokenResolveLedger ledger = new();
 
     public FakeDialTokenResolver(
         IReadOnlyDictionary<string, string> destinations,
@@ -57,10 +62,6 @@ public sealed class FakeDialTokenResolver : IDialTokenResolver
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(request);
-        if (request.DialToken.ExpiresAt <= now)
-        {
-            throw new InvalidOperationException("Dial token has expired.");
-        }
 
         string opaqueToken = request.DialToken.RevealToTrustedResolver();
         if (!_destinations.TryGetValue(opaqueToken, out string? destination)
@@ -74,9 +75,12 @@ public sealed class FakeDialTokenResolver : IDialTokenResolver
             throw new UnauthorizedAccessException("Resolved fake destination is not allowlisted.");
         }
 
-        if (!_consumed.TryAdd((opaqueToken, request.AttemptId.Value), 0))
+        DialTokenResolveDecision decision = ledger.Evaluate(request, now);
+        if (!decision.Allowed)
         {
-            throw new InvalidOperationException("Dial token was already resolved for this attempt.");
+            throw new DialTokenRefusedException(
+                decision.RefusalCode!,
+                "The fake dial token was refused.");
         }
 
         return ValueTask.FromResult(DialAuthorization.CreateTrusted(destination));

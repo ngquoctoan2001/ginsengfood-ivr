@@ -119,7 +119,7 @@ public sealed class MockTelephonyTests
 
     [Fact]
     [Trait("TestId", "UT-TEL-TOKEN-03")]
-    public async Task DialTokenResolverEnforcesExpiryAllowlistAndOneUsePerAttempt()
+    public async Task DialTokenResolverEnforcesExpiryAllowlistAndTheResolveCeiling()
     {
         var resolver = new FakeDialTokenResolver(
             new Dictionary<string, string>
@@ -130,7 +130,9 @@ public sealed class MockTelephonyTests
             ["mock-destination-allowlisted"]);
         var request = new DialTokenResolutionRequest(
             DialTokenReference.Create("token-ok", Now.AddMinutes(5)),
-            AttemptId.Create("attempt-token"));
+            AttemptId.Create("attempt-token"),
+            TaskId.Create("TASK-TOKEN-1"),
+            3);
 
         DialAuthorization authorization = await resolver.ResolveAsync(
             request,
@@ -138,20 +140,33 @@ public sealed class MockTelephonyTests
             CancellationToken.None);
 
         Assert.Equal("[REDACTED_DIAL_AUTHORIZATION]", authorization.ToString());
-        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await resolver.ResolveAsync(request, Now, CancellationToken.None));
-        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await resolver.ResolveAsync(
-                new DialTokenResolutionRequest(
-                    DialTokenReference.Create("token-ok", Now),
-                    AttemptId.Create("attempt-expired")),
-                Now,
-                CancellationToken.None));
+
+        // W-0197. Still refused, and now the refusal says which rule refused. Replaying the same
+        // attempt is a replay; it was never the ceiling, and conflating the two used to be the
+        // only thing this resolver enforced.
+        DialTokenRefusedException replay =
+            await Assert.ThrowsAsync<DialTokenRefusedException>(async () =>
+                await resolver.ResolveAsync(request, Now, CancellationToken.None));
+        Assert.Equal(DialTokenRefusalCodes.AttemptReplay, replay.RefusalCode);
+
+        DialTokenRefusedException expired =
+            await Assert.ThrowsAsync<DialTokenRefusedException>(async () =>
+                await resolver.ResolveAsync(
+                    new DialTokenResolutionRequest(
+                        DialTokenReference.Create("token-ok", Now),
+                        AttemptId.Create("attempt-expired"),
+                        TaskId.Create("TASK-TOKEN-1"),
+                        3),
+                    Now,
+                    CancellationToken.None));
+        Assert.Equal(DialTokenRefusalCodes.Expired, expired.RefusalCode);
         await Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
             await resolver.ResolveAsync(
                 new DialTokenResolutionRequest(
                     DialTokenReference.Create("token-denied", Now.AddMinutes(5)),
-                    AttemptId.Create("attempt-denied")),
+                    AttemptId.Create("attempt-denied"),
+                    TaskId.Create("TASK-TOKEN-2"),
+                    3),
                 Now,
                 CancellationToken.None));
     }
@@ -459,7 +474,9 @@ public sealed class MockTelephonyTests
         DialAuthorization authorization = await vault.ResolveAsync(
             new DialTokenResolutionRequest(
                 DialTokenReference.Create(fingerprint, Now.AddMinutes(5)),
-                AttemptId.Create("attempt-vault")),
+                AttemptId.Create("attempt-vault"),
+                TaskId.Create("TASK-VAULT-1"),
+                3),
             Now,
             CancellationToken.None);
 

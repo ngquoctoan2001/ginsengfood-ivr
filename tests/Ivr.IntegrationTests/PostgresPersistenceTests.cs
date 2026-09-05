@@ -157,7 +157,14 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         await dbContext.SaveChangesAsync();
 
         Assert.Equal(1, await dbContext.ConfirmationTasks.CountAsync());
-        Assert.Equal(3, (await dbContext.AttemptPolicies.SingleAsync()).MaxAttempts);
+        // W-0196. Named rather than SingleAsync(): the shipped schema now seeds the signed
+        // gh-247-prod-v1 rows, so "the only policy in the table" stopped being a way to say "the
+        // policy this test wrote". The claim under test is unchanged - three attempts came from
+        // the row and not from a CHECK constraint.
+        Assert.Equal(
+            3,
+            (await dbContext.AttemptPolicies.SingleAsync(
+                policy => policy.PolicyVersion == "test-policy-three-attempts")).MaxAttempts);
         string constraints = await ReadCheckConstraintsAsync(dbContext);
         Assert.DoesNotContain("max_attempts = 2", constraints, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("attempt_number <= 2", constraints, StringComparison.OrdinalIgnoreCase);

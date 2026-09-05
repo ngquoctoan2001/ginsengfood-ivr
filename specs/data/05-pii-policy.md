@@ -13,9 +13,10 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p06` · Nguồn: `phase-8/02 §11`, `
 
 ## 2. Quy tắc P0 (phase-8/02 §11, /08)
 - ✅ Chỉ dùng `phone_ref`/`phone_masked`/`dial_token` để gọi; **cấm** raw phone trong log/UI/DB IVR
-  (D-05; P0-IVR-007). Audit `W-0150`: TTL/one-use vẫn là target decision, chưa phải production
-  contract. Current persistence ép expiry bằng window end; MOCK/LAB chỉ chặn duplicate cùng
-  `(token, attempt)` và cho reuse ở attempt khác. Mapping/token key và raw E.164 phải nằm sau external
+  (D-05; P0-IVR-007). `OD-V1-17`/`OD-V1-05` đã ký 2026-09-05 (W-0197): token dùng lại được, gắn
+  `task_id`, TTL ≥ hết cửa sổ xác nhận, **trần số lần resolve** = `max_attempts` + trần technical
+  retry, mỗi lần resolve ghi audit kèm `attempt_id`. Câu "one-use" của `W-0150` không còn đúng và
+  không nên chép lại. Mapping/token key và raw E.164 phải nằm sau external
   resolver/gateway boundary, không ở IVR.
 - ✅ **Cấm đọc/log**: full address, payment/COD detail, member tier, Diamond, order history, health/sensitive note, AI/CRM content (phase-8/02 §11; call script whitelist `functional/04`).
 - ✅ **Recording OFF** mặc định (DT-05); bật chỉ khi có consent + legal + retention (DF-07/DG-08); nếu bật chỉ lưu `recording_ref` + audit truy cập.

@@ -117,8 +117,17 @@ public static class ServiceCollectionExtensions
                 provider => provider.GetRequiredService<InMemoryScriptRegistry>());
             services.TryAddSingleton<IScriptVersionReader>(
                 provider => provider.GetRequiredService<InMemoryScriptRegistry>());
+            // W-0196. Both catalogues, because the in-memory registry is the whole registry when
+            // there is no database: a version it does not hold cannot be resolved at all, and a
+            // signed policy that only exists in Postgres would be unusable in exactly the mode
+            // used to rehearse it. Holding it is not permission to use it - the approval on the
+            // snapshot is, and EnsureEnvironmentAllowed still reads it on every resolve.
             services.TryAddSingleton<IAttemptPolicyRegistry>(_ =>
-                new FakeAttemptPolicyRegistry(CandidateAttemptPolicies.Create()));
+                new FakeAttemptPolicyRegistry(
+                [
+                    .. CandidateAttemptPolicies.Create(),
+                    .. SignedProductionAttemptPolicies.Create(),
+                ]));
             services.TryAddSingleton<InMemoryTaskIntakeStore>();
             services.TryAddSingleton<ITaskIntakeStore>(provider =>
                 provider.GetRequiredService<InMemoryTaskIntakeStore>());

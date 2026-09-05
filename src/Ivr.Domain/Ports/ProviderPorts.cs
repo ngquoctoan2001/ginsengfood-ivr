@@ -40,9 +40,25 @@ public interface IDialTokenResolver
         CancellationToken cancellationToken);
 }
 
+/// <param name="TaskId">
+/// W-0197 / <c>OD-V1-17</c>. The task this dial belongs to. The token is bound to it, so a token
+/// turning up under a second task is refused rather than dialled.
+/// </param>
+/// <param name="MaxResolves">
+/// W-0197 / <c>OD-V1-05</c>. How many times this token may ever be resolved:
+/// <c>max_customer_attempts</c> plus the technical-retry limit. This is what replaced the
+/// "one-use per attempt" language that five documents carried and no contract could support -
+/// policy needs at least two customer dials and nothing anywhere can re-issue a token.
+/// <para>
+/// It travels with the request because it is a policy number, not a property of the vault, and a
+/// request that leaves it at zero is refused rather than treated as unlimited.
+/// </para>
+/// </param>
 public sealed record DialTokenResolutionRequest(
     DialTokenReference DialToken,
-    AttemptId AttemptId);
+    AttemptId AttemptId,
+    TaskId TaskId,
+    int MaxResolves);
 
 public sealed record RenderedSpeech
 {

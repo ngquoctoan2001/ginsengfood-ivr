@@ -7,6 +7,7 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Scheduling;
 using Ivr.Infrastructure.Telephony;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ivr.ChaosTests;
@@ -80,6 +81,7 @@ public sealed class SimFaultScenario(ChaosEnvironment chaos)
         var telephony = new PostgresTelephonyDispatchStore(
             factory,
             SpeechSummaryLimits.Create(8, 8),
+            Options.Create(new SchedulerOptions()),
             clock);
         await telephony.FailAsync(
             lease,

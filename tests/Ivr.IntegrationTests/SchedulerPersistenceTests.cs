@@ -1071,7 +1071,16 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
                 "candidate-must-fail",
                 "corr-policy-prod-06"));
         await using IvrDbContext verification = await factory.CreateDbContextAsync();
-        Assert.Equal(0, await verification.AttemptPolicies.CountAsync());
+
+        // W-0196. The claim is "the refused registration wrote nothing", which used to be said as
+        // "the table is empty". The shipped schema now seeds the signed gh-247-prod-v1 rows, so
+        // emptiness no longer means what it did - the refused version's absence does, and says it
+        // more precisely than a count ever did.
+        Assert.False(await verification.AttemptPolicies.AnyAsync(
+            policy => policy.PolicyVersion == "candidate-prod-forbidden-v1"));
+
+        // The audit log genuinely is empty, and stays a count: a refused registration must not
+        // leave a trace of a registration that did not happen, and nothing seeds this table.
         Assert.Equal(0, await verification.AuditLog.CountAsync());
     }
 

@@ -8,16 +8,27 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Server = Ivr.Contracts.Generated.IvrServer.V1;
 
 namespace Ivr.Infrastructure.Telephony;
 
+/// <param name="MaxDialTokenResolves">
+/// W-0197 / <c>OD-V1-05</c>. The token's resolve ceiling for this task: the attempt policy's
+/// <c>max_customer_attempts</c> plus the scheduler's technical-retry limit.
+/// <para>
+/// Read here rather than assumed by the vault because both halves are per-deployment numbers that
+/// already exist - the policy row the task was admitted under, and the scheduler option - and a
+/// ceiling the vault invented for itself would be a third number nobody signed.
+/// </para>
+/// </param>
 public sealed record TelephonyDispatchContext(
     TaskId TaskId,
     DialTokenReference DialToken,
     PrivacySafeOrderSummary SpeechSummary,
     string ScriptTemplateId,
-    string ScriptVersion);
+    string ScriptVersion,
+    int MaxDialTokenResolves);
 
 /// <summary>
 /// An operator's request to cut a call that is already in progress (W-0111).
@@ -95,6 +106,7 @@ public interface ITelephonyDispatchStore
 public sealed class PostgresTelephonyDispatchStore(
     IDbContextFactory<IvrDbContext> dbContextFactory,
     SpeechSummaryLimits speechLimits,
+    IOptions<SchedulerOptions> schedulerOptions,
     TimeProvider timeProvider) : ITelephonyDispatchStore
 {
     public async Task<CallTerminationRequest?> ReadTerminationAsync(
@@ -164,7 +176,15 @@ public sealed class PostgresTelephonyDispatchStore(
             DialTokenReference.Create(task.DialTokenCiphertext, task.DialTokenExpiresAt),
             TargetV1TaskMapper.MapSpeechSummary(wireSummary, speechLimits),
             task.CallScriptTemplateId,
-            task.CallScriptVersion);
+            task.CallScriptVersion,
+
+            // W-0197. From the task's own snapshot, not from a fresh read of the policy table.
+            // The task already records the max_attempts it was admitted under - that is the whole
+            // reason intake snapshots it - so the dial budget comes from the number this task was
+            // accepted with rather than from whatever the policy row says today. It also removes
+            // a failure mode a policy lookup would have added: a missing or edited row cannot
+            // change what an in-flight task is allowed to do.
+            task.MaxAttempts + schedulerOptions.Value.TechnicalRetryLimit);
     }
 
     public async Task MarkActiveAsync(

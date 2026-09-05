@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
+using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Persistence.Security;
 using Microsoft.Extensions.Options;
 
@@ -19,12 +20,20 @@ public sealed class MockDialTokenVault : IOpaqueValueProtector, IDialTokenResolv
     private readonly HashSet<string> destinationAllowlist;
     private readonly ConcurrentDictionary<string, string> destinationsByFingerprint =
         new(StringComparer.Ordinal);
-    private readonly ConcurrentDictionary<(string Fingerprint, string AttemptId), byte> consumed =
-        new();
 
-    public MockDialTokenVault(IOptions<MockTelephonyOptions> options)
+    // W-0197. Replaces the per-(fingerprint, attempt) consumed set. That set stopped an attempt
+    // being dialled twice and nothing else - a token could be resolved without limit as long as
+    // each resolve carried a fresh attempt id, which is the opposite of what "one-use" was meant
+    // to guarantee.
+    private readonly DialTokenResolveLedger ledger = new();
+    private readonly IAuditLogger? auditLogger;
+
+    public MockDialTokenVault(
+        IOptions<MockTelephonyOptions> options,
+        IAuditLogger? auditLogger = null)
     {
         ArgumentNullException.ThrowIfNull(options);
+        this.auditLogger = auditLogger;
         configuredTokenDestinations = new Dictionary<string, string>(
             options.Value.TokenDestinations,
             StringComparer.Ordinal);
@@ -61,17 +70,13 @@ public sealed class MockDialTokenVault : IOpaqueValueProtector, IDialTokenResolv
         throw new InvalidOperationException(
             "MOCK dial-token fingerprints cannot be reversed into source tokens.");
 
-    public ValueTask<DialAuthorization> ResolveAsync(
+    public async ValueTask<DialAuthorization> ResolveAsync(
         DialTokenResolutionRequest request,
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(request);
-        if (request.DialToken.ExpiresAt <= now)
-        {
-            throw new InvalidOperationException("Dial token has expired.");
-        }
 
         string fingerprint = request.DialToken.RevealToTrustedResolver();
         // The fingerprint map is populated by Protect(), which runs at INTAKE -- in the API
@@ -95,12 +100,25 @@ public sealed class MockDialTokenVault : IOpaqueValueProtector, IDialTokenResolv
             throw new UnauthorizedAccessException("Resolved MOCK destination is not allowlisted.");
         }
 
-        if (!consumed.TryAdd((fingerprint, request.AttemptId.Value), 0))
+        // Last, and deliberately: the ledger records a resolve when it allows one, so asking it
+        // before the destination checks would spend budget on a token that was never going to
+        // dial anywhere. Expiry lives inside it too, for the same reason both vaults now share it
+        // - one rule, one implementation, one place to be wrong.
+        DialTokenResolveDecision decision = ledger.Evaluate(request, now);
+        await DialTokenResolveAudit.RecordAsync(
+            auditLogger,
+            nameof(MockDialTokenVault),
+            request,
+            decision,
+            cancellationToken).ConfigureAwait(false);
+        if (!decision.Allowed)
         {
-            throw new InvalidOperationException("Dial token was already resolved for this attempt.");
+            throw new DialTokenRefusedException(
+                decision.RefusalCode!,
+                "The MOCK dial token was refused.");
         }
 
-        return ValueTask.FromResult(DialAuthorization.CreateTrusted(destination));
+        return DialAuthorization.CreateTrusted(destination);
     }
 
     private static string Fingerprint(string purpose, string plaintext)

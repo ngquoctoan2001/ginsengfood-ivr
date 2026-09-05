@@ -468,6 +468,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         IDbContextFactory<IvrDbContext> factory) => new(
         factory,
         SpeechSummaryLimits.Create(100, 100),
+        Options.Create(new SchedulerOptions()),
         new FixedTimeProvider(Now));
 
     private static MockSchedulerDispatchGateway CreateGateway(

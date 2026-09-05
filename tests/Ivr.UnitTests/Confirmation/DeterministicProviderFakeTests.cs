@@ -27,7 +27,9 @@ public sealed class DeterministicProviderFakeTests
         DialAuthorization authorization = await resolver.ResolveAsync(
             new DialTokenResolutionRequest(
                 DialTokenReference.Create("dial-token-1", now.AddMinutes(10)),
-                AttemptId.Create("attempt-1")),
+                AttemptId.Create("attempt-1"),
+                TaskId.Create("TASK-FAKE-1"),
+                3),
             now,
             CancellationToken.None);
         var renderer = new FakeSpeechRenderer();
