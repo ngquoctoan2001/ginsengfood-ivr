@@ -69,6 +69,13 @@ public sealed class DevToolingApiService(
 {
     public const string TaskDataset = "sales-target-v1";
 
+    /// <summary>
+    /// W-0190. Reported for a fixture this database already holds, instead of the raw
+    /// idempotency-conflict code. Not a wire enum - <c>IvrSeedTaskOutcome.decision</c> is a free
+    /// string in the contract - so naming the case costs no schema change.
+    /// </summary>
+    public const string AlreadySeededDecision = "SEED_TASK_ALREADY_LOADED";
+
     private static readonly JsonSerializerOptions CanonicalJson = new(JsonSerializerDefaults.Web);
 
     public async Task<SeedLoadApiResult> LoadSeedAsync(
@@ -118,16 +125,36 @@ public sealed class DevToolingApiService(
             }
             catch (IvrFailureException exception)
             {
-                // Reported against the fixture rather than failing the whole load. The common
-                // case is a second run: the fixture key is the same but the rebased window makes
-                // the body different, which is an idempotency conflict by definition. One
+                // Reported against the fixture rather than failing the whole load: one
                 // conflicting fixture must not hide the eight that loaded.
+                //
+                // W-0190. The overwhelmingly common case is a second run of the same dataset.
+                // The fixture key is the same but the rebased window makes the body different, so
+                // intake answers IVR_IDEMPOTENCY_CONFLICT - correctly, and unhelpfully: an
+                // operator pressing "load seed" twice got nine red conflicts and no way to tell
+                // "already loaded" from "broken". Suffixing the key to force a fresh admission is
+                // NOT the fix: task_id carries a unique index, so a second load under a new key
+                // trades a clean conflict for a constraint violation.
+                //
+                // So the reload is reported as what it is. The existing job id comes with it,
+                // which is the thing a rehearsal actually wants next.
+                // The conflict code is itself the proof: the idempotency key is scoped with a
+                // "devseed:" prefix, so nothing but a previous seed load of this same fixture can
+                // have used it. No second lookup is needed to establish that this is a reload -
+                // only to add the call job id, when the fixture produced one.
+                bool alreadySeeded = exception.ErrorCode == IvrErrorCodes.IdempotencyConflict;
+                string? existingJobId = alreadySeeded
+                    ? await FindSeededJobIdAsync(taskId, cancellationToken).ConfigureAwait(false)
+                    : null;
                 outcomes.Add(new SeedTaskOutcomeView(
                     fixture.Scenario,
                     taskId,
-                    exception.ErrorCode,
-                    null,
-                    [exception.Message]));
+                    alreadySeeded ? AlreadySeededDecision : exception.ErrorCode,
+                    existingJobId,
+                    [alreadySeeded
+                        ? "This fixture is already loaded in this database; whatever it produced "
+                          + "the first time is unchanged."
+                        : exception.Message]));
                 continue;
             }
 
@@ -286,6 +313,30 @@ public sealed class DevToolingApiService(
     /// on that refusal.
     /// </para>
     /// </summary>
+    /// <summary>
+    /// The call job a previously loaded fixture produced, or <c>null</c> when it produced none.
+    /// <para>
+    /// Several fixtures exist precisely to be refused - a do-not-call customer, an expired window
+    /// - so a null here is a normal outcome and not a sign the fixture is missing. Whether the
+    /// fixture was loaded before is already settled by the idempotency conflict; this only adds
+    /// the job id when there is one to add.
+    /// </para>
+    /// </summary>
+    private async Task<string?> FindSeededJobIdAsync(
+        string taskId,
+        CancellationToken cancellationToken)
+    {
+        await using IvrDbContext dbContext = await dbContextFactory
+            .CreateDbContextAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return await dbContext.CallJobs
+            .AsNoTracking()
+            .Where(job => job.TaskId == taskId)
+            .Select(job => job.IvrCallJobId)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     private async Task<int> EnsureAttemptPoliciesAsync(
         string actorId,
         string correlationId,

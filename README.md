@@ -171,6 +171,42 @@ mocks up -d`; they do not expose ports and their Compose network is internal.
 Postgres alone uses a local bridge so the host-run API can reach its
 localhost-only published port.
 
+### Run one whole call lifecycle
+
+The worker ships with scheduler, normalisation, callback delivery and MOCK
+telephony all disabled, so a plain `pnpm api:dev` + `pnpm worker` accepts tasks
+and then does nothing with them. That is the correct default — a stack started
+to look at the console must not dial anything — but it means switching the
+pipeline on takes a dozen environment variables that used to be re-derived by
+hand every time.
+
+```powershell
+pnpm e2e:local
+```
+
+W-0190 wrote that configuration down. The command starts PostgreSQL, applies
+migrations, starts a fake Sales endpoint, runs the API and worker with MOCK
+telephony armed, admits five tasks and asserts the result taxonomy each one must
+produce — including that a technical exception is never counted as a customer
+attempt and that only a final result reaches the callback outbox. It stops
+everything it started; `pnpm e2e:local:keep` leaves it up for poking at the
+console. Process logs land in `ci-artifacts/local-e2e/`.
+
+`IVR_EXECUTION_MODE`, `SIM_PROVIDER` and `REAL_CUSTOMER_CALL_ALLOWED` are not
+relaxed by it. `MockSchedulerDispatchGateway.IsReady` requires all three, so the
+run cannot reach a vendor; the kill switch is the only safety lifted, and it is
+lifted against a fake gateway.
+
+### Non-production developer surface
+
+`Ivr:DevTooling:SeedDirectory` points the UI-07 seed loader, scenario runner and
+integration-status profiles at the repository's `seed/` folder. Development
+configuration sets it to `../../seed`, resolved against the content root rather
+than the working directory, so the same value holds for `dotnet run`,
+`dotnet test` and the container image. It is deliberately **empty** everywhere
+else: an unset seed directory disables the surface, and those routes are not
+mapped at all in production.
+
 ## Verify
 
 ```powershell

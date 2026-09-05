@@ -13,6 +13,8 @@
     "db:migrate": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/dev/Update-IvrDatabase.ps1",
     "db:migration:add": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/dev/Add-IvrMigration.ps1",
     "db:migration:list": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/dev/Get-IvrMigrations.ps1",
-    "local:prepare": "pnpm docker:apps:stop && pnpm db:up && pnpm db:migrate"
+    "local:prepare": "pnpm docker:apps:stop && pnpm db:up && pnpm db:migrate",
+    "e2e:local": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/dev/Invoke-LocalE2E.ps1",
+    "e2e:local:keep": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/dev/Invoke-LocalE2E.ps1 -KeepRunning"
   }
 }

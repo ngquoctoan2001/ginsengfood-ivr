@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Fragment, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
-import { usePermissions } from "@/components/rbac/PermissionProvider";
 import { RequirePermission } from "@/components/rbac/RequirePermission";
 import { t } from "@/lib/i18n";
 import type { IvrPermission } from "@/lib/rbac/permissions";
@@ -13,17 +12,23 @@ import styles from "./ConsoleNav.module.css";
 import { NavIcon, type NavIconName } from "./NavIcon";
 
 /**
- * A route is shown either because the viewer holds a permission the route actually uses, or
- * because the route is admin-only.
+ * A route is shown because the viewer holds a permission the route actually uses.
  *
- * W-0128 left this as a rendering rule and nothing more. There is no session and no role behind
- * it any more — the API decides by credential tier, and will refuse an action this nav happened
- * to reveal. What the rule still buys is that a screen is not offered to someone whose console
- * cannot use it, which is exactly the job Module 3's own nav will have.
+ * W-0128 left this as a rendering rule and nothing more. There is no session behind it any more —
+ * the API decides by credential tier, and will refuse an action this nav happened to reveal. What
+ * the rule still buys is that a screen is not offered to someone whose console cannot use it,
+ * which is exactly the job Module 3's own nav will have.
  *
- * The admin-only entries once borrowed `IVR_ACCOUNT_VIEW` as a stand-in for "is an admin". That
- * worked only while the permission happened to be admin-only, and the account system it came from
- * is gone; naming the intent directly is what survives a permission model changing owner.
+ * W-0190 removed the `adminOnly` escape hatch, which hid six of these eight entries from every
+ * viewer. It resolved against `role`, and `role` came from the tier the SHELL was rendered with
+ * (`requireScope("read")` in the console layout) rather than from anything the viewer holds — so
+ * it was permanently `operator`, and Reports, Review, Config, Integration, Runtime gates and Seed
+ * were unreachable by clicking even though all six rendered fine when their URL was typed. Naming
+ * a permission per entry says the same thing the flag meant to say, and says it about the viewer.
+ *
+ * The permission on each row is the one that screen's own controls gate on, so the nav and the
+ * screen can never disagree about who the screen is for. `/reports` and `/integration` are reads,
+ * and the API files reads of dashboards, reports and dependency state under the read tier.
  *
  * `/accounts`, `/roles` and `/profile` are not in this list because those screens no longer
  * exist: Module 3 owns operator identity, so the console has nothing to show about it.
@@ -32,17 +37,18 @@ type NavItem = {
   readonly href: string;
   readonly label: string;
   readonly icon: NavIconName;
-} & ({ readonly perm: IvrPermission } | { readonly adminOnly: true });
+  readonly perm: IvrPermission;
+};
 
 const NAV_ITEMS: readonly NavItem[] = [
   { href: "/dashboard", label: t("nav.dashboard"), icon: "dashboard", perm: "IVR_QUEUE_VIEW" },
   { href: "/calls", label: t("nav.callLog"), icon: "callLog", perm: "IVR_QUEUE_VIEW" },
-  { href: "/reports", label: t("nav.reports"), icon: "reports", adminOnly: true },
-  { href: "/review", label: t("nav.review"), icon: "review", adminOnly: true },
-  { href: "/config", label: t("nav.config"), icon: "config", adminOnly: true },
-  { href: "/integration", label: t("nav.integration"), icon: "integration", adminOnly: true },
-  { href: "/flags", label: t("nav.flags"), icon: "flags", adminOnly: true },
-  { href: "/seed", label: t("nav.seed"), icon: "seed", adminOnly: true },
+  { href: "/reports", label: t("nav.reports"), icon: "reports", perm: "IVR_QUEUE_VIEW" },
+  { href: "/review", label: t("nav.review"), icon: "review", perm: "IVR_RESULT_REVIEW" },
+  { href: "/config", label: t("nav.config"), icon: "config", perm: "IVR_SCRIPT_EDIT" },
+  { href: "/integration", label: t("nav.integration"), icon: "integration", perm: "IVR_FLAG_READ" },
+  { href: "/flags", label: t("nav.flags"), icon: "flags", perm: "IVR_FLAG_READ" },
+  { href: "/seed", label: t("nav.seed"), icon: "seed", perm: "IVR_DEV_TOOLING" },
 ];
 
 export interface ConsoleNavProps {
@@ -55,7 +61,6 @@ export interface ConsoleNavProps {
 
 export function ConsoleNav({ account }: ConsoleNavProps) {
   const pathname = usePathname();
-  const { role } = usePermissions();
 
   return (
     <nav className={styles.nav} aria-label={t("nav.sectionLabel")}>
@@ -76,11 +81,6 @@ export function ConsoleNav({ account }: ConsoleNavProps) {
                 </Link>
               </li>
             );
-
-            if ("adminOnly" in item) {
-              // A Fragment, not a wrapper element: only <li> is valid inside <ul>.
-              return role === "admin" ? <Fragment key={item.href}>{entry}</Fragment> : null;
-            }
 
             return (
               <RequirePermission key={item.href} perm={item.perm}>

@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 187 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 188 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 17
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 133
+  rows_without_evidence_pack: 134
 
 gates:
   - id: "G-CONTRACT"
@@ -877,6 +877,10 @@ work:
     prompt: "Current documentation-to-code alignment cleanup (Origin=UNPLANNED, owner yêu cầu clean tài liệu theo code 2026-09-04)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0189/README.md"
+  - id: "W-0190"
+    prompt: "Local-run defect remediation và một lệnh chạy hết vòng đời (Origin=UNPLANNED, owner duyệt \"GĐ 0\" của lộ trình hoàn thiện 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: null
 
 production_flag:
   real_customer_call_allowed: false

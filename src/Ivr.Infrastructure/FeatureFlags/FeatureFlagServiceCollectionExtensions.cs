@@ -1,3 +1,4 @@
+using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,23 @@ public static class FeatureFlagServiceCollectionExtensions
 
         if (isMock)
         {
-            services.TryAddSingleton<InMemoryFeatureFlagStore>();
+            // W-0190. Constructed by an explicit factory, not by type.
+            //
+            // InMemoryFeatureFlagStore has two constructors: one that seeds every environment
+            // with its safe default, and one that takes the seeds as an IEnumerable. Registering
+            // the type and letting the container choose picks the SECOND one, because the
+            // container always selects the greediest constructor whose parameters it can resolve
+            // and IEnumerable<T> always resolves - to an empty sequence when nothing is
+            // registered. The store then holds no environments at all, every read throws
+            // IVR_NOT_FOUND, and the platform's fail-closed fallback reports the provider as
+            // unreadable. Safe, but wrong, and invisible: the console cannot read or change a
+            // runtime flag in the mode every non-production deployment runs in.
+            //
+            // Naming the constructor is what makes the seeding a decision rather than a
+            // side effect of overload resolution.
+            services.TryAddSingleton(
+                provider => new InMemoryFeatureFlagStore(
+                    provider.GetRequiredService<IAuditLogger>()));
             services.TryAddSingleton<IFeatureFlagStore>(
                 provider => provider.GetRequiredService<InMemoryFeatureFlagStore>());
             services.TryAddSingleton<IFeatureFlagCommandIdempotency,

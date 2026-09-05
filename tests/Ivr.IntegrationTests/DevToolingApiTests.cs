@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Ivr.Api.Admin;
+using Ivr.Api.Application;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -165,9 +166,23 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     /// will look for that answer.
     /// </para>
     /// </summary>
+    /// <summary>
+    /// W-0190 changed what a repeat load <em>says</em>, not what it does.
+    /// <para>
+    /// It still writes nothing, which is the property that matters. What it no longer does is
+    /// report nine <c>IVR_IDEMPOTENCY_CONFLICT</c> rows, which read as nine faults and gave an
+    /// operator no way to tell "already loaded" from "broken". The fixture is named as already
+    /// loaded and carries the call job it produced the first time.
+    /// </para>
+    /// <para>
+    /// Note what is deliberately NOT done: the loader does not mint a fresh idempotency key to
+    /// force a second admission. <c>task_id</c> carries a unique index, so that would trade a
+    /// clean conflict for a constraint violation.
+    /// </para>
+    /// </summary>
     [Fact]
     [Trait("TestId", "IT-DEV-SEED-04")]
-    public async Task LoadingTwiceReportsTheConflictPerTaskAndAddsNothing()
+    public async Task LoadingTwiceNamesEachFixtureAlreadyLoadedAndAddsNothing()
     {
         await using DevToolingApiTestApplication app = await StartAsync();
         const AdminScope admin = AdminScope.Write;
@@ -186,8 +201,19 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
             .ReadFromJsonAsync<SeedLoadApiResult>())!;
 
         Assert.Equal(0, repeat.AcceptedCount);
-        Assert.Contains(repeat.Tasks, task => task.Decision == "IVR_IDEMPOTENCY_CONFLICT");
         Assert.Equal(afterFirst, await SeededTaskCountAsync(app));
+
+        // Every fixture is named as already loaded, and none is reported as a bare conflict.
+        Assert.All(
+            repeat.Tasks,
+            task => Assert.Equal(DevToolingApiService.AlreadySeededDecision, task.Decision));
+
+        // Including the ones that exist to be refused. A do-not-call fixture is admitted, stored
+        // and then blocked, so it owns no call job — and reloading it is still a reload, not a
+        // fault. Keying the answer on the job rather than the task is exactly the mistake that
+        // made this assertion worth writing.
+        Assert.Contains(repeat.Tasks, task => !string.IsNullOrWhiteSpace(task.IvrCallJobId));
+        Assert.Contains(repeat.Tasks, task => string.IsNullOrWhiteSpace(task.IvrCallJobId));
 
         // The policy registration is immutable, so the second run registers nothing new either.
         Assert.Equal(0, repeat.AttemptPoliciesRegistered);
