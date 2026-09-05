@@ -63,8 +63,11 @@ public sealed class AdminConfigApiTests(PostgresPersistenceFixture fixture)
         IvrServer.IvrScriptCatalog catalog =
             (await response.Content.ReadFromJsonAsync<IvrServer.IvrScriptCatalog>())!;
 
-        // OD-V1-15 is still open, so the Target V1 field set is not production approved.
-        Assert.False(catalog.Production_target_v1_fields_approved);
+        // W-0192. OD-V1-15 was signed on 2026-09-05, so the catalogue reports the Target V1
+        // field set as production approved. It reports the live value rather than a stored one,
+        // which is why this assertion is worth keeping: a deployment that turns the flag back off
+        // must be visible here rather than remembered.
+        Assert.True(catalog.Production_target_v1_fields_approved);
 
         // AS-07: key 9 exists in the map and is reported disabled.
         IvrServer.IvrDtmfKey keyNine = catalog.Dtmf_map.Single(key => key.Key == "9");

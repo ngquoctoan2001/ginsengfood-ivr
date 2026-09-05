@@ -15,7 +15,12 @@ Xem/quản cấu hình call script (template + version + biến được phép).
 
 ## Dữ liệu / ràng buộc
 - `allowed_input_fields` Target V1: `customer_display_name`, `order_code_short`, `items[].public_name`, `items[].quantity`, optional `items[].unit_label`, `total_amount`, `currency`, `delivery_area_short`, `program_display_name`, `locale`, optional `pronunciation_hints`.
-- `OD-V1-15` vẫn **OWNER_DECISION_REQUIRED**: UI phải hiển thị khóa `ProductionTargetV1FieldsApproved=NO` và không diễn giải CONTENT+PRIVACY_LEGAL là production-ready khi khóa này chưa đóng.
+- `OD-V1-15` ✅ **ĐÃ KÝ `2026-09-05`** (`W-0191`): bộ rộng ở trên là whitelist production, và
+  `ProductionTargetV1FieldsApproved` mặc định `YES` từ `W-0192`. UI vẫn phải hiển thị giá trị thật
+  của khóa này thay vì giả định — nó có thể bị đặt lại `NO` cho một deployment cụ thể.
+- Khóa đó **không** phải thứ duy nhất chặn production, và UI không được trình bày như vậy:
+  `CONTENT` + `PRIVACY_LEGAL` phải đến từ **hai actor khác nhau**, và người tạo bản kịch bản không
+  được duyệt chính nó. Ba actor id phân biệt cho một bản `PRODUCTION_REAL`.
 - `prohibited_variables` (hiển thị để nhắc): FULL_ADDRESS, MEMBER_TIER, DIAMOND, PAYMENT_DETAIL, ORDER_HISTORY, AI/CRM content, HEALTH.
 - KEY_9 = `NOT_ENABLED` (AS-07) — không cho bật ở UI giai đoạn đầu.
 

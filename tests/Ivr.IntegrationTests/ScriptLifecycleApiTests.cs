@@ -115,35 +115,61 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
     }
 
     /// <summary>
-    /// Two distinct approvers are necessary but not sufficient: the speech field whitelist is
-    /// still unsigned, so <c>OD-V1-15</c> keeps production closed. Approving through the console
-    /// must not be able to talk its way past that.
+    /// Two distinct approvers are necessary, and since <c>OD-V1-15</c> was signed they are also
+    /// sufficient. The whitelist flag remains a real second lock for any deployment that turns it
+    /// off, and approving through the console must not be able to talk its way past it.
     /// </summary>
     [Fact]
     [Trait("TestId", "IT-SCRIPT-PRODGATE-03")]
-    public async Task BothProductionApprovalsStillLeaveProductionBlockedByTheUnsignedWhitelist()
+    public async Task TheSignedWhitelistReleasesProductionAndAnUnsignedOneStillHoldsIt()
     {
-        await using InternalAdminApiTestApplication app = await StartAppAsync();
+        // W-0192. OD-V1-15 was signed on 2026-09-05, so the shipped default is now YES and two
+        // distinct approvals do reach production. What this asserts is that the lock is still a
+        // lock: a deployment that sets the flag back to NO gets the same refusal it always did.
+        // Both halves matter — the first is the behaviour change, the second is the reason the
+        // flag was worth having.
+        await using (InternalAdminApiTestApplication signed = await StartAppAsync())
+        {
+            ScriptVersionApiResult version = await ApproveForProductionAsync(signed, "v9-prod");
+
+            Assert.Equal(2, version.Approvals.Count);
+            Assert.True(version.UsesProductionDecisionFields);
+            Assert.Contains("PRODUCTION_REAL", version.ApprovedForModes);
+            Assert.Null(version.ProductionBlockedReason);
+        }
+
+        await using InternalAdminApiTestApplication unsigned = await StartAppAsync(
+            productionWhitelistApproved: false);
+        ScriptVersionApiResult held = await ApproveForProductionAsync(unsigned, "v9-prod-locked");
+
+        Assert.Equal(2, held.Approvals.Count);
+        Assert.DoesNotContain("PRODUCTION_REAL", held.ApprovedForModes);
+        Assert.Equal(
+            "The speech field whitelist is unsigned (OD-V1-15), so production stays blocked.",
+            held.ProductionBlockedReason);
+    }
+
+    /// <summary>
+    /// Drives one version to two production approvals held by two different actors, neither of
+    /// whom authored it. That is the quorum <c>ScriptContentContracts</c> enforces, and it is
+    /// unchanged by OD-V1-15.
+    /// </summary>
+    private static async Task<ScriptVersionApiResult> ApproveForProductionAsync(
+        InternalAdminApiTestApplication app,
+        string version)
+    {
         ScriptLifecycleHarness harness = await HarnessAsync(app);
-        await harness.CreateDraftAsync(harness.Author, "v9-prod", HttpStatusCode.OK);
-        await harness.PostAsync(harness.Author, "v9-prod:submit", new { reason = "Ready for review" });
+        await harness.CreateDraftAsync(harness.Author, version, HttpStatusCode.OK);
+        await harness.PostAsync(harness.Author, $"{version}:submit", new { reason = "Ready for review" });
         await harness.PostAsync(
             harness.Approver,
-            "v9-prod:approve",
+            $"{version}:approve",
             new { approval_type = "CONTENT", reason = "Content approved" });
         await harness.PostAsync(
             harness.SecondApprover,
-            "v9-prod:approve",
+            $"{version}:approve",
             new { approval_type = "PRIVACY_LEGAL", reason = "Privacy and Legal approved" });
-
-        ScriptVersionApiResult version = await harness.GetAsync(harness.Author, "v9-prod");
-
-        Assert.Equal(2, version.Approvals.Count);
-        Assert.True(version.UsesProductionDecisionFields);
-        Assert.DoesNotContain("PRODUCTION_REAL", version.ApprovedForModes);
-        Assert.Equal(
-            "The speech field whitelist is unsigned (OD-V1-15), so production stays blocked.",
-            version.ProductionBlockedReason);
+        return await harness.GetAsync(harness.Author, version);
     }
 
     [Fact]
@@ -255,10 +281,13 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
                 new { reason = "Operator retiring" })).StatusCode);
     }
 
-    private async Task<InternalAdminApiTestApplication> StartAppAsync()
+    private async Task<InternalAdminApiTestApplication> StartAppAsync(
+        bool productionWhitelistApproved = true)
     {
         await fixture.ResetAsync();
-        return await InternalAdminApiTestApplication.StartAsync(fixture.ConnectionString);
+        return await InternalAdminApiTestApplication.StartAsync(
+            fixture.ConnectionString,
+            productionWhitelistApproved: productionWhitelistApproved);
     }
 
     /// <summary>

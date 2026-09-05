@@ -33,23 +33,48 @@ public sealed class FeatureFlagApiTests
             await ReadErrorCodeAsync(response));
     }
 
+    /// <summary>
+    /// W-0192 changed which direction this gate blocks, and the change is the point.
+    /// <para>
+    /// It used to assert that an ungranted owner permission refused <em>engaging</em> the kill
+    /// switch. That was the behaviour, and it was wrong: <c>W-0068</c> settled that stopping calls
+    /// must always be available, so an ungranted permission was removing the one control that
+    /// exists for an emergency. The gate now stands where the risk is — on the change that lets
+    /// calls resume.
+    /// </para>
+    /// </summary>
     [Fact]
     [Trait("TestId", "IT-FLAG-OWNERGATE-12")]
-    public async Task UnapprovedOwnerPermissionGateFailsClosedAtRuntime()
+    public async Task UnapprovedOwnerPermissionBlocksResumingCallsButNeverStoppingThem()
     {
         await using FeatureFlagApiTestApplication app =
             await FeatureFlagApiTestApplication.StartAsync(
                 runtimeAuthorizationApproved: false);
 
-        using HttpResponseMessage response = await SendMutationAsync(
+        using (HttpResponseMessage engaged = await SendMutationAsync(
             app,
             FeatureFlagEnvironments.Lab,
             new FeatureFlagChangeSet(GlobalDialKillSwitch: true),
-            "emergency stop");
+            "emergency stop"))
+        {
+            Assert.Equal(HttpStatusCode.OK, engaged.StatusCode);
+        }
 
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-        Assert.Equal(IvrErrorCodes.OperationalBlocked, await ReadErrorCodeAsync(response));
-        Assert.Empty(app.Audit.Entries);
+        Assert.NotEmpty(app.Audit.Entries);
+        int auditedAfterStop = app.Audit.Entries.Count;
+
+        using HttpResponseMessage resumed = await SendMutationAsync(
+            app,
+            FeatureFlagEnvironments.Lab,
+            new FeatureFlagChangeSet(GlobalDialKillSwitch: false),
+            "resume dialling");
+
+        Assert.Equal(HttpStatusCode.Conflict, resumed.StatusCode);
+        Assert.Equal(IvrErrorCodes.OperationalBlocked, await ReadErrorCodeAsync(resumed));
+
+        // Refused before anything was written, so the refusal cannot be mistaken later for a
+        // change that happened.
+        Assert.Equal(auditedAfterStop, app.Audit.Entries.Count);
     }
 
     [Fact]

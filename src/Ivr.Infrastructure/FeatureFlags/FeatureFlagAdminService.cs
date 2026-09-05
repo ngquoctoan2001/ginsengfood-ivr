@@ -31,12 +31,6 @@ public sealed class FeatureFlagAdminService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(command);
-        if (!await runtimeGateAuthorization.IsApprovedAsync(cancellationToken))
-        {
-            throw IvrErrors.OperationalBlocked(
-                "Runtime gate administration is pending owner approval.");
-        }
-
         ValidateCommand(command);
         FeatureFlagReadResult read = await featureFlags.GetSnapshotAsync(
             command.Environment,
@@ -57,9 +51,24 @@ public sealed class FeatureFlagAdminService(
                 before,
                 after,
                 changedKeys);
+        // W-0192 / OD-V1-20. The authorization gate is asked here rather than at the top of the
+        // method, and it is not asked at all for an unconditional risk reduction.
+        //
+        // W-0068 settled the asymmetry: engaging the kill switch, turning real customer calls off
+        // and shrinking the allowlist must always be available, because they are the moves that
+        // stop something happening. Asking the gate first inverted that — with the gate ungranted,
+        // the API could not engage the kill switch either, so the one control that exists for an
+        // emergency was the one an ungranted permission removed. Nothing about "we have not
+        // approved runtime-gate administration yet" should mean "and therefore you may not stop
+        // the calls".
         if (!unconditionalRiskReduction)
         {
             FeatureFlagGuardrails.ValidateEffective(after);
+            if (!await runtimeGateAuthorization.IsApprovedAsync(cancellationToken))
+            {
+                throw IvrErrors.OperationalBlocked(
+                    "Runtime gate administration is pending owner approval.");
+            }
         }
 
         if (risk.IsRiskIncrease

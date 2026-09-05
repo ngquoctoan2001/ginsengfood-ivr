@@ -68,11 +68,15 @@ public static class FeatureFlagServiceCollectionExtensions
         services.TryAddSingleton<IKillSwitch, KillSwitch>();
         services.TryAddSingleton<IDispatchGate, DispatchGate>();
         services.TryAddSingleton<IFeatureFlagAdminService, FeatureFlagAdminService>();
+        // W-0192 / OD-V1-20. These three used to be Pending* classes returning a hard-coded
+        // false, which was the right answer while no permission existed to move a runtime gate.
+        // They now read ivr_runtime_gate_approvals, so the answer lives in a row an auditor can
+        // read and revoke. A gate that cannot reach the table still answers no.
         services.TryAddSingleton<IRuntimeGateAuthorization,
-            PendingRuntimeGateAuthorization>();
+            PostgresRuntimeGateAuthorization>();
         services.TryAddSingleton<IFourEyesApprovalVerifier,
-            PendingFourEyesApprovalVerifier>();
-        services.TryAddSingleton<IProductionCallGate, PendingProductionCallGate>();
+            PostgresFourEyesApprovalVerifier>();
+        services.TryAddSingleton<IProductionCallGate, PostgresProductionCallGate>();
         return services;
     }
 }

@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 189 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 190 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 17
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 135
+  rows_without_evidence_pack: 136
 
 gates:
   - id: "G-CONTRACT"
@@ -864,6 +864,10 @@ work:
     evidence: null
   - id: "W-0191"
     prompt: "Owner sign-off 19 quyết định OD-V1/OD-VOICE (Origin=UNPLANNED, owner chỉ đạo \"toàn bộ ký theo đề xuất\" 2026-09-05 sau khi đọc phiếu GĐ 1)"
+    status: "TESTS_PASS"
+    evidence: null
+  - id: "W-0192"
+    prompt: "GĐ 2 đợt 1: ba cổng runtime thực thi + sửa bất đối xứng kill switch (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-20/OD-V1-15/OD-V1-18 đã ký ở W-0191)"
     status: "TESTS_PASS"
     evidence: null
 

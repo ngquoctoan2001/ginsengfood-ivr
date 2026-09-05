@@ -9,7 +9,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p06` · Nguồn: `phase-8/02 §11`, `
 | **SENSITIVE** | `phone_masked`, `official_contact_id`, `customer_ref`, `risk_flags`, `call_restriction` | ref/masked | chỉ `phone_masked` | KHÔNG |
 | **INTERNAL** | order refs, `order_state`, program, result, evidence refs | có | có (masked view) | KHÔNG |
 | **PUBLIC-SAFE (current, narrow)** | `order_code_short`, `total_amount_display`, (opt) `customer_name_short`, `program_name` | có | có | ✅ ALLOWED |
-| **PUBLIC-SAFE (Target V1 proposal)** | thêm `items[].public_name`, `items[].quantity`, optional `items[].unit_label`, `delivery_area_short` (không bắt đầu bằng chữ số, không chứa `x/y`; đơn vị hành chính có số vẫn hợp lệ) | có | có | W-0024 đã enforce whitelist + test MOCK; ⏳ `OD-V1-15` vẫn **OWNER_DECISION_REQUIRED** (Product + Privacy/Legal) cho PROD. Fixture MOCK **không** đóng gate production. |
+| **PUBLIC-SAFE (Target V1 — ✅ ĐÃ KÝ `2026-09-05`)** | thêm `items[].public_name`, `items[].quantity`, optional `items[].unit_label`, `delivery_area_short` (không bắt đầu bằng chữ số, không chứa `x/y`; đơn vị hành chính có số vẫn hợp lệ) | có | có | `OD-V1-15` đã ký (`W-0191`): bộ **rộng** được duyệt cho production. `ProductionTargetV1FieldsApproved` mặc định `YES` từ `W-0192`. Quorum duyệt kịch bản **không** đổi: `PRODUCTION_REAL` vẫn cần `CONTENT` và `PRIVACY_LEGAL` từ hai actor khác nhau, và người tạo bản không được duyệt. |
 
 ## 2. Quy tắc P0 (phase-8/02 §11, /08)
 - ✅ Chỉ dùng `phone_ref`/`phone_masked`/`dial_token` để gọi; **cấm** raw phone trong log/UI/DB IVR

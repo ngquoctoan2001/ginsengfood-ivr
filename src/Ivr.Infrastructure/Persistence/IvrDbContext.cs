@@ -12,6 +12,10 @@ namespace Ivr.Infrastructure.Persistence;
 public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbContext(options)
 {
     public DbSet<FeatureFlagEntity> FeatureFlags => Set<FeatureFlagEntity>();
+
+    /// <summary>W-0192. Recorded authorisations to move a runtime gate (OD-V1-20).</summary>
+    public DbSet<RuntimeGateApprovalEntity> RuntimeGateApprovals =>
+        Set<RuntimeGateApprovalEntity>();
     public DbSet<ConfirmationTaskEntity> ConfirmationTasks => Set<ConfirmationTaskEntity>();
     public DbSet<AttemptPolicyEntity> AttemptPolicies => Set<AttemptPolicyEntity>();
     public DbSet<CallJobEntity> CallJobs => Set<CallJobEntity>();
@@ -73,6 +77,7 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
         modelBuilder.ApplyConfiguration(new FeatureFlagEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new RuntimeGateApprovalEntityConfiguration());
         // Analytics first: PersistenceModelConfiguration ends with the storage conventions
         // pass that snake-cases every column in the model, and the analytics allowlist is
         // written in the snake-case names that actually reach PostgreSQL.
