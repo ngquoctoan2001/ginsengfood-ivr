@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.22
+  version: 1.0.0-draft.23
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -329,6 +329,7 @@ paths:
       operationId: createScriptDraft
       security: [ { bearerAuth: [] } ]
       parameters:
+        - $ref: '#/components/parameters/OptionalIdempotencyKey'
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/ActorId'
       requestBody:
@@ -375,6 +376,7 @@ paths:
       operationId: submitScriptForReview
       security: [ { bearerAuth: [] } ]
       parameters:
+        - $ref: '#/components/parameters/OptionalIdempotencyKey'
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/ActorId'
         - $ref: '#/components/parameters/ScriptTemplateId'
@@ -403,6 +405,7 @@ paths:
       operationId: approveScriptVersion
       security: [ { bearerAuth: [] } ]
       parameters:
+        - $ref: '#/components/parameters/OptionalIdempotencyKey'
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/ActorId'
         - $ref: '#/components/parameters/ScriptTemplateId'
@@ -428,6 +431,7 @@ paths:
       operationId: retireScriptVersion
       security: [ { bearerAuth: [] } ]
       parameters:
+        - $ref: '#/components/parameters/OptionalIdempotencyKey'
         - $ref: '#/components/parameters/CorrelationId'
         - $ref: '#/components/parameters/ActorId'
         - $ref: '#/components/parameters/ScriptTemplateId'
@@ -904,8 +908,14 @@ paths:
       operationId: getFeatureFlags
       parameters:
         - $ref: '#/components/parameters/FeatureFlagEnvironment'
-        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/GeneratedCorrelationId'
       responses:
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
         '200': { description: Fresh snapshot, content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagReadResult' } } } }
         '403': { $ref: '#/components/responses/Error' }
         '409': { $ref: '#/components/responses/Error' }
@@ -915,13 +925,18 @@ paths:
       operationId: mutateFeatureFlags
       parameters:
         - $ref: '#/components/parameters/FeatureFlagEnvironment'
-        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/GeneratedCorrelationId'
         - $ref: '#/components/parameters/IdempotencyKey'
         - $ref: '#/components/parameters/ActorId'
       requestBody:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagMutationRequest' } } }
       responses:
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
         '200': { description: Audited mutation and verified revision, content: { application/json: { schema: { $ref: '#/components/schemas/FeatureFlagMutationResult' } } } }
         '400': { $ref: '#/components/responses/Error' }
         '403': { $ref: '#/components/responses/Error' }
@@ -933,8 +948,14 @@ paths:
       operationId: verifyFeatureFlagKillSwitch
       parameters:
         - $ref: '#/components/parameters/FeatureFlagEnvironment'
-        - $ref: '#/components/parameters/CorrelationId'
+        - $ref: '#/components/parameters/GeneratedCorrelationId'
       responses:
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+        '500': { $ref: '#/components/responses/Error' }
         '200': { description: Effective fail-closed state, content: { application/json: { schema: { $ref: '#/components/schemas/KillSwitchVerification' } } } }
         '403': { $ref: '#/components/responses/Error' }
 components:
@@ -970,6 +991,18 @@ components:
       in: header
       required: true
       schema: { type: string }
+    GeneratedCorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Generated when omitted on feature-flag routes; a supplied value must be safe and valid.
+      schema: { type: string, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:-]+$' }
+    OptionalIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: Recommended for script mutations. Same key and payload replays the stored response; changed payload or actor conflicts. Omission preserves legacy lifecycle behavior.
+      schema: { type: string, minLength: 1, maxLength: 128 }
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -1767,7 +1800,7 @@ components:
             and "was this recorded" is the exact question this field exists to answer.
         voice_region:
           type: [string, "null"]
-          enum: [North, Central, South]
+          enum: [North, Central, South, null]
           description: >
             W-0113. The region recorded for this attempt at dispatch. Null on attempts made
             before the columns existed and on any path that dials without choosing a voice; null
@@ -1930,7 +1963,7 @@ components:
             latter to know which voice a customer heard.
         voice_region_source:
           type: [string, "null"]
-          enum: [RECORDED, DERIVED]
+          enum: [RECORDED, DERIVED, null]
           description: >
             W-0113. RECORDED when voice_region comes from the attempt row, DERIVED when it was
             computed from the stored delivery area. Null when there is no region at all.
