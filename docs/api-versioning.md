@@ -48,7 +48,11 @@ and recorded before it is emitted.
 
 ## Grace period
 
-- Candidate default: at least 90 calendar days after the successor is approved and available in non-prod.
+- **Signed 2026-09-06 (`OD-V1-22`, owner): at least 90 calendar days** after the successor is both
+  approved and available in non-prod. Two conditions, not one — a successor that is approved but
+  not yet reachable in non-prod has not started anybody's clock.
+- This is no longer a candidate default. It was one until `W-0204`, and the distinction mattered:
+  Module 3 cannot reasonably sign a compatibility window that the IVR side has not committed to.
 - Current Golden Hour compatibility has no fixed sunset date yet. Its clock starts only after Target V1, auth, sandbox, dual-run and rollback evidence are approved by Sales and IVR owners.
 - A security/privacy emergency may shorten the period only with owner and security approval plus a documented consumer notification and rollback decision.
 

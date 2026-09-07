@@ -192,6 +192,11 @@ Trước khi gọi API, Module 3 xác nhận:
 
 ### 3.4. 22 field bắt buộc trên wire
 
+> `W-0204`: bảng này và mảng `required` trong OpenAPI nay được **so khớp bằng gate**
+> (`FREEZE-03` trong `deploy/ci/scripts/contract-freeze-verifier.mjs`). Nếu hai bên lệch nhau, CI
+> đỏ — vì một chữ ký lên tài liệu mà spec không thực thi thì không ký lên cái gì cả. Bản đầy đủ cả
+> field lẫn enum, sinh từ spec đã ghim: [`target-v1-field-inventory.md`](../docs/contracts/target-v1-field-inventory.md).
+
 | Field | Kiểu | Ý nghĩa / ràng buộc |
 | --- | --- | --- |
 | `contract_version` | string | Hằng số `ivr-order-confirmation.v1` |

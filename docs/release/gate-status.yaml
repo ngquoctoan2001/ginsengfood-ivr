@@ -914,6 +914,10 @@ work:
     prompt: "P1.2 Full worker pipeline — profile LocalMockE2E + vòng lặp E2E có tiêm lỗi (Origin=UNPLANNED)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0203/README.md"
+  - id: "W-0204"
+    prompt: "P2.1 Chốt contract — cơ chế đóng băng hợp đồng + đối chiếu trạng thái chữ ký (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0204/README.md"
 
 production_flag:
   real_customer_call_allowed: false

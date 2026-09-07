@@ -18,6 +18,18 @@ Ba câu **chặn cứng**, trích lại để thấy mức độ:
 
 ## 2. Câu hỏi cho owner **ngoài** Module 3
 
+> **Thu hẹp `2026-09-06` (`W-0204`).** Bảng này viết ngày `2026-09-03`; ngày `2026-09-05` owner đã
+> ký đóng `OD-V1-01..08` và `OD-V1-12..18` trong
+> [`open-decisions-register.md`](../specs/_review/open-decisions-register.md). Các dòng dưới **vẫn
+> mở**, nhưng lý do đã đổi: phần **quyết định của owner** đã có, phần còn thiếu là **artifact của
+> bên kia** — producer SHA/OpenAPI/CDC của M3 và credential sandbox. Đọc "chặn" ở cột thứ tư theo
+> nghĩa đó, đừng đọc thành "chưa ai quyết gì".
+>
+> `OQ-OPTOUT-01` **đã có vị trí owner** từ `2026-09-06`: `OD-V1-23` ký **explicit-only V1** — chỉ
+> coi là opt-out khi khách phát tín hiệu tường minh, không suy từ số lần `Rejected`. Dòng này vẫn
+> mở vì đó **mới là vị trí owner, chưa phải quorum**: Legal/Privacy và CRM/M3 còn phải đồng ký
+> trước khi có bất kỳ code opt-out nào. `OD-V1-22` cùng ngày ký compatibility window ≥ 90 ngày.
+
 | ID | Câu hỏi | Owner | Chặn | Evidence để đóng |
 | --- | --- | --- | --- | --- |
 | `OQ-POLICY-01` | Ký `ATP-01..15`: authority/source supersession; immutable two-program version+bundle hash; attempts/offsets/window/T0; counted/terminal + technical retry/backoff; quiet-hours/timezone; wire mismatch; M3 producer/distribution; registry four-eyes/lifecycle; cutover/in-flight; pre-dial coherence; capacity/token/audit/rollback. ⚠️ `D-10` và phase-8 đang lệch **bốn nhóm số**; current wire đã exact-compare và trả `409`, nhưng chưa có policy production | Product + Order Core + M3; Platform/M8/Release ở dòng kỹ thuật | **mọi production policy, producer và scheduler/registry promotion** | signed [M8-11 decision pack](../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md) + canonical bundle/hash + M3 producer SHA/OpenAPI/CDC/shared tests; [T-09](../docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md) |

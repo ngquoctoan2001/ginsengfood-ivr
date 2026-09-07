@@ -120,6 +120,29 @@ phải hosted CI, không phải staging soak.
 - Chốt attempt policy version, opt-out boundary, `dial_token` opaque và profile auth/rotation.
 - Freeze OpenAPI version, generated client và contract hash; thay trạng thái draft chỉ sau chữ ký hợp lệ.
 
+**Trạng thái (06/09):** cơ chế đóng băng **đạt** — [`W-0204`](../evidence/W-0204/README.md):
+`contract-freeze-verifier` 5 kiểm, selftest đột biến **11/11**, generated client nay được ghim
+hash, closure pack thôi chép lại pin (bản cũ gọi tên baseline `draft.18` không còn tồn tại), bảng
+22/13+1 field trong IR-06 nay được gate so khớp từng tên với spec, và trạng thái `DRAFT` không còn
+đổi được bằng cách sửa một chuỗi. Bề mặt wire để duyệt gom về một trang sinh tự động:
+[`target-v1-field-inventory.md`](../contracts/target-v1-field-inventory.md).
+
+**Chữ ký thì chưa.** Owner đã ký đóng `OD-V1-01..08` và `OD-V1-12..18` ngày 05/09 — nhiều hơn những
+gì IR-05 còn mô tả — nhưng **Module 3 chưa đồng ký bề mặt và chưa giao producer SHA/OpenAPI/CDC**,
+mà closure evidence của chính các dòng đó liệt kê producer artifact là điều kiện đóng. Vì vậy
+`TARGET_CONTRACT_V1` giữ `DRAFT`, và đó là trạng thái đúng chứ không phải nợ.
+
+Hai mục thuộc P2.1 mà trước lượt này **không tài liệu nào đang giữ** đã được hỏi và owner ký ngày
+06/09: `OD-V1-22` **compatibility window ≥ 90 ngày** (đồng hồ chạy khi successor vừa được duyệt vừa
+có ở non-prod) và `OD-V1-23` **opt-out explicit-only V1**. Hệ quả của mục sau cần theo dõi: hằng số
+`2/3` đang chạy (suy opt-out từ nhiều lần `Rejected`) **không có authority**, nên từ nay là một
+khoảng trống chứ không phải một quy tắc. `OD-V1-23` mới là vị trí owner — Legal/Privacy và CRM/M3
+còn phải đồng ký trước khi có code opt-out. `golden_hour_session_id` vẫn cấm đổi code/OpenAPI/DB
+trước chữ ký M3.
+
+**Còn lại để đóng P2.1:** chữ ký bề mặt của Module 3 (IR-06 §10) và producer artifact — SHA/OpenAPI/
+CDC — cộng credential sandbox. Không mục nào trong số đó IVR tự làm được.
+
 ### P2.2 Sandbox E2E
 
 - M3 phát task call-ready cho cả hai chương trình; IVR không tự quyết định nghiệp vụ Order Core.

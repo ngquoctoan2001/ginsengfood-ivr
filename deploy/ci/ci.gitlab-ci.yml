@@ -50,6 +50,13 @@ openapi_lint:
     - npm --prefix deploy/ci run openapi:validate -- --summary ci-artifacts/openapi/validation-summary.txt
     - npm --prefix deploy/ci run openapi:drift
     - npm --prefix deploy/ci run test:openapi-negative
+    # W-0204 / P2.1. The drift gate proves the spec has not moved; these two prove the rest of
+    # what a signature would cover has not moved either - the generated client, the published
+    # field tables, the one-page inventory - and that the draft state has not been promoted by
+    # editing a string. The selftest runs beside it because a gate nobody has seen go red is a
+    # claim, not a check.
+    - npm --prefix deploy/ci run contract:freeze
+    - npm --prefix deploy/ci run test:contract-freeze
   artifacts:
     when: always
     expire_in: 7 days

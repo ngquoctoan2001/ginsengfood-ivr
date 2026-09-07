@@ -16,7 +16,8 @@
       "status": "TARGET_DRAFT",
       "path": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
       "sha256": "b32a75ce4b5099e4eecbcc434c85705525f0b6433b2483c9d58853a3e118350a",
-      "generated": "src/Ivr.Contracts/Generated/IvrServer/V1/IvrServerModels.g.cs"
+      "generated": "src/Ivr.Contracts/Generated/IvrServer/V1/IvrServerModels.g.cs",
+      "generatedSha256": "fa7d9a6a1a96920b677a89922276d1676fea3f45e065e28b8ff575c88d30c508"
     },
     {
       "id": "sales-callback-target-v1-draft",
@@ -24,7 +25,8 @@
       "status": "TARGET_DRAFT",
       "path": "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
       "sha256": "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697",
-      "generated": "src/Ivr.Contracts/Generated/SalesTarget/V1/SalesTargetV1Client.g.cs"
+      "generated": "src/Ivr.Contracts/Generated/SalesTarget/V1/SalesTargetV1Client.g.cs",
+      "generatedSha256": "89012b4b8ad7fe7a21e48176a932ac97e6454e573dd6be24d48ab62cff27bc19"
     },
     {
       "id": "sales-current-golden-hour-compat-a3aad246",

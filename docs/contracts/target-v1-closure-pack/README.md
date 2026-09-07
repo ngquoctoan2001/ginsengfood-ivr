@@ -63,12 +63,24 @@ Mỗi ticket có 8 mục cố định. Owner chỉ cần điền mục **Closure
 
 Mọi so sánh trong gói này chạy trên baseline đã ghim ở [`specs/api/openapi/contract-manifest.json`](../../../specs/api/openapi/contract-manifest.json):
 
-| Thứ | Giá trị |
+| Thứ | Ở đâu |
 | --- | --- |
-| Sales current baseline | `ginsengfood-business-platform` @ `a3aad246d986fbc273cf41aaa93eec6659669656` |
-| IVR internal API (TARGET_DRAFT) | `sha256:b59a644e5bcaca3ad33b2b91523e14ec65196027b4a37a6b3c73d6842e8676b9` |
-| Sales callback target (TARGET_DRAFT) | `sha256:af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
-| Current Golden Hour compat fixture | `sha256:ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d` |
+| Sales current baseline | `ginsengfood-business-platform` @ `salesCurrentBaseline.commit` trong manifest |
+| IVR internal API (TARGET_DRAFT) | `contracts[].sha256` của `ivr-owned-target-v1-draft` |
+| Sales callback target (TARGET_DRAFT) | `contracts[].sha256` của `sales-callback-target-v1-draft` |
+| Current Golden Hour compat fixture | `contracts[].sha256` của `sales-current-golden-hour-compat-a3aad246` |
+| Generated client hai chiều | `contracts[].generatedSha256` |
+
+Bảng này **cố ý không chép lại con số** (`W-0204`). Bản trước có chép, và một trong ba hash đã lạc
+hậu ngay khi spec xoay từ `draft.18` sang `draft.23`: gói mà owner được mời ký lại gọi tên một
+baseline không còn tồn tại, nên chữ ký sẽ rơi vào một artifact không xác định được. Một pin viết ở
+hai nơi thì nơi ít được đọc hơn là nơi sai. `FREEZE-02` trong
+[`contract-freeze-verifier.mjs`](../../../deploy/ci/scripts/contract-freeze-verifier.mjs) nay đỏ
+nếu bất kỳ tài liệu governance nào lại chép một hash không nằm trong manifest.
+
+Danh sách field và enum để review nằm ở
+[`target-v1-field-inventory.md`](../target-v1-field-inventory.md) — sinh ra từ chính spec đã ghim,
+nên nó không thể mô tả một hợp đồng khác với cái mà gate đang cưỡng chế.
 
 Nếu Sales trả lời trên một commit khác, ghi commit đó vào ticket — **không** so sánh chéo hai baseline rồi kết luận.
 
