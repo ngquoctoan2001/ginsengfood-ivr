@@ -239,6 +239,102 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
                 before with { GlobalDialKillSwitch = false }));
     }
 
+    /// <summary>
+    /// The <c>environment</c> column scopes one approval kind and is inert for the other two, and
+    /// nothing in the schema says which is which.
+    /// <para>
+    /// <c>FEATURE_FLAG_CHANGE</c> is scoped twice over: the verifier's query filters
+    /// <c>environment</c>, and the fingerprint it also matches on hashes
+    /// <c>snapshot.Environment</c> as its first field. A lab approval therefore cannot travel to a
+    /// production change even if someone reuses the reference.
+    /// </para>
+    /// <para>
+    /// <c>RUNTIME_GATE_ADMIN</c> and <c>PRODUCTION_CALL</c> are read through
+    /// <c>RuntimeGateApprovalReader.AnyLiveAsync</c>, which asks only for kind, revocation and
+    /// expiry. Their <c>environment</c> value is written, stored, and never consulted. That is
+    /// defensible - administration is a coarse capability and every individual risk-increasing
+    /// change is still bound to an environment by four eyes - but it is a trap for whoever inserts
+    /// the next row, because setting <c>environment</c> to a single environment looks like scoping
+    /// and does nothing. W-0213.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-GATE-APPROVAL-10")]
+    public async Task EnvironmentScopesTheFlagChangeApprovalAndIsInertForTheAdminGrant()
+    {
+        await fixture.ResetAsync();
+
+        // Scoped: an approval granted for Lab does not verify the same change in Production.
+        FeatureFlagSnapshot lab = FeatureFlagSnapshot.SafeDefault(FeatureFlagEnvironments.Lab);
+        FeatureFlagSnapshot labAfter = lab.Apply(
+            new FeatureFlagChangeSet(GlobalDialKillSwitch: false));
+        FeatureFlagSnapshot production =
+            FeatureFlagSnapshot.SafeDefault(FeatureFlagEnvironments.Production);
+        FeatureFlagSnapshot productionAfter = production.Apply(
+            new FeatureFlagChangeSet(GlobalDialKillSwitch: false));
+
+        await InsertApprovalAsync(
+            reference: "approval-env-1",
+            proposer: "operator-1",
+            approver: "operator-2",
+            fingerprint: RuntimeGateFingerprint.Of(lab, labAfter),
+            environment: FeatureFlagEnvironments.Lab);
+
+        IFourEyesApprovalVerifier verifier = fixture.Services
+            .GetRequiredService<IFourEyesApprovalVerifier>();
+
+        Assert.Equal(
+            "operator-2",
+            await verifier.VerifyAsync("approval-env-1", "operator-1", lab, labAfter));
+        Assert.Null(await verifier.VerifyAsync(
+            "approval-env-1", "operator-1", production, productionAfter));
+
+        // The fingerprint alone already separates them, before the column predicate is reached.
+        Assert.NotEqual(
+            RuntimeGateFingerprint.Of(lab, labAfter),
+            RuntimeGateFingerprint.Of(production, productionAfter));
+
+        // Inert, in two steps, because the table will not let this be shown in one.
+        IRuntimeGateAuthorization authorization = fixture.Services
+            .GetRequiredService<IRuntimeGateAuthorization>();
+
+        Assert.True(await authorization.IsApprovedAsync());
+
+        // Narrowing a granted approval in place is refused outright: the append-only trigger
+        // allows revocation and nothing else. So an admin grant cannot be scoped after the fact
+        // even by someone with database access.
+        PostgresException immutable = await Assert.ThrowsAsync<PostgresException>(() =>
+            ExecuteAsync(
+                "UPDATE ivr_runtime_gate_approvals SET environment = 'lab' "
+                + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN'"));
+        Assert.Contains("only revocation may change", immutable.MessageText, StringComparison.Ordinal);
+
+        // Revoke the seeded grant, and the gate closes - revocation is the switch.
+        await ExecuteAsync(
+            "UPDATE ivr_runtime_gate_approvals SET revoked_at = now(), "
+            + "revoked_reason = 'IT-GATE-APPROVAL-10' "
+            + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN'");
+
+        Assert.False(await authorization.IsApprovedAsync());
+
+        // Now grant it again, scoped to lab only. The gate answers yes with no environment asked
+        // for and none supplied, which is the whole point: on this kind the column is recorded,
+        // never read. Whoever writes 'lab' here believing it limits the grant is mistaken.
+        await ExecuteAsync(
+            """
+            INSERT INTO ivr_runtime_gate_approvals (
+                approval_reference, approval_kind, environment, proposer_actor_id,
+                approver_actor_id, change_fingerprint, reason, signed_decision_ref,
+                granted_at, expires_at, revoked_at, revoked_reason, correlation_id)
+            VALUES (
+                'IT-GATE-APPROVAL-10/lab-scoped', 'RUNTIME_GATE_ADMIN', 'lab', NULL,
+                'operator-3', NULL, 'scoped to lab on purpose', 'OD-V1-20@2026-09-05',
+                now(), NULL, NULL, NULL, 'corr-test')
+            """);
+
+        Assert.True(await authorization.IsApprovedAsync());
+    }
+
     private Task InsertApprovalAsync(
         string reference,
         string proposer,

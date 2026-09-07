@@ -41,7 +41,7 @@ Cập nhật mỗi lần đụng vào một mục. Quy ước:
 | **0.2** Header 128 vs 200 | 🟡 `XONG PHẦN M8` | `W-0209` | nội bộ M8 — chốt lệch intake↔admin |
 | **0.3** `DTMF-0` ≠ opt-out | 🟡 `XONG PHẦN M8` | `W-0210` | Product + CRM/M3 + Legal/Privacy — quorum `OD-V1-23` |
 | **0.4** Docs sai về DB | ✅ `XONG` | `W-0211` | — |
-| **0.5** Approval theo môi trường | ⬜ `CHƯA LÀM` | — | Security/Platform |
+| **0.5** Approval theo môi trường | 🟡 `XONG PHẦN M8` | `W-0213` | Security/Platform — có cần scope theo env không |
 | **0.6** `40/50/60` occupancy | ✅ `XONG` | `W-0212` | — |
 | **A1**–**A4** quản trị/chữ ký | ⛔ `CHỜ NGOÀI` | — | Owner hệ + chief auditor |
 | **B5** khung giờ 21:00 | ⬜ `CHƯA LÀM` | — | Owner + M3 (`LOCK-05`) |
@@ -204,13 +204,37 @@ tài liệu trỏ thẳng vào test đó làm neo.
 **Không đụng OpenAPI** — `ResultType` ở đó **đã đúng**: enum 11 giá trị kèm `description` giải thích
 IVR không phát hai mã pre-call. Chỉ `specs/database` sai.
 
-### 0.5 — Ngữ nghĩa "approval theo môi trường" chưa có thật trong code
+### 0.5 — `environment` scope một loại approval, và trơ với hai loại kia
 
-`RuntimeGateApprovals.cs:95-120` (`RuntimeGateApprovalReader.AnyLiveAsync`) — SQL chỉ lọc
-`approval_kind` + `revoked_at IS NULL` + `expires_at`. **Không lọc environment, không lọc actor.**
-Nên đề xuất "chỉ seed row cho dev/lab" **không tạo ra giới hạn môi trường nào** trong cùng một DB.
+> **🟡 `XONG PHẦN M8`** · `W-0213` · 07/09
+> Đã ghim (`IT-GATE-APPROVAL-10`) và ghi vào code. **Chờ Security/Platform** trả lời: admin gate có
+> **cần** scope theo môi trường không. Evidence: [`docs/evidence/W-0213`](../docs/evidence/W-0213/README.md).
 
-Phát hiện của Codex (F02). Xem thêm mục B4 bên dưới.
+⚠️ **Sửa chính tiêu đề cũ của mục này.** Bản trước viết *"ngữ nghĩa approval theo môi trường **chưa
+có thật trong code**"* — **quá đà**, và tôi đã tự khái quát từ một câu Codex viết đúng phạm vi hơn.
+Ngữ nghĩa đó **có thật**, cho một trong ba loại:
+
+| Loại approval | Đọc bởi | Lọc environment? |
+| --- | --- | --- |
+| `FEATURE_FLAG_CHANGE` | `PostgresFourEyesApprovalVerifier.VerifyAsync` | **Có, hai lớp** — `AND environment = {3}` trong SQL, **và** `RuntimeGateFingerprint.Of()` băm `snapshot.Environment` làm trường đầu tiên |
+| `RUNTIME_GATE_ADMIN` | `RuntimeGateApprovalReader.AnyLiveAsync` | **Không** — chỉ kind + revoked + expires |
+| `PRODUCTION_CALL` | `AnyLiveAsync` | **Không** (nhưng không migration nào seed) |
+
+Nên approval cho một thay đổi cờ ở lab **không thể** dùng lại cho production, kể cả khi ai đó xài
+lại `approval_reference` — fingerprint đã khác trước khi tới predicate cột.
+
+**Cái thật sự là bẫy:** cột `environment` được **ghi** cho cả ba loại nhưng chỉ được **đọc** cho một
+loại, và không có gì trong schema nói điều đó. Ai chèn một row `RUNTIME_GATE_ADMIN` với
+`environment='lab'` sẽ tưởng mình đã giới hạn — không hề.
+
+Thêm một tầng nữa mà `W-0213` phát hiện khi test đỏ lần đầu: **không sửa được cột trên row đã cấp**.
+Trigger append-only từ chối thẳng (`P0001: a granted runtime gate approval is immutable; only
+revocation may change`). Nên "thu hẹp" một admin grant sau khi cấp là **bất khả**; chỉ có revoke rồi
+cấp lại — mà cấp lại cũng chẳng giới hạn được gì.
+
+**Việc còn lại (Security/Platform):** admin gate có **cần** scope theo môi trường không? Nếu có thì
+phải sửa **cả contract + reader + test**, không chỉ đổi giá trị cột. Nếu không thì giữ nguyên và
+ghi rõ vào `OD-V1-20` rằng cột này cố ý trơ cho hai loại đó.
 
 ### 0.6 — `40/50/60` không phải ba cách viết của một con số
 
@@ -323,6 +347,13 @@ Có thêm approval row **cũng không** làm HTTP API cho phép tắt kill switc
 **Việc:** chốt scope approval. Nếu thật sự cần phân môi trường thì phải sửa **cả contract + reader
 + test** (xem 0.5), không chỉ đổi giá trị `environment` trên row. Giữ nguyên khả năng giảm rủi ro
 khẩn cấp một người (`unconditionalRiskReduction`).
+
+**Cập nhật `W-0213`:** đề xuất *"gate seed theo environment (chỉ dev/lab)"* trong bản audit gốc
+**không thi hành được** theo hai cách độc lập — reader không đọc cột đó (0.5), và trigger append-only
+từ chối sửa cột trên row đã cấp. Đề xuất *"thêm test khẳng định prod không có RUNTIME_GATE_ADMIN sau
+migration"* cũng sai tiền đề: row seed mang `environment=NULL` và áp mọi môi trường theo thiết kế,
+nên không có trạng thái "prod không có" để khẳng định. Cái thay thế được là `IT-GATE-APPROVAL-10`:
+ghim rằng cột trơ, để không ai tưởng nó là một công tắc.
 
 ### B6 — Hai lịch sử schema của `W0122`
 

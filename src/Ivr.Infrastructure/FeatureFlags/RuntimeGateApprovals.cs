@@ -28,10 +28,32 @@ public static class RuntimeGateApprovalKinds
     /// <summary>
     /// Permission to administer runtime gates at all. Granted once by <c>OD-V1-20</c>; it does
     /// <b>not</b> grant any individual risk-increasing change, which still needs four eyes.
+    /// <para>
+    /// W-0213. Its <c>environment</c> is stored and <b>never read</b> — see the note on
+    /// <see cref="FeatureFlagChange"/> for which kinds the column actually scopes.
+    /// </para>
     /// </summary>
     public const string RuntimeGateAdmin = "RUNTIME_GATE_ADMIN";
 
-    /// <summary>One approval for one exact flag change, bound to its before/after fingerprint.</summary>
+    /// <summary>
+    /// One approval for one exact flag change, bound to its before/after fingerprint.
+    /// <para>
+    /// W-0213. This is the <b>only</b> kind the <c>environment</c> column scopes, and it scopes it
+    /// twice: <see cref="PostgresFourEyesApprovalVerifier"/> filters on the column, and the
+    /// fingerprint it also matches puts <c>snapshot.Environment</c> first. A lab approval
+    /// therefore cannot be replayed against a production change even by someone reusing the
+    /// reference.
+    /// </para>
+    /// <para>
+    /// The other two kinds go through <see cref="RuntimeGateApprovalReader.AnyLiveAsync"/>, which
+    /// asks only for kind, revocation and expiry. Administration being coarse is deliberate — the
+    /// environment-specific decision is the four-eyes row on each individual change — but writing
+    /// an environment on one of those rows <i>looks</i> like scoping and is not. Narrowing an
+    /// existing row is refused outright by the append-only trigger, so the only way to "limit"
+    /// them is revoke-and-re-grant, which limits nothing either. <c>IT-GATE-APPROVAL-10</c> holds
+    /// both halves of that.
+    /// </para>
+    /// </summary>
     public const string FeatureFlagChange = "FEATURE_FLAG_CHANGE";
 
     /// <summary>

@@ -947,6 +947,10 @@ work:
     prompt: "Worklist 0.6 — con số thứ tư của họ call-duration: spec ghi AVERAGE_CALL_DURATION 35s mà W-0132 không gom, và 35+5 khong bang 50 (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.6\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0212/README.md"
+  - id: "W-0213"
+    prompt: "Worklist 0.5 — environment scope FEATURE_FLAG_CHANGE (hai lớp) và trơ với RUNTIME_GATE_ADMIN/PRODUCTION_CALL; sửa tiền đề sai của chính worklist (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.5\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0213/README.md"
 
 production_flag:
   real_customer_call_allowed: false
