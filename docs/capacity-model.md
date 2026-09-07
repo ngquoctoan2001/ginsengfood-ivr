@@ -111,15 +111,28 @@ hình thức trung thực: khẳng định mô hình **tự khai là chưa hiệ
 chỉnh nó (`W-0008`). `CAP-CALIB-03` kiểm đúng hai điều đó, và kiểm thêm rằng báo cáo hiệu năng
 **không** tuyên bố đã đo thời lượng cuộc gọi.
 
-## 4a. Ba con số chu kỳ cuộc gọi — một nguồn khai báo (`W-0132`)
+## 4a. Bốn con số chu kỳ cuộc gọi — một nguồn khai báo (`W-0132`, `W-0212`)
 
-Thời lượng một cuộc gọi từng sống ở ba nơi độc lập, và **không gate nào so chúng với nhau**:
+Thời lượng một cuộc gọi từng sống ở nhiều nơi độc lập, và **không gate nào so chúng với nhau**:
 
 | Con số | Ở đâu | Nghĩa |
 | --- | --- | --- |
 | **40s** (+5s cooldown) | `capacity-model.mjs`, `capacity-selftest.mjs` | giả định **channel occupancy** của model; cooldown được cộng riêng |
-| **50s** | hàm ý bởi spec §23 `M8-P0-009` | **full channel cycle**; 32 SIM × `floor(300/50)` = `~192` cuộc mỗi window 5 phút |
+| **35s** | spec V0.3 §14 bảng giả định — `AVERAGE_CALL_DURATION`, nguồn V0.2 §11 | **channel occupancy** theo spec |
+| **50s** | spec V0.3 §14 — `CONSERVATIVE_CALL_CYCLE`; cũng là con số làm `~192` của §23 `M8-P0-009` đúng | **full channel cycle**; 32 SIM × `floor(300/50)` = `~192` cuộc mỗi window 5 phút |
 | **60s** | `SchedulerOptions.ExpectedCallDurationSeconds` | ước lượng **channel occupancy** mặc định của runtime |
+
+> **`W-0212` — con số thứ tư, và mười giây không ai giải thích được.**
+> `W-0132` gom `40/50/60` nhưng bỏ sót `35`: spec viết ra một **cặp** (`AVERAGE_CALL_DURATION` 35s
+> và `CONSERVATIVE_CALL_CYCLE` 50s), không phải riêng chu kỳ. Ba con số của **chính spec** không
+> khớp nhau: cùng bảng đó ghi SIM cooldown **5s**, mà `35 + 5 = 40`, **không phải 50**. Mười giây
+> chênh không có nguồn — có thể là thời gian đổ chuông/thiết lập mà dòng cooldown không phủ, có thể
+> chỉ là một con số cũ chưa dẫn lại. **Không quyết được từ tài liệu**, và chọn một đáp án là tuyên
+> bố một phép đo. Nên `35s` được **khai báo và ghim**, không hơn; `W-0008` là nơi giải quyết.
+>
+> Lưu ý cho lúc calibrate: luật hiện hành đặt chu kỳ spec `= occupancy + cooldown` (tức `+5`), trong
+> khi cặp lịch sử của spec dùng `+15`. Khi có số đo, con số `50` sẽ đổi — đó là hệ quả đã biết, không
+> phải drift.
 
 `W-0132` gom chúng vào `CALL_DURATION_ASSUMPTIONS` trong `tools/capacity-sim/capacity-model.mjs`
 và **không hợp nhất giá trị**. Hợp nhất nghĩa là tuyên bố một thời lượng đã đo, mà chưa có cuộc gọi
@@ -127,8 +140,10 @@ nào được quay (`W-0008`). Việc gom lại chỉ biến sự bất đồng 
 
 `CAP-DRIFT-05` giữ điều đó:
 
-- ba con số phải đúng bằng giá trị đã ghim — một con số nhúc nhích một mình là đỏ;
+- **bốn** con số phải đúng bằng giá trị đã ghim — một con số nhúc nhích một mình là đỏ;
 - `~192` của spec phải còn khớp số học với 50s, nếu không thì 50s không còn là điều spec nói;
+- `35s` chỉ được ghim, **không** bị ép vào quan hệ nào với 50s — chưa có phép đo nào biện minh cho
+  một quan hệ (`W-0212`);
 - mặc định C# được **đọc ngược từ `SchedulerCapacity.cs`**, không tin bản sao trong JS;
 - sweep độ nhạy phải còn xoay quanh giả định hiện hành, không phải một giá trị cũ;
 - đường thoát calibrated được selftest bằng một shape `TEST_ONLY`: model/runtime phải cùng nghĩa
@@ -138,8 +153,9 @@ nào được quay (`W-0008`). Việc gom lại chỉ biến sự bất đồng 
 
 Khi `W-0008` có số đo: đặt model/runtime bằng channel occupancy đã chọn, đặt chu kỳ spec bằng
 `occupancy + cooldown` đã đo, cập nhật `CHANNEL_CONSTRAINTS.cooldownSeconds` nếu cần, bật
-`calibrated` và trỏ `calibratedBy` vào evidence. **Không làm ba con số bằng nhau**: công thức
-`channelsForWindow` vốn đã cộng cooldown, nên làm vậy sẽ tính cooldown hai lần.
+`calibrated` và trỏ `calibratedBy` vào evidence. **Không làm các con số bằng nhau**: công thức
+`channelsForWindow` vốn đã cộng cooldown, nên làm vậy sẽ tính cooldown hai lần. Và nhớ dẫn lại `35s`
+cùng lúc — nó là con số của spec, không phải của model.
 
 ## 4b. Độ dài phiên — input chưa có đáp án, và cái bẫy khi thay ẩu (`W-0134`)
 

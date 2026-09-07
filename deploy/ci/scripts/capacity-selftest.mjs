@@ -332,12 +332,21 @@ async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
     assert.equal(declared.calibrationWork, "W-0008",
       "the work that would calibrate this is no longer named.");
 
-    // The spec never writes 50s down -- it writes ~192 calls for 32 SIM in a five-minute window.
-    // If that arithmetic stops holding, the declared 50s is no longer what the current spec means.
+    // Spec §23 sizes 32 SIM at ~192 calls per five-minute window, and 50s is what makes that
+    // arithmetic hold. If it stops holding, the declared 50s is no longer what the spec means.
     const specImpliedCalls = 32 * Math.floor(300 / declared.specConservativeSeconds);
     assert.equal(specImpliedCalls, 192,
       `spec §23 sizes 32 SIM at ~192 calls per 300s window, but the declared `
       + `${declared.specConservativeSeconds}s gives ${specImpliedCalls}.`);
+
+    // W-0212. The spec also writes its occupancy figure down directly -- AVERAGE_CALL_DURATION 35s
+    // in the V0.3 assumptions table, next to a 5s SIM cooldown and the 50s cycle above. Those three
+    // do not reconcile: 35 + 5 is 40. Pin the 35 so the gap cannot widen or close unobserved; do
+    // not assert a relationship between them, because there is no measurement that would justify
+    // one. W-0008 settles it.
+    assert.equal(declared.specAverageCallSeconds, 35,
+      "the spec's declared average call duration moved; re-derive it from the spec assumptions "
+      + "table or from W-0008 evidence.");
   }
 
   // The runtime default is the one number that lives in C#, so read it rather than trust the copy.
@@ -361,7 +370,8 @@ async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
 
   process.stdout.write(
     `CAP-DRIFT-05 ${declared.calibrated ? "PASS_CALIBRATED" : "PASS_DECLARED_DISAGREEMENT"} — `
-    + `model occupancy ${declared.modelCallSeconds}s, spec full-cycle `
+    + `model occupancy ${declared.modelCallSeconds}s, spec occupancy `
+    + `${declared.specAverageCallSeconds}s, spec full-cycle `
     + `${declared.specConservativeSeconds}s, runtime occupancy estimate `
     + `${declared.schedulerDefaultSeconds}s (read back from SchedulerCapacity.cs). `
     + (declared.calibrated

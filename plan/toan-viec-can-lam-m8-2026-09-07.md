@@ -42,7 +42,7 @@ Cập nhật mỗi lần đụng vào một mục. Quy ước:
 | **0.3** `DTMF-0` ≠ opt-out | 🟡 `XONG PHẦN M8` | `W-0210` | Product + CRM/M3 + Legal/Privacy — quorum `OD-V1-23` |
 | **0.4** Docs sai về DB | ✅ `XONG` | `W-0211` | — |
 | **0.5** Approval theo môi trường | ⬜ `CHƯA LÀM` | — | Security/Platform |
-| **0.6** `40/50/60` occupancy | ⬜ `CHƯA LÀM` | — | — |
+| **0.6** `40/50/60` occupancy | ✅ `XONG` | `W-0212` | — |
 | **A1**–**A4** quản trị/chữ ký | ⛔ `CHỜ NGOÀI` | — | Owner hệ + chief auditor |
 | **B5** khung giờ 21:00 | ⬜ `CHƯA LÀM` | — | Owner + M3 (`LOCK-05`) |
 | **B4** `RUNTIME_GATE_ADMIN` | ⬜ `CHƯA LÀM` | — | Security/Platform |
@@ -218,7 +218,37 @@ Phát hiện của Codex (F02). Xem thêm mục B4 bên dưới.
 số" (có trong audit gốc) sẽ sai đơn vị hoặc cộng cooldown hai lần. `CAP-DRIFT-05` vừa pass đúng với
 trạng thái `DECLARED_DISAGREEMENT`.
 
-Phát hiện của Codex (F05). **Việc:** sửa câu chữ trong worklist/capacity docs, **không** sửa số.
+Phát hiện của Codex (F05).
+
+#### Đã làm (W-0212, 07/09) — ✅ đóng
+
+Đi kiểm thì **code và `docs/capacity-model.md` §4a đã đúng sẵn từ `W-0132`** — cả hai đều nói rõ
+occupancy vs full cycle và cảnh báo đừng làm ba số bằng nhau. Gate cũng nói thẳng:
+`CAP-DRIFT-05 PASS_DECLARED_DISAGREEMENT — … They disagree **by design**`. Chỗ sai duy nhất là câu
+chữ trong bản audit gốc, mà bản sạch này đã sửa từ `cf4bd4a`.
+
+**Nhưng đọc kỹ ra con số thứ tư.** Spec V0.3 §14 viết một **cặp**, không phải riêng chu kỳ:
+
+| Spec ghi | Giá trị |
+| --- | --- |
+| `AVERAGE_CALL_DURATION` | **35s** |
+| `CONSERVATIVE_CALL_CYCLE` | **50s** |
+| SIM cooldown | **5s** |
+
+`W-0132` gom `40/50/60` và **bỏ sót `35`** — ba trong bốn con số cùng họ được gate canh, một con số
+thì không. Và ba con số của **chính spec** không khớp nhau: `35 + 5 = 40`, **không phải 50**.
+Mười giây chênh không có nguồn.
+
+Đã làm: khai báo `specAverageCallSeconds: 35` vào `CALL_DURATION_ASSUMPTIONS`, ghim nó trong
+`CAP-DRIFT-05`, sửa comment sai của gate (*"The spec never writes 50s down"* — spec **có** viết, cả
+hai số), và cập nhật §4a thành bốn con số. **Không đổi một giá trị nào**, không ép quan hệ nào giữa
+`35` và `50` — chọn đáp án cho mười giây đó là tuyên bố một phép đo, đúng thứ constant này sinh ra
+để không làm. `W-0008` giải quyết.
+
+Bất biến hành vi giữ nguyên: `CAP-MODEL-01` 21 kênh, `CAP-SENS-02` 27 corner / `7..72`.
+
+**Lưu ý cho lúc calibrate:** luật hiện hành đặt chu kỳ spec `= occupancy + cooldown` (`+5`), còn cặp
+lịch sử của spec dùng `+15`. Khi có số đo, `50` sẽ đổi — hệ quả đã biết, không phải drift.
 
 ---
 
@@ -339,6 +369,9 @@ thật). **Không** đề xuất bỏ privacy guard để làm tài liệu đún
 đồng nghĩa phải tự mở lại dispatch/provider intake.
 
 **Việc:** giữ `UNCALIBRATED`; chỉ mở calibration khi owner mở lại **và** đủ dữ liệu. Xem 0.6.
+**Thêm vào phạm vi B1 từ `W-0212`:** khi `W-0008` có số đo, phải giải quyết luôn **mười giây** chênh
+trong chính spec (`AVERAGE_CALL_DURATION 35s` + cooldown `5s` ≠ `CONSERVATIVE_CALL_CYCLE 50s`) —
+giờ đã được khai báo và ghim, nhưng chưa ai giải thích được.
 
 ### B8 — TTS self-hosted VieNeu
 

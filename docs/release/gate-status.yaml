@@ -943,6 +943,10 @@ work:
     prompt: "Worklist 0.4 — ba câu tài liệu nói sai về chính hệ thống: bốn tập result type, draft.22 vs .23, bảng console trong DB (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.4\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0211/README.md"
+  - id: "W-0212"
+    prompt: "Worklist 0.6 — con số thứ tư của họ call-duration: spec ghi AVERAGE_CALL_DURATION 35s mà W-0132 không gom, và 35+5 khong bang 50 (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.6\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0212/README.md"
 
 production_flag:
   real_customer_call_allowed: false

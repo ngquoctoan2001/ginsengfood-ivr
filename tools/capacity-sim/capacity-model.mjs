@@ -48,6 +48,25 @@ export const CALL_DURATION_ASSUMPTIONS = {
 
   /** Channel-occupancy estimate used by SchedulerOptions in SchedulerCapacity.cs. */
   schedulerDefaultSeconds: 60,
+
+  /**
+   * W-0212 — the fourth number, and the reason it is here rather than left out.
+   *
+   * The spec writes down a PAIR, not just the cycle: `AVERAGE_CALL_DURATION` 35s and
+   * `CONSERVATIVE_CALL_CYCLE` 50s, both sourced to V0.2 §11, alongside a SIM cooldown of 5s.
+   * W-0132 collected the 50 and left the 35 behind, so three of the four numbers in this family
+   * were gated and one was not.
+   *
+   * That matters because the spec's own three do not reconcile: 35 + 5 is 40, not 50. Ten seconds
+   * are unaccounted for. Whether the gap is ring/setup time the cooldown row does not cover, or
+   * simply an older figure that was never re-derived, is not decidable from the documents - and
+   * picking an answer would be claiming a measurement, which is the one thing this constant exists
+   * not to do.
+   *
+   * So it is declared and pinned, nothing more. CAP-DRIFT-05 fails if it moves alone, and W-0008 is
+   * where the discrepancy gets settled rather than argued.
+   */
+  specAverageCallSeconds: 35,
 };
 
 /**
