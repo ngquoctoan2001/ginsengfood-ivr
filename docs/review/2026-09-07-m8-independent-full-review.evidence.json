@@ -1,0 +1,446 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "Codex",
+  "createdAt": "2026-09-07T10:15:47.7029509+07:00",
+  "sourceCommit": "9603ca55aff6353912eda8cc056d9348aa17917d",
+  "scope": "Independent review, local only; not a release attestation",
+  "implementationMatchesHead": true,
+  "checkoutClean": false,
+  "preexistingDirtyScope": [
+    "plan/toan-viec-can-lam-m8-2026-09-07.md"
+  ],
+  "coverage": {
+    "workItems": 37,
+    "claudeComments": 71,
+    "fullSpecLines": 697,
+    "fullHandoverLines": 1148
+  },
+  "dotnetCommand": "dotnet test Ivr.sln --no-restore --logger trx --logger \"console;verbosity=minimal\" --results-directory <audit-temp>/tests",
+  "dotnetExit": 0,
+  "dotnetTotal": 891,
+  "dotnetPassed": 891,
+  "trx": [
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\tests\\Administrator_NQT_2026-09-07_09_31_24.trx",
+      "assembly": "C:\\Users\\Administrator\\Desktop\\ivr\\tests\\Ivr.ContractTests\\bin\\Debug\\net10.0\\Ivr.ContractTests.dll",
+      "total": 24,
+      "executed": 24,
+      "passed": 24,
+      "failed": 0,
+      "notExecuted": 0,
+      "start": "2026-09-07T09:31:08.7928854+07:00",
+      "finish": "2026-09-07T09:31:24.9605523+07:00",
+      "sha256": "6a53b0fd4b8e02038a61b74d1e1a8b971ec6df9a48433f0bef43f0022946d6db"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\tests\\Administrator_NQT_2026-09-07_09_31_29.trx",
+      "assembly": "C:\\Users\\Administrator\\Desktop\\ivr\\tests\\Ivr.UnitTests\\bin\\Debug\\net10.0\\Ivr.UnitTests.dll",
+      "total": 593,
+      "executed": 593,
+      "passed": 593,
+      "failed": 0,
+      "notExecuted": 0,
+      "start": "2026-09-07T09:31:18.9127124+07:00",
+      "finish": "2026-09-07T09:31:37.0444926+07:00",
+      "sha256": "ef4fd2338368e9a0a1f74a13332a005d23b7ab0ae123237459a71d5017e05db8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\tests\\Administrator_NQT_2026-09-07_09_31_35.trx",
+      "assembly": "C:\\Users\\Administrator\\Desktop\\ivr\\tests\\chaos\\bin\\Debug\\net10.0\\Ivr.ChaosTests.dll",
+      "total": 8,
+      "executed": 8,
+      "passed": 8,
+      "failed": 0,
+      "notExecuted": 0,
+      "start": "2026-09-07T09:31:25.4824987+07:00",
+      "finish": "2026-09-07T09:32:04.0415677+07:00",
+      "sha256": "83a4fccd61fa96209c18ef470fc7f14a7f08c5e26ffdf3d43154b62a69a6bf1b"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\tests\\Administrator_NQT_2026-09-07_09_31_35[1].trx",
+      "assembly": "C:\\Users\\Administrator\\Desktop\\ivr\\tests\\Ivr.IntegrationTests\\bin\\Debug\\net10.0\\Ivr.IntegrationTests.dll",
+      "total": 266,
+      "executed": 266,
+      "passed": 266,
+      "failed": 0,
+      "notExecuted": 0,
+      "start": "2026-09-07T09:31:25.1483290+07:00",
+      "finish": "2026-09-07T09:39:15.3044872+07:00",
+      "sha256": "e227e7a2ace854312240df9821c78cd9e3fb2517823bae897fa448ae419bcbbe"
+    }
+  ],
+  "checks": [
+    {
+      "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\dotnet-full.log",
+      "sha256": "031dec2f3fa423ed8eea4bd9cd47c09ef00cfbe8d0bb7ca5e373eaabb6bc4e32",
+      "output": "See TRX counters and full log; build/test transcript retained locally."
+    },
+    {
+      "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\capacity.log",
+      "sha256": "a12ecdd703cae75a6895e2cc10b41e5a13d4f408e220a17b3851bd10c31f198b",
+      "output": "CAP-MODEL-01 PASS — peak sizing (21 channels) exceeds flat-day sizing (2), cooldown costs capacity, partial channels round up, and overlapping programmes sum\r\nCAP-SENS-02 PASS — 27 corners give 7..72 channels; the input that moves it most is dailyOrders (spread 32.3 channels)\r\nCAP-CALIB-03 PASS_UNCALIBRATED — the model declares itself uncalibrated and names W-0008 as the work that would calibrate it; no document relabels P5-3 as call evidence\r\nCAP-ALERT-04 PASS_WITH_NOT_PROVEN=COST_METRIC — prod ships 32 channels against a modelled peak of 21, and the ladder is monotonic (dev=4, staging=8, lab=12, prod=32). IvrConfirmationDeadlineMissed is zero-tolerance on ivr_missed_deadline_total, which the shipped pool justifies. cost_per_confirmed_order stays uninstrumented: 6/6 cost inputs are still blocked on a vendor quote (W-0008)\r\nCAP-DRIFT-05 PASS_DECLARED_DISAGREEMENT — model occupancy 40s, spec full-cycle 50s, runtime occupancy estimate 60s (read back from SchedulerCapacity.cs). They disagree by design and W-0008 is the work that would settle them\r\nCAP-SESSION-06 PASS_UNANSWERED — session length is declared open under M8-OD-C and the model still sizes against policy.windowSeconds. Substituting the unsourced 45-minute figure would take Golden Hour from 16 to 2 channels, so a session length is refused unless an arrival profile is decided with it\r\nCAPACITY_SELFTEST_PASS_UNCALIBRATED — the arithmetic is checked, the answer is a range, and the inputs are assumptions nobody has measured. This model must not drive a purchase until W-0008 produces a measured call duration."
+    },
+    {
+      "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\freeze.log",
+      "sha256": "5400a4531057947458bb9d161f601105d8df5b31779cb862df5d0b67e8900bee",
+      "output": "CONTRACT_FREEZE=PASS\r\n  contract_state=TARGET_CONTRACT_V1=DRAFT\r\n  intake=1.0.0-draft.23 required=22\r\n  callback=1.0.0-draft required=13\r\n  pinned_artifacts=3"
+    },
+    {
+      "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\freeze-selftest.log",
+      "sha256": "98f3ab52482e03ab3ce58e66406483bc7cad519e54e9fc44b4f96f80322ea32b",
+      "output": "ok   baseline\r\n  ok   generated-client-changed\r\n  ok   generated-client-unpinned\r\n  ok   spec-changed-without-repin\r\n  ok   stale-pin-restated-in-a-signable-document\r\n  ok   published-intake-field-list-drifts-from-the-spec\r\n  ok   published-callback-requiredness-drifts-from-the-spec\r\n  ok   one-contract-claims-approval-while-the-whole-is-draft\r\n  ok   draft-suffix-dropped-while-still-draft\r\n  ok   state-promoted-without-closure-evidence\r\n  ok   shared-e2e-case-asks-for-an-ack-the-contract-forbids\r\n  ok   shared-e2e-validator-pins-a-different-callback-contract\r\n  ok   contract-defines-an-ack-nobody-demonstrates\r\n  ok   inventory-no-longer-describes-the-pinned-spec\r\nCONTRACT_FREEZE_SELFTEST=PASS 14/14"
+    },
+    {
+      "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\progressive.log",
+      "sha256": "4a308f8a66663a5288edeacadf9fdfa5443859ea440c7d8b3f752114e59c1071",
+      "output": "IT-CANARY-01 PASS — canary is SLO-gated, starts small, and every pause is bounded\r\nIT-BG-WORKER-02 PASS — worker switches blue-green, manually promoted, with the reason recorded\r\nEXPAND_GUARD_SELFTEST_PASS — 15 negative cases, 4 additive controls\r\nIT-MIGRATE-03 PASS — 23 migrations, expand DDL guarded; 2 byte-pinned legacy SQL migrations outside the supported overlap window\r\nIT-FLAG-RAMP-04 PASS — no rollout touches a feature flag, and both pin the governance floor\r\nPROGRESSIVE_SELFTEST_PASS (IT-MIGRATE-03 reads the real migrations; the other three are configuration only — Argo Rollouts is not installed and no Prometheus receives IVR metrics. See docs/evidence/W-0046.)"
+    },
+    {
+      "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\tts-acceptance.log",
+      "sha256": "3769f98b29a9e7d34ffdf6dfb972abe5e8d565ee62458d699b6d7f53dabaeee4",
+      "output": "TTS_VOICE_ACCEPTANCE_PASS manifest_sha256=90927e16cbe5b4e27f48e31ba396c9069f1ae908eaadc15757e72fbc0d8558b9 north=v3t-north-ngoc-linh central=v3t-central-ngoc-tran south=v3t-south-my-duyen"
+    },
+    {
+      "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\tts-provenance.log",
+      "sha256": "f16ec08e2c9415b46051ac752f46be1699f72521b5411c0ff58d5cde07ceed88",
+      "output": "TTS_PROVENANCE_STRUCTURE_PASS artifacts=13 release_blockers=LEGAL,INTERNAL_MIRROR"
+    },
+    {
+      "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\ttl-header-probe.log",
+      "sha256": "bd10185eb13c51698710842cb1921fcad339ad2367ff31e1dbf577acb2dff587",
+      "output": "expiry=window+0s contact=PASS persistence=PASS\r\nexpiry=window+60s contact=PASS persistence=InvalidOperationException: Dial-token expiry must remain inside the confirmation window.\r\nTTL_VALIDATOR_CONTRADICTION_REPRODUCED; synthetic; no database, network, or calls\r\nheader=Idempotency-Key length=128 result=PASS\r\nheader=Idempotency-Key length=129 result=IvrFailureException: Idempotency-Key has invalid syntax.\r\nheader=X-Correlation-Id length=128 result=PASS\r\nheader=X-Correlation-Id length=129 result=IvrFailureException: X-Correlation-Id has invalid syntax.\r\nHEADER_128_LIMIT_REPRODUCED; direct helper invocation; no HTTP server or network"
+    }
+  ],
+  "probeSource": {
+    "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\ttl-probe\\Program.cs",
+    "sha256": "05e2d457e965048b263555d38591abfa8471eaa7e437f5cdd189edf248eb9646",
+    "command": "dotnet run --project <audit-temp>/ttl-probe/ttl-probe.csproj --no-restore --verbosity quiet -- <repo>/tests/Ivr.IntegrationTests/bin/Debug/net10.0",
+    "method": "Reflection invocation of real compiled validators/helper; synthetic inputs, no database or HTTP",
+    "exitCode": 0
+  },
+  "sources": [
+    {
+      "id": "S01",
+      "path": "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
+      "line": 389,
+      "sha256": "6cf48edf19bb31dd4befb1e211bcf468e3d32b8fc39d0ea742ef9e2d934fbd4d"
+    },
+    {
+      "id": "S02",
+      "path": "src/Ivr.Infrastructure/Persistence/PersistenceInvariantValidator.cs",
+      "line": 108,
+      "sha256": "470f4caff179e6131e6103b3cbed324577115e7517f3110ab6e804f9f6a80b7f"
+    },
+    {
+      "id": "S03",
+      "path": "src/Ivr.Infrastructure/Telephony/PostgresTelephonyDispatchStore.cs",
+      "line": 139,
+      "sha256": "02b2d63384b1f1cd3dfd863da56952663b2ecc107b2efd8b3b0164fe1fa9f384"
+    },
+    {
+      "id": "S04",
+      "path": "src/Ivr.Api/Intake/TaskIntakeEndpoint.cs",
+      "line": 114,
+      "sha256": "167e19ff65695f0f0b1e5d8c0fbd5acf3bca01928aea573e66de6277bb321154"
+    },
+    {
+      "id": "S05",
+      "path": "integration-requirements/06-module-3-api-handover.md",
+      "line": 151,
+      "sha256": "fb5bf1592e76d039186a40074b1d97c8e7680a56ed820c3f4f695d95f196e485"
+    },
+    {
+      "id": "S06",
+      "path": "src/Ivr.Infrastructure/FeatureFlags/FeatureFlagAdminService.cs",
+      "line": 49,
+      "sha256": "cc30beef7911d581602ecd733e3f41f56faf1f48a3266c294f870dc1fbf1e378"
+    },
+    {
+      "id": "S07",
+      "path": "src/Ivr.Infrastructure/FeatureFlags/RuntimeGateApprovals.cs",
+      "line": 89,
+      "sha256": "2ddc93e04f259d97ca79151ac85fe2af684cb712bf19cfb5f527658e1210e9ca"
+    },
+    {
+      "id": "S08",
+      "path": "src/Ivr.Infrastructure/Persistence/Migrations/20260905034908_W0195RuntimeGateApprovals.cs",
+      "line": 131,
+      "sha256": "15b3160d0105462d3d9abdc21b70777afefa2abe6b275705953d91faaa11a134"
+    },
+    {
+      "id": "S09",
+      "path": "docs/database/expand-contract.md",
+      "line": 21,
+      "sha256": "7ab2ddb3d846315772516d692dc44fa91218d816076d8c164a2a43620a019f24"
+    },
+    {
+      "id": "S10",
+      "path": "tests/Ivr.IntegrationTests/ExpandContractMigrationTests.cs",
+      "line": 13,
+      "sha256": "c89b72977edd7166c404a41c71c5e29a2e50c88c0c586d39f78423b39c689643"
+    },
+    {
+      "id": "S11",
+      "path": "docs/evidence/W-0196/README.md",
+      "line": 1,
+      "sha256": "d4d70f5de48f78e27df33d206264bb69cc47d5e5ad2b14c5ab8b26beff4b48ad"
+    },
+    {
+      "id": "S12",
+      "path": "src/Ivr.Domain/Confirmation/DispositionMapper.cs",
+      "line": 71,
+      "sha256": "45322b386ad90ae1a96172bb7dbcbea3426454331848b7b2b2c2c369715ffd2b"
+    },
+    {
+      "id": "S13",
+      "path": "specs/_review/open-decisions-register.md",
+      "line": 64,
+      "sha256": "ca824f570eba2568a91feee24a07c0292ad59545a915173d71a619a400c178e2"
+    },
+    {
+      "id": "S14",
+      "path": "plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md",
+      "line": 64,
+      "sha256": "ec0c4e9be8500b094295a66809a8994f5c2724a74bff05f299b87fdb8becd047"
+    },
+    {
+      "id": "S15",
+      "path": "docs/capacity-model.md",
+      "line": 114,
+      "sha256": "d96a2a7177dba508274625b181f30fb722f7f1ebe84be1f1edbe1fdfb017ef81"
+    },
+    {
+      "id": "S16",
+      "path": "tools/capacity-sim/capacity-model.mjs",
+      "line": 17,
+      "sha256": "f1d6c01fc4d84b0bd2d2e7db11cfc4e3792e82546ff71adb0f2ee7e5f74f5d37"
+    },
+    {
+      "id": "S17",
+      "path": "specs/api/04-sim-adapter-contract.md",
+      "line": 16,
+      "sha256": "323b67b579e24d4447c3260bddf06d522a086fa4f9b6dda8fc29d4590220e08b"
+    },
+    {
+      "id": "S18",
+      "path": "src/Ivr.Domain/Ports/ProviderPorts.cs",
+      "line": 16,
+      "sha256": "11048effa304d80178b8a23aae34c3bbf3a0398790997e6b51f7841aa670d061"
+    },
+    {
+      "id": "S19",
+      "path": "src/Ivr.Api/Application/AdminReadService.cs",
+      "line": 171,
+      "sha256": "b400a7a9820b76774ac3b5718d51beebe8f3f1dba998c8a661f7e62deadaad81"
+    },
+    {
+      "id": "S20",
+      "path": "plan/toan-viec-can-lam-m8-2026-09-03.md",
+      "line": 12,
+      "sha256": "6da2905cbd1d9395c1a7a2022cc9fd9aee45c37c1d66ca1c402bc8233f65cd15"
+    },
+    {
+      "id": "S21",
+      "path": "plan/ivr-orther/od-v1-signoff-2026-09-05.md",
+      "line": 1,
+      "sha256": "43decc1ae0a0280472f3917df3e9629ef942eaaaf7002d494aea49e06945ab3c"
+    },
+    {
+      "id": "S22",
+      "path": "src/Ivr.Infrastructure/Intake/AttemptPolicyRegistries.cs",
+      "line": 52,
+      "sha256": "83e40403821463fffdb495f526faff58f731887176c622818c2ab3e6bbde7be1"
+    },
+    {
+      "id": "S23",
+      "path": "src/Ivr.Infrastructure/Persistence/Migrations/20260905120000_W0196SignedProductionAttemptPolicy.cs",
+      "line": 48,
+      "sha256": "d217fb91c268e7420636d334943fade7fad2589ad0cf11dffb6e5ebb3f18647c"
+    },
+    {
+      "id": "S24",
+      "path": "src/Ivr.Infrastructure/Scheduling/SchedulerRuntime.cs",
+      "line": 70,
+      "sha256": "5f5f01e695df241ac80d61dab75fed2cfe13d6c78cb2852aee493e10f9e764e8"
+    },
+    {
+      "id": "S25",
+      "path": "src/Ivr.Infrastructure/Scheduling/CallingWindow.cs",
+      "line": 110,
+      "sha256": "8c22c2892cfed566ee1cbec72f688bf09da739ca53e25313b89747f2727f98dc"
+    },
+    {
+      "id": "S26",
+      "path": "src/Ivr.Worker/Jobs/SchedulerJobHost.cs",
+      "line": 42,
+      "sha256": "a89223a79ef80d59826f3144a2092a5e7bc0d35c055fe9b59fa3b8e5d114bba9"
+    },
+    {
+      "id": "S27",
+      "path": "docs/evidence/W-0207/README.md",
+      "line": 17,
+      "sha256": "e36497efec8a7f5992d2e9bd5a0f6ca1b655f8372d97daf2c514da87f5c459e1"
+    },
+    {
+      "id": "S28",
+      "path": "specs/api/openapi/contract-manifest.json",
+      "line": 1,
+      "sha256": "d3c57c5816077f8a3311dc8541ff0b5218af27e665130e66590b7060dff12af4"
+    },
+    {
+      "id": "S29",
+      "path": "docs/secret-inventory.md",
+      "line": 1,
+      "sha256": "9a4ca757b7e477d9fa8ca4c1262368436636024c31f44ac2745d0b1b74d7b94c"
+    },
+    {
+      "id": "S30",
+      "path": "src/Ivr.Domain/Policies/EligibilityRules.cs",
+      "line": 163,
+      "sha256": "e8cb49ae03ccfd178b20002f977e1de9e0f1d425383c0d2192864a7d61ef3a58"
+    },
+    {
+      "id": "S31",
+      "path": "src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs",
+      "line": 90,
+      "sha256": "add6dc8685ab7ce986393a1146aaf1c7e292af219d9075ea9383425c46059356"
+    },
+    {
+      "id": "S32",
+      "path": "src/Ivr.Domain/Confirmation/ResultContractPolicy.cs",
+      "line": 8,
+      "sha256": "99e18cb409a1cdf1b67df1a7d75a7524a85c1c806146f97ae9523308c0f9a902"
+    },
+    {
+      "id": "S33",
+      "path": "plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md",
+      "line": 60,
+      "sha256": "a742a657d88eba2c876257a3296149063349d3138cefe6383bc1c4f5a44ab85e"
+    },
+    {
+      "id": "S34",
+      "path": "src/Ivr.Infrastructure/Callbacks/TargetV1CallbackTransport.cs",
+      "line": 114,
+      "sha256": "f71ab223e39f6c34e987a5b95493e1d9caa0fbe5c3e62018da5000e2274144b0"
+    },
+    {
+      "id": "S35",
+      "path": "src/Ivr.Infrastructure/Callbacks/CallbackDispatcher.cs",
+      "line": 169,
+      "sha256": "1835b8565a3ee476bd8e0926766b69dd5fdceae827949d4af67089c49b51e304"
+    },
+    {
+      "id": "S36",
+      "path": "plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md",
+      "line": 43,
+      "sha256": "3d95031375026d7fd7c902ca17cded084eb789fc300df2af975194fd6af8e820"
+    },
+    {
+      "id": "S37",
+      "path": "plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md",
+      "line": 18,
+      "sha256": "816392f8ae8b8b486564dd282ddf8e2e9d639936d4bca4f2e0df013f23cb6249"
+    },
+    {
+      "id": "S38",
+      "path": "plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md",
+      "line": 1,
+      "sha256": "6dcf7516ba4af0f2746eacb8240618d19a4bf4828aba90abd89e3a8b6a8640a1"
+    },
+    {
+      "id": "S39",
+      "path": "docs/evidence/W-0122/README.md",
+      "line": 72,
+      "sha256": "03563be9e5785184bed2637f9d440cf7d0c1bc04e91bf870a5e29724f7392265"
+    },
+    {
+      "id": "S40",
+      "path": "src/Ivr.Infrastructure/Configuration/IvrOptionsValidator.cs",
+      "line": 49,
+      "sha256": "3e89eecf16257f9b0f56baa2a0305831460793f6b7539b3d37d67c949f9906e3"
+    },
+    {
+      "id": "S41",
+      "path": "deploy/tts/models/MODELS.lock",
+      "line": 1,
+      "sha256": "bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d"
+    },
+    {
+      "id": "S42",
+      "path": "docs/evidence/W-0189/README.md",
+      "line": 17,
+      "sha256": "56b630d0cd782a612a4a184a81e00f6e6d4a80a50d851027a60ef607a3e2c9b1"
+    },
+    {
+      "id": "S43",
+      "path": "docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.md",
+      "line": 1,
+      "sha256": "0be9c9e8be2b05d043e060374cb526c81f349a9ace45b2efd6f8025116fd3635"
+    },
+    {
+      "id": "S44",
+      "path": "docs/release/gate-status.yaml",
+      "line": 874,
+      "sha256": "780f08cd26eb72c110cbff98ea964f0b8c9e7e2353b03e8e0a470d4d3ca96e5a"
+    },
+    {
+      "id": "S45",
+      "path": "deploy/ci/scripts/contract-freeze-verifier.mjs",
+      "line": 95,
+      "sha256": "70dc029ac45c35c4330ad8a232aa7f2f3462ddf45c45acb7bab020324bdd08db"
+    },
+    {
+      "id": "S46",
+      "path": "src/Ivr.Infrastructure/Scheduling/SchedulerCapacity.cs",
+      "line": 501,
+      "sha256": "ec5c5e2c17ae8e995ee1b9c67bc9d648f1d4ad5e62071e62b45db395bc95c742"
+    },
+    {
+      "id": "S47",
+      "path": "src/Ivr.Infrastructure/Callbacks/CallbackDeliveryOptions.cs",
+      "line": 62,
+      "sha256": "fda771b2790e3dcdcc1dcb39ebd2dbc32da74e615ad1050b598aab88c37b767a"
+    },
+    {
+      "id": "S48",
+      "path": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
+      "line": 989,
+      "sha256": "b32a75ce4b5099e4eecbcc434c85705525f0b6433b2483c9d58853a3e118350a"
+    },
+    {
+      "id": "S49",
+      "path": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
+      "line": 34,
+      "sha256": "59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e"
+    },
+    {
+      "id": "S50",
+      "path": "src/Ivr.Infrastructure/Telephony/DialTokenResolveLedger.cs",
+      "line": 79,
+      "sha256": "10a5707a756d16ff052f63ff8ad809e6a19a11e6080b038308c9a44695ffdbab"
+    },
+    {
+      "id": "S51",
+      "path": "src/Ivr.Api/Auth/OrderCoreAllowlistMiddleware.cs",
+      "line": 24,
+      "sha256": "792b9c90a1d22c22306c6f2e60d11bdf5aeaf9372f4f75214c7502e4643b5538"
+    }
+  ],
+  "originalAnnotatedWorklist": {
+    "path": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\ivr-m8-full-review-20260907-092758\\worklist-before-final.md",
+    "sha256": "51489a94a2837e71133085dd1d79f1c152f4591452009fde5b13afbe6fddb45a"
+  },
+  "notRun": [
+    "Clean detached checkout recertification",
+    "Admin UI/browser",
+    "20/100 round E2E rerun",
+    "Server 192.168.1.61 smoke",
+    "Hosted CI",
+    "M3 sandbox/shared E2E",
+    "Real SIM or customer calls",
+    "External signature identity verification",
+    "Legal/license/radio-shutdown verification"
+  ],
+  "dotnetFailed": 0,
+  "dotnetNotExecuted": 0
+}
