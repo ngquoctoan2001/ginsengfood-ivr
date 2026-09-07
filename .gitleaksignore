@@ -197,3 +197,70 @@ src/Ivr.Infrastructure/Persistence/Migrations/20260829042416_W0144SimChannelFail
 src/Ivr.Infrastructure/Persistence/Migrations/20260829042416_W0144SimChannelFailureWindow.Designer.cs:generic-api-key:722
 src/Ivr.Infrastructure/Persistence/Migrations/20260829042416_W0144SimChannelFailureWindow.Designer.cs:generic-api-key:821
 src/Ivr.Infrastructure/Persistence/Migrations/20260829042416_W0144SimChannelFailureWindow.Designer.cs:generic-api-key:920
+
+# W-0203 reviewed false positives from the GĐ 3 freeze scan. Every one was checked by
+# opening the flagged line, not by trusting the rule, and each falls into one of three
+# shapes the generic entropy rule cannot tell from a key:
+#   - SHA-256 provenance hashes: portal sourceHashes, W-0196 rollback evidence, and the 43
+#     per-file hashes in the W-0197 API behaviour matrix (grouped 8 characters, hyphenated).
+#   - Redoc generated markup: styled-components class names in the built portal HTML.
+#   - EF model snapshots: Key = "v1NotificationEnabled", a feature-flag NAME flagged because
+#     the literal word "Key" precedes it. The migration .cs beside it, which carries the real
+#     seeded values, stays scanned.
+# Pinned to commit, path, rule and line as every exception above is; no file-wide bypass and
+# no config-level relaxation of the rule itself.
+603a6bbce19296c77b90f9a96d20c2a2988c456c:docs/reports/2026-09-05-bao-cao-tien-do-ivr.md:generic-api-key:43
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:126
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:128
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:129
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:130
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:131
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:134
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:140
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:151
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:219
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:23
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:266
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:298
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:299
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:358
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:359
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:387
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:389
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:391
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:394
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:396
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:397
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:40
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:400
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:401
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:405
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:406
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:408
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:411
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:412
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:427
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:43
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:430
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:432
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:433
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:435
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:440
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:5
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:57
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:69
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:72
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:76
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:86
+729392ea5586be67a4a86e9d8368bdcdd9c3936c:docs/evidence/W-0197/api-matrix.json:generic-api-key:87
+7be49a8fcba095f57f73315f0b685afb09bd43f8:src/Ivr.Infrastructure/Persistence/Migrations/20260905034908_W0192RuntimeGateApprovals.Designer.cs:generic-api-key:524
+7be49a8fcba095f57f73315f0b685afb09bd43f8:src/Ivr.Infrastructure/Persistence/Migrations/20260905034908_W0192RuntimeGateApprovals.Designer.cs:generic-api-key:623
+7be49a8fcba095f57f73315f0b685afb09bd43f8:src/Ivr.Infrastructure/Persistence/Migrations/20260905034908_W0192RuntimeGateApprovals.Designer.cs:generic-api-key:722
+7be49a8fcba095f57f73315f0b685afb09bd43f8:src/Ivr.Infrastructure/Persistence/Migrations/20260905034908_W0192RuntimeGateApprovals.Designer.cs:generic-api-key:821
+7be49a8fcba095f57f73315f0b685afb09bd43f8:src/Ivr.Infrastructure/Persistence/Migrations/20260905034908_W0192RuntimeGateApprovals.Designer.cs:generic-api-key:920
+9f13bea026e1f5b9bc296e2d5f4e162e9607a342:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1122
+9f13bea026e1f5b9bc296e2d5f4e162e9607a342:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1146
+9f13bea026e1f5b9bc296e2d5f4e162e9607a342:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1146
+9f13bea026e1f5b9bc296e2d5f4e162e9607a342:docs/api/portal-manifest.json:generic-api-key:25
+ca1331a6c2b1a3cd9380b1beb5dddf8565d6e622:docs/api/portal-manifest.json:generic-api-key:25
+d5539bad779bf2c5bba1987254c3506e47dc063a:docs/evidence/W-0196/rollback-evidence.json:generic-api-key:9

@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 200 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
-  blocked_external_count: 17
+  reason: "8 of 203 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  blocked_external_count: 18
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 146
+  rows_without_evidence_pack: 149
 
 gates:
   - id: "G-CONTRACT"
@@ -91,6 +91,7 @@ open_decisions:
   - id: "OD-V1-10"
   - id: "OD-V1-11"
   - id: "OD-V1-21"
+  - id: "OD-V1-23"
 
 go_no_go_inputs:
   - input: "two-program Sales flow"
@@ -911,13 +912,17 @@ work:
     status: "TESTS_PASS"
     evidence: null
   - id: "W-0203"
-    prompt: "P1.2 Full worker pipeline — profile LocalMockE2E + vòng lặp E2E có tiêm lỗi (Origin=UNPLANNED)"
+    prompt: "P1.2 Full worker pipeline — profile LocalMockE2E + vòng lặp E2E có tiêm lỗi (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P1.2\" 2026-09-05)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0203/README.md"
   - id: "W-0204"
-    prompt: "P2.1 Chốt contract — cơ chế đóng băng hợp đồng + đối chiếu trạng thái chữ ký (Origin=UNPLANNED)"
-    status: "TESTS_PASS"
+    prompt: "P2.1 Chốt contract — cơ chế đóng băng hợp đồng + đối chiếu trạng thái chữ ký (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P2.1\" 2026-09-06)"
+    status: "BLOCKED_EXTERNAL"
     evidence: "docs/evidence/W-0204/README.md"
+  - id: "W-0205"
+    prompt: "GĐ 3.1–3.2: đóng băng bằng chứng trên một SHA + chạy lại security wrapper (Origin=UNPLANNED, owner chỉ đạo \"tiếp giai đoạn 3\" 2026-09-05)"
+    status: "TESTS_PASS"
+    evidence: null
 
 production_flag:
   real_customer_call_allowed: false
