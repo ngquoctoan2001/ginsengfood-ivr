@@ -264,3 +264,11 @@ src/Ivr.Infrastructure/Persistence/Migrations/20260829042416_W0144SimChannelFail
 9f13bea026e1f5b9bc296e2d5f4e162e9607a342:docs/api/portal-manifest.json:generic-api-key:25
 ca1331a6c2b1a3cd9380b1beb5dddf8565d6e622:docs/api/portal-manifest.json:generic-api-key:25
 d5539bad779bf2c5bba1987254c3506e47dc063a:docs/evidence/W-0196/rollback-evidence.json:generic-api-key:9
+
+# W-0205, second pass. These three are the documentation OF the false positives above: the
+# .gitleaksignore comment and the two tracker entries all quote the string
+# Key = "v1NotificationEnabled" while explaining why it is a feature-flag name. Writing down why
+# a finding is not a secret reproduces the finding; that is a property of quoting, not a risk.
+433a42d808228e47f03d0e129a4385c33e501323:.gitleaksignore:generic-api-key:207
+433a42d808228e47f03d0e129a4385c33e501323:prompt/_execution/prompt-execution-tracker.md:generic-api-key:269
+433a42d808228e47f03d0e129a4385c33e501323:prompt/_execution/prompt-execution-tracker.md:generic-api-key:1604
