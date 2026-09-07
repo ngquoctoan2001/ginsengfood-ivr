@@ -312,6 +312,51 @@ assert(
 assertSameSet(openApiErrorCodes, documentedErrorCodes, "CT-CI-10 OpenAPI/API-06 parity");
 assertSameSet(sourceErrorCodes, documentedErrorCodes, "CT-CI-10 source/API-06 parity");
 
+// W-0206. Every script entry must parse as a string.
+//
+// This gate said CI_CONFIG_SELFTEST_PASS while the first hosted pipeline ever run on this project
+// was refused outright: `jobs:observability_helm:script config should be a string or a nested
+// array of strings`. The cause was one unquoted line - `grep -q 'name: OTEL_...' file` - where the
+// inner quotes are not YAML quoting, so the `: ` inside made YAML read the whole entry as a
+// mapping. A gate that validates CI config and cannot see that is checking everything except the
+// thing that stops the pipeline, so it is checked here now, on every job and every script hook.
+// Across EVERY included fragment, not just ci.gitlab-ci.yml. The rest of this file inspects one
+// of the thirteen, which is why the first version of this very check passed while the mutation was
+// in place: it never looked at observability.gitlab-ci.yml at all.
+for (const includePath of [".gitlab-ci.yml", ...includes]) {
+  const absolute = path.join(repositoryRoot, includePath.replace(/^\//, ""));
+  const parsed = parse(await fs.readFile(absolute, "utf8")) ?? {};
+
+  for (const [jobName, definition] of Object.entries(parsed)) {
+    if (definition === null || typeof definition !== "object" || reservedKeys.has(jobName)) {
+      continue;
+    }
+
+    for (const hook of ["script", "before_script", "after_script"]) {
+      const entries = definition[hook];
+      if (entries === undefined) {
+        continue;
+      }
+
+      assert(
+        Array.isArray(entries) || typeof entries === "string",
+        `${includePath} ${jobName}.${hook} must be a string or an array of strings.`,
+      );
+
+      const list = Array.isArray(entries) ? entries : [entries];
+      for (const [index, entry] of list.entries()) {
+        assert(
+          typeof entry === "string",
+          `${includePath} ${jobName}.${hook}[${index}] parsed as ` +
+            `${JSON.stringify(entry).slice(0, 90)} instead of a string. An unquoted shell line ` +
+            "containing a colon followed by a space is read by YAML as a key/value pair; wrap " +
+            "the whole line in double quotes.",
+        );
+      }
+    }
+  }
+}
+
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");
@@ -321,6 +366,7 @@ process.stdout.write("SDK_IMAGE_PIN_PASS — .NET jobs match global.json\n");
 process.stdout.write("TESTCONTAINERS_DIND_PASS — PostgreSQL tests have a pinned Docker service\n");
 process.stdout.write("GITLEAKS_COMMIT_SCOPE_PASS — history scan is anchored to the validated pipeline commit\n");
 process.stdout.write("OPENAPI_CODEGEN_GATE_PASS — hashes, report and generated code enforced\n");
+process.stdout.write("SCRIPT_ENTRY_STRING_PASS — every job script line parses as a string\n");
 process.stdout.write("CI_CONFIG_SELFTEST_PASS\n");
 
 function evaluateWorkflow(source, branch, defaultBranch) {

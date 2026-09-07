@@ -58,7 +58,9 @@ observability_helm:
     - helm template ivr deploy/helm/ivr -f deploy/helm/ivr/values-dev.yaml
         -f deploy/helm/ivr/ci/observability-staging.yaml
         > ci-artifacts/observability/helm-observability.yaml
-    - grep -q 'name: OTEL_EXPORTER_OTLP_ENDPOINT' ci-artifacts/observability/helm-observability.yaml
+    # Quoted: an unquoted plain scalar containing ': ' is parsed as a mapping, not a string,
+    # and GitLab then refuses the whole pipeline with 'script config should be a string'.
+    - "grep -q 'name: OTEL_EXPORTER_OTLP_ENDPOINT' ci-artifacts/observability/helm-observability.yaml"
     - grep -q 'namespaceSelector:' ci-artifacts/observability/helm-observability.yaml
     - grep -q 'podSelector:' ci-artifacts/observability/helm-observability.yaml
     - if helm template ivr deploy/helm/ivr -f deploy/helm/ivr/values-dev.yaml
