@@ -23,6 +23,46 @@ sandbox M3 · production · mọi tài liệu ngoài repo.
 
 ---
 
+## Bảng trạng thái
+
+Cập nhật mỗi lần đụng vào một mục. Quy ước:
+
+| Ký hiệu | Nghĩa |
+| --- | --- |
+| ✅ `XONG` | không còn việc gì, kể cả bên ngoài |
+| 🟡 `XONG PHẦN M8` | phần M8 tự làm được đã xong và đã ghim bằng test; còn chờ chữ ký/đầu vào bên ngoài |
+| ⬜ `CHƯA LÀM` | chưa động tới |
+| ⛔ `CHỜ NGOÀI` | M8 không làm được gì thêm cho tới khi bên ngoài trả lời |
+| ➖ `ĐÃ ĐÓNG` | bỏ khỏi hàng đợi, giữ ghi nhận lịch sử |
+
+| Mục | Trạng thái | Work ID | Chờ ai |
+| --- | --- | --- | --- |
+| **0.1** TTL `dial_token` ba tầng | 🟡 `XONG PHẦN M8` | `W-0208` · `fb6a613` | M3/Security — `DTK-02`/`DTK-06` |
+| **0.2** Header 128 vs 200 | 🟡 `XONG PHẦN M8` | `W-0209` | nội bộ M8 — chốt lệch intake↔admin |
+| **0.3** `DTMF-0` ≠ opt-out | ⬜ `CHƯA LÀM` | — | Product/CRM/Legal — `OD-V1-23` |
+| **0.4** Docs sai về DB | ⬜ `CHƯA LÀM` | — | — |
+| **0.5** Approval theo môi trường | ⬜ `CHƯA LÀM` | — | Security/Platform |
+| **0.6** `40/50/60` occupancy | ⬜ `CHƯA LÀM` | — | — |
+| **A1**–**A4** quản trị/chữ ký | ⛔ `CHỜ NGOÀI` | — | Owner hệ + chief auditor |
+| **B5** khung giờ 21:00 | ⬜ `CHƯA LÀM` | — | Owner + M3 (`LOCK-05`) |
+| **B4** `RUNTIME_GATE_ADMIN` | ⬜ `CHƯA LÀM` | — | Security/Platform |
+| **B6** hai lịch sử `W0122` | ⬜ `CHƯA LÀM` | — | — (cần DB đích) |
+| **B10** constraint V0.3 | ⛔ `CHỜ NGOÀI` | — | Order Core — `DR-03`/`DR-04` |
+| **B11** vị trí resolver | ⛔ `CHỜ NGOÀI` | — | Security — trust boundary |
+| **B1** capacity | ⛔ `CHỜ NGOÀI` | — | Owner (`EXTERNAL_INTAKE_DEFERRED`) |
+| **B8** TTS | ⛔ `CHỜ NGOÀI` | — | Owner/Legal/procurement |
+| **B12** adapter production | ⛔ `CHỜ NGOÀI` | — | procurement (SIM) |
+| **C-SESSION** (C3+C4+C7) | ⛔ `CHỜ NGOÀI` | — | M3 — `golden_hour_session_id` |
+| **C-REVOKE** (C11+C12+C14) | ⛔ `CHỜ NGOÀI` | — | M3 + Owner — chọn A/B/hybrid |
+| **C6+C13** contact gate | 🟡 một phần qua 0.1 | `W-0208` | M3/Security |
+| **C8+C9** callback | ⛔ `CHỜ NGOÀI` | — | M3 consumer + Security credential |
+| **C1 · C2 · C5 · C10** | ⬜ `CHƯA LÀM` | — | phần lớn gộp vào 0.3/0.4 |
+| **D1**–**D10** | ✅ `DONE_LOCAL` | — | external evidence |
+| ~~**B2**~~ softphone dirty | ➖ `ĐÃ ĐÓNG` | — | hết tiền đề |
+| ~~**B9**~~ Admin UI | ➖ `ĐÃ ĐÓNG` | — | đã chuyển M3 |
+
+---
+
 ## Nhóm 0 — Sửa hướng dẫn sai TRƯỚC khi M3 viết code
 
 > Đây là nhóm duy nhất có deadline thật. Mỗi mục dưới đây là một chỗ **tài liệu bàn giao đang dạy
@@ -30,6 +70,10 @@ sandbox M3 · production · mọi tài liệu ngoài repo.
 > để lâu càng đắt.
 
 ### 0.1 — TTL `dial_token` mâu thuẫn xuyên **ba** tầng ⚠️ nặng nhất
+
+> **🟡 `XONG PHẦN M8`** · `W-0208` · commit `fb6a613` · 07/09
+> Hành vi đã ghim (`IT-INTAKE-DB-03`), tài liệu đã sửa. **Chờ M3/Security chốt con số TTL**
+> (`DTK-02`/`DTK-06`). Evidence: [`docs/evidence/W-0208`](../docs/evidence/W-0208/README.md).
 
 `OD-V1-17` (ký 05/09) ghi *"TTL = cửa sổ xác nhận **+ 60s**"*. Code hiện tại có **ba** guard, và
 chúng cộng lại buộc TTL phải **bằng đúng** window end:
@@ -72,14 +116,30 @@ Ghi chú của chính freeze verifier: *"Owners approve `06-module-3-api-handove
 
 ### 0.2 — Ràng buộc header lệch: tài liệu nói 200, code chặn ở 128
 
-`integration-requirements/06-module-3-api-handover.md:157-158` dạy M3:
-`Idempotency-Key: <8-200 chars>`, `X-Correlation-Id: <1-200 chars>`.
-`TaskIntakeEndpoint.cs:126` chỉ nhận `value.Length is > 0 and <= 128` (+ charset an toàn).
-OpenAPI khai `type: string`, không nêu ràng buộc nào.
+> **🟡 `XONG PHẦN M8`** · `W-0209` · 07/09
+> Ghim bằng `IT-INTAKE-HEADER-07`, IR-06 đã sửa (`§3.1.1` mới). **Còn hai việc:** chốt lệch
+> intake↔admin, rồi re-pin OpenAPI cùng lượt với `W-0208`.
+> Evidence: [`docs/evidence/W-0209`](../docs/evidence/W-0209/README.md).
 
-Phát hiện của Codex (F10). M3 sinh key 129–200 ký tự từ tài liệu → **400 IVR_MALFORMED_REQUEST**.
+Codex nêu một vế (F10); đọc kỹ ra **ba** con số sai, và vế thứ ba mới là vế nguy hiểm:
 
-**Việc:** chốt một con số (128 hay 200), sửa cả ba nơi: IR-06, OAS (`maxLength`), runtime.
+| | IR-06 nói | Code thi hành |
+| --- | --- | --- |
+| Dài tối đa | `200` | **`128`** |
+| Dài tối thiểu (`Idempotency-Key`) | `8` | **`1`** — không có sàn |
+| Bảng chữ cái | *không nói gì* | **chỉ `[A-Za-z0-9._:-]`** |
+
+`+`, `/`, `=` đều bị chặn ⇒ **key base64 hỏng**, mà sinh key ngẫu nhiên bằng base64 là việc rất
+thường. M3 không có cách nào biết trước — OpenAPI cũng khai `{ type: string }` trần.
+
+**Không phải "chốt 128 hay 200".** Repo đã chốt `128` ở ba chỗ rồi
+(`RequiredHeader`, `CorrelationMiddleware`, và `GeneratedCorrelationId` trong chính OAS). `200`
+là con số lạc trong IR-06. Nên đây là sửa tài liệu, không phải quyết định.
+
+**Chỗ thật sự cần quyết (mới, ngoài Codex):** cùng tên `Idempotency-Key`, hai luật trong cùng một
+API — route intake ràng bảng chữ cái, route admin/internal (`InternalServiceOptions.
+RequireIdempotencyKey`) thì không. Cả hai dùng chung một `$ref` trong OAS nên schema không mô tả
+đúng được cả hai. Siết admin hay nới intake?
 
 ### 0.3 — `DTMF-0` bị gọi nhầm là tín hiệu opt-out
 

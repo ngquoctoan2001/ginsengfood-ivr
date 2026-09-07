@@ -370,6 +370,69 @@ public sealed class TaskIntakeApiTests
         Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(invalid));
     }
 
+    /// <summary>
+    /// The syntax both required headers are actually held to, pinned at the HTTP edge.
+    /// <para>
+    /// <c>TaskIntakeEndpoint.RequiredHeader</c> accepts 1..128 characters drawn from
+    /// <c>[A-Za-z0-9._:-]</c> and nothing else. The handover document promised Module 3 up to 200
+    /// characters and said nothing at all about the alphabet, so a producer minting base64 keys -
+    /// an ordinary thing to do, and <c>+</c>, <c>/</c> and <c>=</c> all appear in base64 - would
+    /// have been refused by a rule it was never shown. W-0209.
+    /// </para>
+    /// <para>
+    /// Length and alphabet are asserted here rather than in the OpenAPI schema because the schema
+    /// does not carry them yet: the <c>CorrelationId</c> and <c>IdempotencyKey</c> parameters are
+    /// bare strings, while <c>GeneratedCorrelationId</c> on other routes already spells this exact
+    /// rule out. Correcting that is a pinned-hash change and belongs to a reviewed re-pin.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-HEADER-07")]
+    public async Task RequiredHeadersAreBoundedAtOneHundredTwentyEightSafeCharacters()
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+
+        // 128 is the last accepted length, not the first rejected one.
+        using HttpResponseMessage atLimit = await SendAsync(
+            app.Client,
+            CreateBody(),
+            idempotencyKey: new string('k', 128));
+
+        Assert.Equal(HttpStatusCode.OK, atLimit.StatusCode);
+
+        // 129 - the length the handover told Module 3 it could use, up to 200.
+        using HttpResponseMessage overLimit = await SendAsync(
+            app.Client,
+            CreateBody(),
+            idempotencyKey: new string('k', 129));
+
+        Assert.Equal(HttpStatusCode.BadRequest, overLimit.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(overLimit));
+
+        // Base64 padding and its two non-alphanumeric characters are outside the alphabet.
+        // Nothing in the handover said so.
+        using HttpResponseMessage base64Key = await SendAsync(
+            app.Client,
+            CreateBody(),
+            idempotencyKey: "sB3+xQ/9dGVzdA==");
+
+        Assert.Equal(HttpStatusCode.BadRequest, base64Key.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(base64Key));
+
+        // The correlation header is held to the same rule, one layer earlier.
+        using HttpResponseMessage longCorrelation = await SendAsync(
+            app.Client,
+            CreateBody(),
+            correlationId: new string('c', 129));
+
+        Assert.Equal(HttpStatusCode.BadRequest, longCorrelation.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(longCorrelation));
+
+        // Only the accepted call reached the store.
+        Assert.Equal(1, app.Store.CallJobCount);
+    }
+
     [Fact]
     public async Task CallRestrictionReturnsOperationalBlocked409()
     {
@@ -475,7 +538,8 @@ public sealed class TaskIntakeApiTests
         bool includeCorrelation = true,
         bool includeIdempotency = true,
         string idempotencyKey = "idem-api-p2-1",
-        string? bearerOverride = null)
+        string? bearerOverride = null,
+        string correlationId = "corr-api-p2-1")
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, TaskIntakeEndpoint.Route)
         {
@@ -506,7 +570,7 @@ public sealed class TaskIntakeApiTests
 
         if (includeCorrelation)
         {
-            request.Headers.Add(CorrelationPropagationHandler.HeaderName, "corr-api-p2-1");
+            request.Headers.Add(CorrelationPropagationHandler.HeaderName, correlationId);
         }
 
         if (includeIdempotency)

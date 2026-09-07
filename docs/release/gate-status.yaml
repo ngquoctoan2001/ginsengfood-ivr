@@ -931,6 +931,10 @@ work:
     prompt: "Worklist 0.1 — TTL dial_token mâu thuẫn xuyên ba tầng: ghim hành vi + sửa hướng dẫn IR-06 (Origin=UNPLANNED, owner chỉ đạo \"bắt đầu từ 0.1\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0208/README.md"
+  - id: "W-0209"
+    prompt: "Worklist 0.2 — ràng buộc header lệch tài liệu/runtime: 128 vs 200, sàn 8 không tồn tại, bảng chữ cái chưa từng được ghi (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.2\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0209/README.md"
 
 production_flag:
   real_customer_call_allowed: false

@@ -154,17 +154,48 @@ IVR:
 POST {ivr_base_url}/v1/ivr/order-confirmation/tasks
 Content-Type: application/json
 Authorization: Bearer <service-jwt>
-Idempotency-Key: <8-200 chars>
-X-Correlation-Id: <1-200 chars>
+Idempotency-Key: <1-128 ký tự, chỉ [A-Za-z0-9._:-]>
+X-Correlation-Id: <1-128 ký tự, chỉ [A-Za-z0-9._:-]>
 X-Source-System: <module-3-source-id>
 ```
 
 | Header | Bắt buộc | Ý nghĩa |
 | --- | --- | --- |
 | `Authorization` | Có | Service identity của Module 3 |
-| `Idempotency-Key` | Có | Cùng key + cùng body trả kết quả cũ; cùng key + khác body là conflict |
-| `X-Correlation-Id` | Có | Mã truy vết xuyên suốt task, call và callback |
+| `Idempotency-Key` | Có | Cùng key + cùng body trả kết quả cũ; cùng key + khác body là conflict. **Cú pháp: §3.1.1** |
+| `X-Correlation-Id` | Có | Mã truy vết xuyên suốt task, call và callback. **Cú pháp: §3.1.1** |
 | `X-Source-System` | Có | Định danh producer được phép gửi task |
+
+#### 3.1.1. Cú pháp hai header bắt buộc — `1-128`, bảng chữ cái đóng
+
+Tài liệu này trước đây ghi `Idempotency-Key: <8-200 chars>` và `X-Correlation-Id: <1-200 chars>`.
+**Cả ba con số đều sai** so với `TaskIntakeEndpoint.RequiredHeader`, và chỗ sai nguy hiểm nhất là
+chỗ tài liệu **không nói gì**:
+
+| | Tài liệu cũ nói | Code thực sự thi hành |
+| --- | --- | --- |
+| Dài tối đa | `200` | **`128`** |
+| Dài tối thiểu (`Idempotency-Key`) | `8` | **`1`** — không có sàn 8 |
+| Bảng chữ cái | *không nói* | **chỉ `[A-Za-z0-9._:-]`** |
+
+Thiếu header → `422` + `IVR_MISSING_TRACE`. Sai cú pháp → `400` + `IVR_MALFORMED_REQUEST`.
+
+> ⚠️ **Bảng chữ cái là chỗ dễ hỏng nhất.** `+`, `/`, `=`, dấu cách, `{}` đều bị từ chối — nghĩa là
+> **key base64 sẽ bị chặn**, mà sinh key ngẫu nhiên bằng base64 là việc rất thường. UUID và ULID thì
+> an toàn. Ràng buộc này chưa từng được viết ra ở đâu trước hôm nay.
+
+Ghim bằng `IT-INTAKE-HEADER-07`: `128` nhận · `129` `400` · `sB3+xQ/9dGVzdA==` `400` ·
+`X-Correlation-Id` 129 ký tự `400`.
+
+**Chưa đồng bộ, đã biết:** OpenAPI khai hai header này là `{ type: string }` trần, trong khi
+`GeneratedCorrelationId` ở route khác **đã** ghi đúng
+`minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:-]+$'`. Sửa OAS bump hash đã ghim nên để vào
+lượt re-pin có review — xem mục 0.2 của
+[worklist](../plan/toan-viec-can-lam-m8-2026-09-07.md).
+
+**Một chỗ lệch trong chính IVR, cần chốt:** `Idempotency-Key` ở route intake bị ràng bảng chữ cái,
+còn ở route admin/internal (`InternalServiceOptions.RequireIdempotencyKey`) thì **không** — cùng
+một tên header, cùng một API, hai luật. Chưa quyết nên siết admin hay nới intake.
 
 Nếu body có `correlation_id`, giá trị phải trùng `X-Correlation-Id`.
 
@@ -568,12 +599,21 @@ Trong repo IVR, `ELIGIBLE_FOR_IVR` **cũng** tồn tại — nhưng nó là deci
 ```http
 POST {sales_base_url}/api/v1/internal/orders/{orderId}/ivr-result-callbacks
 Authorization: Bearer <service-jwt>
-Idempotency-Key: <8-200 chars>
-X-Correlation-Id: <1-200 chars>
+Idempotency-Key: ivr-result:RESULT-<raw_event_id>
+X-Correlation-Id: <correlation_id của task>
 Content-Type: application/json
 ```
 
 `{orderId}` phải bằng `order_id` trong body.
+
+> **Chiều này IVR là bên gửi, nên đây là giá trị IVR thật sự phát — không phải một khoảng để M3 tự
+> chọn.** `Idempotency-Key` luôn là `"ivr-result:" + ivr_call_result_id`
+> (`CallbackOutboxSnapshotFactory`), mà `ivr_call_result_id` là `"RESULT-" + raw_event_id`. Với
+> `raw_event_id` dạng GUID-32 hiện hành thì key dài **50 ký tự** và chỉ dùng `[A-Za-z0-9:-]`.
+> `X-Correlation-Id` là `correlation_id` của chính task M3 đã gửi ở API A, trả nguyên vẹn.
+> M3 cứ sizing cột theo `128` cho khớp chiều còn lại là an toàn. Trước `W-0209` chỗ này ghi
+> `<8-200 chars>` — không sai nguy hiểm như chiều API A, nhưng là một khoảng bịa thay cho một giá
+> trị xác định.
 
 > Endpoint generic này hiện được tài liệu đánh dấu **chưa tồn tại** trong Module 3. Endpoint cũ `POST /api/v1/internal/ivr/golden-hour/callbacks` chỉ là compatibility cho Giờ Vàng, shape khác và không phủ 24/7. Không dùng endpoint cũ thay cho Target V1.
 
