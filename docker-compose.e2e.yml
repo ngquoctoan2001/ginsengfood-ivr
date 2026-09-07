@@ -20,6 +20,24 @@ services:
       # The four jobs, in the order a task passes through them.
       Ivr__Scheduler__Enabled: "true"
       Ivr__Scheduler__PollIntervalMilliseconds: "500"
+
+      # W-0214. The hour gate stays ENABLED and is widened to the whole day, rather than switched
+      # off. Two reasons, and the second is the one that cost a day.
+      #
+      # A smoke run that disables the gate stops exercising the code that decides, so the decision
+      # itself is never covered by the run that is supposed to cover the pipeline. Keeping it on
+      # with 0..1440 leaves the evaluation running and always answering yes.
+      #
+      # And without this, the result of the smoke depends on the wall clock of whoever started it.
+      # A run outside 08:00-21:00 Vietnam time produced three IVR_CONFIRMATION_WINDOW_EXPIRED
+      # results with no attempt against them, which reads exactly like a broken dialler and is not
+      # one -- the scheduler was declining to dial at half past eleven at night, correctly. The
+      # 2026-09-06 audit spent its investigation there. W-0203 fixed the same trap for the
+      # LocalMockE2E profile; this file was left behind, so it kept the trap until now.
+      Ivr__Scheduler__CallingWindow__Enabled: "true"
+      Ivr__Scheduler__CallingWindow__UtcOffsetMinutes: "420"
+      Ivr__Scheduler__CallingWindow__StartMinuteOfLocalDay: "0"
+      Ivr__Scheduler__CallingWindow__EndMinuteOfLocalDay: "1440"
       Ivr__Normalization__Enabled: "true"
       Ivr__Normalization__PollIntervalMilliseconds: "500"
       Ivr__CallbackDelivery__Enabled: "true"

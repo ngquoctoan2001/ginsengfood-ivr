@@ -32,6 +32,11 @@ public sealed partial class SchedulerJobHost(
         {
             liveness.RegisterDisabled("scheduler");
         }
+        // W-0214. Only the transitions are logged, not the state. This loop turns every
+        // PollIntervalMilliseconds -- 100ms under the LocalMockE2E profile -- so a line per pass
+        // would bury the night it is meant to explain under six hundred identical lines a minute.
+        // Null until the first run answers, so the first closed window still announces itself.
+        bool? callingWindowOpen = null;
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -48,6 +53,20 @@ public sealed partial class SchedulerJobHost(
                         result.QuarantinedLeases,
                         result.ClosedMissedDeadlines,
                         result.DispatchClaimed);
+                }
+
+                if (callingWindowOpen != result.CallingWindowOpen)
+                {
+                    if (result.CallingWindowOpen)
+                    {
+                        LogCallingWindowOpened(logger);
+                    }
+                    else
+                    {
+                        LogCallingWindowClosed(logger, result.CallingWindowOpensAt);
+                    }
+
+                    callingWindowOpen = result.CallingWindowOpen;
                 }
 
                 liveness.Tick("scheduler");
@@ -84,4 +103,17 @@ public sealed partial class SchedulerJobHost(
         Level = LogLevel.Error,
         Message = "Scheduler run failed closed.")]
     private static partial void LogFailure(ILogger logger, Exception exception);
+
+    [LoggerMessage(
+        EventId = 2312,
+        Level = LogLevel.Information,
+        Message = "Calling window closed; no dial will be claimed until {OpensAt}. "
+            + "Recovery and deadline closing keep running.")]
+    private static partial void LogCallingWindowClosed(ILogger logger, DateTimeOffset? opensAt);
+
+    [LoggerMessage(
+        EventId = 2313,
+        Level = LogLevel.Information,
+        Message = "Calling window open; dialling resumes.")]
+    private static partial void LogCallingWindowOpened(ILogger logger);
 }

@@ -9,13 +9,21 @@ namespace Ivr.Infrastructure.Scheduling;
 /// half past three in the morning" are different facts, and collapsing them would let a
 /// perfectly healthy night look like a broken telephony stack.
 /// </param>
+/// <param name="CallingWindowOpensAt">
+/// W-0214. When the window next opens, carried out only because nothing inside the runtime can
+/// say it. A closed window used to produce no output at all: the three counters are zero, the
+/// host logged nothing, and the only visible symptom was jobs expiring hours later with no
+/// attempt against them. An operator could read that as a broken dialler for a whole night.
+/// Null whenever the window is open, or when the run never reached the hour gate.
+/// </param>
 public sealed record SchedulerRunResult(
     bool Enabled,
     bool DispatchGatewayReady,
     int QuarantinedLeases,
     int ClosedMissedDeadlines,
     bool DispatchClaimed,
-    bool CallingWindowOpen = true);
+    bool CallingWindowOpen = true,
+    DateTimeOffset? CallingWindowOpensAt = null);
 
 public interface ISchedulerDispatchGateway
 {
@@ -93,7 +101,8 @@ public sealed class SchedulerRuntime(
         CallingWindowDecision window = callingWindow.Evaluate(now);
         if (!window.Open)
         {
-            return new SchedulerRunResult(true, true, quarantined, closed, false, false);
+            return new SchedulerRunResult(
+                true, true, quarantined, closed, false, false, window.OpensAt);
         }
 
         SchedulerDispatchLease? lease = await store.TryClaimDueDispatchAsync(

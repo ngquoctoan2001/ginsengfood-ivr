@@ -43,6 +43,9 @@ Cập nhật mỗi lần đụng vào một mục. Quy ước:
 | **0.4** Docs sai về DB | ✅ `XONG` | `W-0211` | — |
 | **0.5** Approval theo môi trường | 🟡 `XONG PHẦN M8` | `W-0213` | Security/Platform — có cần scope theo env không |
 | **0.6** `40/50/60` occupancy | ✅ `XONG` | `W-0212` | — |
+| **X1** nhánh & worktree | ⛔ `CHỜ NGOÀI` | `W-0214` | Owner — không phải nhánh rác, xem X1 |
+| **X2** `docker-compose.e2e.yml` | ✅ `XONG` | `W-0214` | — |
+| **X3** log window-closed | ✅ `XONG` | `W-0214` | — |
 | **A1**–**A4** quản trị/chữ ký | ⛔ `CHỜ NGOÀI` | — | Owner hệ + chief auditor |
 | **B5** khung giờ 21:00 | ⬜ `CHƯA LÀM` | — | Owner + M3 (`LOCK-05`) |
 | **B4** `RUNTIME_GATE_ADMIN` | ⬜ `CHƯA LÀM` | — | Security/Platform |
@@ -503,20 +506,38 @@ Hai điều chỉnh:
 Bản audit lặp câu *"không nhánh nào — repo chỉ có main"* ở **16 hàng** B/C. Sai, và đã sai từ lúc
 viết. Thực tế:
 
-| Nhánh | Tip | So với `main` |
-| --- | --- | --- |
-| `codex/p03-expand-contract` | `d5539ba` 05/09 | ahead 0 / behind 18 → đã merge, chỉ chờ xóa |
-| `worktree-gd0-fixes` | `cc12e53` 05/09 | ahead 0 / behind 15 → đã merge, chỉ chờ xóa |
-| `codex/w0128-w0129-candidate` | `1fa0150` 28/08 | **ahead 1** / behind 73 |
-| `origin/codex/phase-1-2-opus-remediation` | remote | — |
+> **⛔ `CHỜ NGOÀI`** · `W-0214` · 07/09 · **không xóa gì cả — xem lý do bên dưới**
 
-Cộng **4 worktree** ngoài cây chính.
+| Nhánh | Tip | So với `main` | Là gì |
+| --- | --- | --- | --- |
+| `codex/w0128-w0129-candidate` | `1fa0150` 28/08 | **ahead 1** / behind 80 | **mốc bằng chứng cố ý** của `W-0130` |
+| `codex/p03-expand-contract` | `d5539ba` 05/09 | ahead 0 / behind 25 | đã merge; còn được dẫn trong evidence `W-0197` |
+| `worktree-gd0-fixes` | `cc12e53` 05/09 | ahead 0 / behind 22 | đã merge vào `main` tại `ba43605` |
+| `origin/codex/phase-1-2-opus-remediation` | remote | — | chưa kiểm |
 
-**Cảnh báo (Codex F11):** commit riêng của `w0128-w0129-candidate` chạm **92 file**, không chỉ
-`admin-ui/` như Claude viết. Behind 73 commit. **Đừng merge mù vì thấy "ahead 1".**
+⚠️ **Sửa chính mục này (`W-0214`).** Bản trước viết *"ahead 0 → đã merge, **chỉ chờ xóa**"* và trích
+`CLAUDE.md` *"merge it into `main` and delete it"*. **Luật đó nói về nhánh rác. Đây không phải nhánh
+rác.**
 
-**Việc:** owner quyết từng nhánh. `CLAUDE.md` ghi *"Where a stray branch already exists, merge it
-into `main` and delete it"* — nhưng với nhánh ahead 1/behind 73 thì phải review nội dung trước.
+`docs/evidence/W-0130/README.md` dựng `codex/w0128-w0129-candidate` **có chủ đích** làm mốc
+provenance — tracker ghi lý do: *"`main@2a4f45d` là mixed `save` 98 file nên **không đủ
+provenance**"*. File evidence khai đích danh cả **branch** lẫn **đường dẫn worktree**
+`Desktop/ivr-w0128-w0129-candidate`, cùng tree hash. `ahead 1` là **thiết kế**, không phải việc chưa
+dọn. Xóa nhánh = commit thành unreachable = **đứt chuỗi bằng chứng mà `W-0130` sinh ra để giữ**.
+
+Hai nhánh `ahead 0` thì xóa ref không mất commit nào (đều reachable từ `main`), nhưng cả hai đều
+đang được tài liệu dẫn tên, và **cả ba đều đang được checkout trong worktree** — muốn xóa nhánh thì
+phải gỡ worktree trước, tức **xoá thư mục**, trong đó hai thư mục nằm **ngoài repo này** trên
+Desktop.
+
+**Việc — owner quyết, ba câu hỏi tách rời:**
+
+1. `codex/w0128-w0129-candidate` có còn cần làm mốc provenance không? Nếu còn → **giữ nguyên**, và
+   sửa `CLAUDE.md`/worklist để nhánh này được miễn trừ tường minh thay vì mỗi lần audit lại bị báo
+   là rác.
+2. Hai nhánh `ahead 0` có xóa ref không? (An toàn về commit; chỉ làm tài liệu dẫn tên bị treo.)
+3. Bốn worktree — trong đó `Desktop/ivr-p03-expand-contract` và `Desktop/ivr-w0128-w0129-candidate`
+   nằm ngoài repo — có gỡ không? **Tôi không tự xoá thư mục ngoài repo.**
 
 ### X2 — `docker-compose.e2e.yml` vẫn dính bẫy khung giờ
 
@@ -527,8 +548,12 @@ rehearsal"*. Nhưng đó là harness `tools/dev/Invoke-LocalMockE2E.mjs`.
 `docker-compose.e2e.yml` **commit cuối `7195ba8` ngày 20/08**, không set `CallingWindow` → stack
 smoke chạy ngoài 08:00–21:00 sẽ FAIL lại y hệt.
 
-**Việc:** port cấu hình window của LocalMockE2E sang compose.
-**Không kết luận thay server:** kết quả local mới **không** xóa được lịch sử smoke trên server tại
+> **✅ `XONG`** · `W-0214` · 07/09
+> Đã port sang `docker-compose.e2e.yml`: `CallingWindow` **Enabled=true**, `0..1440`, UTC+420.
+> Giữ **bật** chứ không tắt — tắt thì thôi không còn kiểm cái code ra quyết định nữa.
+> Evidence: [`docs/evidence/W-0214`](../docs/evidence/W-0214/README.md).
+
+**Không kết luận thay server:** kết quả local **không** xóa được lịch sử smoke trên server tại
 baseline khác; chưa đọc config/log triển khai thật thì chưa xác nhận nguyên nhân tuyệt đối (F09).
 
 ### X3 — Worker không log lý do khi cửa sổ giờ đóng
@@ -539,9 +564,18 @@ baseline khác; chưa đọc config/log triển khai thật thì chưa xác nh�
 có thể có log** khi có việc. Khoảng trống đúng là: **worker không nói rõ "window closed, opens at …"
 khi idle**.
 
-**Việc:** thêm một dòng log/metric khi window đóng.
-**Hệ quả sản phẩm cần chốt với M3:** task tới ngoài giờ gọi mà confirmation window ngắn hơn khoảng
-chờ tới 08:00 thì **luôn** hết hạn không gọi.
+> **✅ `XONG`** · `W-0214` · 07/09
+> `SchedulerRunResult` nay mang thêm `CallingWindowOpensAt`; `SchedulerJobHost` log **hai chiều
+> chuyển trạng thái** kèm giờ mở lại. Chỉ log lúc **đổi trạng thái**, không log mỗi vòng — poll
+> 100ms dưới profile `LocalMockE2E` thì một dòng mỗi vòng sẽ chôn vùi chính cái đêm nó cần giải
+> thích. Ghim bằng `UT-SCH-WINDOW-07` (đóng → có `OpensAt`) và `UT-SCH-WINDOW-08` (mở → `null`).
+
+Ghi chú: `CallingWindowDecision.Describe()` đã có sẵn câu chữ đúng từ `W-0198` nhưng **không có
+caller nào trong `src/`** — chỉ một test gọi. Thông điệp đã tồn tại, chỉ chưa ai phát ra.
+
+**Hệ quả sản phẩm cần chốt với M3 (chưa đóng):** task tới ngoài giờ gọi mà confirmation window ngắn
+hơn khoảng chờ tới 08:00 thì **luôn** hết hạn không gọi. Log mới làm nó **nhìn thấy được**, không
+làm nó hết là vấn đề.
 
 ---
 

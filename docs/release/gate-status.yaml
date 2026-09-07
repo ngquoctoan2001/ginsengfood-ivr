@@ -951,6 +951,10 @@ work:
     prompt: "Worklist 0.5 — environment scope FEATURE_FLAG_CHANGE (hai lớp) và trơ với RUNTIME_GATE_ADMIN/PRODUCTION_CALL; sửa tiền đề sai của chính worklist (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.5\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0213/README.md"
+  - id: "W-0214"
+    prompt: "Worklist X1/X2/X3 — bay khung gio trong docker-compose.e2e.yml, log window-closed con thieu, va ba nhanh khong phai rac (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp X1, X2, X3\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0214/README.md"
 
 production_flag:
   real_customer_call_allowed: false

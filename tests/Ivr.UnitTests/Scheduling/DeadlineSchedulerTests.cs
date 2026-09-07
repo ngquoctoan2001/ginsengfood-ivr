@@ -337,6 +337,38 @@ public sealed class DeadlineSchedulerTests
         // telephony stack.
         Assert.True(result.DispatchGatewayReady);
         Assert.True(store.MaintenanceCalls > 0);
+
+        // W-0214. Saying "closed" is not enough to explain a quiet night to whoever is reading the
+        // logs at the time; the answer they need is when it stops being quiet. The run carries it
+        // so SchedulerJobHost can name the hour instead of going silent.
+        Assert.NotNull(result.CallingWindowOpensAt);
+        Assert.Equal(
+            new DateTimeOffset(2026, 9, 5, 8, 0, 0, TimeSpan.FromHours(7)).ToUniversalTime(),
+            result.CallingWindowOpensAt);
+    }
+
+    /// <summary>
+    /// Inside the window there is no reopening time to report, and reporting one would be a
+    /// second source of truth about a question already answered by <c>CallingWindowOpen</c>.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-WINDOW-08")]
+    public async Task InsideTheCallingWindowNoReopeningTimeIsReported()
+    {
+        var store = new RecordingSchedulerStore();
+        var runtime = new SchedulerRuntime(
+            store,
+            new RecordingDispatchGateway(),
+            Options.Create(new SchedulerOptions { Enabled = true }),
+            new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
+            new FixedTimeProvider(
+                new DateTimeOffset(2026, 9, 5, 10, 0, 0, TimeSpan.FromHours(7)).ToUniversalTime()));
+
+        SchedulerRunResult result = await runtime.RunOnceAsync("worker-day");
+
+        Assert.True(result.CallingWindowOpen);
+        Assert.Null(result.CallingWindowOpensAt);
     }
 
     private static SchedulerCapacityRequest Request(
