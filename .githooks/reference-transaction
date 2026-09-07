@@ -1,0 +1,61 @@
+#!/bin/sh
+# ginsengfood-ivr: refuse to create any local branch other than `main`.
+#
+# All work on this repo happens directly on `main` — no feature branches, for
+# humans and for every agent alike (Claude Code, Codex, ChatGPT, IDE buttons).
+# The rule lives in git itself rather than in a prompt file so that no tool can
+# be talked past it: `git branch X`, `git checkout -b X`, `git switch -c X` and
+# `git worktree add -b X` all fail here.
+#
+# Deliberate, one-off override (a human decision, not an agent's):
+#   IVR_ALLOW_NEW_BRANCH=1 git switch -c hotfix
+#
+# Not blocked: commits on an existing branch, deleting branches, fetching,
+# tags, stash, rebase, and creating `main` itself in a fresh clone.
+
+[ "$1" = "prepared" ] || exit 0
+[ "${IVR_ALLOW_NEW_BRANCH:-}" = "1" ] && exit 0
+
+blocked=''
+
+# stdin: <old-value> SP <new-value> SP <ref-name> LF  (ref names never contain
+# spaces, so `rest` only absorbs fields a future git might append).
+while read -r old new ref rest; do
+	case "$ref" in
+	refs/heads/*) ;;
+	*) continue ;;
+	esac
+
+	# A creation is old=all-zeros with a real new value. Deleting a branch also
+	# reports old=all-zeros (git passes zeros for the don't-care old value), so
+	# the new value is what actually tells the two apart -- test it first or
+	# `git branch -d` gets refused as if it were creating the branch.
+	case "$new" in
+	'' | *[!0]*) ;;
+	*) continue ;;
+	esac
+	case "$old" in
+	'' | *[!0]*) continue ;;
+	esac
+
+	[ "$ref" = "refs/heads/main" ] && continue
+
+	blocked="${blocked}  ${ref#refs/heads/}
+"
+done
+
+[ -n "$blocked" ] || exit 0
+
+cat >&2 <<EOF
+BLOCKED: this repository does not allow new branches.
+
+Refused to create:
+${blocked}
+Everything here lands directly on \`main\`. If you are an agent (Claude Code,
+Codex, ChatGPT, ...), do not work around this — commit on \`main\` instead, and
+ask the repo owner if you believe a branch is genuinely required.
+
+A human who has decided otherwise can override a single command with:
+  IVR_ALLOW_NEW_BRANCH=1 <your git command>
+EOF
+exit 1

@@ -4,6 +4,8 @@
   "private": true,
   "packageManager": "pnpm@11.9.0",
   "scripts": {
+    "prepare": "node tools/dev/Install-GitHooks.mjs",
+    "hooks:install": "node tools/dev/Install-GitHooks.mjs",
     "setup": "dotnet restore Ivr.sln --locked-mode && npm --prefix admin-ui install --no-audit --no-fund && dotnet tool restore",
     "dev": "pnpm --dir admin-ui run dev",
     "api:dev": "dotnet run --project src/Ivr.Api",

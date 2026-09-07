@@ -1,0 +1,50 @@
+#!/bin/sh
+# ginsengfood-ivr: refuse to publish any branch other than `main` to a remote.
+#
+# The companion to .githooks/reference-transaction: that one stops a branch
+# being created locally, this one stops one reaching GitLab (`origin`) or GitHub
+# (`github`) by a refspec such as `git push origin HEAD:refs/heads/feature`.
+#
+# Deleting a stale remote branch (`git push origin --delete old`) stays allowed —
+# that is the cleanup path this rule wants, not the thing it guards against.
+#
+# Deliberate, one-off override:
+#   IVR_ALLOW_NEW_BRANCH=1 git push origin HEAD:refs/heads/hotfix
+
+[ "${IVR_ALLOW_NEW_BRANCH:-}" = "1" ] && exit 0
+
+blocked=''
+
+# stdin: <local ref> SP <local oid> SP <remote ref> SP <remote oid> LF
+while read -r local_ref local_oid remote_ref remote_oid rest; do
+	case "$remote_ref" in
+	refs/heads/*) ;;
+	*) continue ;;
+	esac
+
+	[ "$remote_ref" = "refs/heads/main" ] && continue
+
+	# An all-zero local oid is a deletion, which is allowed.
+	case "$local_oid" in
+	'' | *[!0]*) ;;
+	*) continue ;;
+	esac
+
+	blocked="${blocked}  ${remote_ref#refs/heads/}
+"
+done
+
+[ -n "$blocked" ] || exit 0
+
+cat >&2 <<EOF
+BLOCKED: this repository only publishes \`main\`.
+
+Refused to push:
+${blocked}
+Both remotes track \`main\` only (origin = GitLab, github = GitHub). Merge the
+work into \`main\` and push that instead.
+
+A human who has decided otherwise can override a single command with:
+  IVR_ALLOW_NEW_BRANCH=1 <your git push command>
+EOF
+exit 1

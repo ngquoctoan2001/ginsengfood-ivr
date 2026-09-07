@@ -1,3 +1,68 @@
+# Branch policy — `main` only, no exceptions
+
+> Luật bắt buộc: repo này chỉ làm việc trên `main`. Không agent nào được tạo
+> nhánh mới — kể cả ChatGPT, Codex hay Claude Code.
+
+**Never create a git branch in this repository.** Every change is committed
+straight to `main`. This binds every agent without exception — Claude Code,
+Codex, ChatGPT, Cursor, an IDE button, a shell script — and every spelling of
+the command:
+
+- `git checkout -b` / `-B` / `--orphan`
+- `git switch -c` / `-C` / `--create` / `--orphan`
+- `git branch <name>`
+- `git worktree add` — invents a branch named after the path unless `--detach`
+- `git push <remote> HEAD:refs/heads/<anything but main>`
+- `git update-ref refs/heads/<name>`
+
+If you believe a branch is genuinely required, **stop and ask the repo owner**.
+Do not decide that for yourself, and do not reach for the escape hatch below on
+your own initiative — it exists for the owner, not for you.
+
+Both remotes track `main` only: `origin` (GitLab) and `github` (GitHub). A
+`git push origin main` reaches both, because `remote.origin.pushurl` holds two
+values. Where a stray branch already exists, merge it into `main` and delete it.
+
+## This is enforced, not advisory
+
+`core.hooksPath` points at [`.githooks/`](.githooks), so git itself refuses the
+operation — there is no shell phrasing that gets around it:
+
+| Hook | Refuses |
+|------|---------|
+| `.githooks/reference-transaction` | creating any local ref under `refs/heads/` other than `main` |
+| `.githooks/pre-push` | publishing any branch other than `main` to a remote |
+
+Deleting branches, committing on `main`, fetching, tags and stashes are all
+untouched. `core.hooksPath` lives in `.git/config`, which every linked worktree
+shares, so the rule covers `git worktree` checkouts too.
+
+Claude Code additionally denies the branch-creating commands up front, via
+`.claude/settings.json` and `.claude/hooks/no-new-branch.sh`, so the block
+arrives as a readable message instead of a hook failure.
+
+**Do not disable, weaken, or reroute any of this.** Changing `core.hooksPath`,
+editing `.githooks/`, or removing the deny rules is out of scope for every task
+unless the repo owner asks for it in so many words.
+
+## For the repo owner only
+
+One command, one deliberate exception:
+
+```bash
+IVR_ALLOW_NEW_BRANCH=1 git switch -c <name>
+```
+
+After cloning, or if the repo folder is moved, reinstall the hooks:
+
+```bash
+pnpm hooks:install
+```
+
+`pnpm install` runs that automatically via the `prepare` script. To confirm the
+rule is live: `git config --get core.hooksPath` must print an existing
+`.githooks` path.
+
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 

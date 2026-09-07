@@ -39,7 +39,7 @@ Ngày: 2026-09-05. Trạng thái: **TESTS_PASS — P1.1 local/MOCK đạt exit 3
 - Terminate one/all: validate body trước lookup/mutation, tránh null reason thành 500.
 - Script: duplicate immutable version trả 409; thêm replay bền vững khi cung cấp key, giữ tương thích caller cũ không gửi key.
 - Seed/profile: thêm replay response có ràng buộc operation, typed payload, actor/permissions; không thay đổi endpoint hay quyền truy cập.
-- Profile bật SIM tái hiện 500 với SQLSTATE `40001`: transaction replay Serializable xung đột với command receipt commit độc lập. Tách đường coordinated replay ReadCommitted + advisory lock theo key; caller Serializable cũ giữ nguyên.
+- Profile bật SIM tái hiện 500 với SQLSTATE `40001`: transaction replay Serializable xung đột với command receipt commit độc lập. Tách nhánh coordinated replay ReadCommitted + advisory lock theo key; caller Serializable cũ giữ nguyên.
 - Chỉ thu SQLSTATE nội bộ trong test, không exception message/SQL/parameter/connection string. Test duplicate version chủ động sinh `23505` và được map về 409.
 - OpenAPI sửa nullable enum và các response/header hiện hữu; codegen không thay DTO/client, contract vẫn TARGET_DRAFT.
 
