@@ -1,0 +1,176 @@
+{
+  "work_id": "W-0203",
+  "plan_item": "P1.2 Full worker pipeline",
+  "profile": "LocalMockE2E",
+  "generated_at": "2026-09-05T10:51:37.395Z",
+  "started_at": "2026-09-05T10:38:45.194Z",
+  "run_id": "103845",
+  "safety": {
+    "execution_mode": "MOCK",
+    "sim_provider": "MOCK",
+    "real_customer_call_allowed": "NO",
+    "destination_allowlist": [
+      "mock-destination-allowlisted"
+    ]
+  },
+  "configuration": {
+    "rounds_requested": 100,
+    "workers": 2,
+    "extended_every": 10,
+    "attempt_policy_version": "mock-lab-v1",
+    "api": "http://127.0.0.1:5015",
+    "fake_sales": "http://127.0.0.1:18085"
+  },
+  "coverage": {
+    "core_scenarios": [
+      "CONFIRM",
+      "CANCEL",
+      "NOANSWER",
+      "BUSY",
+      "NOINPUT",
+      "WRONGKEY",
+      "BADNUMBER",
+      "AUDIOERR",
+      "ACKOK",
+      "ACKDUP"
+    ],
+    "extended_scenarios": [
+      "REJECTED",
+      "UNREACH",
+      "DTMFERR",
+      "DROPPED",
+      "ACKBLOCK",
+      "ACKREVIEW",
+      "ACKSTALE",
+      "ACKCONFLICT",
+      "ACK422",
+      "ACK429",
+      "ACK500"
+    ],
+    "faults": [
+      "worker-crash-mid-call",
+      "lease-expiry",
+      "kill-switch-engaged",
+      "operator-terminate-in-flight",
+      "callback-outage",
+      "dead-letter-and-replay",
+      "two-worker-concurrency"
+    ]
+  },
+  "loop": {
+    "rounds_completed": 100,
+    "tasks_admitted": 1110,
+    "tasks_settled": 1110,
+    "round_milliseconds": {
+      "min": 1832,
+      "median": 2778,
+      "max": 31955
+    }
+  },
+  "invariants": {
+    "miscounted": 0,
+    "duplicateFinals": 0,
+    "duplicateCallbacks": 0
+  },
+  "open_findings": [
+    {
+      "id": "F-1",
+      "severity": "HIGH",
+      "title": "Concurrent writes with distinct idempotency keys fail with HTTP 500",
+      "detail": "PostgresIdempotencyStore.ExecuteAsync runs SERIALIZABLE, reads ivr_idempotency_keys and inserts into it, so concurrent requests with different keys abort at COMMIT with SQLSTATE 40001. The API maps that to IVR_INTERNAL_ERROR / HTTP 500 rather than a retryable answer. Reproduced by ten concurrent POST /eligibility-checks.",
+      "harness_workaround": "bounded client retry on 500 plus an admission concurrency of 2",
+      "measured": {
+        "concurrent_requests": 10,
+        "intake_500": 0,
+        "intake_ok": 10,
+        "eligibility_500": 9,
+        "eligibility_ok": 1
+      },
+      "conflict_retries": {
+        "intake": 0,
+        "eligibility": 99,
+        "exhausted": 0
+      },
+      "fix_scope": "MutationReplayFilter wraps whole endpoint invocations in the same Serializable envelope, so a blanket transaction retry would re-run HTTP handlers. Each call site has to be shown retry-safe first; that is its own work item, not a patch here."
+    }
+  ],
+  "delivery_ledger": {
+    "callbackIds": 1085,
+    "redelivered": 23,
+    "inconsistent": 0
+  },
+  "faults": [
+    {
+      "phase": "crash-and-lease-recovery",
+      "cohort": 4,
+      "inFlightAtKill": 1,
+      "recoveryRequired": 1,
+      "heldForReview": 1,
+      "redialled": 0,
+      "channelsQuarantinedAfterRelease": 0,
+      "finishedAfterRecovery": 3
+    },
+    {
+      "phase": "kill-switch",
+      "withheldTasks": 3,
+      "attemptsWhileEngaged": 0,
+      "resultsWhileEngaged": 0,
+      "completedAfterRelease": 3,
+      "note": "Enabled=false is part of the engaged posture: MockTelephonyOptionsValidator refuses to start a worker whose telephony is armed while the switch is engaged."
+    },
+    {
+      "phase": "terminate-in-flight",
+      "cohort": 2,
+      "resultTypes": {
+        "IVR_TECHNICAL_EXCEPTION": 1
+      },
+      "countedCustomerAttempts": 0
+    },
+    {
+      "phase": "callback-outage",
+      "cohort": 4,
+      "statusesDuringOutage": {
+        "RETRY_PENDING": 3,
+        "SENDING": 1
+      },
+      "deliveredAfterRecovery": 4,
+      "maxRetryCount": 3
+    },
+    {
+      "phase": "dead-letter-and-replay",
+      "cohort": 3,
+      "deadLettered": 3,
+      "retryCountAtDeath": 3,
+      "replayedRows": 3,
+      "deliveredAfterReplay": 3,
+      "replayPath": "manual SQL re-queue; no admin replay endpoint exists yet (finding)"
+    }
+  ],
+  "retention": {
+    "before": {
+      "purge": 100,
+      "keep": 100
+    },
+    "after": {
+      "done": true,
+      "callbacks": 0,
+      "results": 0,
+      "attempts": 0
+    },
+    "speech_snapshots_redacted": 100,
+    "dependency_held": {
+      "jobs": 100,
+      "tasks": 100,
+      "outbox": 100
+    },
+    "in_period_survivors": {
+      "callbacks": 100,
+      "results": 100,
+      "attempts": 100,
+      "tasks": 100,
+      "unredacted": 100
+    }
+  },
+  "failures": [],
+  "verdict": "PASS"
+}

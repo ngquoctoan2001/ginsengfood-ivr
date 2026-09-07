@@ -30,6 +30,19 @@ public static class NonProductionSurface
         .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
+    /// Whether <paramref name="environmentName"/> names a deployment that is not production.
+    /// <para>
+    /// Exposed so that the other things which must never exist in production — the developer
+    /// surface here, the named configuration profiles of <see cref="IvrConfigurationProfile"/> —
+    /// are decided by one list rather than by two lists that can drift apart. The one that drifts
+    /// would be the one consulted less often, and the failure would be silent.
+    /// </para>
+    /// </summary>
+    public static bool IsNonProductionEnvironment(string? environmentName) =>
+        !string.IsNullOrWhiteSpace(environmentName)
+        && NonProductionEnvironments.Contains(environmentName.Trim());
+
+    /// <summary>
     /// Whether the developer surface may be served. Every disagreement resolves to
     /// <see langword="false"/>.
     /// </summary>
@@ -50,8 +63,7 @@ public static class NonProductionSurface
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(environmentName)
-            || !NonProductionEnvironments.Contains(environmentName.Trim()))
+        if (!IsNonProductionEnvironment(environmentName))
         {
             return false;
         }

@@ -202,6 +202,7 @@ public sealed class FakeSimGateway : ISimGateway
     private const int MaximumRetainedEvents = 4_096;
     private const int MaximumRetainedPlayedSpeech = 1_024;
     private readonly ImmutableDictionary<string, FakeSimScenario> _scenarios;
+    private readonly ImmutableArray<KeyValuePair<string, FakeSimScenario>> _scenarioPrefixes;
     private readonly ImmutableDictionary<string, SimChannelHealthState> _healthByChannel;
     private readonly ConcurrentDictionary<string, SimCallSession> _activeChannels = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, FakeSimScenario> _activeScenarios = new(StringComparer.Ordinal);
@@ -216,9 +217,52 @@ public sealed class FakeSimGateway : ISimGateway
     {
         ArgumentNullException.ThrowIfNull(scenariosByAttemptId);
         _scenarios = scenariosByAttemptId.ToImmutableDictionary(StringComparer.Ordinal);
+        // Longest first, so the most specific pattern decides. Ordering it once here rather than
+        // per dial keeps the resolution total and makes the tie-break a property of the
+        // configuration instead of a property of dictionary enumeration order.
+        _scenarioPrefixes = [.. _scenarios
+            .Where(pair => pair.Key.Length > 1 && pair.Key.EndsWith('*'))
+            .Select(pair => KeyValuePair.Create(pair.Key[..^1], pair.Value))
+            .OrderByDescending(pair => pair.Key.Length, Comparer<int>.Default)
+            .ThenBy(pair => pair.Key, StringComparer.Ordinal)];
         _healthByChannel = (healthByChannel ?? new Dictionary<string, SimChannelHealthState>())
             .ToImmutableDictionary(StringComparer.Ordinal);
         _timeProvider = timeProvider ?? TimeProvider.System;
+    }
+
+    /// <summary>
+    /// Picks the scenario for one dial: exact attempt, then exact task, then the longest
+    /// <c>prefix*</c> pattern matching either, then the catch-all <c>*</c>.
+    /// <para>
+    /// W-0203 added the prefix arm. The gateway is a singleton built once from the options
+    /// snapshot, so before it existed a scenario could only be scripted for an identifier that was
+    /// already known at process start. A rehearsal that admits fresh tasks on every round — which
+    /// is what a hundred-round pipeline loop is — therefore had no way to say "every CONFIRM task
+    /// answers and presses 1" without restarting the worker between rounds, and restarting the
+    /// worker between rounds destroys the crash-recovery signal the loop exists to measure.
+    /// </para>
+    /// </summary>
+    private FakeSimScenario Resolve(string attemptId, string taskId)
+    {
+        if (_scenarios.TryGetValue(attemptId, out FakeSimScenario? scenario)
+            || _scenarios.TryGetValue(taskId, out scenario))
+        {
+            return scenario;
+        }
+
+        foreach ((string prefix, FakeSimScenario candidate) in _scenarioPrefixes)
+        {
+            if (attemptId.StartsWith(prefix, StringComparison.Ordinal)
+                || taskId.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return candidate;
+            }
+        }
+
+        return _scenarios.TryGetValue("*", out scenario)
+            ? scenario
+            : throw new KeyNotFoundException(
+                "No deterministic SIM scenario is configured for the attempt or task.");
     }
 
     public IReadOnlyCollection<SimProviderEvent> Events => _events.ToArray();
@@ -237,13 +281,7 @@ public sealed class FakeSimGateway : ISimGateway
         }
 
         _ = request.DialAuthorization.RevealToTrustedGateway();
-        if (!_scenarios.TryGetValue(request.AttemptId.Value, out FakeSimScenario? scenario)
-            && !_scenarios.TryGetValue(request.TaskId.Value, out scenario)
-            && !_scenarios.TryGetValue("*", out scenario))
-        {
-            throw new KeyNotFoundException(
-                "No deterministic SIM scenario is configured for the attempt or task.");
-        }
+        FakeSimScenario scenario = Resolve(request.AttemptId.Value, request.TaskId.Value);
 
         await DelayAsync(scenario.DialDelay, cancellationToken).ConfigureAwait(false);
         DateTimeOffset startedAt = _timeProvider.GetUtcNow();

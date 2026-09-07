@@ -86,7 +86,7 @@ Thời gian kỹ thuật tối thiểu khoảng 20–34 ngày làm việc tập 
 - Xác nhận 11 result code wire; hai mã blocked chỉ xuất hiện pre-call như đặc tả.
 - Xác nhận response không chứa phone/address/payment/recording hoặc field ngoài allowlist.
 
-**Exit:** báo cáo máy đọc được có 38/38 operation, không chỉ route parity.
+**Exit đạt (local/MOCK):** [`W-0197`](../evidence/W-0197/README.md), [`JSON máy đọc`](../evidence/W-0197/api-matrix.json): **38/38 operation, 417 HTTP request**, 11 wire code, schema/allowlist/PII và retry/replay/conflict PASS. Lượt cuối matrix + replay transaction **3/3**; unit **528/528**, contract **24/24**; validator **18/18**. Evidence ghim content hash của working-tree candidate trên `d5539ba`, không phải hosted/exact-commit release proof; P1.2 crash/full-worker E2E vẫn mở.
 
 ### P1.2 Full worker pipeline
 
@@ -95,7 +95,21 @@ Thời gian kỹ thuật tối thiểu khoảng 20–34 ngày làm việc tập 
 - Bao phủ answer/no-answer/busy/timeout/invalid DTMF, retryable/non-retryable ACK, 429 Retry-After, stale/revoked và kill switch giữa claim/dial.
 - Kiểm tra crash recovery, lease expiry, duplicate delivery, DLQ/replay và concurrency.
 
-**Exit:** E2E lặp tối thiểu 100 vòng không mất/nhân đôi business outcome; mọi retry có bounded policy.
+**Exit đạt (local/MOCK):** [`W-0203`](../evidence/W-0203/README.md),
+[`JSON máy đọc`](../evidence/W-0203/local-mock-e2e.json): **100/100 vòng, 1110 task, 0 failure**;
+0 task có hai final result, 0 task có hai callback, 0 kết quả không-phải-khách bị đếm là customer
+attempt. Sổ giao nhận lấy từ journal của bên nhận: **1085 callback id, 23 lần giao lại, 0 lần không
+nhất quán**. Mỗi scenario khai trước số dial được phép nên "retry có trần" là khẳng định kiểm được.
+Bảy pha tiêm lỗi PASS: worker bị giết giữa cuộc gọi (thu hồi lease, **không quay số lại**), lease
+hết hạn, kill switch bật/tắt, operator cắt cuộc đang gọi (ra technical, không tính customer
+attempt), callback outage rồi phục hồi, dead-letter rồi replay, hai worker song song.
+
+Ba khoảng trống mở phát hiện trong lượt này, ghi trong evidence chứ không lấp: **F-1 (HIGH)** 10
+request `/eligibility-checks` đồng thời → 9 trả HTTP 500 (`40001` dưới envelope SERIALIZABLE của
+idempotency store) — harness cần 99 lần retry để đi hết 100 vòng, và bản vá phải chứng minh từng
+call site an toàn khi chạy lại nên thuộc một việc riêng; **F-2** dead letter chỉ replay được bằng
+SQL tay; **F-3** MOCK không có kill switch runtime. Đây là working-tree candidate local/MOCK, không
+phải hosted CI, không phải staging soak.
 
 ## 6. P2 — Tích hợp Module 3 khi chưa có telephony thật
 
@@ -228,9 +242,10 @@ Nếu một câu trả lời là **Không**, tiếp tục dùng simulator; khôn
 
 ## 14. Thứ tự thi công ngay
 
-1. P0.1–P0.2 đã đạt; tiếp tục P0.3 (migration expand-contract) và thêm regression test.
-2. Chạy lại toàn bộ suite, image self-test, progressive và K8s.
-3. Sinh HTTP matrix 38/38 và dựng `LocalMockE2E` full worker.
+1. P0.1–P0.3 và P1.1–P1.2 đã đạt ở local/MOCK.
+2. Đóng `F-1` (HTTP 500 khi ghi song song với idempotency key khác nhau) trước khi mở P2: Module 3
+   sẽ gửi song song, nên đây là blocker thật cho sandbox chứ không phải nợ kỹ thuật.
+3. Chạy lại toàn bộ suite, image self-test, progressive và K8s.
 4. Chốt/triển khai sandbox Module 3 song song với required CI.
 5. Dựng staging, chạy 24–72 giờ và đóng policy/evidence.
 6. Qua cổng mua mới lấy một gói lab tối thiểu; qua lab mới quyết định scale/pilot.

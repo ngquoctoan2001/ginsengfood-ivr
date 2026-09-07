@@ -12,6 +12,22 @@ System.Diagnostics.Activity.DefaultIdFormat = System.Diagnostics.ActivityIdForma
 System.Diagnostics.Activity.ForceDefaultIdFormat = true;
 var builder = Host.CreateApplicationBuilder(args);
 
+// W-0203. A named profile, layered on top of appsettings.{Environment}.json and then covered
+// again by the environment variables and the command line, so a harness can still override one
+// key without editing the file. Re-adding those two sources rather than computing an insert
+// index: the effect is the same, later wins, and there is no index arithmetic to get wrong.
+if (IvrConfigurationProfile.ResolveConfiguredFileName(
+        builder.Configuration,
+        builder.Environment.EnvironmentName) is { } workerProfileFile)
+{
+    builder.Configuration.AddJsonFile(workerProfileFile, optional: false, reloadOnChange: false);
+    builder.Configuration.AddEnvironmentVariables();
+    if (args.Length > 0)
+    {
+        builder.Configuration.AddCommandLine(args);
+    }
+}
+
 builder.Services.AddIvrObservability(
     builder.Configuration,
     builder.Environment,

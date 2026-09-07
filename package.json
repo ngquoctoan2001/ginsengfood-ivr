@@ -16,6 +16,8 @@
     "local:prepare": "pnpm docker:apps:stop && pnpm db:up && pnpm db:migrate",
     "dev:bootstrap": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/dev/Invoke-DevBootstrap.ps1",
     "e2e:local": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/dev/Invoke-LocalE2E.ps1",
-    "e2e:local:keep": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/dev/Invoke-LocalE2E.ps1 -KeepRunning"
+    "e2e:local:keep": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/dev/Invoke-LocalE2E.ps1 -KeepRunning",
+    "e2e:mock": "node tools/dev/Invoke-LocalMockE2E.mjs",
+    "e2e:mock:smoke": "node tools/dev/Invoke-LocalMockE2E.mjs --rounds 2 --workers 1 --extended-every 2 --skip-faults"
   }
 }

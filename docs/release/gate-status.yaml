@@ -910,6 +910,10 @@ work:
     prompt: "Xoay baseline OpenAPI draft.22 → draft.23 (Origin=UNPLANNED, owner chọn phương án (a) 2026-09-05)"
     status: "TESTS_PASS"
     evidence: null
+  - id: "W-0203"
+    prompt: "P1.2 Full worker pipeline — profile LocalMockE2E + vòng lặp E2E có tiêm lỗi (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0203/README.md"
 
 production_flag:
   real_customer_call_allowed: false

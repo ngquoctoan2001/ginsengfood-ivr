@@ -1,0 +1,176 @@
+{
+  "mappings": [
+    {
+      "name": "ACK 200 DUPLICATE_ACCEPTED",
+      "priority": 1,
+      "metadata": {
+        "why": "W-0203 / P1.2. Sales answering 'I already had this one' is a SUCCESS, not a retry. CallbackDispatcher maps DuplicateAccepted to DELIVERED_ACCEPTED, which is the whole point of an at-least-once outbox: a redelivery must be absorbed, never re-processed and never re-tried."
+      },
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACKDUP-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "transformers": ["response-template"],
+        "jsonBody": {
+          "code": "DUPLICATE_ACCEPTED",
+          "callback_id": "{{jsonPath request.body '$.callback_id'}}",
+          "correlation_id": "{{request.headers.X-Correlation-Id}}"
+        }
+      }
+    },
+    {
+      "name": "ACK 200 BLOCKED_BY_CORE",
+      "priority": 1,
+      "metadata": {
+        "why": "Order Core refused to act on a delivered result. Terminal and acknowledged: the callback arrived, so retrying it would only ask the same question again."
+      },
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACKBLOCK-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "transformers": ["response-template"],
+        "jsonBody": {
+          "code": "BLOCKED_BY_CORE",
+          "callback_id": "{{jsonPath request.body '$.callback_id'}}",
+          "correlation_id": "{{request.headers.X-Correlation-Id}}"
+        }
+      }
+    },
+    {
+      "name": "ACK 200 REVIEW_REQUIRED",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACKREVIEW-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "transformers": ["response-template"],
+        "jsonBody": {
+          "code": "REVIEW_REQUIRED",
+          "callback_id": "{{jsonPath request.body '$.callback_id'}}",
+          "correlation_id": "{{request.headers.X-Correlation-Id}}"
+        }
+      }
+    },
+    {
+      "name": "ACK 409 REJECTED_STALE",
+      "priority": 1,
+      "metadata": {
+        "why": "The order moved on while the call was in flight, so the result is about a version that no longer exists. Non-retryable by construction: the same payload will be just as stale next time."
+      },
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACKSTALE-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 409,
+        "headers": { "Content-Type": "application/json" },
+        "transformers": ["response-template"],
+        "jsonBody": {
+          "code": "REJECTED_STALE",
+          "callback_id": "{{jsonPath request.body '$.callback_id'}}",
+          "correlation_id": "{{request.headers.X-Correlation-Id}}"
+        }
+      }
+    },
+    {
+      "name": "ACK 409 IDEMPOTENCY_CONFLICT",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACKCONFLICT-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 409,
+        "headers": { "Content-Type": "application/json" },
+        "transformers": ["response-template"],
+        "jsonBody": {
+          "code": "IDEMPOTENCY_CONFLICT",
+          "callback_id": "{{jsonPath request.body '$.callback_id'}}",
+          "correlation_id": "{{request.headers.X-Correlation-Id}}"
+        }
+      }
+    },
+    {
+      "name": "ACK 422 unprocessable",
+      "priority": 1,
+      "metadata": {
+        "why": "A non-retryable rejection with no ACK envelope at all. It must dead-letter on the FIRST response - a stack that retried this would spend its whole retry budget re-sending something the receiver has already refused on its merits."
+      },
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACK422-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 422,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "error": "UNPROCESSABLE" }
+      }
+    },
+    {
+      "name": "ACK 429 with Retry-After",
+      "priority": 1,
+      "metadata": {
+        "why": "Retryable, and the server names its own delay. Retry-After is deliberately larger than the local exponential ceiling (MaxRetryDelayMilliseconds=2000) so that honouring it is OBSERVABLE: the 429 task must take visibly longer to exhaust than the 500 task, which retries on the local backoff alone. If the two took the same time, the header would be being ignored and every assertion about it would be vacuous."
+      },
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACK429-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 429,
+        "headers": { "Content-Type": "application/json", "Retry-After": "3" },
+        "jsonBody": { "error": "TOO_MANY_REQUESTS" }
+      }
+    },
+    {
+      "name": "ACK 500 retryable",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACK500-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 500,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "error": "INTERNAL" }
+      }
+    },
+    {
+      "name": "ACK 200 ACCEPTED (default)",
+      "priority": 10,
+      "metadata": {
+        "contract": "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
+        "why_the_echo_matters": "callback_id and correlation_id are ECHOED, not canned. TargetV1CallbackTransport compares both against the outbox row and reports CALLBACK_ACK_INVALID when either differs, so a fake returning constants would be rejected. The echo is what makes this a round trip rather than a stubbed 200."
+      },
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "transformers": ["response-template"],
+        "jsonBody": {
+          "code": "ACCEPTED",
+          "callback_id": "{{jsonPath request.body '$.callback_id'}}",
+          "correlation_id": "{{request.headers.X-Correlation-Id}}"
+        }
+      }
+    },
+    {
+      "name": "fake sales liveness",
+      "priority": 1,
+      "request": { "method": "GET", "urlPath": "/__admin/health" },
+      "response": { "status": 200, "jsonBody": { "status": "UP" } }
+    }
+  ]
+}
