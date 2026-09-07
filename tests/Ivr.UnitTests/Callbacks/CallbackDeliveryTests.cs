@@ -614,6 +614,50 @@ public sealed class CallbackDeliveryTests
             payload.RootElement.GetProperty("recommended_core_action").GetString());
     }
 
+    /// <summary>
+    /// W-0207 / P2.2. An ACK code carried on the wrong HTTP status is a DEAD LETTER, not a
+    /// near-miss.
+    /// <para>
+    /// The Target V1 contract binds each status to one ACK schema: 200 carries
+    /// <c>ACCEPTED</c>/<c>DUPLICATE_ACCEPTED</c>/<c>BLOCKED_BY_CORE</c>/<c>REVIEW_REQUIRED</c>,
+    /// 409 carries <c>REJECTED_STALE</c>/<c>IDEMPOTENCY_CONFLICT</c>, and nothing crosses over. A
+    /// receiver that answers <c>DUPLICATE_ACCEPTED</c> with 409 therefore does not get "absorbed
+    /// duplicate" — it gets <see cref="CallbackTransportOutcome.Invalid"/>, which the dispatcher
+    /// turns into <c>INVALID_DEAD_LETTER</c>: terminal, never retried, and indistinguishable from
+    /// a considered rejection.
+    /// </para>
+    /// <para>
+    /// This is written down as a test because the shared-E2E case sheet asked M3 for exactly that
+    /// combination. Building to it would have dead-lettered every exact replay, silently, and the
+    /// only visible symptom would have been callbacks that stopped arriving.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "UT-CALLBACK-TARGET-ACK-CROSS-01")]
+    [InlineData(409, "DUPLICATE_ACCEPTED")]
+    [InlineData(409, "BLOCKED_BY_CORE")]
+    [InlineData(409, "REVIEW_REQUIRED")]
+    [InlineData(409, "ACCEPTED")]
+    [InlineData(200, "REJECTED_STALE")]
+    [InlineData(200, "IDEMPOTENCY_CONFLICT")]
+    public async Task AnAckCodeOnTheWrongStatusDeadLetters(int status, string code)
+    {
+        CallbackOutboxMessage message = CreateMessage();
+        using ScriptedHandler handler = new(_ => Response(status, code, message));
+        using TargetTransportHarness harness = CreateTargetTransport(handler);
+
+        CallbackTransportResult result = await harness.Transport.SendAsync(
+            message,
+            CancellationToken.None);
+
+        Assert.Equal(CallbackTransportOutcome.Invalid, result.Outcome);
+        Assert.Equal("CALLBACK_ACK_INVALID", result.Code);
+        Assert.Equal(status, result.HttpStatus);
+        // Not retried: the receiver answered, so sending the same bytes again would only be asking
+        // a question that has already been answered wrongly.
+        Assert.Equal(1, handler.CallCount);
+    }
+
     private static TargetTransportHarness CreateTargetTransport(
         HttpMessageHandler handler,
         CallbackDeliveryOptions? settings = null)

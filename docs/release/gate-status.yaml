@@ -923,6 +923,10 @@ work:
     prompt: "GĐ 3.1–3.2: đóng băng bằng chứng trên một SHA + chạy lại security wrapper (Origin=UNPLANNED, owner chỉ đạo \"tiếp giai đoạn 3\" 2026-09-05)"
     status: "TESTS_PASS"
     evidence: null
+  - id: "W-0207"
+    prompt: "P2.2 Sandbox E2E — nửa IVR của ma trận TV1-E2E + sửa mâu thuẫn ACK/HTTP (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0207/README.md"
 
 production_flag:
   real_customer_call_allowed: false

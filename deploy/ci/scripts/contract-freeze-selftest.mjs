@@ -16,6 +16,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { CASE_RULES } from "./target-v1-shared-e2e-report-validator.mjs";
 import {
   run,
   MANIFEST_PATH,
@@ -186,6 +187,32 @@ const CASES = [
     allowAlso: ["FREEZE-05"],
   },
   {
+    // The defect W-0207 found, kept as a case so it cannot come back: the sheet asked Module 3
+    // for DUPLICATE_ACCEPTED on HTTP 409, which the contract binds to 200 only. An ACK on the
+    // wrong status is a terminal dead letter, so building to the sheet would have silently
+    // dead-lettered every exact replay.
+    id: "shared-e2e-case-asks-for-an-ack-the-contract-forbids",
+    expect: "FREEZE-06",
+    caseRules: () =>
+      CASE_RULES.map((rule) =>
+        rule.case_id === "TV1-E2E-03-EXACT-REPLAY" ? { ...rule, http: [409] } : rule,
+      ),
+    mutate() {},
+  },
+  {
+    id: "shared-e2e-validator-pins-a-different-callback-contract",
+    expect: "FREEZE-06",
+    sourcePins: () => ({ m8_target_oas_sha256: "0".repeat(64) }),
+    mutate() {},
+  },
+  {
+    // The other direction: a code the contract defines that nobody is asked to demonstrate.
+    id: "contract-defines-an-ack-nobody-demonstrates",
+    expect: "FREEZE-06",
+    caseRules: () => CASE_RULES.filter((rule) => rule.case_id !== "TV1-E2E-03-EXACT-REPLAY"),
+    mutate() {},
+  },
+  {
     id: "inventory-no-longer-describes-the-pinned-spec",
     expect: "FREEZE-05",
     mutate(root) {
@@ -210,7 +237,11 @@ export async function runSelftest() {
         await run({ root, write: true });
       }
 
-      const { failures } = await run({ root });
+      const { failures } = await run({
+        root,
+        ...(testCase.caseRules ? { caseRules: testCase.caseRules() } : {}),
+        ...(testCase.sourcePins ? { sourcePins: testCase.sourcePins() } : {}),
+      });
       const codes = new Set(failures.map((item) => item.split(":")[0]));
 
       if (testCase.expect === null) {

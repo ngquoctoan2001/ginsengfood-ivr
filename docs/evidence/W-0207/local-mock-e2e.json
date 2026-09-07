@@ -1,0 +1,256 @@
+{
+  "work_id": "W-0207",
+  "plan_item": "P1.2 Full worker pipeline",
+  "profile": "LocalMockE2E",
+  "generated_at": "2026-09-07T01:23:36.880Z",
+  "started_at": "2026-09-07T01:17:25.355Z",
+  "run_id": "011725",
+  "safety": {
+    "execution_mode": "MOCK",
+    "sim_provider": "MOCK",
+    "real_customer_call_allowed": "NO",
+    "destination_allowlist": [
+      "mock-destination-allowlisted"
+    ]
+  },
+  "configuration": {
+    "rounds_requested": 20,
+    "workers": 2,
+    "extended_every": 2,
+    "attempt_policy_version": "mock-lab-v1",
+    "api": "http://127.0.0.1:5015",
+    "fake_sales": "http://127.0.0.1:18085"
+  },
+  "coverage": {
+    "core_scenarios": [
+      "CONFIRM",
+      "CANCEL",
+      "NOANSWER",
+      "BUSY",
+      "NOINPUT",
+      "WRONGKEY",
+      "BADNUMBER",
+      "AUDIOERR",
+      "ACKOK",
+      "ACKDUP"
+    ],
+    "extended_scenarios": [
+      "REJECTED",
+      "UNREACH",
+      "DTMFERR",
+      "DROPPED",
+      "ACKBLOCK",
+      "ACKREVIEW",
+      "ACKSTALE",
+      "ACKCONFLICT",
+      "ACK422",
+      "ACK429",
+      "ACK500",
+      "ACK401",
+      "ACK247"
+    ],
+    "faults": [
+      "worker-crash-mid-call",
+      "lease-expiry",
+      "kill-switch-engaged",
+      "operator-terminate-in-flight",
+      "callback-outage",
+      "dead-letter-and-replay",
+      "two-worker-concurrency"
+    ]
+  },
+  "loop": {
+    "rounds_completed": 20,
+    "tasks_admitted": 330,
+    "tasks_settled": 330,
+    "round_milliseconds": {
+      "min": 1699,
+      "median": 11199,
+      "max": 31229
+    }
+  },
+  "invariants": {
+    "miscounted": 0,
+    "duplicateFinals": 0,
+    "duplicateCallbacks": 0
+  },
+  "shared_e2e_ivr_side": {
+    "provenance": "IVR_SIDE_ONLY",
+    "what_this_is_not": "Not the shared-E2E report. Every case below has a Module 3 half - producer, revalidation, order-state effect - that no run on this side can observe. Signed evidence needs target-v1-shared-e2e-report-validator.mjs with real M3 artefacts and five sign-offs.",
+    "cases": [
+      {
+        "case_id": "TV1-E2E-01-GOLDEN-HOUR-ACCEPTED",
+        "demonstrated_by": "ACKOK",
+        "observed": "ACKOK=DELIVERED_ACCEPTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-02-24X7-ACCEPTED",
+        "demonstrated_by": "ACK247",
+        "observed": "ACK247=DELIVERED_ACCEPTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-03-EXACT-REPLAY",
+        "demonstrated_by": "ACKDUP",
+        "observed": "ACKDUP=DELIVERED_ACCEPTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-04-CHANGED-BODY-REPLAY",
+        "demonstrated_by": "ACKCONFLICT",
+        "observed": "ACKCONFLICT=IDEMPOTENCY_CONFLICT",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-05-STALE-VERSION-STATE",
+        "demonstrated_by": "ACKSTALE",
+        "observed": "ACKSTALE=REJECTED_STALE",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-06-CORE-BLOCKER",
+        "demonstrated_by": "ACKBLOCK+ACKREVIEW",
+        "observed": "ACKBLOCK=DELIVERED_BLOCKED, ACKREVIEW=DELIVERED_REVIEW",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-07-AUTH-NEGATIVE",
+        "demonstrated_by": "ACK401",
+        "observed": "ACK401=AUTH_REJECTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-08-INVALID-SCHEMA-RESULT",
+        "demonstrated_by": "ACK422",
+        "observed": "ACK422=INVALID_DEAD_LETTER",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-09-RATE-LIMIT",
+        "demonstrated_by": "ACK429",
+        "observed": "ACK429=RETRY_EXHAUSTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-10-M3-OUTAGE-TIMEOUT",
+        "demonstrated_by": "fault:callback-outage",
+        "observed": "3/3 recovered, max retry 2",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-11-NO-ANSWER-FINAL",
+        "demonstrated_by": "NOANSWER",
+        "observed": "NOANSWER=DELIVERED_ACCEPTED",
+        "ivr_side": "DEMONSTRATED"
+      }
+    ],
+    "demonstrated": 11,
+    "of": 11
+  },
+  "open_findings": [
+    {
+      "id": "F-1",
+      "severity": "HIGH",
+      "title": "Concurrent writes with distinct idempotency keys fail with HTTP 500",
+      "detail": "PostgresIdempotencyStore.ExecuteAsync runs SERIALIZABLE, reads ivr_idempotency_keys and inserts into it, so concurrent requests with different keys abort at COMMIT with SQLSTATE 40001. The API maps that to IVR_INTERNAL_ERROR / HTTP 500 rather than a retryable answer. Reproduced by ten concurrent POST /eligibility-checks.",
+      "harness_workaround": "bounded client retry on 500 plus an admission concurrency of 2",
+      "measured": {
+        "concurrent_requests": 10,
+        "intake_500": 0,
+        "intake_ok": 10,
+        "eligibility_500": 9,
+        "eligibility_ok": 1
+      },
+      "conflict_retries": {
+        "intake": 0,
+        "eligibility": 22,
+        "exhausted": 0
+      },
+      "fix_scope": "MutationReplayFilter wraps whole endpoint invocations in the same Serializable envelope, so a blanket transaction retry would re-run HTTP handlers. Each call site has to be shown retry-safe first; that is its own work item, not a patch here."
+    }
+  ],
+  "delivery_ledger": {
+    "callbackIds": 314,
+    "redelivered": 26,
+    "inconsistent": 0
+  },
+  "faults": [
+    {
+      "phase": "crash-and-lease-recovery",
+      "cohort": 4,
+      "inFlightAtKill": 1,
+      "recoveryRequired": 1,
+      "heldForReview": 1,
+      "redialled": 0,
+      "channelsQuarantinedAfterRelease": 0,
+      "finishedAfterRecovery": 3
+    },
+    {
+      "phase": "kill-switch",
+      "withheldTasks": 3,
+      "attemptsWhileEngaged": 0,
+      "resultsWhileEngaged": 0,
+      "completedAfterRelease": 3,
+      "note": "Enabled=false is part of the engaged posture: MockTelephonyOptionsValidator refuses to start a worker whose telephony is armed while the switch is engaged."
+    },
+    {
+      "phase": "terminate-in-flight",
+      "cohort": 2,
+      "resultTypes": {
+        "IVR_TECHNICAL_EXCEPTION": 1
+      },
+      "countedCustomerAttempts": 0
+    },
+    {
+      "phase": "callback-outage",
+      "processOutage": {
+        "cohort": 4,
+        "statusesDuringOutage": {
+          "RETRY_PENDING": 4
+        },
+        "recovered": 4,
+        "deadLettered": 0
+      },
+      "cohort": 3,
+      "deliveredAfterRecovery": 3,
+      "maxRetryCount": 2
+    },
+    {
+      "phase": "dead-letter-and-replay",
+      "cohort": 3,
+      "deadLettered": 3,
+      "retryCountAtDeath": 3,
+      "replayedRows": 3,
+      "deliveredAfterReplay": 3,
+      "replayPath": "manual SQL re-queue; no admin replay endpoint exists yet (finding)"
+    }
+  ],
+  "retention": {
+    "before": {
+      "purge": 20,
+      "keep": 20
+    },
+    "after": {
+      "done": true,
+      "callbacks": 0,
+      "results": 0,
+      "attempts": 0
+    },
+    "speech_snapshots_redacted": 20,
+    "dependency_held": {
+      "jobs": 20,
+      "tasks": 20,
+      "outbox": 20
+    },
+    "in_period_survivors": {
+      "callbacks": 20,
+      "results": 20,
+      "attempts": 20,
+      "tasks": 20,
+      "unredacted": 20
+    }
+  },
+  "failures": [],
+  "verdict": "PASS"
+}

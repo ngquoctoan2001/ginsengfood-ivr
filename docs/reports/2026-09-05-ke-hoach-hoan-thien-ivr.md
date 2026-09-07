@@ -153,6 +153,26 @@ CDC — cộng credential sandbox. Không mục nào trong số đó IVR tự l�
 
 **Exit:** hai chiều producer/callback và bề mặt admin đều có sandbox evidence trên cùng contract hash.
 
+**Trạng thái (06/09) — nửa IVR đạt, chưa đạt exit:** [`W-0207`](../evidence/W-0207/README.md).
+M3 chưa xong luồng bán hàng nên không cấp được sandbox; chờ là thời gian chết, nên đảo chiều phụ
+thuộc và chứng minh trước nửa IVR trên đúng ma trận M3 sẽ được mời đồng ký:
+**`shared_e2e_ivr_side` 11/11 `TV1-E2E` DEMONSTRATED**, run `20 vòng / 330 task / 0 failure`, 0
+final trùng, 0 callback trùng; journal bên nhận `314 callback id / 26 giao lại / 0 không nhất quán`.
+
+**Một mâu thuẫn hợp đồng đã được tìm ra và sửa, không cần M3.** Tờ ma trận `W-0174` yêu cầu M3 trả
+`DUPLICATE_ACCEPTED` trên **HTTP 409** (và `BLOCKED_BY_CORE`/`REVIEW_REQUIRED` trên 200 **hoặc**
+409), trong khi hợp đồng đã ghim chỉ cho các mã đó ở **200**. Không phải lỗi nhỏ: transport đọc body
+409 theo `CallbackAck409`, không parse được thì trả `CALLBACK_ACK_INVALID` và dispatcher biến thành
+**`INVALID_DEAD_LETTER` — terminal, không retry**. M3 xây theo tờ đó sẽ **dead-letter mọi lần replay
+chính xác**, im lặng. Hệ quả được chứng minh bằng `UT-CALLBACK-TARGET-ACK-CROSS-01` trước khi sửa;
+`FREEZE-06` chặn lớp lỗi này tái diễn (selftest 14/14).
+
+**Còn thiếu để đóng P2.2:** producer của M3 phát task call-ready, M3 revalidate rồi đổi trạng thái
+đơn, và BFF của M3 gọi admin API — **không quan sát được từ phía IVR bằng bất kỳ cách nào**. Chữ ký
+thật cần năm vai (`M8_OWNER`/`M3_OWNER`/`SECURITY`/`PLATFORM`/`RELEASE_OWNER`); template vẫn
+`NOT_READY`. Rotation token/rate limit/DNS-TLS mới ở mức fake — bằng chứng thật cần credential
+sandbox (`OQ-AUTH-01`).
+
 ## 7. P3 — CI và candidate phát hành
 
 - Đưa restore/build, 799+ test, OpenAPI, security, image, K8s, progressive và evidence validators vào required pipeline.

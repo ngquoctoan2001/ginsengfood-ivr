@@ -116,6 +116,22 @@
       }
     },
     {
+      "name": "ACK 401 unauthenticated",
+      "priority": 1,
+      "metadata": {
+        "why": "W-0207 / TV1-E2E-07. Auth rejection is terminal and must NOT be retried blindly: the receiver has refused the identity, so resending the same bearer would only repeat the refusal. It also must not be confused with a transport failure - 401 carries an answer, a dropped connection does not."
+      },
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v1/internal/orders/ORD-E2E-ACK401-[^/]+/ivr-result-callbacks"
+      },
+      "response": {
+        "status": 401,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "error": "UNAUTHENTICATED" }
+      }
+    },
+    {
       "name": "ACK 429 with Retry-After",
       "priority": 1,
       "metadata": {

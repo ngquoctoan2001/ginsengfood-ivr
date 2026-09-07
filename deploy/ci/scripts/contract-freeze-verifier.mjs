@@ -35,6 +35,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 
+import {
+  CASE_RULES as SHARED_E2E_CASE_RULES,
+  SOURCE_PINS as SHARED_E2E_SOURCE_PINS,
+} from "./target-v1-shared-e2e-report-validator.mjs";
+
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "../../..");
 const MANIFEST_PATH = "specs/api/openapi/contract-manifest.json";
@@ -463,6 +468,107 @@ async function checkInventory(root, manifest, specs, { write }) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// FREEZE-06 — what we ask Module 3 to prove must be something the contract permits
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Which ACK codes a shared-E2E case outcome actually asserts. Outcomes that describe a transport
+ * condition rather than an ACK body (`AUTH_REJECTED`, `RETRY_PENDING`, …) constrain nothing here:
+ * 401, 429, 502 and a dropped connection are answers the contract never claimed to enumerate.
+ */
+const CASE_OUTCOME_ACK_CODES = new Map([
+  ["ACCEPTED", ["ACCEPTED"]],
+  ["DUPLICATE_ACCEPTED", ["DUPLICATE_ACCEPTED"]],
+  ["IDEMPOTENCY_CONFLICT", ["IDEMPOTENCY_CONFLICT"]],
+  ["REJECTED_STALE", ["REJECTED_STALE"]],
+  ["BLOCKED_BY_CORE_OR_REVIEW_REQUIRED", ["BLOCKED_BY_CORE", "REVIEW_REQUIRED"]],
+]);
+
+/** status -> ACK codes the pinned callback contract permits at that status. */
+function ackCodesByStatus(callbackSpec) {
+  const operation = Object.values(callbackSpec.paths)[0]?.post;
+  const byStatus = new Map();
+  for (const [status, response] of Object.entries(operation?.responses ?? {})) {
+    const ref = response.content?.["application/json"]?.schema?.$ref;
+    if (!ref) continue;
+    const schema = callbackSpec.components.schemas[ref.split("/").pop()];
+    const codes = schema?.properties?.code?.enum;
+    if (Array.isArray(codes)) byStatus.set(Number(status), new Set(codes));
+  }
+
+  return byStatus;
+}
+
+/**
+ * The shared-E2E case sheet is the list of things Module 3 will be asked to demonstrate. It is
+ * only worth asking for things the frozen contract allows - and until W-0207 nothing checked
+ * that, so the sheet asked for `DUPLICATE_ACCEPTED` on HTTP 409. The contract binds that code to
+ * 200 only, and the transport turns an ACK on the wrong status into a terminal dead letter
+ * (`UT-CALLBACK-TARGET-ACK-CROSS-01`), so building to the sheet would have quietly dead-lettered
+ * every exact replay.
+ */
+function checkSharedE2ECaseSheet(manifest, specs, caseRules, sourcePins) {
+  const permitted = ackCodesByStatus(specs.callback);
+
+  // The sheet pins its own copy of the callback contract hash. FREEZE-02 does not scan code, so
+  // this is the one restated pin that could otherwise drift unnoticed.
+  const callbackContract = manifest.contracts.find(
+    (contract) => contract.path.endsWith("order-core-ivr-callback.target-v1.yaml"),
+  );
+  if (sourcePins?.m8_target_oas_sha256 !== callbackContract?.sha256) {
+    fail(
+      "FREEZE-06",
+      `the shared-E2E validator pins callback OAS ${sourcePins?.m8_target_oas_sha256}, the ` +
+        `manifest pins ${callbackContract?.sha256}. The sheet would be validated against a ` +
+        "different contract than the one that is frozen.",
+    );
+  }
+
+  const named = new Set();
+  for (const rule of caseRules) {
+    const codes = CASE_OUTCOME_ACK_CODES.get(rule.outcome) ?? [];
+    for (const code of codes) named.add(code);
+    if (codes.length === 0) continue;
+
+    for (const status of rule.http) {
+      if (status === null) continue;
+      const allowed = permitted.get(status);
+      if (!allowed) {
+        fail(
+          "FREEZE-06",
+          `${rule.case_id} expects ACK ${codes.join("/")} on HTTP ${status}, but the pinned ` +
+            "contract binds no ACK schema to that status.",
+        );
+        continue;
+      }
+
+      const forbidden = codes.filter((code) => !allowed.has(code));
+      if (forbidden.length > 0) {
+        fail(
+          "FREEZE-06",
+          `${rule.case_id} expects ACK ${forbidden.join("/")} on HTTP ${status}; the pinned ` +
+            `contract permits only ${[...allowed].join("/")} there. An ACK on the wrong status ` +
+            "is a terminal dead letter, not a near miss.",
+        );
+      }
+    }
+  }
+
+  // The other direction: an ACK code the contract defines but nobody is asked to demonstrate is a
+  // hole in the acceptance matrix, and holes in acceptance matrices are found in production.
+  for (const codes of permitted.values()) {
+    for (const code of codes) {
+      if (!named.has(code)) {
+        fail(
+          "FREEZE-06",
+          `the contract defines ACK ${code} but no shared-E2E case asks for it.`,
+        );
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Driver
 // ---------------------------------------------------------------------------------------------
 
@@ -473,7 +579,14 @@ async function loadSpecs(root, manifest) {
   };
 }
 
-async function run({ write = false, root = REPOSITORY_ROOT } = {}) {
+async function run({
+  write = false,
+  root = REPOSITORY_ROOT,
+  // Injectable so the selftest can mutate the sheet without editing the shipped validator. The
+  // defaults are the real ones, so CI checks exactly what production ships.
+  caseRules = SHARED_E2E_CASE_RULES,
+  sourcePins = SHARED_E2E_SOURCE_PINS,
+} = {}) {
   failures.length = 0;
   const manifest = JSON.parse(await readText(root, MANIFEST_PATH));
   const specs = await loadSpecs(root, manifest);
@@ -482,6 +595,7 @@ async function run({ write = false, root = REPOSITORY_ROOT } = {}) {
   await checkNoDuplicatePins(root, manifest);
   await checkPublishedSurface(root, specs);
   checkDraftHonesty(manifest, specs);
+  checkSharedE2ECaseSheet(manifest, specs, caseRules, sourcePins);
   await checkInventory(root, manifest, specs, { write });
 
   if (write) {

@@ -61,7 +61,12 @@ const CASE_RULES = Object.freeze([
   {
     case_id: "TV1-E2E-03-EXACT-REPLAY",
     outcome: "DUPLICATE_ACCEPTED",
-    http: [409],
+    // W-0207: was [409], which the contract does not permit. CallbackAck409 carries only
+    // REJECTED_STALE and IDEMPOTENCY_CONFLICT, so DUPLICATE_ACCEPTED on 409 is not an absorbed
+    // duplicate - TargetV1CallbackTransport reads it as CALLBACK_ACK_INVALID and the dispatcher
+    // dead-letters it, terminally and without a retry (UT-CALLBACK-TARGET-ACK-CROSS-01). Asking
+    // M3 for that combination would have silently dead-lettered every exact replay.
+    http: [200],
     assertions: [
       "same_idempotency_key",
       "same_immutable_body_hash",
@@ -95,7 +100,9 @@ const CASE_RULES = Object.freeze([
   {
     case_id: "TV1-E2E-06-CORE-BLOCKER",
     outcome: "BLOCKED_BY_CORE_OR_REVIEW_REQUIRED",
-    http: [200, 409],
+    // W-0207: the 409 arm is removed for the same reason as TV1-E2E-03. Both codes live in
+    // CallbackAck200 only.
+    http: [200],
     assertions: [
       "m3_revalidated_order_state",
       "order_truth_remained_with_m3",
@@ -1046,9 +1053,20 @@ function main(argv) {
   );
 }
 
-try {
-  main(process.argv.slice(2));
-} catch (error) {
-  console.error(`W0174_VALIDATION_FAILED: ${error.message}`);
-  process.exitCode = 1;
+// W-0207. The case sheet is exported so `contract-freeze-verifier.mjs` can prove it against the
+// pinned OpenAPI (FREEZE-06). It was previously readable only by this file, which is how it came
+// to ask for an ACK code the contract forbids on that status.
+export { CASE_RULES, SOURCE_PINS };
+
+const invokedDirectly =
+  process.argv[1] &&
+  resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
+
+if (invokedDirectly) {
+  try {
+    main(process.argv.slice(2));
+  } catch (error) {
+    console.error(`W0174_VALIDATION_FAILED: ${error.message}`);
+    process.exitCode = 1;
+  }
 }

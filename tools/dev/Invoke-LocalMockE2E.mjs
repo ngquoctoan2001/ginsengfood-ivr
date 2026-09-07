@@ -53,6 +53,7 @@ function readArgs(argv) {
     apiPort: 5015,
     salesPort: 18085,
     extendedEvery: 10,
+    evidenceDir: 'docs/evidence/W-0203',
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
@@ -64,6 +65,7 @@ function readArgs(argv) {
       case '--api-port': options.apiPort = Number(value); index += 1; break;
       case '--sales-port': options.salesPort = Number(value); index += 1; break;
       case '--extended-every': options.extendedEvery = Number(value); index += 1; break;
+      case '--evidence-dir': options.evidenceDir = value; index += 1; break;
       case '--skip-faults': options.skipFaults = true; break;
       case '--keep-running': options.keepRunning = true; break;
       default:
@@ -87,7 +89,10 @@ const API_URL = `http://127.0.0.1:${OPTIONS.apiPort}`;
 const API_BASE = `${API_URL}/v1/ivr/order-confirmation`;
 const SALES_URL = `http://127.0.0.1:${OPTIONS.salesPort}`;
 const LOG_DIR = join(ROOT, 'ci-artifacts', 'local-mock-e2e');
-const EVIDENCE_DIR = join(ROOT, 'docs', 'evidence', 'W-0203');
+// Which pack this run writes into. Defaulted rather than fixed so one harness can produce
+// both the endurance artifact (P1.2) and the contract-conformance artifact (P2.2) without
+// either overwriting the other's claim.
+const EVIDENCE_DIR = join(ROOT, OPTIONS.evidenceDir);
 
 const ORDER_CORE_TOKEN = 'dev-ordercore-token-not-a-real-secret';
 const INTERNAL_TOKEN = 'dev-internal-token-not-a-real-secret';
@@ -138,6 +143,34 @@ const EXTENDED_MATRIX = [
   { code: 'ACK422', plan: GOLDEN_HOUR, result: 'IVR_CONFIRMED', counted: true, delivery: 'INVALID_DEAD_LETTER', retries: 0, dispatches: 1 },
   { code: 'ACK429', plan: GOLDEN_HOUR, result: 'IVR_CONFIRMED', counted: true, delivery: 'RETRY_EXHAUSTED', retries: 3, dispatches: 1 },
   { code: 'ACK500', plan: GOLDEN_HOUR, result: 'IVR_CONFIRMED', counted: true, delivery: 'RETRY_EXHAUSTED', retries: 3, dispatches: 1 },
+  // W-0207 / P2.2. The two cases the shared-E2E matrix names that nothing on the IVR side
+  // demonstrated: an auth rejection (terminal, never retried blindly) and a 24/7 result carried
+  // by the SAME generic endpoint as Golden Hour - the compatibility endpoint must stay unused.
+  { code: 'ACK401', plan: GOLDEN_HOUR, result: 'IVR_CONFIRMED', counted: true, delivery: 'AUTH_REJECTED', retries: 0, dispatches: 1 },
+  { code: 'ACK247', plan: TWENTY_FOUR_SEVEN, result: 'IVR_CONFIRMED', counted: true, delivery: 'DELIVERED_ACCEPTED', retries: 0, dispatches: 1 },
+];
+
+/**
+ * W-0207 / P2.2. The IVR half of the shared-E2E matrix that Module 3 will be asked to co-sign
+ * (`deploy/ci/scripts/target-v1-shared-e2e-report-validator.mjs`).
+ *
+ * It is a MAP, not a report. Every row says which scenario in this harness demonstrates the IVR
+ * side of that case; none of them says anything about Module 3, who owns the other half of every
+ * one of these cases. The distinction is the whole point: a green column here is evidence that we
+ * conform to the frozen contract, and evidence of nothing at all about an integration.
+ */
+const SHARED_E2E_COVERAGE = [
+  { caseId: 'TV1-E2E-01-GOLDEN-HOUR-ACCEPTED', scenarios: ['ACKOK'] },
+  { caseId: 'TV1-E2E-02-24X7-ACCEPTED', scenarios: ['ACK247'] },
+  { caseId: 'TV1-E2E-03-EXACT-REPLAY', scenarios: ['ACKDUP'] },
+  { caseId: 'TV1-E2E-04-CHANGED-BODY-REPLAY', scenarios: ['ACKCONFLICT'] },
+  { caseId: 'TV1-E2E-05-STALE-VERSION-STATE', scenarios: ['ACKSTALE'] },
+  { caseId: 'TV1-E2E-06-CORE-BLOCKER', scenarios: ['ACKBLOCK', 'ACKREVIEW'] },
+  { caseId: 'TV1-E2E-07-AUTH-NEGATIVE', scenarios: ['ACK401'] },
+  { caseId: 'TV1-E2E-08-INVALID-SCHEMA-RESULT', scenarios: ['ACK422'] },
+  { caseId: 'TV1-E2E-09-RATE-LIMIT', scenarios: ['ACK429'] },
+  { caseId: 'TV1-E2E-10-M3-OUTAGE-TIMEOUT', scenarios: [], fault: 'callback-outage' },
+  { caseId: 'TV1-E2E-11-NO-ANSWER-FINAL', scenarios: ['NOANSWER'] },
 ];
 
 // ---------------------------------------------------------------------------------------------
@@ -984,19 +1017,29 @@ async function faultTerminateInFlight() {
 /**
  * F4a. The callback receiver disappears and comes back.
  *
- * A transport failure is transient by definition, so the outbox must hold the message, back off,
- * and deliver it when the receiver returns - without inventing a second business outcome and
- * without retrying for ever.
+ * Two things have to be true and they are NOT the same claim, which is why this runs twice.
+ *
+ * The first run is a real transport failure - the receiver process is gone, so connections are
+ * refused rather than answered. What is guaranteed there is the bounded budget: every message
+ * ends in a terminal state, none exceeds MaxRetries, none is lost and none is duplicated. It is
+ * NOT guaranteed that all of them recover: an outage longer than the retry budget legitimately
+ * dead-letters, and an earlier version of this phase asserted otherwise and went red against a
+ * system doing exactly what policy says. That was a wrong test, not a wrong stack.
+ *
+ * The second run is a receiver that is up but failing, removed again inside the budget. That is
+ * where recovery is actually guaranteed, so that is where it is asserted - and it is the case the
+ * shared-E2E matrix calls TV1-E2E-10.
  */
 async function faultCallbackOutage() {
-  step('Fault 4a: callback receiver outage and recovery');
   const scenario = { code: 'ACKOK', plan: GOLDEN_HOUR, result: 'IVR_CONFIRMED', counted: true, delivery: 'DELIVERED_ACCEPTED', retries: null, dispatches: 1 };
+
+  step('Fault 4a-1: the receiver process disappears - bounded budget, nothing lost');
   docker(['stop', SALES_CONTAINER]);
-  const cohort = [];
+  const gone = [];
   for (let index = 0; index < 4; index += 1) {
     const taskId = `E2E-ACKOK-${RUN_ID}-F4${index}`;
     await admit(scenario, taskId);
-    cohort.push({ scenario, taskId });
+    gone.push({ scenario, taskId });
   }
   const pending = await waitFor('deliveries to start failing while the receiver is down', async () => {
     const rows = psqlRows(
@@ -1009,28 +1052,88 @@ async function faultCallbackOutage() {
 
   docker(['start', SALES_CONTAINER]);
   await waitForSales();
-  const recovered = await waitFor('every held callback to deliver once the receiver returns', async () => {
-    const seen = observe(cohort.map((item) => item.taskId));
-    const delivered = cohort.filter(
-      (item) => seen.get(item.taskId)?.delivery === 'DELIVERED_ACCEPTED').length;
-    return { done: delivered === cohort.length, delivered, of: cohort.length };
+  await waitFor('every held callback to reach a terminal state', async () => {
+    const seen = observe(gone.map((item) => item.taskId));
+    const terminal = gone.filter(
+      (item) => TERMINAL_DELIVERY.has(seen.get(item.taskId)?.delivery ?? '')).length;
+    return { done: terminal === gone.length, terminal, of: gone.length };
   }, { timeoutMs: 180_000, intervalMs: 500 });
-  const seen = observe(cohort.map((item) => item.taskId));
-  for (const item of cohort) {
-    const row = seen.get(item.taskId);
-    if (row.callbackCount !== 1) fail(`outage recovery ${item.taskId}: ${row.callbackCount} callback rows.`);
-    if (row.finalCount !== 1) fail(`outage recovery ${item.taskId}: ${row.finalCount} final results.`);
-    if (row.retryCount > 3) fail(`outage recovery ${item.taskId}: retry_count ${row.retryCount} exceeds MaxRetries.`);
+
+  const afterOutage = observe(gone.map((item) => item.taskId));
+  let recoveredCount = 0;
+  let deadLetteredCount = 0;
+  for (const item of gone) {
+    const row = afterOutage.get(item.taskId);
+    if (row.callbackCount !== 1) fail(`outage ${item.taskId}: ${row.callbackCount} callback rows.`);
+    if (row.finalCount !== 1) fail(`outage ${item.taskId}: ${row.finalCount} final results.`);
+    if (row.retryCount > 3) fail(`outage ${item.taskId}: retry_count ${row.retryCount} exceeds MaxRetries.`);
+    if (row.delivery === 'DELIVERED_ACCEPTED') recoveredCount += 1;
+    else if (row.delivery === 'RETRY_EXHAUSTED') deadLetteredCount += 1;
+    else fail(`outage ${item.taskId}: unexpected terminal status ${row.delivery}.`);
   }
+  note(`process outage: ${recoveredCount} recovered, ${deadLetteredCount} dead-lettered, `
+    + `highest retry_count ${Math.max(...gone.map((i) => afterOutage.get(i.taskId).retryCount))} of 3`);
+
+  step('Fault 4a-2: the receiver answers 503, then stops - recovery inside the budget');
+  const stub = await fetch(`${SALES_URL}/__admin/mappings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      priority: 1,
+      request: {
+        method: 'POST',
+        urlPathPattern: `/api/v1/internal/orders/ORD-E2E-ACKOK-${RUN_ID}-F7[^/]+/ivr-result-callbacks`,
+      },
+      response: { status: 503, jsonBody: { error: 'INJECTED_UNAVAILABLE' } },
+    }),
+  }).then((response) => response.json());
+
+  const held = [];
+  for (let index = 0; index < 3; index += 1) {
+    const taskId = `E2E-ACKOK-${RUN_ID}-F7${index}`;
+    await admit(scenario, taskId);
+    held.push({ scenario, taskId });
+  }
+  // Removed as soon as ONE message has spent a retry: enough to prove the failure was real, early
+  // enough that the budget is not gone. Waiting for exhaustion would be testing the other case.
+  await waitFor('a retry to be spent against the failing receiver', async () => {
+    const spent = Number(scalar(
+      `SELECT COALESCE(MAX(retry_count), 0) FROM ivr_result_callbacks `
+      + `WHERE task_id LIKE 'E2E-ACKOK-${RUN_ID}-F7%'`));
+    return { done: spent >= 1, spent };
+  }, { timeoutMs: 90_000, intervalMs: 100 });
+  await fetch(`${SALES_URL}/__admin/mappings/${stub.id}`, { method: 'DELETE' });
+
+  const recovered = await waitFor('every held callback to deliver once the receiver is healthy', async () => {
+    const seen = observe(held.map((item) => item.taskId));
+    const delivered = held.filter(
+      (item) => seen.get(item.taskId)?.delivery === 'DELIVERED_ACCEPTED').length;
+    return { done: delivered === held.length, delivered, of: held.length };
+  }, { timeoutMs: 180_000, intervalMs: 500 });
+
+  const afterRecovery = observe(held.map((item) => item.taskId));
+  for (const item of held) {
+    const row = afterRecovery.get(item.taskId);
+    if (row.callbackCount !== 1) fail(`recovery ${item.taskId}: ${row.callbackCount} callback rows.`);
+    if (row.finalCount !== 1) fail(`recovery ${item.taskId}: ${row.finalCount} final results.`);
+    if (row.retryCount > 3) fail(`recovery ${item.taskId}: retry_count ${row.retryCount} exceeds MaxRetries.`);
+  }
+  const maxRetry = Math.max(...held.map((item) => afterRecovery.get(item.taskId).retryCount));
+  note(`recovered ${recovered.delivered}/${held.length} after a failing receiver, `
+    + `highest retry_count ${maxRetry} of 3 allowed`);
+
   timeline.push({
     phase: 'callback-outage',
-    cohort: cohort.length,
-    statusesDuringOutage: pending.byStatus,
+    processOutage: {
+      cohort: gone.length,
+      statusesDuringOutage: pending.byStatus,
+      recovered: recoveredCount,
+      deadLettered: deadLetteredCount,
+    },
+    cohort: held.length,
     deliveredAfterRecovery: recovered.delivered,
-    maxRetryCount: Math.max(...cohort.map((item) => seen.get(item.taskId).retryCount)),
+    maxRetryCount: maxRetry,
   });
-  note(`recovered ${recovered.delivered}/${cohort.length}, highest retry_count `
-    + `${Math.max(...cohort.map((item) => seen.get(item.taskId).retryCount))} of 3 allowed`);
 }
 
 /**
@@ -1118,6 +1221,7 @@ async function runRounds() {
   const perRound = [];
   let admittedTotal = 0;
   let settledTotal = 0;
+  let lastExtended = null;
   for (let round = 1; round <= OPTIONS.rounds; round += 1) {
     const extended = OPTIONS.extendedEvery > 0 && round % OPTIONS.extendedEvery === 0;
     const matrix = extended ? [...CORE_MATRIX, ...EXTENDED_MATRIX] : CORE_MATRIX;
@@ -1133,6 +1237,7 @@ async function runRounds() {
       return { done: settled.length === admitted.length, settled: settled.length, of: admitted.length };
     }, { timeoutMs: 240_000, intervalMs: 400 });
     const ok = checkRound(admitted, last, `round ${round}`);
+    if (extended) lastExtended = { admitted, seen: last };
     settledTotal += admitted.length;
     const elapsed = Date.now() - startedAt;
     perRound.push({ round, extended, tasks: admitted.length, milliseconds: elapsed, ok });
@@ -1143,7 +1248,7 @@ async function runRounds() {
     }
     if (!ok) break;
   }
-  return { perRound, admittedTotal, settledTotal };
+  return { perRound, admittedTotal, settledTotal, lastExtended };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1285,6 +1390,60 @@ async function deliveryLedger() {
   return { callbackIds: byCallback.size, redelivered, inconsistent };
 }
 
+
+/**
+ * Builds the IVR-side column of the shared-E2E matrix from what this run actually observed.
+ * Expected delivery statuses are read from the scenario matrix rather than restated here, so the
+ * map cannot drift from the assertions the loop already makes.
+ */
+function sharedE2ECoverage(lastExtended) {
+  const matrix = new Map([...CORE_MATRIX, ...EXTENDED_MATRIX].map((row) => [row.code, row]));
+  const rows = [];
+  for (const entry of SHARED_E2E_COVERAGE) {
+    if (entry.fault) {
+      const phase = timeline.find((item) => item.phase === entry.fault);
+      const ok = Boolean(phase) && phase.deliveredAfterRecovery === phase.cohort;
+      rows.push({
+        case_id: entry.caseId,
+        demonstrated_by: `fault:${entry.fault}`,
+        observed: phase
+          ? `${phase.deliveredAfterRecovery}/${phase.cohort} recovered, max retry ${phase.maxRetryCount}`
+          : 'not run',
+        ivr_side: ok ? 'DEMONSTRATED' : 'NOT_DEMONSTRATED',
+      });
+      continue;
+    }
+
+    const observations = [];
+    let ok = lastExtended !== null && entry.scenarios.length > 0;
+    for (const code of entry.scenarios) {
+      const admitted = lastExtended?.admitted.find((item) => item.scenario.code === code);
+      const seen = admitted ? lastExtended.seen.get(admitted.taskId) : undefined;
+      const expected = matrix.get(code)?.delivery;
+      observations.push(`${code}=${seen?.delivery ?? 'none'}`);
+      if (!seen || seen.delivery !== expected) ok = false;
+    }
+
+    rows.push({
+      case_id: entry.caseId,
+      demonstrated_by: entry.scenarios.join('+'),
+      observed: observations.join(', '),
+      ivr_side: ok ? 'DEMONSTRATED' : 'NOT_DEMONSTRATED',
+    });
+  }
+
+  return {
+    provenance: 'IVR_SIDE_ONLY',
+    what_this_is_not:
+      'Not the shared-E2E report. Every case below has a Module 3 half - producer, revalidation, '
+      + 'order-state effect - that no run on this side can observe. Signed evidence needs '
+      + 'target-v1-shared-e2e-report-validator.mjs with real M3 artefacts and five sign-offs.',
+    cases: rows,
+    demonstrated: rows.filter((row) => row.ivr_side === 'DEMONSTRATED').length,
+    of: rows.length,
+  };
+}
+
 // ---------------------------------------------------------------------------------------------
 // Evidence
 // ---------------------------------------------------------------------------------------------
@@ -1327,7 +1486,7 @@ async function main() {
   const completedRounds = rounds.filter((item) => item.ok).length;
   const durations = rounds.map((item) => item.milliseconds).sort((a, b) => a - b);
   const summary = {
-    work_id: 'W-0203',
+    work_id: OPTIONS.evidenceDir.split('/').pop(),
     plan_item: 'P1.2 Full worker pipeline',
     profile: 'LocalMockE2E',
     generated_at: new Date().toISOString(),
@@ -1367,6 +1526,7 @@ async function main() {
       },
     },
     invariants,
+    shared_e2e_ivr_side: sharedE2ECoverage(loop.lastExtended ?? null),
     open_findings: [
       {
         id: 'F-1',
