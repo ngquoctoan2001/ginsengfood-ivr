@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 203 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 213 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 18
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 149
+  rows_without_evidence_pack: 159
 
 gates:
   - id: "G-CONTRACT"
@@ -924,41 +924,45 @@ work:
     status: "TESTS_PASS"
     evidence: null
   - id: "W-0207"
-    prompt: "P2.2 Sandbox E2E — nửa IVR của ma trận TV1-E2E + sửa mâu thuẫn ACK/HTTP (Origin=UNPLANNED)"
+    prompt: "P2.2 Sandbox E2E — nửa IVR của ma trận TV1-E2E, và một mâu thuẫn hợp đồng (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P2.2\" 2026-09-06)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0207/README.md"
   - id: "W-0208"
-    prompt: "Worklist 0.1 — TTL dial_token mâu thuẫn xuyên ba tầng: ghim hành vi + sửa hướng dẫn IR-06 (Origin=UNPLANNED, owner chỉ đạo \"bắt đầu từ 0.1\" 2026-09-07)"
+    prompt: "Nhóm 0.1 của worklist 07/09 — TTL dial_token mâu thuẫn xuyên ba tầng (Origin=UNPLANNED, owner chỉ đạo \"clean worklist rồi bắt đầu từ 0.1\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0208/README.md"
   - id: "W-0209"
-    prompt: "Worklist 0.2 — ràng buộc header lệch tài liệu/runtime: 128 vs 200, sàn 8 không tồn tại, bảng chữ cái chưa từng được ghi (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.2\" 2026-09-07)"
+    prompt: "Nhóm 0.2 của worklist 07/09 — ràng buộc header lệch giữa tài liệu bàn giao và runtime (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.2\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0209/README.md"
   - id: "W-0210"
-    prompt: "Worklist 0.3 — OD-V1-23 gọi nhầm phím hủy đơn là tín hiệu opt-out; sửa register + ghim hành vi (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.3\" 2026-09-07)"
+    prompt: "Nhóm 0.3 của worklist 07/09 — DTMF-0 bị OD-V1-23 gọi nhầm là tín hiệu opt-out (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.3\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0210/README.md"
   - id: "W-0211"
-    prompt: "Worklist 0.4 — ba câu tài liệu nói sai về chính hệ thống: bốn tập result type, draft.22 vs .23, bảng console trong DB (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.4\" 2026-09-07)"
+    prompt: "Nhóm 0.4 của worklist 07/09 — ba câu tài liệu nói sai về chính hệ thống này (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.4\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0211/README.md"
   - id: "W-0212"
-    prompt: "Worklist 0.6 — con số thứ tư của họ call-duration: spec ghi AVERAGE_CALL_DURATION 35s mà W-0132 không gom, và 35+5 khong bang 50 (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.6\" 2026-09-07)"
+    prompt: "Nhóm 0.6 của worklist 07/09 — con số thứ tư của họ call-duration (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.6\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0212/README.md"
   - id: "W-0213"
-    prompt: "Worklist 0.5 — environment scope FEATURE_FLAG_CHANGE (hai lớp) và trơ với RUNTIME_GATE_ADMIN/PRODUCTION_CALL; sửa tiền đề sai của chính worklist (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.5\" 2026-09-07)"
+    prompt: "Nhóm 0.5 của worklist 07/09 — environment scope một loại approval, trơ với hai loại kia (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.5\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0213/README.md"
   - id: "W-0214"
-    prompt: "Worklist X1/X2/X3 — bay khung gio trong docker-compose.e2e.yml, log window-closed con thieu, va ba nhanh khong phai rac (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp X1, X2, X3\" 2026-09-07)"
+    prompt: "Nhóm X của worklist 07/09 — bẫy khung giờ trong compose, dòng log còn thiếu, và ba nhánh không phải rác (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp X1, X2, X3\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0214/README.md"
   - id: "W-0215"
-    prompt: "Worklist B5 — tich cua OD-V1-16 va OD-V1-08 ra moc cat 20:57:30 (GH) / 20:52:30 (24/7) chua ai viet ra (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp B5\" 2026-09-07)"
+    prompt: "Mục B5 của worklist 07/09 — tích của hai chữ ký ra một mốc cắt chưa ai viết ra (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp B5\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0215/README.md"
+  - id: "W-0216"
+    prompt: "Chạy toàn bộ gate offline sau chín lượt khắc phục, và sửa những gate đang đỏ (Origin=UNPLANNED, owner chỉ đạo \"push rồi, tiếp tục đi\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0216/README.md"
 
 production_flag:
   real_customer_call_allowed: false
