@@ -47,7 +47,7 @@ Cập nhật mỗi lần đụng vào một mục. Quy ước:
 | **X2** `docker-compose.e2e.yml` | ✅ `XONG` | `W-0214` | — |
 | **X3** log window-closed | ✅ `XONG` | `W-0214` | — |
 | **A1**–**A4** quản trị/chữ ký | ⛔ `CHỜ NGOÀI` | — | Owner hệ + chief auditor |
-| **B5** khung giờ 21:00 | ⬜ `CHƯA LÀM` | — | Owner + M3 (`LOCK-05`) |
+| **B5** khung giờ 21:00 | 🟡 `XONG PHẦN M8` | `W-0215` | Owner + M3 — chọn End, và nguồn `LOCK-05` |
 | **B4** `RUNTIME_GATE_ADMIN` | ⬜ `CHƯA LÀM` | — | Security/Platform |
 | **B6** hai lịch sử `W0122` | ⬜ `CHƯA LÀM` | — | — (cần DB đích) |
 | **B10** constraint V0.3 | ⛔ `CHỜ NGOÀI` | — | Order Core — `DR-03`/`DR-04` |
@@ -333,9 +333,41 @@ Ví dụ tái hiện: task GH `T0=20:59`, window 5 phút, attempt 2 tại `21:01
 task nhưng ngoài giờ gọi**. `CallingWindowTests.cs` hiện chỉ kiểm hàm thời gian/config
 (`:41` = `[InlineData(21, 0, false)]`), **không có test nào cho task vắt qua mốc đóng**.
 
-**Việc:** thêm test lifecycle cho task vắt mốc → rồi mới chốt tham số với owner.
-**Cảnh báo:** "1 tham số + 1 test" là **dự đoán**, không phải estimate đã chứng minh (Codex F09).
-`LOCK-05 (20:15–21:00)` **không có nguồn nào trong repo M8** — phải xin M3/owner trước khi lấy 21:05.
+> **🟡 `XONG PHẦN M8`** · `W-0215` · 07/09
+> Đã ghim tương tác bằng `UT-SCH-WINDOW-09` và công bố hai mốc cắt cho M3 (IR-06 §3.4.2).
+> **Chờ owner chọn `End`**, và chờ **nguồn cho `LOCK-05`**.
+> Evidence: [`docs/evidence/W-0215`](../docs/evidence/W-0215/README.md).
+
+#### Con số thật, suy ra từ hai chữ ký chứ không phải gõ tay
+
+`OD-V1-16` ký khung giờ đóng lúc `21:00`. `OD-V1-08` ký attempt 2 ở `T0+150s` (GH) và `T0+450s`
+(24/7). **Tích của hai quyết định đó là một mốc cắt chưa ai viết ra:**
+
+| Program | Offset attempt 2 | Mốc cắt (T0 muộn nhất còn đủ 2 cuộc) |
+| --- | ---: | ---: |
+| `TWENTY_FOUR_SEVEN` | `450s` | **20:52:30** |
+| `GOLDEN_HOUR` | `150s` | **20:57:30** |
+
+⚠️ **Chương trình tên "24/7" lại có mốc cắt sớm hơn** — sớm hơn Giờ Vàng 5 phút. Tên đó nói về lúc
+Sales **nhận đơn**, không phải lúc IVR **được gọi**; khung giờ không theo program, nên attempt 2 dài
+450s phải vượt cùng một mốc 21:00.
+
+**Hệ quả nặng nhất không phải "mất một cuộc gọi".** Kết quả gửi Sales **đổi loại**: hết attempt →
+`IVR_NO_ANSWER_FINAL` (`NO_STATE_CHANGE_WAIT_FOR_TIMEOUT`); chưa hết attempt mà window hết →
+`IVR_CONFIRMATION_WINDOW_EXPIRED` (`REVALIDATE_AND_EXPIRE_CONFIRMATION` / `HOLD_ADMIN_REVIEW`).
+**Cùng một hành vi khách hàng, hai kết quả khác nhau, quyết bởi đồng hồ treo tường.**
+
+**Cảnh báo giữ nguyên:** "1 tham số + 1 test" là **dự đoán**, không phải estimate đã chứng minh
+(Codex F09). Và `LOCK-05 (20:15–21:00)` **vẫn không có nguồn nào trong repo M8** — nếu owner chọn
+`End ≥ 21:05` thì phải kèm nguồn, đừng lấy con số từ một bản audit.
+
+**Việc còn lại — owner + M3:**
+
+1. Chọn `End`. Nếu muốn đơn đặt tới đúng 21:00 vẫn đủ 2 cuộc thì `End ≥ 21:07:30` (theo 24/7), chứ
+   không phải `21:05`.
+2. Hoặc M3 ngừng phát task từ `20:52:30` (24/7) / `20:57:30` (GH).
+3. Dù chọn gì: `UT-SCH-WINDOW-09` suy mốc cắt từ policy + window, nên nó **sẽ đỏ** khi một trong hai
+   đổi — sửa có chủ đích.
 
 ### B4 — Seed `RUNTIME_GATE_ADMIN` environment NULL
 

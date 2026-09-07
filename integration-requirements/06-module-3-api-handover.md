@@ -280,6 +280,35 @@ Hai hệ quả M3 cần biết:
 > Theo dõi ở `DTK-02`/`DTK-06` trong M8-10 và mục 0.1 của
 > [worklist hiện hành](../plan/toan-viec-can-lam-m8-2026-09-07.md).
 
+#### 3.4.2. Giờ phát task muộn nhất còn đủ hai cuộc gọi
+
+Khung giờ gọi đóng lúc **21:00** giờ VN (`OD-V1-16`, `CallingWindowOptions` mặc định). Attempt 2
+nằm ở `T0 + 150s` (Giờ Vàng) hoặc `T0 + 450s` (24/7) theo `OD-V1-08`. Nhân hai điều đó với nhau ra
+một mốc mà M3 cần biết khi quyết định lúc nào còn phát task:
+
+| `program_code` | Offset attempt 2 | T0 muộn nhất còn đủ **hai** cuộc |
+| --- | ---: | ---: |
+| `TWENTY_FOUR_SEVEN` | `450s` | **20:52:30** |
+| `GOLDEN_HOUR` | `150s` | **20:57:30** |
+
+> ⚠️ `TWENTY_FOUR_SEVEN` **cắt sớm hơn** `GOLDEN_HOUR` 5 phút. Tên chương trình nói về lúc Sales
+> nhận đơn, **không** phải lúc IVR được phép gọi: khung giờ không theo program.
+
+**Việc này đổi kết quả M3 nhận được, không chỉ số cuộc gọi.** Task phát sau mốc trên vẫn được nhận
+và vẫn được gọi **một** lần. Nhưng nếu khách không nghe:
+
+| Tình huống | `result_type` | `recommended_core_action` |
+| --- | --- | --- |
+| Đủ 2 attempt, không nghe | `IVR_NO_ANSWER_FINAL` | `NO_STATE_CHANGE_WAIT_FOR_TIMEOUT` |
+| Attempt 2 rơi ngoài giờ gọi | `IVR_CONFIRMATION_WINDOW_EXPIRED` | `REVALIDATE_AND_EXPIRE_CONFIRMATION` hoặc `REVALIDATE_AND_HOLD_ADMIN_REVIEW` |
+
+Cùng một hành vi khách hàng, hai kết quả khác nhau, quyết bởi giờ đặt đơn. Consumer của M3 phải xử
+lý được cả hai cho cùng một kịch bản "khách không nghe máy".
+
+**Chưa chốt (`W-0215`):** hoặc owner nới `End` của khung giờ, hoặc M3 ngừng phát task từ các mốc
+trên. Nếu nới, con số đủ cho **cả hai** program là `End ≥ 21:07:30`. Ghim bằng
+`UT-SCH-WINDOW-09`, suy mốc từ policy + window nên sẽ đỏ khi một trong hai đổi.
+
 #### 3.4A. W-0151 correction — attempt policy
 
 Current IVR wire cố ý mang **version + snapshot**. Intake resolve registry theo

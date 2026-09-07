@@ -955,6 +955,10 @@ work:
     prompt: "Worklist X1/X2/X3 — bay khung gio trong docker-compose.e2e.yml, log window-closed con thieu, va ba nhanh khong phai rac (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp X1, X2, X3\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0214/README.md"
+  - id: "W-0215"
+    prompt: "Worklist B5 — tich cua OD-V1-16 va OD-V1-08 ra moc cat 20:57:30 (GH) / 20:52:30 (24/7) chua ai viet ra (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp B5\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0215/README.md"
 
 production_flag:
   real_customer_call_allowed: false

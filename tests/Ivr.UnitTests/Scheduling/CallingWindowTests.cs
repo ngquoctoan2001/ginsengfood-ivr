@@ -1,5 +1,6 @@
 using Ivr.Domain.Confirmation;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.Extensions.Options;
 
@@ -144,4 +145,78 @@ public sealed class CallingWindowTests
         Assert.Equal(8 * 60, defaults.StartMinuteOfLocalDay);
         Assert.Equal(21 * 60, defaults.EndMinuteOfLocalDay);
     }
+
+    /// <summary>
+    /// Two decisions signed on the same day, by the same signature, that were never multiplied
+    /// together: the calling window closes at 21:00 (<c>OD-V1-16</c>) and a Golden Hour task gets
+    /// a second attempt 150 seconds after the first (<c>OD-V1-08</c>). Their product is a cutoff
+    /// nobody wrote down.
+    /// <para>
+    /// A task admitted at <b>20:57:30</b> or later schedules its second attempt at 21:00:00 or
+    /// after, and the hour gate refuses to claim it. The customer is telephoned once instead of
+    /// twice, and — this is the part that reaches Sales — the order ends as
+    /// <c>IVR_CONFIRMATION_WINDOW_EXPIRED</c> rather than <c>IVR_NO_ANSWER_FINAL</c>, because
+    /// finality comes from exhausting the attempts and the attempts were not exhausted. Identical
+    /// customer behaviour, two different results, decided by the wall clock.
+    /// </para>
+    /// <para>
+    /// This test does not assert that 20:57:30 is the <i>right</i> cutoff. It asserts that the
+    /// cutoff is where these two signatures put it, derived rather than typed, so that changing
+    /// either the policy or the window moves this test and somebody has to look. Whether the
+    /// window should end later is an owner decision — and <c>LOCK-05</c>, the Golden Hour session
+    /// said to run 20:15–21:00, has no source anywhere in this repository. W-0215.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-WINDOW-09")]
+    public void TheSignedPolicyAndTheSignedWindowProduceACutoffNobodyWroteDown()
+    {
+        AttemptPolicySnapshot goldenHour = SignedProductionAttemptPolicies.Create()
+            .Single(policy => policy.Program == IvrProgramCode.GoldenHour);
+        CallingWindowOptions window = new();
+
+        // Derived from the two signatures, not typed in: the last attempt's offset, subtracted
+        // from the minute the window stops accepting a dial.
+        TimeSpan lastOffset = goldenHour.AttemptOffsets[goldenHour.AttemptOffsets.Count - 1];
+        Assert.Equal(TimeSpan.FromSeconds(150), lastOffset);
+
+        TimeSpan windowCloses = TimeSpan.FromMinutes(window.EndMinuteOfLocalDay);
+        TimeSpan cutoff = windowCloses - lastOffset;
+
+        Assert.Equal(new TimeSpan(20, 57, 30), cutoff);
+
+        // At the cutoff the second attempt lands exactly on 21:00:00, and the gate is exclusive of
+        // its end minute, so it is refused.
+        DateTimeOffset admittedAtCutoff = LocalVietnamAtSecond(20, 57, 30);
+        Assert.True(Window().Evaluate(admittedAtCutoff).Open);
+        Assert.False(Window().Evaluate(admittedAtCutoff + lastOffset).Open);
+
+        // One second earlier and both attempts fit.
+        DateTimeOffset admittedJustBefore = LocalVietnamAtSecond(20, 57, 29);
+        Assert.True(Window().Evaluate(admittedJustBefore).Open);
+        Assert.True(Window().Evaluate(admittedJustBefore + lastOffset).Open);
+
+        // The confirmation window outliving the calling window is not itself the problem: expiry
+        // is bookkeeping and runs at any hour. Only dialling stops.
+        Assert.False(
+            Window().Evaluate(
+                admittedJustBefore + goldenHour.ConfirmationWindowDuration).Open);
+
+        // The other programme has the earlier cutoff, which is the opposite of what its name
+        // suggests. TWENTY_FOUR_SEVEN describes when Sales takes the order, not when IVR may
+        // telephone: the window is not per-programme, and a 450-second second attempt has to
+        // clear the same 21:00. So its last safe admission is 20:52:30, five minutes before
+        // Golden Hour's.
+        AttemptPolicySnapshot twentyFourSeven = SignedProductionAttemptPolicies.Create()
+            .Single(policy => policy.Program == IvrProgramCode.TwentyFourSeven);
+        TimeSpan lastOffset247 =
+            twentyFourSeven.AttemptOffsets[twentyFourSeven.AttemptOffsets.Count - 1];
+
+        Assert.Equal(TimeSpan.FromSeconds(450), lastOffset247);
+        Assert.Equal(new TimeSpan(20, 52, 30), windowCloses - lastOffset247);
+    }
+
+    private static DateTimeOffset LocalVietnamAtSecond(int hour, int minute, int second) =>
+        new DateTimeOffset(2026, 9, 5, hour, minute, second, TimeSpan.FromHours(7))
+            .ToUniversalTime();
 }
