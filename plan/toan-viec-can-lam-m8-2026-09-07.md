@@ -39,7 +39,7 @@ Cập nhật mỗi lần đụng vào một mục. Quy ước:
 | --- | --- | --- | --- |
 | **0.1** TTL `dial_token` ba tầng | 🟡 `XONG PHẦN M8` | `W-0208` · `fb6a613` | M3/Security — `DTK-02`/`DTK-06` |
 | **0.2** Header 128 vs 200 | 🟡 `XONG PHẦN M8` | `W-0209` | nội bộ M8 — chốt lệch intake↔admin |
-| **0.3** `DTMF-0` ≠ opt-out | ⬜ `CHƯA LÀM` | — | Product/CRM/Legal — `OD-V1-23` |
+| **0.3** `DTMF-0` ≠ opt-out | 🟡 `XONG PHẦN M8` | `W-0210` | Product + CRM/M3 + Legal/Privacy — quorum `OD-V1-23` |
 | **0.4** Docs sai về DB | ⬜ `CHƯA LÀM` | — | — |
 | **0.5** Approval theo môi trường | ⬜ `CHƯA LÀM` | — | Security/Platform |
 | **0.6** `40/50/60` occupancy | ⬜ `CHƯA LÀM` | — | — |
@@ -143,16 +143,30 @@ RequireIdempotencyKey`) thì không. Cả hai dùng chung một `$ref` trong OAS
 
 ### 0.3 — `DTMF-0` bị gọi nhầm là tín hiệu opt-out
 
-`OD-V1-23` (register `L64`) ghi *"chỉ coi là opt-out khi khách phát tín hiệu tường minh
-(**DTMF-0** / handoff)"*. Nhưng `DispositionMapper.cs:126-136` map `DTMF "0"` →
-**`IvrCustomerCancelled`** + `RevalidateAndCancelCustomerRequest`, reason `CUSTOMER_PRESSED_0` —
-tức **hủy một đơn**, không phải "đừng gọi tôi nữa". M8-08 `L65` yêu cầu explicit-only.
+> **🟡 `XONG PHẦN M8`** · `W-0210` · 07/09
+> Register đã sửa, hành vi đã ghim (`UT-OPTOUT-DTMF0-05`). **Chờ quorum `OD-V1-23`**
+> (Product + CRM/M3 + Legal/Privacy). Evidence: [`docs/evidence/W-0210`](../docs/evidence/W-0210/README.md).
 
-Phát hiện của Codex (F04). Nếu M3 đọc register và build theo, khách hủy một đơn sẽ bị cấm liên hệ
-vĩnh viễn.
+`OD-V1-23` (register `L64`, ký 06/09, **vẫn `QUORUM_PENDING`**) ghi *"chỉ coi là opt-out khi khách
+phát tín hiệu tường minh (**DTMF-0 / handoff**)"*. Nguyên tắc "explicit-only" thì đúng và nên giữ.
+**Hai ví dụ tín hiệu trong ngoặc thì sai cả hai:**
 
-**Việc:** sửa `OD-V1-23`; định nghĩa một tín hiệu opt-out riêng và cho các owner ký (M8-08 approval
-table vẫn thiếu chữ ký, OD-V1-23 vẫn `QUORUM_PENDING`).
+| Tín hiệu `OD-V1-23` nêu | Thực tế trong code |
+| --- | --- |
+| `DTMF-0` | **phím hủy đơn.** Lời thoại khóa cứng: *"bấm phím 0 để hủy"*; `DispositionMapper` → `IvrCustomerCancelled` + `RevalidateAndCancelCustomerRequest` |
+| `handoff` / phím 9 | **ngoài scope** (`specs/01-context-and-scope.md:34`); `TargetV1SpeechPolicy.ValidateTemplate` **ném lỗi** với template chứa "phím 9" |
+
+Và M8-08 §4.2 — **chính gói mà `OD-V1-23` dẫn làm closure evidence** — ghi thẳng: *"DTMF 1 là xác
+nhận đơn, DTMF 0 là yêu cầu huỷ đơn. **Không tái dùng hai phím này cho opt-out**."* §4.3: *"Current
+V1 không có explicit opt-out signal."*
+
+⚠️ **Vì sao nặng hơn một lỗi tài liệu:** khách bấm 0 chỉ được nghe *"bấm phím 0 để hủy"*. Đọc thao
+tác đó thành lệnh cấm liên hệ vĩnh viễn là **lấy consent khách chưa từng cho, từ một câu khách chưa
+từng nghe**. Nếu CRM/M3 build theo register, khách hủy **một** đơn sẽ bị chặn gọi **mãi mãi**.
+
+**Việc còn lại:** V1 **không có** tín hiệu opt-out tường minh nào — thêm một cái cần wording/script
+mới + signal source + proof + Legal/Privacy ký riêng (M8-08 §4.3). Đây là việc của quorum, không
+phải của M8. Hằng số `2/3` giữ nguyên `TEST_ONLY_CANDIDATE`, không wire (M8-08 §4.7).
 
 ### 0.4 — Tài liệu specs nói sai về chính DB của mình
 

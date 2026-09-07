@@ -1,6 +1,7 @@
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Scripts;
 
 namespace Ivr.UnitTests.Policies;
 
@@ -78,6 +79,68 @@ public sealed class OptOutSuppressionTests
         // The floor is code, not configuration.
         Assert.Throws<InvalidOperationException>(() =>
             OptOutSuppressionPolicy.Decide(5, new OptOutThresholdPolicy(1), adminConfirmed: false));
+    }
+
+    /// <summary>
+    /// Pressing 0 cancels one order. It is not a request to stop being called, and nothing in the
+    /// runtime treats it as one.
+    /// <para>
+    /// This test exists because a document said otherwise. <c>OD-V1-23</c>, signed 2026-09-06 as an
+    /// owner position and still short of quorum, names "DTMF-0 / handoff" as the explicit opt-out
+    /// signal. Both halves are wrong against this codebase. Key 0 is the cancel key: the only
+    /// wording a script may carry says <i>"bấm phím 0 để hủy"</i> - press 0 to cancel - and
+    /// <c>TargetV1SpeechPolicy</c> refuses any template that drops it. Key 9 and human handoff are
+    /// out of scope entirely (<c>specs/01-context-and-scope.md</c>), and the same policy refuses a
+    /// template that so much as mentions "phím 9".
+    /// </para>
+    /// <para>
+    /// M8-08 §4.2 - the pack OD-V1-23 itself names as its closure evidence - states the rule this
+    /// test enforces: DTMF 1 confirms, DTMF 0 cancels, and neither key may be reused for opt-out.
+    /// Reading a cancellation as a contact ban would take consent the customer never gave, from a
+    /// word they were never told. W-0210.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-OPTOUT-DTMF0-05")]
+    public void PressingZeroCancelsAnOrderAndSaysNothingAboutFutureContactability()
+    {
+        DateTimeOffset now = new(2026, 8, 18, 6, 0, 0, TimeSpan.Zero);
+        var context = new AttemptNormalizationContext(
+            AttemptNumber: 1,
+            MaxAttempts: 2,
+            OccurredAt: now,
+            ConfirmationWindowExpiresAt: now.AddMinutes(5),
+            PriorTechnicalRetryCount: 0,
+            TechnicalRetryLimit: 2);
+
+        NormalizedResult cancelled = DispositionMapper.Normalize(
+            SimProviderDisposition.Answered,
+            rawDtmf: "0",
+            technicalErrorCode: null,
+            context);
+
+        // What key 0 means, and the only thing it means.
+        Assert.Equal(IvrResultType.IvrCustomerCancelled, cancelled.ResultType);
+        Assert.Equal(
+            CoreActionRecommendation.RevalidateAndCancelCustomerRequest,
+            cancelled.RecommendedCoreAction);
+
+        // It is not the weak opt-out signal either. That reason code belongs to a declined call,
+        // and a cancellation is not a declined call.
+        Assert.NotEqual(OptOutReasonCodes.CallRejected, cancelled.Reason);
+        Assert.False(cancelled.HumanReviewRequired);
+
+        // The script the customer heard offered exactly two keys, and 0 was labelled "hủy".
+        Assert.Contains(
+            "bấm phím 0 để hủy",
+            TargetV1SpeechPolicy.LegacyVietnameseTemplate,
+            StringComparison.OrdinalIgnoreCase);
+
+        // The other signal OD-V1-23 names is not merely absent - a script mentioning it is refused.
+        Assert.Throws<InvalidOperationException>(() =>
+            TargetV1SpeechPolicy.ValidateTemplate(
+                TargetV1SpeechPolicy.LegacyVietnameseTemplate
+                    + " Bấm phím 9 để gặp nhân viên."));
     }
 
     [Fact]

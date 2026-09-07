@@ -935,6 +935,10 @@ work:
     prompt: "Worklist 0.2 — ràng buộc header lệch tài liệu/runtime: 128 vs 200, sàn 8 không tồn tại, bảng chữ cái chưa từng được ghi (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.2\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0209/README.md"
+  - id: "W-0210"
+    prompt: "Worklist 0.3 — OD-V1-23 gọi nhầm phím hủy đơn là tín hiệu opt-out; sửa register + ghim hành vi (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.3\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0210/README.md"
 
 production_flag:
   real_customer_call_allowed: false
