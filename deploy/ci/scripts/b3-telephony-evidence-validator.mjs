@@ -21,7 +21,7 @@ const SOURCE_PINS = Object.freeze({
   "deploy/tts/shim/voices.json": "9a76fdabca3ad58994caa1b59c0c76f3a98facb22f11e2f9ec9210a9371ccae2",
   "docs/evidence/W-0122/voice-acceptance-manifest.json": "90927e16cbe5b4e27f48e31ba396c9069f1ae908eaadc15757e72fbc0d8558b9",
   "docs/evidence/W-0122/lab-runbook.md": "76496a7260f84053296ffabea617b7a7203eb2252ab440b76c213c21f71e3bb4",
-  "docs/lab/one-sim-lab-plan.md": "be8b1f7a7dd3ac6c287bfab342fa54b63735795e13c6f515e904f25a054d2ae2",
+  "docs/lab/one-sim-lab-plan.md": "84061558fb26c03f23540cd21de38cc10d514454d930eb6339122addd236ab28",
   "docs/contracts/telephony-procurement-pack/lab-acceptance-report-template.md": "5b7ab1e0b1a796f7c1e0bb8643fefb313a76afa626a6200bf17519e306c2dbaa",
   "docs/contracts/telephony-procurement-pack/R-01-vendor-requirements.md": "1f5d7ead649e4b688301da2af6b4e72eae3907a0120c5c5bd66fd19c980fb1a0",
   "docs/contracts/telephony-procurement-pack/R-05-tts-audio-capability.md": "a1716a0747e2bd90f05252ed8fa9ec4a6a1ee0f5c7f0b19cf85cb36eb75eae8a",

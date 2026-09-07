@@ -38,11 +38,11 @@ const SOURCE_PINS = Object.freeze([
   ],
   [
     "integration-requirements/05-open-contract-questions.md",
-    "51a7734983a82b64d4610e24825ec055a9055492485f578e81f02eb2fb86d5c6",
+    "20d46d2b81891339d0eac22518fad8ae1832d9fab181a8496b2f71eafc2aa03f",
   ],
   [
     "integration-requirements/06-module-3-api-handover.md",
-    "b676a32d4ba51b9f345eb3d32e21d793216f4011e98bbfc9dc8d2867997ba08a",
+    "fb5bf1592e76d039186a40074b1d97c8e7680a56ed820c3f4f695d95f196e485",
   ],
   [
     "src/Ivr.Domain/Policies/OptOutSuppression.cs",

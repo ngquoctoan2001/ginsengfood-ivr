@@ -123,3 +123,15 @@ docs/contracts/telephony-procurement-pack/R-06-to-trinh-mua-thiet-bi.md text eol
 # verified with BusyBox `sha256sum -c`, which treats a trailing CR as part of the name.
 deploy/lab/asterisk/w0122-audition/SHA256SUMS text eol=lf
 deploy/lab/asterisk/w0122-audition/extensions.conf text eol=lf
+
+# Git and Claude Code both execute these through `sh`. With core.autocrlf=true a
+# Windows checkout would rewrite them to CRLF and `sh` rejects the shebang line
+# as `#!/bin/sh\r`, which silently disables the no-new-branch enforcement.
+.githooks/* text eol=lf
+.claude/hooks/*.sh text eol=lf
+
+# W-0205. Pinned by the W-0187 opt-out bundle validator, which hashes the raw
+# working-tree bytes. Its siblings 01/03/06 were already pinned; this one was
+# missed, so a Windows checkout produced CRLF and manufactured drift the Linux
+# runner never sees - the same W-0126/F1 trap, one file later.
+integration-requirements/05-open-contract-questions.md text eol=lf
