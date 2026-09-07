@@ -68,6 +68,37 @@ Sales sở hữu và IVR chỉ sinh tám result. Điều đó không còn đúng
 Sales/Order Core vẫn sở hữu **revalidation và order-state transition** khi nhận callback; IVR chỉ
 phát signal/advisory.
 
+### 3.1. Cầu nối sang tên trong business source (`W-0217`)
+
+Bảng trên dùng **tên trong code**. Module 3 đọc business source sẽ thấy tên khác, và ba chỗ khác
+nhau đủ để hiểu nhầm. Đây là cầu nối, kèm nguồn cho từng dòng:
+
+| Business source ghi | Runtime hiện hành | Ghi ở đâu |
+| --- | --- | --- |
+| `ATTEMPT_1_NO_ANSWER` | `IVR_NO_ANSWER_ATTEMPT`, `reason = RING_TIMEOUT` | `PACK-09` §"Các kết quả tạm thời"; `DispositionMapper` |
+| `ATTEMPT_1_BUSY` | `IVR_NO_ANSWER_ATTEMPT`, `reason = BUSY` | như trên |
+| `ATTEMPT_1_NO_INPUT` | `IVR_NO_ANSWER_ATTEMPT`, `reason = ANSWERED_NO_INPUT` | như trên |
+| `ATTEMPT_1_INVALID_INPUT` | `IVR_WRONG_INPUT` | như trên |
+| `IVR_OPT_OUT` | **không phải result code** — chặn ở eligibility, ghi `IVR_POLICY_BLOCKED` | V0.3 errata #6 |
+| *(không có trong V0.2 §13)* | `IVR_CAPACITY_EXCEPTION`, `IVR_OPERATIONAL_BLOCKED`, `IVR_POLICY_BLOCKED` | V0.3 errata #5 |
+
+**Đây không phải một loạt đổi tên.** Business source đặt tên theo **lượt gọi và lý do**
+(`ATTEMPT_1_*`); runtime đặt tên theo **kết quả**, rồi giữ lý do ở trường `reason` và giữ lượt gọi ở
+`attempt_number`. Thông tin không mất, nó **đổi chỗ**:
+
+```text
+ATTEMPT_1_BUSY   →   result_type = IVR_NO_ANSWER_ATTEMPT
+                     reason      = BUSY
+                     attempt_number = 1
+```
+
+Hệ quả cho consumer của M3: **đừng khớp bốn result code riêng cho bốn tình huống đó** — chỉ có một,
+và phân biệt nằm ở `reason`. Ai đọc `PACK-09` rồi đi tìm `ATTEMPT_1_BUSY` trong callback sẽ không
+bao giờ thấy.
+
+Bốn dòng đầu bảng **chưa có trong errata V0.3** (errata mới ghi `IVR_OPT_OUT` và ba code thừa).
+Cần chief auditor/Owner xác nhận đây là cách đọc đúng của `PACK-09` trước khi M3 ký §4.2.
+
 ## 4. Module 3 / Product phải ký và giao artifact
 
 ### 4.1. Task producer

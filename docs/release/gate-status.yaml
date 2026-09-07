@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 213 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 215 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 18
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 159
+  rows_without_evidence_pack: 161
 
 gates:
   - id: "G-CONTRACT"
@@ -923,6 +923,10 @@ work:
     prompt: "GĐ 3.1–3.2: đóng băng bằng chứng trên một SHA + chạy lại security wrapper (Origin=UNPLANNED, owner chỉ đạo \"tiếp giai đoạn 3\" 2026-09-05)"
     status: "TESTS_PASS"
     evidence: null
+  - id: "W-0206"
+    prompt: "Sửa dòng script observability_helm làm GitLab từ chối cả pipeline (Origin=UNPLANNED, luồng song song 2026-09-06; ghi hồi tố bởi W-0217)"
+    status: "TESTS_PASS"
+    evidence: null
   - id: "W-0207"
     prompt: "P2.2 Sandbox E2E — nửa IVR của ma trận TV1-E2E, và một mâu thuẫn hợp đồng (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P2.2\" 2026-09-06)"
     status: "TESTS_PASS"
@@ -963,6 +967,10 @@ work:
     prompt: "Chạy toàn bộ gate offline sau chín lượt khắc phục, và sửa những gate đang đỏ (Origin=UNPLANNED, owner chỉ đạo \"push rồi, tiếp tục đi\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0216/README.md"
+  - id: "W-0217"
+    prompt: "Ghi hồi tố W-0206 và bắc cầu tên result code sang business source (Origin=UNPLANNED, owner chỉ đạo \"cái nào còn làm được nữa thì làm đi\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0217/README.md"
 
 production_flag:
   real_customer_call_allowed: false
