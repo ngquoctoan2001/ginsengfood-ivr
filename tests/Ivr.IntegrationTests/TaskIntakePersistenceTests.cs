@@ -168,6 +168,112 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         Assert.DoesNotContain(source.Phone_ref, audit.DataJson, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Three layers bound <c>dial_token_expires_at</c>, and their intersection is a single point.
+    /// <para>
+    /// Intake refuses an expiry BEFORE the window end (<c>ContactRejectionReason</c>). Persistence
+    /// refuses one AFTER it (<c>PersistenceInvariantValidator.ValidateTask</c>). Dispatch refuses
+    /// one after <c>lease.Deadline</c> a third time
+    /// (<c>PostgresTelephonyDispatchStore.LoadAsync</c>), and that deadline is <c>job.expires_at</c>,
+    /// which intake sets from the same window end - so the third guard restates the second rather
+    /// than adding a bound. Together: the only accepted value is equality.
+    /// </para>
+    /// <para>
+    /// The asymmetry is the point of this test. Too early is refused cleanly at the edge with a
+    /// reason code Module 3 can read. Too late passes the contact gate and fails inside the
+    /// transaction instead, which is the worst place for a producer to discover a contract.
+    /// </para>
+    /// <para>
+    /// <c>OD-V1-17</c> (signed 2026-09-05) specifies TTL = window + 60s. The middle case below is
+    /// that number, and it does not survive. Until the decision and all three guards move together,
+    /// this test is what says so out loud; W-0208. When the TTL does change, this test is meant to
+    /// fail - update it deliberately rather than deleting it.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-DB-03")]
+    public async Task DialTokenExpiryIsBoundToExactlyTheConfirmationWindowEnd()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPoliciesAsync(factory);
+        var clock = new FixedTimeProvider(Now);
+        TaskIntakeService service = CreateService(factory, clock);
+
+        // Equality: the one value every layer accepts.
+        TaskIntakeOutcome accepted = await service.IntakeAsync(new TaskIntakeCommand(
+            CreateTask(taskId: "TASK-PG-TTL-EXACT"),
+            "idem-ttl-exact",
+            "corr-postgres-p2-1",
+            new string('E', 64),
+            ExecutionMode.Mock));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, accepted.Decision);
+
+        // Window + 60s: what OD-V1-17 asks Module 3 to send. The contact gate lets it through,
+        // then the persistence invariant rejects it inside the transaction.
+        InvalidOperationException tooLate =
+            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                service.IntakeAsync(new TaskIntakeCommand(
+                    CreateTask(
+                        taskId: "TASK-PG-TTL-LATE",
+                        dialTokenExpiryOffsetFromWindowEnd: TimeSpan.FromSeconds(60)),
+                    "idem-ttl-late",
+                    "corr-postgres-p2-1",
+                    new string('F', 64),
+                    ExecutionMode.Mock)));
+
+        Assert.Contains(
+            "Dial-token expiry must remain inside the confirmation window",
+            tooLate.Message,
+            StringComparison.Ordinal);
+
+        // Window - 60s: refused at the edge instead, with a reason code and no partial write.
+        TaskIntakeOutcome tooEarly = await service.IntakeAsync(new TaskIntakeCommand(
+            CreateTask(
+                taskId: "TASK-PG-TTL-EARLY",
+                dialTokenExpiryOffsetFromWindowEnd: TimeSpan.FromSeconds(-60)),
+            "idem-ttl-early",
+            "corr-postgres-p2-1",
+            new string('G', 64),
+            ExecutionMode.Mock));
+
+        Assert.Equal(TaskIntakeDecisions.RejectedContactInvalid, tooEarly.Decision);
+        Assert.Equal(
+            new[] { EligibilityReasonCodes.DialTokenExpiresBeforeWindow },
+            tooEarly.BlockedReasons);
+
+        // Only the equality case reached the database.
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(
+            ["TASK-PG-TTL-EXACT"],
+            await verification.ConfirmationTasks
+                .Select(task => task.TaskId)
+                .ToArrayAsync());
+    }
+
+    private static TaskIntakeService CreateService(
+        IDbContextFactory<IvrDbContext> factory,
+        TimeProvider clock) =>
+        new(
+            new PostgresTaskIntakeStore(factory, clock),
+            new PostgresAttemptPolicyRegistry(factory),
+            new PostgresScriptRegistry(
+                factory,
+                clock,
+                Options.Create(new ScriptContentOptions())),
+            new MockOnlyOpaqueValueProtector(),
+            SpeechSummaryLimits.Create(100, 100),
+            clock,
+            Options.Create(new IvrOptions
+            {
+                ExecutionMode = IvrOptions.MockExecutionMode,
+                SalesProvider = "FAKE_TARGET_V1",
+                SimProvider = "MOCK",
+                RealCustomerCallAllowed = false,
+            }));
+
     [Fact]
     public async Task PostgresNewKeyReevaluatesTransientPolicyHold()
     {
@@ -237,13 +343,15 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
 
     private static IvrConfirmationTaskV1 CreateTask(
         bool callRestriction = false,
-        string policyVersion = CandidateAttemptPolicies.Version)
+        string policyVersion = CandidateAttemptPolicies.Version,
+        TimeSpan? dialTokenExpiryOffsetFromWindowEnd = null,
+        string? taskId = null)
     {
         DateTimeOffset start = Now.AddMinutes(-1);
         return new IvrConfirmationTaskV1
         {
             Contract_version = IvrConfirmationTaskV1Contract_version.IvrOrderConfirmation_v1,
-            Task_id = callRestriction ? "TASK-PG-REJECT" : "TASK-PG-ACCEPT",
+            Task_id = taskId ?? (callRestriction ? "TASK-PG-REJECT" : "TASK-PG-ACCEPT"),
             Correlation_id = "corr-postgres-p2-1",
             Created_at = start,
             Order_id = callRestriction ? "ORDER-PG-REJECT" : "ORDER-PG-ACCEPT",
@@ -264,7 +372,8 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             Phone_masked = "84xxxxx0001",
             Phone_validation_status = "VALID",
             Dial_token = "dial-token-pg-p2-1",
-            Dial_token_expires_at = start.AddMinutes(5),
+            Dial_token_expires_at = start.AddMinutes(5)
+                + (dialTokenExpiryOffsetFromWindowEnd ?? TimeSpan.Zero),
             Privacy_safe_order_summary = new Ivr.Contracts.Generated.IvrServer.V1.PrivacySafeOrderSummary
             {
                 Customer_display_name = "chị An",

@@ -927,6 +927,10 @@ work:
     prompt: "P2.2 Sandbox E2E — nửa IVR của ma trận TV1-E2E + sửa mâu thuẫn ACK/HTTP (Origin=UNPLANNED)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0207/README.md"
+  - id: "W-0208"
+    prompt: "Worklist 0.1 — TTL dial_token mâu thuẫn xuyên ba tầng: ghim hành vi + sửa hướng dẫn IR-06 (Origin=UNPLANNED, owner chỉ đạo \"bắt đầu từ 0.1\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0208/README.md"
 
 production_flag:
   real_customer_call_allowed: false

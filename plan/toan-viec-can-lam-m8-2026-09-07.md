@@ -47,8 +47,28 @@ IR-06 tự mâu thuẫn với chính nó: `L219` ghi `≥ window end`, `L522`/`L
 equality.
 
 **Việc:** chốt một con số TTL với M3/Security → sửa **đồng thời** OAS + intake + persistence +
-dispatch + IR-06 (4 chỗ) + CDC/boundary test. Không sửa lẻ từng tầng.
+dispatch + IR-06 + CDC/boundary test. Không sửa lẻ từng tầng.
 **Xong khi:** một task TTL = window+60s đi hết intake → persist → dispatch không exception.
+
+#### Đã làm (W-0208, 07/09) — phần không cần chữ ký
+
+Con số TTL vẫn chờ M3/Security. Nhưng phần đang gây hại thì không chờ được: tài liệu bàn giao đang
+**dạy M3 gửi giá trị sẽ ném exception**. Đã sửa:
+
+- **`IT-INTAKE-DB-03`** — test ghim cả ba biên trên Postgres thật: equality → nhận · `+60s`
+  (đúng con số `OD-V1-17`) → qua contact gate rồi **throw ở persistence** · `−60s` → từ chối sạch
+  tại intake kèm `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW`. Test **cố ý sẽ đỏ** khi TTL đổi — sửa có chủ
+  đích, đừng xóa. Suite: 550 → **551** tagged.
+- **IR-06** — `L219` (`≥` → equality), `L522` (`phải lớn hơn` → equality; đây là câu sai nguy hiểm
+  nhất, nó bảo M3 gửi đúng thứ bị từ chối), `L534` (checklist M3 tick → `=`), `§6` (thêm guard
+  dispatch). Thêm **`§3.4.1`**: bảng ba tầng + cảnh báo `OD-V1-17` chưa thi hành được.
+- **register `OD-V1-17`** — thêm dòng `Sửa 2026-09-07 (W-0208)`: vế TTL chưa thi hành được, đã pin
+  bằng test. **Không** đổi trạng thái dòng — đó là việc của chief auditor (A2).
+
+**Chưa làm, có chủ đích:** OpenAPI. `dial_token_expires_at` vẫn là `{ type: string, format:
+date-time }` không mô tả ràng buộc. Sửa YAML sẽ bump hash đã ghim và cần re-pin — mà re-pin là hành
+động có review (W-0204). Đúng thứ tự là gộp nó vào lượt sửa cùng lúc khi TTL được chốt.
+Ghi chú của chính freeze verifier: *"Owners approve `06-module-3-api-handover.md`, not the YAML."*
 
 ### 0.2 — Ràng buộc header lệch: tài liệu nói 200, code chặn ở 128
 

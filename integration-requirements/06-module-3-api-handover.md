@@ -216,11 +216,37 @@ Trước khi gọi API, Module 3 xác nhận:
 | `phone_ref` | string | Tham chiếu số, không phải số E.164 |
 | `phone_masked` | string | Số đã che để hiển thị/audit |
 | `dial_token` | string | Token mờ dùng để resolve số thật khi quay |
-| `dial_token_expires_at` | date-time | Phải ≥ `confirmation_window_expires_at` |
+| `dial_token_expires_at` | date-time | Phải **bằng đúng** `confirmation_window_expires_at` — xem §3.4.1 |
 | `privacy_safe_order_summary` | object | Nội dung được phép đọc cho khách |
 | `call_restriction` | boolean | Module 3 phải gửi `false`; `true` sẽ bị IVR chặn vì an toàn |
 | `eligibility_snapshot` | object | Evidence cho quyết định call-ready của Module 3 |
 | `evidence_ref` | string | Con trỏ evidence để đối soát |
+
+#### 3.4.1. `dial_token_expires_at` — ba guard, một giá trị hợp lệ
+
+Tài liệu này trước đây nói ba điều khác nhau về trường này (`≥`, `>`, và equality). Đây là những gì
+code **thực sự** thi hành hôm nay, đọc từ ba tầng:
+
+| Tầng | Vị trí | Luật |
+| --- | --- | --- |
+| Intake | `TaskIntakeService.ContactRejectionReason` | từ chối nếu `dial_token_expires_at` **<** `confirmation_window_expires_at` → `422 IVR_CONTACT_INVALID` / `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW` |
+| Persistence | `PersistenceInvariantValidator.ValidateTask` | throw nếu **>** `confirmation_window_expires_at` |
+| Dispatch | `PostgresTelephonyDispatchStore.LoadAsync` | throw nếu **>** `lease.Deadline`, và `lease.Deadline` = `job.expires_at` = window end |
+
+Giao của ba luật là **một điểm duy nhất**: `dial_token_expires_at == confirmation_window_expires_at`.
+
+Hai hệ quả M3 cần biết:
+
+- Gửi **sớm hơn** window end → bị từ chối sạch ở intake, có mã lỗi rõ ràng.
+- Gửi **muộn hơn** window end → **intake nhận** (contact gate chỉ chặn chiều sớm), rồi request hỏng
+  ở tầng persistence. Đây là chế độ hỏng khó chẩn đoán nhất trong toàn bộ seam — nên bảng trên tồn
+  tại.
+
+> ⚠️ **Chưa chốt.** `OD-V1-17` (ký 05/09/2026) ghi *"TTL = cửa sổ xác nhận **+ 60s**"*. Con số đó
+> **chưa được implement và hiện không thể gửi** — nó vi phạm cả guard persistence lẫn guard dispatch.
+> Tới khi M3/Security chốt lại và cả ba tầng được sửa **cùng lúc**, M3 gửi đúng equality.
+> Theo dõi ở `DTK-02`/`DTK-06` trong M8-10 và mục 0.1 của
+> [worklist hiện hành](../plan/toan-viec-can-lam-m8-2026-09-07.md).
 
 #### 3.4A. W-0151 correction — attempt policy
 
@@ -519,7 +545,7 @@ Lý do chọn hướng này thay vì để IVR nhận cả hai:
 Review của M3 không nêu hai điều này vì chúng chỉ đọc được từ code IVR. Ghi ra đây để M3 không mất thời gian dò:
 
 1. **`phone_masked` bắt buộc chứa ít nhất một ký tự che** (`x`, `X` hoặc `*`). Gửi số chưa che → `422 IVR_CONTACT_INVALID`.
-2. **`dial_token_expires_at` phải lớn hơn `confirmation_window_expires_at`** và phải còn hạn tại thời điểm intake. Token hết hạn sớm hơn cửa sổ → cùng mã từ chối đó.
+2. **`dial_token_expires_at` phải bằng đúng `confirmation_window_expires_at`** và phải còn hạn tại thời điểm intake. Sớm hơn cửa sổ → `422 IVR_CONTACT_INVALID`. **Muộn hơn cửa sổ → intake nhận, rồi hỏng ở tầng dưới.** Xem §3.4.1.
 
 #### Ghi chú cho người đọc code IVR
 
@@ -531,7 +557,7 @@ Trong repo IVR, `ELIGIBLE_FOR_IVR` **cũng** tồn tại — nhưng nó là deci
 - [ ] Producer gửi `phone_validation_status=VALID`, không phải `PHONE_VALID`.
 - [ ] Producer gửi `eligibility_snapshot.decision=ELIGIBLE`, không phải `ELIGIBLE_FOR_IVR`.
 - [ ] `phone_masked` đã che ít nhất một ký tự.
-- [ ] `dial_token_expires_at` > `confirmation_window_expires_at`.
+- [ ] `dial_token_expires_at` **=** `confirmation_window_expires_at` (bằng đúng, không lớn hơn — §3.4.1).
 
 ---
 
@@ -980,12 +1006,20 @@ Trạng thái gate: `LOCAL_ALIGNMENT_IMPLEMENTED_EXTERNAL_GATES_OPEN`.
 
 **Correction `W-0150` (03/09/2026):** production path vẫn fail-closed và chưa được phép code.
 OpenAPI current cho phép thiếu `phone_validation_status` nhưng runtime chỉ nhận exact `VALID`;
-intake + persistence cùng nhau ép token expiry bằng đúng confirmation-window end. MOCK/LAB chỉ ngăn
+intake + persistence **+ dispatch** cùng nhau ép token expiry bằng đúng confirmation-window end
+(ba guard, xem §3.4.1 — guard thứ ba ở `PostgresTelephonyDispatchStore.LoadAsync` nghĩa là sửa
+OpenAPI và persistence thôi thì cuộc gọi vẫn hỏng lúc dial). MOCK/LAB chỉ ngăn
 resolve lặp theo `(token fingerprint, attempt_id)` và có thể reuse scalar token ở attempt khác.
 `DialAuthorization` current chỉ nhận opaque provider destination reference, không nhận E.164.
 M3/Security/Platform/Telephony phải trả `DTK-01..DTK-15` trong
 [M8-10 decision pack](../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md)
 trước mọi OpenAPI/resolver/vault/adapter change.
+
+**Correction `W-0208` (07/09/2026):** `OD-V1-17` đã được ký ngày 05/09 chọn phương án
+"token reusable theo TTL", với **TTL = cửa sổ xác nhận + 60s**. Con số `+60s` đó **mâu thuẫn với ba
+guard đang chạy** và chưa được implement — một task dựng đúng theo quyết định đã ký sẽ qua intake
+rồi ném exception ở persistence. Quyết định chưa thi hành được; equality vẫn là hợp đồng thực tế.
+Xem §3.4.1.
 
 Task hiện mang một `dial_token`, nhưng một task có thể cần nhiều attempt và retry kỹ thuật. Module 3 + Security cần chọn một trong các phương án:
 
