@@ -73,15 +73,34 @@ Cùng tập với result type ở §4.
 
 `North`, `Central`, `South`. **Chú ý:** PascalCase, không phải SCREAMING_SNAKE như mọi enum khác.
 
-## 4. Result type — 11 giá trị
+## 4. Result type — bốn tập lồng nhau, **không** phải một danh sách
+
+> **Sửa `2026-09-07` (`W-0211`).** Mục này trước đây ghi *"11 giá trị"* và *"bốn nơi phải khớp nhau
+> và **đang khớp**"*. Cả hai vế đều sai kể từ `W-0172`. Bốn nơi đó mang **11 / 9 / 6 / 11** giá trị,
+> và chúng **không được phép** khớp nhau — mỗi nơi trả lời một câu hỏi khác.
+
+Vocabulary đầy đủ (**11**) — enum `IvrResultType` trong `src/Ivr.Domain/Confirmation/CallResult.cs`
+và OpenAPI `ResultType`:
 
 `IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`, `IVR_NO_ANSWER_ATTEMPT`, `IVR_NO_ANSWER_FINAL`,
 `IVR_CONFIRMATION_WINDOW_EXPIRED`, `IVR_INVALID_PHONE_FINAL`, `IVR_WRONG_INPUT`,
 `IVR_TECHNICAL_EXCEPTION`, `IVR_CAPACITY_EXCEPTION`, `IVR_OPERATIONAL_BLOCKED`, `IVR_POLICY_BLOCKED`.
 
-Bốn nơi phải khớp nhau và đang khớp: enum `IvrResultType` trong
-`src/Ivr.Domain/Confirmation/CallResult.cs`, `ck_ivr_call_results_result_type`,
-`ck_ivr_result_callbacks_result_status`, và OpenAPI `specs/api/openapi/ivr-order-confirmation.v1.yaml`.
+| Tập | Số | Nơi thi hành | Câu hỏi nó trả lời |
+| --- | ---: | --- | --- |
+| Vocabulary | **11** | enum `IvrResultType`; OpenAPI `ResultType` | tên nào tồn tại trong hợp đồng dùng chung |
+| Runtime | **9** | `ResultContractPolicy.IsRuntimeResult`; `ck_ivr_call_results_result_type` | một **cuộc gọi** có thể kết thúc bằng kết quả nào |
+| Final callback | **6** | `ResultContractPolicy.IsFinalCallbackResult`; `ck_ivr_result_callbacks_result_status` | kết quả nào được phép rời IVR sang Sales |
+| Counted attempt | **5** | `ResultContractPolicy.IsCountedCustomerAttemptResult`; `ck_ivr_call_results_counted_matches_type` | kết quả nào đốt một lượt gọi của khách |
+
+Hai mã `IVR_OPERATIONAL_BLOCKED` và `IVR_POLICY_BLOCKED` nằm trong vocabulary nhưng **không** trong
+runtime: chúng là quyết định **trước** cuộc gọi, không phải kết quả của một cuộc gọi. Sales chặn sau
+khi đã gọi thì đó là ACK `BLOCKED_BY_CORE` trên callback, và ACK **không bao giờ** ghi đè kết quả đã
+quan sát được. OpenAPI `ResultType` đã mô tả đúng điều này trong `description` của nó.
+
+Bốn con số trên là **assertion sống**, không phải lời kể: `UT-RESULT-CONTRACT-01`
+(`tests/Ivr.UnitTests/Confirmation/ProgramResultContractInvariantTests.cs`) khẳng định
+`11 / 9 / 6`, khẳng định phần bù đúng bằng hai mã pre-call, và sẽ đỏ nếu một tập trôi.
 
 ## 5. Callback
 

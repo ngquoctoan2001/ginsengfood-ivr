@@ -939,6 +939,10 @@ work:
     prompt: "Worklist 0.3 — OD-V1-23 gọi nhầm phím hủy đơn là tín hiệu opt-out; sửa register + ghim hành vi (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.3\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0210/README.md"
+  - id: "W-0211"
+    prompt: "Worklist 0.4 — ba câu tài liệu nói sai về chính hệ thống: bốn tập result type, draft.22 vs .23, bảng console trong DB (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.4\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0211/README.md"
 
 production_flag:
   real_customer_call_allowed: false

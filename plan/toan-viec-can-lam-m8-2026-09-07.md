@@ -40,7 +40,7 @@ Cập nhật mỗi lần đụng vào một mục. Quy ước:
 | **0.1** TTL `dial_token` ba tầng | 🟡 `XONG PHẦN M8` | `W-0208` · `fb6a613` | M3/Security — `DTK-02`/`DTK-06` |
 | **0.2** Header 128 vs 200 | 🟡 `XONG PHẦN M8` | `W-0209` | nội bộ M8 — chốt lệch intake↔admin |
 | **0.3** `DTMF-0` ≠ opt-out | 🟡 `XONG PHẦN M8` | `W-0210` | Product + CRM/M3 + Legal/Privacy — quorum `OD-V1-23` |
-| **0.4** Docs sai về DB | ⬜ `CHƯA LÀM` | — | — |
+| **0.4** Docs sai về DB | ✅ `XONG` | `W-0211` | — |
 | **0.5** Approval theo môi trường | ⬜ `CHƯA LÀM` | — | Security/Platform |
 | **0.6** `40/50/60` occupancy | ⬜ `CHƯA LÀM` | — | — |
 | **A1**–**A4** quản trị/chữ ký | ⛔ `CHỜ NGOÀI` | — | Owner hệ + chief auditor |
@@ -177,9 +177,32 @@ phải của M8. Hằng số `2/3` giữ nguyên `TEST_ONLY_CANDIDATE`, không w
 - IR-06 `L8`/`L25`/`L914`/`L1129` còn hướng dẫn lấy **draft.22**; manifest hiện **draft.23**.
 - IR-06 §4A.7 nói bảng console không còn trong DB — nhưng `P03` giữ/tạo lại bảng compatibility.
 
-**Việc:** sửa docs theo tập con, **không** ép mọi tầng về cùng một số.
 **Lưu ý:** FREEZE PASS chỉ xác nhận invariant mà gate kiểm (pins, field inventory, draft state,
-ACK matrix) — **không** chứng minh mọi câu trong docs khớp code.
+ACK matrix) — **không** chứng minh mọi câu trong docs khớp code. Ba lỗi dưới đây đều lọt qua
+`CONTRACT_FREEZE=PASS`.
+
+#### Đã làm (W-0211, 07/09) — ✅ đóng
+
+Cả ba đều là docs, không cần chữ ký ai, và **không cần test mới**: bốn con số `11/9/6` đã được
+`UT-RESULT-CONTRACT-01` khẳng định sẵn từ `W-0172` — vấn đề chỉ là tài liệu nói khác code, và giờ
+tài liệu trỏ thẳng vào test đó làm neo.
+
+- **`specs/database/03-enums-and-status.md` §4** — thay *"11 giá trị / bốn nơi đang khớp"* bằng bảng
+  **bốn tập lồng nhau**: vocabulary `11` · runtime `9` · final callback `6` · counted `5`, kèm nơi
+  thi hành từng tập và câu hỏi nó trả lời. Bốn nơi đó mang `11/9/6/11` và **không được phép** khớp
+  nhau — đó mới là thiết kế. Ghi rõ vì sao `OPERATIONAL_BLOCKED`/`POLICY_BLOCKED` là quyết định
+  *trước* cuộc gọi.
+- **IR-06 `draft.22` → `draft.23`** ở 5 chỗ (`L8`, `L25`, tiêu đề bảng, `§4A.7`, checklist `L1203`),
+  thêm dòng changelog `.22→.23` còn thiếu. Tiện thể: chính bản `.22→.23` là nơi route feature-flag
+  nhận `minLength:1/maxLength:128/pattern` cho `x-correlation-id` — **cùng luật mà route intake vẫn
+  chưa khai** (0.2), nên đã liên kết chéo hai mục.
+- **IR-06 §4A.7** — dòng *"Bảng tài khoản console … đã xoá"* đúng ở tầng API, **sai ở tầng DB**:
+  `W0122.Up()` nay rỗng và `P03` chạy `CREATE TABLE IF NOT EXISTS` cho `ivr_console_accounts` +
+  `ivr_console_sessions`. Hai bảng **vẫn tồn tại**, cố ý, cho cửa sổ rollback helm. Đã tách "gỡ khỏi
+  runtime/API" khỏi "xoá khỏi DB" để ai soi DB không tưởng là tàn dư bỏ quên.
+
+**Không đụng OpenAPI** — `ResultType` ở đó **đã đúng**: enum 11 giá trị kèm `description` giải thích
+IVR không phát hai mã pre-call. Chỉ `specs/database` sai.
 
 ### 0.5 — Ngữ nghĩa "approval theo môi trường" chưa có thật trong code
 

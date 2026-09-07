@@ -5,7 +5,7 @@
 **Từ:** Team Module 8 — IVR Order Confirmation (.NET, service tách biệt)
 
 **Cập nhật:** 2026-09-03
-**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI đã lên `1.0.0-draft.22`:** 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7). **Thêm §3.5A ngày 03/09/2026:** M8 ký đề xuất `golden_hour_session_id`; code/OpenAPI/DB chưa được phép đổi trước chữ ký M3 (`W-0146`).
+**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI đã lên `1.0.0-draft.23`:** 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7). **Thêm §3.5A ngày 03/09/2026:** M8 ký đề xuất `golden_hour_session_id`; code/OpenAPI/DB chưa được phép đổi trước chữ ký M3 (`W-0146`).
 
 > **Ranh giới đã được owner làm rõ ngày 2026-08-27:** **Module 3 quyết định nghiệp vụ; IVR thực thi cuộc gọi.**
 >
@@ -22,8 +22,9 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 | Callback OpenAPI Target V1 | `specs/api/openapi/order-core-ivr-callback.target-v1.yaml` |
 | Closure pack T-01…T-09 | `docs/contracts/target-v1-closure-pack/README.md` |
 | Decisions log | `plan/ivr-orther/decisions-log.md` |
-| **OpenAPI IVR — bản mới `1.0.0-draft.22`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
+| **OpenAPI IVR — bản mới `1.0.0-draft.23`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
 | **So sánh draft.20 → draft.22** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md` |
+| **So sánh draft.22 → draft.23** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md` |
 | **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md` |
 
 _Sửa 27/08/2026: bản trước dùng đường dẫn tương đối, nên khi IR-06 được gửi đi dạng file rời thì cả năm link đều không mở được — M3 báo lại ở review §3.3. Cả năm file đều tồn tại trong repo IVR; nếu cần bản sao, yêu cầu owner IVR gửi kèm._
@@ -965,7 +966,7 @@ Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Ngu
 
 | Đã xoá | Thay bằng |
 | --- | --- |
-| Bảng tài khoản console và bảng vai trò trong DB | Không có. M3 giữ tài khoản |
+| Hệ thống tài khoản/vai trò console — **ở tầng runtime và API** | Không có. M3 giữ tài khoản. *Về DB thì đọc ghi chú ngay dưới bảng* |
 | **11 endpoint trong OpenAPI**: `/auth/sign-in`, `/auth/session`, `/auth/sign-out`, sáu route `/accounts*`, `/account-roles` | Không có |
 | **15 schema `Console*`**, tham số `AccountId`, response `ConsoleAccountError` | Không có |
 | Hai mã lỗi `IVR_ACCOUNT_CONFLICT`, `IVR_ACCOUNT_POLICY_VIOLATION` | Danh mục lỗi còn **16 mã** |
@@ -973,13 +974,25 @@ Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Ngu
 | Catalogue 19 permission và policy theo từng permission | Ba tầng ở §4A.1 |
 | Header `X-Permissions` (seam mock cũ) | Đã gỡ, không còn được đọc ở bất kỳ đâu |
 
+> **Đính chính `2026-09-07` (`W-0211`) về dòng đầu bảng.** Trước đây dòng đó ghi *"Bảng tài khoản
+> console và bảng vai trò trong DB — **đã xoá**"*. Đúng ở tầng M3 quan tâm (không endpoint, không
+> auth, không màn hình) nhưng **sai ở tầng DB**: `W0122` nay có `Up()` rỗng và
+> `P03PreserveConsoleCompatibility` chạy `CREATE TABLE IF NOT EXISTS ivr_console_accounts` và
+> `ivr_console_sessions`. **Hai bảng đó vẫn tồn tại**, cố ý, để cửa sổ rollback của helm còn dùng
+> được. Không có auth nào được bật lại và không có route nào đọc chúng — nhưng nếu M3 (hoặc ai đó
+> soi DB) thấy hai bảng này thì chúng **không phải** tàn dư bị bỏ quên.
+
 > **Quan trọng cho M3 nếu đã sinh client từ OpenAPI.** Bản spec anh nhận trước ngày 28/08/2026
 > (`1.0.0-draft.21` trở về trước) **vẫn còn** 11 endpoint đó. Sinh client từ bản cũ sẽ ra
 > `signInConsoleAccount()`, `listConsoleAccounts()`, `createConsoleAccount()`… — gọi vào là `404`.
 >
-> Lấy lại spec ở `specs/api/openapi/ivr-order-confirmation.v1.yaml`, phiên bản **`1.0.0-draft.22`**,
-> rồi sinh lại. So sánh đầy đủ hai bản nằm ở
-> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md`.
+> Lấy lại spec ở `specs/api/openapi/ivr-order-confirmation.v1.yaml`, phiên bản **`1.0.0-draft.23`**,
+> rồi sinh lại. So sánh đầy đủ nằm ở hai changelog nối nhau:
+> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md` rồi
+> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md`.
+> Bản `.22→.23` là nơi các route feature-flag nhận ràng buộc
+> `minLength:1 / maxLength:128 / pattern:'^[A-Za-z0-9._:-]+$'` cho `x-correlation-id` — cùng luật mà
+> route intake vẫn chưa khai (xem §3.1.1).
 
 **Admin UI trong repo IVR giữ lại làm bản mẫu tham chiếu local.** Helm từ chối deploy nó; không có
 Service/UI pod của IVR. Module 3 BFF là caller duy nhất được platform cấu hình NetworkPolicy tới
@@ -1200,7 +1213,7 @@ Chưa được gọi integration/production ready khi các gate P0 trên chưa �
 - [ ] Xác nhận UI bắt buộc nhập `X-Action-Reason` trước khi gửi mọi thao tác tầng `danger`.
 - [ ] Chỉ định hai người khác nhau giữ quyền duyệt **nội dung** và **privacy/pháp lý** (§4A.5).
 - [ ] Xác nhận M3 không kỳ vọng IVR còn màn hình đăng nhập, bảng tài khoản hay endpoint `/api/auth/*` (§4A.7).
-- [ ] **Sinh lại client từ OpenAPI `1.0.0-draft.22`.** Bản trước đó vẫn công bố 11 endpoint `auth`/`accounts` nay đã bị gỡ (§4A.7).
+- [ ] **Sinh lại client từ OpenAPI `1.0.0-draft.23`.** Bản trước đó vẫn công bố 11 endpoint `auth`/`accounts` nay đã bị gỡ (§4A.7).
 
 ### Platform
 
