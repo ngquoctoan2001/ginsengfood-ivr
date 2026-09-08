@@ -99,6 +99,11 @@ worktree và tree hash. Xoá nó = commit unreachable = đứt chuỗi bằng ch
 Local branch nay còn đúng `main` + một mốc provenance. Hai worktree của nhánh đã xoá được
 **detach**, không xoá thư mục — nên `git worktree list` vẫn thấy chúng ở trạng thái detached HEAD.
 
+> **`W-0224` (08/09) — `1.2` mới chỉ dọn *local*.** Trên `origin` vẫn còn
+> `codex/phase-1-2-opus-remediation` (`34340cc`, **ahead 0 / behind 173**, đã xác nhận là ancestor
+> của `main`) — đã xoá. `pre-push` cho phép: hook miễn trừ local oid toàn số không, tức thao tác
+> xoá. Nay **cả hai remote chỉ còn `main`**, cùng SHA `03a1922`.
+
 > **Còn chờ:** hai thư mục `Desktop/ivr-p03-expand-contract` và `.claude/worktrees/gd0-fixes` giờ là
 > worktree detached không còn nhánh. Gỡ hay giữ là câu 3, và một trong hai nằm **ngoài repo** nên
 > tôi không tự xoá.
@@ -256,9 +261,22 @@ Code dựng ngay lên đó (`AttemptPolicyRegistries.cs:52-75`, `W0195`, `W0196`
 
 ### 3.3 — Nợ hồ sơ của chính gate release
 
-- **52 work item** `evidence: null`, và **không cái nào có file evidence trên đĩa** — đây là evidence
-  chưa từng viết, không phải thiếu liên kết (`W-0217` đã kiểm).
-- **32 commit** subject `save`/`sa ve` reachable từ HEAD.
+- ~~**52 work item** `evidence: null` là evidence chưa từng viết~~ → **claim sai, đã rút**
+  (`W-0224`). Con số nay là **55**, và **không dòng nào là defect**.
+  `gate-status.mjs:478-491` **cố ý** tách hai loại:
+
+  | Loại | Số dòng `null` | Luật |
+  | --- | ---: | --- |
+  | prompt-backed (`^P\d+-\d+$`) | **4** | DoD đòi evidence pack §10 → **assertion cứng**. Cả bốn (`W-0049` `W-0050` `W-0051` `W-0056`) đều `BLOCKED_EXTERNAL` — evidence **chưa thể** tồn tại |
+  | remediation `UNPLANNED` | **51** | không có prompt nên **không có yêu cầu §10**; evidence nằm ngay trong ô tracker |
+
+  Vi phạm thật: **0**. Số dòng loại hai được đếm ra `rows_without_evidence_pack: 167` để
+  **không** bị đọc thành thiếu. Chính comment trong script cảnh báo điều này: bản đầu của check đòi
+  thư mục cho **mọi** dòng và gắn cờ 20 mục remediation — *"a rule that would have been satisfied
+  by creating 20 empty directories, which is the opposite of what it is for."*
+
+  ⚠️ **Đừng "trả nợ" mục này bằng cách tạo thư mục evidence.** Đó đúng là thứ check từ chối làm.
+- **32 commit** subject `save`/`sa ve` reachable từ HEAD. ← **mục còn thật của `3.3`**
 - ~~`W-0206` vô hình với bảng điều khiển~~ → **đã ghi hồi tố** (`W-0217`).
 
 ### 3.4 — Dispatch: 0/5 batch, không pack nào rời repo M8

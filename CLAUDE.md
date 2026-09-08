@@ -23,6 +23,17 @@ Both remotes track `main` only: `origin` (GitLab) and `github` (GitHub). A
 `git push origin main` reaches both, because `remote.origin.pushurl` holds two
 values. Where a stray branch already exists, merge it into `main` and delete it.
 
+> **`github/main` always looks stale, and it almost never is.** That push travels
+> through `origin`'s second pushurl, so it never updates the `github` remote.
+> `git rev-parse github/main` therefore reports whatever the last `git fetch
+> github` saw, which can be weeks old. On `2026-09-08` this made a review report
+> the mirror 43 commits behind while both remotes were byte-identical at
+> `03a1922`. Ask the remote, not the tracking ref:
+>
+> ```sh
+> git ls-remote --heads github    # and: git ls-remote --heads origin
+> ```
+
 **One named exception, and only this one.** `codex/w0128-w0129-candidate` is **not** stray and must
 **not** be deleted. `W-0130` created it deliberately as a provenance anchor, because `main@2a4f45d`
 was a mixed `save` of 98 files and did not carry enough provenance for the `W-0128`/`W-0129`
