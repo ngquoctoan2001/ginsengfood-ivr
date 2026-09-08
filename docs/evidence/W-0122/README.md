@@ -152,7 +152,11 @@ Mỗi gate dưới đây nay có **một** hành động cụ thể và một ph
 2. **Legal/Privacy** — phiếu câu hỏi
    [`questions-to-legal-od-voice-07.md`](../../../plan/ivr-orther/questions-to-legal-od-voice-07.md);
    phần **ghi nhận** phê duyệt đi qua [W-0185](../W-0185/README.md).
-3. **Security/Release** — 16 finding không có bản vá được giữ trong evidence này; disposition hiện hành đi qua [W-0185](../W-0185/README.md).
+3. **Security/Release** — phiếu câu hỏi
+   [`questions-to-security-w0122-cve-disposition.md`](../../../plan/ivr-orther/questions-to-security-w0122-cve-disposition.md)
+   (16 finding, bảng CVE đầy đủ, hai lựa chọn `SEC-A`/`SEC-B`); phần **ghi nhận** đi qua
+   [W-0185](../W-0185/README.md). Gói routing cho cả ba phiếu:
+   [`today-03-tts-handoff-pack`](../../../plan/ivr-orther/today-03-tts-handoff-pack-2026-08-29.md).
 4. **Platform/Infra/Telephony** — internal mirror, target hardware và `OD-VOICE-08`: phiếu câu hỏi
    [`questions-to-platform-w0122-infrastructure.md`](../../../plan/ivr-orther/questions-to-platform-w0122-infrastructure.md);
    phần **ghi nhận** đi qua [W-0185](../W-0185/README.md).
@@ -163,7 +167,9 @@ Mỗi gate dưới đây nay có **một** hành động cụ thể và một ph
 > `sha256`, tức chỗ ghi lại rằng **đã có** phê duyệt và hash của nó. Nó **không** chứa 13 cặp
 > `internal_mirror_uri`/`internal_mirror_digest` mà `MODELS.lock` cần, cũng không chứa `L1`–`L7`.
 > Thay một bộ câu hỏi bằng một biểu nhận thì không còn gì để bên kia trả lời. Hai phiếu đã được
-> khôi phục từ `8ed62e9^` và cập nhật; W-0185 giữ nguyên vai trò ghi nhận.
+> khôi phục từ `8ed62e9^` và cập nhật; W-0185 giữ nguyên vai trò ghi nhận. `W-0227` khôi phục nốt
+> phiếu Security và gói routing `today-03` — gói này đã ký nên giữ **nguyên byte**, cập nhật nằm ở
+> phụ lục.
 5. Owner thực hiện 2 đơn × 3 miền, nghe nội dung/giọng/mối nối; sau đó mới chạy retention và rollback drill.
 
 Không mục nào ở trên được suy ra từ local smoke hoặc file metadata.

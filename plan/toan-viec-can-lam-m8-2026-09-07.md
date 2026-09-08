@@ -205,6 +205,8 @@ không còn gì để trả lời.
 | --- | --- | --- |
 | [questions-to-legal-od-voice-07](ivr-orther/questions-to-legal-od-voice-07.md) | `L1`–`L7`: licence không có file LICENSE, training data, quyền 3 preset, attribution, nghĩa vụ khi bỏ SaaS, retention | `legal_gate` |
 | [questions-to-platform-w0122-infrastructure](ivr-orther/questions-to-platform-w0122-infrastructure.md) | `INF-A` mirror 13 artifact · `INF-B` target hardware · `INF-C` `OD-VOICE-08` media sink | `internal_mirror_gate` + 2 gate khác |
+| [questions-to-security-w0122-cve-disposition](ivr-orther/questions-to-security-w0122-cve-disposition.md) | `SEC-A` ký disposition 16 finding **hoặc** `SEC-B` đổi base image | `RELEASE` (`W-0227`) |
+| [today-03-tts-handoff-pack](ivr-orther/today-03-tts-handoff-pack-2026-08-29.md) | gói routing cho cả ba, kèm bảng 6 cuộc MicroSIP và retention/rollback drill | — (`W-0227`) |
 
 > ⚠️ **Chỗ rẽ chưa ai chốt, ghi rõ trong cả hai phiếu.** `OD-V1-19` ký `05/09` — *"không vendor TTS
 > lúc chạy; thu giọng người thật"* — **đã vào code**: template `v3-test-approved` không còn
@@ -215,6 +217,17 @@ không còn gì để trả lời.
 > Nhưng `L3` **vẫn cần dù đường nào**: 12 đoạn cố định hiện có là audio **do VieNeu render**, Owner
 > ký `28/08`. *"Được chạy model không"* và *"được dùng audio model đã tạo ra không"* là hai câu khác
 > nhau. · `W-0226`
+
+Chỗ rẽ đó chạm **cả ba** phiếu, mỗi phiếu một kiểu — bảng đầy đủ ở `today-03` phụ lục `P.2`:
+
+| Phiếu | Nếu **bỏ** TTS lúc chạy |
+| --- | --- |
+| Legal | `L1`–`L4` phụ thuộc; **`L3` vẫn cần** (12 đoạn hiện có do VieNeu render); `L5`–`L7` cần dù đường nào |
+| Security | 16 finding thuộc base image `ivr-tts` ⇒ **image không lên production ⇒ không cần disposition** |
+| Platform | `INF-A` không còn cần; `INF-B` và `INF-C` vẫn cần |
+
+> ⚠️ **Đừng ký `SEC-A` trước khi chốt.** Một disposition có thời hạn cho image không bao giờ deploy
+> là nợ giấy tờ, và sẽ bị đọc như bằng chứng image đó đã được duyệt. · `W-0227`
 
 ### 1.5 — Mua SIM gateway
 

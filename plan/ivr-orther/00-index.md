@@ -50,7 +50,10 @@ Ngày `2026-09-04` đã gỡ khỏi cây làm việc: `_archive/`, `prompt/_lega
 tả là gỡ các phiếu `questions-to-*` **đã `SUPERSEDED`** thuộc vòng `2026-07-02` và `OD-15`. Nhưng
 nó gỡ luôn hai phiếu `W-0122` lập ngày `2026-08-28`, **chưa từng bị supersede và chưa từng được
 gửi** — trạng thái tự khai của cả hai vẫn là `READY_TO_DISPATCH / NOT_SENT`. Đã khôi phục từ
-`8ed62e9^` và cập nhật theo `W-0225`.
+`8ed62e9^` và cập nhật theo `W-0225` — hai phiếu Legal/Platform ở `W-0226`, phiếu Security và gói
+`today-03` ở `W-0227`. Gói `today-03` là tài liệu **đã ký** nên khôi phục **nguyên byte**
+(`git hash-object` = `2f6c951fb1750c705001db9c831baacec7265fd2`) và mọi cập nhật nằm ở phụ lục
+cuối file, không sửa thân gói.
 
 ### Phiếu đang hoạt động — đừng gỡ khi dọn cây
 
@@ -59,6 +62,8 @@ gửi** — trạng thái tự khai của cả hai vẫn là `READY_TO_DISPATCH 
 | [questions-to-module-3-od18-authority.md](questions-to-module-3-od18-authority.md) | Module 3 | `W-0125` |
 | [questions-to-legal-od-voice-07.md](questions-to-legal-od-voice-07.md) | Legal / Privacy | `NOT_SENT` — chặn `legal_gate` của `W-0122` |
 | [questions-to-platform-w0122-infrastructure.md](questions-to-platform-w0122-infrastructure.md) | Platform / Infra / Telephony | `NOT_SENT` — chặn `internal_mirror_gate`, target hardware, `OD-VOICE-08` |
+| [questions-to-security-w0122-cve-disposition.md](questions-to-security-w0122-cve-disposition.md) | Security / Release | `NOT_SENT` — chặn `RELEASE`; 16 finding `HIGH`/`CRITICAL`, `0 fixable` |
+| [today-03-tts-handoff-pack-2026-08-29.md](today-03-tts-handoff-pack-2026-08-29.md) | — gói routing cho ba phiếu trên | `HANDOFF_READY`, `External dispatch: NOT_PERFORMED` |
 
 Một phiếu `NOT_SENT` **không phải** phiếu chết: nó là việc chưa làm. Chỉ gỡ khi đã có trả lời hoặc
 đã được thay bằng phiếu khác **có tên**.
