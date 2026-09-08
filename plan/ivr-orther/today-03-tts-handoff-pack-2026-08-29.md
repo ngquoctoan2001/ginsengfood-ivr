@@ -184,3 +184,44 @@ giao.
 > `29/08`; nay nó có thêm một lý do để chạy.
 
 Không mục nào ở đây nới stop rule §4. Ba phiếu vẫn `NOT_SENT`; `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## P.7 Owner chốt nốt hai câu — `2026-09-08` (`W-0229`, `W-0230`, `W-0231`)
+
+| Câu (`m8-16 §9`) | Quyết định |
+| --- | --- |
+| 1 · thu từng từ hay thu cụm | ✅ **`R-2`** — thu cụm `0..99`; kịch bản 100 dòng sinh từ speller |
+| 3 · `pronunciationHints` | ✅ **bỏ qua** — tên hàng có clip thì dùng clip |
+| 2 · 12 đoạn cố định | ✅ **thu lại bằng giọng người** |
+| 3b · món chưa có clip | ⬜ **mới**, sinh từ câu 3 |
+| 4 · đơn vị và vùng giao | ⬜ vận hành |
+
+### Ảnh hưởng tới gói này
+
+**§1 bảng trạng thái — ba dòng đổi nghĩa:**
+
+| Hạng mục | `29/08` | Sau `08/09` |
+| --- | --- | --- |
+| Nghe 11 candidate, chọn 3 miền | `OWNER_ACCEPTED 2026-08-28` | **hết hiệu lực** — ba giọng là **preset của model**, không phải người; thu bằng giọng người thì phải chọn **người** |
+| Voice manifest gate | `PASS` | vẫn `PASS`, nhưng mô tả một artifact **thôi được giao đi** |
+| 12 fixed WAV | `FILES_AND_IMAGE_PASS` | phải **thu lại**; `TextHash` và `MediaReference` **không đổi** (khoá theo văn bản), chỉ bytes + `SHA256SUMS` + `DurationMilliseconds` |
+
+**§2 routing — phạm vi ba phiếu đổi:**
+
+- **Legal**: `L1`–`L4` **rút** khi audio mới thay xong; `L5`–`L7` giữ; **`L8` mới** — hợp đồng giọng
+  người, kèm điều khoản **thu bổ sung khi catalog đổi**.
+- **Security**: `ivr-tts` không lên production **và** không còn dùng để render → 16 finding thôi là
+  câu hỏi release. **Vẫn đừng ký `SEC-A` và đừng đóng phiếu** cho tới khi thu xong.
+- **Platform**: mục **A** không còn cần — **đừng dựng mirror**. Mục **C** ngược lại **quan trọng
+  hơn**: số file tĩnh phải phục vụ tăng từ `12` lên `≈ 477 + 3E`.
+
+### §3.2 sáu cuộc MicroSIP — nay là bài kiểm cho hai thứ
+
+Ngoài mối nối, giờ còn kiểm **đồng nhất chất giọng**: cùng một người đọc cả đoạn cố định lẫn số và
+tên hàng, nên mối nối không còn nguy cơ lệch timbre. Đó là lý do thu lại 12 đoạn thay vì giữ bản
+model.
+
+> **Gộp một buổi thu:** `107` clip số + `12` đoạn cố định + đơn vị + tên hàng + vùng giao, cùng một
+> session mỗi giọng.
+
+Stop rule §4 **không đổi**. `External dispatch: NOT_PERFORMED`; ba phiếu vẫn `NOT_SENT`;
+`REAL_CUSTOMER_CALL_ALLOWED=NO`.

@@ -53,10 +53,34 @@ Phiếu soạn `2026-08-28`. Ngày `2026-09-05`, `OD-V1-19` được ký:
 > cơ chế phục vụ đoạn động từ ngân hàng ghi âm** — đó là code chưa viết, không phải cờ chưa bật.
 > Xem `m8-16 §9` cho bốn quyết định phải chốt trước khi M8 dựng được.
 
-> **Riêng với Legal còn một câu con chưa chốt** (`m8-16 §7.1`): **12 đoạn cố định hiện có là audio
-> do VieNeu render**. Giữ chúng thì `L3` **vẫn phải trả lời**; thu lại bằng giọng người thì
-> `L1`–`L4` đóng hết nhưng phát sinh **hợp đồng giọng người** — một câu hỏi Legal khác, thay chỗ
-> chứ không xoá.
+> ### ✅ Câu con cũng đã chốt — Owner, `2026-09-08`: **thu lại 12 đoạn cố định**
+>
+> VieNeu biến mất **hoàn toàn**, không chỉ khỏi runtime mà khỏi cả audio giao đi. Nghĩa là phiếu
+> này **thu hẹp còn ba câu**:
+>
+> | | |
+> | --- | --- |
+> | `L1` `L2` `L3` `L4` | **rút** — sẽ không còn artifact model nào để xin ý kiến |
+> | `L5` `L6` `L7` | **giữ nguyên** — không phụ thuộc model |
+> | **`L8` mới** | **hợp đồng giọng người** — xem dưới |
+>
+> ⚠️ **Nhưng chỉ rút khi audio thu lại đã thay 12 file cũ.** Tới lúc đó, 12 đoạn đang giao **vẫn là
+> bản VieNeu render**. Nếu vì lý do nào đó việc thu không diễn ra, `L1`–`L4` sống lại nguyên vẹn.
+>
+> ### `L8` — Hợp đồng giọng người (P1, mới `2026-09-08`)
+>
+> Ba giọng `Ngọc Linh` / `Ngọc Trân` / `Mỹ Duyên` ký ngày `28/08` là **preset của model, không phải
+> người**. Thu bằng giọng người thì chữ ký đó **hết hiệu lực** và phải chọn lại — lần này là chọn
+> **người**.
+>
+> Xin nêu điều khoản tối thiểu cần có:
+>
+> - ☐ Phạm vi sử dụng: gọi ra xác nhận đơn hàng, không giới hạn số cuộc · thời hạn: `__________`
+> - ☐ Quyền dùng bản thu cho mục đích **thương mại**
+> - ☐ Điều khoản **thu bổ sung** khi catalog sản phẩm đổi — đây là điều dễ quên nhất, và nó sẽ xảy
+>   ra: `~40` tên hàng hôm nay không phải `~40` tên hàng sang năm
+> - ☐ Xử lý khi người thu không còn hợp tác: bản thu cũ còn dùng được không?
+> - ☐ Khác: `_______________________`
 
 Nếu Legal muốn chờ `§7.1` rồi mới trả lời `L1`–`L4`, xin trả lời `L5`–`L7` trước — chúng không
 phụ thuộc chỗ rẽ nào.

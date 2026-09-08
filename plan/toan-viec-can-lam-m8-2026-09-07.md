@@ -304,6 +304,36 @@ tệ hơn không gọi.
 Và một việc không phải code: **ai báo cho IVR khi Sales thêm sản phẩm.** Bank D chỉ đúng tới lần
 catalog đổi kế tiếp. · `W-0230`
 
+#### ✅ `W-0231` (08/09) — thu lại 12 đoạn cố định; VieNeu rời hẳn hệ thống
+
+**Cơ chế phát không phải đổi gì** — `FixedSegmentHashes` băm **văn bản**, catalog trỏ file bằng
+chính hash đó:
+
+```json
+{ "TextHash": "4612fb85…", "MediaReference": "sound:ivr-seg-north-4612fb85…",
+  "DurationMilliseconds": 6400 }
+```
+
+Văn bản không đổi ⇒ `TextHash` và `MediaReference` không đổi ⇒ `ValidateSegmentation` không đỏ.
+**Thay bytes, giữ tên.** Chỉ cập nhật: WAV · `SHA256SUMS` · `DurationMilliseconds`.
+
+> **Bộ provenance VieNeu thành đồ thừa nhưng vẫn xanh — đừng gỡ vội.** `tts-provenance-gate:160`,
+> `tts-voice-acceptance-lib:19`, `b3-telephony-evidence-validator:22` vẫn mô tả đúng artifact trong
+> repo. Đây là bộ máy đã bắt `2a4f45d` tự ký `legal_gate` và `W-0225` vừa vá nốt nửa hở. Gỡ ẩu là
+> mất phần chống tự ký. **Decommission là work item riêng.**
+
+**Chữ ký giọng `28/08` hết hiệu lực** — Ngọc Linh/Ngọc Trân/Mỹ Duyên là **preset của model, không
+phải người**. Phiếu Legal đổi phạm vi: `L1`–`L4` **rút**, `L5`–`L7` giữ, thêm **`L8` hợp đồng giọng
+người** kèm điều khoản dễ quên nhất — **thu bổ sung khi catalog đổi**.
+
+> ⚠️ **Chỉ rút khi audio mới đã thay xong**, không phải khi quyết định được ký. Ba phiếu đã sửa để
+> nói *"đừng ký, đừng đóng"* thay vì *"đã đóng"* — đóng sớm bằng tiền đề chưa thành sự thật là cách
+> một hồ sơ trở nên sai.
+
+Hai phần thưởng kèm theo: xoá hẳn nguy cơ **lệch timbre tại mối nối** (cùng một người đọc cả câu),
+và `DurationMilliseconds` thu được là **phép đo thật cho phần cố định** — dữ liệu vào cho `W-0008`,
+lần đầu một trong bốn con số `CAP-DRIFT-05` có nguồn không phải phỏng đoán. · `W-0231`
+
 > ⚠️ **`pronunciationHints` là đổi hành vi contract, không phải chi tiết.** `PrivacySafeSpeech` cho
 > tới **100** hint mỗi task, tồn tại **vì** TTS đọc sai tên riêng. Thu trước thì không đọc lại được.
 > Nếu chọn *"hint thắng ⇒ rơi về TTS"* thì **vẫn phụ thuộc TTS lúc chạy** và toàn bộ lập luận đóng

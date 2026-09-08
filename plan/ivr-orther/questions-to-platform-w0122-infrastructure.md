@@ -54,9 +54,15 @@ hàng ghi âm đó khi thêm sản phẩm?
 > cơ chế phục vụ đoạn động từ ngân hàng ghi âm** — đó là code chưa viết, không phải cờ chưa bật.
 > Xem `m8-16 §9` cho bốn quyết định phải chốt trước khi M8 dựng được.
 
-> **Với Platform:** mục **A (mirror)** đi theo hướng *"không còn cần"* — nhưng **chỉ sau khi** đường
-> ghi âm dựng xong và VieNeu rời runtime, việc chưa bắt đầu. **Đừng dựng mirror lúc này**, và cũng
-> đừng coi mục A là đã đóng. Mục **B** và **C** không đổi: cần dù đường nào.
+> **Với Platform:** owner chốt tiếp `2026-09-08` là **thu lại cả 12 đoạn cố định**, nên VieNeu rời
+> hệ thống hoàn toàn và mục **A (mirror 201 MiB weights)** sẽ **không còn cần**.
+>
+> **Đừng dựng mirror.** Nhưng cũng đừng coi mục A là đã đóng cho tới khi buổi thu diễn ra — nếu
+> việc thu không xảy ra thì model quay lại và mục A sống lại.
+>
+> Mục **B** (đo hardware) và **C** (`OD-VOICE-08` media sink) **không đổi**: audio vẫn phải được ghi
+> và phát ở production, và giờ là audio **thu sẵn** thay vì tổng hợp — nếu có gì thì mục C càng
+> quan trọng hơn, vì lượng file tĩnh phải phục vụ tăng từ `12` lên `≈ 477 + 3E`.
 
 ---
 

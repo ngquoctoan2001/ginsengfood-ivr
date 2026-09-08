@@ -187,6 +187,70 @@ Ngoài 100 dòng trên, mỗi miền còn **7 clip**:
 Vế thứ ba là vế dễ bỏ sót: đoạn cố định do model đọc, đoạn động do người đọc, nối vào nhau ở đúng
 chỗ khách đang nghe.
 
+### ✅ Owner chốt `2026-09-08`: **thu lại 12 đoạn cố định**
+
+VieNeu biến mất **hoàn toàn** — không chỉ khỏi runtime mà khỏi cả audio giao đi.
+
+#### Cơ chế phát **không phải đổi gì** — tên file khoá theo *văn bản*, không theo giọng
+
+`TargetV1SpeechPolicy.FixedSegmentHashes` băm **text của từng đoạn**, và catalog trỏ file bằng chính
+hash đó:
+
+```json
+{ "TextHash": "4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2",
+  "MediaReference": "sound:ivr-seg-north-4612fb85a1d0c3df",
+  "DurationMilliseconds": 6400 }
+```
+
+Văn bản không đổi ⇒ `TextHash` không đổi ⇒ `MediaReference` không đổi ⇒ `ValidateSegmentation`
+không đỏ. **Thay nội dung WAV, giữ nguyên tên.** Danh sách phải cập nhật rất ngắn:
+
+| Phải đổi | Không đổi |
+| --- | --- |
+| bytes của 12 file `ivr-seg-*.wav` | `TextHash`, `MediaReference`, tên file |
+| `SHA256SUMS` trong `deploy/lab/asterisk/audio/` | template, `FixedSegmentHashes`, cấu hình catalog |
+| `DurationMilliseconds` từng entry — người đọc dài ngắn khác model | cơ chế `Segmentation` |
+
+> **`DurationMilliseconds` nối sang chỗ khác:** độ dài đoạn cố định cộng vào thời lượng cuộc gọi,
+> tức đúng con số `W-0008` sẽ đo và `CAP-DRIFT-05` đang ghim (`40/35/50/60`). Thu xong thì có phép
+> đo thật cho phần cố định — **không** thay được `W-0008`, nhưng là dữ liệu vào cho nó.
+
+#### Bộ provenance VieNeu thành đồ thừa — nhưng **đừng gỡ vội**
+
+Chuỗi thứ hai khoá theo **model + preset**, không theo văn bản:
+
+```text
+tts-provenance-gate.mjs:160        throw "voice manifest drift"
+tts-voice-acceptance-lib.mjs:19    voice_manifest_sha256 → voices_v3_turbo.json
+b3-telephony-evidence-validator:22 ghim voice-acceptance-manifest.json = 90927e16…
+```
+
+Chúng vẫn **xanh** vì vẫn mô tả đúng artifact đang nằm trong repo — chỉ là artifact đó thôi được
+giao đi. Gỡ chúng là **một work item riêng, làm cẩn thận**: đây chính là bộ máy đã bắt được
+`2a4f45d` tự ký `legal_gate`. Gỡ ẩu thì mất luôn phần chống tự ký.
+
+#### Chữ ký giọng `28/08` hết hiệu lực
+
+Ngọc Linh / Ngọc Trân / Mỹ Duyên là **preset của model**, không phải người. Thu bằng giọng người
+thì phải chọn giọng lại — và lần này là **chọn người**, kèm hợp đồng.
+
+| Đóng lại | Mở ra |
+| --- | --- |
+| `L1` licence không có file LICENSE | **hợp đồng giọng người** — phạm vi sử dụng, thời hạn, thu lại khi catalog đổi |
+| `L2` training data | quyền dùng bản thu cho mục đích thương mại |
+| `L3` quyền thương mại 3 preset | |
+| `L4` attribution / NOTICE | |
+
+**Bốn đóng, một mở** — và câu mở là câu Legal quen thuộc hơn nhiều câu về training data của model.
+
+> Chỉ đóng khi **audio thu lại đã thay 12 file cũ**, không phải khi quyết định được ký. Tới lúc đó
+> 12 file đang giao vẫn là bản VieNeu render.
+
+#### Gộp một buổi thu
+
+`107` clip số + `12` đoạn cố định + đơn vị + tên hàng + vùng giao — **cùng một session mỗi giọng**,
+thay vì hai lần vào phòng thu.
+
 ### 7.2 — `pronunciationHints` mất tác dụng, và đó là đổi hành vi contract
 
 `PrivacySafeSpeech` cho **tới 100** `pronunciationHints` mỗi task; renderer dùng chúng để đọc đúng
@@ -257,7 +321,7 @@ thay đổi catalog kế tiếp. Đó là quy trình vận hành, phải có tê
 | # | Việc | Ai |
 | ---: | --- | --- |
 | ~~1~~ | ~~Chốt `R-1` hay `R-2`~~ → ✅ **owner chốt `R-2` `2026-09-08`**; kịch bản 100 dòng đã sinh ở §6 | — |
-| 2 | Chốt §7.1 — giữ hay thu lại 12 đoạn cố định | Owner + Legal |
+| ~~2~~ | ~~Chốt §7.1 — giữ hay thu lại 12 đoạn cố định~~ → ✅ **owner chốt 08/09: thu lại**; `L1`–`L4` đóng khi audio mới thay xong, mở ra hợp đồng giọng người | — |
 | ~~3~~ | ~~Chốt §7.2 — hint bị bỏ qua hay thắng~~ → ✅ **owner chốt 08/09: hint bị bỏ qua** |  — |
 | **3b** | **Mới**: món chưa có clip xử lý ra sao (§7.2, đề xuất `3`+chặn đáy) · và ai báo khi catalog đổi | Owner + M3 + Vận hành |
 | 4 | Chốt danh sách C (đơn vị) và E (vùng giao) | Vận hành |
