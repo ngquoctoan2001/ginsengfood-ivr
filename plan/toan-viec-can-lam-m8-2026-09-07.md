@@ -150,6 +150,49 @@ approval**. Provenance gate vẫn báo `LEGAL,INTERNAL_MIRROR`.
 > **Quyết:** theo gate từng artifact. Không mở lại phần đã ký khi binding không đổi; không dùng
 > artifact chọn giọng để đóng lab/production.
 
+#### `W-0225` (08/09) — đi kiểm hai blocker thì một cái **không phải gate**
+
+Quyết định *"theo gate từng artifact"* buộc phải hỏi: hai blocker có thật là gate không? Một cái
+không. `MODELS.lock` có hai cổng cạnh nhau, cùng hình dạng, được đối xử **hoàn toàn khác**:
+
+| | `legal_gate` | `internal_mirror_gate` |
+| --- | --- | --- |
+| guard trong `validate()` | **có** — throw | **không** |
+| đòi thẩm quyền / người ký / ngày / reference | **cả bốn** | — |
+| ràng vào artifact | — | **không** |
+| mutation test | có | **không** |
+| **điều kiện mở** | 5 trường đúng thẩm quyền | **`status !== "PASS"`** |
+
+Chạy thật, trước khi sửa:
+
+```text
+internal_mirror_gate = {"status": "PASS"}      ← ba chữ
+→ release_blockers=LEGAL                        ← INTERNAL_MIRROR biến mất
+→ internal_mirror_uri still null on 13/13 artifacts
+```
+
+Đúng hình dạng `legal_gate` từng có ngày `28/08`, trước khi `2a4f45d` tự ký `PASS` và `TODAY-03`
+phải khôi phục. Bài học đó chỉ được áp cho **một** trong hai cổng.
+
+Luật đúng **đã tồn tại** — `verify-model.py` đòi *"production requires an exact internal mirror"* —
+nhưng nằm trong nhánh `--mode production`, mà **CI chỉ chạy gate Node** (`apk add nodejs`) và image
+không ship `deploy/tts/scripts/`. Cùng lớp lỗi `7.1`: một luật, hai bản, một bản lỏng hơn.
+
+**Đã sửa** đối xứng ở cả hai file: đòi hồ sơ quyết định (`decided_by` · `approval_reference` ·
+`decided_on`) **và** mọi artifact phải có `internal_mirror_uri` + `internal_mirror_digest` thật.
+Gate nay **10 mutation** (trước 8); probe cũ nay trả `exit 1 · internal mirror approval invalid`.
+
+> ⚠️ **Cố ý không chỉ định `decision_authority`.** `LEGAL_PRIVACY` tồn tại vì owner **không được**
+> tự ký review pháp lý. Cổng mirror thì lý do trong lock ghi thiếu *"**owner-approved** internal
+> artifact or OCI mirror URI/digest"* — owner **là** thẩm quyền đúng. Đòi hồ sơ, không đòi danh tính.
+
+> ⚠️ **Bẫy cho người dựng mirror:** `expectedArtifactSetSha256` phủ cả hai trường mirror, nên điền
+> giá trị thật **sẽ** làm gate đỏ `artifact provenance fingerprint drift` — đúng lúc làm đúng. Đã ghi
+> comment tại chỗ. Re-pin cùng lượt, theo dây chuyền `W-0126`.
+
+**Hai blocker không đổi trạng thái.** `LEGAL` vẫn cần review licence, `INTERNAL_MIRROR` vẫn cần
+Platform. Lượt này chỉ làm cái thứ hai **không mở được bằng ba chữ**. · `W-0225`
+
 ### 1.5 — Mua SIM gateway
 
 DI chỉ có mock / lab / `UnavailableSchedulerDispatchGateway` (`SchedulerCapacity.cs:567-568`).

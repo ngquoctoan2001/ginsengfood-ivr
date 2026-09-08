@@ -23,6 +23,30 @@ Defense-in-depth cũng được thêm vào CI provenance gate và production mod
 `approval_reference`. Source hiện tại báo `release_blockers=LEGAL,INTERNAL_MIRROR`; production
 tiếp tục fail closed cho tới khi có phản hồi external thật.
 
+### Bổ sung `2026-09-08` (`W-0225`) — defense-in-depth ở trên chỉ áp cho **một** trong hai cổng
+
+Lượt `2026-08-29` siết `legal_gate` và dừng ở đó. `internal_mirror_gate` giữ nguyên hình dạng cũ
+— một chuỗi `status` ai viết cũng được, không thẩm quyền, không người ký, không ngày, và **không
+ràng vào 13 artifact mà nó khai là đã mirror**. Chứng minh bằng chạy:
+
+```text
+internal_mirror_gate = {"status": "PASS"}
+→ release_blockers=LEGAL                 ← INTERNAL_MIRROR biến mất
+→ internal_mirror_uri still null on 13/13
+```
+
+Nghĩa là ba chữ đủ mở cổng mirror, trong khi cùng thao tác đó trên `legal_gate` bị `validate()` ném
+`legal approval authority invalid`. `verify-model.py` có luật đúng nhưng ở nhánh `--mode
+production`, mà CI chỉ chạy gate Node và image không ship `deploy/tts/scripts/`.
+
+Nay `hasInternalMirrorApproval` (Node) và `has_internal_mirror_approval` (Python) đòi `decided_by`
++ `approval_reference` + `decided_on`, **và** mọi artifact phải mang `internal_mirror_uri` và
+`internal_mirror_digest` thật. Gate lên **10 mutation**. `decision_authority` cố ý **không** bị chỉ
+định — lý do trong lock ghi thiếu *"owner-approved internal artifact"*, tức owner là thẩm quyền đúng
+ở cổng này, khác hẳn `legal_gate`.
+
+Trạng thái blocker **không đổi**: `release_blockers=LEGAL,INTERNAL_MIRROR`.
+
 ## Artifact đã đóng băng
 
 | Thành phần | Pin |
@@ -114,7 +138,8 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 
 ## Hai lỗi phát hiện khi chạy thật Phase 3 (`2026-08-28`)
 
-1. **Converter ghi CRLF.** `Convert-LabSegmentAudio.ps1` dùng `Set-Content`, nối dòng bằng CRLF trên Windows. Entrypoint chạy `sha256sum --check --strict` trong container Linux, ở đó `` cuối dòng thành một phần tên file ⇒ **cả 18 dòng fail**. Cùng họ với F1: `.gitattributes` giữ bản commit ở LF nên `git status` vẫn sạch, nhưng `docker build` đọc working tree. Sửa ba lớp: ghi LF tường minh; converter tự đọc lại byte vừa ghi và throw nếu có CR (git normalise lúc commit nên CI không bao giờ thấy bản CRLF — chỗ duy nhất bắt được là trên máy đã ghi); thêm assertion vào `lab-converter-selftest.mjs`.
+1. **Converter ghi CRLF.** `Convert-LabSegmentAudio.ps1` dùng `Set-Content`, nối dòng bằng CRLF trên Windows. Entrypoint chạy `sha256sum --check --strict` trong container Linux, ở đó `
+` cuối dòng thành một phần tên file ⇒ **cả 18 dòng fail**. Cùng họ với F1: `.gitattributes` giữ bản commit ở LF nên `git status` vẫn sạch, nhưng `docker build` đọc working tree. Sửa ba lớp: ghi LF tường minh; converter tự đọc lại byte vừa ghi và throw nếu có CR (git normalise lúc commit nên CI không bao giờ thấy bản CRLF — chỗ duy nhất bắt được là trên máy đã ghi); thêm assertion vào `lab-converter-selftest.mjs`.
 2. **Không build lại được image lab.** `asterisk-22.10.1.tar.gz` đã bị dời sang `old-releases/`; URL ghim trả `404`, `old-releases/` trả `200`. Image chỉ còn tồn tại nhờ bản build cũ trên máy này. Đã thêm fallback hai đường, giữ nguyên `ASTERISK_SHA256` nên provenance không đổi. Đây đúng kịch bản mà gate internal mirror của W-0122 đang lo, nhưng xảy ra ở một dependency chưa ai để ý.
 
 ## Gate còn cần con người/hạ tầng

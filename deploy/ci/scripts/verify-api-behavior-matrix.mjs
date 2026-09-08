@@ -123,6 +123,13 @@ const result = { schema_version: 'ivr.api-behavior-matrix.report.v1', generated_
   failures, operations: operationReports };
 fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, JSON.stringify(result, null, 2) + '\n');
+// `verdict` is decided by the top-level `failures` array, so that is what must be printed under
+// that name. Printing the per-operation failures there instead produced the worst possible line
+// for an operator -- `"verdict": "FAIL"` directly above `"failures": []` with 38/38 passing --
+// and sent a reader looking for a defect that was not there. The real reason (for example
+// "Source changed since the HTTP matrix ran; rerun the test") was only ever written to
+// report.json. Both are printed now, each under its own name.
 console.log(JSON.stringify({ verdict: result.verdict, passed: result.passed_operations, operations: result.operation_count,
-  requests: result.executed_requests, failures: operationReports.filter(op => op.failures.length).map(op => ({ id: op.operation_id, failures: op.failures })) }, null, 2));
+  requests: result.executed_requests, failures: result.failures,
+  operation_failures: operationReports.filter(op => op.failures.length).map(op => ({ id: op.operation_id, failures: op.failures })) }, null, 2));
 process.exitCode = result.verdict === 'PASS' ? 0 : 1;

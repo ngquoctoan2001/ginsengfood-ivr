@@ -7,6 +7,11 @@ const repoRoot = resolve(import.meta.dirname, "../../..");
 const lockPath = resolve(repoRoot, "deploy/tts/models/MODELS.lock");
 const lock = JSON.parse(readFileSync(lockPath, "utf8"));
 const selftest = process.argv.includes("--selftest");
+// Covers internal_mirror_uri and internal_mirror_digest (see artifactFingerprintFields), which
+// are null on all 13 artifacts today. Supplying real mirror values is therefore expected to fail
+// here with "artifact provenance fingerprint drift" -- that is the review point working, not a
+// defect. Recompute this constant in the same change, and expect the same for the lock hash
+// chain W-0126 established: dependency_lock_sha256 -> model_lock_sha256 -> this.
 const expectedArtifactSetSha256 = "84eeb006ab695c875707cdb3ed56409468ab8394ddf25bbf11409e08539bfd94";
 const expectedRuntimeLockSha256 = "a2f18ce29167f97e1e11f9b1d9802378c6dc4997ddcfcdc99d04a54c77956304";
 const expectedVoiceConfigSha256 = "9a76fdabca3ad58994caa1b59c0c76f3a98facb22f11e2f9ec9210a9371ccae2";
@@ -49,12 +54,61 @@ function hasLegalPrivacyApproval(gate) {
     && /^\d{4}-\d{2}-\d{2}$/.test(gate.decided_on);
 }
 
+// The twin of hasLegalPrivacyApproval, and until now only one twin had been taught the
+// 2a4f45d lesson. `legal_gate` cannot be opened by writing PASS: validate() throws unless a
+// LEGAL_PRIVACY authority, a named signer, a reference and a date are all present, and the
+// `legal-authority` mutation proves a MODULE_8_OWNER self-signature is refused.
+// `internal_mirror_gate` was still the exact shape legal_gate had on 2026-08-28 -- a single
+// status string with nothing behind it. Writing {"status":"PASS"} dropped INTERNAL_MIRROR
+// from the blocker list while all 13 artifacts kept internal_mirror_uri: null.
+//
+// Two deliberate choices here.
+//
+// No authority token is prescribed. LEGAL_PRIVACY exists because the module owner must not be
+// able to sign their own legal review. This gate is different: the lock's own reason says an
+// "owner-approved internal artifact or OCI mirror URI/digest" is what is missing, so owner
+// approval IS the right authority, and naming some other one would be inventing governance
+// nobody has decided. What is demanded is the record -- who, when, against what reference.
+//
+// The artifact check is not new policy either. verify-model.py already refuses to release
+// without an exact mirror on every artifact; it just does so under `--mode production`, and
+// CI runs this Node gate instead, so CI never saw the rule. Folding it into what PASS *means*
+// puts the same requirement in front of both readers.
+//
+// TWIN: deploy/tts/scripts/verify-model.py has_internal_mirror_approval. Change both together.
+// They cannot share code across the language boundary, and the Python side is neither run in CI
+// nor shipped in the image, so nothing mechanical will catch it if they drift.
+function hasExactInternalMirror(item) {
+  return typeof item?.internal_mirror_uri === "string"
+    && item.internal_mirror_uri.trim().length > 0
+    && typeof item?.internal_mirror_digest === "string"
+    && /^(sha256:)?[a-f0-9]{64}$/.test(item.internal_mirror_digest);
+}
+
+function hasInternalMirrorApproval(gate, artifacts) {
+  return gate?.status === "PASS"
+    && typeof gate?.decided_by === "string"
+    && gate.decided_by.trim().length > 0
+    && typeof gate?.approval_reference === "string"
+    && gate.approval_reference.trim().length > 0
+    && typeof gate?.decided_on === "string"
+    && /^\d{4}-\d{2}-\d{2}$/.test(gate.decided_on)
+    // A mirror gate that passes while the mirrors are null is decorative.
+    && Array.isArray(artifacts)
+    && artifacts.length > 0
+    && artifacts.every(hasExactInternalMirror);
+}
+
 function validate(candidate) {
   if (candidate.schema_version !== 1 || !Array.isArray(candidate.artifacts)) {
     throw new Error("invalid lock schema");
   }
   if (candidate.legal_gate?.status === "PASS" && !hasLegalPrivacyApproval(candidate.legal_gate)) {
     throw new Error("legal approval authority invalid");
+  }
+  if (candidate.internal_mirror_gate?.status === "PASS"
+    && !hasInternalMirrorApproval(candidate.internal_mirror_gate, candidate.artifacts)) {
+    throw new Error("internal mirror approval invalid");
   }
   if (candidate.source_commit !== "36c4b501b0634a8f59805e6b529a058fbd30190b") {
     throw new Error("source revision drift");
@@ -163,6 +217,19 @@ if (selftest) {
       approval_reference: "owner-only-is-not-legal-approval",
     };
   });
+  // The hole this gate had until now: three words, and INTERNAL_MIRROR left the blocker list
+  // while every internal_mirror_uri in the lock stayed null.
+  expectFailure("mirror-bare-pass", value => { value.internal_mirror_gate = { status: "PASS" }; });
+  // And the subtler half: a complete decision record still is not a mirror.
+  expectFailure("mirror-without-artifacts", value => {
+    value.internal_mirror_gate = {
+      status: "PASS",
+      decided_on: "2026-09-08",
+      decided_by: "TEST_ONLY signer",
+      decision_authority: "TEST_ONLY",
+      approval_reference: "TEST_ONLY:record-without-mirrors",
+    };
+  });
   expectFailure("extra", value => { value.artifacts.push({ ...value.artifacts[0], bundle_path: "extra.bin" }); });
   try {
     validateSupportingFiles("0".repeat(64), expectedAcceptanceTemplateSha256);
@@ -188,11 +255,32 @@ if (selftest) {
   })) {
     throw new Error("legal/privacy authority fixture was rejected");
   }
+  // Positive counterpart: a fully supplied mirror IS accepted, so the rule above is a gate and
+  // not a wall. Whoever fills the real values will also have to re-pin -- see the note on
+  // expectedArtifactSetSha256.
+  if (!hasInternalMirrorApproval(
+    {
+      status: "PASS",
+      decided_on: "2026-09-08",
+      decided_by: "Platform test fixture",
+      decision_authority: "TEST_ONLY",
+      approval_reference: "TEST_ONLY:mirror-positive-fixture",
+    },
+    lock.artifacts.map(item => ({
+      ...item,
+      internal_mirror_uri: "oci://registry.invalid/ivr/tts",
+      internal_mirror_digest: `sha256:${"0".repeat(64)}`,
+    })),
+  )) {
+    throw new Error("internal mirror positive fixture was rejected");
+  }
 }
 
 const blockers = [];
 if (!hasLegalPrivacyApproval(lock.legal_gate)) blockers.push("LEGAL");
-if (lock.internal_mirror_gate?.status !== "PASS") blockers.push("INTERNAL_MIRROR");
+if (!hasInternalMirrorApproval(lock.internal_mirror_gate, lock.artifacts)) {
+  blockers.push("INTERNAL_MIRROR");
+}
 process.stdout.write(
   `TTS_PROVENANCE_STRUCTURE_PASS artifacts=${lock.artifacts.length} release_blockers=${blockers.join(",") || "NONE"}\n`,
 );
