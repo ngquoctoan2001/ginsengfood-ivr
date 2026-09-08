@@ -193,6 +193,29 @@ Gate nay **10 mutation** (trước 8); probe cũ nay trả `exit 1 · internal m
 **Hai blocker không đổi trạng thái.** `LEGAL` vẫn cần review licence, `INTERNAL_MIRROR` vẫn cần
 Platform. Lượt này chỉ làm cái thứ hai **không mở được bằng ba chữ**. · `W-0225`
 
+#### `W-0226` (08/09) — hai phiếu để gửi, đã khôi phục và cập nhật
+
+Hai phiếu hỏi cho đúng hai blocker này **đã tồn tại từ `28/08`** và bị lượt dọn `04/09` (`8ed62e9`)
+gỡ mất, dù cả hai `NOT_SENT` và chưa từng bị supersede. `W-0122/README` thì ghi intake *"đi qua
+`W-0185`"* — nhưng W-0185 là **biểu nhận** (`LEGAL_PRIVACY_APPROVAL` → `artifact_ref` + `sha256`),
+không chứa 13 cặp URI/digest cũng không chứa `L1`–`L7`. Thay câu hỏi bằng biểu nhận thì bên kia
+không còn gì để trả lời.
+
+| Phiếu | Hỏi gì | Chặn |
+| --- | --- | --- |
+| [questions-to-legal-od-voice-07](ivr-orther/questions-to-legal-od-voice-07.md) | `L1`–`L7`: licence không có file LICENSE, training data, quyền 3 preset, attribution, nghĩa vụ khi bỏ SaaS, retention | `legal_gate` |
+| [questions-to-platform-w0122-infrastructure](ivr-orther/questions-to-platform-w0122-infrastructure.md) | `INF-A` mirror 13 artifact · `INF-B` target hardware · `INF-C` `OD-VOICE-08` media sink | `internal_mirror_gate` + 2 gate khác |
+
+> ⚠️ **Chỗ rẽ chưa ai chốt, ghi rõ trong cả hai phiếu.** `OD-V1-19` ký `05/09` — *"không vendor TTS
+> lúc chạy; thu giọng người thật"* — **đã vào code**: template `v3-test-approved` không còn
+> `{{customer_display_name}}`. Còn ba placeholder động; `total_amount` và `delivery_area` thu trước
+> được, **`items_spoken` thì chưa ai trả lời**. Nếu thu trước được thì mục `INF-A` (mirror 201 MiB
+> weights) **không còn cần**.
+>
+> Nhưng `L3` **vẫn cần dù đường nào**: 12 đoạn cố định hiện có là audio **do VieNeu render**, Owner
+> ký `28/08`. *"Được chạy model không"* và *"được dùng audio model đã tạo ra không"* là hai câu khác
+> nhau. · `W-0226`
+
 ### 1.5 — Mua SIM gateway
 
 DI chỉ có mock / lab / `UnavailableSchedulerDispatchGateway` (`SchedulerCapacity.cs:567-568`).

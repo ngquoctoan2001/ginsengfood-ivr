@@ -149,9 +149,21 @@ Mỗi gate dưới đây nay có **một** hành động cụ thể và một ph
 1. **Owner voice selection: DONE `2026-08-28`.** Đã nghe đủ 11 file qua Asterisk/MicroSIP 8 kHz
    và ký Bắc Ngọc Linh / Trung Ngọc Trân / Nam Mỹ Duyên. Không mở lại vòng chọn nếu exact audio
    binding không đổi.
-2. **Legal/Privacy** — dùng current structured intake [W-0185](../W-0185/README.md); phiếu lịch sử đã gỡ khỏi cây active.
+2. **Legal/Privacy** — phiếu câu hỏi
+   [`questions-to-legal-od-voice-07.md`](../../../plan/ivr-orther/questions-to-legal-od-voice-07.md);
+   phần **ghi nhận** phê duyệt đi qua [W-0185](../W-0185/README.md).
 3. **Security/Release** — 16 finding không có bản vá được giữ trong evidence này; disposition hiện hành đi qua [W-0185](../W-0185/README.md).
-4. **Platform/Infra/Telephony** — internal mirror, target hardware và `OD-VOICE-08` được nhận qua [W-0185](../W-0185/README.md).
+4. **Platform/Infra/Telephony** — internal mirror, target hardware và `OD-VOICE-08`: phiếu câu hỏi
+   [`questions-to-platform-w0122-infrastructure.md`](../../../plan/ivr-orther/questions-to-platform-w0122-infrastructure.md);
+   phần **ghi nhận** đi qua [W-0185](../W-0185/README.md).
+
+> **Sửa `2026-09-08` (`W-0226`).** Hai dòng trên trước đây ghi intake Legal và Platform *"đi qua
+> W-0185"* và hai phiếu *"đã gỡ khỏi cây active"* — không chính xác về chức năng. W-0185 là **biểu
+> nhận**: nó có ô `LEGAL_PRIVACY_APPROVAL` và `INTERNAL_MIRROR_ATTESTATION` với `artifact_ref` +
+> `sha256`, tức chỗ ghi lại rằng **đã có** phê duyệt và hash của nó. Nó **không** chứa 13 cặp
+> `internal_mirror_uri`/`internal_mirror_digest` mà `MODELS.lock` cần, cũng không chứa `L1`–`L7`.
+> Thay một bộ câu hỏi bằng một biểu nhận thì không còn gì để bên kia trả lời. Hai phiếu đã được
+> khôi phục từ `8ed62e9^` và cập nhật; W-0185 giữ nguyên vai trò ghi nhận.
 5. Owner thực hiện 2 đơn × 3 miền, nghe nội dung/giọng/mối nối; sau đó mới chạy retention và rollback drill.
 
 Không mục nào ở trên được suy ra từ local smoke hoặc file metadata.

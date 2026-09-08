@@ -45,3 +45,20 @@ Các mục trên **không chặn build sau ports/mocks**, nhưng chặn integrat
 ## 5. Lịch sử
 
 Ngày `2026-09-04` đã gỡ khỏi cây làm việc: `_archive/`, `prompt/_legacy-mock/`, `prompt/_review/`, các phiếu `questions-to-*` đã `SUPERSEDED` (vòng 2026-07-02 và `OD-15`), `remaining-work-plan-2026-08-22.md`, báo cáo tiến độ 15/08–26/08 và hai `.docx` Module 8 đã thu hồi. Nội dung vẫn truy được trong git history; không dùng chúng làm nguồn điều khiển. `OD-15` đã bị `OD-18`/`W-0123` thay thế — Module 3 không còn nợ trust/risk-evidence field cho IVR tự skip. Lượt rà soát `W-0123` và phần khắc phục của nó nằm ở [W-0124 evidence](../../docs/evidence/W-0124/README.md); `W-0124` xoay baseline so sánh OpenAPI sang `draft.20` nhưng **giữ** baseline `draft.2` và báo cáo chuyển tiếp của nó làm lịch sử audit. Phiếu đang hoạt động gửi Module 3 là [questions-to-module-3-od18-authority.md](questions-to-module-3-od18-authority.md) (`W-0125`). Nhãn dùng: `CURRENT_COMPAT`, `TARGET_DRAFT`, `OWNER_DECISION_REQUIRED`, `BLOCKED_EXTERNAL`, `IMPLEMENTED`, `VERIFIED`.
+
+**Đính chính `2026-09-08` (`W-0226`).** Lượt dọn `04/09` (`8ed62e9`, 31 file, −18.251 dòng) tự mô
+tả là gỡ các phiếu `questions-to-*` **đã `SUPERSEDED`** thuộc vòng `2026-07-02` và `OD-15`. Nhưng
+nó gỡ luôn hai phiếu `W-0122` lập ngày `2026-08-28`, **chưa từng bị supersede và chưa từng được
+gửi** — trạng thái tự khai của cả hai vẫn là `READY_TO_DISPATCH / NOT_SENT`. Đã khôi phục từ
+`8ed62e9^` và cập nhật theo `W-0225`.
+
+### Phiếu đang hoạt động — đừng gỡ khi dọn cây
+
+| Phiếu | Gửi ai | Trạng thái |
+| --- | --- | --- |
+| [questions-to-module-3-od18-authority.md](questions-to-module-3-od18-authority.md) | Module 3 | `W-0125` |
+| [questions-to-legal-od-voice-07.md](questions-to-legal-od-voice-07.md) | Legal / Privacy | `NOT_SENT` — chặn `legal_gate` của `W-0122` |
+| [questions-to-platform-w0122-infrastructure.md](questions-to-platform-w0122-infrastructure.md) | Platform / Infra / Telephony | `NOT_SENT` — chặn `internal_mirror_gate`, target hardware, `OD-VOICE-08` |
+
+Một phiếu `NOT_SENT` **không phải** phiếu chết: nó là việc chưa làm. Chỉ gỡ khi đã có trả lời hoặc
+đã được thay bằng phiếu khác **có tên**.
