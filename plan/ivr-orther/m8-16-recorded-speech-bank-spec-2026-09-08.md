@@ -62,7 +62,7 @@ Suy ra từ `VietnameseOrderScriptRenderer.cs:289-300`:
 | --- | --- | --- |
 | **C — đơn vị** | `item.UnitLabel` | hộp, chai, ký, gói, túi… — **vận hành chốt** |
 | **D — tên hàng** | `item.PublicName` | *"vài chục món"* — **owner** |
-| **E — vùng giao** | `delivery_area_short` | danh sách phường/quận phục vụ — **vận hành chốt** |
+| **E — vùng giao** | `delivery_area_short` | ⚠️ **không phải việc dữ liệu** — xem §11 |
 
 ## 5. Tổng, và ràng buộc `MaximumSpokenItems`
 
@@ -336,7 +336,9 @@ thay đổi catalog kế tiếp. Đó là quy trình vận hành, phải có tê
 | ~~3~~ | ~~Chốt §7.2 — hint bị bỏ qua hay thắng~~ → ✅ **owner chốt 08/09: hint bị bỏ qua** |  — |
 | ~~3b~~ | ~~món chưa có clip xử lý ra sao~~ → ✅ **owner chốt 08/09 theo đề xuất `3`+chặn đáy**; đã thi hành ở `RecordedSpeechComposer` (`W-0235`), 6 test `UT-VOICE-3B-01..06`. **Chưa nối vào renderer** — bank C/D còn rỗng nên bật lúc này là mọi món đều gộp | — |
 | **3c** | ai báo cho IVR khi Sales thêm sản phẩm — tách khỏi `3b` vì là quy trình, không phải code | Vận hành |
-| 4 | Chốt danh sách C (đơn vị) và E (vùng giao) | Vận hành |
+| **4a** | vùng giao: đọc cả chuỗi hay **đọc tỉnh** (đề xuất: tỉnh — §11) | Owner + Product |
+| 4b | danh sách **đơn vị** — việc dữ liệu thật, không vướng gì | Vận hành |
+| **4c** | Sales master data còn phát dạng **chỉ-có-quận** không? (§11) — nếu có thì sai giọng **từ hôm nay**, độc lập với ghi âm | Bên nắm Sales master data |
 | 5 | Dựng cơ chế phục vụ đoạn động từ bank | **M8** — sau khi 1–4 xong |
 | 6 | Thu âm, rồi 6 cuộc MicroSIP `today-03 §3.2` | Owner |
 
@@ -393,3 +395,71 @@ sai          số ──Spell──> văn bản ──parser ngược──> cli
 số — bank A luôn đủ, vì `0..99` phủ mọi số lượng và mọi nhóm ba chữ số.
 
 Nên `3b` và `4` chặn **thi hành**, không chặn **thiết kế**. Điểm này chốt được ngay.
+
+---
+
+## 11. Bank E không cùng loại với bank D — `4` giấu một quyết định
+
+Bank C và D tra bằng **chuỗi chính xác**: M3 gửi đúng tên trong catalog, `RecordedSpeechCatalog`
+so ordinal sau khi trim. Với tên hàng thì đúng — nó là một danh mục có kiểm soát.
+
+**Với vùng giao thì không.** Kiểm 12 chuỗi `delivery_area_short` thật đang có trong repo:
+
+```text
+Phường Bến Nghé, TPHCM
+Phường Bến Nghé, TP. Hồ Chí Minh
+Phường Bến Nghé, Quận 1
+Phường 12, Thành phố Hồ Chí Minh
+Quận 7, TP Hồ Chí Minh
+phường 12, quận Bình Thạnh
+Phường Phú Khương, tỉnh Vĩnh Long
+…
+```
+
+Hai vấn đề, cả hai chí mạng cho tra-chuỗi-chính-xác:
+
+1. **Một nơi, nhiều cách viết.** `TPHCM` / `TP. Hồ Chí Minh` / `Thành phố Hồ Chí Minh` là ba chuỗi
+   khác nhau cho cùng một nơi. Tra ordinal sẽ **trượt cả ba trừ một**.
+2. **Chuỗi mang cả phường.** Phường không phải `~40` như tên hàng. `ShortDeliveryArea` chỉ chặn
+   `160` ký tự và cấm chi tiết địa chỉ — nó **không** giới hạn tập giá trị.
+
+⇒ **`4` không phải "đưa danh sách" cho vùng giao.** Nó là một quyết định nội dung.
+
+### Đề xuất: đọc **tỉnh**, không đọc cả chuỗi
+
+`DeliveryRegionResolver` **đã** parse chuỗi này để chọn giọng, và nó xử lý biến thể chính tả tốt —
+chạy trên đúng 12 mẫu trên:
+
+```text
+parse nhận ra tỉnh: 9/12
+  TPHCM / TP. Hồ Chí Minh / Thành phố Hồ Chí Minh  →  cùng South   ✅
+  3 chuỗi trượt đều là dạng chỉ có QUẬN, không có tỉnh
+```
+
+| | Đọc cả chuỗi | **Đọc tỉnh** |
+| --- | --- | --- |
+| số clip mỗi miền | **hàng nghìn** phường | **~34** tỉnh |
+| biến thể chính tả | phải tự chuẩn hoá | `ToMatchKey` **đã giải** |
+| khách nghe | *"giao đến phường Phú Khương, tỉnh Vĩnh Long"* | *"giao đến Vĩnh Long"* |
+
+Cái giá là **mất tên phường**. Đáng cân nhắc, nhưng: khách biết địa chỉ của chính họ; thứ cuộc gọi
+cần xác nhận là **đơn này có phải của họ không**, mà món hàng và số tiền đã trả lời rồi.
+
+Chi phí kỹ thuật nhỏ: resolver hiện trả `VietnamRegion?`, cần thêm một hàm trả **tên tỉnh khớp**.
+
+### Một câu hỏi kèm theo, **không** phải defect
+
+Ba chuỗi trượt — `"Phường Bến Nghé, Quận 1"`, `"Quận Một"`, `"quận Bình Thạnh"` — chỉ có **quận**,
+không có tỉnh. Resolver ghi rõ là **có chủ đích**: *"The 2025 reform removed the district tier, so a
+delivery area is normally just ward plus province."*
+
+Nhưng bảng đã mang **29 tên tỉnh trước sáp nhập** vì *"Sales master data and in-flight orders can
+still carry the old names"* — cùng lý do đó áp cho quận thì không có gì. Và ba chuỗi kia đang là
+**fixture khắp repo**, tuy **không test nào khẳng định** giọng nào đúng cho chúng.
+
+Hôm nay chúng rơi về `FallbackRegion = North`. Một đơn ở **Bình Thạnh** được đọc bằng giọng **Bắc**.
+
+> **Câu hỏi cho bên nắm Sales master data:** dữ liệu có còn phát ra dạng chỉ-có-quận không? Có thì
+> đây là việc phải sửa và nó **độc lập với ghi âm** — sai giọng đã sai từ hôm nay. Không thì ba
+> fixture kia nên đổi sang dạng sau sáp nhập để khỏi mô tả một đầu vào không còn tồn tại.
+
