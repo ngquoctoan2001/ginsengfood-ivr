@@ -64,6 +64,7 @@ cuối file, không sửa thân gói.
 | [questions-to-platform-w0122-infrastructure.md](questions-to-platform-w0122-infrastructure.md) | Platform / Infra / Telephony | `NOT_SENT` — chặn `internal_mirror_gate`, target hardware, `OD-VOICE-08` |
 | [questions-to-security-w0122-cve-disposition.md](questions-to-security-w0122-cve-disposition.md) | Security / Release | `NOT_SENT` — chặn `RELEASE`; 16 finding `HIGH`/`CRITICAL`, `0 fixable` |
 | [today-03-tts-handoff-pack-2026-08-29.md](today-03-tts-handoff-pack-2026-08-29.md) | — gói routing cho ba phiếu trên | `HANDOFF_READY`, `External dispatch: NOT_PERFORMED` |
+| [m8-16-recorded-speech-bank-spec-2026-09-08.md](m8-16-recorded-speech-bank-spec-2026-09-08.md) | Owner + Product + Vận hành + M3 | `SPEC_ONLY` — 4 quyết định chặn bước dựng của M8 |
 
 Một phiếu `NOT_SENT` **không phải** phiếu chết: nó là việc chưa làm. Chỉ gỡ khi đã có trả lời hoặc
 đã được thay bằng phiếu khác **có tên**.

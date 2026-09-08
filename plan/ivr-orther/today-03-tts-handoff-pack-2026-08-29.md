@@ -160,3 +160,27 @@ Phiếu Platform đã thêm `INF-A4` cho phần hồ sơ đó, kèm cảnh báo 
 
 Không mục nào ở phụ lục này nới stop rule. `REAL_CUSTOMER_CALL_ALLOWED=NO`; `External dispatch`
 vẫn `NOT_PERFORMED`; ba phiếu vẫn `NOT_SENT`.
+
+## P.6 Chỗ rẽ `P.2` đã được trả lời — Owner, `2026-09-08` (`W-0228`)
+
+> *"`items_spoken` thu trước được, catalog GinsengFood chỉ vài chục món."*
+
+Đặc tả suy ra từ code: [`m8-16`](m8-16-recorded-speech-bank-spec-2026-09-08.md). Bộ từ số là tập
+**đóng, 22 token mỗi miền** (`VietnameseNumberSpeller` + `" đồng"`); tổng ngân hàng ≈
+`222 + 3×(số vùng giao)` clip, và không tăng theo độ dài đơn hàng vì `MaximumSpokenItems ≤ 20` gộp
+phần dư thành *"và N sản phẩm khác"*.
+
+**Bảng hệ quả ở `P.2` giữ nguyên nhưng đổi trạng thái từ *"nếu"* sang *"khi"*** — và chưa mục nào
+xảy ra. Hôm nay `Segmentation` chỉ phục vụ đoạn **cố định** từ file; đoạn động vẫn tới provider.
+**Chưa có cơ chế phục vụ đoạn động từ ngân hàng ghi âm.**
+
+Bốn quyết định phải chốt trước khi M8 dựng được (`m8-16 §9`): thu từng từ hay thu cụm `0..99`; giữ
+hay thu lại 12 đoạn cố định; `pronunciationHints` bị bỏ qua hay thắng; danh sách đơn vị và vùng
+giao.
+
+> **Bảng §3.2 của gói này — 6 cuộc MicroSIP, cột *"6 mối nối"* — chính là bài kiểm cho rủi ro lớn
+> nhất của hướng ghi âm.** Ghép từng từ cho *"năm trăm sáu mươi nghìn đồng"* là sáu mối nối trong
+> một số tiền, và bản owner duyệt ở `W-0104` là một câu đọc **liền mạch**. Bài kiểm đã thiết kế từ
+> `29/08`; nay nó có thêm một lý do để chạy.
+
+Không mục nào ở đây nới stop rule §4. Ba phiếu vẫn `NOT_SENT`; `REAL_CUSTOMER_CALL_ALLOWED=NO`.

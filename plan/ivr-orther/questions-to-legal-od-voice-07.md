@@ -15,7 +15,7 @@ artifact VieNeu-TTS tự host (W-0122)
 
 ---
 
-## ⚠️ Đọc trước: một chỗ rẽ chưa ai chốt, nó đổi phạm vi phiếu này
+## ⚠️ Đọc trước: một chỗ rẽ đã chốt `08/09`, nó đổi phạm vi phiếu này
 
 Phiếu soạn `2026-08-28`. Ngày `2026-09-05`, `OD-V1-19` được ký:
 
@@ -39,8 +39,27 @@ Phiếu soạn `2026-08-28`. Ngày `2026-09-05`, `OD-V1-19` được ký:
 > Câu hỏi *"có được chạy model không"* và *"có được dùng audio model đã tạo ra không"* là **hai câu
 > khác nhau**.
 
-Team IVR không tự quyết chỗ rẽ; nó thuộc Owner + Product. Nếu Legal muốn chờ chốt hướng rồi mới trả
-lời `L1`–`L4`, xin trả lời `L5`–`L7` trước — chúng không phụ thuộc.
+
+> ### ✅ Chỗ rẽ đã được trả lời — Owner, `2026-09-08`
+>
+> *"`items_spoken` thu trước được, catalog GinsengFood chỉ vài chục món."*
+>
+> Đặc tả ngân hàng ghi âm suy ra từ code: [`m8-16`](m8-16-recorded-speech-bank-spec-2026-09-08.md)
+> — bộ từ số **đóng, 22 token/miền**; tổng ≈ `222 + 3×(số vùng giao)` clip.
+>
+> **Nhưng cột hệ quả bên dưới vẫn là điều kiện, chưa phải đã xảy ra.** Hôm nay `Segmentation` chỉ
+> phục vụ đoạn **cố định** từ file; đoạn động vẫn tới provider
+> (`TtsTelemetry.DynamicSynthesized` — *"Variable pieces that reached the provider"*). **Chưa có
+> cơ chế phục vụ đoạn động từ ngân hàng ghi âm** — đó là code chưa viết, không phải cờ chưa bật.
+> Xem `m8-16 §9` cho bốn quyết định phải chốt trước khi M8 dựng được.
+
+> **Riêng với Legal còn một câu con chưa chốt** (`m8-16 §7.1`): **12 đoạn cố định hiện có là audio
+> do VieNeu render**. Giữ chúng thì `L3` **vẫn phải trả lời**; thu lại bằng giọng người thì
+> `L1`–`L4` đóng hết nhưng phát sinh **hợp đồng giọng người** — một câu hỏi Legal khác, thay chỗ
+> chứ không xoá.
+
+Nếu Legal muốn chờ `§7.1` rồi mới trả lời `L1`–`L4`, xin trả lời `L5`–`L7` trước — chúng không
+phụ thuộc chỗ rẽ nào.
 
 ---
 

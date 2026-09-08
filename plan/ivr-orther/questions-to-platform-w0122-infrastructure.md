@@ -12,7 +12,7 @@
 
 ---
 
-## ⚠️ Đọc trước: mục A có thể **không còn cần**, mục B và C thì cần dù đường nào
+## ⚠️ Đọc trước: mục A đang trên đường **thôi cần**, mục B và C thì cần dù đường nào
 
 Phiếu này soạn `2026-08-28`. Ngày `2026-09-05`, `OD-V1-19` được ký và đổi hướng:
 
@@ -40,8 +40,23 @@ hàng ghi âm đó khi thêm sản phẩm?
 > Mục **B** (đo hardware) và **C** (`OD-VOICE-08` media sink) **cần dù đường nào** — audio vẫn phải
 > được ghi và phát ở production, bất kể nó do model tổng hợp hay do người thu.
 
-Team IVR **không tự quyết** chỗ rẽ này; nó thuộc Owner + Product. Ghi ra đây để Platform không dành
-công dựng mirror cho một artifact có thể bị bỏ.
+
+> ### ✅ Chỗ rẽ đã được trả lời — Owner, `2026-09-08`
+>
+> *"`items_spoken` thu trước được, catalog GinsengFood chỉ vài chục món."*
+>
+> Đặc tả ngân hàng ghi âm suy ra từ code: [`m8-16`](m8-16-recorded-speech-bank-spec-2026-09-08.md)
+> — bộ từ số **đóng, 22 token/miền**; tổng ≈ `222 + 3×(số vùng giao)` clip.
+>
+> **Nhưng cột hệ quả bên dưới vẫn là điều kiện, chưa phải đã xảy ra.** Hôm nay `Segmentation` chỉ
+> phục vụ đoạn **cố định** từ file; đoạn động vẫn tới provider
+> (`TtsTelemetry.DynamicSynthesized` — *"Variable pieces that reached the provider"*). **Chưa có
+> cơ chế phục vụ đoạn động từ ngân hàng ghi âm** — đó là code chưa viết, không phải cờ chưa bật.
+> Xem `m8-16 §9` cho bốn quyết định phải chốt trước khi M8 dựng được.
+
+> **Với Platform:** mục **A (mirror)** đi theo hướng *"không còn cần"* — nhưng **chỉ sau khi** đường
+> ghi âm dựng xong và VieNeu rời runtime, việc chưa bắt đầu. **Đừng dựng mirror lúc này**, và cũng
+> đừng coi mục A là đã đóng. Mục **B** và **C** không đổi: cần dù đường nào.
 
 ---
 

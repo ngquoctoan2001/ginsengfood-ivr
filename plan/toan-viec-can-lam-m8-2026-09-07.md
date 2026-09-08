@@ -229,6 +229,41 @@ Chỗ rẽ đó chạm **cả ba** phiếu, mỗi phiếu một kiểu — bản
 > ⚠️ **Đừng ký `SEC-A` trước khi chốt.** Một disposition có thời hạn cho image không bao giờ deploy
 > là nợ giấy tờ, và sẽ bị đọc như bằng chứng image đó đã được duyệt. · `W-0227`
 
+#### ✅ `W-0228` (08/09) — owner trả lời chỗ rẽ, và cái giá đã đếm được
+
+> *"`items_spoken` thu trước được, catalog GinsengFood chỉ vài chục món."*
+
+Đặc tả suy từ code: [`m8-16`](ivr-orther/m8-16-recorded-speech-bank-spec-2026-09-08.md).
+
+| Bank | Nguồn suy ra | Mỗi miền |
+| --- | --- | ---: |
+| **A** — số | `VietnameseNumberSpeller` + `" đồng"` — tập **đóng** | **22** |
+| **B** — nối | `và`, `sản phẩm khác` (dấu phẩy là khoảng lặng, không thu) | **2** |
+| **C/D/E** — đơn vị, tên hàng, vùng giao | dữ liệu, vận hành + owner chốt | `~10 + ~40 + E` |
+
+Tổng ba miền `≈ 222 + 3E`, và **không tăng theo độ dài đơn hàng** — `MaximumSpokenItems ≤ 20`, phần
+dư gộp thành *"và N sản phẩm khác"*.
+
+> ⚠️ **Chưa mục nào ở `INF-A`/Security đóng được hôm nay.** `Segmentation` hiện chỉ phục vụ đoạn
+> **cố định** từ file; đoạn động vẫn tới provider — `TtsTelemetry.DynamicSynthesized` ghi thẳng
+> *"Variable pieces that reached the provider"*. **Chưa có cơ chế phục vụ đoạn động từ bank.** Code
+> chưa viết, không phải cờ chưa bật.
+
+**Rủi ro thật không phải số lượng clip mà là mối nối.** Ghép từng từ cho *"năm trăm sáu mươi nghìn
+đồng"* là **sáu mối nối trong một số tiền**, trong khi bản owner duyệt ở `W-0104` là câu đọc **liền
+mạch** — comment `VietnameseOrderScriptRenderer.cs:163-164` đã ghi đúng chuyện này. Hai cách: thu
+từng từ (`22` clip, nhiều mối nối) hay thu cụm `0..99` (`~120` clip, ít mối nối, cách IVR truyền
+thống vẫn làm). **6 cuộc MicroSIP ở `today-03 §3.2` chính là bài kiểm cho câu này.**
+
+**Bốn quyết định chặn bước dựng của M8** (`m8-16 §9`): thu từng từ hay thu cụm · giữ hay thu lại 12
+đoạn cố định (đang là audio **do VieNeu render**, nên `L3` còn sống nếu giữ) · `pronunciationHints`
+bị bỏ qua hay thắng · danh sách đơn vị và vùng giao.
+
+> ⚠️ **`pronunciationHints` là đổi hành vi contract, không phải chi tiết.** `PrivacySafeSpeech` cho
+> tới **100** hint mỗi task, tồn tại **vì** TTS đọc sai tên riêng. Thu trước thì không đọc lại được.
+> Nếu chọn *"hint thắng ⇒ rơi về TTS"* thì **vẫn phụ thuộc TTS lúc chạy** và toàn bộ lập luận đóng
+> `INF-A`/Security **không còn đúng**. · `W-0228`
+
 ### 1.5 — Mua SIM gateway
 
 DI chỉ có mock / lab / `UnavailableSchedulerDispatchGateway` (`SchedulerCapacity.cs:567-568`).
