@@ -171,6 +171,12 @@ Ngoài 100 dòng trên, mỗi miền còn **7 clip**:
 
 **Bank A theo `R-2` = `107` clip mỗi miền**, thay cho `22` ở §2.
 
+> **Ranh giới `106` / `107`, ghim bằng `UT-VOICE-CLIP-07`.** `VietnameseNumberSpeller` phát ra
+> **106**; clip thứ `107` là **`đồng`**, do `VietnameseOrderScriptRenderer:169` ghép. Đọc một con
+> số không bao gồm đơn vị tiền tệ — `2,5 ký` chứng minh điều đó bằng cách không cần clip nào.
+> Ai làm đường clip cho renderer thì sở hữu clip đó; ghi ra đây để hai bên không cùng tưởng bên kia
+> phát ra nó.
+
 > **6 cuộc MicroSIP trong `today-03 §3.2` chính là bài kiểm cho câu này** — cột *"6 mối nối
 > `1→2→3→4→5→6→7`"*. Bài kiểm đã thiết kế từ `29/08`, chỉ chưa chạy.
 

@@ -190,4 +190,115 @@ public sealed class VietnameseNumberSpellerTests
             "một ngàn phẩy năm",
             VietnameseNumberSpeller.SpellQuantity(1_000.5m, VietnamRegion.South));
     }
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-CLIP-06")]
+    public void ClipIdsForZeroToNinetyNineAreIdenticalInAllThreeRegions()
+    {
+        // This is what lets one written script be read by three voices. The regional split lives
+        // only in "nghìn"/"ngàn" and "linh"/"lẻ", and neither appears inside 0..99 -- so the
+        // recording booth reads a single list of a hundred lines, three times.
+        for (int value = 0; value <= 99; value++)
+        {
+            SpeechNumberClip north = Assert.Single(
+                VietnameseNumberSpeller.SpellClips(value, VietnamRegion.North));
+            SpeechNumberClip central = Assert.Single(
+                VietnameseNumberSpeller.SpellClips(value, VietnamRegion.Central));
+            SpeechNumberClip south = Assert.Single(
+                VietnameseNumberSpeller.SpellClips(value, VietnamRegion.South));
+
+            // Single() above is itself the R-2 assertion: a whole tens-and-units pair is one clip,
+            // so "hai mươi mốt" is never glued from "hai" + "mươi" + "mốt".
+            Assert.Equal($"num-{value:00}", north.Id);
+            Assert.Equal(north, central);
+            Assert.Equal(north, south);
+        }
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-CLIP-07")]
+    public void TheSpellerOwnsExactlyOneHundredAndSixClipsPerRegion()
+    {
+        foreach (VietnamRegion region in new[]
+                 { VietnamRegion.North, VietnamRegion.Central, VietnamRegion.South })
+        {
+            HashSet<string> ids = [];
+            for (long value = 0; value <= 20_000; value++)
+            {
+                foreach (SpeechNumberClip clip in VietnameseNumberSpeller.SpellClips(value, region))
+                {
+                    ids.Add(clip.Id);
+                }
+            }
+
+            foreach (long value in new long[]
+                     { 1_000_000, 1_005_000, 999_999_999_999, 305_000_000 })
+            {
+                foreach (SpeechNumberClip clip in VietnameseNumberSpeller.SpellClips(value, region))
+                {
+                    ids.Add(clip.Id);
+                }
+            }
+
+            foreach (SpeechNumberClip clip in VietnameseNumberSpeller.SpellQuantityClips(2.5m, region))
+            {
+                ids.Add(clip.Id);
+            }
+
+            // 100 pairs + trăm + nghìn/ngàn + triệu + tỷ + linh/lẻ + phẩy.
+            //
+            // 106, not the 107 the bank is quoted at. The missing one is "đồng", appended by
+            // VietnameseOrderScriptRenderer, not by the speller -- a currency word is not part of
+            // reading a number, and 2,5 kg proves it by needing none. Whoever gives the renderer a
+            // clip path owns that clip; asserting 106 here keeps the boundary in one place instead
+            // of leaving both sides assuming the other emits it.
+            Assert.Equal(106, ids.Count);
+        }
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-CLIP-08")]
+    public void SpokenTextIsExactlyTheClipTextsJoined()
+    {
+        // Spell is a projection of SpellClips, not a second implementation of the same rule. If
+        // that ever stops holding, the recorded call and the approved script have drifted apart --
+        // and the whole reason for emitting clips instead of parsing words back out is gone.
+        foreach (VietnamRegion region in new[]
+                 { VietnamRegion.North, VietnamRegion.Central, VietnamRegion.South })
+        {
+            for (long value = 0; value <= 5_000; value++)
+            {
+                Assert.Equal(
+                    string.Join(
+                        ' ',
+                        VietnameseNumberSpeller.SpellClips(value, region).Select(clip => clip.Text)),
+                    VietnameseNumberSpeller.Spell(value, region));
+            }
+        }
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-CLIP-09")]
+    public void JoinCountIsNowAssertableInsteadOfAudible()
+    {
+        // R-2 was chosen for where the joins fall, and until the clips existed the only way to
+        // know was to listen. 560.000 is the amount W-0104's approved sample reads as one
+        // continuous breath, so it is the one worth pinning.
+        Assert.Equal(
+            ["num-05", "num-hundred", "num-60", "num-thousand"],
+            VietnameseNumberSpeller.SpellClips(560_000m, VietnamRegion.North)
+                .Select(clip => clip.Id));
+
+        // The same amount, one clip different, because the Southern lexicon says "ngàn".
+        Assert.Equal(
+            "năm trăm sáu mươi ngàn",
+            VietnameseNumberSpeller.Spell(560_000m, VietnamRegion.South));
+
+        // 1021 is the case a text-splitting composer gets wrong: "hai mươi mốt" appears inside it
+        // but is not where the boundaries are.
+        Assert.Equal(
+            ["num-01", "num-thousand", "num-00", "num-hundred", "num-21"],
+            VietnameseNumberSpeller.SpellClips(1_021m, VietnamRegion.North)
+                .Select(clip => clip.Id));
+    }
 }

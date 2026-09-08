@@ -55,6 +55,17 @@ public sealed record VietnameseNumberStyle
 }
 
 /// <summary>
+/// One clip in the recorded number bank: a stable id and the words it says.
+/// <para>
+/// The id is region-independent and the text is not. That falls out of the same fact
+/// <c>VietnameseNumberStyle</c> is built on — only "nghìn"/"ngàn" and "linh"/"lẻ" differ — and it
+/// is what lets a single written script be read by three voices: every clip from <c>num-00</c> to
+/// <c>num-99</c> carries identical text in all three styles, so the booth reads one list.
+/// </para>
+/// </summary>
+public readonly record struct SpeechNumberClip(string Id, string Text);
+
+/// <summary>
 /// Converts an integral amount into spoken Vietnamese words.
 /// <para>
 /// This exists because the renderer used to hand the synthesizer <c>"560.000 đồng"</c> while the
@@ -83,7 +94,96 @@ public static class VietnameseNumberSpeller
         "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín",
     ];
 
-    public static string Spell(decimal amount, VietnameseNumberStyle style)
+    /// <summary>
+    /// `0..99` read as whole units — owner decision `R-2`, 2026-09-08. Recording each pair as one
+    /// continuous read is what removes the join inside "sáu mươi", which is the worst place to cut
+    /// a tonal language; the joins that remain fall on trăm/nghìn/đồng, where a reader breathes
+    /// anyway. See plan/ivr-orther/m8-16.
+    /// </summary>
+    private static readonly ImmutableArray<SpeechNumberClip> PairClips = BuildPairClips();
+
+    private static readonly SpeechNumberClip HundredClip = new("num-hundred", "trăm");
+    private static readonly SpeechNumberClip MillionClip = new("num-million", "triệu");
+    private static readonly SpeechNumberClip BillionClip = new("num-billion", "tỷ");
+    private static readonly SpeechNumberClip PointClip = new("num-point", "phẩy");
+
+    private static SpeechNumberClip ThousandClip(VietnameseNumberStyle style) =>
+        new("num-thousand", style.ThousandWord);
+
+    private static SpeechNumberClip ZeroTensClip(VietnameseNumberStyle style) =>
+        new("num-zero-tens", style.ZeroTensWord);
+
+    private static ImmutableArray<SpeechNumberClip> BuildPairClips()
+    {
+        ImmutableArray<SpeechNumberClip>.Builder clips = ImmutableArray.CreateBuilder<SpeechNumberClip>(100);
+        for (int value = 0; value < 100; value++)
+        {
+            clips.Add(new SpeechNumberClip($"num-{value:00}", PairText(value)));
+        }
+
+        return clips.MoveToImmutable();
+    }
+
+    private static string PairText(int value)
+    {
+        int tens = value / 10;
+        int units = value % 10;
+        if (tens == 0)
+        {
+            return Digits[units];
+        }
+
+        StringBuilder text = new();
+        text.Append(tens == 1 ? "mười" : $"{Digits[tens]} mươi");
+        if (units == 0)
+        {
+            return text.ToString();
+        }
+
+        // "mười lăm" not "mười năm"; "hai mươi mốt" not "hai mươi một"; "hai mươi tư" not
+        // "hai mươi bốn" — but "mười bốn" keeps bốn.
+        string spokenUnit = units switch
+        {
+            1 when tens >= 2 => "mốt",
+            4 when tens >= 2 => "tư",
+            5 => "lăm",
+            _ => Digits[units],
+        };
+
+        return text.Append(' ').Append(spokenUnit).ToString();
+    }
+
+    private static string Join(ImmutableArray<SpeechNumberClip> clips)
+    {
+        StringBuilder spoken = new();
+        foreach (SpeechNumberClip clip in clips)
+        {
+            if (spoken.Length > 0)
+            {
+                spoken.Append(' ');
+            }
+
+            spoken.Append(clip.Text);
+        }
+
+        return spoken.ToString();
+    }
+
+    /// <summary>
+    /// The recorded clips an amount is read from, in playback order.
+    /// <para>
+    /// This is the primitive and <see cref="Spell(decimal, VietnameseNumberStyle)"/> is a
+    /// projection of it, deliberately that way round. Going the other way — render the words, then
+    /// cut the words back into clips — needs an inverse of this walk, because a clip boundary is
+    /// not visible in the text: "hai mươi mốt" is one clip inside 21, sits inside three clips of
+    /// 121 and five of 1021. That inverse would have to track the mốt/tư/lăm rules, the mười/mươi
+    /// split and the "không trăm" filler, and stay in step with this method forever. One rule
+    /// written once cannot drift from itself; two copies of it did exactly that in W-0221.
+    /// </para>
+    /// </summary>
+    public static ImmutableArray<SpeechNumberClip> SpellClips(
+        decimal amount,
+        VietnameseNumberStyle style)
     {
         ArgumentNullException.ThrowIfNull(style);
         ArgumentOutOfRangeException.ThrowIfNegative(amount);
@@ -95,14 +195,14 @@ public static class VietnameseNumberSpeller
                 "Spoken amounts must be integral; VND has no spoken subunit.");
         }
 
+        ImmutableArray<SpeechNumberClip>.Builder clips = ImmutableArray.CreateBuilder<SpeechNumberClip>();
         long value = (long)amount;
         if (value == 0)
         {
-            return Digits[0];
+            clips.Add(PairClips[0]);
+            return clips.ToImmutable();
         }
 
-        // Scale words are indexed from the least significant group.
-        string[] scales = ["", style.ThousandWord, "triệu", "tỷ"];
         int[] groups = new int[4];
         int groupCount = 0;
         for (long remaining = value; remaining > 0; remaining /= 1_000)
@@ -110,7 +210,6 @@ public static class VietnameseNumberSpeller
             groups[groupCount++] = (int)(remaining % 1_000);
         }
 
-        StringBuilder spoken = new();
         for (int index = groupCount - 1; index >= 0; index--)
         {
             if (groups[index] == 0)
@@ -118,23 +217,27 @@ public static class VietnameseNumberSpeller
                 continue;
             }
 
-            if (spoken.Length > 0)
-            {
-                spoken.Append(' ');
-            }
-
             // Only the leading group may drop a zero hundreds place. Lower groups keep
             // "không trăm" so 1.005.000 reads "một triệu không trăm linh năm nghìn" rather than
             // collapsing into "một triệu năm nghìn".
-            spoken.Append(SpellGroup(groups[index], index < groupCount - 1, style));
-            if (scales[index].Length > 0)
+            AppendGroupClips(clips, groups[index], index < groupCount - 1, style);
+            switch (index)
             {
-                spoken.Append(' ').Append(scales[index]);
+                case 1: clips.Add(ThousandClip(style)); break;
+                case 2: clips.Add(MillionClip); break;
+                case 3: clips.Add(BillionClip); break;
+                default: break;
             }
         }
 
-        return spoken.ToString();
+        return clips.ToImmutable();
     }
+
+    public static ImmutableArray<SpeechNumberClip> SpellClips(decimal amount, VietnamRegion region) =>
+        SpellClips(amount, VietnameseNumberStyle.ForRegion(region));
+
+    public static string Spell(decimal amount, VietnameseNumberStyle style) =>
+        Join(SpellClips(amount, style));
 
     public static string Spell(decimal amount, VietnamRegion region) =>
         Spell(amount, VietnameseNumberStyle.ForRegion(region));
@@ -162,7 +265,9 @@ public static class VietnameseNumberSpeller
     /// hearing a different number, and this is a number the customer is about to approve.
     /// </para>
     /// </summary>
-    public static string SpellQuantity(decimal quantity, VietnameseNumberStyle style)
+    public static ImmutableArray<SpeechNumberClip> SpellQuantityClips(
+        decimal quantity,
+        VietnameseNumberStyle style)
     {
         ArgumentNullException.ThrowIfNull(style);
         ArgumentOutOfRangeException.ThrowIfNegative(quantity);
@@ -170,7 +275,7 @@ public static class VietnameseNumberSpeller
         decimal whole = decimal.Truncate(quantity);
         if (quantity == whole)
         {
-            return Spell(whole, style);
+            return SpellClips(whole, style);
         }
 
         // Trailing zeros carry no meaning in a spoken quantity: 2,50 and 2,5 are the same order,
@@ -186,81 +291,65 @@ public static class VietnameseNumberSpeller
                 "A spoken quantity carries at most three decimal places.");
         }
 
-        StringBuilder spoken = new(Spell(whole, style));
-        spoken.Append(" phẩy");
+        ImmutableArray<SpeechNumberClip>.Builder clips = ImmutableArray.CreateBuilder<SpeechNumberClip>();
+        clips.AddRange(SpellClips(whole, style));
+        clips.Add(PointClip);
         foreach (char digit in fractionDigits)
         {
-            spoken.Append(' ').Append(Digits[digit - '0']);
+            clips.Add(PairClips[digit - '0']);
         }
 
-        return spoken.ToString();
+        return clips.ToImmutable();
     }
+
+    public static ImmutableArray<SpeechNumberClip> SpellQuantityClips(
+        decimal quantity,
+        VietnamRegion region) =>
+        SpellQuantityClips(quantity, VietnameseNumberStyle.ForRegion(region));
+
+    public static string SpellQuantity(decimal quantity, VietnameseNumberStyle style) =>
+        Join(SpellQuantityClips(quantity, style));
 
     public static string SpellQuantity(decimal quantity, VietnamRegion region) =>
         SpellQuantity(quantity, VietnameseNumberStyle.ForRegion(region));
 
-    private static string SpellGroup(int group, bool padHundreds, VietnameseNumberStyle style)
+    private static void AppendGroupClips(
+        ImmutableArray<SpeechNumberClip>.Builder clips,
+        int group,
+        bool padHundreds,
+        VietnameseNumberStyle style)
     {
         int hundreds = group / 100;
         int tens = group / 10 % 10;
         int units = group % 10;
-        StringBuilder spoken = new();
+        bool spokeHundreds = hundreds > 0 || padHundreds;
 
-        if (hundreds > 0)
+        if (spokeHundreds)
         {
-            spoken.Append(Digits[hundreds]).Append(" trăm");
-        }
-        else if (padHundreds)
-        {
-            spoken.Append("không trăm");
+            clips.Add(PairClips[hundreds]);
+            clips.Add(HundredClip);
         }
 
         if (tens == 0 && units == 0)
         {
-            return spoken.ToString();
+            return;
         }
 
         if (tens == 0)
         {
             // "một trăm linh năm". With no hundreds spoken there is nothing for the filler to
             // sit between, so a bare group reads as just "năm".
-            if (spoken.Length > 0)
+            if (spokeHundreds)
             {
-                spoken.Append(' ').Append(style.ZeroTensWord).Append(' ');
+                clips.Add(ZeroTensClip(style));
             }
 
-            return spoken.Append(Digits[units]).ToString();
+            clips.Add(PairClips[units]);
+            return;
         }
 
-        if (spoken.Length > 0)
-        {
-            spoken.Append(' ');
-        }
-
-        if (tens == 1)
-        {
-            spoken.Append("mười");
-        }
-        else
-        {
-            spoken.Append(Digits[tens]).Append(" mươi");
-        }
-
-        if (units == 0)
-        {
-            return spoken.ToString();
-        }
-
-        // "mười lăm" not "mười năm"; "hai mươi mốt" not "hai mươi một"; "hai mươi tư" not
-        // "hai mươi bốn" — but "mười bốn" keeps bốn.
-        string spokenUnit = units switch
-        {
-            1 when tens >= 2 => "mốt",
-            4 when tens >= 2 => "tư",
-            5 => "lăm",
-            _ => Digits[units],
-        };
-
-        return spoken.Append(' ').Append(spokenUnit).ToString();
+        // The whole tens-and-units pair is one clip. That is what R-2 buys: the reader says
+        // "sáu mươi" in one breath instead of the pipeline gluing "sáu" to "mươi".
+        clips.Add(PairClips[(tens * 10) + units]);
     }
 }
