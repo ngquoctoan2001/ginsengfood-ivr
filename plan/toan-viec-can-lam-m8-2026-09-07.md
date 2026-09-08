@@ -59,7 +59,10 @@ Cập nhật mỗi lần đụng vào một mục. Quy ước:
 | **C-REVOKE** (C11+C12+C14) | ⛔ `CHỜ NGOÀI` | — | M3 + Owner — chọn A/B/hybrid |
 | **C6+C13** contact gate | 🟡 một phần qua 0.1 | `W-0208` | M3/Security |
 | **C8+C9** callback | ⛔ `CHỜ NGOÀI` | — | M3 consumer + Security credential |
-| **C1 · C2 · C5 · C10** | ⬜ `CHƯA LÀM` | — | phần lớn gộp vào 0.3/0.4 |
+| **C1** program_code | 🟡 `XONG PHẦN M8` | `W-0218` | M3 + Product — ký wire mapping |
+| **C2** result taxonomy | ✅ `XONG` | `W-0211` · `W-0217` | — (một câu lạc trong spec V0.3, xem dưới) |
+| **C5** hồ sơ trình Owner | 🟡 `XONG PHẦN M8` | `W-0218` | chief auditor — dispatch, xem A4 |
+| **C10** opt-out | 🟡 `XONG PHẦN M8` | `W-0210` | quorum `OD-V1-23`, xem 0.3 |
 | **D1**–**D10** | ✅ `DONE_LOCAL` | — | external evidence |
 | ~~**B2**~~ softphone dirty | ➖ `ĐÃ ĐÓNG` | — | hết tiền đề |
 | ~~**B9**~~ Admin UI | ➖ `ĐÃ ĐÓNG` | — | đã chuyển M3 |
@@ -506,13 +509,45 @@ Nếu M3 xây theo tờ cũ thì **mọi replay chính xác chết lặng**. Đ�
 `CallbackDeliveryOptions.cs:72-78` fail-closed trên W-0006/OD-V1-07).
 **Việc:** M3 consumer + auth + shared E2E. Đủ auth/sandbox/approval rồi mới mở delivery thật.
 
-### C1 · C2 · C5 · C10 — còn lại
+### C1 · C2 · C5 · C10 — kiểm lại từng mục
 
-- **C1** enum/matrix đúng; IR-06 §3.10 R3 **đã ghi nguồn business** cho hai cặp → không phải phát
-  hiện business hoàn toàn mới. Việc: ký wire mapping/producer.
-- **C2** xem **0.4**.
-- **C5** có pack, thiếu external approval. Xem A4.
-- **C10** xem **0.3**. Bỏ tiêu chí cũ *"2 lần rejected → do-not-call"* (M8-08 yêu cầu explicit-only).
+> **`W-0218` · 07/09.** Bốn mục này từng được gộp một dòng ⬜ `CHƯA LÀM` với ghi chú *"phần lớn gộp
+> vào 0.3/0.4"* — **nhãn sai**: ⬜ hàm ý M8 còn nợ việc. Đi kiểm từng mục thì **cả bốn đều đã xong
+> phần M8**; cái còn lại là chữ ký và dispatch.
+
+**C1 — ✅ phần M8.** IR-06 `§3.10 R3` đã có đủ: bảng cặp `program × payment`, hành vi từ chối tường
+minh (`GOLDEN_HOUR + COD` → `400 IVR_MALFORMED_REQUEST`, loại tại schema), và **nguồn business** —
+Flow 04/05, đóng `27/08`. Checklist `L1205` ghi *"Đã đóng 27/08 … chỉ còn ký wire mapping"*.
+Còn lại: M3 + Product ký. Phần "đổi mô tả `ProgramCode` thành tham chiếu registry M3" vẫn chờ M3
+công bố registry — chưa tồn tại.
+
+**C2 — ✅ đóng.** Hai nửa đều xong: `W-0211` sửa `specs/database/03-enums-and-status.md` (bốn tập
+`11/9/6/5` thay cho *"11 giá trị, bốn nơi đang khớp"*), `W-0217` thêm `m8-05 §3.1` bắc cầu sang tên
+trong business source. Và IR-06 `§4.3` **đã có sẵn** correction `W-0145` gọi tên đủ sáu final type
+đi vào callback. M3 đọc IR-06 là đúng.
+
+**C5 — ✅ phần M8.** Pack đủ: `today-01` 11 sheet gồm `S-11` (errata VoLTE + procurement), `m8-12`
+dispatch matrix kèm SHA-256 từng artifact, `m8-13` message kit, năm batch `D-01..D-05` đã định tuyến,
+template nhận chữ ký sẵn. Trạng thái tự khai: **`External dispatch: NOT_PERFORMED`**. Không có gì để
+M8 làm thêm — đây là A4.
+
+**C10 — ✅ phần M8.** Tiêu chí cũ *"2 lần rejected → do-not-call"* **đã được rút**: chỗ duy nhất còn
+nhắc nó là `m8-08:55`, và nó nhắc để **phủ định** — *"Không coi hai lần rejected là opt-out"*. Hằng
+số `2/3` còn trong code nhưng là `TEST_ONLY_CANDIDATE` và **0 caller runtime** (`W-0210` xác nhận
+lại). Còn lại là quorum `OD-V1-23`, tức 0.3.
+
+#### Một câu lạc, không tự sửa
+
+`docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.md:472` — bảng field của callback — ghi
+`result_type` là *"Một trong **11** giá trị ở §16"*. Ràng buộc thật
+`ck_ivr_result_callbacks_result_status` cho **đúng 6**: `IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`,
+`IVR_NO_ANSWER_FINAL`, `IVR_CONFIRMATION_WINDOW_EXPIRED`, `IVR_INVALID_PHONE_FINAL`,
+`IVR_CAPACITY_EXCEPTION`.
+
+Cùng lớp lỗi mà `W-0211` đã sửa cho `specs/database`, nhưng lần này nằm trong **spec** — tài liệu mà
+bản audit ghi *"luật folder cấm sửa"* và là bên thắng khi mâu thuẫn. **Tôi không tự sửa.** Ai dựng
+consumer từ spec thay vì IR-06 sẽ chờ 11 mã, trong đó 5 mã không bao giờ tới. Thẩm quyền sửa thuộc
+chief auditor/Owner.
 
 ---
 
