@@ -334,7 +334,8 @@ thay đổi catalog kế tiếp. Đó là quy trình vận hành, phải có tê
 | ~~1~~ | ~~Chốt `R-1` hay `R-2`~~ → ✅ **owner chốt `R-2` `2026-09-08`**; kịch bản 100 dòng đã sinh ở §6 | — |
 | ~~2~~ | ~~Chốt §7.1 — giữ hay thu lại 12 đoạn cố định~~ → ✅ **owner chốt 08/09: thu lại**; `L1`–`L4` đóng khi audio mới thay xong, mở ra hợp đồng giọng người | — |
 | ~~3~~ | ~~Chốt §7.2 — hint bị bỏ qua hay thắng~~ → ✅ **owner chốt 08/09: hint bị bỏ qua** |  — |
-| **3b** | **Mới**: món chưa có clip xử lý ra sao (§7.2, đề xuất `3`+chặn đáy) · và ai báo khi catalog đổi | Owner + M3 + Vận hành |
+| ~~3b~~ | ~~món chưa có clip xử lý ra sao~~ → ✅ **owner chốt 08/09 theo đề xuất `3`+chặn đáy**; đã thi hành ở `RecordedSpeechComposer` (`W-0235`), 6 test `UT-VOICE-3B-01..06`. **Chưa nối vào renderer** — bank C/D còn rỗng nên bật lúc này là mọi món đều gộp | — |
+| **3c** | ai báo cho IVR khi Sales thêm sản phẩm — tách khỏi `3b` vì là quy trình, không phải code | Vận hành |
 | 4 | Chốt danh sách C (đơn vị) và E (vùng giao) | Vận hành |
 | 5 | Dựng cơ chế phục vụ đoạn động từ bank | **M8** — sau khi 1–4 xong |
 | 6 | Thu âm, rồi 6 cuộc MicroSIP `today-03 §3.2` | Owner |
