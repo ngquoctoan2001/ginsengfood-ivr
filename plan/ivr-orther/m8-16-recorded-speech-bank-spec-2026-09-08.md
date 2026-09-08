@@ -330,3 +330,54 @@ thay đổi catalog kế tiếp. Đó là quy trình vận hành, phải có tê
 
 **M8 chưa làm được bước 5 khi 1–4 chưa chốt** — mỗi lựa chọn ở trên đổi hình dạng của bank và của
 cơ chế tra cứu.
+
+---
+
+## 10. Một điểm thiết kế không phụ thuộc câu nào còn mở
+
+Bước 5 chưa dựng được, nhưng **hình dạng của nó thì quyết được ngay**, và quyết sai thì đắt.
+
+### Cám dỗ: render ra văn bản rồi cắt văn bản thành clip
+
+Cách này hỏng vì ranh giới clip **không nằm trong chữ**:
+
+```text
+     21  →  "hai mươi mốt"                        R-2: 1 clip  [21]
+    121  →  "một trăm hai mươi mốt"               R-2: 3 clip  [1][trăm][21]
+   1021  →  "một nghìn không trăm hai mươi mốt"   R-2: 5 clip  [1][nghìn][0][trăm][21]
+```
+
+Cùng ba chữ *"hai mươi mốt"*, ba ngữ cảnh khác nhau. Muốn cắt đúng thì phải biết nó **đến từ số
+nào** — tức phải **viết ngược lại speller**: luật `mốt`/`tư`/`lăm`, phân biệt `mười`/`mươi`, và cả
+filler `không trăm` ở `1021`.
+
+> Quét `0..200.000` thì **0 va chạm** — cách đọc là song ánh, nên về lý thuyết suy ngược được.
+> Vấn đề không phải *có làm được không* mà là **cái giá**: một bộ phân tích ngược phải khớp với
+> speller **mãi mãi**. Đó đúng là kiểu lỗi `7.1` vừa sửa — một luật, hai bản, rồi chúng trôi khỏi
+> nhau.
+
+### Thay vào đó: danh sách clip là **primitive**, văn bản là **hình chiếu**
+
+Renderer **đã có** `decimal` gốc — số lượng và số tiền. `VietnameseNumberSpeller.Spell` đã duyệt
+theo nhóm ba chữ số với mảng `scales`. Cùng một lượt duyệt đó phát ra danh sách clip; **văn bản
+sinh ra bằng cách nối tên clip lại**.
+
+```text
+hôm nay      số ──Spell──> văn bản ──TTS──> audio
+sai          số ──Spell──> văn bản ──parser ngược──> clip     ← hai luật, sẽ trôi
+đúng         số ──walk──> clip ──join──> văn bản               ← một luật
+```
+
+Được ba thứ cùng lúc:
+
+- **không thể trôi** — văn bản dẫn xuất từ clip, nên chúng luôn mô tả cùng một thứ;
+- `TemplateHash` và mọi test đang so văn bản **vẫn chạy nguyên**, vì văn bản không đổi giá trị;
+- và clip list là thứ **đếm được**, nên "bao nhiêu mối nối trong một cuộc gọi" thành một con số
+  kiểm được bằng test thay vì một cảm nhận sau khi nghe.
+
+### Câu `3b` cắm vào đâu
+
+Đúng một chỗ: hàm tra `tên hàng → clip`. Trả về `null` thì áp luật `3b`. **Không** ảnh hưởng phần
+số — bank A luôn đủ, vì `0..99` phủ mọi số lượng và mọi nhóm ba chữ số.
+
+Nên `3b` và `4` chặn **thi hành**, không chặn **thiết kế**. Điểm này chốt được ngay.
