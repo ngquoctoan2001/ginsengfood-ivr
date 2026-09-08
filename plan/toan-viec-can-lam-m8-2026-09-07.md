@@ -255,9 +255,27 @@ mạch** — comment `VietnameseOrderScriptRenderer.cs:163-164` đã ghi đúng 
 từng từ (`22` clip, nhiều mối nối) hay thu cụm `0..99` (`~120` clip, ít mối nối, cách IVR truyền
 thống vẫn làm). **6 cuộc MicroSIP ở `today-03 §3.2` chính là bài kiểm cho câu này.**
 
-**Bốn quyết định chặn bước dựng của M8** (`m8-16 §9`): thu từng từ hay thu cụm · giữ hay thu lại 12
-đoạn cố định (đang là audio **do VieNeu render**, nên `L3` còn sống nếu giữ) · `pronunciationHints`
-bị bỏ qua hay thắng · danh sách đơn vị và vùng giao.
+**Bốn quyết định chặn bước dựng của M8** (`m8-16 §9`) — ~~thu từng từ hay thu cụm~~ ✅ **owner chốt
+`R-2` 08/09** · giữ hay thu lại 12 đoạn cố định (đang là audio **do VieNeu render**, nên `L3` còn
+sống nếu giữ) · `pronunciationHints` bị bỏ qua hay thắng · danh sách đơn vị và vùng giao.
+
+#### ✅ `W-0229` (08/09) — `R-2` chốt, và một câu tôi phải sửa
+
+Kịch bản 100 dòng `0..99` **sinh từ `VietnameseNumberSpeller`** chạy thật, không gõ tay — vì
+`15`→*"mười lăm"*, `21`→*"hai mươi mốt"*, `24`→*"hai mươi tư"* là đúng những chỗ dễ sai, và sai một
+dòng là thu lại một clip × ba giọng. **Cả 100 chuỗi giống hệt ở ba miền** ⇒ **một kịch bản văn bản,
+ba giọng đọc**; khác biệt miền chỉ ở `nghìn`/`ngàn` và `linh`/`lẻ`, đều ngoài dải `0..99`.
+
+> ⚠️ **Sửa lại điều tôi viết khi trình lựa chọn.** Tôi ghi `R-2` *"ít mối nối hơn hẳn"* — đo thì
+> **không hẳn**: `5,6` → `4,7` mối nối trung bình, tức **~1**, đổi lấy công thu **gấp 5 lần**.
+> `R-3` (`0..999`) mới giảm gần nửa (`2,9`) nhưng cần `1005` clip/miền.
+>
+> **`R-2` vẫn đúng, nhưng vì lý do khác:** dưới `R-1`, *"sáu mươi"* bị cắt thành `[sáu][mươi]` —
+> mối nối **giữa một cụm ngữ điệu**, chỗ tệ nhất trong một ngôn ngữ có thanh điệu. `R-2` xoá đúng
+> loại đó; phần còn lại rơi vào ranh giới tự nhiên. Và mọi số lượng `1..20` của `items_spoken`
+> thành **đúng một clip**. Chọn vì **vị trí** mối nối, không phải số lượng.
+
+Bank A: `22` → **`107`** mỗi miền; tổng `≈ 477 + 3E`. · `W-0229`
 
 > ⚠️ **`pronunciationHints` là đổi hành vi contract, không phải chi tiết.** `PrivacySafeSpeech` cho
 > tới **100** hint mỗi task, tồn tại **vì** TTS đọc sai tên riêng. Thu trước thì không đọc lại được.

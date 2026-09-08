@@ -69,10 +69,14 @@ Suy ra từ `VietnameseOrderScriptRenderer.cs:289-300`:
 Với `D = 40` và `E` chưa biết:
 
 ```text
-mỗi miền  = 22 (A) + 2 (B) + ~10 (C) + ~40 (D) + E
-          ≈ 74 + E
-ba miền   ≈ 222 + 3E
+mỗi miền  = 107 (A, theo R-2) + 2 (B) + ~10 (C) + ~40 (D) + E
+          ≈ 159 + E
+ba miền   ≈ 477 + 3E
 ```
+
+> Con số `≈ 222 + 3E` ở bản đầu tính theo `R-1` (`22` clip số). Owner chốt `R-2`, nên bank A là
+> `107` và tổng tăng lên `≈ 477 + 3E`. Phần tăng là **100 dòng dùng chung một kịch bản văn bản cho
+> cả ba giọng**, nên công soạn không nhân ba — chỉ công thu.
 
 Cộng **4 đoạn cố định × 3 miền = 12** — hiện đã có nhưng là **audio do VieNeu render**, nên phải thu
 lại nếu đi hướng giọng người (xem §7).
@@ -99,7 +103,73 @@ Bản owner duyệt là một câu đọc **liền mạch**, không phải sáu 
 | **R-1** | thu từng từ như §2 | **22** | rủi ro — 6 mối nối trong một số tiền |
 | **R-2** | thu **cụm** `0..99` liền mạch + thang + hàng trăm | **~120** | ít mối nối hơn hẳn; là cách IVR truyền thống vẫn làm |
 
-`R-2` đắt gấp ~5 lần ở bước thu nhưng chỉ **một lần**, và nó là thứ quyết định khách nghe thấy gì.
+### ✅ Owner chốt `R-2` — `2026-09-08`
+
+Và sau khi **đo bằng chính speller**, tôi phải sửa lại câu *"ít mối nối hơn hẳn"* ở trên: **không
+hẳn**. Số thật, trên bảy mức tiền đơn hàng thực tế:
+
+| Số tiền | Đọc thành | R-1 | **R-2** | R-3 (`0..999`) |
+| ---: | --- | ---: | ---: | ---: |
+| `150.000` | một trăm năm mươi nghìn đồng | 6 | **5** | 3 |
+| `560.000` | năm trăm sáu mươi nghìn đồng | 6 | **5** | 3 |
+| `1.200.000` | một triệu hai trăm nghìn đồng | 6 | **6** | 5 |
+| `2.350.000` | hai triệu ba trăm năm mươi nghìn đồng | 8 | **7** | 5 |
+| | **mối nối trung bình** | `5,6` | **`4,7`** | `2,9` |
+| | **bank mỗi miền** | `22` | **`107`** | `1005` |
+
+`R-2` tốn **gấp ~5 lần** công thu để bớt **~1 mối nối**. Nếu chỉ đếm mối nối thì đó là món hời kém.
+
+**Nhưng nó vẫn là lựa chọn đúng, vì vị trí mối nối quan trọng hơn số lượng.** Dưới `R-1`,
+*"sáu mươi"* bị cắt thành `[sáu][mươi]` — mối nối nằm **giữa một cụm ngữ điệu**, chỗ tệ nhất có thể
+cắt trong tiếng Việt. `R-2` xoá đúng loại mối nối đó. Số còn lại rơi vào ranh giới tự nhiên
+(`trăm`, `nghìn`, `đồng`), nơi người đọc vốn đã ngắt hơi.
+
+Và với `items_spoken` thì `R-2` thắng rõ: **mọi số lượng `1..20` là đúng một clip**, trong khi `R-1`
+cần tới ba (`21` = `[hai][mươi][mốt]`).
+
+> **Nếu ưu tiên là số mối nối chứ không phải vị trí**, `R-3` (`0..999`) gần như **giảm một nửa**
+> — nhưng `1005` clip mỗi miền, gấp mười `R-2`. Không đề xuất, chỉ ghi ra để lựa chọn được ra trên
+> số thật.
+
+### Kịch bản thu `R-2` — 100 dòng, sinh từ `VietnameseNumberSpeller`
+
+> **Cả 100 chuỗi giống hệt nhau ở ba miền** — kiểm bằng cách spell `0..99` với cả
+> `Northern`/`CentralDefault`/`Southern` rồi so: `100` chuỗi phân biệt mỗi miền, **không dòng nào
+> lệch**. Nghĩa là **một kịch bản văn bản, ba giọng đọc**. Khác biệt miền chỉ xuất hiện ở
+> `nghìn`/`ngàn` và `linh`/`lẻ`, cả hai đều **ngoài** dải `0..99`.
+
+| ` 0` không | `20` hai mươi | `40` bốn mươi | `60` sáu mươi | `80` tám mươi |
+| ` 1` một | `21` hai mươi mốt | `41` bốn mươi mốt | `61` sáu mươi mốt | `81` tám mươi mốt |
+| ` 2` hai | `22` hai mươi hai | `42` bốn mươi hai | `62` sáu mươi hai | `82` tám mươi hai |
+| ` 3` ba | `23` hai mươi ba | `43` bốn mươi ba | `63` sáu mươi ba | `83` tám mươi ba |
+| ` 4` bốn | `24` hai mươi tư | `44` bốn mươi tư | `64` sáu mươi tư | `84` tám mươi tư |
+| ` 5` năm | `25` hai mươi lăm | `45` bốn mươi lăm | `65` sáu mươi lăm | `85` tám mươi lăm |
+| ` 6` sáu | `26` hai mươi sáu | `46` bốn mươi sáu | `66` sáu mươi sáu | `86` tám mươi sáu |
+| ` 7` bảy | `27` hai mươi bảy | `47` bốn mươi bảy | `67` sáu mươi bảy | `87` tám mươi bảy |
+| ` 8` tám | `28` hai mươi tám | `48` bốn mươi tám | `68` sáu mươi tám | `88` tám mươi tám |
+| ` 9` chín | `29` hai mươi chín | `49` bốn mươi chín | `69` sáu mươi chín | `89` tám mươi chín |
+| `10` mười | `30` ba mươi | `50` năm mươi | `70` bảy mươi | `90` chín mươi |
+| `11` mười một | `31` ba mươi mốt | `51` năm mươi mốt | `71` bảy mươi mốt | `91` chín mươi mốt |
+| `12` mười hai | `32` ba mươi hai | `52` năm mươi hai | `72` bảy mươi hai | `92` chín mươi hai |
+| `13` mười ba | `33` ba mươi ba | `53` năm mươi ba | `73` bảy mươi ba | `93` chín mươi ba |
+| `14` mười bốn | `34` ba mươi tư | `54` năm mươi tư | `74` bảy mươi tư | `94` chín mươi tư |
+| `15` mười lăm | `35` ba mươi lăm | `55` năm mươi lăm | `75` bảy mươi lăm | `95` chín mươi lăm |
+| `16` mười sáu | `36` ba mươi sáu | `56` năm mươi sáu | `76` bảy mươi sáu | `96` chín mươi sáu |
+| `17` mười bảy | `37` ba mươi bảy | `57` năm mươi bảy | `77` bảy mươi bảy | `97` chín mươi bảy |
+| `18` mười tám | `38` ba mươi tám | `58` năm mươi tám | `78` bảy mươi tám | `98` chín mươi tám |
+| `19` mười chín | `39` ba mươi chín | `59` năm mươi chín | `79` bảy mươi chín | `99` chín mươi chín |
+
+Ngoài 100 dòng trên, mỗi miền còn **7 clip**:
+
+| Clip | Ghi chú |
+| --- | --- |
+| `trăm` `triệu` `tỷ` | chung ba miền |
+| `phẩy` | phần thập phân số lượng — *"hai phẩy năm ký"* |
+| `đồng` | ghép ở `renderer:169` |
+| `nghìn` **hoặc** `ngàn` | Bắc dùng `nghìn`; Trung, Nam dùng `ngàn` |
+| `linh` **hoặc** `lẻ` | Bắc `linh`; Trung, Nam `lẻ` — chỉ xuất hiện ở hàng trăm, *"một trăm linh năm"* |
+
+**Bank A theo `R-2` = `107` clip mỗi miền**, thay cho `22` ở §2.
 
 > **6 cuộc MicroSIP trong `today-03 §3.2` chính là bài kiểm cho câu này** — cột *"6 mối nối
 > `1→2→3→4→5→6→7`"*. Bài kiểm đã thiết kế từ `29/08`, chỉ chưa chạy.
@@ -150,7 +220,7 @@ là một clip đã thu.
 
 | # | Việc | Ai |
 | ---: | --- | --- |
-| 1 | Chốt `R-1` hay `R-2` (§6) | Owner + Product |
+| ~~1~~ | ~~Chốt `R-1` hay `R-2`~~ → ✅ **owner chốt `R-2` `2026-09-08`**; kịch bản 100 dòng đã sinh ở §6 | — |
 | 2 | Chốt §7.1 — giữ hay thu lại 12 đoạn cố định | Owner + Legal |
 | 3 | Chốt §7.2 — hint bị bỏ qua hay thắng | Owner + M3 |
 | 4 | Chốt danh sách C (đơn vị) và E (vùng giao) | Vận hành |
