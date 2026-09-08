@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 219 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 220 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 18
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 165
+  rows_without_evidence_pack: 166
 
 gates:
   - id: "G-CONTRACT"
@@ -987,6 +987,10 @@ work:
     prompt: "Owner chốt Idempotency-Key: siết admin theo intake, gộp luật về một chỗ (Origin=UNPLANNED, owner chỉ đạo \"7.1: siết admin theo intake\" 2026-09-07)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0221/README.md"
+  - id: "W-0222"
+    prompt: "Owner chốt 1.2: giữ mốc provenance W-0130, xoá hai nhánh đã merge (Origin=UNPLANNED, owner chỉ đạo \"1.2: giữ nhánh W-0130, xóa 2 nhánh kia\" 2026-09-07)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0222/README.md"
 
 production_flag:
   real_customer_call_allowed: false

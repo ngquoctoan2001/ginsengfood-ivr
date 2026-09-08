@@ -23,6 +23,20 @@ Both remotes track `main` only: `origin` (GitLab) and `github` (GitHub). A
 `git push origin main` reaches both, because `remote.origin.pushurl` holds two
 values. Where a stray branch already exists, merge it into `main` and delete it.
 
+**One named exception, and only this one.** `codex/w0128-w0129-candidate` is **not** stray and must
+**not** be deleted. `W-0130` created it deliberately as a provenance anchor, because `main@2a4f45d`
+was a mixed `save` of 98 files and did not carry enough provenance for the `W-0128`/`W-0129`
+evidence to bind to. [`docs/evidence/W-0130/README.md`](docs/evidence/W-0130/README.md) names the
+branch, its worktree and its tree hash; deleting the ref would make commit `1fa0150` unreachable and
+break that chain. Being one commit ahead of `main` is its design, not unfinished work.
+
+Owner confirmed this on `2026-09-07` (`W-0222`) while deleting the two branches that genuinely were
+stray. Written down here because every audit so far has re-flagged it — the 07/09 review asserted
+"repo only has main" in sixteen separate rows, which was wrong in the other direction.
+
+This exception permits nothing: no new branch, no hook change, no relaxed deny rule. It marks one
+existing ref as load-bearing.
+
 ## This is enforced, not advisory
 
 `core.hooksPath` points at [`.githooks/`](.githooks), so git itself refuses the

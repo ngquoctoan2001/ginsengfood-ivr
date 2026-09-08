@@ -1,16 +1,16 @@
 # Module 8 — Việc còn lại
 
-**Baseline:** `main@6993e3f` · **Cập nhật:** 07/09/2026 · **Dev:** Toàn
+**Baseline:** `main@3287eff` · **Cập nhật:** 07/09/2026 · **Dev:** Toàn
 
 Bản này thay bản audit 07/09 làm danh sách giao việc. Sau mười một lượt khắc phục
-(`W-0208`→`W-0221`), **không còn mục nào M8 tự đóng được**. Mọi thứ dưới đây chờ một người có tên,
+(`W-0208`→`W-0222`), **không còn mục nào M8 tự đóng được**. Mọi thứ dưới đây chờ một người có tên,
 một môi trường thật, hoặc một chữ ký — nên danh sách xếp theo **ai phải quyết**, không theo nhóm
 audit nữa.
 
 | | |
 | --- | --- |
 | `dotnet test Ivr.sln` | **900/900**, 0 failed, 0 skipped |
-| `gate-status.mjs` | `GATE_STATUS_PASS` — 219 work item, 11 gate, 5 open decision |
+| `gate-status.mjs` | `GATE_STATUS_PASS` — 220 work item, 11 gate, 5 open decision |
 | Gate offline | 50 script đã chạy; hai cái đỏ đều cần CI/Docker, không phải defect |
 | Pin nguồn | 32 khớp / 0 lệch |
 
@@ -35,7 +35,8 @@ Bản trước xếp theo nhóm audit (`0.x`, `A`, `B`, `C`, `X`). Không mục 
 | `0.5` · **`B4`** | **4.1** — cùng một quyết định |
 | `A1` `A2` `A3` `A4` · `C5` | **3.1**–**3.4** |
 | `B5` | **1.1** — ✅ owner đã chốt |
-| `B1` · `B8` · `B12` · `X1` | **1.2**–**1.5** |
+| `X1` | **1.2** — ✅ owner đã chốt |
+| `B1` · `B8` · `B12` | **1.3**–**1.5** |
 | `B6` | **8.1** |
 | `B10` | **6.1** |
 | `B11` | **4.2** |
@@ -74,28 +75,36 @@ IR-06 `§3.4.2` và register `OD-V1-16` đã cập nhật. · `W-0215` → `W-02
 
 **`LOCK-05` (20:15–21:00) vẫn không có nguồn** — và **không** phải căn cứ cho con số này.
 
-### 1.2 — Ba nhánh và bốn worktree
+### ~~1.2 — Ba nhánh và bốn worktree~~ → ✅ **owner chốt 07/09** · còn một câu chưa trả lời
 
-| Nhánh | So với `main` | Thực chất |
+| Nhánh | So với `main` | Kết quả |
 | --- | --- | --- |
-| `codex/w0128-w0129-candidate` | **ahead 1** / behind 80 | **mốc provenance cố ý** của `W-0130` |
-| `codex/p03-expand-contract` | ahead 0 | đã merge; dẫn trong evidence `W-0197` |
-| `worktree-gd0-fixes` | ahead 0 | đã merge vào `main` tại `ba43605` |
+| `codex/w0128-w0129-candidate` | **ahead 1** — thiết kế | ✅ **giữ** — mốc provenance của `W-0130` |
+| `codex/p03-expand-contract` | ahead 0 | 🗑 xoá ref (`d5539ba` vẫn reachable từ `main`) |
+| `worktree-gd0-fixes` | ahead 0 | 🗑 xoá ref (`cc12e53` vẫn reachable từ `main`) |
 
 Nhánh `ahead 1` ra đời **chính vì** `main@2a4f45d` là commit `save` trộn 98 file, không đủ provenance
 — đúng thứ mục **3.3** dưới đây than phiền. Evidence `W-0130` khai đích danh branch, đường dẫn
 worktree và tree hash. Xoá nó = commit unreachable = đứt chuỗi bằng chứng.
 
-> **Quyết, ba câu tách rời:**
-> 1. Còn cần mốc provenance không? Nếu còn → **miễn trừ tường minh** trong `CLAUDE.md`, để audit sau
->    không báo lại là rác.
-> 2. Hai nhánh `ahead 0` có xoá **ref** không? (An toàn về commit; chỉ làm tài liệu dẫn tên bị treo.)
-> 3. Bốn worktree — hai thư mục nằm **ngoài repo** trên Desktop — có gỡ không?
+**Owner chốt:** giữ nhánh `W-0130`, xoá hai nhánh kia. Đã làm:
 
-**Tôi không xoá gì và không đụng thư mục ngoài repo.** · `W-0214`
+| Câu hỏi | Trả lời | Đã thi hành |
+| --- | --- | --- |
+| 1. Còn cần mốc provenance? | **Còn** | `codex/w0128-w0129-candidate` giữ nguyên; **miễn trừ tường minh** đã ghi vào `CLAUDE.md` + `AGENTS.md` |
+| 2. Xoá ref hai nhánh `ahead 0`? | **Xoá** | `codex/p03-expand-contract` và `worktree-gd0-fixes` đã xoá |
+| 3. Gỡ bốn worktree? | **chưa trả lời** | **không đụng thư mục nào** |
 
-> ⚠️ `CLAUDE.md` cấm nhánh tuyệt đối, `W-0130` lại cần một nhánh sống lâu dài. Hai điều đó không thể
-> cùng đúng mãi.
+Local branch nay còn đúng `main` + một mốc provenance. Hai worktree của nhánh đã xoá được
+**detach**, không xoá thư mục — nên `git worktree list` vẫn thấy chúng ở trạng thái detached HEAD.
+
+> **Còn chờ:** hai thư mục `Desktop/ivr-p03-expand-contract` và `.claude/worktrees/gd0-fixes` giờ là
+> worktree detached không còn nhánh. Gỡ hay giữ là câu 3, và một trong hai nằm **ngoài repo** nên
+> tôi không tự xoá.
+
+Mâu thuẫn `CLAUDE.md` ⟷ `W-0130` **đã gỡ**: luật vẫn cấm tạo nhánh và không đụng hook nào; chỉ đánh
+dấu **một ref có tên** là load-bearing, kèm lý do, để lượt audit sau không báo lại là rác.
+· `W-0214` → `W-0222`
 
 ### 1.3 — Capacity: giữ `UNCALIBRATED`
 
