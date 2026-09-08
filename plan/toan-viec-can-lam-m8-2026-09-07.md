@@ -1,16 +1,16 @@
 # Module 8 — Việc còn lại
 
-**Baseline:** `main@bcb79a4` · **Cập nhật:** 07/09/2026 · **Dev:** Toàn
+**Baseline:** `main@e391ca8` · **Cập nhật:** 07/09/2026 · **Dev:** Toàn
 
 Bản này thay bản audit 07/09 làm danh sách giao việc. Sau mười một lượt khắc phục
-(`W-0208`→`W-0218`), **không còn mục nào M8 tự đóng được**. Mọi thứ dưới đây chờ một người có tên,
+(`W-0208`→`W-0220`), **không còn mục nào M8 tự đóng được**. Mọi thứ dưới đây chờ một người có tên,
 một môi trường thật, hoặc một chữ ký — nên danh sách xếp theo **ai phải quyết**, không theo nhóm
 audit nữa.
 
 | | |
 | --- | --- |
-| `dotnet test Ivr.sln` | **897/897**, 0 failed, 0 skipped |
-| `gate-status.mjs` | `GATE_STATUS_PASS` — 216 work item, 11 gate, 5 open decision |
+| `dotnet test Ivr.sln` | **899/899**, 0 failed, 0 skipped |
+| `gate-status.mjs` | `GATE_STATUS_PASS` — 218 work item, 11 gate, 5 open decision |
 | Gate offline | 50 script đã chạy; hai cái đỏ đều cần CI/Docker, không phải defect |
 | Pin nguồn | 32 khớp / 0 lệch |
 
@@ -34,7 +34,8 @@ Bản trước xếp theo nhóm audit (`0.x`, `A`, `B`, `C`, `X`). Không mục 
 | `0.4` · `0.6` · `X2` · `X3` · `C2` · `D1`–`D10` | *Đã xong* |
 | `0.5` · **`B4`** | **4.1** — cùng một quyết định |
 | `A1` `A2` `A3` `A4` · `C5` | **3.1**–**3.4** |
-| `B1` · `B5` · `B8` · `B12` · `X1` | **1.1**–**1.5** |
+| `B5` | **1.1** — ✅ owner đã chốt |
+| `B1` · `B8` · `B12` · `X1` | **1.2**–**1.5** |
 | `B6` | **8.1** |
 | `B10` | **6.1** |
 | `B11` | **4.2** |
@@ -48,30 +49,30 @@ Bản trước xếp theo nhóm audit (`0.x`, `A`, `B`, `C`, `X`). Không mục 
 
 ## 1 · Anh quyết
 
-### 1.1 — Chọn `End` của khung giờ gọi ⭐ rẻ nhất
+### ~~1.1 — Chọn `End` của khung giờ gọi~~ → ✅ **owner chốt 07/09, đã thi hành**
 
-`OD-V1-16` đóng khung giờ lúc `21:00`; `OD-V1-08` đặt attempt 2 ở `T0+150s` (GH) / `T0+450s` (24/7).
-Tích của hai chữ ký là một mốc cắt chưa ai viết ra:
+Owner chốt **`21:07:30`**. Đã đặt `End = 21:08` — xem ngay dưới vì sao không phải `21:07:30`.
 
-| Program | T0 muộn nhất còn đủ **hai** cuộc |
-| --- | ---: |
-| `TWENTY_FOUR_SEVEN` | **20:52:30** |
-| `GOLDEN_HOUR` | **20:57:30** |
+| Program | T0 muộn nhất còn đủ **hai** cuộc | trước | sau |
+| --- | --- | ---: | ---: |
+| `TWENTY_FOUR_SEVEN` | offset `450s` | 20:52:30 | **21:00:30** |
+| `GOLDEN_HOUR` | offset `150s` | 20:57:30 | **21:05:30** |
 
-Chương trình tên "24/7" **cắt sớm hơn** Giờ Vàng 5 phút — tên nói về lúc Sales nhận đơn, không phải
-lúc IVR được gọi.
+Đơn 24/7 cuối cùng nhận đúng lúc `21:00:00` giờ đủ hai cuộc — trước đây cuộc 2 rơi vào `21:07:30`
+và bị từ chối.
 
-Hệ quả không phải "mất một cuộc": task mất attempt 2 thì ra `IVR_CONFIRMATION_WINDOW_EXPIRED` thay
-vì `IVR_NO_ANSWER_FINAL` — **cùng hành vi khách, hai kết quả, dẫn Core đi hai đường**.
+> ⚠️ **`21:07:30` không biểu diễn được, và `21:07` sẽ hỏng thầm lặng.**
+> `EndMinuteOfLocalDay` là **phút**, `Evaluate` bỏ phần giây. Tại `21:07:30` minute-of-day là
+> `1267`; `1267 < 1267` là sai → gate **đóng**. Đặt `21:07` trông như tuân lệnh nhưng quyết định
+> **không xảy ra**. `21:08` là giá trị nhỏ nhất thi hành được ý đó, đắt thêm 30 giây.
+> Muốn đúng từng giây thì phải đổi trường sang đơn vị giây — sửa contract config cho 30 giây,
+> tôi không tự làm.
 
-> **Quyết:** nới `End`, hoặc M3 ngừng phát task từ hai mốc trên.
-> Nếu nới, con số đủ cho **cả hai** program là **`21:07:30`** — không phải `21:05` như audit đề xuất
-> (`21:05` cứu Giờ Vàng, bỏ rơi 24/7).
-> **`LOCK-05` (20:15–21:00) không có nguồn nào trong repo** — chỉ có trong bản audit. Cần nguồn từ
-> M3/Owner trước khi dùng làm căn cứ.
+`UT-SCH-WINDOW-09` **đã đỏ** khi đổi và được sửa có chủ đích — đó là lý do nó suy mốc từ hai nguồn
+đã ký thay vì gõ tay. Nay nó khẳng định thêm: đơn 24/7 lúc `21:00:00` đủ hai cuộc.
+IR-06 `§3.4.2` và register `OD-V1-16` đã cập nhật. · `W-0215` → `W-0220`
 
-Đã ghim: `UT-SCH-WINDOW-09` **suy** mốc từ policy + window, sẽ đỏ khi một trong hai đổi.
-Đã công bố cho M3: IR-06 `§3.4.2`. · `W-0215`
+**`LOCK-05` (20:15–21:00) vẫn không có nguồn** — và **không** phải căn cứ cho con số này.
 
 ### 1.2 — Ba nhánh và bốn worktree
 

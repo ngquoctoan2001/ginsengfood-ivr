@@ -282,14 +282,21 @@ Hai hệ quả M3 cần biết:
 
 #### 3.4.2. Giờ phát task muộn nhất còn đủ hai cuộc gọi
 
-Khung giờ gọi đóng lúc **21:00** giờ VN (`OD-V1-16`, `CallingWindowOptions` mặc định). Attempt 2
-nằm ở `T0 + 150s` (Giờ Vàng) hoặc `T0 + 450s` (24/7) theo `OD-V1-08`. Nhân hai điều đó với nhau ra
-một mốc mà M3 cần biết khi quyết định lúc nào còn phát task:
+Khung giờ gọi đóng lúc **21:08** giờ VN (`CallingWindowOptions` mặc định — owner chốt `2026-09-07`,
+`W-0220`; trước đó là `21:00` theo `OD-V1-16`). Attempt 2 nằm ở `T0 + 150s` (Giờ Vàng) hoặc
+`T0 + 450s` (24/7) theo `OD-V1-08`. Nhân hai điều đó với nhau ra một mốc mà M3 cần biết khi quyết
+định lúc nào còn phát task:
 
 | `program_code` | Offset attempt 2 | T0 muộn nhất còn đủ **hai** cuộc |
 | --- | ---: | ---: |
-| `TWENTY_FOUR_SEVEN` | `450s` | **20:52:30** |
-| `GOLDEN_HOUR` | `150s` | **20:57:30** |
+| `TWENTY_FOUR_SEVEN` | `450s` | **21:00:30** |
+| `GOLDEN_HOUR` | `150s` | **21:05:30** |
+
+> **Vì sao là `21:08` chứ không phải `21:07:30`.** Owner chốt `21:07:30` — đúng bằng `21:00` cộng
+> offset 450s, tức "đơn cuối cùng nhận lúc chín giờ vẫn đủ hai cuộc". Nhưng
+> `EndMinuteOfLocalDay` là **phút**, và gate bỏ phần giây: tại `21:07:30` thì minute-of-day là
+> `1267`, không nhỏ hơn `1267`, nên đặt `21:07` sẽ **đóng cửa đúng lúc cần mở** và quyết định coi
+> như không xảy ra. `21:08` là giá trị nhỏ nhất thi hành được ý đó, đắt thêm 30 giây.
 
 > ⚠️ `TWENTY_FOUR_SEVEN` **cắt sớm hơn** `GOLDEN_HOUR` 5 phút. Tên chương trình nói về lúc Sales
 > nhận đơn, **không** phải lúc IVR được phép gọi: khung giờ không theo program.

@@ -19,7 +19,7 @@ public sealed class CallingWindowTests
 {
     private static CallingWindow Window(
         int startMinute = 8 * 60,
-        int endMinute = 21 * 60,
+        int endMinute = (21 * 60) + 8,
         bool enabled = true,
         int offsetMinutes = 420) =>
         new(Options.Create(new CallingWindowOptions
@@ -39,7 +39,9 @@ public sealed class CallingWindowTests
     [InlineData(8, 0, true)]
     [InlineData(12, 30, true)]
     [InlineData(20, 59, true)]
-    [InlineData(21, 0, false)]
+    [InlineData(21, 0, true)]
+    [InlineData(21, 7, true)]
+    [InlineData(21, 8, false)]
     [InlineData(23, 30, false)]
     [InlineData(3, 0, false)]
     [Trait("TestId", "UT-SCH-WINDOW-01")]
@@ -143,7 +145,15 @@ public sealed class CallingWindowTests
         Assert.True(defaults.Enabled);
         Assert.Equal(420, defaults.UtcOffsetMinutes);
         Assert.Equal(8 * 60, defaults.StartMinuteOfLocalDay);
-        Assert.Equal(21 * 60, defaults.EndMinuteOfLocalDay);
+        Assert.Equal((21 * 60) + 8, defaults.EndMinuteOfLocalDay);
+
+        // W-0220. Eight minutes past nine is not a round number anyone would pick; it is the 24/7
+        // second attempt of a task admitted at 21:00, rounded up to the next whole minute because
+        // this field cannot hold 21:07:30. If someone "tidies" it back to 21:00, UT-SCH-WINDOW-09
+        // fails and says which decision they just undid.
+        Assert.Equal(
+            TimeSpan.FromMinutes(defaults.EndMinuteOfLocalDay),
+            new TimeSpan(21, 8, 0));
     }
 
     /// <summary>
@@ -152,19 +162,24 @@ public sealed class CallingWindowTests
     /// a second attempt 150 seconds after the first (<c>OD-V1-08</c>). Their product is a cutoff
     /// nobody wrote down.
     /// <para>
-    /// A task admitted at <b>20:57:30</b> or later schedules its second attempt at 21:00:00 or
-    /// after, and the hour gate refuses to claim it. The customer is telephoned once instead of
-    /// twice, and — this is the part that reaches Sales — the order ends as
+    /// A task admitted after the cutoff schedules its second attempt past the window end, and the
+    /// hour gate refuses to claim it. The customer is telephoned once instead of twice, and — this
+    /// is the part that reaches Sales — the order ends as
     /// <c>IVR_CONFIRMATION_WINDOW_EXPIRED</c> rather than <c>IVR_NO_ANSWER_FINAL</c>, because
     /// finality comes from exhausting the attempts and the attempts were not exhausted. Identical
     /// customer behaviour, two different results, decided by the wall clock.
     /// </para>
     /// <para>
-    /// This test does not assert that 20:57:30 is the <i>right</i> cutoff. It asserts that the
-    /// cutoff is where these two signatures put it, derived rather than typed, so that changing
-    /// either the policy or the window moves this test and somebody has to look. Whether the
-    /// window should end later is an owner decision — and <c>LOCK-05</c>, the Golden Hour session
-    /// said to run 20:15–21:00, has no source anywhere in this repository. W-0215.
+    /// W-0215 measured that cutoff at 20:57:30 and 20:52:30, against a window closing at 21:00.
+    /// W-0220 is the owner answering it: the window now closes at 21:08, chosen so that the last
+    /// task admitted at nine o'clock still gets its second call. This test went red at that change
+    /// and was updated deliberately, which is the whole reason it derives the cutoff from the two
+    /// signed sources instead of hard-coding it.
+    /// </para>
+    /// <para>
+    /// It still does not assert the cutoff is <i>right</i> — only that it is where the signatures
+    /// put it. Note that <c>LOCK-05</c>, the Golden Hour session said to run 20:15–21:00, has no
+    /// source anywhere in this repository and was not the basis for the new value.
     /// </para>
     /// </summary>
     [Fact]
@@ -183,16 +198,16 @@ public sealed class CallingWindowTests
         TimeSpan windowCloses = TimeSpan.FromMinutes(window.EndMinuteOfLocalDay);
         TimeSpan cutoff = windowCloses - lastOffset;
 
-        Assert.Equal(new TimeSpan(20, 57, 30), cutoff);
+        Assert.Equal(new TimeSpan(21, 5, 30), cutoff);
 
-        // At the cutoff the second attempt lands exactly on 21:00:00, and the gate is exclusive of
-        // its end minute, so it is refused.
-        DateTimeOffset admittedAtCutoff = LocalVietnamAtSecond(20, 57, 30);
+        // At the cutoff the second attempt lands exactly on the end minute, and the gate is
+        // exclusive of it, so it is refused.
+        DateTimeOffset admittedAtCutoff = LocalVietnamAtSecond(21, 5, 30);
         Assert.True(Window().Evaluate(admittedAtCutoff).Open);
         Assert.False(Window().Evaluate(admittedAtCutoff + lastOffset).Open);
 
         // One second earlier and both attempts fit.
-        DateTimeOffset admittedJustBefore = LocalVietnamAtSecond(20, 57, 29);
+        DateTimeOffset admittedJustBefore = LocalVietnamAtSecond(21, 5, 29);
         Assert.True(Window().Evaluate(admittedJustBefore).Open);
         Assert.True(Window().Evaluate(admittedJustBefore + lastOffset).Open);
 
@@ -213,7 +228,14 @@ public sealed class CallingWindowTests
             twentyFourSeven.AttemptOffsets[twentyFourSeven.AttemptOffsets.Count - 1];
 
         Assert.Equal(TimeSpan.FromSeconds(450), lastOffset247);
-        Assert.Equal(new TimeSpan(20, 52, 30), windowCloses - lastOffset247);
+        Assert.Equal(new TimeSpan(21, 0, 30), windowCloses - lastOffset247);
+
+        // And this is what W-0220 bought: the last 24/7 order of the evening, taken on the stroke
+        // of nine, still gets both calls. Under the old 21:00 window its second attempt landed at
+        // 21:07:30 and was refused.
+        DateTimeOffset onTheStrokeOfNine = LocalVietnamAtSecond(21, 0, 0);
+        Assert.True(Window().Evaluate(onTheStrokeOfNine).Open);
+        Assert.True(Window().Evaluate(onTheStrokeOfNine + lastOffset247).Open);
     }
 
     private static DateTimeOffset LocalVietnamAtSecond(int hour, int minute, int second) =>

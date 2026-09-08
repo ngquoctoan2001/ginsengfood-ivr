@@ -37,10 +37,26 @@ public sealed class CallingWindowOptions
     public int StartMinuteOfLocalDay { get; set; } = 8 * 60;
 
     /// <summary>
-    /// First minute of the day a call may <b>no longer</b> start, local. <c>21:00</c> is 1260, so
-    /// 20:59 is inside the window and 21:00 is not.
+    /// First minute of the day a call may <b>no longer</b> start, local. <c>21:08</c> is 1268, so
+    /// 21:07 is inside the window and 21:08 is not.
+    /// <para>
+    /// W-0220. This was 21:00 until the owner moved it, and the eight minutes are not a rounding:
+    /// they are the second attempt of the last task admitted at nine. <c>OD-V1-16</c> closed the
+    /// window at 21:00 and <c>OD-V1-08</c> put the 24/7 second attempt 450 seconds after the first,
+    /// and nobody multiplied them - so a task accepted at 20:53 or later silently lost its second
+    /// call, and Sales received <c>IVR_CONFIRMATION_WINDOW_EXPIRED</c> instead of
+    /// <c>IVR_NO_ANSWER_FINAL</c> for a customer who behaved identically to one who ordered an hour
+    /// earlier. See <c>UT-SCH-WINDOW-09</c>, which derives that cutoff rather than hard-coding it.
+    /// </para>
+    /// <para>
+    /// The owner asked for 21:07:30, which is exactly 21:00 plus that 450-second offset. This field
+    /// is a minute and <see cref="CallingWindow.Evaluate"/> drops seconds, so 21:07:30 cannot be
+    /// expressed - and 21:07 would round the wrong way: at 21:07:30 the minute-of-day is 1267,
+    /// which is not less than 1267, so the gate would close and the decision would not have
+    /// happened. 21:08 is the smallest value that delivers it, and it costs thirty seconds.
+    /// </para>
     /// </summary>
-    public int EndMinuteOfLocalDay { get; set; } = 21 * 60;
+    public int EndMinuteOfLocalDay { get; set; } = (21 * 60) + 8;
 }
 
 public sealed class CallingWindowOptionsValidator : IValidateOptions<CallingWindowOptions>
