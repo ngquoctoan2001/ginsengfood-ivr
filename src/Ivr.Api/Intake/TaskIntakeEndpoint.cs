@@ -5,6 +5,7 @@ using Ivr.Api.Middleware;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Errors;
+using Ivr.Api.Foundation;
 using Ivr.Domain.Privacy;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Correlation;
@@ -123,11 +124,8 @@ public static class TaskIntakeEndpoint
                 string.Concat(headerName, " is required."));
         }
 
-        if (value.Length is > 0 and <= 128
-            && PiiGuard.IsSafeText(value)
-            && value.All(character =>
-                char.IsAsciiLetterOrDigit(character)
-                || character is '-' or '_' or '.' or ':'))
+        // W-0221. One rule, shared with the internal guard and the correlation middleware.
+        if (TraceHeaderSyntax.IsValid(value))
         {
             return value;
         }

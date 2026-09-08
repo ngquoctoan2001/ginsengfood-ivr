@@ -232,6 +232,68 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal(HttpStatusCode.Forbidden, refused.StatusCode);
     }
 
+    /// <summary>
+    /// The admin door and the intake door now hold <c>Idempotency-Key</c> to the same syntax.
+    /// <para>
+    /// They did not. This guard checked length and PII-safety; intake also restricted the
+    /// alphabet to <c>[A-Za-z0-9._:-]</c>. A base64 key - an ordinary way to mint one, and the
+    /// reason this matters, since <c>+</c>, <c>/</c> and <c>=</c> all appear in base64 - was
+    /// accepted here and refused there. Both routes share one OpenAPI parameter, so no schema
+    /// could describe the pair; whichever way the parameter was written, it was wrong about one
+    /// of them.
+    /// </para>
+    /// <para>
+    /// The owner settled it on 2026-09-07 by tightening admin rather than loosening intake, and
+    /// this asserts the tightening actually reached an admin route rather than only the shared
+    /// predicate. W-0221.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-API-IDEMP-04")]
+    public async Task AdminHoldsTheIdempotencyKeyToTheSameSyntaxAsIntake()
+    {
+        await fixture.ResetAsync();
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        // Base64: the case that used to divide the two doors.
+        using HttpResponseMessage base64Key = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/queue:pause",
+            new AdminMutationRequest("maintenance window"),
+            IvrPermissions.QueuePause,
+            idempotencyKey: "sB3+xQ/9dGVzdA==");
+        await AssertErrorAsync(
+            base64Key,
+            HttpStatusCode.BadRequest,
+            IvrErrorCodes.MalformedRequest);
+
+        // 129 characters: one past the shared ceiling.
+        using HttpResponseMessage overLength = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/queue:pause",
+            new AdminMutationRequest("maintenance window"),
+            IvrPermissions.QueuePause,
+            idempotencyKey: new string('k', 129));
+        await AssertErrorAsync(
+            overLength,
+            HttpStatusCode.BadRequest,
+            IvrErrorCodes.MalformedRequest);
+
+        // And the tightening did not cost the keys anyone actually sends: every existing caller
+        // in this repository mints idem-<guid>, which is inside the alphabet.
+        using HttpResponseMessage accepted = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/queue:pause",
+            new AdminMutationRequest("maintenance window"),
+            IvrPermissions.QueuePause,
+            idempotencyKey: string.Concat("idem-", Guid.NewGuid().ToString("N")));
+
+        Assert.Equal(HttpStatusCode.OK, accepted.StatusCode);
+    }
+
     [Fact]
     [Trait("TestId", "IT-API-IDEMP-03")]
     public async Task AdminPostReplaysSameKeyAndRejectsDifferentPayload()

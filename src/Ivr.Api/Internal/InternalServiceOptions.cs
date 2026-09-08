@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Ivr.Api.Auth;
 using Ivr.Domain.Errors;
+using Ivr.Api.Foundation;
 using Ivr.Domain.Privacy;
 using Ivr.Infrastructure.Correlation;
 using Microsoft.Extensions.Options;
@@ -82,7 +83,12 @@ internal static class InternalRequestGuard
     public static string RequireIdempotencyKey(HttpContext context)
     {
         string key = context.Request.Headers[IdempotencyHeaderName].ToString();
-        if (string.IsNullOrWhiteSpace(key) || key.Length > 128 || !PiiGuard.IsSafeText(key))
+
+        // W-0221. Until the owner settled it this checked length and PII-safety but not the
+        // alphabet, so a base64 key was accepted here and refused at intake - one header, one
+        // OpenAPI parameter, two behaviours. Tightened to the intake rule; the rule itself now
+        // lives in TraceHeaderSyntax so the two cannot drift apart again.
+        if (!TraceHeaderSyntax.IsValid(key))
         {
             throw IvrErrors.MalformedRequest("Idempotency-Key is required and must be safe.");
         }

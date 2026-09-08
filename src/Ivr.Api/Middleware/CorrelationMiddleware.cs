@@ -1,4 +1,5 @@
 using Ivr.Infrastructure.Correlation;
+using Ivr.Api.Foundation;
 using Ivr.Domain.Privacy;
 
 namespace Ivr.Api.Middleware;
@@ -30,10 +31,6 @@ public sealed class CorrelationMiddleware(RequestDelegate next, ILogger<Correlat
         await next(context);
     }
 
-    private static bool IsValid(string value) =>
-        value.Length is > 0 and <= 128
-        && PiiGuard.IsSafeText(value)
-        && value.All(character =>
-            char.IsAsciiLetterOrDigit(character)
-            || character is '-' or '_' or '.' or ':');
+    // W-0221. Was a third copy of the same predicate; now one rule, three callers.
+    private static bool IsValid(string value) => TraceHeaderSyntax.IsValid(value);
 }

@@ -190,13 +190,22 @@ Ghim bằng `IT-INTAKE-HEADER-07`: `128` nhận · `129` `400` · `sB3+xQ/9dGVzd
 
 **Chưa đồng bộ, đã biết:** OpenAPI khai hai header này là `{ type: string }` trần, trong khi
 `GeneratedCorrelationId` ở route khác **đã** ghi đúng
-`minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:-]+$'`. Sửa OAS bump hash đã ghim nên để vào
-lượt re-pin có review — xem mục 0.2 của
+`minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:-]+$'`. Từ `W-0221` thì schema **mô tả được**
+cả hai route bằng một `$ref` — trước đó thì không, vì hai route hai luật. Nhưng sửa OAS là một
+**lượt phát hành contract**, không phải sửa code: siết một header bắt buộc là breaking theo oasdiff,
+kéo theo bump draft, sinh lại client, và re-pin hash ở **5 nơi**. Nên gộp cùng lượt sửa `TTL` (§3.4.1)
+thành một lần phát hành thay vì hai — xem mục `2.1` và `7.1` của
 [worklist](../plan/toan-viec-can-lam-m8-2026-09-07.md).
 
-**Một chỗ lệch trong chính IVR, cần chốt:** `Idempotency-Key` ở route intake bị ràng bảng chữ cái,
-còn ở route admin/internal (`InternalServiceOptions.RequireIdempotencyKey`) thì **không** — cùng
-một tên header, cùng một API, hai luật. Chưa quyết nên siết admin hay nới intake.
+**Đã chốt `2026-09-07` (`W-0221`): một luật cho cả API.** Trước đó `Idempotency-Key` ở route intake
+bị ràng bảng chữ cái còn ở route admin/internal thì không — cùng một tên header, cùng một API, hai
+hành vi, và cùng **một** `$ref` OpenAPI nên schema không thể mô tả đúng cả hai. Owner chọn **siết
+admin theo intake**. Luật nay nằm một chỗ (`TraceHeaderSyntax`) và cả ba nơi đọc — intake, internal
+guard, correlation middleware — cùng gọi nó.
+
+Với M3 việc này **không đổi gì ở API A**: `1-128` và bảng chữ cái `[A-Za-z0-9._:-]` vốn đã là luật
+của route intake. Nó chỉ đổi route admin/internal, tức phần BFF của M3 sẽ gọi sau này — nên biết
+trước thì rẻ hơn.
 
 Nếu body có `correlation_id`, giá trị phải trùng `X-Correlation-Id`.
 

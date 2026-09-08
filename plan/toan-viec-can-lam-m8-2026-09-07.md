@@ -1,16 +1,16 @@
 # Module 8 — Việc còn lại
 
-**Baseline:** `main@e391ca8` · **Cập nhật:** 07/09/2026 · **Dev:** Toàn
+**Baseline:** `main@6993e3f` · **Cập nhật:** 07/09/2026 · **Dev:** Toàn
 
 Bản này thay bản audit 07/09 làm danh sách giao việc. Sau mười một lượt khắc phục
-(`W-0208`→`W-0220`), **không còn mục nào M8 tự đóng được**. Mọi thứ dưới đây chờ một người có tên,
+(`W-0208`→`W-0221`), **không còn mục nào M8 tự đóng được**. Mọi thứ dưới đây chờ một người có tên,
 một môi trường thật, hoặc một chữ ký — nên danh sách xếp theo **ai phải quyết**, không theo nhóm
 audit nữa.
 
 | | |
 | --- | --- |
-| `dotnet test Ivr.sln` | **899/899**, 0 failed, 0 skipped |
-| `gate-status.mjs` | `GATE_STATUS_PASS` — 218 work item, 11 gate, 5 open decision |
+| `dotnet test Ivr.sln` | **900/900**, 0 failed, 0 skipped |
+| `gate-status.mjs` | `GATE_STATUS_PASS` — 219 work item, 11 gate, 5 open decision |
 | Gate offline | 50 script đã chạy; hai cái đỏ đều cần CI/Docker, không phải defect |
 | Pin nguồn | 32 khớp / 0 lệch |
 
@@ -29,7 +29,7 @@ Bản trước xếp theo nhóm audit (`0.x`, `A`, `B`, `C`, `X`). Không mục 
 | Mã cũ | Ở đâu bây giờ |
 | --- | --- |
 | `0.1` · `C6` · `C13` | **2.1**, **2.2** |
-| `0.2` | **7.1** |
+| `0.2` | **7.1** — ✅ owner đã chốt |
 | `0.3` · `C10` | **5.1** |
 | `0.4` · `0.6` · `X2` · `X3` · `C2` · `D1`–`D10` | *Đã xong* |
 | `0.5` · **`B4`** | **4.1** — cùng một quyết định |
@@ -341,26 +341,38 @@ chỉ `NO_STATE_CHANGE_WAIT_FOR_TIMEOUT`; window expired → chỉ `REVALIDATE_A
 
 ---
 
-## 7 · Nội bộ M8
+## 7 · Nội bộ M8 — ✅ đã chốt
 
-### 7.1 — `Idempotency-Key`: siết admin hay nới intake
+### ~~7.1 — `Idempotency-Key`: siết admin hay nới intake~~ → ✅ **owner chốt 07/09: siết admin**
 
-Cùng một tên header, **hai luật** trong cùng một API:
+Trước: cùng một tên header, **hai luật**, và cùng **một** `$ref` OpenAPI nên schema không thể mô tả
+đúng cả hai. Key base64 bị từ chối ở cửa intake, nhận ở cửa admin.
 
-| Route | Guard | Bảng chữ cái |
-| --- | --- | --- |
-| Intake `/tasks` | `TaskIntakeEndpoint.RequiredHeader` | **có ràng** `[A-Za-z0-9._:-]` |
-| Admin · internal · script | `InternalServiceOptions.RequireIdempotencyKey` | **không ràng** |
+Nay: một luật, ở **một chỗ** — `TraceHeaderSyntax` (`1-128`, `[A-Za-z0-9._:-]`, `PiiGuard`). Cả ba
+nơi cùng gọi: intake, internal guard, correlation middleware. Ba bản sao của cùng một predicate
+chính là cách chúng trôi khỏi nhau lần đầu, nên bản sửa bền là gộp chứ không phải thêm bản sao thứ
+tư.
 
-Key base64 bị từ chối ở cửa này, nhận ở cửa kia — và cả hai trỏ chung một `$ref` OpenAPI, nên schema
-không mô tả đúng được cả hai.
+Ghim `IT-API-IDEMP-04`: base64 → `400`, `129` ký tự → `400`, `idem-<guid>` → `200`. Không test nào
+trong repo phụ thuộc hành vi lỏng cũ, và mọi key đang dùng đều nằm trong bảng chữ cái.
+· `W-0209` → `W-0221`
 
-> **Quyết trước, rồi mới re-pin OpenAPI cùng lượt với `W-0208`.** `CorrelationId`/`IdempotencyKey`
-> vẫn `{ type: string }` trần trong khi `GeneratedCorrelationId` ở route khác **đã** ghi đúng
-> `minLength:1, maxLength:128, pattern:'^[A-Za-z0-9._:-]+$'`.
+> ⚠️ **Đây là lần siết, và nó chạm 17 call site** (gitnexus `HIGH`, 2 execution flow). Rẻ đúng lúc
+> này vì **BFF của M3 chưa tồn tại** và admin UI đã ra khỏi phạm vi — muộn hơn thì đắt hơn.
 
-Đã ghim `IT-INTAKE-HEADER-07`; IR-06 `§3.1.1` đã nói đúng luật (`1-128`, bảng chữ cái đóng, cảnh báo
-base64). · `W-0209`
+#### Còn lại: một lượt phát hành contract, không phải sửa code
+
+Từ `W-0221` thì OpenAPI **mô tả được** cả hai route bằng một `$ref` — trước đó thì không. Nhưng sửa
+nó là phát hành contract:
+
+| | |
+| --- | --- |
+| siết header bắt buộc | **breaking** theo oasdiff |
+| kéo theo | bump draft · sinh lại client · changelog |
+| re-pin hash OAS | **5 nơi** (`contract-manifest`, `dial-token` validator, `portal-manifest`, `openapi-contract-diff`, `target-v1-field-inventory`) |
+
+**Nên gộp cùng lượt sửa TTL (`2.1`) thành một lần phát hành thay vì hai.** Đó là lý do duy nhất còn
+lại để hoãn — lý do cũ (*chưa quyết siết hay nới*) đã hết.
 
 ---
 
