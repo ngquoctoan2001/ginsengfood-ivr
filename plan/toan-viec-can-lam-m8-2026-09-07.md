@@ -277,6 +277,33 @@ ba giọng đọc**; khác biệt miền chỉ ở `nghìn`/`ngàn` và `linh`/`
 
 Bank A: `22` → **`107`** mỗi miền; tổng `≈ 477 + 3E`. · `W-0229`
 
+#### ✅ `W-0230` (08/09) — hint bị bỏ qua, và cái lỗ nó để lộ ra
+
+Owner chốt: **hint bị bỏ qua; tên hàng có clip thì dùng clip.** Đây là vế giữ được đường bỏ TTS —
+vế kia (*"hint thắng ⇒ rơi về TTS"*) sẽ làm sụp lập luận đóng `INF-A` và 16 CVE Security.
+**Phải ghi vào IR-06**: M3 vẫn gửi `pronunciation_hints`, món đã có clip thì hint **không có tác
+dụng** — im lặng không có tác dụng, không phải lỗi.
+
+> ⚠️ **Nhưng *"có clip"* hàm ý có trường hợp *không có clip*, và contract không chặn gì cả:**
+>
+> ```text
+> public_name   non-blank, ≤160 ký tự, PII-safe    ← không catalog
+> unit_label    optional,  ≤40  ký tự              ← không catalog
+> items[]       1..100 phần tử
+> ```
+>
+> Cả hai là **free text từ M3**. Hôm nay vô hại vì TTS đọc được mọi chuỗi; dưới mô hình ghi âm thì
+> **Sales thêm một món ngày mai là một cuộc gọi không đọc được**. Bank C và D chỉ đóng được nếu có
+> chỗ cưỡng chế — **hôm nay không có chỗ nào**.
+
+**Đề xuất (`3b`):** món có clip đọc tên; món không có gộp vào *"và N sản phẩm khác"* — **cơ chế đã
+có sẵn**, renderer đang dùng nó cho phần vượt `MaximumSpokenItems`. **Chặn đáy: không món nào có
+clip thì không gọi**, đi `REVALIDATE_AND_HOLD_ADMIN_REVIEW`; đọc *"đơn hàng gồm một sản phẩm"* thì
+tệ hơn không gọi.
+
+Và một việc không phải code: **ai báo cho IVR khi Sales thêm sản phẩm.** Bank D chỉ đúng tới lần
+catalog đổi kế tiếp. · `W-0230`
+
 > ⚠️ **`pronunciationHints` là đổi hành vi contract, không phải chi tiết.** `PrivacySafeSpeech` cho
 > tới **100** hint mỗi task, tồn tại **vì** TTS đọc sai tên riêng. Thu trước thì không đọc lại được.
 > Nếu chọn *"hint thắng ⇒ rơi về TTS"* thì **vẫn phụ thuộc TTS lúc chạy** và toàn bộ lập luận đóng

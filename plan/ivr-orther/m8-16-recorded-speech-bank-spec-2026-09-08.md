@@ -195,10 +195,46 @@ tên hàng: `pronunciationHints.GetValueOrDefault(item.PublicName, item.PublicNa
 Cơ chế đó tồn tại **vì** TTS đọc sai tên riêng. Thu trước thì không đọc lại được — một clip đã thu
 là một clip đã thu.
 
-> **Quyết:** khi tên hàng có clip, hint tương ứng bị **bỏ qua**. Đó là hành vi mới của contract, và
-> nó phải được **ghi ra** chứ không để trôi vào — M3 vẫn gửi hint và sẽ không thấy nó có tác dụng.
-> Nếu chọn *"hint thắng ⇒ rơi về TTS"* thì **vẫn còn phụ thuộc TTS lúc chạy**, và toàn bộ lập luận
-> đóng `INF-A`/Security ở §8 **không còn đúng**.
+### ✅ Owner chốt `2026-09-08`: **hint bị bỏ qua; tên hàng có clip thì dùng clip**
+
+Đó là lựa chọn giữ được đường bỏ TTS khỏi runtime. Phải ghi vào IR-06: **M3 vẫn được gửi
+`pronunciation_hints`, và với món đã có clip thì hint không có tác dụng** — im lặng không có tác
+dụng, không phải lỗi. Không ghi ra thì M3 sẽ gửi hint rồi tự hỏi vì sao không nghe thấy.
+
+### ⚠️ Nhưng câu vừa chốt mở ngay câu kế: **món chưa có clip thì sao?**
+
+Kiểm contract hiện tại thì **không có gì chặn một tên hàng lạ**:
+
+| Trường | Ràng buộc thật | Catalog? |
+| --- | --- | --- |
+| `public_name` | non-blank, **≤ 160 ký tự**, PII-safe (`SpeechItem.Create`) | **không** |
+| `unit_label` | optional, **≤ 40 ký tự** | **không** |
+| `items[]` | `1..100` phần tử (`TaskIntakeEndpoint.cs:245`) | — |
+
+Cả hai là **free text từ M3**. Hôm nay điều đó vô hại vì TTS đọc được mọi chuỗi. Dưới mô hình ghi
+âm thì **Sales thêm một món ngày mai là một cuộc gọi không đọc được** — rủi ro vận hành thật, không
+phải giả định.
+
+Bank C và D chỉ **đóng** được nếu có chỗ nào đó cưỡng chế. Hôm nay không có chỗ nào.
+
+#### Bốn cách, và một đề xuất
+
+| | Cách | Hệ quả |
+| --- | --- | --- |
+| 1 | rơi về TTS cho món lạ | **TTS ở lại runtime** — mâu thuẫn chính quyết định vừa ký |
+| 2 | từ chối ở intake | M3 phải biết catalog ghi âm; đơn thật hỏng vì một món mới |
+| 3 | gộp thành *"N sản phẩm"* | **đã có tiền lệ trong code** — renderer gộp phần vượt `MaximumSpokenItems` thành *"và N sản phẩm khác"* |
+| 4 | đẩy sang admin review | `REVALIDATE_AND_HOLD_ADMIN_REVIEW` đã có trong ma trận kết quả |
+
+> **Đề xuất: `3` cộng một chặn đáy.** Món có clip thì đọc tên; món không có gộp vào *"và N sản phẩm
+> khác"* bằng đúng cơ chế đang chạy. **Nhưng nếu không món nào có clip thì không gọi** — câu
+> *"Quý khách có đơn hàng gồm một sản phẩm"* không xác nhận được gì, và gọi khách để đọc một câu vô
+> nghĩa tệ hơn là không gọi. Trường hợp đó đi `4`.
+>
+> Cách này không cần M3 biết catalog, không thêm đường hỏng mới, và dùng lại cơ chế đã có test.
+
+**Còn một việc không phải code:** ai báo cho IVR khi Sales thêm sản phẩm? Bank D chỉ đúng tới lần
+thay đổi catalog kế tiếp. Đó là quy trình vận hành, phải có tên người.
 
 ## 8. Cái này đóng được gì — và chưa đóng được gì
 
@@ -222,7 +258,8 @@ là một clip đã thu.
 | ---: | --- | --- |
 | ~~1~~ | ~~Chốt `R-1` hay `R-2`~~ → ✅ **owner chốt `R-2` `2026-09-08`**; kịch bản 100 dòng đã sinh ở §6 | — |
 | 2 | Chốt §7.1 — giữ hay thu lại 12 đoạn cố định | Owner + Legal |
-| 3 | Chốt §7.2 — hint bị bỏ qua hay thắng | Owner + M3 |
+| ~~3~~ | ~~Chốt §7.2 — hint bị bỏ qua hay thắng~~ → ✅ **owner chốt 08/09: hint bị bỏ qua** |  — |
+| **3b** | **Mới**: món chưa có clip xử lý ra sao (§7.2, đề xuất `3`+chặn đáy) · và ai báo khi catalog đổi | Owner + M3 + Vận hành |
 | 4 | Chốt danh sách C (đơn vị) và E (vùng giao) | Vận hành |
 | 5 | Dựng cơ chế phục vụ đoạn động từ bank | **M8** — sau khi 1–4 xong |
 | 6 | Thu âm, rồi 6 cuộc MicroSIP `today-03 §3.2` | Owner |
