@@ -1,16 +1,16 @@
 # Module 8 — Việc còn lại
 
-**Baseline:** `main@3287eff` · **Cập nhật:** 07/09/2026 · **Dev:** Toàn
+**Baseline:** `main@1804241` · **Cập nhật:** 07/09/2026 · **Dev:** Toàn
 
 Bản này thay bản audit 07/09 làm danh sách giao việc. Sau mười một lượt khắc phục
-(`W-0208`→`W-0222`), **không còn mục nào M8 tự đóng được**. Mọi thứ dưới đây chờ một người có tên,
+(`W-0208`→`W-0223`), **không còn mục nào M8 tự đóng được**. Mọi thứ dưới đây chờ một người có tên,
 một môi trường thật, hoặc một chữ ký — nên danh sách xếp theo **ai phải quyết**, không theo nhóm
 audit nữa.
 
 | | |
 | --- | --- |
 | `dotnet test Ivr.sln` | **900/900**, 0 failed, 0 skipped |
-| `gate-status.mjs` | `GATE_STATUS_PASS` — 220 work item, 11 gate, 5 open decision |
+| `gate-status.mjs` | `GATE_STATUS_PASS` — 221 work item, 11 gate, 5 open decision |
 | Gate offline | 50 script đã chạy; hai cái đỏ đều cần CI/Docker, không phải defect |
 | Pin nguồn | 32 khớp / 0 lệch |
 
@@ -36,7 +36,8 @@ Bản trước xếp theo nhóm audit (`0.x`, `A`, `B`, `C`, `X`). Không mục 
 | `A1` `A2` `A3` `A4` · `C5` | **3.1**–**3.4** |
 | `B5` | **1.1** — ✅ owner đã chốt |
 | `X1` | **1.2** — ✅ owner đã chốt |
-| `B1` · `B8` · `B12` | **1.3**–**1.5** |
+| `B1` | **1.3** — ✅ owner đã chốt |
+| `B8` · `B12` | **1.4**–**1.5** |
 | `B6` | **8.1** |
 | `B10` | **6.1** |
 | `B11` | **4.2** |
@@ -106,15 +107,31 @@ Mâu thuẫn `CLAUDE.md` ⟷ `W-0130` **đã gỡ**: luật vẫn cấm tạo nh
 dấu **một ref có tên** là load-bearing, kèm lý do, để lượt audit sau không báo lại là rác.
 · `W-0214` → `W-0222`
 
-### 1.3 — Capacity: giữ `UNCALIBRATED`
+### ~~1.3 — Capacity: giữ `UNCALIBRATED`~~ → ✅ **owner chốt 07/09: giữ, chờ `W-0008`**
 
-`SchedulerCapacity.cs:29` `ExpectedCallDurationSeconds = 60`; model tự khai `UNCALIBRATED`.
-`PT-CAP-02` (M8-P0-009) **đã có** — đừng giao lại như chưa làm. `W-0189`/worklist 03/09 ghi
-`EXTERNAL_INTAKE_DEFERRED_BY_OWNER`: chưa có 4 nhóm input **không** đồng nghĩa phải tự mở lại intake.
+Trạng thái không đổi — và đó là quyết định, không phải quán tính: model tự khai `UNCALIBRATED`,
+`CAP-CALIB-03 PASS_UNCALIBRATED`, `CAP-DRIFT-05 PASS_DECLARED_DISAGREEMENT`,
+`EXTERNAL_INTAKE_DEFERRED_BY_OWNER` giữ nguyên. `PT-CAP-02` (M8-P0-009) **đã có** — đừng giao lại
+như chưa làm.
 
-> **Quyết:** khi nào mở lại calibration. Kèm theo: khi `W-0008` có số đo, phải giải quyết luôn
-> **mười giây** chênh trong chính spec — `AVERAGE_CALL_DURATION 35s` + cooldown `5s` ≠
-> `CONSERVATIVE_CALL_CYCLE 50s`. Đã khai báo và ghim (`W-0212`), chưa ai giải thích được.
+#### Nhưng hoãn thì phải hoãn cho đúng (`W-0223`)
+
+Đi kiểm thì **checklist thoát vẫn nói "ba con số"**. `W-0212` khai báo con số thứ tư
+(`specAverageCallSeconds = 35`) nhưng **không** sửa đoạn *"When W-0008 produces measurements…"*.
+Ai làm `W-0008` sẽ theo checklist đó, calibrate ba số, bỏ lại số thứ tư — **tái tạo đúng thiếu sót
+mà `W-0212` vừa vá** — rồi `CAP-DRIFT-05` đỏ ở một chỗ trông như bí ẩn.
+
+Đã sửa hai thứ:
+
+- **Checklist thoát** liệt kê đủ **bốn** số và số nào lấy giá trị gì.
+- **`assertCalibratedDurationSemantics`** nay đòi `specAverageCallSeconds == modelCallSeconds` khi
+  calibrated, kèm một mutation `TEST_ONLY` khẳng định calibration bỏ quên số thứ tư **bị từ chối**.
+
+Đó cũng chính là thứ **đóng được mười giây**: uncalibrated thì không có phép đo nên không ép quan hệ
+nào (chỉ ghim); calibrated thì cả bốn cùng mô tả một cuộc gọi đã đo, nên hai số của spec được **dẫn
+lại từ phép đo** và khoảng chênh biến mất — **không ai phải phân xử số nào sai**.
+
+Bất biến hành vi không đổi: `CAP-MODEL-01` 21 kênh, `CAP-SENS-02` 27 corner / `7..72`.
 
 ### 1.4 — TTS VieNeu
 

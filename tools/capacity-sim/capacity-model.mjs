@@ -27,13 +27,28 @@ export const CHANNEL_CONSTRAINTS = {
  * They are NOT unified here, and unifying them is not a code decision. Picking one number means
  * claiming a measured call duration, and no call has been dialled (W-0008). What this constant
  * does is make the disagreement declared instead of accidental, so CAP-DRIFT-05 can fail the
- * moment any of the three moves without the others being reconsidered.
+ * moment any of them moves without the others being reconsidered.
  *
- * When W-0008 produces measurements: set model/runtime to measured channel occupancy, set the
- * spec full-cycle value to occupancy + measured cooldown, update CHANNEL_CONSTRAINTS if needed,
- * flip `calibrated`, and point `calibratedBy` at the evidence. CAP-DRIFT-05 checks those semantics;
- * it deliberately does NOT require all three numbers to be equal, which would double-count
- * cooldown in channelsForWindow.
+ * When W-0008 produces measurements, all FOUR move together (W-0223):
+ *
+ *   modelCallSeconds        = measured channel occupancy
+ *   schedulerDefaultSeconds = the same measurement, and SchedulerCapacity.cs with it
+ *   specAverageCallSeconds  = the same measurement -- this is the spec's own occupancy figure and
+ *                             the one a three-number calibration forgets
+ *   specConservativeSeconds = occupancy + measured cooldown
+ *
+ * then update CHANNEL_CONSTRAINTS if the cooldown moved, flip `calibrated`, and point
+ * `calibratedBy` at the evidence under docs/evidence/W-0008/.
+ *
+ * That is also what settles the ten seconds W-0212 found: the spec publishes 35s occupancy and 50s
+ * cycle beside a 5s cooldown, and 35 + 5 is 40. Nobody can say which of the three is wrong without
+ * a measurement, so uncalibrated leaves all of them pinned and asserts no relationship between
+ * them. Calibration re-derives both spec numbers from the measurement and the gap closes without
+ * anyone having to adjudicate it.
+ *
+ * CAP-DRIFT-05 checks those semantics. It deliberately does NOT require the numbers to be equal to
+ * each other, which would double-count cooldown in channelsForWindow, and it refuses a calibration
+ * that moves three and leaves specAverageCallSeconds behind.
  */
 export const CALL_DURATION_ASSUMPTIONS = {
   calibrated: false,

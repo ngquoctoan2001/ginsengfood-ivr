@@ -289,6 +289,20 @@ function assertCalibratedDurationSemantics(declared, label) {
     declared.modelCallSeconds + CHANNEL_CONSTRAINTS.cooldownSeconds,
     `${label}: the spec cycle must equal measured channel occupancy plus cooldown. Making all `
     + "three values equal would make channelsForWindow add cooldown twice.");
+
+  // W-0223. The fourth number, and the assertion that finally settles the ten seconds W-0212
+  // found. Uncalibrated, no relationship between the spec's occupancy figure and its cycle is
+  // justified - there is no measurement, and asserting one would freeze a guess into a rule, so
+  // 35 is only pinned. Calibrated is the opposite case: all four describe the same measured call,
+  // so the spec's occupancy has to be that measurement like the other two, and its cycle is that
+  // plus cooldown. Satisfying both closes the 35 + 5 != 50 gap by re-deriving both spec numbers
+  // rather than by anyone deciding which of them was wrong.
+  assert.equal(
+    declared.specAverageCallSeconds,
+    declared.modelCallSeconds,
+    `${label}: the spec's average call duration must be the same measured channel occupancy as `
+    + "the model and the runtime. Leaving it at its uncalibrated value is how the spec ends up "
+    + "declaring an occupancy and a cycle that do not reconcile (W-0212).");
 }
 
 async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
@@ -305,6 +319,7 @@ async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
       modelCallSeconds: 40,
       specConservativeSeconds: 40,
       schedulerDefaultSeconds: 40,
+      specAverageCallSeconds: 40,
     }, "TEST_ONLY equal-values mutation"),
     /Making all three values equal would make channelsForWindow add cooldown twice/,
     "the historical equal-values escape hatch must stay rejected because it double-counts cooldown.");
@@ -312,7 +327,20 @@ async function callDurationHasOneDeclaredSourceAndDoesNotDriftSilently() {
     modelCallSeconds: 40,
     specConservativeSeconds: 45,
     schedulerDefaultSeconds: 40,
+    specAverageCallSeconds: 40,
   }, "TEST_ONLY calibrated shape");
+
+  // W-0223. A calibration that moves three numbers and forgets the spec's occupancy is exactly
+  // the omission W-0212 found, so the exit path refuses it rather than leaving it to be noticed.
+  assert.throws(
+    () => assertCalibratedDurationSemantics({
+      modelCallSeconds: 40,
+      specConservativeSeconds: 45,
+      schedulerDefaultSeconds: 40,
+      specAverageCallSeconds: 35,
+    }, "TEST_ONLY stale-spec-occupancy mutation"),
+    /the spec's average call duration must be the same measured channel occupancy/,
+    "calibrating without re-deriving the spec's occupancy must be rejected.");
 
   if (declared.calibrated) {
     assertCalibratedDurationSemantics(declared, "calibrated declaration");
