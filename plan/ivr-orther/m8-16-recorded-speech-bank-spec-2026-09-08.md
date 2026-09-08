@@ -176,6 +176,11 @@ Ngoài 100 dòng trên, mỗi miền còn **7 clip**:
 > số không bao gồm đơn vị tiền tệ — `2,5 ký` chứng minh điều đó bằng cách không cần clip nào.
 > Ai làm đường clip cho renderer thì sở hữu clip đó; ghi ra đây để hai bên không cùng tưởng bên kia
 > phát ra nó.
+>
+> **`W-0234` đã thi hành**: `VietnameseOrderScriptRenderer.TotalAmountClips` sở hữu
+> `new SpeechNumberClip("num-dong", "đồng")`, và `UT-VOICE-CLIP-10` ghim
+> `560.000` → `[num-05][num-hundred][num-60][num-thousand][num-dong]` — **5 clip, 4 mối nối**,
+> đúng con số §6 dự đoán cho `R-2`.
 
 > **6 cuộc MicroSIP trong `today-03 §3.2` chính là bài kiểm cho câu này** — cột *"6 mối nối
 > `1→2→3→4→5→6→7`"*. Bài kiểm đã thiết kế từ `29/08`, chỉ chưa chạy.

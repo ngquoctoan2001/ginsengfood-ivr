@@ -63,7 +63,29 @@ public sealed record VietnameseNumberStyle
 /// <c>num-99</c> carries identical text in all three styles, so the booth reads one list.
 /// </para>
 /// </summary>
-public readonly record struct SpeechNumberClip(string Id, string Text);
+public readonly record struct SpeechNumberClip(string Id, string Text)
+{
+    /// <summary>
+    /// The words a clip run says, single-spaced. Every caller that turns clips back into text uses
+    /// this one: a second joiner somewhere else is how the played call and the approved script
+    /// would start describing different things.
+    /// </summary>
+    public static string Join(ImmutableArray<SpeechNumberClip> clips)
+    {
+        StringBuilder spoken = new();
+        foreach (SpeechNumberClip clip in clips)
+        {
+            if (spoken.Length > 0)
+            {
+                spoken.Append(' ');
+            }
+
+            spoken.Append(clip.Text);
+        }
+
+        return spoken.ToString();
+    }
+}
 
 /// <summary>
 /// Converts an integral amount into spoken Vietnamese words.
@@ -153,21 +175,6 @@ public static class VietnameseNumberSpeller
         return text.Append(' ').Append(spokenUnit).ToString();
     }
 
-    private static string Join(ImmutableArray<SpeechNumberClip> clips)
-    {
-        StringBuilder spoken = new();
-        foreach (SpeechNumberClip clip in clips)
-        {
-            if (spoken.Length > 0)
-            {
-                spoken.Append(' ');
-            }
-
-            spoken.Append(clip.Text);
-        }
-
-        return spoken.ToString();
-    }
 
     /// <summary>
     /// The recorded clips an amount is read from, in playback order.
@@ -237,7 +244,7 @@ public static class VietnameseNumberSpeller
         SpellClips(amount, VietnameseNumberStyle.ForRegion(region));
 
     public static string Spell(decimal amount, VietnameseNumberStyle style) =>
-        Join(SpellClips(amount, style));
+        SpeechNumberClip.Join(SpellClips(amount, style));
 
     public static string Spell(decimal amount, VietnamRegion region) =>
         Spell(amount, VietnameseNumberStyle.ForRegion(region));
@@ -308,7 +315,7 @@ public static class VietnameseNumberSpeller
         SpellQuantityClips(quantity, VietnameseNumberStyle.ForRegion(region));
 
     public static string SpellQuantity(decimal quantity, VietnameseNumberStyle style) =>
-        Join(SpellQuantityClips(quantity, style));
+        SpeechNumberClip.Join(SpellQuantityClips(quantity, style));
 
     public static string SpellQuantity(decimal quantity, VietnamRegion region) =>
         SpellQuantity(quantity, VietnameseNumberStyle.ForRegion(region));

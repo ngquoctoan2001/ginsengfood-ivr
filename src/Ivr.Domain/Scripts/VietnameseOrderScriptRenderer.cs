@@ -164,9 +164,7 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         // owner approved in W-0104 says "năm trăm sáu mươi nghìn đồng" — that sample had been
         // typed by hand, so nobody had ever heard the digits path. How an engine reads "560.000"
         // is engine-specific, and this is the number the customer is pressing a key to confirm.
-        string totalAmount = string.Concat(
-            VietnameseNumberSpeller.Spell(summary.Total.Amount, numberStyle),
-            " đồng");
+        string totalAmount = SpeechNumberClip.Join(TotalAmountClips(summary.Total.Amount, numberStyle));
 
         // Substitution happens per segment rather than over the whole string, and the full text
         // is then assembled from those segments. It is the same output as the previous chain of
@@ -262,6 +260,31 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         }
 
         return segments.ToImmutable();
+    }
+
+    /// <summary>
+    /// The clip "đồng", which the speller deliberately does not own: reading a number does not
+    /// include a currency word, and a quantity like 2,5 ký proves it by needing none. It is the
+    /// 107th clip of the bank -- the 106 in <c>VietnameseNumberSpeller</c> plus this one -- and
+    /// <c>UT-VOICE-CLIP-07</c> asserts that split so neither side assumes the other emits it.
+    /// </summary>
+    private static readonly SpeechNumberClip CurrencyClip = new("num-dong", "đồng");
+
+    /// <summary>
+    /// The recorded clips a total is read from, in playback order. The spoken text is a projection
+    /// of this and not the other way round, for the reason set out on
+    /// <see cref="VietnameseNumberSpeller.SpellClips(decimal, VietnameseNumberStyle)"/>: clip
+    /// boundaries are not visible in the words.
+    /// </summary>
+    public static ImmutableArray<SpeechNumberClip> TotalAmountClips(
+        decimal amount,
+        VietnameseNumberStyle style)
+    {
+        ImmutableArray<SpeechNumberClip>.Builder clips =
+            ImmutableArray.CreateBuilder<SpeechNumberClip>();
+        clips.AddRange(VietnameseNumberSpeller.SpellClips(amount, style));
+        clips.Add(CurrencyClip);
+        return clips.ToImmutable();
     }
 
     private static string FormatItems(
