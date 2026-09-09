@@ -61,7 +61,7 @@ Suy ra từ `VietnameseOrderScriptRenderer.cs:289-300`:
 | Bank | Nguồn | Số lượng |
 | --- | --- | --- |
 | **C — đơn vị** | `item.UnitLabel` | ✅ **owner chốt `09/09`: đúng một — `hộp`** |
-| **D — tên hàng** | `item.PublicName` | *"vài chục món"* — **owner** |
+| **D — tên hàng** | `item.PublicName` | ⚠️ **20 SKU, nhưng tên còn trống ở Product Master** — xem §13 |
 | **E — vùng giao** | `delivery_area_short` | ⚠️ **không phải việc dữ liệu** — xem §11 |
 
 ## 5. Tổng, và ràng buộc `MaximumSpokenItems`
@@ -339,7 +339,7 @@ thay đổi catalog kế tiếp. Đó là quy trình vận hành, phải có tê
 | **4a** | vùng giao: đọc cả chuỗi hay **đọc tỉnh** (đề xuất: tỉnh — §11) | Owner + Product |
 | ~~4b~~ | ~~danh sách đơn vị~~ → ✅ **owner chốt `09/09`: một đơn vị, `hộp`**; đã vào code ở `RecordedSpeechCatalog.SettledUnitClipIds`, ghim bởi `UT-VOICE-4B-07` (`W-0237`) | — |
 | **4c** | Sales master data còn phát dạng **chỉ-có-quận** không? (§11) — nếu có thì sai giọng **từ hôm nay**, độc lập với ghi âm | Bên nắm Sales master data |
-| **4d** | **danh sách tên hàng (bank D)** — *"vài chục món"* nhưng **chưa ai liệt kê**; không có nó thì composer không đọc nổi dòng nào | Owner + Vận hành |
+| **4d** | **bank D** — không phải việc gõ danh sách: `PACK-02 §32.2` có **20 ô tên còn là `{{placeholder}}`**. Điền registry **trước**, thu âm **sau** — xem §13 | Owner + Product Master |
 | 5 | Dựng cơ chế phục vụ đoạn động từ bank | **M8** — sau khi 1–4 xong |
 | 6 | Thu âm, rồi 6 cuộc MicroSIP `today-03 §3.2` | Owner |
 
@@ -499,3 +499,46 @@ ba. `UT-VOICE-4B-07` ghim cả bốn dạng viết lẫn ca `hop` bị gộp.
 `hộp` vẫn tới được, và nó sẽ **gộp** theo `3b` chứ không đọc sai. Đúng thiết kế, nhưng **im lặng**:
 một đơn giao bằng `chai` mất đơn vị mà không gì báo. Nếu catalog sau này có sản phẩm bán theo chai
 thì bank C phải mở rộng **trước**, không phải sau.
+
+---
+
+## 13. Bank D không nằm ở IVR — nó nằm ở Product Master, và ở đó nó chưa có
+
+Đi tìm danh sách tên hàng thì nó **đã có chỗ**, và chỗ đó **còn trống**.
+
+`docs/documents/2. pack/02-PACK-02-PRODUCT-MASTER-SKU-RECIPE-ACTIVATION.md`:
+
+- **§4.1** — *"20 SKU canonical là danh mục sản phẩm nền của Ginsengfood"*
+- **§5.2** — mỗi SKU **bắt buộc** có `public_product_name` và `internal_product_name`
+- **§32.2** — registry 20 dòng, và cả 20 ô tên là placeholder:
+
+```text
+01 | SKU-01 | {{public_product_name_01}} | … | waiting_CONFIG / READY
+…
+20 | SKU-20 | {{public_product_name_20}} | … | waiting_CONFIG / READY
+```
+
+- **§33** — *"Khi triển khai dữ liệu thật, không được để placeholder đi vào production runtime."*
+
+Và `public_name` của IVR **chính là** trường đó — IR-06 dòng `465` nêu ví dụ duy nhất:
+`{ "public_name": "Nước hồng sâm", "quantity": 2, "unit_label": "hộp" }` — khớp luôn đơn vị `hộp`
+owner vừa chốt.
+
+### Hệ quả về thứ tự, và nó đắt nếu làm ngược
+
+Tra tên hàng là **so chuỗi chính xác** (§12: cố ý, vì danh từ riêng). M3 lấy `public_name` từ
+Product Master. Nên nếu thu âm theo một danh sách tạm rồi Product Master điền chuỗi khác — ví dụ
+`"Nước hồng sâm Ginsengfood 500ml"` thay vì `"Nước hồng sâm"` — thì **mọi clip đều trượt**, mọi
+món gộp, và mọi cuộc gọi rơi vào chặn đáy. Buổi thu phải làm lại.
+
+> **Điền `PACK-02 §32.2` trước, thu âm sau.** Đây là thứ tự bắt buộc, không phải khuyến nghị.
+
+### Và `3c` có câu trả lời từ cấu trúc, không cần dựng quy trình mới
+
+Sản phẩm mới **sinh ra ở Product Master**, và ở đó đã có `sku_lifecycle_status` và
+`activation_status` (§5.2, §5.3). Nên câu *"ai báo cho IVR khi Sales thêm sản phẩm"* không cần một
+quy trình mới: nó là **một bước trong vòng đời SKU đã có** — SKU chuyển sang `Activated` thì bank D
+phải có clip trước khi SKU đó `Sellable`.
+
+`PACK-02 §5.4` đã tách sẵn hai trạng thái đó: *"SKU Activated không đồng nghĩa Sellable"*. Chỗ để
+cắm điều kiện ghi âm nằm đúng giữa hai cái.
