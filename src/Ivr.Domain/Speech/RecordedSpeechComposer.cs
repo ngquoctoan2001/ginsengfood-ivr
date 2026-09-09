@@ -33,7 +33,23 @@ public sealed class RecordedSpeechCatalog
     /// </summary>
     public static RecordedSpeechCatalog Empty { get; } = new(
         ImmutableDictionary<string, SpeechNumberClip>.Empty,
-        ImmutableDictionary<string, SpeechNumberClip>.Empty);
+        ImmutableDictionary<string, SpeechNumberClip>.Empty
+            .WithComparers(StringComparer.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Bank C as the owner settled it on 2026-09-09: one unit, "hộp". Not an estimate — the
+    /// repository agrees, since every other unit string in it (gói, chai, kg, túi, thùng) appears
+    /// only inside test fixtures and no specification declares one.
+    /// <para>
+    /// It is one entry rather than none because <c>unit_label</c> is optional and free text in the
+    /// contract — <c>maxLength: 40</c>, no enum — so nothing stops a different unit arriving. When
+    /// one does it folds into "và N sản phẩm khác" under 3b rather than being read wrong, which is
+    /// the intended failure but a quiet one: an order shipped in chai would lose its unit without
+    /// anything going red.
+    /// </para>
+    /// </summary>
+    public static IReadOnlyDictionary<string, string> SettledUnitClipIds { get; } =
+        new Dictionary<string, string> { ["hộp"] = "unit-hop" };
 
     public static RecordedSpeechCatalog Create(
         IReadOnlyDictionary<string, string> itemClipIds,
@@ -41,7 +57,15 @@ public sealed class RecordedSpeechCatalog
     {
         ArgumentNullException.ThrowIfNull(itemClipIds);
         ArgumentNullException.ThrowIfNull(unitClipIds);
-        return new RecordedSpeechCatalog(Build(itemClipIds), Build(unitClipIds));
+        // Product names match exactly; unit labels ignore case. The two are not the same kind of
+        // string. A product name is a proper noun where case can carry meaning, and quietly
+        // serving one recording for two spellings is the kind of wrong a customer notices and a
+        // test does not. A unit is a common noun whose case is only field formatting: "Hộp" and
+        // "hộp" are the same Vietnamese word, and the repository already carries both spellings.
+        // Neither is accent-folded, in either direction -- hộp, hợp and họp are three words.
+        return new RecordedSpeechCatalog(
+            Build(itemClipIds, StringComparer.Ordinal),
+            Build(unitClipIds, StringComparer.OrdinalIgnoreCase));
     }
 
     public bool TryGetItem(string publicName, out SpeechNumberClip clip) =>
@@ -51,10 +75,11 @@ public sealed class RecordedSpeechCatalog
         units.TryGetValue(Key(unitLabel), out clip);
 
     private static ImmutableDictionary<string, SpeechNumberClip> Build(
-        IReadOnlyDictionary<string, string> clipIds)
+        IReadOnlyDictionary<string, string> clipIds,
+        StringComparer comparer)
     {
         ImmutableDictionary<string, SpeechNumberClip>.Builder builder =
-            ImmutableDictionary.CreateBuilder<string, SpeechNumberClip>(StringComparer.Ordinal);
+            ImmutableDictionary.CreateBuilder<string, SpeechNumberClip>(comparer);
         foreach ((string spoken, string clipId) in clipIds)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(spoken);
@@ -65,9 +90,6 @@ public sealed class RecordedSpeechCatalog
         return builder.ToImmutable();
     }
 
-    // Ordinal on the trimmed original. Not case-insensitive and not accent-folded: two product
-    // names that differ only by case or diacritic are two different readings, and quietly serving
-    // one recording for both is the kind of wrong a customer notices and a test does not.
     private static string Key(string value) => (value ?? string.Empty).Trim();
 }
 

@@ -60,7 +60,7 @@ Suy ra từ `VietnameseOrderScriptRenderer.cs:289-300`:
 
 | Bank | Nguồn | Số lượng |
 | --- | --- | --- |
-| **C — đơn vị** | `item.UnitLabel` | hộp, chai, ký, gói, túi… — **vận hành chốt** |
+| **C — đơn vị** | `item.UnitLabel` | ✅ **owner chốt `09/09`: đúng một — `hộp`** |
 | **D — tên hàng** | `item.PublicName` | *"vài chục món"* — **owner** |
 | **E — vùng giao** | `delivery_area_short` | ⚠️ **không phải việc dữ liệu** — xem §11 |
 
@@ -69,9 +69,9 @@ Suy ra từ `VietnameseOrderScriptRenderer.cs:289-300`:
 Với `D = 40` và `E` chưa biết:
 
 ```text
-mỗi miền  = 107 (A, theo R-2) + 2 (B) + ~10 (C) + ~40 (D) + E
-          ≈ 159 + E
-ba miền   ≈ 477 + 3E
+mỗi miền  = 107 (A, theo R-2) + 2 (B) + 1 (C, chốt 09/09) + ~40 (D) + E
+          ≈ 150 + E
+ba miền   ≈ 450 + 3E
 ```
 
 > Con số `≈ 222 + 3E` ở bản đầu tính theo `R-1` (`22` clip số). Owner chốt `R-2`, nên bank A là
@@ -337,8 +337,9 @@ thay đổi catalog kế tiếp. Đó là quy trình vận hành, phải có tê
 | ~~3b~~ | ~~món chưa có clip xử lý ra sao~~ → ✅ **owner chốt 08/09 theo đề xuất `3`+chặn đáy**; đã thi hành ở `RecordedSpeechComposer` (`W-0235`), 6 test `UT-VOICE-3B-01..06`. **Chưa nối vào renderer** — bank C/D còn rỗng nên bật lúc này là mọi món đều gộp | — |
 | **3c** | ai báo cho IVR khi Sales thêm sản phẩm — tách khỏi `3b` vì là quy trình, không phải code | Vận hành |
 | **4a** | vùng giao: đọc cả chuỗi hay **đọc tỉnh** (đề xuất: tỉnh — §11) | Owner + Product |
-| 4b | danh sách **đơn vị** — việc dữ liệu thật, không vướng gì | Vận hành |
+| ~~4b~~ | ~~danh sách đơn vị~~ → ✅ **owner chốt `09/09`: một đơn vị, `hộp`**; đã vào code ở `RecordedSpeechCatalog.SettledUnitClipIds`, ghim bởi `UT-VOICE-4B-07` (`W-0237`) | — |
 | **4c** | Sales master data còn phát dạng **chỉ-có-quận** không? (§11) — nếu có thì sai giọng **từ hôm nay**, độc lập với ghi âm | Bên nắm Sales master data |
+| **4d** | **danh sách tên hàng (bank D)** — *"vài chục món"* nhưng **chưa ai liệt kê**; không có nó thì composer không đọc nổi dòng nào | Owner + Vận hành |
 | 5 | Dựng cơ chế phục vụ đoạn động từ bank | **M8** — sau khi 1–4 xong |
 | 6 | Thu âm, rồi 6 cuộc MicroSIP `today-03 §3.2` | Owner |
 
@@ -463,3 +464,38 @@ Hôm nay chúng rơi về `FallbackRegion = North`. Một đơn ở **Bình Th�
 > đây là việc phải sửa và nó **độc lập với ghi âm** — sai giọng đã sai từ hôm nay. Không thì ba
 > fixture kia nên đổi sang dạng sau sáp nhập để khỏi mô tả một đầu vào không còn tồn tại.
 
+---
+
+## 12. `4b` đã chốt — một đơn vị, và một cái bẫy hoa thường
+
+Owner `2026-09-09`: **đơn vị là `hộp`.** Bank C từ ước lượng `~10` xuống **`1`**; tổng mỗi miền
+`≈ 150 + E`.
+
+Repo đồng ý: năm đơn vị khác từng xuất hiện (`gói` `chai` `kg` `túi` `thùng`) **chỉ nằm trong test
+fixture**, không spec nào khai.
+
+### Nhưng `"Hộp"` viết hoa có thật trong repo
+
+```text
+"hộp"  ×33      "Hộp"  ×4   ← CallResultAndMapperTests, DomainPolicyAndPrivacyTests
+```
+
+`RecordedSpeechCatalog` ban đầu so **ordinal, phân biệt hoa thường**, nên `"Hộp"` sẽ **trượt** và
+`3b` gộp một đơn hoàn toàn bình thường thành *"một sản phẩm khác"* — im lặng, không gì đỏ.
+
+Đã tách hai luật, vì hai loại chuỗi khác nhau:
+
+| | So sánh | Vì sao |
+| --- | --- | --- |
+| tên hàng | **ordinal, phân biệt hoa thường** | danh từ riêng — hoa thường có thể mang nghĩa |
+| **đơn vị** | **bỏ qua hoa thường** | danh từ chung — hoa thường chỉ là cách gõ trường dữ liệu |
+
+**Không bên nào bỏ dấu.** `hộp`, `hợp`, `họp` là ba từ khác nhau, và `hop` không phải từ nào trong
+ba. `UT-VOICE-4B-07` ghim cả bốn dạng viết lẫn ca `hop` bị gộp.
+
+### Rủi ro tồn dư, nói rõ
+
+`unit_label` trong OAS là `{ type: string, maxLength: 40 }` — **không enum**. Nên một đơn vị khác
+`hộp` vẫn tới được, và nó sẽ **gộp** theo `3b` chứ không đọc sai. Đúng thiết kế, nhưng **im lặng**:
+một đơn giao bằng `chai` mất đơn vị mà không gì báo. Nếu catalog sau này có sản phẩm bán theo chai
+thì bank C phải mở rộng **trước**, không phải sau.

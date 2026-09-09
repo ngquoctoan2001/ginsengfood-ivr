@@ -126,6 +126,53 @@ public sealed class RecordedSpeechComposerTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-VOICE-4B-07")]
+    public void BankCIsOneUnitAndItsCasingDoesNotDecideWhetherAnOrderIsSpoken()
+    {
+        // Owner settled 4b on 2026-09-09: one unit, "hộp". Asserted here so the decision is
+        // executable rather than only written down.
+        Assert.Equal(["hộp"], RecordedSpeechCatalog.SettledUnitClipIds.Keys);
+
+        RecordedSpeechCatalog catalog = RecordedSpeechCatalog.Create(
+            new Dictionary<string, string> { ["Sâm Ngọc Linh"] = "item-sam-ngoc-linh" },
+            RecordedSpeechCatalog.SettledUnitClipIds);
+
+        // "Hộp" with a capital H is already in this repository, in two Confirmation test files.
+        // Under an exact-match lookup it would miss, and 3b would quietly fold a perfectly
+        // ordinary order into "một sản phẩm khác". Casing on a common noun is field formatting,
+        // not meaning.
+        foreach (string unit in new[] { "hộp", "Hộp", "HỘP", "  hộp  " })
+        {
+            Assert.True(RecordedSpeechComposer.TryCompose(
+                [Item("Sâm Ngọc Linh", 2m, unit)],
+                20,
+                VietnameseNumberStyle.Northern,
+                catalog,
+                out ImmutableArray<SpeechNumberClip> clips));
+            Assert.Equal("hai hộp Sâm Ngọc Linh", Speak(clips));
+        }
+
+        // Accents are not folded in either direction: hộp, hợp and họp are three different words,
+        // and an unaccented "hop" is not one of them. A second, speakable line is needed to see
+        // the fold at all -- on its own an unspeakable item trips the floor instead, which is
+        // the floor doing its job.
+        Assert.True(RecordedSpeechComposer.TryCompose(
+            [Item("Sâm Ngọc Linh", 1m, "hộp"), Item("Sâm Ngọc Linh", 2m, "hop")],
+            20,
+            VietnameseNumberStyle.Northern,
+            catalog,
+            out ImmutableArray<SpeechNumberClip> folded));
+        Assert.Equal("một hộp Sâm Ngọc Linh và một sản phẩm khác", Speak(folded));
+
+        Assert.False(RecordedSpeechComposer.TryCompose(
+            [Item("Sâm Ngọc Linh", 2m, "hop")],
+            20,
+            VietnameseNumberStyle.Northern,
+            catalog,
+            out _));
+    }
+
+    [Fact]
     [Trait("TestId", "UT-VOICE-3B-06")]
     public void ClipIdsAreStableAcrossRegionsAndOnlyTheLexiconMoves()
     {
