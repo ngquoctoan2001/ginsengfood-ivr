@@ -111,11 +111,28 @@ public sealed class AdminReadService(
             .ConfigureAwait(false);
 
         DateTimeOffset nearExpiryCutoff = now + NearExpiryWindow;
-        int nearExpiry = await jobs.CountAsync(
-            job => job.ClosedAt == null
-                && job.ExpiresAt > now
-                && job.ExpiresAt <= nearExpiryCutoff,
-            cancellationToken).ConfigureAwait(false);
+
+        // `specs/ui/01` asks for a blocked tile and an attempt-2 tile. Blocked is
+        // the eligibility refusal; attempt-2 is an open job that has spent one
+        // counted customer attempt and still has one left.
+        //
+        // Both tiles count the same rows under different predicates, so they are one grouped
+        // aggregate rather than two round trips. Same for the four attempt counters below. This
+        // panel used to issue twelve sequential queries, five of which re-embedded the job filter
+        // as a subquery; unfiltered — which is what opening the dashboard does — that subquery is
+        // the whole of ivr_call_jobs, so the saving is a full-table semi-join each time, not just
+        // a network hop.
+        JobTotals jobTotals = await jobs
+            .GroupBy(_ => 1)
+            .Select(group => new JobTotals(
+                group.Count(job => job.ClosedAt == null
+                    && job.ExpiresAt > now
+                    && job.ExpiresAt <= nearExpiryCutoff),
+                group.Count(job => job.ClosedAt == null && !job.Eligible)))
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false)
+            // No rows at all means no group, which is zero of each and not an error.
+            ?? new JobTotals(0, 0);
 
         bool paused = await context.CapacityIncidents.AsNoTracking().AnyAsync(
             incident => incident.Status == "OPEN"
@@ -124,13 +141,6 @@ public sealed class AdminReadService(
             cancellationToken).ConfigureAwait(false);
 
         IQueryable<string> jobIds = jobs.Select(job => job.IvrCallJobId);
-
-        // `specs/ui/01` asks for a blocked tile and an attempt-2 tile. Blocked is
-        // the eligibility refusal; attempt-2 is an open job that has spent one
-        // counted customer attempt and still has one left.
-        int blocked = await jobs
-            .CountAsync(job => job.ClosedAt == null && !job.Eligible, cancellationToken)
-            .ConfigureAwait(false);
 
         IQueryable<string> openJobIds = jobs
             .Where(job => job.ClosedAt == null && job.MaxAttempts >= 2)
@@ -149,22 +159,34 @@ public sealed class AdminReadService(
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        IQueryable<CallAttemptEntity> attempts = context.CallAttempts.AsNoTracking()
-            .Where(attempt => jobIds.Contains(attempt.IvrCallJobId));
-        int attemptTotal = await attempts.CountAsync(cancellationToken).ConfigureAwait(false);
-        int countedAttempts = await attempts.CountAsync(
-            attempt => attempt.IsCountedCustomerAttempt,
-            cancellationToken).ConfigureAwait(false);
-        int technicalRetries = await attempts.SumAsync(
-            attempt => attempt.TechnicalRetryCount,
-            cancellationToken).ConfigureAwait(false);
-        int activeAttempts = await attempts.CountAsync(
-            attempt => ActiveAttemptStatuses.Contains(attempt.Status),
-            cancellationToken).ConfigureAwait(false);
+        AttemptTotals attemptTotals = await context.CallAttempts.AsNoTracking()
+            .Where(attempt => jobIds.Contains(attempt.IvrCallJobId))
+            .GroupBy(_ => 1)
+            .Select(group => new AttemptTotals(
+                group.Count(),
+                group.Count(attempt => attempt.IsCountedCustomerAttempt),
+                group.Sum(attempt => attempt.TechnicalRetryCount),
+                group.Count(attempt => ActiveAttemptStatuses.Contains(attempt.Status))))
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false)
+            ?? new AttemptTotals(0, 0, 0, 0);
 
         // The SIM pool and open incidents are pool-wide state, not per-program,
         // so the program/time filter deliberately does not apply to them.
-        List<SimChannelEntity> channels = await context.SimChannels.AsNoTracking()
+        //
+        // Projected rather than loaded whole: the panel reads five fields and the entity carries
+        // the lease tokens, timestamps and retention columns as well. Ordered because the panel
+        // reports the FIRST row's adapter mode, and a query with no ORDER BY has no first row —
+        // PostgreSQL was free to return a different one per call, so the mode shown could change
+        // without anything changing.
+        List<SimChannelSummary> channels = await context.SimChannels.AsNoTracking()
+            .OrderBy(channel => channel.SimChannelId)
+            .Select(channel => new SimChannelSummary(
+                channel.Enabled,
+                channel.Status,
+                channel.ActiveCallJobId,
+                channel.QuarantineUntil,
+                channel.AdapterMode))
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
@@ -183,13 +205,18 @@ public sealed class AdminReadService(
             normalizedProgram,
             createdFrom,
             createdTo,
-            BuildQueuePanel(queueCounts, paused, nearExpiry, attemptTwoPending, blocked),
+            BuildQueuePanel(
+                queueCounts,
+                paused,
+                jobTotals.NearExpiry,
+                attemptTwoPending,
+                jobTotals.Blocked),
             BuildResultPanel(resultCounts),
             new DashboardAttemptPanel(
-                attemptTotal,
-                countedAttempts,
-                technicalRetries,
-                activeAttempts),
+                attemptTotals.Total,
+                attemptTotals.Counted,
+                attemptTotals.TechnicalRetries,
+                attemptTotals.Active),
             BuildSimPanel(channels, now, ivrOptions.Value.ExecutionMode),
             incidents.Select(incident => new CapacityIncidentSummary(
                 incident.CapacityIncidentId,
@@ -602,12 +629,33 @@ public sealed class AdminReadService(
             Share(Rate(count => ReachedCustomerResultTypes.Contains(count.ResultType))));
     }
 
+    /// <summary>The two job tiles, counted in one pass over the filtered jobs.</summary>
+    private sealed record JobTotals(int NearExpiry, int Blocked);
+
+    /// <summary>
+    /// The attempt panel's four numbers, counted in one pass. They were four separate queries,
+    /// each re-embedding the job filter as a subquery.
+    /// </summary>
+    private sealed record AttemptTotals(
+        int Total,
+        int Counted,
+        int TechnicalRetries,
+        int Active);
+
+    /// <summary>The five SIM-channel fields the dashboard panel actually reads.</summary>
+    private sealed record SimChannelSummary(
+        bool Enabled,
+        string Status,
+        string? ActiveCallJobId,
+        DateTimeOffset? QuarantineUntil,
+        string AdapterMode);
+
     private static DashboardSimPanel BuildSimPanel(
-        List<SimChannelEntity> channels,
+        List<SimChannelSummary> channels,
         DateTimeOffset now,
         string executionMode)
     {
-        int Count(Func<SimChannelEntity, bool> predicate) => channels.Count(predicate);
+        int Count(Func<SimChannelSummary, bool> predicate) => channels.Count(predicate);
 
         return new DashboardSimPanel(
             channels.Count,

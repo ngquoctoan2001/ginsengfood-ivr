@@ -130,6 +130,54 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal(3, dashboard.Missed_deadline_count);
     }
 
+    /// <summary>
+    /// The dashboard on a database with nothing in it must answer zeroes, not fail.
+    /// <para>
+    /// This is the shape the W-0257 rewrite put at risk. Collapsing the per-tile counters into
+    /// grouped aggregates means the query returns <b>no group at all</b> when there are no rows —
+    /// not a row of zeroes — so every one of those numbers now arrives through a
+    /// <c>FirstOrDefaultAsync</c> that can legitimately be null. An empty deployment is also the
+    /// first thing anyone opens the console against, so getting it wrong would be visible on day
+    /// one and nowhere in the seeded tests.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-ADMIN-READ-12")]
+    public async Task DashboardAnswersZeroesOnAnEmptyDeploymentInsteadOfFailing()
+    {
+        await fixture.ResetAsync();
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        using HttpResponseMessage response = await SendAdminAsync(
+            app,
+            "/v1/ivr/order-confirmation/dashboard",
+            IvrPermissions.QueueView);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        IvrServer.IvrDashboardProjection dashboard =
+            (await response.Content.ReadFromJsonAsync<IvrServer.IvrDashboardProjection>())!;
+
+        Assert.Equal(0, dashboard.Queue.Open_total);
+        Assert.Equal(0, dashboard.Queue.Closed_total);
+        Assert.Equal(0, dashboard.Queue.Near_expiry);
+        Assert.Equal(0, dashboard.Queue.Blocked);
+        Assert.Equal(0, dashboard.Queue.Attempt_two_pending);
+        Assert.False(dashboard.Queue.Paused);
+
+        Assert.Equal(0, dashboard.Results.Total);
+        Assert.Equal(0, dashboard.Attempts.Total);
+        Assert.Equal(0, dashboard.Attempts.Counted_customer_attempts);
+        Assert.Equal(0, dashboard.Attempts.Technical_retries);
+        Assert.Equal(0, dashboard.Attempts.Active);
+
+        Assert.Equal(0, dashboard.Sim.Total);
+        Assert.Empty(dashboard.Open_incidents);
+        Assert.Equal(0, dashboard.Missed_deadline_count);
+
+        // With no channels there is no first row to read an adapter mode from, so the panel falls
+        // back to the configured execution mode rather than reporting an empty string.
+        Assert.Equal(IvrOptions.MockExecutionMode, dashboard.Sim.Adapter_mode);
+    }
+
     [Fact]
     [Trait("TestId", "IT-ADMIN-READ-03")]
     public async Task DashboardHonoursProgramFilterAndRejectsAnUnknownProgram()

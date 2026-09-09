@@ -133,7 +133,7 @@ chưa sửa**; test sau pass ở cả hai phía, đúng vai trò chốt bảo to
 
 ---
 
-### B3 — MEDIUM: PII guard nổ nhưng không để lại dấu vết nào
+### B3 — MEDIUM: PII guard nổ nhưng không để lại dấu vết nào — ĐÃ SỬA
 
 `src/Ivr.Api/Application/EligibilityService.cs:177-208`
 
@@ -156,7 +156,7 @@ Cùng vấn đề, mức nhẹ hơn (có comment biện minh nhưng vẫn không
 
 ---
 
-### B4 — MEDIUM: không có backoff, DB chết = bão log + bão connection
+### B4 — MEDIUM: không có backoff, DB chết = bão log + bão connection — ĐÃ SỬA
 
 `src/Ivr.Worker/Jobs/CallbackDeliveryJobHost.cs:37-70`
 `src/Ivr.Worker/Jobs/NormalizationJobHost.cs:38-68`
@@ -187,7 +187,7 @@ Có guard: chỉ được phép ở `MOCK` (`ServiceCollectionExtensions.cs:95-1
 
 ---
 
-### B6 — MEDIUM: hai store idempotency serialize khác nhau
+### B6 — MEDIUM: hai store idempotency serialize khác nhau — ĐÃ SỬA
 
 `PostgresIdempotencyStore.cs:105-110` đăng ký `ReadOnlySetJsonConverterFactory`:
 
@@ -288,9 +288,14 @@ Retention xóa bảng này theo `created_at` (`RetentionTargetCatalog.cs:90`), k
 
 ## 2. Vấn đề performance
 
-### P1 — Dashboard admin: ~30 round trip tuần tự, 5 lần semi-join full-table
+### P1 — Dashboard admin: 12 round trip tuần tự, 5 lần semi-join full-table — ĐÃ SỬA
 
-`src/Ivr.Api/Application/AdminReadService.cs:75-200` — đếm được **30 `await`** trong một handler.
+> **Đính chính (2026-09-09).** Bản đầu viết "~30 round trip" và dẫn "30 `await`". Sai: con số đó
+> ra từ `grep -c 'await '` trên một khoảng dòng `awk` cắt tràn sang method kế tiếp, và mỗi query
+> đóng góp hai lần vì `ConfigureAwait(false)` nằm dòng riêng. Đếm theo lời gọi thực sự chạm
+> database thì là **12 query + 1 lần mở context**. Vấn đề vẫn thật, chỉ không lớn bằng con số đã in.
+
+`src/Ivr.Api/Application/AdminReadService.cs:75-200`
 
 Vấn đề nặng hơn số lượng:
 
@@ -302,7 +307,9 @@ IQueryable<string> jobIds = jobs.Select(job => job.IvrCallJobId);           // d
 // + attemptTotal, countedAttempts, technicalRetries, activeAttempts        // 152-160
 ```
 
-`jobIds` là `IQueryable` chưa thực thi, nên nó được **nhúng lại làm subquery trong 5 query riêng biệt**. Khi gọi không filter (`program` null, không truyền khoảng ngày — chính là request mặc định khi mở dashboard), `jobs` là toàn bộ `ivr_call_jobs`, và mỗi query trở thành `WHERE ivr_call_job_id IN (SELECT ivr_call_job_id FROM ivr_call_jobs)` — semi-join full-table, 5 lần.
+`jobIds` là `IQueryable` chưa thực thi. Nó chỉ xuất hiện 2 lần trong mã, nhưng lần thứ hai gán vào `attempts`, và `attempts` được **thực thi 4 lần** — mỗi `CountAsync`/`SumAsync` là một query riêng mang theo trọn subquery. Cộng `resultCounts` là **5 lần** subquery chạm database.
+
+Khi gọi không filter (`program` null, không truyền khoảng ngày — chính là request mặc định khi mở dashboard), `jobs` là toàn bộ `ivr_call_jobs`, nên mỗi lần là `WHERE ivr_call_job_id IN (SELECT ivr_call_job_id FROM ivr_call_jobs)` — semi-join full-table, 5 lần.
 
 Thêm nữa, dòng 163-165 load nguyên bảng vào bộ nhớ, không `Take`, không projection:
 
@@ -311,7 +318,11 @@ List<SimChannelEntity> channels = await context.SimChannels.AsNoTracking()
     .ToListAsync(cancellationToken)
 ```
 
-Với RTT 5 ms, riêng phần network đã là 150 ms cho một endpoint, chưa tính thời gian Postgres chạy 5 semi-join.
+**Và một bug đi kèm phát hiện lúc sửa:** query đó không có `ORDER BY`, nhưng `BuildSimPanel` báo adapter mode của `channels[0]`. Query không `ORDER BY` thì không có "dòng đầu tiên" — PostgreSQL trả về thứ tự nào cũng hợp lệ, đổi theo plan và theo vacuum. Ô adapter mode trên dashboard có thể đổi giữa hai lần F5 mà không có gì thay đổi. Chưa lộ vì môi trường thật mới có một channel.
+
+**Đã sửa (W-0257):** gộp 2 tile của `jobs` và 4 counter của `attempts` thành hai grouped aggregate → **12 query còn 8**, subquery `jobIds` **5 lần còn 2**. `SimChannels` chiếu còn 5 cột và sắp theo `sim_channel_id`. Không đặt `Take()` vì chặn số lượng ở đây làm panel đếm thiếu trong im lặng.
+
+Rủi ro tự tạo: `GroupBy(_ => 1)` trả **không group nào** trên bảng rỗng, khác `CountAsync` trả 0. Chặn hai lớp — nullable analyzer + `TreatWarningsAsErrors` khiến nhánh null không bỏ qua được (đã kiểm chứng: gỡ `??` thì build đỏ `CS8600`/`CS8602`), và `IT-ADMIN-READ-12` chốt rằng câu trả lời đúng là số 0 chứ không phải lỗi.
 
 ---
 
@@ -348,7 +359,7 @@ Cần đo `pg_stat_user_indexes.idx_scan` trên môi trường thật trước k
 
 ---
 
-### P4 — 4/5 background loop không test được nhịp
+### P4 — 4/5 background loop không test được nhịp — ĐÃ SỬA
 
 Chỉ `AnalyticsEtlJobHost.cs:36` truyền `timeProvider` vào `PeriodicTimer`:
 
@@ -580,14 +591,15 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 
 | # | Vấn đề | Mức | Chi phí sửa |
 |---|---|---|---|
-| ~~B2~~ | ~~`InvalidOperationException` quá rộng~~ | ~~HIGH~~ | **đã sửa** |
-| ~~B1~~ | ~~Crash-loop tiềm ẩn ở outbox~~ | ~~MEDIUM~~ | **đã sửa** |
-| P1 | Dashboard 30 round trip + 5 semi-join | HIGH | trung bình — gộp query, cap `SimChannels` |
-| B3 | PII guard bị nuốt im lặng | MEDIUM | thấp — bind exception + log + metric |
-| B4 | Không backoff khi DB chết | MEDIUM | thấp — thêm backoff + jitter vào 3 host |
+| ~~B2~~ | ~~`InvalidOperationException` quá rộng~~ | ~~HIGH~~ | **đã sửa — W-0255** |
+| ~~B1~~ | ~~Crash-loop tiềm ẩn ở outbox~~ | ~~MEDIUM~~ | **đã sửa — W-0255** |
+| ~~B3~~ | ~~PII guard bị nuốt im lặng~~ | ~~MEDIUM~~ | **đã sửa — W-0256** |
+| ~~B4~~ | ~~Không backoff khi DB chết~~ | ~~MEDIUM~~ | **đã sửa — W-0256** |
+| ~~B6~~ | ~~Hai store serialize khác nhau~~ | ~~MEDIUM~~ | **đã sửa — W-0256** |
+| ~~P4~~ | ~~4/5 loop không test được nhịp~~ | ~~LOW~~ | **đã sửa — W-0256** (phụ phẩm của B4) |
+| ~~P1~~ | ~~Dashboard 12 round trip + 5 semi-join~~ | ~~HIGH~~ | **đã sửa — W-0257** |
 | B7 | Secret phơi qua `ActiveGenerations` | MEDIUM | thấp — bỏ `SecretBytes` khỏi type public |
 | B8 | Validator vỡ dưới symlink | MEDIUM | thấp — realpath `REPOSITORY_ROOT` |
-| B6 | Hai store serialize khác nhau | MEDIUM | rất thấp — dùng chung `JsonSerializerOptions` |
 | B5 | Rò rỉ bộ nhớ ở MOCK | MEDIUM | thấp — TTL + eviction |
 | P2 | 109 index, nhiều cái trên boolean | MEDIUM | trung bình — đo `pg_stat_user_indexes` trước |
 | S4 | Helper bảo mật copy-paste 18 lần | MEDIUM | trung bình — tách module dùng chung |
@@ -595,7 +607,9 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | P3 | DSAR 8 round trip, nổ tham số | LOW | trung bình |
 | S7 | Worktree rác + bản sao repo | LOW | rất thấp — `git worktree prune` |
 | S6 | 434k dòng docs không liên quan | LOW | thấp — tách sang repo riêng |
-| B9, B10, P4, S1, S3, S5, C1–C5 | — | LOW | — |
+| B9, B10, S1, S3, S5, C1–C5 | — | LOW | — |
+
+**7/26 đã đóng. Không còn mục HIGH nào.**
 
 ---
 
