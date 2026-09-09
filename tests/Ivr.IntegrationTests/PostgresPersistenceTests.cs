@@ -503,6 +503,107 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
                 + "WHERE callback_id = 'CALLBACK-P1-2-001'"));
     }
 
+    /// <summary>
+    /// A callback whose <c>task_id</c> resolves to nothing must leave the queue, not circle in it.
+    /// <para>
+    /// The delivery message is built from the task, not from the callback row: the program code
+    /// and the correlation id live only on <c>ivr_confirmation_tasks</c>. Reaching a callback
+    /// whose task is missing therefore used to throw — after the claim transaction had already
+    /// committed the row as <c>SENDING</c>. The reclaim arm of the dequeue query
+    /// (<c>SENDING AND lease_expires_at &lt; now</c>) then handed the same row back on the next
+    /// poll, and the poll after that, and the exception took the whole batch with it every time.
+    /// One such row stopped every callback in the deployment for good.
+    /// </para>
+    /// <para>
+    /// <b>Reaching that state takes a broken invariant, not ordinary operation.</b> Retention
+    /// cannot produce it: <c>ivr_result_callbacks.ivr_call_result_id</c> and
+    /// <c>ivr_call_results.task_id</c> are both <c>RESTRICT</c> foreign keys, so the task cannot
+    /// be deleted while a callback for it exists. But <c>ivr_result_callbacks.task_id</c> itself
+    /// carries no foreign key — the invariant that saves it is transitive and unstated — which is
+    /// exactly what this test constructs, and what a repair script or a future nullable result
+    /// reference could reproduce. The cost of the crash is out of all proportion to how it
+    /// arrives, so the row is retired rather than trusted.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-DB-OUTBOX-09")]
+    public async Task CallbackWithAnUnresolvableTaskIsDeadLetteredRatherThanStallingTheQueue()
+    {
+        await fixture.ResetAsync();
+        ResultCallbackEntity callback;
+        await using (IvrDbContext dbContext = await Factory().CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = ReadCanonicalTask();
+            CallJobEntity job = CreateJob(task, task.MaxAttempts, task.AttemptOffsetsSecondsJson);
+            CallResultEntity result = CreateResult(task, job);
+            dbContext.AddRange(task, job, result);
+            await dbContext.SaveChangesAsync();
+            string payload =
+                "{\"task_id\":\"TASK-DOES-NOT-EXIST\",\"result_type\":\"IVR_CONFIRMED\"}";
+
+            // The result reference is real, so the foreign key is satisfied and the row is
+            // accepted. Only task_id — the column with no foreign key — points at nothing.
+            callback = new ResultCallbackEntity
+            {
+                CallbackId = "CALLBACK-ORPHAN-001",
+                IvrCallResultId = result.IvrCallResultId,
+                TaskId = "TASK-DOES-NOT-EXIST",
+                OfficialOrderId = task.OfficialOrderId,
+                IdempotencyKey = "callback-idempotency-orphan-001",
+                ResultStatus = "IVR_CONFIRMED",
+                ResultState = "PENDING_CORE_REVALIDATION",
+                DeliveryStatus = "READY",
+                RequiresCoreRevalidation = true,
+                PayloadJson = payload,
+                PayloadSha256 = Sha256(payload),
+                CreatedAt = task.CreatedAt,
+            };
+        }
+
+        ICallbackOutboxRepository outbox = fixture.Services
+            .GetRequiredService<ICallbackOutboxRepository>();
+        await outbox.EnqueueAsync(callback);
+
+        IReadOnlyList<CallbackOutboxMessage> first = await outbox.DequeueReadyAsync(
+            10,
+            TimeSpan.FromMinutes(1));
+        Assert.Empty(first);
+
+        await using (IvrDbContext verification = await Factory().CreateDbContextAsync())
+        {
+            ResultCallbackEntity retired = await verification.ResultCallbacks.AsNoTracking()
+                .SingleAsync(row => row.CallbackId == "CALLBACK-ORPHAN-001");
+
+            // Terminal, and holding no lease: the two properties that keep it out of both arms of
+            // the dequeue predicate.
+            Assert.Equal("INVALID_DEAD_LETTER", retired.DeliveryStatus);
+            Assert.Null(retired.LeaseToken);
+            Assert.Null(retired.LeaseExpiresAt);
+            Assert.Null(retired.NextRetryAt);
+            Assert.Equal("CALLBACK_TASK_MISSING", retired.LastError);
+
+            // Retiring it silently would trade a stuck queue for a result that never reached Sales
+            // and nobody was told about. The review item is the only thing an operator sees.
+            ReviewItemEntity review = await verification.ReviewItems.AsNoTracking()
+                .SingleAsync(item => item.SourceId == "CALLBACK-ORPHAN-001");
+            Assert.Equal("IVR_RESULT_CALLBACK", review.SourceType);
+            Assert.Equal("OPEN", review.Status);
+            Assert.Equal("CALLBACK_TASK_MISSING", review.Reason);
+
+            Assert.Equal(
+                1,
+                await verification.AuditLog.CountAsync(
+                    entry => entry.TargetId == "CALLBACK-ORPHAN-001"));
+        }
+
+        // The point of the whole exercise: a second poll finds nothing to do. Before the fix this
+        // is where the loop closed.
+        IReadOnlyList<CallbackOutboxMessage> second = await outbox.DequeueReadyAsync(
+            10,
+            TimeSpan.FromMinutes(1));
+        Assert.Empty(second);
+    }
+
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services
         .GetRequiredService<IDbContextFactory<IvrDbContext>>();
 

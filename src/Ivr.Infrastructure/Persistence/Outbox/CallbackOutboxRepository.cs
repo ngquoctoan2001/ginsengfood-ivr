@@ -70,6 +70,15 @@ public sealed class CallbackOutboxRepository(
         ],
         StringComparer.Ordinal);
 
+    /// <summary>
+    /// Recorded on a callback retired because its confirmation task no longer exists. Named
+    /// rather than spelled out at each site so an operator searching one of them finds all three:
+    /// the row's last error, the audit entry, and the review item.
+    /// </summary>
+    private const string OrphanedTaskCode = "CALLBACK_TASK_MISSING";
+
+    private const string OrphanCorrelationPrefix = "orphan-callback-";
+
     public async Task<ResultCallbackEntity> EnqueueAsync(
         ResultCallbackEntity callback,
         CancellationToken cancellationToken = default)
@@ -130,36 +139,129 @@ public sealed class CallbackOutboxRepository(
                 """)
             .ToListAsync(cancellationToken);
 
-        foreach (ResultCallbackEntity row in rows)
-        {
-            row.DeliveryStatus = "SENDING";
-            row.LeaseToken = leaseToken;
-            row.LeaseExpiresAt = leaseExpiresAt;
-        }
-
-        await dbContext.SaveChangesAsync(cancellationToken);
+        // Resolved before anything is claimed, because whether a row can be claimed at all
+        // depends on whether its task still exists.
         string[] taskIds = [.. rows.Select(row => row.TaskId).Distinct(StringComparer.Ordinal)];
         Dictionary<string, ConfirmationTaskEntity> tasks = await dbContext.ConfirmationTasks
             .AsNoTracking()
             .Where(task => taskIds.Contains(task.TaskId))
             .ToDictionaryAsync(task => task.TaskId, StringComparer.Ordinal, cancellationToken);
+
+        var claimed = new List<(ResultCallbackEntity Row, ConfirmationTaskEntity Task)>(rows.Count);
+        foreach (ResultCallbackEntity row in rows)
+        {
+            // A callback whose task is gone can never become a message: the program code and the
+            // correlation id live on the task, not on the callback row. And the task really can
+            // be gone -- ivr_result_callbacks.task_id carries no foreign key, and retention
+            // deletes ivr_confirmation_tasks under a different data class, with a different
+            // period, without consulting this table. An orphan is an expected state here, not
+            // corruption.
+            //
+            // It has to be settled inside this transaction. Claiming it and failing to project it
+            // afterwards would leave the row SENDING with a lease nobody owns, and the reclaim
+            // arm of the query above would hand the same row back on the next poll, and the one
+            // after that. One orphan would stop every callback in the deployment, permanently.
+            if (!tasks.TryGetValue(row.TaskId, out ConfirmationTaskEntity? task))
+            {
+                await DeadLetterOrphanAsync(dbContext, row, now, cancellationToken);
+                continue;
+            }
+
+            row.DeliveryStatus = "SENDING";
+            row.LeaseToken = leaseToken;
+            row.LeaseExpiresAt = leaseExpiresAt;
+            claimed.Add((row, task));
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        return rows.Select(row => new CallbackOutboxMessage(
-                row.CallbackId,
-                row.TaskId,
-                row.OfficialOrderId,
-                tasks[row.TaskId].ProgramType,
-                tasks[row.TaskId].CorrelationId,
-                row.IdempotencyKey,
-                row.PayloadJson,
-                row.PayloadSha256,
-                row.RetryCount,
+        return [.. claimed.Select(entry => new CallbackOutboxMessage(
+                entry.Row.CallbackId,
+                entry.Row.TaskId,
+                entry.Row.OfficialOrderId,
+                entry.Task.ProgramType,
+                entry.Task.CorrelationId,
+                entry.Row.IdempotencyKey,
+                entry.Row.PayloadJson,
+                entry.Row.PayloadSha256,
+                entry.Row.RetryCount,
                 leaseToken)
         {
-            TraceParent = tasks[row.TaskId].TraceParent,
-            TraceState = tasks[row.TaskId].TraceState,
-        })
-            .ToArray();
+            TraceParent = entry.Task.TraceParent,
+            TraceState = entry.Task.TraceState,
+        })];
+    }
+
+    /// <summary>
+    /// Retires a callback whose confirmation task no longer exists, without claiming it.
+    /// <para>
+    /// <c>INVALID_DEAD_LETTER</c> is the terminal status the delivery-status check constraint
+    /// already allows for a message that can never be sent, so this needs no schema change. The
+    /// row leaves the queue instead of circling in it.
+    /// </para>
+    /// <para>
+    /// The review item is the point. Dead-lettering is otherwise silent, and what actually
+    /// happened is that a call result never reached Sales and now never will -- that is an
+    /// operator's decision to make, not a log line to lose.
+    /// </para>
+    /// </summary>
+    private static async Task DeadLetterOrphanAsync(
+        IvrDbContext dbContext,
+        ResultCallbackEntity row,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        row.DeliveryStatus = "INVALID_DEAD_LETTER";
+        row.LastError = OrphanedTaskCode;
+        row.CoreResponseCode = OrphanedTaskCode;
+        row.SentAt ??= now;
+        row.NextRetryAt = null;
+        row.LeaseToken = null;
+        row.LeaseExpiresAt = null;
+
+        // The correlation id lived on the task, so there is none left to inherit. A synthetic one
+        // keyed to the callback keeps the audit row and the review item joinable to each other and
+        // to the only identifier that still exists.
+        string correlationId = string.Concat(OrphanCorrelationPrefix, row.CallbackId);
+        dbContext.AuditLog.Add(new AuditLogEntity
+        {
+            AuditId = Guid.NewGuid(),
+            ActorId = "ivr-callback-outbox",
+            ActorType = "service",
+            Action = "IVR_CALLBACK_DELIVERY_STATE_CHANGED",
+            TargetType = "result-callback",
+            TargetId = row.CallbackId,
+            Reason = OrphanedTaskCode,
+            CorrelationId = correlationId,
+            DataJson = System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["delivery_status"] = row.DeliveryStatus,
+                ["task_id"] = row.TaskId,
+                ["official_order_id"] = row.OfficialOrderId,
+                ["retry_count"] = row.RetryCount,
+                ["reason"] = OrphanedTaskCode,
+            }),
+            CreatedAt = now,
+        });
+
+        // Same guard CompleteDeliveryAsync uses, for the same reason: the review id is derived
+        // from the callback id, so a row that already raised one must not raise a duplicate key.
+        string reviewId = string.Concat("REVIEW-CALLBACK-", row.CallbackId);
+        bool exists = await dbContext.ReviewItems.AsNoTracking()
+            .AnyAsync(item => item.ReviewItemId == reviewId, cancellationToken);
+        if (!exists)
+        {
+            dbContext.ReviewItems.Add(new ReviewItemEntity
+            {
+                ReviewItemId = reviewId,
+                SourceType = "IVR_RESULT_CALLBACK",
+                SourceId = row.CallbackId,
+                Reason = OrphanedTaskCode,
+                Status = "OPEN",
+                CorrelationId = correlationId,
+                CreatedAt = now,
+            });
+        }
     }
 
     public async Task<bool> CompleteDeliveryAsync(
@@ -240,8 +342,19 @@ public sealed class CallbackOutboxRepository(
             return false;
         }
 
-        ConfirmationTaskEntity task = await dbContext.ConfirmationTasks.AsNoTracking()
-            .SingleAsync(candidate => candidate.TaskId == callback.TaskId, cancellationToken);
+        // The task can disappear between the claim and the completion: retention deletes
+        // ivr_confirmation_tasks and ivr_result_callbacks under separate data classes with
+        // separate periods, and no foreign key ties them. SingleAsync here would throw after the
+        // update above had already been applied, rolling it back and leaving the row SENDING for
+        // the next poll to claim and fail on again. The delivery is the part that matters and it
+        // is already recorded; the audit trail loses only the inherited correlation id, which is
+        // replaced with one derived from the callback so the entry stays joinable.
+        ConfirmationTaskEntity? task = await dbContext.ConfirmationTasks.AsNoTracking()
+            .SingleOrDefaultAsync(
+                candidate => candidate.TaskId == callback.TaskId,
+                cancellationToken);
+        string correlationId = task?.CorrelationId
+            ?? string.Concat(OrphanCorrelationPrefix, callback.CallbackId);
         dbContext.AuditLog.Add(new AuditLogEntity
         {
             AuditId = Guid.NewGuid(),
@@ -251,7 +364,7 @@ public sealed class CallbackOutboxRepository(
             TargetType = "result-callback",
             TargetId = callback.CallbackId,
             Reason = update.DeliveryStatus,
-            CorrelationId = task.CorrelationId,
+            CorrelationId = correlationId,
             DataJson = System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, object?>
             {
                 ["delivery_status"] = update.DeliveryStatus,
@@ -278,7 +391,7 @@ public sealed class CallbackOutboxRepository(
                         ?? update.LastError
                         ?? update.DeliveryStatus,
                     Status = "OPEN",
-                    CorrelationId = task.CorrelationId,
+                    CorrelationId = correlationId,
                     CreatedAt = now,
                 });
             }

@@ -84,41 +84,52 @@ public sealed class CallbackDispatcher(
                 continue;
             }
 
-            try
+            // Contract selection is settled on its own, before the transport is touched, and the
+            // two failures are kept apart because they mean opposite things. Selecting an adapter
+            // and failing is terminal -- no retry will ever find one. A transport failing is not.
+            //
+            // A single catch around both could not tell them apart: SalesCallbackContractSelector
+            // documents InvalidOperationException for an unsupported provider/program pair, and a
+            // transport raises the same type for a disposed handler, an EF "connection is already
+            // open", or a serializer in a bad state. Catching it once relabelled every one of
+            // those transient infrastructure faults as a terminal adapter rejection -- never
+            // retried, reported under an error code that pointed the investigation at contract
+            // configuration, and recorded on the circuit breaker as a success.
+            if (!TryResolveContract(provider, message.ProgramCode, out SalesCallbackContractKind contract))
             {
-                SalesCallbackContractKind contract = SalesCallbackContractSelector.Select(
-                    provider,
-                    message.ProgramCode);
-                transportResult = contract switch
+                transportResult = AdapterSelectionRejected;
+            }
+            else
+            {
+                try
                 {
-                    SalesCallbackContractKind.TargetV1 => await targetTransport.SendAsync(
-                        message,
-                        cancellationToken),
-                    SalesCallbackContractKind.CurrentGoldenHourCompat =>
-                        await currentTransport.SendAsync(message, cancellationToken),
-                    _ => throw new InvalidOperationException("Callback contract is unsupported."),
-                };
-            }
-            catch (InvalidOperationException)
-            {
-                transportResult = new CallbackTransportResult(
-                    CallbackTransportOutcome.Invalid,
-                    null,
-                    "CALLBACK_ADAPTER_SELECTION_REJECTED",
-                    "CALLBACK_ADAPTER_SELECTION_REJECTED");
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                circuitBreaker.RecordProbeAborted();
-                throw;
-            }
-            catch (Exception)
-            {
-                transportResult = new CallbackTransportResult(
-                    CallbackTransportOutcome.TransientFailure,
-                    null,
-                    "CALLBACK_TRANSPORT_UNEXPECTED_FAILURE",
-                    "CALLBACK_TRANSPORT_UNEXPECTED_FAILURE");
+                    transportResult = contract switch
+                    {
+                        SalesCallbackContractKind.TargetV1 => await targetTransport.SendAsync(
+                            message,
+                            cancellationToken),
+                        SalesCallbackContractKind.CurrentGoldenHourCompat =>
+                            await currentTransport.SendAsync(message, cancellationToken),
+
+                        // Unreachable while the selector only returns the two kinds above. Written
+                        // as a value rather than a throw so a kind added later cannot re-enter the
+                        // failure mode this block exists to remove.
+                        _ => AdapterSelectionRejected,
+                    };
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    circuitBreaker.RecordProbeAborted();
+                    throw;
+                }
+                catch (Exception)
+                {
+                    transportResult = new CallbackTransportResult(
+                        CallbackTransportOutcome.TransientFailure,
+                        null,
+                        "CALLBACK_TRANSPORT_UNEXPECTED_FAILURE",
+                        "CALLBACK_TRANSPORT_UNEXPECTED_FAILURE");
+                }
             }
 
             if (transportResult.Outcome == CallbackTransportOutcome.TransientFailure)
@@ -164,6 +175,44 @@ public sealed class CallbackDispatcher(
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// The terminal result for a message no adapter will ever accept. Held as a value so the
+    /// unsupported-contract path and the unresolvable-selection path report identically.
+    /// </summary>
+    private static readonly CallbackTransportResult AdapterSelectionRejected = new(
+        CallbackTransportOutcome.Invalid,
+        null,
+        "CALLBACK_ADAPTER_SELECTION_REJECTED",
+        "CALLBACK_ADAPTER_SELECTION_REJECTED");
+
+    /// <summary>
+    /// Resolves the wire contract for a provider and program, turning the selector's documented
+    /// refusal into <see langword="false"/>.
+    /// <para>
+    /// Narrow by construction: nothing but the selector runs inside the catch, so no exception
+    /// raised by a transport can reach it. <see cref="ArgumentException"/> is caught alongside
+    /// <see cref="InvalidOperationException"/> because the selector raises it for a blank program
+    /// code, which is the same fact as an unsupported one -- the message cannot be routed -- and
+    /// letting it escape here would abandon the rest of the batch instead of retiring one row.
+    /// </para>
+    /// </summary>
+    private static bool TryResolveContract(
+        SalesProviderKind provider,
+        string programCode,
+        out SalesCallbackContractKind contract)
+    {
+        try
+        {
+            contract = SalesCallbackContractSelector.Select(provider, programCode);
+            return true;
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
+        {
+            contract = default;
+            return false;
+        }
     }
 
     private CallbackDeliveryUpdate CreateCircuitOpenUpdate(

@@ -528,6 +528,76 @@ public sealed class CallbackDeliveryTests
         Assert.Equal("NOT_READY_CIRCUIT_OPEN", circuit.Snapshot().Readiness);
     }
 
+    /// <summary>
+    /// An <see cref="InvalidOperationException"/> raised by the transport is a transient
+    /// infrastructure fault and must be retried.
+    /// <para>
+    /// It used to be read as a contract problem. Selection and sending shared one
+    /// <c>catch (InvalidOperationException)</c>, which the selector's documented refusal was
+    /// written for, so anything the transport raised of that type came back as
+    /// <c>CALLBACK_ADAPTER_SELECTION_REJECTED</c> — an <c>Invalid</c> outcome, terminal,
+    /// dead-lettered, never retried. Worse, being terminal it counted as reachability
+    /// <em>success</em> on the circuit breaker, so a downstream that had started failing this way
+    /// looked healthy while every result it owed Sales was quietly discarded.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-CALLBACK-TRANSPORT-INVALIDOP-14")]
+    public async Task TransportRaisingInvalidOperationIsRetriedRatherThanDeadLettered()
+    {
+        CallbackDeliveryOptions settings = CreateOptions();
+        var clock = new MutableTimeProvider(Now);
+        var circuit = new CallbackCircuitBreaker(clock, Options.Create(settings));
+        var outbox = new MemoryOutbox(CreateMessage());
+        var dispatcher = new CallbackDispatcher(
+            outbox,
+            new InvalidOperationTargetTransport(),
+            new StubCurrentTransport(),
+            circuit,
+            Options.Create(settings),
+            clock);
+
+        CallbackDispatchResult result = Assert.Single(await dispatcher.RunBatchAsync());
+
+        Assert.Equal("CALLBACK_TRANSPORT_UNEXPECTED_FAILURE", result.ResponseCode);
+        Assert.Equal("RETRY_PENDING", outbox.Update?.DeliveryStatus);
+        Assert.NotNull(outbox.Update?.NextRetryAt);
+
+        // The half of the defect that hid the other half: a terminal outcome resets the transient
+        // streak, so the breaker never opened no matter how long this went on.
+        Assert.Equal(1, circuit.Snapshot().ConsecutiveTransientFailures);
+    }
+
+    /// <summary>
+    /// The refusal the shared catch was originally written for still behaves as it did: a program
+    /// no adapter serves is terminal, because no retry will ever find one.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-CALLBACK-ADAPTER-REJECT-15")]
+    public async Task UnroutableProgramIsStillARejectedAdapterSelection()
+    {
+        CallbackDeliveryOptions settings = CreateOptions();
+        var clock = new MutableTimeProvider(Now);
+        var circuit = new CallbackCircuitBreaker(clock, Options.Create(settings));
+        var outbox = new MemoryOutbox(CreateMessage() with { ProgramCode = "NO_SUCH_PROGRAM" });
+        var dispatcher = new CallbackDispatcher(
+            outbox,
+            new ThrowingTargetTransport(),
+            new StubCurrentTransport(),
+            circuit,
+            Options.Create(settings),
+            clock);
+
+        CallbackDispatchResult result = Assert.Single(await dispatcher.RunBatchAsync());
+
+        Assert.Equal("CALLBACK_ADAPTER_SELECTION_REJECTED", result.ResponseCode);
+        Assert.Equal("INVALID_DEAD_LETTER", outbox.Update?.DeliveryStatus);
+
+        // The transport was never reached, so there is nothing for the breaker to have learned
+        // about reachability either way.
+        Assert.Equal(0, circuit.Snapshot().ConsecutiveTransientFailures);
+    }
+
     [Fact]
     [Trait("TestId", "UT-CALLBACK-CIRCUIT-TERMINAL-13")]
     public async Task TerminalLocalResultReleasesHalfOpenCircuitProbe()
@@ -900,6 +970,19 @@ public sealed class CallbackDeliveryTests
             CallbackOutboxMessage message,
             CancellationToken cancellationToken) =>
             throw new TimeoutException("synthetic unexpected transport failure");
+    }
+
+    /// <summary>
+    /// Throws the same exception type the contract selector uses to refuse a provider/program
+    /// pair. A transport raises it for a disposed handler, an EF "connection is already open", or
+    /// a serializer in a bad state — all transient, none of them a contract problem.
+    /// </summary>
+    private sealed class InvalidOperationTargetTransport : ITargetV1CallbackTransport
+    {
+        public Task<CallbackTransportResult> SendAsync(
+            CallbackOutboxMessage message,
+            CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("The connection is already open.");
     }
 
     private sealed class StubCurrentTransport : ICurrentGoldenHourCallbackTransport
