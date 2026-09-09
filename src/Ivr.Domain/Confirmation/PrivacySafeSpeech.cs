@@ -49,12 +49,18 @@ public sealed record SpeechItem
 
     public static SpeechItem Create(string publicName, decimal quantity, string? unitLabel)
     {
-        string safeName = PrivacySafeOrderSummary.EnsureSafeBounded(publicName, 160, nameof(publicName));
+        string safeName = PrivacySafeOrderSummary.EnsureSafeBoundedProductText(
+            publicName,
+            160,
+            nameof(publicName));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
 
+        // The unit label takes the same guard as the name it qualifies: "gói" and "hộp" collide
+        // with nothing today, but a unit refused while its product is accepted would fail the
+        // order for a reason nobody could read from the message.
         string? safeUnit = string.IsNullOrWhiteSpace(unitLabel)
             ? null
-            : PrivacySafeOrderSummary.EnsureSafeBounded(unitLabel, 40, nameof(unitLabel));
+            : PrivacySafeOrderSummary.EnsureSafeBoundedProductText(unitLabel, 40, nameof(unitLabel));
         return new SpeechItem(safeName, quantity, safeUnit);
     }
 }
@@ -311,7 +317,28 @@ public sealed class PrivacySafeOrderSummary
             ]);
     }
 
-    internal static string EnsureSafeBounded(string value, int maximumLength, string parameterName)
+    internal static string EnsureSafeBounded(string value, int maximumLength, string parameterName) =>
+        EnsureBounded(value, maximumLength, parameterName, PiiGuard.EnsureSafeText);
+
+    /// <summary>
+    /// Same bounds and the same normalisation, with the guard for a field that holds a product
+    /// name rather than an address. See <see cref="PiiGuard.IsSafeProductText"/> for why the two
+    /// differ and what that costs.
+    /// </summary>
+    internal static string EnsureSafeBoundedProductText(
+        string value,
+        int maximumLength,
+        string parameterName) =>
+        EnsureBounded(value, maximumLength, parameterName, PiiGuard.EnsureSafeProductText);
+
+    // One body, two guards. Copying it would let the length bound or the Unicode normalisation
+    // drift between an address field and a product field, and normalisation drift is invisible
+    // until two strings that look identical stop matching the same recorded clip.
+    private static string EnsureBounded(
+        string value,
+        int maximumLength,
+        string parameterName,
+        Action<string?> guard)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -324,7 +351,7 @@ public sealed class PrivacySafeOrderSummary
             throw new ArgumentOutOfRangeException(parameterName);
         }
 
-        PiiGuard.EnsureSafeText(normalized);
+        guard(normalized);
         return normalized;
     }
 }

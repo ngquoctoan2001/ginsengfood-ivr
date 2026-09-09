@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "8 of 240 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "8 of 241 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 18
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 186
+  rows_without_evidence_pack: 187
 
 gates:
   - id: "G-CONTRACT"
@@ -1071,6 +1071,10 @@ work:
     prompt: "Trả lời 4d cần gì; phát hiện intake từ chối một số tên hàng bình thường (Origin=UNPLANNED, owner hỏi \"4d cần gì\" 2026-09-09)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0242/README.md"
+  - id: "W-0243"
+    prompt: "Guard riêng cho public_name, bỏ bốn từ nhập nhằng (Origin=UNPLANNED, owner chốt \"guard riêng cho public_name, bỏ 4 từ đó\" 2026-09-09)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0243/README.md"
 
 production_flag:
   real_customer_call_allowed: false

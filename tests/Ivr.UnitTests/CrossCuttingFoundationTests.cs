@@ -1,4 +1,5 @@
 using System.Text;
+using Ivr.Domain.Confirmation;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Privacy;
 using Ivr.Infrastructure.Audit;
@@ -257,6 +258,67 @@ public sealed class CrossCuttingFoundationTests
         Assert.Contains(failures, failure => failure.Contains(
             "SIM_PROVIDER",
             StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [Trait("TestId", "UT-PII-PRODUCT-01")]
+    [InlineData("Tổ yến")]
+    [InlineData("Tổ yến chưng đường phèn")]
+    [InlineData("Đường phèn")]
+    [InlineData("Đường thốt nốt")]
+    [InlineData("Chè đường phèn")]
+    [InlineData("Mật ong đường mía")]
+    [InlineData("Ấp trứng")]
+    [InlineData("Thôn quê")]
+    public void OrdinaryProductNamesReachAConfirmationCall(string publicName)
+    {
+        // Every one of these is refused by IsSafeText, because đường, tổ, ấp and thôn are address
+        // markers as well as ordinary food words -- đường is sugar before it is a street, tổ is a
+        // nest. Before W-0243 a bird's-nest or rock-sugar order could not be confirmed by phone at
+        // all: intake rejected the task at the door.
+        SpeechItem.Create(publicName, 1m, "hộp");
+        Assert.True(PiiGuard.IsSafeProductText(publicName));
+
+        // And the guard they used to fail still fails them. This is a narrower rule for one field,
+        // not a rule that changed.
+        Assert.False(PiiGuard.IsSafeText(publicName));
+    }
+
+    [Theory]
+    [Trait("TestId", "UT-PII-PRODUCT-02")]
+    [InlineData("số nhà 12")]
+    [InlineData("Ngõ 5 Kim Mã")]
+    [InlineData("Hẻm 3 Lê Lợi")]
+    [InlineData("Ngách 12/4")]
+    [InlineData("so nha 12")]
+    [InlineData("ngo 5 Kim Ma")]
+    [InlineData("0912345678")]
+    [InlineData("+84912345678")]
+    [InlineData("dial_token: abcdefgh12345")]
+    public void TheFormsThatCarryARealAddressAreStillRefused(string publicName)
+    {
+        // số nhà, ngõ, hẻm and ngách mean an address and nothing else, so they stay -- along with
+        // phone numbers and dial tokens. What is deliberately given up is narrower: a product name
+        // reading "đường Nguyễn Huệ" now passes, which is the cost the owner accepted on
+        // 2026-09-09 to let tổ yến be ordered.
+        Assert.Throws<InvalidOperationException>(() => SpeechItem.Create(publicName, 1m, "hộp"));
+        Assert.False(PiiGuard.IsSafeProductText(publicName));
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-PII-PRODUCT-03")]
+    public void TheLooseningReachesOneFieldAndNoOther()
+    {
+        // The boundary, and the reason this is safe to do at all. A delivery area is an address
+        // field, so it keeps IsSafeText and still refuses the same string a product name now
+        // accepts. If this ever passes, the narrower guard has leaked out of the field it was
+        // written for.
+        SpeechItem.Create("Đường phèn", 1m, "hộp");
+        Assert.Throws<InvalidOperationException>(() => ShortDeliveryArea.Create("Đường phèn"));
+
+        // Same string, two answers, on purpose.
+        Assert.True(PiiGuard.IsSafeProductText("Đường phèn"));
+        Assert.False(PiiGuard.IsSafeText("Đường phèn"));
     }
 
     private sealed record SampleResponse(int Sequence, string Status);

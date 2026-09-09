@@ -43,19 +43,35 @@ public static class PiiGuard
     private const string DialTokenBranch =
         "(?:dial[_-]?token)[\\\"'`: ]+[A-Za-z0-9._-]{8,}";
 
-    private const string AsciiAddressBranch =
-        @"(?<![\p{L}\p{N}])(?:duong|so nha|ngo|hem|ngach|thon|ap)\s+[A-Za-z0-9]";
+    // The address markers split in two, because four of them are not only address markers.
+    //
+    // "số nhà", "ngõ", "hẻm" and "ngách" occur in addresses and essentially nowhere else, so a
+    // field carrying one is carrying an address.
+    private const string AsciiPlaceMarkerBranch =
+        @"(?<![\p{L}\p{N}])(?:so nha|ngo|hem|ngach)\s+[A-Za-z0-9]";
 
-    private const string DiacriticAddressBranch =
-        @"(?<![\p{L}\p{N}])(?:đường|số nhà|ngõ|hẻm|ngách|thôn|ấp|tổ)\s+";
+    private const string DiacriticPlaceMarkerBranch =
+        @"(?<![\p{L}\p{N}])(?:số nhà|ngõ|hẻm|ngách)\s+";
+
+    // "đường", "thôn", "ấp" and "tổ" are also ordinary Vietnamese words, and in a product name
+    // they are usually the ordinary sense: đường is sugar before it is a street ("đường phèn",
+    // "đường thốt nốt"), and tổ is a nest ("tổ yến"). Held apart so a field can take the markers
+    // that only ever mean an address without taking the ones that usually do not. W-0243.
+    private const string AsciiAmbiguousMarkerBranch =
+        @"(?<![\p{L}\p{N}])(?:duong|thon|ap)\s+[A-Za-z0-9]";
+
+    private const string DiacriticAmbiguousMarkerBranch =
+        @"(?<![\p{L}\p{N}])(?:đường|thôn|ấp|tổ)\s+";
 
     private static readonly Regex RestrictedValuePattern = new(
         string.Join(
             '|',
             PhoneBranch,
             DialTokenBranch,
-            AsciiAddressBranch,
-            DiacriticAddressBranch),
+            AsciiPlaceMarkerBranch,
+            DiacriticPlaceMarkerBranch,
+            AsciiAmbiguousMarkerBranch,
+            DiacriticAmbiguousMarkerBranch),
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled,
         MatchBudget);
 
@@ -83,6 +99,66 @@ public static class PiiGuard
         string.Join('|', PhoneBranch, DialTokenBranch),
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled,
         MatchBudget);
+
+    /// <summary>
+    /// Product-field subset: phone and dial-token, plus only the address markers that mean an
+    /// address and nothing else. Composed from the same constants as
+    /// <see cref="RestrictedValuePattern"/>, so no branch can drift between them.
+    /// <para>
+    /// The four markers left out are ordinary words. <c>Tổ yến</c>, <c>đường phèn</c> and
+    /// <c>đường thốt nốt</c> are products a customer can order, and <see cref="IsSafeText"/>
+    /// refuses all three — the order never reaches a confirmation call at all. That is the same
+    /// collision <c>W-0105</c> found in people's names, where <c>Dương</c> and <c>Ngô</c> are
+    /// ordinary surnames, and it is resolved the same way: a narrower pattern for the field whose
+    /// declared content is not an address.
+    /// </para>
+    /// <para>
+    /// The cost is stated rather than hidden. A product name reading <c>"đường Nguyễn Huệ"</c> now
+    /// passes this guard, where <see cref="IsSafeText"/> refuses it. Phone numbers, dial tokens,
+    /// <c>số nhà</c>, <c>ngõ</c>, <c>hẻm</c> and <c>ngách</c> are still refused, so the forms that
+    /// actually carry a deliverable address do not get through. Owner decision, 2026-09-09
+    /// (<c>W-0243</c>); <see cref="IsSafeText"/> itself is unchanged and every other field keeps
+    /// it.
+    /// </para>
+    /// </summary>
+    private static readonly Regex RestrictedProductTextPattern = new(
+        string.Join(
+            '|',
+            PhoneBranch,
+            DialTokenBranch,
+            AsciiPlaceMarkerBranch,
+            DiacriticPlaceMarkerBranch),
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled,
+        MatchBudget);
+
+    /// <summary>
+    /// Use only for a field whose declared content is a product name or a unit label. A timeout
+    /// counts as unsafe, for the same reason as in <see cref="IsSafeText"/>.
+    /// </summary>
+    public static bool IsSafeProductText(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return true;
+        }
+
+        try
+        {
+            return !RestrictedProductTextPattern.IsMatch(value);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
+    }
+
+    public static void EnsureSafeProductText(string? value)
+    {
+        if (!IsSafeProductText(value))
+        {
+            throw new InvalidOperationException("A restricted PII value was rejected.");
+        }
+    }
 
     public static bool IsSafeText(string? value)
     {
