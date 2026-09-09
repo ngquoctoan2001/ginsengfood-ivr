@@ -355,14 +355,16 @@ DI chỉ có mock / lab / `UnavailableSchedulerDispatchGateway` (`SchedulerCapac
 
 ### 2.1 — Chốt con số TTL `dial_token` ⚠️ nặng nhất · *M3 + Security*
 
-> ⛔ **Đính chính `W-0245` (09/09):** mục này từng ghi `OD-V1-17` ký *"TTL = cửa sổ + 60s"*. **Sai.**
-> `OD-V1-17` ký nguyên văn *"Token dùng lại được, gắn `task_id`, trần số lần resolve"* — không nêu
-> TTL nào; `OD-V1-05` hoãn TTL sang nó và nó để trống. Con số `+60s` vào worklist từ `W-0208` không
-> dẫn nguồn, và **không có trong bất kỳ tài liệu ký nào**.
+> ### ✅ `W-0246` (09/09) — owner ký equality, mục này đóng
 >
-> ⇒ **Không có mâu thuẫn.** Ba guard nhận đúng một giá trị, không gì đã ký nói khác, và `2.1` không
-> còn là *"mục nặng nhất chờ M3 + Security"*. Việc còn lại nhỏ hơn hẳn: **ký equality thành quyết
-> định** — mà nay anh ký được, vì `Security` trong bảng owner chính là anh.
+> **`dial_token_expires_at` = đúng confirmation-window end**, thay thế vế `"TTL = cửa sổ + 60s"` của
+> `OD-V1-17` (`CLOSED` 05/09). Con số `+60s` chưa từng thi hành được — qua intake rồi bị persistence
+> từ chối — nên equality vốn đã là hợp đồng thực tế; nay nó **đã ký**. **Không tầng nào phải sửa,
+> M3 không phải đổi gì**, và `IT-INTAKE-DB-03` chuyển từ ghim hiện trạng sang ghim một hợp đồng.
+>
+> ⛔ Một lượt trung gian (`W-0245`) từng khẳng định `+60s` *"không có trong bất kỳ tài liệu ký nào"*
+> và rút mục này. **Sai, đã rút lại**: nó nằm trong `specs/_review/open-decisions-register.md` —
+> nguồn mà `od-v1-signoff` khai ngay ở header, và là nguồn lượt đó không kiểm.
 
 **Ba** guard đang chạy buộc `dial_token_expires_at` **bằng đúng** cửa sổ:
 

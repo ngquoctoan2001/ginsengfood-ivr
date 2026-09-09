@@ -1,3 +1,24 @@
+# W-0245 — RÚT LẠI
+
+> ## ⛔ Lượt này sai và đã bị `W-0246` rút, cùng ngày
+>
+> Kết luận trung tâm — *"`+60s` không tồn tại trong bất kỳ tài liệu ký nào"* — **sai**. Nó nằm trong
+> `specs/_review/open-decisions-register.md`, dòng `OD-V1-17`, nguyên văn *"TTL = cửa sổ xác nhận
+> + 60s"*, ghi là một phần của lượt `CLOSED 2026-09-05`.
+>
+> Tôi kiểm bốn nguồn — tài liệu ký, gói phương án `T-04`, register **trong spec V0.3**, và config —
+> rồi tuyên bố đã kiểm hết. **Không kiểm `specs/_review/open-decisions-register.md`**, dù chính
+> `od-v1-signoff-2026-09-05` khai nó ở header là *"Nguồn"*, và dù ghi chú trong đó nói thẳng
+> *"trạng thái sống của từng dòng nằm ở register"*.
+>
+> Nên: `W-0208` **đúng**, mâu thuẫn `2.1` là **thật**, và lời rút của lượt này là lỗi.
+>
+> **Phần duy nhất của lượt này còn giá trị** là §3: bốn validator thật sự đã đỏ từ `W-0221`, và
+> phương pháp sweep của tôi thật sự đọc dòng usage thành PASS. Phần đó đúng và đã được sửa.
+>
+> Bài học, ghi cho lượt sau: *"đã kiểm hết nguồn"* chỉ đúng khi **liệt kê được nguồn nào**, và khi
+> danh sách đó bắt đầu từ nguồn mà chính tài liệu tự khai — không phải từ nguồn mình nghĩ ra.
+
 # W-0245 — Con số tôi gán cho một chữ ký không có ở đó, và bốn validator đỏ suốt hai ngày
 
 Ngày: 2026-09-09 · Baseline: `main@beddcef` · Trạng thái: **TESTS_PASS**.

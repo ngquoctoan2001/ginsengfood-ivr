@@ -184,10 +184,12 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
     /// transaction instead, which is the worst place for a producer to discover a contract.
     /// </para>
     /// <para>
-    /// <c>OD-V1-17</c> (signed 2026-09-05) specifies TTL = window + 60s. The middle case below is
-    /// that number, and it does not survive. Until the decision and all three guards move together,
-    /// this test is what says so out loud; W-0208. When the TTL does change, this test is meant to
-    /// fail - update it deliberately rather than deleting it.
+    /// <c>OD-V1-17</c> closed on 2026-09-05 with TTL = window + 60s, and the middle case below is
+    /// that number failing. On 2026-09-09 the owner replaced that clause: the TTL is equality, the
+    /// value all three guards already admit (W-0246). So this test changed meaning without changing
+    /// a line - it used to record that a signed decision could not be implemented, and now it holds
+    /// the signed decision itself. Still meant to fail if the TTL moves again; update it
+    /// deliberately rather than deleting it.
     /// </para>
     /// </summary>
     [Fact]
@@ -211,8 +213,9 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
 
         Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, accepted.Decision);
 
-        // Window + 60s: what OD-V1-17 asks Module 3 to send. The contact gate lets it through,
-        // then the persistence invariant rejects it inside the transaction.
+        // Window + 60s: the clause OD-V1-17 carried until 2026-09-09. The contact gate lets it
+        // through, then the persistence invariant rejects it inside the transaction - which is why
+        // that clause was replaced rather than implemented.
         InvalidOperationException tooLate =
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 service.IntakeAsync(new TaskIntakeCommand(
