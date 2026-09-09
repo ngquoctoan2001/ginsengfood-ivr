@@ -1,3 +1,4 @@
+using Ivr.Infrastructure.Resilience;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.Extensions.Options;
 
@@ -7,13 +8,14 @@ public sealed partial class SchedulerJobHost(
     ISchedulerRuntime scheduler,
     IOptions<SchedulerOptions> options,
     WorkerLiveness liveness,
+    TimeProvider timeProvider,
     ILogger<SchedulerJobHost> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         string workerId = string.Concat("ivr-scheduler-", Guid.NewGuid().ToString("N"));
-        using var timer = new PeriodicTimer(
-            TimeSpan.FromMilliseconds(options.Value.PollIntervalMilliseconds));
+        var period = TimeSpan.FromMilliseconds(options.Value.PollIntervalMilliseconds);
+        using var timer = new PeriodicTimer(period, timeProvider);
         // Registered explicitly. A loop that forgot to register would be silently exempt
         // from the liveness check, and the loops worth watching are exactly the ones
         // somebody added without thinking about health.
@@ -24,14 +26,14 @@ public sealed partial class SchedulerJobHost(
         // cannot dispatch, which is the exact shape of comfort this whole class exists to remove.
         if (options.Value.Enabled)
         {
-            liveness.Register(
-                "scheduler",
-                TimeSpan.FromMilliseconds(options.Value.PollIntervalMilliseconds));
+            liveness.Register("scheduler", period);
         }
         else
         {
             liveness.RegisterDisabled("scheduler");
         }
+
+        var backoff = new LoopBackoff(period, timeProvider);
         // W-0214. Only the transitions are logged, not the state. This loop turns every
         // PollIntervalMilliseconds -- 100ms under the LocalMockE2E profile -- so a line per pass
         // would bury the night it is meant to explain under six hundred identical lines a minute.
@@ -39,6 +41,7 @@ public sealed partial class SchedulerJobHost(
         bool? callingWindowOpen = null;
         while (!stoppingToken.IsCancellationRequested)
         {
+            bool failed = false;
             try
             {
                 SchedulerRunResult result = await scheduler.RunOnceAsync(
@@ -70,6 +73,7 @@ public sealed partial class SchedulerJobHost(
                 }
 
                 liveness.Tick("scheduler");
+                backoff.RecordSuccess();
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -77,8 +81,19 @@ public sealed partial class SchedulerJobHost(
             }
             catch (Exception exception)
             {
-                LogFailure(logger, exception);
+                LogFailure(logger, exception, backoff.ConsecutiveFailures + 1);
                 liveness.Fault("scheduler", exception);
+                failed = true;
+            }
+
+            // A failed pass waits before the next one. This loop turns every 100 ms under the
+            // LocalMockE2E profile, so retrying at the poll interval regardless of what is wrong
+            // meant ten stack traces a second per replica for as long as an outage lasted — and
+            // the connection storm that came with them is part of why it lasted.
+            if (failed
+                && !await backoff.DelayAfterFailureAsync(stoppingToken).ConfigureAwait(false))
+            {
+                break;
             }
 
             if (!await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
@@ -101,8 +116,11 @@ public sealed partial class SchedulerJobHost(
     [LoggerMessage(
         EventId = 2311,
         Level = LogLevel.Error,
-        Message = "Scheduler run failed closed.")]
-    private static partial void LogFailure(ILogger logger, Exception exception);
+        Message = "Scheduler run failed closed; consecutive failures={ConsecutiveFailures}.")]
+    private static partial void LogFailure(
+        ILogger logger,
+        Exception exception,
+        int consecutiveFailures);
 
     [LoggerMessage(
         EventId = 2312,

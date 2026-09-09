@@ -80,13 +80,21 @@ public sealed class SchedulerEligibilityCapacityProvider(
     }
 }
 
-public sealed class EligibilityService(
+public sealed partial class EligibilityService(
     IEligibilityRepository repository,
     IEligibilityCapacityProvider capacityProvider,
-    TimeProvider timeProvider) : IEligibilityService
+    TimeProvider timeProvider,
+    ILogger<EligibilityService>? logger = null) : IEligibilityService
 {
     private static readonly JsonSerializerOptions JsonOptions =
         new(JsonSerializerDefaults.Web);
+
+    /// <summary>
+    /// The reason code an unreadable capacity source is counted under on
+    /// <c>ivr_fail_closed_total</c>, matching the value written into the returned snapshot so the
+    /// counter and the decision an operator sees name the same thing.
+    /// </summary>
+    private const string CapacitySourceUnreadableReason = "CAPACITY_SOURCE_UNREADABLE";
 
     public async Task<EligibilityEvaluation> EvaluateAsync(
         string taskId,
@@ -193,8 +201,35 @@ public sealed class EligibilityService(
         {
             throw;
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            // Counted and logged, not just returned. Failing closed is the correct behaviour, but
+            // it is also indistinguishable from working: the caller gets a well-formed snapshot
+            // either way, so a capacity source that is permanently broken looks exactly like
+            // normal operation. Discarding the exception here left no counter to alert on and
+            // nothing to grep, which is how it could stay broken indefinitely.
+            //
+            // The PiiGuard call above is the reason this matters more than a usual fail-closed
+            // path. It throws when real personal data was about to leave the boundary — the single
+            // most serious thing this method can discover — and that was landing in the same
+            // silent branch as "Postgres is down".
+            IvrTelemetry.RecordFailClosed(
+                (TelemetryTags.ReasonCode, CapacitySourceUnreadableReason));
+
+            // The exception type, not the exception. A capacity provider's message can quote a row
+            // it was reading, and the whole point of the guard above is that such text does not
+            // get copied anywhere. The type is what separates the two cases an operator has to
+            // tell apart: InvalidOperationException is the guard or a contract violation,
+            // anything else is the source being unreachable.
+            if (logger is not null)
+            {
+                LogCapacitySourceUnreadable(logger, exception.GetType().Name);
+            }
+
+            System.Diagnostics.Activity.Current?.SetTag(
+                TelemetryTags.ReasonCode,
+                CapacitySourceUnreadableReason);
+
             return new EligibilityCapacitySnapshot(
                 false,
                 false,
@@ -203,10 +238,16 @@ public sealed class EligibilityService(
                 0,
                 0,
                 0,
-                "CAPACITY_SOURCE_UNREADABLE",
+                CapacitySourceUnreadableReason,
                 "evidence://ivr/p2-2/capacity-source-error");
         }
     }
+
+    [LoggerMessage(
+        EventId = 2210,
+        Level = LogLevel.Warning,
+        Message = "Eligibility capacity source was unreadable and failed closed; exception={ExceptionType}")]
+    private static partial void LogCapacitySourceUnreadable(ILogger logger, string exceptionType);
 
     private static EligibilitySnapshot Map(
         EligibilityTaskRecord stored,

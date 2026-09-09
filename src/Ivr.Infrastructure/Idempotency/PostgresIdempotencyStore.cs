@@ -14,7 +14,7 @@ public sealed class PostgresIdempotencyStore(
 {
     private const string Scope = "foundation";
     private static readonly JsonSerializerOptions SerializerOptions =
-        CreateSerializerOptions();
+        IdempotencySerialization.Options;
 
     public Task<TResponse> ExecuteAsync<TResponse>(
         string key,
@@ -103,11 +103,4 @@ public sealed class PostgresIdempotencyStore(
         JsonSerializer.Deserialize<TResponse>(snapshot, SerializerOptions)
         ?? throw new InvalidOperationException(
             "The stored idempotency response could not be restored.");
-
-    private static JsonSerializerOptions CreateSerializerOptions()
-    {
-        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-        options.Converters.Add(new ReadOnlySetJsonConverterFactory());
-        return options;
-    }
 }

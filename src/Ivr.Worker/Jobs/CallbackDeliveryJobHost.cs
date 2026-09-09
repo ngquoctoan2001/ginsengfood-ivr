@@ -1,4 +1,5 @@
 using Ivr.Infrastructure.Callbacks;
+using Ivr.Infrastructure.Resilience;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Worker.Jobs;
@@ -8,6 +9,7 @@ public sealed partial class CallbackDeliveryJobHost(
     CallbackCircuitBreaker circuitBreaker,
     IOptions<CallbackDeliveryOptions> options,
     WorkerLiveness liveness,
+    TimeProvider timeProvider,
     ILogger<CallbackDeliveryJobHost> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -23,16 +25,16 @@ public sealed partial class CallbackDeliveryJobHost(
             return;
         }
 
-        using var timer = new PeriodicTimer(
-            TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds));
+        var period = TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds);
+        using var timer = new PeriodicTimer(period, timeProvider);
         // Registered explicitly. A loop that forgot to register would be silently exempt
         // from the liveness check, and the loops worth watching are exactly the ones
         // somebody added without thinking about health.
-        liveness.Register(
-            "callback-delivery",
-            TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds));
+        liveness.Register("callback-delivery", period);
+        var backoff = new LoopBackoff(period, timeProvider);
         while (!stoppingToken.IsCancellationRequested)
         {
+            bool failed = false;
             try
             {
                 await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
@@ -47,6 +49,7 @@ public sealed partial class CallbackDeliveryJobHost(
                 }
 
                 liveness.Tick("callback-delivery");
+                backoff.RecordSuccess();
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -54,8 +57,18 @@ public sealed partial class CallbackDeliveryJobHost(
             }
             catch (Exception exception)
             {
-                LogFailure(logger, exception);
+                LogFailure(logger, exception, backoff.ConsecutiveFailures + 1);
                 liveness.Fault("callback-delivery", exception);
+                failed = true;
+            }
+
+            // A failed pass waits before the next one. Retrying at the poll interval regardless of
+            // what is wrong turns a dependency outage into a log flood and a connection storm, and
+            // the storm is part of why the dependency stays down.
+            if (failed
+                && !await backoff.DelayAfterFailureAsync(stoppingToken).ConfigureAwait(false))
+            {
+                break;
             }
 
             if (!await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
@@ -80,6 +93,9 @@ public sealed partial class CallbackDeliveryJobHost(
     [LoggerMessage(
         EventId = 2332,
         Level = LogLevel.Error,
-        Message = "Callback delivery failed closed.")]
-    private static partial void LogFailure(ILogger logger, Exception exception);
+        Message = "Callback delivery failed closed; consecutive failures={ConsecutiveFailures}.")]
+    private static partial void LogFailure(
+        ILogger logger,
+        Exception exception,
+        int consecutiveFailures);
 }

@@ -39,9 +39,12 @@ public sealed partial class AnalyticsEtlJobHost(
         // reporting loop that stops still matters: the dashboard goes quietly stale rather than
         // visibly empty, which is the harder kind of wrong to notice.
         liveness.Register("analytics", period);
+        var backoff = new Ivr.Infrastructure.Resilience.LoopBackoff(period, timeProvider);
 
+        bool failed;
         do
         {
+            failed = false;
             try
             {
                 AnalyticsEtlRunReport report = await etlJob.RunAsync(
@@ -62,6 +65,7 @@ public sealed partial class AnalyticsEtlJobHost(
                     report.DurationMs);
 
                 liveness.Tick("analytics");
+                backoff.RecordSuccess();
 
                 if (report.RejectedRows > 0)
                 {
@@ -79,8 +83,19 @@ public sealed partial class AnalyticsEtlJobHost(
             catch (Exception exception)
 #pragma warning restore CA1031
             {
-                LogFailed(logger, exception);
+                LogFailed(logger, exception, backoff.ConsecutiveFailures + 1);
                 liveness.Fault("analytics", exception);
+                failed = true;
+            }
+
+            // Kept uniform with the three fast loops even though this one already waits five
+            // minutes between passes. The point is not the extra seconds; it is that all four
+            // loops answer "what does a failing pass do next" the same way, so nobody has to
+            // check which of them is the exception.
+            if (failed
+                && !await backoff.DelayAfterFailureAsync(stoppingToken).ConfigureAwait(false))
+            {
+                return;
             }
         }
         while (await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false));
@@ -114,6 +129,9 @@ public sealed partial class AnalyticsEtlJobHost(
     [LoggerMessage(
         EventId = 1203,
         Level = LogLevel.Warning,
-        Message = "Analytics ETL run failed; the next tick retries")]
-    private static partial void LogFailed(ILogger logger, Exception exception);
+        Message = "Analytics ETL run failed; the next tick retries; consecutive failures={ConsecutiveFailures}")]
+    private static partial void LogFailed(
+        ILogger logger,
+        Exception exception,
+        int consecutiveFailures);
 }

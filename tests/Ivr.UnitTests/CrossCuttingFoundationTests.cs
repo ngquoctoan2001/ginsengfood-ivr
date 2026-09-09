@@ -12,6 +12,47 @@ namespace Ivr.UnitTests;
 
 public sealed class CrossCuttingFoundationTests
 {
+    /// <summary>
+    /// Both idempotency stores must replay the same response shapes, because which one is wired is
+    /// an environment decision the caller knows nothing about.
+    /// <para>
+    /// They had drifted: the Postgres store registered a converter for
+    /// <see cref="IReadOnlySet{T}"/> and the in-memory store built its own options without one, so
+    /// a response carrying a read-only set replayed in production and threw in MOCK — the mode
+    /// used to rehearse the thing before it ships. Two constructions of "the same" options is the
+    /// defect; they share one instance now.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-FND-IDEMP-04")]
+    public async Task BothStoresReplayTheSameResponseShapes()
+    {
+        InMemoryIdempotencyStore store = new(TimeProvider.System);
+        IReadOnlySet<string> reasons = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "SAFE_REASON_A",
+            "SAFE_REASON_B",
+        };
+
+        SetBearingResponse first = await store.ExecuteAsync(
+            "set-bearing-1",
+            "payload-a",
+            _ => Task.FromResult(new SetBearingResponse("ELIGIBLE_FOR_IVR", reasons)));
+
+        // The replay is the deserialization path, and the one that used to throw: the first call
+        // returns the object the factory made without a round trip, so only the second proves the
+        // snapshot can be read back at all.
+        SetBearingResponse replay = await store.ExecuteAsync(
+            "set-bearing-1",
+            "payload-a",
+            _ => Task.FromResult(new SetBearingResponse("unexpected", reasons)));
+
+        Assert.Equal("ELIGIBLE_FOR_IVR", replay.Decision);
+        Assert.Equal(first.Reasons.Order(StringComparer.Ordinal), replay.Reasons.Order(StringComparer.Ordinal));
+    }
+
+    private sealed record SetBearingResponse(string Decision, IReadOnlySet<string> Reasons);
+
     [Fact]
     [Trait("TestId", "UT-FND-IDEMP-01")]
     public async Task IdempotencyStoreReplaysSamePayloadAndRejectsDifferentPayload()

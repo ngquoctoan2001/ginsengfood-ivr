@@ -1,4 +1,5 @@
 using Ivr.Infrastructure.Repositories;
+using Ivr.Infrastructure.Resilience;
 using Ivr.Worker.Normalization;
 using Microsoft.Extensions.Options;
 
@@ -8,6 +9,7 @@ public sealed partial class NormalizationJobHost(
     ResultNormalizer normalizer,
     IOptions<NormalizationOptions> options,
     WorkerLiveness liveness,
+    TimeProvider timeProvider,
     ILogger<NormalizationJobHost> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -24,16 +26,16 @@ public sealed partial class NormalizationJobHost(
         }
 
         string workerId = string.Concat("ivr-normalizer-", Guid.NewGuid().ToString("N"));
-        using var timer = new PeriodicTimer(
-            TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds));
+        var period = TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds);
+        using var timer = new PeriodicTimer(period, timeProvider);
         // Registered explicitly. A loop that forgot to register would be silently exempt
         // from the liveness check, and the loops worth watching are exactly the ones
         // somebody added without thinking about health.
-        liveness.Register(
-            "normalization",
-            TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds));
+        liveness.Register("normalization", period);
+        var backoff = new LoopBackoff(period, timeProvider);
         while (!stoppingToken.IsCancellationRequested)
         {
+            bool failed = false;
             try
             {
                 IReadOnlyList<NormalizationPersistenceResult> results =
@@ -47,6 +49,7 @@ public sealed partial class NormalizationJobHost(
                 }
 
                 liveness.Tick("normalization");
+                backoff.RecordSuccess();
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -54,8 +57,18 @@ public sealed partial class NormalizationJobHost(
             }
             catch (Exception exception)
             {
-                LogFailure(logger, exception);
+                LogFailure(logger, exception, backoff.ConsecutiveFailures + 1);
                 liveness.Fault("normalization", exception);
+                failed = true;
+            }
+
+            // A failed pass waits before the next one. Retrying at the poll interval regardless of
+            // what is wrong turns a dependency outage into a log flood and a connection storm, and
+            // the storm is part of why the dependency stays down.
+            if (failed
+                && !await backoff.DelayAfterFailureAsync(stoppingToken).ConfigureAwait(false))
+            {
+                break;
             }
 
             if (!await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
@@ -80,6 +93,9 @@ public sealed partial class NormalizationJobHost(
     [LoggerMessage(
         EventId = 2322,
         Level = LogLevel.Error,
-        Message = "Result normalizer failed closed.")]
-    private static partial void LogFailure(ILogger logger, Exception exception);
+        Message = "Result normalizer failed closed; consecutive failures={ConsecutiveFailures}.")]
+    private static partial void LogFailure(
+        ILogger logger,
+        Exception exception,
+        int consecutiveFailures);
 }

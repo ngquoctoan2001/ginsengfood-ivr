@@ -7,8 +7,10 @@ namespace Ivr.Infrastructure.Idempotency;
 
 public sealed class InMemoryIdempotencyStore(TimeProvider timeProvider) : IIdempotencyStore
 {
+    // The Postgres store's serializer, not a second one configured to look like it. See
+    // IdempotencySerialization for why the two must not be able to drift apart again.
     private static readonly JsonSerializerOptions SerializerOptions =
-        new(JsonSerializerDefaults.Web);
+        IdempotencySerialization.Options;
 
     private readonly ConcurrentDictionary<string, SemaphoreSlim> keyLocks =
         new(StringComparer.Ordinal);
