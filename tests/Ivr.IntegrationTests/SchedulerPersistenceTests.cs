@@ -26,6 +26,47 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         new(2026, 8, 13, 9, 0, 0, TimeSpan.Zero);
 
     [Fact]
+    [Trait("TestId", "IT-SCH-REVOKE-01")]
+    public async Task ARevokedTaskIsNeverClaimed()
+    {
+        // Fence 1 of 2 for worklist 2.5, owner decision B. Before this, an order cancelled after
+        // intake still got dialled: the claim reads job and window state, and nothing in it asked
+        // whether the order still wanted calling.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(factory, "TASK-SCH-REVOKE-01", "JOB-SCH-REVOKE-01", Now);
+        await SeedChannelAsync(factory, "SIM-LAB-001");
+
+        await using (IvrDbContext revoking = await factory.CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = await revoking.ConfirmationTasks
+                .SingleAsync(candidate => candidate.TaskId == "TASK-SCH-REVOKE-01");
+            task.RevokedAt = Now;
+            task.RevokeReason = "ORDER_CANCELLED";
+
+            // Recorded, never compared: order_version is opaque to IVR and Order Core owns the
+            // ordering, so the value is stored to be echoed rather than to rank two revokes.
+            task.RevokeOrderVersion = "18";
+            await revoking.SaveChangesAsync();
+        }
+
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease? lease = await store.TryClaimDueDispatchAsync(
+            "worker-a",
+            IvrOptions.LabRealSimExecutionMode,
+            TimeSpan.FromMinutes(2));
+
+        Assert.Null(lease);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Empty(await verification.CallAttempts.AsNoTracking().ToListAsync());
+
+        // The channel is untouched rather than reserved-and-released: a revoked task should not
+        // consume a SIM slot another order could have used.
+        SimChannelEntity channel = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.Null(channel.ActiveCallJobId);
+    }
+
+    [Fact]
     [Trait("TestId", "IT-SCH-CLAIM-01")]
     public async Task DuplicateWorkersCreateOneAttemptAndOneActiveChannelLease()
     {
@@ -692,6 +733,23 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
             string previous = migrations[targetIndex - 1];
             string target = migrations[targetIndex];
             await migration.GetService<IMigrator>().MigrateAsync(previous);
+
+            // Scaffolding, not the thing under test. This test pins a schema point and then seeds
+            // through the current entity model, so every column added to a seeded table after
+            // `previous` breaks it -- W-0249's three revocation columns were simply the first to
+            // do so. They are added here by hand so the physical table matches the model EF will
+            // insert with; W0172 does not touch them, so the preflight under test is unaffected.
+            //
+            // The fragility is real and worth naming: the next column added to
+            // ivr_confirmation_tasks will need the same line. The durable fix is to seed this one
+            // case with schema-pinned SQL instead of the live model, which is a larger change than
+            // this lap should carry.
+            await migration.Database.ExecuteSqlRawAsync("""
+                ALTER TABLE ivr_confirmation_tasks
+                    ADD COLUMN IF NOT EXISTS revoked_at timestamp with time zone NULL,
+                    ADD COLUMN IF NOT EXISTS revoke_reason text NULL,
+                    ADD COLUMN IF NOT EXISTS revoke_order_version text NULL
+                """);
 
             await SeedReadyJobAsync(
                 factory,

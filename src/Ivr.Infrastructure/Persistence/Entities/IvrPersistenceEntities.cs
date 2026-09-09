@@ -23,6 +23,32 @@ public sealed class ConfirmationTaskEntity : RetainedEntity
     public string OfficialOrderId { get; set; } = string.Empty;
     public string OrderCode { get; set; } = string.Empty;
     public string OrderVersion { get; set; } = string.Empty;
+
+    /// <summary>
+    /// When Module 3 revoked this task, or <see langword="null"/> while it stands. W-0249.
+    /// <para>
+    /// Two fences read it: the scheduler claim, which already joins this table, and
+    /// <c>PostgresTelephonyDispatchStore.LoadAsync</c>, the last read of task state before the
+    /// gateway dials. Neither closes the window entirely — an outbound call is not a transaction —
+    /// but together they take it from the whole confirmation window down to the gap between the
+    /// final read and the dial.
+    /// </para>
+    /// </summary>
+    public DateTimeOffset? RevokedAt { get; set; }
+
+    /// <summary>Why the task was revoked. Cancellation and a technical recall are not the same.</summary>
+    public string? RevokeReason { get; set; }
+
+    /// <summary>
+    /// The <c>order_version</c> the revoke carried.
+    /// <para>
+    /// Recorded and echoed, never compared for ordering. <c>order_version</c> is an opaque string
+    /// IVR returns verbatim — the OpenAPI calls it a "stale-result guard snapshot" and Order Core
+    /// owns the ordering. IVR cannot tell which of two versions is newer, so it cannot decide that
+    /// a revoke is stale; it stores what arrived so the party that can, can.
+    /// </para>
+    /// </summary>
+    public string? RevokeOrderVersion { get; set; }
     public string OrderState { get; set; } = string.Empty;
     public string PaymentMethodSnapshot { get; set; } = string.Empty;
     public bool IvrConfirmationRequired { get; set; }

@@ -159,6 +159,22 @@ public sealed class PostgresTelephonyDispatchStore(
             throw new InvalidOperationException("Stored dial-token expiry exceeds the call deadline.");
         }
 
+        // W-0249, fence 2 of 2, and the reason it sits here rather than beside the lease check a
+        // few lines up: EnsureCurrentLease answers "is this worker still the one holding the
+        // channel", which is a technical question. Whether the order still wants calling is a
+        // different question with a different answer, and this is the last moment IVR reads task
+        // state before the gateway dials.
+        //
+        // It does not close the window. This read is AsNoTracking with no row lock, so a revoke
+        // landing between here and the dial still gets through -- and the fix for that would be
+        // holding a database transaction across an outbound call, which is worse than the gap.
+        // Together with the claim predicate this takes the exposure from the whole confirmation
+        // window down to these few milliseconds.
+        if (task.RevokedAt is not null)
+        {
+            throw new InvalidOperationException("Task was revoked before dispatch.");
+        }
+
         Server.PrivacySafeOrderSummary wireSummary;
         try
         {

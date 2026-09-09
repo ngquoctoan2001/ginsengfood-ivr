@@ -98,6 +98,13 @@ public sealed class PostgresSchedulerStore(
                   AND attempt.is_counted_customer_attempt IS TRUE
             ) progress
             WHERE job.eligible IS TRUE
+              -- W-0249, fence 1 of 2. The task row is already joined for the window columns, so
+              -- an order revoked before the claim costs one predicate and no extra read. This is
+              -- where most revocations land: a confirmation window runs to minutes while
+              -- claim-to-dial runs in seconds. The second fence is in
+              -- PostgresTelephonyDispatchStore.LoadAsync, and neither closes the gap entirely --
+              -- an outbound call is not a transaction.
+              AND task.revoked_at IS NULL
               AND (({{mockExecution}} IS TRUE
                     AND job.status = 'DRY_RUN'
                     AND job.queue_status = 'HELD_MOCK')

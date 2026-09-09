@@ -22,6 +22,51 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         new(2026, 8, 13, 16, 0, 0, TimeSpan.Zero);
 
     [Fact]
+    [Trait("TestId", "IT-TEL-REVOKE-02")]
+    public async Task ARevokeLandingAfterTheClaimStillStopsTheDial()
+    {
+        // Fence 2 of 2. This is the case fence 1 cannot catch: the claim already happened, the
+        // channel is reserved, the lease is valid -- and EnsureCurrentLease will happily confirm
+        // all of that, because it answers a technical question. Whether the order still wants
+        // calling is a different question, and LoadAsync is the last place IVR can ask it.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-REVOKE-02", "JOB-TEL-REVOKE-02", "SIM-MOCK-01");
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-mock-tel",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+
+        // The revoke arrives here: after the claim, before the dial.
+        await using (IvrDbContext revoking = await factory.CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = await revoking.ConfirmationTasks
+                .SingleAsync(candidate => candidate.TaskId == "TASK-TEL-REVOKE-02");
+            task.RevokedAt = Now;
+            task.RevokeReason = "ORDER_CANCELLED";
+            task.RevokeOrderVersion = "18";
+            await revoking.SaveChangesAsync();
+        }
+
+        PostgresTelephonyDispatchStore store = CreateStore(factory);
+
+        InvalidOperationException refused = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => store.LoadAsync(lease));
+        Assert.Contains("revoked", refused.Message, StringComparison.OrdinalIgnoreCase);
+
+        // And the lease itself was still perfectly valid, which is the whole point: the technical
+        // fence would have let this through.
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallAttemptEntity attempt = await verification.CallAttempts.AsNoTracking().SingleAsync();
+        SimChannelEntity channel = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.Equal("LEASED_PENDING_DISPATCH", attempt.Status);
+        Assert.Equal(lease.JobId, channel.ActiveCallJobId);
+        Assert.Empty(await verification.RawCallEvents.AsNoTracking().ToListAsync());
+    }
+
+    [Fact]
     [Trait("TestId", "IT-TEL-DISPATCH-01")]
     public async Task SchedulerLeaseRunsThroughMockGatewayAndPersistsFencedProviderEvent()
     {

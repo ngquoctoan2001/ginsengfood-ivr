@@ -1,7 +1,7 @@
 # M8-17 — Fence thu hồi đơn giữa cửa sổ · phương án `B`
 
 **Ngày:** `2026-09-09` · **Work ID:** `W-0248` · **Quyết định:** owner chọn **`B` — M3 phát revoke**
-**Trạng thái:** `SPEC_ONLY / NOT_IMPLEMENTED` · `REAL_CUSTOMER_CALL_ALLOWED=NO`
+**Trạng thái:** `FENCES_IMPLEMENTED (W-0249) / ENDPOINT_PENDING` · `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
 > Worklist `2.5` cảnh báo một câu, và nó là toàn bộ độ khó của phương án này:
 > *"technical lease generation hiện có **không phải** order-revocation generation."*
@@ -66,11 +66,19 @@ M3 gọi IVR để thu hồi. Ba trường tối thiểu:
 | Trường | Vì sao |
 | --- | --- |
 | `task_id` | định danh |
-| `order_version` | **chống revoke cũ**: task đã mang `OrderVersion` từ intake; revoke mang version **≤** version đã lưu thì từ chối, nếu không một revoke chậm có thể hủy một đơn mới hơn |
+| `order_version` | **ghi lại và trả lại** — xem đính chính dưới |
 | `reason` | phân biệt *hủy đơn* với *thu hồi kỹ thuật* — hai thứ này khác nhau ở `call_result` |
 
-> `order_version` là chỗ dễ bỏ sót nhất. Không có nó thì hệ thống **không phân biệt được** một revoke
-> đến muộn với một revoke đúng lúc.
+> ⛔ **Đính chính khi dựng (`W-0249`).** Bản đầu của mục này viết *"revoke mang version ≤ version đã
+> lưu thì từ chối"*. **Không thi hành được, và sai nguyên tắc.** `order_version` là **chuỗi mờ IVR
+> trả nguyên** — OAS gọi nó là *stale-result guard snapshot*, IR-06 ghi *"IVR trả nguyên giá trị
+> trong callback"*, `OrderVersion` là `DomainStringValue` **không** `IComparable`, và không chỗ nào
+> trong repo so hai giá trị với nhau.
+>
+> IVR **không có thứ tự** trên trường này nên **không thể** biết revoke nào mới hơn. Thứ tự thuộc
+> **Order Core** — đó chính là lý do trường này tồn tại. Cột `revoke_order_version` vì vậy **ghi lại
+> và trả lại**, để bên có thứ tự phán. Trường vẫn cần trong contract; vai trò của nó là **audit +
+> echo**, không phải *"IVR từ chối revoke cũ"*.
 
 ## 6. Cần gì để dựng
 
