@@ -542,3 +542,49 @@ phải có clip trước khi SKU đó `Sellable`.
 
 `PACK-02 §5.4` đã tách sẵn hai trạng thái đó: *"SKU Activated không đồng nghĩa Sellable"*. Chỗ để
 cắm điều kiện ghi âm nằm đúng giữa hai cái.
+
+---
+
+## 14. "M3 có rồi thì IVR cần dữ liệu đó làm gì?"
+
+Câu hỏi đúng, và câu trả lời nằm ở chỗ mô hình vừa đổi.
+
+| | M3 gửi tên lúc gọi | IVR cần danh sách trước? |
+| --- | --- | --- |
+| **TTS** (hôm nay) | có | **không** — máy đọc chuỗi nào cũng được |
+| **Ghi âm** (`OD-V1-19`) | vẫn có | **có** — phải có người **đã đọc** chuỗi đó vào micro |
+
+**IVR không lưu danh sách như một sự thật.** Lúc chạy nó vẫn lấy `public_name` **từ M3**, y như bây
+giờ. Cái nó cần là **đã có sẵn bản thu của đúng chuỗi ấy** — vì một cuộc gọi ghi âm chỉ phát được
+file đã tồn tại.
+
+Nên danh sách 20 tên **không phải dữ liệu IVR sở hữu**. Nó là **kịch bản buổi thu**.
+
+### Thứ IVR giữ lại sau buổi thu
+
+Một map `tên → file clip`. Map đó trả lời *"tôi có bản thu của chuỗi này không"*, **không** trả lời
+*"sản phẩm nào tồn tại"*. Nó là **kho bản thu**, không phải bản sao Product Master — và nó chỉ lớn
+lên khi có tên mới được thu.
+
+IVR **không** cần `sku_id`, `product_group`, công thức, BOM, hay bất cứ trường nào khác của §5.2.
+Chỉ `public_product_name`, và phải là **đúng chuỗi M3 sẽ gửi** (§13: tra so chuỗi chính xác).
+
+### Nên thứ cần từ Product Master chỉ có hai
+
+1. **Một lần** — danh sách tên để thu.
+2. **Về sau** — tín hiệu khi có tên mới, để thu trước khi sản phẩm đó `Sellable` (§13, `3c`).
+
+### Và danh sách **không cần đủ** để bắt đầu
+
+Đây là chỗ `3b` trả công. Tên chưa có clip thì **gộp** vào *"và N sản phẩm khác"* — cuộc gọi vẫn
+chạy, chỉ kém chi tiết. Nên:
+
+| Bank D có | Hệ quả |
+| --- | --- |
+| rỗng | **mọi** cuộc gọi rơi chặn đáy — không gọi được |
+| vài tên bán chạy | chạy được; đơn chỉ có hàng hiếm thì gộp |
+| đủ 20 | không đơn nào bị gộp vì thiếu clip |
+
+⇒ `4d` **không phải cổng chặn nhị phân**, nó là **độ phủ**. Thu nhóm bán chạy trước là bắt đầu được
+ngay, phần đuôi bổ sung sau — miễn là mỗi tên được thu **đúng chuỗi Product Master chốt**, nếu
+không thì §13 vẫn áp: thu lại.
