@@ -444,6 +444,26 @@ cuộc đang gọi. ACK trên callback **không** thay được một command.
 >
 > Trước đây mục này ghi *"M3 + Security"*. Nay là **anh** — nên nó quyết được ngay.
 
+#### ✅ `W-0248` (09/09) — owner chọn **`B`**, đặc tả fence đã viết
+
+[`m8-17`](ivr-orther/m8-17-order-revocation-fence-2026-09-09.md) chỉ ra **đúng hai chỗ** fence phải
+nằm, cả hai đã xác minh trên code:
+
+| | Chỗ | Chi phí |
+| --- | --- | --- |
+| Fence 1 | `TryClaimDueDispatchAsync` — câu SQL claim **đã join sẵn** bảng task | **một vị từ** `AND task.revoked_at IS NULL` |
+| Fence 2 | `LoadAsync`, **ngay cạnh** guard TTL — lần đọc task cuối trước dial | vài dòng |
+
+> ⚠️ **Giới hạn phải nói trước, để không ai hứa nhầm.** `LoadAsync` đọc `AsNoTracking`, không
+> `FOR UPDATE`. Revoke rơi vào khoảng `LoadAsync` → dial **vẫn lọt**, và **không nên** đóng: đóng
+> nghĩa là giữ transaction DB xuyên suốt một cuộc gọi ra ngoài. Phương án `B` **giảm** cửa sổ từ
+> *"cả cửa sổ xác nhận"* xuống *"vài mili-giây"* — **không** làm nó bằng không.
+
+**Chỗ dễ bỏ sót nhất:** revoke phải mang `order_version`. Task đã lưu `OrderVersion` từ intake; không
+so version thì **một revoke đến muộn có thể hủy một đơn mới hơn**.
+
+Endpoint cho M3 **đi cùng lượt phát hành contract** với `7.1` và `2.2` — OAS chỉ nên mở một lần.
+
 ### 2.6 — Consumer callback + credential
 
 Shape đã implement. `W-0207` tự tìm và sửa một mâu thuẫn ACK nguy hiểm: ma trận yêu cầu
