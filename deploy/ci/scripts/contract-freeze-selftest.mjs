@@ -141,6 +141,21 @@ const CASES = [
     },
   },
   {
+    // W-0254. The handover told Module 3 to generate their client from draft.23 for a whole
+    // release after draft.24 shipped a breaking change. A field table that agrees with the spec
+    // is no help when the version pointer above it names a different spec.
+    id: "handover-points-module-3-at-a-superseded-version",
+    expect: "FREEZE-03",
+    mutate(root) {
+      editText(root, HANDOVER_PATH, (text) =>
+        text.replace(
+          /(bản hiện hành `1\.0\.0-draft\.)(\d+)(`)/u,
+          (_, before, count, after) => `${before}${Number(count) - 1}${after}`,
+        ),
+      );
+    },
+  },
+  {
     id: "published-callback-requiredness-drifts-from-the-spec",
     expect: "FREEZE-03",
     mutate(root) {
@@ -182,6 +197,12 @@ const CASES = [
       });
       editText(root, "docs/contracts/openapi-contract-diff.md", (text) =>
         text.split(before).join(after).split("1.0.0-draft.24").join("1.0.0"),
+      );
+      // W-0254 made the handover's version pointer part of the same surface, so a complete
+      // rotation carries it too. Leaving it behind would trip FREEZE-03 and blunt this case,
+      // whose whole point is that only the version claim itself is left to complain about.
+      editText(root, HANDOVER_PATH, (text) =>
+        text.split("1.0.0-draft.24").join("1.0.0"),
       );
     },
     rewriteBeforeAssert: true,

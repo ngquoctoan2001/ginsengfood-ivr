@@ -22,9 +22,11 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 | Callback OpenAPI Target V1 | `specs/api/openapi/order-core-ivr-callback.target-v1.yaml` |
 | Closure pack T-01…T-09 | `docs/contracts/target-v1-closure-pack/README.md` |
 | Decisions log | `plan/ivr-orther/decisions-log.md` |
-| **OpenAPI IVR — bản mới `1.0.0-draft.23`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
+| **OpenAPI IVR — bản hiện hành `1.0.0-draft.24`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
 | **So sánh draft.20 → draft.22** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md` |
 | **So sánh draft.22 → draft.23** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md` |
+| **So sánh draft.23 → draft.24 — có breaking, đọc trước khi sinh client** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` |
+| **Bảng nhãn tiếng Việt cho mọi enum** | `specs/ui/enum-labels.vi.json` |
 | **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md` |
 
 _Sửa 27/08/2026: bản trước dùng đường dẫn tương đối, nên khi IR-06 được gửi đi dạng file rời thì cả năm link đều không mở được — M3 báo lại ở review §3.3. Cả năm file đều tồn tại trong repo IVR; nếu cần bản sao, yêu cầu owner IVR gửi kèm._
@@ -48,8 +50,27 @@ Ngoài hai API nghiệp vụ trên còn **một bề mặt thứ ba** và hai de
 | --- | --- | --- |
 | **Màn hình quản trị M3 → IVR** | `{ivr}/v1/ivr/order-confirmation/...` (31 endpoint) | Xem hàng đợi, kill switch, cắt cuộc gọi, duyệt lời thoại — **§4A**, hợp đồng mới ngày 28/08/2026 |
 
-1. Cơ chế cấp/resolve/refresh `dial_token` để IVR lấy số E.164 lúc quay số.
-2. Service auth production: issuer, JWKS, audience, scope, credential và quyết định mTLS.
+1. Cơ chế cấp/resolve/refresh `dial_token` — **đã chốt** `OD-V1-05/17/18` (`2026-09-05`, vế TTL
+   `2026-09-09`); còn lại là vận hành, xem `§6`.
+2. Service auth production — **đã chốt** `OD-V1-07` (`2026-09-05`): JWT khóa bất đối xứng, JWKS,
+   TTL ≤ 10 phút, scope `ivr.task.write`, mTLS hoãn. Còn lại là dựng issuer và cấp sandbox
+   credential, xem `§7`.
+
+### Bắt đầu từ đâu — bốn thứ cần lấy
+
+| # | Lấy gì | Ở đâu |
+| ---: | --- | --- |
+| 1 | Contract hiện hành `1.0.0-draft.24` | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
+| 2 | **Đọc trước khi sinh client**: `draft.23 → draft.24` **có breaking** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` |
+| 3 | Fixture âm/dương để tự kiểm producer | `seed/sales-target-v1.sample.json` — 9 task hợp lệ, 13 `schema_negative` (`400`), 13 `domain_negative` |
+| 4 | Nhãn tiếng Việt cho mọi enum, nếu dựng console | `specs/ui/enum-labels.vi.json` + đặc tả màn hình `specs/ui/` |
+
+**Hai thay đổi breaking ở `draft.24` cần biết trước khi code:**
+
+- `phone_validation_status` thành `required` + `enum: [VALID]`. Gửi giá trị khác nay bị **schema**
+  chặn: `400 IVR_MALFORMED_REQUEST`, không còn `422 IVR_CONTACT_INVALID`.
+- `X-Correlation-Id` và `Idempotency-Key` bị siết cú pháp: `1..128` ký tự trong `[A-Za-z0-9._:-]`.
+  Header đang hợp lệ thì vẫn hợp lệ; header lạ ký tự sẽ bị từ chối sớm hơn trước.
 
 Mô hình đúng:
 
@@ -236,7 +257,7 @@ Trước khi gọi API, Module 3 xác nhận:
 > `W-0204`: bảng này và mảng `required` trong OpenAPI nay được **so khớp bằng gate**
 > (`FREEZE-03` trong `deploy/ci/scripts/contract-freeze-verifier.mjs`). Nếu hai bên lệch nhau, CI
 > đỏ — vì một chữ ký lên tài liệu mà spec không thực thi thì không ký lên cái gì cả. Bản đầy đủ cả
-> field lẫn enum, sinh từ spec đã ghim: [`target-v1-field-inventory.md`](../docs/contracts/target-v1-field-inventory.md).
+> field lẫn enum, sinh từ spec đã ghim: [`docs/contracts/target-v1-field-inventory.md`](../docs/contracts/target-v1-field-inventory.md).
 
 | Field | Kiểu | Ý nghĩa / ràng buộc |
 | --- | --- | --- |
@@ -1041,10 +1062,12 @@ Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Ngu
 > (`1.0.0-draft.21` trở về trước) **vẫn còn** 11 endpoint đó. Sinh client từ bản cũ sẽ ra
 > `signInConsoleAccount()`, `listConsoleAccounts()`, `createConsoleAccount()`… — gọi vào là `404`.
 >
-> Lấy lại spec ở `specs/api/openapi/ivr-order-confirmation.v1.yaml`, phiên bản **`1.0.0-draft.23`**,
+> Lấy lại spec ở `specs/api/openapi/ivr-order-confirmation.v1.yaml`, phiên bản **`1.0.0-draft.24`**,
 > rồi sinh lại. So sánh đầy đủ nằm ở hai changelog nối nhau:
-> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md` rồi
-> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md`.
+> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md`,
+> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md`, rồi
+> `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` — bản cuối
+> **có breaking**, xem `§3.4.2`.
 > Bản `.22→.23` là nơi các route feature-flag nhận ràng buộc
 > `minLength:1 / maxLength:128 / pattern:'^[A-Za-z0-9._:-]+$'` cho `x-correlation-id` — cùng luật mà
 > route intake vẫn chưa khai (xem §3.1.1).
@@ -1110,18 +1133,25 @@ Trạng thái gate: `LOCAL_ALIGNMENT_IMPLEMENTED_EXTERNAL_GATES_OPEN`.
 
 ---
 
-## 6. `dial_token` — chưa chốt
+## 6. `dial_token` — đã chốt hợp đồng, còn lại là vận hành
 
 **Correction `W-0150` (03/09/2026):** production path vẫn fail-closed và chưa được phép code.
-OpenAPI current cho phép thiếu `phone_validation_status` nhưng runtime chỉ nhận exact `VALID`;
+
+> **Cập nhật `W-0250` (09/09/2026) — câu dưới đây đã hết đúng.** Bản `draft.24` đóng
+> `phone_validation_status` thành `required` + `enum: [VALID]`, nên OpenAPI **không còn** cho phép
+> thiếu hay sai giá trị: schema chặn trước service, trả `400 IVR_MALFORMED_REQUEST` thay vì
+> `422 IVR_CONTACT_INVALID`. Phần TTL ba guard bên dưới **vẫn đúng**.
+
+OpenAPI *trước* `draft.24` cho phép thiếu `phone_validation_status` nhưng runtime chỉ nhận exact `VALID`;
 intake + persistence **+ dispatch** cùng nhau ép token expiry bằng đúng confirmation-window end
 (ba guard, xem §3.4.1 — guard thứ ba ở `PostgresTelephonyDispatchStore.LoadAsync` nghĩa là sửa
 OpenAPI và persistence thôi thì cuộc gọi vẫn hỏng lúc dial). MOCK/LAB chỉ ngăn
 resolve lặp theo `(token fingerprint, attempt_id)` và có thể reuse scalar token ở attempt khác.
 `DialAuthorization` current chỉ nhận opaque provider destination reference, không nhận E.164.
-M3/Security/Platform/Telephony phải trả `DTK-01..DTK-15` trong
+`DTK-01..DTK-15` trong
 [M8-10 decision pack](../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md)
-trước mọi OpenAPI/resolver/vault/adapter change.
+là chi tiết vận hành **dưới** ba quyết định đã ký `OD-V1-05` / `OD-V1-17` / `OD-V1-18`; phần còn lại
+quyết giữa **owner IVR và dev Module 3**, không chờ đội Security/Platform/Telephony nào — xem `§9a`.
 
 **Correction `W-0208` (07/09/2026) — đã giải quyết `2026-09-09` (`W-0246`):** `OD-V1-17` ký ngày
 05/09 chọn phương án *"token reusable theo TTL"* với **TTL = cửa sổ xác nhận + 60s** (nguyên văn ở
@@ -1156,25 +1186,36 @@ Không gửi số E.164 trực tiếp trong task.
 
 ## 7. Auth production
 
-Cần Security/Platform cung cấp:
+> **Cập nhật `W-0254` (09/09/2026).** Mục này từng ghi *"Cần Security/Platform cung cấp"*. Không có
+> đội Security hay Platform nào trong tổ chức này — chỉ có owner IVR, và dev Module 3. `OD-V1-07`
+> **đã `CLOSED` từ 2026-09-05** do owner ký. Phần dưới là hồ sơ đã ký, không phải yêu cầu đang chờ.
 
-- issuer URL, JWKS URL, thuật toán ký và rotation;
-- audience và TTL token;
-- scope cho Module 3 gọi IVR và IVR callback Module 3;
-- sandbox credential + hướng dẫn lấy token;
-- quyết định mTLS, cấp/rotation certificate;
-- ngày tắt cơ chế `X-Internal-Token` compatibility.
+**Đã chốt (`OD-V1-07`, `2026-09-05`):**
 
-Đề xuất scope tối thiểu:
+| Hạng mục | Đã ký |
+| --- | --- |
+| Thuật toán | JWT **ký khóa bất đối xứng**, phát hành qua JWKS |
+| TTL token | **≤ 10 phút** |
+| Scope bắt buộc | `ivr.task.write` |
+| Token tĩnh dùng chung | **từ chối dứt điểm** khi provider là `TARGET_V1` |
+| mTLS | **hoãn** tới khi có hạ tầng thật — không phải điều kiện để bắt đầu tích hợp |
+
+**Còn phải làm, và là việc vận hành chứ không phải quyết định:**
+
+- dựng issuer/JWKS thật và cấp **sandbox credential** cho dev M3;
+- chốt ngày tắt `X-Internal-Token` compatibility.
+
+Scope tối thiểu hai chiều:
 
 - `ivr.task.write`: Module 3 → IVR task intake;
 - `ivr.result.write`: IVR → Module 3 result callback.
 
-Không có sandbox credential thì chưa chạy được integration test thật.
+Chưa có sandbox credential thì chưa chạy được integration test thật — nhưng đó là hạ tầng chờ dựng,
+**không** phải một quyết định đang chờ ai đó ký.
 
 **Mục này chỉ nói về hai API nghiệp vụ ở §3–§4.** Bề mặt quản trị (§4A) dùng **credential riêng, không dùng chung** với service JWT ở đây: ba token tĩnh `IVR_ADMIN_READ/WRITE/DANGER_TOKEN`. Hai hệ credential tách rời có chủ đích — token mà giao diện quản trị cầm không được đồng thời giao được task, và ngược lại.
 
-Khi Security/Platform chốt auth profile production, cần trả lời thêm cho §4A: ba token này có chuyển sang cùng issuer/JWKS không, ai cấp và xoay vòng thế nào, và cất ở đâu phía Module 3.
+Khi dựng issuer/JWKS thật, cần trả lời thêm cho §4A: ba token này có chuyển sang cùng issuer/JWKS không, ai cấp và xoay vòng thế nào, và cất ở đâu phía Module 3. Owner IVR quyết hai câu đầu, dev M3 quyết câu cuối.
 
 ---
 
@@ -1205,15 +1246,42 @@ Khi Security/Platform chốt auth profile production, cần trả lời thêm ch
 | **4** | Ký wire mapping program/payment/state và nguồn `ivr_confirmation_required`. Business pair **đã có nguồn** (Flow 04/05, xem §3.10 R3) nên không cần Product quyết lại; còn lại là ký chuỗi trên dây theo **§3.11** và gắn `attempt_policy_version` | M3 + Product | `M8_SIGNED_W0145 / M3_PRODUCT_ARTIFACT_REQUIRED` |
 | **4b** | Sửa 3 field lệch chuỗi ở **§3.11** — M3 map `24_7`→`TWENTY_FOUR_SEVEN`, `PHONE_VALID`→`VALID`, `ELIGIBLE_FOR_IVR`→`ELIGIBLE` | M3 | `IMPLEMENTATION_ALIGNMENT_REQUIRED` |
 | **4c** | Đồng ký `golden_hour_session_id`, namespace/program semantics, store→enforce cutover và producer CDC theo §3.5A | M3 + M8 | `M8_POSITION_SIGNED_W0146 / M3_CONTRACT_SIGNOFF_REQUIRED / CODE_NOT_AUTHORIZED` |
-| **5** | Auth profile + sandbox credential | Security/Platform | `BLOCKED_EXTERNAL` |
+| **5** | Auth profile + sandbox credential | owner IVR | ✅ `OD-V1-07 CLOSED 2026-09-05` — hồ sơ auth đã ký, xem `§7`. Còn lại là **dựng** issuer/JWKS và cấp sandbox credential: việc vận hành, không phải quyết định |
 | **6** | Ký minimal `eligibility_snapshot` dùng làm evidence, không phải IVR business decision | M3 + M8 | `OWNER_SIGNOFF_REQUIRED` |
-| **7** | Chọn `dial_token` model và trust boundary | M3 + Security + M8 | `OWNER_DECISION_REQUIRED` |
-| **7a** | Ký `DTK-01..DTK-15`: contact producer/requiredness, issuer/scope, TTL, resolver output, custody, replay/failure/audit/retention/rollout | M3 + Security + Platform + Telephony + M8 | `W0150_EVIDENCE_SUBMITTED / EXTERNAL_DECISIONS_REQUIRED / CODE_NOT_AUTHORIZED` |
+| **7** | Chọn `dial_token` model và trust boundary | owner IVR | ✅ `OD-V1-05` + `OD-V1-17` + `OD-V1-18` **CLOSED** 2026-09-05 (vế TTL chốt lại `2026-09-09`, `W-0246`): Sales cấp token lúc tạo task; token dùng lại được, gắn cứng `task_id`, TTL = **đúng** confirmation-window end, trần resolve = `max_customer_attempts` + technical retry; resolver **trong** IVR, E.164 chỉ trong bộ nhớ tiến trình |
+| **7a** | `DTK-01..DTK-15` — chi tiết vận hành dưới `OD-V1-05/17/18` đã ký | owner IVR + dev M3 | `W0150_EVIDENCE_SUBMITTED` — phần **hợp đồng** đã đóng ở dòng 7; phần còn lại là custody/rollout, quyết giữa owner và dev M3, **không** chờ đội ngoài |
 | **7b** | Ký `ATP-01..ATP-15`: authority/version bundle, program matrix/T0, counting/retry/quiet-hours, wire/producer, registry lifecycle, cutover/pre-dial coherence, capacity/audit/rollback | Product + Order Core + M3; Platform/M8/Release ở dòng kỹ thuật | `W0151_EVIDENCE_SUBMITTED / M3_ATTEMPT_POLICY_PRODUCER_NOT_FOUND / PRODUCTION_POLICY_NOT_APPROVED / CODE_NOT_AUTHORIZED` |
-| **8** | Duyệt lời thoại/privacy và giới hạn `items[]` | Product + Privacy/Legal | `OWNER_APPROVAL_REQUIRED` |
-| **9** | Nhận bàn giao bề mặt quản trị **§4A**: ai giữ ba token, vai trò M3 nào ánh xạ sang tầng nào, định dạng `X-Actor-Id` | M3 + Security | `OWNER_DECISION_REQUIRED` — mới 28/08/2026 |
+| **8** | Duyệt lời thoại/privacy và giới hạn `items[]` | owner IVR | ⏳ `OD-V1-11 CONTENT_SIGNED 2026-09-05` — owner đã ký nội dung (ghi âm TẮT vĩnh viễn ở V1, metadata 90 ngày). Trạng thái treo là `APPROVER_QUORUM_UNRESOLVED`, tức chờ **một quorum không tồn tại** — xem `§9a` |
+| **9** | Nhận bàn giao bề mặt quản trị **§4A**: ai giữ ba token, vai trò M3 nào ánh xạ sang tầng nào, định dạng `X-Actor-Id` | owner IVR + dev M3 | `OWNER_DECISION_REQUIRED` — thật sự còn mở, và quyết được ngay giữa hai bên |
 
 Chưa được gọi integration/production ready khi các gate P0 trên chưa đóng.
+
+### 9a. Ba mục treo trên một quorum không tồn tại
+
+`W-0254` đối chiếu bảng trên với `specs/_review/open-decisions-register.md`. **23 trong 28** quyết
+định đã `CLOSED`. Năm mục còn lại, đọc kỹ thì chỉ **hai** là còn việc thật:
+
+| Mục | Trạng thái ghi trong register | Thực chất |
+| --- | --- | --- |
+| `OD-V1-09` — giao thức SIM lab | `HALF_SIGNED` | **việc thật**: giao thức đã ký, còn chờ SIM/nhà mạng thật |
+| `OD-V1-10` — 32 eSIM capacity | `NOT_SIGNED` **cố ý** | **việc thật**: con số 32 là giả định chưa đo; ký bây giờ là ký một điều chưa biết |
+| `OD-V1-11` — script/legal/retention | `CONTENT_SIGNED / APPROVER_QUORUM_UNRESOLVED` | owner **đã ký nội dung**; treo vì chờ *Legal/Privacy* |
+| `OD-V1-21` — GitLab provisioning | `SIGNED_EXCEPT_INDEPENDENT_APPROVAL` | owner **đã ký**; treo vì chờ *independent approver* |
+| `OD-V1-23` — opt-out boundary | `OWNER_POSITION_SIGNED / QUORUM_PENDING` | owner **đã ký**; treo vì chờ *Product + CRM + Legal/Privacy* |
+
+Ba dòng cuối treo trên **cùng một thứ**: một quorum gồm những vai không tồn tại trong tổ chức này.
+Cast thật là **owner IVR** (Toàn), **dev Module 3**, và các bên **thật sự** bên ngoài — nhà mạng cho
+trunk thoại, và một ý kiến pháp lý mua ngoài nếu owner muốn.
+
+**Đây là điều owner cần quyết, và nó chặn cả ba dòng cùng lúc.** Hai đường:
+
+1. **Owner tuyên bố quorum là chính mình** cho ba mục ấy. Chúng chuyển sang `CLOSED`, và bảng gate
+   không còn dòng nào chờ người không có. Rẻ, nhanh, và trung thực với tổ chức thật.
+2. **Mua một ý kiến pháp lý bên ngoài** cho riêng `OD-V1-11` (phần ghi âm/consent/retention). Đây là
+   mục duy nhất trong ba mục mà một chữ ký ngoài có giá trị thật — hai mục kia không cần luật sư.
+
+Cho tới khi owner chọn, ba dòng ấy **không** phải lý do để M3 dừng: chúng không chạm vào contract
+task intake hay callback ở `§3`/`§4`. M3 tích hợp được ngay với `1.0.0-draft.24`.
 
 ---
 
@@ -1272,23 +1340,30 @@ Chưa được gọi integration/production ready khi các gate P0 trên chưa �
 - [ ] Xác nhận UI bắt buộc nhập `X-Action-Reason` trước khi gửi mọi thao tác tầng `danger`.
 - [ ] Chỉ định hai người khác nhau giữ quyền duyệt **nội dung** và **privacy/pháp lý** (§4A.5).
 - [ ] Xác nhận M3 không kỳ vọng IVR còn màn hình đăng nhập, bảng tài khoản hay endpoint `/api/auth/*` (§4A.7).
-- [ ] **Sinh lại client từ OpenAPI `1.0.0-draft.23`.** Bản trước đó vẫn công bố 11 endpoint `auth`/`accounts` nay đã bị gỡ (§4A.7).
+- [ ] **Sinh lại client từ OpenAPI `1.0.0-draft.24`.** Bản trước đó vẫn công bố 11 endpoint `auth`/`accounts` nay đã bị gỡ (§4A.7).
 
-### Platform
+### Hạ tầng — owner IVR
 
-- [ ] Chốt `dial_token` model, vault owner và audit boundary.
-- [ ] Cấp auth profile và sandbox credential.
-- [ ] Cung cấp base URL/OpenAPI versioning/deprecation policy.
+Ba dòng cũ ở đây được gửi cho một đội *Platform* không tồn tại. Hai dòng đầu **đã chốt**; chỉ dòng
+thứ ba và phần dựng là còn việc.
+
+- [x] ~~Chốt `dial_token` model, vault owner và audit boundary~~ — `OD-V1-05/17/18`, `2026-09-05`.
+- [x] ~~Chốt auth profile~~ — `OD-V1-07`, `2026-09-05`. **Còn phải dựng** issuer/JWKS và **cấp
+      sandbox credential** cho dev M3: việc vận hành, không phải quyết định.
+- [ ] Cung cấp base URL và chính sách versioning/deprecation của OpenAPI.
 
 ---
 
 ## Ô ký
 
+> **`W-0254`:** hai dòng cuối của ô ký cũ là *Security/Platform* và *Privacy/Legal*. Không có hai vai
+> ấy trong tổ chức này, nên để trống chúng là để tài liệu trông như đang chờ ai đó — trong khi thật
+> ra không ai sẽ đến. Ô ký nay chỉ liệt kê người có thật.
+
 | Vai trò | Xác nhận | Tên | Ngày |
 | --- | --- | --- | --- |
 | Owner Module 3 — business decision + producer | ____________ | ____________ | ______ |
-| Owner Module 8 — IVR execution boundary | ____________ | ____________ | ______ |
-| Security/Platform — auth + dial token | ____________ | ____________ | ______ |
-| Privacy/Legal — speech payload | ____________ | ____________ | ______ |
+| Owner Module 8 / IVR — execution boundary, auth profile, dial-token model, speech payload | ____________ | ____________ | ______ |
+| _(tuỳ chọn)_ Ý kiến pháp lý mua ngoài — chỉ cho `OD-V1-11`, xem `§9a` | ____________ | ____________ | ______ |
 
 **Ghi chú chung:** ______________________________________________

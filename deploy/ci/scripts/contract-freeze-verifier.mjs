@@ -212,6 +212,43 @@ async function checkPublishedSurface(root, specs) {
     return;
   }
 
+  // W-0254. The handover tells Module 3 which version to generate their client from, and that
+  // pointer went stale for a full release: draft.24 shipped a breaking change while IR-06 still
+  // said draft.23 in five places, including the checklist item "regenerate the client from
+  // 1.0.0-draft.23". A field table that matches the spec is no use if the version above it sends
+  // the reader to a different spec.
+  //
+  // Only POINTERS are checked, not every version the page prints. IR-06 legitimately discusses
+  // history - "draft.21 and earlier still published 11 endpoints" is true and must stay sayable -
+  // and changelog filenames carry two versions each by construction. So each anchor below is a
+  // phrase that tells the reader what to go and fetch, and every one of them must name the live
+  // spec. The first is also required to exist: deleting the pointer must fail too, or the check
+  // could be satisfied by saying nothing.
+  const intakeVersion = specs.intake.info.version;
+  // The version token is matched generically rather than as `-draft.N`: a release that drops the
+  // pre-release suffix is a legitimate rotation, and an anchor that only recognises drafts would
+  // report the pointer as missing instead of checking it.
+  const POINTERS = [
+    { label: "current-version row", pattern: /b\u1ea3n hi\u1ec7n h\u00e0nh `(\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?)`/gu, required: true },
+    { label: "client-generation checklist", pattern: /Sinh l\u1ea1i client t\u1eeb OpenAPI `(\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?)`/gu, required: false },
+    { label: "fetch-the-spec note", pattern: /phi\u00ean b\u1ea3n \*\*`(\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?)`\*\*/gu, required: false },
+  ];
+  for (const { label, pattern, required } of POINTERS) {
+    const found = [...handover.matchAll(pattern)].map((match) => match[1]);
+    if (required && found.length === 0) {
+      fail("FREEZE-03", `${HANDOVER_PATH} no longer states which contract version is current.`);
+      continue;
+    }
+    const stale = [...new Set(found)].filter((version) => version !== intakeVersion);
+    if (stale.length > 0) {
+      fail(
+        "FREEZE-03",
+        `${HANDOVER_PATH} ${label} sends Module 3 to ${stale.join(", ")}; the intake spec is ` +
+          `${intakeVersion}.`,
+      );
+    }
+  }
+
   // Intake: the handover publishes one table of required fields.
   try {
     const published = new Set(
