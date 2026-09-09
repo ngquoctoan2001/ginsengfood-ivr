@@ -19,6 +19,7 @@ import {
 import { relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
+import { findSensitiveValue } from "./sensitive-value-lib.mjs";
 
 const MAX_INPUT_BYTES = 512 * 1024;
 const MAX_REFERENCED_BYTES = 512 * 1024;
@@ -40,10 +41,10 @@ const SOURCE_PINS = Object.freeze({
     "3bd5b824c84b6d734090bf488f3da054622e30554ff26cace11f3656b4e70cf1",
   routing_validator_path: "deploy/ci/scripts/external-decision-routing-validator.mjs",
   routing_validator_sha256:
-    "e0631486f6b28aa31cb82987723af8a11eac883cbfc5137cefbf218050fcdb81",
+    "b35641001d2b57ff855927d722ab239902b1dab08f234d02d6aaa41ac6bb777b",
   response_validator_path: "deploy/ci/scripts/external-decision-response-validator.mjs",
   response_validator_sha256:
-    "7bc3e65fba9e54d74c3f86baa762c56c68d1527dbc200e3d87ec54738032348b",
+    "bc4a53488e8f34ccad02740db70577c162c7976c0b3b244aa2aea28406de440b",
 });
 
 const SHEET_RULES = new Map([
@@ -382,14 +383,8 @@ function assertTimestamp(value, label) {
 }
 
 function assertNoSensitiveValue(value, label) {
-  if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/iu.test(value)) fail(`${label} contains an email-like value`);
-  if (/(?:^|\D)(?:\+?\d[\s().-]*){9,15}(?:$|\D)/u.test(value)) fail(`${label} contains a phone-like value`);
-  if (/\b\d{1,5}\s+(?:đường|duong|phố|pho|street|st\.?|road|rd\.?|avenue|ave\.?)\b/iu.test(value)) {
-    fail(`${label} contains a street-address-like value`);
-  }
-  if (/(?:password|passwd|bearer\s+|api[_ -]?key|access[_ -]?token|private[_ -]?key|client[_ -]?secret)\s*[:=]?/iu.test(value)) {
-    fail(`${label} contains credential- or secret-like material`);
-  }
+  const found = findSensitiveValue(value);
+  if (found) fail(`${label} contains ${found}`);
 }
 
 function assertSafeValue(value, label, minimum = 3, maximum = 300) {

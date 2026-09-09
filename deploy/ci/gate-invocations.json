@@ -115,6 +115,11 @@
       "reason": "needs the scanner images and a network; selftest-dotnet-policy.sh covers the policy half offline",
       "runner": "ci.gitlab-ci.yml"
     },
+    "sensitive-value-lib.mjs": {
+      "sweepable": false,
+      "reason": "a library with no top-level invocation",
+      "runner": "every validator that screens an identifier for personal data or credentials"
+    },
     "selftest-dotnet-policy.sh": { "argv": [], "expect": "CT-CI-09 PASS" },
     "selftest-oasdiff.sh": {
       "sweepable": false,

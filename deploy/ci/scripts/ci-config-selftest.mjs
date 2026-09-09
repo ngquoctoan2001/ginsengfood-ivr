@@ -458,6 +458,57 @@ for (const includePath of [".gitlab-ci.yml", ...includes]) {
   );
 }
 
+// W-0260. The shared secret rule, and the one carve-out in it.
+//
+// Owner decision on 2026-09-09: of the seven assertIdentifier copies, the two that screened for
+// secrets are the rule. Applying that to the other five is only safe if the rule itself is right,
+// and it was not — the phone heuristic counts nine to fifteen digits separated by anything in
+// `[\s().-]`, so `CONFIG-2026-09-04-01` read as a ten-digit phone number and a legitimate config
+// version became a refusal. ISO dates are cut out before that test.
+//
+// A carve-out in a security check earns a test that proves it did not open a hole. The evasion to
+// beat is a phone number wearing a date's shape.
+{
+  const { findSensitiveValue } = await import("./sensitive-value-lib.mjs");
+  const cases = [
+    // Legitimate identifiers this system actually uses. Every one of these has enough digits to
+    // trip the raw phone pattern.
+    ["CONFIG-2026-09-04-01", null],
+    ["M8-07-SECTION-6.2026-09-04", null],
+    ["C10-C11-C13-D06.2026-09-04", null],
+    ["ATTEMPT-POLICY/BUNDLE/2026-09-04/V1", null],
+
+    // Still caught, in every form the five unified copies knew between them.
+    ["CALL:+84912345678", "a phone-like value"],
+    ["+84 912 345 678", "a phone-like value"],
+    ["USER@EXAMPLE.COM", "an email-like value"],
+    ["12 Duong Le Loi", "a street-address-like value"],
+    ["BEARER SECRET", "credential- or secret-like material"],
+
+    // `BEARER:token` was caught by exactly one of the five. Taking the widest form is the reason
+    // for unifying them rather than picking one.
+    ["BEARER:ABCDEF", "credential- or secret-like material"],
+    [
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcdefghijk",
+      "credential- or secret-like material",
+    ],
+
+    // The evasion. A loose `\d{4}-\d{2}-\d{2}` would strip eight digits of this number and let the
+    // rest through, so the date pattern pins plausible years, months and days instead.
+    ["0912-34-5678", "a phone-like value"],
+  ];
+
+  for (const [value, expected] of cases) {
+    const actual = findSensitiveValue(value);
+    assert(
+      actual === expected,
+      `findSensitiveValue(${JSON.stringify(value)}) returned ${JSON.stringify(actual)}, `
+        + `expected ${JSON.stringify(expected)}`,
+    );
+  }
+}
+
+process.stdout.write("SENSITIVE_VALUE_RULE_PASS — one secret rule, dates excused, evasion still caught\n");
 process.stdout.write("PATH_CONFINEMENT_SINGLE_SOURCE_PASS — one canonical root, one isConfined\n");
 process.stdout.write("VALIDATOR_HELPER_CENSUS_PASS — helper duplication held at its baseline\n");
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");

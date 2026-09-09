@@ -11,6 +11,7 @@ import {
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
+import { findSensitiveValue } from "./sensitive-value-lib.mjs";
 
 const MAX_INPUT_BYTES = 256 * 1024;
 const MAX_SOURCE_BYTES = 5 * 1024 * 1024;
@@ -278,21 +279,8 @@ function assertString(value, label, minimum = 1, maximum = 256) {
 }
 
 function assertNoSensitiveValue(value, label) {
-  if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/iu.test(value)) {
-    fail(`${label} contains an email-like value`);
-  }
-  if (/(?:^|\D)(?:\+?\d[\s().-]*){9,15}(?:$|\D)/u.test(value)) {
-    fail(`${label} contains a phone-like value`);
-  }
-  if (/\b\d{1,5}\s+(?:\u0111\u01b0\u1eddng|\u0064uong|phố|pho|street|st\.?|road|rd\.?|avenue|ave\.?)\b/iu.test(value)) {
-    fail(`${label} contains a street-address-like value`);
-  }
-  if (
-    /(?:password|passwd|bearer(?:\s+|[:=])|api[_ -]?key|access[_ -]?token|private[_ -]?key|client[_ -]?secret)\s*[:=]?/iu.test(value) ||
-    /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/u.test(value)
-  ) {
-    fail(`${label} contains credential- or secret-like material`);
-  }
+  const found = findSensitiveValue(value);
+  if (found) fail(`${label} contains ${found}`);
 }
 
 function assertSafeReference(value, label) {

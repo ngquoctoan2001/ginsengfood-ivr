@@ -9,6 +9,7 @@ import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
+import { findSensitiveValue } from "./sensitive-value-lib.mjs";
 
 const MAX_INPUT_BYTES = 512 * 1024;
 const SCHEMA_VERSION = "m8-attempt-policy-production-bundle.v1";
@@ -128,11 +129,17 @@ function assertString(value, label, minimum = 3, maximum = 180) {
   if (/[\u0000-\u001f\u007f]/u.test(value)) fail(`${label} contains a control character`);
 }
 
+function assertNoSensitiveValue(value, label) {
+  const found = findSensitiveValue(value);
+  if (found) fail(`${label} contains ${found}`);
+}
+
 function assertIdentifier(value, label) {
   assertString(value, label);
   if (!/^[A-Z0-9][A-Z0-9._:/-]+$/u.test(value)) {
     fail(`${label} must be an uppercase alias/reference`);
   }
+  assertNoSensitiveValue(value, label);
 }
 
 function assertSha256(value, label) {

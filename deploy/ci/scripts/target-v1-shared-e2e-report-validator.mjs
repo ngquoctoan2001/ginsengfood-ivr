@@ -20,6 +20,7 @@ import {
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
+import { findSensitiveValue } from "./sensitive-value-lib.mjs";
 
 const MAX_INPUT_BYTES = 512 * 1024;
 const SCHEMA_VERSION = "target-v1-shared-e2e-report.v1";
@@ -420,18 +421,18 @@ function assertString(value, label, minimum, maximum) {
 }
 
 function assertNoSensitiveValue(value, label) {
-  if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/iu.test(value)) {
-    fail(`${label} contains an email-like value`);
-  }
-  if (/(?:^|\D)(?:\+?\d[\s().-]*){9,15}(?:$|\D)/u.test(value)) {
-    fail(`${label} contains a phone-like value`);
-  }
-  if (/\b\d{1,5}\s+(?:\u0111\u01b0\u1eddng|\x64uong|ph\u1ed1|pho|street|st\.?|road|rd\.?|avenue|ave\.?)\b/iu.test(value)) {
-    fail(`${label} contains a street-address-like value`);
-  }
-  if (/(?:password|passwd|bearer\s+|api[_ -]?key|access[_ -]?token|private[_ -]?key|client[_ -]?secret)\s*[:=]?/iu.test(value)) {
-    fail(`${label} contains credential- or secret-like material`);
-  }
+  const found = findSensitiveValue(value);
+  if (found) fail(`${label} contains ${found}`);
+}
+
+/**
+ * This validator additionally refuses a URL query or fragment in an identifier. It used to live
+ * inside assertNoSensitiveValue, which is where it was found when the five copies of that function
+ * were unified — but it is not a secret check. Its own message says so: a `?` is not personal data.
+ * Folding it into the shared rule would have imposed it on six other validators that never asked
+ * for it, so it keeps its own name here, where it was always the local rule.
+ */
+function assertNoUrlQueryOrFragment(value, label) {
   if (/[?#]/u.test(value)) fail(`${label} must not contain a URL query or fragment`);
 }
 
@@ -441,6 +442,7 @@ function assertIdentifier(value, label) {
     fail(`${label} must be an uppercase alias/reference`);
   }
   assertNoSensitiveValue(value, label);
+  assertNoUrlQueryOrFragment(value, label);
 }
 
 function assertGitSha(value, label) {

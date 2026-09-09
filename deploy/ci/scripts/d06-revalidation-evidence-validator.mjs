@@ -16,6 +16,7 @@ import {
 } from "node:fs";
 import { relative, resolve } from "node:path";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
+import { findSensitiveValue } from "./sensitive-value-lib.mjs";
 
 const MAX_INPUT_BYTES = 512 * 1024;
 const SCHEMA_VERSION = "m3-d06-revalidation-evidence.v1";
@@ -32,7 +33,7 @@ const SOURCE_PINS = Object.freeze({
   m8_target_oas_path: "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
   m8_target_oas_sha256: "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697",
   shared_e2e_validator_path: "deploy/ci/scripts/target-v1-shared-e2e-report-validator.mjs",
-  shared_e2e_validator_sha256: "f335b8bef6b60ba231b1ab20913af90954727f24311dc07cf86277ccbe20f766",
+  shared_e2e_validator_sha256: "6f183b0401de28bdadd8ac07149d4e0f5912076adf4a21026ba375f4512fb94e",
   requirement_scope: "C10-C11-C13-D06.2026-09-04",
 });
 
@@ -310,12 +311,18 @@ function assertGitSha(value, label, { placeholderAllowed = false } = {}) {
   }
 }
 
+function assertNoSensitiveValue(value, label) {
+  const found = findSensitiveValue(value);
+  if (found) fail(`${label} contains ${found}`);
+}
+
 function assertIdentifier(value, label, { placeholderAllowed = false } = {}) {
   if (placeholderAllowed && value === PLACEHOLDER) return;
   assertString(value, label);
   if (!/^[A-Z0-9][A-Z0-9._:/-]{2,127}$/.test(value)) {
     fail(`${label} must be an uppercase metadata alias/ref without free text`);
   }
+  assertNoSensitiveValue(value, label);
 }
 
 function parseTimestamp(value, label, { placeholderAllowed = false } = {}) {

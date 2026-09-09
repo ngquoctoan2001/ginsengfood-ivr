@@ -29,8 +29,8 @@
       "implementations": 3
     },
     "assertNoSensitiveValue": {
-      "copies": 5,
-      "implementations": 5
+      "copies": 9,
+      "implementations": 1
     },
     "clone": {
       "copies": 12,
