@@ -510,28 +510,45 @@ Thêm một field vào OpenAPI spec → regenerate contract → endpoint **vẫn
 
 ---
 
-### S6 — 434.000 dòng tài liệu không liên quan nằm trong repo code
+### S6 — ~~434.000 dòng tài liệu không liên quan nằm trong repo code~~ — RÚT LẠI
 
-`docs/documents/` — 434.464 dòng / 179 file. Code C# thật: 37.628 dòng. Tỉ lệ **11,5:1**.
+> **Phát hiện này sai. Rút lại (W-0262), không phải hoãn.**
+>
+> Tôi lấy bốn file lớn nhất theo dòng, thấy Facebook gateway / ads ROAS / MC AI live-sales /
+> commerce runtime, rồi kết luận cả 179 file là "không thuộc module IVR". Đó là suy rộng từ đầu một
+> danh sách đã sắp theo kích thước, và nó sai.
 
-Nội dung không thuộc module IVR:
+Đo lại cho đủ:
 
-```
-docs/documents/3. tech/06-TECH-05-AI-ADVISOR-RUNTIME-...      15.306 dòng
-docs/documents/3. tech/07-TECH-06-FACEBOOK-GATEWAY-META-...   14.866 dòng
-docs/documents/2. pack/07-PACK-07-ADS-ROAS-ATTRIBUTION.md     14.503 dòng
-docs/documents/3. tech/09-TECH-08-MC-AI-LIVE-...              12.523 dòng
-```
+| | |
+| --- | ---: |
+| Tài liệu **đặt tên riêng cho IVR** | **8 file / 17.810 dòng** |
+| Tài liệu **có nhắc IVR** | **105 / 179** |
 
-Facebook gateway, ads ROAS attribution, MC AI live-sales, warehouse/inventory, commerce runtime.
+Trong đó có `2. pack/09-PACK-09-IVR-ORDER-CONFIRMATION.md` (7.385 dòng) và
+`3. tech/10-TECH-09-IVR-ORDER-CONFIRMATION-AUTO-CALL-VERIFICATION-...md` (8.337 dòng) — đặc tả
+nghiệp vụ của **chính module này**.
 
-Thêm vào đó, tên thư mục có dấu cách (`2. pack`, `3. tech`, `4. phase`) → vỡ mọi script shell không quote cẩn thận.
+Và nó không phải rác vô chủ. `prompt/README-governance.md:20` tuyên bố thẳng:
 
-Mọi `git clone`, mọi `grep -r`, mọi lần index GitNexus, mọi doc gate CI đều phải đi qua đống này.
+> `docs/documents/` **là business source để truy nguyên**; nó không tự chứng minh implementation
+> hiện tại. Nếu Target V1 khác business source, delta phải được ghi ở
+> `specs/_review/open-decisions-register.md` kèm owner, không được im lặng.
+
+Bảy bản ghi evidence trích dẫn tài liệu cụ thể trong đó — `W-0057`, `W-0058`, `W-0136`, `W-0151`,
+`W-0217`, `W-0238`, `W-0247`. `W-0247` còn ghi *"chỗ duy nhất trong toàn bộ `docs/documents/` nêu
+`golden_hour_session_id`"*.
+
+**"Tách sang repo riêng" như tôi đề xuất sẽ cắt đứt chuỗi truy nguyên mà governance yêu cầu và làm
+mồ côi bảy trích dẫn trong evidence.** Đúng loại thiệt hại mà `W-0251`/`W-0252` tồn tại để tránh.
+
+Cái còn đúng, và chỉ có thế: 434.464 dòng thật sự làm chậm `clone`, `grep -r` và mỗi lần index — đó
+là cái giá của việc giữ corpus truy nguyên, không phải một khoản lãng phí để cắt. Tên thư mục có dấu
+cách (`2. pack`, `3. tech`) cũng thật, nhưng gate sweep xanh nên hiện chưa có gì vỡ vì nó.
 
 ---
 
-### S7 — Worktree rác nằm bên trong working tree
+### S7 — Worktree rác nằm bên trong working tree — ĐÃ SỬA
 
 ```
 $ git worktree list
@@ -567,13 +584,11 @@ Một worktree được đăng ký **bên trong `ci-artifacts/`** — thư mục
 
 Hoặc là quy ước, hoặc là không. Nửa vời thì reviewer không phân biệt được chỗ thiếu là cố ý hay quên, và cả hai file này đều nằm trên đường ghi quan trọng nhất.
 
-### C2 — `.gitignore` trùng lặp và đã lạc hậu
+### C2 — `.gitignore` trùng lặp — ĐÃ SỬA MỘT PHẦN, và đính chính
 
-`.claude/worktrees/` khai báo **hai lần**: dòng 16 và dòng 61, kèm hai block comment gần như y hệt.
+`.claude/worktrees/` khai báo **hai lần**: dòng 16 và dòng 61, kèm hai block comment gần như y hệt. **Đã xoá bản không ghi work-id (W-0262).**
 
-Sau khi `admin-ui` bị xóa ở `c0e6609`, các entry sau vẫn còn:
-- `.gitignore:27-29` — `admin-ui/out/`, `admin-ui/.env*`, `!admin-ui/.env.example`
-- `.dockerignore` — `admin-ui/`
+> **Đính chính.** Tôi cũng gọi các entry `admin-ui` là "lạc hậu". **Sai.** Chúng là **guard**, đúng theo tiền lệ repo tự viết cho `deployment-ui.yaml` — template đó được giữ cố ý vì xoá nó biến `ui.enabled` thành no-op im lặng. Cùng lập luận: nếu ai dựng lại `admin-ui`, các dòng ignore giữ nó ngoài git và ngoài image. Xoá đi là đổi một guard lấy vẻ gọn gàng. **Giữ nguyên.**
 
 ### C3 — Ba quy ước temp dir trong cùng một họ script
 
@@ -621,11 +636,11 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~S4~~ | ~~Helper bảo mật copy-paste 18 lần~~ | ~~MEDIUM~~ | **phần bảo mật đã đóng — W-0258/W-0259/W-0260**; phần còn lại thuần kỹ thuật, census guard giữ không tăng |
 | S2 | 951 magic string | LOW | **một phần — W-0261**; `"MOCK"` có hai chủ sở hữu, cần owner tách tên |
 | ~~P3~~ | ~~DSAR 8 round trip, nổ tham số~~ | ~~LOW~~ | **đã sửa — W-0261** |
-| S7 | Worktree rác + bản sao repo | LOW | rất thấp — `git worktree prune` |
-| S6 | 434k dòng docs không liên quan | LOW | thấp — tách sang repo riêng |
+| ~~S7~~ | ~~Worktree rác + bản sao repo~~ | ~~LOW~~ | **đã sửa — W-0262** (942 MB thu hồi) |
+| ~~S6~~ | ~~434k dòng docs không liên quan~~ | — | **RÚT LẠI — phát hiện sai (W-0262)** |
 | B9, B10, S1, S3, S5, C1–C5 | — | LOW | — |
 
-**14/26 đã đóng. Không còn mục HIGH nào.**
+**15/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
 
 ---
 
