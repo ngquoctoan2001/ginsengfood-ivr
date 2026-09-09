@@ -9,11 +9,9 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
+import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const REPOSITORY_ROOT = resolve(dirname(SCRIPT_PATH), "../../..");
 const MAX_INPUT_BYTES = 64 * 1024;
 const SCHEMA_VERSION = "m8-external-decision-routing.v1";
 const WORK_ID = "W-0164";
@@ -93,16 +91,6 @@ function assertExactKeys(value, expected, label) {
   if (actual.length !== wanted.length || actual.some((key, index) => key !== wanted[index])) {
     fail(`${label} keys must be exactly: ${wanted.join(", ")}`);
   }
-}
-
-function isConfined(path) {
-  const pathRelative = relative(REPOSITORY_ROOT, path);
-  return (
-    pathRelative !== "" &&
-    pathRelative !== ".." &&
-    !pathRelative.startsWith(`..${sep}`) &&
-    !isAbsolute(pathRelative)
-  );
 }
 
 function readConfinedUtf8File(inputPath) {

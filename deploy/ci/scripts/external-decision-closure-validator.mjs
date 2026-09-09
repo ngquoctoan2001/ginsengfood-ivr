@@ -16,12 +16,10 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const REPOSITORY_ROOT = resolve(dirname(SCRIPT_PATH), "../../..");
 const MAX_INPUT_BYTES = 512 * 1024;
 const MAX_REFERENCED_BYTES = 512 * 1024;
 const SCHEMA_VERSION = "m8-external-decision-closure.v1";
@@ -42,10 +40,10 @@ const SOURCE_PINS = Object.freeze({
     "3bd5b824c84b6d734090bf488f3da054622e30554ff26cace11f3656b4e70cf1",
   routing_validator_path: "deploy/ci/scripts/external-decision-routing-validator.mjs",
   routing_validator_sha256:
-    "6b8272d2cc7e3db9cd522010142e17e22f98294f0715e6b89630d568db59d869",
+    "e0631486f6b28aa31cb82987723af8a11eac883cbfc5137cefbf218050fcdb81",
   response_validator_path: "deploy/ci/scripts/external-decision-response-validator.mjs",
   response_validator_sha256:
-    "9a7cf9734e67fa5754c3b76ba0dc2813aed0d9808a7fe6c300665bcbc9185012",
+    "7bc3e65fba9e54d74c3f86baa762c56c68d1527dbc200e3d87ec54738032348b",
 });
 
 const SHEET_RULES = new Map([
@@ -234,11 +232,6 @@ function assertExactKeys(value, expected, label) {
   if (actual.length !== wanted.length || actual.some((key, index) => key !== wanted[index])) {
     fail(`${label} must contain exactly: ${wanted.join(", ")}`);
   }
-}
-
-function isConfined(pathValue) {
-  const rel = relative(REPOSITORY_ROOT, pathValue);
-  return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
 }
 
 function readConfinedFile(inputPath, maximumBytes = MAX_REFERENCED_BYTES) {

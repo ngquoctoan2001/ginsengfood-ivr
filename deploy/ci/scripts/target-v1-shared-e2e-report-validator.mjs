@@ -17,11 +17,10 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const REPOSITORY_ROOT = resolve(dirname(SCRIPT_PATH), "../../..");
 const MAX_INPUT_BYTES = 512 * 1024;
 const SCHEMA_VERSION = "target-v1-shared-e2e-report.v1";
 const WORK_ID = "W-0174";
@@ -287,11 +286,6 @@ function assertExactKeys(value, expected, label) {
   if (actual.length !== wanted.length || actual.some((key, index) => key !== wanted[index])) {
     fail(`${label} must contain exactly: ${wanted.join(", ")}`);
   }
-}
-
-function isConfined(pathValue) {
-  const relativePath = relative(REPOSITORY_ROOT, pathValue);
-  return relativePath !== "" && !relativePath.startsWith("..") && !isAbsolute(relativePath);
 }
 
 function readConfinedFile(inputPath, maximumBytes = MAX_INPUT_BYTES) {

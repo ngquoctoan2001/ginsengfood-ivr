@@ -6,11 +6,9 @@
 
 import { createHash } from "node:crypto";
 import { lstatSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
+import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const REPOSITORY_ROOT = resolve(dirname(SCRIPT_PATH), "../../..");
 const MAX_INPUT_BYTES = 512 * 1024;
 const MAX_SOURCE_BYTES = 5 * 1024 * 1024;
 const SCHEMA_VERSION = "m8-capacity-checkpoint-registry-decision-pack.v1";
@@ -269,11 +267,6 @@ function assertNoSensitiveStrings(value, label = "root") {
       assertNoSensitiveStrings(child, `${label}.${key}`);
     }
   }
-}
-
-function isConfined(pathValue) {
-  const rel = relative(REPOSITORY_ROOT, pathValue);
-  return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
 }
 
 function readConfinedFile(inputPath, maximumBytes = MAX_INPUT_BYTES) {

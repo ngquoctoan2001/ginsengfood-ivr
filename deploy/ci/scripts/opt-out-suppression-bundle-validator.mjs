@@ -10,11 +10,9 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { relative, resolve, sep } from "node:path";
+import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const REPOSITORY_ROOT = resolve(dirname(SCRIPT_PATH), "../../..");
 const ARTIFACT_ROOT = resolve(REPOSITORY_ROOT, "ci-artifacts");
 const MAX_INPUT_BYTES = 768 * 1024;
 const SCHEMA_VERSION = "m8-opt-out-suppression-decision-bundle.v1";
@@ -335,11 +333,6 @@ function assertTimestamp(value, label) {
     fail(`${label} must be ISO-8601 with explicit timezone`);
   }
   if (!Number.isFinite(Date.parse(value))) fail(`${label} is not a valid timestamp`);
-}
-
-function isConfined(path) {
-  const rel = relative(REPOSITORY_ROOT, path);
-  return rel !== "" && rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel);
 }
 
 function readConfinedUtf8File(inputPath) {

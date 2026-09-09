@@ -14,11 +14,9 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { relative, resolve } from "node:path";
+import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const REPOSITORY_ROOT = resolve(dirname(SCRIPT_PATH), "../../..");
 const MAX_INPUT_BYTES = 512 * 1024;
 const SCHEMA_VERSION = "m3-d06-revalidation-evidence.v1";
 const WORK_ID = "W-0178";
@@ -34,7 +32,7 @@ const SOURCE_PINS = Object.freeze({
   m8_target_oas_path: "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
   m8_target_oas_sha256: "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697",
   shared_e2e_validator_path: "deploy/ci/scripts/target-v1-shared-e2e-report-validator.mjs",
-  shared_e2e_validator_sha256: "b189344e75155f59cc62ff470b6f7f119792cb9ac83519127292bb36aef4f326",
+  shared_e2e_validator_sha256: "f335b8bef6b60ba231b1ab20913af90954727f24311dc07cf86277ccbe20f766",
   requirement_scope: "C10-C11-C13-D06.2026-09-04",
 });
 
@@ -438,11 +436,6 @@ class DuplicateSafeJsonParser {
       if (separator !== ",") fail(`comma or closing bracket expected at ${path}`);
     }
   }
-}
-
-function isConfined(path) {
-  const rel = relative(REPOSITORY_ROOT, path);
-  return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
 }
 
 function readStrictJson(inputPath) {

@@ -7,11 +7,9 @@
 
 import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
+import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const REPOSITORY_ROOT = resolve(dirname(SCRIPT_PATH), "../../..");
 const MAX_INPUT_BYTES = 512 * 1024;
 const SCHEMA_VERSION = "m8-attempt-policy-production-bundle.v1";
 const WORK_ID = "W-0180";
@@ -155,11 +153,6 @@ function assertInteger(value, label, minimum, maximum) {
   if (!Number.isInteger(value) || value < minimum || value > maximum) {
     fail(`${label} must be an integer in ${minimum}..${maximum}`);
   }
-}
-
-function isConfined(pathValue) {
-  const rel = relative(REPOSITORY_ROOT, pathValue);
-  return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
 }
 
 function readConfinedFile(inputPath, maximumBytes = MAX_INPUT_BYTES) {

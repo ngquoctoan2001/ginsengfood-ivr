@@ -206,7 +206,7 @@ Response chứa read-only set sẽ replay đúng ở Postgres và hỏng ở in-
 
 ---
 
-### B7 — MEDIUM: secret bị phơi ra qua chính API public của lớp bảo vệ nó
+### B7 — MEDIUM: secret bị phơi ra qua chính API public của lớp bảo vệ nó — ĐÃ SỬA
 
 `src/Ivr.Infrastructure/Auth/RotatingCredentialProvider.cs`
 
@@ -231,9 +231,13 @@ Ba vấn đề phụ trong cùng file:
 
 Về claim constant-time ở dòng 100-106: vòng lặp cố tình không short-circuit, nhưng `generation.IsValidAt(now) && FixedTimeEquals(...)` vẫn short-circuit ở vế trái, và `FixedTimeEquals` trả `false` ngay khi độ dài khác nhau. Độ dài secret vẫn rò qua timing. Comment mô tả một đảm bảo mạnh hơn code thực tế.
 
+**Đã sửa (W-0258):** `CredentialGeneration` không còn mang `byte[]` — provider giữ **SHA-256 digest** trong một type private, và chỉ cần xác minh chứ không bao giờ cần tiết lộ. So sánh giờ là hai digest 32 byte nên không còn độ dài để rò, và bỏ mảng khỏi record cũng hết luôn lỗi reference-equality. `Fingerprint` chuyển sang PBKDF2-HMAC-SHA256 210k vòng + salt tách miền; tham số chọn bằng đo (34 ms/lần, tối đa 8 lần lúc khởi động ≈ 275 ms) chứ không bằng ước lượng.
+
+**Không sửa danh sách `audit`**, và lý do quan trọng hơn việc sửa: cắt bớt lịch sử xoay khoá làm hỏng một bản ghi tuân thủ. Một bản ghi âm thầm quên tệ hơn một bản ghi to dần. Thực tế nó giữ 1–2 mục mỗi scope suốt đời tiến trình vì không có gì xoay theo lịch. Đã ghi lý do vào code.
+
 ---
 
-### B8 — MEDIUM: validator CI fail-closed toàn bộ nếu checkout nằm dưới symlink
+### B8 — MEDIUM: validator CI fail-closed toàn bộ nếu checkout nằm dưới symlink — ĐÃ SỬA
 
 9 trên 10 bản `isConfined` so `realpathSync(resolved)` với `REPOSITORY_ROOT` **chưa** realpath:
 
@@ -248,6 +252,12 @@ Chỉ `b3-telephony-evidence-validator.mjs:872` làm đúng: `const repositoryRe
 Nếu runner checkout vào path chứa symlink — rất phổ biến: `/tmp` trên macOS, workspace symlink của GitLab runner, mount trong container — thì `realpathSync(resolved)` trả path thật còn `REPOSITORY_ROOT` là path symlink. `relative()` cho ra `../../..`, `isConfined` trả `false` cho **mọi** file hợp lệ, gate fail toàn bộ với thông báo sai hoàn toàn: *"real path escapes repository root"*.
 
 Hỏng ở chỗ khó debug nhất: gate bảo mật báo tấn công traversal trong khi thực tế chỉ là đường dẫn checkout.
+
+**Đã sửa (W-0258):** không vá mười bản — vá mười bản là để lại đúng cơ chế đã sinh ra lỗi. `deploy/ci/scripts/repository-path-lib.mjs` giữ `REPOSITORY_ROOT` (đã realpath) và `isConfined`; mười validator import từ đó, hai semantics phân hoá hợp nhất về dạng đúng.
+
+Sửa mười script làm drift 11 hash được ghim, thuộc **hai vai**: pin sống (3 tệp — cập nhật) và bản ghi đóng băng dưới `W-0180`/`W-0182`/`W-0188` (**không đụng**, theo đúng luật `W-0251` dựng: một attestation đúng khi nó cũ).
+
+Guard mới `PATH_CONFINEMENT_SINGLE_SOURCE_PASS` trong `ci-config-selftest.mjs` khẳng định lib canonicalise root **và** không script nào định nghĩa `isConfined` riêng — đã chứng minh đỏ được ở cả hai nửa.
 
 ---
 
@@ -598,8 +608,8 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~B6~~ | ~~Hai store serialize khác nhau~~ | ~~MEDIUM~~ | **đã sửa — W-0256** |
 | ~~P4~~ | ~~4/5 loop không test được nhịp~~ | ~~LOW~~ | **đã sửa — W-0256** (phụ phẩm của B4) |
 | ~~P1~~ | ~~Dashboard 12 round trip + 5 semi-join~~ | ~~HIGH~~ | **đã sửa — W-0257** |
-| B7 | Secret phơi qua `ActiveGenerations` | MEDIUM | thấp — bỏ `SecretBytes` khỏi type public |
-| B8 | Validator vỡ dưới symlink | MEDIUM | thấp — realpath `REPOSITORY_ROOT` |
+| ~~B7~~ | ~~Secret phơi qua `ActiveGenerations`~~ | ~~MEDIUM~~ | **đã sửa — W-0258** |
+| ~~B8~~ | ~~Validator vỡ dưới symlink~~ | ~~MEDIUM~~ | **đã sửa — W-0258** |
 | B5 | Rò rỉ bộ nhớ ở MOCK | MEDIUM | thấp — TTL + eviction |
 | P2 | 109 index, nhiều cái trên boolean | MEDIUM | trung bình — đo `pg_stat_user_indexes` trước |
 | S4 | Helper bảo mật copy-paste 18 lần | MEDIUM | trung bình — tách module dùng chung |
@@ -609,7 +619,7 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | S6 | 434k dòng docs không liên quan | LOW | thấp — tách sang repo riêng |
 | B9, B10, S1, S3, S5, C1–C5 | — | LOW | — |
 
-**7/26 đã đóng. Không còn mục HIGH nào.**
+**9/26 đã đóng. Không còn mục HIGH nào.**
 
 ---
 

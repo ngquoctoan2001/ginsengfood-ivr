@@ -15,6 +15,89 @@ public sealed class SecretRotationTests
     private const string Second = "rotated-service-credential-not-a-real-secret";
     private const string Third = "emergency-service-credential-not-a-real-secret";
 
+    /// <summary>
+    /// Nothing reachable from the provider may carry credential material.
+    /// <para>
+    /// <c>CredentialGeneration</c> used to expose the secret as a <c>byte[]</c>, and
+    /// <c>ActiveGenerations</c> is public, so <c>provider.ActiveGenerations[0].SecretBytes</c>
+    /// returned the credential — from the very type whose documented job is to describe a rotation
+    /// without describing the value. Nobody was calling it, which is why it survived: the leak was
+    /// one line of future diagnostics code away, not a live bug.
+    /// </para>
+    /// <para>
+    /// Asserted by reflection rather than by not writing the call. A test that simply omits the
+    /// call passes just as well after someone puts the property back.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "SEC-ROT-06")]
+    public void NoTypeReachableFromTheProviderCarriesCredentialMaterial()
+    {
+        foreach (Type type in new[]
+        {
+            typeof(CredentialGeneration),
+            typeof(CredentialRotationAudit),
+        })
+        {
+            foreach (PropertyInfo property in type.GetProperties())
+            {
+                // A byte array on a credential type is either the secret or something derived
+                // closely enough from it to be worth refusing by shape rather than by name.
+                Assert.False(
+                    property.PropertyType == typeof(byte[])
+                        || property.PropertyType == typeof(ReadOnlyMemory<byte>),
+                    $"{type.Name}.{property.Name} exposes raw bytes from a credential type.");
+
+                Assert.False(
+                    property.Name.Contains("Secret", StringComparison.OrdinalIgnoreCase)
+                        || property.Name.Contains("Plaintext", StringComparison.OrdinalIgnoreCase)
+                        || property.Name.Contains("Credential", StringComparison.OrdinalIgnoreCase),
+                    $"{type.Name}.{property.Name} names credential material on a public type.");
+            }
+        }
+
+        // And the provider itself hands out only descriptors.
+        var provider = new RotatingCredentialProvider(
+            First,
+            new MutableClock(new DateTimeOffset(2026, 8, 19, 9, 0, 0, TimeSpan.Zero)));
+        Assert.All(
+            provider.ActiveGenerations,
+            generation => Assert.NotEqual(First, generation.Fingerprint));
+    }
+
+    /// <summary>
+    /// The fingerprint must cost something to guess, because a length floor cannot make it cost
+    /// anything and a configured credential is whatever an operator typed.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "SEC-ROT-07")]
+    public void TheFingerprintIsDerivedWithAWorkFactorNotJustHashed()
+    {
+        // Same input, same output: it has to stay reproducible across processes or it cannot trace
+        // a rotation between two systems, which is the only reason it exists.
+        Assert.Equal(
+            RotatingCredentialProvider.Fingerprint(First),
+            RotatingCredentialProvider.Fingerprint(First));
+        Assert.NotEqual(
+            RotatingCredentialProvider.Fingerprint(First),
+            RotatingCredentialProvider.Fingerprint(Second));
+
+        // Not a bare SHA-256 of the secret. That is the derivation this replaced, and it is the
+        // one an attacker would try first precisely because it used to be right.
+        string bareSha256 = Convert.ToHexString(
+            System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(First)))[..12].ToLowerInvariant();
+        Assert.NotEqual(bareSha256, RotatingCredentialProvider.Fingerprint(First));
+
+        // Cheap enough to leave on the startup path, expensive enough to be worth having. The
+        // bound is loose on purpose: this asserts the work factor exists, not what the CI runner's
+        // clock speed is.
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        RotatingCredentialProvider.Fingerprint(Second);
+        stopwatch.Stop();
+        Assert.InRange(stopwatch.Elapsed.TotalMilliseconds, 1d, 5_000d);
+    }
+
     [Fact]
     [Trait("TestId", "SEC-ROT-01")]
     public void ARotationKeepsTheOldCredentialValidForTheOverlapAndNotOneTickLonger()

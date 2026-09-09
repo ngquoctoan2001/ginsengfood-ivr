@@ -356,6 +356,51 @@ for (const includePath of [".gitlab-ci.yml", ...includes]) {
   }
 }
 
+// W-0258. Path confinement must exist once, and its root must be canonical.
+//
+// Ten validators each carried their own `isConfined`, each deriving REPOSITORY_ROOT with an
+// unresolved `resolve(dirname(SCRIPT_PATH), "../../..")` and then comparing it against the
+// `realpathSync` of an input. That comparison only holds while no component of the checkout path
+// is a symlink — /tmp on macOS, a runner workspace link, a bind mount. Under one, `relative()`
+// returns `..`-prefixed for every legitimate file and the gate refuses its own inputs while
+// printing `real path escapes repository root`: a traversal accusation aimed at the environment.
+//
+// One copy had been fixed. The other nine never heard about it, because a fix cannot propagate
+// through copies. So the check here is not "the root is resolved" — it is "there is only one
+// place where that could be wrong."
+{
+  const scriptsDirectory = path.join(repositoryRoot, "deploy/ci/scripts");
+  const libraryName = "repository-path-lib.mjs";
+  const libraryPath = path.join(scriptsDirectory, libraryName);
+  const libraryText = await fs.readFile(libraryPath, "utf8");
+
+  assert(
+    /export const REPOSITORY_ROOT = realpathSync\(/.test(libraryText),
+    `${libraryName} must canonicalise REPOSITORY_ROOT with realpathSync, or every confinement `
+      + "check it backs is wrong under a symlinked checkout.",
+  );
+
+  const offenders = [];
+  for (const name of (await fs.readdir(scriptsDirectory)).filter((f) => f.endsWith(".mjs"))) {
+    if (name === libraryName) {
+      continue;
+    }
+
+    const text = await fs.readFile(path.join(scriptsDirectory, name), "utf8");
+    if (/^(?:function isConfined|const isConfined\s*=)/m.test(text)) {
+      offenders.push(name);
+    }
+  }
+
+  assert(
+    offenders.length === 0,
+    `These scripts define their own isConfined instead of importing ${libraryName}: `
+      + `${offenders.join(", ")}. A confinement helper in more than one shape means nobody can `
+      + "say which one is the rule, and a fix to one of them reaches none of the others.",
+  );
+}
+
+process.stdout.write("PATH_CONFINEMENT_SINGLE_SOURCE_PASS — one canonical root, one isConfined\n");
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");

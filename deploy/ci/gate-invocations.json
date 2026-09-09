@@ -99,6 +99,11 @@
       "reason": "needs --output and a TTS endpoint or container",
       "runner": "tts.gitlab-ci.yml"
     },
+    "repository-path-lib.mjs": {
+      "sweepable": false,
+      "reason": "a library with no top-level invocation",
+      "runner": "the ten evidence-bundle validators that confine an input path to the repository"
+    },
     "review-gate-selftest.mjs": { "argv": ["--self-test"], "expect": "REVIEW_GATE_SELFTEST_PASS" },
     "scan-pii.sh": {
       "sweepable": false,
