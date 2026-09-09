@@ -336,7 +336,7 @@ thay đổi catalog kế tiếp. Đó là quy trình vận hành, phải có tê
 | ~~3~~ | ~~Chốt §7.2 — hint bị bỏ qua hay thắng~~ → ✅ **owner chốt 08/09: hint bị bỏ qua** |  — |
 | ~~3b~~ | ~~món chưa có clip xử lý ra sao~~ → ✅ **owner chốt 08/09 theo đề xuất `3`+chặn đáy**; đã thi hành ở `RecordedSpeechComposer` (`W-0235`), 6 test `UT-VOICE-3B-01..06`. **Chưa nối vào renderer** — bank C/D còn rỗng nên bật lúc này là mọi món đều gộp | — |
 | **3c** | ai báo cho IVR khi Sales thêm sản phẩm — tách khỏi `3b` vì là quy trình, không phải code | Vận hành |
-| **4a** | vùng giao: đọc cả chuỗi hay **đọc tỉnh** (đề xuất: tỉnh — §11) | Owner + Product |
+| **4a** | vùng giao: đọc cả chuỗi hay **đọc tỉnh** — §11. **Đề xuất: tỉnh**, và nó là lựa chọn duy nhất không chờ chữ ký Privacy/Legal | Owner + Product |
 | ~~4b~~ | ~~danh sách đơn vị~~ → ✅ **owner chốt `09/09`: một đơn vị, `hộp`**; đã vào code ở `RecordedSpeechCatalog.SettledUnitClipIds`, ghim bởi `UT-VOICE-4B-07` (`W-0237`) | — |
 | **4c** | Sales master data còn phát dạng **chỉ-có-quận** không? (§11) — nếu có thì sai giọng **từ hôm nay**, độc lập với ghi âm | Bên nắm Sales master data |
 | **4d** | **bank D** — không phải việc gõ danh sách: `PACK-02 §32.2` có **20 ô tên còn là `{{placeholder}}`**. Điền registry **trước**, thu âm **sau** — xem §13 | Owner + Product Master |
@@ -447,6 +447,34 @@ Cái giá là **mất tên phường**. Đáng cân nhắc, nhưng: khách biế
 cần xác nhận là **đơn này có phải của họ không**, mà món hàng và số tiền đã trả lời rồi.
 
 Chi phí kỹ thuật nhỏ: resolver hiện trả `VietnamRegion?`, cần thêm một hàm trả **tên tỉnh khớp**.
+
+### Và lập luận mạnh nhất không phải kỹ thuật — nó là privacy
+
+`OD-V1-15` (*"whitelist biến đọc trong call script: bộ hẹp 4 biến hay bộ rộng có danh sách sản
+phẩm?"*) đã được ký `2026-09-05`: **bộ rộng**, gồm *"tên món + số lượng + vùng giao rút gọn"*.
+
+Nhưng cột owner của nó là **Product + Privacy/Legal**, và spec V0.3 `§12.2` ghi thẳng:
+
+> *"Mở rộng whitelist tự nó là một quyết định privacy, cần Privacy/Legal ký."*
+
+Chữ ký `05/09` là của **IVR owner** — tức đây đúng dạng dòng mà worklist `3.2` bảo phải ghi
+`M8_POSITION_SIGNED / <owner> NOT_RECEIVED`.
+
+Trong bối cảnh đó, hai lựa chọn **không ngang nhau**:
+
+| | Đọc cả chuỗi (phường + tỉnh) | **Đọc tỉnh** |
+| --- | --- | --- |
+| so với `OD-V1-15` | ở **rìa ngoài** phần vừa mở rộng | **hẹp hơn** — nằm gọn bên trong |
+| chữ ký Privacy/Legal | spec nói **cần**, **chưa có** | không cần thêm gì |
+| clip mỗi miền | hàng nghìn phường | **~34** tỉnh |
+| biến thể chính tả | phải tự chuẩn hoá | `ToMatchKey` **đã giải** |
+
+**Đọc tỉnh là lựa chọn duy nhất không phụ thuộc một chữ ký chưa có.** Đọc cả chuỗi thì phải chờ
+Privacy/Legal, và nó nằm cùng hàng đợi với `L5`–`L7` của phiếu Legal.
+
+> ⚠️ **Spec V0.3 `§12.2` dòng `293-294` vẫn ghi `delivery_area_short` là "ĐANG TRANH CHẤP —
+> OD-V1-15"** — cũ 4 ngày so với chữ ký `05/09`. Cùng lớp lỗi `3.5`: spec mô tả một hệ thống không
+> còn đúng. **Không tự sửa** — thẩm quyền sửa spec thuộc chief auditor/Owner, y như `3.5`.
 
 ### Một câu hỏi kèm theo, **không** phải defect
 
