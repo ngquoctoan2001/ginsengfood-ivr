@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Ivr.Domain\Ivr.Domain.csproj" />
     <ProjectReference Include="..\..\src\Ivr.Infrastructure\Ivr.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Ivr.Worker\Ivr.Worker.csproj" />
   </ItemGroup>
 
 </Project>

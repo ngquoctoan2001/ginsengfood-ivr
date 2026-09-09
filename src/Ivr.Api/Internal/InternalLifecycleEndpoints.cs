@@ -28,7 +28,7 @@ public static class InternalLifecycleEndpoints
         EligibilityLifecycleRequest request,
         HttpContext context,
         IOptions<InternalServiceOptions> options,
-        IInternalAdminApiService service,
+        IIvrLifecycleApiService service,
         CancellationToken cancellationToken)
     {
         InternalRequestGuard.RequireInternalService(context, options);
@@ -43,7 +43,7 @@ public static class InternalLifecycleEndpoints
         CallJobLifecycleRequest request,
         HttpContext context,
         IOptions<InternalServiceOptions> options,
-        IInternalAdminApiService service,
+        IIvrLifecycleApiService service,
         CancellationToken cancellationToken)
     {
         InternalRequestGuard.RequireInternalService(context, options);
@@ -58,7 +58,7 @@ public static class InternalLifecycleEndpoints
         string ivrCallJobId,
         HttpContext context,
         IOptions<InternalServiceOptions> options,
-        IInternalAdminApiService service,
+        IIvrLifecycleApiService service,
         CancellationToken cancellationToken)
     {
         InternalRequestGuard.RequireInternalService(context, options);
@@ -70,7 +70,7 @@ public static class InternalLifecycleEndpoints
         CallAttemptLifecycleRequest request,
         HttpContext context,
         IOptions<InternalServiceOptions> options,
-        IInternalAdminApiService service,
+        IIvrLifecycleApiService service,
         CancellationToken cancellationToken)
     {
         InternalRequestGuard.RequireInternalService(context, options);
@@ -85,7 +85,7 @@ public static class InternalLifecycleEndpoints
         CallResultLifecycleRequest request,
         HttpContext context,
         IOptions<InternalServiceOptions> options,
-        IInternalAdminApiService service,
+        IIvrLifecycleApiService service,
         CancellationToken cancellationToken)
     {
         InternalRequestGuard.RequireInternalService(context, options);
@@ -100,7 +100,7 @@ public static class InternalLifecycleEndpoints
         ResultCallbackLifecycleRequest request,
         HttpContext context,
         IOptions<InternalServiceOptions> options,
-        IInternalAdminApiService service,
+        IIvrLifecycleApiService service,
         CancellationToken cancellationToken)
     {
         InternalRequestGuard.RequireInternalService(context, options);

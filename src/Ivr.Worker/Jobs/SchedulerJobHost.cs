@@ -1,107 +1,85 @@
-using Ivr.Infrastructure.Resilience;
 using Ivr.Infrastructure.Scheduling;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Worker.Jobs;
 
-public sealed partial class SchedulerJobHost(
+internal sealed partial class SchedulerJobHost(
     ISchedulerRuntime scheduler,
     IOptions<SchedulerOptions> options,
     WorkerLiveness liveness,
     TimeProvider timeProvider,
-    ILogger<SchedulerJobHost> logger) : BackgroundService
+    ILogger<SchedulerJobHost> logger) : PollingJobHost(liveness, timeProvider)
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    private readonly string workerId =
+        string.Concat("ivr-scheduler-", Guid.NewGuid().ToString("N"));
+
+    // W-0214. Only the transitions are logged, not the state. This loop turns every
+    // PollIntervalMilliseconds -- 100ms under the LocalMockE2E profile -- so a line per pass would
+    // bury the night it is meant to explain under six hundred identical lines a minute. Null until
+    // the first run answers, so the first closed window still announces itself.
+    private bool? callingWindowOpen;
+
+    protected override string LoopName => "scheduler";
+
+    protected override bool IsEnabled => options.Value.Enabled;
+
+    protected override TimeSpan Period =>
+        TimeSpan.FromMilliseconds(options.Value.PollIntervalMilliseconds);
+
+    /// <summary>
+    /// The scheduler keeps turning when it is disabled, unlike every other loop.
+    /// <para>
+    /// Its enable gate lives inside <c>SchedulerRuntime.RunOnceAsync</c>, so with the scheduler
+    /// off the pass still runs and simply places no call — and the recovery and deadline-closing
+    /// work in that same pass has to keep happening either way. Returning early here would stop
+    /// those too. The liveness registration still reports DISABLED, because reporting a healthy
+    /// loop that cannot dispatch is the exact shape of comfort that registration exists to remove.
+    /// </para>
+    /// </summary>
+    protected override bool StopWhenDisabled => false;
+
+    protected override async Task RunOnceAsync(CancellationToken cancellationToken)
     {
-        string workerId = string.Concat("ivr-scheduler-", Guid.NewGuid().ToString("N"));
-        var period = TimeSpan.FromMilliseconds(options.Value.PollIntervalMilliseconds);
-        using var timer = new PeriodicTimer(period, timeProvider);
-        // Registered explicitly. A loop that forgot to register would be silently exempt
-        // from the liveness check, and the loops worth watching are exactly the ones
-        // somebody added without thinking about health.
-        //
-        // The scheduler differs from the other two loops: its enable gate lives inside
-        // SchedulerRuntime.RunOnceAsync, so with the scheduler off this loop still turns and does
-        // nothing on every pass. Registering it as ENABLED then would report a healthy loop that
-        // cannot dispatch, which is the exact shape of comfort this whole class exists to remove.
-        if (options.Value.Enabled)
+        SchedulerRunResult result = await scheduler.RunOnceAsync(
+            workerId,
+            cancellationToken).ConfigureAwait(false);
+        if (result.QuarantinedLeases > 0
+            || result.ClosedMissedDeadlines > 0
+            || result.DispatchClaimed)
         {
-            liveness.Register("scheduler", period);
-        }
-        else
-        {
-            liveness.RegisterDisabled("scheduler");
+            LogRun(
+                logger,
+                result.QuarantinedLeases,
+                result.ClosedMissedDeadlines,
+                result.DispatchClaimed);
         }
 
-        var backoff = new LoopBackoff(period, timeProvider);
-        // W-0214. Only the transitions are logged, not the state. This loop turns every
-        // PollIntervalMilliseconds -- 100ms under the LocalMockE2E profile -- so a line per pass
-        // would bury the night it is meant to explain under six hundred identical lines a minute.
-        // Null until the first run answers, so the first closed window still announces itself.
-        bool? callingWindowOpen = null;
-        while (!stoppingToken.IsCancellationRequested)
+        if (callingWindowOpen != result.CallingWindowOpen)
         {
-            bool failed = false;
-            try
+            if (result.CallingWindowOpen)
             {
-                SchedulerRunResult result = await scheduler.RunOnceAsync(
-                    workerId,
-                    stoppingToken).ConfigureAwait(false);
-                if (result.QuarantinedLeases > 0
-                    || result.ClosedMissedDeadlines > 0
-                    || result.DispatchClaimed)
-                {
-                    LogRun(
-                        logger,
-                        result.QuarantinedLeases,
-                        result.ClosedMissedDeadlines,
-                        result.DispatchClaimed);
-                }
-
-                if (callingWindowOpen != result.CallingWindowOpen)
-                {
-                    if (result.CallingWindowOpen)
-                    {
-                        LogCallingWindowOpened(logger);
-                    }
-                    else
-                    {
-                        LogCallingWindowClosed(logger, result.CallingWindowOpensAt);
-                    }
-
-                    callingWindowOpen = result.CallingWindowOpen;
-                }
-
-                liveness.Tick("scheduler");
-                backoff.RecordSuccess();
+                LogCallingWindowOpened(logger);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            else
             {
-                break;
-            }
-            catch (Exception exception)
-            {
-                LogFailure(logger, exception, backoff.ConsecutiveFailures + 1);
-                liveness.Fault("scheduler", exception);
-                failed = true;
+                LogCallingWindowClosed(logger, result.CallingWindowOpensAt);
             }
 
-            // A failed pass waits before the next one. This loop turns every 100 ms under the
-            // LocalMockE2E profile, so retrying at the poll interval regardless of what is wrong
-            // meant ten stack traces a second per replica for as long as an outage lasted — and
-            // the connection storm that came with them is part of why it lasted.
-            if (failed
-                && !await backoff.DelayAfterFailureAsync(stoppingToken).ConfigureAwait(false))
-            {
-                break;
-            }
-
-            if (!await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
-            {
-                break;
-            }
+            callingWindowOpen = result.CallingWindowOpen;
         }
     }
+
+    /// <summary>
+    /// Nothing to say. The scheduler being off is already reported by the liveness registration,
+    /// and unlike the other loops it keeps running, so a "disabled; not running" line would be
+    /// false.
+    /// </summary>
+    protected override void OnDisabled()
+    {
+    }
+
+    protected override void OnFailure(Exception exception, int consecutiveFailures) =>
+        LogFailure(logger, exception, consecutiveFailures);
 
     [LoggerMessage(
         EventId = 2310,

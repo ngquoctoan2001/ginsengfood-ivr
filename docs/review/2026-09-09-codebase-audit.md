@@ -383,11 +383,17 @@ Bốn cái còn lại dùng đồng hồ thật: `CallbackDeliveryJobHost.cs:26`
 
 ## 3. Code smell
 
-### S1 — God class kèm interface 16 method
+### S1 — God class kèm interface 16 method — ĐÃ SỬA KHỚP NỐI
 
 `src/Ivr.Api/Application/InternalAdminApiService.cs` — 1.265 dòng, file `.cs` lớn nhất không phải generated.
 
-`IInternalAdminApiService` (dòng 22-39) có **16 method**, trộn lẫn: eligibility, call job, attempt, result, callback, pause/resume queue, enable/disable channel, technical retry, admin review, terminate call, terminate all. Mọi consumer phải phụ thuộc vào cả 16 dù chỉ dùng một.
+> **Đính chính (W-0263).** **15** method, không phải 16.
+
+**Đã sửa (W-0263):** tách thành `IIvrLifecycleApiService` (6) và `IIvrAdminOperationsService` (9), đúng hai nhóm consumer đã tồn tại — khác biệt nhìn thấy trong chữ ký: mọi method nhóm sau nhận `actorId`, không method nào nhóm đầu nhận. `DevToolingApiService` dùng 2/9 thay vì phụ thuộc cả 15. Composition root cho 6 service khác chuyển sang file riêng.
+
+**Class giữ nguyên một khối, cố ý:** 15 method chia nhau wrapper idempotency, context factory và helper validation; tách class sẽ nhân đôi chúng hoặc cần một type thứ ba để giữ. 1.266 → 1.188 dòng. Cái đã sửa là **khớp nối**, không phải kích thước.
+
+`IInternalAdminApiService` (dòng 22-39) có **15 method**, trộn lẫn: eligibility, call job, attempt, result, callback, pause/resume queue, enable/disable channel, technical retry, admin review, terminate call, terminate all. Mọi consumer phải phụ thuộc vào cả 16 dù chỉ dùng một.
 
 File này còn kiêm luôn DI registration cho **6 service khác** (dòng 1200-1240):
 
@@ -440,9 +446,13 @@ trong khi C# gán `job.Status = "HELD_ADMIN_REVIEW"` bằng literal riêng.
 
 ---
 
-### S3 — 5 background host copy-paste nguyên khối, kể cả comment
+### S3 — 5 background host copy-paste nguyên khối, kể cả comment — ĐÃ SỬA
 
-Comment này xuất hiện **nguyên văn** ở 3 file (`AnalyticsEtlJobHost.cs`, `CallbackDeliveryJobHost.cs`, `NormalizationJobHost.cs`):
+> **Đính chính (W-0263).** Tôi viết "5 host" và đếm `RetentionJobHost` vào đó. **Sai** — nó chạy một lần rồi thoát, không timer, không liveness registration, không vòng lặp thất bại, nên không có pattern nào để trùng lặp. Số đúng là **bốn**.
+
+**Đã sửa (W-0263):** skeleton chuyển vào `PollingJobHost`; 4 host từ 476 còn 337 dòng cộng 133 dòng base — gần như hoà về dòng, nhưng vòng lặp chỉ còn **một** câu trả lời cho "khi nào backoff, tick trước hay sau, exception nào kết thúc vòng lặp". Bốn test `UT-WORKER-LOOP-01..04` là lần đầu skeleton này được unit test.
+
+Comment này từng xuất hiện **nguyên văn** ở 3 file (`AnalyticsEtlJobHost.cs`, `CallbackDeliveryJobHost.cs`, `NormalizationJobHost.cs`):
 
 > *"Registered even though it will not run, so the report can tell a loop that was turned OFF from a loop that was never wired: the first is a decision, the second is a defect, and only one of them is worth a restart."*
 
@@ -638,9 +648,11 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~P3~~ | ~~DSAR 8 round trip, nổ tham số~~ | ~~LOW~~ | **đã sửa — W-0261** |
 | ~~S7~~ | ~~Worktree rác + bản sao repo~~ | ~~LOW~~ | **đã sửa — W-0262** (942 MB thu hồi) |
 | ~~S6~~ | ~~434k dòng docs không liên quan~~ | — | **RÚT LẠI — phát hiện sai (W-0262)** |
-| B9, B10, S1, S3, S5, C1–C5 | — | LOW | — |
+| ~~S1~~ | ~~God class + interface 15 method~~ | ~~LOW~~ | **đã sửa — W-0263** |
+| ~~S3~~ | ~~4 background host copy-paste~~ | ~~LOW~~ | **đã sửa — W-0263** |
+| B9, B10, S5, C1, C3–C5 | — | LOW | — |
 
-**15/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
+**17/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
 
 ---
 

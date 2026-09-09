@@ -20,7 +20,15 @@ using Ivr.Domain.Confirmation;
 
 namespace Ivr.Api.Application;
 
-public interface IInternalAdminApiService
+/// <summary>
+/// Lifecycle reassertion, called service-to-service by <c>InternalLifecycleEndpoints</c>.
+/// <para>
+/// Separated from the operator surface because the two have different callers, different
+/// authentication and different consequences: everything here is another service restating a fact
+/// idempotently, and nothing here needs a named human.
+/// </para>
+/// </summary>
+public interface IIvrLifecycleApiService
 {
     public Task<EligibilityApiResult> EvaluateEligibilityAsync(string taskId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
     public Task<CallJobApiResult> GetCallJobAsync(string jobId, CancellationToken cancellationToken);
@@ -28,6 +36,18 @@ public interface IInternalAdminApiService
     public Task<CallAttemptApiResult> ReassertAttemptAsync(CallAttemptLifecycleRequest request, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
     public Task<CallResultApiResult> ReassertResultAsync(CallResultLifecycleRequest request, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
     public Task<ResultCallbackApiResult> ReassertCallbackAsync(ResultCallbackLifecycleRequest request, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
+}
+
+/// <summary>
+/// Operator actions, called by <c>IvrAdminEndpoints</c>.
+/// <para>
+/// Every one of these changes what the system is doing to customers in flight, and every one takes
+/// an <c>actorId</c> — that parameter is the difference between the two interfaces made visible in
+/// the signature.
+/// </para>
+/// </summary>
+public interface IIvrAdminOperationsService
+{
     public Task<QueueProjectionApiResult> GetQueueAsync(CancellationToken cancellationToken);
     public Task<AdminActionApiResult> PauseQueueAsync(AdminMutationRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
     public Task<AdminActionApiResult> ResumeQueueAsync(AdminMutationRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
@@ -46,7 +66,7 @@ public sealed class InternalAdminApiService(
     IFeatureFlags featureFlags,
     IOptions<IvrOptions> ivrOptions,
     IOptions<SchedulerOptions> schedulerOptions,
-    TimeProvider timeProvider) : IInternalAdminApiService
+    TimeProvider timeProvider) : IIvrLifecycleApiService, IIvrAdminOperationsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const string AdminPauseScope = "ADMIN_QUEUE_PAUSE";
@@ -1165,102 +1185,4 @@ public sealed class InternalAdminApiService(
         callback.RequiresCoreRevalidation);
 
     private sealed record AdminMutation(AdminActionEntity Action, AuditLogEntity Audit);
-}
-
-public static class InternalAdminApiServiceCollectionExtensions
-{
-    private static int ReadInt(IConfigurationSection section, string key, int fallback) =>
-        int.TryParse(
-            section[key],
-            System.Globalization.NumberStyles.Integer,
-            System.Globalization.CultureInfo.InvariantCulture,
-            out int parsed)
-                ? parsed
-                : fallback;
-
-    public static IServiceCollection AddIvrInternalAdminApi(
-        this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(configuration);
-        services.AddOptions<InternalServiceOptions>()
-            .Configure(options =>
-            {
-                options.ServiceToken = configuration[InternalServiceOptions.TokenConfigurationKey]
-                    ?? string.Empty;
-            })
-            .Validate(
-                options => !string.IsNullOrWhiteSpace(options.ServiceToken),
-                $"{InternalServiceOptions.TokenConfigurationKey} is required.")
-            .ValidateOnStart();
-        services.Configure<RouteHandlerOptions>(options =>
-        {
-            options.ThrowOnBadRequest = true;
-        });
-        services.AddSingleton<IInternalAdminApiService, InternalAdminApiService>();
-        services.AddSingleton<IAdminReadService, AdminReadService>();
-        services.AddSingleton<IAdminConfigReadService, AdminConfigReadService>();
-        services.AddSingleton<IAnalyticsReadService, AnalyticsReadService>();
-        services.AddSingleton<IScriptLifecycleApiService, ScriptLifecycleApiService>();
-
-        // W-0112. Registered unconditionally; the routes are what production refuses to map.
-        // Keeping the service available means NonProductionSurface is exercised by the same
-        // code in every environment, rather than by a registration branch nobody runs.
-        IConfigurationSection devSection = configuration.GetSection(DevToolingOptions.SectionName);
-        services.AddOptions<DevToolingOptions>()
-            .Configure<IHostEnvironment>((options, environment) =>
-            {
-                // W-0193. A relative path is resolved against the content root, not the process
-                // working directory.
-                //
-                // The option is a filesystem path, and `dotnet run`, `dotnet test` and the
-                // container image each start the process in a different directory. Anchoring on
-                // the content root is what lets one committed value ("../../seed") work in all
-                // three instead of working in whichever one it was last tried in.
-                options.SeedDirectory = ResolveSeedDirectory(
-                    devSection[nameof(DevToolingOptions.SeedDirectory)],
-                    environment.ContentRootPath);
-                options.ScenarioWindowSeconds = ReadInt(
-                    devSection,
-                    nameof(DevToolingOptions.ScenarioWindowSeconds),
-                    options.ScenarioWindowSeconds);
-                options.ScenarioTechnicalRetryLimit = ReadInt(
-                    devSection,
-                    nameof(DevToolingOptions.ScenarioTechnicalRetryLimit),
-                    options.ScenarioTechnicalRetryLimit);
-                options.MaximumSeedTasks = ReadInt(
-                    devSection,
-                    nameof(DevToolingOptions.MaximumSeedTasks),
-                    options.MaximumSeedTasks);
-            })
-            .ValidateOnStart();
-        services.TryAddEnumerable(
-            ServiceDescriptor.Singleton<IValidateOptions<DevToolingOptions>, DevToolingOptionsValidator>());
-        services.AddSingleton<SeedCatalog>();
-        services.AddSingleton<IDevToolingApiService, DevToolingApiService>();
-        return services;
-    }
-
-    /// <summary>
-    /// W-0193. Turns the configured seed path into one the process can actually open.
-    /// <para>
-    /// Empty stays empty: an unconfigured seed directory disables the developer surface, and that
-    /// is the correct default outside development. An absolute path is taken as given. Only a
-    /// relative path is rewritten, and it is anchored on the content root so the same committed
-    /// value resolves identically however the process was started.
-    /// </para>
-    /// </summary>
-    internal static string ResolveSeedDirectory(string? configured, string contentRootPath)
-    {
-        if (string.IsNullOrWhiteSpace(configured))
-        {
-            return string.Empty;
-        }
-
-        string trimmed = configured.Trim();
-        return Path.IsPathRooted(trimmed)
-            ? trimmed
-            : Path.GetFullPath(Path.Combine(contentRootPath, trimmed));
-    }
 }

@@ -56,7 +56,7 @@ public interface IDevToolingApiService
 public sealed class DevToolingApiService(
     SeedCatalog catalog,
     ITaskIntakeService intakeService,
-    IInternalAdminApiService adminService,
+    IIvrAdminOperationsService adminService,
     IDbContextFactory<IvrDbContext> dbContextFactory,
     // Optional: only the PostgreSQL service set registers a writer. A host running the in-memory
     // doubles already has the candidate policies in its fake registry, so there is nothing to

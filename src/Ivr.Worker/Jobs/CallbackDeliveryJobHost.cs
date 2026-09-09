@@ -1,82 +1,43 @@
 using Ivr.Infrastructure.Callbacks;
-using Ivr.Infrastructure.Resilience;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Worker.Jobs;
 
-public sealed partial class CallbackDeliveryJobHost(
+internal sealed partial class CallbackDeliveryJobHost(
     IServiceScopeFactory scopeFactory,
     CallbackCircuitBreaker circuitBreaker,
     IOptions<CallbackDeliveryOptions> options,
     WorkerLiveness liveness,
     TimeProvider timeProvider,
-    ILogger<CallbackDeliveryJobHost> logger) : BackgroundService
+    ILogger<CallbackDeliveryJobHost> logger) : PollingJobHost(liveness, timeProvider)
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override string LoopName => "callback-delivery";
+
+    protected override bool IsEnabled => options.Value.Enabled;
+
+    protected override TimeSpan Period =>
+        TimeSpan.FromMilliseconds(options.Value.PollIntervalMilliseconds);
+
+    protected override async Task RunOnceAsync(CancellationToken cancellationToken)
     {
-        CallbackDeliveryOptions snapshot = options.Value;
-        if (!snapshot.Enabled)
+        // A scope per pass, not per host: CallbackDispatcher pulls scoped dependencies, and one
+        // scope held for the life of the worker would hand every pass the same DbContext.
+        await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+        CallbackDispatcher dispatcher = scope.ServiceProvider
+            .GetRequiredService<CallbackDispatcher>();
+        IReadOnlyList<CallbackDispatchResult> results =
+            await dispatcher.RunBatchAsync(cancellationToken).ConfigureAwait(false);
+        if (results.Count > 0)
         {
-            LogDisabled(logger);
-            // Registered even though it will not run, so the report can tell a loop that
-            // was turned OFF from a loop that was never wired: the first is a decision,
-            // the second is a defect, and only one of them is worth a restart.
-            liveness.RegisterDisabled("callback-delivery");
-            return;
-        }
-
-        var period = TimeSpan.FromMilliseconds(snapshot.PollIntervalMilliseconds);
-        using var timer = new PeriodicTimer(period, timeProvider);
-        // Registered explicitly. A loop that forgot to register would be silently exempt
-        // from the liveness check, and the loops worth watching are exactly the ones
-        // somebody added without thinking about health.
-        liveness.Register("callback-delivery", period);
-        var backoff = new LoopBackoff(period, timeProvider);
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            bool failed = false;
-            try
-            {
-                await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
-                CallbackDispatcher dispatcher = scope.ServiceProvider
-                    .GetRequiredService<CallbackDispatcher>();
-                IReadOnlyList<CallbackDispatchResult> results =
-                    await dispatcher.RunBatchAsync(stoppingToken).ConfigureAwait(false);
-                if (results.Count > 0)
-                {
-                    CallbackCircuitState circuit = circuitBreaker.Snapshot();
-                    LogBatch(logger, results.Count, circuit.Readiness);
-                }
-
-                liveness.Tick("callback-delivery");
-                backoff.RecordSuccess();
-            }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception exception)
-            {
-                LogFailure(logger, exception, backoff.ConsecutiveFailures + 1);
-                liveness.Fault("callback-delivery", exception);
-                failed = true;
-            }
-
-            // A failed pass waits before the next one. Retrying at the poll interval regardless of
-            // what is wrong turns a dependency outage into a log flood and a connection storm, and
-            // the storm is part of why the dependency stays down.
-            if (failed
-                && !await backoff.DelayAfterFailureAsync(stoppingToken).ConfigureAwait(false))
-            {
-                break;
-            }
-
-            if (!await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
-            {
-                break;
-            }
+            CallbackCircuitState circuit = circuitBreaker.Snapshot();
+            LogBatch(logger, results.Count, circuit.Readiness);
         }
     }
+
+    protected override void OnDisabled() => LogDisabled(logger);
+
+    protected override void OnFailure(Exception exception, int consecutiveFailures) =>
+        LogFailure(logger, exception, consecutiveFailures);
 
     [LoggerMessage(
         EventId = 2330,

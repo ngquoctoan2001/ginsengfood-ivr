@@ -72,7 +72,7 @@ public static class IvrAdminEndpoints
 
     private static Task<QueueProjectionApiResult> GetQueueAsync(
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken)
     {
         _ = InternalRequestGuard.RequireCorrelation(context);
@@ -266,7 +266,7 @@ public static class IvrAdminEndpoints
     private static Task<AdminActionApiResult> PauseQueueAsync(
         AdminMutationRequest request,
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken) =>
         service.PauseQueueAsync(
             request,
@@ -279,7 +279,7 @@ public static class IvrAdminEndpoints
         string ivrCallJobId,
         AdminMutationRequest request,
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken) =>
         service.TerminateCallAsync(
             ivrCallJobId,
@@ -292,7 +292,7 @@ public static class IvrAdminEndpoints
     private static Task<AdminActionApiResult> TerminateAllCallsAsync(
         AdminMutationRequest request,
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken) =>
         service.TerminateAllActiveCallsAsync(
             request,
@@ -304,7 +304,7 @@ public static class IvrAdminEndpoints
     private static Task<AdminActionApiResult> ResumeQueueAsync(
         AdminMutationRequest request,
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken) =>
         service.ResumeQueueAsync(
             request,
@@ -317,7 +317,7 @@ public static class IvrAdminEndpoints
         string simChannelId,
         AdminMutationRequest request,
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken) =>
         service.DisableChannelAsync(
             simChannelId,
@@ -331,7 +331,7 @@ public static class IvrAdminEndpoints
         string simChannelId,
         AdminMutationRequest request,
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken) =>
         service.EnableChannelAsync(
             simChannelId,
@@ -344,7 +344,7 @@ public static class IvrAdminEndpoints
     private static Task<TechnicalRetryApiResult> RetryTechnicalExceptionAsync(
         TechnicalRetryRequest request,
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken) =>
         service.RetryTechnicalExceptionAsync(
             request,
@@ -356,7 +356,7 @@ public static class IvrAdminEndpoints
     private static Task<AdminReviewApiResult> ReviewAsync(
         AdminReviewRequest request,
         HttpContext context,
-        IInternalAdminApiService service,
+        IIvrAdminOperationsService service,
         CancellationToken cancellationToken) =>
         service.ReviewAsync(
             request,
