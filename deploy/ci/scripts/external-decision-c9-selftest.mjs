@@ -28,7 +28,7 @@ const CLOSURE_VALIDATOR = "deploy/ci/scripts/external-decision-closure-validator
 const ROUTING_TEMPLATE = "docs/evidence/W-0164/recipient-routing-input.template.json";
 const RESPONSE_TEMPLATE = "docs/evidence/W-0165/decision-response-input.template.json";
 const CLOSURE_TEMPLATE = "docs/evidence/W-0170/decision-closure-input.template.json";
-const MANIFEST = "docs/evidence/W-0170/artifact-sha256.txt";
+const MANIFEST = "deploy/ci/pins/external-decision-artifacts.sha256";
 const C9_DECISION_PACK =
   "plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md";
 const DISPATCH_PACK =
@@ -68,6 +68,7 @@ function parseManifest() {
     readFileSync(resolve(REPOSITORY_ROOT, MANIFEST), "utf8")
       .trim()
       .split(/\r?\n/u)
+      .filter((line) => line.trim() && !line.startsWith("#"))
       .map((line) => {
         const match = /^([0-9a-f]{64})  (.+)$/u.exec(line);
         if (!match) fail(`invalid manifest line: ${line}`);

@@ -25,9 +25,9 @@ const SOURCE_PINS = Object.freeze({
     "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
   dispatch_pack_sha256:
     "59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e",
-  artifact_manifest_path: "docs/evidence/W-0170/artifact-sha256.txt",
+  artifact_manifest_path: "deploy/ci/pins/external-decision-artifacts.sha256",
   artifact_manifest_sha256:
-    "f4c04e4a3104ce02923230932ffd3e3140ae092b536b836db278da8312779288",
+    "54b0fef7a1572b04a5f36c1668a2fedc1833960e634d6d172b15fd5e6a5b694b",
 });
 
 const DISPATCH_PACK = SOURCE_PINS.dispatch_pack_path;
@@ -283,7 +283,8 @@ function parseAndVerifyManifest() {
   }
   const text = new TextDecoder("utf-8", { fatal: true }).decode(manifestBytes);
   const entries = new Map();
-  for (const line of text.split(/\r?\n/u).filter(Boolean)) {
+  // W-0251: the pin file carries a header explaining why it is not the frozen evidence record.
+  for (const line of text.split(/\r?\n/u).filter((line) => line.trim() && !line.startsWith("#"))) {
     const match = /^([0-9a-f]{64})  ([^\r\n]+)$/u.exec(line);
     if (!match) fail("artifact manifest contains a malformed line");
     if (entries.has(match[2])) fail(`artifact manifest contains duplicate path ${match[2]}`);

@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:gates": "node scripts/gate-sweep.mjs",
+    "test:gates:list": "node scripts/gate-sweep.mjs --list",
     "openapi:lint": "redocly lint ../../specs/api/openapi/ivr-order-confirmation.v1.yaml ../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml --config ../../.redocly.yaml",
     "openapi:validate": "node scripts/validate-openapi.mjs",
     "openapi:drift": "node scripts/openapi-contract-drift.mjs",

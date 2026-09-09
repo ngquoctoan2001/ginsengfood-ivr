@@ -173,3 +173,28 @@ hardening fail-closed. Rotation giữ nguyên schema, sheet, decision ID, quorum
 Current self-tests PASS W-0164 `2/19`, W-0165 `2/27`, W-0170 `1/21`; dependent W-0179 `1/6`
 và W-0184 `1/8` cũng PASS. Đây chỉ là local provenance-chain recovery; dispatch vẫn `0/5`, external
 response/authority vẫn `NOT_RECEIVED` và không có gate production nào được mở.
+
+---
+
+## Ghi chú `W-0251` — pin sống đã chuyển đi, bản ghi này giữ nguyên
+
+Bảng hash phía trên và `artifact-sha256.txt` cạnh nó là **bản ghi đóng băng**: chúng nói W-0170 đã
+chứng thực gì vào ngày viết, và **được phép cũ đi** khi source đi tiếp. `docs/evidence/W-0152/artifact-sha256.txt`
+chứng minh điều đó — **7 trong 18** dòng của nó không còn khớp HEAD, và đúng như vậy, vì sáu file ấy
+đã đổi hợp lệ giữa hai work item.
+
+Vấn đề là bốn script gate đọc `artifact-sha256.txt` của W-0170 **như một danh sách pin sống**, nên
+hai vai dùng chung một tệp. `W-0217` sửa một file plan được ghim mà không re-pin, và cách duy nhất
+để gate xanh lại sẽ là **ghi đè một bản ghi đã đóng**. Vì thế `W-0251` tách đôi:
+
+| Vai | Ở đâu | Có được sửa không |
+| --- | --- | --- |
+| Bản ghi đóng băng | `docs/evidence/W-0170/artifact-sha256.txt` (**tệp này, không đổi một byte**) | Không |
+| Pin sống | `deploy/ci/pins/external-decision-artifacts.sha256` | Có — cùng commit với source |
+
+Bản pin sống sinh ra từ chính tệp này, sửa đúng **một** dòng: `m8-05-program-result-contract-signoff-2026-09-03.md`
+từ `6525d2df…` sang `a03fc6ca…`, tức nội dung `W-0217` đã ghi. Mười bảy dòng còn lại khớp sẵn — đó
+cũng là bằng chứng tệp này đang bị dùng làm pin sống.
+
+`decision-closure-input.template.json` cạnh đây **có** đổi: nó là input template dẫn xuất, không phải
+chứng thực, nên nó trỏ sang đường pin mới.

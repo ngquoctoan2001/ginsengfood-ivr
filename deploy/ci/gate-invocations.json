@@ -1,0 +1,141 @@
+{
+  "_note": "W-0251. How each gate under deploy/ci/scripts/ is actually run. gate-sweep.mjs executes every entry that has an `argv`, and requires the `expect` token in the output -- exit 0 alone is not a verdict, because most of these print a usage line and several print a report whose own verdict field says FAIL. Entries without `argv` are classified explicitly, with a reason, so the sweep can assert that every file in the directory is accounted for. That last property is the point: `external-decision-response-validator` and `external-decision-closure-validator` were red from W-0217 to W-0250 because nothing ran them and nothing noticed they had no runner.",
+  "_fields": {
+    "argv": "arguments after the script path; [] means the bare invocation is the read-only one",
+    "expect": "substring that must appear in stdout+stderr for the run to count as a pass",
+    "timeoutMs": "optional override of the 180s default",
+    "sweepable": "false with a reason, for gates a static offline sweep cannot run",
+    "runner": "what does run it, when the sweep does not"
+  },
+  "gates": {
+    "api-behavior-matrix-selftest.mjs": {
+      "sweepable": false,
+      "reason": "asserts on verify-api-behavior-matrix, whose verdict depends on the ApiBehaviorMatrixTests run having happened against current source",
+      "runner": "after dotnet test, alongside verify-api-behavior-matrix.mjs"
+    },
+    "api-behavior-matrix.mjs": {
+      "sweepable": false,
+      "reason": "drives the HTTP matrix and writes .artifacts/api-matrix; a generator, not a gate",
+      "runner": "tests/Ivr.IntegrationTests/ApiBehaviorMatrixTests.cs"
+    },
+    "attempt-policy-production-bundle-validator.mjs": { "argv": ["--self-test"], "expect": "W0180_SELFTEST_PASS" },
+    "b3-telephony-evidence-validator.mjs": { "argv": ["--self-test"], "expect": "B3_TELEPHONY_EVIDENCE_SELF_TEST_PASS" },
+    "build-api-docs.mjs": {
+      "sweepable": false,
+      "reason": "regenerates docs/api; a generator whose output docs-selftest.mjs checks",
+      "runner": "docs.gitlab-ci.yml via pnpm docs:build"
+    },
+    "capacity-data-intake-validator.mjs": { "argv": ["--self-test"], "expect": "CAPACITY_DATA_INTAKE_SELFTEST_PASS" },
+    "capacity-registry-decision-pack-validator.mjs": { "argv": ["--self-test"], "expect": "W0182_SELFTEST_PASS" },
+    "capacity-selftest.mjs": { "argv": ["--self-test"], "expect": "CAPACITY_SELFTEST_PASS_UNCALIBRATED" },
+    "cd-selftest.mjs": { "argv": ["--self-test"], "expect": "CD_SELFTEST_PASS" },
+    "check-mr-traceability.mjs": {
+      "sweepable": false,
+      "reason": "reads the merge-request description, which exists only in a merge_request_event pipeline",
+      "runner": "quality-gate.gitlab-ci.yml job mr_traceability_gate"
+    },
+    "ci-config-selftest.mjs": { "argv": ["--self-test"], "expect": "CI_CONFIG_SELFTEST_PASS" },
+    "compliance-pack-selftest.mjs": { "argv": ["--self-test"], "expect": "COMPLIANCE_PACK_SELFTEST_PASS" },
+    "contract-freeze-selftest.mjs": { "argv": [], "expect": "CONTRACT_FREEZE_SELFTEST=PASS", "timeoutMs": 300000 },
+    "contract-freeze-verifier.mjs": { "argv": [], "expect": "CONTRACT_FREEZE=PASS" },
+    "d06-revalidation-evidence-validator.mjs": { "argv": ["--self-test"], "expect": "W0178_SELFTEST_PASS" },
+    "dial-token-production-bundle-validator.mjs": { "argv": ["--self-test"], "expect": "W0183_SELFTEST_PASS" },
+    "docs-selftest.mjs": { "argv": [], "expect": "API_DOCS_SELFTEST_PASS" },
+    "dr-selftest.mjs": { "argv": ["--self-test"], "expect": "DR_SELFTEST_PASS_SINGLE_HOST" },
+    "external-decision-c9-selftest.mjs": { "argv": ["--self-test"], "expect": "W0179_C9_SELFTEST_PASS" },
+    "external-decision-closure-validator.mjs": { "argv": ["--self-test"], "expect": "W0170_SELFTEST_PASS" },
+    "external-decision-dial-token-selftest.mjs": { "argv": ["--self-test"], "expect": "W0184_DIAL_TOKEN_SELFTEST_PASS" },
+    "external-decision-response-validator.mjs": { "argv": ["--self-test"], "expect": "W0165_SELFTEST_PASS" },
+    "external-decision-routing-validator.mjs": { "argv": ["--self-test"], "expect": "W0164_SELFTEST_PASS" },
+    "gate-status.mjs": { "argv": [], "expect": "GATE_STATUS_PASS", "timeoutMs": 300000 },
+    "generate-oasdiff-changelog.sh": {
+      "sweepable": false,
+      "reason": "needs the pinned tufin/oasdiff image and three path arguments; a generator",
+      "runner": "docs.gitlab-ci.yml inside the oasdiff image"
+    },
+    "generate-speech-segments.mjs": {
+      "sweepable": false,
+      "reason": "writes speech segments; a generator, not a gate",
+      "runner": "invoked by hand when the speech bank changes"
+    },
+    "generate-test-traceability.mjs": { "argv": ["--check"], "expect": "TEST_TRACEABILITY_CURRENT" },
+    "image-selftest.mjs": {
+      "sweepable": false,
+      "reason": "runs docker build against the UI and API images",
+      "runner": "images.gitlab-ci.yml"
+    },
+    "k8s-selftest.mjs": {
+      "sweepable": false,
+      "reason": "needs helm, kubeconform and a running cluster; exceeds any offline budget",
+      "runner": "k8s.gitlab-ci.yml"
+    },
+    "lab-converter-selftest.mjs": { "argv": ["--self-test"], "expect": "LAB_CONVERTER_SELFTEST_PASS" },
+    "migration-expand-guard.mjs": {
+      "sweepable": false,
+      "reason": "a library with no top-level invocation; running it directly exits 0 having proved nothing",
+      "runner": "progressive-selftest.mjs"
+    },
+    "observability-runtime-selftest.mjs": {
+      "sweepable": false,
+      "reason": "a library with no top-level invocation; running it directly exits 0 having proved nothing",
+      "runner": "image-selftest.mjs"
+    },
+    "observability-staging-evidence.mjs": { "argv": ["--self-test"], "expect": "CT-OBS-STAGING-14 PASS" },
+    "openapi-contract-drift.mjs": { "argv": [], "expect": "OPENAPI_HUMAN_DIFF_CURRENT=YES" },
+    "opt-out-suppression-bundle-validator.mjs": { "argv": ["--self-test"], "expect": "W0187_OPTOUT_BUNDLE_SELFTEST_PASS" },
+    "progressive-selftest.mjs": { "argv": ["--self-test"], "expect": "PROGRESSIVE_SELFTEST_PASS" },
+    "regenerate-openapi.ps1": {
+      "sweepable": false,
+      "reason": "PowerShell codegen driver for NSwag; a generator, and openapi-contract-drift.mjs is the gate on its output",
+      "runner": "invoked by hand after an OAS edit"
+    },
+    "render-fixed-speech.mjs": {
+      "sweepable": false,
+      "reason": "needs --endpoint, --output and --acceptance; renders audio against a live TTS endpoint",
+      "runner": "tts.gitlab-ci.yml"
+    },
+    "render-voice-audition.mjs": {
+      "sweepable": false,
+      "reason": "needs --output and a TTS endpoint or container",
+      "runner": "tts.gitlab-ci.yml"
+    },
+    "review-gate-selftest.mjs": { "argv": ["--self-test"], "expect": "REVIEW_GATE_SELFTEST_PASS" },
+    "scan-pii.sh": {
+      "sweepable": false,
+      "reason": "the scanner itself, run over a path; selftest-pii.sh is the gate that proves it rejects",
+      "runner": "ci.gitlab-ci.yml"
+    },
+    "security-scan.sh": {
+      "sweepable": false,
+      "reason": "needs the scanner images and a network; selftest-dotnet-policy.sh covers the policy half offline",
+      "runner": "ci.gitlab-ci.yml"
+    },
+    "selftest-dotnet-policy.sh": { "argv": [], "expect": "CT-CI-09 PASS" },
+    "selftest-oasdiff.sh": {
+      "sweepable": false,
+      "reason": "needs the oasdiff binary, which lives in the pinned image and not on a developer host",
+      "runner": "docs.gitlab-ci.yml inside the oasdiff image"
+    },
+    "selftest-openapi.mjs": { "argv": ["--self-test"], "expect": "CT-CI-01 PASS" },
+    "selftest-pii.sh": { "argv": [], "expect": "CT-CI-06h PASS" },
+    "target-v1-shared-e2e-report-validator.mjs": { "argv": ["--self-test"], "expect": "W0174_SELFTEST_PASS" },
+    "tts-audition-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_AUDITION_SELFTEST_PASS" },
+    "tts-container-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_CONTAINER_SELFTEST_PASS" },
+    "tts-fixed-render-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_FIXED_RENDER_SELFTEST_PASS" },
+    "tts-helm-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_HELM_SELFTEST_PASS" },
+    "tts-provenance-gate.mjs": { "argv": ["--selftest"], "expect": "TTS_PROVENANCE_STRUCTURE_PASS" },
+    "tts-voice-acceptance-gate.mjs": { "argv": ["--selftest"], "expect": "TTS_VOICE_ACCEPTANCE_SELFTEST_PASS" },
+    "tts-voice-acceptance-lib.mjs": {
+      "sweepable": false,
+      "reason": "a library with no top-level invocation",
+      "runner": "tts-voice-acceptance-gate.mjs, tts-fixed-render-selftest.mjs, render-fixed-speech.mjs"
+    },
+    "upstream-session-signoff-validator.mjs": { "argv": ["--self-test"], "expect": "W0181_SELFTEST_PASS" },
+    "validate-openapi.mjs": { "argv": [], "expect": "OPENAPI_FILES_VALID=2", "timeoutMs": 300000 },
+    "verify-api-behavior-matrix.mjs": {
+      "sweepable": false,
+      "reason": "its verdict is `Source changed since the HTTP matrix ran` until ApiBehaviorMatrixTests runs again, so a static sweep would report a stale artefact as a broken gate",
+      "runner": "after dotnet test, in the same lap"
+    }
+  }
+}

@@ -70,3 +70,27 @@ capacity_selftest:
     - npm --prefix deploy/ci ci
   script:
     - node deploy/ci/scripts/capacity-selftest.mjs
+
+# W-0251. The sweep that makes an offline gate's verdict reachable.
+#
+# Seventeen scripts under deploy/ci/scripts were reachable from no CI job, no npm script and no
+# other script. Two of them - external-decision-response-validator and its dependent closure
+# validator - were red from W-0217 to W-0250, about thirty work items, and nobody was ignoring them:
+# nothing ran them, and a hand sweep of the directory reads them wrong because most print a usage
+# line and exit non-zero with no arguments (W-0221).
+#
+# gate-invocations.json records the argv each gate wants and the token it prints when it truly
+# passed, so a usage line can no longer be mistaken for a pass. It must also classify EVERY file in
+# the directory, which is what stops the next orphan from being invisible: add a gate without an
+# entry and this job goes red.
+gate_sweep:
+  stage: validate
+  image: node:24-bookworm-slim
+  allow_failure: false
+  variables:
+    IVR_ADAPTER_MODE: "MOCK"
+    REAL_CUSTOMER_CALL_ALLOWED: "NO"
+  before_script:
+    - npm --prefix deploy/ci ci
+  script:
+    - node deploy/ci/scripts/gate-sweep.mjs

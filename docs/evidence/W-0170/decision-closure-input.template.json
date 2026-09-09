@@ -5,14 +5,14 @@
   "source": {
     "dispatch_pack_path": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
     "dispatch_pack_sha256": "59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e",
-    "artifact_manifest_path": "docs/evidence/W-0170/artifact-sha256.txt",
-    "artifact_manifest_sha256": "f4c04e4a3104ce02923230932ffd3e3140ae092b536b836db278da8312779288",
+    "artifact_manifest_path": "deploy/ci/pins/external-decision-artifacts.sha256",
+    "artifact_manifest_sha256": "54b0fef7a1572b04a5f36c1668a2fedc1833960e634d6d172b15fd5e6a5b694b",
     "message_kit_path": "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
     "message_kit_sha256": "a6e43aa1493d07bf03fba1de699e11300326ae87d5dcbbf47311602d1575cd39",
     "routing_validator_path": "deploy/ci/scripts/external-decision-routing-validator.mjs",
-    "routing_validator_sha256": "de192cb4f14435247a149e2d0cd27c4e0b054a5746ff3e228e72670f6a37be91",
+    "routing_validator_sha256": "72ce40e1d51ca52869866edebf2ff93b076083ecfda5df51adaa69a0b9d04e23",
     "response_validator_path": "deploy/ci/scripts/external-decision-response-validator.mjs",
-    "response_validator_sha256": "33b341e1d11c6383cd9f72ede018d510d103d348134c40d98a9f67a5d736e538"
+    "response_validator_sha256": "51833a4a2768eaaa0e55c4ac89091661bf8dabe8fb823bc549c77c9dd613436c"
   },
   "routing_input": {
     "path": "PENDING_EXTERNAL_EVIDENCE",
