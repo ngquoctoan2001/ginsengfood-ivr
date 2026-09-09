@@ -6,7 +6,9 @@ namespace Ivr.UnitTests;
 /// <summary>
 /// W-0107 §6.2. The second coverage layer for the console's data dictionary.
 ///
-/// The first layer lives in admin-ui and reads the OpenAPI spec. It cannot see
+/// The first layer used to live in admin-ui and read the OpenAPI spec; W-0253
+/// deleted that directory and moved the dictionary to specs/ui/, where Module 3
+/// reads it to build the console. Either way that layer cannot see
 /// the value sets that never reach the wire contract — <c>account.status</c>,
 /// <c>intake_outbox.status</c> and <c>approval_type</c> are constrained only by
 /// a database CHECK constraint, so a value added there would ship untranslated
@@ -74,10 +76,9 @@ public sealed class ConsoleEnumDictionaryTests
 
         using JsonDocument dictionary = JsonDocument.Parse(File.ReadAllText(Path.Combine(
             root,
-            "admin-ui",
-            "src",
-            "i18n",
-            "enums.vi.json")));
+            "specs",
+            "ui",
+            "enum-labels.vi.json")));
 
         List<string> missing = [];
         foreach ((string constraintName, string[] values) in constrained)

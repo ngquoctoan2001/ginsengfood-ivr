@@ -30,7 +30,6 @@ const TAG = process.env.IVR_IMAGE_TAG ?? "p7-1-selftest";
 const IMAGES = [
   { name: "ivr-api", dockerfile: "deploy/docker/Dockerfile.api", context: ".", probe: "/health/live", port: 8080 },
   { name: "ivr-worker", dockerfile: "deploy/docker/Dockerfile.worker", context: ".", probe: null, port: null },
-  { name: "ivr-admin-ui", dockerfile: "deploy/docker/Dockerfile.ui", context: "admin-ui", probe: "/login", port: 3000 },
 ];
 
 function docker(args, options = {}) {
@@ -57,10 +56,7 @@ function assert(condition, message) {
 
 // ---------------------------------------------------------------- IT-IMG-BUILD-01
 function buildAndCheckUser() {
-  const images = observabilityRuntime
-    ? IMAGES.filter((image) => image.name !== "ivr-admin-ui")
-    : IMAGES;
-  for (const image of images) {
+  for (const image of IMAGES) {
     docker(["build", "-f", image.dockerfile, "-t", `${image.name}:${TAG}`, image.context], { inherit: true });
 
     const user = docker(["inspect", "--format", "{{.Config.User}}", `${image.name}:${TAG}`]).trim();
@@ -73,7 +69,7 @@ function buildAndCheckUser() {
     // A safe default has to be IN the image. An orchestrator that forgets to set it must still get
     // a container that will not call a real customer.
     const env = JSON.parse(docker(["inspect", "--format", "{{json .Config.Env}}", `${image.name}:${TAG}`]));
-    if (image.name !== "ivr-admin-ui") {
+    {
       assert(
         env.includes("REAL_CUSTOMER_CALL_ALLOWED=NO"),
         `${image.name} does not default REAL_CUSTOMER_CALL_ALLOWED to NO.`,
@@ -134,7 +130,7 @@ function checkCompose() {
       if (waiting?.Health === "healthy" || waiting?.Health === "unhealthy") break;
       sleepSeconds(3);
     }
-    for (const required of ["ivr-api", "ivr-worker", "ivr-admin-ui", "fake-sales", "postgres"]) {
+    for (const required of ["ivr-api", "ivr-worker", "fake-sales", "postgres"]) {
       const found = services.find((service) => service.Service === required);
       assert(found, `compose is missing ${required}.`);
       assert(found.State === "running", `${required} is ${found.State}, not running.`);

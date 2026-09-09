@@ -9,16 +9,6 @@
       - .nuget/packages/
     policy: pull-push
 
-.admin_ui_cache:
-  cache:
-    key:
-      files:
-        - admin-ui/package-lock.json
-      prefix: "admin-ui-$CI_JOB_NAME"
-    paths:
-      - .npm/
-    policy: pull-push
-
 .ci_tools_cache:
   cache:
     key:
@@ -245,26 +235,6 @@ lint_dotnet:
     - dotnet format Ivr.sln --no-restore --verify-no-changes --verbosity diagnostic
     - dotnet build Ivr.sln --configuration Release --no-restore -p:RunAnalyzers=true
 
-build_lint_ui:
-  stage: build
-  image: node:24-bookworm-slim
-  extends: .admin_ui_cache
-  allow_failure: false
-  script:
-    - npm --prefix admin-ui ci --no-audit --no-fund
-    - npm --prefix admin-ui run lint
-    - npm --prefix admin-ui run typecheck
-    # P3-1 (W-0025) added the suite; it is mandatory, not conditional.
-    - npm --prefix admin-ui test
-    - npm --prefix admin-ui run build
-    - mkdir -p ci-artifacts/ui
-    - printf 'admin-ui lint=PASS\nadmin-ui typecheck=PASS\nadmin-ui tests=PASS\nadmin-ui production-build=PASS\n' > ci-artifacts/ui/summary.txt
-  artifacts:
-    when: always
-    expire_in: 7 days
-    paths:
-      - ci-artifacts/ui/
-
 security_scan:
   stage: security
   image: mcr.microsoft.com/dotnet/sdk:10.0.201
@@ -287,8 +257,6 @@ pii_scan:
     LC_ALL: "C.UTF-8"
   needs:
     - job: build_test_dotnet
-      artifacts: true
-    - job: build_lint_ui
       artifacts: true
     - job: openapi_lint
       artifacts: true

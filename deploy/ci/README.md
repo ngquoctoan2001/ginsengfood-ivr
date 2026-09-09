@@ -26,7 +26,6 @@ The .NET jobs pin `mcr.microsoft.com/dotnet/sdk:10.0.201` to the SDK selected by
 | `build_test_dotnet` | locked restore, warnings-as-errors build, semantic negative test/coverage/policy self-tests, xUnit/JUnit/Cobertura, PostgreSQL Testcontainers migration/concurrency tests, aggregate line coverage ≥ 60%; generated OpenAPI/EF migration sources excluded by `coverage.runsettings` |
 | `schema_compat_gate` | rolling-deploy schema compatibility in both directions: the shipping binary started against the previous migration's schema must refuse traffic, stay alive and recover without a restart; and no migration may carry an operation the previous release cannot survive — the typed-operation superset of `IT-MIGRATE-03`, which stays because it needs no .NET toolchain. Fails if its trait filter selects nothing |
 | `lint_dotnet` | locked restore, pinned NSwag regeneration/drift check, analyzers, `dotnet format --verify-no-changes` |
-| `build_lint_ui` | lockfile-based `npm ci`, ESLint, optional UI test script, production build |
 | `security_scan` | schema-validated fail-closed NuGet High/Critical policy, npm High/Critical policy, checksum-verified Gitleaks 8.30.0 |
 | `pii_scan` | raw-phone/address/dial-token scan across every text artifact under explicit `LC_ALL=C.UTF-8` |
 | `api_docs_verify` | regenerate Redoc portal, fail on drift, enforce Target/current separation and no-real-PII examples |
@@ -80,7 +79,6 @@ The pipeline uses option A: a centralized `pii_scan`. GitLab jobs are isolated,
 so it declares `needs` with `artifacts: true` for every artifact producer:
 
 - `build_test_dotnet`;
-- `build_lint_ui`;
 - `openapi_lint`;
 - `schema_compat_gate`.
 
@@ -124,10 +122,6 @@ dotnet restore Ivr.sln --locked-mode
 dotnet build Ivr.sln --configuration Release --no-restore
 dotnet test Ivr.sln --configuration Release --no-build
 dotnet format Ivr.sln --no-restore --verify-no-changes
-npm --prefix admin-ui ci
-npm --prefix admin-ui run lint
-npm --prefix admin-ui run build
-npm --prefix admin-ui audit --audit-level=high
 npm --prefix deploy/ci ci
 npm --prefix deploy/ci run test:config
 npm --prefix deploy/ci run openapi:lint

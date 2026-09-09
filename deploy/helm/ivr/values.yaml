@@ -121,8 +121,9 @@ worker:
       South: { voiceId: "", speakingRate: 1.0, fixedSegments: [] }
 
 ui:
-  # W-0128. The Next.js directory is a reference implementation only. Module 3 owns and deploys
-  # operator identity and UI; the chart refuses true rather than shipping a credential-bearing UI.
+  # W-0128 removed the UI from the deployable topology; W-0253 deleted the directory itself.
+  # Module 3 owns and deploys operator identity and the console. The key stays so that setting it
+  # true fails loudly instead of silently doing nothing.
   enabled: false
 
 database:

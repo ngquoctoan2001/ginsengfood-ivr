@@ -55,7 +55,13 @@ Every prompt must update the Work ID assigned in the canonical tracker before/du
 | P2-8 | [internal & admin API](phase-2-core-runtime/P2-8-internal-admin-api.md) | 13 operation IVR-owned chưa có prompt (W-0065) |
 | P2-9 | [speech/TTS provider](phase-2-core-runtime/P2-9-speech-tts-provider.md) | port + fake + adapter skeleton; prereq của P8-1 (W-0066) |
 
-## Phase 3 — Next.js admin
+## Phase 3 — Next.js admin (đã xoá sản phẩm, giữ prompt làm lịch sử)
+
+> **`W-0253` xoá `admin-ui/`.** Bốn prompt dưới đây **không còn là chỉ dẫn để làm**: console thuộc
+> Module 3, dựng trên identity của họ. Giữ lại vì sổ `prompt-execution-tracker` trỏ tới `P3-1..P3-4`
+> **19 lần** cho công việc đã thực sự làm — xoá đi là làm mồ côi sổ kiểm. Nhãn tiếng Việt cho mọi
+> enum của API nay ở `specs/ui/enum-labels.vi.json`, cạnh đặc tả màn hình trong `specs/ui/`.
+
 
 | ID | Prompt |
 | --- | --- |

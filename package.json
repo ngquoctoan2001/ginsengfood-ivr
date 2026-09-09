@@ -6,8 +6,7 @@
   "scripts": {
     "prepare": "node tools/dev/Install-GitHooks.mjs",
     "hooks:install": "node tools/dev/Install-GitHooks.mjs",
-    "setup": "dotnet restore Ivr.sln --locked-mode && npm --prefix admin-ui install --no-audit --no-fund && dotnet tool restore",
-    "dev": "pnpm --dir admin-ui run dev",
+    "setup": "dotnet restore Ivr.sln --locked-mode && dotnet tool restore",
     "api:dev": "dotnet run --project src/Ivr.Api",
     "worker": "dotnet run --project src/Ivr.Worker",
     "docker:apps:stop": "docker compose -f docker-compose.dev.yml stop ivr-api ivr-worker",

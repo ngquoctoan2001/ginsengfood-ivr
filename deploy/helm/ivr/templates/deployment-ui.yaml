@@ -1,3 +1,3 @@
 {{- if .Values.ui.enabled -}}
-{{- fail "ui.enabled=true is forbidden by W-0128: admin-ui is a local reference; Module 3 owns and deploys the operator UI." -}}
+{{- fail "ui.enabled=true is forbidden: W-0128 removed the UI from the deployable topology and W-0253 deleted the directory. Module 3 owns and deploys the operator console." -}}
 {{- end -}}

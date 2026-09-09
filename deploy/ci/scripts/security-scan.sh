@@ -56,7 +56,6 @@ dotnet run \
   --configuration Release -- \
   vulnerabilities "$work_directory/dotnet-vulnerabilities.json" high
 
-npm --prefix "$repository_root/admin-ui" audit --audit-level=high
 npm --prefix "$repository_root/deploy/ci" audit --audit-level=high
 
 mkdir -p "$work_directory/negative"

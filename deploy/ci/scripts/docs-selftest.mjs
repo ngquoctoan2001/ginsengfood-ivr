@@ -38,7 +38,7 @@ try {
   process.stdout.write("UT-DOC-PII-03 PASS — docs sources contain no real phone or full street address examples\n");
   process.stdout.write("DOC_BOUNDARY_PASS — Target draft and current compatibility stay separate\n");
   process.stdout.write("DOC_LINKS_PASS — every generated local portal link resolves\n");
-  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, UI QA, observability, chaos, image, chart, DR and delivery jobs are root-included\n");
+  process.stdout.write("DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, gate sweep, observability, chaos, image, chart, DR and delivery jobs are root-included; no UI pipeline\n");
   process.stdout.write("API_DOCS_SELFTEST_PASS\n");
 } finally {
   await fs.rm(temporaryRoot, { recursive: true, force: true });
@@ -155,15 +155,13 @@ async function assertCiTopology() {
   }
 
   // W-0039 / P5-5 §7. The console QA job, same treatment.
+  // W-0253 deleted admin-ui and with it the UI QA fragment. The assertion that replaced it is the
+  // opposite one: the operator console belongs to Module 3, so this repository must not grow a UI
+  // pipeline back by accident.
   assert(
-    includes.includes("/deploy/ci/ui-qa.gitlab-ci.yml"),
-    "Root GitLab config must include the UI QA fragment.",
+    !includes.some((entry) => entry.includes("ui-qa")),
+    "Root GitLab config must not include a UI QA fragment: Module 3 owns the operator console.",
   );
-  const uiQa = YAML.parse(
-    await fs.readFile(path.join(repositoryRoot, "deploy/ci/ui-qa.gitlab-ci.yml"), "utf8"),
-  );
-  assert(uiQa.ui_qa, "Rendered UI QA pipeline is missing ui_qa.");
-  assert(uiQa.ui_qa.allow_failure === false, "ui_qa must fail closed.");
 
   // W-0041 / P6-2 section 7. The observability fragment, same treatment. This one matters more
   // than most: its whole job is to catch dashboards and alerts that drifted away from the

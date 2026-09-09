@@ -65,19 +65,18 @@ publish_images:
     - if: '$CI_COMMIT_TAG'
   script:
     - printf '%s' "$CI_JOB_TOKEN" | docker login --username gitlab-ci-token --password-stdin "$CI_REGISTRY"
-    - for f in api worker ui migrate; do
-        ctx="."; [ "$f" = "ui" ] && ctx="admin-ui";
-        docker build -f deploy/docker/Dockerfile.$f -t "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG" $ctx;
+    - for f in api worker migrate; do
+        docker build -f deploy/docker/Dockerfile.$f -t "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG" .;
       done
     # The scan runs BEFORE the push, deliberately. Scanning what is already in the registry means
     # the bad image exists and somebody can pull it.
-    - for f in api worker ui migrate; do
+    - for f in api worker migrate; do
         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.58.1
           image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --quiet
           "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG";
       done
     - mkdir -p ci-artifacts/cd
-    - for f in api worker ui migrate; do
+    - for f in api worker migrate; do
         docker push "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG";
         docker inspect --format='{{index .RepoDigests 0}}' "$CI_REGISTRY_IMAGE/ivr-$f:$IVR_IMAGE_TAG"
           >> ci-artifacts/cd/digests.txt;

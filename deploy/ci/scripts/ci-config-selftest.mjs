@@ -64,7 +64,6 @@ assertSameSet(
 const requiredJobs = [
   "build_test_dotnet",
   "lint_dotnet",
-  "build_lint_ui",
   "openapi_lint",
   "security_scan",
   "pii_scan",

@@ -40,8 +40,6 @@ be copied to a deployed environment.
 ## Components
 
 ```text
-admin-ui (Next.js)
-
 Ivr.Api ---------> Ivr.Infrastructure ---------> Ivr.Domain
    |                         ^
    +----> Ivr.Contracts     |
@@ -62,10 +60,12 @@ Ivr.Worker -----------------+
 - `Ivr.Domain`: stable error catalog and PII masking/guard primitives.
 - `Ivr.Contracts`: generated IVR DTOs and Sales Target V1 client plus a separate
   pinned Golden Hour current-compat client; see `docs/contracts/openapi-codegen.md`.
-- `admin-ui`: local reference implementation for the Module 3 operations UI:
-  dashboard, queue/calls, scripts, runtime flags, integrations, review/reporting
-  and non-production tools. IVR does not deploy it and it has no account/session
-  store. Its Next.js server is the only local caller of `Ivr.Api`.
+
+There is no operator console in this repository. `W-0128` removed it from the
+deployable topology and `W-0253` deleted the directory: Module 3 owns and builds
+the console, on its own identity. The Vietnamese labels a console needs for every
+enum on this API live in `specs/ui/enum-labels.vi.json`, next to the screen specs
+in `specs/ui/`.
 
 `/health/ready` is a fail-closed dependency-readiness probe: it returns `503`
 when PostgreSQL is unreachable, the schema is behind, or the callback circuit
@@ -143,11 +143,9 @@ being stopped.
 | Component | Port | Pinned in |
 | --- | --- | --- |
 | `Ivr.Api` | `5005` | `src/Ivr.Api/Properties/launchSettings.json` |
-| `admin-ui` | `3005` | `admin-ui/package.json` (`dev` and `start`) |
 | PostgreSQL | `55433` | `docker-compose.dev.yml` (`IVR_POSTGRES_PORT`) |
 
-Keep these distinct from any other local service. The admin UI test suite binds
-an ephemeral port instead, so it never conflicts with a running dev server.
+Keep these distinct from any other local service.
 
 Start the dedicated development database:
 
@@ -172,12 +170,6 @@ Run the worker:
 
 ```powershell
 dotnet run --project src/Ivr.Worker
-```
-
-Run the admin UI:
-
-```powershell
-npm --prefix admin-ui run dev
 ```
 
 The fake Sales, mock SIM, and mock JWT containers are inert placeholders. To
@@ -228,8 +220,6 @@ mapped at all in production.
 dotnet restore Ivr.sln
 dotnet build Ivr.sln --no-restore
 dotnet test Ivr.sln --no-build
-npm --prefix admin-ui run lint
-npm --prefix admin-ui run build
 docker compose -f docker-compose.dev.yml config --quiet
 ```
 

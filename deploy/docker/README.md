@@ -6,7 +6,6 @@
 | --- | --- | --- | --- | --- |
 | `ivr-api` | `aspnet:10.0-noble-chiseled` | `1654` | ~56 MB | `/health/live` |
 | `ivr-worker` | `runtime:10.0-noble-chiseled` | `1654` | ~44 MB | **không có** — xem §4 |
-| `ivr-admin-ui` | `node:22-alpine` | `node` | ~70 MB | `/login` |
 
 Worker dùng `runtime` chứ không `aspnet`: nó là `Microsoft.NET.Sdk.Worker` trên
 `Host.CreateApplicationBuilder` và **không mở socket nào**. Ship cả tầng ASP.NET vào đây là thêm bề
@@ -51,7 +50,6 @@ chết theo, nên kiểm tra đó không bao giờ báo được điều gì run
 ```bash
 docker build -f deploy/docker/Dockerfile.api    -t ivr-api:dev .
 docker build -f deploy/docker/Dockerfile.worker -t ivr-worker:dev .
-docker build -f deploy/docker/Dockerfile.ui     -t ivr-admin-ui:dev admin-ui
 docker compose -f docker-compose.dev.yml up -d --build
 ```
 
@@ -92,7 +90,7 @@ Phải tách hai mức vì cổng publish **không hoạt động** trên mạng
 dương**: quét một base có lỗ hổng đã biết và đòi nó **đỏ**. Một scanner không bao giờ đỏ thì không
 phân biệt được với một scanner hỏng.
 
-Phát hiện thật trong lúc dựng: bản đầu của `ivr-admin-ui` có **7 HIGH + 1 CRITICAL**, và cả 8 nằm
-trong **npm đi kèm base image** (`/usr/local/lib/node_modules/npm/...`), không phải dependency của
-console. Runtime chạy `node server.js` nên không cần npm — gỡ nó đi làm sạch cả 8, đồng thời bỏ một
-package manager khỏi image production, vốn là công cụ sẵn có cho bất kỳ ai lấy được shell.
+Bài học giữ lại từ image đã xoá (`ivr-admin-ui`, `W-0253`): bản đầu của nó có **7 HIGH + 1
+CRITICAL**, và cả 8 nằm trong **npm đi kèm base image** (`/usr/local/lib/node_modules/npm/...`),
+không phải dependency của ứng dụng. Gỡ package manager khỏi image production làm sạch cả 8 — đáng
+nhớ vì nó áp dụng cho **mọi** base image có sẵn trình quản lý gói, không riêng Node.

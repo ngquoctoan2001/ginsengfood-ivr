@@ -96,7 +96,7 @@ public sealed class ScriptLifecycleApiService(
 
     /// <summary>
     /// Wire forms, taken from the enum dictionary the console renders against
-    /// (<c>admin-ui/src/i18n/enums.vi.json</c>), not from <c>Enum.ToString()</c>.
+    /// (<c>specs/ui/enum-labels.vi.json</c>), not from <c>Enum.ToString()</c>.
     /// <para>
     /// <c>ToString()</c> would emit <c>Approved</c> and <c>Mock</c>; the dictionary keys are
     /// <c>APPROVED</c> and <c>MOCK</c>. The mismatch would not fail anything server-side — it

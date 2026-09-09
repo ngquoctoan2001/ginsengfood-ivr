@@ -25,7 +25,6 @@ k8s_selftest:
     # to run them. Built here rather than pulled: no registry has been confirmed yet (W-0043 §9).
     - docker build -f deploy/docker/Dockerfile.api -t ivr-api:p7-1 .
     - docker build -f deploy/docker/Dockerfile.worker -t ivr-worker:p7-1 .
-    - docker build -f deploy/docker/Dockerfile.ui -t ivr-admin-ui:p7-1 admin-ui
     - docker build -f deploy/docker/Dockerfile.migrate -t ivr-migrate:p7-1 .
   script:
     - node deploy/ci/scripts/k8s-selftest.mjs

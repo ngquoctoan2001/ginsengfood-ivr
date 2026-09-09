@@ -65,7 +65,7 @@ public sealed class ScriptLifecycleApiTests(PostgresPersistenceFixture fixture)
         Assert.Single(version.Approvals);
         Assert.Equal(Approver.ActorId, version.Approvals[0].ActorId);
 
-        // SCREAMING_SNAKE, matching the keys in admin-ui/src/i18n/enums.vi.json. Enum.ToString()
+        // SCREAMING_SNAKE, matching the keys in specs/ui/enum-labels.vi.json. Enum.ToString()
         // would give "Approved"/"Mock"/"MockTest" here and the console would render a warning
         // badge next to an unrecognised code instead of a label.
         Assert.Equal("MOCK_TEST", version.Approvals[0].ApprovalType);

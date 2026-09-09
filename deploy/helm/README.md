@@ -34,8 +34,9 @@ helm upgrade --install ivr deploy/helm/ivr -n ivr-dev --create-namespace -f depl
 Chart **tham chiếu** Secret, không mang Secret (§11). Cluster phải có sẵn `ivr-database` và
 `ivr-app-secrets`; `deploy/helm/ivr/ci/bootstrap-dev.yaml` là bản dev-only cho cluster thử.
 
-W-0128 loại `admin-ui` khỏi deployable topology. `ui.enabled=true` bị Helm từ chối: UI trong repo
-chỉ là reference local, còn Module 3 sở hữu identity và UI triển khai. `ivr-app-secrets` phải có ba
+W-0128 loại UI khỏi deployable topology và W-0253 xoá hẳn thư mục. `ui.enabled=true` vẫn bị Helm
+từ chối — giữ lại đúng để bật nhầm thì đỏ chứ không im lặng không làm gì. Module 3 sở hữu identity
+và console. `ivr-app-secrets` phải có ba
 key current `admin-read-token`, `admin-write-token`, `admin-danger-token`; key `*_PREVIOUS` chỉ được
 khai cùng một retirement instant tuyệt đối để overlap tự đóng.
 
