@@ -11,12 +11,12 @@ Contract state: `TARGET_CONTRACT_V1=DRAFT`.
 
 | Contract | Version | Pinned sha256 |
 | --- | --- | --- |
-| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.23` | `b32a75ce4b5099e4eecbcc434c85705525f0b6433b2483c9d58853a3e118350a` |
+| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.24` | `df7b1bbef794b5a8733505f0488fc027619defdb8f8eae23ea890e118b7b8c56` |
 | Sales callback (`specs/api/openapi/order-core-ivr-callback.target-v1.yaml`) | `1.0.0-draft` | `af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
 
 ## 1. Intake — `IvrConfirmationTaskV1`
 
-Required: **22**. Optional: **14**. `additionalProperties: false`.
+Required: **23**. Optional: **13**. `additionalProperties: false`.
 
 | # | Required field |
 | ---: | --- |
@@ -26,22 +26,23 @@ Required: **22**. Optional: **14**. `additionalProperties: false`.
 | 4 | `order_code` |
 | 5 | `order_version` |
 | 6 | `order_state` |
-| 7 | `payment_method_snapshot` |
-| 8 | `program_code` |
-| 9 | `ivr_confirmation_required` |
-| 10 | `confirmation_window_started_at` |
-| 11 | `confirmation_window_expires_at` |
-| 12 | `attempt_policy_version` |
-| 13 | `max_customer_attempts` |
-| 14 | `attempt_offsets_seconds` |
-| 15 | `phone_ref` |
-| 16 | `phone_masked` |
-| 17 | `dial_token` |
-| 18 | `dial_token_expires_at` |
-| 19 | `privacy_safe_order_summary` |
-| 20 | `call_restriction` |
-| 21 | `eligibility_snapshot` |
-| 22 | `evidence_ref` |
+| 7 | `phone_validation_status` |
+| 8 | `payment_method_snapshot` |
+| 9 | `program_code` |
+| 10 | `ivr_confirmation_required` |
+| 11 | `confirmation_window_started_at` |
+| 12 | `confirmation_window_expires_at` |
+| 13 | `attempt_policy_version` |
+| 14 | `max_customer_attempts` |
+| 15 | `attempt_offsets_seconds` |
+| 16 | `phone_ref` |
+| 17 | `phone_masked` |
+| 18 | `dial_token` |
+| 19 | `dial_token_expires_at` |
+| 20 | `privacy_safe_order_summary` |
+| 21 | `call_restriction` |
+| 22 | `eligibility_snapshot` |
+| 23 | `evidence_ref` |
 
 | Optional field |
 | --- |
@@ -53,7 +54,6 @@ Required: **22**. Optional: **14**. `additionalProperties: false`.
 | `customer_trust_status` |
 | `trusted_skip_allowed` |
 | `risk_flags` |
-| `phone_validation_status` |
 | `call_script_template_id` |
 | `call_script_version` |
 | `allowed_script_variables` |
@@ -91,7 +91,7 @@ see `docs/api-versioning.md`. Both directions of this list therefore need approv
 
 ### 3.1. Intake contract
 
-Value sets: **26**. Pinned constants: **23**.
+Value sets: **26**. Pinned constants: **24**.
 
 | Location | Values |
 | --- | --- |
@@ -142,6 +142,7 @@ Value sets: **26**. Pinned constants: **23**.
 | `IvrCallResult.properties.no_payment_or_revenue_effect` | `true` |
 | `IvrConfirmationTaskV1.properties.contract_version` | `ivr-order-confirmation.v1` |
 | `IvrConfirmationTaskV1.properties.ivr_confirmation_required` | `true` |
+| `IvrConfirmationTaskV1.properties.phone_validation_status` | `VALID` |
 | `IvrResultCallbackLifecycle.properties.requires_core_revalidation` | `true` |
 | `IvrScriptActionResult.properties.no_policy_bypass` | `true` |
 | `IvrScriptActionResult.properties.target_type` | `script_version` |

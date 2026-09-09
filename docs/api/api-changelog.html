@@ -154,6 +154,37 @@ draft.2 contained <code>143</code> changes (<code>63</code> errors and <code>80<
 in <a href="ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html">the archived transition report</a>.
 This reviewed draft reset repairs the comparison gate; it does not claim that
 Target V1 is live, backward compatible, or approved by Sales.</p>
+<h2><code>1.0.0-draft.24</code> — the contract says what the runtime already did (W-0250)</h2>
+<p>Three headers and one field. <code>X-Correlation-Id</code> and <code>Idempotency-Key</code> now carry the syntax
+<code>W-0221</code> put in a single place — <code>1-128</code> characters from <code>[A-Za-z0-9._:-]</code>, checked by
+<code>TraceHeaderSyntax</code> — and <code>phone_validation_status</code> becomes required with <code>enum: [VALID]</code>.</p>
+<p>Almost none of that is new behaviour. Intake has rejected a malformed header since <code>W-0221</code>, and it
+has refused any <code>phone_validation_status</code> other than <code>VALID</code> for longer than that; IR-06 §3.4 has
+said <em>&quot;bắt buộc trên thực tế&quot;</em> about the field all along, and carries a table warning producers not
+to send <code>PHONE_VALID</code>. What changed is that the schema stopped describing a system this is not.</p>
+<p>One thing did move, and it is a wire change M3 can see. Closing the field to an enum means a wrong
+status is now refused at schema validation, so it returns <code>400 IVR_MALFORMED_REQUEST</code> where it used
+to return <code>422 IVR_CONTACT_INVALID</code>. This is the same trade <code>ivr_confirmation_required</code> made when it
+became <code>enum: [true]</code>, and <code>specs/api/06-error-codes.md</code> already recorded that shape for two Policy
+rows before this one joined them. The <code>PHONE_VALIDATION_STATUS_NOT_VALID</code> reason still exists and
+still fires for the six other contact rules — only this trigger is now out of the wire&#39;s reach. The
+practical loss is small because, as that same page says, M3 never saw the detailed reason through
+the public intake route; it saw the envelope code, and the envelope code is what changed.</p>
+<p><code>oasdiff</code> reports <strong>162 findings across 36 operations — 110 errors and 52 warnings</strong>. The count is
+large because every operation carries at least one of those headers: <strong>108 of the 110 errors</strong> are
+<code>request-parameter-pattern-added</code> and <code>request-parameter-min-length-increased</code> on
+<code>X-Correlation-Id</code> and <code>Idempotency-Key</code>, each a narrowing toward what the runtime already enforced,
+so a client that succeeds today succeeds unchanged. The remaining <strong>two</strong> are the ones worth
+reading: <code>request-property-became-required</code> and <code>request-property-became-enum</code>, both on
+<code>phone_validation_status</code>, and both predicted by worklist item <code>C6</code> when it asked for this change.</p>
+<p>That is also why the baseline rotates a fourth time, for the reason <code>W-0124</code>, <code>W-0128</code> and <code>W-0202</code>
+rotated the first three: <code>--fail-on WARN</code> is <code>allow_failure: false</code>, and 162 findings for an
+approved change would hold the gate red until nobody read it. The full <code>draft.23 → draft.24</code>
+comparison is frozen in
+<a href="ivr-order-confirmation-v1.0.0-draft.23-to-v1.0.0-draft.24.html">the archived transition report</a>.</p>
+<p>Rotating is not approval, and it is not a release: <code>TARGET_CONTRACT_V1</code> stays <code>DRAFT</code>. The revoke
+endpoint decided for worklist <code>2.5</code> is <strong>not</strong> in this bump — its two dispatch fences shipped in
+<code>W-0249</code>, but the endpoint itself lands with its implementation rather than ahead of it.</p>
 <h2>Change procedure</h2>
 <ol>
 <li>Change the authoritative OpenAPI file only after reviewing the consumer and provider impact.</li>

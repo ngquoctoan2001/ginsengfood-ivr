@@ -393,7 +393,12 @@ public sealed class TaskIntakeService(
     {
         // Order matters only for which single reason is reported first; the accept/reject
         // outcome is identical to the boolean this replaced.
-        if (!string.Equals(source.Phone_validation_status, "VALID", StringComparison.Ordinal))
+        // W-0250 made the wire type an enum with VALID as its only member, so on the wire this
+        // rule is now unreachable - a producer cannot express anything else and gets a schema
+        // refusal instead. The check stays for the in-process callers (dev tooling seeds, tests)
+        // that build the DTO directly, exactly as the ivr_confirmation_required rule does under
+        // its own enum [true]. specs/api/06-error-codes.md still lists the 422 it produces.
+        if (source.Phone_validation_status != IvrConfirmationTaskV1Phone_validation_status.VALID)
         {
             return EligibilityReasonCodes.PhoneValidationStatusNotValid;
         }
@@ -508,7 +513,9 @@ public sealed class TaskIntakeService(
             source.Order_code_short,
             source.Customer_ref,
             legacyCustomerTrustStatus,
-            source.Phone_validation_status,
+            // Phone_validation_status is absent by design since W-0250: this sweep guards
+            // producer-supplied free text, and the field is now a closed enum whose only member
+            // is VALID. It is also no longer optional, so it fails both halves of this list.
             source.Call_script_template_id,
             source.Call_script_version,
             source.Evidence_policy_version,
@@ -717,7 +724,7 @@ public sealed class TaskIntakeService(
             ConfirmationWindowExpiresAt = snapshot.ConfirmationWindow.ExpiresAt,
             PhoneRef = source.Phone_ref,
             PhoneMasked = source.Phone_masked,
-            PhoneValidationStatus = source.Phone_validation_status,
+            PhoneValidationStatus = source.Phone_validation_status.ToString(),
             DialTokenCiphertext = protectedDialToken,
             DialTokenExpiresAt = snapshot.DialToken.ExpiresAt,
             PrivacySafeOrderSummaryJson = summaryJson,

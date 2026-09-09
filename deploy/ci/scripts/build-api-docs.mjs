@@ -19,6 +19,7 @@ export const generatedPortalFiles = [
   "ivr-order-confirmation-v1.0.0-draft.2-to-v1.0.0-draft.20.html",
   "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
   "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
+  "ivr-order-confirmation-v1.0.0-draft.23-to-v1.0.0-draft.24.html",
   "ivr-order-confirmation-v1.html",
   "ivr-order-confirmation-changelog.html",
   "order-core-ivr-callback-changelog.html",
@@ -59,6 +60,8 @@ const markdownDefinitions = [
         "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
       "api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md":
         "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
+      "api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md":
+        "ivr-order-confirmation-v1.0.0-draft.23-to-v1.0.0-draft.24.html",
     },
   },
   {
@@ -96,6 +99,17 @@ const markdownDefinitions = [
     source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md",
     output: "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
     title: "Archived IVR Contract Transition (draft.22 → draft.23)",
+  },
+  // W-0250. Fourth rotation. draft.24 gave three headers the syntax W-0221 had already put in
+  // one place, and made phone_validation_status required with the single value intake has always
+  // been the only one to accept -- 162 warnings across 36 operations, none of which breaks a
+  // client that works today, because every one narrows the schema to what the runtime already
+  // enforced. Rotating restores the signal; freezing this report is what stops the rotation from
+  // erasing the tightening it was rotated past.
+  {
+    source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md",
+    output: "ivr-order-confirmation-v1.0.0-draft.23-to-v1.0.0-draft.24.html",
+    title: "Archived IVR Contract Transition (draft.23 → draft.24)",
   },
   {
     source: "docs/api/changelog/ivr-order-confirmation.md",

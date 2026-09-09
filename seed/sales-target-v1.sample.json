@@ -386,7 +386,7 @@
       "from": "golden-hour-online-confirmable",
       "replace": { "payment_method_snapshot": "COD" },
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST",
       "note": "GOLDEN_HOUR+COD violates the oneOf matrix; rejected before domain validation."
     },
@@ -395,7 +395,7 @@
       "from": "twenty-four-seven-cod-confirmable",
       "replace": { "payment_method_snapshot": "ONLINE" },
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
     },
     {
@@ -403,16 +403,25 @@
       "from": "golden-hour-online-confirmable",
       "replace": { "ivr_confirmation_required": false },
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST",
       "note": "enum:[true] makes false a schema violation, not a domain decision."
+    },
+    {
+      "id": "NEG-SCHEMA-PHONE-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "phone_validation_status": "UNKNOWN" },
+      "layer": "schema",
+      "expect_http": 400,
+      "expect_error_code": "IVR_MALFORMED_REQUEST",
+      "note": "enum:[VALID] makes any other status a schema violation, not a domain decision. Was NEG-DOMAIN-PHONE-01 with 422 IVR_CONTACT_INVALID until 1.0.0-draft.24 closed the field."
     },
     {
       "id": "NEG-SCHEMA-SPEECH-01",
       "from": "golden-hour-online-confirmable",
       "remove": "privacy_safe_order_summary.items",
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
     },
     {
@@ -420,7 +429,7 @@
       "from": "golden-hour-online-confirmable",
       "add": { "privacy_safe_order_summary.full_address": "FORBIDDEN TEST VALUE" },
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST",
       "note": "additionalProperties:false rejects unknown fields. This does NOT test the real risk; see NEG-DOMAIN-PII-01/02."
     },
@@ -429,7 +438,7 @@
       "from": "golden-hour-online-confirmable",
       "replace": { "privacy_safe_order_summary.delivery_area_short": "123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP.HCM" },
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST",
       "note": "House number caught by the digit pattern on delivery_area_short."
     },
@@ -438,7 +447,7 @@
       "from": "golden-hour-online-confirmable",
       "replace": { "contract_version": "ivr-order-confirmation.v2" },
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST",
       "note": "Unknown contract_version is fail-closed; there is no negotiation path in V1."
     },
@@ -447,7 +456,7 @@
       "from": "golden-hour-online-confirmable",
       "remove": "order_version",
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
     },
     {
@@ -455,7 +464,7 @@
       "from": "golden-hour-online-confirmable",
       "remove": "attempt_policy_version",
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
     },
     {
@@ -463,7 +472,7 @@
       "from": "golden-hour-online-confirmable",
       "remove": "dial_token",
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
     },
     {
@@ -471,7 +480,7 @@
       "from": "golden-hour-online-confirmable",
       "remove": "ivr_confirmation_required",
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
     },
     {
@@ -479,7 +488,7 @@
       "from": "golden-hour-online-confirmable",
       "remove": "evidence_ref",
       "layer": "schema",
-      "expect_http": 422,
+      "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
     }
   ],
@@ -547,13 +556,13 @@
       "note": "call_restriction=true blocks voice; no dial is scheduled."
     },
     {
-      "id": "NEG-DOMAIN-PHONE-01",
+      "id": "NEG-DOMAIN-PHONE-02",
       "from": "golden-hour-online-confirmable",
-      "replace": { "phone_validation_status": "UNKNOWN" },
+      "replace": { "phone_masked": "84901234567" },
       "layer": "domain",
       "expect_http": 422,
       "expect_error_code": "IVR_CONTACT_INVALID",
-      "note": "Unknown phone validation status is fail-closed at dispatch."
+      "note": "An unmasked phone is fail-closed at dispatch. Replaces NEG-DOMAIN-PHONE-01, which moved to NEG-SCHEMA-PHONE-01 in 1.0.0-draft.24 when phone_validation_status became enum:[VALID]; this keeps a phone-shaped fixture on the domain layer."
     },
     {
       "id": "NEG-DOMAIN-IDEMPOTENCY-01",

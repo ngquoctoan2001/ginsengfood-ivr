@@ -52,6 +52,12 @@ public sealed class TaskIntakeApiTests
     [Theory]
     [InlineData("required-flag", HttpStatusCode.BadRequest, IvrErrorCodes.MalformedRequest)]
     [InlineData("program-payment", HttpStatusCode.BadRequest, IvrErrorCodes.MalformedRequest)]
+    // W-0250 moved phone_validation_status behind enum [VALID], so the status that used to reach
+    // the 422 contact envelope is now refused at schema validation exactly as the required flag
+    // above it is. Both spellings of the rule are kept: "contact-schema" pins the new 400 for the
+    // closed field, "contact" pins that the 422 envelope itself did not move - it is still what an
+    // unmasked phone gets, and specs/api/06-error-codes.md lists six more triggers that reach it.
+    [InlineData("contact-schema", HttpStatusCode.BadRequest, IvrErrorCodes.MalformedRequest)]
     [InlineData("contact", HttpStatusCode.UnprocessableEntity, IvrErrorCodes.ContactInvalid)]
     [Trait("TestId", "IT-INTAKE-REASON-WIRE-15")]
     public async Task ReasonRefinementPreservesTheWireStatusAndErrorCode(
@@ -70,8 +76,11 @@ public sealed class TaskIntakeApiTests
             case "program-payment":
                 body["payment_method_snapshot"] = "COD";
                 break;
-            case "contact":
+            case "contact-schema":
                 body["phone_validation_status"] = "PHONE_VALID";
+                break;
+            case "contact":
+                body["phone_masked"] = "84901234567";
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(scenario));

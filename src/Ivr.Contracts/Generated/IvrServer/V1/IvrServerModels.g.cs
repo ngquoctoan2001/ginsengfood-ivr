@@ -321,8 +321,13 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public required string Phone_masked { get; init; }
 
+        /// <summary>
+        /// Required, and VALID is the only value intake accepts, so a task carrying another status has no reason to be sent. Declared as a single-value enum for the same reason ivr_confirmation_required is enum [true]: the schema says what the runtime does. IR-06 already records the trap this closes - a producer sending PHONE_VALID instead of VALID. Note the cost of closing it, which mirrors ivr_confirmation_required exactly: refusal now happens at schema validation, so a wrong status returns 400 IVR_MALFORMED_REQUEST rather than the older, more specific 422 IVR_CONTACT_INVALID with reason PHONE_VALIDATION_STATUS_NOT_VALID. That reason code still exists and still fires for the other six contact rules; it is only this one trigger that the wire can no longer reach.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("phone_validation_status")]
-        public string? Phone_validation_status { get; init; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrConfirmationTaskV1Phone_validation_status>))]
+        public required IvrConfirmationTaskV1Phone_validation_status Phone_validation_status { get; init; }
 
         /// <summary>
         /// Opaque token; never a raw phone number.
@@ -3187,6 +3192,16 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonStringEnumMemberName(@"COD")]
         [System.Runtime.Serialization.EnumMember(Value = @"COD")]
         COD = 1,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrConfirmationTaskV1Phone_validation_status
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"VALID")]
+        [System.Runtime.Serialization.EnumMember(Value = @"VALID")]
+        VALID = 0,
 
     }
 

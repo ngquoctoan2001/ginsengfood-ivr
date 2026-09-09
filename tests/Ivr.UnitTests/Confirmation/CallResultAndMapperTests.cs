@@ -188,7 +188,7 @@ public sealed class CallResultAndMapperTests
             Risk_flags = [],
             Phone_ref = "phone-ref-1",
             Phone_masked = "***1234",
-            Phone_validation_status = "VALID",
+            Phone_validation_status = IvrConfirmationTaskV1Phone_validation_status.VALID,
             Dial_token = "opaque-dial-token-1",
             Dial_token_expires_at = start.AddSeconds(300),
             Privacy_safe_order_summary = new Ivr.Contracts.Generated.IvrServer.V1.PrivacySafeOrderSummary

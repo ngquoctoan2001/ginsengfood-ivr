@@ -67,12 +67,33 @@ for (const fixture of seed.domain_negative) {
   assertValidation(validateTask, candidate, true, fixture.id);
 }
 
+// W-0250. `_layer_rules` in the seed says a schema-negative body answers 400, the endpoint's
+// SchemaError has always answered 400, and all twelve fixtures said 422 - a shared catalogue M3
+// builds its negative tests from, wrong for as long as nothing compared the two. Layer and status
+// are now pinned to each other so the next fixture cannot be added on the wrong side of the line.
+const LAYER_CONTRACT = {
+  schema: { http: 400, code: "IVR_MALFORMED_REQUEST" },
+};
+for (const fixture of seed.schema_negative) {
+  const expected = LAYER_CONTRACT[fixture.layer];
+  if (!expected) {
+    throw new Error(`${fixture.id}: sits in schema_negative but declares layer ${fixture.layer}.`);
+  }
+  if (fixture.expect_http !== expected.http || fixture.expect_error_code !== expected.code) {
+    throw new Error(
+      `${fixture.id}: schema-negative fixtures answer ${expected.http} ${expected.code}, ` +
+        `not ${fixture.expect_http} ${fixture.expect_error_code}.`,
+    );
+  }
+}
+
 const requiredSchemaNegativeIds = [
   "NEG-SCHEMA-FLAG-01",
   "NEG-SCHEMA-SPEECH-01",
   "NEG-SCHEMA-ORDER-VERSION-01",
   "NEG-SCHEMA-POLICY-VERSION-01",
   "NEG-SCHEMA-DIAL-TOKEN-01",
+  "NEG-SCHEMA-PHONE-01",
 ];
 const schemaNegativeIds = new Set(seed.schema_negative.map((fixture) => fixture.id));
 for (const fixtureId of requiredSchemaNegativeIds) {

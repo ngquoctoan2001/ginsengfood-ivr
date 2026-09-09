@@ -407,7 +407,12 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
         }
         JsonObject invalidContact = ApiMatrixFixture.CreateBody();
         invalidContact["task_id"] = "TASK-MATRIX-PRECALL-CONTACT";
-        invalidContact["phone_validation_status"] = "PHONE_VALID";
+        // W-0250: this used to send phone_validation_status = "PHONE_VALID". The field is now
+        // required + enum [VALID], so that payload is refused at schema validation with 400 and
+        // would leave the documented 422 on POST /tasks with no executed evidence at all. An
+        // unmasked phone trips PHONE_MASKED_NOT_MASKED, one of the six contact rules the wire can
+        // still reach, so the 422 keeps being demonstrated rather than merely declared.
+        invalidContact["phone_masked"] = "84901234567";
         await ObserveAsync(intake, "pre_call_contact_invalid", "/tasks", invalidContact, "normal", [422]);
         return results;
     }

@@ -59,7 +59,17 @@ function editJson(root, relativePath, mutate) {
 
 function editText(root, relativePath, mutate) {
   const absolute = path.join(root, relativePath);
-  writeFileSync(absolute, mutate(readFileSync(absolute, "utf8")), "utf8");
+  const before = readFileSync(absolute, "utf8");
+  const after = mutate(before);
+  // W-0250: a `replace` whose needle has drifted out of the file returns the text unchanged, so
+  // the case asserts against a pristine copy and passes for ever - the very failure mode this
+  // selftest exists to catch, turned on itself. It happened: `phone_validation_status` became
+  // required, the inventory went from 22 to 23, and `inventory-no-longer-describes-the-pinned-spec`
+  // quietly stopped mutating anything. A mutation that mutates nothing is a broken case.
+  if (after === before) {
+    throw new Error(`${relativePath}: mutation changed nothing - its anchor text has drifted`);
+  }
+  writeFileSync(absolute, after, "utf8");
 }
 
 function sha256Of(root, relativePath) {
@@ -164,14 +174,14 @@ const CASES = [
       const specPath = "specs/api/openapi/ivr-order-confirmation.v1.yaml";
       const before = sha256Of(root, specPath);
       editText(root, specPath, (text) =>
-        text.replace("version: 1.0.0-draft.23", "version: 1.0.0"),
+        text.replace("version: 1.0.0-draft.24", "version: 1.0.0"),
       );
       const after = sha256Of(root, specPath);
       editJson(root, MANIFEST_PATH, (manifest) => {
         manifest.contracts[0].sha256 = after;
       });
       editText(root, "docs/contracts/openapi-contract-diff.md", (text) =>
-        text.split(before).join(after).split("1.0.0-draft.23").join("1.0.0"),
+        text.split(before).join(after).split("1.0.0-draft.24").join("1.0.0"),
       );
     },
     rewriteBeforeAssert: true,
@@ -216,8 +226,10 @@ const CASES = [
     id: "inventory-no-longer-describes-the-pinned-spec",
     expect: "FREEZE-05",
     mutate(root) {
+      // Decremented from whatever the inventory currently claims, so the case keeps working
+      // across legitimate field-count rotations instead of needing a repin every draft.
       editText(root, INVENTORY_PATH, (text) =>
-        text.replace("Required: **22**", "Required: **21**"),
+        text.replace(/Required: \*\*(\d+)\*\*/, (_, count) => `Required: **${Number(count) - 1}**`),
       );
     },
   },

@@ -231,7 +231,7 @@ Trước khi gọi API, Module 3 xác nhận:
 
 Đây là compatibility gate của contract thực thi, không phải IVR tự đánh giá customer/order. Module 3 vẫn cần ký ma trận cuối cùng vì tài liệu business cũ có chỗ nói `GOLDEN_HOUR + ONLINE` không callable.
 
-### 3.4. 22 field bắt buộc trên wire
+### 3.4. 23 field bắt buộc trên wire
 
 > `W-0204`: bảng này và mảng `required` trong OpenAPI nay được **so khớp bằng gate**
 > (`FREEZE-03` trong `deploy/ci/scripts/contract-freeze-verifier.mjs`). Nếu hai bên lệch nhau, CI
@@ -256,6 +256,7 @@ Trước khi gọi API, Module 3 xác nhận:
 | `attempt_offsets_seconds` | int[] | Lịch gọi tính từ `T0`; phải có `0` cho lần gọi đầu |
 | `phone_ref` | string | Tham chiếu số, không phải số E.164 |
 | `phone_masked` | string | Số đã che để hiển thị/audit |
+| `phone_validation_status` | string | Chỉ nhận `VALID`. Trở thành `required` + `enum: [VALID]` ở `draft.24` (`W-0250`) — trước đó OAS khai `{ type: string }` optional trong khi runtime đã ép, và bảng này đã ghi *"bắt buộc trên thực tế"* từ trước. Vì enum đóng ở tầng schema, giá trị khác nay bị chặn trước service: **`400 IVR_MALFORMED_REQUEST`**, không còn `422 IVR_CONTACT_INVALID` |
 | `dial_token` | string | Token mờ dùng để resolve số thật khi quay |
 | `dial_token_expires_at` | date-time | Phải **bằng đúng** `confirmation_window_expires_at` — xem §3.4.1 |
 | `privacy_safe_order_summary` | object | Nội dung được phép đọc cho khách |
@@ -594,7 +595,8 @@ sau service:
 | `ivr_confirmation_required=false` | `IVR_CONFIRMATION_REQUIRED_NOT_TRUE` | `400 IVR_MALFORMED_REQUEST`; schema chặn trước service |
 | program/payment sai | `PROGRAM_PAYMENT_MATRIX_REJECTED` | `400 IVR_MALFORMED_REQUEST`; schema chặn trước service |
 | attempt-policy snapshot lệch | `ATTEMPT_POLICY_SNAPSHOT_MISMATCH` | `409 IVR_POLICY_MISMATCH` |
-| contact/dial-token sai | một trong bảy mã W-0129 | `422 IVR_CONTACT_INVALID` |
+| `phone_validation_status` khác `VALID` | `PHONE_VALIDATION_STATUS_NOT_VALID` | `400 IVR_MALFORMED_REQUEST` từ `draft.24`; schema chặn trước service |
+| contact/dial-token sai (sáu mã còn lại) | một trong bảy mã W-0129 | `422 IVR_CONTACT_INVALID` |
 
 Vì vậy M3 không được branch trên các reason chi tiết này ở public client. Đưa safe reason vào error
 details hoặc đổi reject sang `200 decision` là contract change cần M3/owner ký; W-0129 chỉ khóa
@@ -610,7 +612,7 @@ Bảng này là **danh sách đối chiếu bắt buộc trước buổi lab**. 
 | Field | IVR chờ đúng chuỗi | M3 hiện dùng | Sai thì hỏng thế nào |
 | --- | --- | --- | --- |
 | `program_code` | `GOLDEN_HOUR` / `TWENTY_FOUR_SEVEN` | `24_7` | Enum deserialize lỗi → **`400`**. Ồn ào, phát hiện ngay |
-| `phone_validation_status` | `VALID` | `PHONE_VALID` | → `422 IVR_CONTACT_INVALID` |
+| `phone_validation_status` | `VALID` | `PHONE_VALID` | Enum deserialize lỗi → **`400 IVR_MALFORMED_REQUEST`** từ `draft.24`. Ồn ào, phát hiện ngay — cùng kiểu `program_code` ở dòng trên. Trước `draft.24` là `422 IVR_CONTACT_INVALID` |
 | `eligibility_snapshot.decision` | `ELIGIBLE` | `ELIGIBLE_FOR_IVR` | → `200 TASK_HELD_ADMIN_REVIEW`. **Im lặng**, và mọi task dồn vào hàng đợi review |
 | `order_state` | `CONFIRMING` | khớp | — |
 | `payment_method_snapshot` | `ONLINE` / `COD` | khớp | — |

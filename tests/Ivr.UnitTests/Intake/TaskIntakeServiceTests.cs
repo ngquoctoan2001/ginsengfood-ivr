@@ -21,6 +21,17 @@ public sealed class TaskIntakeServiceTests
     private static readonly DateTimeOffset Now =
         new(2026, 8, 13, 6, 0, 0, TimeSpan.Zero);
 
+    /// <summary>
+    /// A phone status that is not <c>VALID</c>. W-0250 closed the wire type to the single member
+    /// <c>VALID</c>, so this can no longer be written as a producer would once have written it -
+    /// the old case sent the literal <c>"PHONE_VALID"</c>, the near-miss IR-06 warned about, and a
+    /// producer sending that now gets a schema refusal before intake ever runs. The contact rule
+    /// itself still has to answer for the in-process callers that build the DTO directly, so the
+    /// case survives as an undefined enum value rather than being deleted with the string.
+    /// </summary>
+    private const IvrConfirmationTaskV1Phone_validation_status NotValidPhoneStatus =
+        (IvrConfirmationTaskV1Phone_validation_status)(-1);
+
     [Theory]
     [InlineData(ProgramCode.GOLDEN_HOUR, IvrConfirmationTaskV1Payment_method_snapshot.ONLINE)]
     [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, IvrConfirmationTaskV1Payment_method_snapshot.COD)]
@@ -138,7 +149,7 @@ public sealed class TaskIntakeServiceTests
             "program-payment-pair" => CreateTask(
                 program: ProgramCode.GOLDEN_HOUR,
                 payment: IvrConfirmationTaskV1Payment_method_snapshot.COD),
-            "phone-status" => CreateTask(phoneStatus: "PHONE_VALID"),
+            "phone-status" => CreateTask(phoneStatus: NotValidPhoneStatus),
             "phone-not-masked" => CreateTask(phoneMasked: "84901234567"),
             "dial-expires-before-window" => CreateTask(
                 dialTokenExpiresAt: Now.AddMinutes(1)),
@@ -182,14 +193,24 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Theory]
-    [InlineData("unknown-policy", 2, false, "VALID", TaskIntakeDecisions.HeldPolicyMissing)]
-    [InlineData(CandidateAttemptPolicies.Version, 3, false, "VALID", TaskIntakeDecisions.RejectedPolicyMismatch)]
-    [InlineData(CandidateAttemptPolicies.Version, 2, false, "UNKNOWN", TaskIntakeDecisions.RejectedContactInvalid)]
+    [InlineData("unknown-policy", 2, false, IvrConfirmationTaskV1Phone_validation_status.VALID, TaskIntakeDecisions.HeldPolicyMissing)]
+    [InlineData(
+        CandidateAttemptPolicies.Version,
+        3,
+        false,
+        IvrConfirmationTaskV1Phone_validation_status.VALID,
+        TaskIntakeDecisions.RejectedPolicyMismatch)]
+    [InlineData(
+        CandidateAttemptPolicies.Version,
+        2,
+        false,
+        NotValidPhoneStatus,
+        TaskIntakeDecisions.RejectedContactInvalid)]
     public async Task PolicyAndContactFailuresCreateNoJob(
         string policyVersion,
         int maxAttempts,
         bool callRestriction,
-        string phoneStatus,
+        IvrConfirmationTaskV1Phone_validation_status phoneStatus,
         string expectedDecision)
     {
         TestContext test = CreateContext();
@@ -374,7 +395,7 @@ public sealed class TaskIntakeServiceTests
         string policyVersion = CandidateAttemptPolicies.Version,
         int maxAttempts = 2,
         bool callRestriction = false,
-        string phoneStatus = "VALID",
+        IvrConfirmationTaskV1Phone_validation_status phoneStatus = IvrConfirmationTaskV1Phone_validation_status.VALID,
         string deliveryArea = "Phường Bến Nghé, Quận Một",
         string customerDisplayName = "chị An",
         string? scriptTemplateId = null,

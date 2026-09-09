@@ -215,7 +215,7 @@ async function checkPublishedSurface(root, specs) {
   // Intake: the handover publishes one table of required fields.
   try {
     const published = new Set(
-      fieldsUnderHeading(handover, "### 3.4. 22 field bắt buộc trên wire").map(
+      fieldsUnderHeading(handover, "### 3.4. 23 field bắt buộc trên wire").map(
         (row) => row.field,
       ),
     );

@@ -373,7 +373,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             Attempt_offsets_seconds = [0, 150],
             Phone_ref = "phone-ref-pg-p2-1",
             Phone_masked = "84xxxxx0001",
-            Phone_validation_status = "VALID",
+            Phone_validation_status = IvrConfirmationTaskV1Phone_validation_status.VALID,
             Dial_token = "dial-token-pg-p2-1",
             Dial_token_expires_at = start.AddMinutes(5)
                 + (dialTokenExpiryOffsetFromWindowEnd ?? TimeSpan.Zero),
