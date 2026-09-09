@@ -27,7 +27,7 @@ const SOURCE_PINS = Object.freeze({
     "0bce4b3fcc0e6d1145f676e619405d8319e0480d4d0af255fd693adfb73b849b",
   m3_handover_path: "integration-requirements/06-module-3-api-handover.md",
   m3_handover_sha256_lf:
-    "97357d331fa56fda40abd721d9988d25c2121fc97cece6065dcd2393f1bf508b",
+    "9bb3d5b5b89a5f51f9a9072d92dcecb0d2af758a51e8fa207514d25132fab7ae",
 });
 
 const ROOT_KEYS = [

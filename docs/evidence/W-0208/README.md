@@ -3,6 +3,21 @@
 Ngày: 2026-09-07 · Baseline: `main@cf4bd4a` · Trạng thái: **TESTS_PASS** cho phần tài liệu và phần
 ghim; **BLOCKED_EXTERNAL** cho con số TTL.
 
+> ## ⛔ Đính chính `W-0245` (09/09/2026) — tiền đề của lượt này sai
+>
+> Câu mở đầu §1 dưới đây **không đúng**. `OD-V1-17` ký `2026-09-05` nguyên văn là *"Token dùng lại
+> được, gắn `task_id`, trần số lần resolve"* — **không nêu TTL nào**. `OD-V1-05` hoãn TTL sang
+> `OD-V1-17`, và `OD-V1-17` để trống.
+>
+> Con số `+60s` **không tồn tại** trong `od-v1-signoff-2026-09-05`, trong gói phương án
+> `T-04-dial-token`, trong register spec V0.3, hay trong config. Lượt này nêu nó **không dẫn nguồn**.
+> `60s` duy nhất trong bảng ký là **retry backoff** của `OD-V1-08`/`OD-V1-16` ở dòng liền kề.
+>
+> **Hệ quả:** không có mâu thuẫn giữa quyết định đã ký và code. Ba guard nhận đúng một giá trị, và
+> không gì đã ký nói khác. Phần còn lại của lượt này — `IT-INTAKE-DB-03`, bảng ba tầng ở IR-06
+> `§3.4.1` — **vẫn đúng và vẫn có giá trị**: chúng mô tả code, không mô tả chữ ký. Chỉ tiền đề
+> *"quyết định đã ký mâu thuẫn với code"* là sai.
+
 ## 1. Vấn đề
 
 `OD-V1-17` được ký `2026-09-05` với *"TTL = cửa sổ xác nhận **+ 60s**"*. Code không thi hành được

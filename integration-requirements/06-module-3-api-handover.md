@@ -283,9 +283,16 @@ Hai hệ quả M3 cần biết:
   ở tầng persistence. Đây là chế độ hỏng khó chẩn đoán nhất trong toàn bộ seam — nên bảng trên tồn
   tại.
 
-> ⚠️ **Chưa chốt.** `OD-V1-17` (ký 05/09/2026) ghi *"TTL = cửa sổ xác nhận **+ 60s**"*. Con số đó
-> **chưa được implement và hiện không thể gửi** — nó vi phạm cả guard persistence lẫn guard dispatch.
-> Tới khi M3/Security chốt lại và cả ba tầng được sửa **cùng lúc**, M3 gửi đúng equality.
+> ⚠️ **Chưa ký, nhưng không mâu thuẫn.** Bản ghi `2026-09-05` để TTL **chưa có số**: `OD-V1-05` hoãn
+> nó sang `OD-V1-17`, còn `OD-V1-17` ký nguyên văn *"Token dùng lại được, gắn `task_id`, trần số lần
+> resolve"* — không nêu TTL nào. Ba guard trên nhận **đúng một giá trị**, và đó là hợp đồng thực tế
+> M3 gửi hôm nay. Việc còn lại là **ký equality thành quyết định**, không phải gỡ một mâu thuẫn.
+>
+> **Đính chính `W-0245` (09/09/2026):** bản trước của ghi chú này nói `OD-V1-17` ký *"TTL = cửa sổ
+> + 60s"*. **Không có con số đó trong bất kỳ tài liệu ký nào** — đã kiểm `od-v1-signoff-2026-09-05`,
+> gói phương án `T-04-dial-token`, register spec V0.3 và toàn bộ config. Nó vào đây từ `W-0208`
+> không dẫn nguồn; `60s` duy nhất ở bảng ký là **retry backoff** của `OD-V1-08`/`OD-V1-16`, một
+> quyết định khác ở dòng liền kề.
 > Theo dõi ở `DTK-02`/`DTK-06` trong M8-10 và mục 0.1 của
 > [worklist hiện hành](../plan/toan-viec-can-lam-m8-2026-09-07.md).
 
@@ -1113,11 +1120,12 @@ M3/Security/Platform/Telephony phải trả `DTK-01..DTK-15` trong
 [M8-10 decision pack](../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md)
 trước mọi OpenAPI/resolver/vault/adapter change.
 
-**Correction `W-0208` (07/09/2026):** `OD-V1-17` đã được ký ngày 05/09 chọn phương án
-"token reusable theo TTL", với **TTL = cửa sổ xác nhận + 60s**. Con số `+60s` đó **mâu thuẫn với ba
-guard đang chạy** và chưa được implement — một task dựng đúng theo quyết định đã ký sẽ qua intake
-rồi ném exception ở persistence. Quyết định chưa thi hành được; equality vẫn là hợp đồng thực tế.
-Xem §3.4.1.
+**Correction `W-0208` (07/09/2026), đã sửa lại bởi `W-0245` (09/09/2026):** `OD-V1-17` ký ngày 05/09
+chọn phương án *"token reusable theo TTL"* — nguyên văn *"Token dùng lại được, gắn `task_id`, trần
+số lần resolve"*. **Nó không nêu con số TTL nào.** `W-0208` gán cho nó *"+60s"* mà không dẫn nguồn,
+và con số đó không tồn tại trong tài liệu ký, trong gói phương án `T-04`, trong register spec, hay
+trong config. Nên **không có mâu thuẫn giữa quyết định đã ký và code**: TTL đơn giản là **chưa được
+nêu**, còn ba guard nhận đúng một giá trị — equality — và đó là hợp đồng M3 gửi. Xem §3.4.1.
 
 Task hiện mang một `dial_token`, nhưng một task có thể cần nhiều attempt và retry kỹ thuật. Module 3 + Security cần chọn một trong các phương án:
 

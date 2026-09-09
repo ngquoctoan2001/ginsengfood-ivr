@@ -355,7 +355,16 @@ DI chỉ có mock / lab / `UnavailableSchedulerDispatchGateway` (`SchedulerCapac
 
 ### 2.1 — Chốt con số TTL `dial_token` ⚠️ nặng nhất · *M3 + Security*
 
-`OD-V1-17` ký *"TTL = cửa sổ + 60s"*. **Ba** guard đang chạy buộc nó **bằng đúng** cửa sổ:
+> ⛔ **Đính chính `W-0245` (09/09):** mục này từng ghi `OD-V1-17` ký *"TTL = cửa sổ + 60s"*. **Sai.**
+> `OD-V1-17` ký nguyên văn *"Token dùng lại được, gắn `task_id`, trần số lần resolve"* — không nêu
+> TTL nào; `OD-V1-05` hoãn TTL sang nó và nó để trống. Con số `+60s` vào worklist từ `W-0208` không
+> dẫn nguồn, và **không có trong bất kỳ tài liệu ký nào**.
+>
+> ⇒ **Không có mâu thuẫn.** Ba guard nhận đúng một giá trị, không gì đã ký nói khác, và `2.1` không
+> còn là *"mục nặng nhất chờ M3 + Security"*. Việc còn lại nhỏ hơn hẳn: **ký equality thành quyết
+> định** — mà nay anh ký được, vì `Security` trong bảng owner chính là anh.
+
+**Ba** guard đang chạy buộc `dial_token_expires_at` **bằng đúng** cửa sổ:
 
 | Tầng | Luật |
 | --- | --- |
