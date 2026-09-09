@@ -1,7 +1,9 @@
+using System.Data;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Retention;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Ivr.Infrastructure.Governance;
 
@@ -105,30 +107,46 @@ public sealed class DsarService(
             .CreateDbContextAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        string[] orderIds = await context.ConfirmationTasks.AsNoTracking()
-            .Where(task => task.OrderCode == orderCode)
-            .Select(task => task.OfficialOrderId)
-            .Distinct()
-            .ToArrayAsync(cancellationToken)
+        // One snapshot for the whole report. Six counts taken outside a transaction describe six
+        // different instants, and retention or a live call can move a row between them — so the
+        // answer given to a data subject could show a job with no attempts, or attempts under a
+        // job it had already said was gone. REPEATABLE READ is what Postgres calls the guarantee
+        // that every read in the transaction sees the same instant, which is the whole
+        // requirement here; nothing below writes, so there is no serialisation conflict to lose.
+        await using IDbContextTransaction snapshot = await context.Database
+            .BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken)
             .ConfigureAwait(false);
 
-        if (orderIds.Length == 0)
+        // Left as queries rather than materialised into arrays. The previous shape pulled every
+        // order id and job id back to the process and then sent them out again inside IN (...),
+        // which is a parameter per row against a PostgreSQL statement limit of 65,535 — an order
+        // with enough history stopped being answerable at all, and the failure would arrive as a
+        // driver error in the middle of a subject-access request. As subqueries they never leave
+        // the database, and the filter behind them is an indexed equality on one order code.
+        IQueryable<string> orderIds = context.ConfirmationTasks.AsNoTracking()
+            .Where(task => task.OrderCode == orderCode)
+            .Select(task => task.OfficialOrderId)
+            .Distinct();
+
+        IQueryable<string> jobIds = context.CallJobs.AsNoTracking()
+            .Where(job => orderIds.Contains(job.OfficialOrderId))
+            .Select(job => job.IvrCallJobId);
+
+        int taskCount = await context.ConfirmationTasks.AsNoTracking()
+            .CountAsync(task => task.OrderCode == orderCode, cancellationToken)
+            .ConfigureAwait(false);
+        if (taskCount == 0)
         {
+            await snapshot.CommitAsync(cancellationToken).ConfigureAwait(false);
             return new DsarFindReport(orderCode, false, [], NotErasable);
         }
 
-        string[] jobIds = await context.CallJobs.AsNoTracking()
-            .Where(job => orderIds.Contains(job.OfficialOrderId))
-            .Select(job => job.IvrCallJobId)
-            .ToArrayAsync(cancellationToken)
-            .ConfigureAwait(false);
-
         List<DsarHolding> holdings =
         [
-            Hold("ivr_confirmation_tasks", await context.ConfirmationTasks.AsNoTracking()
-                .CountAsync(task => task.OrderCode == orderCode, cancellationToken)
+            Hold("ivr_confirmation_tasks", taskCount),
+            Hold("ivr_call_jobs", await context.CallJobs.AsNoTracking()
+                .CountAsync(job => orderIds.Contains(job.OfficialOrderId), cancellationToken)
                 .ConfigureAwait(false)),
-            Hold("ivr_call_jobs", jobIds.Length),
             Hold("ivr_call_attempts", await context.CallAttempts.AsNoTracking()
                 .CountAsync(attempt => jobIds.Contains(attempt.IvrCallJobId), cancellationToken)
                 .ConfigureAwait(false)),
@@ -143,6 +161,7 @@ public sealed class DsarService(
                 .ConfigureAwait(false)),
         ];
 
+        await snapshot.CommitAsync(cancellationToken).ConfigureAwait(false);
         return new DsarFindReport(orderCode, true, holdings, NotErasable);
     }
 
@@ -168,19 +187,30 @@ public sealed class DsarService(
             .CreateDbContextAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        int matched = await context.ConfirmationTasks
-            .CountAsync(task => task.OrderCode == orderCode, cancellationToken)
-            .ConfigureAwait(false);
-
-        int redacted = 0;
-        if (!dryRun && matched > 0)
+        int matched;
+        int redacted;
+        if (dryRun)
+        {
+            matched = await context.ConfirmationTasks
+                .CountAsync(task => task.OrderCode == orderCode, cancellationToken)
+                .ConfigureAwait(false);
+            redacted = 0;
+        }
+        else
         {
             // The retention job's own redaction, reused rather than reimplemented. Two code paths
             // redacting "the same" columns drift, and the one that runs less often goes stale.
+            //
+            // Its own row count is the match count, and taking it from there is what makes the two
+            // numbers in the audit row agree. The statement's only predicate is the order code, so
+            // every task it matched is a task it redacted — counting separately first left a
+            // window in which a task could arrive or leave, and then the audit row said one thing
+            // was found and a different number changed, about the same instant, for good.
             redacted = await context.Database.ExecuteSqlRawAsync(
                 RedactByOrderCodeSql,
                 [orderCode, timeProvider.GetUtcNow()],
                 cancellationToken).ConfigureAwait(false);
+            matched = redacted;
         }
 
         // Audited even when it changed nothing. A request that found no data is a request that was

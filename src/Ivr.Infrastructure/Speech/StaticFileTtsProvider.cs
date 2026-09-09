@@ -1,5 +1,6 @@
 using Ivr.Domain.Speech;
 using Microsoft.Extensions.Options;
+using Ivr.Domain.Confirmation;
 
 namespace Ivr.Infrastructure.Speech;
 
@@ -22,7 +23,7 @@ public sealed class StaticFileTtsProvider(
         TtsProviderOptions configured = providerOptions.Value;
         if (!string.Equals(
                 configured.ExecutionMode,
-                "LAB_REAL_SIM",
+                ExecutionModes.LabRealSim,
                 StringComparison.OrdinalIgnoreCase)
             || !string.Equals(
                 configured.Provider,

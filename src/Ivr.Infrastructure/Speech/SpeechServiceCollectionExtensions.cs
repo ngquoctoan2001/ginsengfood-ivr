@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Ivr.Domain.Confirmation;
 
 namespace Ivr.Infrastructure.Speech;
 
@@ -146,7 +147,7 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
         bool mock = string.Equals(options.ExecutionMode, "MOCK", StringComparison.OrdinalIgnoreCase);
         bool lab = string.Equals(
             options.ExecutionMode,
-            "LAB_REAL_SIM",
+            ExecutionModes.LabRealSim,
             StringComparison.OrdinalIgnoreCase);
         if (mock && !string.Equals(
                 options.Provider,

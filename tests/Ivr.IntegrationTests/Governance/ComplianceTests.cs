@@ -285,6 +285,156 @@ public sealed class ComplianceTests(PostgresPersistenceFixture fixture)
             .CountAsync(fact => fact.IvrCallResultId == "RESULT-DSAR-GONE"));
     }
 
+    /// <summary>
+    /// The two numbers the audit row carries about one erasure must describe one instant.
+    /// <para>
+    /// They were taken from two statements: a COUNT, then the UPDATE. A task arriving or leaving
+    /// between them left the permanent record saying one number was found and a different number
+    /// changed — about the same erasure, for good, in the one artefact a data subject or a
+    /// regulator would be shown. The UPDATE's own row count is now the match count, because its
+    /// only predicate is the order code: every task it matched is a task it redacted.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-05")]
+    public async Task TheAuditRowsMatchedAndRedactedCountsDescribeOneInstant()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+
+        await Service().EraseAsync(
+            OrderCode,
+            "subject erasure request 2026-09-09",
+            "AGT-PRIVACY-01",
+            "corr-dsar-consistency",
+            dryRun: false,
+            CancellationToken.None);
+
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        AuditLogEntity entry = await context.AuditLog.AsNoTracking()
+            .SingleAsync(row => row.Action == DsarService.EraseAuditAction);
+
+        using System.Text.Json.JsonDocument data =
+            System.Text.Json.JsonDocument.Parse(entry.DataJson);
+        int matched = data.RootElement.GetProperty("tasks_matched").GetInt32();
+        int redacted = data.RootElement.GetProperty("tasks_redacted").GetInt32();
+
+        Assert.Equal(1, redacted);
+        Assert.Equal(redacted, matched);
+        Assert.False(data.RootElement.GetProperty("dry_run").GetBoolean());
+    }
+
+    /// <summary>
+    /// The find report must stay correct when an order carries more history than a handful of rows.
+    /// <para>
+    /// It used to pull every order id and job id into the process and send them back inside
+    /// <c>IN (...)</c>, one parameter per row against PostgreSQL's limit of 65,535 — so a
+    /// long-running order eventually became unanswerable, and the failure would surface as a
+    /// driver error in the middle of a subject-access request. Thirty jobs does not reach that
+    /// limit and is not meant to: it proves the subquery rewrite still counts the same things.
+    /// The bound itself is structural and is held by
+    /// <see cref="TheFindReportNeverMaterialisesAnIdentifierList"/>.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-06")]
+    public async Task TheFindReportIsCorrectForAnOrderWithManyJobs()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+
+        await using (IvrDbContext seeding = await Factory().CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = await seeding.ConfirmationTasks
+                .AsNoTracking()
+                .SingleAsync(row => row.OrderCode == OrderCode);
+
+            for (int index = 0; index < 30; index++)
+            {
+                seeding.CallJobs.Add(new CallJobEntity
+                {
+                    IvrCallJobId = $"JOB-DSAR-BULK-{index:D3}",
+                    TaskId = task.TaskId,
+                    OfficialOrderId = task.OfficialOrderId,
+                    OrderVersionSnapshot = task.OrderVersion,
+                    ProgramType = task.ProgramType,
+                    AttemptPolicyCode = task.AttemptPolicyVersion,
+                    Status = "CLOSED",
+                    MaxAttempts = task.MaxAttempts,
+                    AttemptOffsetsSecondsJson = task.AttemptOffsetsSecondsJson,
+                    ConfirmationWindowSeconds = 900,
+                    AttemptScheduleJson = "[]",
+                    T0At = task.ConfirmationWindowStartedAt,
+                    ExpiresAt = task.ConfirmationWindowExpiresAt,
+                    Eligible = true,
+                    EligibilityDecision = "ELIGIBLE_FOR_IVR",
+                    QueueStatus = "HELD_MOCK",
+                    ScriptVersion = "SCRIPT-ORDER-CONFIRM:vA",
+                    PrivacyPolicyVersion = "privacy-v1",
+                    InputSignalOnly = true,
+                    NoDirectOrderUpdate = true,
+                    CreatedAt = task.ConfirmationWindowStartedAt,
+                    ClosedAt = Now,
+                });
+            }
+
+            await seeding.SaveChangesAsync();
+        }
+
+        DsarFindReport report = await Service().FindAsync(OrderCode, CancellationToken.None);
+
+        Assert.True(report.Found);
+        Assert.Equal(1, Rows(report, "ivr_confirmation_tasks"));
+
+        // The one seeded by SeedAsync plus the thirty above.
+        Assert.Equal(31, Rows(report, "ivr_call_jobs"));
+    }
+
+    /// <summary>
+    /// Asserted against the source, because the property is structural: the parameter ceiling is
+    /// only reached with tens of thousands of rows, which no test is going to seed. What can be
+    /// checked is that the identifier sets never leave the database — a reintroduced
+    /// <c>ToArrayAsync</c> is the exact edit that would put them back on the wire.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-07")]
+    public void TheFindReportNeverMaterialisesAnIdentifierList()
+    {
+        string source = File.ReadAllText(Path.Combine(
+            FindRepositoryRoot(),
+            "src",
+            "Ivr.Infrastructure",
+            "Governance",
+            "DsarService.cs"));
+
+        int start = source.IndexOf("public async Task<DsarFindReport> FindAsync", StringComparison.Ordinal);
+        Assert.True(start >= 0, "FindAsync was renamed; this guard no longer reads it.");
+        int end = source.IndexOf("public async Task<DsarErasureReport> EraseAsync", StringComparison.Ordinal);
+        Assert.True(end > start, "EraseAsync no longer follows FindAsync; this guard reads the wrong span.");
+
+        string findAsync = source[start..end];
+        foreach (string materialiser in new[] { "ToArrayAsync", "ToListAsync" })
+        {
+            Assert.False(
+                findAsync.Contains(materialiser, StringComparison.Ordinal),
+                $"DsarService.FindAsync calls {materialiser}: an identifier set pulled into the "
+                + "process goes back to PostgreSQL as one parameter per row, and the statement "
+                + "limit is 65,535.");
+        }
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Ivr.sln")))
+        {
+            directory = directory.Parent;
+        }
+
+        return directory?.FullName
+            ?? throw new InvalidOperationException("Ivr.sln was not found above the test binary.");
+    }
+
     // ------------------------------------------------------------------ helpers
 
     private IDbContextFactory<IvrDbContext> Factory() =>

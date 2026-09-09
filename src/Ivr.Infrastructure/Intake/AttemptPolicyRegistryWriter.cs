@@ -111,11 +111,5 @@ public sealed class PostgresAttemptPolicyRegistryWriter(
         await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    private static string ToStorageValue(ExecutionMode mode) => mode switch
-    {
-        ExecutionMode.Mock => "MOCK",
-        ExecutionMode.LabRealSim => "LAB_REAL_SIM",
-        ExecutionMode.ProductionReal => "PRODUCTION_REAL",
-        _ => throw new InvalidOperationException("Unknown execution mode."),
-    };
+    private static string ToStorageValue(ExecutionMode mode) => ExecutionModes.ToWireValue(mode);
 }

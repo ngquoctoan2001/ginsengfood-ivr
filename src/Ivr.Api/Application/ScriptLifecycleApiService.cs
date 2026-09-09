@@ -123,12 +123,8 @@ public sealed class ScriptLifecycleApiService(
         }.ToFrozenDictionary();
 
     private static readonly FrozenDictionary<ExecutionMode, string> ModeWireForms =
-        new Dictionary<ExecutionMode, string>
-        {
-            [ExecutionMode.Mock] = "MOCK",
-            [ExecutionMode.LabRealSim] = "LAB_REAL_SIM",
-            [ExecutionMode.ProductionReal] = "PRODUCTION_REAL",
-        }.ToFrozenDictionary();
+        Enum.GetValues<ExecutionMode>()
+            .ToFrozenDictionary(mode => mode, ExecutionModes.ToWireValue);
 
     private static readonly FrozenDictionary<string, ScriptApprovalType> ApprovalTypes =
         new Dictionary<string, ScriptApprovalType>(StringComparer.Ordinal)

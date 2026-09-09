@@ -1,4 +1,5 @@
 using Ivr.Contracts.Sales;
+using Ivr.Domain.Confirmation;
 
 namespace Ivr.Infrastructure.Configuration;
 
@@ -9,13 +10,13 @@ public sealed class IvrOptions
 {
     public const string SectionName = "Ivr";
 
-    public const string MockExecutionMode = "MOCK";
+    public const string MockExecutionMode = ExecutionModes.Mock;
 
-    public const string LabRealSimExecutionMode = "LAB_REAL_SIM";
+    public const string LabRealSimExecutionMode = ExecutionModes.LabRealSim;
 
-    public const string ProductionRealExecutionMode = "PRODUCTION_REAL";
+    public const string ProductionRealExecutionMode = ExecutionModes.ProductionReal;
 
-    public string ExecutionMode { get; set; } = "MOCK";
+    public string ExecutionMode { get; set; } = MockExecutionMode;
 
     public string SalesProvider { get; set; } = "FAKE_TARGET_V1";
 

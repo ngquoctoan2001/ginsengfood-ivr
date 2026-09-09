@@ -16,6 +16,7 @@ using Ivr.Infrastructure.Scheduling;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Ivr.Domain.Confirmation;
 
 namespace Ivr.Api.Application;
 
@@ -868,8 +869,8 @@ public sealed class InternalAdminApiService(
         string environment = ivrOptions.Value.ExecutionMode switch
         {
             "MOCK" => FeatureFlagEnvironments.Development,
-            "LAB_REAL_SIM" => FeatureFlagEnvironments.Lab,
-            "PRODUCTION_REAL" => FeatureFlagEnvironments.Production,
+            ExecutionModes.LabRealSim => FeatureFlagEnvironments.Lab,
+            ExecutionModes.ProductionReal => FeatureFlagEnvironments.Production,
             _ => throw IvrErrors.OperationalBlocked("The execution mode is unsupported."),
         };
         FeatureFlagReadResult flags = await featureFlags.GetSnapshotAsync(

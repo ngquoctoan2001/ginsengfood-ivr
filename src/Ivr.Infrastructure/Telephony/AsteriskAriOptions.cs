@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Ivr.Domain.Confirmation;
 
 namespace Ivr.Infrastructure.Telephony;
 
@@ -62,7 +63,7 @@ public sealed class AsteriskAriOptionsValidator : IValidateOptions<AsteriskAriOp
 
         if (!string.Equals(
                 options.ExecutionMode,
-                "LAB_REAL_SIM",
+                ExecutionModes.LabRealSim,
                 StringComparison.OrdinalIgnoreCase))
         {
             failures.Add("Asterisk ARI is restricted to LAB_REAL_SIM execution.");

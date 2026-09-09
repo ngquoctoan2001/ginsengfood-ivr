@@ -357,7 +357,7 @@ Cần đo `pg_stat_user_indexes.idx_scan` trên môi trường thật trước k
 
 ---
 
-### P3 — DSAR: 8 round trip tuần tự + nguy cơ nổ giới hạn tham số
+### P3 — DSAR: 8 round trip tuần tự + nguy cơ nổ giới hạn tham số — ĐÃ SỬA
 
 `src/Ivr.Infrastructure/Governance/DsarService.cs:100-148`
 
@@ -404,7 +404,7 @@ Composition root nằm nhầm chỗ: muốn tìm nơi đăng ký `AnalyticsReadS
 
 ---
 
-### S2 — 951 magic string, 461 giá trị riêng biệt — trong khi hằng số ĐÃ tồn tại
+### S2 — 951 magic string, 461 giá trị riêng biệt — trong khi hằng số ĐÃ tồn tại — ĐÓNG MỘT PHẦN
 
 Hằng số có sẵn, literal vẫn viết tay ngay bên cạnh.
 
@@ -424,13 +424,19 @@ Nặng hơn — **cùng một enum tồn tại ở ba dạng độc lập**:
 
 Với bảng ánh xạ `switch` viết tay lặp lại ở ít nhất 3 nơi (`AttemptPolicyRegistries.cs:107`, `AttemptPolicyRegistryWriter.cs:117`, `ScriptLifecycleApiService.cs:129`). Thêm một execution mode = ba chỗ có thể quên, không chỗ nào báo lỗi biên dịch.
 
-Và tệ nhất: raw SQL trong `PostgresSchedulerStore.cs:379-395` hardcode lại cùng tập trạng thái ở ngôn ngữ khác:
+Và raw SQL trong `PostgresSchedulerStore.cs:379-395` hardcode lại cùng tập trạng thái ở ngôn ngữ khác:
 
 ```sql
 AND job.status IN ('READY_FOR_SCHEDULER', 'DISPATCH_LEASED', 'DRY_RUN', 'HELD_ADMIN_REVIEW')
 ```
 
-trong khi C# gán `job.Status = "HELD_ADMIN_REVIEW"` (`PostgresSchedulerStore.cs:305`) bằng literal riêng. Đổi tên một trạng thái ở một phía → job im lặng không bao giờ được scheduler nhặt lên. Không test nào bắt được vì cả hai phía đều "đúng" theo định nghĩa của chính nó.
+trong khi C# gán `job.Status = "HELD_ADMIN_REVIEW"` bằng literal riêng.
+
+> **Đính chính (W-0261).** Tôi viết rằng đổi tên một trạng thái sẽ hỏng **âm thầm**. Sai ở phía ghi: có `CHECK constraint` trên các cột status (`ck_ivr_call_jobs_status` liệt kê 30 giá trị), nên một literal sai bị database từ chối lúc INSERT/UPDATE. Đã đo cả phía đọc — trích 100 giá trị CHECK cho phép, đối chiếu 15 token `UPPER_SNAKE` trong vị từ raw SQL của `src/`: **không token nào sai**. Hai token bị probe gắn cờ nằm trên cột không có CHECK, tức false positive. **Không có bug đang tồn tại.** Mức đúng của S2 là chi phí bảo trì, không phải lỗi đang chạy — đã hạ xuống LOW.
+
+**Đã sửa một phần (W-0261):** ba bảng ánh xạ `ExecutionMode → string` gộp về một `ExecutionModes.ToWireValue`; 11 literal `"LAB_REAL_SIM"`/`"PRODUCTION_REAL"` thay bằng hằng số; `ARCH-CONST-01` chặn tái phát.
+
+**`"MOCK"` cố ý không đụng:** nó có **hai chủ sở hữu** — `IvrOptions.MockExecutionMode` và `FeatureFlagCatalog.MockSimProvider` — cho hai thứ khác nhau tình cờ viết giống nhau. 22 site, và thay tất cả sẽ sai ở khoảng một nửa. Cần owner tách tên trước.
 
 ---
 
@@ -613,13 +619,13 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~B5~~ | ~~Rò rỉ bộ nhớ ở MOCK~~ | ~~MEDIUM~~ | **đã sửa — W-0259** |
 | P2 | 109 index, nhiều cái trên boolean | MEDIUM | trung bình — đo `pg_stat_user_indexes` trước |
 | ~~S4~~ | ~~Helper bảo mật copy-paste 18 lần~~ | ~~MEDIUM~~ | **phần bảo mật đã đóng — W-0258/W-0259/W-0260**; phần còn lại thuần kỹ thuật, census guard giữ không tăng |
-| S2 | 951 magic string | MEDIUM | cao — bắt đầu từ tập trạng thái scheduler |
-| P3 | DSAR 8 round trip, nổ tham số | LOW | trung bình |
+| S2 | 951 magic string | LOW | **một phần — W-0261**; `"MOCK"` có hai chủ sở hữu, cần owner tách tên |
+| ~~P3~~ | ~~DSAR 8 round trip, nổ tham số~~ | ~~LOW~~ | **đã sửa — W-0261** |
 | S7 | Worktree rác + bản sao repo | LOW | rất thấp — `git worktree prune` |
 | S6 | 434k dòng docs không liên quan | LOW | thấp — tách sang repo riêng |
 | B9, B10, S1, S3, S5, C1–C5 | — | LOW | — |
 
-**12/26 đã đóng. Không còn mục HIGH nào.**
+**14/26 đã đóng. Không còn mục HIGH nào.**
 
 ---
 

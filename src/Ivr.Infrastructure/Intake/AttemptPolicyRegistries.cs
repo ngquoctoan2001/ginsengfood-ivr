@@ -101,13 +101,7 @@ public sealed class PostgresAttemptPolicyRegistry(
                 cancellationToken)
             .ConfigureAwait(false)
             ?? throw new KeyNotFoundException("Versioned attempt policy was not found.");
-        string modeValue = executionMode switch
-        {
-            ExecutionMode.Mock => "MOCK",
-            ExecutionMode.LabRealSim => "LAB_REAL_SIM",
-            ExecutionMode.ProductionReal => "PRODUCTION_REAL",
-            _ => throw new InvalidOperationException("Unknown execution mode."),
-        };
+        string modeValue = ExecutionModes.ToWireValue(executionMode);
         string[] allowedModes = JsonSerializer.Deserialize<string[]>(
                 entity.AllowedExecutionModesJson)
             ?? [];

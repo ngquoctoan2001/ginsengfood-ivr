@@ -307,6 +307,65 @@ public sealed class ArchitectureDependencyTests
             Path.GetFullPath(platformPath, projectDirectory));
     }
 
+    /// <summary>
+    /// The execution-mode spellings exist once and are never written out again.
+    /// <para>
+    /// They had been: <c>IvrOptions.LabRealSimExecutionMode</c> existed and the literal was also
+    /// typed by hand in six places, and the <c>ExecutionMode</c> to string mapping existed three
+    /// times over — a frozen dictionary and two switch expressions, each with a <c>_ =></c> arm, so
+    /// a fourth member would compile in all three and throw in whichever ran first.
+    /// </para>
+    /// <para>
+    /// <c>"MOCK"</c> is deliberately not checked here. It is declared twice, by
+    /// <c>IvrOptions.MockExecutionMode</c> and <c>FeatureFlagCatalog.MockSimProvider</c>, for two
+    /// different things that happen to be spelled the same — an execution mode and a SIM provider.
+    /// A rule that replaced it everywhere would be wrong at roughly half its sites, and picking
+    /// which owner wins is not a decision this test can make.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "ARCH-CONST-01")]
+    public void ExecutionModeSpellingsAreNeverWrittenAsLiterals()
+    {
+        string repositoryRoot = FindRepositoryRoot();
+        string declaringFile = Path.Combine(
+            repositoryRoot, "src", "Ivr.Domain", "Confirmation", "ExecutionModes.cs");
+
+        List<string> offenders = [];
+        foreach (string file in Directory.GetFiles(
+                     Path.Combine(repositoryRoot, "src"), "*.cs", SearchOption.AllDirectories))
+        {
+            if (file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                || file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                || file.Contains("Migrations", StringComparison.Ordinal)
+                || file.EndsWith(".g.cs", StringComparison.Ordinal)
+                || string.Equals(file, declaringFile, StringComparison.Ordinal))
+            {
+                // Generated contract code carries the same strings as OpenAPI enum members and is
+                // regenerated from the spec, so it is not a place a person can fix.
+                continue;
+            }
+
+            string[] lines = File.ReadAllLines(file);
+            for (int index = 0; index < lines.Length; index++)
+            {
+                foreach (string spelling in new[] { "\"LAB_REAL_SIM\"", "\"PRODUCTION_REAL\"" })
+                {
+                    if (lines[index].Contains(spelling, StringComparison.Ordinal))
+                    {
+                        offenders.Add(
+                            $"{Path.GetRelativePath(repositoryRoot, file)}:{index + 1} writes {spelling}");
+                    }
+                }
+            }
+        }
+
+        Assert.True(
+            offenders.Count == 0,
+            "Execution-mode spellings belong to ExecutionModes and nowhere else:\n  "
+            + string.Join("\n  ", offenders));
+    }
+
     private static string FindRepositoryRoot()
     {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
