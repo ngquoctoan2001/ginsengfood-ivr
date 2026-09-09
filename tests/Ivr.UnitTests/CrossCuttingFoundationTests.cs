@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using System.Reflection;
 using System.Text;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Errors;
@@ -52,6 +54,113 @@ public sealed class CrossCuttingFoundationTests
     }
 
     private sealed record SetBearingResponse(string Decision, IReadOnlySet<string> Reasons);
+
+    /// <summary>
+    /// The store must stop growing, in the mode the shipped image actually runs.
+    /// <para>
+    /// It kept a response snapshot per key with no expiry and a <see cref="SemaphoreSlim"/> per
+    /// key that was never removed or disposed. MOCK is the image default, so this is the store
+    /// behind every soak run and pilot — the one place where "it dies with the process" is not an
+    /// answer, because the process is meant to stay up.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-FND-IDEMP-05")]
+    public async Task RetainedResponsesAreCappedAndTheNewestSurvives()
+    {
+        var clock = new SteppableClock(new DateTimeOffset(2026, 9, 9, 0, 0, 0, TimeSpan.Zero));
+        var store = new InMemoryIdempotencyStore(clock, TimeSpan.FromDays(1), maximumRecords: 50);
+
+        for (int index = 0; index < 500; index++)
+        {
+            await store.ExecuteAsync(
+                $"burst-{index}",
+                "payload-a",
+                _ => Task.FromResult(new SampleResponse(index, "accepted")));
+            clock.Advance(TimeSpan.FromSeconds(1));
+        }
+
+        // Bounded by the ceiling, not by how long the run lasted.
+        Assert.True(store.Count <= 50, $"retained {store.Count} records past a ceiling of 50");
+
+        // And it evicted the oldest, not whatever was convenient: the last key written still
+        // replays without re-running the factory.
+        bool reran = false;
+        SampleResponse replay = await store.ExecuteAsync(
+            "burst-499",
+            "payload-a",
+            _ =>
+            {
+                reran = true;
+                return Task.FromResult(new SampleResponse(-1, "unexpected"));
+            });
+        Assert.False(reran);
+        Assert.Equal(499, replay.Sequence);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-FND-IDEMP-06")]
+    public async Task ARecordPastItsWindowIsReExecutedRatherThanReplayed()
+    {
+        var clock = new SteppableClock(new DateTimeOffset(2026, 9, 9, 0, 0, 0, TimeSpan.Zero));
+        var store = new InMemoryIdempotencyStore(clock, TimeSpan.FromHours(1));
+        int executions = 0;
+
+        await store.ExecuteAsync(
+            "expiring",
+            "payload-a",
+            _ => Task.FromResult(new SampleResponse(++executions, "accepted")));
+        Assert.Equal(1, executions);
+
+        // Inside the window it still replays.
+        clock.Advance(TimeSpan.FromMinutes(59));
+        await store.ExecuteAsync(
+            "expiring",
+            "payload-a",
+            _ => Task.FromResult(new SampleResponse(++executions, "unexpected")));
+        Assert.Equal(1, executions);
+
+        // Past it, the factory runs again. This is a real semantic, not an accident: it is what
+        // retention does to ivr_idempotency_keys, and the alternative was growing until the
+        // process died, which loses every key rather than the oldest one.
+        clock.Advance(TimeSpan.FromMinutes(2));
+        await store.ExecuteAsync(
+            "expiring",
+            "payload-a",
+            _ => Task.FromResult(new SampleResponse(++executions, "accepted")));
+        Assert.Equal(2, executions);
+    }
+
+    /// <summary>
+    /// Asserted by shape rather than by behaviour, because the leak was invisible from the
+    /// outside: a per-key lock dictionary looks identical to a bounded one until memory runs out.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-FND-IDEMP-07")]
+    public void NoPerKeyLockDictionarySurvivesOnTheStore()
+    {
+        FieldInfo[] fields = typeof(InMemoryIdempotencyStore)
+            .GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+
+        Assert.DoesNotContain(
+            fields,
+            field => field.FieldType.IsGenericType
+                && field.FieldType.GetGenericTypeDefinition() == typeof(ConcurrentDictionary<,>)
+                && field.FieldType.GetGenericArguments()[1] == typeof(SemaphoreSlim));
+
+        // What replaced it: a fixed array, so the lock count cannot depend on how many distinct
+        // keys the process has ever seen.
+        Assert.Contains(fields, field => field.FieldType == typeof(SemaphoreSlim[]));
+    }
+
+    private sealed class SteppableClock(DateTimeOffset start) : TimeProvider
+    {
+        private DateTimeOffset now = start;
+
+        public override DateTimeOffset GetUtcNow() => now;
+
+        public void Advance(TimeSpan delta) => now = now.Add(delta);
+    }
 
     [Fact]
     [Trait("TestId", "UT-FND-IDEMP-01")]

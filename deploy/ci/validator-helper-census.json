@@ -1,0 +1,48 @@
+{
+  "helpers": {
+    "sha256": {
+      "copies": 16,
+      "implementations": 3
+    },
+    "assert": {
+      "copies": 12,
+      "implementations": 2
+    },
+    "assertString": {
+      "copies": 11,
+      "implementations": 9
+    },
+    "assertExactKeys": {
+      "copies": 13,
+      "implementations": 8
+    },
+    "assertIdentifier": {
+      "copies": 7,
+      "implementations": 7
+    },
+    "assertTimestamp": {
+      "copies": 8,
+      "implementations": 3
+    },
+    "assertSha256": {
+      "copies": 5,
+      "implementations": 3
+    },
+    "assertNoSensitiveValue": {
+      "copies": 5,
+      "implementations": 5
+    },
+    "clone": {
+      "copies": 12,
+      "implementations": 2
+    },
+    "rejectDuplicateJsonKeys": {
+      "copies": 8,
+      "implementations": 5
+    },
+    "readStrictJson": {
+      "copies": 6,
+      "implementations": 5
+    }
+  }
+}

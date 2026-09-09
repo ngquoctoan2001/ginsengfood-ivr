@@ -170,7 +170,7 @@ Postgres chết 10 phút, 2 replica worker: `3 loop × 600 lần × 2 = 3.600` d
 
 ---
 
-### B5 — MEDIUM: rò rỉ bộ nhớ không giới hạn ở chế độ mặc định của image
+### B5 — MEDIUM: rò rỉ bộ nhớ không giới hạn ở chế độ mặc định của image — ĐÃ SỬA
 
 `src/Ivr.Infrastructure/Idempotency/InMemoryIdempotencyStore.cs:13-16`
 
@@ -450,7 +450,7 @@ Và lặp không nhất quán — hai biến thể cú pháp cho cùng một ng�
 
 ---
 
-### S4 — Helper bảo mật copy-paste 8–18 lần và đã phân hóa thành 2 semantics
+### S4 — Helper bảo mật copy-paste 8–18 lần và đã phân hóa thành 2 semantics — ĐÓNG MỘT PHẦN
 
 51 script trong `deploy/ci/scripts/`, chỉ **8** import module dùng chung.
 
@@ -610,16 +610,16 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~P1~~ | ~~Dashboard 12 round trip + 5 semi-join~~ | ~~HIGH~~ | **đã sửa — W-0257** |
 | ~~B7~~ | ~~Secret phơi qua `ActiveGenerations`~~ | ~~MEDIUM~~ | **đã sửa — W-0258** |
 | ~~B8~~ | ~~Validator vỡ dưới symlink~~ | ~~MEDIUM~~ | **đã sửa — W-0258** |
-| B5 | Rò rỉ bộ nhớ ở MOCK | MEDIUM | thấp — TTL + eviction |
+| ~~B5~~ | ~~Rò rỉ bộ nhớ ở MOCK~~ | ~~MEDIUM~~ | **đã sửa — W-0259** |
 | P2 | 109 index, nhiều cái trên boolean | MEDIUM | trung bình — đo `pg_stat_user_indexes` trước |
-| S4 | Helper bảo mật copy-paste 18 lần | MEDIUM | trung bình — tách module dùng chung |
+| S4 | Helper bảo mật copy-paste 18 lần | MEDIUM | **một phần — W-0258/W-0259**; phần còn lại cần owner chọn ngữ nghĩa |
 | S2 | 951 magic string | MEDIUM | cao — bắt đầu từ tập trạng thái scheduler |
 | P3 | DSAR 8 round trip, nổ tham số | LOW | trung bình |
 | S7 | Worktree rác + bản sao repo | LOW | rất thấp — `git worktree prune` |
 | S6 | 434k dòng docs không liên quan | LOW | thấp — tách sang repo riêng |
 | B9, B10, S1, S3, S5, C1–C5 | — | LOW | — |
 
-**9/26 đã đóng. Không còn mục HIGH nào.**
+**11/26 đã đóng. Không còn mục HIGH nào.**
 
 ---
 

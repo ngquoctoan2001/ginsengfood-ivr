@@ -400,7 +400,66 @@ for (const includePath of [".gitlab-ci.yml", ...includes]) {
   );
 }
 
+// W-0259. Copy-pasted validator helpers, held at their current count.
+//
+// W-0258 unified isConfined because its copies had diverged and the divergence had already cost
+// something: the realpath fix reached one of ten. A census of the rest says that was not the
+// exception. `assertIdentifier` has seven copies and seven distinct implementations — no two
+// agree. `assertNoSensitiveValue`, which is the guard against a secret reaching an evidence
+// bundle, has five copies and five implementations.
+//
+// Those are NOT unified here, and the reason is not effort. Their differences are load-bearing:
+// character sets differ, length bounds differ, and two of the seven assertIdentifier copies call
+// assertNoSensitiveValue while five do not. Picking one set of semantics changes which evidence
+// bundles the gates accept, in a direction nobody has decided. That is an owner's call, not a
+// refactor's.
+//
+// What can be done without deciding anything is to stop it getting worse. The baseline records
+// what exists; this fails when a helper gains a copy or an implementation. It fails on a decrease
+// too — that is progress, and the record should say so rather than quietly drift the other way.
+{
+  const scriptsDirectory = path.join(repositoryRoot, "deploy/ci/scripts");
+  const censusPath = path.join(repositoryRoot, "deploy/ci/validator-helper-census.json");
+  const baseline = JSON.parse(await fs.readFile(censusPath, "utf8")).helpers;
+  const scriptNames = (await fs.readdir(scriptsDirectory)).filter((f) => f.endsWith(".mjs")).sort();
+  const sources = await Promise.all(
+    scriptNames.map((name) => fs.readFile(path.join(scriptsDirectory, name), "utf8")),
+  );
+
+  const drift = [];
+  for (const [helper, expected] of Object.entries(baseline)) {
+    const pattern = new RegExp(String.raw`^function ${helper}\((?:.|\n)*?^\}`, "gm");
+    const bodies = new Set();
+    let copies = 0;
+    for (const text of sources) {
+      for (const match of text.matchAll(pattern)) {
+        copies += 1;
+        // Whitespace-normalised, so reformatting one copy is not reported as a new
+        // implementation. Anything that survives that is a real difference in what it does.
+        bodies.add(match[0].replace(/\s+/gu, " ").trim());
+      }
+    }
+
+    if (copies !== expected.copies || bodies.size !== expected.implementations) {
+      drift.push(
+        `${helper}: ${copies} copies / ${bodies.size} implementations, `
+          + `baseline ${expected.copies} / ${expected.implementations}`,
+      );
+    }
+  }
+
+  assert(
+    drift.length === 0,
+    "Validator helper duplication moved from its recorded baseline:\n  "
+      + `${drift.join("\n  ")}\n`
+      + "If a copy was removed, lower deploy/ci/validator-helper-census.json to match. If one was "
+      + "added, import the helper instead — a security check in more than one shape means nobody "
+      + "can say which one is the rule.",
+  );
+}
+
 process.stdout.write("PATH_CONFINEMENT_SINGLE_SOURCE_PASS — one canonical root, one isConfined\n");
+process.stdout.write("VALIDATOR_HELPER_CENSUS_PASS — helper duplication held at its baseline\n");
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");
