@@ -117,6 +117,58 @@ public static class RecordedSpeechComposer
     /// <summary>Closes the fold: "và hai sản phẩm khác".</summary>
     public static SpeechNumberClip OtherProductsClip { get; } = new("join-other-products", "sản phẩm khác");
 
+    /// <summary>
+    /// The clip for a delivery area, or <c>false</c> when no provincial unit can be identified.
+    /// <para>
+    /// Bank E differs from the product bank in one way that matters: its contents are fully
+    /// determined by code today. <see cref="AreaClipBank"/> enumerates every clip it will ever
+    /// need, because the area is spoken as a province and the province table is compiled in — no
+    /// list has to arrive from anywhere first.
+    /// </para>
+    /// <para>
+    /// Returning <c>false</c> rather than an empty run is the point. The words around the value
+    /// are recorded fixed segments — <c>", giao đến "</c> before it and <c>". Bấm phím một…"</c>
+    /// after — so a missing area does not degrade quietly, it plays "giao đến. Bấm phím một để xác
+    /// nhận" and asks a customer to confirm a delivery to nowhere. The caller has to decide, and
+    /// what it should decide is still open: refuse the call the way an unnameable item list does,
+    /// or substitute a generic value, which stays inside the approved template because it replaces
+    /// the placeholder's value rather than the template itself. That choice is coupled to 4c —
+    /// whether Sales still emits district-only areas — because refusing them all would drop every
+    /// such order rather than a rare one.
+    /// </para>
+    /// </summary>
+    public static bool TryComposeArea(
+        string? deliveryAreaShort,
+        out SpeechNumberClip clip)
+    {
+        string? province = DeliveryRegionResolver.TryResolveProvinceName(deliveryAreaShort);
+        if (province is null)
+        {
+            clip = default;
+            return false;
+        }
+
+        clip = AreaClip(province);
+        return true;
+    }
+
+    /// <summary>
+    /// Every clip bank E will ever hold: one per current provincial unit, in the voice that unit
+    /// selects. Generated rather than written down, for the same reason the 0..99 script is —
+    /// a hand-kept copy of a compiled table is a copy that can drift from it.
+    /// </summary>
+    public static ImmutableArray<SpeechNumberClip> AreaClipBank() =>
+        DeliveryRegionResolver.ProvinceRegionTable.Keys
+            .Select(DeliveryRegionResolver.TryResolveProvinceName)
+            .Where(name => name is not null)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .Select(name => AreaClip(name!))
+            .ToImmutableArray();
+
+    private static SpeechNumberClip AreaClip(string province) =>
+        new($"area-{VietnameseTextNormalizer.ToMatchKey(province).Replace(' ', '-')}", province);
+
     public static bool TryCompose(
         IReadOnlyList<SpeechItem> items,
         int maximumSpokenItems,

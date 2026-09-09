@@ -196,4 +196,57 @@ public sealed class RecordedSpeechComposerTests
         Assert.Contains("nghìn", Speak(Compose(VietnameseNumberStyle.Northern)));
         Assert.Contains("ngàn", Speak(Compose(VietnameseNumberStyle.Southern)));
     }
+
+    [Theory]
+    [Trait("TestId", "UT-VOICE-3B-07")]
+    [InlineData("Phường Bến Nghé, TPHCM", "area-ho-chi-minh", "Hồ Chí Minh")]
+    [InlineData("Phường Cửa Nam, thành phố Hà Nội", "area-ha-noi", "Hà Nội")]
+    [InlineData("Phường Phú Khương, tỉnh Vĩnh Long", "area-vinh-long", "Vĩnh Long")]
+    [InlineData("Phường X, tỉnh Hải Dương", "area-hai-phong", "Hải Phòng")]
+    public void AnAreaBecomesOneProvinceClip(string area, string expectedId, string expectedText)
+    {
+        // The last row is the merger showing through at clip level: a pre-merger name plays the
+        // clip of the unit that absorbed it, so a customer in Hải Dương hears "Hải Phòng". Pinned
+        // rather than left implicit, because it is the cost W-0241 accepted and someone will
+        // eventually read it as a bug.
+        Assert.True(RecordedSpeechComposer.TryComposeArea(area, out SpeechNumberClip clip));
+        Assert.Equal(expectedId, clip.Id);
+        Assert.Equal(expectedText, clip.Text);
+    }
+
+    [Theory]
+    [Trait("TestId", "UT-VOICE-3B-08")]
+    [InlineData("phường 12, quận Bình Thạnh")]
+    [InlineData("Phường Bến Nghé, Quận 1")]
+    [InlineData("")]
+    [InlineData(null)]
+    public void AnAreaWithNoProvinceRefusesInsteadOfPlayingNothing(string? area)
+    {
+        // "giao đến " and ". Bấm phím một…" are recorded fixed segments on either side of this
+        // value, so an empty run does not shorten the sentence -- it asks the customer to confirm
+        // a delivery to nowhere. False forces the caller to decide; what it should decide is open
+        // and coupled to 4c.
+        Assert.False(RecordedSpeechComposer.TryComposeArea(area, out SpeechNumberClip clip));
+        Assert.Equal(default, clip);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-3B-09")]
+    public void BankEIsWhollyDerivableFromCodeUnlikeTheProductBank()
+    {
+        // The difference worth stating: bank D waits on twenty names nobody has written down yet,
+        // while bank E is complete today because the area is spoken as a province and the province
+        // table is compiled in. Nothing has to arrive for this recording script to be produced.
+        ImmutableArray<SpeechNumberClip> bank = RecordedSpeechComposer.AreaClipBank();
+        Assert.Equal(34, bank.Length);
+        Assert.Equal(bank.Length, bank.Select(clip => clip.Id).Distinct(StringComparer.Ordinal).Count());
+
+        // Every clip in the bank is reachable from its own spoken text, so the recording script and
+        // the runtime lookup cannot describe different sets.
+        foreach (SpeechNumberClip clip in bank)
+        {
+            Assert.True(RecordedSpeechComposer.TryComposeArea(clip.Text, out SpeechNumberClip round));
+            Assert.Equal(clip, round);
+        }
+    }
 }
