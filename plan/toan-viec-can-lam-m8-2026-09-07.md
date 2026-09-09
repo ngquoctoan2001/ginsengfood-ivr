@@ -383,41 +383,66 @@ Task dựng đúng theo quyết định đã ký sẽ **qua intake rồi ném ex
 **OpenAPI cố ý chưa sửa** — bump hash ghim cần re-pin có review, gộp vào lượt sửa khi chốt số.
 · `W-0208`
 
-### 2.2 — Contact gate: custody của bên cấp token · *M3 + Security*
+### 2.2 — Contact gate: custody của bên cấp token · **anh + dev M3**
 
 Production issuer/resolver chưa có — chỉ `MockDialTokenVault`/`LabDialTokenVault`. Ledger `W-0199`
 có task binding + ceiling + audit, nhưng đó là **local ledger, không phải distributed replay proof**.
 
-`phone_validation_status`: optional trong OAS, runtime bắt `== "VALID"` (422). Đổi thành required
-enum là **thay đổi contract cần xét compatibility**, không phải sửa hiển nhiên.
+`phone_validation_status`: **đã kiểm lại `09/09`** — OAS khai `{ type: string }`, **không** có enum
+và **không** nằm trong `required`; runtime `EligibilityRules.cs:225-227` từ chối mọi giá trị khác
+`"VALID"` (Ordinal). Mâu thuẫn là thật.
 
-### 2.3 — Ký wire mapping `program_code` · *M3 + Product*
+> **Nhưng đây là OAS của chính IVR**, không phải hợp đồng bên khác. Nên quyết định thuộc **anh +
+> dev M3**, và nó gộp được vào lượt phát hành contract cùng `7.1`. Không cần đội Security nào.
+
+### 2.3 — Ký wire mapping `program_code` · **anh + dev M3**
 
 Phần M8 xong: IR-06 `§3.10 R3` có bảng cặp `program × payment`, hành vi từ chối tường minh
 (`GOLDEN_HOUR + COD` → `400 IVR_MALFORMED_REQUEST`, loại tại schema), và **nguồn business** Flow
 04/05 đóng `27/08`. Checklist `L1205` tự ghi *"Đã đóng 27/08 … chỉ còn ký wire mapping"*.
 
-Phần "đổi mô tả `ProgramCode` thành tham chiếu registry M3" chờ M3 công bố registry — chưa tồn tại.
+Phần "đổi mô tả `ProgramCode` thành tham chiếu registry M3" chờ một registry **chưa tồn tại**.
 
-### 2.4 — `golden_hour_session_id` (gộp C3 + C4 + C7)
+> **Câu hỏi thật, `09/09`:** registry đó có bao giờ ra đời không? OAS hiện khai
+> `enum: [GOLDEN_HOUR, TWENTY_FOUR_SEVEN]` và hai chương trình đó là toàn bộ phạm vi V1. Nếu dev M3
+> nói "không có kế hoạch", enum giữ nguyên và **mục này đóng** — một câu hỏi, không phải một dự án.
 
-Không có session id từ M3. Hiện `SessionId` chỉ tồn tại trên `CapacityIncidentEntity` với giá trị tự
-sinh (`SCHED-`, `MOCK-SCHED-`, `ADMIN-QUEUE-`).
+### ~~2.4 — `golden_hour_session_id`~~ → ✅ **không phải việc; trạng thái hiện tại đúng spec** (`W-0247`)
 
-> **Việc:** ký field → producer mapping → store (nullable, additive) → CDC → enforce.
-> **Không** map đè lên `session_id` nội bộ — giá trị tự sinh vẫn trace về job, giữ nguyên.
-> **Cảnh báo:** required cho `program_code=GH` là **breaking** dù store nullable là additive; đừng
-> hứa toàn bộ non-breaking.
+Đọc lại nguồn mà chính mục này khai (`C3`/`C4`/`C7` → spec V0.3 §6) thì spec nói **ngược** với cách
+mục này được viết:
 
-### 2.5 — Thu hồi task giữa window (gộp C11 + C12 + C14)
+> `ivr_task` — *"Active upstream contract **chưa có** session field hoặc `priority`; **`W-0146` đề
+> xuất** `golden_hour_session_id` nhưng **chưa được M3 ký và chưa được phép triển khai**."*
+>
+> `capacity_incident` — *"`session_id` là capacity scope ID **nội bộ/synthetic của IVR**. `W-0146`
+> **cấm map đè** upstream ID; sau chữ ký M3 chỉ được thêm **cột nullable riêng**."*
+
+⇒ `golden_hour_session_id` là **đề xuất chưa ký**, và spec **cấm triển khai trước chữ ký**. Giá trị
+`SCHED-`/`MOCK-SCHED-` tự sinh **là thiết kế**, không phải thiếu sót. **M8 không nợ gì.**
+
+Và `MASTER-03 §24.5` — chỗ duy nhất trong toàn bộ tài liệu hệ thống nêu field này — đặt nó trên
+chuỗi **`quote_snapshot_id`**, không phải trên task IVR. **Không tài liệu nào gắn nó cho M8.**
+
+> **Việc duy nhất còn lại:** anh có muốn đề xuất `W-0146` không. Không muốn thì mục này đóng hẳn.
+
+### 2.5 — Thu hồi task giữa window ⚠️ **nặng nhất trong nhóm 2** · **anh quyết**
 
 Recall/hủy đơn bật giữa confirmation window thì attempt 2 **vẫn quay**. Claim query không đọc lại
 `sale_lock`/`recall`/`order_state`; không có endpoint revoke. `W-0111 terminate` chỉ là admin cắt
 cuộc đang gọi. ACK trên callback **không** thay được một command.
 
+**Kiểm lại `09/09`, cả hai vế đều đúng:** `grep` `sale_lock`/`recall` trên
+`src/Ivr.Infrastructure/Scheduling/` → **0 hit**; `grep revoke` trên OAS → **0 hit**.
+
+> ⚠️ **Hệ quả người dùng thật:** khách **đã hủy đơn** vẫn nhận cuộc gọi hỏi xác nhận chính đơn đó.
+> Đây là mục duy nhất trong nhóm 2 gây hại cho khách chứ không phải cho tài liệu.
+>
 > **Chọn:** A (chấp nhận trade-off + M3 bắt buộc D-06) / B (M3 phát revoke) / hybrid.
 > Nếu B thì **phải fence tới tận trước dial** — technical lease generation hiện có **không phải**
 > order-revocation generation.
+>
+> Trước đây mục này ghi *"M3 + Security"*. Nay là **anh** — nên nó quyết được ngay.
 
 ### 2.6 — Consumer callback + credential
 
