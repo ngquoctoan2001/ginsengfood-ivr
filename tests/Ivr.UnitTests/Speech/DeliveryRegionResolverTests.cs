@@ -283,4 +283,76 @@ public sealed class DeliveryRegionResolverTests
         ShortDeliveryArea.Create("thành phố Hà Nội");
         Assert.Throws<InvalidOperationException>(() => ShortDeliveryArea.Create("phố Hà Nội"));
     }
+
+    [Theory]
+    [Trait("TestId", "UT-VOICE-AREA-01")]
+    [InlineData("Phường Bến Nghé, TPHCM", "Hồ Chí Minh")]
+    [InlineData("Phường Bến Nghé, TP. Hồ Chí Minh", "Hồ Chí Minh")]
+    [InlineData("Phường 12, Thành phố Hồ Chí Minh", "Hồ Chí Minh")]
+    [InlineData("Phường Cửa Nam, thành phố Hà Nội", "Hà Nội")]
+    [InlineData("Phường Phú Khương, tỉnh Vĩnh Long", "Vĩnh Long")]
+    public void ThreeSpellingsOfOnePlaceGiveOneSpokenName(string area, string expected) =>
+        // This is why the area is spoken as a province rather than as the string Module 3 sends:
+        // one place arrives in several spellings, and an exact-match clip lookup would miss all
+        // but one of them. The province name is the form that survives normalisation.
+        Assert.Equal(expected, DeliveryRegionResolver.TryResolveProvinceName(area));
+
+    [Theory]
+    [Trait("TestId", "UT-VOICE-AREA-02")]
+    [InlineData("Phường X, tỉnh Hải Dương", "Hải Phòng")]
+    [InlineData("Phường Thắng Tam, Bà Rịa - Vũng Tàu", "Hồ Chí Minh")]
+    [InlineData("Phường Phú Lợi, tỉnh Bình Dương", "Hồ Chí Minh")]
+    public void APreMergerNameIsSpokenAsTheUnitThatAbsorbedIt(string area, string expected)
+    {
+        // Correct under Nghị quyết 202/2025/QH15, and a real cost worth stating: a customer in
+        // Vũng Tàu hears "giao đến Hồ Chí Minh". It is not a choice the data currently allows to
+        // go the other way -- the alias lists mix absorbed provinces with plain spelling variants
+        // ("Thái Nguyên", "Bắc Kạn", "Bắc Cạn"), so nothing distinguishes a former unit from a
+        // second way of writing the same one. Echoing the name as sent would need that split
+        // declared first.
+        Assert.Equal(expected, DeliveryRegionResolver.TryResolveProvinceName(area));
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-AREA-03")]
+    public void TheVoiceAndTheWordsCanNeverNameDifferentPlaces()
+    {
+        // Region and spoken name are two projections of one match. Were they two scans, a string
+        // could resolve to the Southern voice while the words said a Northern province, and the
+        // call would be wrong in a way that sounds fine.
+        foreach (string key in DeliveryRegionResolver.ProvinceRegionTable.Keys)
+        {
+            string? spoken = DeliveryRegionResolver.TryResolveProvinceName(key);
+            Assert.NotNull(spoken);
+            Assert.Equal(
+                DeliveryRegionResolver.ProvinceRegionTable[key],
+                DeliveryRegionResolver.TryResolve(key));
+            Assert.Equal(
+                DeliveryRegionResolver.ProvinceRegionTable[key],
+                DeliveryRegionResolver.TryResolve(spoken!));
+        }
+
+        // Bank E is one clip per current unit, not one per unit per voice: the province selects
+        // the region and the region selects the voice, so no call has the Northern voice saying
+        // "Vĩnh Long". Thirty-four clips in total, against thousands of wards.
+        Assert.Equal(
+            34,
+            DeliveryRegionResolver.ProvinceRegionTable.Keys
+                .Select(DeliveryRegionResolver.TryResolveProvinceName)
+                .Distinct()
+                .Count());
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-VOICE-AREA-04")]
+    public void AnUnresolvableAreaStaysSilentInBothProjections()
+    {
+        // A district with no province is the 2025 reform's legacy form; both projections return
+        // null rather than guessing, and the caller decides. Same reason TryResolve has always
+        // returned null: a wrong guess reads the wrong place to a real customer.
+        Assert.Null(DeliveryRegionResolver.TryResolveProvinceName("phường 12, quận Bình Thạnh"));
+        Assert.Null(DeliveryRegionResolver.TryResolve("phường 12, quận Bình Thạnh"));
+        Assert.Null(DeliveryRegionResolver.TryResolveProvinceName(null));
+        Assert.Null(DeliveryRegionResolver.TryResolveProvinceName("   "));
+    }
 }

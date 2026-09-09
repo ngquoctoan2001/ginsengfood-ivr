@@ -32,8 +32,11 @@ public static class DeliveryRegionResolver
         "t p ",
     ];
 
-    private static readonly FrozenDictionary<string, VietnamRegion> ProvinceRegions =
-        BuildProvinceRegions();
+    private static readonly (
+        FrozenDictionary<string, VietnamRegion> Regions,
+        FrozenDictionary<string, string> DisplayNames) Tables = BuildTables();
+
+    private static FrozenDictionary<string, VietnamRegion> ProvinceRegions => Tables.Regions;
 
     /// <summary>
     /// Province lookup keys ordered longest-first, so "ba ria vung tau" is considered before a
@@ -53,6 +56,30 @@ public static class DeliveryRegionResolver
     public static FrozenDictionary<string, VietnamRegion> ProvinceRegionTable => ProvinceRegions;
 
     /// <summary>
+    /// Match form to the <b>current</b> provincial name, spoken. Every alias in a group points at
+    /// the group's first name, so "Hải Dương" resolves to "Hải Phòng": an in-flight order carrying
+    /// a pre-merger name is still read with the name that exists today, and the recording bank
+    /// needs only the 34 current units rather than those plus the 29 they absorbed.
+    /// <para>
+    /// One clip per province, not one per province per voice. The province selects the region and
+    /// the region selects the voice, so a province is only ever spoken by its own regional voice —
+    /// there is no call in which the Northern voice says "Vĩnh Long".
+    /// </para>
+    /// </summary>
+    private static FrozenDictionary<string, string> ProvinceDisplayNames => Tables.DisplayNames;
+
+    /// <summary>
+    /// The spoken provincial name for a delivery area, or <see langword="null"/> when no
+    /// provincial unit can be identified — the same silence <see cref="TryResolve"/> returns, for
+    /// the same reason: a wrong guess reads the wrong place to a real customer.
+    /// </summary>
+    public static string? TryResolveProvinceName(string? deliveryAreaShort)
+    {
+        string? key = TryMatchProvinceKey(deliveryAreaShort);
+        return key is null ? null : ProvinceDisplayNames[key];
+    }
+
+    /// <summary>
     /// Resolves the region for a delivery area, or <see langword="null"/> when no provincial
     /// unit can be identified.
     /// <para>
@@ -62,6 +89,17 @@ public static class DeliveryRegionResolver
     /// </para>
     /// </summary>
     public static VietnamRegion? TryResolve(string? deliveryAreaShort)
+    {
+        string? key = TryMatchProvinceKey(deliveryAreaShort);
+        return key is null ? null : ProvinceRegions[key];
+    }
+
+    /// <summary>
+    /// The one match. Region and spoken name are both projections of it, deliberately that way
+    /// round: two independent scans would be two chances to disagree about which province a string
+    /// names, and the voice and the words would then describe different places in the same call.
+    /// </summary>
+    private static string? TryMatchProvinceKey(string? deliveryAreaShort)
     {
         if (string.IsNullOrWhiteSpace(deliveryAreaShort))
         {
@@ -81,9 +119,9 @@ public static class DeliveryRegionResolver
         for (int index = tokens.Length - 1; index >= 0; index--)
         {
             string candidate = StripUnitPrefix(VietnameseTextNormalizer.ToMatchKey(tokens[index]));
-            if (candidate.Length > 0 && ProvinceRegions.TryGetValue(candidate, out VietnamRegion exact))
+            if (candidate.Length > 0 && ProvinceRegions.ContainsKey(candidate))
             {
-                return exact;
+                return candidate;
             }
         }
 
@@ -95,12 +133,12 @@ public static class DeliveryRegionResolver
     /// "Việt Nam", or an extra word glued onto the province token. Matches on whole-word
     /// sequences, never raw substrings, so "hue" cannot be found inside "thue".
     /// </summary>
-    private static VietnamRegion? ScanForLatestProvince(string normalized)
+    private static string? ScanForLatestProvince(string normalized)
     {
         string[] words = normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         int bestPosition = -1;
         int bestLength = 0;
-        VietnamRegion? best = null;
+        string? best = null;
 
         foreach (string[] provinceWords in ProvinceKeyWords)
         {
@@ -117,7 +155,7 @@ public static class DeliveryRegionResolver
 
             bestPosition = position;
             bestLength = provinceWords.Length;
-            best = ProvinceRegions[string.Join(' ', provinceWords)];
+            best = string.Join(' ', provinceWords);
         }
 
         return best;
@@ -159,43 +197,47 @@ public static class DeliveryRegionResolver
         return candidate;
     }
 
-    private static FrozenDictionary<string, VietnamRegion> BuildProvinceRegions()
+    private static (
+        FrozenDictionary<string, VietnamRegion>,
+        FrozenDictionary<string, string>) BuildTables()
     {
         var table = new Dictionary<string, VietnamRegion>(StringComparer.Ordinal);
+        var display = new Dictionary<string, string>(StringComparer.Ordinal);
 
         // ---- MIỀN BẮC — 15 current units -------------------------------------------------
-        Add(table, VietnamRegion.North, "Hà Nội");
-        Add(table, VietnamRegion.North, "Hải Phòng", "Hải Dương");
-        Add(table, VietnamRegion.North, "Quảng Ninh");
-        Add(table, VietnamRegion.North, "Cao Bằng");
-        Add(table, VietnamRegion.North, "Lạng Sơn");
-        Add(table, VietnamRegion.North, "Lai Châu");
-        Add(table, VietnamRegion.North, "Điện Biên");
-        Add(table, VietnamRegion.North, "Sơn La");
-        Add(table, VietnamRegion.North, "Lào Cai", "Yên Bái");
-        Add(table, VietnamRegion.North, "Tuyên Quang", "Hà Giang");
-        Add(table, VietnamRegion.North, "Thái Nguyên", "Bắc Kạn", "Bắc Cạn");
-        Add(table, VietnamRegion.North, "Phú Thọ", "Vĩnh Phúc", "Hòa Bình");
-        Add(table, VietnamRegion.North, "Bắc Ninh", "Bắc Giang");
-        Add(table, VietnamRegion.North, "Hưng Yên", "Thái Bình");
-        Add(table, VietnamRegion.North, "Ninh Bình", "Hà Nam", "Nam Định");
+        Add(table, display, VietnamRegion.North, "Hà Nội");
+        Add(table, display, VietnamRegion.North, "Hải Phòng", "Hải Dương");
+        Add(table, display, VietnamRegion.North, "Quảng Ninh");
+        Add(table, display, VietnamRegion.North, "Cao Bằng");
+        Add(table, display, VietnamRegion.North, "Lạng Sơn");
+        Add(table, display, VietnamRegion.North, "Lai Châu");
+        Add(table, display, VietnamRegion.North, "Điện Biên");
+        Add(table, display, VietnamRegion.North, "Sơn La");
+        Add(table, display, VietnamRegion.North, "Lào Cai", "Yên Bái");
+        Add(table, display, VietnamRegion.North, "Tuyên Quang", "Hà Giang");
+        Add(table, display, VietnamRegion.North, "Thái Nguyên", "Bắc Kạn", "Bắc Cạn");
+        Add(table, display, VietnamRegion.North, "Phú Thọ", "Vĩnh Phúc", "Hòa Bình");
+        Add(table, display, VietnamRegion.North, "Bắc Ninh", "Bắc Giang");
+        Add(table, display, VietnamRegion.North, "Hưng Yên", "Thái Bình");
+        Add(table, display, VietnamRegion.North, "Ninh Bình", "Hà Nam", "Nam Định");
 
         // ---- MIỀN TRUNG — 11 current units -----------------------------------------------
-        Add(table, VietnamRegion.Central, "Thanh Hóa");
-        Add(table, VietnamRegion.Central, "Nghệ An");
-        Add(table, VietnamRegion.Central, "Hà Tĩnh");
-        Add(table, VietnamRegion.Central, "Quảng Trị", "Quảng Bình");
-        Add(table, VietnamRegion.Central, "Huế", "Thừa Thiên Huế");
-        Add(table, VietnamRegion.Central, "Đà Nẵng", "Quảng Nam");
-        Add(table, VietnamRegion.Central, "Quảng Ngãi", "Kon Tum");
-        Add(table, VietnamRegion.Central, "Gia Lai", "Bình Định");
-        Add(table, VietnamRegion.Central, "Đắk Lắk", "Đắc Lắc", "Phú Yên");
-        Add(table, VietnamRegion.Central, "Khánh Hòa", "Ninh Thuận");
-        Add(table, VietnamRegion.Central, "Lâm Đồng", "Đắk Nông", "Đắc Nông", "Bình Thuận");
+        Add(table, display, VietnamRegion.Central, "Thanh Hóa");
+        Add(table, display, VietnamRegion.Central, "Nghệ An");
+        Add(table, display, VietnamRegion.Central, "Hà Tĩnh");
+        Add(table, display, VietnamRegion.Central, "Quảng Trị", "Quảng Bình");
+        Add(table, display, VietnamRegion.Central, "Huế", "Thừa Thiên Huế");
+        Add(table, display, VietnamRegion.Central, "Đà Nẵng", "Quảng Nam");
+        Add(table, display, VietnamRegion.Central, "Quảng Ngãi", "Kon Tum");
+        Add(table, display, VietnamRegion.Central, "Gia Lai", "Bình Định");
+        Add(table, display, VietnamRegion.Central, "Đắk Lắk", "Đắc Lắc", "Phú Yên");
+        Add(table, display, VietnamRegion.Central, "Khánh Hòa", "Ninh Thuận");
+        Add(table, display, VietnamRegion.Central, "Lâm Đồng", "Đắk Nông", "Đắc Nông", "Bình Thuận");
 
         // ---- MIỀN NAM — 8 current units ---------------------------------------------------
         Add(
             table,
+            display,
             VietnamRegion.South,
             "Hồ Chí Minh",
             "TPHCM",
@@ -204,25 +246,33 @@ public static class DeliveryRegionResolver
             "Bình Dương",
             "Bà Rịa Vũng Tàu",
             "Vũng Tàu");
-        Add(table, VietnamRegion.South, "Đồng Nai", "Bình Phước");
-        Add(table, VietnamRegion.South, "Tây Ninh", "Long An");
-        Add(table, VietnamRegion.South, "Cần Thơ", "Sóc Trăng", "Hậu Giang");
-        Add(table, VietnamRegion.South, "Vĩnh Long", "Bến Tre", "Trà Vinh");
-        Add(table, VietnamRegion.South, "Đồng Tháp", "Tiền Giang");
-        Add(table, VietnamRegion.South, "An Giang", "Kiên Giang");
-        Add(table, VietnamRegion.South, "Cà Mau", "Bạc Liêu");
+        Add(table, display, VietnamRegion.South, "Đồng Nai", "Bình Phước");
+        Add(table, display, VietnamRegion.South, "Tây Ninh", "Long An");
+        Add(table, display, VietnamRegion.South, "Cần Thơ", "Sóc Trăng", "Hậu Giang");
+        Add(table, display, VietnamRegion.South, "Vĩnh Long", "Bến Tre", "Trà Vinh");
+        Add(table, display, VietnamRegion.South, "Đồng Tháp", "Tiền Giang");
+        Add(table, display, VietnamRegion.South, "An Giang", "Kiên Giang");
+        Add(table, display, VietnamRegion.South, "Cà Mau", "Bạc Liêu");
 
-        return table.ToFrozenDictionary(StringComparer.Ordinal);
+        return (
+            table.ToFrozenDictionary(StringComparer.Ordinal),
+            display.ToFrozenDictionary(StringComparer.Ordinal));
     }
 
+    // Both tables are filled from the same argument list, in one pass. A separate hand-written
+    // list of spoken names could drift from the match keys, and a drifted entry is a province the
+    // call names wrongly -- with the right voice, which makes it harder to notice.
     private static void Add(
         Dictionary<string, VietnamRegion> table,
+        Dictionary<string, string> display,
         VietnamRegion region,
         params string[] names)
     {
         foreach (string name in names)
         {
-            table.Add(VietnameseTextNormalizer.ToMatchKey(name), region);
+            string key = VietnameseTextNormalizer.ToMatchKey(name);
+            table.Add(key, region);
+            display.Add(key, names[0]);
         }
     }
 }
