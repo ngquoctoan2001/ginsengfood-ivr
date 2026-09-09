@@ -19,7 +19,7 @@ W-0187 thêm:
 
 - `deploy/ci/scripts/opt-out-suppression-bundle-validator.mjs` — CLI offline, metadata-only;
 - `opt-out-suppression-decision-bundle.template.json` — template pending, không chứa PII/credential;
-- `artifact-sha256.txt` — manifest cho validator, template và chín source artifact local.
+- `attested-sha256.txt` — manifest cho validator, template và chín source artifact local.
 
 Không sửa `OptOutSuppressionPolicy`, proposer, intake, OpenAPI, database, scheduler hoặc runtime;
 không bật CRM egress và không tạo suppression thật.

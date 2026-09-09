@@ -14,7 +14,7 @@ EXTERNAL_BUNDLE_AND_SIGNATURES_NOT_RECEIVED / CODE_NOT_AUTHORIZED`**.
 
 - `deploy/ci/scripts/dial-token-production-bundle-validator.mjs` — CLI offline, metadata-only;
 - `dial-token-production-bundle.template.json` — template pending, không chứa contact/token thật;
-- `artifact-sha256.txt` — manifest 9 artifact local được pin.
+- `attested-sha256.txt` — manifest 9 artifact local được pin.
 
 Validator không chọn issuer, token model, TTL, resolver, vendor hoặc custody thay owner. Nó không
 đọc raw contact/token, gọi network, mount secret, ghi DB/ledger, tạo adapter hoặc mở egress. Output
@@ -57,7 +57,7 @@ Completed input chỉ được nhận khi đồng thời đủ:
 | Production authorization từ template | **NO** — `production_authorized=false` |
 | Validator SHA-256 | `e1b4445289257b0134c9571fdb4421b2706288c88ca254dd50f6c5f2aca2d6b1` |
 | Template SHA-256 | `31ae0ee58c88b666faf8362f386cb2512ac5dcfc35bb18c2107034e49fcd1bc8` |
-| Local artifact manifest | `artifact-sha256.txt` — **PASS `9/9`** |
+| Local artifact manifest | `attested-sha256.txt` — **PASS `9/9`** |
 | Detached clean verification | **PASS** — exact `5c0b170` + scoped W-0150/W-0183 files; self-test, generated-template byte equality và manifest `9/9` |
 | PII scan | **PASS `4 files / 0 binary`**; scanner negative-control self-test PASS |
 | API docs / CI config | **PASS `14` generated artifact / PASS** |

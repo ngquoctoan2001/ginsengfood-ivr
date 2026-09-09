@@ -38,7 +38,7 @@ Commit `8ed62e9` xóa M8-14 và M8-15 nhưng giữ các validator/evidence phụ
 | W-0160 evidence | `01d27f785fd96e7aadfad2ac659b26c6247d7cba8a72174cdba2270ebafe02e7` |
 | W-0182 artifact manifest | `ce32fa252ad5987bc3fa90a1ea238252fecd50945499ddf160ce492c7f0b0a43` |
 
-Machine-readable copy: `docs/evidence/W-0188/artifact-sha256.txt`.
+Machine-readable copy: `docs/evidence/W-0188/attested-sha256.txt`.
 
 ## 4. Verification
 

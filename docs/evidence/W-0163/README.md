@@ -28,7 +28,7 @@ Nguồn:
 
 - [M8-12 dispatch pack](../../../plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md)
 - [M8-13 message kit](../../../plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md)
-- `docs/evidence/W-0152/artifact-sha256.txt`
+- `docs/evidence/W-0152/attested-sha256.txt`
 - [Recipient routing input template](recipient-routing-input.template.md) — SHA-256
   `dcbeead41f56340c2dffac17e5540959d7571971e117fb03dd89d9d261859dc0`
 - [W-0164 offline routing validator](../W-0164/README.md) — JSON schema/hash/provenance/PII

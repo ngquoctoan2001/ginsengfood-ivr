@@ -1,6 +1,6 @@
 4046e3c1cbeb8d3983da0745f25056968d0960b04b410904369bdb20e987eb11  docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md
 59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e  plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md
-f4c04e4a3104ce02923230932ffd3e3140ae092b536b836db278da8312779288  docs/evidence/W-0170/artifact-sha256.txt
+f4c04e4a3104ce02923230932ffd3e3140ae092b536b836db278da8312779288  docs/evidence/W-0170/attested-sha256.txt
 a6e43aa1493d07bf03fba1de699e11300326ae87d5dcbbf47311602d1575cd39  plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md
 de192cb4f14435247a149e2d0cd27c4e0b054a5746ff3e228e72670f6a37be91  deploy/ci/scripts/external-decision-routing-validator.mjs
 590b4682905c62162f7d612558d6036f5f1497fd152bfaad104d50f977aabef9  docs/evidence/W-0164/recipient-routing-input.template.json

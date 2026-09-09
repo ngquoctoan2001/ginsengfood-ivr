@@ -102,7 +102,7 @@ trước khi sửa từng symbol và vẫn phải quyết định migration/cuto
 | Validator SHA-256 | `01f967629afc066cd8315a3622b3b277b76402ef1d082f2f1d9292639ea7d350` |
 | W-0146 evidence SHA-256 LF | `0bce4b3fcc0e6d1145f676e619405d8319e0480d4d0af255fd693adfb73b849b` |
 | IR-06 SHA-256 LF | `b676a32d4ba51b9f345eb3d32e21d793216f4011e98bbfc9dc8d2867997ba08a` |
-| Artifact manifest | `docs/evidence/W-0181/artifact-sha256.txt` |
+| Artifact manifest | `docs/evidence/W-0181/attested-sha256.txt` |
 | PII scan | **PASS `4 files / 0 binary`** — validator và W-0181 evidence scope |
 | API docs self-test | **PASS** — 14 generated artifacts |
 | CI config self-test | **PASS** |

@@ -1,8 +1,9 @@
 # Live source pins for the external-decision chain (W-0165 / W-0170).
 #
-# W-0251 moved this list out of docs/evidence/W-0170/artifact-sha256.txt. That file is a closed
+# W-0251 moved this list out of docs/evidence/W-0170/, and W-0252 renamed what stayed behind to
+# attested-sha256.txt so the role reads off the name. That file is a closed
 # evidence record: it states what W-0170 attested on the day it was written, and it is meant to go
-# stale as sources move on. docs/evidence/W-0152/artifact-sha256.txt proves the point - seven of its
+# stale as sources move on. docs/evidence/W-0152/attested-sha256.txt proves the point - seven of its
 # eighteen entries no longer match HEAD, correctly, because six of those files legitimately changed
 # between the two work items.
 #
@@ -30,4 +31,4 @@ e7df35e7711a59ed21076a4330a2e6c67e08d3213cd62813981cd89efc184f9f  docs/contracts
 0be9c9e8be2b05d043e060374cb526c81f349a9ace45b2efd6f8025116fd3635  docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.md
 ae483fa33e5741b49a0d6c3e71bfedf51df14eec46d2a69935f45809f0e7ab37  docs/contracts/telephony-procurement-pack/R-00-voice-gateway-rfq.md
 341153903009c37fb7fcf5ea3c5bdb253a6c7cd49f908676ff7c0612e681eea4  docs/contracts/telephony-procurement-pack/R-06-to-trinh-mua-thiet-bi.md
-59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e  plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md
+5abb37bbd4580380e59f8eb5e0981d480fe398326234b51dff8a1f7deab1ce4d  plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md

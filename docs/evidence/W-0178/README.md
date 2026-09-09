@@ -76,7 +76,7 @@ Các SHA truyền qua CLI phải đến từ reviewer/custodian độc lập, kh
 - `node .../d06-revalidation-evidence-validator.mjs --self-test`: `W0178_SELFTEST_PASS template=1 valid=1 refusals=31`.
 - `--check-template`: `D06_TEMPLATE_VALID_NOT_READY cases=12 production_authorized=false`.
 - Chạy template pending qua `--input`: REFUSED, exit 1, do status chưa phải `M3_D06_EVIDENCE_COMPLETE`.
-- Hash manifest: `artifact-sha256.txt`.
+- Hash manifest: `attested-sha256.txt`.
 - PII scanner self-test PASS; scoped scan PASS `4 files / 0 binary` bằng Git Bash (WSL bash không có trên host).
 - API docs self-test PASS `14` artifact; CI config PASS; test traceability current `485`.
 - W-0174 regression PASS `1 valid / 46 refusal`; readiness mirror PASS `11 gates / 179 work items / 23 open decisions`, production=false.

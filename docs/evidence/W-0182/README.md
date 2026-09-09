@@ -118,7 +118,7 @@ analysis rồi mới viết adapter và provider conformance tests.
 | Current capacity-model self-test | **PASS `6/6`**, vẫn `CAPACITY_SELFTEST_PASS_UNCALIBRATED` |
 | Shared-tree intake regression | **PASS W-0188** — exact M8-14/M8-15 hiện diện và khớp hash lịch sử |
 | Detached capacity-model rerun | `ENV_BLOCKED_DEPENDENCY_ONLY` — clean worktree không có package `yaml`; current-tree same source PASS 6/6 |
-| Artifact manifest | `docs/evidence/W-0182/artifact-sha256.txt` |
+| Artifact manifest | `docs/evidence/W-0182/attested-sha256.txt` |
 | Artifact hash verification | **PASS `4/4`** |
 | PII scan | **PASS current W-0182/W-0188 deliverables `6 files / 0 binary`**; scanner negative/clean control PASS |
 | API docs self-test | **PASS** — 14 generated artifacts |

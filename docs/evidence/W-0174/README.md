@@ -94,7 +94,7 @@ Sau đó vẫn phải mở change review riêng; không sửa guard trong cùng 
 | Template SHA-256 | `381b6b59126955182f53a90fab2c8032547f296e57a80ad9206ee54da958d91a` |
 | Validator SHA-256 | `a0abd96deb8130f274988c6964d8966c50cb19c0f4b87ef565c221690cdafc89` |
 | M8 Target V1 OAS SHA-256 | `af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
-| Artifact manifest | [`artifact-sha256.txt`](artifact-sha256.txt) |
+| Artifact manifest | [`attested-sha256.txt`](attested-sha256.txt) |
 
 Self-test refusal bao phủ SHA/hash độc lập sai, OAS drift, thiếu/trùng/sai thứ tự case, case không
 PASS, cross-candidate/config, outcome/HTTP/assertion sai, state hash đổi ở nhánh no-transition,

@@ -154,6 +154,14 @@ detect_changes                             low
 
 | # | Việc | Ai |
 | ---: | --- | --- |
-| — | ba manifest còn lại vẫn tên `artifact-sha256.txt` như nhau; đổi tên bản ghi thành `attested-sha256.txt` sẽ khiến nhầm vai khó hơn nữa | tôi, khi tiện |
+| ✅ | ~~ba manifest còn lại vẫn tên `artifact-sha256.txt` như nhau~~ — **`W-0252` đã đổi tên cả mười hai bản ghi thành `attested-sha256.txt`** | xong |
 | — | endpoint revoke + OAS + IR-06 — `2.5`, đi cùng `7.1`/`2.2` | tôi |
 | — | `external response/authority` vẫn `NOT_RECEIVED`; lượt này không mở gate production nào | ngoài IVR |
+
+---
+
+**Ghi chú `W-0252`.** Tên tệp trong trang này là tên **tại thời điểm lượt đó chạy**, và giữ nguyên có
+chủ ý: câu *"bốn script gate đọc `artifact-sha256.txt` như một danh sách pin sống"* chỉ đúng với cái
+tên cũ, viết lại thành tên mới sẽ thành sai. `W-0252` đổi cả mười hai bản ghi trong `docs/evidence/`
+sang `attested-sha256.txt`, **nội dung không đổi một byte** — trỏ tới tệp nào thì thay `artifact-`
+bằng `attested-` trong đường dẫn.

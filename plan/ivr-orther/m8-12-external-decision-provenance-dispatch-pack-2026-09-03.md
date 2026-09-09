@@ -29,7 +29,11 @@ Phần tự chủ còn lại của `C5` đã được gom thành một đầu m�
 
 Hash được tính trên byte hiện tại của từng artifact. Nếu một artifact đổi dù chỉ một byte, chữ ký
 gắn với hash cũ không còn dùng được; phải tạo hash mới và yêu cầu signer xác nhận lại exact version.
-Manifest máy đọc hiện hành nằm tại `docs/evidence/W-0170/artifact-sha256.txt`.
+Manifest máy đọc **hiện hành** nằm tại `deploy/ci/pins/external-decision-artifacts.sha256` — đó là
+bản các gate thật sự đọc, và là bản được sửa khi một nguồn được ghim đổi hợp lệ.
+`docs/evidence/W-0170/attested-sha256.txt` là **bản ghi đóng băng** của cùng danh sách ấy vào ngày
+`W-0170`, và được phép cũ đi. Trước `W-0251` hai vai dùng chung một tệp; trước `W-0252` chúng còn
+trùng cả tên.
 
 ## 2. Dispatch matrix chuẩn
 

@@ -35,7 +35,7 @@ Self-test W-0170 phát hiện manifest W-0152 đã drift đúng một artifact: 
 `62e4be4e...`.
 
 Không sửa manifest W-0152 lịch sử. W-0170 tạo manifest hiện hành
-`docs/evidence/W-0170/artifact-sha256.txt`, cập nhật
+`docs/evidence/W-0170/attested-sha256.txt`, cập nhật
 M8-12/M8-13 bằng một controlled pin rotation và xoay source pin của W-0164/W-0165. Bảng sau là
 snapshot W-0170 lịch sử; current W-0186 nằm tại §7:
 
@@ -178,18 +178,19 @@ response/authority vẫn `NOT_RECEIVED` và không có gate production nào đư
 
 ## Ghi chú `W-0251` — pin sống đã chuyển đi, bản ghi này giữ nguyên
 
-Bảng hash phía trên và `artifact-sha256.txt` cạnh nó là **bản ghi đóng băng**: chúng nói W-0170 đã
-chứng thực gì vào ngày viết, và **được phép cũ đi** khi source đi tiếp. `docs/evidence/W-0152/artifact-sha256.txt`
+Bảng hash phía trên và `attested-sha256.txt` cạnh nó là **bản ghi đóng băng**: chúng nói W-0170 đã
+chứng thực gì vào ngày viết, và **được phép cũ đi** khi source đi tiếp. `docs/evidence/W-0152/attested-sha256.txt`
 chứng minh điều đó — **7 trong 18** dòng của nó không còn khớp HEAD, và đúng như vậy, vì sáu file ấy
 đã đổi hợp lệ giữa hai work item.
 
-Vấn đề là bốn script gate đọc `artifact-sha256.txt` của W-0170 **như một danh sách pin sống**, nên
+Vấn đề là bốn script gate đọc manifest của W-0170 — khi đó còn mang tên `artifact-sha256.txt`, xem
+ghi chú `W-0252` cuối mục này — **như một danh sách pin sống**, nên
 hai vai dùng chung một tệp. `W-0217` sửa một file plan được ghim mà không re-pin, và cách duy nhất
 để gate xanh lại sẽ là **ghi đè một bản ghi đã đóng**. Vì thế `W-0251` tách đôi:
 
 | Vai | Ở đâu | Có được sửa không |
 | --- | --- | --- |
-| Bản ghi đóng băng | `docs/evidence/W-0170/artifact-sha256.txt` (**tệp này, không đổi một byte**) | Không |
+| Bản ghi đóng băng | `docs/evidence/W-0170/attested-sha256.txt` (**tệp này, không đổi một byte**) | Không |
 | Pin sống | `deploy/ci/pins/external-decision-artifacts.sha256` | Có — cùng commit với source |
 
 Bản pin sống sinh ra từ chính tệp này, sửa đúng **một** dòng: `m8-05-program-result-contract-signoff-2026-09-03.md`
@@ -198,3 +199,8 @@ cũng là bằng chứng tệp này đang bị dùng làm pin sống.
 
 `decision-closure-input.template.json` cạnh đây **có** đổi: nó là input template dẫn xuất, không phải
 chứng thực, nên nó trỏ sang đường pin mới.
+
+**`W-0252` đổi tên.** Tệp trên nay là `attested-sha256.txt`, và mười một bản ghi cùng loại trong
+`docs/evidence/` đổi theo. Nội dung **không đổi một byte** — chỉ cái tên, để vai của nó đọc được ngay
+từ tên chứ không phải suy ra từ chỗ nó nằm. Tên cũ `artifact-sha256.txt` trùng khuôn với tệp pin
+sống, và chính sự trùng ấy là thứ để `W-0217` sửa nhầm chỗ mà không ai thấy.

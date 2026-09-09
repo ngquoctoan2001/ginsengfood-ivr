@@ -13,7 +13,8 @@ Nguồn dispatch bất biến:
 
 - M8-12: `plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md`
 - M8-12 SHA-256: `59631b137f422840010a3d52e274196a19cbf644ad0bd3661d03bda48e5bc45e`
-- Manifest: `docs/evidence/W-0170/artifact-sha256.txt`
+- Manifest (pin sống, các gate đọc bản này): `deploy/ci/pins/external-decision-artifacts.sha256`
+- Manifest (bản ghi đóng băng ngày `W-0170`, được phép cũ đi): `docs/evidence/W-0170/attested-sha256.txt`
 - Manifest SHA-256: `f4c04e4a3104ce02923230932ffd3e3140ae092b536b836db278da8312779288`
 
 Người lập: **Codex — message preparation only**. W-0153 không biết danh tính người nhận thật,

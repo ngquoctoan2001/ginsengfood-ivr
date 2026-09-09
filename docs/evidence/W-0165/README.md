@@ -5,7 +5,7 @@ Ngày: `2026-09-03`
 Baseline: `main@b21ec676e490`
 
 > Pin rotation W-0170 (`2026-09-04`): current response input dùng manifest
-> `docs/evidence/W-0170/artifact-sha256.txt`; hash W-0165 gốc bên dưới được supersede bởi bảng current.
+> `docs/evidence/W-0170/attested-sha256.txt`; hash W-0165 gốc bên dưới được supersede bởi bảng current.
 
 Trạng thái: **`TESTS_PASS_LOCAL / RESPONSE_PROVENANCE_VALIDATOR_READY /
 EXTERNAL_RESPONSES_NOT_RECEIVED / EXTERNAL_AUTHORITY_UNVERIFIED /

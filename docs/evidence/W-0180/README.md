@@ -89,7 +89,7 @@ Sau đó vẫn phải review implementation, rerun shared E2E và đi qua releas
 | LF provenance | **PASS** — W-0180 JSON/TXT, W-0151, T-09, functional spec và domain source đều `eol=lf` |
 | Template SHA-256 | `4695ff51be56dd208682f80a32b7dedaf748ede09066da2ae6039f51b1e1f4df` |
 | Validator SHA-256 | `7c25e10f12ac13012ea18d13a6cdc7027c6dd19ce2a0728366d47bb8df3e1cdb` |
-| Artifact manifest | `docs/evidence/W-0180/artifact-sha256.txt` |
+| Artifact manifest | `docs/evidence/W-0180/attested-sha256.txt` |
 
 Mutation suite từ chối reserved version, thiếu program, sai offsets/window/time, sai counting/retry,
 timezone/wire mismatch, registry thiếu four-eyes/no-delete, ATP-11 chưa chọn hoặc fail-open, capacity
