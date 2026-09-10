@@ -479,6 +479,22 @@ trong khi C# gán `job.Status = "HELD_ADMIN_REVIEW"` bằng literal riêng.
 
 **`"MOCK"` cố ý không đụng:** nó có **hai chủ sở hữu** — `IvrOptions.MockExecutionMode` và `FeatureFlagCatalog.MockSimProvider` — cho hai thứ khác nhau tình cờ viết giống nhau. 22 site, và thay tất cả sẽ sai ở khoảng một nửa. Cần owner tách tên trước.
 
+> **Cập nhật (2026-09-10, W-0272).** Owner chốt: tách bằng hằng số, **giữ nguyên giá trị wire**.
+> Khi phân loại từng site thì ra **ba** chủ sở hữu, không phải hai: execution mode (8 site),
+> SIM provider trong cấu hình (5), và **adapter/provider của một dòng `ivr_sim_channels`** (5) —
+> cái thứ ba trước đây không được nêu. Một channel có thể là `MOCK` trong khi execution mode không
+> phải, nên chúng không thay cho nhau được; cảnh báo "thay tất cả sẽ sai khoảng một nửa" là đúng.
+>
+> Phần thưởng: `ARCH-CONST-01` đã cấm literal `"LAB_REAL_SIM"`/`"PRODUCTION_REAL"` nhưng **bỏ
+> `"MOCK"` ra ngoài** vì nó nhập nhằng — danh sách thiếu đó chính là dấu vết của S2 nằm trong test.
+> Tách xong, `"MOCK"` vào được danh sách, ngoại lệ đúng ba file định nghĩa.
+>
+> **Và lộ ra một chỗ spec lệch code:** `AdapterMode`/`ProviderName` trong code nhận
+> `MOCK/VENDOR/ASTERISK_ARI`, còn `specs/database/02-tables.md:174` khai `adapter_mode (MOCK/REAL)`
+> — `REAL` là giá trị không đường code nào sinh ra. Chỗ lệch này tồn tại được **chính vì** magic
+> string: khi ba khái niệm cùng viết `"MOCK"` thì không ai đọc ra cột này có từ vựng riêng để đối
+> chiếu. **Cần owner** chọn từ vựng; không tự sửa.
+
 ---
 
 ### S3 — 5 background host copy-paste nguyên khối, kể cả comment — ĐÃ SỬA
@@ -755,7 +771,7 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~B5~~ | ~~Rò rỉ bộ nhớ ở MOCK~~ | ~~MEDIUM~~ | **đã sửa — W-0259** |
 | P2 | 109 index, nhiều cái trên boolean | MEDIUM | trung bình — đo `pg_stat_user_indexes` trước |
 | ~~S4~~ | ~~Helper bảo mật copy-paste 18 lần~~ | ~~MEDIUM~~ | **đóng — W-0258/W-0259/W-0260/W-0267**; `rejectDuplicateJsonKeys` hợp nhất sau khi đo 18/18 đồng ý; 3 hàm còn lại khác biệt có tải — cần owner, census guard giữ không trôi |
-| S2 | 951 magic string | LOW | **một phần — W-0261**; `"MOCK"` có hai chủ sở hữu, cần owner tách tên |
+| ~~S2~~ | ~~951 magic string~~ | ~~LOW~~ | **đóng — W-0261/W-0272**; `"MOCK"` hoá ra có **ba** chủ sở hữu chứ không phải hai — tách xong thì `ARCH-CONST-01` nhận được `"MOCK"`; lộ ra spec `adapter_mode` lệch code, cần owner |
 | ~~P3~~ | ~~DSAR 8 round trip, nổ tham số~~ | ~~LOW~~ | **đã sửa — W-0261** |
 | ~~S7~~ | ~~Worktree rác + bản sao repo~~ | ~~LOW~~ | **đã sửa — W-0262** (942 MB thu hồi) |
 | ~~S6~~ | ~~434k dòng docs không liên quan~~ | — | **RÚT LẠI — phát hiện sai (W-0262)** |

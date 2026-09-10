@@ -1,5 +1,6 @@
 using Ivr.Contracts.Sales;
 using Ivr.Domain.Confirmation;
+using Ivr.Infrastructure.FeatureFlags;
 
 namespace Ivr.Infrastructure.Configuration;
 
@@ -33,7 +34,7 @@ public sealed class IvrOptions
             : throw new InvalidOperationException("SALES_PROVIDER is not supported.");
     }
 
-    public string SimProvider { get; set; } = "MOCK";
+    public string SimProvider { get; set; } = FeatureFlagValues.MockSimProvider;
 
     public string ConnectionString { get; set; } = string.Empty;
 

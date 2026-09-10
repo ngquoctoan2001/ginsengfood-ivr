@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Ivr.Domain.Speech;
 using Microsoft.Extensions.Options;
+using Ivr.Domain.Confirmation;
 
 namespace Ivr.Infrastructure.Speech;
 
@@ -22,7 +23,7 @@ public sealed class FakeDeterministicTtsProvider(
         TtsProviderOptions configured = providerOptions.Value;
         if (!string.Equals(
                 configured.ExecutionMode,
-                "MOCK",
+                ExecutionModes.Mock,
                 StringComparison.OrdinalIgnoreCase)
             || !string.Equals(
                 configured.Provider,

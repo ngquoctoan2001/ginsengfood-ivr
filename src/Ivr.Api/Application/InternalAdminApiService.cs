@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Ivr.Domain.Confirmation;
+using Ivr.Infrastructure.Telephony;
 
 namespace Ivr.Api.Application;
 
@@ -756,7 +757,7 @@ public sealed class InternalAdminApiService(
                 }, JsonOptions);
                 if (enable)
                 {
-                    if (!string.Equals(channel.AdapterMode, "MOCK", StringComparison.Ordinal)
+                    if (!string.Equals(channel.AdapterMode, SimAdapters.Mock, StringComparison.Ordinal)
                         || channel.Status is "QUARANTINED" or "HEALTH_FAILED"
                         || channel.QuarantineUntil is not null
                         || channel.FailCount > 0
@@ -885,7 +886,7 @@ public sealed class InternalAdminApiService(
 
         string environment = ivrOptions.Value.ExecutionMode switch
         {
-            "MOCK" => FeatureFlagEnvironments.Development,
+            ExecutionModes.Mock => FeatureFlagEnvironments.Development,
             ExecutionModes.LabRealSim => FeatureFlagEnvironments.Lab,
             ExecutionModes.ProductionReal => FeatureFlagEnvironments.Production,
             _ => throw IvrErrors.OperationalBlocked("The execution mode is unsupported."),

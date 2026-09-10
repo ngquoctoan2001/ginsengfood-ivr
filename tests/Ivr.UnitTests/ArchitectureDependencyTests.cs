@@ -328,8 +328,19 @@ public sealed class ArchitectureDependencyTests
     public void ExecutionModeSpellingsAreNeverWrittenAsLiterals()
     {
         string repositoryRoot = FindRepositoryRoot();
-        string declaringFile = Path.Combine(
-            repositoryRoot, "src", "Ivr.Domain", "Confirmation", "ExecutionModes.cs");
+
+        // W-0272 added "MOCK" to this list, which it could not join before: the same six letters
+        // named three different things -- how the system is running (ExecutionModes), which SIM
+        // provider the configuration selects (FeatureFlagValues), and which adapter owns a SIM
+        // channel row (SimAdapters). S2 in the audit warned that replacing them mechanically
+        // would be wrong about half the time, and it was right; each site now names its meaning,
+        // so the literal can be banned everywhere except the three places that define it.
+        string[] declaringFiles =
+        [
+            Path.Combine(repositoryRoot, "src", "Ivr.Domain", "Confirmation", "ExecutionModes.cs"),
+            Path.Combine(repositoryRoot, "src", "Ivr.Infrastructure", "FeatureFlags", "FeatureFlagCatalog.cs"),
+            Path.Combine(repositoryRoot, "src", "Ivr.Infrastructure", "Telephony", "SimAdapters.cs"),
+        ];
 
         List<string> offenders = [];
         foreach (string file in Directory.GetFiles(
@@ -339,7 +350,7 @@ public sealed class ArchitectureDependencyTests
                 || file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
                 || file.Contains("Migrations", StringComparison.Ordinal)
                 || file.EndsWith(".g.cs", StringComparison.Ordinal)
-                || string.Equals(file, declaringFile, StringComparison.Ordinal))
+                || declaringFiles.Contains(file, StringComparer.Ordinal))
             {
                 // Generated contract code carries the same strings as OpenAPI enum members and is
                 // regenerated from the spec, so it is not a place a person can fix.
@@ -349,7 +360,7 @@ public sealed class ArchitectureDependencyTests
             string[] lines = File.ReadAllLines(file);
             for (int index = 0; index < lines.Length; index++)
             {
-                foreach (string spelling in new[] { "\"LAB_REAL_SIM\"", "\"PRODUCTION_REAL\"" })
+                foreach (string spelling in new[] { "\"LAB_REAL_SIM\"", "\"PRODUCTION_REAL\"", "\"MOCK\"" })
                 {
                     if (lines[index].Contains(spelling, StringComparison.Ordinal))
                     {

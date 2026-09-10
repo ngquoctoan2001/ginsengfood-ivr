@@ -19,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Ivr.Infrastructure.FeatureFlags;
 
 namespace Ivr.Infrastructure.Configuration;
 
@@ -58,7 +59,7 @@ public static class ServiceCollectionExtensions
                     section,
                     "SIM_PROVIDER",
                     nameof(IvrOptions.SimProvider),
-                    "MOCK");
+                    FeatureFlagValues.MockSimProvider);
                 options.ConnectionString = configuration.GetConnectionString("IvrDb")
                     ?? section[nameof(IvrOptions.ConnectionString)]
                     ?? string.Empty;

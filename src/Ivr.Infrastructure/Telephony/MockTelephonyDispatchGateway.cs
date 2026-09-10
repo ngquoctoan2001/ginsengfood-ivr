@@ -6,6 +6,7 @@ using Ivr.Infrastructure.Providers.Fakes;
 using Ivr.Infrastructure.Scheduling;
 using Ivr.Infrastructure.Speech;
 using Microsoft.Extensions.Options;
+using Ivr.Infrastructure.FeatureFlags;
 
 namespace Ivr.Infrastructure.Telephony;
 
@@ -187,7 +188,7 @@ public sealed class MockSchedulerDispatchGateway(
                     executionContext.ExecutionMode,
                     IvrOptions.MockExecutionMode,
                     StringComparison.OrdinalIgnoreCase)
-                && string.Equals(runtime.SimProvider, "MOCK", StringComparison.OrdinalIgnoreCase);
+                && string.Equals(runtime.SimProvider, FeatureFlagValues.MockSimProvider, StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -197,8 +198,8 @@ public sealed class MockSchedulerDispatchGateway(
     {
         ArgumentNullException.ThrowIfNull(lease);
         if (!IsReady
-            || !string.Equals(lease.AdapterMode, "MOCK", StringComparison.OrdinalIgnoreCase)
-            || !string.Equals(lease.ProviderName, "MOCK", StringComparison.OrdinalIgnoreCase))
+            || !string.Equals(lease.AdapterMode, SimAdapters.Mock, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(lease.ProviderName, SimAdapters.Mock, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("MOCK telephony dispatch is not safely enabled.");
         }

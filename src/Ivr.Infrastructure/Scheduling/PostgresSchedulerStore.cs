@@ -67,7 +67,7 @@ public sealed class PostgresSchedulerStore(
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(leaseDuration, TimeSpan.Zero);
         bool mockExecution = string.Equals(
             executionMode,
-            "MOCK",
+            ExecutionModes.Mock,
             StringComparison.OrdinalIgnoreCase);
         DateTimeOffset now = timeProvider.GetUtcNow();
         await using IvrDbContext context = await dbContextFactory

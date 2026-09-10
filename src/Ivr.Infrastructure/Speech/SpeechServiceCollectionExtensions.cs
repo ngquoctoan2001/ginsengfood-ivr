@@ -72,7 +72,7 @@ public sealed class TtsProviderOptions
     public const string ExternalProvider = "EXTERNAL_CONFIGURABLE";
     public const string UnselectedProvider = "UNSELECTED";
 
-    public string ExecutionMode { get; set; } = "MOCK";
+    public string ExecutionMode { get; set; } = ExecutionModes.Mock;
 
     public string Provider { get; set; } = FakeProvider;
 
@@ -144,7 +144,7 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
     {
         ArgumentNullException.ThrowIfNull(options);
         var failures = new List<string>();
-        bool mock = string.Equals(options.ExecutionMode, "MOCK", StringComparison.OrdinalIgnoreCase);
+        bool mock = string.Equals(options.ExecutionMode, ExecutionModes.Mock, StringComparison.OrdinalIgnoreCase);
         bool lab = string.Equals(
             options.ExecutionMode,
             ExecutionModes.LabRealSim,
@@ -494,7 +494,7 @@ public static class SpeechServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
         IConfigurationSection section = configuration.GetSection(TtsProviderOptions.SectionName);
-        bool mock = string.Equals(executionMode, "MOCK", StringComparison.OrdinalIgnoreCase);
+        bool mock = string.Equals(executionMode, ExecutionModes.Mock, StringComparison.OrdinalIgnoreCase);
         bool staticFile = string.Equals(
             section[nameof(TtsProviderOptions.Provider)],
             TtsProviderOptions.StaticFileProvider,

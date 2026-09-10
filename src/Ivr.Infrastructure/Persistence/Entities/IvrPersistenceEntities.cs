@@ -1,3 +1,5 @@
+using Ivr.Domain.Confirmation;
+using Ivr.Infrastructure.Telephony;
 namespace Ivr.Infrastructure.Persistence.Entities;
 
 public abstract class RetainedEntity
@@ -286,9 +288,9 @@ public sealed class SimChannelEntity : RetainedEntity
     public string SimNumberRef { get; set; } = string.Empty;
     public bool Enabled { get; set; }
     public string Status { get; set; } = "DISABLED";
-    public string AdapterMode { get; set; } = "MOCK";
-    public string ExecutionMode { get; set; } = "MOCK";
-    public string ProviderName { get; set; } = "MOCK";
+    public string AdapterMode { get; set; } = SimAdapters.Mock;
+    public string ExecutionMode { get; set; } = ExecutionModes.Mock;
+    public string ProviderName { get; set; } = SimAdapters.Mock;
     public string? ActiveCallJobId { get; set; }
     public int FailCount { get; set; }
     public DateTimeOffset? FailureWindowStartedAt { get; set; }

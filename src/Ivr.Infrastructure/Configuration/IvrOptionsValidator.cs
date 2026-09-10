@@ -1,5 +1,6 @@
 using Ivr.Contracts.Sales;
 using Microsoft.Extensions.Options;
+using Ivr.Infrastructure.FeatureFlags;
 
 namespace Ivr.Infrastructure.Configuration;
 
@@ -35,7 +36,8 @@ public sealed class IvrOptionsValidator : IValidateOptions<IvrOptions>
         Require(options.ConnectionString, "ConnectionStrings__IvrDb", failures);
 
         if (!string.IsNullOrWhiteSpace(options.SimProvider)
-            && options.SimProvider is not "MOCK" and not "VENDOR")
+            && options.SimProvider is not FeatureFlagValues.MockSimProvider
+                and not FeatureFlagValues.VendorSimProvider)
         {
             failures.Add("SIM_PROVIDER must be MOCK or VENDOR.");
         }
@@ -73,7 +75,7 @@ public sealed class IvrOptionsValidator : IValidateOptions<IvrOptions>
         {
             IvrOptions.MockExecutionMode =>
                 provider == SalesProviderKind.FakeTargetV1
-                && options.SimProvider == "MOCK",
+                && options.SimProvider == FeatureFlagValues.MockSimProvider,
             IvrOptions.LabRealSimExecutionMode =>
                 provider == SalesProviderKind.FakeTargetV1
                 && options.SimProvider == "VENDOR",

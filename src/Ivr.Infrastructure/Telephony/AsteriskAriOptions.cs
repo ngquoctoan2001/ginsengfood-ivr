@@ -12,7 +12,7 @@ public sealed class AsteriskAriOptions
 
     public bool Enabled { get; set; }
 
-    public string ExecutionMode { get; set; } = "MOCK";
+    public string ExecutionMode { get; set; } = ExecutionModes.Mock;
 
     public string BaseUrl { get; set; } = "http://asterisk:8088";
 
