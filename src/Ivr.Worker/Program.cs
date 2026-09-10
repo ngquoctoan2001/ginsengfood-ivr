@@ -12,6 +12,14 @@ System.Diagnostics.Activity.DefaultIdFormat = System.Diagnostics.ActivityIdForma
 System.Diagnostics.Activity.ForceDefaultIdFormat = true;
 var builder = Host.CreateApplicationBuilder(args);
 
+// C5, the same guard the API takes -- see src/Ivr.Api/Program.cs for why. HostApplicationBuilder
+// has no .Host, so the options go in through the container factory instead of UseDefaultServiceProvider.
+builder.ConfigureContainer(new DefaultServiceProviderFactory(new ServiceProviderOptions
+{
+    ValidateScopes = true,
+    ValidateOnBuild = true,
+}));
+
 // W-0203. A named profile, layered on top of appsettings.{Environment}.json and then covered
 // again by the environment variables and the command line, so a harness can still override one
 // key without editing the file. Re-adding those two sources rather than computing an insert

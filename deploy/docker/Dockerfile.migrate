@@ -45,5 +45,12 @@ RUN dotnet ef migrations bundle \
 FROM ${RUNTIME_IMAGE} AS final
 WORKDIR /app
 COPY --from=build /efbundle /app/efbundle
-USER $APP_UID
+# UID 1654 written out, not inherited. The chiseled base defines APP_UID and USER $APP_UID would
+# resolve to the same number today, but the number then lives only in Microsoft's image while three
+# things in this repository depend on its exact value: deployment-worker.yaml pins runAsUser,
+# runAsGroup and fsGroup to 1654, deployment-api.yaml sets runAsNonRoot with no runAsUser and so
+# needs a numeric UID readable from the image config, and deploy/docker/README.md documents 1654.
+# A base that changed APP_UID would move the image and leave all three behind, silently.
+# Dockerfile.tts already writes it out this way. CT-CI-11 keeps every USER line literal.
+USER 1654:1654
 ENTRYPOINT ["/app/efbundle"]

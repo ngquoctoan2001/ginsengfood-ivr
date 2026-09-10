@@ -423,6 +423,43 @@ public sealed class ArchitectureDependencyTests
             + string.Join("\n  ", offenders));
     }
 
+    [Fact]
+    [Trait("TestId", "ARCH-DI-VALIDATE-01")]
+    public void BothHostsValidateTheServiceGraphAtStartup()
+    {
+        // C5 in docs/review/2026-09-09-codebase-audit.md. Seven services here are singletons and
+        // are safe only because they take IDbContextFactory instead of a scoped IvrDbContext.
+        // Nothing enforced that, and the failure mode of getting it wrong is a race under load
+        // rather than a compile error.
+        //
+        // ValidateOnBuild refuses to start a host whose graph captures a scoped service in a
+        // singleton, which turns that race into a boot failure that names the service. It was
+        // already available and simply off where it counts: CreateBuilder enables these only for
+        // the Development environment, and both images set the environment to Production.
+        //
+        // Asserted at the source, because behaviour cannot carry this one: a host with the call
+        // removed still passes every test that only checks the app starts.
+        string repositoryRoot = FindRepositoryRoot();
+
+        foreach (string program in new[]
+                 {
+                     Path.Combine(repositoryRoot, "src", "Ivr.Api", "Program.cs"),
+                     Path.Combine(repositoryRoot, "src", "Ivr.Worker", "Program.cs"),
+                 })
+        {
+            string source = File.ReadAllText(program);
+            string relative = Path.GetRelativePath(repositoryRoot, program);
+
+            Assert.True(
+                source.Contains("ValidateOnBuild = true", StringComparison.Ordinal),
+                $"{relative} must ask for ValidateOnBuild; without it a captured scoped service "
+                + "reaches production and fails as a race instead of at startup.");
+            Assert.True(
+                source.Contains("ValidateScopes = true", StringComparison.Ordinal),
+                $"{relative} must ask for ValidateScopes.");
+        }
+    }
+
     private static string FindRepositoryRoot()
     {
         DirectoryInfo? current = new(AppContext.BaseDirectory);

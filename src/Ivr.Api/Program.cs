@@ -13,6 +13,23 @@ System.Diagnostics.Activity.DefaultIdFormat = System.Diagnostics.ActivityIdForma
 System.Diagnostics.Activity.ForceDefaultIdFormat = true;
 var builder = WebApplication.CreateBuilder(args);
 
+// C5 in docs/review/2026-09-09-codebase-audit.md. Seven services in this app are registered as
+// singletons and are safe today only because they take IDbContextFactory rather than a scoped
+// IvrDbContext -- and nothing enforced that. The next person to inject the context directly gets
+// a captured dependency: one context shared by every concurrent request, failing as a race under
+// load rather than as a compile error.
+//
+// The framework already ships the guard; it was simply off where it matters. CreateBuilder turns
+// these on only when the environment is Development, and the container sets
+// ASPNETCORE_ENVIRONMENT=Production, so neither ran anywhere real. ValidateOnBuild walks the whole
+// graph at startup and refuses to boot on a captured dependency, which turns that race into a
+// failure at deploy time, for every service, including ones not written yet.
+builder.Host.UseDefaultServiceProvider(options =>
+{
+    options.ValidateScopes = true;
+    options.ValidateOnBuild = true;
+});
+
 // W-0203. A named profile, layered on top of appsettings.{Environment}.json and then covered
 // again by the environment variables and the command line, so a harness can still override one
 // key without editing the file. Re-adding those two sources rather than computing an insert

@@ -657,6 +657,65 @@ process.stdout.write("JSON_SHAPE_SINGLE_SOURCE_PASS — one duplicate-key parser
 process.stdout.write("SENSITIVE_VALUE_RULE_PASS — one secret rule, dates excused, evasion still caught\n");
 process.stdout.write("PATH_CONFINEMENT_SINGLE_SOURCE_PASS — one canonical root, one isConfined\n");
 process.stdout.write("VALIDATOR_HELPER_CENSUS_PASS — helper duplication held at its baseline\n");
+// CT-CI-11. Every USER instruction states its UID, and the number matches the chart.
+//
+// C4 in docs/review/2026-09-09-codebase-audit.md: Dockerfile.api carried a comment claiming the
+// UID was 'stated explicitly rather than inherited' above a line that read USER $APP_UID, which is
+// precisely the inherited form. Two more Dockerfiles did the same without even a comment.
+//
+// It matters because three things depend on the exact number and none of them read the base image:
+// deployment-worker.yaml pins runAsUser/runAsGroup/fsGroup to it, deployment-api.yaml asks for
+// runAsNonRoot with no runAsUser and so needs a numeric UID readable from the image config, and
+// deploy/docker/README.md documents it. IT-IMG-BUILD-01 only asserts the user is not root, and it
+// needs Docker, so it does not run in this sweep -- this check is static and does.
+{
+  const dockerDirectories = ["deploy/docker", "deploy/tts"];
+  const withVariable = [];
+  const declared = new Map();
+
+  for (const directory of dockerDirectories) {
+    const absolute = path.join(repositoryRoot, directory);
+    for (const name of (await fs.readdir(absolute)).sort()) {
+      if (!name.startsWith("Dockerfile")) continue;
+      const text = await fs.readFile(path.join(absolute, name), "utf8");
+      for (const line of text.split(/\r?\n/u)) {
+        if (!/^USER\s/u.test(line)) continue;
+        if (line.includes("$")) {
+          withVariable.push(`${directory}/${name}: ${line.trim()}`);
+          continue;
+        }
+        const uid = /^USER\s+(\d+)/u.exec(line);
+        if (uid) declared.set(`${directory}/${name}`, uid[1]);
+      }
+    }
+  }
+
+  assert(
+    withVariable.length === 0,
+    "A USER instruction must state its UID, not inherit one. The chart pins the number and "
+      + "cannot see a base image's APP_UID, so a base that changed it would move the image "
+      + "and leave runAsUser behind:\n  "
+      + withVariable.join("\n  "),
+  );
+
+  // And the number is the chart's, not a second opinion about it.
+  const workerChart = await fs.readFile(
+    path.join(repositoryRoot, "deploy/helm/ivr/templates/deployment-worker.yaml"),
+    "utf8",
+  );
+  const pinned = /runAsUser:\s*(\d+)/u.exec(workerChart);
+  assert(pinned !== null, "deployment-worker.yaml no longer pins runAsUser");
+
+  for (const image of ["deploy/docker/Dockerfile.api", "deploy/docker/Dockerfile.worker", "deploy/docker/Dockerfile.migrate"]) {
+    assert(
+      declared.get(image) === pinned[1],
+      `${image} runs as ${declared.get(image)} but deployment-worker.yaml pins `
+        + `runAsUser: ${pinned[1]}. One of the two is wrong and the container is where it shows.`,
+    );
+  }
+}
+
+process.stdout.write("CT-CI-11 PASS — every image USER states its UID and matches the chart\n");
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");

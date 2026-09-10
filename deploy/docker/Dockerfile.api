@@ -50,9 +50,14 @@ ENV ASPNETCORE_URLS=http://+:8080 \
 
 EXPOSE 8080
 
-# The chiseled images define a non-root app user (UID 1654). Stated explicitly rather than
-# inherited, so IT-IMG-BUILD-01 can assert it and a base change cannot quietly drop it.
-USER $APP_UID
+# UID 1654 written out, not inherited. The chiseled base defines APP_UID and USER $APP_UID would
+# resolve to the same number today, but the number then lives only in Microsoft's image while three
+# things in this repository depend on its exact value: deployment-worker.yaml pins runAsUser,
+# runAsGroup and fsGroup to 1654, deployment-api.yaml sets runAsNonRoot with no runAsUser and so
+# needs a numeric UID readable from the image config, and deploy/docker/README.md documents 1654.
+# A base that changed APP_UID would move the image and leave all three behind, silently.
+# Dockerfile.tts already writes it out this way. CT-CI-11 keeps every USER line literal.
+USER 1654:1654
 
 # Liveness only. Readiness depends on the database and would keep the container restarting during
 # a dependency outage, which is the failure P6-1 separated these probes to avoid.

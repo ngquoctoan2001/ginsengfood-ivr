@@ -61,7 +61,7 @@
     "generate-test-traceability.mjs": { "argv": ["--check"], "expect": "TEST_TRACEABILITY_CURRENT" },
     "image-selftest.mjs": {
       "sweepable": false,
-      "reason": "runs docker build against the UI and API images",
+      "reason": "runs docker build against the API and worker images",
       "runner": "images.gitlab-ci.yml"
     },
     "json-shape-lib.mjs": {

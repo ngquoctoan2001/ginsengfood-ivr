@@ -689,7 +689,7 @@ Cái thứ ba là nguyên nhân trực tiếp của B9.
 > **Và một rò rỉ nặng hơn B9 lộ ra ở đây:** `api-behavior-matrix-selftest.mjs` không có `rmSync` nào,
 > rò rỉ **mỗi lần chạy** kể cả khi thành công — 11 thư mục đã tích. Đã bọc `try/finally`.
 
-### C4 — `Dockerfile.api`: comment nói ngược với code
+### C4 — `Dockerfile.api`: comment nói ngược với code — ĐÃ SỬA (W-0270)
 
 ```dockerfile
 # The chiseled images define a non-root app user (UID 1654). Stated explicitly rather than
@@ -699,11 +699,43 @@ USER $APP_UID
 
 `$APP_UID` **chính là** biến kế thừa từ base image. Muốn "stated explicitly" thì phải viết `USER 1654`. Comment mô tả một đảm bảo mà dòng code bên dưới không cung cấp.
 
-### C5 — Bốn API service đều `Singleton` nhưng không có gì bảo vệ ràng buộc đó
+> **Cập nhật (2026-09-10, W-0270).** Đúng, và nhỏ hơn thực tế ở ba chỗ.
+>
+> **Ba file, không phải một**: `Dockerfile.worker` và `Dockerfile.migrate` cũng dùng `USER $APP_UID`,
+> và **không có comment nào** — im lặng, khó thấy hơn.
+>
+> **Test được viện dẫn không khẳng định thứ comment nói**: `IT-IMG-BUILD-01` chỉ khẳng định user
+> **không phải root**, không phải UID 1654; nó chỉ phủ api + worker (bỏ `migrate`); và nó
+> `sweepable: false` nên **không chạy trong sweep**.
+>
+> **Vì sao con số quan trọng** — điều không có trong phát hiện: `deployment-worker.yaml` ghim
+> `fsGroup`/`runAsUser`/`runAsGroup` = 1654, `deployment-api.yaml` đặt `runAsNonRoot` **không kèm**
+> `runAsUser` nên Kubernetes phải đọc được UID số từ image config, và `deploy/docker/README.md` ghi
+> 1654. Base đổi `APP_UID` sẽ dời image và bỏ lại cả ba.
+>
+> Sửa: `USER 1654:1654` ở cả ba, theo tiền lệ `Dockerfile.tts` đã có sẵn; thêm **`CT-CI-11`** kiểm
+> tĩnh (chạy trong sweep) buộc mọi `USER` nêu UID bằng số **và** khớp với `runAsUser` của chart.
+
+### C5 — Bốn API service đều `Singleton` nhưng không có gì bảo vệ ràng buộc đó — ĐÃ SỬA (W-0270)
 
 `InternalAdminApiService`, `AdminReadService`, `AdminConfigReadService`, `AnalyticsReadService` đều `AddSingleton` (`InternalAdminApiService.cs:1200-1204`). Hiện tại an toàn vì tất cả dùng `IDbContextFactory` thay vì inject `DbContext`.
 
 Nhưng không có gì — không comment, không analyzer, không test — ngăn người tiếp theo thêm một field mutable hoặc inject `IvrDbContext` trực tiếp vào một trong bốn class đó. Khi điều đó xảy ra, lỗi sẽ là race condition dưới tải, không phải lỗi biên dịch.
+
+> **Cập nhật (2026-09-10, W-0270).** **Bảy** type được đăng ký singleton ở đó, không phải bốn.
+>
+> Và guard thì **đã có sẵn** — không cần comment, analyzer hay test như đề nghị. .NET ship
+> `ValidateOnBuild`/`ValidateScopes`; `CreateBuilder` chỉ bật chúng khi environment là `Development`,
+> còn `Dockerfile.api` đặt `ASPNETCORE_ENVIRONMENT=Production`. Nên **trong container — đúng nơi race
+> xảy ra dưới tải — không có validation nào chạy.**
+>
+> Đã bật tường minh ở cả hai host. Tiêm đúng kịch bản trên: `Cannot consume scoped service
+> 'IIvrReadinessProbe' from singleton 'IAdminReadService'` — race trở thành lỗi lúc boot, nêu đích
+> danh service. Worker kiểm riêng vì `HostApplicationBuilder` dùng API khác và **không test nào khởi
+> động host của nó**.
+>
+> Nửa "field mutable" **cố ý không làm**: không cấm được bằng máy mà không sai — một singleton giữ
+> trạng thái không tự nó là lỗi (`InMemoryIdempotencyStore` giữ một cách chính đáng).
 
 ---
 
@@ -734,9 +766,10 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~B10~~ | ~~Cột chết nhưng index vẫn sống~~ | ~~LOW~~ | **đã sửa — W-0268**; **4** writer chứ không phải 1, không cái nào set cột; index không có trong `specs/database/04-indexes.md` nên bỏ nó là về đúng spec |
 | ~~C1~~ | ~~`ConfigureAwait` nửa vời~~ | ~~LOW~~ | **đã sửa — W-0269**; đo được cả 440 chỗ là no-op, owner chốt gỡ hết; `CA2007` bị loại vì fixer sinh code không biên dịch được ở 80/201 chỗ |
 | ~~C3~~ | ~~Ba quy ước temp dir~~ | ~~LOW~~ | **đã sửa — W-0269**; bảng sai nhãn, và ba quy ước đều có lý do (9/9 và 4/4) — luật đúng nhưng chưa viết ra, nay có 3 khẳng định; lộ thêm 1 rò rỉ nặng hơn B9 |
-| C4, C5 | — | LOW | — |
+| ~~C4~~ | ~~Comment `Dockerfile.api` nói ngược với code~~ | ~~LOW~~ | **đã sửa — W-0270**; **3** file chứ không phải 1, và `IT-IMG-BUILD-01` chỉ khẳng định *không phải root* — `CT-CI-11` buộc UID khớp chart |
+| ~~C5~~ | ~~Bốn API service `Singleton` không được bảo vệ~~ | ~~LOW~~ | **đã sửa — W-0270**; **7** service chứ không phải 4; guard đã có sẵn trong .NET nhưng tắt vì container chạy `Production` — nay bật ở cả hai host |
 
-**23/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
+**25/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào. Phần thuần kỹ thuật đã hết; những mục còn lại cần owner quyết.**
 
 ---
 
