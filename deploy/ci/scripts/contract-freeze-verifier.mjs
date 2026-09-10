@@ -229,7 +229,7 @@ async function checkPublishedSurface(root, specs) {
   // pre-release suffix is a legitimate rotation, and an anchor that only recognises drafts would
   // report the pointer as missing instead of checking it.
   const POINTERS = [
-    { label: "current-version row", pattern: /b\u1ea3n hi\u1ec7n h\u00e0nh `(\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?)`/gu, required: true },
+    { label: "current-version pointer", pattern: /hi\u1ec7n h\u00e0nh `(\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?)`/gu, required: true },
     { label: "client-generation checklist", pattern: /Sinh l\u1ea1i client t\u1eeb OpenAPI `(\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?)`/gu, required: false },
     { label: "fetch-the-spec note", pattern: /phi\u00ean b\u1ea3n \*\*`(\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?)`\*\*/gu, required: false },
   ];

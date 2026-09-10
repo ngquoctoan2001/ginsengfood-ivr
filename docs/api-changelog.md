@@ -161,6 +161,28 @@ in [the archived transition report](api/changelog/ivr-order-confirmation.v1.0.0-
 This reviewed draft reset repairs the comparison gate; it does not claim that
 Target V1 is live, backward compatible, or approved by Sales.
 
+## `1.0.0-draft.25` — three headers the contract never mentioned (W-0265)
+
+Nothing about the service changed. Three headers it has always used were simply absent from the
+contract, so a client generated from `draft.24` could not call eight of its operations.
+
+| Header | Runtime behaviour before `draft.25` | Now declared as |
+| --- | --- | --- |
+| `X-Action-Reason` | **Required** on all eight `danger` operations, enforced by `AdminAccessOptions.HasDangerEvidence`; a request without it is refused | `required: true`, `1..500` chars |
+| `X-Script-Permissions` | Read to grant script-lifecycle claims; absent means none, so every script mutation is refused | `required: false`, `maxLength: 512` |
+| `X-Destination-Ref` | Optional provenance recorded on a feature-flag mutation | `required: false`, `maxLength: 128` |
+
+`oasdiff` reports **8 errors, 0 warnings**, all `new-required-request-parameter` — the eight danger
+operations. That classification is correct and the change is still the right one to make: this is the
+rare breaking change that **fixes** clients rather than breaking them. A generated client that
+omitted `X-Action-Reason` was already being refused on every call to those eight routes; it simply
+had no way to know why, because the requirement lived in prose under the security scheme instead of
+on the operations.
+
+Found while preparing the Module 3 one-pass decision sheet (`IR-07`). The whole point of that sheet
+is that Module 3 decides once; shipping them a contract whose generated client cannot call a third
+of the admin surface would have guaranteed a second round.
+
 ## `1.0.0-draft.24` — the contract says what the runtime already did (W-0250)
 
 Three headers and one field. `X-Correlation-Id` and `Idempotency-Key` now carry the syntax

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Archived IVR Contract Transition (draft.24 → draft.25) · Ginsengfood IVR</title><link rel="stylesheet" href="styles.css"></head>
+<body><main class="container document"><nav><a href="index.html">← Portal home</a></nav>
+<header><div class="badge warning">NON-PRODUCTION ONLY</div><h1>Archived IVR Contract Transition (draft.24 → draft.25)</h1>
+<p class="source">Source: <code>docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.24-to-v1.0.0-draft.25.md</code></p></header><h1>API Changelog 1.0.0-draft.24 vs. 1.0.0-draft.25</h1>
+<h2>API Changes</h2>
+<h3>POST /call-jobs/{ivrCallJobId}:terminate</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-action-reason</code></li>
+</ul>
+<h3>POST /call-jobs:terminate-all</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-action-reason</code></li>
+</ul>
+<h3>POST /feature-flags/{environment}</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-action-reason</code></li>
+<li>added the new optional <code>header</code> request parameter <code>x-destination-ref</code></li>
+</ul>
+<h3>POST /queue:pause</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-action-reason</code></li>
+</ul>
+<h3>POST /queue:resume</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-action-reason</code></li>
+</ul>
+<h3>POST /scripts</h3>
+<ul>
+<li>added the new optional <code>header</code> request parameter <code>x-script-permissions</code></li>
+</ul>
+<h3>POST /scripts/{templateId}/{version}:approve</h3>
+<ul>
+<li>added the new optional <code>header</code> request parameter <code>x-script-permissions</code></li>
+</ul>
+<h3>POST /scripts/{templateId}/{version}:retire</h3>
+<ul>
+<li>added the new optional <code>header</code> request parameter <code>x-script-permissions</code></li>
+</ul>
+<h3>POST /scripts/{templateId}/{version}:submit</h3>
+<ul>
+<li>added the new optional <code>header</code> request parameter <code>x-script-permissions</code></li>
+</ul>
+<h3>POST /sim-channels/{simChannelId}:disable</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-action-reason</code></li>
+</ul>
+<h3>POST /sim-channels/{simChannelId}:enable</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-action-reason</code></li>
+</ul>
+<h3>POST /technical-retries</h3>
+<ul>
+<li>:warning: added the new required <code>header</code> request parameter <code>x-action-reason</code></li>
+</ul>
+
+<footer>Generated content. Edit the named source, not this HTML.</footer></main></body></html>

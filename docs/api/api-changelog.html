@@ -154,6 +154,42 @@ draft.2 contained <code>143</code> changes (<code>63</code> errors and <code>80<
 in <a href="ivr-order-confirmation-v1.0.0-to-v1.0.0-draft.2.html">the archived transition report</a>.
 This reviewed draft reset repairs the comparison gate; it does not claim that
 Target V1 is live, backward compatible, or approved by Sales.</p>
+<h2><code>1.0.0-draft.25</code> — three headers the contract never mentioned (W-0265)</h2>
+<p>Nothing about the service changed. Three headers it has always used were simply absent from the
+contract, so a client generated from <code>draft.24</code> could not call eight of its operations.</p>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Runtime behaviour before <code>draft.25</code></th>
+<th>Now declared as</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>X-Action-Reason</code></td>
+<td><strong>Required</strong> on all eight <code>danger</code> operations, enforced by <code>AdminAccessOptions.HasDangerEvidence</code>; a request without it is refused</td>
+<td><code>required: true</code>, <code>1..500</code> chars</td>
+</tr>
+<tr>
+<td><code>X-Script-Permissions</code></td>
+<td>Read to grant script-lifecycle claims; absent means none, so every script mutation is refused</td>
+<td><code>required: false</code>, <code>maxLength: 512</code></td>
+</tr>
+<tr>
+<td><code>X-Destination-Ref</code></td>
+<td>Optional provenance recorded on a feature-flag mutation</td>
+<td><code>required: false</code>, <code>maxLength: 128</code></td>
+</tr>
+</tbody></table>
+<p><code>oasdiff</code> reports <strong>8 errors, 0 warnings</strong>, all <code>new-required-request-parameter</code> — the eight danger
+operations. That classification is correct and the change is still the right one to make: this is the
+rare breaking change that <strong>fixes</strong> clients rather than breaking them. A generated client that
+omitted <code>X-Action-Reason</code> was already being refused on every call to those eight routes; it simply
+had no way to know why, because the requirement lived in prose under the security scheme instead of
+on the operations.</p>
+<p>Found while preparing the Module 3 one-pass decision sheet (<code>IR-07</code>). The whole point of that sheet
+is that Module 3 decides once; shipping them a contract whose generated client cannot call a third
+of the admin surface would have guaranteed a second round.</p>
 <h2><code>1.0.0-draft.24</code> — the contract says what the runtime already did (W-0250)</h2>
 <p>Three headers and one field. <code>X-Correlation-Id</code> and <code>Idempotency-Key</code> now carry the syntax
 <code>W-0221</code> put in a single place — <code>1-128</code> characters from <code>[A-Za-z0-9._:-]</code>, checked by

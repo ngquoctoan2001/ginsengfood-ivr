@@ -20,6 +20,7 @@ export const generatedPortalFiles = [
   "ivr-order-confirmation-v1.0.0-draft.20-to-v1.0.0-draft.22.html",
   "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
   "ivr-order-confirmation-v1.0.0-draft.23-to-v1.0.0-draft.24.html",
+  "ivr-order-confirmation-v1.0.0-draft.24-to-v1.0.0-draft.25.html",
   "ivr-order-confirmation-v1.html",
   "ivr-order-confirmation-changelog.html",
   "order-core-ivr-callback-changelog.html",
@@ -62,6 +63,8 @@ const markdownDefinitions = [
         "ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
       "api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md":
         "ivr-order-confirmation-v1.0.0-draft.23-to-v1.0.0-draft.24.html",
+      "api/changelog/ivr-order-confirmation.v1.0.0-draft.24-to-v1.0.0-draft.25.md":
+        "ivr-order-confirmation-v1.0.0-draft.24-to-v1.0.0-draft.25.html",
     },
   },
   {
@@ -110,6 +113,15 @@ const markdownDefinitions = [
     source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md",
     output: "ivr-order-confirmation-v1.0.0-draft.23-to-v1.0.0-draft.24.html",
     title: "Archived IVR Contract Transition (draft.23 → draft.24)",
+  },
+  // W-0265. Fifth rotation, and the smallest: draft.25 declares three headers the runtime already
+  // required or read. oasdiff calls all eight operations breaking - new-required-request-parameter -
+  // but this is the rare breaking change that FIXES clients rather than breaking them, because a
+  // generated client omitting X-Action-Reason was already refused on every danger call.
+  {
+    source: "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.24-to-v1.0.0-draft.25.md",
+    output: "ivr-order-confirmation-v1.0.0-draft.24-to-v1.0.0-draft.25.html",
+    title: "Archived IVR Contract Transition (draft.24 → draft.25)",
   },
   {
     source: "docs/api/changelog/ivr-order-confirmation.md",

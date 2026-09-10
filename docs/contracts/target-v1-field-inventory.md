@@ -11,7 +11,7 @@ Contract state: `TARGET_CONTRACT_V1=DRAFT`.
 
 | Contract | Version | Pinned sha256 |
 | --- | --- | --- |
-| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.24` | `df7b1bbef794b5a8733505f0488fc027619defdb8f8eae23ea890e118b7b8c56` |
+| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.25` | `a6818793bfef40537a47296f34dd1638712e6c6fffc3158ce8cd4a2e9e188f58` |
 | Sales callback (`specs/api/openapi/order-core-ivr-callback.target-v1.yaml`) | `1.0.0-draft` | `af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
 
 ## 1. Intake — `IvrConfirmationTaskV1`
