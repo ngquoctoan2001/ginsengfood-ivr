@@ -1251,7 +1251,7 @@ Khi dựng issuer/JWKS thật, cần trả lời thêm cho §4A: ba token này c
 | **7** | Chọn `dial_token` model và trust boundary | owner IVR | ✅ `OD-V1-05` + `OD-V1-17` + `OD-V1-18` **CLOSED** 2026-09-05 (vế TTL chốt lại `2026-09-09`, `W-0246`): Sales cấp token lúc tạo task; token dùng lại được, gắn cứng `task_id`, TTL = **đúng** confirmation-window end, trần resolve = `max_customer_attempts` + technical retry; resolver **trong** IVR, E.164 chỉ trong bộ nhớ tiến trình |
 | **7a** | `DTK-01..DTK-15` — chi tiết vận hành dưới `OD-V1-05/17/18` đã ký | owner IVR + dev M3 | `W0150_EVIDENCE_SUBMITTED` — phần **hợp đồng** đã đóng ở dòng 7; phần còn lại là custody/rollout, quyết giữa owner và dev M3, **không** chờ đội ngoài |
 | **7b** | Ký `ATP-01..ATP-15`: authority/version bundle, program matrix/T0, counting/retry/quiet-hours, wire/producer, registry lifecycle, cutover/pre-dial coherence, capacity/audit/rollback | Product + Order Core + M3; Platform/M8/Release ở dòng kỹ thuật | `W0151_EVIDENCE_SUBMITTED / M3_ATTEMPT_POLICY_PRODUCER_NOT_FOUND / PRODUCTION_POLICY_NOT_APPROVED / CODE_NOT_AUTHORIZED` |
-| **8** | Duyệt lời thoại/privacy và giới hạn `items[]` | owner IVR | ⏳ `OD-V1-11 CONTENT_SIGNED 2026-09-05` — owner đã ký nội dung (ghi âm TẮT vĩnh viễn ở V1, metadata 90 ngày). Trạng thái treo là `APPROVER_QUORUM_UNRESOLVED`, tức chờ **một quorum không tồn tại** — xem `§9a` |
+| **8** | Duyệt lời thoại/privacy và giới hạn `items[]` | owner IVR | ✅ `OD-V1-11 CLOSED 2026-09-10` — owner tuyên bố quorum là chính mình. Chính sách đã chốt (ghi âm TẮT vĩnh viễn ở V1, metadata 90 ngày). **Duyệt script cho `PRODUCTION_REAL` vẫn chặn** vì luật ba-actor, xem `§9a` |
 | **9** | Nhận bàn giao bề mặt quản trị **§4A**: ai giữ ba token, vai trò M3 nào ánh xạ sang tầng nào, định dạng `X-Actor-Id` | owner IVR + dev M3 | `OWNER_DECISION_REQUIRED` — thật sự còn mở, và quyết được ngay giữa hai bên |
 
 Chưa được gọi integration/production ready khi các gate P0 trên chưa đóng.
@@ -1273,15 +1273,23 @@ Ba dòng cuối treo trên **cùng một thứ**: một quorum gồm những vai
 Cast thật là **owner IVR** (Toàn), **dev Module 3**, và các bên **thật sự** bên ngoài — nhà mạng cho
 trunk thoại, và một ý kiến pháp lý mua ngoài nếu owner muốn.
 
-**Đây là điều owner cần quyết, và nó chặn cả ba dòng cùng lúc.** Hai đường:
+### Đã quyết `2026-09-10`: owner tuyên bố quorum là chính mình cho cả ba
 
-1. **Owner tuyên bố quorum là chính mình** cho ba mục ấy. Chúng chuyển sang `CLOSED`, và bảng gate
-   không còn dòng nào chờ người không có. Rẻ, nhanh, và trung thực với tổ chức thật.
-2. **Mua một ý kiến pháp lý bên ngoài** cho riêng `OD-V1-11` (phần ghi âm/consent/retention). Đây là
-   mục duy nhất trong ba mục mà một chữ ký ngoài có giá trị thật — hai mục kia không cần luật sư.
+Cả ba chuyển sang `CLOSED`. Bảng gate không còn dòng nào chờ người không tồn tại; sổ quyết định đi
+từ **5 mục mở xuống 2** (`OD-V1-09` chờ SIM thật, `OD-V1-10` cố ý chưa ký vì con số 32 chưa đo).
+Owner chọn **không** mua ý kiến pháp lý ngoài cho V1 và nhận rủi ro pháp lý của `OD-V1-11`.
 
-Cho tới khi owner chọn, ba dòng ấy **không** phải lý do để M3 dừng: chúng không chạm vào contract
-task intake hay callback ở `§3`/`§4`. M3 tích hợp được ngay với `1.0.0-draft.25`.
+**Đóng quyết định không có nghĩa là mọi thứ mở ra.** Hai trong ba mục còn vướng ràng buộc **kỹ
+thuật** mà chữ ký không gỡ được, và ghi ra đây để không ai đọc `CLOSED` rồi hiểu nhầm:
+
+| Mục | Đóng cái gì | **Không** đóng cái gì |
+| --- | --- | --- |
+| `OD-V1-11` | Chính sách ghi âm và thời hạn lưu | `PRODUCTION_REAL` vẫn cần **ba actor id khác nhau** (`ScriptContentContracts.EnsureApprovalAllowed`); một người thì code **vẫn từ chối** duyệt script cho production |
+| `OD-V1-21` | Quyết định cấu hình GitLab | Bằng chứng four-eyes cần **Premium/Ultimate + reviewer thứ hai** — là giới hạn được **chấp nhận**, không phải điều kiện đã thoả |
+| `OD-V1-23` | Ranh giới opt-out là **explicit-only** | V1 **không có tín hiệu opt-out tường minh nào**: `DTMF-0` là phím **hủy đơn**, phím 9 ngoài scope và bị `TargetV1SpeechPolicy.ValidateTemplate` từ chối. Hệ quả thực tế: **V1 không có opt-out**; thêm tín hiệu là một `OD` mới |
+
+Không mục nào trong ba mục chạm vào contract task intake hay callback ở `§3`/`§4`. M3 tích hợp được
+ngay với `1.0.0-draft.25`.
 
 ---
 

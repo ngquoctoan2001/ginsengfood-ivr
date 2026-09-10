@@ -83,6 +83,12 @@ gian hỏi lại, và để nếu M3 thấy mục nào không dùng được th�
 | A-10 | IVR **không bao giờ** hủy đơn | `IVR_NO_ANSWER_FINAL` là **khuyến nghị**; Core không đổi trạng thái, đơn tự hết hạn theo timeout của M3 | `OD-V1-06` · 2026-09-05 |
 | A-11 | Thu hồi đơn | IVR đã dựng **hai fence** (claim + lần đọc cuối trước khi quay số). Endpoint nhận lệnh thu hồi đi cùng lượt phát hành contract kế tiếp | `W-0248`/`W-0249` |
 | A-12 | 23 field bắt buộc trên wire | Xem `IR-06 §3.4`. Có gate CI so bảng này với spec, nên nó không lệch được | `FREEZE-03` |
+| A-13 | Ranh giới opt-out | **explicit-only**: chỉ coi là opt-out khi khách phát tín hiệu **tường minh**. **Không** suy ra từ số lần khách từ chối. Lưu ý thực tế: **V1 chưa có tín hiệu tường minh nào** — `DTMF-0` là phím **hủy đơn**, phím 9 ngoài scope. Nên ở V1, **không có opt-out**; M3 đừng dựng luồng trông chờ nó | `OD-V1-23` · 2026-09-10 |
+| A-14 | Duyệt lời thoại cho production | Chính sách đã chốt, nhưng `PRODUCTION_REAL` đòi **ba actor id khác nhau**, nên khâu duyệt script production **hiện vẫn chặn** phía IVR. Không ảnh hưởng intake/callback | `OD-V1-11` · 2026-09-10 |
+
+Sổ quyết định `specs/_review/open-decisions-register.md` nay còn **2 mục mở** trên tổng 28
+(`OD-V1-09` chờ SIM thật, `OD-V1-10` cố ý chưa ký vì con số dung lượng chưa được đo). **Không mục
+nào trong hai mục ấy chặn tích hợp M3.**
 
 > **Nếu M3 phản đối mục nào ở Phần A, nói ở vòng này.** Sau khi ký, mở lại một mục Phần A là mở lại
 > một contract đã đóng băng — tốn hơn nhiều lần so với nói bây giờ.

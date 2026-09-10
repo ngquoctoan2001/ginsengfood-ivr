@@ -21,7 +21,7 @@ xong, trong khi 6% còn lại là toàn bộ những cổng **không ai đóng �
 | 3. `REAL_SALES_INTEGRATION_VERIFIED` | Target V1 is signed and contract tests run against a real Sales sandbox | ❌ |
 | 4. `PRODUCTION_REAL_ELIGIBLE` | 32 eSIM capacity measured, legal/security evidence accepted, DF-03 signed | ❌ |
 
-**Đang ở nấc 0.** 8/253 work item ở trạng thái `ACCEPTED`; phần còn lại
+**Đang ở nấc 0.** 8/254 work item ở trạng thái `ACCEPTED`; phần còn lại
 cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evidence đã được chấp nhận**
 (`MASTER-05`). Chỉ Release owner chuyển sang `ACCEPTED`.
 
@@ -29,7 +29,7 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 
 | Trạng thái | Số work item |
 | --- | --- |
-| `TESTS_PASS` | 186 |
+| `TESTS_PASS` | 187 |
 | `EVIDENCE_SUBMITTED` | 35 |
 | `BLOCKED_EXTERNAL` | 18 |
 | `ACCEPTED` | 8 |
@@ -66,7 +66,7 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 | legal, security and release evidence | W-0009 |
 
 Cả bảy đầu vào đều chưa đạt. **18** work item ở `BLOCKED_EXTERNAL`, và
-**5** quyết định `OD-V1-*` còn mở.
+**2** quyết định `OD-V1-*` còn mở.
 
 ## 6. Kill switch và rollback
 
