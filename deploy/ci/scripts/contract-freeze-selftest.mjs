@@ -188,21 +188,28 @@ const CASES = [
     mutate(root) {
       const specPath = "specs/api/openapi/ivr-order-confirmation.v1.yaml";
       const before = sha256Of(root, specPath);
+        // W-0275: read the version out of the spec instead of naming it. This case hardcoded
+        // draft.25 and stopped mutating anything the moment the contract moved to draft.26 --
+        // the exact failure the guard in editText exists to catch, and it caught it. Hardcoding
+        // the next number would only move the trap one release along.
+        const version = /version: (1\.0\.0-draft\.\d+)/u
+          .exec(readFileSync(path.join(root, specPath), "utf8"))?.[1];
+        if (!version) throw new Error(`${specPath}: no pre-release version to rotate`);
       editText(root, specPath, (text) =>
-        text.replace("version: 1.0.0-draft.25", "version: 1.0.0"),
+          text.replace(`version: ${version}`, "version: 1.0.0"),
       );
       const after = sha256Of(root, specPath);
       editJson(root, MANIFEST_PATH, (manifest) => {
         manifest.contracts[0].sha256 = after;
       });
       editText(root, "docs/contracts/openapi-contract-diff.md", (text) =>
-        text.split(before).join(after).split("1.0.0-draft.25").join("1.0.0"),
+        text.split(before).join(after).split(version).join("1.0.0"),
       );
       // W-0254 made the handover's version pointer part of the same surface, so a complete
       // rotation carries it too. Leaving it behind would trip FREEZE-03 and blunt this case,
       // whose whole point is that only the version claim itself is left to complain about.
       editText(root, HANDOVER_PATH, (text) =>
-        text.split("1.0.0-draft.25").join("1.0.0"),
+        text.split(version).join("1.0.0"),
       );
     },
     rewriteBeforeAssert: true,

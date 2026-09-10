@@ -11,6 +11,18 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 <code>api_contract_diff</code>; updating a baseline requires an explicit contract review
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
+<blockquote>
+<p><strong><code>1.0.0-draft.26</code> (W-0275)</strong> siết <code>adapter_mode</code> và <code>provider_name</code> trên <code>IvrSimChannel</code>
+thành <code>enum [MOCK, VENDOR, ASTERISK_ARI]</code>. Cả hai chỉ nằm trong <strong>response</strong> (<code>IvrSimChannelList</code>
+qua <code>&#39;200&#39;</code>), nên Module 3 không gửi chúng — thay đổi này ràng buộc thứ <strong>IVR phát ra</strong>, và cho
+phía đọc chuyển từ chuỗi tự do sang một tập đóng.</p>
+<p><code>IvrDashboardSimPanel.adapter_mode</code> <strong>cố ý không siết</strong>: <code>AdminReadService:650</code> trả adapter của
+channel đầu khi có channel và trả <strong>execution mode</strong> khi không có, nên một field mang hai từ vựng.
+Xem <code>docs/evidence/W-0275/README.md</code>.</p>
+<p>Bản so sánh máy sinh cho <code>draft.25 → draft.26</code> <strong>chưa có trong commit này</strong>: nó cần binary
+<code>oasdiff</code> vốn chỉ nằm trong image CI, không có trên máy dev (<code>gate-invocations.json</code> ghi đúng điều
+đó cho <code>selftest-oasdiff.sh</code>).</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -22,8 +34,8 @@ and does not approve the external Sales contract.</p>
 </thead>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
-<td><code>1.0.0-draft.23</code></td>
-<td><code>1.0.0-draft.23</code></td>
+<td><code>1.0.0-draft.26</code></td>
+<td><code>1.0.0-draft.26</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>

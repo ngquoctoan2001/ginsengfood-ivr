@@ -2324,11 +2324,13 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
 
         [System.Text.Json.Serialization.JsonPropertyName("adapter_mode")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public required string Adapter_mode { get; init; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrSimChannelAdapter_mode>))]
+        public required IvrSimChannelAdapter_mode Adapter_mode { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("provider_name")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public required string Provider_name { get; init; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrSimChannelProvider_name>))]
+        public required IvrSimChannelProvider_name Provider_name { get; init; }
 
         /// <summary>
         /// Carrying a call; a disable then takes effect after it ends.
@@ -3414,6 +3416,42 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonStringEnumMemberName(@"NOT_WIRED")]
         [System.Runtime.Serialization.EnumMember(Value = @"NOT_WIRED")]
         NOT_WIRED = 3,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrSimChannelAdapter_mode
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"MOCK")]
+        [System.Runtime.Serialization.EnumMember(Value = @"MOCK")]
+        MOCK = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"VENDOR")]
+        [System.Runtime.Serialization.EnumMember(Value = @"VENDOR")]
+        VENDOR = 1,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"ASTERISK_ARI")]
+        [System.Runtime.Serialization.EnumMember(Value = @"ASTERISK_ARI")]
+        ASTERISK_ARI = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrSimChannelProvider_name
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"MOCK")]
+        [System.Runtime.Serialization.EnumMember(Value = @"MOCK")]
+        MOCK = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"VENDOR")]
+        [System.Runtime.Serialization.EnumMember(Value = @"VENDOR")]
+        VENDOR = 1,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"ASTERISK_ARI")]
+        [System.Runtime.Serialization.EnumMember(Value = @"ASTERISK_ARI")]
+        ASTERISK_ARI = 2,
 
     }
 

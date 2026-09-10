@@ -1,3 +1,3 @@
-# API Changelog 1.0.0-draft.24 vs. 1.0.0-draft.24
+# API Changelog 1.0.0-draft.26 vs. 1.0.0-draft.26
 
 No changes detected

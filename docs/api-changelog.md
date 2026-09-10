@@ -10,9 +10,22 @@ and does not approve the external Sales contract.
 
 ## Current comparisons
 
+> **`1.0.0-draft.26` (W-0275)** siết `adapter_mode` và `provider_name` trên `IvrSimChannel`
+> thành `enum [MOCK, VENDOR, ASTERISK_ARI]`. Cả hai chỉ nằm trong **response** (`IvrSimChannelList`
+> qua `'200'`), nên Module 3 không gửi chúng — thay đổi này ràng buộc thứ **IVR phát ra**, và cho
+> phía đọc chuyển từ chuỗi tự do sang một tập đóng.
+>
+> `IvrDashboardSimPanel.adapter_mode` **cố ý không siết**: `AdminReadService:650` trả adapter của
+> channel đầu khi có channel và trả **execution mode** khi không có, nên một field mang hai từ vựng.
+> Xem `docs/evidence/W-0275/README.md`.
+>
+> Bản so sánh máy sinh cho `draft.25 → draft.26` **chưa có trong commit này**: nó cần binary
+> `oasdiff` vốn chỉ nằm trong image CI, không có trên máy dev (`gate-invocations.json` ghi đúng điều
+> đó cho `selftest-oasdiff.sh`).
+
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.23` | `1.0.0-draft.23` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.26` | `1.0.0-draft.26` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,

@@ -11,7 +11,7 @@ Contract state: `TARGET_CONTRACT_V1=DRAFT`.
 
 | Contract | Version | Pinned sha256 |
 | --- | --- | --- |
-| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.25` | `a6818793bfef40537a47296f34dd1638712e6c6fffc3158ce8cd4a2e9e188f58` |
+| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.26` | `b50d9edb4a185dc5e4d31b74b8aced892b8fe8b80ba39a5c8718bd72578de107` |
 | Sales callback (`specs/api/openapi/order-core-ivr-callback.target-v1.yaml`) | `1.0.0-draft` | `af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
 
 ## 1. Intake — `IvrConfirmationTaskV1`
@@ -91,7 +91,7 @@ see `docs/api-versioning.md`. Both directions of this list therefore need approv
 
 ### 3.1. Intake contract
 
-Value sets: **26**. Pinned constants: **24**.
+Value sets: **28**. Pinned constants: **24**.
 
 | Location | Values |
 | --- | --- |
@@ -118,6 +118,8 @@ Value sets: **26**. Pinned constants: **24**.
 | `IvrScriptApprovalRequest.properties.approval_type` | `MOCK_TEST`, `LAB`, `CONTENT`, `PRIVACY_LEGAL` |
 | `IvrScriptVersionDetail.properties.approved_for_modes.items` | `MOCK`, `LAB_REAL_SIM`, `PRODUCTION_REAL` |
 | `IvrScriptVersionDetail.properties.status` | `DRAFT`, `IN_REVIEW`, `APPROVED`, `RETIRED` |
+| `IvrSimChannel.properties.adapter_mode` | `MOCK`, `VENDOR`, `ASTERISK_ARI` |
+| `IvrSimChannel.properties.provider_name` | `MOCK`, `VENDOR`, `ASTERISK_ARI` |
 | `IvrTaskIntakeResult.properties.decision` | `TASK_ACCEPTED_CALL_JOB_CREATED`, `TASK_ACCEPTED_DRY_RUN_ONLY`, `TASK_SKIPPED_TRUSTED_CUSTOMER`, `TASK_REJECTED_NOT_OFFICIAL_ORDER`, `TASK_REJECTED_STATE_NOT_CALLABLE`, `TASK_REJECTED_POLICY_MISMATCH`, `TASK_REJECTED_CONTACT_INVALID`, `TASK_REJECTED_SCRIPT_NOT_APPROVED`, `TASK_REJECTED_INVALID_TRACE`, `TASK_BLOCKED_OPERATIONAL`, `TASK_HELD_ADMIN_REVIEW`, `TASK_HELD_POLICY_MISSING` |
 | `ProgramCode` | `GOLDEN_HOUR`, `TWENTY_FOUR_SEVEN` |
 | `ResultType` | `IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`, `IVR_NO_ANSWER_ATTEMPT`, `IVR_NO_ANSWER_FINAL`, `IVR_CONFIRMATION_WINDOW_EXPIRED`, `IVR_INVALID_PHONE_FINAL`, `IVR_WRONG_INPUT`, `IVR_TECHNICAL_EXCEPTION`, `IVR_CAPACITY_EXCEPTION`, `IVR_OPERATIONAL_BLOCKED`, `IVR_POLICY_BLOCKED` |
