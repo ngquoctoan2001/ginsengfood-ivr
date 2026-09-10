@@ -7,7 +7,7 @@ Tổng quan vận hành IVR theo phiên/program: call volume, success/confirm/ca
 
 ## Bố cục (wireframe)
 ```
-[ Filter: program (GH/24-7) · time range · adapter_mode(MOCK/REAL) ]
+[ Filter: program (GH/24-7) · time range · adapter_mode(MOCK/VENDOR/ASTERISK_ARI) ]
 [ KPI cards: call_success_rate · confirm_rate · cancel_rate · no_answer_rate · technical_exception_rate · missed_deadline_count · sim_failure_rate · cost_per_confirmed_order ]
 [ Queue panel: pending · dispatching · attempt2-due · held · blocked ]
 [ SIM panel: total/idle/active/disabled/health_failed · adapter_mode ]

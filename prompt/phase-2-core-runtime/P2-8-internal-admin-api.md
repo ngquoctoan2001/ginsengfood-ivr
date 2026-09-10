@@ -46,7 +46,7 @@ Bạn là **Senior .NET Backend Engineer**. Bạn implement phần API còn thi�
 1. **Internal lifecycle endpoints** (`src/Ivr.Api/Internal/`): `POST /eligibility-checks`, `POST /call-jobs`, `GET /call-jobs/{ivrCallJobId}`, `POST /call-attempts`, `POST /call-results`, `POST /result-callbacks`. Mỗi handler: validate contract → idempotency → persist → trả DTO sinh từ OpenAPI. `GET /call-jobs/{id}` trả **masked** view (không raw phone, không `dial_token`).
 2. **Caller identity:** internal endpoint chỉ chấp nhận service identity của chính IVR worker/adapter (scope `ivr.internal.write`, xem `OD-V1-07` cho production profile). Từ chối admin session và caller ngoài allowlist service → `403 IVR_FORBIDDEN_CALLER`. Ghi rõ trong `specs/api/02-internal-api.md` rằng đây không phải public surface.
 3. **Admin queue endpoints** (`src/Ivr.Api/Admin/`): `GET /queue` (perm `IVR_QUEUE_VIEW`), `POST /queue:pause` (`IVR_QUEUE_PAUSE`), `POST /queue:resume` (`IVR_QUEUE_RESUME`). Pause phải dừng dispatch mới nhưng **không** hủy call đang chạy; ghi `capacity_incident` nếu pause gây miss deadline.
-4. **SIM channel admin**: `POST /sim-channels/{id}:disable` (`IVR_SIM_DISABLE`), `:enable` (`IVR_SIM_ENABLE`). Enable bị chặn khi `adapter_mode=REAL` mà chưa có gate (DT-01/DF-03). Bổ sung trạng thái `QUARANTINED` và không cho enable trực tiếp từ `QUARANTINED` khi chưa reconcile (xem `specs/database/04-indexes.md` §5).
+4. **SIM channel admin**: `POST /sim-channels/{id}:disable` (`IVR_SIM_DISABLE`), `:enable` (`IVR_SIM_ENABLE`). Enable bị chặn khi `adapter_mode` **khác `MOCK`** mà chưa có gate (DT-01/DF-03) — điều kiện là fail-closed trên mọi giá trị khác `MOCK`, không riêng một giá trị nào. Bổ sung trạng thái `QUARANTINED` và không cho enable trực tiếp từ `QUARANTINED` khi chưa reconcile (xem `specs/database/04-indexes.md` §5).
 5. **Technical retry**: `POST /technical-retries` (`IVR_MANUAL_RETRY`) — `is_counted_customer_attempt=false`, bounded theo `technical_retry_count`, kiểm lại blocker + kill switch + allowlist + mode trước khi cho phép.
 6. **Admin review**: `POST /admin-reviews` (`IVR_RESULT_REVIEW`) — ghi annotation/resolution vào `ivr_review_items`, **không** thay đổi `result_type`/`final_result_status` gốc.
 7. **Response typing**: mọi operation trả body có schema (không còn `200` rỗng); bổ sung `401`/`403`/`409`/`422`/`429`/`500` theo `ErrorEnvelope`. Cập nhật OpenAPI trong cùng work item nếu phải thêm schema.
@@ -75,7 +75,7 @@ Bạn là **Senior .NET Backend Engineer**. Bạn implement phần API còn thi�
 | `IT-API-RETRY-06` | integration | `technical-retries` không tăng customer attempt, không vượt bound, bị chặn khi kill switch ON hoặc đích ngoài allowlist. |
 | `IT-API-REVIEW-07` | integration | `admin-reviews` không đổi `result_type` gốc; `no_policy_bypass=true` được ghi. |
 | `IT-API-QUEUE-08` | integration | pause dừng dispatch mới, không hủy call đang chạy; resume khôi phục; cả hai được audit. |
-| `IT-API-SIM-09` | integration | enable bị chặn khi `adapter_mode=REAL` chưa qua gate; `QUARANTINED` không enable trực tiếp. |
+| `IT-API-SIM-09` | integration | enable bị chặn khi `adapter_mode` khác `MOCK` chưa qua gate; `QUARANTINED` không enable trực tiếp. |
 | `CT-API-OAS-10` | contract | Mọi operation khớp OpenAPI (status code, schema, header bắt buộc). |
 
 ## 9. REVIEW / ACCEPTANCE GATE

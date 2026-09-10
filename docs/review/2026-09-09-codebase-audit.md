@@ -493,7 +493,10 @@ trong khi C# gán `job.Status = "HELD_ADMIN_REVIEW"` bằng literal riêng.
 > `MOCK/VENDOR/ASTERISK_ARI`, còn `specs/database/02-tables.md:174` khai `adapter_mode (MOCK/REAL)`
 > — `REAL` là giá trị không đường code nào sinh ra. Chỗ lệch này tồn tại được **chính vì** magic
 > string: khi ba khái niệm cùng viết `"MOCK"` thì không ai đọc ra cột này có từ vựng riêng để đối
-> chiếu. **Cần owner** chọn từ vựng; không tự sửa.
+> chiếu. **Owner chốt 2026-09-10: sửa spec cho khớp code** — thực thi ở `W-0274`. Khi sửa mới
+> thấy không chỉ danh sách giá trị sai: code chặn enable khi `adapter_mode` **khác `MOCK`**
+> (fail-closed mọi giá trị), còn spec nêu **một giá trị** `REAL`. Thay danh sách thôi vẫn giữ
+> nguyên lỗi dưới dạng mới, nên spec giờ nói **luật** chứ không nói danh sách.
 
 ---
 

@@ -3,12 +3,12 @@
 Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` (prompt đã nghỉ hưu) · Auth: **tier `write`** (`AdminPolicies.Write`) + non-prod guard. Nguồn: `seed/*`, DT-01.
 
 ## Mục đích
-Điều khiển môi trường test: `adapter_mode` (MOCK/REAL), nạp seed, chọn call-scenario, bật/tắt integration-status profile để chạy dry-run/smoke.
+Điều khiển môi trường test: `adapter_mode` (MOCK/VENDOR/ASTERISK_ARI), nạp seed, chọn call-scenario, bật/tắt integration-status profile để chạy dry-run/smoke.
 
 ## Bố cục
 ```
 [ Environment banner: NON-PROD · REAL_CUSTOMER_CALL_ALLOWED=NO ]
-[ Adapter: adapter_mode = MOCK (REAL disabled tới khi mua SIM + release gate) ]
+[ Adapter: adapter_mode = MOCK (mọi giá trị khác MOCK bị khoá tới khi mua SIM + release gate) ]
 [ Seed loader: customers/orders/products/inventory/tasks ]
 [ Scenario runner: chọn SCN-* -> chạy dry-run -> xem result mong đợi vs thực tế ]
 [ Integration-status profile: chọn STATUS-* (all-up / *-down / ready-503) ]
@@ -18,7 +18,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p12` (prompt đã nghỉ hưu) · Aut
 ## Actions
 | Action | Auth (như code) | Ràng buộc |
 | --- | --- | --- |
-| Đổi adapter_mode | tier `write` + non-prod | **REAL bị khóa** tới khi mua SIM (DT-01) + release gate (DF-03) |
+| Đổi adapter_mode | tier `write` + non-prod | **mọi giá trị khác `MOCK` bị khoá** tới khi mua SIM (DT-01) + release gate (DF-03) |
 | Nạp seed | tier `write` + non-prod | `POST {prefix}/seed:load` |
 | Chạy scenario dry-run | tier `write` + non-prod | `POST {prefix}/scenarios/{scenarioId}:dry-run`; không gọi khách thật |
 | Áp integration-status profile | tier `write` + non-prod | `POST {prefix}/integration-profiles/{profileId}:apply`; để test fail-closed |

@@ -23,7 +23,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p07` · Nguồn: `phase-8/12` §12; D
 ## 4. Sau khi có nguồn thật (bỏ mock)
 - `call_restriction`: bật NOT NULL/logic sau khi IR-SALES-CRM-01 build rich response/Core wiring từ nguồn DC-01.
 - ⚠️ `sellable_status_json` / `sellable_captured_at`: **mồ côi** từ `OD-17` — model và code không còn map, cột vật lý giữ lại vì gate `W-0114` cấm `DropColumn` trong `Up()`. Có thể gỡ ở một release sau khi mọi pod đã chạy code mới.
-- `ivr_sim_channels.adapter_mode=REAL` + số SIM thật: sau khi mua SIM (DT-01/DT-04) và release gate pass (DF-03).
+- `ivr_sim_channels.adapter_mode` khác `MOCK` (`VENDOR` cho SIM nhà cung cấp, `ASTERISK_ARI` cho adapter lab W-0104) + số SIM thật: sau khi mua SIM (DT-01/DT-04) và release gate pass (DF-03).
 - Retention: đặt TTL/purge job sau DF-07.
 
 ## 5. Outbox/event
