@@ -508,6 +508,71 @@ for (const includePath of [".gitlab-ci.yml", ...includes]) {
   }
 }
 
+// W-0267. One duplicate-key parser, and the eight validators that used to carry their own.
+//
+// Eight copies, five distinct implementations. Before unifying them they were run against the
+// same eighteen adversarial documents and agreed on all eighteen — the five differed in shape,
+// not in verdict, so picking the majority implementation changed nothing any gate accepts.
+//
+// Only three of the eight selftests ever fed a duplicate key. The other five reached this parser
+// with no test touching it, which is why the cases live here now rather than in one validator.
+{
+  const { rejectDuplicateJsonKeys, JsonShapeError } = await import("./json-shape-lib.mjs");
+  const cases = [
+    ['{"a":1,"b":2}', null],
+    ["{}", null],
+    ['"hello"', null],
+    ["42", null],
+
+    // The duplicate has to be caught wherever it hides, not just at the root — a bundle that
+    // buries it three levels down is the one a hand-written check misses.
+    ['{"a":1,"a":2}', "duplicate JSON key: a"],
+    ['{"outer":{"a":1,"a":2}}', "duplicate JSON key: a"],
+    ['{"items":[{"a":1,"a":2}]}', "duplicate JSON key: a"],
+    ['{"x":[[{"k":1,"k":2}]]}', "duplicate JSON key: k"],
+    ['[{"a":1,"a":2}]', "duplicate JSON key: a"],
+    ['{"a":{"z":1},"a":2}', "duplicate JSON key: a"],
+
+    // The evasion that matters: a key spelled as an escape is the same key. Comparing raw source
+    // text instead of decoded values would let this one through.
+    ['{"a":1,"\\u0061":2}', "duplicate JSON key: a"],
+    ['{"a":1,"\\u0062":2}', null],
+    ['{"a\\"b":1,"a\\"b":2}', 'duplicate JSON key: a"b'],
+
+    // A second document appended after the first is how a signed prefix gets reused.
+    ['{"a":1} {"a":2}', "unexpected content after JSON document"],
+    ['{"a":"x', "unterminated JSON string"],
+
+    // An escaped newline is legal JSON and stays legal; a raw control character in the middle
+    // of a string is not. Both are here because the first version of this test carried a
+    // mangled literal that turned the escape into a real newline — and it passed, for the
+    // wrong reason, asserting a restriction the parser does not have.
+    ['{"a":"x\\ny"}', null],
+    ['{"a":"x\ty"}', "invalid control character in JSON string"],
+  ];
+
+  for (const [document, expected] of cases) {
+    let actual = null;
+    try {
+      rejectDuplicateJsonKeys(document);
+    } catch (error) {
+      assert(
+        error instanceof JsonShapeError,
+        `rejectDuplicateJsonKeys(${JSON.stringify(document)}) threw ${error.constructor.name}, `
+          + "which the validator wrappers would rethrow instead of reporting as a shape failure",
+      );
+      actual = error.message;
+    }
+
+    assert(
+      actual === expected,
+      `rejectDuplicateJsonKeys(${JSON.stringify(document)}) gave ${JSON.stringify(actual)}, `
+        + `expected ${JSON.stringify(expected)}`,
+    );
+  }
+}
+
+process.stdout.write("JSON_SHAPE_SINGLE_SOURCE_PASS — one duplicate-key parser, escapes decoded before comparison\n");
 process.stdout.write("SENSITIVE_VALUE_RULE_PASS — one secret rule, dates excused, evasion still caught\n");
 process.stdout.write("PATH_CONFINEMENT_SINGLE_SOURCE_PASS — one canonical root, one isConfined\n");
 process.stdout.write("VALIDATOR_HELPER_CENSUS_PASS — helper duplication held at its baseline\n");

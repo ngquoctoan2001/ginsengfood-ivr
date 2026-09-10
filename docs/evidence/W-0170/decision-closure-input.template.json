@@ -10,9 +10,9 @@
     "message_kit_path": "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
     "message_kit_sha256": "3bd5b824c84b6d734090bf488f3da054622e30554ff26cace11f3656b4e70cf1",
     "routing_validator_path": "deploy/ci/scripts/external-decision-routing-validator.mjs",
-    "routing_validator_sha256": "b35641001d2b57ff855927d722ab239902b1dab08f234d02d6aaa41ac6bb777b",
+    "routing_validator_sha256": "313624197eba510f28618b693da8e2c65d48ec799161063ed09790336ff5a88c",
     "response_validator_path": "deploy/ci/scripts/external-decision-response-validator.mjs",
-    "response_validator_sha256": "bc4a53488e8f34ccad02740db70577c162c7976c0b3b244aa2aea28406de440b"
+    "response_validator_sha256": "64e20aacae154ef2b25a1c2e0333a09a83b4f596bc2fb9832dbde377d035e85e"
   },
   "routing_input": {
     "path": "PENDING_EXTERNAL_EVIDENCE",

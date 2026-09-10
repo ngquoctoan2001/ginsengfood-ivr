@@ -64,6 +64,11 @@
       "reason": "runs docker build against the UI and API images",
       "runner": "images.gitlab-ci.yml"
     },
+    "json-shape-lib.mjs": {
+      "sweepable": false,
+      "reason": "a library with no top-level invocation",
+      "runner": "the eight evidence-bundle validators that reject duplicate JSON keys"
+    },
     "k8s-selftest.mjs": {
       "sweepable": false,
       "reason": "needs helm, kubeconform and a running cluster; exceeds any offline budget",

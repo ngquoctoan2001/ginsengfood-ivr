@@ -9,6 +9,7 @@ import { lstatSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSy
 import { join, resolve } from "node:path";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 import { findSensitiveValue } from "./sensitive-value-lib.mjs";
+import { JsonShapeError, rejectDuplicateJsonKeys as parseRejectingDuplicateKeys } from "./json-shape-lib.mjs";
 
 const MAX_INPUT_BYTES = 512 * 1024;
 const MAX_SOURCE_BYTES = 5 * 1024 * 1024;
@@ -295,81 +296,15 @@ function readConfinedFile(inputPath, maximumBytes = MAX_INPUT_BYTES) {
   return { resolved, bytes: readFileSync(resolved) };
 }
 
-function rejectDuplicateJsonKeys(textValue) {
-  let position = 0;
-  const skip = () => {
-    while (/\s/u.test(textValue[position] ?? "")) position += 1;
-  };
-  const parseString = () => {
-    if (textValue[position] !== '"') fail("invalid JSON string");
-    const start = position++;
-    while (position < textValue.length) {
-      if (textValue[position] === "\\") position += 2;
-      else if (textValue[position] === '"') {
-        position += 1;
-        try {
-          return JSON.parse(textValue.slice(start, position));
-        } catch {
-          fail("invalid JSON string escape");
-        }
-      } else {
-        if (textValue.charCodeAt(position) < 0x20) fail("invalid JSON control character");
-        position += 1;
-      }
-    }
-    fail("unterminated JSON string");
-  };
-  const parseLiteral = () => {
-    const match = /^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/u.exec(
-      textValue.slice(position),
-    );
-    if (!match) fail("invalid JSON value");
-    position += match[0].length;
-  };
-  const parseValue = () => {
-    skip();
-    if (textValue[position] === "{") parseObject();
-    else if (textValue[position] === "[") parseArray();
-    else if (textValue[position] === '"') parseString();
-    else parseLiteral();
-  };
-  const parseArray = () => {
-    position += 1;
-    skip();
-    if (textValue[position] === "]") return void (position += 1);
-    while (position < textValue.length) {
-      parseValue();
-      skip();
-      if (textValue[position] === "]") return void (position += 1);
-      if (textValue[position] !== ",") fail("invalid JSON array separator");
-      position += 1;
-    }
-    fail("unterminated JSON array");
-  };
-  const parseObject = () => {
-    position += 1;
-    const keys = new Set();
-    skip();
-    if (textValue[position] === "}") return void (position += 1);
-    while (position < textValue.length) {
-      const key = parseString();
-      if (keys.has(key)) fail(`duplicate JSON key: ${key}`);
-      keys.add(key);
-      skip();
-      if (textValue[position] !== ":") fail("invalid JSON object separator");
-      position += 1;
-      parseValue();
-      skip();
-      if (textValue[position] === "}") return void (position += 1);
-      if (textValue[position] !== ",") fail("invalid JSON object separator");
-      position += 1;
-      skip();
-    }
-    fail("unterminated JSON object");
-  };
-  parseValue();
-  skip();
-  if (position !== textValue.length) fail("unexpected content after JSON document");
+function rejectDuplicateJsonKeys(text) {
+  // The rule lives in json-shape-lib; this keeps the refusal in this script's own voice, because
+  // every validator has its own fail() with its own exit code and message prefix.
+  try {
+    parseRejectingDuplicateKeys(text);
+  } catch (error) {
+    if (error instanceof JsonShapeError) fail(error.message);
+    throw error;
+  }
 }
 
 function readStrictJson(inputPath) {

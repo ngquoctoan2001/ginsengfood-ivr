@@ -466,7 +466,7 @@ Và lặp không nhất quán — hai biến thể cú pháp cho cùng một ng�
 
 ---
 
-### S4 — Helper bảo mật copy-paste 8–18 lần và đã phân hóa thành 2 semantics — PHẦN BẢO MẬT ĐÃ ĐÓNG
+### S4 — Helper bảo mật copy-paste 8–18 lần và đã phân hóa thành 2 semantics — PHẦN BẢO MẬT ĐÃ ĐÓNG (W-0258/W-0259/W-0260), `rejectDuplicateJsonKeys` ĐÃ HỢP NHẤT (W-0267)
 
 51 script trong `deploy/ci/scripts/`, chỉ **8** import module dùng chung.
 
@@ -496,6 +496,16 @@ return rel !== "" && rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(
 ```
 
 Bản A quá chặt: từ chối cả thư mục hợp lệ có tên bắt đầu bằng `..`. Bản B đúng.
+
+**Cập nhật W-0267 — `rejectDuplicateJsonKeys` (8 bản / 5 implementation) đã hợp nhất.** Trước khi
+hợp nhất, cả 8 bản được chạy trên 18 tài liệu đối kháng: **đồng ý 18/18, 0 bất đồng**. Năm
+"implementation" khác nhau về cấu trúc chứ không về hành vi, nên hợp nhất không đổi thứ bất kỳ gate nào
+chấp nhận — khác `assertIdentifier`, không cần quyết định của owner. Xem
+[`docs/evidence/W-0267/README.md`](../evidence/W-0267/README.md).
+
+**Ba hàm còn lại cố ý không đụng**: `assertString` (11/9), `assertExactKeys` (13/8), `readStrictJson`
+(6/5). Khác biệt của chúng **có tải** — bộ ký tự và giới hạn độ dài khác nhau — nên hợp nhất là đổi
+thứ gate chấp nhận, không phải refactor.
 
 Cả hai đều an toàn về traversal, nhưng đây là **helper bảo mật**. Sửa một bug ở một bản không lan sang 9 bản còn lại — và B8 ở trên chính là ví dụ: bug realpath được sửa đúng ở `b3-telephony-evidence-validator.mjs` và không bao giờ tới 9 bản kia.
 
@@ -649,7 +659,7 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~B8~~ | ~~Validator vỡ dưới symlink~~ | ~~MEDIUM~~ | **đã sửa — W-0258** |
 | ~~B5~~ | ~~Rò rỉ bộ nhớ ở MOCK~~ | ~~MEDIUM~~ | **đã sửa — W-0259** |
 | P2 | 109 index, nhiều cái trên boolean | MEDIUM | trung bình — đo `pg_stat_user_indexes` trước |
-| ~~S4~~ | ~~Helper bảo mật copy-paste 18 lần~~ | ~~MEDIUM~~ | **phần bảo mật đã đóng — W-0258/W-0259/W-0260**; phần còn lại thuần kỹ thuật, census guard giữ không tăng |
+| ~~S4~~ | ~~Helper bảo mật copy-paste 18 lần~~ | ~~MEDIUM~~ | **đóng — W-0258/W-0259/W-0260/W-0267**; `rejectDuplicateJsonKeys` hợp nhất sau khi đo 18/18 đồng ý; 3 hàm còn lại khác biệt có tải — cần owner, census guard giữ không trôi |
 | S2 | 951 magic string | LOW | **một phần — W-0261**; `"MOCK"` có hai chủ sở hữu, cần owner tách tên |
 | ~~P3~~ | ~~DSAR 8 round trip, nổ tham số~~ | ~~LOW~~ | **đã sửa — W-0261** |
 | ~~S7~~ | ~~Worktree rác + bản sao repo~~ | ~~LOW~~ | **đã sửa — W-0262** (942 MB thu hồi) |
@@ -659,7 +669,7 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~S5~~ | ~~Schema wire định nghĩa hai lần~~ | ~~LOW~~ | **đã buộc vào nhau — W-0264**; 1 chênh lệch chờ owner |
 | B9, B10, C1, C3–C5 | — | LOW | — |
 
-**18/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
+**19/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
 
 ---
 

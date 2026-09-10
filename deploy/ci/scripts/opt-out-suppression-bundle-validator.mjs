@@ -12,6 +12,7 @@ import {
 } from "node:fs";
 import { relative, resolve, sep } from "node:path";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
+import { JsonShapeError, rejectDuplicateJsonKeys as parseRejectingDuplicateKeys } from "./json-shape-lib.mjs";
 
 const ARTIFACT_ROOT = resolve(REPOSITORY_ROOT, "ci-artifacts");
 const MAX_INPUT_BYTES = 768 * 1024;
@@ -357,84 +358,14 @@ function readConfinedUtf8File(inputPath) {
 }
 
 function rejectDuplicateJsonKeys(text) {
-  let position = 0;
-  function whitespace() {
-    while (/\s/u.test(text[position] ?? "")) position += 1;
+  // The rule lives in json-shape-lib; this keeps the refusal in this script's own voice, because
+  // every validator has its own fail() with its own exit code and message prefix.
+  try {
+    parseRejectingDuplicateKeys(text);
+  } catch (error) {
+    if (error instanceof JsonShapeError) fail(error.message);
+    throw error;
   }
-  function stringValue() {
-    if (text[position] !== '"') fail("invalid JSON string");
-    const start = position++;
-    while (position < text.length) {
-      if (text[position] === "\\") {
-        position += 2;
-        continue;
-      }
-      if (text[position] === '"') {
-        position += 1;
-        try {
-          return JSON.parse(text.slice(start, position));
-        } catch {
-          fail("invalid JSON string escape");
-        }
-      }
-      if (text.charCodeAt(position) < 0x20) fail("invalid JSON control character");
-      position += 1;
-    }
-    fail("unterminated JSON string");
-  }
-  function literal() {
-    const match = /^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/u.exec(
-      text.slice(position),
-    );
-    if (!match) fail("invalid JSON value");
-    position += match[0].length;
-  }
-  function array() {
-    position += 1;
-    whitespace();
-    if (text[position] === "]") return void (position += 1);
-    while (position < text.length) {
-      value();
-      whitespace();
-      if (text[position] === "]") return void (position += 1);
-      if (text[position] !== ",") fail("invalid JSON array separator");
-      position += 1;
-      whitespace();
-    }
-    fail("unterminated JSON array");
-  }
-  function object() {
-    position += 1;
-    const keys = new Set();
-    whitespace();
-    if (text[position] === "}") return void (position += 1);
-    while (position < text.length) {
-      const key = stringValue();
-      if (keys.has(key)) fail(`duplicate JSON key: ${key}`);
-      keys.add(key);
-      whitespace();
-      if (text[position] !== ":") fail("invalid JSON object separator");
-      position += 1;
-      whitespace();
-      value();
-      whitespace();
-      if (text[position] === "}") return void (position += 1);
-      if (text[position] !== ",") fail("invalid JSON object separator");
-      position += 1;
-      whitespace();
-    }
-    fail("unterminated JSON object");
-  }
-  function value() {
-    whitespace();
-    if (text[position] === "{") object();
-    else if (text[position] === "[") array();
-    else if (text[position] === '"') stringValue();
-    else literal();
-  }
-  value();
-  whitespace();
-  if (position !== text.length) fail("unexpected content after JSON document");
 }
 
 function parseInput(inputPath) {

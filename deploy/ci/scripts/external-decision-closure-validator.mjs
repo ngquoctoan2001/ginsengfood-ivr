@@ -20,6 +20,7 @@ import { relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 import { findSensitiveValue } from "./sensitive-value-lib.mjs";
+import { JsonShapeError, rejectDuplicateJsonKeys as parseRejectingDuplicateKeys } from "./json-shape-lib.mjs";
 
 const MAX_INPUT_BYTES = 512 * 1024;
 const MAX_REFERENCED_BYTES = 512 * 1024;
@@ -41,10 +42,10 @@ const SOURCE_PINS = Object.freeze({
     "3bd5b824c84b6d734090bf488f3da054622e30554ff26cace11f3656b4e70cf1",
   routing_validator_path: "deploy/ci/scripts/external-decision-routing-validator.mjs",
   routing_validator_sha256:
-    "b35641001d2b57ff855927d722ab239902b1dab08f234d02d6aaa41ac6bb777b",
+    "313624197eba510f28618b693da8e2c65d48ec799161063ed09790336ff5a88c",
   response_validator_path: "deploy/ci/scripts/external-decision-response-validator.mjs",
   response_validator_sha256:
-    "bc4a53488e8f34ccad02740db70577c162c7976c0b3b244aa2aea28406de440b",
+    "64e20aacae154ef2b25a1c2e0333a09a83b4f596bc2fb9832dbde377d035e85e",
 });
 
 const SHEET_RULES = new Map([
@@ -261,99 +262,15 @@ function readStrictJson(inputPath, maximumBytes = MAX_REFERENCED_BYTES) {
   return { resolved, bytes, document };
 }
 
-function rejectDuplicateJsonKeys(textValue) {
-  let position = 0;
-  const skipWhitespace = () => {
-    while (/\s/u.test(textValue[position] ?? "")) position += 1;
-  };
-  const parseString = () => {
-    if (textValue[position] !== '"') fail("invalid JSON string");
-    const start = position;
-    position += 1;
-    while (position < textValue.length) {
-      if (textValue[position] === "\\") {
-        position += 2;
-        continue;
-      }
-      if (textValue[position] === '"') {
-        position += 1;
-        try {
-          return JSON.parse(textValue.slice(start, position));
-        } catch {
-          fail("invalid JSON string escape");
-        }
-      }
-      if (textValue.charCodeAt(position) < 0x20) fail("invalid control character in JSON string");
-      position += 1;
-    }
-    fail("unterminated JSON string");
-  };
-  const parseLiteral = () => {
-    const match = /^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/u.exec(
-      textValue.slice(position),
-    );
-    if (!match) fail("invalid JSON value");
-    position += match[0].length;
-  };
-  const parseArray = () => {
-    position += 1;
-    skipWhitespace();
-    if (textValue[position] === "]") {
-      position += 1;
-      return;
-    }
-    while (position < textValue.length) {
-      parseValue();
-      skipWhitespace();
-      if (textValue[position] === "]") {
-        position += 1;
-        return;
-      }
-      if (textValue[position] !== ",") fail("invalid JSON array separator");
-      position += 1;
-      skipWhitespace();
-    }
-    fail("unterminated JSON array");
-  };
-  const parseObject = () => {
-    position += 1;
-    const keys = new Set();
-    skipWhitespace();
-    if (textValue[position] === "}") {
-      position += 1;
-      return;
-    }
-    while (position < textValue.length) {
-      const key = parseString();
-      if (keys.has(key)) fail(`duplicate JSON key: ${key}`);
-      keys.add(key);
-      skipWhitespace();
-      if (textValue[position] !== ":") fail("invalid JSON object separator");
-      position += 1;
-      skipWhitespace();
-      parseValue();
-      skipWhitespace();
-      if (textValue[position] === "}") {
-        position += 1;
-        return;
-      }
-      if (textValue[position] !== ",") fail("invalid JSON object separator");
-      position += 1;
-      skipWhitespace();
-    }
-    fail("unterminated JSON object");
-  };
-  function parseValue() {
-    skipWhitespace();
-    const token = textValue[position];
-    if (token === "{") parseObject();
-    else if (token === "[") parseArray();
-    else if (token === '"') parseString();
-    else parseLiteral();
+function rejectDuplicateJsonKeys(text) {
+  // The rule lives in json-shape-lib; this keeps the refusal in this script's own voice, because
+  // every validator has its own fail() with its own exit code and message prefix.
+  try {
+    parseRejectingDuplicateKeys(text);
+  } catch (error) {
+    if (error instanceof JsonShapeError) fail(error.message);
+    throw error;
   }
-  parseValue();
-  skipWhitespace();
-  if (position !== textValue.length) fail("unexpected content after JSON document");
 }
 
 function assertString(value, label, minimum, maximum) {

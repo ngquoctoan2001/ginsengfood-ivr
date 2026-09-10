@@ -38,7 +38,7 @@
     },
     "rejectDuplicateJsonKeys": {
       "copies": 8,
-      "implementations": 5
+      "implementations": 1
     },
     "readStrictJson": {
       "copies": 6,
