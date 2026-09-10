@@ -53,11 +53,11 @@ const SOURCE_PINS = Object.freeze([
   ],
   [
     "src/Ivr.Infrastructure/Crm/SuppressionProposer.cs",
-    "04eb94fe74de4ebc8613b37c0bdaf17ebb9e2171d639368291bd6abe311be78e",
+    "99a6cb8e57532e51164cbee16be4859981325e5add4663f37b52b6c8030b7d6d",
   ],
   [
     "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
-    "2bebb210d46133a3fa6147e56f0d9fc8f94a20b87a0f36c87ef571dfabccb69a",
+    "13e1b09147ab079cdfee3bc2f15f37dc762f91c2089ed2fb953b546dcbc7b694",
   ],
 ]);
 

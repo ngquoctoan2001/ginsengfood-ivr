@@ -97,7 +97,7 @@ internal abstract class PollingJobHost(WorkerLiveness liveness, TimeProvider tim
             bool failed = false;
             try
             {
-                await RunOnceAsync(stoppingToken).ConfigureAwait(false);
+                await RunOnceAsync(stoppingToken);
                 liveness.Tick(LoopName);
                 backoff.RecordSuccess();
             }
@@ -119,12 +119,12 @@ internal abstract class PollingJobHost(WorkerLiveness liveness, TimeProvider tim
             // the storm is part of why the dependency stays down. The scheduler polls every 100 ms
             // under the LocalMockE2E profile, which is where that arithmetic gets ugly.
             if (failed
-                && !await backoff.DelayAfterFailureAsync(stoppingToken).ConfigureAwait(false))
+                && !await backoff.DelayAfterFailureAsync(stoppingToken))
             {
                 break;
             }
 
-            if (!await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
+            if (!await timer.WaitForNextTickAsync(stoppingToken))
             {
                 break;
             }

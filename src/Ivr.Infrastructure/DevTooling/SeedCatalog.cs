@@ -94,7 +94,7 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
         DateTimeOffset? rebaseTo,
         CancellationToken cancellationToken)
     {
-        JsonNode root = await ReadNodeAsync(TaskFileName, cancellationToken).ConfigureAwait(false);
+        JsonNode root = await ReadNodeAsync(TaskFileName, cancellationToken);
         if (root["tasks"] is not JsonArray tasks)
         {
             throw new SeedCatalogException($"{TaskFileName} has no 'tasks' array.");
@@ -164,8 +164,7 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
     public async Task<IReadOnlyList<ScenarioDefinition>> ReadScenariosAsync(
         CancellationToken cancellationToken)
     {
-        using JsonDocument document = await ReadAsync(ScenarioFileName, cancellationToken)
-            .ConfigureAwait(false);
+        using JsonDocument document = await ReadAsync(ScenarioFileName, cancellationToken);
         if (!document.RootElement.TryGetProperty("scenarios", out JsonElement scenarios)
             || scenarios.ValueKind != JsonValueKind.Array)
         {
@@ -212,8 +211,7 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
     public async Task<IReadOnlyList<IntegrationStatusProfile>> ReadIntegrationProfilesAsync(
         CancellationToken cancellationToken)
     {
-        using JsonDocument document = await ReadAsync(IntegrationStatusFileName, cancellationToken)
-            .ConfigureAwait(false);
+        using JsonDocument document = await ReadAsync(IntegrationStatusFileName, cancellationToken);
         if (!document.RootElement.TryGetProperty("profiles", out JsonElement profiles)
             || profiles.ValueKind != JsonValueKind.Array)
         {
@@ -239,7 +237,7 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
 
     private async Task<JsonNode> ReadNodeAsync(string fileName, CancellationToken cancellationToken)
     {
-        byte[] bytes = await ReadBytesAsync(fileName, cancellationToken).ConfigureAwait(false);
+        byte[] bytes = await ReadBytesAsync(fileName, cancellationToken);
         try
         {
             return JsonNode.Parse(
@@ -266,7 +264,7 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
 
     private async Task<JsonDocument> ReadAsync(string fileName, CancellationToken cancellationToken)
     {
-        byte[] bytes = await ReadBytesAsync(fileName, cancellationToken).ConfigureAwait(false);
+        byte[] bytes = await ReadBytesAsync(fileName, cancellationToken);
         try
         {
             return JsonDocument.Parse(
@@ -294,7 +292,7 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
             throw new SeedCatalogException($"The seed directory has no {fileName}.");
         }
 
-        return await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(false);
+        return await File.ReadAllBytesAsync(path, cancellationToken);
     }
 
     private static string? ReadString(JsonElement element, string property) =>

@@ -70,11 +70,10 @@ public sealed class ResultRepository(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(workerId);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         RawCallEventEntity? rawEvent = await context.RawCallEvents.FromSqlRaw("""
             SELECT raw_event.*
             FROM ivr_raw_call_events raw_event
@@ -90,10 +89,10 @@ public sealed class ResultRepository(
             ORDER BY raw_event.received_at, raw_event.raw_event_id
             FOR UPDATE OF raw_event SKIP LOCKED
             LIMIT 1
-            """).SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            """).SingleOrDefaultAsync(cancellationToken);
         if (rawEvent is null)
         {
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            await transaction.CommitAsync(cancellationToken);
             return null;
         }
 
@@ -102,18 +101,17 @@ public sealed class ResultRepository(
             FROM ivr_call_attempts attempt
             WHERE attempt.ivr_call_attempt_id = {{rawEvent.IvrCallAttemptId}}
             FOR UPDATE OF attempt
-            """).SingleAsync(cancellationToken).ConfigureAwait(false);
+            """).SingleAsync(cancellationToken);
         CallJobEntity job = await context.CallJobs.FromSqlInterpolated($$"""
             SELECT job.*
             FROM ivr_call_jobs job
             WHERE job.ivr_call_job_id = {{rawEvent.IvrCallJobId}}
             FOR UPDATE OF job
-            """).SingleAsync(cancellationToken).ConfigureAwait(false);
+            """).SingleAsync(cancellationToken);
         ConfirmationTaskEntity task = await context.ConfirmationTasks.AsNoTracking()
             .SingleAsync(
                 candidate => candidate.TaskId == attempt.TaskId,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
         TraceContextSnapshot? traceContext = TraceContextSnapshot.FromPersisted(
             task.TraceParent,
             task.TraceState);
@@ -133,8 +131,7 @@ public sealed class ResultRepository(
             where priorAttempt.IvrCallJobId == attempt.IvrCallJobId
                 && priorAttempt.AttemptNumber == attempt.AttemptNumber
             select technical.TechnicalExceptionId)
-            .CountAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(cancellationToken);
         var normalizationContext = new AttemptNormalizationContext(
             attempt.AttemptNumber,
             attempt.MaxAttemptsSnapshot,
@@ -254,8 +251,8 @@ public sealed class ResultRepository(
 
         ApplyAttemptOutcome(attempt, normalized, signal, evidenceRef, auditRef);
         ApplyJobOutcome(job, normalized, now, executionContext.ExecutionMode);
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         // The other half of the W-0041 gap. This is the single exit of normalization and it runs
         // after the commit, so the counter and ivr_call_results agree by construction rather than

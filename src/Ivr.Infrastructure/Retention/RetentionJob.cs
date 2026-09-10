@@ -58,7 +58,7 @@ public sealed class RetentionJob(
                 await hook.PurgeExpiredAsync(
                     startedAt,
                     options.DryRun,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
             }
 
             DateTimeOffset completedAt = options.Now ?? timeProvider.GetUtcNow();

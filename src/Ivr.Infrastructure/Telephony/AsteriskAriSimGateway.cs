@@ -88,7 +88,7 @@ public sealed class AsteriskAriSimGateway(
                 "ARI refused a destination outside the pinned softphone alias.");
         }
 
-        await EnsureEventPumpAsync(cancellationToken).ConfigureAwait(false);
+        await EnsureEventPumpAsync(cancellationToken);
         string channelId = string.Concat("ivr-lab-", Guid.NewGuid().ToString("N"));
         var state = new AriCallState(channelId, timeProvider.GetUtcNow());
         if (!calls.TryAdd(channelId, state))
@@ -114,13 +114,12 @@ public sealed class AsteriskAriSimGateway(
                     ["channelId"] = channelId,
                     ["callerId"] = "IVR-LAB",
                 },
-                cancellationToken).ConfigureAwait(false);
-            await EnsureSuccessAsync(response, "ASTERISK_DIAL_FAILED", cancellationToken)
-                .ConfigureAwait(false);
+                cancellationToken);
+            await EnsureSuccessAsync(response, "ASTERISK_DIAL_FAILED", cancellationToken);
             await state.ConnectedOrEnded.Task.WaitAsync(
                 TimeSpan.FromSeconds(configured.DialTimeoutSeconds + 2),
                 timeProvider,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             return new SimCallSession(
                 request.AttemptId,
                 request.SimChannelId,
@@ -217,9 +216,8 @@ public sealed class AsteriskAriSimGateway(
                 ["media"] = mediaList,
                 ["playbackId"] = string.Concat("play-", Guid.NewGuid().ToString("N")),
             },
-            cancellationToken).ConfigureAwait(false);
-        await EnsureSuccessAsync(response, "ASTERISK_PLAYBACK_FAILED", cancellationToken)
-            .ConfigureAwait(false);
+            cancellationToken);
+        await EnsureSuccessAsync(response, "ASTERISK_PLAYBACK_FAILED", cancellationToken);
     }
 
     public async ValueTask<SimDtmfCapture> CaptureDtmfAsync(
@@ -233,10 +231,10 @@ public sealed class AsteriskAriSimGateway(
         Task completed = await Task.WhenAny(
             state.Dtmf.Task,
             state.Ended.Task,
-            Task.Delay(timeout, timeProvider, cancellationToken)).ConfigureAwait(false);
+            Task.Delay(timeout, timeProvider, cancellationToken));
         if (completed == state.Dtmf.Task)
         {
-            return new SimDtmfCapture(await state.Dtmf.Task.ConfigureAwait(false), false, null);
+            return new SimDtmfCapture(await state.Dtmf.Task, false, null);
         }
 
         if (completed == state.Ended.Task)
@@ -284,11 +282,10 @@ public sealed class AsteriskAriSimGateway(
                 HttpMethod.Delete,
                 string.Concat("/ari/channels/", Uri.EscapeDataString(state.ChannelId)),
                 null,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
             {
-                await EnsureSuccessAsync(response, "ASTERISK_HANGUP_FAILED", cancellationToken)
-                    .ConfigureAwait(false);
+                await EnsureSuccessAsync(response, "ASTERISK_HANGUP_FAILED", cancellationToken);
             }
         }
 
@@ -308,9 +305,8 @@ public sealed class AsteriskAriSimGateway(
                 HttpMethod.Get,
                 "/ari/asterisk/ping",
                 null,
-                cancellationToken).ConfigureAwait(false);
-            await EnsureSuccessAsync(response, "ASTERISK_HEALTH_FAILED", cancellationToken)
-                .ConfigureAwait(false);
+                cancellationToken);
+            await EnsureSuccessAsync(response, "ASTERISK_HEALTH_FAILED", cancellationToken);
             return new SimGatewayHealth(
                 simChannelId,
                 SimChannelHealthState.Healthy,
@@ -338,7 +334,7 @@ public sealed class AsteriskAriSimGateway(
                 await socket.CloseAsync(
                     WebSocketCloseStatus.NormalClosure,
                     "shutdown",
-                    CancellationToken.None).ConfigureAwait(false);
+                    CancellationToken.None);
             }
 
             socket.Dispose();
@@ -349,7 +345,7 @@ public sealed class AsteriskAriSimGateway(
         {
             try
             {
-                await eventPump.ConfigureAwait(false);
+                await eventPump;
             }
             catch (WebSocketException)
             {
@@ -385,7 +381,7 @@ public sealed class AsteriskAriSimGateway(
             return;
         }
 
-        await socketGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await socketGate.WaitAsync(cancellationToken);
         try
         {
             if (socket?.State == WebSocketState.Open && eventPump is { IsCompleted: false })
@@ -400,7 +396,7 @@ public sealed class AsteriskAriSimGateway(
                 "Authorization",
                 BasicAuthorization(configured.Username, configured.Password));
             Uri eventUri = BuildWebSocketUri(configured);
-            await socket.ConnectAsync(eventUri, cancellationToken).ConfigureAwait(false);
+            await socket.ConnectAsync(eventUri, cancellationToken);
             ClientWebSocket activeSocket = socket;
             eventPump = Task.Run(
                 () => PumpEventsAsync(activeSocket, CancellationToken.None),
@@ -432,8 +428,7 @@ public sealed class AsteriskAriSimGateway(
             WebSocketReceiveResult result;
             do
             {
-                result = await activeSocket.ReceiveAsync(buffer, cancellationToken)
-                    .ConfigureAwait(false);
+                result = await activeSocket.ReceiveAsync(buffer, cancellationToken);
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
                     FailOpenCalls("ASTERISK_EVENT_STREAM_CLOSED");
@@ -552,7 +547,7 @@ public sealed class AsteriskAriSimGateway(
         HttpClient client = httpClientFactory.CreateClient(nameof(AsteriskAriSimGateway));
         try
         {
-            return await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            return await client.SendAsync(request, cancellationToken);
         }
         catch (HttpRequestException exception)
         {
@@ -575,7 +570,7 @@ public sealed class AsteriskAriSimGateway(
             return;
         }
 
-        _ = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        _ = await response.Content.ReadAsStringAsync(cancellationToken);
         throw Failure(
             SimProviderDisposition.NetworkError,
             technicalCode,

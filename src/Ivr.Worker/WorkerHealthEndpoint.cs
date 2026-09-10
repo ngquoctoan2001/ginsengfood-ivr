@@ -80,7 +80,7 @@ public sealed partial class WorkerHealthEndpoint(
             HttpListenerContext context;
             try
             {
-                context = await listener.GetContextAsync().ConfigureAwait(false);
+                context = await listener.GetContextAsync();
             }
             catch (Exception exception) when (
                 exception is HttpListenerException or ObjectDisposedException
@@ -91,7 +91,7 @@ public sealed partial class WorkerHealthEndpoint(
 
             try
             {
-                await RespondAsync(context).ConfigureAwait(false);
+                await RespondAsync(context);
             }
             catch (Exception exception) when (exception is HttpListenerException or IOException)
             {
@@ -124,7 +124,7 @@ public sealed partial class WorkerHealthEndpoint(
             : (int)HttpStatusCode.ServiceUnavailable;
         context.Response.ContentType = "application/json";
         context.Response.ContentLength64 = body.Length;
-        await context.Response.OutputStream.WriteAsync(body).ConfigureAwait(false);
+        await context.Response.OutputStream.WriteAsync(body);
         context.Response.Close();
     }
 

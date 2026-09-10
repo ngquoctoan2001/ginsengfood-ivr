@@ -84,14 +84,13 @@ public sealed class AdminConfigReadService(
         CancellationToken cancellationToken)
     {
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         List<ScriptVersionEntity> versions = await context.ScriptVersions.AsNoTracking()
             .Include(version => version.Approvals)
             .OrderBy(version => version.TemplateId)
             .ThenBy(version => version.Version)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return new ScriptCatalogApiResult(
             timeProvider.GetUtcNow(),
@@ -118,37 +117,31 @@ public sealed class AdminConfigReadService(
         // throwing, so the status screen still renders and still shows the kill
         // switch as engaged.
         FeatureFlagReadResult read = await featureFlags
-            .GetSnapshotAsync(normalizedEnvironment, forceFresh: true, cancellationToken)
-            .ConfigureAwait(false);
+            .GetSnapshotAsync(normalizedEnvironment, forceFresh: true, cancellationToken);
         FeatureFlagSnapshot flags = read.Snapshot;
 
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         DateTimeOffset now = timeProvider.GetUtcNow();
 
         int enabledChannels = await context.SimChannels.AsNoTracking()
-            .CountAsync(channel => channel.Enabled, cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(channel => channel.Enabled, cancellationToken);
         int totalChannels = await context.SimChannels.AsNoTracking()
-            .CountAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(cancellationToken);
         DateTimeOffset? lastHealthCheck = await context.SimChannels.AsNoTracking()
-            .MaxAsync(channel => (DateTimeOffset?)channel.LastHealthCheckAt, cancellationToken)
-            .ConfigureAwait(false);
+            .MaxAsync(channel => (DateTimeOffset?)channel.LastHealthCheckAt, cancellationToken);
 
         List<CapacityIncidentEntity> incidents = await context.CapacityIncidents.AsNoTracking()
             .Where(incident => incident.Status == "OPEN")
             .OrderByDescending(incident => incident.OpenedAt)
             .Take(10)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         List<ReviewItemEntity> reviews = await context.ReviewItems.AsNoTracking()
             .Where(item => item.Status == "OPEN")
             .OrderByDescending(item => item.CreatedAt)
             .Take(10)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return new IntegrationStatusApiResult(
             now,
@@ -190,7 +183,7 @@ public sealed class AdminConfigReadService(
         };
 
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         IQueryable<ReviewItemEntity> query = context.ReviewItems.AsNoTracking();
         if (status is not null)
@@ -198,14 +191,13 @@ public sealed class AdminConfigReadService(
             query = query.Where(item => item.Status == status);
         }
 
-        int totalCount = await query.CountAsync(cancellationToken).ConfigureAwait(false);
+        int totalCount = await query.CountAsync(cancellationToken);
         List<ReviewItemEntity> items = await query
             .OrderByDescending(item => item.CreatedAt)
             .ThenBy(item => item.ReviewItemId)
             .Skip((effectivePage - 1) * effectivePageSize)
             .Take(effectivePageSize)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         if (items.Count == 0)
         {
@@ -217,7 +209,7 @@ public sealed class AdminConfigReadService(
         Dictionary<string, JobContext> contexts = await ResolveJobContextsAsync(
             context,
             items,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         return new ReviewQueueApiResult(
             effectivePage,
@@ -258,8 +250,7 @@ public sealed class AdminConfigReadService(
                 result.TaskId,
                 ResultType = (string?)result.ResultType,
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         var byCallback = await context.ResultCallbacks.AsNoTracking()
             .Where(callback => sourceIds.Contains(callback.CallbackId))
@@ -274,8 +265,7 @@ public sealed class AdminConfigReadService(
                     result.TaskId,
                     ResultType = (string?)result.ResultType,
                 })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         var byTask = await context.CallJobs.AsNoTracking()
             .Where(job => sourceIds.Contains(job.TaskId))
@@ -286,8 +276,7 @@ public sealed class AdminConfigReadService(
                 job.TaskId,
                 ResultType = (string?)null,
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         var resolved = byResult.Concat(byCallback).Concat(byTask).ToList();
         string[] taskIds = resolved.Select(entry => entry.TaskId).Distinct().ToArray();
@@ -297,8 +286,7 @@ public sealed class AdminConfigReadService(
             .ToDictionaryAsync(
                 entry => entry.TaskId,
                 entry => entry.PrivacySafeOrderSummaryJson,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
 
         Dictionary<string, JobContext> map = [];
         foreach (var entry in resolved)

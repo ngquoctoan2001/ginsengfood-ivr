@@ -143,8 +143,7 @@ public sealed class ScriptLifecycleApiService(
         ScriptVersionSnapshot? snapshot = await versionReader
             .TryGetSnapshotAsync(
                 ScriptVersionKey.Create(templateId, version),
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
         return snapshot is null
             ? throw IvrErrors.NotFound("The script version was not found.")
             : Project(snapshot);
@@ -172,7 +171,7 @@ public sealed class ScriptLifecycleApiService(
                     Actor(principal, actorId),
                     request.Reason,
                     correlationId,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
             });
     }
 
@@ -194,7 +193,7 @@ public sealed class ScriptLifecycleApiService(
                 Actor(principal, actorId),
                 request.Reason,
                 correlationId,
-                cancellationToken).ConfigureAwait(false));
+                cancellationToken));
     }
 
     public Task<ScriptActionApiResult> ApproveAsync(
@@ -222,7 +221,7 @@ public sealed class ScriptLifecycleApiService(
                 Actor(principal, actorId),
                 request.Reason,
                 correlationId,
-                cancellationToken).ConfigureAwait(false));
+                cancellationToken));
     }
 
     public Task<ScriptActionApiResult> RetireAsync(
@@ -243,7 +242,7 @@ public sealed class ScriptLifecycleApiService(
                 Actor(principal, actorId),
                 request.Reason,
                 correlationId,
-                cancellationToken).ConfigureAwait(false));
+                cancellationToken));
     }
 
     /// <summary>
@@ -288,7 +287,7 @@ public sealed class ScriptLifecycleApiService(
         ScriptVersionSnapshot snapshot;
         try
         {
-            snapshot = await transition().ConfigureAwait(false);
+            snapshot = await transition();
         }
         catch (UnauthorizedAccessException)
         {

@@ -61,24 +61,20 @@ public sealed class AnalyticsEtlJob(
         DateTimeOffset now = options.Now ?? timeProvider.GetUtcNow();
 
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
 
         (List<AnalyticsFactCallOutcomeEntity> loaded, int rejected) =
-            await ExtractAsync(context, options.BatchSize, now, cancellationToken)
-                .ConfigureAwait(false);
+            await ExtractAsync(context, options.BatchSize, now, cancellationToken);
 
         if (loaded.Count > 0)
         {
             context.AnalyticsFacts.AddRange(loaded);
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            await UpsertDimensionsAsync(context, loaded, now, cancellationToken)
-                .ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken);
+            await UpsertDimensionsAsync(context, loaded, now, cancellationToken);
         }
 
         (int jobsInserted, int jobsRefreshed) =
-            await SyncJobFactsAsync(context, options.BatchSize, now, cancellationToken)
-                .ConfigureAwait(false);
+            await SyncJobFactsAsync(context, options.BatchSize, now, cancellationToken);
 
         int buckets = await RecomputeAggregatesAsync(
             context,
@@ -86,18 +82,15 @@ public sealed class AnalyticsEtlJob(
                 ? null
                 : loaded.Select(fact => fact.EventDate).Distinct().ToArray(),
             now,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
-        (int sourceRows, int orphanRows) = await CountSourceAsync(context, cancellationToken)
-            .ConfigureAwait(false);
-        int factRows = await context.AnalyticsFacts.CountAsync(cancellationToken)
-            .ConfigureAwait(false);
+        (int sourceRows, int orphanRows) = await CountSourceAsync(context, cancellationToken);
+        int factRows = await context.AnalyticsFacts.CountAsync(cancellationToken);
 
         // A row rejected by the privacy filter is deliberately absent from the facts, so it is
         // subtracted before the counts are compared. Otherwise every rejection would masquerade
         // as a pipeline fault and the real signal would be lost inside the noise.
-        long totalRejected = await ResolveTotalRejectedAsync(context, rejected, cancellationToken)
-            .ConfigureAwait(false);
+        long totalRejected = await ResolveTotalRejectedAsync(context, rejected, cancellationToken);
 
         string status = ResolveStatus(sourceRows, orphanRows, factRows, totalRejected);
         long durationMs = (long)Stopwatch.GetElapsedTime(startedTicks).TotalMilliseconds;
@@ -111,7 +104,7 @@ public sealed class AnalyticsEtlJob(
             sourceRows,
             factRows,
             status,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         return new AnalyticsEtlRunReport(
             loaded.Count,
@@ -168,13 +161,11 @@ public sealed class AnalyticsEtlJob(
                 job.Eligible,
                 job.CreatedAt,
                 job.ClosedAt))
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         List<AnalyticsFactCallJobEntity> openFacts = await context.AnalyticsJobFacts
             .Where(fact => !fact.Closed)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         string[] refreshIds = openFacts.Select(fact => fact.IvrCallJobId).ToArray();
         Dictionary<string, JobProjection> refreshSource = refreshIds.Length == 0
@@ -189,8 +180,7 @@ public sealed class AnalyticsEtlJob(
                     job.Eligible,
                     job.CreatedAt,
                     job.ClosedAt))
-                .ToDictionaryAsync(job => job.JobId, cancellationToken)
-                .ConfigureAwait(false);
+                .ToDictionaryAsync(job => job.JobId, cancellationToken);
 
         string[] countIds = missing.Select(job => job.JobId).Concat(refreshIds).Distinct().ToArray();
         Dictionary<string, int> attemptCounts = countIds.Length == 0
@@ -200,8 +190,7 @@ public sealed class AnalyticsEtlJob(
                     && countIds.Contains(attempt.IvrCallJobId))
                 .GroupBy(attempt => attempt.IvrCallJobId)
                 .Select(group => new { JobId = group.Key, Count = group.Count() })
-                .ToDictionaryAsync(row => row.JobId, row => row.Count, cancellationToken)
-                .ConfigureAwait(false);
+                .ToDictionaryAsync(row => row.JobId, row => row.Count, cancellationToken);
 
         int inserted = 0;
         foreach (JobProjection job in missing)
@@ -259,7 +248,7 @@ public sealed class AnalyticsEtlJob(
 
         if (inserted > 0 || refreshed > 0)
         {
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         return (inserted, refreshed);
@@ -314,8 +303,7 @@ public sealed class AnalyticsEtlJob(
                 job.T0At,
             })
             .Take(batchSize)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         if (candidates.Count == 0)
         {
@@ -331,8 +319,7 @@ public sealed class AnalyticsEtlJob(
                 && jobIds.Contains(attempt.IvrCallJobId))
             .GroupBy(attempt => attempt.IvrCallJobId)
             .Select(group => new { JobId = group.Key, Count = group.Count() })
-            .ToDictionaryAsync(row => row.JobId, row => row.Count, cancellationToken)
-            .ConfigureAwait(false);
+            .ToDictionaryAsync(row => row.JobId, row => row.Count, cancellationToken);
 
         List<AnalyticsFactCallOutcomeEntity> loaded = new(candidates.Count);
         int rejected = 0;
@@ -411,8 +398,7 @@ public sealed class AnalyticsEtlJob(
         foreach (var group in loaded.GroupBy(fact => fact.ProgramKey, StringComparer.Ordinal))
         {
             AnalyticsDimProgramEntity? dim = await context.AnalyticsPrograms
-                .FirstOrDefaultAsync(row => row.ProgramKey == group.Key, cancellationToken)
-                .ConfigureAwait(false);
+                .FirstOrDefaultAsync(row => row.ProgramKey == group.Key, cancellationToken);
             if (dim is null)
             {
                 dim = new AnalyticsDimProgramEntity { ProgramKey = group.Key, FirstSeenAt = now };
@@ -426,8 +412,7 @@ public sealed class AnalyticsEtlJob(
         foreach (var group in loaded.GroupBy(fact => fact.ScriptVariantKey, StringComparer.Ordinal))
         {
             AnalyticsDimScriptVariantEntity? dim = await context.AnalyticsScriptVariants
-                .FirstOrDefaultAsync(row => row.ScriptVariantKey == group.Key, cancellationToken)
-                .ConfigureAwait(false);
+                .FirstOrDefaultAsync(row => row.ScriptVariantKey == group.Key, cancellationToken);
             if (dim is null)
             {
                 dim = new AnalyticsDimScriptVariantEntity
@@ -445,8 +430,7 @@ public sealed class AnalyticsEtlJob(
         foreach (var group in loaded.GroupBy(fact => fact.ResultTypeKey, StringComparer.Ordinal))
         {
             AnalyticsDimResultTypeEntity? dim = await context.AnalyticsResultTypes
-                .FirstOrDefaultAsync(row => row.ResultTypeKey == group.Key, cancellationToken)
-                .ConfigureAwait(false);
+                .FirstOrDefaultAsync(row => row.ResultTypeKey == group.Key, cancellationToken);
             if (dim is null)
             {
                 dim = new AnalyticsDimResultTypeEntity
@@ -462,7 +446,7 @@ public sealed class AnalyticsEtlJob(
             dim.FactRowCount += group.Count();
         }
 
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     // --------------------------------------------------------------- aggregates
@@ -491,18 +475,17 @@ public sealed class AnalyticsEtlJob(
             stale = stale.Where(row => dates.Contains(row.BucketDate));
         }
 
-        await stale.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+        await stale.ExecuteDeleteAsync(cancellationToken);
 
         // Materialized before grouping: the distinct-order count and the taxonomy splits are
         // clearer in memory than as a translated aggregate, and the set is one batch of dates.
         List<AnalyticsFactCallOutcomeEntity> rows = await facts
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         List<AnalyticsKpiDailyEntity> buckets = AnalyticsKpiMath.Fold(rows, now);
 
         context.AnalyticsKpiDaily.AddRange(buckets);
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
         return buckets.Count;
     }
 
@@ -513,8 +496,7 @@ public sealed class AnalyticsEtlJob(
         CancellationToken cancellationToken)
     {
         int total = await context.CallResults.AsNoTracking()
-            .CountAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(cancellationToken);
 
         // A result whose job is gone cannot be projected — the fact needs the program and the
         // script variant. Counting it separately is what keeps the reconcile honest: without
@@ -522,8 +504,7 @@ public sealed class AnalyticsEtlJob(
         int orphan = await context.CallResults.AsNoTracking()
             .CountAsync(
                 result => !context.CallJobs.Any(job => job.IvrCallJobId == result.IvrCallJobId),
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
 
         return (total, orphan);
     }
@@ -552,8 +533,7 @@ public sealed class AnalyticsEtlJob(
     {
         AnalyticsEtlCheckpointEntity? checkpoint = await context.AnalyticsCheckpoints
             .AsNoTracking()
-            .FirstOrDefaultAsync(row => row.PipelineName == PipelineName, cancellationToken)
-            .ConfigureAwait(false);
+            .FirstOrDefaultAsync(row => row.PipelineName == PipelineName, cancellationToken);
 
         return (checkpoint?.TotalRejectedRows ?? 0) + rejectedThisRun;
     }
@@ -570,8 +550,7 @@ public sealed class AnalyticsEtlJob(
         CancellationToken cancellationToken)
     {
         AnalyticsEtlCheckpointEntity? checkpoint = await context.AnalyticsCheckpoints
-            .FirstOrDefaultAsync(row => row.PipelineName == PipelineName, cancellationToken)
-            .ConfigureAwait(false);
+            .FirstOrDefaultAsync(row => row.PipelineName == PipelineName, cancellationToken);
 
         if (checkpoint is null)
         {
@@ -604,7 +583,7 @@ public sealed class AnalyticsEtlJob(
         checkpoint.FactRowCount = factRows;
         checkpoint.ReconcileStatus = status;
 
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>Culture-independent bucket label used by the KPI catalog examples.</summary>

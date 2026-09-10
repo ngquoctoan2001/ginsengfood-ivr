@@ -37,12 +37,10 @@ public sealed class PostgresEligibilityRepository(
     {
         ValidateKey(taskId);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         ConfirmationTaskEntity? task = await context.ConfirmationTasks
             .AsNoTracking()
-            .SingleOrDefaultAsync(item => item.TaskId == taskId, cancellationToken)
-            .ConfigureAwait(false);
+            .SingleOrDefaultAsync(item => item.TaskId == taskId, cancellationToken);
         if (task is null)
         {
             return null;
@@ -50,12 +48,10 @@ public sealed class PostgresEligibilityRepository(
 
         CallJobEntity job = await context.CallJobs
             .AsNoTracking()
-            .SingleAsync(item => item.TaskId == taskId, cancellationToken)
-            .ConfigureAwait(false);
+            .SingleAsync(item => item.TaskId == taskId, cancellationToken);
         TaskIntakeOutboxEntity outbox = await context.TaskIntakeOutbox
             .AsNoTracking()
-            .SingleAsync(item => item.TaskId == taskId, cancellationToken)
-            .ConfigureAwait(false);
+            .SingleAsync(item => item.TaskId == taskId, cancellationToken);
         return new EligibilityTaskRecord(task, job, outbox);
     }
 
@@ -68,25 +64,21 @@ public sealed class PostgresEligibilityRepository(
     {
         Validate(taskId, evaluation, capacity, correlationId);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         await PostgresIdempotencyStore.AcquireKeyLockAsync(
             context,
             string.Concat("eligibility:", taskId),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         ConfirmationTaskEntity task = await context.ConfirmationTasks
-            .SingleAsync(item => item.TaskId == taskId, cancellationToken)
-            .ConfigureAwait(false);
+            .SingleAsync(item => item.TaskId == taskId, cancellationToken);
         CallJobEntity job = await context.CallJobs
-            .SingleAsync(item => item.TaskId == taskId, cancellationToken)
-            .ConfigureAwait(false);
+            .SingleAsync(item => item.TaskId == taskId, cancellationToken);
         TaskIntakeOutboxEntity outbox = await context.TaskIntakeOutbox
-            .SingleAsync(item => item.TaskId == taskId, cancellationToken)
-            .ConfigureAwait(false);
+            .SingleAsync(item => item.TaskId == taskId, cancellationToken);
         if (!string.Equals(
                 job.EligibilityDecision,
                 EligibilityDecisions.Pending,
@@ -97,7 +89,7 @@ public sealed class PostgresEligibilityRepository(
                     evaluation.Decision,
                     StringComparison.Ordinal))
             {
-                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                await transaction.CommitAsync(cancellationToken);
                 return evaluation with { CapacityIncidentId = job.CapacityIncidentId };
             }
 
@@ -124,8 +116,8 @@ public sealed class PostgresEligibilityRepository(
 
         context.EvidenceLinks.AddRange(artifacts.EvidenceLinks);
         context.AuditLog.Add(artifacts.Audit);
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return artifacts.Evaluation;
     }
 

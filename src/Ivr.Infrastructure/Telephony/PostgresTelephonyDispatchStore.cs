@@ -115,8 +115,7 @@ public sealed class PostgresTelephonyDispatchStore(
     {
         ArgumentNullException.ThrowIfNull(lease);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         var row = await context.CallAttempts
             .AsNoTracking()
             .Where(attempt => attempt.IvrCallAttemptId == lease.AttemptId)
@@ -126,8 +125,7 @@ public sealed class PostgresTelephonyDispatchStore(
                 attempt.TerminationRequestedBy,
                 attempt.TerminationReason,
             })
-            .SingleOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .SingleOrDefaultAsync(cancellationToken);
         return row?.TerminationRequestedAt is null
             ? null
             : new CallTerminationRequest(
@@ -142,18 +140,17 @@ public sealed class PostgresTelephonyDispatchStore(
     {
         ArgumentNullException.ThrowIfNull(lease);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         CallAttemptEntity attempt = await context.CallAttempts.AsNoTracking().SingleAsync(
             candidate => candidate.IvrCallAttemptId == lease.AttemptId,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         SimChannelEntity channel = await context.SimChannels.AsNoTracking().SingleAsync(
             candidate => candidate.SimChannelId == lease.SimChannelId,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         EnsureCurrentLease(lease, attempt, channel, timeProvider.GetUtcNow());
         ConfirmationTaskEntity task = await context.ConfirmationTasks.AsNoTracking().SingleAsync(
             candidate => candidate.TaskId == attempt.TaskId,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (task.DialTokenExpiresAt > lease.Deadline)
         {
             throw new InvalidOperationException("Stored dial-token expiry exceeds the call deadline.");
@@ -259,7 +256,7 @@ public sealed class PostgresTelephonyDispatchStore(
                     }));
                 await Task.CompletedTask;
             },
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
     }
 
     public Task CompleteAsync(
@@ -438,31 +435,30 @@ public sealed class PostgresTelephonyDispatchStore(
         CancellationToken cancellationToken)
     {
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         CallAttemptEntity attempt = await context.CallAttempts.FromSqlInterpolated($$"""
             SELECT attempt.* FROM ivr_call_attempts attempt
             WHERE attempt.ivr_call_attempt_id = {{lease.AttemptId}}
             FOR UPDATE OF attempt
-            """).SingleAsync(cancellationToken).ConfigureAwait(false);
+            """).SingleAsync(cancellationToken);
         SimChannelEntity channel = await context.SimChannels.FromSqlInterpolated($$"""
             SELECT channel.* FROM ivr_sim_channels channel
             WHERE channel.sim_channel_id = {{lease.SimChannelId}}
             FOR UPDATE OF channel
-            """).SingleAsync(cancellationToken).ConfigureAwait(false);
+            """).SingleAsync(cancellationToken);
         CallJobEntity job = await context.CallJobs.FromSqlInterpolated($$"""
             SELECT job.* FROM ivr_call_jobs job
             WHERE job.ivr_call_job_id = {{lease.JobId}}
             FOR UPDATE OF job
-            """).SingleAsync(cancellationToken).ConfigureAwait(false);
+            """).SingleAsync(cancellationToken);
         DateTimeOffset now = timeProvider.GetUtcNow();
         EnsureCurrentLease(lease, attempt, channel, now);
-        await mutation(context, attempt, channel, job, now).ConfigureAwait(false);
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await mutation(context, attempt, channel, job, now);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     private static void EnsureCurrentLease(

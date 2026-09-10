@@ -246,7 +246,7 @@ public sealed class ServiceJwtValidator(
         TokenValidationResult result;
         try
         {
-            result = await _handler.ValidateTokenAsync(token, parameters).ConfigureAwait(false);
+            result = await _handler.ValidateTokenAsync(token, parameters);
         }
         catch (ArgumentException)
         {
@@ -529,7 +529,7 @@ public sealed class MockClientCredentialsTokenProvider(
             return cached;
         }
 
-        await _refreshGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await _refreshGate.WaitAsync(cancellationToken);
         try
         {
             // Re-check inside the gate: whoever won the race already refreshed for everyone.

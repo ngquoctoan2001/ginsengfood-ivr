@@ -63,7 +63,7 @@ public sealed class LabDialTokenVault(
             nameof(LabDialTokenVault),
             request,
             decision,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (!decision.Allowed)
         {
             throw new DialTokenRefusedException(

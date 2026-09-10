@@ -25,16 +25,23 @@ const tests = [
   ['pre-call-admitted', report => report.result_codes.find(code => !code.runtime_result).call_result_construction_rejected = false, false],
   ['stale-source', report => report.inventory.source_sha256 = 'stale', false],
 ];
-for (const [name, mutate, expected] of tests) {
-  const candidate = structuredClone(baseline);
-  mutate(candidate);
-  const input = path.join(temporary, `${name}.json`);
-  const output = path.join(temporary, `${name}.report.json`);
-  fs.writeFileSync(input, JSON.stringify(candidate));
-  const child = spawnSync(process.execPath, ['deploy/ci/scripts/verify-api-behavior-matrix.mjs', input, output],
-    { cwd: root, encoding: 'utf8', timeout: 30000, windowsHide: true });
-  assert.equal(child.status === 0, expected, `${name}: unexpected validator exit ${child.status}: ${child.stderr}`);
-  const result = JSON.parse(fs.readFileSync(output, 'utf8'));
-  assert.equal(result.verdict === 'PASS', expected, name);
+// W-0269. The scratch directory is created inside the repository, so this script owns its
+// removal -- there is no OS reaper under .artifacts/ the way there is under tmpdir(). It had
+// none, on any path: eleven validator-selftest-* directories had collected here by 2026-09-10.
+try {
+  for (const [name, mutate, expected] of tests) {
+    const candidate = structuredClone(baseline);
+    mutate(candidate);
+    const input = path.join(temporary, `${name}.json`);
+    const output = path.join(temporary, `${name}.report.json`);
+    fs.writeFileSync(input, JSON.stringify(candidate));
+    const child = spawnSync(process.execPath, ['deploy/ci/scripts/verify-api-behavior-matrix.mjs', input, output],
+      { cwd: root, encoding: 'utf8', timeout: 30000, windowsHide: true });
+    assert.equal(child.status === 0, expected, `${name}: unexpected validator exit ${child.status}: ${child.stderr}`);
+    const result = JSON.parse(fs.readFileSync(output, 'utf8'));
+    assert.equal(result.verdict === 'PASS', expected, name);
+  }
+  console.log(`API_MATRIX_VALIDATOR_SELFTEST=PASS (${tests.length} cases; 1 valid, ${tests.length - 1} refusals)`);
+} finally {
+  fs.rmSync(temporary, { recursive: true, force: true });
 }
-console.log(`API_MATRIX_VALIDATOR_SELFTEST=PASS (${tests.length} cases; 1 valid, ${tests.length - 1} refusals)`);

@@ -57,7 +57,7 @@ public sealed class AsteriskSchedulerDispatchGateway(
 
         TelephonyDispatchContext dispatch = await store.LoadAsync(
             lease,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         SimCallSession? session = null;
         bool hungUp = false;
         TimeSpan cooldown = TimeSpan.FromSeconds(configured.CooldownSeconds);
@@ -70,12 +70,12 @@ public sealed class AsteriskSchedulerDispatchGateway(
                     dispatch.TaskId,
                     dispatch.MaxDialTokenResolves),
                 timeProvider.GetUtcNow(),
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             string destination = authorization.RevealToTrustedGateway();
             DispatchGateDecision gate = await dispatchGate.EvaluateAsync(
                 configured.Environment,
                 destination,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             if (!gate.Allowed)
             {
                 throw new AsteriskAriOperationException(
@@ -90,7 +90,7 @@ public sealed class AsteriskSchedulerDispatchGateway(
                 dispatch.ScriptTemplateId,
                 dispatch.ScriptVersion,
                 ExecutionMode.LabRealSim,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             speech = await speechSynthesisService.SynthesizeAsync(
                 speech,
                 dispatch.SpeechSummary,
@@ -98,10 +98,10 @@ public sealed class AsteriskSchedulerDispatchGateway(
                 dispatch.ScriptVersion,
                 ExecutionMode.LabRealSim,
                 lease.Deadline,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             SimGatewayHealth health = await simGateway.CheckHealthAsync(
                 lease.SimChannelId,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             if (!health.RecordingDisabled)
             {
                 throw new AsteriskAriOperationException(
@@ -129,23 +129,23 @@ public sealed class AsteriskSchedulerDispatchGateway(
                     lease.FencingGeneration,
                     authorization,
                     SimRecordingMode.Disabled),
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             // W-0113. The voice rides on the audio that was just produced, so what gets recorded
             // is the voice this attempt actually holds rather than one re-derived later.
             await store.MarkActiveAsync(
                 lease,
                 session,
                 speech.Audio?.Voice,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             SimDtmfCapture dtmf;
             if (session.IsConnected)
             {
-                await simGateway.PlayAsync(session, speech, cancellationToken).ConfigureAwait(false);
+                await simGateway.PlayAsync(session, speech, cancellationToken);
                 dtmf = await CaptureDtmfOrTerminationAsync(
                     session,
                     lease,
                     TimeSpan.FromSeconds(configured.DtmfTimeoutSeconds),
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
             }
             else
             {
@@ -155,11 +155,11 @@ public sealed class AsteriskSchedulerDispatchGateway(
             // Asked again after the capture returns. An ARI hangup ends the channel, which can
             // complete the capture normally, and without this the loop would record an operator
             // cut as a customer outcome.
-            await EnsureNotTerminatedAsync(session, lease, cancellationToken).ConfigureAwait(false);
+            await EnsureNotTerminatedAsync(session, lease, cancellationToken);
             SimDispositionReport disposition = await simGateway.GetDispositionAsync(
                 session,
-                cancellationToken).ConfigureAwait(false);
-            await simGateway.HangupAsync(session, cancellationToken).ConfigureAwait(false);
+                cancellationToken);
+            await simGateway.HangupAsync(session, cancellationToken);
             hungUp = true;
             await store.CompleteAsync(
                 lease,
@@ -167,16 +167,16 @@ public sealed class AsteriskSchedulerDispatchGateway(
                 dtmf,
                 disposition,
                 cooldown,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            await TryHangupAsync(session, hungUp, CancellationToken.None).ConfigureAwait(false);
+            await TryHangupAsync(session, hungUp, CancellationToken.None);
             throw;
         }
         catch (Exception exception)
         {
-            await TryHangupAsync(session, hungUp, CancellationToken.None).ConfigureAwait(false);
+            await TryHangupAsync(session, hungUp, CancellationToken.None);
             (SimProviderDisposition disposition, string technicalCode, bool channelHealthy) =
                 exception switch
                 {
@@ -213,7 +213,7 @@ public sealed class AsteriskSchedulerDispatchGateway(
                 technicalCode,
                 channelHealthy,
                 cooldown,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             throw;
         }
     }
@@ -238,24 +238,23 @@ public sealed class AsteriskSchedulerDispatchGateway(
         {
             Task completed = await Task.WhenAny(
                 capture,
-                Task.Delay(interval, timeProvider, cancellationToken)).ConfigureAwait(false);
+                Task.Delay(interval, timeProvider, cancellationToken));
             if (completed == capture)
             {
-                return await capture.ConfigureAwait(false);
+                return await capture;
             }
 
             CallTerminationRequest? request = await store
-                .ReadTerminationAsync(lease, cancellationToken)
-                .ConfigureAwait(false);
+                .ReadTerminationAsync(lease, cancellationToken);
             if (request is null)
             {
                 continue;
             }
 
-            await simGateway.HangupAsync(session, cancellationToken).ConfigureAwait(false);
+            await simGateway.HangupAsync(session, cancellationToken);
             try
             {
-                await capture.ConfigureAwait(false);
+                await capture;
             }
             catch
             {
@@ -272,11 +271,10 @@ public sealed class AsteriskSchedulerDispatchGateway(
         CancellationToken cancellationToken)
     {
         CallTerminationRequest? request = await store
-            .ReadTerminationAsync(lease, cancellationToken)
-            .ConfigureAwait(false);
+            .ReadTerminationAsync(lease, cancellationToken);
         if (request is not null)
         {
-            await TryHangupAsync(session, false, cancellationToken).ConfigureAwait(false);
+            await TryHangupAsync(session, false, cancellationToken);
             throw new CallTerminatedException(request);
         }
     }
@@ -293,7 +291,7 @@ public sealed class AsteriskSchedulerDispatchGateway(
 
         try
         {
-            await simGateway.HangupAsync(session, cancellationToken).ConfigureAwait(false);
+            await simGateway.HangupAsync(session, cancellationToken);
         }
         catch (Exception)
         {

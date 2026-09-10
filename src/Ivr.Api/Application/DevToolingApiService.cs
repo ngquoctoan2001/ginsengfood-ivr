@@ -91,11 +91,10 @@ public sealed class DevToolingApiService(
         ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
 
         DateTimeOffset now = timeProvider.GetUtcNow();
-        int policies = await EnsureAttemptPoliciesAsync(actorId, correlationId, cancellationToken)
-            .ConfigureAwait(false);
+        int policies = await EnsureAttemptPoliciesAsync(actorId, correlationId, cancellationToken);
         SeedTaskCatalog catalogue = await ReadAsync(
             token => catalog.ReadTasksAsync(request.RebaseWindows ? now : null, token),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         IReadOnlyList<SeedTaskFixture> fixtures = catalogue.Tasks;
 
         ExecutionMode mode = ParseExecutionMode(ivrOptions.Value.ExecutionMode);
@@ -121,7 +120,7 @@ public sealed class DevToolingApiService(
                         fixture.CorrelationId,
                         PayloadHash(fixture.Body),
                         mode),
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
             }
             catch (IvrFailureException exception)
             {
@@ -144,7 +143,7 @@ public sealed class DevToolingApiService(
                 // only to add the call job id, when the fixture produced one.
                 bool alreadySeeded = exception.ErrorCode == IvrErrorCodes.IdempotencyConflict;
                 string? existingJobId = alreadySeeded
-                    ? await FindSeededJobIdAsync(taskId, cancellationToken).ConfigureAwait(false)
+                    ? await FindSeededJobIdAsync(taskId, cancellationToken)
                     : null;
                 outcomes.Add(new SeedTaskOutcomeView(
                     fixture.Scenario,
@@ -210,7 +209,7 @@ public sealed class DevToolingApiService(
 
         IReadOnlyList<ScenarioDefinition> scenarios = await ReadAsync(
             token => catalog.ReadScenariosAsync(token),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         ScenarioDefinition scenario = scenarios.SingleOrDefault(
                 item => string.Equals(item.Id, scenarioId, StringComparison.Ordinal))
             ?? throw IvrErrors.NotFound("The scenario was not found in the seed catalogue.");
@@ -260,7 +259,7 @@ public sealed class DevToolingApiService(
 
         IReadOnlyList<IntegrationStatusProfile> profiles = await ReadAsync(
             token => catalog.ReadIntegrationProfilesAsync(token),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         IntegrationStatusProfile profile = profiles.SingleOrDefault(
                 item => string.Equals(item.Id, profileId, StringComparison.Ordinal))
             ?? throw IvrErrors.NotFound("The integration-status profile was not found.");
@@ -273,7 +272,7 @@ public sealed class DevToolingApiService(
                 actorId,
                 correlationId,
                 idempotencyKey,
-                cancellationToken).ConfigureAwait(false),
+                cancellationToken),
 
             // The remaining four are declared, not enforced. IVR holds no client for any of them
             // and no probe reports their health, so there is nothing in the running system for a
@@ -327,14 +326,12 @@ public sealed class DevToolingApiService(
         CancellationToken cancellationToken)
     {
         await using IvrDbContext dbContext = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         return await dbContext.CallJobs
             .AsNoTracking()
             .Where(job => job.TaskId == taskId)
             .Select(job => job.IvrCallJobId)
-            .FirstOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private async Task<int> EnsureAttemptPoliciesAsync(
@@ -358,7 +355,7 @@ public sealed class DevToolingApiService(
                     actorId,
                     "Seed loader prerequisite (UI-07)",
                     correlationId,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
                 registered++;
             }
             catch (InvalidOperationException)
@@ -397,7 +394,7 @@ public sealed class DevToolingApiService(
 
         List<string> channelIds;
         await using (IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken).ConfigureAwait(false))
+            .CreateDbContextAsync(cancellationToken))
         {
             channelIds =
             [
@@ -406,7 +403,7 @@ public sealed class DevToolingApiService(
                     .Where(channel => channel.Enabled != bringUp)
                     .OrderBy(channel => channel.SimChannelId)
                     .Select(channel => channel.SimChannelId)
-                    .ToListAsync(cancellationToken).ConfigureAwait(false),
+                    .ToListAsync(cancellationToken),
             ];
         }
 
@@ -420,14 +417,12 @@ public sealed class DevToolingApiService(
                 if (bringUp)
                 {
                     await adminService.EnableChannelAsync(
-                        channelId, request, actorId, correlationId, scopedKey, cancellationToken)
-                        .ConfigureAwait(false);
+                        channelId, request, actorId, correlationId, scopedKey, cancellationToken);
                 }
                 else
                 {
                     await adminService.DisableChannelAsync(
-                        channelId, request, actorId, correlationId, scopedKey, cancellationToken)
-                        .ConfigureAwait(false);
+                        channelId, request, actorId, correlationId, scopedKey, cancellationToken);
                 }
 
                 changed++;
@@ -487,7 +482,7 @@ public sealed class DevToolingApiService(
     {
         try
         {
-            return await read(cancellationToken).ConfigureAwait(false);
+            return await read(cancellationToken);
         }
         catch (SeedCatalogException exception)
         {

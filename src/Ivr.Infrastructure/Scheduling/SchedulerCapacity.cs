@@ -167,8 +167,7 @@ public sealed class PostgresSchedulerCapacityService(
     {
         ArgumentNullException.ThrowIfNull(request);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         string executionMode = executionContext.ExecutionMode;
         List<SimChannelEntity> storedChannels = await context.SimChannels
             .AsNoTracking()
@@ -178,8 +177,7 @@ public sealed class PostgresSchedulerCapacityService(
                 && (channel.Status != "QUARANTINED"
                     || channel.QuarantineUntil <= evaluatedAt)
                 && channel.Status != "HEALTH_FAILED")
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
         SchedulerChannelAvailability[] channels = storedChannels
             .Where(channel => channel.LeaseToken is null
                 && (channel.Status == "IDLE"
@@ -197,8 +195,7 @@ public sealed class PostgresSchedulerCapacityService(
                 && (job.Status == "READY_FOR_SCHEDULER"
                     || job.Status == "DISPATCH_LEASED")
                 && (job.QueueStatus == "QUEUED" || job.QueueStatus == "LEASED"))
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
         string[] jobIds = jobs.Select(job => job.IvrCallJobId).ToArray();
         Dictionary<string, int> countedAttempts = await context.CallAttempts
             .AsNoTracking()
@@ -206,15 +203,13 @@ public sealed class PostgresSchedulerCapacityService(
                 && attempt.IsCountedCustomerAttempt)
             .GroupBy(attempt => attempt.IvrCallJobId)
             .Select(group => new { JobId = group.Key, Count = group.Count() })
-            .ToDictionaryAsync(row => row.JobId, row => row.Count, cancellationToken)
-            .ConfigureAwait(false);
+            .ToDictionaryAsync(row => row.JobId, row => row.Count, cancellationToken);
         HashSet<string> finalJobs = (await context.CallResults
                 .AsNoTracking()
                 .Where(result => jobIds.Contains(result.IvrCallJobId) && result.IsFinalForIvr)
                 .Select(result => result.IvrCallJobId)
                 .Distinct()
-                .ToListAsync(cancellationToken)
-                .ConfigureAwait(false))
+                .ToListAsync(cancellationToken))
             .ToHashSet(StringComparer.Ordinal);
         Dictionary<string, int> riskScores = await context.ConfirmationTasks
             .AsNoTracking()
@@ -222,8 +217,7 @@ public sealed class PostgresSchedulerCapacityService(
             .ToDictionaryAsync(
                 task => task.TaskId,
                 task => SchedulerCapacityMapper.RiskScore(task.RiskFlagsJson),
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
 
         var items = new List<SchedulerQueueItem>();
         foreach (CallJobEntity job in jobs.Where(job => !finalJobs.Contains(job.IvrCallJobId)))

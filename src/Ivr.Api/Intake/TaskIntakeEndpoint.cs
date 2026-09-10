@@ -55,7 +55,7 @@ public static class TaskIntakeEndpoint
         {
             requestBytes = await ReadBoundedBodyAsync(
                 context.Request,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             using JsonDocument document = JsonDocument.Parse(
                 requestBytes,
                 new JsonDocumentOptions
@@ -87,7 +87,7 @@ public static class TaskIntakeEndpoint
                 correlationId,
                 payloadHash,
                 ParseExecutionMode(options.Value.ExecutionMode)),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (outcome.IsFailure)
         {
             throw new IvrFailureException(
@@ -148,8 +148,7 @@ public static class TaskIntakeEndpoint
         byte[] chunk = new byte[16_384];
         while (true)
         {
-            int read = await request.Body.ReadAsync(chunk, cancellationToken)
-                .ConfigureAwait(false);
+            int read = await request.Body.ReadAsync(chunk, cancellationToken);
             if (read == 0)
             {
                 break;

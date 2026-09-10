@@ -98,7 +98,7 @@ public sealed class AnalyticsReadService(
         CancellationToken cancellationToken)
     {
         NormalizedFilter normalized = Normalize(filter);
-        FactSet facts = await LoadAsync(normalized, cancellationToken).ConfigureAwait(false);
+        FactSet facts = await LoadAsync(normalized, cancellationToken);
 
         (IReadOnlyList<AnalyticsBreakdownRowView> taxonomy, int suppressed) =
             BuildBreakdown(facts, DimensionResultType);
@@ -116,7 +116,7 @@ public sealed class AnalyticsReadService(
         CancellationToken cancellationToken)
     {
         NormalizedFilter normalized = Normalize(filter);
-        FactSet facts = await LoadAsync(normalized, cancellationToken).ConfigureAwait(false);
+        FactSet facts = await LoadAsync(normalized, cancellationToken);
 
         var grouped = facts.Rows
             .GroupBy(row => new
@@ -169,7 +169,7 @@ public sealed class AnalyticsReadService(
     {
         NormalizedFilter normalized = Normalize(filter);
         string normalizedDimension = NormalizeDimension(dimension);
-        FactSet facts = await LoadAsync(normalized, cancellationToken).ConfigureAwait(false);
+        FactSet facts = await LoadAsync(normalized, cancellationToken);
 
         (IReadOnlyList<AnalyticsBreakdownRowView> rows, int suppressed) =
             BuildBreakdown(facts, normalizedDimension);
@@ -192,7 +192,7 @@ public sealed class AnalyticsReadService(
         NormalizedFilter normalized = Normalize(filter);
         string normalizedDimension = NormalizeDimension(dimension);
         string normalizedReason = NormalizeExportReason(reason);
-        FactSet facts = await LoadAsync(normalized, cancellationToken).ConfigureAwait(false);
+        FactSet facts = await LoadAsync(normalized, cancellationToken);
 
         (IReadOnlyList<AnalyticsBreakdownRowView> rows, int suppressed) =
             BuildBreakdown(facts, normalizedDimension);
@@ -227,7 +227,7 @@ public sealed class AnalyticsReadService(
                     ["min_bucket_size"] = MinBucketSize,
                     ["source"] = SourceLabel,
                 }),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         return new AnalyticsExportApiResult(
             normalized.ToView(),
@@ -265,24 +265,20 @@ public sealed class AnalyticsReadService(
         CancellationToken cancellationToken)
     {
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         AnalyticsEtlCheckpointEntity? checkpoint = await context.AnalyticsCheckpoints
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 row => row.PipelineName == AnalyticsEtlJob.PipelineName,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
 
         bool warehouseHasFacts = await context.AnalyticsFacts
-            .AnyAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .AnyAsync(cancellationToken);
 
         return warehouseHasFacts
             ? await LoadFromWarehouseAsync(context, filter, checkpoint, cancellationToken)
-                .ConfigureAwait(false)
-            : await LoadFromOperationalAsync(context, filter, checkpoint, cancellationToken)
-                .ConfigureAwait(false);
+            : await LoadFromOperationalAsync(context, filter, checkpoint, cancellationToken);
     }
 
     /// <summary>
@@ -338,8 +334,7 @@ public sealed class AnalyticsReadService(
                 fact.ResultTypeKey,
                 fact.IsFinal,
                 fact.SecondsToResult))
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         bool truncated = rows.Count > MaxFactRows;
         if (truncated)
@@ -347,13 +342,11 @@ public sealed class AnalyticsReadService(
             rows.RemoveAt(rows.Count - 1);
         }
 
-        int totalJobs = await jobFacts.CountAsync(cancellationToken).ConfigureAwait(false);
+        int totalJobs = await jobFacts.CountAsync(cancellationToken);
         int eligibleTasks = await jobFacts
-            .CountAsync(fact => fact.Eligible, cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(fact => fact.Eligible, cancellationToken);
         int secondAttemptJobs = await jobFacts
-            .CountAsync(fact => fact.CountedAttemptCount >= 2, cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(fact => fact.CountedAttemptCount >= 2, cancellationToken);
 
         return new FactSet(
             rows,
@@ -419,8 +412,7 @@ public sealed class AnalyticsReadService(
                 row.Result.IsFinalForIvr,
                 row.Job.T0At,
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         // Elapsed seconds is derived here rather than in SQL so both sources hand
         // BuildKpi the identical shape, and the same rule about negative values —
@@ -447,10 +439,9 @@ public sealed class AnalyticsReadService(
         }
 
         IQueryable<string> scopedJobIds = jobs.Select(job => job.IvrCallJobId);
-        int totalJobs = await jobs.CountAsync(cancellationToken).ConfigureAwait(false);
+        int totalJobs = await jobs.CountAsync(cancellationToken);
         int eligibleTasks = await jobs
-            .CountAsync(job => job.Eligible, cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(job => job.Eligible, cancellationToken);
 
         // Only counted customer attempts qualify: a technical retry must never
         // inflate the attempt-2 rate (DT-02).
@@ -460,8 +451,7 @@ public sealed class AnalyticsReadService(
                 && scopedJobIds.Contains(attempt.IvrCallJobId))
             .Select(attempt => attempt.IvrCallJobId)
             .Distinct()
-            .CountAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(cancellationToken);
 
         return new FactSet(
             rows,

@@ -72,13 +72,11 @@ public sealed class QueueOnlySuppressionProposer(IDbContextFactory<IvrDbContext>
 
         string proposalId = string.Concat("OPTOUT-", proposal.ContactReference);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
 
         bool exists = await context.ReviewItems
             .AsNoTracking()
-            .AnyAsync(item => item.ReviewItemId == proposalId, cancellationToken)
-            .ConfigureAwait(false);
+            .AnyAsync(item => item.ReviewItemId == proposalId, cancellationToken);
         if (exists)
         {
             // Re-proposing the same contact must not stack duplicate rows in CRM's future inbox.
@@ -127,7 +125,7 @@ public sealed class QueueOnlySuppressionProposer(IDbContextFactory<IvrDbContext>
             CreatedAt = now,
         });
 
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
         return proposalId;
     }
 }

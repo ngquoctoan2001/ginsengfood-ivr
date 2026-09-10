@@ -108,7 +108,7 @@ public sealed class InMemoryIdempotencyStore : IIdempotencyStore
         PiiGuard.EnsureSafeText(payloadHash);
 
         SemaphoreSlim keyLock = stripes[StripeOf(key)];
-        await keyLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await keyLock.WaitAsync(cancellationToken);
 
         try
         {
@@ -137,7 +137,7 @@ public sealed class InMemoryIdempotencyStore : IIdempotencyStore
                 }
             }
 
-            TResponse response = await factory(cancellationToken).ConfigureAwait(false);
+            TResponse response = await factory(cancellationToken);
             string snapshot = JsonSerializer.Serialize(response, SerializerOptions);
             PiiGuard.EnsureSafeText(snapshot);
             records[key] = new IdempotencyKeyRecord(key, payloadHash, snapshot, now);

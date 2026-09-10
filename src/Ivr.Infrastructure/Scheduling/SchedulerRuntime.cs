@@ -80,11 +80,11 @@ public sealed class SchedulerRuntime(
             now,
             TimeSpan.FromSeconds(snapshot.RecoveryQuarantineSeconds),
             snapshot.ClaimBatchSize,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         int closed = await store.CloseMissedDeadlinesAsync(
             now,
             snapshot.ClaimBatchSize,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (!dispatchGateway.IsReady)
         {
             return new SchedulerRunResult(true, false, quarantined, closed, false);
@@ -109,7 +109,7 @@ public sealed class SchedulerRuntime(
             workerId,
             executionContext.ExecutionMode,
             TimeSpan.FromSeconds(snapshot.LeaseDurationSeconds),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (lease is null)
         {
             return new SchedulerRunResult(true, true, quarantined, closed, false);
@@ -131,7 +131,7 @@ public sealed class SchedulerRuntime(
             (TelemetryTags.SimProvider, lease.ProviderName));
         try
         {
-            await dispatchGateway.DispatchAsync(lease, cancellationToken).ConfigureAwait(false);
+            await dispatchGateway.DispatchAsync(lease, cancellationToken);
             span?.SetTag(TelemetryTags.Outcome, "DISPATCHED");
         }
         catch

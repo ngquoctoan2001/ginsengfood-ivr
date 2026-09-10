@@ -110,7 +110,7 @@ public sealed class MockDialTokenVault : IOpaqueValueProtector, IDialTokenResolv
             nameof(MockDialTokenVault),
             request,
             decision,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (!decision.Allowed)
         {
             throw new DialTokenRefusedException(

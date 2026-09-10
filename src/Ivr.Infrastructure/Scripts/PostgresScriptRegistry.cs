@@ -40,16 +40,14 @@ public sealed class PostgresScriptRegistry
     {
         ScriptVersionKey key = ScriptVersionKey.Create(templateId, version);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         ScriptVersionEntity? entity = await context.ScriptVersions
             .AsNoTracking()
             .Include(candidate => candidate.Approvals)
             .SingleOrDefaultAsync(
                 candidate => candidate.TemplateId == key.TemplateId
                     && candidate.Version == key.Version,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
         if (entity is null)
         {
             return null;
@@ -67,16 +65,14 @@ public sealed class PostgresScriptRegistry
     {
         ArgumentNullException.ThrowIfNull(key);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         ScriptVersionEntity? entity = await context.ScriptVersions
             .AsNoTracking()
             .Include(candidate => candidate.Approvals)
             .SingleOrDefaultAsync(
                 candidate => candidate.TemplateId == key.TemplateId
                     && candidate.Version == key.Version,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
         return entity is null ? null : ScriptEntityMapper.ToSnapshot(entity);
     }
 
@@ -108,16 +104,14 @@ public sealed class PostgresScriptRegistry
         };
 
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database
-            .BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
-            .ConfigureAwait(false);
+            .BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         context.ScriptVersions.Add(entity);
         AppendAudit(context, actor, "ADMIN_SCRIPT_DRAFT_CREATED", entity, safeReason, safeCorrelation, null, now);
         try
         {
-            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException exception) when (exception.InnerException is PostgresException
         { SqlState: PostgresErrorCodes.UniqueViolation })
@@ -126,7 +120,7 @@ public sealed class PostgresScriptRegistry
             // Do not expose PostgreSQL detail (which may contain the supplied script text).
             throw new InvalidOperationException("The script version already exists.");
         }
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await transaction.CommitAsync(cancellationToken);
         return ScriptEntityMapper.ToSnapshot(entity);
     }
 
@@ -162,7 +156,7 @@ public sealed class PostgresScriptRegistry
                 entity.SubmittedAt = now;
                 return null;
             },
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
     }
 
     public async ValueTask<ScriptVersionSnapshot> ApproveAsync(
@@ -203,7 +197,7 @@ public sealed class PostgresScriptRegistry
                 });
                 return approvalType;
             },
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
     }
 
     public async ValueTask<ScriptVersionSnapshot> RetireAsync(
@@ -239,7 +233,7 @@ public sealed class PostgresScriptRegistry
                 entity.RetiredAt = now;
                 return null;
             },
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
     }
 
     private async ValueTask<ScriptVersionSnapshot> MutateAsync(
@@ -252,18 +246,15 @@ public sealed class PostgresScriptRegistry
         CancellationToken cancellationToken)
     {
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database
-            .BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
-            .ConfigureAwait(false);
+            .BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         ScriptVersionEntity entity = await context.ScriptVersions
             .Include(candidate => candidate.Approvals)
             .SingleOrDefaultAsync(
                 candidate => candidate.TemplateId == key.TemplateId
                     && candidate.Version == key.Version,
                 cancellationToken)
-            .ConfigureAwait(false)
             ?? throw new KeyNotFoundException("The script version was not found.");
         DateTimeOffset now = timeProvider.GetUtcNow();
 
@@ -281,8 +272,8 @@ public sealed class PostgresScriptRegistry
             approvalType,
             now,
             previousStatus);
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return ScriptEntityMapper.ToSnapshot(entity);
     }
 

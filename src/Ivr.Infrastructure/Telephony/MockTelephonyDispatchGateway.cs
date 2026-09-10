@@ -205,7 +205,7 @@ public sealed class MockSchedulerDispatchGateway(
 
         TelephonyDispatchContext dispatch = await store.LoadAsync(
             lease,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         SimCallSession? session = null;
         bool hungUp = false;
         TimeSpan cooldown = TimeSpan.FromSeconds(mockOptions.Value.CooldownSeconds);
@@ -216,7 +216,7 @@ public sealed class MockSchedulerDispatchGateway(
                 dispatch.ScriptTemplateId,
                 dispatch.ScriptVersion,
                 ExecutionMode.Mock,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             speech = await speechSynthesisService.SynthesizeAsync(
                 speech,
                 dispatch.SpeechSummary,
@@ -224,10 +224,10 @@ public sealed class MockSchedulerDispatchGateway(
                 dispatch.ScriptVersion,
                 ExecutionMode.Mock,
                 lease.Deadline,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             SimGatewayHealth health = await simGateway.CheckHealthAsync(
                 lease.SimChannelId,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             if (!health.RecordingDisabled)
             {
                 throw new MockSimOperationException(
@@ -253,7 +253,7 @@ public sealed class MockSchedulerDispatchGateway(
                     dispatch.TaskId,
                     dispatch.MaxDialTokenResolves),
                 timeProvider.GetUtcNow(),
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             session = await simGateway.DialAsync(
                 new SimDialRequest(
                     AttemptId.Create(lease.AttemptId),
@@ -263,23 +263,23 @@ public sealed class MockSchedulerDispatchGateway(
                     lease.FencingGeneration,
                     authorization,
                     SimRecordingMode.Disabled),
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             // W-0113. The voice rides on the audio that was just produced, so what gets recorded
             // is the voice this attempt actually holds rather than one re-derived later.
             await store.MarkActiveAsync(
                 lease,
                 session,
                 speech.Audio?.Voice,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             SimDtmfCapture dtmf;
             if (session.IsConnected)
             {
-                await simGateway.PlayAsync(session, speech, cancellationToken).ConfigureAwait(false);
+                await simGateway.PlayAsync(session, speech, cancellationToken);
                 dtmf = await CaptureDtmfOrTerminationAsync(
                     session,
                     lease,
                     TimeSpan.FromSeconds(mockOptions.Value.DtmfTimeoutSeconds),
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
             }
             else
             {
@@ -290,11 +290,11 @@ public sealed class MockSchedulerDispatchGateway(
             // operator can complete the capture normally, and without this check the loop would
             // record an operator cut as a customer outcome — the customer pressed nothing, and
             // "pressed nothing" is a very different fact from "we stopped talking to them".
-            await EnsureNotTerminatedAsync(session, lease, cancellationToken).ConfigureAwait(false);
+            await EnsureNotTerminatedAsync(session, lease, cancellationToken);
             SimDispositionReport disposition = await simGateway.GetDispositionAsync(
                 session,
-                cancellationToken).ConfigureAwait(false);
-            await simGateway.HangupAsync(session, cancellationToken).ConfigureAwait(false);
+                cancellationToken);
+            await simGateway.HangupAsync(session, cancellationToken);
             hungUp = true;
             await store.CompleteAsync(
                 lease,
@@ -302,16 +302,16 @@ public sealed class MockSchedulerDispatchGateway(
                 dtmf,
                 disposition,
                 cooldown,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            await TryHangupAsync(session, hungUp, CancellationToken.None).ConfigureAwait(false);
+            await TryHangupAsync(session, hungUp, CancellationToken.None);
             throw;
         }
         catch (Exception exception)
         {
-            await TryHangupAsync(session, hungUp, CancellationToken.None).ConfigureAwait(false);
+            await TryHangupAsync(session, hungUp, CancellationToken.None);
             (SimProviderDisposition disposition, string technicalCode, bool channelHealthy) =
                 exception switch
                 {
@@ -350,7 +350,7 @@ public sealed class MockSchedulerDispatchGateway(
                 technicalCode,
                 channelHealthy,
                 cooldown,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             throw;
         }
     }
@@ -382,27 +382,26 @@ public sealed class MockSchedulerDispatchGateway(
         {
             Task completed = await Task.WhenAny(
                 capture,
-                Task.Delay(interval, timeProvider, cancellationToken)).ConfigureAwait(false);
+                Task.Delay(interval, timeProvider, cancellationToken));
             if (completed == capture)
             {
-                return await capture.ConfigureAwait(false);
+                return await capture;
             }
 
             CallTerminationRequest? request = await store
-                .ReadTerminationAsync(lease, cancellationToken)
-                .ConfigureAwait(false);
+                .ReadTerminationAsync(lease, cancellationToken);
             if (request is null)
             {
                 continue;
             }
 
-            await simGateway.HangupAsync(session, cancellationToken).ConfigureAwait(false);
+            await simGateway.HangupAsync(session, cancellationToken);
             try
             {
                 // Drained so the capture does not surface later as an unobserved fault. Its
                 // answer is discarded on purpose: whatever the customer pressed after the
                 // operator decided to stop is not an answer this call gets to record.
-                await capture.ConfigureAwait(false);
+                await capture;
             }
             catch
             {
@@ -419,11 +418,10 @@ public sealed class MockSchedulerDispatchGateway(
         CancellationToken cancellationToken)
     {
         CallTerminationRequest? request = await store
-            .ReadTerminationAsync(lease, cancellationToken)
-            .ConfigureAwait(false);
+            .ReadTerminationAsync(lease, cancellationToken);
         if (request is not null)
         {
-            await TryHangupAsync(session, false, cancellationToken).ConfigureAwait(false);
+            await TryHangupAsync(session, false, cancellationToken);
             throw new CallTerminatedException(request);
         }
     }
@@ -440,7 +438,7 @@ public sealed class MockSchedulerDispatchGateway(
 
         try
         {
-            await simGateway.HangupAsync(session, cancellationToken).ConfigureAwait(false);
+            await simGateway.HangupAsync(session, cancellationToken);
         }
         catch (Exception)
         {

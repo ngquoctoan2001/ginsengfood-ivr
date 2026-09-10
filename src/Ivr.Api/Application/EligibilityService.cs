@@ -53,7 +53,7 @@ public sealed class SchedulerEligibilityCapacityProvider(
                 offsets,
                 riskScore),
             evaluatedAt,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         return new EligibilityCapacitySnapshot(
             capacity.SourceAvailable,
             capacity.FitsBeforeDeadline,
@@ -106,7 +106,6 @@ public sealed partial class EligibilityService(
         PiiGuard.EnsureSafeText(taskId);
         PiiGuard.EnsureSafeText(correlationId);
         EligibilityTaskRecord stored = await repository.FindAsync(taskId, cancellationToken)
-            .ConfigureAwait(false)
             ?? throw new KeyNotFoundException("The confirmation task was not found.");
         TraceContextSnapshot? traceContext = TraceContextSnapshot.FromPersisted(
             stored.Task.TraceParent,
@@ -141,8 +140,7 @@ public sealed partial class EligibilityService(
         EligibilityCapacitySnapshot capacity = capacityNotEvaluated;
         if (evaluation.Eligible)
         {
-            capacity = await GetCapacityFailClosedAsync(stored, now, cancellationToken)
-                .ConfigureAwait(false);
+            capacity = await GetCapacityFailClosedAsync(stored, now, cancellationToken);
             evaluation = EligibilityRules.Evaluate(snapshot with { Capacity = capacity });
         }
 
@@ -165,7 +163,7 @@ public sealed partial class EligibilityService(
             evaluation,
             capacity,
             correlationId,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         span?.SetTag(TelemetryTags.Decision, persisted.Decision);
         return persisted;
     }
@@ -192,7 +190,7 @@ public sealed partial class EligibilityService(
             EligibilityCapacitySnapshot capacity = await capacityProvider.GetCapacityAsync(
                 stored,
                 now,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             ArgumentException.ThrowIfNullOrWhiteSpace(capacity.EvidenceRef);
             PiiGuard.EnsureSafeText(JsonSerializer.Serialize(capacity, JsonOptions));
             return capacity;

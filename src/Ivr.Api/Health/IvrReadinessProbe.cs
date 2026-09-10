@@ -41,7 +41,7 @@ public sealed class IvrReadinessProbe(
     {
         var checks = new List<ReadinessCheck>
         {
-            await CheckDatabaseAsync(cancellationToken).ConfigureAwait(false),
+            await CheckDatabaseAsync(cancellationToken),
             CheckCallbackPath(),
         };
 
@@ -53,11 +53,9 @@ public sealed class IvrReadinessProbe(
         try
         {
             await using IvrDbContext context = await dbContextFactory
-                .CreateDbContextAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .CreateDbContextAsync(cancellationToken);
             bool reachable = await context.Database
-                .CanConnectAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .CanConnectAsync(cancellationToken);
             if (!reachable)
             {
                 return new ReadinessCheck("database", false, "unreachable");
@@ -71,8 +69,7 @@ public sealed class IvrReadinessProbe(
             // is not there. Answering "may traffic come in" has to include "does the schema this
             // build was compiled against exist".
             IEnumerable<string> pending = await context.Database
-                .GetPendingMigrationsAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .GetPendingMigrationsAsync(cancellationToken);
             if (pending.Any())
             {
                 // Fixed phrase, no migration names: a readiness body is served to anything that

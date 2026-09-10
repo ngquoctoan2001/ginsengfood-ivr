@@ -26,7 +26,7 @@ internal sealed partial class NormalizationJobHost(
         IReadOnlyList<NormalizationPersistenceResult> results = await normalizer.RunBatchAsync(
             workerId,
             options.Value.BatchSize,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (results.Count > 0)
         {
             LogBatch(logger, results.Count);

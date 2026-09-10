@@ -55,11 +55,10 @@ public sealed class PostgresAttemptPolicyRegistryWriter(
 
         DateTimeOffset now = timeProvider.GetUtcNow();
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.Serializable,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         string program = policy.Program switch
         {
             IvrProgramCode.GoldenHour => "GOLDEN_HOUR",
@@ -69,7 +68,7 @@ public sealed class PostgresAttemptPolicyRegistryWriter(
         bool exists = await context.AttemptPolicies.AnyAsync(
             candidate => candidate.PolicyVersion == policy.Version.Value
                 && candidate.ProgramType == program,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (exists)
         {
             throw new InvalidOperationException(
@@ -107,8 +106,8 @@ public sealed class PostgresAttemptPolicyRegistryWriter(
             }),
             CreatedAt = now,
         });
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     private static string ToStorageValue(ExecutionMode mode) => ExecutionModes.ToWireValue(mode);

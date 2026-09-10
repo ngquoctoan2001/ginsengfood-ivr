@@ -146,7 +146,7 @@ public sealed class AudioCache(TimeProvider timeProvider) : IAudioCache
                 try
                 {
                     RenderedAudio cached = await current.Audio.Value.WaitAsync(
-                        cancellationToken).ConfigureAwait(false);
+                        cancellationToken);
                     return new AudioCacheResult(cached, true, current.ExpiresAt);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -173,7 +173,7 @@ public sealed class AudioCache(TimeProvider timeProvider) : IAudioCache
             try
             {
                 RenderedAudio audio = await created.Audio.Value.WaitAsync(
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
                 return new AudioCacheResult(audio, false, created.ExpiresAt);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -318,7 +318,7 @@ public sealed class SpeechAudioCacheRetentionHook(
         int purged = await cache.PurgeExpiredAsync(
             now,
             dryRun,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (!dryRun)
         {
             usageMeter.RecordPurged(purged);

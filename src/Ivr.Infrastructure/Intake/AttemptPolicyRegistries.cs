@@ -91,15 +91,13 @@ public sealed class PostgresAttemptPolicyRegistry(
             _ => throw new InvalidOperationException("Unknown IVR program."),
         };
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         AttemptPolicyEntity entity = await context.AttemptPolicies
             .AsNoTracking()
             .SingleOrDefaultAsync(
                 candidate => candidate.PolicyVersion == version.Value
                     && candidate.ProgramType == programValue,
                 cancellationToken)
-            .ConfigureAwait(false)
             ?? throw new KeyNotFoundException("Versioned attempt policy was not found.");
         string modeValue = ExecutionModes.ToWireValue(executionMode);
         string[] allowedModes = JsonSerializer.Deserialize<string[]>(

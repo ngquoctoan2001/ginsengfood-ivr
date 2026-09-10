@@ -82,7 +82,7 @@ public sealed class AdminReadService(
         RequireOrderedRange(createdFrom, createdTo);
 
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         DateTimeOffset now = timeProvider.GetUtcNow();
 
         IQueryable<CallJobEntity> jobs = context.CallJobs.AsNoTracking();
@@ -107,8 +107,7 @@ public sealed class AdminReadService(
                 group.Key.QueueStatus,
                 group.Key.Closed,
                 group.Count()))
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         DateTimeOffset nearExpiryCutoff = now + NearExpiryWindow;
 
@@ -130,7 +129,6 @@ public sealed class AdminReadService(
                     && job.ExpiresAt <= nearExpiryCutoff),
                 group.Count(job => job.ClosedAt == null && !job.Eligible)))
             .FirstOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false)
             // No rows at all means no group, which is zero of each and not an error.
             ?? new JobTotals(0, 0);
 
@@ -138,7 +136,7 @@ public sealed class AdminReadService(
             incident => incident.Status == "OPEN"
                 && incident.HoldNewCalls
                 && incident.Scope == AdminPauseScope,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         IQueryable<string> jobIds = jobs.Select(job => job.IvrCallJobId);
 
@@ -149,15 +147,13 @@ public sealed class AdminReadService(
             .Where(attempt => attempt.IsCountedCustomerAttempt
                 && openJobIds.Contains(attempt.IvrCallJobId))
             .GroupBy(attempt => attempt.IvrCallJobId)
-            .CountAsync(group => group.Count() == 1, cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(group => group.Count() == 1, cancellationToken);
 
         List<ResultTypeCount> resultCounts = await context.CallResults.AsNoTracking()
             .Where(result => jobIds.Contains(result.IvrCallJobId))
             .GroupBy(result => result.ResultType)
             .Select(group => new ResultTypeCount(group.Key, group.Count()))
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         AttemptTotals attemptTotals = await context.CallAttempts.AsNoTracking()
             .Where(attempt => jobIds.Contains(attempt.IvrCallJobId))
@@ -168,7 +164,6 @@ public sealed class AdminReadService(
                 group.Sum(attempt => attempt.TechnicalRetryCount),
                 group.Count(attempt => ActiveAttemptStatuses.Contains(attempt.Status))))
             .FirstOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false)
             ?? new AttemptTotals(0, 0, 0, 0);
 
         // The SIM pool and open incidents are pool-wide state, not per-program,
@@ -187,15 +182,13 @@ public sealed class AdminReadService(
                 channel.ActiveCallJobId,
                 channel.QuarantineUntil,
                 channel.AdapterMode))
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         List<CapacityIncidentEntity> incidents = await context.CapacityIncidents.AsNoTracking()
             .Where(incident => incident.Status == "OPEN")
             .OrderByDescending(incident => incident.OpenedAt)
             .Take(20)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return new DashboardApiResult(
             now,
@@ -251,7 +244,7 @@ public sealed class AdminReadService(
         };
 
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         DateTimeOffset now = timeProvider.GetUtcNow();
         DateTimeOffset nearExpiryCutoff = now + NearExpiryWindow;
 
@@ -315,14 +308,13 @@ public sealed class AdminReadService(
             query = query.Where(job => taskIds.Contains(job.TaskId));
         }
 
-        int totalCount = await query.CountAsync(cancellationToken).ConfigureAwait(false);
+        int totalCount = await query.CountAsync(cancellationToken);
         List<CallJobEntity> pageJobs = await query
             .OrderByDescending(job => job.CreatedAt)
             .ThenBy(job => job.IvrCallJobId)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         if (pageJobs.Count == 0)
         {
@@ -338,27 +330,23 @@ public sealed class AdminReadService(
             .ToDictionaryAsync(
                 item => item.TaskId,
                 item => item.PrivacySafeOrderSummaryJson,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
 
         Dictionary<string, string> maskedPhones = await context.ConfirmationTasks.AsNoTracking()
             .Where(task => pageTaskIds.Contains(task.TaskId))
             .Select(task => new { task.TaskId, task.PhoneMasked })
-            .ToDictionaryAsync(item => item.TaskId, item => item.PhoneMasked, cancellationToken)
-            .ConfigureAwait(false);
+            .ToDictionaryAsync(item => item.TaskId, item => item.PhoneMasked, cancellationToken);
 
         Dictionary<string, int> attemptCounts = await context.CallAttempts.AsNoTracking()
             .Where(attempt => pageJobIds.Contains(attempt.IvrCallJobId))
             .GroupBy(attempt => attempt.IvrCallJobId)
             .Select(group => new { JobId = group.Key, Count = group.Count() })
-            .ToDictionaryAsync(item => item.JobId, item => item.Count, cancellationToken)
-            .ConfigureAwait(false);
+            .ToDictionaryAsync(item => item.JobId, item => item.Count, cancellationToken);
 
         List<CallResultEntity> results = await context.CallResults.AsNoTracking()
             .Where(result => pageJobIds.Contains(result.IvrCallJobId))
             .OrderBy(result => result.CreatedAt)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
         Dictionary<string, string> latestResultTypes = results
             .GroupBy(result => result.IvrCallJobId)
             .ToDictionary(group => group.Key, group => group.Last().ResultType);
@@ -394,44 +382,39 @@ public sealed class AdminReadService(
         }
 
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         CallJobEntity job = await context.CallJobs.AsNoTracking().SingleOrDefaultAsync(
             entity => entity.IvrCallJobId == ivrCallJobId,
-            cancellationToken).ConfigureAwait(false)
+            cancellationToken)
             ?? throw IvrErrors.NotFound("The call job was not found.");
 
         ConfirmationTaskEntity task = await context.ConfirmationTasks.AsNoTracking()
             .SingleOrDefaultAsync(entity => entity.TaskId == job.TaskId, cancellationToken)
-            .ConfigureAwait(false)
             ?? throw IvrErrors.NotFound("The confirmation task was not found.");
 
         List<CallAttemptEntity> attempts = await context.CallAttempts.AsNoTracking()
             .Where(attempt => attempt.IvrCallJobId == job.IvrCallJobId)
             .OrderBy(attempt => attempt.AttemptNumber)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         List<CallResultEntity> results = await context.CallResults.AsNoTracking()
             .Where(result => result.IvrCallJobId == job.IvrCallJobId)
             .OrderBy(result => result.CreatedAt)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         string[] resultIds = results.Select(result => result.IvrCallResultId).ToArray();
         List<ResultCallbackEntity> callbacks = await context.ResultCallbacks.AsNoTracking()
             .Where(callback => resultIds.Contains(callback.IvrCallResultId))
             .OrderBy(callback => callback.CreatedAt)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         string[] attemptIds = attempts.Select(attempt => attempt.IvrCallAttemptId).ToArray();
         List<TechnicalExceptionEntity> technicalExceptions = await context.TechnicalExceptions
             .AsNoTracking()
             .Where(exception => attemptIds.Contains(exception.IvrCallAttemptId))
             .OrderBy(exception => exception.CreatedAt)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         // Review items point at whatever produced them, so a job's review queue is
         // the union of its task, its results and its callbacks.
@@ -444,8 +427,7 @@ public sealed class AdminReadService(
         List<ReviewItemEntity> reviewItems = await context.ReviewItems.AsNoTracking()
             .Where(item => reviewSourceIds.Contains(item.SourceId))
             .OrderBy(item => item.CreatedAt)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         // W-0113. The recorded voice wins over the derived one, and the LAST attempt that
         // recorded a voice wins over earlier ones: configuration can change between two attempts
@@ -557,13 +539,12 @@ public sealed class AdminReadService(
         CancellationToken cancellationToken)
     {
         await using IvrDbContext context = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         DateTimeOffset now = timeProvider.GetUtcNow();
 
         List<SimChannelEntity> channels = await context.SimChannels.AsNoTracking()
             .OrderBy(channel => channel.SimChannelId)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return new SimChannelListApiResult(
             now,

@@ -636,7 +636,7 @@ Một worktree được đăng ký **bên trong `ci-artifacts/`** — thư mục
 
 ## 4. Chưa clean code
 
-### C1 — `ConfigureAwait` nửa vời
+### C1 — `ConfigureAwait` nửa vời — ĐÃ SỬA (W-0269)
 
 442 chỗ dùng `ConfigureAwait(false)` trong `src/`. Nhưng:
 
@@ -645,13 +645,26 @@ Một worktree được đăng ký **bên trong `ci-artifacts/`** — thư mục
 
 Hoặc là quy ước, hoặc là không. Nửa vời thì reviewer không phân biệt được chỗ thiếu là cố ý hay quên, và cả hai file này đều nằm trên đường ghi quan trọng nhất.
 
+> **Cập nhật (2026-09-10, W-0269).** Câu hỏi đúng, nhưng dữ kiện quyết định không có trong phát hiện:
+> **cả 440 lời gọi đều là no-op.** Không project nào packable, cả hai host
+> (`WebApplication.CreateBuilder`, `Host.CreateApplicationBuilder`) không cài `SynchronizationContext`,
+> và toàn repo không có một tham chiếu nào tới nó. `tests/` cũng đã tự chốt sẵn: **2.473 `await`, 0
+> `ConfigureAwait`**.
+>
+> Đường "bật `CA2007`" đã đo và bị loại: 80 trong 201 vị trí là `await using`, nơi code fixer chính
+> thức sinh code **không biên dịch được** (`CS0029`).
+>
+> **Owner chốt ngày 2026-09-10: gỡ hết.** 52 file, −588/+433, guard `ARCH-ASYNC-01` giữ `src/` ở mức 0.
+> Code sinh tự động được loại trừ — bộ gỡ đã lỡ sửa `SalesTargetV1Client.g.cs` và
+> `contract-freeze-verifier` bắt được.
+
 ### C2 — `.gitignore` trùng lặp — ĐÃ SỬA MỘT PHẦN, và đính chính
 
 `.claude/worktrees/` khai báo **hai lần**: dòng 16 và dòng 61, kèm hai block comment gần như y hệt. **Đã xoá bản không ghi work-id (W-0262).**
 
 > **Đính chính.** Tôi cũng gọi các entry `admin-ui` là "lạc hậu". **Sai.** Chúng là **guard**, đúng theo tiền lệ repo tự viết cho `deployment-ui.yaml` — template đó được giữ cố ý vì xoá nó biến `ui.enabled` thành no-op im lặng. Cùng lập luận: nếu ai dựng lại `admin-ui`, các dòng ignore giữ nó ngoài git và ngoài image. Xoá đi là đổi một guard lấy vẻ gọn gàng. **Giữ nguyên.**
 
-### C3 — Ba quy ước temp dir trong cùng một họ script
+### C3 — Ba quy ước temp dir trong cùng một họ script — ĐÃ SỬA (W-0269)
 
 | Quy ước | Ví dụ |
 |---|---|
@@ -660,6 +673,21 @@ Hoặc là quy ước, hoặc là không. Nửa vời thì reviewer không phân
 | `REPOSITORY_ROOT` | `external-decision-response-validator.mjs:693`, `capacity-registry-decision-pack-validator.mjs:842` |
 
 Cái thứ ba là nguyên nhân trực tiếp của B9.
+
+> **Đính chính (2026-09-10, W-0269).** Bảng trên sai nhãn và kết luận sai bản chất.
+>
+> **Sai nhãn:** ba script được xếp vào `.artifacts/` thực ra dùng **`ci-artifacts/`**, thư mục khác.
+> Script duy nhất thật sự dùng `.artifacts/` là `api-behavior-matrix-selftest.mjs`, **không được liệt
+> kê**.
+>
+> **Sai bản chất:** đây không phải trôi dạt tuỳ tiện. Đo: **9/9** script gọi `isConfined` đặt scratch
+> trong repo, **4/4** script dùng `tmpdir()` không confine gì — không ngoại lệ. Luật có tải: validator
+> confine từ chối mọi path ngoài repo, kể cả qua `spawnSync`. Biến thể sai thật sự (repo root) đã bị
+> gỡ ở **W-0268**. Cái đáng sửa là luật **không được viết ra**, nay có ba khẳng định trong
+> `ci-config-selftest.mjs`, mỗi cái đã chứng minh biết đỏ.
+>
+> **Và một rò rỉ nặng hơn B9 lộ ra ở đây:** `api-behavior-matrix-selftest.mjs` không có `rmSync` nào,
+> rò rỉ **mỗi lần chạy** kể cả khi thành công — 11 thư mục đã tích. Đã bọc `try/finally`.
 
 ### C4 — `Dockerfile.api`: comment nói ngược với code
 
@@ -704,9 +732,11 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~S5~~ | ~~Schema wire định nghĩa hai lần~~ | ~~LOW~~ | **đã buộc vào nhau — W-0264**; 1 chênh lệch chờ owner |
 | ~~B9~~ | ~~Selftest xả rác ra repo root~~ | ~~LOW~~ | **đã sửa — W-0268**; rò rỉ thật là **1 file** chứ không phải 2, nhưng **4** file mkdtemp vào repo root — cả 4 chuyển sang `ci-artifacts/` |
 | ~~B10~~ | ~~Cột chết nhưng index vẫn sống~~ | ~~LOW~~ | **đã sửa — W-0268**; **4** writer chứ không phải 1, không cái nào set cột; index không có trong `specs/database/04-indexes.md` nên bỏ nó là về đúng spec |
-| C1, C3–C5 | — | LOW | — |
+| ~~C1~~ | ~~`ConfigureAwait` nửa vời~~ | ~~LOW~~ | **đã sửa — W-0269**; đo được cả 440 chỗ là no-op, owner chốt gỡ hết; `CA2007` bị loại vì fixer sinh code không biên dịch được ở 80/201 chỗ |
+| ~~C3~~ | ~~Ba quy ước temp dir~~ | ~~LOW~~ | **đã sửa — W-0269**; bảng sai nhãn, và ba quy ước đều có lý do (9/9 và 4/4) — luật đúng nhưng chưa viết ra, nay có 3 khẳng định; lộ thêm 1 rò rỉ nặng hơn B9 |
+| C4, C5 | — | LOW | — |
 
-**21/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
+**23/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
 
 ---
 

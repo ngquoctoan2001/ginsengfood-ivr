@@ -26,7 +26,7 @@ internal sealed partial class CallbackDeliveryJobHost(
         CallbackDispatcher dispatcher = scope.ServiceProvider
             .GetRequiredService<CallbackDispatcher>();
         IReadOnlyList<CallbackDispatchResult> results =
-            await dispatcher.RunBatchAsync(cancellationToken).ConfigureAwait(false);
+            await dispatcher.RunBatchAsync(cancellationToken);
         if (results.Count > 0)
         {
             CallbackCircuitState circuit = circuitBreaker.Snapshot();

@@ -88,8 +88,7 @@ public sealed class InternalAdminApiService(
                 EligibilityEvaluation evaluation;
                 try
                 {
-                    evaluation = await eligibilityService.EvaluateAsync(taskId, correlationId, token)
-                        .ConfigureAwait(false);
+                    evaluation = await eligibilityService.EvaluateAsync(taskId, correlationId, token);
                 }
                 catch (KeyNotFoundException)
                 {
@@ -123,7 +122,7 @@ public sealed class InternalAdminApiService(
         await using IvrDbContext context = await CreateContextAsync(cancellationToken);
         CallJobEntity job = await context.CallJobs.AsNoTracking().SingleOrDefaultAsync(
             entity => entity.IvrCallJobId == jobId,
-            cancellationToken).ConfigureAwait(false)
+            cancellationToken)
             ?? throw IvrErrors.NotFound("The call job was not found.");
         return Map(job);
     }
@@ -169,7 +168,7 @@ public sealed class InternalAdminApiService(
                 CallAttemptEntity attempt = await context.CallAttempts.AsNoTracking()
                     .SingleOrDefaultAsync(
                         entity => entity.IvrCallAttemptId == request.IvrCallAttemptId,
-                        token).ConfigureAwait(false)
+                        token)
                     ?? throw IvrErrors.NotFound("The call attempt was not found.");
                 if (!string.Equals(attempt.IvrCallJobId, request.IvrCallJobId, StringComparison.Ordinal))
                 {
@@ -198,7 +197,7 @@ public sealed class InternalAdminApiService(
                 CallResultEntity result = await context.CallResults.AsNoTracking()
                     .SingleOrDefaultAsync(
                         entity => entity.IvrCallResultId == request.IvrCallResultId,
-                        token).ConfigureAwait(false)
+                        token)
                     ?? throw IvrErrors.NotFound("The normalized result was not found.");
                 if (!string.Equals(result.IvrCallJobId, request.IvrCallJobId, StringComparison.Ordinal))
                 {
@@ -227,7 +226,7 @@ public sealed class InternalAdminApiService(
                 ResultCallbackEntity callback = await context.ResultCallbacks.AsNoTracking()
                     .SingleOrDefaultAsync(
                         entity => entity.CallbackId == request.CallbackId,
-                        token).ConfigureAwait(false)
+                        token)
                     ?? throw IvrErrors.NotFound("The result callback lifecycle was not found.");
                 if (!string.Equals(callback.IvrCallResultId, request.IvrCallResultId, StringComparison.Ordinal))
                 {
@@ -245,20 +244,20 @@ public sealed class InternalAdminApiService(
         int pending = await context.CallJobs.AsNoTracking().CountAsync(
             job => job.ClosedAt == null
                 && (job.QueueStatus == "QUEUED" || job.QueueStatus == "HELD_MOCK"),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         int active = await context.CallAttempts.AsNoTracking().CountAsync(
             attempt => attempt.Status == "LEASED_PENDING_DISPATCH"
                 || attempt.Status == "DIALING"
                 || attempt.Status == "ACTIVE_CALL",
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         int channels = await context.SimChannels.AsNoTracking().CountAsync(
             channel => channel.Enabled,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         int holds = await context.CapacityIncidents.AsNoTracking().CountAsync(
             incident => incident.Status == "OPEN"
                 && incident.HoldNewCalls
                 && incident.Scope == AdminPauseScope,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         return new QueueProjectionApiResult(
             holds > 0,
             pending,
@@ -287,7 +286,7 @@ public sealed class InternalAdminApiService(
                 CapacityIncidentEntity? incident = await context.CapacityIncidents
                     .SingleOrDefaultAsync(
                         item => item.Status == "OPEN" && item.Scope == AdminPauseScope,
-                        token).ConfigureAwait(false);
+                        token);
                 string before = incident is null ? "RUNNING" : "PAUSED";
                 if (incident is null)
                 {
@@ -340,7 +339,7 @@ public sealed class InternalAdminApiService(
                 CapacityIncidentEntity? incident = await context.CapacityIncidents
                     .SingleOrDefaultAsync(
                         item => item.Status == "OPEN" && item.Scope == AdminPauseScope,
-                        token).ConfigureAwait(false);
+                        token);
                 string before = incident is null ? "RUNNING" : "PAUSED";
                 if (incident is not null)
                 {
@@ -430,7 +429,7 @@ public sealed class InternalAdminApiService(
             {
                 CallJobEntity job = await context.CallJobs.SingleOrDefaultAsync(
                     item => item.IvrCallJobId == ivrCallJobId,
-                    token).ConfigureAwait(false)
+                    token)
                     ?? throw IvrErrors.NotFound("The call job was not found.");
 
                 // "Live" means the loop is between MarkActive and Finalize. Anything else —
@@ -442,8 +441,7 @@ public sealed class InternalAdminApiService(
                         && item.StartedAt != null
                         && item.ProviderCallId != null)
                     .OrderByDescending(item => item.AttemptNumber)
-                    .FirstOrDefaultAsync(token)
-                    .ConfigureAwait(false);
+                    .FirstOrDefaultAsync(token);
                 if (attempt is null)
                 {
                     throw new IvrFailureException(
@@ -528,8 +526,7 @@ public sealed class InternalAdminApiService(
                         && item.ProviderCallId != null
                         && item.TerminationRequestedAt == null)
                     .OrderBy(item => item.IvrCallAttemptId)
-                    .ToListAsync(token)
-                    .ConfigureAwait(false);
+                    .ToListAsync(token);
                 if (live.Count == 0)
                 {
                     throw new IvrFailureException(
@@ -590,7 +587,7 @@ public sealed class InternalAdminApiService(
                 TechnicalExceptionEntity technical = await context.TechnicalExceptions
                     .SingleOrDefaultAsync(
                         item => item.TechnicalExceptionId == request.TechnicalExceptionId,
-                        token).ConfigureAwait(false)
+                        token)
                     ?? throw IvrErrors.NotFound("The technical exception was not found.");
                 if (technical.TechnicalRetryCount >= schedulerOptions.Value.TechnicalRetryLimit)
                 {
@@ -600,7 +597,7 @@ public sealed class InternalAdminApiService(
 
                 CallAttemptEntity attempt = await context.CallAttempts.SingleOrDefaultAsync(
                     item => item.IvrCallAttemptId == request.TargetAttemptId,
-                    token).ConfigureAwait(false)
+                    token)
                     ?? throw IvrErrors.NotFound("The target attempt was not found.");
                 if (!string.Equals(technical.IvrCallAttemptId, attempt.IvrCallAttemptId, StringComparison.Ordinal))
                 {
@@ -609,10 +606,10 @@ public sealed class InternalAdminApiService(
 
                 CallJobEntity job = await context.CallJobs.SingleAsync(
                     item => item.IvrCallJobId == attempt.IvrCallJobId,
-                    token).ConfigureAwait(false);
+                    token);
                 ConfirmationTaskEntity task = await context.ConfirmationTasks.SingleAsync(
                     item => item.TaskId == job.TaskId,
-                    token).ConfigureAwait(false);
+                    token);
                 await RequireRetryAllowedAsync(context, technical, attempt, job, task, now, token);
 
                 int beforeCount = technical.TechnicalRetryCount;
@@ -679,7 +676,7 @@ public sealed class InternalAdminApiService(
                 DateTimeOffset now = timeProvider.GetUtcNow();
                 ReviewItemEntity review = await context.ReviewItems.SingleOrDefaultAsync(
                     item => item.ReviewItemId == request.ReviewItemId,
-                    token).ConfigureAwait(false)
+                    token)
                     ?? throw IvrErrors.NotFound("The review item was not found.");
                 if (!string.Equals(review.Status, "OPEN", StringComparison.Ordinal))
                 {
@@ -748,7 +745,7 @@ public sealed class InternalAdminApiService(
             {
                 SimChannelEntity channel = await context.SimChannels.SingleOrDefaultAsync(
                     item => item.SimChannelId == channelId,
-                    token).ConfigureAwait(false)
+                    token)
                     ?? throw IvrErrors.NotFound("The SIM channel was not found.");
                 string before = JsonSerializer.Serialize(new
                 {
@@ -825,7 +822,7 @@ public sealed class InternalAdminApiService(
             async (context, token) =>
             {
                 DateTimeOffset now = timeProvider.GetUtcNow();
-                AdminMutation created = await mutation(context, now, token).ConfigureAwait(false);
+                AdminMutation created = await mutation(context, now, token);
                 if (!string.Equals(created.Action.Permission, permission, StringComparison.Ordinal))
                 {
                     throw new InvalidOperationException("Admin action permission mapping drifted.");
@@ -874,12 +871,12 @@ public sealed class InternalAdminApiService(
 
         bool finalExists = await context.CallResults.AnyAsync(
             result => result.IvrCallJobId == job.IvrCallJobId && result.IsFinalForIvr,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         bool queueHeld = await context.CapacityIncidents.AnyAsync(
             incident => incident.Status == "OPEN"
                 && incident.HoldNewCalls
                 && incident.Scope == AdminPauseScope,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (finalExists || queueHeld)
         {
             throw IvrErrors.OperationalBlocked(
@@ -896,7 +893,7 @@ public sealed class InternalAdminApiService(
         FeatureFlagReadResult flags = await featureFlags.GetSnapshotAsync(
             environment,
             true,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (!flags.ProviderReadable
             || flags.Snapshot.GlobalDialKillSwitch
             || !flags.Snapshot.LabDestinationAllowlist.Contains(task.PhoneRef))
@@ -947,13 +944,13 @@ public sealed class InternalAdminApiService(
         await using IvrDbContext context = await CreateContextAsync(cancellationToken);
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.Serializable,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         await context.Database.ExecuteSqlInterpolatedAsync(
             $"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))",
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         IdempotencyKeyEntity? existing = await context.IdempotencyKeys.FindAsync(
             [FoundationIdempotencyScope, key],
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (existing is not null)
         {
             if (!string.Equals(existing.PayloadHash, payloadHash, StringComparison.Ordinal))
@@ -965,11 +962,11 @@ public sealed class InternalAdminApiService(
                 JsonOptions)
                 ?? throw new InvalidOperationException(
                     "The stored admin idempotency response could not be restored.");
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            await transaction.CommitAsync(cancellationToken);
             return replay;
         }
 
-        TResponse response = await factory(context, cancellationToken).ConfigureAwait(false);
+        TResponse response = await factory(context, cancellationToken);
         string snapshot = JsonSerializer.Serialize(response, JsonOptions);
         PiiGuard.EnsureSafeText(snapshot);
         context.IdempotencyKeys.Add(new IdempotencyKeyEntity
@@ -980,8 +977,8 @@ public sealed class InternalAdminApiService(
             ResponseSnapshotJson = snapshot,
             CreatedAt = timeProvider.GetUtcNow(),
         });
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return response;
     }
 

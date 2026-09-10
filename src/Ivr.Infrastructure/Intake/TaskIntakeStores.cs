@@ -45,7 +45,7 @@ public sealed class InMemoryTaskIntakeStore(
         ArgumentNullException.ThrowIfNull(command);
         ArgumentNullException.ThrowIfNull(factory);
         ValidateCommand(command);
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             if (byKey.TryGetValue(command.ScopedIdempotencyKey, out StoredOutcome? keyed))
@@ -61,9 +61,9 @@ public sealed class InMemoryTaskIntakeStore(
                 return taskOutcome.Outcome;
             }
 
-            TaskIntakePersistencePlan plan = await factory(cancellationToken).ConfigureAwait(false);
+            TaskIntakePersistencePlan plan = await factory(cancellationToken);
             ValidatePlan(plan);
-            await AppendAuditAsync(command, plan.Outcome, cancellationToken).ConfigureAwait(false);
+            await AppendAuditAsync(command, plan.Outcome, cancellationToken);
 
             var stored = new StoredOutcome(command.PayloadHash, plan.Outcome);
             byKey.Add(command.ScopedIdempotencyKey, stored);
@@ -91,7 +91,7 @@ public sealed class InMemoryTaskIntakeStore(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
         PiiGuard.EnsureSafeText(taskId);
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             if (!tasks.TryGetValue(taskId, out ConfirmationTaskEntity? task))
@@ -122,7 +122,7 @@ public sealed class InMemoryTaskIntakeStore(
             evaluation,
             capacity,
             correlationId);
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             ConfirmationTaskEntity task = tasks[taskId];
@@ -180,7 +180,7 @@ public sealed class InMemoryTaskIntakeStore(
                             artifacts.Evaluation.CapacityIncidentId,
                         ["is_counted_customer_attempt"] = false,
                     }),
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             return artifacts.Evaluation;
         }
         finally
@@ -256,20 +256,18 @@ public sealed class PostgresTaskIntakeStore(
         InMemoryTaskIntakeStore.ValidateCommand(command);
 
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database
-            .BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken)
-            .ConfigureAwait(false);
-        await AcquireLocksAsync(context, command, cancellationToken).ConfigureAwait(false);
+            .BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
+        await AcquireLocksAsync(context, command, cancellationToken);
 
         IdempotencyKeyEntity? keyed = await context.IdempotencyKeys.FindAsync(
             [Scope, command.ScopedIdempotencyKey],
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (keyed is not null)
         {
             PostgresIdempotencyStore.EnsureSamePayload(keyed, command.PayloadHash);
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            await transaction.CommitAsync(cancellationToken);
             return Deserialize(keyed.ResponseSnapshotJson);
         }
 
@@ -278,8 +276,7 @@ public sealed class PostgresTaskIntakeStore(
             .Where(record => record.Scope == Scope
                 && record.Key.StartsWith(command.TaskScope))
             .OrderByDescending(record => record.CreatedAt)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
         foreach (IdempotencyKeyEntity taskRecord in taskRecords)
         {
             TaskIntakeOutcome replay = Deserialize(taskRecord.ResponseSnapshotJson);
@@ -287,13 +284,13 @@ public sealed class PostgresTaskIntakeStore(
             {
                 PostgresIdempotencyStore.EnsureSamePayload(taskRecord, command.PayloadHash);
                 context.IdempotencyKeys.Add(CreateIdempotency(command, replay));
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                await context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
                 return replay;
             }
         }
 
-        TaskIntakePersistencePlan plan = await factory(cancellationToken).ConfigureAwait(false);
+        TaskIntakePersistencePlan plan = await factory(cancellationToken);
         InMemoryTaskIntakeStore.ValidatePlan(plan);
         context.IdempotencyKeys.Add(CreateIdempotency(command, plan.Outcome));
         if (plan.Task is not null)
@@ -307,8 +304,8 @@ public sealed class PostgresTaskIntakeStore(
             command,
             plan.Outcome,
             timeProvider.GetUtcNow()));
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return plan.Outcome;
     }
 
@@ -323,7 +320,7 @@ public sealed class PostgresTaskIntakeStore(
             await PostgresIdempotencyStore.AcquireKeyLockAsync(
                 context,
                 string.Concat(Scope, ":", key),
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
         }
     }
 

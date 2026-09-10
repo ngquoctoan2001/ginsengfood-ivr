@@ -59,7 +59,7 @@ public sealed partial class IvrHeartbeat(
                 }
             }
         }
-        while (await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false));
+        while (await timer.WaitForNextTickAsync(stoppingToken));
     }
 
     [LoggerMessage(

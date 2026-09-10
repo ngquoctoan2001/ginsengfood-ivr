@@ -49,7 +49,7 @@ public sealed class TaskIntakeService(
         TaskIntakeOutcome outcome = await store.ExecuteAsync(
             command,
             token => EvaluateAsync(command, token),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         // W-0041 / P6-2. Measured at the single exit, so the decision mix and the latency come off
         // the same event and cannot drift apart the way two separately placed probes would. The
@@ -129,7 +129,7 @@ public sealed class TaskIntakeService(
                 PolicyVersion.Create(source.Attempt_policy_version),
                 program,
                 command.ExecutionMode,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
         }
         catch (KeyNotFoundException)
         {
@@ -215,7 +215,7 @@ public sealed class TaskIntakeService(
                 templateId,
                 scriptVersion,
                 command.ExecutionMode,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
         }
         catch (ArgumentException)
         {

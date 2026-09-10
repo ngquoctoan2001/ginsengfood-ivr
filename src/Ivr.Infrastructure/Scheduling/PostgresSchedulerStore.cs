@@ -71,11 +71,10 @@ public sealed class PostgresSchedulerStore(
             StringComparison.OrdinalIgnoreCase);
         DateTimeOffset now = timeProvider.GetUtcNow();
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         await context.SimChannels
             .Where(channel => channel.Status == "QUARANTINED"
                 && channel.QuarantineUntil <= now
@@ -85,8 +84,7 @@ public sealed class PostgresSchedulerStore(
                     .SetProperty(channel => channel.Status, "IDLE")
                     .SetProperty(channel => channel.QuarantineUntil, (DateTimeOffset?)null)
                     .SetProperty(channel => channel.DisabledReason, (string?)null),
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
         CallJobEntity? job = await context.CallJobs.FromSqlInterpolated($$"""
             SELECT job.*
             FROM ivr_call_jobs job
@@ -144,18 +142,17 @@ public sealed class PostgresSchedulerStore(
                      job.ivr_call_job_id
             FOR UPDATE OF job SKIP LOCKED
             LIMIT 1
-            """).SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            """).SingleOrDefaultAsync(cancellationToken);
         if (job is null)
         {
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            await transaction.CommitAsync(cancellationToken);
             return null;
         }
 
         ConfirmationTaskEntity task = await context.ConfirmationTasks.AsNoTracking()
             .SingleAsync(
                 candidate => candidate.TaskId == job.TaskId,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
 
         SimChannelEntity? channel = await context.SimChannels.FromSqlInterpolated($$"""
             SELECT channel.*
@@ -169,10 +166,10 @@ public sealed class PostgresSchedulerStore(
             ORDER BY channel.fail_count, channel.sim_channel_id
             FOR UPDATE OF channel SKIP LOCKED
             LIMIT 1
-            """).SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            """).SingleOrDefaultAsync(cancellationToken);
         if (channel is null)
         {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            await transaction.RollbackAsync(cancellationToken);
             return null;
         }
 
@@ -180,8 +177,7 @@ public sealed class PostgresSchedulerStore(
             .CountAsync(
                 attempt => attempt.IvrCallJobId == job.IvrCallJobId
                     && attempt.IsCountedCustomerAttempt,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
         int attemptNumber = completedCustomerAttempts + 1;
         DateTimeOffset[] schedule = DeserializeSchedule(job.AttemptScheduleJson, job.MaxAttempts);
         DateTimeOffset dueAt = schedule[attemptNumber - 1];
@@ -236,8 +232,8 @@ public sealed class PostgresSchedulerStore(
                 ["fencing_generation"] = channel.LeaseFencingGeneration,
                 ["is_counted_customer_attempt"] = false,
             }));
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         // W-0041 left ivr_call_attempts_total declared with no call site, so confirm/cancel/
         // no-answer rates (ARCH-06 section 1) had no denominator. Counted here, AFTER the commit:
@@ -282,11 +278,10 @@ public sealed class PostgresSchedulerStore(
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(quarantineDuration, TimeSpan.Zero);
         ValidateBatchSize(batchSize);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         List<SimChannelEntity> channels = await context.SimChannels.FromSqlInterpolated($$"""
             SELECT channel.*
             FROM ivr_sim_channels channel
@@ -296,7 +291,7 @@ public sealed class PostgresSchedulerStore(
             ORDER BY channel.lease_expires_at, channel.sim_channel_id
             FOR UPDATE OF channel SKIP LOCKED
             LIMIT {{batchSize}}
-            """).ToListAsync(cancellationToken).ConfigureAwait(false);
+            """).ToListAsync(cancellationToken);
         foreach (SimChannelEntity channel in channels)
         {
             string? activeJobId = channel.ActiveCallJobId;
@@ -304,7 +299,7 @@ public sealed class PostgresSchedulerStore(
             {
                 CallJobEntity? job = await context.CallJobs.SingleOrDefaultAsync(
                     candidate => candidate.IvrCallJobId == activeJobId,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
                 if (job is not null && job.ClosedAt is null)
                 {
                     job.Status = "HELD_ADMIN_REVIEW";
@@ -317,8 +312,7 @@ public sealed class PostgresSchedulerStore(
                         && (candidate.Status == "LEASED_PENDING_DISPATCH"
                             || candidate.Status == "ACTIVE_CALL"))
                     .OrderByDescending(candidate => candidate.ScheduledAt)
-                    .FirstOrDefaultAsync(cancellationToken)
-                    .ConfigureAwait(false);
+                    .FirstOrDefaultAsync(cancellationToken);
                 if (attempt is not null)
                 {
                     attempt.Status = "RECOVERY_REQUIRED";
@@ -359,8 +353,8 @@ public sealed class PostgresSchedulerStore(
                 (Observability.TelemetryTags.ReasonCode, channel.DisabledReason));
         }
 
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return channels.Count;
     }
 
@@ -371,11 +365,10 @@ public sealed class PostgresSchedulerStore(
     {
         ValidateBatchSize(batchSize);
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         List<CallJobEntity> jobs = await context.CallJobs.FromSqlInterpolated($$"""
             SELECT job.*
             FROM ivr_call_jobs job
@@ -401,16 +394,16 @@ public sealed class PostgresSchedulerStore(
             ORDER BY job.expires_at, job.ivr_call_job_id
             FOR UPDATE OF job SKIP LOCKED
             LIMIT {{batchSize}}
-            """).ToListAsync(cancellationToken).ConfigureAwait(false);
+            """).ToListAsync(cancellationToken);
         int activeChannels = await context.SimChannels.CountAsync(
             channel => channel.Enabled
                 && channel.Status != "DISABLED"
                 && channel.Status != "QUARANTINED"
                 && channel.Status != "HEALTH_FAILED",
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         int pendingJobs = await context.CallJobs.CountAsync(
             candidate => candidate.Eligible && candidate.ClosedAt == null,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         string[] jobIds = [.. jobs.Select(job => job.IvrCallJobId)];
 
         // Three numbers per job, not one. The attempt number alone cannot tell the two ways a job
@@ -434,8 +427,7 @@ public sealed class PostgresSchedulerStore(
                 item => item.JobId,
                 item => item.Progress,
                 StringComparer.Ordinal,
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
         var closed = new List<(string Program, string ResultStatus, string ReasonCode)>(jobs.Count);
         foreach (CallJobEntity job in jobs)
         {
@@ -573,8 +565,8 @@ public sealed class PostgresSchedulerStore(
             closed.Add((job.ProgramType, normalized.ResultStatus, reasonCode));
         }
 
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         // Recorded after the commit and once per job, for the same reason as the dispatch counter:
         // a metric moved before the rows are durable runs ahead of the database on every rollback.

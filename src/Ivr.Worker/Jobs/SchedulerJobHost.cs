@@ -42,7 +42,7 @@ internal sealed partial class SchedulerJobHost(
     {
         SchedulerRunResult result = await scheduler.RunOnceAsync(
             workerId,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (result.QuarantinedLeases > 0
             || result.ClosedMissedDeadlines > 0
             || result.DispatchClaimed)

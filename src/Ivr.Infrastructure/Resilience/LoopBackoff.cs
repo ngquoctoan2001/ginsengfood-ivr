@@ -47,7 +47,7 @@ public sealed class LoopBackoff(TimeSpan pollInterval, TimeProvider timeProvider
             Random.Shared.NextDouble());
         try
         {
-            await Task.Delay(delay, timeProvider, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(delay, timeProvider, cancellationToken);
             return true;
         }
         catch (OperationCanceledException)

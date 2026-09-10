@@ -32,7 +32,7 @@ public sealed class ResultNormalizer(IResultRepository resultRepository)
         {
             NormalizationPersistenceResult? result = await resultRepository.NormalizeNextAsync(
                 workerId,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             if (result is null)
             {
                 break;

@@ -104,8 +104,7 @@ public sealed class DsarService(
         ArgumentException.ThrowIfNullOrWhiteSpace(orderCode);
 
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
 
         // One snapshot for the whole report. Six counts taken outside a transaction describe six
         // different instants, and retention or a live call can move a row between them — so the
@@ -114,8 +113,7 @@ public sealed class DsarService(
         // that every read in the transaction sees the same instant, which is the whole
         // requirement here; nothing below writes, so there is no serialisation conflict to lose.
         await using IDbContextTransaction snapshot = await context.Database
-            .BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken)
-            .ConfigureAwait(false);
+            .BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken);
 
         // Left as queries rather than materialised into arrays. The previous shape pulled every
         // order id and job id back to the process and then sent them out again inside IN (...),
@@ -133,11 +131,10 @@ public sealed class DsarService(
             .Select(job => job.IvrCallJobId);
 
         int taskCount = await context.ConfirmationTasks.AsNoTracking()
-            .CountAsync(task => task.OrderCode == orderCode, cancellationToken)
-            .ConfigureAwait(false);
+            .CountAsync(task => task.OrderCode == orderCode, cancellationToken);
         if (taskCount == 0)
         {
-            await snapshot.CommitAsync(cancellationToken).ConfigureAwait(false);
+            await snapshot.CommitAsync(cancellationToken);
             return new DsarFindReport(orderCode, false, [], NotErasable);
         }
 
@@ -145,23 +142,18 @@ public sealed class DsarService(
         [
             Hold("ivr_confirmation_tasks", taskCount),
             Hold("ivr_call_jobs", await context.CallJobs.AsNoTracking()
-                .CountAsync(job => orderIds.Contains(job.OfficialOrderId), cancellationToken)
-                .ConfigureAwait(false)),
+                .CountAsync(job => orderIds.Contains(job.OfficialOrderId), cancellationToken)),
             Hold("ivr_call_attempts", await context.CallAttempts.AsNoTracking()
-                .CountAsync(attempt => jobIds.Contains(attempt.IvrCallJobId), cancellationToken)
-                .ConfigureAwait(false)),
+                .CountAsync(attempt => jobIds.Contains(attempt.IvrCallJobId), cancellationToken)),
             Hold("ivr_call_results", await context.CallResults.AsNoTracking()
-                .CountAsync(result => jobIds.Contains(result.IvrCallJobId), cancellationToken)
-                .ConfigureAwait(false)),
+                .CountAsync(result => jobIds.Contains(result.IvrCallJobId), cancellationToken)),
             Hold("ivr_result_callbacks", await context.ResultCallbacks.AsNoTracking()
-                .CountAsync(callback => orderIds.Contains(callback.OfficialOrderId), cancellationToken)
-                .ConfigureAwait(false)),
+                .CountAsync(callback => orderIds.Contains(callback.OfficialOrderId), cancellationToken)),
             Hold("fact_call_outcome", await context.AnalyticsFacts.AsNoTracking()
-                .CountAsync(fact => jobIds.Contains(fact.IvrCallJobId), cancellationToken)
-                .ConfigureAwait(false)),
+                .CountAsync(fact => jobIds.Contains(fact.IvrCallJobId), cancellationToken)),
         ];
 
-        await snapshot.CommitAsync(cancellationToken).ConfigureAwait(false);
+        await snapshot.CommitAsync(cancellationToken);
         return new DsarFindReport(orderCode, true, holdings, NotErasable);
     }
 
@@ -184,16 +176,14 @@ public sealed class DsarService(
         }
 
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
 
         int matched;
         int redacted;
         if (dryRun)
         {
             matched = await context.ConfirmationTasks
-                .CountAsync(task => task.OrderCode == orderCode, cancellationToken)
-                .ConfigureAwait(false);
+                .CountAsync(task => task.OrderCode == orderCode, cancellationToken);
             redacted = 0;
         }
         else
@@ -209,7 +199,7 @@ public sealed class DsarService(
             redacted = await context.Database.ExecuteSqlRawAsync(
                 RedactByOrderCodeSql,
                 [orderCode, timeProvider.GetUtcNow()],
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             matched = redacted;
         }
 
@@ -229,7 +219,7 @@ public sealed class DsarService(
                     ["tasks_redacted"] = redacted,
                     ["not_erasable_count"] = NotErasable.Count,
                 }),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         return new DsarErasureReport(
             orderCode,

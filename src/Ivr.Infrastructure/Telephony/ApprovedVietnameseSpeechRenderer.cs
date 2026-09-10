@@ -22,7 +22,7 @@ public sealed class ApprovedVietnameseSpeechRenderer(
             scriptTemplateId,
             scriptVersion,
             executionMode,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         if (approved is null)
         {
             throw new InvalidOperationException(

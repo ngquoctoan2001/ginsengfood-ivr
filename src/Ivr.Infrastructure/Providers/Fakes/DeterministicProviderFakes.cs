@@ -283,7 +283,7 @@ public sealed class FakeSimGateway : ISimGateway
         _ = request.DialAuthorization.RevealToTrustedGateway();
         FakeSimScenario scenario = Resolve(request.AttemptId.Value, request.TaskId.Value);
 
-        await DelayAsync(scenario.DialDelay, cancellationToken).ConfigureAwait(false);
+        await DelayAsync(scenario.DialDelay, cancellationToken);
         DateTimeOffset startedAt = _timeProvider.GetUtcNow();
         string providerReference = string.Concat("mock-call:", request.AttemptId.Value);
         var session = new SimCallSession(
@@ -316,7 +316,7 @@ public sealed class FakeSimGateway : ISimGateway
     {
         FakeSimScenario scenario = RequireActive(session);
         ArgumentNullException.ThrowIfNull(speech);
-        await DelayAsync(scenario.PlayDelay, cancellationToken).ConfigureAwait(false);
+        await DelayAsync(scenario.PlayDelay, cancellationToken);
         if (scenario.Disposition == SimProviderDisposition.AudioError)
         {
             throw new MockSimOperationException(
@@ -350,7 +350,7 @@ public sealed class FakeSimGateway : ISimGateway
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(timeout, TimeSpan.Zero);
         FakeSimScenario scenario = RequireActive(session);
-        await DelayAsync(scenario.CaptureDelay, cancellationToken).ConfigureAwait(false);
+        await DelayAsync(scenario.CaptureDelay, cancellationToken);
         if (scenario.Disposition == SimProviderDisposition.DtmfError)
         {
             throw new MockSimOperationException(
@@ -481,7 +481,7 @@ public sealed class FakeSimGateway : ISimGateway
         ArgumentOutOfRangeException.ThrowIfLessThan(delay, TimeSpan.Zero);
         if (delay > TimeSpan.Zero)
         {
-            await Task.Delay(delay, _timeProvider, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(delay, _timeProvider, cancellationToken);
         }
     }
 

@@ -572,6 +572,87 @@ for (const includePath of [".gitlab-ci.yml", ...includes]) {
   }
 }
 
+// W-0269. Where a script is allowed to put its scratch directory.
+//
+// C3 called this three conventions in one family of scripts, as if they had drifted apart.
+// Measured, they had not: every script that confines an input path to the repository puts its
+// temp directory inside the repository (9 of 9), and every script that uses tmpdir() confines
+// nothing (4 of 4). The rule was right everywhere and written down nowhere, which is the part
+// worth fixing -- an unwritten rule is followed until the first person who has not read the
+// other fifteen scripts.
+//
+// The reason it is load-bearing: a validator that calls isConfined rejects any path outside the
+// repository, so scratch under tmpdir() cannot be fed to one. That applies through a spawn too,
+// which is why external-decision-c9-selftest and external-decision-dial-token-selftest write
+// inside the repository without calling isConfined themselves -- the validator they invoke does.
+//
+// Only the two directions that are actually true are asserted here. A script that confines
+// nothing is not forced out of the repository: api-behavior-matrix-selftest deliberately writes
+// beside the baseline JSON it clones.
+{
+  const scriptsDirectory = path.join(repositoryRoot, "deploy/ci/scripts");
+  const names = (await fs.readdir(scriptsDirectory)).filter((f) => f.endsWith(".mjs")).sort();
+
+  // Written with String.fromCharCode rather than an escape because this file is edited by
+  // tooling that has eaten a backslash more than once, and a silently degraded pattern here
+  // would leave a check that passes without looking at anything.
+  const SEPARATORS = ["/", String.fromCharCode(92)];
+  const inRepositoryRoot = [];
+  const confinedButOutside = [];
+  const unswept = [];
+
+  for (const name of names) {
+    const source = await fs.readFile(path.join(scriptsDirectory, name), "utf8");
+    const confines = source.includes("isConfined");
+    for (const call of source.matchAll(/mkdtempSync[(]([^;]*?)[)];/gsu)) {
+      const argument = call[1];
+
+      // The B9 shape: scratch whose parent is REPOSITORY_ROOT itself, with no directory in
+      // between. A literal carrying a separator means it went into a subdirectory, which is
+      // what ci-artifacts/ is.
+      const rooted = /(?:join|resolve)[(]\s*REPOSITORY_ROOT\s*,\s*(["'])(.*?)["']/su.exec(argument);
+      if (rooted && !SEPARATORS.some((separator) => rooted[2].includes(separator))) {
+        inRepositoryRoot.push(`${name}: ${rooted[2]}`);
+      }
+
+      if (confines && argument.includes("tmpdir()")) {
+        confinedButOutside.push(name);
+      }
+
+      // Scratch under tmpdir() has an owner already -- the OS reaps it. Scratch inside the
+      // repository has none, so the script that made it has to remove it. api-behavior-matrix-
+      // selftest had no rmSync on any path and had left eleven directories behind by W-0269.
+      if (!argument.includes("tmpdir()") && !source.includes("rmSync")) {
+        unswept.push(name);
+      }
+    }
+  }
+
+  assert(
+    inRepositoryRoot.length === 0,
+    "A scratch directory must not be created in the repository root -- put it under "
+      + "ci-artifacts/, which .gitignore already covers, the way eleven sibling scripts do. "
+      + "Five empty .w0165-selftest-* directories collected there before W-0268:\n  "
+      + inRepositoryRoot.join("\n  "),
+  );
+
+  assert(
+    confinedButOutside.length === 0,
+    "A script that calls isConfined cannot feed itself scratch from tmpdir(): the path is "
+      + "outside the repository, so its own confinement check refuses it. Use ci-artifacts/:\n  "
+      + confinedButOutside.join("\n  "),
+  );
+
+  assert(
+    unswept.length === 0,
+    "A scratch directory created inside the repository must be removed by the script that "
+      + "made it -- nothing else reaps .artifacts or ci-artifacts. Wrap the work in try/finally "
+      + "and rmSync it:\n  "
+      + unswept.join("\n  "),
+  );
+}
+
+process.stdout.write("SCRATCH_RULE_PASS — never the repository root, in-repo when a path is confined, and swept by whoever made it\n");
 process.stdout.write("JSON_SHAPE_SINGLE_SOURCE_PASS — one duplicate-key parser, escapes decoded before comparison\n");
 process.stdout.write("SENSITIVE_VALUE_RULE_PASS — one secret rule, dates excused, evasion still caught\n");
 process.stdout.write("PATH_CONFINEMENT_SINGLE_SOURCE_PASS — one canonical root, one isConfined\n");

@@ -35,7 +35,7 @@ public sealed class InMemoryScriptRegistry
         CancellationToken cancellationToken = default)
     {
         ScriptVersionKey key = ScriptVersionKey.Create(templateId, version);
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             return versions.TryGetValue(key.ToString(), out ScriptVersionSnapshot? snapshot)
@@ -54,7 +54,7 @@ public sealed class InMemoryScriptRegistry
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(key);
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             return versions.TryGetValue(key.ToString(), out ScriptVersionSnapshot? snapshot)
@@ -80,7 +80,7 @@ public sealed class InMemoryScriptRegistry
         string safeReason = RequireReason(reason);
         string safeCorrelation = RequireCorrelation(correlationId);
 
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             if (versions.ContainsKey(definition.Key.ToString()))
@@ -111,7 +111,7 @@ public sealed class InMemoryScriptRegistry
                 safeReason,
                 safeCorrelation,
                 null,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             versions.Add(definition.Key.ToString(), snapshot);
             return snapshot;
         }
@@ -134,7 +134,7 @@ public sealed class InMemoryScriptRegistry
         string safeReason = RequireReason(reason);
         string safeCorrelation = RequireCorrelation(correlationId);
 
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             ScriptVersionSnapshot current = GetRequired(key);
@@ -158,7 +158,7 @@ public sealed class InMemoryScriptRegistry
                 safeCorrelation,
                 null,
                 cancellationToken,
-                current.Status).ConfigureAwait(false);
+                current.Status);
             versions[key.ToString()] = updated;
             return updated;
         }
@@ -182,7 +182,7 @@ public sealed class InMemoryScriptRegistry
         string safeReason = RequireReason(reason);
         string safeCorrelation = RequireCorrelation(correlationId);
 
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             ScriptVersionSnapshot current = GetRequired(key);
@@ -206,7 +206,7 @@ public sealed class InMemoryScriptRegistry
                 safeCorrelation,
                 approvalType,
                 cancellationToken,
-                current.Status).ConfigureAwait(false);
+                current.Status);
             versions[key.ToString()] = updated;
             return updated;
         }
@@ -229,7 +229,7 @@ public sealed class InMemoryScriptRegistry
         string safeReason = RequireReason(reason);
         string safeCorrelation = RequireCorrelation(correlationId);
 
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await gate.WaitAsync(cancellationToken);
         try
         {
             ScriptVersionSnapshot current = GetRequired(key);
@@ -253,7 +253,7 @@ public sealed class InMemoryScriptRegistry
                 safeCorrelation,
                 null,
                 cancellationToken,
-                current.Status).ConfigureAwait(false);
+                current.Status);
             versions[key.ToString()] = updated;
             return updated;
         }

@@ -33,8 +33,7 @@ public sealed class AnalyticsRetentionHook(
         CancellationToken cancellationToken)
     {
         await using IvrDbContext context = await dbContextFactory
-            .CreateDbContextAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateDbContextAsync(cancellationToken);
 
         IQueryable<AnalyticsFactCallOutcomeEntity> orphans = context.AnalyticsFacts
             .Where(fact => !context.CallResults
@@ -46,10 +45,8 @@ public sealed class AnalyticsRetentionHook(
 
         if (dryRun)
         {
-            int wouldDeleteResults = await orphans.CountAsync(cancellationToken)
-                .ConfigureAwait(false);
-            int wouldDeleteJobs = await orphanJobs.CountAsync(cancellationToken)
-                .ConfigureAwait(false);
+            int wouldDeleteResults = await orphans.CountAsync(cancellationToken);
+            int wouldDeleteJobs = await orphanJobs.CountAsync(cancellationToken);
             return wouldDeleteResults + wouldDeleteJobs;
         }
 
@@ -58,11 +55,10 @@ public sealed class AnalyticsRetentionHook(
         DateOnly[] affected = await orphans
             .Select(fact => fact.EventDate)
             .Distinct()
-            .ToArrayAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToArrayAsync(cancellationToken);
 
-        int deleted = await orphans.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
-        deleted += await orphanJobs.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+        int deleted = await orphans.ExecuteDeleteAsync(cancellationToken);
+        deleted += await orphanJobs.ExecuteDeleteAsync(cancellationToken);
 
         if (affected.Length > 0)
         {
@@ -73,7 +69,7 @@ public sealed class AnalyticsRetentionHook(
                 context,
                 affected,
                 timeProvider.GetUtcNow(),
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
         }
 
         return deleted;

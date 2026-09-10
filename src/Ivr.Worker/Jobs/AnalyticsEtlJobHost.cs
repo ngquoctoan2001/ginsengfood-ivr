@@ -38,7 +38,7 @@ internal sealed partial class AnalyticsEtlJobHost(
                 BatchSize = configured.BatchSize,
                 RebuildAggregates = configured.RebuildAggregates,
             },
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         LogCompleted(
             logger,

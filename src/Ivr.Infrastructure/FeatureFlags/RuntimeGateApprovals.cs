@@ -123,8 +123,7 @@ internal static class RuntimeGateApprovalReader
         try
         {
             await using IvrDbContext dbContext = await dbContextFactory
-                .CreateDbContextAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .CreateDbContextAsync(cancellationToken);
             DateTimeOffset now = timeProvider.GetUtcNow();
             return await dbContext.Database
                 .SqlQueryRaw<bool>(
@@ -139,8 +138,7 @@ internal static class RuntimeGateApprovalReader
                     """,
                     kind,
                     now)
-                .SingleAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .SingleAsync(cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -216,8 +214,7 @@ public sealed class PostgresFourEyesApprovalVerifier(
         try
         {
             await using IvrDbContext dbContext = await dbContextFactory
-                .CreateDbContextAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .CreateDbContextAsync(cancellationToken);
             DateTimeOffset now = timeProvider.GetUtcNow();
 
             // The proposer comparison is in the query as well as in the caller. The caller's check
@@ -242,8 +239,7 @@ public sealed class PostgresFourEyesApprovalVerifier(
                     before.Environment,
                     proposerActorId,
                     now)
-                .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .ToListAsync(cancellationToken);
             return approvers.Count == 1 ? approvers[0] : null;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

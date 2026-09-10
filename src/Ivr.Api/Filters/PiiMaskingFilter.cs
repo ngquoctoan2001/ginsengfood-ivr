@@ -34,7 +34,7 @@ public sealed class PiiMaskingFilter : IEndpointFilter
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(next);
-        object? response = await next(context).ConfigureAwait(false);
+        object? response = await next(context);
         if (response is null || response is IResult)
         {
             return response;

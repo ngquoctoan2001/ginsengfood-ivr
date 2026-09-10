@@ -366,6 +366,63 @@ public sealed class ArchitectureDependencyTests
             + string.Join("\n  ", offenders));
     }
 
+    [Fact]
+    [Trait("TestId", "ARCH-ASYNC-01")]
+    public void ProductionCodeDoesNotWriteConfigureAwait()
+    {
+        // C1 in docs/review/2026-09-09-codebase-audit.md: src carried ConfigureAwait(false) on 440
+        // awaits and omitted it on ~200 more, so a reader could not tell a deliberate omission
+        // from a forgotten one. Owner decision on 2026-09-10 (W-0269) was to remove all of them
+        // rather than enforce CA2007, and the reason is that they never did anything here:
+        //
+        //   * no project in this repository is packable -- there is no PackageId, no
+        //     IsPackable, no GeneratePackageOnBuild -- so Ivr.Infrastructure is consumed only by
+        //     Ivr.Api, Ivr.Worker and one test project, all in this solution;
+        //   * Ivr.Api is WebApplication.CreateBuilder and Ivr.Worker is
+        //     Host.CreateApplicationBuilder, and neither installs a SynchronizationContext;
+        //   * nothing in src or tests references SynchronizationContext at all.
+        //
+        // With no synchronization context to capture, ConfigureAwait(false) is a no-op. tests/
+        // had already settled this on its own: 2473 awaits, zero ConfigureAwait.
+        //
+        // CA2007 was measured as the alternative and rejected: 80 of the 201 sites are
+        // `await using`, where the shipped code fixer emits code that does not compile
+        // (CS0029 -- ConfiguredAsyncDisposable assigned to the disposable's own type).
+        string repositoryRoot = FindRepositoryRoot();
+
+        List<string> offenders = [];
+        foreach (string file in Directory.GetFiles(
+                     Path.Combine(repositoryRoot, "src"), "*.cs", SearchOption.AllDirectories))
+        {
+            if (file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                || file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                || file.EndsWith(".g.cs", StringComparison.Ordinal))
+            {
+                // Generated clients keep whatever the generator emits. SalesTargetV1Client.g.cs
+                // carries thirteen of these, and editing them would both contradict the next
+                // regeneration and break the hash contract-freeze-verifier pins on that file --
+                // which is how this exclusion was found rather than guessed.
+                continue;
+            }
+
+            string[] lines = File.ReadAllLines(file);
+            for (int index = 0; index < lines.Length; index++)
+            {
+                if (lines[index].Contains("ConfigureAwait", StringComparison.Ordinal))
+                {
+                    offenders.Add($"{Path.GetRelativePath(repositoryRoot, file)}:{index + 1}");
+                }
+            }
+        }
+
+        Assert.True(
+            offenders.Count == 0,
+            "ConfigureAwait has no effect in this application and is not written here. "
+            + "If a project ever becomes a published library, change this rule deliberately "
+            + "rather than by adding one call:\n  "
+            + string.Join("\n  ", offenders));
+    }
+
     private static string FindRepositoryRoot()
     {
         DirectoryInfo? current = new(AppContext.BaseDirectory);

@@ -139,7 +139,7 @@ public sealed class ConfigurableExternalTtsProvider(
             options,
             configured,
             external,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         // Two bytes per frame, one channel. Anything that does not divide evenly is not the PCM
         // this provider requires, and guessing a duration from a truncated body would hand the
@@ -167,7 +167,7 @@ public sealed class ConfigurableExternalTtsProvider(
             external.MediaOutputDirectory,
             fileName,
             audio,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         return RenderedAudio.Create(
             configured.OutputFormat,
@@ -208,8 +208,7 @@ public sealed class ConfigurableExternalTtsProvider(
         }
 
         using HttpResponseMessage response = await client
-            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-            .ConfigureAwait(false);
+            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             // The status code is the whole diagnostic. A vendor error body can quote the text it
@@ -228,12 +227,11 @@ public sealed class ConfigurableExternalTtsProvider(
         }
 
         using Stream body = await response.Content
-            .ReadAsStreamAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ReadAsStreamAsync(cancellationToken);
         using var buffer = new MemoryStream();
         byte[] chunk = new byte[64 * 1024];
         int read;
-        while ((read = await body.ReadAsync(chunk, cancellationToken).ConfigureAwait(false)) > 0)
+        while ((read = await body.ReadAsync(chunk, cancellationToken)) > 0)
         {
             if (buffer.Length + read > external.MaxResponseBytes)
             {
@@ -299,8 +297,7 @@ public sealed class ConfigurableExternalTtsProvider(
         string stagingPath = string.Concat(finalPath, ".", Guid.NewGuid().ToString("N"), ".tmp");
         try
         {
-            await File.WriteAllBytesAsync(stagingPath, audio, cancellationToken)
-                .ConfigureAwait(false);
+            await File.WriteAllBytesAsync(stagingPath, audio, cancellationToken);
             File.Move(stagingPath, finalPath, overwrite: false);
         }
         catch (IOException) when (File.Exists(finalPath))

@@ -233,6 +233,6 @@ public static class DialTokenResolveAudit
                     ["resolve_count"] = decision.ResolveCount,
                     ["max_resolves"] = decision.MaxResolves,
                 }),
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
     }
 }

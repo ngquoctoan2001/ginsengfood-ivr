@@ -121,13 +121,13 @@ public sealed class SpeechSynthesisService(
                 request,
                 configured,
                 cacheExpiresAt,
-                cancellationToken).ConfigureAwait(false)
+                cancellationToken)
             : await SynthesizeWholeAsync(
                 script,
                 request,
                 configured,
                 cacheExpiresAt,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
         // W-0113. The selection above is the only place that decides which voice a customer
         // hears; attaching it here is what lets the dispatch loop record that decision instead
@@ -170,9 +170,9 @@ public sealed class SpeechSynthesisService(
                 return await SynthesizeProviderAsync(
                     script,
                     request,
-                    factoryCancellation).ConfigureAwait(false);
+                    factoryCancellation);
             },
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
         usageMeter.RecordCache(cached.CacheHit);
         return cached.Audio;
     }
@@ -249,9 +249,9 @@ public sealed class SpeechSynthesisService(
                             segment.TextHash,
                             script.SummaryHash),
                         request,
-                        factoryCancellation).ConfigureAwait(false);
+                        factoryCancellation);
                 },
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
             usageMeter.RecordCache(cached.CacheHit);
             usageMeter.RecordSegment(segment.Kind, false, cached.CacheHit);
             rendered.Add(new RenderedAudioSegment(
@@ -290,7 +290,7 @@ public sealed class SpeechSynthesisService(
             RenderedAudio audio = await provider.SynthesizeAsync(
                 script,
                 options,
-                timeout.Token).ConfigureAwait(false);
+                timeout.Token);
             if (audio.Duration > options.MaxDuration)
             {
                 throw new TtsSynthesisException(
