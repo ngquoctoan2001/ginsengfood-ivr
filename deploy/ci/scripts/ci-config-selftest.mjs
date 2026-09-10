@@ -716,6 +716,73 @@ process.stdout.write("VALIDATOR_HELPER_CENSUS_PASS — helper duplication held a
 }
 
 process.stdout.write("CT-CI-11 PASS — every image USER states its UID and matches the chart\n");
+// CT-CI-11 has a sibling problem: which OpenAPI baseline is current is written in three places
+// and nothing checked they agreed. On 2026-09-10 they said three different things --
+// docs/api-changelog.md said draft.23, docs/api/changelog/ivr-order-confirmation.md said
+// draft.24, and docs.gitlab-ci.yml compared against draft.25. Each had drifted at a different
+// release, and none of them was wrong in a way anything could notice.
+//
+// This does NOT require baseline === current. Leaving the baseline a release behind is the
+// stronger practice -- it is the only way `oasdiff breaking` ever examines the diff, and
+// advancing both in one commit means that diff is never looked at. What it requires is that the
+// documents agree with the pipeline and with the spec: the baseline the docs name is the one CI
+// actually compares against, and the current version they name is the one the spec actually is.
+{
+  const readText = (relative) => fs.readFile(path.join(repositoryRoot, relative), "utf8");
+  const specPath = "specs/api/openapi/ivr-order-confirmation.v1.yaml";
+  const specVersion = /^  version: (.+)$/mu.exec(await readText(specPath))?.[1]?.trim();
+  assert(specVersion !== undefined, `${specPath} has no top-level version`);
+
+  // Every reference in the pipeline must name the same baseline, or 'the baseline' means
+  // nothing. Written as [.] rather than an escape because this file has had backslashes eaten.
+  const ciText = await readText("deploy/ci/docs.gitlab-ci.yml");
+  const named = [...ciText.matchAll(/baselines[/]ivr-order-confirmation[.]v(.+?)[.]yaml/gu)]
+    .map((match) => match[1]);
+  assert(named.length > 0, "docs.gitlab-ci.yml no longer names an IVR baseline");
+  assert(
+    new Set(named).size === 1,
+    `docs.gitlab-ci.yml compares against more than one baseline: ${[...new Set(named)].join(", ")}`,
+  );
+  const ciBaseline = named[0];
+
+  const baselineFile = `specs/api/openapi/baselines/ivr-order-confirmation.v${ciBaseline}.yaml`;
+  let baselineExists = true;
+  try {
+    await fs.access(path.join(repositoryRoot, baselineFile));
+  } catch {
+    baselineExists = false;
+  }
+  assert(
+    baselineExists,
+    `docs.gitlab-ci.yml compares against ${baselineFile}, which is not in the repository.`,
+  );
+
+  const indexRow = /[|] IVR-owned Target V1 draft [|] `(.+?)` [|] `(.+?)` [|]/u
+    .exec(await readText("docs/api-changelog.md"));
+  assert(indexRow !== null, "docs/api-changelog.md lost its IVR comparison row");
+  assert(
+    indexRow[1] === ciBaseline,
+    `docs/api-changelog.md says the baseline is ${indexRow[1]}, but docs.gitlab-ci.yml compares `
+      + `against ${ciBaseline}.`,
+  );
+  assert(
+    indexRow[2] === specVersion,
+    `docs/api-changelog.md says the current contract is ${indexRow[2]}, but the spec is `
+      + `${specVersion}.`,
+  );
+
+  const reportHeader = (await readText("docs/api/changelog/ivr-order-confirmation.md"))
+    .split(/\r?\n/u)[0].trim();
+  const expectedHeader = `# API Changelog ${ciBaseline} vs. ${specVersion}`;
+  assert(
+    reportHeader === expectedHeader,
+    `docs/api/changelog/ivr-order-confirmation.md is headed ${JSON.stringify(reportHeader)}; the `
+      + `pipeline and spec make it ${JSON.stringify(expectedHeader)}. Regenerate it in the oasdiff `
+      + "image rather than editing the header.",
+  );
+}
+
+process.stdout.write("CT-CI-12 PASS — the documented baseline is the one CI compares against\n");
 process.stdout.write("CT-CI-05 PASS — workflow routing and duplicate prevention\n");
 process.stdout.write("CT-CI-07 PASS — every GitLab fragment is reachable\n");
 process.stdout.write("CT-CI-08 PASS — every artifact producer feeds pii_scan\n");
