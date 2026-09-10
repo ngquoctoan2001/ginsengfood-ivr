@@ -501,7 +501,7 @@ Cả hai đều an toàn về traversal, nhưng đây là **helper bảo mật**
 
 ---
 
-### S5 — Schema wire được định nghĩa hai lần bằng tay
+### S5 — Schema wire được định nghĩa hai lần bằng tay — ĐÃ BUỘC VÀO NHAU (W-0264)
 
 `src/Ivr.Api/Intake/TaskIntakeEndpoint.cs:411-472` — 6 `HashSet<string>` chứa ~50 tên field viết tay:
 
@@ -517,6 +517,12 @@ private static readonly HashSet<string> RequiredTaskProperties =
 Trùng lặp hoàn toàn với contract sinh tự động trong `src/Ivr.Contracts/Generated/IvrServer/V1/IvrServerModels.g.cs` (`[JsonPropertyName("program_type")]`...).
 
 Thêm một field vào OpenAPI spec → regenerate contract → endpoint **vẫn từ chối** field đó vì allowlist viết tay chưa được cập nhật. Không test nào bắt được, vì cả hai định nghĩa đều tự nhất quán với chính nó.
+
+**Đã sửa (W-0264):** năm test parity đọc allowlist của endpoint bằng reflection rồi đối chiếu với contract sinh tự động — bắt drift ở **cả hai chiều**, đã kiểm chứng bằng cách làm chúng đỏ thật.
+
+**Không suy allowlist ra từ contract**, vì làm thế đổi thứ intake chấp nhận. Đo cho thấy đúng **một** chênh lệch thật: `phone_validation_status` nằm trong `required` của spec (`ivr-order-confirmation.v1.yaml:1193`) nhưng endpoint nhận task thiếu nó. Bắt buộc nó sẽ từ chối body hôm nay đang thành công — breaking change trên API service-to-service với Module 3 ở đầu kia. Khai báo như ngoại lệ **được assert**, chờ owner.
+
+Phép đo phải chạy **ba lần** mới đáng tin; hai lần đầu sai do regex của chính tôi. Nếu hành động theo lần hai, tôi đã gỡ `pronunciation_hints` — một field **có** trong spec (dòng 1172) và **được `PrivacySafeSpeech` trong Domain đọc**.
 
 ---
 
@@ -650,9 +656,10 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~S6~~ | ~~434k dòng docs không liên quan~~ | — | **RÚT LẠI — phát hiện sai (W-0262)** |
 | ~~S1~~ | ~~God class + interface 15 method~~ | ~~LOW~~ | **đã sửa — W-0263** |
 | ~~S3~~ | ~~4 background host copy-paste~~ | ~~LOW~~ | **đã sửa — W-0263** |
-| B9, B10, S5, C1, C3–C5 | — | LOW | — |
+| ~~S5~~ | ~~Schema wire định nghĩa hai lần~~ | ~~LOW~~ | **đã buộc vào nhau — W-0264**; 1 chênh lệch chờ owner |
+| B9, B10, C1, C3–C5 | — | LOW | — |
 
-**17/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
+**18/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
 
 ---
 
