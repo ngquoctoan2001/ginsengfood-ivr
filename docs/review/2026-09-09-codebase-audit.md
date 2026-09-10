@@ -261,7 +261,7 @@ Guard mới `PATH_CONFINEMENT_SINGLE_SOURCE_PASS` trong `ci-config-selftest.mjs`
 
 ---
 
-### B9 — LOW: selftest xả rác ra repo root, cleanup không chạy
+### B9 — LOW: selftest xả rác ra repo root, cleanup không chạy — ĐÃ SỬA (W-0268)
 
 `deploy/ci/scripts/external-decision-response-validator.mjs:692-711`
 
@@ -284,15 +284,50 @@ Bằng chứng đang nằm trong repo ngay lúc này:
 
 Năm thư mục rỗng. Cùng lỗi ở `capacity-registry-decision-pack-validator.mjs:842` (`.w0182-selftest-`). Không pattern nào có trong `.gitignore`, nên nếu lần sau chúng chứa file thì sẽ hiện ra như untracked noise.
 
+> **Đính chính (2026-09-10, W-0268).** Hai câu trên sai theo hai hướng ngược nhau.
+>
+> **Rò rỉ *có thể xảy ra* chỉ ở một file, không phải hai.** Ở
+> `capacity-registry-decision-pack-validator.mjs`, khoảng giữa `mkdtemp` và `try` chỉ chứa **định
+> nghĩa closure** — không câu lệnh nào chạy, nên không gì ném. Chỗ duy nhất ném thật là
+> `parseAndVerifyManifest()` trong `external-decision-response-validator.mjs`, và đó đúng là file
+> đã để lại năm thư mục kia. Đã đo: bắt manifest lệch → bản `HEAD` để lại **1** thư mục, bản sửa
+> để lại **0**, cùng một thông điệp lỗi.
+>
+> **Nhưng phạm vi rộng hơn báo cáo viết: `4` file mkdtemp vào repo root, không phải 2** — thêm
+> `external-decision-routing-validator.mjs` và `upstream-session-signoff-validator.mjs`. Bảy
+> validator anh em đã dùng `resolve(REPOSITORY_ROOT, "ci-artifacts")`, và `ci-artifacts/` đã nằm
+> trong `.gitignore:11`. Cả 4 chuyển sang đó, nên không cần thêm pattern ignore nào cho một vị trí
+> đang bị bỏ.
+>
+> Tiện thể: `upstream-session-signoff-validator.mjs` dùng tiền tố `.w0178-selftest-` trong khi
+> token của chính nó là `W0181` — vết copy-paste từ `d06` (W0178). Đã đổi thành `w0181-`.
+
 ---
 
-### B10 — LOW: cột chết nhưng index vẫn sống trên hot path
+### B10 — LOW: cột chết nhưng index vẫn sống trên hot path — ĐÃ SỬA (W-0268)
 
 `IdempotencyKeyEntity.ExpiresAt` (`IvrPersistenceEntities.cs:372`) **không có writer nào** trong toàn bộ `src/`. `PostgresIdempotencyStore.cs:70-77` chỉ set `Scope`, `Key`, `PayloadHash`, `ResponseSnapshotJson`, `CreatedAt`.
 
 Nhưng cột này có index: `PersistenceModelConfiguration.cs:566`. Index đó được bảo trì trên **mọi** insert idempotency, tức là mọi request mutating của API, để index một cột luôn `NULL`.
 
 Retention xóa bảng này theo `created_at` (`RetentionTargetCatalog.cs:90`), không dùng `expires_at`.
+
+> **Đính chính (2026-09-10, W-0268).** "Không có writer nào" đúng, nhưng báo cáo chỉ nêu **một**
+> đường ghi. Có **bốn**: `TaskIntakeStores.CreateIdempotency:330`,
+> `PostgresIdempotencyStore.cs:71`, `PostgresFeatureFlagCommandIdempotency.cs:63`,
+> `InternalAdminApiService.cs:975`. Không cái nào set cột. Bốn đường độc lập cùng bỏ trống nó là
+> bằng chứng mạnh hơn một call site đãng trí.
+>
+> Nơi **duy nhất** gán giá trị cho cột là một **test** — `RetentionJobTests.cs:376` đặt
+> `ExpiresAt = createdAt.AddHours(1)`. Fixture đang mô tả một trạng thái production không tạo ra.
+>
+> **Điểm mạnh nhất lại không có trong báo cáo:** `specs/database/04-indexes.md:29` khai đúng **một**
+> index cho bảng này — `created_at`, cho retention/purge scan. Index `expires_at` **chưa bao giờ có
+> trong spec**. Nên bỏ nó là đưa model **về đúng spec**, không phải đi chệch khỏi spec.
+>
+> **Cột thì giữ.** `specs/database/02-tables.md:191` có khai `expires_at`. Bỏ cột sẽ là
+> `DropColumn` — đúng thứ `UT-SCHEMA-BACKCOMPAT-01` từ chối vì release trước vẫn đọc bảng đó.
+> `DropIndex` vô hình với code cũ, nên guard đó không liệt kê nó.
 
 ---
 
@@ -667,9 +702,11 @@ Nhưng không có gì — không comment, không analyzer, không test — ngăn
 | ~~S1~~ | ~~God class + interface 15 method~~ | ~~LOW~~ | **đã sửa — W-0263** |
 | ~~S3~~ | ~~4 background host copy-paste~~ | ~~LOW~~ | **đã sửa — W-0263** |
 | ~~S5~~ | ~~Schema wire định nghĩa hai lần~~ | ~~LOW~~ | **đã buộc vào nhau — W-0264**; 1 chênh lệch chờ owner |
-| B9, B10, C1, C3–C5 | — | LOW | — |
+| ~~B9~~ | ~~Selftest xả rác ra repo root~~ | ~~LOW~~ | **đã sửa — W-0268**; rò rỉ thật là **1 file** chứ không phải 2, nhưng **4** file mkdtemp vào repo root — cả 4 chuyển sang `ci-artifacts/` |
+| ~~B10~~ | ~~Cột chết nhưng index vẫn sống~~ | ~~LOW~~ | **đã sửa — W-0268**; **4** writer chứ không phải 1, không cái nào set cột; index không có trong `specs/database/04-indexes.md` nên bỏ nó là về đúng spec |
+| C1, C3–C5 | — | LOW | — |
 
-**19/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
+**21/26 đã đóng, 1 rút lại vì sai. Không còn mục HIGH nào.**
 
 ---
 

@@ -5,7 +5,7 @@
 // calibration, promotes a gate, or authorizes a real customer call.
 
 import { createHash } from "node:crypto";
-import { lstatSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { isConfined, REPOSITORY_ROOT } from "./repository-path-lib.mjs";
 import { findSensitiveValue } from "./sensitive-value-lib.mjs";
@@ -774,7 +774,9 @@ function clone(value) {
 }
 
 function runSelfTest() {
-  const temporaryRoot = mkdtempSync(join(REPOSITORY_ROOT, ".w0182-selftest-"));
+  const artifactsRoot = resolve(REPOSITORY_ROOT, "ci-artifacts");
+  mkdirSync(artifactsRoot, { recursive: true });
+  const temporaryRoot = mkdtempSync(resolve(artifactsRoot, "w0182-selftest-"));
   let refusals = 0;
   const writeCase = (name, value) => {
     const path = join(temporaryRoot, `${name}.json`);

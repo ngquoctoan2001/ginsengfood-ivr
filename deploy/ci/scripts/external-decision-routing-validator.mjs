@@ -3,6 +3,7 @@
 import { createHash } from "node:crypto";
 import {
   lstatSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   realpathSync,
@@ -327,7 +328,9 @@ function clone(value) {
 }
 
 function runSelfTest() {
-  const temporaryRoot = mkdtempSync(join(REPOSITORY_ROOT, ".w0164-selftest-"));
+  const artifactsRoot = resolve(REPOSITORY_ROOT, "ci-artifacts");
+  mkdirSync(artifactsRoot, { recursive: true });
+  const temporaryRoot = mkdtempSync(resolve(artifactsRoot, "w0164-selftest-"));
   let refusals = 0;
   const writeCase = (name, value) => {
     const path = join(temporaryRoot, `${name}.json`);

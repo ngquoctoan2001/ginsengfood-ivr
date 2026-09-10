@@ -562,8 +562,12 @@ internal static class PersistenceModelConfiguration
         var idempotency = modelBuilder.Entity<IdempotencyKeyEntity>();
         idempotency.ToTable("ivr_idempotency_keys");
         idempotency.HasKey(entity => new { entity.Scope, entity.Key });
+        // created_at only. specs/database/04-indexes.md names exactly one index for this
+        // table -- the retention/purge scan -- and expires_at was never in it. Four write
+        // paths insert these rows and none of them sets the column, so the index it carried
+        // could not serve a query; it was maintained on every mutating request for nothing.
+        // W-0268. The column stays: specs/database/02-tables.md does declare it.
         idempotency.HasIndex(entity => entity.CreatedAt);
-        idempotency.HasIndex(entity => entity.ExpiresAt);
 
         var audit = modelBuilder.Entity<AuditLogEntity>();
         audit.ToTable("ivr_audit_log");

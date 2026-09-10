@@ -42,10 +42,10 @@ const SOURCE_PINS = Object.freeze({
     "3bd5b824c84b6d734090bf488f3da054622e30554ff26cace11f3656b4e70cf1",
   routing_validator_path: "deploy/ci/scripts/external-decision-routing-validator.mjs",
   routing_validator_sha256:
-    "313624197eba510f28618b693da8e2c65d48ec799161063ed09790336ff5a88c",
+    "2e611dd8c93f81e16c60d1997e7175081537278386566303a4a6272db45033df",
   response_validator_path: "deploy/ci/scripts/external-decision-response-validator.mjs",
   response_validator_sha256:
-    "64e20aacae154ef2b25a1c2e0333a09a83b4f596bc2fb9832dbde377d035e85e",
+    "13fa119dd309dbac03b343153d39edc01722c6970b7836a588ad3b7a3d7e294a",
 });
 
 const SHEET_RULES = new Map([

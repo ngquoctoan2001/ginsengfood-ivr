@@ -3,6 +3,7 @@
 import { createHash } from "node:crypto";
 import {
   lstatSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   realpathSync,
@@ -588,8 +589,15 @@ function clone(value) {
 }
 
 function runSelfTest() {
-  const temporaryRoot = mkdtempSync(join(REPOSITORY_ROOT, ".w0165-selftest-"));
+  // Verified before the temp directory exists, not after. This is a hash check over the
+  // artifact manifest, so it throws whenever the manifest drifts -- routine, not
+  // exceptional -- and the finally that removes the directory is seventeen lines below.
+  // Anything created above this line leaks on that throw, which is how five empty
+  // .w0165-selftest-* directories accumulated in the repository root.
   const manifest = parseAndVerifyManifest();
+  const artifactsRoot = resolve(REPOSITORY_ROOT, "ci-artifacts");
+  mkdirSync(artifactsRoot, { recursive: true });
+  const temporaryRoot = mkdtempSync(resolve(artifactsRoot, "w0165-selftest-"));
   let refusals = 0;
   const writeCase = (name, value) => {
     const path = join(temporaryRoot, `${name}.json`);
