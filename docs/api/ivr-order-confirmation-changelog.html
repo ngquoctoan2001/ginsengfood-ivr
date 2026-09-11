@@ -3,7 +3,15 @@
 <title>IVR API Changelog · Ginsengfood IVR</title><link rel="stylesheet" href="styles.css"></head>
 <body><main class="container document"><nav><a href="index.html">← Portal home</a></nav>
 <header><div class="badge warning">NON-PRODUCTION ONLY</div><h1>IVR API Changelog</h1>
-<p class="source">Source: <code>docs/api/changelog/ivr-order-confirmation.md</code></p></header><h1>API Changelog 1.0.0-draft.26 vs. 1.0.0-draft.26</h1>
-<p>No changes detected</p>
+<p class="source">Source: <code>docs/api/changelog/ivr-order-confirmation.md</code></p></header><h1>API Changelog 1.0.0-draft.25 vs. 1.0.0-draft.26</h1>
+<blockquote>
+<p><strong>PLACEHOLDER — W-0277. This file is knowingly wrong and <code>api_contract_diff</code> will fail on it.</strong>
+The real body is produced by <code>oasdiff</code>, which exists only inside the job&#39;s pinned image and
+cannot be installed on a developer host — <code>deploy/ci/gate-invocations.json</code> records the same
+constraint for <code>selftest-oasdiff.sh</code>. The job now <code>cat</code>s the generated file before comparing it,
+so the next red run prints the body; commit that output here verbatim.</p>
+<p>It is <strong>not</strong> hand-written on purpose: the job compares byte-for-byte, so a plausible-looking
+guess would be both wrong and undetectable until it was.</p>
+</blockquote>
 
 <footer>Generated content. Edit the named source, not this HTML.</footer></main></body></html>
