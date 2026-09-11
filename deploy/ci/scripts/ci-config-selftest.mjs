@@ -496,6 +496,22 @@ for (const includePath of [".gitlab-ci.yml", ...includes]) {
     // The evasion. A loose `\d{4}-\d{2}-\d{2}` would strip eight digits of this number and let the
     // rest through, so the date pattern pins plausible years, months and days instead.
     ["0912-34-5678", "a phone-like value"],
+
+    // W-0278. A full SHA-256 is excused before the phone test, because the hash of the handover
+    // document contained eleven consecutive digits and turned a routine re-pin into a refusal.
+    // The carve-out is anchored at exactly sixty-four hex characters, and these prove it.
+    ["4e786b45dd2b49ff1e6b252c73af027d5dbc91588761475f3da930da86cc5cbc", null],
+
+    // Sixty-three and sixty-five are not SHA-256s, so the digits inside them are still counted.
+    ["4e786b45dd2b49ff1e6b252c73af027d5dbc91588761475f3da930da86cc5cb", "a phone-like value"],
+    ["4e786b45dd2b49ff1e6b252c73af027d5dbc91588761475f3da930da86cc5cbcd", "a phone-like value"],
+
+    // And excusing the hash does not excuse what sits beside it: a real number in the same value
+    // is still found, which is the whole point of stripping for the phone test only.
+    [
+      "pin 4e786b45dd2b49ff1e6b252c73af027d5dbc91588761475f3da930da86cc5cbc call +84 912 345 678",
+      "a phone-like value",
+    ],
   ];
 
   for (const [value, expected] of cases) {

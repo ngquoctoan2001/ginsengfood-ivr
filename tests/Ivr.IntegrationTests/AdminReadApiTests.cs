@@ -123,7 +123,7 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal(1, dashboard.Sim.Enabled);
         Assert.Equal(1, dashboard.Sim.Idle);
         Assert.Equal(1, dashboard.Sim.Disabled);
-        Assert.Equal("MOCK", dashboard.Sim.Adapter_mode);
+        Assert.Equal(IvrServer.IvrDashboardSimPanelAdapter_mode.MOCK, dashboard.Sim.Adapter_mode);
 
         Assert.Single(dashboard.Open_incidents);
         Assert.Equal("SCHEDULER_DEADLINE", dashboard.Open_incidents.Single().Scope);
@@ -173,9 +173,11 @@ public sealed class AdminReadApiTests(PostgresPersistenceFixture fixture)
         Assert.Empty(dashboard.Open_incidents);
         Assert.Equal(0, dashboard.Missed_deadline_count);
 
-        // With no channels there is no first row to read an adapter mode from, so the panel falls
-        // back to the configured execution mode rather than reporting an empty string.
-        Assert.Equal(IvrOptions.MockExecutionMode, dashboard.Sim.Adapter_mode);
+        // W-0278. With no channels there is no adapter to report, and the panel says so. It used
+        // to answer with the configured execution mode, which is already its own field on this
+        // response -- so the same property carried SIM adapters and execution modes depending on
+        // a row count, and only looked consistent because both vocabularies contain MOCK.
+        Assert.Equal(IvrServer.IvrDashboardSimPanelAdapter_mode.NONE, dashboard.Sim.Adapter_mode);
     }
 
     [Fact]

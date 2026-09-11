@@ -12,6 +12,13 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
 <blockquote>
+<p><strong><code>1.0.0-draft.27</code> (W-0278)</strong> đóng <code>IvrDashboardSimPanel.adapter_mode</code> thành
+<code>enum [MOCK, VENDOR, ASTERISK_ARI, NONE]</code>. <code>draft.26</code> cố ý để field này mở vì nó mang <strong>hai từ
+vựng</strong>: adapter của channel khi có channel, và <strong>execution mode</strong> khi không có — giá trị đã nằm
+sẵn ở field <code>execution_mode</code> cùng response. Owner chốt sentinel <code>NONE</code>, nên field có một từ vựng
+và siết được.</p>
+</blockquote>
+<blockquote>
 <p><strong><code>1.0.0-draft.26</code> (W-0275)</strong> siết <code>adapter_mode</code> và <code>provider_name</code> trên <code>IvrSimChannel</code>
 thành <code>enum [MOCK, VENDOR, ASTERISK_ARI]</code>. Cả hai chỉ nằm trong <strong>response</strong> (<code>IvrSimChannelList</code>
 qua <code>&#39;200&#39;</code>), nên Module 3 không gửi chúng — thay đổi này ràng buộc thứ <strong>IVR phát ra</strong>, và cho
@@ -35,7 +42,7 @@ Xem <code>docs/evidence/W-0275/README.md</code>.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.25</code></td>
-<td><code>1.0.0-draft.26</code></td>
+<td><code>1.0.0-draft.27</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>

@@ -8,6 +8,7 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Ivr.Infrastructure.Telephony;
 
 namespace Ivr.Api.Application;
 
@@ -647,7 +648,12 @@ public sealed class AdminReadService(
             Count(channel => channel.Status == "HEALTH_FAILED"),
             Count(channel => channel.QuarantineUntil != null && channel.QuarantineUntil > now),
             Ratio(Count(channel => channel.Status == "HEALTH_FAILED"), channels.Count),
-            channels.Count > 0 ? channels[0].AdapterMode : executionMode);
+            // W-0278: SimAdapters.None, not executionMode. The panel answers "which adapter
+            // are these channels on"; with no channels the answer is none, not the mode the
+            // service happens to be running in -- which the response already carries as
+            // execution_mode. Two vocabularies in one field only looked harmless because both
+            // contain MOCK.
+            channels.Count > 0 ? channels[0].AdapterMode : SimAdapters.None);
     }
 
     /// <summary>

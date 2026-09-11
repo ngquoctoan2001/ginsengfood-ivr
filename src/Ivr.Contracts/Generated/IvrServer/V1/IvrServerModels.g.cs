@@ -1228,7 +1228,8 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
 
         [System.Text.Json.Serialization.JsonPropertyName("adapter_mode")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public required string Adapter_mode { get; init; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<IvrDashboardSimPanelAdapter_mode>))]
+        public required IvrDashboardSimPanelAdapter_mode Adapter_mode { get; init; }
 
     }
 
@@ -3272,6 +3273,28 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.Text.Json.Serialization.JsonStringEnumMemberName(@"NOT_REPLAYABLE")]
         [System.Runtime.Serialization.EnumMember(Value = @"NOT_REPLAYABLE")]
         NOT_REPLAYABLE = 1,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum IvrDashboardSimPanelAdapter_mode
+    {
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"MOCK")]
+        [System.Runtime.Serialization.EnumMember(Value = @"MOCK")]
+        MOCK = 0,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"VENDOR")]
+        [System.Runtime.Serialization.EnumMember(Value = @"VENDOR")]
+        VENDOR = 1,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"ASTERISK_ARI")]
+        [System.Runtime.Serialization.EnumMember(Value = @"ASTERISK_ARI")]
+        ASTERISK_ARI = 2,
+
+        [System.Text.Json.Serialization.JsonStringEnumMemberName(@"NONE")]
+        [System.Runtime.Serialization.EnumMember(Value = @"NONE")]
+        NONE = 3,
 
     }
 

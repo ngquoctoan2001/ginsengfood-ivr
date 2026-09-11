@@ -31,4 +31,18 @@ public static class SimAdapters
 
     /// <summary>The Asterisk ARI lab adapter (<c>W-0104</c>).</summary>
     public const string AsteriskAri = "ASTERISK_ARI";
+
+    /// <summary>
+    /// No channel to read an adapter from — reported by the dashboard's SIM panel, never stored on
+    /// a channel row, because a row always has one.
+    /// <para>
+    /// W-0278. The panel used to answer that question with the configured execution mode, which is
+    /// already its own field two lines up in the same response, so one field carried two
+    /// vocabularies and a lab run at LAB_REAL_SIM with nothing provisioned would report
+    /// <c>adapter_mode: "LAB_REAL_SIM"</c>. Owner chose a sentinel over omitting the field: it
+    /// keeps the property required, and it is the reason the panel's adapter_mode could finally be
+    /// closed to an enum the way IvrSimChannel's was in W-0275.
+    /// </para>
+    /// </summary>
+    public const string None = "NONE";
 }

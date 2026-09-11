@@ -11,7 +11,7 @@ Contract state: `TARGET_CONTRACT_V1=DRAFT`.
 
 | Contract | Version | Pinned sha256 |
 | --- | --- | --- |
-| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.26` | `b50d9edb4a185dc5e4d31b74b8aced892b8fe8b80ba39a5c8718bd72578de107` |
+| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.27` | `7739c42582e4c917f6ec02e927b4e9a44dfeac883cf8eea83c6c699b9d69047c` |
 | Sales callback (`specs/api/openapi/order-core-ivr-callback.target-v1.yaml`) | `1.0.0-draft` | `af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
 
 ## 1. Intake — `IvrConfirmationTaskV1`
@@ -91,7 +91,7 @@ see `docs/api-versioning.md`. Both directions of this list therefore need approv
 
 ### 3.1. Intake contract
 
-Value sets: **28**. Pinned constants: **24**.
+Value sets: **29**. Pinned constants: **24**.
 
 | Location | Values |
 | --- | --- |
@@ -113,6 +113,7 @@ Value sets: **28**. Pinned constants: **24**.
 | `IvrCallJobDetail.properties.voice_region` | `North`, `Central`, `South` |
 | `IvrCallJobDetail.properties.voice_region_source` | `RECORDED`, `DERIVED`, `null` |
 | `IvrConfirmationTaskV1.properties.payment_method_snapshot` | `ONLINE`, `COD` |
+| `IvrDashboardSimPanel.properties.adapter_mode` | `MOCK`, `VENDOR`, `ASTERISK_ARI`, `NONE` |
 | `IvrDependencyStatus.properties.state` | `UP`, `DOWN`, `READY_503`, `NOT_WIRED` |
 | `IvrScenarioDryRunResult.properties.coverage` | `REPLAYED`, `NOT_REPLAYABLE` |
 | `IvrScriptApprovalRequest.properties.approval_type` | `MOCK_TEST`, `LAB`, `CONTENT`, `PRIVACY_LEGAL` |

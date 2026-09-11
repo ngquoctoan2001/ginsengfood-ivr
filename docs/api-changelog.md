@@ -10,6 +10,12 @@ and does not approve the external Sales contract.
 
 ## Current comparisons
 
+> **`1.0.0-draft.27` (W-0278)** đóng `IvrDashboardSimPanel.adapter_mode` thành
+> `enum [MOCK, VENDOR, ASTERISK_ARI, NONE]`. `draft.26` cố ý để field này mở vì nó mang **hai từ
+> vựng**: adapter của channel khi có channel, và **execution mode** khi không có — giá trị đã nằm
+> sẵn ở field `execution_mode` cùng response. Owner chốt sentinel `NONE`, nên field có một từ vựng
+> và siết được.
+
 > **`1.0.0-draft.26` (W-0275)** siết `adapter_mode` và `provider_name` trên `IvrSimChannel`
 > thành `enum [MOCK, VENDOR, ASTERISK_ARI]`. Cả hai chỉ nằm trong **response** (`IvrSimChannelList`
 > qua `'200'`), nên Module 3 không gửi chúng — thay đổi này ràng buộc thứ **IVR phát ra**, và cho
@@ -25,7 +31,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.25` | `1.0.0-draft.26` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.25` | `1.0.0-draft.27` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,

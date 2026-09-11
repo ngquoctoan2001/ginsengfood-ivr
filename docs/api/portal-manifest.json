@@ -24,9 +24,9 @@
     "styles.css"
   ],
   "sourceHashes": {
-    "docs/api-changelog.md": "da6e8c242fd6abd0a36a01204522d2bd65937cb6cb1123c23fb781a4c255aadc",
+    "docs/api-changelog.md": "73b0686398de97c8fdc4de162e3cac9cf7197158b23a94b676920501f0b4bd78",
     "docs/api-versioning.md": "6a260a66e5fc67099b62f62b92f370499d385e60c1d8fefa960c40e1be364b23",
-    "docs/api/changelog/ivr-order-confirmation.md": "73dd07eebb86d09e089d916cc714be79d92319349202c4847078c057b26a177c",
+    "docs/api/changelog/ivr-order-confirmation.md": "edf5d228e28cdf243daee30ce8570787c0e645273707ce133f23fb0fdeb3a628",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md": "8e17896e944e0a50bf9a83798e694bb1893ed6e4f7e118aebfe8224780e2c935",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md": "59335a78951c3de1af4d58ef249260380309021a38bef4e417a64ba0114bf036",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md": "0716dd4d826b0982f1f903e1c717b5d79132633acad60c98df0f4c0c125dc87d",
@@ -37,8 +37,8 @@
     "docs/integration-guide.md": "4154153d7fe61e10531d12820497a2384858957519f3fcc4aa28aca133f7f104",
     "specs/api/compat/current-golden-hour-callback.a3aad246.schema.json": "ad2f655070b14d0cdfb0540893f7d7ea83354dda56c4b403ae47f56a3f6a494d",
     "specs/api/openapi/changelog-baseline.json": "33f86a25d7b4d186a24fb6da6c007ae04e5904f46eedc2c223e536b5f1a519fb",
-    "specs/api/openapi/contract-manifest.json": "950d2fc5c4e3f498309a2d5deffe3e341ccf67345dfdfbcafeb81bb73f8a3b3d",
-    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "b50d9edb4a185dc5e4d31b74b8aced892b8fe8b80ba39a5c8718bd72578de107",
+    "specs/api/openapi/contract-manifest.json": "7e413aebd169b87d19f88ff3cb1fd41a9b082eea31137a0f5ca7c4aa9bdf6866",
+    "specs/api/openapi/ivr-order-confirmation.v1.yaml": "7739c42582e4c917f6ec02e927b4e9a44dfeac883cf8eea83c6c699b9d69047c",
     "specs/api/openapi/order-core-ivr-callback.target-v1.yaml": "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697"
   }
 }

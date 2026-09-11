@@ -1,4 +1,4 @@
-# API Changelog 1.0.0-draft.25 vs. 1.0.0-draft.26
+# API Changelog 1.0.0-draft.25 vs. 1.0.0-draft.27
 
 > **PLACEHOLDER — W-0277. This file is knowingly wrong and `api_contract_diff` will fail on it.**
 > The real body is produced by `oasdiff`, which exists only inside the job's pinned image and

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: IVR Order Confirmation — Internal/Admin API (Target V1 Draft)
-  version: 1.0.0-draft.26
+  version: 1.0.0-draft.27
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -1743,7 +1743,7 @@ components:
           minimum: 0
           maximum: 1
           description: Channels in HEALTH_FAILED over the whole pool.
-        adapter_mode: { type: string }  # NOT an enum: see IvrSimChannel.adapter_mode. AdminReadService:650 emits the first channel's adapter when channels exist and the configured EXECUTION MODE when none do, so this one field carries two vocabularies. Recorded in W-0275, not decided there.
+        adapter_mode: { type: string, enum: [MOCK, VENDOR, ASTERISK_ARI, NONE] }  # NONE when there are no channels; W-0278 removed the execution-mode fallback that made this field carry two vocabularies.
     IvrCapacityIncidentSummary:
       type: object
       additionalProperties: false

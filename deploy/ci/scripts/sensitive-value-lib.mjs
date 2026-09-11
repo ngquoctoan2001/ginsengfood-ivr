@@ -60,6 +60,29 @@ const PATTERNS = [
  * digits of a real number. `19xx`/`20xx` with a month of `01`–`12` and a day of `01`–`31` cannot
  * be arranged out of a phone number.
  */
+
+/**
+ * A full SHA-256, written out as sixty-four hex characters.
+ *
+ * Cut out before the phone test for the same reason ISO dates are, and found the same way: a real
+ * refusal. `upstream-session-signoff-validator` screens its whole serialized document, and that
+ * document is mostly pinned hashes. On 2026-09-11 the handover document hashed to
+ * `4e786b45dd2b49ff1e6b252c73af027d5dbc91588761475f3da930da86cc5cbc`, which carries the eleven
+ * consecutive digits `91588761475` — squarely inside the nine-to-fifteen the phone pattern counts.
+ *
+ * That makes whether a release passes this gate depend on whether its hash happens to contain a
+ * long digit run. That is luck, not correctness, and the same collision had already been blamed on
+ * someone else's change earlier in the same session.
+ *
+ * Exactly sixty-four, anchored on both sides: a shorter or longer hex run is not a SHA-256 and is
+ * left for the phone test to judge.
+ *
+ * What this does not close, stated rather than implied: a value deliberately crafted as sixty-four
+ * hex characters could hide a number inside itself. This check exists to stop a secret reaching an
+ * evidence bundle **by accident** — nobody writes a phone number as a 64-character hash by mistake
+ * — and a hostile author with write access to these documents has simpler options than this one.
+ */
+const SHA256_HEX = /(?<![0-9a-fA-F])[0-9a-fA-F]{64}(?![0-9a-fA-F])/gu;
 const ISO_DATE = /(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])(?:T[\d:.]+(?:Z|[+-]\d{2}:?\d{2})?)?/gu;
 
 /**
@@ -77,9 +100,9 @@ export function findSensitiveValue(value) {
     return null;
   }
 
-  // Dates are removed for the phone test only. Every other pattern sees the value untouched, so
-  // nothing can be smuggled past them by embedding a date next to it.
-  const withoutDates = value.replace(ISO_DATE, " ");
+  // Dates and SHA-256 hashes are removed for the phone test only. Every other pattern sees the
+  // value untouched, so nothing can be smuggled past them by embedding either next to it.
+  const withoutDates = value.replace(ISO_DATE, " ").replace(SHA256_HEX, " ");
   for (const [pattern, reason] of PATTERNS) {
     const subject = reason === "a phone-like value" ? withoutDates : value;
     if (pattern.test(subject)) {
