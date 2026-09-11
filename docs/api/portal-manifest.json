@@ -24,9 +24,9 @@
     "styles.css"
   ],
   "sourceHashes": {
-    "docs/api-changelog.md": "73b0686398de97c8fdc4de162e3cac9cf7197158b23a94b676920501f0b4bd78",
+    "docs/api-changelog.md": "c74cdae48c49759816fd03b1dccc7ae900f1423b7009e8291acaa8b0b1c3e31a",
     "docs/api-versioning.md": "6a260a66e5fc67099b62f62b92f370499d385e60c1d8fefa960c40e1be364b23",
-    "docs/api/changelog/ivr-order-confirmation.md": "edf5d228e28cdf243daee30ce8570787c0e645273707ce133f23fb0fdeb3a628",
+    "docs/api/changelog/ivr-order-confirmation.md": "d390722a0b9284dc4880c17ba3b26dcee819bbbb0ef4ff5964d22e94b1a36d2b",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.2-to-v1.0.0-draft.20.md": "8e17896e944e0a50bf9a83798e694bb1893ed6e4f7e118aebfe8224780e2c935",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md": "59335a78951c3de1af4d58ef249260380309021a38bef4e417a64ba0114bf036",
     "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md": "0716dd4d826b0982f1f903e1c717b5d79132633acad60c98df0f4c0c125dc87d",

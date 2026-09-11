@@ -19,9 +19,9 @@ api_contract_diff:
     # in the other order, and a stale changelog file made the job fail at the diff so the breaking
     # check never executed at all. A breaking change should be reported as breaking, not as "your changelog is out of date".
     - oasdiff --version
-    - oasdiff breaking specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.25.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml --format markdown --fail-on WARN
+    - oasdiff breaking specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.27.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml --format markdown --fail-on WARN
     - oasdiff breaking specs/api/openapi/baselines/order-core-ivr-callback.v1.0.0-draft.yaml specs/api/openapi/order-core-ivr-callback.target-v1.yaml --format markdown --fail-on WARN
-    - sh deploy/ci/scripts/generate-oasdiff-changelog.sh specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.25.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml /tmp/ivr-order-confirmation.md
+    - sh deploy/ci/scripts/generate-oasdiff-changelog.sh specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.27.yaml specs/api/openapi/ivr-order-confirmation.v1.yaml /tmp/ivr-order-confirmation.md
     # Printed unconditionally: when the diff below fails, the log is the only place the generated
     # body exists, and oasdiff is not installable on a developer host.
     - cat /tmp/ivr-order-confirmation.md
