@@ -79,6 +79,9 @@ pnpm sandbox:examples
 Chạy **24 ví dụ** từ bên ngoài, đúng cách bạn sẽ gọi: 6 tình huống cuộc gọi chạy trọn vòng, 5 kiểu từ
 chối, và hạn mức. Kết quả ghi ra `.artifacts/sandbox/module-3-examples.json`.
 
+Script tự chờ API sẵn sàng, nên gõ liền sau `pnpm sandbox:up` là được. Nó cũng **tự từ chối chạy lần
+hai trên cùng dữ liệu** và chỉ đúng lệnh cần gõ — lý do ở mục 9.
+
 Đọc mã nguồn `deploy/ci/scripts/sandbox-examples.mjs` như một client mẫu — nó không tham chiếu gì tới
 assembly của IVR, chỉ nói HTTP.
 
@@ -202,8 +205,10 @@ thay đổi hợp đồng trên cả 38 lệnh, sẽ đưa vào bản hợp đ�
 | Dừng quay số, giữ dữ liệu | `POST /queue:pause` (hạng `danger`) | Còn nguyên, chỉ ngừng gọi |
 | Dừng hẳn các việc đang chạy | `POST /call-jobs:terminate-all` (hạng `danger`) | Còn lịch sử |
 
-Bộ ví dụ cần một sandbox **sạch**: kết quả giả lập gắn cứng theo `task_id`, chạy lần hai trên cùng ổ
-đĩa sẽ bị trả lời trùng khoá và báo "không có kết quả" cho một hệ thống đang chạy tốt.
+Bộ ví dụ cần một sandbox **sạch**: kết quả giả lập gắn cứng theo `task_id`, nên chạy lần hai trên cùng
+ổ đĩa là gửi lại đúng `Idempotency-Key` cũ với cửa sổ thời gian mới — cùng khoá, khác nội dung, và IVR
+**từ chối là đúng** (`409 IVR_IDEMPOTENCY_CONFLICT`). Script phát hiện việc này trước khi chạy và in ra
+đúng lệnh cần gõ, thay vì để bạn đọc 9 dòng đỏ trông như module hỏng.
 
 ---
 

@@ -188,6 +188,35 @@ worth anything if its failures are read rather than explained away.
 
 ---
 
+## A trap I shipped, and the owner found within the hour
+
+The example set needs a clean volume, and the first version said so in a comment at the top of the
+script and in the guide. Then I left the sandbox running, handed the owner
+`pnpm sandbox:examples`, and they ran it against the volume my own run had just used. Nine red
+lines, six of them `409 IVR_IDEMPOTENCY_CONFLICT`.
+
+Every one of those answers was correct. The examples use fixed task ids because MOCK telephony
+outcomes are keyed by task id, so a rerun replays the same `Idempotency-Key` while the window has
+been rebased to a new now — the same key carrying a different payload, which the contract refuses on
+purpose. The system was working exactly as designed and it read as a broken module.
+
+That is the same shape of defect as everything else in this work item: a documented precondition is
+not a guard. Fixed by making the script check before it mutates anything —
+`GET /call-jobs?correlation_id=…` on the first scenario's correlation id, which is derived by one
+shared helper so the guard cannot drift from the run. It blocks only when certain; an unreadable
+probe stays quiet and lets the next step produce its own clearer message.
+
+Two smaller things fixed alongside, both found by running it rather than reading it:
+
+- `pnpm sandbox:up && pnpm sandbox:examples` is the natural thing to type, but `up` returns when the
+  containers start, not when the API has finished migrating. Asking once produced a raw
+  `ECONNREFUSED` stack trace, so preflight now waits up to 60s.
+- Guidance failures are a `GuidanceError` and print as a sentence with no stack. Anything genuinely
+  unexpected still shows its stack, which is when a stack is the useful thing.
+
+Verified both directions: clean volume → `24/24`, exit 0; immediate rerun → the guard's message and
+exit 1.
+
 ## Open, and deliberately not decided here
 
 **Nothing calls `POST /eligibility-checks`.** It is the step that moves a job out of `HELD_MOCK` so

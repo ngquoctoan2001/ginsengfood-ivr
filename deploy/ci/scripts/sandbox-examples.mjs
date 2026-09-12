@@ -59,6 +59,9 @@ const INTERNAL_TOKEN = process.env.IVR_INTERNAL_SERVICE_TOKEN
   ?? "dev-internal-token-not-a-real-secret";
 const RESULT_TIMEOUT_MS = Number(args.get("result-timeout-ms") ?? 90_000);
 
+/** Readiness polls, three seconds apart. Long enough for a cold start with migrations. */
+const READY_ATTEMPTS = 20;
+
 /**
  * The six telephony outcomes a client has to handle, and the task id that selects each one.
  *
@@ -170,6 +173,11 @@ async function call(method, path, { headers = {}, body } = {}) {
     method,
     headers,
     body: body === undefined ? undefined : JSON.stringify(body),
+  }).catch(() => {
+    throw new GuidanceError(
+      `${BASE_URL} stopped answering partway through the run (${method} ${path}).\n\n`
+      + "The sandbox is no longer reachable. Check it is still up:\n"
+      + "  docker compose -f docker-compose.dev.yml -f docker-compose.sandbox.yml ps");
   });
   const text = await response.text();
   let parsed = null;
@@ -181,6 +189,9 @@ async function call(method, path, { headers = {}, body } = {}) {
 
   return { status: response.status, body: parsed, raw: text };
 }
+
+/** A failure the reader is meant to ACT on, not debug: printed as a sentence, with no stack. */
+class GuidanceError extends Error {}
 
 const observations = [];
 const failures = [];
@@ -200,6 +211,12 @@ function record(id, expected, actual, note) {
   }
 
   return pass;
+}
+
+/** The correlation id a scenario runs under. Used by the run AND by the clean-sandbox guard, so
+ *  the guard cannot go looking for something the run never wrote. */
+function correlationFor(taskId) {
+  return `corr-${taskId.toLowerCase()}`;
 }
 
 function loadFixture() {
@@ -236,14 +253,72 @@ async function preflight() {
   console.log(`\nSandbox: ${BASE_URL}`);
   // /health/ready, not /health/live: a sandbox that is alive but cannot reach its database would
   // answer every example with a 500, and the run should say so in one line rather than in sixty.
-  const health = await fetch(`${BASE_URL}/health/ready`).catch(() => null);
-  if (!health?.ok) {
-    throw new Error(
-      `${BASE_URL} did not answer /health/ready. Start the sandbox with:\n`
-      + "  docker compose -f docker-compose.dev.yml -f docker-compose.sandbox.yml up -d --build");
+  //
+  // And it WAITS rather than asking once. `pnpm sandbox:up && pnpm sandbox:examples` is the natural
+  // thing to type, but `up` returns when the containers start, not when the API has finished its
+  // migrations -- so asking once turned a stack that was merely still booting into a raw
+  // ECONNREFUSED stack trace. Waiting costs a few seconds and removes the race.
+  for (let attempt = 0; attempt < READY_ATTEMPTS; attempt += 1) {
+    const health = await fetch(`${BASE_URL}/health/ready`).catch(() => null);
+    if (health?.ok) {
+      console.log(attempt === 0 ? "  ready: OK" : `  ready: OK (after ${attempt * 3}s)`);
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 
-  console.log("  ready: OK");
+  throw new GuidanceError(
+    `${BASE_URL} did not answer /health/ready within ${READY_ATTEMPTS * 3}s. Start the sandbox with:\n`
+    + "  pnpm sandbox:up\n\n"
+    + "If it is already running, check the API log:\n"
+    + "  docker compose -f docker-compose.dev.yml -f docker-compose.sandbox.yml logs ivr-api");
+}
+
+/**
+ * Refuses to run against a sandbox that has already run the example set.
+ *
+ * Without this the second run is answered `409 IVR_IDEMPOTENCY_CONFLICT` for every scenario, and
+ * that is the system being RIGHT: the examples use fixed task ids because MOCK telephony outcomes
+ * are keyed by task id, so a rerun replays the same Idempotency-Key while the window has been
+ * rebased to a new now -- same key, different payload, correctly refused. But it prints as nine red
+ * lines that read exactly like a broken module, which is the shape of trap this whole work item
+ * exists to remove. The header of this file documented the precondition; documenting it was not
+ * enough, because the first person to hit it was the owner, two minutes after being handed the
+ * command.
+ *
+ * Only blocks when it is CERTAIN. A probe that cannot be read (wrong tier token, route missing)
+ * says nothing and lets prepare() produce its clearer message instead.
+ */
+async function assertCleanSandbox() {
+  const correlation = correlationFor(SCENARIOS[0].taskId);
+  const probe = await call(
+    "GET",
+    `/call-jobs?correlation_id=${encodeURIComponent(correlation)}&page_size=1`,
+    { headers: adminHeaders("read", "corr-sandbox-clean-check") });
+
+  if (probe.status !== 200 || typeof probe.body?.total_count !== "number") {
+    return;
+  }
+
+  if (probe.body.total_count === 0) {
+    console.log("  clean: no previous example run on this volume");
+    return;
+  }
+
+  throw new GuidanceError(
+    [
+      "This sandbox has already run the example set.",
+      "",
+      "Every scenario would be answered 409 IVR_IDEMPOTENCY_CONFLICT, which is CORRECT: the",
+      "examples use fixed task ids (MOCK outcomes are keyed by task id), so a rerun replays the",
+      "same Idempotency-Key with a freshly rebased window -- the same key carrying a different",
+      "payload, which the contract refuses on purpose.",
+      "",
+      "The example set needs a clean volume. Reset and run again:",
+      "",
+      "  pnpm sandbox:reset && pnpm sandbox:up && pnpm sandbox:examples",
+    ].join("\n"));
 }
 
 /**
@@ -258,7 +333,7 @@ async function prepare() {
   });
 
   if (result.status === 404) {
-    throw new Error(
+    throw new GuidanceError(
       "/dev/seed:load answered 404, so the developer surface is not mapped. The stack is running "
       + "as Production. Start it with the sandbox overlay:\n"
       + "  docker compose -f docker-compose.dev.yml -f docker-compose.sandbox.yml up -d --build");
@@ -275,7 +350,7 @@ async function admitScenarios(fixture) {
   console.log("\nTask intake, one per telephony outcome");
   const admitted = [];
   for (const scenario of SCENARIOS) {
-    const correlationId = `corr-${scenario.taskId.toLowerCase()}`;
+    const correlationId = correlationFor(scenario.taskId);
     const body = taskFrom(fixture, scenario.base, {
       taskId: scenario.taskId,
       correlationId,
@@ -518,6 +593,7 @@ async function quotaExample(fixture) {
 
 async function main() {
   await preflight();
+  await assertCleanSandbox();
   await prepare();
   const fixture = loadFixture();
   const admitted = await admitScenarios(fixture);
@@ -551,4 +627,15 @@ async function main() {
   }
 }
 
-await main();
+try {
+  await main();
+} catch (error) {
+  // A guidance failure is a sentence to read, not a stack to decode. Anything genuinely unexpected
+  // still shows its stack, because that is when a stack is the useful thing.
+  if (error instanceof GuidanceError) {
+    console.error(`\n${error.message}\n`);
+    process.exitCode = 1;
+  } else {
+    throw error;
+  }
+}
