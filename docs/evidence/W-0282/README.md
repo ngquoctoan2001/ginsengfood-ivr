@@ -217,6 +217,33 @@ Two smaller things fixed alongside, both found by running it rather than reading
 Verified both directions: clean volume → `24/24`, exit 0; immediate rerun → the guard's message and
 exit 1.
 
+### Then the owner's next run found two more, and one of them was a message that lied
+
+The guard worked — `clean: no previous example run` — and the run died in the polling phase with
+the transport message I had just added: *"The sandbox is no longer reachable."*
+
+It was reachable. `docker ps` showed the API **running, healthy, `restarts=0`**, and its log held
+nothing but the usual startup warnings. The failure was a Node keep-alive socket the server
+recycled, rejecting one in-flight request with a bare `fetch failed`. Ordinary, and the harness had
+no tolerance for it — one transient socket error killed a whole clean run.
+
+**A message that misdiagnoses confidently is worse than the stack trace it replaced.** The raw stack
+at least pointed at the socket. Mine pointed at the sandbox and was wrong.
+
+Two fixes, and the second is the more embarrassing:
+
+- `call()` retries **transport failures only**, four attempts with short backoff, and reports the
+  underlying code. HTTP statuses are never retried — a `409`, `422` or `429` is an answer, and
+  several of them are answers this script exists to assert.
+- The result loop polled six jobs **every second**. Over the default 90s that is 540 calls on the
+  `admin/ivr.admin.read` account, whose own ceiling is 600 a minute. At the
+  `--result-timeout-ms 200000` this very guide recommends for watching `IVR_NO_ANSWER_FINAL`, it is
+  **1200** — so the command I published to Module 3 was guaranteed to be refused by the quota I had
+  just built. The ceiling was right; the caller was greedy. Polling now backs off 1s→5s, which caps
+  the same 200s run at **264** calls.
+
+Verified again on a clean volume: `24/24`, exit 0.
+
 ## Open, and deliberately not decided here
 
 **Nothing calls `POST /eligibility-checks`.** It is the step that moves a job out of `HELD_MOCK` so

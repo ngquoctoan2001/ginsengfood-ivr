@@ -62,6 +62,9 @@ const RESULT_TIMEOUT_MS = Number(args.get("result-timeout-ms") ?? 90_000);
 /** Readiness polls, three seconds apart. Long enough for a cold start with migrations. */
 const READY_ATTEMPTS = 20;
 
+/** Attempts per request before a transport failure is reported as one. */
+const TRANSPORT_ATTEMPTS = 4;
+
 /**
  * The six telephony outcomes a client has to handle, and the task id that selects each one.
  *
@@ -168,17 +171,46 @@ function internalHeaders(correlationId, idempotencyKey) {
   };
 }
 
+/**
+ * One HTTP call, with a bounded retry on TRANSPORT failures only.
+ *
+ * Not defensive padding. This run makes hundreds of requests over a minute or more, and a Node
+ * keep-alive socket that the server recycles rejects the in-flight request with a bare
+ * `fetch failed` -- which is ordinary, and which killed a whole clean run on 2026-09-12 while the
+ * API stayed up, healthy and with zero restarts. The first version of this message then announced
+ * that the sandbox was unreachable, which was false and pointed the reader at the wrong thing. A
+ * message that misdiagnoses confidently is worse than a stack trace.
+ *
+ * HTTP statuses are NEVER retried. A 409, a 422 or a 429 is an answer, and several of them are the
+ * answers this script exists to assert.
+ */
 async function call(method, path, { headers = {}, body } = {}) {
-  const response = await fetch(`${BASE_URL}${PREFIX}${path}`, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  }).catch(() => {
+  let lastFailure = null;
+  let response = null;
+  for (let attempt = 0; attempt < TRANSPORT_ATTEMPTS && response === null; attempt += 1) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+    }
+
+    response = await fetch(`${BASE_URL}${PREFIX}${path}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    }).catch((error) => {
+      lastFailure = error;
+      return null;
+    });
+  }
+
+  if (response === null) {
     throw new GuidanceError(
-      `${BASE_URL} stopped answering partway through the run (${method} ${path}).\n\n`
-      + "The sandbox is no longer reachable. Check it is still up:\n"
-      + "  docker compose -f docker-compose.dev.yml -f docker-compose.sandbox.yml ps");
-  });
+      `${BASE_URL} did not answer ${method} ${path} after ${TRANSPORT_ATTEMPTS} attempts`
+      + ` (${lastFailure?.cause?.code ?? lastFailure?.message ?? "transport failure"}).\n\n`
+      + "Check the sandbox is up and that the API is not restarting:\n"
+      + "  docker compose -f docker-compose.dev.yml -f docker-compose.sandbox.yml ps\n"
+      + "  docker compose -f docker-compose.dev.yml -f docker-compose.sandbox.yml logs --tail 50 ivr-api");
+  }
+
   const text = await response.text();
   let parsed = null;
   try {
@@ -422,6 +454,7 @@ async function awaitResults(admitted) {
   const deadline = Date.now() + RESULT_TIMEOUT_MS;
   const pending = new Map(admitted.map((entry) => [entry.taskId, entry]));
   const seen = new Map();
+  let pollIntervalMs = 1000;
 
   while (pending.size > 0 && Date.now() < deadline) {
     for (const [taskId, entry] of [...pending]) {
@@ -446,7 +479,13 @@ async function awaitResults(admitted) {
     }
 
     if (pending.size > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Backs off rather than sweeping every second. Six jobs polled once a second is 540 calls in
+      // 90 seconds, and the admin read tier's own ceiling is 600 a minute -- so the long-wait
+      // variant this guide recommends for IVR_NO_ANSWER_FINAL (--result-timeout-ms 200000) would
+      // have spent 1200 and been refused by our own quota. The ceiling was right; the caller was
+      // greedy.
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+      pollIntervalMs = Math.min(pollIntervalMs + 500, 5000);
     }
   }
 
