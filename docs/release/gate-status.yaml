@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "43 of 255 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "43 of 256 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 18
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 201
+  rows_without_evidence_pack: 202
 
 gates:
   - id: "G-CONTRACT"
@@ -1128,6 +1128,10 @@ work:
     prompt: "Ba lỗi chỉ lộ khi chạy thật, phát hiện sáng 12/09 khi chạy lại toàn bộ cổng để lập báo cáo tuần (Origin=UNPLANNED, owner duyệt sửa trong ngày)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0280/README.md"
+  - id: "W-0281"
+    prompt: "Phiếu yêu cầu Platform/Infra cho G-GITLAB và G-PLATFORM, và đính chính ma trận API trong báo cáo tuần (Origin=UNPLANNED, owner yêu cầu tiếp sau W-0280)"
+    status: "TESTS_PASS"
+    evidence: null
 
 production_flag:
   real_customer_call_allowed: false

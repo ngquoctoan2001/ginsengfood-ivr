@@ -42,15 +42,16 @@ Phiếu được thiết kế để **chốt trong đúng một vòng**: mỗi m
 
 ## 4. KẾT QUẢ KIỂM CHỨNG
 
-| Nhóm | Kết quả chạy lại tại `2613da5` + `W-0280` (ba bản vá ngày 12/09) |
+| Nhóm | Kết quả chạy lại tại `2613da5` + `W-0280`/`W-0281` (ngày 12/09) |
 | --- | --- |
 | Kiểm thử tự động | **986 đạt / 0 hỏng**: đơn vị 670 · tích hợp với CSDL thật 284 · hợp đồng 24 · hỗn loạn 8. Tuần trước còn 2 hỏng — **đã sạch**. Bài thứ 986 là bài canh lỗi kho số liệu viết hôm nay. Đối soát kiểm thử ↔ yêu cầu: 613 mã bài kiểm, tuần trước 508 |
+| **Ma trận hành vi 38 lệnh API** | ✅ **38/38 lệnh · 460 tình huống HTTP · 0 lỗi hành vi**, chạy trên đúng composition root với PostgreSQL riêng từng lệnh. Mỗi lệnh chịu đủ 7 ca bắt buộc (thiếu quyền · sai token · sai hạng quyền · sai scope · mã đối soát hỏng · thiếu mã đối soát · đường thuận); lệnh ghi chịu thêm sai định dạng, gọi lại cùng khoá, phát lại cùng nội dung, đổi nội dung cùng khoá. Cả 11 mã kết quả và 3 ca chặn trước khi gọi đều đối chiếu đúng dây |
 | Chạy trọn vòng gọi ở chế độ giả lập | **PASS 5/5** khi chạy trong khung giờ: xác nhận, huỷ, số sai, bấm sai phím, lỗi kỹ thuật đều ra đúng kết quả; lỗi kỹ thuật và số sai không tính là lượt gọi khách; 3/5 kết quả vào hàng đợi trả về. Lượt chạy lúc 07:54 đỏ toàn bộ **nhưng là đúng thiết kế** — bộ lập lịch từ chối quay số vì chưa tới 08:00, khung giờ chủ dự án chốt ngày 08/09. Ghi nhận: kịch bản diễn tập nay phụ thuộc giờ trong ngày, chưa ghim được đồng hồ |
 | Nâng cấp CSDL · hợp đồng · xây · tài liệu · CI | Nâng cấp chạy song song hai phiên bản **PASS** — blocker nội bộ cuối cùng của tuần trước đã đóng. Đóng băng hợp đồng 15/15; kiểm tra hợp lệ, đối chiếu trôi, bắt bản hỏng: đạt cả ba; biên dịch 0 cảnh báo / 0 lỗi; tài liệu và cấu hình CI đạt. **Kubernetes PASS** trên cụm thật dựng tạm: chặn kết nối ra ngoài danh sách cho phép, worker sống qua 90 giây mất CSDL với 0 lần khởi động lại, xoay token gối đầu 6/6 |
 | **Cổng kiểm bản đóng gói** (*container image* — thứ thật sự đem lên máy chủ chạy) | ✅ **5/5 ĐẠT sau ba bản vá hôm nay**: đóng gói không chạy quyền cao nhất · tự báo còn sống không cần CSDL · dựng cụm chạy thử, bên bán hàng giả lập không ra được Internet · quét lỗ hổng sạch và vẫn biết báo đỏ với bản cố tình hỏng · kê khai thành phần 31 và 97 thư viện. Sửa xong **lộ tiếp hai việc bị che khuất**, một đã vá, một cần chú quyết — mục 4.1 |
 | **Việc tổng hợp số liệu** | ✅ **ĐÃ SỬA trong ngày** — lỗi nằm trên đường chạy thật, không phải bộ giả lập: hàm chuẩn hoá quy mọi phím khác `0`/`1` thành chữ `INVALID` và không bấm gì thành `NO_INPUT`, hai chuỗi đó tràn cột `varchar(1)` của kho số liệu. Vì cả lô nạp trong một giao dịch nên **một khách bấm nhầm phím làm hỏng cả lô và mọi lô sau, vĩnh viễn** — số liệu đứng im mà mọi test vẫn xanh. Nay chỉ nhận đúng một phím thật, còn lại ghi rỗng; thông tin không mất vì đã nằm ở cột loại kết quả. Có bài kiểm canh lỗi, đã kiểm chứng đỏ khi gỡ vá |
 | Quét bảo mật | Lần quét 07/09 sạch, có ghi nhận 55 cảnh báo giả đã rà; máy này chưa cài công cụ nên **không chạy lại được tại chỗ** |
-| Trạng thái kiểm soát chính thức | **NẤC 0 / NO-GO**. 43/255 hạng mục đã nghiệm thu, tuần trước 8 · 18 chặn bởi bên ngoài · **11 cổng ngoài còn mở** · quyết định còn mở giảm 4 → **2**. ⚠️ Bảng này **đếm thiếu 13 hạng mục**: `W-0267`–`W-0279` đã commit và có gói bằng chứng nhưng không có dòng nào trong sổ tiến độ. Cờ gọi khách thật vẫn **NO** ở cả bốn môi trường; **chưa một cuộc gọi nào tới số khách hàng thật** |
+| Trạng thái kiểm soát chính thức | **NẤC 0 / NO-GO**. 43/256 hạng mục đã nghiệm thu, tuần trước 8 · 18 chặn bởi bên ngoài · **11 cổng ngoài còn mở** · quyết định còn mở giảm 4 → **2**. ⚠️ Bảng này **đếm thiếu 13 hạng mục**: `W-0267`–`W-0279` đã commit và có gói bằng chứng nhưng không có dòng nào trong sổ tiến độ. Cờ gọi khách thật vẫn **NO** ở cả bốn môi trường; **chưa một cuộc gọi nào tới số khách hàng thật** |
 
 ### 4.1 Sửa một lỗi, lộ ra hai — cả hai đều đáng hơn lỗi ban đầu
 
@@ -64,7 +65,7 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | Làn | # | Gói việc | Xong |
 | --- | ---: | --- | --- |
 | A | A1 | ✅ **Xong 12/09**: ba lỗi đã sửa (dòng in kết quả cổng đóng gói · cột `dtmf_key` tràn · nửa cổng gọi bằng cơ chế xác thực đã xoá), kèm bài kiểm canh lỗi kho số liệu. **Còn lại**: chốt nhãn kết quả ở mục 4.1 rồi chạy lại cổng cho xanh hết | 14/09 |
-| A | A2 | **Ma trận đủ 38 lệnh API**: đường thuận, sai định dạng, thiếu quyền, sai hạng quyền, không tìm thấy, xung đột, gọi lại cùng khoá, đổi nội dung cùng khoá, mã đối soát; khẳng định không lộ số điện thoại, địa chỉ, thanh toán | 15/09 |
+| A | A2 | ✅ **Đã xong từ `W-0197` ngày 07/09** — ma trận 38/38 đã chạy và đạt (xem mục 4). **Còn lại**: bổ sung khẳng định không lộ số điện thoại, địa chỉ, thanh toán vào từng phản hồi, và gắn ma trận vào lượt chạy bắt buộc khi có runner | 15/09 |
 | A | A3 | **Chạy liên tục ≥100 vòng** có tiêm lỗi: không nghe máy nhiều lượt, chết giữa chừng, hết hạn giữ việc, gửi trùng, hàng lỗi và phát lại; chứng minh không mất và không nhân đôi kết quả; **ghim đồng hồ** để diễn tập chạy được ngoài khung giờ gọi | 16/09 |
 | A | A4 | Bù gói bằng chứng cho các dòng đã xanh test nhưng chưa có hồ sơ (200/254), ưu tiên 57 dòng thuộc kế hoạch gốc | 17/09 |
 | A | A5 | Chạy lại **toàn bộ 50 bài tự kiểm + 39 đầu việc CI** trên đúng một mốc mã, ghim kết quả làm ứng viên phát hành | 18/09 |
@@ -79,9 +80,8 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | C | C3 | Bảng theo dõi, cảnh báo, sổ tay xử lý sự cố, phân người trực, nối vết xuyên Module 3 → IVR → tổng đài; sao lưu, diễn tập khôi phục có mốc thời gian, đo RPO/RTO, khôi phục nhiều vùng, mã hoá ổ đĩa | sau C1 |
 | C | C4 | Đo hiệu năng (tải thấp, nền, đỉnh, dồn cục; p95/p99; số kênh cần; bể kết nối CSDL) rồi **chạy liên tục 24–72 giờ** trên staging | sau C1 |
 | C | C5 | Quét bảo mật thời gian chạy: ảnh, thư viện, bí mật; kiểm thử thâm nhập có xác thực; xử lý phát hiện | 18/09 |
-| D | D1 | Duyệt kịch bản thoại hai chương trình; nghe duyệt giọng theo vùng và thiết bị; chốt tốc độ, cách đọc số, đoạn dự phòng | cần Sản phẩm |
-| D | D2 | Pháp lý ký hồ sơ lưu trữ, xoá theo yêu cầu, tắt ghi âm — đóng `G-LEGAL` | cần Pháp lý |
-| D | D3 | Chốt ranh giới từ chối nhận cuộc gọi và bàn giao phím 0, ký chính sách số lần gọi/khung giờ/ngày nghỉ (Sản phẩm); ký hồ sơ xác thực, xoay vòng bí mật, mô hình đe doạ token quay số, quy trình xử lý sự cố (An ninh) | cần Sản phẩm · An ninh |
+| D | D1 | Duyệt kịch bản thoại hai chương trình, nghe duyệt giọng theo vùng và thiết bị, chốt tốc độ và cách đọc số (Sản phẩm); pháp lý ký hồ sơ lưu trữ, xoá theo yêu cầu, tắt ghi âm — đóng `G-LEGAL` (Pháp lý) | cần Sản phẩm · Pháp lý |
+| D | D2 | Chốt ranh giới từ chối nhận cuộc gọi và bàn giao phím 0, ký chính sách số lần gọi/khung giờ/ngày nghỉ (Sản phẩm); ký hồ sơ xác thực, xoay vòng bí mật, mô hình đe doạ token quay số, quy trình xử lý sự cố (An ninh) | cần Sản phẩm · An ninh |
 | E | E1 | Chốt hợp đồng nhà mạng: số cố định + brandname; chặn mọi số ngoài danh sách cho phép; đặt trần chi phí | cần chủ dự án |
 | E | E2 | **Thử một SIM thật**: gọi ra, bắt máy, máy bận, không nghe, bấm 0/1/phím sai/hết giờ, cúp máy, hiển thị số gọi, tiếng Việt có dấu; và các ca hỏng: mất sóng, khoá SIM, hết tiền, nhà mạng từ chối, quá hạn mức, sự kiện trùng, khởi động lại bộ nối | sau E1 |
 | E | E3 | **Đo dung lượng thật** → hiệu chỉnh mô hình, đóng hai quyết định còn mở cuối cùng `OD-V1-09` và `OD-V1-10`; rồi quyết quy mô SIM cho vận hành **từ số đo**, không mặc định 32, kèm dự phòng, xoay SIM, theo dõi số dư, cam kết dịch vụ | sau E2 |
