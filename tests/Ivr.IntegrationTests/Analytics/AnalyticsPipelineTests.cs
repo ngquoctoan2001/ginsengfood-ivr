@@ -267,6 +267,70 @@ public sealed class AnalyticsPipelineTests(PostgresPersistenceFixture fixture)
             CancellationToken.None);
     }
 
+    [Fact]
+    [Trait("TestId", "BI-QUALITY-04")]
+    public async Task AClassificationInTheOperationalDtmfColumnLoadsAsNoKeyRatherThanKillingTheRun()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+
+        // What the dispatch path actually writes. SanitizeDtmf maps every key that is not 0 or 1 to
+        // "INVALID", and an answered call with no press to "NO_INPUT". Both are seven or eight
+        // characters going into a varchar(1) column, and the batch is one transaction: before this
+        // guard a single such row failed the run, and every later run with it, forever.
+        await InsertResultWithDtmfAsync("RESULT-DTMF-INVALID", "INVALID");
+        await InsertResultWithDtmfAsync("RESULT-DTMF-NOINPUT", "NO_INPUT");
+        await InsertResultWithDtmfAsync("RESULT-DTMF-REAL", "1");
+
+        AnalyticsEtlRunReport report = await RunEtlAsync();
+
+        Assert.Equal(SeededResults + 3, report.LoadedRows);
+        Assert.Equal(AnalyticsReconcileStatus.Complete, report.ReconcileStatus);
+
+        // The two classifications carry no key, so the column says so. The real press survives.
+        Assert.Null(await FactDtmfAsync("RESULT-DTMF-INVALID"));
+        Assert.Null(await FactDtmfAsync("RESULT-DTMF-NOINPUT"));
+        Assert.Equal("1", await FactDtmfAsync("RESULT-DTMF-REAL"));
+    }
+
+    private async Task<string?> FactDtmfAsync(string resultId)
+    {
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        return await context.AnalyticsFacts
+            .Where(fact => fact.IvrCallResultId == resultId)
+            .Select(fact => fact.DtmfKey)
+            .SingleAsync();
+    }
+
+    private async Task InsertResultWithDtmfAsync(string resultId, string dtmf)
+    {
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        CallJobEntity job = await context.CallJobs.FirstAsync();
+        context.CallResults.Add(new CallResultEntity
+        {
+            IvrCallResultId = resultId,
+            IvrCallJobId = job.IvrCallJobId,
+            TaskId = job.TaskId,
+            OfficialOrderId = job.OfficialOrderId,
+            OrderVersionSnapshot = "1",
+            OrderVersionSeenByIvr = "1",
+            FinalResultStatus = "IVR_WRONG_INPUT",
+            ResultType = "IVR_WRONG_INPUT",
+            DtmfKey = dtmf,
+            IsCountedCustomerAttempt = true,
+            // The database pins this: IVR_WRONG_INPUT is never final for IVR.
+            IsFinalForIvr = false,
+            RecommendedCoreAction = "NO_STATE_CHANGE_WAIT_FOR_TIMEOUT",
+            CoreOrderHandoffRequired = false,
+            HumanReviewRequired = false,
+            InputSignalOnly = true,
+            NoDirectOrderUpdate = true,
+            NoPaymentOrRevenueEffect = true,
+            CreatedAt = ResultAt.AddMinutes(1),
+        });
+        await context.SaveChangesAsync();
+    }
+
     private async Task<int> CountFactsAsync()
     {
         await using IvrDbContext context = await Factory().CreateDbContextAsync();

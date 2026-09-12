@@ -84,7 +84,7 @@ function buildAndCheckUser() {
     process.stdout.write(`  ${image.name}: USER=${user}, ${Math.round(size / 1048576)} MB\n`);
   }
   process.stdout.write(
-    `IT-IMG-BUILD-01 PASS — ${images.length} images build, none runs as root\n`,
+    `IT-IMG-BUILD-01 PASS — ${IMAGES.length} images build, none runs as root\n`,
   );
 }
 
@@ -257,17 +257,36 @@ function apiPost(routePath, body, headers) {
   return apiRequest("POST", routePath, body, headers);
 }
 
-// The actor is named TWICE on purpose, and the duplication is the check rather than an artefact:
-// the MOCK scheme mints the identity from X-Mock-Actor-Id, then InternalRequestGuard compares it
-// against X-Actor-Id and refuses the call if they disagree, so a request cannot be attributed to
-// whichever of two names the server happens to prefer.
-function adminHeaders(permission, correlation, idempotencyKey) {
+// W-0128 deleted the MOCK permission seam this helper used to rely on: the admin surface is
+// authorised by credential TIER now, and nothing reads X-Permissions or X-Mock-Actor-Id any more.
+// The old headers were not rejected, they were ignored, so every call here answered 401 -- and
+// because the script crashed earlier (the IMAGES typo) nobody saw it for the fifteen days since.
+//
+// The danger tier wants two things beyond the token, and both are the point rather than ceremony:
+// a named human and a reason, so the audit row for "who stopped every call at 3am" does not just
+// read "service".
+const ADMIN_TOKENS = {
+  read: "dev-admin-read-token-not-a-real-secret",
+  write: "dev-admin-write-token-not-a-real-secret",
+  danger: "dev-admin-danger-token-not-a-real-secret",
+};
+
+const ADMIN_SCOPES = {
+  read: "ivr.admin.read",
+  write: "ivr.admin.write",
+  danger: "ivr.admin.danger",
+};
+
+function adminHeaders(tier, correlation, idempotencyKey, reason) {
   const headers = {
-    "X-Mock-Actor-Id": ADMIN_ACTOR,
+    Authorization: `Bearer ${ADMIN_TOKENS[tier]}`,
+    "X-Service-Scope": ADMIN_SCOPES[tier],
     "X-Actor-Id": ADMIN_ACTOR,
-    "X-Permissions": permission,
     "X-Correlation-Id": correlation,
   };
+  if (tier === "danger") {
+    headers["X-Action-Reason"] = reason;
+  }
   if (idempotencyKey) {
     headers["Idempotency-Key"] = idempotencyKey;
   }
@@ -279,7 +298,7 @@ function queueProjection(correlation) {
     "GET",
     "/v1/ivr/order-confirmation/queue",
     null,
-    adminHeaders("IVR_QUEUE_VIEW", correlation)));
+    adminHeaders("read", correlation)));
 }
 
 // Four DIALLED cases, and the set is chosen rather than convenient. P7-1 section 8 asks for BOTH
@@ -736,7 +755,8 @@ function driveCapacityCase(testCase) {
       reason: "E2E capacity drill - hold dispatch so a confirmation window can close undialled",
       evidence_ref: "evidence://compose/e2e-capacity",
     }),
-    adminHeaders("IVR_QUEUE_PAUSE", correlation, "idem-e2e-pause")));
+    adminHeaders("danger", correlation, "idem-e2e-pause",
+      "E2E capacity drill - hold dispatch so a confirmation window can close undialled")));
   assert(
     pause.status === "APPLIED",
     `queue:pause returned ${JSON.stringify(pause)}.`);
@@ -788,7 +808,8 @@ function driveCapacityCase(testCase) {
         reason: "E2E capacity drill complete - release dispatch",
         evidence_ref: "evidence://compose/e2e-capacity",
       }),
-      adminHeaders("IVR_QUEUE_RESUME", correlation, "idem-e2e-resume")));
+      adminHeaders("danger", correlation, "idem-e2e-resume",
+        "E2E capacity drill complete - release the hold")));
     released = resume.status === "APPLIED" && queueProjection(correlation).paused === false;
   }
 

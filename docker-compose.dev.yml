@@ -97,6 +97,12 @@ services:
       # nobody is tempted to reuse them anywhere real.
       IVR_INTERNAL_SERVICE_TOKEN: "dev-internal-token-not-a-real-secret"
       ORDER_CORE_SERVICE_TOKEN: "dev-ordercore-token-not-a-real-secret"
+      # The three admin tiers. appsettings.Development.json carries the same three values, but the
+      # image runs outside Development, so the compose stack has to pass them or every admin route
+      # answers 401 -- which is exactly how the runtime half of image-selftest went unnoticed.
+      IVR_ADMIN_READ_TOKEN: "dev-admin-read-token-not-a-real-secret"
+      IVR_ADMIN_WRITE_TOKEN: "dev-admin-write-token-not-a-real-secret"
+      IVR_ADMIN_DANGER_TOKEN: "dev-admin-danger-token-not-a-real-secret"
       Ivr__CallbackDelivery__TargetBaseUrl: "http://fake-sales:8080"
     ports:
       - "127.0.0.1:${IVR_API_PORT:-58080}:8080"

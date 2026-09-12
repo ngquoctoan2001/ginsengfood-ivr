@@ -45,6 +45,32 @@ public sealed class AnalyticsEtlJob(
 
     private const string UnknownVariant = "UNKNOWN";
 
+    /// <summary>
+    /// The warehouse column is <c>varchar(1)</c> under <c>ck_analytics_fact_dtmf</c>: it holds the key
+    /// the customer actually pressed, or nothing. The operational column it is copied from is plain
+    /// text, and <c>SanitizeDtmf</c> on the dispatch path writes the classifications <c>INVALID</c> and
+    /// <c>NO_INPUT</c> into it -- both correct there, and neither of them a key. Copied across verbatim
+    /// they overflow the column, and because the ETL loads a whole batch in one transaction a single
+    /// such row stopped every later run too: the job failed and retried forever, so the warehouse
+    /// silently stopped moving while every test stayed green.
+    ///
+    /// Nothing is lost by dropping them. "Pressed something that is not an option" and "pressed
+    /// nothing" are already carried by <c>ResultTypeKey</c> and <c>FinalResultStatus</c>; this column
+    /// answers only "which key", and for those two rows the honest answer is none.
+    /// </summary>
+    private static string? KeypadDigitOrNull(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        string trimmed = value.Trim();
+        return trimmed.Length == 1 && (char.IsAsciiDigit(trimmed[0]) || trimmed[0] is '*' or '#')
+            ? trimmed
+            : null;
+    }
+
     public async Task<AnalyticsEtlRunReport> RunAsync(
         AnalyticsEtlRunOptions options,
         CancellationToken cancellationToken)
@@ -340,7 +366,7 @@ public sealed class AnalyticsEtlJob(
                     : row.ScriptVersion,
                 ResultTypeKey = row.ResultType,
                 FinalResultStatus = row.FinalResultStatus,
-                DtmfKey = string.IsNullOrWhiteSpace(row.DtmfKey) ? null : row.DtmfKey,
+                DtmfKey = KeypadDigitOrNull(row.DtmfKey),
                 IsFinal = row.IsFinalForIvr,
                 IsCountedCustomerAttempt = row.IsCountedCustomerAttempt,
                 CountedAttemptNumber = attemptCounts.GetValueOrDefault(row.IvrCallJobId),
