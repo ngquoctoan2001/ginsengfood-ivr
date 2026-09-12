@@ -158,6 +158,19 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
             }
         }
 
+        // W-0282 / B2. The eligibility evidence has to travel with the window it describes.
+        // EligibilityRules holds any task whose captured_at falls before the window opened
+        // (ELIGIBILITY_SNAPSHOT_STALE), so moving the window and leaving the evidence behind
+        // would make every rebased fixture unusable for the rehearsal the rebase exists to
+        // enable. Handled here rather than added to WindowFields because it sits one level down,
+        // and the array is a flat list of top-level names.
+        if (body["eligibility_snapshot"] is JsonObject snapshot
+            && snapshot["captured_at"] is JsonValue captured
+            && captured.TryGetValue(out DateTimeOffset capturedAt))
+        {
+            snapshot["captured_at"] = JsonValue.Create(capturedAt + offset);
+        }
+
         return true;
     }
 

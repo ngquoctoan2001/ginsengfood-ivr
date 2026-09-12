@@ -3,6 +3,7 @@ using Ivr.Api.Auth;
 using Ivr.Api.Health;
 using Ivr.Api.Middleware;
 using Ivr.Infrastructure.Auth;
+using Ivr.Infrastructure.Quota;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
@@ -136,6 +137,16 @@ public static class IvrApiServiceCollectionExtensions
         services.TryAddSingleton<IServiceSigningKeySource>(
             provider => provider.GetRequiredService<MockOidcIssuer>());
         services.TryAddSingleton<IServiceJwtValidator, ServiceJwtValidator>();
+
+        // W-0282 / B2. The per-account ceiling. Bound from a section rather than flat keys
+        // because it carries a per-account dictionary, and validated at startup so a window of
+        // zero seconds fails the deployment instead of refusing every caller at runtime.
+        services.AddOptions<ServiceQuotaOptions>()
+            .Bind(configuration.GetSection(ServiceQuotaOptions.SectionName))
+            .ValidateOnStart();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IValidateOptions<ServiceQuotaOptions>, ServiceQuotaOptionsValidator>());
+        services.TryAddSingleton<ServiceQuotaCounter>();
 
         // W-0040 / P6-1. Real readiness replaces the hardcoded probe.
         services.TryAddScoped<IIvrReadinessProbe, IvrReadinessProbe>();

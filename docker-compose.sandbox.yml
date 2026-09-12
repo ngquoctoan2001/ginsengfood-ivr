@@ -1,0 +1,171 @@
+# W-0282 / B2 — the overlay that turns the dev stack into a sandbox Module 3 can call into.
+#
+# An overlay on docker-compose.dev.yml, not a replacement, and not an edit to it. `docker compose
+# up` keeps meaning what it meant; a sandbox is a deliberate posture chosen in one reviewable file.
+#
+#   docker compose -f docker-compose.dev.yml -f docker-compose.sandbox.yml up -d --build
+#
+# WHY THIS FILE EXISTS AT ALL. On 2026-09-12 the dev stack was driven from outside for the first
+# time, the way a partner would drive it, and three things were in the way — none of them visible
+# from inside the repository:
+#
+#   1. The image hardcodes ASPNETCORE_ENVIRONMENT=Production (Dockerfile.api), and the dev compose
+#      never overrode it, so the API reported `Hosting environment: Production`. NonProductionSurface
+#      therefore refused to MAP the /dev routes at all and every call to them answered 404. The only
+#      documented way to prepare or reset a sandbox over HTTP did not exist on the stack a sandbox
+#      would be built from. `pnpm dev:bootstrap` never caught it: it runs Ivr.Api FROM SOURCE with
+#      ASPNETCORE_ENVIRONMENT=Development on a loopback port, so it exercises a different host.
+#   2. Nothing seeds the attempt policy on a container stack except image-selftest.mjs, which pipes
+#      deploy/docker/dev-seed/seed.sql into psql inside its own run. On a freshly-upped stack every
+#      task a partner pushes therefore comes back TASK_HELD_POLICY_MISSING, which reads as a broken
+#      module rather than as an empty database. /dev/seed:load writes the policy, so unlocking (1)
+#      fixes (2) without a second seeding mechanism.
+#   3. The worker ships every job DISABLED, so an accepted task sat in the queue forever and no
+#      result was ever delivered. Correct for a dev stack; useless for an integration rehearsal.
+#
+# WHAT THIS DOES NOT RELAX, and cannot: IVR_ADAPTER_MODE stays MOCK, REAL_CUSTOMER_CALL_ALLOWED
+# stays NO, SIM_PROVIDER stays MOCK — inherited from x-ivr-safe-defaults in the dev file, and
+# NonProductionSurface refuses the developer surface outright if REAL_CUSTOMER_CALL_ALLOWED is ever
+# set. No stack built from this file can reach a telephony vendor or dial a person.
+
+services:
+  ivr-api:
+    environment:
+      # Staging, not Development. Both are on NonProductionSurface's allowlist, so either unlocks
+      # the developer surface — but there is no appsettings.Staging.json in the repository, while
+      # appsettings.Development.json carries its own copy of the admin tokens. Staging therefore
+      # layers no extra file and leaves this compose file as the single source of configuration,
+      # which is the property the dev stack's own comments argue for.
+      ASPNETCORE_ENVIRONMENT: Staging
+
+      # The fixtures the seed loader reads. Mounted rather than baked into the image: these are
+      # test fixtures, and an image that carries them into production is an image that has to be
+      # trusted not to use them. The cost is that the sandbox is started from a clone of this
+      # repository, which is true of everyone who would start one.
+      Ivr__DevTooling__SeedDirectory: /app/seed
+
+      # W-0282 / B2. The service account's ceiling, and the first configuration in this repository
+      # that makes the contract's 429 reachable. IVR_RATE_LIMITED has been a published error code
+      # on all 38 operations since v1 while IvrErrors.RateLimited() had no callers anywhere — a
+      # partner could read the contract, write a backoff path, and never once exercise it.
+      #
+      # 60 per minute for order-core is deliberately LOW. The number is not a capacity claim —
+      # IVR has not measured its capacity yet, that is E3 after a real SIM — it is set so that a
+      # client meets the refusal here, cheaply, instead of discovering in production that it does
+      # not handle one. Raise it in a values file if a rehearsal needs more; do not raise it by
+      # turning the ceiling off.
+      Ivr__ServiceQuota__Enabled: "true"
+      Ivr__ServiceQuota__WindowSeconds: "60"
+      Ivr__ServiceQuota__RequestsPerWindow: "600"
+      Ivr__ServiceQuota__Accounts__order-core__RequestsPerWindow: "60"
+    volumes:
+      - ./seed:/app/seed:ro
+    ports:
+      # Loopback by default, because a sandbox that publishes itself on every interface the moment
+      # somebody runs `up` is a decision nobody made. Set IVR_SANDBOX_BIND=0.0.0.0 to let Module 3
+      # reach it across the network, and mean it when you do: the admin tier tokens in the dev
+      # stack are committed to this repository in plain sight.
+      - "${IVR_SANDBOX_BIND:-127.0.0.1}:${IVR_API_PORT:-58080}:8080"
+
+  ivr-worker:
+    environment:
+      # Matches the API so both halves of the stack answer the same question the same way. Nothing
+      # in the worker reads the developer surface, so this is a label rather than a behaviour.
+      ASPNETCORE_ENVIRONMENT: Staging
+
+      # The four jobs, in the order a task passes through them. Same posture as
+      # docker-compose.e2e.yml: without these an accepted task is never dialled and no result ever
+      # reaches a callback, which looks exactly like a module that does not work.
+      Ivr__Scheduler__Enabled: "true"
+      Ivr__Scheduler__PollIntervalMilliseconds: "500"
+
+      # The hour gate stays ENABLED and is widened to the whole day rather than switched off, for
+      # the reason W-0214 recorded and 2026-09-12 paid for again: a rehearsal run at 07:54 came
+      # back with every scenario dead, and the cause was the scheduler correctly declining to dial
+      # before the 08:00 window the owner signed. A partner in another time zone would read that
+      # as a broken sandbox. Keeping the gate on with 0..1440 leaves the decision code running and
+      # always answering yes, so the rehearsal stops depending on whose wall clock started it.
+      Ivr__Scheduler__CallingWindow__Enabled: "true"
+      Ivr__Scheduler__CallingWindow__UtcOffsetMinutes: "420"
+      Ivr__Scheduler__CallingWindow__StartMinuteOfLocalDay: "0"
+      Ivr__Scheduler__CallingWindow__EndMinuteOfLocalDay: "1440"
+
+      Ivr__Normalization__Enabled: "true"
+      Ivr__Normalization__PollIntervalMilliseconds: "500"
+      Ivr__CallbackDelivery__Enabled: "true"
+      Ivr__CallbackDelivery__PollIntervalMilliseconds: "500"
+
+      # Where results are delivered. Defaults to the in-stack fake receiver, which answers the
+      # semantic ACK matrix and needs nothing from Module 3. Point it at a real Module 3 endpoint
+      # to run the two-way hookup (B4) — the worker sits on the routable network, so an address
+      # outside the stack is reachable:
+      #
+      #   IVR_SANDBOX_CALLBACK_BASE_URL=http://host.docker.internal:9000
+      Ivr__CallbackDelivery__TargetBaseUrl: "${IVR_SANDBOX_CALLBACK_BASE_URL:-http://fake-sales:8080}"
+
+      # MOCK telephony outcomes, keyed by TASK ID. A partner chooses an outcome by choosing which
+      # task id it posts, which is what makes the example set in
+      # deploy/ci/scripts/sandbox-examples.mjs reproducible rather than lucky. The ids mirror the
+      # E2E smoke so the two describe the same system.
+      Ivr__Telephony__Mock__Enabled: "true"
+      Ivr__Telephony__Mock__KillSwitchEngaged: "false"
+      Ivr__Telephony__Mock__TokenDestinations__*: "mock-destination-allowlisted"
+      Ivr__Telephony__Mock__DestinationAllowlist__0: "mock-destination-allowlisted"
+
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CONFIRM__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CONFIRM__DtmfKey: "1"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CONFIRM__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CONFIRM__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CONFIRM__CaptureDelayMilliseconds: "0"
+
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CANCEL__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CANCEL__DtmfKey: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CANCEL__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CANCEL__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-CANCEL__CaptureDelayMilliseconds: "0"
+
+      # No DtmfKey: the phone rings out.
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NOANSWER__Disposition: "RingTimeout"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NOANSWER__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NOANSWER__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NOANSWER__CaptureDelayMilliseconds: "0"
+
+      # Nobody was ever reachable. Distinct from a ring-out: Module 3 is told to hold the order for
+      # a person rather than to wait out a timeout, and the two carry different core actions.
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-BADNUMBER__Disposition: "InvalidDestination"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-BADNUMBER__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-BADNUMBER__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-BADNUMBER__CaptureDelayMilliseconds: "0"
+
+      # Answered, and a key the menu does not offer. Not the same thing as not answering.
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-WRONGKEY__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-WRONGKEY__DtmfKey: "7"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-WRONGKEY__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-WRONGKEY__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-WRONGKEY__CaptureDelayMilliseconds: "0"
+
+      # The call connects and our own audio fails. AudioError on purpose: it is the one technical
+      # disposition the SIM adapter reports as a HEALTHY channel, so a fault in our stack is not
+      # charged to the hardware that carried it.
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-TECHNICAL__Disposition: "AudioError"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-TECHNICAL__TechnicalErrorCode: "MOCK_AUDIO_ERROR_SANDBOX"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-TECHNICAL__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-TECHNICAL__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-TECHNICAL__CaptureDelayMilliseconds: "0"
+
+      # A task the example set did not name still dials, rather than failing in a way that reads as
+      # a defect in the stack.
+      Ivr__Telephony__Mock__Scenarios__*__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__*__DtmfKey: "1"
+      Ivr__Telephony__Mock__Scenarios__*__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__*__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__*__CaptureDelayMilliseconds: "0"
+
+# fake-sales is deliberately NOT published here. It sits on ivr-internal, which is `internal: true`
+# and carries a verified no-egress guarantee (IT-IMG-COMPOSE-03 attempts an outbound connection
+# from that network and requires it to fail). Publishing its WireMock journal would mean attaching
+# it to the routable network and weakening a property that is currently proved rather than claimed.
+#
+# Module 3 has two better ways to see what IVR sent, both on IVR's own contract surface rather than
+# on a mock's implementation detail: point IVR_SANDBOX_CALLBACK_BASE_URL at their own receiver, or
+# read GET /call-jobs/{ivrCallJobId}/detail.

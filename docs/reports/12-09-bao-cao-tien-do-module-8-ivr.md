@@ -2,7 +2,7 @@
 
 **Kỳ báo cáo:** 06/09 → 12/09/2026 (7 ngày) · **Người thực hiện:** Nguyễn Quốc Toàn · **Mốc code:** `2613da5` (11/09 13:14)
 
-**Trạng thái điều hành:** `RELEASE_BLOCKED — CHỜ MODULE 3`. Phần mềm chạy trọn vòng gọi ở chế độ giả lập, **986 bài kiểm thử xanh hoàn toàn**, blocker nội bộ cuối cùng của tuần trước đã đóng, và ba lỗi phát hiện sáng 12/09 cũng đã sửa xong trong ngày. Không còn việc kỹ thuật nào của riêng Module 8 chặn tiến độ; thứ đang chặn là **11 cổng bên ngoài**, gần nhất là **Module 3 chưa phản hồi phiếu chốt hợp đồng gửi ngày 10/09**. Trong kỳ có 130 lưu vào `main`, cây làm việc sạch, hai kho GitLab và GitHub đã đồng bộ, tổng lịch sử 328 lưu. **Giao diện quản trị đã bị xoá khỏi module** theo chỉ đạo 05/09 — Module 8 nay thuần backend, Module 3 tự làm màn hình.
+**Trạng thái điều hành:** `RELEASE_BLOCKED — CHỜ MODULE 3`. Phần mềm chạy trọn vòng gọi ở chế độ giả lập, **1.003 bài kiểm thử xanh hoàn toàn**, blocker nội bộ cuối cùng của tuần trước đã đóng, và ba lỗi phát hiện sáng 12/09 cũng đã sửa xong trong ngày. Không còn việc kỹ thuật nào của riêng Module 8 chặn tiến độ; thứ đang chặn là **11 cổng bên ngoài**, gần nhất là **Module 3 chưa phản hồi phiếu chốt hợp đồng gửi ngày 10/09**. Trong kỳ có 130 lưu vào `main`, cây làm việc sạch, hai kho GitLab và GitHub đã đồng bộ, tổng lịch sử 328 lưu. **Giao diện quản trị đã bị xoá khỏi module** theo chỉ đạo 05/09 — Module 8 nay thuần backend, Module 3 tự làm màn hình.
 
 ## 1. TIẾN ĐỘ
 
@@ -36,15 +36,15 @@
 | --- | --- |
 | Bàn giao API `IR-06` + hợp đồng 38 lệnh | ✅ Đã gửi 10/09, kèm cảnh báo 3 thay đổi phá vỡ tương thích |
 | **Phiếu chốt `IR-07` — 21 mục phải trả lời**: bên gửi việc 7 · trả kết quả 8 · bề mặt quản trị 5 · môi trường 1 | 🟡 **Đã gửi 10/09 · Module 3 chưa phản hồi** |
-| Môi trường thử để Module 3 gọi vào | ❌ Chưa dựng — nằm trong kế hoạch tuần tới, không chờ phiếu |
+| Môi trường thử để Module 3 gọi vào | ✅ **Đã dựng xong 12/09** — một lệnh là chạy, **24/24 ví dụ đạt** trên môi trường sạch, kèm hướng dẫn riêng `IR-08` |
 
-Phiếu được thiết kế để **chốt trong đúng một vòng**: mỗi mục đã có sẵn vị trí của Module 8 kèm lý do, Module 3 chỉ cần đánh `ĐỒNG Ý` hoặc ghi giá trị khác, **không điền coi như đồng ý**. **Module 3 đã hẹn phản hồi trong tuần 14–19/09.** Chừng nào chưa nhận phiếu đã điền thì 5 cổng `G-CONTRACT`, `G-SPEECH`, `G-DIAL`, `G-AUTH`, `G-POLICY` không đóng được và việc đấu nối hai chiều chưa bắt đầu được — **đây là đường găng duy nhất của module lúc này**.
+Phiếu được thiết kế để **chốt trong đúng một vòng**: mỗi mục đã có sẵn vị trí của Module 8 kèm lý do, Module 3 chỉ cần đánh `ĐỒNG Ý` hoặc ghi giá trị khác, **không điền coi như đồng ý**. **Module 3 đã hẹn phản hồi trong tuần 14–19/09.** Chừng nào chưa nhận phiếu đã điền thì 5 cổng `G-CONTRACT`, `G-SPEECH`, `G-DIAL`, `G-AUTH`, `G-POLICY` không đóng được và việc đấu nối hai chiều chưa bắt đầu được — **đây là đường găng duy nhất của module lúc này**. **Riêng môi trường thử thì không chờ ai: chiều nay đã dựng xong và chạy thật từ ngoài vào** — đẩy việc, quay số giả lập, trả kết quả, gọi ngược về, 24/24 ví dụ đúng như mô tả; Module 3 chỉ cần một lệnh là có môi trường trên máy họ. Việc này lộ ra **một câu hỏi cần chú quyết**: bước xét điều kiện gọi hiện **không có ai chạy tự động** — worker có 10 vòng lặp, không vòng nào làm việc đó — nên task nhận xong thì nằm im. Đây là việc của Module 8 chứ không phải Module 3, và cần chốt ai sở hữu vòng lặp đó trước khi nói tới chạy thật.
 
 ## 4. KẾT QUẢ KIỂM CHỨNG
 
-| Nhóm | Kết quả chạy lại tại `2613da5` + `W-0280`/`W-0281` (ngày 12/09) |
+| Nhóm | Kết quả chạy lại tại `2613da5` + `W-0280`/`W-0281`/`W-0282` (ngày 12/09) |
 | --- | --- |
-| Kiểm thử tự động | **986 đạt / 0 hỏng**: đơn vị 670 · tích hợp với CSDL thật 284 · hợp đồng 24 · hỗn loạn 8. Tuần trước còn 2 hỏng — **đã sạch**. Bài thứ 986 là bài canh lỗi kho số liệu viết hôm nay. Đối soát kiểm thử ↔ yêu cầu: 613 mã bài kiểm, tuần trước 508 |
+| Kiểm thử tự động | **1.003 đạt / 0 hỏng**: đơn vị 682 · tích hợp với CSDL thật 289 · hợp đồng 24 · hỗn loạn 8. Tuần trước còn 2 hỏng — **đã sạch**. Trong ngày thêm 17 bài: canh lỗi kho số liệu, và 16 bài cho hạn mức tài khoản dịch vụ. Đối soát kiểm thử ↔ yêu cầu: 627 mã bài kiểm, tuần trước 508 |
 | **Ma trận hành vi 38 lệnh API** | ✅ **38/38 lệnh · 460 tình huống HTTP · 0 lỗi hành vi**, chạy trên đúng composition root với PostgreSQL riêng từng lệnh. Mỗi lệnh chịu đủ 7 ca bắt buộc (thiếu quyền · sai token · sai hạng quyền · sai scope · mã đối soát hỏng · thiếu mã đối soát · đường thuận); lệnh ghi chịu thêm sai định dạng, gọi lại cùng khoá, phát lại cùng nội dung, đổi nội dung cùng khoá. Cả 11 mã kết quả và 3 ca chặn trước khi gọi đều đối chiếu đúng dây |
 | Chạy trọn vòng gọi ở chế độ giả lập | **PASS 5/5** khi chạy trong khung giờ: xác nhận, huỷ, số sai, bấm sai phím, lỗi kỹ thuật đều ra đúng kết quả; lỗi kỹ thuật và số sai không tính là lượt gọi khách; 3/5 kết quả vào hàng đợi trả về. Lượt chạy lúc 07:54 đỏ toàn bộ **nhưng là đúng thiết kế** — bộ lập lịch từ chối quay số vì chưa tới 08:00, khung giờ chủ dự án chốt ngày 08/09. Ghi nhận: kịch bản diễn tập nay phụ thuộc giờ trong ngày, chưa ghim được đồng hồ |
 | Nâng cấp CSDL · hợp đồng · xây · tài liệu · CI | Nâng cấp chạy song song hai phiên bản **PASS** — blocker nội bộ cuối cùng của tuần trước đã đóng. Đóng băng hợp đồng 15/15; kiểm tra hợp lệ, đối chiếu trôi, bắt bản hỏng: đạt cả ba; biên dịch 0 cảnh báo / 0 lỗi; tài liệu và cấu hình CI đạt. **Kubernetes PASS** trên cụm thật dựng tạm: chặn kết nối ra ngoài danh sách cho phép, worker sống qua 90 giây mất CSDL với 0 lần khởi động lại, xoay token gối đầu 6/6 |
@@ -70,7 +70,7 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | A | A4 | Bù gói bằng chứng cho các dòng đã xanh test nhưng chưa có hồ sơ (200/254), ưu tiên 57 dòng thuộc kế hoạch gốc | 17/09 |
 | A | A5 | Chạy lại **toàn bộ 50 bài tự kiểm + 39 đầu việc CI** trên đúng một mốc mã, ghim kết quả làm ứng viên phát hành | 18/09 |
 | **B** | **B1** | **Nhận phiếu `IR-07` đã điền — 21 mục.** Module 3 hẹn trả trong tuần 14–19/09 | **chờ M3** |
-| **B** | B2 | Dựng **môi trường thử để Module 3 gọi vào** (địa chỉ riêng, tài khoản dịch vụ có hạn mức, bộ ví dụ từng tình huống, cách dọn dữ liệu) và **đầu nhận kết quả giả lập** đúng hợp đồng. *Không chờ phiếu* | 17/09 |
+| **B** | B2 | ✅ **Xong 12/09**: môi trường thử một lệnh, tài khoản dịch vụ có hạn mức **60 lệnh/phút** (mã `429` hợp đồng hứa từ đầu nhưng **chưa từng có thật** — nay có), 24 ví dụ chạy được, cách dọn dữ liệu, đầu nhận giả lập. **Còn lại**: chốt ai sở hữu bước xét điều kiện gọi | ✅ |
 | **B** | B3 | Áp các mục Module 3 chọn khác vào hợp đồng và mã nguồn; phát hành bản hợp đồng kế tiếp; sinh lại bộ mã gọi cho họ | sau B1 |
 | **B** | B4 | **Đấu nối hai chiều**: Module 3 đẩy việc → IVR gọi giả lập → trả kết quả về Module 3 → Module 3 đổi trạng thái đơn | sau B1 |
 | **B** | B5 | Đối soát đủ bộ mã xác nhận: chấp nhận, trùng, lỗi thời, bị chặn, sai định dạng, quá hạn mức, và thử lại sau khi mất kết nối | sau B1 |

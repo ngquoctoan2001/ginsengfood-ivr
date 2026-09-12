@@ -47,7 +47,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": false,
-        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T03:00:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/gh-0001"
       }
     },
@@ -88,7 +100,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": false,
-        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T03:10:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/gh-0002"
       }
     },
@@ -129,7 +153,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": false,
-        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T03:20:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/gh-0003"
       }
     },
@@ -170,7 +206,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": false,
-        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T03:30:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/gh-0004"
       }
     },
@@ -211,7 +259,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": false,
-        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T04:00:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/247-0001"
       }
     },
@@ -252,7 +312,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": false,
-        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T04:20:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/247-0002"
       }
     },
@@ -293,7 +365,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": false,
-        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T04:40:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/247-0003"
       }
     },
@@ -334,7 +418,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": false,
-        "eligibility_snapshot": { "decision": "ELIGIBLE", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T05:00:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/247-0004"
       }
     },
@@ -375,7 +471,19 @@
           "locale": "vi-VN"
         },
         "call_restriction": true,
-        "eligibility_snapshot": { "decision": "BLOCKED_DO_NOT_CALL", "source": "fake-sales" },
+          "eligibility_snapshot": {
+            "decision": "BLOCKED_DO_NOT_CALL",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T05:20:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": true,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
         "evidence_ref": "evidence://fake-sales/247-0005"
       }
     }

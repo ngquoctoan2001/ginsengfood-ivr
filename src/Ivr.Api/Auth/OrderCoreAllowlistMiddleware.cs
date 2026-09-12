@@ -56,7 +56,7 @@ public sealed class OrderCoreAllowlistMiddleware(
         {
             // X-Source-System stays metadata. It was checked above as a routing/allowlist hint;
             // the thing that authenticated this caller is the signature, not the header.
-            context.Items["ivr.service_identity.subject"] = identity.Subject;
+            context.Items[ServiceQuotaIdentity.ServiceIdentityItemKey] = identity.Subject;
             await next(context);
             return;
         }
@@ -71,6 +71,12 @@ public sealed class OrderCoreAllowlistMiddleware(
         if (ServiceIdentityCompatPolicy.LegacyCredentialAccepted(salesProvider.Value.Provider)
             && credentials.IsAccepted(suppliedToken))
         {
+            // W-0282 / B2. The legacy value is a SHARED secret, so it names a system and not a
+            // principal -- which is exactly what it is recorded as. Naming it at all matters
+            // because the per-account ceiling downstream needs an account, and a caller that
+            // authenticated on this path would otherwise be the one caller with no budget.
+            context.Items[ServiceQuotaIdentity.ServiceIdentityItemKey] =
+                OrderCoreAllowlistOptions.SourceSystem;
             await next(context);
             return;
         }

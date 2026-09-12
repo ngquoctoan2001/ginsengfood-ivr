@@ -42,7 +42,8 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
 
     public static async Task<FoundationApiTestApplication> StartAsync(
         string executionMode = IvrOptions.MockExecutionMode,
-        bool throwDuringAuthentication = false)
+        bool throwDuringAuthentication = false,
+        IReadOnlyDictionary<string, string?>? extraConfiguration = null)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(
             new WebApplicationOptions
@@ -69,6 +70,13 @@ internal sealed class FoundationApiTestApplication : IAsyncDisposable
                 ["REAL_CUSTOMER_CALL_ALLOWED"] = "NO",
                 [OrderCoreAllowlistOptions.TokenConfigurationKey] = ServiceToken,
             });
+
+        // W-0282 / B2. Added last so a test can switch on something this host leaves off by
+        // default -- the per-account ceiling, whose whole point is that it is not on by default.
+        if (extraConfiguration is not null)
+        {
+            builder.Configuration.AddInMemoryCollection(extraConfiguration);
+        }
 
         builder.Services.AddIvrFoundation(
             builder.Configuration,
