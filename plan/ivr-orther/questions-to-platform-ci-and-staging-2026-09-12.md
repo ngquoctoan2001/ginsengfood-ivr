@@ -4,7 +4,7 @@
 **Người gửi:** Team Module 8 — IVR Order Confirmation
 **Ngày lập:** `2026-09-12` · **Mốc mã:** `main@b0cb633`
 **Trạng thái:** `READY_TO_DISPATCH / NOT_SENT`
-**Đối soát 14/09 sau đăng nhập:** [W-0285](../../docs/evidence/W-0285/README.md). Remote còn `890dfdd`; runner `55115499` online, pipeline `2842779996` có 36 job/7 FAIL. Registry có `w0061-proof`; dev/staging/lab chưa có deployment. [W-0287](../../docs/evidence/W-0287/README.md) sửa lỗi SDK/bootstrap; pipeline candidate và review độc lập còn thiếu. API 403 là quan sát trước đăng nhập.
+**Đối soát 14/09 sau đăng nhập:** [W-0285](../../docs/evidence/W-0285/README.md). Hai remote đã nhận `6bf954d`; [pipeline 2845851460](https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2845851460) có 18/36 job PASS tại checkpoint: full image E2E, Kubernetes 7/7, Chaos 8/8, sweep 39/39. [W-0292](../../docs/evidence/W-0292/README.md) theo dõi phần còn lại và bản sửa PII W-0293; full pipeline/publish/deploy chưa có kết quả cuối. GitLab 0 Kubernetes Agent, chưa có kubeconfig/context được xác nhận; owner chưa biết đích cluster. Phiếu vẫn chưa gửi.
 **Ưu tiên:** P1. Mục A chặn mọi bằng chứng phát hành; mục B chặn toàn bộ làn C của kế hoạch hoàn thiện
 
 > Hai mục độc lập. Trả lời được mục nào thì đóng mục đó, không cần chờ đủ hai.
@@ -28,9 +28,9 @@ Trong repo có **39 đầu việc CI và 50 bài tự kiểm đã khai**. W-0061
 
 | # | Cần gì | Ghi chú kỹ thuật |
 | --- | --- | --- |
-| A1 | **Tái sử dụng runner hiện có** cho `nqt20102001/ginsengfood-ivr`, thẻ **`ginsengfood-docker`** | Đã xác minh `55115499` / `ivr-docker-winhost` online, version 19.2.0; còn cần job được nhận ở SHA candidate mới |
-| A2 | Xác minh runner **vẫn chạy được Docker** (docker-in-docker hoặc socket) | Đã có DinD/Testcontainers lịch sử; cần proof hiện tại cho integration, image, Kubernetes tạm, chaos và DR |
-| A3 | **Kiểm tra gói và khả năng required approvals hiện tại**, chỉ trình phương án nâng gói nếu còn thiếu | Giới hạn gói được ghi trong W-0061/W-0266 là lịch sử. Chưa có quyền đọc hiện tại; không tự mua/nâng gói |
+| A1 | **Tái sử dụng runner hiện có** cho `nqt20102001/ginsengfood-ivr`, thẻ **`ginsengfood-docker`** | Đã xác minh `55115499` / `ivr-docker-winhost` online, version 19.2.0; pipeline 6bf954d đã được nhận và chạy |
+| A2 | Xác minh runner **vẫn chạy được Docker** (docker-in-docker hoặc socket) | DinD/sweep, full image, Kubernetes và Chaos tại 6bf954d đã PASS; còn full pipeline và bản sửa privacy |
+| A3 | **Kiểm tra gói và khả năng required approvals hiện tại**, chỉ trình phương án nâng gói nếu còn thiếu | Giới hạn gói trong W-0061/W-0266 là lịch sử; phiên đăng nhập đã dùng được. Cần phương án enforcement/review độc lập tương thích main-only, không tự mua/nâng gói |
 | A4 | **Một tài khoản người rà soát thứ hai** có quyền duyệt trên project | Chữ ký không tạo ra người. Hai hạng mục đang mở cần đúng hai người khác nhau |
 
 ### A.2 Runner cần bao nhiêu tài nguyên
@@ -59,7 +59,7 @@ Một lượt đầy đủ trên runner gắn đúng SHA, kèm bằng chứng en
 
 | # | Cần gì | Dùng để làm gì |
 | --- | --- | --- |
-| B1 | **Cụm Kubernetes** hoặc máy chủ chạy được Helm, một namespace riêng | Triển khai API, worker và việc nâng cấp cơ sở dữ liệu |
+| B1 | **Cụm Kubernetes** với namespace ivr-dev và ivr-staging, cùng kubeconfig/context cho CI | Triển khai API, worker và việc nâng cấp cơ sở dữ liệu |
 | B2 | **PostgreSQL** riêng cho staging, không dùng chung với bất cứ gì đang thật | Chứa dữ liệu thử; sẽ bị xoá và nạp lại nhiều lần |
 | B3 | **Xác minh kho ảnh hiện có và quyền đẩy** từ runner ở mục A; cấp phần thiếu | W-0061 có proof Registry lịch sử. Cần quyền/job/digest ở ứng viên mới, không suy kho chưa được tạo |
 | B4 | **Nơi quản lý bí mật** | Token quản trị ba hạng, token dịch vụ, chuỗi kết nối. Hiện đang là giá trị giả ghi thẳng trong file, chỉ hợp cho máy cá nhân |

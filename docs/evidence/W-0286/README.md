@@ -1,6 +1,6 @@
 # W-0286 — Độ bền worker và kiểm chứng ứng viên local
 
-Ngày 2026-09-14. Baseline bắt đầu `main@67ef6b1`; candidate runtime **`44830290ea97ab71b2e28002bb68c66bdbecaa53`**. **BLOCKED_EXTERNAL** cho việc đóng toàn bộ image/hosted gate; các kiểm chứng local bên dưới đã thực hiện.
+Ngày 2026-09-14. Baseline bắt đầu `main@67ef6b1`; candidate runtime **`44830290ea97ab71b2e28002bb68c66bdbecaa53`**. **TESTS_PASS cho phạm vi local** bên dưới. Follow-up [W-0292](../W-0292/README.md) có full image/Kubernetes hosted PASS tại `6bf954d`; toàn pipeline, publish và deploy còn theo dõi riêng. Không áp kết quả candidate mới ngược cho runtime cũ.
 
 ## Kết quả trên candidate sau vá
 

@@ -1,6 +1,6 @@
 # W-0285 — Kiểm tra hiện trạng hosted CI trước yêu cầu Hạ tầng
 
-Ngày 2026-09-14. Baseline ban đầu `main@fa7877c`. **Đã đọc hosted qua phiên đăng nhập; BLOCKED_EXTERNAL còn ở pipeline candidate, staging và bằng chứng review độc lập.**
+Ngày 2026-09-14. Baseline ban đầu `main@fa7877c`. **Đã đọc hosted qua phiên đăng nhập; BLOCKED_EXTERNAL còn ở staging và bằng chứng review độc lập.** Pipeline hiện hành theo [W-0292](../W-0292/README.md): `6bf954d` đã lên cả hai remote, 18 job PASS gồm full image E2E/Kubernetes; pipeline còn chạy. Các mục dưới giữ lịch sử trước push.
 
 ## Cập nhật sau đăng nhập, baseline local `9ca529b`
 

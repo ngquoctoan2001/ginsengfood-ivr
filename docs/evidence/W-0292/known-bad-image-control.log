@@ -1,0 +1,4 @@
+Trivy 0.58.1; image alpine:3.10; scanners vuln; severity HIGH,CRITICAL; configured vulnerability exit 42
+KNOWN_BAD_IMAGE_EXIT=42
+HIGH_CRITICAL_FINDINGS=1
+KNOWN_BAD_IMAGE_NEGATIVE_CONTROL_PASS

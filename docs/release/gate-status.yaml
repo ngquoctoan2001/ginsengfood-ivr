@@ -33,7 +33,7 @@ ladder:
 current_position:
   attained_rung: 0
   reason: "44 of 281 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
-  blocked_external_count: 21
+  blocked_external_count: 20
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
@@ -1202,7 +1202,7 @@ work:
     evidence: "docs/evidence/W-0285/README.md"
   - id: "W-0286"
     prompt: "Kiểm chứng độ bền và ứng viên local (Origin=UNPLANNED)"
-    status: "BLOCKED_EXTERNAL"
+    status: "TESTS_PASS"
     evidence: "docs/evidence/W-0286/README.md"
   - id: "W-0287"
     prompt: "Sửa toolchain và bootstrap CI theo log hosted (Origin=UNPLANNED)"

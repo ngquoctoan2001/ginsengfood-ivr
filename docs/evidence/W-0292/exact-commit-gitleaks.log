@@ -1,0 +1,4 @@
+1:29PM INF 345 commits scanned.
+1:29PM INF scanned ~51484506 bytes (51.48 MB) in 11.8s
+1:29PM INF no leaks found
+EXACT_COMMIT_GITLEAKS_EXIT=0

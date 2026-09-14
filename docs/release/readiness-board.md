@@ -29,9 +29,9 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 
 | Trạng thái | Số work item |
 | --- | --- |
-| `TESTS_PASS` | 209 |
+| `TESTS_PASS` | 210 |
 | `ACCEPTED` | 44 |
-| `BLOCKED_EXTERNAL` | 21 |
+| `BLOCKED_EXTERNAL` | 20 |
 | `CODE_DONE` | 3 |
 | `DEFERRED_TARGET` | 2 |
 | `N/A` | 1 |
@@ -65,7 +65,7 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 | 32 eSIM production capacity | W-0008 |
 | legal, security and release evidence | W-0009 |
 
-Cả bảy đầu vào đều chưa đạt. **21** work item ở `BLOCKED_EXTERNAL`, và
+Cả bảy đầu vào đều chưa đạt. **20** work item ở `BLOCKED_EXTERNAL`, và
 **2** quyết định `OD-V1-*` còn mở.
 
 ## 6. Kill switch và rollback
