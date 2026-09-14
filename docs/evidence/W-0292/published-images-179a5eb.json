@@ -1,0 +1,13 @@
+{
+  "candidate": "179a5ebc2b2fc5ec49a9488f5b446f98d7551c3e",
+  "tag": "0.1.0-179a5ebc",
+  "publish_job": "https://gitlab.com/nqt20102001/ginsengfood-ivr/-/jobs/16478951085",
+  "completed_at_utc": "2026-09-14T10:01:35Z",
+  "scan": {"tool":"Trivy 0.58.1","images":3,"high":0,"critical":0,"before_push":true},
+  "digests": [
+    "registry.gitlab.com/nqt20102001/ginsengfood-ivr/ivr-api@sha256:feba447ec6950d6cc8052a5513b9ec3f0cd08f8bf3961bf2dc48cadc634c44bc",
+    "registry.gitlab.com/nqt20102001/ginsengfood-ivr/ivr-worker@sha256:8438828807337996b171e58275560f143ddb954bc55d6192383c2f06ac651470",
+    "registry.gitlab.com/nqt20102001/ginsengfood-ivr/ivr-migrate@sha256:4315013862c70df489572c0ef7798417bd1e993f1ffbb7b14f5778dd9ad7161e"
+  ],
+  "source_artifact": "ci-artifacts/cd/digests.txt"
+}

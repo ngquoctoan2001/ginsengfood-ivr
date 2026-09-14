@@ -1,0 +1,8 @@
+Source: https://gitlab.com/nqt20102001/ginsengfood-ivr/-/jobs/16478951087
+Candidate: 179a5eb
+2026-09-14 10:02:00 UTC: Helm v3.16.3; kubectl v1.31.5; bootstrap completed.
+helm upgrade --install ivr deploy/helm/ivr --namespace ivr-dev ...
+Error: Kubernetes cluster unreachable: Get "http://localhost:8080/version": dial tcp [::1]:8080: connect: connection refused
+2026-09-14 10:02:03 UTC: Job failed: exit code 1
+Rollback/history after_script could not reach the cluster either.
+No successful dev deployment; deploy_staging skipped.

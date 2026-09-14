@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0297` |
 | Last allocated | `W-0296` |
-| Last activity sequence | `A-0622` |
+| Last activity sequence | `A-0623` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -357,7 +357,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 
 | `W-0285` | Kiểm tra hosted CI và đầu vào Hạ tầng (Origin=`UNPLANNED`) | Xác minh runner/pipeline/remote hiện có trước khi yêu cầu cấp mới | `W-0284`; baseline `fa7877c` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0285/README.md` | Đọc GitLab hiện tại và đối chiếu hồ sơ hosted W-0061/W-0093 | Không gửi phiếu, mua gói, đổi quyền hay tạo nhánh; real calls NO |
 
-| `W-0286` | Kiểm chứng độ bền và ứng viên local (Origin=`UNPLANNED`) | 100 vòng có tiêm lỗi, full suite và image/gates trên source ổn định | `W-0283`..`W-0285`; runtime candidate `4483029` | TESTS_PASS | Codex | `docs/evidence/W-0286/README.md` | 1.018/1.018; 100/100 vòng/1.130 task; API 38/38/417 request; sweep 39/39, K8s 7/7, observability, coverage 89,33% sau unit rerun | Owner đã chốt pause và duyệt scan/push; W-0290/0291 local PASS, W-0292 có full image/K8s hosted PASS tại 6bf954d và theo dõi phần còn lại; M3/SIM/staging/production NOT_RUN; real calls NO |
+| `W-0286` | Kiểm chứng độ bền và ứng viên local (Origin=`UNPLANNED`) | 100 vòng có tiêm lỗi, full suite và image/gates trên source ổn định | `W-0283`..`W-0285`; runtime candidate `4483029` | TESTS_PASS | Codex | `docs/evidence/W-0286/README.md` | 1.018/1.018; 100/100 vòng/1.130 task; API 38/38/417 request; sweep 39/39, K8s 7/7, observability, coverage 89,33% sau unit rerun | W-0292 tại 179a5eb có 31 job PASS gồm full suite/image/K8s/security/privacy/publish; dev thiếu cluster, staging skipped; M3/SIM/production NOT_RUN, real calls NO |
 
 | `W-0287` | Sửa toolchain và bootstrap CI theo log hosted (Origin=`UNPLANNED`) | Pipeline 2842779996 có bốn lỗi SDK, sweep thiếu công cụ, TTS thiếu dependency | `W-0285`; baseline `9ca529b` | TESTS_PASS | Codex | `docs/evidence/W-0287/README.md` | SDK pin xuyên fragment; 10 negative + 1 positive config; Linux sweep 39/39; TTS 9/9 lệnh; contract 24/24, E2E 2/2, observability 12/12 | Chaos lộ loopback fixture, review gate lộ false green, xử lý tiếp; hosted chưa push; pause/scan pending; real calls NO |
 
@@ -369,7 +369,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 
 | `W-0291` | Vá dependency CI và chạy security scan (Origin=`UNPLANNED`) | npm audit phát hiện js-yaml HIGH; owner duyệt scan 14/09 | `W-0290`; baseline `d44834e` | TESTS_PASS | Codex | `docs/evidence/W-0291/README.md` | js-yaml 4.3.2; 6 gate + docs build PASS; full security wrapper PASS sau owner duyệt 68 fingerprint | Không thay API contract/runtime hoặc nới scanner; hosted là bước kế tiếp |
 
-| `W-0292` | Hosted candidate CI/publish/dev-staging (Origin=`UNPLANNED`, owner duyệt) | Chạy pipeline thật trên các sửa đã kiểm local | `W-0291`; hosted candidate `6bf954d` | IN_PROGRESS | Codex | `docs/evidence/W-0292/README.md` | Hai remote cùng candidate; pipeline 2845851460 có 18/36 PASS tại checkpoint: full image E2E, Kubernetes 7/7, Chaos 8/8, sweep 39/39 | Chuẩn bị push W-0293 sửa PII; full pipeline/publish/deploy chưa xong, chưa có cluster đích; lab/prod/real calls chưa mở |
+| `W-0292` | Hosted candidate CI/publish/dev-staging (Origin=`UNPLANNED`, owner duyệt) | Chạy pipeline thật trên các sửa đã kiểm local | `W-0291`; hosted candidate `179a5eb` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0292/README.md` | Pipeline 2846110576: 31 PASS; full suite 1.018, image E2E 8, K8s 7/7, sweep 39/39, security/PII PASS; ba image có digest và Pages Active | Pipeline UI Blocked; dev Failed vì cluster unreachable localhost:8080, staging Skipped; cần target/credential/DB/secrets; lab/prod/real calls chưa mở |
 
 | `W-0293` | Chuẩn hoá trình bày evidence cho PII gate (Origin=`UNPLANNED`) | Full evidence scan từ chối 121 dòng tại 45 file: thuật ngữ kỹ thuật, ví dụ product/negative fixture; giữ scanner và source test | `W-0292`; baseline `6bf954d` | TESTS_PASS | Codex | `docs/evidence/W-0293/README.md` | Full evidence scan exit 0; selftest 8 marker PASS; bản gốc ví dụ được dẫn bằng immutable commit; không thay quyết định/hash/chữ ký | Hosted pipeline cần chạy trên commit sửa; không đổi allowlist hoặc runtime |
 
@@ -1777,3 +1777,5 @@ Final status: TESTS_PASS
 | `A-0621` | 2026-09-14 | `W-0292`, `W-0295`, `W-0296` | START/RECOVERY | W-0295 commit 179a5eb lên hai remote; Gitleaks 349 commit no leaks. Pipeline 2846110576 gặp Docker engine unavailable. Docker log xác định hai socket cũ không truy cập được; giữ riêng thư mục runtime chỉ có socket rỗng rồi mở lại, engine 29.7.2 trả lời. Retry các job runner system failure trên cùng candidate | Codex | Lượt sweep bổ sung local 32/39 do Docker và thiếu sh trong PATH, không tính PASS; cần hosted sau recovery. Không reset Docker hoặc thay dữ liệu/runner config |
 
 | `A-0622` | 2026-09-14 | `W-0295`, `W-0296` | FINISH | Hosted gate_sweep 16479006261 tại 179a5eb PASS 39/39, 22 skip, Job succeeded 08:37:04 UTC. Cả W0181/W0183 và selftest JUnit/PII, DR, TTS PASS; runner recovery được kiểm chứng | Codex | Commit riêng hồ sơ phục hồi; giữ pipeline 2846110576 tiếp tục kiểm thử/publish/deploy, chưa kết luận toàn pipeline PASS |
+
+| `A-0623` | 2026-09-14 | `W-0286`, `W-0292`, `W-0294`, `W-0295`, `W-0296` | VERIFIED/BLOCKED_EXTERNAL | W-0296 commit 2930781, Gitleaks 350 commit no leaks. Hosted 179a5eb: 31 PASS/1 Failed/2 Skipped/2 Manual; full suite 1.018/1.018, coverage 89,32%, schema 21/globalization 688, image E2E/K8s/observability PASS. Security 349 commit no leaks, PII 418 file PASS. Ba image 0 HIGH/CRITICAL đã push và có digest; Pages Active, browser mở đúng draft.27/38 operation | Codex | Dev job 16478951087 bootstrap PASS nhưng cluster unreachable localhost:8080; staging skipped, pipeline UI Blocked. Chốt phần kiểm chứng/publish, giữ W-0292 BLOCKED_EXTERNAL; cần máy chủ/cluster đích, không mở lab/prod hoặc gọi thật |

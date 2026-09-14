@@ -1,6 +1,6 @@
 # BÁO CÁO TIẾN ĐỘ MODULE 8 — IVR XÁC NHẬN ĐƠN HÀNG
 
-**Cập nhật 14/09:** kỳ 12/09 giữ riêng bên dưới. [W-0286](../evidence/W-0286/README.md): local 1.018 test, 100 vòng/1.130 task đạt. Owner chốt pause WINDOW_EXPIRED, duyệt scan/push/CI/dev-staging. [W-0292](../evidence/W-0292/README.md): hosted `6bf954d` có full image E2E và K8s PASS, pipeline chưa xong; [W-0293](../evidence/W-0293/README.md) sửa PII docs, chờ pipeline mới. Chưa có cluster dev/staging được xác nhận; không ghi đã deploy.
+**Cập nhật 14/09:** kỳ 12/09 giữ riêng bên dưới. [W-0286](../evidence/W-0286/README.md): local 100 vòng/1.130 task đạt. [W-0292](../evidence/W-0292/README.md): hosted `179a5eb` có **31 job PASS**, full suite **1.018/1.018**, image E2E/K8s/security/PII đạt; ba image đã publish và [portal API](https://ginsengfood-ivr-0332fa.gitlab.io) đã hoạt động. **Dev chưa deploy được vì thiếu cluster đích; staging bị bỏ qua, pipeline Blocked.** Nhãn pause đã chốt; [W-0296](../evidence/W-0296/README.md) đã khôi phục Docker runner.
 **Kỳ báo cáo:** 06/09 → 12/09/2026 (7 ngày) · **Người thực hiện:** Nguyễn Quốc Toàn · **Mốc code:** `e81fec1` (12/09 13:53)
 **Trạng thái điều hành:** `RELEASE_BLOCKED — CHỜ MODULE 3`. Phần mềm chạy trọn vòng gọi ở chế độ giả lập, **1.003 bài kiểm thử xanh hoàn toàn**, blocker nội bộ cuối cùng của tuần trước đã đóng. Ngày 12/09 đã sửa xong ba lỗi phát hiện buổi sáng và **dựng xong môi trường thử cho Module 3** — việc duy nhất trong làn B không phải chờ họ. Còn cần kiểm chứng image E2E đầy đủ, độ bền và hosted CI trên ứng viên mới; đồng thời có **11 cổng bên ngoài**, gần nhất là **Module 3 chưa phản hồi phiếu chốt hợp đồng gửi ngày 10/09**. Trong kỳ có 140 lưu vào `main`, cây làm việc sạch, hai kho GitLab và GitHub đã đồng bộ, tổng lịch sử 338 lưu. **Giao diện quản trị đã bị xoá khỏi module** theo chỉ đạo 05/09 — Module 8 nay thuần backend, Module 3 tự làm màn hình.
 
@@ -65,17 +65,17 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 
 | Làn | # | Gói việc | Xong |
 | --- | ---: | --- | --- |
-| A | A1 | **Cập nhật 14/09:** local API 38/38, 417 request ở W-0286; owner chốt pause. W-0292: image E2E 8/8 task PASS trên hosted `6bf954d`, toàn pipeline và bản sửa privacy còn theo dõi | local xong; CI tiếp tục |
+| A | A1 | ✅ **Xong 14/09:** local API 38/38, 417 request ở W-0286; owner chốt pause. W-0292: hosted `179a5eb` image E2E 8/8 task PASS, gồm WINDOW_EXPIRED và callback hold-review; privacy artifact PASS | 14/09 |
 | A | A2 | ✅ **Local xong 14/09, W-0286:** 100/100 vòng, 1.130 task, 0 lỗi; tiêm lỗi crash/lease/kill/callback/DLQ/retention. Worker tự xét eligibility; clock tiến thật với profile MOCK cho phép cả ngày để chạy ngoài giờ; không gọi đó là đóng băng clock production | 14/09 |
 | A | A3 | ✅ **Xong 14/09, W-0284:** khôi phục 13 dòng thiếu; 0 planned prompt đã triển khai thiếu pack bắt buộc. 56 unplanned/external không README riêng được phân loại theo evidence thật, không tạo hồ sơ rỗng | 14/09 |
-| A | A4 | **PARTIAL:** local full suite 1.018/1.018, coverage 89,33%; W-0291 vá js-yaml/security PASS. Hosted `6bf954d`: sweep 39/39, Chaos 8/8, K8s 7/7, full image scan/SBOM/E2E PASS. W-0293 sửa prose/fixture PII, local scan PASS; cần toàn pipeline bản mới, publish và đích deploy | CI đang chạy |
+| A | A4 | **Kiểm chứng/publish xong, deploy chặn:** hosted `179a5eb` full suite 1.018/1.018, coverage 89,32%; sweep 39/39, K8s 7/7, image scan/SBOM/E2E và observability PASS. Gitleaks 349 commit sạch, NuGet/npm đạt gate, PII 418 file PASS; ba image đã lên registry | thiếu cluster deploy |
 | **B** | **B1** | **Nhận phiếu `IR-07` đã điền — 21 mục.** Module 3 hẹn trả trong tuần 14–19/09 | **chờ M3** |
 | **B** | B2 | ✅ **Xong 12/09**: môi trường thử một lệnh, tài khoản dịch vụ có hạn mức **60 lệnh/phút** (mã `429` hợp đồng hứa từ đầu nhưng **chưa từng có thật** — nay có), 24 ví dụ chạy được, cách dọn dữ liệu, đầu nhận giả lập. **Cập nhật 14/09**: W-0283 đã thêm worker tự xét cổng kỹ thuật; M3 giữ quyết định nghiệp vụ CALL_REQUIRED | ✅ |
 | **B** | B3 | Áp các mục Module 3 chọn khác vào hợp đồng và mã nguồn; phát hành bản hợp đồng kế tiếp; sinh lại bộ mã gọi cho họ | sau B1 |
 | **B** | B4 | **Đấu nối hai chiều**: Module 3 đẩy việc → IVR gọi giả lập → trả kết quả về Module 3 → Module 3 đổi trạng thái đơn | sau B1 |
 | **B** | B5 | Đối soát đủ bộ mã xác nhận: chấp nhận, trùng, lỗi thời, bị chặn, sai định dạng, quá hạn mức, và thử lại sau khi mất kết nối | sau B1 |
 | **B** | B6 | Ký đóng 5 cổng `G-CONTRACT`, `G-SPEECH`, `G-DIAL`, `G-AUTH`, `G-POLICY` | sau B4 |
-| C | C1 | **Hosted đã chạy, W-0292:** runner online, `6bf954d` có 18/36 job PASS tại checkpoint; image/K8s/Chaos đã đạt sau sửa SDK/bootstrap. Còn full pipeline/publish, review độc lập main-only (`G-GITLAB`) và cluster/CSDL/bí mật/DNS/TLS (`G-PLATFORM`); GitLab chưa cấu hình Agent/kubeconfig được xác nhận | CI tiếp tục + thiếu Hạ tầng |
+| C | C1 | **W-0292: 31 job PASS, pipeline Blocked tại `179a5eb`.** Registry/Pages đã publish; dev bootstrap Helm/kubectl PASS rồi thất bại vì cluster unreachable localhost:8080; staging skipped. Còn review độc lập main-only (`G-GITLAB`) và cluster/CSDL/bí mật/DNS/TLS (`G-PLATFORM`) | BLOCKED_EXTERNAL |
 | C | C2 | Triển khai staging bằng Helm; chạy khói; diễn tập cuộn dần, xanh–lam, nâng cấp hỏng và quay lui. Rồi bảng theo dõi, cảnh báo, sổ tay xử lý sự cố, phân người trực, nối vết xuyên Module 3 → IVR → tổng đài; sao lưu, diễn tập khôi phục có mốc thời gian, đo RPO/RTO, khôi phục nhiều vùng, mã hoá ổ đĩa | sau C1 |
 | C | C3 | Đo hiệu năng (tải thấp, nền, đỉnh, dồn cục; p95/p99; số kênh cần; bể kết nối CSDL) rồi **chạy liên tục 24–72 giờ** trên staging | sau C1 |
 | C | C4 | Quét bảo mật thời gian chạy: ảnh, thư viện, bí mật; kiểm thử thâm nhập có xác thực; xử lý phát hiện | 18/09 |
@@ -92,9 +92,9 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | Cần có | Ai lo | Trước ngày | Nếu chậm |
 | --- | --- | --- | --- |
 | **Phiếu chốt `IR-07` điền xong, 21 mục** | **Module 3** | **19/09** | Làn B đứng từ B3; 5 cổng hợp đồng không đóng được; toàn bộ mốc sau lùi theo |
-| Máy chủ staging, kho ảnh, bí mật, DNS/TLS và bằng chứng CI/review độc lập; xác minh gói/quyền hiện tại trước khi yêu cầu nâng cấp | Hạ tầng | 16/09 | Đã đọc được GitLab: runner online; dev/staging/lab chưa có deployment. Làn C vẫn cần hạ tầng thật và pipeline candidate |
+| Máy chủ staging, bí mật, DNS/TLS và review độc lập; CI và kho ảnh đã được kiểm trên candidate | Hạ tầng | 16/09 | Cần chọn/cấp cluster đích và kết nối CI. Dev đã thử nhưng cluster unreachable; staging chưa chạy. Không có deployment thành công để mở làn C |
 | Chữ ký kịch bản thoại, giọng đọc, pháp lý, an ninh | Sản phẩm · Pháp lý · An ninh | 18/09 | Không mở được cổng mua SIM, làn E không khởi động |
-| **Cập nhật 14/09**: nhãn pause đã chốt ở W-0290; worker eligibility đã sửa và kiểm chứng ở W-0283 | Chủ dự án | đã chốt 14/09 | Cần kết quả image/CI mới theo quyết định; B4 vẫn cần đầu nhận và phản hồi thật của M3 |
+| **Cập nhật 14/09**: nhãn pause đã chốt ở W-0290; worker eligibility đã sửa và kiểm chứng ở W-0283 | Chủ dự án | đã chốt 14/09 | Image E2E hosted 179a5eb đã PASS đúng quyết định; B4 vẫn cần đầu nhận và phản hồi thật của M3 |
 | Duyệt mua gói thử một SIM | Chủ dự án | sau khi làn A–D xanh | Chỉ chứng minh được trên giả lập, không bao giờ đo được dung lượng thật |
 
 *Hai quyết định cuối `OD-V1-09` và `OD-V1-10` không thể ký bằng bàn giấy — chúng cần số đo từ SIM thật nên chỉ đóng được sau E3. Lập ngày 12/09/2026 từ cây mã tại `e81fec1`, 140 lưu trong kỳ, bộ kiểm thử và các bài tự kiểm chạy lại tại đúng mốc này, bảng kiểm soát phát hành sinh lại từ sổ tiến độ. Mục nào không chạy lại được thì đã ghi rõ lý do, không suy từ kết quả cũ.*
