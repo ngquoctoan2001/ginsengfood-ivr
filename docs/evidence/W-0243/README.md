@@ -2,8 +2,10 @@
 
 Ngày: 2026-09-09 · Baseline: `main@7d798a6` · Trạng thái: **TESTS_PASS**.
 
+Ghi chú trình bày W-0293 (14/09): các ví dụ dùng mô tả/fixture ID để không lặp dữ liệu kiểm lỗi trong evidence. [Bản gốc tại commit 6bf954d](https://gitlab.com/nqt20102001/ginsengfood-ivr/-/blob/6bf954d2ba8fd82eb638b5892c11df779c88eb42/docs/evidence/W-0243/README.md) giữ nguyên danh sách và kết quả lịch sử; mã kiểm vẫn ở [PiiGuard](../../../src/Ivr.Domain/Privacy/PiiGuard.cs) và [UT-PII-PRODUCT-01..03](../../../tests/Ivr.UnitTests/CrossCuttingFoundationTests.cs).
+
 Owner chốt phương án `2` của `W-0242 §3`: guard riêng cho `public_name`, bỏ bốn từ nhập nhằng, giữ
-`số nhà`/`ngõ`/`hẻm`/`ngách`.
+bốn marker chỉ có nghĩa địa chỉ (nhóm `*PlaceMarkerBranch` trong PiiGuard).
 
 ## 1. Nới một PII guard thì phải chứng minh nới đúng chỗ
 
@@ -11,7 +13,7 @@ Owner chốt phương án `2` của `W-0242 §3`: guard riêng cho `public_name`
 **10 field** — `resultReason`, `orderState`, `customerDisplayName`, `orderCodeShort`,
 `pronunciationHints`, `delivery_area_short`… — nên sửa nó là nới hết. **Không đụng nó.**
 
-Chỉ `publicName` và `unitLabel` đổi đường.
+Chỉ `publicName` và `unitLabel` đổi luồng.
 
 ## 2. Tách hằng số trước, chứng minh không đổi hành vi
 
@@ -19,8 +21,8 @@ Nhánh địa chỉ tách làm hai, theo đúng nghĩa của từ:
 
 | Nhóm | Từ | Vì sao |
 | --- | --- | --- |
-| **chỉ có nghĩa địa chỉ** | `số nhà` `ngõ` `hẻm` `ngách` | không xuất hiện ở đâu khác |
-| **nhập nhằng** | `đường` `thôn` `ấp` `tổ` | `đường` là **đường ăn** trước khi là đường phố; `tổ` là **tổ yến** |
+| **chỉ có nghĩa địa chỉ** | bốn marker của nhóm `*PlaceMarkerBranch` | không xuất hiện ở đâu khác |
+| **nhập nhằng** | bốn marker của nhóm `*AmbiguousMarkerBranch` | cũng dùng trong tên thực phẩm, gồm món yến và nguyên liệu tạo ngọt |
 
 `RestrictedValuePattern` ghép lại từ **cùng bốn tập** đó. Golden `61` chuỗi qua `IsSafeText` —
 địa chỉ thật, số điện thoại, dial token, tên hàng, vùng giao, tên người, chuỗi biên — **giống hệt
@@ -32,27 +34,27 @@ trước và sau**. Tách hằng số không đổi một câu trả lời nào.
 
 ```text
 PHẢI QUA (tên hàng thật)          PHẢI VẪN CHẶN (địa chỉ/điện thoại)
-  ok   Tổ yến                       chặn   số nhà 12
-  ok   Tổ yến chưng đường phèn      chặn   Ngõ 5 Kim Mã
-  ok   Đường phèn                   chặn   Hẻm 3 Lê Lợi
-  ok   Đường thốt nốt               chặn   Ngách 12/4
-  ok   Chè đường phèn               chặn   0912345678 · +84912345678
-  ok   Mật ong đường mía            chặn   so nha 12 · ngo 5 Kim Ma
-  ok   Ấp trứng · Thôn quê          chặn   dial_token: abcdefgh12345
+  ok   fixture sản phẩm 1           chặn   fixture địa chỉ 1
+  ok   fixture sản phẩm 2           chặn   fixture địa chỉ 2
+  ok   fixture sản phẩm 3           chặn   fixture địa chỉ 3
+  ok   fixture sản phẩm 4           chặn   fixture địa chỉ 4
+  ok   fixture sản phẩm 5           chặn   hai fixture phone
+  ok   fixture sản phẩm 6           chặn   hai fixture địa chỉ ASCII
+  ok   fixture sản phẩm 7 và 8      chặn   fixture dial-token
 ```
 
-> **Cái giá, ghi ra chứ không giấu:** một tên hàng viết `"đường Nguyễn Huệ"` **nay qua được**
-> guard này, trong khi `IsSafeText` vẫn từ chối. Đổi lại, `tổ yến` đặt hàng được. Đó là thứ owner
+> **Cái giá, ghi ra chứ không giấu:** một tên hàng gồm marker nhập nhằng và tên phố **nay qua được**
+> guard này, trong khi `IsSafeText` vẫn từ chối. Đổi lại, các món yến đặt hàng được. Đó là thứ owner
 > chấp nhận, và `UT-PII-PRODUCT-02` ghim rằng những dạng **thật sự mang địa chỉ giao được** —
-> `số nhà`, `ngõ`, `hẻm`, `ngách`, số điện thoại, dial token — vẫn bị chặn.
+> bốn marker chỉ có nghĩa địa chỉ, số điện thoại, dial token — vẫn bị chặn.
 
 ## 4. Ranh giới là phần đáng ghim nhất
 
-`UT-PII-PRODUCT-03`:
+`UT-PII-PRODUCT-03`; `productFixture` dưới đây đại diện cho chuỗi nguyên văn trong test:
 
 ```csharp
-SpeechItem.Create("Đường phèn", 1m, "hộp");                    // qua
-Assert.Throws(() => ShortDeliveryArea.Create("Đường phèn"));   // vẫn chặn
+SpeechItem.Create(productFixture, 1m, "hộp");                    // qua
+Assert.Throws(() => ShortDeliveryArea.Create(productFixture));   // vẫn chặn
 ```
 
 **Cùng một chuỗi, hai câu trả lời, có chủ đích.** Vùng giao **là** field địa chỉ nên giữ
@@ -120,4 +122,4 @@ Thay đổi hành vi **duy nhất** nằm ở `SpeechItem.Create`, xuất hiện
 ## 8. Còn lại
 
 `4d` nay chỉ còn cần **danh sách tên**. Bốn từ kia không còn chặn nữa, nên khi có danh sách tôi vẫn
-chạy qua `SpeechItem.Create` — nhưng để bắt phần **còn lại** của guard, không phải để bắt `tổ yến`.
+chạy qua `SpeechItem.Create` — nhưng để bắt phần **còn lại** của guard, không phải để bắt tên món yến.

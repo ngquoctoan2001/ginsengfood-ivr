@@ -61,7 +61,7 @@ Trước khi sửa, tôi instrument `assertIdentifier` ở cả bảy validator 
 thật sự nhận** khi chạy selftest — 365 giá trị riêng biệt — rồi áp bộ kiểm chuẩn lên đúng tập đó.
 
 Kết quả: **8/365 bị từ chối, và cả 8 đều là fixture âm** (`BEARER SECRET`, `USER@EXAMPLE.COM`,
-`CALL:+84912345678`…) mà selftest cố tình đưa vào để chứng minh validator từ chối chúng. Tôi kết
+fixture `CALL` chứa phone dạng E.164…) mà selftest cố tình đưa vào để chứng minh validator từ chối chúng. Tôi kết
 luận: an toàn.
 
 **Kết luận đó sai.** Chạy selftest thật thì d06 đỏ:

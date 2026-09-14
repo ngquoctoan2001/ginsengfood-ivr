@@ -1,4 +1,4 @@
-# W-0258 — Một secret đọc được từ API công khai, và một gate vỡ vì đường dẫn checkout
+# W-0258 — Một secret đọc được từ API công khai, và một gate vỡ vì vị trí file checkout
 
 Ngày: 2026-09-09 · Baseline: `main@8be6001` · Trạng thái: **TESTS_PASS**.
 
@@ -105,8 +105,8 @@ const REPOSITORY_ROOT = resolve(dirname(SCRIPT_PATH), "../../..");   // không r
 if (!isConfined(realpathSync(resolved))) fail("real path escapes repository root");
 ```
 
-So một đường dẫn **đã resolve** với một root **chưa resolve** chỉ đúng khi không thành phần nào của
-đường checkout là symlink. Khi có một cái — `/tmp` trên macOS, workspace link của runner, một bind
+So một vị trí file **đã resolve** với một root **chưa resolve** chỉ đúng khi không thành phần nào của
+luồng checkout là symlink. Khi có một cái — `/tmp` trên macOS, workspace link của runner, một bind
 mount — `relative()` trả về chuỗi bắt đầu bằng `..` cho **mọi** tệp hợp lệ trong repo, `isConfined`
 trả false, và gate từ chối chính input của nó.
 

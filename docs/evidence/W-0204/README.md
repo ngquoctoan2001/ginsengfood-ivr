@@ -20,7 +20,7 @@ trước. Cái nó **không** phủ, và P2.1 gạch 4 lại yêu cầu, là ph�
 
 | Lỗ hổng | Vì sao nó quan trọng | Trạng thái |
 |---|---|---|
-| **Generated client không được ghim** | Manifest khai `generated:` bằng **đường dẫn**, chưa bao giờ bằng hash. Đó chính là những byte Module 3 biên dịch. Ghim spec mà không ghim artifact sinh ra từ spec là để hở đúng thứ consumer thật sự link vào | đã ghim `generatedSha256` cho cả hai |
+| **Generated client không được ghim** | Manifest khai `generated:` bằng **vị trí file**, chưa bao giờ bằng hash. Đó chính là những byte Module 3 biên dịch. Ghim spec mà không ghim artifact sinh ra từ spec là để hở đúng thứ consumer thật sự link vào | đã ghim `generatedSha256` cho cả hai |
 | **Một pin viết ở hai nơi** | Closure pack — chính tài liệu mời owner ký — chép lại hash dưới dạng văn xuôi. Văn xuôi không được cập nhật khi spec xoay, nên pack đang gọi tên baseline `b59a644e…` từ thời `draft.18`, trong khi manifest ghim `b32a75ce…` của `draft.23`. **Ký vào pack đó là ký vào một artifact không xác định được** | đã bỏ số khỏi pack, trỏ về manifest; `FREEZE-02` chặn tái diễn |
 | **Bảng field công bố có thể lệch spec** | Owner duyệt `06-module-3-api-handover.md`, không duyệt YAML. Hai bên lệch nhau thì chữ ký nằm trên một hợp đồng không ai thực thi | `FREEZE-03` so khớp từng tên field, cả required lẫn optional |
 | **Trạng thái draft không ai đọc** | `TARGET_CONTRACT_V1=DRAFT` chỉ tồn tại trong một chuỗi JSON và một dòng ledger; **không gate nào đọc nó**, nên không gì ngăn việc sửa chuỗi đó thành "đã ký" | `FREEZE-04` từ chối trạng thái khác DRAFT khi không có `closureEvidence`, và từ chối bỏ hậu tố pre-release khi còn DRAFT |

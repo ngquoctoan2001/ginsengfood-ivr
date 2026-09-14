@@ -198,7 +198,7 @@ từ `6525d2df…` sang `a03fc6ca…`, tức nội dung `W-0217` đã ghi. Mư�
 cũng là bằng chứng tệp này đang bị dùng làm pin sống.
 
 `decision-closure-input.template.json` cạnh đây **có** đổi: nó là input template dẫn xuất, không phải
-chứng thực, nên nó trỏ sang đường pin mới.
+chứng thực, nên nó trỏ sang vị trí pin mới.
 
 **`W-0252` đổi tên.** Tệp trên nay là `attested-sha256.txt`, và mười một bản ghi cùng loại trong
 `docs/evidence/` đổi theo. Nội dung **không đổi một byte** — chỉ cái tên, để vai của nó đọc được ngay

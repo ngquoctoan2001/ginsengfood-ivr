@@ -29,7 +29,7 @@ Và ba dữ kiện làm cho lời gọi đó **không làm gì** ở đây:
 
 Không có context để capture thì `ConfigureAwait(false)` là no-op.
 
-### 1.2 Vì sao không đi đường "bật CA2007"
+### 1.2 Vì sao không đi luồng "bật CA2007"
 
 Repo đã có sẵn cơ chế: `.editorconfig` nâng `CA1062`, `CA1305`, `CA2000` lên `warning`, và
 `TreatWarningsAsErrors` biến chúng thành lỗi. Thêm `CA2007` vào đó là bước hiển nhiên. Đã thử:
@@ -136,7 +136,7 @@ thư mục **mỗi lần chạy**, kể cả khi thành công — khác B9, vố
 Tìm thấy vì phép quét pin của tôi khớp trúng hash nằm trong chính đống rác đó.
 
 Đã bọc `try/finally`. Kiểm: script này đang **fail sẵn ở `HEAD`** (nó `sweepable: false` vì verdict
-phụ thuộc `ApiBehaviorMatrixTests` vừa chạy trên source hiện tại) — và trên đúng đường fail đó, số
+phụ thuộc `ApiBehaviorMatrixTests` vừa chạy trên source hiện tại) — và trên đúng luồng fail đó, số
 thư mục **không tăng**. Tức `finally` chạy. 11 thư mục cũ đã xoá.
 
 Hai script còn lại không dọn (`observability-staging-evidence`, `tts-fixed-render-selftest`) dùng

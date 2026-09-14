@@ -1,4 +1,4 @@
-# W-0256 — Ba đường fail-closed không cho ai biết chúng đang chạy
+# W-0256 — Ba luồng fail-closed không cho ai biết chúng đang chạy
 
 Ngày: 2026-09-09 · Baseline: `main@24e82f6` · Trạng thái: **TESTS_PASS**.
 
@@ -52,7 +52,7 @@ streak, trần 30 giây, có jitter.
 | Trần 30 giây | Backoff vô hạn thì hàng giờ sau khi dependency hồi, loop vẫn đang "retry". Đó là một kiểu hỏng khác |
 | Không có ngưỡng dừng hẳn | Loop dừng thì cần người phát hiện và khởi động lại — tệ hơn hẳn một loop chạy chậm |
 | Jitter giữ lại **một nửa** | Full jitter có thể trả về gần 0, đúng thứ backoff sinh ra để tránh. Giữ sàn nghĩa là delay luôn ≥ một nửa giá trị tính được |
-| `Task<bool>`, không ném khi cancel | Caller `break` theo giá trị trả về, giống hệt `PeriodicTimer.WaitForNextTickAsync`. Ném từ trong `catch` trên đường shutdown không phải lỗi và không được log như lỗi |
+| `Task<bool>`, không ném khi cancel | Caller `break` theo giá trị trả về, giống hệt `PeriodicTimer.WaitForNextTickAsync`. Ném từ trong `catch` trên luồng shutdown không phải lỗi và không được log như lỗi |
 
 Đặt ở `Ivr.Infrastructure` chứ không phải `Ivr.Worker` vì `ArchitectureDependencyTests.cs:14-18`
 cho phép Worker phụ thuộc Infrastructure, và `Ivr.UnitTests` chỉ tham chiếu `Ivr.Domain` +

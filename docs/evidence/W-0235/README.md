@@ -6,7 +6,7 @@ Owner chốt `3b` theo đề xuất ở `m8-16 §7.2`. Đây là phần thi hàn
 
 ## 1. `4` không chặn — nó là dữ liệu, không phải hình dạng
 
-`3b` quyết **đường tra cứu**; `4` chỉ đổ **danh sách** vào đó. Nên cơ chế dựng được ngay, còn bank C
+`3b` quyết **luồng tra cứu**; `4` chỉ đổ **danh sách** vào đó. Nên cơ chế dựng được ngay, còn bank C
 và E đến sau mà không phải sửa lại gì.
 
 `RecordedSpeechCatalog` nhận hai từ điển và trả clip; `RecordedSpeechCatalog.Empty` là trạng thái
@@ -39,7 +39,7 @@ nhận **số lượng** — bỏ đơn vị là bỏ mất chính thứ đang �
 một câu và vẫn quay số; trả `false` buộc caller phải quyết định — và quyết định đúng là
 `REVALIDATE_AND_HOLD_ADMIN_REVIEW`, không phải quay số.
 
-**Chưa nối vào đường render thật, có chủ đích.** Bank C và D còn rỗng, nên bật lúc này là **mọi** món
+**Chưa nối vào luồng render thật, có chủ đích.** Bank C và D còn rỗng, nên bật lúc này là **mọi** món
 đều gộp và **mọi** cuộc gọi thành *"N sản phẩm"* — hoặc bị chặn đáy chặn hết. Nối vào là việc của
 lượt sau `4`, khi có dữ liệu thật để nạp.
 
@@ -81,7 +81,7 @@ Sáu test `UT-VOICE-3B-01..06`, mỗi luật một cái, cộng một cái ghim 
 > gộp** để ép ra từ `nghìn` — nhưng `folded` đếm **số món**, mà `items[]` bị chặn `100` nên không
 > đơn hàng thật nào gộp nổi một nghìn món. Chuyển `1000` sang **số lượng** của món có clip thì đúng.
 
-Không sửa renderer, không nối vào đường render thật, không mở gate nào.
+Không sửa renderer, không nối vào luồng render thật, không mở gate nào.
 `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
 ## 7. Còn lại

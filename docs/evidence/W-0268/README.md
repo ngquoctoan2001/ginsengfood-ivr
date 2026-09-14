@@ -55,16 +55,16 @@ là `W0181` — `w0178` là của `d06`. Đổi thành `w0181-`, trên đúng d�
 
 ## 2. B10 — điểm mạnh nhất lại không nằm trong báo cáo
 
-Báo cáo nói `IdempotencyKeyEntity.ExpiresAt` không có writer, và nêu **một** đường ghi. Có **bốn**:
+Báo cáo nói `IdempotencyKeyEntity.ExpiresAt` không có writer, và nêu **một** luồng ghi. Có **bốn**:
 
-| Đường ghi | Set `ExpiresAt`? |
+| Luồng ghi | Set `ExpiresAt`? |
 | --- | --- |
 | `TaskIntakeStores.CreateIdempotency:330` | không |
 | `PostgresIdempotencyStore.cs:71` | không |
 | `PostgresFeatureFlagCommandIdempotency.cs:63` | không |
 | `InternalAdminApiService.cs:975` | không |
 
-Bốn đường độc lập cùng bỏ trống nó thuyết phục hơn hẳn một call site đãng trí.
+Bốn luồng độc lập cùng bỏ trống nó thuyết phục hơn hẳn một call site đãng trí.
 
 **Không reader nào.** Query duy nhất có `Where` trên bảng này (`TaskIntakeStores.cs:276`) lọc theo
 `Scope`/`Key` và sắp theo `CreatedAt`; mọi chỗ còn lại là `FindAsync` theo khoá chính, `CountAsync`,

@@ -47,7 +47,7 @@ specAverageCallSeconds  = the same measurement -- the spec's own occupancy figur
 specConservativeSeconds = occupancy + measured cooldown
 ```
 
-### 3.2. Đường calibrated nay từ chối bỏ quên số thứ tư
+### 3.2. Luồng calibrated nay từ chối bỏ quên số thứ tư
 
 `assertCalibratedDurationSemantics` thêm một assertion: khi `calibrated`, `specAverageCallSeconds`
 phải bằng `modelCallSeconds`. Kèm một mutation `TEST_ONLY` chứng minh nó **bị từ chối** khi ba số

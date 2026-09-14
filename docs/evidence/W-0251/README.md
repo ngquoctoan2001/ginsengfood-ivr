@@ -37,7 +37,7 @@ Pin sống sinh ra từ chính bản ghi ấy, sửa đúng **một** dòng: `m8
 tệp kia đang bị dùng sai vai.
 
 Tệp pin mang **header tự giải thích** nói nó là gì và tại sao không phải bản ghi evidence, nên bốn
-parser được sửa để bỏ qua dòng `#`. Người mở tệp lần sau không phải suy ra vai của nó từ đường dẫn.
+parser được sửa để bỏ qua dòng `#`. Người mở tệp lần sau không phải suy ra vai của nó từ vị trí file.
 
 `git diff` xác nhận `artifact-sha256.txt` của **cả W-0152 và W-0170** không đổi một byte. Thứ đổi
 trong pack là `decision-closure-input.template.json` — input template dẫn xuất, không phải chứng
@@ -65,7 +65,7 @@ selftest phụ thuộc.
 
 Không phải vì ai bỏ qua. **Không gì chạy chúng.**
 
-Đếm bằng cách bắc cầu mọi đường gọi — job trong `deploy/ci/*.yml`, npm script trong hai
+Đếm bằng cách bắc cầu mọi luồng gọi — job trong `deploy/ci/*.yml`, npm script trong hai
 `package.json`, và `import` giữa các script:
 
 > **17 script** trong `deploy/ci/scripts/` không tới được từ **bất kỳ** job CI, npm script hay script
@@ -101,7 +101,7 @@ phụ thuộc lần chạy test ngay trước (`verify-api-behavior-matrix`).
 ## 5b. Sweep tự chứng minh nó đỏ được
 
 Một gate không đỏ được thì không phải bằng chứng — `W-0126` viết ra luật đó, `W-0250` vừa thấy chính
-`contract-freeze-selftest` vi phạm nó. Nên sweep này phải chứng minh **ba** đường đỏ, không phải khai
+`contract-freeze-selftest` vi phạm nó. Nên sweep này phải chứng minh **ba** luồng đỏ, không phải khai
 là có:
 
 | Đột biến | Kết quả |
@@ -110,7 +110,7 @@ là có:
 | Đổi tên một entry thành file không tồn tại | `exit=1`, chỉ đúng `cd-selftest.mjs` bị mất khai báo |
 | Đặt `expect` thành token gate không bao giờ in | `FAIL … exit 0 but never printed …` |
 
-Đường thứ ba là đường quan trọng nhất, vì nó chính là bài học `W-0221`: **exit 0 chưa phải phán
+Luồng thứ ba là luồng quan trọng nhất, vì nó chính là bài học `W-0221`: **exit 0 chưa phải phán
 quyết**. Cả ba đều khôi phục sạch, `exit=0` sau đó.
 
 `--only <gate>` thêm vào để chạy lẻ một gate lúc gỡ lỗi — nhưng nó **chỉ thu hẹp phần chạy, không thu
@@ -164,4 +164,4 @@ detect_changes                             low
 chủ ý: câu *"bốn script gate đọc `artifact-sha256.txt` như một danh sách pin sống"* chỉ đúng với cái
 tên cũ, viết lại thành tên mới sẽ thành sai. `W-0252` đổi cả mười hai bản ghi trong `docs/evidence/`
 sang `attested-sha256.txt`, **nội dung không đổi một byte** — trỏ tới tệp nào thì thay `artifact-`
-bằng `attested-` trong đường dẫn.
+bằng `attested-` trong vị trí file.

@@ -70,7 +70,7 @@ luật tầng.
 
 Một sai số nữa trong báo cáo: interface có **15** method.
 
-### 2.2 Đường cắt đã có sẵn trong code
+### 2.2 Ranh giới cắt đã có sẵn trong code
 
 Không phải tôi nghĩ ra cách chia — hai nhóm consumer đã tồn tại và dùng đúng hai tập rời nhau:
 

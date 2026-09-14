@@ -102,4 +102,4 @@ chưa nối. Nối cả hai là một lượt, khi bank có dữ liệu. Không 
 | 3c | gắn vào `Activated → Sellable` | Product Master + Vận hành |
 | — | *"giao đến Hồ Chí Minh"* cho khách Vũng Tàu: chấp nhận hay tách 29 alias | Owner |
 
-Ba đoạn động nay **đều có đường clip**. Không còn câu nào chặn M8 về mặt thiết kế.
+Ba đoạn động nay **đều có luồng clip**. Không còn câu nào chặn M8 về mặt thiết kế.

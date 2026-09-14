@@ -24,7 +24,7 @@ Người ký phía M8: **Tôi — Module 8 / Project Owner**.
 - Không có signal counter/stable CRM key/orchestrator/delivery/ACK/reversal.
 - Proposal `PENDING_CRM` không được `ReviewAsync` xử lý vì endpoint chỉ nhận `OPEN`; không có writer
   cho `ACCEPTED_BY_CRM`.
-- Current retention chỉ anonymize review item đã resolved; queue hiện không có đường terminal nên
+- Current retention chỉ anonymize review item đã resolved; queue hiện không có luồng terminal nên
   chưa an toàn để wire.
 - Cross-repo snapshot business-platform `PhucApu@a3aad246d986` có registry/read/user-consent
   primitives, nhưng chưa có signed service proposal contract cho M3/IVR.

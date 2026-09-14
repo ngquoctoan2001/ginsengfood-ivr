@@ -2,6 +2,8 @@
 
 Ngày: 2026-09-09 · Baseline: `main@dbfda76` · Trạng thái: **TESTS_PASS**.
 
+Ghi chú trình bày W-0293 (14/09): các ví dụ dùng mô tả/fixture ID để không lặp dữ liệu kiểm lỗi trong evidence. [Bản gốc tại commit 6bf954d](https://gitlab.com/nqt20102001/ginsengfood-ivr/-/blob/6bf954d2ba8fd82eb638b5892c11df779c88eb42/docs/evidence/W-0242/README.md) giữ nguyên danh sách và kết quả lịch sử; mã kiểm vẫn ở [PiiGuard](../../../src/Ivr.Domain/Privacy/PiiGuard.cs) và [UT-PII-PRODUCT-01..03](../../../tests/Ivr.UnitTests/CrossCuttingFoundationTests.cs).
+
 Owner hỏi `4d` cần gì. Câu trả lời ngắn: **một danh sách tên, viết đúng chuỗi M3 sẽ gửi.** Không
 cần `sku_id`, nhóm, công thức, BOM — chỉ chuỗi.
 
@@ -11,35 +13,35 @@ Nhưng đi kiểm thì có một thứ phải làm **trước** khi thu: chạy 
 
 `SpeechItem.Create` gọi `PiiGuard.EnsureSafeText`, và nhánh địa chỉ của nó là:
 
-```regex
-(?<![\p{L}\p{N}])(?:đường|số nhà|ngõ|hẻm|ngách|thôn|ấp|tổ)\s+
+```text
+Nhánh địa chỉ: 8 marker, ranh giới token, rồi ít nhất một khoảng trắng (xem bản gốc được ghim ở đầu tài liệu).
 ```
 
-`đường`, `tổ`, `ấp`, `thôn` **vừa là dấu hiệu địa chỉ vừa là từ vựng thực phẩm**. Chạy thật qua
+Bốn marker nhập nhằng **vừa là dấu hiệu địa chỉ vừa là từ vựng thực phẩm**. Chạy thật qua
 `SpeechItem.Create`:
 
 ```text
-BỊ CHẶN   Tổ yến                     BỊ CHẶN   Đường phèn
-BỊ CHẶN   Tổ yến chưng               BỊ CHẶN   Đường thốt nốt
-BỊ CHẶN   Yến chưng đường phèn       BỊ CHẶN   Đường nâu
-BỊ CHẶN   Chè đường phèn             BỊ CHẶN   Mật ong đường mía
-BỊ CHẶN   Sâm đường phèn             BỊ CHẶN   Ấp trứng · Thôn quê
+BỊ CHẶN   Các tên thực phẩm chứa marker nhập nhằng ở đầu hoặc giữa chuỗi.
+           Bao gồm các biến thể món yến và nguyên liệu tạo ngọt.
+           Danh sách nguyên văn ở bản gốc được ghim phía trên.
+           Đây là tên sản phẩm hợp lệ, không phải địa chỉ cá nhân.
+           Nhánh regex áp dụng bất kể ý nghĩa thực phẩm của chuỗi.
 
-   ok     Yến sào cao cấp     ok   Kẹo đường     ok   Nước đường
+   ok     Yến sào cao cấp; các mẫu có marker ở cuối chuỗi.
    ok     Nước hồng sâm 500ml ok   Sâm Ngọc Linh ok   Đông trùng hạ thảo
 ```
 
-Luật thật: từ đó **theo sau là chữ khác** thì chặn; đứng cuối chuỗi thì không. Nên `Kẹo đường` qua
-mà `Đường phèn` không.
+Luật thật: từ đó **theo sau là chữ khác** thì chặn; đứng cuối chuỗi thì không. Mẫu marker ở cuối qua,
+còn mẫu marker ở đầu có phần bổ nghĩa theo sau thì không.
 
 `InvalidOperationException` được `TaskIntakeEndpoint:77` bắt ⇒ task bị từ chối sạch ở cửa. Nghĩa là
-**một sản phẩm tổ yến hoặc đường phèn không gọi xác nhận được**, và điều đó đúng từ hôm nay, không
+**một sản phẩm chứa các marker nhập nhằng không gọi xác nhận được**, và điều đó đúng từ hôm nay, không
 liên quan gì tới ghi âm.
 
 ## 2. Đây là va chạm đã từng gặp, ở một field khác
 
-`W-0105` đã gặp đúng lớp này với **tên người**: nhánh ASCII khớp `Duong`, `Ngo`, `Ap`, `Thon`,
-`Hem`, mà `Dương` và `Ngô` là họ Việt Nam thông thường — comment trong `PiiGuard` viết
+`W-0105` đã gặp đúng lớp này với **tên người**: nhánh ASCII khớp một số họ và từ phiên âm,
+mà `Dương` và `Ngô` là họ Việt Nam thông thường — comment trong `PiiGuard` viết
 *"Nobody can be asked to change their family name."*
 
 Cách giải khi đó: thêm `EnsureSafeContactText` — chỉ nhánh phone và dial-token, **bỏ nhánh địa chỉ**
@@ -48,18 +50,18 @@ Cách giải khi đó: thêm `EnsureSafeContactText` — chỉ nhánh phone và 
 > *"Customer-facing surfaces keep `IsSafeText`."*
 
 `public_name` **là** customer-facing: nó được đọc cho khách nghe. Nên theo luật đang có, nó giữ
-`IsSafeText`, và `Tổ yến` vẫn bị chặn. Đó là một vị trí **nhất quán**, không phải một lỗ hổng bị bỏ
+`IsSafeText`, và mẫu món yến vẫn bị chặn. Đó là một vị trí **nhất quán**, không phải một lỗ hổng bị bỏ
 quên — nhưng hệ quả của nó thì chưa ai nêu.
 
 ## 3. Nên `4d` quyết định luôn việc này
 
-Nếu **không** SKU nào trong danh sách chứa `đường `/`tổ `/`ấp `/`thôn ` thì **không phải làm gì cả**.
+Nếu **không** SKU nào trong danh sách chứa bốn marker nhập nhằng thì **không phải làm gì cả**.
 Nếu có, thì phải chọn:
 
 | | Cách | Giá |
 | --- | --- | --- |
 | 1 | **Chấp nhận** — sản phẩm đó không đi qua IVR | không sửa gì; mất một dòng sản phẩm khỏi kênh gọi |
-| 2 | Field-scoped guard cho `public_name` — bỏ đúng 4 từ nhập nhằng, **giữ** `số nhà`/`ngõ`/`hẻm`/`ngách` | sửa guard, cần quyết định privacy tường minh |
+| 2 | Field-scoped guard cho `public_name` — bỏ đúng 4 từ nhập nhằng, **giữ** 4 marker chỉ có nghĩa địa chỉ | sửa guard, cần quyết định privacy tường minh |
 | 3 | Thu hẹp theo ngữ cảnh — dấu hiệu địa chỉ chỉ tính khi theo sau là số hoặc tên riêng | đúng nhất, đắt nhất, dễ sai nhất |
 
 **Tôi không tự chọn.** Nới một PII guard là đúng hình dạng `2a4f45d` — thứ phải được quyết tường
@@ -71,7 +73,7 @@ Rẻ, và nó nói ngay có phải quyết gì không.
 ## 4. Kiểm chứng
 
 ```text
-19 tên thật qua SpeechItem.Create     18 nhận · 1 chặn ("Tổ yến chưng đường phèn")
+19 tên thật qua SpeechItem.Create     18 nhận · 1 chặn (mẫu món yến có nguyên liệu tạo ngọt)
 15 chuỗi tách riêng                   10 chặn · 5 nhận — xác định đúng 4 từ nhập nhằng
 TaskIntakeEndpoint:77                 bắt InvalidOperationException ⇒ từ chối ở cửa
 PiiGuard:62-82                        EnsureSafeContactText đã tồn tại, giới hạn cho field tên người
@@ -102,7 +104,7 @@ Hệ quả phải ghi, không phải để than mà để khỏi chờ nhầm:
 Nhưng **một thứ không đổi**: `legal_gate` đòi `decision_authority = LEGAL_PRIVACY`. Không phải vì
 công ty phải to, mà vì câu hỏi là *"hai repo model không có file LICENSE thì dùng thương mại được
 không"* — và **không ai tự trả lời câu đó cho chính mình được**, dù công ty một người hay nghìn
-người. Hai đường đi thật:
+người. Hai luồng đi thật:
 
 1. **Ý kiến pháp lý bên ngoài** — mua một lần, ghi `approval_reference`.
 2. **Owner chấp nhận rủi ro tường minh** — nhưng khi đó phải ghi đúng là **chấp nhận rủi ro**, không
@@ -114,11 +116,11 @@ Gate hiện tại **không có ô cho lựa chọn 2**. Đó là một thiếu s
 
 ## 6. Và tôi lại làm hỏng `gate-status.mjs`, lần thứ ba
 
-Dán regex trên vào ô tracker thì parser đọc `ngõ` thành Status:
+Dán regex trên vào ô tracker thì parser đọc một nhánh regex thành Status:
 
 ```text
 AssertionError: the tracker parser read something that is not a status
-+ [ 'W-0242=ngõ' ]
++ [ W-0242=<nhánh regex, không phải status> ]  (diễn giải; nguyên văn ở bản gốc)
 ```
 
 Lần này nó lộ ra **vì sao ba lần**: guard tôi tự đặt suốt phiên kiểm chuỗi pipe **có khoảng trắng
@@ -136,6 +138,6 @@ Luật đúng, thay cho guard cũ: **đếm pipe trên hàng phải bằng số 
 | # | Việc | Ai |
 | ---: | --- | --- |
 | **4d** | danh sách tên, **đúng chuỗi M3 sẽ gửi** → tôi chạy qua intake trước khi thu | Owner |
-| — | nếu có tên chứa `đường `/`tổ `/`ấp `/`thôn `: chọn 1/2/3 ở §3 | Owner |
+| — | nếu có tên chứa bốn marker nhập nhằng: chọn 1/2/3 ở §3 | Owner |
 | — | `legal_gate`: mua ý kiến ngoài, hay thêm trạng thái `RISK_ACCEPTED` | Owner |
 | 4c | Sales còn phát dạng chỉ-có-quận không | Owner + dev M3 |

@@ -74,7 +74,7 @@ drift`, và image build từ checkout Linux làm shim raise `dependency lock bin
 `/health/ready` giữ `503` vĩnh viễn. Toàn bộ path được hash nay đã ghim `text eol=lf` trong
 `.gitattributes`; pin tính lại từ đúng byte đã commit, kéo theo `model_lock_sha256` →
 `voices.json` → `expectedArtifactSetSha256`/`expectedVoiceConfigSha256`/
-`expectedAcceptanceTemplateSha256`. Nội dung artifact không đổi, chỉ đường ghi line ending.
+`expectedAcceptanceTemplateSha256`. Nội dung artifact không đổi, chỉ cách ghi line ending.
 Đã chứng minh checkout sạch trên Windows và byte trên Linux cho cùng một hash ở cả 9 file
 được hash.
 
@@ -140,7 +140,7 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 
 1. **Converter ghi CRLF.** `Convert-LabSegmentAudio.ps1` dùng `Set-Content`, nối dòng bằng CRLF trên Windows. Entrypoint chạy `sha256sum --check --strict` trong container Linux, ở đó `
 ` cuối dòng thành một phần tên file ⇒ **cả 18 dòng fail**. Cùng họ với F1: `.gitattributes` giữ bản commit ở LF nên `git status` vẫn sạch, nhưng `docker build` đọc working tree. Sửa ba lớp: ghi LF tường minh; converter tự đọc lại byte vừa ghi và throw nếu có CR (git normalise lúc commit nên CI không bao giờ thấy bản CRLF — chỗ duy nhất bắt được là trên máy đã ghi); thêm assertion vào `lab-converter-selftest.mjs`.
-2. **Không build lại được image lab.** `asterisk-22.10.1.tar.gz` đã bị dời sang `old-releases/`; URL ghim trả `404`, `old-releases/` trả `200`. Image chỉ còn tồn tại nhờ bản build cũ trên máy này. Đã thêm fallback hai đường, giữ nguyên `ASTERISK_SHA256` nên provenance không đổi. Đây đúng kịch bản mà gate internal mirror của W-0122 đang lo, nhưng xảy ra ở một dependency chưa ai để ý.
+2. **Không build lại được image lab.** `asterisk-22.10.1.tar.gz` đã bị dời sang `old-releases/`; URL ghim trả `404`, `old-releases/` trả `200`. Image chỉ còn tồn tại nhờ bản build cũ trên máy này. Đã thêm fallback hai URL, giữ nguyên `ASTERISK_SHA256` nên provenance không đổi. Đây đúng kịch bản mà gate internal mirror của W-0122 đang lo, nhưng xảy ra ở một dependency chưa ai để ý.
 
 ## Gate còn cần con người/hạ tầng
 

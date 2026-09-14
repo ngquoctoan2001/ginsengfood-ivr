@@ -53,7 +53,7 @@ lời có thu trước được không. Hệ quả **không giống nhau**:
 
 | Phiếu | Nếu bỏ TTS lúc chạy |
 | --- | --- |
-| Legal | `L1`–`L4` phụ thuộc; **`L3` vẫn cần** — 12 đoạn cố định hiện có là audio do VieNeu render; `L5`–`L7` cần dù đường nào |
+| Legal | `L1`–`L4` phụ thuộc; **`L3` vẫn cần** — 12 đoạn cố định hiện có là audio do VieNeu render; `L5`–`L7` cần dù luồng nào |
 | **Security** | 16 finding **đều** thuộc base image Debian 13.6 của `ivr-tts`. Image không lên production ⇒ **không còn là câu hỏi release**, không cần `SEC-A` lẫn `SEC-B` |
 | Platform | `INF-A` (mirror 201 MiB) không còn cần; `INF-B` và `INF-C` vẫn cần |
 

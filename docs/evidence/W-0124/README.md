@@ -171,7 +171,7 @@ Không symbol nào `HIGH`/`CRITICAL`, nên không có điểm dừng bắt buộ
 `200` symbol / `85` file / **`12` affected process**, so với `LOW` và `0` process của `W-0123`.
 
 Toàn bộ mức tăng đến từ **một** symbol: `IntakeAsync`, xuất hiện ở **step 2** của 12 flow
-`HandleAsync → …`. Đó là đường intake chính, nên bất kỳ chỉnh sửa nào ở đó cũng kéo risk lên —
+`HandleAsync → …`. Đó là luồng intake chính, nên bất kỳ chỉnh sửa nào ở đó cũng kéo risk lên —
 graph đúng khi cảnh báo.
 
 Vì sao vẫn chấp nhận được, và điều gì có thể sai:
@@ -181,9 +181,9 @@ Vì sao vẫn chấp nhận được, và điều gì có thể sai:
 | Có đổi được `outcome` không? | Không. Đoạn thêm nằm **sau** `store.ExecuteAsync(...)` đã trả về và sau hai lệnh telemetry sẵn có; nó chỉ đọc `command.Source` và không ghi gì |
 | Rủi ro thật nằm ở đâu? | Một exception ném ra **sau** khi intake đã commit sẽ biến một lượt intake thành công thành `500` |
 | Chặn thế nào? | `SerializeToElement` được bọc `JsonException` + `NotSupportedException` (đúng bề mặt ném có tài liệu); `source.Risk_flags is { Count: > 0 }` là pattern null-safe; `ReadLegacyTrustMetadata` chỉ đọc property |
-| Bằng chứng chạy thật | `274/274` integration test — trong đó có toàn bộ `IT-INTAKE-*` đi qua đúng đường HTTP intake này — đều xanh |
+| Bằng chứng chạy thật | `274/274` integration test — trong đó có toàn bộ `IT-INTAKE-*` đi qua đúng luồng HTTP intake này — đều xanh |
 
-Đây là đánh đổi có chủ ý: counter phải nằm trên đường intake mới đếm được thứ nó tồn tại để đếm.
+Đây là đánh đổi có chủ ý: counter phải nằm trên luồng intake mới đếm được thứ nó tồn tại để đếm.
 Chỗ duy nhất an toàn hơn là eligibility path, và đó lại đúng chỗ `OD-18` cấm đọc trust metadata.
 
 ## 8. Regression

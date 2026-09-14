@@ -71,13 +71,13 @@ Không chạy test .NET: lượt này không chạm mã nguồn nào.
 
 ## 6. Còn lại sau lượt này
 
-Bốn nấc vẫn `❌`. Đường đi tiếp, theo đúng thứ tự phụ thuộc:
+Bốn nấc vẫn `❌`. Luồng đi tiếp, theo đúng thứ tự phụ thuộc:
 
 - **57 planned prompt ở `TESTS_PASS`** cần nộp evidence rồi mới ký được — bước quy trình, cần owner
   quyết có nộp theo lô không.
 - **15 planned prompt `BLOCKED_EXTERNAL`** không ký được bằng chữ ký nội bộ.
 - **Nấc 2** chỉ cần **một SIM thật** chạy xong lab protocol — **không phụ thuộc Module 3**. Đây là
-  đường dài nhất vì phụ thuộc Viettel (số cố định + brandname).
+  luồng dài nhất vì phụ thuộc Viettel (số cố định + brandname).
 
 Quyết định owner cùng ngày, thực thi ở work item riêng:
 

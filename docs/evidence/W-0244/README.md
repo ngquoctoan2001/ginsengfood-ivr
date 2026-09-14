@@ -48,7 +48,7 @@ bank E: 34 clip · Id phân biệt 34/34
 
 `AreaClipBank()` sinh từ chính bảng tỉnh đã biên dịch, không phải danh sách chép tay — cùng lý do
 kịch bản `0..99` được sinh chứ không gõ. `UT-VOICE-3B-09` khẳng định **mọi clip trong bank tra ngược
-được từ chính lời của nó**, nên kịch bản thu và đường tra lúc chạy không thể mô tả hai tập khác nhau.
+được từ chính lời của nó**, nên kịch bản thu và luồng tra lúc chạy không thể mô tả hai tập khác nhau.
 
 ⇒ **Kịch bản thu bank E có thể đưa vào phòng thu ngay hôm nay**, không chờ `4d`.
 
@@ -76,7 +76,7 @@ Chưa nối vào renderer — cùng lượt với composer món, khi có dữ li
 
 ## 6. Còn lại
 
-Ba đoạn động nay **đều có đường clip và đều có cách báo thất bại tường minh**. Không còn lỗ thiết kế
+Ba đoạn động nay **đều có luồng clip và đều có cách báo thất bại tường minh**. Không còn lỗ thiết kế
 nào tôi biết mà chưa đóng.
 
 | # | Việc | Ai |

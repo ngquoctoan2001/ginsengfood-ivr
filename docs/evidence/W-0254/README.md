@@ -46,7 +46,7 @@ Trong 5 mục "còn mở" của register, chỉ **hai** là việc thật:
 | `OD-V1-21` GitLab provisioning | owner **đã ký**; treo vì chờ *independent approver* |
 | `OD-V1-23` opt-out boundary | owner **đã ký**; treo vì chờ *Product + CRM + Legal/Privacy* |
 
-Ba dòng cuối treo trên **cùng một thứ**. Đã ghi thành `§9a` trong `IR-06` kèm hai đường đi, để owner
+Ba dòng cuối treo trên **cùng một thứ**. Đã ghi thành `§9a` trong `IR-06` kèm hai luồng đi, để owner
 chọn: **(1)** tuyên bố quorum là chính mình cho cả ba, hoặc **(2)** mua ý kiến pháp lý ngoài cho
 riêng `OD-V1-11` — mục duy nhất mà chữ ký ngoài có giá trị thật.
 
@@ -97,7 +97,7 @@ contract-freeze-verifier.mjs           CONTRACT_FREEZE=PASS
 gate-sweep.mjs                         GATE_SWEEP_PASS 39/39 (exit=0)
   bắt đúng 4 pin IR-06 phải xoay       d06 · dial-token · opt-out · upstream, mỗi cái nêu đúng tên tệp
 dotnet test Ivr.sln                    952/952 PASS, 0 failed, 0 skipped
-IR-06 đường dẫn                        15/15 tồn tại, 0 thiếu
+IR-06 vị trí file                        15/15 tồn tại, 0 thiếu
 IR-06 §4A endpoint                     31 dòng, **cả 31 đều có** trong spec; 6 operation không liệt kê đều mang tag `internal`
 seed fixtures                          9 task hợp lệ · 13 schema_negative · 13 domain_negative
 ```
@@ -111,7 +111,7 @@ sẵn, hai breaking change đã ghi rõ ở `§0`.
 
 | # | Việc | Ai |
 | ---: | --- | --- |
-| — | Chọn đường cho `§9a`: tự làm quorum, hay mua ý kiến pháp lý cho `OD-V1-11` | **owner** |
+| — | Chọn luồng cho `§9a`: tự làm quorum, hay mua ý kiến pháp lý cho `OD-V1-11` | **owner** |
 | — | Dựng issuer/JWKS thật + cấp sandbox credential cho dev M3 | owner IVR |
 | — | `§9` mục 9: ai giữ ba token quản trị, vai M3 nào ánh xạ tầng nào, định dạng `X-Actor-Id` | owner + dev M3 |
 | — | endpoint revoke + OAS + IR-06 — `2.5`, lượt phát hành contract sau | tôi |

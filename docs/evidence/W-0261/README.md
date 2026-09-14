@@ -120,7 +120,7 @@ không có mutation song song, và cũng chạy đúng ở 31 job (trần là 65
 chất, không phải test bắt bug — ghi ra đây thay vì để chúng trông như bằng chứng mạnh hơn thực tế.
 
 Trần tham số không kiểm được bằng hành vi: cần gieo hàng chục nghìn dòng. Cái kiểm được là **hình
-dạng mã** — một `ToArrayAsync` quay lại chính là chỉnh sửa đưa danh sách id trở lên đường truyền, và
+dạng mã** — một `ToArrayAsync` quay lại chính là chỉnh sửa đưa danh sách id trở lên kênh truyền, và
 `COMP-DSAR-07` đọc đúng thân `FindAsync` để bắt điều đó.
 
 `ARCH-CONST-01` đã được làm cho đỏ thật: đưa lại một literal vào `AsteriskAriOptions.cs` cho ra

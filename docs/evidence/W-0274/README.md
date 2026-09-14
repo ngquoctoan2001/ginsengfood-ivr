@@ -40,7 +40,7 @@ Nên spec giờ nói **luật**, không nói danh sách.
 `admin-ui` đã bị xoá ở `W-0253`; **Module 3 dựng console**. Nghĩa là `specs/ui/*` không phải tài
 liệu nội bộ — nó là **thứ Module 3 đọc để build**.
 
-Ba chỗ vừa sửa đều nằm trên đường đó: bộ lọc dashboard, màn hình đổi adapter, và bảng phân quyền.
+Ba chỗ vừa sửa đều nằm trên luồng đó: bộ lọc dashboard, màn hình đổi adapter, và bảng phân quyền.
 Để nguyên thì Module 3 dựng một **toggle hai trạng thái MOCK/REAL** cho một cột có **ba** giá trị, và
 dựng một ô khoá theo tên `REAL` cho một luật thật ra là "khác MOCK".
 

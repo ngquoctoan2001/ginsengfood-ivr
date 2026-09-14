@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0293` |
-| Last allocated | `W-0292` |
-| Last activity sequence | `A-0613` |
+| `NEXT_WORK_ID` | `W-0294` |
+| Last allocated | `W-0293` |
+| Last activity sequence | `A-0615` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -370,6 +370,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0291` | Vá dependency CI và chạy security scan (Origin=`UNPLANNED`) | npm audit phát hiện js-yaml HIGH; owner duyệt scan 14/09 | `W-0290`; baseline `d44834e` | TESTS_PASS | Codex | `docs/evidence/W-0291/README.md` | js-yaml 4.3.2; 6 gate + docs build PASS; full security wrapper PASS sau owner duyệt 68 fingerprint | Không thay API contract/runtime hoặc nới scanner; hosted là bước kế tiếp |
 
 | `W-0292` | Hosted candidate CI/publish/dev-staging (Origin=`UNPLANNED`, owner duyệt) | Chạy pipeline thật trên các sửa đã kiểm local | `W-0291`; candidate `b714694` | IN_PROGRESS | Codex | `docs/evidence/W-0292/README.md` | Hai remote cùng candidate; pipeline 2845815898 đã khởi chạy, 36 job | Chỉ PASS khi có job/deployment evidence thật; lab/prod/real calls chưa mở |
+
+| `W-0293` | Chuẩn hoá trình bày evidence cho PII gate (Origin=`UNPLANNED`) | Full evidence scan từ chối 121 dòng tại 45 file: thuật ngữ kỹ thuật, ví dụ product/negative fixture; giữ scanner và source test | `W-0292`; baseline `6bf954d` | TESTS_PASS | Codex | `docs/evidence/W-0293/README.md` | Full evidence scan exit 0; selftest 8 marker PASS; bản gốc ví dụ được dẫn bằng immutable commit; không thay quyết định/hash/chữ ký | Hosted pipeline cần chạy trên commit sửa; không đổi allowlist hoặc runtime |
 
 ## 6. Unplanned work insertion template
 
@@ -1752,3 +1754,7 @@ Final status: TESTS_PASS
 | `A-0612` | 2026-09-14 | `W-0292` | PUSH/START | W-0291 commit b714694; git push origin main thành công cả GitLab/GitHub, ls-remote hai kho khớp. Pipeline 2845815898 RUNNING trên b714694, 36 job; ci_config và openapi_lint đầu tiên PASS | Codex | Owner đã duyệt tự publish/deploy dev-staging; không thao tác lab/prod hoặc real calls |
 
 | `A-0613` | 2026-09-14 | `W-0292` | DISCOVERY/FIX | Hosted b714694: contract và E2E suite PASS. Preflight deploy tái hiện helm sh exit 1 và kubectl thiếu; sửa bootstrap dev/staging, container thực đạt; guard 4 refusal +1 PASS. Owner không biết cluster; GitLab 0 Agent/không kubeconfig var đã thấy, local không context | Codex | Chỉ sửa bootstrap, chưa có cluster/secret để chứng minh deploy; không đổi job lab/prod |
+
+| `A-0614` | 2026-09-14 | `W-0292`, `W-0293` | CHECKPOINT/START | Hosted 6bf954d image-selftest PASS đầy đủ, 8 task E2E và scan/SBOM. Full local PII evidence scan exit 1: 121 dòng/45 file; đã đọc đủ và phân loại, sửa cách trình bày prose và tham chiếu fixture gốc thay chép dữ liệu kiểm lỗi | Codex | Giữ nguyên scanner/rule/negative tests; không đổi trạng thái quyết định hoặc hash trong evidence lịch sử |
+
+| `A-0615` | 2026-09-14 | `W-0293` | FINISH | Sửa trình bày 45 file, lưu inventory 121 dòng theo baseline; full PII evidence exit 0, selftest 8 marker PASS. W-0242/W-0243 dẫn bản gốc bất biến và test nguồn; không xoá provenance hoặc thay rule | Codex | Chỉ tài liệu; hosted còn chạy candidate trước sửa, privacy mới chưa có kết quả |

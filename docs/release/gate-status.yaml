@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "44 of 280 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "44 of 281 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 21
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 226
+  rows_without_evidence_pack: 227
 
 gates:
   - id: "G-CONTRACT"
@@ -1228,6 +1228,10 @@ work:
     prompt: "Hosted candidate CI/publish/dev-staging (Origin=UNPLANNED, owner duyệt)"
     status: "IN_PROGRESS"
     evidence: "docs/evidence/W-0292/README.md"
+  - id: "W-0293"
+    prompt: "Chuẩn hoá trình bày evidence cho PII gate (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0293/README.md"
 
 production_flag:
   real_customer_call_allowed: false

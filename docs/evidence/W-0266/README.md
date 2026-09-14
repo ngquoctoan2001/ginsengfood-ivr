@@ -3,7 +3,7 @@
 Ngày: 2026-09-10 · Baseline: `main@f730809` · Trạng thái: **TESTS_PASS**.
 
 `W-0254` phát hiện ba mục trong sổ quyết định treo **không** vì thiếu nội dung, mà vì chờ một quorum
-gồm những vai không tồn tại trong tổ chức này. `IR-06 §9a` nêu hai đường; owner chọn đường thứ nhất:
+gồm những vai không tồn tại trong nhóm này. `IR-06 §9a` nêu hai luồng; owner chọn luồng thứ nhất:
 **tự làm quorum cho cả ba**, và **không** mua ý kiến pháp lý ngoài cho V1.
 
 Sổ quyết định: **5 mục mở → 2**.

@@ -2,12 +2,12 @@
 
 Ngày: 2026-09-08 · Baseline: `main@14484e6` · Trạng thái: **TESTS_PASS**.
 
-`W-0232` chốt hình dạng. Lượt này dựng phần **không phụ thuộc** `3b`/`4`: đường số.
+`W-0232` chốt hình dạng. Lượt này dựng phần **không phụ thuộc** `3b`/`4`: luồng số.
 
 ## 1. Vì sao dựng được ngay
 
 `3b` cắm vào hàm tra `tên hàng → clip`; `4` là danh sách đơn vị và vùng giao. **Cả hai không chạm
-phần số** — bank A luôn đủ vì `0..99` phủ mọi số lượng và mọi nhóm ba chữ số. Nên đường số dựng
+phần số** — bank A luôn đủ vì `0..99` phủ mọi số lượng và mọi nhóm ba chữ số. Nên luồng số dựng
 được trước, và nó là phần khó nhất.
 
 `gitnexus impact VietnameseNumberSpeller` → **LOW**, 0 execution flow, 0 module; caller thật: 4 chỗ
@@ -21,7 +21,7 @@ sau     số ──SpellClips──> clip[] ──Join──> văn bản
 ```
 
 `SpellGroup` bị **xoá**, thay bằng `AppendGroupClips`. `Spell` và `SpellQuantity` nay là **một
-dòng** — hình chiếu của clip list. Không còn hai đường sinh ra cùng một chuỗi.
+dòng** — hình chiếu của clip list. Không còn hai luồng sinh ra cùng một chuỗi.
 
 ```csharp
 public static string Spell(decimal amount, VietnameseNumberStyle style) =>
@@ -68,7 +68,7 @@ một clip (`R-2`), và kịch bản `0..99` dùng chung ba miền.
 do **`VietnameseOrderScriptRenderer:169`** ghép, không phải speller — đọc một con số không bao gồm
 đơn vị tiền tệ, và `2,5 ký` chứng minh bằng cách không cần clip nào.
 
-Bank vẫn là `107`. Ranh giới là `106 + 1`, và **ai làm đường clip cho renderer thì sở hữu clip đó**.
+Bank vẫn là `107`. Ranh giới là `106 + 1`, và **ai làm luồng clip cho renderer thì sở hữu clip đó**.
 Đã ghi vào cả test lẫn `m8-16` để hai bên không cùng tưởng bên kia phát ra nó.
 
 > Đây đúng là giá trị của việc viết test trước khi tin vào tài liệu của chính mình.
@@ -96,8 +96,8 @@ Project tạm ngoài repo, `git status` sạch. Không đổi một giá trị v
 
 ## 7. Còn lại
 
-Đường số xong. Chưa dựng: **đường tên hàng / đơn vị / vùng giao** — chờ `3b` và `4`, và chúng cắm
+Luồng số xong. Chưa dựng: **luồng tên hàng / đơn vị / vùng giao** — chờ `3b` và `4`, và chúng cắm
 vào đúng một chỗ như `W-0232 §10` đã chỉ.
 
-Renderer chưa có đường clip: `items_spoken` và `total_amount_display` vẫn ghép **văn bản**. Nối
+Renderer chưa có luồng clip: `items_spoken` và `total_amount_display` vẫn ghép **văn bản**. Nối
 renderer vào `SpellClips` là lượt kế, và nó **cần** `3b` để biết làm gì với món không có clip.

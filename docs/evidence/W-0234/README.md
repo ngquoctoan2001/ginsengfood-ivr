@@ -2,7 +2,7 @@
 
 Ngày: 2026-09-08 · Baseline: `main@f69c731` · Trạng thái: **TESTS_PASS**.
 
-`W-0233` dựng đường số trong speller. Lượt này nối **renderer** vào — phần vẫn không cần `3b`/`4`.
+`W-0233` dựng luồng số trong speller. Lượt này nối **renderer** vào — phần vẫn không cần `3b`/`4`.
 
 ## 1. Vì sao `total_amount_display` dựng được ngay
 
@@ -93,5 +93,5 @@ Hai đoạn động còn lại **thật sự** chờ quyết định:
 - `{{items_spoken}}` — cần `3b` (món không có clip) và `4` (đơn vị)
 - `{{delivery_area_short}}` — cần `4` (danh sách vùng)
 
-Không có phần nào của hai cái đó dựng trước được: `3b` quyết **hình dạng** của đường tra cứu, không
+Không có phần nào của hai cái đó dựng trước được: `3b` quyết **hình dạng** của luồng tra cứu, không
 chỉ giá trị trả về.

@@ -1,9 +1,9 @@
-# W-0250 — `draft.24` phát hành, và ba thứ im lặng lộ ra trên đường
+# W-0250 — `draft.24` phát hành, và ba thứ im lặng lộ ra khi thực hiện
 
 Ngày: 2026-09-09 · Baseline: `main@3a2b866` · Trạng thái: **TESTS_PASS**.
 
 Lượt phát hành contract mà `W-0248`/`W-0249` xếp hàng chờ: ba header và một field, đưa OAS về đúng
-thứ runtime đã ép từ lâu. Việc chính nhỏ. Ba thứ tìm thấy trên đường mới là phần đáng đọc.
+thứ runtime đã ép từ lâu. Việc chính nhỏ. Ba thứ tìm thấy trong quá trình mới là phần đáng đọc.
 
 ## 1. Đổi gì trên contract
 

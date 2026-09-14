@@ -118,7 +118,7 @@ validate-openapi.mjs                   OPENAPI_FILES_VALID=2 · SCHEMA_NEGATIVE_
 docs-selftest.mjs                      API_DOCS_SELFTEST_PASS · 17 trang
 oasdiff draft.24 → draft.25            8 errors / 0 warnings, đều new-required-request-parameter
 8/8 endpoint danger                    khai X-Action-Reason (kiểm bằng script, không đọc mắt)
-IR-06                                  15/15 đường dẫn tồn tại
+IR-06                                  15/15 vị trí file tồn tại
 gate-sweep                             ĐỎ 4 validator — pin của luồng kia, xem §6
 ```
 
@@ -130,5 +130,5 @@ gate-sweep                             ĐỎ 4 validator — pin của luồng k
 | ---: | --- | --- |
 | — | Gửi `IR-07` cho dev M3; nhận lại bản đã điền + chữ ký | **owner** |
 | — | Re-pin `IR-06` trong `opt-out` + `upstream` validator sau khi refactor luồng kia hạ cánh | tôi |
-| — | Chọn đường cho `IR-06 §9a` (quorum ba mục treo) | **owner** |
+| — | Chọn luồng cho `IR-06 §9a` (quorum ba mục treo) | **owner** |
 | — | Mở endpoint thu hồi theo shape M3 chốt ở `M3-14` | tôi |

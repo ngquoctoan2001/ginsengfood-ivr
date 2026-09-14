@@ -10,7 +10,7 @@ Owner chốt hình dạng `task_id` + `order_version` + `reason` và bảo dựn
 `detect_changes` → **`critical`, 24 affected processes**.
 
 **Lần này rủi ro là thật**, khác `W-0243` nơi hành vi chứng minh được là không đổi. Ở đây hành vi
-**có** đổi trên đường dispatch: `LoadAsync` nay ném được, và `TryClaimDueDispatchAsync` nay trả
+**có** đổi trên luồng dispatch: `LoadAsync` nay ném được, và `TryClaimDueDispatchAsync` nay trả
 `null` ở chỗ trước đây trả lease.
 
 Ba điều làm nó chịu được:
@@ -27,7 +27,7 @@ Ba điều làm nó chịu được:
 backfill, không ràng buộc lên hàng cũ. Task viết trước migration đọc ra *"không bị thu hồi"* — đúng
 thứ nó vốn là.
 
-Sinh bằng `tools/dev/Add-IvrMigration.ps1` (đường được phép), rồi chỉnh cho hợp analyzer của repo:
+Sinh bằng `tools/dev/Add-IvrMigration.ps1` (công cụ được phép), rồi chỉnh cho hợp analyzer của repo:
 file-scoped namespace và `ArgumentNullException.ThrowIfNull` — hai thứ EF không sinh ra và
 `IDE0161`/`CA1062` chặn.
 

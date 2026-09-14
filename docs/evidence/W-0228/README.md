@@ -108,4 +108,4 @@ link check                     m8-16 resolve từ 00-index, 1.4, ba phiếu và 
 danh sách đơn vị và vùng giao.
 
 **M8 chưa dựng được cơ chế bank khi bốn câu này chưa chốt** — mỗi lựa chọn đổi hình dạng của bank và
-của đường tra cứu. Đó là việc M8 **sẽ** làm, không phải việc M8 đang chờ ai làm hộ.
+của luồng tra cứu. Đó là việc M8 **sẽ** làm, không phải việc M8 đang chờ ai làm hộ.

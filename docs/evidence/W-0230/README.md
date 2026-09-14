@@ -4,13 +4,13 @@ Ngày: 2026-09-08 · Baseline: `main@bba37aa` · Trạng thái: **TESTS_PASS**.
 
 Owner: *"hint bị bỏ qua, tên hàng có clip thì dùng clip"* — quyết định 3/4 của `m8-16 §9`.
 
-## 1. Vì sao đây là quyết định giữ được đường bỏ TTS
+## 1. Vì sao đây là quyết định giữ được luồng bỏ TTS
 
 Ba quyết định kia đổi **kích thước** ngân hàng ghi âm. Câu này đổi **có bỏ được TTS khỏi runtime hay
 không**: chọn *"hint thắng ⇒ rơi về TTS"* thì mọi task mang `pronunciation_hints` vẫn gọi provider,
 và lập luận đóng `INF-A` (mirror) cùng 16 CVE Security sụp theo.
 
-Owner chọn vế giữ được đường đi. Hệ quả contract phải **ghi vào IR-06**, không để trôi: M3 vẫn được
+Owner chọn vế giữ được luồng đi. Hệ quả contract phải **ghi vào IR-06**, không để trôi: M3 vẫn được
 gửi `pronunciation_hints`, và với món **đã có clip** thì hint **không có tác dụng** — im lặng không
 có tác dụng, không phải lỗi. Không ghi ra thì M3 gửi hint rồi tự hỏi vì sao không nghe thấy.
 
@@ -50,7 +50,7 @@ sang "món không có clip" là **cùng một cơ chế**, đã có test.
 > phẩm"* không xác nhận được gì, và gọi khách để đọc một câu vô nghĩa tệ hơn là không gọi. Trường
 > hợp đó đi `4`.
 >
-> Không cần M3 biết catalog, không thêm đường hỏng mới, dùng lại cơ chế đã có test.
+> Không cần M3 biết catalog, không thêm kiểu hỏng mới, dùng lại cơ chế đã có test.
 
 ## 4. Và một việc không phải code
 
@@ -78,6 +78,6 @@ today-03 thân gói              git hash-object = 2f6c951f… (không đổi)
 | **3b** | **món chưa có clip xử lý ra sao** + ai báo khi catalog đổi | Owner + M3 + Vận hành |
 | 4 | danh sách đơn vị và vùng giao | Vận hành |
 
-`3b` là câu mới, sinh ra từ chính quyết định hôm nay. Nó **không** chặn đường bỏ TTS như `3` đã
+`3b` là câu mới, sinh ra từ chính quyết định hôm nay. Nó **không** chặn luồng bỏ TTS như `3` đã
 chặn — cả bốn cách đều bỏ được TTS trừ cách `1` — nhưng nó quyết định khách nghe gì khi catalog
 lệch, và đó là thứ xảy ra thường xuyên hơn mọi gate trong tài liệu này.

@@ -1,0 +1,43 @@
+PII_SCAN_FAIL locale=C.UTF-8
+/tmp/tmp.6O7zB1MZ70/pii.txt:1:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:2:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:3:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:4:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:5:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:6:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:7:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:8:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:9:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:10:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:11:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:12:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:13:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:14:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:15:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:16:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:17:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:18:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:19:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:20:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:21:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:22:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:23:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:24:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:25:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:26:[REDACTED]
+/tmp/tmp.6O7zB1MZ70/pii.txt:27:[REDACTED]
+PII_SCAN_PASS files=1 skipped_binary=0 locale=C.UTF-8
+PII_SCAN_FAIL locale=C.UTF-8
+/tmp/tmp.6O7zB1MZ70/ci-artifacts/dotnet/test-output/foreign-job.log:1:[REDACTED]
+PII_SCAN_FAIL locale=C.UTF-8
+/tmp/tmp.6O7zB1MZ70/sql-artifact/result.sql:1:[REDACTED]
+PII_SCAN_FAIL locale=C.UTF-8
+/tmp/tmp.6O7zB1MZ70/extensionless-artifact/evidence:1:[REDACTED]
+CT-CI-06 PASS — phone/address/token fixtures rejected
+CT-CI-06b PASS — uppercase cases rejected; safe cases accepted
+CT-CI-06c PASS — downloaded-artifact simulation rejected
+CT-CI-06d PASS — C, C.UTF-8, and POSIX results identical
+CT-CI-06e PASS — unaccented address cases rejected
+CT-CI-06f PASS — mixed-case Vietnamese cases rejected
+CT-CI-06g PASS — Cobertura dial-token symbol is not treated as a token value
+CT-CI-06h PASS — SQL and extensionless text are scanned; missing/empty-text targets fail closed

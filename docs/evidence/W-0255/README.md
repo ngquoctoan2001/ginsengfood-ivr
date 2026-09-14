@@ -3,7 +3,7 @@
 Ngày: 2026-09-09 · Baseline: `main@fc4a6d0` · Trạng thái: **TESTS_PASS**.
 
 Xuất phát từ một lượt rà soát toàn repo ([`docs/review/2026-09-09-codebase-audit.md`](../../review/2026-09-09-codebase-audit.md)).
-Lượt này sửa hai phát hiện nặng nhất trong đường giao kết quả về Sales. Cả hai đều là lỗi **xử lý
+Lượt này sửa hai phát hiện nặng nhất trong luồng giao kết quả về Sales. Cả hai đều là lỗi **xử lý
 ngoại lệ quá rộng** — bắt đúng chỗ nhưng sai phạm vi — và cả hai đều biến một sự cố tạm thời thành
 mất dữ liệu nghiệp vụ vĩnh viễn.
 
@@ -70,7 +70,7 @@ khác, cả hai `RESTRICT` và cả hai có thật trong schema:
 Còn callback thì không xoá được result; còn result thì không xoá được task.
 `RetentionTargetCatalog.cs:59-65` còn khai báo `dependencyBlockedSql` tôn trọng đúng chuỗi ấy. Và
 `CallbackOutboxSnapshotFactory.cs:86-90` đặt `TaskId = job.TaskId` cùng `IvrCallResultId` của chính
-job đó, nên đường ghi production luôn nhất quán.
+job đó, nên luồng ghi production luôn nhất quán.
 
 Tôi đọc đúng rằng `task_id` không có FK trực tiếp, rồi kết luận sai rằng vì thế nó mồ côi được.
 Mức đúng là **MEDIUM**.

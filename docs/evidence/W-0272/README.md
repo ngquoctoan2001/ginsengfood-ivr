@@ -51,7 +51,7 @@ về literal → `Failed: 1`, nêu đúng `PostgresSchedulerStore.cs` và dòng.
 | `specs/database/02-tables.md:174` | **`MOCK/REAL`** |
 | `specs/database/06-migration-plan.md:26` | `adapter_mode=REAL` |
 
-`REAL` là giá trị **không đường code nào sinh ra hoặc chấp nhận**, còn `VENDOR` và `ASTERISK_ARI`
+`REAL` là giá trị **không luồng code nào sinh ra hoặc chấp nhận**, còn `VENDOR` và `ASTERISK_ARI`
 không có trong spec.
 
 **Không tự chọn bên** — đây là quyết định của owner về từ vựng cột, không phải refactor. Cái lượt này

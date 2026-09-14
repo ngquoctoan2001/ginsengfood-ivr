@@ -19,7 +19,7 @@ Sửa hồ sơ mà không sửa nguồn thì lần gộp sau lại ra bản 2G. 
 | --- | --- |
 | Số tiêu chí trong §13.2 nói về công nghệ vô tuyến | **0/7** — toàn bộ nói về API, disposition, DTMF, CDR, SIP |
 | Số lần chữ "VoLTE" xuất hiện trong toàn spec | **0** |
-| Đường tích hợp §13.2 gọi thiết bị là gì | **"GSM Gateway"** — tức 2G, ngừng hoạt động `15/09/2026` |
+| Luồng tích hợp §13.2 gọi thiết bị là gì | **"GSM Gateway"** — tức 2G, ngừng hoạt động `15/09/2026` |
 
 Nói cách khác: spec vừa **không** yêu cầu công nghệ nào, vừa **gợi ý** đúng loại thiết bị sắp chết.
 
@@ -29,7 +29,7 @@ Nói cách khác: spec vừa **không** yêu cầu công nghệ nào, vừa **g�
    hay chỉ LTE data + CSFB; là điều kiện loại trừ đầu tiên. Lý do viết đúng theo `W-0135`: 2G chết
    `15/09/2026`, còn CSFB **không** chết cùng lúc mà rơi về 3G tới **tháng 9/2028** — nên lý do loại
    là **horizon**, không phải "chết sau một tháng".
-2. **Đường tích hợp**: `GSM Gateway → SIM → nhà mạng` thành `cổng thoại 4G/VoLTE → SIM → nhà mạng`.
+2. **Luồng tích hợp**: `GSM Gateway → SIM → nhà mạng` thành `cổng thoại 4G/VoLTE → SIM → nhà mạng`.
 3. **Errata `21`** trong bảng đính chính sẵn có của spec.
 
 Sau sửa: "VoLTE" đi từ `0` lên `3` lần; `"GSM Gateway"` chỉ còn trong chính dòng errata trích lại

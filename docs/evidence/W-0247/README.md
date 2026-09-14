@@ -77,7 +77,7 @@ Ba phương án giữ nguyên (A/B/hybrid). Cảnh báo kỹ thuật giữ nguy�
 
 ## 5. `2.6` — không đổi
 
-Shape đã implement, `W-0207` đã sửa mâu thuẫn ACK. Đường gửi thật tắt **có chủ đích**. Việc còn lại
+Shape đã implement, `W-0207` đã sửa mâu thuẫn ACK. Luồng gửi thật tắt **có chủ đích**. Việc còn lại
 là dev M3 dựng consumer + auth + shared E2E. Đó là việc build thật, không phải một quyết định đang
 kẹt.
 

@@ -37,7 +37,7 @@ Task phát sau mốc vẫn được nhận và vẫn được gọi **một** l�
 
 Finality đến từ việc **dùng hết attempt**; attempt không được dùng hết thì window hết hạn trước.
 Nên **cùng một hành vi khách hàng cho ra hai kết quả khác nhau, quyết bởi đồng hồ treo tường** — và
-hai kết quả đó dẫn Core đi hai đường khác nhau.
+hai kết quả đó dẫn Core đi hai luồng khác nhau.
 
 Consumer của M3 phải xử lý được cả hai cho cùng một kịch bản "khách không nghe máy". Trước lượt này
 tài liệu bàn giao không nói gì về điều đó.

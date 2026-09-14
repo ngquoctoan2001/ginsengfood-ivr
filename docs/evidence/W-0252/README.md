@@ -12,22 +12,22 @@ không phải suy ra từ chỗ tệp nằm.
 
 `git mv` **12** tệp `docs/evidence/*/artifact-sha256.txt` → `attested-sha256.txt`:
 `W-0152`, `W-0170`, `W-0174`, `W-0178`, `W-0180`, `W-0181`, `W-0182`, `W-0183`, `W-0185`,
-`W-0186`, `W-0187`, `W-0188`. Cộng **36** tham chiếu đường dẫn trong **18** tệp.
+`W-0186`, `W-0187`, `W-0188`. Cộng **36** tham chiếu vị trí file trong **18** tệp.
 
 Rename an toàn vì **đổi tên không đổi hash nội dung**: mọi pin `*_sha256` lên các tệp ấy vẫn đúng
-nguyên; chỉ chuỗi đường dẫn phải đi theo. Kiểm trước khi làm: **không script nào** đọc bất kỳ tệp nào
+nguyên; chỉ chuỗi vị trí file phải đi theo. Kiểm trước khi làm: **không script nào** đọc bất kỳ tệp nào
 trong mười hai — đúng như `W-0251` để lại.
 
 ## 2. Luật áp dụng, viết ra để lần sau khỏi cãi
 
-> Cập nhật **con trỏ** — đường dẫn dùng để tìm tệp. Không đụng **chứng thực** — dòng hash.
+> Cập nhật **con trỏ** — vị trí file dùng để tìm tệp. Không đụng **chứng thực** — dòng hash.
 
 Ba hệ quả của luật đó, cả ba đều kiểm được:
 
 | Trường hợp | Làm gì | Vì sao |
 | --- | --- | --- |
 | 10/12 tệp | không đổi một byte | chúng không nhắc tên tệp nào cả |
-| `W-0186`, `W-0188` | đổi **cột đường dẫn**, giữ nguyên **cột hash** | chúng tự liệt kê manifest khác; nội dung tệp được trỏ tới không đổi, chỉ chỗ nó nằm |
+| `W-0186`, `W-0188` | đổi **cột vị trí file**, giữ nguyên **cột hash** | chúng tự liệt kê manifest khác; nội dung tệp được trỏ tới không đổi, chỉ chỗ nó nằm |
 | Tường thuật trong `W-0250`/`W-0251` | **giữ nguyên tên cũ** | câu *"bốn script gate đọc `artifact-sha256.txt` như một danh sách pin sống"* chỉ đúng với tên cũ; viết lại thành tên mới sẽ thành **sai**, vì `attested-sha256.txt` chưa bao giờ là pin sống — đó là cả lý do đổi tên |
 
 Chỗ cuối thay bằng **con trỏ tiến**: `W-0251` được thêm một dòng nói tên tệp trong trang đó là tên
@@ -66,7 +66,7 @@ không phải "có gì đó hỏng" mà là "tệp này lệch pin này".
 gate-sweep.mjs                             GATE_SWEEP_PASS 39/39 run, 18 skipped (exit=0)
 external-decision                          W0164 · W0165 · W0170 · W0179 · W0184 đều PASS
 10/12 tệp đổi tên                          byte-identical với bản cũ tại HEAD
-2/12 còn lại                               chỉ cột đường dẫn đổi, cột hash nguyên vẹn
+2/12 còn lại                               chỉ cột vị trí file đổi, cột hash nguyên vẹn
 tham chiếu `artifact-sha256` còn lại        chỉ trong phần tường thuật, có chủ ý
 dotnet test Ivr.sln                        952/952 PASS, 0 failed, 0 skipped
 GATE_STATUS_PASS                           250 work items

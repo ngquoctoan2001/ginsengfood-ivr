@@ -34,7 +34,7 @@ Không có source, OpenAPI, migration, Helm runtime hoặc production secret cha
 | Production DI | `SchedulerCapacity.cs:480-537`; `ServiceCollectionExtensions.cs:161-169` | không có production resolver/gateway/protector; fail-closed |
 | Safety config | `IvrOptionsValidator.cs:49-52`; Helm values | real customer call NO, deployment profiles còn MOCK |
 | Secret/network | `external-secrets.yaml:72-95`; `values.yaml:230-234` | resolver secret chỉ là template; chưa mount/use; no external egress |
-| Audit/retention | no source `DIAL_TOKEN_RESOLVED`; `RetentionTargetCatalog.cs:27-31` | resolution-specific audit thiếu; ciphertext có đường redact nhưng production period chưa ký |
+| Audit/retention | no source `DIAL_TOKEN_RESOLVED`; `RetentionTargetCatalog.cs:27-31` | resolution-specific audit thiếu; ciphertext có luồng redact nhưng production period chưa ký |
 | M3 | exact field/resolver search trên snapshot | không thấy current contact producer/issuer/resolver implementation |
 
 ## Verification

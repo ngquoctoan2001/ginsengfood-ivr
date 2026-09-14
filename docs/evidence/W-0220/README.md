@@ -35,7 +35,7 @@ giá trị, để đổi lấy 30 giây. Tôi không tự làm; nếu owner cầ
 Đơn 24/7 cuối cùng nhận **đúng lúc `21:00:00`** giờ đủ hai cuộc. Trước đây cuộc 2 của nó rơi vào
 `21:07:30`, ngoài khung giờ, và khách chỉ được gọi một lần — rồi Sales nhận
 `IVR_CONFIRMATION_WINDOW_EXPIRED` thay vì `IVR_NO_ANSWER_FINAL`, tức **cùng một hành vi khách hàng
-dẫn Core đi hai đường khác nhau tuỳ giờ đặt đơn**.
+dẫn Core đi hai luồng khác nhau tuỳ giờ đặt đơn**.
 
 Đó là thứ `W-0215` đo được và là thứ quyết định này đóng lại.
 

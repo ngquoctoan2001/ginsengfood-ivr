@@ -134,7 +134,7 @@ không phát sinh cuộc gọi thứ hai, và hàng đợi không đứng.
 **Về kill switch, hai điều phải chạy mới biết:**
 
 1. `KillSwitchEngaged=true` cùng `Enabled=true` **không khởi động được** —
-   `MockTelephonyOptionsValidator` từ chối thẳng tổ hợp đó. Nên tư thế "đã bật kill switch" không
+   `MockTelephonyOptionsValidator` từ chối thẳng cấu hình kết hợp đó. Nên tư thế "đã bật kill switch" không
    phải "đã lên đạn nhưng đang giữ", mà là "không lên đạn", được kiểm **trước khi process được phép
    tồn tại**. Đó là bảo đảm mạnh hơn một cờ runtime.
 2. Kill switch chặn **cuộc gọi tiếp theo**, không cắt cuộc đang gọi; cắt cuộc đang gọi là một nút
@@ -214,7 +214,7 @@ dotnet build Ivr.sln -c Release
 pnpm e2e:mock -- --rounds 100 --workers 2 --extended-every 10
 ```
 
-Bản rút gọn để kiểm nhanh đường dây (bỏ fault injection, hai vòng):
+Bản rút gọn để kiểm nhanh kết nối (bỏ fault injection, hai vòng):
 
 ```bash
 pnpm e2e:mock:smoke

@@ -28,7 +28,7 @@ Người ký phía M8: **Tôi — Module 8 / Project Owner**.
 | Admin global pause tự sinh ID | `InternalAdminApiService.cs`: `ADMIN-QUEUE-*`, `ProgramCode=ALL` |
 | Eligibility incident copy capacity ID | `EligibilityRepository.cs`: `SessionId = capacity.SessionId` |
 | Master dùng tên domain-specific | `04-MASTER-03-TRACEABILITY-ID.md`: `golden_hour_session_id` và rule thiếu ID không được claim Golden Hour |
-| Phase-8 dùng generic name nhưng không định nghĩa semantics | `22-ĐƯỜNG CƠ SỞ ĐẦU VÀO IVR.md`: capacity/log chỉ liệt kê `session_id` |
+| Phase-8 dùng generic name nhưng không định nghĩa semantics | Tài liệu số 22 trong `docs/documents/4. phase/phase-8/`: capacity/log chỉ liệt kê `session_id` |
 
 GitNexus CLI query trên index cũ trả `0` flow và cảnh báo thiếu FTS. Không re-index; direct source tại
 current HEAD là authority. W-0146 không sửa production symbol nên không có symbol impact-edit gate.

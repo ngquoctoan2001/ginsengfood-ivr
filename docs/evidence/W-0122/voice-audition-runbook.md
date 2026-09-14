@@ -73,7 +73,7 @@ Script tự chạy gate và tự xoá file nếu gate đỏ. Nếu vẫn muốn 
 
 ```powershell
 node deploy/ci/scripts/tts-voice-acceptance-gate.mjs `
-  --acceptance <duong-dan-toi-voice-acceptance-manifest.json>
+  --acceptance <path-to-voice-acceptance-manifest.json>
 ```
 
 Chỉ artifact riêng trả `TTS_VOICE_ACCEPTANCE_PASS` mới được mount vào TTS và dùng để render catalog

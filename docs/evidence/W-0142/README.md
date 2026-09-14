@@ -18,7 +18,7 @@ M3, Product/Order Core, Infra/vendor hoặc chọn một con số capacity chưa
 M8-01 **chưa thể calibration**. Repo hiện không có `docs/evidence/W-0008/`, CDR/per-attempt timing
 dataset được chấp nhận, arrival profile theo thời gian hoặc production attempt policy đã ký.
 
-Kết quả đúng của lượt này là chuẩn bị đường vào có kiểm soát và sửa gate để sau này nhận dữ liệu
+Kết quả đúng của lượt này là chuẩn bị luồng vào có kiểm soát và sửa gate để sau này nhận dữ liệu
 không tính cooldown hai lần. Model vẫn `UNCALIBRATED`; không đổi 40/50/60 giây, không dùng 2700
 giây, không đổi `simPoolSize`, không chốt mua 4/12/32 kênh.
 
@@ -50,13 +50,13 @@ full_cycle = callSeconds + cooldownSeconds
 con số spec là full channel cycle. Làm cả ba bằng nhau rồi vẫn cộng cooldown sẽ tính cooldown hai
 lần.
 
-W-0142 đã sửa đường thoát, **không đổi giá trị hiện hành**:
+W-0142 đã sửa lối thoát, **không đổi giá trị hiện hành**:
 
 - model/runtime phải cùng channel occupancy đã đo;
 - chu kỳ spec phải bằng `occupancy + cooldown`;
 - `calibratedBy` phải trỏ artifact tồn tại dưới `docs/evidence/W-0008/`;
 - `CAP-CALIB-03` không cho relabel P5-3 thành bằng chứng cuộc gọi;
-- một shape `TEST_ONLY` chạy mỗi selftest để đường calibrated không còn là nhánh chết.
+- một shape `TEST_ONLY` chạy mỗi selftest để luồng calibrated không còn là nhánh chết.
 
 ## 4. Bộ dữ liệu bắt buộc
 

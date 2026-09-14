@@ -95,7 +95,7 @@ Cái thay thế được là `IT-GATE-APPROVAL-10`: ghim rằng cột trơ, đ�
 hay mở allowlist ở prod (Codex F02, tôi verify lại). Không seed `PRODUCTION_CALL`. Và mỗi thay đổi
 cụ thể vẫn bị buộc vào đúng môi trường của nó qua fingerprint.
 
-Nên đây là **một cái bẫy tài liệu/schema**, không phải một đường vòng qua gate.
+Nên đây là **một cái bẫy tài liệu/schema**, không phải một lối vòng qua gate.
 
 ## 6. Kiểm chứng
 
