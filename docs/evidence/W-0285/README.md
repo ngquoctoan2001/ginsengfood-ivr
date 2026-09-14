@@ -15,3 +15,5 @@ Ngày 2026-09-14. Baseline local `main@fa7877c`. Trạng thái **BLOCKED_EXTERNA
 [Phiếu Platform](../../../plan/ivr-orther/questions-to-platform-ci-and-staging-2026-09-12.md) giữ `NOT_SENT`, bỏ khẳng định chưa từng chạy runner; yêu cầu xác minh/tái sử dụng runner và Registry có sẵn, đọc gói/quyền hiện tại trước khi trình nâng cấp. Không cấp thêm quyền, không mua gói, không gửi phiếu, không push và không tạo nhánh thử.
 
 Phải giải quyết bằng chứng review/enforcement G-GITLAB trong luật `main`-only hiện hành; quy trình MR lịch sử không cấp phép tạo nhánh mới. Cần phiên đăng nhập hoặc quyền API đọc phù hợp để xác minh pipeline/runner/branch controls. Sau khi có quyền và ứng viên được push theo chỉ đạo owner, lấy pipeline/jobs/digest đúng SHA; staging chỉ đóng bằng endpoint/credential/smoke thật. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+Follow-up 14/09 sau `cc4a8c8`: đọc lại cả hai remote vẫn cùng `890dfdd`; tab GitLab vẫn ở trang đăng nhập. W-0283..W-0286 đã commit local, chưa push. API 403 là quan sát ban đầu được giữ lại, không phải lượt API mới. Trạng thái vẫn **BLOCKED_EXTERNAL**.

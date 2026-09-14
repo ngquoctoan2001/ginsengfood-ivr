@@ -24,5 +24,14 @@
     "registry_repositories": {
       "status": 403
     }
+  },
+  "follow_up": {
+    "observed_at": "2026-09-14T03:27:39.318604+00:00",
+    "local_candidate": "cc4a8c8d87f11615593b4432893e35dd779936bf",
+    "origin_main": "890dfdd732982b36c73ba7e09f6cb7f7ab96d57c",
+    "github_main": "890dfdd732982b36c73ba7e09f6cb7f7ab96d57c",
+    "browser_last_observation": "Still at https://gitlab.com/users/sign_in; no authenticated project session observed",
+    "api_retried": false,
+    "push_performed": false
   }
 }

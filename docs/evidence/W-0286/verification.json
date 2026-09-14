@@ -174,5 +174,10 @@
     "Endurance uses progressing wall-clock and the existing MOCK all-day calling window; production business-window tests remain separate.",
     "Image tags can get a different OCI attestation index when rebuilt; exact initial build output is hash-bound above. These local builds are not registry publish proof.",
     "The coverage retry suggests resource contention contributed to the timeout, but does not prove the cause or eliminate future timeout risk."
-  ]
+  ],
+  "formatting_follow_up": {
+    "commit": "cc4a8c8d87f11615593b4432893e35dd779936bf",
+    "status": "PASS",
+    "evidence": "post-format-checkpoint.json"
+  }
 }

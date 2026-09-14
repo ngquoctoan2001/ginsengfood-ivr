@@ -50,3 +50,5 @@ Lượt full đầu: unit 688, integration 295/296 (matrix từ chối vì sourc
 - **M3/SIM/staging/production:** NOT_RUN, cần đầu vào và thẩm quyền thật. `REAL_CUSTOMER_CALL_ALLOWED=NO`, nấc 0, 11 gate ngoài không đổi.
 
 Lint phát hiện hai lỗi có sẵn: BOM trong migration W-0249 và thiếu newline cuối test speech. Follow-up chỉ chuẩn hoá encoding/newline, không đổi câu lệnh C#; GitNexus LOW, 0 caller/0 process cho mỗi class. Log và checkpoint sau sửa được lưu riêng để không trộn với candidate runtime trên.
+
+**Checkpoint sau sửa `cc4a8c8`:** build/analyzer 0 warning/0 error, toàn bộ `dotnet format` exit 0, API matrix kiểm lại **38/38, 417 request, PASS**. [Checkpoint](post-format-checkpoint.json) chứa source fingerprint và chứng minh hai file chỉ đổi BOM/newline. Không chạy lại 100 vòng hay thay số full suite của `4483029`.

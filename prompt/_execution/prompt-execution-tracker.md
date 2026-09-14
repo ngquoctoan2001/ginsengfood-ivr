@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0287` |
 | Last allocated | `W-0286` |
-| Last activity sequence | `A-0599` |
+| Last activity sequence | `A-0600` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -1720,3 +1720,4 @@ Final status: TESTS_PASS
 | `A-0597` | 2026-09-14 | `W-0284`, `W-0285` | FINISH/BLOCKED | W-0284 commit `fa7877c`; W-0285 commit `67ef6b1`. Hosted Git transport đọc được, hai remote main cùng `890dfdd`; API metadata 403, browser chưa có phiên dùng được. Sửa phiếu Hạ tầng theo bằng chứng lịch sử, giữ NOT_SENT | Codex | Chờ đăng nhập; không tạo branch, đổi quyền, mua gói hay gửi phiếu |
 | `A-0598` | 2026-09-14 | `W-0286` | FIX/VERIFY | Commit `4483029` sửa SSI trong receipt eligibility bằng cơ chế coordinated sẵn có; regression hai ca từ 0/2 thành 2/2. Full suite trên SHA này 1.018/1.018; API 38/38/417 request; endurance 100/100 vòng, 1.130 task, 0 HTTP 500 ở probe 10 eligibility đồng thời; sweep 39/39, K8s 7/7, observability đạt | Codex | Chi tiết lệnh/hash/log tại docs/evidence/W-0286; không suy local thành hosted hoặc M3 thật |
 | `A-0599` | 2026-09-14 | `W-0286` | HANDOFF/BLOCKED | Coverage 89,33% từ bốn suite đạt; lưu lần unit regex timeout và rerun 688/688. Lint chỉ ra BOM/newline hai file cũ; follow-up chỉ chuẩn hoá byte và kiểm riêng. Scanner local phát hiện 3 thuật ngữ kỹ thuật/1 SHA trong metadata W-0284: giữ tham chiếu tiêu đề gốc, chia hash nhóm 8, không nới rule | Codex | Full image pause FAIL chờ owner; security scan bị auto-review từ chối metadata egress, đang chờ xác nhận; hosted login pending; 11 external gates, rung 0, REAL_CUSTOMER_CALL_ALLOWED=NO |
+| `A-0600` | 2026-09-14 | `W-0285`, `W-0286` | COMMIT/VERIFY/HANDOFF | Gói local + chuẩn hoá BOM/newline commit `cc4a8c8`; build/analyzers 0/0, full formatter exit 0, API matrix rerun 38/38/417 request. Scanner PII local trên bốn pack đạt. GitNexus staged LOW/0 flow; không đổi câu lệnh C#. Hai remote kiểm lại vẫn `890dfdd`, browser còn sign-in | Codex | Các kết quả đầy đủ giữ provenance `4483029`; checkpoint riêng cho `cc4a8c8`. Chờ ba đầu vào đã hỏi: nhãn pause, chấp thuận scan metadata egress, GitLab login; không push/deploy; REAL_CUSTOMER_CALL_ALLOWED=NO |

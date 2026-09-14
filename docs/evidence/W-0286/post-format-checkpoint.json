@@ -1,0 +1,356 @@
+{
+  "work_id": "W-0286",
+  "verified_commit": "cc4a8c8d87f11615593b4432893e35dd779936bf",
+  "generated_at": "2026-09-14T03:27:39.299082+00:00",
+  "source_sha256": "e09b6600-286ad387-7c5a08b9-504b1b21-bda125c9-30dd4fd0-e381585d-46726cb2",
+  "runtime_evidence_candidate": "44830290ea97ab71b2e28002bb68c66bdbecaa53",
+  "formatting_only_delta": [
+    {
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260909034715_W0249OrderRevocationFence.cs",
+      "before_sha256": "c73f0faf-fa231597-0ce3028a-d2298974-a94d986d-ca440507-283e161d-a148ad31",
+      "after_sha256": "64746553-9cc9c834-3c3ebf9e-3bbea7fb-f09f15aa-52707fd4-0460f985-d7122d47",
+      "change": "UTF-8 BOM removal or final LF only",
+      "same_decoded_source_except_final_lf": true
+    },
+    {
+      "file": "tests/Ivr.UnitTests/Speech/RecordedSpeechComposerTests.cs",
+      "before_sha256": "aecd02e1-5a46424d-c8433392-ce7a7be3-60857e44-d96caa81-bf44cfc2-a2d4fd76",
+      "after_sha256": "7cf72e23-c9a0dd1c-4334148d-0ae0ae58-7eda955e-62b2be6c-48592882-e0e2e80e",
+      "change": "UTF-8 BOM removal or final LF only",
+      "same_decoded_source_except_final_lf": true
+    }
+  ],
+  "build": {
+    "result": "PASS",
+    "warnings": 0,
+    "errors": 0,
+    "analyzers": true
+  },
+  "full_dotnet_format": {
+    "result": "PASS",
+    "exit_code": 0,
+    "diagnostics": []
+  },
+  "api_matrix": {
+    "result": "PASS",
+    "operations": 38,
+    "requests": 417,
+    "raw_report": ".artifacts/api-matrix/report.json",
+    "raw_report_sha256": "28466ea9-143bb615-c1d34fed-ea23268a-66af0c2d-374af8a7-6e92f59b-c0594da2",
+    "operations_summary": [
+      {
+        "operation_id": "intakeTask",
+        "method": "POST",
+        "path": "/tasks",
+        "executed": 15,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "recordEligibility",
+        "method": "POST",
+        "path": "/eligibility-checks",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "createCallJob",
+        "method": "POST",
+        "path": "/call-jobs",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "listCallJobs",
+        "method": "GET",
+        "path": "/call-jobs",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getCallJob",
+        "method": "GET",
+        "path": "/call-jobs/{ivrCallJobId}",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "recordAttempt",
+        "method": "POST",
+        "path": "/call-attempts",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "recordResult",
+        "method": "POST",
+        "path": "/call-results",
+        "executed": 22,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "recordResultCallback",
+        "method": "POST",
+        "path": "/result-callbacks",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getQueue",
+        "method": "GET",
+        "path": "/queue",
+        "executed": 7,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getDashboard",
+        "method": "GET",
+        "path": "/dashboard",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getCallJobDetail",
+        "method": "GET",
+        "path": "/call-jobs/{ivrCallJobId}/detail",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "listSimChannels",
+        "method": "GET",
+        "path": "/sim-channels",
+        "executed": 7,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getScriptCatalog",
+        "method": "GET",
+        "path": "/scripts",
+        "executed": 7,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "createScriptDraft",
+        "method": "POST",
+        "path": "/scripts",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getScriptVersion",
+        "method": "GET",
+        "path": "/scripts/{templateId}/{version}",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "submitScriptForReview",
+        "method": "POST",
+        "path": "/scripts/{templateId}/{version}:submit",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "approveScriptVersion",
+        "method": "POST",
+        "path": "/scripts/{templateId}/{version}:approve",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "retireScriptVersion",
+        "method": "POST",
+        "path": "/scripts/{templateId}/{version}:retire",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "loadDevSeed",
+        "method": "POST",
+        "path": "/dev/seed:load",
+        "executed": 12,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "dryRunDevScenario",
+        "method": "POST",
+        "path": "/dev/scenarios/{scenarioId}:dry-run",
+        "executed": 12,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "applyDevIntegrationProfile",
+        "method": "POST",
+        "path": "/dev/integration-profiles/{profileId}:apply",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "terminateAllCallJobs",
+        "method": "POST",
+        "path": "/call-jobs:terminate-all",
+        "executed": 12,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "terminateCallJob",
+        "method": "POST",
+        "path": "/call-jobs/{ivrCallJobId}:terminate",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getIntegrationStatus",
+        "method": "GET",
+        "path": "/integration-status",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "listReviewItems",
+        "method": "GET",
+        "path": "/review-items",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getAnalyticsSummary",
+        "method": "GET",
+        "path": "/analytics/summary",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getAnalyticsTrend",
+        "method": "GET",
+        "path": "/analytics/trend",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getAnalyticsBreakdown",
+        "method": "GET",
+        "path": "/analytics/breakdown",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "exportAnalytics",
+        "method": "GET",
+        "path": "/analytics/export",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "pauseQueue",
+        "method": "POST",
+        "path": "/queue:pause",
+        "executed": 12,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "resumeQueue",
+        "method": "POST",
+        "path": "/queue:resume",
+        "executed": 12,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "disableSim",
+        "method": "POST",
+        "path": "/sim-channels/{simChannelId}:disable",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "enableSim",
+        "method": "POST",
+        "path": "/sim-channels/{simChannelId}:enable",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "technicalRetry",
+        "method": "POST",
+        "path": "/technical-retries",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "adminReview",
+        "method": "POST",
+        "path": "/admin-reviews",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "getFeatureFlags",
+        "method": "GET",
+        "path": "/feature-flags/{environment}",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "mutateFeatureFlags",
+        "method": "POST",
+        "path": "/feature-flags/{environment}",
+        "executed": 13,
+        "verdict": "PASS",
+        "failures": []
+      },
+      {
+        "operation_id": "verifyFeatureFlagKillSwitch",
+        "method": "GET",
+        "path": "/feature-flags/{environment}/kill-switch",
+        "executed": 8,
+        "verdict": "PASS",
+        "failures": []
+      }
+    ]
+  },
+  "logs": {
+    "post-format-build.log": "03ac690b-fd189d23-aae0bde9-cd013da1-f579a34e-c1e3c511-8cf1aaa8-fbcf1122",
+    "post-format-matrix.log": "04a7a67e-253c257a-916da5f1-104699d4-fd420484-f3c56a3f-0a129aa0-ba5bc645",
+    "post-format-matrix-verify.log": "6aaf7c64-c5506915-d8f1df94-2457db70-b4fec931-6443e215-b0b9b1c0-a0251900",
+    "post-format-full-lint.log": "43155e3d-a6063a81-8200a5d0-3480980a-3d892212-807fff53-7698c0de-531a560a",
+    "changed-evidence-pii-after.log": "9ec3ce7e-e8f6c0ec-92c09fca-cc03102c-6562c325-0afc15ab-874371f8-c396e821"
+  },
+  "scope": "Full endurance, full suite, coverage and Kubernetes retain their exact 4483029 provenance. Build/analyzers, full formatter and HTTP matrix were rerun on cc4a8c8. No functional C# statements changed between these commits.",
+  "remaining_status": "BLOCKED_EXTERNAL; owner pause decision, scan egress approval and authenticated GitLab access pending; no push or deployment"
+}
