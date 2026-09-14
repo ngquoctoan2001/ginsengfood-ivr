@@ -1,0 +1,8 @@
+CT-GATE-01 PASS — a planted order-transition symbol is rejected
+CT-GATE-02 PASS — a raw phone number fails the PII scan
+CT-GATE-03 PASS — coverage below the gate fails
+CT-GATE-04 PASS — an untraceable merge request is blocked
+REVIEW_GATE_SELFTEST_PASS
+
+
+REPRODUCTION_EXIT=0 MISSING_SDK_ACCEPTED=true

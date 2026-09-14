@@ -15,18 +15,32 @@ const repositoryRoot = path.resolve(scriptDirectory, "../../..");
 const temporaryRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ivr-review-gate-"));
 
 function run(command, commandArguments, options = {}) {
-  return spawnSync(command, commandArguments, {
+  const result = spawnSync(command, commandArguments, {
     cwd: repositoryRoot,
     encoding: "utf8",
     shell: false,
     ...options,
   });
+  assert(
+    !result.error && result.signal === null && Number.isInteger(result.status),
+    `Review gate could not execute ${command}: ${result.error?.message ?? result.signal ?? "no exit status"}`,
+  );
+  return result;
 }
 
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+// W-0289: a missing SDK, compiler error or broken scanner is not evidence of rejection.
+function assertExpectedFailure(result, markers, context) {
+  const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+  assert(
+    result.status === 1 && markers.every((marker) => output.includes(marker)),
+    `${context}: expected the semantic rejection, got exit ${result.status}.\n${output}`,
+  );
 }
 
 try {
@@ -42,7 +56,6 @@ try {
       + "    public static void SetOrderState(string value) { _ = value; }\n}\n",
     "utf8",
   );
-  let orderTransitionRejected = false;
   try {
     const scan = run("dotnet", [
       "test",
@@ -51,12 +64,14 @@ try {
       "--filter",
       "TestId=IT-FAILGATE-01",
     ]);
-    orderTransitionRejected = scan.status !== 0;
+    assertExpectedFailure(scan, [
+      "GateOneIvrNeverTransitionsOrderState",
+      "Assert.DoesNotContain() Failure",
+      "SetOrderState",
+    ], "CT-GATE-01");
   } finally {
     await fs.rm(plantedFile, { force: true });
   }
-
-  assert(orderTransitionRejected, "CT-GATE-01: a planted order-transition symbol was not rejected.");
 
   // CT-GATE-02 — a raw phone number in a scanned artifact must be rejected.
   const piiDirectory = path.join(temporaryRoot, "pii");
@@ -67,7 +82,7 @@ try {
     "utf8",
   );
   const piiScan = run("sh", ["deploy/ci/scripts/scan-pii.sh", piiDirectory]);
-  assert(piiScan.status !== 0, "CT-GATE-02: a raw phone number passed the PII scan.");
+  assertExpectedFailure(piiScan, ["PII_SCAN_FAIL locale=", "leak.txt:"], "CT-GATE-02");
 
   // CT-GATE-03 — coverage below the gate must fail. Uses the committed low fixture so the
   // check exercises the same tool and the same report shape CI uses.
@@ -80,7 +95,10 @@ try {
     "deploy/ci/fixtures/coverage/low",
     "80",
   ]);
-  assert(coverage.status !== 0, "CT-GATE-03: a coverage report below the gate was accepted.");
+  assertExpectedFailure(coverage, [
+    "TOTAL_LINE_COVERAGE=50.00%",
+    "Coverage 50.00% is below the required 80.00%.",
+  ], "CT-GATE-03");
 
   // CT-GATE-04 — a merge request without traceability must be blocked, and a complete one
   // must pass. Both directions matter: a checker that rejects everything is not a gate either.
@@ -89,17 +107,14 @@ try {
     "--text",
     "Fixed a thing.",
   ]);
-  assert(emptyMr.status !== 0, "CT-GATE-04: a description with no traceability was accepted.");
+  assertExpectedFailure(emptyMr, ["MR_TRACEABILITY_FAIL"], "CT-GATE-04 empty description");
 
   const templateMr = run("node", [
     "deploy/ci/scripts/check-mr-traceability.mjs",
     "--file",
     ".gitlab/merge_request_templates/Default.md",
   ]);
-  assert(
-    templateMr.status !== 0,
-    "CT-GATE-04: the unfilled template itself was accepted as traceable.",
-  );
+  assertExpectedFailure(templateMr, ["MR_TRACEABILITY_FAIL"], "CT-GATE-04 unfilled template");
 
   const completeMrPath = path.join(temporaryRoot, "complete-mr.md");
   await fs.writeFile(
@@ -122,7 +137,7 @@ try {
     completeMrPath,
   ]);
   assert(
-    completeMr.status === 0,
+    completeMr.status === 0 && completeMr.stdout.includes("MR_TRACEABILITY_PASS"),
     `CT-GATE-04: a complete description was rejected. ${completeMr.stderr}`,
   );
 

@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0289` |
-| Last allocated | `W-0288` |
-| Last activity sequence | `A-0604` |
+| `NEXT_WORK_ID` | `W-0290` |
+| Last allocated | `W-0289` |
+| Last activity sequence | `A-0606` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -362,6 +362,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0287` | Sửa toolchain và bootstrap CI theo log hosted (Origin=`UNPLANNED`) | Pipeline 2842779996 có bốn lỗi SDK, sweep thiếu công cụ, TTS thiếu dependency | `W-0285`; baseline `9ca529b` | TESTS_PASS | Codex | `docs/evidence/W-0287/README.md` | SDK pin xuyên fragment; 10 negative + 1 positive config; Linux sweep 39/39; TTS 9/9 lệnh; contract 24/24, E2E 2/2, observability 12/12 | Chaos lộ loopback fixture, review gate lộ false green, xử lý tiếp; hosted chưa push; pause/scan pending; real calls NO |
 
 | `W-0288` | Fixture Chaos tương thích Docker service (Origin=`UNPLANNED`) | Sau pin SDK, 7/8 test Chaos lỗi loopback dù proxy ở DinD | `W-0287`; baseline `701d48b` | TESTS_PASS | Codex | `docs/evidence/W-0288/README.md` | Dùng proxy.Hostname; Linux/DinD từ 1/8 thành 8/8; Windows/Docker local 8/8; formatter exit 0 | Không đổi upstream fault target hay runtime; hosted NOT_RUN; real calls NO |
+
+| `W-0289` | Review gate phân biệt lỗi semantic và lỗi môi trường (Origin=`UNPLANNED`) | SDK trả exit 155 nhưng review gate vẫn PASS do chỉ kiểm nonzero | `W-0288`; baseline `39536d4` | TESTS_PASS | Codex | `docs/evidence/W-0289/README.md` | 8/8 lỗi môi trường từ chối đúng lý do; 4/4 probe công cụ thật đạt; CI-config/helper census PASS | Không nới gate; không chạy security audit; hosted NOT_RUN; real calls NO |
 
 ## 6. Unplanned work insertion template
 
@@ -1729,3 +1731,5 @@ Final status: TESTS_PASS
 | `A-0602` | 2026-09-14 | `W-0287` | FINISH/DISCOVERY | Pin SDK, bổ sung Docker/Buildx/Node/npm/policy build; Linux sweep 39/39, TTS 9 lệnh exit 0, config 10 refusal + 1 PASS. Đồng bộ một pin template PENDING W-0185 theo source/verifier; snapshot Windows CRLF bị invalidated, Linux xuất lại đúng byte | Codex | Lưu Chaos 1/8 do loopback và review gate false green khi SDK exit 155 để sửa tiếp. Không đổi hợp đồng/nhãn pause, không scan metadata, không push/deploy; real calls NO |
 | `A-0603` | 2026-09-14 | `W-0288` | START | W-0287 commit 701d48b; sửa fixture Chaos dùng hostname của proxy thay loopback cứng. GitNexus InitializeAsync/ConnectionString LOW, 0 caller/0 process được index; kiểm nguồn cho thấy fixture của 8 test Chaos | Codex | Chỉ fixture, không đổi mạng/upstream fault target hoặc runtime; kiểm cả DinD và Docker local |
 | `A-0604` | 2026-09-14 | `W-0288` | FINISH | Chaos Linux/DinD 27 từ 1/8 thành 8/8; Windows/Docker local 8/8; formatter đúng file exit 0. Lưu log cả hai ở W-0288 | Codex | Runtime không đổi; hosted chưa chạy mới; tiếp tục sửa review gate false green |
+| `A-0605` | 2026-09-14 | `W-0289` | START | W-0288 commit 39536d4; đã tái hiện SDK exit 155 vẫn REVIEW_GATE_SELFTEST_PASS trong snapshot riêng. GitNexus run LOW, 1 caller trong cùng file, 0 process; orderTransitionRejected LOW, 0 caller | Codex | Yêu cầu lỗi đúng test/PII/coverage/traceability, không chấp nhận lỗi khởi chạy hoặc compiler; chỉ sửa gate |
+| `A-0606` | 2026-09-14 | `W-0289` | FINISH | Regression Linux 8/8 lỗi môi trường bị từ chối; 4/4 probe công cụ thật PASS; mọi fixture source được dọn. CI-config/helper census PASS. Lưu script và log trước/sau tại W-0289 | Codex | Chờ owner chốt pause và chấp thuận metadata scan/push để lấy hosted proof; không tự publish/deploy hay mở real calls |
