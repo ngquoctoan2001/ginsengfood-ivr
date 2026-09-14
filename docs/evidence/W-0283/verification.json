@@ -1,0 +1,60 @@
+{
+  "schema_version": "ivr.w0283.verification.v1",
+  "baseline": "890dfdd732982b36c73ba7e09f6cb7f7ab96d57c",
+  "source_hashes": {
+    "src/Ivr.Infrastructure/Eligibility/EligibilityPollingRuntime.cs": "CB4CAC042654DE4AC82A110FB5D9389953B1715B5F70FFE5E044A350E4D9EDB9",
+    "src/Ivr.Worker/Jobs/EligibilityJobHost.cs": "3BF4732E49F96DE777188D94317302CC700D8E338F346D23DF156817975FBA48",
+    "src/Ivr.Worker/Program.cs": "415DF0527D52F741C2B4E0CAE38F046677224FC0F8E1D9F80E0BB0B367B09A41",
+    "deploy/ci/scripts/sandbox-examples.mjs": "3188656FE97D1AB21FC146D189545289F2F32896103CCA30A3504804465E82D7",
+    "docker-compose.sandbox.yml": "7EF7857A7AEFB8B3CF0A966E194DF3A44EF6B381C9B52EFB60AA3D8C0C3BF2D0"
+  },
+  "initial_regression": [
+    {
+      "artifact": "Administrator_NQT_2026-09-14_08_55_39.trx",
+      "sha256": "F56184AD22C71EF627341E500A26DFF1B863712748D6B816BFF8EC85A10B79AF",
+      "total": 688,
+      "passed": 688,
+      "failed": 0
+    },
+    {
+      "artifact": "Administrator_NQT_2026-09-14_08_55_45.trx",
+      "sha256": "35EED8019AF33C6A676AE120CE5305A110EB82DF5F0A3838B7CC336688F684D5",
+      "total": 295,
+      "passed": 294,
+      "failed": 1
+    },
+    {
+      "artifact": "Administrator_NQT_2026-09-14_09_02_36.trx",
+      "sha256": "E36F008C052367C58F27910607B272DAA1B9F5C3981B99A29B76CDBD94A29932",
+      "total": 24,
+      "passed": 24,
+      "failed": 0
+    },
+    {
+      "artifact": "Administrator_NQT_2026-09-14_09_02_39.trx",
+      "sha256": "EECBFF57A91936B1265D559851D738588BE6EA32317A1A7E084C685FC0DDBACA",
+      "total": 8,
+      "passed": 8,
+      "failed": 0
+    }
+  ],
+  "invalidated_matrix_reason": "Source changed during initial run; not a behavioral failure",
+  "final_focused_rerun": {
+    "failed": 0,
+    "total": 8,
+    "passed": 8,
+    "sha256": "90C991A1B97FF80F69CCFFE6B8D17AC1FCC5DEC5E9097F6A1967730048CF6E06"
+  },
+  "release_build": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "sandbox": {
+    "failures": 0,
+    "api_image": "sha256:024d38e13f3d8aa58290b268a06694aab00893e9b05d53258af5c367ff4915a7",
+    "examples": 24,
+    "worker_image": "sha256:595e9b401c6e0404cb05e43ceb48347ae6f659142ffdc5005621c6ff94d3e8e7",
+    "scope_note": "Images were built before the non-MOCK intake-state correction; MOCK path unchanged. Final source compiled and focused tests passed. Exact-candidate image rerun belongs to follow-up verification."
+  },
+  "real_customer_call_allowed": false
+}

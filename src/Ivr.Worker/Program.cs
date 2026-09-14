@@ -2,6 +2,7 @@ using Ivr.Worker;
 using Ivr.Infrastructure.Analytics;
 using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.Eligibility;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Retention;
@@ -76,6 +77,8 @@ else
     builder.Services.AddHostedService<AsteriskLabChannelProvisioner>();
     builder.Services.AddHostedService<IvrHeartbeat>();
     builder.Services.AddHostedService<RetentionJobHost>();
+    builder.Services.AddIvrEligibilityPolling(builder.Configuration);
+    builder.Services.AddHostedService<EligibilityJobHost>();
     builder.Services.AddHostedService<SchedulerJobHost>();
     builder.Services.AddSingleton<ResultNormalizer>();
     builder.Services.AddHostedService<NormalizationJobHost>();

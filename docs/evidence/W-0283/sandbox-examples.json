@@ -1,0 +1,324 @@
+{
+  "schema_version": "ivr.sandbox-examples.v1",
+  "generated_at": "2026-09-14T02:04:11.306Z",
+  "base_url": "http://127.0.0.1:58080",
+  "safety": "MOCK/MOCK/NO; synthetic fixtures; no real destination is reachable",
+  "examples": 24,
+  "failures": 0,
+  "observations": [
+    {
+      "id": "TASK-M3-CONFIRM",
+      "expected": {
+        "status": 200,
+        "accepted": true
+      },
+      "actual": {
+        "status": 200,
+        "accepted": true
+      },
+      "pass": true,
+      "note": "Customer answered and pressed 1."
+    },
+    {
+      "id": "TASK-M3-CANCEL",
+      "expected": {
+        "status": 200,
+        "accepted": true
+      },
+      "actual": {
+        "status": 200,
+        "accepted": true
+      },
+      "pass": true,
+      "note": "Customer answered and pressed 0."
+    },
+    {
+      "id": "TASK-M3-NOANSWER",
+      "expected": {
+        "status": 200,
+        "accepted": true
+      },
+      "actual": {
+        "status": 200,
+        "accepted": true
+      },
+      "pass": true,
+      "note": "Rang out with an attempt still to come, so nothing is sent yet."
+    },
+    {
+      "id": "TASK-M3-BADNUMBER",
+      "expected": {
+        "status": 200,
+        "accepted": true
+      },
+      "actual": {
+        "status": 200,
+        "accepted": true
+      },
+      "pass": true,
+      "note": "The network could not reach the destination at all."
+    },
+    {
+      "id": "TASK-M3-WRONGKEY",
+      "expected": {
+        "status": 200,
+        "accepted": true
+      },
+      "actual": {
+        "status": 200,
+        "accepted": true
+      },
+      "pass": true,
+      "note": "Answered, pressed a key the menu does not offer. An attempt remains, so nothing is sent."
+    },
+    {
+      "id": "TASK-M3-TECHNICAL",
+      "expected": {
+        "status": 200,
+        "accepted": true
+      },
+      "actual": {
+        "status": 200,
+        "accepted": true
+      },
+      "pass": true,
+      "note": "Our own audio failed on a healthy channel. An attempt remains, so nothing is sent."
+    },
+    {
+      "id": "TASK-M3-CONFIRM/eligibility",
+      "expected": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "actual": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "pass": true,
+      "note": ""
+    },
+    {
+      "id": "TASK-M3-CANCEL/eligibility",
+      "expected": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "actual": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "pass": true,
+      "note": ""
+    },
+    {
+      "id": "TASK-M3-NOANSWER/eligibility",
+      "expected": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "actual": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "pass": true,
+      "note": ""
+    },
+    {
+      "id": "TASK-M3-BADNUMBER/eligibility",
+      "expected": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "actual": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "pass": true,
+      "note": ""
+    },
+    {
+      "id": "TASK-M3-WRONGKEY/eligibility",
+      "expected": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "actual": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "pass": true,
+      "note": ""
+    },
+    {
+      "id": "TASK-M3-TECHNICAL/eligibility",
+      "expected": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "actual": {
+        "status": 200,
+        "decision": "ELIGIBLE_FOR_IVR"
+      },
+      "pass": true,
+      "note": ""
+    },
+    {
+      "id": "TASK-M3-CONFIRM/result",
+      "expected": {
+        "result_type": "IVR_CONFIRMED",
+        "reached_module_3": true
+      },
+      "actual": {
+        "result_type": "IVR_CONFIRMED",
+        "reached_module_3": true
+      },
+      "pass": true,
+      "note": "final outcome; a callback is delivered"
+    },
+    {
+      "id": "TASK-M3-CANCEL/result",
+      "expected": {
+        "result_type": "IVR_CUSTOMER_CANCELLED",
+        "reached_module_3": true
+      },
+      "actual": {
+        "result_type": "IVR_CUSTOMER_CANCELLED",
+        "reached_module_3": true
+      },
+      "pass": true,
+      "note": "final outcome; a callback is delivered"
+    },
+    {
+      "id": "TASK-M3-NOANSWER/result",
+      "expected": {
+        "result_type": "IVR_NO_ANSWER_ATTEMPT",
+        "reached_module_3": false
+      },
+      "actual": {
+        "result_type": "IVR_NO_ANSWER_ATTEMPT",
+        "reached_module_3": false
+      },
+      "pass": true,
+      "note": "not final; Module 3 must receive nothing"
+    },
+    {
+      "id": "TASK-M3-BADNUMBER/result",
+      "expected": {
+        "result_type": "IVR_INVALID_PHONE_FINAL",
+        "reached_module_3": true
+      },
+      "actual": {
+        "result_type": "IVR_INVALID_PHONE_FINAL",
+        "reached_module_3": true
+      },
+      "pass": true,
+      "note": "final outcome; a callback is delivered"
+    },
+    {
+      "id": "TASK-M3-WRONGKEY/result",
+      "expected": {
+        "result_type": "IVR_WRONG_INPUT",
+        "reached_module_3": false
+      },
+      "actual": {
+        "result_type": "IVR_WRONG_INPUT",
+        "reached_module_3": false
+      },
+      "pass": true,
+      "note": "not final; Module 3 must receive nothing"
+    },
+    {
+      "id": "TASK-M3-TECHNICAL/result",
+      "expected": {
+        "result_type": "IVR_TECHNICAL_EXCEPTION",
+        "reached_module_3": false
+      },
+      "actual": {
+        "result_type": "IVR_TECHNICAL_EXCEPTION",
+        "reached_module_3": false
+      },
+      "pass": true,
+      "note": "not final; Module 3 must receive nothing"
+    },
+    {
+      "id": "NEG-PAIR",
+      "expected": {
+        "status": 400,
+        "code": "IVR_MALFORMED_REQUEST"
+      },
+      "actual": {
+        "status": 400,
+        "code": "IVR_MALFORMED_REQUEST"
+      },
+      "pass": true,
+      "note": "GOLDEN_HOUR with COD is not a supported program/payment pair"
+    },
+    {
+      "id": "NEG-WINDOW",
+      "expected": {
+        "status": 422,
+        "code": "IVR_STATE_NOT_CALLABLE"
+      },
+      "actual": {
+        "status": 422,
+        "code": "IVR_STATE_NOT_CALLABLE"
+      },
+      "pass": true,
+      "note": "A window that already closed. This is what a verbatim copy of a doc example returns."
+    },
+    {
+      "id": "NEG-TRACE",
+      "expected": {
+        "status": 422,
+        "code": "IVR_MISSING_TRACE"
+      },
+      "actual": {
+        "status": 422,
+        "code": "IVR_MISSING_TRACE"
+      },
+      "pass": true,
+      "note": "body correlation_id must equal the X-Correlation-Id header"
+    },
+    {
+      "id": "REPLAY-SAME",
+      "expected": {
+        "status": 200,
+        "same_job": true
+      },
+      "actual": {
+        "status": 200,
+        "same_job": true
+      },
+      "pass": true,
+      "note": "Same key, same body: the original decision comes back. Retrying is safe."
+    },
+    {
+      "id": "REPLAY-CONFLICT",
+      "expected": {
+        "status": 409,
+        "code": "IVR_IDEMPOTENCY_CONFLICT"
+      },
+      "actual": {
+        "status": 409,
+        "code": "IVR_IDEMPOTENCY_CONFLICT"
+      },
+      "pass": true,
+      "note": "Same key, different body: refused. Use a new key for a new command."
+    },
+    {
+      "id": "QUOTA",
+      "expected": {
+        "status": 429,
+        "code": "IVR_RATE_LIMITED",
+        "has_backoff": true
+      },
+      "actual": {
+        "status": 429,
+        "code": "IVR_RATE_LIMITED",
+        "has_backoff": true
+      },
+      "pass": true,
+      "note": "retry_after_seconds=60, requests_per_window=60"
+    }
+  ]
+}

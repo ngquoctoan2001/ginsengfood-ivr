@@ -77,6 +77,9 @@ services:
       # docker-compose.e2e.yml: without these an accepted task is never dialled and no result ever
       # reaches a callback, which looks exactly like a module that does not work.
       Ivr__Scheduler__Enabled: "true"
+      Ivr__EligibilityPolling__Enabled: "true"
+      Ivr__EligibilityPolling__ApiBaseUrl: "http://ivr-api:8080"
+      IVR_INTERNAL_SERVICE_TOKEN: "dev-internal-token-not-a-real-secret"
       Ivr__Scheduler__PollIntervalMilliseconds: "500"
 
       # The hour gate stays ENABLED and is widened to the whole day rather than switched off, for

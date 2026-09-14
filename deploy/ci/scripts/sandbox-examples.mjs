@@ -55,8 +55,6 @@ const ADMIN_READ_TOKEN = process.env.IVR_ADMIN_READ_TOKEN
   ?? "dev-admin-read-token-not-a-real-secret";
 const ADMIN_WRITE_TOKEN = process.env.IVR_ADMIN_WRITE_TOKEN
   ?? "dev-admin-write-token-not-a-real-secret";
-const INTERNAL_TOKEN = process.env.IVR_INTERNAL_SERVICE_TOKEN
-  ?? "dev-internal-token-not-a-real-secret";
 const RESULT_TIMEOUT_MS = Number(args.get("result-timeout-ms") ?? 90_000);
 
 /** Readiness polls, three seconds apart. Long enough for a cold start with migrations. */
@@ -154,22 +152,6 @@ function adminHeaders(tier, correlationId, idempotencyKey) {
   return headers;
 }
 
-/**
- * Headers for the INTERNAL lifecycle surface. Not Module 3's credential and not Module 3's to
- * hold: X-Source-System is literally `ivr-worker`, so this speaks as IVR's own worker.
- *
- * See recordEligibility() for why the harness has to speak as the worker at all.
- */
-function internalHeaders(correlationId, idempotencyKey) {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${INTERNAL_TOKEN}`,
-    "X-Source-System": "ivr-worker",
-    "X-Service-Scope": "ivr.internal.write",
-    "X-Correlation-Id": correlationId,
-    "Idempotency-Key": idempotencyKey,
-  };
-}
 
 /**
  * One HTTP call, with a bounded retry on TRANSPORT failures only.
@@ -278,6 +260,8 @@ function taskFrom(fixture, baseScenario, { taskId, correlationId }) {
   body.order_id = `ORDER-${suffix}`;
   body.order_code = `GF-2026-${suffix}`;
   body.correlation_id = correlationId;
+  // A dial token is bound to one task. Cloning a fixture must not clone its credential.
+  body.dial_token = `opaque-sandbox-${suffix}`;
   return body;
 }
 
@@ -407,33 +391,27 @@ async function admitScenarios(fixture) {
 }
 
 /**
- * Records eligibility so the job can leave HELD_MOCK and be claimed for dialling.
- *
- * THIS STEP IS A STAND-IN, and the gap it stands in for is the largest thing B2 found. Intake in
- * MOCK parks a job at DRY_RUN / HELD_MOCK, and nothing moves it until something posts
- * /eligibility-checks. Nothing does: the worker registers ten hosted services and not one of them
- * is an eligibility loop, and the only callers of that endpoint in the repository are this script
- * and the image self-test. So a task Module 3 pushes is accepted, and then sits there.
- *
- * The endpoint is tagged `internal` and its source header names `ivr-worker`, so the design intent
- * is plainly that IVR's own worker calls it — Module 3 must NOT be handed this credential. Who
- * owns that loop, and what it revalidates (D-06), is an owner decision and not something to invent
- * inside a sandbox harness. Until it is answered, the sandbox makes the round trip demonstrable by
- * doing the step explicitly, and says so here rather than letting a green run imply the loop exists.
+ * Records proof that the worker evaluated the task. W-0283 removes the internal credential
+ * and write call from this client: it may only observe the result through the admin read API.
  */
 async function recordEligibility(admitted) {
-  console.log("\nEligibility (stand-in for a loop IVR does not have — see W-0282)");
+  console.log("\nEligibility (performed automatically by the IVR worker)");
   const eligible = [];
   for (const scenario of admitted) {
-    const suffix = scenario.taskId.toLowerCase();
-    const result = await call("POST", "/eligibility-checks", {
-      headers: internalHeaders(`corr-elig-${suffix}`, `idem-elig-${suffix}`),
-      body: { task_id: scenario.taskId },
-    });
+    const deadline = Date.now() + RESULT_TIMEOUT_MS;
+    let result;
+    do {
+      result = await call("GET", `/call-jobs/${scenario.jobId}/detail`, {
+        headers: adminHeaders("read", `corr-elig-${scenario.taskId.toLowerCase()}`),
+      });
+      if (result.body?.eligibility_decision
+          && result.body.eligibility_decision !== "PENDING_ELIGIBILITY") break;
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } while (Date.now() < deadline);
     const ok = record(
       `${scenario.taskId}/eligibility`,
       { status: 200, decision: "ELIGIBLE_FOR_IVR" },
-      { status: result.status, decision: result.body?.decision ?? null },
+      { status: result.status, decision: result.body?.eligibility_decision ?? null },
       (result.body?.blocked_reasons ?? []).join(", "));
     if (ok) {
       eligible.push(scenario);
@@ -470,10 +448,15 @@ async function awaitResults(admitted) {
         continue;
       }
 
+      const callbacks = detail.body?.callbacks ?? [];
+      if (entry.final && !callbacks.some((callback) => callback.acknowledged_at != null)) {
+        continue;
+      }
+
       seen.set(taskId, {
         resultType: results.at(-1)?.result_type ?? null,
         recommendedCoreAction: results.at(-1)?.recommended_core_action ?? null,
-        callbacks: (detail.body?.callbacks ?? []).length,
+        callbacks: callbacks.length,
       });
       pending.delete(taskId);
     }

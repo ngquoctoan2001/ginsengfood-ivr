@@ -1,7 +1,7 @@
 # IR-08 — Môi trường thử cho Module 3
 
 **Chủ đề:** Cách Module 3 gọi vào IVR mà không cần chờ IVR có staging
-**Mốc mã:** `W-0282` · **Ngày:** `2026-09-12`
+**Mốc triển khai:** `W-0283` · **Cập nhật:** `2026-09-14`
 **Trạng thái:** chạy được, đã chứng minh bằng một lượt chạy thật — `24/24` ví dụ đúng như mô tả
 
 > Tài liệu này **không** thay thế [IR-06](./06-module-3-api-handover.md). IR-06 nói hợp đồng có gì.
@@ -124,17 +124,21 @@ Module 3 → POST /tasks                → TASK_ACCEPTED_DRY_RUN_ONLY + ivr_cal
 Theo dõi một task: `GET /call-jobs/{ivrCallJobId}/detail` (token hạng đọc). Nó trả về đủ `attempts`,
 `results`, `callbacks`.
 
-### ⚠️ Chặng 2 hiện **chưa có ai chạy**
+### Chặng 2 do worker IVR tự xử lý (`W-0283`)
 
-`POST /eligibility-checks` là thứ đưa task rời khỏi trạng thái giữ để được quay số. Trong IVR hiện tại
-**không có vòng lặp nào gọi nó** — worker đăng ký 10 dịch vụ nền, không cái nào làm việc này.
+Worker đọc task còn `PENDING_ELIGIBILITY`, chưa đóng, chưa hết hạn và chưa bị thu hồi,
+rồi gọi `POST /eligibility-checks` bằng tài khoản nội bộ. Endpoint giữ nguyên toàn bộ luật kiểm tra
+và persistence hiện hành. Module 3 quyết định nghiệp vụ cần gọi; IVR kiểm tra điều kiện kỹ thuật,
+bằng chứng và năng lực trước khi scheduler được phép dispatch.
 
 Đây là **việc của IVR, không phải của Module 3**: endpoint đó thuộc nhóm nội bộ và header nguồn của nó
 ghi thẳng là `ivr-worker`. Bạn **không** được cấp token nội bộ.
 
-Trong lúc chờ chốt ai sở hữu vòng lặp này, script ví dụ tự gọi giúp bước đó để cả vòng chạy được, và
-nó ghi rõ đang đóng thế. Chủ Module 8 đang cần quyết: vòng lặp này thuộc về ai và nó xác thực lại
-những gì (D-06).
+Script ví dụ chỉ gửi task và đọc trạng thái; không giữ token nội bộ hoặc gọi thay bước eligibility.
+Vòng polling mặc định tắt, sandbox bật `Ivr:EligibilityPolling:Enabled` và cấu hình `ApiBaseUrl`
+cùng `IVR_INTERNAL_SERVICE_TOKEN` ở worker. Các worker dùng cùng khóa idempotency cho cùng job;
+restart hoặc mất phản hồi không tạo quyết định thứ hai. Lỗi HTTP được retry qua backoff của worker.
+Task đã có quyết định review/capacity không bị tự đưa trở lại hàng gọi.
 
 ---
 
@@ -217,7 +221,7 @@ Bộ ví dụ cần một sandbox **sạch**: kết quả giả lập gắn cứ
 | Chưa có | Vì sao | Ai gỡ |
 | --- | --- | --- |
 | Địa chỉ sandbox dùng chung | Cổng `G-PLATFORM`: chưa có cụm, CSDL, DNS/TLS cho staging | Hạ tầng |
-| Vòng lặp xét điều kiện gọi | Chưa chốt ai sở hữu và nó xác thực lại những gì | Chủ Module 8 |
+| Tích hợp M3 thật | Cần hợp đồng đã ký, địa chỉ và credential của M3 | Module 3 + Module 8 |
 | Xác thực bằng JWT thật | Sandbox dùng token tĩnh; hồ sơ xác thực production còn mở (`OD-V1-07`) | Chủ Module 8 + An ninh |
 | Gọi ra số thật | Chưa có hợp đồng nhà mạng, chưa đo dung lượng | Chủ dự án |
 
