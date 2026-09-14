@@ -1,9 +1,10 @@
 {
   "candidate": "179a5ebc2b2fc5ec49a9488f5b446f98d7551c3e",
   "pipeline_url": "https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2846110576",
-  "pipeline_ui_status": "Blocked",
+  "pipeline_ui_status": "Failed",
+  "transition_note": "Before metadata push the UI was Blocked with two Manual jobs. After metadata push b5d2a91, the old pipeline is Failed and those two unrun jobs are Canceled. The 31 Passed jobs and dev failure are unchanged.",
   "capture_date": "2026-09-14",
-  "counts_latest_attempt_per_configured_job": {"Passed": 31, "Failed": 1, "Skipped": 2, "Manual": 2},
+  "counts_latest_attempt_per_configured_job": {"Passed": 31, "Failed": 1, "Skipped": 2, "Canceled": 2},
   "count_note": "36 configured jobs; historical retries and the GitLab-generated pages:deploy are excluded from this count. Pages deployment is independently Active.",
   "jobs": [
     {"name":"api_contract_diff","job":16479178616,"status":"Passed"},
@@ -37,10 +38,10 @@
     {"name":"pii_scan","job":16478951083,"status":"Passed"},
     {"name":"api_docs_pages","job":16478951084,"status":"Passed"},
     {"name":"publish_images","job":16478951085,"status":"Passed"},
-    {"name":"registry_push_pull_smoke","job":16478951086,"status":"Manual"},
+    {"name":"registry_push_pull_smoke","job":16478951086,"status":"Canceled"},
     {"name":"deploy_dev","job":16478951087,"status":"Failed"},
     {"name":"deploy_staging","job":16478951088,"status":"Skipped"},
-    {"name":"observability_staging_evidence","job":16478951089,"status":"Manual"},
+    {"name":"observability_staging_evidence","job":16478951089,"status":"Canceled"},
     {"name":"promote_lab","job":16478951090,"status":"Skipped"}
   ],
   "full_suite": {"unit":688,"integration":298,"contract":24,"chaos":8,"total":1018,"failed":0,"skipped":0,"coverage_percent":89.32},

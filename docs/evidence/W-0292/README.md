@@ -2,7 +2,7 @@
 
 Ngày 14/09/2026. **BLOCKED_EXTERNAL — thiếu cluster dev/staging**. Owner duyệt push/scan/publish/deploy dev–staging và 68 fingerprint đã rà ở W-0291. Phần kiểm chứng/publish hoàn tất trên candidate `179a5eb`; không tuyên bố đã deploy.
 
-**Kết quả hiện hành:** [pipeline 2846110576](https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2846110576), candidate `179a5eb`, UI **Blocked**. [Inventory](hosted-179a5eb-summary.json): **31 PASS, 1 Failed, 2 Skipped, 2 Manual** trên 36 job cấu hình (không cộng lượt retry và job Pages do GitLab sinh). Dev fail vì không có kết nối cluster; staging skipped. Pipeline không phải PASS.
+**Kết quả kết thúc:** [pipeline 2846110576](https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2846110576), candidate `179a5eb`, UI **Failed**. [Inventory](hosted-179a5eb-summary.json): **31 PASS, 1 Failed, 2 Skipped, 2 Canceled** trên 36 job cấu hình (không cộng lượt retry và job Pages do GitLab sinh). Trước push hồ sơ b5d2a91, UI là Blocked với hai job Manual; sau push hai job chưa chạy chuyển Canceled. Dev vẫn fail vì không có kết nối cluster; staging skipped. Pipeline không phải PASS.
 
 | Phạm vi | Hosted proof tại 179a5eb |
 | --- | --- |

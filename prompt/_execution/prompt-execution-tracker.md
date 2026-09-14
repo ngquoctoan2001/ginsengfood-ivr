@@ -23,7 +23,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0297` |
 | Last allocated | `W-0296` |
-| Last activity sequence | `A-0623` |
+| Last activity sequence | `A-0624` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -369,7 +369,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 
 | `W-0291` | Vá dependency CI và chạy security scan (Origin=`UNPLANNED`) | npm audit phát hiện js-yaml HIGH; owner duyệt scan 14/09 | `W-0290`; baseline `d44834e` | TESTS_PASS | Codex | `docs/evidence/W-0291/README.md` | js-yaml 4.3.2; 6 gate + docs build PASS; full security wrapper PASS sau owner duyệt 68 fingerprint | Không thay API contract/runtime hoặc nới scanner; hosted là bước kế tiếp |
 
-| `W-0292` | Hosted candidate CI/publish/dev-staging (Origin=`UNPLANNED`, owner duyệt) | Chạy pipeline thật trên các sửa đã kiểm local | `W-0291`; hosted candidate `179a5eb` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0292/README.md` | Pipeline 2846110576: 31 PASS; full suite 1.018, image E2E 8, K8s 7/7, sweep 39/39, security/PII PASS; ba image có digest và Pages Active | Pipeline UI Blocked; dev Failed vì cluster unreachable localhost:8080, staging Skipped; cần target/credential/DB/secrets; lab/prod/real calls chưa mở |
+| `W-0292` | Hosted candidate CI/publish/dev-staging (Origin=`UNPLANNED`, owner duyệt) | Chạy pipeline thật trên các sửa đã kiểm local | `W-0291`; hosted candidate `179a5eb` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0292/README.md` | Pipeline 2846110576: 31 PASS; full suite 1.018, image E2E 8, K8s 7/7, sweep 39/39, security/PII PASS; ba image có digest và Pages Active | Pipeline kết thúc Failed; dev cluster unreachable localhost:8080, staging Skipped; cần target/credential/DB/secrets; lab/prod/real calls chưa mở |
 
 | `W-0293` | Chuẩn hoá trình bày evidence cho PII gate (Origin=`UNPLANNED`) | Full evidence scan từ chối 121 dòng tại 45 file: thuật ngữ kỹ thuật, ví dụ product/negative fixture; giữ scanner và source test | `W-0292`; baseline `6bf954d` | TESTS_PASS | Codex | `docs/evidence/W-0293/README.md` | Full evidence scan exit 0; selftest 8 marker PASS; bản gốc ví dụ được dẫn bằng immutable commit; không thay quyết định/hash/chữ ký | Hosted pipeline cần chạy trên commit sửa; không đổi allowlist hoặc runtime |
 
@@ -1779,3 +1779,5 @@ Final status: TESTS_PASS
 | `A-0622` | 2026-09-14 | `W-0295`, `W-0296` | FINISH | Hosted gate_sweep 16479006261 tại 179a5eb PASS 39/39, 22 skip, Job succeeded 08:37:04 UTC. Cả W0181/W0183 và selftest JUnit/PII, DR, TTS PASS; runner recovery được kiểm chứng | Codex | Commit riêng hồ sơ phục hồi; giữ pipeline 2846110576 tiếp tục kiểm thử/publish/deploy, chưa kết luận toàn pipeline PASS |
 
 | `A-0623` | 2026-09-14 | `W-0286`, `W-0292`, `W-0294`, `W-0295`, `W-0296` | VERIFIED/BLOCKED_EXTERNAL | W-0296 commit 2930781, Gitleaks 350 commit no leaks. Hosted 179a5eb: 31 PASS/1 Failed/2 Skipped/2 Manual; full suite 1.018/1.018, coverage 89,32%, schema 21/globalization 688, image E2E/K8s/observability PASS. Security 349 commit no leaks, PII 418 file PASS. Ba image 0 HIGH/CRITICAL đã push và có digest; Pages Active, browser mở đúng draft.27/38 operation | Codex | Dev job 16478951087 bootstrap PASS nhưng cluster unreachable localhost:8080; staging skipped, pipeline UI Blocked. Chốt phần kiểm chứng/publish, giữ W-0292 BLOCKED_EXTERNAL; cần máy chủ/cluster đích, không mở lab/prod hoặc gọi thật |
+
+| `A-0624` | 2026-09-14 | `W-0292` | TERMINAL_SNAPSHOT | Sau push hồ sơ b5d2a91 lên hai remote, pipeline 2846110576 chuyển từ Blocked sang Failed; hai job Manual chưa chạy chuyển Canceled. Snapshot cuối: 31 Passed, 1 Failed (dev), 2 Skipped, 2 Canceled. Cập nhật inventory/report; giữ snapshot trước push tại A-0623 | Codex | Các commit hồ sơ sau candidate chỉ là evidence/tracker/report; không nhận kết quả CI của 179a5eb thành bằng chứng runtime SHA mới. CI hồ sơ được tự kích hoạt; đích deploy vẫn chưa được cấu hình |
