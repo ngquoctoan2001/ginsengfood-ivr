@@ -1,8 +1,8 @@
 # BÁO CÁO TIẾN ĐỘ MODULE 8 — IVR XÁC NHẬN ĐƠN HÀNG
 
+**Đính chính 14/09:** các số kiểm thử và commit dưới đây vẫn thuộc kỳ 12/09; sửa phạm vi kết luận theo [W-0284](../evidence/W-0284/README.md). Worker eligibility đã bổ sung ở [W-0283](../evidence/W-0283/README.md).
 **Kỳ báo cáo:** 06/09 → 12/09/2026 (7 ngày) · **Người thực hiện:** Nguyễn Quốc Toàn · **Mốc code:** `e81fec1` (12/09 13:53)
-
-**Trạng thái điều hành:** `RELEASE_BLOCKED — CHỜ MODULE 3`. Phần mềm chạy trọn vòng gọi ở chế độ giả lập, **1.003 bài kiểm thử xanh hoàn toàn**, blocker nội bộ cuối cùng của tuần trước đã đóng. Ngày 12/09 đã sửa xong ba lỗi phát hiện buổi sáng và **dựng xong môi trường thử cho Module 3** — việc duy nhất trong làn B không phải chờ họ. Không còn việc kỹ thuật nào của riêng Module 8 chặn tiến độ; thứ đang chặn là **11 cổng bên ngoài**, gần nhất là **Module 3 chưa phản hồi phiếu chốt hợp đồng gửi ngày 10/09**. Trong kỳ có 140 lưu vào `main`, cây làm việc sạch, hai kho GitLab và GitHub đã đồng bộ, tổng lịch sử 338 lưu. **Giao diện quản trị đã bị xoá khỏi module** theo chỉ đạo 05/09 — Module 8 nay thuần backend, Module 3 tự làm màn hình.
+**Trạng thái điều hành:** `RELEASE_BLOCKED — CHỜ MODULE 3`. Phần mềm chạy trọn vòng gọi ở chế độ giả lập, **1.003 bài kiểm thử xanh hoàn toàn**, blocker nội bộ cuối cùng của tuần trước đã đóng. Ngày 12/09 đã sửa xong ba lỗi phát hiện buổi sáng và **dựng xong môi trường thử cho Module 3** — việc duy nhất trong làn B không phải chờ họ. Còn cần kiểm chứng image E2E đầy đủ, độ bền và hosted CI trên ứng viên mới; đồng thời có **11 cổng bên ngoài**, gần nhất là **Module 3 chưa phản hồi phiếu chốt hợp đồng gửi ngày 10/09**. Trong kỳ có 140 lưu vào `main`, cây làm việc sạch, hai kho GitLab và GitHub đã đồng bộ, tổng lịch sử 338 lưu. **Giao diện quản trị đã bị xoá khỏi module** theo chỉ đạo 05/09 — Module 8 nay thuần backend, Module 3 tự làm màn hình.
 
 ## 1. TIẾN ĐỘ
 
@@ -14,7 +14,7 @@
 | Dữ liệu, nâng cấp CSDL & cổng an toàn thời gian chạy | 90% | 25 bản nâng cấp, **cổng chạy song song hai phiên bản đã xanh trong kỳ**; bảng phê duyệt trong CSDL, luật bốn mắt, công tắc khẩn luôn tắt được kể cả khi thiếu quyền |
 | Trả kết quả về Module 3 | 88% | Hàng đợi gửi lại, thư mục lỗi, đủ bộ mã xác nhận; 12/09 đã **chứng minh gửi được ra đầu nhận đặt ngoài stack** đúng hợp đồng — nhưng **chưa đối soát với đầu nhận thật của Module 3** |
 | Giọng đọc, quyền riêng tư & tuân thủ | 84% | Ngân hàng clip A–E đã sinh đủ; bỏ tên khách khỏi lời thoại nên không phải gửi dữ liệu khách ra ngoài; xử lý yêu cầu xoá dữ liệu, chặn lộ tên, mẫu hồ sơ lưu trữ cho pháp lý — nhưng **chưa duyệt giọng và chưa có chữ ký nào** |
-| Triển khai, CI, quan sát, hiệu năng & bằng chứng | 47% | 39 đầu việc CI đã khai, cổng đóng gói nay 5/5 đạt, nhưng **chưa lượt nào chạy trên máy chủ thật** — và hôm nay chứng minh đúng cái giá của việc đó (mục 4.1); mô hình dung lượng chưa hiệu chỉnh; chưa chạy tải; **56/257 hạng mục chưa có gói bằng chứng** (đếm lại 12/09: 201 hạng mục đã có hồ sơ trên đĩa — bản trước ghi ngược thành 200 dòng còn thiếu) |
+| Triển khai, CI, quan sát, hiệu năng & bằng chứng | 47% | 39 đầu việc CI đã khai, 5 kiểm tra đóng gói đạt nhưng image E2E chưa hoàn tất; **đã có hosted CI lịch sử W-0061/W-0093, chưa có bằng chứng trên mốc báo cáo này** — và hôm nay chứng minh đúng cái giá của việc đó (mục 4.1); mô hình dung lượng chưa hiệu chỉnh; chưa chạy tải; **56/257 dòng tracker không có README riêng, không đồng nghĩa thiếu bằng chứng** (đếm lại 12/09: 201 hạng mục đã có hồ sơ trên đĩa — bản trước ghi ngược thành 200 dòng còn thiếu) |
 | **TỔNG THỂ (phần chức năng)** | **~85%** | Ước lượng kỹ thuật ở chế độ giả lập; **không phải 85% đã nghiệm thu**, và chưa nói gì về mức sẵn sàng gọi khách thật |
 
 **Quy mô thay đổi trong kỳ:** 140 lưu (07/09: 20 · 08/09: 31 · 09/09: 49 · 10/09: 24 · 11/09: 6 · 12/09: 10) · 551 file · `+48.637 / −30.510` dòng · 80 hạng mục `W-0203`→`W-0282`.
@@ -30,7 +30,7 @@
 
 ## 3. KẾT NỐI VỚI MODULE 3 — **ĐANG CHỜ HỌ TRẢ LỜI**
 
-**Tài liệu đã gửi xong, phía mình không còn nợ gì.** Ngày 10/09 đã phát trọn bộ: bản bàn giao API `IR-06`, **phiếu chốt một lần `IR-07`**, hợp đồng OpenAPI và sổ thay đổi giữa các bản.
+**Bản đầu đã gửi; vẫn cần đồng bộ bản hiện hành và nhận phiếu đã ký.** Ngày 10/09 đã phát trọn bộ: bản bàn giao API `IR-06`, **phiếu chốt một lần `IR-07`**, hợp đồng OpenAPI và sổ thay đổi giữa các bản.
 
 | Nội dung | Trạng thái |
 | --- | --- |
@@ -38,7 +38,7 @@
 | **Phiếu chốt `IR-07` — 21 mục phải trả lời**: bên gửi việc 7 · trả kết quả 8 · bề mặt quản trị 5 · môi trường 1 | 🟡 **Đã gửi 10/09 · Module 3 chưa phản hồi** |
 | Môi trường thử để Module 3 gọi vào | ✅ **Đã dựng xong 12/09** — một lệnh là chạy, **24/24 ví dụ đạt** trên môi trường sạch, kèm hướng dẫn riêng `IR-08` |
 
-Phiếu được thiết kế để **chốt trong đúng một vòng**: mỗi mục đã có sẵn vị trí của Module 8 kèm lý do, Module 3 chỉ cần đánh `ĐỒNG Ý` hoặc ghi giá trị khác, **không điền coi như đồng ý**. **Module 3 đã hẹn phản hồi trong tuần 14–19/09.** Chừng nào chưa nhận phiếu đã điền thì 5 cổng `G-CONTRACT`, `G-SPEECH`, `G-DIAL`, `G-AUTH`, `G-POLICY` không đóng được và việc đấu nối hai chiều chưa bắt đầu được — **đây là đường găng duy nhất của module lúc này**. **Riêng môi trường thử thì không chờ ai**: chiều 12/09 đã dựng xong và chạy thật từ ngoài vào, Module 3 chỉ cần một lệnh là có môi trường trên máy họ. Dựng nó cũng lộ ra một việc **cần chú quyết**, ghi ở mục 6.
+Phiếu được thiết kế để **chốt trong đúng một vòng**: mỗi mục đã có sẵn vị trí của Module 8 kèm lý do, Module 3 chỉ cần đánh `ĐỒNG Ý` hoặc ghi giá trị khác, **ô trống chỉ nhận mặc định trong phiếu M3 đã trả lại và ký; chưa phản hồi vẫn là pending**. **Module 3 đã hẹn phản hồi trong tuần 14–19/09.** Chừng nào chưa nhận phiếu đã điền thì 5 cổng `G-CONTRACT`, `G-SPEECH`, `G-DIAL`, `G-AUTH`, `G-POLICY` không đóng được và việc đấu nối hai chiều chưa bắt đầu được — **đây là phụ thuộc của làn tích hợp M3; CI/hạ tầng và kiểm chứng nội bộ có đường việc riêng**. **Riêng môi trường thử thì không chờ ai**: chiều 12/09 đã dựng xong và chạy thật từ ngoài vào, Module 3 chỉ cần một lệnh là có môi trường trên máy họ. Dựng nó cũng lộ ra một việc **cần chú quyết**, ghi ở mục 6.
 
 ## 4. KẾT QUẢ KIỂM CHỨNG
 
@@ -49,14 +49,14 @@ Phiếu được thiết kế để **chốt trong đúng một vòng**: mỗi m
 | **Môi trường thử cho Module 3** | ✅ **24/24 ví dụ đạt** trên môi trường dựng lại từ trắng, gọi **từ ngoài vào qua mạng** đúng như Module 3 sẽ gọi: 6 tình huống cuộc gọi chạy trọn vòng, 5 kiểu từ chối, 1 hạn mức. Chạy lần nữa với **đầu nhận đặt ngoài stack**: nhận đúng 3 kết quả cuối, và **im lặng** với 3 kết quả chưa cuối — đúng điều khoản hợp đồng |
 | Chạy trọn vòng gọi ở chế độ giả lập | **PASS 5/5** khi chạy trong khung giờ: xác nhận, huỷ, số sai, bấm sai phím, lỗi kỹ thuật đều ra đúng kết quả; lỗi kỹ thuật và số sai không tính là lượt gọi khách; 3/5 kết quả vào hàng đợi trả về. Lượt chạy lúc 07:54 đỏ toàn bộ **nhưng là đúng thiết kế** — bộ lập lịch từ chối quay số vì chưa tới 08:00, khung giờ chủ dự án chốt ngày 08/09. Ghi nhận: kịch bản diễn tập nay phụ thuộc giờ trong ngày, chưa ghim được đồng hồ |
 | Nâng cấp CSDL · hợp đồng · xây · tài liệu · CI | Nâng cấp chạy song song hai phiên bản **PASS** — blocker nội bộ cuối cùng của tuần trước đã đóng. Đóng băng hợp đồng 15/15; kiểm tra hợp lệ, đối chiếu trôi, bắt bản hỏng: đạt cả ba; biên dịch 0 cảnh báo / 0 lỗi; tài liệu và cấu hình CI đạt. **Kubernetes PASS** trên cụm thật dựng tạm: chặn kết nối ra ngoài danh sách cho phép, worker sống qua 90 giây mất CSDL với 0 lần khởi động lại, xoay token gối đầu 6/6 |
-| **Cổng kiểm bản đóng gói** (*container image* — thứ thật sự đem lên máy chủ chạy) | ✅ **5/5 ĐẠT sau ba bản vá hôm nay**: đóng gói không chạy quyền cao nhất · tự báo còn sống không cần CSDL · dựng cụm chạy thử, bên bán hàng giả lập không ra được Internet · quét lỗ hổng sạch và vẫn biết báo đỏ với bản cố tình hỏng · kê khai thành phần 31 và 97 thư viện. Sửa xong **lộ tiếp hai việc bị che khuất**, một đã vá, một cần chú quyết — mục 4.1 |
+| **Cổng kiểm bản đóng gói** (*container image* — thứ thật sự đem lên máy chủ chạy) | **PARTIAL — 5 kiểm tra đóng gói đạt; chưa PASS toàn bộ image-selftest gồm E2E**: đóng gói không chạy quyền cao nhất · tự báo còn sống không cần CSDL · dựng cụm chạy thử, bên bán hàng giả lập không ra được Internet · quét lỗ hổng sạch và vẫn biết báo đỏ với bản cố tình hỏng · kê khai thành phần 31 và 97 thư viện. Sửa xong **lộ tiếp hai việc bị che khuất**, một đã vá, một cần chú quyết — mục 4.1 |
 | **Việc tổng hợp số liệu** | ✅ **ĐÃ SỬA trong ngày** — lỗi nằm trên đường chạy thật, không phải bộ giả lập: hàm chuẩn hoá quy mọi phím khác `0`/`1` thành chữ `INVALID` và không bấm gì thành `NO_INPUT`, hai chuỗi đó tràn cột `varchar(1)` của kho số liệu. Vì cả lô nạp trong một giao dịch nên **một khách bấm nhầm phím làm hỏng cả lô và mọi lô sau, vĩnh viễn** — số liệu đứng im mà mọi test vẫn xanh. Nay chỉ nhận đúng một phím thật, còn lại ghi rỗng; thông tin không mất vì đã nằm ở cột loại kết quả. Có bài kiểm canh lỗi, đã kiểm chứng đỏ khi gỡ vá |
 | Quét bảo mật | Lần quét 07/09 sạch, có ghi nhận 55 cảnh báo giả đã rà; máy này chưa cài công cụ nên **không chạy lại được tại chỗ** |
-| Trạng thái kiểm soát chính thức | **NẤC 0 / NO-GO**. 43/257 hạng mục đã nghiệm thu, tuần trước 8 · 18 chặn bởi bên ngoài · **11 cổng ngoài còn mở** · quyết định còn mở giảm 4 → **2**. ⚠️ Bảng này **đếm thiếu 13 hạng mục**: `W-0267`–`W-0279` đã commit và có gói bằng chứng nhưng không có dòng nào trong sổ tiến độ. Cờ gọi khách thật vẫn **NO** ở cả bốn môi trường; **chưa một cuộc gọi nào tới số khách hàng thật** |
+| Trạng thái kiểm soát chính thức | **NẤC 0 / NO-GO**. 43/257 hạng mục đã nghiệm thu, tuần trước 8 · 18 chặn bởi bên ngoài · **11 cổng ngoài còn mở** · quyết định còn mở giảm 4 → **2**. ⚠️ **Đính chính 14/09: W-0284 đã khôi phục 13 dòng thiếu**: `W-0267`–`W-0279` đã commit và có hồ sơ; giữ đúng trạng thái gốc, không tạo nghiệm thu mới. Cờ gọi khách thật vẫn **NO** ở cả bốn môi trường; **chưa một cuộc gọi nào tới số khách hàng thật** |
 
 ### 4.1 Sửa một lỗi, lộ ra hai — cả hai đều đáng hơn lỗi ban đầu
 
-1. **Nửa cổng này đã chết 15 ngày.** Cổng gãy ở dòng in kết quả nên nửa sau chưa từng chạy; vá xong mới lộ ra. Nó gọi các lệnh quản trị bằng cơ chế xác thực theo header mà `W-0128` đã xoá từ 28/08; hệ thống nay phân quyền theo hạng token. Máy chủ không từ chối — nó **bỏ qua** header cũ, nên mọi lệnh trả về 401. **Đã sửa và chạy lại đạt**: script dùng token đúng hạng kèm người thực hiện và lý do, và bổ sung ba token quản trị vào cấu hình dựng cụm. **Đây là bằng chứng cụ thể cho mục C1–C2**: không có máy chủ CI chạy tự động thì một cổng kiểm mục nát hai tuần mà không ai hay.
+1. **Nửa cổng này đã chết 15 ngày.** Cổng gãy ở dòng in kết quả nên nửa sau chưa từng chạy; vá xong mới lộ ra. Nó gọi các lệnh quản trị bằng cơ chế xác thực theo header mà `W-0128` đã xoá từ 28/08; hệ thống nay phân quyền theo hạng token. Máy chủ không từ chối — nó **bỏ qua** header cũ, nên mọi lệnh trả về 401. **Đã sửa và chạy lại đạt**: script dùng token đúng hạng kèm người thực hiện và lý do, và bổ sung ba token quản trị vào cấu hình dựng cụm. **Đây là bằng chứng cụ thể cho mục C1–C2**: bằng chứng hosted cũ không chứng minh cổng vẫn xanh ở mã hiện hành; cần kiểm tra runner/pipeline thực tế.
 2. **Một khác biệt nhãn kết quả, cần chủ dự án quyết.** Bài diễn tập tạm dừng hàng đợi cho cửa sổ xác nhận hết hạn mà không gọi. Phần an toàn **đúng**: lệnh tạm dừng giữ được, không cuộc gọi nào xảy ra. Nhưng hệ thống gắn nhãn `IVR_CONFIRMATION_WINDOW_EXPIRED`, còn bài diễn tập đợi `IVR_CAPACITY_EXCEPTION`. Đặc tả ghi "capacity không xử lý kịp" thì phải là nhãn sau. Hai nhãn dẫn tới **hai hành động khác nhau** mà Module 3 phải làm với đơn, nên không tự sửa: cần chốt "tạm dừng có tính là cạn năng lực không".
 
 ## 5. KẾ HOẠCH HOÀN THÀNH
@@ -67,15 +67,15 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | --- | ---: | --- | --- |
 | A | A1 | ✅ **Đã xong**: ba lỗi ngày 12/09 đã sửa (dòng in kết quả cổng đóng gói · cột `dtmf_key` tràn · nửa cổng gọi bằng cơ chế xác thực đã xoá) kèm bài kiểm canh lỗi kho số liệu; và ma trận 38/38 lệnh đã đạt từ `W-0197` ngày 07/09. **Còn lại**: chốt nhãn kết quả ở mục 4.1 rồi chạy lại cổng cho xanh hết; bổ sung khẳng định không lộ số điện thoại, địa chỉ, thanh toán vào từng phản hồi; gắn ma trận vào lượt chạy bắt buộc khi có runner | 15/09 |
 | A | A2 | **Chạy liên tục ≥100 vòng** có tiêm lỗi: không nghe máy nhiều lượt, chết giữa chừng, hết hạn giữ việc, gửi trùng, hàng lỗi và phát lại; chứng minh không mất và không nhân đôi kết quả; **ghim đồng hồ** để diễn tập chạy được ngoài khung giờ gọi | 16/09 |
-| A | A3 | Bù gói bằng chứng cho **56 hạng mục** đã xanh test nhưng chưa có hồ sơ | 17/09 |
+| A | A3 | Đối soát evidence từng dòng: planned prompt cần README; unplanned có thể có evidence trong tracker. Không tạo 56 hồ sơ rỗng chỉ để đủ số | 17/09 |
 | A | A4 | Chạy lại **toàn bộ 50 bài tự kiểm + 39 đầu việc CI** trên đúng một mốc mã, ghim kết quả làm ứng viên phát hành | 18/09 |
 | **B** | **B1** | **Nhận phiếu `IR-07` đã điền — 21 mục.** Module 3 hẹn trả trong tuần 14–19/09 | **chờ M3** |
-| **B** | B2 | ✅ **Xong 12/09**: môi trường thử một lệnh, tài khoản dịch vụ có hạn mức **60 lệnh/phút** (mã `429` hợp đồng hứa từ đầu nhưng **chưa từng có thật** — nay có), 24 ví dụ chạy được, cách dọn dữ liệu, đầu nhận giả lập. **Còn lại**: chốt ai sở hữu bước xét điều kiện gọi | ✅ |
+| **B** | B2 | ✅ **Xong 12/09**: môi trường thử một lệnh, tài khoản dịch vụ có hạn mức **60 lệnh/phút** (mã `429` hợp đồng hứa từ đầu nhưng **chưa từng có thật** — nay có), 24 ví dụ chạy được, cách dọn dữ liệu, đầu nhận giả lập. **Cập nhật 14/09**: W-0283 đã thêm worker tự xét cổng kỹ thuật; M3 giữ quyết định nghiệp vụ CALL_REQUIRED | ✅ |
 | **B** | B3 | Áp các mục Module 3 chọn khác vào hợp đồng và mã nguồn; phát hành bản hợp đồng kế tiếp; sinh lại bộ mã gọi cho họ | sau B1 |
 | **B** | B4 | **Đấu nối hai chiều**: Module 3 đẩy việc → IVR gọi giả lập → trả kết quả về Module 3 → Module 3 đổi trạng thái đơn | sau B1 |
 | **B** | B5 | Đối soát đủ bộ mã xác nhận: chấp nhận, trùng, lỗi thời, bị chặn, sai định dạng, quá hạn mức, và thử lại sau khi mất kết nối | sau B1 |
 | **B** | B6 | Ký đóng 5 cổng `G-CONTRACT`, `G-SPEECH`, `G-DIAL`, `G-AUTH`, `G-POLICY` | sau B4 |
-| C | C1 | Nâng gói GitLab + người rà soát thứ hai, bật lượt chạy bắt buộc trước khi nhập mã (`G-GITLAB`); cấp máy chủ staging, CSDL, kho ảnh, quản lý bí mật, DNS/TLS (`G-PLATFORM`). **Hôm nay cho thấy vì sao đây là việc gấp, không phải việc cuối** | cần Hạ tầng |
+| C | C1 | Kiểm tra runner/pipeline/quyền GitLab đang có; chỉ yêu cầu phần thiếu để đáp ứng người rà soát độc lập và lượt chạy bắt buộc trước khi nhập mã (`G-GITLAB`); cấp máy chủ staging, CSDL, kho ảnh, quản lý bí mật, DNS/TLS (`G-PLATFORM`). **Hôm nay cho thấy vì sao đây là việc gấp, không phải việc cuối** | cần Hạ tầng |
 | C | C2 | Triển khai staging bằng Helm; chạy khói; diễn tập cuộn dần, xanh–lam, nâng cấp hỏng và quay lui. Rồi bảng theo dõi, cảnh báo, sổ tay xử lý sự cố, phân người trực, nối vết xuyên Module 3 → IVR → tổng đài; sao lưu, diễn tập khôi phục có mốc thời gian, đo RPO/RTO, khôi phục nhiều vùng, mã hoá ổ đĩa | sau C1 |
 | C | C3 | Đo hiệu năng (tải thấp, nền, đỉnh, dồn cục; p95/p99; số kênh cần; bể kết nối CSDL) rồi **chạy liên tục 24–72 giờ** trên staging | sau C1 |
 | C | C4 | Quét bảo mật thời gian chạy: ảnh, thư viện, bí mật; kiểm thử thâm nhập có xác thực; xử lý phát hiện | 18/09 |
@@ -84,8 +84,8 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | E | E1 | Chốt hợp đồng nhà mạng: số cố định + brandname; chặn mọi số ngoài danh sách cho phép; đặt trần chi phí | cần chủ dự án |
 | E | E2 | **Thử một SIM thật**: gọi ra, bắt máy, máy bận, không nghe, bấm 0/1/phím sai/hết giờ, cúp máy, hiển thị số gọi, tiếng Việt có dấu; và các ca hỏng: mất sóng, khoá SIM, hết tiền, nhà mạng từ chối, quá hạn mức, sự kiện trùng, khởi động lại bộ nối | sau E1 |
 | E | E3 | **Đo dung lượng thật** → hiệu chỉnh mô hình, đóng hai quyết định còn mở cuối cùng `OD-V1-09` và `OD-V1-10`; rồi quyết quy mô SIM cho vận hành **từ số đo**, không mặc định 32, kèm dự phòng, xoay SIM, theo dõi số dư, cam kết dịch vụ | sau E2 |
-| E | E4 | Nghiệm thu bằng số nội bộ trên bộ đơn đã biết trước kết quả; diễn tập quay lui; rồi thí điểm nhóm khách nhỏ: giới hạn giờ, ít kênh, bảng theo dõi trực tiếp, người trực công tắc khẩn, ngưỡng tự dừng đặt trước | sau E3 |
-| E | E5 | Biên bản go/no-go trên đúng ứng viên phát hành; chủ dự án ký; **bật cờ gọi khách thật**; trực tăng cường 3–7 ngày | sau E4 |
+| E | E4 | Nghiệm thu bằng số nội bộ trên bộ đơn đã biết trước kết quả; diễn tập quay lui; chuẩn bị phạm vi pilot, ngưỡng tự dừng và người trực | sau E3 |
+| E | E5 | Go/no-go trên đúng ứng viên và đủ cổng; chủ dự án ký phạm vi pilot; **sau đó mới bật quyền gọi khách thật và chạy pilot giới hạn**; trực tăng cường 3–7 ngày | sau E4 |
 
 ## 6. ĐIỀU KIỆN GIỮ ĐƯỢC LỊCH
 
@@ -94,7 +94,7 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | **Phiếu chốt `IR-07` điền xong, 21 mục** | **Module 3** | **19/09** | Làn B đứng từ B3; 5 cổng hợp đồng không đóng được; toàn bộ mốc sau lùi theo |
 | Máy chủ staging, kho ảnh, bí mật, DNS/TLS **và** nâng gói GitLab + người rà soát thứ hai | Hạ tầng | 16/09 | Làn C lùi nguyên khối; không đo được hiệu năng; không có lượt chạy bắt buộc nên ứng viên phát hành không tái tạo được — và cổng kiểm tiếp tục mục nát âm thầm như mục 4.1 |
 | Chữ ký kịch bản thoại, giọng đọc, pháp lý, an ninh | Sản phẩm · Pháp lý · An ninh | 18/09 | Không mở được cổng mua SIM, làn E không khởi động |
-| **Hai quyết định của chủ dự án**: (1) nhãn kết quả khi tạm dừng hàng đợi — mục 4.1; (2) ai sở hữu bước xét điều kiện gọi — hiện **không có ai chạy tự động**, nên task Module 3 đẩy vào được nhận rồi nằm im | Chủ dự án | 16/09 | (1) cổng đóng gói không xanh hết được; (2) đấu nối hai chiều B4 không chạy thật được, dù phiếu `IR-07` có về đúng hẹn |
+| **Cập nhật 14/09**: còn nhãn kết quả khi tạm dừng — mục 4.1; khoảng trống worker eligibility đã sửa và kiểm chứng ở W-0283 | Chủ dự án | 16/09 | Nhãn pause chưa chốt; không sửa runtime để ép bài diễn tập xanh. B4 vẫn cần đầu nhận và phản hồi thật của M3 |
 | Duyệt mua gói thử một SIM | Chủ dự án | sau khi làn A–D xanh | Chỉ chứng minh được trên giả lập, không bao giờ đo được dung lượng thật |
 
 *Hai quyết định cuối `OD-V1-09` và `OD-V1-10` không thể ký bằng bàn giấy — chúng cần số đo từ SIM thật nên chỉ đóng được sau E3. Lập ngày 12/09/2026 từ cây mã tại `e81fec1`, 140 lưu trong kỳ, bộ kiểm thử và các bài tự kiểm chạy lại tại đúng mốc này, bảng kiểm soát phát hành sinh lại từ sổ tiến độ. Mục nào không chạy lại được thì đã ghi rõ lý do, không suy từ kết quả cũ.*

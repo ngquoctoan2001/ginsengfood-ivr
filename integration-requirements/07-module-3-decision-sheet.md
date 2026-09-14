@@ -1,6 +1,6 @@
 # IR-07 — Phiếu chốt một lần: Module 3 ↔ IVR (Module 8)
 
-**Phiên bản contract:** `1.0.0-draft.25` · **Ngày phát:** 2026-09-10 · **Người phát:** owner IVR
+**Phiên bản contract:** `1.0.0-draft.27` · **Ngày phát bản đầu:** 2026-09-10 · **Đối soát nội bộ:** 2026-09-14, chưa phát lại · **Người phát:** owner IVR
 
 ---
 
@@ -12,24 +12,24 @@ phương án từ đầu: **mỗi mục đã có sẵn vị trí của IVR**, k�
 | Luật | Nội dung |
 | --- | --- |
 | **1** | Mỗi mục ở Phần B có ô **Trả lời**. Điền đúng một trong hai: `ĐỒNG Ý`, hoặc `KHÁC:` + giá trị của M3. |
-| **2** | **Không điền = đồng ý.** Vị trí của IVR ở mục đó thành chốt, và IVR triển khai theo nó. |
+| **2** | **Ô trống chỉ theo mặc định IVR trong phiếu đã được M3 trả lại và ký nhận toàn bộ điều khoản.** Chưa nhận phiếu hoặc thiếu chữ ký = `PENDING_M3_SIGNOFF`; không coi im lặng là phê duyệt. |
 | **3** | Ngoài phiếu này, **IVR không hỏi gì thêm ở vòng này**. Phần A là thông báo, Phần D/E là việc sau khi ký. |
 | **4** | Trả lại **chính file này** đã điền, một lần, kèm chữ ký ở cuối. |
 | **5** | Nếu một mục nào đó M3 chưa quyết được, ghi `KHÁC: cần thêm <chính xác thứ cần>` — nêu **cái cần**, không nêu "cần bàn thêm". |
 
-> **Vì sao có luật 2.** Vòng qua lại là thứ đắt nhất trong tích hợp hai module. Điều khoản im lặng
-> chuyển chi phí của việc *không trả lời* về đúng chỗ: nếu M3 không phản đối, IVR cứ thế làm, và M3
-> không phải trả lời những mục mình vốn không có ý kiến khác.
+> **Phạm vi luật 2.** M3 ký nhận phiếu mới xác nhận các giá trị mặc định chưa sửa.
+> Không nhận phản hồi không tạo ra một chữ ký hay đóng bất kỳ cổng tích hợp nào.
 
 ---
 
-## Phần 0 — Bốn thứ cần lấy trước khi đọc tiếp
+## Phần 0 — Tài liệu cần lấy trước khi đọc tiếp
 
 | # | Lấy gì | Đường dẫn chính xác trong repo IVR |
 | ---: | --- | --- |
-| 1 | Contract intake **hiện hành** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` — `1.0.0-draft.25` |
+| 1 | Contract intake **hiện hành** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` — `1.0.0-draft.27` |
 | 2 | Contract callback | `specs/api/openapi/order-core-ivr-callback.target-v1.yaml` |
 | 3 | **Đọc trước khi sinh client** — hai bản đều **có breaking** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` và `…draft.24-to-v1.0.0-draft.25.md` |
+| 3a | **Enum response có WARN:** `MOCK/VENDOR/ASTERISK_ARI`, dashboard thêm `NONE` | [25→26](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md), [26→27](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md) |
 | 4 | Fixture để tự kiểm producer trước khi gọi thật | `seed/sales-target-v1.sample.json` |
 | 5 | Nhãn tiếng Việt mọi enum (nếu dựng console) | `specs/ui/enum-labels.vi.json` + đặc tả màn hình `specs/ui/` |
 | 6 | Tài liệu tham chiếu đầy đủ (~1.370 dòng, **không** cần đọc hết để ký phiếu này) | `integration-requirements/06-module-3-api-handover.md` |
@@ -60,7 +60,7 @@ gần như mọi lỗi tích hợp thường gặp lộ ra trước, không tố
 
    `oasdiff` gọi đây là **8 breaking** (`new-required-request-parameter`). Phân loại ấy đúng, nhưng
    đây là loại breaking hiếm gặp: nó **sửa** client chứ không phá — client cũ vốn đã bị từ chối ở 8
-   route đó, chỉ là không có cách nào biết vì sao. **Sinh lại client từ `draft.25` là xong.**
+   route đó, chỉ là không có cách nào biết vì sao. **Sinh lại client từ bản hiện hành `draft.27`; đọc thêm enum response ở 25→26→27.**
 
 ---
 
@@ -369,7 +369,7 @@ Bảng này đã đối chiếu **trực tiếp với code IVR**, không chép t
 
 | # | Việc | Xong khi nào thì tính là xong |
 | ---: | --- | --- |
-| D-1 | Sinh lại client từ `1.0.0-draft.24` | Client không còn 11 endpoint `auth`/`accounts` đã gỡ |
+| D-1 | Sinh lại client từ `1.0.0-draft.27` | Client bỏ 11 endpoint đã gỡ, có header bắt buộc và enum response hiện hành |
 | D-2 | Sửa ba chuỗi ở Phần C tại lớp assembler | Chạy hết 35 fixture ở `seed/sales-target-v1.sample.json` đúng kết quả mong đợi |
 | D-3 | Dựng endpoint callback generic + giao OpenAPI authoritative | IVR sinh được client từ nó |
 | D-4 | Cài revalidate sáu điều kiện ở `M3-11` | Có test chứng minh transition bị chặn khi một điều kiện sai |

@@ -222,7 +222,7 @@ Bộ ví dụ cần một sandbox **sạch**: kết quả giả lập gắn cứ
 | --- | --- | --- |
 | Địa chỉ sandbox dùng chung | Cổng `G-PLATFORM`: chưa có cụm, CSDL, DNS/TLS cho staging | Hạ tầng |
 | Tích hợp M3 thật | Cần hợp đồng đã ký, địa chỉ và credential của M3 | Module 3 + Module 8 |
-| Xác thực bằng JWT thật | Sandbox dùng token tĩnh; hồ sơ xác thực production còn mở (`OD-V1-07`) | Chủ Module 8 + An ninh |
+| Xác thực bằng JWT thật | Sandbox dùng token tĩnh; `OD-V1-07` đã ký 05/09, còn thiếu issuer/JWKS và credential production được kiểm chứng (`G-AUTH`) | Chủ Module 8 + An ninh |
 | Gọi ra số thật | Chưa có hợp đồng nhà mạng, chưa đo dung lượng | Chủ dự án |
 
 Không mục nào chặn việc bạn đấu nối hôm nay: sandbox đủ để viết và chứng minh client.

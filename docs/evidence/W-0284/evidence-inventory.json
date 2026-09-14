@@ -1,0 +1,2186 @@
+{
+  "baseline": "a0790e3",
+  "total": 272,
+  "readme_present": 216,
+  "readme_absent": 56,
+  "progressed_planned_missing": [],
+  "note": "Readme absence for unplanned work is not automatic evidence failure; historical commands remain in the tracker.",
+  "rows": [
+    {
+      "id": "W-0002",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0003",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0004",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0005",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0006",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0007",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0008",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0009",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0061",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": "docs/evidence/W-0061/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0063",
+      "prompt": "EXTERNAL",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0001",
+      "prompt": "Planning realignment",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0010",
+      "prompt": "P0-1",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0010/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0011",
+      "prompt": "P0-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0011/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0012",
+      "prompt": "P0-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0012/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0013",
+      "prompt": "P0-4",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0013/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0014",
+      "prompt": "P1-1",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0014/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0015",
+      "prompt": "P1-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0015/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0016",
+      "prompt": "P1-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0016/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0017",
+      "prompt": "P1-4",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0017/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0018",
+      "prompt": "P2-1",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0018/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0019",
+      "prompt": "P2-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0019/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0020",
+      "prompt": "P2-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0020/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0021",
+      "prompt": "P2-4",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0021/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0022",
+      "prompt": "P2-5",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0022/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0023",
+      "prompt": "P2-6",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0023/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0024",
+      "prompt": "P2-7",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0024/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0025",
+      "prompt": "P3-1",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0025/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0095",
+      "prompt": "Admin read API (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0095/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0026",
+      "prompt": "P3-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0026/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0096",
+      "prompt": "Back-office read API (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0096/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0027",
+      "prompt": "P3-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0027/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0097",
+      "prompt": "Admin UI visual design pass (Origin=UNPLANNED, IVR dev yêu cầu)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0097/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0098",
+      "prompt": "Analytics read API (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0098/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0028",
+      "prompt": "P3-4",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0028/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0099",
+      "prompt": "Phase 3 audit — SIM channel surface (Origin=RED_TEAM_REMEDIATION)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0099/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0100",
+      "prompt": "Phase 3 audit — hygiene remediation (Origin=RED_TEAM_REMEDIATION)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0100/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0101",
+      "prompt": "Phase 3 spec conformance UI-01/02/03 (Origin=RED_TEAM_REMEDIATION)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0101/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0102",
+      "prompt": "Phase 3 §10 live evidence capture (Origin=UNPLANNED)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0102/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0103",
+      "prompt": "Current-system audit closure (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0103/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0104",
+      "prompt": "Free Asterisk/softphone telephony preflight (Origin=UNPLANNED, owner requested)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0104/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0105",
+      "prompt": "Console account authentication/RBAC (HISTORICAL; superseded bởi W-0128)",
+      "status": "N/A",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0106",
+      "prompt": "Regional voice routing — 3 giọng nữ Bắc/Trung/Nam (Origin=UNPLANNED, owner requested)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0106/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0108",
+      "prompt": "Chuỗi ghép audio động (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0108/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0110",
+      "prompt": "Màn hình cổng vận hành / runtime gate (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0110/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0111",
+      "prompt": "Cắt ngang cuộc gọi đang diễn ra (Origin=UNPLANNED, owner requested — hạng mục A4)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0111/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0112",
+      "prompt": "Seed loader / scenario runner / integration-status profile (Origin=UNPLANNED, owner requested — hạng mục A5)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0112/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0113",
+      "prompt": "Ghi lại giọng đã phát thay vì suy lại lúc đọc (Origin=UNPLANNED, owner requested — hạng mục A6)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0113/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0114",
+      "prompt": "Cổng \"rolling deploy không gãy giữa chừng\" (Origin=UNPLANNED, owner requested — hạng mục A8)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0114/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0115",
+      "prompt": "Mở rộng CHECK constraint enum ở tầng DB (Origin=UNPLANNED, owner requested — hạng mục A9)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0115/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0116",
+      "prompt": "Việt hóa telemetry tích hợp bằng trường phụ (Origin=UNPLANNED, owner requested — hạng mục A10 / OD-L10N-02b)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0116/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0117",
+      "prompt": "Contract và documentation hygiene sau draft.17 (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0117/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0118",
+      "prompt": "Không gọi IVR cho khách cũ — thực thi OD-15 (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0119",
+      "prompt": "Bàn giao render 12 đoạn audio: sửa 2 lỗi chuỗi công cụ + bộ hướng dẫn owner (Origin=UNPLANNED, owner requested — Đợt 1 của kế hoạch 26/08)",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0120",
+      "prompt": "Normalize là no-op trong runtime đã triển khai — địa chỉ \"thành phố\" bị từ chối (Origin=UNPLANNED, phát hiện khi chạy lab W-0106 §4.6)",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0121",
+      "prompt": "Lối đẩy code không tới GitLab nên hosted CI không thể chạy (Origin=UNPLANNED, owner requested)",
+      "status": "CODE_DONE",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0122",
+      "prompt": "Tự host VieNeu-TTS, loại phụ thuộc SaaS TTS ở runtime (Origin=UNPLANNED, owner requested)",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": "docs/evidence/W-0122/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0123",
+      "prompt": "M3 quyết định gọi, IVR chỉ thực thi: cleanup trusted-skip phía IVR (Origin=UNPLANNED, owner clarified boundary)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0123/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0124",
+      "prompt": "Khắc phục phát hiện rà soát W-0123 (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0124/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0125",
+      "prompt": "Mở khoá ba gate còn treo của W-0123 (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0125/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0126",
+      "prompt": "Khắc phục phát hiện rà soát W-0122 (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0127",
+      "prompt": "Rút ngắn khoảng cách tới sáu gate còn treo của W-0122 (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0128",
+      "prompt": "Admin/auth transition remediation (Origin=UNPLANNED, owner requested)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0128/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0129",
+      "prompt": "Intake rejection-reason traceability (Origin=UNPLANNED, cross-audit remediation)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0129/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0130",
+      "prompt": "Freeze exact candidate W-0128/W-0129 (Origin=UNPLANNED, cross-audit Gate 0; reservation của luồng W-0129)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0130/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0131",
+      "prompt": "Exact M8-P0-009 capacity overload acceptance test (Origin=UNPLANNED, cross-audit F-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0131/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0132",
+      "prompt": "Single declared source cho call-duration assumption (Origin=UNPLANNED, B1 sub-task 1 phần làm được trước W-0008)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0132/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0133",
+      "prompt": "Escalation Owner: đơn vị volume + độ dài phiên Giờ Vàng (Origin=UNPLANNED, B1 sub-task 2)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0133/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0134",
+      "prompt": "Khai báo độ dài phiên như input chưa-có-đáp-án + gate chặn thay ngây thơ (Origin=UNPLANNED, OD-19)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0134/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0135",
+      "prompt": "Sửa sự thật trong hồ sơ procurement (Origin=UNPLANNED, cross-audit Gate 1 / F-07,F-08,F-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0135/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0136",
+      "prompt": "Spec §13.2: thêm yêu cầu vô tuyến 4G/VoLTE vào tài liệu nguồn (Origin=UNPLANNED, nợ do W-0135 để lại)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0136/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0137",
+      "prompt": "Bản .docx V0.3 mồ côi và lệch nội dung (Origin=UNPLANNED, nợ do W-0136 để lại)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0137/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0138",
+      "prompt": "gate-status bỏ đếm 5 open decision (Origin=UNPLANNED, phát hiện khi làm W-0137)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0138/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0139",
+      "prompt": "Hoàn tất phần triển khai còn lại của B-06 Observability (Origin=UNPLANNED, owner yêu cầu 2026-08-29)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0139/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0140",
+      "prompt": "Đồng bộ TODAY-01..04 vào tracker/readiness, không tạo ledger thứ hai (Origin=UNPLANNED, owner yêu cầu tiếp tục TODAY-05 ngày 2026-08-29)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0140/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0141",
+      "prompt": "Thực thi OD-20: thu hồi DOCX V0.3 lỗi thời bằng rename có thể hoàn tác (Origin=UNPLANNED, owner đã ký OPTION_1_WITHDRAW)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0141/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0142",
+      "prompt": "M8-01 capacity calibration preflight và data-intake handoff (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-08-29)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0142/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0143",
+      "prompt": "M8-03 admin audit/capacity surface reconciliation và M3 handoff (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-08-29)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0143/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0144",
+      "prompt": "M8-04 DT-04 failure-window enforcement và production-adapter preflight (Origin=UNPLANNED, owner yêu cầu tiếp tục và ký 2026-08-29)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0144/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0145",
+      "prompt": "M8-05 program/result contract sign-off và factual reconciliation (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0145/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0146",
+      "prompt": "M8-06 upstream session trace contract reconciliation và sign-off handoff (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0146/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0147",
+      "prompt": "M8-07 Target V1 shared callback readiness audit và external handoff (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0147/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0148",
+      "prompt": "M8-08 opt-out feedback-loop contract reconciliation và decision handoff (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0148/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0149",
+      "prompt": "M8-09 revoke/recall/freshness contract reconciliation và decision handoff (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0149/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0150",
+      "prompt": "M8-10 contact/dial-token production-path contract reconciliation và decision handoff (Origin=UNPLANNED, owner yêu cầu 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0150/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0151",
+      "prompt": "M8-11 attempt-policy production contract reconciliation và decision handoff (Origin=UNPLANNED, owner yêu cầu 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0151/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0152",
+      "prompt": "C5 external-decision provenance và dispatch-ready consolidation (Origin=UNPLANNED, owner yêu cầu tiếp tục việc tự làm được 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0152/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0153",
+      "prompt": "C5 external decision copy/paste dispatch-message kit (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0153/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0154",
+      "prompt": "B1 capacity calibration unified data-intake bundle và D-06 handoff (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0154/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0155",
+      "prompt": "B1 D-06 four-submission offline validator (Origin=UNPLANNED, owner yêu cầu 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0155/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0156",
+      "prompt": "B1 immutable PII-safe validation receipt (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0156/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0157",
+      "prompt": "B1 independent capacity-validation receipt verifier (Origin=UNPLANNED, owner yêu cầu 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0157/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0158",
+      "prompt": "B1 append-only verified-receipt intake ledger writer (Origin=UNPLANNED, owner yêu cầu 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0158/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0159",
+      "prompt": "B1 ledger-head checkpoint writer/verifier (Origin=UNPLANNED, owner yêu cầu 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0159/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0160",
+      "prompt": "B1 monotonic ledger-checkpoint registry contract (Origin=UNPLANNED, owner yêu cầu 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0160/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0161",
+      "prompt": "Close local PostgreSQL integration evidence gaps for W-0145/W-0148..W-0151 (Origin=UNPLANNED, owner yêu cầu tự làm việc không cần quyết định 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0161/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0162",
+      "prompt": "Close W-0147 local PostgreSQL callback/Chaos evidence gap (Origin=UNPLANNED, owner yêu cầu 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0162/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0163",
+      "prompt": "Execute exact-hash external decision dispatch D-01..D-05 and capture receipts (Origin=UNPLANNED, owner yêu cầu mở 2026-09-03)",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": "docs/evidence/W-0163/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0164",
+      "prompt": "Offline validator for D-01..D-05 external-decision routing input (Origin=UNPLANNED, owner yêu cầu làm phần không cần điền 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0164/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0165",
+      "prompt": "Offline validator for external decision response/signature records (Origin=UNPLANNED, owner yêu cầu tiếp tục phần không cần điền 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0165/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0166",
+      "prompt": "Reconcile current-state wording and counters in the 03/09 Module 8 worklist (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-03)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0166/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0167",
+      "prompt": "D8 current-worktree full offline .NET suite verification (Origin=UNPLANNED, owner yêu cầu tìm việc local tự làm 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0167/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0168",
+      "prompt": "D7 current security/secret/vulnerability gate rerun (Origin=UNPLANNED, owner yêu cầu tiếp tục việc local không cần quyết định 2026-09-03)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0168/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0169",
+      "prompt": "Documentation estate cleanup — gỡ tài liệu SUPERSEDED/HISTORICAL (Origin=UNPLANNED, owner chỉ đạo trực tiếp 2026-09-04 sau khi được cảnh báo rằng governance hiện hành cấm xóa lịch sử; owner tái khẳng định \"xóa hẳn khỏi repo\")",
+      "status": "CODE_DONE",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0170",
+      "prompt": "C5 external-decision receipt hash và sheet-quorum closure validator (Origin=UNPLANNED, owner duyệt triển khai đề xuất 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0170/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0171",
+      "prompt": "Doc↔code conflict audit và reconciliation (Origin=UNPLANNED, owner yêu cầu \"rà soát tài liệu và codebase xem có conflict gì không\" rồi \"sửa docs cho khớp code\" 2026-09-04)",
+      "status": "CODE_DONE",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0029",
+      "prompt": "P4-1",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0029/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0030",
+      "prompt": "P4-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0030/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0031",
+      "prompt": "P4-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0031/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0032",
+      "prompt": "P4-4",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0032/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0033",
+      "prompt": "P4-5",
+      "status": "DEFERRED_TARGET",
+      "evidence": "docs/evidence/W-0033/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0034",
+      "prompt": "P4-6",
+      "status": "DEFERRED_TARGET",
+      "evidence": "docs/evidence/W-0034/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0035",
+      "prompt": "P5-1",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0035/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0036",
+      "prompt": "P5-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0036/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0037",
+      "prompt": "P5-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0037/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0038",
+      "prompt": "P5-4",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0038/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0039",
+      "prompt": "P5-5",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0039/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0040",
+      "prompt": "P6-1",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0040/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0041",
+      "prompt": "P6-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0041/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0042",
+      "prompt": "P6-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0042/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0043",
+      "prompt": "P7-1",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0043/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0044",
+      "prompt": "P7-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0044/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0045",
+      "prompt": "P7-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0045/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0046",
+      "prompt": "P7-4",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0046/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0047",
+      "prompt": "P7-5",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0047/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0048",
+      "prompt": "P8-1",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": "docs/evidence/W-0048/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0049",
+      "prompt": "P8-2",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0050",
+      "prompt": "P9-1",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0051",
+      "prompt": "P9-2",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0052",
+      "prompt": "P10-1",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0052/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0053",
+      "prompt": "P10-2",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0053/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0054",
+      "prompt": "P10-3",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0054/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0055",
+      "prompt": "P10-4",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0055/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0056",
+      "prompt": "P10-5",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0057",
+      "prompt": "P11-1",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0057/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0058",
+      "prompt": "P11-2",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0058/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0059",
+      "prompt": "P11-3",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0059/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0060",
+      "prompt": "P11-4",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0060/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0062",
+      "prompt": "Red-team remediation",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0064",
+      "prompt": "P1-5",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0064/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0065",
+      "prompt": "P2-8",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0065/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0066",
+      "prompt": "P2-9",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0066/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": true
+    },
+    {
+      "id": "W-0067",
+      "prompt": "Fix: PII regex control char",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0068",
+      "prompt": "Fix: kill-switch immutability",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0069",
+      "prompt": "Fix: P2-1 ↔ P2-7 dependency",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0070",
+      "prompt": "Fix: nối W-0064/65/66 downstream",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0071",
+      "prompt": "Fix: cross-table CHECK",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0072",
+      "prompt": "Fix: order_state + policy delivery_area_short",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0073",
+      "prompt": "Fix: PII gate case + artifact topology",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0074",
+      "prompt": "Fix: dependency wildcard sweep",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0075",
+      "prompt": "Doc-map regeneration",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0076",
+      "prompt": "Fix: PII pattern locale-independence",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0077",
+      "prompt": "Fix: direct dependency Meta/tracker drift",
+      "status": "ACCEPTED",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0078",
+      "prompt": "NuGet security gate remediation",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0079",
+      "prompt": "P0-2 CI semantic fail-closed remediation",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0080",
+      "prompt": "P0-2 PII artifact coverage remediation",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0081",
+      "prompt": "Stable error catalog parity remediation",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0082",
+      "prompt": "Error envelope boundary remediation",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0083",
+      "prompt": "Source project dependency guard remediation",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0084",
+      "prompt": "PostgreSQL audit append-only proof",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0085",
+      "prompt": "Linux ProjectReference path portability",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0085/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0086",
+      "prompt": "Shallow-clone Gitleaks fingerprint remediation",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0086/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0087",
+      "prompt": "Phase 1/2 runtime continuity remediation",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0087/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0088",
+      "prompt": "Phase 1/2 state-machine liveness remediation",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0088/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0089",
+      "prompt": "Phase 1/2 privacy and intake correctness remediation",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0089/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0090",
+      "prompt": "Phase 1/2 callback and admin atomicity remediation",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0090/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0091",
+      "prompt": "Phase 1/2 retention and acceptance-test remediation",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0091/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0092",
+      "prompt": "Phase 1/2 contract and configuration remediation",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0092/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0093",
+      "prompt": "Phase 1/2 governance and evidence truth remediation",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0093/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0094",
+      "prompt": "Phase 1/2 lifecycle and dead-code remediation",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0094/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0172",
+      "prompt": "C1+C2 program/result contract invariant hardening (Origin=UNPLANNED, owner yêu cầu triển khai khắc phục 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0172/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0173",
+      "prompt": "C7+C8 Target V1 malformed ACK fail-closed remediation (Origin=UNPLANNED, owner yêu cầu phân tích và triển khai khắc phục 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0173/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0174",
+      "prompt": "C7+C8 offline shared-E2E report validator (Origin=UNPLANNED, owner yêu cầu 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0174/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0175",
+      "prompt": "R0 remote-head, hosted-CI và clean-checkout reproducibility audit (Origin=UNPLANNED, owner yêu cầu tiếp tục R0 2026-09-04)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0175/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0176",
+      "prompt": "Final W-0170 provenance-chain pin rotation after W-0173/W-0174/W-0175 stabilization (Origin=UNPLANNED, owner yêu cầu tiếp tục task khác 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0176/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0177",
+      "prompt": "Freeze and verify exact local candidate for W-0170/W-0172..W-0176 (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0177/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0178",
+      "prompt": "C10+C11+C13 offline D-06 callback revalidation evidence validator (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0178/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0179",
+      "prompt": "C9 opt-out/suppression S-06 closure-path focused self-test (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0179/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0180",
+      "prompt": "D6/M8-11 offline attempt-policy production bundle validator (Origin=UNPLANNED, owner yêu cầu phân tích và triển khai khắc phục 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0180/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0181",
+      "prompt": "C3+C4+C6 offline upstream-session M3 sign-off intake validator (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0181/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0182",
+      "prompt": "B1/W-0160 offline monotonic-registry decision/sign-off intake validator (Origin=UNPLANNED, owner yêu cầu tiếp tục B1 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0182/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0183",
+      "prompt": "B5+C12 offline contact/dial-token production-bundle validator (Origin=UNPLANNED, owner yêu cầu mở W-0182 nhưng ID đó đã được cấp cho B1; cấp ID kế tiếp 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0183/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0184",
+      "prompt": "B5+C12 contact/dial-token S-08 closure-path focused self-test (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0184/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0185",
+      "prompt": "B3 offline VieNeu TTS real-SIM lab và production-telephony evidence validator (Origin=UNPLANNED, owner yêu cầu tiếp tục B3 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0185/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0186",
+      "prompt": "C5 current-head provenance chain restoration and exact re-pin (Origin=UNPLANNED, owner yêu cầu tiếp tục hoàn thiện C5 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0186/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0187",
+      "prompt": "C9 offline opt-out/suppression production decision-bundle validator (Origin=UNPLANNED, owner yêu cầu tiếp tục hoàn thiện C9 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0187/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0188",
+      "prompt": "B1 current-head capacity intake/checkpoint provenance restoration (Origin=UNPLANNED, owner yêu cầu tiếp tục B1 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0188/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0189",
+      "prompt": "Current documentation-to-code alignment cleanup (Origin=UNPLANNED, owner yêu cầu clean tài liệu theo code 2026-09-04)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0189/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0190",
+      "prompt": "P0.1 feature-flag API remediation (Origin=UNPLANNED, owner yêu cầu 2026-09-05)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0190/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0191",
+      "prompt": "P0.2 Development seed/scenario bootstrap (Origin=UNPLANNED, owner yêu cầu tiếp tục 2026-09-05)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0191/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0192",
+      "prompt": "One-command full-lifecycle local run và đối soát lab plan theo code (Origin=UNPLANNED, owner yêu cầu dọn và commit cây làm việc 2026-09-05)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0193",
+      "prompt": "Local-run defect remediation và một lệnh chạy hết vòng đời (Origin=UNPLANNED, owner duyệt \"GĐ 0\" của lộ trình hoàn thiện 2026-09-05)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0194",
+      "prompt": "Owner sign-off 19 quyết định OD-V1/OD-VOICE (Origin=UNPLANNED, owner chỉ đạo \"toàn bộ ký theo đề xuất\" 2026-09-05 sau khi đọc phiếu GĐ 1)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0195",
+      "prompt": "GĐ 2 đợt 1: ba cổng runtime thực thi + sửa bất đối xứng kill switch (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-20/OD-V1-15/OD-V1-18 đã ký ở W-0194)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0196",
+      "prompt": "P0.3 Migration expand-contract (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0196/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0197",
+      "prompt": "P1.1 Ma trận HTTP API đầy đủ (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0197/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0198",
+      "prompt": "GĐ 2 đợt 2: khung giờ được phép gọi + bản attempt policy production đã ký (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-08/OD-V1-16 đã ký ở W-0194)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0199",
+      "prompt": "GĐ 2 đợt 3: ngữ nghĩa dial token dùng lại (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-17/OD-V1-05 đã ký ở W-0194)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0200",
+      "prompt": "GĐ 2 đợt 4 — CANCELLED: OpenAPI 1.0.0-draft.22 → 1.0.0 + tách hai trục phiên bản/vòng đời (Origin=UNPLANNED, hệ quả trực tiếp của OD-V1-02 đã ký ở W-0194)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0201",
+      "prompt": "Hoà giải hai luồng đồng thời vào main (Origin=UNPLANNED, owner chỉ đạo \"merge vào main, chỉ làm trên một nhánh\" 2026-09-05)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0202",
+      "prompt": "Xoay baseline OpenAPI draft.22 → draft.23 (Origin=UNPLANNED, owner chọn phương án (a) 2026-09-05)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0203",
+      "prompt": "P1.2 Full worker pipeline — profile LocalMockE2E + vòng lặp E2E có tiêm lỗi (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P1.2\" 2026-09-05)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0203/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0204",
+      "prompt": "P2.1 Chốt contract — cơ chế đóng băng hợp đồng + đối chiếu trạng thái chữ ký (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P2.1\" 2026-09-06)",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": "docs/evidence/W-0204/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0205",
+      "prompt": "GĐ 3.1–3.2: đóng băng bằng chứng trên một SHA + chạy lại security wrapper (Origin=UNPLANNED, owner chỉ đạo \"tiếp giai đoạn 3\" 2026-09-05)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0206",
+      "prompt": "Sửa dòng script observability_helm làm GitLab từ chối cả pipeline (Origin=UNPLANNED, luồng song song 2026-09-06; ghi hồi tố bởi W-0217)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0207",
+      "prompt": "P2.2 Sandbox E2E — nửa IVR của ma trận TV1-E2E, và một mâu thuẫn hợp đồng (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P2.2\" 2026-09-06)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0207/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0208",
+      "prompt": "Nhóm 0.1 của worklist 07/09 — TTL dial_token mâu thuẫn xuyên ba tầng (Origin=UNPLANNED, owner chỉ đạo \"clean worklist rồi bắt đầu từ 0.1\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0208/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0209",
+      "prompt": "Nhóm 0.2 của worklist 07/09 — ràng buộc header lệch giữa tài liệu bàn giao và runtime (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.2\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0209/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0210",
+      "prompt": "Nhóm 0.3 của worklist 07/09 — DTMF-0 bị OD-V1-23 gọi nhầm là tín hiệu opt-out (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.3\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0210/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0211",
+      "prompt": "Nhóm 0.4 của worklist 07/09 — ba câu tài liệu nói sai về chính hệ thống này (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.4\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0211/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0212",
+      "prompt": "Nhóm 0.6 của worklist 07/09 — con số thứ tư của họ call-duration (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.6\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0212/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0213",
+      "prompt": "Nhóm 0.5 của worklist 07/09 — environment scope một loại approval, trơ với hai loại kia (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp 0.5\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0213/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0214",
+      "prompt": "Nhóm X của worklist 07/09 — bẫy khung giờ trong compose, dòng log còn thiếu, và ba nhánh không phải rác (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp X1, X2, X3\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0214/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0215",
+      "prompt": "Mục B5 của worklist 07/09 — tích của hai chữ ký ra một mốc cắt chưa ai viết ra (Origin=UNPLANNED, owner chỉ đạo \"làm tiếp B5\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0215/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0216",
+      "prompt": "Chạy toàn bộ gate offline sau chín lượt khắc phục, và sửa những gate đang đỏ (Origin=UNPLANNED, owner chỉ đạo \"push rồi, tiếp tục đi\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0216/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0217",
+      "prompt": "Ghi hồi tố W-0206 và bắc cầu tên result code sang business source (Origin=UNPLANNED, owner chỉ đạo \"cái nào còn làm được nữa thì làm đi\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0217/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0218",
+      "prompt": "Kiểm lại bốn mục C1/C2/C5/C10 từng bị gộp một dòng \"chưa làm\" (Origin=UNPLANNED, owner chỉ đạo \"C1 · C2 · C5 · C10\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0219",
+      "prompt": "Dọn worklist: gộp phần đã xong, xếp lại phần còn lại theo người phải quyết (Origin=UNPLANNED, owner chỉ đạo \"clean lại mấy cái đã xong và sort lại những việc chưa xong\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0220",
+      "prompt": "Owner chốt End của khung giờ gọi; thi hành thành 21:08 (Origin=UNPLANNED, owner chỉ đạo \"1.1 — Chọn End: 21:07:30\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0220/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0221",
+      "prompt": "Owner chốt Idempotency-Key: siết admin theo intake, gộp luật về một chỗ (Origin=UNPLANNED, owner chỉ đạo \"7.1: siết admin theo intake\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0221/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0222",
+      "prompt": "Owner chốt 1.2: giữ mốc provenance W-0130, xoá hai nhánh đã merge (Origin=UNPLANNED, owner chỉ đạo \"1.2: giữ nhánh W-0130, xóa 2 nhánh kia\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0222/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0223",
+      "prompt": "Owner chốt 1.3: giữ UNCALIBRATED chờ W-0008; sửa checklist thoát vẫn nói \"ba con số\" (Origin=UNPLANNED, owner chỉ đạo \"1.3: giữ UNCALIBRATED, chờ W-0008\" 2026-09-07)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0223/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0224",
+      "prompt": "Đồng bộ hai remote, xoá nhánh remote còn sót, và rút một claim sai về evidence (Origin=UNPLANNED, owner chỉ đạo \"làm 3 cái đó đi\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0224/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0225",
+      "prompt": "Mục 1.4 — kiểm hai release blocker của W-0122 có thật là gate không (Origin=UNPLANNED, owner chỉ đạo dán lại mục 1.4 kèm quyết \"theo gate từng artifact\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0225/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0226",
+      "prompt": "Soạn phiếu Platform và Legal/Privacy theo đúng hai bộ trường gate đòi (Origin=UNPLANNED, owner chỉ đạo \"soạn đi\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0226/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0227",
+      "prompt": "Khôi phục gói routing today-03 và phiếu Security mà nó trỏ tới (Origin=UNPLANNED, owner chỉ đạo \"giữ today-03, khôi phục luôn đi\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0227/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0228",
+      "prompt": "Owner trả lời chỗ rẽ items_spoken; đếm ngân hàng ghi âm suy ra từ code (Origin=UNPLANNED, owner chỉ đạo \"items_spoken thu trước được, catalog GinsengFood chỉ vài chục món\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0228/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0229",
+      "prompt": "Owner chốt R-2 (thu cụm 0..99); sinh kịch bản thu từ speller (Origin=UNPLANNED, owner chỉ đạo \"R-2, thu cụm 0..99\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0229/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0230",
+      "prompt": "Owner chốt pronunciationHints bị bỏ qua khi tên hàng có clip (Origin=UNPLANNED, owner chỉ đạo \"hint bị bỏ qua, tên hàng có clip thì dùng clip\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0230/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0231",
+      "prompt": "Owner chốt thu lại 12 đoạn cố định bằng giọng người (Origin=UNPLANNED, owner chỉ đạo \"thu lại 12 đoạn cố định\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0231/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0232",
+      "prompt": "Chốt hình dạng cơ chế ghép clip trước khi hai câu còn lại trả lời (Origin=UNPLANNED, owner chỉ đạo \"tiếp\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0232/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0233",
+      "prompt": "Dựng đường số của cơ chế ghép clip — phần không phụ thuộc 3b/4 (Origin=UNPLANNED, owner chỉ đạo \"tiếp\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0233/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0234",
+      "prompt": "Nối renderer vào đường clip cho total_amount_display (Origin=UNPLANNED, owner chỉ đạo \"tiếp\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0234/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0235",
+      "prompt": "Thi hành 3b — món chưa có clip gộp vào cụm đã có, không món nào đọc được thì không gọi (Origin=UNPLANNED, owner chỉ đạo \"3b theo đề xuất của bạn\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0235/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0236",
+      "prompt": "Kiểm mục 4 thì phần vùng giao không phải việc dữ liệu (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục nhé\" 2026-09-08)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0236/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0237",
+      "prompt": "Owner chốt 4b: đơn vị là hộp (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục 4b nhé, đơn vị là hộp nhé\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0237/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0238",
+      "prompt": "Tìm nguồn bank D thì nó nằm ngoài IVR và đang trống (Origin=UNPLANNED, owner chỉ đạo \"4d\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0238/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0239",
+      "prompt": "Trả lời hai câu của owner: 19 hay 20 SKU, và vì sao IVR cần danh sách khi M3 đã có (Origin=UNPLANNED, owner hỏi 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0239/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0240",
+      "prompt": "Kiểm 4a thì việc đọc vùng giao đã được ký một nửa, đổi hẳn cách so sánh hai lựa chọn (Origin=UNPLANNED, owner chỉ đạo \"4a\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0240/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0241",
+      "prompt": "Owner bác cách trình bày 4a; tự chốt \"đọc tỉnh\" và dựng đường clip vùng giao (Origin=UNPLANNED, owner nói \"4a cần chốt cái gì đâu\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0241/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0242",
+      "prompt": "Trả lời 4d cần gì; phát hiện intake từ chối một số tên hàng bình thường (Origin=UNPLANNED, owner hỏi \"4d cần gì\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0242/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0243",
+      "prompt": "Guard riêng cho public_name, bỏ bốn từ nhập nhằng (Origin=UNPLANNED, owner chốt \"guard riêng cho public_name, bỏ 4 từ đó\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0243/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0244",
+      "prompt": "Đóng lỗ null của TryResolveProvinceName; sinh trọn bank E (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0244/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0245",
+      "prompt": "Rút con số TTL tôi gán sai cho OD-V1-17; re-pin bốn validator đỏ từ W-0221 (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0245/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0246",
+      "prompt": "Owner ký equality cho 2.1; rút lượt W-0245 sai của chính tôi (Origin=UNPLANNED, owner chỉ đạo \"ký equality cho 2.1\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0246/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0247",
+      "prompt": "Đọc lại 2.2–2.6 dưới ánh sáng owner kiêm Security/Product/Platform (Origin=UNPLANNED, owner chỉ đạo \"đọc lại 2.2 đến 2.6 đi\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0247/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0248",
+      "prompt": "Owner chọn B cho 2.5; đặc tả fence thu hồi đơn (Origin=UNPLANNED, owner chỉ đạo \"2.5 chọn B\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0248/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0249",
+      "prompt": "Dựng hai fence thu hồi đơn cho 2.5 phương án B (Origin=UNPLANNED, owner chỉ đạo \"task_id + order_version + reason, dựng đi\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0249/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0250",
+      "prompt": "Phát hành draft.24: ba header + phone_validation_status (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục\" 2026-09-09, nối tiếp lượt phát hành mà W-0248/W-0249 xếp hàng chờ)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0250/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0251",
+      "prompt": "Tách bản ghi đóng băng khỏi pin sống; dựng sweep chạy được cho gate không ai chạy (Origin=UNPLANNED, owner chỉ đạo \"vừa re-pin m8-05, vừa tách hẳn vai bản ghi đóng băng khỏi pin sống để lần sau ai sửa một file được ghim thì gate nói đúng chuyện gì đang xảy ra\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0251/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0252",
+      "prompt": "Đổi tên mười hai bản ghi đóng băng thành attested-sha256.txt (Origin=UNPLANNED, owner chỉ đạo \"đổi tên luôn đi\" 2026-09-09, nối tiếp mục còn lại số 1 của W-0251)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0252/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0253",
+      "prompt": "Xoá admin-ui/ khỏi repo, giữ bộ nhãn enum cho Module 3 (Origin=UNPLANNED, owner chỉ đạo \"clean lại tài liệu và code để sạch sẽ\" 2026-09-09 rồi chọn \"xoá hẳn, giữ lại enums.vi.json\")",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0253/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0254",
+      "prompt": "Sửa các phát biểu đã sai trong IR-06 và ghim con trỏ phiên bản (Origin=UNPLANNED, owner chỉ đạo \"clean lại tài liệu và code... sau đó để chuẩn bị cho việc tích hợp với module 3\" 2026-09-09)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0254/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0265",
+      "prompt": "Phiếu chốt một lần IR-07 cho Module 3, và contract draft.25 mà nó buộc phải sửa (Origin=UNPLANNED, owner chỉ đạo \"clean tài liệu để kết nối với module 3... chỉ gửi qua nó 1 lần cho nó chốt, rồi nó gửi lại... ép chốt 1 lần\" 2026-09-10)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0265/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0266",
+      "prompt": "Owner tuyên bố quorum là chính mình cho OD-V1-11/21/23 (Origin=UNPLANNED, owner chỉ đạo \"tự làm quorum cho cả ba luôn\" 2026-09-10, trả lời câu hỏi IR-06 §9a do W-0254 nêu)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0266/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0267",
+      "prompt": "Tám bản parser JSON thành một, và một test suýt chứng minh điều không có thật (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0267/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0268",
+      "prompt": "Một thư mục tạm không ai dọn, và một index không query nào dùng được (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0268/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0269",
+      "prompt": "Gỡ 440 lời gọi không làm gì, và viết ra một luật vốn đã đúng (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0269/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0270",
+      "prompt": "Một comment nói dối về UID, và một guard có sẵn bị tắt đúng chỗ cần (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0270/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0271",
+      "prompt": "Owner ký 35 nghiệm thu, và con số nói thật về nấc 1 (Origin=UNPLANNED)",
+      "status": "ACCEPTED",
+      "evidence": "docs/evidence/W-0271/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0272",
+      "prompt": "\"MOCK\" là ba thứ, không phải hai, và một chỗ spec lệch code lộ ra khi tách (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0272/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0273",
+      "prompt": "Phiếu điền kỳ hạn lưu trữ, dựng từ mã nguồn (Origin=UNPLANNED)",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": "docs/evidence/W-0273/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0274",
+      "prompt": "Sửa spec cho khớp code, và luật hoá ra cũng sai chứ không chỉ giá trị (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0274/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0275",
+      "prompt": "Siết adapter_mode thành enum, và một field không siết được (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0275/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0276",
+      "prompt": "Ba nguồn nói baseline nào là hiện hành, giờ phải nói giống nhau (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0276/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0277",
+      "prompt": "Để oasdiff thật sự soi cái enum, kèm một lượt CI đỏ có chủ ý (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0277/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0278",
+      "prompt": "Một field hai từ vựng, và một hash trúng số điện thoại (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0278/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0279",
+      "prompt": "Đóng lại trạng thái đỏ có chủ ý của W-0277 (Origin=UNPLANNED)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0279/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0280",
+      "prompt": "Ba lỗi chỉ lộ khi chạy thật, phát hiện sáng 12/09 khi chạy lại toàn bộ cổng để lập báo cáo tuần (Origin=UNPLANNED, owner duyệt sửa trong ngày)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0280/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0281",
+      "prompt": "Phiếu yêu cầu Platform/Infra cho G-GITLAB và G-PLATFORM, và đính chính ma trận API trong báo cáo tuần (Origin=UNPLANNED, owner yêu cầu tiếp sau W-0280)",
+      "status": "TESTS_PASS",
+      "evidence": null,
+      "readme_exists": false,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0282",
+      "prompt": "B2 — dựng môi trường thử để Module 3 gọi vào (Origin=UNPLANNED, owner yêu cầu tiếp sau W-0281). Phạm vi theo §5 báo cáo tuần: địa chỉ riêng, tài khoản dịch vụ có hạn mức, bộ ví dụ từng tình huống, cách dọn dữ liệu, đầu nhận kết quả giả lập. Không chờ phiếu IR-07",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0282/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0283",
+      "prompt": "Worker tự xử lý eligibility và client sandbox chỉ quan sát (Origin=UNPLANNED, owner yêu cầu thực hiện lần lượt review 14/09, commit từng task)",
+      "status": "TESTS_PASS",
+      "evidence": "docs/evidence/W-0283/README.md",
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    },
+    {
+      "id": "W-0284",
+      "prompt": "Đối soát bàn giao và sổ tiến độ (Origin=UNPLANNED)",
+      "status": "IN_PROGRESS",
+      "evidence": null,
+      "readme_exists": true,
+      "prompt_requires_pack": false
+    }
+  ]
+}

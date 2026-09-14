@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "43 of 258 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
-  blocked_external_count: 18
+  reason: "44 of 272 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 204
+  rows_without_evidence_pack: 218
 
 gates:
   - id: "G-CONTRACT"
@@ -1124,6 +1124,58 @@ work:
     prompt: "Owner tuyên bố quorum là chính mình cho OD-V1-11/21/23 (Origin=UNPLANNED, owner chỉ đạo \"tự làm quorum cho cả ba luôn\" 2026-09-10, trả lời câu hỏi IR-06 §9a do W-0254 nêu)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0266/README.md"
+  - id: "W-0267"
+    prompt: "Tám bản parser JSON thành một, và một test suýt chứng minh điều không có thật (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0267/README.md"
+  - id: "W-0268"
+    prompt: "Một thư mục tạm không ai dọn, và một index không query nào dùng được (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0268/README.md"
+  - id: "W-0269"
+    prompt: "Gỡ 440 lời gọi không làm gì, và viết ra một luật vốn đã đúng (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0269/README.md"
+  - id: "W-0270"
+    prompt: "Một comment nói dối về UID, và một guard có sẵn bị tắt đúng chỗ cần (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0270/README.md"
+  - id: "W-0271"
+    prompt: "Owner ký 35 nghiệm thu, và con số nói thật về nấc 1 (Origin=UNPLANNED)"
+    status: "ACCEPTED"
+    evidence: "docs/evidence/W-0271/README.md"
+  - id: "W-0272"
+    prompt: "\"MOCK\" là ba thứ, không phải hai, và một chỗ spec lệch code lộ ra khi tách (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0272/README.md"
+  - id: "W-0273"
+    prompt: "Phiếu điền kỳ hạn lưu trữ, dựng từ mã nguồn (Origin=UNPLANNED)"
+    status: "BLOCKED_EXTERNAL"
+    evidence: "docs/evidence/W-0273/README.md"
+  - id: "W-0274"
+    prompt: "Sửa spec cho khớp code, và luật hoá ra cũng sai chứ không chỉ giá trị (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0274/README.md"
+  - id: "W-0275"
+    prompt: "Siết adapter_mode thành enum, và một field không siết được (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0275/README.md"
+  - id: "W-0276"
+    prompt: "Ba nguồn nói baseline nào là hiện hành, giờ phải nói giống nhau (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0276/README.md"
+  - id: "W-0277"
+    prompt: "Để oasdiff thật sự soi cái enum, kèm một lượt CI đỏ có chủ ý (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0277/README.md"
+  - id: "W-0278"
+    prompt: "Một field hai từ vựng, và một hash trúng số điện thoại (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0278/README.md"
+  - id: "W-0279"
+    prompt: "Đóng lại trạng thái đỏ có chủ ý của W-0277 (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0279/README.md"
   - id: "W-0280"
     prompt: "Ba lỗi chỉ lộ khi chạy thật, phát hiện sáng 12/09 khi chạy lại toàn bộ cổng để lập báo cáo tuần (Origin=UNPLANNED, owner duyệt sửa trong ngày)"
     status: "TESTS_PASS"
@@ -1140,6 +1192,10 @@ work:
     prompt: "Worker tự xử lý eligibility và client sandbox chỉ quan sát (Origin=UNPLANNED, owner yêu cầu thực hiện lần lượt review 14/09, commit từng task)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0283/README.md"
+  - id: "W-0284"
+    prompt: "Đối soát bàn giao và sổ tiến độ (Origin=UNPLANNED)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0284/README.md"
 
 production_flag:
   real_customer_call_allowed: false

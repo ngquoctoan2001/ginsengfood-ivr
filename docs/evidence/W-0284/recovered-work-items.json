@@ -1,0 +1,93 @@
+[
+  {
+    "id": "W-0267",
+    "baseline": "a3688c7",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0267/README.md",
+    "evidence_sha256": "73e063878961c97020f2297ecd4102f002fafc96cf3f7dd9cbb63bf5ffbc0ee3"
+  },
+  {
+    "id": "W-0268",
+    "baseline": "466c190",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0268/README.md",
+    "evidence_sha256": "c97858799a74d0c235c47ea6db9070c10cc5c1ac89d85c700e1c60e4e87b24e0"
+  },
+  {
+    "id": "W-0269",
+    "baseline": "518ecdd",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0269/README.md",
+    "evidence_sha256": "00029f2f69113397099a7598cd298c6c24c283e75525afffbe5fe576528aa606"
+  },
+  {
+    "id": "W-0270",
+    "baseline": "e36234b",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0270/README.md",
+    "evidence_sha256": "a5de84412430828b44f5ac852218ec2959ff4be3420696360685a644c44f1c29"
+  },
+  {
+    "id": "W-0271",
+    "baseline": "d407dbe",
+    "status": "ACCEPTED",
+    "evidence": "docs/evidence/W-0271/README.md",
+    "evidence_sha256": "45f817b06cea9e155078e4ca95d6dd09eb841bb23e5c313b3344e594aa5578e1"
+  },
+  {
+    "id": "W-0272",
+    "baseline": "2ff5b92",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0272/README.md",
+    "evidence_sha256": "26c8932bc185fb3807b6dafce62e94264106c8652dfe39a5327e80b3dd8e1ddb"
+  },
+  {
+    "id": "W-0273",
+    "baseline": "00b7c93",
+    "status": "BLOCKED_EXTERNAL",
+    "evidence": "docs/evidence/W-0273/README.md",
+    "evidence_sha256": "f7b558d4bacc0ac3d3968ea2c95b17f3c0c960c3432db778f6c4c1369ea513cb"
+  },
+  {
+    "id": "W-0274",
+    "baseline": "fad7e87",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0274/README.md",
+    "evidence_sha256": "c26641fd95bff20887053cf7e14be4cb3e12984a0473b530756740fd51f60846"
+  },
+  {
+    "id": "W-0275",
+    "baseline": "9379cbe",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0275/README.md",
+    "evidence_sha256": "3d500529f744f3d6b37d87039acdaeb3e8216ee9d7700cbf96201e2d75329925"
+  },
+  {
+    "id": "W-0276",
+    "baseline": "9d9be51",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0276/README.md",
+    "evidence_sha256": "0c28359953495b2d44766cb663da864a0a1634254b143b07e9f40dd90207fe53"
+  },
+  {
+    "id": "W-0277",
+    "baseline": "cc6025b",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0277/README.md",
+    "evidence_sha256": "4d0eff4cf008ceda5b0fca7465f02d39ddd27d07e35e0d12f0e1aef93a237e76"
+  },
+  {
+    "id": "W-0278",
+    "baseline": "b5210c4",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0278/README.md",
+    "evidence_sha256": "9f67e6339afc272a60bd9abf617c35cf680a73251d98ff79a18ae0b9e0f8cf4a"
+  },
+  {
+    "id": "W-0279",
+    "baseline": "dcfa89f",
+    "status": "TESTS_PASS",
+    "evidence": "docs/evidence/W-0279/README.md",
+    "evidence_sha256": "3e70b9f4859fabbba2ea6f78771c309c07caa55a65351a8fe938733f06033bbd"
+  }
+]
