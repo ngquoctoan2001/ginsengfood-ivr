@@ -1,9 +1,7 @@
 # W-0045 / P7-3 §6 — build, publish, and the two environments that deploy automatically.
 #
-# Nothing here has ever run. There is no runner, no registry and no cluster credential for a real
-# environment (W-0061 / W-0063, both BLOCKED_EXTERNAL), so every job below is configuration whose
-# SHAPE is asserted by deploy/ci/scripts/cd-selftest.mjs and whose EXECUTION is NOT_RUN. P7-3 §10
-# is explicit that YAML is not deploy proof, and this file does not pretend otherwise.
+# Hosted runner/registry history is recorded under W-0285; the current candidate is tracked in
+# W-0292. Configuration checks below do not establish a successful environment deployment.
 #
 # The ladder (README-governance §6) says REAL_CUSTOMER_CALL_ALLOWED is `false (immutable)` for dev,
 # staging and lab, and `false` for prod until a DF-03 sign-off. So no job in this pipeline sets it
@@ -32,11 +30,15 @@ progressive_selftest:
     - node deploy/ci/scripts/progressive-selftest.mjs
 
 .deploy_base: &deploy_base
-  image: alpine/helm:3.16.3
+  image:
+    name: alpine/helm:3.16.3
+    entrypoint: [""]
   # Serialised per environment. Two pipelines upgrading the same release concurrently is how a
   # half-applied migration meets a half-rolled-back deployment.
   before_script:
+    - apk add --no-cache kubectl
     - helm version --short
+    - kubectl version --client
   # A failed upgrade returns the release to the revision it came from before the job ends. Without
   # this, a bad deploy leaves the environment in the failed state until someone notices.
   after_script:

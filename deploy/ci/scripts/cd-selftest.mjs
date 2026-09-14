@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 // W-0045 / P7-3 §8. The delivery pipeline checked as configuration.
 //
-// These five checks read the CI YAML, and that is the honest ceiling: there is no runner, no
-// registry and no cluster credential (W-0061 / W-0063, both BLOCKED_EXTERNAL), so no pipeline in
-// this repository has ever executed. P7-3 §10 says YAML is not deploy proof, and this script does
-// not claim it is -- what it proves is that the SHAPE of the pipeline cannot express the things
-// the governance forbids.
+// These five checks read CI YAML. Hosted executions are recorded separately (W-0285/W-0292);
+// this script checks configuration and does not establish a successful environment deployment.
 //
 // That distinction matters most for IT-CD-REAL-03. Nobody can promise a future pipeline run will
 // not open real calling; what can be proven today is that no job in the repository sets the flag
@@ -63,6 +60,17 @@ async function devPipelineIsGatedOnTheScan() {
   const deploy = cd.deploy_dev;
   assert(deploy, "cd.gitlab-ci.yml has no deploy_dev job.");
   assert(deploy.allow_failure === false, "deploy_dev may fail; a deploy gate that may fail is not a gate.");
+
+  for (const name of ["deploy_dev", "deploy_staging"]) {
+    const job = cd[name];
+    assert(job?.image?.name === "alpine/helm:3.16.3"
+      && JSON.stringify(job.image.entrypoint) === '[""]',
+    `${name} must clear the Helm image entrypoint so GitLab can start its shell.`);
+    const bootstrap = (job.before_script ?? []).join("\n");
+    assert(/apk add --no-cache kubectl/.test(bootstrap)
+      && /kubectl version --client/.test(bootstrap),
+    `${name} must install and check kubectl before its rollout and readiness smoke.`);
+  }
 
   // needs, not stage order. Stage order only says "later"; needs says "unreachable if that job is
   // red", which is what stops a deploy racing a failed scan.
@@ -183,5 +191,4 @@ await failedDeploysRollBack();
 await deploymentsAreSerialised();
 
 process.stdout.write(
-  "CD_SELFTEST_PASS (configuration only — no pipeline in this repository has ever run: "
-  + "no runner, registry or cluster credential exists. See docs/evidence/W-0045.)\n");
+  "CD_SELFTEST_PASS (configuration only — deployment evidence is recorded separately.)\n");

@@ -1,0 +1,5 @@
+BOOTSTRAP_REFUSAL_PASS deploy_dev/entrypoint
+BOOTSTRAP_REFUSAL_PASS deploy_dev/kubectl
+BOOTSTRAP_REFUSAL_PASS deploy_staging/entrypoint
+BOOTSTRAP_REFUSAL_PASS deploy_staging/kubectl
+BOOTSTRAP_REGRESSION_PASS negative=4 positive=1

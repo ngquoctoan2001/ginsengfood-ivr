@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0292` |
-| Last allocated | `W-0291` |
-| Last activity sequence | `A-0611` |
+| `NEXT_WORK_ID` | `W-0293` |
+| Last allocated | `W-0292` |
+| Last activity sequence | `A-0613` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -368,6 +368,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0290` | Chốt pause và kiểm chứng image E2E (Origin=`UNPLANNED`, owner duyệt 14/09) | Owner chốt đề xuất WINDOW_EXPIRED cho operator pause; duyệt push/CI/scan/publish/dev-staging | `W-0289`; baseline `7f4a6c1` | TESTS_PASS | Codex | `docs/evidence/W-0290/README.md` | E2E 8 task PASS sau sửa assertion; scheduler 34/34; image scan/SBOM 2 image PASS ở lượt đầu; config PASS | Không thay runtime hay chữ ký M3; lab/production/real calls chưa được mở |
 
 | `W-0291` | Vá dependency CI và chạy security scan (Origin=`UNPLANNED`) | npm audit phát hiện js-yaml HIGH; owner duyệt scan 14/09 | `W-0290`; baseline `d44834e` | TESTS_PASS | Codex | `docs/evidence/W-0291/README.md` | js-yaml 4.3.2; 6 gate + docs build PASS; full security wrapper PASS sau owner duyệt 68 fingerprint | Không thay API contract/runtime hoặc nới scanner; hosted là bước kế tiếp |
+
+| `W-0292` | Hosted candidate CI/publish/dev-staging (Origin=`UNPLANNED`, owner duyệt) | Chạy pipeline thật trên các sửa đã kiểm local | `W-0291`; candidate `b714694` | IN_PROGRESS | Codex | `docs/evidence/W-0292/README.md` | Hai remote cùng candidate; pipeline 2845815898 đã khởi chạy, 36 job | Chỉ PASS khi có job/deployment evidence thật; lab/prod/real calls chưa mở |
 
 ## 6. Unplanned work insertion template
 
@@ -1746,3 +1748,7 @@ Final status: TESTS_PASS
 | `A-0610` | 2026-09-14 | `W-0291` | TRIAGE/OWNER_APPROVAL | Sau vá npm/NuGet sạch, Gitleaks còn 68: 50 source hash kiểm khớp, 12 flag name/comment, 5 negative fixture, 1 local example. Auto-review từ chối ghi ignore; owner sau đó duyệt đúng 68 fingerprint đã rà; áp mỗi commit/file/rule/dòng và chạy full wrapper lại | Codex + owner | Bảng rà W-0291 giữ đủ 68 dòng; không nới rule, không đổi lịch sử, không bỏ negative control |
 
 | `A-0611` | 2026-09-14 | `W-0291` | FINISH | Full wrapper exit 0: NuGet HIGH PASS, npm 0 vulnerability, secret giả bị bắt, Gitleaks 343 commit no findings sau 68 ngoại lệ đã duyệt. OpenAPI/docs/config PASS, portal 17 file; lock chỉ đổi patch js-yaml | Codex | Chuẩn bị push hai remote và theo dõi hosted candidate; chưa có dev/staging deployment proof |
+
+| `A-0612` | 2026-09-14 | `W-0292` | PUSH/START | W-0291 commit b714694; git push origin main thành công cả GitLab/GitHub, ls-remote hai kho khớp. Pipeline 2845815898 RUNNING trên b714694, 36 job; ci_config và openapi_lint đầu tiên PASS | Codex | Owner đã duyệt tự publish/deploy dev-staging; không thao tác lab/prod hoặc real calls |
+
+| `A-0613` | 2026-09-14 | `W-0292` | DISCOVERY/FIX | Hosted b714694: contract và E2E suite PASS. Preflight deploy tái hiện helm sh exit 1 và kubectl thiếu; sửa bootstrap dev/staging, container thực đạt; guard 4 refusal +1 PASS. Owner không biết cluster; GitLab 0 Agent/không kubeconfig var đã thấy, local không context | Codex | Chỉ sửa bootstrap, chưa có cluster/secret để chứng minh deploy; không đổi job lab/prod |
