@@ -4,6 +4,7 @@
 **Người gửi:** Team Module 8 — IVR Order Confirmation
 **Ngày lập:** `2026-09-12` · **Mốc mã:** `main@b0cb633`
 **Trạng thái:** `READY_TO_DISPATCH / NOT_SENT`
+**Đối soát 14/09:** [W-0285](../../docs/evidence/W-0285/README.md). Hai remote cùng `890dfdd`; GitLab API trả 403 và trình duyệt chưa đăng nhập. Trạng thái runner, pipeline, gói và staging hiện tại **chưa xác minh được**, không suy là chưa từng tồn tại.
 **Ưu tiên:** P1. Mục A chặn mọi bằng chứng phát hành; mục B chặn toàn bộ làn C của kế hoạch hoàn thiện
 
 > Hai mục độc lập. Trả lời được mục nào thì đóng mục đó, không cần chờ đủ hai.
@@ -15,7 +16,7 @@
 
 Sáng `2026-09-12`, khi chạy tay toàn bộ các cổng để lập báo cáo tuần, phát hiện **một nửa cổng kiểm bản đóng gói đã chết 15 ngày** mà không ai biết. Nguyên nhân: nó gọi bề mặt quản trị bằng cơ chế xác thực mà `W-0128` đã xoá từ `2026-08-28`; máy chủ không báo lỗi, nó chỉ bỏ qua header cũ, nên mọi lệnh trả `401`.
 
-Lỗi đó chỉ lộ ra vì hôm nay **tình cờ có người chạy tay**. Trong repo hiện có **39 đầu việc CI đã khai và 50 bài tự kiểm**, nhưng **chưa một lượt nào từng chạy trên runner** — nên không có gì phát hiện việc này sớm hơn.
+Trong repo có **39 đầu việc CI và 50 bài tự kiểm đã khai**. W-0061/W-0093 lưu bằng chứng hosted CI thật, gồm pipeline `2760238052` tại `001d2f57`; đó là lịch sử, chưa chứng minh runner và toàn bộ cổng vẫn chạy trên ứng viên hiện hành. Cần đọc pipeline/jobs/runner hiện tại trước khi kết luận nguyên nhân không phát hiện lỗi.
 
 Đây là lý do cụ thể, không phải lập luận chung: **cổng kiểm không chạy tự động thì nó mục nát âm thầm.** Xin duyệt mục A trước mục B nếu phải chọn.
 
@@ -27,9 +28,9 @@ Lỗi đó chỉ lộ ra vì hôm nay **tình cờ có người chạy tay**. Tr
 
 | # | Cần gì | Ghi chú kỹ thuật |
 | --- | --- | --- |
-| A1 | **Một GitLab runner** đăng ký cho project `nqt20102001/ginsengfood-ivr`, mang thẻ **`ginsengfood-docker`** | Thẻ này đã cố định trong `.gitlab-ci.yml` (`default.tags`). Runner khác thẻ sẽ không nhận việc |
-| A2 | Runner **chạy được Docker** (docker-in-docker hoặc socket) | 5 nhóm việc cần: test tích hợp dùng testcontainers PostgreSQL, dựng ảnh container, dựng cụm Kubernetes tạm, chaos, khôi phục thảm hoạ |
-| A3 | **Nâng gói GitLab lên Premium hoặc Ultimate** | Gói hiện tại không có "required approvals". Không có nó thì không chứng minh được "phải một người khác duyệt trước khi nhập mã" |
+| A1 | **Xác minh runner hiện có** cho `nqt20102001/ginsengfood-ivr`, thẻ **`ginsengfood-docker`**; chỉ cấp lại nếu thiếu/không dùng được | W-0061 từng ghi runner `55115499` / `ivr-docker-winhost`. Cần trạng thái online/paused, tags, version và job được nhận ở SHA mới |
+| A2 | Xác minh runner **vẫn chạy được Docker** (docker-in-docker hoặc socket) | Đã có DinD/Testcontainers lịch sử; cần proof hiện tại cho integration, image, Kubernetes tạm, chaos và DR |
+| A3 | **Kiểm tra gói và khả năng required approvals hiện tại**, chỉ trình phương án nâng gói nếu còn thiếu | Giới hạn gói được ghi trong W-0061/W-0266 là lịch sử. Chưa có quyền đọc hiện tại; không tự mua/nâng gói |
 | A4 | **Một tài khoản người rà soát thứ hai** có quyền duyệt trên project | Chữ ký không tạo ra người. Hai hạng mục đang mở cần đúng hai người khác nhau |
 
 ### A.2 Runner cần bao nhiêu tài nguyên
@@ -48,7 +49,7 @@ Lỗi đó chỉ lộ ra vì hôm nay **tình cờ có người chạy tay**. Tr
 
 ### A.3 Điều kiện coi là xong
 
-Một lượt chạy đầy đủ trên runner, và **một yêu cầu nhập mã bị chặn** khi có việc bắt buộc thất bại. Chặn được mới là cổng; chạy xong mà vẫn nhập mã được thì chưa.
+Một lượt đầy đủ trên runner gắn đúng SHA, kèm bằng chứng enforcement và người duyệt độc lập đáp ứng G-GITLAB. Repo hiện chỉ cho làm trên `main`: không tạo nhánh/MR thử trái AGENTS.md để tái tạo quy trình lịch sử. Owner/Platform cần xác nhận cách đáp ứng yêu cầu review trong chính sách hiện hành; không tự hạ cổng hay đổi branch protection.
 
 ---
 
@@ -60,7 +61,7 @@ Một lượt chạy đầy đủ trên runner, và **một yêu cầu nhập m�
 | --- | --- | --- |
 | B1 | **Cụm Kubernetes** hoặc máy chủ chạy được Helm, một namespace riêng | Triển khai API, worker và việc nâng cấp cơ sở dữ liệu |
 | B2 | **PostgreSQL** riêng cho staging, không dùng chung với bất cứ gì đang thật | Chứa dữ liệu thử; sẽ bị xoá và nạp lại nhiều lần |
-| B3 | **Kho ảnh container** có quyền đẩy từ runner ở mục A | Ảnh bất biến theo mã băm, để chạy đúng cái đã kiểm |
+| B3 | **Xác minh kho ảnh hiện có và quyền đẩy** từ runner ở mục A; cấp phần thiếu | W-0061 có proof Registry lịch sử. Cần quyền/job/digest ở ứng viên mới, không suy kho chưa được tạo |
 | B4 | **Nơi quản lý bí mật** | Token quản trị ba hạng, token dịch vụ, chuỗi kết nối. Hiện đang là giá trị giả ghi thẳng trong file, chỉ hợp cho máy cá nhân |
 | B5 | **Tên miền + chứng thư TLS** cho staging | Module 3 gọi vào được, và chứng minh được phần bảo mật đường truyền |
 | B6 | **Bảng theo dõi + nơi nhận cảnh báo** (Prometheus/Grafana hoặc tương đương) | Đo hàng đợi, độ trễ, tỉ lệ lỗi; chưa có nơi nhận thì không chốt được ngưỡng cảnh báo |

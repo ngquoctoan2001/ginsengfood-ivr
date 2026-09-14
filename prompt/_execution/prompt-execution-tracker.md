@@ -21,8 +21,8 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0285` |
-| Last allocated | `W-0284` |
+| `NEXT_WORK_ID` | `W-0286` |
+| Last allocated | `W-0285` |
 | Last activity sequence | `A-0596` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
@@ -354,6 +354,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0283` | Worker tự xử lý eligibility và client sandbox chỉ quan sát (Origin=`UNPLANNED`, owner yêu cầu thực hiện lần lượt review 14/09, commit từng task) | Task được nhận nhưng chưa có caller eligibility tự động; client ví dụ đang làm thay | `W-0282`; baseline `890dfdd` | TESTS_PASS | Codex | `docs/evidence/W-0283/README.md` | Release 0/0; unit mới 6/6; PostgreSQL selection 7/7 và ma trận API 1/1 ở rerun cuối; sandbox 24/24 qua TCP, 6 task pending khi worker dừng rồi tự phục hồi; 6 audit eligibility, 0 final/callback trùng | LOCAL_ONLY/MOCK; vòng mặc định tắt; M3 giữ CALL_REQUIRED và order revalidation; CI/SIM/M3 thật vẫn mở; full initial matrix bị invalidated do source thay đổi, có rerun cuối; `REAL_CUSTOMER_CALL_ALLOWED=NO` |
 
 | `W-0284` | Đối soát bàn giao và sổ tiến độ (Origin=`UNPLANNED`) | Khôi phục 13 dòng lịch sử thiếu, sửa chỉ dẫn phiên bản và phạm vi bằng chứng | `W-0283`; baseline `a0790e3` | TESTS_PASS | Codex | `docs/evidence/W-0284/README.md` | Đọc IR-06/07/08 và evidence W-0267..0279; kiểm lại source/gate | Không suy chữ ký từ im lặng; nhãn pause đang chờ owner; real calls NO |
+
+| `W-0285` | Kiểm tra hosted CI và đầu vào Hạ tầng (Origin=`UNPLANNED`) | Xác minh runner/pipeline/remote hiện có trước khi yêu cầu cấp mới | `W-0284`; baseline `fa7877c` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0285/README.md` | Đọc GitLab hiện tại và đối chiếu hồ sơ hosted W-0061/W-0093 | Không gửi phiếu, mua gói, đổi quyền hay tạo nhánh; real calls NO |
 
 ## 6. Unplanned work insertion template
 

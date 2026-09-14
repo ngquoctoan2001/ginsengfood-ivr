@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-09-14T02:25:45.499150+00:00",
+  "local_baseline": "fa7877c",
+  "remote_main": "890dfdd732982b36c73ba7e09f6cb7f7ab96d57c",
+  "queries": {
+    "project": {
+      "status": 403
+    },
+    "runners": {
+      "status": 403
+    },
+    "pipelines": {
+      "status": 403
+    },
+    "protected_main": {
+      "status": 403
+    },
+    "approvals": {
+      "status": 403
+    },
+    "environments": {
+      "status": 403
+    },
+    "registry_repositories": {
+      "status": 403
+    }
+  }
+}
