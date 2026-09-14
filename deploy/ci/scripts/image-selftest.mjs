@@ -27,6 +27,9 @@ const skipEndToEnd = process.argv.includes("--skip-e2e");
 const observabilityRuntime = process.argv.includes("--observability-runtime");
 
 const TAG = process.env.IVR_IMAGE_TAG ?? "p7-1-selftest";
+// Never run `down -v` against the developer's saved Compose project. Every invocation owns
+// a fresh project and selects its network by that exact Compose label.
+const COMPOSE_PROJECT = `ivr-image-selftest-${process.pid}-${Date.now()}`;
 const IMAGES = [
   { name: "ivr-api", dockerfile: "deploy/docker/Dockerfile.api", context: ".", probe: "/health/live", port: 8080 },
   { name: "ivr-worker", dockerfile: "deploy/docker/Dockerfile.worker", context: ".", probe: null, port: null },
@@ -117,7 +120,7 @@ function checkHealthcheck() {
 
 // ---------------------------------------------------------------- IT-IMG-COMPOSE-03
 function checkCompose() {
-  const compose = ["compose", "-f", "docker-compose.dev.yml"];
+  const compose = ["compose", "-p", COMPOSE_PROJECT, "-f", "docker-compose.dev.yml"];
   try {
     docker([...compose, "up", "-d", "--build"], { inherit: true });
 
@@ -141,7 +144,7 @@ function checkCompose() {
 
     // The guarantee that matters: the network the fakes live on has no route out. Asserted by
     // trying, not by reading `internal: true` back out of the file we just wrote.
-    const network = docker(["network", "ls", "--format", "{{.Name}}"])
+    const network = docker(["network", "ls", "--filter", `label=com.docker.compose.project=${COMPOSE_PROJECT}`, "--format", "{{.Name}}"])
       .split("\n").map((line) => line.trim()).find((line) => line.endsWith("_ivr-internal"));
     assert(network, "the internal network is missing from the stack.");
 
@@ -215,6 +218,8 @@ function checkScan() {
 
 const COMPOSE_E2E = [
   "compose",
+  "-p",
+  COMPOSE_PROJECT,
   "-f",
   "docker-compose.dev.yml",
   "-f",
@@ -234,7 +239,7 @@ const SILENT_SETTLE_SECONDS = 6;
 // curl runs from a container ON the internal network rather than from the host: fake-sales is not
 // published, and reaching it from outside would measure a different topology than the one shipped.
 function curlInternal(args) {
-  const network = docker(["network", "ls", "--format", "{{.Name}}"])
+  const network = docker(["network", "ls", "--filter", `label=com.docker.compose.project=${COMPOSE_PROJECT}`, "--format", "{{.Name}}"])
     .split("\n").map((line) => line.trim()).find((line) => line.endsWith("_ivr-internal"));
   assert(network, "the internal network is missing from the stack.");
   return docker(["run", "--rm", "--network", network, "curlimages/curl:8.11.1", "-s", ...args]);

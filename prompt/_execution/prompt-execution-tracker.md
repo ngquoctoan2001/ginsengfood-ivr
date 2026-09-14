@@ -21,8 +21,8 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0286` |
-| Last allocated | `W-0285` |
+| `NEXT_WORK_ID` | `W-0287` |
+| Last allocated | `W-0286` |
 | Last activity sequence | `A-0596` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
@@ -356,6 +356,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0284` | Đối soát bàn giao và sổ tiến độ (Origin=`UNPLANNED`) | Khôi phục 13 dòng lịch sử thiếu, sửa chỉ dẫn phiên bản và phạm vi bằng chứng | `W-0283`; baseline `a0790e3` | TESTS_PASS | Codex | `docs/evidence/W-0284/README.md` | Đọc IR-06/07/08 và evidence W-0267..0279; kiểm lại source/gate | Không suy chữ ký từ im lặng; nhãn pause đang chờ owner; real calls NO |
 
 | `W-0285` | Kiểm tra hosted CI và đầu vào Hạ tầng (Origin=`UNPLANNED`) | Xác minh runner/pipeline/remote hiện có trước khi yêu cầu cấp mới | `W-0284`; baseline `fa7877c` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0285/README.md` | Đọc GitLab hiện tại và đối chiếu hồ sơ hosted W-0061/W-0093 | Không gửi phiếu, mua gói, đổi quyền hay tạo nhánh; real calls NO |
+
+| `W-0286` | Kiểm chứng độ bền và ứng viên local (Origin=`UNPLANNED`) | 100 vòng có tiêm lỗi, full suite và image/gates trên source ổn định | `W-0283`..`W-0285`; baseline `67ef6b1` | IN_PROGRESS | Codex | `docs/evidence/W-0286/README.md` | Chạy thật với PostgreSQL/MOCK riêng; không suy PASS từ lịch sử | Hosted chưa có quyền đọc; pause semantics chờ owner; M3/SIM/staging/production NOT_RUN |
 
 ## 6. Unplanned work insertion template
 

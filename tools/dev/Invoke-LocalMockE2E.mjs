@@ -52,6 +52,8 @@ function readArgs(argv) {
     policy: 'mock-lab-v1',
     apiPort: 5015,
     salesPort: 18085,
+    postgresContainer: 'ginsengfood-ivr-dev-postgres-1',
+    postgresPort: 55433,
     extendedEvery: 10,
     evidenceDir: 'docs/evidence/W-0203',
   };
@@ -64,6 +66,8 @@ function readArgs(argv) {
       case '--policy': options.policy = value; index += 1; break;
       case '--api-port': options.apiPort = Number(value); index += 1; break;
       case '--sales-port': options.salesPort = Number(value); index += 1; break;
+      case '--postgres-container': options.postgresContainer = value; index += 1; break;
+      case '--postgres-port': options.postgresPort = Number(value); index += 1; break;
       case '--extended-every': options.extendedEvery = Number(value); index += 1; break;
       case '--evidence-dir': options.evidenceDir = value; index += 1; break;
       case '--skip-faults': options.skipFaults = true; break;
@@ -78,13 +82,18 @@ function readArgs(argv) {
   if (!Number.isInteger(options.workers) || options.workers < 1 || options.workers > 8) {
     throw new Error('--workers must be between 1 and 8.');
   }
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_.-]+$/.test(options.postgresContainer)
+      || !Number.isInteger(options.postgresPort) || options.postgresPort < 1024 || options.postgresPort > 65535) {
+    throw new Error('Specify a local PostgreSQL container name and port 1024..65535.');
+  }
   return options;
 }
 
 const OPTIONS = readArgs(process.argv.slice(2));
 
-const POSTGRES_CONTAINER = 'ginsengfood-ivr-dev-postgres-1';
-const SALES_CONTAINER = 'ivr-e2e-mock-sales';
+const POSTGRES_CONTAINER = OPTIONS.postgresContainer;
+// Each invocation owns its fake receiver, including when fault injection restarts it.
+const SALES_CONTAINER = `ivr-e2e-mock-sales-${process.pid}`;
 const API_URL = `http://127.0.0.1:${OPTIONS.apiPort}`;
 const API_BASE = `${API_URL}/v1/ivr/order-confirmation`;
 const SALES_URL = `http://127.0.0.1:${OPTIONS.salesPort}`;
@@ -247,8 +256,13 @@ function baseEnvironment() {
     SIM_PROVIDER: 'MOCK',
     SALES_PROVIDER: 'FAKE_TARGET_V1',
     REAL_CUSTOMER_CALL_ALLOWED: 'NO',
-    ConnectionStrings__IvrDb: 'Host=127.0.0.1;Port=55433;Database=ivr;Username=ivr',
+    ConnectionStrings__IvrDb: `Host=127.0.0.1;Port=${OPTIONS.postgresPort};Database=ivr;Username=ivr`,
     Ivr__CallbackDelivery__TargetBaseUrl: SALES_URL,
+    Ivr__EligibilityPolling__Enabled: 'true',
+    Ivr__EligibilityPolling__ApiBaseUrl: API_URL,
+    IVR_INTERNAL_SERVICE_TOKEN: INTERNAL_TOKEN,
+    Ivr__EligibilityPolling__PollIntervalMilliseconds: '100',
+    Ivr__EligibilityPolling__BatchSize: '32',
   };
 }
 
@@ -299,7 +313,9 @@ function docker(args, { allowFailure = false } = {}) {
 }
 
 function startFakeSales() {
-  docker(['rm', '-f', SALES_CONTAINER], { allowFailure: true });
+  if (started.some((item) => item.kind === 'container' && item.name === SALES_CONTAINER)) {
+    docker(['rm', '-f', SALES_CONTAINER], { allowFailure: true });
+  }
   docker([
     'run', '-d', '--name', SALES_CONTAINER,
     '-p', `127.0.0.1:${OPTIONS.salesPort}:8080`,
@@ -465,15 +481,15 @@ async function admit(scenario, taskId) {
   if (intake.status >= 300) {
     throw new Error(`intake ${taskId} returned ${intake.status}: ${intake.raw.slice(0, 400)}`);
   }
-  const eligibility = await postWithConflictRetry('eligibility', `${API_BASE}/eligibility-checks`, {
-    Authorization: `Bearer ${INTERNAL_TOKEN}`,
-    'X-Source-System': 'ivr-worker',
-    'X-Service-Scope': 'ivr.internal.write',
-    'X-Correlation-Id': `corr-${taskId}`,
-    'Idempotency-Key': `elig-${taskId}`,
-  }, { task_id: taskId });
-  if (eligibility.body?.decision !== 'ELIGIBLE_FOR_IVR') {
-    throw new Error(`eligibility ${taskId} returned ${eligibility.status} ${JSON.stringify(eligibility.body)}`);
+  // The client no longer performs the worker's internal mutation. Read the durable decision
+  // while the real worker loop owns eligibility; the separate concurrency probe still tests
+  // the internal endpoint explicitly.
+  const eligibility = await waitFor(`worker eligibility for ${taskId}`, async () => {
+    const decision = scalar(`SELECT eligibility_decision FROM ivr_call_jobs WHERE task_id = '${taskId}'`);
+    return { done: decision !== '' && decision !== 'PENDING_ELIGIBILITY', decision };
+  }, { timeoutMs: 60_000, intervalMs: 200 });
+  if (eligibility.decision !== 'ELIGIBLE_FOR_IVR') {
+    throw new Error(`worker eligibility ${taskId} returned ${eligibility.decision}`);
   }
   return taskId;
 }
@@ -1505,6 +1521,10 @@ async function main() {
       attempt_policy_version: OPTIONS.policy,
       api: API_URL,
       fake_sales: SALES_URL,
+      postgres_container: POSTGRES_CONTAINER,
+      postgres_port: OPTIONS.postgresPort,
+      eligibility_owner: 'worker-polling',
+      clock: 'wall-clock progressing; MOCK calling window enabled 0..1440; task offsets backdated',
     },
     coverage: {
       core_scenarios: CORE_MATRIX.map((row) => row.code),
@@ -1527,7 +1547,9 @@ async function main() {
     },
     invariants,
     shared_e2e_ivr_side: sharedE2ECoverage(loop.lastExtended ?? null),
-    open_findings: [
+    concurrency_probe: probe,
+    conflict_retries: conflictRetries,
+    open_findings: probe.intake_500 + probe.eligibility_500 > 0 ? [
       {
         id: 'F-1',
         severity: 'HIGH',
@@ -1546,7 +1568,7 @@ async function main() {
           + 'envelope, so a blanket transaction retry would re-run HTTP handlers. Each call site '
           + 'has to be shown retry-safe first; that is its own work item, not a patch here.',
       },
-    ],
+    ] : [],
     delivery_ledger: ledger,
     faults,
     retention: {

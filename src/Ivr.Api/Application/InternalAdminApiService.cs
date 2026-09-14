@@ -929,6 +929,15 @@ public sealed class InternalAdminApiService(
         string payloadHash = string.Concat(
             "SHA256-",
             string.Join('-', rawHash.Chunk(8).Select(chunk => new string(chunk))));
+        // Eligibility commits under its own per-task lock and ReadCommitted transaction.
+        // An outer Serializable receipt transaction reads the shared key table before that
+        // commit and turns independent keys into SSI failures. Coordinate response replay
+        // with the existing per-key lock, as MutationReplayFilter does for owned transactions.
+        // Other lifecycle operations retain their existing isolation contract.
+        if (operation == "record-eligibility" && idempotencyStore is PostgresIdempotencyStore postgres)
+        {
+            return postgres.ExecuteCoordinatedAsync(key, payloadHash, factory, cancellationToken);
+        }
         return idempotencyStore.ExecuteAsync(key, payloadHash, factory, cancellationToken);
     }
 
