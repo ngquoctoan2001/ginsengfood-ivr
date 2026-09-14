@@ -1,0 +1,8 @@
+Test run for C:\Users\Administrator\Desktop\ivr\tests\Ivr.UnitTests\bin\Release\net10.0\Ivr.UnitTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\coverage-unit-rerun\unit-coverage-rerun.trx
+
+Passed!  - Failed:     0, Passed:   688, Skipped:     0, Total:   688, Duration: 2 s - Ivr.UnitTests.dll (net10.0)
+
+Attachments:
+  C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\coverage-unit-rerun\fa79222e-3734-464f-8f08-2e15798fbda3\coverage.cobertura.xml

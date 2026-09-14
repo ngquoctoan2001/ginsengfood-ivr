@@ -1,12 +1,12 @@
 # BÁO CÁO TIẾN ĐỘ MODULE 8 — IVR XÁC NHẬN ĐƠN HÀNG
 
-**Đính chính 14/09:** các số kiểm thử và commit dưới đây vẫn thuộc kỳ 12/09; sửa phạm vi kết luận theo [W-0284](../evidence/W-0284/README.md). Worker eligibility đã bổ sung ở [W-0283](../evidence/W-0283/README.md).
+**Đính chính 14/09:** số liệu kỳ 12/09 giữ nguyên; đối soát ở [W-0284](../evidence/W-0284/README.md), worker ở [W-0283](../evidence/W-0283/README.md). [W-0286](../evidence/W-0286/README.md) có 1.018 test, 100 vòng độ bền, K8s/quan sát local đạt; image pause, security và hosted vẫn có mục chưa đóng.
 **Kỳ báo cáo:** 06/09 → 12/09/2026 (7 ngày) · **Người thực hiện:** Nguyễn Quốc Toàn · **Mốc code:** `e81fec1` (12/09 13:53)
 **Trạng thái điều hành:** `RELEASE_BLOCKED — CHỜ MODULE 3`. Phần mềm chạy trọn vòng gọi ở chế độ giả lập, **1.003 bài kiểm thử xanh hoàn toàn**, blocker nội bộ cuối cùng của tuần trước đã đóng. Ngày 12/09 đã sửa xong ba lỗi phát hiện buổi sáng và **dựng xong môi trường thử cho Module 3** — việc duy nhất trong làn B không phải chờ họ. Còn cần kiểm chứng image E2E đầy đủ, độ bền và hosted CI trên ứng viên mới; đồng thời có **11 cổng bên ngoài**, gần nhất là **Module 3 chưa phản hồi phiếu chốt hợp đồng gửi ngày 10/09**. Trong kỳ có 140 lưu vào `main`, cây làm việc sạch, hai kho GitLab và GitHub đã đồng bộ, tổng lịch sử 338 lưu. **Giao diện quản trị đã bị xoá khỏi module** theo chỉ đạo 05/09 — Module 8 nay thuần backend, Module 3 tự làm màn hình.
 
 ## 1. TIẾN ĐỘ
 
-| Hạng mục | Mức đã xây | Hiện trạng kiểm chứng tại `HEAD` |
+| Hạng mục | Mức đã xây | Hiện trạng kiểm chứng tại mốc kỳ 12/09 |
 | --- | ---: | --- |
 | Nhận đơn, xác thực, chống gọi trùng | 95% | Lược đồ nhận việc đã buộc vào hợp đồng sinh tự động; một luật chống trùng duy nhất cho cả hai bề mặt |
 | Vòng đời cuộc gọi, mã kết quả, lập lịch & chính sách gọi | 93% | 5 kịch bản chạy trọn vòng; lỗi kỹ thuật và số sai không bị tính là lượt gọi khách; khung giờ 08:00–21:08 theo chữ ký chủ dự án, tối đa 2 lượt, hai hàng rào thu hồi việc giữa chừng |
@@ -65,10 +65,10 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 
 | Làn | # | Gói việc | Xong |
 | --- | ---: | --- | --- |
-| A | A1 | ✅ **Đã xong**: ba lỗi ngày 12/09 đã sửa (dòng in kết quả cổng đóng gói · cột `dtmf_key` tràn · nửa cổng gọi bằng cơ chế xác thực đã xoá) kèm bài kiểm canh lỗi kho số liệu; và ma trận 38/38 lệnh đã đạt từ `W-0197` ngày 07/09. **Còn lại**: chốt nhãn kết quả ở mục 4.1 rồi chạy lại cổng cho xanh hết; bổ sung khẳng định không lộ số điện thoại, địa chỉ, thanh toán vào từng phản hồi; gắn ma trận vào lượt chạy bắt buộc khi có runner | 15/09 |
-| A | A2 | **Chạy liên tục ≥100 vòng** có tiêm lỗi: không nghe máy nhiều lượt, chết giữa chừng, hết hạn giữ việc, gửi trùng, hàng lỗi và phát lại; chứng minh không mất và không nhân đôi kết quả; **ghim đồng hồ** để diễn tập chạy được ngoài khung giờ gọi | 16/09 |
-| A | A3 | Đối soát evidence từng dòng: planned prompt cần README; unplanned có thể có evidence trong tracker. Không tạo 56 hồ sơ rỗng chỉ để đủ số | 17/09 |
-| A | A4 | Chạy lại **toàn bộ 50 bài tự kiểm + 39 đầu việc CI** trên đúng một mốc mã, ghim kết quả làm ứng viên phát hành | 18/09 |
+| A | A1 | **Cập nhật 14/09:** 38/38 API, 417 request đã kiểm schema/PII/quyền/replay ở W-0286. Nhãn operator pause vẫn chờ owner; image E2E giữ FAIL; pipeline bắt buộc trên candidate chưa có | chờ owner + CI |
+| A | A2 | ✅ **Local xong 14/09, W-0286:** 100/100 vòng, 1.130 task, 0 lỗi; tiêm lỗi crash/lease/kill/callback/DLQ/retention. Worker tự xét eligibility; clock tiến thật với profile MOCK cho phép cả ngày để chạy ngoài giờ; không gọi đó là đóng băng clock production | 14/09 |
+| A | A3 | ✅ **Xong 14/09, W-0284:** khôi phục 13 dòng thiếu; 0 planned prompt đã triển khai thiếu pack bắt buộc. 56 unplanned/external không README riêng được phân loại theo evidence thật, không tạo hồ sơ rỗng | 14/09 |
+| A | A4 | **PARTIAL, W-0286:** full suite 1.018/1.018; sweep 39/39 script và 22 skip có lý do; K8s 7/7, observability, oasdiff đạt; coverage 89,33% sau unit rerun. Chưa có full image PASS, security scan mới, hay pipeline 39 job đúng SHA; chưa là ứng viên phát hành được duyệt | chờ phần còn chặn |
 | **B** | **B1** | **Nhận phiếu `IR-07` đã điền — 21 mục.** Module 3 hẹn trả trong tuần 14–19/09 | **chờ M3** |
 | **B** | B2 | ✅ **Xong 12/09**: môi trường thử một lệnh, tài khoản dịch vụ có hạn mức **60 lệnh/phút** (mã `429` hợp đồng hứa từ đầu nhưng **chưa từng có thật** — nay có), 24 ví dụ chạy được, cách dọn dữ liệu, đầu nhận giả lập. **Cập nhật 14/09**: W-0283 đã thêm worker tự xét cổng kỹ thuật; M3 giữ quyết định nghiệp vụ CALL_REQUIRED | ✅ |
 | **B** | B3 | Áp các mục Module 3 chọn khác vào hợp đồng và mã nguồn; phát hành bản hợp đồng kế tiếp; sinh lại bộ mã gọi cho họ | sau B1 |
@@ -92,7 +92,7 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | Cần có | Ai lo | Trước ngày | Nếu chậm |
 | --- | --- | --- | --- |
 | **Phiếu chốt `IR-07` điền xong, 21 mục** | **Module 3** | **19/09** | Làn B đứng từ B3; 5 cổng hợp đồng không đóng được; toàn bộ mốc sau lùi theo |
-| Máy chủ staging, kho ảnh, bí mật, DNS/TLS **và** nâng gói GitLab + người rà soát thứ hai | Hạ tầng | 16/09 | Làn C lùi nguyên khối; không đo được hiệu năng; không có lượt chạy bắt buộc nên ứng viên phát hành không tái tạo được — và cổng kiểm tiếp tục mục nát âm thầm như mục 4.1 |
+| Máy chủ staging, kho ảnh, bí mật, DNS/TLS và bằng chứng CI/review độc lập; xác minh gói/quyền hiện tại trước khi yêu cầu nâng cấp | Hạ tầng | 16/09 | Cần phiên GitLab đọc được để xác minh runner/pipeline; API đang 403, không kết luận runner thiếu. Làn C vẫn cần hạ tầng thật |
 | Chữ ký kịch bản thoại, giọng đọc, pháp lý, an ninh | Sản phẩm · Pháp lý · An ninh | 18/09 | Không mở được cổng mua SIM, làn E không khởi động |
 | **Cập nhật 14/09**: còn nhãn kết quả khi tạm dừng — mục 4.1; khoảng trống worker eligibility đã sửa và kiểm chứng ở W-0283 | Chủ dự án | 16/09 | Nhãn pause chưa chốt; không sửa runtime để ép bài diễn tập xanh. B4 vẫn cần đầu nhận và phản hồi thật của M3 |
 | Duyệt mua gói thử một SIM | Chủ dự án | sau khi làn A–D xanh | Chỉ chứng minh được trên giả lập, không bao giờ đo được dung lượng thật |

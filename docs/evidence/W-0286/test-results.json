@@ -1,0 +1,190 @@
+{
+  "candidate_commit": "44830290ea97ab71b2e28002bb68c66bdbecaa53",
+  "collected_at": "2026-09-14T03:15:27.438052+00:00",
+  "executions": [
+    {
+      "file": ".artifacts/w0286/final-tests/final-4483029_net10.0_20260914094956.trx",
+      "sha256": "0ab424f4-29afe52a-98211064-b1477a55-f8d05a29-726dda16-caae2932-31f2087d",
+      "counts": {
+        "total": 688,
+        "executed": 688,
+        "passed": 688,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/final-tests/final-4483029_net10.0_20260914095855.trx",
+      "sha256": "478c6ade-43e6b64b-e73a1532-2ecce7d2-61b28f2b-05f1b4d6-f3808b82-d76e2d7c",
+      "counts": {
+        "total": 298,
+        "executed": 298,
+        "passed": 298,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/final-tests/final-4483029_net10.0_20260914095857.trx",
+      "sha256": "82f20701-ff4f474e-f0dd8239-0f2349fc-a4508d39-f091d0c2-7ac5abdf-bdcc676a",
+      "counts": {
+        "total": 24,
+        "executed": 24,
+        "passed": 24,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/final-tests/final-4483029_net10.0_20260914095916.trx",
+      "sha256": "2174d90c-611d9166-1b21c418-fc443e9e-1214fa33-5edfc966-6cf8a1bb-a38972e1",
+      "counts": {
+        "total": 8,
+        "executed": 8,
+        "passed": 8,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/final-tests/globalization-invariant.trx",
+      "sha256": "93363525-a686d9cc-b02dae09-5df7475f-c8fddb65-8e87a436-63a82680-871af6da",
+      "counts": {
+        "total": 688,
+        "executed": 688,
+        "passed": 688,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/final-coverage/coverage-4483029_net10.0_20260914100624.trx",
+      "sha256": "0964113f-0c44bb22-ee08906b-9b318fce-b2535c4d-592a0c62-8c0d3753-cefdea58",
+      "counts": {
+        "total": 688,
+        "executed": 688,
+        "passed": 687,
+        "failed": 1,
+        "notExecuted": 0
+      },
+      "outcome": "Failed",
+      "failed_tests": [
+        "Ivr.UnitTests.Speech.RegionalVoiceRoutingTests.ThreeRegionsProduceThreeSeparateCacheEntriesAndOneMissEach"
+      ]
+    },
+    {
+      "file": ".artifacts/w0286/final-coverage/coverage-4483029_net10.0_20260914101229.trx",
+      "sha256": "de2c3e2e-f6e3ed68-b3edd748-819416c7-7a6fadc3-ad59fe6d-a8ce7d87-6c573633",
+      "counts": {
+        "total": 298,
+        "executed": 298,
+        "passed": 298,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/final-coverage/coverage-4483029_net10.0_20260914101233.trx",
+      "sha256": "df48d592-4abd7f31-cf57e671-f044dd37-0e64901e-295db586-fc510503-0148659a",
+      "counts": {
+        "total": 24,
+        "executed": 24,
+        "passed": 24,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/final-coverage/coverage-4483029_net10.0_20260914101255.trx",
+      "sha256": "879a6ec7-0804119a-5f50a092-ff48c941-d47cd88e-b4a09abb-37a6fac4-bdd1379a",
+      "counts": {
+        "total": 8,
+        "executed": 8,
+        "passed": 8,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/coverage-unit-rerun/unit-coverage-rerun.trx",
+      "sha256": "02fc1116-f9314d4e-fab6f666-fa87fb0d-1aad00b1-6014e3a0-b7f42a34-ed734182",
+      "counts": {
+        "total": 688,
+        "executed": 688,
+        "passed": 688,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/tests/eligibility-concurrent-after.trx",
+      "sha256": "716ddafb-b3b6e3d5-7e92828e-2a1ba2c6-97345b93-e1e23852-6f839f5d-a035957a",
+      "counts": {
+        "total": 2,
+        "executed": 2,
+        "passed": 2,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "outcome": "Completed",
+      "failed_tests": []
+    },
+    {
+      "file": ".artifacts/w0286/tests/eligibility-concurrent-before.trx",
+      "sha256": "f65eb0af-95f62af6-dc854b95-23f9f440-da0f5a82-3d5ecbf9-78f5fc5c-e1823e25",
+      "counts": {
+        "total": 2,
+        "executed": 2,
+        "passed": 0,
+        "failed": 2,
+        "notExecuted": 0
+      },
+      "outcome": "Failed",
+      "failed_tests": [
+        "Ivr.IntegrationTests.EligibilityConcurrencyTests.ParallelEligibilityCommitsOnceAndPreservesReplayAfterRestart(sameTask: True)",
+        "Ivr.IntegrationTests.EligibilityConcurrencyTests.ParallelEligibilityCommitsOnceAndPreservesReplayAfterRestart(sameTask: False)"
+      ]
+    }
+  ],
+  "coverage_inputs": [
+    {
+      "trx": ".artifacts/w0286/final-coverage/coverage-4483029_net10.0_20260914101229.trx",
+      "coverage": ".artifacts/w0286/final-coverage/Administrator_NQT_2026-09-14_10_06_46/In/NQT/coverage.cobertura.xml",
+      "merged_copy": ".artifacts/w0286/coverage-passing/coverage-4483029_net10.0_20260914101229/coverage.cobertura.xml"
+    },
+    {
+      "trx": ".artifacts/w0286/final-coverage/coverage-4483029_net10.0_20260914101233.trx",
+      "coverage": ".artifacts/w0286/final-coverage/Administrator_NQT_2026-09-14_10_12_32/In/NQT/coverage.cobertura.xml",
+      "merged_copy": ".artifacts/w0286/coverage-passing/coverage-4483029_net10.0_20260914101233/coverage.cobertura.xml"
+    },
+    {
+      "trx": ".artifacts/w0286/final-coverage/coverage-4483029_net10.0_20260914101255.trx",
+      "coverage": ".artifacts/w0286/final-coverage/Administrator_NQT_2026-09-14_10_12_40/In/NQT/coverage.cobertura.xml",
+      "merged_copy": ".artifacts/w0286/coverage-passing/coverage-4483029_net10.0_20260914101255/coverage.cobertura.xml"
+    },
+    {
+      "trx": ".artifacts/w0286/coverage-unit-rerun/unit-coverage-rerun.trx",
+      "coverage": ".artifacts/w0286/coverage-unit-rerun/Administrator_NQT_2026-09-14_10_10_53/In/NQT/coverage.cobertura.xml",
+      "merged_copy": ".artifacts/w0286/coverage-passing/unit-coverage-rerun/coverage.cobertura.xml"
+    }
+  ],
+  "coverage_note": "Four passing suite artifacts on the same candidate. The first instrumented unit run failed one 100ms regex timeout; the complete unit rerun passed 688/688. The failed run remains listed and is excluded from the coverage merge."
+}

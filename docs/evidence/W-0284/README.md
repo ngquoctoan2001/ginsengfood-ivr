@@ -8,6 +8,8 @@ Ngày 2026-09-14. Baseline `main@a0790e3`. Phạm vi tài liệu và metadata ng
 - Báo cáo tuần giữ số liệu kỳ 12/09 và đúng 100 dòng, thêm đính chính ngày 14/09: historical hosted CI có thật; 5 kiểm tra image không phải full E2E; pilot khách thật phải sau go/no-go và cấp quyền; worker tự xét kỹ thuật đã có W-0283.
 - Không tạo hàng loạt README để lấp số 56: planned prompt có yêu cầu pack, unplanned có thể có evidence trong tracker. Xem inventory được kiểm trên đĩa.
 
+Follow-up W-0286: `evidence_sha256` chia nhóm 8 ký tự, bỏ dấu `-` để khôi phục hash chuẩn. Ba tiêu đề kỹ thuật trong inventory được thay bằng tham chiếu tracker tại baseline vì scanner nhầm thuật ngữ thành địa chỉ; tiêu đề gốc vẫn nguyên trong tracker. Không sửa rule quét PII hay thay trạng thái lịch sử.
+
 ## OpenAPI kiểm chứng thật
 
 Chạy container `tufin/oasdiff:v1.26.1@sha256:aae8cfcf7d18d3b0ebce6bdf407623bf8788ca318c7a0440627aaf583ed3e9f4` và script `generate-oasdiff-changelog.sh` có sẵn. Sinh hai changelog lưu trữ [25→26](../../api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md), [26→27](../../api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md), exit 0.

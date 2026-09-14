@@ -1,0 +1,60 @@
+
+== Preflight
+   postgres ok, 25 migrations, policy mock-lab-v1 present
+
+== Fake Sales, API and workers
+   api http://127.0.0.1:5016, 2 worker(s), fake Sales http://127.0.0.1:18086
+   logs: C:\Users\Administrator\Desktop\ivr\ci-artifacts\local-mock-e2e
+
+== Concurrency probe: 10 simultaneous admissions, no client retry
+   intake 10/10 ok, eligibility 10/10 ok (0 answered HTTP 500)
+
+== Fault 1/2: worker killed mid-call, lease left to expire
+   1 attempt(s) in flight; killing worker-91 hard
+   attempt states after recovery: {"RECOVERY_REQUIRED":1}
+   after recovery the queue kept moving: 3 of the remaining 3 task(s) finished
+   recovery_required=1 held=1 redialled=0
+
+== Fault 3a: kill switch engaged - nothing is claimed and nothing is dialled
+   kill switch engaged: 0 attempts, 0 results after 100 scheduler polls
+   kill switch released: every withheld task completed exactly once
+
+== Fault 3b: an operator ends calls that are already under way
+   terminate-all: {"IVR_TECHNICAL_EXCEPTION":1}, counted customer attempts 0
+
+== Fault 4a-1: the receiver process disappears - bounded budget, nothing lost
+   during the outage: {"RETRY_PENDING":4}
+   process outage: 4 recovered, 0 dead-lettered, highest retry_count 1 of 3
+
+== Fault 4a-2: the receiver answers 503, then stops - recovery inside the budget
+   recovered 3/3 after a failing receiver, highest retry_count 3 of 3 allowed
+
+== Fault 4b: dead letter and replay
+   3 callback(s) dead-lettered at retry_count 3
+   replayed 3 dead-lettered callback(s)
+
+== Steady loop: 100 round(s), 2 worker(s)
+   round    1 core     10 tasks   6903 ms ok
+   round   10 extended 23 tasks  16661 ms ok
+   round   20 extended 23 tasks  17248 ms ok
+   round   30 extended 23 tasks  17790 ms ok
+   round   40 extended 23 tasks  16125 ms ok
+   round   50 extended 23 tasks  14802 ms ok
+   round   60 extended 23 tasks  14519 ms ok
+   round   70 extended 23 tasks  14847 ms ok
+   round   80 extended 23 tasks  14653 ms ok
+   round   90 extended 23 tasks  14954 ms ok
+   round  100 extended 23 tasks  14735 ms ok
+
+== Delivery ledger from the receiver journal
+   1109 callback id(s) delivered, 26 redelivered at least once, 0 inconsistent
+
+== Retention: a back-dated cohort is purged, live rows are not
+   aged cohort: callbacks/results/attempts deleted, 100 speech snapshot(s) redacted, 100 job(s) correctly held by in-period outbox evidence
+   in-period cohort untouched: 100 task(s), 100 callback(s)
+   evidence: C:\Users\Administrator\Desktop\ivr\docs\evidence\W-0286\local-mock-e2e.json
+
+== Result
+   rounds 100/100, tasks 1130, failures 0
+
+LocalMockE2E PASSED.

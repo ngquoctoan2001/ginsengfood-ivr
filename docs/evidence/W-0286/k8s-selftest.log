@@ -1,0 +1,8 @@
+IT-K8S-LINT-01 PASS — helm lint and kubeconform clean for all four environments
+IT-K8S-GATE-02 PASS — running api and worker pods carry MOCK, no real calling, kill switch on
+IT-K8S-PROBE-03 PASS — readiness 503 removed the pod from rotation without restarting it
+IT-K8S-NETPOL-04 PASS — egress outside the allowlist is blocked, the configured Module 3 BFF reaches the API, and an arbitrary pod does not
+IT-K8S-WORKER-06 PASS — the kubelet reaches the worker probe through default-deny, and 90s of database outage produced 0 restarts
+IT-K8S-ROTATE-07 PASS — across a 2-replica rolling restart the OLD token was rejected 0/4 times and the NEW token 3/4: the overlap protects callers that have not switched yet, and cannot protect callers that switched early
+IT-K8S-RETENTION-05 PASS - CronJob is dry-run by default, Forbid, and one run completed
+K8S_SELFTEST_PASS

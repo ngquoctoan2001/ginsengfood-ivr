@@ -1,0 +1,178 @@
+{
+  "schema_version": "ivr.local-verification.v1",
+  "work_id": "W-0286",
+  "generated_at": "2026-09-14T03:20:03.826050+00:00",
+  "runtime_candidate_commit": "44830290ea97ab71b2e28002bb68c66bdbecaa53",
+  "runtime_candidate_source_sha256": "1d4bda75-4f3a0f86-73ffd9f9-61743fe9-49907391-475e21c4-8e35a492-b1ce1f58",
+  "overall": "BLOCKED_EXTERNAL",
+  "mode": "MOCK",
+  "real_customer_call_allowed": false,
+  "checks": [
+    {
+      "name": "Release build",
+      "command": "dotnet build Ivr.sln -c Release -m:1 /nodeReuse:false --no-restore",
+      "outcome": "PASS",
+      "local_log": ".artifacts/w0286/final-build.log",
+      "local_log_sha256": "8d21c04b-5275d1af-fe366d86-78fc3610-98d6136c-e27a45ff-cc2811ea-f4979b66"
+    },
+    {
+      "name": "Full suite",
+      "command": "dotnet test Ivr.sln -c Release --no-build --no-restore -m:1 /nodeReuse:false",
+      "outcome": "PASS 1018/1018",
+      "local_log": ".artifacts/w0286/final-full-suite.log",
+      "local_log_sha256": "f14b1552-c9b6858b-d4e673ab-d0e8363a-a4e5f7c2-21dae865-831c47d0-50423dfe"
+    },
+    {
+      "name": "Endurance",
+      "command": "node tools/dev/Invoke-LocalMockE2E.mjs --rounds 100 --workers 2 --postgres-container ivr-w0286-final-postgres --postgres-port 55438 --api-port 5016 --sales-port 18086 --evidence-dir docs/evidence/W-0286",
+      "outcome": "PASS 100/100 rounds, 1130 tasks",
+      "local_log": ".artifacts/w0286/final-endurance.log",
+      "local_log_sha256": "b7326c21-21966ec4-41749248-f3b235db-7f6182af-c4fe3661-fd6d0ca7-ef204948"
+    },
+    {
+      "name": "Gate sweep",
+      "command": "node deploy/ci/scripts/gate-sweep.mjs (Git bin in PATH)",
+      "outcome": "PASS 39/39; 22 manifest skips",
+      "local_log": ".artifacts/w0286/final-gate-sweep.log",
+      "local_log_sha256": "93204d61-82fb9c37-2a7e1600-e23342fc-cc0309be-3d20d708-f9c45944-2b8e1c45"
+    },
+    {
+      "name": "OpenAPI lint",
+      "command": "npm --prefix deploy/ci run openapi:lint",
+      "outcome": "PASS 2/2",
+      "local_log": ".artifacts/w0286/final-openapi-lint.log",
+      "local_log_sha256": "c8e23583-9b82deb5-8b9f278c-44102cf9-91a00b1f-6dbcad84-8a2b7d7d-a3d3a304"
+    },
+    {
+      "name": "OpenAPI diff",
+      "command": ".artifacts/w0286/check-current-oasdiff.sh in pinned tufin/oasdiff:v1.26.1",
+      "outcome": "PASS current baseline + both byte-exact changelogs + negative fixture",
+      "local_log": ".artifacts/w0286/final-oasdiff.log",
+      "local_log_sha256": "7bc8504e-5b1a6453-7fe5dcd0-341c99aa-804b5c4a-cc553f36-5a2f91b7-f75e2f60"
+    },
+    {
+      "name": "NSwag drift",
+      "command": "node .artifacts/w0286/check-generated-models.mjs",
+      "outcome": "PASS 2/2 byte-identical to source",
+      "local_log": ".artifacts/w0286/final-generated-models.log",
+      "local_log_sha256": "ccccdf67-051ad594-1c79e1fe-af3bb8cc-c416786a-fce40542-2e066051-5928d170"
+    },
+    {
+      "name": "Globalization invariant",
+      "command": "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1; dotnet test tests/Ivr.UnitTests/Ivr.UnitTests.csproj -c Release --no-build --no-restore",
+      "outcome": "PASS 688/688",
+      "local_log": ".artifacts/w0286/final-globalization.log",
+      "local_log_sha256": "bbba13ee-d7780f27-9e28aa99-99145f52-cca6b7dd-f2647971-633e8da6-f6960a7d"
+    },
+    {
+      "name": "Coverage initial",
+      "command": "dotnet test Ivr.sln -c Release --no-build --no-restore -m:1 --settings coverage.runsettings --collect:XPlat Code Coverage",
+      "outcome": "FAIL 1 unit regex timeout; integration 298/298, contract 24/24, chaos 8/8",
+      "local_log": ".artifacts/w0286/final-coverage-suite.log",
+      "local_log_sha256": "c0609e86-c896e98b-481aa979-d1d27445-56222dbe-977395d1-2c0d8444-9ad92009"
+    },
+    {
+      "name": "Coverage unit rerun",
+      "command": "dotnet test tests/Ivr.UnitTests/Ivr.UnitTests.csproj -c Release --no-build --no-restore --settings coverage.runsettings --collect:XPlat Code Coverage",
+      "outcome": "PASS 688/688",
+      "local_log": ".artifacts/w0286/final-coverage-unit-rerun.log",
+      "local_log_sha256": "92c10273-409de798-d4b3ad7c-e86402d5-891eca7c-bd16ff85-db70e393-aac0367a"
+    },
+    {
+      "name": "Coverage gate",
+      "command": "dotnet run --project deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj -c Release --no-restore -- coverage .artifacts/w0286/coverage-passing 80",
+      "outcome": "PASS 89.33%; 18204/20379 lines; four passing suite artifacts",
+      "local_log": ".artifacts/w0286/final-coverage-gate.log",
+      "local_log_sha256": "892f31c0-09215099-5615c37d-3d426ac6-650e142c-de21a7f9-e668f9c3-40431806"
+    },
+    {
+      "name": "Image E2E",
+      "command": "IVR_IMAGE_TAG=w0286-4483029; node deploy/ci/scripts/image-selftest.mjs --skip-scan",
+      "outcome": "FAIL pause result mismatch; build/live/Compose passed; scan/SBOM NOT_RUN",
+      "local_log": ".artifacts/w0286/final-image-no-scan.log",
+      "local_log_sha256": "b25ec15a-b8c020e4-9635c7e1-7bf8e0c8-59b505c6-0ef6b40b-aa11c2a3-29ec7771"
+    },
+    {
+      "name": "Kubernetes",
+      "command": "IVR_IMAGE_TAG=w0286-4483029; node deploy/ci/scripts/k8s-selftest.mjs",
+      "outcome": "PASS 7/7; throwaway Docker cluster only",
+      "local_log": ".artifacts/w0286/final-k8s.log",
+      "local_log_sha256": "d6bf8b07-d00f0d57-c4c0583a-8168c423-9b7c416d-e68a9a12-19c93b48-1b13b23c"
+    },
+    {
+      "name": "Observability rules",
+      "command": ".artifacts/w0286/check-observability-rules.sh in prom/prometheus:v2.54.1",
+      "outcome": "PASS 6 rules + 4 test files",
+      "local_log": ".artifacts/w0286/final-observability-rules.log",
+      "local_log_sha256": "95ae68f3-5be3239f-2457014e-3e61e7ac-2274e43d-6e0198ac-f100ae73-826c8239"
+    },
+    {
+      "name": "Observability Helm",
+      "command": ".artifacts/w0286/check-observability-helm.sh in alpine/helm:3.16.3",
+      "outcome": "PASS render + 3 negative cases",
+      "local_log": ".artifacts/w0286/final-observability-helm.log",
+      "local_log_sha256": "92e1876c-f97d4d9e-6c0c7b61-319b1dc8-a48af0ba-5821cd08-608bd7d9-5c7d4778"
+    },
+    {
+      "name": "Observability runtime",
+      "command": "IVR_IMAGE_TAG=w0286-4483029; node deploy/ci/scripts/image-selftest.mjs --skip-compose --skip-scan --observability-runtime",
+      "outcome": "PASS 5-stage single-task flow + telemetry + collector outage",
+      "local_log": ".artifacts/w0286/final-observability-runtime.log",
+      "local_log_sha256": "186f710e-e64efc19-f93cbff6-bfe1ac95-de3514dc-4eda57fd-e0dff9a9-fd954e48"
+    },
+    {
+      "name": "Lint before formatting follow-up",
+      "command": "dotnet format Ivr.sln --no-restore --verify-no-changes --verbosity diagnostic",
+      "outcome": "FAIL two pre-existing formatting diagnostics; follow-up only BOM/newline",
+      "local_log": ".artifacts/w0286/final-format.log",
+      "local_log_sha256": "9dd63497-9987e4d5-a67612ee-53c85561-921c8fd2-08956a1b-eb339bbc-d5385ee4"
+    }
+  ],
+  "api_matrix": {
+    "verdict": "PASS",
+    "operations": 38,
+    "requests": 417,
+    "validator_selftest": "18/18",
+    "report": "api-matrix-report.json"
+  },
+  "coverage": {
+    "percent": 89.33,
+    "covered": 18204,
+    "valid": 20379,
+    "threshold": 80,
+    "inputs": "test-results.json",
+    "initial_timeout_preserved": true
+  },
+  "unresolved": [
+    {
+      "item": "queue pause semantics",
+      "status": "OWNER_DECISION_REQUIRED",
+      "observed": "IVR_CONFIRMATION_WINDOW_EXPIRED",
+      "image_test_expected": "IVR_CAPACITY_EXCEPTION"
+    },
+    {
+      "item": "hosted CI and exact-SHA pipeline",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": "../W-0285/README.md",
+      "current_remote_main": "890dfdd732982b36c73ba7e09f6cb7f7ab96d57c",
+      "pushed_by_this_work": false
+    },
+    {
+      "item": "security scan / image vulnerability scan / SBOM",
+      "status": "NOT_RUN",
+      "reason": "Automatic approval review denied security-scan metadata egress; explicit user approval pending. No indirect scan workaround was run."
+    },
+    {
+      "item": "M3 integration / real SIM / staging / production",
+      "status": "NOT_RUN",
+      "reason": "Missing real inputs, credentials, infrastructure and signed release gates."
+    }
+  ],
+  "interpretation": [
+    "Gate sweep script count is not a hosted GitLab job count; no 39-job hosted PASS is claimed.",
+    "Current .gitlab-ci.yml plus 13 local includes defines 39 jobs; deployment, publishing, promotion and staging-evidence jobs were not invoked.",
+    "Endurance uses progressing wall-clock and the existing MOCK all-day calling window; production business-window tests remain separate.",
+    "Image tags can get a different OCI attestation index when rebuilt; exact initial build output is hash-bound above. These local builds are not registry publish proof.",
+    "The coverage retry suggests resource contention contributed to the timeout, but does not prove the cause or eliminate future timeout risk."
+  ]
+}

@@ -1,0 +1,40 @@
+  ok   attempt-policy-production-bundle-validator.mjs       0.2s  W0180_SELFTEST_PASS
+  ok   b3-telephony-evidence-validator.mjs                  0.2s  B3_TELEPHONY_EVIDENCE_SELF_TEST_PASS
+  ok   capacity-data-intake-validator.mjs                   0.5s  CAPACITY_DATA_INTAKE_SELFTEST_PASS
+  ok   capacity-registry-decision-pack-validator.mjs        0.3s  W0182_SELFTEST_PASS
+  ok   capacity-selftest.mjs                                0.2s  CAPACITY_SELFTEST_PASS_UNCALIBRATED
+  ok   cd-selftest.mjs                                      0.2s  CD_SELFTEST_PASS
+  ok   ci-config-selftest.mjs                               1.2s  CI_CONFIG_SELFTEST_PASS
+  ok   compliance-pack-selftest.mjs                         0.2s  COMPLIANCE_PACK_SELFTEST_PASS
+  ok   contract-freeze-selftest.mjs                         5.5s  CONTRACT_FREEZE_SELFTEST=PASS
+  ok   contract-freeze-verifier.mjs                         0.3s  CONTRACT_FREEZE=PASS
+  ok   d06-revalidation-evidence-validator.mjs              0.1s  W0178_SELFTEST_PASS
+  ok   dial-token-production-bundle-validator.mjs           0.2s  W0183_SELFTEST_PASS
+  ok   docs-selftest.mjs                                    7.2s  API_DOCS_SELFTEST_PASS
+  ok   dr-selftest.mjs                                      176.1s  DR_SELFTEST_PASS_SINGLE_HOST
+  ok   external-decision-c9-selftest.mjs                    3.0s  W0179_C9_SELFTEST_PASS
+  ok   external-decision-closure-validator.mjs              4.8s  W0170_SELFTEST_PASS
+  ok   external-decision-dial-token-selftest.mjs            3.1s  W0184_DIAL_TOKEN_SELFTEST_PASS
+  ok   external-decision-response-validator.mjs             0.3s  W0165_SELFTEST_PASS
+  ok   external-decision-routing-validator.mjs              0.2s  W0164_SELFTEST_PASS
+  ok   gate-status.mjs                                      0.2s  GATE_STATUS_PASS
+  ok   generate-test-traceability.mjs                       0.2s  TEST_TRACEABILITY_CURRENT
+  ok   lab-converter-selftest.mjs                           11.5s  LAB_CONVERTER_SELFTEST_PASS
+  ok   observability-staging-evidence.mjs                   0.3s  CT-OBS-STAGING-14 PASS
+  ok   openapi-contract-drift.mjs                           0.3s  OPENAPI_HUMAN_DIFF_CURRENT=YES
+  ok   opt-out-suppression-bundle-validator.mjs             0.3s  W0187_OPTOUT_BUNDLE_SELFTEST_PASS
+  ok   progressive-selftest.mjs                             0.2s  PROGRESSIVE_SELFTEST_PASS
+  ok   review-gate-selftest.mjs                             25.2s  REVIEW_GATE_SELFTEST_PASS
+  ok   selftest-dotnet-policy.sh                            25.8s  CT-CI-09 PASS
+  ok   selftest-openapi.mjs                                 0.4s  CT-CI-01 PASS
+  ok   selftest-pii.sh                                      6.0s  CT-CI-06h PASS
+  ok   target-v1-shared-e2e-report-validator.mjs            0.2s  W0174_SELFTEST_PASS
+  ok   tts-audition-selftest.mjs                            0.1s  TTS_AUDITION_SELFTEST_PASS
+  ok   tts-container-selftest.mjs                           13.6s  TTS_CONTAINER_SELFTEST_PASS
+  ok   tts-fixed-render-selftest.mjs                        1.3s  TTS_FIXED_RENDER_SELFTEST_PASS
+  ok   tts-helm-selftest.mjs                                17.1s  TTS_HELM_SELFTEST_PASS
+  ok   tts-provenance-gate.mjs                              0.3s  TTS_PROVENANCE_STRUCTURE_PASS
+  ok   tts-voice-acceptance-gate.mjs                        0.3s  TTS_VOICE_ACCEPTANCE_SELFTEST_PASS
+  ok   upstream-session-signoff-validator.mjs               0.9s  W0181_SELFTEST_PASS
+  ok   validate-openapi.mjs                                 1.8s  OPENAPI_FILES_VALID=2
+GATE_SWEEP_PASS 39/39 run, 22 skipped by manifest

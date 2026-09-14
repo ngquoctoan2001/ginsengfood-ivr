@@ -1,0 +1,44 @@
+Test run for C:\Users\Administrator\Desktop\ivr\tests\Ivr.UnitTests\bin\Release\net10.0\Ivr.UnitTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:06.99]     Ivr.UnitTests.Speech.RegionalVoiceRoutingTests.ThreeRegionsProduceThreeSeparateCacheEntriesAndOneMissEach [FAIL]
+  Failed Ivr.UnitTests.Speech.RegionalVoiceRoutingTests.ThreeRegionsProduceThreeSeparateCacheEntriesAndOneMissEach [184 ms]
+  Error Message:
+   System.Text.RegularExpressions.RegexMatchTimeoutException : The Regex engine has timed out while trying to match a pattern to an input string. This can occur for many reasons, including very large inputs or excessive backtracking caused by nested quantifiers, back-references and other factors.
+  Stack Trace:
+     at System.Text.RegularExpressions.RegexRunner.<CheckTimeout>g__ThrowRegexTimeout|25_0()
+   at System.Text.RegularExpressions.RegexInterpreter.Scan(ReadOnlySpan`1 text)
+   at System.Text.RegularExpressions.Regex.ScanInternal(RegexRunnerMode mode, Boolean reuseMatchObject, String input, Int32 beginning, RegexRunner runner, ReadOnlySpan`1 span, Boolean returnNullIfReuseMatchObject)
+   at System.Text.RegularExpressions.Regex.RunSingleMatch(RegexRunnerMode mode, Int32 prevlen, String input, Int32 beginning, Int32 length, Int32 startat)
+   at System.Text.RegularExpressions.MatchCollection.GetMatch(Int32 i)
+   at System.Text.RegularExpressions.MatchCollection.Enumerator.MoveNext()
+   at Ivr.Domain.Scripts.TargetV1SpeechPolicy.SegmentTemplate(String templateText) in C:\Users\Administrator\Desktop\ivr\src\Ivr.Domain\Scripts\TargetV1SpeechPolicy.cs:line 156
+   at Ivr.Domain.Scripts.VietnameseOrderScriptRenderer.BuildSegments(String validTemplate, PrivacySafeOrderSummary summary, String spokenItems, String totalAmount) in C:\Users\Administrator\Desktop\ivr\src\Ivr.Domain\Scripts\VietnameseOrderScriptRenderer.cs:line 235
+   at Ivr.Domain.Scripts.VietnameseOrderScriptRenderer.Render(ApprovedScript script, PrivacySafeOrderSummary summary, ScriptRenderOptions options) in C:\Users\Administrator\Desktop\ivr\src\Ivr.Domain\Scripts\VietnameseOrderScriptRenderer.cs:line 173
+   at Ivr.Infrastructure.Providers.Fakes.FakeSpeechRenderer.RenderAsync(PrivacySafeOrderSummary summary, String scriptTemplateId, String scriptVersion, ExecutionMode executionMode, CancellationToken cancellationToken) in C:\Users\Administrator\Desktop\ivr\src\Ivr.Infrastructure\Providers\Fakes\DeterministicProviderFakes.cs:line 128
+   at Ivr.UnitTests.Speech.RegionalVoiceRoutingTests.SynthesizeAsync(SpeechSynthesisService service, String deliveryArea) in C:\Users\Administrator\Desktop\ivr\tests\Ivr.UnitTests\Speech\RegionalVoiceRoutingTests.cs:line 247
+   at Ivr.UnitTests.Speech.RegionalVoiceRoutingTests.ThreeRegionsProduceThreeSeparateCacheEntriesAndOneMissEach() in C:\Users\Administrator\Desktop\ivr\tests\Ivr.UnitTests\Speech\RegionalVoiceRoutingTests.cs:line 149
+--- End of stack trace from previous location ---
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-coverage\coverage-4483029_net10.0_20260914100624.trx
+
+Failed!  - Failed:     1, Passed:   687, Skipped:     0, Total:   688, Duration: 7 s - Ivr.UnitTests.dll (net10.0)
+Test run for C:\Users\Administrator\Desktop\ivr\tests\Ivr.IntegrationTests\bin\Release\net10.0\Ivr.IntegrationTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-coverage\coverage-4483029_net10.0_20260914101229.trx
+
+Passed!  - Failed:     0, Passed:   298, Skipped:     0, Total:   298, Duration: 5 m 41 s - Ivr.IntegrationTests.dll (net10.0)
+Test run for C:\Users\Administrator\Desktop\ivr\tests\Ivr.ContractTests\bin\Release\net10.0\Ivr.ContractTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-coverage\coverage-4483029_net10.0_20260914101233.trx
+
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 185 ms - Ivr.ContractTests.dll (net10.0)
+Test run for C:\Users\Administrator\Desktop\ivr\tests\chaos\bin\Release\net10.0\Ivr.ChaosTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-coverage\coverage-4483029_net10.0_20260914101255.trx
+
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 12 s - Ivr.ChaosTests.dll (net10.0)
+
+Attachments:
+  C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-coverage\6366c5c5-b588-4344-913a-5c0e44af313a\coverage.cobertura.xml
+  C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-coverage\b7e764a1-5102-40e0-920f-9852f27df564\coverage.cobertura.xml
+  C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-coverage\1e47710d-108f-41d5-8209-a0ac22e0147f\coverage.cobertura.xml
+  C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-coverage\4007c91f-18b8-4c5e-b554-1b3df614b3cf\coverage.cobertura.xml

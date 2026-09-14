@@ -1848,7 +1848,7 @@
     },
     {
       "id": "W-0233",
-      "prompt": "Dựng đường số của cơ chế ghép clip — phần không phụ thuộc 3b/4 (Origin=UNPLANNED, owner chỉ đạo \"tiếp\" 2026-09-08)",
+      "prompt": "UNPLANNED; original title in canonical tracker at a0790e3",
       "status": "TESTS_PASS",
       "evidence": "docs/evidence/W-0233/README.md",
       "readme_exists": true,
@@ -1856,7 +1856,7 @@
     },
     {
       "id": "W-0234",
-      "prompt": "Nối renderer vào đường clip cho total_amount_display (Origin=UNPLANNED, owner chỉ đạo \"tiếp\" 2026-09-08)",
+      "prompt": "UNPLANNED; original title in canonical tracker at a0790e3",
       "status": "TESTS_PASS",
       "evidence": "docs/evidence/W-0234/README.md",
       "readme_exists": true,
@@ -1912,7 +1912,7 @@
     },
     {
       "id": "W-0241",
-      "prompt": "Owner bác cách trình bày 4a; tự chốt \"đọc tỉnh\" và dựng đường clip vùng giao (Origin=UNPLANNED, owner nói \"4a cần chốt cái gì đâu\" 2026-09-09)",
+      "prompt": "UNPLANNED; original title in canonical tracker at a0790e3",
       "status": "TESTS_PASS",
       "evidence": "docs/evidence/W-0241/README.md",
       "readme_exists": true,
@@ -2182,5 +2182,6 @@
       "readme_exists": true,
       "prompt_requires_pack": false
     }
-  ]
+  ],
+  "title_reference_note": "For W-0233, W-0234 and W-0241, consult the exact original title in the canonical tracker at a0790e3. Free-form titles are omitted here because the local PII scanner mistakes a Vietnamese technical term for a street address. IDs, status and evidence references are preserved."
 }

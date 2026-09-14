@@ -1,0 +1,20 @@
+Test run for C:\Users\Administrator\Desktop\ivr\tests\Ivr.UnitTests\bin\Release\net10.0\Ivr.UnitTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-tests\final-4483029_net10.0_20260914094956.trx
+
+Passed!  - Failed:     0, Passed:   688, Skipped:     0, Total:   688, Duration: 1 s - Ivr.UnitTests.dll (net10.0)
+Test run for C:\Users\Administrator\Desktop\ivr\tests\Ivr.IntegrationTests\bin\Release\net10.0\Ivr.IntegrationTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-tests\final-4483029_net10.0_20260914095855.trx
+
+Passed!  - Failed:     0, Passed:   298, Skipped:     0, Total:   298, Duration: 8 m 56 s - Ivr.IntegrationTests.dll (net10.0)
+Test run for C:\Users\Administrator\Desktop\ivr\tests\Ivr.ContractTests\bin\Release\net10.0\Ivr.ContractTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-tests\final-4483029_net10.0_20260914095857.trx
+
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 326 ms - Ivr.ContractTests.dll (net10.0)
+Test run for C:\Users\Administrator\Desktop\ivr\tests\chaos\bin\Release\net10.0\Ivr.ChaosTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\Administrator\Desktop\ivr\.artifacts\w0286\final-tests\final-4483029_net10.0_20260914095916.trx
+
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 15 s - Ivr.ChaosTests.dll (net10.0)
