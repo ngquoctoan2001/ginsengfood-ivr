@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0288` |
-| Last allocated | `W-0287` |
-| Last activity sequence | `A-0602` |
+| `NEXT_WORK_ID` | `W-0289` |
+| Last allocated | `W-0288` |
+| Last activity sequence | `A-0604` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -360,6 +360,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0286` | Kiểm chứng độ bền và ứng viên local (Origin=`UNPLANNED`) | 100 vòng có tiêm lỗi, full suite và image/gates trên source ổn định | `W-0283`..`W-0285`; runtime candidate `4483029` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0286/README.md` | 1.018/1.018; 100/100 vòng/1.130 task; API 38/38/417 request; sweep 39/39, K8s 7/7, observability, coverage 89,33% sau unit rerun | Image pause chờ owner; security egress chờ xác nhận; hosted chưa đọc được/chưa push; M3/SIM/staging/production NOT_RUN; real calls NO |
 
 | `W-0287` | Sửa toolchain và bootstrap CI theo log hosted (Origin=`UNPLANNED`) | Pipeline 2842779996 có bốn lỗi SDK, sweep thiếu công cụ, TTS thiếu dependency | `W-0285`; baseline `9ca529b` | TESTS_PASS | Codex | `docs/evidence/W-0287/README.md` | SDK pin xuyên fragment; 10 negative + 1 positive config; Linux sweep 39/39; TTS 9/9 lệnh; contract 24/24, E2E 2/2, observability 12/12 | Chaos lộ loopback fixture, review gate lộ false green, xử lý tiếp; hosted chưa push; pause/scan pending; real calls NO |
+
+| `W-0288` | Fixture Chaos tương thích Docker service (Origin=`UNPLANNED`) | Sau pin SDK, 7/8 test Chaos lỗi loopback dù proxy ở DinD | `W-0287`; baseline `701d48b` | TESTS_PASS | Codex | `docs/evidence/W-0288/README.md` | Dùng proxy.Hostname; Linux/DinD từ 1/8 thành 8/8; Windows/Docker local 8/8; formatter exit 0 | Không đổi upstream fault target hay runtime; hosted NOT_RUN; real calls NO |
 
 ## 6. Unplanned work insertion template
 
@@ -1725,3 +1727,5 @@ Final status: TESTS_PASS
 | `A-0600` | 2026-09-14 | `W-0285`, `W-0286` | COMMIT/VERIFY/HANDOFF | Gói local + chuẩn hoá BOM/newline commit `cc4a8c8`; build/analyzers 0/0, full formatter exit 0, API matrix rerun 38/38/417 request. Scanner PII local trên bốn pack đạt. GitNexus staged LOW/0 flow; không đổi câu lệnh C#. Hai remote kiểm lại vẫn `890dfdd`, browser còn sign-in | Codex | Các kết quả đầy đủ giữ provenance `4483029`; checkpoint riêng cho `cc4a8c8`. Chờ ba đầu vào đã hỏi: nhãn pause, chấp thuận scan metadata egress, GitLab login; không push/deploy; REAL_CUSTOMER_CALL_ALLOWED=NO |
 | `A-0601` | 2026-09-14 | `W-0285`, `W-0287` | DISCOVERY/START | Đăng nhập GitLab đã dùng được. Runner 55115499 online; pipeline 2842779996 tại 890dfdd có 36 job, 7 FAIL. Đọc cả bảy log: 4 SDK mismatch, sweep thiếu công cụ, TTS thiếu yaml, image pause sai expected result | Codex | W-0287 sửa cấu hình local trước; giữ nguyên lịch sử 403, chưa chạy lại hosted, không thay quyền/runner; REAL_CUSTOMER_CALL_ALLOWED=NO |
 | `A-0602` | 2026-09-14 | `W-0287` | FINISH/DISCOVERY | Pin SDK, bổ sung Docker/Buildx/Node/npm/policy build; Linux sweep 39/39, TTS 9 lệnh exit 0, config 10 refusal + 1 PASS. Đồng bộ một pin template PENDING W-0185 theo source/verifier; snapshot Windows CRLF bị invalidated, Linux xuất lại đúng byte | Codex | Lưu Chaos 1/8 do loopback và review gate false green khi SDK exit 155 để sửa tiếp. Không đổi hợp đồng/nhãn pause, không scan metadata, không push/deploy; real calls NO |
+| `A-0603` | 2026-09-14 | `W-0288` | START | W-0287 commit 701d48b; sửa fixture Chaos dùng hostname của proxy thay loopback cứng. GitNexus InitializeAsync/ConnectionString LOW, 0 caller/0 process được index; kiểm nguồn cho thấy fixture của 8 test Chaos | Codex | Chỉ fixture, không đổi mạng/upstream fault target hoặc runtime; kiểm cả DinD và Docker local |
+| `A-0604` | 2026-09-14 | `W-0288` | FINISH | Chaos Linux/DinD 27 từ 1/8 thành 8/8; Windows/Docker local 8/8; formatter đúng file exit 0. Lưu log cả hai ở W-0288 | Codex | Runtime không đổi; hosted chưa chạy mới; tiếp tục sửa review gate false green |

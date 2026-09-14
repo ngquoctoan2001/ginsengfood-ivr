@@ -65,7 +65,7 @@ public sealed class ChaosEnvironment : IAsyncLifetime, IDisposable
 
     /// <summary>Connection string that routes through the fault-injection hop.</summary>
     public string ConnectionString =>
-        $"Host=127.0.0.1;Port={proxy.GetMappedPublicPort(ProxyListenPort)};"
+        $"Host={proxy.Hostname};Port={proxy.GetMappedPublicPort(ProxyListenPort)};"
         + "Database=ivr_chaos;Username=ivr_test;Password=ivr-test-password;"
         // Short timeouts so a cut link surfaces as a failure inside the test rather than as a hang.
         + "Timeout=5;Command Timeout=10;Maximum Pool Size=8";
@@ -78,7 +78,7 @@ public sealed class ChaosEnvironment : IAsyncLifetime, IDisposable
 
         api = new HttpClient
         {
-            BaseAddress = new Uri($"http://127.0.0.1:{proxy.GetMappedPublicPort(ProxyApiPort)}"),
+            BaseAddress = new UriBuilder(Uri.UriSchemeHttp, proxy.Hostname, proxy.GetMappedPublicPort(ProxyApiPort)).Uri,
             Timeout = TimeSpan.FromSeconds(20),
         };
         HttpResponseMessage created = await api.PostAsJsonAsync("/proxies", new
