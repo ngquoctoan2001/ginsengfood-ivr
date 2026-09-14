@@ -1,0 +1,2 @@
+JUNIT_REPORT_PASS files=1 cases=688 renamed=354
+PII_SCAN_PASS files=1 skipped_binary=0 locale=C.UTF-8

@@ -108,6 +108,17 @@ assert(
   "build_test_dotnet must use the pinned Docker-in-Docker service for Testcontainers.",
 );
 const dotnetTestScript = (jobs.build_test_dotnet.script ?? []).join("\n");
+for (const [jobName, reportDirectory] of [
+  ["build_test_dotnet", "ci-artifacts/dotnet/test-results"],
+  ["schema_compat_gate", "ci-artifacts/schema-compat"],
+  ["globalization_invariant_gate", "ci-artifacts/globalization"],
+]) {
+  const command = `dotnet run --project deploy/ci/tools/Ivr.CiPolicy --configuration Release -- junit ${reportDirectory}`;
+  assert(jobs[jobName].script.at(-1) === command,
+    `${jobName} must require JUnit case labeling after tests.`);
+  assert(jobs[jobName].after_script?.includes(command),
+    `${jobName} must also label available failure reports.`);
+}
 assert(
   dotnetTestScript.includes("selftest-dotnet-policy.sh"),
   "build_test_dotnet must run the semantic test, coverage, and vulnerability policy self-test.",

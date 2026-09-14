@@ -1,0 +1,4 @@
+CT-CI-02 PASS — the discovered deliberate test failure, not any non-zero exit, is required
+CT-CI-03 PASS — the measured low-coverage result, not a missing path, is required
+CT-CI-09 PASS — NuGet vulnerability JSON is schema-validated and unknown severities fail closed
+CT-CI-JUNIT PASS — unique case IDs, unchanged results, idempotence, 7 refusals, and raw failure PII still rejected

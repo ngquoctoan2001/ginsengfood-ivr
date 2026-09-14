@@ -7,6 +7,7 @@ return args.Length > 0
     {
         "coverage" => RunCoverage(args[1..]),
         "vulnerabilities" => RunVulnerabilities(args[1..]),
+        "junit" => JunitReport.Run(args[1..]),
         _ => Usage($"Unknown command: {args[0]}"),
     }
     : Usage("A command is required.");
@@ -291,7 +292,7 @@ static bool IsExcludedCoverageSource(string filename)
 static int Usage(string message)
 {
     Console.Error.WriteLine(message);
-    Console.Error.WriteLine("Usage: Ivr.CiPolicy coverage|vulnerabilities ...");
+    Console.Error.WriteLine("Usage: Ivr.CiPolicy coverage|vulnerabilities|junit ...");
     return 2;
 }
 
