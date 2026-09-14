@@ -1,0 +1,93 @@
+COMMAND=npm --prefix deploy/ci run openapi:lint
+
+> ginsengfood-ivr-ci-tools@0.1.0 openapi:lint
+> redocly lint ../../specs/api/openapi/ivr-order-confirmation.v1.yaml ../../specs/api/openapi/order-core-ivr-callback.target-v1.yaml --config ../../.redocly.yaml
+
+
+    ╔═══════════════════════════════════════════════════════╗
+    ║                                                       ║
+    ║  A new version of Redocly CLI (2.52.1) is available.  ║
+    ║  Update now: `npm i -g @redocly/cli@latest`.          ║
+    ║  Changelog: https://redocly.com/docs/cli/changelog/   ║
+    ║                                                       ║
+    ╚═══════════════════════════════════════════════════════╝
+
+validating ..\..\specs\api\openapi\ivr-order-confirmation.v1.yaml using lint rules for api 'ivr-internal'...
+..\..\specs\api\openapi\ivr-order-confirmation.v1.yaml: validated in 73ms
+
+validating ..\..\specs\api\openapi\order-core-ivr-callback.target-v1.yaml using lint rules for api 'order-core-callback'...
+..\..\specs\api\openapi\order-core-ivr-callback.target-v1.yaml: validated in 35ms
+
+Woohoo! Your API descriptions are valid. 🎉
+
+EXIT=0
+COMMAND=npm --prefix deploy/ci run openapi:validate
+
+> ginsengfood-ivr-ci-tools@0.1.0 openapi:validate
+> node scripts/validate-openapi.mjs
+
+OPENAPI_PARSE_PASS=ivr-order-confirmation.v1.yaml
+OPENAPI_PARSE_PASS=order-core-ivr-callback.target-v1.yaml
+OPENAPI_FILES_VALID=2
+TARGET_TASKS_SCHEMA_VALID=9
+SCHEMA_NEGATIVE_REJECTED=13
+DOMAIN_NEGATIVE_SCHEMA_VALID=13
+CURRENT_COMPAT_SCHEMA_VALID=1
+CURRENT_COMPAT_TARGET_FIELD_REJECTED=1
+EXIT=0
+COMMAND=npm --prefix deploy/ci run openapi:drift
+
+> ginsengfood-ivr-ci-tools@0.1.0 openapi:drift
+> node scripts/openapi-contract-drift.mjs
+
+OPENAPI_HASHES_PINNED=3
+OPENAPI_HUMAN_DIFF_CURRENT=YES
+EXIT=0
+COMMAND=npm --prefix deploy/ci run test:openapi-negative
+
+> ginsengfood-ivr-ci-tools@0.1.0 test:openapi-negative
+> node scripts/selftest-openapi.mjs
+
+CT-CI-01 PASS — invalid OpenAPI rejected
+EXIT=0
+COMMAND=npm --prefix deploy/ci run test:docs
+
+> ginsengfood-ivr-ci-tools@0.1.0 test:docs
+> node scripts/docs-selftest.mjs
+
+API_DOCS_GENERATED=17
+API_DOCS_OUTPUT=..\..\..\ADMINI~1\AppData\Local\Temp\ivr-api-docs-qpJP0e\generated
+CT-DOC-01 PASS — generated portal matches OpenAPI and drift is rejected
+UT-DOC-PII-03 PASS — docs sources contain no real phone or full street address examples
+DOC_BOUNDARY_PASS — Target draft and current compatibility stay separate
+DOC_LINKS_PASS — every generated local portal link resolves
+DOC_CI_TOPOLOGY_PASS — verify, oasdiff, Pages, contract/e2e, quality-gate, gate sweep, observability, chaos, image, chart, DR and delivery jobs are root-included; no UI pipeline
+API_DOCS_SELFTEST_PASS
+EXIT=0
+COMMAND=npm --prefix deploy/ci run test:config
+
+> ginsengfood-ivr-ci-tools@0.1.0 test:config
+> node scripts/ci-config-selftest.mjs
+
+SCRATCH_RULE_PASS — never the repository root, in-repo when a path is confined, and swept by whoever made it
+JSON_SHAPE_SINGLE_SOURCE_PASS — one duplicate-key parser, escapes decoded before comparison
+SENSITIVE_VALUE_RULE_PASS — one secret rule, dates excused, evasion still caught
+PATH_CONFINEMENT_SINGLE_SOURCE_PASS — one canonical root, one isConfined
+VALIDATOR_HELPER_CENSUS_PASS — helper duplication held at its baseline
+CT-CI-11 PASS — every image USER states its UID and matches the chart
+CT-CI-12 PASS — the documented baseline is the one CI compares against
+CT-CI-05 PASS — workflow routing and duplicate prevention
+CT-CI-07 PASS — every GitLab fragment is reachable
+CT-CI-08 PASS — every artifact producer feeds pii_scan
+CT-CI-10 PASS — OpenAPI, API-06 and source error catalogs match
+CACHE_KEY_FILES_PASS — every cache key uses at most two inputs
+SDK_IMAGE_PIN_PASS — .NET jobs match global.json
+TESTCONTAINERS_DIND_PASS — PostgreSQL tests have a pinned Docker service
+GITLEAKS_COMMIT_SCOPE_PASS — history scan is anchored to the validated pipeline commit
+OPENAPI_CODEGEN_GATE_PASS — hashes, report and generated code enforced
+SCRIPT_ENTRY_STRING_PASS — every job script line parses as a string
+CI_CONFIG_SELFTEST_PASS
+EXIT=0
+API_DOCS_GENERATED=17
+API_DOCS_OUTPUT=.artifacts\w0291\api-docs
+DOCS_BUILD_EXIT=0

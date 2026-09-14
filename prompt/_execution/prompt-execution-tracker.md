@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0291` |
-| Last allocated | `W-0290` |
-| Last activity sequence | `A-0608` |
+| `NEXT_WORK_ID` | `W-0292` |
+| Last allocated | `W-0291` |
+| Last activity sequence | `A-0611` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -366,6 +366,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0289` | Review gate phân biệt lỗi semantic và lỗi môi trường (Origin=`UNPLANNED`) | SDK trả exit 155 nhưng review gate vẫn PASS do chỉ kiểm nonzero | `W-0288`; baseline `39536d4` | TESTS_PASS | Codex | `docs/evidence/W-0289/README.md` | 8/8 lỗi môi trường từ chối đúng lý do; 4/4 probe công cụ thật đạt; CI-config/helper census PASS | Không nới gate; không chạy security audit; hosted NOT_RUN; real calls NO |
 
 | `W-0290` | Chốt pause và kiểm chứng image E2E (Origin=`UNPLANNED`, owner duyệt 14/09) | Owner chốt đề xuất WINDOW_EXPIRED cho operator pause; duyệt push/CI/scan/publish/dev-staging | `W-0289`; baseline `7f4a6c1` | TESTS_PASS | Codex | `docs/evidence/W-0290/README.md` | E2E 8 task PASS sau sửa assertion; scheduler 34/34; image scan/SBOM 2 image PASS ở lượt đầu; config PASS | Không thay runtime hay chữ ký M3; lab/production/real calls chưa được mở |
+
+| `W-0291` | Vá dependency CI và chạy security scan (Origin=`UNPLANNED`) | npm audit phát hiện js-yaml HIGH; owner duyệt scan 14/09 | `W-0290`; baseline `d44834e` | TESTS_PASS | Codex | `docs/evidence/W-0291/README.md` | js-yaml 4.3.2; 6 gate + docs build PASS; full security wrapper PASS sau owner duyệt 68 fingerprint | Không thay API contract/runtime hoặc nới scanner; hosted là bước kế tiếp |
 
 ## 6. Unplanned work insertion template
 
@@ -1738,3 +1740,9 @@ Final status: TESTS_PASS
 | `A-0607` | 2026-09-14 | `W-0290` | OWNER_DECISION/START | Owner trả lời: "chốt nhãn pause và duyệt push/chạy CI, gồm scan và các bước tự publish/deploy dev–staging." Áp đề xuất đã trình WINDOW_EXPIRED cho pause; scan metadata npm/NuGet và push hai remote được duyệt. Runtime giữ nguyên; image assertion phải kiểm đúng trạng thái, callback và không incident | Codex | GitNexus E2E_CAPACITY_CASE LOW/0 caller; driveCapacityCase LOW/1 caller checkEndToEnd/0 process. Không mở lab/prod hoặc real customer calls |
 
 | `A-0608` | 2026-09-14 | `W-0290` | FINISH | Pause E2E 8 task PASS; callback expiry/hold-review, zero attempt, không shortage incident; audit ADMIN_QUEUE_PAUSE giữ nguyên. Scheduler 34/34; local scan/SBOM 2 image PASS từ lượt đầu, rerun bỏ scan có ghi rõ | Codex | Còn js-yaml HIGH trong CI dependency; sửa task kế tiếp rồi push. Hosted chưa chạy; real calls NO |
+
+| `A-0609` | 2026-09-14 | `W-0291` | START | W-0290 commit d44834e; npm audit báo GHSA-2883-xcg3-v3hh trên js-yaml 4.3.1. Registry/advisory xác nhận 4.3.2 đã vá; bản lock chuẩn bị chỉ đổi version/resolved/integrity một package | Codex | Dependency của swagger-parser trong CI tools; không đổi symbol runtime; scan/push đã được owner duyệt |
+
+| `A-0610` | 2026-09-14 | `W-0291` | TRIAGE/OWNER_APPROVAL | Sau vá npm/NuGet sạch, Gitleaks còn 68: 50 source hash kiểm khớp, 12 flag name/comment, 5 negative fixture, 1 local example. Auto-review từ chối ghi ignore; owner sau đó duyệt đúng 68 fingerprint đã rà; áp mỗi commit/file/rule/dòng và chạy full wrapper lại | Codex + owner | Bảng rà W-0291 giữ đủ 68 dòng; không nới rule, không đổi lịch sử, không bỏ negative control |
+
+| `A-0611` | 2026-09-14 | `W-0291` | FINISH | Full wrapper exit 0: NuGet HIGH PASS, npm 0 vulnerability, secret giả bị bắt, Gitleaks 343 commit no findings sau 68 ngoại lệ đã duyệt. OpenAPI/docs/config PASS, portal 17 file; lock chỉ đổi patch js-yaml | Codex | Chuẩn bị push hai remote và theo dõi hosted candidate; chưa có dev/staging deployment proof |

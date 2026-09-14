@@ -1,0 +1,483 @@
+{
+  "scan_commit": "d44834e",
+  "finding_count": 68,
+  "review": "Each source line read at the recorded immutable commit; 50 manifest values independently matched source SHA-256 with LF or CRLF bytes; 18 fixture/flag/example values reviewed in context.",
+  "findings": [
+    {
+      "commit": "3589fc25-edd119ad-acc9c23b-fe9eb79c-aed9fb74",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "e984983a-fa702df6-c0927f72-35655e11-223f92b3",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "5cc4b17f-9af4a878-994d7c2d-09187472-91d05d61",
+      "file": "integration-requirements/08-module-3-sandbox-guide.md",
+      "line": 56,
+      "rule": "curl-auth-header",
+      "category": "documented_local_mock_credential"
+    },
+    {
+      "commit": "50fe28e7-f1d6ce3c-c8acb6ea-38e7a061-94f1ccec",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "50a83c55-351b3d2f-d475664e-61f25eb6-b3d22400",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "f730809e-7a33b3d7-1eb57890-c512f9d0-770a7ee4",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "95375bed-8cc0b920-fa381c80-5176d7ab-898c805f",
+      "file": "deploy/ci/scripts/ci-config-selftest.mjs",
+      "line": 492,
+      "rule": "jwt",
+      "category": "invalid_signature_jwt_negative_test"
+    },
+    {
+      "commit": "307fd9c9-213b4d56-1953af4d-df71a1bb-ad6cfe31",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260910024247_W0268DropDeadIdempotencyExpiresAtIndex.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "307fd9c9-213b4d56-1953af4d-df71a1bb-ad6cfe31",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260910024247_W0268DropDeadIdempotencyExpiresAtIndex.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "307fd9c9-213b4d56-1953af4d-df71a1bb-ad6cfe31",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260910024247_W0268DropDeadIdempotencyExpiresAtIndex.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "307fd9c9-213b4d56-1953af4d-df71a1bb-ad6cfe31",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260910024247_W0268DropDeadIdempotencyExpiresAtIndex.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "307fd9c9-213b4d56-1953af4d-df71a1bb-ad6cfe31",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260910024247_W0268DropDeadIdempotencyExpiresAtIndex.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "d68a471c-9642139e-e13e0b98-c7edccde-9c3b118a",
+      "file": "docs/api/portal-manifest.json",
+      "line": 26,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "5b41fa82-98a23669-d5c90cb6-23079721-4b73dd44",
+      "file": "docs/evidence/W-0243/README.md",
+      "line": 41,
+      "rule": "generic-api-key",
+      "category": "synthetic_secret_negative_test"
+    },
+    {
+      "commit": "5b41fa82-98a23669-d5c90cb6-23079721-4b73dd44",
+      "file": "tests/Ivr.UnitTests/CrossCuttingFoundationTests.cs",
+      "line": 297,
+      "rule": "generic-api-key",
+      "category": "synthetic_secret_negative_test"
+    },
+    {
+      "commit": "4d9470f9-0dd0b4c7-b96458dd-6741b7df-4843f9de",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260909034715_W0249OrderRevocationFence.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "4d9470f9-0dd0b4c7-b96458dd-6741b7df-4843f9de",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260909034715_W0249OrderRevocationFence.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "4d9470f9-0dd0b4c7-b96458dd-6741b7df-4843f9de",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260909034715_W0249OrderRevocationFence.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "4d9470f9-0dd0b4c7-b96458dd-6741b7df-4843f9de",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260909034715_W0249OrderRevocationFence.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "4d9470f9-0dd0b4c7-b96458dd-6741b7df-4843f9de",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260909034715_W0249OrderRevocationFence.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "3287eff7-5d33e70b-936b13b2-ddfdda2a-e4831691",
+      "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+      "line": 265,
+      "rule": "generic-api-key",
+      "category": "malformed_idempotency_test_input"
+    },
+    {
+      "commit": "0bd1a2f3-b977ac3e-efa2d464-2be44cb3-881c6798",
+      "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+      "line": 418,
+      "rule": "generic-api-key",
+      "category": "malformed_idempotency_test_input"
+    },
+    {
+      "commit": "1bebc422-73a0ed31-dc72e6b6-89dccdb7-b77b12ab",
+      "file": ".gitleaksignore",
+      "line": 270,
+      "rule": "generic-api-key",
+      "category": "comment_quoting_feature_flag_name"
+    },
+    {
+      "commit": "1bebc422-73a0ed31-dc72e6b6-89dccdb7-b77b12ab",
+      "file": "prompt/_execution/prompt-execution-tracker.md",
+      "line": 924,
+      "rule": "generic-api-key",
+      "category": "comment_quoting_feature_flag_name"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 5,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 23,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 41,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 44,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 60,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 74,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 77,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 83,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 94,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 95,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 139,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 141,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 143,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 144,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 145,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 148,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 154,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 166,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 238,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 287,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 320,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 321,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 389,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 390,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 391,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 424,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 426,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 428,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 431,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 433,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 434,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 437,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 438,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 444,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 445,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 447,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 451,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 452,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 468,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 471,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 473,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 474,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 476,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    },
+    {
+      "commit": "cc4a8c8d-87f11615-593b4432-893e35dd-779936bf",
+      "file": "docs/evidence/W-0286/api-matrix-report.json",
+      "line": 481,
+      "rule": "generic-api-key",
+      "category": "verified_candidate_source_sha256"
+    }
+  ]
+}

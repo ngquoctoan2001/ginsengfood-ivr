@@ -1,0 +1,14 @@
+gitleaks_8.30.0_windows_x64.zip: OK
+  Determining projects to restore...
+  Restored C:\Users\Administrator\Desktop\ivr\deploy\ci\tools\Ivr.CiPolicy\Ivr.CiPolicy.csproj (in 122 ms).
+  9 of 10 projects are up-to-date for restore.
+DOTNET_VULNERABILITY_GATE_PASS minimumSeverity=HIGH
+found 0 vulnerabilities
+1:07PM INF scanned ~54 bytes (54 bytes) in 20.9ms
+1:07PM WRN leaks found: 1
+CT-CI-04 PASS — fake GitHub PAT rejected
+1:07PM INF 343 commits scanned.
+1:07PM INF scanned ~51439564 bytes (51.44 MB) in 12.6s
+1:07PM INF no leaks found
+SECURITY_SCAN_PASS gitleaks=8.30.0 nuget=HIGH npm=HIGH
+SECURITY_SCAN_EXIT=0

@@ -1,0 +1,14 @@
+DOTNET_VULNERABILITY_GATE_PASS minimumSeverity=HIGH
+# npm audit report
+
+js-yaml  4.0.0 - 4.3.1
+Severity: high
+js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources - https://github.com/advisories/GHSA-2883-xcg3-v3hh
+fix available via `npm audit fix`
+node_modules/js-yaml
+
+1 high severity vulnerability
+
+To address all issues, run:
+  npm audit fix
+SECURITY_SCAN_EXIT=1
