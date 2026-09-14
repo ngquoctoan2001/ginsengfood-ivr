@@ -1,0 +1,18 @@
+{
+  "baseline": "6bf954d2-ba8fd82e-b638b589-2c11df77-9c88eb42",
+  "input_files": "../W-0293/reviewed-lines.json",
+  "reviewed_files": 45,
+  "sha256_variants": 90,
+  "line_endings": ["LF", "CRLF"],
+  "matches": [
+    {"file": "deploy/ci/scripts/dial-token-production-bundle-validator.mjs", "role": "active_pin_updated", "source": "docs/evidence/W-0150/README.md"},
+    {"file": "deploy/ci/scripts/upstream-session-signoff-validator.mjs", "role": "active_pin_updated", "source": "docs/evidence/W-0146/README.md"},
+    {"file": "docs/evidence/W-0183/dial-token-production-bundle.template.json", "role": "pending_template_updated"},
+    {"file": "docs/evidence/W-0181/upstream-session-signoff-input.template.json", "role": "pending_template_updated"},
+    {"file": "docs/evidence/W-0183/attested-sha256.txt", "role": "historical_attestation_preserved"},
+    {"file": "docs/evidence/W-0181/attested-sha256.txt", "role": "historical_attestation_preserved"},
+    {"file": "docs/evidence/W-0181/README.md", "role": "historical_result_preserved"},
+    {"file": "docs/evidence/W-0154/README.md", "role": "historical_result_preserved"},
+    {"file": "plan/ivr-orther/m8-14-capacity-calibration-data-intake-bundle-2026-09-03.md", "role": "historical_baseline_preserved"}
+  ]
+}

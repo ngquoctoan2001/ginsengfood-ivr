@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0295` |
-| Last allocated | `W-0294` |
-| Last activity sequence | `A-0618` |
+| `NEXT_WORK_ID` | `W-0296` |
+| Last allocated | `W-0295` |
+| Last activity sequence | `A-0620` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -374,6 +374,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0293` | Chuẩn hoá trình bày evidence cho PII gate (Origin=`UNPLANNED`) | Full evidence scan từ chối 121 dòng tại 45 file: thuật ngữ kỹ thuật, ví dụ product/negative fixture; giữ scanner và source test | `W-0292`; baseline `6bf954d` | TESTS_PASS | Codex | `docs/evidence/W-0293/README.md` | Full evidence scan exit 0; selftest 8 marker PASS; bản gốc ví dụ được dẫn bằng immutable commit; không thay quyết định/hash/chữ ký | Hosted pipeline cần chạy trên commit sửa; không đổi allowlist hoặc runtime |
 
 | `W-0294` | Xuất tên ca JUnit không lặp dữ liệu fixture (Origin=`UNPLANNED`) | Tái hiện 18/18 test privacy PASS nhưng JUnit name chứa raw tham số bị scanner từ chối; giữ kết quả/lỗi/traceability và mọi rule | `W-0293`; baseline `5006c0e` | TESTS_PASS | Codex | `docs/evidence/W-0294/README.md` | 688 case giữ nguyên/688 identity riêng, 354 tên đổi; XML ngoài name không đổi; PII PASS Windows/Linux; policy regression và 7 refusal PASS, failure PII vẫn bị bắt; build/format/config PASS | Cần pipeline chứa sửa JUnit; dev/staging đích chưa xác nhận; runtime không đổi |
+
+| `W-0295` | Đồng bộ active source pin sau sửa prose PII (Origin=`UNPLANNED`) | Hosted sweep bắt hash drift W-0150 do W-0293; rà toàn bộ 45 file đã sửa và các pin liên quan, giữ attestation lịch sử | `W-0293`, `W-0294`; baseline `c089a96` | TESTS_PASS | Codex | `docs/evidence/W-0295/README.md` | Full local sweep 39/39, 22 skip; W0181 32 refusal/W0183 64 refusal; hai template cũ exit 1; chỉ source pins của pending template đổi, attested manifest không đổi | Cần pipeline mới; không ký bundle hoặc đổi authority/readiness |
 
 ## 6. Unplanned work insertion template
 
@@ -1766,3 +1768,7 @@ Final status: TESTS_PASS
 | `A-0617` | 2026-09-14 | `W-0292`, `W-0294` | PUSH/DISCOVERY/START | Checkpoint 5006c0e đã lên hai remote; pipeline 2845967257 chạy. Local logger CI tái hiện JUnit chép tham số fixture: 18/18 test PASS nhưng XML PII FAIL; full unit 688/688, API artifact PII PASS. Bổ sung tên case ổn định không chứa tham số, giữ mọi assertion và output lỗi | Codex | GitNexus Usage LOW/3 caller trong tool/0 process. Không đổi scanner, không bỏ test, không xem lỗi công cụ là PASS |
 
 | `A-0618` | 2026-09-14 | `W-0294` | FINISH | CLI chỉ đổi testcase name, giữ 688/688 case và 688 identity riêng; so XML ngoài name không đổi. PII PASS Windows/Linux SDK 10.0.201. Regression giữ fail/skip/TestId/output, idempotence, 7 refusal và raw failure PII vẫn bị bắt; config/format/build PASS | Codex | Chưa suy local thành hosted; chuẩn bị commit và push bản sửa để lấy artifact thật của CI |
+
+| `A-0619` | 2026-09-14 | `W-0292`, `W-0293`, `W-0295` | DISCOVERY/START | W-0294 commit c089a96 đã lên hai remote, Gitleaks HEAD 348 commit no leaks; pipeline 2846002747. Sweep phát hiện active verifier W-0183 còn ghim hash W-0150 trước sửa prose W-0293. Nhận định W-0293 không tìm thấy pin đã thiếu phạm vi tìm kiếm; rà lại theo chính hash byte toàn bộ 45 file | Codex | Sửa active pins/template pending nếu cần; giữ attestation lịch sử và trạng thái chưa nhận bundle/signature |
+
+| `A-0620` | 2026-09-14 | `W-0295` | FINISH | Hosted c089a96 sweep 37/39, đúng W0181/W0183. Đã sửa hai active pin và đồng bộ 7 hash source của template pending (5 đã cũ từ trước); field ngoài source giữ nguyên. Full sweep local 39/39 PASS, 22 skip; tiếp đó export JSON chia cụm số dài trong hash đã xác minh, decoded value không đổi. Rerun W0183 64 refusal/3 template, config và PII 380 file PASS | Codex | W0181 32 refusal/2 template và template cũ bị chặn; giữ attested manifest/chữ ký lịch sử; không đổi quyết định M3 hoặc mở production; chuẩn bị commit/push |

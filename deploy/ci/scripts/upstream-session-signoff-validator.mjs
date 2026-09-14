@@ -25,7 +25,7 @@ const PLACEHOLDER = "PENDING_EXTERNAL_ARTIFACT";
 const SOURCE_PINS = Object.freeze({
   w0146_evidence_path: "docs/evidence/W-0146/README.md",
   w0146_evidence_sha256_lf:
-    "0bce4b3fcc0e6d1145f676e619405d8319e0480d4d0af255fd693adfb73b849b",
+    "fe8d57522bf012a052bc49117e91f7b95e4b338d6a78affda648703b16ee5db6",
   m3_handover_path: "integration-requirements/06-module-3-api-handover.md",
   m3_handover_sha256_lf:
     "6e08675e82c8987b351db96ff5cf7d2599944d1323b7d16c51b9e0a9a05ff233",
@@ -521,6 +521,8 @@ function clone(value) {
 }
 
 function runSelfTest() {
+  validateFile(resolve(REPOSITORY_ROOT,
+    "docs/evidence/W-0181/upstream-session-signoff-input.template.json"), "template");
   const artifactsRoot = resolve(REPOSITORY_ROOT, "ci-artifacts");
   mkdirSync(artifactsRoot, { recursive: true });
   const temporaryRoot = mkdtempSync(resolve(artifactsRoot, "w0181-selftest-"));
@@ -640,7 +642,7 @@ function runSelfTest() {
       refusals += 1;
     }
 
-    return { templateChecks: 1, valid: 1, refusals };
+    return { templateChecks: 2, valid: 1, refusals };
   } finally {
     rmSync(temporaryRoot, { recursive: true, force: true });
   }
