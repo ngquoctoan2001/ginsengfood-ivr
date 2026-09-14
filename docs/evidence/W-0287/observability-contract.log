@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /workspace/tests/Ivr.UnitTests/Ivr.UnitTests.csproj (in 379 ms).
+  4 of 5 projects are up-to-date for restore.
+  Ivr.Domain -> /workspace/src/Ivr.Domain/bin/Release/net10.0/Ivr.Domain.dll
+  Ivr.Contracts -> /workspace/src/Ivr.Contracts/bin/Release/net10.0/Ivr.Contracts.dll
+  Ivr.Infrastructure -> /workspace/src/Ivr.Infrastructure/bin/Release/net10.0/Ivr.Infrastructure.dll
+  Ivr.Worker -> /workspace/src/Ivr.Worker/bin/Release/net10.0/Ivr.Worker.dll
+  Ivr.UnitTests -> /workspace/tests/Ivr.UnitTests/bin/Release/net10.0/Ivr.UnitTests.dll
+Test run for /workspace/tests/Ivr.UnitTests/bin/Release/net10.0/Ivr.UnitTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    12, Skipped:     0, Total:    12, Duration: 453 ms - Ivr.UnitTests.dll (net10.0)

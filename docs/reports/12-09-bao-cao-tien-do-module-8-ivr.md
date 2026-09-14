@@ -68,14 +68,14 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | A | A1 | **Cập nhật 14/09:** 38/38 API, 417 request đã kiểm schema/PII/quyền/replay ở W-0286. Nhãn operator pause vẫn chờ owner; image E2E giữ FAIL; pipeline bắt buộc trên candidate chưa có | chờ owner + CI |
 | A | A2 | ✅ **Local xong 14/09, W-0286:** 100/100 vòng, 1.130 task, 0 lỗi; tiêm lỗi crash/lease/kill/callback/DLQ/retention. Worker tự xét eligibility; clock tiến thật với profile MOCK cho phép cả ngày để chạy ngoài giờ; không gọi đó là đóng băng clock production | 14/09 |
 | A | A3 | ✅ **Xong 14/09, W-0284:** khôi phục 13 dòng thiếu; 0 planned prompt đã triển khai thiếu pack bắt buộc. 56 unplanned/external không README riêng được phân loại theo evidence thật, không tạo hồ sơ rỗng | 14/09 |
-| A | A4 | **PARTIAL, W-0286:** full suite 1.018/1.018; sweep 39/39 script và 22 skip có lý do; K8s 7/7, observability, oasdiff đạt; coverage 89,33% sau unit rerun. Chưa có full image PASS, security scan mới, hay pipeline 39 job đúng SHA; chưa là ứng viên phát hành được duyệt | chờ phần còn chặn |
+| A | A4 | **PARTIAL, W-0286:** full suite 1.018/1.018; sweep 39/39 script và 22 skip có lý do; K8s 7/7, observability, oasdiff đạt; coverage 89,33% sau unit rerun. Chưa có full image PASS, security scan mới, hay toàn bộ job bắt buộc đúng SHA; chưa là ứng viên phát hành được duyệt | chờ phần còn chặn |
 | **B** | **B1** | **Nhận phiếu `IR-07` đã điền — 21 mục.** Module 3 hẹn trả trong tuần 14–19/09 | **chờ M3** |
 | **B** | B2 | ✅ **Xong 12/09**: môi trường thử một lệnh, tài khoản dịch vụ có hạn mức **60 lệnh/phút** (mã `429` hợp đồng hứa từ đầu nhưng **chưa từng có thật** — nay có), 24 ví dụ chạy được, cách dọn dữ liệu, đầu nhận giả lập. **Cập nhật 14/09**: W-0283 đã thêm worker tự xét cổng kỹ thuật; M3 giữ quyết định nghiệp vụ CALL_REQUIRED | ✅ |
 | **B** | B3 | Áp các mục Module 3 chọn khác vào hợp đồng và mã nguồn; phát hành bản hợp đồng kế tiếp; sinh lại bộ mã gọi cho họ | sau B1 |
 | **B** | B4 | **Đấu nối hai chiều**: Module 3 đẩy việc → IVR gọi giả lập → trả kết quả về Module 3 → Module 3 đổi trạng thái đơn | sau B1 |
 | **B** | B5 | Đối soát đủ bộ mã xác nhận: chấp nhận, trùng, lỗi thời, bị chặn, sai định dạng, quá hạn mức, và thử lại sau khi mất kết nối | sau B1 |
 | **B** | B6 | Ký đóng 5 cổng `G-CONTRACT`, `G-SPEECH`, `G-DIAL`, `G-AUTH`, `G-POLICY` | sau B4 |
-| C | C1 | Kiểm tra runner/pipeline/quyền GitLab đang có; chỉ yêu cầu phần thiếu để đáp ứng người rà soát độc lập và lượt chạy bắt buộc trước khi nhập mã (`G-GITLAB`); cấp máy chủ staging, CSDL, kho ảnh, quản lý bí mật, DNS/TLS (`G-PLATFORM`). **Hôm nay cho thấy vì sao đây là việc gấp, không phải việc cuối** | cần Hạ tầng |
+| C | C1 | **Đã đọc hosted 14/09, W-0285:** runner online, pipeline `890dfdd` có 36 job/7 FAIL; Registry có ảnh kiểm chứng cũ. [W-0287](../evidence/W-0287/README.md) sửa SDK/bootstrap. Còn pipeline candidate, review độc lập trong luật main-only (`G-GITLAB`), staging/CSDL/bí mật/DNS/TLS (`G-PLATFORM`) | local đang sửa + cần Hạ tầng |
 | C | C2 | Triển khai staging bằng Helm; chạy khói; diễn tập cuộn dần, xanh–lam, nâng cấp hỏng và quay lui. Rồi bảng theo dõi, cảnh báo, sổ tay xử lý sự cố, phân người trực, nối vết xuyên Module 3 → IVR → tổng đài; sao lưu, diễn tập khôi phục có mốc thời gian, đo RPO/RTO, khôi phục nhiều vùng, mã hoá ổ đĩa | sau C1 |
 | C | C3 | Đo hiệu năng (tải thấp, nền, đỉnh, dồn cục; p95/p99; số kênh cần; bể kết nối CSDL) rồi **chạy liên tục 24–72 giờ** trên staging | sau C1 |
 | C | C4 | Quét bảo mật thời gian chạy: ảnh, thư viện, bí mật; kiểm thử thâm nhập có xác thực; xử lý phát hiện | 18/09 |
@@ -92,7 +92,7 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | Cần có | Ai lo | Trước ngày | Nếu chậm |
 | --- | --- | --- | --- |
 | **Phiếu chốt `IR-07` điền xong, 21 mục** | **Module 3** | **19/09** | Làn B đứng từ B3; 5 cổng hợp đồng không đóng được; toàn bộ mốc sau lùi theo |
-| Máy chủ staging, kho ảnh, bí mật, DNS/TLS và bằng chứng CI/review độc lập; xác minh gói/quyền hiện tại trước khi yêu cầu nâng cấp | Hạ tầng | 16/09 | Cần phiên GitLab đọc được để xác minh runner/pipeline; API đang 403, không kết luận runner thiếu. Làn C vẫn cần hạ tầng thật |
+| Máy chủ staging, kho ảnh, bí mật, DNS/TLS và bằng chứng CI/review độc lập; xác minh gói/quyền hiện tại trước khi yêu cầu nâng cấp | Hạ tầng | 16/09 | Đã đọc được GitLab: runner online; dev/staging/lab chưa có deployment. Làn C vẫn cần hạ tầng thật và pipeline candidate |
 | Chữ ký kịch bản thoại, giọng đọc, pháp lý, an ninh | Sản phẩm · Pháp lý · An ninh | 18/09 | Không mở được cổng mua SIM, làn E không khởi động |
 | **Cập nhật 14/09**: còn nhãn kết quả khi tạm dừng — mục 4.1; khoảng trống worker eligibility đã sửa và kiểm chứng ở W-0283 | Chủ dự án | 16/09 | Nhãn pause chưa chốt; không sửa runtime để ép bài diễn tập xanh. B4 vẫn cần đầu nhận và phản hồi thật của M3 |
 | Duyệt mua gói thử một SIM | Chủ dự án | sau khi làn A–D xanh | Chỉ chứng minh được trên giả lập, không bao giờ đo được dung lượng thật |

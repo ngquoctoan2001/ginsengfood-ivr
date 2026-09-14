@@ -1,0 +1,62 @@
+TTS_PROVENANCE_MUTATION_PASS mutation=revision
+TTS_PROVENANCE_MUTATION_PASS mutation=path
+TTS_PROVENANCE_MUTATION_PASS mutation=hash
+TTS_PROVENANCE_MUTATION_PASS mutation=license
+TTS_PROVENANCE_MUTATION_PASS mutation=legal-authority
+TTS_PROVENANCE_MUTATION_PASS mutation=mirror-bare-pass
+TTS_PROVENANCE_MUTATION_PASS mutation=mirror-without-artifacts
+TTS_PROVENANCE_MUTATION_PASS mutation=extra
+TTS_PROVENANCE_MUTATION_PASS mutation=voice-config
+TTS_PROVENANCE_MUTATION_PASS mutation=acceptance-template
+TTS_PROVENANCE_STRUCTURE_PASS artifacts=13 release_blockers=LEGAL,INTERNAL_MIRROR
+TTS_AUDITION_SELFTEST_PASS voices=11 extensions=12 outbound=DENIED
+TTS_VOICE_ACCEPTANCE_PENDING_TEMPLATE_PASS rejected=YES
+TTS_VOICE_CONFIG_BINDING_PASS mutation=file-hash
+TTS_VOICE_CONFIG_BINDING_PASS mutation=model-lock
+TTS_VOICE_CONFIG_BINDING_PASS mutation=audition-script
+TTS_VOICE_CONFIG_BINDING_PASS mutation=audition-script-file
+TTS_VOICE_CONFIG_BINDING_PASS mutation=audition-source
+TTS_VOICE_CONFIG_BINDING_PASS mutation=listening-profile
+TTS_VOICE_CONFIG_BINDING_PASS mutation=codec-revision
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=status
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=stale
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=hash
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=route
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=incomplete
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=region
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=unheard
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=verdict
+TTS_VOICE_ACCEPTANCE_MUTATION_PASS mutation=extra
+TTS_VOICE_ACCEPTANCE_SELFTEST_PASS fixture=TEST_ONLY authority=NONE bindings=7 mutations=9
+TTS_FIXED_RENDER_REFUSAL_PASS case=no-arguments
+TTS_FIXED_RENDER_REFUSAL_PASS case=odd-arguments
+TTS_FIXED_RENDER_REFUSAL_PASS case=https-endpoint
+TTS_FIXED_RENDER_REFUSAL_PASS case=remote-endpoint
+TTS_FIXED_RENDER_REFUSAL_PASS case=pending-owner-template
+TTS_FIXED_RENDER_REFUSAL_PASS case=absent-acceptance
+TTS_FIXED_RENDER_REACHES_SYNTHESIS_PASS endpoint=LOOPBACK_CLOSED
+TTS_FIXED_RENDER_SELFTEST_PASS refusals=6
+TTS_HELM_SELFTEST_PASS defaults=4 fail_closed=YES acceptance_configmap=REQUIRED test_fixture=YES fixed_catalog=12 port_exposed=NO timeout_baseline=5000 predial_budget=ENFORCED
+test_exact_bundle_passes_and_extra_file_fails (test_shim.ModelLockTests.test_exact_bundle_passes_and_extra_file_fails) ... ok
+test_exact_contract_passes (test_shim.RequestContractTests.test_exact_contract_passes) ... ok
+test_exact_owner_acceptance_contract_passes (test_shim.VoiceAcceptanceTests.test_exact_owner_acceptance_contract_passes) ... ok
+Ran 15 tests in 0.057s
+OK
+TTS_CONTAINER_CONTRACT_PASS
+TTS_CONTAINER_SELFTEST_PASS nonroot=YES ports=NONE network=NONE
+LAB_CONVERTER_ROSTER_PASS segments=4 regions=3
+LAB_CONVERTER_EOL_PASS file=SHA256SUMS
+LAB_CONVERTER_EOL_PASS file=segments-manifest.txt
+LAB_CONVERTER_EOL_PASS file=segments-appsettings.json
+LAB_CONVERTER_EOL_PASS file=segments-compose-env.yml
+LAB_CONVERTER_REFUSAL_PASS case=no-source-directory
+LAB_CONVERTER_REFUSAL_PASS case=absent-source-directory
+LAB_CONVERTER_REFUSAL_PASS case=absent-output-directory
+LAB_CONVERTER_REFUSAL_PASS case=unknown-source-extension
+LAB_CONVERTER_REFUSAL_PASS case=unknown-region
+LAB_CONVERTER_REFUSAL_PASS case=missing-converter
+LAB_CONVERTER_REFUSAL_PASS case=missing-source-file
+LAB_CONVERTER_SELFTEST_PASS roster=4x3 refusals=7
+B3_TELEPHONY_EVIDENCE_SELF_TEST_PASS valid=1 refusal=34 tts_calls=6 real_sim_scenarios=8 artifacts=10 signoffs=7
+B3_TELEPHONY_TEMPLATE_VALID_NOT_READY tts_calls=6 real_sim_scenarios=8 artifacts=10 signoffs=7
+TTS_JOB_EXIT=0

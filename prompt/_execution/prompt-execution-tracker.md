@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0287` |
-| Last allocated | `W-0286` |
-| Last activity sequence | `A-0600` |
+| `NEXT_WORK_ID` | `W-0288` |
+| Last allocated | `W-0287` |
+| Last activity sequence | `A-0602` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -358,6 +358,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0285` | Kiểm tra hosted CI và đầu vào Hạ tầng (Origin=`UNPLANNED`) | Xác minh runner/pipeline/remote hiện có trước khi yêu cầu cấp mới | `W-0284`; baseline `fa7877c` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0285/README.md` | Đọc GitLab hiện tại và đối chiếu hồ sơ hosted W-0061/W-0093 | Không gửi phiếu, mua gói, đổi quyền hay tạo nhánh; real calls NO |
 
 | `W-0286` | Kiểm chứng độ bền và ứng viên local (Origin=`UNPLANNED`) | 100 vòng có tiêm lỗi, full suite và image/gates trên source ổn định | `W-0283`..`W-0285`; runtime candidate `4483029` | BLOCKED_EXTERNAL | Codex | `docs/evidence/W-0286/README.md` | 1.018/1.018; 100/100 vòng/1.130 task; API 38/38/417 request; sweep 39/39, K8s 7/7, observability, coverage 89,33% sau unit rerun | Image pause chờ owner; security egress chờ xác nhận; hosted chưa đọc được/chưa push; M3/SIM/staging/production NOT_RUN; real calls NO |
+
+| `W-0287` | Sửa toolchain và bootstrap CI theo log hosted (Origin=`UNPLANNED`) | Pipeline 2842779996 có bốn lỗi SDK, sweep thiếu công cụ, TTS thiếu dependency | `W-0285`; baseline `9ca529b` | TESTS_PASS | Codex | `docs/evidence/W-0287/README.md` | SDK pin xuyên fragment; 10 negative + 1 positive config; Linux sweep 39/39; TTS 9/9 lệnh; contract 24/24, E2E 2/2, observability 12/12 | Chaos lộ loopback fixture, review gate lộ false green, xử lý tiếp; hosted chưa push; pause/scan pending; real calls NO |
 
 ## 6. Unplanned work insertion template
 
@@ -1721,3 +1723,5 @@ Final status: TESTS_PASS
 | `A-0598` | 2026-09-14 | `W-0286` | FIX/VERIFY | Commit `4483029` sửa SSI trong receipt eligibility bằng cơ chế coordinated sẵn có; regression hai ca từ 0/2 thành 2/2. Full suite trên SHA này 1.018/1.018; API 38/38/417 request; endurance 100/100 vòng, 1.130 task, 0 HTTP 500 ở probe 10 eligibility đồng thời; sweep 39/39, K8s 7/7, observability đạt | Codex | Chi tiết lệnh/hash/log tại docs/evidence/W-0286; không suy local thành hosted hoặc M3 thật |
 | `A-0599` | 2026-09-14 | `W-0286` | HANDOFF/BLOCKED | Coverage 89,33% từ bốn suite đạt; lưu lần unit regex timeout và rerun 688/688. Lint chỉ ra BOM/newline hai file cũ; follow-up chỉ chuẩn hoá byte và kiểm riêng. Scanner local phát hiện 3 thuật ngữ kỹ thuật/1 SHA trong metadata W-0284: giữ tham chiếu tiêu đề gốc, chia hash nhóm 8, không nới rule | Codex | Full image pause FAIL chờ owner; security scan bị auto-review từ chối metadata egress, đang chờ xác nhận; hosted login pending; 11 external gates, rung 0, REAL_CUSTOMER_CALL_ALLOWED=NO |
 | `A-0600` | 2026-09-14 | `W-0285`, `W-0286` | COMMIT/VERIFY/HANDOFF | Gói local + chuẩn hoá BOM/newline commit `cc4a8c8`; build/analyzers 0/0, full formatter exit 0, API matrix rerun 38/38/417 request. Scanner PII local trên bốn pack đạt. GitNexus staged LOW/0 flow; không đổi câu lệnh C#. Hai remote kiểm lại vẫn `890dfdd`, browser còn sign-in | Codex | Các kết quả đầy đủ giữ provenance `4483029`; checkpoint riêng cho `cc4a8c8`. Chờ ba đầu vào đã hỏi: nhãn pause, chấp thuận scan metadata egress, GitLab login; không push/deploy; REAL_CUSTOMER_CALL_ALLOWED=NO |
+| `A-0601` | 2026-09-14 | `W-0285`, `W-0287` | DISCOVERY/START | Đăng nhập GitLab đã dùng được. Runner 55115499 online; pipeline 2842779996 tại 890dfdd có 36 job, 7 FAIL. Đọc cả bảy log: 4 SDK mismatch, sweep thiếu công cụ, TTS thiếu yaml, image pause sai expected result | Codex | W-0287 sửa cấu hình local trước; giữ nguyên lịch sử 403, chưa chạy lại hosted, không thay quyền/runner; REAL_CUSTOMER_CALL_ALLOWED=NO |
+| `A-0602` | 2026-09-14 | `W-0287` | FINISH/DISCOVERY | Pin SDK, bổ sung Docker/Buildx/Node/npm/policy build; Linux sweep 39/39, TTS 9 lệnh exit 0, config 10 refusal + 1 PASS. Đồng bộ một pin template PENDING W-0185 theo source/verifier; snapshot Windows CRLF bị invalidated, Linux xuất lại đúng byte | Codex | Lưu Chaos 1/8 do loopback và review gate false green khi SDK exit 155 để sửa tiếp. Không đổi hợp đồng/nhãn pause, không scan metadata, không push/deploy; real calls NO |

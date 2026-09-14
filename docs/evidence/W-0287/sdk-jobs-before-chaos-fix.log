@@ -1,0 +1,220 @@
+10.0.201
+JOB_START=contract_suite
+  Determining projects to restore...
+  Restored /workspace/src/Ivr.Domain/Ivr.Domain.csproj (in 162 ms).
+  Restored /workspace/src/Ivr.Contracts/Ivr.Contracts.csproj (in 162 ms).
+  Restored /workspace/deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj (in 161 ms).
+  Restored /workspace/tests/Ivr.ContractTests/Ivr.ContractTests.csproj (in 7.22 sec).
+  Restored /workspace/src/Ivr.Api/Ivr.Api.csproj (in 7.86 sec).
+  Restored /workspace/src/Ivr.Worker/Ivr.Worker.csproj (in 7.88 sec).
+  Restored /workspace/tests/Ivr.UnitTests/Ivr.UnitTests.csproj (in 7.88 sec).
+  Restored /workspace/src/Ivr.Infrastructure/Ivr.Infrastructure.csproj (in 8.08 sec).
+  Restored /workspace/tests/Ivr.IntegrationTests/Ivr.IntegrationTests.csproj (in 9.13 sec).
+  Restored /workspace/tests/chaos/Ivr.ChaosTests.csproj (in 9.13 sec).
+  Determining projects to restore...
+  Restored /workspace/src/Ivr.Contracts/Ivr.Contracts.csproj (in 478 ms).
+  Restored /workspace/tests/Ivr.ContractTests/Ivr.ContractTests.csproj (in 822 ms).
+  Ivr.Contracts -> /workspace/src/Ivr.Contracts/bin/Release/net10.0/Ivr.Contracts.dll
+  Ivr.ContractTests -> /workspace/tests/Ivr.ContractTests/bin/Release/net10.0/Ivr.ContractTests.dll
+Test run for /workspace/tests/Ivr.ContractTests/bin/Release/net10.0/Ivr.ContractTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: ../../ci-artifacts/contract/Ivr.ContractTests-test-result.xml
+
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 1 s - Ivr.ContractTests.dll (net10.0)
+Test run for /workspace/tests/Ivr.ContractTests/bin/Release/net10.0/Ivr.ContractTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 36 ms - Ivr.ContractTests.dll (net10.0)
+JOB_PASS=contract_suite
+JOB_START=e2e_flow_suite
+  Determining projects to restore...
+  Restored /workspace/src/Ivr.Contracts/Ivr.Contracts.csproj (in 625 ms).
+  Restored /workspace/tests/Ivr.ContractTests/Ivr.ContractTests.csproj (in 955 ms).
+  8 of 10 projects are up-to-date for restore.
+  Determining projects to restore...
+  Restored /workspace/src/Ivr.Domain/Ivr.Domain.csproj (in 520 ms).
+  Restored /workspace/src/Ivr.Contracts/Ivr.Contracts.csproj (in 520 ms).
+  Restored /workspace/src/Ivr.Api/Ivr.Api.csproj (in 753 ms).
+  Restored /workspace/src/Ivr.Worker/Ivr.Worker.csproj (in 770 ms).
+  Restored /workspace/tests/Ivr.IntegrationTests/Ivr.IntegrationTests.csproj (in 831 ms).
+  Restored /workspace/src/Ivr.Infrastructure/Ivr.Infrastructure.csproj (in 1.01 sec).
+  Ivr.Contracts -> /workspace/src/Ivr.Contracts/bin/Release/net10.0/Ivr.Contracts.dll
+  Ivr.Domain -> /workspace/src/Ivr.Domain/bin/Release/net10.0/Ivr.Domain.dll
+  Ivr.Infrastructure -> /workspace/src/Ivr.Infrastructure/bin/Release/net10.0/Ivr.Infrastructure.dll
+  Ivr.Worker -> /workspace/src/Ivr.Worker/bin/Release/net10.0/Ivr.Worker.dll
+  Ivr.Api -> /workspace/src/Ivr.Api/bin/Release/net10.0/Ivr.Api.dll
+  Ivr.IntegrationTests -> /workspace/tests/Ivr.IntegrationTests/bin/Release/net10.0/Ivr.IntegrationTests.dll
+Test run for /workspace/tests/Ivr.IntegrationTests/bin/Release/net10.0/Ivr.IntegrationTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: ../../ci-artifacts/e2e/Ivr.IntegrationTests-test-result.xml
+
+Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 7 s - Ivr.IntegrationTests.dll (net10.0)
+JOB_PASS=e2e_flow_suite
+JOB_START=chaos_suite
+  Determining projects to restore...
+  Restored /workspace/src/Ivr.Contracts/Ivr.Contracts.csproj (in 322 ms).
+  Restored /workspace/src/Ivr.Domain/Ivr.Domain.csproj (in 321 ms).
+  Restored /workspace/src/Ivr.Api/Ivr.Api.csproj (in 421 ms).
+  Restored /workspace/src/Ivr.Worker/Ivr.Worker.csproj (in 424 ms).
+  Restored /workspace/tests/Ivr.IntegrationTests/Ivr.IntegrationTests.csproj (in 443 ms).
+  Restored /workspace/src/Ivr.Infrastructure/Ivr.Infrastructure.csproj (in 532 ms).
+  4 of 10 projects are up-to-date for restore.
+  Determining projects to restore...
+  Restored /workspace/src/Ivr.Domain/Ivr.Domain.csproj (in 219 ms).
+  Restored /workspace/src/Ivr.Contracts/Ivr.Contracts.csproj (in 219 ms).
+  Restored /workspace/src/Ivr.Api/Ivr.Api.csproj (in 303 ms).
+  Restored /workspace/src/Ivr.Worker/Ivr.Worker.csproj (in 306 ms).
+  Restored /workspace/tests/chaos/Ivr.ChaosTests.csproj (in 316 ms).
+  Restored /workspace/src/Ivr.Infrastructure/Ivr.Infrastructure.csproj (in 348 ms).
+  Ivr.Contracts -> /workspace/src/Ivr.Contracts/bin/Release/net10.0/Ivr.Contracts.dll
+  Ivr.Domain -> /workspace/src/Ivr.Domain/bin/Release/net10.0/Ivr.Domain.dll
+  Ivr.Infrastructure -> /workspace/src/Ivr.Infrastructure/bin/Release/net10.0/Ivr.Infrastructure.dll
+  Ivr.Worker -> /workspace/src/Ivr.Worker/bin/Release/net10.0/Ivr.Worker.dll
+  Ivr.Api -> /workspace/src/Ivr.Api/bin/Release/net10.0/Ivr.Api.dll
+  Ivr.ChaosTests -> /workspace/tests/chaos/bin/Release/net10.0/Ivr.ChaosTests.dll
+Test run for /workspace/tests/chaos/bin/Release/net10.0/Ivr.ChaosTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:11.64]     Ivr.ChaosTests.SimFaultScenario.ADroppedCallIsATechnicalExceptionAndTheThirdFailureTakesTheChannelOutOfService [FAIL]
+[xUnit.net 00:00:11.64]     Ivr.ChaosTests.RecoveryScenario.TheBacklogDrainsExactlyOnceAfterTheLinkReturns [FAIL]
+[xUnit.net 00:00:11.64]     Ivr.ChaosTests.PartialPartitionScenario.AWorkerPartitionedAfterDeliveringLeavesARecognisableDuplicateAndCannotWinLate [FAIL]
+[xUnit.net 00:00:11.65]     Ivr.ChaosTests.DownstreamFaultScenario.WhenSalesIsDownTheResultIsHeldForBoundedRetryAndNeverReportedAsConfirmed [FAIL]
+[xUnit.net 00:00:11.65]     Ivr.ChaosTests.DatabaseFaultScenario.ACutDatabaseLinkTurnsReadinessRedLosesNothingAndRecoversWhenTheLinkReturns [FAIL]
+[xUnit.net 00:00:11.65]     Ivr.ChaosTests.CallTerminationScenario.ACutRecordsOneTechnicalExceptionAndDoesNotSpendACustomerAttempt [FAIL]
+[xUnit.net 00:00:11.65]     Ivr.ChaosTests.CallTerminationScenario.ARequestLandingAfterTheCallFinishedLeavesTheRecordedResultIntact [FAIL]
+[xUnit.net 00:00:11.65]     [Test Collection Cleanup Failure (P6-3 chaos scenarios)] System.NullReferenceException
+  Failed Ivr.ChaosTests.SimFaultScenario.ADroppedCallIsATechnicalExceptionAndTheThirdFailureTakesTheChannelOutOfService [1 ms]
+  Error Message:
+   System.Net.Http.HttpRequestException : Connection refused (127.0.0.1:32772)
+---- System.Net.Sockets.SocketException : Connection refused
+  Stack Trace:
+     at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Ivr.ChaosTests.ChaosEnvironment.InitializeAsync() in /workspace/tests/chaos/ChaosEnvironment.cs:line 84
+----- Inner Stack Trace -----
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+  Failed Ivr.ChaosTests.RecoveryScenario.TheBacklogDrainsExactlyOnceAfterTheLinkReturns [1 ms]
+  Error Message:
+   System.Net.Http.HttpRequestException : Connection refused (127.0.0.1:32772)
+---- System.Net.Sockets.SocketException : Connection refused
+  Stack Trace:
+     at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Ivr.ChaosTests.ChaosEnvironment.InitializeAsync() in /workspace/tests/chaos/ChaosEnvironment.cs:line 84
+----- Inner Stack Trace -----
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+  Failed Ivr.ChaosTests.PartialPartitionScenario.AWorkerPartitionedAfterDeliveringLeavesARecognisableDuplicateAndCannotWinLate [1 ms]
+  Error Message:
+   System.Net.Http.HttpRequestException : Connection refused (127.0.0.1:32772)
+---- System.Net.Sockets.SocketException : Connection refused
+  Stack Trace:
+     at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Ivr.ChaosTests.ChaosEnvironment.InitializeAsync() in /workspace/tests/chaos/ChaosEnvironment.cs:line 84
+----- Inner Stack Trace -----
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+  Failed Ivr.ChaosTests.DownstreamFaultScenario.WhenSalesIsDownTheResultIsHeldForBoundedRetryAndNeverReportedAsConfirmed [1 ms]
+  Error Message:
+   System.Net.Http.HttpRequestException : Connection refused (127.0.0.1:32772)
+---- System.Net.Sockets.SocketException : Connection refused
+  Stack Trace:
+     at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Ivr.ChaosTests.ChaosEnvironment.InitializeAsync() in /workspace/tests/chaos/ChaosEnvironment.cs:line 84
+----- Inner Stack Trace -----
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+  Failed Ivr.ChaosTests.DatabaseFaultScenario.ACutDatabaseLinkTurnsReadinessRedLosesNothingAndRecoversWhenTheLinkReturns [1 ms]
+  Error Message:
+   System.Net.Http.HttpRequestException : Connection refused (127.0.0.1:32772)
+---- System.Net.Sockets.SocketException : Connection refused
+  Stack Trace:
+     at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Ivr.ChaosTests.ChaosEnvironment.InitializeAsync() in /workspace/tests/chaos/ChaosEnvironment.cs:line 84
+----- Inner Stack Trace -----
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+  Failed Ivr.ChaosTests.CallTerminationScenario.ACutRecordsOneTechnicalExceptionAndDoesNotSpendACustomerAttempt [1 ms]
+  Error Message:
+   System.Net.Http.HttpRequestException : Connection refused (127.0.0.1:32772)
+---- System.Net.Sockets.SocketException : Connection refused
+  Stack Trace:
+     at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Ivr.ChaosTests.ChaosEnvironment.InitializeAsync() in /workspace/tests/chaos/ChaosEnvironment.cs:line 84
+----- Inner Stack Trace -----
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+  Failed Ivr.ChaosTests.CallTerminationScenario.ARequestLandingAfterTheCallFinishedLeavesTheRecordedResultIntact [1 ms]
+  Error Message:
+   System.Net.Http.HttpRequestException : Connection refused (127.0.0.1:32772)
+---- System.Net.Sockets.SocketException : Connection refused
+  Stack Trace:
+     at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Ivr.ChaosTests.ChaosEnvironment.InitializeAsync() in /workspace/tests/chaos/ChaosEnvironment.cs:line 84
+----- Inner Stack Trace -----
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+Results File: ../../ci-artifacts/chaos/Ivr.ChaosTests-test-result.xml
+
+Failed!  - Failed:     7, Passed:     1, Skipped:     0, Total:     8, Duration: 11 s - Ivr.ChaosTests.dll (net10.0)

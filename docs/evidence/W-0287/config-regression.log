@@ -1,0 +1,11 @@
+REJECTED contract SDK drift
+REJECTED chaos SDK drift
+REJECTED observability SDK drift
+REJECTED review SDK drift
+REJECTED sweep Node-only image
+REJECTED sweep missing DinD
+REJECTED sweep missing Node 24
+REJECTED sweep missing Buildx
+REJECTED sweep missing policy build
+REJECTED TTS missing dependencies
+CONFIG_REGRESSION_PASS negatives=10 positive=1

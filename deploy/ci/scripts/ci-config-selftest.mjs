@@ -331,6 +331,44 @@ for (const includePath of [".gitlab-ci.yml", ...includes]) {
       continue;
     }
 
+    // W-0287: four hosted jobs never reached tests because a floating SDK moved feature bands.
+    // Enforce global.json across every fragment, including hidden templates and image mappings.
+    const imageName = typeof definition.image === "string" ? definition.image : definition.image?.name;
+    if (imageName?.startsWith("mcr.microsoft.com/dotnet/sdk:")) {
+      assert(
+        imageName === expectedDotnetImage,
+        `${includePath} ${jobName} image must match global.json: ${expectedDotnetImage}.`,
+      );
+    }
+
+    const bootstrap = (definition.before_script ?? []).join("\n");
+    if (jobName === "gate_sweep") {
+      assert(imageName === expectedDotnetImage, "gate_sweep requires the pinned .NET SDK.");
+      assert(
+        definition.services?.some((service) => service.name === "docker:29.6.2-dind" && service.alias === "docker") &&
+          definition.variables?.DOCKER_HOST === "tcp://docker:2375" &&
+          definition.variables?.DOCKER_TLS_CERTDIR === "",
+        "gate_sweep requires Docker-in-Docker for its container drills.",
+      );
+      for (const required of [
+        "apt-get install -y --no-install-recommends docker.io docker-buildx git",
+        "docker create --name gate-node-toolchain node:24-bookworm-slim",
+        "docker cp gate-node-toolchain:/usr/local/. /usr/local/",
+        "npm --prefix deploy/ci ci --no-audit --no-fund",
+        "dotnet restore deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --locked-mode",
+        "dotnet build deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release --no-restore",
+      ]) {
+        assert(bootstrap.includes(required), `gate_sweep bootstrap missing: ${required}`);
+      }
+    }
+    if (jobName === "tts_candidate_selftest") {
+      assert(
+        bootstrap.includes("apk add --no-cache nodejs npm") &&
+          bootstrap.includes("npm --prefix deploy/ci ci --no-audit --no-fund"),
+        "tts_candidate_selftest must install Node/npm and locked CI dependencies before its probes.",
+      );
+    }
+
     for (const hook of ["script", "before_script", "after_script"]) {
       const entries = definition[hook];
       if (entries === undefined) {

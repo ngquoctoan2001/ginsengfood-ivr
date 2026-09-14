@@ -28,7 +28,7 @@ observability_rules:
 
 observability_contract:
   stage: validate
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
   allow_failure: false
   variables:
     IVR_ADAPTER_MODE: "MOCK"

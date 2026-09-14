@@ -9,6 +9,9 @@ docs/api-changelog.md text eol=lf
 docs/api-versioning.md text eol=lf
 docs/integration-guide.md text eol=lf
 docs/contracts/openapi-contract-diff.md text eol=lf
+# W-0287: FREEZE-05 compares this generated inventory byte-for-byte with LF output.
+docs/contracts/target-v1-field-inventory.md text eol=lf
+deploy/ci/pins/external-decision-artifacts.sha256 text eol=lf
 
 # dotnet format evaluates the physical working-tree bytes. Pin C# to LF so the
 # same format gate is reproducible on Windows (including core.autocrlf=true) and

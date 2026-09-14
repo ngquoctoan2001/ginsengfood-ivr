@@ -9,7 +9,7 @@
 
 contract_suite:
   stage: validate
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
   allow_failure: false
   variables:
     IVR_ADAPTER_MODE: "MOCK"
@@ -33,7 +33,7 @@ contract_suite:
 
 e2e_flow_suite:
   stage: validate
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
   allow_failure: false
   services:
     - name: docker:27-dind

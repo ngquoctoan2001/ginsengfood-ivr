@@ -16,7 +16,8 @@ tts_candidate_selftest:
     IVR_EXECUTION_MODE: "MOCK"
     REAL_CUSTOMER_CALL_ALLOWED: "NO"
   before_script:
-    - apk add --no-cache nodejs
+    - apk add --no-cache nodejs npm
+    - npm --prefix deploy/ci ci --no-audit --no-fund
   script:
     - node deploy/ci/scripts/tts-provenance-gate.mjs --selftest
     - node deploy/ci/scripts/tts-audition-selftest.mjs

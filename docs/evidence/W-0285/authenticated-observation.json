@@ -1,0 +1,65 @@
+{
+  "observed_date": "2026-09-14",
+  "method": "authenticated GitLab browser UI; read-only; secret values not revealed",
+  "project_id": 85344202,
+  "project_url": "https://gitlab.com/nqt20102001/ginsengfood-ivr",
+  "remote_main_short_sha": "890dfdd7",
+  "local_baseline_short_sha": "9ca529b",
+  "runner": {
+    "id": 55115499,
+    "name": "ivr-docker-winhost",
+    "status": "online",
+    "tag": "ginsengfood-docker",
+    "version": "19.2.0",
+    "executor_from_job_logs": "docker",
+    "locked_to_project": true,
+    "url": "https://gitlab.com/nqt20102001/ginsengfood-ivr/-/runners/55115499"
+  },
+  "pipeline": {
+    "id": 2842779996,
+    "sha": "890dfdd7",
+    "status": "failed",
+    "created_at": "2026-09-12T14:02:45+07:00",
+    "finished_at": "2026-09-12T14:52:42+07:00",
+    "instantiated_jobs": 36,
+    "failed_jobs": 7,
+    "url": "https://gitlab.com/nqt20102001/ginsengfood-ivr/-/pipelines/2842779996",
+    "failures": [
+      {"job": "contract_suite", "id": 16461136809, "cause": "SDK 10.0.401 cannot satisfy global.json 10.0.201/latestPatch; restore exit 155"},
+      {"job": "e2e_flow_suite", "id": 16461136810, "cause": "SDK mismatch; restore exit 155"},
+      {"job": "observability_contract", "id": 16461136817, "cause": "SDK mismatch; restore exit 155"},
+      {"job": "chaos_suite", "id": 16461136820, "cause": "SDK mismatch; restore exit 155"},
+      {"job": "gate_sweep", "id": 16461136815, "cause": "34/39 runnable checks pass; Docker and dotnet executables missing"},
+      {"job": "tts_candidate_selftest", "id": 16461136826, "cause": "ERR_MODULE_NOT_FOUND: yaml in tts-audition-selftest.mjs"},
+      {"job": "image_selftest", "id": 16461136821, "cause": "TASK-E2E-CAPACITY observed IVR_CONFIRMATION_WINDOW_EXPIRED instead of IVR_CAPACITY_EXCEPTION; owner semantics pending", "packaging_checks_before_failure": "BUILD HEALTH COMPOSE SCAN SBOM passed on the old SHA only"}
+    ]
+  },
+  "repository_controls": {
+    "url": "https://gitlab.com/nqt20102001/ginsengfood-ivr/-/settings/repository",
+    "default_branch": "main",
+    "main_protected": true,
+    "allowed_to_merge": "Maintainers",
+    "allowed_to_push_and_merge": "Maintainers",
+    "mr_settings_url": "https://gitlab.com/nqt20102001/ginsengfood-ivr/-/settings/merge_requests",
+    "mr_pipeline_must_succeed": true,
+    "mr_skipped_pipeline_considered_successful": false,
+    "mr_all_threads_must_be_resolved": false,
+    "independent_review_enforcement": "UNVERIFIED; MR settings do not prove enforcement for direct pushes to main"
+  },
+  "environments": {
+    "url": "https://gitlab.com/nqt20102001/ginsengfood-ivr/-/environments",
+    "api_docs_nonprod": "successful historical deployment at 34340cca",
+    "dev": "no deployments",
+    "staging": "no deployments",
+    "lab": "no deployments"
+  },
+  "registry": {
+    "url": "https://gitlab.com/nqt20102001/ginsengfood-ivr/container_registry",
+    "repositories": 1,
+    "repository": "ginsengfood-ivr/w0061-proof",
+    "tags": 1,
+    "candidate_push_pull": "NOT_RUN"
+  },
+  "candidate_hosted_verdict": "NOT_RUN",
+  "real_customer_call_allowed": "NO"
+}

@@ -4,7 +4,7 @@
 **Người gửi:** Team Module 8 — IVR Order Confirmation
 **Ngày lập:** `2026-09-12` · **Mốc mã:** `main@b0cb633`
 **Trạng thái:** `READY_TO_DISPATCH / NOT_SENT`
-**Đối soát 14/09:** [W-0285](../../docs/evidence/W-0285/README.md). Hai remote cùng `890dfdd`; GitLab API trả 403 và trình duyệt chưa đăng nhập. Trạng thái runner, pipeline, gói và staging hiện tại **chưa xác minh được**, không suy là chưa từng tồn tại.
+**Đối soát 14/09 sau đăng nhập:** [W-0285](../../docs/evidence/W-0285/README.md). Remote còn `890dfdd`; runner `55115499` online, pipeline `2842779996` có 36 job/7 FAIL. Registry có `w0061-proof`; dev/staging/lab chưa có deployment. [W-0287](../../docs/evidence/W-0287/README.md) sửa lỗi SDK/bootstrap; pipeline candidate và review độc lập còn thiếu. API 403 là quan sát trước đăng nhập.
 **Ưu tiên:** P1. Mục A chặn mọi bằng chứng phát hành; mục B chặn toàn bộ làn C của kế hoạch hoàn thiện
 
 > Hai mục độc lập. Trả lời được mục nào thì đóng mục đó, không cần chờ đủ hai.
@@ -28,7 +28,7 @@ Trong repo có **39 đầu việc CI và 50 bài tự kiểm đã khai**. W-0061
 
 | # | Cần gì | Ghi chú kỹ thuật |
 | --- | --- | --- |
-| A1 | **Xác minh runner hiện có** cho `nqt20102001/ginsengfood-ivr`, thẻ **`ginsengfood-docker`**; chỉ cấp lại nếu thiếu/không dùng được | W-0061 từng ghi runner `55115499` / `ivr-docker-winhost`. Cần trạng thái online/paused, tags, version và job được nhận ở SHA mới |
+| A1 | **Tái sử dụng runner hiện có** cho `nqt20102001/ginsengfood-ivr`, thẻ **`ginsengfood-docker`** | Đã xác minh `55115499` / `ivr-docker-winhost` online, version 19.2.0; còn cần job được nhận ở SHA candidate mới |
 | A2 | Xác minh runner **vẫn chạy được Docker** (docker-in-docker hoặc socket) | Đã có DinD/Testcontainers lịch sử; cần proof hiện tại cho integration, image, Kubernetes tạm, chaos và DR |
 | A3 | **Kiểm tra gói và khả năng required approvals hiện tại**, chỉ trình phương án nâng gói nếu còn thiếu | Giới hạn gói được ghi trong W-0061/W-0266 là lịch sử. Chưa có quyền đọc hiện tại; không tự mua/nâng gói |
 | A4 | **Một tài khoản người rà soát thứ hai** có quyền duyệt trên project | Chữ ký không tạo ra người. Hai hạng mục đang mở cần đúng hai người khác nhau |

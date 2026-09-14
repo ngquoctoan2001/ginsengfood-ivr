@@ -8,7 +8,7 @@
 # allow_failure: false. A resilience gate that may fail proves resilience nobody checked.
 chaos_suite:
   stage: validate
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
   allow_failure: false
   services:
     - name: docker:27-dind

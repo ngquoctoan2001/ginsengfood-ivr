@@ -8,7 +8,7 @@
 
 review_gate_selftest:
   stage: validate
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
   allow_failure: false
   variables:
     IVR_ADAPTER_MODE: "MOCK"
@@ -85,12 +85,28 @@ capacity_selftest:
 # entry and this job goes red.
 gate_sweep:
   stage: validate
-  image: node:24-bookworm-slim
+  image: mcr.microsoft.com/dotnet/sdk:10.0.201
   allow_failure: false
+  services:
+    - name: docker:29.6.2-dind
+      alias: docker
   variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
     IVR_ADAPTER_MODE: "MOCK"
     REAL_CUSTOMER_CALL_ALLOWED: "NO"
   before_script:
-    - npm --prefix deploy/ci ci
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends docker.io docker-buildx git
+    # The sweep includes Docker drills and .NET policy probes. Node 24 is copied from the same
+    # image as ci_config_selftest; Ubuntu's Node 18 lacks import.meta.dirname used by TTS gates.
+    - docker version
+    - docker create --name gate-node-toolchain node:24-bookworm-slim
+    - docker cp gate-node-toolchain:/usr/local/. /usr/local/
+    - docker rm gate-node-toolchain
+    - node --version && npm --version && dotnet --version
+    - npm --prefix deploy/ci ci --no-audit --no-fund
+    - dotnet restore deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --locked-mode
+    - dotnet build deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release --no-restore
   script:
     - node deploy/ci/scripts/gate-sweep.mjs

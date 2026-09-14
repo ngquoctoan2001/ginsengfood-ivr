@@ -45,7 +45,7 @@ Lượt full đầu: unit 688, integration 295/296 (matrix từ chối vì sourc
 ## Việc còn chặn
 
 - **Owner decision:** nhãn cho operator pause làm lỡ cửa sổ; giữ kết quả FAIL cho tới khi có quyết định và kiểm lại.
-- **Hosted W-0285:** API 403, trình duyệt chưa có phiên dùng được; chưa push candidate, chưa chạy pipeline đúng SHA. Không kết luận runner hiện tại thiếu/hỏng.
+- **Hosted W-0285, cập nhật sau đăng nhập 14/09:** đã đọc runner online và pipeline cũ 36 job/7 FAIL; xem [quan sát mới](../W-0285/authenticated-observation.json). W-0287 sửa cấu hình. Chưa push candidate, chưa chạy pipeline đúng SHA; API 403 là quan sát trước đăng nhập.
 - **Security scan + image scan/SBOM:** chưa chạy trên candidate mới. Bộ xét duyệt tự động từ chối security gate vì metadata dependency có thể được gửi tới npm/NuGet; câu hỏi xác nhận egress đang chờ. Không lấy scan lịch sử làm kết quả hiện tại.
 - **M3/SIM/staging/production:** NOT_RUN, cần đầu vào và thẩm quyền thật. `REAL_CUSTOMER_CALL_ALLOWED=NO`, nấc 0, 11 gate ngoài không đổi.
 
