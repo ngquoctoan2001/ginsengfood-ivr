@@ -44,9 +44,9 @@ Lượt full đầu: unit 688, integration 295/296 (matrix từ chối vì sourc
 
 ## Việc còn chặn
 
-- **Owner decision:** nhãn cho operator pause làm lỡ cửa sổ; giữ kết quả FAIL cho tới khi có quyết định và kiểm lại.
+- **Owner decision, cập nhật 14/09:** đã chốt WINDOW_EXPIRED cho operator pause ở [W-0290](../W-0290/README.md); kết quả image FAIL cũ giữ làm lịch sử; lượt mới E2E 8/8 và scheduler 34/34 PASS.
 - **Hosted W-0285, cập nhật sau đăng nhập 14/09:** đã đọc runner online và pipeline cũ 36 job/7 FAIL; xem [quan sát mới](../W-0285/authenticated-observation.json). W-0287 sửa cấu hình. Chưa push candidate, chưa chạy pipeline đúng SHA; API 403 là quan sát trước đăng nhập.
-- **Security scan + image scan/SBOM:** chưa chạy trên candidate mới. Bộ xét duyệt tự động từ chối security gate vì metadata dependency có thể được gửi tới npm/NuGet; câu hỏi xác nhận egress đang chờ. Không lấy scan lịch sử làm kết quả hiện tại.
+- **Security scan + image scan/SBOM, cập nhật 14/09:** owner đã duyệt metadata egress npm/NuGet, scan và push/CI ở W-0290; đang thực hiện. Lần auto-review từ chối trước đó giữ làm lịch sử. Không lấy scan cũ làm kết quả hiện tại.
 - **M3/SIM/staging/production:** NOT_RUN, cần đầu vào và thẩm quyền thật. `REAL_CUSTOMER_CALL_ALLOWED=NO`, nấc 0, 11 gate ngoài không đổi.
 
 Lint phát hiện hai lỗi có sẵn: BOM trong migration W-0249 và thiếu newline cuối test speech. Follow-up chỉ chuẩn hoá encoding/newline, không đổi câu lệnh C#; GitNexus LOW, 0 caller/0 process cho mỗi class. Log và checkpoint sau sửa được lưu riêng để không trộn với candidate runtime trên.

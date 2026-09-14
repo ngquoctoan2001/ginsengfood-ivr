@@ -1,0 +1,6 @@
+IT-IMG-BUILD-01 PASS — 2 images build, none runs as root
+IT-IMG-HEALTH-02 PASS — /health/live answers healthy with no database behind it
+IT-IMG-COMPOSE-03 PASS — stack healthy, fake-sales network has no egress
+IT-IMG-E2E-05 PASS — 8 tasks crossed the whole stack on one SIM channel: IVR_CONFIRMED, IVR_CUSTOMER_CANCELLED, IVR_NO_ANSWER_FINAL, IVR_INVALID_PHONE_FINAL, IVR_CONFIRMATION_WINDOW_EXPIRED each ACCEPTED by fake Sales exactly once with its correlation id intact, and IVR_NO_ANSWER_ATTEMPT, IVR_WRONG_INPUT, IVR_TECHNICAL_EXCEPTION reached Sales not at all
+IMAGE_SELFTEST_PASS
+IMAGE_E2E_RERUN_EXIT=0

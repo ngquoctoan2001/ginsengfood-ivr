@@ -1,6 +1,6 @@
 # BÁO CÁO TIẾN ĐỘ MODULE 8 — IVR XÁC NHẬN ĐƠN HÀNG
 
-**Đính chính 14/09:** số liệu kỳ 12/09 giữ nguyên; đối soát ở [W-0284](../evidence/W-0284/README.md), worker ở [W-0283](../evidence/W-0283/README.md). [W-0286](../evidence/W-0286/README.md) có 1.018 test, 100 vòng độ bền, K8s/quan sát local đạt; image pause, security và hosted vẫn có mục chưa đóng.
+**Đính chính 14/09:** số liệu kỳ 12/09 giữ nguyên; [W-0284](../evidence/W-0284/README.md) đối soát, [W-0283](../evidence/W-0283/README.md) sửa worker, [W-0286](../evidence/W-0286/README.md) có 1.018 test và 100 vòng độ bền. [W-0290](../evidence/W-0290/README.md): owner chốt pause là WINDOW_EXPIRED, duyệt scan/push/CI/dev-staging; image E2E 8/8 task và scheduler 34/34 đạt; còn vá dependency HIGH và hosted.
 **Kỳ báo cáo:** 06/09 → 12/09/2026 (7 ngày) · **Người thực hiện:** Nguyễn Quốc Toàn · **Mốc code:** `e81fec1` (12/09 13:53)
 **Trạng thái điều hành:** `RELEASE_BLOCKED — CHỜ MODULE 3`. Phần mềm chạy trọn vòng gọi ở chế độ giả lập, **1.003 bài kiểm thử xanh hoàn toàn**, blocker nội bộ cuối cùng của tuần trước đã đóng. Ngày 12/09 đã sửa xong ba lỗi phát hiện buổi sáng và **dựng xong môi trường thử cho Module 3** — việc duy nhất trong làn B không phải chờ họ. Còn cần kiểm chứng image E2E đầy đủ, độ bền và hosted CI trên ứng viên mới; đồng thời có **11 cổng bên ngoài**, gần nhất là **Module 3 chưa phản hồi phiếu chốt hợp đồng gửi ngày 10/09**. Trong kỳ có 140 lưu vào `main`, cây làm việc sạch, hai kho GitLab và GitHub đã đồng bộ, tổng lịch sử 338 lưu. **Giao diện quản trị đã bị xoá khỏi module** theo chỉ đạo 05/09 — Module 8 nay thuần backend, Module 3 tự làm màn hình.
 
@@ -57,7 +57,7 @@ Phiếu được thiết kế để **chốt trong đúng một vòng**: mỗi m
 ### 4.1 Sửa một lỗi, lộ ra hai — cả hai đều đáng hơn lỗi ban đầu
 
 1. **Nửa cổng này đã chết 15 ngày.** Cổng gãy ở dòng in kết quả nên nửa sau chưa từng chạy; vá xong mới lộ ra. Nó gọi các lệnh quản trị bằng cơ chế xác thực theo header mà `W-0128` đã xoá từ 28/08; hệ thống nay phân quyền theo hạng token. Máy chủ không từ chối — nó **bỏ qua** header cũ, nên mọi lệnh trả về 401. **Đã sửa và chạy lại đạt**: script dùng token đúng hạng kèm người thực hiện và lý do, và bổ sung ba token quản trị vào cấu hình dựng cụm. **Đây là bằng chứng cụ thể cho mục C1–C2**: bằng chứng hosted cũ không chứng minh cổng vẫn xanh ở mã hiện hành; cần kiểm tra runner/pipeline thực tế.
-2. **Một khác biệt nhãn kết quả, cần chủ dự án quyết.** Bài diễn tập tạm dừng hàng đợi cho cửa sổ xác nhận hết hạn mà không gọi. Phần an toàn **đúng**: lệnh tạm dừng giữ được, không cuộc gọi nào xảy ra. Nhưng hệ thống gắn nhãn `IVR_CONFIRMATION_WINDOW_EXPIRED`, còn bài diễn tập đợi `IVR_CAPACITY_EXCEPTION`. Đặc tả ghi "capacity không xử lý kịp" thì phải là nhãn sau. Hai nhãn dẫn tới **hai hành động khác nhau** mà Module 3 phải làm với đơn, nên không tự sửa: cần chốt "tạm dừng có tính là cạn năng lực không".
+2. **Đã chốt nhãn pause ngày 14/09, W-0290.** Owner chọn `IVR_CONFIRMATION_WINDOW_EXPIRED` khi operator pause làm hết cửa sổ; `IVR_CAPACITY_EXCEPTION` cần bằng chứng thiếu năng lực thật. Khi chưa có lượt gọi, callback vẫn yêu cầu `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW`; không tự hết hạn đơn của M3. Image E2E được cập nhật để kiểm zero attempt, không capacity incident và callback đúng; runtime không đổi.
 
 ## 5. KẾ HOẠCH HOÀN THÀNH
 
@@ -65,10 +65,10 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 
 | Làn | # | Gói việc | Xong |
 | --- | ---: | --- | --- |
-| A | A1 | **Cập nhật 14/09:** 38/38 API, 417 request đã kiểm schema/PII/quyền/replay ở W-0286. Nhãn operator pause vẫn chờ owner; image E2E giữ FAIL; pipeline bắt buộc trên candidate chưa có | chờ owner + CI |
+| A | A1 | **Cập nhật 14/09:** 38/38 API, 417 request đã kiểm schema/PII/quyền/replay ở W-0286. W-0290: owner chốt nhãn operator pause; image E2E 8/8 task đạt, pipeline bắt buộc trên candidate chưa chạy | đang thực hiện |
 | A | A2 | ✅ **Local xong 14/09, W-0286:** 100/100 vòng, 1.130 task, 0 lỗi; tiêm lỗi crash/lease/kill/callback/DLQ/retention. Worker tự xét eligibility; clock tiến thật với profile MOCK cho phép cả ngày để chạy ngoài giờ; không gọi đó là đóng băng clock production | 14/09 |
 | A | A3 | ✅ **Xong 14/09, W-0284:** khôi phục 13 dòng thiếu; 0 planned prompt đã triển khai thiếu pack bắt buộc. 56 unplanned/external không README riêng được phân loại theo evidence thật, không tạo hồ sơ rỗng | 14/09 |
-| A | A4 | **PARTIAL, W-0286:** full suite 1.018/1.018; sweep 39/39 script và 22 skip có lý do; K8s 7/7, observability, oasdiff đạt; coverage 89,33% sau unit rerun. Chưa có full image PASS, security scan mới, hay toàn bộ job bắt buộc đúng SHA; chưa là ứng viên phát hành được duyệt | chờ phần còn chặn |
+| A | A4 | **PARTIAL, W-0286:** full suite 1.018/1.018; sweep 39/39 script và 22 skip có lý do; K8s 7/7, observability, oasdiff đạt; coverage 89,33% sau unit rerun. W-0290 có image E2E PASS, scan/SBOM API-worker đạt ở lượt riêng; security phát hiện js-yaml HIGH, hosted đúng SHA chưa chạy; chưa là ứng viên phát hành được duyệt | chờ phần còn chặn |
 | **B** | **B1** | **Nhận phiếu `IR-07` đã điền — 21 mục.** Module 3 hẹn trả trong tuần 14–19/09 | **chờ M3** |
 | **B** | B2 | ✅ **Xong 12/09**: môi trường thử một lệnh, tài khoản dịch vụ có hạn mức **60 lệnh/phút** (mã `429` hợp đồng hứa từ đầu nhưng **chưa từng có thật** — nay có), 24 ví dụ chạy được, cách dọn dữ liệu, đầu nhận giả lập. **Cập nhật 14/09**: W-0283 đã thêm worker tự xét cổng kỹ thuật; M3 giữ quyết định nghiệp vụ CALL_REQUIRED | ✅ |
 | **B** | B3 | Áp các mục Module 3 chọn khác vào hợp đồng và mã nguồn; phát hành bản hợp đồng kế tiếp; sinh lại bộ mã gọi cho họ | sau B1 |
@@ -94,7 +94,7 @@ Năm làn. **Làn A là việc của mình, chạy được ngay từ 14/09.** L
 | **Phiếu chốt `IR-07` điền xong, 21 mục** | **Module 3** | **19/09** | Làn B đứng từ B3; 5 cổng hợp đồng không đóng được; toàn bộ mốc sau lùi theo |
 | Máy chủ staging, kho ảnh, bí mật, DNS/TLS và bằng chứng CI/review độc lập; xác minh gói/quyền hiện tại trước khi yêu cầu nâng cấp | Hạ tầng | 16/09 | Đã đọc được GitLab: runner online; dev/staging/lab chưa có deployment. Làn C vẫn cần hạ tầng thật và pipeline candidate |
 | Chữ ký kịch bản thoại, giọng đọc, pháp lý, an ninh | Sản phẩm · Pháp lý · An ninh | 18/09 | Không mở được cổng mua SIM, làn E không khởi động |
-| **Cập nhật 14/09**: còn nhãn kết quả khi tạm dừng — mục 4.1; khoảng trống worker eligibility đã sửa và kiểm chứng ở W-0283 | Chủ dự án | 16/09 | Nhãn pause chưa chốt; không sửa runtime để ép bài diễn tập xanh. B4 vẫn cần đầu nhận và phản hồi thật của M3 |
+| **Cập nhật 14/09**: nhãn pause đã chốt ở W-0290; worker eligibility đã sửa và kiểm chứng ở W-0283 | Chủ dự án | đã chốt 14/09 | Cần kết quả image/CI mới theo quyết định; B4 vẫn cần đầu nhận và phản hồi thật của M3 |
 | Duyệt mua gói thử một SIM | Chủ dự án | sau khi làn A–D xanh | Chỉ chứng minh được trên giả lập, không bao giờ đo được dung lượng thật |
 
 *Hai quyết định cuối `OD-V1-09` và `OD-V1-10` không thể ký bằng bàn giấy — chúng cần số đo từ SIM thật nên chỉ đóng được sau E3. Lập ngày 12/09/2026 từ cây mã tại `e81fec1`, 140 lưu trong kỳ, bộ kiểm thử và các bài tự kiểm chạy lại tại đúng mốc này, bảng kiểm soát phát hành sinh lại từ sổ tiến độ. Mục nào không chạy lại được thì đã ghi rõ lý do, không suy từ kết quả cũ.*

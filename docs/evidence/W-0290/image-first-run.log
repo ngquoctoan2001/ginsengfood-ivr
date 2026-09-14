@@ -1,0 +1,13 @@
+Baseline: main@7f4a6c1 + W-0290 test patch
+Run 1: node deploy/ci/scripts/image-selftest.mjs (IVR_IMAGE_TAG=w0290-pause)
+Observed output; the old scan message incorrectly says three:
+IT-IMG-BUILD-01 PASS — 2 images build, none runs as root
+IT-IMG-HEALTH-02 PASS — /health/live answers healthy with no database behind it
+IT-IMG-COMPOSE-03 PASS — stack healthy, fake-sales network has no egress
+IT-IMG-SCAN-04 PASS — three images clean, and the gate still fails on a known-bad base
+IT-IMG-SBOM-06 PASS — CycloneDX SBOMs written for 2 images (ivr-api=31, ivr-worker=97 components), each scans clean as an SBOM as well as an image, and a known-bad base still fails after the round trip. Written to artifacts\sbom
+Error: The isolated pause drill must not fabricate a channel-shortage incident.
+IMAGE_SELFTEST_EXIT=1
+Correction: IMAGES contains API and worker only; scanner count message fixed after this run.
+The global incident-count assertion also counted the valid ADMIN_QUEUE_PAUSE audit event.
+Rerun checks both job linkage and scheduler incident session for the paused task.

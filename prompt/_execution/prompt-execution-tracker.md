@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0290` |
-| Last allocated | `W-0289` |
-| Last activity sequence | `A-0606` |
+| `NEXT_WORK_ID` | `W-0291` |
+| Last allocated | `W-0290` |
+| Last activity sequence | `A-0608` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -364,6 +364,8 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0288` | Fixture Chaos tương thích Docker service (Origin=`UNPLANNED`) | Sau pin SDK, 7/8 test Chaos lỗi loopback dù proxy ở DinD | `W-0287`; baseline `701d48b` | TESTS_PASS | Codex | `docs/evidence/W-0288/README.md` | Dùng proxy.Hostname; Linux/DinD từ 1/8 thành 8/8; Windows/Docker local 8/8; formatter exit 0 | Không đổi upstream fault target hay runtime; hosted NOT_RUN; real calls NO |
 
 | `W-0289` | Review gate phân biệt lỗi semantic và lỗi môi trường (Origin=`UNPLANNED`) | SDK trả exit 155 nhưng review gate vẫn PASS do chỉ kiểm nonzero | `W-0288`; baseline `39536d4` | TESTS_PASS | Codex | `docs/evidence/W-0289/README.md` | 8/8 lỗi môi trường từ chối đúng lý do; 4/4 probe công cụ thật đạt; CI-config/helper census PASS | Không nới gate; không chạy security audit; hosted NOT_RUN; real calls NO |
+
+| `W-0290` | Chốt pause và kiểm chứng image E2E (Origin=`UNPLANNED`, owner duyệt 14/09) | Owner chốt đề xuất WINDOW_EXPIRED cho operator pause; duyệt push/CI/scan/publish/dev-staging | `W-0289`; baseline `7f4a6c1` | TESTS_PASS | Codex | `docs/evidence/W-0290/README.md` | E2E 8 task PASS sau sửa assertion; scheduler 34/34; image scan/SBOM 2 image PASS ở lượt đầu; config PASS | Không thay runtime hay chữ ký M3; lab/production/real calls chưa được mở |
 
 ## 6. Unplanned work insertion template
 
@@ -1733,3 +1735,6 @@ Final status: TESTS_PASS
 | `A-0604` | 2026-09-14 | `W-0288` | FINISH | Chaos Linux/DinD 27 từ 1/8 thành 8/8; Windows/Docker local 8/8; formatter đúng file exit 0. Lưu log cả hai ở W-0288 | Codex | Runtime không đổi; hosted chưa chạy mới; tiếp tục sửa review gate false green |
 | `A-0605` | 2026-09-14 | `W-0289` | START | W-0288 commit 39536d4; đã tái hiện SDK exit 155 vẫn REVIEW_GATE_SELFTEST_PASS trong snapshot riêng. GitNexus run LOW, 1 caller trong cùng file, 0 process; orderTransitionRejected LOW, 0 caller | Codex | Yêu cầu lỗi đúng test/PII/coverage/traceability, không chấp nhận lỗi khởi chạy hoặc compiler; chỉ sửa gate |
 | `A-0606` | 2026-09-14 | `W-0289` | FINISH | Regression Linux 8/8 lỗi môi trường bị từ chối; 4/4 probe công cụ thật PASS; mọi fixture source được dọn. CI-config/helper census PASS. Lưu script và log trước/sau tại W-0289 | Codex | Chờ owner chốt pause và chấp thuận metadata scan/push để lấy hosted proof; không tự publish/deploy hay mở real calls |
+| `A-0607` | 2026-09-14 | `W-0290` | OWNER_DECISION/START | Owner trả lời: "chốt nhãn pause và duyệt push/chạy CI, gồm scan và các bước tự publish/deploy dev–staging." Áp đề xuất đã trình WINDOW_EXPIRED cho pause; scan metadata npm/NuGet và push hai remote được duyệt. Runtime giữ nguyên; image assertion phải kiểm đúng trạng thái, callback và không incident | Codex | GitNexus E2E_CAPACITY_CASE LOW/0 caller; driveCapacityCase LOW/1 caller checkEndToEnd/0 process. Không mở lab/prod hoặc real customer calls |
+
+| `A-0608` | 2026-09-14 | `W-0290` | FINISH | Pause E2E 8 task PASS; callback expiry/hold-review, zero attempt, không shortage incident; audit ADMIN_QUEUE_PAUSE giữ nguyên. Scheduler 34/34; local scan/SBOM 2 image PASS từ lượt đầu, rerun bỏ scan có ghi rõ | Codex | Còn js-yaml HIGH trong CI dependency; sửa task kế tiếp rồi push. Hosted chưa chạy; real calls NO |

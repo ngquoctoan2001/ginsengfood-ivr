@@ -180,7 +180,7 @@ function checkScan() {
   }
   assert(caught, "trivy passed a base with known HIGH/CRITICAL findings; the scan gate is not wired.");
 
-  process.stdout.write("IT-IMG-SCAN-04 PASS — three images clean, and the gate still fails on a known-bad base\n");
+  process.stdout.write(`IT-IMG-SCAN-04 PASS — ${IMAGES.length} images clean, and the gate still fails on a known-bad base\n`);
 }
 
 
@@ -196,7 +196,7 @@ function checkScan() {
 //
 //   DIALLED    a call happened, the result is FINAL       -> a callback must arrive
 //   SILENT     a call happened, the result is NOT final   -> nothing may reach Sales
-//   CAPACITY   no call ever happened, the window closed   -> Sales is told to hold for review
+//   PAUSED     no call ever happened, the window closed   -> Sales is told to hold for review
 //
 // SILENT is the group nothing had ever checked. Only final results enter the outbox --
 // ResultRepository asks before it builds one and CallbackOutboxSnapshotFactory throws if asked
@@ -206,7 +206,7 @@ function checkScan() {
 // green while that happened, because none of them can see a callback that should not exist. So the
 // silent cases assert an absence, and they wait before believing it: "not yet" is not "never".
 //
-// CAPACITY is the only path that reaches a final result WITHOUT passing through normalization --
+// Pause expiry is the only path here that reaches a final result WITHOUT normalization --
 // the scheduler writes the row itself. It is driven the way an operator drives it, by pausing the
 // queue through the admin API and letting a window close, rather than by inserting an incident row
 // into the database. A fixture that faked the pause would also fake the thing under test, and this
@@ -370,7 +370,7 @@ const E2E_DIALLED_CASES = [
     maxAttempts: 1,
     expectedResult: "IVR_INVALID_PHONE_FINAL",
     expectedAction: "CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW",
-    // NOT counted, and this is the same rule the capacity case rests on reached from the other
+    // NOT counted, and this is the same rule the pause case rests on reached from the other
     // side: there the queue never dialled, here the dial found nothing to reach. Either way a
     // chance nobody could have taken is not a chance the customer spent.
     expectedCounted: false,
@@ -413,7 +413,8 @@ const E2E_SILENT_CASES = [
   },
 ];
 
-// The CAPACITY case. Its window has thirty seconds left when it is accepted, and the queue is
+// W-0290: owner-confirmed pause expiry. Keep the historical CAPACITY identifier for traceability.
+// Its window has thirty seconds left when it is accepted, and the queue is
 // already paused, so the only way it can end is the way the scheduler's deadline sweep ends it.
 // Nothing here shortens a window to force the outcome: the policy is the same one the NOANSWER
 // case uses, and only the task's own start time is moved back.
@@ -426,10 +427,10 @@ const E2E_CAPACITY_CASE = {
   startedSecondsAgo: 270,
   offsets: [0],
   maxAttempts: 1,
-  expectedResult: "IVR_CAPACITY_EXCEPTION",
+  expectedResult: "IVR_CONFIRMATION_WINDOW_EXPIRED",
   expectedAction: "CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW",
-  // Nobody was ever called, so nobody spent a chance. A capacity miss that counted against the
-  // customer would quietly cost them an attempt for an outage that was ours.
+  // Nobody was ever called, so nobody spent a chance. Pause is not evidence of channel shortage;
+  // Core still needs to revalidate and hold this uncalled order for review.
   expectedCounted: false,
 };
 
@@ -466,7 +467,7 @@ const E2E_SILENT_TASKS = [
 
 const E2E_DELIVERING_CASES = [...E2E_DIALLED_CASES, E2E_CAPACITY_CASE];
 
-// The control for the capacity case's attempt count. CONFIRM answers on its first attempt and is
+// The control for the pause case's attempt count. CONFIRM answers on its first attempt and is
 // therefore the one case whose attempt total is a known constant: exactly one.
 const ATTEMPT_CONTROL_TASK = "TASK-E2E-CONFIRM";
 
@@ -474,7 +475,7 @@ function confirmationTask(testCase) {
   // The window length is not free: TaskIntakeService rejects the task unless
   // (expires - started) equals the stored policy's confirmation window exactly, so it is derived
   // from `started` rather than from now. Starting a minute in the past is what makes attempt
-  // offset 0 already due when the scheduler first looks; the capacity case starts further back so
+  // offset 0 already due when the scheduler first looks; the pause case starts further back so
   // that the window runs out while the queue is paused.
   const startedAt = Date.now() - (testCase.startedSecondsAgo ?? 60) * 1000;
   const started = new Date(startedAt).toISOString().replace(/\.\d+Z$/, "Z");
@@ -757,11 +758,11 @@ function driveCapacityCase(testCase) {
   const pause = JSON.parse(apiPost(
     "/v1/ivr/order-confirmation/queue:pause",
     JSON.stringify({
-      reason: "E2E capacity drill - hold dispatch so a confirmation window can close undialled",
-      evidence_ref: "evidence://compose/e2e-capacity",
+      reason: "E2E pause expiry drill - hold dispatch so a confirmation window can close undialled",
+      evidence_ref: "evidence://compose/e2e-pause-expiry",
     }),
     adminHeaders("danger", correlation, "idem-e2e-pause",
-      "E2E capacity drill - hold dispatch so a confirmation window can close undialled")));
+      "E2E pause expiry drill - hold dispatch so a confirmation window can close undialled")));
   assert(
     pause.status === "APPLIED",
     `queue:pause returned ${JSON.stringify(pause)}.`);
@@ -781,7 +782,7 @@ function driveCapacityCase(testCase) {
       + "dialled inside a window that was supposed to run out.");
 
     // The claim the result type makes: no call was placed. Without this the case would also pass
-    // on a stack that dialled, failed, and happened to label the failure a capacity miss.
+    // on a stack that dialled, failed, and happened to label the failure a window expiry.
     //
     // Counted together with a case that certainly DID dial, in one query, because "no attempt
     // rows" is also what a query that cannot see attempt rows returns. Zero on its own is the
@@ -797,12 +798,17 @@ function driveCapacityCase(testCase) {
       + "be 0/1. A left digit above zero means the window did not close undialled; a right digit of "
       + "zero means the count cannot see attempts at all and the left digit proves nothing.");
     assert(
-      psql("SELECT j.status || '|' || j.queue_status || '|' || COALESCE(i.shortage_reason, 'none') "
-        + "FROM ivr_call_jobs j LEFT JOIN ivr_capacity_incidents i "
-        + "ON i.capacity_incident_id = j.capacity_incident_id "
+      psql("SELECT j.status || '|' || j.queue_status || '|' || (j.capacity_incident_id IS NULL)::text "
+        + "FROM ivr_call_jobs j "
         + `WHERE j.task_id = '${testCase.taskId}'`)
-      === "CAPACITY_MISSED|CLOSED_CAPACITY|NO_DISPATCH_BEFORE_DEADLINE",
-      `${testCase.taskId}: the closed job does not carry the capacity incident that explains it.`);
+      === "WINDOW_EXPIRED|CLOSED_WINDOW_EXPIRED|true",
+      `${testCase.taskId}: operator pause must close as window expiry without a capacity incident.`);
+    assert(
+      psql("SELECT COUNT(*) FROM ivr_capacity_incidents i JOIN ivr_call_jobs j "
+        + "ON i.capacity_incident_id = j.capacity_incident_id "
+        + "OR i.session_id = 'SCHED-DEADLINE-' || j.ivr_call_job_id "
+        + `WHERE j.task_id = '${testCase.taskId}'`) === "0",
+      "The paused task must not create a channel-shortage incident, even without a job link.");
   } finally {
     // Released on the way out of a failure as well, so a red case never leaves the queue held for
     // whatever runs next. Recorded rather than asserted HERE: this block also runs while an
@@ -810,11 +816,11 @@ function driveCapacityCase(testCase) {
     const resume = JSON.parse(apiPost(
       "/v1/ivr/order-confirmation/queue:resume",
       JSON.stringify({
-        reason: "E2E capacity drill complete - release dispatch",
-        evidence_ref: "evidence://compose/e2e-capacity",
+        reason: "E2E pause expiry drill complete - release dispatch",
+        evidence_ref: "evidence://compose/e2e-pause-expiry",
       }),
       adminHeaders("danger", correlation, "idem-e2e-resume",
-        "E2E capacity drill complete - release the hold")));
+        "E2E pause expiry drill complete - release the hold")));
     released = resume.status === "APPLIED" && queueProjection(correlation).paused === false;
   }
 
@@ -889,7 +895,7 @@ function checkEndToEnd() {
 
     // Sequential, not parallel. One SIM channel is seeded on purpose: with a pool, a scheduling
     // defect could hide behind a spare channel, and cases sharing one channel also prove the lease
-    // is released between calls. The capacity case runs LAST because it holds the whole queue
+    // is released between calls. The pause case runs LAST because it holds the whole queue
     // still, and a paused queue would strand any case that came after it.
     const correlations = new Map();
     for (const testCase of E2E_DIALLED_CASES) {
