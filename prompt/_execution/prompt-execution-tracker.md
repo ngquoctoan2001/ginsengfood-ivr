@@ -21,9 +21,9 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 
 | Field | Value |
 | --- | --- |
-| `NEXT_WORK_ID` | `W-0296` |
-| Last allocated | `W-0295` |
-| Last activity sequence | `A-0620` |
+| `NEXT_WORK_ID` | `W-0297` |
+| Last allocated | `W-0296` |
+| Last activity sequence | `A-0622` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
 | Namespace | `Ivr` |
@@ -376,6 +376,7 @@ Every row is planned work. Detailed build/test/evidence requirements live in the
 | `W-0294` | Xuất tên ca JUnit không lặp dữ liệu fixture (Origin=`UNPLANNED`) | Tái hiện 18/18 test privacy PASS nhưng JUnit name chứa raw tham số bị scanner từ chối; giữ kết quả/lỗi/traceability và mọi rule | `W-0293`; baseline `5006c0e` | TESTS_PASS | Codex | `docs/evidence/W-0294/README.md` | 688 case giữ nguyên/688 identity riêng, 354 tên đổi; XML ngoài name không đổi; PII PASS Windows/Linux; policy regression và 7 refusal PASS, failure PII vẫn bị bắt; build/format/config PASS | Cần pipeline chứa sửa JUnit; dev/staging đích chưa xác nhận; runtime không đổi |
 
 | `W-0295` | Đồng bộ active source pin sau sửa prose PII (Origin=`UNPLANNED`) | Hosted sweep bắt hash drift W-0150 do W-0293; rà toàn bộ 45 file đã sửa và các pin liên quan, giữ attestation lịch sử | `W-0293`, `W-0294`; baseline `c089a96` | TESTS_PASS | Codex | `docs/evidence/W-0295/README.md` | Full local sweep 39/39, 22 skip; W0181 32 refusal/W0183 64 refusal; hai template cũ exit 1; chỉ source pins của pending template đổi, attested manifest không đổi | Cần pipeline mới; không ký bundle hoặc đổi authority/readiness |
+| `W-0296` | Khôi phục Docker runner bị kẹt socket (Origin=`UNPLANNED`) | Pipeline 2846110576 lỗi runner system failure trước script; Docker Desktop không khởi động do socket cũ | `W-0292`, `W-0295`; baseline `179a5eb` | TESTS_PASS | Codex | `docs/evidence/W-0296/README.md` | Engine 29.7.2 trả lời; hosted gate sweep 16479006261 PASS 39/39 sau giữ riêng socket cũ và retry | Không reset data hoặc thay runner config; toàn pipeline/publish/deploy còn theo W-0292 |
 
 ## 6. Unplanned work insertion template
 
@@ -1772,3 +1773,7 @@ Final status: TESTS_PASS
 | `A-0619` | 2026-09-14 | `W-0292`, `W-0293`, `W-0295` | DISCOVERY/START | W-0294 commit c089a96 đã lên hai remote, Gitleaks HEAD 348 commit no leaks; pipeline 2846002747. Sweep phát hiện active verifier W-0183 còn ghim hash W-0150 trước sửa prose W-0293. Nhận định W-0293 không tìm thấy pin đã thiếu phạm vi tìm kiếm; rà lại theo chính hash byte toàn bộ 45 file | Codex | Sửa active pins/template pending nếu cần; giữ attestation lịch sử và trạng thái chưa nhận bundle/signature |
 
 | `A-0620` | 2026-09-14 | `W-0295` | FINISH | Hosted c089a96 sweep 37/39, đúng W0181/W0183. Đã sửa hai active pin và đồng bộ 7 hash source của template pending (5 đã cũ từ trước); field ngoài source giữ nguyên. Full sweep local 39/39 PASS, 22 skip; tiếp đó export JSON chia cụm số dài trong hash đã xác minh, decoded value không đổi. Rerun W0183 64 refusal/3 template, config và PII 380 file PASS | Codex | W0181 32 refusal/2 template và template cũ bị chặn; giữ attested manifest/chữ ký lịch sử; không đổi quyết định M3 hoặc mở production; chuẩn bị commit/push |
+
+| `A-0621` | 2026-09-14 | `W-0292`, `W-0295`, `W-0296` | START/RECOVERY | W-0295 commit 179a5eb lên hai remote; Gitleaks 349 commit no leaks. Pipeline 2846110576 gặp Docker engine unavailable. Docker log xác định hai socket cũ không truy cập được; giữ riêng thư mục runtime chỉ có socket rỗng rồi mở lại, engine 29.7.2 trả lời. Retry các job runner system failure trên cùng candidate | Codex | Lượt sweep bổ sung local 32/39 do Docker và thiếu sh trong PATH, không tính PASS; cần hosted sau recovery. Không reset Docker hoặc thay dữ liệu/runner config |
+
+| `A-0622` | 2026-09-14 | `W-0295`, `W-0296` | FINISH | Hosted gate_sweep 16479006261 tại 179a5eb PASS 39/39, 22 skip, Job succeeded 08:37:04 UTC. Cả W0181/W0183 và selftest JUnit/PII, DR, TTS PASS; runner recovery được kiểm chứng | Codex | Commit riêng hồ sơ phục hồi; giữ pipeline 2846110576 tiếp tục kiểm thử/publish/deploy, chưa kết luận toàn pipeline PASS |
