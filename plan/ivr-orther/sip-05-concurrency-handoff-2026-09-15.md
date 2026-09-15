@@ -268,6 +268,11 @@ vẫn giữ nguyên** và không được đụng tới ở bước này.
 
 ### 5.3. Hành động vận hành cho controller — còn thiếu nút, không còn thiếu mắt
 
+Quy trình thủ công đã có: [`docs/operations/ari-controller-ownership.md`](../../docs/operations/ari-controller-ownership.md).
+SQL trong đó **đã chạy thật** trên DB dev trong transaction rồi rollback, gồm cả ca cô lập ẩn danh bị
+ràng buộc từ chối.
+
+
 `b817fae` đã đưa trạng thái lên `/healthz` (mục 1.6), nên phần **nhìn** đã xong.
 
 Còn lại là phần **bấm**: `PostgresAriControllerOwnership.IsolateAsync` và `ConfirmReconciledAsync` đã có,
@@ -302,5 +307,5 @@ Cũng chặn: dừng toàn trunk khi lỗi auth/quota (SIP-07, T16) — cần `t
 | Bên | Cần gì | Chặn việc nào |
 | --- | --- | --- |
 | Ba nhà mạng | Đặc biệt: **bán trunk cho Asterisk mình, hay chỉ bán API gọi hộ?** Nếu là vế sau thì SIP-03 là **kiến trúc khác**, không phải config khác | SIP-03 → pool trunk, SIP-07, SIP-09 |
-| M3 | `§3.1`: technical retry có tính vào "hai lần" không; khóa theo đơn hay theo đích | T13; con số `MaxResolves` bên gọi (không đổi schema ledger) |
-| Platform | Xác nhận ARI controller = 1 replica, tắt autoscale; **nguồn khoá cho token protector**; định danh bản triển khai | Mục 5.1, mục 5.2; deploy tuyến thật |
+| M3 | `§3.1` — **[phiếu đã soạn](questions-to-module-3-call-limit-2026-09-15.md)**, chưa gửi | T13; con số `MaxResolves` bên gọi (không đổi schema ledger) |
+| Platform | Nguồn khoá token, định danh bản triển khai, xác nhận profile worker — **[phiếu đã soạn](questions-to-platform-key-source-and-release-identity-2026-09-15.md)**, chưa gửi | Mục 5.1, mục 5.2; deploy tuyến thật |
