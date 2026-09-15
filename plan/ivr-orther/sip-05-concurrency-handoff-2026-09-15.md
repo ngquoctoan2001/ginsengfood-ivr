@@ -2,19 +2,22 @@
 
 **Work ID:** không có. `SIP-01…SIP-10` là mã nội bộ của
 [kế hoạch Mobile SIP Trunk](mobile-sip-trunk-production-32-channels-plan-2026-09-15.md), **không phải W-ID**.
-Nếu owner muốn gắn W-ID thì phải đổi tên **hai** migration — `20260915085434_AriControllerOwnership` và
-`20260915114705_DialTokenResolveLedger` — **trước** khi chúng ra release. Xem mục 6.
+Nếu owner muốn gắn W-ID thì phải đổi tên **ba** migration — `20260915085434_AriControllerOwnership`,
+`20260915114705_DialTokenResolveLedger` và `20260915122953_ProductionCallApprovalIsEnvironmentScoped` —
+**trước** khi chúng ra release. Xem mục 6.
 
-**Baseline khi bàn giao:** `main@eb7e781`. Năm commit code: `56e3213`, `6eaa64b`, `b1bf377`, `c061001`,
-`eb7e781`; cộng `adb9a66` (kế hoạch) và `763cf1f` (bản đầu của tài liệu này).
+**Baseline khi bàn giao:** `main@b817fae`. Sáu commit code: `56e3213`, `6eaa64b`, `b1bf377`, `c061001`,
+`eb7e781`, `b817fae`; cộng `adb9a66` (kế hoạch) và `763cf1f` (bản đầu của tài liệu này).
 
-**Trạng thái:** **`G2_SOFTWARE_CONCURRENCY_PROVEN / POOL_BOUND_PROVEN_ON_POSTGRES / CONTROLLER_OWNERSHIP_LANDED / TOKEN_LEDGER_DURABLE / TRUNK_POOL_BLOCKED_ON_SIP_03 / TOKEN_PROTECTOR_BLOCKED_ON_PLATFORM / VENDOR_INPUT_REQUIRED / NOT_PUSHED`**
+**Trạng thái:** **`G2_SOFTWARE_CONCURRENCY_PROVEN / POOL_BOUND_PROVEN_ON_POSTGRES / CONTROLLER_OWNERSHIP_LANDED / TOKEN_LEDGER_DURABLE / PRODUCTION_GATE_ENV_SCOPED / CONTROLLER_STATUS_OBSERVABLE / TRUNK_POOL_BLOCKED_ON_SIP_03 / TOKEN_PROTECTOR_BLOCKED_ON_PLATFORM / VENDOR_INPUT_REQUIRED / NOT_PUSHED`**
 
 **Ngày:** `2026-09-15`
 
-> Phần SIP-05 làm được mà không cần nhà mạng đã xong và chạy thật. Phần còn lại của SIP-05 **bị chặn**,
-> không phải làm dở: pool 32 kênh thuộc production trunk profile (SIP-03) và profile đó chờ nhà mạng
-> trả lời. Đọc mục 5 trước khi làm tiếp — trong đó có hai việc đang mở mà **không** cần nhà mạng.
+> Phần làm được mà không cần đầu vào bên ngoài **đã hết**, và đã chạy thật. Bốn việc còn lại ở mục 5
+> đều **bị chặn, không phải làm dở** — và mỗi việc bị chặn bởi một thứ khác nhau: nhà mạng (pool trunk),
+> Platform (nguồn khoá token), hợp đồng release (định danh bản triển khai), và một quyết định của owner
+> (nút cô lập controller). Đọc mục 5 trước khi bắt tay, vì viết code cho bất kỳ việc nào trong đó lúc này
+> là **bịa ra chính cái hợp đồng đang chờ**.
 
 ---
 
@@ -133,6 +136,41 @@ sống sót lâu đến vậy**.
 **MOCK giữ ledger in-memory.** Vault của nó là fake tất định mà mọi đích đều là cùng một chuỗi allowlist,
 nên trần ở đó là chuyện tất định của test chứ không phải bảo vệ khách hàng.
 
+### 1.6. `b817fae` — gate production theo môi trường, và trạng thái controller nhìn được
+
+**Gate.** `PostgresProductionCallGate` chỉ hỏi "có approval `PRODUCTION_CALL` nào còn hiệu lực không",
+nên **một chữ ký mở mọi bản triển khai** đọc chung database — approval cho pilot cấp phép luôn cho
+production, trong khi cột `environment` đã nằm sẵn trên dòng đó từ `W-0195` mà không ai dùng.
+`DispatchGate` **vốn đã cầm** environment và chỉ đơn giản không truyền xuống.
+
+Giữ nguyên độ thô của hai kind kia: `RUNTIME_GATE_ADMIN` bỏ qua environment **có chủ đích**
+(`IT-GATE-APPROVAL-10` pin điều đó), `FEATURE_FLAG_CHANGE` được siết bằng fingerprint four-eyes của
+từng thay đổi. `PRODUCTION_CALL` **không có cả hai** — approval chính *là* quyết định.
+
+`environment IS NULL` **khớp không gì cả**, không phải wildcard — wildcard sẽ giữ nguyên đúng hành vi
+đang bị bỏ. Migration cũng **từ chối lưu** dòng `PRODUCTION_CALL` không ghi môi trường, đóng nốt nửa
+lặng lẽ hơn của cùng một bug: nếu chỉ sửa query thì dòng đó vẫn insert được và **âm thầm không làm gì**,
+để người ký tin rằng họ đã cấp phép.
+
+> Migration này **fail to** trên database đã có sẵn một dòng như vậy. Không migration nào seed kind này,
+> nên một dòng như thế là quyền gọi khách thật mà không ai giới hạn phạm vi — đáng để deploy dừng lại và
+> có người nhìn vào, hơn là lặng lẽ `NOT VALID` rồi mang đi tiếp.
+
+**Chưa làm phần candidate, và là bị chặn chứ không bỏ qua.** Plan đòi environment **và** candidate, nhưng
+**không có gì trong codebase định danh một bản triển khai** — `IvrTelemetry.Version` là hằng `"1.0.0"`.
+Chưa có hợp đồng release để gắn approval vào; bịa ra ở đây là bịa ra chính hợp đồng đó.
+
+**Bề mặt vận hành.** `/healthz` giờ mang trạng thái ARI controller. Không có nút cô lập là **quyết định**
+(mục 1.3); không **nhìn thấy** được trạng thái là **thiếu sót** — và là cái tệ hơn, vì worker kẹt ở
+`AwaitingIsolation` chờ ai đó để ý mà không có gì báo cho ai cả.
+
+Nằm ở body và **cố ý không** ở status code. Worker không được quay số là đang chạy đúng thiết kế; fail
+probe sẽ restart nó, mà restart không cấp được application và còn làm rơi các cuộc nó đang drain — đúng
+lập luận endpoint này vốn đã dùng cho `Idle`. **Đọc trạng thái quan sát được lần cuối, không query** —
+probe mà chạm DB sẽ fail đúng lúc DB fail. Trước pass đầu tiên thì **vắng mặt**, không bịa.
+
+
+
 ---
 
 ## 2. Bằng chứng
@@ -140,15 +178,16 @@ nên trần ở đó là chuyện tất định của test chứ không phải b
 | Kiểm tra | Kết quả |
 | --- | --- |
 | Build toàn solution | 0 warning, 0 error (`TreatWarningsAsErrors`) |
-| Unit | **702/702** |
-| Integration (Testcontainers PostgreSQL) | **313/313** |
+| Unit | **713/713** |
+| Integration (Testcontainers PostgreSQL) | **315/315** |
 | `IT-DB-MIGRATE-01` | drop về `InitialDatabase` rồi dựng lại → **cả hai** migration mới rollback được |
 | CI selftest | `ci-config-selftest`, `capacity-selftest` pass |
 | **LocalMockE2E, 2 worker + đủ lỗi** | **PASSED**, 5 vòng / 50 task / 0 failure |
 
-LocalMockE2E chạy ở baseline `c061001` (trước `eb7e781`). `eb7e781` chỉ đổi nhánh DI của **lab**, còn
-harness chạy MOCK nên không đi qua đường đó — nhưng **chưa chạy lại sau `eb7e781`**, ghi ra để không ai
-đọc bảng này thành "đã chạy ở HEAD".
+LocalMockE2E chạy ở baseline `c061001`, tức **trước** `eb7e781` và `b817fae`. Hai commit đó đổi nhánh DI
+của **lab** và đường `PRODUCTION_REAL`; harness chạy MOCK nên `DispatchGate` trả về ở nhánh `MOCK_MODE`
+trước khi chạm gate, và vault MOCK giữ ledger in-memory. Rất có khả năng không ảnh hưởng — nhưng **chưa
+chạy lại ở HEAD**, ghi ra để không ai đọc bảng này thành "đã chạy ở HEAD".
 
 Ba dòng đáng giá nhất từ lần chạy thật:
 
@@ -178,6 +217,8 @@ node tools/dev/Invoke-LocalMockE2E.mjs --rounds 5 --workers 2 --policy gh-247-pr
 | `UT-SCH-CONFIG-08` | Lease ngắn hơn drain bị từ chối |
 | `IT-SCH-CTRL-01…06` | Máy trạng thái sở hữu trên Postgres thật, gồm cả DB từ chối cô lập ẩn danh |
 | `IT-SCH-POOL-01…03` | Trần chung: một worker không vượt pool; **hai worker chạy cùng lúc không vượt pool giữa hai bên**; pool cạn là chờ chứ không lỗi |
+| `IT-GATE-APPROVAL-11…12` | Approval production-call **chỉ mở đúng môi trường nó ghi**; DB từ chối approval không ghi môi trường |
+| `UT-WRK-CTRL-01…06` | Trạng thái controller hiện ra ở `/healthz`, **không** làm hỏng probe; vắng mặt chứ không bịa trước pass đầu |
 | `IT-TOKEN-DURABLE-01…06` | Trần token **sống qua restart**; hai tiến trình tranh cùng token **dùng chung một budget**; binding và replay vượt qua ranh giới tiến trình; hết hạn/thiếu trần không ghi gì; bảng chỉ chứa hash |
 
 `IT-SCH-POOL-02` cố ý **không** assert tỉ lệ chia giữa hai worker — 5/3, 8/0, 4/4 đều là kết quả đúng
@@ -213,24 +254,25 @@ Nửa dưới (ledger bền vững) **đã xong** ở `eb7e781` — xem mục 1.
 Cần mã hoá có xác thực, tách mục đích, key version, và kiểm rotation/mất khoá/xoá theo retention.
 **Không tự chọn nguồn khoá** — hỏi Platform.
 
-### 5.2. Siết `PostgresProductionCallGate` — **không bị chặn, ưu tiên cao nhất hiện tại**
+### 5.2. Phần **candidate** của SIP-04 — chờ hợp đồng release
 
-[`RuntimeGateApprovals.cs:181`](../../src/Ivr.Infrastructure/FeatureFlags/RuntimeGateApprovals.cs:181):
-`IsApprovedAsync(CancellationToken)` không nhận environment/candidate, nên **một approval bất kỳ còn hạn
-mở được mọi bản triển khai**. Plan chỉ đích danh việc này ở SIP-04.
+Nửa environment **đã xong** ở `b817fae` (mục 1.6). Plan đòi environment **và** candidate; phần candidate
+chưa làm được vì **không có gì trong codebase định danh một bản triển khai** — `IvrTelemetry.Version` là
+hằng `"1.0.0"`, và không có image digest / release ref nào được nối tới app.
 
-Sửa nó là **siết cổng lại**, không phải mở ra — nên không dính nguyên tắc "đừng đụng dòng chặn ở
-[`IvrOptionsValidator.cs:53`](../../src/Ivr.Infrastructure/Configuration/IvrOptionsValidator.cs:53) sớm".
-**Dòng chặn đó vẫn giữ nguyên.**
+Cần chốt trước: **cái gì định danh một bản triển khai** để approval gắn vào (digest? release ref? cả hai?),
+và ai cấp nó vào runtime. Đó là một quyết định hợp đồng release, không phải một dòng code.
 
-### 5.3. Bề mặt vận hành cho trạng thái controller — thiếu sót thật
+**Dòng chặn ở [`IvrOptionsValidator.cs:53`](../../src/Ivr.Infrastructure/Configuration/IvrOptionsValidator.cs:53)
+vẫn giữ nguyên** và không được đụng tới ở bước này.
 
-Hiện người vận hành không **nhìn thấy** được scope đang ở trạng thái nào ngoài một dòng log
-(`EventId 2319`). Chưa có trong health/admin read. Việc không cho *bấm nút* là có chủ đích; việc không
-cho *nhìn* thì không.
+### 5.3. Hành động vận hành cho controller — còn thiếu nút, không còn thiếu mắt
 
-`PostgresAriControllerOwnership.IsolateAsync` và `ConfirmReconciledAsync` đã có, có audit, chỉ chưa có
-đường gọi từ ngoài.
+`b817fae` đã đưa trạng thái lên `/healthz` (mục 1.6), nên phần **nhìn** đã xong.
+
+Còn lại là phần **bấm**: `PostgresAriControllerOwnership.IsolateAsync` và `ConfirmReconciledAsync` đã có,
+có audit, nhưng chỉ gọi được từ code — người vận hành phải thao tác thẳng vào DB. V1 cố ý như vậy (mục
+1.3). Nếu owner đổi ý thì đây là chỗ làm, và phải đi kèm four-eyes chứ không phải một endpoint trần.
 
 ### 5.4. Chặn bởi SIP-03 / nhà mạng
 
@@ -245,13 +287,15 @@ Cũng chặn: dừng toàn trunk khi lỗi auth/quota (SIP-07, T16) — cần `t
 
 ## 6. Việc cần owner quyết
 
-1. **Hai migration không mang W-ID:** `20260915085434_AriControllerOwnership` và
-   `20260915114705_DialTokenResolveLedger`. Plan nói `SIP-01…10` không phải W-ID và bịa một cái sẽ đặt
-   tham chiếu chết vào schema. Đổi tên **trước** khi ra release nếu muốn.
+1. **Ba migration không mang W-ID:** `20260915085434_AriControllerOwnership`,
+   `20260915114705_DialTokenResolveLedger` và `20260915122953_ProductionCallApprovalIsEnvironmentScoped`.
+   Plan nói `SIP-01…10` không phải W-ID và bịa một cái sẽ đặt tham chiếu chết vào schema. Đổi tên
+   **trước** khi ra release nếu muốn.
 2. **V1 không có endpoint cô lập** — xác nhận giữ nguyên, hay muốn làm endpoint (xem 5.3).
 3. **MOCK vẫn dùng ledger in-memory** trong khi lab/production dùng bản bền vững — xác nhận lý do ở mục
    1.5 là chấp nhận được.
-4. **Chưa push.** Năm commit code nằm trên `main` local.
+4. **Định danh bản triển khai** cho phần candidate của SIP-04 (mục 5.2) — cần quyết định hợp đồng release.
+5. **Chưa push.** Sáu commit code nằm trên `main` local.
 
 ## 7. Đang chờ bên ngoài
 
@@ -259,4 +303,4 @@ Cũng chặn: dừng toàn trunk khi lỗi auth/quota (SIP-07, T16) — cần `t
 | --- | --- | --- |
 | Ba nhà mạng | Đặc biệt: **bán trunk cho Asterisk mình, hay chỉ bán API gọi hộ?** Nếu là vế sau thì SIP-03 là **kiến trúc khác**, không phải config khác | SIP-03 → pool trunk, SIP-07, SIP-09 |
 | M3 | `§3.1`: technical retry có tính vào "hai lần" không; khóa theo đơn hay theo đích | T13; con số `MaxResolves` bên gọi (không đổi schema ledger) |
-| Platform | Xác nhận ARI controller = 1 replica, tắt autoscale; **nguồn khoá cho token protector** | Nửa trên SIP-02 (mục 5.1); deploy tuyến thật |
+| Platform | Xác nhận ARI controller = 1 replica, tắt autoscale; **nguồn khoá cho token protector**; định danh bản triển khai | Mục 5.1, mục 5.2; deploy tuyến thật |
