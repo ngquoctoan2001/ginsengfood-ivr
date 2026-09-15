@@ -116,6 +116,15 @@ public static class DataClassification
                 "active_config",
                 "Channel lease and health. Carries sim_number_ref, a reference rather than a "
                 + "number, and never a customer field."),
+            ["ivr_ari_controller_ownership"] = new(
+                DataProtectionClass.AuditTrail,
+                "audit_log",
+                "SIP-05. Which worker may hold an Asterisk application, and - when one was taken "
+                + "from another by force - who decided that. Classified as audit trail rather "
+                + "than operational for the sake of isolated_by_actor_id: the row is the only "
+                + "record of the single most dangerous action in this subsystem, taking the "
+                + "dialler away from a controller that may still have customers on the line. "
+                + "No customer field, and the worker id is a process identity."),
             ["ivr_capacity_incidents"] = new(
                 DataProtectionClass.Operational,
                 "task_metadata",

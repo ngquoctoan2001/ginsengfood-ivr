@@ -73,6 +73,18 @@ public sealed class SchedulerOptions
     /// </para>
     /// </summary>
     public int DispatchDrainSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// How long a controller grant stands without a heartbeat. SIP-05.
+    /// <para>
+    /// Every pass renews it, so a minute is sixty missed renewals at the default poll - long
+    /// enough that a slow database or a GC pause cannot expire it, and short enough that a real
+    /// stop is visible before a shift ends. Expiry is not a handover: it only changes the answer
+    /// a rival worker gets from "wait, it is held" to "wait, somebody needs to confirm it is
+    /// gone", which is why this number is not a failover time.
+    /// </para>
+    /// </summary>
+    public int ControllerLeaseSeconds { get; set; } = 60;
 }
 
 public sealed class SchedulerOptionsValidator : IValidateOptions<SchedulerOptions>
@@ -135,6 +147,16 @@ public sealed class SchedulerOptionsValidator : IValidateOptions<SchedulerOption
             1,
             600,
             nameof(options.DispatchDrainSeconds),
+            failures);
+
+        // The floor is the load-bearing end again. A lease shorter than a few poll intervals
+        // would expire between heartbeats under ordinary latency, and every expiry is a scope
+        // that needs a person to confirm it before anything dials on it again.
+        RequireRange(
+            options.ControllerLeaseSeconds,
+            5,
+            3600,
+            nameof(options.ControllerLeaseSeconds),
             failures);
         return failures.Count == 0
             ? ValidateOptionsResult.Success
@@ -532,6 +554,9 @@ public static class SchedulerServiceCollectionExtensions
                 options.DispatchDrainSeconds = section.GetValue(
                     nameof(SchedulerOptions.DispatchDrainSeconds),
                     options.DispatchDrainSeconds);
+                options.ControllerLeaseSeconds = section.GetValue(
+                    nameof(SchedulerOptions.ControllerLeaseSeconds),
+                    options.ControllerLeaseSeconds);
             })
             .ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
@@ -616,6 +641,21 @@ public static class SchedulerServiceCollectionExtensions
             services.TryAddSingleton<ISpeechRenderer, ApprovedVietnameseSpeechRenderer>();
             services.AddHttpClient(nameof(AsteriskAriSimGateway));
             services.TryAddSingleton<ISimGateway, AsteriskAriSimGateway>();
+
+            // The scope is the Asterisk application, because that is the unit a second WebSocket
+            // can take over. Environment and mode join it so a lab controller and a production one
+            // are never treated as rivals for the same socket.
+            services.TryAddSingleton<IAriControllerOwnership>(provider =>
+            {
+                AsteriskAriOptions ari = provider
+                    .GetRequiredService<IOptions<AsteriskAriOptions>>().Value;
+                return new PostgresAriControllerOwnership(
+                    provider.GetRequiredService<IDbContextFactory<IvrDbContext>>(),
+                    provider.GetRequiredService<IOptions<SchedulerOptions>>(),
+                    provider.GetRequiredService<TimeProvider>(),
+                    string.Join(':', ari.ExecutionMode, ari.Environment, ari.Application),
+                    provider.GetRequiredService<IAuditLogger>());
+            });
             services.TryAddSingleton<ITelephonyDispatchStore,
                 PostgresTelephonyDispatchStore>();
             services.TryAddSingleton<ISchedulerDispatchGateway,
@@ -635,6 +675,12 @@ public static class SchedulerServiceCollectionExtensions
         // pump holds the count of calls in flight, and shutdown has to be able to ask that
         // question of a worker that was never allowed to dial as well as one that was.
         services.TryAddSingleton<SchedulerDispatchPump>();
+
+        // Fallback for every mode with no ARI socket to lose - MOCK, whose dispatch is in-process,
+        // and the unavailable branch, which never reaches the question. TryAdd, so the Asterisk
+        // branch above keeps the real one.
+        services.TryAddSingleton<IAriControllerOwnership>(
+            _ => new UncontendedAriControllerOwnership("in-process"));
         services.TryAddSingleton<ISchedulerRuntime, SchedulerRuntime>();
         services.TryAddSingleton<IRawEventRepository, RawEventRepository>();
         services.TryAddSingleton<IResultRepository, ResultRepository>();

@@ -2,6 +2,7 @@ using Ivr.Domain.Confirmation;
 using Ivr.Domain.Scheduling;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Telephony;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.UnitTests.Scheduling;
@@ -229,6 +230,7 @@ public sealed class DeadlineSchedulerTests
             store,
             unavailable,
             new SchedulerDispatchPump(offOptions, clock),
+            new UncontendedAriControllerOwnership("unit-test-scope"),
             offOptions,
             new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
             AlwaysOpenWindow,
@@ -244,6 +246,7 @@ public sealed class DeadlineSchedulerTests
             store,
             unavailable,
             new SchedulerDispatchPump(onOptions, clock),
+            new UncontendedAriControllerOwnership("unit-test-scope"),
             onOptions,
             new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
             AlwaysOpenWindow,
@@ -283,6 +286,7 @@ public sealed class DeadlineSchedulerTests
             store,
             gateway,
             pump,
+            new UncontendedAriControllerOwnership("unit-test-scope"),
             runtimeOptions,
             new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
             AlwaysOpenWindow,
@@ -345,6 +349,7 @@ public sealed class DeadlineSchedulerTests
             store,
             gateway,
             new SchedulerDispatchPump(nightOptions, nightClock),
+            new UncontendedAriControllerOwnership("unit-test-scope"),
             nightOptions,
             new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
             new CallingWindow(Options.Create(new CallingWindowOptions())),
@@ -388,6 +393,7 @@ public sealed class DeadlineSchedulerTests
             store,
             new RecordingDispatchGateway(),
             new SchedulerDispatchPump(dayOptions, dayClock),
+            new UncontendedAriControllerOwnership("unit-test-scope"),
             dayOptions,
             new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
             new CallingWindow(Options.Create(new CallingWindowOptions())),

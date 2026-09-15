@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Telephony;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.UnitTests.Scheduling;
@@ -456,6 +457,54 @@ public sealed class SchedulerDispatchPumpTests
     }
 
     /// <summary>
+    /// A worker that does not hold the Asterisk application claims nothing, and keeps recovering.
+    /// <para>
+    /// The ownership state machine is proved against a real database in
+    /// <c>AriControllerOwnershipTests</c>; what is proved here is that the scheduler asks it and
+    /// obeys the answer. Those are different failures - a correct state machine nobody consults is
+    /// exactly as good as no state machine - and the second one is invisible in a single-worker
+    /// deployment right up until the day there are two.
+    /// </para>
+    /// <para>
+    /// Both statuses that mean "not yet" are covered, because they arrive by different routes: one
+    /// is a rival still holding the socket, the other is this worker having seized it and not yet
+    /// accounted for the calls of the generation before.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [InlineData(AriControllerStatus.HeldByAnotherWorker)]
+    [InlineData(AriControllerStatus.AwaitingIsolation)]
+    [InlineData(AriControllerStatus.AwaitingReconciliation)]
+    [Trait("TestId", "UT-SCH-CTRL-07")]
+    public async Task AWorkerThatDoesNotHoldTheApplicationClaimsNothing(
+        AriControllerStatus status)
+    {
+        var store = new QueueSchedulerStore { Available = 8 };
+        var gateway = new BlockingDispatchGateway();
+        Harness harness = Harness.Create(
+            store,
+            gateway,
+            ceiling: 8,
+            startsPerSecond: 8,
+            ownership: new StubAriControllerOwnership(status));
+
+        SchedulerRunResult result = await harness.Runtime.RunOnceAsync("worker-nonowner");
+
+        Assert.Equal(0, result.DispatchesStarted);
+        Assert.Equal(status, result.ControllerStatus);
+
+        // Never asked. A worker that may not dial must not be taking leases out of the queue and
+        // holding them where the owner cannot see them.
+        Assert.Equal(0, store.ClaimCalls);
+        Assert.Equal(0, gateway.Started);
+
+        // The bookkeeping is nobody's exclusive right, so it carries on. A worker waiting for an
+        // isolation may be waiting a long time, and lease recovery and deadline closing must not
+        // wait with it.
+        Assert.Equal(2, store.MaintenanceCalls);
+    }
+
+    /// <summary>
     /// Waits for an asynchronous continuation to be observable, rather than assuming it already
     /// is. A slot is released in the <c>finally</c> of the dispatch task, which runs after the
     /// test signals the call to finish.
@@ -488,7 +537,8 @@ public sealed class SchedulerDispatchPumpTests
             ISchedulerDispatchGateway gateway,
             int ceiling,
             int startsPerSecond,
-            MovableTimeProvider? clock = null)
+            MovableTimeProvider? clock = null,
+            IAriControllerOwnership? ownership = null)
         {
             MovableTimeProvider timeProvider = clock ?? new MovableTimeProvider(T0);
             var options = new SchedulerOptions
@@ -504,6 +554,7 @@ public sealed class SchedulerDispatchPumpTests
                     store,
                     gateway,
                     pump,
+                    ownership ?? new UncontendedAriControllerOwnership("unit-test-scope"),
                     wrapped,
                     new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
                     AlwaysOpenWindow,
@@ -636,6 +687,27 @@ public sealed class SchedulerDispatchPumpTests
             MaintenanceCalls++;
             return Task.FromResult(0);
         }
+    }
+
+    /// <summary>
+    /// Answers with one status, forever. The state machine that produces these for real is proved
+    /// against PostgreSQL in <c>AriControllerOwnershipTests</c>; here the question is only whether
+    /// the scheduler does as it is told.
+    /// </summary>
+    private sealed class StubAriControllerOwnership(AriControllerStatus status)
+        : IAriControllerOwnership
+    {
+        public string Scope => "stub-scope";
+
+        public Task<AriControllerGrant> AcquireOrRenewAsync(
+            string workerId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(new AriControllerGrant(status, 7, workerId, null));
+
+        public Task ReleaseAsync(
+            string workerId,
+            string reason,
+            CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     private sealed class MovableTimeProvider(DateTimeOffset start) : TimeProvider

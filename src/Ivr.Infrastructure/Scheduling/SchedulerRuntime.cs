@@ -1,3 +1,4 @@
+using Ivr.Infrastructure.Telephony;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Scheduling;
@@ -49,7 +50,9 @@ public sealed record SchedulerRunResult(
     int DispatchesStarted = 0,
     int ActiveDispatches = 0,
     IReadOnlyList<SchedulerDispatchFailure>? DispatchFailures = null,
-    DateTimeOffset? DispatchSheddingUntil = null);
+    DateTimeOffset? DispatchSheddingUntil = null,
+    AriControllerStatus ControllerStatus = AriControllerStatus.Held,
+    long ControllerFencingGeneration = 0);
 
 public interface ISchedulerDispatchGateway
 {
@@ -98,6 +101,7 @@ public sealed class SchedulerRuntime(
     IPostgresSchedulerStore store,
     ISchedulerDispatchGateway dispatchGateway,
     SchedulerDispatchPump pump,
+    IAriControllerOwnership controllerOwnership,
     IOptions<SchedulerOptions> options,
     SchedulerExecutionContext executionContext,
     CallingWindow callingWindow,
@@ -176,6 +180,28 @@ public sealed class SchedulerRuntime(
                 DispatchSheddingUntil: pump.SheddingUntil);
         }
 
+        // Asked every pass, and asked here: after the recovery work, which any worker may do, and
+        // before the first claim, which only the controller may make. The renewal doubles as the
+        // heartbeat, so the thing that proves this worker is alive is the same thing it does to
+        // keep the right to dial - they cannot drift apart.
+        AriControllerGrant grant = await controllerOwnership.AcquireOrRenewAsync(
+            workerId,
+            cancellationToken);
+        if (!grant.MayDial)
+        {
+            return new SchedulerRunResult(
+                true,
+                true,
+                quarantined,
+                closed,
+                false,
+                ActiveDispatches: pump.Active,
+                DispatchFailures: failures,
+                DispatchSheddingUntil: pump.SheddingUntil,
+                ControllerStatus: grant.Status,
+                ControllerFencingGeneration: grant.FencingGeneration);
+        }
+
         // Reserve, then claim. Never the other way round: a lease claimed with nowhere to run it
         // leaves an ivr_sim_channels row RESERVED and a fencing generation spent, and nothing puts
         // it back until QuarantineExpiredLeasesAsync notices ten minutes later - on a job that was
@@ -228,6 +254,8 @@ public sealed class SchedulerRuntime(
             started,
             pump.Active,
             failures,
-            pump.SheddingUntil);
+            pump.SheddingUntil,
+            grant.Status,
+            grant.FencingGeneration);
     }
 }

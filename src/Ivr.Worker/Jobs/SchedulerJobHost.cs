@@ -1,4 +1,5 @@
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Telephony;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Worker.Jobs;
@@ -6,6 +7,7 @@ namespace Ivr.Worker.Jobs;
 internal sealed partial class SchedulerJobHost(
     ISchedulerRuntime scheduler,
     SchedulerDispatchPump pump,
+    IAriControllerOwnership controllerOwnership,
     IOptions<SchedulerOptions> options,
     WorkerLiveness liveness,
     TimeProvider timeProvider,
@@ -24,6 +26,10 @@ internal sealed partial class SchedulerJobHost(
     // turns every 100ms under LocalMockE2E, so a line per pass would be three hundred lines
     // saying the same thing while the interesting question is when it started and when it lifted.
     private bool shedding;
+
+    // Null until the first pass answers, so the first status - including a worker that starts up
+    // and immediately finds it may not dial - announces itself.
+    private AriControllerStatus? controllerStatus;
 
     protected override string LoopName => "scheduler";
 
@@ -70,6 +76,20 @@ internal sealed partial class SchedulerJobHost(
         {
             LogDrainTimedOut(logger, pump.Active, drainTimeout.TotalSeconds);
         }
+
+        // Released only after the drain, and only when it finished. Handing the application back
+        // is this worker stating that it has stopped dialling and is done with the socket, and
+        // that is the one claim which lets the next worker in without a person confirming it. With
+        // calls still running it would not be true, and the scope is better left to expire - a
+        // stale lease costs a human decision, a false release costs two controllers on one
+        // application.
+        if (drained)
+        {
+            await controllerOwnership.ReleaseAsync(
+                workerId,
+                "Scheduler host stopped after a completed drain.",
+                CancellationToken.None);
+        }
     }
 
     protected override async Task RunOnceAsync(CancellationToken cancellationToken)
@@ -103,6 +123,19 @@ internal sealed partial class SchedulerJobHost(
                     failure.JobId,
                     failure.AttemptId);
             }
+        }
+
+        // Transitions only, again. A worker that is waiting for an isolation waits for as long as
+        // it takes somebody to notice, which is exactly the situation where one clear line beats
+        // thousands - and exactly the situation where going silent gets read as a healthy queue.
+        if (controllerStatus != result.ControllerStatus)
+        {
+            LogControllerStatus(
+                logger,
+                result.ControllerStatus.ToString(),
+                result.ControllerFencingGeneration,
+                controllerOwnership.Scope);
+            controllerStatus = result.ControllerStatus;
         }
 
         // Reported after the failures above, so the log reads in the order it happened: the calls
@@ -220,4 +253,16 @@ internal sealed partial class SchedulerJobHost(
         Level = LogLevel.Information,
         Message = "Dispatch shedding lifted; new calls resume.")]
     private static partial void LogSheddingLifted(ILogger logger);
+
+    [LoggerMessage(
+        EventId = 2319,
+        Level = LogLevel.Warning,
+        Message = "ARI controller status for {Scope} is now {Status} at generation {Generation}. "
+            + "Only Held permits dialling; AwaitingIsolation and AwaitingReconciliation both need "
+            + "a person.")]
+    private static partial void LogControllerStatus(
+        ILogger logger,
+        string status,
+        long generation,
+        string scope);
 }

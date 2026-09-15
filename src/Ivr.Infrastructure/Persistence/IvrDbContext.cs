@@ -3,6 +3,7 @@ using Ivr.Infrastructure.Analytics;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Scripts;
+using Ivr.Infrastructure.Telephony;
 
 namespace Ivr.Infrastructure.Persistence;
 
@@ -25,6 +26,10 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     public DbSet<CallResultEntity> CallResults => Set<CallResultEntity>();
     public DbSet<ResultCallbackEntity> ResultCallbacks => Set<ResultCallbackEntity>();
     public DbSet<SimChannelEntity> SimChannels => Set<SimChannelEntity>();
+
+    /// <summary>SIP-05. Who may hold the ARI event socket for one Asterisk application.</summary>
+    public DbSet<AriControllerOwnershipEntity> AriControllerOwnership =>
+        Set<AriControllerOwnershipEntity>();
     public DbSet<CapacityIncidentEntity> CapacityIncidents => Set<CapacityIncidentEntity>();
     public DbSet<TechnicalExceptionEntity> TechnicalExceptions => Set<TechnicalExceptionEntity>();
     public DbSet<AdminActionEntity> AdminActions => Set<AdminActionEntity>();
@@ -78,6 +83,7 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
         ArgumentNullException.ThrowIfNull(modelBuilder);
         modelBuilder.ApplyConfiguration(new FeatureFlagEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RuntimeGateApprovalEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new AriControllerOwnershipEntityConfiguration());
         // Analytics first: PersistenceModelConfiguration ends with the storage conventions
         // pass that snake-cases every column in the model, and the analytics allowlist is
         // written in the snake-case names that actually reach PostgreSQL.
