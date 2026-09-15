@@ -5,10 +5,10 @@
 Nếu owner muốn gắn W-ID thì phải đổi tên migration `20260915085434_AriControllerOwnership` **trước** khi
 nó ra release — xem mục 6.
 
-**Baseline khi bàn giao:** `main@c061001`. Bốn commit code: `56e3213`, `6eaa64b`, `b1bf377`, `c061001`,
-cộng `adb9a66` cho tài liệu kế hoạch.
+**Baseline khi bàn giao:** `main@eb7e781`. Năm commit code: `56e3213`, `6eaa64b`, `b1bf377`, `c061001`,
+`eb7e781`; cộng `adb9a66` (kế hoạch) và `763cf1f` (bản đầu của tài liệu này).
 
-**Trạng thái:** **`G2_SOFTWARE_CONCURRENCY_PROVEN / POOL_BOUND_PROVEN_ON_POSTGRES / CONTROLLER_OWNERSHIP_LANDED / TRUNK_POOL_BLOCKED_ON_SIP_03 / VENDOR_INPUT_REQUIRED / NOT_PUSHED`**
+**Trạng thái:** **`G2_SOFTWARE_CONCURRENCY_PROVEN / POOL_BOUND_PROVEN_ON_POSTGRES / CONTROLLER_OWNERSHIP_LANDED / TOKEN_LEDGER_DURABLE / TRUNK_POOL_BLOCKED_ON_SIP_03 / TOKEN_PROTECTOR_BLOCKED_ON_PLATFORM / VENDOR_INPUT_REQUIRED / NOT_PUSHED`**
 
 **Ngày:** `2026-09-15`
 
@@ -104,6 +104,35 @@ Pod kế tiếp phải chờ hết lease rồi cần người cô lập một sc
 - Helm worker chuyển sang `Recreate`, và hai ghi chú scaling cũ được sửa — chúng giải thích replica thừa
   là "tranh lease", **nói nhẹ hơn thực tế**.
 
+### 1.5. `eb7e781` — trần dial-token sống qua restart (SIP-02, nửa dưới)
+
+`OD-V1-17` thay "one use per attempt" bằng một **trần**, và tính chất mua được là: token rò rỉ vẫn không
+quay số nhiều hơn policy cho phép. **Tính chất đó thực ra chưa hề được giữ.** Ledger thực thi nó là
+`ConcurrentDictionary` nằm trong vault instance của tiến trình, và chính class tự ghi rằng ràng buộc thật
+đến từ "SIM vault" — vault đó chưa bao giờ được xây. Nên restart là xoá bộ đếm, và hai worker mỗi bên giữ
+một bộ riêng: token được phép quay hai lần thì quay được **hai lần mỗi tiến trình**, vô hạn, miễn là tiến
+trình cứ restart.
+
+`ivr_dial_token_resolves` giữ **một dòng cho mỗi (token, attempt)** thay vì một bộ đếm, vì cả ba luật đều
+đọc ra được từ các dòng còn bộ đếm chỉ trả lời được một: số lần là số dòng, binding là task trên dòng sớm
+nhất, replay là dòng đã có sẵn — và primary key biến vế cuối thành invariant của DB chứ không phải việc
+ứng dụng phải nhớ kiểm.
+
+**Không lưu token.** Khoá là SHA-256 của thứ vault tiết lộ. LAB vault vốn đã đưa ra fingerprint không đảo
+ngược được, nên ở đó đây là lớp bảo hiểm thừa — nó hết thừa đúng lúc một vault **đảo ngược được** giá trị
+của chính nó sở hữu ledger này, tức mục tiêu của phần token production.
+
+Thứ tự từ chối lấy nguyên từ bản in-memory, **không suy lại**: hết hạn → thiếu trần → binding → replay →
+trần. Replay trước trần không phải ngẫu nhiên: một attempt lặp phải đọc ra là replay kể cả khi budget đã
+cạn, vì một bên là bug của caller còn bên kia là policy đang làm đúng việc.
+
+`LabDialTokenVault` nhận ledger là **dependency bắt buộc, không có default**. Default sẽ khiến một bản
+triển khai cấu hình sai lặng lẽ nhận trần per-process mà không test nào phát hiện — **đúng cách cái cũ
+sống sót lâu đến vậy**.
+
+**MOCK giữ ledger in-memory.** Vault của nó là fake tất định mà mọi đích đều là cùng một chuỗi allowlist,
+nên trần ở đó là chuyện tất định của test chứ không phải bảo vệ khách hàng.
+
 ---
 
 ## 2. Bằng chứng
@@ -112,10 +141,14 @@ Pod kế tiếp phải chờ hết lease rồi cần người cô lập một sc
 | --- | --- |
 | Build toàn solution | 0 warning, 0 error (`TreatWarningsAsErrors`) |
 | Unit | **702/702** |
-| Integration (Testcontainers PostgreSQL) | **307/307** |
-| `IT-DB-MIGRATE-01` | drop về `InitialDatabase` rồi dựng lại → migration **rollback được** |
+| Integration (Testcontainers PostgreSQL) | **313/313** |
+| `IT-DB-MIGRATE-01` | drop về `InitialDatabase` rồi dựng lại → **cả hai** migration mới rollback được |
 | CI selftest | `ci-config-selftest`, `capacity-selftest` pass |
 | **LocalMockE2E, 2 worker + đủ lỗi** | **PASSED**, 5 vòng / 50 task / 0 failure |
+
+LocalMockE2E chạy ở baseline `c061001` (trước `eb7e781`). `eb7e781` chỉ đổi nhánh DI của **lab**, còn
+harness chạy MOCK nên không đi qua đường đó — nhưng **chưa chạy lại sau `eb7e781`**, ghi ra để không ai
+đọc bảng này thành "đã chạy ở HEAD".
 
 Ba dòng đáng giá nhất từ lần chạy thật:
 
@@ -145,6 +178,7 @@ node tools/dev/Invoke-LocalMockE2E.mjs --rounds 5 --workers 2 --policy gh-247-pr
 | `UT-SCH-CONFIG-08` | Lease ngắn hơn drain bị từ chối |
 | `IT-SCH-CTRL-01…06` | Máy trạng thái sở hữu trên Postgres thật, gồm cả DB từ chối cô lập ẩn danh |
 | `IT-SCH-POOL-01…03` | Trần chung: một worker không vượt pool; **hai worker chạy cùng lúc không vượt pool giữa hai bên**; pool cạn là chờ chứ không lỗi |
+| `IT-TOKEN-DURABLE-01…06` | Trần token **sống qua restart**; hai tiến trình tranh cùng token **dùng chung một budget**; binding và replay vượt qua ranh giới tiến trình; hết hạn/thiếu trần không ghi gì; bảng chỉ chứa hash |
 
 `IT-SCH-POOL-02` cố ý **không** assert tỉ lệ chia giữa hai worker — 5/3, 8/0, 4/4 đều là kết quả đúng
 của một race; pin một cái là pin lịch chạy của test host chứ không phải tính chất của hệ thống.
@@ -166,25 +200,20 @@ của một race; pin một cái là pin lịch chạy của test host chứ kh�
 
 ## 5. Làm tiếp cái gì
 
-### 5.1. Nửa ledger của SIP-02 — **không bị chặn, ưu tiên cao nhất**
+### 5.1. Nửa trên của SIP-02 — production protector, **chờ Platform**
 
-[`DialTokenResolveLedger`](../../src/Ivr.Infrastructure/Telephony/DialTokenResolveLedger.cs:72) là
-`ConcurrentDictionary` process-local. Comment trong chính file tự bào chữa rằng ràng buộc thật đến từ
-"SIM vault" — **vault đó không tồn tại**. Nghĩa là trần chống gọi trùng của token hiện **không sống qua
-restart và không dùng chung giữa tiến trình**.
-
-Vì sao làm được ngay dù `§3.1` chưa chốt: trần `MaxResolves` là **tham số của request**, không phải hằng
-số trong ledger. "Hai lần/10 phút" ngã về phía nào cũng chỉ đổi con số bên gọi, **không đổi schema hay
-logic ledger**.
-
-Tách SIP-02 làm đôi và **chỉ làm nửa dưới**:
+Nửa dưới (ledger bền vững) **đã xong** ở `eb7e781` — xem mục 1.5. Còn lại:
 
 | Nửa | Trạng thái |
 | --- | --- |
-| Ledger bền vững (RAM → DB) | Làm được ngay |
-| Production protector (khóa quản lý) | Chờ Platform chốt nguồn khóa |
+| ~~Ledger bền vững (RAM → DB)~~ | ✅ `eb7e781` |
+| Production protector (khóa quản lý) | **Chờ Platform chốt nguồn khóa** |
 
-### 5.2. Siết `PostgresProductionCallGate` — **không bị chặn**
+`IOpaqueValueProtector` hiện chỉ có `MockOnly`, `Unavailable`, `LabDialTokenVault`, `MockDialTokenVault`.
+Cần mã hoá có xác thực, tách mục đích, key version, và kiểm rotation/mất khoá/xoá theo retention.
+**Không tự chọn nguồn khoá** — hỏi Platform.
+
+### 5.2. Siết `PostgresProductionCallGate` — **không bị chặn, ưu tiên cao nhất hiện tại**
 
 [`RuntimeGateApprovals.cs:181`](../../src/Ivr.Infrastructure/FeatureFlags/RuntimeGateApprovals.cs:181):
 `IsApprovedAsync(CancellationToken)` không nhận environment/candidate, nên **một approval bất kỳ còn hạn
@@ -216,16 +245,18 @@ Cũng chặn: dừng toàn trunk khi lỗi auth/quota (SIP-07, T16) — cần `t
 
 ## 6. Việc cần owner quyết
 
-1. **Migration có cần W-ID không?** `20260915085434_AriControllerOwnership` hiện không mang. Plan nói
-   `SIP-01…10` không phải W-ID và bịa một cái sẽ đặt tham chiếu chết vào schema. Đổi tên **trước** khi ra
-   release nếu muốn.
+1. **Hai migration không mang W-ID:** `20260915085434_AriControllerOwnership` và
+   `20260915114705_DialTokenResolveLedger`. Plan nói `SIP-01…10` không phải W-ID và bịa một cái sẽ đặt
+   tham chiếu chết vào schema. Đổi tên **trước** khi ra release nếu muốn.
 2. **V1 không có endpoint cô lập** — xác nhận giữ nguyên, hay muốn làm endpoint (xem 5.3).
-3. **Chưa push.** Bốn commit code nằm trên `main` local.
+3. **MOCK vẫn dùng ledger in-memory** trong khi lab/production dùng bản bền vững — xác nhận lý do ở mục
+   1.5 là chấp nhận được.
+4. **Chưa push.** Năm commit code nằm trên `main` local.
 
 ## 7. Đang chờ bên ngoài
 
 | Bên | Cần gì | Chặn việc nào |
 | --- | --- | --- |
 | Ba nhà mạng | Đặc biệt: **bán trunk cho Asterisk mình, hay chỉ bán API gọi hộ?** Nếu là vế sau thì SIP-03 là **kiến trúc khác**, không phải config khác | SIP-03 → pool trunk, SIP-07, SIP-09 |
-| M3 | `§3.1`: technical retry có tính vào "hai lần" không; khóa theo đơn hay theo đích | Nửa trên SIP-02, T13 |
-| Platform | Xác nhận ARI controller = 1 replica, tắt autoscale; nguồn khóa cho token protector | Nửa trên SIP-02; deploy tuyến thật |
+| M3 | `§3.1`: technical retry có tính vào "hai lần" không; khóa theo đơn hay theo đích | T13; con số `MaxResolves` bên gọi (không đổi schema ledger) |
+| Platform | Xác nhận ARI controller = 1 replica, tắt autoscale; **nguồn khoá cho token protector** | Nửa trên SIP-02 (mục 5.1); deploy tuyến thật |
