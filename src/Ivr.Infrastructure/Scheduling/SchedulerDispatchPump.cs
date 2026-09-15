@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using Ivr.Infrastructure.Observability;
+using Ivr.Infrastructure.Resilience;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Scheduling;
@@ -55,6 +56,8 @@ public sealed class SchedulerDispatchPump(
     private int active;
     private DateTimeOffset rateWindowStartedAt = DateTimeOffset.MinValue;
     private int startsInRateWindow;
+    private int consecutiveDispatchFailures;
+    private DateTimeOffset shedUntil = DateTimeOffset.MinValue;
 
     /// <summary>Calls started and not yet finished.</summary>
     public int Active
@@ -64,6 +67,26 @@ public sealed class SchedulerDispatchPump(
             lock (gate)
             {
                 return active;
+            }
+        }
+    }
+
+    /// <summary>
+    /// When new calls will be admitted again, or null when they are being admitted now.
+    /// <para>
+    /// Reported rather than kept private because "the scheduler is not dialling" and "the
+    /// scheduler is broken" look identical from outside, and an operator watching a queue stop
+    /// moving deserves to be told which one this is and when it ends.
+    /// </para>
+    /// </summary>
+    public DateTimeOffset? SheddingUntil
+    {
+        get
+        {
+            DateTimeOffset now = timeProvider.GetUtcNow();
+            lock (gate)
+            {
+                return shedUntil > now ? shedUntil : null;
             }
         }
     }
@@ -84,6 +107,13 @@ public sealed class SchedulerDispatchPump(
         DateTimeOffset now = timeProvider.GetUtcNow();
         lock (gate)
         {
+            // Checked first because it is the broadest refusal. When the route itself is failing,
+            // how many slots are free and how fast the rate allows are the wrong questions.
+            if (now < shedUntil)
+            {
+                return false;
+            }
+
             if (active >= snapshot.MaxConcurrentDispatches)
             {
                 return false;
@@ -207,6 +237,67 @@ public sealed class SchedulerDispatchPump(
         }
     }
 
+    /// <summary>
+    /// A call went through, so the route works. Clears the streak and lifts any cooldown.
+    /// <para>
+    /// Lifts it entirely rather than decaying it, matching
+    /// <see cref="LoopBackoff.RecordSuccess"/>: a route that placed a call is not one worth
+    /// holding back from. With calls running concurrently a success can land between failures and
+    /// the last event wins, which is deliberate - one completed call is stronger evidence that the
+    /// trunk is up than several failures are that it is down, and those failures may be about the
+    /// numbers dialled rather than the route.
+    /// </para>
+    /// </summary>
+    private void RecordDispatchSuccess()
+    {
+        lock (gate)
+        {
+            consecutiveDispatchFailures = 0;
+            shedUntil = DateTimeOffset.MinValue;
+        }
+    }
+
+    /// <summary>
+    /// A call failed with no success since the last one, so new calls wait before being admitted.
+    /// <para>
+    /// The schedule is <see cref="LoopBackoff"/>, the policy this repository already agreed for a
+    /// failing loop, reused rather than re-invented: the same exponential curve off the same poll
+    /// interval, the same 30s ceiling, the same half-jitter. Before the dispatch pump existed this
+    /// came for free, because a failing dispatch threw out of the pass and
+    /// <c>PollingJobHost</c> backed the whole loop off. Calls outliving their pass took that away;
+    /// this puts it back at the point where the failures now surface.
+    /// </para>
+    /// <para>
+    /// With calls running concurrently the streak climbs by one per failed call, not per pass, so
+    /// a batch of 32 that all fail reaches the ceiling at once. That is the intended direction:
+    /// 32 customers got nothing and the next thing to do is wait, not dial faster. What it cannot
+    /// do is stop the worker - recovery, deadline closing and the liveness tick all run before
+    /// this is consulted, and calls already connected are never touched.
+    /// </para>
+    /// </summary>
+    private void RecordDispatchFailure(SchedulerDispatchLease lease, Exception exception)
+    {
+        failures.Enqueue(new SchedulerDispatchFailure(lease.JobId, lease.AttemptId, exception));
+        TimeSpan pollInterval = TimeSpan.FromMilliseconds(
+            options.Value.PollIntervalMilliseconds);
+        DateTimeOffset now = timeProvider.GetUtcNow();
+        lock (gate)
+        {
+            consecutiveDispatchFailures++;
+            DateTimeOffset until = now.Add(LoopBackoff.ApplyJitter(
+                LoopBackoff.Compute(pollInterval, consecutiveDispatchFailures),
+                Random.Shared.NextDouble()));
+
+            // Never shortens a cooldown already set. Jitter means a later failure can compute a
+            // smaller wait than an earlier one, and letting that pull the deadline in would make
+            // the backoff shrink under exactly the load it exists to answer.
+            if (until > shedUntil)
+            {
+                shedUntil = until;
+            }
+        }
+    }
+
     private async Task RunAsync(
         SchedulerDispatchLease lease,
         Func<SchedulerDispatchLease, CancellationToken, Task> dispatch,
@@ -233,11 +324,13 @@ public sealed class SchedulerDispatchPump(
         {
             await dispatch(lease, cancellationToken);
             span?.SetTag(TelemetryTags.Outcome, "DISPATCHED");
+            RecordDispatchSuccess();
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             // Shutdown, not a fault. Recording it would put a line in the log for every call in
-            // flight on every deploy, which is the noise that hides the one real failure.
+            // flight on every deploy, which is the noise that hides the one real failure - and
+            // counting it towards the streak would make every deploy look like a failing trunk.
             span?.SetTag(TelemetryTags.Outcome, "CANCELLED");
         }
 #pragma warning disable CA1031 // A failed call must not take the worker or the other calls down.
@@ -245,8 +338,7 @@ public sealed class SchedulerDispatchPump(
 #pragma warning restore CA1031
         {
             span?.SetStatus(ActivityStatusCode.Error);
-            failures.Enqueue(
-                new SchedulerDispatchFailure(lease.JobId, lease.AttemptId, exception));
+            RecordDispatchFailure(lease, exception);
         }
         finally
         {

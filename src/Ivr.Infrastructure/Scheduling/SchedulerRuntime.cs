@@ -32,6 +32,12 @@ namespace Ivr.Infrastructure.Scheduling;
 /// the change a failing dispatch threw out of the pass and the loop logged it; a call that outlives
 /// its pass has no stack to throw up, so it is carried here instead.
 /// </param>
+/// <param name="DispatchSheddingUntil">
+/// SIP-05. When new calls will be admitted again after consecutive dispatch failures, or null
+/// when they are being admitted now. Distinct from <paramref name="CallingWindowOpen"/>, which is
+/// also a reason nothing dials: one is the hour of day and the other is a route that keeps
+/// failing, and an operator needs to be told which.
+/// </param>
 public sealed record SchedulerRunResult(
     bool Enabled,
     bool DispatchGatewayReady,
@@ -42,7 +48,8 @@ public sealed record SchedulerRunResult(
     DateTimeOffset? CallingWindowOpensAt = null,
     int DispatchesStarted = 0,
     int ActiveDispatches = 0,
-    IReadOnlyList<SchedulerDispatchFailure>? DispatchFailures = null);
+    IReadOnlyList<SchedulerDispatchFailure>? DispatchFailures = null,
+    DateTimeOffset? DispatchSheddingUntil = null);
 
 public interface ISchedulerDispatchGateway
 {
@@ -113,7 +120,8 @@ public sealed class SchedulerRuntime(
                 0,
                 false,
                 ActiveDispatches: pump.Active,
-                DispatchFailures: pump.TakeFailures());
+                DispatchFailures: pump.TakeFailures(),
+                DispatchSheddingUntil: pump.SheddingUntil);
         }
 
         DateTimeOffset now = timeProvider.GetUtcNow();
@@ -140,7 +148,8 @@ public sealed class SchedulerRuntime(
                 closed,
                 false,
                 ActiveDispatches: pump.Active,
-                DispatchFailures: failures);
+                DispatchFailures: failures,
+                DispatchSheddingUntil: pump.SheddingUntil);
         }
 
         // W-0198 / OD-V1-16. The hour gate sits AFTER lease recovery and missed-deadline closing
@@ -163,7 +172,8 @@ public sealed class SchedulerRuntime(
                 false,
                 window.OpensAt,
                 ActiveDispatches: pump.Active,
-                DispatchFailures: failures);
+                DispatchFailures: failures,
+                DispatchSheddingUntil: pump.SheddingUntil);
         }
 
         // Reserve, then claim. Never the other way round: a lease claimed with nowhere to run it
@@ -217,6 +227,7 @@ public sealed class SchedulerRuntime(
             null,
             started,
             pump.Active,
-            failures);
+            failures,
+            pump.SheddingUntil);
     }
 }

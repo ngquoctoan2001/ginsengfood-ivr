@@ -175,9 +175,8 @@ public sealed class SchedulerDispatchPumpTests
 
         harness.Configured.MaxConcurrentDispatches = 2;
 
-        // Rate window reopened so the refusals below are unambiguously the ceiling. They would be
-        // anyway, since the ceiling is checked first, but a test about the ceiling should not rest
-        // on the order two checks happen to sit in.
+        // Rate window reopened so the refusals below are unambiguously the ceiling and not the
+        // rate. Nothing has failed here, so shedding is not in play either.
         harness.OpenANewRateWindow();
         SchedulerRunResult afterShrink = await harness.Runtime.RunOnceAsync("worker-shrink");
 
@@ -216,15 +215,22 @@ public sealed class SchedulerDispatchPumpTests
     public async Task AFailedCallIsReportedOnceAndItsSlotIsReturned()
     {
         var store = new QueueSchedulerStore { Available = 2 };
-        var gateway = new BlockingDispatchGateway { FailWith = () => new InvalidOperationException("ARI refused the originate.") };
+        var gateway = new BlockingDispatchGateway();
         Harness harness = Harness.Create(store, gateway, ceiling: 2, startsPerSecond: 2);
 
         SchedulerRunResult first = await harness.Runtime.RunOnceAsync("worker-fail");
 
-        // The pass itself succeeds. The call failing is not the pass failing, and treating it as
-        // one would back off the whole loop over a single bad number.
+        // The pass itself succeeds. A call failing is not the pass failing, and treating it as one
+        // would fault the loop over a single bad number.
         Assert.Equal(2, first.DispatchesStarted);
         Assert.Empty(first.DispatchFailures ?? []);
+
+        // Both fail once connected, rather than being refused up front, so that both are started
+        // before either failure lands. A call that fails before the pass moves on would shed the
+        // rest of that pass, which UT-SCH-PUMP-08 covers and this test is not about.
+        var refused = new InvalidOperationException("ARI refused the originate.");
+        Assert.True(gateway.ReleaseOne(refused));
+        Assert.True(gateway.ReleaseOne(refused));
 
         await WaitUntilAsync(() => harness.Pump.Active == 0, "both failed calls released their slots");
 
@@ -308,6 +314,148 @@ public sealed class SchedulerDispatchPumpTests
     }
 
     /// <summary>
+    /// One failed call stops the rest of that pass, and the recovery work carries on regardless.
+    /// <para>
+    /// This is the property that replaces what the concurrency change took away. A failing
+    /// dispatch used to throw out of the pass into <c>PollingJobHost</c>, whose <c>LoopBackoff</c>
+    /// slowed the loop; calls that outlive their pass have no such route. Without shedding, a
+    /// trunk refusing every originate would be dialled at the full claim rate for as long as it
+    /// stayed broken.
+    /// </para>
+    /// <para>
+    /// Stopping after the first failure rather than the eighth is the point: eight free slots and
+    /// eight jobs due is not a reason to throw seven more customers at a route that just refused
+    /// one.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-PUMP-08")]
+    public async Task AFailedCallShedsTheRestOfThePassWithoutStoppingRecovery()
+    {
+        var store = new QueueSchedulerStore { Available = 8 };
+        var gateway = new BlockingDispatchGateway
+        {
+            FailWith = () => new InvalidOperationException("Trunk rejected the originate."),
+        };
+        Harness harness = Harness.Create(store, gateway, ceiling: 8, startsPerSecond: 8);
+
+        SchedulerRunResult first = await harness.Runtime.RunOnceAsync("worker-shed");
+
+        // One, not eight. Seven slots and seven due jobs were available the whole time.
+        Assert.Equal(1, first.DispatchesStarted);
+        Assert.Equal(1, store.ClaimCalls);
+        Assert.NotNull(first.DispatchSheddingUntil);
+
+        // No clock movement here. One failure sheds for about one poll interval, so advancing to
+        // open a fresh rate window would also expire the shed and this pass would dial again -
+        // which is UT-SCH-PUMP-10, not this test. Seven of the eight rate tokens are unused
+        // anyway, so the rate cannot be what refuses below.
+        int maintenanceBefore = store.MaintenanceCalls;
+        SchedulerRunResult second = await harness.Runtime.RunOnceAsync("worker-shed");
+
+        Assert.Equal(0, second.DispatchesStarted);
+        Assert.Equal(1, store.ClaimCalls);
+        Assert.NotNull(second.DispatchSheddingUntil);
+
+        // Shedding stops dialling and nothing else. Lease recovery and deadline closing still run,
+        // and the pass still returns - which is what ticks liveness.
+        Assert.Equal(maintenanceBefore + 2, store.MaintenanceCalls);
+
+        // Reported once, on the pass after the one that started the call.
+        Assert.Single(second.DispatchFailures ?? []);
+    }
+
+    /// <summary>
+    /// A single call that goes through lifts the shed, even with failures all around it.
+    /// <para>
+    /// The distinction the plan draws is between a route that is down and numbers that are bad,
+    /// and the pump cannot read a SIP cause code. What it can see is whether anything at all is
+    /// getting through: one completed call is stronger evidence the trunk is up than several
+    /// failures are that it is down. Matches <c>LoopBackoff.RecordSuccess</c>, which also clears
+    /// the streak outright rather than decaying it.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-PUMP-09")]
+    public async Task OneCallGettingThroughLiftsTheShed()
+    {
+        var store = new QueueSchedulerStore { Available = 40 };
+        var gateway = new BlockingDispatchGateway();
+        Harness harness = Harness.Create(store, gateway, ceiling: 8, startsPerSecond: 8);
+
+        SchedulerRunResult first = await harness.Runtime.RunOnceAsync("worker-mixed");
+
+        // All eight get started, because none of them has failed yet.
+        Assert.Equal(8, first.DispatchesStarted);
+        Assert.Null(first.DispatchSheddingUntil);
+
+        var refused = new InvalidOperationException("Trunk rejected the originate.");
+        for (int failed = 0; failed < 7; failed++)
+        {
+            Assert.True(gateway.ReleaseOne(refused));
+        }
+
+        await WaitUntilAsync(
+            () => harness.Pump.SheddingUntil is not null,
+            "seven consecutive failures put the pump into shedding");
+
+        // Seven failures on the trot reach the backoff ceiling, so this is a long shed - it is not
+        // about to expire on its own during the next two lines.
+        Assert.True(gateway.ReleaseOne());
+
+        await WaitUntilAsync(
+            () => harness.Pump.SheddingUntil is null,
+            "the one call that went through cleared the streak");
+
+        harness.OpenANewRateWindow();
+        SchedulerRunResult resumed = await harness.Runtime.RunOnceAsync("worker-mixed");
+
+        Assert.Equal(8, resumed.DispatchesStarted);
+
+        gateway.ReleaseAll();
+        Assert.True(await harness.Pump.DrainAsync(TimeSpan.FromSeconds(10)));
+    }
+
+    /// <summary>
+    /// The shed expires on its own. Backing off is not giving up: nobody has to restart anything.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-PUMP-10")]
+    public async Task TheShedExpiresAndDiallingResumesWithoutIntervention()
+    {
+        var store = new QueueSchedulerStore { Available = 8 };
+        var gateway = new BlockingDispatchGateway
+        {
+            FailWith = () => new InvalidOperationException("Trunk rejected the originate."),
+        };
+        Harness harness = Harness.Create(store, gateway, ceiling: 8, startsPerSecond: 8);
+
+        SchedulerRunResult first = await harness.Runtime.RunOnceAsync("worker-expire");
+        Assert.NotNull(first.DispatchSheddingUntil);
+
+        // One failure means a streak of one, so the wait is one poll interval before jitter, and
+        // jitter only ever shortens it. Two seconds clears it with room to spare - asserted off
+        // the schedule LoopBackoff.Compute defines, not off a slept-through guess.
+        Assert.True(
+            first.DispatchSheddingUntil <= harness.Clock.GetUtcNow().AddSeconds(2),
+            "a single failure must not shed for longer than one poll interval");
+
+        harness.Clock.Advance(TimeSpan.FromSeconds(2));
+        gateway.FailWith = null;
+
+        SchedulerRunResult resumed = await harness.Runtime.RunOnceAsync("worker-expire");
+
+        Assert.Null(resumed.DispatchSheddingUntil);
+
+        // Seven, not one: the queue held eight and the call that failed consumed one. The shed
+        // delayed this work, it did not discard it.
+        Assert.Equal(7, resumed.DispatchesStarted);
+
+        gateway.ReleaseAll();
+        Assert.True(await harness.Pump.DrainAsync(TimeSpan.FromSeconds(10)));
+    }
+
+    /// <summary>
     /// Waits for an asynchronous continuation to be observable, rather than assuming it already
     /// is. A slot is released in the <c>finally</c> of the dispatch task, which runs after the
     /// test signals the call to finish.
@@ -378,7 +526,11 @@ public sealed class SchedulerDispatchPumpTests
 
         public bool IsReady => true;
 
-        public Func<Exception>? FailWith { get; init; }
+        /// <summary>
+        /// Fails before parking, the shape of an originate the adapter rejects outright. Settable
+        /// mid-test so a route can be made to break and then recover.
+        /// </summary>
+        public Func<Exception>? FailWith { get; set; }
 
         public int Started => Volatile.Read(ref started);
 
@@ -398,8 +550,20 @@ public sealed class SchedulerDispatchPumpTests
             await gate.Task.WaitAsync(cancellationToken);
         }
 
-        public bool ReleaseOne() =>
-            gates.TryDequeue(out TaskCompletionSource? gate) && gate.TrySetResult();
+        /// <summary>
+        /// Ends the longest-running call, as a success or with <paramref name="error"/>. Per-call
+        /// so a test can have seven of eight fail and the eighth come good, which is the mix that
+        /// separates a broken route from a handful of bad numbers.
+        /// </summary>
+        public bool ReleaseOne(Exception? error = null)
+        {
+            if (!gates.TryDequeue(out TaskCompletionSource? gate))
+            {
+                return false;
+            }
+
+            return error is null ? gate.TrySetResult() : gate.TrySetException(error);
+        }
 
         public void ReleaseAll()
         {

@@ -20,6 +20,11 @@ internal sealed partial class SchedulerJobHost(
     // the first run answers, so the first closed window still announces itself.
     private bool? callingWindowOpen;
 
+    // Same reason as callingWindowOpen: only the transitions. A shed lasts up to 30s and the loop
+    // turns every 100ms under LocalMockE2E, so a line per pass would be three hundred lines
+    // saying the same thing while the interesting question is when it started and when it lifted.
+    private bool shedding;
+
     protected override string LoopName => "scheduler";
 
     protected override bool IsEnabled => options.Value.Enabled;
@@ -98,6 +103,23 @@ internal sealed partial class SchedulerJobHost(
                     failure.JobId,
                     failure.AttemptId);
             }
+        }
+
+        // Reported after the failures above, so the log reads in the order it happened: the calls
+        // that failed, then the decision to stop starting new ones because of them.
+        bool sheddingNow = result.DispatchSheddingUntil is not null;
+        if (shedding != sheddingNow)
+        {
+            if (sheddingNow)
+            {
+                LogSheddingStarted(logger, result.DispatchSheddingUntil);
+            }
+            else
+            {
+                LogSheddingLifted(logger);
+            }
+
+            shedding = sheddingNow;
         }
 
         if (callingWindowOpen != result.CallingWindowOpen)
@@ -185,4 +207,17 @@ internal sealed partial class SchedulerJobHost(
         Message = "Scheduler drain timed out after {TimeoutSeconds}s with {Active} call(s) still "
             + "running; those attempts need reconciling against the provider.")]
     private static partial void LogDrainTimedOut(ILogger logger, int active, double timeoutSeconds);
+
+    [LoggerMessage(
+        EventId = 2317,
+        Level = LogLevel.Warning,
+        Message = "Consecutive dispatch failures; no new call will start until {SheddingUntil}. "
+            + "Recovery, deadline closing and calls already running are unaffected.")]
+    private static partial void LogSheddingStarted(ILogger logger, DateTimeOffset? sheddingUntil);
+
+    [LoggerMessage(
+        EventId = 2318,
+        Level = LogLevel.Information,
+        Message = "Dispatch shedding lifted; new calls resume.")]
+    private static partial void LogSheddingLifted(ILogger logger);
 }
