@@ -38,6 +38,7 @@ public sealed class WorkerHealthOptions
 /// </summary>
 public sealed partial class WorkerHealthEndpoint(
     WorkerLiveness liveness,
+    SchedulerControllerStatus controllerStatus,
     IOptions<WorkerHealthOptions> options,
     ILogger<WorkerHealthEndpoint> logger) : BackgroundService
 {
@@ -100,9 +101,28 @@ public sealed partial class WorkerHealthEndpoint(
         }
     }
 
-    private async Task RespondAsync(HttpListenerContext context)
+    /// <summary>
+    /// The whole answer, as a pure function of what was observed. Separated from the socket so the
+    /// one rule worth pinning - that a controller which may not dial is still a healthy worker -
+    /// can be asserted without binding a port.
+    /// </summary>
+    internal static (int StatusCode, byte[] Body) BuildResponse(
+        WorkerLivenessReport report,
+        SchedulerControllerSnapshot? controller)
     {
-        WorkerLivenessReport report = liveness.Read();
+        ArgumentNullException.ThrowIfNull(report);
+
+        // SIP-05. Reported in the body and deliberately NOT in the status code.
+        //
+        // A worker that may not dial because another holds the Asterisk application, or because a
+        // seized scope has not been reconciled, is behaving exactly as designed. Failing the probe
+        // would restart it, which cannot grant it the application and would drop whatever work it
+        // was still doing - the same argument this endpoint already makes for Idle, applied to the
+        // one other state that looks broken and is not.
+        //
+        // Nothing here is sensitive: a scope is mode:environment:application and a worker id is a
+        // process identity. Anything that can reach this port can read it, which is why there is
+        // no reason string.
         byte[] body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(
             new
             {
@@ -116,12 +136,26 @@ public sealed partial class WorkerHealthEndpoint(
                     consecutive_faults = loop.ConsecutiveFaults,
                     last_fault_kind = loop.LastFaultKind,
                 }),
+                ari_controller = controller is null ? null : new
+                {
+                    scope = controller.Scope,
+                    status = controller.Status,
+                    may_dial = controller.MayDial,
+                    fencing_generation = controller.FencingGeneration,
+                    observed_at = controller.ObservedAt,
+                },
             },
             Json));
 
-        context.Response.StatusCode = report.Live
-            ? (int)HttpStatusCode.OK
-            : (int)HttpStatusCode.ServiceUnavailable;
+        return (
+            report.Live ? (int)HttpStatusCode.OK : (int)HttpStatusCode.ServiceUnavailable,
+            body);
+    }
+
+    private async Task RespondAsync(HttpListenerContext context)
+    {
+        (int statusCode, byte[] body) = BuildResponse(liveness.Read(), controllerStatus.Current);
+        context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
         context.Response.ContentLength64 = body.Length;
         await context.Response.OutputStream.WriteAsync(body);

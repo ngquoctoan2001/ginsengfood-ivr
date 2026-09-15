@@ -70,6 +70,7 @@ else
     // indistinguishable from a healthy one when the only liveness signal is whether the
     // process exited, and a wedge does not exit.
     builder.Services.AddSingleton<WorkerLiveness>();
+    builder.Services.AddSingleton<SchedulerControllerStatus>();
     builder.Services.Configure<WorkerHealthOptions>(
         builder.Configuration.GetSection(WorkerHealthOptions.SectionName));
     builder.Services.AddHostedService<WorkerHealthEndpoint>();

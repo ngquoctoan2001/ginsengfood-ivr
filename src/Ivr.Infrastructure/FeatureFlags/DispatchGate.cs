@@ -62,7 +62,12 @@ public sealed class DispatchGate(
             return new DispatchGateDecision(true, "LAB_DESTINATION_APPROVED");
         }
 
-        bool releaseApproved = await productionCallGate.IsApprovedAsync(cancellationToken);
+        // SIP-04. The environment this decision is being made for, which was in hand the whole
+        // time and simply was not passed. Without it one signature opened every deployment that
+        // could reach the same database.
+        bool releaseApproved = await productionCallGate.IsApprovedAsync(
+            environment,
+            cancellationToken);
         return releaseApproved
             ? new DispatchGateDecision(true, "PRODUCTION_RELEASE_APPROVED")
             : new DispatchGateDecision(false, "PRODUCTION_RELEASE_NOT_APPROVED");

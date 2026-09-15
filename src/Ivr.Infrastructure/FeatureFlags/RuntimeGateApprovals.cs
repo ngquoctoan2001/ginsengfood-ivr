@@ -152,6 +152,66 @@ internal static class RuntimeGateApprovalReader
             return false;
         }
     }
+
+    /// <summary>
+    /// SIP-04. True when a live approval of <paramref name="kind"/> names exactly
+    /// <paramref name="environment"/>. Any failure to answer is answered as <c>false</c>.
+    /// <para>
+    /// Separate from <see cref="AnyLiveAsync"/> rather than a parameter on it, because the two
+    /// answer different questions and one of them is deliberately coarse. Runtime-gate
+    /// administration ignores the environment on purpose - <c>IT-GATE-APPROVAL-10</c> pins that,
+    /// and the reasoning is that the environment-specific decision lives on each four-eyes row.
+    /// Folding both into one method with a nullable argument would put those two decisions one
+    /// typo apart.
+    /// </para>
+    /// <para>
+    /// A NULL environment matches nothing. That is the difference being introduced, so reading it
+    /// as a wildcard would introduce nothing.
+    /// </para>
+    /// </summary>
+    public static async Task<bool> AnyLiveForEnvironmentAsync(
+        IDbContextFactory<IvrDbContext> dbContextFactory,
+        TimeProvider timeProvider,
+        string kind,
+        string environment,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(environment))
+        {
+            return false;
+        }
+
+        try
+        {
+            await using IvrDbContext dbContext = await dbContextFactory
+                .CreateDbContextAsync(cancellationToken);
+            DateTimeOffset now = timeProvider.GetUtcNow();
+            return await dbContext.Database
+                .SqlQueryRaw<bool>(
+                    """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM ivr_runtime_gate_approvals
+                        WHERE approval_kind = {0}
+                          AND environment = {2}
+                          AND revoked_at IS NULL
+                          AND (expires_at IS NULL OR expires_at > {1})
+                    ) AS "Value"
+                    """,
+                    kind,
+                    now,
+                    environment)
+                .SingleAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 }
 
 /// <summary>
@@ -172,17 +232,32 @@ public sealed class PostgresRuntimeGateAuthorization(
 
 /// <summary>
 /// W-0195. The release gate behind real customer dialling. Answers <c>false</c> until a
-/// <c>PRODUCTION_CALL</c> approval exists, which no migration creates.
+/// <c>PRODUCTION_CALL</c> approval exists for <i>this</i> environment, which no migration creates.
+/// <para>
+/// SIP-04 added the environment. The gate previously asked <see cref="RuntimeGateApprovalReader
+/// .AnyLiveAsync"/> for any live approval of the kind, so a single signature opened every
+/// deployment reading the same database - a pilot approval authorised production, and nothing in
+/// the row said otherwise even though the column to say it was already there.
+/// </para>
+/// <para>
+/// An approval that names no environment opens nothing, rather than counting as a wildcard. A NULL
+/// there is the shape the unscoped approvals have, and reading it as "everywhere" would preserve
+/// exactly the behaviour being removed. The migration refuses to store one, so this is belt and
+/// braces on a row that should not exist.
+/// </para>
 /// </summary>
 public sealed class PostgresProductionCallGate(
     IDbContextFactory<IvrDbContext> dbContextFactory,
     TimeProvider timeProvider) : IProductionCallGate
 {
-    public Task<bool> IsApprovedAsync(CancellationToken cancellationToken = default) =>
-        RuntimeGateApprovalReader.AnyLiveAsync(
+    public Task<bool> IsApprovedAsync(
+        string environment,
+        CancellationToken cancellationToken = default) =>
+        RuntimeGateApprovalReader.AnyLiveForEnvironmentAsync(
             dbContextFactory,
             timeProvider,
             RuntimeGateApprovalKinds.ProductionCall,
+            environment,
             cancellationToken);
 }
 

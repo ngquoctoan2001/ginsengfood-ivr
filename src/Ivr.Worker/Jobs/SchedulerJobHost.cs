@@ -8,6 +8,7 @@ internal sealed partial class SchedulerJobHost(
     ISchedulerRuntime scheduler,
     SchedulerDispatchPump pump,
     IAriControllerOwnership controllerOwnership,
+    SchedulerControllerStatus controllerStatusReport,
     IOptions<SchedulerOptions> options,
     WorkerLiveness liveness,
     TimeProvider timeProvider,
@@ -137,6 +138,14 @@ internal sealed partial class SchedulerJobHost(
                 controllerOwnership.Scope);
             controllerStatus = result.ControllerStatus;
         }
+
+        // Published every pass, unlike the log line above, which only fires on a change. A probe
+        // arriving an hour after the transition needs the current answer, and "nothing has changed
+        // since a line you cannot see" is not one.
+        controllerStatusReport.Report(
+            controllerOwnership.Scope,
+            result.ControllerStatus,
+            result.ControllerFencingGeneration);
 
         // Reported after the failures above, so the log reads in the order it happened: the calls
         // that failed, then the decision to stop starting new ones because of them.

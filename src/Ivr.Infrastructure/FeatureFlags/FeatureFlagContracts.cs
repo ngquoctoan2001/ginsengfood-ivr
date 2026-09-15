@@ -45,9 +45,25 @@ public interface IKillSwitch
         CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// The release decision behind real customer dialling.
+/// <para>
+/// SIP-04. The environment is a parameter, and it has to be. This gate used to ask only whether
+/// <i>any</i> live <c>PRODUCTION_CALL</c> approval existed, so one signature granted for a pilot
+/// opened every deployment that could reach the same database - which is not what anybody signing
+/// it would have believed they were signing.
+/// </para>
+/// <para>
+/// Unlike <see cref="IRuntimeGateAuthorization"/>, whose coarseness is deliberate because the
+/// per-change four-eyes row carries the environment, nothing narrows this one. There is no
+/// per-change row behind a production call: the approval <i>is</i> the decision.
+/// </para>
+/// </summary>
 public interface IProductionCallGate
 {
-    public Task<bool> IsApprovedAsync(CancellationToken cancellationToken = default);
+    public Task<bool> IsApprovedAsync(
+        string environment,
+        CancellationToken cancellationToken = default);
 }
 
 public interface IRuntimeGateAuthorization

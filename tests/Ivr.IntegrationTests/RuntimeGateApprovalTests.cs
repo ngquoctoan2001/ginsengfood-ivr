@@ -50,7 +50,7 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
         await fixture.ResetAsync();
         IProductionCallGate gate = fixture.Services.GetRequiredService<IProductionCallGate>();
 
-        Assert.False(await gate.IsApprovedAsync());
+        Assert.False(await gate.IsApprovedAsync(FeatureFlagEnvironments.Production));
         Assert.Equal(
             "0",
             await ScalarAsync(
@@ -333,6 +333,79 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
             """);
 
         Assert.True(await authorization.IsApprovedAsync());
+    }
+
+    /// <summary>
+    /// SIP-04. A production-call approval opens the environment it names, and only that one.
+    /// <para>
+    /// Before this the gate asked only whether any live <c>PRODUCTION_CALL</c> approval existed, so
+    /// the pilot signature below would have opened production as well - and the column that says
+    /// otherwise was already on the row, unused. That is the failure this pins, in the direction
+    /// that matters: not "does an approval work" but "does it stay where it was granted".
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-GATE-APPROVAL-11")]
+    public async Task AProductionCallApprovalOpensOnlyTheEnvironmentItNames()
+    {
+        await fixture.ResetAsync();
+        IProductionCallGate gate = fixture.Services.GetRequiredService<IProductionCallGate>();
+
+        await InsertProductionCallApprovalAsync("approval-pilot", FeatureFlagEnvironments.Pilot);
+
+        Assert.True(await gate.IsApprovedAsync(FeatureFlagEnvironments.Pilot));
+        Assert.False(await gate.IsApprovedAsync(FeatureFlagEnvironments.Production));
+        Assert.False(await gate.IsApprovedAsync(FeatureFlagEnvironments.Staging));
+
+        // Revoking the pilot signature closes the pilot and changes nothing elsewhere, because
+        // nothing elsewhere was ever open.
+        await ExecuteAsync(
+            "UPDATE ivr_runtime_gate_approvals SET revoked_at = now(), "
+            + "revoked_reason = 'IT-GATE-APPROVAL-11' "
+            + "WHERE approval_reference = 'approval-pilot'");
+
+        Assert.False(await gate.IsApprovedAsync(FeatureFlagEnvironments.Pilot));
+    }
+
+    /// <summary>
+    /// The database refuses a production-call approval that names no environment.
+    /// <para>
+    /// The query alone would make such a row inert, which is the quieter half of the same bug: an
+    /// approver would believe they had granted something, and it would silently do nothing. A row
+    /// authorising real customer calls should not be storable in a shape nobody can act on.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-GATE-APPROVAL-12")]
+    public async Task AnUnscopedProductionCallApprovalIsRefusedByTheDatabase()
+    {
+        await fixture.ResetAsync();
+
+        Exception? failure = await Record.ExceptionAsync(
+            () => InsertProductionCallApprovalAsync("approval-unscoped", environment: null));
+
+        Assert.NotNull(failure);
+        Assert.Equal(
+            "0",
+            await ScalarAsync(
+                "SELECT count(*)::text FROM ivr_runtime_gate_approvals "
+                + "WHERE approval_kind = 'PRODUCTION_CALL'"));
+    }
+
+    private Task InsertProductionCallApprovalAsync(string reference, string? environment)
+    {
+        string environmentSql = environment is null ? "NULL" : $"'{environment}'";
+        return ExecuteAsync(
+            $"""
+            INSERT INTO ivr_runtime_gate_approvals (
+                approval_reference, approval_kind, environment, proposer_actor_id,
+                approver_actor_id, change_fingerprint, reason, signed_decision_ref,
+                granted_at, expires_at, revoked_at, revoked_reason, correlation_id)
+            VALUES (
+                '{reference}', 'PRODUCTION_CALL', {environmentSql}, 'operator-1',
+                'operator-2', NULL, 'test release approval', 'OD-V1-12@2026-09-15',
+                now(), NULL, NULL, NULL, 'corr-test')
+            """);
     }
 
     private Task InsertApprovalAsync(

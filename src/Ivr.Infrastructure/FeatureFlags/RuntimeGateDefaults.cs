@@ -22,7 +22,9 @@ public sealed class PendingFourEyesApprovalVerifier : IFourEyesApprovalVerifier
 
 public sealed class PendingProductionCallGate : IProductionCallGate
 {
-    public Task<bool> IsApprovedAsync(CancellationToken cancellationToken = default) =>
+    public Task<bool> IsApprovedAsync(
+        string environment,
+        CancellationToken cancellationToken = default) =>
         Task.FromResult(false);
 }
 
