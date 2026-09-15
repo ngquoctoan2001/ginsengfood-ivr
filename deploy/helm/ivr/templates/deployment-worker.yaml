@@ -13,8 +13,28 @@ metadata:
       One SIM carries one call. Replicas beyond the SIM pool cannot dial more calls; the scheduler
       advisory lock (P2-3) makes the extra pods contend for the same leases instead of
       double-dispatching. Raising maxReplicas without raising the SIM pool buys nothing.
+    # SIP-05. On an Asterisk route the binding limit is one, not the SIM pool. Asterisk gives an
+    # application to whichever WebSocket connected most recently and only tells the loser
+    # afterwards, so a second dialling pod does not contend - it takes the event stream from the
+    # first. ivr_ari_controller_ownership is what actually stops that: a pod that does not hold the
+    # scope never claims, never dials, and so never opens a competing socket.
+    ivr.ginsengfood/ari-controller-note: >-
+      Exactly one worker may dial on one Asterisk application. Extra replicas start, find the scope
+      held, and wait without dialling. This is enforced in the application, not by Asterisk.
 spec:
   replicas: {{ .Values.worker.replicas }}
+  # SIP-05. Recreate, so the outgoing pod is gone before the new one starts.
+  #
+  # It is defence in depth rather than the protection: the ARI socket opens lazily inside the first
+  # dial, so a rolling second pod would find the scope held and wait without connecting. What
+  # Recreate buys is that the incoming pod takes the scope from VACANT after a clean release,
+  # instead of sitting through a handover while both pods exist.
+  #
+  # It does NOT guarantee one live process. A lost node or a force-delete leaves a pod the API
+  # server has forgotten and Asterisk has not, which is exactly why ownership is checked in the
+  # application and why an expired lease needs a person rather than a timeout.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "ivr.name" . }}
@@ -26,6 +46,15 @@ spec:
         {{- include "ivr.labels" . | nindent 8 }}
         app.kubernetes.io/component: worker
     spec:
+      # SIP-05. Long enough for the dispatch drain to finish, and it has to be.
+      #
+      # The default 30s was shorter than a single call (audio up to 120s, ring 30s, DTMF 15s), so
+      # SIGKILL would arrive mid-drain. That hangs up on a customer, and it also skips the release
+      # of the ARI application - which happens only after a drain that completed. The next pod
+      # would then wait out the controller lease and need a person to isolate a scope whose owner
+      # had simply been killed too early. Kept above Ivr__Scheduler__DispatchDrainSeconds so the
+      # drain decides when to give up, not the kubelet.
+      terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }}
       serviceAccountName: {{ include "ivr.fullname" . }}
       securityContext:
         runAsNonRoot: true

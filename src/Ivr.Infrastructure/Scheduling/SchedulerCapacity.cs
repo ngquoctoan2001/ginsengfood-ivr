@@ -67,24 +67,37 @@ public sealed class SchedulerOptions
     /// <summary>
     /// How long shutdown waits for calls already in flight before reporting that it gave up.
     /// <para>
-    /// Waiting only - it does not end them. Long enough by default to cover an ordinary call
-    /// (audio up to 120s, ring 30s, DTMF 15s) losing its race against a deploy, and short enough
-    /// that a stuck dispatch cannot hold a pod in Terminating until the kubelet kills it.
+    /// Waiting only - it does not end them. The default covers a whole call rather than a polite
+    /// pause: audio up to 120s, ring 30s and DTMF 15s, plus margin. A shorter figure looks tidier
+    /// and is wrong twice over. It hangs up on a customer mid-sentence, and - because the ARI
+    /// application is handed back only after a drain that finished - it leaves the scope held by a
+    /// pod that is gone, so the next pod waits out the lease and then needs a person to isolate it.
+    /// A deploy during a call would need human intervention every time.
+    /// </para>
+    /// <para>
+    /// The pod has to be allowed to take this long: <c>terminationGracePeriodSeconds</c> on the
+    /// worker Deployment is set from this figure, and a grace period shorter than it turns every
+    /// drain into a SIGKILL.
     /// </para>
     /// </summary>
-    public int DispatchDrainSeconds { get; set; } = 30;
+    public int DispatchDrainSeconds { get; set; } = 180;
 
     /// <summary>
     /// How long a controller grant stands without a heartbeat. SIP-05.
     /// <para>
-    /// Every pass renews it, so a minute is sixty missed renewals at the default poll - long
-    /// enough that a slow database or a GC pause cannot expire it, and short enough that a real
-    /// stop is visible before a shift ends. Expiry is not a handover: it only changes the answer
-    /// a rival worker gets from "wait, it is held" to "wait, somebody needs to confirm it is
-    /// gone", which is why this number is not a failover time.
+    /// Every pass renews it, so the default is hundreds of missed renewals - long enough that a
+    /// slow database or a GC pause cannot expire it. Expiry is not a handover: it only changes the
+    /// answer a rival gets from "wait, it is held" to "wait, somebody needs to confirm it is
+    /// gone", which is why this is not a failover time and why a longer value costs little.
+    /// </para>
+    /// <para>
+    /// It must outlast <see cref="DispatchDrainSeconds"/>, and the validator enforces that. During
+    /// a drain the loop has stopped, so nothing is renewing; a lease that expired mid-drain would
+    /// show an orderly shutdown to onlookers as a controller that needs isolating, and an operator
+    /// who acted on that would isolate a worker that was about to hand the scope back cleanly.
     /// </para>
     /// </summary>
-    public int ControllerLeaseSeconds { get; set; } = 60;
+    public int ControllerLeaseSeconds { get; set; } = 240;
 }
 
 public sealed class SchedulerOptionsValidator : IValidateOptions<SchedulerOptions>
@@ -158,6 +171,20 @@ public sealed class SchedulerOptionsValidator : IValidateOptions<SchedulerOption
             3600,
             nameof(options.ControllerLeaseSeconds),
             failures);
+
+        // Cross-field, because the two are only wrong in relation to each other. Nothing renews
+        // the grant during a drain - the loop has already stopped - so a lease shorter than the
+        // drain expires every time a pod shuts down with a call still up. The scope then reads as
+        // needing isolation at the exact moment it was about to be handed back cleanly, and an
+        // operator who believed it would isolate a worker that was doing the right thing.
+        if (options.ControllerLeaseSeconds < options.DispatchDrainSeconds)
+        {
+            failures.Add(
+                $"{nameof(options.ControllerLeaseSeconds)} must be at least "
+                + $"{nameof(options.DispatchDrainSeconds)}; nothing renews the controller grant "
+                + "while a drain is running.");
+        }
+
         return failures.Count == 0
             ? ValidateOptionsResult.Success
             : ValidateOptionsResult.Fail(failures);

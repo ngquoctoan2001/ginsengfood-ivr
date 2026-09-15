@@ -36,7 +36,13 @@ api:
     limits: { cpu: 1000m, memory: 512Mi }
 
 worker:
+  # SIP-05. One, and on an Asterisk route this is a limit rather than a starting point: exactly one
+  # worker may hold an Asterisk application. A second one starts, finds the scope held and waits.
   replicas: 1
+  # SIP-05. Above Ivr__Scheduler__DispatchDrainSeconds (180s), so the drain decides when to stop
+  # waiting for calls rather than the kubelet deciding for it. A grace period below the drain
+  # hangs up on customers and skips the controller release, which costs a human on the next deploy.
+  terminationGracePeriodSeconds: 210
   hpa:
     enabled: false
     minReplicas: 1
@@ -44,6 +50,10 @@ worker:
     # by the SIM pool and not by pod count. Extra replicas cannot dial more calls; the scheduler's
     # advisory lock (P2-3) makes them contend for the same leases instead. Raising this without
     # raising the SIM pool buys nothing and costs contention.
+    #
+    # SIP-05: on an Asterisk route the real ceiling is 1, not the SIM pool, because only one worker
+    # may hold the ARI application. Extra pods are not slow - they do not dial at all. An
+    # autoscaler here would add pods that watch, which reads as capacity and is not.
     maxReplicas: 2
     simPoolSize: 12
   health:

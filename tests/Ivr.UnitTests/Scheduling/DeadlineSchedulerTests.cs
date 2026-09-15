@@ -212,6 +212,47 @@ public sealed class DeadlineSchedulerTests
     }
 
     /// <summary>
+    /// SIP-05. A controller lease shorter than the drain is refused, because the two are only
+    /// wrong in relation to each other and both are in range on their own.
+    /// <para>
+    /// Nothing renews the grant during a drain - the loop has already stopped - so this pairing
+    /// expires the lease every time a pod shuts down with a call still up. The scope then reads as
+    /// needing isolation at the moment it was about to be handed back cleanly, and an operator
+    /// acting on that would isolate a worker that was doing exactly the right thing.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-CONFIG-08")]
+    public void AControllerLeaseShorterThanTheDrainIsRefused()
+    {
+        var validator = new SchedulerOptionsValidator();
+
+        Microsoft.Extensions.Options.ValidateOptionsResult tooShort = validator.Validate(
+            null,
+            new SchedulerOptions
+            {
+                DispatchDrainSeconds = 180,
+                ControllerLeaseSeconds = 60,
+            });
+        Microsoft.Extensions.Options.ValidateOptionsResult equal = validator.Validate(
+            null,
+            new SchedulerOptions
+            {
+                DispatchDrainSeconds = 180,
+                ControllerLeaseSeconds = 180,
+            });
+
+        Assert.False(tooShort.Succeeded);
+        Assert.Contains(
+            Assert.IsAssignableFrom<IEnumerable<string>>(tooShort.Failures),
+            failure => failure.Contains("ControllerLeaseSeconds", StringComparison.Ordinal));
+
+        // Equal passes. The drain finishing exactly as the lease runs out still releases, and
+        // demanding headroom that nothing needs would reject a configuration that works.
+        Assert.True(equal.Succeeded);
+    }
+
+    /// <summary>
     /// W-0198. These assert scheduler mechanics, not the hour of day, so they run against a
     /// window that is always open. The window itself is covered by UT-SCH-WINDOW-*.
     /// </summary>
