@@ -2,8 +2,8 @@
 
 **Work ID:** không có. `SIP-01…SIP-10` là mã nội bộ của
 [kế hoạch Mobile SIP Trunk](mobile-sip-trunk-production-32-channels-plan-2026-09-15.md), **không phải W-ID**.
-Nếu owner muốn gắn W-ID thì phải đổi tên migration `20260915085434_AriControllerOwnership` **trước** khi
-nó ra release — xem mục 6.
+Nếu owner muốn gắn W-ID thì phải đổi tên **hai** migration — `20260915085434_AriControllerOwnership` và
+`20260915114705_DialTokenResolveLedger` — **trước** khi chúng ra release. Xem mục 6.
 
 **Baseline khi bàn giao:** `main@eb7e781`. Năm commit code: `56e3213`, `6eaa64b`, `b1bf377`, `c061001`,
 `eb7e781`; cộng `adb9a66` (kế hoạch) và `763cf1f` (bản đầu của tài liệu này).
