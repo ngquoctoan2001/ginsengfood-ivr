@@ -166,8 +166,12 @@ public sealed class AsteriskLabTelephonyTests
     [Trait("TestId", "UT-AST-VAULT-04")]
     public async Task LabVaultFingerprintsTokenAndPinsTheAliasAndRefusesAReplay()
     {
+        // The in-memory ledger here on purpose: this test is about the vault - fingerprinting, the
+        // pinned alias, and that a replay is refused - not about where the count is kept. The
+        // durable ledger enforcing the same rules across processes is IT-TOKEN-DURABLE-*.
         var vault = new LabDialTokenVault(
-            Microsoft.Extensions.Options.Options.Create(Options()));
+            Microsoft.Extensions.Options.Options.Create(Options()),
+            new DialTokenResolveLedger());
         string fingerprint = vault.Protect(
             "ivr-confirmation-task-dial-token",
             "opaque-lab-token");

@@ -125,6 +125,13 @@ public static class DataClassification
                 + "record of the single most dangerous action in this subsystem, taking the "
                 + "dialler away from a controller that may still have customers on the line. "
                 + "No customer field, and the worker id is a process identity."),
+            ["ivr_dial_token_resolves"] = new(
+                DataProtectionClass.Operational,
+                "active_config",
+                "SIP-02. One row per dial-token resolve, so the OD-V1-17 ceiling survives a "
+                + "restart. Holds a SHA-256 of whatever the vault revealed and never the token "
+                + "itself, so a dump cannot be turned back into a token or a number; what is left "
+                + "is a task id, an attempt id and a timestamp."),
             ["ivr_capacity_incidents"] = new(
                 DataProtectionClass.Operational,
                 "task_metadata",

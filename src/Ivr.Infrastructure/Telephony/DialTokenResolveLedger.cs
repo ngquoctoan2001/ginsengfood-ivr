@@ -40,6 +40,23 @@ public sealed record DialTokenResolveDecision(
     int MaxResolves);
 
 /// <summary>
+/// Decides whether a dial token may be resolved once more, and records it when it may.
+/// <para>
+/// An interface because the answer has to be able to outlive the process. The in-memory
+/// implementation bounds one worker; <see cref="PostgresDialTokenResolveLedger"/> bounds the
+/// system. Which one is in play is a deployment decision, and the vaults should not be able to
+/// tell the difference - the rules are identical and only their reach differs.
+/// </para>
+/// </summary>
+public interface IDialTokenResolveLedger
+{
+    public ValueTask<DialTokenResolveDecision> EvaluateAsync(
+        DialTokenResolutionRequest request,
+        DateTimeOffset now,
+        CancellationToken cancellationToken = default);
+}
+
+/// <summary>
 /// Enforces the reusable-dial-token contract signed on 2026-09-05
 /// (<c>OD-V1-17</c> chose option (d), <c>OD-V1-05</c> spelled out the resolve rules).
 /// <para>
@@ -60,8 +77,22 @@ public sealed record DialTokenResolveDecision(
 /// from the SIM vault. Recorded here so nobody reads a green test as the stronger claim.
 /// </para>
 /// </summary>
-public sealed class DialTokenResolveLedger
+public sealed class DialTokenResolveLedger : IDialTokenResolveLedger
 {
+    /// <summary>
+    /// The interface form. Synchronous underneath because nothing here waits on anything, and kept
+    /// separate from <see cref="Evaluate"/> so the existing callers and the seven tests that pin
+    /// these rules keep reading as the straight-line decisions they are.
+    /// </summary>
+    public ValueTask<DialTokenResolveDecision> EvaluateAsync(
+        DialTokenResolutionRequest request,
+        DateTimeOffset now,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return ValueTask.FromResult(Evaluate(request, now));
+    }
+
     private sealed class TokenLedgerEntry
     {
         public string? TaskId { get; set; }

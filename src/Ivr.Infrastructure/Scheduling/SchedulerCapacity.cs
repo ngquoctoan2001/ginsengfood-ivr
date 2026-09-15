@@ -658,8 +658,16 @@ public static class SchedulerServiceCollectionExtensions
         {
             services.TryAddSingleton<ISchedulerCapacityService,
                 PostgresSchedulerCapacityService>();
+            // SIP-02. The durable ledger, not the process-local one. The lab dials a real
+            // softphone through a real Asterisk, so the ceiling it enforces has to be the ceiling
+            // production enforces - a per-process count that a restart clears is a different rule
+            // wearing the same name.
+            services.TryAddSingleton<IDialTokenResolveLedger>(provider =>
+                new PostgresDialTokenResolveLedger(
+                    provider.GetRequiredService<IDbContextFactory<IvrDbContext>>()));
             services.TryAddSingleton(provider => new LabDialTokenVault(
                 provider.GetRequiredService<IOptions<AsteriskAriOptions>>(),
+                provider.GetRequiredService<IDialTokenResolveLedger>(),
                 provider.GetRequiredService<IAuditLogger>()));
             services.Replace(ServiceDescriptor.Singleton<IOpaqueValueProtector>(provider =>
                 provider.GetRequiredService<LabDialTokenVault>()));

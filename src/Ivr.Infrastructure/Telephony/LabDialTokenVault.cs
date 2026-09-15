@@ -12,15 +12,22 @@ namespace Ivr.Infrastructure.Telephony;
 /// Local-only lab vault. Source dial tokens are irreversibly fingerprinted and every
 /// eligible token resolves to the single configured softphone alias.
 /// </summary>
+/// <param name="ledger">
+/// SIP-02. Required rather than optional, and not defaulted to the in-memory one.
+/// <para>
+/// W-0199 chose to give the lab the same ledger as MOCK, because the lab dials a real softphone
+/// alias and so the rule it enforces has to be the rule production will enforce. That reasoning
+/// holds and this extends it: the durable ledger is now what production would use, so the lab takes
+/// it too. A default would mean a misconfigured deployment quietly getting the per-process ceiling
+/// and no test ever noticing - which is precisely how the previous one survived this long.
+/// </para>
+/// </param>
 public sealed class LabDialTokenVault(
     IOptions<AsteriskAriOptions> options,
+    IDialTokenResolveLedger ledger,
     IAuditLogger? auditLogger = null) : IOpaqueValueProtector, IDialTokenResolver
 {
     private const string DialTokenPurpose = "ivr-confirmation-task-dial-token";
-
-    // W-0199. Same ledger as the MOCK vault. The lab dials a real softphone alias, so the rule it
-    // enforces has to be the rule production will enforce, not a lab-shaped approximation of it.
-    private readonly DialTokenResolveLedger ledger = new();
 
     public string Protect(string purpose, string plaintext)
     {
@@ -57,7 +64,10 @@ public sealed class LabDialTokenVault(
             throw new InvalidOperationException("The LAB dial-token fingerprint is invalid.");
         }
 
-        DialTokenResolveDecision decision = ledger.Evaluate(request, now);
+        DialTokenResolveDecision decision = await ledger.EvaluateAsync(
+            request,
+            now,
+            cancellationToken);
         await DialTokenResolveAudit.RecordAsync(
             auditLogger,
             nameof(LabDialTokenVault),

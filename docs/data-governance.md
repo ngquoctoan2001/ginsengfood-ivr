@@ -44,6 +44,7 @@ cách một bản backup được mã hoá **vì nó cũ** chứ không phải *
 | `ivr_result_callbacks` | `PiiDirect` | `callback_metadata` |
 | `ivr_sim_channels` | `Operational` | `active_config` |
 | `ivr_ari_controller_ownership` | `AuditTrail` | `audit_log` |
+| `ivr_dial_token_resolves` | `Operational` | `active_config` |
 | `ivr_capacity_incidents` | `Operational` | `task_metadata` |
 | `ivr_technical_exceptions` | `Operational` | `attempt_metadata` |
 | `ivr_admin_actions` | `AuditTrail` | `audit_log` |

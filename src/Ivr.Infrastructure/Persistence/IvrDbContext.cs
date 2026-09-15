@@ -30,6 +30,9 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
     /// <summary>SIP-05. Who may hold the ARI event socket for one Asterisk application.</summary>
     public DbSet<AriControllerOwnershipEntity> AriControllerOwnership =>
         Set<AriControllerOwnershipEntity>();
+
+    /// <summary>SIP-02. Dial-token resolves, so the OD-V1-17 ceiling survives a restart.</summary>
+    public DbSet<DialTokenResolveEntity> DialTokenResolves => Set<DialTokenResolveEntity>();
     public DbSet<CapacityIncidentEntity> CapacityIncidents => Set<CapacityIncidentEntity>();
     public DbSet<TechnicalExceptionEntity> TechnicalExceptions => Set<TechnicalExceptionEntity>();
     public DbSet<AdminActionEntity> AdminActions => Set<AdminActionEntity>();
@@ -84,6 +87,7 @@ public sealed class IvrDbContext(DbContextOptions<IvrDbContext> options) : DbCon
         modelBuilder.ApplyConfiguration(new FeatureFlagEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RuntimeGateApprovalEntityConfiguration());
         modelBuilder.ApplyConfiguration(new AriControllerOwnershipEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new DialTokenResolveEntityConfiguration());
         // Analytics first: PersistenceModelConfiguration ends with the storage conventions
         // pass that snake-cases every column in the model, and the analytics allowlist is
         // written in the snake-case names that actually reach PostgreSQL.
