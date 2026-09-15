@@ -5,6 +5,7 @@ namespace Ivr.Worker.Jobs;
 
 internal sealed partial class SchedulerJobHost(
     ISchedulerRuntime scheduler,
+    SchedulerDispatchPump pump,
     IOptions<SchedulerOptions> options,
     WorkerLiveness liveness,
     TimeProvider timeProvider,
@@ -38,6 +39,34 @@ internal sealed partial class SchedulerJobHost(
     /// </summary>
     protected override bool StopWhenDisabled => false;
 
+    /// <summary>
+    /// SIP-05. Waits for the calls this worker started before the host is torn down.
+    /// <para>
+    /// Not politeness. Until the dispatch pump existed, a pass awaited its own call, so stopping
+    /// the loop could not leave one running. Now that a pass returns while the call continues,
+    /// dropping the host here would end the process with calls connected to customers and their
+    /// results unwritten. It waits; ending a live call is termination and has its own contract.
+    /// </para>
+    /// </summary>
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await base.StopAsync(cancellationToken);
+        TimeSpan drainTimeout = TimeSpan.FromSeconds(options.Value.DispatchDrainSeconds);
+
+        // CancellationToken.None on purpose. The token handed to StopAsync is already the deadline
+        // that is expiring; passing it would turn every drain into an immediate give-up and make
+        // the timeout above decorative.
+        bool drained = await pump.DrainAsync(drainTimeout, CancellationToken.None);
+        if (drained)
+        {
+            LogDrained(logger);
+        }
+        else
+        {
+            LogDrainTimedOut(logger, pump.Active, drainTimeout.TotalSeconds);
+        }
+    }
+
     protected override async Task RunOnceAsync(CancellationToken cancellationToken)
     {
         SchedulerRunResult result = await scheduler.RunOnceAsync(
@@ -51,7 +80,24 @@ internal sealed partial class SchedulerJobHost(
                 logger,
                 result.QuarantinedLeases,
                 result.ClosedMissedDeadlines,
-                result.DispatchClaimed);
+                result.DispatchClaimed,
+                result.DispatchesStarted,
+                result.ActiveDispatches);
+        }
+
+        // Logged here rather than thrown, because these are calls that outlived the pass which
+        // started them: there is no longer a pass to fail. Reported one line each so that a
+        // failure keeps its own job and attempt, which a count would flatten away.
+        if (result.DispatchFailures is { Count: > 0 } dispatchFailures)
+        {
+            foreach (SchedulerDispatchFailure failure in dispatchFailures)
+            {
+                LogDispatchFailure(
+                    logger,
+                    failure.Exception,
+                    failure.JobId,
+                    failure.AttemptId);
+            }
         }
 
         if (callingWindowOpen != result.CallingWindowOpen)
@@ -84,12 +130,15 @@ internal sealed partial class SchedulerJobHost(
     [LoggerMessage(
         EventId = 2310,
         Level = LogLevel.Information,
-        Message = "Scheduler run completed: quarantined={Quarantined}, deadlineClosed={Closed}, dispatchClaimed={Claimed}.")]
+        Message = "Scheduler run completed: quarantined={Quarantined}, deadlineClosed={Closed}, "
+            + "dispatchClaimed={Claimed}, dispatchesStarted={Started}, activeDispatches={Active}.")]
     private static partial void LogRun(
         ILogger logger,
         int quarantined,
         int closed,
-        bool claimed);
+        bool claimed,
+        int started,
+        int active);
 
     [LoggerMessage(
         EventId = 2311,
@@ -112,4 +161,28 @@ internal sealed partial class SchedulerJobHost(
         Level = LogLevel.Information,
         Message = "Calling window open; dialling resumes.")]
     private static partial void LogCallingWindowOpened(ILogger logger);
+
+    [LoggerMessage(
+        EventId = 2314,
+        Level = LogLevel.Error,
+        Message = "Scheduler dispatch failed after the pass returned; "
+            + "job={JobId}, attempt={AttemptId}.")]
+    private static partial void LogDispatchFailure(
+        ILogger logger,
+        Exception exception,
+        string jobId,
+        string attemptId);
+
+    [LoggerMessage(
+        EventId = 2315,
+        Level = LogLevel.Information,
+        Message = "Scheduler dispatches drained; no call was left running.")]
+    private static partial void LogDrained(ILogger logger);
+
+    [LoggerMessage(
+        EventId = 2316,
+        Level = LogLevel.Warning,
+        Message = "Scheduler drain timed out after {TimeoutSeconds}s with {Active} call(s) still "
+            + "running; those attempts need reconciling against the provider.")]
+    private static partial void LogDrainTimedOut(ILogger logger, int active, double timeoutSeconds);
 }

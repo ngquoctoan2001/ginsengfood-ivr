@@ -38,6 +38,41 @@ public sealed class SchedulerOptions
     public int ClaimBatchSize { get; set; } = 64;
 
     public int PollIntervalMilliseconds { get; set; } = 1000;
+
+    /// <summary>
+    /// How many calls one worker may hold at once. SIP-05.
+    /// <para>
+    /// One by default, which is the behaviour every caller had before this option existed: a pass
+    /// claimed a single lease and waited for the call. The plan raises it under evidence,
+    /// 1 to 4 to 8 to 16 to 32, and the figure must never be set above the sessions the carrier
+    /// has actually granted on the trunk.
+    /// </para>
+    /// <para>
+    /// Per process, not per system. The shared ceiling is the row count in
+    /// <c>ivr_sim_channels</c>, which the claim enforces under <c>SKIP LOCKED</c>.
+    /// </para>
+    /// </summary>
+    public int MaxConcurrentDispatches { get; set; } = 1;
+
+    /// <summary>
+    /// How many calls one worker may start per second, separately from how many it may hold. SIP-05.
+    /// <para>
+    /// Separate because they are separate allowances: 32 free slots does not license 32 originate
+    /// requests inside one second, and a carrier that tolerates the first will still reject the
+    /// second. One by default, so a raised concurrency ceiling cannot turn into a burst on its own.
+    /// </para>
+    /// </summary>
+    public int MaxCallStartsPerSecond { get; set; } = 1;
+
+    /// <summary>
+    /// How long shutdown waits for calls already in flight before reporting that it gave up.
+    /// <para>
+    /// Waiting only - it does not end them. Long enough by default to cover an ordinary call
+    /// (audio up to 120s, ring 30s, DTMF 15s) losing its race against a deploy, and short enough
+    /// that a stuck dispatch cannot hold a pod in Terminating until the kubelet kills it.
+    /// </para>
+    /// </summary>
+    public int DispatchDrainSeconds { get; set; } = 30;
 }
 
 public sealed class SchedulerOptionsValidator : IValidateOptions<SchedulerOptions>
@@ -77,6 +112,29 @@ public sealed class SchedulerOptionsValidator : IValidateOptions<SchedulerOption
             100,
             60000,
             nameof(options.PollIntervalMilliseconds),
+            failures);
+
+        // 256 rather than 32 on both: the trunk figure is a contract number that belongs in the
+        // deployed configuration, and hard-coding 32 here would be this file asserting a capacity
+        // no carrier has granted yet. The lower bound is the load-bearing one - zero would be a
+        // scheduler that is enabled, claims nothing, and reports itself healthy.
+        RequireRange(
+            options.MaxConcurrentDispatches,
+            1,
+            256,
+            nameof(options.MaxConcurrentDispatches),
+            failures);
+        RequireRange(
+            options.MaxCallStartsPerSecond,
+            1,
+            256,
+            nameof(options.MaxCallStartsPerSecond),
+            failures);
+        RequireRange(
+            options.DispatchDrainSeconds,
+            1,
+            600,
+            nameof(options.DispatchDrainSeconds),
             failures);
         return failures.Count == 0
             ? ValidateOptionsResult.Success
@@ -465,6 +523,15 @@ public static class SchedulerServiceCollectionExtensions
                 options.PollIntervalMilliseconds = section.GetValue(
                     nameof(SchedulerOptions.PollIntervalMilliseconds),
                     options.PollIntervalMilliseconds);
+                options.MaxConcurrentDispatches = section.GetValue(
+                    nameof(SchedulerOptions.MaxConcurrentDispatches),
+                    options.MaxConcurrentDispatches);
+                options.MaxCallStartsPerSecond = section.GetValue(
+                    nameof(SchedulerOptions.MaxCallStartsPerSecond),
+                    options.MaxCallStartsPerSecond);
+                options.DispatchDrainSeconds = section.GetValue(
+                    nameof(SchedulerOptions.DispatchDrainSeconds),
+                    options.DispatchDrainSeconds);
             })
             .ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
@@ -563,6 +630,11 @@ public static class SchedulerServiceCollectionExtensions
         }
 
         services.TryAddSingleton<IPostgresSchedulerStore, PostgresSchedulerStore>();
+
+        // Registered for every mode, including the one whose dispatch gateway is unavailable. The
+        // pump holds the count of calls in flight, and shutdown has to be able to ask that
+        // question of a worker that was never allowed to dial as well as one that was.
+        services.TryAddSingleton<SchedulerDispatchPump>();
         services.TryAddSingleton<ISchedulerRuntime, SchedulerRuntime>();
         services.TryAddSingleton<IRawEventRepository, RawEventRepository>();
         services.TryAddSingleton<IResultRepository, ResultRepository>();

@@ -223,25 +223,31 @@ public sealed class DeadlineSchedulerTests
     {
         var store = new RecordingSchedulerStore();
         var unavailable = new UnavailableSchedulerDispatchGateway();
+        var clock = new FixedTimeProvider(T0);
+        IOptions<SchedulerOptions> offOptions = Options.Create(new SchedulerOptions());
         var disabled = new SchedulerRuntime(
             store,
             unavailable,
-            Options.Create(new SchedulerOptions()),
+            new SchedulerDispatchPump(offOptions, clock),
+            offOptions,
             new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
             AlwaysOpenWindow,
-            new FixedTimeProvider(T0));
+            clock);
 
         SchedulerRunResult disabledResult = await disabled.RunOnceAsync("worker-disabled");
 
         Assert.False(disabledResult.Enabled);
         Assert.Equal(0, store.MaintenanceCalls);
+        IOptions<SchedulerOptions> onOptions =
+            Options.Create(new SchedulerOptions { Enabled = true });
         SchedulerRuntime enabled = new(
             store,
             unavailable,
-            Options.Create(new SchedulerOptions { Enabled = true }),
+            new SchedulerDispatchPump(onOptions, clock),
+            onOptions,
             new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
             AlwaysOpenWindow,
-            new FixedTimeProvider(T0));
+            clock);
         SchedulerRunResult held = await enabled.RunOnceAsync("worker-held");
         Assert.True(held.Enabled);
         Assert.False(held.DispatchGatewayReady);
@@ -269,20 +275,34 @@ public sealed class DeadlineSchedulerTests
                 "MOCK"),
         };
         var gateway = new RecordingDispatchGateway();
+        var clock = new FixedTimeProvider(T0);
+        IOptions<SchedulerOptions> runtimeOptions =
+            Options.Create(new SchedulerOptions { Enabled = true });
+        var pump = new SchedulerDispatchPump(runtimeOptions, clock);
         var runtime = new SchedulerRuntime(
             store,
             gateway,
-            Options.Create(new SchedulerOptions { Enabled = true }),
+            pump,
+            runtimeOptions,
             new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
             AlwaysOpenWindow,
-            new FixedTimeProvider(T0));
+            clock);
 
         SchedulerRunResult result = await runtime.RunOnceAsync("worker-ready");
 
         Assert.True(result.DispatchClaimed);
         Assert.Equal(1, store.ClaimCalls);
         Assert.Equal(IvrOptions.MockExecutionMode, store.LastExecutionMode);
+
+        // SIP-05. The pass no longer waits for the call, so the gateway has not necessarily been
+        // handed the lease by the time it returns. Draining is what makes that assertion a claim
+        // about the dispatch rather than about who won a race.
+        Assert.True(await pump.DrainAsync(TimeSpan.FromSeconds(5)));
         Assert.Same(store.Lease, gateway.Lease);
+
+        // Exactly one, and the default ceiling is what holds it to one: with the ceiling at 1 the
+        // second reservation is refused before any second claim can be made.
+        Assert.Equal(1, result.DispatchesStarted);
     }
 
     /// <summary>
@@ -318,13 +338,17 @@ public sealed class DeadlineSchedulerTests
         // 03:00 in Vietnam, expressed as the instant it happens at.
         DateTimeOffset threeInTheMorning =
             new DateTimeOffset(2026, 9, 5, 3, 0, 0, TimeSpan.FromHours(7)).ToUniversalTime();
+        var nightClock = new FixedTimeProvider(threeInTheMorning);
+        IOptions<SchedulerOptions> nightOptions =
+            Options.Create(new SchedulerOptions { Enabled = true });
         var runtime = new SchedulerRuntime(
             store,
             gateway,
-            Options.Create(new SchedulerOptions { Enabled = true }),
+            new SchedulerDispatchPump(nightOptions, nightClock),
+            nightOptions,
             new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
             new CallingWindow(Options.Create(new CallingWindowOptions())),
-            new FixedTimeProvider(threeInTheMorning));
+            nightClock);
 
         SchedulerRunResult result = await runtime.RunOnceAsync("worker-night");
 
@@ -356,14 +380,18 @@ public sealed class DeadlineSchedulerTests
     public async Task InsideTheCallingWindowNoReopeningTimeIsReported()
     {
         var store = new RecordingSchedulerStore();
+        var dayClock = new FixedTimeProvider(
+            new DateTimeOffset(2026, 9, 5, 10, 0, 0, TimeSpan.FromHours(7)).ToUniversalTime());
+        IOptions<SchedulerOptions> dayOptions =
+            Options.Create(new SchedulerOptions { Enabled = true });
         var runtime = new SchedulerRuntime(
             store,
             new RecordingDispatchGateway(),
-            Options.Create(new SchedulerOptions { Enabled = true }),
+            new SchedulerDispatchPump(dayOptions, dayClock),
+            dayOptions,
             new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
             new CallingWindow(Options.Create(new CallingWindowOptions())),
-            new FixedTimeProvider(
-                new DateTimeOffset(2026, 9, 5, 10, 0, 0, TimeSpan.FromHours(7)).ToUniversalTime()));
+            dayClock);
 
         SchedulerRunResult result = await runtime.RunOnceAsync("worker-day");
 
