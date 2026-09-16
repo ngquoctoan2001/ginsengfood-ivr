@@ -22,7 +22,7 @@ Status: `PLANNED`, `NOT_STARTED`, `IN_PROGRESS`, `CODE_DONE`, `TESTS_PASS`, `EVI
 | Field | Value |
 | --- | --- |
 | `NEXT_WORK_ID` | `W-0304` |
-| Last allocated | `W-0302` (`W-0303` đã cấp cho phiên PD-01 cùng checkout) |
+| Last allocated | `W-0303` (`W-0302` phiên này, `W-0303` phiên PD-01 cùng checkout) |
 | Last activity sequence | `A-0629` |
 | Contract state | `TARGET_CONTRACT_V1=DRAFT` |
 | Logical repository | standalone `ginsengfood-ivr`; source root is current repository |
