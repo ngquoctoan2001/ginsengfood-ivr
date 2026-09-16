@@ -47,7 +47,7 @@ authorized or included.
 
 ## Decision artifact
 
-- [M8-11 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-11)
+- [M8-11 decision pack](../../../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md)
 - [T-09 closure ticket](../../contracts/target-v1-closure-pack/T-09-attempt-policy.md)
 
 ## Validation record

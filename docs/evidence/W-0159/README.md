@@ -118,7 +118,7 @@ CAPACITY_DATA_INTAKE_SELFTEST_PASS valid=1 mode_guard=2 template_guard=1 receipt
 
 ## 8. Bước tiếp theo
 
-W-0160 đã lập [M8-15 monotonic registry contract](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-15)
+W-0160 đã lập [M8-15 monotonic registry contract](../../../plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md)
 với sequence/latest-selection, previous checkpoint hash, atomic CAS, custody và recovery. Trạng thái
 vẫn `EXTERNAL_SIGNATURES_REQUIRED / CODE_NOT_AUTHORIZED`; chỉ code adapter sau khi
 Platform/Security/M8 ký exact hash và giao provider/sandbox/drill evidence. Chưa freeze/calibrate

@@ -6,7 +6,7 @@ External work `W-0007` · `OD-V1-08` + `OD-V1-16` · correction `W-0151` · gate
 Owner quyết định bắt buộc: **Product + Order Core + Module 3**.
 
 Decision sheet chi tiết:
-[M8-11 attempt-policy production decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-11).
+[M8-11 attempt-policy production decision pack](../../../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
 
 Due: trước release gate `P9-1`. Ngày cam kết: `<owner điền>`.
 

@@ -31,7 +31,7 @@ Người ký phía M8: **Tôi — Module 8 / Project Owner**.
 
 ## 3. Artifact
 
-- [M8-08 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-08)
+- [M8-08 decision pack](../../../plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md)
 - S-06/TODAY-01 và M8 worklist handoff
 - IR-SALES-CRM-01 factual status correction
 - tracker/readiness/gate mirror và official Markdown map

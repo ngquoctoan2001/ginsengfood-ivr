@@ -28,7 +28,7 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 | **So sánh draft.23 → draft.24 — có breaking, đọc trước khi sinh client** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` |
 | **So sánh draft.25 → draft.26 và draft.26 → draft.27 → draft.28** | [25→26](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md), [26→27](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md), [27→28](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.27-to-v1.0.0-draft.28.md); sinh bằng oasdiff đã ghim; `27→28` **không breaking**, baseline CI giữ `draft.27` để lượt sau còn so được |
 | **Bảng nhãn tiếng Việt cho mọi enum** | `specs/ui/enum-labels.vi.json` |
-| **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/00-CHUA-XONG.md#m8-06` |
+| **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md` |
 
 _Sửa 27/08/2026: bản trước dùng đường dẫn tương đối, nên khi IR-06 được gửi đi dạng file rời thì cả năm link đều không mở được — M3 báo lại ở review §3.3. Cả năm file đều tồn tại trong repo IVR; nếu cần bản sao, yêu cầu owner IVR gửi kèm._
 
@@ -352,9 +352,31 @@ và vẫn được gọi **một** lần. Nhưng nếu khách không nghe:
 Cùng một hành vi khách hàng, hai kết quả khác nhau, quyết bởi giờ đặt đơn. Consumer của M3 phải xử
 lý được cả hai cho cùng một kịch bản "khách không nghe máy".
 
-**Chưa chốt (`W-0215`):** hoặc owner nới `End` của khung giờ, hoặc M3 ngừng phát task từ các mốc
-trên. Nếu nới, con số đủ cho **cả hai** program là `End ≥ 21:07:30`. Ghim bằng
-`UT-SCH-WINDOW-09`, suy mốc từ policy + window nên sẽ đỏ khi một trong hai đổi.
+**Đã chốt (`W-0220`, `2026-09-07`) — mục này không còn mở.** Owner chọn vế nới khung giờ:
+`End = 21:08`, ghi ở đầu §3.4.2 kèm lý do vì sao là `21:08` chứ không phải `21:07:30`. Câu *"chưa
+chốt (`W-0215`)"* từng đứng ở đây đã hết đúng kể từ ngày đó, và mâu thuẫn với chính đoạn mở đầu
+mục này — hai mốc trong bảng trên **đã** tính theo `21:08`. `UT-SCH-WINDOW-09` vẫn ghim chúng: nó
+suy mốc từ policy + window nên sẽ đỏ khi một trong hai đổi.
+
+> **Bổ sung `W-0304` (16/09/2026) — đơn đêm nay bị từ chối ngay tại intake (`W-0298`).**
+>
+> Trước `W-0298`, một task mà **mọi** attempt đều rơi ngoài `08:00–21:08` vẫn được nhận `202`,
+> rồi nằm im cho tới khi hết cửa sổ và trả `IVR_CONFIRMATION_WINDOW_EXPIRED`. Tức IVR nhận một lời
+> hứa gọi mà nó đã biết trước là không giữ được. Nay intake **từ chối ngay**:
+>
+> | | |
+> | --- | --- |
+> | Điều kiện | không attempt nào của `attempt_policy` rơi vào giờ gọi, trên **toàn bộ** confirmation window |
+> | Quyết định | `TASK_BLOCKED_OPERATIONAL` |
+> | Reason code | `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` |
+> | Test | `UT-INTAKE-NIGHT-01/02/03` |
+>
+> Guard này **tắt cùng `CallingWindow`**: khi `Enabled=false` thì mọi task đi qua như cũ, vì lúc đó
+> không có giờ nào bị coi là ngoài giờ.
+>
+> **M3 phải xử lý phần của mình:** đơn đặt ban đêm không còn được IVR nhận. Hoặc M3 giữ lại tới
+> `08:00` hôm sau rồi mới phát task, hoặc xử lý ngoài IVR. Đây là thay đổi **thấy được trên wire**,
+> không phải chi tiết nội bộ: cùng một payload trước đây trả `202` thì nay trả quyết định blocked.
 
 #### 3.4A. W-0151 correction — attempt policy
 
@@ -369,7 +391,7 @@ lab seed mặc định dùng `lab-softphone-v1`. Snapshot M3
 `PhucApu@a3aad246d986fbc273cf41aaa93eec6659669656` chưa cho thấy Target V1 producer/schema phát
 năm field window/policy ở trên. Trước code, Product + Order Core + M3 phải ký `ATP-01..ATP-15`,
 M3 giao producer SHA/OpenAPI/schema/CDC và payload sandbox. Xem
-[M8-11 decision pack](../plan/ivr-orther/00-CHUA-XONG.md#m8-11).
+[M8-11 decision pack](../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
 
 ### 3.5. Field optional và field bắt buộc trên thực tế
 
@@ -391,6 +413,24 @@ Contract dùng `additionalProperties: false`; không gửi field ngoài danh sá
 | `evidence_policy_version` / `privacy_policy_version` | Target xem đây là IVR-owned/optional; code non-MOCK hiện đang hold khi thiếu — `CONTRACT_DRIFT`, không biến thành nghĩa vụ M3 trước khi hai bên ký |
 
 `trust.risk_evidence_available` chỉ còn `LEGACY_READ`; không còn yêu cầu Module 3 gửi field này để IVR tự skip. Nếu Module 3 vẫn gửi trust/risk metadata phục vụ audit, IVR không được dùng chúng để đảo quyết định `CALL_REQUIRED` đã được Module 3 đưa ra.
+
+> **Bổ sung `W-0304` — không có field `priority` trên wire, và sẽ không có.**
+>
+> Contract dùng `additionalProperties: false`, nên gửi `priority` bị từ chối ở schema. Thứ tự thực
+> thi do scheduler quyết, **không** nhận chỉ thị từ M3. Thứ tự thật, đọc từ
+> `PostgresSchedulerStore.TryClaimDueDispatchAsync`:
+>
+> `expires_at` → `program_type` (`GOLDEN_HOUR` trước `TWENTY_FOUR_SEVEN`) → offset của attempt kế
+> tiếp → **số lượng** `risk_flags` giảm dần → `created_at` → `ivr_call_job_id`.
+>
+> Hai điều đáng nói vì dễ hiểu nhầm theo hai hướng ngược nhau:
+>
+> - `risk_flags` **có** ảnh hưởng thứ tự — nhưng chỉ bằng **số phần tử**, không bằng nội dung, và
+>   không bao giờ đảo quyết định gọi/skip (xem đúng bảng ở trên).
+> - `created_at` và `ivr_call_job_id` là tie-break **tất định**: hai lần chạy trên cùng dữ liệu cho
+>   cùng một thứ tự. Đó là thuộc tính kiểm được, không phải tình cờ.
+>
+> Nếu M3 cần một đơn được gọi trước, đòn bẩy duy nhất là `expires_at` — không phải một field mới.
 
 ### 3.5A. W-0146 — đề xuất upstream Golden Hour session
 
@@ -422,7 +462,7 @@ nếu chưa có signed use case riêng.
 
 **M3 signature/producer artifact:** **NOT_RECEIVED**. Vì vậy OpenAPI, generated DTO, domain, DB,
 scheduler và test vẫn **CODE_NOT_AUTHORIZED**. Mẫu phản hồi/CDC đầy đủ nằm trong
-[gói M8-06](../plan/ivr-orther/00-CHUA-XONG.md#m8-06).
+[gói M8-06](../plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md).
 
 ### 3.6. `privacy_safe_order_summary`
 
@@ -740,7 +780,32 @@ Runtime IVR hiện persist 9 result type; 6 final type đi vào callback outbox
 `INVALID_PHONE_FINAL`, `CAPACITY_EXCEPTION`), còn `NO_ANSWER_ATTEMPT`, `WRONG_INPUT`,
 `TECHNICAL_EXCEPTION` là non-final và không callback. Hai blocked code không được persist/send như
 call result. Bảng đầy đủ và chữ ký phía M8 nằm ở
-[M8-05](../plan/ivr-orther/00-CHUA-XONG.md#m8-05).
+[M8-05](../plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md).
+
+**Bổ sung `W-0304` — map `result_type` → `cancellation_reason_code` (đề xuất M8, M3 chốt).**
+
+Khi huỷ đơn, M3 phải đổi `result_type` của IVR thành `cancellation_reason_code` của M3. Chưa có
+bảng nào chốt việc đó, nên mỗi lần chạm tới lại phải suy từ đầu — và hai người suy có thể ra hai
+kết quả. Đề xuất phía M8:
+
+| M8 phát (`result_type`) | M3 dùng (`cancellation_reason_code`) |
+| --- | --- |
+| `IVR_NO_ANSWER_FINAL` | `IVR_NO_ANSWER_MAX` |
+| `IVR_CUSTOMER_CANCELLED` | `IVR_DECLINED` |
+| `IVR_INVALID_PHONE_FINAL` | `IVR_INVALID_NUMBER` |
+| `IVR_CONFIRMATION_WINDOW_EXPIRED` | `IVR_CONFIRMATION_EXPIRED` |
+| `IVR_CAPACITY_EXCEPTION` | **M3 chốt** — lỗi phía hệ thống, `fault=NONE`, **không** được tính là khách từ chối |
+
+`IVR_CONFIRMED` không có trong bảng vì nó không dẫn tới huỷ. Ba non-final (`NO_ANSWER_ATTEMPT`,
+`WRONG_INPUT`, `TECHNICAL_EXCEPTION`) cũng không, vì chúng không đi vào callback outbox — M3 sẽ
+không bao giờ nhận chúng như một kết quả cuối.
+
+Hàng cuối là hàng phải bàn: `IVR_CAPACITY_EXCEPTION` nghĩa là **IVR** không gọi được, không phải
+khách không muốn. Nếu M3 map nó vào một mã mang nghĩa khách từ chối thì con số từ chối sẽ mang
+trong nó lỗi hạ tầng của IVR, và không ai tách lại được về sau.
+
+⚠️ Đây là **đề xuất chưa ký**. Nếu M3 dùng vocabulary khác, sửa **cột phải**; cột trái là contract
+đã công bố và M3 đã sinh client theo nó.
 
 ### 4.4. `recommended_core_action`
 
@@ -826,14 +891,34 @@ Trước khi có bằng chứng đó, D-06 là **contract requirement chưa đư
 
 Nếu Owner giữ phương án A, M3 phải hoàn thành §4.6 và shared E2E trước production. Nếu chọn B/hybrid,
 hai bên phải ký `RVK-01..RVK-12` trong
-[M8-09 decision pack](../plan/ivr-orther/00-CHUA-XONG.md#m8-09)
+[M8-09 decision pack](../plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md)
 trước mọi thay đổi OpenAPI/runtime/DB. Không tái dùng intake POST hoặc admin terminate.
 
 **Correction `W-0147` / M8-07:** phía M8 đã sửa local defect từng bỏ qua `Retry-After` trên `429`.
 Transport nay chuyển positive server delay sang dispatcher; `next_retry_at` không sớm hơn delay đó,
 vẫn giữ bounded retry budget và cùng immutable key/body. Phần M8 local đã có unit/contract proof,
 nhưng endpoint generic M3, auth thật, sandbox và shared E2E vẫn chưa được cung cấp. Xem
-[M8-07 handoff](../plan/ivr-orther/00-CHUA-XONG.md#m8-07).
+[M8-07 handoff](../plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md).
+
+> **Đồng bộ `W-0304` — hai fence thu hồi đã cài từ `09/09/2026` (`W-0249`).**
+>
+> Mục này được viết khi phía M8 chưa có gì. Nay đã có, nên câu mở đầu — *"không có revoke/update
+> command hoặc business recheck từ scheduler claim tới dial"* — chỉ còn đúng cho **command đến từ
+> M3**, và **không** còn đúng cho hàng rào phía M8:
+>
+> | Fence | Nằm ở | Bắt được gì |
+> | --- | --- | --- |
+> | 1/2 | `PostgresSchedulerStore` — lúc scheduler claim | đơn đã thu hồi **trước** khi claim |
+> | 2/2 | `PostgresTelephonyDispatchStore` — lần đọc task cuối ngay trước khi quay số | đơn thu hồi **sau** claim, trong vài giây claim-to-dial |
+>
+> Ba cột revoke do migration `20260909034715_W0249OrderRevocationFence` thêm.
+>
+> **Phần còn thiếu vẫn nằm ở M3, và là phần quyết định:** chưa có endpoint để M3 báo thu hồi. Hai
+> fence chỉ **đọc** cột trong DB của IVR; hiện không có đường nào từ ngoài ghi vào cột đó. M8
+> **không** tự dựng endpoint thay M3 — làm vậy là bịa ra một hợp đồng M3 chưa ký.
+>
+> Vì vậy `D-06` vẫn là *contract requirement chưa được chứng minh runtime*, nhưng lý do nay hẹp hơn
+> hẳn: thiếu **đường vào**, không phải thiếu **hàng rào**.
 
 ---
 
@@ -1150,7 +1235,7 @@ OpenAPI và persistence thôi thì cuộc gọi vẫn hỏng lúc dial). MOCK/LA
 resolve lặp theo `(token fingerprint, attempt_id)` và có thể reuse scalar token ở attempt khác.
 `DialAuthorization` current chỉ nhận opaque provider destination reference, không nhận E.164.
 `DTK-01..DTK-15` trong
-[M8-10 decision pack](../plan/ivr-orther/00-CHUA-XONG.md#m8-10)
+[M8-10 decision pack](../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md)
 là chi tiết vận hành **dưới** ba quyết định đã ký `OD-V1-05` / `OD-V1-17` / `OD-V1-18`; phần còn lại
 quyết giữa **owner IVR và dev Module 3**, không chờ đội Security/Platform/Telephony nào — xem `§9a`.
 
@@ -1182,6 +1267,28 @@ Cần xác nhận thêm:
 - hành vi khi token hết hạn giữa các attempt.
 
 Không gửi số E.164 trực tiếp trong task.
+
+> **Correction `W-0304` (16/09/2026) — bốn phương án và năm câu hỏi ngay trên đây đã được quyết.**
+>
+> Tiêu đề mục này ghi *"đã chốt hợp đồng, còn lại là vận hành"*, trong khi thân mục vẫn trình bày
+> như thể còn đang cân nhắc. Đó là mâu thuẫn nội bộ của chính tài liệu này: người đọc sau sẽ tưởng
+> mình còn được chọn, và sẽ chọn lại thứ đã ký.
+>
+> | Câu hỏi để mở ở trên | Thực ra đã quyết ở đâu |
+> | --- | --- |
+> | Chọn phương án nào trong bảng bốn dòng | `OD-V1-17` — **token reusable theo TTL**; ba phương án kia đã loại |
+> | Service nào giữ mapping `dial_token` → E.164, IVR được thấy gì | `OD-V1-05` / `OD-V1-18` — resolver nằm **trong tiến trình IVR** |
+> | Ai vận hành/audit vault | `OD-V1-05` — không có vault ngoài, và không có đội Security/Platform nào trong tổ chức này (xem §7) |
+> | TTL và số lần resolve | `OD-V1-17` + `W-0246` — TTL = **đúng** confirmation-window end; trần resolve = `max_customer_attempts` + technical retry |
+> | Rotation/revocation, token hết hạn giữa hai attempt | `OD-V1-18` + §3.4.1 — ba guard ép đẳng thức; lệch ⇒ `422 IVR_CONTACT_INVALID` với hai mã riêng cho sớm/muộn (`W-0302`) |
+>
+> **Một nguồn sự thật duy nhất cho vị trí của `E.164`: `specs/api/04-sim-adapter-contract.md` §2.**
+> Nguyên văn ở đó: số E.164 tồn tại **chỉ trong bộ nhớ tiến trình** cho đúng một lần quay số —
+> không ghi DB, không vào log, không vào evidence, không vào callback payload.
+>
+> Câu *"Không gửi số E.164 trực tiếp trong task"* ngay trên là **hệ quả** của quy tắc đó, không
+> phải một quy tắc thứ hai. Khi hai chỗ cùng nói về E.164, sửa API-04 trước rồi để chỗ này theo sau
+> — đừng sửa ngược, và đừng sửa một chỗ.
 
 ---
 
@@ -1312,7 +1419,7 @@ ngay với `1.0.0-draft.28`.
 - [ ] Xác nhận tổ hợp `program_code × payment_method_snapshot` thật sẽ gửi (§3.10 R3). **Đã đóng 27/08** bằng Flow 04/05; chỉ còn ký wire mapping.
 - [ ] Đối chiếu đủ 5 dòng bảng từ vựng §3.11 và 5 ô checklist cuối mục đó. Ba field đang lệch chuỗi, hai trong ba hỏng im lặng.
 - [ ] Xác định khi nào `order_version` bump.
-- [ ] Ký đủ `ATP-01..ATP-15` theo [M8-11](../plan/ivr-orther/00-CHUA-XONG.md#m8-11), đặc biệt canonical two-program version/bundle hash, window/attempts/offsets/T0, counting/retry/quiet-hours, cutover và pre-dial coherence.
+- [ ] Ký đủ `ATP-01..ATP-15` theo [M8-11](../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md), đặc biệt canonical two-program version/bundle hash, window/attempts/offsets/T0, counting/retry/quiet-hours, cutover và pre-dial coherence.
 - [ ] Giao exact producer commit/OpenAPI/schema/CDC cho `attempt_policy_version`, `max_customer_attempts`, `attempt_offsets_seconds`, `confirmation_window_started_at`, `confirmation_window_expires_at`; payload sandbox phải khớp signed registry snapshot và chứng minh `409 IVR_POLICY_MISMATCH` được xử lý, không retry mù.
 - [ ] Chốt cách normalize `delivery_area_short` và giới hạn `items[]`.
 - [ ] Xác nhận không gửi `trusted_skip_allowed` (`LEGACY_READ`); trust/risk metadata nếu giữ không được dùng phía IVR để quyết định gọi/skip.

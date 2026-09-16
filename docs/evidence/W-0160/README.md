@@ -5,7 +5,7 @@
 
 ## 1. Kết quả
 
-Đã tạo [M8-15 monotonic registry contract](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-15) cho gap còn lại sau W-0159:
+Đã tạo [M8-15 monotonic registry contract](../../../plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md) cho gap còn lại sau W-0159:
 
 - immutable sequence record và authoritative latest head;
 - sequence genesis/advance, không gap/reuse/decrement;

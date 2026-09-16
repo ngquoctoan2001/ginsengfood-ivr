@@ -29,7 +29,7 @@ CODE_NOT_AUTHORIZED`**
 
 ## 3. Artifact
 
-- [M8-09 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-09)
+- [M8-09 decision pack](../../../plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md)
 - S-07/TODAY-01, M8 worklist và target plan status
 - IR-02/IR-06 và functional eligibility clarification
 - Tracker/readiness/gate mirror và official Markdown map

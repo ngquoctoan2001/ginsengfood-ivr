@@ -41,7 +41,7 @@ Chỉ sửa lời cho đúng hiện trạng.
 
 **`prompt/phase-3-admin-ui/` giữ nguyên.** Sổ `prompt-execution-tracker` trỏ tới `P3-1..P3-4`
 **19 lần** cho công việc đã thực sự làm; xoá bốn tệp ấy là làm mồ côi sổ kiểm. Thay vào đó
-`prompt/00-CHUA-XONG.md` ghi thẳng ở đầu mục: đây **không còn là chỉ dẫn để làm**.
+`prompt/00-index.md` ghi thẳng ở đầu mục: đây **không còn là chỉ dẫn để làm**.
 
 **Bài học bảo mật giữ lại, đổi khung.** `deploy/docker/README.md` kể chuyện `ivr-admin-ui` bản đầu
 có 7 HIGH + 1 CRITICAL và cả 8 nằm trong npm đi kèm base image. Image không còn, nhưng bài học —

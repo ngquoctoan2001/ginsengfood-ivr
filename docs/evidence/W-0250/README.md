@@ -108,7 +108,7 @@ khi sự thật là thiếu binary. Đã thêm `command -v` đứng trước, n�
 ## 7. Hai gate đỏ **không** phải của lượt này
 
 `external-decision-response-validator` và `external-decision-closure-validator` (phụ thuộc cái
-trước) đang đỏ vì `00-CHUA-XONG.md#m8-05` lệch manifest. Đã kiểm bằng
+trước) đang đỏ vì `m8-05-program-result-contract-signoff-2026-09-03.md` lệch manifest. Đã kiểm bằng
 `git stash`: **đỏ y hệt trên cây đã commit**, trước mọi thay đổi của tôi.
 
 Nguồn: `a4a0cee` (`W-0217`) sửa file plan được ghim mà không re-pin hai manifest

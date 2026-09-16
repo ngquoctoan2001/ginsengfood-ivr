@@ -43,7 +43,7 @@ không phải ACK cho business revoke command. Current IVR không có revoke/upd
 recheck trước mỗi attempt. Read-only snapshot M3 `PhucApu@a3aad246d986` không có exact hit cho
 generic Target V1 callback consumer hay hai ACK code này; vì vậy D-06 runtime vẫn
 `NOT_FOUND/NOT_PROVEN`. Xem
-[M8-09 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-09).
+[M8-09 decision pack](../../../plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md).
 
 **Endpoint hiện tại của Sales là một hình dạng khác hẳn.** Fixture compat đã verify tại commit ghim [`specs/api/compat/current-golden-hour-callback.a3aad246.schema.json`](../../../specs/api/compat/current-golden-hour-callback.a3aad246.schema.json):
 
@@ -124,7 +124,7 @@ Trường hợp Sales đã huỷ đơn trong lúc IVR đang gọi:
 ## 5. Mock fallback
 
 WireMock phát đủ 6 ACK code + 6 lớp lỗi; outbox đã có test bền vững trên Postgres thật. Đường compat đã verify tại commit ghim — **`CURRENT_COMPAT_VERIFIED_AT_PINNED_SHA`**, không phải "đã tích hợp". Gói handoff hiện hành của M8-07 nằm tại
-[`00-CHUA-XONG.md#m8-07`](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-07).
+[`m8-07-target-v1-shared-callback-handoff-2026-09-03.md`](../../../plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md).
 
 ## 6. Closure artifact — owner điền
 

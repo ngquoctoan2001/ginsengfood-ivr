@@ -6,7 +6,7 @@ Owner: **Module 3** — `ginsengfood-business-platform` (Commerce/Order Core + S
 > **File này là sổ đăng ký mã, không phải tài liệu bàn giao.**
 > Nội dung chi tiết — endpoint, 22 field, payload mẫu, ACK taxonomy, checklist ký — nằm ở **[06-module-3-api-handover.md](06-module-3-api-handover.md)**. Đó là file gửi cho Module 3 và là **authority** khi hai file lệch nhau.
 >
-> IR-01 tồn tại vì mã `IR-SALES-*` được trích dẫn từ `seed/README.md`, `specs/api/06-error-codes.md`, `specs/data/00-CHUA-XONG.md` và `plan/ivr-orther/production-blockers-plan.md`. Đổi hoặc xoá mã ở đây sẽ làm gãy các trích dẫn đó.
+> IR-01 tồn tại vì mã `IR-SALES-*` được trích dẫn từ `seed/README.md`, `specs/api/06-error-codes.md`, `specs/data/00-index.md` và `plan/ivr-orther/production-blockers-plan.md`. Đổi hoặc xoá mã ở đây sẽ làm gãy các trích dẫn đó.
 
 ## 1. Sổ đăng ký
 

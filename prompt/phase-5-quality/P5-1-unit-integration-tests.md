@@ -16,7 +16,7 @@ Bạn là **Senior Test Engineer (.NET)**. Bạn củng cố bộ test unit + in
 Các slice Phase 2 đã có test cục bộ; Phase 5 hợp nhất thành **test suite chính thức** theo test plan, đảm bảo mọi FR/P0 có test backing (MASTER-05, không orphan claim). Đây là nền cho code-review gate (P5-4) và CD (P7-3).
 
 ## 3. SOURCE SPECS (đọc trước)
-- `specs/testing/00-CHUA-XONG.md`, `specs/testing/01-strategy.md`, `specs/testing/02-unit-test-plan.md`, `specs/testing/03-integration-test-plan.md`
+- `specs/testing/00-index.md`, `specs/testing/01-strategy.md`, `specs/testing/02-unit-test-plan.md`, `specs/testing/03-integration-test-plan.md`
 - `specs/testing/08-acceptance-criteria.md` (fail gate), `specs/testing/09-smoke-matrix.md`
 - `plan/ivr-orther/decisions-log.md` (mọi D/DS/DO/DT áp vào assert)
 

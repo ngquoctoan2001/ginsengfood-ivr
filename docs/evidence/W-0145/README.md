@@ -45,11 +45,11 @@ Người ký phía M8: **Tôi — Module 8 / Project Owner**.
 | Pre-call compatibility, không result/callback | 2 | Operational-blocked, policy-blocked |
 
 Chi tiết counted/final/action nằm ở
-[gói ký M8-05](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-05).
+[gói ký M8-05](../../../plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md).
 
 ## 4. Artifact đã cập nhật
 
-- `plan/ivr-orther/00-CHUA-XONG.md#m8-05`
+- `plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md`
 - `plan/toan-viec-can-lam-m8-2026-09-03.md` — worklist hiện hành; bản worklist 29/08 đã gỡ khỏi cây active
 - `plan/ivr-orther/00-CHUA-XONG.md#today-01`
 - `docs/contracts/target-v1-closure-pack/{README,T-01-program-matrix,T-05-callback-ack}.md`

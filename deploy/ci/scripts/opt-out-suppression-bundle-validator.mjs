@@ -41,15 +41,15 @@ const SOURCE_PINS = Object.freeze([
   ],
   [
     "integration-requirements/06-module-3-api-handover.md",
-    "6e08675e82c8987b351db96ff5cf7d2599944d1323b7d16c51b9e0a9a05ff233",
+    "0a4563b28a2af2eb7d8d9a3a7fb863001e7e3e63ce4075ace4ceb8f6116cca61",
   ],
   [
     "src/Ivr.Domain/Policies/OptOutSuppression.cs",
-    "77f980556ee188c2e5bbbed9850229e0f5aa2a9973ae5965b9e1cf2bb4667c2c",
+    "28b55a34d1888f96c1e99b470cdd2b68e0b00d81ce4f2ea0e77f82ec5f59ac8e",
   ],
   [
     "src/Ivr.Domain/Policies/EligibilityRules.cs",
-    "e8cb49ae03ccfd178b20002f977e1de9e0f1d425383c0d2192864a7d61ef3a58",
+    "ee707835613c6a44c7e103ee080b2d916dff71939606f28fe3a748b2a8848868",
   ],
   [
     "src/Ivr.Infrastructure/Crm/SuppressionProposer.cs",
@@ -57,7 +57,7 @@ const SOURCE_PINS = Object.freeze([
   ],
   [
     "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
-    "13e1b09147ab079cdfee3bc2f15f37dc762f91c2089ed2fb953b546dcbc7b694",
+    "a80f1a64dc50b3f526d2d7172b86dd9689d847605c5ce6e47cc2000d93faaf01",
   ],
 ]);
 

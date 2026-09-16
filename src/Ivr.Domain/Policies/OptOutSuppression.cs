@@ -65,6 +65,31 @@ public sealed record OptOutThresholdPolicy(int MinimumSignals)
         : this;
 }
 
+/// <summary>
+/// <b>DEAD_BY_OD-V1-23 (W-0304, 2026-09-16). Nothing in production calls this.</b>
+/// <para>
+/// The eight call sites are all in tests. That is not an oversight to fix by wiring it up: the
+/// threshold below infers an opt-out from repeated <c>Rejected</c> calls, and OD-V1-23 closed on
+/// 2026-09-10 with the opposite position - V1 is <i>explicit-only</i>, and V1 has no explicit
+/// opt-out signal at all. DTMF-0 is the cancel-order key (the locked script says so, and
+/// <c>TargetV1SpeechPolicy</c> enforces it); key 9 is out of scope and the same policy rejects any
+/// template mentioning it. So there is no signal for this policy to count, and the 2/3 constant is
+/// recorded in the register as a gap with no authority behind it, not as a rule.
+/// </para>
+/// <para>
+/// Kept rather than deleted, for three reasons that are each sufficient:
+/// (1) <c>deploy/ci/scripts/opt-out-suppression-bundle-validator.mjs</c> pins this file by SHA-256
+/// and reads it, so deleting it turns that gate red with no replacement;
+/// (2) OPT-01..11 in the W-0187 bundle are pending a quorum that Legal/Privacy and CRM/M3 have not
+/// given, and this file is the artifact those decisions are about;
+/// (3) the reasoning below - why one declined call is never an opt-out - is the part worth keeping
+/// whatever V2 decides.
+/// </para>
+/// <para>
+/// Before calling this from production code, OD-V1-23 must be reopened and OPT-01..11 signed. It is
+/// not enough to add a caller.
+/// </para>
+/// </summary>
 public static class OptOutSuppressionPolicy
 {
     /// <summary>

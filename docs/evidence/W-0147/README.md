@@ -63,7 +63,7 @@ và unsupported media thành `CALLBACK_ACK_INVALID`, giữ HTTP status và khôn
 - `src/Ivr.Infrastructure/Callbacks/TargetV1CallbackTransport.cs`
 - `src/Ivr.Infrastructure/Callbacks/CallbackDispatcher.cs`
 - `tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs`
-- [M8-07 handoff](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-07)
+- [M8-07 handoff](../../../plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md)
 - T-05, IR-06, TODAY-01, worklist, tracker/readiness/gate mirror và official Markdown map.
 
 ## 5. Verification

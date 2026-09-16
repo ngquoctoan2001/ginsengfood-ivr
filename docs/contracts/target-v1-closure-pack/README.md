@@ -4,16 +4,16 @@ Trạng thái: `OPEN_EXTERNAL` · Work `W-0058` (prompt `P11-2`) · Tạo `2026-
 
 Correction hiện hành: `W-0145` · `2026-09-03` · T-01 và producer/result semantics đã được đối
 chiếu lại trên `main@b21ec676e490`; đọc cùng
-[M8-05 sign-off](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-05).
+[M8-05 sign-off](../../../plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md).
 
 Dial-token correction: `W-0150` · `2026-09-03` · T-04 đã được đối chiếu lại về contact requiredness,
 TTL equality, scalar/reuse semantics, opaque resolver output và production fail-closed; đọc cùng
-[M8-10 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-10).
+[M8-10 decision pack](../../../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md).
 
 Attempt-policy correction: `W-0151` · `2026-09-03` · T-09 đã được đối chiếu lại về exact wire
 mismatch `409`, immutable task/job snapshot, seed scope, registry lifecycle/four-eyes gap,
 technical-retry config và pre-dial flag drift; đọc cùng
-[M8-11 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-11).
+[M8-11 decision pack](../../../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
 
 Gói review duy nhất để Sales / Product / Privacy / Security trả lời bằng **code, OpenAPI và test** — không trả lời bằng ý kiến.
 

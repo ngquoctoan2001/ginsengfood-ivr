@@ -264,7 +264,7 @@ Các liên kết dưới trỏ vào checkout đã kiểm tra; số dòng áp d�
 [S11]: <C:/Users/Administrator/Desktop/ivr/docs/evidence/W-0196/README.md:1>
 [S12]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Domain/Confirmation/DispositionMapper.cs:71>
 [S13]: <C:/Users/Administrator/Desktop/ivr/specs/_review/open-decisions-register.md:64>
-[S14]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/00-CHUA-XONG.md#m8-08:64>
+[S14]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md:64>
 [S15]: <C:/Users/Administrator/Desktop/ivr/docs/capacity-model.md:114>
 [S16]: <C:/Users/Administrator/Desktop/ivr/tools/capacity-sim/capacity-model.mjs:17>
 [S17]: <C:/Users/Administrator/Desktop/ivr/specs/api/04-sim-adapter-contract.md:16>
@@ -283,12 +283,12 @@ Các liên kết dưới trỏ vào checkout đã kiểm tra; số dòng áp d�
 [S30]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Domain/Policies/EligibilityRules.cs:163>
 [S31]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs:90>
 [S32]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Domain/Confirmation/ResultContractPolicy.cs:8>
-[S33]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/00-CHUA-XONG.md#m8-06:60>
+[S33]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md:60>
 [S34]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Infrastructure/Callbacks/TargetV1CallbackTransport.cs:114>
 [S35]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Infrastructure/Callbacks/CallbackDispatcher.cs:169>
-[S36]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/00-CHUA-XONG.md#m8-09:43>
-[S37]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/00-CHUA-XONG.md#m8-10:18>
-[S38]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/00-CHUA-XONG.md#m8-11:1>
+[S36]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md:43>
+[S37]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md:18>
+[S38]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md:1>
 [S39]: <C:/Users/Administrator/Desktop/ivr/docs/evidence/W-0122/README.md:72>
 [S40]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Infrastructure/Configuration/IvrOptionsValidator.cs:49>
 [S41]: <C:/Users/Administrator/Desktop/ivr/deploy/tts/models/MODELS.lock:1>
@@ -299,6 +299,6 @@ Các liên kết dưới trỏ vào checkout đã kiểm tra; số dòng áp d�
 [S46]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Infrastructure/Scheduling/SchedulerCapacity.cs:501>
 [S47]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Infrastructure/Callbacks/CallbackDeliveryOptions.cs:62>
 [S48]: <C:/Users/Administrator/Desktop/ivr/specs/api/openapi/ivr-order-confirmation.v1.yaml:989>
-[S49]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/00-CHUA-XONG.md#m8-12:34>
+[S49]: <C:/Users/Administrator/Desktop/ivr/plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md:34>
 [S50]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Infrastructure/Telephony/DialTokenResolveLedger.cs:79>
 [S51]: <C:/Users/Administrator/Desktop/ivr/src/Ivr.Api/Auth/OrderCoreAllowlistMiddleware.cs:24>

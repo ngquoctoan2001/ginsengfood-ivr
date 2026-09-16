@@ -8,7 +8,7 @@ threat model), **Platform** (custody/network) và **Telephony vendor** (khả n�
 Due: chốt **trước `P8-1`** (real SIM lab) — không quay số thật khi chưa có semantics token. Ngày cam kết của owner: `<owner điền>`.
 
 Correction hiện hành: `W-0150` · `2026-09-03` · đọc ticket này cùng
-[M8-10 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-10).
+[M8-10 decision pack](../../../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md).
 Audit không đóng T-04; nó sửa factual drift về TTL, reuse và resolver output, đồng thời chuyển câu hỏi
 thành `DTK-01..DTK-15` để M3/Security/Platform/Telephony ký.
 

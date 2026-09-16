@@ -42,7 +42,7 @@ Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Teleph
 > production issue/resolve contract. `OD-V1-05/17/18` vẫn mở. Current intake + persistence ép token
 > expiry bằng window end, MOCK/LAB reuse theo `attempt_id`, và domain resolver chỉ trả opaque provider
 > destination reference. M3/Security/Platform/Telephony phải ký `DTK-01..DTK-15` trong
-> [M8-10 decision pack](00-CHUA-XONG.md#m8-10) trước code.
+> [M8-10 decision pack](m8-10-contact-dial-token-production-decision-pack-2026-09-03.md) trước code.
 
 ## Module 3.1 — Sales Extensions
 
@@ -61,7 +61,7 @@ Còn treo: các câu Ops-Core (`questions-to-ops-core.md`) và Foundation/Teleph
 > `2/[0,150]/300s`, 24/7 `2/[0,450]/900s`. Product + Order Core + M3 phải ký
 > `ATP-01..ATP-15` và một production version/bundle mới. Không promote/rename
 > `mock-lab-v1` hoặc sửa scheduler/registry từ D-10. Xem
-> [M8-11 decision pack](00-CHUA-XONG.md#m8-11).
+> [M8-11 decision pack](m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
 
 ## Hệ quả cập nhật (đã áp dụng vào plan/specs)
 

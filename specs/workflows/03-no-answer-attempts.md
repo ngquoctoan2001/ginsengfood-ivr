@@ -29,4 +29,4 @@ IVR never cancels the order and sends no SMS/notification. Technical failure doe
 customer attempt. Current technical retry uses a separate scheduler limit (default 1), can requeue
 the same customer-attempt number and has no signed versioned backoff; Product/Order Core/M3 must
 close `ATP-04..06` before this is a production workflow. See the
-[M8-11 decision pack](../../plan/ivr-orther/00-CHUA-XONG.md#m8-11).
+[M8-11 decision pack](../../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).

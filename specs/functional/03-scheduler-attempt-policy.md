@@ -18,7 +18,7 @@ vẫn `OWNER_DECISION_REQUIRED` từ Product + Order Core + Module 3.
   registry-wide startup activation gate, và pre-dial flag chưa được so với policy snapshot của job.
 - Accepted task/job giữ immutable policy snapshot; registry change không rewrite in-flight work.
 - `TechnicalRetryLimit` là scheduler config riêng, không thuộc versioned attempt policy; production
-  retry/backoff/counting cần owner ký theo [M8-11](../../plan/ivr-orther/00-CHUA-XONG.md#m8-11).
+  retry/backoff/counting cần owner ký theo [M8-11](../../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
 
 ## Requirements
 

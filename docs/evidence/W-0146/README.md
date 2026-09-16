@@ -43,7 +43,7 @@ current HEAD là authority. W-0146 không sửa production symbol nên không c�
 - Sau chữ ký mới thêm cột nullable riêng `golden_hour_session_id` vào task/job/incident theo store →
   enforce cutover; không backfill giả và không unique index.
 
-Chi tiết: [M8-06 sign-off pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-06).
+Chi tiết: [M8-06 sign-off pack](../../../plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md).
 
 ## 4. Artifact cập nhật
 

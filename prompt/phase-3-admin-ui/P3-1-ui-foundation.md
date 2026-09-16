@@ -16,7 +16,7 @@ Bạn là **Senior Frontend Engineer (Next.js/TypeScript)**. Bạn dựng nền 
 Ops/admin cần màn theo dõi hàng đợi IVR, xem call log/evidence, cấu hình. Đây là bước nền cho các màn nghiệp vụ (P3-2/3-3). UI gọi `Ivr.Api` (đã có health + intake; các API admin bổ sung dần). RBAC `IVR_*` enforce **server-side** (P0-3) — UI chỉ ẩn/hiện, không tự quyết quyền.
 
 ## 3. SOURCE SPECS (đọc trước)
-- `specs/ui/00-CHUA-XONG.md`, `specs/ui/08-role-permission-ui.md`
+- `specs/ui/00-index.md`, `specs/ui/08-role-permission-ui.md`
 - `specs/api/03-admin-api.md`, `specs/api/06-error-codes.md` (envelope render)
 - `plan/ivr-orther/decisions-log.md` §DF-01 (RBAC) · §D-02 (không bypass Core) · §D-05 (PII mask) · §DTS-03
 
