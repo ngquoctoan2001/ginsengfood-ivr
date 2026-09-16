@@ -18,7 +18,23 @@
 > **▸ Cập nhật `16/09` — đã bắt đầu khắc phục.** Kế hoạch thi hành ở
 > [`ke-hoach-khac-phuc-m8-2026-09-16.md`](ke-hoach-khac-phuc-m8-2026-09-16.md).
 > ✅ **`C15`** · ✅ **`B6`** · ✅ **`B3`** · ✅ **`B4`** · ✅ **`C6`** (`W-0298`→`W-0302`) — hết `3,75` ngày,
-> `1105/1105` test pass. Còn `3,25–3,75` ngày cho `12` mục.
+> `1105/1105` test pass.
+>
+> **▸ `W-0304` — lô tài liệu `11` mục, xong `16/09`.** Đóng thêm ✅ **`B10`** · ✅ **`C7`** ·
+> ✅ **`C8`** — một bảng map `result_type` → `cancellation_reason_code` ở `IR-06 §4.3` đóng cả ba
+> ô, vì `C7`≡`C8` và `B10` hỏi cùng một thứ. Cộng **một vế của `A1` tôi công nhận và đã sửa**:
+> `OD-V1-01/02/03/05` từ ✅ `CLOSED` đổi thành ⏳ `M8_POSITION_SIGNED / M3_NOT_RECEIVED`, vì chữ
+> ký là của tôi một mình trong khi owner của chúng ghi là M3. Nội dung quyết định **không đổi một
+> chữ**, `0` dòng code đổi — chỉ cái nhãn trở nên đúng.
+>
+> ⚠️ **Lô này tìm ra thứ không ai biết: `11` CI gate đang đỏ.** Lượt dọn tài liệu `W-0297`
+> xóa `27` file, trong đó `12` file là **đầu vào CI được ghim hash**, và không re-pin cái nào.
+> Đã khôi phục và cả `11` gate xanh lại. **`3` trong số đó là lỗi của chính tôi ở `W-0302`**: tôi
+> tính hash trên bản CRLF của cây làm việc Windows trong khi git lưu LF, nên pin xanh trên máy
+> tôi và đỏ trên CI. Tôi ghi thẳng ra đây: đã đòi bản `16/09` phải chính xác thì bản này phải
+> chịu cùng chuẩn đó.
+>
+> Còn `2,75–3,25` ngày cho `9` mục — và phần lớn số còn lại **không phụ thuộc tôi**.
 
 ---
 

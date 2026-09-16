@@ -750,9 +750,27 @@ nằm trong lịch `§4`.
 | `W-0300` | `B3` gỡ phê duyệt khỏi migration | `1` | ✅ **XONG** `16/09` · `1065/1065` | `641d294` |
 | `W-0301` | `B4` `RUNTIME_GATE_ADMIN` scope env | `0,5` → **1** | ✅ **XONG** `16/09` · `1066/1066` | `1651e8f` |
 | `W-0302` | `C6` `500`→`422` + OAS `draft.28` | `1,5` | ✅ **XONG** `16/09` · `1105/1105` | 5 pin dời, không breaking |
-| `W-0304` | Lô tài liệu `11` mục | `1,5` | ⬜ | ⚠️ `W-0303` **đã cấp cho phiên PD-01** |
-| `W-0305` | Lô vận hành `4` mục | `1,5` | ⬜ | |
-| `W-0306` | `B9` `audit-evidence` *(tuỳ chọn)* | `2` | ⬜ | |
+| `W-0304` | Lô tài liệu `11` mục | `1,5` | ✅ **XONG** `16/09` · `756/756` unit · **`13/13` gate ghim hash** | **`9dc5479`** + **`aa2c9af`** — `10/11` mục làm, `1` mục tiền đề sai; **sửa `11` gate đỏ do `W-0297`** |
+| `W-0306` | Lô vận hành `4` mục | `1,5` | ⬜ | ⚠️ `W-0305` **đã cấp cho phiên PD-03** (sổ tay vận hành) |
+| `W-0307` | `B9` `audit-evidence` *(tuỳ chọn)* | `2` | ⬜ | |
+
+
+> ### ⚠️ `W-0304` tìm ra thứ không nằm trong kế hoạch: `W-0297` đã làm `11` CI gate đỏ
+>
+> Mục `10` của lô — *“cập nhật mọi dẫn chiếu tới file `W-0297` vừa xóa”* — được viết như một
+> việc sửa link. Nó không phải. `W-0297` xóa `27` file, trong đó **`12` file là đầu vào CI
+> được ghim hash**, và sửa `15` file ghim hash khác mà không re-pin cái nào. `164 KB` decision
+> pack đã ký bị xóa; `19 KB` tóm tắt thay vào không chứa nội dung đó.
+>
+> `11` gate đỏ suốt một ngày mà **không lượt nào thấy**, kể cả `W-0298`…`W-0302` của chính
+> tôi — vì mỗi lượt chỉ chạy gate thuộc phạm vi mình. Trong `11` gate đó, **`3` cái đỏ vì
+> lỗi của tôi ở `W-0302`**: pin OAS tính trên bản CRLF của cây làm việc Windows, trong khi git
+> lưu LF — pin xanh trên máy tôi và đỏ trên CI. Đúng bài học `W-0126`, lặp lại.
+>
+> **Bổ sung luật §1.11 — cụ thể hơn “chạy gate trước khi commit”:** khi một lượt **xóa hoặc
+> đổi tên** file, thứ phải chạy **không phải** gate thuộc phạm vi mình mà là **quét toàn bộ
+> pin** — vì pin là thứ duy nhất biết rằng một file ở chỗ khác đang phụ thuộc vào file bạn
+> vừa xóa. Và tính hash **trên byte LF**, không trên cây làm việc Windows.
 
 ---
 
