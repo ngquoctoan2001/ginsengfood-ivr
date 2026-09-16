@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "44 of 287 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "44 of 288 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 21
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 233
+  rows_without_evidence_pack: 234
 
 gates:
   - id: "G-CONTRACT"
@@ -1256,6 +1256,10 @@ work:
     prompt: "Trả ProductionTargetV1FieldsApproved về NO trong mọi appsettings (Origin=UNPLANNED, bản giao việc 16/09 mục B6)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0299/README.md"
+  - id: "W-0300"
+    prompt: "Gỡ phê duyệt production khỏi migration schema (Origin=UNPLANNED, bản giao việc 16/09 mục B3)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0300/README.md"
 
 production_flag:
   real_customer_call_allowed: false

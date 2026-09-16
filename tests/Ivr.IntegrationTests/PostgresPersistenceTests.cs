@@ -135,6 +135,49 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         Assert.True(await runtimeSafety.IsAuditProviderHealthyAsync());
     }
 
+    /// <summary>
+    /// W-0300 / <c>B3</c>. After every migration has run, no attempt policy in the shipped schema
+    /// may claim production approval.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <c>W0196</c> seeded <c>gh-247-prod-v1</c> with <c>approved_for_production = TRUE</c> from
+    /// inside a schema migration, so the approval reached every database the schema reached. The
+    /// row contradicted itself while doing it: its <c>retention_class</c> was
+    /// <c>LEGAL_DECISION_PENDING</c>, declaring the decision still open while claiming what that
+    /// decision would grant. <c>OD-V1-08</c> places the approval with Product, Order Core and
+    /// Module 3; none of them has signed.
+    /// </para>
+    /// <para>
+    /// Written as "no row claims it" rather than "these two rows are gone" on purpose. The specific
+    /// version is not the point — the point is that a production approval must not arrive by
+    /// migration, whatever it is called. Re-seeding under a new name would pass a test that named
+    /// the old one.
+    /// </para>
+    /// <para>
+    /// Asserted against the real migrated database rather than the C# catalogue, because the column
+    /// is what <c>PostgresAttemptPolicyRegistry</c> turns into <c>AttemptPolicyApproval</c>, and so
+    /// it is the column that decides whether <c>EnsureEnvironmentAllowed</c> admits a version into
+    /// <c>PRODUCTION_REAL</c>. A migration that re-approved one would pass every unit test and fail
+    /// here.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    [Trait("TestId", "IT-DB-POLICY-UNSIGNED-01")]
+    public async Task NoShippedAttemptPolicyClaimsProductionApproval()
+    {
+        await fixture.ResetAsync();
+        await using IvrDbContext dbContext = await Factory().CreateDbContextAsync();
+
+        List<string> approved = await dbContext.AttemptPolicies
+            .AsNoTracking()
+            .Where(policy => policy.ApprovedForProduction)
+            .Select(policy => policy.PolicyVersion + "/" + policy.ProgramType)
+            .ToListAsync();
+
+        Assert.Empty(approved);
+    }
+
     [Fact]
     [Trait("TestId", "IT-DB-TASK-02")]
     public async Task CanonicalTargetTaskPersistsAndPolicyRemainsDataDriven()
