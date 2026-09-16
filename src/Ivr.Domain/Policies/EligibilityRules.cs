@@ -35,6 +35,30 @@ public static class EligibilityReasonCodes
     public const string PhoneValidationStatusNotValid = "PHONE_VALIDATION_STATUS_NOT_VALID";
     public const string PhoneMaskedNotMasked = "PHONE_MASKED_NOT_MASKED";
     public const string DialTokenExpiresBeforeWindow = "DIAL_TOKEN_EXPIRES_BEFORE_WINDOW";
+
+    /// <summary>
+    /// W-0302. The mirror of <see cref="DialTokenExpiresBeforeWindow"/>, and the half that used to
+    /// be missing.
+    /// <para>
+    /// <c>OD-V1-17</c> settled on 2026-09-09 that <c>dial_token_expires_at</c> equals the
+    /// confirmation-window end exactly. The contact gate enforced only one side of that: a token
+    /// expiring <b>early</b> was refused here with a reason code, while one expiring <b>late</b>
+    /// passed and was rejected later by <c>PersistenceInvariantValidator</c> — inside the
+    /// transaction, as an <c>InvalidOperationException</c>, which
+    /// <c>ErrorEnvelopeMiddleware</c> turns into <c>500 IVR_INTERNAL_ERROR</c>.
+    /// </para>
+    /// <para>
+    /// A 500 is the one answer a producer is entitled to retry, so Module 3 would have retried a
+    /// payload that could never succeed, for as long as it kept trying. The two directions are the
+    /// same mistake and now give the same answer: <c>422</c>, naming the field.
+    /// </para>
+    /// <para>
+    /// The persistence invariant stays exactly where it is. It is the last line rather than the
+    /// first, and a guard that only ever fires when something upstream has already failed is worth
+    /// keeping precisely because it should never fire.
+    /// </para>
+    /// </summary>
+    public const string DialTokenExpiresAfterWindow = "DIAL_TOKEN_EXPIRES_AFTER_WINDOW";
     public const string DialTokenAlreadyExpired = "DIAL_TOKEN_ALREADY_EXPIRED";
     public const string PhoneRefLooksLikeRawPhone = "PHONE_REF_LOOKS_LIKE_RAW_PHONE";
     public const string DialTokenLooksLikeRawPhone = "DIAL_TOKEN_LOOKS_LIKE_RAW_PHONE";

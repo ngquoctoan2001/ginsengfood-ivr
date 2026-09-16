@@ -118,6 +118,11 @@ public sealed class TaskIntakeServiceTests
         TaskIntakeDecisions.RejectedContactInvalid,
         IvrErrorCodes.ContactInvalid)]
     [InlineData(
+        "dial-expires-after-window",
+        EligibilityReasonCodes.DialTokenExpiresAfterWindow,
+        TaskIntakeDecisions.RejectedContactInvalid,
+        IvrErrorCodes.ContactInvalid)]
+    [InlineData(
         "dial-already-expired",
         EligibilityReasonCodes.DialTokenAlreadyExpired,
         TaskIntakeDecisions.RejectedContactInvalid,
@@ -154,6 +159,11 @@ public sealed class TaskIntakeServiceTests
             "phone-not-masked" => CreateTask(phoneMasked: "84901234567"),
             "dial-expires-before-window" => CreateTask(
                 dialTokenExpiresAt: Now.AddMinutes(1)),
+            // W-0302. The mirror of dial-expires-before-window. Until W-0302 this shape passed the
+            // contact gate and threw in persistence, surfacing as 500 - the one code Module 3 may
+            // retry, for a payload that can never be accepted.
+            "dial-expires-after-window" => CreateTask(
+                dialTokenExpiresAt: Now.AddSeconds(900 + 60)),
             "dial-already-expired" => CreateTask(
                 dialTokenExpiresAt: Now.AddSeconds(-1)),
             "phone-ref-raw" => CreateTask(phoneRef: "0901234567"),

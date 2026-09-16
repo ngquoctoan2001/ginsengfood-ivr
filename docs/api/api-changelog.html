@@ -12,6 +12,19 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
 <blockquote>
+<p><strong><code>1.0.0-draft.28</code> (W-0302)</strong> ghi vào contract ràng buộc <code>dial_token_expires_at</code> <strong>bằng đúng</strong>
+<code>confirmation_window_expires_at</code>, và làm hai chiều trả lời giống nhau. <code>OD-V1-17</code> chốt đẳng thức
+này <code>2026-09-09</code>, nhưng cổng contact chỉ cưỡng chế <strong>một</strong> phía: token hết hạn <strong>sớm</strong> bị từ chối
+<code>422</code> có reason code, token hết hạn <strong>muộn</strong> thì lọt qua rồi nổ trong transaction ở
+<code>PersistenceInvariantValidator</code> — ra <code>500 IVR_INTERNAL_ERROR</code>. <code>500</code> là mã producer <strong>được phép
+retry</strong>, nên Module 3 sẽ retry mãi một payload không bao giờ hợp lệ. Nay cả hai chiều cùng trả
+<code>422 IVR_CONTACT_INVALID</code>, với <code>DIAL_TOKEN_EXPIRES_BEFORE_WINDOW</code> và
+<code>DIAL_TOKEN_EXPIRES_AFTER_WINDOW</code>.</p>
+<p><strong>Không breaking</strong>: chỉ thêm mô tả và một reason code mới; <code>blocked_reasons</code> là mảng chuỗi, không
+phải enum đóng. Payload hợp lệ hôm nay vẫn hợp lệ. Thứ đổi là <strong>mã trả về cho payload vốn đã
+không hợp lệ</strong> — từ <code>500</code> sang <code>422</code>.</p>
+</blockquote>
+<blockquote>
 <p><strong><code>1.0.0-draft.27</code> (W-0278)</strong> đóng <code>IvrDashboardSimPanel.adapter_mode</code> thành
 <code>enum [MOCK, VENDOR, ASTERISK_ARI, NONE]</code>. <code>draft.26</code> cố ý để field này mở vì nó mang <strong>hai từ
 vựng</strong>: adapter của channel khi có channel, và <strong>execution mode</strong> khi không có — giá trị đã nằm
@@ -42,7 +55,7 @@ Xem <code>docs/evidence/W-0275/README.md</code>.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.27</code></td>
-<td><code>1.0.0-draft.27</code></td>
+<td><code>1.0.0-draft.28</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>

@@ -216,24 +216,24 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
 
         Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, accepted.Decision);
 
-        // Window + 60s: the clause OD-V1-17 carried until 2026-09-09. The contact gate lets it
-        // through, then the persistence invariant rejects it inside the transaction - which is why
-        // that clause was replaced rather than implemented.
-        InvalidOperationException tooLate =
-            await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                service.IntakeAsync(new TaskIntakeCommand(
-                    CreateTask(
-                        taskId: "TASK-PG-TTL-LATE",
-                        dialTokenExpiryOffsetFromWindowEnd: TimeSpan.FromSeconds(60)),
-                    "idem-ttl-late",
-                    "corr-postgres-p2-1",
-                    new string('F', 64),
-                    ExecutionMode.Mock)));
+        // Window + 60s: the clause OD-V1-17 carried until 2026-09-09. Until W-0302 the contact gate
+        // let it through and the persistence invariant threw inside the transaction, which
+        // ErrorEnvelopeMiddleware turned into 500 IVR_INTERNAL_ERROR - the one answer a producer is
+        // entitled to retry, for a payload that could never be accepted. It is refused at the edge
+        // now, symmetrically with the early case below.
+        TaskIntakeOutcome tooLate = await service.IntakeAsync(new TaskIntakeCommand(
+            CreateTask(
+                taskId: "TASK-PG-TTL-LATE",
+                dialTokenExpiryOffsetFromWindowEnd: TimeSpan.FromSeconds(60)),
+            "idem-ttl-late",
+            "corr-postgres-p2-1",
+            new string('F', 64),
+            ExecutionMode.Mock));
 
-        Assert.Contains(
-            "Dial-token expiry must remain inside the confirmation window",
-            tooLate.Message,
-            StringComparison.Ordinal);
+        Assert.Equal(TaskIntakeDecisions.RejectedContactInvalid, tooLate.Decision);
+        Assert.Equal(
+            new[] { EligibilityReasonCodes.DialTokenExpiresAfterWindow },
+            tooLate.BlockedReasons);
 
         // Window - 60s: refused at the edge instead, with a reason code and no partial write.
         TaskIntakeOutcome tooEarly = await service.IntakeAsync(new TaskIntakeCommand(

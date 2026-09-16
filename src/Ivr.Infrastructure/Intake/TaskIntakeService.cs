@@ -427,9 +427,19 @@ public sealed class TaskIntakeService(
             return EligibilityReasonCodes.DialTokenAlreadyExpired;
         }
 
+        // W-0302. These two together say dial_token_expires_at == window.ExpiresAt, which is what
+        // OD-V1-17 settled on 2026-09-09. They stay as two rules rather than one equality check so
+        // the answer names the direction the producer got wrong; a single
+        // DIAL_TOKEN_EXPIRY_MISMATCH would make the caller diff the timestamps to find out which
+        // way.
         if (source.Dial_token_expires_at < window.ExpiresAt)
         {
             return EligibilityReasonCodes.DialTokenExpiresBeforeWindow;
+        }
+
+        if (source.Dial_token_expires_at > window.ExpiresAt)
+        {
+            return EligibilityReasonCodes.DialTokenExpiresAfterWindow;
         }
 
         if (LooksLikeRawPhone(source.Phone_ref))

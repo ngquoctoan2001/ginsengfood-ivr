@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "44 of 289 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "44 of 291 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 21
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 235
+  rows_without_evidence_pack: 237
 
 gates:
   - id: "G-CONTRACT"
@@ -1264,6 +1264,14 @@ work:
     prompt: "RUNTIME_GATE_ADMIN phải nêu môi trường nó mở (Origin=UNPLANNED, bản giao việc 16/09 mục B4)"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0301/README.md"
+  - id: "W-0303"
+    prompt: "Đường quay số production PD-01.1..01.5 (Origin=PLANNED, [kế hoạch đường gọi production 16/09](../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md))"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0303/README.md"
+  - id: "W-0302"
+    prompt: "Token hết hạn muộn hơn cửa sổ trả 422 thay vì 500; phát hành OpenAPI draft.28 (Origin=UNPLANNED, bản giao việc 16/09 mục C6 nửa sau)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0302/README.md"
 
 production_flag:
   real_customer_call_allowed: false
