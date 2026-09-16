@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "44 of 295 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "44 of 296 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 21
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 241
+  rows_without_evidence_pack: 242
 
 gates:
   - id: "G-CONTRACT"
@@ -1292,6 +1292,10 @@ work:
     prompt: "B9 — endpoint audit-evidence (Origin=PLANNED, [kế hoạch khắc phục 16/09](../../plan/ke-hoach-khac-phuc-m8-2026-09-16.md))"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0307/README.md"
+  - id: "W-0308"
+    prompt: "PD-02 — nâng trần gọi đồng thời (Origin=PLANNED, [kế hoạch đường gọi production 16/09](../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md))"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0308/README.md"
 
 production_flag:
   real_customer_call_allowed: false

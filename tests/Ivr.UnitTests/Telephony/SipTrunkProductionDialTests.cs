@@ -454,4 +454,207 @@ public sealed class SipTrunkProductionDialTests
             production,
             descriptor => descriptor.ServiceType == typeof(LabDialTokenVault));
     }
+    // --------------------------------- PD-02: the ceiling against the contract
+
+    /// <summary>
+    /// No carrier, nothing asserted. The same first rule the trunk validator has, for the same
+    /// reason: a lab or MOCK deployment never configured a contract, and a check that compared
+    /// against the resulting zero would refuse to start every developer machine in the project.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-TRUNKCAP-01")]
+    public void WithNoCarrierConfiguredTheCeilingIsNotComparedToAnything()
+    {
+        SipTrunkOptions absent = new();
+        SchedulerOptions greedy = new() { MaxConcurrentDispatches = 256 };
+
+        Assert.Empty(SchedulerTrunkCapacity.Failures(greedy, absent));
+    }
+
+    /// <summary>
+    /// A worker told to hold more calls than the contract grants does not start.
+    /// <para>
+    /// This is the misconfiguration the runbook warns about twice and nothing prevented. Its
+    /// symptom is the reason it is worth a startup refusal rather than a log line: the calls above
+    /// the contract are rejected by the carrier, and carrier-side rejection presents as an
+    /// intermittent network fault on the route - hardest to reproduce exactly when load is highest,
+    /// and invisible to every test that does not involve a carrier, which is all of them.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-TRUNKCAP-02")]
+    public void AWorkerMayNotBeToldToHoldMoreCallsThanWereBought()
+    {
+        SipTrunkOptions trunk = ValidOptions();
+        SchedulerOptions scheduler = new()
+        {
+            MaxConcurrentDispatches = 32,
+            MaxCallStartsPerSecond = 1,
+        };
+
+        string failure = Assert.Single(SchedulerTrunkCapacity.Failures(scheduler, trunk));
+
+        // Both numbers in the message. An operator reading this at three in the morning needs to
+        // know which of the two to change, and a message naming only the one that was too large
+        // invites them to raise the contract figure to match.
+        Assert.Contains("32", failure, StringComparison.Ordinal);
+        Assert.Contains("8", failure, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Equal is allowed, and one above is not. The boundary asserted from both sides, because a
+    /// contract for eight channels is a contract for eight calls - refusing the eighth would make
+    /// every deployment quietly buy one more than it uses.
+    /// </summary>
+    [Theory]
+    [InlineData(8, 0)]
+    [InlineData(9, 1)]
+    [Trait("TestId", "UT-SCH-TRUNKCAP-03")]
+    public void TheLastContractedChannelIsUsable(int ceiling, int expectedFailures)
+    {
+        SchedulerOptions scheduler = new()
+        {
+            MaxConcurrentDispatches = ceiling,
+            MaxCallStartsPerSecond = 1,
+        };
+
+        Assert.Equal(
+            expectedFailures,
+            SchedulerTrunkCapacity.Failures(scheduler, ValidOptions()).Count);
+    }
+
+    /// <summary>
+    /// The start rate is policed against the carrier's own rate and not against the channel count.
+    /// <para>
+    /// Separate limits, separately enforced by the carrier. A deployment can sit inside the
+    /// channel ceiling all day and still be refused on the burst, and that failure only appears
+    /// under load - it passes every quiet test, which is the shape of defect that reaches
+    /// production.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-TRUNKCAP-04")]
+    public void HoldingEightChannelsIsNotPermissionToOpenEightInOneSecond()
+    {
+        SipTrunkOptions trunk = ValidOptions();
+        SchedulerOptions scheduler = new()
+        {
+            MaxConcurrentDispatches = 8,
+            MaxCallStartsPerSecond = 8,
+        };
+
+        string failure = Assert.Single(SchedulerTrunkCapacity.Failures(scheduler, trunk));
+
+        Assert.Contains(
+            nameof(SchedulerOptions.MaxCallStartsPerSecond),
+            failure,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The rule is wired, not merely written. Resolving the scheduler options runs it and the
+    /// process refuses to come up.
+    /// <para>
+    /// Worth its own test because the wiring is the part that could silently not happen: this
+    /// validator reads a second options object through <c>IOptionsMonitor</c>, and a validator
+    /// that fails to resolve its dependency, or is never registered, is indistinguishable from one
+    /// that passes. Built from the two sections alone rather than through
+    /// <c>AddIvrScheduling</c>, which would want a database to resolve.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-TRUNKCAP-05")]
+    public void TheProcessRefusesToStartOnACeilingAboveTheContract()
+    {
+        ServiceCollection services = new();
+        services.AddOptions<SipTrunkOptions>().Configure(options =>
+        {
+            SipTrunkOptions valid = ValidOptions();
+            options.Enabled = valid.Enabled;
+            options.ContractedChannels = valid.ContractedChannels;
+            options.MaxCallStartsPerSecond = valid.MaxCallStartsPerSecond;
+        });
+        services.AddOptions<SchedulerOptions>().Configure(options =>
+        {
+            options.MaxConcurrentDispatches = 32;
+            options.MaxCallStartsPerSecond = 1;
+        });
+        services.AddSingleton<IValidateOptions<SchedulerOptions>,
+            SchedulerTrunkCapacityValidator>();
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        OptionsValidationException refused = Assert.Throws<OptionsValidationException>(
+            () => provider.GetRequiredService<IOptions<SchedulerOptions>>().Value);
+
+        Assert.Contains(
+            nameof(SchedulerOptions.MaxConcurrentDispatches),
+            string.Join(' ', refused.Failures),
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// And the real composition root registers it, so the test above is about the deployment and
+    /// not only about a service collection built inside a test.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-TRUNKCAP-06")]
+    public void TheSchedulerCompositionRegistersTheCapacityCheck()
+    {
+        ServiceCollection services = Compose(
+            IvrOptions.ProductionRealExecutionMode,
+            asteriskEnabled: true,
+            trunkEnabled: true);
+
+        Assert.Contains(
+            services,
+            descriptor => descriptor.ServiceType == typeof(IValidateOptions<SchedulerOptions>)
+                && descriptor.ImplementationType == typeof(SchedulerTrunkCapacityValidator));
+    }
+    /// <summary>
+    /// PD-02. Raising the ceiling is done through configuration, so the configuration path is what
+    /// has to carry the raised number.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Every other test of the ceiling constructs <see cref="SchedulerOptions"/> directly, which
+    /// proves the pump and proves nothing about the route the value actually travels in a
+    /// deployment. The four SIP-05 options are bound one at a time by hand rather than by
+    /// <c>Bind</c>, and a key that never reaches the object would look exactly like a deployment
+    /// that had not been reconfigured yet: the worker starts, reports healthy, and holds one call.
+    /// </para>
+    /// <para>
+    /// All four together, because they were added in one pass and a missing line in that pass is
+    /// the likely defect. Values are deliberately unlike each other and unlike the defaults, so a
+    /// key wired to the wrong field is a mismatch rather than a coincidence.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    [Trait("TestId", "UT-SCH-CFG-01")]
+    public void TheSipOptionsArriveFromConfiguration()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{SchedulerOptions.SectionName}:MaxConcurrentDispatches"] = "16",
+                [$"{SchedulerOptions.SectionName}:MaxCallStartsPerSecond"] = "3",
+                [$"{SchedulerOptions.SectionName}:DispatchDrainSeconds"] = "200",
+                [$"{SchedulerOptions.SectionName}:ControllerLeaseSeconds"] = "300",
+            })
+            .Build();
+
+        ServiceCollection services = new();
+        services.AddIvrScheduling(
+            configuration,
+            IvrOptions.MockExecutionMode,
+            useMockCapacity: true);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        SchedulerOptions bound = provider.GetRequiredService<IOptions<SchedulerOptions>>().Value;
+
+        Assert.Equal(16, bound.MaxConcurrentDispatches);
+        Assert.Equal(3, bound.MaxCallStartsPerSecond);
+        Assert.Equal(200, bound.DispatchDrainSeconds);
+        Assert.Equal(300, bound.ControllerLeaseSeconds);
+    }
 }

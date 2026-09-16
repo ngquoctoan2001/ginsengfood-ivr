@@ -120,8 +120,10 @@ Two workers each configured for 32 against a 32-row pool still give 32 calls, no
    the carrier starts rejecting, and carrier rejections arrive looking like network faults.
 2. **Add rows to `ivr_sim_channels`** up to the new figure. Status `IDLE`, `execution_mode` matching
    the deployment, `adapter_mode` matching the gateway.
-3. **Raise `MaxConcurrentDispatches`.** Bounds are 1–256; the software is proven at 1, 2, 8 and 32
-   (`UT-SCH-PUMP-01/02/04`).
+3. **Raise `MaxConcurrentDispatches`.** Bounds are 1–256, and with a trunk enabled the process now
+   **refuses to start** above `ContractedChannels` (`UT-SCH-TRUNKCAP-02/05`), so step 1 cannot be
+   skipped by accident. The ceiling itself is proven rung by rung at 1, 4, 8, 16 and 32 by
+   `UT-SCH-PUMP-11`, and the configuration path that carries the raised figure by `UT-SCH-CFG-01`.
 4. **Leave `MaxCallStartsPerSecond` alone unless the carrier raised it too.** It is a separate
    allowance and the carrier polices it separately. N free slots does not license N originates inside
    one second — `UT-SCH-PUMP-03` is the test that says so.
@@ -140,8 +142,19 @@ everything, see §5.
 
 Both `ContractedChannels` and the `ivr_sim_channels` row count, in that order, plus
 `MaxConcurrentDispatches` if the worker figure was at the old ceiling. Nothing derives one from
-another, and nothing warns you when they disagree — which is worth a gate of its own and does not
-have one yet.
+another.
+
+**Two of the three now warn you, and the third still cannot.** PD-02 added a startup check:
+with a trunk enabled, a worker configured to hold more calls than `ContractedChannels` grants —
+or to start them faster than `SipTrunk:MaxCallStartsPerSecond` allows — refuses to boot and names
+both figures in the message. That catches *lowering the contract without lowering the worker*,
+which is the direction this section is about.
+
+It does **not** catch the row count. `ivr_sim_channels` is a table, it is shared, and no options
+validator can see it — which is also why it is the authoritative ceiling. Nor does it catch two
+pods each configured at the contract figure: each one passes alone, and what holds the line
+between them is the pool under `SKIP LOCKED`. So the order above still matters, and step 2 is
+still the one nothing will remind you about.
 
 ### The gap in enable
 

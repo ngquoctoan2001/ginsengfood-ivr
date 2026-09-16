@@ -204,6 +204,106 @@ public sealed class SchedulerOptionsValidator : IValidateOptions<SchedulerOption
     }
 }
 
+/// <summary>
+/// PD-02. Refuses a worker configured to hold more calls than the trunk contract grants, or to
+/// start them faster than the carrier accepts.
+/// </summary>
+/// <remarks>
+/// <para>
+/// The two figures already existed and were already documented as belonging together --
+/// <see cref="SipTrunkOptions.ContractedChannels"/> says it is kept separate from the scheduler's
+/// ceiling "so that the two can be compared", and
+/// <c>docs/operations/production-dial-path.md</c> warns an operator twice not to raise one without
+/// the other. Nothing compared them. A warning in a runbook is enforced by whoever reads it; this
+/// is enforced by the process refusing to start.
+/// </para>
+/// <para>
+/// The failure it prevents is a bad one to debug. Configured above the contract, the extra calls
+/// are rejected by the carrier, and carrier-side rejection arrives looking like a network fault:
+/// intermittent, blamed on the route, and worst under exactly the load that makes it hardest to
+/// reproduce. It also passes every test that does not involve a carrier, which is all of them.
+/// </para>
+/// <para>
+/// <b>Necessary, not sufficient, and stated here so nobody reads it as more.</b>
+/// <see cref="SchedulerOptions.MaxConcurrentDispatches"/> is per process; the contract is for the
+/// whole system. Two pods at 32 against a 32-channel contract each pass this check and together
+/// break it. What holds the system-wide line is the row count in <c>ivr_sim_channels</c>, taken
+/// under SKIP LOCKED, and no options validator can see that -- it is a table, it is shared, and it
+/// is authoritative precisely because it is not configuration. This check catches the single most
+/// likely misconfiguration, one worker told to hold more than was bought, and leaves the harder
+/// one to the database.
+/// </para>
+/// <para>
+/// A disabled trunk asserts nothing, matching <see cref="SipTrunkOptionsValidator"/>'s first rule,
+/// so lab and MOCK deployments that never configured a carrier start exactly as they did before.
+/// </para>
+/// </remarks>
+public sealed class SchedulerTrunkCapacityValidator(IOptionsMonitor<SipTrunkOptions> trunkOptions)
+    : IValidateOptions<SchedulerOptions>
+{
+    public ValidateOptionsResult Validate(string? name, SchedulerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        IReadOnlyList<string> failures = SchedulerTrunkCapacity.Failures(
+            options,
+            trunkOptions.CurrentValue);
+
+        return failures.Count == 0
+            ? ValidateOptionsResult.Success
+            : ValidateOptionsResult.Fail(failures);
+    }
+}
+
+/// <summary>
+/// The comparison itself, as a function of the two option objects and nothing else.
+/// </summary>
+/// <remarks>
+/// Separate from the validator so the rule can be tested without a service provider. A validator
+/// that can only be exercised through DI tends to be tested through DI once and never at its
+/// edges, and the edges are where an off-by-one between "32 channels" and "32 concurrent calls"
+/// would live.
+/// </remarks>
+public static class SchedulerTrunkCapacity
+{
+    public static IReadOnlyList<string> Failures(
+        SchedulerOptions scheduler,
+        SipTrunkOptions trunk)
+    {
+        ArgumentNullException.ThrowIfNull(scheduler);
+        ArgumentNullException.ThrowIfNull(trunk);
+        if (!trunk.Enabled)
+        {
+            return [];
+        }
+
+        List<string> failures = [];
+        if (scheduler.MaxConcurrentDispatches > trunk.ContractedChannels)
+        {
+            failures.Add(
+                $"{nameof(scheduler.MaxConcurrentDispatches)} is "
+                + $"{scheduler.MaxConcurrentDispatches}, above the "
+                + $"{trunk.ContractedChannels} channel(s) "
+                + $"{nameof(SipTrunkOptions.ContractedChannels)} says the contract grants. One "
+                + "worker may not be told to hold more calls than were bought.");
+        }
+
+        // Compared against the trunk's own rate, not against the channel count: the carrier
+        // polices how many calls may be opened in a second separately from how many may be held,
+        // and a deployment that respects the ceiling can still be refused on the burst.
+        if (scheduler.MaxCallStartsPerSecond > trunk.MaxCallStartsPerSecond)
+        {
+            failures.Add(
+                $"{nameof(scheduler.MaxCallStartsPerSecond)} is "
+                + $"{scheduler.MaxCallStartsPerSecond}, above the "
+                + $"{trunk.MaxCallStartsPerSecond} per second "
+                + $"{nameof(SipTrunkOptions)}.{nameof(SipTrunkOptions.MaxCallStartsPerSecond)} "
+                + "says the carrier accepts.");
+        }
+
+        return failures;
+    }
+}
+
 public sealed record SchedulerCapacityRequest(
     string JobId,
     IvrProgramCode Program,
@@ -600,6 +700,11 @@ public static class SchedulerServiceCollectionExtensions
             .ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
             IValidateOptions<SchedulerOptions>, SchedulerOptionsValidator>());
+        // PD-02. A second validator rather than more rules inside the first one. This is the only
+        // check that reads two sections at once, and keeping it separate means the scheduler's own
+        // validator - which forty symbols reach - is not touched to add it.
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IValidateOptions<SchedulerOptions>, SchedulerTrunkCapacityValidator>());
         services.AddOptions<NormalizationOptions>()
             .Configure(options =>
             {

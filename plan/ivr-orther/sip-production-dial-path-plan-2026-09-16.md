@@ -1,10 +1,10 @@
 # Kế hoạch hoàn thiện đường gọi production — Module 8
 
-Ngày lập: **16/09/2026** · Trạng thái: **PLANNED** · Dev: Toàn
+Ngày lập: **16/09/2026** · Trạng thái: **✅ XONG `16/09/2026`** — cả ba việc · Dev: Toàn
 
 Baseline đã đối chiếu: `main@37606bc` (16/09). Mọi `file:dòng` dưới đây đọc tại baseline này — kiểm lại trước khi sửa.
 
-**Phạm vi:** đúng ba việc còn lại mà **không phụ thuộc Module 3 hay hợp đồng nhà mạng**. Tổng **4–7 ngày công**.
+**Phạm vi:** đúng ba việc còn lại mà **không phụ thuộc Module 3 hay hợp đồng nhà mạng**. Tổng **4–7 ngày công** — thực tế **xong cả ba trong `16/09`**.
 
 Ngoài phạm vi: nối M3 thật (chờ phiếu 21 câu), cấu hình PJSIP với nhà mạng thật, đối soát cước, nghiệm thu tải qua tuyến thật. Những việc đó nằm ở [kế hoạch 32 kênh](mobile-sip-trunk-production-32-channels-plan-2026-09-15.md) và chỉ mở khóa khi có hợp đồng.
 
@@ -17,11 +17,11 @@ Ngoài phạm vi: nối M3 thật (chờ phiếu 21 câu), cấu hình PJSIP v�
 | Caller ID cứng | `AsteriskAriSimGateway.cs:115` — `["callerId"] = "IVR-LAB"` |
 | Nhánh production rơi về gateway không khả dụng | `SchedulerCapacity.cs:704` — `UnavailableSchedulerDispatchGateway` |
 | Chưa có vault production | Thư mục `Telephony/` chỉ có `LabDialTokenVault.cs` và `MockDialTokenVault.cs` |
-| Trần gọi đồng thời đang là 1 | `SchedulerCapacity.cs:55` — `MaxConcurrentDispatches { get; set; } = 1` |
+| ~~Trần gọi đồng thời đang là 1~~ | `SchedulerCapacity.cs:55` — mặc định vẫn `1` **có chủ đích**; `W-0308` chứng minh từng bậc tới `32` và cấm cấu hình vượt hợp đồng |
 
 **Đã xong ngày 15/09, không phải làm lại:** bộ điều phối song song có trần (`SchedulerDispatchPump.cs`), giảm tải sau chuỗi lỗi, khóa sở hữu controller ARI (`AriControllerOwnership.cs`), ledger token bền qua restart (`PostgresDialTokenResolveLedger.cs`), phê duyệt gọi production gắn môi trường.
 
-## 2. PD-01 — Đường quay số production (2–4 ngày công)
+## 2. PD-01 — Đường quay số production (2–4 ngày công) — ✅ **XONG `16/09`** (`W-0303`, `a2808ce`)
 
 Việc lớn nhất. Làm được ngay bằng **SIP peer giả lập trong mạng nội bộ**, chưa cần nhà mạng.
 
@@ -64,9 +64,43 @@ Thay alias cứng bằng endpoint dựng từ cấu hình trunk; caller ID lấy
 - Grep toàn bộ log/trace/evidence của lượt chạy: **không có số điện thoại, không có token thô**.
 - Bài lab `LAB-A` giữ nguyên phạm vi và hành vi.
 
-## 3. PD-02 — Nâng trần gọi đồng thời (1–2 ngày công)
+## 3. PD-02 — Nâng trần gọi đồng thời (1–2 ngày công) — ✅ **XONG `16/09`** (`W-0308`)
 
 Máy đã dựng xong hôm 15/09. Việc còn lại là nâng số và chứng minh.
+
+> ### Bốn trong sáu gạch đầu dòng dưới đây **đã đạt sẵn từ lượt 15/09**
+>
+> Kiểm lại từng dòng thay vì tin bản kế hoạch — bản này do tôi viết, và `W-0307` vừa cho thấy
+> ba trong bốn dòng tôi viết cho lô đó sai. Kết quả ở đây ngược lại: kế hoạch **đòi ít hơn**
+> thực tế đã có.
+>
+> | Gạch đầu dòng | Tình trạng thật tại `6029b19` |
+> | --- | --- |
+> | Trần dùng chung giữa nhiều worker | ✅ `IT-SCH-POOL-01/02/03` trên Postgres thật |
+> | Vòng bảo trì vẫn tiến triển khi đầy | ✅ `UT-SCH-PUMP-02` |
+> | Drain lúc tắt | ✅ `UT-SCH-PUMP-07` + `SchedulerJobHost.StopAsync` (dừng vòng **trước** khi drain, chỉ trả scope khi drain xong) |
+> | Tách `MaxCallStartsPerSecond` | ✅ đã là option riêng, có validator riêng, `UT-SCH-PUMP-03` |
+> | **Bậc `1→4→8→16→32`** | ❌ chỉ `32` và `8` được chứng minh **đúng tính chất trần**; `16` **không xuất hiện ở đâu cả** |
+> | **Bậc cuối phải khớp số kênh hợp đồng** | ❌ là một câu văn, **không có gì cưỡng chế** |
+>
+> ### Việc thật của `W-0308` là hai dòng đỏ đó
+>
+> **`UT-SCH-PUMP-11`** — `[Theory]` năm bậc `1/4/8/16/32`, mỗi bậc: giữ đúng `N`, `N+1` **không
+> bao giờ được claim**, một cuộc kết thúc mở đúng **một** suất. Đột biến `>=` → `>` trong pump
+> làm **cả 5 bậc đỏ**.
+>
+> **`SchedulerTrunkCapacityValidator`** — process **từ chối khởi động** khi một worker được cấu
+> hình giữ nhiều cuộc hơn `ContractedChannels`, hoặc mở nhanh hơn `SipTrunk:MaxCallStartsPerSecond`.
+> Doc-comment của `ContractedChannels` **tự nói** nó tách ra *“so that the two can be compared”*,
+> và runbook `PD-03` kết thúc đúng bằng câu *“nothing warns you when they disagree — which is
+> worth a gate of its own and does not have one yet.”* Nay đã có.
+>
+> ⚠️ **Cần, chưa đủ — nói rõ để không ai đọc thành hơn thế.** `MaxConcurrentDispatches` là
+> **mỗi tiến trình**, hợp đồng là **toàn hệ thống**. Hai pod cùng đặt `32` trên hợp đồng `32`
+> thì **từng pod đều qua** được kiểm tra này. Thứ giữ được ranh giới toàn hệ thống vẫn là số
+> hàng `ivr_sim_channels` dưới `SKIP LOCKED` — một cái bảng, dùng chung, và **không validator
+> cấu hình nào nhìn thấy được**. Kiểm tra này bắt đúng một lỗi: một worker bị bảo giữ nhiều
+> hơn số đã mua.
 
 - Nâng `MaxConcurrentDispatches` qua cấu hình theo bậc **1 → 4 → 8 → 16 → 32**, mỗi bậc chạy lại bộ test.
 - Dùng `SchedulerDispatchPumpTests.cs` và `SchedulerSharedPoolTests.cs` đã có; thêm case cho bậc mới thay vì chỉ sửa hằng số.
@@ -81,7 +115,7 @@ Máy đã dựng xong hôm 15/09. Việc còn lại là nâng số và chứng m
 
 Test giữ đúng N tác vụ chạy đồng thời ở mỗi bậc; tác vụ N+1 chờ; hai worker tranh việc không vượt trần chung và không originate hai lần cho một attempt; maintenance không đứng.
 
-## 4. PD-03 — Tài liệu vận hành và bàn giao (1 ngày công)
+## 4. PD-03 — Tài liệu vận hành và bàn giao (1 ngày công) — ✅ **XONG `16/09`** (`W-0305`, `d207526`)
 
 Đã có: [runbook lấy lại quyền điều khiển Asterisk](../../docs/operations/ari-controller-ownership.md) (commit `ff22227`).
 
@@ -106,10 +140,10 @@ PD-03 làm sau khi PD-01 và PD-02 đạt
 
 | Việc | Ngày công | Chặn bởi |
 | --- | --- | --- |
-| PD-01 | 2–4 | Không — dùng peer giả lập |
-| PD-02 | 1–2 | Không |
-| PD-03 | 1 | PD-01, PD-02 |
-| **Tổng** | **4–7** | |
+| PD-01 | 2–4 | ✅ **XONG** `16/09` — `a2808ce` (`W-0303`) |
+| PD-02 | 1–2 → **0,5** | ✅ **XONG** `16/09` — `W-0308` |
+| PD-03 | 1 | ✅ **XONG** `16/09` — `d207526` (`W-0305`) |
+| **Tổng** | **4–7 → xong trong `1` ngày** | |
 
 ## 6. Sau khi ba việc này xong thì còn gì
 

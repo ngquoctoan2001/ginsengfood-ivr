@@ -457,6 +457,83 @@ public sealed class SchedulerDispatchPumpTests
     }
 
     /// <summary>
+    /// PD-02. The ceiling holds at every rung of the ladder, not only at the top of it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The plan raises <c>MaxConcurrentDispatches</c> 1 to 4 to 8 to 16 to 32 and asks for a case
+    /// per rung rather than one constant edited five times, and it is right to. Before this test
+    /// the ceiling property - N held, N+1 never claimed, one release opening exactly one slot -
+    /// was asserted at 32 and at 8. Four and one appear elsewhere in this file as the backdrop to
+    /// tests about failure and drain, which is not the same as proving the ceiling at four; and
+    /// sixteen appeared nowhere at all. The runbook nevertheless said the software was proven at
+    /// 1, 2, 8 and 32, so the ladder an operator is told to climb had two rungs nothing stood on.
+    /// </para>
+    /// <para>
+    /// One is its own case and not a formality. It is the default every deployment starts from and
+    /// the only rung where "held one, refused the second" and "started one, then stopped" are the
+    /// same observation, so an off-by-one that no other tier would show is visible only here.
+    /// </para>
+    /// </remarks>
+    [Theory]
+    [InlineData(1)]
+    [InlineData(4)]
+    [InlineData(8)]
+    [InlineData(16)]
+    [InlineData(32)]
+    [Trait("TestId", "UT-SCH-PUMP-11")]
+    public async Task EveryRungOfTheLadderHoldsExactlyItsOwnNumber(int ceiling)
+    {
+        // More work than the ceiling on purpose: with the queue short of the ceiling a pass that
+        // stopped early would look identical to one that respected the limit.
+        var store = new QueueSchedulerStore { Available = ceiling + 8 };
+        var gateway = new BlockingDispatchGateway();
+        Harness harness = Harness.Create(
+            store,
+            gateway,
+            ceiling: ceiling,
+            startsPerSecond: ceiling);
+
+        SchedulerRunResult first = await harness.Runtime.RunOnceAsync($"worker-{ceiling}");
+
+        Assert.Equal(ceiling, first.DispatchesStarted);
+        Assert.Equal(ceiling, first.ActiveDispatches);
+        Assert.Equal(ceiling, gateway.Started);
+
+        // The claim count, not the refusal count. A reservation refused before the claim leaves
+        // the database untouched; one refused after it has already taken a lease leaves an
+        // ivr_sim_channels row RESERVED with its fencing generation spent, and nothing returns it
+        // for RecoveryQuarantineSeconds - ten minutes - on work that was due when it was taken.
+        Assert.Equal(ceiling, store.ClaimCalls);
+
+        // A fresh window, so a second pass starting nothing can only be the ceiling and never the
+        // start rate. Without this the rate limit refuses first and the assertion below passes
+        // while proving the wrong limit.
+        harness.OpenANewRateWindow();
+        SchedulerRunResult second = await harness.Runtime.RunOnceAsync($"worker-{ceiling}");
+
+        Assert.Equal(0, second.DispatchesStarted);
+        Assert.Equal(ceiling, second.ActiveDispatches);
+        Assert.Equal(ceiling, store.ClaimCalls);
+
+        // One call ends, and exactly one slot opens - not the whole tier, and not none.
+        Assert.True(gateway.ReleaseOne());
+        await WaitUntilAsync(
+            () => harness.Pump.Active == ceiling - 1,
+            $"the finished call released one of {ceiling} slots");
+
+        harness.OpenANewRateWindow();
+        SchedulerRunResult third = await harness.Runtime.RunOnceAsync($"worker-{ceiling}");
+
+        Assert.Equal(1, third.DispatchesStarted);
+        Assert.Equal(ceiling, third.ActiveDispatches);
+        Assert.Equal(ceiling + 1, store.ClaimCalls);
+
+        gateway.ReleaseAll();
+        Assert.True(await harness.Pump.DrainAsync(TimeSpan.FromSeconds(10)));
+    }
+
+    /// <summary>
     /// A worker that does not hold the Asterisk application claims nothing, and keeps recovering.
     /// <para>
     /// The ownership state machine is proved against a real database in

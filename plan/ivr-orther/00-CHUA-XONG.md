@@ -14,7 +14,9 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 | B — M8 đã ký phần mình, chờ bên khác | 9 | M3, Product, CRM, Legal, Security, Platform |
 | C — Còn việc M8 phải làm | 6 | Chính mình, hoặc chờ dữ liệu |
 
-**Hai kế hoạch đang chạy giữ file riêng:** [đường gọi production](sip-production-dial-path-plan-2026-09-16.md) (4–7 ngày công, không chờ ai) và [32 kênh qua nhà mạng](mobile-sip-trunk-production-32-channels-plan-2026-09-15.md) (chờ hợp đồng).
+**Hai kế hoạch giữ file riêng:** [đường gọi production](sip-production-dial-path-plan-2026-09-16.md) — **✅ xong cả ba việc `16/09`** (`PD-01` `W-0303`, `PD-02` `W-0308`, `PD-03` `W-0305`), ước `4–7` ngày công và hết trong `1` ngày — và [32 kênh qua nhà mạng](mobile-sip-trunk-production-32-channels-plan-2026-09-15.md) (chờ hợp đồng).
+
+> Với việc đó, **mọi thứ trong repo không phụ thuộc bên ngoài đã hết.** Ba nhóm dưới đây đều chờ người khác trả lời: A chờ phiếu được gửi và có hồi đáp, B chờ bên kia ký, C chờ dữ liệu đo hoặc endpoint M3. Không nhóm nào mở ra bằng thêm ngày công của dev.
 
 ---
 

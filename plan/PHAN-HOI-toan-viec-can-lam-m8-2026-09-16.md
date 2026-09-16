@@ -79,9 +79,44 @@
 > là một gate có sẵn đọc **file OpenAPI**, tức một hiện vật độc lập với code. Đó cũng là lý do tôi
 > không nhận *"test xanh"* là bằng chứng đủ ở bất kỳ ô nào trong bản đánh giá này.
 >
-> **Hết việc trong kế hoạch khắc phục.** `W-0298` → `W-0307`, `7` lô, xong trong `1` ngày thay vì
-> `7,5–9,5` ngày ước. Phần còn lại của bản `16/09` **không phụ thuộc tôi**: chờ M3 phản hồi,
-> chờ nhà mạng báo giá, và `6` phiếu nhóm A chưa gửi.
+> **Hết việc trong kế hoạch khắc phục.** `W-0298` → `W-0307`, **`8` lô** (`W-0298` `W-0299`
+> `W-0300` `W-0301` `W-0302` `W-0304` `W-0306` `W-0307` — bản trước tôi ghi `7`, đếm thiếu một),
+> xong trong `1` ngày thay vì `7,5–9,5` ngày ước.
+>
+> **▸ `W-0308` — `PD-02`, xong `16/09`. Đây mới là dòng cuối.** Ngoài kế hoạch khắc phục còn một
+> kế hoạch nữa không chờ ai: [đường gọi production](ivr-orther/sip-production-dial-path-plan-2026-09-16.md),
+> `3` việc, ước `4–7` ngày công. `PD-01` và `PD-03` đã xong trong ngày (`W-0303`, `W-0305`);
+> `PD-02` là việc cuối. **Nay cả ba đã xong.**
+>
+> Kế hoạch `PD-02` có `6` gạch đầu dòng và **`4` đã đạt sẵn từ lượt `15/09`** — ngược hẳn với
+> `W-0307`, nơi `3/4` dòng kế hoạch của tôi *sai*. Hai kết luận trái chiều từ cùng một thói quen:
+> đọc mã trước, tin kế hoạch sau. Thói quen đó mới là thứ đáng giữ, không phải kết luận nào.
+>
+> **Phần đáng giá nhất của lượt này không phải test.** Hai tài liệu trong repo **đã tự chỉ ra một
+> lỗ hổng** và không ai đóng: doc-comment của `ContractedChannels` nói nó tách khỏi trần scheduler
+> *“so that the two can be compared”* rồi không có phép so nào; runbook `PD-03` kết thúc mục
+> *When the contract changes* bằng *“nothing warns you when they disagree — which is worth a gate
+> of its own and does not have one yet.”* Ba con số cùng nghĩa *“bao nhiêu cuộc cùng lúc”* nằm ở
+> ba nơi, trần hiệu dụng là nhỏ nhất trong ba, và **không gì so chúng với nhau**.
+>
+> Nay một worker cấu hình giữ nhiều cuộc hơn số kênh hợp đồng **không khởi động được**, và thông
+> báo nêu cả hai con số. Là **từ chối boot** chứ không phải log, vì cấu hình vượt hợp đồng biểu
+> hiện thành **lỗi mạng chập chờn** phía nhà mạng — đổ cho tuyến, nặng nhất đúng lúc tải cao
+> nhất, và **qua được mọi test không có nhà mạng**, tức là qua được tất cả.
+>
+> Đây cũng là câu trả lời thẳng cho dòng `[m8_loi_dadat]` của bản `16/09` — *“không kiểm giá trị
+> cấu hình thật trên server test/staging”*. Nhận xét đó đúng. Nhưng cách sửa không phải đi kiểm
+> tay trên staging — staging chưa chạy, Platform đang chặn — mà là làm cho **cấu hình sai không
+> khởi động được**.
+>
+> ⚠️ **Cần, chưa đủ, và tôi ghi rõ ở cả code lẫn runbook:** trần là *mỗi tiến trình*, hợp đồng là
+> *toàn hệ thống*. Hai pod cùng đặt `32` trên hợp đồng `32` thì **từng pod đều qua**. Ranh giới
+> toàn hệ thống vẫn do số hàng `ivr_sim_channels` dưới `SKIP LOCKED` giữ, và **không validator
+> cấu hình nào nhìn thấy được một cái bảng**.
+>
+> **Từ đây, mọi thứ trong repo không phụ thuộc bên ngoài đã hết.** Phần còn lại của bản `16/09`
+> **không phụ thuộc tôi**: chờ M3 phản hồi, chờ nhà mạng báo giá, và `6` phiếu nhóm A chưa gửi.
+> Toàn bộ solution **`1143/1143`**.
 
 ---
 
