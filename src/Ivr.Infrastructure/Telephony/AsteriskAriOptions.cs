@@ -61,12 +61,25 @@ public sealed class AsteriskAriOptionsValidator : IValidateOptions<AsteriskAriOp
             return ValidateOptionsResult.Success;
         }
 
-        if (!string.Equals(
-                options.ExecutionMode,
-                ExecutionModes.LabRealSim,
-                StringComparison.OrdinalIgnoreCase))
+        // PD-01.3. Two profiles now, and the split is the whole point: the softphone lab stays
+        // pinned to its alias exactly as before, and production is allowed through under a
+        // different set of assertions rather than by relaxing the lab's.
+        //
+        // What production drops is the pinned destination, because it does not have one - the
+        // number arrives per call from ProductionDialTokenVault. What it keeps is every guard that
+        // was never about the lab: a local Asterisk, real credentials, bounded timeouts and
+        // recording off.
+        bool lab = string.Equals(
+            options.ExecutionMode,
+            ExecutionModes.LabRealSim,
+            StringComparison.OrdinalIgnoreCase);
+        bool production = string.Equals(
+            options.ExecutionMode,
+            ExecutionModes.ProductionReal,
+            StringComparison.OrdinalIgnoreCase);
+        if (!lab && !production)
         {
-            failures.Add("Asterisk ARI is restricted to LAB_REAL_SIM execution.");
+            failures.Add("Asterisk ARI serves LAB_REAL_SIM or PRODUCTION_REAL execution only.");
         }
 
         if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out Uri? baseUri)
@@ -91,20 +104,44 @@ public sealed class AsteriskAriOptionsValidator : IValidateOptions<AsteriskAriOp
             failures.Add("Asterisk ARI credentials are required when the adapter is enabled.");
         }
 
+        // DestinationAlias joins this check only outside production, where it is expected to be
+        // absent. Folded into one condition rather than checked separately so the lab still
+        // reports the identifier problem exactly once, as it did before this split.
         if (!IsSafeIdentifier(options.Application)
             || !IsSafeIdentifier(options.Environment)
-            || !IsSafeIdentifier(options.DestinationAlias)
-            || !IsSafeIdentifier(options.SimChannelId))
+            || !IsSafeIdentifier(options.SimChannelId)
+            || (!production && !IsSafeIdentifier(options.DestinationAlias)))
         {
             failures.Add("Asterisk identifiers may contain only ASCII letters, digits, dash and underscore.");
         }
 
-        if (!string.Equals(options.DestinationAlias, AsteriskAriOptions.DefaultDestinationAlias, StringComparison.Ordinal)
-            || !string.Equals(options.SimChannelId, AsteriskAriOptions.DefaultSimChannelId, StringComparison.Ordinal)
-            || !string.Equals(options.AdapterMode, AsteriskAriOptions.Adapter, StringComparison.Ordinal)
-            || !string.Equals(options.ProviderName, AsteriskAriOptions.Adapter, StringComparison.Ordinal))
+        if (production)
         {
-            failures.Add("The free softphone profile is pinned to its lab alias, channel and ARI adapter.");
+            // A pinned destination in production is either a leftover lab value or somebody
+            // hand-configuring a number. Both dial somewhere the token did not authorise, so the
+            // field has to be absent rather than merely ignored.
+            if (!string.IsNullOrWhiteSpace(options.DestinationAlias))
+            {
+                failures.Add("The production profile resolves each destination per call and must not pin a DestinationAlias.");
+            }
+
+            // The adapter is still Asterisk ARI; only what sits behind it changed. The carrier's
+            // own name lives in SipTrunkOptions, where cost reconciliation can reach it.
+            if (!string.Equals(options.AdapterMode, AsteriskAriOptions.Adapter, StringComparison.Ordinal)
+                || !string.Equals(options.ProviderName, AsteriskAriOptions.Adapter, StringComparison.Ordinal))
+            {
+                failures.Add("The production profile still dials through the ARI adapter.");
+            }
+        }
+        else
+        {
+            if (!string.Equals(options.DestinationAlias, AsteriskAriOptions.DefaultDestinationAlias, StringComparison.Ordinal)
+                || !string.Equals(options.SimChannelId, AsteriskAriOptions.DefaultSimChannelId, StringComparison.Ordinal)
+                || !string.Equals(options.AdapterMode, AsteriskAriOptions.Adapter, StringComparison.Ordinal)
+                || !string.Equals(options.ProviderName, AsteriskAriOptions.Adapter, StringComparison.Ordinal))
+            {
+                failures.Add("The free softphone profile is pinned to its lab alias, channel and ARI adapter.");
+            }
         }
 
         if (options.DialTimeoutSeconds is < 5 or > 120

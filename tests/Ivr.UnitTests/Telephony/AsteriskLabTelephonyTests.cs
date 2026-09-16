@@ -209,6 +209,17 @@ public sealed class AsteriskLabTelephonyTests
         Assert.Equal("LAB-A", second.RevealToTrustedGateway());
     }
 
+    /// <summary>
+    /// PD-01.3 changed one of the three rules this pinned. Production used to be refused for being
+    /// production; it is now a supported profile, so that assertion is gone and the one that
+    /// replaced it is stricter about the thing the old rule was really protecting.
+    /// <para>
+    /// A pinned destination in production is refused outright rather than merely required to be
+    /// non-phone-shaped. The number arrives per call from the vault, so any value configured here
+    /// dials somewhere no token authorised - which is the failure the raw-number check was reaching
+    /// for. Recording and the local-Asterisk rule are untouched: neither was ever about the lab.
+    /// </para>
+    /// </summary>
     [Fact]
     [Trait("TestId", "UT-AST-CONFIG-05")]
     public void ValidatorRejectsProductionRawDestinationAndRecording()
@@ -223,11 +234,47 @@ public sealed class AsteriskLabTelephonyTests
 
         Assert.True(result.Failed);
         Assert.Contains(result.Failures, failure =>
-            failure.Contains("LAB_REAL_SIM", StringComparison.Ordinal));
+            failure.Contains("DestinationAlias", StringComparison.Ordinal));
         Assert.Contains(result.Failures, failure =>
             failure.Contains("recording", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(result.Failures, failure =>
             failure.Contains("local Asterisk", StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// The other half of PD-01.3: a production profile that drops the pinned destination and keeps
+    /// everything else is accepted. Without this the split would be asserted only by its refusals,
+    /// and a validator that refuses every production configuration would pass those just as well.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-CONFIG-06")]
+    public void ValidatorAcceptsAProductionProfileWithNoPinnedDestination()
+    {
+        AsteriskAriOptions configured = Options();
+        configured.ExecutionMode = IvrOptions.ProductionRealExecutionMode;
+        configured.DestinationAlias = string.Empty;
+
+        ValidateOptionsResult result = new AsteriskAriOptionsValidator().Validate(null, configured);
+
+        Assert.True(result.Succeeded);
+    }
+
+    /// <summary>
+    /// The lab profile is unchanged by the split. Its alias, channel and adapter stay pinned, and
+    /// the identifier problem is still reported once rather than once per field.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-CONFIG-07")]
+    public void TheLabProfileStillPinsItsAliasAfterTheProductionSplit()
+    {
+        AsteriskAriOptions configured = Options();
+        configured.DestinationAlias = "LAB-B";
+
+        ValidateOptionsResult result = new AsteriskAriOptionsValidator().Validate(null, configured);
+
+        Assert.True(result.Failed);
+        Assert.Contains(result.Failures, failure =>
+            failure.Contains("softphone profile is pinned", StringComparison.Ordinal));
     }
 
     private static IConfiguration Configuration() => new ConfigurationBuilder()

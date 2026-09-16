@@ -24,13 +24,19 @@ public sealed class AsteriskAriOperationException(
 }
 
 /// <summary>
-/// Minimal ARI adapter for the local Asterisk/MicroSIP lab. It never accepts a raw
-/// telephone number and it has no call-recording operation.
+/// Minimal ARI adapter for the local Asterisk/MicroSIP lab and, from PD-01.5, for a carrier trunk.
+/// It never accepts a raw telephone number and it has no call-recording operation.
 /// </summary>
+/// <param name="trunkOptions">
+/// PD-01.5. Absent for the lab, which is why it is optional rather than required: every existing
+/// lab construction keeps working unchanged, and a deployment that has not configured a trunk
+/// cannot accidentally take the production branch.
+/// </param>
 public sealed class AsteriskAriSimGateway(
     IHttpClientFactory httpClientFactory,
     IOptions<AsteriskAriOptions> options,
-    TimeProvider timeProvider) : ISimGateway, IAsyncDisposable
+    TimeProvider timeProvider,
+    IOptions<SipTrunkOptions>? trunkOptions = null) : ISimGateway, IAsyncDisposable
 {
     private sealed class AriCallState(string channelId, DateTimeOffset startedAt)
     {
@@ -79,17 +85,55 @@ public sealed class AsteriskAriSimGateway(
         }
 
         string destination = request.DialAuthorization.RevealToTrustedGateway();
-        if (!string.Equals(destination, configured.DestinationAlias, StringComparison.Ordinal))
+
+        // PD-01.5. The lab dials one pinned alias; the trunk dials whatever the vault resolved,
+        // but only through the configured carrier. Both branches end in an allowlist, because the
+        // question "may this dial happen" is the same question in both and only the answer differs.
+        SipTrunkOptions? trunk = trunkOptions?.Value;
+        bool production = trunk is { Enabled: true };
+        string endpoint;
+        string callerId;
+        if (production)
         {
-            throw Failure(
-                SimProviderDisposition.InvalidDestination,
-                "ASTERISK_DESTINATION_NOT_ALLOWLISTED",
-                true,
-                "ARI refused a destination outside the pinned softphone alias.");
+            // ProductionDialTokenVault emits sip:NUMBER@CarrierSipHost. Checking the host back
+            // here is not redundant with that: it means a destination built for some other
+            // carrier cannot be routed down this trunk even if it reaches this method.
+            if (!destination.StartsWith("sip:", StringComparison.Ordinal)
+                || !destination.EndsWith(
+                    string.Concat("@", trunk!.CarrierSipHost),
+                    StringComparison.Ordinal))
+            {
+                throw Failure(
+                    SimProviderDisposition.InvalidDestination,
+                    "ASTERISK_DESTINATION_NOT_ALLOWLISTED",
+                    true,
+                    "ARI refused a destination outside the configured carrier trunk.");
+            }
+
+            endpoint = string.Concat("PJSIP/", trunk.TrunkEndpoint, "/", destination);
+            callerId = trunk.OutboundCallerId;
+        }
+        else
+        {
+            if (!string.Equals(destination, configured.DestinationAlias, StringComparison.Ordinal))
+            {
+                throw Failure(
+                    SimProviderDisposition.InvalidDestination,
+                    "ASTERISK_DESTINATION_NOT_ALLOWLISTED",
+                    true,
+                    "ARI refused a destination outside the pinned softphone alias.");
+            }
+
+            endpoint = string.Concat("PJSIP/", destination);
+            callerId = "IVR-LAB";
         }
 
         await EnsureEventPumpAsync(cancellationToken);
-        string channelId = string.Concat("ivr-lab-", Guid.NewGuid().ToString("N"));
+        // The prefix is what a person reads first when reconciling an Asterisk log against a
+        // carrier's call record, so a production channel must not announce itself as lab traffic.
+        string channelId = string.Concat(
+            production ? "ivr-trunk-" : "ivr-lab-",
+            Guid.NewGuid().ToString("N"));
         var state = new AriCallState(channelId, timeProvider.GetUtcNow());
         if (!calls.TryAdd(channelId, state))
         {
@@ -107,12 +151,12 @@ public sealed class AsteriskAriSimGateway(
                 "/ari/channels",
                 new Dictionary<string, string>
                 {
-                    ["endpoint"] = string.Concat("PJSIP/", destination),
+                    ["endpoint"] = endpoint,
                     ["app"] = configured.Application,
                     ["timeout"] = configured.DialTimeoutSeconds.ToString(
                         System.Globalization.CultureInfo.InvariantCulture),
                     ["channelId"] = channelId,
-                    ["callerId"] = "IVR-LAB",
+                    ["callerId"] = callerId,
                 },
                 cancellationToken);
             await EnsureSuccessAsync(response, "ASTERISK_DIAL_FAILED", cancellationToken);

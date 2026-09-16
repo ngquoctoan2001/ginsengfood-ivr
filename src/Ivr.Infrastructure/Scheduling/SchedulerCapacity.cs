@@ -513,11 +513,23 @@ public static class SchedulerServiceCollectionExtensions
             NormalizationOptions.SectionName);
         IConfigurationSection asteriskSection = configuration.GetSection(
             AsteriskAriOptions.SectionName);
+        IConfigurationSection sipTrunkSection = configuration.GetSection(
+            SipTrunkOptions.SectionName);
         bool asteriskLab = string.Equals(
                 executionMode,
                 IvrOptions.LabRealSimExecutionMode,
                 StringComparison.OrdinalIgnoreCase)
             && asteriskSection.GetValue<bool>(nameof(AsteriskAriOptions.Enabled));
+        // PD-01.4. Production needs both sections enabled: the ARI section to reach Asterisk and
+        // the trunk section to reach the carrier. Requiring both means a half-configured
+        // deployment lands on UnavailableSchedulerDispatchGateway - which refuses to dial - rather
+        // than on a dial path missing one of its two halves.
+        bool sipTrunk = string.Equals(
+                executionMode,
+                IvrOptions.ProductionRealExecutionMode,
+                StringComparison.OrdinalIgnoreCase)
+            && asteriskSection.GetValue<bool>(nameof(AsteriskAriOptions.Enabled))
+            && sipTrunkSection.GetValue<bool>(nameof(SipTrunkOptions.Enabled));
         // W-0198 / OD-V1-16. The hours a customer may be telephoned. Bound and validated at
         // startup so an inverted or empty window is a deployment that refuses to start, rather
         // than a night on which nobody was called and nothing said why.
@@ -615,6 +627,15 @@ public static class SchedulerServiceCollectionExtensions
             .ValidateOnStart();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<
             IValidateOptions<AsteriskAriOptions>, AsteriskAriOptionsValidator>());
+        // PD-01.2. Bound for every mode so the validator runs at startup wherever the section
+        // exists. Its own first rule is that a disabled trunk asserts nothing, so a lab or MOCK
+        // deployment that never configured one starts exactly as before.
+        services.AddOptions<SipTrunkOptions>()
+            .Bind(sipTrunkSection)
+            .PostConfigure(options => options.ExecutionMode = executionMode)
+            .ValidateOnStart();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IValidateOptions<SipTrunkOptions>, SipTrunkOptionsValidator>());
         services.TryAddSingleton(new SchedulerExecutionContext(executionMode));
         services.AddIvrSpeech(configuration, executionMode);
         if (useMockCapacity)
@@ -680,6 +701,47 @@ public static class SchedulerServiceCollectionExtensions
             // The scope is the Asterisk application, because that is the unit a second WebSocket
             // can take over. Environment and mode join it so a lab controller and a production one
             // are never treated as rivals for the same socket.
+            services.TryAddSingleton<IAriControllerOwnership>(provider =>
+            {
+                AsteriskAriOptions ari = provider
+                    .GetRequiredService<IOptions<AsteriskAriOptions>>().Value;
+                return new PostgresAriControllerOwnership(
+                    provider.GetRequiredService<IDbContextFactory<IvrDbContext>>(),
+                    provider.GetRequiredService<IOptions<SchedulerOptions>>(),
+                    provider.GetRequiredService<TimeProvider>(),
+                    string.Join(':', ari.ExecutionMode, ari.Environment, ari.Application),
+                    provider.GetRequiredService<IAuditLogger>());
+            });
+            services.TryAddSingleton<ITelephonyDispatchStore,
+                PostgresTelephonyDispatchStore>();
+            services.TryAddSingleton<ISchedulerDispatchGateway,
+                AsteriskSchedulerDispatchGateway>();
+        }
+        else if (sipTrunk)
+        {
+            // PD-01.4. The production dial path. Structurally the lab branch with three
+            // substitutions: the vault resolves a real number instead of an alias, the protector
+            // is Platform's rather than the vault's own, and the controller scope carries the
+            // production mode so a lab controller and this one never contend for one socket.
+            services.TryAddSingleton<ISchedulerCapacityService,
+                PostgresSchedulerCapacityService>();
+            services.TryAddSingleton<IDialTokenResolveLedger>(provider =>
+                new PostgresDialTokenResolveLedger(
+                    provider.GetRequiredService<IDbContextFactory<IvrDbContext>>()));
+
+            // No Replace of IOpaqueValueProtector here, and that is the difference that matters.
+            // The lab substitutes its own fingerprinting vault; production takes whatever Platform
+            // registered. Where that is still UnavailableOpaqueValueProtector the first resolve
+            // fails closed instead of dialling a number the deployment could not protect.
+            services.TryAddSingleton<IDialTokenResolver>(provider =>
+                new ProductionDialTokenVault(
+                    provider.GetRequiredService<IOptions<SipTrunkOptions>>(),
+                    provider.GetRequiredService<IOpaqueValueProtector>(),
+                    provider.GetRequiredService<IDialTokenResolveLedger>(),
+                    provider.GetRequiredService<IAuditLogger>()));
+            services.TryAddSingleton<ISpeechRenderer, ApprovedVietnameseSpeechRenderer>();
+            services.AddHttpClient(nameof(AsteriskAriSimGateway));
+            services.TryAddSingleton<ISimGateway, AsteriskAriSimGateway>();
             services.TryAddSingleton<IAriControllerOwnership>(provider =>
             {
                 AsteriskAriOptions ari = provider
