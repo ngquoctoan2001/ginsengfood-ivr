@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
@@ -255,6 +256,85 @@ public sealed class FailGateTests
                 + "traceability drift: no conclusion about test coverage follows from it.",
                 exception);
         }
+    }
+
+    /// <summary>
+    /// W-0299 / <c>B6</c>. Every shipped <c>appsettings</c> file must leave
+    /// <c>ProductionTargetV1FieldsApproved</c> off.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The flag decides whether a script read to a customer may carry the production decision
+    /// fields — item names, quantities, the shortened delivery area. It shipped as <c>YES</c> in
+    /// all four files, which makes the widest speech surface the default for any deployment that
+    /// does not know to turn it off. A privacy-widening default is the wrong way round: the narrow
+    /// setting is the one that should survive someone forgetting.
+    /// </para>
+    /// <para>
+    /// Turning it on is still one environment variable
+    /// (<c>IVR_PRODUCTION_TARGET_V1_FIELDS_APPROVED</c>, read ahead of the file in
+    /// <c>ServiceCollectionExtensions</c>), so a deployment that has the sign-off behind it loses
+    /// nothing. What it no longer gets is the flag on without having said so.
+    /// </para>
+    /// <para>
+    /// This asserts the committed files rather than a bound options object on purpose: the defect
+    /// was in what shipped, and only reading what shipped can catch it coming back.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    [Trait("TestId", "UT-FAILGATE-TARGETV1-DEFAULT-01")]
+    public void NoShippedAppSettingsApprovesProductionTargetV1FieldsByDefault()
+    {
+        string root = FindRepositoryRoot();
+        string[] settings =
+        [
+            Path.Combine("src", "Ivr.Api", "appsettings.json"),
+            Path.Combine("src", "Ivr.Api", "appsettings.Development.json"),
+            Path.Combine("src", "Ivr.Worker", "appsettings.json"),
+            Path.Combine("src", "Ivr.Worker", "appsettings.Development.json"),
+        ];
+
+        foreach (string relative in settings)
+        {
+            string path = Path.Combine(root, relative);
+            Assert.True(File.Exists(path), $"{relative} is missing.");
+
+            using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+            JsonElement? flag = FindProperty(
+                document.RootElement,
+                "ProductionTargetV1FieldsApproved");
+
+            Assert.True(
+                flag is not null,
+                $"{relative} no longer declares ProductionTargetV1FieldsApproved; the default it "
+                + "pins would become whatever the binder falls back to.");
+            Assert.Equal("NO", flag!.Value.GetString());
+        }
+    }
+
+    /// <summary>Finds one property anywhere in the document, at any nesting depth.</summary>
+    private static JsonElement? FindProperty(JsonElement element, string name)
+    {
+        if (element.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, name, StringComparison.Ordinal))
+            {
+                return property.Value;
+            }
+
+            JsonElement? nested = FindProperty(property.Value, name);
+            if (nested is not null)
+            {
+                return nested;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
