@@ -9,9 +9,9 @@ Owner: *"giữ `today-03`, khôi phục luôn đi"*.
 `today-03` route tới **ba** phiếu:
 
 ```text
-questions-to-legal-od-voice-07.md               ← W-0226 đã khôi phục
-questions-to-platform-w0122-infrastructure.md   ← W-0226 đã khôi phục
-questions-to-security-w0122-cve-disposition.md  ← chưa
+00-CHUA-XONG.md#legal-od-voice-07               ← W-0226 đã khôi phục
+00-CHUA-XONG.md#platform-w0122   ← W-0226 đã khôi phục
+00-CHUA-XONG.md#security-w0122-cve  ← chưa
 ```
 
 Khôi phục gói mà để một link gãy thì gói vô dụng. Nên `W-0227` khôi phục nốt phiếu Security —

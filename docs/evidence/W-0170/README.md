@@ -193,7 +193,7 @@ hai vai dùng chung một tệp. `W-0217` sửa một file plan được ghim m�
 | Bản ghi đóng băng | `docs/evidence/W-0170/attested-sha256.txt` (**tệp này, không đổi một byte**) | Không |
 | Pin sống | `deploy/ci/pins/external-decision-artifacts.sha256` | Có — cùng commit với source |
 
-Bản pin sống sinh ra từ chính tệp này, sửa đúng **một** dòng: `m8-05-program-result-contract-signoff-2026-09-03.md`
+Bản pin sống sinh ra từ chính tệp này, sửa đúng **một** dòng: `00-CHUA-XONG.md#m8-05`
 từ `6525d2df…` sang `a03fc6ca…`, tức nội dung `W-0217` đã ghi. Mười bảy dòng còn lại khớp sẵn — đó
 cũng là bằng chứng tệp này đang bị dùng làm pin sống.
 

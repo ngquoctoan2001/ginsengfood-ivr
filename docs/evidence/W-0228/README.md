@@ -25,7 +25,7 @@ Bank A tách theo miền vì `VietnameseNumberStyle` khai `Northern = ("nghìn",
 Tổng `≈ 222 + 3E`, và **không tăng theo độ dài đơn hàng**: `MaximumSpokenItems` bị chặn `1..20`,
 phần dư gộp thành *"và N sản phẩm khác"*.
 
-Đặc tả đầy đủ: [`m8-16`](../../../plan/ivr-orther/m8-16-recorded-speech-bank-spec-2026-09-08.md).
+Đặc tả đầy đủ: [`m8-16`](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-16).
 
 ## 2. Nhưng chưa gate nào đóng được hôm nay
 

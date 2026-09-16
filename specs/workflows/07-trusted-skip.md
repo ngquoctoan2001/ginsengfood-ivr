@@ -4,7 +4,7 @@ Trạng thái: `SUPERSEDED` cho workflow trusted-skip cũ · Authority hiện h�
 
 > **Tên file `07-trusted-skip.md` được giữ nguyên làm ID tài liệu ổn định**, không phải vì nội
 > dung còn mô tả trusted skip. `workflows/07` đang được `specs/api/06-error-codes.md`,
-> `specs/workflows/00-index.md` và các evidence/tracker lịch sử (`W-0118`, `W-0123`) trỏ tới;
+> `specs/workflows/00-CHUA-XONG.md` và các evidence/tracker lịch sử (`W-0118`, `W-0123`) trỏ tới;
 > đổi tên sẽ làm hỏng chính những bản ghi audit không được phép viết lại. Đây cùng một lý do
 > giữ enum `TASK_SKIPPED_TRUSTED_CUSTOMER`: tên là tham chiếu đã persist, nội dung mới nằm
 > ngay bên dưới (`W-0124` F5).

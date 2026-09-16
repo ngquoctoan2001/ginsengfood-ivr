@@ -17,7 +17,7 @@ P6-2 định nghĩa SLO kỹ thuật; nhưng cần **SLA** (cam kết với busi
 
 ## 3. SOURCE SPECS (đọc trước)
 - `specs/architecture/05-resilience.md`, `specs/architecture/06-observability.md`, `specs/testing/08-acceptance-criteria.md`
-- `plan/ivr-orther/decisions-log.md` §DF-03 · `prompt/phase-6-observability/P6-2-dashboards-slo-alerting.md` (SLO), `prompt/phase-9-release-ops/P9-2-cutover-ops-runbook.md` (ops runbook), `prompt/phase-6-observability/P6-3-chaos-resilience-gamedays.md` (game-day), `plan/ivr-orther/14-risk-register.md`
+- `plan/ivr-orther/decisions-log.md` §DF-03 · `prompt/phase-6-observability/P6-2-dashboards-slo-alerting.md` (SLO), `prompt/phase-9-release-ops/P9-2-cutover-ops-runbook.md` (ops runbook), `prompt/phase-6-observability/P6-3-chaos-resilience-gamedays.md` (game-day), `plan/ivr-orther/00-CHUA-XONG.md#14-risk-register`
 
 ## 4. DECISIONS & CONSTRAINTS
 - **SLA:** cam kết đo được với business (VD % task được gọi trong window, uptime intake/callback) — dựa SLO (P6-2) nhưng là hợp đồng.

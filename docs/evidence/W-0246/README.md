@@ -79,7 +79,7 @@ thuẫn**, nay là **bằng chứng của một hợp đồng**. Chỉ comment �
 
 ```text
 register OD-V1-17           vế TTL cập nhật, dẫn W-0246
-signoff mới                 plan/ivr-orther/od-v1-17-ttl-signoff-2026-09-09.md
+signoff mới                 plan/ivr-orther/00-DA-XONG.md#od-v1-17-ttl
 re-pin IR-06                4 validator + template W-0187 → hash LF mới
 quét pin toàn repo          30 khớp · 0 lệch
 4 validator --self-test     W0178 / W0183 / W0187 / W0181 SELFTEST_PASS

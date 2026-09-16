@@ -14,7 +14,7 @@
 > một queue-only proposer bằng direct constructor. Current runtime **không gọi** hai component này;
 > không có signal aggregation, proposal sender, CRM ACK, reversal hoặc next-task E2E. `Rejected`
 > chỉ là `NO_ANSWER + review`, không phải explicit consent signal. Mọi nội dung bên dưới phải đọc
-> theo correction này và [M8-08 decision pack](../../plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md).
+> theo correction này và [M8-08 decision pack](../../plan/ivr-orther/00-CHUA-XONG.md#m8-08).
 
 ## 1. ROLE
 Bạn là **Senior Integration Engineer**. Trước khi viết code, bạn phải buộc Product, CRM/M3 và

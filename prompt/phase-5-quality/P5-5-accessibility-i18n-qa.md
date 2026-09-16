@@ -16,7 +16,7 @@ Bạn là **Senior Frontend QA / Accessibility Engineer**. Bạn đảm bảo ad
 Admin UI (P3-*) là công cụ vận hành hằng ngày của ops. UI khó dùng/không tiếp cận được = lỗi vận hành, bỏ sót cảnh báo. Prompt này bổ sung lớp QA chuyên biệt cho UI mà unit/e2e chức năng (P5-2) không phủ.
 
 ## 3. SOURCE SPECS (đọc trước)
-- `specs/ui/00-index.md` (toàn bộ màn), `specs/ui/08-role-permission-ui.md`
+- `specs/ui/00-CHUA-XONG.md` (toàn bộ màn), `specs/ui/08-role-permission-ui.md`
 - `plan/ivr-orther/decisions-log.md` §DTS-03 (i18n vi), §D-05 (PII masked)
 
 ## 4. DECISIONS & CONSTRAINTS

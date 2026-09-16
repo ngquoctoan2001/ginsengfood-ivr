@@ -147,7 +147,7 @@ Cả ba được revert ngay sau lượt chạy; rebuild sau revert `0 warning/0
 | F6 | `.gitattributes` thêm `deploy/ci/scripts/*.sh text eol=lf` + renormalize worktree; plan `W-0123` §5.14 đổi sang `npm --prefix admin-ui`; `admin-ui/.gitignore` chặn hai file pnpm bootstrap |
 
 Về F5, đổi tên file là lựa chọn **bị từ chối có lý do**: `workflows/07` đang được
-`specs/api/06-error-codes.md`, `specs/workflows/00-index.md` và evidence/tracker lịch sử
+`specs/api/06-error-codes.md`, `specs/workflows/00-CHUA-XONG.md` và evidence/tracker lịch sử
 (`W-0118`, `W-0123`) trỏ tới. Đổi tên sẽ làm hỏng chính những bản ghi audit mà repo cấm viết lại —
 cùng đúng lý do enum `TASK_SKIPPED_TRUSTED_CUSTOMER` được giữ tên.
 

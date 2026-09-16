@@ -14,7 +14,7 @@ Ngày 14/09/2026. **BLOCKED_EXTERNAL — thiếu cluster dev/staging**. Owner du
 | Publish | [Ba image](published-images-179a5eb.json) tag `0.1.0-179a5ebc` đã push, mỗi image scan HIGH/CRITICAL=0 trước push. [Portal API](https://ginsengfood-ivr-0332fa.gitlab.io) Active, mở bằng browser thấy draft.27/38 operation/non-production |
 | Deploy | [Dev job](https://gitlab.com/nqt20102001/ginsengfood-ivr/-/jobs/16478951087): bootstrap Helm/kubectl PASS; [cluster unreachable](dev-deploy-blocker.log) tại localhost:8080. Staging không chạy; không thực hiện manual staging evidence hoặc lab/prod promotion |
 
-**Bước tiếp theo:** cần chọn/cấp máy chủ hoặc cluster đích cho dev/staging, rồi cấu hình kết nối CI, PostgreSQL, hai secret của chart, registry pull, DNS/TLS. Sau đó retry deploy trên candidate có digest, smoke test và diễn tập staging. Chưa có target nên không tự cấp dịch vụ tính phí hoặc ghi nhận Kubernetes selftest như staging thật. [Phiếu hạ tầng](../../../plan/ivr-orther/questions-to-platform-ci-and-staging-2026-09-12.md) vẫn NOT_SENT; review độc lập và các cổng M3/SIM/Legal chưa đóng.
+**Bước tiếp theo:** cần chọn/cấp máy chủ hoặc cluster đích cho dev/staging, rồi cấu hình kết nối CI, PostgreSQL, hai secret của chart, registry pull, DNS/TLS. Sau đó retry deploy trên candidate có digest, smoke test và diễn tập staging. Chưa có target nên không tự cấp dịch vụ tính phí hoặc ghi nhận Kubernetes selftest như staging thật. [Phiếu hạ tầng](../../../plan/ivr-orther/00-CHUA-XONG.md#platform-ci-staging) vẫn NOT_SENT; review độc lập và các cổng M3/SIM/Legal chưa đóng.
 
 ## Lịch sử trước candidate hiện hành
 

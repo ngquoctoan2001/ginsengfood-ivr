@@ -17,7 +17,7 @@ Sau khi gate mở (P9-1), IVR gọi khách thật ở production. Cần quy trì
 
 ## 3. SOURCE SPECS (đọc trước)
 - `specs/architecture/05-resilience.md`, `specs/architecture/06-observability.md`, `specs/database/05-retention-and-privacy.md`, `specs/database/06-migration-plan.md`
-- `plan/ivr-orther/decisions-log.md` §DF-07 (retention/legal), §DT-05 (recording), §DO-06 (fail-closed), §DF-03 (kill-switch); `plan/ivr-orther/14-risk-register.md`
+- `plan/ivr-orther/decisions-log.md` §DF-07 (retention/legal), §DT-05 (recording), §DO-06 (fail-closed), §DF-03 (kill-switch); `plan/ivr-orther/00-CHUA-XONG.md#14-risk-register`
 - `prompt/phase-8-sim-pilot/P8-2-pilot-runbook.md` (pilot runbook source; generated docs artifact only if P8-2 creates it)
 
 ## 4. DECISIONS & CONSTRAINTS

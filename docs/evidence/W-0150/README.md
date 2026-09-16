@@ -17,7 +17,7 @@ Không có source, OpenAPI, migration, Helm runtime hoặc production secret cha
 
 ## Artifact chính
 
-- [M8-10 decision pack](../../../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md)
+- [M8-10 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-10)
 - [T-04 dial-token closure ticket](../../contracts/target-v1-closure-pack/T-04-dial-token.md)
 - [IR-03 Telephony/SIM](../../../integration-requirements/03-telephony-sim-requirements.md)
 - [IR-06 Module 3 handover](../../../integration-requirements/06-module-3-api-handover.md)

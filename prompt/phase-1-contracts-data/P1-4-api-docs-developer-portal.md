@@ -16,7 +16,7 @@ Bạn là **Developer Experience / API Docs Engineer**. Bạn biến OpenAPI th�
 IVR là ranh giới tích hợp nhiều team. Contract không có tài liệu rõ = tích hợp sai/chậm. Cần docs sinh từ OpenAPI (P1-1), có changelog khi contract đổi, và policy versioning/deprecation để không phá downstream. Non-prod portal cho dev.
 
 ## 3. SOURCE SPECS (đọc trước)
-- `specs/api/00-index.md`, `specs/api/01-conventions.md`, `specs/api/06-error-codes.md`, `specs/api/openapi/ivr-order-confirmation.v1.yaml`
+- `specs/api/00-CHUA-XONG.md`, `specs/api/01-conventions.md`, `specs/api/06-error-codes.md`, `specs/api/openapi/ivr-order-confirmation.v1.yaml`
 - `specs/api/05-order-core-contracts.md` (caveat DS-03/04 — ghi rõ target vs live trong docs)
 - `plan/ivr-orther/decisions-log.md` §DF-02
 

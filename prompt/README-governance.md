@@ -126,7 +126,7 @@ Mock chỉ giúp code tiếp tục. **Mock không bao giờ đóng external gate
 
 ## 9. Cách dùng
 
-1. Đọc `00-index.md` để biết thứ tự + phụ thuộc.
+1. Đọc `00-CHUA-XONG.md` để biết thứ tự + phụ thuộc.
 2. Đọc `RUNBOOK-execute-prompts.md` và cập nhật `_execution/prompt-execution-tracker.md` **trước** khi chạy prompt.
 3. Chốt `_execution/defaults-and-confirmations.md` theo gate phase (`MUST_DECIDE_BEFORE_*`).
 4. Với mỗi prompt: đọc §SOURCE SPECS → thực thi §BUILD STEPS → viết §TESTS → tự-review → nộp §EVIDENCE vào `docs/evidence/<W-XXXX>/`.

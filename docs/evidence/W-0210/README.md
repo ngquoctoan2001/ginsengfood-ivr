@@ -37,7 +37,7 @@ hệ thống đang **chủ động từ chối** đưa nó vào lời thoại.
 ### 1.3. Chính gói được dẫn làm bằng chứng lại nói ngược
 
 Cột *Closure evidence* của `OD-V1-23` dẫn
-[M8-08](../../../plan/ivr-orther/m8-08-opt-out-suppression-decision-pack-2026-09-03.md). M8-08 §4:
+[M8-08](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-08). M8-08 §4:
 
 > 2. DTMF `1` là xác nhận đơn, DTMF `0` là yêu cầu huỷ đơn. **Không tái dùng hai phím này cho
 >    opt-out.**

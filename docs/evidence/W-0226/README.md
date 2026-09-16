@@ -10,12 +10,12 @@ chỗ đặt thì phát hiện **cả hai đã tồn tại**, và đã bị xoá
 ```text
 git log --diff-filter=D --name-only -- 'plan/ivr-orther/questions-to-*'
 → 8ed62e9  2026-09-04  "save"
-     plan/ivr-orther/questions-to-legal-od-voice-07.md            (143 dòng)
-     plan/ivr-orther/questions-to-platform-w0122-infrastructure.md (176 dòng)
-     plan/ivr-orther/today-03-tts-handoff-pack-2026-08-29.md      (110 dòng)
+     plan/ivr-orther/00-CHUA-XONG.md#legal-od-voice-07            (143 dòng)
+     plan/ivr-orther/00-CHUA-XONG.md#platform-w0122 (176 dòng)
+     plan/ivr-orther/00-CHUA-XONG.md#today-03      (110 dòng)
 ```
 
-`8ed62e9` là lượt dọn 31 file, **−18.251 dòng**. `00-index.md` tự mô tả lượt đó là gỡ các phiếu
+`8ed62e9` là lượt dọn 31 file, **−18.251 dòng**. `00-CHUA-XONG.md` tự mô tả lượt đó là gỡ các phiếu
 `questions-to-*` **đã `SUPERSEDED`**, thuộc vòng `2026-07-02` và `OD-15`.
 
 Hai phiếu này **không thuộc diện đó**: lập `2026-08-28` cho `W-0122`, chưa từng bị supersede, và
@@ -103,7 +103,7 @@ Chỗ rẽ thuộc Owner + Product. Đã ghi vào **cả hai phiếu** kèm bả
 
 ## 5. Chống tái diễn
 
-`00-index.md` thêm bảng **phiếu đang hoạt động** với ba dòng có tên, và một câu:
+`00-CHUA-XONG.md` thêm bảng **phiếu đang hoạt động** với ba dòng có tên, và một câu:
 
 > *Một phiếu `NOT_SENT` không phải phiếu chết: nó là việc chưa làm. Chỉ gỡ khi đã có trả lời hoặc
 > đã được thay bằng phiếu khác có tên.*
@@ -132,6 +132,6 @@ Không sửa code, không sửa test, không sửa `MODELS.lock`, không mở ga
 
 - **Gửi.** Cả hai vẫn `NOT_SENT`. Việc gửi thuộc owner/chief auditor, giống `3.4`.
 - **Chốt chỗ rẽ `items_spoken`** trước khi Platform bắt tay vào `INF-A`.
-- `today-03-tts-handoff-pack-2026-08-29.md` (110 dòng) cũng bị `8ed62e9` xoá. Chưa khôi phục lượt
+- `00-CHUA-XONG.md#today-03` (110 dòng) cũng bị `8ed62e9` xoá. Chưa khôi phục lượt
   này — nó là pack routing, và hai phiếu nó route tới nay đã sống lại; khôi phục hay bỏ hẳn là một
   quyết định riêng, không phải mặc định.

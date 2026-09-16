@@ -20,7 +20,7 @@ W-0153 chuyển batch `D-01..D-05` của M8-12 thành năm message copy/paste c�
 - response fields, stop rule và trạng thái chưa gửi;
 - receipt-capture table không cho phép suy message ID thành approval.
 
-Artifact: [M8-13 dispatch-message kit](../../../plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md).
+Artifact: [M8-13 dispatch-message kit](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-13).
 
 M8-13 SHA-256 tại thời điểm nộp evidence:
 `261b33fd4832793240b837e090efe7424929278d454da98a9a454cfdcfacc103`.

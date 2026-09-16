@@ -203,10 +203,10 @@ không còn gì để trả lời.
 
 | Phiếu | Hỏi gì | Chặn |
 | --- | --- | --- |
-| [questions-to-legal-od-voice-07](ivr-orther/questions-to-legal-od-voice-07.md) | `L1`–`L7`: licence không có file LICENSE, training data, quyền 3 preset, attribution, nghĩa vụ khi bỏ SaaS, retention | `legal_gate` |
-| [questions-to-platform-w0122-infrastructure](ivr-orther/questions-to-platform-w0122-infrastructure.md) | `INF-A` mirror 13 artifact · `INF-B` target hardware · `INF-C` `OD-VOICE-08` media sink | `internal_mirror_gate` + 2 gate khác |
-| [questions-to-security-w0122-cve-disposition](ivr-orther/questions-to-security-w0122-cve-disposition.md) | `SEC-A` ký disposition 16 finding **hoặc** `SEC-B` đổi base image | `RELEASE` (`W-0227`) |
-| [today-03-tts-handoff-pack](ivr-orther/today-03-tts-handoff-pack-2026-08-29.md) | gói routing cho cả ba, kèm bảng 6 cuộc MicroSIP và retention/rollback drill | — (`W-0227`) |
+| [questions-to-legal-od-voice-07](ivr-orther/00-CHUA-XONG.md#legal-od-voice-07) | `L1`–`L7`: licence không có file LICENSE, training data, quyền 3 preset, attribution, nghĩa vụ khi bỏ SaaS, retention | `legal_gate` |
+| [questions-to-platform-w0122-infrastructure](ivr-orther/00-CHUA-XONG.md#platform-w0122) | `INF-A` mirror 13 artifact · `INF-B` target hardware · `INF-C` `OD-VOICE-08` media sink | `internal_mirror_gate` + 2 gate khác |
+| [questions-to-security-w0122-cve-disposition](ivr-orther/00-CHUA-XONG.md#security-w0122-cve) | `SEC-A` ký disposition 16 finding **hoặc** `SEC-B` đổi base image | `RELEASE` (`W-0227`) |
+| [today-03-tts-handoff-pack](ivr-orther/00-CHUA-XONG.md#today-03) | gói routing cho cả ba, kèm bảng 6 cuộc MicroSIP và retention/rollback drill | — (`W-0227`) |
 
 > ⚠️ **Chỗ rẽ chưa ai chốt, ghi rõ trong cả hai phiếu.** `OD-V1-19` ký `05/09` — *"không vendor TTS
 > lúc chạy; thu giọng người thật"* — **đã vào code**: template `v3-test-approved` không còn
@@ -233,7 +233,7 @@ Chỗ rẽ đó chạm **cả ba** phiếu, mỗi phiếu một kiểu — bản
 
 > *"`items_spoken` thu trước được, catalog GinsengFood chỉ vài chục món."*
 
-Đặc tả suy từ code: [`m8-16`](ivr-orther/m8-16-recorded-speech-bank-spec-2026-09-08.md).
+Đặc tả suy từ code: [`m8-16`](ivr-orther/00-CHUA-XONG.md#m8-16).
 
 | Bank | Nguồn suy ra | Mỗi miền |
 | --- | --- | ---: |
@@ -446,7 +446,7 @@ cuộc đang gọi. ACK trên callback **không** thay được một command.
 
 #### ✅ `W-0248` (09/09) — owner chọn **`B`**, đặc tả fence đã viết
 
-[`m8-17`](ivr-orther/m8-17-order-revocation-fence-2026-09-09.md) chỉ ra **đúng hai chỗ** fence phải
+[`m8-17`](ivr-orther/00-CHUA-XONG.md#m8-17) chỉ ra **đúng hai chỗ** fence phải
 nằm, cả hai đã xác minh trên code:
 
 | | Chỗ | Chi phí |
@@ -482,7 +482,7 @@ cũ thì **mọi replay chính xác chết lặng**. Đã sửa về `[200]` + g
 
 ### 3.1 — Reconcile 19 quyết định `OD-V1` ký một lượt
 
-`od-v1-signoff-2026-09-05.md:3-4`: *"Người ký: IVR owner · Người soạn phương án: Claude"*. Register
+`00-DA-XONG.md#od-v1-signoff:3-4`: *"Người ký: IVR owner · Người soạn phương án: Claude"*. Register
 dòng `19-25` (OD-V1-01..07) đều `✅ CLOSED 2026-09-05` **trong khi cột Owner là Sales/Security/Core**.
 Code dựng ngay lên đó (`AttemptPolicyRegistries.cs:52-75`, `W0195`, `W0196`, `appsettings ×4`).
 

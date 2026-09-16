@@ -32,7 +32,7 @@ consumer, filter/paging, retention/redaction, authorization tier và negative te
 | Secret custody, network selector, rotation và security acceptance | Security/Platform + M3 | Chưa có artifact production nên vẫn external. |
 
 Nguồn contract: [IR-06 §4A](../../../integration-requirements/06-module-3-api-handover.md#4a-api-c--bề-mặt-quản-trị-module-3-điều-khiển-và-quan-sát-ivr),
-[S-03 trong TODAY-01](../../../plan/ivr-orther/today-01-decision-signoff-pack-2026-08-29.md#s-03--admin-identityui-handoff-w-0128)
+[S-03 trong TODAY-01](../../../plan/ivr-orther/00-CHUA-XONG.md#today-01)
 và [W-0128](../W-0128/README.md).
 
 ## 3. Surface M3 phải dùng — không được giao IVR làm lại

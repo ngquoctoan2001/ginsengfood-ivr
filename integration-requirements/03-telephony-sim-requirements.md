@@ -43,7 +43,7 @@ Lab pass **không phải** production proof và **không** mở gọi khách. C�
 
 Correction `W-0150`: MOCK/LAB chỉ chứng minh local fail-closed và per-attempt duplicate guard. Không
 chứng minh globally one-use, cross-process vault, issuer/auth/rotation, resolver audit hoặc vendor có
-thể quay bằng opaque handle. Xem [M8-10 decision pack](../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md).
+thể quay bằng opaque handle. Xem [M8-10 decision pack](../plan/ivr-orther/00-CHUA-XONG.md#m8-10).
 
 ## 4. Thông tin cần vendor/Infra trả
 

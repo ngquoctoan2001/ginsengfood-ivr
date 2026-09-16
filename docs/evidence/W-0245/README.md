@@ -47,7 +47,7 @@ Không có con số. Và `OD-V1-05` thì **hoãn TTL sang `OD-V1-17`**:
 
 | Nguồn | Có `+60s` không |
 | --- | --- |
-| `od-v1-signoff-2026-09-05.md` | **không** — chỉ ba dòng có chữ TTL, không dòng nào cho `OD-V1-17` |
+| `00-DA-XONG.md#od-v1-signoff` | **không** — chỉ ba dòng có chữ TTL, không dòng nào cho `OD-V1-17` |
 | `T-04-dial-token.md` (gói bốn phương án trước khi ký) | **không** — phương án `d` là *"reusable có TTL"*, không kèm số |
 | spec V0.3 register dòng `674` | **không** — chỉ nêu câu hỏi |
 | config `src/**`, `deploy/**` | **không** — không có default TTL nào |

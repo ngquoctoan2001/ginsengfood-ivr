@@ -30,7 +30,7 @@ Không gate nào được đánh dấu là đã đóng bởi work này.
 Trước: nghĩa vụ của M3 nằm rải ở `W-0123` plan §10 (`OD18-C1..C5`), `IR-06` §10 và một phiếu
 `OD-15` đã `SUPERSEDED`. Không có chỗ nào M3 có thể ngồi xuống và trả lời.
 
-Sau: [`plan/ivr-orther/questions-to-module-3-od18-authority.md`](../../../plan/ivr-orther/questions-to-module-3-od18-authority.md)
+Sau: [`plan/ivr-orther/00-CHUA-XONG.md#m3-od18-authority`](../../../plan/ivr-orther/00-CHUA-XONG.md#m3-od18-authority)
 — phiếu hẹp, mỗi câu có ô chọn và ô bằng chứng, kèm ô ký.
 
 Hai điều được viết thẳng vào phiếu vì chúng là rủi ro thật chứ không phải thủ tục:

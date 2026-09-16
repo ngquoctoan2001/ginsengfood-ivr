@@ -26,7 +26,7 @@ vẫn là bên duy nhất được đổi order state.
 Technical/capacity/window-sweep exceptions are not customer attempts. IVR never transitions the
 order. Quyết định chi tiết và nguồn KPI nằm ở
 [DT-06](../decisions/DT-06-blocked-result-semantics.md); gói ký hiện hành nằm ở
-[M8-05/W-0145](../../plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md).
+[M8-05/W-0145](../../plan/ivr-orther/00-CHUA-XONG.md#m8-05).
 
 ## Target callback
 

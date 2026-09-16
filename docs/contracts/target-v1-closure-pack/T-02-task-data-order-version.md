@@ -13,7 +13,7 @@ Due: chốt **trước khi bắt đầu `P4-2`** — cùng lúc với [T-01](T-0
 > kiểm `captured_at` trong confirmation window và không ở tương lai. Không có maximum age,
 > `valid_until`, source revision ordering, mid-window revoke hoặc per-attempt business recheck.
 > `order_version` vẫn được echo bất biến để M3 revalidate. Xem
-> [M8-09 decision pack](../../../plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md).
+> [M8-09 decision pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-09).
 >
 > Vì vậy không dùng các mục historical `(b)/(c)` hay sample `sellable_status[]` dưới đây để build
 > producer mới. Closure hiện tại thuộc một trong hai hướng: M3 chứng minh D-06 callback revalidation

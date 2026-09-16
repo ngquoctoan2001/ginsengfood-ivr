@@ -8,11 +8,11 @@ Ngày lập: **15/09/2026** · Trình lãnh đạo quyết định.
 
 | | **A — Mobile SIP Trunk** *(đề xuất)* | B — Gateway 4G + 32 SIM |
 | --- | --- | --- |
-| Hiện tên công ty khi gọi khách | **Được** | **Không có lời giải** |
+| Hiện tên công ty khi gọi khách | **Được** — phạm vi đang xác minh, xem Cập nhật 16/09 | **Không có lời giải** |
 | Tiền mặt bỏ ra ban đầu | **~1 triệu** | **~88 triệu** |
 | Tiền mặt năm đầu | **~37 triệu** | **~135 triệu** |
 | Bắt đầu nhỏ, mở rộng dần | **Được** — nâng kênh bằng phụ lục hợp đồng | **Không** — mua 32 cổng ngay từ đầu |
-| Thời gian hoàn thành | **4–6 tuần** | 5–8 tuần |
+| Thời gian hoàn thành | **3–5 tuần** | 4–7 tuần |
 | Phải nuôi thiết bị, SIM | Không | 1 hộp máy + 32 thuê bao |
 
 ### Ba lý do
@@ -34,6 +34,72 @@ Hợp đồng thuê kết thúc được khi không dùng nữa. Hộp gateway 7
 **Và chỉ dùng một nhà mạng — không chia cho hai.** Chia lưu lượng cho hai nhà mạng để hưởng giá nội mạng nghe hợp lý, nhưng tính ra thì **lỗ cho tới khi đạt 22.000 đơn/tháng**. Việc đáng làm là chọn đúng một nhà mạng ngay từ đầu — tác dụng lớn gấp gần 7 lần mà không tốn thêm đồng nào. Chi tiết ở §7.
 
 > **Khi nào nên xem lại phương án B?** Khi có đủ cả bốn: lượng đơn lớn và ổn định đã đo được; nhà mạng xác nhận một gói SIM doanh nghiệp rẻ hơn hẳn được phép dùng cho gọi tự động; có cách hiện tên công ty, hoặc lãnh đạo quyết định bỏ yêu cầu đó; và báo giá thật cho thấy tiết kiệm đủ bù tiền thiết bị. **Hiện chưa có điều nào.**
+
+## Cập nhật 16/09 — ba phát hiện sau khi gửi bản đầu
+
+**Kết luận không đổi: vẫn chọn Phương án A. Khoảng cách với Phương án B còn rộng hơn trước.** Nhưng có một câu chưa trả lời được, ghi rõ ở cuối mục này.
+
+### 1. Tên sản phẩm trong bản đầu không còn bán
+
+"Mobile SIP Trunk" — dùng đầu số di động làm tổng đài — **đã ngừng cung cấp từ 2022**: Viettel dừng **23/09/2022**, MobiFone dừng **01/10/2022**. Nguyên nhân: ngày 29/08/2022 bảy nhà mạng ký cam kết với Cục Viễn thông chống cuộc gọi rác, sau khi 6 tháng đầu 2022 ghi nhận hơn **74 tỷ cuộc gọi rác**, tăng 53%.
+
+Tên đúng phải dùng khi làm việc với nhà mạng là **trung kế SIP** (SIP Trunk). Kiến trúc kỹ thuật **không đổi một dòng nào** — vẫn là tổng đài công ty nối ra nhà mạng.
+
+Đáng chú ý: lý do dịch vụ cũ bị dừng chính là **quy định buộc doanh nghiệp gọi khách phải hiện tên định danh**. Đó đúng là thứ Phương án B không làm được.
+
+### 2. Tắt sóng 2G — thiết bị gateway giá rẻ đã thành phế liệu
+
+**Việt Nam tắt sóng 2G toàn quốc từ 0h ngày 16/09/2026.**
+
+Các thiết bị gateway giá rẻ trên thị trường đều chạy 2G/GSM:
+
+| Thiết bị | Số SIM | Giá | Công nghệ |
+| --- | --- | --- | --- |
+| GoIP4 | 4 | 11,7 triệu | **2G — đã chết** |
+| GoIP8 | 8 | ~16 triệu | **2G — đã chết** |
+| GoIP32 | 32 | 50–55 triệu | **2G — đã chết** |
+| Dinstar UC2000-VG-32T-B | 32 | **78,1 triệu** | 4G/VoLTE — còn dùng được |
+
+Đây là lý do bản báo cáo lấy mức 78,1 triệu chứ không lấy giá rẻ hơn: **chỉ bản 4G/VoLTE mới còn hoạt động**. Máy vài triệu mua về hôm nay là không gọi được cuộc nào.
+
+### 3. Đã có báo giá thật — và một phát hiện đáng lo
+
+MobiFone gửi bảng giá dịch vụ tổng đài. Phần quan trọng nhất **không phải giá**, mà là dòng này:
+
+> *"các cuộc gọi từ tổng đài doanh nghiệp tới **số thuê bao MobiFone** sẽ có tên thương hiệu tại phần người gọi thay vào số điện thoại"*
+
+Bảng giá chỉ có một dòng brandname: **"gọi ra nội mạng — 550đ/cuộc"**. Không có dòng nào cho ngoại mạng.
+
+**Nghĩa là tên công ty chỉ hiện với khách dùng MobiFone.** Khách Viettel và VinaPhone — chiếm khoảng 80% — vẫn thấy dãy số.
+
+Đây đúng là điều mục 3 của báo cáo đã cảnh báo: *"có dịch vụ brandname" và "khách ở mọi mạng đều thấy tên công ty" là hai điều khác nhau*.
+
+### Tình hình ba nhà mạng tính đến hôm nay
+
+| Nhà mạng | Tình hình | Ghi chú |
+| --- | --- | --- |
+| **Viettel** | Báo đã ngừng cả trung kế SIP | Cần xác nhận lại bằng văn bản |
+| **VNPT** | Đẩy sang gói tổng đài đám mây VCC | VCC là tổng đài cho nhân viên trực, không phải nền tảng gọi tự động — chưa phù hợp |
+| **MobiFone** | **Đồng ý bán trung kế SIP**, tổng đài công ty tự nối vào | Nhưng bảng giá gửi sang lại là gói tổng đài đám mây 3C; đã yêu cầu báo giá đúng sản phẩm |
+
+**MobiFone hiện là hướng khả thi nhất** — họ chấp nhận để tổng đài của công ty nối thẳng vào, không bắt mua nền tảng của họ.
+
+### Câu chưa trả lời được
+
+> **Tên công ty có hiện với khách ở mạng khác không, hay chỉ khách cùng mạng?**
+
+Nếu brandname là dịch vụ nội mạng ở mọi nhà mạng, thì không nhà mạng đơn lẻ nào phủ hết khách hàng, và phải tính lại mục 7. Hiện mới có dữ liệu từ MobiFone, chưa đủ kết luận.
+
+Đã đưa câu này thành câu hỏi bắt buộc cho cả ba nhà mạng.
+
+### Điều này có làm đổi đề xuất không
+
+**Không.** Ngay cả trong tình huống xấu nhất — brandname chỉ hiện với một phần khách — thì:
+
+- Phương án A: đầu tư ~1 triệu, **một phần khách thấy tên công ty**
+- Phương án B: đầu tư ~88 triệu, **không khách nào thấy tên công ty**, và phần lớn thiết bị trên thị trường đã ngừng hoạt động từ hôm qua
+
+Khoảng cách không thu hẹp — nó rộng ra.
 
 ## 1. Việc cần làm là gì
 
@@ -181,21 +247,56 @@ Nếu lượng đơn tăng nhanh và duy trì mức cao điểm suốt cả năm
 
 *Giá tham chiếu đang dùng: 700đ/phút nội mạng và 1.000đ/phút ngoại mạng cho phương án A — là mức đặt vào mô hình dựa trên các bảng giá công khai, **chưa có nhà mạng nào cam kết**. Giá SIM thường 1.180–1.380đ/phút lấy từ [MobiCard](https://5g.mobifone.vn/dich-vu-di-dong/loai-thue-bao/mobicard-3). Giá thiết bị 78,1 triệu là mức [niêm yết Dinstar UC2000-VG-32T-B](https://namlong.vn/dinstar/tong-dai/thiet-bi-gsm-gateway-32-sim-dinstar-uc2000-vg-32t-b-28198.html). Con số chính thức phải chờ báo giá ký.*
 
+### 4.6. Báo giá thực tế đầu tiên — MobiFone
+
+Con số dưới đây lấy từ bảng giá MobiFone gửi ngày 16/09. **Đây là bảng giá cho gói tổng đài đám mây 3C, đã yêu cầu báo lại cho đúng sản phẩm trung kế SIP** — nhưng phần cước gọi và brandname nhiều khả năng giữ nguyên.
+
+**Cước gọi có bậc thang giảm dần theo sản lượng** — điểm này tốt hơn giả định trong bản đầu:
+
+| Số phút/tháng | Nội mạng MobiFone | Ngoại mạng |
+| --- | --- | --- |
+| ≤ 1.000 | 500đ/phút | 900đ/phút |
+| 1.001 – 5.000 | 480đ/phút | 850đ/phút |
+| 5.001 – 10.000 | 460đ/phút | 800đ/phút |
+| Trên 10.000 | 440đ/phút | **780đ/phút** |
+
+**Phí cố định:** khởi tạo miễn phí; hotline đại diện **299.000đ/tháng**; duy trì Brandname **500.000đ/tháng**.
+
+**Phí riêng của brandname:** **550đ mỗi cuộc khách nghe máy** — cộng thêm ngoài cước phút, và **chỉ áp cho cuộc nội mạng**.
+
+Tính lại theo đúng bảng giá này, với cơ cấu khách 20% MobiFone / 80% mạng khác:
+
+| | Khởi động<br>3.000 đơn | Dự kiến<br>10.000 đơn | Cao điểm<br>30.000 đơn |
+| --- | --- | --- | --- |
+| Tiền thoại | 983.000đ | 3.276.000đ | 9.072.000đ |
+| Phí brandname theo cuộc | 277.000đ | 924.000đ | 2.772.000đ |
+| Phí cố định (299k + 500k) | 799.000đ | 799.000đ | 799.000đ |
+| Điện, sao lưu | 300.000đ | 300.000đ | 300.000đ |
+| **Tổng** | **~2,4 triệu** | **~5,3 triệu** | **~12,9 triệu** |
+
+Không lệch nhiều so với ước tính ở mục 4.3 (1,7 / 4,3 / 11,7 triệu). **Nhưng đổi lại chỉ khoảng 20% khách thấy tên công ty** — đó mới là vấn đề, không phải tiền.
+
+*Lưu ý: bản Thư Ngỏ nhận được đề ngày 01/06/2023 và để trống phần người nhận, tức là mẫu gửi chung chứ chưa phải báo giá cho công ty. Đã yêu cầu bản mới có ghi ngày và tên công ty.*
+
 ## 5. Việc còn lại và thời gian
 
 Hệ thống đã có sẵn phần lớn: nhận đơn cần gọi, xếp lịch gọi, đọc nội dung đơn bằng giọng nói, nhận phím 1/0 của khách, trả kết quả về hệ thống đơn hàng. Đã chạy thử thành công trên máy nội bộ.
 
 Phần chưa xong là **nối ra mạng viễn thông thật** và **gọi nhiều cuộc cùng lúc**.
 
+> **Cập nhật 16/09 — đã rút ngắn được so với bản 15/09.** Ngày 15/09 đội kỹ thuật đã hoàn thành phần khó nhất của việc gọi nhiều cuộc cùng lúc: bộ điều phối chạy song song có giới hạn, tự giảm tải khi gặp lỗi liên tiếp, khóa quyền điều khiển tổng đài để hai tiến trình không tranh nhau, và cơ chế đếm hạn mức gọi không bị mất khi máy khởi động lại — kèm bộ kiểm thử đi cùng.
+>
+> Nhờ vậy **ước lượng giảm từ 19–30 ngày công xuống 16–25 ngày công**. Phần còn lại chủ yếu là nối ra đường thoại thật của nhà mạng — việc này bắt buộc phải có hợp đồng mới làm được.
+
 ### 5.1. Phần chung — phương án nào cũng phải làm
 
-| Việc | Ngày công |
-| --- | --- |
-| Hoàn thiện đường gọi ra thật và cơ chế bảo vệ số điện thoại khách | 3–5 |
-| Làm phần gọi nhiều cuộc cùng lúc và tự phục hồi khi lỗi | 3–5 |
-| Nối với hệ thống đơn hàng thật và dựng môi trường vận hành | 4–6 |
-| Tài liệu vận hành và bàn giao | 1–2 |
-| **Cộng** | **11–18** |
+| Việc | Ngày công còn lại | Tình trạng |
+| --- | --- | --- |
+| Hoàn thiện đường gọi ra thật và cơ chế bảo vệ số điện thoại khách | 2–4 | Xong một phần |
+| Làm phần gọi nhiều cuộc cùng lúc và tự phục hồi khi lỗi | 1–2 | **Gần xong** |
+| Nối với hệ thống đơn hàng thật và dựng môi trường vận hành | 4–6 | Chờ Module 3 |
+| Tài liệu vận hành và bàn giao | 1 | Xong một phần |
+| **Cộng** | **8–13** | |
 
 Phần này chiếm quá nửa khối lượng. **Mua gateway không rút ngắn được phần này.**
 
@@ -212,11 +313,11 @@ Phần này chiếm quá nửa khối lượng. **Mua gateway không rút ngắn
 
 | | A — Mobile SIP Trunk | B — Gateway 32 SIM |
 | --- | --- | --- |
-| **Tổng ngày công** | **19–30 ngày** | **24–39 ngày** |
-| **Quy ra thời gian** | **~4–6 tuần** | **~5–8 tuần** |
+| **Tổng ngày công** | **16–25 ngày** | **21–34 ngày** |
+| **Quy ra thời gian** | **~3–5 tuần** | **~4–7 tuần** |
 | Gọi thử được cuộc đầu tiên | 2–4 ngày sau khi có đường | 3–5 ngày sau khi có thiết bị và SIM |
 
-Đây là **thời gian làm việc của đội kỹ thuật nội bộ**, không phải hóa đơn thuê ngoài. Nếu phải thuê ngoài với giá 1,5 triệu/ngày thì tương đương 28,5–45 triệu cho A và 36–58,5 triệu cho B.
+Đây là **thời gian làm việc của đội kỹ thuật nội bộ**, không phải hóa đơn thuê ngoài. Nếu phải thuê ngoài với giá 1,5 triệu/ngày thì tương đương 24–37,5 triệu cho A và 31,5–51 triệu cho B.
 
 Nếu chạy thử 4–8 kênh trước thay vì nghiệm thu đủ 32 ngay, phần thử tải giảm khoảng 2 ngày ở cả hai phương án.
 
@@ -246,6 +347,8 @@ Phần chuẩn bị chạy song song được, nên **không cộng dồn ngày 
 *Đánh giá để lập kế hoạch, chưa phải thống kê sự cố đã đo.*
 
 ## 7. Chỉ dùng một nhà mạng — và cách chọn đúng
+
+> **Cảnh báo 16/09 — mục này có thể phải tính lại.** Bảng giá MobiFone cho thấy tên công ty **chỉ hiện với khách cùng mạng**. Nếu cả ba nhà mạng đều như vậy, thì một nhà mạng duy nhất không phủ hết khách hàng, và lập luận dưới đây — vốn chỉ so cước — không còn đủ. Đang chờ câu trả lời từ Viettel và VNPT.
 
 **Đề xuất: đăng ký một nhà mạng duy nhất và giữ như vậy. Không chia lưu lượng cho hai nhà mạng.**
 
@@ -361,14 +464,16 @@ Gửi cùng bộ câu hỏi này cho cả ba nhà mạng để so sánh trên c�
 
 Bối cảnh: *"Công ty có tổng đài riêng, chỉ gọi ra xác nhận đơn hàng, khách bấm 1 hoặc 0. Dùng một nhà mạng duy nhất, bắt đầu 8 kênh đồng thời và hiển thị tên công ty."*
 
-1. **Cước ngoại mạng là bao nhiêu?** Đây là khoản lớn nhất, vì phần lớn khách sẽ ở mạng khác. Xin giá riêng cho từng hướng đích.
-2. **Giá của từng mức kênh 4 / 8 / 16 / 32? Nâng kênh mất mấy ngày, cần ký lại hợp đồng hay chỉ phụ lục? Giảm kênh có bị phạt không?**
-3. **Có giảm giá theo sản lượng không?** Công ty dồn toàn bộ lưu lượng vào một hợp đồng — xin bậc giá theo số phút cam kết mỗi tháng.
-4. Tên công ty có hiện với khách VinaPhone, MobiFone, Viettel và các mạng khác không? Phí từng hướng? Trường hợp nào không hiện?
-5. Phí hiện tên nằm trong cước phút hay tính riêng theo từng cuộc?
-6. **Công ty đã có một địa chỉ Internet cố định (VNPT Fiber Xtra2). Nhà mạng xác thực đường thoại bằng địa chỉ này được không, hay bắt buộc dùng cách khác?** Nếu đăng ký bằng địa chỉ thì khai báo mất bao lâu, sau này đổi địa chỉ thì xử lý thế nào?
-7. Báo giá trọn gói: cấp số, đường truyền theo mức kênh, tên định danh, cước nội mạng và ngoại mạng, cách làm tròn cước, cam kết tối thiểu, thuế, thời hạn báo giá.
-8. Cho xin mẫu bảng kê cước và lịch gọi thử nội bộ. Có giới hạn riêng nào cho gọi xác nhận đơn tự động không?
+1. **Tên công ty có hiện với khách ở mạng khác không, hay chỉ khách cùng mạng?** Câu quan trọng nhất — nếu chỉ hiện nội mạng thì phần lớn khách vẫn thấy dãy số. Hỏi rõ từng hướng VinaPhone, MobiFone, Viettel. **Xin trả lời bằng văn bản.**
+2. **Bên em đã có tổng đài Asterisk riêng. Nhà mạng có bán trung kế SIP để tổng đài của em nối thẳng vào không**, hay bắt buộc dùng nền tảng tổng đài của nhà mạng?
+3. **Cước ngoại mạng là bao nhiêu?** Đây là khoản lớn nhất, vì phần lớn khách ở mạng khác. Xin giá riêng từng hướng đích.
+4. **Phí hiện tên tính thế nào** — nằm trong cước phút, hay thu riêng theo từng cuộc? Nếu theo cuộc thì bao nhiêu một cuộc?
+5. **Giá của từng mức kênh 4 / 8 / 16 / 32? Nâng kênh mất mấy ngày, cần ký lại hợp đồng hay chỉ phụ lục? Giảm kênh có bị phạt không?**
+6. **Có giảm giá theo sản lượng không?** Công ty dồn toàn bộ lưu lượng vào một hợp đồng — xin bậc giá theo số phút cam kết mỗi tháng.
+7. **Công ty đã có địa chỉ Internet cố định (VNPT Fiber Xtra2). Nhà mạng xác thực đường thoại bằng địa chỉ này được không?** Nếu được thì khai báo mất bao lâu?
+8. **Trung kế truyền phím bấm DTMF theo chuẩn nào — RFC2833 hay SIP INFO?** Sai chuẩn thì khách bấm phím mà hệ thống không nhận được.
+9. Báo giá trọn gói: cấp số, trung kế theo mức kênh, tên định danh, cước nội/ngoại mạng, cách làm tròn cước, cam kết tối thiểu, thuế, thời hạn báo giá.
+10. Cho xin mẫu bảng kê cước và lịch gọi thử nội bộ. Có giới hạn riêng nào cho gọi xác nhận đơn tự động không?
 
 ## 10. Giới hạn của báo cáo
 

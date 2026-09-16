@@ -28,7 +28,7 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 | **So sánh draft.23 → draft.24 — có breaking, đọc trước khi sinh client** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` |
 | **So sánh draft.25 → draft.26 và draft.26 → draft.27 — enum response có WARN** | [25→26](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md), [26→27](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md); sinh bằng oasdiff đã ghim ngày 14/09, không đổi baseline CI draft.27 |
 | **Bảng nhãn tiếng Việt cho mọi enum** | `specs/ui/enum-labels.vi.json` |
-| **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md` |
+| **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/00-CHUA-XONG.md#m8-06` |
 
 _Sửa 27/08/2026: bản trước dùng đường dẫn tương đối, nên khi IR-06 được gửi đi dạng file rời thì cả năm link đều không mở được — M3 báo lại ở review §3.3. Cả năm file đều tồn tại trong repo IVR; nếu cần bản sao, yêu cầu owner IVR gửi kèm._
 
@@ -369,7 +369,7 @@ lab seed mặc định dùng `lab-softphone-v1`. Snapshot M3
 `PhucApu@a3aad246d986fbc273cf41aaa93eec6659669656` chưa cho thấy Target V1 producer/schema phát
 năm field window/policy ở trên. Trước code, Product + Order Core + M3 phải ký `ATP-01..ATP-15`,
 M3 giao producer SHA/OpenAPI/schema/CDC và payload sandbox. Xem
-[M8-11 decision pack](../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md).
+[M8-11 decision pack](../plan/ivr-orther/00-CHUA-XONG.md#m8-11).
 
 ### 3.5. Field optional và field bắt buộc trên thực tế
 
@@ -422,7 +422,7 @@ nếu chưa có signed use case riêng.
 
 **M3 signature/producer artifact:** **NOT_RECEIVED**. Vì vậy OpenAPI, generated DTO, domain, DB,
 scheduler và test vẫn **CODE_NOT_AUTHORIZED**. Mẫu phản hồi/CDC đầy đủ nằm trong
-[gói M8-06](../plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md).
+[gói M8-06](../plan/ivr-orther/00-CHUA-XONG.md#m8-06).
 
 ### 3.6. `privacy_safe_order_summary`
 
@@ -740,7 +740,7 @@ Runtime IVR hiện persist 9 result type; 6 final type đi vào callback outbox
 `INVALID_PHONE_FINAL`, `CAPACITY_EXCEPTION`), còn `NO_ANSWER_ATTEMPT`, `WRONG_INPUT`,
 `TECHNICAL_EXCEPTION` là non-final và không callback. Hai blocked code không được persist/send như
 call result. Bảng đầy đủ và chữ ký phía M8 nằm ở
-[M8-05](../plan/ivr-orther/m8-05-program-result-contract-signoff-2026-09-03.md).
+[M8-05](../plan/ivr-orther/00-CHUA-XONG.md#m8-05).
 
 ### 4.4. `recommended_core_action`
 
@@ -826,14 +826,14 @@ Trước khi có bằng chứng đó, D-06 là **contract requirement chưa đư
 
 Nếu Owner giữ phương án A, M3 phải hoàn thành §4.6 và shared E2E trước production. Nếu chọn B/hybrid,
 hai bên phải ký `RVK-01..RVK-12` trong
-[M8-09 decision pack](../plan/ivr-orther/m8-09-revoke-freshness-decision-pack-2026-09-03.md)
+[M8-09 decision pack](../plan/ivr-orther/00-CHUA-XONG.md#m8-09)
 trước mọi thay đổi OpenAPI/runtime/DB. Không tái dùng intake POST hoặc admin terminate.
 
 **Correction `W-0147` / M8-07:** phía M8 đã sửa local defect từng bỏ qua `Retry-After` trên `429`.
 Transport nay chuyển positive server delay sang dispatcher; `next_retry_at` không sớm hơn delay đó,
 vẫn giữ bounded retry budget và cùng immutable key/body. Phần M8 local đã có unit/contract proof,
 nhưng endpoint generic M3, auth thật, sandbox và shared E2E vẫn chưa được cung cấp. Xem
-[M8-07 handoff](../plan/ivr-orther/m8-07-target-v1-shared-callback-handoff-2026-09-03.md).
+[M8-07 handoff](../plan/ivr-orther/00-CHUA-XONG.md#m8-07).
 
 ---
 
@@ -1150,7 +1150,7 @@ OpenAPI và persistence thôi thì cuộc gọi vẫn hỏng lúc dial). MOCK/LA
 resolve lặp theo `(token fingerprint, attempt_id)` và có thể reuse scalar token ở attempt khác.
 `DialAuthorization` current chỉ nhận opaque provider destination reference, không nhận E.164.
 `DTK-01..DTK-15` trong
-[M8-10 decision pack](../plan/ivr-orther/m8-10-contact-dial-token-production-decision-pack-2026-09-03.md)
+[M8-10 decision pack](../plan/ivr-orther/00-CHUA-XONG.md#m8-10)
 là chi tiết vận hành **dưới** ba quyết định đã ký `OD-V1-05` / `OD-V1-17` / `OD-V1-18`; phần còn lại
 quyết giữa **owner IVR và dev Module 3**, không chờ đội Security/Platform/Telephony nào — xem `§9a`.
 
@@ -1312,7 +1312,7 @@ ngay với `1.0.0-draft.27`.
 - [ ] Xác nhận tổ hợp `program_code × payment_method_snapshot` thật sẽ gửi (§3.10 R3). **Đã đóng 27/08** bằng Flow 04/05; chỉ còn ký wire mapping.
 - [ ] Đối chiếu đủ 5 dòng bảng từ vựng §3.11 và 5 ô checklist cuối mục đó. Ba field đang lệch chuỗi, hai trong ba hỏng im lặng.
 - [ ] Xác định khi nào `order_version` bump.
-- [ ] Ký đủ `ATP-01..ATP-15` theo [M8-11](../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md), đặc biệt canonical two-program version/bundle hash, window/attempts/offsets/T0, counting/retry/quiet-hours, cutover và pre-dial coherence.
+- [ ] Ký đủ `ATP-01..ATP-15` theo [M8-11](../plan/ivr-orther/00-CHUA-XONG.md#m8-11), đặc biệt canonical two-program version/bundle hash, window/attempts/offsets/T0, counting/retry/quiet-hours, cutover và pre-dial coherence.
 - [ ] Giao exact producer commit/OpenAPI/schema/CDC cho `attempt_policy_version`, `max_customer_attempts`, `attempt_offsets_seconds`, `confirmation_window_started_at`, `confirmation_window_expires_at`; payload sandbox phải khớp signed registry snapshot và chứng minh `409 IVR_POLICY_MISMATCH` được xử lý, không retry mù.
 - [ ] Chốt cách normalize `delivery_area_short` và giới hạn `items[]`.
 - [ ] Xác nhận không gửi `trusted_skip_allowed` (`LEGACY_READ`); trust/risk metadata nếu giữ không được dùng phía IVR để quyết định gọi/skip.

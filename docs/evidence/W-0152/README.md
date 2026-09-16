@@ -25,9 +25,9 @@ egress hoặc runtime trong W-0152.
 
 ## 2. Artifact
 
-- [M8-12 — provenance/dispatch pack](../../../plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md).
+- [M8-12 — provenance/dispatch pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-12).
 - SHA-256 manifest: `docs/evidence/W-0152/attested-sha256.txt`.
-- [TODAY-01 current routing pack](../../../plan/ivr-orther/today-01-decision-signoff-pack-2026-08-29.md).
+- [TODAY-01 current routing pack](../../../plan/ivr-orther/00-CHUA-XONG.md#today-01).
 - [Target worklist/status](../../../plan/toan-viec-can-lam-m8-2026-09-03.md).
 
 M8-12 SHA-256 tại thời điểm nộp evidence:

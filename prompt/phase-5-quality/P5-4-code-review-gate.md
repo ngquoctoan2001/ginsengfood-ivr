@@ -16,7 +16,7 @@ Bạn là **Staff Engineer / Reviewer**. Bạn thiết lập "cổng review": st
 Chất lượng không chỉ nằm ở test; cần gate review nhất quán để không lọt vi phạm ranh giới (transition order, PII, bypass blocker) hay nợ kỹ thuật. Prompt này hoàn thiện CI (P0-2) thành **quality gate đầy đủ** + tài liệu review cho người.
 
 ## 3. SOURCE SPECS (đọc trước)
-- `prompt/README-governance.md` §4/§5, `specs/testing/00-index.md`, `specs/testing/08-acceptance-criteria.md`
+- `prompt/README-governance.md` §4/§5, `specs/testing/00-CHUA-XONG.md`, `specs/testing/08-acceptance-criteria.md`
 - `specs/_review/normalization-report.md` (chuẩn nhất quán), `specs/api/06-error-codes.md`
 - `plan/ivr-orther/decisions-log.md` (mọi ràng buộc để review)
 

@@ -26,8 +26,8 @@ EXTERNAL_APPROVAL_NOT_RECEIVED / NO_GATE_PROMOTION`**
 
 Nguồn:
 
-- [M8-12 dispatch pack](../../../plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md)
-- [M8-13 message kit](../../../plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md)
+- [M8-12 dispatch pack](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-12)
+- [M8-13 message kit](../../../plan/ivr-orther/00-CHUA-XONG.md#m8-13)
 - `docs/evidence/W-0152/attested-sha256.txt`
 - [Recipient routing input template](recipient-routing-input.template.md) — SHA-256
   `dcbeead41f56340c2dffac17e5540959d7571971e117fb03dd89d9d261859dc0`

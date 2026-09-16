@@ -18,7 +18,7 @@ Sau khi có solution (P0-1), cần CI tự động để mọi prompt sau có "d
 
 ## 3. SOURCE SPECS (đọc trước)
 - `prompt/README-governance.md` §4 (coding standards), §5 (traceability bắt buộc mỗi GitLab MR)
-- `specs/testing/00-index.md`, `specs/testing/01-strategy.md`
+- `specs/testing/00-CHUA-XONG.md`, `specs/testing/01-strategy.md`
 - `specs/api/06-error-codes.md` (để lint envelope sau này), `specs/api/openapi/ivr-order-confirmation.v1.yaml`
 - `plan/ivr-orther/decisions-log.md` §DF-02 (OpenAPI validate CI)
 

@@ -15,7 +15,7 @@
 
 Decision/intake pack:
 
-- `plan/ivr-orther/m8-14-capacity-calibration-data-intake-bundle-2026-09-03.md`
+- `plan/ivr-orther/00-CHUA-XONG.md#m8-14`
 
 ## 2. Source manifest
 
@@ -24,12 +24,12 @@ Decision/intake pack:
 | `docs/evidence/W-0142/README.md` | `eeed64d945b71de41dc60443ac7bac0a970a5d379d220a954929df6da112058c` |
 | `docs/contracts/telephony-procurement-pack/lab-acceptance-report-template.md` | `5b7ab1e0b1a796f7c1e0bb8643fefb313a76afa626a6200bf17519e306c2dbaa` |
 | `docs/contracts/telephony-procurement-pack/R-03-esim32-package.md` | `e4129c3f8daa72ce7c1db7ce925f2bdd56afcae6b6cb02a2f13a1b72313dbf66` |
-| `plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md` | `6dcf7516ba4af0f2746eacb8240618d19a4bf4828aba90abd89e3a8b6a8640a1` |
+| `plan/ivr-orther/00-CHUA-XONG.md#m8-11` | `6dcf7516ba4af0f2746eacb8240618d19a4bf4828aba90abd89e3a8b6a8640a1` |
 | `docs/contracts/target-v1-closure-pack/T-09-attempt-policy.md` | `f9be81414aa6aa66e2fb401e422b389081fd09528c2e179477ea5133647e2945` |
 | `docs/capacity-model.md` | `d96a2a7177dba508274625b181f30fb722f7f1ebe84be1f1edbe1fdfb017ef81` |
 | `docs/review/2026-08-28-capacity-volume-unit-and-session-length.md` | `9ee9e880ce8d8b5ca2d75f104c1f7a3e3316590c9dfaa42a19a276ea9b5dc893` |
 
-Deliverable `plan/ivr-orther/m8-14-capacity-calibration-data-intake-bundle-2026-09-03.md` có SHA-256 `933c55255c538987d1b86ff6d8f46b6657c68821cd00a232a55827cc751fa879` tại lúc bàn giao.
+Deliverable `plan/ivr-orther/00-CHUA-XONG.md#m8-14` có SHA-256 `933c55255c538987d1b86ff6d8f46b6657c68821cd00a232a55827cc751fa879` tại lúc bàn giao.
 
 ## 3. Verification record
 
