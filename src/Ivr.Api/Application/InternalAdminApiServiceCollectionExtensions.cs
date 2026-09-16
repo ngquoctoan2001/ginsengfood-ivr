@@ -63,6 +63,7 @@ public static class InternalAdminApiServiceCollectionExtensions
         services.AddSingleton<IAdminReadService, AdminReadService>();
         services.AddSingleton<IAdminConfigReadService, AdminConfigReadService>();
         services.AddSingleton<IAnalyticsReadService, AnalyticsReadService>();
+        services.AddSingleton<IAuditEvidenceReadService, AuditEvidenceReadService>();
         services.AddSingleton<IScriptLifecycleApiService, ScriptLifecycleApiService>();
 
         // W-0112. Registered unconditionally; the routes are what production refuses to map.

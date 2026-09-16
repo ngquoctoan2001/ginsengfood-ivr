@@ -57,7 +57,31 @@
 > hơn thực tế `4` lần làm phạm vi kiểm tra nghe rộng hơn nó thật — đúng loại lỗi bản đánh giá này
 > đang bắt người khác, nên tôi sửa bằng dòng đính chính chứ không lặng lẽ đổi số.
 >
-> Còn `2,25–2,75` ngày cho `5` mục — và phần lớn số còn lại **không phụ thuộc tôi**.
+>
+> **▸ `W-0307` — `B9` `audit-evidence`, xong `16/09`.** Ô `B9` gộp *toàn bộ màn hình Admin UI*, mà
+> **UI không thuộc Module 8** — M3 dựng console, tôi cấp API. Phần thuộc tôi và thực sự còn
+> thiếu là `audit-evidence`: nay đã có, contract `1.0.0-draft.29`, **không breaking** nên M3 không
+> phải sinh lại client. Toàn bộ solution **`1130/1130`**.
+>
+> ⚠️ **Một việc tôi cố ý không làm, và nói rõ vì sao.** Kế hoạch đòi *permission riêng* cho
+> endpoint này. Tôi không tự cấp: bộ permission là `DF-01` — **LOCKED `7` quyền, do Permission
+> Core sở hữu, không phải Module 8**. `OD-V1-20` đã phải mở và ký hẳn một quyết định chỉ để
+> thêm một quyền. **Tự cấp quyền thứ tám sẽ là M8 ký vào sổ của người khác** — đúng thiếu sót
+> tôi đang nêu ở `A1`. Nó là việc cần một quyết định, không phải việc bỏ quên.
+>
+> **Và tôi tự báo ba lỗi của mình trong chính lô này**, vì đã đòi bản `16/09` chính xác thì bản
+> này phải chịu cùng chuẩn: (1) kế hoạch do tôi viết mô tả lô này bằng `4` dòng thì **`3` dòng
+> sai**; (2) ngoại lệ PII không được dịch ⇒ `500` — **đúng khiếm khuyết `W-0302` vừa sửa**, suýt
+> ship lại; (3) runtime trả `accessAuditId` trong khi contract khai `access_audit_id`.
+>
+> Điểm đáng nhớ nhất: **`11` test tôi tự viết đều xanh với bản code sai ở `(3)`** — chúng
+> deserialize vào chính record đó, mà một vòng round-trip luôn tự khớp với chính nó. Thứ bắt được
+> là một gate có sẵn đọc **file OpenAPI**, tức một hiện vật độc lập với code. Đó cũng là lý do tôi
+> không nhận *"test xanh"* là bằng chứng đủ ở bất kỳ ô nào trong bản đánh giá này.
+>
+> **Hết việc trong kế hoạch khắc phục.** `W-0298` → `W-0307`, `7` lô, xong trong `1` ngày thay vì
+> `7,5–9,5` ngày ước. Phần còn lại của bản `16/09` **không phụ thuộc tôi**: chờ M3 phản hồi,
+> chờ nhà mạng báo giá, và `6` phiếu nhóm A chưa gửi.
 
 ---
 

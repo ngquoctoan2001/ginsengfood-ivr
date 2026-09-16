@@ -12,6 +12,24 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
 <blockquote>
+<p><strong><code>1.0.0-draft.29</code> (W-0307)</strong> thêm một endpoint đọc: <code>GET /audit-evidence</code>. Nó trả về các
+dòng audit ghi cho một <code>target_type</code>/<code>target_id</code>, mới nhất trước. <strong>Cả hai bộ lọc đều bắt
+buộc</strong>: gọi mà không có bộ lọc nào sẽ thành một lần trích xuất hàng loạt đội lốt tra cứu, nên
+thiếu bộ lọc bị <strong>từ chối</strong> chứ không mặc định thành <em>&quot;tất cả&quot;</em>. <code>reason</code> cũng bắt buộc, và
+<strong>chính lần đọc đó ghi một dòng audit</strong> — id của nó trả về trong <code>access_audit_id</code>, vì đọc
+lịch sử audit là đúng loại truy cập đáng ghi lại nhất.</p>
+<p><code>truncated</code> là một <strong>field</strong>, không để người gọi tự suy từ <code>rows.length == limit</code> — phép suy đó
+sai đúng lúc số dòng tình cờ bằng <code>limit</code>, và một kiểm toán viên tưởng mình có toàn bộ vết
+trong khi không phải thì tệ hơn người biết là mình không có.</p>
+<p><strong>Không breaking</strong> — kiểm bằng image ghim <code>tufin/oasdiff:v1.26.1</code>: <em>1 changes: 0 error,
+0 warning, 1 info — endpoint-added</em>, và <code>breaking --fail-on WARN</code> exit <code>0</code>. Một endpoint thêm
+vào không đổi một byte nào của bề mặt M3 đã sinh client theo, nên M3 <strong>không phải sinh lại</strong>.</p>
+<p><strong>Chưa làm, và có lý do:</strong> endpoint này dùng <code>AdminPolicies.Read</code> chứ không phải một permission
+riêng. Bộ permission là <code>DF-01</code> — <strong>LOCKED <code>7</code> quyền, do Permission Core sở hữu</strong>, không phải
+Module 8; <code>OD-V1-20</code> đã phải mở và ký hẳn một quyết định chỉ để thêm <code>IVR_RUNTIME_GATE_ADMIN</code>.
+Tự thêm quyền thứ tám sẽ là M8 ký vào sổ của người khác.</p>
+</blockquote>
+<blockquote>
 <p><strong><code>1.0.0-draft.28</code> (W-0302)</strong> ghi vào contract ràng buộc <code>dial_token_expires_at</code> <strong>bằng đúng</strong>
 <code>confirmation_window_expires_at</code>, và làm hai chiều trả lời giống nhau. <code>OD-V1-17</code> chốt đẳng thức
 này <code>2026-09-09</code>, nhưng cổng contact chỉ cưỡng chế <strong>một</strong> phía: token hết hạn <strong>sớm</strong> bị từ chối
@@ -55,7 +73,7 @@ Xem <code>docs/evidence/W-0275/README.md</code>.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.27</code></td>
-<td><code>1.0.0-draft.28</code></td>
+<td><code>1.0.0-draft.29</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>

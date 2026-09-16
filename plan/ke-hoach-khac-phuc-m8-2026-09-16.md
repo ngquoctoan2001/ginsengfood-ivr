@@ -631,7 +631,7 @@ chết tới file `W-0297` đã xoá.
 
 ---
 
-### `W-0307` — `B9` nửa `audit-evidence` *(tuỳ chọn, `2` ngày)*
+### `W-0307` — `B9` nửa `audit-evidence` *(tuỳ chọn, `2` ngày)* — ✅ **XONG** `16/09`
 
 Chỉ làm khi `W-0298`→`W-0304` xong sớm.
 
@@ -752,7 +752,7 @@ nằm trong lịch `§4`.
 | `W-0302` | `C6` `500`→`422` + OAS `draft.28` | `1,5` | ✅ **XONG** `16/09` · `1105/1105` | 5 pin dời, không breaking |
 | `W-0304` | Lô tài liệu `11` mục | `1,5` | ✅ **XONG** `16/09` · `756/756` unit · **`13/13` gate ghim hash** | **`9dc5479`** + **`aa2c9af`** — `10/11` mục làm, `1` mục tiền đề sai; **sửa `11` gate đỏ do `W-0297`** |
 | `W-0306` | Lô vận hành `4` mục | `1,5` → **`0,5`** | ✅ **XONG** `16/09` · `760/760` · kiểm trên stack sạch | `3` file cấu hình + `1` `.cs` + `1` compose service; `4/4` mục |
-| `W-0307` | `B9` `audit-evidence` *(tuỳ chọn)* | `2` | ⬜ | |
+| `W-0307` | `B9` `audit-evidence` *(tuỳ chọn)* | `2` → **`1`** | ✅ **XONG** `16/09` · contract `draft.29` | endpoint mới + `11` test + `8` pin; **`3` lỗi thật do máy bắt** |
 
 
 > ### ⚠️ `W-0304` tìm ra thứ không nằm trong kế hoạch: `W-0297` đã làm `11` CI gate đỏ
@@ -796,6 +796,32 @@ nằm trong lịch `§4`.
 > **Nợ mới phát hiện, chưa làm:** `image-selftest.mjs` cố định cổng `55433`/`58080`, nên nó **không
 > chạy được** khi máy đang có một stack dev bật. Lần đầu nó đỏ chính vì thế chứ không phải do
 > compose vừa sửa — đáng ghi vì đây đúng chỗ dễ đổ lỗi nhầm cho thay đổi của mình.
+
+
+> ### ✅ `W-0307` — và ba chỗ chính kế hoạch này nói sai
+>
+> Kế hoạch mô tả lô cuối bằng bốn dòng. **Ba trong bốn sai** khi đối chiếu mã — và đây là kế
+> hoạch do **chính tôi** viết, nên ghi ra đây theo đúng chuẩn tôi đang áp cho bản `16/09`:
+>
+> | Kế hoạch viết | Thực tế |
+> | --- | --- |
+> | `object_type`/`object_id` | cột là `TargetType`/`TargetId` |
+> | *"masked qua `PiiMaskingFilter`"* | filter **không mask**, nó **từ chối** cả response. Dựa vào nó để che thì đúng dòng cần nhất sẽ trả `500` |
+> | *"permission riêng"* | `DF-01` **LOCKED `7` quyền, Permission Core sở hữu** — M8 không ký được |
+>
+> **Việc không làm, được gọi tên:** không tự cấp quyền thứ tám. `OD-V1-20` đã phải mở hẳn một
+> quyết định chỉ để thêm một quyền. Tự thêm ở đây là M8 ký vào sổ của người khác — đúng thứ
+> bản đánh giá `16/09` của tôi đang bắt bẻ ở chỗ khác.
+>
+> **Ba lỗi thật, cả ba do máy bắt:** (1) ngoại lệ `PiiGuard` không được dịch ⇒ `500` cho một
+> request không bao giờ hợp lệ — **đúng khiếm khuyết `W-0302` vừa sửa**, suýt ship lại;
+> (2) runtime trả `accessAuditId` trong khi contract khai `access_audit_id`;
+> (3) `truncated` đo sai.
+>
+> Điểm đáng nhớ nhất là `(2)`: **`11` test tôi tự viết đều xanh với bản code sai**, vì chúng
+> deserialize vào chính record đó — một vòng round-trip luôn tự khớp với chính nó. `IT-API-MATRIX-38`
+> bắt được vì nó đọc response theo **file OpenAPI**, một hiện vật độc lập với code. Test viết cùng
+> lúc với code chia chung mọi giả định sai của code đó.
 
 ---
 

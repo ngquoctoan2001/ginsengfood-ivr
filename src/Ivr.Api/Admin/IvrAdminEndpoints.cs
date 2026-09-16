@@ -43,6 +43,12 @@ public static class IvrAdminEndpoints
         // reporting routes are tested against.
         adminGroup.MapGet("/analytics/export", ExportAnalyticsAsync)
             .RequireAuthorization(AdminPolicies.Read);
+        // W-0307 / B9. GET for the same reason the export above is a GET: it reads, and keeping
+        // the verb read-only preserves the no-mutation-surface invariant the reporting routes are
+        // tested against. The one row it writes is its own access record, not a change to anything
+        // the caller asked about.
+        adminGroup.MapGet("/audit-evidence", GetAuditEvidenceAsync)
+            .RequireAuthorization(AdminPolicies.Read);
         adminGroup.MapPost("/queue:pause", PauseQueueAsync)
             .RequireAuthorization(AdminPolicies.Danger);
         adminGroup.MapPost("/queue:resume", ResumeQueueAsync)
@@ -257,6 +263,27 @@ public static class IvrAdminEndpoints
         return service.ExportAsync(
             new AnalyticsFilter(program, resultType, scriptVariant, bucket, from, to),
             dimension,
+            reason,
+            actorId,
+            correlationId,
+            cancellationToken);
+    }
+
+    private static Task<AuditEvidenceApiResult> GetAuditEvidenceAsync(
+        HttpContext context,
+        IAuditEvidenceReadService service,
+        CancellationToken cancellationToken,
+        [FromQuery(Name = "target_type")] string? targetType = null,
+        [FromQuery(Name = "target_id")] string? targetId = null,
+        [FromQuery(Name = "reason")] string? reason = null,
+        [FromQuery(Name = "limit")] int? limit = null)
+    {
+        string correlationId = InternalRequestGuard.RequireCorrelation(context);
+        string actorId = InternalRequestGuard.RequireAdminActor(context);
+        return service.GetAsync(
+            targetType,
+            targetId,
+            limit,
             reason,
             actorId,
             correlationId,

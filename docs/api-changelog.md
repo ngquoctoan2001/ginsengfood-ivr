@@ -10,6 +10,26 @@ and does not approve the external Sales contract.
 
 ## Current comparisons
 
+> **`1.0.0-draft.29` (W-0307)** thêm một endpoint đọc: `GET /audit-evidence`. Nó trả về các
+> dòng audit ghi cho một `target_type`/`target_id`, mới nhất trước. **Cả hai bộ lọc đều bắt
+> buộc**: gọi mà không có bộ lọc nào sẽ thành một lần trích xuất hàng loạt đội lốt tra cứu, nên
+> thiếu bộ lọc bị **từ chối** chứ không mặc định thành *"tất cả"*. `reason` cũng bắt buộc, và
+> **chính lần đọc đó ghi một dòng audit** — id của nó trả về trong `access_audit_id`, vì đọc
+> lịch sử audit là đúng loại truy cập đáng ghi lại nhất.
+>
+> `truncated` là một **field**, không để người gọi tự suy từ `rows.length == limit` — phép suy đó
+> sai đúng lúc số dòng tình cờ bằng `limit`, và một kiểm toán viên tưởng mình có toàn bộ vết
+> trong khi không phải thì tệ hơn người biết là mình không có.
+>
+> **Không breaking** — kiểm bằng image ghim `tufin/oasdiff:v1.26.1`: *1 changes: 0 error,
+> 0 warning, 1 info — endpoint-added*, và `breaking --fail-on WARN` exit `0`. Một endpoint thêm
+> vào không đổi một byte nào của bề mặt M3 đã sinh client theo, nên M3 **không phải sinh lại**.
+>
+> **Chưa làm, và có lý do:** endpoint này dùng `AdminPolicies.Read` chứ không phải một permission
+> riêng. Bộ permission là `DF-01` — **LOCKED `7` quyền, do Permission Core sở hữu**, không phải
+> Module 8; `OD-V1-20` đã phải mở và ký hẳn một quyết định chỉ để thêm `IVR_RUNTIME_GATE_ADMIN`.
+> Tự thêm quyền thứ tám sẽ là M8 ký vào sổ của người khác.
+
 > **`1.0.0-draft.28` (W-0302)** ghi vào contract ràng buộc `dial_token_expires_at` **bằng đúng**
 > `confirmation_window_expires_at`, và làm hai chiều trả lời giống nhau. `OD-V1-17` chốt đẳng thức
 > này `2026-09-09`, nhưng cổng contact chỉ cưỡng chế **một** phía: token hết hạn **sớm** bị từ chối
@@ -44,7 +64,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.28` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.29` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,

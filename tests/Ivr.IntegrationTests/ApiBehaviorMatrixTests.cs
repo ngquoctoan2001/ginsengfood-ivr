@@ -13,6 +13,7 @@ using Ivr.Infrastructure.Intake;
 using Ivr.Domain.Ports;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence;
+using Ivr.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Routing;
@@ -305,6 +306,29 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
         }
         if (id.StartsWith("getAnalytics", StringComparison.Ordinal) || id == "exportAnalytics")
             await new ApiMatrixFixture(fixture).SeedAnalyticsBucketAsync();
+        if (id == "getAuditEvidence")
+        {
+            // W-0307. Seeded here rather than relying on the row intakeTask writes earlier in the
+            // run: that would make this operation's verdict depend on another operation's ordering
+            // and success, and a matrix entry that passes for a reason outside itself is not
+            // evidence about this endpoint.
+            await using IvrDbContext audit = await fixture.Services
+                .GetRequiredService<IDbContextFactory<IvrDbContext>>().CreateDbContextAsync();
+            audit.AuditLog.Add(new AuditLogEntity
+            {
+                AuditId = Guid.NewGuid(),
+                ActorId = "order-core",
+                ActorType = "service",
+                Action = "TASK_INTAKE_ACCEPTED",
+                TargetType = "confirmation-task",
+                TargetId = "TASK-P2-8",
+                Reason = "ACCEPTED",
+                CorrelationId = "corr-matrix-audit-seed",
+                DataJson = "{\"seeded_by\":\"IT-API-MATRIX-38\"}",
+                CreatedAt = DateTimeOffset.UtcNow,
+            });
+            await audit.SaveChangesAsync();
+        }
         if (id is "getScriptVersion" or "submitScriptForReview" or "approveScriptVersion" or "retireScriptVersion")
         {
             JsonObject draft = inventory["operations"]!.AsArray().Single(op => op!["id"]!.ToString() == "createScriptDraft")!.AsObject();
@@ -447,6 +471,10 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
             "technicalRetry" => body?["technical_retry_count"]?.GetValue<int>() == 1 && body["queue_status"]?.ToString() == "HELD_MOCK",
             "adminReview" => body?["status"]?.ToString() == "RESOLVED",
             "exportAnalytics" => body?["rows"]?.AsArray().Count > 0,
+            // Not just 200: an empty page would also be 200, and would pass while proving
+            // nothing about whether the filter finds anything.
+            "getAuditEvidence" => body?["rows"]?.AsArray().Count > 0
+                && body["access_audit_id"]?.ToString().Length > 0,
             "getAnalyticsSummary" => body?["kpi"]?["total_results"]?.GetValue<int>() >= 5,
             "listCallJobs" or "listReviewItems" => body?["items"]?.AsArray().Count > 0,
             _ => observation["status"]?.GetValue<int>() == 200,
@@ -484,7 +512,15 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
     private static string ConcretePath(string path) => path.Replace("{ivrCallJobId}", "JOB-P2-8").Replace("{simChannelId}", "SIM-P2-8")
         .Replace("{environment}", "dev").Replace("{templateId}", TargetV1SpeechPolicy.MockTemplateId).Replace("{version}", "v-matrix")
         .Replace("{scenarioId}", "SCN-001-confirm").Replace("{profileId}", "STATUS-all-up")
-        + (path == "/analytics/export" ? "?reason=Matrix%20synthetic%20export" : "");
+        + (path == "/analytics/export" ? "?reason=Matrix%20synthetic%20export" : "")
+        // W-0307. Both selectors are required by design -- the endpoint refuses a call
+        // with no filter rather than returning every object's trail -- so the matrix has
+        // to name one. TASK-P2-8 is the task intakeTask creates earlier in this same run,
+        // which makes the happy case assert a real trail instead of an empty page.
+        + (path == "/audit-evidence"
+            ? "?target_type=confirmation-task&target_id=TASK-P2-8"
+              + "&reason=Matrix%20synthetic%20audit%20read"
+            : "");
     private static JsonObject? Body(string id) => id switch
     {
         "intakeTask" => ApiMatrixFixture.CreateBody(),
