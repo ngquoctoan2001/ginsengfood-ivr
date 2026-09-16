@@ -48,6 +48,28 @@ public static class EligibilityReasonCodes
     public const string ConfirmationWindowExpired = "CONFIRMATION_WINDOW_EXPIRED";
     public const string CapacitySourceUnavailable = "CAPACITY_SOURCE_UNAVAILABLE";
     public const string CapacityDeadlineUnavailable = "CAPACITY_DEADLINE_UNAVAILABLE";
+
+    /// <summary>
+    /// W-0298. Every attempt this task would ever make falls outside the hours a customer may be
+    /// telephoned, so the confirmation window will expire without one call being placed.
+    /// <para>
+    /// Before this existed the task was accepted, sat there, and produced
+    /// <c>IVR_CONFIRMATION_WINDOW_EXPIRED</c> minutes later — a result that reads as "the customer
+    /// did not confirm in time" when in fact nobody ever rang. A 24/7 COD order placed at 23:00
+    /// carries a fifteen-minute window; the calling window shuts at 21:08 and reopens at 08:00, so
+    /// all of it lands in the dark. Sales could not tell that apart from a real non-confirmation,
+    /// and the order looked like a customer who ignored the call.
+    /// </para>
+    /// <para>
+    /// This says so at intake instead, while Module 3 still holds the order and can decide what to
+    /// do with it. It is a refusal to pretend, not a fix for the night order itself: whether such
+    /// an order is held until morning or given a later window is Module 3's call, and that decision
+    /// is not IVR's to make — the confirmation window and the dial token bound to it both arrive on
+    /// the wire already issued.
+    /// </para>
+    /// </summary>
+    public const string CallingWindowClosedForWholeConfirmationWindow =
+        "CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW";
 }
 
 /// <summary>

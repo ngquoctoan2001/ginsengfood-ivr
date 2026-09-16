@@ -11,6 +11,7 @@ using Ivr.Infrastructure.Persistence.Security;
 using Ivr.Infrastructure.Providers.Fakes;
 using Ivr.Infrastructure.Scripts;
 using Microsoft.Extensions.Options;
+using Ivr.Infrastructure.Scheduling;
 
 #pragma warning disable CA2000 // TestContext owns and disposes its in-memory dependencies.
 
@@ -349,9 +350,70 @@ public sealed class TaskIntakeServiceTests
             StringComparison.Ordinal);
     }
 
-    private static TestContext CreateContext()
+    // W-0298 / C15. 23:00 Vietnam time. A 24/7 COD order placed here carries a fifteen-minute
+    // confirmation window that expires at 23:15, and the calling window shut at 21:08 — so both
+    // attempts, at +0s and +450s, land in hours when no customer may be telephoned.
+    private static readonly DateTimeOffset NightWindowStart =
+        new(2026, 8, 13, 16, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NIGHT-01")]
+    public async Task ATaskWhoseEveryAttemptFallsOutsideCallingHoursIsBlockedAtIntake()
     {
-        var clock = new FixedTimeProvider(Now);
+        using TestContext test = CreateContext(NightWindowStart);
+        IvrConfirmationTaskV1 source = CreateTask(
+            program: ProgramCode.TWENTY_FOUR_SEVEN,
+            payment: IvrConfirmationTaskV1Payment_method_snapshot.COD,
+            windowStart: NightWindowStart);
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+
+        Assert.Equal(TaskIntakeDecisions.BlockedOperational, outcome.Decision);
+        Assert.Contains(
+            EligibilityReasonCodes.CallingWindowClosedForWholeConfirmationWindow,
+            outcome.BlockedReasons);
+        Assert.Null(outcome.IvrCallJobId);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NIGHT-02")]
+    public async Task TheSameTaskInsideCallingHoursIsStillAccepted()
+    {
+        using TestContext test = CreateContext();
+        IvrConfirmationTaskV1 source = CreateTask(
+            program: ProgramCode.TWENTY_FOUR_SEVEN,
+            payment: IvrConfirmationTaskV1Payment_method_snapshot.COD);
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        Assert.DoesNotContain(
+            EligibilityReasonCodes.CallingWindowClosedForWholeConfirmationWindow,
+            outcome.BlockedReasons);
+    }
+
+    // The guard must not swallow a task that keeps even one callable attempt. Window opens 20:55
+    // Vietnam time: attempt one at +0s is inside calling hours, attempt two at +450s is at 21:02:30
+    // and also inside, because W-0220 moved the close to 21:08 for exactly this reason.
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NIGHT-03")]
+    public async Task ATaskWithOneCallableAttemptBeforeTheWindowShutsIsAccepted()
+    {
+        var lateAfternoon = new DateTimeOffset(2026, 8, 13, 13, 55, 0, TimeSpan.Zero);
+        using TestContext test = CreateContext(lateAfternoon);
+        IvrConfirmationTaskV1 source = CreateTask(
+            program: ProgramCode.TWENTY_FOUR_SEVEN,
+            payment: IvrConfirmationTaskV1Payment_method_snapshot.COD,
+            windowStart: lateAfternoon);
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+    }
+
+    private static TestContext CreateContext(DateTimeOffset? now = null)
+    {
+        var clock = new FixedTimeProvider(now ?? Now);
         var audit = new InMemoryAuditLogger(clock);
         var scripts = new InMemoryScriptRegistry(
             audit,
@@ -367,6 +429,7 @@ public sealed class TaskIntakeServiceTests
             new MockOnlyOpaqueValueProtector(),
             SpeechSummaryLimits.Create(100, 100),
             clock,
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
             Options.Create(new IvrOptions
             {
                 ExecutionMode = IvrOptions.MockExecutionMode,

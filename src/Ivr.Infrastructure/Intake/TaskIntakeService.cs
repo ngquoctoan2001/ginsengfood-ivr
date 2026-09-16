@@ -23,6 +23,7 @@ public sealed class TaskIntakeService(
     IOpaqueValueProtector opaqueValueProtector,
     SpeechSummaryLimits speechLimits,
     TimeProvider timeProvider,
+    Ivr.Infrastructure.Scheduling.CallingWindow callingWindow,
     IOptions<IvrOptions> options) : ITaskIntakeService
 {
     private const string MockEvidencePolicyVersion = "mock-evidence-v1";
@@ -174,6 +175,19 @@ public sealed class TaskIntakeService(
                 IvrErrorCodes.ContactInvalid,
                 "The task contact or dial token is not valid for the confirmation window.",
                 contactRejection);
+        }
+
+        // W-0298 / C15. Refuse a task whose every attempt lands outside calling hours, rather than
+        // accepting it and reporting IVR_CONFIRMATION_WINDOW_EXPIRED once the window runs out
+        // without a single call. Checked after the contact gate on purpose: a malformed token is
+        // something Module 3 must fix, a shut calling window is not, so the fixable fault is the
+        // one that surfaces first.
+        if (!AnyAttemptFallsInsideCallingHours(window, policy))
+        {
+            return Rejected(
+                source,
+                TaskIntakeDecisions.BlockedOperational,
+                EligibilityReasonCodes.CallingWindowClosedForWholeConfirmationWindow);
         }
 
         Ivr.Domain.Confirmation.PrivacySafeOrderSummary speech;
@@ -786,6 +800,44 @@ public sealed class TaskIntakeService(
             CreatedAt = now,
         };
         return new TaskIntakePersistencePlan(outcome, task, job, outbox);
+    }
+
+    /// <summary>
+    /// W-0298 / C15. True when at least one scheduled attempt would be dialled — that is, it falls
+    /// inside the confirmation window <b>and</b> inside the hours a customer may be telephoned.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The scheduler drops an attempt whose moment sits outside calling hours; it does not carry it
+    /// forward. So a task every one of whose attempts is out of hours receives no call at all, and
+    /// the only thing that eventually happens to it is the deadline sweep closing it as expired.
+    /// This answers the same question at intake, when it can still be said out loud.
+    /// </para>
+    /// <para>
+    /// <see cref="Ivr.Infrastructure.Scheduling.CallingWindow.Enabled"/> off means a deployment has
+    /// its own upstream control of when calls happen, so there is no hour rule to test against and
+    /// every task passes. That is the same reading the scheduler takes.
+    /// </para>
+    /// </remarks>
+    private bool AnyAttemptFallsInsideCallingHours(
+        ConfirmationWindow window,
+        AttemptPolicySnapshot policy)
+    {
+        if (!callingWindow.Enabled)
+        {
+            return true;
+        }
+
+        foreach (TimeSpan offset in policy.AttemptOffsets)
+        {
+            DateTimeOffset attemptAt = window.StartedAt.Add(offset);
+            if (window.Contains(attemptAt) && callingWindow.Evaluate(attemptAt).Open)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static TaskIntakePersistencePlan Rejected(

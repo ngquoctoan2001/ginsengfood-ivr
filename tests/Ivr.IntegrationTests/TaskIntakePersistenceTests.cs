@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using Ivr.Infrastructure.Scheduling;
 
 namespace Ivr.IntegrationTests;
 
@@ -42,6 +43,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             new MockOnlyOpaqueValueProtector(),
             SpeechSummaryLimits.Create(100, 100),
             clock,
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
             Options.Create(new IvrOptions
             {
                 ExecutionMode = IvrOptions.MockExecutionMode,
@@ -146,6 +148,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             new MockOnlyOpaqueValueProtector(),
             SpeechSummaryLimits.Create(100, 100),
             clock,
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
             Options.Create(new IvrOptions()));
         IvrConfirmationTaskV1 source = CreateTask(callRestriction: true);
 
@@ -269,6 +272,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             new MockOnlyOpaqueValueProtector(),
             SpeechSummaryLimits.Create(100, 100),
             clock,
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
             Options.Create(new IvrOptions
             {
                 ExecutionMode = IvrOptions.MockExecutionMode,
@@ -292,6 +296,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             new MockOnlyOpaqueValueProtector(),
             SpeechSummaryLimits.Create(100, 100),
             clock,
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
             Options.Create(new IvrOptions()));
         IvrConfirmationTaskV1 missing = CreateTask(policyVersion: "not-yet-present");
 
