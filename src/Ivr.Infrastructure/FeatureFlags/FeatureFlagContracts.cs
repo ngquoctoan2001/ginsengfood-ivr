@@ -54,9 +54,8 @@ public interface IKillSwitch
 /// it would have believed they were signing.
 /// </para>
 /// <para>
-/// Unlike <see cref="IRuntimeGateAuthorization"/>, whose coarseness is deliberate because the
-/// per-change four-eyes row carries the environment, nothing narrows this one. There is no
-/// per-change row behind a production call: the approval <i>is</i> the decision.
+/// Nothing narrows this one. There is no per-change row behind a production call: the approval
+/// <i>is</i> the decision.
 /// </para>
 /// </summary>
 public interface IProductionCallGate
@@ -66,9 +65,33 @@ public interface IProductionCallGate
         CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// Whether runtime-gate administration is approved <b>for one environment</b>.
+/// </summary>
+/// <remarks>
+/// <para>
+/// W-0301. The environment used to be absent here, and the argument for leaving it out was that
+/// administration is coarse on purpose: the per-change four-eyes row carries the environment, so
+/// this gate only had to answer whether administration was permitted at all. That argument reads
+/// well and is wrong in one specific way — the row in the table has an <c>environment</c> column,
+/// so an approver could fill it in, believe they had limited the grant to lab, and have granted
+/// production as well. A column nobody reads is worse than no column: it invites a promise the
+/// system never made.
+/// </para>
+/// <para>
+/// <c>PRODUCTION_CALL</c> was fixed the same way in SIP-04. Applying the rule to one kind and not
+/// the other left the weaker half in place for the kind that opens every flag change.
+/// </para>
+/// <para>
+/// The per-change four-eyes row still exists and still carries its own environment fingerprint.
+/// This is a second lock on the same door, not a replacement for it.
+/// </para>
+/// </remarks>
 public interface IRuntimeGateAuthorization
 {
-    public Task<bool> IsApprovedAsync(CancellationToken cancellationToken = default);
+    public Task<bool> IsApprovedAsync(
+        string environment,
+        CancellationToken cancellationToken = default);
 }
 
 public interface IRuntimeSafetyHealth

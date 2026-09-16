@@ -45,13 +45,21 @@ public static class RuntimeGateApprovalKinds
     /// reference.
     /// </para>
     /// <para>
-    /// The other two kinds go through <see cref="RuntimeGateApprovalReader.AnyLiveAsync"/>, which
-    /// asks only for kind, revocation and expiry. Administration being coarse is deliberate — the
-    /// environment-specific decision is the four-eyes row on each individual change — but writing
-    /// an environment on one of those rows <i>looks</i> like scoping and is not. Narrowing an
-    /// existing row is refused outright by the append-only trigger, so the only way to "limit"
-    /// them is revoke-and-re-grant, which limits nothing either. <c>IT-GATE-APPROVAL-10</c> holds
-    /// both halves of that.
+    /// W-0301 corrected what stood here. This said the <c>environment</c> column scoped only this
+    /// kind, that administration was coarse on purpose, and that writing an environment on an
+    /// admin row <i>looked</i> like scoping without being it. The first two clauses are no longer
+    /// true and the third was the bug rather than a caveat: a column an approver can fill in and
+    /// nobody reads is worse than no column, because it invites a promise the system never made.
+    /// All three kinds now scope on the environment — <c>PRODUCTION_CALL</c> since SIP-04,
+    /// <c>RUNTIME_GATE_ADMIN</c> since <c>W-0301</c> — and each has a database constraint refusing
+    /// a live grant that names none.
+    /// </para>
+    /// <para>
+    /// What remains true, and is the reason this kind is still different: it scopes
+    /// <b>twice</b>. The column is one half; the change fingerprint, which puts
+    /// <c>snapshot.Environment</c> first, is the other. A lab approval cannot be replayed against
+    /// a production change even by someone reusing the reference — for the other two kinds the
+    /// column is the whole of it.
     /// </para>
     /// </summary>
     public const string FeatureFlagChange = "FEATURE_FLAG_CHANGE";
@@ -222,11 +230,14 @@ public sealed class PostgresRuntimeGateAuthorization(
     IDbContextFactory<IvrDbContext> dbContextFactory,
     TimeProvider timeProvider) : IRuntimeGateAuthorization
 {
-    public Task<bool> IsApprovedAsync(CancellationToken cancellationToken = default) =>
-        RuntimeGateApprovalReader.AnyLiveAsync(
+    public Task<bool> IsApprovedAsync(
+        string environment,
+        CancellationToken cancellationToken = default) =>
+        RuntimeGateApprovalReader.AnyLiveForEnvironmentAsync(
             dbContextFactory,
             timeProvider,
             RuntimeGateApprovalKinds.RuntimeGateAdmin,
+            environment,
             cancellationToken);
 }
 

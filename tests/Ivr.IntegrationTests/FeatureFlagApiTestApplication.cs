@@ -144,7 +144,9 @@ internal sealed class FeatureFlagApiTestApplication : IAsyncDisposable
 
     private sealed class ApprovedRuntimeGateAuthorization : IRuntimeGateAuthorization
     {
-        public Task<bool> IsApprovedAsync(CancellationToken cancellationToken = default) =>
+        public Task<bool> IsApprovedAsync(
+            string environment,
+            CancellationToken cancellationToken = default) =>
             Task.FromResult(true);
     }
 

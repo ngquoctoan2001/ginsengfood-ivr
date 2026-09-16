@@ -64,7 +64,9 @@ public sealed class FeatureFlagAdminService(
         if (!unconditionalRiskReduction)
         {
             FeatureFlagGuardrails.ValidateEffective(after);
-            if (!await runtimeGateAuthorization.IsApprovedAsync(cancellationToken))
+            if (!await runtimeGateAuthorization.IsApprovedAsync(
+                    command.Environment,
+                    cancellationToken))
             {
                 throw IvrErrors.OperationalBlocked(
                     "Runtime gate administration is pending owner approval.");

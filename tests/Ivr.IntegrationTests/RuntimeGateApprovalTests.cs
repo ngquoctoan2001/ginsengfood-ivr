@@ -20,19 +20,39 @@ namespace Ivr.IntegrationTests;
 public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
 {
     /// <summary>
-    /// The signature exists as a row. Before <c>OD-V1-20</c> the answer was a hard-coded
-    /// <c>false</c>, and nobody could tell whether that meant "refused" or "never wired".
+    /// W-0301. The shipped schema grants runtime-gate administration in no environment, and the
+    /// row that once granted it in all of them is still on file, revoked.
+    /// <para>
+    /// <c>W0195</c> seeded a <c>RUNTIME_GATE_ADMIN</c> approval with <c>environment</c> null, and
+    /// the reader asked only whether any live one existed — so that single row opened every
+    /// environment that could reach this database. It is revoked rather than deleted because the
+    /// append-only trigger permits nothing else, and because an approval log that loses its
+    /// history is not one.
+    /// </para>
+    /// <para>
+    /// Asserted across every environment rather than one: "no environment" is the claim, and
+    /// naming a single one would pass while another stayed open.
+    /// </para>
     /// </summary>
     [Fact]
     [Trait("TestId", "IT-GATE-APPROVAL-01")]
-    public async Task RuntimeGateAdministrationIsApprovedBecauseTheSignatureIsARow()
+    public async Task TheShippedSchemaGrantsRuntimeGateAdministrationNowhere()
     {
         await fixture.ResetAsync();
         IRuntimeGateAuthorization authorization = fixture.Services
             .GetRequiredService<IRuntimeGateAuthorization>();
 
-        Assert.True(await authorization.IsApprovedAsync());
+        foreach (string environment in FeatureFlagEnvironments.All)
+        {
+            Assert.False(
+                await authorization.IsApprovedAsync(environment),
+                $"runtime-gate administration is open in {environment}");
+        }
 
+        // The history survives: the seeded row is still there, revoked and holding its reason.
+        Assert.Equal("1", await ScalarAsync(
+            "SELECT count(*)::text FROM ivr_runtime_gate_approvals "
+            + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN' AND revoked_at IS NOT NULL"));
         string? seeded = await ScalarAsync(
             "SELECT signed_decision_ref FROM ivr_runtime_gate_approvals "
             + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN'");
@@ -58,7 +78,7 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
                 + "WHERE approval_kind = 'PRODUCTION_CALL'"));
     }
 
-    /// <summary>Revoking the signature closes the gate again, without deleting the history.</summary>
+    /// <summary>Revoking a grant closes the gate again, without deleting the history.</summary>
     [Fact]
     [Trait("TestId", "IT-GATE-APPROVAL-03")]
     public async Task RevokingTheApprovalClosesTheGateAndKeepsTheRow()
@@ -66,15 +86,19 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
         await fixture.ResetAsync();
         IRuntimeGateAuthorization authorization = fixture.Services
             .GetRequiredService<IRuntimeGateAuthorization>();
-        Assert.True(await authorization.IsApprovedAsync());
+
+        // W-0301. The shipped schema grants nothing, so this grants a scoped approval first -
+        // otherwise the test would prove only that a closed gate stays closed.
+        await InsertAdminApprovalAsync("approval-admin-lab", FeatureFlagEnvironments.Lab);
+        Assert.True(await authorization.IsApprovedAsync(FeatureFlagEnvironments.Lab));
 
         await ExecuteAsync(
             "UPDATE ivr_runtime_gate_approvals "
             + "SET revoked_at = now(), revoked_reason = 'test revocation' "
-            + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN'");
+            + "WHERE approval_reference = 'approval-admin-lab'");
 
-        Assert.False(await authorization.IsApprovedAsync());
-        Assert.Equal("1", await ScalarAsync(
+        Assert.False(await authorization.IsApprovedAsync(FeatureFlagEnvironments.Lab));
+        Assert.Equal("2", await ScalarAsync(
             "SELECT count(*)::text FROM ivr_runtime_gate_approvals "
             + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN'"));
     }
@@ -240,27 +264,26 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
     }
 
     /// <summary>
-    /// The <c>environment</c> column scopes one approval kind and is inert for the other two, and
-    /// nothing in the schema says which is which.
+    /// The <c>environment</c> column now scopes every approval kind, and this pins the one that
+    /// scopes twice.
     /// <para>
-    /// <c>FEATURE_FLAG_CHANGE</c> is scoped twice over: the verifier's query filters
-    /// <c>environment</c>, and the fingerprint it also matches on hashes
-    /// <c>snapshot.Environment</c> as its first field. A lab approval therefore cannot travel to a
-    /// production change even if someone reuses the reference.
+    /// <c>FEATURE_FLAG_CHANGE</c> is narrowed by the column <b>and</b> by the change fingerprint,
+    /// which hashes <c>snapshot.Environment</c> as its first field. A lab approval therefore
+    /// cannot travel to a production change even if someone reuses the reference — the fingerprint
+    /// separates them before the column predicate is reached.
     /// </para>
     /// <para>
-    /// <c>RUNTIME_GATE_ADMIN</c> and <c>PRODUCTION_CALL</c> are read through
-    /// <c>RuntimeGateApprovalReader.AnyLiveAsync</c>, which asks only for kind, revocation and
-    /// expiry. Their <c>environment</c> value is written, stored, and never consulted. That is
-    /// defensible - administration is a coarse capability and every individual risk-increasing
-    /// change is still bound to an environment by four eyes - but it is a trap for whoever inserts
-    /// the next row, because setting <c>environment</c> to a single environment looks like scoping
-    /// and does nothing. W-0213.
+    /// W-0301 rewrote the second half of this test. It used to assert the opposite: that on
+    /// <c>RUNTIME_GATE_ADMIN</c> the column was "recorded, never read", and that whoever wrote
+    /// <c>lab</c> there believing it limited the grant was mistaken. That was true, and it was the
+    /// bug rather than a caveat — an approver could fill the column in, believe they had limited
+    /// themselves to lab, and have opened production. The column is read now, and what follows
+    /// proves the grant stays where it was given.
     /// </para>
     /// </summary>
     [Fact]
     [Trait("TestId", "IT-GATE-APPROVAL-10")]
-    public async Task EnvironmentScopesTheFlagChangeApprovalAndIsInertForTheAdminGrant()
+    public async Task EnvironmentScopesBothTheFlagChangeApprovalAndTheAdminGrant()
     {
         await fixture.ResetAsync();
 
@@ -294,45 +317,62 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
             RuntimeGateFingerprint.Of(lab, labAfter),
             RuntimeGateFingerprint.Of(production, productionAfter));
 
-        // Inert, in two steps, because the table will not let this be shown in one.
+        // The admin grant is scoped by the column, and only by it.
         IRuntimeGateAuthorization authorization = fixture.Services
             .GetRequiredService<IRuntimeGateAuthorization>();
 
-        Assert.True(await authorization.IsApprovedAsync());
+        await InsertAdminApprovalAsync("approval-admin-lab", FeatureFlagEnvironments.Lab);
 
-        // Narrowing a granted approval in place is refused outright: the append-only trigger
-        // allows revocation and nothing else. So an admin grant cannot be scoped after the fact
-        // even by someone with database access.
+        Assert.True(await authorization.IsApprovedAsync(FeatureFlagEnvironments.Lab));
+        Assert.False(await authorization.IsApprovedAsync(FeatureFlagEnvironments.Production));
+        Assert.False(await authorization.IsApprovedAsync(FeatureFlagEnvironments.Staging));
+
+        // Narrowing a granted approval in place is still refused outright: the append-only trigger
+        // allows revocation and nothing else. Re-scoping is a new row, never an edit - which is
+        // why W-0301 had to revoke the unscoped seed rather than correct it.
         PostgresException immutable = await Assert.ThrowsAsync<PostgresException>(() =>
             ExecuteAsync(
-                "UPDATE ivr_runtime_gate_approvals SET environment = 'lab' "
-                + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN'"));
+                "UPDATE ivr_runtime_gate_approvals SET environment = 'prod' "
+                + "WHERE approval_reference = 'approval-admin-lab'"));
         Assert.Contains("only revocation may change", immutable.MessageText, StringComparison.Ordinal);
 
-        // Revoke the seeded grant, and the gate closes - revocation is the switch.
+        // Revoking the lab grant closes lab and changes nothing elsewhere, because nothing
+        // elsewhere was ever open.
         await ExecuteAsync(
             "UPDATE ivr_runtime_gate_approvals SET revoked_at = now(), "
             + "revoked_reason = 'IT-GATE-APPROVAL-10' "
-            + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN'");
+            + "WHERE approval_reference = 'approval-admin-lab'");
 
-        Assert.False(await authorization.IsApprovedAsync());
+        Assert.False(await authorization.IsApprovedAsync(FeatureFlagEnvironments.Lab));
+    }
 
-        // Now grant it again, scoped to lab only. The gate answers yes with no environment asked
-        // for and none supplied, which is the whole point: on this kind the column is recorded,
-        // never read. Whoever writes 'lab' here believing it limits the grant is mistaken.
-        await ExecuteAsync(
-            """
-            INSERT INTO ivr_runtime_gate_approvals (
-                approval_reference, approval_kind, environment, proposer_actor_id,
-                approver_actor_id, change_fingerprint, reason, signed_decision_ref,
-                granted_at, expires_at, revoked_at, revoked_reason, correlation_id)
-            VALUES (
-                'IT-GATE-APPROVAL-10/lab-scoped', 'RUNTIME_GATE_ADMIN', 'lab', NULL,
-                'operator-3', NULL, 'scoped to lab on purpose', 'OD-V1-20@2026-09-05',
-                now(), NULL, NULL, NULL, 'corr-test')
-            """);
+    /// <summary>
+    /// W-0301. The database refuses a <b>live</b> runtime-gate admin approval that names no
+    /// environment.
+    /// <para>
+    /// The query alone would make such a row inert, which is the quieter half of the same bug: an
+    /// approver would believe they had granted administration and it would silently do nothing.
+    /// The constraint exempts revoked rows, and has to — the row <c>W0195</c> seeded keeps its null
+    /// environment for ever because the append-only trigger will not let anyone change it. A
+    /// revoked approval opens nothing whatever its columns say, so the exemption costs no part of
+    /// the invariant.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-GATE-APPROVAL-13")]
+    public async Task AnUnscopedRuntimeGateAdminApprovalIsRefusedByTheDatabase()
+    {
+        await fixture.ResetAsync();
 
-        Assert.True(await authorization.IsApprovedAsync());
+        Exception? failure = await Record.ExceptionAsync(
+            () => InsertAdminApprovalAsync("approval-admin-unscoped", environment: null));
+
+        Assert.NotNull(failure);
+        Assert.Equal(
+            "0",
+            await ScalarAsync(
+                "SELECT count(*)::text FROM ivr_runtime_gate_approvals "
+                + "WHERE approval_kind = 'RUNTIME_GATE_ADMIN' AND revoked_at IS NULL"));
     }
 
     /// <summary>
@@ -390,6 +430,22 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
             await ScalarAsync(
                 "SELECT count(*)::text FROM ivr_runtime_gate_approvals "
                 + "WHERE approval_kind = 'PRODUCTION_CALL'"));
+    }
+
+    private Task InsertAdminApprovalAsync(string reference, string? environment)
+    {
+        string environmentSql = environment is null ? "NULL" : $"'{environment}'";
+        return ExecuteAsync(
+            $"""
+            INSERT INTO ivr_runtime_gate_approvals (
+                approval_reference, approval_kind, environment, proposer_actor_id,
+                approver_actor_id, change_fingerprint, reason, signed_decision_ref,
+                granted_at, expires_at, revoked_at, revoked_reason, correlation_id)
+            VALUES (
+                '{reference}', 'RUNTIME_GATE_ADMIN', {environmentSql}, NULL,
+                'operator-3', NULL, 'test administration grant', 'OD-V1-20@2026-09-05',
+                now(), NULL, NULL, NULL, 'corr-test')
+            """);
     }
 
     private Task InsertProductionCallApprovalAsync(string reference, string? environment)
