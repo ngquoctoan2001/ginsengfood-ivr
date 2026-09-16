@@ -75,12 +75,48 @@ services:
     # the stack could not come up on a fresh volume at all -- the worker died on a missing table
     # and stayed dead, and readiness only ever looked green because an old volume still had the
     # schema.
+    # `GSS Encryption Mode=Disable` is spelled out here, and only here, because the migration
+    # bundle is a standalone executable: it never loads AddIvrFoundation, so the default the
+    # application sets for api and worker (W-0306) cannot reach it. Without it Npgsql tries to
+    # load libgssapi_krb5.so.2, which the chiseled image does not carry, and the job opens its log
+    # with two lines that read as a failure before applying 28 migrations perfectly well.
     command:
       - "--connection"
-      - "Host=postgres;Port=5432;Database=ivr;Username=ivr"
+      - "Host=postgres;Port=5432;Database=ivr;Username=ivr;GSS Encryption Mode=Disable"
     depends_on:
       postgres:
         condition: service_healthy
+    restart: "no"
+    networks:
+      - ivr-database-local
+
+  # W-0306. deploy/docker/dev-seed/seed.sql existed since W-0043 but nothing in the standard path
+  # ran it -- only image-selftest.mjs did, by piping the file in itself. So `docker compose up` on a
+  # fresh volume produced a stack where a task is accepted and then never dialled, because
+  # ivr_attempt_policies has no mock-lab-v1 row for TaskIntakeService to match the wire snapshot
+  # against. Every new environment had to know to seed by hand, and the 16/09 smoke did exactly
+  # that. A green `dotnet test` never showed it: the gap is in the compose path, not the code.
+  #
+  # One-shot, after ivr-migrate, because the rows need the schema. Not folded into the migration
+  # bundle: schema is not data, and a migration that seeds is the mistake W-0196 already paid for.
+  # ON_ERROR_STOP=1 so a drifted seed fails the stack loudly instead of leaving api and worker to
+  # start against half-seeded data -- the file is idempotent, so a rerun on a seeded volume is a
+  # no-op rather than an error.
+  ivr-dev-seed:
+    image: postgres:16
+    command:
+      - "psql"
+      - "--host=postgres"
+      - "--username=ivr"
+      - "--dbname=ivr"
+      - "--no-password"
+      - "--set=ON_ERROR_STOP=1"
+      - "--file=/seed/seed.sql"
+    volumes:
+      - ./deploy/docker/dev-seed/seed.sql:/seed/seed.sql:ro
+    depends_on:
+      ivr-migrate:
+        condition: service_completed_successfully
     restart: "no"
     networks:
       - ivr-database-local
@@ -111,6 +147,10 @@ services:
         condition: service_healthy
       ivr-migrate:
         condition: service_completed_successfully
+      # W-0306. Waiting for the seed too, so `docker compose up` yields a stack the e2e scenarios
+      # can drive immediately instead of one that accepts a task and never dials it.
+      ivr-dev-seed:
+        condition: service_completed_successfully
     networks:
       - ivr-internal
       - ivr-database-local
@@ -128,6 +168,10 @@ services:
       postgres:
         condition: service_healthy
       ivr-migrate:
+        condition: service_completed_successfully
+      # W-0306. Waiting for the seed too, so `docker compose up` yields a stack the e2e scenarios
+      # can drive immediately instead of one that accepts a task and never dials it.
+      ivr-dev-seed:
         condition: service_completed_successfully
     networks:
       - ivr-internal

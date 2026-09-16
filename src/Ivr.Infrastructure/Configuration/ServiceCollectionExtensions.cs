@@ -164,7 +164,7 @@ public static class ServiceCollectionExtensions
         services.AddDbContextFactory<IvrDbContext>((serviceProvider, dbContextOptions) =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<IvrOptions>>().Value;
-            dbContextOptions.UseNpgsql(options.ConnectionString);
+            dbContextOptions.UseNpgsql(WithoutGssNegotiation(options.ConnectionString));
         });
         services.TryAddSingleton<FeatureFlagPersistenceSession>();
         if (string.Equals(
@@ -200,4 +200,55 @@ public static class ServiceCollectionExtensions
         configuration[environmentKey]
             ?? section[sectionKey]
             ?? fallback;
+
+    /// <summary>
+    /// Turns off GSSAPI/Kerberos transport negotiation unless the operator asked for it (W-0306).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Npgsql defaults <c>gssencmode</c> to <c>Prefer</c>, so every connection first tries to load
+    /// <c>libgssapi_krb5.so.2</c>. The runtime images are chiseled and do not carry it, so each
+    /// process opened its log with two lines that read like a failure and are not one:
+    /// <c>Cannot load library libgssapi_krb5.so.2</c> / <c>Error: … cannot open shared object
+    /// file</c>. Npgsql then falls back and connects normally.
+    /// </para>
+    /// <para>
+    /// Fixed here rather than in the seven connection strings that would each have to remember,
+    /// and rather than by adding Kerberos to the images: nothing in this system authenticates to
+    /// Postgres with Kerberos, the database is reached over a private network, and a library we
+    /// never call is attack surface rather than a feature. Disabling it also drops one negotiation
+    /// round trip per connection.
+    /// </para>
+    /// <para>
+    /// An operator who genuinely has a Kerberos-secured Postgres keeps control: set
+    /// <c>gssencmode</c> explicitly in the connection string and this leaves it alone. The default
+    /// moves, the choice does not disappear.
+    /// </para>
+    /// </remarks>
+    private static string WithoutGssNegotiation(string connectionString)
+    {
+        // Read the keys off the generic parser rather than asking NpgsqlConnectionStringBuilder
+        // whether it "contains" the keyword. Npgsql canonicalises aliases, so ContainsKey lies in
+        // both directions depending on which spelling the operator used -- `gssencmode` and
+        // `GSS Encryption Mode` are the same setting and only one of them answers. Comparing the
+        // raw keys with spaces removed accepts either spelling, which is what the operator sees.
+        System.Data.Common.DbConnectionStringBuilder supplied = new()
+        {
+            ConnectionString = connectionString,
+        };
+        foreach (string key in supplied.Keys.Cast<string>())
+        {
+            string normalised = key.Replace(" ", string.Empty);
+            if (normalised.Equals("gssencmode", StringComparison.OrdinalIgnoreCase)
+                || normalised.Equals("gssencryptionmode", StringComparison.OrdinalIgnoreCase))
+            {
+                return connectionString;
+            }
+        }
+
+        return new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
+        {
+            GssEncryptionMode = Npgsql.GssEncryptionMode.Disable,
+        }.ConnectionString;
+    }
 }

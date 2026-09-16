@@ -65,6 +65,57 @@ W0118 được ghim nguyên nội dung lịch sử, không được xem là upgr
 Release expand hiện hành không có miễn trừ drop bảng; cleanup là release riêng sau inventory
 consumer, quan sát triển khai và đóng cửa sổ rollback. Xem runbook W-0196 phía trên.
 
+### 3b. `W0122` — những database đã chạy bản **drop**, và cách tự xác định (`B5`, `W-0306`)
+
+Đoạn trên nói *"hai miễn trừ drop bảng W0122 đã bị bỏ bởi W-0196"*. Đúng, nhưng chưa đủ cho người
+đang cầm một database thật: `Up()` của `20260828040458_W0122DropConsoleAccounts` **đã từng xoá bảng
+thật**, rồi được viết lại thành no-op. `Down()` cũng là no-op và **không dựng lại gì** — nó không
+thể, dữ liệu đã mất. Vì vậy sự khác biệt này **vĩnh viễn**, và hai database cùng báo
+`__EFMigrationsHistory` giống hệt nhau vẫn có thể khác schema.
+
+| | |
+| --- | --- |
+| Bản **drop** sống trong repo | `ec3b5ca` (`2026-08-28`) → `c8dc3c4` (`2026-09-05`) |
+| Hai bảng bị xoá | `ivr_console_sessions`, `ivr_console_accounts` |
+| Nơi tạo chúng | `20260822120000_W0105ConsoleAccountAuth` |
+
+**Đừng tra danh sách — hỏi chính database.** Một danh sách môi trường chép tay sẽ sai ngay lần
+ai đó dựng thêm một stack mà không sửa tài liệu. Câu này trả lời dứt khoát:
+
+```sql
+SELECT to_regclass('public.ivr_console_accounts') IS NOT NULL
+   AND to_regclass('public.ivr_console_sessions') IS NOT NULL AS console_tables_present;
+```
+
+| Kết quả | Nghĩa | Hành động |
+| --- | --- | --- |
+| `true` | database này **chưa bao giờ** chạy bản drop — hoặc dựng sau `c8dc3c4`, hoặc dựng trước `ec3b5ca` | không phải làm gì; đây là trạng thái mọi database mới sẽ có |
+| `false` | đã chạy bản drop trong cửa sổ `8` ngày ở trên | **không tự dựng lại bảng**; xem ô dưới |
+
+Phép thử này đứng được vì không có đường nào khác làm hai bảng đó biến mất: chỉ `W0122` bản cũ
+drop chúng, và không migration nào sau đó tạo lại.
+
+**Môi trường đã biết, tính đến `2026-09-16`:**
+
+| Môi trường | Database có sống qua cửa sổ không | Ghi chú |
+| --- | --- | --- |
+| Cluster thật | **không tồn tại** | `W-0061`/`W-0063` `BLOCKED_EXTERNAL`; không có runner/registry/credential — xem đầu tài liệu này |
+| CI | **không** | Testcontainers và `image-selftest` dựng database rỗng mỗi lần chạy; không có volume nào sống qua đêm |
+| `docker compose` local | **có thể** | chỉ khi volume `ivr-postgres-data` được tạo và migrate trong cửa sổ đó và chưa `down -v` lần nào kể từ đó |
+| Máy smoke `audit-0907` | **có thể** | volume dài ngày, migrate nhiều đợt — chạy câu SQL trên trước khi kết luận |
+
+Hai dòng cuối ghi *"có thể"* chứ không ghi có/không, và đó là có chủ ý: trạng thái của chúng phụ
+thuộc vào việc ai đó có `down -v` hay không, mà việc đó không được ghi lại ở đâu cả. **Chép một
+câu trả lời vào đây sẽ là bịa.** Câu SQL mất hai giây và luôn đúng.
+
+> **Nếu gặp `false`: đừng dựng lại hai bảng đó.** Không có code nào trong bản ship đọc chúng —
+> `W-0128` đã gỡ toàn bộ hệ thống tài khoản console khỏi code, database và tài liệu, và Module 3 sở
+> hữu identity nhân viên. Hai bảng giữ lại **chỉ** để replica cũ và cửa sổ rollback sống được, đúng
+> như comment trong `Up()` nói. Một database thiếu chúng vẫn chạy đúng với bản ship hiện tại; cái
+> nó **không** làm được là quay về release trước `W-0128`. Đó là về **thu hẹp cửa sổ rollback**, không
+> phải lỗi đang chạy — và cách đúng là ghi nhận nó, không phải `CREATE TABLE` một cấu trúc rỗng
+> để một truy vấn nào đó đọc ra `0` hàng và tưởng đó là sự thật.
+
 ## 3a. Chiều còn lại — code mới trên schema cũ
 
 Chiều ngược lại xảy ra ở khoảng giữa lúc Job `pre-upgrade` bắt đầu và lúc nó xong, và ở mọi lần

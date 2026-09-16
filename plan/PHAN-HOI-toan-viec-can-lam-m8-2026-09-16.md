@@ -34,7 +34,30 @@
 > tôi và đỏ trên CI. Tôi ghi thẳng ra đây: đã đòi bản `16/09` phải chính xác thì bản này phải
 > chịu cùng chuẩn đó.
 >
-> Còn `2,75–3,25` ngày cho `9` mục — và phần lớn số còn lại **không phụ thuộc tôi**.
+>
+> **▸ `W-0306` — lô vận hành `4` mục, xong `16/09` trong `0,5` ngày** (ước `1,5`). Đóng ✅ **`B5`**
+> cộng cả `3` phát hiện smoke ngoài bảng (`krb5` · seed compose · log EF). Đây là lô duy nhất mà
+> `dotnet test` **không chứng minh được gì** — cả `4` mục đều đến từ việc anh **dựng thật rồi
+> nhìn**, nên tôi đóng chúng cũng bằng cách dựng thật rồi đo:
+>
+> | | Trước | Sau |
+> | --- | --- | --- |
+> | `krb5` ở log migrate | `2` dòng `Error` | **`0`** |
+> | policy mock sau `compose up` | `0` hàng — task nhận rồi không bao giờ gọi | **`6/6`**, tự động |
+> | log worker / `120`s | `113` dòng | **`8`** dòng |
+>
+> ⚠️ **Một chỗ tôi cố ý làm khác chữ task, và nói rõ để anh bác được nếu không đồng ý.** `B5`
+> đòi *danh sách môi trường đã chạy `W0122` bản drop*. Tôi không chép danh sách: không có cluster
+> thật, CI luôn dựng DB rỗng, còn stack local thì trạng thái phụ thuộc ai đó có `down -v` hay
+> không — việc không được ghi ở đâu. Một danh sách chép tay sẽ sai ngay lần sau, **và sai theo kiểu
+> trông như một câu trả lời**. Runbook vì vậy đưa một câu SQL luôn đúng, đã chạy thử.
+>
+> **Và tôi đính chính một con số sai của chính mình** ở gói bằng chứng `W-0304`: tôi viết *“`0` pin
+> lệch trên `183` đường dẫn ghim hash”*, số đúng là **`44`**. Kết luận không đổi, nhưng con số lớn
+> hơn thực tế `4` lần làm phạm vi kiểm tra nghe rộng hơn nó thật — đúng loại lỗi bản đánh giá này
+> đang bắt người khác, nên tôi sửa bằng dòng đính chính chứ không lặng lẽ đổi số.
+>
+> Còn `2,25–2,75` ngày cho `5` mục — và phần lớn số còn lại **không phụ thuộc tôi**.
 
 ---
 

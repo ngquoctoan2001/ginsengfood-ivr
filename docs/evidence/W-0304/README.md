@@ -231,8 +231,15 @@ PROGRESSIVE_SELFTEST_PASS · TEST_TRACEABILITY_CURRENT=695
 
 ### 7.3. Quét pin toàn cây
 
-Sau khi sửa: **`0` pin lệch** trên `183` đường dẫn ghim hash thu từ `deploy/ci/scripts/*.mjs` và
-`deploy/ci/pins/*`.
+Sau khi sửa: **`0` pin lệch**.
+
+> **Đính chính `W-0306` (16/09):** dòng này ban đầu viết *"`0` pin lệch trên `183` đường dẫn ghim
+> hash"*. **Con số `183` sai.** `183` là số đường dẫn **ứng viên chuẩn hoá CRLF** — mọi chuỗi trông
+> giống đường dẫn trong `deploy/ci/scripts/*.mjs` — chứ không phải số đường dẫn thật sự có hash
+> ghim kèm. Số đúng, đo lại bằng chính script ở `W-0306`, là **`44`**. Kết luận *"`0` lệch"* không
+> đổi — cả `44` pin đều khớp — nhưng một con số lớn hơn thực tế **`4`** lần làm phạm vi kiểm tra
+> nghe rộng hơn nó thật, và đó đúng lủ lỗi mà bản đánh giá `16/09` đang bắt người khác. Sửa bằng
+> một dòng đính chính thay vì lặng lẽ đổi số.
 
 ### 7.4. Build và `gitnexus`
 

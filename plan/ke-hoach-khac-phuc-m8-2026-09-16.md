@@ -565,7 +565,7 @@ test` xanh.
 
 ---
 
-### `W-0303` — Lô tài liệu (`11` mục)
+### `W-0304` — Lô tài liệu (`11` mục) — ✅ **XONG** `16/09`
 
 | | |
 | --- | --- |
@@ -608,7 +608,7 @@ chết tới file `W-0297` đã xoá.
 
 ---
 
-### `W-0304` — Lô vận hành (`4` mục, từ smoke test `16/09`)
+### `W-0306` — Lô vận hành (`4` mục, từ smoke test `16/09`) — ✅ **XONG** `16/09`
 
 | | |
 | --- | --- |
@@ -631,7 +631,7 @@ chết tới file `W-0297` đã xoá.
 
 ---
 
-### `W-0305` — `B9` nửa `audit-evidence` *(tuỳ chọn, `2` ngày)*
+### `W-0307` — `B9` nửa `audit-evidence` *(tuỳ chọn, `2` ngày)*
 
 Chỉ làm khi `W-0298`→`W-0304` xong sớm.
 
@@ -751,7 +751,7 @@ nằm trong lịch `§4`.
 | `W-0301` | `B4` `RUNTIME_GATE_ADMIN` scope env | `0,5` → **1** | ✅ **XONG** `16/09` · `1066/1066` | `1651e8f` |
 | `W-0302` | `C6` `500`→`422` + OAS `draft.28` | `1,5` | ✅ **XONG** `16/09` · `1105/1105` | 5 pin dời, không breaking |
 | `W-0304` | Lô tài liệu `11` mục | `1,5` | ✅ **XONG** `16/09` · `756/756` unit · **`13/13` gate ghim hash** | **`9dc5479`** + **`aa2c9af`** — `10/11` mục làm, `1` mục tiền đề sai; **sửa `11` gate đỏ do `W-0297`** |
-| `W-0306` | Lô vận hành `4` mục | `1,5` | ⬜ | ⚠️ `W-0305` **đã cấp cho phiên PD-03** (sổ tay vận hành) |
+| `W-0306` | Lô vận hành `4` mục | `1,5` → **`0,5`** | ✅ **XONG** `16/09` · `760/760` · kiểm trên stack sạch | `3` file cấu hình + `1` `.cs` + `1` compose service; `4/4` mục |
 | `W-0307` | `B9` `audit-evidence` *(tuỳ chọn)* | `2` | ⬜ | |
 
 
@@ -771,6 +771,31 @@ nằm trong lịch `§4`.
 > đổi tên** file, thứ phải chạy **không phải** gate thuộc phạm vi mình mà là **quét toàn bộ
 > pin** — vì pin là thứ duy nhất biết rằng một file ở chỗ khác đang phụ thuộc vào file bạn
 > vừa xóa. Và tính hash **trên byte LF**, không trên cây làm việc Windows.
+
+
+> ### ✅ `W-0306` — bốn mục, và cả bốn được chứng minh bằng một stack thật
+>
+> Đây là lô duy nhất trong kế hoạch mà **`dotnet test` không chứng minh được gì** — cả `4` mục
+> đều đến từ smoke `16/09`, tức từ việc dựng thật rồi nhìn. Nên cách đóng cũng phải thế: dựng
+> project `w0306` trên volume mới, **không seed tay một lệnh nào**, rồi đo.
+>
+> | Mục | Trước | Sau |
+> | --- | --- | --- |
+> | `1` `krb5` | `2` dòng `Error` đầu log migrate | `0` |
+> | `2` seed | `0` hàng policy, task nhận rồi không bao giờ gọi | `6/6` hàng, tự động |
+> | `3` log EF | `113` dòng/`120`s | **`8`** dòng/`120`s |
+> | `4` `B5` | runbook không trả lời được *"DB của tôi thuộc diện nào"* | một câu SQL, đã chạy thử |
+>
+> **Một chỗ tôi cố ý làm khác chữ kế hoạch.** Mục `4` đòi *"thêm **danh sách môi trường** đã chạy
+> `W0122` bản drop"*. Tôi không chép danh sách, vì không có cluster thật, CI luôn dựng DB rỗng, còn
+> stack local thì trạng thái phụ thuộc **ai đó có `down -v` hay không** — việc không được ghi ở đâu
+> cả. Một danh sách chép tay sẽ sai ngay lần sau có người dựng thêm stack, và sai theo kiểu **trông
+> như một câu trả lời**. Runbook vì vậy đưa câu SQL trả lời dứt khoát, cộng bảng môi trường ghi
+> thẳng *"có thể"* ở hai dòng không biết — thay vì đoán cho đủ ô.
+>
+> **Nợ mới phát hiện, chưa làm:** `image-selftest.mjs` cố định cổng `55433`/`58080`, nên nó **không
+> chạy được** khi máy đang có một stack dev bật. Lần đầu nó đỏ chính vì thế chứ không phải do
+> compose vừa sửa — đáng ghi vì đây đúng chỗ dễ đổ lỗi nhầm cho thay đổi của mình.
 
 ---
 
