@@ -10,7 +10,7 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 
 | Nhóm | Số mục | Ai đang chặn |
 | --- | --- | --- |
-| A — Phiếu hỏi chưa gửi hoặc chưa có trả lời | 7 | Legal, M3, Platform, Security |
+| A — Phiếu hỏi | **`1` gửi Sếp · `1` gửi M3 · `1` chờ M3 trả lời · `2` đã đóng** | Sếp (tiền/người/rủi ro), M3 |
 | B — M8 đã ký phần mình, chờ bên khác | 9 | M3, Product, CRM, Legal, Security, Platform |
 | C — Còn việc M8 phải làm | 6 | Chính mình, hoặc chờ dữ liệu |
 
@@ -20,49 +20,87 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 
 ---
 
-# A — Phiếu hỏi chưa gửi hoặc chưa có trả lời
+# A — Phiếu hỏi: đã gom về đúng người `17/09` (`W-0309`)
 
-Tất cả đã soạn xong, **chỉ còn việc gửi**. Không cái nào chặn việc code.
+> ## ⚠️ Mục này từng sai hai lần, sửa cả hai `17/09`
+>
+> **Sai thứ nhất — “chỉ còn việc gửi” trong khi không còn gì để gửi.** `W-0297` dồn `25` tài liệu
+> vào index này và **xoá cả `6` phiếu**. Còn đúng `1` file trong cây, và đó là phiếu **đã gửi rồi**.
+> Toàn văn `6` phiếu nằm ở `257cbef^`; `W-0309` đã khôi phục cái cần khôi phục.
+>
+> **Sai thứ hai — `5/6` phiếu gửi cho phòng ban không tồn tại.** Platform, Security, Legal **không
+> tồn tại như các đội riêng** trong tổ chức này — chính lập luận đang dùng để bác `A1` của bản
+> `16/09`. Và `m8-13` mục `1` đã cấm sẵn: *“không gửi tới một mailbox chung nếu không xác định
+> được owner có thẩm quyền.”*
+>
+> **Tiền lệ xử lý đã có:** `OD-V1-11` đóng ngày `2026-09-10` — *“tổ chức này không có đội
+> Legal/Privacy và owner chọn không mua ý kiến pháp lý ngoài cho V1; owner nhận rủi ro.”*
+> `W-0309` làm đúng như thế cho phần còn lại.
 
-### legal-od-voice-07
+| Phiếu cũ | Gửi cho | Nay ở đâu |
+| --- | --- | --- |
+| `m3-call-limit` | M3 | ✅ **Khôi phục, sẵn sàng gửi** — [phiếu](questions-to-module-3-call-limit-2026-09-15.md) |
+| `m3-od18-authority` | M3 | ⏳ **Đã gửi, chưa nhận trả lời** — [phiếu](questions-to-module-3-od18-authority.md) |
+| `platform-key-source` | Platform | ➡️ **Mục `2`** của [phiếu cho Sếp](phieu-quyet-dinh-cho-sep-2026-09-17.md) |
+| `platform-ci-staging` | Platform | ➡️ **Mục `1`** (tiền) + **Mục `3`** (người duyệt thứ hai) |
+| `legal-od-voice-07` | Legal | ➡️ **Mục `4`** — chỉ phần `L3`/`L6` còn sống |
+| `platform-w0122` | Platform | ⛔ **ĐÓNG** — xem bên dưới |
+| `security-w0122-cve` | Security | ⛔ **ĐÓNG** — xem bên dưới |
 
-**Hỏi Legal về `OD-VOICE-07` · `READY_TO_DISPATCH / NOT_SENT / EXTERNAL_RESPONSE_REQUIRED`**
+### ⛔ Hai phiếu đã đóng, và một phiếu đóng hai phần ba
 
-Chờ Legal trả lời về ghi âm và quyền dùng giọng.
+Cả ba đều hỏi về **một hướng kỹ thuật đã bị bỏ**: tự host VieNeu-TTS. Hướng đó chết ngày
+`2026-09-05` khi `OD-V1-19` đóng với vị trí **không dùng vendor TTS lúc chạy**, thu giọng người thật.
+
+Bằng chứng nó không lên production, kiểm tại `main@fbe6edb`:
+
+- `deploy/helm/ivr/values-prod.yaml:43-44` — `tts: enabled: false`
+- `SpeechServiceCollectionExtensions.cs` — đường đã duyệt dùng `StaticFileTtsProvider` (file thu sẵn)
+
+⇒ `platform-w0122` (xin hạ tầng chạy model) và `security-w0122-cve` (`16` CVE của base image đó)
+**không còn đối tượng để hỏi**: image không chạy thì hạ tầng không cần và CVE không chạm tới gì.
+
+> ### Nhưng `legal-od-voice-07` **không** đóng hết — và chỗ này suýt bị bỏ sót
+>
+> Chính phiếu đó đã tự cảnh báo: *“**có được chạy model** và **có được dùng audio model đã tạo ra**
+> là hai câu khác nhau.”* `12` đoạn cố định đang dùng **vẫn là audio do VieNeu render**, Owner ký
+> `28/08`. Nên `L1`/`L2`/`L4` (quyền chạy model) đóng theo image, còn **`L3` (quyền thương mại của
+> đúng `3` preset đã render ra `12` file đó) và `L6` (thiết kế retention) vẫn sống**.
+>
+> Đã tách thành **Mục `4`** của phiếu cho Sếp, kèm đề xuất: **thu lại `12` đoạn bằng giọng người**
+> thì câu hỏi **biến mất hoàn toàn**, không phải ký nhận rủi ro gì. Việc thu đằng nào cũng nằm trong
+> `B8` — đó là hệ quả của chính `OD-V1-19`.
+
+---
 
 ### m3-call-limit
 
-**Hỏi M3 về giới hạn số cuộc gọi · 15/09/2026 · `READY_TO_DISPATCH / NOT_SENT`**
+**Hỏi M3 nghĩa của “tối đa hai lần trong 10 phút” · `15/09/2026` · ✅ `RESTORED / READY_TO_DISPATCH`**
+
+Người nhận có thật (anh lead M3). Đã kiểm lại tại `fbe6edb`: hai lịch trong phiếu vẫn khớp
+`AttemptPolicyRegistries.cs` (`0s`/`150s` và `0s`/`450s`), nên cả `3` câu còn nguyên hiệu lực.
+**Không sửa một chữ nội dung.**
 
 ### m3-od18-authority
 
 **Hỏi M3 về thẩm quyền `OD-V1-18` · ⏳ CHỜ TRẢ LỜI**
 
-Đã gửi, chưa nhận. Quyết định `OD-V1-18` (resolver nằm trong IVR, số E.164 chỉ sống trong bộ nhớ tại biên telephony) đã ký và **không mở lại**; phiếu này hỏi phần thẩm quyền còn lại.
+Đã gửi, chưa nhận. Quyết định `OD-V1-18` (resolver nằm trong IVR, số E.164 chỉ sống trong bộ nhớ tại
+biên telephony) đã ký và **không mở lại**; phiếu này hỏi phần thẩm quyền còn lại.
 
-### platform-ci-staging
+⚠️ **Nặng thêm từ `16/09`:** `W-0303` đã dựng `ProductionDialTokenVault` **trên chính `OD-V1-18`** và
+viện dẫn nó trong doc-comment. Đường quay số production giờ đứng hẳn về một trong ba nguồn sự thật
+mà `B11` của bản `16/09` đang nêu. Xem ô `B11`.
 
-**Hỏi Platform về CI và staging · 12/09/2026 · `READY_TO_DISPATCH / NOT_SENT`**
+### Việc cần Sếp quyết — `4` mục
 
-Chặn: môi trường triển khai. Hồ sơ `W-0292` ghi deploy dev còn chặn vì thiếu kết nối cluster, staging chưa chạy.
+**[phieu-quyet-dinh-cho-sep-2026-09-17.md](phieu-quyet-dinh-cho-sep-2026-09-17.md)** ·
+`READY_TO_DISPATCH / NOT_SENT`
 
-### platform-key-source
+`1` chỗ chạy thử (💰) · `2` nguồn khoá mở số (💰) · `3` một người duyệt thứ hai (👤) ·
+`4` quyền dùng `12` đoạn audio (⚖️, tự đóng được nếu thu lại giọng người).
 
-**Hỏi Platform về nguồn khóa và định danh bản phát hành · 15/09/2026 · `READY_TO_DISPATCH / NOT_SENT`**
-
-Chặn: `TOKEN_PROTECTOR_BLOCKED_ON_PLATFORM` — bảo vệ token production cần khóa do Platform quản lý. Đây là đầu vào của PD-01 trong [kế hoạch đường gọi production](sip-production-dial-path-plan-2026-09-16.md).
-
-### platform-w0122
-
-**Hỏi Platform về hạ tầng `W-0122` · `READY_TO_DISPATCH / NOT_SENT / EXTERNAL_RESPONSE_REQUIRED`**
-
-Hạ tầng cho TTS self-hosted.
-
-### security-w0122-cve
-
-**Hỏi Security về xử lý CVE `W-0122` · `READY_TO_DISPATCH / NOT_SENT / EXTERNAL_RESPONSE_REQUIRED`**
-
----
+Viết **không thuật ngữ**, mỗi mục có *cần gì · để làm gì · nếu không có thì sao*.
 
 # B — M8 đã ký phần mình, chờ bên khác ký
 
@@ -216,7 +254,9 @@ Hai fence đã cài xong — chi tiết ở [00-DA-XONG.md](00-DA-XONG.md#m8-17-
 
 Phần giọng đã chọn và manifest đã PASS — ghi ở [00-DA-XONG.md](00-DA-XONG.md#today-03-giong-doc).
 
-**Còn thiếu:** TTS self-hosted VieNeu (`W-0122`) chờ Platform (hạ tầng) và Security (xử lý CVE) — hai phiếu ở nhóm A. Chưa phiếu nào được gửi.
+**Cập nhật `17/09` (`W-0309`) — nhánh này đã đóng, không còn *“còn thiếu”*.** TTS self-hosted VieNeu (`W-0122`) **không lên production**: `values-prod.yaml:43-44` đặt `tts: enabled: false`, và đường đã duyệt dùng `StaticFileTtsProvider` (file thu sẵn) sau khi `OD-V1-19` chốt bỏ vendor TTS lúc chạy. Nên hai phiếu `platform-w0122` và `security-w0122-cve` **đã đóng** — không còn đối tượng để hỏi.
+
+**Cái thật sự còn thiếu là việc của chính mình:** thu `12` đoạn cố định bằng giọng người. Làm xong thì `L3` của `legal-od-voice-07` (quyền thương mại của `3` preset đã render ra `12` file đang dùng) cũng **tự biến mất** — xem Mục `4` của [phiếu cho Sếp](phieu-quyet-dinh-cho-sep-2026-09-17.md).
 
 ### 14-risk-register
 
@@ -235,11 +275,23 @@ Rủi ro mới phát sinh sau 16/09 ghi thẳng vào đây, mỗi mục một d�
 
 ## Việc gì đang chặn nhiều thứ nhất
 
+_Cập nhật `17/09` (`W-0309`). Bảng cũ gom `5` bên; thật ra chỉ có **`3`** bên tồn tại._
+
 | Bên | Đang chặn | Cách gỡ |
 | --- | --- | --- |
-| **Module 3** | m8-05, m8-06, m8-07, m8-09, m8-10, m8-17 | Một [phiếu 21 câu](../../integration-requirements/07-module-3-decision-sheet.md) đã soạn — chốt một lượt |
-| **Platform** | token protector (PD-01), TTS, m8-15, môi trường triển khai | Hai phiếu ở nhóm A, chưa gửi |
-| **Owner** | m8-09 (A hay B), m8-11 (bộ số attempt) | Hai quyết định, mỗi cái một trang |
-| **Security / Legal** | m8-08, TTS CVE, OD-VOICE-07 | Ba phiếu ở nhóm A, chưa gửi |
+| **Module 3** | m8-05, m8-06, m8-07, m8-09, m8-10, m8-17, `14` mục nhóm C của bản `16/09` | Một [phiếu 21 câu](../../integration-requirements/07-module-3-decision-sheet.md) đã soạn — chốt một lượt. Cộng [phiếu giới hạn số cuộc gọi](questions-to-module-3-call-limit-2026-09-15.md) vừa khôi phục |
+| **Sếp** | môi trường triển khai · nguồn khoá token · người duyệt thứ hai · quyền `12` đoạn audio · m8-15 | **Một** [phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md), `4` mục, viết không thuật ngữ |
+| **Nhà mạng** | `B12` adapter production, `B1` hiệu chỉnh `4` số năng lực | Chờ báo giá. Đường ống đã dựng xong `16/09`, thiếu tuyến |
+| ~~Platform~~ ~~Security~~ ~~Legal~~ | — | **Không tồn tại như đội riêng.** Đã gom về Sếp hoặc đóng — xem nhóm A |
+| **Chính mình** | `B8` thu `12` đoạn giọng người | Không tốn tiền, không tốn ngày công lập trình. Tốn một buổi ngồi thu |
 
-**Việc gỡ được nhiều nhất là gửi 6 phiếu ở nhóm A.** Chúng đã soạn xong từ lâu, không tốn ngày công nào, và đang chặn phần lớn nhóm B.
+> ### Câu cũ ở chỗ này đã sai, và tôi lặp lại nó ba lần trước khi kiểm
+>
+> Nguyên văn: *“Việc gỡ được nhiều nhất là gửi `6` phiếu ở nhóm A. Chúng đã soạn xong từ lâu,
+> không tốn ngày công nào.”* **Cả hai vế đều sai:** `6` phiếu đó đã bị `W-0297` xoá khỏi cây, và
+> `5/6` gửi cho phòng ban không tồn tại. Xem nhóm A.
+>
+> **Câu đúng thay thế:** việc gỡ được nhiều nhất là **gửi `2` phiếu** — một cho Sếp (`4` quyết
+> định tiền/người/rủi ro) và một cho M3 (`3` câu ngữ nghĩa policy). Cả hai đều đã soạn xong và
+> **đang nằm trong cây**, kiểm được bằng `ls`.
+

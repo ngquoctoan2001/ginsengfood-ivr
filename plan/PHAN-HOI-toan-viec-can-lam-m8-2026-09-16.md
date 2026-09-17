@@ -115,8 +115,20 @@
 > cấu hình nào nhìn thấy được một cái bảng**.
 >
 > **Từ đây, mọi thứ trong repo không phụ thuộc bên ngoài đã hết.** Phần còn lại của bản `16/09`
-> **không phụ thuộc tôi**: chờ M3 phản hồi, chờ nhà mạng báo giá, và `6` phiếu nhóm A chưa gửi.
+> **không phụ thuộc tôi**: chờ M3 phản hồi, chờ nhà mạng báo giá, và các phiếu hỏi.
 > Toàn bộ solution **`1143/1143`**.
+>
+> **▸ Đính chính `17/09` (`W-0309`) — câu *“`6` phiếu nhóm A chưa gửi”* tôi viết ở đây là sai, và
+> tôi đã lặp nó ba lần trước khi kiểm.** Hai tiền đề đều hỏng: (a) `W-0297` đã **xoá cả `6` file**
+> khỏi cây khi dồn tài liệu — không còn gì để gửi; (b) `5/6` gửi cho **Platform / Security / Legal**,
+> ba phòng ban **không tồn tại** trong tổ chức này — đúng lập luận tôi dùng để bác `A1` ở chính bản
+> này. Tôi bác nó ở một chỗ rồi quay sang dựa vào nó ở chỗ khác.
+>
+> Đã gom lại theo tiền lệ `OD-V1-11` (`10/09`: *không có đội Legal, owner tự nhận rủi ro, ghi thành
+> văn bản*): `2` phiếu **đóng hẳn** vì hỏi về một nhánh kỹ thuật đã bỏ (`values-prod.yaml` đặt
+> `tts: enabled: false`), `3` phiếu gom thành **một phiếu cho Sếp** (`4` mục tiền/người/rủi ro,
+> không thuật ngữ), `1` phiếu khôi phục nguyên văn gửi M3. **Câu đúng là: gửi `2` phiếu, cả hai
+> đang nằm trong cây.**
 
 ---
 
