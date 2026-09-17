@@ -121,10 +121,37 @@ fence **trơ** tới khi có endpoint thu hồi, còn chờ Module 3 (`M3-14`, `
 
 ---
 
-## 6. Thấy trong lúc làm, chưa sửa
+## 6. Thấy trong lúc làm
 
-| Phát hiện | Vì sao chưa sửa |
+| Phát hiện | Xử lý |
 | --- | --- |
-| `specs/api/06-error-codes.md` có `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW` nhưng **thiếu** `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` của `W-0302` — cả ở `HEAD` | File nằm trong nhóm `13` file bẩn không thuộc lượt này (chỉ lệch ký tự xuống dòng). Đề xuất đưa vào Lô 3 |
+| `specs/api/06-error-codes.md` có `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW` nhưng **thiếu** `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` của `W-0302` — cả ở `HEAD` | Toàn duyệt ngày `17/09` ⇒ **đã sửa**, §7 |
+
+---
+
+## 7. Follow-up `17/09` — mục `19`: danh mục lý do từ chối thiếu một mã
+
+Toàn duyệt sau khi push `ffba799` (cả `origin` và `github` ở `ffba799`).
+
+**Trạng thái "bẩn" của file trước khi sửa:** worktree, index và `HEAD` đều là LF `115` dòng,
+`git diff --ignore-cr-at-eol` rỗng; sau khi sửa, `git diff HEAD` chỉ gồm các hunk của lượt này
+(`+6 −4`) — không có thay đổi nào của ai khác bị cuốn theo.
+
+**Phạm vi bảng §2a là nhóm Policy/Contact của `W-0129`**, không phải mọi lý do intake. So với code:
+mọi lý do `TaskIntakeService.ContactRejectionReason` phát ra đều có trong bảng **trừ đúng một**,
+`DIAL_TOKEN_EXPIRES_AFTER_WINDOW` (`W-0302`). Lý do đơn đêm của `W-0298` và các nhóm script, attempt
+policy, cửa sổ chưa bao giờ thuộc bảng này — không coi là thiếu, không thêm.
+
+**Tìm chỗ đếm trước khi thêm** (bài học `W-0312`):
+
+| Chỗ đếm | Trước | Sau khi thêm dòng |
+| --- | --- | --- |
+| `06-error-codes.md`, đoạn cutover `draft.24`: *"sáu rule contact còn lại"* | Đúng ở `draft.24`, sai từ `draft.28` | Giữ nguyên câu lịch sử, thêm *"(bảy từ `draft.28`…)"* |
+| `06-error-codes.md`: *"M3 chưa nhìn thấy **chín** mã chi tiết"* | Đếm dòng bảng — `9` | **`10`** |
+| Comment `TaskIntakeApiTests.cs:62`: *"lists six more triggers that reach it"* | Bảng có `5` trigger `422` ngoài ca số chưa che — comment **lệch một** | Nay đúng `6` — không cần sửa |
+
+Dòng mới: decision `TASK_REJECTED_CONTACT_INVALID`, wire `422 IVR_CONTACT_INVALID` — xác nhận ở
+`TaskIntakeService.cs:169-177`; đã có test phủ lý do này (`TaskIntakeServiceTests.cs:122`,
+`TaskIntakePersistenceTests.cs:239`).
 
 **Còn lại của Lô 3:** mục `1`–`14`.

@@ -148,7 +148,7 @@ Chi tiết: [báo cáo `15/09`, cập nhật `16/09`](../../docs/reports/2026-09
 
 ## 5. Kế hoạch khắc phục
 
-> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 3 mục `15`–`18` (`W-0313`). **Chưa:** Lô 2, Lô 3 mục `1`–`14`, Lô 4, Lô 5.
+> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 3 mục `15`–`19` (`W-0313`). **Chưa:** Lô 2, Lô 3 mục `1`–`14`, Lô 4, Lô 5.
 > Mỗi lô là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0314`. Cấp trước dễ trùng số: `A-0637`
 > đã bị cấp hai lần.
 
@@ -170,7 +170,7 @@ luật rút ra ngày `17/09`:
 | --- | --- | --- | --- | --- | --- |
 | **1** | `draft.31` — Module 3 gửi số là nhận được · ✅ `W-0312` `TESTS_PASS` | `T1` `T3` `T5` | Không | 🔴 | `CreateDomainSnapshot` **CRITICAL** (`26` ký hiệu · `5` luồng) · `EvaluateAsync` **HIGH** (`23` · `3` luồng) · `ValidateSchema` LOW |
 | **2** | Đường xoá dữ liệu phủ `phone_e164` | `T2` | Không | 🔴 | `RetentionTargetCatalog` LOW · `DsarService` LOW — *index không theo tham chiếu hằng; đọc tay `DsarService.cs:77`* |
-| **3** | Sổ sách một lượt · ◐ mục `15`–`18` xong (`W-0313`) | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
+| **3** | Sổ sách một lượt · ◐ mục `15`–`19` xong (`W-0313`) | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
 | **4** | Mở lại nhánh VieNeu | `S4` | Một phần: `S1` `S2` `S5` | 🟡 | Chạy khi chốt symbol |
 | **5** | Nghiệm thu theo đợt | `T7` | Toàn duyệt từng đợt | ⚪ | Không đụng symbol |
 
@@ -350,7 +350,7 @@ Chỉ tài liệu, `0` symbol.
 | 16 | ✅ **`W-0313`** — *như trên.* `IR-06 §3.4.1` vẫn tả intake **trước** `W-0302` (chiều *muộn* *"hỏng ở persistence"*), trái với dòng `1311` của chính nó | `IR-06` · re-pin `7` nơi |
 | 17 | ✅ **`W-0313`** — *như trên.* `IR-07` `A-9` *"metadata giữ 90 ngày"* lệch với `S3` (Toàn chốt: toàn bộ dữ liệu). Cũng sửa câu giống hệt ở `IR-06` | `IR-07` mục *Đính chính bổ sung* · `IR-06` |
 | 18 | ✅ **`W-0313`** — *thêm `17/09`.* `00-CHUA-XONG.md` `m8-09` vẫn ghi *"chờ owner quyết A hay B"* dù đã chọn B ngày `09/09` (`W-0248`) | `plan/ivr-orther/00-CHUA-XONG.md` |
-| 19 | 🆕 *Thấy khi làm `W-0313`, chờ Toàn duyệt.* `specs/api/06-error-codes.md` thiếu `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` của `W-0302`. File đang nằm trong nhóm file bẩn không thuộc lượt nào (chỉ lệch ký tự xuống dòng) | `specs/api/06-error-codes.md` |
+| 19 | ✅ **`W-0313`** (follow-up `A-0640`) — *thấy khi làm `W-0313`, Toàn duyệt `17/09`.* `specs/api/06-error-codes.md` thiếu `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` của `W-0302`; sửa cùng hai con số đếm trong file | `specs/api/06-error-codes.md` |
 
 **Kiểm:** gate sweep `39/39` · `gate-status.mjs --write` · quét pin `0` lệch — sửa file bị ghim thì re-pin
 ngay trong lượt, tính trên byte LF.

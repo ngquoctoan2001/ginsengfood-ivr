@@ -71,6 +71,7 @@ Các mã dưới đây chi tiết hóa `TaskIntakeOutcome.BlockedReasons` ở se
 | Contact | `phone_masked` không có `x`, `X` hoặc `*` | `TASK_REJECTED_CONTACT_INVALID` | `PHONE_MASKED_NOT_MASKED` | `422 IVR_CONTACT_INVALID` |
 | Contact | dial token đã hết hạn tại intake | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_ALREADY_EXPIRED` | `422 IVR_CONTACT_INVALID` |
 | Contact | dial token còn hạn nhưng hết trước confirmation window | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW` | `422 IVR_CONTACT_INVALID` |
+| Contact | dial token hết **sau** confirmation window | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` | `422 IVR_CONTACT_INVALID` (từ `1.0.0-draft.28`, `W-0302`; trước đó lọt qua intake rồi hỏng thành `500` ở persistence) |
 | Contact | `phone_ref` có hình dạng số điện thoại thô | `TASK_REJECTED_CONTACT_INVALID` | `PHONE_REF_LOOKS_LIKE_RAW_PHONE` | `422 IVR_CONTACT_INVALID` |
 | Contact | `dial_token` có hình dạng số điện thoại thô | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_LOOKS_LIKE_RAW_PHONE` | `422 IVR_CONTACT_INVALID` |
 | Contact | opaque reference vi phạm privacy guard | `TASK_REJECTED_CONTACT_INVALID` | `CONTACT_FAILED_PRIVACY_GUARD` | `422 IVR_CONTACT_INVALID` |
@@ -85,10 +86,11 @@ Compatibility:
   nên một status sai giờ bị schema chặn: M3 nhận `400 IVR_MALFORMED_REQUEST` thay vì
   `422 IVR_CONTACT_INVALID`. Đây là thay đổi breaking trên wire — nhưng nhỏ hơn vẻ ngoài, vì theo
   chính dòng dưới đây M3 chưa bao giờ đọc được reason `PHONE_VALIDATION_STATUS_NOT_VALID`; nó chỉ
-  thấy mã envelope đổi. Reason đó vẫn còn và vẫn nổ cho sáu rule contact còn lại; chỉ riêng trigger
-  này là wire không tới được nữa. Cùng khuôn với `ivr_confirmation_required` (`enum: [true]`) đã
-  chọn trước đó — hai dòng Policy ở bảng trên ghi đúng kiểu chặn này.
-- M3 **chưa nhìn thấy** chín mã chi tiết qua public intake route theo mapping hiện hành. Muốn đưa
+  thấy mã envelope đổi. Reason đó vẫn còn và vẫn nổ cho sáu rule contact còn lại *(bảy từ
+  `draft.28`, khi `W-0302` thêm `DIAL_TOKEN_EXPIRES_AFTER_WINDOW`)*; chỉ riêng trigger này là wire
+  không tới được nữa. Cùng khuôn với `ivr_confirmation_required` (`enum: [true]`) đã chọn trước đó —
+  hai dòng Policy ở bảng trên ghi đúng kiểu chặn này.
+- M3 **chưa nhìn thấy** mười mã chi tiết ở bảng trên qua public intake route theo mapping hiện hành. Muốn đưa
   safe reason vào error envelope hoặc đổi reject thành `200 decision` là thay đổi contract riêng,
   cần owner/M3 ký; W-0129 không tự mở rộng quyền đó.
 
