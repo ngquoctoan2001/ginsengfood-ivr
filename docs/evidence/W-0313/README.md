@@ -1,6 +1,6 @@
-# W-0313 — Lô 3 phần một: bốn mục Toàn duyệt ngày `17/09`
+# W-0313 — Lô 3 phần một: năm mục Toàn duyệt ngày `17/09`
 
-**Ngày:** `2026-09-17` · **Baseline:** `main@628676d` · **Nguồn:** mục `15`–`18` Lô 3 của
+**Ngày:** `2026-09-17` · **Baseline:** `main@628676d` · **Nguồn:** mục `15`–`19` Lô 3 của
 [bản vướng mắc `17/09`](../../../plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md), Toàn trả lời `17/09`
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
@@ -154,4 +154,47 @@ Dòng mới: decision `TASK_REJECTED_CONTACT_INVALID`, wire `422 IVR_CONTACT_INV
 `TaskIntakeService.cs:169-177`; đã có test phủ lý do này (`TaskIntakeServiceTests.cs:122`,
 `TaskIntakePersistenceTests.cs:239`).
 
-**Còn lại của Lô 3:** mục `1`–`14`.
+### Phần sửa đã vào `5d5f96b save` trước khi kiểm xong
+
+Toàn bộ phần sửa trên — bảng, hai con số đếm, §7 tới đoạn *Dòng mới*, dòng plan, dòng tracker, `gate-status.yaml` — nằm
+trong commit `5d5f96b save` (`15:57`, đã push lên `origin` và `github`) cùng `AGENTS.md`, `CLAUDE.md` và một
+file `.docx`, lúc lượt kiểm còn đang chạy. Commit đó mang đủ nội dung mục `19`; chỉ ô bằng chứng của `A-0640`
+khi ấy còn là placeholder. Commit follow-up điền kết quả thật; không sửa lịch sử.
+
+### Kiểm chứng
+
+| Hạng mục | Kết quả |
+| --- | --- |
+| Gate sweep (Git Bash) | **`39/40`** chạy, `21` bỏ qua — gate duy nhất hỏng: `dr-selftest.mjs`, hết giờ (dưới) |
+| `gate-sweep.mjs --only dr-selftest.mjs` | **PASS `144.9s`** — `GATE_SWEEP_PASS 1/1` |
+| ⇒ | Mọi gate PASS trên nội dung này, **qua hai lượt** — không phải `40/40` trong một lượt |
+| Sau khi điền kết quả vào tracker, README, plan | `GATE_STATUS_PASS` · `PII_SCAN_PASS` · `CI_CONFIG_SELFTEST_PASS` · `API_DOCS_SELFTEST_PASS` |
+| .NET | `0` file `.cs`; không test nào đọc các file đã sửa ⇒ không chạy lại solution |
+| `gitnexus_detect_changes` | risk `low`, `0` luồng |
+
+### `dr-selftest.mjs` chạm trần `180s` — nguyên nhân chưa rõ
+
+Gate dựng PostgreSQL thật trong Docker và chạy bốn drill; nó chỉ đọc `deploy/helm/ivr`, `deploy/backup`,
+`deploy/dr` — không file nào lượt này sửa.
+
+| Lần | Cách chạy | Kết quả |
+| --- | --- | --- |
+| `1`–`3` | sweep đầy đủ, rồi `--only` hai lần | hết giờ ở `180.0s` |
+| `4` · `15:56` | `node dr-selftest.mjs --self-test`, không qua sweep | PASS `143s` |
+| `5` · `16:02` | đúng tuỳ chọn `spawnSync` của sweep, trần `600s` | PASS **`193.5s`** |
+| `6` · `16:13` | `gate-sweep.mjs --only dr-selftest.mjs` | PASS `144.9s` |
+
+Lần `5` cho thấy khi chậm, gate **vượt trần thật chứ không treo**. Tải máy không đủ giải thích: lần `6` PASS
+dù lúc bắt đầu và lúc kết thúc đều có hai `testhost.exe` của repo `ginsengfood-ops-core` đang chạy. Các log
+sweep ghi gate này ở `130`–`176s`; `W-0279` đã gặp đúng lỗi này một lần (*"sát trần; lượt sau xanh"*). Trần
+mặc định gần như không còn khoảng dư.
+
+**Không đổi gì.** Nâng trần của gate là việc Toàn quyết — plan mục `20`.
+
+### Lỗi đếm của chính `W-0313`
+
+`W-0313` thêm gate `scan-pii.sh` mà không đếm lại — đúng loại lỗi `W-0312` vừa ghi: plan còn ghi sweep
+`39/39` ở phần Kiểm của Lô 3, Lô 5 và ở mục `14`. Mục `14` còn tả `13` file bẩn — cũ từ `5d5f96b`, sau commit
+đó `git status` sạch. Sửa cả hai loại; câu Kiểm của Lô 1 giữ nguyên vì đúng lúc thi hành.
+
+**Còn lại của Lô 3:** mục `1`–`14`, và mục `20` chờ Toàn.

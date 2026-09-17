@@ -345,14 +345,15 @@ Chỉ tài liệu, `0` symbol.
 | 11 | Bỏ "nguồn khoá token" khỏi danh sách chờ Sếp · `m8-11` *"chưa có bộ số"* → `OD-V1-16` ✅ `05/09` | `00-CHUA-XONG.md` |
 | 12 | `W-0007` (xung đột bộ số — đã giải `05/09`) · `W-0121` (CI hosted đã chạy ở `W-0292`) · `W-0171` (c) (`progressive-selftest` nay xanh) | tracker §4, §5 |
 | 13 | Người nhận rủi ro phương án B: *"owner"* → tên người ký `S2` — **chỉ làm sau khi Sếp ký** | `IR-07` (mục đính chính) · `data-inventory.md` · comment migration/entity · mô tả OAS ở bản contract kế tiếp |
-| 14 | Bàn giao: `13` file bẩn (`10` chỉ lệch CRLF/LF) · sweep chỉ `39/39` khi chạy từ Git Bash | `plan/BAN-GIAO-phien-moi-2026-09-17.md` |
+| 14 | Bàn giao: `13` file bẩn (`10` chỉ lệch CRLF/LF) · sweep chỉ `39/39` khi chạy từ Git Bash — *sửa `17/09`: `git status` sạch từ `5d5f96b`; sweep nay `40` gate (`W-0313`)* | `plan/BAN-GIAO-phien-moi-2026-09-17.md` |
 | 15 | ✅ **`W-0313`** — *thêm khi làm Lô 1, Toàn duyệt `17/09`.* Job CI `pii_scan` (`allow_failure: false`) đỏ ở mọi commit từ `257cbef`: `41` dòng **báo nhầm** ở `13` README `W-0297`…`W-0311` — từ tiếng Việt thông dụng trùng mẫu địa chỉ. Đổi từ, **không** nới mẫu; thêm `scan-pii.sh docs/evidence` vào phần *Kiểm* của mọi lô, vì gate sweep chỉ chạy selftest của nó. **Đã làm bằng gate thay cho luật:** sweep nay chạy chính lần quét đó trên `docs/evidence` | `13` README evidence · `deploy/ci/gate-invocations.json` |
 | 16 | ✅ **`W-0313`** — *như trên.* `IR-06 §3.4.1` vẫn tả intake **trước** `W-0302` (chiều *muộn* *"hỏng ở persistence"*), trái với dòng `1311` của chính nó | `IR-06` · re-pin `7` nơi |
 | 17 | ✅ **`W-0313`** — *như trên.* `IR-07` `A-9` *"metadata giữ 90 ngày"* lệch với `S3` (Toàn chốt: toàn bộ dữ liệu). Cũng sửa câu giống hệt ở `IR-06` | `IR-07` mục *Đính chính bổ sung* · `IR-06` |
 | 18 | ✅ **`W-0313`** — *thêm `17/09`.* `00-CHUA-XONG.md` `m8-09` vẫn ghi *"chờ owner quyết A hay B"* dù đã chọn B ngày `09/09` (`W-0248`) | `plan/ivr-orther/00-CHUA-XONG.md` |
 | 19 | ✅ **`W-0313`** (follow-up `A-0640`) — *thấy khi làm `W-0313`, Toàn duyệt `17/09`.* `specs/api/06-error-codes.md` thiếu `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` của `W-0302`; sửa cùng hai con số đếm trong file | `specs/api/06-error-codes.md` |
+| 20 | 🆕 *Thấy khi làm follow-up mục `19`, chờ Toàn duyệt.* Gate `dr-selftest.mjs` hết giờ ở trần mặc định `180s` của sweep — `W-0279` một lần, `17/09` ba lần liên tiếp; chạy lại thì PASS. Log sweep ghi gate ở `130`–`176s`, một lần đo với trần `600s` ra `193.5s`: vượt thật, không treo, nguyên nhân chưa rõ. **Đề xuất:** thêm `"timeoutMs": 300000` cho gate này, như `gate-status.mjs` đã có — vẫn bắt được treo. Không duyệt thì giữ cách `W-0279`: hết giờ thì chạy lại `--only` | `deploy/ci/gate-invocations.json` |
 
-**Kiểm:** gate sweep `39/39` · `gate-status.mjs --write` · quét pin `0` lệch — sửa file bị ghim thì re-pin
+**Kiểm:** gate sweep `40/40` *(từ `W-0313`)* · `gate-status.mjs --write` · quét pin `0` lệch — sửa file bị ghim thì re-pin
 ngay trong lượt, tính trên byte LF.
 
 ### Lô 4 · Mở lại nhánh VieNeu (`S4`)
@@ -388,7 +389,7 @@ tồn tại.
    - README evidence tồn tại đúng đường dẫn trong `gate-status.yaml` và mang `REAL_CUSTOMER_CALL_ALLOWED=NO`
    - mọi `TestId` trong evidence có trong `docs/traceability-tests.md` và xanh ở `HEAD`
    - cột *Residual/next* không còn việc thuộc về IVR — chỉ còn việc chờ bên ngoài
-   - gate sweep `39/39` tại commit nghiệm thu
+   - gate sweep `40/40` *(từ `W-0313`)* tại commit nghiệm thu
 2. Script **chỉ đọc** lập danh sách đề nghị cho từng đợt theo phase (`P0`…`P11`, `UNPLANNED`): đạt hoặc không
    đạt, kèm lý do.
 3. **Toàn duyệt từng đợt** và tự chuyển trạng thái sang `ACCEPTED` — agent chỉ chuẩn bị danh sách.
