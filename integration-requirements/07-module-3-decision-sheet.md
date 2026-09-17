@@ -626,3 +626,41 @@ Ký là xác nhận: **đã đọc Phần A** (và không phản đối mục n�
 ______________________________________________________________________________
 
 ______________________________________________________________________________
+
+---
+
+## Đính chính `2026-09-17` — contract `1.0.0-draft.31` (`W-0312`)
+
+> Phần trên là **bản đã gửi Module 3**, giữ nguyên từng chữ. Mục này sửa những câu trong đó **không còn
+> đúng**, hoặc **chưa từng đúng**, tính tới `1.0.0-draft.31`. Chỗ nào mục này nói khác phần trên thì
+> **mục này thắng**.
+
+**Nếu chỉ đọc một câu:** *`draft.30` vẫn bắt buộc `dial_token`; từ `draft.31`, gửi riêng `phone_e164` là đủ.*
+
+| Chỗ trong phiếu | Phiếu ghi | Đúng là |
+| --- | --- | --- |
+| Đầu phiếu · Phần 0 dòng `1` · `D-1` | Contract hiện hành `1.0.0-draft.30` | **`1.0.0-draft.31`** — [changelog `30→31`](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.30-to-v1.0.0-draft.31.md). **Không breaking**: body nào hợp lệ theo contract `draft.30` vẫn hợp lệ ở `draft.31`, và từ `draft.27` tới `draft.31` vẫn không có breaking nào (Phần 0 dòng `3b`) |
+| `A-5` | Ở `draft.30`, M3 gửi `phone_e164` **hoặc** cặp token | **Ở `draft.30` câu này sai.** Contract vẫn bắt buộc `dial_token` + `dial_token_expires_at`, nên body chỉ có số bị `400`. Ở production còn nặng hơn: task nào cũng bị từ chối, kể cả task gửi cả số lẫn token. **Từ `draft.31` câu này đúng** |
+| `A-5` | *"Gửi cả hai thì `phone_e164` thắng, token bị bỏ qua"* | Số thắng **lúc quay**. Nhưng token **không** bị bỏ qua **lúc nhận**: đã gửi token thì phải gửi đủ cặp, và `dial_token_expires_at` vẫn phải bằng đúng window end (Phần C mục `2`). Token sai ⇒ task bị từ chối **dù số đúng**. Cách đơn giản nhất: **gửi số thì đừng gửi field token nào** |
+| `A-6` | Số chỉ nằm trong bộ nhớ tiến trình, *"không DB"* | **Không còn đúng từ `17/09` (`W-0311`).** IVR **lưu** `phone_e164` trong bảng task, vì cửa sổ xác nhận dài `5–15` phút và lần gọi thứ hai phải sống qua một lần khởi động lại worker. Vẫn đúng: log, callback và API quản trị chỉ mang `phone_masked`; số chỉ được **dùng** ở đúng một chỗ — lúc quay |
+| `A-12` | `23` field bắt buộc | **`21`.** `dial_token` và `dial_token_expires_at` không còn bắt buộc riêng lẻ; luật *"số **hoặc** cặp token"* nằm ở [`IR-06`](06-module-3-api-handover.md) §3.4.0 |
+| Phần 0 dưới bảng · `D-2` | Fixture có `35` ca: `9` task hợp lệ, `13` sai schema, `13` bị domain từ chối | **`39` ca**: `10` task hợp lệ — thêm `golden-hour-online-number-only`, body **chỉ có số**, đúng dạng M3 sẽ gửi — `16` sai schema (thêm `3` ca: thiếu cả số lẫn token · số bên cạnh nửa cặp token · số có `0` đứng đầu), `13` bị domain từ chối |
+| Phần C mục `2` | *"gửi `phone_e164` thì bỏ qua mục này"* | Bỏ qua được khi gửi số **không kèm** field token nào — xem dòng `A-5` thứ hai ở trên |
+| `D-8` | `phone_e164` *"tuỳ chọn ở `draft.30`, bắt buộc ở bản kế tiếp"* | `draft.31` **chưa** bắt buộc số — nó **bỏ bắt buộc token**. Bản bắt buộc `phone_e164` là bản **breaking**; IVR chỉ phát bản đó **sau khi Module 3 xác nhận đã gửi số**, kèm changelog báo trước |
+
+### `draft.31` trả `400 IVR_MALFORMED_REQUEST` khi
+
+- Không có số, cũng không có token.
+- Có **nửa** cặp token — `dial_token` mà thiếu `dial_token_expires_at`, hoặc ngược lại — **kể cả khi có số**.
+- `phone_e164` sai mẫu `^\+84[0-9]{9}$`: `0` đứng đầu, thiếu `+`, thừa hoặc thiếu chữ số, có khoảng trắng,
+  xuống dòng ở cuối, chuỗi rỗng. *(Mẫu này đã có trong contract từ `draft.30` nhưng runtime chưa kiểm;
+  `draft.31` kiểm.)*
+
+Mã `400` **không nêu tên field**. Mô tả cũ trong contract hứa điều đó; `draft.31` bỏ lời hứa thay vì để
+M3 dựng xử lý lỗi dựa vào nó.
+
+### Thử ngay trên sandbox
+
+`task_id` = `TASK-M3-NUMBER`: body chỉ có `phone_e164`, ra `IVR_CONFIRMED`, Module 3 nhận callback —
+[`IR-08`](08-module-3-sandbox-guide.md) mục `6`. `pnpm sandbox:examples` chạy **28** ví dụ, gồm cả lượt này
+và ca *"nửa cặp token"* bị `400`.

@@ -10,6 +10,27 @@ and does not approve the external Sales contract.
 
 ## Current comparisons
 
+> **`1.0.0-draft.31` (W-0312)** nới `dial_token` + `dial_token_expires_at` từ *bắt buộc* thành
+> *"cặp token **hoặc** số"*. **Không breaking**: mọi body hợp lệ ở `draft.30` vẫn hợp lệ —
+> `oasdiff` ghi `3` info, `0` warning, `0` error, cả `30→31` lẫn `27→31`.
+>
+> ⚠️ **Đính chính mục `draft.30` ngay dưới — hai câu trong đó không đúng với `draft.30`.**
+> *"Hai shape cùng được chấp nhận"*: mảng `required` vẫn đòi cặp token, nên body chỉ có
+> `phone_e164` bị `400`; thêm nữa ở production intake luôn mã hoá token bằng bộ mã hoá mà phương
+> án B đã bỏ, nên **không task nào được nhận**, kể cả task gửi cả số lẫn token. *"Chặn ở schema cho
+> `400` nêu tên field"*: không chỗ nào thi hành pattern đó, và `400` không nêu tên field. `draft.31`
+> làm câu thứ nhất thành sự thật và thi hành pattern; phần *"nêu tên field"* được **bỏ khỏi đặc
+> tả** thay vì thêm hành vi.
+>
+> Luật nằm trong **một `anyOf`**: `phone_e164` **không kèm field token nào**, hoặc **đủ cặp**
+> `dial_token` + `dial_token_expires_at`; gửi cả ba cũng được. **Nửa cặp** — kể cả khi có số — bị
+> `400`. Viết thành một `anyOf` có nhánh `not` chứ không phải `anyOf` cộng `dependentRequired`: hai
+> cách viết từ chối đúng cùng các kiểu body (đã đo trên `11` kiểu), nhưng `oasdiff` xếp
+> `dependentRequired` và một `allOf` thêm vào là breaking.
+>
+> Cùng bản: `3` endpoint dev-tooling ghi quyền `IVR_DEV_TOOLING` — quyền không tồn tại — nay ghi
+> đúng scope `ivr.admin.write` mà route thực đòi.
+>
 > **`1.0.0-draft.30` (W-0310)** thêm **một field tuỳ chọn** vào task: `phone_e164` — số điện
 > thoại khách, gửi thẳng. **Không breaking**: chỉ là thêm một field optional, producer cũ không
 > phải đổi gì.
@@ -85,7 +106,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.30` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.31` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,

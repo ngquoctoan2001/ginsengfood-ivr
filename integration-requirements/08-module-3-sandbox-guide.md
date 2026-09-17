@@ -63,7 +63,7 @@ curl -s -X POST http://127.0.0.1:58080/v1/ivr/order-confirmation/dev/seed:load \
   -d '{"reason":"chuan bi sandbox","rebase_windows":true}'
 ```
 
-Trả về `task_count: 9`. Lệnh này cũng ghi luôn chính sách số lần gọi, nên chạy một lần là đủ.
+Trả về `task_count: 10`. Lệnh này cũng ghi luôn chính sách số lần gọi, nên chạy một lần là đủ.
 
 > `rebase_windows: true` dời cửa sổ xác nhận của từng mẫu về **bây giờ**. Các mẫu trong repo ghi cứng
 > mốc tháng 8/2026; nạp nguyên văn thì mẫu nào cũng bị từ chối vì hết hạn.
@@ -76,8 +76,9 @@ Trả về `task_count: 9`. Lệnh này cũng ghi luôn chính sách số lần 
 pnpm sandbox:examples
 ```
 
-Chạy **24 ví dụ** từ bên ngoài, đúng cách bạn sẽ gọi: 6 tình huống cuộc gọi chạy trọn vòng, 5 kiểu từ
-chối, và hạn mức. Kết quả ghi ra `.artifacts/sandbox/module-3-examples.json`.
+Chạy **28 ví dụ** từ bên ngoài, đúng cách bạn sẽ gọi: 6 tình huống cuộc gọi chạy trọn vòng, thêm một
+lượt **gửi số thay cho token** (`draft.31`) cũng chạy trọn vòng, 6 kiểu từ chối, và hạn mức. Kết quả ghi
+ra `.artifacts/sandbox/module-3-examples.json`.
 
 Script tự chờ API sẵn sàng, nên gõ liền sau `pnpm sandbox:up` là được. Nó cũng **tự từ chối chạy lần
 hai trên cùng dữ liệu** và chỉ đúng lệnh cần gõ — lý do ở mục 9.
@@ -154,6 +155,10 @@ Kết quả giả lập chọn theo **`task_id`**. Muốn tình huống nào th�
 | `TASK-M3-NOANSWER` | Đổ chuông không ai nghe, **còn lượt gọi** | `IVR_NO_ANSWER_ATTEMPT` | **Không** |
 | `TASK-M3-WRONGKEY` | Nghe máy, bấm phím ngoài menu | `IVR_WRONG_INPUT` | **Không** |
 | `TASK-M3-TECHNICAL` | Âm thanh phía IVR hỏng giữa cuộc | `IVR_TECHNICAL_EXCEPTION` | **Không** |
+
+**Gửi số thay cho token** (`draft.31`): `TASK-M3-NUMBER` chạy đúng như `TASK-M3-CONFIRM`, chỉ khác body
+mang `phone_e164` và **không có field token nào** — ra `IVR_CONFIRMED`, Module 3 **có** nhận. Đây không
+phải tình huống cuộc gọi thứ bảy, mà là cách gửi mà Module 3 sẽ dùng.
 
 **Ba dòng "Không" là điều khoản hợp đồng, không phải thiếu sót.** Khi còn lượt gọi, IVR im lặng và sẽ
 gọi lại. Bên nào coi im lặng là thất bại rồi tự huỷ đơn là đang huỷ đơn mà IVR vẫn đang làm.

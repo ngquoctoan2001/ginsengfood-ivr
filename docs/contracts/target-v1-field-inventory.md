@@ -11,12 +11,12 @@ Contract state: `TARGET_CONTRACT_V1=DRAFT`.
 
 | Contract | Version | Pinned sha256 |
 | --- | --- | --- |
-| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.30` | `b63929b4d9d71476b16e8d658d9a88f3001f82759011ead0db563ae15af0aab8` |
+| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.31` | `699c4cd66ac6852eaf80b0e759b82744bce9135665b372adc66054bc1ae1e075` |
 | Sales callback (`specs/api/openapi/order-core-ivr-callback.target-v1.yaml`) | `1.0.0-draft` | `af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
 
 ## 1. Intake — `IvrConfirmationTaskV1`
 
-Required: **23**. Optional: **14**. `additionalProperties: false`.
+Required: **21**. Optional: **16**. `additionalProperties: false`.
 
 | # | Required field |
 | ---: | --- |
@@ -37,12 +37,10 @@ Required: **23**. Optional: **14**. `additionalProperties: false`.
 | 15 | `attempt_offsets_seconds` |
 | 16 | `phone_ref` |
 | 17 | `phone_masked` |
-| 18 | `dial_token` |
-| 19 | `dial_token_expires_at` |
-| 20 | `privacy_safe_order_summary` |
-| 21 | `call_restriction` |
-| 22 | `eligibility_snapshot` |
-| 23 | `evidence_ref` |
+| 18 | `privacy_safe_order_summary` |
+| 19 | `call_restriction` |
+| 20 | `eligibility_snapshot` |
+| 21 | `evidence_ref` |
 
 | Optional field |
 | --- |
@@ -55,6 +53,8 @@ Required: **23**. Optional: **14**. `additionalProperties: false`.
 | `trusted_skip_allowed` |
 | `risk_flags` |
 | `phone_e164` |
+| `dial_token` |
+| `dial_token_expires_at` |
 | `call_script_template_id` |
 | `call_script_version` |
 | `allowed_script_variables` |

@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Prepares the local database, starts the Development API, loads all nine seed fixtures and
+    Prepares the local database, starts the Development API, loads all ten seed fixtures and
     replays SCN-001-confirm without requiring private environment variables (W-0191).
 
 .DESCRIPTION
@@ -8,9 +8,9 @@
     before touching Docker, applies migrations through the canonical local:prepare command, starts
     only Ivr.Api on an available loopback port, loads the seed set and asserts the confirm dry-run.
 
-    The safety posture is fixed to MOCK / MOCK / NO and no worker is started. Eight fixtures create
-    dry-run-only jobs; the ninth is expected to remain blocked by call_restriction. Re-running the
-    command is supported: the eight existing jobs are reported rather than duplicated.
+    The safety posture is fixed to MOCK / MOCK / NO and no worker is started. Nine fixtures create
+    dry-run-only jobs; TASK-TARGET-247-0005 is expected to remain blocked by call_restriction.
+    Re-running the command is supported: the nine existing jobs are reported rather than duplicated.
 
 .PARAMETER SkipBuild
     Reuse an existing Release build. Database preparation and runtime assertions still run.
@@ -178,7 +178,7 @@ try {
     Write-Host "  API: $apiUrl"
     Write-Host "  logs: $logDirectory"
 
-    Write-Step "Loading the nine committed task fixtures"
+    Write-Step "Loading the ten committed task fixtures"
     $seed = Invoke-DeveloperPost `
         -Uri "$developerRoot/seed:load" `
         -CorrelationId "bootstrap-$runId-seed" `
@@ -196,16 +196,16 @@ try {
     $restricted = @($seedOutcomes | Where-Object {
         $_.task_id -eq "TASK-TARGET-247-0005"
     })
-    if ([int] $seed.task_count -ne 9 -or $seedOutcomes.Count -ne 9) {
-        throw "Expected 9 seed outcomes, got task_count=$($seed.task_count) and outcomes=$($seedOutcomes.Count)."
+    if ([int] $seed.task_count -ne 10 -or $seedOutcomes.Count -ne 10) {
+        throw "Expected 10 seed outcomes, got task_count=$($seed.task_count) and outcomes=$($seedOutcomes.Count)."
     }
-    if ($jobBacked.Count -ne 8) {
-        throw "Expected 8 dry-run jobs (one fixture is call-restricted), got $($jobBacked.Count)."
+    if ($jobBacked.Count -ne 9) {
+        throw "Expected 9 dry-run jobs (one fixture is call-restricted), got $($jobBacked.Count)."
     }
     if ($restricted.Count -ne 1 -or -not [string]::IsNullOrWhiteSpace([string] $restricted[0].ivr_call_job_id)) {
         throw "The call-restricted fixture was not preserved as a no-job outcome."
     }
-    Write-Host "  seed: 9/9 outcomes, 8 dry-run jobs, 1 call-restricted fixture"
+    Write-Host "  seed: 10/10 outcomes, 9 dry-run jobs, 1 call-restricted fixture"
 
     Write-Step "Replaying SCN-001-confirm without dispatch"
     $scenario = Invoke-DeveloperPost `

@@ -38,7 +38,7 @@ public sealed class TaskIntakeContractTests
         string openApi = await File.ReadAllTextAsync(FindRepositoryFile(
             "specs", "api", "openapi", "ivr-order-confirmation.v1.yaml"));
 
-        Assert.Contains("version: 1.0.0-draft.30", openApi, StringComparison.Ordinal);
+        Assert.Contains("version: 1.0.0-draft.31", openApi, StringComparison.Ordinal);
         Assert.Contains(
             "M3 has already decided that the order requires a call",
             openApi,
@@ -101,6 +101,11 @@ public sealed class TaskIntakeContractTests
 
         Assert.Contains("golden-hour-online-confirmable", taskScenarios);
         Assert.Contains("twenty-four-seven-cod-confirmable", taskScenarios);
+
+        // W-0312. The shape Module 3 was told to send has to exist in the catalogue it builds from.
+        Assert.Contains("golden-hour-online-number-only", taskScenarios);
+        Assert.Contains("NEG-SCHEMA-CONTACT-ROUTE-01", schemaIds);
+        Assert.Contains("NEG-SCHEMA-TOKEN-PAIR-01", schemaIds);
         Assert.Contains("NEG-SCHEMA-FLAG-ABSENT-01", schemaIds);
         Assert.Contains("NEG-SCHEMA-EVIDENCE-01", schemaIds);
         Assert.Contains("NEG-DOMAIN-PII-01", domainIds);

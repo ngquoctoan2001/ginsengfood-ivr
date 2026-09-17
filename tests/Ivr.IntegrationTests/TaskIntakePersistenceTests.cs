@@ -1,7 +1,10 @@
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
+using Ivr.Domain.Ports;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Observability;
@@ -14,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Telephony;
 
 namespace Ivr.IntegrationTests;
 
@@ -95,7 +99,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             task.CallScriptVersion);
         Assert.StartsWith("enc:mock-sha256:", task.DialTokenCiphertext,
             StringComparison.Ordinal);
-        Assert.DoesNotContain(source.Dial_token, task.DialTokenCiphertext,
+        Assert.DoesNotContain(source.Dial_token!, task.DialTokenCiphertext,
             StringComparison.Ordinal);
         TaskIntakeOutboxEntity outbox = await verification.TaskIntakeOutbox
             .AsNoTracking()
@@ -167,7 +171,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         Assert.Equal(0, await verification.TaskIntakeOutbox.CountAsync());
         Assert.Equal(1, await verification.IdempotencyKeys.CountAsync());
         AuditLogEntity audit = await verification.AuditLog.SingleAsync();
-        Assert.DoesNotContain(source.Dial_token, audit.DataJson, StringComparison.Ordinal);
+        Assert.DoesNotContain(source.Dial_token!, audit.DataJson, StringComparison.Ordinal);
         Assert.DoesNotContain(source.Phone_ref, audit.DataJson, StringComparison.Ordinal);
     }
 
@@ -259,9 +263,180 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
                 .ToArrayAsync());
     }
 
+    // W-0312. A number of the contract's shape. Nothing in this suite dials.
+    private const string SentNumber = "+84900000001";
+
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-NUMBER-DB-01")]
+    public async Task ANumberOnlyTaskPersistsItsNumberAndItsOwnDirectDialReference()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPoliciesAsync(factory);
+        TaskIntakeService service = CreateService(
+            factory,
+            new FixedTimeProvider(Now),
+            new UnavailableOpaqueValueProtector());
+        IvrConfirmationTaskV1 source = CreateTask(
+            taskId: "TASK-PG-NUMBER",
+            includeToken: false,
+            phoneE164: SentNumber);
+
+        TaskIntakeOutcome outcome = await service.IntakeAsync(new TaskIntakeCommand(
+            source,
+            "idem-pg-number",
+            source.Correlation_id!,
+            new string('1', 64),
+            ExecutionMode.Mock));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks
+            .AsNoTracking()
+            .SingleAsync();
+        Assert.Equal(SentNumber, task.PhoneE164);
+        Assert.Equal(ExpectedDirectReference("TASK-PG-NUMBER"), task.DialTokenCiphertext);
+        Assert.Equal(source.Confirmation_window_expires_at, task.DialTokenExpiresAt);
+    }
+
+    /// <summary>
+    /// W-0312. Where no protector exists a token beside a number is validated and then dropped: the
+    /// row keeps the task's direct-dial reference, so a value nothing could protect never reaches
+    /// the database.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-NUMBER-DB-02")]
+    public async Task ATokenBesideANumberIsNeverStoredWhereNoProtectorExists()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPoliciesAsync(factory);
+        TaskIntakeService service = CreateService(
+            factory,
+            new FixedTimeProvider(Now),
+            new UnavailableOpaqueValueProtector());
+        IvrConfirmationTaskV1 source = CreateTask(
+            taskId: "TASK-PG-NUMBER-TOKEN",
+            phoneE164: SentNumber);
+
+        TaskIntakeOutcome outcome = await service.IntakeAsync(new TaskIntakeCommand(
+            source,
+            "idem-pg-number-token",
+            source.Correlation_id!,
+            new string('2', 64),
+            ExecutionMode.Mock));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks
+            .AsNoTracking()
+            .SingleAsync();
+        Assert.Equal(ExpectedDirectReference("TASK-PG-NUMBER-TOKEN"), task.DialTokenCiphertext);
+        Assert.DoesNotContain(source.Dial_token!, task.DialTokenCiphertext, StringComparison.Ordinal);
+        Assert.Equal(SentNumber, task.PhoneE164);
+    }
+
+    /// <summary>
+    /// W-0312 changed nothing where a protector exists. LAB dials the alias its fingerprint maps to,
+    /// so a token beside a number must still be protected there, exactly as before.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-NUMBER-DB-03")]
+    public async Task ATokenBesideANumberIsStillProtectedWhereAProtectorExists()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPoliciesAsync(factory);
+        TaskIntakeService service = CreateService(factory, new FixedTimeProvider(Now));
+        IvrConfirmationTaskV1 source = CreateTask(
+            taskId: "TASK-PG-NUMBER-PROTECTED",
+            phoneE164: SentNumber);
+
+        TaskIntakeOutcome outcome = await service.IntakeAsync(new TaskIntakeCommand(
+            source,
+            "idem-pg-number-protected",
+            source.Correlation_id!,
+            new string('3', 64),
+            ExecutionMode.Mock));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks
+            .AsNoTracking()
+            .SingleAsync();
+        Assert.StartsWith("enc:mock-sha256:", task.DialTokenCiphertext, StringComparison.Ordinal);
+        Assert.Equal(SentNumber, task.PhoneE164);
+    }
+
+    /// <summary>
+    /// W-0312. The reason a direct-dial reference is one per task, run end to end: two number-only
+    /// tasks through intake into Postgres, then each dialled against the durable ledger with what
+    /// intake stored. The ledger binds a reference to the first task that dials with it, so if the
+    /// two ever shared one the second would be refused as bound to another task.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-NUMBER-DB-04")]
+    public async Task TwoNumberOnlyTasksCanEachDialAgainstTheDurableLedger()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPoliciesAsync(factory);
+        TaskIntakeService service = CreateService(
+            factory,
+            new FixedTimeProvider(Now),
+            new UnavailableOpaqueValueProtector());
+        foreach (string suffix in new[] { "A", "B" })
+        {
+            IvrConfirmationTaskV1 source = CreateTask(
+                taskId: string.Concat("TASK-PG-NUMBER-", suffix),
+                orderId: string.Concat("ORDER-PG-NUMBER-", suffix),
+                includeToken: false,
+                phoneE164: SentNumber);
+            TaskIntakeOutcome outcome = await service.IntakeAsync(new TaskIntakeCommand(
+                source,
+                string.Concat("idem-pg-number-", suffix),
+                source.Correlation_id!,
+                new string(suffix[0], 64),
+                ExecutionMode.Mock));
+            Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        }
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity[] tasks = await verification.ConfirmationTasks
+            .AsNoTracking()
+            .OrderBy(task => task.TaskId)
+            .ToArrayAsync();
+        Assert.Equal(2, tasks.Length);
+        Assert.NotEqual(tasks[0].DialTokenCiphertext, tasks[1].DialTokenCiphertext);
+
+        var ledger = new PostgresDialTokenResolveLedger(factory);
+        foreach (ConfirmationTaskEntity task in tasks)
+        {
+            var decision = await ledger.EvaluateAsync(
+                new DialTokenResolutionRequest(
+                    DialTokenReference.Create(task.DialTokenCiphertext, task.DialTokenExpiresAt),
+                    AttemptId.Create(string.Concat("attempt-", task.TaskId)),
+                    TaskId.Create(task.TaskId),
+                    MaxResolves: 3,
+                    DirectPhoneE164: task.PhoneE164),
+                Now);
+            Assert.True(decision.Allowed, decision.RefusalCode);
+        }
+    }
+
+    private static string ExpectedDirectReference(string taskId) =>
+        string.Concat(
+            "enc:direct:",
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(taskId))));
+
     private static TaskIntakeService CreateService(
         IDbContextFactory<IvrDbContext> factory,
-        TimeProvider clock) =>
+        TimeProvider clock,
+        IOpaqueValueProtector? protector = null) =>
         new(
             new PostgresTaskIntakeStore(factory, clock),
             new PostgresAttemptPolicyRegistry(factory),
@@ -269,7 +444,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
                 factory,
                 clock,
                 Options.Create(new ScriptContentOptions())),
-            new MockOnlyOpaqueValueProtector(),
+            protector ?? new MockOnlyOpaqueValueProtector(),
             SpeechSummaryLimits.Create(100, 100),
             clock,
             new CallingWindow(Options.Create(new CallingWindowOptions())),
@@ -353,7 +528,10 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         bool callRestriction = false,
         string policyVersion = CandidateAttemptPolicies.Version,
         TimeSpan? dialTokenExpiryOffsetFromWindowEnd = null,
-        string? taskId = null)
+        string? taskId = null,
+        string? orderId = null,
+        bool includeToken = true,
+        string? phoneE164 = null)
     {
         DateTimeOffset start = Now.AddMinutes(-1);
         return new IvrConfirmationTaskV1
@@ -362,7 +540,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             Task_id = taskId ?? (callRestriction ? "TASK-PG-REJECT" : "TASK-PG-ACCEPT"),
             Correlation_id = "corr-postgres-p2-1",
             Created_at = start,
-            Order_id = callRestriction ? "ORDER-PG-REJECT" : "ORDER-PG-ACCEPT",
+            Order_id = orderId ?? (callRestriction ? "ORDER-PG-REJECT" : "ORDER-PG-ACCEPT"),
             Order_code = "GF-PG-001",
             Order_code_short = "PG001",
             Order_version = "17",
@@ -379,9 +557,11 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             Phone_ref = "phone-ref-pg-p2-1",
             Phone_masked = "84xxxxx0001",
             Phone_validation_status = IvrConfirmationTaskV1Phone_validation_status.VALID,
-            Dial_token = "dial-token-pg-p2-1",
-            Dial_token_expires_at = start.AddMinutes(5)
-                + (dialTokenExpiryOffsetFromWindowEnd ?? TimeSpan.Zero),
+            Dial_token = includeToken ? "dial-token-pg-p2-1" : null,
+            Dial_token_expires_at = includeToken
+                ? start.AddMinutes(5) + (dialTokenExpiryOffsetFromWindowEnd ?? TimeSpan.Zero)
+                : null,
+            Phone_e164 = phoneE164,
             Privacy_safe_order_summary = new Ivr.Contracts.Generated.IvrServer.V1.PrivacySafeOrderSummary
             {
                 Customer_display_name = "chị An",

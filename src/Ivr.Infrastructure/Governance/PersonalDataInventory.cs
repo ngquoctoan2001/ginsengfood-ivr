@@ -117,7 +117,9 @@ public static class PersonalDataInventory
             "Replaced with a redacted value."),
         new("ivr_confirmation_tasks", "dial_token_ciphertext",
             "Encrypted dialling token. Reusable within one task up to a resolve ceiling "
-                + "(OD-V1-17), TTL bounded below by the confirmation window.",
+                + "(OD-V1-17), TTL bounded below by the confirmation window. For a task that "
+                + "reached IVR with a number instead (W-0312) it holds that task's direct-dial "
+                + "reference: the SHA-256 of task_id, which identifies no one.",
             PersonalDataLegalBasis.ContractPerformance,
             "Replaced with a redacted value; the token has expired long before erasure is possible."),
         new("ivr_confirmation_tasks", "phone_e164",

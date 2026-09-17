@@ -94,6 +94,11 @@ const requiredSchemaNegativeIds = [
   "NEG-SCHEMA-POLICY-VERSION-01",
   "NEG-SCHEMA-DIAL-TOKEN-01",
   "NEG-SCHEMA-PHONE-01",
+  // W-0312. The number-or-token-pair rule, one fixture per way to break it. They are the cases a
+  // Module 3 producer building the number shape gets wrong first.
+  "NEG-SCHEMA-CONTACT-ROUTE-01",
+  "NEG-SCHEMA-TOKEN-PAIR-01",
+  "NEG-SCHEMA-PHONE-E164-01",
 ];
 const schemaNegativeIds = new Set(seed.schema_negative.map((fixture) => fixture.id));
 for (const fixtureId of requiredSchemaNegativeIds) {

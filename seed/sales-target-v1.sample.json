@@ -223,6 +223,61 @@
       }
     },
     {
+      "scenario": "golden-hour-online-number-only",
+      "headers": { "Idempotency-Key": "idem-target-gh-0005", "X-Correlation-Id": "corr-target-gh-0005" },
+      "body": {
+        "contract_version": "ivr-order-confirmation.v1",
+        "task_id": "TASK-TARGET-GH-0005",
+        "correlation_id": "corr-target-gh-0005",
+        "created_at": "2026-08-12T03:00:00Z",
+        "order_id": "ORDER-TARGET-GH-0005",
+        "order_code": "GF-2026-GH-0005",
+        "order_code_short": "GH0005",
+        "order_version": "17",
+        "order_state": "CONFIRMING",
+        "payment_method_snapshot": "ONLINE",
+        "ivr_confirmation_required": true,
+        "program_code": "GOLDEN_HOUR",
+        "confirmation_window_started_at": "2026-08-12T03:00:00Z",
+        "confirmation_window_expires_at": "2026-08-12T03:05:00Z",
+        "attempt_policy_version": "mock-lab-v1",
+        "max_customer_attempts": 2,
+        "attempt_offsets_seconds": [0, 150],
+        "phone_ref": "phone-ref-fake-0005",
+        "phone_masked": "84xxxxx0001",
+        "phone_validation_status": "VALID",
+        "phone_e164": "+84900000001",
+        "privacy_safe_order_summary": {
+          "customer_display_name": "chị An",
+          "order_code_short": "GH0005",
+          "items": [
+            { "public_name": "Nước hồng sâm", "quantity": 2, "unit_label": "hộp" },
+            { "public_name": "Kẹo hồng sâm", "quantity": 1, "unit_label": "gói" }
+          ],
+          "total_amount": 560000,
+          "currency": "VND",
+          "delivery_area_short": "Quận 7, Thành phố Hồ Chí Minh",
+          "program_display_name": "Giờ Vàng",
+          "locale": "vi-VN"
+        },
+        "call_restriction": false,
+          "eligibility_snapshot": {
+            "decision": "ELIGIBLE",
+            "source": "fake-sales",
+            "source_version": "sales-eligibility-v1",
+            "captured_at": "2026-08-12T03:00:00Z",
+            "source_available": true,
+            "blockers": [],
+            "voice_restriction": {
+              "restricted": false,
+              "source_available": true,
+              "source_version": "sales-voice-v1"
+            }
+          },
+        "evidence_ref": "evidence://fake-sales/gh-0005"
+      }
+    },
+    {
       "scenario": "twenty-four-seven-cod-confirmable",
       "headers": { "Idempotency-Key": "idem-target-247-0001", "X-Correlation-Id": "corr-target-247-0001" },
       "body": {
@@ -595,6 +650,30 @@
       "id": "NEG-SCHEMA-EVIDENCE-01",
       "from": "golden-hour-online-confirmable",
       "remove": "evidence_ref",
+      "layer": "schema",
+      "expect_http": 400,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-CONTACT-ROUTE-01",
+      "from": "golden-hour-online-number-only",
+      "remove": "phone_e164",
+      "layer": "schema",
+      "expect_http": 400,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-TOKEN-PAIR-01",
+      "from": "golden-hour-online-number-only",
+      "add": { "dial_token": "dial-token-fake-gh-0005" },
+      "layer": "schema",
+      "expect_http": 400,
+      "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-PHONE-E164-01",
+      "from": "golden-hour-online-number-only",
+      "replace": { "phone_e164": "0900000001" },
       "layer": "schema",
       "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"

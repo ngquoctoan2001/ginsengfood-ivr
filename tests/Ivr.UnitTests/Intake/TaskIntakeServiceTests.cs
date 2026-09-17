@@ -354,7 +354,7 @@ public sealed class TaskIntakeServiceTests
 
         AuditLogEntry entry = Assert.Single(test.Audit.Entries);
         Assert.DoesNotContain("chị Tuyết", entry.DataJson, StringComparison.Ordinal);
-        Assert.DoesNotContain(source.Dial_token, entry.DataJson, StringComparison.Ordinal);
+        Assert.DoesNotContain(source.Dial_token!, entry.DataJson, StringComparison.Ordinal);
         Assert.DoesNotContain(source.Phone_ref, entry.DataJson, StringComparison.Ordinal);
         Assert.Contains(TaskIntakeDecisions.AcceptedDryRunOnly, entry.DataJson,
             StringComparison.Ordinal);
@@ -421,7 +421,83 @@ public sealed class TaskIntakeServiceTests
         Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
     }
 
-    private static TestContext CreateContext(DateTimeOffset? now = null)
+    // W-0312. Where no protector exists - every production deployment under option B, since the key
+    // store is what option B removed. Until W-0312 intake protected every token before anything
+    // else, so a deployment like this refused every task whichever shape Module 3 sent.
+    private static readonly UnavailableOpaqueValueProtector NoProtector = new();
+
+    // A number of the contract's shape. Nothing in this suite dials.
+    private const string SentNumber = "+84900000001";
+
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NUMBER-01")]
+    public async Task ANumberOnlyTaskIsAcceptedWhereNoProtectorExists()
+    {
+        using TestContext test = CreateContext(protector: NoProtector);
+        IvrConfirmationTaskV1 source = CreateTask(dialToken: null, phoneE164: SentNumber);
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        Assert.NotNull(outcome.IvrCallJobId);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NUMBER-02")]
+    public async Task ATokenBesideANumberIsAcceptedWhereNoProtectorExists()
+    {
+        using TestContext test = CreateContext(protector: NoProtector);
+        IvrConfirmationTaskV1 source = CreateTask(phoneE164: SentNumber);
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
+        Assert.NotNull(outcome.IvrCallJobId);
+    }
+
+    /// <summary>
+    /// The half of the old rule W-0312 had to keep. A token with no number beside it has nothing
+    /// else to dial, so where it cannot be protected it is still refused rather than stored raw.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NUMBER-03")]
+    public async Task ATokenAloneStillFailsClosedWhereNoProtectorExists()
+    {
+        using TestContext test = CreateContext(protector: NoProtector);
+        IvrConfirmationTaskV1 source = CreateTask();
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+
+        Assert.Equal(TaskIntakeDecisions.BlockedOperational, outcome.Decision);
+        Assert.Contains("DIAL_TOKEN_PROTECTION_UNAVAILABLE", outcome.BlockedReasons);
+        Assert.Null(outcome.IvrCallJobId);
+    }
+
+    /// <summary>
+    /// Skipping the token rules is for a task that sent no token. One that sent a token beside its
+    /// number is held to every token rule, or a producer's broken token would go unreported for as
+    /// long as its number happened to carry the call.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NUMBER-04")]
+    public async Task ATokenBesideANumberIsStillHeldToTheTokenRules()
+    {
+        using TestContext test = CreateContext();
+        IvrConfirmationTaskV1 source = CreateTask(
+            phoneE164: SentNumber,
+            dialTokenExpiresAt: Now.AddMinutes(1));
+
+        TaskIntakeOutcome outcome = await test.Service.IntakeAsync(Command(source));
+
+        Assert.Equal(TaskIntakeDecisions.RejectedContactInvalid, outcome.Decision);
+        Assert.Equal(
+            new[] { EligibilityReasonCodes.DialTokenExpiresBeforeWindow },
+            outcome.BlockedReasons);
+    }
+
+    private static TestContext CreateContext(
+        DateTimeOffset? now = null,
+        IOpaqueValueProtector? protector = null)
     {
         var clock = new FixedTimeProvider(now ?? Now);
         var audit = new InMemoryAuditLogger(clock);
@@ -436,7 +512,7 @@ public sealed class TaskIntakeServiceTests
             store,
             policies,
             scripts,
-            new MockOnlyOpaqueValueProtector(),
+            protector ?? new MockOnlyOpaqueValueProtector(),
             SpeechSummaryLimits.Create(100, 100),
             clock,
             new CallingWindow(Options.Create(new CallingWindowOptions())),
@@ -478,8 +554,9 @@ public sealed class TaskIntakeServiceTests
         bool ivrConfirmationRequired = true,
         string phoneMasked = "84xxxxx0001",
         string phoneRef = "phone-ref-p2-1",
-        string dialToken = "dial-token-p2-1",
-        DateTimeOffset? dialTokenExpiresAt = null)
+        string? dialToken = "dial-token-p2-1",
+        DateTimeOffset? dialTokenExpiresAt = null,
+        string? phoneE164 = null)
     {
         DateTimeOffset start = windowStart ?? Now.AddMinutes(-1);
         int windowSeconds = program == ProgramCode.GOLDEN_HOUR ? 300 : 900;
@@ -509,7 +586,10 @@ public sealed class TaskIntakeServiceTests
             Phone_masked = phoneMasked,
             Phone_validation_status = phoneStatus,
             Dial_token = dialToken,
-            Dial_token_expires_at = dialTokenExpiresAt ?? start.AddSeconds(windowSeconds),
+            Dial_token_expires_at = dialToken is null
+                ? null
+                : dialTokenExpiresAt ?? start.AddSeconds(windowSeconds),
+            Phone_e164 = phoneE164,
             Privacy_safe_order_summary = new Ivr.Contracts.Generated.IvrServer.V1.PrivacySafeOrderSummary
             {
                 Customer_display_name = customerDisplayName,

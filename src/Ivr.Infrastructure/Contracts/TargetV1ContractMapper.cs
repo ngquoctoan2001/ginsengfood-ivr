@@ -73,7 +73,16 @@ public sealed class TargetV1TaskMapper(
             programPayment,
             window,
             policy,
-            DialTokenReference.Create(source.Dial_token, source.Dial_token_expires_at),
+
+            // W-0312. A task that sent only phone_e164 has no token. It takes its own direct-dial
+            // reference, which expires with the confirmation window exactly as a token must.
+            source.Dial_token is null
+                ? DirectDialReference.Create(source.Task_id, source.Confirmation_window_expires_at)
+                : DialTokenReference.Create(
+                    source.Dial_token,
+                    source.Dial_token_expires_at
+                        ?? throw new InvalidOperationException(
+                            "dial_token_expires_at is required beside dial_token.")),
             speech,
             EvidenceReference.Create(source.Evidence_ref),
             string.IsNullOrWhiteSpace(source.Correlation_id)

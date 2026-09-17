@@ -1,5 +1,8 @@
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Contracts.Generated.SalesTarget.V1;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Infrastructure.Contracts;
@@ -161,13 +164,75 @@ public sealed class CallResultAndMapperTests
             await mapper.ToDomainAsync(CreateWireTask(), ExecutionMode.ProductionReal, CancellationToken.None));
     }
 
-    private static IvrConfirmationTaskV1 CreateWireTask()
+    /// <summary>
+    /// W-0312. A task that sent only its number takes a direct-dial reference where the token would
+    /// be, and it has to be one per task: the resolve ledger binds a reference to the first task that
+    /// dials with it, so a shared one would let a single number-only task dial and refuse the rest.
+    /// The expected value is computed here from the stated rule, not read back from the type.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NUMBER-05")]
+    public async Task ANumberOnlyTaskCarriesItsOwnDirectDialReference()
+    {
+        TargetV1TaskMapper mapper = new(
+            new FakeAttemptPolicyRegistry([TestData.Policy(AttemptPolicyApproval.CandidateMockLabOnly)]),
+            SpeechSummaryLimits.Create(20, 20));
+
+        ConfirmationTaskSnapshot first = await mapper.ToDomainAsync(
+            CreateWireTask(taskId: "task-number-1", numberOnly: true),
+            ExecutionMode.Mock,
+            CancellationToken.None);
+        ConfirmationTaskSnapshot second = await mapper.ToDomainAsync(
+            CreateWireTask(taskId: "task-number-2", numberOnly: true),
+            ExecutionMode.Mock,
+            CancellationToken.None);
+
+        Assert.Equal(
+            ExpectedDirectReference("task-number-1"),
+            first.DialToken.RevealToTrustedResolver());
+        Assert.Equal(first.ConfirmationWindow.ExpiresAt, first.DialToken.ExpiresAt);
+        Assert.NotEqual(
+            first.DialToken.RevealToTrustedResolver(),
+            second.DialToken.RevealToTrustedResolver());
+    }
+
+    /// <summary>
+    /// W-0312. The design rests on a claim: a direct-dial reference cannot trip the raw-phone guard,
+    /// because a digit run inside hex is never bounded by non-alphanumerics. A claim that carries a
+    /// design is measured, not asserted - here against task ids that are themselves phone-shaped.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-NUMBER-06")]
+    public void DirectDialReferencesNeverTripTheRawPhoneGuard()
+    {
+        DateTimeOffset expiresAt = new(2026, 8, 13, 1, 5, 0, TimeSpan.Zero);
+        IEnumerable<string> taskIds = Enumerable.Range(0, 5_000)
+            .Select(index => index.ToString("D10", CultureInfo.InvariantCulture))
+            .Concat(Enumerable.Range(0, 5_000)
+                .Select(index => string.Concat("TASK-", index.ToString(CultureInfo.InvariantCulture))));
+
+        foreach (string taskId in taskIds)
+        {
+            Exception? refused = Record.Exception(() =>
+                DialTokenReference.Create(ExpectedDirectReference(taskId), expiresAt));
+            Assert.Null(refused);
+        }
+    }
+
+    private static string ExpectedDirectReference(string taskId) =>
+        string.Concat(
+            "enc:direct:",
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(taskId))));
+
+    private static IvrConfirmationTaskV1 CreateWireTask(
+        string taskId = "task-1",
+        bool numberOnly = false)
     {
         DateTimeOffset start = new(2026, 8, 13, 1, 0, 0, TimeSpan.Zero);
         return new IvrConfirmationTaskV1
         {
             Contract_version = IvrConfirmationTaskV1Contract_version.IvrOrderConfirmation_v1,
-            Task_id = "task-1",
+            Task_id = taskId,
             Correlation_id = "correlation-1",
             Created_at = start,
             Order_id = "order-1",
@@ -189,8 +254,9 @@ public sealed class CallResultAndMapperTests
             Phone_ref = "phone-ref-1",
             Phone_masked = "***1234",
             Phone_validation_status = IvrConfirmationTaskV1Phone_validation_status.VALID,
-            Dial_token = "opaque-dial-token-1",
-            Dial_token_expires_at = start.AddSeconds(300),
+            Dial_token = numberOnly ? null : "opaque-dial-token-1",
+            Dial_token_expires_at = numberOnly ? null : start.AddSeconds(300),
+            Phone_e164 = numberOnly ? "+84900000001" : null,
             Privacy_safe_order_summary = new Ivr.Contracts.Generated.IvrServer.V1.PrivacySafeOrderSummary
             {
                 Customer_display_name = "Anh Đạt",

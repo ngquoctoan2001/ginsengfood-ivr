@@ -19,10 +19,13 @@ namespace Ivr.Infrastructure.Telephony;
 /// resolve instead of dialling something it could not secure.
 /// </para>
 /// <para>
-/// <c>OD-V1-18</c>. The revealed number is returned inside <see cref="DialAuthorization"/> and
-/// never written to the application database, a log, a trace, evidence or a callback. Nothing in
-/// this type puts it in an exception message either: a refusal names the token's task and the
-/// refusal code, because those identify the problem and the number does not.
+/// <c>OD-V1-18</c>. The revealed number is returned inside <see cref="DialAuthorization"/>, and this
+/// type never writes it to the application database, a log, a trace, evidence or a callback. That
+/// is a claim about this type and not about the database: since <c>W-0311</c> a number Module 3
+/// sends outright is already stored in <c>ivr_confirmation_tasks.phone_e164</c>, which is the part
+/// of <c>OD-V1-18</c> that option B replaced. Nothing in this type puts the number in an exception
+/// message either: a refusal names the token's task and the refusal code, because those identify
+/// the problem and the number does not.
 /// </para>
 /// </summary>
 public sealed class ProductionDialTokenVault(

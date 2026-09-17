@@ -461,7 +461,7 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
         {
             "intakeTask" => body?["decision"]?.ToString() == "TASK_ACCEPTED_DRY_RUN_ONLY" && body["ivr_call_job_id"] is not null,
             "recordEligibility" => body?["decision"]?.ToString() == "ELIGIBLE_FOR_IVR",
-            "loadDevSeed" => body?["task_count"]?.GetValue<int>() == 9 && body["accepted_count"]?.GetValue<int>() == 8,
+            "loadDevSeed" => body?["task_count"]?.GetValue<int>() == 10 && body["accepted_count"]?.GetValue<int>() == 9,
             "dryRunDevScenario" => body?["matches"]?.GetValue<bool>() == true && body["actual_result_type"]?.ToString() == "IVR_CONFIRMED",
             "applyDevIntegrationProfile" => body?["effects"]?.AsArray().Any(effect => effect?["detail"]?.ToString() == "1 channel(s) enabled") == true,
             "createScriptDraft" => body?["version"]?["status"]?.ToString() == "DRAFT",

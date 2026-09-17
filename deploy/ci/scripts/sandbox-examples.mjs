@@ -75,6 +75,12 @@ const SCENARIOS = [
   { taskId: "TASK-M3-CONFIRM", base: "golden-hour-online-confirmable",
     expectedResult: "IVR_CONFIRMED", final: true,
     note: "Customer answered and pressed 1." },
+  // W-0312. Not a seventh outcome but the shape Module 3 was told to send: the number, no token.
+  // It shares TASK-M3-CONFIRM's outcome, so any difference in the round trip is the shape and
+  // nothing else. Until draft.31 this task was refused with 400 before it could be dialled.
+  { taskId: "TASK-M3-NUMBER", base: "golden-hour-online-number-only",
+    expectedResult: "IVR_CONFIRMED", final: true,
+    note: "Sent phone_e164 instead of a dial token, then answered and pressed 1." },
   { taskId: "TASK-M3-CANCEL", base: "golden-hour-online-cancel",
     expectedResult: "IVR_CUSTOMER_CANCELLED", final: true,
     note: "Customer answered and pressed 0." },
@@ -260,8 +266,13 @@ function taskFrom(fixture, baseScenario, { taskId, correlationId }) {
   body.order_id = `ORDER-${suffix}`;
   body.order_code = `GF-2026-${suffix}`;
   body.correlation_id = correlationId;
-  // A dial token is bound to one task. Cloning a fixture must not clone its credential.
-  body.dial_token = `opaque-sandbox-${suffix}`;
+  // A dial token is bound to one task. Cloning a fixture must not clone its credential. A fixture
+  // that sends the number instead (draft.31) has no token to rename, and giving it one would build
+  // the half-pair shape the contract refuses.
+  if (typeof body.dial_token === "string") {
+    body.dial_token = `opaque-sandbox-${suffix}`;
+  }
+
   return body;
 }
 
@@ -536,6 +547,24 @@ async function negativeExamples(fixture) {
     { status: 422, code: "IVR_MISSING_TRACE" },
     { status: traceResult.status, code: traceResult.body?.error?.code ?? null },
     "body correlation_id must equal the X-Correlation-Id header");
+
+  // W-0312. The number beside half a token pair. Refused rather than dialled on the number, because
+  // a producer that sends half a token has a bug worth hearing about while it still has a number
+  // to hide behind.
+  const halfPair = taskFrom(fixture, "golden-hour-online-number-only", {
+    taskId: "TASK-M3-NEG-HALF-PAIR",
+    correlationId: "corr-m3-neg-half-pair",
+  });
+  halfPair.dial_token = "opaque-sandbox-M3-NEG-HALF-PAIR";
+  const halfPairResult = await call("POST", "/tasks", {
+    headers: orderCoreHeaders("corr-m3-neg-half-pair", "idem-m3-neg-half-pair"),
+    body: halfPair,
+  });
+  record(
+    "NEG-HALF-PAIR",
+    { status: 400, code: "IVR_MALFORMED_REQUEST" },
+    { status: halfPairResult.status, code: halfPairResult.body?.error?.code ?? null },
+    "phone_e164 beside a dial_token with no expiry: send the number alone, or the whole token pair");
 
   const replayBody = taskFrom(fixture, "golden-hour-online-confirmable", {
     taskId: "TASK-M3-NEG-REPLAY",

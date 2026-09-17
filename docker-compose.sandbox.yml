@@ -121,6 +121,15 @@ services:
       Ivr__Telephony__Mock__Scenarios__TASK-M3-CONFIRM__PlayDelayMilliseconds: "0"
       Ivr__Telephony__Mock__Scenarios__TASK-M3-CONFIRM__CaptureDelayMilliseconds: "0"
 
+      # W-0312. The number-only shape (draft.31), with TASK-M3-CONFIRM's outcome so the shape is the
+      # only difference. MOCK dials the allowlisted fake destination through the wildcard above and
+      # never reads phone_e164.
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NUMBER__Disposition: "Answered"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NUMBER__DtmfKey: "1"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NUMBER__DialDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NUMBER__PlayDelayMilliseconds: "0"
+      Ivr__Telephony__Mock__Scenarios__TASK-M3-NUMBER__CaptureDelayMilliseconds: "0"
+
       Ivr__Telephony__Mock__Scenarios__TASK-M3-CANCEL__Disposition: "Answered"
       Ivr__Telephony__Mock__Scenarios__TASK-M3-CANCEL__DtmfKey: "0"
       Ivr__Telephony__Mock__Scenarios__TASK-M3-CANCEL__DialDelayMilliseconds: "0"

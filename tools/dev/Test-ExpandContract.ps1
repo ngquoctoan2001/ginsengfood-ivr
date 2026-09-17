@@ -86,11 +86,11 @@ function Assert-Functional($Api) {
     $body = @{ reason = 'Synthetic PostgreSQL compatibility drill'; evidence_ref = "evidence://expand/$runId"; rebase_windows = $true } | ConvertTo-Json
     $root = "$($Api.Url)/v1/ivr/order-confirmation/dev"
     $seed = Invoke-RestMethod "$root/seed:load" -Method Post -Headers $headers -ContentType application/json -Body $body -TimeoutSec 30
-    if ($seed.task_count -ne 9 -or @($seed.tasks | Where-Object ivr_call_job_id).Count -ne 8) { throw 'Seed must report nine tasks and eight jobs' }
+    if ($seed.task_count -ne 10 -or @($seed.tasks | Where-Object ivr_call_job_id).Count -ne 9) { throw 'Seed must report ten tasks and nine jobs' }
     $headers['Idempotency-Key'] += '-scenario'
     $scenario = Invoke-RestMethod "$root/scenarios/SCN-001-confirm:dry-run" -Method Post -Headers $headers -ContentType application/json -Body $body -TimeoutSec 30
     if ($scenario.coverage -ne 'REPLAYED' -or $scenario.actual_result_type -ne 'IVR_CONFIRMED' -or !$scenario.matches) { throw 'Confirm replay did not match' }
-    $checks.Add("$($Api.Label): ready=200, seed=9/8, SCN-001-confirm=IVR_CONFIRMED")
+    $checks.Add("$($Api.Label): ready=200, seed=10/9, SCN-001-confirm=IVR_CONFIRMED")
     Write-Host $checks[$checks.Count - 1]
 }
 

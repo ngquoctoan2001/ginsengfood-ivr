@@ -270,18 +270,37 @@ public sealed class TaskIntakeService(
             command.ExecutionMode,
             MockPrivacyPolicyVersion);
         string protectedDialToken;
-        try
+        if (source.Dial_token is null)
         {
-            protectedDialToken = opaqueValueProtector.Protect(
-                "ivr-confirmation-task-dial-token",
-                source.Dial_token);
+            // W-0312. A task that sent only the number has no token to protect. It stores its
+            // direct-dial reference - the same value the snapshot above carries - and the dial path
+            // reads phone_e164.
+            protectedDialToken = DirectDialReference.ValueFor(source.Task_id);
         }
-        catch (InvalidOperationException)
+        else
         {
-            return Rejected(
-                source,
-                TaskIntakeDecisions.BlockedOperational,
-                "DIAL_TOKEN_PROTECTION_UNAVAILABLE");
+            try
+            {
+                protectedDialToken = opaqueValueProtector.Protect(
+                    "ivr-confirmation-task-dial-token",
+                    source.Dial_token);
+            }
+            catch (InvalidOperationException) when (!string.IsNullOrEmpty(source.Phone_e164))
+            {
+                // W-0312. A token beside a number, on a deployment with no protector for it. Under
+                // option B that is every production deployment, because the key store is what
+                // option B removed, so refusing here refused every task Module 3 could send. The
+                // production dial path dials the number, so the task keeps its direct-dial
+                // reference and a token nothing could protect is never persisted.
+                protectedDialToken = DirectDialReference.ValueFor(source.Task_id);
+            }
+            catch (InvalidOperationException)
+            {
+                return Rejected(
+                    source,
+                    TaskIntakeDecisions.BlockedOperational,
+                    "DIAL_TOKEN_PROTECTION_UNAVAILABLE");
+            }
         }
 
         return Accepted(
@@ -422,24 +441,36 @@ public sealed class TaskIntakeService(
             return EligibilityReasonCodes.PhoneMaskedNotMasked;
         }
 
-        if (source.Dial_token_expires_at <= now)
+        // W-0312. The token rules are rules about a token. A task that sent only phone_e164 carries
+        // none, so every check below that reads one is skipped for it - and only for it: a token
+        // that did arrive is held to all of them, with or without a number beside it.
+        string? dialToken = source.Dial_token;
+        DateTimeOffset tokenExpiresAt = default;
+        if (dialToken is not null)
         {
-            return EligibilityReasonCodes.DialTokenAlreadyExpired;
-        }
+            // An absent expiry beside a token cannot arrive over the wire - the schema refuses half
+            // a pair - so this only answers in-process callers, and it answers fail-closed.
+            if (source.Dial_token_expires_at is not DateTimeOffset expiresAt || expiresAt <= now)
+            {
+                return EligibilityReasonCodes.DialTokenAlreadyExpired;
+            }
 
-        // W-0302. These two together say dial_token_expires_at == window.ExpiresAt, which is what
-        // OD-V1-17 settled on 2026-09-09. They stay as two rules rather than one equality check so
-        // the answer names the direction the producer got wrong; a single
-        // DIAL_TOKEN_EXPIRY_MISMATCH would make the caller diff the timestamps to find out which
-        // way.
-        if (source.Dial_token_expires_at < window.ExpiresAt)
-        {
-            return EligibilityReasonCodes.DialTokenExpiresBeforeWindow;
-        }
+            tokenExpiresAt = expiresAt;
 
-        if (source.Dial_token_expires_at > window.ExpiresAt)
-        {
-            return EligibilityReasonCodes.DialTokenExpiresAfterWindow;
+            // W-0302. These two together say dial_token_expires_at == window.ExpiresAt, which is
+            // what OD-V1-17 settled on 2026-09-09. They stay as two rules rather than one equality
+            // check so the answer names the direction the producer got wrong; a single
+            // DIAL_TOKEN_EXPIRY_MISMATCH would make the caller diff the timestamps to find out
+            // which way.
+            if (tokenExpiresAt < window.ExpiresAt)
+            {
+                return EligibilityReasonCodes.DialTokenExpiresBeforeWindow;
+            }
+
+            if (tokenExpiresAt > window.ExpiresAt)
+            {
+                return EligibilityReasonCodes.DialTokenExpiresAfterWindow;
+            }
         }
 
         if (LooksLikeRawPhone(source.Phone_ref))
@@ -447,14 +478,18 @@ public sealed class TaskIntakeService(
             return EligibilityReasonCodes.PhoneRefLooksLikeRawPhone;
         }
 
-        if (LooksLikeRawPhone(source.Dial_token))
+        if (dialToken is not null && LooksLikeRawPhone(dialToken))
         {
             return EligibilityReasonCodes.DialTokenLooksLikeRawPhone;
         }
 
         try
         {
-            _ = DialTokenReference.Create(source.Dial_token, source.Dial_token_expires_at);
+            if (dialToken is not null)
+            {
+                _ = DialTokenReference.Create(dialToken, tokenExpiresAt);
+            }
+
             PiiGuard.EnsureSafeText(source.Phone_ref);
             PiiGuard.EnsureSafeText(source.Phone_masked);
             return null;
@@ -751,10 +786,12 @@ public sealed class TaskIntakeService(
             PhoneValidationStatus = source.Phone_validation_status.ToString(),
             DialTokenCiphertext = protectedDialToken,
             DialTokenExpiresAt = snapshot.DialToken.ExpiresAt,
-            // W-0310 option B. Stored exactly as the producer sent it and nowhere else. The schema
-            // validates the shape (+84 and nine digits) before this point, so there is nothing to
-            // normalise here; normalising silently is how a number that was wrong on the wire
-            // becomes a call to somebody else's phone.
+            // W-0311 option B. Stored exactly as the producer sent it and nowhere else. On the wire
+            // TaskIntakeEndpoint.ValidateSchema has already held it to the contract's pattern (+84
+            // and nine digits) - since W-0312; draft.30 only declared that pattern and nothing
+            // enforced it. The seed loader's fixtures are held to the same pattern by
+            // validate-openapi.mjs. So there is nothing to normalise here, and normalising silently
+            // is how a number that was wrong on the wire becomes a call to somebody else's phone.
             //
             // Both shapes are written during the cutover because both can arrive. Which one the
             // dial uses is decided at dial time by PostgresTelephonyDispatchStore, not here -- a

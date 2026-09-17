@@ -330,9 +330,9 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public required IvrConfirmationTaskV1Phone_validation_status Phone_validation_status { get; init; }
 
         /// <summary>
-        /// The customer's telephone number, sent outright. W-0310: the owner chose on 2026-09-17 that Module 3 sends the number rather than issuing a dial token IVR decrypts, which removes the key store and the token issuer Module 3 had not built, and makes OD-V1-05, OD-V1-17 and OD-V1-18 moot.
-        /// <br/>Optional in this version and required in the next. Both shapes are accepted during the cutover so that Module 3 can move without a synchronised release: send phone_e164 OR dial_token plus dial_token_expires_at. When both arrive, phone_e164 wins and the token is ignored.
-        /// <br/>The pattern is deliberately narrow - +84 and exactly nine digits - because the only numbers this system dials are Vietnamese mobiles and a leading zero or a missing plus is the most common producer error. Rejecting it at schema validation gives 400 IVR_MALFORMED_REQUEST naming the field, rather than a call that never connects.
+        /// The customer's telephone number, sent outright. W-0311: the owner chose on 2026-09-17 that Module 3 sends the number rather than issuing a dial token IVR decrypts, which removes the key store and the token issuer Module 3 had not built.
+        /// <br/>Send phone_e164, or dial_token together with dial_token_expires_at - at least one of the two, and the token fields only as a complete pair; both rules live in the one anyOf on this schema. draft.30 described both shapes as accepted while its required list still demanded the token pair, so a task carrying only the number was refused with 400; draft.31 (W-0312) makes the schema say what that paragraph meant. When a number and a token arrive together the token is still validated, and on the production dial path the number is what gets dialled. phone_e164 becomes required in a later version, and that is the breaking step.
+        /// <br/>The pattern is deliberately narrow - +84 and exactly nine digits - because the only numbers this system dials are Vietnamese mobiles and a leading zero or a missing plus is the most common producer error. Intake checks it before anything is stored and answers 400 IVR_MALFORMED_REQUEST, rather than accepting a number that could never connect.
         /// <br/>Never logged, never echoed in a callback, never returned by an admin endpoint. phone_masked remains the field for every one of those.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("phone_e164")]
@@ -340,18 +340,16 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public string? Phone_e164 { get; init; }
 
         /// <summary>
-        /// Opaque token; never a raw phone number.
+        /// Opaque token; never a raw phone number. Required unless phone_e164 is sent, and only together with dial_token_expires_at.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("dial_token")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public required string Dial_token { get; init; }
+        public string? Dial_token { get; init; }
 
         /// <summary>
-        /// Must equal confirmation_window_expires_at exactly. OD-V1-17 settled that on 2026-09-09, replacing an earlier "window end + 60s" clause that was never implementable - a task built to it passed intake and then threw inside the persistence transaction. W-0302 makes both directions answer the same way: a token expiring before the window end returns 422 IVR_CONTACT_INVALID with reason DIAL_TOKEN_EXPIRES_BEFORE_WINDOW, and one expiring after it returns the same 422 with DIAL_TOKEN_EXPIRES_AFTER_WINDOW. Before W-0302 the late case returned 500 IVR_INTERNAL_ERROR, which a producer is entitled to retry - so a payload that could never be accepted would have been retried indefinitely. The rule is not expressed as a schema constraint because JSON Schema cannot compare two sibling values; it is a runtime rule, and this description is where the wire records it.
+        /// Required together with dial_token. Must equal confirmation_window_expires_at exactly. OD-V1-17 settled that on 2026-09-09, replacing an earlier "window end + 60s" clause that was never implementable - a task built to it passed intake and then threw inside the persistence transaction. W-0302 makes both directions answer the same way: a token expiring before the window end returns 422 IVR_CONTACT_INVALID with reason DIAL_TOKEN_EXPIRES_BEFORE_WINDOW, and one expiring after it returns the same 422 with DIAL_TOKEN_EXPIRES_AFTER_WINDOW. Before W-0302 the late case returned 500 IVR_INTERNAL_ERROR, which a producer is entitled to retry - so a payload that could never be accepted would have been retried indefinitely. The rule is not expressed as a schema constraint because JSON Schema cannot compare two sibling values; it is a runtime rule, and this description is where the wire records it.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("dial_token_expires_at")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public required System.DateTimeOffset Dial_token_expires_at { get; init; }
+        public System.DateTimeOffset? Dial_token_expires_at { get; init; }
 
         [System.Text.Json.Serialization.JsonPropertyName("privacy_safe_order_summary")]
         [System.ComponentModel.DataAnnotations.Required]

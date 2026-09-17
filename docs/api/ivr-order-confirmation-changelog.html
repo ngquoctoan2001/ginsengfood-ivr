@@ -3,7 +3,7 @@
 <title>IVR API Changelog · Ginsengfood IVR</title><link rel="stylesheet" href="styles.css"></head>
 <body><main class="container document"><nav><a href="index.html">← Portal home</a></nav>
 <header><div class="badge warning">NON-PRODUCTION ONLY</div><h1>IVR API Changelog</h1>
-<p class="source">Source: <code>docs/api/changelog/ivr-order-confirmation.md</code></p></header><h1>API Changelog 1.0.0-draft.27 vs. 1.0.0-draft.30</h1>
+<p class="source">Source: <code>docs/api/changelog/ivr-order-confirmation.md</code></p></header><h1>API Changelog 1.0.0-draft.27 vs. 1.0.0-draft.31</h1>
 <h2>API Changes</h2>
 <h3>GET /audit-evidence</h3>
 <ul>
@@ -12,6 +12,9 @@
 <h3>POST /tasks</h3>
 <ul>
 <li>added the new optional request property <code>phone_e164</code></li>
+<li>added <code>subschema #1, subschema #2</code> to the request body <code>anyOf</code> list</li>
+<li>the request property <code>dial_token</code> became optional</li>
+<li>the request property <code>dial_token_expires_at</code> became optional</li>
 </ul>
 
 <footer>Generated content. Edit the named source, not this HTML.</footer></main></body></html>

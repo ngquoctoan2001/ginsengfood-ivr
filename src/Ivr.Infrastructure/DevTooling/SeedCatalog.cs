@@ -79,7 +79,7 @@ public sealed class SeedCatalog(IOptions<DevToolingOptions> options)
     /// <para>
     /// The fixtures carry absolute instants in August 2026 with windows five to fifteen minutes
     /// long, so loaded as written every one of them is refused with
-    /// <c>ORDER_NOT_CALLABLE_OR_WINDOW_EXPIRED</c>: the loader would return nine rejections and no
+    /// <c>ORDER_NOT_CALLABLE_OR_WINDOW_EXPIRED</c>: the loader would return ten rejections and no
     /// usable rehearsal. Rebasing is what makes the fixture set loadable at all.
     /// </para>
     /// <para>

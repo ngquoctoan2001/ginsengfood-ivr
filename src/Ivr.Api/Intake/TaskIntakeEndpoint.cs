@@ -1,5 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Ivr.Api.Auth;
 using Ivr.Api.Middleware;
 using Ivr.Contracts.Generated.IvrServer.V1;
@@ -187,6 +191,36 @@ public static class TaskIntakeEndpoint
         foreach (string field in RequiredTaskStringProperties)
         {
             EnsureNonBlankString(root.GetProperty(field), field);
+        }
+
+        // W-0312. The single anyOf on IvrConfirmationTaskV1, as a runtime rule: the full token
+        // pair, or the number with no token field beside it. Half a pair is refused whether or not
+        // a number came with it, because a producer that sent half a token has a bug worth hearing
+        // about even on the days the number would have carried the call.
+        bool hasToken = root.TryGetProperty("dial_token", out JsonElement dialToken);
+        bool hasTokenExpiry = root.TryGetProperty("dial_token_expires_at", out _);
+        bool hasNumber = root.TryGetProperty("phone_e164", out _);
+        bool tokenPair = hasToken && hasTokenExpiry;
+        bool numberAlone = hasNumber && !hasToken && !hasTokenExpiry;
+        if (!tokenPair && !numberAlone)
+        {
+            throw new InvalidDataException(
+                "A task carries the dial-token pair or phone_e164 with no token field.");
+        }
+
+        if (hasToken)
+        {
+            EnsureNonBlankString(dialToken, "dial_token");
+        }
+
+        foreach ((string wireName, Regex pattern) in TaskPatternProperties)
+        {
+            if (root.TryGetProperty(wireName, out JsonElement patterned)
+                && (patterned.ValueKind != JsonValueKind.String
+                    || !pattern.IsMatch(patterned.GetString()!)))
+            {
+                throw new InvalidDataException(string.Concat(wireName, " violates its pattern."));
+            }
         }
 
         if (root.GetProperty("call_restriction").ValueKind is not (
@@ -414,7 +448,7 @@ public static class TaskIntakeEndpoint
         "program_code", "confirmation_window_started_at",
         "confirmation_window_expires_at", "attempt_policy_version",
         "max_customer_attempts", "attempt_offsets_seconds", "phone_ref",
-        "phone_masked", "dial_token", "dial_token_expires_at",
+        "phone_masked",
         "privacy_safe_order_summary", "call_restriction", "eligibility_snapshot",
         "evidence_ref",
     ];
@@ -423,9 +457,52 @@ public static class TaskIntakeEndpoint
     [
         "contract_version", "task_id", "order_id", "order_code", "order_version",
         "order_state", "payment_method_snapshot", "program_code",
-        "attempt_policy_version", "phone_ref", "phone_masked", "dial_token",
+        "attempt_policy_version", "phone_ref", "phone_masked",
         "evidence_ref",
     ];
+
+    /// <summary>
+    /// W-0312. Every pattern the contract puts on a task field, read off the attributes NSwag
+    /// generates from the OpenAPI file instead of being written a second time here.
+    /// <para>
+    /// draft.30 declared <c>^\+84[0-9]{9}$</c> on <c>phone_e164</c> and nothing enforced it. This
+    /// endpoint parses by hand, DataAnnotations never run, so a malformed number was accepted,
+    /// stored in the clear and failed only at dial time. Reading the attribute makes the OpenAPI
+    /// file the one place a pattern is written, for this field and for the next one.
+    /// </para>
+    /// <para>
+    /// Matched here rather than through <c>RegularExpressionAttribute.IsValid</c>, which answers
+    /// true for an empty string and demands a whole-string match. The contract's validator does
+    /// neither: a JSON Schema pattern is an ECMAScript search. Either difference would be a body
+    /// the specification refuses and this endpoint accepts, or the reverse.
+    /// </para>
+    /// </summary>
+    private static readonly (string WireName, Regex Pattern)[] TaskPatternProperties =
+    [
+        .. typeof(IvrConfirmationTaskV1)
+            .GetProperties()
+            .Select(property => (
+                WireName: property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name,
+                Attribute: property.GetCustomAttribute<RegularExpressionAttribute>()))
+            .Where(entry => entry.WireName is not null && entry.Attribute is not null)
+            .Select(entry => (
+                entry.WireName!,
+                new Regex(
+                    WithEcmaScriptEndAnchor(entry.Attribute!.Pattern),
+                    RegexOptions.CultureInvariant,
+                    TimeSpan.FromMilliseconds(250)))),
+    ];
+
+    /// <summary>
+    /// ECMAScript's <c>$</c>, without the multiline flag, matches only at the end of the input.
+    /// .NET's also matches before a final newline, so <c>^\+84[0-9]{9}$</c> would accept a valid
+    /// number followed by <c>\n</c> that the contract's validator refuses. A trailing <c>$</c>
+    /// becomes <c>\z</c>, which means in .NET what <c>$</c> means in the schema.
+    /// </summary>
+    internal static string WithEcmaScriptEndAnchor(string pattern) =>
+        pattern.EndsWith('$') && !pattern.EndsWith(@"\$", StringComparison.Ordinal)
+            ? string.Concat(pattern.AsSpan(0, pattern.Length - 1), @"\z")
+            : pattern;
 
     // OD-18 compatibility window: customer_trust_status and trusted_skip_allowed stay in the
     // strict allowlist as LEGACY_READ inputs so an older M3 producer is not rejected during a
@@ -440,10 +517,12 @@ public static class TaskIntakeEndpoint
         "allowed_script_variables", "evidence_policy_version",
         "privacy_policy_version",
 
-        // W-0310 option B. Optional in draft.30 and required in the next version, so it lives
-        // here rather than in RequiredTaskProperties: during the cutover a producer may send
-        // either shape, and a field that is merely allowed cannot reject the old one.
+        // W-0311 option B, W-0312. Neither the number nor the token pair is required on its own:
+        // the task needs one of the two, which ValidateSchema checks as a pair of alternatives -
+        // the same single anyOf the contract declares. Listing either as required would refuse
+        // the other shape outright, which is exactly what draft.30 did to a number-only task.
         "phone_e164",
+        "dial_token", "dial_token_expires_at",
     ];
 
     private static readonly HashSet<string> RequiredSpeechProperties =

@@ -41,7 +41,7 @@ const SOURCE_PINS = Object.freeze([
   ],
   [
     "integration-requirements/06-module-3-api-handover.md",
-    "0b4a397b80ee9b8206ec07cce239ef94f4562ac0ee3befc0261803d825b2aafb",
+    "fa082134ad7df00c5bcd99a2cf4b927b08e0b88b9ce413de8d8b2d87fe066d79",
   ],
   [
     "src/Ivr.Domain/Policies/OptOutSuppression.cs",
@@ -57,7 +57,7 @@ const SOURCE_PINS = Object.freeze([
   ],
   [
     "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
-    "1f6f88c8434622640e01aadc19a49c3a18a5e8e5ebcf4e837aaf3a20021d9ce0",
+    "1d20ff2dc3c67c2b7c7aa9d6eb62dd12ce1fbfc8de0d12aed458ae7266e18903",
   ],
 ]);
 

@@ -1,10 +1,13 @@
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.Metrics;
 using System.Net;
+using System.Reflection;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using Ivr.Api.Auth;
 using Ivr.Api.Intake;
 using Ivr.Contracts.Generated.IvrServer.V1;
@@ -539,6 +542,144 @@ public sealed class TaskIntakeApiTests
     }
 #pragma warning restore CA2000
 
+    // W-0312. A number of the contract's shape, sent where the token pair used to go. Nothing in this
+    // suite dials.
+    private const string SentNumber = "+84900000001";
+
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-NUMBER-01")]
+    public async Task ANumberOnlyBodyIsAcceptedOverTheWire()
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        body.Remove("dial_token");
+        body.Remove("dial_token_expires_at");
+        body["phone_e164"] = SentNumber;
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        IvrTaskIntakeResult result = (await response.Content
+            .ReadFromJsonAsync<IvrTaskIntakeResult>())!;
+        Assert.Equal(IvrTaskIntakeResultDecision.TASK_ACCEPTED_DRY_RUN_ONLY, result.Decision);
+        Assert.Equal(1, app.Store.CallJobCount);
+    }
+
+    /// <summary>
+    /// W-0312. The one anyOf on IvrConfirmationTaskV1, from the refusing side: the number with no
+    /// token field beside it, or the whole token pair. Half a pair is refused even with a number,
+    /// because a producer that sent half a token has a bug worth hearing about.
+    /// </summary>
+    [Theory]
+    [InlineData("neither")]
+    [InlineData("number-beside-token-only")]
+    [InlineData("number-beside-expiry-only")]
+    [InlineData("token-only")]
+    [InlineData("expiry-only")]
+    [Trait("TestId", "IT-INTAKE-NUMBER-02")]
+    public async Task ABodyWithoutTheNumberOrTheWholeTokenPairIsMalformed(string shape)
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        switch (shape)
+        {
+            case "neither":
+                body.Remove("dial_token");
+                body.Remove("dial_token_expires_at");
+                break;
+            case "number-beside-token-only":
+                body.Remove("dial_token_expires_at");
+                body["phone_e164"] = SentNumber;
+                break;
+            case "number-beside-expiry-only":
+                body.Remove("dial_token");
+                body["phone_e164"] = SentNumber;
+                break;
+            case "token-only":
+                body.Remove("dial_token_expires_at");
+                break;
+            case "expiry-only":
+                body.Remove("dial_token");
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(shape));
+        }
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(response));
+        Assert.Equal(0, app.Store.CallJobCount);
+        Assert.Empty(app.Audit.Entries);
+    }
+
+    /// <summary>
+    /// W-0312. draft.30 declared this pattern and nothing enforced it, so every one of these was
+    /// accepted, stored in the clear, and failed only when dialled. Cases are named rather than
+    /// passed as data so no phone-shaped value reaches a test report.
+    /// </summary>
+    [Theory]
+    [InlineData("leading-zero")]
+    [InlineData("missing-plus")]
+    [InlineData("one-digit-short")]
+    [InlineData("one-digit-long")]
+    [InlineData("trailing-newline")]
+    [InlineData("inner-space")]
+    [InlineData("empty")]
+    [InlineData("not-a-string")]
+    [Trait("TestId", "IT-INTAKE-NUMBER-03")]
+    public async Task ANumberThatBreaksTheContractPatternIsMalformed(string defect)
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        body.Remove("dial_token");
+        body.Remove("dial_token_expires_at");
+        body["phone_e164"] = defect switch
+        {
+            "leading-zero" => JsonValue.Create(string.Concat("0", SentNumber[3..])),
+            "missing-plus" => JsonValue.Create(SentNumber[1..]),
+            "one-digit-short" => JsonValue.Create(SentNumber[..^1]),
+            "one-digit-long" => JsonValue.Create(string.Concat(SentNumber, "1")),
+            // .NET's $ also matches before a final newline; the contract's validator does not.
+            "trailing-newline" => JsonValue.Create(string.Concat(SentNumber, "\n")),
+            "inner-space" => JsonValue.Create(string.Concat(SentNumber[..6], " ", SentNumber[6..])),
+            "empty" => JsonValue.Create(string.Empty),
+            "not-a-string" => JsonValue.Create(84900000001L),
+            _ => throw new ArgumentOutOfRangeException(nameof(defect)),
+        };
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(response));
+        Assert.Equal(0, app.Store.CallJobCount);
+    }
+
+    /// <summary>
+    /// W-0312. The endpoint enforces every pattern NSwag generates onto the task, so a pattern
+    /// added to the contract is enforced the day it lands. What that cannot do by itself is prove
+    /// the enforcement against inputs a person chose. This fails the day a second pattern appears,
+    /// so it gets named refusal cases beside IT-INTAKE-NUMBER-03 before anyone relies on it.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-NUMBER-04")]
+    public void EveryPatternOnTheGeneratedTaskHasRefusalCasesHere()
+    {
+        string[] patterned =
+        [
+            .. typeof(IvrConfirmationTaskV1)
+                .GetProperties()
+                .Where(property => property.GetCustomAttribute<RegularExpressionAttribute>() is not null)
+                .Select(property => property.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name)
+                .Order(StringComparer.Ordinal),
+        ];
+
+        Assert.Equal(["phone_e164"], patterned);
+    }
+
     private static async Task<HttpResponseMessage> SendAsync(
         HttpClient client,
         JsonObject body,
@@ -661,7 +802,14 @@ public sealed class TaskIntakeApiTests
         body["created_at"] = start;
         body["confirmation_window_started_at"] = start;
         body["confirmation_window_expires_at"] = start.AddSeconds(seconds);
-        body["dial_token_expires_at"] = start.AddSeconds(seconds);
+
+        // W-0312. A fixture that sends the number has no token expiry to move, and writing one
+        // would turn it into the half-pair shape the contract refuses.
+        if (body.ContainsKey("dial_token_expires_at"))
+        {
+            body["dial_token_expires_at"] = start.AddSeconds(seconds);
+        }
+
         body["correlation_id"] = "corr-api-p2-1";
     }
 

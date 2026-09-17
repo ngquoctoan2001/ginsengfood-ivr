@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace Ivr.Api.Admin;
 
 /// <param name="RebaseWindows">
-/// Defaults to true, because the fixtures carry absolute August-2026 instants and load as nine
+/// Defaults to true, because the fixtures carry absolute August-2026 instants and load as ten
 /// rejections without it. False loads them exactly as written, which is how the refusal itself
 /// can be demonstrated.
 /// </param>

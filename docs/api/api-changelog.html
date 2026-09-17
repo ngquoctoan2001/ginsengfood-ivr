@@ -12,6 +12,23 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
 <blockquote>
+<p><strong><code>1.0.0-draft.31</code> (W-0312)</strong> nới <code>dial_token</code> + <code>dial_token_expires_at</code> từ <em>bắt buộc</em> thành
+<em>&quot;cặp token <strong>hoặc</strong> số&quot;</em>. <strong>Không breaking</strong>: mọi body hợp lệ ở <code>draft.30</code> vẫn hợp lệ —
+<code>oasdiff</code> ghi <code>3</code> info, <code>0</code> warning, <code>0</code> error, cả <code>30→31</code> lẫn <code>27→31</code>.</p>
+<p>⚠️ <strong>Đính chính mục <code>draft.30</code> ngay dưới — hai câu trong đó không đúng với <code>draft.30</code>.</strong>
+<em>&quot;Hai shape cùng được chấp nhận&quot;</em>: mảng <code>required</code> vẫn đòi cặp token, nên body chỉ có
+<code>phone_e164</code> bị <code>400</code>; thêm nữa ở production intake luôn mã hoá token bằng bộ mã hoá mà phương
+án B đã bỏ, nên <strong>không task nào được nhận</strong>, kể cả task gửi cả số lẫn token. <em>&quot;Chặn ở schema cho
+<code>400</code> nêu tên field&quot;</em>: không chỗ nào thi hành pattern đó, và <code>400</code> không nêu tên field. <code>draft.31</code>
+làm câu thứ nhất thành sự thật và thi hành pattern; phần <em>&quot;nêu tên field&quot;</em> được <strong>bỏ khỏi đặc
+tả</strong> thay vì thêm hành vi.</p>
+<p>Luật nằm trong <strong>một <code>anyOf</code></strong>: <code>phone_e164</code> <strong>không kèm field token nào</strong>, hoặc <strong>đủ cặp</strong>
+<code>dial_token</code> + <code>dial_token_expires_at</code>; gửi cả ba cũng được. <strong>Nửa cặp</strong> — kể cả khi có số — bị
+<code>400</code>. Viết thành một <code>anyOf</code> có nhánh <code>not</code> chứ không phải <code>anyOf</code> cộng <code>dependentRequired</code>: hai
+cách viết từ chối đúng cùng các kiểu body (đã đo trên <code>11</code> kiểu), nhưng <code>oasdiff</code> xếp
+<code>dependentRequired</code> và một <code>allOf</code> thêm vào là breaking.</p>
+<p>Cùng bản: <code>3</code> endpoint dev-tooling ghi quyền <code>IVR_DEV_TOOLING</code> — quyền không tồn tại — nay ghi
+đúng scope <code>ivr.admin.write</code> mà route thực đòi.</p>
 <p><strong><code>1.0.0-draft.30</code> (W-0310)</strong> thêm <strong>một field tuỳ chọn</strong> vào task: <code>phone_e164</code> — số điện
 thoại khách, gửi thẳng. <strong>Không breaking</strong>: chỉ là thêm một field optional, producer cũ không
 phải đổi gì.</p>
@@ -90,7 +107,7 @@ Xem <code>docs/evidence/W-0275/README.md</code>.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.27</code></td>
-<td><code>1.0.0-draft.30</code></td>
+<td><code>1.0.0-draft.31</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>

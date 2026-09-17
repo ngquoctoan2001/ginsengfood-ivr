@@ -96,7 +96,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal(IvrOptions.MockExecutionMode, result.ExecutionMode);
         Assert.True(result.WindowsRebased);
         Assert.Equal(result.TaskCount, result.RebasedCount);
-        // Eight of nine, and the ninth is the point. TASK-TARGET-247-0005 carries
+        // Nine of ten, and the tenth is the point. TASK-TARGET-247-0005 carries
         // call_restriction=true with a BLOCKED_DO_NOT_CALL eligibility snapshot, and it comes
         // back IVR_OPERATIONAL_BLOCKED because the loader goes through intake rather than
         // writing rows. A seed loader that could put a do-not-call customer into the call queue
@@ -157,7 +157,7 @@ public sealed class DevToolingApiTests(PostgresPersistenceFixture fixture)
     /// It also must not fail the whole request. The fixture keys are stable but the rebased
     /// windows are not, so every task is an idempotency conflict by definition on a second run;
     /// reported per fixture, the response says "already loaded" instead of returning one 409 that
-    /// hides which eight tasks are sitting in the database.
+    /// hides which nine tasks are sitting in the database.
     /// </para>
     /// <para>
     /// What this does NOT do is refresh the windows. A reloaded fixture keeps the window it was
