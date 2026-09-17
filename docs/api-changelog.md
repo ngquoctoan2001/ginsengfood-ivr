@@ -10,6 +10,27 @@ and does not approve the external Sales contract.
 
 ## Current comparisons
 
+> **`1.0.0-draft.30` (W-0310)** thêm **một field tuỳ chọn** vào task: `phone_e164` — số điện
+> thoại khách, gửi thẳng. **Không breaking**: chỉ là thêm một field optional, producer cũ không
+> phải đổi gì.
+>
+> Chủ sở hữu chọn ngày `2026-09-17` rằng M3 gửi **số** thay vì phát hành một `dial_token` để M8
+> giải mã. Đổi lại: **bỏ được kho khoá**, bỏ được bộ phát hành token mà M3 chưa xây, và
+> `OD-V1-05` · `OD-V1-17` · `OD-V1-18` **hết đối tượng**.
+>
+> **Hai shape cùng được chấp nhận trong giai đoạn chuyển**: gửi `phone_e164`, **hoặc**
+> `dial_token` + `dial_token_expires_at`. Có cả hai thì `phone_e164` thắng và token bị bỏ qua.
+> Chọn ở **lúc quay số**, không phải lúc nhận — một task nhận hôm qua bằng token có thể được
+> quay hôm nay bởi worker đã hiểu số, và cả hai phải chạy trong cùng một tiến trình.
+>
+> `phone_e164` sẽ thành **bắt buộc** ở bản sau, và đó mới là lần breaking. Pattern cố ý hẹp —
+> `^\+84[0-9]{9}$` — vì hệ thống này chỉ quay di động Việt Nam, và số `0` đứng đầu hoặc thiếu
+> dấu `+` là lỗi producer phổ biến nhất; chặn ở schema cho `400` nêu tên field, thay vì một cuộc
+> gọi không bao giờ kết nối.
+>
+> ⚠️ **Cái mất, nói thẳng:** trước bản này DB của IVR **không giữ số khách nào**. Từ bản này thì
+> có. `phone_masked` vẫn là field mà mọi log, audit, callback và API quản trị dùng — `phone_e164`
+> chỉ được đọc trên **đúng một đường**, lúc quay số.
 > **`1.0.0-draft.29` (W-0307)** thêm một endpoint đọc: `GET /audit-evidence`. Nó trả về các
 > dòng audit ghi cho một `target_type`/`target_id`, mới nhất trước. **Cả hai bộ lọc đều bắt
 > buộc**: gọi mà không có bộ lọc nào sẽ thành một lần trích xuất hàng loạt đội lốt tra cứu, nên
@@ -64,7 +85,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.29` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.30` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,

@@ -68,19 +68,34 @@ public sealed class ProductionDialTokenVault(
         }
 
         string revealed;
-        try
+        if (!string.IsNullOrWhiteSpace(request.DirectPhoneE164))
         {
-            revealed = protector.Unprotect(
-                DialTokenPurpose,
-                request.DialToken.RevealToTrustedResolver());
+            // W-0310 option B. Module 3 sent the number, so there is nothing to decrypt. This is
+            // the whole difference between the two options: everything after this point - parse,
+            // format for the carrier, build the SIP address - is identical either way, which is
+            // why option B is a branch here rather than a second vault.
+            //
+            // The ledger above still ran, and running it first still matters: a task past its
+            // resolve ceiling is refused before its number is read out of the request, so a
+            // refused dial never materialises a number in this method at all.
+            revealed = request.DirectPhoneE164;
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        else
         {
-            // The inner exception is not chained on purpose. A protector failure can carry the
-            // ciphertext or key material in its message, and this exception travels up into
-            // dispatch logging.
-            throw new InvalidOperationException(
-                "The production dial token could not be unprotected.");
+            try
+            {
+                revealed = protector.Unprotect(
+                    DialTokenPurpose,
+                    request.DialToken.RevealToTrustedResolver());
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                // The inner exception is not chained on purpose. A protector failure can carry the
+                // ciphertext or key material in its message, and this exception travels up into
+                // dispatch logging.
+                throw new InvalidOperationException(
+                    "The production dial token could not be unprotected.");
+            }
         }
 
         if (!VietnameseDestinationNumber.TryParse(revealed, out string nationalDigits))

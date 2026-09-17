@@ -28,7 +28,8 @@ public sealed record TelephonyDispatchContext(
     PrivacySafeOrderSummary SpeechSummary,
     string ScriptTemplateId,
     string ScriptVersion,
-    int MaxDialTokenResolves);
+    int MaxDialTokenResolves,
+    string? DirectPhoneE164 = null);
 
 /// <summary>
 /// An operator's request to cut a call that is already in progress (W-0111).
@@ -197,7 +198,12 @@ public sealed class PostgresTelephonyDispatchStore(
             // accepted with rather than from whatever the policy row says today. It also removes
             // a failure mode a policy lookup would have added: a missing or edited row cannot
             // change what an in-flight task is allowed to do.
-            task.MaxAttempts + schedulerOptions.Value.TechnicalRetryLimit);
+            task.MaxAttempts + schedulerOptions.Value.TechnicalRetryLimit,
+
+            // W-0310 option B. Read at dial time rather than decided at intake, because a task
+            // accepted before the cutover and dialled after it must still work: the column is null
+            // for those and the token path answers, with no branch anywhere upstream.
+            task.PhoneE164);
     }
 
     public async Task MarkActiveAsync(

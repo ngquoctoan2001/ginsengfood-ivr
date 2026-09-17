@@ -12,7 +12,24 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
 <blockquote>
-<p><strong><code>1.0.0-draft.29</code> (W-0307)</strong> thêm một endpoint đọc: <code>GET /audit-evidence</code>. Nó trả về các
+<p><strong><code>1.0.0-draft.30</code> (W-0310)</strong> thêm <strong>một field tuỳ chọn</strong> vào task: <code>phone_e164</code> — số điện
+thoại khách, gửi thẳng. <strong>Không breaking</strong>: chỉ là thêm một field optional, producer cũ không
+phải đổi gì.</p>
+<p>Chủ sở hữu chọn ngày <code>2026-09-17</code> rằng M3 gửi <strong>số</strong> thay vì phát hành một <code>dial_token</code> để M8
+giải mã. Đổi lại: <strong>bỏ được kho khoá</strong>, bỏ được bộ phát hành token mà M3 chưa xây, và
+<code>OD-V1-05</code> · <code>OD-V1-17</code> · <code>OD-V1-18</code> <strong>hết đối tượng</strong>.</p>
+<p><strong>Hai shape cùng được chấp nhận trong giai đoạn chuyển</strong>: gửi <code>phone_e164</code>, <strong>hoặc</strong>
+<code>dial_token</code> + <code>dial_token_expires_at</code>. Có cả hai thì <code>phone_e164</code> thắng và token bị bỏ qua.
+Chọn ở <strong>lúc quay số</strong>, không phải lúc nhận — một task nhận hôm qua bằng token có thể được
+quay hôm nay bởi worker đã hiểu số, và cả hai phải chạy trong cùng một tiến trình.</p>
+<p><code>phone_e164</code> sẽ thành <strong>bắt buộc</strong> ở bản sau, và đó mới là lần breaking. Pattern cố ý hẹp —
+<code>^\+84[0-9]{9}$</code> — vì hệ thống này chỉ quay di động Việt Nam, và số <code>0</code> đứng đầu hoặc thiếu
+dấu <code>+</code> là lỗi producer phổ biến nhất; chặn ở schema cho <code>400</code> nêu tên field, thay vì một cuộc
+gọi không bao giờ kết nối.</p>
+<p>⚠️ <strong>Cái mất, nói thẳng:</strong> trước bản này DB của IVR <strong>không giữ số khách nào</strong>. Từ bản này thì
+có. <code>phone_masked</code> vẫn là field mà mọi log, audit, callback và API quản trị dùng — <code>phone_e164</code>
+chỉ được đọc trên <strong>đúng một đường</strong>, lúc quay số.
+<strong><code>1.0.0-draft.29</code> (W-0307)</strong> thêm một endpoint đọc: <code>GET /audit-evidence</code>. Nó trả về các
 dòng audit ghi cho một <code>target_type</code>/<code>target_id</code>, mới nhất trước. <strong>Cả hai bộ lọc đều bắt
 buộc</strong>: gọi mà không có bộ lọc nào sẽ thành một lần trích xuất hàng loạt đội lốt tra cứu, nên
 thiếu bộ lọc bị <strong>từ chối</strong> chứ không mặc định thành <em>&quot;tất cả&quot;</em>. <code>reason</code> cũng bắt buộc, và
@@ -73,7 +90,7 @@ Xem <code>docs/evidence/W-0275/README.md</code>.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.27</code></td>
-<td><code>1.0.0-draft.29</code></td>
+<td><code>1.0.0-draft.30</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>

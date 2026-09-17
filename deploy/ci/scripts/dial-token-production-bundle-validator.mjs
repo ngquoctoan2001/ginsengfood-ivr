@@ -31,13 +31,13 @@ const SOURCE_PINS = Object.freeze({
   telephony_requirements_path: "integration-requirements/03-telephony-sim-requirements.md",
   telephony_requirements_sha256: "8025bb2809c026d7c04340373a600e8ef70399cf394320ca2ce6e6e58b28811e",
   m3_handover_path: "integration-requirements/06-module-3-api-handover.md",
-  m3_handover_sha256: "82c857f44abaf7b2729c5ec929a94d3668dff25b485b48019ae1744a5289e4f3",
+  m3_handover_sha256: "0b4a397b80ee9b8206ec07cce239ef94f4562ac0ee3befc0261803d825b2aafb",
   task_oas_path: "specs/api/openapi/ivr-order-confirmation.v1.yaml",
-  task_oas_sha256: "c88875cffbcceaef964f73819cfd3b460c47626bbead15328fae7300e4141e33",
+  task_oas_sha256: "b63929b4d9d71476b16e8d658d9a88f3001f82759011ead0db563ae15af0aab8",
   resolver_port_path: "src/Ivr.Domain/Ports/ProviderPorts.cs",
-  resolver_port_sha256: "11048effa304d80178b8a23aae34c3bbf3a0398790997e6b51f7841aa670d061",
+  resolver_port_sha256: "1c557c7e6d85b98b203731bdc39fbfbdbf53f9f3cc361f8333e67999e361088b",
   intake_service_path: "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
-  intake_service_sha256: "a80f1a64dc50b3f526d2d7172b86dd9689d847605c5ce6e47cc2000d93faaf01",
+  intake_service_sha256: "1f6f88c8434622640e01aadc19a49c3a18a5e8e5ebcf4e837aaf3a20021d9ce0",
   requirement_scope: "B5-C12-DTK.2026-09-04",
 });
 

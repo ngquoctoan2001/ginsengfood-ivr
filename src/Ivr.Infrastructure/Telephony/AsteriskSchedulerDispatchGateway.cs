@@ -68,7 +68,8 @@ public sealed class AsteriskSchedulerDispatchGateway(
                     dispatch.DialToken,
                     AttemptId.Create(lease.AttemptId),
                     dispatch.TaskId,
-                    dispatch.MaxDialTokenResolves),
+                    dispatch.MaxDialTokenResolves,
+                    dispatch.DirectPhoneE164),
                 timeProvider.GetUtcNow(),
                 cancellationToken);
             string destination = authorization.RevealToTrustedGateway();

@@ -751,6 +751,15 @@ public sealed class TaskIntakeService(
             PhoneValidationStatus = source.Phone_validation_status.ToString(),
             DialTokenCiphertext = protectedDialToken,
             DialTokenExpiresAt = snapshot.DialToken.ExpiresAt,
+            // W-0310 option B. Stored exactly as the producer sent it and nowhere else. The schema
+            // validates the shape (+84 and nine digits) before this point, so there is nothing to
+            // normalise here; normalising silently is how a number that was wrong on the wire
+            // becomes a call to somebody else's phone.
+            //
+            // Both shapes are written during the cutover because both can arrive. Which one the
+            // dial uses is decided at dial time by PostgresTelephonyDispatchStore, not here -- a
+            // task accepted today may be dialled by a worker that rolled out after it.
+            PhoneE164 = source.Phone_e164,
             PrivacySafeOrderSummaryJson = summaryJson,
             CallScriptTemplateId = approvedScript.Version.Key.TemplateId,
             CallScriptVersion = approvedScript.Version.Key.Version,

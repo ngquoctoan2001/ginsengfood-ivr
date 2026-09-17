@@ -439,6 +439,11 @@ public static class TaskIntakeEndpoint
         "phone_validation_status", "call_script_template_id", "call_script_version",
         "allowed_script_variables", "evidence_policy_version",
         "privacy_policy_version",
+
+        // W-0310 option B. Optional in draft.30 and required in the next version, so it lives
+        // here rather than in RequiredTaskProperties: during the cutover a producer may send
+        // either shape, and a field that is merely allowed cannot reject the old one.
+        "phone_e164",
     ];
 
     private static readonly HashSet<string> RequiredSpeechProperties =

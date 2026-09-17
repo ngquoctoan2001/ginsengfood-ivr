@@ -54,11 +54,26 @@ public interface IDialTokenResolver
 /// request that leaves it at zero is refused rather than treated as unlimited.
 /// </para>
 /// </param>
+/// <param name="DirectPhoneE164">
+/// The customer's number, when the producer sent one instead of a token (W-0310, option B).
+/// <para>
+/// Carried beside <paramref name="DialToken"/> rather than inside it, because
+/// <see cref="DialTokenReference"/> refuses a raw number by construction and should keep refusing
+/// one - it is the type every other path passes around, and relaxing it to admit this one case
+/// would relax it everywhere. A task using option B still carries a reference; it is a handle for
+/// the ledger to count against, not a secret to decrypt.
+/// </para>
+/// <para>
+/// Null for every task sent the old way, and null in MOCK and lab regardless: those dial their own
+/// allowlisted destinations and never a customer, so the number is stored and simply not read.
+/// </para>
+/// </param>
 public sealed record DialTokenResolutionRequest(
     DialTokenReference DialToken,
     AttemptId AttemptId,
     TaskId TaskId,
-    int MaxResolves);
+    int MaxResolves,
+    string? DirectPhoneE164 = null);
 
 public sealed record RenderedSpeech
 {

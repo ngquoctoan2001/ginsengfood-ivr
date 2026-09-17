@@ -29,7 +29,7 @@ const SOURCE_PINS = Object.freeze({
   m3_requirements_path: "integration-requirements/01-sales-platform-requirements.md",
   m3_requirements_sha256: "68fc49cdd979fee66153a6fa5748623a69dfff68bb06054304009d46011ba894",
   m3_handover_path: "integration-requirements/06-module-3-api-handover.md",
-  m3_handover_sha256: "82c857f44abaf7b2729c5ec929a94d3668dff25b485b48019ae1744a5289e4f3",
+  m3_handover_sha256: "0b4a397b80ee9b8206ec07cce239ef94f4562ac0ee3befc0261803d825b2aafb",
   m8_target_oas_path: "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
   m8_target_oas_sha256: "af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697",
   shared_e2e_validator_path: "deploy/ci/scripts/target-v1-shared-e2e-report-validator.mjs",

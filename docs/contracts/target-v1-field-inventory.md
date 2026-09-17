@@ -11,12 +11,12 @@ Contract state: `TARGET_CONTRACT_V1=DRAFT`.
 
 | Contract | Version | Pinned sha256 |
 | --- | --- | --- |
-| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.29` | `c88875cffbcceaef964f73819cfd3b460c47626bbead15328fae7300e4141e33` |
+| IVR intake (`specs/api/openapi/ivr-order-confirmation.v1.yaml`) | `1.0.0-draft.30` | `b63929b4d9d71476b16e8d658d9a88f3001f82759011ead0db563ae15af0aab8` |
 | Sales callback (`specs/api/openapi/order-core-ivr-callback.target-v1.yaml`) | `1.0.0-draft` | `af0cb5cc3f47aaa4c8e232418c216b228fd996e316fe129a7cbf1d4636659697` |
 
 ## 1. Intake — `IvrConfirmationTaskV1`
 
-Required: **23**. Optional: **13**. `additionalProperties: false`.
+Required: **23**. Optional: **14**. `additionalProperties: false`.
 
 | # | Required field |
 | ---: | --- |
@@ -54,6 +54,7 @@ Required: **23**. Optional: **13**. `additionalProperties: false`.
 | `customer_trust_status` |
 | `trusted_skip_allowed` |
 | `risk_flags` |
+| `phone_e164` |
 | `call_script_template_id` |
 | `call_script_version` |
 | `allowed_script_variables` |

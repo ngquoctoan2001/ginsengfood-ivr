@@ -45,12 +45,14 @@ public sealed class SipTrunkProductionDialTests
     private static DialTokenResolutionRequest Request(
         string attemptId = "attempt-1",
         int maxResolves = 3,
-        string token = "enc:prod-aes:QUJDRA") =>
+        string token = "enc:prod-aes:QUJDRA",
+        string? directPhoneE164 = null) =>
         new(
             DialTokenReference.Create(token, Now.AddMinutes(30)),
             AttemptId.Create(attemptId),
             TaskId.Create("TASK-297-0001"),
-            maxResolves);
+            maxResolves,
+            directPhoneE164);
 
     /// <summary>Records whether it was asked, and what it was asked for.</summary>
     private sealed class RecordingProtector(string reveals) : IOpaqueValueProtector
@@ -340,6 +342,148 @@ public sealed class SipTrunkProductionDialTests
 
         Assert.Equal("[REDACTED_SIP_TRUNK_OPTIONS]", printed);
         Assert.DoesNotContain(CarrierHost, printed, StringComparison.Ordinal);
+    }
+
+
+    // ------------------------------------- W-0310 option B: the number, sent outright
+
+    /// <summary>
+    /// Module 3 sent the number, so nothing is decrypted and the protector is never asked.
+    /// </summary>
+    /// <remarks>
+    /// The protector here is the one whose every method throws with a secret-bearing message. If
+    /// the vault touched it at all this test would fail loudly rather than quietly taking the old
+    /// path, which is the failure worth catching: a deployment that has moved to option B but is
+    /// still decrypting is one that still needs the key store option B was chosen to remove.
+    /// </remarks>
+    [Fact]
+    [Trait("TestId", "UT-TRUNK-DIAL-08")]
+    public async Task ANumberSentOutrightIsDialledWithoutTouchingTheProtector()
+    {
+        ProductionDialTokenVault vault = Vault(new ThrowingProtector());
+
+        DialAuthorization authorization = await vault.ResolveAsync(
+            Request(directPhoneE164: "+84912345678"),
+            Now,
+            CancellationToken.None);
+
+        Assert.Equal(
+            $"sip:+84912345678@{CarrierHost}",
+            authorization.RevealToTrustedGateway());
+    }
+
+    /// <summary>
+    /// The ordering property holds for option B too: the ledger refuses before the number is read.
+    /// </summary>
+    /// <remarks>
+    /// <c>UT-TRUNK-DIAL-01</c> proves this for the token path, where it is obvious - not decrypting
+    /// is visibly cheaper. Here there is nothing to decrypt, so reading the number first would cost
+    /// nothing and look harmless, and the property would rot. It is the same property either way:
+    /// a dial that will not happen never materialises a customer number in this process.
+    /// </remarks>
+    [Fact]
+    [Trait("TestId", "UT-TRUNK-DIAL-09")]
+    public async Task ARefusedTaskNeverReadsTheNumberEither()
+    {
+        ProductionDialTokenVault vault = Vault(new ThrowingProtector());
+
+        DialTokenRefusedException refused = await Assert.ThrowsAsync<DialTokenRefusedException>(
+            async () => await vault.ResolveAsync(
+                Request(maxResolves: 0, directPhoneE164: "+84912345678"),
+                Now,
+                CancellationToken.None));
+
+        Assert.Equal(DialTokenRefusalCodes.CeilingMissing, refused.RefusalCode);
+
+        // The refusal names the ceiling and nothing else. A message carrying the number would put
+        // it into dispatch logging, which is the one place this design spends effort keeping clear.
+        Assert.DoesNotContain("84912345678", refused.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A task sent the old way still dials the old way, with no branch and no configuration.
+    /// </summary>
+    /// <remarks>
+    /// This is the cutover property. Module 3 moves when Module 3 is ready, and in between the two
+    /// shapes arrive mixed - a task accepted yesterday with a token may be dialled today by a
+    /// worker that already understands numbers. Both have to work in the same process at the same
+    /// time, which is why the choice is made per task at dial time rather than per deployment.
+    /// </remarks>
+    [Fact]
+    [Trait("TestId", "UT-TRUNK-DIAL-10")]
+    public async Task WithoutANumberTheTokenPathIsUnchanged()
+    {
+        RecordingProtector protector = new("+84987654321");
+        ProductionDialTokenVault vault = Vault(protector);
+
+        DialAuthorization authorization = await vault.ResolveAsync(
+            Request(directPhoneE164: null),
+            Now,
+            CancellationToken.None);
+
+        Assert.Equal(
+            $"sip:+84987654321@{CarrierHost}",
+            authorization.RevealToTrustedGateway());
+        Assert.Equal(1, protector.UnprotectCalls);
+    }
+
+    /// <summary>
+    /// An empty or blank number is not a number, and falls through to the token rather than
+    /// becoming a dial to nowhere.
+    /// </summary>
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [Trait("TestId", "UT-TRUNK-DIAL-11")]
+    public async Task ABlankNumberIsNotTreatedAsOneSent(string blank)
+    {
+        RecordingProtector protector = new("+84987654321");
+        ProductionDialTokenVault vault = Vault(protector);
+
+        DialAuthorization authorization = await vault.ResolveAsync(
+            Request(directPhoneE164: blank),
+            Now,
+            CancellationToken.None);
+
+        Assert.Equal(
+            $"sip:+84987654321@{CarrierHost}",
+            authorization.RevealToTrustedGateway());
+        Assert.Equal(1, protector.UnprotectCalls);
+    }
+
+    /// <summary>
+    /// A number that is not a usable Vietnamese destination is refused, whichever way it arrived.
+    /// </summary>
+    /// <remarks>
+    /// The schema already rejects these at intake, so reaching here means a row written before the
+    /// pattern existed or a producer bypassing the contract. The vault refuses rather than trusting
+    /// the layer above: dialling a mangled number bills a call to whoever the digits reach.
+    /// </remarks>
+    /// <para>
+    /// <c>"0912345678x"</c> is deliberately absent: <c>VietnameseDestinationNumber.TryParse</c>
+    /// strips formatting characters, so it dials <c>912345678</c> rather than refusing. That is
+    /// right for the token path - <c>UT-TRUNK-DIAL-03</c> pins it, because Module 3 may have
+    /// protected <c>"0912 345 678"</c> - and harmless for option B, where the schema pattern
+    /// <c>^\+84[0-9]{9}$</c> rejects the trailing character at intake. Worth knowing if a repair
+    /// script ever writes the column directly: the parser will not catch junk the schema would.
+    /// </para>
+    [Theory]
+    [InlineData("+8491234")]
+    [InlineData("not-a-number")]
+    [InlineData("+841234567890123")]
+    [Trait("TestId", "UT-TRUNK-DIAL-12")]
+    public async Task AnUnusableNumberSentOutrightIsRefused(string unusable)
+    {
+        ProductionDialTokenVault vault = Vault(new ThrowingProtector());
+
+        InvalidOperationException refused =
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await vault.ResolveAsync(
+                    Request(directPhoneE164: unusable),
+                    Now,
+                    CancellationToken.None));
+
+        Assert.DoesNotContain(unusable, refused.Message, StringComparison.Ordinal);
     }
 
     // ------------------------------------------------------- composition root

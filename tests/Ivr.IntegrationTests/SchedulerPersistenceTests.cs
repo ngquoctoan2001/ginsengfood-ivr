@@ -748,7 +748,13 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
                 ALTER TABLE ivr_confirmation_tasks
                     ADD COLUMN IF NOT EXISTS revoked_at timestamp with time zone NULL,
                     ADD COLUMN IF NOT EXISTS revoke_reason text NULL,
-                    ADD COLUMN IF NOT EXISTS revoke_order_version text NULL
+                    ADD COLUMN IF NOT EXISTS revoke_order_version text NULL,
+
+                    -- W-0310. The line the comment above predicted would be needed: option B
+                    -- added phone_e164 to this table, and the seed below writes through the live
+                    -- model. W0172 does not touch it either, so the preflight under test is
+                    -- still unaffected.
+                    ADD COLUMN IF NOT EXISTS phone_e164 text NULL
                 """);
 
             await SeedReadyJobAsync(
