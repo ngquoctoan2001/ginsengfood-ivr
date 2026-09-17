@@ -1,6 +1,64 @@
 # IR-07 — Phiếu chốt một lần: Module 3 ↔ IVR (Module 8)
 
-**Phiên bản contract:** `1.0.0-draft.27` · **Ngày phát bản đầu:** 2026-09-10 · **Đối soát nội bộ:** 2026-09-14, chưa phát lại · **Người phát:** owner IVR
+**Phiên bản contract:** `1.0.0-draft.29` · **Ngày phát bản đầu:** 2026-09-10 · **Bản gộp:** 2026-09-17 · **Người phát:** owner IVR
+**Trạng thái:** `READY_TO_DISPATCH / NOT_SENT` · **Mốc mã:** `main@d655989`
+
+> ## Đây là phiếu **duy nhất** IVR gửi Module 3. Không còn phiếu nào khác.
+>
+> Bản `17/09` này **gộp ba phiếu rời** thành một, để M3 trả lời đúng **một lượt** rồi gửi lại:
+>
+> | Phiếu cũ | Nay nằm ở | Tình trạng trước khi gộp |
+> | --- | --- | --- |
+> | `IR-07` — 21 câu tích hợp | Nhóm **B1–B4** | chưa gửi |
+> | Phiếu giới hạn số cuộc gọi (`15/09`) | Nhóm **B5**, câu `M3-22`…`M3-25` | chưa gửi |
+> | Phiếu `OD-18` thẩm quyền (`27/08`) | Nhóm **B6**, câu `M3-26`…`M3-30` | **đã gửi `27/08`, chưa có trả lời** |
+>
+> Nhóm B6 là phiếu đã gửi cách đây **ba tuần** mà chưa nhận hồi đáp. Không cần tìm lại bản cũ —
+> **trả lời ở đây là đủ**, và bản này thay thế bản đó.
+>
+> Tổng: **30 câu**. Bảng điền nhanh ở ngay dưới.
+
+---
+
+## Bảng điền nhanh — điền hết bảng này là xong phiếu
+
+Mỗi ô: `Đ` (đồng ý với đề xuất IVR) hoặc giá trị khác. Chi tiết từng câu ở Phần B — chỉ cần mở
+ra khi muốn biết **vì sao** hoặc khi định trả lời khác.
+
+| Câu | Hỏi gì (một dòng) | Trả lời |
+| --- | --- | --- |
+| `M3-01` | Đặt `ivr_confirmation_required=true` lúc chuyển sang `CONFIRMING`, không gửi task cho đơn không cần gọi | |
+| `M3-02` | Rẽ nhánh theo `decision` trong body, **không** theo HTTP status | |
+| `M3-03` | Bump `order_version` mỗi khi đổi thứ IVR đọc để gọi | |
+| `M3-04` | M3 map ba chuỗi lệch ở lớp assembler (xem Phần C) | |
+| `M3-05` | `delivery_area_short` = tên tỉnh/thành, không chi tiết hơn | |
+| `M3-06` | `items[]` ≤ 5 dòng thực tế | |
+| `M3-07` | `golden_hour_session_id` bắt buộc với GH, ổn định qua retry | |
+| `M3-08` | Một endpoint callback generic cho cả hai chương trình | |
+| `M3-09` | ACK taxonomy đúng contract (`DUPLICATE_ACCEPTED` phải đi với `200`) | |
+| `M3-10` | Giữ `Idempotency-Key` tối thiểu 7 ngày | |
+| `M3-11` | Revalidate đủ 6 điều kiện trước khi đổi trạng thái đơn | |
+| `M3-12` | Tôn trọng `is_counted_customer_attempt` | |
+| `M3-13` | Sau `IVR_NO_ANSWER_FINAL` chờ 24 giờ rồi cho hết hạn | |
+| `M3-14` | Gọi endpoint thu hồi khi hủy đơn / bật `sale_lock` | |
+| `M3-15` | Trả `429` kèm `Retry-After` hợp lệ | |
+| `M3-16` | M3 dựng giao diện quản trị IVR | |
+| `M3-17` | Ba token quản trị trong secret store, xoay vòng 90 ngày | |
+| `M3-18` | `danger` chỉ owner/quản lý, không trùng người duyệt lời thoại | |
+| `M3-19` | `X-Actor-Id` là id đục, không tên/email | |
+| `M3-20` | UI bắt nhập `X-Action-Reason` ≥ 10 ký tự, không điền sẵn | |
+| `M3-21` | Base URL callback: sandbox = ______ · production = ______ | |
+| `M3-22` | "10 phút" ràng buộc cái gì — chọn `A` / `B` / `C`, và mốc `0` tính từ đâu | |
+| `M3-23` | Technical retry có tính vào "hai lần" không — chọn `A` / `B` | |
+| `M3-24` | Giới hạn theo đơn hay theo số điện thoại — chọn `A` / `B` | |
+| `M3-25` | Nếu `M3-24`=B: tham chiếu nào để khóa theo đích | |
+| `M3-26` | M3 còn gửi/đọc 3 field + 1 decision đã nghỉ hưu không (4 ô) | |
+| `M3-27` | M3 đã tự lọc đơn không cần gọi trước khi gửi task chưa | |
+| `M3-28` | `customer_trust_status` còn cần lưu không | |
+| `M3-29` | Xóa enum/field ngay, hay giữ cửa sổ tương thích bao lâu | |
+| `M3-30` | `risk_flags` giữ nguyên hay thay bằng field ưu tiên riêng | |
+
+**Ô ký ở cuối file.** Phiếu chưa ký = `PENDING_M3_SIGNOFF`.
 
 ---
 
@@ -16,6 +74,7 @@ phương án từ đầu: **mỗi mục đã có sẵn vị trí của IVR**, k�
 | **3** | Ngoài phiếu này, **IVR không hỏi gì thêm ở vòng này**. Phần A là thông báo, Phần D/E là việc sau khi ký. |
 | **4** | Trả lại **chính file này** đã điền, một lần, kèm chữ ký ở cuối. |
 | **5** | Nếu một mục nào đó M3 chưa quyết được, ghi `KHÁC: cần thêm <chính xác thứ cần>` — nêu **cái cần**, không nêu "cần bàn thêm". |
+| **6** | Trả lời được nhóm nào thì đóng nhóm đó. **Không** phải chờ đủ 30 câu mới gửi lại — nhưng B5 và B6 đều có câu `P1`, xin đừng để lại vòng sau. |
 
 > **Phạm vi luật 2.** M3 ký nhận phiếu mới xác nhận các giá trị mặc định chưa sửa.
 > Không nhận phản hồi không tạo ra một chữ ký hay đóng bất kỳ cổng tích hợp nào.
@@ -26,10 +85,11 @@ phương án từ đầu: **mỗi mục đã có sẵn vị trí của IVR**, k�
 
 | # | Lấy gì | Đường dẫn chính xác trong repo IVR |
 | ---: | --- | --- |
-| 1 | Contract intake **hiện hành** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` — `1.0.0-draft.27` |
+| 1 | Contract intake **hiện hành** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` — `1.0.0-draft.29` |
 | 2 | Contract callback | `specs/api/openapi/order-core-ivr-callback.target-v1.yaml` |
 | 3 | **Đọc trước khi sinh client** — hai bản đều **có breaking** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` và `…draft.24-to-v1.0.0-draft.25.md` |
 | 3a | **Enum response có WARN:** `MOCK/VENDOR/ASTERISK_ARI`, dashboard thêm `NONE` | [25→26](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md), [26→27](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md) |
+| 3b | **`27` → `29`: không breaking, không cần sửa client** | [27→28](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.27-to-v1.0.0-draft.28.md) *(no changes to report, but the specs are different)*, [28→29](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.28-to-v1.0.0-draft.29.md) *(thêm `GET /audit-evidence`, `info`)* |
 | 4 | Fixture để tự kiểm producer trước khi gọi thật | `seed/sales-target-v1.sample.json` |
 | 5 | Nhãn tiếng Việt mọi enum (nếu dựng console) | `specs/ui/enum-labels.vi.json` + đặc tả màn hình `specs/ui/` |
 | 6 | Tài liệu tham chiếu đầy đủ (~1.370 dòng, **không** cần đọc hết để ký phiếu này) | `integration-requirements/06-module-3-api-handover.md` |
@@ -39,6 +99,9 @@ phương án từ đầu: **mỗi mục đã có sẵn vị trí của IVR**, k�
 gần như mọi lỗi tích hợp thường gặp lộ ra trước, không tốn một cuộc gọi nào.
 
 ### Ba thay đổi **breaking** cần biết trước khi code
+
+Cả ba nằm ở `draft.24` và `draft.25`. **Từ `draft.27` tới `draft.29` không có breaking nào** —
+nếu client của M3 đã sinh từ `draft.27` trở lên thì không phải sinh lại vì hai bản mới.
 
 Ở `draft.24`:
 
@@ -60,7 +123,7 @@ gần như mọi lỗi tích hợp thường gặp lộ ra trước, không tố
 
    `oasdiff` gọi đây là **8 breaking** (`new-required-request-parameter`). Phân loại ấy đúng, nhưng
    đây là loại breaking hiếm gặp: nó **sửa** client chứ không phá — client cũ vốn đã bị từ chối ở 8
-   route đó, chỉ là không có cách nào biết vì sao. **Sinh lại client từ bản hiện hành `draft.27`; đọc thêm enum response ở 25→26→27.**
+   route đó, chỉ là không có cách nào biết vì sao. **Sinh lại client từ bản hiện hành `draft.29`; đọc thêm enum response ở 25→26→27.**
 
 ---
 
@@ -97,7 +160,7 @@ nào trong hai mục ấy chặn tích hợp M3.**
 
 ## Phần B — Câu Module 3 phải trả lời
 
-21 mục. Mỗi mục: câu hỏi, vị trí IVR đề xuất, hậu quả nếu chọn khác, và ô trả lời.
+30 mục. Mỗi mục: câu hỏi, vị trí IVR đề xuất, hậu quả nếu chọn khác, và ô trả lời.
 
 ### Nhóm B1 — Producer phía Module 3
 
@@ -235,6 +298,7 @@ nào trong hai mục ấy chặn tích hợp M3.**
 | --- | --- |
 | **IVR đề xuất** | Có. Chỉ đếm là "đã tiếp cận khách" khi field này `true`. |
 | **Vì sao** | Một lần quay số hỏng vì lý do kỹ thuật **không** phải một lần làm phiền khách. Đếm nhầm sẽ khiến M3 kết luận đã gọi đủ trong khi khách chưa từng nghe chuông. |
+| **Liên quan** | `M3-23` hỏi chiều ngược lại: technical retry **có được phép tạo ra một cuộc gọi thứ ba tới khách** hay không. Hai câu này phải trả lời cùng nhau. |
 | **Trả lời** | ☐ ĐỒNG Ý ☐ KHÁC: ____________________________________________ |
 
 ---
@@ -340,6 +404,151 @@ nào trong hai mục ấy chặn tích hợp M3.**
 
 ---
 
+### Nhóm B5 — Giới hạn số cuộc gọi tới khách
+
+> **Gộp vào từ phiếu rời ngày `15/09`** (`main@ff22227`), chưa từng gửi. Nội dung không sửa một chữ;
+> đã kiểm lại tại `main@d655989` rằng `AttemptPolicyRegistries.cs` vẫn giữ đúng hai lịch dưới đây.
+>
+> Yêu cầu *"gọi tối đa hai lần trong 10 phút"* được mô tả **bằng lời**. Trong code hiện có **hai
+> chương trình với hai lịch khác nhau**, và **không cái nào** khớp trực tiếp với câu mô tả đó:
+>
+> | Chương trình | Số customer attempt | Offset | Cửa sổ xác nhận |
+> | --- | --- | --- | --- |
+> | `GOLDEN_HOUR` | 2 | `0s`, `150s` | `300s` |
+> | `TWENTY_FOUR_SEVEN` | 2 | `0s`, `450s` | `900s` |
+>
+> Cả hai offset đều **dưới** 10 phút nên thoạt nhìn có vẻ đã thoả. Nhưng "10 phút" tính từ mốc nào
+> và ràng buộc cái gì thì **ba cách đọc cho ra ba policy khác nhau**, và chúng khác nhau ở chỗ
+> **khách nghe máy mấy lần**. IVR không tự chọn giúp được.
+>
+> **Chưa đổi gì.** Lịch hiện hành vẫn đang chạy. Nhóm này là để chốt **trước khi** sửa.
+
+---
+
+**`M3-22` · "10 phút" ràng buộc cái gì? (P1)**
+
+| | |
+| --- | --- |
+| **Chọn một** | **A** — hai lượt gọi phải **bắt đầu** trong vòng 10 phút kể từ lượt đầu → gần với lịch hiện tại; cửa sổ xác nhận là chuyện khác.<br>**B** — **toàn bộ** việc xác nhận đơn phải xong trong 10 phút → `TWENTY_FOUR_SEVEN` đang là `900s` = 15 phút, **phải đổi**.<br>**C** — khoảng cách giữa hai lượt **không quá** 10 phút → cả hai chương trình hiện đã thoả, không phải đổi gì. |
+| **Câu phụ bắt buộc** | Mốc `0` tính từ **lúc M3 giao task**, hay từ **lúc IVR quay số lần đầu**? Hai mốc này lệch nhau bằng độ trễ hàng đợi, và độ trễ đó **không cố định**. |
+| **Trả lời** | ☐ A ☐ B ☐ C · mốc `0` = ☐ lúc M3 giao task ☐ lúc IVR quay số lần đầu |
+
+---
+
+**`M3-23` · Technical retry có tính vào "hai lần" không? (P1)**
+
+| | |
+| --- | --- |
+| **Vì sao đây là câu nặng nhất nhóm** | Hiện `technical exception` **không** được tính là customer attempt (`DispositionMapper.cs`), và trần retry kỹ thuật mặc định là `1`. Budget quay số của token = `MaxAttempts + TechnicalRetryLimit`. Nghĩa là **về lý thuyết khách có thể nhận cuộc thứ ba**, nếu một lượt hỏng vì lý do kỹ thuật **sau khi đã đổ chuông**. |
+| **Chọn một** | **A** — "hai lần" = hai **customer attempt**; technical retry không tính → giữ nguyên code, khách có thể nghe chuông **3 lần**.<br>**B** — "hai lần" = hai **cuộc gọi tới khách**, bất kể lý do → phải chặn technical retry tạo cuộc thứ ba; đổi budget. |
+| **Nếu chọn B, trả lời thêm** | **Đổ chuông rồi mới hỏng** có tính không? Còn **gửi originate nhưng nhà mạng từ chối trước khi đổ chuông** thì sao? Hai cái này khác nhau ở chỗ khách **có bị làm phiền hay không**. |
+| **Trả lời** | ☐ A ☐ B · nếu B: đổ chuông rồi hỏng ☐ tính ☐ không tính · nhà mạng từ chối trước khi đổ chuông ☐ tính ☐ không tính |
+
+---
+
+**`M3-24` · Giới hạn theo đơn hay theo số điện thoại? (P1)**
+
+| | |
+| --- | --- |
+| **Hiện trạng** | Lịch và budget gắn theo **job/task**, tức **theo đơn**. Nếu một khách có **hai đơn** trong cùng khung giờ, họ nhận **bốn** cuộc. **Không có gì trong hệ thống hiện chặn điều đó.** |
+| **Chọn một** | **A** — giới hạn theo đơn; bốn cuộc là chấp nhận được → không cần gì thêm.<br>**B** — giới hạn theo đích liên hệ, tối đa một cuộc đang hoạt động trên mỗi số → **phải trả lời `M3-25`**. |
+| **Trả lời** | ☐ A ☐ B |
+
+---
+
+**`M3-25` · Nếu chọn `M3-24`=B: tham chiếu nào để khóa theo đích? (P2)**
+
+| | |
+| --- | --- |
+| **Ràng buộc** | IVR **không được lưu số điện thoại thô** (`OD-V1-18`). Số E.164 chỉ sống trong bộ nhớ của biên telephony đủ lâu để quay số; mọi nơi khác chỉ có tham chiếu opaque. Để khóa "một cuộc đang hoạt động trên mỗi đích", IVR cần **một tham chiếu ổn định cho cùng một số thuê bao qua nhiều đơn**. |
+| **Cần biết** | 1. `phone_ref` hiện tại có **ổn định qua các đơn khác nhau của cùng một số** không, hay mỗi task một giá trị?<br>2. Nếu không ổn định: M3 có cấp được một `contact_ref` ổn định không?<br>3. Nếu không có: IVR **không** tự băm số để tạo khóa — làm vậy là dựng một định danh khách hàng mới ở phía IVR, đúng thứ `OD-V1-18` không muốn. Khi đó `M3-24` **phải chọn A**. |
+| **Trả lời** | `phone_ref` ổn định qua nhiều đơn: ☐ Có ☐ Không · cấp được `contact_ref` ổn định: ☐ Có ☐ Không · tên field đề xuất: ______________ |
+
+---
+
+### Nhóm B6 — `OD-18`: Module 3 quyết định gọi, IVR chỉ thực thi
+
+> **Phiếu này đã gửi ngày `27/08/2026` và tới nay chưa có trả lời.** Gộp vào đây để M3 không phải
+> tìm lại bản cũ; **trả lời ở đây là đủ** và bản này thay thế bản đó.
+>
+> Ưu tiên `P1`. Chặn `ACCEPTED` của `W-0123`; **không** chặn hành vi runtime hiện tại.
+>
+> **Điều đã đổi phía IVR.** Owner Module 8 khóa `OD-18` (`27/08`): *Module 3 quyết định nghiệp vụ,
+> IVR chỉ thực thi cuộc gọi.* Đã triển khai xong ở `W-0123`. IVR **đã gỡ** khả năng tự bỏ cuộc gọi:
+>
+> | Trước (`OD-15`) | Nay (`OD-18`) |
+> | --- | --- |
+> | IVR đọc `trust.risk_evidence_available` + `risk_flags` rỗng → `TASK_SKIPPED_TRUSTED_CUSTOMER` | Không còn nhánh nào. Runtime **không bao giờ** phát sinh decision này |
+> | `trusted_skip_allowed=false` là veto | Field `deprecated`, được nhận và lưu nhưng **bị bỏ qua** |
+> | `customer_trust_status` dùng cho audit | `deprecated`, `LEGACY_READ` |
+> | `risk_flags` tham gia quyết định gọi/bỏ | Chỉ còn audit + ưu tiên scheduler, **không** đảo quyết định |
+>
+> **Hệ quả quan trọng nhất, xin đọc kỹ:** nếu Module 3 từng dựa vào IVR để bỏ qua khách cũ, thì kể
+> từ bản này **những đơn đó sẽ được gọi**. IVR không còn lọc hộ. Đơn nào không cần gọi thì Module 3
+> phải **không gửi task**.
+>
+> Contract giữ tương thích để rolling deploy không vỡ; `oasdiff` xác nhận **không có breaking change**.
+>
+> **Điều IVR *không* yêu cầu nữa:** phiếu `OD-15` cũ yêu cầu M3 gửi
+> `eligibility_snapshot.trust.risk_evidence_available` để bật trusted-skip. **Yêu cầu đó đã bị huỷ.**
+> Không cần build gì cho nó. Nếu đang làm dở thì **dừng lại**.
+
+Mỗi câu xin trả lời kèm **commit / phiên bản OpenAPI / ảnh chụp runtime** — không nhận trả lời suy đoán.
+
+---
+
+**`M3-26` · Hiện Module 3 có gửi hay đọc bốn thứ này không? (P1)**
+
+| Field / giá trị | Chiều | Trả lời của M3 | Bằng chứng |
+| --- | --- | --- | --- |
+| `customer_trust_status` | M3 **gửi** trong `POST /tasks`? | ☐ Có ☐ Không | |
+| `trusted_skip_allowed` | M3 **gửi**? | ☐ Có ☐ Không | |
+| `eligibility_snapshot.trust.risk_evidence_available` | M3 **gửi**? | ☐ Có ☐ Không | |
+| `TASK_SKIPPED_TRUSTED_CUSTOMER` | M3 **đọc** decision này từ response? | ☐ Có ☐ Không | |
+
+**Vì sao cần:** đây là điều kiện để IVR biết có được **xoá hẳn** ba field khỏi contract hay phải giữ
+một cửa sổ tương thích. Trả lời "Không" cho cả bốn ⇒ `M3-29` chọn remove; có bất kỳ "Có" nào ⇒ giữ deprecate.
+
+---
+
+**`M3-27` · Module 3 đã lọc đơn không cần gọi trước khi gửi task chưa? (P1)**
+
+| | |
+| --- | --- |
+| **Vì sao cần** | Đây là câu **duy nhất** quyết định `OD-18` có an toàn trên dữ liệu thật hay không. Nếu M3 đang dựa vào IVR bỏ qua, thì **lượng cuộc gọi sẽ tăng ngay khi bản này lên**, và hai bên cần chốt kế hoạch **trước** khi deploy chứ không phải sau. |
+| **Đo được, không phải tin nhau** | IVR `W-0124` thêm counter `ivr_legacy_skip_candidate_total`, đếm tại intake mỗi task mang đúng hình dạng predicate đã nghỉ hưu. Task đó **vẫn được gọi bình thường** — counter chỉ ghi lại. Sau deploy, con số này chính là **số đơn M3 vẫn đánh dấu theo cách cũ**: bằng `0` là hai bên đã khớp; khác `0` thì mỗi đơn trong đó là **một cuộc gọi thật tới một khách hàng thật**. |
+| **Trả lời** | ☐ Đã lọc — tiêu chí: `_______________________`<br>☐ Chưa lọc, đang dựa vào IVR bỏ qua<br>☐ Không áp dụng — mọi đơn `CONFIRMING` đều cần gọi |
+
+---
+
+**`M3-28` · `customer_trust_status` có còn cần lưu không? (P2)**
+
+| | |
+| --- | --- |
+| **Vì sao** | IVR đang lưu cột này nhưng **không dùng vào bất cứ quyết định nào**. Giữ một trường phân loại khách hàng mà không có mục đích là **rủi ro privacy**, không phải tài sản. |
+| **Chữ ký** | Cần **M3 + M8**. Công ty không có đội Privacy riêng; theo tiền lệ `OD-V1-11` (`10/09`), owner tự nhận rủi ro và ghi vào văn bản. |
+| **Trả lời** | ☐ Giữ cho audit — use case + thời hạn lưu: `_______________________`<br>☐ Bỏ khỏi payload theo nguyên tắc tối thiểu hóa dữ liệu |
+
+---
+
+**`M3-29` · Xoá enum/field ngay ở draft kế tiếp, hay giữ một cửa sổ tương thích? (P2)**
+
+| | |
+| --- | --- |
+| **Lưu ý** | Remove là **breaking change**: cần chạy `oasdiff` và consumer contract test **hai phía** trước khi chốt. |
+| **Trả lời** | ☐ Remove ở draft kế tiếp sau `1.0.0-draft.29` *(chỉ chọn được nếu `M3-26` toàn "Không")*<br>☐ Giữ `deprecated` thêm ______ tuần rồi mới remove |
+
+---
+
+**`M3-30` · `risk_flags` giữ nguyên hay thay bằng field ưu tiên tường minh? (P3)**
+
+| | |
+| --- | --- |
+| **Hiện trạng** | IVR tính điểm ưu tiên từ `risk_flags` (`SchedulerCapacityMapper.RiskScore`). Điều này **không** ảnh hưởng quyết định gọi/bỏ, nhưng dùng một trường rủi ro **nghiệp vụ** làm tín hiệu xếp hàng **kỹ thuật** là một sự lẫn lộn đáng dọn khi có dịp. |
+| **Trả lời** | ☐ Giữ `risk_flags`, IVR tiếp tục dùng cho ưu tiên scheduler<br>☐ Thay bằng một field ưu tiên riêng — đề xuất tên/kiểu: `_______________________` |
+
+---
+
 ## Phần C — Ba chuỗi lệch, sửa ở lớp assembler của M3
 
 Bảng này đã đối chiếu **trực tiếp với code IVR**, không chép từ tài liệu.
@@ -358,8 +567,9 @@ Bảng này đã đối chiếu **trực tiếp với code IVR**, không chép t
 
 1. **`phone_masked` phải chứa ít nhất một ký tự che** (`x`, `X` hoặc `*`). Gửi số chưa che →
    `422 IVR_CONTACT_INVALID`.
-2. **`dial_token_expires_at` phải bằng đúng `confirmation_window_expires_at`.** Sớm hơn →
-   `422 IVR_CONTACT_INVALID`. **Muộn hơn → intake nhận, rồi hỏng ở tầng dưới** lúc quay số.
+2. **`dial_token_expires_at` phải bằng đúng `confirmation_window_expires_at`.** Sớm hơn **và** muộn hơn
+   đều → `422 IVR_CONTACT_INVALID`, mỗi chiều một reason code riêng. *(Vế "muộn hơn" trước đây lọt qua
+   intake rồi hỏng ở tầng dưới thành `500`; `W-0302` đã sửa thành `422` ở `draft.28`.)*
 
 ---
 
@@ -369,12 +579,13 @@ Bảng này đã đối chiếu **trực tiếp với code IVR**, không chép t
 
 | # | Việc | Xong khi nào thì tính là xong |
 | ---: | --- | --- |
-| D-1 | Sinh lại client từ `1.0.0-draft.27` | Client bỏ 11 endpoint đã gỡ, có header bắt buộc và enum response hiện hành |
+| D-1 | Sinh lại client từ `1.0.0-draft.29` | Client bỏ 11 endpoint đã gỡ, có header bắt buộc và enum response hiện hành |
 | D-2 | Sửa ba chuỗi ở Phần C tại lớp assembler | Chạy hết 35 fixture ở `seed/sales-target-v1.sample.json` đúng kết quả mong đợi |
 | D-3 | Dựng endpoint callback generic + giao OpenAPI authoritative | IVR sinh được client từ nó |
 | D-4 | Cài revalidate sáu điều kiện ở `M3-11` | Có test chứng minh transition bị chặn khi một điều kiện sai |
 | D-5 | Chạy shared E2E cho: accepted, duplicate, conflict, stale, block, review, auth, invalid, outage | Chạy trên môi trường chung, không phải fake local |
 | D-6 | Dựng giao diện quản trị nếu trả lời `ĐỒNG Ý` ở `M3-16` | Đủ ba tầng, có `X-Actor-Id` và `X-Action-Reason` |
+| D-7 | Nếu `M3-27` = "chưa lọc": chốt kế hoạch tăng tải **trước** khi deploy | Có con số dự kiến và ngày; `ivr_legacy_skip_candidate_total` về `0` |
 
 ---
 
@@ -387,20 +598,32 @@ Bảng này đã đối chiếu **trực tiếp với code IVR**, không chép t
 | E-3 | Cấp base URL intake cho sandbox và production | owner IVR |
 | E-4 | Chốt ngày tắt cơ chế `X-Internal-Token` compatibility | owner IVR |
 | E-5 | Thu ngân hàng ghi âm: số 0–99, đơn vị, 34 tỉnh, tên hàng | owner IVR |
+| E-6 | Áp policy chốt ở `M3-22`/`M3-23` vào `AttemptPolicyRegistries`, kèm version mới giữ snapshot job cũ | owner IVR |
+| E-7 | Cập nhật `IR-06 §9` và chuyển `W-0123` sang đề nghị `ACCEPTED` | owner IVR |
+
+> Nếu policy ở B5 phải đổi: phiên bản mới **giữ snapshot của job cũ**, và phải kiểm cả producer M3,
+> intake, scheduler, TTL token, normalization và callback. **Không sửa hằng số riêng ở adapter.**
+
+---
+
+## Ràng buộc kiến trúc — không đổi, không nằm trong phạm vi thương lượng
+
+M3 quyết đơn nào cần gọi · IVR thực thi và trả kết quả · M3 kiểm lại trạng thái/phiên bản đơn trước
+khi cập nhật nghiệp vụ. Phím `0` là **yêu cầu huỷ đơn**, **không** phải yêu cầu ngừng mọi liên hệ.
 
 ---
 
 ## Ô ký
 
-Ký là xác nhận: **đã đọc Phần A** (và không phản đối mục nào chưa nêu ở trên), **đã trả lời Phần B**,
-và **chấp nhận Phần D**.
+Ký là xác nhận: **đã đọc Phần A** (và không phản đối mục nào chưa nêu ở trên), **đã trả lời Phần B**
+(cả sáu nhóm), và **chấp nhận Phần D**.
 
 | Vai trò | Xác nhận | Tên | Ngày |
 | --- | --- | --- | --- |
 | Owner / dev Module 3 | ____________ | ____________ | ______ |
-| Owner Module 8 / IVR | ____________ | ____________ | ______ |
+| Owner Module 8 / IVR | ✅ Đồng ý toàn bộ phía M8 | **Toàn — Module 8** | **2026-09-17** |
 
-**Mục M3 muốn nêu thêm ngoài 21 câu trên** *(nếu để trống, IVR hiểu là không có)*:
+**Mục M3 muốn nêu thêm ngoài 30 câu trên** *(nếu để trống, IVR hiểu là không có)*:
 
 ______________________________________________________________________________
 

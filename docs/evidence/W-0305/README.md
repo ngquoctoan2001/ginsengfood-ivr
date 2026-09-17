@@ -2,7 +2,7 @@
 
 Ngày 16/09/2026. **TESTS_PASS** (docs-only). Baseline `52044ce`. `REAL_CUSTOMER_CALL_ALLOWED=NO` — không đổi.
 
-PD-03 của [kế hoạch đường gọi production](../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md). Một file mới: [`docs/operations/production-dial-path.md`](../../operations/production-dial-path.md).
+PD-03 của [kế hoạch đường gọi production](../../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md). Một file mới: [`docs/operations/production-dial-path.md`](../../operations/production-dial-path.md).
 
 Không sửa file `.cs` nào, không migration, không OpenAPI. Không có symbol nào để chạy impact; `detect_changes` chạy trước commit theo `CLAUDE.md`.
 

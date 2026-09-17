@@ -2,7 +2,7 @@
 
 Ngày 16/09/2026. **TESTS_PASS**. Commit `a2808ce`, baseline `2fb76fe`. `REAL_CUSTOMER_CALL_ALLOWED=NO` — không đổi.
 
-PD-01.1 đến PD-01.5 của [kế hoạch đường gọi production](../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md). Hai type mới, ba file sửa, và một nhánh production trong composition root bên cạnh nhánh lab.
+PD-01.1 đến PD-01.5 của [kế hoạch đường gọi production](../../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md). Hai type mới, ba file sửa, và một nhánh production trong composition root bên cạnh nhánh lab.
 
 ## Đã dựng
 

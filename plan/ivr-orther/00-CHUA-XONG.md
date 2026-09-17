@@ -39,8 +39,8 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 
 | Phiếu cũ | Gửi cho | Nay ở đâu |
 | --- | --- | --- |
-| `m3-call-limit` | M3 | ✅ **Khôi phục, sẵn sàng gửi** — [phiếu](questions-to-module-3-call-limit-2026-09-15.md) |
-| `m3-od18-authority` | M3 | ⏳ **Đã gửi, chưa nhận trả lời** — [phiếu](questions-to-module-3-od18-authority.md) |
+| `m3-call-limit` | M3 | ➡️ **Nhóm `B5`** (`M3-22`…`M3-25`) của [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md). Bản rời `15/09` giữ nguyên làm bản ghi khôi phục của `W-0309`, **không gửi nữa** |
+| `m3-od18-authority` | M3 | ➡️ **Nhóm `B6`** (`M3-26`…`M3-30`) của [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md). Bản rời `27/08` là **bản ghi đã gửi**, giữ nguyên (đang bị ghim hash trong `external-decision-artifacts.sha256`) |
 | `platform-key-source` | Platform | ➡️ **Mục `2`** của [phiếu cho Sếp](phieu-quyet-dinh-cho-sep-2026-09-17.md) |
 | `platform-ci-staging` | Platform | ➡️ **Mục `1`** (tiền) + **Mục `3`** (người duyệt thứ hai) |
 | `legal-od-voice-07` | Legal | ➡️ **Mục `4`** — chỉ phần `L3`/`L6` còn sống |
@@ -279,7 +279,7 @@ _Cập nhật `17/09` (`W-0309`). Bảng cũ gom `5` bên; thật ra chỉ có *
 
 | Bên | Đang chặn | Cách gỡ |
 | --- | --- | --- |
-| **Module 3** | m8-05, m8-06, m8-07, m8-09, m8-10, m8-17, `14` mục nhóm C của bản `16/09` | Một [phiếu 21 câu](../../integration-requirements/07-module-3-decision-sheet.md) đã soạn — chốt một lượt. Cộng [phiếu giới hạn số cuộc gọi](questions-to-module-3-call-limit-2026-09-15.md) vừa khôi phục |
+| **Module 3** | m8-05, m8-06, m8-07, m8-09, m8-10, m8-17, `14` mục nhóm C của bản `16/09`, cộng `W-0123` *(chờ `OD-18`)* | **Đúng một** [phiếu `IR-07`, `30` câu](../../integration-requirements/07-module-3-decision-sheet.md) — bản gộp `17/09` đã nuốt cả phiếu giới hạn số cuộc gọi (`B5`) lẫn phiếu `OD-18` (`B6`). **Không gửi phiếu nào khác nữa** |
 | **Sếp** | môi trường triển khai · nguồn khoá token · người duyệt thứ hai · quyền `12` đoạn audio · m8-15 | **Một** [phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md), `4` mục, viết không thuật ngữ |
 | **Nhà mạng** | `B12` adapter production, `B1` hiệu chỉnh `4` số năng lực | Chờ báo giá. Đường ống đã dựng xong `16/09`, thiếu tuyến |
 | ~~Platform~~ ~~Security~~ ~~Legal~~ | — | **Không tồn tại như đội riêng.** Đã gom về Sếp hoặc đóng — xem nhóm A |
