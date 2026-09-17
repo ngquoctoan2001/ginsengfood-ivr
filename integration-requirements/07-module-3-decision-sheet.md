@@ -1,22 +1,17 @@
 # IR-07 — Phiếu chốt một lần: Module 3 ↔ IVR (Module 8)
 
-**Phiên bản contract:** `1.0.0-draft.29` · **Ngày phát bản đầu:** 2026-09-10 · **Bản gộp:** 2026-09-17 · **Người phát:** owner IVR
-**Trạng thái:** `READY_TO_DISPATCH / NOT_SENT` · **Mốc mã:** `main@d655989`
+**Phiên bản contract:** `1.0.0-draft.30` · **Ngày phát:** 2026-09-17 · **Người phát:** owner IVR
+**Trạng thái:** `READY_TO_DISPATCH / NOT_SENT`
 
 > ## Đây là phiếu **duy nhất** IVR gửi Module 3. Không còn phiếu nào khác.
 >
-> Bản `17/09` này **gộp ba phiếu rời** thành một, để M3 trả lời đúng **một lượt** rồi gửi lại:
+> **30 câu**, trả lời đúng **một lượt** rồi gửi lại. Bảng điền nhanh ở ngay dưới.
 >
-> | Phiếu cũ | Nay nằm ở | Tình trạng trước khi gộp |
-> | --- | --- | --- |
-> | `IR-07` — 21 câu tích hợp | Nhóm **B1–B4** | chưa gửi |
-> | Phiếu giới hạn số cuộc gọi (`15/09`) | Nhóm **B5**, câu `M3-22`…`M3-25` | chưa gửi |
-> | Phiếu `OD-18` thẩm quyền (`27/08`) | Nhóm **B6**, câu `M3-26`…`M3-30` | **đã gửi `27/08`, chưa có trả lời** |
+> ### Tin tốt trước: một việc vừa được gỡ khỏi phần của Module 3
 >
-> Nhóm B6 là phiếu đã gửi cách đây **ba tuần** mà chưa nhận hồi đáp. Không cần tìm lại bản cũ —
-> **trả lời ở đây là đủ**, và bản này thay thế bản đó.
->
-> Tổng: **30 câu**. Bảng điền nhanh ở ngay dưới.
+> Owner chốt ngày **`17/09`**: Module 3 **gửi thẳng số điện thoại** (`phone_e164`), thay vì phải tự
+> dựng bộ cấp `dial_token` để IVR giải mã. **Module 3 không phải làm token issuer, không phải làm
+> kho khoá.** Chi tiết ở `A-5`; đây là thay đổi duy nhất của `draft.30`.
 
 ---
 
@@ -85,11 +80,11 @@ phương án từ đầu: **mỗi mục đã có sẵn vị trí của IVR**, k�
 
 | # | Lấy gì | Đường dẫn chính xác trong repo IVR |
 | ---: | --- | --- |
-| 1 | Contract intake **hiện hành** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` — `1.0.0-draft.29` |
+| 1 | Contract intake **hiện hành** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` — `1.0.0-draft.30` |
 | 2 | Contract callback | `specs/api/openapi/order-core-ivr-callback.target-v1.yaml` |
 | 3 | **Đọc trước khi sinh client** — hai bản đều **có breaking** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` và `…draft.24-to-v1.0.0-draft.25.md` |
 | 3a | **Enum response có WARN:** `MOCK/VENDOR/ASTERISK_ARI`, dashboard thêm `NONE` | [25→26](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md), [26→27](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md) |
-| 3b | **`27` → `29`: không breaking, không cần sửa client** | [27→28](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.27-to-v1.0.0-draft.28.md) *(no changes to report, but the specs are different)*, [28→29](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.28-to-v1.0.0-draft.29.md) *(thêm `GET /audit-evidence`, `info`)* |
+| 3b | **`27` → `30`: không breaking, không cần sửa client** | [27→28](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.27-to-v1.0.0-draft.28.md) *(no changes to report, but the specs are different)*, [28→29](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.28-to-v1.0.0-draft.29.md) *(thêm `GET /audit-evidence`, `info`)*, [29→30](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.29-to-v1.0.0-draft.30.md) *(thêm field tùy chọn `phone_e164`, `info`)* |
 | 4 | Fixture để tự kiểm producer trước khi gọi thật | `seed/sales-target-v1.sample.json` |
 | 5 | Nhãn tiếng Việt mọi enum (nếu dựng console) | `specs/ui/enum-labels.vi.json` + đặc tả màn hình `specs/ui/` |
 | 6 | Tài liệu tham chiếu đầy đủ (~1.370 dòng, **không** cần đọc hết để ký phiếu này) | `integration-requirements/06-module-3-api-handover.md` |
@@ -100,8 +95,8 @@ gần như mọi lỗi tích hợp thường gặp lộ ra trước, không tố
 
 ### Ba thay đổi **breaking** cần biết trước khi code
 
-Cả ba nằm ở `draft.24` và `draft.25`. **Từ `draft.27` tới `draft.29` không có breaking nào** —
-nếu client của M3 đã sinh từ `draft.27` trở lên thì không phải sinh lại vì hai bản mới.
+Cả ba nằm ở `draft.24` và `draft.25`. **Từ `draft.27` tới `draft.30` không có breaking nào** —
+nếu client của M3 đã sinh từ `draft.27` trở lên thì không phải sinh lại vì ba bản mới.
 
 Ở `draft.24`:
 
@@ -123,7 +118,7 @@ nếu client của M3 đã sinh từ `draft.27` trở lên thì không phải si
 
    `oasdiff` gọi đây là **8 breaking** (`new-required-request-parameter`). Phân loại ấy đúng, nhưng
    đây là loại breaking hiếm gặp: nó **sửa** client chứ không phá — client cũ vốn đã bị từ chối ở 8
-   route đó, chỉ là không có cách nào biết vì sao. **Sinh lại client từ bản hiện hành `draft.29`; đọc thêm enum response ở 25→26→27.**
+   route đó, chỉ là không có cách nào biết vì sao. **Sinh lại client từ bản hiện hành `draft.30`; đọc thêm enum response ở 25→26→27.**
 
 ---
 
@@ -138,8 +133,8 @@ gian hỏi lại, và để nếu M3 thấy mục nào không dùng được th�
 | A-2 | Chính sách attempt — 24/7 | **2** cuộc, mốc `[0s, 450s]`, cửa sổ **15 phút** | `OD-V1-08`+`OD-V1-16` · 2026-09-05 |
 | A-3 | Tên version chính sách trên dây | `gh-247-prod-v1` | `W-0198` |
 | A-4 | Giờ được phép gọi | **08:00–21:08** giờ địa phương (UTC+7). `21:07` còn trong, `21:08` ngoài | `OD-V1-16`, sửa ở `W-0220` |
-| A-5 | `dial_token` | Sales cấp lúc tạo task; **dùng lại được**, gắn cứng `task_id`; TTL = **đúng** `confirmation_window_expires_at`; trần resolve = `max_customer_attempts` + trần technical retry; mỗi lần resolve ghi audit kèm `attempt_id` | `OD-V1-05`/`17`/`18` · 2026-09-05, vế TTL chốt lại 2026-09-09 |
-| A-6 | Vị trí resolve `dial_token → E.164` | **Trong IVR**, trong biên adapter telephony. Số E.164 **chỉ tồn tại trong bộ nhớ tiến trình** cho đúng một lần quay số: không DB, không log, không evidence, không callback | `OD-V1-18` · 2026-09-05 |
+| A-5 | **Số điện thoại khách gửi thế nào** | **Module 3 gửi thẳng `phone_e164`** (`+84` + 9 chữ số). **Không** phải dựng token issuer, **không** phải dựng kho khoá. Ở `draft.30` field này **tuỳ chọn**, bản kế tiếp thành **bắt buộc**: trong giai đoạn chuyển, M3 gửi `phone_e164` **HOẶC** `dial_token` + `dial_token_expires_at`, ai sẵn trước đi trước, **không cần release đồng bộ**. Gửi cả hai thì `phone_e164` thắng, token bị bỏ qua | **owner · 2026-09-17**, thay cho `OD-V1-05`/`17`/`18` |
+| A-6 | Số điện thoại sống ở đâu trong IVR | Chỉ trong **bộ nhớ tiến trình** tại biên adapter telephony, đủ lâu cho đúng một lần quay số: **không DB, không log, không evidence, không callback**. Quyết định `17/09` đổi **cách số đi vào**, **không** nới chỗ nó được phép nằm lại | `OD-V1-18` phần lưu trữ · 2026-09-05 |
 | A-7 | Auth production | JWT **ký khóa bất đối xứng**, JWKS, TTL token **≤ 10 phút**, scope bắt buộc `ivr.task.write`. Token tĩnh dùng chung **bị từ chối**. mTLS **hoãn** tới khi có hạ tầng thật | `OD-V1-07` · 2026-09-05 |
 | A-8 | Lời thoại | **Không dùng vendor TTS lúc chạy.** Kịch bản cố định thu giọng người; chỉ ghép mã đơn, tiền, vùng giao từ ngân hàng ghi âm. **Không đọc tên khách** | `OD-V1-19` · 2026-09-05 |
 | A-9 | Ghi âm cuộc gọi | **TẮT vĩnh viễn** ở V1. Metadata cuộc gọi giữ **90 ngày** | `OD-V1-11` · 2026-09-05 |
@@ -406,9 +401,6 @@ nào trong hai mục ấy chặn tích hợp M3.**
 
 ### Nhóm B5 — Giới hạn số cuộc gọi tới khách
 
-> **Gộp vào từ phiếu rời ngày `15/09`** (`main@ff22227`), chưa từng gửi. Nội dung không sửa một chữ;
-> đã kiểm lại tại `main@d655989` rằng `AttemptPolicyRegistries.cs` vẫn giữ đúng hai lịch dưới đây.
->
 > Yêu cầu *"gọi tối đa hai lần trong 10 phút"* được mô tả **bằng lời**. Trong code hiện có **hai
 > chương trình với hai lịch khác nhau**, và **không cái nào** khớp trực tiếp với câu mô tả đó:
 >
@@ -460,17 +452,15 @@ nào trong hai mục ấy chặn tích hợp M3.**
 
 | | |
 | --- | --- |
-| **Ràng buộc** | IVR **không được lưu số điện thoại thô** (`OD-V1-18`). Số E.164 chỉ sống trong bộ nhớ của biên telephony đủ lâu để quay số; mọi nơi khác chỉ có tham chiếu opaque. Để khóa "một cuộc đang hoạt động trên mỗi đích", IVR cần **một tham chiếu ổn định cho cùng một số thuê bao qua nhiều đơn**. |
-| **Cần biết** | 1. `phone_ref` hiện tại có **ổn định qua các đơn khác nhau của cùng một số** không, hay mỗi task một giá trị?<br>2. Nếu không ổn định: M3 có cấp được một `contact_ref` ổn định không?<br>3. Nếu không có: IVR **không** tự băm số để tạo khóa — làm vậy là dựng một định danh khách hàng mới ở phía IVR, đúng thứ `OD-V1-18` không muốn. Khi đó `M3-24` **phải chọn A**. |
+| **Ràng buộc** | IVR **không lưu số điện thoại thô** — số chỉ sống trong bộ nhớ biên telephony đủ lâu để quay số (`A-6`), mọi nơi khác chỉ có tham chiếu opaque. Để khóa "một cuộc đang hoạt động trên mỗi đích", IVR cần **một tham chiếu ổn định cho cùng một số thuê bao qua nhiều đơn**. |
+| **Quyết định `17/09` đổi gì ở câu này** | Từ `draft.30`, `phone_e164` đi thẳng vào intake, nên IVR **về mặt kỹ thuật** đã có đủ dữ kiện để tự dẫn xuất một khóa ổn định — trước đây thì không, vì chỉ có token mờ. Nên đây **không còn là chuyện bất khả thi, mà là một lựa chọn**: tự băm số ở phía IVR nghĩa là dựng thêm **một định danh khách hàng mới**, ở một module vốn cố tình không giữ danh tính khách. IVR đề xuất **không** làm vậy, và xin M3 cấp tham chiếu. |
+| **Cần biết** | 1. `phone_ref` hiện tại có **ổn định qua các đơn khác nhau của cùng một số** không, hay mỗi task một giá trị?<br>2. Nếu không ổn định: M3 có cấp được một `contact_ref` ổn định không?<br>3. Nếu M3 không cấp và cũng không muốn IVR tự dẫn xuất → `M3-24` **phải chọn A**. |
 | **Trả lời** | `phone_ref` ổn định qua nhiều đơn: ☐ Có ☐ Không · cấp được `contact_ref` ổn định: ☐ Có ☐ Không · tên field đề xuất: ______________ |
 
 ---
 
 ### Nhóm B6 — `OD-18`: Module 3 quyết định gọi, IVR chỉ thực thi
 
-> **Phiếu này đã gửi ngày `27/08/2026` và tới nay chưa có trả lời.** Gộp vào đây để M3 không phải
-> tìm lại bản cũ; **trả lời ở đây là đủ** và bản này thay thế bản đó.
->
 > Ưu tiên `P1`. Chặn `ACCEPTED` của `W-0123`; **không** chặn hành vi runtime hiện tại.
 >
 > **Điều đã đổi phía IVR.** Owner Module 8 khóa `OD-18` (`27/08`): *Module 3 quyết định nghiệp vụ,
@@ -536,7 +526,7 @@ một cửa sổ tương thích. Trả lời "Không" cho cả bốn ⇒ `M3-29`
 | | |
 | --- | --- |
 | **Lưu ý** | Remove là **breaking change**: cần chạy `oasdiff` và consumer contract test **hai phía** trước khi chốt. |
-| **Trả lời** | ☐ Remove ở draft kế tiếp sau `1.0.0-draft.29` *(chỉ chọn được nếu `M3-26` toàn "Không")*<br>☐ Giữ `deprecated` thêm ______ tuần rồi mới remove |
+| **Trả lời** | ☐ Remove ở draft kế tiếp sau `1.0.0-draft.30` *(chỉ chọn được nếu `M3-26` toàn "Không")*<br>☐ Giữ `deprecated` thêm ______ tuần rồi mới remove |
 
 ---
 
@@ -567,9 +557,12 @@ Bảng này đã đối chiếu **trực tiếp với code IVR**, không chép t
 
 1. **`phone_masked` phải chứa ít nhất một ký tự che** (`x`, `X` hoặc `*`). Gửi số chưa che →
    `422 IVR_CONTACT_INVALID`.
-2. **`dial_token_expires_at` phải bằng đúng `confirmation_window_expires_at`.** Sớm hơn **và** muộn hơn
+2. **Chỉ áp dụng nếu M3 còn gửi `dial_token`** — gửi `phone_e164` thì bỏ qua mục này.
+   `dial_token_expires_at` phải bằng **đúng** `confirmation_window_expires_at`. Sớm hơn **và** muộn hơn
    đều → `422 IVR_CONTACT_INVALID`, mỗi chiều một reason code riêng. *(Vế "muộn hơn" trước đây lọt qua
    intake rồi hỏng ở tầng dưới thành `500`; `W-0302` đã sửa thành `422` ở `draft.28`.)*
+   Đây là một trong những lý do đường `phone_e164` rẻ hơn cho M3: nó không có cặp mốc thời gian nào
+   phải khớp nhau.
 
 ---
 
@@ -579,13 +572,18 @@ Bảng này đã đối chiếu **trực tiếp với code IVR**, không chép t
 
 | # | Việc | Xong khi nào thì tính là xong |
 | ---: | --- | --- |
-| D-1 | Sinh lại client từ `1.0.0-draft.29` | Client bỏ 11 endpoint đã gỡ, có header bắt buộc và enum response hiện hành |
+| D-1 | Sinh lại client từ `1.0.0-draft.30` | Client bỏ 11 endpoint đã gỡ, có header bắt buộc và enum response hiện hành |
 | D-2 | Sửa ba chuỗi ở Phần C tại lớp assembler | Chạy hết 35 fixture ở `seed/sales-target-v1.sample.json` đúng kết quả mong đợi |
 | D-3 | Dựng endpoint callback generic + giao OpenAPI authoritative | IVR sinh được client từ nó |
 | D-4 | Cài revalidate sáu điều kiện ở `M3-11` | Có test chứng minh transition bị chặn khi một điều kiện sai |
 | D-5 | Chạy shared E2E cho: accepted, duplicate, conflict, stale, block, review, auth, invalid, outage | Chạy trên môi trường chung, không phải fake local |
 | D-6 | Dựng giao diện quản trị nếu trả lời `ĐỒNG Ý` ở `M3-16` | Đủ ba tầng, có `X-Actor-Id` và `X-Action-Reason` |
 | D-7 | Nếu `M3-27` = "chưa lọc": chốt kế hoạch tăng tải **trước** khi deploy | Có con số dự kiến và ngày; `ivr_legacy_skip_candidate_total` về `0` |
+| D-8 | Chuyển sang gửi `phone_e164` (`A-5`) | Gửi `+84` + 9 chữ số ở `POST /tasks`. **Tuỳ chọn ở `draft.30`, bắt buộc ở bản kế tiếp** — làm sớm thì bỏ được `dial_token`, `dial_token_expires_at` và toàn bộ phần token issuer chưa dựng |
+
+> **`D-8` là việc trừ đi, không phải cộng thêm.** Nếu M3 chưa dựng bộ cấp `dial_token` thì **đừng dựng
+> nữa**; nếu đã dựng dở thì dừng. Không có deadline đồng bộ: hai dạng cùng được nhận trong giai đoạn
+> chuyển, chọn theo từng task lúc quay số.
 
 ---
 
