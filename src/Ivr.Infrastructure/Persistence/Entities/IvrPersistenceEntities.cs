@@ -70,6 +70,32 @@ public sealed class ConfirmationTaskEntity : RetainedEntity
     public string? PhoneValidationStatus { get; set; }
     public string DialTokenCiphertext { get; set; } = string.Empty;
     public DateTimeOffset DialTokenExpiresAt { get; set; }
+
+    /// <summary>
+    /// The customer's number in E.164, as Module 3 now sends it (W-0310, option B).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>This column holds a real phone number in the clear, and that is the point of the
+    /// decision that put it here.</b> Owner chose on 2026-09-17 that Module 3 sends the number
+    /// rather than a dial token, which removes the key store, the token issuer Module 3 would have
+    /// had to build, and three open decisions (<c>OD-V1-05</c>, <c>OD-V1-17</c>,
+    /// <c>OD-V1-18</c>). The cost is stated where it is paid: before this column, a dump of this
+    /// database leaked no customer numbers; now it does.
+    /// </para>
+    /// <para>
+    /// It cannot be held in memory instead. The confirmation window is 5 to 15 minutes and the
+    /// second attempt lands at +150s or +450s, so the number has to survive a worker restart
+    /// between attempts.
+    /// </para>
+    /// <para>
+    /// Nullable through the expand phase: rows written before this migration have a dial token and
+    /// no number, and both shapes have to read correctly while Module 3 is still sending the old
+    /// one. <c>PhoneMasked</c> stays the field every log, audit row, callback and admin response
+    /// uses - this column is read on exactly one path, the dial.
+    /// </para>
+    /// </remarks>
+    public string? PhoneE164 { get; set; }
     public string PrivacySafeOrderSummaryJson { get; set; } = "{}";
     public string CallScriptTemplateId { get; set; } = string.Empty;
     public string CallScriptVersion { get; set; } = string.Empty;

@@ -120,6 +120,17 @@ public static class PersonalDataInventory
                 + "(OD-V1-17), TTL bounded below by the confirmation window.",
             PersonalDataLegalBasis.ContractPerformance,
             "Replaced with a redacted value; the token has expired long before erasure is possible."),
+        new("ivr_confirmation_tasks", "phone_e164",
+            "The customer's telephone number in the clear (W-0310, option B). This is the most "
+                + "sensitive field IVR holds and the only one that identifies a person directly "
+                + "rather than through a key somebody else controls. Owner chose on 2026-09-17 that "
+                + "Module 3 sends the number instead of a dial token, which removed the key store "
+                + "and three open decisions; this row is the other side of that choice. Read on "
+                + "exactly one path - the dial - while phone_masked remains what every log, audit "
+                + "row, callback and admin response uses.",
+            PersonalDataLegalBasis.ContractPerformance,
+            "Replaced with a redacted value. Unlike the token, this one does not expire on its own, "
+                + "so erasure is the only thing that removes it."),
         new("ivr_confirmation_tasks", "privacy_safe_order_summary_json",
             "The whitelisted fields the script may read aloud. Contains no address, no payment "
             + "detail and no health note (OD-V1-15).",
