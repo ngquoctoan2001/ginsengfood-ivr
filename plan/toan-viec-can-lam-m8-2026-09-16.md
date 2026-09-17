@@ -52,6 +52,12 @@ _Mỗi dòng có `W-ID` + commit để soi ngược; chi tiết nằm trong chí
 đường quay số production, và `W-0306` phần vận hành từ smoke test (`3` mục còn lại: thư viện `krb5`
 trong ảnh migrate · seed dev vào đường chuẩn compose · hạ mức log EF).
 
+**Lớp `17/09` chiều — `W-0311`, `W-0312`, chạm `1` mục:**
+
+| Mục | Lô | Commit | Đổi gì | Mục đã xong chưa |
+| --- | --- | --- | --- | --- |
+| `B11` | `W-0311` `W-0312` | `ca8d13b` `7c4204e` `f7bb52b` | Owner chốt phương án `B` ngày `17/09`: Module 3 **gửi thẳng số**, IVR không giải mã token nữa. `W-0311` lưu số và cho đường quay production dùng số; `W-0312` (`draft.31`) làm intake **nhận được** task chỉ gửi số — trước đó ở production không task nào được nhận | **Một phần.** Tiền đề của mục — số giải mã từ token, chỉ sống trong bộ nhớ tiến trình, cần `DTK-07` ký — **hết đối tượng**. Nhưng nó đổi thành một rủi ro khác, ghi thẳng: DB của IVR nay giữ số khách (chờ Sếp ký `S2`). `OD-V1-18` → `SUPERSEDED` chờ Module 3 xác nhận đã gửi số |
+
 > ### ⚠️ Ba điều tôi muốn nói thẳng trong bảng này
 >
 > **1. `5` mục ✅ xong, và `0` mục chuyển xuống nhóm `D`.** Tôi để nguyên chỗ cũ kèm ghi chú thay vì
