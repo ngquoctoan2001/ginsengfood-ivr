@@ -73,8 +73,8 @@ Phiếu ở trạng thái **`READY_TO_DISPATCH / NOT_SENT`**. Việc gửi là c
 
 ## Sửa hai link hỏng do chính tôi gây ra
 
-Lúc kiểm độ sâu đường dẫn tương đối của gói này, phát hiện `W-0303` và `W-0305` — **cả hai đều của phiên PD** — trỏ `../../plan/ivr-orther/…`, tức `docs/plan/…`, một thư mục không tồn tại. Đúng phải là `../../../`. `W-0305` kế thừa lỗi từ `W-0303` vì tôi chép khuôn.
+Lúc kiểm độ sâu path tương đối của gói này, phát hiện `W-0303` và `W-0305` — **cả hai đều của phiên PD** — trỏ `../../plan/ivr-orther/…`, tức `docs/plan/…`, một thư mục không tồn tại. Đúng phải là `../../../`. `W-0305` kế thừa lỗi từ `W-0303` vì tôi chép khuôn.
 
 `docs-selftest` **không** bắt được: `DOC_LINKS_PASS` chỉ kiểm link portal sinh ra, không kiểm link tương đối trong gói bằng chứng. Nên nó xanh suốt hai lượt trong khi link vẫn hỏng.
 
-Đã sửa cả hai trong lượt này (không file nào bị ghim hash — đã kiểm). Không sửa nội dung kết luận, chỉ sửa độ sâu đường dẫn.
+Đã sửa cả hai trong lượt này (không file nào bị ghim hash — đã kiểm). Không sửa nội dung kết luận, chỉ sửa độ sâu path.

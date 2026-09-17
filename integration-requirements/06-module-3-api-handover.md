@@ -307,12 +307,14 @@ Bị từ chối `400 IVR_MALFORMED_REQUEST`: không có cách nào · **nửa**
 
 #### 3.4.1. `dial_token_expires_at` — ba guard, một giá trị hợp lệ
 
+**Chỉ áp dụng khi task mang token** (§3.4.0). Gửi số không kèm field token nào thì bỏ qua mục này.
+
 Tài liệu này trước đây nói ba điều khác nhau về trường này (`≥`, `>`, và equality). Đây là những gì
 code **thực sự** thi hành hôm nay, đọc từ ba tầng:
 
 | Tầng | Vị trí | Luật |
 | --- | --- | --- |
-| Intake | `TaskIntakeService.ContactRejectionReason` | từ chối nếu `dial_token_expires_at` **<** `confirmation_window_expires_at` → `422 IVR_CONTACT_INVALID` / `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW` |
+| Intake | `TaskIntakeService.ContactRejectionReason` | từ chối nếu `dial_token_expires_at` **≠** `confirmation_window_expires_at` → `422 IVR_CONTACT_INVALID`, mỗi chiều một reason: **<** là `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW`, **>** là `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` (chiều **>** có từ `W-0302`, `draft.28`) |
 | Persistence | `PersistenceInvariantValidator.ValidateTask` | throw nếu **>** `confirmation_window_expires_at` |
 | Dispatch | `PostgresTelephonyDispatchStore.LoadAsync` | throw nếu **>** `lease.Deadline`, và `lease.Deadline` = `job.expires_at` = window end |
 
@@ -320,10 +322,11 @@ Giao của ba luật là **một điểm duy nhất**: `dial_token_expires_at ==
 
 Hai hệ quả M3 cần biết:
 
-- Gửi **sớm hơn** window end → bị từ chối sạch ở intake, có mã lỗi rõ ràng.
-- Gửi **muộn hơn** window end → **intake nhận** (contact gate chỉ chặn chiều sớm), rồi request hỏng
-  ở tầng persistence. Đây là chế độ hỏng khó chẩn đoán nhất trong toàn bộ seam — nên bảng trên tồn
-  tại.
+- Gửi **sớm hơn** window end → bị từ chối sạch ở intake: `422` / `DIAL_TOKEN_EXPIRES_BEFORE_WINDOW`.
+- Gửi **muộn hơn** window end → cũng bị từ chối sạch ở intake: `422` / `DIAL_TOKEN_EXPIRES_AFTER_WINDOW`.
+  *Trước `W-0302` (`draft.28`), chiều này **lọt qua intake** rồi hỏng ở tầng persistence thành `500` —
+  chế độ hỏng khó chẩn đoán nhất trong toàn bộ seam, và là lý do bảng trên tồn tại.* Hai tầng dưới vẫn
+  giữ luật của chúng như lớp chặn thứ hai.
 
 > ✅ **Đã chốt `2026-09-09` (`W-0246`): `dial_token_expires_at` = **đúng** confirmation-window end.**
 >
@@ -1387,7 +1390,7 @@ Khi dựng issuer/JWKS thật, cần trả lời thêm cho §4A: ba token này c
 | **7** | Chọn `dial_token` model và trust boundary | owner IVR | ✅ `OD-V1-05` + `OD-V1-17` + `OD-V1-18` **CLOSED** 2026-09-05 (vế TTL chốt lại `2026-09-09`, `W-0246`): Sales cấp token lúc tạo task; token dùng lại được, gắn cứng `task_id`, TTL = **đúng** confirmation-window end, trần resolve = `max_customer_attempts` + technical retry; resolver **trong** IVR, E.164 chỉ trong bộ nhớ tiến trình |
 | **7a** | `DTK-01..DTK-15` — chi tiết vận hành dưới `OD-V1-05/17/18` đã ký | owner IVR + dev M3 | `W0150_EVIDENCE_SUBMITTED` — phần **hợp đồng** đã đóng ở dòng 7; phần còn lại là custody/rollout, quyết giữa owner và dev M3, **không** chờ đội ngoài |
 | **7b** | Ký `ATP-01..ATP-15`: authority/version bundle, program matrix/T0, counting/retry/quiet-hours, wire/producer, registry lifecycle, cutover/pre-dial coherence, capacity/audit/rollback | Product + Order Core + M3; Platform/M8/Release ở dòng kỹ thuật | `W0151_EVIDENCE_SUBMITTED / M3_ATTEMPT_POLICY_PRODUCER_NOT_FOUND / PRODUCTION_POLICY_NOT_APPROVED / CODE_NOT_AUTHORIZED` |
-| **8** | Duyệt lời thoại/privacy và giới hạn `items[]` | owner IVR | ✅ `OD-V1-11 CLOSED 2026-09-10` — owner tuyên bố quorum là chính mình. Chính sách đã chốt (ghi âm TẮT vĩnh viễn ở V1, metadata 90 ngày). **Duyệt script cho `PRODUCTION_REAL` vẫn chặn** vì luật ba-actor, xem `§9a` |
+| **8** | Duyệt lời thoại/privacy và giới hạn `items[]` | owner IVR | ✅ `OD-V1-11 CLOSED 2026-09-10` — owner tuyên bố quorum là chính mình. Chính sách đã chốt (ghi âm TẮT vĩnh viễn ở V1; metadata **không đặt kỳ hạn xoá** — sửa `17/09` theo quyết định giữ toàn bộ dữ liệu, bản ký `10/09` ghi `90` ngày). **Duyệt script cho `PRODUCTION_REAL` vẫn chặn** vì luật ba-actor, xem `§9a` |
 | **9** | Nhận bàn giao bề mặt quản trị **§4A**: ai giữ ba token, vai trò M3 nào ánh xạ sang tầng nào, định dạng `X-Actor-Id` | owner IVR + dev M3 | `OWNER_DECISION_REQUIRED` — thật sự còn mở, và quyết được ngay giữa hai bên |
 
 Chưa được gọi integration/production ready khi các gate P0 trên chưa đóng.

@@ -15,7 +15,7 @@ stack sạch rồi đo**, không phải bằng cách đọc lại code.
 | # | Việc | Kiểm bằng |
 | --- | --- | --- |
 | 1 | `libgssapi_krb5.so.2` trong ảnh migrate | log migrate trên stack sạch: `0` lần nhắc `krb5` |
-| 2 | `dev-seed/seed.sql` vào đường chuẩn compose | `docker compose up` **không seed tay**: `6/6` hàng policy có mặt |
+| 2 | `dev-seed/seed.sql` vào luồng chuẩn compose | `docker compose up` **không seed tay**: `6/6` hàng policy có mặt |
 | 3 | Hạ mức log EF của worker | đo `120` giây, hai worker song song: `8` dòng so với `113` |
 | 4 | `B5` — môi trường đã chạy `W0122` bản drop | câu SQL chạy thật trên DB sạch, trả đúng `t` |
 
@@ -45,7 +45,7 @@ chạy tiếp** — không hỏng gì, nhưng mở đầu mọi log bằng chữ
 
 ### 1.3. Sửa ở đâu, và vì sao không sửa ở ảnh
 
-Có hai đường: thêm krb5 vào ảnh, hoặc tắt thương lượng. Chọn đường thứ hai:
+Có hai cách: thêm krb5 vào ảnh, hoặc tắt thương lượng. Chọn cách thứ hai:
 
 - **không có gì trong hệ thống này** xác thực Postgres bằng Kerberos;
 - database đi qua mạng riêng của compose/cluster;
@@ -77,11 +77,11 @@ này không dùng chung được với hai service kia.
 
 ---
 
-## 2. Mục `2` — `seed.sql` vào đường chuẩn
+## 2. Mục `2` — `seed.sql` vào luồng chuẩn
 
 ### 2.1. Vấn đề thật
 
-`deploy/docker/dev-seed/seed.sql` có từ `W-0043`, nhưng **không gì trong đường chuẩn chạy nó** —
+`deploy/docker/dev-seed/seed.sql` có từ `W-0043`, nhưng **không gì trong luồng chuẩn chạy nó** —
 chỉ `image-selftest.mjs` chạy, bằng cách tự đọc file rồi pipe vào. Nên `docker compose up` trên
 volume sạch cho ra một stack mà task **được nhận rồi không bao giờ được gọi**: `ivr_attempt_policies`
 không có hàng `mock-lab-v1` để `TaskIntakeService` đối chiếu snapshot trên wire.
@@ -174,7 +174,7 @@ SELECT to_regclass('public.ivr_console_accounts') IS NOT NULL
    AND to_regclass('public.ivr_console_sessions') IS NOT NULL AS console_tables_present;
 ```
 
-`false` ⇒ đã chạy bản drop. Phép thử đứng được vì **không đường nào khác** làm hai bảng đó biến
+`false` ⇒ đã chạy bản drop. Phép thử đứng được vì **không lối nào khác** làm hai bảng đó biến
 mất: chỉ `W0122` bản cũ drop chúng, và không migration nào sau đó tạo lại.
 
 ### 4.3. Kiểm
@@ -201,13 +201,13 @@ docs-selftest                API_DOCS_SELFTEST_PASS
 compliance-pack-selftest     PASS      ci-config-selftest     PASS
 review-gate-selftest         PASS      progressive-selftest   PASS
 gate-status                  GATE_STATUS_PASS — 11 gates, 6 open decisions
-quét pin toàn cây            44 đường dẫn ghim hash · 0 lệch · 0 file thiếu
+quét pin toàn cây            44 path ghim hash · 0 lệch · 0 file thiếu
 gitnexus_impact              AddIvrFoundation: LOW, 0 impacted, 0 process
 gitnexus_detect_changes      risk medium, 2 process (cả hai là chính AddIvrFoundation)
 image-selftest               IMAGE_SELFTEST_PASS  (IVR_POSTGRES_PORT=55633, xem §5.2)
 ```
 
-`image-selftest` là bằng chứng mạnh nhất cho mục `2`: log của nó cho thấy `ivr-dev-seed` được dựng, chạy và dọn **bên trong stack của chính gate**, nghĩa là service mới đi qua được toàn bộ đường e2e chứ không chỉ lần `compose up` thủ công của tôi.
+`image-selftest` là bằng chứng mạnh nhất cho mục `2`: log của nó cho thấy `ivr-dev-seed` được dựng, chạy và dọn **bên trong stack của chính gate**, nghĩa là service mới đi qua được toàn bộ luồng e2e chứ không chỉ lần `compose up` thủ công của tôi.
 
 ### 5.1. Mutation cả hai chiều
 
@@ -230,8 +230,8 @@ như hậu quả của thay đổi, và nó không phải.
 
 ## 6. Đính chính bản ghi của chính tôi
 
-`docs/evidence/W-0304/README.md` §7.3 viết *"`0` pin lệch trên **`183`** đường dẫn ghim hash"*.
-**`183` sai** — đó là số đường dẫn *ứng viên chuẩn hoá CRLF*, không phải số pin thật. Số đúng,
+`docs/evidence/W-0304/README.md` §7.3 viết *"`0` pin lệch trên **`183`** [path] ghim hash"*.
+**`183` sai** — đó là số path *ứng viên chuẩn hoá CRLF*, không phải số pin thật. Số đúng,
 đo lại bằng chính script ở lượt này, là **`44`**. Kết luận `0` lệch không đổi, nhưng con số lớn
 hơn thực tế `4` lần làm phạm vi kiểm tra nghe rộng hơn nó thật. Đã sửa bằng một dòng đính chính
 **hiện trên mặt tài liệu**, không phải bằng cách lặng lẽ đổi số.

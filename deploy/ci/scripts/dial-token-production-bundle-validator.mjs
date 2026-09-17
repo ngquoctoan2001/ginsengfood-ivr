@@ -31,7 +31,7 @@ const SOURCE_PINS = Object.freeze({
   telephony_requirements_path: "integration-requirements/03-telephony-sim-requirements.md",
   telephony_requirements_sha256: "8025bb2809c026d7c04340373a600e8ef70399cf394320ca2ce6e6e58b28811e",
   m3_handover_path: "integration-requirements/06-module-3-api-handover.md",
-  m3_handover_sha256: "fa082134ad7df00c5bcd99a2cf4b927b08e0b88b9ce413de8d8b2d87fe066d79",
+  m3_handover_sha256: "4b6f9e773139c4d81f2d30918ab21fbb96a0f13a8c8d3879a5431461cfe42249",
   task_oas_path: "specs/api/openapi/ivr-order-confirmation.v1.yaml",
   task_oas_sha256: "699c4cd66ac6852eaf80b0e759b82744bce9135665b372adc66054bc1ae1e075",
   resolver_port_path: "src/Ivr.Domain/Ports/ProviderPorts.cs",

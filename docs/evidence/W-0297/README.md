@@ -22,7 +22,7 @@ File này có **66 link trỏ vào, 18 trong số đó từ `docs/documents/`** 
 
 ## Hệ quả còn lại
 
-`.codex-doc-memory/markdown-doc-map.json` và `.artifacts/w0286/doc-map-final/markdown-doc-map.json` nay **stale**: còn 113 + 75 + 73 … tham chiếu tới các đường dẫn đã xóa. Không tự sinh lại — theo `W-0075` file này chỉ được tạo bởi mapper `markdown-doc-reader` bên ngoài, viết bộ sinh thay thế là bị cấm. Đã kiểm: **không job CI nào đọc hai file này**, nên không gate nào đỏ vì chúng. Cần chạy mapper chính thức khi có dịp.
+`.codex-doc-memory/markdown-doc-map.json` và `.artifacts/w0286/doc-map-final/markdown-doc-map.json` nay **stale**: còn 113 + 75 + 73 … tham chiếu tới các path đã xóa. Không tự sinh lại — theo `W-0075` file này chỉ được tạo bởi mapper `markdown-doc-reader` bên ngoài, viết bộ sinh thay thế là bị cấm. Đã kiểm: **không job CI nào đọc hai file này**, nên không gate nào đỏ vì chúng. Cần chạy mapper chính thức khi có dịp.
 
 Toàn văn 27 file đã xóa lấy lại bằng `git log --all --full-history -- plan/ivr-orther/<tên file>`.
 

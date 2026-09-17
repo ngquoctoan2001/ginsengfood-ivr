@@ -56,7 +56,7 @@ không về một nửa.
 `SignedProductionAttemptPolicies` vẫn mang `OwnerApproved`. Nó chỉ tới được qua in-memory registry,
 mà `AddIvrFoundation` **ném lỗi** nếu execution mode khác `MOCK`
 (`ServiceCollectionExtensions.cs:94-103`), và cả hai host production đều truyền mặc định `false`.
-Nên đường đó **không bao giờ chạm `PRODUCTION_REAL`**. Lật nó nữa sẽ xoá một bản ghi quyết định và
+Nên lối đó **không bao giờ chạm `PRODUCTION_REAL`**. Lật nó nữa sẽ xoá một bản ghi quyết định và
 viết lại năm test mà không đổi được gì ở runtime.
 
 ## Kiểm chứng

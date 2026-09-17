@@ -21,7 +21,7 @@
     },
     {
       "path": "integration-requirements/06-module-3-api-handover.md",
-      "sha256": "fa082134ad7df00c5bcd99a2cf4b927b08e0b88b9ce413de8d8b2d87fe066d79"
+      "sha256": "4b6f9e773139c4d81f2d30918ab21fbb96a0f13a8c8d3879a5431461cfe42249"
     },
     {
       "path": "src/Ivr.Domain/Policies/OptOutSuppression.cs",

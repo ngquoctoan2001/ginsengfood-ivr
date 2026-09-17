@@ -72,7 +72,7 @@ không phải phần bị bỏ quên.
 API-06. Không bắt lại thì nó tới người gọi thành `500 IVR_INTERNAL_ERROR` — mã mà producer **được
 phép retry** — cho một request sẽ không bao giờ hợp lệ dù gửi bao nhiêu lần.
 
-**Đó đúng là khiếm khuyết `W-0302` vừa sửa ở đường intake**, và nó suýt ship lại ở đây. Không phải
+**Đó đúng là khiếm khuyết `W-0302` vừa sửa ở luồng intake**, và nó suýt ship lại ở đây. Không phải
 review bắt được; `IT-AUDITEV-04` bắt được. Nay dịch thành `IVR_PII_POLICY_VIOLATION`, đúng cách
 `PiiMaskingFilter` vẫn làm với cùng ngoại lệ đó.
 
@@ -174,7 +174,7 @@ ci-config-selftest           CI_CONFIG_SELFTEST_PASS   (bắt được baseline 
 compliance-pack · review-gate · progressive · selftest-openapi   PASS
 contract-freeze-verifier     CONTRACT_FREEZE=PASS  intake=1.0.0-draft.29 required=23
 openapi-contract-drift       OPENAPI_HUMAN_DIFF_CURRENT=YES
-quét pin toàn cây            44 đường dẫn · 0 lệch · 0 file thiếu
+quét pin toàn cây            44 path · 0 lệch · 0 file thiếu
 gitnexus_impact              AddIvrFoundation-style: MapIvrAdminEndpoints LOW, 0 impacted, 0 process
 ```
 
@@ -201,5 +201,5 @@ là gate đọc **hiện vật độc lập** — ở đây là chính file Open
 | Việc | Vì sao chưa |
 | --- | --- |
 | Permission riêng cho audit-evidence | Cần quyết định `DF-01`, do Permission Core sở hữu. **M8 không ký được** |
-| `capacity-incidents` endpoint | Kế hoạch đã loại từ đầu: `AdminReadService` có đường đọc, nhưng phơi ra endpoint thì phải biết M3 lọc/phân trang thế nào. ⛔ Chờ M3 |
+| `capacity-incidents` endpoint | Kế hoạch đã loại từ đầu: `AdminReadService` có hàm đọc, nhưng phơi ra endpoint thì phải biết M3 lọc/phân trang thế nào. ⛔ Chờ M3 |
 | Phân trang thật (cursor) cho trail dài | `limit` + `truncated` là đủ cho tra cứu một đối tượng. Cursor chỉ đáng làm khi có màn hình thật dùng nó — M3 dựng |

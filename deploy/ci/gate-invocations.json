@@ -115,11 +115,7 @@
       "runner": "the ten evidence-bundle validators that confine an input path to the repository"
     },
     "review-gate-selftest.mjs": { "argv": ["--self-test"], "expect": "REVIEW_GATE_SELFTEST_PASS" },
-    "scan-pii.sh": {
-      "sweepable": false,
-      "reason": "the scanner itself, run over a path; selftest-pii.sh is the gate that proves it rejects",
-      "runner": "ci.gitlab-ci.yml"
-    },
+    "scan-pii.sh": { "argv": ["docs/evidence"], "expect": "PII_SCAN_PASS" },
     "security-scan.sh": {
       "sweepable": false,
       "reason": "needs the scanner images and a network; selftest-dotnet-policy.sh covers the policy half offline",

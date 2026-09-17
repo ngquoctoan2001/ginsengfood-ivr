@@ -156,7 +156,15 @@ Phần Module 8 đã chốt và ghi thành position. **Không tự đổi** khi 
 
 Hành vi hiện tại là **phương án A**: IVR validate snapshot lúc intake, sau đó vẫn tiếp tục attempt trong cửa sổ xác nhận. Callback mang `order_version_seen_by_ivr`; M3 được kỳ vọng revalidate state/version/blocker rồi có thể ACK `BLOCKED_BY_CORE` hoặc `REJECTED_STALE`.
 
-**Chờ:** owner quyết A hay B; `D-06` runtime phía M3 chưa tìm thấy. Ma trận quyết định `RVK-01..RVK-12` còn mở.
+**Phía M8 đã quyết `09/09`: phương án B** (`W-0248`). `W-0249` đã dựng hai fence thu hồi — lúc claim và ở
+lần đọc task cuối trước khi quay số (phần M8 của `RVK-08`) — nhưng chúng **trơ** cho tới khi có endpoint thu
+hồi, vì chưa gì đặt được `revoked_at`.
+
+**Chờ Module 3:** chốt endpoint thu hồi (`M3-14` trong `IR-07`, `m8-17`) · `D-06` runtime phía M3 chưa tìm thấy
+· phần của M3 trong ma trận `RVK-01..RVK-12`.
+
+*Sửa `17/09` (`W-0313`): dòng này trước đó vẫn ghi "owner quyết A hay B" sau khi đã quyết. Các nhãn
+`OPTION_B_NOT_IMPLEMENTED` · `CODE_NOT_AUTHORIZED` ở dòng trạng thái phía trên là của ngày `03/09`.*
 
 ### m8-10
 

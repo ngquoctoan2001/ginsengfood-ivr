@@ -1,8 +1,8 @@
-# W-0305 — Sổ tay vận hành đường quay số production
+# W-0305 — Sổ tay vận hành luồng quay số production
 
 Ngày 16/09/2026. **TESTS_PASS** (docs-only). Baseline `52044ce`. `REAL_CUSTOMER_CALL_ALLOWED=NO` — không đổi.
 
-PD-03 của [kế hoạch đường gọi production](../../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md). Một file mới: [`docs/operations/production-dial-path.md`](../../operations/production-dial-path.md).
+PD-03 của [kế hoạch luồng gọi production](../../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md). Một file mới: [`docs/operations/production-dial-path.md`](../../operations/production-dial-path.md).
 
 Không sửa file `.cs` nào, không migration, không OpenAPI. Không có symbol nào để chạy impact; `detect_changes` chạy trước commit theo `CLAUDE.md`.
 
@@ -13,20 +13,20 @@ Không sửa file `.cs` nào, không migration, không OpenAPI. Không có symbo
 | Bảng cấu hình đã che secret | §1 — hai section, từng khóa kèm **ai cấp giá trị** và **giá trị sai trông ra sao** |
 | Quy trình nâng/giảm số kênh | §2 — ba con số phải khớp nhau, thứ tự nâng, chỗ phải sửa khi hợp đồng đổi |
 | Ngưỡng cảnh báo + đọc `/healthz` | §3 — hình dạng body, ngưỡng `stale`, 4 metric có thật kèm ngưỡng khởi điểm |
-| Cuộc gọi trạng thái không rõ | §4 — quarantine, `RECOVERY_REQUIRED`, đường phục hồi có audit |
+| Cuộc gọi trạng thái không rõ | §4 — quarantine, `RECOVERY_REQUIRED`, lối phục hồi có audit |
 | Dừng khẩn | §5 — kill switch và `terminate-all` là hai việc khác nhau, kèm thời gian |
 
 Runbook viết bằng tiếng Anh cho khớp `docs/operations/` (`ari-controller-ownership.md`, `gitlab-runner-winhost.md`); gói bằng chứng giữ tiếng Việt cho khớp các gói khác.
 
 ## Ba phát hiện trong lúc đọc mã để viết
 
-**Enable kênh là một chiều với mọi adapter không phải MOCK.** `InternalAdminApiService.cs:760` từ chối enable bất kỳ kênh nào có `AdapterMode != SimAdapters.Mock`, và từ chối thêm khi kênh `QUARANTINED`/`HEALTH_FAILED`/còn `fail_count`. Đường disable **không** có ràng buộc nào tương ứng. Nên một kênh trunk bị quarantine **không thể đưa lại vào vận hành qua API**, chỉ còn đường tác động thẳng vào DB.
+**Enable kênh là một chiều với mọi adapter không phải MOCK.** `InternalAdminApiService.cs:760` từ chối enable bất kỳ kênh nào có `AdapterMode != SimAdapters.Mock`, và từ chối thêm khi kênh `QUARANTINED`/`HEALTH_FAILED`/còn `fail_count`. Lối disable **không** có ràng buộc nào tương ứng. Nên một kênh trunk bị quarantine **không thể đưa lại vào vận hành qua API**, chỉ còn cách tác động thẳng vào DB.
 
 Ghi lại **đúng như quan sát**, không gọi là lỗi: đây có thể là thiết kế fail-closed cố ý, và đổi một endpoint thuộc `AdminPolicies.Danger` không phải việc của một task tài liệu. Phiên `ivr-9f` đang trình owner như một ứng viên Work ID riêng.
 
 **Ba con số trần kênh nằm ở ba nơi và không có gate nào bắt khi chúng lệch.** `SipTrunk:ContractedChannels` (hợp đồng bán), `Scheduler:MaxConcurrentDispatches` (một tiến trình giữ), và số hàng `ivr_sim_channels` (pool dùng chung). Trần thật là **số nhỏ nhất**. Hợp đồng 32 kênh + worker cấu hình 32 + pool 4 hàng cho ra 4 cuộc, và không chỗ nào báo sai cấu hình.
 
-**Kill switch không chịu độ trễ cache 15 giây.** `FeatureFlagPlatform` cache snapshot 15s, nhưng `DispatchGate.cs:26` đọc bằng `forceFresh: true`, nên đường quyết định quay số luôn đọc tươi. Hệ quả ngược lại cũng đúng và đáng cảnh báo: **dashboard đọc cùng cờ đó mới là thứ có thể cũ tới 15s**. Nếu bảng điều khiển và bộ quay số nói khác nhau, bảng điều khiển là cái sai.
+**Kill switch không chịu độ trễ cache 15 giây.** `FeatureFlagPlatform` cache snapshot 15s, nhưng `DispatchGate.cs:26` đọc bằng `forceFresh: true`, nên luồng quyết định quay số luôn đọc tươi. Hệ quả ngược lại cũng đúng và đáng cảnh báo: **dashboard đọc cùng cờ đó mới là thứ có thể cũ tới 15s**. Nếu bảng điều khiển và bộ quay số nói khác nhau, bảng điều khiển là cái sai.
 
 ## Thời gian trong §5 là suy ra, không phải đo
 
@@ -85,6 +85,6 @@ Không có giá trị nào kế thừa từ tài liệu cũ. Nguồn của từn
 
 `W-0305` do `ivr-9f` cấp; họ nhận `W-0306` và **chưa ghi dòng `W-0304`**, nhường sổ cho lượt này. Control field tăng `NEXT_WORK_ID` → `W-0306`.
 
-Commit stage đúng **năm** đường dẫn bằng `git commit -- <paths>` (runbook, gói bằng chứng, tracker, `gate-status.yaml`, `readiness-board.md` — hai file cuối do `gate-status.mjs --write` sinh từ tracker nên phải đi cùng), **không** `git add -A`: 12 file khôi phục của `ivr-9f` đang nằm sẵn trong index, và một lần `git commit` không giới hạn đường dẫn sẽ cuốn hết chúng vào lượt này — đúng cái `A-0625` đã gặp.
+Commit stage đúng **năm** path bằng `git commit -- <paths>` (runbook, gói bằng chứng, tracker, `gate-status.yaml`, `readiness-board.md` — hai file cuối do `gate-status.mjs --write` sinh từ tracker nên phải đi cùng), **không** `git add -A`: 12 file khôi phục của `ivr-9f` đang nằm sẵn trong index, và một lần `git commit` không giới hạn path sẽ cuốn hết chúng vào lượt này — đúng cái `A-0625` đã gặp.
 
 `gate-status.yaml` đi cùng commit với dòng tracker. `ivr-9f` đính chính lý do họ đưa ra trước đó: không chỉ con trỏ evidence, mà `gate-status.mjs` còn đọc gate row và open decision từ chính sổ này, nên **bất kỳ dòng nào** trong tracker cũng làm yaml dịch chuyển.

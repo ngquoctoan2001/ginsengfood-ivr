@@ -52,7 +52,7 @@ không phải là xin duyệt rồi sửa liều — mà là đọc lại thiế
 > `DialAuthorization` **cũng** chặn số trần — `OpaqueReferenceGuard.EnsureNotRawPhone` nằm trong
 > constructor riêng của nó.
 
-Nghĩa là **đường quay số chưa bao giờ mang số**. Nó mang **địa chỉ quay**: `sip:+84…@carrier-host`.
+Nghĩa là **luồng quay số chưa bao giờ mang số**. Nó mang **địa chỉ quay**: `sip:+84…@carrier-host`.
 Cho nên `A` và `B` **giống hệt nhau từ sau bước lấy số ra** — parse, format theo nhà mạng, dựng địa
 chỉ SIP đều không đổi. Khác biệt đúng **một chỗ**: giải mã token, hay đọc cột.
 

@@ -20,7 +20,7 @@ phiên trả lời khác nhau mà không kiểm.
 | *"gửi đi là xong"* | `5/6` phiếu gửi cho **Platform · Security · Legal** — ba phòng ban **không tồn tại như đội riêng** |
 
 Vế thứ hai là chỗ tệ nhất: **đó chính là lập luận tôi dùng để bác `A1`** của bản `16/09`
-(*"không có đội Security/Platform nào trong tổ chức này để mà đợi họ ký"*). Tôi bác nó ở một ô, rồi
+(*"không có đội Security/Platform nào trong [công ty] này để mà đợi họ ký"*). Tôi bác nó ở một ô, rồi
 quay sang dựa vào nó ở ô khác.
 
 Và `m8-13` mục `1` đã cấm sẵn từ `03/09`: *"không gửi tới một mailbox chung nếu không xác định được
@@ -35,7 +35,7 @@ owner có thẩm quyền."*
 
 `OD-V1-11` đóng ngày `2026-09-10`:
 
-> *"Owner tuyên bố quorum là chính mình. Tổ chức này **không có đội Legal/Privacy** và owner chọn
+> *"Owner tuyên bố quorum là chính mình. [Công ty] này **không có đội Legal/Privacy** và owner chọn
 > **không** mua ý kiến pháp lý ngoài cho V1; owner nhận rủi ro pháp lý của nội dung đã ký."*
 
 Đó là cách đúng để xử lý một phiếu mồ côi: **không treo nó chờ một phòng ban tưởng tượng**, mà đưa
@@ -71,7 +71,7 @@ của base image `ivr-tts`) đều hỏi về **một nhánh kỹ thuật đã b
 | --- | --- |
 | `OD-V1-19` ✅ `CLOSED 2026-09-05` — **không dùng vendor TTS lúc chạy**, thu giọng người thật | `open-decisions-register.md:74` |
 | Cấu hình production đặt `tts: enabled: false` | `deploy/helm/ivr/values-prod.yaml:43-44` |
-| Đường đã duyệt dùng `StaticFileTtsProvider` (file thu sẵn) | `SpeechServiceCollectionExtensions.cs:541` |
+| Luồng đã duyệt dùng `StaticFileTtsProvider` (file thu sẵn) | `SpeechServiceCollectionExtensions.cs:541` |
 
 ⇒ Image không lên production ⇒ **không cần hạ tầng chạy nó**, và **`16` CVE của nó không chạm tới**
 hệ thống thật. Hai phiếu mất đối tượng để hỏi.

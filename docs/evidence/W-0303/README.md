@@ -1,8 +1,8 @@
-# W-0303 — Đường quay số production và bảng traceability mà HEAD đang thiếu
+# W-0303 — Luồng quay số production và bảng traceability mà HEAD đang thiếu
 
 Ngày 16/09/2026. **TESTS_PASS**. Commit `a2808ce`, baseline `2fb76fe`. `REAL_CUSTOMER_CALL_ALLOWED=NO` — không đổi.
 
-PD-01.1 đến PD-01.5 của [kế hoạch đường gọi production](../../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md). Hai type mới, ba file sửa, và một nhánh production trong composition root bên cạnh nhánh lab.
+PD-01.1 đến PD-01.5 của [kế hoạch luồng gọi production](../../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md). Hai type mới, ba file sửa, và một nhánh production trong composition root bên cạnh nhánh lab.
 
 ## Đã dựng
 
@@ -22,11 +22,11 @@ PD-01.1 đến PD-01.5 của [kế hoạch đường gọi production](../../../
 
 **`SipTrunkOptions` tách khỏi `AsteriskAriOptions`.** Options kia bị validator của chính nó ghim vào alias lab; gộp trunk vào đó buộc phải nới lỏng đúng cái profile có nhiệm vụ từ chối mọi đích ngoài `LAB-A`. Validator tách theo execution mode thay vì nới: nhánh lab **không đổi hành vi**, gồm cả việc báo lỗi định danh đúng một lần chứ không một lần mỗi trường (`UT-AST-CONFIG-07`); nhánh production bỏ đích ghim vì số tới theo từng cuộc.
 
-Production đòi **cả hai** section bật. Nửa cấu hình rơi về `UnavailableSchedulerDispatchGateway` — cái từ chối quay số — thay vì một đường gọi thiếu một nửa (`UT-TRUNK-DI-02`).
+Production đòi **cả hai** section bật. Nửa cấu hình rơi về `UnavailableSchedulerDispatchGateway` — cái từ chối quay số — thay vì một luồng gọi thiếu một nửa (`UT-TRUNK-DI-02`).
 
 ## Cố ý chưa làm
 
-`AsteriskSchedulerDispatchGateway.IsReady` vẫn đòi `LAB_REAL_SIM` **và** `!RealCustomerCallAllowed`. Đường dây production nối đủ nhưng **cổng vẫn đóng**. Mở nó thuộc SIP-04 và cần bằng chứng phê duyệt; kế hoạch PD-01 ghi rõ không gỡ `RealCustomerCallAllowed` trong đợt này.
+`AsteriskSchedulerDispatchGateway.IsReady` vẫn đòi `LAB_REAL_SIM` **và** `!RealCustomerCallAllowed`. Luồng production nối đủ nhưng **cổng vẫn đóng**. Mở nó thuộc SIP-04 và cần bằng chứng phê duyệt; kế hoạch PD-01 ghi rõ không gỡ `RealCustomerCallAllowed` trong đợt này.
 
 **Hành vi này chưa được ghim bằng test** — dựng instance gateway đó cần tám dependency. Đây phải là việc đầu tiên phần còn lại của PD-01 xử lý, nếu không người đọc sau sẽ coi là lỗi.
 
@@ -58,6 +58,6 @@ Xác minh: `git show 1651e8f -- docs/traceability-tests.md` thêm 16 dòng; `git
 
 ## Phối hợp hai phiên
 
-Commit stage **đúng tám đường dẫn**, không `git add -A`. Khoảng 30 file của phiên `ivr-9f` không bị chạm. Work ID `W-0303` do `ivr-9f` cấp; họ giữ `W-0302` và sẽ đặt `NEXT_WORK_ID = W-0304`, nên trường điều khiển không bị sửa ở đây.
+Commit stage **đúng tám path**, không `git add -A`. Khoảng 30 file của phiên `ivr-9f` không bị chạm. Work ID `W-0303` do `ivr-9f` cấp; họ giữ `W-0302` và sẽ đặt `NEXT_WORK_ID = W-0304`, nên trường điều khiển không bị sửa ở đây.
 
 Đính chính một đề nghị sai của phiên này: `docs/release/gate-status.yaml` và tracker **không** để lại cho ai commit sau cùng được — `deploy/ci/scripts/gate-status.mjs:27` sinh yaml từ tracker và fail khi lệch, nên hai file phải đi cùng một commit với dòng đã đổi. Quy tắc đó chỉ áp dụng cho `docs/traceability-tests.md`.

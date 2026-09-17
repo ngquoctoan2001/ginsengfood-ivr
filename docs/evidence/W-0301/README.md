@@ -28,7 +28,7 @@ chưa từng đưa ra.
 
 ## Ràng buộc schema quyết định hình dạng bản sửa
 
-`trg_ivr_runtime_gate_approvals_append_only` từ chối **cả hai** đường:
+`trg_ivr_runtime_gate_approvals_append_only` từ chối **cả hai** lối:
 
 ```text
 OLD.environment IS DISTINCT FROM NEW.environment  →  'only revocation may change'

@@ -18,7 +18,7 @@ src/Ivr.Worker/appsettings.json:13
 src/Ivr.Worker/appsettings.Development.json:7
 ```
 
-Nghĩa là **bề mặt lời thoại rộng nhất là mặc định** cho bất kỳ deployment nào không biết đường tắt
+Nghĩa là **bề mặt lời thoại rộng nhất là mặc định** cho bất kỳ deployment nào không biết lối tắt
 nó đi. Một mặc định nới quyền riêng tư là đặt ngược chiều: cái hẹp mới là cái nên sống sót khi có
 người quên.
 

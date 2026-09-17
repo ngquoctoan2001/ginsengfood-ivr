@@ -8,7 +8,7 @@
 
 ## 0. Tóm tắt
 
-`PD-02` là việc cuối cùng còn lại trong [kế hoạch đường gọi production](../../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md)
+`PD-02` là việc cuối cùng còn lại trong [kế hoạch luồng gọi production](../../../plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md)
 mà **không chờ ai** — `PD-01` (`W-0303`, `a2808ce`) và `PD-03` (`W-0305`, `d207526`) đã xong trước đó.
 
 Kế hoạch liệt kê `6` gạch đầu dòng. **Bốn trong sáu đã đạt sẵn từ lượt `15/09`**, nên việc thật chỉ
@@ -119,10 +119,10 @@ hợp đồng, nên một phép so với số `0` kết quả sẽ **từ chối
 
 ---
 
-## 3. Đường cấu hình — `UT-SCH-CFG-01`
+## 3. Luồng cấu hình — `UT-SCH-CFG-01`
 
 Kế hoạch nói *"nâng `MaxConcurrentDispatches` **qua cấu hình**"*. Mọi test khác dựng
-`SchedulerOptions` **trực tiếp**, nên chứng minh được pump và không chứng minh gì về con đường mà
+`SchedulerOptions` **trực tiếp**, nên chứng minh được pump và không chứng minh gì về lối mà
 giá trị thật sự đi trong một deployment.
 
 Bốn option `SIP-05` được bind **từng cái một bằng tay** (`section.GetValue`), không phải `Bind`.

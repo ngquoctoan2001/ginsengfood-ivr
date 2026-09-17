@@ -12,7 +12,7 @@
 
 | Mã | Quyết định | Hệ quả phải biết | Làm ở |
 | --- | --- | --- | --- |
-| `S3` | **Giữ dữ liệu vĩnh viễn** — không đặt thời hạn xoá, kể cả nhật ký quản trị | Thay các kỳ hạn đã ký `10/09` (90 ngày · 180 ngày · 1 năm). Đường xoá **duy nhất** còn lại là khi khách yêu cầu ⇒ `T2` thành bắt buộc. Số điện thoại dạng đọc được nằm vĩnh viễn ⇒ đã đưa vào danh sách ký nhận rủi ro `S2`. *Cách hiểu đang dùng: toàn bộ dữ liệu. Nếu ý là chỉ nhật ký quản trị thì 9 ô thời hạn vẫn còn mở* | Lô 3 |
+| `S3` | **Giữ dữ liệu vĩnh viễn** — không đặt thời hạn xoá, kể cả nhật ký quản trị | Thay các kỳ hạn đã ký `10/09` (90 ngày · 180 ngày · 1 năm). Đường xoá **duy nhất** còn lại là khi khách yêu cầu ⇒ `T2` thành bắt buộc. Số điện thoại dạng đọc được nằm vĩnh viễn ⇒ đã đưa vào danh sách ký nhận rủi ro `S2`. **Toàn xác nhận `17/09`: toàn bộ dữ liệu**, không riêng nhật ký quản trị. Tài liệu gửi Module 3 đã sửa (`W-0313`); register và phiếu thời hạn lưu vẫn chờ Lô 3 mục `1` | Lô 3 |
 | `S4` | **Giữ VieNeu** chạy trên máy chủ công ty | Mở lại nhánh `W-0122`. Trước khi bật ở production cần: xử lý 16 lỗ hổng · quyền dùng model và 12 đoạn đã render · máy chạy thật + kho bản cài nội bộ · đo tốc độ · nghe duyệt · gọi thử. Cấu hình production **giữ tắt** tới khi đủ | Lô 4 |
 | `S7` | **B** — ghi nhận là giới hạn của bản đầu, không mua kho ghi nhận ngoài | Ghi ở register, **không** sửa `m8-15` (bị ghim hash) | Lô 3 |
 | `T1` | `IR-07` **đã gửi** Module 3, đang chờ phản hồi · tách stage 3 · nới token · thêm driver chỉ-gửi-số | Vế "giữ phiếu lại" không còn áp dụng — Module 3 **đã cầm** lời hứa "chỉ gửi số là đủ" ⇒ lô này đi **đầu tiên**. Kiểm lại lúc lập kế hoạch thấy lỗi **lớn hơn** đã báo: ở production, phương án B hiện **không nhận được task nào** (Lô 1) | Lô 1 |
@@ -124,7 +124,7 @@ Chi tiết: [báo cáo `15/09`, cập nhật `16/09`](../../docs/reports/2026-09
 
 | Chờ ai | Chờ gì | Đang chặn |
 | --- | --- | --- |
-| **Module 3** (tech lead) | Trả lời [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md) — **30 câu**. **Đã gửi**, chờ phản hồi | Chữ ký contract (`W-0204`) · `OD-V1-01/02/03/05` · callback (`m8-07`) · `golden_hour_session_id` (`m8-06`) · endpoint thu hồi đơn (`m8-17`, `B7`) · base URL callback (`M3-21`) · nghĩa của "tối đa 2 lần trong 10 phút" (`M3-22…25`) · `14` mục nhóm C bản `16/09` · vế breaking của stage 3 |
+| **Module 3** (tech lead) | Trả lời [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md) — **30 câu**. **Đã gửi**, chờ phản hồi · đính chính `draft.31` **đã gửi** `17/09`, chưa phản hồi · đính chính bổ sung `A-9` (`W-0313`) **chưa gửi** | Chữ ký contract (`W-0204`) · `OD-V1-01/02/03/05` · callback (`m8-07`) · `golden_hour_session_id` (`m8-06`) · endpoint thu hồi đơn (`m8-17`, `B7`) · base URL callback (`M3-21`) · nghĩa của "tối đa 2 lần trong 10 phút" (`M3-22…25`) · `14` mục nhóm C bản `16/09` · vế breaking của stage 3 |
 | **Nhà mạng** | Báo giá + trả lời 10 câu (§9 báo cáo `15/09`) | Adapter production (`B12`, ~2–3 tuần sau khi có đường thật) → đo thật (`W-0008`) → hiệu chỉnh 4 số năng lực (`B1`, ~1 ngày) · nửa sau `OD-V1-09` · `OD-V1-10` (32 kênh — **cố ý chưa ký**) |
 | **Bộ phận đơn hàng** | Cơ cấu mạng của khách · số đơn thật theo giờ | Chọn nhà mạng · chốt số kênh (`m8-14`). Website và livestream chưa chạy nên chưa có số đơn thật |
 | **CRM** | Chỗ nhận đề xuất "không gọi lại" | `W-0034` — **cố ý hoãn** (`DEFERRED_TARGET`) |
@@ -148,8 +148,8 @@ Chi tiết: [báo cáo `15/09`, cập nhật `16/09`](../../docs/reports/2026-09
 
 ## 5. Kế hoạch khắc phục
 
-> Lập `17/09` theo các quyết định ở §1. **Lô 1 đã thi hành** (`W-0312`, `17/09`); **Lô 2–5 chưa.** Mỗi lô
-> là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0313`. Cấp trước dễ trùng số: `A-0637`
+> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 3 mục `15`–`18` (`W-0313`). **Chưa:** Lô 2, Lô 3 mục `1`–`14`, Lô 4, Lô 5.
+> Mỗi lô là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0314`. Cấp trước dễ trùng số: `A-0637`
 > đã bị cấp hai lần.
 
 ### 5.0 · Luật thi hành
@@ -170,7 +170,7 @@ luật rút ra ngày `17/09`:
 | --- | --- | --- | --- | --- | --- |
 | **1** | `draft.31` — Module 3 gửi số là nhận được · ✅ `W-0312` `TESTS_PASS` | `T1` `T3` `T5` | Không | 🔴 | `CreateDomainSnapshot` **CRITICAL** (`26` ký hiệu · `5` luồng) · `EvaluateAsync` **HIGH** (`23` · `3` luồng) · `ValidateSchema` LOW |
 | **2** | Đường xoá dữ liệu phủ `phone_e164` | `T2` | Không | 🔴 | `RetentionTargetCatalog` LOW · `DsarService` LOW — *index không theo tham chiếu hằng; đọc tay `DsarService.cs:77`* |
-| **3** | Sổ sách một lượt | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
+| **3** | Sổ sách một lượt · ◐ mục `15`–`18` xong (`W-0313`) | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
 | **4** | Mở lại nhánh VieNeu | `S4` | Một phần: `S1` `S2` `S5` | 🟡 | Chạy khi chốt symbol |
 | **5** | Nghiệm thu theo đợt | `T7` | Toàn duyệt từng đợt | ⚪ | Không đụng symbol |
 
@@ -201,8 +201,8 @@ vốn đã bẩn sẵn và không commit.
 > *"nếu gate đòi"* — không gate nào đòi, nhưng phiếu đang sai ở `8` chỗ nên vẫn làm. (3) Thêm fixture
 > chỉ-gửi-số vào seed làm lệch `11` chỗ ghi cứng thành phần seed; đã sửa cả `11` (README bằng chứng §4.1).
 >
-> **Còn lại — việc của Toàn, bước 12:** gửi Module 3 changelog `30→31`, mục *Đính chính* ở cuối `IR-07`,
-> và câu *"`draft.30` vẫn bắt buộc `dial_token`; từ `draft.31`, gửi riêng `phone_e164` là đủ."*
+> **Bước 12 — Toàn đã gửi Module 3 ngày `17/09`:** changelog `30→31`, mục *Đính chính* ở cuối `IR-07`, và câu
+> *"`draft.30` vẫn bắt buộc `dial_token`; từ `draft.31`, gửi riêng `phone_e164` là đủ."* Chưa có phản hồi.
 
 **Vì sao gấp hơn đã báo.** Đọc đường intake khi lập kế hoạch:
 
@@ -346,9 +346,11 @@ Chỉ tài liệu, `0` symbol.
 | 12 | `W-0007` (xung đột bộ số — đã giải `05/09`) · `W-0121` (CI hosted đã chạy ở `W-0292`) · `W-0171` (c) (`progressive-selftest` nay xanh) | tracker §4, §5 |
 | 13 | Người nhận rủi ro phương án B: *"owner"* → tên người ký `S2` — **chỉ làm sau khi Sếp ký** | `IR-07` (mục đính chính) · `data-inventory.md` · comment migration/entity · mô tả OAS ở bản contract kế tiếp |
 | 14 | Bàn giao: `13` file bẩn (`10` chỉ lệch CRLF/LF) · sweep chỉ `39/39` khi chạy từ Git Bash | `plan/BAN-GIAO-phien-moi-2026-09-17.md` |
-| 15 | 🆕 *Thấy khi làm Lô 1, chờ Toàn duyệt đưa vào lô.* Job CI `pii_scan` (`allow_failure: false`) đỏ ở mọi commit từ `257cbef`: `41` dòng **báo nhầm** ở `13` README `W-0297`…`W-0311` — từ tiếng Việt thông dụng trùng mẫu địa chỉ. Đổi từ, **không** nới mẫu; thêm `scan-pii.sh docs/evidence` vào phần *Kiểm* của mọi lô, vì gate sweep chỉ chạy selftest của nó | `13` README evidence · README `W-0312` §6 |
-| 16 | 🆕 *Như trên.* `IR-06 §3.4.1` vẫn tả intake **trước** `W-0302` (chiều *muộn* *"hỏng ở persistence"*), trái với dòng `1311` của chính nó | `IR-06` · re-pin `7` nơi |
-| 17 | 🆕 *Như trên.* `IR-07` `A-9` *"metadata giữ 90 ngày"* lệch với `S3` — **chỉ làm sau khi** chốt cách hiểu `S3` | `IR-07` mục đính chính |
+| 15 | ✅ **`W-0313`** — *thêm khi làm Lô 1, Toàn duyệt `17/09`.* Job CI `pii_scan` (`allow_failure: false`) đỏ ở mọi commit từ `257cbef`: `41` dòng **báo nhầm** ở `13` README `W-0297`…`W-0311` — từ tiếng Việt thông dụng trùng mẫu địa chỉ. Đổi từ, **không** nới mẫu; thêm `scan-pii.sh docs/evidence` vào phần *Kiểm* của mọi lô, vì gate sweep chỉ chạy selftest của nó. **Đã làm bằng gate thay cho luật:** sweep nay chạy chính lần quét đó trên `docs/evidence` | `13` README evidence · `deploy/ci/gate-invocations.json` |
+| 16 | ✅ **`W-0313`** — *như trên.* `IR-06 §3.4.1` vẫn tả intake **trước** `W-0302` (chiều *muộn* *"hỏng ở persistence"*), trái với dòng `1311` của chính nó | `IR-06` · re-pin `7` nơi |
+| 17 | ✅ **`W-0313`** — *như trên.* `IR-07` `A-9` *"metadata giữ 90 ngày"* lệch với `S3` (Toàn chốt: toàn bộ dữ liệu). Cũng sửa câu giống hệt ở `IR-06` | `IR-07` mục *Đính chính bổ sung* · `IR-06` |
+| 18 | ✅ **`W-0313`** — *thêm `17/09`.* `00-CHUA-XONG.md` `m8-09` vẫn ghi *"chờ owner quyết A hay B"* dù đã chọn B ngày `09/09` (`W-0248`) | `plan/ivr-orther/00-CHUA-XONG.md` |
+| 19 | 🆕 *Thấy khi làm `W-0313`, chờ Toàn duyệt.* `specs/api/06-error-codes.md` thiếu `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` của `W-0302`. File đang nằm trong nhóm file bẩn không thuộc lượt nào (chỉ lệch ký tự xuống dòng) | `specs/api/06-error-codes.md` |
 
 **Kiểm:** gate sweep `39/39` · `gate-status.mjs --write` · quét pin `0` lệch — sửa file bị ghim thì re-pin
 ngay trong lượt, tính trên byte LF.

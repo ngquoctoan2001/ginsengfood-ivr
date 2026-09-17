@@ -664,3 +664,14 @@ M3 dựng xử lý lỗi dựa vào nó.
 `task_id` = `TASK-M3-NUMBER`: body chỉ có `phone_e164`, ra `IVR_CONFIRMED`, Module 3 nhận callback —
 [`IR-08`](08-module-3-sandbox-guide.md) mục `6`. `pnpm sandbox:examples` chạy **28** ví dụ, gồm cả lượt này
 và ca *"nửa cặp token"* bị `400`.
+
+---
+
+## Đính chính bổ sung `2026-09-17` — thời hạn lưu dữ liệu (`W-0313`)
+
+> Viết **sau** mục đính chính `draft.31` ở trên, nên gửi riêng được. Không đổi contract, M3 không phải
+> sửa gì trong code.
+
+| Chỗ trong phiếu | Phiếu ghi | Đúng là |
+| --- | --- | --- |
+| `A-9` | Metadata cuộc gọi giữ **90 ngày** | **Không đặt kỳ hạn xoá.** Owner quyết định ngày `17/09`: IVR giữ **toàn bộ** dữ liệu, không tự xoá theo thời gian. Dữ liệu cá nhân của một khách chỉ bị xoá khi **khách yêu cầu**. Ghi âm vẫn **TẮT** như cũ |

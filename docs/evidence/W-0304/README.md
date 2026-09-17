@@ -69,7 +69,7 @@ Không phải "changed" mà là **deleted**, và không re-pin. Trong `62` file 
 
 ### 2.3. Cách sửa: khôi phục `12` file, không repoint
 
-Hai đường có thể đi. **Repoint** validator sang `00-CHUA-XONG.md` là không làm được: các validator
+Hai hướng có thể đi. **Repoint** validator sang `00-CHUA-XONG.md` là không làm được: các validator
 **đọc cấu trúc** trong pack (decision id, hàng phê duyệt), mà `19 KB` tóm tắt không chứa cấu trúc
 đó. Repoint sẽ phải viết lại validator **và** tái tạo nội dung đã mất.
 
@@ -90,7 +90,7 @@ không gate nào ghim.
 
 `W-0297` thay `00-index.md` → `00-CHUA-XONG.md` **trên toàn cây**, không giới hạn thư mục. Nhưng
 file bị xoá là `plan/ivr-orther/00-index.md`, còn sáu thư mục khác **cũng** có `00-index.md` và
-chúng vẫn tồn tại. Hậu quả: `12` file trỏ vào đường dẫn không có thật.
+chúng vẫn tồn tại. Hậu quả: `12` file trỏ vào path không có thật.
 
 | Bị hỏng thành | Đúng phải là | File còn tồn tại? |
 | --- | --- | --- |
@@ -233,9 +233,9 @@ PROGRESSIVE_SELFTEST_PASS · TEST_TRACEABILITY_CURRENT=695
 
 Sau khi sửa: **`0` pin lệch**.
 
-> **Đính chính `W-0306` (16/09):** dòng này ban đầu viết *"`0` pin lệch trên `183` đường dẫn ghim
-> hash"*. **Con số `183` sai.** `183` là số đường dẫn **ứng viên chuẩn hoá CRLF** — mọi chuỗi trông
-> giống đường dẫn trong `deploy/ci/scripts/*.mjs` — chứ không phải số đường dẫn thật sự có hash
+> **Đính chính `W-0306` (16/09):** dòng này ban đầu viết *"`0` pin lệch trên `183` [path] ghim
+> hash"*. **Con số `183` sai.** `183` là số path **ứng viên chuẩn hoá CRLF** — mọi chuỗi trông
+> giống path trong `deploy/ci/scripts/*.mjs` — chứ không phải số path thật sự có hash
 > ghim kèm. Số đúng, đo lại bằng chính script ở `W-0306`, là **`44`**. Kết luận *"`0` lệch"* không
 > đổi — cả `44` pin đều khớp — nhưng một con số lớn hơn thực tế **`4`** lần làm phạm vi kiểm tra
 > nghe rộng hơn nó thật, và đó đúng lủ lỗi mà bản đánh giá `16/09` đang bắt người khác. Sửa bằng
