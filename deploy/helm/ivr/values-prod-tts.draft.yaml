@@ -1,0 +1,84 @@
+# NHÁP — cấu hình production cho VieNeu-TTS. W-0317, Lô 4 bước 4 của
+# plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md.
+#
+# KHÔNG deploy file này như hiện có. values-prod.yaml vẫn đặt worker.tts.enabled: false, và không gate
+# nào đọc file này (mọi gate đọc values-<môi trường>.yaml theo tên).
+#
+# File ghi sẵn mọi thứ đã biết hôm nay và để TRỐNG đúng những ô còn chờ. Render nó hôm nay thì chart
+# TỪ CHỐI — đó là thiết kế fail-closed của W-0122, không phải lỗi:
+#
+#   helm template ivr deploy/helm/ivr -f deploy/helm/ivr/values-prod.yaml \
+#     -f deploy/helm/ivr/values-prod-tts.draft.yaml
+#
+# Ô còn trống, và ai điền (docs/evidence/W-0317/README.md §4 có lượt render chứng minh danh sách này đủ):
+#
+#   governance.executionMode=PRODUCTION_REAL  — ngày gọi khách thật; không riêng gì TTS
+#   image.repository / image.digest           — S5: kho bản cài nội bộ, và Trivy chạy lại trên chính digest đó
+#   modelBundle.existingClaim                 — S5: bundle từ mirror nội bộ (OD-VOICE-07)
+#   mediaSink                                  — S5: chỗ đặt audio sinh ra cho tổng đài đọc (OD-VOICE-08)
+#   approvals.legalRef                        — S2 rủi ro 4: quyền dùng thương mại model VieNeu và 12 đoạn
+#   approvals.platformRef                     — S5: máy chạy thật
+#   approvals.telephonyRef                    — S6: nhà mạng và adapter production
+#   approvals.internalMirrorRef               — S5: OD-VOICE-07
+#   resources                                 — S5: đo trên máy thật (mỗi câu ≤ 5 giây, dư 20% trước lúc quay)
+#
+# ConfigMap nghiệm thu giọng — tạo từ đúng một nguồn, không chép tay nội dung vào đây:
+#
+#   kubectl -n <namespace> create configmap ivr-tts-voice-acceptance \
+#     --from-file=voice-acceptance-manifest.json=docs/evidence/W-0122/voice-acceptance-manifest.json
+#
+# Manifest đó là OWNER_ACCEPTED (OD-VOICE-06, 28/08). Nó ràng vào hash của MODELS.lock và của
+# deploy/tts/runtime-requirements.lock; đổi một trong hai file thì phải nghe duyệt lại.
+#
+# Nghe duyệt 12 đoạn cố định dưới đây vẫn là việc của người duyệt được chỉ định (S1). Catalog lấy từ
+# deploy/lab/asterisk/audio/segments-appsettings.json; tiền tố "sound:generated/" là mặc định của chart
+# (mediaSink.mediaReferencePrefix) và đổi theo chỗ đặt audio mà S5 chọn.
+
+worker:
+  tts:
+    enabled: true
+    image:
+      repository: ""
+      digest: ""
+    modelBundle:
+      existingClaim: ""
+      # SHA-256 của deploy/tts/models/MODELS.lock (byte LF), trùng model_lock_sha256 trong manifest nghiệm thu.
+      lockSha256: "bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d"
+    voiceAcceptance:
+      existingConfigMap: ivr-tts-voice-acceptance
+      key: voice-acceptance-manifest.json
+      mountPath: /run/ivr-tts/voice-acceptance-manifest.json
+    mediaSink:
+      type: UNDECIDED
+      existingClaim: ""
+    approvals:
+      legalRef: ""
+      platformRef: ""
+      telephonyRef: ""
+      internalMirrorRef: ""
+      voiceAcceptanceRef: "OD-VOICE-06 owner sign-off 2026-08-28"
+    voices:
+      North:
+        voiceId: v3t-north-ngoc-linh  # Ngọc Linh, Owner chọn 28/08 (OD-VOICE-06)
+        speakingRate: 1.0
+        fixedSegments:
+          - { textHash: 4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2, mediaReference: "sound:generated/ivr-seg-north-4612fb85a1d0c3df", durationMilliseconds: 6400 }
+          - { textHash: 95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5, mediaReference: "sound:generated/ivr-seg-north-95f78c510d802cdf", durationMilliseconds: 800 }
+          - { textHash: 53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e, mediaReference: "sound:generated/ivr-seg-north-53d482dfd9119b91", durationMilliseconds: 800 }
+          - { textHash: 764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3, mediaReference: "sound:generated/ivr-seg-north-764af2bea49c72c8", durationMilliseconds: 3920 }
+      Central:
+        voiceId: v3t-central-ngoc-tran  # Ngọc Trân, Owner chọn 28/08 (OD-VOICE-06)
+        speakingRate: 1.0
+        fixedSegments:
+          - { textHash: 4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2, mediaReference: "sound:generated/ivr-seg-central-4612fb85a1d0c3df", durationMilliseconds: 7040 }
+          - { textHash: 95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5, mediaReference: "sound:generated/ivr-seg-central-95f78c510d802cdf", durationMilliseconds: 880 }
+          - { textHash: 53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e, mediaReference: "sound:generated/ivr-seg-central-53d482dfd9119b91", durationMilliseconds: 1120 }
+          - { textHash: 764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3, mediaReference: "sound:generated/ivr-seg-central-764af2bea49c72c8", durationMilliseconds: 4880 }
+      South:
+        voiceId: v3t-south-my-duyen  # Mỹ Duyên, Owner chọn 28/08 (OD-VOICE-06)
+        speakingRate: 1.0
+        fixedSegments:
+          - { textHash: 4612fb85a1d0c3df431aa831b7fe2ec8deeae0a689f6ffc21237665af9aae8b2, mediaReference: "sound:generated/ivr-seg-south-4612fb85a1d0c3df", durationMilliseconds: 8720 }
+          - { textHash: 95f78c510d802cdfdb4ac06058fa4d66a3a60f9e0ed88dfcd4945e127c759bb5, mediaReference: "sound:generated/ivr-seg-south-95f78c510d802cdf", durationMilliseconds: 1760 }
+          - { textHash: 53d482dfd9119b9107f2dbdc9600142aa4b345cd826471998ae66e982bccf38e, mediaReference: "sound:generated/ivr-seg-south-53d482dfd9119b91", durationMilliseconds: 2800 }
+          - { textHash: 764af2bea49c72c87d25a3f4bc339ee6d0e8e449e217f6989528a1a50bb784f3, mediaReference: "sound:generated/ivr-seg-south-764af2bea49c72c8", durationMilliseconds: 5120 }

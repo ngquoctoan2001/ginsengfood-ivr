@@ -19,11 +19,17 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM ${PYTHON_IMAGE} AS runtime
 
+# W-0317: the four pins after OpenSSL are the Debian fixes Trivy reported as available on 2026-09-18
+# (13 of 57 HIGH/CRITICAL, all three CRITICAL among them). The rest have no fixed version yet.
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         libssl3t64=3.5.7-1~deb13u2 \
         openssl=3.5.7-1~deb13u2 \
         openssl-provider-legacy=3.5.7-1~deb13u2 \
+        perl-base=5.40.1-6+deb13u1 \
+        gzip=1.13-1+deb13u1 \
+        libpcre2-8-0=10.46-1~deb13u2 \
+        libsqlite3-0=3.46.1-7+deb13u2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --gid 1654 ivr \

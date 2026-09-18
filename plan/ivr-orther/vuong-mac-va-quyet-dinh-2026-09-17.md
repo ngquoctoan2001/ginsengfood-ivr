@@ -13,7 +13,7 @@
 | Mã | Quyết định | Hệ quả phải biết | Làm ở |
 | --- | --- | --- | --- |
 | `S3` | **Giữ dữ liệu vĩnh viễn** — không đặt thời hạn xoá, kể cả nhật ký quản trị | Thay các kỳ hạn đã ký `10/09` (90 ngày · 180 ngày · 1 năm). Đường xoá **duy nhất** còn lại là khi khách yêu cầu ⇒ `T2` thành bắt buộc. Số điện thoại dạng đọc được nằm vĩnh viễn ⇒ đã đưa vào danh sách ký nhận rủi ro `S2`. **Toàn xác nhận `17/09`: toàn bộ dữ liệu**, không riêng nhật ký quản trị. Tài liệu gửi Module 3 đã sửa (`W-0313`); register và phiếu thời hạn lưu sửa ở `W-0316` | Lô 3 · ✅ `W-0316` |
-| `S4` | **Giữ VieNeu** chạy trên máy chủ công ty | Mở lại nhánh `W-0122`. Trước khi bật ở production cần: xử lý 16 lỗ hổng · quyền dùng model và 12 đoạn đã render · máy chạy thật + kho bản cài nội bộ · đo tốc độ · nghe duyệt · gọi thử. Cấu hình production **giữ tắt** tới khi đủ | Lô 4 |
+| `S4` | **Giữ VieNeu** chạy trên máy chủ công ty | Mở lại nhánh `W-0122`. Trước khi bật ở production cần: xử lý lỗ hổng (`44` mức cao sau `W-0317`, `S2` rủi ro 3) · quyền dùng model và 12 đoạn đã render · máy chạy thật + kho bản cài nội bộ · đo tốc độ · nghe duyệt · gọi thử. Cấu hình production **giữ tắt** tới khi đủ | Lô 4 |
 | `S7` | **B** — ghi nhận là giới hạn của bản đầu, không mua kho ghi nhận ngoài | Ghi ở register, **không** sửa `m8-15` (bị ghim hash) | Lô 3 · ✅ `W-0316` (`OD-V1-24`) |
 | `T1` | `IR-07` **đã gửi** Module 3, đang chờ phản hồi · tách stage 3 · nới token · thêm driver chỉ-gửi-số | Vế "giữ phiếu lại" không còn áp dụng — Module 3 **đã cầm** lời hứa "chỉ gửi số là đủ" ⇒ lô này đi **đầu tiên**. Kiểm lại lúc lập kế hoạch thấy lỗi **lớn hơn** đã báo: ở production, phương án B hiện **không nhận được task nào** (Lô 1) | Lô 1 |
 | `T2` | Sửa đường xoá bỏ sót `phone_e164` · trigger · gate đối chiếu | Phải xong **trước** khi Module 3 gửi số thật | Lô 2 · ✅ `W-0314` |
@@ -66,7 +66,7 @@ nhận rủi ro bằng văn bản**. Hồ sơ hiện ghi người nhận là **"
 | --- | --- | --- |
 | 1 | Hệ thống gọi **giữ số điện thoại khách ở dạng đọc được** — ai lấy được bản sao dữ liệu là đọc được | Chọn `17/09`: Module 3 gửi thẳng số |
 | 2 | 🆕 **Giữ vĩnh viễn** mọi dữ liệu khách, gồm số điện thoại ở rủi ro 1. Cách xoá duy nhất: khi khách yêu cầu — *hiện chưa có lệnh để chạy việc xoá đó, xem `S8`*. *Nghị định `13/2023/NĐ-CP` có nguyên tắc chỉ lưu dữ liệu cá nhân trong thời gian phù hợp với mục đích xử lý — đây là điểm rủi ro pháp lý rõ nhất trong bảng. Ghi để Sếp cân nhắc, không phải ý kiến pháp lý* | `S3` |
-| 3 | 🆕 **16 lỗ hổng bảo mật chưa có bản vá** trong bản cài VieNeu (13 mức cao · 3 mức nghiêm trọng; 3 lỗ nghiêm trọng đã đo là không bị gọi tới khi chạy) — *có thể biến mất nếu đổi được bản cài nền (Lô 4)* | `S4` |
+| 3 | 🆕 **Lỗ hổng bảo mật chưa có bản vá** trong bản cài nền của VieNeu. *Quét lại `18/09` (`W-0317`):* ra `57` lỗ chứ không phải `16`, vì dữ liệu lỗ hổng đã cập nhật. Vá được `13`, gồm cả `3` lỗ nghiêm trọng ⇒ **còn `44` lỗ mức cao, `0` nghiêm trọng**, và đã đo là phần mềm lúc chạy không nạp tới chúng. **Muốn về `0`:** đổi bản cài nền sang image miễn phí của Chainguard — đã thử: `0` lỗ, qua các kiểm tra; đổi lại là phụ thuộc một nhà cung cấp ngoài, và cần một lượt đọc thật bằng model trước khi đổi hẳn | `S4` |
 | 4 | 🆕 **Quyền dùng thương mại** model VieNeu và 12 đoạn giọng đã render | `S4` |
 | 5 | Người **nhấc máy không phải chủ đơn** vẫn nghe được tên món hàng và phường/quận giao | Chốt `05/09` |
 | 6 | Bản đầu **không có cách** để khách nói "đừng gọi tôi nữa" qua cuộc gọi — phím 0 là huỷ đơn | Chốt `10/09` |
@@ -75,7 +75,8 @@ nhận rủi ro bằng văn bản**. Hồ sơ hiện ghi người nhận là **"
 Rủi ro 1 có lối lùi: quay lại mã hoá số — phải mua dịch vụ giữ khoá, và Module 3 phải xây bộ mã hoá.
 
 **Đề xuất:** ký cả bảy điểm, kèm hai điều kiện: `T2` xong **trước** khi Module 3 gửi số thật *(✅ `18/09`, `W-0314`)*; rủi ro 3
-**chỉ ký sau** khi Lô 4 đã thử đổi bản cài nền.
+**chỉ ký sau** khi Lô 4 đã thử đổi bản cài nền *(✅ đã thử `18/09`, `W-0317`)*. Với rủi ro 3, Sếp chọn một trong hai: **ký**
+với `44` lỗ mức cao, hoặc **cho đổi** bản cài nền sang Chainguard — khi đó rủi ro 3 biến mất, đổi lại là phụ thuộc Chainguard.
 
 > **Câu mẫu:** *"Công ty không có bộ phận pháp chế và bảo mật riêng. Tôi, ______, nhận rủi ro của bảy
 > điểm trên cho bản đầu của hệ thống gọi xác nhận đơn hàng."* — Ký: ______ · Ngày: ______
@@ -173,7 +174,7 @@ bộ phận bán hàng làm — IVR không có cách biết ai là ai.
 
 ## 5. Kế hoạch khắc phục
 
-> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 2 (`W-0314`) · Lô 3 trừ mục `13` (`W-0313`, `W-0315`, `W-0316`) · Lô 4 bước `3` (`W-0315`). **Chưa:** Lô 3 mục `13` (chờ Sếp ký `S2`), Lô 4 bước `1`, `2`, `4`, Lô 5.
+> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 2 (`W-0314`) · Lô 3 trừ mục `13` (`W-0313`, `W-0315`, `W-0316`) · Lô 4 phần làm được ngay (`W-0315`, `W-0317`). **Chưa:** Lô 3 mục `13` (chờ Sếp ký `S2`), Lô 4 phần **Chờ**, Lô 5.
 > Mỗi lô là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0317`. Cấp trước dễ trùng số: `A-0637`
 > đã bị cấp hai lần.
 
@@ -196,7 +197,7 @@ luật rút ra ngày `17/09`:
 | **1** | `draft.31` — Module 3 gửi số là nhận được · ✅ `W-0312` `TESTS_PASS` | `T1` `T3` `T5` | Không | 🔴 | `CreateDomainSnapshot` **CRITICAL** (`26` ký hiệu · `5` luồng) · `EvaluateAsync` **HIGH** (`23` · `3` luồng) · `ValidateSchema` LOW |
 | **2** | Đường xoá dữ liệu phủ `phone_e164` · ✅ `W-0314` `TESTS_PASS` | `T2` | Không | 🔴 | `RetentionTargetCatalog` LOW · `DsarService` LOW — *index không theo tham chiếu hằng; đọc tay `DsarService.cs:77`* |
 | **3** | Sổ sách một lượt · ✅ trừ mục `13` (`W-0313` · `W-0315` · `W-0316`) | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
-| **4** | Mở lại nhánh VieNeu | `S4` | Một phần: `S1` `S2` `S5` | 🟡 | Chạy khi chốt symbol |
+| **4** | Mở lại nhánh VieNeu · ✅ phần làm được ngay (`W-0315` · `W-0317`) | `S4` | Một phần: `S1` `S2` `S5` | 🟡 | Chạy khi chốt symbol |
 | **5** | Nghiệm thu theo đợt | `T7` | Toàn duyệt từng đợt | ⚪ | Không đụng symbol |
 
 **Vì sao thứ tự này:** Lô 1 trước vì Module 3 đã cầm phiếu. Lô 2 trước ngày có số thật. Lô 3 sau Lô 1–2 để
@@ -398,16 +399,23 @@ ngay trong lượt, tính trên byte LF.
 
 **Làm được ngay, không chờ ai**
 
-1. Quét lại image `ivr-tts` bằng Trivy ghim; cập nhật danh sách 16 lỗ hổng, có ngày.
-2. **Thử đổi bản cài nền** (hướng `SEC-B` cũ) sao cho hết lỗ `HIGH`/`CRITICAL`. Làm được thì rủi ro 3 của
+1. ✅ **`W-0317`** — Quét lại image `ivr-tts` bằng Trivy ghim; cập nhật danh sách 16 lỗ hổng, có ngày.
+   *Kết quả `18/09`: `57` (`54 HIGH` · `3 CRITICAL`), `13` có bản vá. Đã ghim `4` gói Debian có bản vá ⇒ còn
+   `44 HIGH`, `0 CRITICAL`.*
+2. ✅ **`W-0317`** — **Thử đổi bản cài nền** (hướng `SEC-B` cũ) sao cho hết lỗ `HIGH`/`CRITICAL`. Làm được thì rủi ro 3 của
    `S2` **biến mất** và Sếp không phải ký nó. Chạy lại `tts-container-selftest` và `tts-helm-selftest`, đo
-   lại xem các lỗ còn lại có bị gọi tới không.
+   lại xem các lỗ còn lại có bị gọi tới không. *Kết quả: Debian distroless còn `21 HIGH` ngay ở image gốc;
+   **Chainguard `0`**, qua cả hai selftest. **Chưa đổi hẳn** — `Dockerfile.tts` vẫn nền Debian đã vá — vì còn hai
+   việc: một lượt đọc thật bằng bundle model (`~211 MB`, chưa có trên máy), và Sếp chọn ở `S2` rủi ro 3. `44` lỗ
+   còn lại đã đo: không thư viện nào của chúng được nạp khi chạy.*
 3. ✅ **`W-0315`** — Đưa những câu hỏi còn sống của ba phiếu cũ (`platform-w0122`, `security-w0122-cve`,
    `legal-od-voice-07` — toàn văn ở `257cbef^`) về đúng người, **không** tạo lại ba file: bảo mật và quyền
    dùng → `S2` · kho bản cài nội bộ (`OD-VOICE-07`) và máy thật (`OD-VOICE-08`) → `S5`. Ghi ở nhóm A của
    `00-CHUA-XONG.md` và mục 5 của phiếu cho Sếp.
-4. Soạn sẵn cấu hình production ở dạng **nháp** (ConfigMap nghiệm thu giọng, tham chiếu phê duyệt).
-   `deploy/helm/ivr/values-prod.yaml` **vẫn** `tts.enabled: false`.
+4. ✅ **`W-0317`** — Soạn sẵn cấu hình production ở dạng **nháp** (ConfigMap nghiệm thu giọng, tham chiếu phê duyệt).
+   `deploy/helm/ivr/values-prod.yaml` **vẫn** `tts.enabled: false`. *Nháp ở
+   `deploy/helm/ivr/values-prod-tts.draft.yaml`: điền sẵn giọng, catalog `12` đoạn, hash `MODELS.lock`, tham chiếu
+   nghiệm thu giọng; để trống đúng `14` ô còn chờ `S2`/`S5`/`S6` — render chứng minh thiếu ô nào cũng bị từ chối.*
 
 **Chờ**
 

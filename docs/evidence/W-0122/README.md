@@ -114,7 +114,7 @@ node -e "const {createHash}=require('node:crypto');const {readFileSync}=require(
 | Readiness path thật | `PASS` — 3 test drive `VieNeuBackend.load()` với bundle tổng hợp: 5 lock binding drift và 3 guard audition/acceptance đều fail closed |
 | Helm candidate | `PASS` local render — mặc định tắt; positive TEST_ONLY fixture và negative prod/lab guards pass |
 | Pre-dial budget guard | `PASS` — `timeoutMilliseconds` trả về baseline `5000`; nâng lên `30000` bị từ chối (thiếu `approvals.performanceRef`, và vẫn thủng budget kể cả khi có); `16000` có measurement ref thì render |
-| SBOM/vulnerability | `RELEASE_BLOCKED` — SPDX 152 entries; Trivy `13 HIGH`, `3 CRITICAL`, `0 fixable`; toàn bộ finding còn lại thuộc Debian 13.6 |
+| SBOM/vulnerability | `RELEASE_BLOCKED` — SPDX 152 entries; Trivy `13 HIGH`, `3 CRITICAL`, `0 fixable`; toàn bộ finding còn lại thuộc Debian 13.6. **Sửa `18/09` ([`W-0317`](../W-0317/README.md)):** cùng Trivy ghim, DB ngày `18/09` ra `54 HIGH`, `3 CRITICAL`, `13 fixable`; sau khi ghim `4` gói Debian có bản vá còn `44 HIGH`, `0 CRITICAL`, `0 fixable`. Thử trên nền Chainguard: `0` |
 | Owner voice acceptance | `OWNER_ACCEPTED` `2026-08-28` — Bắc `Ngọc Linh`, Trung `Ngọc Trân`, Nam `Mỹ Duyên`; manifest SHA-256 `90927e16…`; shim chuyển từ `503` sang `/health/ready=200` |
 | Fixed catalog 12 file | `FILES_READY` — render `12/12` bằng ba giọng đã ký, convert PCM s16le/8 kHz/mono, `sha256sum --check --strict` `18/18 OK` trong image, entrypoint báo `installed 12 fixed speech segments`, 12 media reference đối chiếu khớp file/hash/TextHash. **Owner chưa nghe đoạn và mối nối** |
 | 6 MicroSIP calls | `NOT_RUN` |

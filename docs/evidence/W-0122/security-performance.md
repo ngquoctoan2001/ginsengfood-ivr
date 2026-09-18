@@ -74,6 +74,17 @@ Mười ba HIGH còn lại nằm ở `ncurses`, `sqlite3`, `gzip`, `perl-base` v
 đưa ra fixed version. Không xóa cưỡng bức các package nền/essential để làm đẹp scanner vì có thể
 phá tính toàn vẹn của Python base image.
 
+## Re-scan `2026-09-18` — [`W-0317`](../W-0317/README.md)
+
+| Mục | Giá trị |
+| --- | --- |
+| Trivy | cùng image ghim `aquasec/trivy@sha256:7cced7ca…`, DB tải ngày `2026-09-18` |
+| Image trước khi vá | build lại từ `Dockerfile.tts` tại `e71ff00` (dùng cache), `126,108,829` bytes |
+| Kết quả trước khi vá | `54 HIGH`, `3 CRITICAL` — `57` finding, `13` đã có bản vá Debian. Tăng từ `16` vì DB mới: nhóm util-linux (`4` CVE trên `9` gói), `libsystemd0`/`libudev1`, `libpcre2` |
+| Sau khi ghim `4` gói | `perl-base`, `gzip`, `libpcre2-8-0`, `libsqlite3-0` ⇒ `44 HIGH`, `0 CRITICAL`, `0 fixable`, `8` CVE riêng biệt; image `129,675,750` bytes |
+| Reachability | Nạp module entrypoint, class engine và `5` thư viện native trong image, rồi đọc `/proc/self/maps`: `46` shared object, **không** cái nào thuộc gói còn CVE; `subprocess` không được import. Chưa có bundle model nên engine chưa khởi tạo session thật |
+| Report | `artifacts/sbom/w0317-trivy-*.json` (git bỏ qua); SHA-256 ở README `W-0317` |
+
 ## Kết luận gate
 
 `RELEASE_BLOCKED`.
@@ -82,6 +93,7 @@ Local hardening đã xử lý toàn bộ finding có fixed version trong candida
 HIGH/CRITICAL ở Python dependency set. Release chỉ được xem lại khi:
 
 1. base image/OS có bản sửa hoặc Security/Release owner ký disposition cho đúng 16 finding;
+   *(sửa `18/09`, `W-0317`: nay là `44` finding `HIGH`, không còn `CRITICAL` — xem mục trên)*
 2. Trivy/SBOM được chạy lại trên image digest được đẩy vào internal registry;
 3. Legal/Privacy, model internal mirror, owner voice acceptance, target performance và production
    topology đều có artifact phê duyệt riêng.

@@ -45,7 +45,7 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 | `platform-ci-staging` | Platform | ➡️ **Mục `1`** (tiền) + **Mục `3`** (người duyệt thứ hai) |
 | `legal-od-voice-07` | Legal | ➡️ **`S2` rủi ro `4`** — quyền dùng thương mại model VieNeu và `12` đoạn đã render |
 | `platform-w0122` | Platform | ➡️ **`S5`** — máy chạy VieNeu thật + kho bản cài nội bộ |
-| `security-w0122-cve` | Security | ➡️ **`S2` rủi ro `3`** — `16` lỗ hổng của bản cài nền; Lô `4` thử đổi bản cài nền trước khi ký |
+| `security-w0122-cve` | Security | ➡️ **`S2` rủi ro `3`** — `16` lỗ hổng của bản cài nền; Lô `4` thử đổi bản cài nền trước khi ký · *sửa `18/09` (`W-0317`): quét lại ra `57`, vá `13` ⇒ còn `44` mức cao, `0` nghiêm trọng; nền Chainguard thử được `0` — Sếp chọn ở `S2`* |
 
 ### Ba phiếu VieNeu: không đóng, đã chuyển về đúng người
 
@@ -280,7 +280,7 @@ _Cập nhật `17/09` (`W-0309`). Bảng cũ gom `5` bên; thật ra chỉ có *
 | **Sếp** | môi trường triển khai (`S5`) · người duyệt thứ hai (`S1`) · quyền dùng model VieNeu và `12` đoạn đã render (`S2`) · ~~nguồn khoá token~~ *hết đối tượng từ phương án B* · ~~m8-15~~ *`S7` chốt B ngày `17/09`, giới hạn đã nhận (`OD-V1-24`)* | [Phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md) **đã trả lời `17/09`**; phần còn mở ở `S1` `S2` `S5` `S6` `S8` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md) *(sửa `18/09`, `W-0316`)* |
 | **Nhà mạng** | `B12` adapter production, `B1` hiệu chỉnh `4` số năng lực | Chờ báo giá. Đường ống đã dựng xong `16/09`, thiếu tuyến |
 | ~~Platform~~ ~~Security~~ ~~Legal~~ | — | **Không tồn tại như đội riêng.** Đã gom về Sếp — xem nhóm A |
-| **Chính mình** | `B8` VieNeu: phần làm được ngay của Lô `4` | Quét lại Trivy, thử đổi bản cài nền, soạn cấu hình production nháp. Không tốn tiền |
+| **Chính mình** | `B8` VieNeu: phần làm được ngay của Lô `4` | ✅ **Xong `18/09` (`W-0317`)**: quét lại Trivy, thử đổi bản cài nền, soạn cấu hình production nháp. Còn một lượt đọc thật khi có bundle model |
 
 > ### Câu cũ ở chỗ này đã sai, và tôi lặp lại nó ba lần trước khi kiểm
 >
