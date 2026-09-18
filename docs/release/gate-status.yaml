@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "44 of 305 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "44 of 306 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 251
+  rows_without_evidence_pack: 252
 
 gates:
   - id: "G-CONTRACT"
@@ -1328,6 +1328,10 @@ work:
     prompt: "Lô 4 — phần làm được ngay của nhánh VieNeu (Origin=OWNER_DECISION 2026-09-18, Lô 4 bước 1, 2, 4 của [bản vướng mắc 17/09](../../plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md))"
     status: "TESTS_PASS"
     evidence: "docs/evidence/W-0317/README.md"
+  - id: "W-0318"
+    prompt: "Lô 5 — nghiệm thu theo đợt, phần của agent (Origin=OWNER_DECISION 2026-09-18, Lô 5 bước 1, 2 của [bản vướng mắc 17/09](../../plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md), T7)"
+    status: "TESTS_PASS"
+    evidence: "docs/evidence/W-0318/README.md"
   - id: "W-0309"
     prompt: "Gom 6 phiếu nhóm A về đúng người (Origin=SELF_REVIEW, phát sinh khi kiểm lại một câu của chính tôi trong [00-CHUA-XONG](../../plan/ivr-orther/00-CHUA-XONG.md))"
     status: "EVIDENCE_SUBMITTED"

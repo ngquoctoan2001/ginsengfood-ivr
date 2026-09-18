@@ -21,7 +21,7 @@
 | `T4` | Ghi ngay: phần *"không ghi DB"* của `OD-V1-18` đã bị thay | | Lô 3 · ✅ `W-0316` |
 | `T5` | Sửa `perm IVR_DEV_TOOLING` thành quyền endpoint thực đòi (`ivr.admin.write`) | Cùng bản `draft.31` | Lô 1 |
 | `T6` | Ghi thành điều kiện của stage 5, **chưa làm** | | Lô 3 · ✅ `W-0316` (README `W-0311` §6) |
-| `T7` | Release owner là **Toàn**; nghiệm thu **theo đợt**, tiêu chí ghi sẵn | Chỉ Toàn chuyển trạng thái sang `ACCEPTED` | Lô 5 |
+| `T7` | Release owner là **Toàn**; nghiệm thu **theo đợt**, tiêu chí ghi sẵn | Chỉ Toàn chuyển trạng thái sang `ACCEPTED` | Lô 5 · ◐ `W-0318` (tiêu chí + danh sách; phần duyệt là của Toàn) |
 | `T8` | `W-0163` → `CANCELLED` · `W-0118` → `N/A` | ⚠️ **Khác đề xuất cũ ở `W-0118`:** kiểm lại thấy tính năng "bỏ qua khách cũ" (`OD-15`) đã bị `OD-18` thay từ `draft.21` (`W-0123`) — hạ về `N/A` theo tiền lệ `W-0105`, không khôi phục bằng chứng | Lô 3 · ✅ `W-0316` |
 
 ---
@@ -174,7 +174,7 @@ bộ phận bán hàng làm — IVR không có cách biết ai là ai.
 
 ## 5. Kế hoạch khắc phục
 
-> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 2 (`W-0314`) · Lô 3 trừ mục `13` (`W-0313`, `W-0315`, `W-0316`) · Lô 4 phần làm được ngay (`W-0315`, `W-0317`). **Chưa:** Lô 3 mục `13` (chờ Sếp ký `S2`), Lô 4 phần **Chờ**, Lô 5.
+> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 2 (`W-0314`) · Lô 3 trừ mục `13` (`W-0313`, `W-0315`, `W-0316`) · Lô 4 phần làm được ngay (`W-0315`, `W-0317`) · Lô 5 phần của agent (`W-0318`). **Chưa:** Lô 3 mục `13` (chờ Sếp ký `S2`), Lô 4 phần **Chờ**, Lô 5 phần Toàn duyệt.
 > Mỗi lô là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0317`. Cấp trước dễ trùng số: `A-0637`
 > đã bị cấp hai lần.
 
@@ -198,7 +198,7 @@ luật rút ra ngày `17/09`:
 | **2** | Đường xoá dữ liệu phủ `phone_e164` · ✅ `W-0314` `TESTS_PASS` | `T2` | Không | 🔴 | `RetentionTargetCatalog` LOW · `DsarService` LOW — *index không theo tham chiếu hằng; đọc tay `DsarService.cs:77`* |
 | **3** | Sổ sách một lượt · ✅ trừ mục `13` (`W-0313` · `W-0315` · `W-0316`) | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
 | **4** | Mở lại nhánh VieNeu · ✅ phần làm được ngay (`W-0315` · `W-0317`) | `S4` | Một phần: `S1` `S2` `S5` | 🟡 | Chạy khi chốt symbol |
-| **5** | Nghiệm thu theo đợt | `T7` | Toàn duyệt từng đợt | ⚪ | Không đụng symbol |
+| **5** | Nghiệm thu theo đợt · ◐ tiêu chí + danh sách đầu (`W-0318`); chờ Toàn duyệt từng đợt | `T7` | Toàn duyệt từng đợt | ⚪ | Không đụng symbol |
 
 **Vì sao thứ tự này:** Lô 1 trước vì Module 3 đã cầm phiếu. Lô 2 trước ngày có số thật. Lô 3 sau Lô 1–2 để
 ghi luôn bằng chứng của chúng — làm trước cũng được, vì chỉ là tài liệu. Lô 4 chuẩn bị song song được phần
@@ -432,12 +432,12 @@ tồn tại.
 
 ### Lô 5 · Nghiệm thu theo đợt (`T7`)
 
-1. Ghi **tiêu chí nghiệm thu** vào tracker §1. Đề xuất: một việc đạt khi đủ cả bốn điều
+1. ✅ **`W-0318`** — Ghi **tiêu chí nghiệm thu** vào tracker §1. Đề xuất: một việc đạt khi đủ cả bốn điều
    - README evidence tồn tại đúng đường dẫn trong `gate-status.yaml` và mang `REAL_CUSTOMER_CALL_ALLOWED=NO`
    - mọi `TestId` trong evidence có trong `docs/traceability-tests.md` và xanh ở `HEAD`
    - cột *Residual/next* không còn việc thuộc về IVR — chỉ còn việc chờ bên ngoài
-   - gate sweep `40/40` *(từ `W-0313`)* tại commit nghiệm thu
-2. Script **chỉ đọc** lập danh sách đề nghị cho từng đợt theo phase (`P0`…`P11`, `UNPLANNED`): đạt hoặc không
+   - gate sweep `40/40` *(từ `W-0313`)* tại commit nghiệm thu — *ghi vào tracker thành "mọi gate trong manifest đều chạy", không kèm con số: `W-0318` thêm gate thứ `41`*
+2. ✅ **`W-0318`** — `deploy/ci/scripts/acceptance-batches.mjs`; danh sách đầu ở `docs/release/acceptance-batches.md`: `218` ứng viên, `0` ĐẠT, `138` XEM, `80` KHÔNG ĐẠT. Script **chỉ đọc** lập danh sách đề nghị cho từng đợt theo phase (`P0`…`P11`, `UNPLANNED`): đạt hoặc không
    đạt, kèm lý do.
 3. **Toàn duyệt từng đợt** và tự chuyển trạng thái sang `ACCEPTED` — agent chỉ chuẩn bị danh sách.
 4. `gate-status.mjs --write` sau mỗi đợt. Nấc 1 đạt khi mọi prompt đã lên kế hoạch được nghiệm thu và không

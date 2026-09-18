@@ -13,6 +13,7 @@
       "reason": "drives HTTP examples against a running isolated Module 3 sandbox; writes live MOCK evidence and requires sandbox services",
       "runner": "pnpm sandbox:examples after pnpm sandbox:up; W-0283 validates worker-owned eligibility"
     },
+    "acceptance-batches.mjs": { "argv": ["--self-test"], "expect": "ACCEPTANCE_BATCHES_SELFTEST_PASS" },
     "api-behavior-matrix-selftest.mjs": {
       "sweepable": false,
       "reason": "asserts on verify-api-behavior-matrix, whose verdict depends on the ApiBehaviorMatrixTests run having happened against current source",

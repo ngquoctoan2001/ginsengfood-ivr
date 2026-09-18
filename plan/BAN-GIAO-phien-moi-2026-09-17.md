@@ -124,6 +124,8 @@ Ba phiếu `platform-w0122`, `security-w0122-cve`, `legal-od-voice-07` đã chuy
 [vướng mắc `17/09`](ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md). `16` finding (`13 HIGH` +
 `3 CRITICAL`, `0` cái có bản vá, toàn bộ thuộc Debian 13.6 — `W-0185` đã đo `3 CRITICAL` **không với
 tới được**). `deploy/helm/ivr/values-prod.yaml` vẫn đặt `tts.enabled: false` cho tới khi đủ cổng.
+*Sửa `18/09` (`W-0317`): quét lại với dữ liệu lỗ hổng mới ra `57`, vá `13` ⇒ còn `44 HIGH`, `0 CRITICAL`;
+nền Chainguard thử được `0` — Sếp chọn ở `S2` rủi ro `3`. Phần làm được ngay của Lô `4` đã xong.*
 
 **Chờ tôi cấp:** một tài khoản GitLab thứ hai có quyền duyệt (sếp đã duyệt, chưa tạo).
 
@@ -210,7 +212,7 @@ tại chỗ kèm bằng chứng, đúng như chính bản đó yêu cầu: *"sai
 
 ```bash
 dotnet test Ivr.sln --nologo                        # 1151/1151
-node deploy/ci/scripts/gate-sweep.mjs               # 40/40 từ W-0313 (bản đầu ghi 39/39)
+node deploy/ci/scripts/gate-sweep.mjs               # 41/41 từ W-0318 (40 từ W-0313; bản đầu ghi 39/39)
 node deploy/ci/scripts/gate-status.mjs --write
 node deploy/ci/scripts/generate-test-traceability.mjs
 pnpm db:migration:add <Ten>                         # KHÔNG dùng dotnet ef trực tiếp
