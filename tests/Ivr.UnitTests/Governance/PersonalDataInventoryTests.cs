@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text.RegularExpressions;
 using Ivr.Infrastructure.Governance;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +14,10 @@ namespace Ivr.UnitTests.Governance;
 /// is written and false a month later, because nothing about adding a column makes
 /// anyone open it. Reading the EF model turns that from a habit into a gate.</para>
 /// </summary>
-public sealed class PersonalDataInventoryTests
+public sealed partial class PersonalDataInventoryTests
 {
+    private const string RedactedPromise = "Replaced with a redacted value";
+
     [Fact]
     [Trait("TestId", "COMP-PII-01")]
     public void NoPersonalDataFieldShipsOutsideTheInventory()
@@ -118,6 +122,80 @@ public sealed class PersonalDataInventoryTests
             Assert.Contains($"{field.Table}.{field.Column}", document, StringComparison.Ordinal);
         }
     }
+
+    /// <summary>
+    /// W-0314. The inventory's promise and the statement that keeps it, read against each other.
+    /// <para>
+    /// The inventory said <c>phone_e164</c> was replaced with a redacted value from the day the
+    /// column arrived, and the shared redaction never touched it: an erasure stamped
+    /// <c>anonymized_at</c> on a row that still held the customer's number. A promise in one file
+    /// and its implementation in another drift apart exactly like that, silently. Both directions,
+    /// because a column the statement clears and the inventory calls retained is the same error
+    /// told the other way round.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-PII-02")]
+    public void EveryTaskFieldTheInventoryCallsRedactedIsInTheSharedRedactionAndNothingElseIs()
+    {
+        string[] promised = [.. PersonalDataInventory.Fields
+            .Where(field => string.Equals(field.Table, "ivr_confirmation_tasks", StringComparison.Ordinal)
+                && field.ErasureBehaviour.StartsWith(RedactedPromise, StringComparison.Ordinal))
+            .Select(field => field.Column)
+            .Order(StringComparer.Ordinal)];
+
+        string[] redacted = [.. AssignedColumns().Matches(SharedRedactionSql())
+            .Select(match => match.Groups["column"].Value)
+            .Order(StringComparer.Ordinal)];
+
+        Assert.Equal(promised, redacted);
+    }
+
+    /// <summary>
+    /// W-0314. What an erasure keeps is what the requester is told before it starts.
+    /// <para>
+    /// <see cref="DsarService.NotErasable"/> is read to a data subject before anything is
+    /// promised. A field the inventory retains that the list never names is a limit discovered
+    /// afterwards, which is the one thing the runbook exists to prevent.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-PII-02")]
+    public void EveryTaskFieldAnErasureKeepsIsNamedInTheLimitsGivenFirst()
+    {
+        string[] retained = [.. PersonalDataInventory.Fields
+            .Where(field => string.Equals(field.Table, "ivr_confirmation_tasks", StringComparison.Ordinal)
+                && field.ErasureBehaviour.StartsWith("Retained", StringComparison.Ordinal))
+            .Select(field => $"{field.Table}.{field.Column}")];
+
+        Assert.NotEmpty(retained);
+        foreach (string key in retained)
+        {
+            Assert.Contains(
+                DsarService.NotErasable,
+                limit => limit.StartsWith(key + ":", StringComparison.Ordinal));
+        }
+    }
+
+    /// <summary>
+    /// The shared redaction as the compiler stored it. It is internal to Ivr.Infrastructure and is
+    /// not widened for a test; a rename fails here by name instead of quietly passing.
+    /// </summary>
+    private static string SharedRedactionSql()
+    {
+        Type catalog = typeof(PersonalDataInventory).Assembly.GetType(
+            "Ivr.Infrastructure.Retention.RetentionTargetCatalog",
+            throwOnError: true)!;
+        FieldInfo field = catalog.GetField(
+            "SpeechSnapshotRedactionSql",
+            BindingFlags.NonPublic | BindingFlags.Static)
+            ?? throw new InvalidOperationException(
+                "RetentionTargetCatalog.SpeechSnapshotRedactionSql was renamed; this gate no longer reads it.");
+        return (string)field.GetRawConstantValue()!;
+    }
+
+    [GeneratedRegex(@"(?:^|,)\s*(?<column>[a-z_][a-z0-9_]*)\s*=", RegexOptions.CultureInvariant)]
+    private static partial Regex AssignedColumns();
 
     private static IModel BuildModel() => BuildModel<IvrDbContext>();
 

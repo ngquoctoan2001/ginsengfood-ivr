@@ -37,20 +37,23 @@ Vì cơ sở là **thực hiện hợp đồng** chứ không phải **lợi íc
 | Quyền | Trong phạm vi IVR | Cơ chế |
 | --- | --- | --- |
 | Truy cập | **có** — trả về **số lượng theo bảng**, không trả giá trị | `DsarService.FindAsync` |
-| Xoá | **một phần** — redact trường liên hệ trong `ivr_confirmation_tasks` | `DsarService.EraseAsync` |
+| Xoá | **một phần** — redact trường liên hệ trong `ivr_confirmation_tasks`, gồm chính số điện thoại (`phone_e164`) và khoá liên hệ Sales từ `W-0314`. **Chưa có lối chạy ngoài test** — xem runbook DSAR §5 | `DsarService.EraseAsync` |
 | Đính chính | **không** — IVR không sở hữu dữ liệu gốc; yêu cầu đi tới Sales | — |
 | Hạn chế xử lý | **có** — `legal_hold_until` loại bản ghi khỏi mọi batch retention | `IT-RET-HOLD-04` |
 | Di chuyển dữ liệu | **không áp dụng** — IVR không giữ dữ liệu do chủ thể cung cấp | — |
 
-**Ba giới hạn của quyền xoá**, nói **trước** khi xử lý yêu cầu:
+**Bốn giới hạn của quyền xoá**, nói **trước** khi xử lý yêu cầu:
 
 1. **Audit không xoá được** — append-only ép bởi database. Một bản ghi *ai đã làm gì* mà chủ thể xoá
    được thì không phải bản ghi.
 2. **`order_code` được giữ** — là khoá mà yêu cầu đi tới; xoá nó làm **mọi** yêu cầu sau về cùng đơn
    không trả lời được, kể cả của chính người đó.
 3. **Payload callback giữ tới hết retention** — xem §1.
+4. **`customer_id` được giữ** — khoá khách của Sales, cùng lý do với `order_code`: là cách đối chiếu
+   lịch sử đơn với Sales, và tự nó không định danh ai. Số điện thoại, khoá liên hệ và hai giá trị
+   trust thì **bị xoá** (Toàn chốt `18/09`, `W-0314`).
 
-Và một giới hạn thứ tư ở tầng hạ tầng: **không xoá chọn lọc được bên trong một bản backup đã mã
+Và một giới hạn thứ năm ở tầng hạ tầng: **không xoá chọn lọc được bên trong một bản backup đã mã
 hoá**. Bản backup còn hạn vẫn giữ dữ liệu trước khi redact.
 
 ## 4. Bằng chứng kỹ thuật cho từng khẳng định

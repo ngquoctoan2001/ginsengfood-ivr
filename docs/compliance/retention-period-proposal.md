@@ -40,8 +40,8 @@ Cột **"Quá ngắn thì mất gì"** là hệ quả vận hành, do kỹ thu�
 
 | Nhóm | Chiến lược | Bảng (cột mốc) | Dữ liệu cá nhân | Quá ngắn thì mất gì | **Số ngày** |
 | --- | --- | --- | --- | --- | --- |
-| `speech_snapshot` | **Ẩn danh** | `ivr_confirmation_tasks` (`created_at`) | **9 cột** — `phone_ref`, `phone_masked`, `dial_token_ciphertext`, `privacy_safe_order_summary_json`, `order_code`, `customer_id`, `customer_trust_status`, `official_contact_id`, `phone_validation_status` | Mất khả năng dựng lại **nội dung đã đọc cho khách nghe** khi có khiếu nại | ☐ |
-| `task_metadata` | Xoá | `ivr_confirmation_tasks` (`created_at`), `ivr_call_jobs`, `ivr_task_intake_outbox`, `ivr_capacity_incidents` | Cùng 9 cột trên (**cùng bảng** với `speech_snapshot`) | Mất **toàn bộ dấu vết** đơn nào đã được gọi | ☐ |
+| `speech_snapshot` | **Ẩn danh** | `ivr_confirmation_tasks` (`created_at`) | **11 cột** — `phone_e164` (**chính số điện thoại**, từ `W-0310`), `phone_ref`, `phone_masked`, `dial_token_ciphertext`, `privacy_safe_order_summary_json`, `order_code`, `customer_id`, `customer_trust_status`, `trusted_skip_allowed`, `official_contact_id`, `phone_validation_status`. Ẩn danh che **9**; `order_code` và `customer_id` giữ làm khoá đối chiếu (`W-0314`) | Mất khả năng dựng lại **nội dung đã đọc cho khách nghe** khi có khiếu nại | ☐ |
+| `task_metadata` | Xoá | `ivr_confirmation_tasks` (`created_at`), `ivr_call_jobs`, `ivr_task_intake_outbox`, `ivr_capacity_incidents` | Cùng 11 cột trên (**cùng bảng** với `speech_snapshot`) | Mất **toàn bộ dấu vết** đơn nào đã được gọi | ☐ |
 | `raw_call_event` | Xoá | `ivr_raw_call_events` (`received_at`) | `recording_ref` — ghi âm **mặc định TẮT** (DT-05), cột này `null` trừ khi có phê duyệt riêng | Mất chẩn đoán sự cố kỹ thuật ở tầng thấp | ☐ |
 | `callback_metadata` | Xoá | `ivr_result_callbacks` (`created_at`) | `payload_json` — thân callback gửi Sales | Mất bằng chứng **đã báo kết quả cho Sales**, thứ dùng khi hai bên bất đồng | ☐ |
 | `idempotency_key` | Xoá | `ivr_idempotency_keys` (`created_at`) | `response_snapshot_json` — ảnh chụp phản hồi | Request lặp lại sau khi hết hạn sẽ **chạy lại** thay vì trả cùng đáp án | ☐ |

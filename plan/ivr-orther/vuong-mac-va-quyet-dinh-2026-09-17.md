@@ -1,7 +1,7 @@
 # Vướng mắc và việc cần quyết — Module 8 (gọi điện xác nhận đơn hàng)
 
 **Lập:** `17/09/2026` · **Duyệt:** `17/09` — Sếp + Toàn · **Mốc mã:** `main@fe3bb19`
-**Trạng thái:** `ĐÃ QUYẾT 11/15` — còn **4 mục chờ Sếp** (`S1` `S2` `S5` `S6`) · **Kế hoạch khắc phục:** §5, cuối file
+**Trạng thái:** `ĐÃ QUYẾT 11/16` — còn **5 mục chờ Sếp** (`S1` `S2` `S5` `S6` `S8`) · **Kế hoạch khắc phục:** §5, cuối file
 
 > **Hệ thống hiện chưa thể gọi khách thật** — cố ý, có nhiều lớp chặn. Không mục nào dưới đây là
 > sự cố đang xảy ra. Tất cả là việc phải xong **trước** ngày gọi khách thật.
@@ -16,7 +16,7 @@
 | `S4` | **Giữ VieNeu** chạy trên máy chủ công ty | Mở lại nhánh `W-0122`. Trước khi bật ở production cần: xử lý 16 lỗ hổng · quyền dùng model và 12 đoạn đã render · máy chạy thật + kho bản cài nội bộ · đo tốc độ · nghe duyệt · gọi thử. Cấu hình production **giữ tắt** tới khi đủ | Lô 4 |
 | `S7` | **B** — ghi nhận là giới hạn của bản đầu, không mua kho ghi nhận ngoài | Ghi ở register, **không** sửa `m8-15` (bị ghim hash) | Lô 3 |
 | `T1` | `IR-07` **đã gửi** Module 3, đang chờ phản hồi · tách stage 3 · nới token · thêm driver chỉ-gửi-số | Vế "giữ phiếu lại" không còn áp dụng — Module 3 **đã cầm** lời hứa "chỉ gửi số là đủ" ⇒ lô này đi **đầu tiên**. Kiểm lại lúc lập kế hoạch thấy lỗi **lớn hơn** đã báo: ở production, phương án B hiện **không nhận được task nào** (Lô 1) | Lô 1 |
-| `T2` | Sửa đường xoá bỏ sót `phone_e164` · trigger · gate đối chiếu | Phải xong **trước** khi Module 3 gửi số thật | Lô 2 |
+| `T2` | Sửa đường xoá bỏ sót `phone_e164` · trigger · gate đối chiếu | Phải xong **trước** khi Module 3 gửi số thật | Lô 2 · ✅ `W-0314` |
 | `T3` | Kiểm định dạng số lúc nhận | Cùng bản `draft.31` | Lô 1 |
 | `T4` | Ghi ngay: phần *"không ghi DB"* của `OD-V1-18` đã bị thay | | Lô 3 |
 | `T5` | Sửa `perm IVR_DEV_TOOLING` thành quyền endpoint thực đòi (`ivr.admin.write`) | Cùng bản `draft.31` | Lô 1 |
@@ -26,7 +26,7 @@
 
 ---
 
-## 2. Còn chờ Sếp quyết — 4 mục
+## 2. Còn chờ Sếp quyết — 5 mục
 
 ### S1 · Cần thêm người: ba thao tác bắt buộc "người khác nhau" 👤 🔴
 
@@ -65,7 +65,7 @@ nhận rủi ro bằng văn bản**. Hồ sơ hiện ghi người nhận là **"
 | # | Rủi ro | Từ đâu |
 | --- | --- | --- |
 | 1 | Hệ thống gọi **giữ số điện thoại khách ở dạng đọc được** — ai lấy được bản sao dữ liệu là đọc được | Chọn `17/09`: Module 3 gửi thẳng số |
-| 2 | 🆕 **Giữ vĩnh viễn** mọi dữ liệu khách, gồm số điện thoại ở rủi ro 1. Cách xoá duy nhất: khi khách yêu cầu. *Nghị định `13/2023/NĐ-CP` có nguyên tắc chỉ lưu dữ liệu cá nhân trong thời gian phù hợp với mục đích xử lý — đây là điểm rủi ro pháp lý rõ nhất trong bảng. Ghi để Sếp cân nhắc, không phải ý kiến pháp lý* | `S3` |
+| 2 | 🆕 **Giữ vĩnh viễn** mọi dữ liệu khách, gồm số điện thoại ở rủi ro 1. Cách xoá duy nhất: khi khách yêu cầu — *hiện chưa có lệnh để chạy việc xoá đó, xem `S8`*. *Nghị định `13/2023/NĐ-CP` có nguyên tắc chỉ lưu dữ liệu cá nhân trong thời gian phù hợp với mục đích xử lý — đây là điểm rủi ro pháp lý rõ nhất trong bảng. Ghi để Sếp cân nhắc, không phải ý kiến pháp lý* | `S3` |
 | 3 | 🆕 **16 lỗ hổng bảo mật chưa có bản vá** trong bản cài VieNeu (13 mức cao · 3 mức nghiêm trọng; 3 lỗ nghiêm trọng đã đo là không bị gọi tới khi chạy) — *có thể biến mất nếu đổi được bản cài nền (Lô 4)* | `S4` |
 | 4 | 🆕 **Quyền dùng thương mại** model VieNeu và 12 đoạn giọng đã render | `S4` |
 | 5 | Người **nhấc máy không phải chủ đơn** vẫn nghe được tên món hàng và phường/quận giao | Chốt `05/09` |
@@ -74,7 +74,7 @@ nhận rủi ro bằng văn bản**. Hồ sơ hiện ghi người nhận là **"
 
 Rủi ro 1 có lối lùi: quay lại mã hoá số — phải mua dịch vụ giữ khoá, và Module 3 phải xây bộ mã hoá.
 
-**Đề xuất:** ký cả bảy điểm, kèm hai điều kiện: `T2` xong **trước** khi Module 3 gửi số thật; rủi ro 3
+**Đề xuất:** ký cả bảy điểm, kèm hai điều kiện: `T2` xong **trước** khi Module 3 gửi số thật *(✅ `18/09`, `W-0314`)*; rủi ro 3
 **chỉ ký sau** khi Lô 4 đã thử đổi bản cài nền.
 
 > **Câu mẫu:** *"Công ty không có bộ phận pháp chế và bảo mật riêng. Tôi, ______, nhận rủi ro của bảy
@@ -111,12 +111,37 @@ Chi tiết: [báo cáo `15/09`, cập nhật `16/09`](../../docs/reports/2026-09
 
 > **Sếp trả lời:** Đếm cơ cấu mạng giao cho: ______ · Hồ sơ tên định danh giao cho: ______
 
-### Ô ký — 4 mục còn mở
+### S8 · Ai được xoá dữ liệu khách khi khách yêu cầu 👤 🔴
 
-| Người duyệt | `S1` | `S2` | `S5` | `S6` | Ngày |
-| --- | --- | --- | --- | --- | --- |
-| Sếp | ☐ | ☐ | ☐ | ☐ | |
-| Toàn | ☐ | ☐ | ☐ | ☐ | |
+Vì `S3` (giữ vĩnh viễn), **cách xoá duy nhất** là khi khách yêu cầu (`S2` rủi ro 2). Ngày `18/09` lệnh xoá
+đã được sửa để **xoá đúng**, gồm cả số điện thoại (`W-0314`). Nhưng hiện **chưa có nút hay lệnh nào để
+chạy nó**: lệnh chỉ nằm trong mã, và chỉ bài kiểm thử gọi được. Nếu hôm nay có khách yêu cầu xoá, phải có
+người viết mã mới làm được.
+
+| # | Cần quyết | Vì sao cần người quyết |
+| --- | --- | --- |
+| 1 | **Ai được ra lệnh xoá** dữ liệu của một khách | Xoá không hoàn tác được. Không nên gắn vào quyền xem hàng đợi — nếu gắn, ai xem được là xoá được |
+| 2 | **Chạy bằng gì** | Theo câu 1 |
+
+| Cách | Làm gì | Được | Mất |
+| --- | --- | --- | --- |
+| **1** *(đề xuất)* | Một lệnh chạy trên máy chủ, có ghi nhật ký, chỉ người được giao chạy | Nhanh nhất, không chờ ai | Ai vào được máy chủ là chạy được — danh sách người vào máy chủ phải thật ngắn |
+| **2** | Một nút trong trang quản trị, với quyền riêng *"xoá dữ liệu khách"* | Đúng chỗ, có phân quyền | Chờ Module 3 làm trang và nền tảng phân quyền cấp quyền mới — lâu hơn |
+| **3** | Tạm thời Toàn làm tay mỗi lần có yêu cầu | Không tốn gì bây giờ | Phụ thuộc một người; mỗi lần là một lần viết mã |
+
+**Đề xuất:** Cách 1, người được giao do Sếp chỉ định. Việc xác minh người yêu cầu có đúng là khách vẫn do
+bộ phận bán hàng làm — IVR không có cách biết ai là ai.
+
+*Nguồn: `docs/compliance/dsar-runbook.md` §1, §5 · `docs/evidence/W-0314/README.md` §1.*
+
+> **Sếp trả lời:** Người được xoá: ______ · Cách ☐ 1 ☐ 2 ☐ 3 ☐ khác: ________
+
+### Ô ký — 5 mục còn mở
+
+| Người duyệt | `S1` | `S2` | `S5` | `S6` | `S8` | Ngày |
+| --- | --- | --- | --- | --- | --- | --- |
+| Sếp | ☐ | ☐ | ☐ | ☐ | ☐ | |
+| Toàn | ☐ | ☐ | ☐ | ☐ | ☐ | |
 
 ---
 
@@ -148,8 +173,8 @@ Chi tiết: [báo cáo `15/09`, cập nhật `16/09`](../../docs/reports/2026-09
 
 ## 5. Kế hoạch khắc phục
 
-> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 3 mục `15`–`19` (`W-0313`). **Chưa:** Lô 2, Lô 3 mục `1`–`14`, Lô 4, Lô 5.
-> Mỗi lô là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0314`. Cấp trước dễ trùng số: `A-0637`
+> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 2 (`W-0314`) · Lô 3 mục `15`–`19` (`W-0313`). **Chưa:** Lô 3 mục `1`–`14`, Lô 4, Lô 5.
+> Mỗi lô là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0315`. Cấp trước dễ trùng số: `A-0637`
 > đã bị cấp hai lần.
 
 ### 5.0 · Luật thi hành
@@ -169,7 +194,7 @@ luật rút ra ngày `17/09`:
 | Lô | Việc | Mục | Chờ ai | Gấp | Rủi ro GitNexus (`17/09`) |
 | --- | --- | --- | --- | --- | --- |
 | **1** | `draft.31` — Module 3 gửi số là nhận được · ✅ `W-0312` `TESTS_PASS` | `T1` `T3` `T5` | Không | 🔴 | `CreateDomainSnapshot` **CRITICAL** (`26` ký hiệu · `5` luồng) · `EvaluateAsync` **HIGH** (`23` · `3` luồng) · `ValidateSchema` LOW |
-| **2** | Đường xoá dữ liệu phủ `phone_e164` | `T2` | Không | 🔴 | `RetentionTargetCatalog` LOW · `DsarService` LOW — *index không theo tham chiếu hằng; đọc tay `DsarService.cs:77`* |
+| **2** | Đường xoá dữ liệu phủ `phone_e164` · ✅ `W-0314` `TESTS_PASS` | `T2` | Không | 🔴 | `RetentionTargetCatalog` LOW · `DsarService` LOW — *index không theo tham chiếu hằng; đọc tay `DsarService.cs:77`* |
 | **3** | Sổ sách một lượt · ◐ mục `15`–`19` xong (`W-0313`) | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
 | **4** | Mở lại nhánh VieNeu | `S4` | Một phần: `S1` `S2` `S5` | 🟡 | Chạy khi chốt symbol |
 | **5** | Nghiệm thu theo đợt | `T7` | Toàn duyệt từng đợt | ⚪ | Không đụng symbol |
@@ -285,6 +310,19 @@ số · ba đột biến đều bị bắt · ví dụ sandbox xanh qua HTTP th�
 
 ### Lô 2 · Đường xoá dữ liệu phủ `phone_e164` (`T2`)
 
+> **✅ Đã làm `18/09` — `W-0314`, `TESTS_PASS`.** Bằng chứng:
+> [`docs/evidence/W-0314/README.md`](../../docs/evidence/W-0314/README.md).
+>
+> | Điều kiện *"Xong khi"* | Kết quả |
+> | --- | --- |
+> | Sau DSAR, câu SQL trên DB thật không thấy số đọc được nào của đơn đó | ✅ `1` → **`0`**, đơn khác vẫn `1` (`COMP-DSAR-08`, Postgres `16` thật). Câu SQL ở README §6 |
+> | Gate đối chiếu xanh, và đỏ được khi đục | ✅ `COMP-PII-02` — đỏ theo **cả hai chiều** (`M1`, `M8`); `8/8` đột biến bị bắt |
+>
+> **Lệch khỏi kế hoạch, có lý do:** (1) Bước `3` trỏ nhầm: `P2_1_TaskIntake.cs:226-274` là thân trong
+> **`Down`** (bản cũ). Dùng `Up` (`134-190`); không thì `4` cột script/policy thôi bất biến. (2) Toàn chốt
+> `18/09` thêm ba việc: xoá lần hai không còn ném lỗi (`AND anonymized_at IS NULL`) · migration dọn dòng đã
+> xoá kiểu cũ · `trusted_skip_allowed` vào danh mục và câu xoá. (3) Trigger **không** thêm ba cột Sales — lý
+> do ở README §3. (4) Thấy khi làm: DSAR **chưa có lối chạy** ⇒ `S8` ở §2.
 **Hiện trạng:** câu xoá dùng chung cho job lưu trữ và yêu cầu xoá của khách (DSAR) không có `phone_e164`;
 DSAR vẫn đặt `anonymized_at` nên dòng **trông như đã ẩn danh** trong khi số còn nguyên; trigger bất biến
 không biết cột này ⇒ đích quay số sửa được sau khi nhận

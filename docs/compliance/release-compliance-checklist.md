@@ -18,7 +18,7 @@ Cột "Trạng thái hôm nay" là trạng thái đo được ngày `2026-08-19`
 | T-03 | Recording OFF | DT-05, `recording_ref` null | ✅ |
 | T-04 | Do-not-call là chặn cứng ở cả ba trạng thái | `COMP-DNC-03`, `UT-ELIG-VOICE-15` | ✅ |
 | T-05 | Danh mục dữ liệu cá nhân khớp schema đang ship | `COMP-PII-01` | ✅ |
-| T-06 | DSAR tìm/xoá đúng phạm vi, audit bất biến | `COMP-DSAR-02` | ✅ |
+| T-06 | DSAR tìm/xoá đúng phạm vi, audit bất biến | `COMP-DSAR-02` · `COMP-DSAR-08..12` | ✅ đúng phạm vi, gồm số điện thoại (`W-0314`) · ⚠️ **chưa có lối chạy** ngoài test — `S8` |
 | T-07 | Kho phân tích không chứa PII | `BI-PII-01` | ✅ |
 | T-08 | TLS tới database ép ở chart, `Prefer` bị từ chối | `DG-CRYPTO-01` | ✅ |
 | T-09 | Backup mã hoá + xác thực + restore đã kiểm | `DG-BACKUP-02` | ✅ |

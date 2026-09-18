@@ -6,7 +6,10 @@ using Ivr.Infrastructure.Governance;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace Ivr.IntegrationTests.Governance;
 
@@ -45,8 +48,9 @@ public sealed class ComplianceTests(PostgresPersistenceFixture fixture)
         Assert.All(report.Holdings, holding => Assert.False(
             holding.Table.Contains("phone", StringComparison.OrdinalIgnoreCase)));
 
-        // The limits are part of the answer, not a discovery made while answering.
-        Assert.Equal(3, report.NotErasable.Count);
+        // The limits are part of the answer, not a discovery made while answering. Four since
+        // W-0314: customer_id is kept as the key IVR shares with Sales, and the requester hears so.
+        Assert.Equal(4, report.NotErasable.Count);
         Assert.Contains(report.NotErasable, limit =>
             limit.Contains("append-only", StringComparison.Ordinal));
     }
@@ -423,6 +427,208 @@ public sealed class ComplianceTests(PostgresPersistenceFixture fixture)
         }
     }
 
+    // ------------------------------------------------------ W-0314 · COMP-DSAR-08..12
+
+    /// <summary>
+    /// W-0314. An erasure removes the number itself, and the Sales contact keys with it.
+    /// <para>
+    /// The inventory promised this for <c>phone_e164</c> from the day the column arrived (W-0310),
+    /// and the shared redaction never touched it: the row came out stamped <c>anonymized_at</c>,
+    /// looking erased, with the customer's number in the clear. The contact keys were erased by
+    /// nothing at all once S3 removed the retention period that was supposed to take them.
+    /// <c>customer_id</c> stays, like <c>order_code</c>, and the requester is told before anything
+    /// starts.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-08")]
+    public async Task ErasureRemovesTheNumberAndTheContactKeysAndKeepsTheReconciliationKey()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync(withNumber: true);
+        Assert.Equal(1, await RowsHoldingAReadableNumberAsync(OrderCode));
+
+        await Erase("corr-dsar-number", dryRun: false);
+
+        Assert.Equal(0, await RowsHoldingAReadableNumberAsync(OrderCode));
+
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        ConfirmationTaskEntity erased = await context.ConfirmationTasks
+            .SingleAsync(row => row.OrderCode == OrderCode);
+        Assert.Null(erased.PhoneE164);
+        Assert.Null(erased.OfficialContactId);
+        Assert.Null(erased.CustomerTrustStatus);
+        Assert.Null(erased.TrustedSkipAllowed);
+        Assert.NotNull(erased.AnonymizedAt);
+        Assert.Equal("CUST-DSAR-01", erased.CustomerId);
+
+        // Blast radius, again: the other customer's number is exactly where it was.
+        Assert.Equal(1, await RowsHoldingAReadableNumberAsync(OtherOrderCode));
+    }
+
+    /// <summary>
+    /// W-0314. A second request about the same order reaches the task that arrived after the first.
+    /// <para>
+    /// The trigger lets <c>anonymized_at</c> be set once, and the erasure matched every task of the
+    /// order, erased or not. So a second request re-stamped the first task, the trigger refused, and
+    /// the whole statement rolled back: a task Sales sent after the first erasure could never be
+    /// erased at all. The dry run counts the same way, or its preview promises what the real run
+    /// will not reach.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-09")]
+    public async Task ASecondErasureReachesTheTaskThatArrivedAfterTheFirst()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync(withNumber: true);
+        await Erase("corr-dsar-first", dryRun: false);
+
+        DateTimeOffset? firstStamp;
+        await using (IvrDbContext between = await Factory().CreateDbContextAsync())
+        {
+            firstStamp = (await between.ConfirmationTasks.AsNoTracking()
+                .SingleAsync(row => row.TaskId == "TASK-DSAR-01")).AnonymizedAt;
+
+            // Sales sends the same order again, after the erasure.
+            Seed(between, "03", OrderCode, withCallback: false, withNumber: true);
+            await between.SaveChangesAsync();
+        }
+
+        await Erase("corr-dsar-preview", dryRun: true);
+        DsarErasureReport second = await Erase("corr-dsar-second", dryRun: false);
+        DsarErasureReport third = await Erase("corr-dsar-third", dryRun: false);
+
+        Assert.Equal(1, second.TasksRedacted);
+        Assert.Equal(0, third.TasksRedacted);
+        Assert.Equal(0, await RowsHoldingAReadableNumberAsync(OrderCode));
+
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        ConfirmationTaskEntity first = await context.ConfirmationTasks.AsNoTracking()
+            .SingleAsync(row => row.TaskId == "TASK-DSAR-01");
+        Assert.Equal(firstStamp, first.AnonymizedAt);
+
+        // Every answer is audited, and each says what it reached, not what the order ever held.
+        Assert.Equal("matched=1 redacted=0", await TasksMatchedAsync(context, "corr-dsar-preview"));
+        Assert.Equal("matched=1 redacted=1", await TasksMatchedAsync(context, "corr-dsar-second"));
+        Assert.Equal("matched=0 redacted=0", await TasksMatchedAsync(context, "corr-dsar-third"));
+    }
+
+    /// <summary>
+    /// W-0314. The number a task was accepted with is the number it is dialled on. The trigger held
+    /// every other part of the snapshot and not the dial target, so an UPDATE could point an
+    /// accepted confirmation call at somebody else's phone.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-10")]
+    public async Task TheNumberATaskWasAcceptedWithCannotBeChangedAfterwards()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync(withNumber: true);
+
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        PostgresException refused = await Assert.ThrowsAsync<PostgresException>(() =>
+            context.Database.ExecuteSqlRawAsync(
+                "UPDATE ivr_confirmation_tasks SET phone_e164 = '+84900000009' "
+                + "WHERE task_id = 'TASK-DSAR-01'"));
+
+        Assert.Contains("snapshot is immutable", refused.MessageText, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// W-0314, the rollout. A pod still running the erasure from before W-0314 is refused on a row
+    /// that holds a number, so nothing is marked erased that was not. Only there: a token-only row,
+    /// which that statement erases completely, goes through as before.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-11")]
+    public async Task TheOldErasureIsRefusedExactlyWhereItWouldLeaveTheNumberBehind()
+    {
+        await fixture.ResetAsync();
+        await using (IvrDbContext seed = await Factory().CreateDbContextAsync())
+        {
+            Seed(seed, "01", OrderCode, withCallback: false, withNumber: true);
+            Seed(seed, "02", OtherOrderCode, withCallback: false, withNumber: false);
+            await seed.SaveChangesAsync();
+        }
+
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        PostgresException refused = await Assert.ThrowsAsync<PostgresException>(() =>
+            context.Database.ExecuteSqlRawAsync(PreW0314Erasure, OrderCode));
+        Assert.Contains("snapshot is immutable", refused.MessageText, StringComparison.Ordinal);
+        Assert.Equal(1, await RowsHoldingAReadableNumberAsync(OrderCode));
+
+        Assert.Equal(1, await context.Database.ExecuteSqlRawAsync(PreW0314Erasure, OtherOrderCode));
+    }
+
+    /// <summary>
+    /// W-0314, the rows erased before the fix. They carry <c>anonymized_at</c> and still hold the
+    /// number and the contact keys, and no request can reach them again: the trigger refuses a
+    /// second stamp, and the erasure now skips erased rows. So the migration clears them -- and only
+    /// them; a live task keeps what it needs to be dialled.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-12")]
+    public async Task TheMigrationClearsWhatEarlierErasuresLeftBehindAndNothingElse()
+    {
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        try
+        {
+            (_, string target) = await RebuildBeforeMigrationAsync(
+                factory,
+                "_W0314ErasureReachesTheNumber");
+
+            await using (IvrDbContext legacy = await factory.CreateDbContextAsync())
+            {
+                Seed(legacy, "01", OrderCode, withCallback: false, withNumber: true);
+                Seed(legacy, "02", OtherOrderCode, withCallback: false, withNumber: true);
+                await legacy.SaveChangesAsync();
+
+                // Erased the way it was done before: stamped, and the number left in place.
+                Assert.Equal(1, await legacy.Database.ExecuteSqlRawAsync(PreW0314Erasure, OrderCode));
+                Assert.Equal(1, await RowsHoldingAReadableNumberAsync(OrderCode));
+
+                await legacy.GetService<IMigrator>().MigrateAsync(target);
+            }
+
+            Assert.Equal(0, await RowsHoldingAReadableNumberAsync(OrderCode));
+            await using IvrDbContext context = await factory.CreateDbContextAsync();
+            ConfirmationTaskEntity erased = await context.ConfirmationTasks.AsNoTracking()
+                .SingleAsync(row => row.OrderCode == OrderCode);
+            Assert.Null(erased.OfficialContactId);
+            Assert.Null(erased.CustomerTrustStatus);
+            Assert.Null(erased.TrustedSkipAllowed);
+            Assert.Equal("CUST-DSAR-01", erased.CustomerId);
+
+            // A live task keeps its number: the backfill reaches erased rows and nothing else.
+            Assert.Equal(1, await RowsHoldingAReadableNumberAsync(OtherOrderCode));
+        }
+        finally
+        {
+            await fixture.ResetAsync();
+        }
+    }
+
+    /// <summary>
+    /// The erasure <see cref="DsarService"/> ran before W-0314, the way an old pod still runs it
+    /// during the rollout: every redacted column except the number and the contact keys, and no
+    /// filter on rows already erased.
+    /// </summary>
+    private const string PreW0314Erasure =
+        "UPDATE ivr_confirmation_tasks SET phone_ref = 'redacted', phone_masked = '***', "
+        + "phone_validation_status = 'REDACTED', dial_token_ciphertext = 'enc:redacted', "
+        + "privacy_safe_order_summary_json = '{{}}'::jsonb, anonymized_at = now() "
+        + "WHERE order_code = {0}";
+
+    private Task<DsarErasureReport> Erase(string correlationId, bool dryRun) =>
+        Service().EraseAsync(
+            OrderCode,
+            "subject erasure request 2026-09-18",
+            "AGT-PRIVACY-01",
+            correlationId,
+            dryRun,
+            CancellationToken.None);
+
     private static string FindRepositoryRoot()
     {
         DirectoryInfo? directory = new(AppContext.BaseDirectory);
@@ -448,19 +654,66 @@ public sealed class ComplianceTests(PostgresPersistenceFixture fixture)
     private static int Rows(DsarFindReport report, string table) =>
         report.Holdings.Single(holding => holding.Table == table).RowCount;
 
-    private async Task SeedAsync()
+    private async Task SeedAsync(bool withNumber = false)
     {
         await using IvrDbContext context = await Factory().CreateDbContextAsync();
-        Seed(context, "01", OrderCode, withCallback: true);
-        Seed(context, "02", OtherOrderCode, withCallback: false);
+        Seed(context, "01", OrderCode, withCallback: true, withNumber);
+        Seed(context, "02", OtherOrderCode, withCallback: false, withNumber);
         await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// The done-condition of W-0314 as one statement: rows of this order in which any column
+    /// still carries a readable Vietnamese mobile number. The whole row rather than a list of
+    /// columns, because a list is the thing that was wrong. <c>id</c> is left out: it is a random
+    /// UUID, and a UUID can hold ten digits in a row by chance.
+    /// </summary>
+    private async Task<int> RowsHoldingAReadableNumberAsync(string orderCode)
+    {
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        return await context.Database.SqlQuery<int>($$"""
+            SELECT count(*)::int AS "Value"
+            FROM ivr_confirmation_tasks t
+            WHERE t.order_code = {{orderCode}}
+              AND (to_jsonb(t) - 'id')::text ~ '(^|[^0-9])(\+?84|0)[0-9]{9}([^0-9]|$)'
+            """).SingleAsync();
+    }
+
+    private static async Task<string> TasksMatchedAsync(IvrDbContext context, string correlationId)
+    {
+        AuditLogEntity entry = await context.AuditLog.AsNoTracking()
+            .SingleAsync(row => row.CorrelationId == correlationId);
+        using System.Text.Json.JsonDocument data = System.Text.Json.JsonDocument.Parse(entry.DataJson);
+        return string.Create(
+            CultureInfo.InvariantCulture,
+            $"matched={data.RootElement.GetProperty("tasks_matched").GetInt32()} "
+                + $"redacted={data.RootElement.GetProperty("tasks_redacted").GetInt32()}");
+    }
+
+    private static async Task<(string Previous, string Target)> RebuildBeforeMigrationAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string targetSuffix)
+    {
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        await context.Database.EnsureDeletedAsync();
+        string[] migrations = [.. context.Database.GetMigrations()];
+        int index = Array.FindIndex(
+            migrations,
+            migration => migration.EndsWith(targetSuffix, StringComparison.Ordinal));
+        Assert.True(
+            index > 0,
+            $"Expected a migration ending in '{targetSuffix}' with at least one migration before "
+                + $"it, but the chain ends [{string.Join(", ", migrations[^3..])}].");
+        await context.GetService<IMigrator>().MigrateAsync(migrations[index - 1]);
+        return (migrations[index - 1], migrations[index]);
     }
 
     private static void Seed(
         IvrDbContext context,
         string suffix,
         string orderCode,
-        bool withCallback)
+        bool withCallback,
+        bool withNumber = false)
     {
         string taskId = $"TASK-DSAR-{suffix}";
         string jobId = $"JOB-DSAR-{suffix}";
@@ -504,6 +757,14 @@ public sealed class ComplianceTests(PostgresPersistenceFixture fixture)
             CreatedAt = t0,
             ExpiresAt = Now.AddHours(4),
             AcceptedAt = t0,
+            // withNumber: the shape Module 3 sends since W-0311 -- the number itself -- plus the
+            // Sales keys a task may carry. Every one of these but customer_id is personal data an
+            // erasure must remove (W-0314).
+            PhoneE164 = withNumber ? $"+849000000{suffix}" : null,
+            CustomerId = withNumber ? $"CUST-DSAR-{suffix}" : null,
+            OfficialContactId = withNumber ? $"CONTACT-DSAR-{suffix}" : null,
+            CustomerTrustStatus = withNumber ? "TRUSTED" : null,
+            TrustedSkipAllowed = withNumber ? true : null,
         });
 
         context.CallJobs.Add(new CallJobEntity

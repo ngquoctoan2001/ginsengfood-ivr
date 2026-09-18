@@ -1,6 +1,6 @@
 # DSAR runbook — `W-0052` · `P10-1`
 
-Ngày: `2026-08-19` · Phạm vi: **chỉ dữ liệu IVR giữ**. Đơn hàng, khách hàng và liên hệ thuộc Sales;
+Ngày: `2026-08-19` · sửa `2026-09-18` (`W-0314`) · Phạm vi: **chỉ dữ liệu IVR giữ**. Đơn hàng, khách hàng và liên hệ thuộc Sales;
 yêu cầu về những thứ đó phải đi tới Sales.
 
 ## 1. Vì sao không có endpoint HTTP
@@ -16,7 +16,7 @@ xoá được dữ liệu khách*. Cùng một lỗi ghép quyền, khác cái t
 Nên `DsarService` vẫn chạy qua thủ tục tay có audit dưới đây, và endpoint **chờ một permission DSAR
 riêng**. Đây là quyết định, không phải thiếu sót.
 
-## 2. Ba điều nói với người yêu cầu **trước** khi bắt đầu
+## 2. Bốn điều nói với người yêu cầu **trước** khi bắt đầu
 
 Không phát hiện giữa chừng:
 
@@ -27,6 +27,9 @@ Không phát hiện giữa chừng:
    đơn không trả lời được, kể cả của chính người đó.
 3. **Payload callback được giữ tới hết hạn retention.** Đó là bản ghi giao nhận với Sales; bỏ payload
    đi thì nó không còn giải quyết được tranh chấp mà nó tồn tại vì.
+4. **`customer_id` được giữ.** Khoá khách của Sales, giữ vì cùng lý do với `order_code`: là cách đối
+   chiếu lịch sử đơn với Sales, và tự nó không định danh ai nếu không có dữ liệu của Sales. Số điện
+   thoại, khoá liên hệ và hai giá trị trust thì **bị xoá** (Toàn chốt `18/09`, `W-0314`).
 
 ## 3. Quy trình
 
@@ -48,8 +51,21 @@ Không phát hiện giữa chừng:
    `"ok"` ở ô đó bằng không có bản ghi.
 4. Kết quả: các trường của `ivr_confirmation_tasks` bị redact bằng **đúng câu SQL retention job
    dùng** — `phone_ref`, `phone_masked`, `phone_validation_status`, `dial_token_ciphertext`,
-   `privacy_safe_order_summary_json` — và `anonymized_at` được đặt.
+   `privacy_safe_order_summary_json`, và từ `W-0314` đặt NULL `phone_e164` (chính số điện thoại),
+   `official_contact_id`, `customer_trust_status`, `trusted_skip_allowed` — và `anonymized_at` được
+   đặt. `customer_id` giữ lại (§2 mục 4).
 5. Ghi `audit_ref` trả về vào hồ sơ yêu cầu.
+
+**Chạy lại cho cùng một đơn là an toàn** (`W-0314`). Câu xoá chỉ chạm task **chưa** xoá: task Sales gửi
+lại sau lần xoá trước sẽ được xoá ở lần sau, task đã xoá giữ nguyên dấu thời gian, và dry-run đếm
+đúng những task lần chạy thật sẽ chạm. Trước `W-0314`, lần xoá thứ hai cho một đơn **ném lỗi** và
+không xoá được gì.
+
+### 3.4 Không chạy xoá trong lúc rollout `W-0314`
+
+Pod cũ chạy câu xoá thiếu `phone_e164`; trigger mới **từ chối** câu đó trên dòng có số. Lỗi theo hướng
+đóng — không dòng nào bị đánh dấu đã xoá khi chưa xoá — nhưng yêu cầu sẽ hỏng giữa chừng. Chờ mọi pod
+lên bản mới rồi mới chạy. Task chỉ mang token vẫn xoá được bằng pod cũ.
 
 **Phạm vi nổ đúng một đơn.** `COMP-DSAR-02` khẳng định đơn thứ hai **không bị chạm** — một lần xoá
 DSAR lan sang khách khác là một vụ rò rỉ gây ra **trong lúc** đang tôn trọng quyền riêng tư.
@@ -72,3 +88,8 @@ ra để trống thay vì điền một con số nghe hợp lý.
   theo lịch prune (`docs/dr-topology.md` §4), và **không có cơ chế nào xoá có chọn lọc bên trong một
   bản backup đã mã hoá**. Đây là giới hạn thật, phải nói với người yêu cầu.
 - **Không có endpoint** — xem §1.
+- **Chưa có lối chạy nào.** `DsarService` hiện **chỉ được test gọi**: không endpoint, không CLI, không
+  script, và không đăng ký trong DI. Thủ tục ở §3 vì vậy chưa làm được nếu không có người viết code.
+  Vì `S3`, đây lại là luồng xoá **duy nhất**. Đã ghi thành vướng mắc để Toàn/Sếp quyết ai được xoá và
+  bằng công cụ gì (`W-0314`,
+  [bản vướng mắc `17/09`](../../plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md)).

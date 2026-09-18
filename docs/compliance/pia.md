@@ -35,7 +35,7 @@ hôm nay là **chưa ký**.
 | R-07 | Bản backup giữ dữ liệu quá hạn | `prune.sh` theo tuổi; `retain_until` đi theo dump nên bản restore vẫn bị retention xử lý | **đã dựng**, `DG-RETENTION-04` |
 | R-08 | Nghe lén đường truyền tới database | TLS ép **lúc render chart**; `Prefer` bị từ chối ở mọi env | **đã dựng**, `DG-CRYPTO-01` |
 | R-09 | Dữ liệu cá nhân vào kho phân tích | hai lớp: allowlist cột đọc từ model EF + `PiiGuard` trên từng giá trị ghi | **đã dựng**, `BI-PII-01` |
-| R-10 | Không đáp ứng được yêu cầu của chủ thể | `DsarService` + runbook; xoá redact đúng phạm vi, audit bất biến | **đã dựng**, `COMP-DSAR-02` |
+| R-10 | Không đáp ứng được yêu cầu của chủ thể | `DsarService` + runbook; xoá redact đúng phạm vi, audit bất biến | **đã dựng phần service**, `COMP-DSAR-02` · `COMP-DSAR-08..12` (`W-0314`: xoá cả số điện thoại, xoá lần hai không còn lỗi). ⚠️ **Chưa có lối chạy** — chỉ test gọi được; chờ `S8` |
 | R-11 | Mã hoá at-rest của volume | — | **CHƯA** — thuộc storage class của cluster (`W-0063`) |
 | R-12 | Khoá mã hoá backup nằm trong file, chưa rotate | — | **CHƯA** — cần KMS (`W-0063`), rotation nối `P7-5` |
 | R-13 | Nội dung script đọc cho khách nghe | whitelist trường, không địa chỉ/thanh toán/sức khoẻ | **cơ chế đã dựng**; **whitelist chưa ký** (`OD-V1-15`) |

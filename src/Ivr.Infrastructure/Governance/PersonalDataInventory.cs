@@ -131,8 +131,9 @@ public static class PersonalDataInventory
                 + "exactly one path - the dial - while phone_masked remains what every log, audit "
                 + "row, callback and admin response uses.",
             PersonalDataLegalBasis.ContractPerformance,
-            "Replaced with a redacted value. Unlike the token, this one does not expire on its own, "
-                + "so erasure is the only thing that removes it."),
+            "Replaced with a redacted value (NULL). Unlike the token, this one does not expire on its "
+                + "own, so erasure is the only thing that removes it. Until W-0314 the shared "
+                + "redaction left it out, and an erased row kept the number."),
         new("ivr_confirmation_tasks", "privacy_safe_order_summary_json",
             "The whitelisted fields the script may read aloud. Contains no address, no payment "
             + "detail and no health note (OD-V1-15).",
@@ -147,17 +148,30 @@ public static class PersonalDataInventory
             "Sales-owned customer key, present only when the task carries one. IVR reads it and "
             + "never resolves it to a person.",
             PersonalDataLegalBasis.ContractPerformance,
-            "Deleted with the task row when its retention period expires."),
+            "Retained, like order_code: it is how this order's history is reconciled with Sales, "
+                + "and it names no one without Sales' own records. Listed in "
+                + "DsarService.NotErasable so the requester hears it before anything starts. "
+                + "Owner decision 2026-09-18 (W-0314); rows are kept under S3, so no retention "
+                + "period removes it either."),
         new("ivr_confirmation_tasks", "customer_trust_status",
-            "Trust signal from CRM, used to decide whether a confirmation call can be skipped "
-            + "for a customer with an established history.",
+            "Legacy trust signal from CRM (OD-18 LEGACY_READ), stored as the producer sent it for "
+                + "history. No call or skip decision has read it since draft.21.",
             PersonalDataLegalBasis.ContractPerformance,
-            "Deleted with the task row when its retention period expires. Not separately "
-            + "erasable: it is an input to a decision already recorded in audit."),
+            "Replaced with a redacted value (NULL) by the anonymisation a DSAR erasure shares with "
+                + "retention (W-0314). It used to be kept as the input to a recorded decision; "
+                + "since OD-18 it is the input to none."),
+        new("ivr_confirmation_tasks", "trusted_skip_allowed",
+            "Legacy CRM flag saying whether the confirmation call could be skipped for this "
+                + "customer (OD-18 LEGACY_READ). Read by no decision, and a fact about a person "
+                + "all the same.",
+            PersonalDataLegalBasis.ContractPerformance,
+            "Replaced with a redacted value (NULL), together with the trust status it accompanies "
+                + "(W-0314)."),
         new("ivr_confirmation_tasks", "official_contact_id",
             "Sales-owned contact key identifying which contact on the order is to be called.",
             PersonalDataLegalBasis.ContractPerformance,
-            "Deleted with the task row when its retention period expires."),
+            "Replaced with a redacted value (NULL) by the anonymisation a DSAR erasure shares with "
+                + "retention (W-0314). It was left to row expiry, and S3 removed the expiry."),
         new("ivr_confirmation_tasks", "phone_validation_status",
             "Whether the contact number passed validation. A fact about the customer's contact "
             + "details, so it is inventoried even though it holds no number.",

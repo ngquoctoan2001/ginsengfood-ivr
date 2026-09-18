@@ -23,12 +23,23 @@ internal static class RetentionTargetCatalog
     /// phone_validation_status joined this list when the field inventory was built: it is a fact
     /// about the customer's contact details, so leaving VALID behind after redacting the reference
     /// it describes keeps a weak signal about a person whose data was supposed to be gone.
+    ///
+    /// W-0314 added the rest. phone_e164 is the number itself (W-0310, option B); the inventory
+    /// promised its redaction from the day it arrived and this statement never did it, so an
+    /// erasure stamped anonymized_at on a row that still held the number. The three Sales values
+    /// were left to "deleted with the row when it expires" - and under S3 no row expires, so
+    /// nothing ever removed them; the owner decided on 18/09 that an erasure does. customer_id is
+    /// not here on purpose: it is the key IVR shares with Sales, kept like order_code and listed
+    /// in DsarService.NotErasable. PersonalDataInventoryTests reads this constant against the
+    /// inventory in both directions (COMP-PII-02).
     /// </summary>
     internal const string SpeechSnapshotRedactionSql =
         "phone_ref = 'redacted', phone_masked = '***', "
         + "phone_validation_status = 'REDACTED', "
         + "dial_token_ciphertext = 'enc:redacted', "
-        + "privacy_safe_order_summary_json = '{}'::jsonb";
+        + "privacy_safe_order_summary_json = '{}'::jsonb, "
+        + "phone_e164 = NULL, "
+        + "official_contact_id = NULL, customer_trust_status = NULL, trusted_skip_allowed = NULL";
 
     private static readonly Dictionary<string, IReadOnlyList<RetentionTarget>> Targets =
         new Dictionary<string, IReadOnlyList<RetentionTarget>>(StringComparer.Ordinal)

@@ -348,6 +348,47 @@ public sealed class RetentionJobTests(RetentionJobFixture fixture)
         Assert.DoesNotContain("phone-ref-sensitive", serialized, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// W-0314. The scheduled path clears the number and the contact keys too. It runs the same
+    /// statement as a DSAR erasure, and sharing it is only worth anything if neither path can leave
+    /// behind what the other removes.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-RET-PII-08")]
+    public async Task AnonymizeClearsTheNumberAndTheContactKeysAndKeepsTheReconciliationKey()
+    {
+        await fixture.ResetAsync();
+        ConfirmationTaskEntity task = CreateConfirmationTask("pii8", Now.AddDays(-10));
+        task.PhoneE164 = "+84900000008";
+        task.CustomerId = "CUST-RET-PII8";
+        task.OfficialContactId = "CONTACT-RET-PII8";
+        task.CustomerTrustStatus = "TRUSTED";
+        task.TrustedSkipAllowed = true;
+        await using (IvrDbContext seed = await fixture.Factory().CreateDbContextAsync())
+        {
+            seed.ConfirmationTasks.Add(task);
+            await seed.SaveChangesAsync();
+        }
+
+        RetentionRunReport report = await RunAsync(
+            RetentionDataClasses.SpeechSnapshot,
+            dryRun: false);
+
+        Assert.Equal(1, report.AnonymizedCount);
+        await using IvrDbContext dbContext = await fixture.Factory().CreateDbContextAsync();
+        ConfirmationTaskEntity redacted = await dbContext.ConfirmationTasks.SingleAsync();
+        Assert.Null(redacted.PhoneE164);
+        Assert.Null(redacted.OfficialContactId);
+        Assert.Null(redacted.CustomerTrustStatus);
+        Assert.Null(redacted.TrustedSkipAllowed);
+        Assert.Equal("CUST-RET-PII8", redacted.CustomerId);
+        Assert.NotNull(redacted.AnonymizedAt);
+        Assert.DoesNotContain(
+            "900000008",
+            JsonSerializer.Serialize(redacted),
+            StringComparison.Ordinal);
+    }
+
     private async Task<RetentionRunReport> RunAsync(
         string dataClass,
         bool dryRun,

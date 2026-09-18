@@ -71,13 +71,18 @@ public sealed class DsarService(
     /// doubled. And the statement is assembled here, into a constant, rather than concatenated at
     /// the call site: every part of it is compile-time text, no caller-supplied value reaches it,
     /// and the order code arrives as parameter 0.</para>
+    ///
+    /// <para>It reaches tasks not yet erased, and only those (W-0314). The confirmation-task
+    /// trigger lets <c>anonymized_at</c> be set once, so matching an erased task made a second
+    /// request about the same order re-stamp it, the trigger refused, and the whole statement
+    /// rolled back - a task Sales sent after the first erasure could then never be erased.</para>
     /// </summary>
     private static readonly string RedactByOrderCodeSql =
         "UPDATE ivr_confirmation_tasks SET "
         + RetentionTargetCatalog.SpeechSnapshotRedactionSql
             .Replace("{", "{{", StringComparison.Ordinal)
             .Replace("}", "}}", StringComparison.Ordinal)
-        + ", anonymized_at = {1} WHERE order_code = {0}";
+        + ", anonymized_at = {1} WHERE order_code = {0} AND anonymized_at IS NULL";
 
     public const string EraseAuditAction = "IVR_DSAR_ERASE";
     private const int MinReasonLength = 8;
@@ -93,6 +98,10 @@ public sealed class DsarService(
         + "who did what that the subject can delete is not a record.",
         "ivr_confirmation_tasks.order_code: the key a request arrives with. Erasing it makes "
         + "every later request about the same order unanswerable, including the subject's own.",
+        "ivr_confirmation_tasks.customer_id: the Sales customer key, kept for the same reason as "
+        + "order_code - it is how this order's history is reconciled with Sales, and it names "
+        + "no one without Sales' own records. The contact key, the trust values and the number "
+        + "are erased.",
         "ivr_result_callbacks.payload_json: the delivery record. Removing the payload leaves a "
         + "record that cannot settle the dispute it exists for; it expires with retention.",
     ];
@@ -182,8 +191,11 @@ public sealed class DsarService(
         int redacted;
         if (dryRun)
         {
-            matched = await context.ConfirmationTasks
-                .CountAsync(task => task.OrderCode == orderCode, cancellationToken);
+            // The same rows the real statement reaches, or the preview promises tasks the erasure
+            // will skip because an earlier request already erased them.
+            matched = await context.ConfirmationTasks.CountAsync(
+                task => task.OrderCode == orderCode && task.AnonymizedAt == null,
+                cancellationToken);
             redacted = 0;
         }
         else
@@ -192,10 +204,11 @@ public sealed class DsarService(
             // redacting "the same" columns drift, and the one that runs less often goes stale.
             //
             // Its own row count is the match count, and taking it from there is what makes the two
-            // numbers in the audit row agree. The statement's only predicate is the order code, so
-            // every task it matched is a task it redacted — counting separately first left a
-            // window in which a task could arrive or leave, and then the audit row said one thing
-            // was found and a different number changed, about the same instant, for good.
+            // numbers in the audit row agree. The statement's only predicates are the order code
+            // and "not yet erased", so every task it matched is a task it redacted — counting
+            // separately first left a window in which a task could arrive or leave, and then the
+            // audit row said one thing was found and a different number changed, about the same
+            // instant, for good.
             redacted = await context.Database.ExecuteSqlRawAsync(
                 RedactByOrderCodeSql,
                 [orderCode, timeProvider.GetUtcNow()],
