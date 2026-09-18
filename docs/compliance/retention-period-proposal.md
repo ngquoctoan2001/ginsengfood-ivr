@@ -1,6 +1,7 @@
 # Kỳ hạn lưu trữ IVR — phiếu điền cho pháp chế
 
-Ngày dựng: 2026-09-10 · Work item: `W-0273` · Trạng thái: **chờ pháp chế điền số**
+Ngày dựng: 2026-09-10 · Work item: `W-0273` · Trạng thái: **đóng — không điền số nào.** Owner chọn giữ
+vĩnh viễn ngày `17/09` (`S3`); sửa ngày `18/09` ở `W-0316`. *Trạng thái cũ: chờ pháp chế điền số.*
 
 ## 0. Tài liệu này là gì, và không là gì
 
@@ -12,6 +13,19 @@ nếu đặt kỳ hạn quá ngắn**.
 Cột cuối để trống — pháp chế điền.
 
 ## 1. Trạng thái hiện tại: chưa xoá gì cả
+
+> **Sửa `18/09` (`W-0316`) — `S3`.** Ngày `17/09` Toàn quyết định: IVR **giữ toàn bộ dữ liệu, không đặt
+> kỳ hạn xoá cho nhóm nào**, kể cả nhật ký quản trị. Các kỳ hạn đã ký ngày `10/09` ở `OD-V1-11` (`90`
+> ngày · `180` ngày · `1` năm) bị thay. Hệ quả cho phiếu này:
+>
+> - `PeriodDays = {}` không còn là *"chưa điền"*: đó **là** cấu hình đúng. Các ô **Số ngày** ở §3 để
+>   trống có chủ ý, không ai điền.
+> - Đoạn dưới nói việc không xoá gì *"thành rủi ro tuân thủ đúng vào ngày đầu tiên có dữ liệu thật"*.
+>   Rủi ro đó nay được **chấp nhận có chủ ý** và là rủi ro `2` trong danh sách Sếp ký nhận ở `S2`: Nghị
+>   định `13/2023/NĐ-CP` có nguyên tắc chỉ lưu dữ liệu cá nhân trong thời gian phù hợp với mục đích xử
+>   lý. *(Ghi để Sếp cân nhắc, không phải ý kiến pháp lý.)*
+> - Cách xoá duy nhất còn lại là khi khách yêu cầu — [`dsar-runbook.md`](dsar-runbook.md). Hiện chưa có
+>   lối chạy việc xoá đó (`S8`).
 
 `Ivr:Retention:PeriodDays` đang là `{}` ở mọi môi trường. `RetentionPolicyProvider` đọc thiếu khoá
 thì coi như **không có kỳ hạn**, nên job retention **không xoá và không ẩn danh dòng nào**.
@@ -74,6 +88,9 @@ trên.
 sự. Đề nghị: chạy dry run trên staging có dữ liệu đại diện trước, đọc số dòng sẽ bị chạm, rồi mới bật.
 
 ## 5. Sau khi pháp chế điền
+
+> **Sửa `18/09` (`W-0316`):** không còn áp dụng — theo `S3`, không ai điền số. Nếu owner đổi ý, quy trình
+> dưới đây vẫn đúng.
 
 Kỹ thuật sẽ: đặt số vào `Ivr:Retention:PeriodDays` cho từng môi trường, thêm test khoá từng kỳ hạn
 (để đổi số là một thay đổi có chủ ý, không phải trôi cấu hình), chạy dry run và ghi lại số dòng bị

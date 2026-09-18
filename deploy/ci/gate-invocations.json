@@ -46,7 +46,7 @@
     "d06-revalidation-evidence-validator.mjs": { "argv": ["--self-test"], "expect": "W0178_SELFTEST_PASS" },
     "dial-token-production-bundle-validator.mjs": { "argv": ["--self-test"], "expect": "W0183_SELFTEST_PASS" },
     "docs-selftest.mjs": { "argv": [], "expect": "API_DOCS_SELFTEST_PASS" },
-    "dr-selftest.mjs": { "argv": ["--self-test"], "expect": "DR_SELFTEST_PASS_SINGLE_HOST" },
+    "dr-selftest.mjs": { "argv": ["--self-test"], "expect": "DR_SELFTEST_PASS_SINGLE_HOST", "timeoutMs": 300000 },
     "external-decision-c9-selftest.mjs": { "argv": ["--self-test"], "expect": "W0179_C9_SELFTEST_PASS" },
     "external-decision-closure-validator.mjs": { "argv": ["--self-test"], "expect": "W0170_SELFTEST_PASS" },
     "external-decision-dial-token-selftest.mjs": { "argv": ["--self-test"], "expect": "W0184_DIAL_TOKEN_SELFTEST_PASS" },

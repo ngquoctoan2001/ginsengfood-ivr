@@ -12,17 +12,17 @@
 
 | Mã | Quyết định | Hệ quả phải biết | Làm ở |
 | --- | --- | --- | --- |
-| `S3` | **Giữ dữ liệu vĩnh viễn** — không đặt thời hạn xoá, kể cả nhật ký quản trị | Thay các kỳ hạn đã ký `10/09` (90 ngày · 180 ngày · 1 năm). Đường xoá **duy nhất** còn lại là khi khách yêu cầu ⇒ `T2` thành bắt buộc. Số điện thoại dạng đọc được nằm vĩnh viễn ⇒ đã đưa vào danh sách ký nhận rủi ro `S2`. **Toàn xác nhận `17/09`: toàn bộ dữ liệu**, không riêng nhật ký quản trị. Tài liệu gửi Module 3 đã sửa (`W-0313`); register và phiếu thời hạn lưu vẫn chờ Lô 3 mục `1` | Lô 3 |
+| `S3` | **Giữ dữ liệu vĩnh viễn** — không đặt thời hạn xoá, kể cả nhật ký quản trị | Thay các kỳ hạn đã ký `10/09` (90 ngày · 180 ngày · 1 năm). Đường xoá **duy nhất** còn lại là khi khách yêu cầu ⇒ `T2` thành bắt buộc. Số điện thoại dạng đọc được nằm vĩnh viễn ⇒ đã đưa vào danh sách ký nhận rủi ro `S2`. **Toàn xác nhận `17/09`: toàn bộ dữ liệu**, không riêng nhật ký quản trị. Tài liệu gửi Module 3 đã sửa (`W-0313`); register và phiếu thời hạn lưu sửa ở `W-0316` | Lô 3 · ✅ `W-0316` |
 | `S4` | **Giữ VieNeu** chạy trên máy chủ công ty | Mở lại nhánh `W-0122`. Trước khi bật ở production cần: xử lý 16 lỗ hổng · quyền dùng model và 12 đoạn đã render · máy chạy thật + kho bản cài nội bộ · đo tốc độ · nghe duyệt · gọi thử. Cấu hình production **giữ tắt** tới khi đủ | Lô 4 |
-| `S7` | **B** — ghi nhận là giới hạn của bản đầu, không mua kho ghi nhận ngoài | Ghi ở register, **không** sửa `m8-15` (bị ghim hash) | Lô 3 |
+| `S7` | **B** — ghi nhận là giới hạn của bản đầu, không mua kho ghi nhận ngoài | Ghi ở register, **không** sửa `m8-15` (bị ghim hash) | Lô 3 · ✅ `W-0316` (`OD-V1-24`) |
 | `T1` | `IR-07` **đã gửi** Module 3, đang chờ phản hồi · tách stage 3 · nới token · thêm driver chỉ-gửi-số | Vế "giữ phiếu lại" không còn áp dụng — Module 3 **đã cầm** lời hứa "chỉ gửi số là đủ" ⇒ lô này đi **đầu tiên**. Kiểm lại lúc lập kế hoạch thấy lỗi **lớn hơn** đã báo: ở production, phương án B hiện **không nhận được task nào** (Lô 1) | Lô 1 |
 | `T2` | Sửa đường xoá bỏ sót `phone_e164` · trigger · gate đối chiếu | Phải xong **trước** khi Module 3 gửi số thật | Lô 2 · ✅ `W-0314` |
 | `T3` | Kiểm định dạng số lúc nhận | Cùng bản `draft.31` | Lô 1 |
-| `T4` | Ghi ngay: phần *"không ghi DB"* của `OD-V1-18` đã bị thay | | Lô 3 |
+| `T4` | Ghi ngay: phần *"không ghi DB"* của `OD-V1-18` đã bị thay | | Lô 3 · ✅ `W-0316` |
 | `T5` | Sửa `perm IVR_DEV_TOOLING` thành quyền endpoint thực đòi (`ivr.admin.write`) | Cùng bản `draft.31` | Lô 1 |
-| `T6` | Ghi thành điều kiện của stage 5, **chưa làm** | | Lô 3 |
+| `T6` | Ghi thành điều kiện của stage 5, **chưa làm** | | Lô 3 · ✅ `W-0316` (README `W-0311` §6) |
 | `T7` | Release owner là **Toàn**; nghiệm thu **theo đợt**, tiêu chí ghi sẵn | Chỉ Toàn chuyển trạng thái sang `ACCEPTED` | Lô 5 |
-| `T8` | `W-0163` → `CANCELLED` · `W-0118` → `N/A` | ⚠️ **Khác đề xuất cũ ở `W-0118`:** kiểm lại thấy tính năng "bỏ qua khách cũ" (`OD-15`) đã bị `OD-18` thay từ `draft.21` (`W-0123`) — hạ về `N/A` theo tiền lệ `W-0105`, không khôi phục bằng chứng | Lô 3 |
+| `T8` | `W-0163` → `CANCELLED` · `W-0118` → `N/A` | ⚠️ **Khác đề xuất cũ ở `W-0118`:** kiểm lại thấy tính năng "bỏ qua khách cũ" (`OD-15`) đã bị `OD-18` thay từ `draft.21` (`W-0123`) — hạ về `N/A` theo tiền lệ `W-0105`, không khôi phục bằng chứng | Lô 3 · ✅ `W-0316` |
 
 ---
 
@@ -173,8 +173,8 @@ bộ phận bán hàng làm — IVR không có cách biết ai là ai.
 
 ## 5. Kế hoạch khắc phục
 
-> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 2 (`W-0314`) · Lô 3 mục `15`–`19` (`W-0313`). **Chưa:** Lô 3 mục `1`–`14`, Lô 4, Lô 5.
-> Mỗi lô là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0315`. Cấp trước dễ trùng số: `A-0637`
+> Lập `17/09` theo các quyết định ở §1. **Đã thi hành:** Lô 1 (`W-0312`) · Lô 2 (`W-0314`) · Lô 3 trừ mục `13` (`W-0313`, `W-0315`, `W-0316`) · Lô 4 bước `3` (`W-0315`). **Chưa:** Lô 3 mục `13` (chờ Sếp ký `S2`), Lô 4 bước `1`, `2`, `4`, Lô 5.
+> Mỗi lô là một `W-ID`, cấp **khi bắt đầu lô** — `NEXT_WORK_ID` hiện là `W-0317`. Cấp trước dễ trùng số: `A-0637`
 > đã bị cấp hai lần.
 
 ### 5.0 · Luật thi hành
@@ -195,7 +195,7 @@ luật rút ra ngày `17/09`:
 | --- | --- | --- | --- | --- | --- |
 | **1** | `draft.31` — Module 3 gửi số là nhận được · ✅ `W-0312` `TESTS_PASS` | `T1` `T3` `T5` | Không | 🔴 | `CreateDomainSnapshot` **CRITICAL** (`26` ký hiệu · `5` luồng) · `EvaluateAsync` **HIGH** (`23` · `3` luồng) · `ValidateSchema` LOW |
 | **2** | Đường xoá dữ liệu phủ `phone_e164` · ✅ `W-0314` `TESTS_PASS` | `T2` | Không | 🔴 | `RetentionTargetCatalog` LOW · `DsarService` LOW — *index không theo tham chiếu hằng; đọc tay `DsarService.cs:77`* |
-| **3** | Sổ sách một lượt · ◐ mục `15`–`19` xong (`W-0313`) | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
+| **3** | Sổ sách một lượt · ✅ trừ mục `13` (`W-0313` · `W-0315` · `W-0316`) | `S3` `S7` `T4` `T6` `T8` + chỗ lệch | Không | 🟡 | Không đụng symbol |
 | **4** | Mở lại nhánh VieNeu | `S4` | Một phần: `S1` `S2` `S5` | 🟡 | Chạy khi chốt symbol |
 | **5** | Nghiệm thu theo đợt | `T7` | Toàn duyệt từng đợt | ⚪ | Không đụng symbol |
 
@@ -370,26 +370,26 @@ Chỉ tài liệu, `0` symbol.
 
 | # | Ghi gì | Ở đâu |
 | --- | --- | --- |
-| 1 | `S3` — bỏ các kỳ hạn 90 ngày · 180 ngày · 1 năm; giữ vĩnh viễn | register `OD-V1-11` (thêm *"Sửa 17/09"*, không xoá nguyên văn) · `retention-period-proposal.md` §1 · `W-0273` → `EVIDENCE_SUBMITTED` |
+| 1 | ✅ **`W-0316`** — `S3` — bỏ các kỳ hạn 90 ngày · 180 ngày · 1 năm; giữ vĩnh viễn | register `OD-V1-11` (thêm *"Sửa 17/09"*, không xoá nguyên văn) · `retention-period-proposal.md` §1 · `W-0273` → `EVIDENCE_SUBMITTED` |
 | 2 | ✅ **`W-0315`** — *`18/09`.* `S4` — giữ VieNeu tự host lúc chạy; *"không vendor đám mây lúc chạy"* giữ nguyên. Lab và code cũng chỉ còn VieNeu | register `OD-V1-19` · `00-CHUA-XONG.md` (`today-03`, nhóm A: nhánh `W-0122` mở lại) |
-| 3 | `S7` — kho ghi nhận ngoài là giới hạn chấp nhận của bản đầu | register, dòng mới · **không** sửa `m8-15` (ghim ở `deploy/ci/scripts/capacity-registry-decision-pack-validator.mjs:27`) |
-| 4 | `T4` — phần *"không ghi DB"* của `OD-V1-18` bị thay bởi phương án B; *"không vào log, evidence, callback"* giữ nguyên | register `OD-V1-18` |
-| 5 | `T6` — điều kiện của stage 5: phải có lối có kiểm soát qua `migration-expand-guard` | README `W-0311` §6 |
-| 6 | `T8` — `W-0163` → `CANCELLED` (định tuyến đã thay bằng hai phiếu `W-0309`/`W-0310`) · `W-0118` → `N/A` *(HISTORICAL; bị `OD-18` thay, `W-0123`)* | tracker §5 |
-| 7 | `IR-07` đã gửi | dòng trạng thái `IR-07` · `00-CHUA-XONG.md` · README `W-0310` |
-| 8 | Phiếu cho Sếp đã được trả lời mục 1–4; trỏ về file này | `phieu-quyet-dinh-cho-sep-2026-09-17.md` |
-| 9 | `ca8d13b` nhầm `W-0310` ở **17 dòng / 15 file**, cộng changelog và 2 trang HTML — không chỉ tiêu đề. **Không** đổi tên migration hay baseline | README `W-0311` · tracker §2 |
-| 10 | `A-0637` bị cấp hai lần — ghi chú tại chỗ, **không đánh số lại** lịch sử | tracker §7 |
-| 11 | Bỏ "nguồn khoá token" khỏi danh sách chờ Sếp · `m8-11` *"chưa có bộ số"* → `OD-V1-16` ✅ `05/09` | `00-CHUA-XONG.md` |
-| 12 | `W-0007` (xung đột bộ số — đã giải `05/09`) · `W-0121` (CI hosted đã chạy ở `W-0292`) · `W-0171` (c) (`progressive-selftest` nay xanh) | tracker §4, §5 |
+| 3 | ✅ **`W-0316`** — `S7` — kho ghi nhận ngoài là giới hạn chấp nhận của bản đầu. *Dòng mới là `OD-V1-24`* | register, dòng mới · **không** sửa `m8-15` (ghim ở `deploy/ci/scripts/capacity-registry-decision-pack-validator.mjs:27`) |
+| 4 | ✅ **`W-0316`** — `T4` — phần *"không ghi DB"* của `OD-V1-18` bị thay bởi phương án B; *"không vào log, evidence, callback"* giữ nguyên | register `OD-V1-18` |
+| 5 | ✅ **`W-0316`** — `T6` — điều kiện của stage 5: phải có lối có kiểm soát qua `migration-expand-guard`. *Lối miễn duy nhất hôm nay (`migration-expand-baseline.json`) chỉ nhận migration cũ hơn mốc; chưa ai dựng lối cho bản contract* | README `W-0311` §6 |
+| 6 | ✅ **`W-0316`** — `T8` — `W-0163` → `CANCELLED` (định tuyến đã thay bằng hai phiếu `W-0309`/`W-0310`) · `W-0118` → `N/A` *(HISTORICAL; bị `OD-18` thay, `W-0123`)* | tracker §5 |
+| 7 | ✅ **`W-0316`** — `IR-07` đã gửi. *Thêm `integration-requirements/00-index.md`, nơi vẫn ghi "21 mục, gửi 10/09"* | dòng trạng thái `IR-07` · `00-CHUA-XONG.md` · README `W-0310` |
+| 8 | ✅ **`W-0316`** — Phiếu cho Sếp đã được trả lời mục 1–4; trỏ về file này | `phieu-quyet-dinh-cho-sep-2026-09-17.md` |
+| 9 | ✅ **`W-0316`** — `ca8d13b` nhầm `W-0310` ở **17 dòng / 15 file**, cộng changelog và 2 trang HTML — không chỉ tiêu đề. **Không** đổi tên migration hay baseline. *Đếm lại tại `53c2eb5`: `18` dòng / `16` file, do **ba** commit ghi — `7c4204e` (tiêu đề đúng) và `W-0314` cũng ghi nhãn sai; số `17/15` không tái tạo được. Không sửa dòng nào* | README `W-0311` · tracker §2 |
+| 10 | ✅ **`W-0316`** — `A-0637` bị cấp hai lần — ghi chú tại chỗ, **không đánh số lại** lịch sử | tracker §7 |
+| 11 | ✅ **`W-0316`** — Bỏ "nguồn khoá token" khỏi danh sách chờ Sếp · `m8-11` *"chưa có bộ số"* → `OD-V1-16` ✅ `05/09`. *Cũng bỏ `m8-15` khỏi danh sách đó — `S7` đã chốt* | `00-CHUA-XONG.md` |
+| 12 | ✅ **`W-0316`** — `W-0007` (xung đột bộ số — đã giải `05/09`) · `W-0121` (CI hosted đã chạy ở `W-0292`) · `W-0171` (c) (`progressive-selftest` nay xanh). *`W-0121` giữ `CODE_DONE`: pipeline chạy nhưng không xanh, mà điều kiện đổi trạng thái của chính dòng đó là pipeline xanh. `W-0171` (a) cũng đã xong ở `W-0312`* | tracker §4, §5 |
 | 13 | Người nhận rủi ro phương án B: *"owner"* → tên người ký `S2` — **chỉ làm sau khi Sếp ký** | `IR-07` (mục đính chính) · `data-inventory.md` · comment migration/entity · mô tả OAS ở bản contract kế tiếp |
-| 14 | Bàn giao: `13` file bẩn (`10` chỉ lệch CRLF/LF) · sweep chỉ `39/39` khi chạy từ Git Bash — *sửa `17/09`: `git status` sạch từ `5d5f96b`; sweep nay `40` gate (`W-0313`)* | `plan/BAN-GIAO-phien-moi-2026-09-17.md` |
+| 14 | ✅ **`W-0316`** — Bàn giao: `13` file bẩn (`10` chỉ lệch CRLF/LF) · sweep chỉ `39/39` khi chạy từ Git Bash — *sửa `17/09`: `git status` sạch từ `5d5f96b`; sweep nay `40` gate (`W-0313`)* | `plan/BAN-GIAO-phien-moi-2026-09-17.md` |
 | 15 | ✅ **`W-0313`** — *thêm khi làm Lô 1, Toàn duyệt `17/09`.* Job CI `pii_scan` (`allow_failure: false`) đỏ ở mọi commit từ `257cbef`: `41` dòng **báo nhầm** ở `13` README `W-0297`…`W-0311` — từ tiếng Việt thông dụng trùng mẫu địa chỉ. Đổi từ, **không** nới mẫu; thêm `scan-pii.sh docs/evidence` vào phần *Kiểm* của mọi lô, vì gate sweep chỉ chạy selftest của nó. **Đã làm bằng gate thay cho luật:** sweep nay chạy chính lần quét đó trên `docs/evidence` | `13` README evidence · `deploy/ci/gate-invocations.json` |
 | 16 | ✅ **`W-0313`** — *như trên.* `IR-06 §3.4.1` vẫn tả intake **trước** `W-0302` (chiều *muộn* *"hỏng ở persistence"*), trái với dòng `1311` của chính nó | `IR-06` · re-pin `7` nơi |
 | 17 | ✅ **`W-0313`** — *như trên.* `IR-07` `A-9` *"metadata giữ 90 ngày"* lệch với `S3` (Toàn chốt: toàn bộ dữ liệu). Cũng sửa câu giống hệt ở `IR-06` | `IR-07` mục *Đính chính bổ sung* · `IR-06` |
 | 18 | ✅ **`W-0313`** — *thêm `17/09`.* `00-CHUA-XONG.md` `m8-09` vẫn ghi *"chờ owner quyết A hay B"* dù đã chọn B ngày `09/09` (`W-0248`) | `plan/ivr-orther/00-CHUA-XONG.md` |
 | 19 | ✅ **`W-0313`** (follow-up `A-0640`) — *thấy khi làm `W-0313`, Toàn duyệt `17/09`.* `specs/api/06-error-codes.md` thiếu `DIAL_TOKEN_EXPIRES_AFTER_WINDOW` của `W-0302`; sửa cùng hai con số đếm trong file | `specs/api/06-error-codes.md` |
-| 20 | 🆕 *Thấy khi làm follow-up mục `19`, chờ Toàn duyệt.* Gate `dr-selftest.mjs` hết giờ ở trần mặc định `180s` của sweep — `W-0279` một lần, `17/09` ba lần liên tiếp; chạy lại thì PASS. Log sweep ghi gate ở `130`–`176s`, một lần đo với trần `600s` ra `193.5s`: vượt thật, không treo, nguyên nhân chưa rõ. **Đề xuất:** thêm `"timeoutMs": 300000` cho gate này, như `gate-status.mjs` đã có — vẫn bắt được treo. Không duyệt thì giữ cách `W-0279`: hết giờ thì chạy lại `--only` | `deploy/ci/gate-invocations.json` |
+| 20 | ✅ **`W-0316`** — *làm theo đề xuất: `18/09` Toàn bảo làm cho xong.* *Thấy khi làm follow-up mục `19`.* Gate `dr-selftest.mjs` hết giờ ở trần mặc định `180s` của sweep — `W-0279` một lần, `17/09` ba lần liên tiếp; chạy lại thì PASS. Log sweep ghi gate ở `130`–`176s`, một lần đo với trần `600s` ra `193.5s`: vượt thật, không treo, nguyên nhân chưa rõ. **Đề xuất:** thêm `"timeoutMs": 300000` cho gate này, như `gate-status.mjs` đã có — vẫn bắt được treo. Không duyệt thì giữ cách `W-0279`: hết giờ thì chạy lại `--only` | `deploy/ci/gate-invocations.json` |
 
 **Kiểm:** gate sweep `40/40` *(từ `W-0313`)* · `gate-status.mjs --write` · quét pin `0` lệch — sửa file bị ghim thì re-pin
 ngay trong lượt, tính trên byte LF.

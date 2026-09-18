@@ -69,6 +69,11 @@ Không chạy `dotnet test`: lượt này không chạm mã.
 
 Phiếu ở trạng thái **`READY_TO_DISPATCH / NOT_SENT`**. Việc gửi là của owner — repo không gửi thay.
 
+> **Sửa `18/09` (`W-0316`): đã gửi.** Toàn đã gửi phiếu cho Module 3 — ghi nhận ở `T1` của
+> [bản vướng mắc `17/09`](../../../plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md). Đính chính
+> `draft.31` (`W-0312`) cũng đã gửi ngày `17/09`. Tới `18/09` Module 3 chưa phản hồi. Trạng thái nay là
+> **`SENT / AWAITING_REPLY`** — cùng chữ với dòng trạng thái của `IR-07` và `00-CHUA-XONG.md`.
+
 Ô ký đã điền sẵn phía M8 (`Toàn — Module 8`, `17/09`); phía M3 để trống.
 
 ## Sửa hai link hỏng do chính tôi gây ra

@@ -57,6 +57,13 @@ d655989  W-0309 route the group-A sheets to people who actually exist
 **Trạng thái xanh tại HEAD:** `1151/1151` test (`781` unit · `338` integration · `24` contract ·
 `8` chaos) · gate sweep **`39/39`** · traceability `721` · pin sweep `44` đường dẫn `0` lệch.
 
+> **Sửa `18/09` (`W-0316`, Lô 3 mục `14` của [bản vướng mắc `17/09`](ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md)):**
+> hai điều dưới đây đã cũ. Gate sweep chạy **`40`** gate từ `W-0313` — thêm chính lần quét PII mà CI
+> chạy; `39/39` là con số trước đó. Và `7` file bẩn **không còn**. Commit `save` `5d5f96b` (`17/09`)
+> gom `4` file (`AGENTS.md`, `CLAUDE.md`, `06-error-codes.md`, file `.docx`). `3` file kia không nằm
+> trong commit nào sau đó và nay không còn khác HEAD — khớp với ghi chú *"chỉ lệch CRLF/LF"* của bản
+> vướng mắc. `git status` sạch từ `5d5f96b`. Luật commit bằng đường dẫn cụ thể thì **giữ nguyên**.
+
 ### ⚠️ `7` file trong cây **chưa commit và KHÔNG phải của tôi** — đừng đụng, đừng `git add -A`
 
 ```
@@ -203,7 +210,7 @@ tại chỗ kèm bằng chứng, đúng như chính bản đó yêu cầu: *"sai
 
 ```bash
 dotnet test Ivr.sln --nologo                        # 1151/1151
-node deploy/ci/scripts/gate-sweep.mjs               # 39/39
+node deploy/ci/scripts/gate-sweep.mjs               # 40/40 từ W-0313 (bản đầu ghi 39/39)
 node deploy/ci/scripts/gate-status.mjs --write
 node deploy/ci/scripts/generate-test-traceability.mjs
 pnpm db:migration:add <Ten>                         # KHÔNG dùng dotnet ef trực tiếp

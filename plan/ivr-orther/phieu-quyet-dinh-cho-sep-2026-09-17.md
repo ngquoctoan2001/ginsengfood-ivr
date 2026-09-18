@@ -3,7 +3,18 @@
 **Chủ đề:** Bốn việc Module 8 không tự quyết được — ba việc cần tiền, một việc cần người
 **Người gửi:** Toàn — Module 8 (IVR gọi xác nhận đơn hàng)
 **Ngày lập:** `2026-09-17` · **Mốc mã:** `main@fbe6edb`
-**Trạng thái:** `READY_TO_DISPATCH / NOT_SENT`
+**Trạng thái:** **đã trả lời `17/09`** *(sửa `18/09`, `W-0316`; trạng thái cũ `READY_TO_DISPATCH / NOT_SENT`)*
+
+> **Sếp và Toàn đã duyệt phiếu này ngày `17/09`, cùng với
+> [bản vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md). Kết quả ghi ở file đó, không ghi ở
+> đây.** Việc còn mở đọc ở mục `2` của file đó.
+>
+> | Mục | Kết quả `17/09` |
+> | --- | --- |
+> | 1 — Chỗ chạy thử | `S5` — Sếp đã trả lời, nhưng nội dung **chưa được ghi** ở đâu; cần ghi lại |
+> | 2 — Khoá mở số | **Hết đối tượng** — Module 3 gửi thẳng số (phương án B). Nay là rủi ro `1` trong chữ ký `S2` |
+> | 3 — Người duyệt thứ hai | `S1` — Sếp đồng ý **một** người thứ hai, chưa tạo tài khoản; duyệt lời thoại cần **ba** người |
+> | 4 — Quyền dùng VieNeu | `S4` giữ VieNeu; phần chữ ký là rủi ro `4` trong `S2`, **chưa ký** |
 
 > Phiếu này **không có thuật ngữ kỹ thuật nào cần tra**. Mỗi mục có: cần gì · để làm gì · nếu không
 > có thì sao. Trả lời được mục nào thì đóng mục đó, không cần chờ đủ bốn.

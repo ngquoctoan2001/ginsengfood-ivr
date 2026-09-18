@@ -9,6 +9,34 @@
 > `W-0310` là của phiên `ivr-98` (`5f00838`, phiếu M3 gộp), commit **trước** commit của tôi. Khi
 > tôi cấp ID thì tracker đã sang `W-0311`. **Không sửa lại lịch sử commit** — ghi ở đây và ở
 > tracker để sổ là nguồn đúng và chỗ lệch nhìn thấy được, thay vì được hoà giải lặng lẽ.
+>
+> **Sửa `18/09` (`W-0316`) — không chỉ ở tiêu đề.** Nhãn sai nằm cả trong nội dung, và do **ba** commit
+> ghi chứ không phải một. Đếm lại tại `53c2eb5`:
+>
+> ```sh
+> git grep -n -E "W-0310|W0310" 53c2eb5 -- . ':!prompt/_execution/prompt-execution-tracker.md'
+> ```
+>
+> Bỏ các dòng nói về `W-0310` thật (phiếu M3), các dòng nói về chính chỗ nhầm này, và một dòng trong
+> migration `W-0314` gọi đúng tên class migration. Còn lại **`18` dòng / `16` file** mang `W-0310` theo
+> nghĩa *phương án B*, tức `W-0311`:
+>
+> | Commit ghi | Nơi còn nhãn sai tại `53c2eb5` | Dòng |
+> | --- | --- | ---: |
+> | `ca8d13b` — stage 1, tiêu đề sai | `IvrPersistenceEntities.cs` · `PersonalDataInventory.cs` · `data-inventory.md` · migration `20260917013914_W0310PhoneE164FromModule3`: `1` dòng chú thích, `3` dòng là tên (class, id `[Migration]`, class ở Designer) | `7` |
+> | `7c4204e` — stage 2, tiêu đề **đúng** `W-0311` | `api-changelog.md` + `api-changelog.html` · baseline `draft.30` · `ProviderPorts.cs` · `PostgresTelephonyDispatchStore.cs` · `ProductionDialTokenVault.cs` · `SchedulerPersistenceTests.cs` · `SipTrunkProductionDialTests.cs` | `8` |
+> | `53c2eb5` — `W-0314`, **tôi chép lại nhãn** từ danh mục | `RetentionTargetCatalog.cs` · `ComplianceTests.cs` · `retention-period-proposal.md` | `3` |
+>
+> `7c4204e` còn ghi nhãn ở `5` file nữa (OAS, model sinh, intake endpoint, intake service, trang HTML
+> thứ hai); `W-0312` (`f7bb52b`) viết lại các dòng đó nên nay không còn. Con số *"17 dòng / 15 file"* ở
+> Lô 3 mục `9` của [bản vướng mắc `17/09`](../../../plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md)
+> không tái tạo được bằng lệnh trên; số ở đây thay cho nó.
+>
+> **Không sửa dòng nào.** `4` dòng nằm trong migration đã áp — luật `4` của
+> [kế hoạch `16/09`](../../../plan/ke-hoach-khac-phuc-m8-2026-09-16.md) cấm sửa, và đổi tên class là đổi
+> lịch sử DB. `1` dòng ở baseline đông cứng. `13` dòng còn lại là chú thích và tài liệu: sửa rải rác `13`
+> nơi đúng là kiểu hoà giải lặng lẽ mà ghi chú trên muốn tránh. Bảng này là chỗ tra — gặp `W-0310` đi
+> cùng *phương án B* hoặc `phone_e164` thì đọc là `W-0311`.
 
 ---
 
@@ -155,7 +183,20 @@ nên hash mới giữ nguyên cách viết ấy ở đúng vị trí cũ.
 | --- | --- | --- |
 | `3` | `phone_e164` thành **bắt buộc**, `dial_token` thành optional | **Đây mới là lần breaking** |
 | `4` | `OD-V1-05` · `OD-V1-17` · `OD-V1-18` → `SUPERSEDED` | Và `B11` của bản `16/09` |
-| `5` | Drop `3` cột dial-token | **Chỉ sau khi M3 đã cắt sang** |
+| `5` | Drop `3` cột dial-token | **Chỉ sau khi M3 đã cắt sang** · **và** khi đã có lối có kiểm soát qua gate expand (`T6`, xem dưới) |
 
 Không stage nào trong ba cái trên làm được **trước khi M3 xác nhận đã chuyển** — đó là ranh giới
 expand/contract, không phải việc chờ ngày công.
+
+**Điều kiện thứ hai của stage `5` — `T6`.** Toàn duyệt `17/09`; ghi ngày `18/09` ở `W-0316`; **chưa làm**.
+Drop cột là `DropColumn`, và cả hai gate expand từ chối nó ở **mọi** migration mới:
+`RollingDeploySchemaCompatibility` (unit test, đọc `UpOperations`) và `migration-expand-guard.mjs` (CI,
+đọc mã nguồn). Lối miễn duy nhất hôm nay là `deploy/ci/migration-expand-baseline.json`, và nó **chỉ dành
+cho lịch sử**: nhận migration có id **trước** mốc `20260827024438_W0118AttemptCountedInvariant`, ghim bằng
+SHA-256 — hiện `2` migration, kèm câu *"No drop-table exception is permitted in the current expand
+phase."* Migration của stage `5` sinh sau mốc nên không lọt được, và như thế là đúng.
+
+Vì vậy stage `5` chỉ bắt đầu khi đã có một **lối có kiểm soát** dành riêng cho bản contract. Tối thiểu
+gồm: đúng một migration được nêu tên và ghim hash; kiểm được rằng bản chạy trước đó (`N−1`) không còn
+đọc `3` cột; Toàn duyệt. **Không** đi lối tắt: không dời mốc, không thêm migration mới vào danh sách lịch
+sử, không tắt gate. Chưa ai dựng lối đó.

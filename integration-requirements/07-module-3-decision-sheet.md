@@ -1,7 +1,7 @@
 # IR-07 — Phiếu chốt một lần: Module 3 ↔ IVR (Module 8)
 
 **Phiên bản contract:** `1.0.0-draft.30` · **Ngày phát:** 2026-09-17 · **Người phát:** owner IVR
-**Trạng thái:** `READY_TO_DISPATCH / NOT_SENT`
+**Trạng thái:** `SENT / AWAITING_REPLY` — Toàn đã gửi Module 3, ghi nhận `17/09` *(sửa `18/09`, `W-0316`; trạng thái lúc phát: `READY_TO_DISPATCH / NOT_SENT`)*
 
 > ## Đây là phiếu **duy nhất** IVR gửi Module 3. Không còn phiếu nào khác.
 >

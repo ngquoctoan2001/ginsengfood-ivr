@@ -10,7 +10,7 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 
 | Nhóm | Số mục | Ai đang chặn |
 | --- | --- | --- |
-| A — Phiếu hỏi | **`1` gửi Sếp · `1` gửi M3 · `1` chờ M3 trả lời · `3` phiếu VieNeu đã chuyển về `S2`/`S5`** | Sếp (tiền/người/rủi ro), M3 |
+| A — Phiếu hỏi | **`IR-07` đã gửi M3 `17/09`, chờ trả lời (gồm cả hai phiếu cũ, nhóm `B5`/`B6`) · phiếu Sếp đã trả lời `17/09` · `3` phiếu VieNeu đã chuyển về `S2`/`S5`** *(sửa `18/09`, `W-0316`)* | Sếp (tiền/người/rủi ro), M3 |
 | B — M8 đã ký phần mình, chờ bên khác | 9 | M3, Product, CRM, Legal, Security, Platform |
 | C — Còn việc M8 phải làm | 5 | Chính mình, hoặc chờ dữ liệu |
 
@@ -39,9 +39,9 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 
 | Phiếu cũ | Gửi cho | Nay ở đâu |
 | --- | --- | --- |
-| `m3-call-limit` | M3 | ➡️ **Nhóm `B5`** (`M3-22`…`M3-25`) của [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md). Bản rời `15/09` giữ nguyên làm bản ghi khôi phục của `W-0309`, **không gửi nữa** |
-| `m3-od18-authority` | M3 | ➡️ **Nhóm `B6`** (`M3-26`…`M3-30`) của [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md). Bản rời `27/08` là **bản ghi đã gửi**, giữ nguyên (đang bị ghim hash trong `external-decision-artifacts.sha256`) |
-| `platform-key-source` | Platform | ➡️ **Mục `2`** của [phiếu cho Sếp](phieu-quyet-dinh-cho-sep-2026-09-17.md) |
+| `m3-call-limit` | M3 | ➡️ **Nhóm `B5`** (`M3-22`…`M3-25`) của [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md). Bản rời `15/09` giữ nguyên làm bản ghi khôi phục của `W-0309`, **không gửi nữa** · nhóm `B5` **đã gửi** cùng `IR-07` ngày `17/09` |
+| `m3-od18-authority` | M3 | ➡️ **Nhóm `B6`** (`M3-26`…`M3-30`) của [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md). Bản rời `27/08` là **bản ghi đã gửi**, giữ nguyên (đang bị ghim hash trong `external-decision-artifacts.sha256`) · nhóm `B6` **đã gửi** cùng `IR-07` ngày `17/09` |
+| `platform-key-source` | Platform | ➡️ **Mục `2`** của [phiếu cho Sếp](phieu-quyet-dinh-cho-sep-2026-09-17.md) — **hết đối tượng** từ phương án B (`W-0311`): Module 3 gửi thẳng số, không còn khoá nào để giữ *(sửa `18/09`, `W-0316`)* |
 | `platform-ci-staging` | Platform | ➡️ **Mục `1`** (tiền) + **Mục `3`** (người duyệt thứ hai) |
 | `legal-od-voice-07` | Legal | ➡️ **`S2` rủi ro `4`** — quyền dùng thương mại model VieNeu và `12` đoạn đã render |
 | `platform-w0122` | Platform | ➡️ **`S5`** — máy chạy VieNeu thật + kho bản cài nội bộ |
@@ -61,7 +61,7 @@ tự từ chối render sidecar khi thiếu phê duyệt, image digest, bundle m
 
 ### m3-call-limit
 
-**Hỏi M3 nghĩa của “tối đa hai lần trong 10 phút” · `15/09/2026` · ✅ `RESTORED / READY_TO_DISPATCH`**
+**Hỏi M3 nghĩa của “tối đa hai lần trong 10 phút” · `15/09/2026` · ✅ `RESTORED / READY_TO_DISPATCH` · 📤 đã gửi cùng `IR-07` (nhóm `B5`) ngày `17/09`**
 
 Người nhận có thật (anh lead M3). Đã kiểm lại tại `fbe6edb`: hai lịch trong phiếu vẫn khớp
 `AttemptPolicyRegistries.cs` (`0s`/`150s` và `0s`/`450s`), nên cả `3` câu còn nguyên hiệu lực.
@@ -81,9 +81,10 @@ mà `B11` của bản `16/09` đang nêu. Xem ô `B11`.
 ### Việc cần Sếp quyết — `4` mục
 
 **[phieu-quyet-dinh-cho-sep-2026-09-17.md](phieu-quyet-dinh-cho-sep-2026-09-17.md)** ·
-`READY_TO_DISPATCH / NOT_SENT`
+**đã trả lời `17/09`** — kết quả ghi ở [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md) *(sửa `18/09`,
+`W-0316`; trạng thái cũ `READY_TO_DISPATCH / NOT_SENT`)*
 
-`1` chỗ chạy thử (💰) · `2` nguồn khoá mở số (💰) · `3` một người duyệt thứ hai (👤) ·
+`1` chỗ chạy thử (💰) · ~~`2` nguồn khoá mở số (💰)~~ *hết đối tượng từ phương án B* · `3` một người duyệt thứ hai (👤) ·
 `4` quyền dùng model VieNeu và `12` đoạn đã render (⚖️) — nay là rủi ro `4` của `S2` trong [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md).
 
 Viết **không thuật ngữ**, mỗi mục có *cần gì · để làm gì · nếu không có thì sao*.
@@ -171,7 +172,11 @@ Seam nội bộ đã có và fail-closed: intake chặn số thô, chặn token 
    - `D-10` + code candidate: Golden Hour `2 / [0,150] / 300s`; 24/7 `2 / [0,450] / 900s`
    - Hai tài liệu phase-8 business: Golden Hour `2 / [0,300] / 600s`; 24/7 khác
 
-**Chờ:** owner chốt một bộ số. Không tự chọn.
+> **Sửa `18/09` (`W-0316`) — mục `2` đã hết.** Bộ số production **đã ký**: `OD-V1-16` ✅ `05/09` (cùng
+> `OD-V1-08`), đúng bộ `D-10` — Golden Hour `2 / [0,150] / 300s`, 24/7 `2 / [0,450] / 900s`. Nó đã có
+> trong code và trong `IR-07` `A-1`/`A-2`. Hết xung đột với hai tài liệu phase-8.
+
+~~**Chờ:** owner chốt một bộ số. Không tự chọn.~~ Đã chốt `05/09`.
 
 ### m8-12
 
@@ -271,8 +276,8 @@ _Cập nhật `17/09` (`W-0309`). Bảng cũ gom `5` bên; thật ra chỉ có *
 
 | Bên | Đang chặn | Cách gỡ |
 | --- | --- | --- |
-| **Module 3** | m8-05, m8-06, m8-07, m8-09, m8-10, m8-17, `14` mục nhóm C của bản `16/09`, cộng `W-0123` *(chờ `OD-18`)* | **Đúng một** [phiếu `IR-07`, `30` câu](../../integration-requirements/07-module-3-decision-sheet.md) — bản gộp `17/09` đã nuốt cả phiếu giới hạn số cuộc gọi (`B5`) lẫn phiếu `OD-18` (`B6`). **Không gửi phiếu nào khác nữa** |
-| **Sếp** | môi trường triển khai · nguồn khoá token · người duyệt thứ hai · quyền dùng model VieNeu và `12` đoạn đã render · m8-15 | **Một** [phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md), `4` mục, viết không thuật ngữ |
+| **Module 3** | m8-05, m8-06, m8-07, m8-09, m8-10, m8-17, `14` mục nhóm C của bản `16/09`, cộng `W-0123` *(chờ `OD-18`)* | **Đúng một** [phiếu `IR-07`, `30` câu](../../integration-requirements/07-module-3-decision-sheet.md) — bản gộp `17/09` đã nuốt cả phiếu giới hạn số cuộc gọi (`B5`) lẫn phiếu `OD-18` (`B6`). **Không gửi phiếu nào khác nữa** · **đã gửi** `17/09`, chờ trả lời |
+| **Sếp** | môi trường triển khai (`S5`) · người duyệt thứ hai (`S1`) · quyền dùng model VieNeu và `12` đoạn đã render (`S2`) · ~~nguồn khoá token~~ *hết đối tượng từ phương án B* · ~~m8-15~~ *`S7` chốt B ngày `17/09`, giới hạn đã nhận (`OD-V1-24`)* | [Phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md) **đã trả lời `17/09`**; phần còn mở ở `S1` `S2` `S5` `S6` `S8` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md) *(sửa `18/09`, `W-0316`)* |
 | **Nhà mạng** | `B12` adapter production, `B1` hiệu chỉnh `4` số năng lực | Chờ báo giá. Đường ống đã dựng xong `16/09`, thiếu tuyến |
 | ~~Platform~~ ~~Security~~ ~~Legal~~ | — | **Không tồn tại như đội riêng.** Đã gom về Sếp — xem nhóm A |
 | **Chính mình** | `B8` VieNeu: phần làm được ngay của Lô `4` | Quét lại Trivy, thử đổi bản cài nền, soạn cấu hình production nháp. Không tốn tiền |
