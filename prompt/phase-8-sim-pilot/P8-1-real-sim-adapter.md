@@ -30,4 +30,4 @@ No customer number, no full address/raw phone evidence, no recording/SMS, no fal
 - [ ] Speech/audio lấy từ `P2-9` (`ITtsProvider`) — không tự chế nguồn audio.
 - [ ] Allowlist + kill switch + one-active-call-per-channel enforce trước mọi dial, có test âm.
 - [ ] Chỉ đạt `LAB_REAL_SIM_VERIFIED` cho phạm vi đã test; **không** suy ra 32-eSIM throughput hay integration.
-- [ ] `W-0008`/`OD-V1-09`/`OD-V1-18`/`OD-V1-19` vẫn mở nếu vendor chưa cung cấp artifact.
+- [ ] `W-0008`/`OD-V1-09`/`OD-V1-18` vẫn mở nếu vendor chưa cung cấp artifact. `OD-V1-19` đã đóng `2026-09-17` (VieNeu tự host), không chờ vendor.

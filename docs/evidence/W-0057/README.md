@@ -11,7 +11,7 @@ Ngày: `2026-08-18` · Trạng thái đạt được: `EVIDENCE_SUBMITTED` (mứ
 | `…/R-02-lab-package.md` | Gói lab 1 SIM: 9 điều kiện tiên quyết, quy tắc số test, 22 kịch bản, 4 quy tắc dừng |
 | `…/R-03-esim32-package.md` | Gói production nhiều kênh: mô hình nhu cầu, quota, failover, đo tải, chi phí, disaster |
 | `…/R-04-scorecard-and-gaps.md` | 4 hạng mục loại trừ, scorecard 16 tiêu chí có trọng số, gap register, 10 điều khoản hợp đồng |
-| `…/R-05-tts-audio-capability.md` | `OD-V1-19`: TTS vs file thu sẵn, ràng buộc kỹ thuật, nghiệm thu phát âm, chi phí |
+| `…/R-05-tts-audio-capability.md` | `OD-V1-19`: bộ đọc TTS (nay là VieNeu tự host), ràng buộc kỹ thuật, nghiệm thu phát âm, chi phí |
 | `…/lab-acceptance-report-template.md` | Biểu mẫu nghiệm thu lab — 8 mục, điền khi chạy `P8-1` |
 
 Tổng 7 file. Không sửa code, không sửa contract, không sửa `docs/documents/`, không sửa `specs/_review/`.

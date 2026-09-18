@@ -25,7 +25,7 @@ Kế hoạch này mô tả topology đề xuất, **không phải topology đã 
 
 1. `DispatchGate` có logic và test riêng nhưng `EvaluateAsync` **chưa có caller trong đường dial runtime**.
 2. DI ngoài MOCK đang dùng `UnavailableSchedulerDispatchGateway`; `LAB_REAL_SIM` chưa có dispatch gateway thật.
-3. `FilePlaybackTtsProvider` trong kế hoạch mới là phương án; code hiện chưa có provider phát file.
+3. Chưa có nguồn audio nào nối sau `ITtsProvider`; external provider vẫn fail-closed.
 4. `CURRENT_GOLDEN_HOUR_COMPAT` của Sales và `LAB_REAL_SIM` chưa có tổ hợp runtime được validator phê duyệt. CDC Sales hiện hữu phải chạy ở lane MOCK riêng; one-SIM chạy với fake Sales; Target V1 chỉ nối sau khi Sales cung cấp producer/callback/auth thật.
 
 Chi tiết audit và phiếu lấy đầu vào nằm tại `docs/evidence/W-0048/`. Không được dùng các câu khẳng định cũ bên dưới để tuyên bố lab đã sẵn sàng chạy.
@@ -57,7 +57,7 @@ Tôi đã đọc code để xác nhận, không dựa vào trí nhớ:
 | Đăng ký kênh SIM + lease/fencing | ✅ có bảng + advisory lock | `PostgresTelephonyDispatchStore.cs` |
 | Bật/tắt kênh từ console | ✅ có API + màn hình | `IvrAdminEndpoints.cs:50-52` |
 | Cổng `ISimGateway` (6 phương thức) | ✅ **đã định nghĩa** | `ProviderPorts.cs:204` |
-| Cổng `ITtsProvider` + cache audio | ⚠️ port/cache có; file provider chưa có, external provider vẫn fail-closed | `Speech/ITtsProvider.cs`, `AudioCache.cs` |
+| Cổng `ITtsProvider` + cache audio | ⚠️ port/cache có; external provider vẫn fail-closed (nay là VieNeu sidecar, xem §0.2) | `Speech/ITtsProvider.cs`, `AudioCache.cs` |
 | Đơn hàng mock | ✅ fake Sales + seed mẫu | `docker-compose.dev.yml`, `seed/*.sample.json` |
 | Nhận task | ✅ | `POST /v1/ivr/order-confirmation/tasks` |
 | Chính sách số lần gọi | ✅ dùng bản ứng viên `mock-lab-v1` | `OD-V1-08` cho phép ở MOCK/LAB |
@@ -219,9 +219,9 @@ Câu 3 là câu quan trọng nhất và hay bị bỏ qua. Nếu trunk chỉ h�
 
 Không mua thiết bị mà người bán không trả lời được câu 1.
 
-### Bước 4 — Thu audio (30 phút)
+### Bước 4 — Bundle model VieNeu trên máy lab
 
-Chờ tôi gửi danh sách câu. Thu bằng ứng dụng ghi âm bất kỳ, mỗi câu một file, đặt tên theo danh sách. Định dạng gì cũng được — tôi chuyển đổi.
+Lời thoại do VieNeu đọc (§2.2). Máy lab cần bundle model VieNeu đã kiểm (`W-0122`); máy chưa có thì chép sang. Lệnh ở bước 6 trỏ tới thư mục đó.
 
 ### Bước 5 — Điền hai file cục bộ
 
@@ -288,7 +288,6 @@ Thêm ba phép kiểm tự động chạy sau mỗi lượt:
 | Trả lời §4.6 + chọn lối đi | anh | 5 phút |
 | Đăng ký SIP trunk (lối C) | anh | 1–2 ngày |
 | Mua GSM gateway (lối A) | anh | 2–7 ngày |
-| Thu audio | anh | 30 phút |
 | L1 + L3 + L4 | tôi | có thể làm **ngay**, không chờ phần cứng |
 | L2 (adapter ARI) | tôi | phần lớn làm được trước; hiệu chỉnh khi có thiết bị |
 | L5 + chạy 8 kịch bản | cùng làm | 1 buổi |

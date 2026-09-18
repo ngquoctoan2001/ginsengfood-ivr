@@ -102,7 +102,7 @@ Toàn văn cũ vẫn nằm trong lịch sử git trước commit này.
 | `W-0197/api-matrix.json`, `W-0286/*.json` | Ảnh chụp dấu vân tay mã nguồn. Sửa sẽ lệch hash tổng và lệch dòng mà `.gitleaksignore` đã duyệt |
 | `.codex-doc-memory/` | Chỉ mapper `markdown-doc-reader` chính thức được sinh lại |
 | `docs/documents/**` | Tài liệu nguồn của owner; không chứa hướng cũ |
-| Bản `IR-07` Module 3 đang giữ | Bản đó vẫn là bản cũ; cần gửi mục *Đính chính bổ sung `2026-09-18`* cho Module 3 |
+| Bản `IR-07` Module 3 đang giữ | Không gửi lại. Chính mục *Đính chính bổ sung `2026-09-18`* ghi: không đổi contract, M3 không phải sửa code, đề xuất `M3-05`/`M3-06` giữ nguyên |
 
 ## 5. Kiểm chứng
 
@@ -122,5 +122,38 @@ Toàn văn cũ vẫn nằm trong lịch sử git trước commit này.
 - Lô 4 phần làm được ngay: quét lại Trivy, thử đổi bản cài nền, soạn cấu hình production nháp.
 - Chờ: đo trên máy thật (`S5`) · người duyệt nghe `12` đoạn và chỗ nối (`S1`) · `6` cuộc gọi thử
   MicroSIP (`S5`) · ký rủi ro `3` và `4` (`S2`).
-- Gửi Module 3 mục *Đính chính bổ sung `2026-09-18`* của `IR-07`.
 - Chạy lại lab bằng VieNeu sau thay đổi này khi có bundle model trên máy.
+
+## 7. Bổ sung sau commit — `18/09`
+
+Toàn hỏi việc VieNeu đã xong hết chưa. Trước khi trả lời, quét lại mọi file đang theo dõi thì ra mấy
+chỗ `9af20d3` bỏ sót. Sửa trong một commit follow-up; commit cũ giữ nguyên.
+
+| File | Chỗ sót | Nay là |
+| --- | --- | --- |
+| `docs/lab/one-sim-lab-plan.md` §5, §9 | Bước 4 và một dòng bảng thời gian còn theo hướng giọng đọc cũ | Bước 4: bundle model VieNeu đã kiểm trên máy lab; dòng thời gian bỏ |
+| `docs/lab/one-sim-lab-plan.md` §0.1, §1 | Còn nhắc một provider phát file dự kiến | §0.1 mục `3`: chưa có nguồn audio sau `ITtsProvider`; §1 trỏ về VieNeu sidecar ở §0.2 |
+| `docs/evidence/W-0057/README.md` | Dòng mô tả `R-05` còn theo hướng cũ | Khớp nội dung `R-05` sau `W-0315` |
+| `prompt/phase-8-sim-pilot/P8-1-real-sim-adapter.md` | DoD còn để `OD-V1-19` chờ vendor | `OD-V1-19` đã đóng `17/09`, không chờ vendor |
+| README này §4, §6 và dòng tracker `W-0315` | Ghi việc gửi đính chính `IR-07` cho Module 3 | Bỏ: chính mục đính chính ghi không đổi gì phía Module 3, nên không gửi |
+| Tracker `A-0644` | Thiếu hai cột Actor và Evidence/result | Bổ sung |
+
+**Ghim lại:** `one-sim-lab-plan.md` → `c78c6364…` trong `b3-telephony-evidence-validator.mjs` và
+template `W-0185`. Hai file đó không bị ghim ở đâu khác.
+
+**Cách quét:** `git grep` trên mọi file đang theo dõi, trừ `.codex-doc-memory/`, `docs/documents/`,
+`third_party/` và hai bộ JSON ở §4. Tìm cách diễn đạt của hướng cũ bằng tiếng Việt lẫn tiếng Anh, các
+định danh đã gỡ ở §1–§2 và tên bộ đọc khác. Chỗ còn lại thuộc ba loại: chính sách cuộc gọi `DT-05`
+(chủ đề khác), lịch sử lab `W-0104`/`W-0106`/`W-0108` giữ theo §4, và chữ trùng ngẫu nhiên bên trong
+từ khác.
+
+| Kiểm chứng | Kết quả |
+| --- | --- |
+| `b3-telephony-evidence-validator --self-test` | `B3_TELEPHONY_EVIDENCE_SELF_TEST_PASS` |
+| `--check-template` (template `W-0185`) | `B3_TELEPHONY_TEMPLATE_VALID_NOT_READY` — đúng trạng thái mẫu chưa điền |
+| `scan-pii.sh docs/evidence` | `PII_SCAN_PASS` |
+| `docs-selftest.mjs` | `API_DOCS_SELFTEST_PASS` |
+| `gate-status.mjs` | `GATE_STATUS_PASS` |
+| gitleaks `v8.30.0` trên các dòng thêm vào | `no leaks found` |
+| .NET | `0` file `.cs` ⇒ không chạy lại solution |
+| `gitnexus_impact` `SOURCE_PINS` · `gitnexus_detect_changes` | `LOW`, `0` phụ thuộc · `low`, `0` luồng |
