@@ -16,10 +16,9 @@ Xem/quản cấu hình call script (template + version + biến được phép).
 ## Dữ liệu / ràng buộc
 - `allowed_input_fields` Target V1: `order_code_short`, `items[].public_name`, `items[].quantity`, optional `items[].unit_label`, `total_amount`, `currency`, `delivery_area_short`, `program_display_name`, `locale`, optional `pronunciation_hints`.
 - **`W-0304` (16/09/2026) — `customer_display_name` đã bị gỡ khỏi danh sách trên.** Nó trái
-  `OD-V1-19` (đã ký `2026-09-05`), câu chốt nguyên văn: *"**bỏ tên khách khỏi lời thoại**
-  (“Xin chào anh/chị”)"*. Đó không phải một lựa chọn văn phong: bỏ tên khách là lý do
-  **không còn dữ liệu khách nào rời hệ thống lúc chạy**, tức là cả bài toán PDPA/DPA đã
-  được xóa thay vì đi đàm phán. Giữ tên khách trong whitelist là mở lại đúng bài toán đó.
+  `OD-V1-19`: lời chào **không có tên khách** (“Xin chào Quý khách”). Đó không phải một lựa chọn
+  văn phong: người nhấc máy chưa chắc là chủ đơn, và tên khách là dữ liệu cá nhân mà kịch bản đã
+  duyệt không cần. Giữ tên khách trong whitelist là mở lại một câu hỏi quyền riêng tư đã đóng.
 - `OD-V1-15` ✅ **ĐÃ KÝ `2026-09-05`** (`W-0194`): bộ trên là whitelist production.
   **`ProductionTargetV1FieldsApproved` mặc định `NO` tại `W-0299` (16/09/2026)** — trước đó là
   `YES` từ `W-0195`, và dòng này từng ghi `YES`. Lý do đổi: một cờ mở rộng trường dữ liệu

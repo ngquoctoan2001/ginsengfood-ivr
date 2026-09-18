@@ -117,10 +117,10 @@ SIM test cần xác nhận:
 
 Đánh dấu một:
 
-- [ ] **Khuyến nghị:** audio thu sẵn, đi qua một `ITtsProvider` file-playback cần triển khai và privacy guard hiện có.
+- [ ] **Khuyến nghị:** audio dựng sẵn, đi qua một `ITtsProvider` file-playback cần triển khai và privacy guard hiện có.
 - [ ] TTS vendor đã được phê duyệt; điền model/provider, data residency, retention, credential reference và pronunciation test pack.
 
-Nếu dùng audio thu sẵn, owner cung cấp file ngoài git hoặc test fixture không có PII thật cho các đoạn: chào, tóm tắt đơn, tổng tiền, khu vực giao rút gọn, mời bấm 1/0, sai phím, xác nhận kết quả, tạm biệt.
+Nếu dùng audio dựng sẵn, owner cung cấp file ngoài git hoặc test fixture không có PII thật cho các đoạn: chào, tóm tắt đơn, tổng tiền, khu vực giao rút gọn, mời bấm 1/0, sai phím, xác nhận kết quả, tạm biệt.
 
 ## 4. Bốn quyết định an toàn cần owner xác nhận
 

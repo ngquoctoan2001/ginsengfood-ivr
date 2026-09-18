@@ -20,24 +20,24 @@ public sealed class TtsProviderNotConfiguredException(string message)
     : TtsSynthesisException("TTS_NOT_CONFIGURED", message);
 
 /// <summary>
-/// Vendor-neutral HTTP settings for the external synthesizer.
+/// HTTP settings for the self-hosted VieNeu-TTS sidecar (W-0122).
 /// <para>
-/// No vendor name appears anywhere in this codebase, and that is deliberate rather than tidy:
-/// <c>OD-VOICE-01</c> reversed direction three times, and each reversal would have been a code
-/// change if the protocol had been written against one vendor's SDK. What changes here is a
-/// request body string and a credential.
+/// VieNeu is the only speech engine. The sidecar shares the worker's network namespace, so the
+/// endpoint is always loopback and order values never leave the pod. The request shape is data
+/// rather than code so the shim's JSON contract lives in one visible place: Helm values and the
+/// lab overlay carry it next to the endpoint.
 /// </para>
 /// </summary>
 public sealed class ExternalTtsOptions
 {
-    /// <summary>Absolute endpoint. Plain HTTP is accepted only against a loopback host.</summary>
+    /// <summary>Absolute loopback endpoint of the VieNeu sidecar.</summary>
     public string Endpoint { get; set; } = string.Empty;
 
-    /// <summary>Header carrying the credential. Vendors differ; the header name is data.</summary>
+    /// <summary>Header carrying the credential, when the sidecar is given one.</summary>
     public string CredentialHeader { get; set; } = "Authorization";
 
     /// <summary>
-    /// Scheme prefix for the credential, or empty for vendors whose header takes a bare key.
+    /// Scheme prefix for the credential, or empty when the header takes a bare key.
     /// </summary>
     public string CredentialScheme { get; set; } = "Bearer";
 
@@ -59,21 +59,20 @@ public sealed class ExternalTtsOptions
     /// </summary>
     public string MediaReferencePrefix { get; set; } = "sound:ivr-dyn-";
 
-    /// <summary>Upper bound on a single response body, as a guard against a runaway vendor.</summary>
+    /// <summary>Upper bound on a single response body, as a guard against a runaway engine.</summary>
     public int MaxResponseBytes { get; set; } = 4 * 1024 * 1024;
 
     public override string ToString() => "[REDACTED_EXTERNAL_TTS_OPTIONS]";
 }
 
 /// <summary>
-/// Generic HTTP synthesizer. It sends privacy-safe text, receives raw signed-linear PCM, and
-/// writes it to a content-addressed file the media server can play.
+/// Client for the VieNeu-TTS sidecar. It sends privacy-safe text, receives raw signed-linear PCM,
+/// and writes it to a content-addressed file the media server can play.
 /// <para>
 /// <b>Raw PCM, not MP3.</b> Asterisk plays <c>.sln</c> family files natively and needs a codec
 /// module for anything else, and decoding in-process would put an audio library inside the API.
-/// A vendor that cannot emit PCM at the configured rate belongs behind a converting sidecar —
-/// that is a deployment answer, and it keeps the format assumption in one visible place instead
-/// of spread across a decode path.
+/// The VieNeu shim therefore returns <c>audio/L16</c> at the configured rate, which keeps the
+/// format assumption in one visible place instead of spread across a decode path.
 /// </para>
 /// <para>
 /// <b>Content-addressed filenames.</b> The same sentence in the same voice always lands on the
@@ -211,8 +210,8 @@ public sealed class ConfigurableExternalTtsProvider(
             .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            // The status code is the whole diagnostic. A vendor error body can quote the text it
-            // was asked to speak, which is order content, so it is never read or logged here.
+            // The status code is the whole diagnostic. An error body can quote the text it was
+            // asked to speak, which is order content, so it is never read or logged here.
             throw new TtsSynthesisException(
                 "TTS_PROVIDER_HTTP_ERROR",
                 $"The TTS provider returned HTTP {(int)response.StatusCode}.");

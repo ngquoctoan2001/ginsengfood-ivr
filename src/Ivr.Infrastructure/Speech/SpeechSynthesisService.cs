@@ -178,8 +178,8 @@ public sealed class SpeechSynthesisService(
     }
 
     /// <summary>
-    /// Assembles a call from its pieces: recorded prose where a recording exists, synthesized
-    /// audio for the order's own values.
+    /// Assembles a call from its pieces: fixed prose from the files VieNeu rendered ahead of
+    /// time, and the order's own values synthesized by VieNeu at call time.
     /// <para>
     /// A missing piece throws. It must: playing the pieces that did resolve would produce a call
     /// that sounds complete and states a different order — the opening, then silence where the
@@ -208,8 +208,8 @@ public sealed class SpeechSynthesisService(
                 if (!catalog.TryGetValue(segment.TextHash, out FixedSegmentMediaEntry? entry))
                 {
                     throw new TtsSynthesisException(
-                        "TTS_FIXED_SEGMENT_NOT_RECORDED",
-                        "The approved script contains fixed speech with no recording for the selected voice.");
+                        "TTS_FIXED_SEGMENT_NOT_RENDERED",
+                        "The approved script contains fixed speech with no pre-rendered file for the selected voice.");
                 }
 
                 rendered.Add(new RenderedAudioSegment(

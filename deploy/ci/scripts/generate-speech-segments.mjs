@@ -3,14 +3,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// W-0106 A1. Emits the fixed sentences of the approved script, with the identity the runtime
-// computes for each one, so a voice engineer knows exactly what to record and the recordings can
-// be pinned to the wording they were made from.
+// W-0106 A1 / W-0122. Emits the fixed sentences of the approved script, with the identity the
+// runtime computes for each one, so the VieNeu render step knows exactly what to render and each
+// file can be pinned to the wording it was made from.
 //
 // Generated rather than written by hand for the same reason the traceability table is: a
 // hand-kept list drifts the moment someone edits a word of the template, and a drifted list is
-// worse than none — the runtime would look up a sentence nobody recorded, or worse, find a
-// recording of the previous wording and play it.
+// worse than none — the runtime would look up a sentence nobody rendered, or worse, find a
+// file rendered from the previous wording and play it.
 //
 // The template is read out of the C# source rather than copied here. UT-SEG-MANIFEST-12 asserts
 // this file agrees with what Ivr.Domain computes; if the two ever disagree, that test goes red.

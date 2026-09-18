@@ -1,31 +1,31 @@
 <#
 .SYNOPSIS
-    W-0106/W-0122 — chuyển 12 file MP3 hoặc WAV đoạn cố định về PCM 8 kHz và ghim SHA-256.
+    W-0122 — chuyển 12 file WAV đoạn cố định do VieNeu render về PCM 8 kHz và ghim SHA-256.
 
 .DESCRIPTION
-    Bổ sung cho `Convert-LabVoiceAudio.ps1`, KHÔNG thay thế. File kia dựng bản thu nguyên cuộc
-    gọi của W-0106 (một file cho cả cuộc); file này dựng các ĐOẠN cố định để ghép động — cuộc
-    gọi được lắp từ đoạn thu sẵn cộng phần giá trị đơn do TTS sinh.
+    VieNeu render sẵn các ĐOẠN cố định của kịch bản (`deploy/ci/scripts/render-fixed-speech.mjs`);
+    script này chuyển chúng về PCM cho Asterisk. Cuộc gọi được lắp từ các đoạn đó cộng phần giá
+    trị đơn do VieNeu sidecar tổng hợp lúc gọi.
 
     Danh sách đoạn KHÔNG viết tay ở đây. Nó đọc từ `deploy/lab/speech-segments.json`, vốn được
     sinh từ chính template đã duyệt bằng `deploy/ci/scripts/generate-speech-segments.mjs`. Sửa
-    một chữ trong template ⇒ đổi `textSha256` ⇒ tên file đổi theo ⇒ bản thu cũ không còn được
-    tra ra. Đó là điểm mấu chốt: bản thu và lời thoại không thể lệch nhau trong im lặng.
+    một chữ trong template ⇒ đổi `textSha256` ⇒ tên file đổi theo ⇒ file cũ không còn được tra
+    ra. Đó là điểm mấu chốt: audio và lời thoại không thể lệch nhau trong im lặng.
 
     Tên file: `ivr-seg-<miền>-<16 ký tự đầu của textSha256>.wav`. Đặt theo NỘI DUNG chứ không
     theo thứ tự, để một lần đổi thứ tự câu trong template không làm mọi tra cứu vẫn "thành công"
     mà phát sai thứ tự.
 
-    ffmpeg chạy bitexact + `-map_metadata -1` vì cùng lý do như W-0106 Giai đoạn 4: không có nó,
-    metadata encoder lọt vào WAV và cùng một MP3 nguồn ra hash khác nhau giữa hai bản ffmpeg.
+    ffmpeg chạy bitexact + `-map_metadata -1`: không có nó,
+    metadata encoder lọt vào WAV và cùng một file nguồn ra hash khác nhau giữa hai bản ffmpeg.
 
 .PARAMETER SourceDirectory
     Thư mục chứa file nguồn, đặt tên `<miền>-s<ordinal><SourceExtension>` — ví dụ
-    `north-s1.mp3` hoặc `north-s1.wav`. `ordinal` lấy đúng từ `speech-segments.json`.
+    `north-s1.wav`. `ordinal` lấy đúng từ `speech-segments.json`.
 
 .PARAMETER SourceExtension
-    Định dạng nguồn tường minh: `.mp3` (mặc định, giữ đường W-0119) hoặc `.wav` (VieNeu/W-0122).
-    Script không tự đoán và không dò fallback sang extension khác.
+    Định dạng nguồn tường minh: `.wav`, đúng thứ VieNeu render ra. Script không tự đoán và không
+    dò fallback sang extension khác.
 
 .PARAMETER OutputDirectory
     Thư mục nhận PCM/manifests. Bỏ trống để dùng `deploy/lab/asterisk/audio` như trước. Tham số
@@ -35,22 +35,18 @@
     Chỉ xử lý một miền. Bỏ trống để xử lý cả ba.
 
 .EXAMPLE
-    ./deploy/lab/Convert-LabSegmentAudio.ps1 -SourceDirectory ./artifacts/w-0106-segments
+    ./deploy/lab/Convert-LabSegmentAudio.ps1 -SourceDirectory ./artifacts/w-0122-fixed
 
 .EXAMPLE
-    ./deploy/lab/Convert-LabSegmentAudio.ps1 -SourceDirectory ./artifacts/w-0122-fixed `
-        -SourceExtension .wav
-
-.EXAMPLE
-    # In ra đúng những câu cần thu, trước khi mở ElevenLabs.
+    # In ra đúng những câu VieNeu phải render.
     ./deploy/lab/Convert-LabSegmentAudio.ps1 -ListOnly
 #>
 [CmdletBinding()]
 param(
     [string]$SourceDirectory,
 
-    [ValidateSet('.mp3', '.wav')]
-    [string]$SourceExtension = '.mp3',
+    [ValidateSet('.wav')]
+    [string]$SourceExtension = '.wav',
 
     [string]$OutputDirectory,
 
@@ -103,11 +99,11 @@ if ($fixedSegments.Count -eq 0) {
     throw 'speech-segments.json không có đoạn cố định nào — template hỏng?'
 }
 
-# Bảng "cần thu những câu nào". In trước khi làm bất cứ việc gì, kể cả khi không -ListOnly:
-# người thu giọng cần đúng bảng này, và nó phải là thứ họ thấy đầu tiên chứ không phải thứ họ
+# Bảng "VieNeu render những câu nào". In trước khi làm bất cứ việc gì, kể cả khi không -ListOnly:
+# người chạy render cần đúng bảng này, và nó phải là thứ họ thấy đầu tiên chứ không phải thứ họ
 # phải đi tìm trong tài liệu.
 Write-Host ''
-Write-Host "Đoạn cố định cần thu — $($fixedSegments.Count) câu × $($regions.Count) miền = $($fixedSegments.Count * $regions.Count) file" -ForegroundColor Cyan
+Write-Host "Đoạn cố định VieNeu render — $($fixedSegments.Count) câu × $($regions.Count) miền = $($fixedSegments.Count * $regions.Count) file" -ForegroundColor Cyan
 Write-Host ''
 foreach ($segment in $fixedSegments) {
     $shortHash = $segment.textSha256.Substring(0, 16)
@@ -115,7 +111,7 @@ foreach ($segment in $fixedSegments) {
     Write-Host "      $($segment.text.Trim())"
 }
 Write-Host ''
-Write-Host 'Đọc liền mạch, KHÔNG thêm/bớt chữ. Dấu phẩy đầu câu là chỗ nối, đọc như nối câu.' -ForegroundColor DarkGray
+Write-Host 'Render nguyên văn, KHÔNG thêm/bớt chữ. Dấu phẩy đầu câu là chỗ nối với đoạn trước.' -ForegroundColor DarkGray
 Write-Host ''
 
 if ($ListOnly) {
@@ -123,7 +119,7 @@ if ($ListOnly) {
 }
 
 if (-not $SourceDirectory) {
-    throw 'Thiếu -SourceDirectory. Dùng -ListOnly nếu chỉ muốn xem danh sách câu cần thu.'
+    throw 'Thiếu -SourceDirectory. Dùng -ListOnly nếu chỉ muốn xem danh sách câu cần render.'
 }
 
 if (-not (Test-Path -LiteralPath $SourceDirectory -PathType Container)) {
@@ -166,8 +162,7 @@ foreach ($regionName in $regions) {
 
         # Decode the generated WAV to a null sink instead of calling `ffmpeg -i` without an output.
         # The latter prints valid stream metadata but deliberately exits 1, so a fully successful
-        # run left $LASTEXITCODE=1 and any `&&`/CI caller read it as a failure. Same fix, same
-        # reason as Convert-LabVoiceAudio.ps1 — the two probes must not drift apart again.
+        # run left $LASTEXITCODE=1 and any `&&`/CI caller read it as a failure.
         $probe = & $FfmpegPath -hide_banner -loglevel info -i $targetPath -f null - 2>&1 | Out-String
         if ($LASTEXITCODE -ne 0) {
             throw "ffmpeg không đọc lại được file đầu ra: $targetName"
@@ -199,8 +194,8 @@ foreach ($regionName in $regions) {
     }
 }
 
-# Giữ nguyên mọi dòng cũ của W-0104/W-0106; chỉ thay các dòng đoạn của chính lần chạy này.
-# entrypoint kiểm toàn bộ file lúc boot, nên xóa dòng cũ là làm hỏng evidence trước đó.
+# Giữ nguyên mọi dòng khác trong SHA256SUMS; chỉ thay các dòng đoạn của chính lần chạy này.
+# entrypoint kiểm toàn bộ file lúc boot, nên xóa nhầm một dòng là image không khởi động.
 $sumsPath = Join-Path $audioDirectory 'SHA256SUMS'
 $producedFiles = $results | ForEach-Object { $_.File }
 $existingLines = if (Test-Path -LiteralPath $sumsPath) {
@@ -218,7 +213,7 @@ Write-LfFile -Path $sumsPath -Lines ($existing + $added)
 if (-not $SkipManifestUpdate) {
     $segmentManifestPath = Join-Path $audioDirectory 'segments-manifest.txt'
     $lines = [System.Collections.Generic.List[string]]::new()
-    $lines.Add($(if ($SourceExtension -eq '.wav') { 'work_id=W-0122' } else { 'work_id=W-0106-A1' }))
+    $lines.Add('work_id=W-0122')
     $lines.Add("template_id=$($plan.templateId)")
     $lines.Add("template_version=$($plan.templateVersion)")
     $lines.Add("template_sha256=$($plan.templateSha256)")
@@ -267,20 +262,21 @@ $configurationPath = Join-Path $audioDirectory 'segments-appsettings.json'
 } | ConvertTo-Json -Depth 8 | ForEach-Object { Write-LfFile -Path $configurationPath -Lines ($_ -split "`r?`n") }
 
 # Cùng nội dung, dạng biến môi trường double-underscore. Lý do phải có bản thứ hai: lab cấu hình
-# service HOÀN TOÀN bằng `environment:` trong `docker-compose.softphone.yml` — không có chỗ nào
+# worker HOÀN TOÀN bằng `environment:` trong `docker-compose.vieneu-tts.yml` — không có chỗ nào
 # mount appsettings.json. Nên khối JSON ở trên, dù đúng shape, KHÔNG dán được vào lab; ai đó sẽ
 # phải dịch tay 12 mục × 3 trường, tức là chép tay đúng 12 mã băm 64 ký tự mà cả file này lẫn
-# compose đều ghi rõ là không được chép tay.
+# compose đều ghi rõ là không được chép tay. Overlay đã bật RegionalVoices và đặt ba giọng, nên
+# khối này không lặp lại các khoá đó (YAML không cho khoá trùng).
 $envPath = Join-Path $audioDirectory 'segments-compose-env.yml'
 $envLines = [System.Collections.Generic.List[string]]::new()
 $envLines.Add('# SINH TỰ ĐỘNG bởi deploy/lab/Convert-LabSegmentAudio.ps1 — không sửa tay.')
 $envLines.Add('#')
-$envLines.Add('# Dán vào anchor `x-asterisk-lab-env` của docker-compose.softphone.yml, thay hai dòng')
-$envLines.Add('# Segmentation__* đang là "false" ở đó.')
+$envLines.Add('# Dán vào `environment:` của service `ivr-worker` trong docker-compose.vieneu-tts.yml,')
+$envLines.Add('# thay hai dòng Segmentation__* đang là "false" ở đó.')
 $envLines.Add('#')
 $envLines.Add('# Trước khi bật, CẢ HAI nửa phải có thật:')
-$envLines.Add('#   - nửa thu sẵn: 12 file PCM đã nằm trong image Asterisk (script này vừa ghi + SHA256SUMS);')
-$envLines.Add('#   - nửa tổng hợp: endpoint TTS thật ở Ivr__Speech__Tts__External__* (OD-VOICE-01).')
+$envLines.Add('#   - nửa render sẵn: 12 file PCM VieNeu đã nằm trong image Asterisk (script này vừa ghi + SHA256SUMS);')
+$envLines.Add('#   - nửa tổng hợp lúc gọi: VieNeu sidecar mà chính overlay đó khởi động.')
 $envLines.Add('# Bật khi catalog còn thiếu một câu ⇒ service TỪ CHỐI khởi động. Đó là hành vi đúng:')
 $envLines.Add('# một câu thiếu phải chặn deploy, không phải làm ngắn cuộc gọi.')
 if ($regions.Count -lt 3) {
@@ -289,12 +285,11 @@ if ($regions.Count -lt 3) {
     $envLines.Add('# khởi động. Chạy lại không kèm -Region để sinh đủ ba miền trước khi dán.')
 }
 $envLines.Add('')
-$envLines.Add('  Ivr__Speech__Tts__RegionalVoices__Enabled: "true"')
-$envLines.Add('  Ivr__Speech__Tts__Segmentation__Enabled: "true"')
-$envLines.Add('  Ivr__Speech__Tts__Segmentation__FixedSegments: "Catalog"')
+$envLines.Add('      Ivr__Speech__Tts__Segmentation__Enabled: "true"')
+$envLines.Add('      Ivr__Speech__Tts__Segmentation__FixedSegments: "Catalog"')
 foreach ($regionName in $regions) {
     $regionKey = (Get-Culture).TextInfo.ToTitleCase($regionName)
-    $prefix = "  Ivr__Speech__Tts__RegionalVoices__${regionKey}__FixedSegments"
+    $prefix = "      Ivr__Speech__Tts__RegionalVoices__${regionKey}__FixedSegments"
     $index = 0
     foreach ($row in @($results | Where-Object { $_.Region -eq $regionName })) {
         $envLines.Add("${prefix}__${index}__TextHash: `"$($row.TextHash)`"")
@@ -309,5 +304,5 @@ Write-Host ''
 $results | Format-Table Region, Ordinal, Milliseconds, MediaReference -AutoSize
 Write-Host ''
 Write-Host "Cấu hình đã sinh (JSON, cho deployment có appsettings): $configurationPath" -ForegroundColor Green
-Write-Host "Cấu hình đã sinh (env, DÁN VÀO COMPOSE LAB):            $envPath" -ForegroundColor Green
-Write-Host 'Bước tiếp: dựng lại image Asterisk, bật Segmentation.Enabled=true, gọi thử MicroSIP.' -ForegroundColor Yellow
+Write-Host "Cấu hình đã sinh (env, DÁN VÀO docker-compose.vieneu-tts.yml): $envPath" -ForegroundColor Green
+Write-Host 'Bước tiếp: dựng lại image Asterisk, Owner nghe duyệt 12 đoạn, rồi mới bật Segmentation.Enabled=true.' -ForegroundColor Yellow

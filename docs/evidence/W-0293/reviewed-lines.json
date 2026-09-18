@@ -1,7 +1,7 @@
 {
   "baseline": "6bf954d2-ba8fd82e-b638b589-2c11df77-9c88eb42",
-  "count": 121,
-  "files": 45,
+  "count": 82,
+  "files": 37,
   "changes": [
     {
       "file": "docs/evidence/W-0122/README.md",
@@ -129,191 +129,6 @@
       "category": "technical-prose"
     },
     {
-      "file": "docs/evidence/W-0228/README.md",
-      "baselineLine": 111,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0230/README.md",
-      "baselineLine": 7,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0230/README.md",
-      "baselineLine": 13,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0230/README.md",
-      "baselineLine": 53,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0230/README.md",
-      "baselineLine": 81,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0233/README.md",
-      "baselineLine": 5,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0233/README.md",
-      "baselineLine": 10,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0233/README.md",
-      "baselineLine": 24,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0233/README.md",
-      "baselineLine": 71,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0233/README.md",
-      "baselineLine": 99,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0233/README.md",
-      "baselineLine": 102,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0234/README.md",
-      "baselineLine": 5,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0234/README.md",
-      "baselineLine": 96,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0235/README.md",
-      "baselineLine": 9,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0235/README.md",
-      "baselineLine": 42,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0235/README.md",
-      "baselineLine": 84,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0241/README.md",
-      "baselineLine": 105,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 15,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 18,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 22,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 23,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 24,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 25,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 26,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 28,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 32,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 33,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 36,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 41,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 51,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 56,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 62,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 74,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 105,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 117,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 121,
-      "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0242/README.md",
-      "baselineLine": 139,
-      "category": "guard-example-reference"
-    },
-    {
       "file": "docs/evidence/W-0243/README.md",
       "baselineLine": 6,
       "category": "guard-example-reference"
@@ -397,16 +212,6 @@
       "file": "docs/evidence/W-0243/README.md",
       "baselineLine": 123,
       "category": "guard-example-reference"
-    },
-    {
-      "file": "docs/evidence/W-0244/README.md",
-      "baselineLine": 51,
-      "category": "technical-prose"
-    },
-    {
-      "file": "docs/evidence/W-0244/README.md",
-      "baselineLine": 79,
-      "category": "technical-prose"
     },
     {
       "file": "docs/evidence/W-0247/README.md",

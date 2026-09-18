@@ -1,4 +1,4 @@
-# W-0226 — Hai phiếu để gửi, và chỗ rẽ chúng phải nói ra
+# W-0226 — Hai phiếu để gửi
 
 Ngày: 2026-09-08 · Baseline: `main@9abdb95` · Trạng thái: **TESTS_PASS**.
 
@@ -63,45 +63,7 @@ phiếu là thứ gửi đi, W-0185 là chỗ ghi cái nhận về. Hai thứ b�
 - Ghi rõ: **chữ ký của Owner module IVR bị từ chối bằng code**, dẫn `2a4f45d` và mutation
   `legal-authority`. Tức phiếu này **không thể đóng từ bên trong dự án** — và đó là chủ ý.
 
-## 4. Chỗ rẽ chưa ai chốt — phần quan trọng nhất lượt này
-
-Cả hai phiếu soạn `28/08`. Ngày `2026-09-05`, `OD-V1-19` được ký:
-
-> *"Không vendor TTS lúc chạy; thu giọng người thật, ghép chữ số, bỏ tên khách khỏi lời thoại"*
-
-Và nó **đã vào code**. `TargetV1SpeechPolicy.cs`, template `v3-test-approved`:
-
-```csharp
-"Xin chào Quý khách. "                                    // ← không còn {{customer_display_name}}
-+ "Quý khách có đơn hàng gồm {{items_spoken}}, "
-+ "tổng tiền {{total_amount_display}}, giao đến {{delivery_area_short}}. "
-```
-
-Lý do ký (`od-v1-signoff §2.1`): chỉ tên khách là **vô hạn**; chữ số ghép được, vùng giao hữu hạn.
-
-| Placeholder còn lại | Thu trước được? |
-| --- | --- |
-| `{{total_amount_display}}` | được — chữ số, cơ chế ghép có từ `W-0108` |
-| `{{delivery_area_short}}` | được — tập hữu hạn phường/quận |
-| `{{items_spoken}}` | **chưa ai trả lời** — tên hàng, hữu hạn theo catalog nhưng phải thu lại khi catalog đổi |
-
-**Hệ quả:** nếu `items_spoken` thu trước được thì không cần TTS lúc chạy, và **`INF-A` — mirror 201
-MiB weights — không còn cần**. Gửi Platform đi dựng mirror trước khi chốt chỗ rẽ này là có thể phí
-công họ.
-
-### Nhưng có một vế dễ bỏ sót, và nó đi ngược
-
-**12 đoạn cố định hiện có là audio do VieNeu render**, Owner ký `28/08`. Nên `L3` — quyền thương
-mại của đúng ba preset — **vẫn áp dụng cho chính những file đó**, kể cả khi model không còn chạy
-lúc gọi. Trừ khi chúng được thu lại bằng giọng người.
-
-> *"Có được chạy model không"* và *"có được dùng audio model đã tạo ra không"* là **hai câu khác
-> nhau**. Bỏ model khỏi runtime trả lời câu thứ nhất, không trả lời câu thứ hai.
-
-Chỗ rẽ thuộc Owner + Product. Đã ghi vào **cả hai phiếu** kèm bảng câu nào phụ thuộc, câu nào không
-— để Legal trả lời được `L5`–`L7` ngay mà không phải chờ.
-
-## 5. Chống tái diễn
+## 4. Chống tái diễn
 
 `00-CHUA-XONG.md` thêm bảng **phiếu đang hoạt động** với ba dòng có tên, và một câu:
 
@@ -110,7 +72,7 @@ Chỗ rẽ thuộc Owner + Product. Đã ghi vào **cả hai phiếu** kèm bả
 
 Đó là thứ thiếu ngày `04/09`.
 
-## 6. Kiểm chứng
+## 5. Kiểm chứng
 
 ```text
 gate-status.mjs                  GATE_STATUS_PASS — 224 work items
@@ -128,10 +90,9 @@ phải bằng chứng.
 Không sửa code, không sửa test, không sửa `MODELS.lock`, không mở gate nào.
 `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-## 7. Còn lại
+## 6. Còn lại
 
 - **Gửi.** Cả hai vẫn `NOT_SENT`. Việc gửi thuộc owner/chief auditor, giống `3.4`.
-- **Chốt chỗ rẽ `items_spoken`** trước khi Platform bắt tay vào `INF-A`.
 - `00-CHUA-XONG.md#today-03` (110 dòng) cũng bị `8ed62e9` xoá. Chưa khôi phục lượt
   này — nó là pack routing, và hai phiếu nó route tới nay đã sống lại; khôi phục hay bỏ hẳn là một
   quyết định riêng, không phải mặc định.

@@ -333,7 +333,7 @@ public sealed class PrivacySafeOrderSummary
 
     // One body, two guards. Copying it would let the length bound or the Unicode normalisation
     // drift between an address field and a product field, and normalisation drift is invisible
-    // until two strings that look identical stop matching the same recorded clip.
+    // until two strings that look identical stop being treated as the same text.
     private static string EnsureBounded(
         string value,
         int maximumLength,

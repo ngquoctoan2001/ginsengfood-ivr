@@ -38,8 +38,9 @@ worker:
     minReplicas: 1
     maxReplicas: 2
     simPoolSize: 32
-  # W-0122 stays fail-closed until OD-VOICE-06/07/08, G-LEGAL/G-PLATFORM/G-DIAL/G-ESIM32,
-  # internal mirror and target-hardware evidence are all supplied.
+  # VieNeu-TTS (W-0122) is the only production speech engine. The sidecar stays fail-closed until
+  # OD-VOICE-07/08, G-LEGAL/G-PLATFORM/G-DIAL/G-ESIM32, the internal mirror and target-hardware
+  # evidence are all supplied; the chart refuses to render it without them.
   tts:
     enabled: false
 

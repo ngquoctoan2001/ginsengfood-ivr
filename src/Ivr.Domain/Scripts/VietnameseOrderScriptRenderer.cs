@@ -164,7 +164,9 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         // owner approved in W-0104 says "năm trăm sáu mươi nghìn đồng" — that sample had been
         // typed by hand, so nobody had ever heard the digits path. How an engine reads "560.000"
         // is engine-specific, and this is the number the customer is pressing a key to confirm.
-        string totalAmount = SpeechNumberClip.Join(TotalAmountClips(summary.Total.Amount, numberStyle));
+        string totalAmount = string.Concat(
+            VietnameseNumberSpeller.Spell(summary.Total.Amount, numberStyle),
+            " đồng");
 
         // Substitution happens per segment rather than over the whole string, and the full text
         // is then assembled from those segments. It is the same output as the previous chain of
@@ -262,31 +264,6 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
         return segments.ToImmutable();
     }
 
-    /// <summary>
-    /// The clip "đồng", which the speller deliberately does not own: reading a number does not
-    /// include a currency word, and a quantity like 2,5 ký proves it by needing none. It is the
-    /// 107th clip of the bank -- the 106 in <c>VietnameseNumberSpeller</c> plus this one -- and
-    /// <c>UT-VOICE-CLIP-07</c> asserts that split so neither side assumes the other emits it.
-    /// </summary>
-    private static readonly SpeechNumberClip CurrencyClip = new("num-dong", "đồng");
-
-    /// <summary>
-    /// The recorded clips a total is read from, in playback order. The spoken text is a projection
-    /// of this and not the other way round, for the reason set out on
-    /// <see cref="VietnameseNumberSpeller.SpellClips(decimal, VietnameseNumberStyle)"/>: clip
-    /// boundaries are not visible in the words.
-    /// </summary>
-    public static ImmutableArray<SpeechNumberClip> TotalAmountClips(
-        decimal amount,
-        VietnameseNumberStyle style)
-    {
-        ImmutableArray<SpeechNumberClip>.Builder clips =
-            ImmutableArray.CreateBuilder<SpeechNumberClip>();
-        clips.AddRange(VietnameseNumberSpeller.SpellClips(amount, style));
-        clips.Add(CurrencyClip);
-        return clips.ToImmutable();
-    }
-
     private static string FormatItems(
         IReadOnlyList<SpeechItem> items,
         IReadOnlyDictionary<string, string> pronunciationHints,
@@ -327,11 +304,9 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
     /// Quantities are spoken, fractional ones included: "hai hộp", "hai phẩy năm ký".
     /// <para>
     /// Fractions used to keep the digit form <c>"2,5"</c> on the reasoning that engines read it
-    /// acceptably. Two things retired that. Segmented playback assembles a call from recorded
-    /// and cached pieces, and there is no clip for "2,5" — the digit form was the one input the
-    /// pipeline could not voice at all. And "acceptably" was never verified by listening; it was
-    /// the same assumption that produced <c>"560.000 đồng"</c> against approved audio saying
-    /// "năm trăm sáu mươi nghìn đồng".
+    /// acceptably. "Acceptably" was never verified by listening; it was the same assumption that
+    /// produced <c>"560.000 đồng"</c> against approved audio saying "năm trăm sáu mươi nghìn
+    /// đồng". Spelling the words out leaves VieNeu nothing to guess.
     /// </para>
     /// <para>
     /// The digit fallback survives only for quantities outside the speller's range, where a

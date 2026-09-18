@@ -730,13 +730,13 @@ xuất sẵn bảng map ở `W-0303` mục `6`).
 
 `8` hạng mục còn lại đều là quyết định và thao tác của tôi: nghe và chốt `3` giọng · duyệt `12` đoạn
 cố định · `6` cuộc MicroSIP · retention/rollback drill · licence model · mirror · đo target hardware
-· chốt media topology. **Tốn thời gian ngồi nghe và thu, không tốn ngày công lập trình** — nên không
-nằm trong lịch `§4`.
+· chốt media topology. **Tốn thời gian ngồi nghe, không tốn ngày công lập trình** — nên không nằm
+trong lịch `§4`.
 
-> ⚠️ `OD-V1-19` đã chốt **bỏ vendor TTS lúc chạy, thu giọng người thật**. Nếu `items_spoken` thu
-> trước được — mà catalog chỉ vài chục món nên được — thì **mirror `201 MiB` weights không còn cần**
-> và `16` CVE base image `ivr-tts` cũng hết chặn vì image đó **không lên production**. Nhánh này
-> **tự thu hẹp**.
+> **Cập nhật `18/09` (`W-0315`):** VieNeu-TTS tự host là bộ đọc duy nhất, production lẫn lab
+> (`OD-V1-19`, `S4` ngày `17/09`). Mirror weights, `16` CVE của base image `ivr-tts` và licence model
+> vẫn là cổng production — xem Lô `4` của
+> [vướng mắc `17/09`](ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md).
 
 ---
 

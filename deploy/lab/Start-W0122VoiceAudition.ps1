@@ -62,7 +62,6 @@ foreach ($result in $manifest.results) {
 
 $env:IVR_LAB_ARI_PASSWORD = "ari-$([Guid]::NewGuid().ToString('N'))"
 $env:IVR_LAB_SIP_PASSWORD = "sip-$([Guid]::NewGuid().ToString('N'))"
-$env:IVR_LAB_VOICE_VARIANT = 'A'
 $compose = @(
     'compose',
     '--project-name', 'ivr-w0122-audition',

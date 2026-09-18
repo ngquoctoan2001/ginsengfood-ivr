@@ -6,13 +6,13 @@
     "dispatch_pack_path": "plan/ivr-orther/m8-12-external-decision-provenance-dispatch-pack-2026-09-03.md",
     "dispatch_pack_sha256": "5abb37bbd4580380e59f8eb5e0981d480fe398326234b51dff8a1f7deab1ce4d",
     "artifact_manifest_path": "deploy/ci/pins/external-decision-artifacts.sha256",
-    "artifact_manifest_sha256": "be379fddab5a4e7f0854e5e1bc10ac30813358b67296e19ebcb2c8ebee6c7e9b",
+    "artifact_manifest_sha256": "b61ecb650edc5b9dfe72eae3279747872e2446f383eb62458b273c0d9b7cff31",
     "message_kit_path": "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
     "message_kit_sha256": "3bd5b824c84b6d734090bf488f3da054622e30554ff26cace11f3656b4e70cf1",
     "routing_validator_path": "deploy/ci/scripts/external-decision-routing-validator.mjs",
-    "routing_validator_sha256": "2e611dd8c93f81e16c60d1997e7175081537278386566303a4a6272db45033df",
+    "routing_validator_sha256": "1c650cb5786cd80c99975f79fa90b2d4f6c375fa56e9b0b37b3fa8e4ae415491",
     "response_validator_path": "deploy/ci/scripts/external-decision-response-validator.mjs",
-    "response_validator_sha256": "13fa119dd309dbac03b343153d39edc01722c6970b7836a588ad3b7a3d7e294a"
+    "response_validator_sha256": "2744336e70affe49bc8b3e11884367b1f7a08198199e3628a05394e7fb3e53d4"
   },
   "routing_input": {
     "path": "PENDING_EXTERNAL_EVIDENCE",

@@ -35,7 +35,7 @@ const SOURCE_PINS = Object.freeze({
     "5abb37bbd4580380e59f8eb5e0981d480fe398326234b51dff8a1f7deab1ce4d",
   artifact_manifest_path: "deploy/ci/pins/external-decision-artifacts.sha256",
   artifact_manifest_sha256:
-    "be379fddab5a4e7f0854e5e1bc10ac30813358b67296e19ebcb2c8ebee6c7e9b",
+    "b61ecb650edc5b9dfe72eae3279747872e2446f383eb62458b273c0d9b7cff31",
   message_kit_path:
     "plan/ivr-orther/m8-13-external-decision-dispatch-message-kit-2026-09-03.md",
   message_kit_sha256:

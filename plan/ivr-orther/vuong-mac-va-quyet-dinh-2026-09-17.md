@@ -371,7 +371,7 @@ Chỉ tài liệu, `0` symbol.
 | # | Ghi gì | Ở đâu |
 | --- | --- | --- |
 | 1 | `S3` — bỏ các kỳ hạn 90 ngày · 180 ngày · 1 năm; giữ vĩnh viễn | register `OD-V1-11` (thêm *"Sửa 17/09"*, không xoá nguyên văn) · `retention-period-proposal.md` §1 · `W-0273` → `EVIDENCE_SUBMITTED` |
-| 2 | `S4` — giữ VieNeu tự host lúc chạy; *"không vendor đám mây lúc chạy"* giữ nguyên | register `OD-V1-19` · `00-CHUA-XONG.md` (`today-03`, nhóm A: nhánh `W-0122` mở lại) |
+| 2 | ✅ **`W-0315`** — *`18/09`.* `S4` — giữ VieNeu tự host lúc chạy; *"không vendor đám mây lúc chạy"* giữ nguyên. Lab và code cũng chỉ còn VieNeu | register `OD-V1-19` · `00-CHUA-XONG.md` (`today-03`, nhóm A: nhánh `W-0122` mở lại) |
 | 3 | `S7` — kho ghi nhận ngoài là giới hạn chấp nhận của bản đầu | register, dòng mới · **không** sửa `m8-15` (ghim ở `deploy/ci/scripts/capacity-registry-decision-pack-validator.mjs:27`) |
 | 4 | `T4` — phần *"không ghi DB"* của `OD-V1-18` bị thay bởi phương án B; *"không vào log, evidence, callback"* giữ nguyên | register `OD-V1-18` |
 | 5 | `T6` — điều kiện của stage 5: phải có lối có kiểm soát qua `migration-expand-guard` | README `W-0311` §6 |
@@ -402,11 +402,12 @@ ngay trong lượt, tính trên byte LF.
 2. **Thử đổi bản cài nền** (hướng `SEC-B` cũ) sao cho hết lỗ `HIGH`/`CRITICAL`. Làm được thì rủi ro 3 của
    `S2` **biến mất** và Sếp không phải ký nó. Chạy lại `tts-container-selftest` và `tts-helm-selftest`, đo
    lại xem các lỗ còn lại có bị gọi tới không.
-3. Đưa những câu hỏi còn sống của ba phiếu đã đóng (`platform-w0122`, `security-w0122-cve`,
+3. ✅ **`W-0315`** — Đưa những câu hỏi còn sống của ba phiếu cũ (`platform-w0122`, `security-w0122-cve`,
    `legal-od-voice-07` — toàn văn ở `257cbef^`) về đúng người, **không** tạo lại ba file: bảo mật và quyền
-   dùng → `S2` · kho bản cài nội bộ (`OD-VOICE-07`) và máy thật (`OD-VOICE-08`) → `S5`.
+   dùng → `S2` · kho bản cài nội bộ (`OD-VOICE-07`) và máy thật (`OD-VOICE-08`) → `S5`. Ghi ở nhóm A của
+   `00-CHUA-XONG.md` và mục 5 của phiếu cho Sếp.
 4. Soạn sẵn cấu hình production ở dạng **nháp** (ConfigMap nghiệm thu giọng, tham chiếu phê duyệt).
-   `deploy/helm/ivr/values-prod.yaml:43-44` **vẫn** `tts.enabled: false`.
+   `deploy/helm/ivr/values-prod.yaml` **vẫn** `tts.enabled: false`.
 
 **Chờ**
 

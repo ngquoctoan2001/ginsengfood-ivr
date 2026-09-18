@@ -13,7 +13,7 @@ Nối tiếp: `W-0106` §4.6 (kiến trúc lai), `OD-VOICE-01`, `OD-V1-19`
 
 ## 1. Vấn đề đã đóng
 
-Trước W-0108, một cuộc gọi phát **đúng một file audio**. Ở LAB file đó là bản thu chung, nên
+Trước W-0108, một cuộc gọi phát **đúng một file audio**. Ở LAB file đó là file chung, nên
 một kết quả "gọi được, khách bấm 1, ghi đúng disposition" chứng minh chặng quay số và **không**
 chứng minh khách nghe đúng đơn của mình.
 

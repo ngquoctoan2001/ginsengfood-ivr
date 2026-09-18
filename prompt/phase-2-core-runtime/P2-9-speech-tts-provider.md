@@ -12,6 +12,11 @@
 | **Stack** | .NET 10 · PostgreSQL |
 | **Execution mode** | `MOCK` (real provider adapter chỉ được wire ở `LAB_REAL_SIM` sau `OD-V1-19`) |
 
+> **Cập nhật `2026-09-18` (`W-0315`).** `OD-V1-19` đã đóng ngày `2026-09-17` (`S4`): **VieNeu-TTS tự
+> host (`W-0122`) là bộ đọc duy nhất**, production lẫn lab. `ConfigurableExternalTtsProvider` nay chỉ
+> nhận endpoint loopback, tức VieNeu sidecar chạy chung pod với worker. Các câu *"vendor chưa chọn"*
+> bên dưới là bối cảnh lúc `W-0066` được giao, giữ để đối chiếu với evidence của nó.
+
 ## 1. ROLE
 Bạn là **Senior .NET Engineer (Voice/Media)**. Bạn xây **port + adapter** cho việc biến `privacy_safe_order_summary` thành audio tiếng Việt mà khách nghe được, với ranh giới privacy chặt. Bạn **không** chọn nhà cung cấp TTS — đó là quyết định owner (`OD-V1-19`).
 

@@ -108,19 +108,15 @@ phase"*, và một deploy gỡ cột mà pod cũ còn đọc thì sập dịch v
 
 ## 4. 🟡 Việc đang chờ **sếp trả lời**, tôi không tự quyết
 
-**Mục `4` của [phiếu cho sếp](ivr-orther/phieu-quyet-dinh-cho-sep-2026-09-17.md) — `OD-V1-19` /
-VieNeu-TTS.** Sếp đã trả lời mục `1` `2` `3`, **chưa trả lời mục `4`**.
+**Mục `4` của [phiếu cho sếp](ivr-orther/phieu-quyet-dinh-cho-sep-2026-09-17.md) — VieNeu-TTS:
+✅ sếp đã chốt `17/09` (`S4`), ghi xong `18/09` (`W-0315`).** VieNeu tự host là bộ đọc duy nhất,
+production lẫn lab (`OD-V1-19`): chạy trên server công ty thì không có dữ liệu nào rời hệ thống.
 
-Tóm tắt để phiên mới không phải đọc lại: `OD-V1-19` (do **tôi tự ký** `05/09`) chốt bỏ TTS lúc
-chạy, thu giọng người. Sếp bác, và **bác đúng**: lập luận PDPA của quyết định đó chỉ áp cho TTS
-**đám mây**, còn VieNeu là **self-hosted** — chạy trên server công ty thì cũng không có dữ liệu
-nào rời hệ thống. Thêm nữa `RecordedSpeechCatalog` **tự thú nhận** thu sẵn không xử lý được tên
-hàng mới.
-
-**Nếu sếp chốt giữ VieNeu:** mở lại `platform-w0122` + `security-w0122-cve`, sếp ký nhận `16`
-finding (`13 HIGH` + `3 CRITICAL`, `0` cái có bản vá, toàn bộ thuộc Debian 13.6 — `W-0185` đã đo
-`3 CRITICAL` **không với tới được**), và `B8` nhẹ hẳn. Hiện `values-prod.yaml:43-44` đang đặt
-`tts: enabled: false`.
+Ba phiếu `platform-w0122`, `security-w0122-cve`, `legal-od-voice-07` đã chuyển về `S5` và `S2`
+(rủi ro `3`, `4`); việc còn lại là Lô `4` của
+[vướng mắc `17/09`](ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md). `16` finding (`13 HIGH` +
+`3 CRITICAL`, `0` cái có bản vá, toàn bộ thuộc Debian 13.6 — `W-0185` đã đo `3 CRITICAL` **không với
+tới được**). `deploy/helm/ivr/values-prod.yaml` vẫn đặt `tts.enabled: false` cho tới khi đủ cổng.
 
 **Chờ tôi cấp:** một tài khoản GitLab thứ hai có quyền duyệt (sếp đã duyệt, chưa tạo).
 
@@ -224,8 +220,8 @@ phải sửa tay theo mẫu migration gần nhất.
    `docs/evidence/W-0311/README.md` (trạng thái phương án `B`)
 2. Chạy `ListAgents` xem phiên nào đang cùng ghi
 3. Xác nhận xanh: `dotnet test Ivr.sln` và `gate-sweep.mjs`
-4. Hỏi tôi: **mục `4` (VieNeu) sếp đã trả lời chưa**, và **M3 đã phản hồi chưa** — vì stage `3`
-   của `W-0311` chặn ở đó
+4. Hỏi tôi: **M3 đã phản hồi chưa** — vì stage `3` của `W-0311` chặn ở đó (VieNeu đã chốt `17/09`,
+   `S4`)
 
 **Đừng đi tìm việc code khác.** Tính tới `17/09`, mọi việc lập trình **không phụ thuộc bên ngoài
 đã hết**: kế hoạch khắc phục `W-0298`→`W-0307` xong, kế hoạch đường gọi production `PD-01`/`02`/

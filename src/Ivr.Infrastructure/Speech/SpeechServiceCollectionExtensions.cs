@@ -11,7 +11,8 @@ using Ivr.Domain.Confirmation;
 namespace Ivr.Infrastructure.Speech;
 
 /// <summary>
-/// One recorded file for one fixed piece of the approved script, in one voice.
+/// One file VieNeu rendered ahead of time for one fixed piece of the approved script, in one
+/// voice.
 /// </summary>
 public sealed class FixedSegmentMediaEntry
 {
@@ -39,21 +40,22 @@ public enum FixedSegmentSource
 {
     /// <summary>
     /// Synthesize fixed prose like any other text. Restricted to the MOCK fake provider: against
-    /// a real vendor this pays for the same 203 characters on every cold cache, which is the
-    /// cost model W-0106 §4.6 exists to avoid.
+    /// the VieNeu sidecar this re-synthesizes the same 203 characters on every cold cache and
+    /// spends the pre-dial budget on words that never change (W-0106 §4.6).
     /// </summary>
     Provider = 0,
 
     /// <summary>
-    /// Play pre-recorded files pinned by text hash. Zero runtime synthesis cost, and the order
-    /// content in those sentences never leaves the network.
+    /// Play the files VieNeu rendered ahead of time, pinned by text hash. Zero synthesis at call
+    /// time for the prose that is the same in every call.
     /// </summary>
     Catalog = 1,
 }
 
 /// <summary>
-/// Hybrid playback: fixed prose from recordings, order values from a synthesizer (W-0106 §4.6).
-/// Disabled by default, so an unconfigured deployment keeps single-file playback.
+/// Hybrid playback: fixed prose from files VieNeu rendered ahead of time, order values
+/// synthesized by the VieNeu sidecar at call time (W-0106 §4.6). Disabled by default, so an
+/// unconfigured deployment keeps single-file playback.
 /// </summary>
 public sealed class SpeechSegmentationOptions
 {
@@ -68,7 +70,10 @@ public sealed class TtsProviderOptions
 {
     public const string SectionName = "Ivr:Speech:Tts";
     public const string FakeProvider = "FAKE_DETERMINISTIC";
-    public const string StaticFileProvider = "STATIC_FILE";
+
+    /// <summary>
+    /// The VieNeu-TTS sidecar (W-0122), reached over loopback. The only real speech engine.
+    /// </summary>
     public const string ExternalProvider = "EXTERNAL_CONFIGURABLE";
     public const string UnselectedProvider = "UNSELECTED";
 
@@ -79,10 +84,6 @@ public sealed class TtsProviderOptions
     public string Endpoint { get; set; } = string.Empty;
 
     public string Credential { get; set; } = string.Empty;
-
-    public string FileMediaReference { get; set; } = "sound:ivr-lab-order-confirmation";
-
-    public int FileDurationSeconds { get; set; } = 18;
 
     public string OutputFormat { get; set; } = "audio/L16";
 
@@ -123,15 +124,15 @@ public sealed class TtsProviderOptions
     public SpeechSegmentationOptions Segmentation { get; set; } = new();
 
     /// <summary>
-    /// Fixed-segment recordings for the single global voice. Only read when regional voices are
-    /// off; with them on, each region carries its own catalog because the recording is of a
-    /// specific voice, not of a sentence.
+    /// Pre-rendered fixed segments for the single global voice. Only read when regional voices
+    /// are off; with them on, each region carries its own catalog because every file is rendered
+    /// in one specific voice, not just for one sentence.
     /// </summary>
     public FixedSegmentMediaEntry[] FixedSegments { get; set; } = [];
 
     /// <summary>
-    /// Absolute HTTPS endpoint for the external provider, plus the credential and the request
-    /// shape it expects. Vendor choice lives in configuration; no vendor name appears in code.
+    /// Loopback endpoint of the VieNeu sidecar, plus the credential header and the request shape
+    /// the shim expects.
     /// </summary>
     public ExternalTtsOptions External { get; set; } = new();
 
@@ -145,10 +146,6 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
         ArgumentNullException.ThrowIfNull(options);
         var failures = new List<string>();
         bool mock = string.Equals(options.ExecutionMode, ExecutionModes.Mock, StringComparison.OrdinalIgnoreCase);
-        bool lab = string.Equals(
-            options.ExecutionMode,
-            ExecutionModes.LabRealSim,
-            StringComparison.OrdinalIgnoreCase);
         if (mock && !string.Equals(
                 options.Provider,
                 TtsProviderOptions.FakeProvider,
@@ -171,36 +168,9 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
             failures.Add("The deterministic fake TTS provider is restricted to MOCK execution.");
         }
 
-        if (string.Equals(
-                options.Provider,
-                TtsProviderOptions.StaticFileProvider,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            if (!lab)
-            {
-                failures.Add("The static-file TTS provider is restricted to LAB_REAL_SIM execution.");
-            }
-
-            if (!options.FileMediaReference.StartsWith("sound:", StringComparison.Ordinal)
-                || options.FileMediaReference.Length > 160
-                || options.FileMediaReference.Any(character =>
-                    !(char.IsAsciiLetterOrDigit(character)
-                      || character is ':' or '-' or '_' or '/')))
-            {
-                failures.Add("FileMediaReference must be a safe Asterisk sound reference.");
-            }
-
-            if (!string.IsNullOrWhiteSpace(options.Endpoint)
-                || !string.IsNullOrWhiteSpace(options.Credential))
-            {
-                failures.Add("The static-file TTS provider cannot configure network credentials.");
-            }
-        }
-
         if (!new[]
             {
                 TtsProviderOptions.FakeProvider,
-                TtsProviderOptions.StaticFileProvider,
                 TtsProviderOptions.ExternalProvider,
                 TtsProviderOptions.UnselectedProvider,
             }.Contains(options.Provider, StringComparer.OrdinalIgnoreCase))
@@ -218,7 +188,6 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
         if (options.SampleRate is < 8_000 or > 192_000
             || options.SpeakingRate is < 0.5m or > 2m
             || options.MaxDurationSeconds is < 1 or > 300
-            || options.FileDurationSeconds is < 1 or > 300
             || options.TimeoutMilliseconds is < 10 or > 120_000
             || options.CacheMaximumTtlSeconds is < 1 or > 86_400
             || options.SpeechSnapshotRetentionSeconds is < 1 or > 86_400
@@ -239,17 +208,17 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
     }
 
     /// <summary>
-    /// Proves at startup that every fixed sentence of the canonical script has a recording, in
-    /// every voice that can be selected.
+    /// Proves at startup that every fixed sentence of the canonical script has a pre-rendered
+    /// VieNeu file, in every voice that can be selected.
     /// <para>
     /// The alternative is discovering it on the first call of the day, mid-conversation with a
-    /// customer. A missing recording is a deployment mistake, and a deployment mistake should
-    /// stop the deployment.
+    /// customer. A missing file is a deployment mistake, and a deployment mistake should stop the
+    /// deployment.
     /// </para>
     /// <para>
     /// This checks the canonical template. A deployment serving a different approved version
     /// from the database is still covered, but only at render time by
-    /// <c>TTS_FIXED_SEGMENT_NOT_RECORDED</c> — the validator has no database. Said plainly here
+    /// <c>TTS_FIXED_SEGMENT_NOT_RENDERED</c> — the validator has no database. Said plainly here
     /// so nobody reads a green startup as proof of coverage for a custom template.
     /// </para>
     /// </summary>
@@ -274,10 +243,10 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
                     TtsProviderOptions.FakeProvider,
                     StringComparison.OrdinalIgnoreCase))
             {
-                // Against a real vendor this re-synthesizes the same 203 fixed characters on
-                // every cold cache, which is the whole cost difference the hybrid buys back.
+                // Against the VieNeu sidecar this re-synthesizes the same 203 fixed characters on
+                // every cold cache, which is the whole pre-dial time the hybrid buys back.
                 failures.Add(
-                    "Synthesizing fixed segments is restricted to the MOCK fake provider; configure a recorded catalog.");
+                    "Synthesizing fixed segments is restricted to the MOCK fake provider; configure the pre-rendered VieNeu catalog.");
             }
 
             return;
@@ -330,7 +299,7 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
                 if (!byHash.ContainsKey(required))
                 {
                     failures.Add(
-                        $"Fixed segment media for {voiceLabel} is missing a recording for part of the approved script.");
+                        $"Fixed segment media for {voiceLabel} is missing a pre-rendered file for part of the approved script.");
                 }
             }
         }
@@ -364,12 +333,13 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
 
         ExternalTtsOptions external = options.External;
         if (!Uri.TryCreate(external.Endpoint, UriKind.Absolute, out Uri? endpoint)
-            || (endpoint.Scheme != Uri.UriSchemeHttps
-                && !(endpoint.Scheme == Uri.UriSchemeHttp && endpoint.IsLoopback)))
+            || (endpoint.Scheme != Uri.UriSchemeHttp && endpoint.Scheme != Uri.UriSchemeHttps)
+            || !endpoint.IsLoopback)
         {
-            // Plain HTTP off-box would put order values on the wire in clear text. Loopback is
-            // allowed because that is how a converting sidecar is reached.
-            failures.Add("The external TTS endpoint must be an absolute HTTPS URI, or HTTP on loopback.");
+            // The only speech engine is the self-hosted VieNeu sidecar, which shares the worker's
+            // network namespace and is reached over loopback. An off-box endpoint would be a
+            // different engine and would put order values on the wire, so it is refused outright.
+            failures.Add("The TTS endpoint must be the VieNeu sidecar on loopback.");
         }
 
         if (string.IsNullOrWhiteSpace(external.RequestBodyTemplate)
@@ -448,32 +418,6 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
         {
             failures.Add("A regional speaking rate must be zero (inherit) or between 0.5 and 2.");
         }
-
-        if (!string.Equals(
-                options.Provider,
-                TtsProviderOptions.StaticFileProvider,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        if (entries.Any(entry => !IsSafeMediaReference(entry.FileMediaReference)))
-        {
-            failures.Add("Regional static-file voices require a safe Asterisk sound reference per region.");
-        }
-
-        if (entries.Select(entry => entry.FileMediaReference.Trim())
-                .Where(reference => reference.Length > 0)
-                .Distinct(StringComparer.Ordinal)
-                .Count() != entries.Length)
-        {
-            failures.Add("Each region requires a distinct media reference; duplicates play one region's audio to all.");
-        }
-
-        if (entries.Any(entry => entry.FileDurationSeconds is < 1 or > 300))
-        {
-            failures.Add("Each regional media file requires a duration between 1 and 300 seconds.");
-        }
     }
 
     private static bool IsSafeMediaReference(string reference) =>
@@ -495,10 +439,6 @@ public static class SpeechServiceCollectionExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
         IConfigurationSection section = configuration.GetSection(TtsProviderOptions.SectionName);
         bool mock = string.Equals(executionMode, ExecutionModes.Mock, StringComparison.OrdinalIgnoreCase);
-        bool staticFile = string.Equals(
-            section[nameof(TtsProviderOptions.Provider)],
-            TtsProviderOptions.StaticFileProvider,
-            StringComparison.OrdinalIgnoreCase);
         services.AddOptions<TtsProviderOptions>()
             .Bind(section)
             .PostConfigure(options =>
@@ -535,10 +475,6 @@ public static class SpeechServiceCollectionExtensions
         if (mock)
         {
             services.TryAddSingleton<ITtsProvider, FakeDeterministicTtsProvider>();
-        }
-        else if (staticFile)
-        {
-            services.TryAddSingleton<ITtsProvider, StaticFileTtsProvider>();
         }
         else
         {

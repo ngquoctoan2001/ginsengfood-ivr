@@ -54,7 +54,7 @@ Cột **và** audit log (`SIM_CALL_STARTED`). Cột là thứ console đọc và
 ### 2.4 Giọng đi cùng audio, không đi song song
 
 `RenderedAudio.Voice`. Audio là thứ khách nghe; một giọng được truyền riêng bên cạnh là một giọng
-có thể bị gán nhầm bản thu bởi một lần refactor sau này. Đổi lại, `RenderedAudio` tự viết
+có thể bị gán nhầm file audio bởi một lần refactor sau này. Đổi lại, `RenderedAudio` tự viết
 `Equals`, nên trường mới phải được thêm vào đó bằng tay — `UT-VOICE-RECORD-03` khoá đúng chỗ đó,
 vì đây là loại thiếu sót không thứ gì khác bắt được.
 

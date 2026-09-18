@@ -61,7 +61,7 @@
     "generate-speech-segments.mjs": {
       "sweepable": false,
       "reason": "writes speech segments; a generator, not a gate",
-      "runner": "invoked by hand when the speech bank changes"
+      "runner": "invoked by hand when the approved script template changes"
     },
     "generate-test-traceability.mjs": { "argv": ["--check"], "expect": "TEST_TRACEABILITY_CURRENT" },
     "image-selftest.mjs": {

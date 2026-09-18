@@ -45,7 +45,7 @@ public sealed record AudioCacheKey
     /// it belongs to.
     /// <para>
     /// This is where hybrid playback earns its cost: two different orders delivering to the same
-    /// ward share the delivery-area piece, so the second order plays it without a vendor call
+    /// ward share the delivery-area piece, so the second order plays it without a synthesis call
     /// even though the orders have nothing else in common. Keying by <c>summaryHash</c> — the
     /// whole-call identity — would treat them as unrelated and pay twice.
     /// </para>

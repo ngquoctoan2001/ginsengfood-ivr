@@ -62,7 +62,7 @@ Ba khoảng cách đã biết trước, không phụ thuộc nhà cung cấp nà
 | # | Khoảng cách | Mức độ | Ghi chú |
 | --- | --- | --- | --- |
 | G-A | Chưa sửa được `labDestinationAllowlist` / `globalDialKillSwitch` qua console. Permission `OD-V1-20` **đã cấp cho `Admin`** 2026-08-22, nhưng `PendingRuntimeGateAuthorization` vẫn chặn mọi mutation (`409 IVR_OPERATIONAL_BLOCKED`) | **chặn** | Còn thiếu **hai** thứ: chữ ký four-eyes, và một `IRuntimeGateAuthorization` duyệt thật. Chặn lịch lab, không chặn RFQ. Xem [R-02](R-02-lab-package.md) §5. |
-| G-B | Chưa chọn TTS (`OD-V1-19`) | **chặn** | `PlayAsync` chưa có nguồn audio. Xem [R-05](R-05-tts-audio-capability.md). |
+| G-B | ~~Chưa chọn TTS~~ → ✅ VieNeu-TTS tự host (`OD-V1-19`, `17/09`) | không chặn | Nguồn audio là VieNeu sidecar (`W-0122`); nhà cung cấp không cần năng lực TTS. Xem [R-05](R-05-tts-audio-capability.md). |
 | G-C | Chưa chốt vị trí resolve `dial_token → E.164` (`OD-V1-18`) | **chặn** | Cần văn bản nhà cung cấp **và** quyết định Security. |
 
 ## 4. Điều khoản hợp đồng cần có

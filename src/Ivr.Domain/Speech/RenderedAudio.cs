@@ -47,11 +47,11 @@ public sealed record RenderedAudio
 
     /// <summary>
     /// The voice this audio was produced with (W-0113). Null on audio built by a path that does
-    /// not choose a voice — a static LAB file, or a test double.
+    /// not choose a voice — a test double.
     /// <para>
     /// It rides on the audio rather than being passed alongside it because the audio is the thing
     /// a customer hears, and a voice carried separately is a voice that can be handed to the
-    /// wrong recording by a later refactor.
+    /// wrong audio by a later refactor.
     /// </para>
     /// </summary>
     public DispatchedVoice? Voice { get; }

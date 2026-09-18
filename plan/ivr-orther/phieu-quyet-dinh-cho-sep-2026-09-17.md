@@ -23,7 +23,8 @@ Ta đã có tiền lệ xử lý đúng: ngày `10/09`, với quyết định `O
 Sếp đã chốt *"không có đội Legal, owner tự nhận rủi ro, ghi vào văn bản"*. Phiếu này làm đúng như thế
 cho phần còn lại — đưa thẳng về người có thẩm quyền thật, là Sếp.
 
-**Ba phiếu em đã tự đóng, không cần Sếp trả lời** (lý do ở mục 5 cuối phiếu).
+**Ba phiếu về VieNeu** (máy chạy, lỗ hổng, bản quyền) không gửi riêng nữa — mục 5 cuối phiếu ghi
+chúng nay nằm ở đâu.
 
 ---
 
@@ -102,45 +103,37 @@ Mọi thứ khác xanh, riêng cổng kiểm này không đóng được. Và t�
 
 ---
 
-## Mục 4 — Quyền dùng `12` đoạn ghi âm đang có *(cần một câu quyết định)*
+## Mục 4 — Quyền dùng giọng đọc VieNeu *(cần một chữ ký)*
 
 ### Việc đang là thế nào
 
-Kịch bản cuộc gọi có `12` đoạn cố định. Chúng hiện là **audio do một phần mềm đọc máy tạo ra**
-(VieNeu-TTS), Sếp đã duyệt ngày `28/08`.
+Giọng đọc của hệ thống là **VieNeu-TTS**, một phần mềm đọc tiếng Việt **cài trên máy chủ công ty**.
+Không thuê dịch vụ đám mây nào, nên nội dung đơn không rời hệ thống. Kịch bản có `12` đoạn cố định
+do VieNeu đọc sẵn bằng ba giọng Sếp đã duyệt ngày `28/08`; món hàng, tổng tiền và nơi giao do VieNeu
+đọc ngay lúc gọi.
 
-Ngày `05/09`, quyết định `OD-V1-19` chốt **bỏ phần mềm đọc máy lúc gọi**, chuyển sang **thu giọng
-người thật**. Nhưng ở đây có một chỗ dễ bỏ sót, và em muốn nói thẳng ra:
+Trang phát hành của model ghi giấy phép **Apache-2.0** (cho phép dùng thương mại), nhưng đúng bản mà
+em đã ghim lại **không kèm file giấy phép**. Công ty không có bộ phận pháp chế, nên cách xử lý giống
+`OD-V1-11` ngày `10/09`: **người có thẩm quyền ký nhận rủi ro bằng văn bản**.
 
-> **"Có được chạy phần mềm đó không" và "có được dùng audio mà nó đã tạo ra" là hai câu khác nhau.**
-> Dù phần mềm không còn chạy lúc gọi, `12` đoạn hiện có **vẫn là sản phẩm của nó**.
+### Cần Sếp làm gì
 
-### Hai lối ra — em đề xuất lối thứ hai
-
-| | Cách làm | Ưu | Nhược |
-| --- | --- | --- | --- |
-| **A** | Sếp nhận rủi ro bằng văn bản, y như đã làm với `OD-V1-11` ngày `10/09` | Nhanh, `0` đồng, `0` ngày công | Vẫn là một rủi ro pháp lý treo, dù nhỏ |
-| **B** ✅ | **Thu lại `12` đoạn bằng giọng người** | Câu hỏi **biến mất hoàn toàn**, không phải nhận rủi ro gì | Tốn một buổi ngồi thu |
-
-**Vì sao em đề xuất `B`:** việc thu giọng người **đằng nào cũng nằm trong danh sách phải làm** — nó
-là hệ quả của chính `OD-V1-19` mà ta đã ký. Làm nó sớm thì mục này tự đóng, không cần Sếp ký nhận
-rủi ro nào cả. Đây là việc của em, không tốn tiền, chỉ tốn thời gian ngồi thu.
+Ký rủi ro `4` trong chữ ký `S2` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md):
+*quyền dùng thương mại model VieNeu và `12` đoạn đã render.* Chưa ký thì VieNeu vẫn chạy được ở lab
+nhưng không bật ở production.
 
 ---
 
-## Mục 5 — Ba phiếu em đã tự đóng, ghi lại để Sếp biết em đã bỏ cái gì
+## Mục 5 — Ba phiếu VieNeu cũ: nay nằm ở đâu
 
-Ba phiếu dưới đây đều hỏi về **một hướng kỹ thuật đã bị bỏ**: tự cài phần mềm đọc máy lên máy chủ
-công ty. Hướng đó chết từ ngày `05/09` khi `OD-V1-19` chốt dùng giọng thu sẵn.
+VieNeu là giọng đọc duy nhất của hệ thống, nên ba phiếu hỏi về nó vẫn còn nguyên đối tượng. Em không
+gửi riêng ba phiếu cho những phòng ban không tồn tại; câu hỏi của chúng đi về đúng chỗ Sếp đang quyết:
 
-| Phiếu cũ | Hỏi gì | Vì sao đóng |
+| Phiếu cũ | Hỏi gì | Nay ở đâu |
 | --- | --- | --- |
-| `platform-w0122` | Xin máy chủ để cài phần mềm đọc máy | Bản cài đó **không lên máy chủ thật** — cấu hình sản xuất đặt sẵn `tắt` |
-| `security-w0122-cve` | Xin ý kiến về `16` lỗ hổng bảo mật của bản cài đó | Cùng lý do — bản cài không chạy thì `16` lỗ hổng không chạm tới hệ thống thật |
-| `legal-od-voice-07` phần `1`,`2`,`4` | Xin ý kiến bản quyền để **chạy** phần mềm đó | Cùng lý do — không chạy nữa |
-
-Phần **duy nhất** của ba phiếu đó còn sống là câu hỏi về `12` đoạn audio — đã tách ra thành **Mục 4**
-ở trên.
+| `platform-w0122` | Máy chủ đủ sức chạy VieNeu + kho bản cài nội bộ | `S5` — chỗ chạy thử |
+| `security-w0122-cve` | `16` lỗ hổng bảo mật trong bản cài VieNeu | `S2` rủi ro `3` — em thử đổi bản cài nền trước; làm được thì rủi ro này biến mất |
+| `legal-od-voice-07` | Bản quyền model VieNeu và `12` đoạn đã render | `S2` rủi ro `4` — Mục 4 ở trên |
 
 ---
 
@@ -151,7 +144,7 @@ Phần **duy nhất** của ba phiếu đó còn sống là câu hỏi về `12`
 | `1` Chỗ chạy thử | 💰 Tiền | ❌ | Toàn bộ việc đo hiệu năng và diễn tập sự cố |
 | `2` Khoá mở số | 💰 Tiền | ❌ | Bước cuối của đường quay số thật |
 | `3` Người duyệt thứ hai | 👤 Người | ❌ | Cổng kiểm an toàn + thao tác tắt khẩn cấp |
-| `4` Quyền `12` đoạn audio | ⚖️ Rủi ro | ✅ **nếu chọn cách B** | Không chặn gì gấp |
+| `4` Quyền dùng VieNeu | ⚖️ Rủi ro | ❌ Sếp ký | Bật VieNeu ở production |
 
 **Không mục nào trong phiếu này liên quan tới nhà mạng.** Phần nhà mạng là một luồng riêng, đang chờ
 báo giá, và hai luồng **không phụ thuộc nhau**.

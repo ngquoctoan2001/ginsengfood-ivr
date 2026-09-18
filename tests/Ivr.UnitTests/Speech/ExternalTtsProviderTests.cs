@@ -165,8 +165,9 @@ public sealed class ExternalTtsProviderTests : IDisposable
     }
 
     /// <summary>
-    /// Order values would travel in clear text over plain HTTP to another host. Loopback stays
-    /// allowed because that is how a format-converting sidecar is reached.
+    /// VieNeu is the only engine and it runs as a sidecar in the worker's network namespace, so
+    /// the endpoint must be loopback. Any other host is a different engine and would put order
+    /// values on the wire, HTTPS or not.
     /// </summary>
     [Fact]
     [Trait("TestId", "UT-TTS-EXT-CFG-06")]
@@ -177,7 +178,11 @@ public sealed class ExternalTtsProviderTests : IDisposable
         Assert.True(validator.Validate(null, Configured(external =>
             external.Endpoint = "http://tts.example.com/v1/speak")).Failed);
         Assert.True(validator.Validate(null, Configured(external =>
+            external.Endpoint = "https://tts.example.com/v1/speak")).Failed);
+        Assert.True(validator.Validate(null, Configured(external =>
             external.Endpoint = "http://127.0.0.1:8080/v1/speak")).Succeeded);
+        Assert.True(validator.Validate(null, Configured(external =>
+            external.Endpoint = "http://localhost:8090/synthesize")).Succeeded);
         Assert.True(validator.Validate(null, Configured(external =>
             external.RequestBodyTemplate = "{\"voice\":\"{{voice_id}}\"}")).Failed);
         Assert.True(validator.Validate(null, Configured(external =>
@@ -224,9 +229,9 @@ public sealed class ExternalTtsProviderTests : IDisposable
         Assert.True(failed.Failed);
         Assert.Contains(
             failed.Failures!,
-            failure => failure.Contains("missing a recording", StringComparison.Ordinal));
+            failure => failure.Contains("missing a pre-rendered file", StringComparison.Ordinal));
 
-        // A recorded reference that is not a sound reference cannot be played at all.
+        // A catalog reference that is not a sound reference cannot be played at all.
         TtsProviderOptions badReference = SegmentedOptions();
         badReference.FixedSegments =
         [
@@ -273,7 +278,7 @@ public sealed class ExternalTtsProviderTests : IDisposable
         Assert.True(result.Failed);
         Assert.Contains(
             result.Failures!,
-            failure => failure.Contains("recorded catalog", StringComparison.Ordinal));
+            failure => failure.Contains("pre-rendered VieNeu catalog", StringComparison.Ordinal));
     }
 
     /// <summary>
@@ -350,7 +355,7 @@ public sealed class ExternalTtsProviderTests : IDisposable
             Credential = "test-credential",
             External = new ExternalTtsOptions
             {
-                Endpoint = "https://tts.example.com/v1/speak",
+                Endpoint = "http://127.0.0.1:8090/synthesize",
                 RequestBodyTemplate =
                     "{\"text\":\"{{text}}\",\"voice\":\"{{voice_id}}\",\"rate\":{{sample_rate}}}",
                 MediaOutputDirectory = mediaDirectory,

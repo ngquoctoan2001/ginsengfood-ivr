@@ -774,22 +774,18 @@ xác nhận: **cả `8` mục này là quyết định và thao tác của tôi*
 
 | # | Việc còn lại | Ai quyết | Chặn bởi |
 | --- | --- | --- | --- |
-| 1 | Nghe và chốt `3` giọng | **Tôi** | Phải thu giọng người thật trước (`OD-V1-19`) |
-| 2 | Duyệt fixed catalog `12` đoạn rồi bật `Segmentation` | **Tôi** | Chờ audio mới thay xong |
+| 1 | Nghe và chốt `3` giọng | **Tôi** | ✅ xong `28/08` (`OD-VOICE-06`) — Ngọc Linh · Ngọc Trân · Mỹ Duyên |
+| 2 | Duyệt fixed catalog `12` đoạn rồi bật `Segmentation` | **Tôi** | Chờ người duyệt được chỉ định (`S1`) |
 | 3 | `6` cuộc MicroSIP xác nhận audio thật | **Tôi** | Cần lab chạy + thời gian ngồi nghe |
 | 4 | Retention/rollback drill | **Tôi** | Cần môi trường dựng lên |
-| 5 | Licence model — nhận rủi ro hay đổi hướng | **Tôi** | `OD-V1-19` đã chốt bỏ vendor TTS lúc chạy ⇒ phạm vi thu hẹp mạnh |
-| 6 | Mirror nội bộ source/weights | **Tôi** | ⚠️ **Có thể không còn cần** — xem dưới |
+| 5 | Licence model | **Sếp** (`S2` rủi ro `4`) | Model card khai Apache-2.0, revision đã ghim không có file `LICENSE` |
+| 6 | Mirror nội bộ source/weights | `S5` | Vẫn cần — production không kéo weights từ Hugging Face công khai |
 | 7 | Đo trên target hardware | **Tôi** | Cần hardware chạy |
 | 8 | Chốt production media topology | **Tôi** | Gắn với quyết định trunk |
 
-> **Điểm quan trọng bản `16/09` không nêu:** `OD-V1-19` đã chốt **bỏ vendor TTS lúc chạy, thu giọng
-> người thật**. Nếu `items_spoken` thu trước được — mà tôi đã chứng minh là được, catalog chỉ vài
-> chục món (`m8-16`) — thì **mục `6` (mirror `201 MiB` weights) không còn cần**, và `16` CVE của
-> base image `ivr-tts` cũng không còn chặn vì **image đó không lên production**.
->
-> Tức là nhánh này **tự thu hẹp**, không phải chờ ai mở. Việc còn lại là **thu âm và nghe** — tốn
-> thời gian của tôi, không tốn quyết định của người khác.
+> **Cập nhật `18/09` (`W-0315`):** VieNeu-TTS tự host là bộ đọc duy nhất, production lẫn lab
+> (`OD-V1-19`, `S4` ngày `17/09`). Các mục `5`–`8` là cổng production của nó, theo Lô `4` của
+> [vướng mắc `17/09`](ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md).
 
 **`0/8` là việc tôi ngồi gõ code được** — nên nó không nằm trong ước lượng ngày công ở **PHẦN 5**,
 nhưng nó **là việc của tôi** và tôi không đẩy sang ai. Ô đó cũng ghi rõ: *"Dev giữ nhiệm vụ wire
@@ -810,9 +806,8 @@ một **mức tồn** vào cột *"% hoàn thành"* của một **kỳ** rồi �
 số liệu.
 
 **Việc tôi làm trong kỳ, không được tính:** khôi phục `3` phiếu hỏi bị lượt dọn `04/09` xóa mất
-(`W-0226`, `W-0227`), vá nửa hở của `internal_mirror_gate` mà `W-0225` phát hiện (gate từ `8` lên
-`10` mutation), và dựng nguyên **ngân hàng ghi âm tiếng Việt** theo `OD-V1-19` (`W-0228`→`W-0244`:
-`RecordedSpeechComposer`, `VietnameseNumberSpeller`, `DeliveryRegionResolver` + test).
+(`W-0226`, `W-0227`), và vá nửa hở của `internal_mirror_gate` mà `W-0225` phát hiện (gate từ `8`
+lên `10` mutation).
 
 **✅ Tôi nhận đúng một việc nhỏ:** sửa `specs/ui/04-ivr-menu-config.md:17` còn liệt kê
 `customer_display_name` trái `OD-V1-19`. **15 phút.**

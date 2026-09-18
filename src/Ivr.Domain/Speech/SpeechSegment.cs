@@ -23,7 +23,7 @@ public enum SpeechSegmentKind
 /// <para>
 /// The split is derived from the approved template rather than configured beside it. That is the
 /// whole safety property: a template edit moves every downstream <see cref="TextHash"/>, so audio
-/// recorded from the previous wording can never be silently replayed under the new script. A
+/// rendered from the previous wording can never be silently replayed under the new script. A
 /// separately-configured segment list would drift, and the drift would be inaudible to everyone
 /// except the customer.
 /// </para>
@@ -63,8 +63,8 @@ public sealed record SpeechSegment
 
     /// <summary>
     /// SHA-256 of the normalized text, lowercase hex. This is the identity used to look a fixed
-    /// segment up in the recorded-media catalog and to key a dynamic segment in the audio cache.
-    /// It is a hash of privacy-safe rendered speech, never of raw customer data.
+    /// segment up in the pre-rendered VieNeu catalog and to key a dynamic segment in the audio
+    /// cache. It is a hash of privacy-safe rendered speech, never of raw customer data.
     /// </summary>
     public string TextHash { get; }
 
@@ -134,7 +134,7 @@ public sealed record SpeechSegment
 
         // A fixed segment is prose from an approved template, so it is safe to say out loud and
         // safe to keep in a manifest. Checking it here means a template that smuggled a phone
-        // number past template validation still cannot become a recorded file.
+        // number past template validation still cannot become a pre-rendered file.
         if (kind == SpeechSegmentKind.Fixed)
         {
             PiiGuard.EnsureSafeText(normalized);

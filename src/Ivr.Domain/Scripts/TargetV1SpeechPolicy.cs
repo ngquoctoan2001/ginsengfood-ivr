@@ -135,15 +135,15 @@ public static class TargetV1SpeechPolicy
     /// Splits an approved template at its placeholder boundaries into the pieces a call is
     /// actually assembled from.
     /// <para>
-    /// The prose between placeholders is identical for every order, so it can be recorded once
-    /// per voice and replayed forever; only the placeholder values need a synthesizer. For the
-    /// canonical v3 template that is four fixed pieces and three variable ones — the 68/32 split
-    /// measured in W-0106 §4.6.
+    /// The prose between placeholders is identical for every order, so VieNeu renders it once
+    /// per voice and it is replayed forever; only the placeholder values are synthesized per
+    /// call. For the canonical v3 template that is four fixed pieces and three variable ones —
+    /// the 68/32 split measured in W-0106 §4.6.
     /// </para>
     /// <para>
     /// Deriving the split here, from the same validated string the renderer substitutes into,
-    /// is what keeps recorded audio and script wording from parting company: change one word of
-    /// the template and every fixed piece downstream gets a new identity, so the old recording
+    /// is what keeps pre-rendered audio and script wording from parting company: change one word
+    /// of the template and every fixed piece downstream gets a new identity, so the old file
     /// stops resolving instead of quietly playing the old wording.
     /// </para>
     /// </summary>
@@ -161,7 +161,7 @@ public static class TargetV1SpeechPolicy
                 if (string.IsNullOrWhiteSpace(prose))
                 {
                     // Two variables with only a space between them would produce a fixed piece
-                    // that is a recording of a space. Rejecting the template is the honest
+                    // that is a rendering of a space. Rejecting the template is the honest
                     // answer; silently merging the space into a neighbour would move it into
                     // cached synthesized audio and change what that cache entry means.
                     throw new InvalidOperationException(

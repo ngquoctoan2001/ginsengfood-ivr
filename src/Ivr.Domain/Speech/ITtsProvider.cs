@@ -86,7 +86,8 @@ public sealed record SpeechScript
 }
 
 /// <summary>
-/// Vendor-neutral boundary for converting approved speech text into playable audio.
+/// Boundary for converting approved speech text into playable audio: the VieNeu sidecar outside
+/// MOCK, a deterministic fake inside it.
 /// </summary>
 public interface ITtsProvider
 {

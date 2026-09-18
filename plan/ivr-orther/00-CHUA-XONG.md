@@ -10,9 +10,9 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 
 | Nhóm | Số mục | Ai đang chặn |
 | --- | --- | --- |
-| A — Phiếu hỏi | **`1` gửi Sếp · `1` gửi M3 · `1` chờ M3 trả lời · `2` đã đóng** | Sếp (tiền/người/rủi ro), M3 |
+| A — Phiếu hỏi | **`1` gửi Sếp · `1` gửi M3 · `1` chờ M3 trả lời · `3` phiếu VieNeu đã chuyển về `S2`/`S5`** | Sếp (tiền/người/rủi ro), M3 |
 | B — M8 đã ký phần mình, chờ bên khác | 9 | M3, Product, CRM, Legal, Security, Platform |
-| C — Còn việc M8 phải làm | 6 | Chính mình, hoặc chờ dữ liệu |
+| C — Còn việc M8 phải làm | 5 | Chính mình, hoặc chờ dữ liệu |
 
 **Hai kế hoạch giữ file riêng:** [đường gọi production](sip-production-dial-path-plan-2026-09-16.md) — **✅ xong cả ba việc `16/09`** (`PD-01` `W-0303`, `PD-02` `W-0308`, `PD-03` `W-0305`), ước `4–7` ngày công và hết trong `1` ngày — và [32 kênh qua nhà mạng](mobile-sip-trunk-production-32-channels-plan-2026-09-15.md) (chờ hợp đồng).
 
@@ -43,33 +43,19 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 | `m3-od18-authority` | M3 | ➡️ **Nhóm `B6`** (`M3-26`…`M3-30`) của [phiếu `IR-07`](../../integration-requirements/07-module-3-decision-sheet.md). Bản rời `27/08` là **bản ghi đã gửi**, giữ nguyên (đang bị ghim hash trong `external-decision-artifacts.sha256`) |
 | `platform-key-source` | Platform | ➡️ **Mục `2`** của [phiếu cho Sếp](phieu-quyet-dinh-cho-sep-2026-09-17.md) |
 | `platform-ci-staging` | Platform | ➡️ **Mục `1`** (tiền) + **Mục `3`** (người duyệt thứ hai) |
-| `legal-od-voice-07` | Legal | ➡️ **Mục `4`** — chỉ phần `L3`/`L6` còn sống |
-| `platform-w0122` | Platform | ⛔ **ĐÓNG** — xem bên dưới |
-| `security-w0122-cve` | Security | ⛔ **ĐÓNG** — xem bên dưới |
+| `legal-od-voice-07` | Legal | ➡️ **`S2` rủi ro `4`** — quyền dùng thương mại model VieNeu và `12` đoạn đã render |
+| `platform-w0122` | Platform | ➡️ **`S5`** — máy chạy VieNeu thật + kho bản cài nội bộ |
+| `security-w0122-cve` | Security | ➡️ **`S2` rủi ro `3`** — `16` lỗ hổng của bản cài nền; Lô `4` thử đổi bản cài nền trước khi ký |
 
-### ⛔ Hai phiếu đã đóng, và một phiếu đóng hai phần ba
+### Ba phiếu VieNeu: không đóng, đã chuyển về đúng người
 
-Cả ba đều hỏi về **một hướng kỹ thuật đã bị bỏ**: tự host VieNeu-TTS. Hướng đó chết ngày
-`2026-09-05` khi `OD-V1-19` đóng với vị trí **không dùng vendor TTS lúc chạy**, thu giọng người thật.
+**VieNeu-TTS tự host là bộ đọc duy nhất** — cả production lẫn lab (`OD-V1-19`, `S4` ngày `17/09`,
+`W-0122`). Ba phiếu hỏi về nó vì vậy vẫn còn đối tượng. Không tạo lại ba file gửi cho những đội không
+tồn tại: câu hỏi còn sống đi về `S2` (rủi ro `3` và `4`) và `S5` (máy thật, kho bản cài nội bộ) theo
+Lô `4` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md). Toàn văn ba phiếu nằm ở `257cbef^`.
 
-Bằng chứng nó không lên production, kiểm tại `main@fbe6edb`:
-
-- `deploy/helm/ivr/values-prod.yaml:43-44` — `tts: enabled: false`
-- `SpeechServiceCollectionExtensions.cs` — đường đã duyệt dùng `StaticFileTtsProvider` (file thu sẵn)
-
-⇒ `platform-w0122` (xin hạ tầng chạy model) và `security-w0122-cve` (`16` CVE của base image đó)
-**không còn đối tượng để hỏi**: image không chạy thì hạ tầng không cần và CVE không chạm tới gì.
-
-> ### Nhưng `legal-od-voice-07` **không** đóng hết — và chỗ này suýt bị bỏ sót
->
-> Chính phiếu đó đã tự cảnh báo: *“**có được chạy model** và **có được dùng audio model đã tạo ra**
-> là hai câu khác nhau.”* `12` đoạn cố định đang dùng **vẫn là audio do VieNeu render**, Owner ký
-> `28/08`. Nên `L1`/`L2`/`L4` (quyền chạy model) đóng theo image, còn **`L3` (quyền thương mại của
-> đúng `3` preset đã render ra `12` file đó) và `L6` (thiết kế retention) vẫn sống**.
->
-> Đã tách thành **Mục `4`** của phiếu cho Sếp, kèm đề xuất: **thu lại `12` đoạn bằng giọng người**
-> thì câu hỏi **biến mất hoàn toàn**, không phải ký nhận rủi ro gì. Việc thu đằng nào cũng nằm trong
-> `B8` — đó là hệ quả của chính `OD-V1-19`.
+`deploy/helm/ivr/values-prod.yaml` vẫn đặt `tts.enabled: false`. Đó là trạng thái **chờ cổng**: chart
+tự từ chối render sidecar khi thiếu phê duyệt, image digest, bundle model hay manifest giọng.
 
 ---
 
@@ -98,7 +84,7 @@ mà `B11` của bản `16/09` đang nêu. Xem ô `B11`.
 `READY_TO_DISPATCH / NOT_SENT`
 
 `1` chỗ chạy thử (💰) · `2` nguồn khoá mở số (💰) · `3` một người duyệt thứ hai (👤) ·
-`4` quyền dùng `12` đoạn audio (⚖️, tự đóng được nếu thu lại giọng người).
+`4` quyền dùng model VieNeu và `12` đoạn đã render (⚖️) — nay là rủi ro `4` của `S2` trong [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md).
 
 Viết **không thuật ngữ**, mỗi mục có *cần gì · để làm gì · nếu không có thì sao*.
 
@@ -238,16 +224,6 @@ Liên quan trực tiếp tới việc chốt số kênh đăng ký với nhà m�
 
 Phần đã dựng ghi ở [00-DA-XONG.md](00-DA-XONG.md#m8-15-so-cai-dung-luong). Còn lại: ba chữ ký, chọn provider, trust store ngoài, và quyền viết code.
 
-### m8-16
-
-**Spec ngân hàng giọng thu sẵn · 08/09/2026 · `SPEC_ONLY / NOT_APPROVED / NO_RECORDING_PERFORMED`**
-
-`OD-V1-19` bỏ tên khách khỏi lời thoại, nên phần còn lại đều **hữu hạn và biết trước**. Template `v3-test-approved` còn ba placeholder động, cả ba phân rã được thành bộ đóng (số tiền, vùng giao, tên hàng/đơn vị).
-
-Code ghép câu đã có: `RecordedSpeechComposer.cs`, `VietnameseNumberSpeller.cs`, `DeliveryRegionResolver.cs` (`W-0228`..`W-0244`).
-
-**Còn thiếu:** chưa được duyệt, **chưa thu âm**.
-
 ### m8-17
 
 **Fence thu hồi đơn · 09/09/2026 · `FENCES_IMPLEMENTED (W-0249) / ENDPOINT_PENDING`**
@@ -262,9 +238,17 @@ Hai fence đã cài xong — chi tiết ở [00-DA-XONG.md](00-DA-XONG.md#m8-17-
 
 Phần giọng đã chọn và manifest đã PASS — ghi ở [00-DA-XONG.md](00-DA-XONG.md#today-03-giong-doc).
 
-**Cập nhật `17/09` (`W-0309`) — nhánh này đã đóng, không còn *“còn thiếu”*.** TTS self-hosted VieNeu (`W-0122`) **không lên production**: `values-prod.yaml:43-44` đặt `tts: enabled: false`, và đường đã duyệt dùng `StaticFileTtsProvider` (file thu sẵn) sau khi `OD-V1-19` chốt bỏ vendor TTS lúc chạy. Nên hai phiếu `platform-w0122` và `security-w0122-cve` **đã đóng** — không còn đối tượng để hỏi.
+**Cập nhật `18/09` (`W-0315`) — nhánh `W-0122` mở lại theo `S4`.** VieNeu-TTS tự host là bộ đọc
+duy nhất, production lẫn lab: phần cố định của kịch bản do VieNeu render sẵn (`12` đoạn, ba giọng
+Owner duyệt `28/08`), món, tổng tiền và nơi giao do sidecar tổng hợp lúc gọi. Lab không còn audio nào
+khác VieNeu.
 
-**Cái thật sự còn thiếu là việc của chính mình:** thu `12` đoạn cố định bằng giọng người. Làm xong thì `L3` của `legal-od-voice-07` (quyền thương mại của `3` preset đã render ra `12` file đang dùng) cũng **tự biến mất** — xem Mục `4` của [phiếu cho Sếp](phieu-quyet-dinh-cho-sep-2026-09-17.md).
+**Còn thiếu trước khi bật ở production** (Lô `4` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md)):
+
+- Làm được ngay: quét lại image `ivr-tts` bằng Trivy ghim · thử đổi bản cài nền cho hết lỗ
+  `HIGH`/`CRITICAL` · soạn cấu hình production dạng nháp.
+- Chờ: đo trên máy thật (`S5`) · người được chỉ định nghe duyệt `12` đoạn và chỗ nối (`S1`) · `6`
+  cuộc gọi thử MicroSIP (`S5`) · ký rủi ro `3` và `4` (`S2`).
 
 ### 14-risk-register
 
@@ -288,10 +272,10 @@ _Cập nhật `17/09` (`W-0309`). Bảng cũ gom `5` bên; thật ra chỉ có *
 | Bên | Đang chặn | Cách gỡ |
 | --- | --- | --- |
 | **Module 3** | m8-05, m8-06, m8-07, m8-09, m8-10, m8-17, `14` mục nhóm C của bản `16/09`, cộng `W-0123` *(chờ `OD-18`)* | **Đúng một** [phiếu `IR-07`, `30` câu](../../integration-requirements/07-module-3-decision-sheet.md) — bản gộp `17/09` đã nuốt cả phiếu giới hạn số cuộc gọi (`B5`) lẫn phiếu `OD-18` (`B6`). **Không gửi phiếu nào khác nữa** |
-| **Sếp** | môi trường triển khai · nguồn khoá token · người duyệt thứ hai · quyền `12` đoạn audio · m8-15 | **Một** [phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md), `4` mục, viết không thuật ngữ |
+| **Sếp** | môi trường triển khai · nguồn khoá token · người duyệt thứ hai · quyền dùng model VieNeu và `12` đoạn đã render · m8-15 | **Một** [phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md), `4` mục, viết không thuật ngữ |
 | **Nhà mạng** | `B12` adapter production, `B1` hiệu chỉnh `4` số năng lực | Chờ báo giá. Đường ống đã dựng xong `16/09`, thiếu tuyến |
-| ~~Platform~~ ~~Security~~ ~~Legal~~ | — | **Không tồn tại như đội riêng.** Đã gom về Sếp hoặc đóng — xem nhóm A |
-| **Chính mình** | `B8` thu `12` đoạn giọng người | Không tốn tiền, không tốn ngày công lập trình. Tốn một buổi ngồi thu |
+| ~~Platform~~ ~~Security~~ ~~Legal~~ | — | **Không tồn tại như đội riêng.** Đã gom về Sếp — xem nhóm A |
+| **Chính mình** | `B8` VieNeu: phần làm được ngay của Lô `4` | Quét lại Trivy, thử đổi bản cài nền, soạn cấu hình production nháp. Không tốn tiền |
 
 > ### Câu cũ ở chỗ này đã sai, và tôi lặp lại nó ba lần trước khi kiểm
 >

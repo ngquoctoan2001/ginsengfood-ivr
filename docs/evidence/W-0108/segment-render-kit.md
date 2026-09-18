@@ -15,7 +15,7 @@ Nối tiếp: [`voice-audition-kit.md`](../W-0106/voice-audition-kit.md) — b�
 
 ## 1. Trong 30 giây
 
-Một cuộc gọi được lắp từ **7 mảnh**: 4 mảnh văn xuôi cố định (thu sẵn) xen 3 mảnh giá trị đơn
+Một cuộc gọi được lắp từ **7 mảnh**: 4 mảnh văn xuôi cố định (render sẵn) xen 3 mảnh giá trị đơn
 (TTS sinh lúc gọi). Anh cần cung cấp **4 mảnh cố định × 3 giọng = 12 file**.
 
 | Mảnh | Loại | Nội dung |
@@ -262,7 +262,7 @@ Hai lỗi tìm thấy trong lượt kiểm đó đã được sửa — xem [`RE
   phương án lui khi voice ID biến mất khỏi Voice Library.
 - `OD-VOICE-05` **đã đóng** `2026-08-26` — owner nghe cả ba giọng qua MicroSIP ở 8 kHz và chấp
   nhận; W-0106 đã lên `ACCEPTED` (phạm vi lab, dữ liệu fake). Điều đó **không** miễn bước 6.4:
-  nghe ba giọng ≠ nghe **mối nối** giữa đoạn thu sẵn và đoạn tổng hợp, và mối nối mới là thứ bộ
+  nghe ba giọng ≠ nghe **mối nối** giữa đoạn render sẵn và đoạn tổng hợp, và mối nối mới là thứ bộ
   này sinh ra.
 - **Không** mở quyền gọi khách thật. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 - **Không** thay nửa còn lại. 3 mảnh động vẫn cần endpoint TTS thật

@@ -5,7 +5,7 @@ using Ivr.Domain.Privacy;
 namespace Ivr.Domain.Speech;
 
 /// <summary>
-/// Per-request synthesis controls independent of any vendor SDK.
+/// Per-request synthesis controls, independent of the engine's wire format.
 /// </summary>
 public sealed record TtsOptions
 {

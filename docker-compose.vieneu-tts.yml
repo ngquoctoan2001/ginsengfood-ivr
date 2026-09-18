@@ -1,5 +1,6 @@
-# W-0122 — explicit self-hosted VieNeu-TTS lab overlay.
-# Load only after docker-compose.dev.yml and docker-compose.softphone.yml.
+# W-0122 — explicit self-hosted VieNeu-TTS lab overlay, the lab's only speech engine.
+# Load only after docker-compose.dev.yml and docker-compose.softphone.yml;
+# deploy/lab/Start-FreeSoftphoneLab.ps1 always does.
 # No port is published. The TTS process joins the worker network namespace and is reachable only
 # at worker loopback. This file cannot make a real-customer call; the governance NO stays fixed.
 
@@ -36,9 +37,11 @@ services:
       Ivr__Speech__Tts__RegionalVoices__Central__SpeakingRate: "${IVR_VIENEU_CENTRAL_SPEAKING_RATE:-1.0}"
       Ivr__Speech__Tts__RegionalVoices__South__VoiceId: "${IVR_VIENEU_SOUTH_VOICE_ID:?Set the owner-accepted South voice ID}"
       Ivr__Speech__Tts__RegionalVoices__South__SpeakingRate: "${IVR_VIENEU_SOUTH_SPEAKING_RATE:-1.0}"
-      # Remains off until render-fixed-speech.mjs + Convert-LabSegmentAudio.ps1 have produced and
-      # pinned all 12 entries. The generated segment env block is then added in the acceptance
-      # change; an incomplete catalog must make worker startup fail, never shorten a call.
+      # The 12 fixed segments VieNeu rendered are pinned in the Asterisk image (W-0122). This stays
+      # off until the owner has listened to them in the lab, seams included. To turn it on, replace
+      # these two lines with deploy/lab/asterisk/audio/segments-compose-env.yml, which
+      # Convert-LabSegmentAudio.ps1 writes already indented for this block; never hand-copy the
+      # 64-character hashes. An incomplete catalog makes worker startup fail, never shortens a call.
       Ivr__Speech__Tts__Segmentation__Enabled: "false"
       Ivr__Speech__Tts__Segmentation__FixedSegments: Catalog
     volumes:

@@ -4,7 +4,8 @@ Status: `ENGINEERING_MODEL` · Values are configuration defaults, not production
 
 ## TTS synthesis boundary (W-0066)
 
-P2-9 measures provider demand without selecting a vendor. The default MOCK budget is:
+P2-9 measures synthesis demand. The engine is VieNeu-TTS, self-hosted as a sidecar in the worker
+pod (`OD-V1-19`, `W-0122`). The default budget is:
 
 | Input | Default | Enforcement |
 | --- | ---: | --- |
@@ -19,7 +20,7 @@ The deterministic MOCK adapter models mono 8 kHz, 16-bit linear PCM metadata
 (`audio/L16`). At that format, uncompressed media is approximately 16 kB/second,
 960 kB/minute, before gateway/container overhead. It does not open a network socket
 and does not represent a supported real-gateway codec; W-0008/P8-1 must measure the
-selected hardware/vendor path.
+selected gateway path.
 
 Runtime metrics expose only aggregates:
 
@@ -33,29 +34,25 @@ hash(privacy_safe_order_summary), voice_id, locale)`. It contains no raw summary
 phone, address or rendered text. A restart clears the process-local cache, and the
 P1-5 retention job invokes its purge hook; dry-run reports without mutation.
 
-## Cost formula pending OD-V1-19
+## TTS cost: self-hosted VieNeu (OD-V1-19)
 
-No currency estimate is asserted because no TTS vendor or price sheet has been
-approved. Once Product, Infra and Privacy/Legal close `OD-V1-19`, use:
+There is no per-character charge: VieNeu-TTS runs as a sidecar in the worker pod and order text
+never leaves it. The cost is the machine that runs the sidecar, and the number that matters is
+speed — each dynamic segment synthesized within the 5-second request timeout, with the 20% pre-dial
+headroom `deploy/ci/scripts/tts-helm-selftest.mjs` enforces.
 
-```text
-billable_characters = provider_characters_after_cache
-monthly_tts_cost = billable_characters / vendor_billing_unit
-                   * vendor_price_per_billing_unit
-```
+Sizing inputs still required:
 
-Sizing inputs still required from the selected vendor/lab:
-
-- billing treatment for punctuation, SSML and pronunciation hints;
-- request/concurrency quotas and regional endpoint availability;
+- target CPU/RAM for the sidecar (`S5`);
+- measured p50/p95/p99 synthesis latency per segment on that machine, and error rate;
+- measured cache-hit ratio;
 - accepted codec/sample rate for the SIM gateway;
-- measured cache-hit ratio, p50/p95/p99 synthesis latency and error rate;
-- DPA/data residency, encryption and provider content-retention controls;
-- Vietnamese product-name, amount, quantity and delivery-area pronunciation acceptance;
+- Vietnamese product-name, amount, quantity and delivery-area pronunciation acceptance
+  (`docs/contracts/telephony-procurement-pack/R-05-tts-audio-capability.md` §3);
 - one-SIM lab throughput followed by the future 32-eSIM concurrency/failover model.
 
 Until those inputs exist, this section is a bounded engineering model only;
-pronunciation, vendor cost and 32-channel production capacity remain `NOT_RUN`.
+pronunciation, target-hardware speed and 32-channel production capacity remain `NOT_RUN`.
 
 ---
 

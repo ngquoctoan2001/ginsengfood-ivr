@@ -14,7 +14,7 @@ Phạm vi: tập con rút gọn của `P8-1` (`W-0048`), chạy với **1 kênh*
 - ❌ Không trả lời "32 eSIM chịu được tải bao nhiêu" — một kênh không suy ra được ba mươi hai kênh.
 - ❌ Không trả lời "tích hợp Sales có đúng không" — đơn là **mock**, không có Sales thật ở đầu nào.
 - ❌ Không trả lời "gọi khách có ổn không" — chỉ gọi số của chính anh, và `REAL_CUSTOMER_CALL_ALLOWED` vẫn là `NO`.
-- ❌ Không đóng `W-0008`, `OD-V1-09`, `OD-V1-10`, `OD-V1-19`.
+- ❌ Không đóng `W-0008`, `OD-V1-09`, `OD-V1-10`.
 - ❌ Không được gọi là `LAB_REAL_SIM_VERIFIED` — nhãn đó đòi giao thức vendor và hồ sơ nghiệm thu đầy đủ theo `P8-1` §3.
 
 Cái nó cho anh là thứ khác và có giá trị riêng: **bằng chứng đầu tiên rằng phần mềm này làm được việc nó sinh ra để làm.** Tám phase vừa qua chứng minh nó *đúng*; lab này chứng minh nó *chạy*.
@@ -38,10 +38,10 @@ Bốn mục ở §0.1 là ảnh chụp ngày `2026-08-20`. Ba mục đầu **đ�
 | --- | --- | --- |
 | 1. `DispatchGate` chưa có caller | ✅ **đã nối** | `AsteriskSchedulerDispatchGateway.cs:73` gọi `dispatchGate.EvaluateAsync` **trước** thao tác ARI đầu tiên |
 | 2. `LAB_REAL_SIM` chưa có dispatch gateway thật | ✅ **đã có** | `AsteriskSchedulerDispatchGateway` + `AsteriskAriSimGateway` + `AsteriskLabChannelProvisioner`; overlay `docker-compose.softphone.yml` |
-| 3. Chưa có provider phát file | ✅ **đã có** | `Speech/StaticFileTtsProvider.cs`; ba giọng miền cấu hình qua `Ivr__Speech__Tts__RegionalVoices__*` |
+| 3. Chưa có nguồn audio | ✅ **đã có** | VieNeu-TTS sidecar (`W-0122`, `docker-compose.vieneu-tts.yml`) qua `ConfigurableExternalTtsProvider`; ba giọng miền cấu hình qua `Ivr__Speech__Tts__RegionalVoices__*` |
 | 4. Chưa có tổ hợp `CURRENT_GOLDEN_HOUR_COMPAT` + `LAB_REAL_SIM` được duyệt | ⛔ **vẫn đúng** | one-SIM vẫn chạy với fake Sales; Target V1 chỉ nối sau khi có producer/callback/auth thật |
 
-Nói chính xác: **phần mềm đã sẵn sàng cho lab; cái còn thiếu là SIM và thiết bị**, chứ không còn là bốn chỗ chưa nối. Điều kiện chặn thật sự nằm ở `OD-V1-09`, `OD-V1-19`, `OD-V1-20` và việc mua phần cứng.
+Nói chính xác: **phần mềm đã sẵn sàng cho lab; cái còn thiếu là SIM và thiết bị**, chứ không còn là bốn chỗ chưa nối. Điều kiện chặn thật sự nằm ở `OD-V1-09`, `OD-V1-20` và việc mua phần cứng.
 
 ---
 
@@ -74,16 +74,12 @@ Nói chính xác: **các primitive quyết định có được gọi không đ�
 
 → **Tôi viết adapter.** Đây là khối việc code chính.
 
-### 2.2 Chưa có nguồn audio
+### 2.2 Nguồn audio: VieNeu
 
-`ConfigurableExternalTtsProvider` là một **chỗ trống có chủ ý** — nó ném `TTS_NOT_CONFIGURED` chứ không tổng hợp gì:
-
-```
-throw new TtsProviderNotConfiguredException(
-    "No external TTS vendor adapter is available until OD-V1-19 is approved and P8-1 is implemented.");
-```
-
-→ **Lối vượt cho lab: file audio dựng sẵn.** Đơn là mock nên nội dung do ta kiểm soát hoàn toàn — chỉ cần một bộ nhỏ file wav. Không cần chọn vendor, không cần mở `OD-V1-19`, và **không có nội dung đơn nào rời khỏi mạng nội bộ** (điểm này quan trọng với PDPA về sau).
+Lab đọc bằng **VieNeu-TTS tự host** (`W-0122`), cùng bộ đọc với production (`OD-V1-19`). Sidecar chạy
+chung network namespace với worker và chỉ nghe loopback, nên **không có nội dung đơn nào rời khỏi máy
+lab**. Phần cố định của kịch bản đã render sẵn (`12` đoạn, ba giọng Owner duyệt `28/08`); món hàng,
+tổng tiền và vùng giao đọc lúc gọi.
 
 ### 2.3 IVR **không được phép** biết số điện thoại ← điều bất ngờ nhất
 
@@ -181,21 +177,16 @@ Nếu anh muốn đi thẳng A cũng được — tôi sẽ dựng luôn, chỉ 
 
 ### 4.5 Nội dung audio
 
-Tôi cần **một trong hai**:
-
-- **Cách 1 (đề xuất, không tốn gì):** anh tự thu bằng điện thoại, mỗi câu một file, đọc rõ và chậm. Khoảng 6–8 câu:
-  chào → đọc tên món → đọc số lượng → đọc tổng tiền → mời bấm 1 để xác nhận, 0 để huỷ → xác nhận đã nhận → cảm ơn/tạm biệt → câu báo bấm sai phím.
-  Tôi sẽ gửi anh danh sách câu chính xác cần thu.
-- **Cách 2:** anh đưa khoá API của một dịch vụ TTS tiếng Việt (FPT.AI, Viettel, Google, Azure…). Tôi dựng adapter gọi nó.
-
-Cách 1 nghe thô hơn nhưng **kiểm đúng thứ lab này cần kiểm**: audio có phát ra loa được không, người nghe có nghe rõ không, DTMF có bắt được trong lúc đang phát không. Chất lượng giọng là việc của `OD-V1-19` sau này, không phải của lab này.
+Không cần chuẩn bị gì thêm: lab đọc bằng VieNeu (`W-0122`) với ba giọng đã duyệt. Phía anh chỉ cần
+**nghe** — audio có phát ra loa được không, người nghe có nghe rõ không, chỗ nối giữa phần render sẵn
+và phần đọc lúc gọi có mượt không, và DTMF có bắt được trong lúc đang phát không.
 
 ### 4.6 Bốn điều cần anh xác nhận (không tốn tiền, chỉ cần một câu)
 
 | | Điều cần chốt | Đề xuất của tôi |
 | --- | --- | --- |
 | 1 | Bảng tra `tham chiếu → số thật` đặt ở Asterisk, **ngoài** IVR | đồng ý — giữ đúng D-05, và là lối duy nhất không phải sửa `OpaqueReferenceGuard` |
-| 2 | Lab dùng audio dựng sẵn, **chưa** chọn vendor TTS | đồng ý — `OD-V1-19` vẫn mở, không tự đóng |
+| 2 | Lab đọc bằng VieNeu, cùng bộ đọc với production | ✅ đã chốt — `OD-V1-19` (`17/09`) |
 | 3 | Allowlist **chỉ** chứa số của chính anh; đổi allowlist phải qua config + khởi động lại, **không** qua API | đồng ý — đổi bằng deploy an toàn hơn đổi bằng một lời gọi API. Từ 2026-08-22 `Admin` có permission gọi API đó (`OD-V1-20`), nhưng `PendingRuntimeGateAuthorization` vẫn chặn (`409`), nên lối API thực tế **vẫn đóng**. Điều 3 giữ nguyên. |
 | 4 | `REAL_CUSTOMER_CALL_ALLOWED` giữ `NO` suốt lab | bắt buộc — không có nó thì đây không còn là lab |
 
@@ -246,7 +237,7 @@ Tôi cung cấp một lệnh duy nhất. Sau đó anh mở console, bấm nút t
 
 | Lát | Nội dung | Ước lượng |
 | --- | --- | --- |
-| **L1** | `FilePlaybackTtsProvider` sau `ITtsProvider` — đọc audio dựng sẵn, đi qua `AudioCache` và `SpeechPrivacyGuard` sẵn có | nhỏ |
+| **L1** | ✅ Nguồn audio sau `ITtsProvider`: VieNeu sidecar (`W-0122`) qua `ConfigurableExternalTtsProvider`, đi qua `AudioCache` và `SpeechPrivacyGuard` sẵn có | xong |
 | **L2** | **`AsteriskAriSimGateway` sau `ISimGateway`** — dial / play / bắt DTMF / cúp máy / disposition / health, qua ARI. Ánh xạ mã kết thúc của Asterisk sang bảng disposition; mã lạ → `TECHNICAL`, **không đoán thành no-answer** (`P8-1` §2.5) | **lớn nhất** |
 | **L3** | Hồ sơ cấu hình lab + Asterisk vào compose; nạp allowlist từ config lúc khởi động | vừa |
 | **L4** | Đơn mock đầu-cuối: seed → fake Sales → intake → lịch → quay số; bảng tra token→`LABDEST-01` | vừa |
@@ -314,6 +305,5 @@ Nhắc lại ở cuối vì đây là chỗ dễ đọc rộng ra nhất:
 - Đơn mock chạy được **không** nói gì về tích hợp Sales thật (`W-0002`, `W-0005`, `W-0006` vẫn `BLOCKED_EXTERNAL`).
 - Gọi tới số của chính mình **không** nói gì về gọi khách. Chưa có kịch bản đã duyệt pháp lý, chưa có `OD-V1-11`, chưa có DF-03.
 - Lab này **không đóng** `W-0008` và không cấp nhãn `LAB_REAL_SIM_VERIFIED` — nhãn đó cần giao thức vendor và hồ sơ nghiệm thu đầy đủ theo `P8-1` §3.
-- Audio dựng sẵn **không** là quyết định TTS. `OD-V1-19` vẫn mở.
 
 Cái nó chứng minh, và chứng minh chắc chắn: **phần mềm này quay được số thật, nói được, nghe được phím, và ghi đúng thứ đã xảy ra.** Chưa có gì trong tám phase vừa rồi chứng minh được điều đó.

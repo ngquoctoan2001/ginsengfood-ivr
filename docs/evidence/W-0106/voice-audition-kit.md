@@ -53,7 +53,7 @@ lý do không ai truy được.
 > nhau ở từng giọng (Thắm `s0.75/sp1.00`, Zara `s0.50/sp1.00`, Giang `s0.50/sp1.09`), đo được
 > chênh **21%** độ dài trên cùng một kịch bản (21,16 / 18,44 / 17,48 s). **Owner đã nghe và chọn
 > giữ nguyên.** Lý do gốc ở trên được giữ lại để lần sau ai đọc còn thấy đánh đổi — nhưng settings
-> thật hiện nằm ở [`manifest.txt`](../../../deploy/lab/asterisk/audio/manifest.txt) và
+> thật từng nằm ở `deploy/lab/asterisk/audio/manifest.txt` (gỡ ở `W-0315`, còn trong lịch sử git) và
 > `OD-VOICE-05`, không phải ở bảng dưới.
 
 | Tham số | Giá trị | Lý do |
@@ -110,7 +110,7 @@ Nếu một giọng cần đổi, đi thẳng xuống fallback 1 rồi fallback 
 
 ⚠️ **Voice ID trong bảng này CHƯA được xác minh.** Chúng lấy từ catalog bên thứ ba, và catalog
 đó đã sai ít nhất một lần: nó gán `ueSxRO0nLF1bj93J2hVt` cho một giọng nam miền Bắc tên khác,
-trong khi [`manifest.txt`](../../../deploy/lab/asterisk/audio/manifest.txt) của chính repo ghi
+trong khi `manifest.txt` của chính repo khi đó (gỡ ở `W-0315`) ghi
 ID đó là `Trung Caha`. **Phải copy ID thật từ ElevenLabs app** khi chốt.
 
 > ✅ **`2026-08-26` — đã copy ID thật từ app. Cảnh báo trên đúng lần thứ hai.**

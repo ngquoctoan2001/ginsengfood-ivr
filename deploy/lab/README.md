@@ -1,4 +1,4 @@
-# W-0104 — Free Asterisk + MicroSIP lab
+# W-0104 / W-0122 — Free Asterisk + MicroSIP lab, đọc bằng VieNeu
 
 Profile này kiểm tra miễn phí đường đi `scheduler -> DispatchGate -> Asterisk ARI -> MicroSIP -> audio/DTMF -> normalizer` bằng dữ liệu giả. Nó không dùng modem, SIM, PSTN hay số điện thoại thật và không thay thế one-SIM evidence của W-0048.
 
@@ -19,30 +19,32 @@ Profile này kiểm tra miễn phí đường đi `scheduler -> DispatchGate -> 
 
 Asterisk 22.10.1 LTS được build từ source chính thức với SHA-256 đã ghim trong `asterisk/Dockerfile`. MicroSIP portable 3.22.12 được tải từ trang chính thức, kiểm SHA-256 đã ghim và lưu trong `deploy/lab/.local-tools/`; thư mục này không được commit.
 
-Audio lab dùng ba mẫu cùng lời thoại fake, đã chuyển về PCM 16-bit/8 kHz/mono và ghim SHA-256 trong `asterisk/audio/SHA256SUMS`:
+## Giọng đọc: chỉ VieNeu
 
-- `A`: `vi-VN-HoaiMyNeural` (nữ);
-- `B`: `vi-VN-NamMinhNeural` (nam);
-- `C`: ElevenLabs `Trung Caha - Clear, Firm and Informative`, voice ID `ueSxRO0nLF1bj93J2hVt`.
+Lab chỉ có một bộ đọc là **VieNeu-TTS tự host** (`W-0122`), chạy làm sidecar của worker qua
+`docker-compose.vieneu-tts.yml`, cũng là bộ đọc duy nhất của production. Không có bộ đọc dự phòng:
+thiếu overlay thì worker không có bộ đọc nào và cuộc gọi fail closed.
 
-A/B được sinh bằng `edge-tts 7.2.8`; C được owner tạo bằng 300 credits trên ElevenLabs web app với script `v3-test-approved` và lời chào “Xin chào Quý khách”. Cả ba chỉ là asset lab, không phải provider/API/SLA production và không được dùng với dữ liệu khách thật. Trước production phải duyệt riêng license/quyền dùng voice, plan/quota, API, privacy/DPA và tính sẵn sàng của voice ID.
+- Ba giọng miền là ba giọng Owner đã nghe và duyệt ngày `2026-08-28` (`OD-VOICE-06`): Bắc
+  `Ngọc Linh`, Trung `Ngọc Trân`, Nam `Mỹ Duyên`. `Start-FreeSoftphoneLab.ps1` đọc chúng thẳng
+  từ `docs/evidence/W-0122/voice-acceptance-manifest.json`.
+- `12` đoạn cố định của kịch bản (`4` câu × `3` miền) do VieNeu render sẵn, đã chuyển về PCM
+  16-bit/8 kHz/mono và ghim SHA-256 trong `asterisk/audio/SHA256SUMS`. Phần giá trị đơn (món,
+  tổng tiền, nơi giao) do sidecar tổng hợp lúc gọi.
+- Model không nằm trong git. Tải bằng `deploy/tts/scripts/fetch-model-nonprod.py` và kiểm bằng
+  `verify-model.py --mode nonprod` theo `deploy/tts/README.md`.
 
 ## Chạy lab
 
-Từ repository root:
+Từ repository root, trỏ tới bundle model VieNeu đã kiểm:
 
 ```powershell
-.\deploy\lab\Start-FreeSoftphoneLab.ps1
+.\deploy\lab\Start-FreeSoftphoneLab.ps1 -ModelBundle <thư mục bundle đã verify>
 ```
 
-Để boot trực tiếp bằng voice C:
-
-```powershell
-.\deploy\lab\Start-FreeSoftphoneLab.ps1 -VoiceVariant C
-```
-
-Script tạo ARI/SIP password ngẫu nhiên chỉ trong process hiện tại, khởi động stack và tải/mở
-MicroSIP với account `LAB-A`. Script **không tự gửi task gọi**; sau khi MicroSIP hiện `Online`, chạy:
+Script tạo ARI/SIP password ngẫu nhiên chỉ trong process hiện tại, khởi động stack cùng VieNeu
+sidecar và tải/mở MicroSIP với account `LAB-A`. Script **không tự gửi task gọi**; sau khi MicroSIP
+hiện `Online`, chạy:
 
 ```powershell
 .\deploy\lab\Invoke-FreeSoftphoneCall.ps1
@@ -70,22 +72,12 @@ Helper sau có thể click phím trên cửa sổ MicroSIP cho một lần test 
 .\deploy\lab\Invoke-MicroSipDtmf.ps1 -Digit 1
 ```
 
-## Nghe và chọn giọng A/B/C
+## Nghe theo từng miền
 
-Khi stack và MicroSIP đang chạy, chọn từng file qua media reference cố định rồi tạo cuộc gọi mới. Runner tự đưa cửa sổ MicroSIP đang ẩn ở system tray ra foreground trước khi queue task:
-
-```powershell
-.\deploy\lab\Set-AsteriskLabVoice.ps1 -Variant A
-.\deploy\lab\Invoke-FreeSoftphoneCall.ps1
-
-.\deploy\lab\Set-AsteriskLabVoice.ps1 -Variant B
-.\deploy\lab\Invoke-FreeSoftphoneCall.ps1
-
-.\deploy\lab\Set-AsteriskLabVoice.ps1 -Variant C
-.\deploy\lab\Invoke-FreeSoftphoneCall.ps1
-```
-
-Mỗi cuộc gọi phải được trả lời và bấm `1` hoặc `0` để kiểm playback không làm hỏng DTMF. Owner đã chấp nhận voice C và script v3 ngày 2026-08-22; task `TASK-LAB-20260822042001` (`1`) và `TASK-LAB-20260822042024` (`0`) xác nhận hai disposition cuối vẫn đúng. Acceptance chỉ thuộc software lab; `REAL_CUSTOMER_CALL_ALLOWED=NO` giữ nguyên.
+`Invoke-FreeSoftphoneCall.ps1 -Region North|Central|South` tạo một đơn fake giao tới miền đó, để
+nghe đúng giọng VieNeu của miền. Mỗi cuộc gọi phải được trả lời và bấm `1` hoặc `0` để kiểm
+playback không làm hỏng DTMF. Acceptance chỉ thuộc software lab; `REAL_CUSTOMER_CALL_ALLOWED=NO`
+giữ nguyên.
 
 ## Dừng và dọn lab
 

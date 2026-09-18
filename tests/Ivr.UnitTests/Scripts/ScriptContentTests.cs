@@ -307,10 +307,9 @@ public sealed class ScriptContentTests
             Summary([SpeechItem.Create("Trà sâm", 2.5m, "kg")], 560_000m, "Quận 7"));
 
         // Spoken, not the digit form. This assertion used to read "2,5 kg" and it was pinning a
-        // gap rather than a decision: nobody had heard how an engine says "2,5", and segmented
-        // playback cannot say it at all -- there is no recorded clip for a decimal and no way to
-        // glue one from clips of "2" and "5". The separators below still matter for quantities
-        // outside the speller's range, which keep the digit fallback.
+        // gap rather than a decision: nobody had heard how an engine says "2,5". The separators
+        // below still matter for quantities outside the speller's range, which keep the digit
+        // fallback.
         Assert.Contains("hai phẩy năm kg Trà sâm", preview.ExactText, StringComparison.Ordinal);
         Assert.Contains("năm trăm sáu mươi nghìn đồng", preview.ExactText, StringComparison.Ordinal);
 
@@ -517,43 +516,4 @@ public sealed class ScriptContentTests
             "Golden Hour",
             null,
             SpeechSummaryLimits.Create(20, 5));
-
-    [Fact]
-    [Trait("TestId", "UT-VOICE-CLIP-10")]
-    public void TotalAmountClipsCarryTheCurrencyWordTheSpellerDoesNotOwn()
-    {
-        // The 107th clip of the bank. VietnameseNumberSpeller emits 106 and stops at the number,
-        // because reading a number does not include a currency word -- 2,5 ký needs none. The
-        // renderer owns "đồng", and this is where that ownership is asserted rather than assumed.
-        Assert.Equal(
-            ["num-05", "num-hundred", "num-60", "num-thousand", "num-dong"],
-            VietnameseOrderScriptRenderer
-                .TotalAmountClips(560_000m, VietnameseNumberStyle.Northern)
-                .Select(clip => clip.Id));
-
-        // And the spoken text stays a projection: the words the customer hears are the clip texts
-        // joined, not a second string built somewhere else.
-        Assert.Equal(
-            "năm trăm sáu mươi nghìn đồng",
-            SpeechNumberClip.Join(
-                VietnameseOrderScriptRenderer.TotalAmountClips(
-                    560_000m,
-                    VietnameseNumberStyle.Northern)));
-
-        // The Southern lexicon changes one clip's text and no clip's id -- one recording script,
-        // three voices.
-        Assert.Equal(
-            VietnameseOrderScriptRenderer
-                .TotalAmountClips(560_000m, VietnameseNumberStyle.Northern)
-                .Select(clip => clip.Id),
-            VietnameseOrderScriptRenderer
-                .TotalAmountClips(560_000m, VietnameseNumberStyle.Southern)
-                .Select(clip => clip.Id));
-        Assert.Equal(
-            "năm trăm sáu mươi ngàn đồng",
-            SpeechNumberClip.Join(
-                VietnameseOrderScriptRenderer.TotalAmountClips(
-                    560_000m,
-                    VietnameseNumberStyle.Southern)));
-    }
 }

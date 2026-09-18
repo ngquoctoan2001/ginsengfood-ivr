@@ -4,8 +4,7 @@ using Microsoft.Extensions.Options;
 namespace Ivr.Infrastructure.Speech;
 
 /// <summary>
-/// One regional voice. <see cref="SpeakingRate"/> of zero inherits the global rate, and the
-/// media fields are only read by <see cref="StaticFileTtsProvider"/> in LAB.
+/// One regional VieNeu voice. <see cref="SpeakingRate"/> of zero inherits the global rate.
 /// </summary>
 public sealed class RegionalVoiceEntry
 {
@@ -14,13 +13,9 @@ public sealed class RegionalVoiceEntry
     /// <summary>Zero means "use the global <c>SpeakingRate</c>".</summary>
     public decimal SpeakingRate { get; set; }
 
-    public string FileMediaReference { get; set; } = string.Empty;
-
-    public int FileDurationSeconds { get; set; }
-
     /// <summary>
-    /// Pre-recorded fixed prose in this region's voice, keyed by what each file says. Empty
-    /// until segmentation is turned on with <see cref="FixedSegmentSource.Catalog"/>.
+    /// Fixed prose VieNeu rendered ahead of time in this region's voice, keyed by what each file
+    /// says. Empty until segmentation is turned on with <see cref="FixedSegmentSource.Catalog"/>.
     /// </summary>
     public FixedSegmentMediaEntry[] FixedSegments { get; set; } = [];
 
@@ -65,7 +60,7 @@ public sealed record RegionalVoiceSelection(
 /// Chooses the voice for one order from its delivery area.
 /// <para>
 /// Region resolution happens here and nowhere else. Everything downstream — the audio cache, the
-/// static-file provider, telemetry — keys off the resulting <c>VoiceId</c>, so there is exactly
+/// fixed-segment catalog, telemetry — keys off the resulting <c>VoiceId</c>, so there is exactly
 /// one place that can decide a customer hears the wrong region.
 /// </para>
 /// </summary>
@@ -107,40 +102,13 @@ public sealed class RegionalVoiceMap(IOptions<TtsProviderOptions> providerOption
     }
 
     /// <summary>
-    /// Maps a voice back to its LAB media file. The provider only ever sees a voice id, so this
-    /// reverse lookup is what keeps the file choice and the voice choice from drifting apart.
-    /// </summary>
-    public bool TryGetMedia(string voiceId, out string mediaReference, out int durationSeconds)
-    {
-        mediaReference = string.Empty;
-        durationSeconds = 0;
-        RegionalVoiceOptions regional = providerOptions.Value.RegionalVoices;
-        if (!regional.Enabled || string.IsNullOrWhiteSpace(voiceId))
-        {
-            return false;
-        }
-
-        foreach (VietnamRegion region in Enum.GetValues<VietnamRegion>())
-        {
-            RegionalVoiceEntry entry = regional.For(region);
-            if (string.Equals(entry.VoiceId, voiceId, StringComparison.Ordinal))
-            {
-                mediaReference = entry.FileMediaReference;
-                durationSeconds = entry.FileDurationSeconds;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Recordings a voice has for the fixed prose of the script, keyed by segment text hash.
+    /// Pre-rendered files a voice has for the fixed prose of the script, keyed by segment text
+    /// hash.
     /// <para>
     /// With regional voices on, each voice owns its own catalog; with them off, the single
     /// global catalog applies. An unknown voice returns an empty catalog rather than falling
-    /// back to another voice's recordings, because a fallback here is precisely the failure
-    /// this design prevents: one region's sentences read in another region's voice.
+    /// back to another voice's files, because a fallback here is precisely the failure this
+    /// design prevents: one region's sentences read in another region's voice.
     /// </para>
     /// </summary>
     public IReadOnlyDictionary<string, FixedSegmentMediaEntry> FixedSegmentCatalog(string voiceId)

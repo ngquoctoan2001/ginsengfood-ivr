@@ -28,8 +28,8 @@ public sealed record TtsVoiceRoutingSnapshot(
 /// Hybrid playback counters (W-0106 §4.6).
 /// </summary>
 /// <param name="FixedFromCatalog">
-/// Pieces played from a recording. Each one is a vendor call that did not happen and order
-/// content that did not leave the network.
+/// Pieces played from the pre-rendered VieNeu catalog. Each one is a synthesis that did not have
+/// to happen before dial.
 /// </param>
 /// <param name="DynamicSynthesized">Variable pieces that reached the provider.</param>
 /// <param name="DynamicFromCache">Variable pieces served from a warm cache.</param>

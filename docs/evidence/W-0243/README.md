@@ -66,7 +66,7 @@ cho — và đó là thứ duy nhất biến lượt này thành một lỗ hổ
 `EnsureSafeBounded` và `EnsureSafeBoundedProductText` dùng **chung một thân** (`EnsureBounded`),
 khác nhau đúng một tham số guard. Chép thân ra hai bản thì giới hạn độ dài hoặc chuẩn hoá Unicode
 có thể trôi giữa field địa chỉ và field sản phẩm — mà **trôi chuẩn hoá thì vô hình**: hai chuỗi nhìn
-y hệt nhau thôi khớp cùng một clip ghi âm, và không ai thấy cho tới lúc nghe.
+y hệt nhau thôi được coi là cùng một văn bản, và không ai thấy cho tới lúc nghe.
 
 `unitLabel` dùng cùng guard với tên nó bổ nghĩa: `hộp`/`gói` không va với gì hôm nay, nhưng một đơn
 vị bị chặn trong khi sản phẩm được nhận sẽ làm hỏng đơn vì một lý do không đọc được từ thông báo.

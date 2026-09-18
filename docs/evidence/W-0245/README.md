@@ -125,9 +125,7 @@ Không sửa code, không đổi hành vi runtime. `REAL_CUSTOMER_CALL_ALLOWED=N
 | # | Việc | Ai |
 | ---: | --- | --- |
 | **`2.1`** | **ký `dial_token_expires_at == window.ExpiresAt` thành quyết định** — code đã thế, chỉ thiếu chữ ký | Owner |
-| `4d` | 20 tên cho bank D | Owner |
 | `4c` | Sales còn phát dạng chỉ-có-quận không | Owner + dev M3 |
-| `3c` | gắn vào `Activated → Sellable` | Owner |
 | — | `legal_gate`: ý kiến ngoài, hay thêm `RISK_ACCEPTED` | Owner |
 
 Và một việc của tôi: **đọc lại các mục `2.x` khác dưới cùng ánh sáng** — chúng đang chờ

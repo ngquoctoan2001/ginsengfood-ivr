@@ -25,10 +25,10 @@ Nó **không** trả lời: hệ thống chịu được bao nhiêu kênh, chi p
 | 5 | `labDestinationAllowlist` đã nạp đúng danh sách ở mục 4 | Security | `<điền>` |
 | 6 | `globalDialKillSwitch` đã kiểm chứng là **chặn được thật** | Security | `<điền>` |
 | 7 | Quyền chỉnh allowlist/kill switch — **hiện chưa tồn tại**, xem §5 | Security/Platform | `BLOCKED` |
-| 8 | Nguồn audio: TTS đã chọn hoặc file thu sẵn — xem [R-05](R-05-tts-audio-capability.md) | Product + Infra | `<điền>` |
+| 8 | Nguồn audio: VieNeu sidecar (`W-0122`) sẵn sàng trên máy lab — xem [R-05](R-05-tts-audio-capability.md) | Product + Infra | `<điền>` |
 | 9 | Biểu mẫu nghiệm thu đã in/sao chép sẵn | Infra | [template](lab-acceptance-report-template.md) |
 
-Mục 7 và 8 hiện đang chặn. Không bật `REAL` khi bất kỳ dòng nào chưa `PASS`.
+Mục 7 hiện đang chặn. Không bật `REAL` khi bất kỳ dòng nào chưa `PASS`.
 
 ## 3. Số test — quy tắc
 

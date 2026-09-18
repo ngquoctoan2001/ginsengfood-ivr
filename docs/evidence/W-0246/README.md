@@ -95,9 +95,7 @@ Không sửa code runtime. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
 | # | Việc | Ai |
 | ---: | --- | --- |
-| `4d` | 20 tên cho bank D | Owner |
 | `4c` | Sales còn phát dạng chỉ-có-quận không | Owner + dev M3 |
-| `3c` | gắn vào `Activated → Sellable` | Owner |
 | — | `legal_gate`: ý kiến ngoài, hay thêm `RISK_ACCEPTED` | Owner |
 
 Và việc của tôi: đọc lại `2.2`–`2.6` dưới ánh sáng *"Security/Product là owner"* — `2.1` vừa cho

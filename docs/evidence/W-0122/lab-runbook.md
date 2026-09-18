@@ -47,5 +47,6 @@ Record commands and outputs in `lab-call-results.md`; never record order text/au
 ## Acceptance and rollback
 
 Run exactly 2 fake orders × 3 regions, listen to every fixed/dynamic seam, verify media round-trip,
-run the isolated retention procedure, then deliberately restore the previously accepted provider
-configuration. Record duration and outcome. No silent SaaS fallback is allowed.
+run the isolated retention procedure, then deliberately roll back by turning `Segmentation` off again
+and confirm the worker still speaks through the sidecar. Record duration and outcome. VieNeu is the
+only engine: no fallback to any other engine exists, and none is allowed.

@@ -75,21 +75,6 @@ public sealed class RegionalVoiceRoutingTests
         Assert.Equal(configured.SpeakingRate, selection.SpeakingRate);
     }
 
-    [Fact]
-    [Trait("TestId", "UT-VOICE-CFG-04")]
-    public void StaticFileRegionalVoicesRequireDistinctSafeMediaPerRegion()
-    {
-        var validator = new TtsProviderOptionsValidator();
-
-        Assert.True(validator.Validate(null, LabOptions(regional =>
-            regional.Central.FileMediaReference = "/etc/passwd")).Failed);
-        Assert.True(validator.Validate(null, LabOptions(regional =>
-            regional.South.FileMediaReference = "sound:ivr-lab-order-confirmation-n")).Failed);
-        Assert.True(validator.Validate(null, LabOptions(regional =>
-            regional.North.FileDurationSeconds = 0)).Failed);
-        Assert.True(validator.Validate(null, LabOptions(_ => { })).Succeeded);
-    }
-
     [Theory]
     [Trait("TestId", "UT-SPEECH-VOICE-01")]
     [InlineData("phường Cửa Nam, thành phố Hà Nội", VietnamRegion.North, "voice-north")]
@@ -193,44 +178,6 @@ public sealed class RegionalVoiceRoutingTests
         Assert.Equal(new TtsVoiceRoutingSnapshot(2, 0, 0, 1), usage.VoiceRoutingSnapshot());
     }
 
-    [Fact]
-    [Trait("TestId", "UT-TTS-STATIC-REGION-05")]
-    public async Task StaticFileProviderPlaysTheMediaBelongingToTheSelectedVoice()
-    {
-        TtsProviderOptions configured = LabOptions(_ => { });
-        IOptions<TtsProviderOptions> options = Microsoft.Extensions.Options.Options.Create(configured);
-        var map = new RegionalVoiceMap(options);
-        var provider = new StaticFileTtsProvider(options, map);
-
-        RenderedAudio south = await provider.SynthesizeAsync(
-            Script(),
-            TtsOptions.Create("vi-VN", map.Resolve("tỉnh Vĩnh Long").VoiceId),
-            CancellationToken.None);
-        RenderedAudio north = await provider.SynthesizeAsync(
-            Script(),
-            TtsOptions.Create("vi-VN", map.Resolve("thành phố Hà Nội").VoiceId),
-            CancellationToken.None);
-
-        Assert.Equal("sound:ivr-lab-order-confirmation-s", south.ContentRef);
-        Assert.Equal("sound:ivr-lab-order-confirmation-n", north.ContentRef);
-        Assert.NotEqual(south.Duration, north.Duration);
-
-        // A voice with no media file must fail loudly. Silently playing another region's audio
-        // would be a customer hearing the wrong order details, not a cosmetic defect.
-        await Assert.ThrowsAsync<TtsProviderNotConfiguredException>(async () =>
-            await provider.SynthesizeAsync(
-                Script(),
-                TtsOptions.Create("vi-VN", "voice-not-configured"),
-                CancellationToken.None));
-    }
-
-    private static SpeechScript Script() => SpeechScript.Create(
-        "SCRIPT-ORDER-CONFIRM",
-        "v3-test-approved",
-        "Nội dung đơn fake an toàn.",
-        "content-hash",
-        "summary-hash");
-
     private static async Task<RenderedSpeech> SynthesizeAsync(
         SpeechSynthesisService service,
         string deliveryArea)
@@ -276,21 +223,6 @@ public sealed class RegionalVoiceRoutingTests
                 South = new RegionalVoiceEntry { VoiceId = "voice-south" },
             },
         };
-        configure(options.RegionalVoices);
-        return options;
-    }
-
-    private static TtsProviderOptions LabOptions(Action<RegionalVoiceOptions> configure)
-    {
-        TtsProviderOptions options = Options(_ => { });
-        options.ExecutionMode = "LAB_REAL_SIM";
-        options.Provider = TtsProviderOptions.StaticFileProvider;
-        options.RegionalVoices.North.FileMediaReference = "sound:ivr-lab-order-confirmation-n";
-        options.RegionalVoices.North.FileDurationSeconds = 17;
-        options.RegionalVoices.Central.FileMediaReference = "sound:ivr-lab-order-confirmation-c";
-        options.RegionalVoices.Central.FileDurationSeconds = 18;
-        options.RegionalVoices.South.FileMediaReference = "sound:ivr-lab-order-confirmation-s";
-        options.RegionalVoices.South.FileDurationSeconds = 19;
         configure(options.RegionalVoices);
         return options;
     }

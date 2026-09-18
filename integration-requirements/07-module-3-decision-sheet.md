@@ -136,7 +136,7 @@ gian hỏi lại, và để nếu M3 thấy mục nào không dùng được th�
 | A-5 | **Số điện thoại khách gửi thế nào** | **Module 3 gửi thẳng `phone_e164`** (`+84` + 9 chữ số). **Không** phải dựng token issuer, **không** phải dựng kho khoá. Ở `draft.30` field này **tuỳ chọn**, bản kế tiếp thành **bắt buộc**: trong giai đoạn chuyển, M3 gửi `phone_e164` **HOẶC** `dial_token` + `dial_token_expires_at`, ai sẵn trước đi trước, **không cần release đồng bộ**. Gửi cả hai thì `phone_e164` thắng, token bị bỏ qua | **owner · 2026-09-17**, thay cho `OD-V1-05`/`17`/`18` |
 | A-6 | Số điện thoại sống ở đâu trong IVR | Chỉ trong **bộ nhớ tiến trình** tại biên adapter telephony, đủ lâu cho đúng một lần quay số: **không DB, không log, không evidence, không callback**. Quyết định `17/09` đổi **cách số đi vào**, **không** nới chỗ nó được phép nằm lại | `OD-V1-18` phần lưu trữ · 2026-09-05 |
 | A-7 | Auth production | JWT **ký khóa bất đối xứng**, JWKS, TTL token **≤ 10 phút**, scope bắt buộc `ivr.task.write`. Token tĩnh dùng chung **bị từ chối**. mTLS **hoãn** tới khi có hạ tầng thật | `OD-V1-07` · 2026-09-05 |
-| A-8 | Lời thoại | **Không dùng vendor TTS lúc chạy.** Kịch bản cố định thu giọng người; chỉ ghép mã đơn, tiền, vùng giao từ ngân hàng ghi âm. **Không đọc tên khách** | `OD-V1-19` · 2026-09-05 |
+| A-8 | Lời thoại | **VieNeu-TTS tự host** đọc lời thoại, chạy trên máy chủ IVR — không vendor TTS đám mây, nội dung đơn không rời hệ thống. Phần cố định render sẵn; món hàng, tổng tiền và vùng giao đọc lúc gọi. **Không đọc tên khách** | `OD-V1-19` · 2026-09-17 |
 | A-9 | Ghi âm cuộc gọi | **TẮT vĩnh viễn** ở V1. Metadata cuộc gọi giữ **90 ngày** | `OD-V1-11` · 2026-09-05 |
 | A-10 | IVR **không bao giờ** hủy đơn | `IVR_NO_ANSWER_FINAL` là **khuyến nghị**; Core không đổi trạng thái, đơn tự hết hạn theo timeout của M3 | `OD-V1-06` · 2026-09-05 |
 | A-11 | Thu hồi đơn | IVR đã dựng **hai fence** (claim + lần đọc cuối trước khi quay số). Endpoint nhận lệnh thu hồi đi cùng lượt phát hành contract kế tiếp | `W-0248`/`W-0249` |
@@ -211,9 +211,9 @@ nào trong hai mục ấy chặn tích hợp M3.**
 
 | | |
 | --- | --- |
-| **IVR đề xuất** | Gửi **tên tỉnh/thành**, không gửi phường/xã/đường/số nhà. IVR đọc vùng giao từ **ngân hàng ghi âm 34 tỉnh** đã thu sẵn. |
-| **Vì sao** | Lời thoại là ghi âm giọng người, không phải TTS. Một chuỗi ngoài 34 tỉnh thì **không có clip để phát**. Ngoài ra `PiiGuard` chặn địa chỉ chi tiết ở tầng intake. |
-| **Nếu M3 chọn khác** | Gửi cấp quận/huyện → task bị từ chối `422 IVR_PII_POLICY_VIOLATION`, hoặc lọt vào nhưng không có clip vùng giao để phát. |
+| **IVR đề xuất** | Gửi **tên tỉnh/thành**, không gửi phường/xã/đường/số nhà. VieNeu đọc đúng chuỗi M3 gửi. |
+| **Vì sao** | Tên tỉnh **đủ để khách nhận ra đơn** mà không đọc địa chỉ chi tiết cho người nhấc máy. Tỉnh cũng quyết định **giọng miền**: IVR tra tỉnh trong bảng `34` đơn vị để chọn giọng Bắc, Trung hay Nam. Ngoài ra `PiiGuard` chặn địa chỉ chi tiết ở tầng intake. |
+| **Nếu M3 chọn khác** | Gửi địa chỉ chi tiết → task bị từ chối `422 IVR_PII_POLICY_VIOLATION`. Gửi cấp quận/huyện mà không có tên tỉnh → vẫn đọc được, nhưng không xác định được miền nên giọng rơi về miền mặc định. |
 | **Trả lời** | ☐ ĐỒNG Ý ☐ KHÁC: ____________________________________________ |
 
 ---
@@ -224,7 +224,7 @@ nào trong hai mục ấy chặn tích hợp M3.**
 | --- | --- |
 | **Giới hạn đang thực thi** | `items[]` tối đa **100** dòng (`SpeechSummaryLimits`, `ServiceCollectionExtensions.cs:85`); `public_name` ≤ **160** ký tự, `unit_label` ≤ **40** (OpenAPI). Đây là con số **kỹ thuật**, đã kiểm trong code. |
 | **IVR đề xuất** | Giữ **≤ 5 dòng** trong thực tế, và `public_name` là **tên bán hàng công khai** — không phải mã nội bộ, không kèm ghi chú. |
-| **Vì sao đề xuất thấp hơn giới hạn** | Lời thoại là ghi âm giọng người đọc **từng dòng**. 100 dòng lọt qua validation nhưng cuộc gọi sẽ dài hơn cửa sổ xác nhận (5 phút Golden Hour), và khách cúp máy trước khi nghe hết. Giới hạn kỹ thuật không bảo vệ được điều đó. |
+| **Vì sao đề xuất thấp hơn giới hạn** | Lời thoại đọc **từng dòng** hàng thành tiếng. 100 dòng lọt qua validation nhưng cuộc gọi sẽ dài hơn cửa sổ xác nhận (5 phút Golden Hour), và khách cúp máy trước khi nghe hết. Giới hạn kỹ thuật không bảo vệ được điều đó. |
 | **Nếu M3 chọn khác** | Nêu số dòng tối đa **thực tế** M3 cần; IVR tính lại thời lượng thoại và trả lời trong **cùng** vòng này. |
 | **Trả lời** | ☐ ĐỒNG Ý (≤ 5) ☐ KHÁC: số dòng tối đa thực tế = ______ |
 
@@ -595,7 +595,7 @@ Bảng này đã đối chiếu **trực tiếp với code IVR**, không chép t
 | E-2 | Mở endpoint thu hồi theo shape chốt ở `M3-14`, kèm OAS và changelog | owner IVR |
 | E-3 | Cấp base URL intake cho sandbox và production | owner IVR |
 | E-4 | Chốt ngày tắt cơ chế `X-Internal-Token` compatibility | owner IVR |
-| E-5 | Thu ngân hàng ghi âm: số 0–99, đơn vị, 34 tỉnh, tên hàng | owner IVR |
+| E-5 | Nghe thử VieNeu đọc tên hàng và vùng giao thật của M3 trên sandbox; tên nào đọc sai thì bổ sung `pronunciation_hints` | owner IVR |
 | E-6 | Áp policy chốt ở `M3-22`/`M3-23` vào `AttemptPolicyRegistries`, kèm version mới giữ snapshot job cũ | owner IVR |
 | E-7 | Cập nhật `IR-06 §9` và chuyển `W-0123` sang đề nghị `ACCEPTED` | owner IVR |
 
@@ -631,9 +631,9 @@ ______________________________________________________________________________
 
 ## Đính chính `2026-09-17` — contract `1.0.0-draft.31` (`W-0312`)
 
-> Phần trên là **bản đã gửi Module 3**, giữ nguyên từng chữ. Mục này sửa những câu trong đó **không còn
-> đúng**, hoặc **chưa từng đúng**, tính tới `1.0.0-draft.31`. Chỗ nào mục này nói khác phần trên thì
-> **mục này thắng**.
+> Phần trên là **bản đã gửi Module 3**, giữ nguyên từng chữ — trừ bốn dòng sửa tại chỗ ngày `18/09`, liệt
+> kê ở mục cuối. Mục này sửa những câu trong đó **không còn đúng**, hoặc **chưa từng đúng**, tính tới
+> `1.0.0-draft.31`. Chỗ nào mục này nói khác phần trên thì **mục này thắng**.
 
 **Nếu chỉ đọc một câu:** *`draft.30` vẫn bắt buộc `dial_token`; từ `draft.31`, gửi riêng `phone_e164` là đủ.*
 
@@ -675,3 +675,18 @@ và ca *"nửa cặp token"* bị `400`.
 | Chỗ trong phiếu | Phiếu ghi | Đúng là |
 | --- | --- | --- |
 | `A-9` | Metadata cuộc gọi giữ **90 ngày** | **Không đặt kỳ hạn xoá.** Owner quyết định ngày `17/09`: IVR giữ **toàn bộ** dữ liệu, không tự xoá theo thời gian. Dữ liệu cá nhân của một khách chỉ bị xoá khi **khách yêu cầu**. Ghi âm vẫn **TẮT** như cũ |
+
+---
+
+## Đính chính bổ sung `2026-09-18` — giọng đọc (`W-0315`)
+
+> Owner quyết định ngày `17/09` (`S4`): **VieNeu-TTS tự host là bộ đọc duy nhất.** Bốn dòng dưới đây đã
+> sửa **tại chỗ** ở phần trên; bản gửi `17/09` còn nguyên trong lịch sử git. Không đổi contract, M3
+> không phải sửa gì trong code, và đề xuất ở `M3-05`, `M3-06` giữ nguyên.
+
+| Chỗ trong phiếu | Nay là |
+| --- | --- |
+| `A-8` | VieNeu-TTS tự host đọc lời thoại trên máy chủ IVR; phần cố định render sẵn, món hàng, tổng tiền và vùng giao đọc lúc gọi. Không vendor TTS đám mây, không đọc tên khách |
+| `M3-05` | Vẫn đề xuất gửi **tên tỉnh/thành**. Lý do: đủ để khách nhận ra đơn, không lộ địa chỉ chi tiết, và tỉnh quyết định giọng miền |
+| `M3-06` | Vẫn đề xuất **≤ 5 dòng**. Lý do: mỗi dòng được đọc thành tiếng, nhiều dòng thì cuộc gọi dài quá cửa sổ xác nhận |
+| `E-5` | Nghe thử VieNeu đọc tên hàng và vùng giao thật của M3 trên sandbox; tên nào đọc sai thì bổ sung `pronunciation_hints` |

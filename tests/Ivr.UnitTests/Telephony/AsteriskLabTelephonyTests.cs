@@ -77,37 +77,25 @@ public sealed class AsteriskLabTelephonyTests
         Assert.Equal("ASTERISK_GATE_GLOBAL_KILL_SWITCH_ON", store.FailureCode);
     }
 
+    /// <summary>
+    /// The lab speaks through the VieNeu sidecar and nothing else: the profile resolves the
+    /// loopback client, and its settings pass the same validator production uses.
+    /// </summary>
     [Fact]
-    [Trait("TestId", "UT-AST-AUDIO-03")]
-    public async Task StaticFileProviderReturnsOnlyPinnedMediaReference()
+    [Trait("TestId", "UT-AST-AUDIO-08")]
+    public async Task TheLabProfileSpeaksOnlyThroughTheVieNeuSidecar()
     {
-        AsteriskAriOptions ari = Options();
-        var configured = new TtsProviderOptions
-        {
-            ExecutionMode = IvrOptions.LabRealSimExecutionMode,
-            Provider = TtsProviderOptions.StaticFileProvider,
-            OutputFormat = "audio/wav",
-            SampleRate = 8_000,
-            FileDurationSeconds = 18,
-            FileMediaReference = "sound:ivr-lab-order-confirmation",
-        };
-        var labOptions = Microsoft.Extensions.Options.Options.Create(configured);
-        var provider = new StaticFileTtsProvider(labOptions, new RegionalVoiceMap(labOptions));
+        IConfiguration configuration = Configuration();
+        var services = new ServiceCollection();
+        services.AddIvrFoundation(configuration);
+        services.AddIvrFeatureFlags(configuration);
+        await using ServiceProvider provider = services.BuildServiceProvider(validateScopes: true);
 
-        RenderedAudio audio = await provider.SynthesizeAsync(
-            Ivr.Domain.Speech.SpeechScript.Create(
-                "SCRIPT-ORDER-CONFIRM",
-                "v1-test-approved",
-                "Nội dung đơn fake an toàn.",
-                "content-hash",
-                "summary-hash"),
-            Ivr.Domain.Speech.TtsOptions.Create(),
-            CancellationToken.None);
-
-        Assert.Equal("sound:ivr-lab-order-confirmation", audio.ContentRef);
-        Assert.Equal(TimeSpan.FromSeconds(18), audio.Duration);
-        Assert.Equal("[REDACTED_ASTERISK_ARI_OPTIONS]", ari.ToString());
-        Assert.DoesNotContain("Nội dung", audio.ContentRef, StringComparison.Ordinal);
+        Assert.IsType<ConfigurableExternalTtsProvider>(provider.GetRequiredService<ITtsProvider>());
+        TtsProviderOptions tts = provider.GetRequiredService<IOptions<TtsProviderOptions>>().Value;
+        Assert.Equal(TtsProviderOptions.ExternalProvider, tts.Provider);
+        Assert.True(new Uri(tts.External.Endpoint).IsLoopback);
+        Assert.Equal("[REDACTED_ASTERISK_ARI_OPTIONS]", Options().ToString());
     }
 
     /// <summary>
@@ -296,7 +284,13 @@ public sealed class AsteriskLabTelephonyTests
             [$"{AsteriskAriOptions.SectionName}:SimChannelId"] = "SIM-ASTERISK-001",
             [$"{AsteriskAriOptions.SectionName}:AdapterMode"] = "ASTERISK_ARI",
             [$"{AsteriskAriOptions.SectionName}:ProviderName"] = "ASTERISK_ARI",
-            [$"{TtsProviderOptions.SectionName}:Provider"] = TtsProviderOptions.StaticFileProvider,
+            // The same VieNeu sidecar settings docker-compose.vieneu-tts.yml gives the lab worker.
+            [$"{TtsProviderOptions.SectionName}:Provider"] = TtsProviderOptions.ExternalProvider,
+            [$"{TtsProviderOptions.SectionName}:External:Endpoint"] = "http://127.0.0.1:8090/synthesize",
+            [$"{TtsProviderOptions.SectionName}:External:RequestBodyTemplate"] =
+                """{"text":"{{text}}","voice_id":"{{voice_id}}","sample_rate":{{sample_rate}}}""",
+            [$"{TtsProviderOptions.SectionName}:External:MediaOutputDirectory"] = "/var/lib/ivr/speech",
+            [$"{TtsProviderOptions.SectionName}:External:MediaReferencePrefix"] = "sound:generated/",
         })
         .Build();
 

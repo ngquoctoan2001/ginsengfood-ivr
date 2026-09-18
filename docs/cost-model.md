@@ -32,7 +32,7 @@ chưa xảy ra là một phép chia không có nghĩa.
 | giá cước mỗi phút / mỗi cuộc | vendor telephony | ❌ `W-0008` |
 | phí gateway/thiết bị mỗi tháng | vendor telephony | ❌ `W-0008` |
 | hạ tầng (cluster, storage, observability) | Platform | ❌ `W-0063` |
-| chi phí TTS | vendor speech | ❌ `OD-V1-19` — xem phần TTS phía trên tài liệu capacity |
+| chi phí TTS | Infra — máy chạy VieNeu sidecar (`S5`) | ❌ chưa đo trên máy thật — VieNeu tự host nên không có phí theo ký tự; xem phần TTS của tài liệu capacity |
 | **số đơn xác nhận được mỗi tháng** | đo được từ `analytics.agg_kpi_daily` sau khi có lưu lượng thật | ❌ chưa có cuộc gọi thật nào |
 
 Dòng cuối đáng chú ý: **mẫu số của chi phí trên mỗi đơn là thứ duy nhất IVR tự đo được** — nó nằm

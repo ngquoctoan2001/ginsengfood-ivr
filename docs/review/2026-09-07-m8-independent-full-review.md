@@ -117,7 +117,7 @@ Các số 481/466/535 ở ô D8 là lịch sử có ngày; cần tách khỏi he
 | B5 | **Tương tác cutoff có thật; cách sửa chưa được chốt.** F09. | Test vòng đời qua 21:00; thống nhất T0/window/quiet hours với owner. |
 | B6 | **Biện pháp local đã có.** Hai lịch sử có runbook/test/repair. F03. | Target DB inventory/backup/rehearsal và rollback floor. |
 | B7 | **Đúng flag YES.** Không chứng minh đã có đầy đủ Privacy/Legal; real-call gate vẫn đóng. F08. | Reconcile whitelist approval và deployment scope. |
-| B8 | **Local artifact có; external còn chặn.** Chọn giọng không đồng nghĩa nghe mối nối. F12. | Theo gate từng artifact; quyết định giọng người thu sẵn không tự tạo ra audio/evidence. |
+| B8 | **Local artifact có; external còn chặn.** Chọn giọng không đồng nghĩa nghe mối nối. F12. | Theo gate từng artifact; chọn giọng không tự tạo ra audio/evidence. |
 | B9 | **Không còn là ticket UI M8.** Projection hiện có; full history khác scope. F07. | M3 UI/BFF/authz; contract mới nếu muốn history rộng hơn. |
 | B10 | **Đúng constraint.** No-answer không xin đổi state; expired có expire/hold. [S32] | Chốt semantics với Core; giữ mapping hiện hành tới khi contract thay đổi. |
 | B11 | **Có drift tài liệu; kết luận không thể implement quá mạnh.** F06. | Ký trust boundary; giữ opaque domain và implement adapter khi đủ input. |

@@ -13,7 +13,7 @@
 | Hợp đồng API & đặc tả | 92% | 38 lệnh, bản `draft.27`, cổng đóng băng hợp đồng 15/15; phiếu chốt đã phát cho Module 3 |
 | Dữ liệu, nâng cấp CSDL & cổng an toàn thời gian chạy | 90% | 25 bản nâng cấp, **cổng chạy song song hai phiên bản đã xanh trong kỳ**; bảng phê duyệt trong CSDL, luật bốn mắt, công tắc khẩn luôn tắt được kể cả khi thiếu quyền |
 | Trả kết quả về Module 3 | 88% | Hàng đợi gửi lại, thư mục lỗi, đủ bộ mã xác nhận; 12/09 đã **chứng minh gửi được ra đầu nhận đặt ngoài stack** đúng hợp đồng — nhưng **chưa đối soát với đầu nhận thật của Module 3** |
-| Giọng đọc, quyền riêng tư & tuân thủ | 84% | Ngân hàng clip A–E đã sinh đủ; bỏ tên khách khỏi lời thoại nên không phải gửi dữ liệu khách ra ngoài; xử lý yêu cầu xoá dữ liệu, chặn lộ tên, mẫu hồ sơ lưu trữ cho pháp lý — nhưng **chưa duyệt giọng và chưa có chữ ký nào** |
+| Giọng đọc, quyền riêng tư & tuân thủ | 84% | Bỏ tên khách khỏi lời thoại nên không phải gửi dữ liệu khách ra ngoài; xử lý yêu cầu xoá dữ liệu, chặn lộ tên, mẫu hồ sơ lưu trữ cho pháp lý — nhưng **chưa duyệt giọng và chưa có chữ ký nào** |
 | Triển khai, CI, quan sát, hiệu năng & bằng chứng | 47% | 39 đầu việc CI đã khai, 5 kiểm tra đóng gói đạt nhưng image E2E chưa hoàn tất; **đã có hosted CI lịch sử W-0061/W-0093, chưa có bằng chứng trên mốc báo cáo này** — và hôm nay chứng minh đúng cái giá của việc đó (mục 4.1); mô hình dung lượng chưa hiệu chỉnh; chưa chạy tải; **56/257 dòng tracker không có README riêng, không đồng nghĩa thiếu bằng chứng** (đếm lại 12/09: 201 hạng mục đã có hồ sơ trên đĩa — bản trước ghi ngược thành 200 dòng còn thiếu) |
 | **TỔNG THỂ (phần chức năng)** | **~85%** | Ước lượng kỹ thuật ở chế độ giả lập; **không phải 85% đã nghiệm thu**, và chưa nói gì về mức sẵn sàng gọi khách thật |
 
@@ -24,7 +24,7 @@
 | Ngày | Lưu | Kết quả chính |
 | --- | ---: | --- |
 | 07/09 | 20 | Dựng hồ sơ cấu hình chạy trọn vòng có tiêm lỗi; cổng chặn trạng thái nháp bị sửa thành chữ ký; chạy lại toàn bộ 50 bài tự kiểm và sửa bảng theo dõi đã chết từ trước; nhân hai quyết định đã ký thành mốc giờ cắt của bộ lập lịch; **sửa ba chỗ bàn giao nói sai với Module 3** (luật tiêu đề, mã xác nhận, token quay số không lưu được) |
-| 08/09 | 31 | Ngân hàng giọng đọc: ghi lại 12 đoạn cố định, chốt bộ ghép câu, phát số tiền từ clip thay vì đọc máy; **chủ dự án dời khung giờ gọi sang 21:08** để đơn 21 giờ vẫn đủ hai lượt; một luật chống gọi trùng duy nhất; dọn nhánh lạc, đồng bộ hai kho |
+| 08/09 | 31 | **Chủ dự án dời khung giờ gọi sang 21:08** để đơn 21 giờ vẫn đủ hai lượt; một luật chống gọi trùng duy nhất; dọn nhánh lạc, đồng bộ hai kho |
 | 09/09 | 49 | **Xoá hẳn giao diện quản trị**, giữ đúng phần Module 3 cần; phát hành hợp đồng `draft.24`; ký luật hết hạn token quay số; dựng hai hàng rào thu hồi việc; chặn lộ tên khách; sửa hai chỗ nuốt kết quả do bắt lỗi quá rộng; ba đường fail-closed nay nói rõ lý do; giảm bảng điều khiển từ 12 xuống 8 truy vấn; xoá 942 MB rác kho |
 | 10–12/09 | 40 | **Phát phiếu chốt một lần cho Module 3** kèm hợp đồng `draft.25`; **chủ dự án nghiệm thu 35 hạng mục**, số đã nghiệm thu tăng 8 → 43; gộp bốn vòng lặp worker thành một; buộc lược đồ nhận việc vào hợp đồng sinh tự động; mẫu hồ sơ lưu trữ cho pháp lý; bỏ 440 lệnh thừa. **11/09 (6 lưu):** đưa hợp đồng lên `draft.27`, thống nhất từ vựng chế độ chạy, sửa chuỗi băm bị đọc nhầm thành số điện thoại. **12/09 (10 lưu):** sửa ba lỗi chỉ lộ khi chạy thật (mục 4.1) và **dựng môi trường thử cho Module 3**, chạy được bằng một lệnh |
 

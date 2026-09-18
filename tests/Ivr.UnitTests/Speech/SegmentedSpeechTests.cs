@@ -12,7 +12,7 @@ namespace Ivr.UnitTests.Speech;
 /// <summary>
 /// Hybrid segmented playback (W-0106 §4.6 / A1).
 /// <para>
-/// Before this, a call played one file. In the lab that file was a generic recording, so a green
+/// Before this, a call played one file. In the lab that file was a generic sample, so a green
 /// "the call connected and the customer pressed 1" proved the dial path and proved nothing about
 /// whether the customer heard their own order. These tests are written against that specific
 /// confusion: the load-bearing assertion is that two different orders produce two different
@@ -25,7 +25,7 @@ public sealed class SegmentedSpeechTests
 
     /// <summary>
     /// The canonical template splits into four spoken-prose pieces and three order values —
-    /// the 4 x 3 regions = 12 recordings W-0106 §4.6 budgets for.
+    /// the 4 x 3 regions = 12 pre-rendered files W-0106 §4.6 budgets for.
     /// </summary>
     [Fact]
     [Trait("TestId", "UT-SEG-SPLIT-01")]
@@ -43,8 +43,8 @@ public sealed class SegmentedSpeechTests
                 .Select(piece => piece.PlaceholderName));
         Assert.Equal(Enumerable.Range(1, 7), pieces.Select(piece => piece.Ordinal));
 
-        // The fixed share is what makes the recorded-catalog design worth building: those
-        // characters are paid for once, ever, instead of on every call.
+        // The fixed share is what makes the pre-rendered catalog worth building: VieNeu renders
+        // those characters once, ever, instead of on every call.
         int fixedCharacters = pieces
             .Where(piece => piece.Kind == SpeechSegmentKind.Fixed)
             .Sum(piece => piece.Text.Length);
@@ -59,7 +59,7 @@ public sealed class SegmentedSpeechTests
 
     /// <summary>
     /// Editing one word of the template has to move the identity of the piece that contains it,
-    /// or a recording of the old wording keeps resolving and the customer keeps hearing it.
+    /// or a file rendered from the old wording keeps resolving and the customer keeps hearing it.
     /// </summary>
     [Fact]
     [Trait("TestId", "UT-SEG-TEMPLATEDRIFT-02")]
@@ -79,7 +79,7 @@ public sealed class SegmentedSpeechTests
     }
 
     /// <summary>
-    /// Two variables separated only by a space would produce a fixed piece that is a recording
+    /// Two variables separated only by a space would produce a fixed piece that is a rendering
     /// of a space. Refused at the template, not papered over at render time.
     /// </summary>
     [Fact]
@@ -103,7 +103,7 @@ public sealed class SegmentedSpeechTests
     /// <para>
     /// Compared on the playlist hash rather than on the first reference, because the first
     /// reference is the greeting and the greeting is identical for everyone — comparing it would
-    /// pass even if the pipeline played a generic recording to both customers, which is the exact
+    /// pass even if the pipeline played a generic file to both customers, which is the exact
     /// defect this work item exists to remove.
     /// </para>
     /// </summary>
@@ -143,7 +143,7 @@ public sealed class SegmentedSpeechTests
     }
 
     /// <summary>
-    /// Warm cache, second identical order: no vendor call at all. This is the number the cost
+    /// Warm cache, second identical order: no synthesis call at all. This is the number the cost
     /// model in W-0106 §4.6 rests on, so it is asserted rather than assumed.
     /// </summary>
     [Fact]
@@ -189,7 +189,7 @@ public sealed class SegmentedSpeechTests
     }
 
     /// <summary>
-    /// A missing recording must stop the call, not shorten it.
+    /// A missing pre-rendered file must stop the call, not shorten it.
     /// <para>
     /// Playing the pieces that did resolve produces a call that sounds complete and states a
     /// different order — opening, silence where the items were, then a total. A customer presses
@@ -198,14 +198,14 @@ public sealed class SegmentedSpeechTests
     /// </summary>
     [Fact]
     [Trait("TestId", "UT-SEG-MISSING-07")]
-    public async Task AMissingRecordingFailsTheCallInsteadOfPlayingPartOfIt()
+    public async Task AMissingPreRenderedFileFailsTheCallInsteadOfPlayingPartOfIt()
     {
         ImmutableArray<string> required = TargetV1SpeechPolicy.FixedSegmentHashes(
             TargetV1SpeechPolicy.CanonicalVietnameseTemplate);
         TtsProviderOptions configured = SegmentedOptions(FixedSegmentSource.Catalog);
 
-        // Everything recorded except the closing instruction — the piece that tells the customer
-        // which key confirms.
+        // Everything pre-rendered except the closing instruction — the piece that tells the
+        // customer which key confirms.
         configured.FixedSegments =
         [
             .. required
@@ -222,7 +222,7 @@ public sealed class SegmentedSpeechTests
         TtsSynthesisException failure = await Assert.ThrowsAsync<TtsSynthesisException>(
             () => SynthesizeAsync(service, Summary([SpeechItem.Create("Sâm lát", 1, "hộp")], 560_000m)));
 
-        Assert.Equal("TTS_FIXED_SEGMENT_NOT_RECORDED", failure.TechnicalErrorCode);
+        Assert.Equal("TTS_FIXED_SEGMENT_NOT_RENDERED", failure.TechnicalErrorCode);
     }
 
     /// <summary>
@@ -231,7 +231,7 @@ public sealed class SegmentedSpeechTests
     /// </summary>
     [Fact]
     [Trait("TestId", "UT-SEG-CATALOG-08")]
-    public async Task RecordedProseIsPlayedFromTheCatalogAndNeverSynthesized()
+    public async Task PreRenderedProseIsPlayedFromTheCatalogAndNeverSynthesized()
     {
         TtsProviderOptions configured = SegmentedOptions(FixedSegmentSource.Catalog);
         configured.FixedSegments = FullCatalog();
@@ -251,7 +251,7 @@ public sealed class SegmentedSpeechTests
         Assert.Equal(3, segments.DynamicSynthesized);
         Assert.StartsWith("sound:ivr-fixed-", call.Audio!.Segments[0].ContentRef, StringComparison.Ordinal);
 
-        // Only the order values were sent anywhere. The prose stayed on this machine.
+        // Only the order values reached the synthesizer; the prose came from the catalog.
         Assert.Equal(3, usage.Snapshot().ProviderRequests);
     }
 
@@ -327,11 +327,11 @@ public sealed class SegmentedSpeechTests
     /// <summary>
     /// The committed segment manifest and the runtime have to agree about what the script says.
     /// <para>
-    /// The manifest tells a voice engineer which sentences to record and pins the identity each
-    /// recording is filed under; the runtime looks recordings up by that identity. They are
-    /// produced by different tools in different languages, so "they agree" is a claim, and this
-    /// is where it gets checked. If they drift, the deployment either fails to find a recording
-    /// or finds one made from wording nobody approved.
+    /// The manifest tells the VieNeu render step which sentences to render and pins the identity
+    /// each file is filed under; the runtime looks files up by that identity. They are produced
+    /// by different tools in different languages, so "they agree" is a claim, and this is where
+    /// it gets checked. If they drift, the deployment either fails to find a file or finds one
+    /// rendered from wording nobody approved.
     /// </para>
     /// </summary>
     [Fact]
@@ -374,7 +374,7 @@ public sealed class SegmentedSpeechTests
         }
 
         // The number the cost model rests on, asserted rather than quoted: most of the script is
-        // prose that gets recorded once and never synthesized again.
+        // prose that VieNeu renders once and never synthesizes again at call time.
         Assert.Equal(203, rootElement.GetProperty("fixedCharacters").GetInt32());
         Assert.Equal(4, rootElement.GetProperty("fixedSegmentCount").GetInt32());
         Assert.Equal(3, rootElement.GetProperty("dynamicSegmentCount").GetInt32());

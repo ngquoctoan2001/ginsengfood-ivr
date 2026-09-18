@@ -46,35 +46,16 @@ head -110 plan/ivr-orther/today-03-…md | git hash-object --stdin
 
 Mọi cập nhật nằm ở phụ lục `P.1`–`P.5` sau dấu phân cách.
 
-## 3. Chỗ rẽ chạm cả ba phiếu, mỗi phiếu một kiểu
-
-`OD-V1-19` (`05/09`) đổi hướng sang *"không vendor TTS lúc chạy"*, và `items_spoken` chưa ai trả
-lời có thu trước được không. Hệ quả **không giống nhau**:
-
-| Phiếu | Nếu bỏ TTS lúc chạy |
-| --- | --- |
-| Legal | `L1`–`L4` phụ thuộc; **`L3` vẫn cần** — 12 đoạn cố định hiện có là audio do VieNeu render; `L5`–`L7` cần dù luồng nào |
-| **Security** | 16 finding **đều** thuộc base image Debian 13.6 của `ivr-tts`. Image không lên production ⇒ **không còn là câu hỏi release**, không cần `SEC-A` lẫn `SEC-B` |
-| Platform | `INF-A` (mirror 201 MiB) không còn cần; `INF-B` và `INF-C` vẫn cần |
-
-Với Security thì hệ quả **mạnh nhất**, nên phiếu ghi thẳng:
-
-> *"Đừng ký `SEC-A` trước khi chốt chỗ rẽ. Một disposition có thời hạn review cho một image không
-> bao giờ deploy là nợ giấy tờ, và nó sẽ được đọc như bằng chứng rằng image ấy đã được duyệt."*
-
-Bảng `§6` thêm một dòng: đóng phiếu vì **image không lên production** và đóng vì **rủi ro được chấp
-nhận** là hai cách đóng khác nhau, không thay nhau được.
-
-## 4. Ba đính chính trong phụ lục `today-03`
+## 3. Ba đính chính trong phụ lục `today-03`
 
 - **`P.3`** — §2 của gói ghi *"phải trả lại đủ `L1`–`L6`"*, nhưng phiếu Legal có **bảy** câu
-  (`L7`: ElevenLabs free tier ở lab trong lúc chờ). Dùng con số trong chính phiếu.
+  (`L7`). Dùng con số trong chính phiếu.
 - **`P.4`** — `internal_mirror_gate` ngày `29/08` chưa có dòng riêng trong bảng §1; nay là gate
   thật sau `W-0225`, và phiếu Platform đã thêm `INF-A4` cho phần hồ sơ.
 - **`P.1`** — ghi lại việc gói và cả ba phiếu bị `8ed62e9` gỡ, dù lượt dọn đó tự mô tả là chỉ gỡ
   phiếu `SUPERSEDED` thuộc vòng khác.
 
-## 5. Kiểm chứng
+## 4. Kiểm chứng
 
 ```text
 gate-status.mjs                  GATE_STATUS_PASS — 225 work items
@@ -89,9 +70,9 @@ link check                       6/6 resolve từ 00-index, worklist 1.4, W-0122
 
 Không sửa code, không sửa `MODELS.lock`, không mở gate nào. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-## 6. Còn lại
+## 5. Còn lại
 
 Bốn tài liệu nay đủ bộ và liên kết đúng. **Không cái nào đã gửi** — `External dispatch:
 NOT_PERFORMED` vẫn là trạng thái tự khai của gói, y như ngày `29/08`.
 
-Việc kế tiếp không phải của M8: **chốt `items_spoken`**, rồi gửi.
+Việc kế tiếp không phải của M8: gửi. *(Sửa `18/09`, `W-0315`: câu hỏi của ba phiếu nay gom về `S2`/`S5` của Sếp.)*
