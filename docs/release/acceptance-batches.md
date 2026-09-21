@@ -1,4 +1,4 @@
-# Danh sách đề nghị nghiệm thu — `3cf695928ce0e2602ae660a7c6f999b08f7dee0b`
+# Danh sách đề nghị nghiệm thu — `b6bd852cecdfb2df9188fc41b97c94f080639b2c`
 
 Script **chỉ đọc**: không sửa tracker. Chỉ Toàn chuyển một dòng sang `ACCEPTED`, sau khi
 đọc bằng chứng — danh sách này không thay cho việc đọc.
@@ -22,12 +22,12 @@ Prompt đã lên kế hoạch đã xong (`ACCEPTED`, `N/A`, `CANCELLED`): **6/54
 | `P1` | 4 | 0 | 1 | 3 | 0 |
 | `P2` | 9 | 0 | 9 | 0 | 0 |
 | `P3` | 4 | 0 | 0 | 4 | 0 |
-| `P4` | 4 | 0 | 1 | 3 | 0 |
+| `P4` | 4 | 0 | 3 | 1 | 0 |
 | `P5` | 5 | 0 | 1 | 4 | 0 |
-| `P6` | 3 | 0 | 0 | 3 | 0 |
+| `P6` | 3 | 0 | 1 | 2 | 0 |
 | `P7` | 5 | 0 | 0 | 5 | 0 |
-| `P10` | 4 | 0 | 0 | 4 | 0 |
-| `UNPLANNED` | 180 | 0 | 45 | 135 | 0 |
+| `P10` | 4 | 0 | 1 | 3 | 0 |
+| `UNPLANNED` | 181 | 0 | 55 | 126 | 0 |
 
 `ĐẠT`: đủ bốn điều. `XEM`: C1, C2, C4 đạt, còn cột Residual cần Toàn đọc xem có việc
 của IVR không. `KHÔNG ĐẠT`: hỏng ít nhất một điều, lý do ở dưới. `CHƯA KIỂM`: thiếu kết quả test
@@ -37,26 +37,26 @@ hoặc log gate sweep để kết luận.
 
 | Work ID | Trạng thái | C1 bằng chứng | C2 test | C3 residual | Kết luận |
 | --- | --- | :---: | :---: | :---: | --- |
-| `W-0011` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0012` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0013` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0011` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0012` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0013` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 
-- `W-0011` — docs/evidence/W-0011/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO (gói ghi dạng cũ: "Real customer calls: NO") · CT-CI-01 không có trong docs/traceability-tests.md; CT-CI-02 không có trong docs/traceability-tests.md; CT-CI-03 không có trong docs/traceability-tests.md; và 6 TestId khác · Residual: CI + hosted enforcement complete except required independent approval; giữ TESTS_PASS tới khi Premium/Ultimate + second reviewer proof đóng W-0061
-- `W-0012` — docs/evidence/W-0012/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO (gói ghi dạng cũ: "Real customer calls: NO") · CT-CI-05 không có trong docs/traceability-tests.md; UT-FND-RBAC-03 không có trong docs/traceability-tests.md; UT-FND-RBAC-08 không có trong docs/traceability-tests.md · Residual: local MOCK implementation complete; P1-2 owns persistence migrations, P4-4 owns production auth; no Sales/SIM/real call; W-0061 push setting PASS, independent approval remains
-- `W-0013` — docs/evidence/W-0013/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO (gói ghi dạng cũ: "Real customer calls: NO") · CT-CI-05 không có trong docs/traceability-tests.md · Residual: local MOCK complete; OD-V1-20 pending/fail-closed; P1-2 owns migration/persistent mutation; W-0061 push setting PASS, independent approval remains
+- `W-0011` — CT-CI-01 không có trong docs/traceability-tests.md; CT-CI-02 không có trong docs/traceability-tests.md; CT-CI-03 không có trong docs/traceability-tests.md; và 6 TestId khác · Residual: CI + hosted enforcement complete except required independent approval; giữ TESTS_PASS tới khi Premium/Ultimate + second reviewer proof đóng W-0061
+- `W-0012` — CT-CI-05 không có trong docs/traceability-tests.md; UT-FND-RBAC-03 không có trong docs/traceability-tests.md; UT-FND-RBAC-08 không có trong docs/traceability-tests.md · Residual: local MOCK implementation complete; P1-2 owns persistence migrations, P4-4 owns production auth; no Sales/SIM/real call; W-0061 push setting PASS, independent approval remains
+- `W-0013` — CT-CI-05 không có trong docs/traceability-tests.md · Residual: local MOCK complete; OD-V1-20 pending/fail-closed; P1-2 owns migration/persistent mutation; W-0061 push setting PASS, independent approval remains
 
 ## Đợt `P1`
 
 | Work ID | Trạng thái | C1 bằng chứng | C2 test | C3 residual | Kết luận |
 | --- | --- | :---: | :---: | :---: | --- |
-| `W-0014` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0015` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0016` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0014` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0015` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0016` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0064` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 
-- `W-0014` — docs/evidence/W-0014/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO (gói ghi dạng cũ: "real-customer calls: NO") · CT-CI-05 không có trong docs/traceability-tests.md · Residual: Contract remains TARGET_DRAFT; current compat runtime-disabled; W-0002/W-0005/W-0006 external; W-0061 push setting PASS, independent approval remains
-- `W-0015` — docs/evidence/W-0015/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · IT-DB-LEASE-05 không có trong docs/traceability-tests.md · Residual: local P0-4 persistence gap closed; DF-07/KMS/backup-staging-prod remain; W-0061 push setting PASS, independent approval remains; no real Sales/SIM/call
-- `W-0016` — docs/evidence/W-0016/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: local MOCK complete; Target V1/policy approvals and real Sales/SIM/customer calls remain external/NOT_RUN; W-0061 push setting PASS, independent approval remains
+- `W-0014` — CT-CI-05 không có trong docs/traceability-tests.md · Residual: Contract remains TARGET_DRAFT; current compat runtime-disabled; W-0002/W-0005/W-0006 external; W-0061 push setting PASS, independent approval remains
+- `W-0015` — IT-DB-LEASE-05 không có trong docs/traceability-tests.md · Residual: local P0-4 persistence gap closed; DF-07/KMS/backup-staging-prod remain; W-0061 push setting PASS, independent approval remains; no real Sales/SIM/call
+- `W-0016` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: local MOCK complete; Target V1/policy approvals and real Sales/SIM/customer calls remain external/NOT_RUN; W-0061 push setting PASS, independent approval remains
 - `W-0064` — Residual: owner/reviewer acceptance pending; production periods vẫn OWNER_DECISION_REQUIRED theo DF-07/OD-V1-11; REAL_CUSTOMER_CALL_ALLOWED=NO
 
 ## Đợt `P2`
@@ -74,7 +74,7 @@ hoặc log gate sweep để kết luận.
 | `W-0066` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 
 - `W-0018` — Residual: owner/reviewer acceptance, real Sales/auth, LAB/PROD script/key/SIM and P2-2 eligibility remain open
-- `W-0019` — Test lịch sử đã thay thế: UT-ELIG-BLOCK-01, UT-ELIG-TRUST-03; xem acceptance-tests.json trong gói bằng chứng · Residual: Đã ghim quyết định và 11 test thay thế cho 2 ID retired; Toàn xét riêng sau kiểm chứng mới; M3/auth/SIM thật ngoài phạm vi MOCK; REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0019` — Test lịch sử đã thay thế: UT-ELIG-BLOCK-01, UT-ELIG-TRUST-03; xem acceptance-tests.json trong gói bằng chứng · Residual: Đủ bằng chứng để Toàn xét riêng; 2 ID retired đã ghim quyết định và 11 replacement Passed; M3/auth/SIM thật ngoài phạm vi MOCK; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0020` — Residual: scheduler flag off + dispatch gateway unavailable until P2-4; policy owner/LAB/1 SIM/32 eSIM/PROD NOT_RUN; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0021` — Residual: MOCK-only; no live TTS/real provider/egress/customer call; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0022` — Residual: MOCK/local only; normalization disabled by default; production retry/vendor mapping owner approval; P2-6 callback pending
@@ -101,15 +101,15 @@ hoặc log gate sweep để kết luận.
 
 | Work ID | Trạng thái | C1 bằng chứng | C2 test | C3 residual | Kết luận |
 | --- | --- | :---: | :---: | :---: | --- |
-| `W-0029` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
+| `W-0029` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0030` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
-| `W-0031` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0032` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
+| `W-0031` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0032` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 
-- `W-0029` — docs/evidence/W-0029/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: mock-only là trần; real provider vẫn từ chối boot — blocker còn lại là W-0006/OD-V1-07, không phải P4-1; real sandbox CDC NOT_RUN (chưa có endpoint/credential); /health/ready không đụng — thuộc W-0040
+- `W-0029` — Residual: mock-only là trần; real provider vẫn từ chối boot — blocker còn lại là W-0006/OD-V1-07, không phải P4-1; real sandbox CDC NOT_RUN (chưa có endpoint/credential); /health/ready không đụng — thuộc W-0040
 - `W-0030` — Residual: mock-only là trần; shape ở specs/api/evidence/ là đề xuất IVR, OD-V1-03 vẫn mở nên W-0002/W-0005 giữ BLOCKED_EXTERNAL; real sandbox NOT_RUN; IVR vẫn không sở hữu ops transition (D-02)
-- `W-0031` — docs/evidence/W-0031/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · IT-ELIG-TRUST-14 không có trong docs/traceability-tests.md; UT-ELIG-TRUST-16 không có trong docs/traceability-tests.md; UT-ELIG-TRUST-17 không có trong docs/traceability-tests.md · Residual: mock-only là trần; trust skip vẫn tắt — bật là quyết định owner cần hợp đồng resolver có phiên bản từ Sales; shape voice/trust là đề xuất IVR trong linked evidence reference, OD-V1-03 vẫn mở; real sandbox NOT_RUN; not…
-- `W-0032` — docs/evidence/W-0032/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: mock-only là trần; production auth profile vẫn BLOCKED_EXTERNAL (W-0006/OD-V1-07) và Mode=Real từ chối boot; mTLS bật mà chưa có profile đã ký cũng từ chối boot; chưa có ngày tắt X-Internal-Token — closure artifact củ…
+- `W-0031` — IT-ELIG-TRUST-14 không có trong docs/traceability-tests.md; UT-ELIG-TRUST-16 không có trong docs/traceability-tests.md; UT-ELIG-TRUST-17 không có trong docs/traceability-tests.md · Residual: mock-only là trần; trust skip vẫn tắt — bật là quyết định owner cần hợp đồng resolver có phiên bản từ Sales; shape voice/trust là đề xuất IVR trong linked evidence reference, OD-V1-03 vẫn mở; real sandbox NOT_RUN; not…
+- `W-0032` — Residual: mock-only là trần; production auth profile vẫn BLOCKED_EXTERNAL (W-0006/OD-V1-07) và Mode=Real từ chối boot; mTLS bật mà chưa có profile đã ký cũng từ chối boot; chưa có ngày tắt X-Internal-Token — closure artifact củ…
 
 ## Đợt `P5`
 
@@ -118,26 +118,26 @@ hoặc log gate sweep để kết luận.
 | `W-0035` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0036` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0037` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0038` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0039` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0038` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0039` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 
 - `W-0035` — Residual: traceability hiện là test↔source, ánh xạ đầy đủ tới từng mục specs/testing/02/03 còn lại cho P5-2/P5-4; mock-only, REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0036` — CT-CB-01 không có trong docs/traceability-tests.md; CT-CB-02 không có trong docs/traceability-tests.md; CT-CB-03 không có trong docs/traceability-tests.md; và 16 TestId khác · Residual: không có Pact — khác biệt có chủ ý, pact chỉ có giá trị khi cả hai bên cùng chạy mà Sales chưa có gì; không có E2E trình duyệt — pane preview không composite frame; provider thật vẫn BLOCKED_EXTERNAL
 - `W-0037` — PT-SOAK-02 không có trong docs/traceability-tests.md; SEC-AUTHZ-05 không có trong docs/traceability-tests.md; SEC-ERR-06 không có trong docs/traceability-tests.md · Residual: rate limiting CHƯA CÓ (chỉ có ánh xạ 429, không middleware) — ngưỡng là quyết định vận hành chưa ai duyệt; soak 4–8h NOT_RUN; không tuyên bố ngưỡng latency D-04 vì cần Sales thật trong vòng lặp; năng lực 32 kênh thật …
-- `W-0038` — docs/evidence/W-0038/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-GATE-01 không có trong docs/traceability-tests.md; CT-GATE-02 không có trong docs/traceability-tests.md; CT-GATE-03 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: hosted GitLab evidence NOT_RUN — W-0061 còn BLOCKED_EXTERNAL, self-test chứng minh công cụ từ chối đúng thứ chứ không chứng minh GitLab đã chặn một merge; không bật SAST/Semgrep/Sonar (tier chưa có, bật scanner không …
-- `W-0039` — docs/evidence/W-0039/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · UI-A11Y-01 không có trong docs/traceability-tests.md; UI-I18N-02 không có trong docs/traceability-tests.md; UI-VISUAL-04 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: UI-XBROWSER-03 và visual-regression NOT_RUN — pane preview không composite frame, không thêm job CI cho việc không chạy được (sẽ đỏ vĩnh viễn rồi bị allow_failure hoá); axe không dùng (cần DOM thật) — thay bằng kiểm c…
+- `W-0038` — CT-GATE-01 không có trong docs/traceability-tests.md; CT-GATE-02 không có trong docs/traceability-tests.md; CT-GATE-03 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: hosted GitLab evidence NOT_RUN — W-0061 còn BLOCKED_EXTERNAL, self-test chứng minh công cụ từ chối đúng thứ chứ không chứng minh GitLab đã chặn một merge; không bật SAST/Semgrep/Sonar (tier chưa có, bật scanner không …
+- `W-0039` — UI-A11Y-01 không có trong docs/traceability-tests.md; UI-I18N-02 không có trong docs/traceability-tests.md; UI-VISUAL-04 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: UI-XBROWSER-03 và visual-regression NOT_RUN — pane preview không composite frame, không thêm job CI cho việc không chạy được (sẽ đỏ vĩnh viễn rồi bị allow_failure hoá); axe không dùng (cần DOM thật) — thay bằng kiểm c…
 
 ## Đợt `P6`
 
 | Work ID | Trạng thái | C1 bằng chứng | C2 test | C3 residual | Kết luận |
 | --- | --- | :---: | :---: | :---: | --- |
-| `W-0040` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0041` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0042` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
+| `W-0040` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0041` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0042` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 
-- `W-0040` — docs/evidence/W-0040/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · IT-OBS-TRACE-02 không có trong docs/traceability-tests.md · Residual: OTLP export BLOCKED_EXTERNAL (W-0063) — instrumentation dùng BCL nên gắn exporter sau không sửa call site; mới instrument 1/5 chặng (callback), 4 chặng còn lại chưa có span; dependency_probing_available vẫn false — đó…
-- `W-0041` — docs/evidence/W-0041/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CAP-ALERT-04 không có trong docs/traceability-tests.md · Residual: chưa exporter OTLP (W-0063) nên chưa tín hiệu nào rời tiến trình — đây là artifact as-code đã qua bộ đánh giá luật thật, KHÔNG phải hệ đang chạy; không có screenshot dashboard (§10) vì không có Grafana để chụp và tôi …
-- `W-0042` — docs/evidence/W-0042/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: không có staging — chaos chạy trong harness tự dựng của bộ test, chưa lượt nào trên hệ đã triển khai; deploy/chaos/ là config cho staging chưa tồn tại (W-0063); không có alert-fire capture thật (§10) vì không có Alert…
+- `W-0040` — IT-OBS-TRACE-02 không có trong docs/traceability-tests.md · Residual: OTLP export BLOCKED_EXTERNAL (W-0063) — instrumentation dùng BCL nên gắn exporter sau không sửa call site; mới instrument 1/5 chặng (callback), 4 chặng còn lại chưa có span; dependency_probing_available vẫn false — đó…
+- `W-0041` — CAP-ALERT-04 không có trong docs/traceability-tests.md · Residual: chưa exporter OTLP (W-0063) nên chưa tín hiệu nào rời tiến trình — đây là artifact as-code đã qua bộ đánh giá luật thật, KHÔNG phải hệ đang chạy; không có screenshot dashboard (§10) vì không có Grafana để chụp và tôi …
+- `W-0042` — Residual: không có staging — chaos chạy trong harness tự dựng của bộ test, chưa lượt nào trên hệ đã triển khai; deploy/chaos/ là config cho staging chưa tồn tại (W-0063); không có alert-fire capture thật (§10) vì không có Alert…
 
 ## Đợt `P7`
 
@@ -145,29 +145,29 @@ hoặc log gate sweep để kết luận.
 | --- | --- | :---: | :---: | :---: | --- |
 | `W-0043` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0044` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0045` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0045` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0046` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0047` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0047` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 
 - `W-0043` — IT-IMG-BUILD-01 không có trong docs/traceability-tests.md; IT-IMG-COMPOSE-03 không có trong docs/traceability-tests.md; IT-IMG-E2E-05 không có trong docs/traceability-tests.md; và 4 TestId khác · Residual: chưa có registry (§5 NEED_CONFIRMATION) nên chưa push lần nào; ~~compose smoke chưa chạy hết luồng DTMF tới callback; chưa seed attempt policy~~ đã đóng 2026-08-19 bằng IT-IMG-E2E-05 + deploy/docker/dev-seed/seed.sql …
 - `W-0044` — IT-K8S-GATE-02 không có trong docs/traceability-tests.md; IT-K8S-LINT-01 không có trong docs/traceability-tests.md; IT-K8S-NETPOL-04 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: ~~IT-K8S-NETPOL-04 NOT_PROVEN~~ đã đóng 2026-08-19 — kết luận cũ "cluster không thực thi, cần Calico/Cilium" là sai: cluster có thực thi, phép đo bị đua với thời điểm kube-router cài luật iptables cho pod. Nay 5/5 K8S…
-- `W-0045` — docs/evidence/W-0045/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · IT-CD-CONCURRENCY-05 không có trong docs/traceability-tests.md; IT-CD-DEV-01 không có trong docs/traceability-tests.md; IT-CD-GATE-02 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: TESTS_PASS chỉ cho static/configuration gates; CHƯA PIPELINE DEPLOY NÀO CHẠY — không runner/registry/credential cluster (W-0061,W-0063), nên mọi deploy/approval/rollback evidence là NOT_RUN/BLOCKED_EXTERNAL; không suy…
+- `W-0045` — IT-CD-CONCURRENCY-05 không có trong docs/traceability-tests.md; IT-CD-DEV-01 không có trong docs/traceability-tests.md; IT-CD-GATE-02 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: TESTS_PASS chỉ cho static/configuration gates; CHƯA PIPELINE DEPLOY NÀO CHẠY — không runner/registry/credential cluster (W-0061,W-0063), nên mọi deploy/approval/rollback evidence là NOT_RUN/BLOCKED_EXTERNAL; không suy…
 - `W-0046` — IT-BG-WORKER-02 không có trong docs/traceability-tests.md; IT-CANARY-01 không có trong docs/traceability-tests.md; IT-FLAG-RAMP-04 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: TESTS_PASS chỉ cho static/configuration + migration gates; canary run / auto-rollback / blue-green switch demo đều NOT_RUN — Argo Rollouts và Prometheus backend vẫn thuộc W-0063; không suy diễn progressive-delivery ru…
-- `W-0047` — docs/evidence/W-0047/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · IT-K8S-NETPOL-04 không có trong docs/traceability-tests.md; IT-K8S-ROTATE-07 không có trong docs/traceability-tests.md · Residual: drill overlap đã chạy trên HTTP thật: token cũ được nhận 21/21 lượt trong cửa sổ rồi chuyển 403 đúng tại thời điểm hết hạn, token mới 0/28 lượt bị 403, token chưa cấu hình 403 cả 28 lượt — ~~nhưng drill chạy trên một …
+- `W-0047` — IT-K8S-NETPOL-04 không có trong docs/traceability-tests.md; IT-K8S-ROTATE-07 không có trong docs/traceability-tests.md · Residual: drill overlap đã chạy trên HTTP thật: token cũ được nhận 21/21 lượt trong cửa sổ rồi chuyển 403 đúng tại thời điểm hết hạn, token mới 0/28 lượt bị 403, token chưa cấu hình 403 cả 28 lượt — ~~nhưng drill chạy trên một …
 
 ## Đợt `P10`
 
 | Work ID | Trạng thái | C1 bằng chứng | C2 test | C3 residual | Kết luận |
 | --- | --- | :---: | :---: | :---: | --- |
-| `W-0052` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
-| `W-0053` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0054` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0055` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0052` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0053` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0054` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0055` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 
-- `W-0052` — docs/evidence/W-0052/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: KHÔNG chữ ký nào — PIA DRAFT_UNSIGNED, chu kỳ retention UNSIGNED, cơ sở pháp lý là đề xuất kỹ thuật (W-0009); không endpoint DSAR — cần permission Permission Core chưa cấp (OD-V1-20/DF-01), treo lên IVR_QUEUE_VIEW ngh…
-- `W-0053` — docs/evidence/W-0053/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · DG-BACKUP-02 không có trong docs/traceability-tests.md; DG-CRYPTO-01 không có trong docs/traceability-tests.md; DG-DR-03 không có trong docs/traceability-tests.md · Residual: không multi-AZ — một host, hai container; không mã hoá volume at-rest và không KMS (W-0063); không PITR (logical dump); RTO chưa gồm phát hiện/quyết định/chuyển traffic; chưa có fencing nên promote khi chỉ mất liên lạ…
-- `W-0054` — docs/evidence/W-0054/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CAP-ALERT-04 không có trong docs/traceability-tests.md; CAP-CALIB-03 không có trong docs/traceability-tests.md; CAP-MODEL-01 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: UNCALIBRATED — P5-3 đo API/scheduler, chưa bao giờ đo một cuộc quay số; mô hình không được dùng quyết định mua hàng tới khi W-0008 cho thời lượng đo được; không dự báo khối lượng từ business — mà dailyOrders chính là …
-- `W-0055` — docs/evidence/W-0055/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-DOC-02 không có trong docs/traceability-tests.md; IT-MIGRATE-03 không có trong docs/traceability-tests.md · Residual: không có kho dữ liệu riêng — là schema analytics trong cùng database (W-0063), lệch với P10-4 §7 vì DTS-04 chốt 3 deployable; không BI tool nào từng kết nối (grant SELECT là thứ cấp được, chưa ai cấp); chưa đo trên kh…
+- `W-0052` — Residual: KHÔNG chữ ký nào — PIA DRAFT_UNSIGNED, chu kỳ retention UNSIGNED, cơ sở pháp lý là đề xuất kỹ thuật (W-0009); không endpoint DSAR — cần permission Permission Core chưa cấp (OD-V1-20/DF-01), treo lên IVR_QUEUE_VIEW ngh…
+- `W-0053` — DG-BACKUP-02 không có trong docs/traceability-tests.md; DG-CRYPTO-01 không có trong docs/traceability-tests.md; DG-DR-03 không có trong docs/traceability-tests.md · Residual: không multi-AZ — một host, hai container; không mã hoá volume at-rest và không KMS (W-0063); không PITR (logical dump); RTO chưa gồm phát hiện/quyết định/chuyển traffic; chưa có fencing nên promote khi chỉ mất liên lạ…
+- `W-0054` — CAP-ALERT-04 không có trong docs/traceability-tests.md; CAP-CALIB-03 không có trong docs/traceability-tests.md; CAP-MODEL-01 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: UNCALIBRATED — P5-3 đo API/scheduler, chưa bao giờ đo một cuộc quay số; mô hình không được dùng quyết định mua hàng tới khi W-0008 cho thời lượng đo được; không dự báo khối lượng từ business — mà dailyOrders chính là …
+- `W-0055` — CT-DOC-02 không có trong docs/traceability-tests.md; IT-MIGRATE-03 không có trong docs/traceability-tests.md · Residual: không có kho dữ liệu riêng — là schema analytics trong cùng database (W-0063), lệch với P10-4 §7 vì DTS-04 chốt 3 deployable; không BI tool nào từng kết nối (grant SELECT là thứ cấp được, chưa ai cấp); chưa đo trên kh…
 
 ## Đợt `UNPLANNED`
 
@@ -181,12 +181,12 @@ hoặc log gate sweep để kết luận.
 | `W-0083` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0084` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0087` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
-| `W-0088` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
-| `W-0089` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0090` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0091` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0092` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0094` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0088` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0089` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0090` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0091` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0092` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0094` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0095` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0096` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0097` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
@@ -196,17 +196,17 @@ hoặc log gate sweep để kết luận.
 | `W-0101` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0103` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0108` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
-| `W-0110` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0110` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0111` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
-| `W-0112` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0113` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0114` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0112` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0113` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0114` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0115` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0116` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0117` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0123` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0124` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0125` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
+| `W-0124` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0125` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0126` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0127` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0128` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
@@ -220,7 +220,7 @@ hoặc log gate sweep để kết luận.
 | `W-0137` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0138` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0139` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0140` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0140` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0141` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0144` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0155` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
@@ -258,8 +258,8 @@ hoặc log gate sweep để kết luận.
 | `W-0193` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0194` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0195` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0196` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
-| `W-0197` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
+| `W-0196` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0197` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0198` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0199` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0200` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
@@ -268,7 +268,7 @@ hoặc log gate sweep để kết luận.
 | `W-0203` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0205` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0206` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0207` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
+| `W-0207` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0208` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0209` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0210` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
@@ -284,7 +284,7 @@ hoặc log gate sweep để kết luận.
 | `W-0220` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0221` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0222` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0223` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0223` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0224` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0225` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0226` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
@@ -302,18 +302,18 @@ hoặc log gate sweep để kết luận.
 | `W-0254` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0265` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0266` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0267` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0268` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
-| `W-0269` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
-| `W-0270` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0272` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
+| `W-0267` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0268` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0269` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0270` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0272` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0273` | `EVIDENCE_SUBMITTED` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0274` | `TESTS_PASS` | ❌ | ✅ | 👀 | **KHÔNG ĐẠT** |
-| `W-0275` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0276` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0277` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0278` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0279` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0274` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0275` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0276` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0277` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0278` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0279` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0280` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0281` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0282` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
@@ -321,14 +321,14 @@ hoặc log gate sweep để kết luận.
 | `W-0284` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0286` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0287` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0288` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0289` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0288` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0289` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0290` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
-| `W-0291` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0293` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0294` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0295` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
-| `W-0296` | `TESTS_PASS` | ❌ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0291` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0293` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0294` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0295` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0296` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0297` | `EVIDENCE_SUBMITTED` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0298` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0299` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
@@ -353,6 +353,7 @@ hoặc log gate sweep để kết luận.
 | `W-0318` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0319` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0322` | `EVIDENCE_SUBMITTED` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
+| `W-0324` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |
 
 - `W-0078` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: retain pin until Testcontainers declares a patched dependency; no production SSH/SIM/Sales execution
 - `W-0079` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: local implementation complete; hosted GitLab evidence vẫn NOT_RUN dưới W-0061
@@ -362,12 +363,12 @@ hoặc log gate sweep để kết luận.
 - `W-0083` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: local guard complete; any new source project/reference must update reviewed matrix
 - `W-0084` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: local PostgreSQL proof complete; no staging/production database mutation performed
 - `W-0087` — Residual: no real SIM/customer call; REAL_CUSTOMER_CALL_ALLOWED=NO
-- `W-0088` — docs/evidence/W-0088/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: explicit admin pause remains the only global queue hold
-- `W-0089` — docs/evidence/W-0089/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Target V1 remains DRAFT; no external contract approval implied
-- `W-0090` — docs/evidence/W-0090/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: callbacks remain disabled by default and external Sales is NOT_RUN
-- `W-0091` — docs/evidence/W-0091/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: evidence labels now match asserted behavior; real providers remain NOT_RUN
-- `W-0092` — docs/evidence/W-0092/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-DOC-02 không có trong docs/traceability-tests.md · Residual: contract stays TARGET_CONTRACT_V1=DRAFT; Sales approval remains BLOCKED_EXTERNAL
-- `W-0094` — docs/evidence/W-0094/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: recording readback retained as defense in depth; provider boundaries/no-egress preserved
+- `W-0088` — Residual: explicit admin pause remains the only global queue hold
+- `W-0089` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Target V1 remains DRAFT; no external contract approval implied
+- `W-0090` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: callbacks remain disabled by default and external Sales is NOT_RUN
+- `W-0091` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: evidence labels now match asserted behavior; real providers remain NOT_RUN
+- `W-0092` — CT-DOC-02 không có trong docs/traceability-tests.md · Residual: contract stays TARGET_CONTRACT_V1=DRAFT; Sales approval remains BLOCKED_EXTERNAL
+- `W-0094` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: recording readback retained as defense in depth; provider boundaries/no-egress preserved
 - `W-0095` — CT-CI-01 không có trong docs/traceability-tests.md · Residual: read-only, không ghi; aggregate tính ở server; order_code chỉ là filter, không echo; order_state opaque (D-02); không thêm permission mới; Sales contract không đổi; hosted GitLab NOT_RUN
 - `W-0096` — Residual: read-only tuyệt đối (POST → 405); dependency_probing_available=false, dependency chưa thăm dò để NOT_WIRED chứ không tô xanh; KHÔNG expose script lifecycle mutation (OD-V1-15), KHÔNG seed writer, KHÔNG gán quyền (DF-0…
 - `W-0097` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: chỉ thay đổi trình bày, không đụng API/contract/permission/governance; skill cài ở user level chứ không vào repo; KHÔNG tải web font; KHÔNG dùng green làm CTA (green giữ nghĩa healthy); component library vẫn NEED_CONF…
@@ -377,17 +378,17 @@ hoặc log gate sweep để kết luận.
 - `W-0101` — E2E-UI-DETAIL-02 không có trong docs/traceability-tests.md; E2E-UI-LOG-01 không có trong docs/traceability-tests.md · Residual: attempt_two_pending cố ý không đặt tên "due": due-ness cần offset schedule riêng từng job, aggregate không parse; call_success_rate = confirmed+cancelled+wrong_input (huỷ vẫn tính là gọi thành công) — công thức ghi th…
 - `W-0103` — IT-IMG-E2E-05 không có trong docs/traceability-tests.md · Residual: MOCK-only; REAL_CUSTOMER_CALL_ALLOWED=NO; Sales endpoint/auth/real payload + one-SIM lab + 32-eSIM provisioning vẫn NOT_RUN/BLOCKED_EXTERNAL; Target V1 vẫn DRAFT; bước kế tiếp W-0048/one-SIM lab chỉ bắt đầu sau khi nh…
 - `W-0108` — Residual: Lỗi contract duy nhất không thuộc W-0108: luồng OD-V1-20 sửa 1 dòng summary trong OpenAPI mà chưa re-pin contract-manifest.json (98d226b1… → 7b921b3a…); khôi phục file về bản commit ⇒ contract 22/22. 12 MP3 đoạn cố đị…
-- `W-0110` — docs/evidence/W-0110/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · E2E-UI-FLAGS-06 không có trong docs/traceability-tests.md; UT-FLAGS-ASYMMETRY-01 không có trong docs/traceability-tests.md · Residual: Phát hiện: chốt tự-duyệt-đích hiện KHÔNG có hiệu lực với phiên console — RejectSelfAuthorization phụ thuộc claim ivr_destination_ref mà chỉ MockPermissionAuthenticationHandler cấp; đề xuất mở OD-FLAG-01. Không đổi bac…
+- `W-0110` — E2E-UI-FLAGS-06 không có trong docs/traceability-tests.md; UT-FLAGS-ASYMMETRY-01 không có trong docs/traceability-tests.md · Residual: Phát hiện: chốt tự-duyệt-đích hiện KHÔNG có hiệu lực với phiên console — RejectSelfAuthorization phụ thuộc claim ivr_destination_ref mà chỉ MockPermissionAuthenticationHandler cấp; đề xuất mở OD-FLAG-01. Không đổi bac…
 - `W-0111` — Residual: IVR_CALL_TERMINATE cấp cho cả Operator, không chỉ Admin — chiều giảm rủi ro, không khởi động được gì. Không cắt tức thì (độ trễ = chu kỳ poll) và không cắt được cuộc mà worker đã chết giữa chừng — ghi rõ ở evidence §6…
-- `W-0112` — docs/evidence/W-0112/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · UI-I18N-02 không có trong docs/traceability-tests.md; UT-L10N-COVER-03 không có trong docs/traceability-tests.md; UT-UI-SEED-PROD-03 không có trong docs/traceability-tests.md · Residual: Phát hiện: file mẫu sales-target-v1.sample.json đã hết hạn — mốc tuyệt đối 12/8/2026, nạp nguyên trạng thì cả 9 tác vụ bị từ chối vì cửa sổ hết hạn; loader dời cửa sổ từng tác vụ về hiện tại và ghi rõ trong phản hồi. …
-- `W-0113` — docs/evidence/W-0113/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · UT-UI-VOICE-05 không có trong docs/traceability-tests.md · Residual: Ba trường giọng ở mức attempt ghi kể cả khi null, trái luật bỏ-null toàn cục của API: trường vắng mặt và trường null là không phân biệt được với người đọc, mà 'có được ghi không' đúng là câu hỏi việc này sinh ra để tr…
-- `W-0114` — docs/evidence/W-0114/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-CI-08 không có trong docs/traceability-tests.md; IT-MIGRATE-03 không có trong docs/traceability-tests.md · Residual: Không sửa một dòng production nào — một cổng phải sửa code mới xanh được thì không còn là phép đo. Danh sách miễn trừ rỗng là kết quả đo (cả 12 migration đã thuần bổ sung), không phải mặc định bỏ qua; nó nằm trong chí…
+- `W-0112` — UI-I18N-02 không có trong docs/traceability-tests.md; UT-L10N-COVER-03 không có trong docs/traceability-tests.md; UT-UI-SEED-PROD-03 không có trong docs/traceability-tests.md · Residual: Phát hiện: file mẫu sales-target-v1.sample.json đã hết hạn — mốc tuyệt đối 12/8/2026, nạp nguyên trạng thì cả 9 tác vụ bị từ chối vì cửa sổ hết hạn; loader dời cửa sổ từng tác vụ về hiện tại và ghi rõ trong phản hồi. …
+- `W-0113` — UT-UI-VOICE-05 không có trong docs/traceability-tests.md · Residual: Ba trường giọng ở mức attempt ghi kể cả khi null, trái luật bỏ-null toàn cục của API: trường vắng mặt và trường null là không phân biệt được với người đọc, mà 'có được ghi không' đúng là câu hỏi việc này sinh ra để tr…
+- `W-0114` — CT-CI-08 không có trong docs/traceability-tests.md; IT-MIGRATE-03 không có trong docs/traceability-tests.md · Residual: Không sửa một dòng production nào — một cổng phải sửa code mới xanh được thì không còn là phép đo. Danh sách miễn trừ rỗng là kết quả đo (cả 12 migration đã thuần bổ sung), không phải mặc định bỏ qua; nó nằm trong chí…
 - `W-0115` — UT-SCHEMA-BACKCOMPAT-04 không có trong docs/traceability-tests.md · Residual: Production distinct-value scan=OWNER_DATA_REQUIRED; A10 giữ OWNER_DECISION_REQUIRED; không đổi contract/API; không sinh evidence SIM/carrier/real-call; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0116` — CT-DOC-02 không có trong docs/traceability-tests.md; UT-UI-CONTRACT-06 không có trong docs/traceability-tests.md · Residual: openapi:lint còn 14 lỗi baseline ngoài W-0116; hosted CI/deploy/UAT NOT_RUN; không sinh SIM/carrier/real-call evidence; REAL_CUSTOMER_CALL_ALLOWED=NO; không push
 - `W-0117` — CT-DOC-02 không có trong docs/traceability-tests.md · Residual: Không đổi business semantics hay quyền; hosted CI/deploy/UAT và external closures NOT_RUN; không gọi khách thật; REAL_CUSTOMER_CALL_ALLOWED=NO; không nhận external closure pack vào scope
 - `W-0123` — CT-DOC-02 không có trong docs/traceability-tests.md · Residual: Conservative compatibility: deprecate/ignore wire fields, giữ legacy DB read/rollback, không drop; M3 usage/sign-off OWNER_DATA_REQUIRED; target DB OWNER_DATA_REQUIRED / TARGET_DB_NOT_RUN; hosted CI NOT_RUN; local wor…
-- `W-0124` — docs/evidence/W-0124/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-DOC-02 không có trong docs/traceability-tests.md · Residual: .NET 804/804; job api_contract_diff full exit 0 (trước đó exit 1 cả tại HEAD lẫn W-0123); UI typecheck/223/223/build; 7 node gate; traceability 487; detect-changes HIGH 200/85/12 process — toàn bộ do một call site add…
-- `W-0125` — docs/evidence/W-0125/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: Không gate nào được đóng. M3 sign-off vẫn OWNER_DATA_REQUIRED; target DB OWNER_DATA_REQUIRED / TARGET_DB_NOT_RUN vì không có psql, secret, endpoint, credential hoặc authority/ticket; hosted CI vẫn NOT_RUN; local Postg…
+- `W-0124` — CT-DOC-02 không có trong docs/traceability-tests.md · Residual: .NET 804/804; job api_contract_diff full exit 0 (trước đó exit 1 cả tại HEAD lẫn W-0123); UI typecheck/223/223/build; 7 node gate; traceability 487; detect-changes HIGH 200/85/12 process — toàn bộ do một call site add…
+- `W-0125` — Residual: Không gate nào được đóng. M3 sign-off vẫn OWNER_DATA_REQUIRED; target DB OWNER_DATA_REQUIRED / TARGET_DB_NOT_RUN vì không có psql, secret, endpoint, credential hoặc authority/ticket; hosted CI vẫn NOT_RUN; local Postg…
 - `W-0126` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không gate external nào được đóng. Image sha256:4c76d318… thành STALE_REBUILD_REQUIRED vì build từ context CRLF cũ; Tám phát hiện đều đã xử lý. F7 chỉ giảm nhẹ được bằng tài liệu: 11 WAV audition và model bundle vẫn c…
 - `W-0127` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không gate nào được đóng. Owner vẫn phải nghe; Legal/Security/Infra/Platform vẫn phải trả lời phiếu. REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0128` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: M3 role→tier/sign-off/client/shared E2E, Platform custody/labels, hosted CI/target DB/deploy/UAT/production remain external; migration W0122 name retained as historical alias; REAL_CUSTOMER_CALL_ALLOWED=NO
@@ -401,7 +402,7 @@ hoặc log gate sweep để kết luận.
 - `W-0137` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: OD-20=IMPLEMENTED / OPTION_1_WITHDRAW; W-0137 vẫn TESTS_PASS, không tự nâng ACCEPTED. Artifact _SUPERSEDED chỉ giữ audit/recovery, không phải tài liệu hiện hành; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0138` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không tự đóng hay sửa nội dung quyết định nào — chỉ làm chúng hiện ra. OD-VOICE-05 có dấu hiệu mâu thuẫn với evidence W-0128 §12.3, ghi thành residual chứ không xử trong W-0138. REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0139` — CT-OBS-STAGING-13 không có trong docs/traceability-tests.md; IT-IMG-E2E-05 không có trong docs/traceability-tests.md; IT-OBS-EXPORT-11 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: B-06 vẫn mở: manual staging job chưa chạy vì thiếu endpoint/credential/retention/access + exact image/SHA + dashboard/query + alert fire/recovery OWNER_DATA_REQUIRED; W-0063 không đổi; REAL_CUSTOMER_CALL_ALLOWED=NO
-- `W-0140` — docs/evidence/W-0140/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO (gói ghi dạng cũ: "REAL_CUSTOMER_CALL_ALLOWED=false") · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Rung 0, 8/138 ACCEPTED, 90 TESTS_PASS, 16 BLOCKED_EXTERNAL; không Work ID nào được nâng ACCEPTED; W-0122/external signatures/target DB/hosted CI/shared integration vẫn blocked; REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0140` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Rung 0, 8/138 ACCEPTED, 90 TESTS_PASS, 16 BLOCKED_EXTERNAL; không Work ID nào được nâng ACCEPTED; W-0122/external signatures/target DB/hosted CI/shared integration vẫn blocked; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0141` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: W-0137/W-0141 không nâng ACCEPTED; 11 external gate/23 open decision/rung 0 giữ nguyên; artifact _SUPERSEDED chỉ dành audit/recovery, không được phát hành; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0144` — Residual: DT04_LOCAL_COMPLETE; production adapter vẫn BLOCKED_EXTERNAL: vendor API/sandbox, raw disposition matrix, recording-off/caller-ID/DTMF/health, Security-signed resolver/trust boundary, Vault/KMS custody/rotation và R-0…
 - `W-0155` — CAP-INTAKE-MODE-02 không có trong docs/traceability-tests.md; CAP-INTAKE-MODE-03 không có trong docs/traceability-tests.md; CAP-INTAKE-TEMPLATE-04 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: Validator chỉ xác nhận authority metadata, không xác nhận signer authority ngoài đời và không thay owner approval/calibration/shared E2E; external submission 0/4; không sửa runtime/model/scheduler/policy/channel count…
@@ -439,8 +440,8 @@ hoặc log gate sweep để kết luận.
 - `W-0193` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Chạy trên worktree cô lập worktree-gd0-fixes vì một session Codex đang ghi song song vào main worktree; merge về main là bước riêng. Không đổi contract/OpenAPI/migration, không đóng gate ngoài nào; REAL_CUSTOMER_CALL_…
 - `W-0194` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Docs-only, không đổi runtime/OpenAPI/migration. Bốn dòng còn mở: OD-V1-09 nửa sau và OD-V1-10 chờ số đo; OD-V1-11 và OD-V1-21 chờ người thứ hai — chữ ký không tạo ra người. Việc code mà chữ ký mở ra thuộc GĐ 2, liệt k…
 - `W-0195` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: PRODUCTION_CALL không được seed nên quay số thật vẫn bị từ chối ở mọi môi trường. Vế bốn mắt vẫn cần người thứ hai (OD-V1-11/OD-V1-21). Còn lại của GĐ 2: attempt policy production + khung giờ (OD-V1-08/16), dial token…
-- `W-0196` — docs/evidence/W-0196/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: Cleanup only in a later release after consumer inventory/observation and rollback-window closure; MOCK/MOCK/NO
-- `W-0197` — docs/evidence/W-0197/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: Content-hash-bound working-tree evidence, không clean exact-SHA/hosted proof; crash/full-worker thuộc P1.2; không vendor/customer call; giữ WIP báo cáo tuần
+- `W-0196` — Residual: Cleanup only in a later release after consumer inventory/observation and rollback-window closure; MOCK/MOCK/NO
+- `W-0197` — Residual: Content-hash-bound working-tree evidence, không clean exact-SHA/hosted proof; crash/full-worker thuộc P1.2; không vendor/customer call; giữ WIP báo cáo tuần
 - `W-0198` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Đăng ký một policy không phải là quyết định dùng nó: intake phân giải version mà task khai, nên phải có task mang gh-247-prod-v1 tới thì mới có gì chạy trên nó. Khung giờ mặc định bật; tắt nó là một quyết định nhìn th…
 - `W-0199` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Sổ là process-local, giống hai vault sở hữu nó: nó chặn trong phạm vi một worker, còn ràng buộc thật ở production đến từ SIM vault. Đã ghi rõ trong XML doc để không ai đọc test xanh thành lời hứa mạnh hơn. Còn lại của…
 - `W-0200` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Bump này không đổi một byte nào của hợp đồng — M3 đã sinh client từ draft.22 thì không cần sinh lại, đã ghi vào §4A.7 của bản handover. TARGET_CONTRACT_V1 vẫn DRAFT: một chuỗi phiên bản không có hậu tố draft từ nay kh…
@@ -449,7 +450,7 @@ hoặc log gate sweep để kết luận.
 - `W-0203` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: F-1 (HIGH) mở: 10 request /eligibility-checks đồng thời → 9 trả HTTP 500 vì PostgresIdempotencyStore.ExecuteAsync chạy SERIALIZABLE đọc-rồi-ghi ivr_idempotency_keys, 40001 bị ánh xạ thành IVR_INTERNAL_ERROR. Không vá …
 - `W-0205` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Một phát hiện phụ đáng giữ: ApiBehaviorMatrixTests đỏ trên clone sạch vì thiếu deploy/ci/node_modules — nó fail chứ không tự skip, đúng như evidence W-0197 tuyên bố. Nghĩa là freeze checkout phải chạy npm --prefix dep…
 - `W-0206` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Dòng này được ghi hồi tố. A-0588 chọn bỏ qua id W-0206 vì 4d0c761 đã dùng nó trong commit message mà chưa có dòng ledger nào. Nhưng bỏ qua để lại việc thật vô hình với ledger và với readiness board — gate-status không…
-- `W-0207` — docs/evidence/W-0207/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: P2.2 chưa đạt exit: mới có một nửa của cả ba chiều. Producer của M3, M3 revalidate rồi đổi trạng thái đơn, và BFF của M3 gọi admin API không quan sát được từ phía này. Chữ ký thật cần năm vai (M8_OWNER/M3_OWNER/SECURI…
+- `W-0207` — Residual: P2.2 chưa đạt exit: mới có một nửa của cả ba chiều. Producer của M3, M3 revalidate rồi đổi trạng thái đơn, và BFF của M3 gọi admin API không quan sát được từ phía này. Chữ ký thật cần năm vai (M8_OWNER/M3_OWNER/SECURI…
 - `W-0208` — Residual: Runtime không đổi một dòng — có chủ đích: đổi TTL là contract change cần M3/Security (DTK-02/DTK-06). OpenAPI cố ý chưa sửa: bump hash đã ghim cần re-pin có review (W-0204), đúng thứ tự là gộp vào lượt sửa cùng lúc kh…
 - `W-0209` — Residual: Runtime không đổi một dòng. OpenAPI cố ý chưa sửa: CorrelationId/IdempotencyKey vẫn {type: string} trần trong khi GeneratedCorrelationId đã ghi đúng minLength:1, maxLength:128, pattern:'^[A-Za-z0-9._:-]+$' — sửa bump …
 - `W-0210` — Residual: Không đụng quyết định của owner — explicit-only là vị trí đúng, chỉ hai ví dụ tín hiệu sai; không đổi trạng thái dòng register (việc của chief auditor, mục A2). V1 không có tín hiệu opt-out tường minh nào và lời thoại…
@@ -465,7 +466,7 @@ hoặc log gate sweep để kết luận.
 - `W-0220` — Residual: Lượt đầu tiên trong chuỗi W-0208→W-0220 đổi một giá trị runtime — vì là lượt đầu tiên có một quyết định để thi hành. OD-V1-16 ký 08:00–21:00 còn giá trị chạy nay là 08:00–21:08: register đã có dòng correction nhưng tr…
 - `W-0221` — Residual: Rẻ đúng lúc này: BFF của M3 chưa tồn tại và admin UI đã ra khỏi phạm vi module — muộn hơn thì đắt hơn; repo không nhìn thấy caller ngoài nên đây là điều đã cân nhắc chứ không phải đã chứng minh. OpenAPI hoãn với lý do…
 - `W-0222` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Phần bền của lượt này là luật, không phải hai ref: owner giữ nhánh nên mâu thuẫn CLAUDE.md (cấm nhánh, xoá nhánh lạ) ⟷ W-0130 (cần một nhánh sống lâu dài) phải được gỡ chứ không để treo — giá của việc treo đã thấy: au…
-- `W-0223` — docs/evidence/W-0223/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CAP-CALIB-03 không có trong docs/traceability-tests.md; CAP-DRIFT-05 không có trong docs/traceability-tests.md; CAP-MODEL-01 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: Assertion mới ngược với quyết định của W-0212, có lý do: uncalibrated không có phép đo nên ép một công thức là đóng băng phỏng đoán thành luật (chỉ ghim); calibrated thì cả bốn cùng mô tả một cuộc gọi đã đo nên ép là …
+- `W-0223` — CAP-CALIB-03 không có trong docs/traceability-tests.md; CAP-DRIFT-05 không có trong docs/traceability-tests.md; CAP-MODEL-01 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: Assertion mới ngược với quyết định của W-0212, có lý do: uncalibrated không có phép đo nên ép một công thức là đóng băng phỏng đoán thành luật (chỉ ghim); calibrated thì cả bốn cùng mô tả một cuộc gọi đã đo nên ép là …
 - `W-0224` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Bài học đắt nhất lượt này: ref tracking không phải trạng thái remote, và tôi đã trình một con số 43 cho owner trước khi hỏi remote. Hai claim (a) và (c) đều là tôi lặp lại một nguồn (ref cũ, bullet audit) mà không kiể…
 - `W-0225` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Gate thứ hai tìm thấy vì nó nói dối: verify-api-behavior-matrix.mjs in "verdict": "FAIL" ngay trên "failures": [] với 38/38 pass, vì verdict quyết bởi mảng failures cấp cao còn console.log in mảng failures theo từng o…
 - `W-0226` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Hai phiếu vẫn NOT_SENT — việc gửi thuộc owner/chief auditor, cùng nhóm với 3.4. Nên chốt chỗ rẽ items_spoken trước khi Platform bắt tay vào INF-A, kẻo phí công dựng mirror cho artifact có thể bị bỏ. Nhưng có một vế đi…
@@ -483,18 +484,18 @@ hoặc log gate sweep để kết luận.
 - `W-0254` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Thứ chặn thật là nhóm (2), và nó lớn hơn vẻ ngoài. Đối chiếu §9 với specs/_review/open-decisions-register.md: 23 trong 28 quyết định đã CLOSED, nhưng IR-06 vẫn ghi "Auth profile + sandbox credential — Security/Platfor…
 - `W-0265` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Contract phải sửa vì nếu không thì cầm chắc vòng hai. Ba header runtime vẫn dùng nhưng contract không khai: X-Action-Reason bắt buộc ở cả 8 endpoint danger (AdminAccessOptions.HasDangerEvidence từ chối nếu thiếu) mà k…
 - `W-0266` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Đóng quyết định không mở ra mọi thứ, và đây là chỗ dễ đọc nhầm nhất nên phải ghi thẳng. Hai trong ba mục vướng ràng buộc kỹ thuật mà chữ ký không gỡ được: OD-V1-11 — PRODUCTION_REAL đòi ba actor id khác nhau (ScriptCo…
-- `W-0267` — docs/evidence/W-0267/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0268` — docs/evidence/W-0268/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0269` — docs/evidence/W-0269/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0270` — docs/evidence/W-0270/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-CI-11 không có trong docs/traceability-tests.md; IT-IMG-BUILD-01 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0272` — docs/evidence/W-0272/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0267` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0268` — Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0269` — Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0270` — CT-CI-11 không có trong docs/traceability-tests.md; IT-IMG-BUILD-01 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0272` — Residual: LOCAL_ONLY; không đóng external gates; real calls NO
 - `W-0273` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Sửa 18/09 (W-0316, Lô 3 mục 1): hết chờ bên ngoài. Ngày 17/09 owner chọn S3 — giữ toàn bộ dữ liệu, không đặt kỳ hạn nào — nên không ai điền phiếu; phiếu nay ghi "đóng — không điền số nào". BLOCKED_EXTERNAL → EVIDENCE_…
-- `W-0274` — docs/evidence/W-0274/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0275` — docs/evidence/W-0275/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0276` — docs/evidence/W-0276/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0277` — docs/evidence/W-0277/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0278` — docs/evidence/W-0278/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
-- `W-0279` — docs/evidence/W-0279/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0274` — Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0275` — CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0276` — CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0277` — CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0278` — CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
+- `W-0279` — CT-CI-12 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY; không đóng external gates; real calls NO
 - `W-0280` — IT-IMG-BUILD-01 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY / MOCK; còn một câu hỏi nghiệp vụ chưa đóng: tạm dừng hàng đợi có tính là IVR_CAPACITY_EXCEPTION không, hay IVR_CONFIRMATION_WINDOW_EXPIRED như runtime đang trả — hai nhãn dẫn tới hai hành động khác nhau ph…
 - `W-0281` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Phiếu ở trạng thái READY_TO_DISPATCH / NOT_SENT — chỉ owner gửi được. Không đổi mã nguồn, không đổi cổng kiểm
 - `W-0282` — IT-IMG-COMPOSE-03 không có trong docs/traceability-tests.md · Residual: LOCAL_ONLY / MOCK; REAL_CUSTOMER_CALL_ALLOWED=NO. Một khoảng trống phải chủ Module 8 quyết, không tự lấp: POST /eligibility-checks là thứ đưa task rời HELD_MOCK, nhưng worker không có vòng lặp nào gọi nó (10 hosted se…
@@ -502,14 +503,14 @@ hoặc log gate sweep để kết luận.
 - `W-0284` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không suy chữ ký từ im lặng; nhãn pause đang chờ owner; real calls NO
 - `W-0286` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: W-0292 tại 179a5eb có 31 job PASS gồm full suite/image/K8s/security/privacy/publish; dev thiếu cluster, staging skipped; M3/SIM/production NOT_RUN, real calls NO
 - `W-0287` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Chaos lộ loopback fixture, review gate lộ false green, xử lý tiếp; hosted chưa push; pause/scan pending; real calls NO
-- `W-0288` — docs/evidence/W-0288/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không đổi upstream fault target hay runtime; hosted NOT_RUN; real calls NO
-- `W-0289` — docs/evidence/W-0289/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không nới gate; không chạy security audit; hosted NOT_RUN; real calls NO
+- `W-0288` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không đổi upstream fault target hay runtime; hosted NOT_RUN; real calls NO
+- `W-0289` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không nới gate; không chạy security audit; hosted NOT_RUN; real calls NO
 - `W-0290` — Residual: Không thay runtime hay chữ ký M3; lab/production/real calls chưa được mở
-- `W-0291` — docs/evidence/W-0291/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · CT-CI-04 không có trong docs/traceability-tests.md · Residual: Không thay API contract/runtime hoặc nới scanner; hosted là bước kế tiếp
-- `W-0293` — docs/evidence/W-0293/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Hosted pipeline cần chạy trên commit sửa; không đổi allowlist hoặc runtime
-- `W-0294` — docs/evidence/W-0294/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Cần pipeline chứa sửa JUnit; dev/staging đích chưa xác nhận; runtime không đổi
-- `W-0295` — docs/evidence/W-0295/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Cần pipeline mới; không ký bundle hoặc đổi authority/readiness
-- `W-0296` — docs/evidence/W-0296/README.md thiếu REAL_CUSTOMER_CALL_ALLOWED=NO · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không reset data hoặc thay runner config; toàn pipeline/publish/deploy còn theo W-0292
+- `W-0291` — CT-CI-04 không có trong docs/traceability-tests.md · Residual: Không thay API contract/runtime hoặc nới scanner; hosted là bước kế tiếp
+- `W-0293` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Hosted pipeline cần chạy trên commit sửa; không đổi allowlist hoặc runtime
+- `W-0294` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Cần pipeline chứa sửa JUnit; dev/staging đích chưa xác nhận; runtime không đổi
+- `W-0295` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Cần pipeline mới; không ký bundle hoặc đổi authority/readiness
+- `W-0296` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không reset data hoặc thay runner config; toàn pipeline/publish/deploy còn theo W-0292
 - `W-0297` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Phân loại sai một lần và đã sửa: m8-05…m8-10 mở đầu bằng M8_OWNER_SIGNED/đã ký nên lượt đọc đầu xếp vào nhóm xong — đọc hết chuỗi trạng thái thì cả sáu đều kèm M3_..._SIGNOFF_REQUIRED hoặc CODE_NOT_AUTHORIZED, tức mới…
 - `W-0298` — Residual: Không đổi wire: TASK_BLOCKED_OPERATIONAL đã có trong enum decision (OAS :1365), blocked_reasons là array of string nên thêm reason là additive. Phương án đầu sai, ghi lại: kế hoạch định cho IVR dời T0/cửa sổ tới giờ m…
 - `W-0299` — Residual: Không đổi code runtime, không đổi wire. Quét deploy/ và mọi docker-compose.yml: không môi trường nào đặt IVR_PRODUCTION_TARGET_V1_FIELDS_APPROVED, nên trước lượt này mọi môi trường chạy cờ bật và sau lượt này chạy cờ …
@@ -534,4 +535,5 @@ hoặc log gate sweep để kết luận.
 - `W-0318` — UT-SCHEMA-BACKCOMPAT-04 không có trong docs/traceability-tests.md; UT-X-01 không có trong docs/traceability-tests.md; UT-X-02 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: Toàn duyệt từng đợt và tự chuyển ACCEPTED (bước 3), rồi gate-status.mjs --write (bước 4) · REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0319` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Đã thu gói kiểm chứng đầy đủ; kết quả chỉ chứng nhận commit bd9ea5c, không chứng nhận HEAD khác. Toàn đọc Residual và tự nghiệm thu; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0322` — E2E-UI-REPLAY-05 không có trong docs/traceability-tests.md; E2E-UI-REVIEW-05 không có trong docs/traceability-tests.md; UT-ELIG-BLOCK-01 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: Owner quyết định nghiệm thu P2 và kết thúc 4 P3 theo W-0253; F1 bộ sinh bỏ lọt test UI retired cần sửa ở work tiếp theo; không đổi 13 trạng thái; REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0324` — Residual: Không tự ACCEPTED; UI M3 không chứng nhận bằng test backend; REAL_CUSTOMER_CALL_ALLOWED=NO
 

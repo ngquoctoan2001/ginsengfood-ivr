@@ -1350,7 +1350,7 @@ work:
     evidence: "docs/evidence/W-0324/README.md"
   - id: "W-0325"
     prompt: "Bổ sung chỉ dấu C1 và phân loại hồ sơ còn thiếu (Origin=OWNER_DECISION 2026-09-21)"
-    status: "CODE_DONE"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0325/README.md"
 
 production_flag:
