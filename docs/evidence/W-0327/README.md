@@ -327,3 +327,13 @@ ancestor, 39 liên kết local** đã kiểm. `docs-selftest` PASS; PII PASS b�
 `git diff --check` PASS; GitNexus staged **LOW, 7 file, 0 process**. Cả 13 dòng gốc và tám dòng P2
 giữ nguyên. Hash chia nhóm để scanner không nhầm thành số liên hệ; không sửa rule quét.
 Không có lượt test/runtime mới để thay các phần NOT_RUN đã ghi.
+
+## Cập nhật chốt hồ sơ — W-0336, 21/09/2026
+
+Sau các lượt W-0328/W-0330/W-0332/W-0334 và quyết định owner: nhóm 13 có **3 việc đã ACCEPTED**
+(W-0029/W-0032/W-0052), **9 việc đủ đề nghị local** và **W-0042 còn thiếu bằng chứng staging**.
+[Phiếu chín việc](../W-0336/approval-request.md) đối chiếu đủ Residual ở mục 5–13, ghi phần được
+đề nghị và người/hành động còn lại. W-0336 đã sửa comment adapter lỗi thời ở mục 12.
+Consumer kiểm lại C1/C2/C4 của cả chín tại aaba3d2 sạch: 22 lượt TestId, 1171 test, 42 gate.
+Không gán bằng chứng này cho HEAD tài liệu/WIP; tổng ACCEPTED hiện là 48, chín việc vẫn chờ Toàn.
+Các bảng và hành động ở mốc rà đầu phía trên là lịch sử, không cấp lại các việc đã hoàn tất.

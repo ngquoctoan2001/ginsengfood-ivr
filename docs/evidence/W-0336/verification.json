@@ -1,0 +1,375 @@
+{
+  "schema": "ivr-local-approval-review/v1",
+  "workId": "W-0336",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "baseline": "a6a8f98cf047e59c573f75464c65d5bde195cfff",
+  "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+  "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+  "status": "READY_FOR_OWNER_REVIEW_LOCAL_ONLY",
+  "ownerDecision": "PENDING",
+  "sourceClean": true,
+  "runtimePathsUnchangedBetweenCandidateAndBaseline": true,
+  "existingFullProof": {
+    "bundlePath": ".artifacts/w0330-acceptance-aaba3d2/acceptance-run.json",
+    "sha256": "f4613c58-777f0398-a1429860-271b2d60-5cea4b1b-7cbb0de9-1c11ee13-be5317d4",
+    "testCount": 1171,
+    "sweep": {
+      "ok": true,
+      "reason": "GATE_SWEEP_PASS 42/42"
+    },
+    "rerun": false
+  },
+  "works": [
+    {
+      "id": "W-0088",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "IT-SCH-DEADLINE-09",
+        "IT-SCH-HOLD-10"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "2 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "explicit admin pause remains the only global queue hold"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "explicit admin pause remains the only global queue hold",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0088/README.md",
+          "sha256": "09c6923b-161ab42d-8381bb60-2bc2e1e5-bb76407d-f2ee05ec-31e697bb-dac2808b"
+        }
+      ],
+      "prompt": null
+    },
+    {
+      "id": "W-0125",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "IT-M3-AUTHORITY-13"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "Không gate nào được đóng. M3 sign-off vẫn OWNER_DATA_REQUIRED; target DB OWNER_DATA_REQUIRED / TARGET_DB_NOT_RUN vì không có psql, secret, endpoint, credential hoặc authority/ticket; hosted CI vẫn NOT_RUN; local Postg…"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "**Không gate nào được đóng.** M3 sign-off vẫn `OWNER_DATA_REQUIRED`; target DB `OWNER_DATA_REQUIRED / TARGET_DB_NOT_RUN` vì không có `psql`, secret, endpoint, credential hoặc authority/ticket; hosted CI vẫn `NOT_RUN`; local PostgreSQL/test không thay target evidence; `REAL_CUSTOMER_CALL_ALLOWED=NO`",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0125/README.md",
+          "sha256": "be1d718e-8d35236b-41093984-9fd58697-74c169eb-a5e25f30-2e407076-20f599ee"
+        }
+      ],
+      "prompt": null
+    },
+    {
+      "id": "W-0196",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "IT-SCHEMA-EXPAND-07"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "Cleanup only in a later release after consumer inventory/observation and rollback-window closure; MOCK/MOCK/NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "Cleanup only in a later release after consumer inventory/observation and rollback-window closure; MOCK/MOCK/NO",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0196/README.md",
+          "sha256": "f9f12670-bcf73b91-044a74c3-3c24bef7-072450db-56f7b46e-cc4f7d7a-104f30fa"
+        }
+      ],
+      "prompt": null
+    },
+    {
+      "id": "W-0197",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "IT-API-MATRIX-38"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "Content-hash-bound working-tree evidence, không clean exact-SHA/hosted proof; crash/full-worker thuộc P1.2; không vendor/customer call; giữ WIP báo cáo tuần"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "Content-hash-bound working-tree evidence, không clean exact-SHA/hosted proof; crash/full-worker thuộc P1.2; không vendor/customer call; giữ WIP báo cáo tuần",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0197/README.md",
+          "sha256": "7507194f-02aabee2-05a39e52-d49ac858-39ea055c-5efa1bb9-e6f5c56e-956181d7"
+        }
+      ],
+      "prompt": null
+    },
+    {
+      "id": "W-0207",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "IT-API-AUDIT-04",
+        "IT-API-AUTHZ-01",
+        "IT-API-AUTHZ-02",
+        "IT-API-IDEMP-03",
+        "IT-API-QUEUE-08",
+        "IT-API-RETRY-06",
+        "IT-API-SIM-09",
+        "IT-API-TERMINATE-09",
+        "IT-API-TERMINATE-10",
+        "UT-CALLBACK-TARGET-ACK-CROSS-01"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "10 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "P2.2 chưa đạt exit: mới có một nửa của cả ba chiều. Producer của M3, M3 revalidate rồi đổi trạng thái đơn, và BFF của M3 gọi admin API không quan sát được từ phía này. Chữ ký thật cần năm vai (M8_OWNER/M3_OWNER/SECURI…"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "P2.2 **chưa đạt exit**: mới có một nửa của cả ba chiều. Producer của M3, M3 revalidate rồi đổi trạng thái đơn, và BFF của M3 gọi admin API **không quan sát được từ phía này**. Chữ ký thật cần năm vai (`M8_OWNER`/`M3_OWNER`/`SECURITY`/`PLATFORM`/`RELEASE_OWNER`); template vẫn `NOT_READY`. Rotation token/rate limit/DNS-TLS mới ở mức fake, bằng chứng thật cần credential sandbox (`OQ-AUTH-01`). `REAL_CUSTOMER_CALL_ALLOWED=NO`",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0207/README.md",
+          "sha256": "8dea02dc-c26ec2c8-86a3d5fe-6aaedf63-3a23fa49-116bd261-0083c8e0-047fb001"
+        }
+      ],
+      "prompt": null
+    },
+    {
+      "id": "W-0268",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "UT-SCHEMA-BACKCOMPAT-01",
+        "UT-SCHEMA-IDEMPOTENCY-INDEX-01"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "2 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "LOCAL_ONLY; không đóng external gates; real calls NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "LOCAL_ONLY; không đóng external gates; real calls NO",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0268/README.md",
+          "sha256": "5fbd8ae4-f944b17a-eb91a087-38a4a05c-b0d44e99-e8fe5f04-cf51ae56-be29076f"
+        }
+      ],
+      "prompt": null
+    },
+    {
+      "id": "W-0269",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "ARCH-ASYNC-01",
+        "ARCH-CONST-01",
+        "UT-BOOT-05"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "3 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "LOCAL_ONLY; không đóng external gates; real calls NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "LOCAL_ONLY; không đóng external gates; real calls NO",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0269/README.md",
+          "sha256": "4754410f-0e5a564b-090aa0a4-8ab1dbde-0ce7ac93-a9deb7dd-2a06cfb1-bdd7e3b2"
+        }
+      ],
+      "prompt": null
+    },
+    {
+      "id": "W-0272",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "ARCH-CONST-01"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "LOCAL_ONLY; không đóng external gates; real calls NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "LOCAL_ONLY; không đóng external gates; real calls NO",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0272/README.md",
+          "sha256": "2ceb1060-58ef04e5-7bcb840f-2aecac6a-b876c1a5-5de3cffd-f5d33d1c-38841428"
+        }
+      ],
+      "prompt": null
+    },
+    {
+      "id": "W-0274",
+      "status": "TESTS_PASS",
+      "phase": "UNPLANNED",
+      "cited": [
+        "IT-API-SIM-09"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "LOCAL_ONLY; không đóng external gates; real calls NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "fullResidual": "LOCAL_ONLY; không đóng external gates; real calls NO",
+      "documents": [
+        {
+          "path": "docs/evidence/W-0274/README.md",
+          "sha256": "29870ef7-ff55578c-cc57a6b5-9975b67e-965653f3-d0188647-be9d6713-2122bb10"
+        }
+      ],
+      "prompt": null
+    }
+  ],
+  "adapterCommentOnly": {
+    "path": "src/Ivr.Infrastructure/Telephony/SimAdapters.cs",
+    "beforeSha256": "68285931-84919fb8-9f74757a-7b2e18c9-9fc57898-4737639f-b3e0a3f3-bf97f8e4",
+    "afterSha256": "e4062fbd-5dca1e54-30c84b4c-1ca9eb33-b9c5e64c-6cd64a28-3b158b03-4c55b54d",
+    "nonXmlContentIdentical": true,
+    "impact": {
+      "risk": "LOW",
+      "direct": 0,
+      "processes": 0
+    }
+  },
+  "supportingArtifacts": [
+    {
+      "path": "docs/evidence/W-0332/verification.json",
+      "sha256": "24ff9b8b-0d678112-6886825d-d9c6455f-fd3ada01-1adccf61-c5c5725d-2629dead"
+    },
+    {
+      "path": "docs/evidence/W-0196/rollback-evidence.json",
+      "sha256": "cd42a258-73de27f6-4dbfde33-f1b98c79-52ca4531-4801692e-90f70ed4-d3486981"
+    },
+    {
+      "path": "docs/evidence/W-0330/verification.json",
+      "sha256": "1a212d6e-3383d645-b56794b5-af52a57c-bf572376-8265df9b-34b77c30-28b10955"
+    }
+  ],
+  "limits": [
+    "Tests and sweep certify aaba3d2 only, not the later documentation/comment commit or shared WIP",
+    "W-0196 rollback evidence certifies ba43605 to c8dc3c4 only",
+    "W-0207 IVR-side E2E refreshed in W-0332 at aaba3d2; real M3 and signer evidence remain absent",
+    "C3 is a human review of scoped residuals; no work item is automatically accepted"
+  ],
+  "hashEncoding": "SHA-256 hex grouped by eight; remove hyphens for canonical hex"
+}

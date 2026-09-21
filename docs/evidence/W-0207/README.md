@@ -155,3 +155,11 @@ cả intake/eligibility, 0 HTTP 500; journal 327 callback ID, 24 được gửi 
 Mười TestId của gói này đều Passed trong full proof cùng candidate (1171 test, sweep 42/42);
 W-0328 đã sửa extractor để xét cả hậu tố /10. Artifact working-tree cũ bên trên vẫn giữ nguyên.
 Khoảng trống bằng chứng local đã khép; nửa M3, credential và signer thật ở §6/§8 vẫn chưa được chứng minh.
+
+## Trình duyệt phạm vi local — W-0336, 21/09/2026
+
+W-0332 đã khép thiếu bằng chứng local tại aaba3d2; đủ đề nghị nghiệm thu phía IVR. P2.2 shared exit, producer/revalidation/BFF M3, credential thật và quy tắc năm vai ký vẫn mở.
+
+[Phiếu trình Toàn](../W-0336/approval-request.md) ghi phạm vi, toàn bộ Residual đã đối chiếu,
+người phụ trách và hành động còn lại. [Verification](../W-0336/verification.json) kiểm C1/C2/C4
+tại aaba3d2; không phải lượt full test mới ở commit tài liệu này. Chờ owner, chưa ACCEPTED.

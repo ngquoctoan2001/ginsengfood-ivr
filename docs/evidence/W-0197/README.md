@@ -70,3 +70,11 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Trình duyệt phạm vi local — W-0336, 21/09/2026
+
+Matrix test và verifier đã Passed tại candidate sạch aaba3d2. Artifact 38/38 và 417 request ở trên vẫn là kết quả working-tree lịch sử, không gán lại SHA hoặc số liệu; BFF và môi trường thật chưa được chứng minh.
+
+[Phiếu trình Toàn](../W-0336/approval-request.md) ghi phạm vi, toàn bộ Residual đã đối chiếu,
+người phụ trách và hành động còn lại. [Verification](../W-0336/verification.json) kiểm C1/C2/C4
+tại aaba3d2; không phải lượt full test mới ở commit tài liệu này. Chờ owner, chưa ACCEPTED.

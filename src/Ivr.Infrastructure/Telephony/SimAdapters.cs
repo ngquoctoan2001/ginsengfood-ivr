@@ -12,13 +12,12 @@ namespace Ivr.Infrastructure.Telephony;
 /// A channel row can be MOCK while the execution mode is not, so they are not interchangeable.
 /// </para>
 /// <para>
-/// <b>Known divergence, recorded rather than resolved.</b> The code accepts
-/// <see cref="Mock"/>, <see cref="Vendor"/> and <see cref="AsteriskAri"/>, but
-/// <c>specs/database/02-tables.md:174</c> declares this column as <c>MOCK/REAL</c> and
-/// <c>specs/database/06-migration-plan.md:26</c> writes <c>adapter_mode=REAL</c> — a value no code
-/// path produces or accepts. Which vocabulary is right is an owner decision, and naming the
-/// constants here is what makes the disagreement visible instead of leaving it spread across
-/// literals nobody can grep for a meaning.
+/// W-0274 resolved the earlier MOCK/REAL specification mismatch by the owner's decision to
+/// align the specification with the code: channel rows use <see cref="Mock"/>,
+/// <see cref="Vendor"/> or <see cref="AsteriskAri"/>. W-0275 added that response enum to the
+/// OpenAPI contract. W-0278 added <see cref="None"/> only for the dashboard when no channel
+/// exists; it is not a channel-row value. These adapter names remain separate from execution
+/// modes and the configured SIM provider.
 /// </para>
 /// </summary>
 public static class SimAdapters

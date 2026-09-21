@@ -58,3 +58,11 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Trình duyệt phạm vi local — W-0336, 21/09/2026
+
+Phần expand gốc đủ đề nghị; drill chỉ chứng minh ba43605 → c8dc3c4. Cleanup và rollback một candidate phát hành khác cần bằng chứng riêng, không dùng full test mới để nhận thay.
+
+[Phiếu trình Toàn](../W-0336/approval-request.md) ghi phạm vi, toàn bộ Residual đã đối chiếu,
+người phụ trách và hành động còn lại. [Verification](../W-0336/verification.json) kiểm C1/C2/C4
+tại aaba3d2; không phải lượt full test mới ở commit tài liệu này. Chờ owner, chưa ACCEPTED.
