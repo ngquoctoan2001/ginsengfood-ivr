@@ -1358,7 +1358,7 @@ work:
     evidence: "docs/evidence/W-0327/README.md"
   - id: "W-0328"
     prompt: "Sửa C2 đọc TestId viết tắt (Origin=UNPLANNED)"
-    status: "IN_PROGRESS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0328/README.md"
 
 production_flag:

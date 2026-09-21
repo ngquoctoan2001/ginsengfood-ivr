@@ -1,0 +1,73 @@
+{
+  "schema": "ivr-acceptance-c2-verification/v1",
+  "workId": "W-0328",
+  "status": "PASS_LOCAL",
+  "realCustomerCallAllowed": false,
+  "candidate": "1794241dfbbc919409d03db7232d8a9ad504b9f8",
+  "tree": "32baddadf395a314ea399a53ece1f9124d82c4a6",
+  "hashEncoding": "SHA-256 hex grouped by eight; remove hyphens for canonical hex",
+  "regression": {
+    "slashRed": "missing IT-API-TERMINATE-10 on original parser",
+    "namedRangeRed": "CT-CI-06..06h refused by first patch",
+    "c2Checks": 45,
+    "provenanceChecks": 47,
+    "gates": [
+      "CT-ACCEPTANCE-C2-01",
+      "CT-ACCEPTANCE-EVIDENCE-01"
+    ]
+  },
+  "run": {
+    "tree": "32baddadf395a314ea399a53ece1f9124d82c4a6",
+    "testCount": 1151,
+    "testsStartedAt": "2026-09-21T06:25:45.504Z",
+    "testsFinishedAt": "2026-09-21T06:34:08.569Z",
+    "sweepStartedAt": "2026-09-21T06:34:09.199Z",
+    "sweepFinishedAt": "2026-09-21T06:41:03.333Z",
+    "bundleSha256": "448e4f6a-eba20042-bde8227e-98bea43b-4617cf7c-b9cb0e45-f8f308b4-d9a3cd17",
+    "manifestSha256": "da0ef5ff-30d2df63-7cf69bc8-803493b1-4bcd589d-9eb3789b-b8af542f-1343685d",
+    "tests": [
+      {
+        "path": "trx/Administrator_NQT_2026-09-21_13_25_58.trx",
+        "sha256": "81a9def1-a919aabe-d46eeb9b-f17ad52e-8cc7283d-7eff078e-7c80f23b-4f84d093"
+      },
+      {
+        "path": "trx/Administrator_NQT_2026-09-21_13_26_11.trx",
+        "sha256": "5cfef315-ecbd5519-b14e23c6-0151b3fe-4314307e-76a6a6dd-4ee53652-11887dee"
+      },
+      {
+        "path": "trx/Administrator_NQT_2026-09-21_13_26_12.trx",
+        "sha256": "c60cd919-81fd70fd-4ba622b2-ab62997d-cd642f3d-3177f6e3-d6035b0c-857d3031"
+      },
+      {
+        "path": "trx/Administrator_NQT_2026-09-21_13_26_19.trx",
+        "sha256": "11fd312a-340266a1-d81f4022-c0aa889c-0bee24fc-117748af-a325e575-ee010a16"
+      }
+    ],
+    "sweep": {
+      "path": "sweep.log",
+      "sha256": "ae7defdb-7eae294b-eebf2429-ca744624-f1a3a6a4-1f4b859e-9f65d3f3-0f4aead3"
+    },
+    "runnable": 42,
+    "skipped": 24
+  },
+  "bundlePath": ".artifacts/w0328-acceptance-1794241/acceptance-run.json",
+  "bundleSha256": "448e4f6a-eba20042-bde8227e-98bea43b-4617cf7c-b9cb0e45-f8f308b4-d9a3cd17",
+  "parser": {
+    "affectedPacks": 20,
+    "addedReferences": 98,
+    "changedVerdicts": []
+  },
+  "totals": {
+    "candidates": 224,
+    "review": 73,
+    "fail": 151,
+    "pass": 0,
+    "unchecked": 0
+  },
+  "supersededRun": {
+    "candidate": "a9da739128b3ed7d1e9ae3b15707f3001e56e01c",
+    "status": "CANCELLED_FOR_CODE_CHANGE",
+    "path": ".artifacts/w0328-acceptance-a9da739",
+    "acceptanceManifest": false
+  }
+}

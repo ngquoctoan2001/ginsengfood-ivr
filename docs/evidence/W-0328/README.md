@@ -27,10 +27,36 @@ Các chặn commit, tree, kết quả cũ, hash và đủ gate giữ nguyên.
   c2SelfTest chưa có trong index; đối chiếu source xác nhận chỉ selfTest gọi trực tiếp.
   Query báo thiếu FTS; không dùng kết quả rỗng để kết luận không có phụ thuộc.
 
-## Phần phải hoàn tất
+## Kiểm chứng cuối — hoàn tất phần sửa C2
 
-Lượt đầu ở `a9da739` đã dừng sau khi phát hiện 12 gói dùng khoảng chữ; log được giữ ở
-`.artifacts/w0328-acceptance-a9da739/`, không có acceptance manifest và không dùng để nghiệm thu.
-Chốt commit chứa bản sửa, chạy toàn bộ solution rồi full gate sweep trên checkout sạch,
-lưu bundle đúng SHA và sinh lại danh sách nghiệm thu. Kết quả ban đầu bên trên chưa thay thế bước đó.
-Toàn quyết định ACCEPTED; hồ sơ này không cho phép gọi khách thật hoặc xác nhận M3 tích hợp.
+Candidate: `1794241dfbbc919409d03db7232d8a9ad504b9f8`. Bộ thu xác minh checkout sạch trước/sau cả hai lệnh,
+cùng commit/tree, hash TRX, đủ project và từng gate trong manifest của chính commit này.
+
+| Kiểm tra | Kết quả |
+| --- | --- |
+| Toàn solution | 1151/1151 Passed; 4 project; 0 fail/skip |
+| Full sweep | 42/42 gate chạy; 24 mục classified theo manifest |
+| C2 regression | 45 PASS, tăng 20 so với trước sửa |
+| Provenance/CLI regression | 47 PASS |
+| Đối chiếu parser trên hồ sơ | 20 gói đọc thêm 98 lượt TestId; 0 verdict đổi do parser |
+| Danh sách mới | 224 ứng viên: 73 XEM, 151 KHÔNG ĐẠT, 0 ĐẠT, 0 chưa kiểm |
+
+Thời gian UTC: test 2026-09-21T06:25:45.504Z → 2026-09-21T06:34:08.569Z;
+sweep 2026-09-21T06:34:09.199Z → 2026-09-21T06:41:03.333Z.
+
+W-0207 nay xét đủ IT-API-TERMINATE-09 và IT-API-TERMINATE-10; cả hai xanh trong TRX.
+Các lượt tham chiếu bổ sung đều được C2 đối chiếu; số XEM tăng so với W-0325 vì hai
+hồ sơ W-0325/W-0327 mới vào tập ứng viên ở commit này, không do nới tiêu chí.
+
+- [Xác minh, hash và thời gian](verification.json).
+- [Đối chiếu từng ứng viên và 20 gói bị ảnh hưởng](c2-assessment.json).
+- [Danh sách nghiệm thu sinh từ kết quả mới](../../release/acceptance-batches.md).
+- [Bundle gốc giữ trên máy](../../../.artifacts/w0328-acceptance-1794241/acceptance-run.json).
+
+Lượt đầu tại a9da739 dừng vì cần bổ sung khoảng assertion chữ; giữ toàn bộ log tại
+.artifacts/w0328-acceptance-a9da739, không có manifest và không dùng làm bằng chứng nghiệm thu.
+Lỗi MSBuild sau thời điểm dừng là do huỷ cây tiến trình đó; không phải kết quả của lượt cuối.
+
+Phần sửa C2 đã xong. Danh sách ghim candidate trên; commit tài liệu sau không được gán lại test.
+Giữ nguyên trạng thái 13 việc đã rà và các gói cũ. Toàn quyết định ACCEPTED.
+Bước tiếp thực thi phần local E2E W-0207; M3, staging và quyền gọi khách vẫn chưa được xác nhận.

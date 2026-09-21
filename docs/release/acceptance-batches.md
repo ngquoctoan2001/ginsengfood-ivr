@@ -1,4 +1,4 @@
-# Danh sách đề nghị nghiệm thu — `b6bd852cecdfb2df9188fc41b97c94f080639b2c`
+# Danh sách đề nghị nghiệm thu — `1794241dfbbc919409d03db7232d8a9ad504b9f8`
 
 Script **chỉ đọc**: không sửa tracker. Chỉ Toàn chuyển một dòng sang `ACCEPTED`, sau khi
 đọc bằng chứng — danh sách này không thay cho việc đọc.
@@ -27,7 +27,7 @@ Prompt đã lên kế hoạch đã xong (`ACCEPTED`, `N/A`, `CANCELLED`): **6/54
 | `P6` | 3 | 0 | 1 | 2 | 0 |
 | `P7` | 5 | 0 | 0 | 5 | 0 |
 | `P10` | 4 | 0 | 1 | 3 | 0 |
-| `UNPLANNED` | 181 | 0 | 55 | 126 | 0 |
+| `UNPLANNED` | 183 | 0 | 57 | 126 | 0 |
 
 `ĐẠT`: đủ bốn điều. `XEM`: C1, C2, C4 đạt, còn cột Residual cần Toàn đọc xem có việc
 của IVR không. `KHÔNG ĐẠT`: hỏng ít nhất một điều, lý do ở dưới. `CHƯA KIỂM`: thiếu kết quả test
@@ -42,8 +42,8 @@ hoặc log gate sweep để kết luận.
 | `W-0013` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 
 - `W-0011` — CT-CI-01 không có trong docs/traceability-tests.md; CT-CI-02 không có trong docs/traceability-tests.md; CT-CI-03 không có trong docs/traceability-tests.md; và 6 TestId khác · Residual: CI + hosted enforcement complete except required independent approval; giữ TESTS_PASS tới khi Premium/Ultimate + second reviewer proof đóng W-0061
-- `W-0012` — CT-CI-05 không có trong docs/traceability-tests.md; UT-FND-RBAC-03 không có trong docs/traceability-tests.md; UT-FND-RBAC-08 không có trong docs/traceability-tests.md · Residual: local MOCK implementation complete; P1-2 owns persistence migrations, P4-4 owns production auth; no Sales/SIM/real call; W-0061 push setting PASS, independent approval remains
-- `W-0013` — CT-CI-05 không có trong docs/traceability-tests.md · Residual: local MOCK complete; OD-V1-20 pending/fail-closed; P1-2 owns migration/persistent mutation; W-0061 push setting PASS, independent approval remains
+- `W-0012` — CT-CI-05 không có trong docs/traceability-tests.md; CT-CI-07 không có trong docs/traceability-tests.md; CT-CI-08 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: local MOCK implementation complete; P1-2 owns persistence migrations, P4-4 owns production auth; no Sales/SIM/real call; W-0061 push setting PASS, independent approval remains
+- `W-0013` — CT-CI-05 không có trong docs/traceability-tests.md; CT-CI-07 không có trong docs/traceability-tests.md; CT-CI-08 không có trong docs/traceability-tests.md · Residual: local MOCK complete; OD-V1-20 pending/fail-closed; P1-2 owns migration/persistent mutation; W-0061 push setting PASS, independent approval remains
 
 ## Đợt `P1`
 
@@ -54,7 +54,7 @@ hoặc log gate sweep để kết luận.
 | `W-0016` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0064` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 
-- `W-0014` — CT-CI-05 không có trong docs/traceability-tests.md · Residual: Contract remains TARGET_DRAFT; current compat runtime-disabled; W-0002/W-0005/W-0006 external; W-0061 push setting PASS, independent approval remains
+- `W-0014` — CT-CI-05 không có trong docs/traceability-tests.md; CT-CI-07 không có trong docs/traceability-tests.md; CT-CI-08 không có trong docs/traceability-tests.md · Residual: Contract remains TARGET_DRAFT; current compat runtime-disabled; W-0002/W-0005/W-0006 external; W-0061 push setting PASS, independent approval remains
 - `W-0015` — IT-DB-LEASE-05 không có trong docs/traceability-tests.md · Residual: local P0-4 persistence gap closed; DF-07/KMS/backup-staging-prod remain; W-0061 push setting PASS, independent approval remains; no real Sales/SIM/call
 - `W-0016` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: local MOCK complete; Target V1/policy approvals and real Sales/SIM/customer calls remain external/NOT_RUN; W-0061 push setting PASS, independent approval remains
 - `W-0064` — Residual: owner/reviewer acceptance pending; production periods vẫn OWNER_DECISION_REQUIRED theo DF-07/OD-V1-11; REAL_CUSTOMER_CALL_ALLOWED=NO
@@ -354,6 +354,8 @@ hoặc log gate sweep để kết luận.
 | `W-0319` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0322` | `EVIDENCE_SUBMITTED` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0324` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0325` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0327` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |
 
 - `W-0078` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: retain pin until Testcontainers declares a patched dependency; no production SSH/SIM/Sales execution
 - `W-0079` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: local implementation complete; hosted GitLab evidence vẫn NOT_RUN dưới W-0061
@@ -401,7 +403,7 @@ hoặc log gate sweep để kết luận.
 - `W-0136` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: .docx cùng tên không được cập nhật — đúng thông lệ đang có (cf2d884 cũng chỉ sửa .md), nhưng nghĩa là hai bản đã lệch. Tên bước "GSM/SIM Call Execution" cố ý giữ; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0137` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: OD-20=IMPLEMENTED / OPTION_1_WITHDRAW; W-0137 vẫn TESTS_PASS, không tự nâng ACCEPTED. Artifact _SUPERSEDED chỉ giữ audit/recovery, không phải tài liệu hiện hành; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0138` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Không tự đóng hay sửa nội dung quyết định nào — chỉ làm chúng hiện ra. OD-VOICE-05 có dấu hiệu mâu thuẫn với evidence W-0128 §12.3, ghi thành residual chứ không xử trong W-0138. REAL_CUSTOMER_CALL_ALLOWED=NO
-- `W-0139` — CT-OBS-STAGING-13 không có trong docs/traceability-tests.md; IT-IMG-E2E-05 không có trong docs/traceability-tests.md; IT-OBS-EXPORT-11 không có trong docs/traceability-tests.md; và 2 TestId khác · Residual: B-06 vẫn mở: manual staging job chưa chạy vì thiếu endpoint/credential/retention/access + exact image/SHA + dashboard/query + alert fire/recovery OWNER_DATA_REQUIRED; W-0063 không đổi; REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0139` — CT-OBS-STAGING-13 không có trong docs/traceability-tests.md; CT-OBS-STAGING-14 không có trong docs/traceability-tests.md; IT-IMG-E2E-05 không có trong docs/traceability-tests.md; và 3 TestId khác · Residual: B-06 vẫn mở: manual staging job chưa chạy vì thiếu endpoint/credential/retention/access + exact image/SHA + dashboard/query + alert fire/recovery OWNER_DATA_REQUIRED; W-0063 không đổi; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0140` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Rung 0, 8/138 ACCEPTED, 90 TESTS_PASS, 16 BLOCKED_EXTERNAL; không Work ID nào được nâng ACCEPTED; W-0122/external signatures/target DB/hosted CI/shared integration vẫn blocked; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0141` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: W-0137/W-0141 không nâng ACCEPTED; 11 external gate/23 open decision/rung 0 giữ nguyên; artifact _SUPERSEDED chỉ dành audit/recovery, không được phát hành; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0144` — Residual: DT04_LOCAL_COMPLETE; production adapter vẫn BLOCKED_EXTERNAL: vendor API/sandbox, raw disposition matrix, recording-off/caller-ID/DTMF/health, Security-signed resolver/trust boundary, Vault/KMS custody/rotation và R-0…
@@ -536,4 +538,6 @@ hoặc log gate sweep để kết luận.
 - `W-0319` — không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: Đã thu gói kiểm chứng đầy đủ; kết quả chỉ chứng nhận commit bd9ea5c, không chứng nhận HEAD khác. Toàn đọc Residual và tự nghiệm thu; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0322` — E2E-UI-REPLAY-05 không có trong docs/traceability-tests.md; E2E-UI-REVIEW-05 không có trong docs/traceability-tests.md; UT-ELIG-BLOCK-01 không có trong docs/traceability-tests.md; và 1 TestId khác · Residual: Owner quyết định nghiệm thu P2 và kết thúc 4 P3 theo W-0253; F1 bộ sinh bỏ lọt test UI retired cần sửa ở work tiếp theo; không đổi 13 trạng thái; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0324` — Residual: Không tự ACCEPTED; UI M3 không chứng nhận bằng test backend; REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0325` — Residual: Đã phân loại 23 thiếu gói, 63 thiếu phép kiểm, 61 TestId chưa đối chiếu, 4 UI retired; Toàn duyệt 8 P2; đợt tiếp rà Residual 13 việc C1 mới đạt; REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0327` — Residual: W-0042 thiếu game-day/alert capture; W-0207 cần E2E đúng candidate và signer thật; W-0052 chờ S8 rồi làm công cụ DSAR. 10 đề nghị chờ Toàn, không tự ACCEPTED; REAL_CUSTOMER_CALL_ALLOWED=NO
 
