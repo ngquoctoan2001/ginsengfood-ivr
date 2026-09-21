@@ -1,12 +1,12 @@
-# Danh sách đề nghị nghiệm thu — `3d0111a`
+# Danh sách đề nghị nghiệm thu — `bd9ea5c64b6a6b4a1a1f34c7043f80cfea25e08f`
 
 Script **chỉ đọc**: không sửa tracker. Chỉ Toàn chuyển một dòng sang `ACCEPTED`, sau khi
 đọc bằng chứng — danh sách này không thay cho việc đọc.
 
 | Nguồn | Trạng thái |
 | --- | --- |
-| Kết quả test (`C2`) | 4 file `.trx`, 1151 kết quả |
-| Gate sweep (`C4`) | ✅ GATE_SWEEP_PASS 40/40 |
+| Kết quả test (`C2`) | 4 file `.trx`, 1151 kết quả · SHA/hash/đủ project đã kiểm |
+| Gate sweep (`C4`) | ✅ GATE_SWEEP_PASS 42/42 |
 
 ## Nấc 1
 
@@ -27,7 +27,7 @@ Prompt đã lên kế hoạch đã xong (`ACCEPTED`, `N/A`, `CANCELLED`): **6/54
 | `P6` | 3 | 0 | 0 | 3 | 0 |
 | `P7` | 5 | 0 | 3 | 2 | 0 |
 | `P10` | 4 | 0 | 0 | 4 | 0 |
-| `UNPLANNED` | 177 | 0 | 117 | 60 | 0 |
+| `UNPLANNED` | 179 | 0 | 119 | 60 | 0 |
 
 `ĐẠT`: đủ bốn điều. `XEM`: C1, C2, C4 đạt, còn cột Residual cần Toàn đọc xem có việc
 của IVR không. `KHÔNG ĐẠT`: hỏng ít nhất một điều, lý do ở dưới. `CHƯA KIỂM`: thiếu kết quả test
@@ -350,6 +350,8 @@ hoặc log gate sweep để kết luận.
 | `W-0315` | `TESTS_PASS` | ✅ | ❌ | 👀 | **KHÔNG ĐẠT** |
 | `W-0316` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0317` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0318` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0319` | `TESTS_PASS` | ✅ | ✅ | 👀 | **XEM** |
 
 - `W-0078` — gate-status.yaml không trỏ tới gói bằng chứng nào · Residual: retain pin until Testcontainers declares a patched dependency; no production SSH/SIM/Sales execution
 - `W-0079` — gate-status.yaml không trỏ tới gói bằng chứng nào · Residual: local implementation complete; hosted GitLab evidence vẫn NOT_RUN dưới W-0061
@@ -528,4 +530,6 @@ hoặc log gate sweep để kết luận.
 - `W-0315` — UT-VOICE-3B-01 không có trong docs/traceability-tests.md; UT-VOICE-4B-07 không có trong docs/traceability-tests.md · Residual: Lô 4 phần làm được ngay (Trivy, bản cài nền, cấu hình production nháp) · chờ S1/S2/S5 · chạy lại lab bằng VieNeu khi có bundle model. REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0316` — Residual: Lô 3 mục 13 chờ Sếp ký S2 · Lô 4 bước 1, 2, 4 · Lô 5 · REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0317` — Residual: Một lượt đọc thật khi có bundle model (tải cần Toàn cho phép) · S2 rủi ro 3: ký với 44 lỗ hay đổi nền Chainguard · phần Chờ của Lô 4 · REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0318` — Residual: Toàn duyệt từng đợt và tự chuyển ACCEPTED (bước 3), rồi gate-status.mjs --write (bước 4) · REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0319` — Residual: Chưa thu gói toàn solution/full sweep tại commit mới; cần checkout sạch sau commit. Chỉ owner nghiệm thu; REAL_CUSTOMER_CALL_ALLOWED=NO
 

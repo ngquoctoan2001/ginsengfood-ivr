@@ -31,8 +31,13 @@ không kiểm SHA nguồn, hash kết quả hay tập tên gate đã chạy.
 
 Chạy từ checkout sạch của commit cần xét. Trên Windows dùng Git Bash để sweep tìm được `sh`.
 Giữ riêng các thay đổi của phiên khác; công cụ từ chối cây có file chưa commit.
+Chuẩn bị dependency Node theo lockfile và bản Release của công cụ policy trước khi thu gói.
+Gate `selftest-dotnet-policy.sh` gọi công cụ đó với `--no-build`, như job CI hiện có.
 
 ```sh
+npm ci --prefix deploy/ci --ignore-scripts --no-audit --no-fund
+dotnet restore deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --locked-mode
+dotnet build deploy/ci/tools/Ivr.CiPolicy/Ivr.CiPolicy.csproj --configuration Release --no-restore
 node tools/dev/collect-acceptance-evidence.mjs --out .artifacts/acceptance-run-001
 node deploy/ci/scripts/acceptance-batches.mjs --evidence .artifacts/acceptance-run-001/acceptance-run.json --phase P2
 ```
@@ -66,6 +71,56 @@ gói cũ bị từ chối ngay cả khi thời gian file được đổi mới.
 Hash và metadata giúp phát hiện trộn hoặc sửa kết quả; đây không phải chữ ký chống một người cố ý
 làm giả cả manifest và kết quả. Owner vẫn phải đọc bằng chứng và duyệt.
 
-Chưa tạo gói nghiệm thu mới cho toàn bộ IVR trong lô sửa công cụ này. Không nâng trạng thái các việc
-P2/P3, không sửa 55 gói cũ, không thay danh sách lịch sử tại `3d0111a`. Lượt thu gói thật tiếp theo
-phải chạy sau khi bản sửa nằm trong commit cần xét, trên checkout sạch.
+Phần sửa công cụ ban đầu chưa tạo gói nghiệm thu mới cho toàn bộ IVR. Không nâng trạng thái các việc
+P2/P3, không sửa 55 gói cũ. Lượt thu gói thật phải chạy sau khi bản sửa nằm trong commit cần xét,
+trên checkout sạch. Phần tiếp theo ghi lượt kiểm chứng owner yêu cầu sau đó.
+
+## 6. Kiểm chứng tại commit xác định — 21/09/2026
+
+Bản sửa công cụ đã vào `main` tại `d7a3bd4d7c13974d0f14982fd1624861de9940c0`.
+Hai lượt đầu trong checkout detached sạch của commit này đều bị collector từ chối và không sinh
+`acceptance-run.json`:
+
+- `.claude/worktrees/w0319-acceptance-20260921/.artifacts/acceptance-run-001`: thiếu dependency
+  Node `yaml`, integration `362/363`; không chạy sweep. Đã cài bằng `npm ci` đúng lockfile.
+- `acceptance-run-002` trong cùng checkout: toàn solution `1151/1151`, sweep `40/42`.
+  Gate opt-out từ chối hash W-0161 do checkout Windows đổi LF thành CRLF; gate policy chưa có
+  executable Release mà nó gọi bằng `--no-build`. Cả hai là lỗi chuẩn bị checkout, không dùng làm
+  bằng chứng đạt.
+
+Hash blob Git W-0161 và hash nội dung checkout sau chuẩn hóa CRLF về LF cùng bằng
+`9a9de5faad8c9fe4a7c45866ca38561dffda6423d2e63ddf9ba3595a369d832b`, đúng pin của validator.
+Commit `bd9ea5c64b6a6b4a1a1f34c7043f80cfea25e08f` thêm đúng một dòng `text eol=lf`
+cho file đó; không đổi pin hay nội dung bằng chứng. GitNexus staged check không có symbol thay đổi.
+Checkout mới `.claude/worktrees/w0319-acceptance-lf-20260921` giữ LF ngay khi tạo; dependency đã cài
+và policy Release đã build. Hai gate từng lỗi đều PASS khi kiểm riêng trước lượt thu gói đầy đủ.
+
+### Kết quả lượt đầy đủ được chấp nhận
+
+- Commit: `bd9ea5c64b6a6b4a1a1f34c7043f80cfea25e08f`.
+- Tree: `55327d0512b5314e691655ac9d3da33761c2165f`; checkout sạch trước và sau cả hai lệnh.
+- Toàn solution: `1151/1151` PASS, `0` lỗi, `0` bỏ qua; unit `756`, integration `363`,
+  contract `24`, chaos `8`. Test chạy `09:23:46`–`09:35:59` ngày `21/09/2026`, UTC+7.
+- Full sweep chạy sau test, `09:36:00`–`09:40:54`: `GATE_SWEEP_PASS 42/42 run, 22 skipped by manifest`.
+  Cả `42` gate có `argv` đã chạy; `22` mục ngoài sweep được manifest phân loại sẵn.
+- Collector exit `0`, xuất `ACCEPTANCE_EVIDENCE_COLLECTED`; consumer kiểm lại SHA/tree,
+  hash manifest gate, hash TRX/log, đủ bốn project và đủ gate trước khi sinh danh sách.
+
+Gói lưu tại `.artifacts/w0319-acceptance-bd9ea5c/` ở root repo: `acceptance-run.json`,
+`tests.log`, `sweep.log`, bốn file trong `trx/` và bản sao `acceptance-batches.md`.
+SHA-256 của manifest:
+`5521d7d6b48d522797a823a4f4fc9068e8aa0f2416a6382ac85f5e2f72521bf4`.
+Checkout đã chạy và hai lượt lỗi vẫn được giữ để đối chiếu; các artifact cục bộ không nằm trong Git.
+
+[Danh sách mới](../../release/acceptance-batches.md) có `220` ứng viên: `0` ĐẠT, `140` XEM,
+`80` KHÔNG ĐẠT, `0` CHƯA KIỂM. `80` là kết luận về điều kiện nghiệm thu của từng việc,
+không phải test bị lỗi. Đợt P2 có `9` và P3 có `4` việc, đều XEM.
+Snapshot tracker của commit này có `44/307` việc ACCEPTED; không chuyển trạng thái nghiệm thu.
+
+Danh sách đọc tracker tại commit đã kiểm chứng, nên Residual W-0319 vẫn là câu trước lượt thu gói.
+Tracker hiện tại được cập nhật kết quả sau đó. Commit tài liệu ghi kết quả không thay thế commit
+đã chạy test; không dùng gói này chứng nhận một HEAD khác. Tái sinh đúng snapshot bằng:
+
+```sh
+node deploy/ci/scripts/acceptance-batches.mjs --root .claude/worktrees/w0319-acceptance-lf-20260921 --evidence .artifacts/w0319-acceptance-bd9ea5c/acceptance-run.json
+```
