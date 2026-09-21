@@ -337,3 +337,12 @@ Sau các lượt W-0328/W-0330/W-0332/W-0334 và quyết định owner: nhóm 13
 Consumer kiểm lại C1/C2/C4 của cả chín tại aaba3d2 sạch: 22 lượt TestId, 1171 test, 42 gate.
 Không gán bằng chứng này cho HEAD tài liệu/WIP; tổng ACCEPTED hiện là 48, chín việc vẫn chờ Toàn.
 Các bảng và hành động ở mốc rà đầu phía trên là lịch sử, không cấp lại các việc đã hoàn tất.
+
+## Owner duyệt chín việc còn lại — 21/09/2026
+
+Toàn trả lời **“tôi chấp nhận”** sau [phiếu W-0336](../W-0336/approval-request.md#quyết-định-owner--21092026)
+tại 4dfd500. W-0088/W-0125/W-0196/W-0197/W-0207/W-0268/W-0269/W-0272/W-0274 nay
+**ACCEPTED** theo đúng phạm vi local đã trình. Nhóm13 gốc có **12 ACCEPTED**; W-0042 còn
+TESTS_PASS vì thiếu staging/OTLP/thông báo. Tổng repo **57 ACCEPTED** tại thời điểm ghi.
+Giới hạn rollback W-0196, phía IVR W-0207 và mọi hành động/người phụ trách ngoài local vẫn giữ.
+Các bảng và trạng thái chờ duyệt phía trên là lịch sử; không có lượt full test/sweep mới.

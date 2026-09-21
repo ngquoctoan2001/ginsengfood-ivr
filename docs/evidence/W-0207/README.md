@@ -163,3 +163,11 @@ W-0332 đã khép thiếu bằng chứng local tại aaba3d2; đủ đề nghị
 [Phiếu trình Toàn](../W-0336/approval-request.md) ghi phạm vi, toàn bộ Residual đã đối chiếu,
 người phụ trách và hành động còn lại. [Verification](../W-0336/verification.json) kiểm C1/C2/C4
 tại aaba3d2; không phải lượt full test mới ở commit tài liệu này. Chờ owner, chưa ACCEPTED.
+
+## Owner nghiệm thu — 21/09/2026
+
+Toàn trả lời **“tôi chấp nhận”** sau phiếu W-0336 tại commit 4dfd500 và câu hỏi liệt kê đủ
+chín việc. W-0207 được ghi **ACCEPTED** cho đúng phạm vi local đã trình.
+[Quyết định và giới hạn](../W-0336/approval-request.md#quyết-định-owner--21092026) giữ nguyên
+phần chưa được chứng minh, người phụ trách và hành động còn lại; REAL_CUSTOMER_CALL_ALLOWED=NO.
+Các trạng thái TESTS_PASS/chờ owner ở phần trước là lịch sử trước quyết định này.

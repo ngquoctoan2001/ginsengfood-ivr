@@ -4,7 +4,7 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 
 Baseline tài liệu: `a6a8f98cf047e59c573f75464c65d5bde195cfff`.
 Candidate đã chạy test/sweep: `aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979`.
-Trạng thái: **EVIDENCE_SUBMITTED**, chờ Toàn xét phạm vi trong [phiếu trình duyệt](approval-request.md).
+Trạng thái gói chuẩn bị: **EVIDENCE_SUBMITTED**. Toàn đã duyệt chín việc trong [phiếu trình duyệt](approval-request.md#quyết-định-owner--21092026).
 Tracker vẫn là nguồn trạng thái duy nhất; phiếu này không tự chuyển việc nào sang ACCEPTED.
 
 ## Kết quả
@@ -15,7 +15,7 @@ Tracker vẫn là nguồn trạng thái duy nhất; phiếu này không tự chu
   W-0330: **1171/1171 test, 42/42 gate chạy, 24 mục classified không có invocation**.
   Không có lượt chạy full suite mới ở commit tài liệu này.
 - C1/C2/C4 của **9/9** việc đạt; **22 lượt tham chiếu TestId** được đọc từ README, prompt và
-  attachment cùng gói theo consumer thật. C3 vẫn là **XEM**, vì Toàn phải đọc phạm vi và Residual.
+  attachment cùng gói theo consumer thật. Consumer C3 vẫn là **XEM**; quyết định owner được ghi riêng sau khi đọc phạm vi và Residual.
 - Candidate là ancestor của baseline; các cây src/tests/tools/deploy và cấu hình solution đã
   đối chiếu không đổi giữa hai mốc. WIP của phiên khác không tham gia kết luận.
 - Sửa XML summary lỗi thời trong [SimAdapters](../../../src/Ivr.Infrastructure/Telephony/SimAdapters.cs):
@@ -36,7 +36,9 @@ Các addendum trong chín hồ sơ gốc dẫn tới phiếu này, giữ nguyên
 - W-0207 có [W-0332](../W-0332/README.md) kiểm mới 20 vòng/330 task/11 ca phía IVR tại aaba3d2;
   producer, revalidation, BFF và chữ ký M3 thật vẫn thiếu.
 - Trong nhóm 13 gốc: W-0029/W-0032/W-0052 đã được owner duyệt theo phạm vi đã ghi; chín việc ở
-  phiếu này chờ duyệt; W-0042 còn thiếu staging/OTLP/thông báo dù W-0334 đã bổ sung proof local.
+  phiếu này đã được owner duyệt ngày 21/09; W-0042 còn thiếu staging/OTLP/thông báo dù W-0334 đã bổ sung proof local.
 - Bộ tám việc P2 trong [W-0324](../W-0324/approval-request.md) là một phiếu khác, không gộp vào đây.
 
-Gói này không sửa trạng thái chín việc gốc; tổng ACCEPTED giữ **48** tại baseline.
+Tại mốc trình 4dfd500, tổng ACCEPTED là **48**. Sau phản hồi “tôi chấp nhận”, chín việc gốc
+được ghi ACCEPTED, tổng **57**; W-0336 giữ EVIDENCE_SUBMITTED. [Quyết định owner](approval-request.md#quyết-định-owner--21092026)
+không sửa SHA/kết quả kiểm chứng cũ và giữ nguyên các giới hạn ngoài local.

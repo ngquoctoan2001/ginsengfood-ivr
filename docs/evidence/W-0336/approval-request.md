@@ -2,14 +2,14 @@
 
 REAL_CUSTOMER_CALL_ALLOWED=NO
 
-**Đề nghị nghiệm thu phần local của cả chín việc bên dưới. Quyết định hiện tại: PENDING.**
+**Owner đã duyệt phần local của cả chín việc bên dưới ngày 21/09/2026. Quyết định: ACCEPTED trong phạm vi đã trình.**
 Đây là phần còn lại của lượt rà 13 việc W-0327 sau khi W-0029/W-0032/W-0052 được owner duyệt.
 W-0042 chưa nằm trong đề nghị này vì DoD staging còn thiếu bằng chứng.
 
 Test/sweep cùng commit sạch **aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979**:
 1171/1171 test và 42/42 gate, 24 mục classified không có invocation; consumer vừa kiểm lại hash.
 Không gán kết quả đó cho commit tài liệu hiện tại hoặc WIP. [Verification](verification.json)
-giữ đủ 22 lượt TestId, C1/C2/C4 và nguyên Residual tracker. C3 cần owner đọc bảng dưới.
+giữ đủ 22 lượt TestId, C1/C2/C4 và nguyên Residual tracker. C3 đã được owner chấp nhận theo phạm vi và giới hạn trong bảng dưới.
 
 ## Phạm vi đề nghị và phần ngoài phạm vi
 
@@ -28,12 +28,31 @@ giữ đủ 22 lượt TestId, C1/C2/C4 và nguyên Residual tracker. C3 cần o
 Bản rà từng vế và commit đối chiếu: [W-0327, mục 5–13](../W-0327/README.md#5-w-0088--livenessstate-machine).
 Các README cũ giữ nguyên số liệu, lỗi và giới hạn lịch sử, chỉ có addendum chỉ trạng thái rà mới.
 
-## Nội dung quyết định để owner xét
+## Nội dung đã trình owner
 
 Đề nghị Toàn duyệt **W-0088, W-0125, W-0196, W-0197, W-0207, W-0268, W-0269, W-0272,
 W-0274** theo đúng cột “Phần đề nghị nghiệm thu”, gồm giới hạn cặp rollback W-0196 và chỉ phía
 IVR của W-0207. Những việc tích hợp/vận hành ở cột cuối vẫn mở sau quyết định này.
 
-Chưa ghi người ký hoặc ACCEPTED: [tracker §1, luật 6 và T7](../../../prompt/_execution/prompt-execution-tracker.md#1-operating-rules)
-quy định Toàn chấp nhận bằng chứng và đọc Residual. Chín dòng hiện vẫn TESTS_PASS; tổng ACCEPTED
-giữ 48. Việc phê duyệt phạm vi local không mở quyền gọi khách thật hoặc phê duyệt production.
+Tại thời điểm trình commit 4dfd500, chưa ghi người ký hoặc ACCEPTED: [tracker §1, luật 6 và T7](../../../prompt/_execution/prompt-execution-tracker.md#1-operating-rules)
+quy định Toàn chấp nhận bằng chứng và đọc Residual. Khi đó chín dòng vẫn TESTS_PASS; tổng ACCEPTED
+là 48. Việc phê duyệt phạm vi local không mở quyền gọi khách thật hoặc phê duyệt production.
+
+## Quyết định owner — 21/09/2026
+
+Sau khi nhận phiếu ở commit **4dfd500** và câu hỏi liệt kê đủ chín Work ID, Toàn trả lời:
+
+> tôi chấp nhận
+
+Codex ghi theo chỉ thị này: **W-0088, W-0125, W-0196, W-0197, W-0207, W-0268, W-0269,
+W-0272, W-0274 → ACCEPTED**, đúng phần local và giới hạn đã trình trong từng hàng.
+Tổng ACCEPTED **48 → 57**. Đây là quyết định qua chat của owner, không tạo chữ ký hay chấp thuận
+của M3/người khác. Bằng chứng test/sweep vẫn thuộc aaba3d2; verification.json giữ nguyên snapshot
+trước khi owner duyệt, gồm trường ownerDecision=PENDING tại mốc đó.
+
+- W-0196 chỉ chứng minh cặp rollback ba43605 → c8dc3c4.
+- W-0207 chỉ nghiệm thu phía IVR; shared E2E và năm vai ký thật còn mở.
+- Cột cuối bảng tiếp tục là hành động/người phụ trách phần ngoài local; không đóng target,
+  vận hành, M3 hay production. REAL_CUSTOMER_CALL_ALLOWED=NO.
+- Nhóm13 gốc có **12 ACCEPTED**, còn **W-0042 TESTS_PASS** vì thiếu bằng chứng staging.
+- W-0336 là gói chuẩn bị/trình duyệt, giữ EVIDENCE_SUBMITTED; quyết định này chỉ đổi chín việc được hỏi.
