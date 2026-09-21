@@ -1346,7 +1346,7 @@ work:
     evidence: "docs/evidence/W-0322/README.md"
   - id: "W-0324"
     prompt: "Sửa C2 và hoàn thiện hồ sơ P2/P3 (Origin=OWNER_DECISION 2026-09-21)"
-    status: "CODE_DONE"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0324/README.md"
 
 production_flag:

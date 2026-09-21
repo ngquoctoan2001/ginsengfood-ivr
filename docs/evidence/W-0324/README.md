@@ -55,9 +55,30 @@ W-0066 được xét đủ chín ID trong test-report đã có. W-0019 là hồ 
 
 ## Kiểm chứng tại commit cố định
 
-PENDING — sau commit implementation, chạy collector trên checkout detached sạch: toàn solution,
-sau đó full gate sweep, rồi sinh danh sách nghiệm thu từ bundle đó. Kết quả trước commit không
-được gắn nhãn là kết quả của candidate. WIP VieNeu/lab của các work khác được giữ riêng.
+**PASS tại `3cf695928ce0e2602ae660a7c6f999b08f7dee0b`**, tree `8b1b907fa69dee5e98235be5d0cf26d0e52f2712`.
+
+- Toàn solution: **1151/1151**, gồm unit 756, integration 363, contract 24, chaos 8; không skip/fail.
+  Bắt đầu `2026-09-21T04:10:49.222Z`, kết thúc `2026-09-21T04:19:00.698Z` (UTC).
+- Sau test, full sweep: **42/42 gate**, 24 entry không chạy độc lập đúng phân loại manifest.
+  Bắt đầu `2026-09-21T04:19:01.192Z`, kết thúc `2026-09-21T04:24:39.573Z` (UTC).
+  Hai helper C2 nằm trong 24 entry vì được gọi bởi hai gate bắt buộc; không bị bỏ kiểm.
+- Bundle local: `.artifacts/w0324-acceptance-3cf6959/acceptance-run.json`; đã kiểm lại bằng
+  consumer trên chính checkout sạch. SHA-256 bundle: `d723f90802c7c623a01f003990a39c58d9dc2f4a1cb6de5fb14bde610fbf2e84`.
+  SHA-256 gate manifest: `da0ef5ff30d2df637cf69bc8803493b14bcd589d9eb3789bb8af542f1343685d`.
+- [Phụ lục 13 việc](test-crosscheck.json) lưu C2, TestId/definition, pin file, Residual nguyên văn
+  từ W-0322 và Residual tại candidate. Các test hiện hành của P2 và test backend bổ sung đều Passed;
+  UI đã retire không được tính là đã chạy.
+- [Danh sách sinh lại](../../release/acceptance-batches.md): P2 có **9 XEM**, gồm tám việc trình duyệt
+  và W-0019 đã đủ bằng chứng để xét riêng. P3 có **4 KHÔNG ĐẠT cho nghiệm thu UI** với lý do
+  scope đã ngừng; bốn hồ sơ closeout đã hoàn thiện và chờ Toàn quyết định CANCELLED.
+
+Toàn bộ bảng tại candidate có 221 ứng viên: 57 XEM, 164 KHÔNG ĐẠT, 0 ĐẠT, 0 CHƯA KIỂM.
+164 là số hồ sơ thiếu ít nhất một tiêu chí C1–C4; toàn solution vẫn Passed. C2 nay từ chối
+test rỗng, ID mất và nguồn kiểm thử chưa được ánh xạ đầy đủ. Các hồ sơ ngoài 13 việc P2/P3
+cần rà riêng trước khi trình nghiệm thu; lượt này không tự sửa hoặc duyệt chúng.
+
+Commit ghi báo cáo sau lượt chạy không được coi là commit đã chạy test. Kết quả trên chỉ chứng
+minh candidate đã nêu; WIP VieNeu/lab của các work khác không được đưa vào candidate.
 
 ## Phạm vi ảnh hưởng
 
