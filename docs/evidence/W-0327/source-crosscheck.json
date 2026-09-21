@@ -1,0 +1,1653 @@
+{
+  "schema": "ivr-residual-crosscheck/v1",
+  "baseline": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+  "candidate": "b6bd852cecdfb2df9188fc41b97c94f080639b2c",
+  "realCustomerCallAllowed": "NO",
+  "hashEncoding": "SHA-256 grouped by 8 hex characters; remove hyphens",
+  "run": {
+    "bundlePath": ".artifacts/w0325-acceptance-b6bd852/acceptance-run.json",
+    "bundleSha256": "d5546cdd-ca67def0-90b927c1-48f9fe2b-a353776c-b9d6b3ca-5bdb0218-7d903046",
+    "testCount": 1151,
+    "runnable": 42,
+    "classified": 24,
+    "changedSinceCandidate": [
+      "docs/evidence/W-0325/README.md",
+      "docs/evidence/W-0325/remaining-assessment.json",
+      "docs/release/acceptance-batches.md",
+      "docs/release/gate-status.yaml",
+      "docs/release/readiness-board.md",
+      "prompt/_execution/prompt-execution-tracker.md"
+    ]
+  },
+  "matrix": {
+    "path": "C:\\Users\\Administrator\\Desktop\\ivr\\.claude\\worktrees\\w0325-acceptance-20260921\\.artifacts\\api-matrix\\http-observations.json",
+    "sha256": "98c6aecc-616080e0-9926181a-aec3ab40-9ef93794-3f237d8b-17b9da19-b97c9e1c",
+    "generatedAt": "2026-09-21T04:45:17.3789753+00:00",
+    "version": "1.0.0-draft.31",
+    "operationCount": 39,
+    "requestCount": 470,
+    "failures": 0,
+    "qualification": "Supplementary artifact observed alongside hashed TRX; this JSON was not individually hash-bound by the original collector."
+  },
+  "items": [
+    {
+      "id": "W-0029",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 190,
+        "rowSha256": "6244c01e-d3d35351-e5a4326f-64842279-32565dc8-5dde2548-0d2bf4d8-ee3eeea0",
+        "residualSha256": "7ca87714-3a898fdc-7a2c1380-12eeecee-645cef3f-3ddb91bd-0bf2164a-b056ab70"
+      },
+      "evidencePath": "docs/evidence/W-0029/README.md",
+      "prompt": "prompt/phase-4-integration/P4-1-order-core-wiring.md",
+      "documents": [
+        "docs/evidence/W-0029/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "3 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "CT-CONTRACT-CURRENT-06",
+          "runner": [
+            {
+              "method": "CurrentClientUsesOnlyVerifiedRouteHeaderAndDto",
+              "file": "tests/Ivr.ContractTests/SalesContractScaffoldTests.cs",
+              "classes": [
+                "SalesContractScaffoldTests",
+                "TargetResponseHandler",
+                "CurrentResponseHandler"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "CT-CONTRACT-PINNED-08",
+          "runner": [
+            {
+              "method": "ConsumerContractRecordsTheProviderVersionAndOpenApiHashItWasVerifiedAgainst",
+              "file": "tests/Ivr.ContractTests/SalesContractScaffoldTests.cs",
+              "classes": [
+                "SalesContractScaffoldTests",
+                "TargetResponseHandler",
+                "CurrentResponseHandler"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-ADMIN-CONFIG-03",
+          "runner": [
+            {
+              "method": "IntegrationStatusMarksUnprobedDependenciesAsNotWired",
+              "file": "tests/Ivr.IntegrationTests/AdminConfigApiTests.cs",
+              "classes": [
+                "AdminConfigApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-OBS-HEALTH-04",
+          "runner": [
+            {
+              "method": "AReachableButUnmigratedDatabaseIsNotReady",
+              "file": "tests/Ivr.IntegrationTests/ReadinessProbeTests.cs",
+              "classes": [
+                "ReadinessProbeTests",
+                "UnreachableDbContextFactory"
+              ]
+            },
+            {
+              "method": "ReadinessIs200WithAReachableDatabaseAnd503WithoutOne",
+              "file": "tests/Ivr.IntegrationTests/ReadinessProbeTests.cs",
+              "classes": [
+                "ReadinessProbeTests",
+                "UnreachableDbContextFactory"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        }
+      ]
+    },
+    {
+      "id": "W-0032",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 193,
+        "rowSha256": "99dc73fe-d5bf9763-5b7f4c4f-34631267-dc5e3559-a9725b7a-29bff985-9e490bb3",
+        "residualSha256": "fec23a26-7c5a5bfe-0986df0b-7be60b7a-1cf541fa-4d7e001c-b094f9be-de12b2e2"
+      },
+      "evidencePath": "docs/evidence/W-0032/README.md",
+      "prompt": "prompt/phase-4-integration/P4-4-shared-auth-audit.md",
+      "documents": [
+        "docs/evidence/W-0032/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "12 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "IT-AUTH-INGRESS-12",
+          "runner": [
+            {
+              "method": "ServiceJwtAuthenticatesIngressAndAnUntrustedOneDoesNot",
+              "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+              "classes": [
+                "TaskIntakeApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-COMPAT-11",
+          "runner": [
+            {
+              "method": "LegacySharedSecretIsRefusedUnderTheTargetProfile",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-EGRESS-08",
+          "runner": [
+            {
+              "method": "ConcurrentCallersShareOneTokenAcquisitionAndRefreshBeforeExpiry",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-JWKS-06",
+          "runner": [
+            {
+              "method": "KeySourceOutageFailsClosedAndRecoversWithoutRestart",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-JWKS-07",
+          "runner": [
+            {
+              "method": "RotatedSigningKeyInvalidatesTokensMintedByTheOldKey",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-JWT-01",
+          "runner": [
+            {
+              "method": "ValidTokenIsAcceptedWithSubjectAndScopes",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-JWT-02",
+          "runner": [
+            {
+              "method": "WrongIssuerAudienceScopeOrSignatureIsRejectedWithItsOwnFailure",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-JWT-03",
+          "runner": [
+            {
+              "method": "ExpiredAndNotYetValidTokensAreRejected",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-JWT-04",
+          "runner": [
+            {
+              "method": "UnsignedAndMalformedTokensAreRejectedRatherThanTrusted",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-JWT-05",
+          "runner": [
+            {
+              "method": "VerifiedTokenWithoutAServiceIdentityIsRejected",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-MTLS-10",
+          "runner": [
+            {
+              "method": "MutualTlsCannotBeTurnedOnWithoutAnApprovedProfileAndRealModeCannotBoot",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-AUTH-SECRET-09",
+          "runner": [
+            {
+              "method": "NeitherTokensNorKeysSurfaceInLoggableText",
+              "file": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+              "classes": [
+                "ServiceIdentityTests",
+                "only",
+                "Harness",
+                "AdvanceableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        }
+      ]
+    },
+    {
+      "id": "W-0042",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 203,
+        "rowSha256": "fbe0c6d2-4995c30f-c530cf73-43919ae4-086f7780-eabab31d-e2f2b5fd-97fb151c",
+        "residualSha256": "57e3fea4-8aaebafc-39929843-96e45012-76d4a7a8-28979dc5-d4ddf266-e71dbb6a"
+      },
+      "evidencePath": "docs/evidence/W-0042/README.md",
+      "prompt": "prompt/phase-6-observability/P6-3-chaos-resilience-gamedays.md",
+      "documents": [
+        "docs/evidence/W-0042/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "8 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "CHAOS-DB-02",
+          "runner": [
+            {
+              "method": "ACutDatabaseLinkTurnsReadinessRedLosesNothingAndRecoversWhenTheLinkReturns",
+              "file": "tests/chaos/DatabaseFaultScenario.cs",
+              "classes": [
+                "DatabaseFaultScenario"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "CHAOS-DOWNSTREAM-01",
+          "runner": [
+            {
+              "method": "WhenSalesIsDownTheResultIsHeldForBoundedRetryAndNeverReportedAsConfirmed",
+              "file": "tests/chaos/DownstreamFaultScenario.cs",
+              "classes": [
+                "DownstreamFaultScenario",
+                "FixedTimeProvider",
+                "UnreachableSalesTransport"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "CHAOS-DUPLICATE-06",
+          "runner": [
+            {
+              "method": "AWorkerPartitionedAfterDeliveringLeavesARecognisableDuplicateAndCannotWinLate",
+              "file": "tests/chaos/PartialPartitionScenario.cs",
+              "classes": [
+                "PartialPartitionScenario"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "CHAOS-GUARD-05",
+          "runner": [
+            {
+              "method": "NoFaultInjectionTargetCanReachAnythingOutsideItsOwnThrowawayNetwork",
+              "file": "tests/chaos/BlastRadiusGuard.cs",
+              "classes": [
+                "BlastRadiusGuard"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "CHAOS-RECOVERY-04",
+          "runner": [
+            {
+              "method": "TheBacklogDrainsExactlyOnceAfterTheLinkReturns",
+              "file": "tests/chaos/RecoveryScenario.cs",
+              "classes": [
+                "RecoveryScenario",
+                "CountingTransport"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "CHAOS-SIM-03",
+          "runner": [
+            {
+              "method": "ADroppedCallIsATechnicalExceptionAndTheThirdFailureTakesTheChannelOutOfService",
+              "file": "tests/chaos/SimFaultScenario.cs",
+              "classes": [
+                "SimFaultScenario",
+                "FixedClock"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-ELIG-NODISPATCH-15",
+          "runner": [
+            {
+              "method": "AHeldTaskIsNeverHandedToTheSchedulerForDispatch",
+              "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+              "classes": [
+                "EligibilityPersistenceTests",
+                "UnavailableCapacityProvider",
+                "CapacityShortageProvider",
+                "CapacityAvailableProvider",
+                "UnexpectedCapacityProvider",
+                "MissingEvidenceCapacityProvider",
+                "FixedTimeProvider"
+              ]
+            },
+            {
+              "method": "TheSameSchedulerDoesClaimAHealthyTask",
+              "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+              "classes": [
+                "EligibilityPersistenceTests",
+                "UnavailableCapacityProvider",
+                "CapacityShortageProvider",
+                "CapacityAvailableProvider",
+                "UnexpectedCapacityProvider",
+                "MissingEvidenceCapacityProvider",
+                "FixedTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-SLO-ALERT-01",
+          "runner": [
+            {
+              "method": "AFailClosedSpikePagesAndAnOrdinaryTrickleDoesNot",
+              "file": "tests/Ivr.IntegrationTests/Observability/SloAlertRuleTests.cs",
+              "classes": [
+                "PromtoolTestGroup",
+                "PromtoolFixture",
+                "SloAlertRuleTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-M3-AUTHORITY-01",
+          "runner": [
+            {
+              "method": "M3AuthorityIsNotRepresentedByAnIvrTrustPredicate",
+              "file": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+              "classes": [
+                "EligibilityRulesTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "IT-M3-AUTHORITY-13",
+          "runner": [
+            {
+              "method": "ThePreflightSqlRunsOnTheRealSchemaAndCountsTheRetiredShape",
+              "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+              "classes": [
+                "EligibilityPersistenceTests",
+                "UnavailableCapacityProvider",
+                "CapacityShortageProvider",
+                "CapacityAvailableProvider",
+                "UnexpectedCapacityProvider",
+                "MissingEvidenceCapacityProvider",
+                "FixedTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        }
+      ]
+    },
+    {
+      "id": "W-0052",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 213,
+        "rowSha256": "c2e9ef90-331bdf2c-7bc0b017-92c2e1df-ad68fa3b-7f0ffd51-e0508a21-ca5dc3f1",
+        "residualSha256": "b1f96fd5-be9949a3-2cbc12f3-59102e78-a4ba130f-b1274aaa-53fb6daa-6ee0dea5"
+      },
+      "evidencePath": "docs/evidence/W-0052/README.md",
+      "prompt": "prompt/phase-10-compliance-maturity/P10-1-pdpa-privacy-compliance.md",
+      "documents": [
+        "docs/evidence/W-0052/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "6 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "COMP-DNC-03",
+          "runner": [
+            {
+              "method": "ARestrictedCustomerIsNeverCallable",
+              "file": "tests/Ivr.UnitTests/Governance/DoNotCallSupremacyTests.cs",
+              "classes": [
+                "DoNotCallSupremacyTests",
+                "DoNotCallSnapshotFactory"
+              ]
+            },
+            {
+              "method": "BlockedOperationalIsNotAnEligibleDecision",
+              "file": "tests/Ivr.UnitTests/Governance/DoNotCallSupremacyTests.cs",
+              "classes": [
+                "DoNotCallSupremacyTests",
+                "DoNotCallSnapshotFactory"
+              ]
+            },
+            {
+              "method": "TheControlCaseIsCallableSoTheBlockAboveIsNotVacuous",
+              "file": "tests/Ivr.UnitTests/Governance/DoNotCallSupremacyTests.cs",
+              "classes": [
+                "DoNotCallSupremacyTests",
+                "DoNotCallSnapshotFactory"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "COMP-DSAR-02",
+          "runner": [
+            {
+              "method": "ADryRunChangesNothingAndIsStillAudited",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            },
+            {
+              "method": "AnErasureWithoutARealReasonIsRefused",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            },
+            {
+              "method": "AnUnknownOrderIsAnAnsweredRequestNotAnError",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            },
+            {
+              "method": "ErasureLeavesTheAuditTrailAndTheDeliveryRecordIntact",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            },
+            {
+              "method": "ErasureRedactsTheSubjectAndLeavesEveryOtherOrderAlone",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            },
+            {
+              "method": "FindReportsCountsAndTheLimitsBeforeAnythingIsPromised",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "COMP-PII-01",
+          "runner": [
+            {
+              "method": "ANewCustomerColumnFailsUntilSomeoneInventoriesIt",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            },
+            {
+              "method": "AuditFieldsAreRecordedAsNeverErasable",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            },
+            {
+              "method": "EveryFieldStatesAPurposeALegalBasisAndWhatErasureDoesToIt",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            },
+            {
+              "method": "EveryNonPersonalExemptionNamesARealColumnAndCarriesAReason",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            },
+            {
+              "method": "NoPersonalDataFieldShipsOutsideTheInventory",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            },
+            {
+              "method": "NothingRestsOnConsentBecauseIvrNeverAsksForAny",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            },
+            {
+              "method": "TheInventoryDescribesTheSchemaThatShipsAndNothingElse",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            },
+            {
+              "method": "TheInventoryDocumentDescribesTheSameFieldsAsTheCode",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "COMP-RETENTION-04",
+          "runner": [
+            {
+              "method": "DerivedAnalyticsCopiesInheritTheirPeriodFromTheSourceRatherThanOwningOne",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            },
+            {
+              "method": "EveryRetentionClassInTheCatalogIsClassifiedInTheGovernanceMap",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            },
+            {
+              "method": "EveryTableHoldingPersonalDataHasARetentionClassThatActuallyRemovesIt",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-RET-PII-07",
+          "runner": [
+            {
+              "method": "AnonymizeRemovesSpeechSnapshotPiiAndPreservesContractIdentity",
+              "file": "tests/Ivr.IntegrationTests/Retention/RetentionJobTests.cs",
+              "classes": [
+                "RetentionJobTestGroup",
+                "RetentionJobFixture",
+                "RetentionJobTests",
+                "CancelAfterFirstBatchTelemetry"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-ELIG-VOICE-15",
+          "runner": [
+            {
+              "method": "UnknownOrUnavailableVoiceDecisionBlocksInsteadOfDefaultingToAllowed",
+              "file": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+              "classes": [
+                "EligibilityRulesTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "COMP-PII-02",
+          "runner": [
+            {
+              "method": "EveryTaskFieldAnErasureKeepsIsNamedInTheLimitsGivenFirst",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            },
+            {
+              "method": "EveryTaskFieldTheInventoryCallsRedactedIsInTheSharedRedactionAndNothingElseIs",
+              "file": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+              "classes": [
+                "PersonalDataInventoryTests",
+                "LeakyContext",
+                "LeakyRow"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "COMP-DSAR-08",
+          "runner": [
+            {
+              "method": "ErasureRemovesTheNumberAndTheContactKeysAndKeepsTheReconciliationKey",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "COMP-DSAR-09",
+          "runner": [
+            {
+              "method": "ASecondErasureReachesTheTaskThatArrivedAfterTheFirst",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "COMP-DSAR-10",
+          "runner": [
+            {
+              "method": "TheNumberATaskWasAcceptedWithCannotBeChangedAfterwards",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "COMP-DSAR-11",
+          "runner": [
+            {
+              "method": "TheOldErasureIsRefusedExactlyWhereItWouldLeaveTheNumberBehind",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "COMP-DSAR-12",
+          "runner": [
+            {
+              "method": "TheMigrationClearsWhatEarlierErasuresLeftBehindAndNothingElse",
+              "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+              "classes": [
+                "ComplianceTests",
+                "the",
+                "the"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "IT-RET-PII-08",
+          "runner": [
+            {
+              "method": "AnonymizeClearsTheNumberAndTheContactKeysAndKeepsTheReconciliationKey",
+              "file": "tests/Ivr.IntegrationTests/Retention/RetentionJobTests.cs",
+              "classes": [
+                "RetentionJobTestGroup",
+                "RetentionJobFixture",
+                "RetentionJobTests",
+                "CancelAfterFirstBatchTelemetry"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        }
+      ]
+    },
+    {
+      "id": "W-0088",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 247,
+        "rowSha256": "d568017a-5fc47706-ad8ff2d2-555e945f-0f73d15d-48dba266-87b46964-1c20bc8f",
+        "residualSha256": "0b849b38-8dbc4956-6869d3d8-978fb09e-c6021afc-7236e396-136e0a06-aa1c34e1"
+      },
+      "evidencePath": "docs/evidence/W-0088/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0088/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "2 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "IT-SCH-DEADLINE-09",
+          "runner": [
+            {
+              "method": "HeldAdminReviewJobClosesAsWindowExpiredNotCapacityMiss",
+              "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+              "classes": [
+                "SchedulerPersistenceTests",
+                "FixedTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-SCH-HOLD-10",
+          "runner": [
+            {
+              "method": "JobScopedCapacityIncidentDoesNotFreezeUnrelatedDispatch",
+              "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+              "classes": [
+                "SchedulerPersistenceTests",
+                "FixedTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        }
+      ]
+    },
+    {
+      "id": "W-0125",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 143,
+        "rowSha256": "9ad60b4f-1f11c8c6-bc4346e9-2b8017a3-0afeb38e-bc5f990f-a2930a7c-5b212c60",
+        "residualSha256": "cdc6f1d9-5c3c2ed3-53c9f150-7b3de156-0ccfb0a5-01d01976-b7ca96cb-afb41648"
+      },
+      "evidencePath": "docs/evidence/W-0125/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0125/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "IT-M3-AUTHORITY-13",
+          "runner": [
+            {
+              "method": "ThePreflightSqlRunsOnTheRealSchemaAndCountsTheRetiredShape",
+              "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+              "classes": [
+                "EligibilityPersistenceTests",
+                "UnavailableCapacityProvider",
+                "CapacityShortageProvider",
+                "CapacityAvailableProvider",
+                "UnexpectedCapacityProvider",
+                "MissingEvidenceCapacityProvider",
+                "FixedTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        }
+      ]
+    },
+    {
+      "id": "W-0196",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 280,
+        "rowSha256": "ab5da0d7-f1512f9c-42ec1692-d0a72a9f-4bbb0a39-2c52d217-7be90dd8-438e3344",
+        "residualSha256": "46f90539-0c382949-f47899e0-d0b7b06f-1c72c64d-13f4d814-309fdafd-521c1032"
+      },
+      "evidencePath": "docs/evidence/W-0196/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0196/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "IT-SCHEMA-EXPAND-07",
+          "runner": [
+            {
+              "method": "PostgreSqlCopyPreservesRowsAcrossUpgradeRollbackAndForwardRecovery",
+              "file": "tests/Ivr.IntegrationTests/ExpandContractMigrationTests.cs",
+              "classes": [
+                "ExpandContractMigrationTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-SCHEMA-BACKCOMPAT-01",
+          "runner": [
+            {
+              "method": "EveryMigrationLeavesThePreviousReleaseAbleToRun",
+              "file": "tests/Ivr.UnitTests/Persistence/RollingDeploySchemaCompatibilityTests.cs",
+              "classes": [
+                "RollingDeploySchemaCompatibilityTests",
+                "that",
+                "DropsAColumn",
+                "DropsATable",
+                "RenamesAColumn",
+                "AddsARequiredColumn",
+                "AddsARequiredColumnWithDefault",
+                "TightensAColumnToNotNull",
+                "ShortensAColumn",
+                "WidensAColumn",
+                "AddsAUniqueIndex",
+                "ConstrainsAnExistingColumn",
+                "ConstrainsOnlyNewColumns",
+                "AddsNullableColumns",
+                "AddsATable"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "UT-SCHEMA-BACKCOMPAT-02",
+          "runner": [
+            {
+              "method": "TheGateRejectsEveryShapeItClaimsToCatch",
+              "file": "tests/Ivr.UnitTests/Persistence/RollingDeploySchemaCompatibilityTests.cs",
+              "classes": [
+                "RollingDeploySchemaCompatibilityTests",
+                "that",
+                "DropsAColumn",
+                "DropsATable",
+                "RenamesAColumn",
+                "AddsARequiredColumn",
+                "AddsARequiredColumnWithDefault",
+                "TightensAColumnToNotNull",
+                "ShortensAColumn",
+                "WidensAColumn",
+                "AddsAUniqueIndex",
+                "ConstrainsAnExistingColumn",
+                "ConstrainsOnlyNewColumns",
+                "AddsNullableColumns",
+                "AddsATable"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        },
+        {
+          "testId": "UT-SCHEMA-BACKCOMPAT-03",
+          "runner": [
+            {
+              "method": "TheGateAcceptsTheAdditiveShapesAReleaseActuallyNeeds",
+              "file": "tests/Ivr.UnitTests/Persistence/RollingDeploySchemaCompatibilityTests.cs",
+              "classes": [
+                "RollingDeploySchemaCompatibilityTests",
+                "that",
+                "DropsAColumn",
+                "DropsATable",
+                "RenamesAColumn",
+                "AddsARequiredColumn",
+                "AddsARequiredColumnWithDefault",
+                "TightensAColumnToNotNull",
+                "ShortensAColumn",
+                "WidensAColumn",
+                "AddsAUniqueIndex",
+                "ConstrainsAnExistingColumn",
+                "ConstrainsOnlyNewColumns",
+                "AddsNullableColumns",
+                "AddsATable"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        }
+      ]
+    },
+    {
+      "id": "W-0197",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 281,
+        "rowSha256": "e91b4ede-901bd067-e9b81182-1bd68dd9-28251162-740f36ca-7e0ce9d3-efd79949",
+        "residualSha256": "64258f77-f5aaf50e-cd298832-6f1f2fbf-d25bcb3f-4c201810-79ff7c70-87b50f8e"
+      },
+      "evidencePath": "docs/evidence/W-0197/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0197/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "IT-API-MATRIX-38",
+          "runner": [
+            {
+              "method": "AllOpenApiOperationsHaveExecutedBehaviorEvidence",
+              "file": "tests/Ivr.IntegrationTests/ApiBehaviorMatrixTests.cs",
+              "classes": [
+                "ApiBehaviorMatrixTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        }
+      ]
+    },
+    {
+      "id": "W-0207",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 291,
+        "rowSha256": "24cc64b0-c0ddd91b-63e1de7f-8f50bee6-e7e728cd-fd4be589-56e6c44f-8e16212f",
+        "residualSha256": "519504dc-6d1a20a7-2073fe13-441635e3-09a4b508-6fc70fbb-422f51db-33a4bb17"
+      },
+      "evidencePath": "docs/evidence/W-0207/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0207/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "9 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "IT-API-AUDIT-04",
+          "runner": [
+            {
+              "method": "EveryAdminMutationCommitsActionAndAppendOnlyAuditWithBeforeAfter",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-API-AUTHZ-01",
+          "runner": [
+            {
+              "method": "AdminOperationsEnforceOneToOnePermissionAndActorBinding",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-API-AUTHZ-02",
+          "runner": [
+            {
+              "method": "InternalSurfaceRequiresDedicatedServiceIdentityScopeAndSource",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-API-IDEMP-03",
+          "runner": [
+            {
+              "method": "AdminPostReplaysSameKeyAndRejectsDifferentPayload",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-API-QUEUE-08",
+          "runner": [
+            {
+              "method": "PauseBlocksOnlyNewClaimsAndResumeRestoresClaiming",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-API-RETRY-06",
+          "runner": [
+            {
+              "method": "TechnicalRetryFailsClosedForKillSwitchOrDestinationOutsideAllowlist",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            },
+            {
+              "method": "TechnicalRetryIsBoundedNonCountingAndDoesNotResetAttempts",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-API-SIM-09",
+          "runner": [
+            {
+              "method": "DisablePreservesActiveLeaseAndUnsafeEnableFailsClosed",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-API-TERMINATE-09",
+          "runner": [
+            {
+              "method": "TerminatingACallThatIsNotRunningIsRefusedAndWritesNothing",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-CALLBACK-TARGET-ACK-CROSS-01",
+          "runner": [
+            {
+              "method": "AnAckCodeOnTheWrongStatusDeadLetters",
+              "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+              "classes": [
+                "CallbackDeliveryTests",
+                "ScriptedHandler",
+                "TargetTransportHarness",
+                "CurrentHandler",
+                "StubTargetTransport",
+                "ThrowingTargetTransport",
+                "InvalidOperationTargetTransport",
+                "StubCurrentTransport",
+                "MemoryOutbox",
+                "MutableTimeProvider"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "IT-API-TERMINATE-10",
+          "runner": [
+            {
+              "method": "OperatorMayTerminateAndAnUnknownJobIsNotFound",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": true
+        }
+      ]
+    },
+    {
+      "id": "W-0268",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 358,
+        "rowSha256": "6cff4a21-d6f458f9-95c9f57d-5f5a6321-3964fbc0-c53c208e-570d8161-9695d718",
+        "residualSha256": "32a9fd57-5b756cf1-296758de-59ac9ea1-9825dbef-396e4fe6-398f7153-33c5aa00"
+      },
+      "evidencePath": "docs/evidence/W-0268/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0268/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "2 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "UT-SCHEMA-BACKCOMPAT-01",
+          "runner": [
+            {
+              "method": "EveryMigrationLeavesThePreviousReleaseAbleToRun",
+              "file": "tests/Ivr.UnitTests/Persistence/RollingDeploySchemaCompatibilityTests.cs",
+              "classes": [
+                "RollingDeploySchemaCompatibilityTests",
+                "that",
+                "DropsAColumn",
+                "DropsATable",
+                "RenamesAColumn",
+                "AddsARequiredColumn",
+                "AddsARequiredColumnWithDefault",
+                "TightensAColumnToNotNull",
+                "ShortensAColumn",
+                "WidensAColumn",
+                "AddsAUniqueIndex",
+                "ConstrainsAnExistingColumn",
+                "ConstrainsOnlyNewColumns",
+                "AddsNullableColumns",
+                "AddsATable"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-SCHEMA-IDEMPOTENCY-INDEX-01",
+          "runner": [
+            {
+              "method": "TheIdempotencyTableCarriesNoIndexNoQueryCanUse",
+              "file": "tests/Ivr.UnitTests/Persistence/IdempotencyIndexTests.cs",
+              "classes": [
+                "IdempotencyIndexTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        }
+      ]
+    },
+    {
+      "id": "W-0269",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 359,
+        "rowSha256": "82f6f1f6-7bf1b389-17f4e519-b5b7e8c4-2548e9a8-fb863977-f4839aab-e2094bbc",
+        "residualSha256": "32a9fd57-5b756cf1-296758de-59ac9ea1-9825dbef-396e4fe6-398f7153-33c5aa00"
+      },
+      "evidencePath": "docs/evidence/W-0269/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0269/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "3 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "ARCH-ASYNC-01",
+          "runner": [
+            {
+              "method": "ProductionCodeDoesNotWriteConfigureAwait",
+              "file": "tests/Ivr.UnitTests/ArchitectureDependencyTests.cs",
+              "classes": [
+                "ArchitectureDependencyTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "ARCH-CONST-01",
+          "runner": [
+            {
+              "method": "ExecutionModeSpellingsAreNeverWrittenAsLiterals",
+              "file": "tests/Ivr.UnitTests/ArchitectureDependencyTests.cs",
+              "classes": [
+                "ArchitectureDependencyTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        },
+        {
+          "testId": "UT-BOOT-05",
+          "runner": [
+            {
+              "method": "NoProductionCodeLooksUpANamedCulture",
+              "file": "tests/Ivr.UnitTests/ArchitectureDependencyTests.cs",
+              "classes": [
+                "ArchitectureDependencyTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        }
+      ]
+    },
+    {
+      "id": "W-0272",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 362,
+        "rowSha256": "4e8d5419-2699b557-0a0db620-20a40d16-9b319391-fb53e9b7-39375e84-85d2c4e3",
+        "residualSha256": "32a9fd57-5b756cf1-296758de-59ac9ea1-9825dbef-396e4fe6-398f7153-33c5aa00"
+      },
+      "evidencePath": "docs/evidence/W-0272/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0272/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "ARCH-CONST-01",
+          "runner": [
+            {
+              "method": "ExecutionModeSpellingsAreNeverWrittenAsLiterals",
+              "file": "tests/Ivr.UnitTests/ArchitectureDependencyTests.cs",
+              "classes": [
+                "ArchitectureDependencyTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        }
+      ]
+    },
+    {
+      "id": "W-0274",
+      "status": "TESTS_PASS",
+      "trackerSource": {
+        "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+        "path": "prompt/_execution/prompt-execution-tracker.md",
+        "line": 364,
+        "rowSha256": "13e882b9-4c53fc65-62520ba6-6b726d66-aedb3eb0-0756390a-029ee083-e9cc11bd",
+        "residualSha256": "32a9fd57-5b756cf1-296758de-59ac9ea1-9825dbef-396e4fe6-398f7153-33c5aa00"
+      },
+      "evidencePath": "docs/evidence/W-0274/README.md",
+      "prompt": null,
+      "documents": [
+        "docs/evidence/W-0274/README.md"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "1 TestId xanh"
+      },
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "checks": [
+        {
+          "testId": "IT-API-SIM-09",
+          "runner": [
+            {
+              "method": "DisablePreservesActiveLeaseAndUnsafeEnableFailsClosed",
+              "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+              "classes": [
+                "InternalAdminApiTests"
+              ]
+            }
+          ],
+          "passed": true,
+          "supplementary": false
+        }
+      ]
+    }
+  ]
+}

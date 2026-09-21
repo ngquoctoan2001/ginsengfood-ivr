@@ -1,0 +1,695 @@
+{
+  "schema": "ivr-residual-sources/v1",
+  "baseline": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+  "normalization": "LF text; SHA-256 and Git blob hashes in groups of eight hex characters; remove hyphens",
+  "sources": [
+    {
+      "path": "deploy/ci/gate-invocations.json",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "968df4c5-bd914164-91d93bfa-5c54d013-7c97f04c",
+      "sha256Lf": "da0ef5ff-30d2df63-7cf69bc8-803493b1-4bcd589d-9eb3789b-b8af542f-1343685d",
+      "lineCount": 163,
+      "uncommittedWorkingCopyExcluded": true
+    },
+    {
+      "path": "deploy/ci/scripts/target-v1-shared-e2e-report-validator.mjs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "966d63a7-0c19c7bc-0978a0e5-39672608-c32910c1",
+      "sha256Lf": "42402c22-6cf65e36-83487073-aa4cbca8-516a87a9-eac76624-4a794ff7-2f876907",
+      "lineCount": 986,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/compliance/dsar-runbook.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "33e96034-32aab107-2125ea20-10a8a1ce-32a4e7b7",
+      "sha256Lf": "283ccc21-aadc80fa-a009aa20-67255ce3-67988f6a-54dc46ca-46223aca-ec38db07",
+      "lineCount": 96,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/compliance/pia.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "761c196a-290380fe-b79ea17e-9cfae6e6-e7b87633",
+      "sha256Lf": "1c75f871-1c9b503d-cf78d8b5-d3089618-022cc30b-b2d6bb48-5885ed05-c7a176f4",
+      "lineCount": 84,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/compliance/retention-period-proposal.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "815d0973-ff3939a3-fb7557b1-912b1535-8f924454",
+      "sha256Lf": "b2822f5a-b6a52ca6-53f6b12e-e9d40ef8-2a56b62b-d4453cb3-fc7c942b-c3498602",
+      "lineCount": 100,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/database/expand-contract.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "4a1c8174-5f14cd93-bb256279-9ba26ef8-05545575",
+      "sha256Lf": "248bfd9a-2dcf79c5-bd7ce940-af5c3f81-4ce84162-867eaf61-0b14f91f-da0475a7",
+      "lineCount": 80,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0029/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "1db2a9b7-829c6546-43f3fa6d-2ccf0d68-af408aa8",
+      "sha256Lf": "67eb5338-cd03a88d-ccc4ff33-c1e516d6-ce9c212e-2d6a5736-8271abbe-30584fa5",
+      "lineCount": 109,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0032/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "710735da-95ecaee5-305edc04-53be8a0f-cb9dfd31",
+      "sha256Lf": "0c07fd35-3d65f159-d0a5cd0d-62c58998-0353196c-9332e6b9-fd589b02-2baca5be",
+      "lineCount": 111,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0042/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "a1c88310-d282346c-4f23c1e6-b32c23a8-fdfd2037",
+      "sha256Lf": "0f3cf301-94bb5146-2e9458e3-51d8e61f-04c6cd3d-46f28520-e0015a13-04ec7617",
+      "lineCount": 214,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0052/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "1cd06ea5-dde95044-dfeb42da-78bec387-b997e919",
+      "sha256Lf": "64a0301a-ca397145-32cf16ae-dd02da2e-3a5d617b-91309220-1d6b82d3-c2890e69",
+      "lineCount": 142,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0088/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "a6f7ac41-9183ea6a-a7c2bd00-9f243f48-c23d3d4d",
+      "sha256Lf": "09c6923b-161ab42d-8381bb60-2bc2e1e5-bb76407d-f2ee05ec-31e697bb-dac2808b",
+      "lineCount": 32,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0125/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "325a8d4c-254c5fef-85078e78-22efd04a-3a5953da",
+      "sha256Lf": "be1d718e-8d35236b-41093984-9fd58697-74c169eb-a5e25f30-2e407076-20f599ee",
+      "lineCount": 153,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0174/shared-e2e-report.template.json",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "3c8dd170-33b8326a-f9fa8ff8-8331a200-9d2094ef",
+      "sha256Lf": "381b6b59-12695518-2f53a90f-ab2c8032-547f296e-57a80ad9-206ee54d-a958d91a",
+      "lineCount": 426,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0196/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "b94e3246-8daed9bf-100d4aae-a6e924f5-a9c04cd0",
+      "sha256Lf": "f9f12670-bcf73b91-044a74c3-3c24bef7-072450db-56f7b46e-cc4f7d7a-104f30fa",
+      "lineCount": 61,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0196/rollback-evidence.json",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "cbc40dfb-277840ec-58e786da-93562f51-ef07c152",
+      "sha256Lf": "c813201f-b66fae04-89947876-ea6b9537-ad6ea926-520aae30-8d560db0-3640b101",
+      "lineCount": 55,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0196/verification-summary.json",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "5366f7b0-7de2f073-d1ee6dff-4cff0e57-03983e4a",
+      "sha256Lf": "99d5f08a-10da0a61-7299ca28-577ae15a-9ad09c48-f9fea9fd-6e7ebd34-569574d0",
+      "lineCount": 48,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0197/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "8e6e26d9-8c88eb45-a18e58bf-9f327f8a-79a991da",
+      "sha256Lf": "7507194f-02aabee2-05a39e52-d49ac858-39ea055c-5efa1bb9-e6f5c56e-956181d7",
+      "lineCount": 73,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0197/api-matrix.json",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "5ad65bc2-45c8ca19-12e7b453-9119ca11-de5f5ca4",
+      "sha256Lf": "d613701a-513eabf2-447ada99-226ade80-ac4227da-acde6692-2e922f0f-d7efebe8",
+      "lineCount": 13458,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0207/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "3a4f47d8-0f4f8d7e-173f811a-817aaca2-8f490235",
+      "sha256Lf": "8dea02dc-c26ec2c8-86a3d5fe-6aaedf63-3a23fa49-116bd261-0083c8e0-047fb001",
+      "lineCount": 147,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0207/local-mock-e2e.json",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "ebee4a17-accaa819-f4611c03-79d7c9a7-2b09146d",
+      "sha256Lf": "fa1a6cb5-8c5747c5-23e792c5-266ae778-c3d9525f-0065e6a0-f3fa720f-b0441207",
+      "lineCount": 257,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0254/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "4192d510-4bf88911-52c7b177-82935a70-2775ef38",
+      "sha256Lf": "5605bd4a-ca25e248-7096be68-f3f5760e-2728346c-a9eff019-d61e23a9-fd9e6fef",
+      "lineCount": 119,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0266/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "18d071e8-7f8ef98e-d9ee3df7-e0627148-4d48bffe",
+      "sha256Lf": "c8035460-4ce1fd9f-af7cb2db-e10ef451-cb54a503-db9daa73-de2d2e01-bf327224",
+      "lineCount": 81,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0268/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "22b15306-489acd21-e9739c62-01bc5a50-bca63a2e",
+      "sha256Lf": "5fbd8ae4-f944b17a-eb91a087-38a4a05c-b0d44e99-e8fe5f04-cf51ae56-be29076f",
+      "lineCount": 175,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0269/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "6f86fe75-353ece60-28269286-66211d46-f96558d3",
+      "sha256Lf": "4754410f-0e5a564b-090aa0a4-8ab1dbde-0ce7ac93-a9deb7dd-2a06cfb1-bdd7e3b2",
+      "lineCount": 227,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0270/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "b90dad0b-ec15acfb-368af511-16a5fe19-3c04b260",
+      "sha256Lf": "3866bc14-a3e726bb-52f5ee48-8a29e055-46861650-354b6791-64234911-eaa75ec1",
+      "lineCount": 165,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0272/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "be550c92-c1eac534-ae6c4a31-c3928c7e-8131c2f2",
+      "sha256Lf": "2ceb1060-58ef04e5-7bcb840f-2aecac6a-b876c1a5-5de3cffd-f5d33d1c-38841428",
+      "lineCount": 100,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0274/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "843df43c-a5687021-6a8d62bb-a0b6ff45-9b900293",
+      "sha256Lf": "29870ef7-ff55578c-cc57a6b5-9975b67e-965653f3-d0188647-be9d6713-2122bb10",
+      "lineCount": 86,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0275/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "8f89ec3b-17f47e47-b7a804fc-2764ed89-a14e9138",
+      "sha256Lf": "b1a50485-86a48290-54883eea-a25ea804-96649cea-410657a2-5888bfcf-54cdccb5",
+      "lineCount": 133,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0278/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "19bdcc1d-844d42b9-1f4d20ab-683a8000-eb3d7cb7",
+      "sha256Lf": "6fcb7533-906d0a9c-3bc4aa28-16003f67-4553f187-9c6c29f2-8446c848-bf18b559",
+      "lineCount": 124,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0284/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "dfb7bf91-04802b07-8d387803-db0bc980-b362c129",
+      "sha256Lf": "a1c2bc50-f06db7ec-e0c6f8f4-f298a942-e1e98b6c-8a8d4a20-b03c88f6-bd3845d1",
+      "lineCount": 24,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0286/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "89e38082-a6bedc04-ad1f8096-f9776e6e-d5fab1d3",
+      "sha256Lf": "979cad61-581ebdac-e9d9fcd0-03cd374b-c4ef77ac-00e74d10-7758c300-87d1e8f7",
+      "lineCount": 55,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0286/local-mock-e2e.json",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "45bf4746-d7f0694b-6281d151-468a37c1-2b9a684e",
+      "sha256Lf": "44b9f556-cb5a5648-ac6fe2c7-fc50427c-77caca34-7fd33846-ef67926a-a6315842",
+      "lineCount": 252,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0286/verification.json",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "d32a3b49-4c79f4dd-d63f06bc-3167faf6-1a847a3a",
+      "sha256Lf": "4b8fe372-f2e4ce43-6bb75f47-8c43dfc7-c5ec2e57-cd90f3c6-46ffb24f-76519314",
+      "lineCount": 184,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0292/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "27d3c8f0-34a1a177-914b7783-692fb208-0d086253",
+      "sha256Lf": "ffc13004-f8f6238f-32bf290a-a2100393-f2fdf070-4c636a69-63ce1236-2cced691",
+      "lineCount": 45,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0312/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "6c530832-e03a8a7c-812b0072-dc49c25a-3f241117",
+      "sha256Lf": "5f37eca3-cf53c69d-d09ba407-773247ae-578e2980-15c473af-fbe45682-27bcd21f",
+      "lineCount": 221,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0314/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "3b7e4d69-2f6596f3-b514c972-825051cc-c928125a",
+      "sha256Lf": "3e1cf7a7-5f6f3b44-4f20cf6d-b76114d1-67e7a12b-8ad60b7d-bf2092d9-397dc323",
+      "lineCount": 178,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/evidence/W-0316/README.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "76d0476c-82e35649-e6de50ec-793f2080-cb7bb377",
+      "sha256Lf": "b72fcad8-0da2aa75-c8ddd3fd-15297fa2-a894bf6a-c09c506a-3d2b6250-bfa3c35a",
+      "lineCount": 141,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/gameday-report.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "54cc2c16-682d2f51-ae49f5c4-db884ef7-6b52a59e",
+      "sha256Lf": "2232f48c-8f33fb3c-5d0d52c2-56adb719-edf635d9-2f677c12-636cbf12-1f5d913d",
+      "lineCount": 132,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "docs/traceability-tests.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "e445c157-e09ed5d8-5ebc68d2-3397ecfc-b48d7e22",
+      "sha256Lf": "2b10eef7-d3d560db-ca7891c9-e27d6a32-ccfd5613-e7628f03-fa5097c8-85c2c25f",
+      "lineCount": 845,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "integration-requirements/06-module-3-api-handover.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "7b981023-62b284e9-52298199-aad50eb9-a16dd485",
+      "sha256Lf": "4b6f9e77-3139c4d8-1f2d3091-8ab21fbb-96a0f13a-8c8d3879-a5431461-cfe42249",
+      "lineCount": 1517,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "integration-requirements/07-module-3-decision-sheet.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "ddd64e5a-ddaf1014-95e8dccb-1bdafe5b-0afb726a",
+      "sha256Lf": "1010e9d1-53f45f96-4f9f3391-4b87b40a-fa368dcc-96028836-5ba0ed03-2e5f3baf",
+      "lineCount": 693,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "0e15500c-01544dc7-8626b9a7-00283a4f-7eccb4d0",
+      "sha256Lf": "37110ea6-2f0aec71-5377f00a-51c46aed-92ccab7c-742fec6a-8cc9d3ff-bf92edd0",
+      "lineCount": 456,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "prompt/phase-10-compliance-maturity/P10-1-pdpa-privacy-compliance.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "f8f6c726-2d37aba1-7727bd32-74b8635b-21b771c8",
+      "sha256Lf": "8041ac19-600aa6be-186b2db4-abcf86d7-4b4eadb2-4e974b85-6c97bcf8-0d8ca1da",
+      "lineCount": 69,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "prompt/phase-4-integration/P4-1-order-core-wiring.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "da630738-4e7a527a-65546c74-564d245a-d47aae52",
+      "sha256Lf": "1adcbea7-fbc8c161-33e6149e-e093bd32-e0aaa25f-a475bfbc-86d266a3-410648a3",
+      "lineCount": 45,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "prompt/phase-4-integration/P4-4-shared-auth-audit.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "15360651-3a04dce7-b19acafb-5353f622-7305b45a",
+      "sha256Lf": "798cc01b-230527fa-49701b6e-1616089f-00bac32a-473b3f4e-458bf391-389e6270",
+      "lineCount": 33,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "prompt/phase-6-observability/P6-3-chaos-resilience-gamedays.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "81ab7319-9d5d4c58-b8d0fd13-b9fe65ee-6189d7a0",
+      "sha256Lf": "f09a36c6-dbd2c65a-05aa7161-476db0ad-078dcc98-afb49636-213a8b88-52915aae",
+      "lineCount": 68,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "specs/_review/open-decisions-register.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "20d26790-2c4cab05-38093825-f277f56b-550314b0",
+      "sha256Lf": "6b4db1cf-69c695ad-3cf3c3cb-145fbb52-545feaf4-3cbf1510-00cdd9f2-0e90e566",
+      "lineCount": 119,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "5b03965a-5b9eed5e-8ea214c2-42bf4d29-fccf70b1",
+      "sha256Lf": "699c4cd6-6ac6852e-af80b0e7-59b82744-bce91356-65b372ad-c66054bc-1ae1e075",
+      "lineCount": 2888,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "specs/architecture/05-resilience.md",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "e0ccae8f-6ce2cf45-595dccdf-26785671-6e15c143",
+      "sha256Lf": "a4036654-91d19cc6-30d41aee-a5827c97-aa38f54a-411f7ad0-9532b33a-f0ed1758",
+      "lineCount": 41,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "src/Ivr.Api/Health/IvrReadinessProbe.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "4abc2b6a-8e13f2f7-82e4ea62-f282dba3-dc34530d",
+      "sha256Lf": "7199e7a8-2d0e33a0-c3383b7e-db592143-2d851257-2076b531-8c5de285-2e572166",
+      "lineCount": 109,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Auth/ServiceIdentity.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "a343b2b8-a1717496-75fa29ac-530559e7-89d4699d",
+      "sha256Lf": "09897dec-4de2671e-cb83a9f4-24e88bbf-b0cc8e81-36df68a6-cdc302d8-6a95116a",
+      "lineCount": 579,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Callbacks/CallbackDeliveryOptions.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "285c5689-f51df645-d67c0b3f-790afcc2-feb09c42",
+      "sha256Lf": "fda771b2-790e3dcd-cc1dcb39-ebd2dbc3-2da74e61-5ad1050b-598aab88-c37b767a",
+      "lineCount": 137,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Repositories/EligibilityRepository.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "b6635fc5-b6d322df-3e7ceb3c-0f361632-43c59482",
+      "sha256Lf": "afe402bd-e424dc46-504547ec-744d3377-dc482c47-0e2c7853-75f71864-915d67da",
+      "lineCount": 325,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Repositories/ResultRepository.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "c4535aab-805feab2-96882ca2-f88bcf1e-d27bf89a",
+      "sha256Lf": "a8ab4c23-7f0d67d0-14d61d4c-e5ae5f01-322fb042-d2de37dc-9875b7c0-5aaae406",
+      "lineCount": 452,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "29630958-f334022c-eff01aab-7a16823d-5a487958",
+      "sha256Lf": "19bbce75-8d77a110-ff1ec602-28c0df13-9284ed8c-2aa88217-79628256-014a1137",
+      "lineCount": 666,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Telephony/SimAdapters.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "0d5320bb-dbb2ac45-ba2495c9-10564b86-41d97607",
+      "sha256Lf": "68285931-84919fb8-9f74757a-7b2e18c9-9fc57898-4737639f-b3e0a3f3-bf97f8e4",
+      "lineCount": 49,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.ContractTests/SalesContractScaffoldTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "1d62bf81-56073278-b1491cda-02c2242c-e586fe1c",
+      "sha256Lf": "2ff51777-d8d0752f-a13175c6-37d3224f-e06909cf-da38dbd7-c8fb6920-7f2e1f3d",
+      "lineCount": 331,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/AdminConfigApiTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "f96443e8-79be51dd-b5c9b2c9-eecf132d-888d61a7",
+      "sha256Lf": "dd656415-fd7d7ed7-e9898638-205134f3-af5df524-1bc66550-11bb8595-2671e38e",
+      "lineCount": 475,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/ApiBehaviorMatrixTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "474920ea-954cc0b0-28d46b15-da4b08cb-ed089f95",
+      "sha256Lf": "099d9227-cfcb6b70-abd08f87-5f6a0df9-2879bae2-df663600-85040537-cefdcff4",
+      "lineCount": 560,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "955153e4-e7c5c9eb-271fcba3-122415ee-7f600989",
+      "sha256Lf": "28a30f22-804ef010-75632ae9-2d8bfb10-52f3489c-64f220c3-f997f06c-450ac5b1",
+      "lineCount": 1215,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/ExpandContractMigrationTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "eb0f2394-ea0a641b-8e180d9f-1eff9f78-d8d4e977",
+      "sha256Lf": "c89b7297-7edd7166-c404a41c-71c5e29a-2e50c88c-0c586d39-f78423b3-9c689643",
+      "lineCount": 135,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "bf61f4d3-8d4a2142-d4af042e-b7f2c60d-30d97cdb",
+      "sha256Lf": "8d127cce-c2377c94-74cef94f-e5e01ae4-56c7c41e-8e3d0453-9a08195f-32179e40",
+      "lineCount": 844,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "83f5eba0-ab48d97c-ac36e6fc-e0bda7fd-530c9a25",
+      "sha256Lf": "9c1553a0-71034433-0fc612d2-b9545db0-30e8bd4e-790bc2ee-4537cd7b-dbccc74e",
+      "lineCount": 1071,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/Observability/SloAlertRuleTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "3e171eb1-3cf683b8-4716fd89-ccfcc6c2-d64be9b1",
+      "sha256Lf": "6b0c17a9-c9a97305-be049b1c-f8016dac-1684f701-98f968fd-454d5757-1b723384",
+      "lineCount": 114,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/ReadinessProbeTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "d71fedf0-21c8c24d-c945540d-88ce5386-f86ebeb3",
+      "sha256Lf": "fc94b9e8-aa7d4bd7-4787b0ed-7c2f698b-26f5c09f-544f6c03-f9755262-3660f775",
+      "lineCount": 112,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/Retention/RetentionJobTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "6d6b848a-b9967013-caae9cd6-72e42dda-897425df",
+      "sha256Lf": "68f21db1-7bcd4cac-9d582e35-a4dfc0da-2ed506b3-454f5ee4-d96b171a-41148017",
+      "lineCount": 522,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "842ad2fd-f63874ce-846a7226-d9ebe6b3-f4a34030",
+      "sha256Lf": "6d446040-979276df-ec27a815-171a4828-575033da-c0c88848-8f80d8de-18dc5e5a",
+      "lineCount": 1619,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "842b13c7-709e9568-62a6096f-7e1552fa-e33985ee",
+      "sha256Lf": "5092e582-6c3d8c2b-78f4ba56-33e5286a-93d8c64c-6028ad6f-e8d02e6b-7ec1276f",
+      "lineCount": 859,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.UnitTests/ArchitectureDependencyTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "aa61f183-8f92697a-af56443b-25a5777c-841908f9",
+      "sha256Lf": "52a7fe45-75002330-f91db30a-5ac26de8-1ba61e51-e25da8bf-49c9db7b-2b7156e7",
+      "lineCount": 490,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Auth/ServiceIdentityTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "ba3049ae-e8c73043-7c5d536b-ee23f411-54006cbf",
+      "sha256Lf": "272c65c7-71b33105-501b0240-ad3d18e2-56666a2e-11f4e4ff-bf5c7736-20557661",
+      "lineCount": 375,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "279a8e84-c3ac3e39-77fccce1-ac729bce-964d328a",
+      "sha256Lf": "f5dc5dd5-1b34a5c1-bad0159d-90bddce2-3e3e0bbb-c707742a-f0475456-1a345aee",
+      "lineCount": 1039,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Governance/DoNotCallSupremacyTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "da38af0a-0c1e397f-854cfd29-f36ba20a-8c738228",
+      "sha256Lf": "066452d7-bca98dc9-868a6fb1-918f5c11-25b62fe2-18fd2b9e-750db058-12a21eb1",
+      "lineCount": 111,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Governance/PersonalDataInventoryTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "9deac0b4-ba5b7ab4-c19f8cf5-d640e07c-9a286da0",
+      "sha256Lf": "7586e5af-c4640580-1f2a4781-2c32904a-d4e4020f-4b71ee75-b90cbb17-1f912ff6",
+      "lineCount": 247,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Persistence/IdempotencyIndexTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "1d25cf39-9e9d4723-c4f39eb7-d38e6c5e-60320001",
+      "sha256Lf": "5801579f-a0a48d12-aa858b95-5de6a602-4a44aad1-27b5724c-7ced7843-6bc56bf0",
+      "lineCount": 39,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Persistence/RollingDeploySchemaCompatibilityTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "65c1bd5b-22a7172e-576685ad-543bc3de-cdfa90a0",
+      "sha256Lf": "8aef84ac-6da5f908-82f927e4-1060b103-c1cc011c-cd3025c6-6d42f5c3-129cea5b",
+      "lineCount": 470,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "e81da685-ac5442e6-b63c6f56-bccc7724-657b615b",
+      "sha256Lf": "6e4e32f9-5f2c1f71-03b28614-0ed348a4-520e2217-c80f1198-86071c25-c332c5f1",
+      "lineCount": 373,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/chaos/BlastRadiusGuard.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "47c48c77-e25466b5-02176ad1-fec8b5c6-04effa42",
+      "sha256Lf": "a1971fc6-cd39064c-3f7489f9-f1700021-e0f051b5-6c4687e4-f85399e8-443e56b1",
+      "lineCount": 42,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/chaos/DatabaseFaultScenario.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "8a1f921c-5f9e983e-786d311e-2f3b2821-11858bf8",
+      "sha256Lf": "637642ac-be8e0674-2f8229ac-31d7d439-3ba57d67-8576f3d2-d71c3435-22a08c8b",
+      "lineCount": 104,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/chaos/DownstreamFaultScenario.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "7ac4974a-30ecd670-91bd867c-f885890a-11c540a1",
+      "sha256Lf": "dff1a715-a86e85f8-c6b2c651-d19cd545-d95ec788-5a94be62-10b36846-776b2e38",
+      "lineCount": 149,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/chaos/PartialPartitionScenario.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "9e678576-dd3c2290-dccfa4ba-724087cc-66cd33d5",
+      "sha256Lf": "54c8cd12-f876f09e-7f0f613f-076814d8-0b1e3009-c6079655-a4c94649-84ebcaa0",
+      "lineCount": 211,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/chaos/RecoveryScenario.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "df55e0f4-e33e75c1-a1e5f724-e27b3334-e58c4a45",
+      "sha256Lf": "7d7cf868-a00a88f9-d5bb611d-991a7293-dc57e553-3a283d08-fab6883f-35df65ec",
+      "lineCount": 118,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tests/chaos/SimFaultScenario.cs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "5535c60f-ba890510-077e5227-6f31e578-1b16429e",
+      "sha256Lf": "ca1075a8-a4dcd342-0bf4dcaa-1e07ec11-1d4021fe-c787b38c-f3f42d0d-96a199e4",
+      "lineCount": 146,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tools/dev/Invoke-LocalMockE2E.mjs",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "832ed68d-dd6083ca-c81dbdfc-bd716d7f-ae84366a",
+      "sha256Lf": "b832fffd-d24e1dbb-0a90b296-cdf21953-a8e61b6f-f2f57380-290aa53d-df702495",
+      "lineCount": 1616,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tools/dev/Test-ExpandContract.ps1",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "3ae4e2c0-c1278adf-3b39026c-7c580e5d-6a140145",
+      "sha256Lf": "e9a3e492-e3bfc5b0-9c98acd4-b0f757b8-dd455f9b-dfc27e12-2c35afcd-84d6c304",
+      "lineCount": 205,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tools/ops/Invoke-Od18Preflight.ps1",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "1026fc9d-962edb90-1471f1c7-1362c36e-6bc0a50e",
+      "sha256Lf": "82ef4202-cc963489-b298c981-461692f5-715f8f91-8dcda0a8-5236c242-b8cf37a9",
+      "lineCount": 106,
+      "uncommittedWorkingCopyExcluded": false
+    },
+    {
+      "path": "tools/ops/od18-legacy-skip-preflight.sql",
+      "commit": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+      "gitBlob": "39cac5b6-b73573aa-22f8a3c3-05ae10e2-fb151bd8",
+      "sha256Lf": "203c5fd1-73384cc0-c09e51b1-15ff841f-df40eb91-b8cd6510-d7a962c8-4961dd7a",
+      "lineCount": 173,
+      "uncommittedWorkingCopyExcluded": false
+    }
+  ]
+}

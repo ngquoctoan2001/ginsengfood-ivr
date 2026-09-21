@@ -1,0 +1,36 @@
+All commits below are ancestors of 3545e10e5aabf5d26ddd2997adfb32fa1c0d846f.
+44830290ea97ab71b2e28002bb68c66bdbecaa53 2026-09-14 fix(eligibility): coordinate concurrent receipts and isolate endurance runs
+b6bd852cecdfb2df9188fc41b97c94f080639b2c 2026-09-21 docs(acceptance): add dated C1 markers to 55 evidence packs
+3545e10e5aabf5d26ddd2997adfb32fa1c0d846f 2026-09-21 docs(acceptance): record C1 verification and classify remaining evidence gaps
+b6bd852cecdfb2df9188fc41b97c94f080639b2c 2026-09-21 docs(acceptance): add dated C1 markers to 55 evidence packs
+ba436059cf0094404a58c328025e69ac2c771cf8 2026-09-05 Merge branch 'worktree-gd0-fixes' into main
+c8dc3c44ee803717d952541f0d90383545230da2 2026-09-05 fix(db): preserve console compatibility and guard expand migrations
+4baad099948e4d9f0c1c4ef2163701a68627e91c 2026-09-05 docs(w-0191): owner signs 19 open decisions and records why
+e2d534fa56cd663afabe6246e975b73fe819da61 2026-09-09 docs(m3): W-0254 correct what IR-06 tells Module 3, and pin it so it cannot drift again
+c1491dd2988b98da81b42380a4bdf8107f2fd770 2026-08-18 save
+6760ba614e47e1631384640209cc4acee944a8cf 2026-08-27 feat(ivr)!: Module 3 owns the call decision, IVR only executes (W-0123, W-0124)
+7195ba8c2f8b7283eb2349550dd47a8ba2bc0f7b 2026-08-20 chore: close W-0103 current-system audit
+f5c12d35eda3f565764e38a5bbd954789ab11b16 2026-08-19 save
+a3688c7b15da2afeb40850a1b734c531e2820e57 2026-09-10 docs(decisions): W-0266 the owner is the quorum, and three things that does not unblock
+a6b7063c4fb7ff3de072720ed428332d9be5de6e 2026-09-18 docs(plan,register): W-0316 lot 3, the records catch up with the 17/09 decisions
+9d20d6115d818cdd26c1f485e5320a84528ad68f 2026-09-09 fix(governance,domain): W-0261 stop DSAR limiting itself, and collapse three copies of one mapping
+53c2eb55a4d8174aa9057152fa5d5ea281ee7489 2026-09-18 fix(governance,db): W-0314 an erasure removes the phone number, and a second one no longer fails
+fb1eb4cb68ecfb6a0bb5bbdd014fd83e6c947a29 2026-08-14 fix: remediate phase 1 and 2 review findings
+d44834e483bf70c84f1c598ad86de23677544d24 2026-09-14 fix(tests): align operator pause expiry with owner decision
+9ab10ceeae73e5f8295d75e58952102a6f60ff00 2026-08-28 feat(ops): make the two blocked OD-18 gates one action away (W-0125)
+2667f4247a0d323647e1b11f7a27578da812b400 2026-09-14 docs(ci): distinguish terminal pipeline state from pre-push snapshot
+179a5ebc2b2fc5ec49a9488f5b446f98d7551c3e 2026-09-14 fix(ci): refresh pending evidence pins and verify template exports
+729392ea5586be67a4a86e9d8368bdcdd9c3936c 2026-09-05 test(api): add W-0197 HTTP API behaviour matrix over every OpenAPI operation
+6029b19f5b21400cc457792f3c670f358a6c014a 2026-09-16 feat(api,contract): W-0307 audit-evidence, and three lines of my own plan that were wrong
+f7bb52b7bf66c530db627e1bc528aef3b72a2900 2026-09-17 feat(contract,intake): W-0312 draft.31, a task that sends only the number is accepted
+aaf3e69cc2b8eb68263d9086f44a912e893aad82 2026-09-07 fix(contract): W-0207 stop the shared-E2E sheet asking Module 3 for an ACK the contract forbids
+9dc54795a19e735e7dc429ebfa1191f56e66b4c6 2026-09-16 docs(ci,contract): W-0304 the documentation lot, and the 11 gates it found red
+307fd9c9213b4d561953af4ddf71a1bbad6cfe31 2026-09-10 fix(ci,persistence): W-0268 stop the selftest leak and drop an index no query can use
+00b7c93386a7259d6c079222355f60678706b14c 2026-09-10 refactor(config): W-0272 give each "MOCK" a name, and surface a spec that disagrees
+d68a471c9642139ee13e0b98c7edccde9c3b118a 2026-09-09 feat(contracts): W-0250 release draft.24, and three silent things it turned up
+fa7877c4fdc9c9400aebe8aa6392ae9f4980b219 2026-09-14 docs(ivr): reconcile handover versions and missing work evidence
+3e2c7852de06d690f41d53c04db4ac4ae3712237 2026-09-10 refactor(src,ci): W-0269 remove 440 no-op ConfigureAwait calls and write down the scratch rule
+98aa11b60ec20f991d606a8c0c52f1cc45aac806 2026-09-10 fix(docker,di): W-0270 write the UID out and let the host refuse a captured dependency
+16e44b730d0df47149f9534c680d137f95e82204 2026-09-10 docs(specs): W-0274 align adapter_mode with the code, and state the rule not the list
+50a83c55351b3d2fd475664e61f25eb6b3d22400 2026-09-10 feat(contract): W-0275 close adapter_mode to an enum, draft.25 to draft.26
+e984983afa702df6c0927f7235655e11223f92b3 2026-09-11 fix(admin,ci): W-0278 one vocabulary for adapter_mode, and stop a hash reading as a phone number
