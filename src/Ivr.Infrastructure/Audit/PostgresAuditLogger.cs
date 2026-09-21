@@ -9,11 +9,36 @@ namespace Ivr.Infrastructure.Audit;
 
 public sealed class PostgresAuditLogger(
     IDbContextFactory<IvrDbContext> dbContextFactory,
-    TimeProvider timeProvider) : IAuditLogger
+    TimeProvider timeProvider) : ITransactionalAuditLogger
 {
     public async Task<AuditLogEntry> AppendAsync(
         AuditEvent auditEvent,
         CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(auditEvent);
+        Validate(auditEvent);
+        await using IvrDbContext dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        return await AppendToContextAsync(auditEvent, dbContext, cancellationToken);
+    }
+
+    public Task<AuditLogEntry> AppendWithinTransactionAsync(
+        AuditEvent auditEvent,
+        IvrDbContext dbContext,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(dbContext);
+        if (dbContext.Database.CurrentTransaction is null)
+        {
+            throw new InvalidOperationException("A caller-owned transaction is required for an atomic audit write.");
+        }
+
+        return AppendToContextAsync(auditEvent, dbContext, cancellationToken);
+    }
+
+    private async Task<AuditLogEntry> AppendToContextAsync(
+        AuditEvent auditEvent,
+        IvrDbContext dbContext,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(auditEvent);
         Validate(auditEvent);
@@ -34,8 +59,6 @@ public sealed class PostgresAuditLogger(
             DataJson = dataJson,
             CreatedAt = createdAt,
         };
-        await using IvrDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
-            cancellationToken);
         dbContext.AuditLog.Add(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
         return new AuditLogEntry(

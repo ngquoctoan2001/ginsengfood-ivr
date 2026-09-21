@@ -704,6 +704,12 @@
       "ivr.domain": {
         "type": "Project"
       },
+      "ivr.dsar": {
+        "type": "Project",
+        "dependencies": {
+          "Ivr.Infrastructure": "[1.0.0, )"
+        }
+      },
       "ivr.infrastructure": {
         "type": "Project",
         "dependencies": {

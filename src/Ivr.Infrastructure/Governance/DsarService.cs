@@ -21,7 +21,10 @@ public sealed record DsarErasureReport(
     bool DryRun,
     int TasksRedacted,
     IReadOnlyList<string> Refused,
-    string AuditRef);
+    string AuditRef)
+{
+    public int TasksMatched { get; init; }
+}
 
 public interface IDsarService
 {
@@ -41,12 +44,10 @@ public interface IDsarService
 ///
 /// <para><b>No HTTP endpoint, and that is a decision rather than an omission.</b>
 /// Erasing customer data needs an authority IVR does not own: permissions are
-/// assigned by Permission Core (DF-01), <c>IVR_RUNTIME_GATE_ADMIN</c> is still
-/// unassigned pending <c>OD-V1-20</c>, and hanging erasure off an existing
-/// operational permission would mean anyone who can watch the queue can delete a
-/// customer's records. So this is a service driven by
-/// <c>docs/compliance/dsar-runbook.md</c> under an audited manual procedure, and
-/// the endpoint waits for a permission that exists.</para>
+/// assigned by Permission Core (DF-01), and the operational runtime-gate permission
+/// does not authorize erasure. S8 / W-0330 provides an operator CLI under the
+/// procedure in <c>docs/compliance/dsar-runbook.md</c>, restricted by the configured
+/// OS identity and access to the database credential. No HTTP permission is added.</para>
 ///
 /// <para><b>Find returns counts, never values.</b> A subject-access response is
 /// assembled by a human from this plus the order system; a service that printed
@@ -103,7 +104,8 @@ public sealed class DsarService(
         + "no one without Sales' own records. The contact key, the trust values and the number "
         + "are erased.",
         "ivr_result_callbacks.payload_json: the delivery record. Removing the payload leaves a "
-        + "record that cannot settle the dispute it exists for; it expires with retention.",
+        + "record that cannot settle the dispute it exists for. Current S3 policy retains it "
+        + "indefinitely; this command does not remove it.",
     ];
 
     public async Task<DsarFindReport> FindAsync(
@@ -184,8 +186,15 @@ public sealed class DsarService(
                 nameof(reason));
         }
 
+        if (auditLogger is not ITransactionalAuditLogger transactionalAudit)
+        {
+            throw new InvalidOperationException("DSAR requires an audit logger that shares its database transaction.");
+        }
+
         await using IvrDbContext context = await dbContextFactory
             .CreateDbContextAsync(cancellationToken);
+        await using IDbContextTransaction transaction = await context.Database
+            .BeginTransactionAsync(cancellationToken);
 
         int matched;
         int redacted;
@@ -218,7 +227,7 @@ public sealed class DsarService(
 
         // Audited even when it changed nothing. A request that found no data is a request that was
         // answered, and the answer has to be as durable as the erasure would have been.
-        AuditLogEntry entry = await auditLogger.AppendAsync(
+        AuditLogEntry entry = await transactionalAudit.AppendWithinTransactionAsync(
             new AuditEvent(
                 actorId,
                 EraseAuditAction,
@@ -232,14 +241,22 @@ public sealed class DsarService(
                     ["tasks_redacted"] = redacted,
                     ["not_erasable_count"] = NotErasable.Count,
                 }),
+            context,
             cancellationToken);
+
+        // The redaction and the durable audit either commit together or neither survives.
+        // A rejected audit (including its PII validation) must never leave an unrecorded erasure.
+        await transaction.CommitAsync(cancellationToken);
 
         return new DsarErasureReport(
             orderCode,
             dryRun,
             redacted,
             NotErasable,
-            entry.Id.ToString());
+            entry.Id.ToString())
+        {
+            TasksMatched = matched,
+        };
     }
 
     private static DsarHolding Hold(string table, int count) =>

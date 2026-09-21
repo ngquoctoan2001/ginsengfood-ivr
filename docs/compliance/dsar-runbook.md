@@ -1,6 +1,6 @@
 # DSAR runbook — `W-0052` · `P10-1`
 
-Ngày: `2026-08-19` · sửa `2026-09-18` (`W-0314`) · Phạm vi: **chỉ dữ liệu IVR giữ**. Đơn hàng, khách hàng và liên hệ thuộc Sales;
+Ngày: `2026-08-19` · sửa `2026-09-21` (`W-0330`) · Phạm vi: **chỉ dữ liệu IVR giữ**. Đơn hàng, khách hàng và liên hệ thuộc Sales;
 yêu cầu về những thứ đó phải đi tới Sales.
 
 ## 1. Vì sao không có endpoint HTTP
@@ -13,8 +13,10 @@ Cập nhật 2026-08-22 (`OD-V1-20`): `IVR_RUNTIME_GATE_ADMIN` **đã được c
 cho phép gọi khách thật), nên treo xoá lên nó chỉ đổi câu trên thành *ai bật/tắt được kill switch thì
 xoá được dữ liệu khách*. Cùng một lỗi ghép quyền, khác cái tên.
 
-Nên `DsarService` vẫn chạy qua thủ tục tay có audit dưới đây, và endpoint **chờ một permission DSAR
-riêng**. Đây là quyết định, không phải thiếu sót.
+S8/W-0330: owner yêu cầu hướng dẫn để tự chạy. `tools/Ivr.Dsar` cung cấp CLI theo tài khoản OS được
+chỉ định, với file chương trình/policy và credential database được bảo vệ cho người đó. Xem
+[hướng dẫn từng bước](dsar-cli-step-by-step.md). CLI không cấp quyền xoá qua API vận hành;
+endpoint HTTP vẫn cần một permission DSAR riêng nếu sau này chọn làm nó.
 
 ## 2. Bốn điều nói với người yêu cầu **trước** khi bắt đầu
 
@@ -25,8 +27,8 @@ Không phát hiện giữa chừng:
    không phải bản ghi.
 2. **`order_code` được giữ.** Đó là khoá mà yêu cầu đi tới. Xoá nó làm **mọi** yêu cầu sau về cùng
    đơn không trả lời được, kể cả của chính người đó.
-3. **Payload callback được giữ tới hết hạn retention.** Đó là bản ghi giao nhận với Sales; bỏ payload
-   đi thì nó không còn giải quyết được tranh chấp mà nó tồn tại vì.
+3. **Payload callback được giữ.** Đó là bản ghi giao nhận với Sales. S3/W-0316 hiện chọn giữ vĩnh viễn,
+   nên không hứa payload này tự hết hạn sau yêu cầu DSAR.
 4. **`customer_id` được giữ.** Khoá khách của Sales, giữ vì cùng lý do với `order_code`: là cách đối
    chiếu lịch sử đơn với Sales, và tự nó không định danh ai nếu không có dữ liệu của Sales. Số điện
    thoại, khoá liên hệ và hai giá trị trust thì **bị xoá** (Toàn chốt `18/09`, `W-0314`).
@@ -44,8 +46,8 @@ Không phát hiện giữa chừng:
 
 ### 3.2 Xoá (yêu cầu xoá)
 
-1. **Chạy dry-run trước.** `EraseAsync(..., dryRun: true)` báo sẽ chạm gì, đổi **không gì cả**, và
-   vẫn ghi một dòng audit.
+1. **Chạy dry-run trước.** CLI mặc định dùng `EraseAsync(..., dryRun: true)`, trả `TasksMatched`,
+   không redact trường nào và vẫn ghi một dòng audit.
 2. Đọc lại §2 với người yêu cầu.
 3. Chạy thật: `EraseAsync(..., dryRun: false)` với **lý do ≥ 8 ký tự** — lý do đi vào audit, và
    `"ok"` ở ô đó bằng không có bản ghi.
@@ -55,6 +57,10 @@ Không phát hiện giữa chừng:
    `official_contact_id`, `customer_trust_status`, `trusted_skip_allowed` — và `anonymized_at` được
    đặt. `customer_id` giữ lại (§2 mục 4).
 5. Ghi `audit_ref` trả về vào hồ sơ yêu cầu.
+
+Từ W-0330, redact và audit cùng transaction. Nếu audit bị từ chối, dữ liệu không bị redact dở dang.
+CLI thực thi cần `--execute`, `--confirm-order` khớp chính xác mã đơn và `--subject-verified`;
+flag cuối xác nhận công việc Sales đã làm, không tự thay bước xác minh danh tính.
 
 **Chạy lại cho cùng một đơn là an toàn** (`W-0314`). Câu xoá chỉ chạm task **chưa** xoá: task Sales gửi
 lại sau lần xoá trước sẽ được xoá ở lần sau, task đã xoá giữ nguyên dấu thời gian, và dry-run đếm
@@ -84,12 +90,11 @@ ra để trống thay vì điền một con số nghe hợp lý.
 
 - **Không xác minh danh tính.** IVR không có kênh nào để làm việc đó.
 - **Không chạm dữ liệu Sales.** Đơn, khách và liên hệ thuộc hệ thống khác.
-- **Không xoá bản backup.** Một bản backup còn trong hạn vẫn chứa dữ liệu trước khi redact. Nó hết
-  theo lịch prune (`docs/dr-topology.md` §4), và **không có cơ chế nào xoá có chọn lọc bên trong một
-  bản backup đã mã hoá**. Đây là giới hạn thật, phải nói với người yêu cầu.
+- **Không xoá bản backup.** Backup có thể vẫn chứa dữ liệu trước khi redact; CLI không có cơ chế
+  xoá chọn lọc bên trong backup. Với S3 giữ vĩnh viễn, không suy từ lịch prune cũ ra thời điểm dữ liệu
+  chắc chắn biến mất. Người vận hành phải xử lý việc áp lại các yêu cầu DSAR khi restore, theo hồ sơ
+  đã ghi; kiểm chứng quy trình backup/restore của môi trường thật nằm ngoài bằng chứng CLI local.
 - **Không có endpoint** — xem §1.
-- **Chưa có lối chạy nào.** `DsarService` hiện **chỉ được test gọi**: không endpoint, không CLI, không
-  script, và không đăng ký trong DI. Thủ tục ở §3 vì vậy chưa làm được nếu không có người viết code.
-  Vì `S3`, đây lại là luồng xoá **duy nhất**. Đã ghi thành vướng mắc để Toàn/Sếp quyết ai được xoá và
-  bằng công cụ gì (`W-0314`,
-  [bản vướng mắc `17/09`](../../plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md)).
+- **Chưa có bằng chứng vận hành trên dữ liệu thật.** W-0330 cung cấp CLI và kiểm thử dữ liệu giả;
+  owner trực tiếp chạy theo hướng dẫn trên database được chọn. Không dùng kết quả này làm chữ ký
+  S2/Legal hoặc bằng chứng xoá mọi nơi lưu dữ liệu.

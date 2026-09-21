@@ -1,4 +1,7 @@
 using System.Globalization;
+using System.Diagnostics;
+using System.Text.Json;
+using Ivr.Dsar;
 using Ivr.Domain.Retention;
 using Ivr.Infrastructure.Analytics;
 using Ivr.Infrastructure.Audit;
@@ -26,6 +29,150 @@ public sealed class ComplianceTests(PostgresPersistenceFixture fixture)
     private const string OtherOrderCode = "GF-ORDER-DSAR-002";
 
     private static readonly DateTimeOffset Now = new(2026, 8, 14, 9, 30, 0, TimeSpan.Zero);
+
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-13")]
+    public async Task AnAuditFailureRollsBackTheErasure()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync(withNumber: true);
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        await context.Database.ExecuteSqlRawAsync("""
+            CREATE FUNCTION reject_dsar_test_audit() RETURNS trigger LANGUAGE plpgsql AS
+            $$ BEGIN IF NEW.action = 'IVR_DSAR_ERASE' THEN RAISE EXCEPTION 'test audit failure'; END IF;
+            RETURN NEW; END $$;
+            CREATE TRIGGER reject_dsar_test_audit BEFORE INSERT ON ivr_audit_log
+            FOR EACH ROW EXECUTE FUNCTION reject_dsar_test_audit();
+            """);
+        try
+        {
+            await Assert.ThrowsAnyAsync<Exception>(() => Service().EraseAsync(
+                OrderCode, "verified request DSAR-TEST", "operator-test", "dsar-rollback",
+                dryRun: false, CancellationToken.None));
+            ConfirmationTaskEntity task = await context.ConfirmationTasks.AsNoTracking()
+                .SingleAsync(row => row.OrderCode == OrderCode);
+            Assert.Null(task.AnonymizedAt);
+            Assert.NotNull(task.PhoneE164);
+            Assert.NotEqual("redacted", task.PhoneRef);
+            Assert.Empty(await context.AuditLog.Where(row => row.Action == DsarService.EraseAuditAction).ToListAsync());
+        }
+        finally
+        {
+            await context.Database.ExecuteSqlRawAsync("""
+                DROP TRIGGER reject_dsar_test_audit ON ivr_audit_log;
+                DROP FUNCTION reject_dsar_test_audit();
+                """);
+        }
+    }
+
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-17")]
+    public async Task TheCliProcessPreviewsThenErasesOnlyTheConfirmedOrder()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync(withNumber: true);
+        string directory = CreateCliSandbox();
+        try
+        {
+            CliResult identityRun = await RunCliAsync(directory, "--identity");
+            Assert.Equal(0, identityRun.ExitCode);
+            using JsonDocument identityDocument = JsonDocument.Parse(identityRun.Output);
+            string identity = identityDocument.RootElement.GetProperty("CurrentIdentity").GetString()!;
+            string policyFile = Path.Combine(directory, "dsar-operator.json");
+            string[] previewArgs = ["--order-code", OrderCode, "--request-ref", "DSAR-CLI-CASE"];
+
+            CliResult unconfigured = await RunCliAsync(directory, previewArgs);
+            Assert.Equal(2, unconfigured.ExitCode);
+            await File.WriteAllTextAsync(policyFile, JsonSerializer.Serialize(new DsarOperatorPolicy(1, "someone-else")));
+            CliResult denied = await RunCliAsync(directory, previewArgs);
+            Assert.Equal(3, denied.ExitCode);
+            await using IvrDbContext context = await Factory().CreateDbContextAsync();
+            Assert.Empty(await context.AuditLog.Where(row => row.Action == DsarService.EraseAuditAction).ToListAsync());
+
+            await File.WriteAllTextAsync(policyFile, JsonSerializer.Serialize(new DsarOperatorPolicy(1, identity)));
+            CliResult preview = await RunCliAsync(directory, previewArgs);
+            Assert.Equal(0, preview.ExitCode);
+            DsarCommandResult previewReport = JsonSerializer.Deserialize<DsarCommandResult>(preview.Output)!;
+            Assert.Equal("PREVIEW", previewReport.Mode);
+            Assert.True(previewReport.Erasure.DryRun);
+            Assert.Equal(1, previewReport.Erasure.TasksMatched);
+            Assert.Equal(0, previewReport.Erasure.TasksRedacted);
+            ConfirmationTaskEntity before = await context.ConfirmationTasks.AsNoTracking().SingleAsync(row => row.OrderCode == OrderCode);
+            Assert.NotNull(before.PhoneE164);
+            Assert.DoesNotContain(before.PhoneE164, preview.Output, StringComparison.Ordinal);
+
+            string[] executeArgs = [.. previewArgs, "--execute", "--confirm-order", OrderCode, "--subject-verified"];
+            CliResult executed = await RunCliAsync(directory, executeArgs);
+            Assert.Equal(0, executed.ExitCode);
+            DsarCommandResult result = JsonSerializer.Deserialize<DsarCommandResult>(executed.Output)!;
+            Assert.Equal("EXECUTED", result.Mode);
+            Assert.Equal(1, result.Erasure.TasksRedacted);
+            Assert.False(result.Erasure.DryRun);
+            ConfirmationTaskEntity after = await context.ConfirmationTasks.AsNoTracking().SingleAsync(row => row.OrderCode == OrderCode);
+            Assert.Null(after.PhoneE164);
+            Assert.NotNull(after.AnonymizedAt);
+            Assert.NotNull((await context.ConfirmationTasks.AsNoTracking().SingleAsync(row => row.OrderCode == OtherOrderCode)).PhoneE164);
+
+            CliResult repeated = await RunCliAsync(directory, executeArgs);
+            Assert.Equal(0, repeated.ExitCode);
+            Assert.Equal(0, JsonSerializer.Deserialize<DsarCommandResult>(repeated.Output)!.Erasure.TasksMatched);
+            var audits = await context.AuditLog.Where(row => row.Action == DsarService.EraseAuditAction).ToListAsync();
+            Assert.Equal(3, audits.Count);
+            Assert.All(audits, row => Assert.Equal($"operator:{identity}", row.ActorId));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    private static string CreateCliSandbox()
+    {
+        string directory = Path.Combine(Path.GetTempPath(), "ivr-dsar-cli-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        // Project references copy executable runtime/deps files alongside the test assembly.
+        foreach (string file in Directory.GetFiles(AppContext.BaseDirectory))
+        {
+            File.Copy(file, Path.Combine(directory, Path.GetFileName(file)));
+        }
+
+        return directory;
+    }
+
+    private async Task<CliResult> RunCliAsync(string directory, params string[] arguments)
+    {
+        var start = new ProcessStartInfo("dotnet")
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            WorkingDirectory = directory,
+        };
+        start.ArgumentList.Add(Path.Combine(directory, "Ivr.Dsar.dll"));
+        foreach (string argument in arguments) start.ArgumentList.Add(argument);
+        start.Environment["IVR_DSAR_CONNECTION_STRING"] = fixture.ConnectionString;
+        using var process = new Process { StartInfo = start };
+        Assert.True(process.Start());
+        Task<string> output = process.StandardOutput.ReadToEndAsync();
+        Task<string> error = process.StandardError.ReadToEndAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+        try
+        {
+            await process.WaitForExitAsync(timeout.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            if (!process.HasExited) process.Kill(entireProcessTree: true);
+            throw;
+        }
+
+        string stderr = await error;
+        Assert.DoesNotContain("ivr-test-password", stderr, StringComparison.Ordinal);
+        return new CliResult(process.ExitCode, await output, stderr);
+    }
+
+    private sealed record CliResult(int ExitCode, string Output, string Error);
 
     // ------------------------------------------------------------- COMP-DSAR-02
 

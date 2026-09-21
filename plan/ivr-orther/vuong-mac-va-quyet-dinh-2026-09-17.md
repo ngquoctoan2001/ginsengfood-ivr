@@ -137,6 +137,12 @@ bộ phận bán hàng làm — IVR không có cách biết ai là ai.
 
 > **Sếp trả lời:** Người được xoá: ______ · Cách ☐ 1 ☐ 2 ☐ 3 ☐ khác: ________
 
+**Cập nhật 21/09 — W-0330:** Khi được hỏi S8 trong task, owner trả lời “chỉ t step by step đi t chạy cho”.
+Theo yêu cầu này, Codex chuẩn bị CLI và [hướng dẫn](../../docs/compliance/dsar-cli-step-by-step.md)
+để chính owner vận hành bằng tài khoản OS được chỉ định; mặc định xem trước, xác nhận đúng một mã đơn
+trước khi xoá, có audit cùng giao dịch. Đây không phải chỉ thị cho agent xoá dữ liệu thật hoặc ký S2.
+Kết quả kỹ thuật và phạm vi được ghi tại [W-0330](../../docs/evidence/W-0330/README.md).
+
 ### Ô ký — 5 mục còn mở
 
 | Người duyệt | `S1` | `S2` | `S5` | `S6` | `S8` | Ngày |
