@@ -108,3 +108,18 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Owner nghiệm thu — 21/09/2026
+
+Toàn chỉ thị trong task: “chốt nghiệm thu W-0029 và W-0032 trong phạm vi Sales/JWT chạy MOCK
+đã rà đủ bằng chứng.” Theo quyết định này, W-0032 chuyển **TESTS_PASS → ACCEPTED** cho phần
+JWT abstraction, mock issuer, validation/JWKS/cache/refresh và compat isolation đã rà trong
+[W-0327](../W-0327/README.md). Phạm vi đã trình bao gồm khoá sinh theo process thay vì private
+key cố định trong repo. Codex ghi nhận quyết định của owner tại baseline `701ed28`.
+
+Các số liệu và trạng thái TESTS_PASS ở trên là lịch sử. Auth profile JWT đã được chốt; mTLS
+được hoãn theo quyết định hiện hành, không phải hai lựa chọn còn chờ owner. Việc dựng issuer,
+credential/JWKS/token acquisition thật, kiểm rotation hai phía và lịch tắt X-Internal-Token
+vẫn do Toàn/dev M3/dev IVR thực hiện theo W-0327. Mode=Real vẫn bị chặn; nghiệm thu MOCK không
+xác nhận auth production hoặc thay quyền admin. Bằng chứng giữ đúng SHA đã ghim, không có
+lượt test/sweep mới tại commit tài liệu này. REAL_CUSTOMER_CALL_ALLOWED=NO.

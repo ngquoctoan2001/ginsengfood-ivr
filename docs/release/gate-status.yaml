@@ -32,7 +32,7 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "46 of 315 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "48 of 315 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
@@ -534,7 +534,7 @@ work:
     evidence: null
   - id: "W-0029"
     prompt: "P4-1"
-    status: "TESTS_PASS"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0029/README.md"
   - id: "W-0030"
     prompt: "P4-2"
@@ -546,7 +546,7 @@ work:
     evidence: "docs/evidence/W-0031/README.md"
   - id: "W-0032"
     prompt: "P4-4"
-    status: "TESTS_PASS"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0032/README.md"
   - id: "W-0033"
     prompt: "P4-5"

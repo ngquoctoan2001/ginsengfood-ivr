@@ -81,6 +81,10 @@ Tổng **10 / 2 / 1**. Tám phiếu P2 của W-0324 vẫn là một đợt riên
 
 **Đủ đề nghị cho P4-1 MOCK.** Không đề nghị bật TARGET_V1 hay đóng W-0006.
 
+**Owner duyệt 21/09, sau baseline hồ sơ 701ed28:** Toàn yêu cầu chốt W-0029 và W-0032 trong
+phạm vi Sales/JWT chạy MOCK đã rà đủ bằng chứng. W-0029 được ghi **ACCEPTED** theo phạm vi
+nêu trên; các đầu vào và công việc tích hợp thật trong bảng vẫn còn mở.
+
 ## 2. W-0032 — Service JWT và mTLS
 
 [Gói gốc](../W-0032/README.md) · [prompt P4-4](../../../prompt/phase-4-integration/P4-4-shared-auth-audit.md).
@@ -95,6 +99,10 @@ Tổng **10 / 2 / 1**. Tám phiếu P2 của W-0324 vẫn là một đợt riên
 
 **Đủ đề nghị phần P4-4 MOCK.** Các comment còn nói OD-V1-07 chưa ký là nợ mô tả, không phải một
 quyết định phải xin ký lại. T-07 cũng giữ nhiều câu trước khi W-0032 tồn tại; cần addendum khi làm gói auth thật.
+
+**Owner duyệt 21/09, cùng quyết định trên:** W-0032 được ghi **ACCEPTED** cho phạm vi JWT
+MOCK đã trình, gồm sai lệch khoá sinh theo process. Issuer/credential/rotation thật và lịch
+chuyển compat vẫn giữ đúng trách nhiệm trong bảng; không mở Mode=Real hoặc nghiệm thu production.
 
 ## 3. W-0042 — Chaos/game-day
 
