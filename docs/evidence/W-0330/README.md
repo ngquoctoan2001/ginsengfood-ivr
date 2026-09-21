@@ -106,3 +106,14 @@ của cửa sổ PowerShell cha để xác nhận độc lập việc này. Cont
 xác nhận, không chứng minh Sales xác minh người thật. Khi đưa vào vận hành, Toàn vẫn cần bố trí
 tài khoản/quyền/credential, xử lý S2/PIA và chứng minh áp lại DSAR sau restore; Sales phụ trách
 xác minh chủ thể thật. Không đổi ACCEPTED hoặc ký thay owner.
+
+## Owner nghiệm thu — 21/09/2026
+
+Toàn đã xem kết quả/hồ sơ tại `2b79674` và chỉ thị: “xong rồi thì đóng accepted cho t đi”.
+Codex ghi nhận quyết định này, chuyển **W-0330 và W-0052 sang ACCEPTED** trong phạm vi local
+đã trình: công cụ DSAR, kiểm chứng tại candidate aaba3d2 và lượt owner thực hành với dữ liệu giả.
+Các câu chưa chuyển ACCEPTED ở trên là lịch sử trước lúc owner duyệt.
+
+Không thay SHA của bằng chứng hoặc nhận full test/sweep cho commit tài liệu mới. S2/PIA,
+Sales xác minh người thật, quyền trên máy vận hành và backup/restore thật vẫn còn mở.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

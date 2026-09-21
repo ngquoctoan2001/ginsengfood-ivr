@@ -32,7 +32,7 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "44 of 314 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "46 of 314 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
@@ -626,7 +626,7 @@ work:
     evidence: null
   - id: "W-0052"
     prompt: "P10-1"
-    status: "TESTS_PASS"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0052/README.md"
   - id: "W-0053"
     prompt: "P10-2"
@@ -1362,7 +1362,7 @@ work:
     evidence: "docs/evidence/W-0328/README.md"
   - id: "W-0330"
     prompt: "CLI DSAR và hướng dẫn owner tự chạy (Origin=OWNER_DECISION)"
-    status: "EVIDENCE_SUBMITTED"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0330/README.md"
   - id: "W-0332"
     prompt: "W-0207 E2E local tại commit đã kiểm chứng (Origin=OWNER_DECISION)"

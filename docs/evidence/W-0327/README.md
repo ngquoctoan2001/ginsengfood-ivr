@@ -143,6 +143,11 @@ thật vẫn còn; không tự đổi W-0052 sang ACCEPTED. Bảng 10/2/1 ở đ
 W-0052 đủ đề nghị xét phần công cụ/thao tác local; không suy thành xác minh Sales, S2/PIA,
 quyền trên máy vận hành hay backup/restore thật. Trạng thái gốc và bảng lịch sử giữ nguyên.
 
+**Owner duyệt sau thực hành, 21/09:** Toàn yêu cầu “xong rồi thì đóng accepted cho t đi” sau
+khi nhận hồ sơ `2b79674`. W-0052 và W-0330 được ghi ACCEPTED cho phạm vi local đã trình;
+xem [quyết định trong W-0330](../W-0330/README.md#owner-nghiệm-thu--21092026).
+Các phần vận hành/phê duyệt bên ngoài nêu trên vẫn mở; bảng phân loại đầu là lịch sử lượt rà.
+
 ## 5. W-0088 — Liveness/state machine
 
 [Gói gốc](../W-0088/README.md), commit `fb1eb4c`; [PostgresSchedulerStore](../../../src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs)

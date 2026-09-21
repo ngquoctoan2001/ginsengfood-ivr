@@ -165,3 +165,16 @@ bốn audit đúng actor/request và toàn bộ 58 cột của B giữ nguyên; 
 Vế “owner chọn môi trường và chạy” đã hoàn thành trong phạm vi thực hành local. Đủ đề nghị Toàn
 xét phần công cụ và thao tác DSAR local; W-0052 vẫn TESTS_PASS. Sales xác minh người thật,
 S2/PIA, quyền trên máy vận hành và backup/restore thật vẫn cần bằng chứng tương ứng.
+
+### Owner nghiệm thu — 21/09/2026
+
+Sau khi nhận kết quả và hồ sơ thực hành tại commit `2b79674`, Toàn chỉ thị trong task:
+“xong rồi thì đóng accepted cho t đi”. Theo quyết định này, W-0052 được chuyển sang **ACCEPTED**
+cho phần triển khai/kiểm chứng local và thao tác DSAR trên dữ liệu giả đã trình. Codex ghi nhận
+quyết định của owner; không tự cấp phê duyệt.
+
+Candidate phần mềm vẫn là `aaba3d2`, được ghim trong [W-0330](../W-0330/verification.json), cùng
+[lượt owner thực hành](../W-0330/owner-practice.json). Đây không phải kết quả test cho commit
+tài liệu nghiệm thu. Các câu TESTS_PASS/chờ owner ở trên mô tả thời điểm trước quyết định này.
+S2/PIA, Sales xác minh chủ thể, quyền vận hành và bằng chứng backup/restore thật vẫn còn mở theo
+phạm vi đã trình. REAL_CUSTOMER_CALL_ALLOWED=NO.
