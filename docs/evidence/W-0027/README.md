@@ -132,3 +132,10 @@ Console đã ngừng thuộc deliverable IVR theo W-0253, commit c0e6609.
 Các kết quả test/capture phía trên là lịch sử, không chứng nhận UI hiện hành.
 [Hồ sơ đề nghị kết thúc phạm vi](scope-closeout.md) đã chuẩn bị; đề nghị CANCELLED, chờ Toàn quyết định.
 [Phân loại C2](acceptance-tests.json) ghi scope retired-ui để test backend không thể làm UI đạt nghiệm thu.
+
+## Quyết định owner — 21/09/2026
+
+Toàn trả lời **“oke cả nhóm”** sau phiếu W-0337 tại commit 8763dc1, duyệt cả9 P2 và4 P3.
+W-0027 được ghi **CANCELLED** cho việc UI đã ngừng thuộc deliverable IVR theo W-0253.
+[Quyết định và giới hạn](../W-0337/approval-request.md#quyết-định-owner--21092026) giữ các việc ngoài phạm vi và người phụ trách.
+Các trạng thái chờ duyệt trong phần trước là lịch sử; REAL_CUSTOMER_CALL_ALLOWED=NO.

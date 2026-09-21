@@ -78,3 +78,10 @@ This evidence must not be interpreted as hosted, LAB, real-call or production ev
 - `W-0003`: real Sales/customer data is not connected; synthetic fixtures do not close it.
 - LAB physical SIM/eSIM, vendor TTS/audio pronunciation, real destination allowlist and customer calls are `NOT_RUN`.
 - `REAL_CUSTOMER_CALL_ALLOWED=NO`; recording remains OFF; IVR sends no customer SMS/notification.
+
+## Quyết định owner — 21/09/2026
+
+Toàn trả lời **“oke cả nhóm”** sau phiếu W-0337 tại commit 8763dc1, duyệt cả9 P2 và4 P3.
+W-0024 được ghi **ACCEPTED** cho đúng phạm vi local/MOCK đã trình.
+[Quyết định và giới hạn](../W-0337/approval-request.md#quyết-định-owner--21092026) giữ các việc ngoài phạm vi và người phụ trách.
+Các trạng thái chờ duyệt trong phần trước là lịch sử; REAL_CUSTOMER_CALL_ALLOWED=NO.

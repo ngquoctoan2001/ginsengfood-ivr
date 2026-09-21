@@ -166,3 +166,10 @@ Kết quả cũ giữ nguyên theo thời điểm chạy. Hai TestId cũ đã đ
 không còn là test bắt buộc của runtime hiện hành. Xem [đối chiếu đầy đủ](acceptance-addendum.md)
 và [khai báo C2 có ghim quyết định](acceptance-tests.json). Kết quả mới phải lấy từ gói test
 đúng commit do W-0324 thu; không đổi nhãn các kết quả lịch sử thành kết quả hôm nay.
+
+## Quyết định owner — 21/09/2026
+
+Toàn trả lời **“oke cả nhóm”** sau phiếu W-0337 tại commit 8763dc1, duyệt cả9 P2 và4 P3.
+W-0019 được ghi **ACCEPTED** cho đúng phạm vi local/MOCK đã trình.
+[Quyết định và giới hạn](../W-0337/approval-request.md#quyết-định-owner--21092026) giữ các việc ngoài phạm vi và người phụ trách.
+Các trạng thái chờ duyệt trong phần trước là lịch sử; REAL_CUSTOMER_CALL_ALLOWED=NO.

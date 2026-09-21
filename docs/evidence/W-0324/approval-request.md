@@ -43,3 +43,11 @@ thay xác nhận M3. Hosted pipeline và hạ tầng thật phải có gói bằ
 retirement/replacement và được trình thành việc P2 thứ chín. Bốn UI vẫn được đề nghị CANCELLED
 theo W-0253, không phải ACCEPTED sản phẩm UI. Toàn chưa quyết định hai nhóm này; các số và
 phân loại phía trên là lịch sử tại mốc đã ghi. Tổng ACCEPTED hiện57; không thay trạng thái13 việc.
+
+## Owner chốt P2/P3 — 21/09/2026
+
+Toàn trả lời **“oke cả nhóm”** sau [phiếu W-0337](../W-0337/approval-request.md#quyết-định-owner--21092026) tại8763dc1:
+**W-0018–W-0024/W-0065/W-0066 ACCEPTED local/MOCK**, **W-0025–W-0028 CANCELLED** do UI
+đã retire. Cả13 việc đã chốt trạng thái; tổng repo66 ACCEPTED. Các câu PENDING/chờ owner
+phía trên là lịch sử. Phần M3/lab/model-image/vận hành thật và giới hạn đã trình vẫn mở;
+không có thông điệp bàn giao gửi ra ngoài hoặc lượt test mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

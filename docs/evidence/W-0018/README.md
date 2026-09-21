@@ -119,3 +119,10 @@ PASS — 412 files / 375 resolved links / 0 unresolved
 - Implementation commit: `85c2b63b6b386fcc7311a8c6c64385dacad5b31f` trên `main`.
 - GitHub `main`: fast-forward thành công và đã xác minh remote ref trùng implementation commit.
 - GitLab `main`: vẫn ở `5544395`; server từ chối direct push vì protected branch. Không hạ protection và không tạo branch/MR trái chỉ đạo owner.
+
+## Quyết định owner — 21/09/2026
+
+Toàn trả lời **“oke cả nhóm”** sau phiếu W-0337 tại commit 8763dc1, duyệt cả9 P2 và4 P3.
+W-0018 được ghi **ACCEPTED** cho đúng phạm vi local/MOCK đã trình.
+[Quyết định và giới hạn](../W-0337/approval-request.md#quyết-định-owner--21092026) giữ các việc ngoài phạm vi và người phụ trách.
+Các trạng thái chờ duyệt trong phần trước là lịch sử; REAL_CUSTOMER_CALL_ALLOWED=NO.

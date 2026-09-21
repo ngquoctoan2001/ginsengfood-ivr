@@ -155,3 +155,10 @@ the executable evidence; the JSON files are privacy-safe review projections.
   pronunciation, 32-eSIM capacity, and production release evidence: `NOT_RUN`.
 - Real SIM enable and real customer calling remain fail-closed. No production
   readiness or integration-verified claim is made.
+
+## Quyết định owner — 21/09/2026
+
+Toàn trả lời **“oke cả nhóm”** sau phiếu W-0337 tại commit 8763dc1, duyệt cả9 P2 và4 P3.
+W-0065 được ghi **ACCEPTED** cho đúng phạm vi local/MOCK đã trình.
+[Quyết định và giới hạn](../W-0337/approval-request.md#quyết-định-owner--21092026) giữ các việc ngoài phạm vi và người phụ trách.
+Các trạng thái chờ duyệt trong phần trước là lịch sử; REAL_CUSTOMER_CALL_ALLOWED=NO.

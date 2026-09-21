@@ -32,3 +32,9 @@ Chưa có chữ ký ACCEPTED; W-0019 là hồ sơ bổ sung riêng, không ghép
 [Phiếu hiện hành](../W-0337/approval-request.md) tập hợp9 P2 và4 UI retired; kiểm lại pin và
 bằng chứng tại aaba3d2. Phạm vi và hành động còn lại của hồ sơ này giữ nguyên. Quyết định PENDING;
 chưa chuyển ACCEPTED/CANCELLED và không có thông điệp bàn giao M3 gửi trong lượt này.
+
+## Owner nghiệm thu — 21/09/2026
+
+Theo [quyết định W-0337](../W-0337/approval-request.md#quyết-định-owner--21092026), W-0019 đã **ACCEPTED local/MOCK** sau phản hồi
+“oke cả nhóm”. Hai ID retired và11 test thay thế giữ đúng OD-17/OD-18; không phục hồi
+trust-skip hoặc sellable predicate cũ. M3/auth/SIM/shared E2E vẫn ngoài phạm vi.

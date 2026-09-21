@@ -2,7 +2,7 @@
 
 REAL_CUSTOMER_CALL_ALLOWED=NO
 
-**Đề nghị 9 ACCEPTED phạm vi local/MOCK và 4 CANCELLED do bỏ deliverable UI. Tất cả đang PENDING.**
+**Owner đã duyệt:9 ACCEPTED phạm vi local/MOCK và4 CANCELLED do bỏ deliverable UI, ngày21/09/2026.**
 Phiếu này nối tiếp W-0324, bổ sung W-0019 đã đủ hồ sơ và kiểm lại tại aaba3d2 sạch:
 1171/1171 test, 42/42 gate; [verification](verification.json) có 142 lượt TestId của chín P2
 và ba pin quyết định. Đây là bằng chứng cùng candidate, không phải test HEAD tài liệu/WIP.
@@ -41,13 +41,31 @@ không xoá lịch sử công việc, không nghiệm thu UI M3 và không nhậ
 Hồ sơ này sẵn để bàn giao khi owner có người nhận; **chưa gửi ra ngoài, chưa có M3 xác nhận nhận
 hoặc hoàn tất**. Enum labels/spec/backend vẫn được giữ theo W-0253, không dựng lại admin-ui.
 
-## 3. Quyết định cần owner ghi
+## 3. Quyết định đã được owner duyệt
 
 - **ACCEPTED local/MOCK:** W-0018, W-0019, W-0020, W-0021, W-0022, W-0023, W-0024, W-0065, W-0066.
 - **CANCELLED theo scope UI đã bỏ:** W-0025, W-0026, W-0027, W-0028.
-- Người duyệt, phản hồi và thời điểm: **PENDING**.
+- Người duyệt: **Toàn**, phản hồi **“oke cả nhóm”**, ngày **21/09/2026**, sau phiếu tại **8763dc1**.
 
 [Tracker §1 luật6/T7](../../../prompt/_execution/prompt-execution-tracker.md#1-operating-rules) yêu cầu
 owner chấp nhận phạm vi/bằng chứng; lượt “tiếp tục” chỉ được ghi là yêu cầu hoàn thiện hồ sơ.
-Toàn có thể duyệt cả hai nhóm hoặc chỉ rõ ID cần giữ lại. Trước khi có quyết định, 13 trạng thái
-gốc và tổng **57 ACCEPTED** giữ nguyên; không mở quyền gọi khách thật hay production.
+Tại thời điểm trình,13 trạng thái gốc và tổng **57 ACCEPTED** được giữ nguyên. Sau quyết định
+bên dưới, cả hai nhóm đã được ghi sổ; không mở quyền gọi khách thật hay production.
+
+## Quyết định owner — 21/09/2026
+
+Sau phiếu tại commit **8763dc1** và câu hỏi duyệt cả hai nhóm, Toàn trả lời:
+
+> oke cả nhóm
+
+Codex ghi đúng chỉ thị:
+
+- **ACCEPTED local/MOCK:** W-0018, W-0019, W-0020, W-0021, W-0022, W-0023, W-0024, W-0065, W-0066.
+- **CANCELLED do UI đã bỏ khỏi IVR:** W-0025, W-0026, W-0027, W-0028.
+- Tổng ACCEPTED **57→66**; CANCELLED tăng **4**. Cả13 việc của đợt P2/P3 đã có quyết định terminal.
+
+Quyết định chấp nhận đúng các phạm vi/giới hạn/người phụ trách trong hai bảng. Không thay chữ ký
+M3, không xác nhận đã bàn giao hoặc hoàn thành UI mới. Proof vẫn thuộc aaba3d2, không phải
+HEAD tài liệu; verification.json giữ snapshot trước duyệt với ownerDecision=PENDING.
+Gói chuẩn bị W-0337 giữ EVIDENCE_SUBMITTED. REAL_CUSTOMER_CALL_ALLOWED=NO; các gate tích hợp,
+model-image/S5, SIM, vận hành và production không được đóng bằng quyết định này.

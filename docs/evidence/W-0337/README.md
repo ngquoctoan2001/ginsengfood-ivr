@@ -5,7 +5,9 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Ngày 21/09/2026. Baseline hồ sơ: **53ed4c7ad366deeb959c764c61a748490bf2fab7**.
 Trạng thái: **EVIDENCE_SUBMITTED**. [Phiếu quyết định](approval-request.md) gồm **9 việc P2 đề nghị
 ACCEPTED trong phạm vi local/MOCK** và **4 việc P3 đề nghị CANCELLED vì UI đã ngừng thuộc IVR**.
-Tất cả quyết định đang PENDING; không tự chuyển trạng thái. Tổng ACCEPTED giữ 57.
+Toàn đã duyệt cả hai nhóm qua phản hồi “oke cả nhóm”:9 P2 ACCEPTED và4 P3 CANCELLED.
+Tổng ACCEPTED **66**. [Quyết định owner](approval-request.md#quyết-định-owner--21092026) giữ các
+giới hạn đã trình; gói chuẩn bị W-0337 vẫn EVIDENCE_SUBMITTED.
 
 ## Kiểm chứng
 
@@ -53,3 +55,9 @@ hồ sơ thiếu; [W-0328](../W-0328/README.md) bổ sung parser slash/range. W-
 
 Hành động và người phụ trách từng Residual nằm trong [phiếu quyết định](approval-request.md).
 Không phát hiện phần runtime local bắt buộc phải triển khai thêm để trình các phạm vi này.
+
+## Ghi nhận quyết định
+
+Phiếu tại8763dc1 đã được owner duyệt ngày21/09. Chín phạm vi P2 và bốn closeout P3 đã ghi sổ;
+verification.json là snapshot kiểm trước duyệt, không sửa PENDING trong artifact đó thành chữ ký.
+Không chạy lại full test/sweep vì lượt này chỉ ghi quyết định và đồng bộ hồ sơ/tracker.
