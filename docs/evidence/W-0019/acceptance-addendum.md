@@ -26,3 +26,9 @@ Codex phụ trách addendum/kiểm C2; Toàn xét nghiệm thu; đầu mối M3 
 
 Bằng chứng chạy mới và quyết định trình duyệt ở [W-0324](../W-0324/README.md).
 Chưa có chữ ký ACCEPTED; W-0019 là hồ sơ bổ sung riêng, không ghép vào tám việc owner yêu cầu trình.
+
+## Tiếp tục trình owner — W-0337, 21/09/2026
+
+[Phiếu hiện hành](../W-0337/approval-request.md) tập hợp9 P2 và4 UI retired; kiểm lại pin và
+bằng chứng tại aaba3d2. Phạm vi và hành động còn lại của hồ sơ này giữ nguyên. Quyết định PENDING;
+chưa chuyển ACCEPTED/CANCELLED và không có thông điệp bàn giao M3 gửi trong lượt này.

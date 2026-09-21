@@ -35,3 +35,9 @@ không suy việc hồ sơ đã hoàn thiện thành M3 đã nhận hay đã th�
 - Đề nghị: CANCELLED — scope đã retire bởi W-0253.
 - Quyết định: PENDING.
 - Người duyệt/ngày/tham chiếu: chưa có.
+
+## Tiếp tục trình owner — W-0337, 21/09/2026
+
+[Phiếu hiện hành](../W-0337/approval-request.md) tập hợp9 P2 và4 UI retired; kiểm lại pin và
+bằng chứng tại aaba3d2. Phạm vi và hành động còn lại của hồ sơ này giữ nguyên. Quyết định PENDING;
+chưa chuyển ACCEPTED/CANCELLED và không có thông điệp bàn giao M3 gửi trong lượt này.

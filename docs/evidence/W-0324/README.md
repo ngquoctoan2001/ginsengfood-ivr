@@ -87,3 +87,11 @@ Kiểm staged: LOW, 27 file, 50 symbol, 0 process. Đã kiểm 62 liên kết n�
 của snapshot chỉ chứa thay đổi này; cây chung có 312 vì giữ WIP của các work khác.
 Không thay API, nghiệp vụ gọi điện, migration hay UI. Hosted CI, M3 shared E2E, SIM/lab/production
 không được chứng nhận bởi gói local này. Chỉ Toàn có quyền quyết định nghiệm thu theo tracker §1.
+
+## Phiếu hiện hành — W-0337, 21/09/2026
+
+[W-0337](../W-0337/approval-request.md) đã kiểm lại cả P2/P3 tại aaba3d2 sạch: 1171 test,
+42 gate, chín P2 đạt C1/C2/C4 với142 lượt TestId; ba pin quyết định hợp lệ. W-0019 đã đủ
+retirement/replacement và được trình thành việc P2 thứ chín. Bốn UI vẫn được đề nghị CANCELLED
+theo W-0253, không phải ACCEPTED sản phẩm UI. Toàn chưa quyết định hai nhóm này; các số và
+phân loại phía trên là lịch sử tại mốc đã ghi. Tổng ACCEPTED hiện57; không thay trạng thái13 việc.

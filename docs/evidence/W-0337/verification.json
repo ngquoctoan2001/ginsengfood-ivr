@@ -1,0 +1,1487 @@
+{
+  "schema": "ivr-p2p3-closeout-review/v1",
+  "workId": "W-0337",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "baseline": "53ed4c7ad366deeb959c764c61a748490bf2fab7",
+  "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+  "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+  "status": "READY_FOR_OWNER_DECISIONS",
+  "ownerDecision": "PENDING",
+  "existingFullProof": {
+    "bundlePath": ".artifacts/w0330-acceptance-aaba3d2/acceptance-run.json",
+    "sha256": "f4613c58-777f0398-a1429860-271b2d60-5cea4b1b-7cbb0de9-1c11ee13-be5317d4",
+    "testCount": 1171,
+    "sweep": {
+      "ok": true,
+      "reason": "GATE_SWEEP_PASS 42/42"
+    },
+    "rerun": false
+  },
+  "sourceComparison": {
+    "paths": [
+      "src",
+      "tests",
+      "tools",
+      "deploy",
+      "Ivr.sln",
+      "Directory.Build.props",
+      "Directory.Packages.props",
+      "global.json"
+    ],
+    "changed": [
+      "src/Ivr.Infrastructure/Telephony/SimAdapters.cs"
+    ],
+    "changeIsXmlCommentOnly": true,
+    "sharedWipExcluded": true
+  },
+  "softwareCount": 9,
+  "retiredUiCount": 4,
+  "uiSourceAbsentAtCandidate": true,
+  "actualCliAgreement": true,
+  "decisions": [
+    {
+      "commit": "55ea48bbddfa4a0856b47ab0c68da1221c0ba2d2",
+      "path": "plan/ivr-orther/decisions-log.md",
+      "sha256": "578f6ec4-0fd091e2-adb8f519-c65258a8-16bb64cf-e08d75a4-cdf0a530-e260916e",
+      "quote": "IVR không đọc tồn kho/thu hồi/sale-lock/quality-hold từ bất kỳ nguồn nào;",
+      "ancestor": true,
+      "hashAndQuoteMatch": true
+    },
+    {
+      "commit": "6760ba614e47e1631384640209cc4acee944a8cf",
+      "path": "docs/evidence/W-0123/README.md",
+      "sha256": "7cd43cc2-18cb8cea-473c680d-d198c12f-78a6765f-adad8a10-4e2e4aaa-bd1c496a",
+      "quote": "Module 3 quyết định nghiệp vụ; IVR chỉ thực thi cuộc gọi.",
+      "ancestor": true,
+      "hashAndQuoteMatch": true
+    },
+    {
+      "commit": "c0e660948b9ba5e330d9a60dfe08ae0610f137cc",
+      "path": "docs/evidence/W-0253/README.md",
+      "sha256": "23ab714d-5c18528a-5b2e9fe0-17d8c274-6bebfb67-fb84ed9e-0bb5b1ad-50a9a78e",
+      "quote": "Owner chốt từ `2026-09-05` rằng console thuộc Module 3 và `admin-ui/` không phải deliverable.",
+      "ancestor": true,
+      "hashAndQuoteMatch": true
+    }
+  ],
+  "works": [
+    {
+      "id": "W-0018",
+      "status": "TESTS_PASS",
+      "phase": "P2",
+      "cited": [
+        "CT-CI-06",
+        "CT-CI-06b",
+        "CT-CI-06c",
+        "CT-CI-06d",
+        "CT-CI-06e",
+        "CT-CI-06f",
+        "CT-CI-06g",
+        "CT-CI-06h",
+        "IT-INTAKE-DB-01",
+        "IT-INTAKE-DB-02"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "10 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "owner/reviewer acceptance, real Sales/auth, LAB/PROD script/key/SIM and P2-2 eligibility remain open"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "owner/reviewer acceptance, real Sales/auth, LAB/PROD script/key/SIM and P2-2 eligibility remain open",
+      "tests": [
+        {
+          "id": "CT-CI-06",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06b",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06c",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06d",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06e",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06f",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06g",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06h",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "IT-INTAKE-DB-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-INTAKE-DB-02",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0018/README.md",
+          "sha256": "975ce826-9f4d5bae-36fad672-f45895a6-0334110d-4f2844a5-1641f8d2-ec738aef"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-1-task-intake.md",
+          "sha256": "0f8a6658-4e13985c-82c3b733-ac765ef1-425115b6-96e46075-7f39bd53-23d97328"
+        }
+      ]
+    },
+    {
+      "id": "W-0019",
+      "status": "EVIDENCE_SUBMITTED",
+      "phase": "P2",
+      "cited": [
+        "CT-CI-06",
+        "CT-CI-06b",
+        "CT-CI-06c",
+        "CT-CI-06d",
+        "CT-CI-06e",
+        "CT-CI-06f",
+        "CT-CI-06g",
+        "CT-CI-06h",
+        "IT-ELIG-CAP-05",
+        "IT-ELIG-DNC-07",
+        "IT-ELIG-FAILCLOSED-08",
+        "IT-ELIG-MOCK-06",
+        "IT-M3-AUTHORITY-05",
+        "IT-M3-AUTHORITY-06",
+        "IT-M3-AUTHORITY-07",
+        "UT-ELIG-DNC-02",
+        "UT-ELIG-EVIDENCE-10",
+        "UT-ELIG-EVIDENCE-11",
+        "UT-ELIG-EVIDENCE-12",
+        "UT-ELIG-FAILCLOSED-04",
+        "UT-M3-AUTHORITY-01",
+        "UT-M3-AUTHORITY-02",
+        "UT-M3-AUTHORITY-10",
+        "UT-M3-AUTHORITY-11"
+      ],
+      "retired": [
+        "UT-ELIG-BLOCK-01",
+        "UT-ELIG-TRUST-03"
+      ],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "24 TestId xanh; 2 ID lịch sử có quyết định thay thế"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "Đủ bằng chứng để Toàn xét riêng; 2 ID retired đã ghim quyết định và 11 replacement Passed; M3/auth/SIM thật ngoài phạm vi MOCK; REAL_CUSTOMER_CALL_ALLOWED=NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "Đủ bằng chứng để Toàn xét riêng; 2 ID retired đã ghim quyết định và 11 replacement Passed; M3/auth/SIM thật ngoài phạm vi MOCK; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "tests": [
+        {
+          "id": "CT-CI-06",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06b",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06c",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06d",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06e",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06f",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06g",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06h",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "IT-ELIG-CAP-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-ELIG-DNC-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-ELIG-FAILCLOSED-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-ELIG-MOCK-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-M3-AUTHORITY-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-M3-AUTHORITY-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-M3-AUTHORITY-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-ELIG-DNC-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-ELIG-EVIDENCE-10",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-ELIG-EVIDENCE-11",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-ELIG-EVIDENCE-12",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-ELIG-FAILCLOSED-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-M3-AUTHORITY-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-M3-AUTHORITY-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-M3-AUTHORITY-10",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-M3-AUTHORITY-11",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0019/README.md",
+          "sha256": "d34b7776-8d1529be-fd44c50d-8379f62b-c00cc45f-d4fe0dca-00b9d2c2-a58659cc"
+        },
+        {
+          "path": "docs/evidence/W-0019/acceptance-addendum.md",
+          "sha256": "5cd23795-e40c62fe-93729156-6d885283-7ffafbe2-bfb88655-b865154e-573cca18"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-2-eligibility-blockers.md",
+          "sha256": "12e72c3b-f973d380-c14fb56b-c0ac4697-02b875c9-a7821729-5ccd7254-14a2c29f"
+        }
+      ]
+    },
+    {
+      "id": "W-0020",
+      "status": "TESTS_PASS",
+      "phase": "P2",
+      "cited": [
+        "CT-CI-06",
+        "CT-CI-06b",
+        "CT-CI-06c",
+        "CT-CI-06d",
+        "CT-CI-06e",
+        "CT-CI-06f",
+        "CT-CI-06g",
+        "CT-CI-06h",
+        "IT-ELIG-SCHED-09",
+        "IT-POLICY-AUDIT-05",
+        "IT-POLICY-PROD-06",
+        "IT-SCH-CAPACITY-07",
+        "IT-SCH-CLAIM-01",
+        "IT-SCH-DEADLINE-03",
+        "IT-SCH-DEADLINE-08",
+        "IT-SCH-FINAL-04",
+        "IT-SCH-RECOVERY-02",
+        "UT-SCH-CAPACITY-04",
+        "UT-SCH-CAPACITY-05",
+        "UT-SCH-CLOCK-03",
+        "UT-SCH-CONFIG-07",
+        "UT-SCH-ORDER-02",
+        "UT-SCH-POLICY-01",
+        "UT-SCH-RETRY-06",
+        "UT-SCH-RUNTIME-08",
+        "UT-SCH-RUNTIME-09"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "26 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "scheduler flag off + dispatch gateway unavailable until P2-4; policy owner/LAB/1 SIM/32 eSIM/PROD NOT_RUN; REAL_CUSTOMER_CALL_ALLOWED=NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "scheduler flag off + dispatch gateway unavailable until P2-4; policy owner/LAB/1 SIM/32 eSIM/PROD NOT_RUN; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "tests": [
+        {
+          "id": "CT-CI-06",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06b",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06c",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06d",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06e",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06f",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06g",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "CT-CI-06h",
+          "ok": true,
+          "runner": "full-sweep",
+          "gate": "selftest-pii.sh"
+        },
+        {
+          "id": "IT-ELIG-SCHED-09",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-POLICY-AUDIT-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-POLICY-PROD-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-SCH-CAPACITY-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-SCH-CLAIM-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-SCH-DEADLINE-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-SCH-DEADLINE-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-SCH-FINAL-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-SCH-RECOVERY-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-CAPACITY-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-CAPACITY-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-CLOCK-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-CONFIG-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-ORDER-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-POLICY-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-RETRY-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-RUNTIME-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCH-RUNTIME-09",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0020/README.md",
+          "sha256": "08cb915d-4b954223-1f4666ec-416ead14-39107c17-c3d813e7-de10b677-19d5858f"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-3-scheduler-attempt-policy.md",
+          "sha256": "c03d2719-3c1ac961-7ab08224-0b8c61ae-65dbf24d-086d4aa8-dd0bbc7a-a7a5b8fa"
+        }
+      ]
+    },
+    {
+      "id": "W-0021",
+      "status": "TESTS_PASS",
+      "phase": "P2",
+      "cited": [
+        "IT-TEL-DISPATCH-01",
+        "IT-TEL-HEALTH-03",
+        "IT-TEL-TOKENFAIL-02",
+        "UT-TEL-CHANNEL-05",
+        "UT-TEL-DELAY-12",
+        "UT-TEL-DI-08",
+        "UT-TEL-DTMF-10",
+        "UT-TEL-NONMOCK-13",
+        "UT-TEL-PRONUNCIATION-09",
+        "UT-TEL-RECORDING-07",
+        "UT-TEL-SAFETY-06",
+        "UT-TEL-SCENARIO-04",
+        "UT-TEL-SPEECH-01",
+        "UT-TEL-SPEECH-02",
+        "UT-TEL-TOKEN-03",
+        "UT-TEL-VAULT-11"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "16 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "MOCK-only; no live TTS/real provider/egress/customer call; REAL_CUSTOMER_CALL_ALLOWED=NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "MOCK-only; no live TTS/real provider/egress/customer call; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "tests": [
+        {
+          "id": "IT-TEL-DISPATCH-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-TEL-HEALTH-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-TEL-TOKENFAIL-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-CHANNEL-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-DELAY-12",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-DI-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-DTMF-10",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-NONMOCK-13",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-PRONUNCIATION-09",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-RECORDING-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-SAFETY-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-SCENARIO-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-SPEECH-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-SPEECH-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-TOKEN-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TEL-VAULT-11",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0021/README.md",
+          "sha256": "d739f62a-57ac8632-245d2370-b7831d8a-04aa0c4f-e4a302e7-5da747e1-ecbb4c4c"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-4-sim-adapter-mock.md",
+          "sha256": "7929f87f-03148e2a-af52fef2-263bb51d-685e8453-64930121-b1ccb745-800062ee"
+        }
+      ]
+    },
+    {
+      "id": "W-0022",
+      "status": "TESTS_PASS",
+      "phase": "P2",
+      "cited": [
+        "IT-NORM-CONCURRENCY-05",
+        "IT-NORM-INVALID-04",
+        "IT-NORM-PERSIST-01",
+        "IT-NORM-REJECT-03",
+        "IT-NORM-TECH-02",
+        "UT-NORM-01",
+        "UT-NORM-02",
+        "UT-NORM-03",
+        "UT-NORM-04",
+        "UT-NORM-05",
+        "UT-NORM-06",
+        "UT-NORM-CAP-09",
+        "UT-NORM-LASTKEY-10",
+        "UT-NORM-RETRY-08",
+        "UT-NORM-UNMAP-07"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "15 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "MOCK/local only; normalization disabled by default; production retry/vendor mapping owner approval; P2-6 callback pending"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "MOCK/local only; normalization disabled by default; production retry/vendor mapping owner approval; P2-6 callback pending",
+      "tests": [
+        {
+          "id": "IT-NORM-CONCURRENCY-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-NORM-INVALID-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-NORM-PERSIST-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-NORM-REJECT-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-NORM-TECH-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-CAP-09",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-LASTKEY-10",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-RETRY-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-NORM-UNMAP-07",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0022/README.md",
+          "sha256": "433cfd8c-a682d0a6-4ae823c2-7598e3ea-77e92c7f-5c719169-6be1e3ff-e90d7db5"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-5-dtmf-normalizer.md",
+          "sha256": "1d8d9a26-7a08788f-d2828257-694d530e-7dec2b8e-c0c9bf12-97847c44-9b9e4e00"
+        }
+      ]
+    },
+    {
+      "id": "W-0023",
+      "status": "TESTS_PASS",
+      "phase": "P2",
+      "cited": [
+        "IT-CALLBACK-OUTBOX-06",
+        "UT-CALLBACK-ACK-MEDIA-02C",
+        "UT-CALLBACK-ADAPTER-REJECT-15",
+        "UT-CALLBACK-CIRCUIT-TERMINAL-13",
+        "UT-CALLBACK-CORRELATION-05B",
+        "UT-CALLBACK-GH-COMPAT-06",
+        "UT-CALLBACK-GH-INTEGRITY-07B",
+        "UT-CALLBACK-GH-ISOLATION-07",
+        "UT-CALLBACK-IDENTITY-GUARD-04",
+        "UT-CALLBACK-NOANSWER-05",
+        "UT-CALLBACK-OPTIONS-11",
+        "UT-CALLBACK-RETRY-AFTER-02B",
+        "UT-CALLBACK-RETRY-AFTER-09B",
+        "UT-CALLBACK-RETRY-EXHAUSTED-09",
+        "UT-CALLBACK-RETRY-IDENTITY-02",
+        "UT-CALLBACK-SNAPSHOT-12",
+        "UT-CALLBACK-STATE-08",
+        "UT-CALLBACK-TARGET-ACK-01",
+        "UT-CALLBACK-TARGET-ACK-CROSS-01",
+        "UT-CALLBACK-TIMEOUT-03",
+        "UT-CALLBACK-TOKEN-CIRCUIT-10",
+        "UT-CALLBACK-TRANSPORT-INVALIDOP-14"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "22 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "local/MOCK only; callbacks disabled; Target contract DRAFT; W-0005/W-0006, real Sales/auth/LAB/PROD remain blocked; no notification"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "local/MOCK only; callbacks disabled; Target contract DRAFT; W-0005/W-0006, real Sales/auth/LAB/PROD remain blocked; no notification",
+      "tests": [
+        {
+          "id": "IT-CALLBACK-OUTBOX-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-ACK-MEDIA-02C",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-ADAPTER-REJECT-15",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-CIRCUIT-TERMINAL-13",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-CORRELATION-05B",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-GH-COMPAT-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-GH-INTEGRITY-07B",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-GH-ISOLATION-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-IDENTITY-GUARD-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-NOANSWER-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-OPTIONS-11",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-RETRY-AFTER-02B",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-RETRY-AFTER-09B",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-RETRY-EXHAUSTED-09",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-RETRY-IDENTITY-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-SNAPSHOT-12",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-STATE-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-TARGET-ACK-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-TARGET-ACK-CROSS-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-TIMEOUT-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-TOKEN-CIRCUIT-10",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-CALLBACK-TRANSPORT-INVALIDOP-14",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0023/README.md",
+          "sha256": "5d11afff-2e16eb11-3c39b77e-b2e4a4f0-a2daca76-f79651df-5c46d201-52c38d7b"
+        },
+        {
+          "path": "docs/evidence/W-0023/acceptance-test-matrix.md",
+          "sha256": "e95e1668-25513d35-72f46cb1-1e07d313-ce977e4c-3c24c305-44125870-4c3f7574"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-6-order-core-callback.md",
+          "sha256": "c02c5d40-06229e5f-46233867-0c3a7074-17c1914a-2dbc81b0-beba59fb-4ba8f937"
+        }
+      ]
+    },
+    {
+      "id": "W-0024",
+      "status": "TESTS_PASS",
+      "phase": "P2",
+      "cited": [
+        "IT-DB-MIGRATE-01",
+        "IT-SCRIPT-PERSISTENCE-08",
+        "IT-SCRIPT-SEED-07",
+        "UT-SCRIPT-INPUT-GUARD-05",
+        "UT-SCRIPT-LIFECYCLE-02",
+        "UT-SCRIPT-PROD-GATE-03",
+        "UT-SCRIPT-RENDER-COLLAPSE-07",
+        "UT-SCRIPT-RENDER-GOLDEN-06",
+        "UT-SCRIPT-SEED-01",
+        "UT-SCRIPT-TEMPLATE-GUARD-04"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "10 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "GitHub main pushed; GitLab main push BLOCKED_EXTERNAL by protected-branch rule; MOCK fixture only; LAB/real Sales/PROD NOT_RUN; OD-V1-15 + W-0003 remain open"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "GitHub main pushed; GitLab main push BLOCKED_EXTERNAL by protected-branch rule; MOCK fixture only; LAB/real Sales/PROD NOT_RUN; OD-V1-15 + W-0003 remain open",
+      "tests": [
+        {
+          "id": "IT-DB-MIGRATE-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-SCRIPT-PERSISTENCE-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-SCRIPT-SEED-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCRIPT-INPUT-GUARD-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCRIPT-LIFECYCLE-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCRIPT-PROD-GATE-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCRIPT-RENDER-COLLAPSE-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCRIPT-RENDER-GOLDEN-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCRIPT-SEED-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-SCRIPT-TEMPLATE-GUARD-04",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0024/README.md",
+          "sha256": "2c5dc03b-7380428e-805fa632-0802b72d-82d87117-6cff152f-751b39ee-8dc1424f"
+        },
+        {
+          "path": "docs/evidence/W-0024/privacy-test-report.md",
+          "sha256": "7a41b498-6e930243-fb86fe31-2e5bbec9-78926074-ed0a18a1-d637c313-bbfdaf98"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-7-script-content-management.md",
+          "sha256": "7cae732a-f525470f-4b60bf5f-50eb9117-44be5f5c-39ed4ebe-d4395985-721278a5"
+        }
+      ]
+    },
+    {
+      "id": "W-0065",
+      "status": "TESTS_PASS",
+      "phase": "P2",
+      "cited": [
+        "CT-API-OAS-10",
+        "IT-API-AUDIT-04",
+        "IT-API-AUTHZ-01",
+        "IT-API-AUTHZ-02",
+        "IT-API-IDEMP-03",
+        "IT-API-PII-05",
+        "IT-API-QUEUE-08",
+        "IT-API-RETRY-06",
+        "IT-API-REVIEW-07",
+        "IT-API-SIM-09"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "10 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "local/MOCK only; Target contract DRAFT; hosted GitLab/reviewer/real Sales-auth/SIM-eSIM/LAB/PROD NOT_RUN; REAL_CUSTOMER_CALL_ALLOWED=NO; no order transition/Sales write/SMS/call thật"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "local/MOCK only; Target contract DRAFT; hosted GitLab/reviewer/real Sales-auth/SIM-eSIM/LAB/PROD `NOT_RUN`; `REAL_CUSTOMER_CALL_ALLOWED=NO`; no order transition/Sales write/SMS/call thật",
+      "tests": [
+        {
+          "id": "CT-API-OAS-10",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-AUDIT-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-AUTHZ-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-AUTHZ-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-IDEMP-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-PII-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-QUEUE-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-RETRY-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-REVIEW-07",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-API-SIM-09",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0065/README.md",
+          "sha256": "630eb0ce-739929d6-63c1add9-1c93a5bc-98e55fff-64c6a5d0-2236d20c-0270f018"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-8-internal-admin-api.md",
+          "sha256": "db3fe70d-b793fd9d-f9063669-55ffbb7d-0d3ccd27-3a152346-ace99bb3-0e424ae7"
+        }
+      ]
+    },
+    {
+      "id": "W-0066",
+      "status": "TESTS_PASS",
+      "phase": "P2",
+      "cited": [
+        "IT-TTS-CACHE-08",
+        "IT-TTS-MODE-09",
+        "UT-TTS-NOTCONFIGURED-06",
+        "UT-TTS-PII-04",
+        "UT-TTS-PRON-03",
+        "UT-TTS-SNAPSHOT-01",
+        "UT-TTS-TIMEOUT-05",
+        "UT-TTS-VND-02",
+        "UT-TTS-WHITELIST-07"
+      ],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": true,
+        "reason": "9 TestId xanh"
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "prereq của W-0048; OD-V1-15, OD-V1-19, W-0008 vẫn mở; lab/vendor/pronunciation NOT_RUN; MOCK no-egress, real calls NO"
+      },
+      "verdict": "XEM",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "ACCEPTED_LOCAL_ONLY",
+      "fullResidual": "prereq của W-0048; `OD-V1-15`, `OD-V1-19`, `W-0008` vẫn mở; lab/vendor/pronunciation NOT_RUN; MOCK no-egress, real calls NO",
+      "tests": [
+        {
+          "id": "IT-TTS-CACHE-08",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "IT-TTS-MODE-09",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TTS-NOTCONFIGURED-06",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TTS-PII-04",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TTS-PRON-03",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TTS-SNAPSHOT-01",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TTS-TIMEOUT-05",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TTS-VND-02",
+          "ok": true,
+          "reason": ""
+        },
+        {
+          "id": "UT-TTS-WHITELIST-07",
+          "ok": true,
+          "reason": ""
+        }
+      ],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0066/README.md",
+          "sha256": "0b40ff7d-fe76190a-f5b2975f-63638208-52f415f2-ba00c661-a0c6b4a5-c5f4f142"
+        },
+        {
+          "path": "docs/evidence/W-0066/test-report.md",
+          "sha256": "e1b08377-3b751ff4-869c6810-f2d03c80-dbba17bf-32c3f691-487b6b3d-6c93db67"
+        },
+        {
+          "path": "prompt/phase-2-core-runtime/P2-9-speech-tts-provider.md",
+          "sha256": "1b8e3604-5e0b7dff-59a8d671-f7db584f-f5d7b01a-4b65bd85-6410b373-2fc87b9f"
+        }
+      ]
+    },
+    {
+      "id": "W-0025",
+      "status": "EVIDENCE_SUBMITTED",
+      "phase": "P3",
+      "cited": [],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": false,
+        "reason": "UI đã ngừng phạm vi theo quyết định đã ghim; hồ sơ đề nghị CANCELLED, chờ Toàn. Test backend không chứng nhận UI."
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "UI đã retire theo W-0253; closeout hoàn thiện, đề nghị CANCELLED chờ Toàn; M3 chưa xác nhận người nhận/triển khai UI; xem scope-closeout.md; REAL_CUSTOMER_CALL_ALLOWED=NO"
+      },
+      "verdict": "KHÔNG ĐẠT",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "CANCELLED_RETIRED_UI",
+      "fullResidual": "UI đã retire theo W-0253; closeout hoàn thiện, đề nghị CANCELLED chờ Toàn; M3 chưa xác nhận người nhận/triển khai UI; xem scope-closeout.md; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "tests": [],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0025/README.md",
+          "sha256": "40b1dca8-56bb19e5-81f57dfe-82d739c0-8a29f9fa-bf934496-af80b4b6-5802e9a2"
+        },
+        {
+          "path": "docs/evidence/W-0025/scope-closeout.md",
+          "sha256": "ba389d03-8651957a-f7c46fab-4e69a3ad-d9d69d0f-9ed1537d-2374b794-1473383c"
+        },
+        {
+          "path": "prompt/phase-3-admin-ui/P3-1-ui-foundation.md",
+          "sha256": "b051c939-71e8df6e-bff6805f-64291b78-a2e5abff-9ee0dcce-067f9dba-883d28a7"
+        }
+      ]
+    },
+    {
+      "id": "W-0026",
+      "status": "EVIDENCE_SUBMITTED",
+      "phase": "P3",
+      "cited": [],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": false,
+        "reason": "UI đã ngừng phạm vi theo quyết định đã ghim; hồ sơ đề nghị CANCELLED, chờ Toàn. Test backend không chứng nhận UI."
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "UI đã retire theo W-0253; closeout hoàn thiện, đề nghị CANCELLED chờ Toàn; M3 chưa xác nhận người nhận/triển khai UI; xem scope-closeout.md; REAL_CUSTOMER_CALL_ALLOWED=NO"
+      },
+      "verdict": "KHÔNG ĐẠT",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "CANCELLED_RETIRED_UI",
+      "fullResidual": "UI đã retire theo W-0253; closeout hoàn thiện, đề nghị CANCELLED chờ Toàn; M3 chưa xác nhận người nhận/triển khai UI; xem scope-closeout.md; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "tests": [],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0026/README.md",
+          "sha256": "c4568f48-1da868b5-197f658e-1b7976a0-65bb0dfa-1b3c0411-d6832909-5902fec4"
+        },
+        {
+          "path": "docs/evidence/W-0026/scope-closeout.md",
+          "sha256": "a18fd451-da6fbc41-1d5310e4-037d8538-18b65fc9-82413f03-398dcf85-2c05976a"
+        },
+        {
+          "path": "prompt/phase-3-admin-ui/P3-2-dashboard-calllog-detail.md",
+          "sha256": "f628085f-f90d0a9a-b59993f4-e56f22ff-bbf86c7f-e60a4ce5-1bb075af-6d11e207"
+        }
+      ]
+    },
+    {
+      "id": "W-0027",
+      "status": "EVIDENCE_SUBMITTED",
+      "phase": "P3",
+      "cited": [],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": false,
+        "reason": "UI đã ngừng phạm vi theo quyết định đã ghim; hồ sơ đề nghị CANCELLED, chờ Toàn. Test backend không chứng nhận UI."
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "UI đã retire theo W-0253; closeout hoàn thiện, đề nghị CANCELLED chờ Toàn; M3 chưa xác nhận người nhận/triển khai UI; xem scope-closeout.md; REAL_CUSTOMER_CALL_ALLOWED=NO"
+      },
+      "verdict": "KHÔNG ĐẠT",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "CANCELLED_RETIRED_UI",
+      "fullResidual": "UI đã retire theo W-0253; closeout hoàn thiện, đề nghị CANCELLED chờ Toàn; M3 chưa xác nhận người nhận/triển khai UI; xem scope-closeout.md; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "tests": [],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0027/README.md",
+          "sha256": "2f9e3c8d-84a38c31-624aeadf-3566cea9-223d6ee6-5316a4d2-ab6050d7-cf5609ea"
+        },
+        {
+          "path": "docs/evidence/W-0027/scope-closeout.md",
+          "sha256": "95bcee10-a2a9a159-7125af5e-06eb5cbd-de22fc72-b7d4d07f-9588d2e3-f96e057f"
+        },
+        {
+          "path": "prompt/phase-3-admin-ui/P3-3-config-integration-roles.md",
+          "sha256": "8bd9ad67-546c676e-aa6d0867-940f346d-464f4905-c12a39de-8ec55386-795c518c"
+        }
+      ]
+    },
+    {
+      "id": "W-0028",
+      "status": "EVIDENCE_SUBMITTED",
+      "phase": "P3",
+      "cited": [],
+      "retired": [],
+      "c1": {
+        "ok": true,
+        "reason": ""
+      },
+      "c2": {
+        "ok": false,
+        "reason": "UI đã ngừng phạm vi theo quyết định đã ghim; hồ sơ đề nghị CANCELLED, chờ Toàn. Test backend không chứng nhận UI."
+      },
+      "c3": {
+        "ok": "review",
+        "reason": "UI đã retire theo W-0253; closeout hoàn thiện, đề nghị CANCELLED chờ Toàn; M3 chưa xác nhận người nhận/triển khai UI; xem scope-closeout.md; REAL_CUSTOMER_CALL_ALLOWED=NO"
+      },
+      "verdict": "KHÔNG ĐẠT",
+      "c4": {
+        "ok": true,
+        "reason": "GATE_SWEEP_PASS 42/42"
+      },
+      "proposedDisposition": "CANCELLED_RETIRED_UI",
+      "fullResidual": "UI đã retire theo W-0253; closeout hoàn thiện, đề nghị CANCELLED chờ Toàn; M3 chưa xác nhận người nhận/triển khai UI; xem scope-closeout.md; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "tests": [],
+      "documents": [
+        {
+          "path": "docs/evidence/W-0028/README.md",
+          "sha256": "241206c0-190e1ba3-06e93736-81e9b69a-807012e2-c72421a0-69da3f5c-6bfe5b16"
+        },
+        {
+          "path": "docs/evidence/W-0028/scope-closeout.md",
+          "sha256": "13785335-f18524a7-af507faa-c02f7143-97c1d422-cbff22b0-1ca116b9-b05a3a3c"
+        },
+        {
+          "path": "prompt/phase-3-admin-ui/P3-4-reporting-analytics-ui.md",
+          "sha256": "a3726585-56011983-e3214882-cbbce3a6-522786e5-196b3b1c-260cf19d-dac925ab"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "C1/C2/C4 and test outcomes are verified for aaba3d2 only, not the later documentation commit or shared WIP",
+    "Retired UI intentionally fails C2 as current software; proposal is CANCELLED, not UI acceptance",
+    "W-0019 retirement changes requirements under OD-17/OD-18, not a one-for-one test rename",
+    "Real M3, credentials, hardware, model/image and deployment evidence are outside this local/MOCK approval",
+    "No work status changed; owner decisions remain pending"
+  ],
+  "hashEncoding": "SHA-256 hex grouped by eight; remove hyphens for canonical hex"
+}
