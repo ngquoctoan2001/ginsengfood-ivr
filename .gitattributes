@@ -83,6 +83,7 @@ docs/evidence/W-0180/*.txt text eol=lf
 docs/evidence/W-0181/*.json text eol=lf
 docs/evidence/W-0181/*.txt text eol=lf
 docs/evidence/W-0160/README.md text eol=lf
+docs/evidence/W-0161/README.md text eol=lf
 plan/ivr-orther/m8-14-capacity-calibration-data-intake-bundle-2026-09-03.md text eol=lf
 plan/ivr-orther/m8-15-capacity-ledger-checkpoint-registry-contract-2026-09-03.md text eol=lf
 docs/evidence/W-0182/*.json text eol=lf
