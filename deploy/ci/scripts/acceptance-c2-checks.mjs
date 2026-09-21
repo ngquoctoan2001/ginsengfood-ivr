@@ -22,6 +22,15 @@ export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, te
     "slash is a list, not a range; preserve width and deduplicate"); checks += 1;
   assert.deepEqual(citedTestIds("CT-CI-06/06b/06d/06e/06f", trace),
     ["CT-CI-06", "CT-CI-06b", "CT-CI-06d", "CT-CI-06e", "CT-CI-06f"]); checks += 1;
+  assert.deepEqual(citedTestIds("CT-CI-06..06h", trace),
+    ["CT-CI-06", "CT-CI-06b", "CT-CI-06c", "CT-CI-06d", "CT-CI-06e", "CT-CI-06f", "CT-CI-06g", "CT-CI-06h"],
+    "named shell assertion ranges use the fixed runner registry; the first assertion has no a suffix"); checks += 1;
+  assert.deepEqual(citedTestIds("CT-CI-06b…06d/06h", trace),
+    ["CT-CI-06b", "CT-CI-06c", "CT-CI-06d", "CT-CI-06h"]); checks += 1;
+  for (const unknownRange of ["CT-CI-06a..06h", "CT-CI-06..06z", "UT-X-01..01h"]) {
+    assert.throws(() => citedTestIds(unknownRange, trace), /invalid TestId/u,
+      "named assertion ranges require both endpoints in the same fixed runner registry"); checks += 1;
+  }
   assert.deepEqual(citedTestIds("UT-X-01/03..05/07", trace),
     ["UT-X-01", "UT-X-03", "UT-X-04", "UT-X-05", "UT-X-07"]); checks += 1;
   assert.deepEqual(citedTestIds("UT-X-01..03/05", trace),

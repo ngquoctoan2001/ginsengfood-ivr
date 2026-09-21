@@ -178,6 +178,24 @@ export function citedTestIds(text, trace) {
         tail = tail.slice(slash[0].length);
         continue;
       }
+      const named = /^(?:\.\.|…)(\d+)([a-z])(?![A-Za-z0-9-])/u.exec(tail);
+      if (named) {
+        // Historical shell groups such as CT-CI-06..06h are named assertions, not numeric
+        // intervals: the first assertion is 06, followed by 06b (there is no 06a). Only the
+        // fixed gate registry may define membership; an arbitrary missing endpoint must fail.
+        const group = `${start[1]}${String(from).padStart(start[2].length, "0")}`;
+        const gate = GATE_TESTS[`${group}${letter}`];
+        assert(Number(named[1]) === from && named[2] >= letter && gate
+          && GATE_TESTS[`${group}${named[2]}`] === gate, `invalid TestId named range: ${id}${tail}`);
+        for (const [member, runner] of Object.entries(GATE_TESTS)) {
+          const suffix = member.slice(group.length);
+          if (runner === gate && member.startsWith(group) && /^[a-z]?$/u.test(suffix)
+            && suffix >= letter && suffix <= named[2]) found.add(member);
+        }
+        letter = named[2];
+        tail = tail.slice(named[0].length);
+        continue;
+      }
       const range = /^(?:\.\.|…)(\d+)(?![A-Za-z0-9-])/u.exec(tail);
       const to = Number(range?.[1]);
       assert(range && !letter && Number.isSafeInteger(from) && Number.isSafeInteger(to)
