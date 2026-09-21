@@ -17,3 +17,11 @@ Ba job `build_test_dotnet`, `schema_compat_gate`, `globalization_invariant_gate`
 | Build/format/config | build 0 warning/0 error, formatter đúng tool exit 0, CI-config PASS |
 
 GitNexus Usage LOW, 3 caller trong tool, 0 process. Helper `JunitReport.Run` mới chưa có trong index (`Target not found`); direct source chỉ có caller command switch của Ivr.CiPolicy. Staged detect kiểm trước commit. Runtime IVR không đổi; hosted artifact và deploy vẫn cần kết quả pipeline mới.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

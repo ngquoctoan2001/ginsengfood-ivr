@@ -9,3 +9,11 @@ Thay hai địa chỉ cứng bằng `proxy.Hostname`; URL dùng UriBuilder để
 Kiểm chứng: [Linux/DinD 27](chaos-dind.log) **8/8 PASS**, từ 1/8 trước sửa; [Windows/Docker local](chaos-windows.log) **8/8 PASS**. Lệnh: `dotnet test tests/chaos/Ivr.ChaosTests.csproj --configuration Release` (Windows dùng `--no-restore`). NuGet audit tắt ở cả hai lượt. `dotnet format whitespace Ivr.sln --include tests/chaos/ChaosEnvironment.cs --verify-no-changes --no-restore` exit 0.
 
 Hosted candidate NOT_RUN; real customer calls NO. Review gate false green là task tiếp theo; không suy fixture PASS thành toàn CI/release PASS.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

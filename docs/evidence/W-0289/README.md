@@ -9,3 +9,11 @@ Phạm vi: kiểm lỗi khởi chạy/signal; yêu cầu exit 1 kèm dấu hiệ
 [Regression Linux](environment-regression.log): **8/8 lỗi môi trường bị từ chối đúng lý do**, gồm SDK thiếu, compiler lỗi, SIGTERM, executable mất, PII tool lỗi, coverage tool lỗi, MR tool lỗi và output MR rỗng dù exit 0. Sau đó **4/4 probe bằng công cụ thật PASS**. Mỗi lượt đã kiểm tra fixture source được dọn sạch. Lệnh từ checkout Linux dùng riêng: `node docs/evidence/W-0289/environment-regression.mjs`; [script tái hiện](environment-regression.mjs) giữ NuGet audit tắt và chỉ thay PATH của subprocess.
 
 `ci-config-selftest.mjs` PASS sau sửa, gồm helper census và manifest. Hosted NOT_RUN; security audit NOT_RUN; real customer calls NO.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

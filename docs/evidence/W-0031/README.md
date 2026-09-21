@@ -108,3 +108,11 @@ Parser để lại ở tầng Api chứ **không** đưa xuống Domain, dù đ�
 | **Tổng** | **315** | **324** | **+9** |
 
 Một test cũ **bị viết lại**, có chủ ý và theo hướng mạnh hơn: `UT-ELIG-DNC-02` chuyển từ "một rule chọn không đọc field SMS" sang "kiểu dữ liệu không có field nào để đọc" — lý do ở §2. Không test nào bị nới lỏng.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

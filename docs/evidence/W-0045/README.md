@@ -99,3 +99,11 @@ checker báo vi phạm không tồn tại, hoặc tệ hơn, **bỏ sót** vi ph
 - ~~Tên môi trường lệch nhau giữa hai nguồn.~~ **Đã chốt `2026-08-19`** (`OD-OPEN-03`): dùng `lab`.
   `pilot` nghe như đã có khách thật, mà bậc đó **chưa** cho gọi khách. Chart, CI và tài liệu đã đổi;
   guard ladder giờ báo `Only lab and prod`.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

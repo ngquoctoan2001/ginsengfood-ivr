@@ -62,3 +62,11 @@ Verifier nằm ngay trong integration test: thiếu Node/dependency, thiếu ope
 HTTP retry/replay sau response thành công không chứng minh atomicity khi process crash giữa business commit và receipt commit. Crash/lease/duplicate-delivery E2E vẫn thuộc P1.2; không dùng evidence này để đóng mục đó.
 
 Hosted CI, lab SIM/trunking, staging và production: **NOT_RUN**. Chưa có cuộc gọi thật và không cần mua gói trunking cho bước này.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

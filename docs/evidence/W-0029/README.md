@@ -98,3 +98,11 @@ Bản đầu tôi tiêm `CallbackCircuitBreaker` và `IOptions<CallbackDeliveryO
 Sửa không phải bằng cách đăng ký thêm dịch vụ vào host test, mà bằng cách **nhận đúng bản chất phụ thuộc**: đây là read service cho màn admin; một host phục vụ console mà không chạy callback delivery **vẫn phải khởi động được**. Hai tham số thành optional với mặc định `null`, và khi vắng thì card `ORDER_CORE` báo `NOT_WIRED` — đúng sự thật của host đó.
 
 Nếu tôi vá bằng cách nhồi callback stack vào host test, test sẽ xanh nhưng ràng buộc sai vẫn còn: API admin sẽ không khởi động được ở một topology mà nó lẽ ra chạy được.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

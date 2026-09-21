@@ -73,3 +73,11 @@ Cộng với 44 assertion contrast WCAG từ `W-0097` đọc token thẳng từ 
 Ba mục này ở phần **chưa làm**, không phải "đã đạt".
 
 Thêm: **`UI-A11Y-01` không thay thế kiểm bằng bàn phím và trình đọc màn hình thật.** Nó khoá được cái máy đọc được từ source và HTML; nó không nói cho bạn biết tab order có hợp lý không. Đó vẫn là việc của một người, và `reviewer-guide.md` không có mục cho nó — một khoảng trống tôi nêu ở đây thay vì lấp bằng một assertion giả.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

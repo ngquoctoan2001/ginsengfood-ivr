@@ -1,0 +1,1462 @@
+{
+  "schema": "ivr-c1-addendum-audit/v1",
+  "baseline": "4346f6afd5920c447ff95adfc8466513edfb283c",
+  "policySource": {
+    "path": "prompt/_execution/prompt-execution-tracker.md",
+    "section": "2. Ledger control",
+    "statement": "Real customer calls | NO"
+  },
+  "previousTestCommit": "3cf695928ce0e2602ae660a7c6f999b08f7dee0b",
+  "scope": "Current authorization marker only; original evidence and all owner decisions preserved.",
+  "targets": [
+    {
+      "id": "W-0011",
+      "path": "docs/evidence/W-0011/README.md",
+      "beforeSha256": "fdcd1efe-4bbd7086-bc9fd435-e55a58ff-31c7523c-d34fc9cd-b77a273c-bf0a2d58",
+      "beforeBytes": 6470,
+      "lines": 105,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 7,
+          "sha256": "7cb5d1c9-05d71359-0802fee9-331744ab-be02df20-b32c5064-0fdbf7b8-30a39879"
+        },
+        {
+          "line": 9,
+          "sha256": "9674b185-1f9407bd-7a6c9426-5350fa71-d5e92f86-a1bda385-91499a97-96370616"
+        },
+        {
+          "line": 50,
+          "sha256": "f6064fb5-47ba033d-69edfc5f-16ac6d78-7155c758-6324e562-42849e1e-94c0141d"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "20102919-47d9fd3c-e50f9302-813e7215-7f27cd60-3a911b8c-b334a50b-271e7f31",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0012",
+      "path": "docs/evidence/W-0012/README.md",
+      "beforeSha256": "ddb7c310-9d5ec7fd-2ad32672-41b56222-3b5e8027-b3708f84-d11ed040-fe351de1",
+      "beforeBytes": 8206,
+      "lines": 140,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 7,
+          "sha256": "7cb5d1c9-05d71359-0802fee9-331744ab-be02df20-b32c5064-0fdbf7b8-30a39879"
+        },
+        {
+          "line": 9,
+          "sha256": "9674b185-1f9407bd-7a6c9426-5350fa71-d5e92f86-a1bda385-91499a97-96370616"
+        },
+        {
+          "line": 11,
+          "sha256": "045a8a1e-ea36da26-72e96721-18f99f0d-08d2acd6-521a0a12-bc6e9d81-9ec11608"
+        },
+        {
+          "line": 19,
+          "sha256": "8c6f5329-e01284a2-9619376d-54a74c03-486e172f-18ede140-41d45f26-e2981f0e"
+        },
+        {
+          "line": 25,
+          "sha256": "df0ef4d9-98aa68cc-0cdb772f-e946de1f-fa214469-36ba536c-8e04b93f-81ad41a3"
+        },
+        {
+          "line": 26,
+          "sha256": "aeb2f9e1-7ebeabc8-c96195c8-236dc4a4-dcf3c66f-3de222e6-56c35d96-a4df274a"
+        },
+        {
+          "line": 31,
+          "sha256": "eadbdf72-06aed0cb-0d1ace7a-73d6ca4e-65462d19-8f3f54a3-70e5addf-6f09e73a"
+        },
+        {
+          "line": 47,
+          "sha256": "216f5046-65a4b1cb-640240b9-31012007-53dfe077-2a56d294-d2e1c964-1118a5dc"
+        },
+        {
+          "line": 85,
+          "sha256": "12546c25-8f5c450a-067dc185-b6320665-453f9b3e-22e70d48-51447c55-82cdadf2"
+        },
+        {
+          "line": 122,
+          "sha256": "bc274b43-8642768d-cf490330-6204d627-5cee408d-e51faa48-4f30bd7a-035145ae"
+        },
+        {
+          "line": 134,
+          "sha256": "4a6fb123-069fa046-3ab2e8db-04531e1b-0c07540b-81a31f8f-dfd30f33-35009e71"
+        },
+        {
+          "line": 139,
+          "sha256": "f98cab65-df031274-2c187b2d-335069eb-2c8ec703-9a7f1b79-0beef0e1-9c84ae8d"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "3d1d9266-e0763f90-c95fc9ef-7d4a3e37-fd6455f8-45c6ceff-bccf29d4-56a0276b",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0013",
+      "path": "docs/evidence/W-0013/README.md",
+      "beforeSha256": "0e6c9df0-f33d6dda-05a39e65-1c466044-234620e6-f06e6bed-2cb9a3c1-18b3b4a7",
+      "beforeBytes": 9321,
+      "lines": 148,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 7,
+          "sha256": "7cb5d1c9-05d71359-0802fee9-331744ab-be02df20-b32c5064-0fdbf7b8-30a39879"
+        },
+        {
+          "line": 9,
+          "sha256": "9674b185-1f9407bd-7a6c9426-5350fa71-d5e92f86-a1bda385-91499a97-96370616"
+        },
+        {
+          "line": 11,
+          "sha256": "88b2e2a3-2dc80884-890f93b9-f184cea6-7b0e4647-658fe160-20079f1d-5e121c73"
+        },
+        {
+          "line": 19,
+          "sha256": "81b17ad6-1c0a2d08-da866030-23d9f151-3fee50a8-46460f83-d2d48e1f-0118a8ec"
+        },
+        {
+          "line": 20,
+          "sha256": "351e263f-fa3a711c-a28c8690-2f2f0494-f3e14c44-9b662180-8893c5b1-adf841c1"
+        },
+        {
+          "line": 26,
+          "sha256": "15ee556a-3815268e-69efbc2b-2d26d5dd-b655af2a-f96a7c23-ccd511df-78c3fd07"
+        },
+        {
+          "line": 39,
+          "sha256": "d602ab4d-66ae5d99-5904c743-be7916c3-9cca66a0-cd7876e5-10f7ff89-e1a32d6e"
+        },
+        {
+          "line": 40,
+          "sha256": "68d4dc3c-4a57b3fb-3ce7e8dc-30610951-0df783b6-c27dccb7-e25c6972-076933c1"
+        },
+        {
+          "line": 59,
+          "sha256": "b33b01c5-667ac70b-e381e5f6-a011951e-6e9362a2-3f5cad8d-8295cbb2-84589c7d"
+        },
+        {
+          "line": 67,
+          "sha256": "990ffeee-ff703740-950bad44-b707d2fa-d5caedfc-654f9007-1348e63f-3ccb3d75"
+        },
+        {
+          "line": 88,
+          "sha256": "f14c4e12-bd0c9e7b-1873fdc4-868ec174-1821747d-f42dcde0-8ecb8833-2c09af84"
+        },
+        {
+          "line": 98,
+          "sha256": "a89fb428-efb356f0-93e72d54-d6034660-0f918948-70c0007a-997ad793-a5002f42"
+        },
+        {
+          "line": 99,
+          "sha256": "66415b84-113800de-123d93f8-d03a9823-b956abb9-90106aad-256a7703-2bdf9ac4"
+        },
+        {
+          "line": 126,
+          "sha256": "566777d2-81522347-5ee00bb9-79917583-89922160-3bdaa3e8-59cf3d8f-8e93db25"
+        },
+        {
+          "line": 128,
+          "sha256": "3287ec2f-a5edf8f9-499797a2-ec1760d7-c1b7cae7-441b4cae-74027b43-0cf49030"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "548a2fd2-549d3bd6-97ddbba3-c226bd31-b1bd1d4a-95490851-601bb5b9-2946c7b1",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0014",
+      "path": "docs/evidence/W-0014/README.md",
+      "beforeSha256": "552a27b0-5ff26ec2-6d0fa470-4b824bfa-204dd1cf-2f2445ba-fe778e99-edaa8892",
+      "beforeBytes": 8704,
+      "lines": 157,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 10,
+          "sha256": "c1fa8b9e-d8959a19-6bbc8b0d-47e609da-9311e2ca-fac6f5aa-d6b80ea2-5b92b22a"
+        },
+        {
+          "line": 11,
+          "sha256": "aa43a68b-6b7faa09-83a10169-ef2a8ac2-06c75d7d-480985b0-b3c7e7ba-7e5358ce"
+        },
+        {
+          "line": 47,
+          "sha256": "8b49b50b-ba7ab5ff-3c741d71-59c99ca7-5cd0519a-a5f070be-08fbaf07-72c982e9"
+        },
+        {
+          "line": 48,
+          "sha256": "f6e5a542-138fe972-b2653672-388e5084-79d388f8-4a125665-f2b7d000-84aa67d1"
+        },
+        {
+          "line": 49,
+          "sha256": "cc0c7aef-b405ab96-bb12ac2c-9f5f4a52-8a24bbf5-d650cdf0-cef207ee-a4e54d0c"
+        },
+        {
+          "line": 102,
+          "sha256": "cacb87be-b6864e5a-10d6e386-ca1355f3-0ed90fef-f1c3de55-ccf3cd8b-2800e5ce"
+        },
+        {
+          "line": 124,
+          "sha256": "8074daa2-27259206-1b23f5eb-1280817a-c63d9ae4-d92543bd-82ce0d6d-c4a593a3"
+        },
+        {
+          "line": 155,
+          "sha256": "776ea634-83686a51-1a54c550-9eac5843-ad332444-22de44f5-0af6d5e4-f83ca522"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "dddad098-fdf0cef0-2adea605-7f739c02-8cd35453-b37f0eb3-24e42de8-25491f69",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0015",
+      "path": "docs/evidence/W-0015/README.md",
+      "beforeSha256": "af6856a1-044d8cb3-3b159104-ef0e0506-aedd0e1a-e94f0027-316200da-8bc327e4",
+      "beforeBytes": 6140,
+      "lines": 115,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 21,
+          "sha256": "d1e8b12e-59d0e17b-1f99a494-21f40582-a20cfa93-4ef6e27f-2b7cb66a-e131658a"
+        },
+        {
+          "line": 22,
+          "sha256": "24caa898-a4979adf-47a9ad08-6f3f0e70-31128ec1-c9021b73-eecb763d-11be7d6e"
+        },
+        {
+          "line": 32,
+          "sha256": "8a27fcee-dc6fce27-ed2deb93-3dfa0439-eaee5fd5-da0479e9-a4fe8654-c1c6c8c3"
+        },
+        {
+          "line": 77,
+          "sha256": "50ac2621-435f9f98-fbf958a6-340fbcb5-64d57e92-3d018c8e-c295a2a8-f472e4fc"
+        },
+        {
+          "line": 98,
+          "sha256": "303ce8f6-868d4cd1-33fb60ea-b0f62999-6d4e4a07-c7ea6aac-873a7993-22003eb5"
+        },
+        {
+          "line": 100,
+          "sha256": "1f7bc4f4-00f0b212-5ee44c60-bed5f054-4cc22944-e07479c8-7ed63904-99c5bb84"
+        },
+        {
+          "line": 113,
+          "sha256": "ef050e47-25c681ef-662f436f-e918f427-af1bffb9-144fa09c-a08c9057-22da11ad"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "c8a70801-015222a8-f7ed95c7-968aa4a1-6c697f8e-5e39554e-128f7f80-faa3be5f",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0016",
+      "path": "docs/evidence/W-0016/README.md",
+      "beforeSha256": "ce116c88-e79bc366-6a8ec629-17859edd-bb341e02-4d1abdc8-eabce9fb-5034ff31",
+      "beforeBytes": 7044,
+      "lines": 114,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 7,
+          "sha256": "79bedaa6-eb1d6898-f3174f18-09412011-953d245e-cfb831be-29e812a5-3bb53a0f"
+        },
+        {
+          "line": 21,
+          "sha256": "2e720454-6eb9b7e0-5485566b-0288060d-b46acde0-81a0d7a2-c593b178-feb37a15"
+        },
+        {
+          "line": 70,
+          "sha256": "0f0ebf87-acde85ef-4c4bf299-1c04094b-30751e2a-1db152ef-62f4e1dd-d0c3b3a8"
+        },
+        {
+          "line": 94,
+          "sha256": "39daf44f-c2ea8c3f-10b9c1d3-df05bb27-be6bf27a-23616ced-3925ddde-4f7a0895"
+        },
+        {
+          "line": 95,
+          "sha256": "4ecabce8-d39eefba-f3be9e3f-c959e3b2-c396653b-f5fe7608-28b2b3c5-e5e285ab"
+        },
+        {
+          "line": 111,
+          "sha256": "ef050e47-25c681ef-662f436f-e918f427-af1bffb9-144fa09c-a08c9057-22da11ad"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "8eba0fc0-215bc44e-5168913b-1555275e-331c96db-8239a7e5-1a464506-e2ef8004",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0029",
+      "path": "docs/evidence/W-0029/README.md",
+      "beforeSha256": "0dfbb0de-efebcba3-fdb3b342-a34ca221-3f88a718-b509576f-6a0b7993-b704d553",
+      "beforeBytes": 8199,
+      "lines": 101,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 3,
+          "sha256": "c94976b0-528010a2-befa7cfb-ee21e453-45a600df-41714731-fe7d26a9-91c19cd9"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "67eb5338-cd03a88d-ccc4ff33-c1e516d6-ce9c212e-2d6a5736-8271abbe-30584fa5",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0031",
+      "path": "docs/evidence/W-0031/README.md",
+      "beforeSha256": "2a8f4dd5-ae7585b2-63407fa0-055de5bc-4a90857f-afcd010b-92ae77b2-fe03d189",
+      "beforeBytes": 8912,
+      "lines": 111,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 3,
+          "sha256": "481be546-7de10690-9c1c7a35-030a37e7-c70896a6-0adb15b0-caecedfa-69da6b05"
+        },
+        {
+          "line": 11,
+          "sha256": "07a51afe-5f0fd938-e5dfc1b3-b5c1cef0-ba736598-e6a53d7c-a84d6546-76600dd7"
+        },
+        {
+          "line": 21,
+          "sha256": "e13fbe22-a631d0d5-3053570f-87a56d16-7b5c460e-e4f4419d-180d6c7a-822ef319"
+        },
+        {
+          "line": 29,
+          "sha256": "a798ffa0-a5086b44-6572167d-b08869af-8eed46f8-ce12cfd3-003cc9aa-8f50ed5d"
+        },
+        {
+          "line": 45,
+          "sha256": "2b0b1d2c-43b07653-47520bf2-9c322bb7-2d3059b8-d5390058-e077ed13-79101f79"
+        },
+        {
+          "line": 51,
+          "sha256": "83fce46e-27858b52-e6f225b0-a2a3f4c6-ad80d02c-746c45e8-100cacea-4f542bac"
+        },
+        {
+          "line": 58,
+          "sha256": "8b2cc215-7ce9ddde-edb36471-673a4c3c-432fda46-22d397d1-398fec98-73c81f0a"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "fb718c57-9dab27c4-38b94a96-375428a5-24e67050-6636ef30-a418cb91-f18674c9",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0032",
+      "path": "docs/evidence/W-0032/README.md",
+      "beforeSha256": "defbd623-28df9ca8-2e89323e-8c0ddfb1-7e497a25-441b0fed-aa1afea5-6e90965d",
+      "beforeBytes": 8842,
+      "lines": 103,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 3,
+          "sha256": "fb0d0af0-fa774698-1f11dc2a-45207b7c-71dbbbb7-aeb77836-e6afc58d-04c93920"
+        },
+        {
+          "line": 9,
+          "sha256": "b14926b7-494a2e95-16fb0c9e-194648f2-d1beaec5-2af1a1ca-f0e07cfb-c7f5ef82"
+        },
+        {
+          "line": 13,
+          "sha256": "97db43f8-53fcf6fa-bae08409-1249438e-b475aebc-c83621f6-b9c5c288-51572f57"
+        },
+        {
+          "line": 24,
+          "sha256": "d669dd69-581d8bba-cc43f713-374871a0-8e5b77c0-0133f088-6390cc3c-033c04fe"
+        },
+        {
+          "line": 27,
+          "sha256": "bb7e8498-5082b868-5183966f-3760b64c-2fc220d7-3aa167ba-2afbc6e2-defae7ff"
+        },
+        {
+          "line": 84,
+          "sha256": "52b7d8a0-e6735a68-74bd687e-2c4b2936-f4788325-b737b99e-3d3e932e-766354c1"
+        },
+        {
+          "line": 102,
+          "sha256": "66003294-738e6c3e-d0c06de8-08f08d8b-7485ffdb-3195e685-b71eaa03-d08b3dae"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "0c07fd35-3d65f159-d0a5cd0d-62c58998-0353196c-9332e6b9-fd589b02-2baca5be",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0038",
+      "path": "docs/evidence/W-0038/README.md",
+      "beforeSha256": "74906168-a72d5993-12d8a91f-ef740042-8dfd91cf-083dd842-9d8d745c-2cd1ee47",
+      "beforeBytes": 6418,
+      "lines": 80,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "482c2f65-6fb5e372-288c7f3f-9fca8e23-ff655228-ad23af52-2947ff88-82146016",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0039",
+      "path": "docs/evidence/W-0039/README.md",
+      "beforeSha256": "c1664abc-c557af26-6da34a35-5dd9f9de-221ef2c5-35788388-ed665072-f823d526",
+      "beforeBytes": 5786,
+      "lines": 76,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 40,
+          "sha256": "41e6c144-4c3128e7-7c75e011-6479c023-b35199ed-846c09f4-1f9d11fd-65285c1e"
+        },
+        {
+          "line": 71,
+          "sha256": "dc61138a-3bd17680-1a083ddd-0bd83812-a7b10de3-8f5622f8-bc758b40-659e5303"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "fbd3cb60-f992bc13-77c9c90a-d1985fa7-aa18563d-121ac5b1-c39ea958-4657e923",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0040",
+      "path": "docs/evidence/W-0040/README.md",
+      "beforeSha256": "ac64a647-c112d0e4-ebaee851-d46f540d-bb1a3891-60ea347e-dfdf5664-fcf22466",
+      "beforeBytes": 19376,
+      "lines": 260,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 75,
+          "sha256": "d9f8a57d-a6322ff3-fb7a736f-7fb7df7e-51498fcd-5d8b9fa9-1973432e-46c0fcd1"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "cc0ba375-633f5e23-f8fcb40b-e0caff96-9b3fa55d-732e6939-edc21a8c-fa7e77be",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0041",
+      "path": "docs/evidence/W-0041/README.md",
+      "beforeSha256": "dc128c91-27618695-a95e2c35-5aa024a7-a9c77818-c5cc99ef-bec03bc7-86074d40",
+      "beforeBytes": 10609,
+      "lines": 139,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "a93e895b-5647f738-08134135-f174db79-c07751ca-69196d14-c49ea323-bfd5d342",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0042",
+      "path": "docs/evidence/W-0042/README.md",
+      "beforeSha256": "2fb2f755-ce2f23a9-ec50ac66-b063d007-00bdc0a1-9cad88fb-6e4b8da6-ae09dbdc",
+      "beforeBytes": 15244,
+      "lines": 206,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 75,
+          "sha256": "be88fe72-4c82cb40-adfbd884-93f939d2-7b44a567-5c647dc2-6b7ba722-1aeac001"
+        },
+        {
+          "line": 149,
+          "sha256": "58944254-c7517c65-2c7ef8d3-b15b5046-891d8d6f-80a0bb1f-221f601f-8fe33ec6"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "0f3cf301-94bb5146-2e9458e3-51d8e61f-04c6cd3d-46f28520-e0015a13-04ec7617",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0045",
+      "path": "docs/evidence/W-0045/README.md",
+      "beforeSha256": "cad0a5e2-9ba8f3ac-301a00b6-e707b56f-d095775f-ccf1d557-de7bdc56-1ca2d42e",
+      "beforeBytes": 6910,
+      "lines": 102,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 11,
+          "sha256": "695a7b58-17ae969c-d97008d1-98d72cb9-ea5258d6-7d8d0b4e-61740021-ff021616"
+        },
+        {
+          "line": 16,
+          "sha256": "dc096dc7-78caf36f-c981b96e-9ec8c6aa-5c54a319-35ff7e5b-3589bf7d-11a94b55"
+        },
+        {
+          "line": 19,
+          "sha256": "1db822c2-cd05719d-f2f1ad05-3fee4e63-e4bb67d4-1c309aec-f892029c-4941d26d"
+        },
+        {
+          "line": 30,
+          "sha256": "89a640ed-4674cad0-bd96f1c0-64e020a0-46307c1f-88f316a2-690384a4-012222a1"
+        },
+        {
+          "line": 69,
+          "sha256": "34ef7923-ca114d77-d9e1daae-6122b700-053d06f2-a1358252-3b32d666-a511b894"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "b144458a-c1578206-134c6289-8094d540-48e64141-b4b6fbde-ca20c8f2-8450319a",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0047",
+      "path": "docs/evidence/W-0047/README.md",
+      "beforeSha256": "dc5ee7b4-823157dc-2ae7f6e7-bcc352a5-ceeb6b05-a4f875db-1cbe1500-1a9b762d",
+      "beforeBytes": 14841,
+      "lines": 248,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 16,
+          "sha256": "d99211ce-ddbe319f-682e7c1a-a9355978-9196094a-f0ea2be9-135bde32-9829ed5d"
+        },
+        {
+          "line": 71,
+          "sha256": "99be5bd6-e39a43de-0cbc72bd-a35b26b4-74f370da-c4748545-ce5909a4-4e4e5c1d"
+        },
+        {
+          "line": 132,
+          "sha256": "edd923c3-96e47895-24d28641-990eb984-8c8e39ab-fedd02a5-31fea618-6b4d9c3b"
+        },
+        {
+          "line": 146,
+          "sha256": "2ebc9c37-d7e98aee-bb604417-7e893830-92e48ce1-37b7d0db-f312d146-ca846dec"
+        },
+        {
+          "line": 156,
+          "sha256": "24b9b090-0dbb5c06-d3c67171-162929e1-558d6d21-598b96c4-b041b202-309d519c"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "98b8651d-6487c0f5-63afcb65-578561e1-a5cd97ae-c34f6757-edccca5a-b37231cd",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0052",
+      "path": "docs/evidence/W-0052/README.md",
+      "beforeSha256": "703a42a4-e15cea7e-6f394477-5bea63c3-3c285c5c-93a9f31b-f152253e-005eee1f",
+      "beforeBytes": 9392,
+      "lines": 134,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 58,
+          "sha256": "58feb8a2-c1c375e6-fa46ae33-c372a09e-2a97aeae-30a92f37-5d30167a-c499b241"
+        },
+        {
+          "line": 81,
+          "sha256": "0f22ee38-7f42aa7e-7a6eeaac-40ee167e-a10ad5f3-b9e7ae8d-343272ee-c16bb70f"
+        },
+        {
+          "line": 130,
+          "sha256": "66c34cc2-e81a369a-b8d041bd-4afb161c-e18e040c-dc7e3eda-bcc34150-ca60274f"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "64a0301a-ca397145-32cf16ae-dd02da2e-3a5d617b-91309220-1d6b82d3-c2890e69",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0053",
+      "path": "docs/evidence/W-0053/README.md",
+      "beforeSha256": "1c384ca5-9b8179bf-5d10e04c-89525d05-3b9bb079-92f92d7d-d9e18c86-5a724f18",
+      "beforeBytes": 10199,
+      "lines": 138,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 8,
+          "sha256": "632b75f2-964851da-a219f251-03c5c16c-c3e9ea76-207a8f57-dc3b6f8e-997a52a4"
+        },
+        {
+          "line": 50,
+          "sha256": "98eeb874-e8e4494a-45db5ade-43d975e7-12f8e5b8-cae3eaf5-26a53575-04fe7669"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "f4a6f8a2-81f95d02-7180a62f-edafbf58-d9a5208d-80d593b8-3fedee3e-205528cd",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0054",
+      "path": "docs/evidence/W-0054/README.md",
+      "beforeSha256": "12b3138a-8eb27d92-664ccabe-5f08b420-7bd7212b-23e24073-222594dd-30418177",
+      "beforeBytes": 10106,
+      "lines": 140,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 33,
+          "sha256": "03e259ba-c455dad5-3d0aeda9-6465110c-21a067a7-2372e94a-3c3e0c14-ccdf9034"
+        },
+        {
+          "line": 34,
+          "sha256": "1bc49c14-5c23efa3-70d35fbd-34b2bb60-d6aded13-c4220165-f30a13fc-768b08c7"
+        },
+        {
+          "line": 102,
+          "sha256": "e1bdd66d-07c45a4f-36515d24-6daa6554-aa1da6ce-b67a243b-d45f67bc-d63f5c48"
+        },
+        {
+          "line": 116,
+          "sha256": "b50fcc80-a74e096a-aca04479-3c0511c0-fd8a5307-47a1655e-0f1a1dda-a631b004"
+        },
+        {
+          "line": 127,
+          "sha256": "24b7ec08-64d8eae4-dba68a70-ebd02e77-412c7568-82f8c52f-4e076a0d-196ec9e4"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "dbdc19bf-718b715d-a7340331-285324ed-d68a6e7a-bc0b539c-510ee28f-fd02a90a",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0055",
+      "path": "docs/evidence/W-0055/README.md",
+      "beforeSha256": "b29a70f9-1a82907e-350dc598-c2e13cb8-44e7debb-0e45499b-34fadf0a-6471167e",
+      "beforeBytes": 12386,
+      "lines": 158,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "2909ee17-cec65495-6123932a-dda353f2-8daf42d2-e5825a39-7e52095d-9b5c2686",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0088",
+      "path": "docs/evidence/W-0088/README.md",
+      "beforeSha256": "10fdb584-feadf9f1-122082e2-e33684a3-72c2878c-4310059f-7c0d7153-01664d46",
+      "beforeBytes": 1176,
+      "lines": 24,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "09c6923b-161ab42d-8381bb60-2bc2e1e5-bb76407d-f2ee05ec-31e697bb-dac2808b",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0089",
+      "path": "docs/evidence/W-0089/README.md",
+      "beforeSha256": "647fd08c-eee318ef-3d977487-5560127a-143513b9-657f3793-e64d0096-8987492f",
+      "beforeBytes": 1538,
+      "lines": 29,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 3,
+          "sha256": "66368a30-44c2b406-6331cc11-1a35ba0c-f79015e5-e94ae397-68421e43-5aaccde8"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "7f2033a3-116f68bc-d1ec238d-0478252c-33468c9e-d51f8f1c-115fddcc-72f69150",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0090",
+      "path": "docs/evidence/W-0090/README.md",
+      "beforeSha256": "ba5cdb1a-b8ae5744-feb0adfb-326e22f7-cd42f020-267a8bdc-e4694370-43d13f87",
+      "beforeBytes": 1348,
+      "lines": 27,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 26,
+          "sha256": "30373ece-39ee78d3-17c1d4f1-0dda1f5b-7f08372d-7124d0fa-c36dbe50-7be9c6be"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "222934d5-5c45e819-34204af4-2ea6e041-cd70fe33-6f78b56a-6e0734dc-ab9f67e4",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0091",
+      "path": "docs/evidence/W-0091/README.md",
+      "beforeSha256": "0d043d3b-563b66c0-148db7a7-8e35821f-d5d8c44b-215808d6-e2c3202a-da1a4a12",
+      "beforeBytes": 1626,
+      "lines": 31,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "8737fb60-9510893e-e641bc3e-c2539d8f-8daace8d-ed790d3c-c9c3f7b8-275a6d93",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0092",
+      "path": "docs/evidence/W-0092/README.md",
+      "beforeSha256": "3cfa9026-602208af-d34a326b-8108082e-7a3b31bc-b2163d6f-50a78f5e-827d8ad3",
+      "beforeBytes": 2018,
+      "lines": 37,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "6e529346-6ce17669-913a79c8-9525f61f-2523472f-419a005c-73a25575-427926e8",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0094",
+      "path": "docs/evidence/W-0094/README.md",
+      "beforeSha256": "50036225-0af8ba6f-1b21a28c-b8633c68-cf72b1bd-a85eca62-73b2dab9-5e07cd01",
+      "beforeBytes": 1465,
+      "lines": 28,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "a4638245-e33e5ca0-6b6c09bc-1c47e33a-1d373038-aa42169d-468eac26-1bf2141f",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0110",
+      "path": "docs/evidence/W-0110/README.md",
+      "beforeSha256": "60abe48c-cc057a4f-6b885375-c06c453a-4cde8a7d-03fb93a8-1e542bbe-a4f05daa",
+      "beforeBytes": 10460,
+      "lines": 191,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 9,
+          "sha256": "0719547f-b47aa817-6a35a41b-e5d7713c-3c498e57-0f795c50-91e0630e-de892ce0"
+        },
+        {
+          "line": 43,
+          "sha256": "0bcd559b-baa0560e-afa18ee3-b5e65387-58525583-451a2a07-a92090ba-1edf25db"
+        },
+        {
+          "line": 68,
+          "sha256": "060a3c14-5fde793b-53cf96a1-1695a250-548b718e-e11d1fb0-ac376020-1139b76c"
+        },
+        {
+          "line": 74,
+          "sha256": "f8334298-f3424186-de22e3bd-ba3fc193-53396714-fae52e6f-cdabf105-8f8c0a86"
+        },
+        {
+          "line": 88,
+          "sha256": "816fcb1a-08af9dc9-c5b7a8c5-a2c21922-90075a6c-6638d05f-a0792628-1b33858a"
+        },
+        {
+          "line": 93,
+          "sha256": "3edcd2b4-522b9149-45feb26e-d7d92f8a-ff6f43f9-db5b3e15-5de34575-a85e25ba"
+        },
+        {
+          "line": 108,
+          "sha256": "1ea79f37-04aa7d55-0099cbb2-253fa329-86290b03-e39c6444-7773b3ea-601560ef"
+        },
+        {
+          "line": 118,
+          "sha256": "7cd72416-a76b604d-a3a5df25-e9b932bc-cda6f4f5-00eb8194-b97cf411-e9b58c50"
+        },
+        {
+          "line": 121,
+          "sha256": "570c915b-2e696ad7-668d6d02-7dc47d44-e982e270-241bc71f-97274668-8917edb9"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "2e07fb6c-0ae127ba-fbd7bb58-688530a0-7d56f957-1c3c36a3-583d31f7-977f54a1",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0112",
+      "path": "docs/evidence/W-0112/README.md",
+      "beforeSha256": "bf48f660-1141e2c3-a6132f7b-2d9175e8-81cd2d89-ab7f19aa-0ffc38c4-31790f95",
+      "beforeBytes": 9033,
+      "lines": 157,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 8,
+          "sha256": "7953a7e6-eb917b8c-eb73e64d-1e11f798-66b26821-0cbe6f53-7401e7a7-bcd1d2e5"
+        },
+        {
+          "line": 29,
+          "sha256": "ffb276b4-b63c64a1-5c508a84-08e51fc8-019679f9-86018821-a1f5562a-fb53ec7a"
+        },
+        {
+          "line": 30,
+          "sha256": "0797a904-62442c57-c8abb81d-0460dd15-879c944d-744de944-e0159fe6-1a4b1c35"
+        },
+        {
+          "line": 34,
+          "sha256": "44d2c99c-cb261911-db8e93ee-19775bf3-233ee2ee-8f498a1b-d0007246-10f792cd"
+        },
+        {
+          "line": 38,
+          "sha256": "0fc14ac6-1c5194a9-48a4407f-a4bb58f8-09b5edcd-dfab613f-c05819dc-07436064"
+        },
+        {
+          "line": 74,
+          "sha256": "34994c95-04465236-d2867b0b-46e8df9b-f13a79fd-2baf2190-459de0b0-7fe955ed"
+        },
+        {
+          "line": 76,
+          "sha256": "5800776b-e16a6903-8350915c-3b0b20f9-530e8d00-b669939d-4140e597-3d1e0012"
+        },
+        {
+          "line": 85,
+          "sha256": "f8d820a0-3ad52b26-39e57127-3db6b2e6-c8de395c-fde65795-06aab41d-1ef1f3be"
+        },
+        {
+          "line": 89,
+          "sha256": "fa54b3d3-e1746f28-471c583a-7277eaf7-a89c360b-d2c41864-7bda6d6a-3e9d3fd8"
+        },
+        {
+          "line": 91,
+          "sha256": "30b905fe-c5a959cf-79960e66-c784ce78-86f3486c-0750ce4c-25d152f7-a0aad6a5"
+        },
+        {
+          "line": 93,
+          "sha256": "e8bb15e8-e45acf6c-b7ad5a18-d1f96fa2-f9f66d35-89dca313-c6bf09e6-5c32c3db"
+        },
+        {
+          "line": 110,
+          "sha256": "31141f22-416dd62b-c5416a8d-f447bbbb-5177bbe2-4dd4bc4a-33ac71db-15fd97ea"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "e7b7407c-62c9d312-b1ece58a-5ca7c618-d9efa4fb-a72e3166-7adbf9c8-9393cdad",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0113",
+      "path": "docs/evidence/W-0113/README.md",
+      "beforeSha256": "0831f203-9098f233-056e9878-f3a9a294-995ee47a-886afddd-8ab20b9c-0aaddb03",
+      "beforeBytes": 7945,
+      "lines": 140,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 8,
+          "sha256": "fefeed75-e99f2d42-685bd21d-3a0bf233-caf270ed-8a16ba7a-8edb89c1-11d789e8"
+        },
+        {
+          "line": 43,
+          "sha256": "0a8c88ac-4adebab4-06dbf099-bad246b9-e3d31684-a4eb756e-ea175158-b0b59fb1"
+        },
+        {
+          "line": 72,
+          "sha256": "3b40919a-8fe7a9e1-c00829a9-02b45260-61348bc9-c857d6dc-12339c0e-ded83965"
+        },
+        {
+          "line": 81,
+          "sha256": "35626f2d-020db0fb-3a8ec724-56420aa6-10c8a28f-00ff851f-f21f7b30-212aecc9"
+        },
+        {
+          "line": 132,
+          "sha256": "ff66c0b9-c377198f-f53eb452-7b5473f2-bf6d989e-860d34ad-fac9ac3a-519ff1c7"
+        },
+        {
+          "line": 134,
+          "sha256": "8fcac5ef-cf2d005c-80270352-6770fe76-202927fe-136b6c54-62b578e5-cb21af79"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "68c6751e-ca628dc4-35f380d7-26a1d638-5d22e97b-5db18373-b9e2a4a1-cc97c20a",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0114",
+      "path": "docs/evidence/W-0114/README.md",
+      "beforeSha256": "6c08c075-30f0a6d3-0f0a7455-e4475347-c7fe6524-0ba0918c-06d4bf9f-7b1d446a",
+      "beforeBytes": 14609,
+      "lines": 242,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "bd82a67c-8ddda0db-8d835f2a-835ada92-5c195fe3-e8b02df6-501430e4-2810b7da",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0124",
+      "path": "docs/evidence/W-0124/README.md",
+      "beforeSha256": "9bc40e8d-f2f565da-e7bd508c-a52cd1a5-0b5382a5-8837cbe4-df461594-b91a962e",
+      "beforeBytes": 13837,
+      "lines": 222,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 73,
+          "sha256": "8c6af9c4-e8c74456-92ec5a2a-23b628a4-2a9313a2-ffbba1f7-32990a49-db2753ea"
+        },
+        {
+          "line": 214,
+          "sha256": "c3d601f1-9128cf19-69bc7b74-b9910aae-d6e5e15b-fc00e228-71311a4c-0a833713"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "8cf7065b-ac706ef8-31612869-de8f519c-eb36d559-e149850d-167c9400-e8e02b2b",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0125",
+      "path": "docs/evidence/W-0125/README.md",
+      "beforeSha256": "c8d75a6e-9c1b7093-47079771-6677add3-792d86ef-dd4f7476-7a3afe42-f6d67356",
+      "beforeBytes": 8402,
+      "lines": 145,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 38,
+          "sha256": "58755ae4-fb885d1f-0fc5094f-43c790cd-2eb04c2f-81f3773e-5b1ee9a0-d273e13a"
+        },
+        {
+          "line": 142,
+          "sha256": "1d541804-ea4f8274-7c277561-8b0acc14-ebc83a1a-1d4f456e-fac62bde-4db9cad4"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "be1d718e-8d35236b-41093984-9fd58697-74c169eb-a5e25f30-2e407076-20f599ee",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0140",
+      "path": "docs/evidence/W-0140/README.md",
+      "beforeSha256": "53c5f95c-3bbea95d-ea3fe512-b4079422-41e84b04-6558a96b-4b65bf09-34b9f43f",
+      "beforeBytes": 4964,
+      "lines": 94,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 56,
+          "sha256": "465788aa-47249c2a-c48a93b6-0b485f83-0a3f7cd9-cdb7b797-eb6543b2-b1b6dc45"
+        },
+        {
+          "line": 78,
+          "sha256": "b0d48084-5a8c9f2f-d64ace03-aeb021c6-dc1b8b7c-cadf3f13-6e532dc8-c0ddf7c9"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "7266a8c2-7c0fb55e-b2c677e4-d5644004-decbb767-e5b79c13-34939330-ffe74a71",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0196",
+      "path": "docs/evidence/W-0196/README.md",
+      "beforeSha256": "f2df11c3-e1703375-b35ea752-eb922576-49536a61-187d9b0b-bca5a7eb-28067c82",
+      "beforeBytes": 3642,
+      "lines": 53,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 50,
+          "sha256": "916999b4-ec66b071-994493e0-38b3103d-be127aca-1cbc9e7a-3f827b3a-2b6494b7"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "f9f12670-bcf73b91-044a74c3-3c24bef7-072450db-56f7b46e-cc4f7d7a-104f30fa",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0197",
+      "path": "docs/evidence/W-0197/README.md",
+      "beforeSha256": "54bd7f54-5e825197-cb0994ce-adbc56e0-274e5cb8-722c4fd9-5ceb8385-8e6a181a",
+      "beforeBytes": 6538,
+      "lines": 65,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 3,
+          "sha256": "f83a7506-47c3fecd-ffab127e-4602f6c8-bce22eae-d1c4b4f6-aaec0c60-55feb17d"
+        },
+        {
+          "line": 19,
+          "sha256": "27d71ff9-176388c8-7f72a545-ead229dd-39408378-06fe49fa-dc064790-5409a541"
+        },
+        {
+          "line": 28,
+          "sha256": "aa6e1c9f-abdb9250-a90641f8-287945ae-b3414812-f18d5ae9-bb8beeec-404ccdfe"
+        },
+        {
+          "line": 64,
+          "sha256": "279f283a-4b1507e5-55e39bf4-fb329062-b78235c1-8bab8c3a-aa7b1ce3-4df526a1"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "7507194f-02aabee2-05a39e52-d49ac858-39ea055c-5efa1bb9-e6f5c56e-956181d7",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0207",
+      "path": "docs/evidence/W-0207/README.md",
+      "beforeSha256": "e36497ef-ec8a7f59-92d2e9bd-5a0f6ca1-b655f837-2d97daf2-c514da87-f5c459e1",
+      "beforeBytes": 8685,
+      "lines": 139,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 57,
+          "sha256": "5e9179df-f27a9d20-28334971-e629e2a4-fb88d437-bbe619a0-3f963b7f-4e5a80f3"
+        },
+        {
+          "line": 74,
+          "sha256": "2d4e215b-73f775c3-0943d5e5-a294621f-93382d44-b673d11a-090cc40c-32452d8a"
+        },
+        {
+          "line": 125,
+          "sha256": "244f61ae-7fe40da9-21c47083-38cbff2c-ceed9cda-81d442ce-a9378aa8-cb947c78"
+        },
+        {
+          "line": 131,
+          "sha256": "eb1940b4-569f469c-d3ad840a-396121d1-bf3babb6-35538909-5c4bda3c-3efd61a9"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "8dea02dc-c26ec2c8-86a3d5fe-6aaedf63-3a23fa49-116bd261-0083c8e0-047fb001",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0223",
+      "path": "docs/evidence/W-0223/README.md",
+      "beforeSha256": "7144f6d5-1ac5c32b-d69e5160-e6125e1b-b255e504-4fdac423-2ed8dcf9-2d91e7ce",
+      "beforeBytes": 5241,
+      "lines": 106,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 101,
+          "sha256": "e5dc007c-89d90f28-5f5f3ec1-52994228-954f4f19-62aa62ce-940a1ba6-6474af10"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "95136c16-cfe5671f-dd0c5c2b-78092cec-09d62247-b7309438-7b427069-1af44cd6",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0267",
+      "path": "docs/evidence/W-0267/README.md",
+      "beforeSha256": "73e06387-8961c970-20f2297e-cd4102f0-02fafc96-cf3f7dd9-cbb63bf5-ffbc0ee3",
+      "beforeBytes": 8106,
+      "lines": 138,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 127,
+          "sha256": "b6bb23c9-ab4807b6-4f3c875d-9c17f1ee-e84fd96e-94182b72-ec49ad53-11789f67"
+        },
+        {
+          "line": 137,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "07d1b321-00f5f32b-65c5f224-9381f077-1c7a1b21-56e8bf33-c1ffa1bb-0f523c66",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0268",
+      "path": "docs/evidence/W-0268/README.md",
+      "beforeSha256": "44070ce0-f5982a16-e455d046-51585bf0-af4d0752-20f09361-23dc7290-2e17ff9a",
+      "beforeBytes": 8482,
+      "lines": 167,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 159,
+          "sha256": "05fdf520-b1851442-699e3f22-d8e125ca-11b88ae8-12121147-d78ca7f5-8c6a475f"
+        },
+        {
+          "line": 166,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "5fbd8ae4-f944b17a-eb91a087-38a4a05c-b0d44e99-e8fe5f04-cf51ae56-be29076f",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0269",
+      "path": "docs/evidence/W-0269/README.md",
+      "beforeSha256": "4ebdd540-70768faf-bd9c473c-8688e504-19562954-4d313b1a-36cf3fbe-ca9b0635",
+      "beforeBytes": 11602,
+      "lines": 219,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 210,
+          "sha256": "05fdf520-b1851442-699e3f22-d8e125ca-11b88ae8-12121147-d78ca7f5-8c6a475f"
+        },
+        {
+          "line": 218,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "4754410f-0e5a564b-090aa0a4-8ab1dbde-0ce7ac93-a9deb7dd-2a06cfb1-bdd7e3b2",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0270",
+      "path": "docs/evidence/W-0270/README.md",
+      "beforeSha256": "a5de8441-2430828b-44f5ac85-2218ec29-59ff4be3-42069636-0685a644-c44f1c29",
+      "beforeBytes": 8280,
+      "lines": 157,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 150,
+          "sha256": "b6bb23c9-ab4807b6-4f3c875d-9c17f1ee-e84fd96e-94182b72-ec49ad53-11789f67"
+        },
+        {
+          "line": 156,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "3866bc14-a3e726bb-52f5ee48-8a29e055-46861650-354b6791-64234911-eaa75ec1",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0272",
+      "path": "docs/evidence/W-0272/README.md",
+      "beforeSha256": "ef1c1b49-1850f34a-53ba2ef5-e41a55d8-c9f9608b-a8287209-3efd40e6-d527b460",
+      "beforeBytes": 4722,
+      "lines": 92,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 1,
+          "sha256": "a7f1f96d-457a11ad-90c7a32b-8270d337-41c6b9a8-3d421a34-49a09ecf-f2fe055f"
+        },
+        {
+          "line": 15,
+          "sha256": "2d7be5cd-68ca4b8c-f78eff57-c68c43cb-0920444e-ed969c39-a5a39ad8-29f44714"
+        },
+        {
+          "line": 20,
+          "sha256": "9606c976-d0c7594b-dd9a10a6-8361f5b9-6b203c0d-163cf05d-bc249a3f-ca989479"
+        },
+        {
+          "line": 21,
+          "sha256": "8c986143-4e6495b0-4120da20-fc2f3151-36835ec1-f16ede88-b2e7022c-c1ed0a31"
+        },
+        {
+          "line": 22,
+          "sha256": "f544a9f3-989b831c-40786e4f-171d1b10-1a6e8c19-06e85731-2efc5ff1-66d13148"
+        },
+        {
+          "line": 24,
+          "sha256": "87b12db2-1646d2ba-7040ac9d-8ac8999b-78a0cccc-f686f38b-51a55f13-6e3ecd02"
+        },
+        {
+          "line": 25,
+          "sha256": "af4131fa-f134776e-70de448a-012b540f-e758a7ec-dc73d6b0-e3d41379-5de74fc9"
+        },
+        {
+          "line": 35,
+          "sha256": "2a386acb-53bebb59-d2733b91-bcdc623d-16cdfe8a-d8b1d845-fac962ea-31b28bd2"
+        },
+        {
+          "line": 38,
+          "sha256": "f5142821-beb4b79a-94673a92-58616fa9-1b37dc22-aa7a2df4-ee7c49f2-7b8d2f11"
+        },
+        {
+          "line": 50,
+          "sha256": "5583f948-1e973fe5-bcc5c185-44fe91a2-adfc4372-d87d87c4-7cba5b2e-abdeab36"
+        },
+        {
+          "line": 51,
+          "sha256": "02cdfc74-4a3d5608-47c76b15-79cca3b7-2e34e38f-6c3a02d0-e63fad06-a3712643"
+        },
+        {
+          "line": 62,
+          "sha256": "7e55fe0e-5c297359-f5d698e4-34220bd0-29d03094-52e81ef7-b521fbe7-8835091b"
+        },
+        {
+          "line": 87,
+          "sha256": "ff1ae10c-9e53786f-c25841b8-0b42201a-c74c64ef-ad0b4fe2-a350da3b-d0cd6bd0"
+        },
+        {
+          "line": 91,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "2ceb1060-58ef04e5-7bcb840f-2aecac6a-b876c1a5-5de3cffd-f5d33d1c-38841428",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0274",
+      "path": "docs/evidence/W-0274/README.md",
+      "beforeSha256": "23d09904-01940a55-4e290399-5d5ac0be-18a8fe13-74307eae-31d00cf3-50397757",
+      "beforeBytes": 4283,
+      "lines": 78,
+      "c2AtPreviousCandidate": true,
+      "scopeLines": [
+        {
+          "line": 9,
+          "sha256": "aa2aad17-11bbea3b-0a519d91-d193ac0e-cab14040-7568f05f-6beb5c2c-18deedcf"
+        },
+        {
+          "line": 10,
+          "sha256": "617e4244-2dd4f99f-14a76820-749bd397-db1918a6-1ed00349-009df959-34f3f375"
+        },
+        {
+          "line": 15,
+          "sha256": "93db2091-f5de3f06-7dfcb6cd-6606d37f-bb7be2c5-e62b0d33-3422c265-609570c1"
+        },
+        {
+          "line": 20,
+          "sha256": "3e4135d1-a5b44a77-8bc0ee91-70eac4be-bee059d9-2313169b-42a94f03-630f1de0"
+        },
+        {
+          "line": 24,
+          "sha256": "3e99434d-b4bb0f28-aa8cab4f-e8fb3acc-61d9f958-e3c4dedd-20432b06-bf807a71"
+        },
+        {
+          "line": 32,
+          "sha256": "030b5371-dc4d962e-9ecba6ca-eda1382f-2eff0cc5-5f56add4-f303e983-402464e2"
+        },
+        {
+          "line": 33,
+          "sha256": "a5215df1-02128e3a-e72ddd1d-962acd1b-9ac5e1ac-4c76863b-9ffb5cf2-acc1e1a8"
+        },
+        {
+          "line": 34,
+          "sha256": "186d56f8-72fbc565-ce337ff9-1e1b077f-1fa9f635-6e9a37cb-f418b842-77468966"
+        },
+        {
+          "line": 35,
+          "sha256": "4f584779-19e7add5-c400929b-29185d5c-a3acc282-6c5bb54d-0ea530d8-540b58c2"
+        },
+        {
+          "line": 44,
+          "sha256": "c95e24b0-9c269707-16a10b5e-ad981718-5b757153-715f2457-99ba6c8e-d93111cb"
+        },
+        {
+          "line": 45,
+          "sha256": "4b6c55ae-3aebb2bc-be5ab37d-93224a21-ef9955c1-f09181a2-66ead15c-ebe7c346"
+        },
+        {
+          "line": 59,
+          "sha256": "932e972d-120d0e97-0716a1f6-89923b64-0fbc1a6f-919bad49-83a693a5-6e2f790e"
+        },
+        {
+          "line": 77,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "29870ef7-ff55578c-cc57a6b5-9975b67e-965653f3-d0188647-be9d6713-2122bb10",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0275",
+      "path": "docs/evidence/W-0275/README.md",
+      "beforeSha256": "3d500529-f744f3d6-b37d8703-9acdaeb3-e8216ee9-d7700cbf-96201e2d-75329925",
+      "beforeBytes": 6613,
+      "lines": 125,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 28,
+          "sha256": "a9125004-5b92017d-43d7f53a-5a7e5f99-ebc151c0-52be33db-c1242fe2-734a0d95"
+        },
+        {
+          "line": 29,
+          "sha256": "3cddefe9-1fbabf33-f336943e-1bed7d59-1b000ddf-eeaa55c7-5c836141-820778b4"
+        },
+        {
+          "line": 32,
+          "sha256": "93effaf7-32ef4d98-a785a0c5-62166ef5-58f7b462-69f62e8a-c1dff18b-467afd8e"
+        },
+        {
+          "line": 45,
+          "sha256": "05326015-9c061b92-160bd7dc-f50e32ee-a67fc6e6-d03d8d96-3ec63fe5-341359ef"
+        },
+        {
+          "line": 124,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "b1a50485-86a48290-54883eea-a25ea804-96649cea-410657a2-5888bfcf-54cdccb5",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0276",
+      "path": "docs/evidence/W-0276/README.md",
+      "beforeSha256": "0c283599-53495b2d-44766cb6-63da864a-0a163425-4b143b07-e9f40dd9-0207fe53",
+      "beforeBytes": 4349,
+      "lines": 79,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 78,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "fbb5eda3-227b3347-47504962-364240c9-bcbbb572-6ec86f99-26afc27d-a7efb957",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0277",
+      "path": "docs/evidence/W-0277/README.md",
+      "beforeSha256": "4d0eff4c-f008ceda-5b0fca74-65f02d39-ddd27d07-e35e0d12-f0e1aef9-3a237e76",
+      "beforeBytes": 4224,
+      "lines": 77,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 76,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "42a351fc-0a2288f7-3959177a-b06b21dd-17006163-22b89cb0-4be528d9-104ba289",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0278",
+      "path": "docs/evidence/W-0278/README.md",
+      "beforeSha256": "9f67e633-9afc272a-60bd9abf-617c35cf-680a7325-1d98ff79-a18ae0b9-e0f8cf4a",
+      "beforeBytes": 5271,
+      "lines": 116,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 16,
+          "sha256": "7af0e1b9-0a31080f-69ccd583-30a7e500-c2cef080-303c50e6-0c3ddb63-42d3d797"
+        },
+        {
+          "line": 24,
+          "sha256": "a5c9a46d-a9a45001-e77f5fde-e4797ed1-fa1a5920-51bfa39c-3268618c-c607842c"
+        },
+        {
+          "line": 115,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "6fcb7533-906d0a9c-3bc4aa28-16003f67-4553f187-9c6c29f2-8446c848-bf18b559",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0279",
+      "path": "docs/evidence/W-0279/README.md",
+      "beforeSha256": "3e70b9f4-859fabbb-a2ea6f78-771c309c-07caa55a-65351a8f-e938733f-06033bbd",
+      "beforeBytes": 3040,
+      "lines": 58,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 57,
+          "sha256": "290a6633-62d2b082-ddb02162-1eec9075-4a145892-25bc3752-d7ac22fa-15c04f25"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "4ca3f0d1-9605480c-931c052a-3712c752-b33a20ad-1c5e12d9-dfeec256-d20ef87f",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0288",
+      "path": "docs/evidence/W-0288/README.md",
+      "beforeSha256": "9acf8d7b-32fcd5ab-82099504-eb9001da-db5689f5-1e22fa17-881e6d51-a70006d0",
+      "beforeBytes": 1341,
+      "lines": 12,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 11,
+          "sha256": "1bd0f017-a7dd62c6-87940fbe-c5403876-b04ff3f1-a863ddb5-eeaabd1d-6c9cfc97"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "e2cd5be8-9642b981-bd777a61-85b71c28-cc82d055-da607d6c-8e9ea523-8c97ce2a",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0289",
+      "path": "docs/evidence/W-0289/README.md",
+      "beforeSha256": "41b86d2c-e25422a0-63615e4e-7dd904d1-6526fb5d-52d4798d-5eabca8c-c8db8c51",
+      "beforeBytes": 1556,
+      "lines": 12,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 11,
+          "sha256": "e4651914-70874727-0081a405-0317b785-9ac4c336-4c23de1f-f0f70aea-0a25548f"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "6ed01dc9-0f7d8636-a2e7750e-da03c8d0-a1ee5f2a-e0fc43cb-6a91d02c-c161cb92",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0291",
+      "path": "docs/evidence/W-0291/README.md",
+      "beforeSha256": "e486f305-fdc15e55-d197f65d-c54e0ae7-07a9a507-8ff36171-35203dde-58f628c9",
+      "beforeBytes": 2641,
+      "lines": 16,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "016ca396-903925e2-68d0aa3a-9940de3a-dfbfbd87-185e2fe7-1325f34c-a1817abd",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0293",
+      "path": "docs/evidence/W-0293/README.md",
+      "beforeSha256": "4306efb1-dcda7a78-130c1147-20fb4453-5a4cb535-00e30562-de442daa-302e30ad",
+      "beforeBytes": 1977,
+      "lines": 12,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 5,
+          "sha256": "ec99d32c-c38d0c09-69b2764b-2413e0ae-a04629b0-03de81e9-d88b1faf-095c3e84"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "d8d90949-9e67b776-68c118ce-41f84992-b9e153a7-570fe4a7-3de68e0d-5105d77c",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0294",
+      "path": "docs/evidence/W-0294/README.md",
+      "beforeSha256": "85f0b7d2-2e712065-c7488aab-4ee998cf-e895ccb9-749be91c-99acffa8-29671cb9",
+      "beforeBytes": 2690,
+      "lines": 20,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "3f0346ce-2885f5b4-a1e8e408-bd588c07-b6c9d560-af53bc85-be6ec39d-106d0c1e",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0295",
+      "path": "docs/evidence/W-0295/README.md",
+      "beforeSha256": "d660bc7e-149025fd-7a5602d1-4031fdd0-2f59591f-e0e39bca-89913af6-f50c891b",
+      "beforeBytes": 2511,
+      "lines": 14,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [
+        {
+          "line": 13,
+          "sha256": "d4fdd07a-b0af81e5-5293bab5-eedbbea3-1ee3a233-7b5f360e-340eb7f2-b2ae742b"
+        }
+      ],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "f8cb8d22-ffd8d228-614a2ddb-9696eab2-df9723be-277347fd-5a4b4b0e-8ac0481a",
+      "preservedPrefix": true
+    },
+    {
+      "id": "W-0296",
+      "path": "docs/evidence/W-0296/README.md",
+      "beforeSha256": "35443d08-c954b867-f08e61cf-820f26b0-ee336cd7-f3255c7f-2c476cc8-cdac649e",
+      "beforeBytes": 2060,
+      "lines": 12,
+      "c2AtPreviousCandidate": false,
+      "scopeLines": [],
+      "appendedText": "\n## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026\n\nREAL_CUSTOMER_CALL_ALLOWED=NO\n\nĐây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.\nKết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận\nmột lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).\n",
+      "afterSha256": "57e8b36b-37f7835d-fa59f1d2-3071a92a-8f85a2ff-1c762a0d-26b09c90-2966e3a5",
+      "preservedPrefix": true
+    }
+  ],
+  "hashEncoding": "SHA-256 hexadecimal in groups of 8; remove hyphens to recover the canonical 64 digits"
+}

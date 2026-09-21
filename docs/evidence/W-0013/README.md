@@ -145,3 +145,11 @@ dispatch-to-guard/privacy, and correlation-to-safe-generator. Interface/DI
 edges are explicitly lower-bound, so the full API/Worker integration suite is
 the authoritative consumer proof. No unexpected external source consumer was
 identified and the circular-import check reports zero cycles.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

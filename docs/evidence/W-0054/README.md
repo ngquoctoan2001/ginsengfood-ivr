@@ -137,3 +137,11 @@ Mẫu số là thứ **duy nhất IVR tự đo được**: nó nằm sẵn ở `
   được đo qua `Meter` thật trong `IT-OBS-DEADLINE-10`, còn **chưa có exporter OTLP** (`W-0063`) nên
   chưa tín hiệu nào rời tiến trình.
 - **Không có `cost_per_confirmed_order`** — và sẽ không có cho tới khi có báo giá. Xem §6.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

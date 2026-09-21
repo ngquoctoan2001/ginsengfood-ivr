@@ -136,3 +136,11 @@ phục vụ (`Port=1`), nên "không có database" là **sự kiện**, không p
   là suy luận, không phải baseline đo được. Chỉ D-04 (5s) và DT-04 (3/10′) là `LOCKED`.
 - **Panel integration-status khớp UI (`P6-2` §6.4) chưa làm**: console đọc từ API admin chứ không từ
   Prometheus, nên "khớp nguồn thật" cần một quyết định về nguồn nào là chuẩn — chưa có.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

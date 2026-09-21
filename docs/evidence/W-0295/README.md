@@ -11,3 +11,11 @@ Ngày 14/09/2026. **TESTS_PASS (local)**. Baseline `c089a96a-f73c18aa-6cef68c5-6
 [Full sweep local sau sửa pin](gate-sweep-local.log): **39/39 PASS, 22 skip theo manifest**, exit 0. Kiểm PII tiếp theo phát hiện chữ số trong hash source resolver-port trùng pattern phone. Export template nay dùng Unicode escape để chia cụm số dài trong SHA-256 đã kiểm với source; [JSON roundtrip](template-encoding.log) xác nhận giá trị sau đọc không đổi. Không xử lý bundle bên ngoài hoặc thay scanner. Sau sửa export đã chạy lại W-0183, CI-config và full evidence PII: 380 file PASS.
 
 [W-0183 selftest cuối](dial-token-selftest.log): 3 template (trên đĩa, sinh trong bộ kiểm, JSON roundtrip), 4 model, 64 refusal. [W-0181 selftest](upstream-selftest.log): 2 template, 1 valid, 32 refusal. [Hai template cũ](stale-template-refusal.log) đều exit 1 đúng lỗi source pin. Git diff của hai attested manifest rỗng. GitNexus LOW: mỗi constant 0 caller index; mỗi runSelfTest có 1 caller main, main có 1 file caller, 0 process runtime. Hosted cần candidate sau commit; không gọi pipeline c089a96 là PASS.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

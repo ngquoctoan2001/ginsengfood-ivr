@@ -28,3 +28,11 @@ customer no-answer outcomes. No source change was made for that false positive.
 Retention JSON now truthfully records configuration mode `LAB_REAL_SIM` and
 environment `DISPOSABLE_TEST_DB`; no telephony/provider was started. Final full
 regression: `281/281 PASS`.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

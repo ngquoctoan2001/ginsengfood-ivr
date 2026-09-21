@@ -154,3 +154,11 @@ OpenAPI `draft.14 → draft.15`: +3 path, +8 schema, re-pin manifest, sinh lại
 - **Không có e2e chạy console và API thật cùng lúc.** Hai lớp được chứng minh riêng, như W-0110
   và W-0111.
 - **Chưa chạy trên môi trường staging thật.** Toàn bộ chạy trên host `Testing` + PostgreSQL thật.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

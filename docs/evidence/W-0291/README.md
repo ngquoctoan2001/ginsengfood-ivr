@@ -13,3 +13,11 @@ Full security wrapper lần đầu dừng với exit 1: NuGet HIGH gate PASS, np
 [Bảng rà từng cảnh báo](reviewed-findings.json): 44 hash của report W-0286 khớp source tại candidate được report ghi; 6 hash portal khớp source cùng commit (kiểm cả byte LF/CRLF). 18 dòng còn lại đã đọc đúng commit: 10 seed tên feature flag, 2 chú thích trích tên đó, 2 input idempotency sai định dạng, 2 mẫu PII giả, 1 JWT chữ ký giả và 1 ví dụ credential sandbox local. Không tìm thấy credential thật trong 68 dòng đã rà.
 
 Danh sách 68 fingerprint commit/file/rule/dòng đã chuẩn bị ở `.artifacts/w0291/gitleaks-exceptions.proposed.txt`. Automatic approval review ban đầu từ chối cập nhật persistent `.gitleaksignore`. Owner sau đó trả lời **Duyệt đúng 68 fingerprint đã rà**; đã áp đúng 68 dòng vào ignore, không thêm phạm vi khác. Rule và negative control giữ nguyên. [Full wrapper sau duyệt](security-final.log) **PASS, exit 0**: NuGet HIGH PASS, npm 0 vulnerability, negative control bắt secret giả, Gitleaks 343 commit không còn finding. Lịch sử được quét tại d44834e với lock/ignore W-0291; pipeline phải quét lại commit sau khi task này được lưu.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

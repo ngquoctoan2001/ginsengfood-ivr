@@ -9,3 +9,11 @@ Dừng phiên Docker khởi động lỗi bằng CLI; kiểm từng thư mục k
 Sau lần mở cuối, `docker info --format '{{.ServerVersion}}'` trả **29.7.2**, exit 0. Đã dùng nút Retry all failed or cancelled jobs trên pipeline hiện tại. [Gate sweep 16479006261](https://gitlab.com/nqt20102001/ginsengfood-ivr/-/jobs/16479006261) hoàn tất **39/39 PASS, 22 skip theo manifest**, `Job succeeded` lúc 08:37:04 UTC: W-0181/W-0183, regression JUnit, PII, DR và TTS đều PASS. Chốt phục hồi runner; toàn pipeline/publish/deploy vẫn theo W-0292.
 
 Kiểm local bổ sung trước recovery chỉ **32/39**: bốn gate mất Docker và ba gate thiếu `sh` trong PATH. Giữ log lỗi trong `.artifacts/w0295/exact-head-gate-sweep.log`; không dùng lần này thay full sweep trước đó hoặc hosted proof. Phần pin W-0181/W-0183 vẫn PASS ở lượt này.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

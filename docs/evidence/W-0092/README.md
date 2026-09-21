@@ -34,3 +34,11 @@ self-test PASS; contract `21/21`; final full regression `281/281`.
 
 The clean current diff is not Sales approval. External endpoint/auth/CDC and
 consumer sign-off remain `BLOCKED_EXTERNAL` / `NOT_RUN`.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

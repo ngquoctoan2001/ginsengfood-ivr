@@ -103,3 +103,11 @@ Không có gì cho M8 tới khi `W-0008` có cuộc gọi đo được. Khi đó
 
 Điều kiện thoát vẫn nguyên: `calibratedBy` phải trỏ một artifact có thật dưới
 `docs/evidence/W-0008/`, và `CAP-CALIB-03` vẫn cấm dán nhãn `P5-3` thành bằng chứng cuộc gọi.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

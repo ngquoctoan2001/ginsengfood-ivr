@@ -239,3 +239,11 @@ cũng vô dụng ngang một cổng không bắt gì.
   chứa dòng vi phạm — đó là việc của A9.
 - **Không sửa migration nào.** Cả 12 đã đạt; danh sách miễn trừ rỗng là kết quả, không phải một
   lượt dọn dẹp.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

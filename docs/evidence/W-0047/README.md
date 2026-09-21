@@ -245,3 +245,11 @@ Drill §9.5 chứng minh hành vi **middleware** qua ranh giới `T`: một ti�
 sẵn. Thứ nó không chạm tới được là hành vi **fleet** trong lúc rolling restart, khi pod mang cấu
 hình cũ và pod mang cấu hình mới **cùng đang phục vụ**. Đó mới là chỗ rotation thật sự đau, và nó
 **vô hình** với mọi test có một replica.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).

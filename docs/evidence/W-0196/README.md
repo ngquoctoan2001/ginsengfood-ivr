@@ -50,3 +50,11 @@ Only the drill's temporary APIs/container were removed; the developer database w
 MOCK / MOCK / NO, synthetic data only, no worker or provider calls. Missing old rows require a
 verified pre-drop backup; empty shape repair is not data recovery. Hosted CI and cluster rollback
 remain NOT_RUN; real consumer confirmation and cleanup are a later release, not part of expand.
+
+## Cập nhật chỉ dấu nghiệm thu — W-0325, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
+Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
+một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
