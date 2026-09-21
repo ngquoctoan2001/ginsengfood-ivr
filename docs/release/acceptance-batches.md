@@ -1,11 +1,11 @@
-# Danh sách đề nghị nghiệm thu — `1794241dfbbc919409d03db7232d8a9ad504b9f8`
+# Danh sách đề nghị nghiệm thu — `aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979`
 
 Script **chỉ đọc**: không sửa tracker. Chỉ Toàn chuyển một dòng sang `ACCEPTED`, sau khi
 đọc bằng chứng — danh sách này không thay cho việc đọc.
 
 | Nguồn | Trạng thái |
 | --- | --- |
-| Kết quả test (`C2`) | 4 file `.trx`, 1151 kết quả · SHA/hash/đủ project đã kiểm |
+| Kết quả test (`C2`) | 4 file `.trx`, 1171 kết quả · SHA/hash/đủ project đã kiểm |
 | Gate sweep (`C4`) | ✅ GATE_SWEEP_PASS 42/42 |
 
 ## Nấc 1
@@ -27,7 +27,7 @@ Prompt đã lên kế hoạch đã xong (`ACCEPTED`, `N/A`, `CANCELLED`): **6/54
 | `P6` | 3 | 0 | 1 | 2 | 0 |
 | `P7` | 5 | 0 | 0 | 5 | 0 |
 | `P10` | 4 | 0 | 1 | 3 | 0 |
-| `UNPLANNED` | 183 | 0 | 57 | 126 | 0 |
+| `UNPLANNED` | 184 | 0 | 58 | 126 | 0 |
 
 `ĐẠT`: đủ bốn điều. `XEM`: C1, C2, C4 đạt, còn cột Residual cần Toàn đọc xem có việc
 của IVR không. `KHÔNG ĐẠT`: hỏng ít nhất một điều, lý do ở dưới. `CHƯA KIỂM`: thiếu kết quả test
@@ -356,6 +356,7 @@ hoặc log gate sweep để kết luận.
 | `W-0324` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0325` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |
 | `W-0327` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |
+| `W-0328` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |
 
 - `W-0078` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: retain pin until Testcontainers declares a patched dependency; no production SSH/SIM/Sales execution
 - `W-0079` — gate-status.yaml không trỏ tới gói bằng chứng nào · không có TestId hoặc khai báo kiểm chứng để xét C2 · Residual: local implementation complete; hosted GitLab evidence vẫn NOT_RUN dưới W-0061
@@ -540,4 +541,5 @@ hoặc log gate sweep để kết luận.
 - `W-0324` — Residual: Không tự ACCEPTED; UI M3 không chứng nhận bằng test backend; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0325` — Residual: Đã phân loại 23 thiếu gói, 63 thiếu phép kiểm, 61 TestId chưa đối chiếu, 4 UI retired; Toàn duyệt 8 P2; đợt tiếp rà Residual 13 việc C1 mới đạt; REAL_CUSTOMER_CALL_ALLOWED=NO
 - `W-0327` — Residual: W-0042 thiếu game-day/alert capture; W-0207 cần E2E đúng candidate và signer thật; W-0052 chờ S8 rồi làm công cụ DSAR. 10 đề nghị chờ Toàn, không tự ACCEPTED; REAL_CUSTOMER_CALL_ALLOWED=NO
+- `W-0328` — Residual: C2 hoàn tất; Toàn đọc 73 XEM, 151 hồ sơ chưa đủ; không tự ACCEPTED. Tiếp W-0207 local E2E; REAL_CUSTOMER_CALL_ALLOWED=NO
 

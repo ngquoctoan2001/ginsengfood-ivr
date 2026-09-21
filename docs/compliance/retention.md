@@ -2,6 +2,14 @@
 
 Ngày: `2026-08-19` · Trạng thái: **`UNSIGNED`** — **mọi con số dưới đây để trống**
 
+> **Cập nhật 21/09/2026 — W-0330:** Nội dung từ §1 trở xuống là phiếu lịch sử ngày 19/08,
+> không phải lời yêu cầu điền kỳ hạn hiện hành. Owner chốt quorum tại W-0266; S3/W-0316 sau đó
+> chọn giữ toàn bộ dữ liệu vĩnh viễn. `PeriodDays={}` và các ô không có số là chủ đích.
+> Dùng [phiếu hiện hành](retention-period-proposal.md) và OD-V1-11 trong
+> [register](../../specs/_review/open-decisions-register.md). Việc xoá khi khách yêu cầu dùng
+> [DSAR CLI](dsar-cli-step-by-step.md); backup không bị CLI xoá và cần quy trình áp lại khi restore.
+> S2/PIA/go-live không được ký thay bởi cập nhật này. Giữ nguyên các ô ký lịch sử bên dưới.
+
 ## 1. Vì sao bảng này trống
 
 `DF-07` / `OD-V1-11` giao việc chốt chu kỳ cho Legal. Điền một con số nghe hợp lý vào đây sẽ tạo ra

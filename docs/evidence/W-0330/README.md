@@ -36,8 +36,41 @@ GitNexus: EraseAsync MEDIUM (8 phụ thuộc/6 caller/0 flow); AppendAsync dùng
   preview 1/0, execute 1, lặp lại 0; đơn thứ hai nguyên vẹn; ba audit đều gắn OS identity thật của tiến trình.
 - 31/31 kiểm thử compliance + CLI PASS; artifact ban đầu ở .artifacts/w0330-cli-tests/w0330-cli.trx.
 
-Đang chốt candidate để chạy toàn solution và full sweep, sau đó đóng gói executable đúng source.
-Kết quả ban đầu chưa dùng để nghiệm thu HEAD. [Hướng dẫn từng bước](../../compliance/dsar-cli-step-by-step.md).
+Sau sửa cấu hình kết nối: 37/37 kiểm thử compliance + CLI PASS, artifact
+.artifacts/w0330-cli-gss/w0330-cli-gss.trx. Lượt thử đầu dùng keyword libpq gssencmode bị Npgsql từ chối;
+kiểm cuối xác nhận keyword được hỗ trợ giữ nguyên Require/Prefer/Disable và keyword lạ bị từ chối.
 
 Lượt full proof tại 8557baa đã dừng khi review phát hiện CLI ghi đè GSS được cấu hình tường minh.
 Không có acceptance manifest cho lượt này; log giữ ở .artifacts/w0330-acceptance-8557baa.
+
+## Kiểm chứng chốt và gói bàn giao
+
+Candidate **aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979**, detached checkout sạch trước/sau cả hai lượt.
+Full solution chạy xong trước full sweep; không tái dùng TRX hoặc gate log cũ.
+
+- **1171/1171 PASS**: 756 unit, 383 integration, 24 contract, 8 chaos; không skip.
+- **42/42 gate PASS**, 24 entry không có invocation được manifest phân loại; consumer đối chiếu đủ tên gate.
+- Test bắt đầu 14:20:01, xong 14:28:18; sweep 14:28:18–14:34:47 ngày 21/09, UTC+7.
+- [Verification](verification.json) ghim SHA/tree, hash manifest, bốn TRX và sweep log. Raw bundle:
+  .artifacts/w0330-acceptance-aaba3d2/acceptance-run.json.
+- Gói .artifacts/w0330-dsar-cli/ được publish Debug --no-build từ candidate này: 43 file,
+  cần .NET Runtime 10 + ASP.NET Core Runtime 10. Bốn DLL IVR khớp byte với binary integration test;
+  bản đóng gói chạy --help và --identity thành công. [Manifest gói](package-manifest.json).
+- Gói chưa có policy người vận hành hoặc credential database. Owner thiết lập theo
+  [hướng dẫn 6 bước](../../compliance/dsar-cli-step-by-step.md); sáu khối PowerShell đã kiểm cú pháp.
+- [Danh sách nghiệm thu](../../release/acceptance-batches.md) được sinh lại từ đúng candidate:
+  **225 ứng viên, 74 XEM, 151 KHÔNG ĐẠT, 0 ĐẠT, 0 CHƯA KIỂM**. W-0330 còn IN_PROGRESS tại candidate,
+  nên chưa thuộc 225 ứng viên; trạng thái hoàn thiện được ghi ở commit hồ sơ sau. Không nhận danh sách
+  này là kiểm chứng cho HEAD thay đổi về sau.
+
+## Residual đã khép và phần owner thực hiện
+
+Khoảng trống công cụ DSAR ngoài test đã khép. PIA/checklist/retention có cập nhật kỹ thuật hiện hành;
+hồ sơ W-0052 và W-0327 có addendum, giữ kết quả lịch sử. S8 ghi lời trả lời của owner, không điền hộ ô ký.
+
+Toàn chọn database và tự chạy; Sales xác minh chủ thể. S2/PIA, xử lý backup/restore trên môi trường
+thật và lượt thực thi của owner chưa có bằng chứng mới. Không tự chuyển W-0052 hay việc khác sang ACCEPTED.
+Quyền OS/file/credential phải được owner bố trí trên máy vận hành; tài khoản quản trị máy/DB vẫn có thể
+can thiệp. Đây là bằng chứng local với dữ liệu giả, không phải xác nhận xoá dữ liệu khách mọi nơi.
+
+Kiểm tài liệu: compliance-pack và docs-selftest PASS; liên kết local và PII được kiểm lại ở commit hồ sơ.

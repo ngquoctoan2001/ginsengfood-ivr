@@ -2,6 +2,23 @@
 
 Ngày: `2026-08-19` · Dùng ở `P9-1` (release gate). **Không ô nào tự tick được.**
 
+## Cập nhật 21/09/2026 — W-0330
+
+Bảng §2–§4 bên dưới là bản lịch sử. Khi xét hiện tại, dùng các hiệu chỉnh sau cùng
+[PIA cập nhật](pia.md#cập-nhật-kỹ-thuật-21092026--w-0330); không dùng dấu xanh lịch sử làm chứng cứ deploy.
+
+| Dòng | Hiệu chỉnh hiện hành |
+| --- | --- |
+| T-01 | Điều kiện “không lưu số” không còn mô tả thiết kế: `phone_e164` được lưu từ W-0311. W-0314 sửa DSAR để xoá số; rủi ro S2 chưa được bảng này tự đóng. |
+| T-06 | CLI đã có ở [W-0330](../evidence/W-0330/README.md), kèm COMP-DSAR-13..18 cho rollback audit, quyền OS, preview/một đơn/lặp lại và bảo toàn cấu hình kết nối. Bằng chứng local không thay lượt owner chạy trên môi trường được chọn. |
+| T-09/T-10 | Test backup/restore lịch sử vẫn có phạm vi riêng. S3 giữ vĩnh viễn; không suy “restore bị retention xử lý” thành chắc chắn dữ liệu DSAR biến mất. Owner phải chứng minh cách áp lại yêu cầu sau restore. |
+| S-02 | S3/W-0316 đã thay các kỳ hạn cũ; không điền số vào PeriodDays. S2/PIA và kiểm cấu hình của môi trường thật vẫn riêng. |
+| S-03/S-04 | OD-V1-15 đã chốt whitelist; OD-V1-08/16 đã chốt attempt policy. Quyết định không chứng minh client M3 hoặc production đã chạy đúng. |
+| S-07 | Permission đã có; DI đã dùng các verifier PostgreSQL thay Pending*. Kiểm bản ghi duyệt và nhiều actor ở môi trường đích; không còn mô tả production luôn từ chối do hard-code. |
+| S-01/S-05/S-06 và hạ tầng | Không có chữ ký PIA/go-live hoặc bằng chứng hạ tầng mới trong W-0330. Toàn/owner xử lý đầu vào thực tế; agent không tự tick. |
+
+Hướng dẫn thao tác: [DSAR từng bước](dsar-cli-step-by-step.md). REAL_CUSTOMER_CALL_ALLOWED=NO.
+
 ## 1. Cách đọc
 
 Mỗi dòng có ba cột: **điều kiện**, **bằng chứng nào chứng minh nó**, và **ai xác nhận**. Một dòng

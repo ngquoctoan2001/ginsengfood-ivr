@@ -1,0 +1,207 @@
+{
+  "schema": "ivr-dsar-package/v1",
+  "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+  "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+  "configuration": "Debug",
+  "targetFramework": "net10.0",
+  "selfContained": false,
+  "hashEncoding": "SHA-256 hex grouped by eight; remove hyphens for canonical hex",
+  "operatorPolicyIncluded": false,
+  "connectionCredentialIncluded": false,
+  "assemblyMatches": [
+    {
+      "assembly": "Ivr.Dsar.dll",
+      "sha256": "6eceeee1-1c1d8297-ed1095eb-7240ed57-2e39c473-983eb9c9-2e6fbe0b-62bf3c91",
+      "equalsIntegrationTestBinary": true
+    },
+    {
+      "assembly": "Ivr.Infrastructure.dll",
+      "sha256": "c45a10df-24f4958e-d257808f-42a06ae4-0269e3ce-daa61fbe-3a309c2d-b673616b",
+      "equalsIntegrationTestBinary": true
+    },
+    {
+      "assembly": "Ivr.Domain.dll",
+      "sha256": "80807646-c5feeb51-4dfed9e3-9fbe9eae-6c0235d3-92de134d-79c2037c-cfe8745a",
+      "equalsIntegrationTestBinary": true
+    },
+    {
+      "assembly": "Ivr.Contracts.dll",
+      "sha256": "6b2191f2-b7fb7ef5-013013d0-b950d6d7-fa934f62-0b6bbf74-6c79ad2e-0a6189df",
+      "equalsIntegrationTestBinary": true
+    }
+  ],
+  "files": [
+    {
+      "path": "Ivr.Contracts.dll",
+      "sha256": "6b2191f2-b7fb7ef5-013013d0-b950d6d7-fa934f62-0b6bbf74-6c79ad2e-0a6189df"
+    },
+    {
+      "path": "Ivr.Contracts.pdb",
+      "sha256": "317c1ba1-f3ee9897-a6b805ff-f9b79c08-fce0aac4-85bc390f-f569cfe6-e32c3e76"
+    },
+    {
+      "path": "Ivr.Domain.dll",
+      "sha256": "80807646-c5feeb51-4dfed9e3-9fbe9eae-6c0235d3-92de134d-79c2037c-cfe8745a"
+    },
+    {
+      "path": "Ivr.Domain.pdb",
+      "sha256": "1d51318d-3dfd49d4-3aaefa38-ede5cfe9-2c2792b3-e3b614b0-742b9174-aefd68fc"
+    },
+    {
+      "path": "Ivr.Dsar.deps.json",
+      "sha256": "ae0952f9-b8f936b8-d2b15ac1-135577de-e0e91217-a5900bef-5be54bed-f8ce6f6f"
+    },
+    {
+      "path": "Ivr.Dsar.dll",
+      "sha256": "6eceeee1-1c1d8297-ed1095eb-7240ed57-2e39c473-983eb9c9-2e6fbe0b-62bf3c91"
+    },
+    {
+      "path": "Ivr.Dsar.exe",
+      "sha256": "25d40984-8d8c8ae8-fb814449-621ecd5f-43c5f188-464142ac-b2d3fca9-26f7db19"
+    },
+    {
+      "path": "Ivr.Dsar.pdb",
+      "sha256": "67cdca17-c4247efb-2ef6fbe0-cbd5d97f-558b30f6-0d12688a-57ca7ccc-491a2ded"
+    },
+    {
+      "path": "Ivr.Dsar.runtimeconfig.json",
+      "sha256": "a5e0a613-5c8fc7f0-463848f9-b69b73f6-3ec80659-7dcec65c-acdef1fb-0832252a"
+    },
+    {
+      "path": "Ivr.Infrastructure.dll",
+      "sha256": "c45a10df-24f4958e-d257808f-42a06ae4-0269e3ce-daa61fbe-3a309c2d-b673616b"
+    },
+    {
+      "path": "Ivr.Infrastructure.pdb",
+      "sha256": "20ca9eb6-acd59430-07e37f3f-244747f8-ac95c1f7-414f7996-93e51082-46f1952d"
+    },
+    {
+      "path": "Microsoft.Bcl.Cryptography.dll",
+      "sha256": "91c6bab9-3638c268-569a38bc-87770a5e-3ef99326-76f5b7a6-d47aef42-08062925"
+    },
+    {
+      "path": "Microsoft.EntityFrameworkCore.Abstractions.dll",
+      "sha256": "6c640170-3d480f3f-b49ca47e-a746c465-57779c7a-c4406e29-f8a8956b-151877d2"
+    },
+    {
+      "path": "Microsoft.EntityFrameworkCore.Relational.dll",
+      "sha256": "187eaad6-b4ed168a-3217677b-8e9d325b-7aeb94ac-f3a713f4-d9556fa0-057a526a"
+    },
+    {
+      "path": "Microsoft.EntityFrameworkCore.dll",
+      "sha256": "9cf183ab-ffc9d692-0e8366b7-5af8388b-c502feba-aa0e3d9f-e41a4906-a68d3065"
+    },
+    {
+      "path": "Microsoft.Extensions.Caching.Abstractions.dll",
+      "sha256": "d3e8d6b1-bfe488c6-70c277ba-27b871de-a27192c6-0289e1d6-5173b212-86a8eb32"
+    },
+    {
+      "path": "Microsoft.Extensions.Caching.Memory.dll",
+      "sha256": "27a3b754-253c2ecb-d1e695bc-3dc67c8d-047d9dc3-219f60f7-dc0b84ba-f5f43023"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.Abstractions.dll",
+      "sha256": "cfdb9115-6d4d875b-a6f540e5-3f96988e-266ab24a-b6f36715-0db6eb9b-645cfeb3"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.Binder.dll",
+      "sha256": "6e30012a-3f649ba2-e4a4101c-e77b777b-0e89be05-302fe7c1-1118cf68-0e561922"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.dll",
+      "sha256": "7811862a-c6c2456e-1efd7ff3-00e6567f-f373fbcc-f4266a85-3dac376b-5b8c19c3"
+    },
+    {
+      "path": "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+      "sha256": "43497d8f-23b82159-295933ef-fe92c824-47469b60-cdbefcca-4a62232e-4ebbca99"
+    },
+    {
+      "path": "Microsoft.Extensions.DependencyInjection.dll",
+      "sha256": "21a7fd5e-0dba0f36-c5d7643e-572a11aa-ed01ac90-1532bd7b-96a919eb-02749389"
+    },
+    {
+      "path": "Microsoft.Extensions.Diagnostics.Abstractions.dll",
+      "sha256": "629fcc3e-78969fba-52d7bf7a-b21eaea2-a7711fa4-e0b4b91b-d37ad8b3-5816d60c"
+    },
+    {
+      "path": "Microsoft.Extensions.Diagnostics.dll",
+      "sha256": "e66c773c-8976cf0c-056b360e-cf87637f-28639810-189bdf4d-6bb579db-6a3e3466"
+    },
+    {
+      "path": "Microsoft.Extensions.Http.dll",
+      "sha256": "40d0cc9f-b8466ec6-5650f0a1-e88172be-16097cc4-a4992500-5ef5452f-c5ff9546"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.Abstractions.dll",
+      "sha256": "cec836c1-dff8e647-01ee4fd3-a710bd97-1fef953c-90a34b57-7d9f4363-103e6c39"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.dll",
+      "sha256": "26d66b29-b64a36bc-7416e999-b0fb55bc-4b2d9d13-58b6bef8-30c6a0ec-dc81f86e"
+    },
+    {
+      "path": "Microsoft.Extensions.Options.ConfigurationExtensions.dll",
+      "sha256": "4f6119f2-f95f6564-12c4f31f-df80b739-314060be-eb374ea3-aa92feb3-164582f7"
+    },
+    {
+      "path": "Microsoft.Extensions.Options.dll",
+      "sha256": "c734c6a9-feca3a2d-f39597e0-28efea8e-ea796e7e-5dfc815d-f8b58933-84297728"
+    },
+    {
+      "path": "Microsoft.Extensions.Primitives.dll",
+      "sha256": "1f9f0278-17b0f277-f45cceb0-927c14e4-1cabfe6d-52dafb5a-b6bf6889-5294814b"
+    },
+    {
+      "path": "Microsoft.IdentityModel.Abstractions.dll",
+      "sha256": "f0d349d3-b696b871-d7988f8e-13f9873f-463edd1a-31d367b2-2aaa39cd-b071b186"
+    },
+    {
+      "path": "Microsoft.IdentityModel.JsonWebTokens.dll",
+      "sha256": "7cdcc830-f1e3c3ae-4be44a67-e3756849-5d026429-55c7d21c-1dc5d994-7f67e891"
+    },
+    {
+      "path": "Microsoft.IdentityModel.Logging.dll",
+      "sha256": "a4476867-e60d666d-aa22233f-95467293-9861f229-2cc699df-88093056-042f6c48"
+    },
+    {
+      "path": "Microsoft.IdentityModel.Tokens.dll",
+      "sha256": "16c33e63-bffff90f-1b8698f8-99f96f33-11329f26-e940b8f0-31b1f26d-82bc41b1"
+    },
+    {
+      "path": "Npgsql.EntityFrameworkCore.PostgreSQL.dll",
+      "sha256": "94fcf66e-8e953fdb-02c40c72-ca89821d-d5eed532-4d4c0f12-a7219ea8-cd3d5a5e"
+    },
+    {
+      "path": "Npgsql.dll",
+      "sha256": "e2bcafe1-660fe454-3fe9dfca-bed972ec-8d32259e-5ea80094-62ce1de2-3c7034c2"
+    },
+    {
+      "path": "OpenTelemetry.Api.ProviderBuilderExtensions.dll",
+      "sha256": "fc7d1f87-03be185c-f9f49b2d-a505876a-63c09d40-1728725a-1ffd333f-c896f998"
+    },
+    {
+      "path": "OpenTelemetry.Api.dll",
+      "sha256": "fb485379-1d5052bd-cced3635-5b513664-c027cf7d-5b4b18a8-f98b9bee-9adf1962"
+    },
+    {
+      "path": "OpenTelemetry.Exporter.OpenTelemetryProtocol.dll",
+      "sha256": "04983880-521bd94f-83e476e0-cd1379eb-c659a27c-cf5ab251-746eb426-2df666cc"
+    },
+    {
+      "path": "OpenTelemetry.Extensions.Hosting.dll",
+      "sha256": "275f3250-071cddb9-52df7acd-3d0330eb-7766bc25-766100c0-4a8f9e0c-ccc40922"
+    },
+    {
+      "path": "OpenTelemetry.Instrumentation.AspNetCore.dll",
+      "sha256": "a68e37e3-682a33d0-302b940c-253acadf-ad62c726-5b50e4e9-1b9fef75-10409a9c"
+    },
+    {
+      "path": "OpenTelemetry.Instrumentation.Http.dll",
+      "sha256": "6287592e-291a513d-14610d51-584169f4-6af2b2ae-826ead53-ae61fddf-5b6e929e"
+    },
+    {
+      "path": "OpenTelemetry.dll",
+      "sha256": "06f4ca5a-dbb36554-a891aaa7-c550c578-988357c1-588a87e8-ce290dc1-9a4b0343"
+    }
+  ]
+}

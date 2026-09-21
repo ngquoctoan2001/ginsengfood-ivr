@@ -1,7 +1,7 @@
 # Vướng mắc và việc cần quyết — Module 8 (gọi điện xác nhận đơn hàng)
 
 **Lập:** `17/09/2026` · **Duyệt:** `17/09` — Sếp + Toàn · **Mốc mã:** `main@fe3bb19`
-**Trạng thái:** `ĐÃ QUYẾT 11/16` — còn **5 mục chờ Sếp** (`S1` `S2` `S5` `S6` `S8`) · **Kế hoạch khắc phục:** §5, cuối file
+**Trạng thái:** `ĐÃ QUYẾT 12/16` — còn **4 mục chờ Sếp** (`S1` `S2` `S5` `S6`) · S8: owner tự chạy CLI theo trả lời ngày 21/09, xem bên dưới · **Kế hoạch khắc phục:** §5, cuối file
 
 > **Hệ thống hiện chưa thể gọi khách thật** — cố ý, có nhiều lớp chặn. Không mục nào dưới đây là
 > sự cố đang xảy ra. Tất cả là việc phải xong **trước** ngày gọi khách thật.
@@ -65,7 +65,7 @@ nhận rủi ro bằng văn bản**. Hồ sơ hiện ghi người nhận là **"
 | # | Rủi ro | Từ đâu |
 | --- | --- | --- |
 | 1 | Hệ thống gọi **giữ số điện thoại khách ở dạng đọc được** — ai lấy được bản sao dữ liệu là đọc được | Chọn `17/09`: Module 3 gửi thẳng số |
-| 2 | 🆕 **Giữ vĩnh viễn** mọi dữ liệu khách, gồm số điện thoại ở rủi ro 1. Cách xoá duy nhất: khi khách yêu cầu — *hiện chưa có lệnh để chạy việc xoá đó, xem `S8`*. *Nghị định `13/2023/NĐ-CP` có nguyên tắc chỉ lưu dữ liệu cá nhân trong thời gian phù hợp với mục đích xử lý — đây là điểm rủi ro pháp lý rõ nhất trong bảng. Ghi để Sếp cân nhắc, không phải ý kiến pháp lý* | `S3` |
+| 2 | 🆕 **Giữ vĩnh viễn** mọi dữ liệu khách, gồm số điện thoại ở rủi ro 1. Cách xoá duy nhất: khi khách yêu cầu — *cập nhật 21/09: W-0330 đã bổ sung CLI để owner tự chạy theo `S8`; câu “chưa có lệnh” trước đây đã hết hiệu lực*. *Nghị định `13/2023/NĐ-CP` có nguyên tắc chỉ lưu dữ liệu cá nhân trong thời gian phù hợp với mục đích xử lý — đây là điểm rủi ro pháp lý rõ nhất trong bảng. Ghi để Sếp cân nhắc, không phải ý kiến pháp lý* | `S3` |
 | 3 | 🆕 **Lỗ hổng bảo mật chưa có bản vá** trong bản cài nền của VieNeu. *Quét lại `18/09` (`W-0317`):* ra `57` lỗ chứ không phải `16`, vì dữ liệu lỗ hổng đã cập nhật. Vá được `13`, gồm cả `3` lỗ nghiêm trọng ⇒ **còn `44` lỗ mức cao, `0` nghiêm trọng**, và đã đo là phần mềm lúc chạy không nạp tới chúng. **Muốn về `0`:** đổi bản cài nền sang image miễn phí của Chainguard — đã thử: `0` lỗ, qua các kiểm tra; đổi lại là phụ thuộc một nhà cung cấp ngoài, và cần một lượt đọc thật bằng model trước khi đổi hẳn | `S4` |
 | 4 | 🆕 **Quyền dùng thương mại** model VieNeu và 12 đoạn giọng đã render | `S4` |
 | 5 | Người **nhấc máy không phải chủ đơn** vẫn nghe được tên món hàng và phường/quận giao | Chốt `05/09` |
@@ -112,10 +112,10 @@ Chi tiết: [báo cáo `15/09`, cập nhật `16/09`](../../docs/reports/2026-09
 
 > **Sếp trả lời:** Đếm cơ cấu mạng giao cho: ______ · Hồ sơ tên định danh giao cho: ______
 
-### S8 · Ai được xoá dữ liệu khách khi khách yêu cầu 👤 🔴
+### S8 · Owner tự chạy CLI theo hướng dẫn — trả lời ngày 21/09
 
 Vì `S3` (giữ vĩnh viễn), **cách xoá duy nhất** là khi khách yêu cầu (`S2` rủi ro 2). Ngày `18/09` lệnh xoá
-đã được sửa để **xoá đúng**, gồm cả số điện thoại (`W-0314`). Nhưng hiện **chưa có nút hay lệnh nào để
+đã được sửa để **xoá đúng**, gồm cả số điện thoại (`W-0314`). Tại thời điểm 18/09 **chưa có nút hay lệnh nào để
 chạy nó**: lệnh chỉ nằm trong mã, và chỉ bài kiểm thử gọi được. Nếu hôm nay có khách yêu cầu xoá, phải có
 người viết mã mới làm được.
 
@@ -143,7 +143,7 @@ Theo yêu cầu này, Codex chuẩn bị CLI và [hướng dẫn](../../docs/com
 trước khi xoá, có audit cùng giao dịch. Đây không phải chỉ thị cho agent xoá dữ liệu thật hoặc ký S2.
 Kết quả kỹ thuật và phạm vi được ghi tại [W-0330](../../docs/evidence/W-0330/README.md).
 
-### Ô ký — 5 mục còn mở
+### Ô ký gốc ngày 17/09 — giữ nguyên; S8 đã có trả lời trong task ngày 21/09
 
 | Người duyệt | `S1` | `S2` | `S5` | `S6` | `S8` | Ngày |
 | --- | --- | --- | --- | --- | --- | --- |

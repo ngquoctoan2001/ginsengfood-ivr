@@ -130,6 +130,13 @@ xin một ngoại lệ; trước hết chuẩn bị lượt capture có thể th
 **Còn triển khai, chưa trình ACCEPTED W-0052.** Bước triển khai phụ thuộc S8 thật sự chưa trả lời;
 yêu cầu “rà Residual” không phải quyết định chọn công cụ hay cấp quyền xoá.
 
+**Cập nhật 21/09 — W-0330, sau lượt rà trên:** owner đã trả lời S8 rằng tự chạy theo từng bước.
+[CLI và hướng dẫn](../../compliance/dsar-cli-step-by-step.md) đã được bổ sung, cùng kiểm quyền,
+preview, một đơn, lặp lại và rollback nguyên tử nếu audit lỗi. [Hồ sơ W-0330](../W-0330/README.md)
+ghim bằng chứng mới; PIA/checklist/retention có đối soát kỹ thuật mới. Vế “chưa chọn công cụ/chưa có
+lối chạy” đã được xử lý. Lượt owner chạy, Sales xác minh chủ thể, S2/PIA và quy trình backup/restore
+thật vẫn còn; không tự đổi W-0052 sang ACCEPTED. Bảng 10/2/1 ở đầu là kết quả tại mốc rà cũ.
+
 ## 5. W-0088 — Liveness/state machine
 
 [Gói gốc](../W-0088/README.md), commit `fb1eb4c`; [PostgresSchedulerStore](../../../src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs)

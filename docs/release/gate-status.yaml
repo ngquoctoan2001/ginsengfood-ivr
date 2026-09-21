@@ -1362,7 +1362,7 @@ work:
     evidence: "docs/evidence/W-0328/README.md"
   - id: "W-0330"
     prompt: "CLI DSAR và hướng dẫn owner tự chạy (Origin=OWNER_DECISION)"
-    status: "IN_PROGRESS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0330/README.md"
 
 production_flag:

@@ -5,6 +5,8 @@ W-0330 · 21/09/2026 · REAL_CUSTOMER_CALL_ALLOWED=NO
 Lệnh này xử lý **một mã đơn** trong IVR. Mặc định chỉ xem trước; mỗi lượt vẫn ghi audit.
 Thông tin trả về gồm số lượng và mã tham chiếu, không in dữ liệu cá nhân đang lưu.
 Gói chạy đã kiểm chứng nằm ở `.artifacts/w0330-dsar-cli/`; không cần build cây làm việc đang có WIP.
+Candidate `aaba3d2`; gói .NET 10, cấu hình Debug. Máy chạy cần .NET Runtime 10 và ASP.NET Core Runtime 10;
+lệnh `--help` ở bước đầu cũng kiểm tra gói có khởi động được trên máy đó hay không.
 
 ## 1. Mở PowerShell và chọn gói
 
@@ -13,18 +15,21 @@ Set-Location C:\Users\Administrator\Desktop\ivr
 $dsarDir = (Resolve-Path .artifacts/w0330-dsar-cli).Path
 $dsarDll = Join-Path $dsarDir Ivr.Dsar.dll
 & dotnet $dsarDll --help
+if ($LASTEXITCODE -ne 0) { throw 'Dung lai: goi DSAR chua khoi dong duoc.' }
 ```
 
 ## 2. Khai báo đúng tài khoản anh dùng — làm một lần trên máy chạy
 
 ```powershell
 $identityResult = & dotnet $dsarDll --identity | ConvertFrom-Json
+if ($LASTEXITCODE -ne 0) { throw 'Dung lai: chua doc duoc tai khoan OS.' }
 $dsarIdentity = $identityResult.CurrentIdentity
 $dsarIdentity
 @{ Version = 1; AllowedIdentity = $dsarIdentity } |
   ConvertTo-Json |
   Set-Content (Join-Path $dsarDir dsar-operator.json) -Encoding utf8
 icacls $dsarDir /inheritance:r /grant:r "${dsarIdentity}:(OI)(CI)F" "*S-1-5-18:(OI)(CI)F"
+if ($LASTEXITCODE -ne 0) { throw 'Dung lai: chua thiet lap duoc quyen file.' }
 ```
 
 Đọc tên tài khoản vừa in ra trước khi tiếp tục. CLI lấy danh tính từ hệ điều hành; không có cờ
@@ -49,6 +54,7 @@ $dsarRequest = Read-Host 'Ma ho so yeu cau DSAR, khong nhap ten hay so dien thoa
 
 ```powershell
 & dotnet $dsarDll --order-code $dsarOrder --request-ref $dsarRequest
+if ($LASTEXITCODE -ne 0) { throw 'Dung lai: xem truoc that bai.' }
 ```
 
 Chỉ tiếp tục nếu exit code bằng 0, `Mode=PREVIEW`, `DryRun=true`, `TasksRedacted=0` và
@@ -67,6 +73,7 @@ Lệnh ở bước này thực sự thay đổi dữ liệu. Gõ lại mã đơn
 $dsarConfirm = Read-Host 'Go lai chinh xac ma don da kiem tra'
 & dotnet $dsarDll --order-code $dsarOrder --request-ref $dsarRequest `
   --execute --confirm-order $dsarConfirm --subject-verified
+if ($LASTEXITCODE -ne 0) { throw 'Lenh bao loi; xem truoc lai va doi chieu audit truoc khi thu lai.' }
 ```
 
 Kết quả thành công: `Mode=EXECUTED`, `DryRun=false`, số `TasksRedacted` và `AuditRef`.
@@ -77,8 +84,10 @@ hoàn tác. Nếu mất kết nối ngay lúc commit, không suy ra kết quả 
 
 ```powershell
 & dotnet $dsarDll --order-code $dsarOrder --request-ref $dsarRequest
+$dsarCheckExit = $LASTEXITCODE
 Remove-Item Env:IVR_DSAR_CONNECTION_STRING
 Remove-Variable dsarConnection
+if ($dsarCheckExit -ne 0) { throw 'Chua xac nhan duoc ket qua sau xu ly; doi chieu audit.' }
 ```
 
 `TasksMatched=0` xác nhận không còn task chưa redact của mã đơn tại thời điểm kiểm. Nếu Sales gửi task mới

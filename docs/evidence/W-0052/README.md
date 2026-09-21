@@ -139,3 +139,20 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Cập nhật Residual — W-0330, 21/09/2026
+
+Owner trả lời S8: “chỉ t step by step đi t chạy cho”. [W-0330](../W-0330/README.md) cung cấp CLI
+theo tài khoản OS để owner tự chạy; xem [hướng dẫn từng bước](../../compliance/dsar-cli-step-by-step.md).
+Không còn thiếu công cụ gọi DsarService ngoài test. Không cần lấy permission vận hành làm quyền DSAR.
+
+COMP-DSAR-13..18 kiểm rollback khi audit lỗi, quyền OS trước khi đọc, preview mặc định, xác nhận một
+đơn, thực thi executable, lặp lại và giữ cấu hình mã hoá kết nối. Bằng chứng mới ghim candidate ở
+[verification W-0330](../W-0330/verification.json); không thay con số 442/442 của lượt lịch sử.
+
+PIA/checklist/retention đã có đối soát mới: S3 giữ vĩnh viễn; schema có số điện thoại dạng đọc được;
+CLI không xoá backup. Không được dùng câu “không chữ ký nào”, “chờ điền kỳ hạn” hoặc “backup tự hết hạn”
+ở hồ sơ cũ làm trạng thái hiện hành. PIA vẫn DRAFT_UNSIGNED và S2 chưa được agent ký thay.
+
+Còn lại: owner chọn môi trường và chạy; Sales xác minh chủ thể; owner xử lý S2/PIA và chứng minh cách
+áp lại DSAR sau restore. Giữ nguyên TESTS_PASS của W-0052, chờ Toàn xét phạm vi nghiệm thu.

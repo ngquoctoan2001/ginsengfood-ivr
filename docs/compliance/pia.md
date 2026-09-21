@@ -3,6 +3,24 @@
 Ngày dự thảo: `2026-08-19` · Trạng thái: **`DRAFT_UNSIGNED`** — chờ Legal/Privacy ký (`W-0009`)
 · Phạm vi: IVR order confirmation, chế độ `MOCK`, `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
+## Cập nhật kỹ thuật 21/09/2026 — W-0330
+
+Các mục 1–4 bên dưới giữ lại đánh giá ngày 19/08 và các bổ sung cũ. Các khẳng định kỹ thuật sau
+đã hết hiệu lực; bảng này được ưu tiên khi đọc trạng thái hiện tại. **PIA vẫn DRAFT_UNSIGNED**;
+không điền hoặc suy ra chữ ký từ quyết định chính sách hay kết quả test.
+
+| Mục cũ | Hiện tại và nguồn |
+| --- | --- |
+| §1 “16 trường”, R-02 “không lưu số” | Đọc [inventory hiện hành](data-inventory.md); schema giữ `phone_e164` dạng đọc được từ W-0311. W-0314 redact số/contact/trust khi DSAR. Rủi ro lưu số còn ở S2; guard cho log/response không mã hoá cột này. |
+| §1/R-06 “chu kỳ chưa ký” | [W-0266](../evidence/W-0266/README.md) ghi quyết định owner; S3/[W-0316](../evidence/W-0316/README.md) thay các kỳ hạn bằng giữ vĩnh viễn. `PeriodDays={}` có chủ đích; xem [phiếu retention](retention-period-proposal.md). S2 vẫn cần phần nhận rủi ro, không suy S3 thành chữ ký PIA. |
+| R-07 backup tự hết theo tuổi | Không còn được hứa hết dữ liệu theo lịch cũ. DSAR không sửa backup; owner phụ trách quy trình áp lại DSAR sau restore và chứng cứ môi trường thật. |
+| R-10 chỉ có service/test | [W-0330](../evidence/W-0330/README.md) bổ sung CLI theo OS identity, preview mặc định, xác nhận một đơn, redact và audit nguyên tử. Owner tự chạy theo [hướng dẫn](dsar-cli-step-by-step.md); Sales xác minh chủ thể. |
+| R-05/R-13 và §3 “policy/whitelist chưa quyết” | [Register](../../specs/_review/open-decisions-register.md) ghi OD-V1-08/16 đã chốt `gh-247-prod-v1`; OD-V1-15 đã chọn whitelist rộng. Đây là quyết định nội dung; không phải chứng cứ M3/production hay chữ ký PIA. |
+| §4 production luôn dùng PendingRuntimeGateAuthorization | [Đăng ký hiện hành](../../src/Ivr.Infrastructure/FeatureFlags/FeatureFlagServiceCollectionExtensions.cs) dùng PostgresRuntimeGateAuthorization, PostgresFourEyesApprovalVerifier và PostgresProductionCallGate. Quyền thực tế phụ thuộc bản ghi duyệt/thu hồi; không còn đúng khi mô tả production luôn trả false. |
+| §3/4 chưa có quorum nào | W-0266 chỉ đóng ba quyết định được nêu trong hồ sơ đó. Không tự mở luật nhiều actor, hạ tầng, S2 hay go-live. Các ô ký PIA bên dưới vẫn trống. |
+
+Đây là đối soát source và bằng chứng local. Không xác nhận cấu hình hoặc dữ liệu của một môi trường thật.
+
 ## 0. Tài liệu này chưa được ký
 
 Không mục nào ở đây là kết luận pháp lý. Đây là **đánh giá kỹ thuật** do bên xây hệ thống viết, để
@@ -33,7 +51,7 @@ hôm nay là **chưa ký**.
 | R-05 | Gọi ngoài khung giờ / quá số lần | attempt policy có phiên bản, `max_attempts` ≤ 10 ép ở database | **đã dựng**; **chính sách production chưa ký** (`W-0007`) |
 | R-06 | Dữ liệu sống lâu hơn mục đích | retention job P1-5, dry-run mặc định | **cơ chế đã dựng**; **chu kỳ chưa ký** (DF-07) |
 | R-07 | Bản backup giữ dữ liệu quá hạn | `prune.sh` theo tuổi; `retain_until` đi theo dump nên bản restore vẫn bị retention xử lý | **đã dựng**, `DG-RETENTION-04` |
-| R-08 | Nghe lén đường truyền tới database | TLS ép **lúc render chart**; `Prefer` bị từ chối ở mọi env | **đã dựng**, `DG-CRYPTO-01` |
+| R-08 | Nghe lén kết nối tới database | TLS ép **lúc render chart**; `Prefer` bị từ chối ở mọi env | **đã dựng**, `DG-CRYPTO-01` |
 | R-09 | Dữ liệu cá nhân vào kho phân tích | hai lớp: allowlist cột đọc từ model EF + `PiiGuard` trên từng giá trị ghi | **đã dựng**, `BI-PII-01` |
 | R-10 | Không đáp ứng được yêu cầu của chủ thể | `DsarService` + runbook; xoá redact đúng phạm vi, audit bất biến | **đã dựng phần service**, `COMP-DSAR-02` · `COMP-DSAR-08..12` (`W-0314`: xoá cả số điện thoại, xoá lần hai không còn lỗi). ⚠️ **Chưa có lối chạy** — chỉ test gọi được; chờ `S8` |
 | R-11 | Mã hoá at-rest của volume | — | **CHƯA** — thuộc storage class của cluster (`W-0063`) |

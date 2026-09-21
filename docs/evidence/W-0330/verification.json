@@ -1,0 +1,175 @@
+{
+  "schema": "ivr-dsar-verification/v1",
+  "workId": "W-0330",
+  "status": "PASS_LOCAL",
+  "realCustomerCallAllowed": false,
+  "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+  "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+  "hashEncoding": "SHA-256 hex grouped by eight; remove hyphens for canonical hex",
+  "run": {
+    "testCount": 1171,
+    "assemblies": [
+      {
+        "assembly": "Ivr.ContractTests.dll",
+        "count": 24
+      },
+      {
+        "assembly": "Ivr.UnitTests.dll",
+        "count": 756
+      },
+      {
+        "assembly": "Ivr.ChaosTests.dll",
+        "count": 8
+      },
+      {
+        "assembly": "Ivr.IntegrationTests.dll",
+        "count": 383
+      }
+    ],
+    "testsStartedAt": "2026-09-21T07:20:01.236Z",
+    "testsFinishedAt": "2026-09-21T07:28:18.122Z",
+    "sweepStartedAt": "2026-09-21T07:28:18.522Z",
+    "sweepFinishedAt": "2026-09-21T07:34:47.411Z",
+    "runnable": 42,
+    "classifiedWithoutInvocation": 24,
+    "cleanBeforeAndAfter": true,
+    "gateManifestSha256": "da0ef5ff-30d2df63-7cf69bc8-803493b1-4bcd589d-9eb3789b-b8af542f-1343685d",
+    "tests": [
+      {
+        "path": "trx/Administrator_NQT_2026-09-21_14_20_11.trx",
+        "sha256": "cce01cf4-376f2eb1-75fbfc27-7eded167-50e97e4f-bb0b791c-07d8839f-833b67fc"
+      },
+      {
+        "path": "trx/Administrator_NQT_2026-09-21_14_20_30.trx",
+        "sha256": "3ada5832-71c6ff0d-f2bf879c-3e7914dc-6f96de40-516325c1-bf17cddf-ea6f843d"
+      },
+      {
+        "path": "trx/Administrator_NQT_2026-09-21_14_20_30[1].trx",
+        "sha256": "bea876db-eafa451a-2a58266e-cfcd23d2-13256b27-d700062f-e6975239-53699822"
+      },
+      {
+        "path": "trx/Administrator_NQT_2026-09-21_14_20_43.trx",
+        "sha256": "bb479140-8134f907-d1528a1d-4992e30c-5d75619e-5276ddc9-1684a2f3-036bd2c7"
+      }
+    ],
+    "sweep": {
+      "path": "sweep.log",
+      "sha256": "dbde89d3-a3955d51-7ec2d012-d1a4b318-ba6e09e4-15d944e4-e78fb9fb-05951820"
+    }
+  },
+  "bundlePath": ".artifacts/w0330-acceptance-aaba3d2/acceptance-run.json",
+  "bundleSha256": "f4613c58-777f0398-a1429860-271b2d60-5cea4b1b-7cbb0de9-1c11ee13-be5317d4",
+  "dsarTests": [
+    {
+      "id": "COMP-DSAR-13",
+      "outcome": "Passed",
+      "source": [
+        {
+          "method": "AnAuditFailureRollsBackTheErasure",
+          "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "COMP-DSAR-14",
+      "outcome": "Passed",
+      "source": [
+        {
+          "method": "OneOrderDefaultsToPreviewAndExecutionNeedsExplicitConfirmation",
+          "file": "tests/Ivr.IntegrationTests/Governance/DsarCliTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "COMP-DSAR-15",
+      "outcome": "Passed",
+      "source": [
+        {
+          "method": "AmbiguousBulkOrUnconfirmedCommandsAreRefused",
+          "file": "tests/Ivr.IntegrationTests/Governance/DsarCliTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "COMP-DSAR-16",
+      "outcome": "Passed",
+      "source": [
+        {
+          "method": "AnUnassignedOperatorCannotEvenReadHoldings",
+          "file": "tests/Ivr.IntegrationTests/Governance/DsarCliTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "COMP-DSAR-17",
+      "outcome": "Passed",
+      "source": [
+        {
+          "method": "TheCliProcessPreviewsThenErasesOnlyTheConfirmedOrder",
+          "file": "tests/Ivr.IntegrationTests/Governance/ComplianceTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "COMP-DSAR-18",
+      "outcome": "Passed",
+      "source": [
+        {
+          "method": "ConnectionPreservesExplicitEncryptionAndTls",
+          "file": "tests/Ivr.IntegrationTests/Governance/DsarCliTests.cs"
+        },
+        {
+          "method": "UnsupportedProviderKeywordsAreRefusedInsteadOfSilentlyDiscarded",
+          "file": "tests/Ivr.IntegrationTests/Governance/DsarCliTests.cs"
+        }
+      ]
+    }
+  ],
+  "package": {
+    "path": ".artifacts/w0330-dsar-cli",
+    "manifest": "package-manifest.json",
+    "configuration": "Debug",
+    "assemblyMatches": [
+      {
+        "assembly": "Ivr.Dsar.dll",
+        "sha256": "6eceeee1-1c1d8297-ed1095eb-7240ed57-2e39c473-983eb9c9-2e6fbe0b-62bf3c91",
+        "equalsIntegrationTestBinary": true
+      },
+      {
+        "assembly": "Ivr.Infrastructure.dll",
+        "sha256": "c45a10df-24f4958e-d257808f-42a06ae4-0269e3ce-daa61fbe-3a309c2d-b673616b",
+        "equalsIntegrationTestBinary": true
+      },
+      {
+        "assembly": "Ivr.Domain.dll",
+        "sha256": "80807646-c5feeb51-4dfed9e3-9fbe9eae-6c0235d3-92de134d-79c2037c-cfe8745a",
+        "equalsIntegrationTestBinary": true
+      },
+      {
+        "assembly": "Ivr.Contracts.dll",
+        "sha256": "6b2191f2-b7fb7ef5-013013d0-b950d6d7-fa934f62-0b6bbf74-6c79ad2e-0a6189df",
+        "equalsIntegrationTestBinary": true
+      }
+    ],
+    "fileCount": 43
+  },
+  "acceptance": {
+    "candidates": 225,
+    "review": 74,
+    "fail": 151,
+    "pass": 0,
+    "unchecked": 0
+  },
+  "ownerAcceptanceChanged": false,
+  "supersededRun": {
+    "candidate": "8557baa9cb82e647ad868760d48a36006c7bfdd7",
+    "path": ".artifacts/w0330-acceptance-8557baa",
+    "status": "CANCELLED_FOR_CODE_CHANGE",
+    "acceptanceManifest": false
+  },
+  "remaining": [
+    "Owner runs preview and any real erasure on the selected database.",
+    "Sales verifies the requesting subject.",
+    "S2/Legal signoff and real-environment backup/restore evidence remain outside this local proof."
+  ]
+}
