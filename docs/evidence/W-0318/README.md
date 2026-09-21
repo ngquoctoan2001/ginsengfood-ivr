@@ -4,6 +4,10 @@
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
+> Bổ sung `2026-09-21` — [W-0319](../W-0319/README.md) sửa kiểm đủ gate và provenance của kết quả.
+> Cách chạy hiện hành dùng `collect-acceptance-evidence.mjs` rồi `--evidence <acceptance-run.json>`.
+> `--trx`/`--sweep-log` bên dưới là cách chạy lịch sử, nay bị từ chối vì không chứng minh đúng commit.
+
 ---
 
 ## 0. Tóm tắt

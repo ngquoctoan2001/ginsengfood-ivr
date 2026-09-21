@@ -3,6 +3,9 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  GATE_MANIFEST, fullSweepVerdict, expectedTestAssemblies, readPinnedArtifact, validateRunEvidence,
+} from "./acceptance-evidence-lib.mjs";
 
 // W-0318 / Lô 5 of plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md (T7): the batch list the release
 // owner reads before accepting work, one batch per phase. Read-only by design. It never edits the
@@ -18,12 +21,13 @@ import { fileURLToPath } from "node:url";
 //   C1  the evidence README exists at the path gate-status.yaml names, and says
 //       REAL_CUSTOMER_CALL_ALLOWED=NO
 //   C2  every TestId the README cites is in docs/traceability-tests.md and passed in the results
-//       passed with --trx, which must come from a run at the same commit
+//       in a --evidence bundle captured at the same commit
 //   C3  Residual/next holds nothing IVR still has to do, only external waits. A script cannot judge
 //       that, so a non-empty cell is shown for the owner to read (XEM) and never passed silently
-//   C4  the gate sweep log passed with --sweep-log ends in GATE_SWEEP_PASS with every gate run
+//   C4  the captured sweep ran the exact set of gates in that commit's manifest
 //
-//   node deploy/ci/scripts/acceptance-batches.mjs [--trx <dir>] [--sweep-log <file>] [--phase P2]
+//   node tools/dev/collect-acceptance-evidence.mjs --out <new-directory>
+//   node deploy/ci/scripts/acceptance-batches.mjs [--evidence <acceptance-run.json>] [--phase P2]
 //                                                 [--worktree] [--root <repository>]
 //   node deploy/ci/scripts/acceptance-batches.mjs --self-test
 
@@ -235,7 +239,7 @@ export function testVerdict(testId, trace, results) {
   }
 
   if (!results) {
-    return { ok: null, reason: "chưa có kết quả test (--trx)" };
+    return { ok: null, reason: "chưa có kết quả test đã xác minh (--evidence)" };
   }
 
   const owner = classOfFile(entry.file);
@@ -267,22 +271,8 @@ export function testVerdict(testId, trace, results) {
   return { ok: true, reason: note };
 }
 
-export function sweepVerdict(log) {
-  if (log === null) {
-    return { ok: null, reason: "chưa có log gate sweep (--sweep-log)" };
-  }
-
-  const last = log.trim().split(/\r?\n/u).findLast((line) => line.startsWith("GATE_SWEEP_"));
-  const match = /^GATE_SWEEP_(PASS|FAIL) (\d+)\/(\d+) run/u.exec(last ?? "");
-  if (!match) {
-    return { ok: false, reason: "log không có dòng kết luận GATE_SWEEP_" };
-  }
-
-  if (match[1] !== "PASS" || match[2] !== match[3]) {
-    return { ok: false, reason: `gate sweep ${match[1]} ${match[2]}/${match[3]}` };
-  }
-
-  return { ok: true, reason: `GATE_SWEEP_PASS ${match[2]}/${match[3]}` };
+export function sweepVerdict(log, manifest) {
+  return fullSweepVerdict(log, manifest);
 }
 
 export function residualVerdict(cell) {
@@ -307,7 +297,7 @@ function joinReasons(failures) {
 }
 
 /** One row against the four criteria. `sweep` is shared by every row of the same commit. */
-export function judge(row, { evidencePath, evidenceText, trace, results, sweep }) {
+export function judge(row, { evidencePath, evidenceText, trace, results, sweep, runCheck }) {
   let c1;
   if (!evidencePath) {
     c1 = { ok: false, reason: "gate-status.yaml không trỏ tới gói bằng chứng nào" };
@@ -332,8 +322,10 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep }
   let c2;
   if (failures.length > 0) {
     c2 = { ok: false, reason: joinReasons(failures) };
+  } else if (runCheck?.ok !== true) {
+    c2 = runCheck ?? { ok: null, reason: "chưa có gói kết quả gắn với commit (--evidence)" };
   } else if (verdicts.some((verdict) => verdict.ok === null)) {
-    c2 = { ok: null, reason: "chưa có kết quả test (--trx)" };
+    c2 = { ok: null, reason: "chưa có kết quả test đã xác minh (--evidence)" };
   } else {
     c2 = { ok: true, reason: cited.length > 0 ? `${cited.length} TestId xanh` : "không nêu TestId nào" };
   }
@@ -444,8 +436,8 @@ function git(root, args, input) {
 }
 
 /** Many files at HEAD through one `git cat-file --batch`, rather than one process per file. */
-function readAtHead(root, files) {
-  const output = git(root, ["cat-file", "--batch"], `${files.map((file) => `HEAD:${file}`).join("\n")}\n`);
+function readAtHead(root, files, commit) {
+  const output = git(root, ["cat-file", "--batch"], `${files.map((file) => `${commit}:${file}`).join("\n")}\n`);
   const texts = new Map();
   let offset = 0;
   for (const file of files) {
@@ -478,20 +470,6 @@ function readWorktree(root, files) {
   return texts;
 }
 
-function trxFiles(directory) {
-  const found = [];
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const full = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      found.push(...trxFiles(full));
-    } else if (entry.name.endsWith(".trx")) {
-      found.push(full);
-    }
-  }
-
-  return found;
-}
-
 function argument(name) {
   const index = process.argv.indexOf(name);
   return index === -1 ? null : process.argv[index + 1];
@@ -501,15 +479,18 @@ function main() {
   const root = path.resolve(argument("--root")
     ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../.."));
   const fromWorktree = process.argv.includes("--worktree");
-  const read = fromWorktree ? (files) => readWorktree(root, files) : (files) => readAtHead(root, files);
-
-  const head = git(root, ["rev-parse", "--short", "HEAD"]).toString("utf8").trim();
-  const headTime = Number(git(root, ["show", "-s", "--format=%ct", "HEAD"]).toString("utf8").trim()) * 1000;
+  // Resolve HEAD once. A concurrent commit must not mix tracker and evidence from different trees.
+  const head = git(root, ["rev-parse", "HEAD"]).toString("utf8").trim();
+  const source = { commit: head, tree: git(root, ["rev-parse", `${head}^{tree}`]).toString("utf8").trim() };
+  const pinnedRead = (files) => readAtHead(root, files, head);
+  const read = fromWorktree ? (files) => readWorktree(root, files) : pinnedRead;
+  assert(!process.argv.includes("--trx") && !process.argv.includes("--sweep-log"),
+    "Unbound --trx/--sweep-log results cannot prove a commit. Run tools/dev/collect-acceptance-evidence.mjs, then pass --evidence <acceptance-run.json>.");
   const dirty = git(root, ["status", "--porcelain"]).toString("utf8").trim().split("\n").filter(Boolean);
   const dirtyNote = fromWorktree
     ? `Đọc cây làm việc (--worktree), không phải HEAD: có ${dirty.length} file chưa commit, nên kết quả không gắn với commit nào.`
     : dirty.length > 0
-      ? `Cây làm việc có ${dirty.length} file chưa commit. Danh sách này đọc từ HEAD nên không bị chúng ảnh hưởng; kết quả test và log sweep thì chạy trên cây làm việc — chạy lại trên cây sạch trước khi dùng để nghiệm thu.`
+      ? `Cây làm việc có ${dirty.length} file chưa commit. Danh sách đọc từ commit ${head}; chỉ nhận kết quả đã thu trên cây sạch tại đúng commit đó.`
       : "";
 
   const base = read([TRACKER, STATUS_YAML, TRACEABILITY]);
@@ -522,21 +503,34 @@ function main() {
   const texts = read(paths);
 
   let results = null;
-  let resultsNote = "⏳ chưa có — chạy `dotnet test Ivr.sln --logger trx --results-directory <thư mục>` rồi đưa `--trx <thư mục>`";
-  const trxDirectory = argument("--trx");
-  if (trxDirectory) {
-    const files = trxFiles(path.resolve(trxDirectory));
-    assert(files.length > 0, `no .trx file under ${trxDirectory}.`);
-    results = indexResults(files.flatMap((file) => trxOutcomes(fs.readFileSync(file, "utf8"))));
-    const stale = files.filter((file) => fs.statSync(file).mtimeMs < headTime);
-    resultsNote = `${files.length} file \`.trx\`, ${results.count} kết quả`
-      + (stale.length > 0 ? ` · ⚠️ ${stale.length} file cũ hơn commit HEAD` : "");
-  }
-
-  const sweepFile = argument("--sweep-log");
-  let sweep = sweepVerdict(sweepFile ? fs.readFileSync(sweepFile, "utf8") : null);
-  if (sweepFile && fs.statSync(sweepFile).mtimeMs < headTime) {
-    sweep = { ok: false, reason: `${sweep.reason} — nhưng log cũ hơn commit HEAD` };
+  let resultsNote = "⏳ chưa có — chạy `node tools/dev/collect-acceptance-evidence.mjs --out <thư mục mới>`, rồi đưa `--evidence <acceptance-run.json>`";
+  let runCheck = { ok: null, reason: "chưa có gói kết quả gắn với commit (--evidence)" };
+  let sweep = sweepVerdict(null);
+  const evidenceFile = argument("--evidence");
+  if (evidenceFile) {
+    try {
+      assert(!fromWorktree, "--worktree is inspection only and cannot be used for acceptance");
+      const file = path.resolve(evidenceFile);
+      const bundle = JSON.parse(fs.readFileSync(file, "utf8"));
+      const pinned = pinnedRead([GATE_MANIFEST, "Ivr.sln"]);
+      const assemblies = expectedTestAssemblies(pinned.get("Ivr.sln"), (project) => pinnedRead([project]).get(project));
+      const verified = validateRunEvidence(bundle, {
+        source, manifestBytes: pinned.get(GATE_MANIFEST), assemblies,
+        readArtifact: (artifact) => readPinnedArtifact(path.dirname(file), artifact),
+      });
+      results = indexResults(verified.texts.flatMap(trxOutcomes));
+      assert.equal(results.count, verified.count, "TRX result parsing is incomplete");
+      resultsNote = `${verified.texts.length} file \`.trx\`, ${results.count} kết quả · SHA/hash/đủ project đã kiểm`;
+      runCheck = { ok: true, reason: "" };
+      sweep = verified.sweep;
+    } catch (error) {
+      const reason = `gói kết quả bị từ chối: ${error.message.split("\n")[0]}`;
+      results = null;
+      resultsNote = `❌ ${reason}`;
+      runCheck = { ok: false, reason };
+      sweep = { ok: false, reason };
+      process.exitCode = 1;
+    }
   }
 
   const judged = candidates.map((row) => judge(row, {
@@ -545,6 +539,7 @@ function main() {
     trace,
     results,
     sweep,
+    runCheck,
   }));
 
   process.stdout.write(render({
@@ -609,7 +604,8 @@ function selfTest() {
   const rows = plannedRows(tracker);
   const paths = evidencePaths(yaml);
   const results = indexResults(trxOutcomes(trx));
-  const pass = sweepVerdict("  ok   a.mjs 0.1s A\nGATE_SWEEP_PASS 41/41 run, 21 skipped by manifest\n");
+  const manifest = { gates: { "a.mjs": { argv: [], expect: "A" } } };
+  const pass = sweepVerdict("  ok   a.mjs 0.1s A\nGATE_SWEEP_PASS 1/1 run, 0 skipped by manifest\n", manifest);
   const run = (sweep, withResults) => Object.fromEntries(rows
     .filter((row) => CANDIDATES.has(row.status))
     .map((row) => {
@@ -619,6 +615,7 @@ function selfTest() {
         trace,
         results: withResults ? results : null,
         sweep,
+        runCheck: withResults ? { ok: true, reason: "" } : undefined,
       });
       return [row.id, judged];
     }));
@@ -656,7 +653,7 @@ function selfTest() {
   assert.equal(withoutResults["W-0010"].verdict, UNCHECKED);
   assert.equal(withoutResults["W-0014"].verdict, FAIL, "a TestId missing from traceability fails even without results");
 
-  const failedSweep = run(sweepVerdict("GATE_SWEEP_FAIL 40/41 run, 21 skipped by manifest\n"), true);
+  const failedSweep = run(sweepVerdict("GATE_SWEEP_FAIL 0/1 run, 0 skipped by manifest\n", manifest), true);
   assert.equal(failedSweep["W-0010"].verdict, FAIL);
   assert.equal(run(sweepVerdict(null), true)["W-0010"].verdict, UNCHECKED);
   assert.equal(sweepVerdict("GATE_SWEEP_PASS 40/41 run").ok, false, "every gate has to run");

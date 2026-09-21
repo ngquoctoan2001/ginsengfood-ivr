@@ -14,6 +14,8 @@
       "runner": "pnpm sandbox:examples after pnpm sandbox:up; W-0283 validates worker-owned eligibility"
     },
     "acceptance-batches.mjs": { "argv": ["--self-test"], "expect": "ACCEPTANCE_BATCHES_SELFTEST_PASS" },
+    "acceptance-evidence-lib.mjs": { "sweepable": false, "reason": "provenance/completeness library; exercised by acceptance-evidence-selftest", "runner": "acceptance-evidence-selftest.mjs" },
+    "acceptance-evidence-selftest.mjs": { "argv": [], "expect": "ACCEPTANCE_EVIDENCE_SELFTEST_PASS" },
     "api-behavior-matrix-selftest.mjs": {
       "sweepable": false,
       "reason": "asserts on verify-api-behavior-matrix, whose verdict depends on the ApiBehaviorMatrixTests run having happened against current source",
