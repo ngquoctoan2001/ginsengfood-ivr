@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "44 of 313 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "44 of 314 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 259
+  rows_without_evidence_pack: 260
 
 gates:
   - id: "G-CONTRACT"
@@ -1364,6 +1364,10 @@ work:
     prompt: "CLI DSAR và hướng dẫn owner tự chạy (Origin=OWNER_DECISION)"
     status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0330/README.md"
+  - id: "W-0332"
+    prompt: "W-0207 E2E local tại commit đã kiểm chứng (Origin=OWNER_DECISION)"
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0332/README.md"
 
 production_flag:
   real_customer_call_allowed: false

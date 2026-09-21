@@ -1,0 +1,457 @@
+{
+  "schema": "ivr-w0207-local-e2e-verification/v1",
+  "workId": "W-0332",
+  "closesLocalEvidenceGapFor": "W-0207",
+  "status": "PASS_LOCAL_IVR_SIDE",
+  "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+  "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+  "realCustomerCallAllowed": false,
+  "hashEncoding": "SHA-256 hex grouped by eight; remove hyphens for canonical hex",
+  "provenance": {
+    "sourceBefore": {
+      "commit": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+      "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+      "clean": true
+    },
+    "sourceAfter": {
+      "commit": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+      "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+      "clean": true
+    },
+    "rawRun": ".artifacts/w0332-e2e-aaba3d2/run.json",
+    "rawRunSha256": "56f1dca0-bfeb95f2-5d8c807b-cdd6f254-4748d350-5b2c4594-777da70f-203ee216",
+    "steps": [
+      {
+        "name": "release-build",
+        "command": [
+          "dotnet",
+          "build",
+          "Ivr.sln",
+          "-c",
+          "Release",
+          "--no-restore"
+        ],
+        "startedAt": "2026-09-21T07:44:13.448Z",
+        "finishedAt": "2026-09-21T07:44:17.386Z",
+        "exitCode": 0,
+        "log": "release-build.log",
+        "sha256": "ce5291bc-9d35ce47-edd51c64-c50b750d-786ad883-9266749a-5648acfe-b8f6baad"
+      },
+      {
+        "name": "migration",
+        "command": [
+          "dotnet",
+          "tool",
+          "run",
+          "dotnet-ef",
+          "database",
+          "update",
+          "--project",
+          "src/Ivr.Infrastructure/Ivr.Infrastructure.csproj",
+          "--startup-project",
+          "src/Ivr.Infrastructure/Ivr.Infrastructure.csproj",
+          "--configuration",
+          "Release",
+          "--no-build",
+          "--connection",
+          "Host=127.0.0.1;Port=55442;Database=ivr;Username=ivr;GSS Encryption Mode=Disable"
+        ],
+        "startedAt": "2026-09-21T07:44:17.388Z",
+        "finishedAt": "2026-09-21T07:44:25.407Z",
+        "exitCode": 0,
+        "log": "migration.log",
+        "sha256": "fc380536-e68b12e4-a1f774f1-86e598de-e4e2224f-84a9275c-f1d49a0a-a0f4c6f2"
+      },
+      {
+        "name": "e2e",
+        "command": [
+          "node",
+          "tools/dev/Invoke-LocalMockE2E.mjs",
+          "--rounds",
+          "20",
+          "--workers",
+          "2",
+          "--extended-every",
+          "2",
+          "--postgres-container",
+          "ivr-w0332-e2e-postgres",
+          "--postgres-port",
+          "55442",
+          "--api-port",
+          "5042",
+          "--sales-port",
+          "18142",
+          "--evidence-dir",
+          ".artifacts/w0332-e2e-20260921"
+        ],
+        "startedAt": "2026-09-21T07:44:25.637Z",
+        "finishedAt": "2026-09-21T07:53:46.556Z",
+        "exitCode": 0,
+        "log": "e2e.log",
+        "sha256": "35e215fa-ed2c3051-2da6c245-67642026-488588fd-80beea82-88ee05fd-1e0c5210"
+      }
+    ],
+    "report": {
+      "path": "local-mock-e2e.json",
+      "sha256": "ffdb16a3-16b0954f-c2f0992a-40255dee-aabf3ed2-069d02d7-7845232d-c272c4a4"
+    },
+    "runtimeFiles": [
+      {
+        "path": "tools/dev/Invoke-LocalMockE2E.mjs",
+        "sha256": "1a8a67dd-10686ddc-77be1f04-d1a78703-2c5d1cab-fd84609e-f67ce8e6-381d65ae"
+      },
+      {
+        "path": "src/Ivr.Api/bin/Release/net10.0/Ivr.Api.dll",
+        "sha256": "ffaa7458-3b894e05-ed216981-904165f7-f4b6803d-80df73ff-2bb0e449-ff40c142"
+      },
+      {
+        "path": "src/Ivr.Worker/bin/Release/net10.0/Ivr.Worker.dll",
+        "sha256": "46a88fec-873e04e5-80d26fce-c82afd40-5963770e-d4c0c22b-6f7aa9f6-c3b34f25"
+      },
+      {
+        "path": "src/Ivr.Infrastructure/bin/Release/net10.0/Ivr.Infrastructure.dll",
+        "sha256": "ce7035dd-2e86089a-4aaa39e2-764952d1-b79652ce-e9347d77-1d185f48-ab280455"
+      }
+    ],
+    "sourceFiles": [
+      {
+        "path": "tools/dev/Invoke-LocalMockE2E.mjs",
+        "gitObjectSha256": "b832fffd-d24e1dbb-0a90b296-cdf21953-a8e61b6f-f2f57380-290aa53d-df702495"
+      },
+      {
+        "path": "deploy/ci/scripts/target-v1-shared-e2e-report-validator.mjs",
+        "gitObjectSha256": "42402c22-6cf65e36-83487073-aa4cbca8-516a87a9-eac76624-4a794ff7-2f876907"
+      },
+      {
+        "path": "specs/api/openapi/order-core-ivr-callback.target-v1.yaml",
+        "gitObjectSha256": "af0cb5cc-3f47aaa4-c8e23241-8c216b22-8fd996e3-16fe129a-7cbf1d46-36659697"
+      },
+      {
+        "path": "docs/evidence/W-0174/shared-e2e-report.template.json",
+        "gitObjectSha256": "381b6b59-12695518-2f53a90f-ab2c8032-547f296e-57a80ad9-206ee54d-a958d91a"
+      }
+    ]
+  },
+  "acceptance": {
+    "bundle": {
+      "path": ".artifacts/w0330-acceptance-aaba3d2/acceptance-run.json",
+      "sha256": "f4613c58-777f0398-a1429860-271b2d60-5cea4b1b-7cbb0de9-1c11ee13-be5317d4"
+    },
+    "testCount": 1171,
+    "sweep": {
+      "ok": true,
+      "reason": "GATE_SWEEP_PASS 42/42"
+    },
+    "supportingTests": [
+      {
+        "id": "IT-API-AUDIT-04",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-API-AUTHZ-01",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-API-AUTHZ-02",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-API-IDEMP-03",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-API-QUEUE-08",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-API-RETRY-06",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-API-SIM-09",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-API-TERMINATE-09",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-API-TERMINATE-10",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "UT-CALLBACK-TARGET-ACK-CROSS-01",
+        "ok": true,
+        "reason": ""
+      }
+    ]
+  },
+  "outcome": {
+    "work_id": "w0332-e2e-20260921",
+    "plan_item": "P1.2 Full worker pipeline",
+    "profile": "LocalMockE2E",
+    "generated_at": "2026-09-21T07:53:45.510Z",
+    "started_at": "2026-09-21T07:44:25.712Z",
+    "run_id": "074425",
+    "safety": {
+      "execution_mode": "MOCK",
+      "sim_provider": "MOCK",
+      "real_customer_call_allowed": "NO",
+      "destination_allowlist": [
+        "mock-destination-allowlisted"
+      ]
+    },
+    "configuration": {
+      "rounds_requested": 20,
+      "workers": 2,
+      "extended_every": 2,
+      "attempt_policy_version": "mock-lab-v1",
+      "api": "http://127.0.0.1:5042",
+      "fake_sales": "http://127.0.0.1:18142",
+      "postgres_container": "ivr-w0332-e2e-postgres",
+      "postgres_port": 55442,
+      "eligibility_owner": "worker-polling",
+      "clock": "wall-clock progressing; MOCK calling window enabled 0..1440; task offsets backdated"
+    },
+    "coverage": {
+      "core_scenarios": [
+        "CONFIRM",
+        "CANCEL",
+        "NOANSWER",
+        "BUSY",
+        "NOINPUT",
+        "WRONGKEY",
+        "BADNUMBER",
+        "AUDIOERR",
+        "ACKOK",
+        "ACKDUP"
+      ],
+      "extended_scenarios": [
+        "REJECTED",
+        "UNREACH",
+        "DTMFERR",
+        "DROPPED",
+        "ACKBLOCK",
+        "ACKREVIEW",
+        "ACKSTALE",
+        "ACKCONFLICT",
+        "ACK422",
+        "ACK429",
+        "ACK500",
+        "ACK401",
+        "ACK247"
+      ],
+      "faults": [
+        "worker-crash-mid-call",
+        "lease-expiry",
+        "kill-switch-engaged",
+        "operator-terminate-in-flight",
+        "callback-outage",
+        "dead-letter-and-replay",
+        "two-worker-concurrency"
+      ]
+    },
+    "loop": {
+      "rounds_completed": 20,
+      "tasks_admitted": 330,
+      "tasks_settled": 330,
+      "round_milliseconds": {
+        "min": 8260,
+        "median": 20733,
+        "max": 29238
+      }
+    },
+    "invariants": {
+      "miscounted": 0,
+      "duplicateFinals": 0,
+      "duplicateCallbacks": 0
+    },
+    "shared_e2e_ivr_side": {
+      "provenance": "IVR_SIDE_ONLY",
+      "what_this_is_not": "Not the shared-E2E report. Every case below has a Module 3 half - producer, revalidation, order-state effect - that no run on this side can observe. Signed evidence needs target-v1-shared-e2e-report-validator.mjs with real M3 artefacts and five sign-offs.",
+      "cases": [
+        {
+          "case_id": "TV1-E2E-01-GOLDEN-HOUR-ACCEPTED",
+          "demonstrated_by": "ACKOK",
+          "observed": "ACKOK=DELIVERED_ACCEPTED",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-02-24X7-ACCEPTED",
+          "demonstrated_by": "ACK247",
+          "observed": "ACK247=DELIVERED_ACCEPTED",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-03-EXACT-REPLAY",
+          "demonstrated_by": "ACKDUP",
+          "observed": "ACKDUP=DELIVERED_ACCEPTED",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-04-CHANGED-BODY-REPLAY",
+          "demonstrated_by": "ACKCONFLICT",
+          "observed": "ACKCONFLICT=IDEMPOTENCY_CONFLICT",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-05-STALE-VERSION-STATE",
+          "demonstrated_by": "ACKSTALE",
+          "observed": "ACKSTALE=REJECTED_STALE",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-06-CORE-BLOCKER",
+          "demonstrated_by": "ACKBLOCK+ACKREVIEW",
+          "observed": "ACKBLOCK=DELIVERED_BLOCKED, ACKREVIEW=DELIVERED_REVIEW",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-07-AUTH-NEGATIVE",
+          "demonstrated_by": "ACK401",
+          "observed": "ACK401=AUTH_REJECTED",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-08-INVALID-SCHEMA-RESULT",
+          "demonstrated_by": "ACK422",
+          "observed": "ACK422=INVALID_DEAD_LETTER",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-09-RATE-LIMIT",
+          "demonstrated_by": "ACK429",
+          "observed": "ACK429=RETRY_EXHAUSTED",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-10-M3-OUTAGE-TIMEOUT",
+          "demonstrated_by": "fault:callback-outage",
+          "observed": "3/3 recovered, max retry 2",
+          "ivr_side": "DEMONSTRATED"
+        },
+        {
+          "case_id": "TV1-E2E-11-NO-ANSWER-FINAL",
+          "demonstrated_by": "NOANSWER",
+          "observed": "NOANSWER=DELIVERED_ACCEPTED",
+          "ivr_side": "DEMONSTRATED"
+        }
+      ],
+      "demonstrated": 11,
+      "of": 11
+    },
+    "concurrency_probe": {
+      "concurrent_requests": 10,
+      "intake_500": 0,
+      "intake_ok": 10,
+      "eligibility_500": 0,
+      "eligibility_ok": 10
+    },
+    "conflict_retries": {
+      "intake": 0,
+      "eligibility": 0,
+      "exhausted": 0
+    },
+    "open_findings": [],
+    "delivery_ledger": {
+      "callbackIds": 327,
+      "redelivered": 24,
+      "inconsistent": 0
+    },
+    "faults": [
+      {
+        "phase": "crash-and-lease-recovery",
+        "cohort": 4,
+        "inFlightAtKill": 1,
+        "recoveryRequired": 1,
+        "heldForReview": 1,
+        "redialled": 0,
+        "channelsQuarantinedAfterRelease": 0,
+        "finishedAfterRecovery": 3
+      },
+      {
+        "phase": "kill-switch",
+        "withheldTasks": 3,
+        "attemptsWhileEngaged": 0,
+        "resultsWhileEngaged": 0,
+        "completedAfterRelease": 3,
+        "note": "Enabled=false is part of the engaged posture: MockTelephonyOptionsValidator refuses to start a worker whose telephony is armed while the switch is engaged."
+      },
+      {
+        "phase": "terminate-in-flight",
+        "cohort": 2,
+        "resultTypes": {
+          "IVR_TECHNICAL_EXCEPTION": 1
+        },
+        "countedCustomerAttempts": 0
+      },
+      {
+        "phase": "callback-outage",
+        "processOutage": {
+          "cohort": 4,
+          "statusesDuringOutage": {
+            "RETRY_PENDING": 1,
+            "SENDING": 1
+          },
+          "recovered": 4,
+          "deadLettered": 0
+        },
+        "cohort": 3,
+        "deliveredAfterRecovery": 3,
+        "maxRetryCount": 2
+      },
+      {
+        "phase": "dead-letter-and-replay",
+        "cohort": 3,
+        "deadLettered": 3,
+        "retryCountAtDeath": 3,
+        "replayedRows": 3,
+        "deliveredAfterReplay": 3,
+        "replayPath": "manual SQL re-queue; no admin replay endpoint exists yet (finding)"
+      }
+    ],
+    "retention": {
+      "before": {
+        "purge": 20,
+        "keep": 20
+      },
+      "after": {
+        "done": true,
+        "callbacks": 0,
+        "results": 0,
+        "attempts": 0
+      },
+      "speech_snapshots_redacted": 20,
+      "dependency_held": {
+        "jobs": 20,
+        "tasks": 20,
+        "outbox": 20
+      },
+      "in_period_survivors": {
+        "callbacks": 20,
+        "results": 20,
+        "attempts": 20,
+        "tasks": 20,
+        "unredacted": 20
+      }
+    },
+    "failures": [],
+    "verdict": "PASS"
+  },
+  "limits": [
+    "Fake Sales and MOCK telephony; no real M3 producer, revalidation, order state or BFF proof.",
+    "20 rounds exercise repeated contract correctness, not a 100-round endurance replacement.",
+    "Retention probe uses explicit finite test periods on the isolated fake database; current S3 policy is unchanged.",
+    "Shared template remains NOT_READY; five unique signers and separate verifiers are still required by the existing validator.",
+    "No original work status promoted to ACCEPTED."
+  ]
+}

@@ -221,6 +221,11 @@ diễn tập lại đúng cặp binary của nó, kể cả khi W-0196 được 
 IT-API-TERMINATE-10 hiện tồn tại và Passed, lưu ở phụ lục. Codex cần bổ sung parser/regression cho
 kiểu viết tắt này trong việc công cụ nghiệm thu tiếp theo; không bỏ qua TestId chỉ vì script bỏ sót.
 
+**Cập nhật 21/09:** W-0328 đã sửa parser và có regression; [W-0332](../W-0332/README.md) đã chạy
+E2E mới tại aaba3d2 sạch: 20/20 vòng, 330 task, 11/11 ca IVR, 0 lỗi; cả mười TestId gốc Passed
+trong bộ 1171 test và 42 gate cùng candidate. Khoảng trống local nêu trên đã khép, đủ đề nghị Toàn
+xét phần IVR. Nửa M3 và quy tắc signer thật vẫn còn như bảng; không tự ACCEPTED.
+
 ## 10. W-0268 — Temp và index thừa
 
 [Gói gốc](../W-0268/README.md), `307fd9c`. Residual tracker LOCAL_ONLY/không đóng external/NO vẫn đúng.

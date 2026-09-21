@@ -144,3 +144,14 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Kiểm lại tại commit sạch — W-0332, 21/09/2026
+
+[W-0332](../W-0332/README.md) chạy lại harness tại aaba3d2: **20/20 vòng, 330 task, 11/11 ca phía IVR,
+0 failure**, không trùng final/callback và không đếm sai customer attempt. Probe đồng thời 10/10 cho
+cả intake/eligibility, 0 HTTP 500; journal 327 callback ID, 24 được gửi lại, 0 nội dung bất nhất.
+[Verification](../W-0332/verification.json) ghim SHA/tree sạch, contract, binary Release, thời gian và hash.
+
+Mười TestId của gói này đều Passed trong full proof cùng candidate (1171 test, sweep 42/42);
+W-0328 đã sửa extractor để xét cả hậu tố /10. Artifact working-tree cũ bên trên vẫn giữ nguyên.
+Khoảng trống bằng chứng local đã khép; nửa M3, credential và signer thật ở §6/§8 vẫn chưa được chứng minh.
