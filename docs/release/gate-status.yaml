@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "44 of 308 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "44 of 309 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 254
+  rows_without_evidence_pack: 255
 
 gates:
   - id: "G-CONTRACT"
@@ -194,7 +194,7 @@ work:
     evidence: "docs/evidence/W-0018/README.md"
   - id: "W-0019"
     prompt: "P2-2"
-    status: "TESTS_PASS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0019/README.md"
   - id: "W-0020"
     prompt: "P2-3"
@@ -218,7 +218,7 @@ work:
     evidence: "docs/evidence/W-0024/README.md"
   - id: "W-0025"
     prompt: "P3-1"
-    status: "TESTS_PASS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0025/README.md"
   - id: "W-0095"
     prompt: "Admin read API (Origin=UNPLANNED)"
@@ -226,7 +226,7 @@ work:
     evidence: "docs/evidence/W-0095/README.md"
   - id: "W-0026"
     prompt: "P3-2"
-    status: "TESTS_PASS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0026/README.md"
   - id: "W-0096"
     prompt: "Back-office read API (Origin=UNPLANNED)"
@@ -234,7 +234,7 @@ work:
     evidence: "docs/evidence/W-0096/README.md"
   - id: "W-0027"
     prompt: "P3-3"
-    status: "TESTS_PASS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0027/README.md"
   - id: "W-0097"
     prompt: "Admin UI visual design pass (Origin=UNPLANNED, IVR dev yêu cầu)"
@@ -246,7 +246,7 @@ work:
     evidence: "docs/evidence/W-0098/README.md"
   - id: "W-0028"
     prompt: "P3-4"
-    status: "TESTS_PASS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0028/README.md"
   - id: "W-0099"
     prompt: "Phase 3 audit — SIM channel surface (Origin=RED_TEAM_REMEDIATION)"
@@ -1344,6 +1344,10 @@ work:
     prompt: "Rà nghiệm thu từng việc P2/P3 (Origin=OWNER_DECISION 2026-09-21)"
     status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0322/README.md"
+  - id: "W-0324"
+    prompt: "Sửa C2 và hoàn thiện hồ sơ P2/P3 (Origin=OWNER_DECISION 2026-09-21)"
+    status: "CODE_DONE"
+    evidence: "docs/evidence/W-0324/README.md"
 
 production_flag:
   real_customer_call_allowed: false

@@ -125,3 +125,10 @@ P3-1, P3-2 and P3-3 are `TESTS_PASS`. P3-4 (`W-0028`, privacy-safe reporting)
 remains `NOT_STARTED`, so Phase 3 is not complete. The admin console is complete
 for the screens these three prompts define, in MOCK, behind read-only APIs for
 everything the console does not own.
+
+## Cập nhật W-0324 — 21/09/2026
+
+Console đã ngừng thuộc deliverable IVR theo W-0253, commit c0e6609.
+Các kết quả test/capture phía trên là lịch sử, không chứng nhận UI hiện hành.
+[Hồ sơ đề nghị kết thúc phạm vi](scope-closeout.md) đã chuẩn bị; đề nghị CANCELLED, chờ Toàn quyết định.
+[Phân loại C2](acceptance-tests.json) ghi scope retired-ui để test backend không thể làm UI đạt nghiệm thu.

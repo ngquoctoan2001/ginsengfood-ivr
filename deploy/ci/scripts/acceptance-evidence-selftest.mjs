@@ -114,10 +114,15 @@ try {
   write(GATE_MANIFEST, manifestBytes);
   write("Ivr.sln", 'Project("{TEST}") = "Ivr.UnitTests", "tests\\Ivr.UnitTests\\Ivr.UnitTests.csproj", "{ONE}"\n');
   write("tests/Ivr.UnitTests/Ivr.UnitTests.csproj", '<Project><PackageReference Include="Microsoft.NET.Test.Sdk" /></Project>');
+  write("tests/Ivr.UnitTests/XTests.cs", 'namespace Ivr.UnitTests; public class XTests { public void First() {} }');
   write("prompt/_execution/prompt-execution-tracker.md", '## 5. Planned implementation register\n| `W-0010` | `P2-1` | sample | — | TESTS_PASS | owner | files | tests | — |\n## 6. End\n');
   write("docs/release/gate-status.yaml", '  - id: "W-0010"\n    evidence: "docs/evidence/W-0010/README.md"\n');
   write("docs/traceability-tests.md", '| `UT-X` | 1 |\n| `UT-X-01` | unit | `First` | `tests/Ivr.UnitTests/XTests.cs` |\n');
-  write("docs/evidence/W-0010/README.md", 'REAL_CUSTOMER_CALL_ALLOWED=NO\nUT-X-01\n');
+  write("docs/evidence/W-0010/README.md", 'REAL_CUSTOMER_CALL_ALLOWED=NO\n[Required tests](test-report.md)\n');
+  write("docs/evidence/W-0010/test-report.md", 'UT-X-01\n');
+  const decisionPath = "docs/evidence/W-0099/README.md";
+  const decisionText = "Synthetic owner decision: replace the retired assertion with UT-X-01.\n";
+  write(decisionPath, decisionText);
   git(["add", "deploy", "Ivr.sln", "tests", "prompt", "docs"]); git(["commit", "-m", "test: synthetic acceptance fixture"]);
   const baseline = captureSource(root);
   const run = async (cmd, { output, logFile }) => {
@@ -139,6 +144,30 @@ try {
   assert.notEqual(command(process.execPath, [cli, "--root", root, "--trx", path.join(output, "trx")]).status, 0); checks += 1;
   const without = command(process.execPath, [cli, "--root", root]);
   assert(!without.stdout.includes("**ĐẠT**")); assert(without.stdout.includes("**CHƯA KIỂM**")); checks += 1;
+  // Exercise the real pinned Git reader, not just a mocked retirement validator.
+  const pinnedDecision = { commit: baseline.commit, path: decisionPath,
+    sha256: sha256(decisionText), quote: decisionText.trim() };
+  for (const [label, decision, expected] of [
+    ["valid-retirement", pinnedDecision, "**ĐẠT**"],
+    ["wrong-decision-hash", { ...pinnedDecision, sha256: "c".repeat(64) }, "hash mismatch"],
+    ["wrong-decision-quote", { ...pinnedDecision, quote: "This statement does not occur in the decision." }, "quote is missing"],
+    ["unknown-decision-commit", { ...pinnedDecision, commit: "d".repeat(40) }, "merge-base"],
+    ["unsafe-decision-path", { ...pinnedDecision, path: "docs/../outside.md" }, "repository-relative"],
+  ]) {
+    write("docs/evidence/W-0010/acceptance-tests.json", JSON.stringify({
+      schema: "ivr-acceptance-tests/v1", workId: "W-0010", scope: "software",
+      retirements: [{ testId: "UT-OLD-01", reason: "The fixture's original requirement was replaced.",
+        replacementTestIds: ["UT-X-01"], decision }],
+    }));
+    write("docs/evidence/W-0010/test-report.md", "UT-X-01 UT-OLD-01\n");
+    git(["add", "docs/evidence/W-0010"]); git(["commit", "-m", `test: ${label}`]);
+    const pinnedRun = await collectAcceptanceEvidence({ root, output: path.join(temporary, label), run });
+    const checked = command(process.execPath, [cli, "--root", root, "--evidence", pinnedRun]);
+    assert.equal(checked.status, 0, checked.stderr);
+    assert(checked.stdout.includes(expected), checked.stdout);
+    if (label !== "valid-retirement") assert(!checked.stdout.includes("**ĐẠT**"));
+    checks += 1;
+  }
   // mtime is neither an identity nor a signature. Touching an old commit's files cannot rescue it.
   write("new.txt", "second commit\n"); git(["add", "new.txt"]); git(["commit", "-m", "test: later fixture commit"]);
   fs.utimesSync(target, new Date(), new Date());

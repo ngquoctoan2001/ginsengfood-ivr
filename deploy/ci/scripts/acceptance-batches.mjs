@@ -3,8 +3,10 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { c2SelfTest } from "./acceptance-c2-checks.mjs";
+import { collectTestEvidence, GATE_TESTS } from "./acceptance-test-plan.mjs";
 import {
-  GATE_MANIFEST, fullSweepVerdict, expectedTestAssemblies, readPinnedArtifact, validateRunEvidence,
+  GATE_MANIFEST, fullSweepVerdict, expectedTestAssemblies, readPinnedArtifact, validateRunEvidence, sha256,
 } from "./acceptance-evidence-lib.mjs";
 
 // W-0318 / Lô 5 of plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md (T7): the batch list the release
@@ -20,8 +22,9 @@ import {
 // The four criteria are the ones in tracker section 1:
 //   C1  the evidence README exists at the path gate-status.yaml names, and says
 //       REAL_CUSTOMER_CALL_ALLOWED=NO
-//   C2  every TestId the README cites is in docs/traceability-tests.md and passed in the results
-//       in a --evidence bundle captured at the same commit
+//   C2  required TestIds from the prompt, README and same-pack attachments are live and passed in
+//       a --evidence bundle captured at the same commit, or have a pinned retirement with tested
+//       replacements. An empty test claim or a retired UI never passes as current software.
 //   C3  Residual/next holds nothing IVR still has to do, only external waits. A script cannot judge
 //       that, so a non-empty cell is shown for the owner to read (XEM) and never passed silently
 //   C4  the captured sweep ran the exact set of gates in that commit's manifest
@@ -120,7 +123,7 @@ export function traceability(markdown) {
   const byId = new Map();
   for (const match of markdown.matchAll(
     /^\| `([A-Z][A-Z0-9-]*)` \| (unit|integration|contract|chaos) \| `([^`]*)` \| `([^`]+)` \|$/gmu)) {
-    byId.set(match[1], { method: match[3], file: match[4] });
+    byId.set(match[1], [...(byId.get(match[1]) ?? []), { method: match[3], file: match[4] }]);
   }
 
   const prefixes = new Set();
@@ -133,8 +136,11 @@ export function traceability(markdown) {
 }
 
 function prefixOf(token, prefixes) {
+  // Test families remain test families when their last live definition is deleted. Numeric work,
+  // decision and activity IDs (W/OD/A/M3) are deliberately not test namespaces.
+  if (/^(?:UT|IT|CT|E2E|UI|COMP|SEC|PT|BI|CAP|DR|CHAOS|ARCH|DG)-.*-\d/iu.test(token)) return "test";
   for (const prefix of prefixes) {
-    if (token.startsWith(`${prefix}-`) && /^\d/u.test(token.slice(prefix.length + 1))) {
+    if (token.startsWith(`${prefix}-`) && /(?:^|-)\d/u.test(token.slice(prefix.length + 1))) {
       return prefix;
     }
   }
@@ -143,14 +149,12 @@ function prefixOf(token, prefixes) {
 }
 
 /**
- * TestIds an evidence README cites. A token counts when it is a known TestId, or when it carries a
- * known test prefix and a number: the second kind is how a README citing a renamed or deleted test
- * gets caught. Ranges such as `COMP-DSAR-08..12` are expanded, because the README claims every test
- * in them.
+ * TestIds cited by evidence or its prompt, including deleted families. Numeric ranges are expanded;
+ * an excessive/reversed range fails instead of silently checking a subset of the claimed tests.
  */
 export function citedTestIds(text, trace) {
   const found = new Set();
-  const token = /(?<![A-Za-z0-9-])([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)(?![A-Za-z0-9-])/gu;
+  const token = /(?<![A-Za-z0-9-])([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?:[a-z])?)(?![A-Za-z0-9-])/gu;
   for (const match of text.matchAll(token)) {
     const id = match[1];
     const prefix = trace.byId.has(id) ? "known" : prefixOf(id, trace.prefixes);
@@ -163,7 +167,8 @@ export function citedTestIds(text, trace) {
     const start = /^(.*-)(\d+)$/u.exec(id);
     if (range && start) {
       const [from, to] = [Number(start[2]), Number(range[1])];
-      for (let number = from + 1; number <= to && number - from <= 50; number += 1) {
+      assert(to >= from && to - from <= 500, `invalid TestId range: ${id}..${range[1]}`);
+      for (let number = from + 1; number <= to; number += 1) {
         found.add(`${start[1]}${String(number).padStart(start[2].length, "0")}`);
       }
     }
@@ -212,7 +217,7 @@ export function trxOutcomes(xml) {
 }
 
 function shortClass(className) {
-  return className.split(".").at(-1).split("+")[0];
+  return className.split(",")[0].split(".").at(-1).split("+")[0];
 }
 
 function classOfFile(file) {
@@ -233,8 +238,8 @@ export function indexResults(outcomes) {
 }
 
 export function testVerdict(testId, trace, results) {
-  const entry = trace.byId.get(testId);
-  if (!entry) {
+  const entries = trace.byId.get(testId);
+  if (!entries) {
     return { ok: false, reason: `${testId} không có trong ${TRACEABILITY}` };
   }
 
@@ -242,33 +247,31 @@ export function testVerdict(testId, trace, results) {
     return { ok: null, reason: "chưa có kết quả test đã xác minh (--evidence)" };
   }
 
-  const owner = classOfFile(entry.file);
-  let pool;
-  let note = "";
-  if (entry.method) {
-    const sameMethod = results.byMethod.get(entry.method) ?? [];
-    const sameClass = sameMethod.filter((outcome) => shortClass(outcome.className) === owner);
-    pool = sameClass.length > 0 ? sameClass : sameMethod;
-    if (sameClass.length === 0 && new Set(sameMethod.map((outcome) => outcome.className)).size > 1) {
-      return { ok: false, reason: `${testId}: nhiều class có method ${entry.method}, không biết lấy kết quả nào` };
+  for (const entry of entries) {
+    const owners = trace.sourceClasses?.get(entry.file) ?? [classOfFile(entry.file)];
+    if (owners.length === 0) return { ok: false, reason: `${testId}: thiếu source class ${entry.file}` };
+    let pool;
+    let note = "";
+    if (entry.method) {
+      const sameMethod = results.byMethod.get(entry.method) ?? [];
+      pool = sameMethod.filter((outcome) => owners.includes(shortClass(outcome.className)));
+    } else {
+      // The generator could not name the method for a handful of TestIds. The source still names
+      // its classes, so every result of those classes has to be green instead.
+      pool = owners.flatMap((owner) => results.byClass.get(owner) ?? []);
+      note = ` (traceability không ghi method; đã xét mọi class trong ${entry.file})`;
     }
-  } else {
-    // The generator could not name the method for a handful of TestIds. The class still identifies
-    // the test file, so every result of that class has to be green instead.
-    pool = results.byClass.get(owner) ?? [];
-    note = ` (traceability không ghi method; đã xét cả class ${owner})`;
-  }
 
-  if (pool.length === 0) {
-    return { ok: false, reason: `${testId} không có trong kết quả test${note}` };
-  }
+    if (pool.length === 0) {
+      return { ok: false, reason: `${testId} không có trong kết quả test${note}` };
+    }
 
-  const failed = pool.filter((outcome) => outcome.outcome !== "Passed");
-  if (failed.length > 0) {
-    return { ok: false, reason: `${testId} ${failed[0].outcome}${note}` };
+    const failed = pool.filter((outcome) => outcome.outcome !== "Passed");
+    if (failed.length > 0) {
+      return { ok: false, reason: `${testId} ${failed[0].outcome}${note}` };
+    }
   }
-
-  return { ok: true, reason: note };
+  return { ok: true, reason: "" };
 }
 
 export function sweepVerdict(log, manifest) {
@@ -297,7 +300,7 @@ function joinReasons(failures) {
 }
 
 /** One row against the four criteria. `sweep` is shared by every row of the same commit. */
-export function judge(row, { evidencePath, evidenceText, trace, results, sweep, runCheck }) {
+export function judge(row, { evidencePath, evidenceText, trace, results, sweep, runCheck, testEvidence, gateManifest }) {
   let c1;
   if (!evidencePath) {
     c1 = { ok: false, reason: "gate-status.yaml không trỏ tới gói bằng chứng nào" };
@@ -316,18 +319,26 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
     c1 = { ok: true, reason: "" };
   }
 
-  const cited = evidenceText ? citedTestIds(evidenceText, trace) : [];
-  const verdicts = cited.map((id) => testVerdict(id, trace, results));
+  const cited = testEvidence?.ids ?? (evidenceText ? citedTestIds(evidenceText, trace) : []);
+  const verdicts = cited.map((id) => GATE_TESTS[id]
+    ? { ok: !Array.isArray(gateManifest?.gates?.[GATE_TESTS[id]]?.argv) ? false
+      : runCheck?.ok !== true ? (runCheck?.ok ?? null) : sweep.ok,
+      reason: `${id} cần full sweep có ${GATE_TESTS[id]}` }
+    : testVerdict(id, trace, results));
   const failures = verdicts.filter((verdict) => verdict.ok === false);
   let c2;
-  if (failures.length > 0) {
+  if (testEvidence?.errors?.length) {
+    c2 = { ok: false, reason: testEvidence.errors.join("; ") };
+  } else if (cited.length === 0) {
+    c2 = { ok: false, reason: "không có TestId hoặc khai báo kiểm chứng để xét C2" };
+  } else if (failures.length > 0) {
     c2 = { ok: false, reason: joinReasons(failures) };
   } else if (runCheck?.ok !== true) {
     c2 = runCheck ?? { ok: null, reason: "chưa có gói kết quả gắn với commit (--evidence)" };
   } else if (verdicts.some((verdict) => verdict.ok === null)) {
     c2 = { ok: null, reason: "chưa có kết quả test đã xác minh (--evidence)" };
   } else {
-    c2 = { ok: true, reason: cited.length > 0 ? `${cited.length} TestId xanh` : "không nêu TestId nào" };
+    c2 = { ok: true, reason: `${cited.length} TestId xanh${testEvidence?.retired?.length ? `; ${testEvidence.retired.length} ID lịch sử có quyết định thay thế` : ""}` };
   }
 
   const c3 = residualVerdict(row.residual);
@@ -341,7 +352,8 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
     verdict = REVIEW;
   }
 
-  return { id: row.id, status: row.status, phase: phaseOf(row.prompt), cited, c1, c2, c3, verdict };
+  return { id: row.id, status: row.status, phase: phaseOf(row.prompt), cited,
+    retired: testEvidence?.retired ?? [], c1, c2, c3, verdict };
 }
 
 function phaseOrder(phase) {
@@ -415,6 +427,7 @@ export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phas
       for (const item of explained) {
         const reasons = [item.c1, item.c2].filter((check) => check.ok === false || check.ok === null)
           .map((check) => check.reason);
+        if (item.retired?.length) reasons.push(`Test lịch sử đã thay thế: ${item.retired.join(", ")}; xem acceptance-tests.json trong gói bằng chứng`);
         if (item.c3.ok === "review") {
           reasons.push(`Residual: ${item.c3.reason}`);
         }
@@ -497,6 +510,32 @@ function main() {
   const rows = plannedRows(normalise(base.get(TRACKER)));
   const evidence = evidencePaths(normalise(base.get(STATUS_YAML)));
   const trace = traceability(normalise(base.get(TRACEABILITY)));
+  const sourceFiles = [...new Set([...trace.byId.values()].flat().map((entry) => entry.file))];
+  const sources = read(sourceFiles);
+  trace.sourceClasses = new Map(sourceFiles.map((file) => [file,
+    [...(sources.get(file) ?? "").matchAll(/\bclass\s+(\w+)/gu)].map((match) => match[1])]));
+  const gateManifest = JSON.parse(read([GATE_MANIFEST]).get(GATE_MANIFEST));
+  const trackedPaths = git(root, ["ls-tree", "-r", "--name-only", head, "prompt"]).toString("utf8").trim().split("\n");
+  const promptPaths = trackedPaths.filter((file) => /\/P\d+-\d+[a-z]?-.*\.md$/u.test(file));
+  const prompts = read(promptPaths);
+  const cache = new Map();
+  const readOne = (file) => {
+    if (!cache.has(file)) cache.set(file, normalise(read([file]).get(file)));
+    return cache.get(file);
+  };
+  const validateDecision = (decision) => {
+    assert.match(decision?.commit ?? "", /^[0-9a-f]{40}$/u, "decision needs a full commit");
+    assert.match(decision?.sha256 ?? "", /^[0-9a-f]{64}$/u, "decision needs a pinned hash");
+    assert(typeof decision.path === "string" && !decision.path.includes("..")
+      && /^(?:docs|plan|specs)\/[A-Za-z0-9_./-]+\.md$/u.test(decision.path),
+      "decision must be a repository-relative evidence or decision document");
+    git(root, ["merge-base", "--is-ancestor", decision.commit, head]);
+    const historical = readAtHead(root, [decision.path], decision.commit).get(decision.path);
+    assert.equal(typeof historical, "string", "decision document missing at pinned commit");
+    assert.equal(sha256(historical), decision.sha256, "decision document hash mismatch");
+    assert(typeof decision.quote === "string" && decision.quote.trim().length >= 20
+      && historical.includes(decision.quote), "decision quote is missing from the pinned document");
+  };
 
   const candidates = rows.filter((row) => CANDIDATES.has(row.status));
   const paths = [...new Set(candidates.map((row) => evidence.get(row.id)).filter(Boolean))];
@@ -540,6 +579,11 @@ function main() {
     results,
     sweep,
     runCheck,
+    gateManifest,
+    testEvidence: collectTestEvidence({ workId: row.id, evidencePath: evidence.get(row.id),
+      evidenceText: evidence.get(row.id) ? normalise(texts.get(evidence.get(row.id))) : null,
+      promptText: prompts.get(promptPaths.find((file) => path.posix.basename(file).startsWith(`${row.prompt}-`))) ?? "",
+      trace, extract: citedTestIds, read: readOne, validateDecision }),
   }));
 
   process.stdout.write(render({
@@ -622,7 +666,7 @@ function selfTest() {
 
   assert.deepEqual(["P0-1", "P11-4", "Planning realignment", "P2-9 (rework)"].map(phaseOf), ["P0", "P11", "UNPLANNED", "UNPLANNED"]);
   assert.deepEqual(citedTestIds("`UT-X-01..03` và UT-X-01…02", trace), ["UT-X-01", "UT-X-02", "UT-X-03"]);
-  assert.deepEqual(citedTestIds("W-0310 OD-V1-11 M3-14 A-0637 UT-XY-01", trace), []);
+  assert.deepEqual(citedTestIds("W-0310 OD-V1-11 M3-14 A-0637 UT-XY-01", trace), ["UT-XY-01"]);
 
   const full = run(pass, true);
   assert.deepEqual(Object.keys(full).sort(), ["W-0010", "W-0011", "W-0012", "W-0013", "W-0014", "W-0015", "W-0016", "W-0019"],
@@ -669,7 +713,8 @@ function selfTest() {
   assert.match(report, /Residual: Chờ Module 3 trả lời M3-14/u);
   assert.ok(!report.includes("W-0017"), "accepted rows are not proposed again");
 
-  process.stdout.write("ACCEPTANCE_BATCHES_SELFTEST_PASS — 4 criteria, 8 candidate rows, 2 non-candidates\n");
+  const c2Checks = c2SelfTest({ citedTestIds, traceability, judge, indexResults, testVerdict });
+  process.stdout.write(`ACCEPTANCE_BATCHES_SELFTEST_PASS — 4 criteria, 8 candidate rows, 2 non-candidates, ${c2Checks} C2 regression checks\n`);
 }
 
 if (process.argv.includes("--self-test")) {

@@ -159,3 +159,10 @@ PASS — 413 files / 375 resolved links / 0 unresolved
 - Implementation commit: `6e0f9d3e0fc294256a298ff5d65e92fcf0dcd21f` trên `main`.
 - GitHub `main`: fast-forward thành công và remote ref đã xác minh trùng implementation commit.
 - GitLab `main`: vẫn ở `5544395`; pre-receive hook từ chối direct push do protected branch. Không hạ protection và không tạo branch/MR trái chỉ đạo owner.
+
+## Cập nhật W-0324 — 21/09/2026
+
+Kết quả cũ giữ nguyên theo thời điểm chạy. Hai TestId cũ đã được thay theo OD-17/OD-18,
+không còn là test bắt buộc của runtime hiện hành. Xem [đối chiếu đầy đủ](acceptance-addendum.md)
+và [khai báo C2 có ghim quyết định](acceptance-tests.json). Kết quả mới phải lấy từ gói test
+đúng commit do W-0324 thu; không đổi nhãn các kết quả lịch sử thành kết quả hôm nay.

@@ -14,6 +14,8 @@
       "runner": "pnpm sandbox:examples after pnpm sandbox:up; W-0283 validates worker-owned eligibility"
     },
     "acceptance-batches.mjs": { "argv": ["--self-test"], "expect": "ACCEPTANCE_BATCHES_SELFTEST_PASS" },
+    "acceptance-c2-checks.mjs": { "sweepable": false, "reason": "C2 regression assertions imported and required by acceptance-batches --self-test", "runner": "acceptance-batches.mjs --self-test" },
+    "acceptance-test-plan.mjs": { "sweepable": false, "reason": "pinned attachment and test retirement library; exercised by the mandatory acceptance self-tests", "runner": "acceptance-batches.mjs --self-test and acceptance-evidence-selftest.mjs" },
     "acceptance-evidence-lib.mjs": { "sweepable": false, "reason": "provenance/completeness library; exercised by acceptance-evidence-selftest", "runner": "acceptance-evidence-selftest.mjs" },
     "acceptance-evidence-selftest.mjs": { "argv": [], "expect": "ACCEPTANCE_EVIDENCE_SELFTEST_PASS" },
     "api-behavior-matrix-selftest.mjs": {

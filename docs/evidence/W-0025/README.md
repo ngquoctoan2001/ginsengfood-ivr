@@ -192,3 +192,10 @@ regression test asserts every auth redirect `Location` starts with `/`.
   the test suite unconditionally (the P0-2 "no test script yet" fallback is
   obsolete), and the job summary records both. Flagged because this file is
   owned by P0-2 / `W-0011`.
+
+## Cập nhật W-0324 — 21/09/2026
+
+Console đã ngừng thuộc deliverable IVR theo W-0253, commit c0e6609.
+Các kết quả test/capture phía trên là lịch sử, không chứng nhận UI hiện hành.
+[Hồ sơ đề nghị kết thúc phạm vi](scope-closeout.md) đã chuẩn bị; đề nghị CANCELLED, chờ Toàn quyết định.
+[Phân loại C2](acceptance-tests.json) ghi scope retired-ui để test backend không thể làm UI đạt nghiệm thu.

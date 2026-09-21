@@ -156,3 +156,8 @@ project's Windows verification runbook.
 
 This evidence supports `TESTS_PASS` for end-to-end local/MOCK delivery only. It does
 not support `ACCEPTED`, real-integration readiness or production readiness.
+
+## Cập nhật W-0324 — 21/09/2026
+
+[Ma trận 22 TestId callback hiện hành](acceptance-test-matrix.md) bổ sung nguồn kiểm C2.
+Kết quả cũ phía trên giữ nguyên; C2 đọc ma trận này và yêu cầu kết quả ở đúng commit nghiệm thu.
