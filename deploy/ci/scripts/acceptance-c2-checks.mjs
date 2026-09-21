@@ -15,6 +15,37 @@ export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, te
   assert.equal(testVerdict("UT-X-01", duplicate, input.results).ok, false,
     "every definition of a TestId must run, not just the last traceability row");
   let checks = 3;
+  const slashTrace = traceability("| `UT-X` | 3 |\n| `UT-X-01` | unit | `First` | `tests/XTests.cs` |\n| `UT-X-02` | unit | `Second` | `tests/XTests.cs` |\n| `UT-X-03` | unit | `Third` | `tests/XTests.cs` |\n");
+  assert.deepEqual(citedTestIds("IT-API-TERMINATE-09/10", trace),
+    ["IT-API-TERMINATE-09", "IT-API-TERMINATE-10"], "W-0207 shorthand must retain its second test"); checks += 1;
+  assert.deepEqual(citedTestIds("UT-X-01/3/01", trace), ["UT-X-01", "UT-X-03"],
+    "slash is a list, not a range; preserve width and deduplicate"); checks += 1;
+  assert.deepEqual(citedTestIds("CT-CI-06/06b/06d/06e/06f", trace),
+    ["CT-CI-06", "CT-CI-06b", "CT-CI-06d", "CT-CI-06e", "CT-CI-06f"]); checks += 1;
+  assert.deepEqual(citedTestIds("UT-X-01/03..05/07", trace),
+    ["UT-X-01", "UT-X-03", "UT-X-04", "UT-X-05", "UT-X-07"]); checks += 1;
+  assert.deepEqual(citedTestIds("UT-X-01..03/05", trace),
+    ["UT-X-01", "UT-X-02", "UT-X-03", "UT-X-05"]); checks += 1;
+  assert.deepEqual(citedTestIds("W-0010/11 OD-V1-20/21 UT-X-01/IT-NEW-02", trace),
+    ["IT-NEW-02", "UT-X-01"], "full IDs and non-test slash notation remain distinct"); checks += 1;
+  for (const malformed of ["UT-X-01/02bad", "UT-X-01/03..02", "UT-X-01/03..9999", "UT-X-01/02b..04"]) {
+    assert.throws(() => citedTestIds(malformed, trace), /invalid TestId/u,
+      "a malformed continuation must not certify a valid prefix"); checks += 1;
+  }
+  const slashInput = { ...input, trace: slashTrace, evidenceText: `${input.evidenceText}\nUT-X-01/02` };
+  assert.equal(judge(row, slashInput).c2.ok, false, "missing slash test results must reject C2"); checks += 1;
+  for (const outcome of ["Failed", "NotExecuted"]) {
+    assert.equal(judge(row, { ...slashInput, results: indexResults([
+      { className: "XTests", name: "First", outcome: "Passed" },
+      { className: "XTests", name: "Second", outcome },
+    ]) }).c2.ok, false, `${outcome} slash test must reject C2`); checks += 1;
+  }
+  assert.equal(judge(row, { ...slashInput, results: indexResults([
+    { className: "XTests", name: "First", outcome: "Passed" },
+    { className: "XTests", name: "Second", outcome: "Passed" },
+  ]) }).c2.ok, true, "all slash tests green can satisfy C2"); checks += 1;
+  assert.equal(judge(row, { ...input, evidenceText: `${input.evidenceText}\nUT-X-01/99` }).c2.ok, false,
+    "a slash test absent from traceability must reject C2"); checks += 1;
   assert.throws(() => citedTestIds("UT-X-01..9999", trace), /invalid TestId range/u); checks += 1;
   assert.throws(() => citedTestIds("UT-X-03..01", trace), /invalid TestId range/u); checks += 1;
   assert.deepEqual(citedTestIds("W-0010 OD-V1-20 M3-14 A-0663 UT-NEW-FAMILY-01", trace), ["UT-NEW-FAMILY-01"]); checks += 1;

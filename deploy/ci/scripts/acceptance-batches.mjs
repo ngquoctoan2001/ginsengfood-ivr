@@ -149,8 +149,8 @@ function prefixOf(token, prefixes) {
 }
 
 /**
- * TestIds cited by evidence or its prompt, including deleted families. Numeric ranges are expanded;
- * an excessive/reversed range fails instead of silently checking a subset of the claimed tests.
+ * TestIds cited by evidence or its prompt, including deleted families. Expand numeric ranges and
+ * slash suffixes (09/10, 06/06b). Invalid continuations fail instead of certifying a partial claim.
  */
 export function citedTestIds(text, trace) {
   const found = new Set();
@@ -163,14 +163,30 @@ export function citedTestIds(text, trace) {
     }
 
     found.add(id);
-    const range = /^(?:\.\.|…)(\d+)(?![A-Za-z0-9])/u.exec(text.slice(match.index + id.length));
-    const start = /^(.*-)(\d+)$/u.exec(id);
-    if (range && start) {
-      const [from, to] = [Number(start[2]), Number(range[1])];
-      assert(to >= from && to - from <= 500, `invalid TestId range: ${id}..${range[1]}`);
+    const start = /^(.*-)(\d+)([a-z]?)$/u.exec(id);
+    if (!start) continue;
+    let tail = text.slice(match.index + id.length);
+    let from = Number(start[2]);
+    let letter = start[3];
+    while (/^(?:\/\d|(?:\.\.|…)\d)/u.test(tail)) {
+      const slash = /^\/(\d+)([a-z]?)(?![A-Za-z0-9-])/u.exec(tail);
+      if (slash) {
+        from = Number(slash[1]);
+        letter = slash[2];
+        assert(Number.isSafeInteger(from), `invalid TestId suffix: ${id}${tail}`);
+        found.add(`${start[1]}${slash[1].padStart(start[2].length, "0")}${letter}`);
+        tail = tail.slice(slash[0].length);
+        continue;
+      }
+      const range = /^(?:\.\.|…)(\d+)(?![A-Za-z0-9-])/u.exec(tail);
+      const to = Number(range?.[1]);
+      assert(range && !letter && Number.isSafeInteger(from) && Number.isSafeInteger(to)
+        && to >= from && to - from <= 500, `invalid TestId range or suffix: ${id}${tail}`);
       for (let number = from + 1; number <= to; number += 1) {
         found.add(`${start[1]}${String(number).padStart(start[2].length, "0")}`);
       }
+      from = to;
+      tail = tail.slice(range[0].length);
     }
   }
 
