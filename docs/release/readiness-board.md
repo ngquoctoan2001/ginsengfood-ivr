@@ -21,7 +21,7 @@ xong, trong khi 6% còn lại là toàn bộ những cổng **không ai đóng �
 | 3. `REAL_SALES_INTEGRATION_VERIFIED` | Target V1 is signed and contract tests run against a real Sales sandbox | ❌ |
 | 4. `PRODUCTION_REAL_ELIGIBLE` | 32 eSIM capacity measured, legal/security evidence accepted, DF-03 signed | ❌ |
 
-**Đang ở nấc 0.** 44/307 work item ở trạng thái `ACCEPTED`; phần còn lại
+**Đang ở nấc 0.** 44/308 work item ở trạng thái `ACCEPTED`; phần còn lại
 cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evidence đã được chấp nhận**
 (`MASTER-05`). Chỉ Release owner chuyển sang `ACCEPTED`.
 
@@ -33,8 +33,8 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 | `ACCEPTED` | 44 |
 | `BLOCKED_EXTERNAL` | 19 |
 | `CANCELLED` | 17 |
+| `EVIDENCE_SUBMITTED` | 4 |
 | `CODE_DONE` | 3 |
-| `EVIDENCE_SUBMITTED` | 3 |
 | `N/A` | 2 |
 | `DEFERRED_TARGET` | 2 |
 

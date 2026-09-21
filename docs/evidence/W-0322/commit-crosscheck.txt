@@ -1,0 +1,26 @@
+REVIEW_COMMIT=423b5732062b6ee77c6d8e875473683e4c41ed75
+All listed commits are ancestors of the review commit.
+
+6e0f9d3e0fc294256a298ff5d65e92fcf0dcd21f 2026-08-13T20:04:14+07:00 feat: implement P2-2 eligibility blockers
+d23ab984627d270c335172261c836aa8af78497a 2026-08-13T21:30:57+07:00 feat: complete P2-3 deadline scheduler
+ec459a3963fbc7991d6656d663637fdc618d0a07 2026-08-13T22:45:37+07:00 feat: complete P2-4 mock telephony dispatch
+2412cf65615c1079e2c96f5f9ab5fc5b6eeb149c 2026-08-14T08:58:24+07:00 feat: complete P2-6 Sales callback delivery
+c93dace1614d8fc192a077ad4027a521f34bf711 2026-08-14T11:47:09+07:00 feat: complete P2-9 speech TTS provider boundary
+6760ba614e47e1631384640209cc4acee944a8cf 2026-08-27T22:56:16+07:00 feat(ivr)!: Module 3 owns the call decision, IVR only executes (W-0123, W-0124)
+92091a114fa31b96abc962f58cbb0329685cfd2f 2026-09-16T12:33:40+07:00 fix(intake): W-0298 refuse a task whose every attempt lands outside calling hours
+ffa0284502931107ace3d40ba608f8ef39f06a49 2026-09-16T15:31:43+07:00 fix(intake,contract): W-0302 answer a late dial token with 422, not 500
+5cffea3191e0302b2176d991952979c3e91018b3 2026-09-05T14:57:57+07:00 feat(m8): add W-0196 calling window and signed production policy, W-0197 dial-token ceiling
+6993e3f929063368e02ef6558e53dcc7c3ab3fb0 2026-09-08T08:23:38+07:00 feat(scheduler): W-0220 owner moves the calling window to 21:08 so the nine o'clock order gets both calls
+4baad099948e4d9f0c1c4ef2163701a68627e91c 2026-09-05T10:36:20+07:00 docs(w-0191): owner signs 19 open decisions and records why
+a3688c7b15da2afeb40850a1b734c531e2820e57 2026-09-10T08:40:19+07:00 docs(decisions): W-0266 the owner is the quorum, and three things that does not unblock
+f7c9be9c555460e49350f4569b6b58ce127ffccb 2026-08-22T11:33:14+07:00 feat: accept W-0104 generic customer greeting
+a09f0627015f7f286a84564a4b9cca66552232f6 2026-08-28T14:14:59+07:00 refactor(contract)!: remove console accounts from the API contract and the code
+0dcb14522456d86c0c67f7a8526e2d68ed66593c 2026-08-28T13:22:40+07:00 refactor(admin-ui)!: turn the console into a reference implementation
+c0e660948b9ba5e330d9a60dfe08ae0610f137cc 2026-09-09T14:58:02+07:00 chore(repo): W-0253 delete admin-ui, keep the one thing Module 3 needs
+9af20d319680e19469533f3dcd2b973ac726fc3c 2026-09-18T09:53:17+07:00 refactor(speech,lab,docs): W-0315 VieNeu is the only speech engine
+9dc54795a19e735e7dc429ebfa1191f56e66b4c6 2026-09-16T16:17:18+07:00 docs(ci,contract): W-0304 the documentation lot, and the 11 gates it found red
+bed051c02f183931476f32d4a8d7d97e8f6ee3ff 2026-08-23T00:02:39+07:00 feat(auth): grant Admin the runtime-gate permissions (OD-V1-20)
+37d84dc25ff62f77c89657c0d6c0398fc0bf752a 2026-08-23T00:57:49+07:00 feat(scripts): open the script lifecycle to the console (W-0109)
+83979d69b27347b1020abdd1ac8dcce660775cd0 2026-08-23T10:01:10+07:00 feat(admin-ui): runtime gate screen (W-0110)
+f1e8bc9bf79464af309b2d4e39e59613d39f9355 2026-08-23T13:01:47+07:00 feat(dev-tooling): seed loader, scenario runner and status profiles (W-0112)
+8f149daaa0486c59b9815b06619aca1043b43fea 2026-09-12T11:16:22+07:00 fix(ci,analytics): W-0280 three defects that only appear when the thing is run

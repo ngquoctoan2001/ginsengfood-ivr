@@ -1,0 +1,3009 @@
+{
+  "reviewCommit": "423b5732062b6ee77c6d8e875473683e4c41ed75",
+  "testCommit": "bd9ea5c64b6a6b4a1a1f34c7043f80cfea25e08f",
+  "bundleManifestSha256": "5521d7d6b48d522797a823a4f4fc9068e8aa0f2416a6382ac85f5e2f72521bf4",
+  "totalSolutionResults": 1151,
+  "scope": "Manual audit supplement, not an acceptance-run manifest or a new test run. P3 active IDs prove backend only. Historical missing IDs require the dispositions in README.",
+  "items": [
+    {
+      "id": "W-0018",
+      "prompt": "P2-1",
+      "residual": "owner/reviewer acceptance, real Sales/auth, LAB/PROD script/key/SIM and P2-2 eligibility remain open",
+      "automaticReadmeIds": [
+        "IT-INTAKE-DB-01",
+        "IT-INTAKE-DB-02"
+      ],
+      "selectedActiveIds": [
+        "IT-INTAKE-AUTH-05",
+        "IT-INTAKE-DB-01",
+        "IT-INTAKE-DB-02",
+        "IT-INTAKE-DB-03",
+        "IT-INTAKE-HAPPY-01",
+        "IT-INTAKE-HEADER-07",
+        "IT-INTAKE-IDEMPOTENCY-02",
+        "IT-INTAKE-JSON-NULL-OMISSION-14",
+        "IT-INTAKE-NUMBER-01",
+        "IT-INTAKE-NUMBER-02",
+        "IT-INTAKE-NUMBER-03",
+        "IT-INTAKE-NUMBER-04",
+        "IT-INTAKE-NUMBER-DB-01",
+        "IT-INTAKE-NUMBER-DB-02",
+        "IT-INTAKE-NUMBER-DB-03",
+        "IT-INTAKE-NUMBER-DB-04",
+        "IT-INTAKE-PRIVACY-04",
+        "IT-INTAKE-REASON-WIRE-15",
+        "IT-INTAKE-SCHEMA-03",
+        "IT-INTAKE-TRACE-06",
+        "UT-INTAKE-NIGHT-01",
+        "UT-INTAKE-NIGHT-02",
+        "UT-INTAKE-NIGHT-03",
+        "UT-INTAKE-NUMBER-01",
+        "UT-INTAKE-NUMBER-02",
+        "UT-INTAKE-NUMBER-03",
+        "UT-INTAKE-NUMBER-04",
+        "UT-INTAKE-NUMBER-05",
+        "UT-INTAKE-NUMBER-06",
+        "UT-INTAKE-PARITY-01",
+        "UT-INTAKE-PARITY-02",
+        "UT-INTAKE-PARITY-03",
+        "UT-INTAKE-PARITY-04",
+        "UT-INTAKE-PARITY-05",
+        "UT-INTAKE-REASON-COMPAT-14",
+        "UT-INTAKE-REASON-TAXONOMY-13"
+      ],
+      "definitions": [
+        {
+          "id": "IT-INTAKE-AUTH-05",
+          "kind": "integration",
+          "method": "SourceAndServiceAuthenticationFailBeforeIntake",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 2,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-DB-01",
+          "kind": "integration",
+          "method": "ConcurrentIntakePersistsExactlyOneAtomicUnitAndImmutableSnapshots",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs",
+          "sourceClasses": [
+            "TaskIntakePersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-DB-02",
+          "kind": "integration",
+          "method": "RestrictedTaskIsRejectedBeforePersistence",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs",
+          "sourceClasses": [
+            "TaskIntakePersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-DB-03",
+          "kind": "integration",
+          "method": "DialTokenExpiryIsBoundToExactlyTheConfirmationWindowEnd",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs",
+          "sourceClasses": [
+            "TaskIntakePersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-HAPPY-01",
+          "kind": "integration",
+          "method": "SupportedProgramsReturnDryRunAndNeverInvokeRealCallPath",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 2,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-HEADER-07",
+          "kind": "integration",
+          "method": "RequiredHeadersAreBoundedAtOneHundredTwentyEightSafeCharacters",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-IDEMPOTENCY-02",
+          "kind": "integration",
+          "method": "ExactReplayReturnsOriginalResponseAndChangedPayloadConflicts",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-JSON-NULL-OMISSION-14",
+          "kind": "integration",
+          "method": "OptionalNullResponseFieldsAreOmittedPerOpenApiContract",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-NUMBER-01",
+          "kind": "integration",
+          "method": "ANumberOnlyBodyIsAcceptedOverTheWire",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-NUMBER-02",
+          "kind": "integration",
+          "method": "ABodyWithoutTheNumberOrTheWholeTokenPairIsMalformed",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 5,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-NUMBER-03",
+          "kind": "integration",
+          "method": "ANumberThatBreaksTheContractPatternIsMalformed",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 8,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-NUMBER-04",
+          "kind": "integration",
+          "method": "EveryPatternOnTheGeneratedTaskHasRefusalCasesHere",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-NUMBER-DB-01",
+          "kind": "integration",
+          "method": "ANumberOnlyTaskPersistsItsNumberAndItsOwnDirectDialReference",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs",
+          "sourceClasses": [
+            "TaskIntakePersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-NUMBER-DB-02",
+          "kind": "integration",
+          "method": "ATokenBesideANumberIsNeverStoredWhereNoProtectorExists",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs",
+          "sourceClasses": [
+            "TaskIntakePersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-NUMBER-DB-03",
+          "kind": "integration",
+          "method": "ATokenBesideANumberIsStillProtectedWhereAProtectorExists",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs",
+          "sourceClasses": [
+            "TaskIntakePersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-NUMBER-DB-04",
+          "kind": "integration",
+          "method": "TwoNumberOnlyTasksCanEachDialAgainstTheDurableLedger",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs",
+          "sourceClasses": [
+            "TaskIntakePersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-PRIVACY-04",
+          "kind": "integration",
+          "method": "SemanticStreetAddressIsPiiViolationAndDoesNotLeakToAudit",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-REASON-WIRE-15",
+          "kind": "integration",
+          "method": "ReasonRefinementPreservesTheWireStatusAndErrorCode",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 4,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-SCHEMA-03",
+          "kind": "integration",
+          "method": "SchemaViolationsReturnMalformed400",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 3,
+          "allPassed": true
+        },
+        {
+          "id": "IT-INTAKE-TRACE-06",
+          "kind": "integration",
+          "method": "MissingCorrelationHeaderReturnsStableMissingTrace",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NIGHT-01",
+          "kind": "unit",
+          "method": "ATaskWhoseEveryAttemptFallsOutsideCallingHoursIsBlockedAtIntake",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NIGHT-02",
+          "kind": "unit",
+          "method": "TheSameTaskInsideCallingHoursIsStillAccepted",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NIGHT-03",
+          "kind": "unit",
+          "method": "ATaskWithOneCallableAttemptBeforeTheWindowShutsIsAccepted",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NUMBER-01",
+          "kind": "unit",
+          "method": "ANumberOnlyTaskIsAcceptedWhereNoProtectorExists",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NUMBER-02",
+          "kind": "unit",
+          "method": "ATokenBesideANumberIsAcceptedWhereNoProtectorExists",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NUMBER-03",
+          "kind": "unit",
+          "method": "ATokenAloneStillFailsClosedWhereNoProtectorExists",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NUMBER-04",
+          "kind": "unit",
+          "method": "ATokenBesideANumberIsStillHeldToTheTokenRules",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NUMBER-05",
+          "kind": "unit",
+          "method": "ANumberOnlyTaskCarriesItsOwnDirectDialReference",
+          "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+          "sourceClasses": [
+            "CallResultAndMapperTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-NUMBER-06",
+          "kind": "unit",
+          "method": "DirectDialReferencesNeverTripTheRawPhoneGuard",
+          "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+          "sourceClasses": [
+            "CallResultAndMapperTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-PARITY-01",
+          "kind": "integration",
+          "method": "TheTaskAllowlistNamesExactlyTheContractsFields",
+          "file": "tests/Ivr.IntegrationTests/Intake/TaskIntakeSchemaParityTests.cs",
+          "sourceClasses": [
+            "TaskIntakeSchemaParityTests",
+            "and"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-PARITY-02",
+          "kind": "integration",
+          "method": "TheTaskRequiredListMatchesTheContractExceptWhereDeclared",
+          "file": "tests/Ivr.IntegrationTests/Intake/TaskIntakeSchemaParityTests.cs",
+          "sourceClasses": [
+            "TaskIntakeSchemaParityTests",
+            "and"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-PARITY-03",
+          "kind": "integration",
+          "method": "TheSpeechSummaryAllowlistsMatchTheContract",
+          "file": "tests/Ivr.IntegrationTests/Intake/TaskIntakeSchemaParityTests.cs",
+          "sourceClasses": [
+            "TaskIntakeSchemaParityTests",
+            "and"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-PARITY-04",
+          "kind": "integration",
+          "method": "TheSpeechItemAllowlistsMatchTheContract",
+          "file": "tests/Ivr.IntegrationTests/Intake/TaskIntakeSchemaParityTests.cs",
+          "sourceClasses": [
+            "TaskIntakeSchemaParityTests",
+            "and"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-PARITY-05",
+          "kind": "integration",
+          "method": "EveryStringCheckedFieldIsAStringInTheContract",
+          "file": "tests/Ivr.IntegrationTests/Intake/TaskIntakeSchemaParityTests.cs",
+          "sourceClasses": [
+            "TaskIntakeSchemaParityTests",
+            "and"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-REASON-COMPAT-14",
+          "kind": "unit",
+          "method": "TheTwoBusinessApprovedPairsAreStillAccepted",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 2,
+          "allPassed": true
+        },
+        {
+          "id": "UT-INTAKE-REASON-TAXONOMY-13",
+          "kind": "unit",
+          "method": "EachRejectionNamesTheFieldThatCausedIt",
+          "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+          "sourceClasses": [
+            "TaskIntakeServiceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 10,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [
+        "CT-CI-06"
+      ],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0018/README.md",
+          "sha256": "975ce8269f4d5bae36fad672f45895a60334110d4f2844a51641f8d2ec738aef"
+        }
+      ]
+    },
+    {
+      "id": "W-0019",
+      "prompt": "P2-2",
+      "residual": "P2-3 owns real capacity/scheduler; no direct Ops/CRM; trust-skip off; real Sales/SIM/LAB/PROD NOT_RUN",
+      "automaticReadmeIds": [
+        "IT-ELIG-CAP-05",
+        "IT-ELIG-DNC-07",
+        "IT-ELIG-FAILCLOSED-08",
+        "IT-ELIG-MOCK-06",
+        "UT-ELIG-DNC-02",
+        "UT-ELIG-FAILCLOSED-04"
+      ],
+      "selectedActiveIds": [
+        "CT-M3-AUTHORITY-08",
+        "CT-M3-AUTHORITY-09",
+        "IT-ELIG-CAP-05",
+        "IT-ELIG-DNC-07",
+        "IT-ELIG-FAILCLOSED-08",
+        "IT-ELIG-MOCK-06",
+        "IT-M3-AUTHORITY-05",
+        "IT-M3-AUTHORITY-06",
+        "IT-M3-AUTHORITY-07",
+        "IT-M3-AUTHORITY-08",
+        "IT-M3-AUTHORITY-12",
+        "IT-M3-AUTHORITY-13",
+        "UT-ELIG-DNC-02",
+        "UT-ELIG-FAILCLOSED-04",
+        "UT-M3-AUTHORITY-01",
+        "UT-M3-AUTHORITY-02",
+        "UT-M3-AUTHORITY-03",
+        "UT-M3-AUTHORITY-04",
+        "UT-M3-AUTHORITY-10",
+        "UT-M3-AUTHORITY-11"
+      ],
+      "definitions": [
+        {
+          "id": "CT-M3-AUTHORITY-08",
+          "kind": "contract",
+          "method": "OpenApiPublishesM3AuthorityAndOnlyLegacyTrustCompatibility",
+          "file": "tests/Ivr.ContractTests/TaskIntakeContractTests.cs",
+          "sourceClasses": [
+            "TaskIntakeContractTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "CT-M3-AUTHORITY-09",
+          "kind": "contract",
+          "method": "LinkedEvidenceSchemaMarksTrustAsIgnoredLegacyInput",
+          "file": "tests/Ivr.ContractTests/TaskIntakeContractTests.cs",
+          "sourceClasses": [
+            "TaskIntakeContractTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-ELIG-CAP-05",
+          "kind": "integration",
+          "method": "CapacityShortageCreatesIncidentWithoutCountedAttemptOrDispatch",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-ELIG-DNC-07",
+          "kind": "integration",
+          "method": "StoredPhoneRestrictionBlocksBeforeCapacityWithEvidenceAndNoAttempt",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-ELIG-FAILCLOSED-08",
+          "kind": "integration",
+          "method": "CapacityResponseWithoutEvidenceFailsClosed",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-ELIG-MOCK-06",
+          "kind": "integration",
+          "method": "MockEligibleDecisionRemainsHeldWithNoEgressOrAttempt",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-M3-AUTHORITY-05",
+          "kind": "integration",
+          "method": "TrustedMetadataCannotCreateASkipDecisionOrSkippedJob",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-M3-AUTHORITY-06",
+          "kind": "integration",
+          "method": "TrustedMetadataCannotCreateASkipDecisionOrSkippedJob",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-M3-AUTHORITY-07",
+          "kind": "integration",
+          "method": "TrustAndRiskMetadataNeverChangeTheEligibilityDecision",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 4,
+          "allPassed": true
+        },
+        {
+          "id": "IT-M3-AUTHORITY-08",
+          "kind": "integration",
+          "method": "HistoricalTrustedSkipRowsRemainReadableDuringTheRollbackWindow",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-M3-AUTHORITY-12",
+          "kind": "integration",
+          "method": "TheRetiredSkipShapeIsCountedAndStillCalled",
+          "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+          "sourceClasses": [
+            "TaskIntakeApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-M3-AUTHORITY-13",
+          "kind": "integration",
+          "method": "ThePreflightSqlRunsOnTheRealSchemaAndCountsTheRetiredShape",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-ELIG-DNC-02",
+          "kind": "unit",
+          "method": "PhoneCallRestrictionBlocksAndMarketingConsentCannotReachTheVoiceDecision",
+          "file": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+          "sourceClasses": [
+            "EligibilityRulesTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-ELIG-FAILCLOSED-04",
+          "kind": "unit",
+          "method": "MissingRequiredSourcesFailClosed",
+          "file": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+          "sourceClasses": [
+            "EligibilityRulesTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-M3-AUTHORITY-01",
+          "kind": "unit",
+          "method": "M3AuthorityIsNotRepresentedByAnIvrTrustPredicate",
+          "file": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+          "sourceClasses": [
+            "EligibilityRulesTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-M3-AUTHORITY-02",
+          "kind": "unit",
+          "method": "M3AuthorityIsNotRepresentedByAnIvrTrustPredicate",
+          "file": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+          "sourceClasses": [
+            "EligibilityRulesTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-M3-AUTHORITY-03",
+          "kind": "unit",
+          "method": "ARestrictedCustomerIsNeverCallable",
+          "file": "tests/Ivr.UnitTests/Governance/DoNotCallSupremacyTests.cs",
+          "sourceClasses": [
+            "DoNotCallSupremacyTests",
+            "DoNotCallSnapshotFactory"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-M3-AUTHORITY-04",
+          "kind": "unit",
+          "method": "MissingRequiredSourcesFailClosed",
+          "file": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+          "sourceClasses": [
+            "EligibilityRulesTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-M3-AUTHORITY-10",
+          "kind": "unit",
+          "method": "TheActiveDecisionVocabularyHasNoBusinessSkipAndEvaluateNeverLeavesIt",
+          "file": "tests/Ivr.UnitTests/Policies/EligibilityRulesTests.cs",
+          "sourceClasses": [
+            "EligibilityRulesTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-M3-AUTHORITY-11",
+          "kind": "unit",
+          "method": "ThePreDialDecisionPathCannotReadCustomerTrustOrOrderRiskMetadata",
+          "file": "tests/Ivr.UnitTests/ArchitectureDependencyTests.cs",
+          "sourceClasses": [
+            "ArchitectureDependencyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [
+        "CT-CI-06",
+        "UT-ELIG-BLOCK-01",
+        "UT-ELIG-TRUST-03"
+      ],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0019/README.md",
+          "sha256": "85c2f20fb692b36c344576b81692b95dbfb2702d2d19dbd4345992b72ec5280e"
+        }
+      ]
+    },
+    {
+      "id": "W-0020",
+      "prompt": "P2-3",
+      "residual": "scheduler flag off + dispatch gateway unavailable until P2-4; policy owner/LAB/1 SIM/32 eSIM/PROD NOT_RUN; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "automaticReadmeIds": [
+        "IT-ELIG-SCHED-09",
+        "IT-POLICY-AUDIT-05",
+        "IT-POLICY-PROD-06",
+        "IT-SCH-CAPACITY-07",
+        "IT-SCH-CLAIM-01",
+        "IT-SCH-DEADLINE-03",
+        "IT-SCH-DEADLINE-08",
+        "IT-SCH-FINAL-04",
+        "IT-SCH-RECOVERY-02",
+        "UT-SCH-CAPACITY-04",
+        "UT-SCH-CAPACITY-05",
+        "UT-SCH-CLOCK-03",
+        "UT-SCH-CONFIG-07",
+        "UT-SCH-ORDER-02",
+        "UT-SCH-POLICY-01",
+        "UT-SCH-RETRY-06",
+        "UT-SCH-RUNTIME-08",
+        "UT-SCH-RUNTIME-09"
+      ],
+      "selectedActiveIds": [
+        "IT-ELIG-SCHED-09",
+        "IT-POLICY-AUDIT-05",
+        "IT-POLICY-PROD-06",
+        "IT-SCH-CAPACITY-07",
+        "IT-SCH-CLAIM-01",
+        "IT-SCH-DEADLINE-03",
+        "IT-SCH-DEADLINE-08",
+        "IT-SCH-FINAL-04",
+        "IT-SCH-RECOVERY-02",
+        "UT-POLICY-SIGNED-01",
+        "UT-POLICY-SIGNED-02",
+        "UT-POLICY-SIGNED-03",
+        "UT-POLICY-SIGNED-04",
+        "UT-POLICY-SIGNED-05",
+        "UT-SCH-CAPACITY-04",
+        "UT-SCH-CAPACITY-05",
+        "UT-SCH-CLOCK-03",
+        "UT-SCH-CONFIG-07",
+        "UT-SCH-ORDER-02",
+        "UT-SCH-POLICY-01",
+        "UT-SCH-RETRY-06",
+        "UT-SCH-RUNTIME-08",
+        "UT-SCH-RUNTIME-09"
+      ],
+      "definitions": [
+        {
+          "id": "IT-ELIG-SCHED-09",
+          "kind": "integration",
+          "method": "SchedulerCapacitySourceUnavailableFailsClosedWithoutAttempt",
+          "file": "tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs",
+          "sourceClasses": [
+            "EligibilityPersistenceTests",
+            "UnavailableCapacityProvider",
+            "CapacityShortageProvider",
+            "CapacityAvailableProvider",
+            "UnexpectedCapacityProvider",
+            "MissingEvidenceCapacityProvider",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-POLICY-AUDIT-05",
+          "kind": "integration",
+          "method": "AlternatePolicyIsRegisteredAsNewVersionAndAudited",
+          "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+          "sourceClasses": [
+            "SchedulerPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-POLICY-PROD-06",
+          "kind": "integration",
+          "method": "CandidatePolicyRegistrationFailsClosedForProduction",
+          "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+          "sourceClasses": [
+            "SchedulerPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-SCH-CAPACITY-07",
+          "kind": "integration",
+          "method": "EligibilityCapacityProviderUsesSchedulerCalculationInNonMockMode",
+          "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+          "sourceClasses": [
+            "SchedulerPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-SCH-CLAIM-01",
+          "kind": "integration",
+          "method": "DuplicateWorkersCreateOneAttemptAndOneActiveChannelLease",
+          "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+          "sourceClasses": [
+            "SchedulerPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-SCH-DEADLINE-03",
+          "kind": "integration",
+          "method": "MissedDeadlineCreatesCapacityIncidentAndFinalNonCountedResult",
+          "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+          "sourceClasses": [
+            "SchedulerPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-SCH-DEADLINE-08",
+          "kind": "integration",
+          "method": "AttemptClaimedBeforeDeadlineIsNotMisclassifiedAsCapacityMiss",
+          "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+          "sourceClasses": [
+            "SchedulerPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-SCH-FINAL-04",
+          "kind": "integration",
+          "method": "FinalResultPreventsFutureAttemptEvenWhenSecondOffsetIsDue",
+          "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+          "sourceClasses": [
+            "SchedulerPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-SCH-RECOVERY-02",
+          "kind": "integration",
+          "method": "ExpiredLeaseIsQuarantinedWithNewFenceAndCannotBeReclaimedBlindly",
+          "file": "tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs",
+          "sourceClasses": [
+            "SchedulerPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-POLICY-SIGNED-01",
+          "kind": "unit",
+          "method": "TheSignedPolicyIsAdmittedInProductionAndTheCandidateStillIsNot",
+          "file": "tests/Ivr.UnitTests/Intake/SignedProductionAttemptPolicyTests.cs",
+          "sourceClasses": [
+            "SignedProductionAttemptPolicyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-POLICY-SIGNED-02",
+          "kind": "unit",
+          "method": "SigningAddedAVersionRatherThanPromotingTheCandidate",
+          "file": "tests/Ivr.UnitTests/Intake/SignedProductionAttemptPolicyTests.cs",
+          "sourceClasses": [
+            "SignedProductionAttemptPolicyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-POLICY-SIGNED-03",
+          "kind": "unit",
+          "method": "TheSignedNumbersAreTheOnesTheOwnerSigned",
+          "file": "tests/Ivr.UnitTests/Intake/SignedProductionAttemptPolicyTests.cs",
+          "sourceClasses": [
+            "SignedProductionAttemptPolicyTests"
+          ],
+          "cases": 2,
+          "allPassed": true
+        },
+        {
+          "id": "UT-POLICY-SIGNED-04",
+          "kind": "unit",
+          "method": "EveryProgramHasASignedPolicy",
+          "file": "tests/Ivr.UnitTests/Intake/SignedProductionAttemptPolicyTests.cs",
+          "sourceClasses": [
+            "SignedProductionAttemptPolicyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-POLICY-SIGNED-05",
+          "kind": "unit",
+          "method": "TheInMemoryRegistryResolvesTheSignedVersionInProduction",
+          "file": "tests/Ivr.UnitTests/Intake/SignedProductionAttemptPolicyTests.cs",
+          "sourceClasses": [
+            "SignedProductionAttemptPolicyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-CAPACITY-04",
+          "kind": "unit",
+          "method": "OneAndThirtyTwoChannelSimulationsAreConfigurationDriven",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-CAPACITY-05",
+          "kind": "unit",
+          "method": "OverloadMarksTargetMissInsteadOfSilentlyExtendingWindow",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-CLOCK-03",
+          "kind": "unit",
+          "method": "DispatchAtDueBoundaryFitsButDispatchAtExpiryFails",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-CONFIG-07",
+          "kind": "unit",
+          "method": "SchedulerConfigurationRejectsInvalidCapacityAndUnboundedRetry",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-ORDER-02",
+          "kind": "unit",
+          "method": "QueueOrderingUsesDeadlineProgramOffsetRiskCreationAndStableId",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-POLICY-01",
+          "kind": "unit",
+          "method": "CandidateAndAlternatePolicyProduceExactDataDrivenSchedules",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-RETRY-06",
+          "kind": "unit",
+          "method": "FinalResultStopsFutureAttemptAndTechnicalRetryHasSeparateBound",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-RUNTIME-08",
+          "kind": "unit",
+          "method": "RuntimeIsDisabledByDefaultAndCannotClaimWithoutReadyGateway",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCH-RUNTIME-09",
+          "kind": "unit",
+          "method": "ReadyGatewayReceivesExactlyOneAtomicDispatchLease",
+          "file": "tests/Ivr.UnitTests/Scheduling/DeadlineSchedulerTests.cs",
+          "sourceClasses": [
+            "DeadlineSchedulerTests",
+            "FixedTimeProvider",
+            "RecordingDispatchGateway",
+            "RecordingSchedulerStore"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [
+        "CT-CI-06"
+      ],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0020/README.md",
+          "sha256": "08cb915d4b9542231f4666ec416ead1439107c17c3d813e7de10b67719d5858f"
+        }
+      ]
+    },
+    {
+      "id": "W-0021",
+      "prompt": "P2-4",
+      "residual": "MOCK-only; no live TTS/real provider/egress/customer call; REAL_CUSTOMER_CALL_ALLOWED=NO",
+      "automaticReadmeIds": [
+        "IT-TEL-DISPATCH-01",
+        "IT-TEL-HEALTH-03",
+        "IT-TEL-TOKENFAIL-02",
+        "UT-TEL-CHANNEL-05",
+        "UT-TEL-DELAY-12",
+        "UT-TEL-DI-08",
+        "UT-TEL-DTMF-10",
+        "UT-TEL-NONMOCK-13",
+        "UT-TEL-PRONUNCIATION-09",
+        "UT-TEL-RECORDING-07",
+        "UT-TEL-SAFETY-06",
+        "UT-TEL-SCENARIO-04",
+        "UT-TEL-SPEECH-01",
+        "UT-TEL-SPEECH-02",
+        "UT-TEL-TOKEN-03",
+        "UT-TEL-VAULT-11"
+      ],
+      "selectedActiveIds": [
+        "IT-TEL-DISPATCH-01",
+        "IT-TEL-HEALTH-03",
+        "IT-TEL-TOKENFAIL-02",
+        "UT-TEL-CHANNEL-05",
+        "UT-TEL-DELAY-12",
+        "UT-TEL-DI-08",
+        "UT-TEL-DTMF-10",
+        "UT-TEL-NONMOCK-13",
+        "UT-TEL-PRONUNCIATION-09",
+        "UT-TEL-RECORDING-07",
+        "UT-TEL-SAFETY-06",
+        "UT-TEL-SCENARIO-04",
+        "UT-TEL-SPEECH-01",
+        "UT-TEL-SPEECH-02",
+        "UT-TEL-TOKEN-03",
+        "UT-TEL-VAULT-11"
+      ],
+      "definitions": [
+        {
+          "id": "IT-TEL-DISPATCH-01",
+          "kind": "integration",
+          "method": "SchedulerLeaseRunsThroughMockGatewayAndPersistsFencedProviderEvent",
+          "file": "tests/Ivr.IntegrationTests/MockTelephonyPersistenceTests.cs",
+          "sourceClasses": [
+            "MockTelephonyPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-TEL-HEALTH-03",
+          "kind": "integration",
+          "method": "UnhealthyMockChannelIsQuarantinedBeforeDial",
+          "file": "tests/Ivr.IntegrationTests/MockTelephonyPersistenceTests.cs",
+          "sourceClasses": [
+            "MockTelephonyPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-TEL-TOKENFAIL-02",
+          "kind": "integration",
+          "method": "MissingMockTokenFailsClosedReleasesLeaseAndDoesNotCountAttempt",
+          "file": "tests/Ivr.IntegrationTests/MockTelephonyPersistenceTests.cs",
+          "sourceClasses": [
+            "MockTelephonyPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-CHANNEL-05",
+          "kind": "unit",
+          "method": "FakeGatewayAllowsOnlyOneActiveCallPerChannel",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-DELAY-12",
+          "kind": "unit",
+          "method": "FakeGatewayDelayHonorsCancellationWithoutStartingCall",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-DI-08",
+          "kind": "unit",
+          "method": "MockBootstrapWiresOnlyDeterministicNoEgressProviders",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-DTMF-10",
+          "kind": "unit",
+          "method": "FakeGatewayDistinguishesNoInputFromInvalidKey",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-NONMOCK-13",
+          "kind": "unit",
+          "method": "NonMockBootstrapCannotInstantiateP2FourFakeTelephonyProvider",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-PRONUNCIATION-09",
+          "kind": "unit",
+          "method": "SpeechRendererAppliesOnlyExactApprovedPronunciationHints",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-RECORDING-07",
+          "kind": "unit",
+          "method": "FakeGatewayRejectsRecordingEnabled",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-SAFETY-06",
+          "kind": "unit",
+          "method": "MockConfigurationFailsClosedAndAdapterHasNoNetworkTransport",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-SCENARIO-04",
+          "kind": "unit",
+          "method": "FakeGatewayCoversEveryProviderDispositionWithoutRecording",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-SPEECH-01",
+          "kind": "unit",
+          "method": "SpeechRendererProducesApprovedVietnameseOrderTextAndMetadata",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-SPEECH-02",
+          "kind": "unit",
+          "method": "SpeechRendererCollapsesExtraItemsWithoutDroppingTotalOrInstructions",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-TOKEN-03",
+          "kind": "unit",
+          "method": "DialTokenResolverEnforcesExpiryAllowlistAndTheResolveCeiling",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TEL-VAULT-11",
+          "kind": "unit",
+          "method": "MockVaultProtectsTokenFingerprintAndResolvesOnlyInMemoryAllowlistedDestination",
+          "file": "tests/Ivr.UnitTests/Telephony/MockTelephonyTests.cs",
+          "sourceClasses": [
+            "MockTelephonyTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0021/README.md",
+          "sha256": "d739f62a57ac8632245d2370b7831d8a04aa0c4fe4a302e75da747e1ecbb4c4c"
+        }
+      ]
+    },
+    {
+      "id": "W-0022",
+      "prompt": "P2-5",
+      "residual": "MOCK/local only; normalization disabled by default; production retry/vendor mapping owner approval; P2-6 callback pending",
+      "automaticReadmeIds": [
+        "IT-NORM-CONCURRENCY-05",
+        "IT-NORM-INVALID-04",
+        "IT-NORM-PERSIST-01",
+        "IT-NORM-REJECT-03",
+        "IT-NORM-TECH-02",
+        "UT-NORM-01",
+        "UT-NORM-02",
+        "UT-NORM-03",
+        "UT-NORM-04",
+        "UT-NORM-05",
+        "UT-NORM-06",
+        "UT-NORM-CAP-09",
+        "UT-NORM-LASTKEY-10",
+        "UT-NORM-RETRY-08",
+        "UT-NORM-UNMAP-07"
+      ],
+      "selectedActiveIds": [
+        "IT-NORM-CONCURRENCY-05",
+        "IT-NORM-INVALID-04",
+        "IT-NORM-PERSIST-01",
+        "IT-NORM-REJECT-03",
+        "IT-NORM-TECH-02",
+        "UT-NORM-01",
+        "UT-NORM-02",
+        "UT-NORM-03",
+        "UT-NORM-04",
+        "UT-NORM-05",
+        "UT-NORM-06",
+        "UT-NORM-CAP-09",
+        "UT-NORM-LASTKEY-10",
+        "UT-NORM-RETRY-08",
+        "UT-NORM-UNMAP-07"
+      ],
+      "definitions": [
+        {
+          "id": "IT-NORM-CONCURRENCY-05",
+          "kind": "integration",
+          "method": "ConcurrentNormalizersPersistSingleResultForOneRawEvent",
+          "file": "tests/Ivr.IntegrationTests/ResultNormalizationPersistenceTests.cs",
+          "sourceClasses": [
+            "ResultNormalizationPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-NORM-INVALID-04",
+          "kind": "integration",
+          "method": "InvalidDestinationIsFinalReviewAndDoesNotConsumeAttempt",
+          "file": "tests/Ivr.IntegrationTests/ResultNormalizationPersistenceTests.cs",
+          "sourceClasses": [
+            "ResultNormalizationPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-NORM-PERSIST-01",
+          "kind": "integration",
+          "method": "AnsweredOnePersistsFinalSignalEvidenceAndPrivacySafeAuditAtomically",
+          "file": "tests/Ivr.IntegrationTests/ResultNormalizationPersistenceTests.cs",
+          "sourceClasses": [
+            "ResultNormalizationPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-NORM-REJECT-03",
+          "kind": "integration",
+          "method": "RejectedIsCountedNoAnswerAndCreatesReviewWithoutCancelling",
+          "file": "tests/Ivr.IntegrationTests/ResultNormalizationPersistenceTests.cs",
+          "sourceClasses": [
+            "ResultNormalizationPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-NORM-TECH-02",
+          "kind": "integration",
+          "method": "TechnicalAndUnknownEventsNeverCountAndRetryOnlyOnce",
+          "file": "tests/Ivr.IntegrationTests/ResultNormalizationPersistenceTests.cs",
+          "sourceClasses": [
+            "ResultNormalizationPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-01",
+          "kind": "unit",
+          "method": "AnsweredOneOrZeroProducesCountedFinalSignal",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 2,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-02",
+          "kind": "unit",
+          "method": "AnsweredWithoutInputCountsAndBecomesFinalOnlyAtAttemptLimit",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-03",
+          "kind": "unit",
+          "method": "NonConnectionDispositionsAreCountedNoAnswerNotCancellation",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 3,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-04",
+          "kind": "unit",
+          "method": "TechnicalDispositionsNeverBecomeNoAnswerOrCounted",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 5,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-05",
+          "kind": "unit",
+          "method": "InvalidPhoneIsFinalAndDoesNotCountCustomerAttempt",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 2,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-06",
+          "kind": "unit",
+          "method": "KeyNineIsWrongInputWhileSupportKeyIsDisabled",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-CAP-09",
+          "kind": "unit",
+          "method": "CapacityIsFinalButNeverCountsCustomerAttempt",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-LASTKEY-10",
+          "kind": "unit",
+          "method": "WrongInputAtLastAttemptClosesAsCountedNoAnswerFinal",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-RETRY-08",
+          "kind": "unit",
+          "method": "TechnicalRetryIsBoundedAndWindowAware",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-NORM-UNMAP-07",
+          "kind": "unit",
+          "method": "UnknownDispositionFailsSafeAsTechnicalException",
+          "file": "tests/Ivr.UnitTests/Normalization/DispositionMapperTests.cs",
+          "sourceClasses": [
+            "DispositionMapperTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0022/README.md",
+          "sha256": "433cfd8ca682d0a64ae823c27598e3ea77e92c7f5c7191696be1e3ffe90d7db5"
+        }
+      ]
+    },
+    {
+      "id": "W-0023",
+      "prompt": "P2-6",
+      "residual": "local/MOCK only; callbacks disabled; Target contract DRAFT; W-0005/W-0006, real Sales/auth/LAB/PROD remain blocked; no notification",
+      "automaticReadmeIds": [],
+      "selectedActiveIds": [
+        "IT-CALLBACK-OUTBOX-06",
+        "UT-CALLBACK-ACK-MEDIA-02C",
+        "UT-CALLBACK-ADAPTER-REJECT-15",
+        "UT-CALLBACK-CIRCUIT-TERMINAL-13",
+        "UT-CALLBACK-CORRELATION-05B",
+        "UT-CALLBACK-GH-COMPAT-06",
+        "UT-CALLBACK-GH-INTEGRITY-07B",
+        "UT-CALLBACK-GH-ISOLATION-07",
+        "UT-CALLBACK-IDENTITY-GUARD-04",
+        "UT-CALLBACK-NOANSWER-05",
+        "UT-CALLBACK-OPTIONS-11",
+        "UT-CALLBACK-RETRY-AFTER-02B",
+        "UT-CALLBACK-RETRY-AFTER-09B",
+        "UT-CALLBACK-RETRY-EXHAUSTED-09",
+        "UT-CALLBACK-RETRY-IDENTITY-02",
+        "UT-CALLBACK-SNAPSHOT-12",
+        "UT-CALLBACK-STATE-08",
+        "UT-CALLBACK-TARGET-ACK-01",
+        "UT-CALLBACK-TARGET-ACK-CROSS-01",
+        "UT-CALLBACK-TIMEOUT-03",
+        "UT-CALLBACK-TOKEN-CIRCUIT-10",
+        "UT-CALLBACK-TRANSPORT-INVALIDOP-14"
+      ],
+      "definitions": [
+        {
+          "id": "IT-CALLBACK-OUTBOX-06",
+          "kind": "integration",
+          "method": "DeliveryCompletionUsesLeaseFencingAndCreatesAdminVisibleReview",
+          "file": "tests/Ivr.IntegrationTests/ResultNormalizationPersistenceTests.cs",
+          "sourceClasses": [
+            "ResultNormalizationPersistenceTests",
+            "FixedTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-ACK-MEDIA-02C",
+          "kind": "unit",
+          "method": "MalformedOrUnsupportedAckIsTerminalInvalid",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 2,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-ADAPTER-REJECT-15",
+          "kind": "unit",
+          "method": "UnroutableProgramIsStillARejectedAdapterSelection",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-CIRCUIT-TERMINAL-13",
+          "kind": "unit",
+          "method": "TerminalLocalResultReleasesHalfOpenCircuitProbe",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-CORRELATION-05B",
+          "kind": "unit",
+          "method": "SnapshotCorrelationRemainsAuthoritativeThroughFoundationHandler",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-GH-COMPAT-06",
+          "kind": "unit",
+          "method": "CurrentGoldenHourTransportUsesOnlyPinnedPathHeaderAndDto",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-GH-INTEGRITY-07B",
+          "kind": "unit",
+          "method": "CurrentGoldenHourTransportRejectsChangedPayloadBeforeHttp",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-GH-ISOLATION-07",
+          "kind": "unit",
+          "method": "CurrentGoldenHourTransportRejectsTwentyFourSevenBeforeHttp",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-IDENTITY-GUARD-04",
+          "kind": "unit",
+          "method": "PathBodyMismatchAndInvalidNoAnswerNeverReachSales",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-NOANSWER-05",
+          "kind": "unit",
+          "method": "FinalNoAnswerCarriesOnlyNoStateChangeRecommendation",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-OPTIONS-11",
+          "kind": "unit",
+          "method": "OptionsFailClosedForRealTargetAndImplicitCurrentCompatibility",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-RETRY-AFTER-02B",
+          "kind": "unit",
+          "method": "RateLimitCarriesRetryAfterIntoTheTransportResult",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-RETRY-AFTER-09B",
+          "kind": "unit",
+          "method": "DispatcherDoesNotRetryBeforeTheServerRetryAfter",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-RETRY-EXHAUSTED-09",
+          "kind": "unit",
+          "method": "DispatcherStopsAfterConfiguredRetryBudget",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-RETRY-IDENTITY-02",
+          "kind": "unit",
+          "method": "RetryUsesTheExactSameBodyAndIdempotencyKey",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-SNAPSHOT-12",
+          "kind": "unit",
+          "method": "AtomicSnapshotIsFinalImmutableTargetPayloadWithStableHash",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-STATE-08",
+          "kind": "unit",
+          "method": "",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 48,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-TARGET-ACK-01",
+          "kind": "unit",
+          "method": "",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 48,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-TARGET-ACK-CROSS-01",
+          "kind": "unit",
+          "method": "AnAckCodeOnTheWrongStatusDeadLetters",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 6,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-TIMEOUT-03",
+          "kind": "unit",
+          "method": "TargetTimeoutIsRetryableWithoutLeakingTransportDetails",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-TOKEN-CIRCUIT-10",
+          "kind": "unit",
+          "method": "MockTokenRefreshAndCircuitReadinessAreDeterministic",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-CALLBACK-TRANSPORT-INVALIDOP-14",
+          "kind": "unit",
+          "method": "TransportRaisingInvalidOperationIsRetriedRatherThanDeadLettered",
+          "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+          "sourceClasses": [
+            "CallbackDeliveryTests",
+            "ScriptedHandler",
+            "TargetTransportHarness",
+            "CurrentHandler",
+            "StubTargetTransport",
+            "ThrowingTargetTransport",
+            "InvalidOperationTargetTransport",
+            "StubCurrentTransport",
+            "MemoryOutbox",
+            "MutableTimeProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0023/README.md",
+          "sha256": "76f4812ca4a7a1d3689dbe53508bce4624a45207b8da9f7fddb78ef21f2ed734"
+        }
+      ]
+    },
+    {
+      "id": "W-0024",
+      "prompt": "P2-7",
+      "residual": "GitHub main pushed; GitLab main push BLOCKED_EXTERNAL by protected-branch rule; MOCK fixture only; LAB/real Sales/PROD NOT_RUN; OD-V1-15 + W-0003 remain open",
+      "automaticReadmeIds": [
+        "IT-DB-MIGRATE-01",
+        "IT-SCRIPT-PERSISTENCE-08",
+        "IT-SCRIPT-SEED-07",
+        "UT-SCRIPT-INPUT-GUARD-05",
+        "UT-SCRIPT-LIFECYCLE-02",
+        "UT-SCRIPT-PROD-GATE-03",
+        "UT-SCRIPT-RENDER-COLLAPSE-07",
+        "UT-SCRIPT-RENDER-GOLDEN-06",
+        "UT-SCRIPT-SEED-01",
+        "UT-SCRIPT-TEMPLATE-GUARD-04"
+      ],
+      "selectedActiveIds": [
+        "IT-DB-MIGRATE-01",
+        "IT-SCRIPT-PERSISTENCE-08",
+        "IT-SCRIPT-SEED-07",
+        "UT-SCRIPT-INPUT-GUARD-05",
+        "UT-SCRIPT-LIFECYCLE-02",
+        "UT-SCRIPT-PROD-GATE-03",
+        "UT-SCRIPT-RENDER-COLLAPSE-07",
+        "UT-SCRIPT-RENDER-GOLDEN-06",
+        "UT-SCRIPT-SEED-01",
+        "UT-SCRIPT-TEMPLATE-GUARD-04"
+      ],
+      "definitions": [
+        {
+          "id": "IT-DB-MIGRATE-01",
+          "kind": "integration",
+          "method": "MigrationAppliesToEmptyDatabaseRollsBackAndRecreates",
+          "file": "tests/Ivr.IntegrationTests/PostgresPersistenceTests.cs",
+          "sourceClasses": [
+            "PostgresPersistenceTestGroup",
+            "PostgresPersistenceFixture",
+            "PostgresPersistenceTests",
+            "IntentionalRollbackException"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-SCRIPT-PERSISTENCE-08",
+          "kind": "integration",
+          "method": "LifecyclePersistsAuditAndDatabaseRejectsApprovedContentOrApprovalMutation",
+          "file": "tests/Ivr.IntegrationTests/Scripts/ScriptRegistryPersistenceTests.cs",
+          "sourceClasses": [
+            "ScriptRegistryPersistenceTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-SCRIPT-SEED-07",
+          "kind": "integration",
+          "method": "MigrationSeedsMockApprovalAndKeepsOtherModesClosed",
+          "file": "tests/Ivr.IntegrationTests/Scripts/ScriptRegistryPersistenceTests.cs",
+          "sourceClasses": [
+            "ScriptRegistryPersistenceTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCRIPT-INPUT-GUARD-05",
+          "kind": "unit",
+          "method": "TemplateAndSpeechInputRejectMissingOversizedControlAndFullAddressData",
+          "file": "tests/Ivr.UnitTests/Scripts/ScriptContentTests.cs",
+          "sourceClasses": [
+            "ScriptContentTests",
+            "here"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCRIPT-LIFECYCLE-02",
+          "kind": "unit",
+          "method": "LifecycleEnforcesRbacFourEyesAuditModeGatesAndRetirement",
+          "file": "tests/Ivr.UnitTests/Scripts/ScriptContentTests.cs",
+          "sourceClasses": [
+            "ScriptContentTests",
+            "here"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCRIPT-PROD-GATE-03",
+          "kind": "unit",
+          "method": "ProductionTargetV1FieldsStayBlockedWithoutOwnerDecision",
+          "file": "tests/Ivr.UnitTests/Scripts/ScriptContentTests.cs",
+          "sourceClasses": [
+            "ScriptContentTests",
+            "here"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCRIPT-RENDER-COLLAPSE-07",
+          "kind": "unit",
+          "method": "RendererJoinsManyItemsAndCollapsesRemainderDeterministically",
+          "file": "tests/Ivr.UnitTests/Scripts/ScriptContentTests.cs",
+          "sourceClasses": [
+            "ScriptContentTests",
+            "here"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCRIPT-RENDER-GOLDEN-06",
+          "kind": "unit",
+          "method": "RendererPreservesVietnameseOneItemCurrencyAreaInstructionsAndHashes",
+          "file": "tests/Ivr.UnitTests/Scripts/ScriptContentTests.cs",
+          "sourceClasses": [
+            "ScriptContentTests",
+            "here"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCRIPT-SEED-01",
+          "kind": "unit",
+          "method": "MockSeedIsApprovedButLabAndProductionRemainFailClosed",
+          "file": "tests/Ivr.UnitTests/Scripts/ScriptContentTests.cs",
+          "sourceClasses": [
+            "ScriptContentTests",
+            "here"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-SCRIPT-TEMPLATE-GUARD-04",
+          "kind": "unit",
+          "method": "TemplateRejectsUnknownHtmlPiiAndUnsupportedInstructions",
+          "file": "tests/Ivr.UnitTests/Scripts/ScriptContentTests.cs",
+          "sourceClasses": [
+            "ScriptContentTests",
+            "here"
+          ],
+          "cases": 4,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0024/README.md",
+          "sha256": "2c5dc03b7380428e805fa6320802b72d82d871176cff152f751b39ee8dc1424f"
+        },
+        {
+          "file": "docs/evidence/W-0024/approved-mock-fixture.json",
+          "sha256": "f0632cf21a83ec75a281277a0ace90f132c04efa95367798e754ac9e55c8fdb1"
+        },
+        {
+          "file": "docs/evidence/W-0024/golden-preview.vi-VN.txt",
+          "sha256": "1ab2705620fb1d38bbd4470ad8d2f583b8fe631d50259a353bf7468366020903"
+        },
+        {
+          "file": "docs/evidence/W-0024/privacy-test-report.md",
+          "sha256": "7a41b4986e930243fb86fe312e5bbec978926074ed0a18a1d637c313bbfdaf98"
+        }
+      ]
+    },
+    {
+      "id": "W-0025",
+      "prompt": "P3-1",
+      "residual": "MOCK-only; component library vẫn `NEED_CONFIRMATION` (chưa chọn thư viện nào); SSO/JWT thật `BLOCKED_EXTERNAL` (G-AUTH/W-0006) và client fail-closed ngoài MOCK; `IVR_RUNTIME_GATE_ADMIN` không cấp cho role nào (OD-V1-20); hosted GitLab evidence `NOT_RUN`; màn nghiệp vụ thuộc W-0026/W-0027; visual/a11y QA thuộc W-0039; không có nút chuyển trạng thái đơn (D-02); `REAL_CUSTOMER_CALL_ALLOWED=NO`",
+      "automaticReadmeIds": [],
+      "selectedActiveIds": [],
+      "definitions": [],
+      "historicalOnlyIds": [
+        "E2E-UI-AUTH-05",
+        "UT-UI-CORR-03",
+        "UT-UI-ERR-02",
+        "UT-UI-PII-04",
+        "UT-UI-RBAC-01"
+      ],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0025/README.md",
+          "sha256": "39dce66d5f984f2c554931c8d9503d39576a3dec12e057255e0712bcb7c39279"
+        },
+        {
+          "file": "docs/evidence/W-0025/correlation-header-capture.txt",
+          "sha256": "542be6d0212195f3d8650a96e9d94f3acf9c6d3ebaa98ddde6ab639e330903c5"
+        },
+        {
+          "file": "docs/evidence/W-0025/live-screens-phase3.txt",
+          "sha256": "035d0de88a79ca605492b6fb4eaa8d5445f2e49a4d0e3fb81b41ed77a7bbe231"
+        },
+        {
+          "file": "docs/evidence/W-0025/rbac-and-envelope-capture.txt",
+          "sha256": "452a6549c4e77bf86b45d538ec50a1d76d5c2ba9444cae0192e17288b125abf7"
+        }
+      ]
+    },
+    {
+      "id": "W-0026",
+      "prompt": "P3-2",
+      "residual": "không có control chuyển trạng thái đơn (D-02); chỉ dữ liệu đã che (D-05); KPI đọc từ API; `cost_per_confirmed_order` KHÔNG hiển thị (chưa có cost model, W-0054); CSV export + auto-refresh chưa làm; component library vẫn `NEED_CONFIRMATION`; visual/a11y QA thuộc W-0039; màn còn lại thuộc W-0027",
+      "automaticReadmeIds": [
+        "IT-ADMIN-READ-01"
+      ],
+      "selectedActiveIds": [
+        "IT-ADMIN-READ-01"
+      ],
+      "definitions": [
+        {
+          "id": "IT-ADMIN-READ-01",
+          "kind": "integration",
+          "method": "ReadRoutesAreMappedAndGatedByQueueViewPermission",
+          "file": "tests/Ivr.IntegrationTests/AdminReadApiTests.cs",
+          "sourceClasses": [
+            "AdminReadApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [
+        "E2E-UI-AUTH-05",
+        "E2E-UI-DETAIL-02",
+        "E2E-UI-LOG-01",
+        "UT-UI-CORR-03",
+        "UT-UI-ERR-02",
+        "UT-UI-NOORDER-03",
+        "UT-UI-PII-04",
+        "UT-UI-RBAC-01",
+        "UT-UI-REVIEW-04"
+      ],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0026/README.md",
+          "sha256": "f80bc12ad7ad33ee0c48c9c3bd382275a63ad230ce6986a4e540f312e5fad627"
+        },
+        {
+          "file": "docs/evidence/W-0026/live-screens-phase3.txt",
+          "sha256": "91804aca443ba4eab1160d5ab6f6adf74a3617d65db7c64c4827d4d03f660a40"
+        },
+        {
+          "file": "docs/evidence/W-0026/live-screens.txt",
+          "sha256": "b6e2d26906b81322c69838fddf618fbc010d10c73e5525f464741734f12239ab"
+        }
+      ]
+    },
+    {
+      "id": "W-0027",
+      "prompt": "P3-3",
+      "residual": "read-only toàn bộ; không có control đổi adapter mode/REAL; KEY_9 NOT_ENABLED; OD-V1-15 hiển thị khoá; fail-closed chỉ **gắn nhãn**, KHÔNG verify (chờ W-0040); `E2E-UI-REPLAY-05` thay bằng `E2E-UI-REVIEW-05` vì `specs/ui/06` không có replay và API không có operation đó; gán quyền không thuộc IVR (DF-01)",
+      "automaticReadmeIds": [],
+      "selectedActiveIds": [],
+      "definitions": [],
+      "historicalOnlyIds": [
+        "E2E-UI-REPLAY-05",
+        "E2E-UI-REVIEW-05",
+        "UT-UI-HEALTH-02",
+        "UT-UI-ROLE-04",
+        "UT-UI-SCRIPT-01",
+        "UT-UI-SEED-PROD-03"
+      ],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0027/README.md",
+          "sha256": "7ece1e0a6012819538935fe9aed1437b0ddc4170ae8c0d4408aa6844ab6cf985"
+        },
+        {
+          "file": "docs/evidence/W-0027/live-screens-phase3.txt",
+          "sha256": "88faa632fc912f37f59599ef42d895025afc50eaf2d0634b939fa19041a6145a"
+        }
+      ]
+    },
+    {
+      "id": "W-0028",
+      "prompt": "P3-4",
+      "residual": "đọc-only tuyệt đối: không control dispatch/đổi trạng thái đơn (D-02), không ghi Order Core/CRM/evidence (D-14) — ghi duy nhất là audit export của chính IVR; UI **chỉ format**, mọi KPI do API tính (P3-4 §4); banner nói thẳng nguồn là đọc vận hành chứ CHƯA có pipeline P10-4; drill-down dừng ở bucket tổng hợp, không có link sang call detail; không chart library, chart `aria-hidden` + bảng số song song; RBAC-denied verify bằng API trả 403 vì **không seed actor nào thiếu `IVR_QUEUE_VIEW`**; `cost_per_confirmed_order` vẫn chưa có (W-0054); a11y/visual QA thuộc W-0039; hosted GitLab `NOT_RUN`",
+      "automaticReadmeIds": [
+        "BI-IDEMP-03",
+        "BI-KPI-02",
+        "BI-PII-01",
+        "BI-QUALITY-04"
+      ],
+      "selectedActiveIds": [
+        "BI-IDEMP-03",
+        "BI-KPI-02",
+        "BI-PII-01",
+        "BI-QUALITY-04"
+      ],
+      "definitions": [
+        {
+          "id": "BI-IDEMP-03",
+          "kind": "integration",
+          "method": "AFullAggregateRebuildProducesTheSameNumbersAsTheIncrementalRun",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-IDEMP-03",
+          "kind": "integration",
+          "method": "AnOpenJobIsRefreshedWhileAClosedOneIsLeftAlone",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-IDEMP-03",
+          "kind": "integration",
+          "method": "AResultThatArrivesAfterItsOwnTimestampIsStillLoadedExactlyOnce",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-IDEMP-03",
+          "kind": "integration",
+          "method": "ASecondRunOverTheSameSourceLoadsNothingAndChangesNoNumber",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-KPI-02",
+          "kind": "unit",
+          "method": "ABucketWithNoFinishedCallReportsNoAverageRatherThanZero",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsKpiMathTests.cs",
+          "sourceClasses": [
+            "AnalyticsKpiMathTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-KPI-02",
+          "kind": "unit",
+          "method": "BucketsSplitByDateProgramAndScriptVariant",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsKpiMathTests.cs",
+          "sourceClasses": [
+            "AnalyticsKpiMathTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-KPI-02",
+          "kind": "unit",
+          "method": "DistinctOrdersCountsOrdersNotResults",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsKpiMathTests.cs",
+          "sourceClasses": [
+            "AnalyticsKpiMathTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-KPI-02",
+          "kind": "unit",
+          "method": "ElapsedTimeIsStoredAsSumAndCountSoBucketsStayAddable",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsKpiMathTests.cs",
+          "sourceClasses": [
+            "AnalyticsKpiMathTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-KPI-02",
+          "kind": "unit",
+          "method": "FactsCarryTheHourSoAnHourlyTrendIsDerivedFromTheSameRows",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsKpiMathTests.cs",
+          "sourceClasses": [
+            "AnalyticsKpiMathTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-KPI-02",
+          "kind": "unit",
+          "method": "SecondAttemptCountsOnlyCountedCustomerAttempts",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsKpiMathTests.cs",
+          "sourceClasses": [
+            "AnalyticsKpiMathTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-KPI-02",
+          "kind": "unit",
+          "method": "TaxonomyCountsAndRatesMatchTheHandCountedFixture",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsKpiMathTests.cs",
+          "sourceClasses": [
+            "AnalyticsKpiMathTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-KPI-02",
+          "kind": "unit",
+          "method": "TheVariantBBucketIsMeasuredSeparatelySoAnAbComparisonIsPossible",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsKpiMathTests.cs",
+          "sourceClasses": [
+            "AnalyticsKpiMathTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-PII-01",
+          "kind": "unit",
+          "method": "AColumnAddedToTheWarehouseFailsTheCheckWithItsOwnName",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsWarehousePrivacyTests.cs",
+          "sourceClasses": [
+            "AnalyticsWarehousePrivacyTests",
+            "WidenedAnalyticsContext",
+            "LeakyFact"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-PII-01",
+          "kind": "unit",
+          "method": "ASubscriberNumberSmuggledIntoABoundedColumnIsRejected",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsWarehousePrivacyTests.cs",
+          "sourceClasses": [
+            "AnalyticsWarehousePrivacyTests",
+            "WidenedAnalyticsContext",
+            "LeakyFact"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-PII-01",
+          "kind": "unit",
+          "method": "BoundedSourceValuesPassTheValueFilter",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsWarehousePrivacyTests.cs",
+          "sourceClasses": [
+            "AnalyticsWarehousePrivacyTests",
+            "WidenedAnalyticsContext",
+            "LeakyFact"
+          ],
+          "cases": 4,
+          "allPassed": true
+        },
+        {
+          "id": "BI-PII-01",
+          "kind": "unit",
+          "method": "EveryAnalyticsTableIsActuallyPresentSoTheCheckIsNotVacuous",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsWarehousePrivacyTests.cs",
+          "sourceClasses": [
+            "AnalyticsWarehousePrivacyTests",
+            "WidenedAnalyticsContext",
+            "LeakyFact"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-PII-01",
+          "kind": "unit",
+          "method": "EveryFragmentExemptionNamesARealColumnAndCarriesAReason",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsWarehousePrivacyTests.cs",
+          "sourceClasses": [
+            "AnalyticsWarehousePrivacyTests",
+            "WidenedAnalyticsContext",
+            "LeakyFact"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-PII-01",
+          "kind": "unit",
+          "method": "ShippedAnalyticsSchemaCarriesOnlyReviewedColumns",
+          "file": "tests/Ivr.UnitTests/Analytics/AnalyticsWarehousePrivacyTests.cs",
+          "sourceClasses": [
+            "AnalyticsWarehousePrivacyTests",
+            "WidenedAnalyticsContext",
+            "LeakyFact"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-QUALITY-04",
+          "kind": "integration",
+          "method": "ABatchCapIsReportedAsBacklogRatherThanLookingComplete",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-QUALITY-04",
+          "kind": "integration",
+          "method": "AClassificationInTheOperationalDtmfColumnLoadsAsNoKeyRatherThanKillingTheRun",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-QUALITY-04",
+          "kind": "integration",
+          "method": "RetentionRemovesTheDerivedCopyAndTheBucketThatCountedIt",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-QUALITY-04",
+          "kind": "integration",
+          "method": "TheCheckpointReconcilesSourceAgainstFactAndRecordsFreshness",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "BI-QUALITY-04",
+          "kind": "integration",
+          "method": "TheReportingApiSwitchesToTheWarehouseAndSaysSo",
+          "file": "tests/Ivr.IntegrationTests/Analytics/AnalyticsPipelineTests.cs",
+          "sourceClasses": [
+            "AnalyticsPipelineTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [
+        "E2E-UI-REPORT-05",
+        "UT-UI-REPORT-01",
+        "UT-UI-REPORT-02",
+        "UT-UI-REPORT-EXPORT-04",
+        "UT-UI-REPORT-PII-03"
+      ],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0028/README.md",
+          "sha256": "1908b6abdf1f7dc5791ecbc467393dc0833f2faa79a67d403e1e503f8475f72c"
+        },
+        {
+          "file": "docs/evidence/W-0028/live-screens-phase3.txt",
+          "sha256": "935fa6c645e99da12e93e3805593718a4c906ef241550e4f31c8949746a096f6"
+        }
+      ]
+    },
+    {
+      "id": "W-0065",
+      "prompt": "P2-8",
+      "residual": "local/MOCK only; Target contract DRAFT; hosted GitLab/reviewer/real Sales-auth/SIM-eSIM/LAB/PROD `NOT_RUN`; `REAL_CUSTOMER_CALL_ALLOWED=NO`; no order transition/Sales write/SMS/call thật",
+      "automaticReadmeIds": [
+        "CT-API-OAS-10",
+        "IT-API-AUDIT-04",
+        "IT-API-AUTHZ-01",
+        "IT-API-AUTHZ-02",
+        "IT-API-IDEMP-03",
+        "IT-API-PII-05",
+        "IT-API-QUEUE-08",
+        "IT-API-RETRY-06",
+        "IT-API-REVIEW-07",
+        "IT-API-SIM-09"
+      ],
+      "selectedActiveIds": [
+        "CT-API-OAS-10",
+        "IT-API-AUDIT-04",
+        "IT-API-AUTHZ-01",
+        "IT-API-AUTHZ-02",
+        "IT-API-IDEMP-03",
+        "IT-API-PII-05",
+        "IT-API-QUEUE-08",
+        "IT-API-RETRY-06",
+        "IT-API-REVIEW-07",
+        "IT-API-SIM-09"
+      ],
+      "definitions": [
+        {
+          "id": "CT-API-OAS-10",
+          "kind": "integration",
+          "method": "AllThirteenInternalAndAdminOperationsAreMappedAndReachable",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-AUDIT-04",
+          "kind": "integration",
+          "method": "EveryAdminMutationCommitsActionAndAppendOnlyAuditWithBeforeAfter",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-AUTHZ-01",
+          "kind": "integration",
+          "method": "AdminOperationsEnforceOneToOnePermissionAndActorBinding",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-AUTHZ-02",
+          "kind": "integration",
+          "method": "InternalSurfaceRequiresDedicatedServiceIdentityScopeAndSource",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-IDEMP-03",
+          "kind": "integration",
+          "method": "AdminPostReplaysSameKeyAndRejectsDifferentPayload",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-PII-05",
+          "kind": "integration",
+          "method": "RequestsAndResponsesFailClosedOnRawPiiAndMalformedJson",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-QUEUE-08",
+          "kind": "integration",
+          "method": "PauseBlocksOnlyNewClaimsAndResumeRestoresClaiming",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-RETRY-06",
+          "kind": "integration",
+          "method": "TechnicalRetryFailsClosedForKillSwitchOrDestinationOutsideAllowlist",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 2,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-RETRY-06",
+          "kind": "integration",
+          "method": "TechnicalRetryIsBoundedNonCountingAndDoesNotResetAttempts",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-REVIEW-07",
+          "kind": "integration",
+          "method": "ReviewAnnotatesReviewItemWithoutChangingNormalizedResult",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-API-SIM-09",
+          "kind": "integration",
+          "method": "DisablePreservesActiveLeaseAndUnsafeEnableFailsClosed",
+          "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+          "sourceClasses": [
+            "InternalAdminApiTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0065/README.md",
+          "sha256": "630eb0ce739929d663c1add91c93a5bc98e55fff64c6a5d02236d20c0270f018"
+        },
+        {
+          "file": "docs/evidence/W-0065/audit-redacted.json",
+          "sha256": "27c2bcf2457eced06855f9cae2c3e5a02b75a38f8caa1f83a0948879768652ec"
+        },
+        {
+          "file": "docs/evidence/W-0065/authz-403-samples.json",
+          "sha256": "f593ab53a19eab3f76bede7faca30d73fa0843bfecf7c398fb8d6ac8bea1ea1c"
+        },
+        {
+          "file": "docs/evidence/W-0065/coverage-summary.txt",
+          "sha256": "b59990b972ec3ec4a08c07089cec502d1ad737bb9ae1026b01b42817d1bee180"
+        },
+        {
+          "file": "docs/evidence/W-0065/idempotency-409-sample.json",
+          "sha256": "45c5f220e3b6d6efdadf4fda525468ef36d4f76d1fc8bcb7fdbe520a9bd6ed25"
+        }
+      ]
+    },
+    {
+      "id": "W-0066",
+      "prompt": "P2-9",
+      "residual": "prereq của W-0048; `OD-V1-15`, `OD-V1-19`, `W-0008` vẫn mở; lab/vendor/pronunciation NOT_RUN; MOCK no-egress, real calls NO",
+      "automaticReadmeIds": [],
+      "selectedActiveIds": [
+        "IT-TTS-CACHE-08",
+        "IT-TTS-MODE-09",
+        "UT-TTS-NOTCONFIGURED-06",
+        "UT-TTS-PII-04",
+        "UT-TTS-PRON-03",
+        "UT-TTS-SNAPSHOT-01",
+        "UT-TTS-TIMEOUT-05",
+        "UT-TTS-VND-02",
+        "UT-TTS-WHITELIST-07"
+      ],
+      "definitions": [
+        {
+          "id": "IT-TTS-CACHE-08",
+          "kind": "integration",
+          "method": "CacheKeyTtlAndRetentionHookAreBoundedAndDeterministic",
+          "file": "tests/Ivr.IntegrationTests/Speech/TtsIntegrationTests.cs",
+          "sourceClasses": [
+            "TtsAudioCacheIntegrationTests",
+            "TtsModeIsolationIntegrationTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "IT-TTS-MODE-09",
+          "kind": "integration",
+          "method": "MockRegistersOnlyNetworkFreeProviderAndRejectsExternalConfiguration",
+          "file": "tests/Ivr.IntegrationTests/Speech/TtsIntegrationTests.cs",
+          "sourceClasses": [
+            "TtsAudioCacheIntegrationTests",
+            "TtsModeIsolationIntegrationTests"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TTS-NOTCONFIGURED-06",
+          "kind": "unit",
+          "method": "ExternalProviderFailsClosedAndSendsNothingUntilItIsConfigured",
+          "file": "tests/Ivr.UnitTests/Speech/TtsProviderTests.cs",
+          "sourceClasses": [
+            "TtsProviderTests",
+            "FixedTimeProvider",
+            "ThrowingHttpClientFactory",
+            "NeverCompletingTtsProvider",
+            "CountingTtsProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TTS-PII-04",
+          "kind": "unit",
+          "method": "FinalPhoneOrStreetAddressIsBlockedBeforeProviderSynthesis",
+          "file": "tests/Ivr.UnitTests/Speech/TtsProviderTests.cs",
+          "sourceClasses": [
+            "TtsProviderTests",
+            "FixedTimeProvider",
+            "ThrowingHttpClientFactory",
+            "NeverCompletingTtsProvider",
+            "CountingTtsProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TTS-PRON-03",
+          "kind": "unit",
+          "method": "ExactHintsHandleVietnameseUnicodeAndEmojiWithoutBreakingSynthesis",
+          "file": "tests/Ivr.UnitTests/Speech/TtsProviderTests.cs",
+          "sourceClasses": [
+            "TtsProviderTests",
+            "FixedTimeProvider",
+            "ThrowingHttpClientFactory",
+            "NeverCompletingTtsProvider",
+            "CountingTtsProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TTS-SNAPSHOT-01",
+          "kind": "unit",
+          "method": "VietnameseOneAndManyItemSnapshotsProduceStableAudioReferences",
+          "file": "tests/Ivr.UnitTests/Speech/TtsProviderTests.cs",
+          "sourceClasses": [
+            "TtsProviderTests",
+            "FixedTimeProvider",
+            "ThrowingHttpClientFactory",
+            "NeverCompletingTtsProvider",
+            "CountingTtsProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TTS-TIMEOUT-05",
+          "kind": "unit",
+          "method": "TimeoutNormalizesAsNonCountedTechnicalFailureAndNeverNoAnswer",
+          "file": "tests/Ivr.UnitTests/Speech/TtsProviderTests.cs",
+          "sourceClasses": [
+            "TtsProviderTests",
+            "FixedTimeProvider",
+            "ThrowingHttpClientFactory",
+            "NeverCompletingTtsProvider",
+            "CountingTtsProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TTS-VND-02",
+          "kind": "unit",
+          "method": "LargeVndAndDecimalQuantityUseVietnameseGroupsAndUnits",
+          "file": "tests/Ivr.UnitTests/Speech/TtsProviderTests.cs",
+          "sourceClasses": [
+            "TtsProviderTests",
+            "FixedTimeProvider",
+            "ThrowingHttpClientFactory",
+            "NeverCompletingTtsProvider",
+            "CountingTtsProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        },
+        {
+          "id": "UT-TTS-WHITELIST-07",
+          "kind": "unit",
+          "method": "ProductionWithoutWhitelistApprovalRecordFailsBeforeProviderCall",
+          "file": "tests/Ivr.UnitTests/Speech/TtsProviderTests.cs",
+          "sourceClasses": [
+            "TtsProviderTests",
+            "FixedTimeProvider",
+            "ThrowingHttpClientFactory",
+            "NeverCompletingTtsProvider",
+            "CountingTtsProvider"
+          ],
+          "cases": 1,
+          "allPassed": true
+        }
+      ],
+      "historicalOnlyIds": [],
+      "evidenceFiles": [
+        {
+          "file": "docs/evidence/W-0066/README.md",
+          "sha256": "0b40ff7dfe76190af5b2975f6363820852f415f2ba00c661a0c6b4a5c5f4f142"
+        },
+        {
+          "file": "docs/evidence/W-0066/audio-metadata.json",
+          "sha256": "fe09c8100e33fbe0659aadf0ec1265195e3394ae090e2168e7638a052acc1def"
+        },
+        {
+          "file": "docs/evidence/W-0066/coverage-summary.txt",
+          "sha256": "5f8cee3fc8dc41e30ad314065e4553afa3e717cf053d22d7796c211e02184257"
+        },
+        {
+          "file": "docs/evidence/W-0066/pii-scan-report.txt",
+          "sha256": "66e303a30f6f318d26d1d11c0e2614db200505b91fa1a11aad0d378403bbdc54"
+        },
+        {
+          "file": "docs/evidence/W-0066/sanitized-speech-snapshot.txt",
+          "sha256": "168040e70b90ce4ec1e93ea681661404b818e7df0dc3176319550a925baf4718"
+        },
+        {
+          "file": "docs/evidence/W-0066/test-report.md",
+          "sha256": "e1b083773b751ff4869c6810f2d03c80dbba17bf32c3f691487b6b3d6c93db67"
+        }
+      ]
+    }
+  ]
+}
