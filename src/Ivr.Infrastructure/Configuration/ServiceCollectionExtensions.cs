@@ -221,17 +221,15 @@ public static class ServiceCollectionExtensions
     /// </para>
     /// <para>
     /// An operator who genuinely has a Kerberos-secured Postgres keeps control: set
-    /// <c>gssencmode</c> explicitly in the connection string and this leaves it alone. The default
+    /// <c>GSS Encryption Mode</c> explicitly in the connection string and this leaves it alone. The default
     /// moves, the choice does not disappear.
     /// </para>
     /// </remarks>
-    private static string WithoutGssNegotiation(string connectionString)
+    public static string WithoutGssNegotiation(string connectionString)
     {
-        // Read the keys off the generic parser rather than asking NpgsqlConnectionStringBuilder
-        // whether it "contains" the keyword. Npgsql canonicalises aliases, so ContainsKey lies in
-        // both directions depending on which spelling the operator used -- `gssencmode` and
-        // `GSS Encryption Mode` are the same setting and only one of them answers. Comparing the
-        // raw keys with spaces removed accepts either spelling, which is what the operator sees.
+        // Inspect supplied keys without confusing provider defaults with an explicit choice.
+        // Npgsql still validates the returned string: an unsupported provider keyword such as
+        // the libpq spelling `gssencmode` is rejected, never silently downgraded.
         System.Data.Common.DbConnectionStringBuilder supplied = new()
         {
             ConnectionString = connectionString,

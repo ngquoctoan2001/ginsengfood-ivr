@@ -13,6 +13,8 @@ Không có lượt xoá dữ liệu khách thật; kiểm thử dùng PostgreSQL
 - Thực thi cần cờ execute, gõ lại đúng mã đơn và xác nhận Sales đã xác minh chủ thể.
 - Kết quả chỉ có số lượng/tham chiếu/giới hạn; thêm TasksMatched để preview không bị nhầm với số đã redact.
 - CLI không tự migrate, đổi retention, xoá backup hoặc dữ liệu Sales. S3 giữ vĩnh viễn vẫn có hiệu lực.
+- COMP-DSAR-18: dùng chung mặc định kết nối với ứng dụng; giữ cấu hình GSS/TLS do operator nhập,
+  từ chối keyword không được Npgsql hỗ trợ. Impact helper LOW (1 caller/1 flow).
 
 ## Phát hiện và sửa lỗi audit
 
@@ -36,3 +38,6 @@ GitNexus: EraseAsync MEDIUM (8 phụ thuộc/6 caller/0 flow); AppendAsync dùng
 
 Đang chốt candidate để chạy toàn solution và full sweep, sau đó đóng gói executable đúng source.
 Kết quả ban đầu chưa dùng để nghiệm thu HEAD. [Hướng dẫn từng bước](../../compliance/dsar-cli-step-by-step.md).
+
+Lượt full proof tại 8557baa đã dừng khi review phát hiện CLI ghi đè GSS được cấu hình tường minh.
+Không có acceptance manifest cho lượt này; log giữ ở .artifacts/w0330-acceptance-8557baa.

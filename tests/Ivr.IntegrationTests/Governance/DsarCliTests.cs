@@ -1,10 +1,37 @@
 using Ivr.Dsar;
 using Ivr.Infrastructure.Governance;
+using Npgsql;
 
 namespace Ivr.IntegrationTests.Governance;
 
 public sealed class DsarCliTests
 {
+    [Theory]
+    [InlineData("", GssEncryptionMode.Disable)]
+    [InlineData(";gSs EnCrYpTiOn MoDe=Require", GssEncryptionMode.Require)]
+    [InlineData(";GSS Encryption Mode=Require", GssEncryptionMode.Require)]
+    [InlineData(";GSS Encryption Mode=Prefer", GssEncryptionMode.Prefer)]
+    [InlineData(";GSS Encryption Mode=Disable", GssEncryptionMode.Disable)]
+    [Trait("TestId", "COMP-DSAR-18")]
+    public void ConnectionPreservesExplicitEncryptionAndTls(string setting, GssEncryptionMode expected)
+    {
+        var effective = new NpgsqlConnectionStringBuilder(DsarProgram.CreateConnectionString(
+            "Host=test-db;Database=ivr_test;Username=ivr;SSL Mode=VerifyFull" + setting));
+        Assert.Equal(expected, effective.GssEncryptionMode);
+        Assert.Equal(SslMode.VerifyFull, effective.SslMode);
+        Assert.Equal("test-db", effective.Host);
+        Assert.Equal("ivr_test", effective.Database);
+        Assert.Equal("ivr", effective.Username);
+        Assert.Equal("Ivr.Dsar", effective.ApplicationName);
+    }
+
+    [Fact]
+    [Trait("TestId", "COMP-DSAR-18")]
+    public void UnsupportedProviderKeywordsAreRefusedInsteadOfSilentlyDiscarded()
+    {
+        Assert.Throws<ArgumentException>(() => DsarProgram.CreateConnectionString("Host=test-db;gssencmode=Require"));
+    }
+
     [Fact]
     [Trait("TestId", "COMP-DSAR-14")]
     public void OneOrderDefaultsToPreviewAndExecutionNeedsExplicitConfirmation()

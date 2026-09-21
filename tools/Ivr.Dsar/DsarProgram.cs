@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Ivr.Infrastructure.Audit;
+using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Governance;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -52,13 +53,7 @@ public static class DsarProgram
             DsarCommand.Authorize(policy, identity);
             string connectionString = Environment.GetEnvironmentVariable("IVR_DSAR_CONNECTION_STRING")
                 ?? throw new InvalidOperationException("IVR_DSAR_CONNECTION_STRING is missing.");
-            // Match the foundation's explicit non-GSS default (W-0306); preserve TLS settings.
-            var connection = new NpgsqlConnectionStringBuilder(connectionString)
-            {
-                GssEncryptionMode = GssEncryptionMode.Disable,
-                ApplicationName = "Ivr.Dsar",
-            };
-            var options = new DbContextOptionsBuilder<IvrDbContext>().UseNpgsql(connection.ConnectionString).Options;
+            var options = new DbContextOptionsBuilder<IvrDbContext>().UseNpgsql(CreateConnectionString(connectionString)).Options;
             var factory = new PooledDbContextFactory<IvrDbContext>(options);
             var service = new DsarService(factory, new PostgresAuditLogger(factory, TimeProvider.System), TimeProvider.System);
             DsarCommandResult result = await DsarCommand.ExecuteAsync(service, request, policy, identity);
@@ -82,4 +77,10 @@ public static class DsarProgram
             return 1;
         }
     }
+
+    public static string CreateConnectionString(string connectionString) =>
+        new NpgsqlConnectionStringBuilder(ServiceCollectionExtensions.WithoutGssNegotiation(connectionString))
+        {
+            ApplicationName = "Ivr.Dsar",
+        }.ConnectionString;
 }
