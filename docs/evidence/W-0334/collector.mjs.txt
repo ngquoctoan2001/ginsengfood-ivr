@@ -1,0 +1,80 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {spawn,execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const root=process.cwd(),base=path.resolve('.artifacts/w0334-chaos-alert');
+const run=path.join(base,process.argv[2]??'run-20260921a');
+assert(!fs.existsSync(run),'Never overwrite a run');fs.mkdirSync(run);
+const candidate='aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979';
+const checkout=path.resolve('.claude/worktrees/w0330-dsar-20260921');
+const git=(...args)=>execFileSync('git',args,{encoding:'utf8'}).trim();
+assert.equal(git('-C',checkout,'rev-parse','HEAD'),candidate);
+assert.equal(git('-C',checkout,'status','--porcelain'),'');
+const hash=bytes=>createHash('sha256').update(bytes).digest('hex').match(/.{8}/g).join('-');
+const docker=args=>execFileSync('docker',args,{encoding:'utf8',maxBuffer:4<<20}).trim();
+const container='ivr-w0334-alert-prometheus';
+const image='prom/prometheus:v2.54.1';
+const ruleSource=path.join(checkout,'deploy/observability/alerts/ivr-slo.rules.yml');
+const rules=fs.readFileSync(ruleSource);fs.writeFileSync(path.join(run,'ivr-slo.rules.yml'),rules);
+fs.writeFileSync(path.join(run,'prometheus.yml'),`global:\n  scrape_interval: 5s\n  evaluation_interval: 30s\nrule_files:\n  - /etc/prometheus/ivr-slo.rules.yml\nscrape_configs:\n  - job_name: w0334-runtime-meter\n    static_configs:\n      - targets: ['host.docker.internal:51934']\n`);
+fs.mkdirSync(path.join(base,'seed'),{recursive:true});
+fs.copyFileSync(path.join(checkout,'seed/sales-target-v1.sample.json'),path.join(base,'seed/sales-target-v1.sample.json'));
+const assemblies=['Ivr.ChaosTests.dll','Ivr.Infrastructure.dll','Ivr.Domain.dll','Ivr.Api.dll','Ivr.Worker.dll'];
+const provenance=assemblies.map(file=>({file,sha256:hash(fs.readFileSync(path.join(checkout,'tests/chaos/bin/Debug/net10.0',file)))}));
+for(const item of provenance)assert.equal(hash(fs.readFileSync(path.join(base,'Harness/bin/Release/net10.0',item.file))),item.sha256);
+const startedAt=new Date().toISOString();
+const event=(kind,data={})=>{const e={at:new Date().toISOString(),kind,...data};fs.appendFileSync(path.join(run,'collector-events.jsonl'),JSON.stringify(e)+'\n');console.log(JSON.stringify(e));return e;};
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const captures=[];
+const capture=async phase=>{
+ const query=async expression=>{const r=await fetch('http://127.0.0.1:59034/api/v1/query?query='+encodeURIComponent(expression));assert(r.ok);const j=await r.json();assert.equal(j.status,'success');return j.data.result;};
+ const response=await fetch('http://127.0.0.1:59034/api/v1/rules?type=alert');assert(response.ok);
+ const document=await response.json();assert.equal(document.status,'success');
+ const alert=document.data.groups.flatMap(group=>group.rules).find(rule=>rule.name==='IvrChannelAutoDisableBurst');assert(alert);
+ const sample={at:new Date().toISOString(),phase,alert,counter:await query('sum(ivr_channel_quarantines_total)'),increase:await query('sum(increase(ivr_channel_quarantines_total[10m]))'),targetUp:await query('up{job="w0334-runtime-meter"}')};
+ captures.push(sample);fs.appendFileSync(path.join(run,'prometheus-captures.jsonl'),JSON.stringify(sample)+'\n');return sample;
+};
+const waitFor=async(label,check,timeout)=>{const deadline=Date.now()+timeout;while(Date.now()<deadline){if(fs.existsSync(path.join(run,'failure.txt')))throw new Error('Harness failed; see failure.txt');if(await check())return;await sleep(3000);}throw new Error('Timeout: '+label);};
+const stdout=fs.openSync(path.join(run,'harness.log'),'a');
+let child,exited=null,created=false,status='FAIL',failure=null;
+try {
+ const info=JSON.parse(docker(['image','inspect',image]))[0];
+ fs.writeFileSync(path.join(run,'provenance.json'),JSON.stringify({candidate,startedAt,rulesSha256:hash(rules),assemblies:provenance,prometheusImage:info.Id,prometheusRepoDigests:info.RepoDigests,metricBridge:'Manual MeterListener exports the actual production counter total; this does not certify the OTLP collector path',harnessSourceSha256:hash(fs.readFileSync(path.join(base,'Harness/Program.cs')))},null,2));
+ child=spawn('dotnet',[path.join(base,'Harness/bin/Release/net10.0/Harness.dll'),run],{cwd:checkout,windowsHide:true,stdio:['ignore',stdout,stdout]});child.on('exit',(code,signal)=>{exited={code,signal};});
+ event('harness-started',{pid:child.pid});
+ await waitFor('harness readiness',()=>{assert(!exited,'Harness exited early');return fs.existsSync(path.join(run,'ready.json'));},120000);
+ docker(['run','-d','--name',container,'--label','ivr.work=W-0334','--label','ivr.purpose=chaos-alert-local','-p','127.0.0.1:59034:9090','--mount',`type=bind,src=${run},dst=/etc/prometheus,readonly`,image,'--config.file=/etc/prometheus/prometheus.yml','--storage.tsdb.retention.time=1h']);created=true;
+ await waitFor('Prometheus readiness',async()=>{try{return (await fetch('http://127.0.0.1:59034/-/ready')).ok;}catch{return false;}},60000);
+ await waitFor('healthy scrape at zero',async()=>{const s=await capture('baseline');return s.counter[0]?.value[1]==='0'&&s.targetUp[0]?.value[1]==='1'&&s.alert.state==='inactive';},60000);
+ await sleep(16000);
+ const baseline=await capture('baseline-confirmed');assert.equal(baseline.counter[0].value[1],'0');assert.equal(baseline.alert.state,'inactive');
+ event('baseline-pass');
+ fs.writeFileSync(path.join(run,'fault.trigger'),'start');
+ await waitFor('fault scenarios complete',()=>fs.existsSync(path.join(run,'faults-complete.json')),150000);
+ event('fault-scenarios-pass');
+ await waitFor('alert firing',async()=>{const s=await capture('await-firing');return s.alert.state==='firing'&&Number(s.counter[0]?.value[1])>=3&&s.targetUp[0]?.value[1]==='1';},90000);
+ event('alert-firing');
+ const end=Date.now()+720000;let lastHeartbeat=Date.now(),resolved=false;
+ while(Date.now()<end) {
+  await sleep(10000);assert(!exited,'Harness exited before alert recovery');
+  const s=await capture('await-resolution');assert.equal(s.targetUp[0]?.value[1],'1','A missing target is not alert recovery');assert(Number(s.counter[0]?.value[1])>=3,'Counter must not reset');
+  if(s.alert.state==='inactive'&&Number(s.increase[0]?.value[1])<3){resolved=true;event('alert-resolved',{counter:s.counter[0].value[1],increase:s.increase[0].value[1]});break;}
+  if(Date.now()-lastHeartbeat>55000){event('waiting-for-real-window',{state:s.alert.state,increase:s.increase[0]?.value[1]});lastHeartbeat=Date.now();}
+ }
+ assert(resolved,'Alert did not resolve naturally');
+ const range=await fetch('http://127.0.0.1:59034/api/v1/query_range?query='+encodeURIComponent('ALERTS{alertname="IvrChannelAutoDisableBurst"}')+'&start='+Date.parse(startedAt)/1000+'&end='+Date.now()/1000+'&step=5');assert(range.ok);fs.writeFileSync(path.join(run,'alert-range.json'),JSON.stringify(await range.json(),null,2));
+ assert.equal(git('-C',checkout,'status','--porcelain'),'');
+ for(const item of provenance)assert.equal(hash(fs.readFileSync(path.join(checkout,'tests/chaos/bin/Debug/net10.0',item.file))),item.sha256);
+ status='PASS_LOCAL';
+} catch(error) {failure=error.stack;event('failed',{message:error.message});}
+finally {
+ fs.writeFileSync(path.join(run,'stop.trigger'),'stop');
+ if(child&&!exited){await Promise.race([new Promise(resolve=>child.once('exit',resolve)),sleep(25000)]);if(!exited)child.kill();}
+ if(created){fs.writeFileSync(path.join(run,'prometheus.log'),docker(['logs',container]));assert.equal(docker(['inspect','--format','{{index .Config.Labels "ivr.work"}}',container]),'W-0334');docker(['rm','--force','--volumes',container]);}
+ fs.closeSync(stdout);
+ if(exited?.code!==0){status='FAIL';failure??='Harness exit '+JSON.stringify(exited);}
+ const result={status,candidate,startedAt,finishedAt:new Date().toISOString(),harnessExit:exited,captures:captures.length,failure,REAL_CUSTOMER_CALL_ALLOWED:'NO'};
+ fs.writeFileSync(path.join(run,'result.json'),JSON.stringify(result,null,2));event('finished',result);
+}
+if(status!=='PASS_LOCAL')process.exitCode=1;

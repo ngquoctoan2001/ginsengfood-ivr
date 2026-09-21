@@ -129,3 +129,29 @@ Bốn dòng ❌ là **chưa phủ**, không phải "không áp dụng".
   dựng nhưng chưa scenario nào dùng.
 - **Không có webhook trùng lặp / sai thứ tự** (§6.1) — chưa dựng.
 - **Recovery time chỉ đo một lần, một máy.** Nó là quan sát, không phải phân phối.
+
+## Đối soát sau lượt rà Residual — 21/09/2026, W-0334
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Các bảng và số đo ở trên giữ nguyên là báo cáo lịch sử. Trạng thái hiện hành của những ghi chú
+đã hết hiệu lực:
+
+| Ghi chú lịch sử | Đối chiếu hiện hành |
+| --- | --- |
+| IT-12..17 cần owner quyết | OD-OPEN-01 đã chọn sửa prompt ngày 19/08; P6-3 hiện trỏ đúng mục 4/8/10 của integration plan |
+| Counter attempt/result không có call site | PostgresSchedulerStore gọi RecordAttempt và RecordResult; ResultRepository gọi RecordResult. Không còn là phần instrumentation chưa triển khai |
+| CRM/evidence/source chưa có scenario | IT-ELIG-NODISPATCH-15 có ba ca hold và một positive control, kiểm cả các trường guard lẫn scheduler không tạo attempt; không chứng minh IVR đã gọi Ops API ngoài |
+| Trust/Contact cần owner quyết | OD-18 đã giao business call/no-call cho M3. ARCH-05 được tách lại contact guard; IVR không cần khôi phục trust-skip hay thêm trust-down ⇒ hold |
+| Partition một phần/webhook trùng chưa có | CHAOS-DUPLICATE-06 đã có và Passed tại aaba3d2; §2 ở chính báo cáo này cũng đã mô tả. Bản retry giống từng byte, lease cũ bị chặn |
+| Chưa kiểm hai FINAL sai thứ tự cùng task | Một FINAL/task là tiền đề của outbox này; không tạo phép kiểm cho hai FINAL không hợp lệ, và không suy rộng sang mọi webhook/M3 |
+
+Nguồn: [lượt rà W-0327](evidence/W-0327/README.md),
+[eligibility tests](../tests/Ivr.IntegrationTests/EligibilityPersistenceTests.cs),
+[scheduler](../src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs),
+[result repository](../src/Ivr.Infrastructure/Repositories/ResultRepository.cs),
+[partial partition](../tests/chaos/PartialPartitionScenario.cs).
+
+Lượt [W-0334](evidence/W-0334/README.md) thu riêng chuỗi lỗi SIM → counter thật → Prometheus
+firing/inactive trên hệ local. Kết quả, thời gian và giới hạn của lượt mới nằm trong hồ sơ đó;
+không thay số 8 ms hoặc phạm vi staging chưa chạy của lượt lịch sử này.

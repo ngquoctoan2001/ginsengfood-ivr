@@ -1,0 +1,114 @@
+using System.Diagnostics.Metrics;
+using System.Net;
+using System.Text;
+using System.Text.Json;
+using Ivr.ChaosTests;
+using Ivr.Infrastructure.Observability;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
+internal static class Program
+{
+    private sealed class ScenarioOutput : Xunit.Abstractions.ITestOutputHelper
+    {
+        public void WriteLine(string message) => Log("scenario-output", new { message });
+        public void WriteLine(string format, params object[] args) => WriteLine(string.Format(System.Globalization.CultureInfo.InvariantCulture, format, args));
+    }
+    private static long quarantines;
+    private static readonly object OutputLock = new();
+    private static string output = "";
+    private static void Log(string kind, object data)
+    {
+        lock (OutputLock)
+        {
+            string line = JsonSerializer.Serialize(new { at = DateTimeOffset.UtcNow, kind, data });
+            File.AppendAllText(Path.Combine(output, "runtime-events.jsonl"), line + "\n");
+            Console.WriteLine(line);
+        }
+    }
+
+    public static async Task<int> Main(string[] args)
+    {
+        output = Path.GetFullPath(args[0]);
+        Directory.CreateDirectory(output);
+        using var stop = new CancellationTokenSource(TimeSpan.FromMinutes(22));
+        using var meter = new MeterListener();
+        meter.InstrumentPublished = (instrument, listener) =>
+        {
+            if (instrument.Meter.Name == IvrTelemetry.ServiceName && instrument.Name == "ivr_channel_quarantines_total")
+                listener.EnableMeasurementEvents(instrument);
+        };
+        meter.SetMeasurementEventCallback<long>((instrument, value, tags, state) =>
+        {
+            long total = Interlocked.Add(ref quarantines, value);
+            Log("counter", new { instrument.Name, delta = value, total });
+        });
+        meter.Start();
+        var builder = WebApplication.CreateSlimBuilder();
+        builder.WebHost.UseUrls("http://0.0.0.0:51934");
+        builder.Logging.ClearProviders();
+        await using var http = builder.Build();
+        http.MapGet("/metrics", () => Results.Text("# TYPE ivr_channel_quarantines_total counter\nivr_channel_quarantines_total " + Interlocked.Read(ref quarantines) + "\n", "text/plain; version=0.0.4"));
+        await http.StartAsync(stop.Token);
+        var chaos = new ChaosEnvironment();
+        bool initialized = false;
+        try
+        {
+            await chaos.InitializeAsync();
+            initialized = true;
+            Log("ready", new { candidate = "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979", synthetic = true });
+            File.WriteAllText(Path.Combine(output, "ready.json"), "{}");
+            while (!File.Exists(Path.Combine(output, "fault.trigger"))) await Task.Delay(300, stop.Token);
+            for (int index = 1; index <= 3; index++)
+            {
+                Log("fault-start", new { scenario = "CHAOS-SIM-03", repetition = index });
+                await new SimFaultScenario(chaos).ADroppedCallIsATechnicalExceptionAndTheThirdFailureTakesTheChannelOutOfService();
+                Log("scenario-pass", new { scenario = "CHAOS-SIM-03", repetition = index });
+            }
+            await using (var db = await chaos.DbContextFactory.CreateDbContextAsync())
+            {
+                var snapshot = new
+                {
+                    tasks = await db.ConfirmationTasks.CountAsync(),
+                    jobs = await db.CallJobs.CountAsync(),
+                    attempts = await db.CallAttempts.CountAsync(),
+                    countedAttempts = await db.CallAttempts.CountAsync(a => a.IsCountedCustomerAttempt),
+                    healthFailedChannels = await db.SimChannels.CountAsync(c => c.Status == "HEALTH_FAILED"),
+                    counter = Interlocked.Read(ref quarantines)
+                };
+                if (snapshot.tasks != 3 || snapshot.jobs != 3 || snapshot.attempts != 3 || snapshot.countedAttempts != 0 || snapshot.healthFailedChannels != 3 || snapshot.counter != 3)
+                    throw new InvalidOperationException("SIM fault snapshot did not match three isolated technical failures.");
+                Log("sim-db-snapshot", snapshot);
+            }
+            Log("fault-start", new { scenario = "CHAOS-RECOVERY-04", mechanism = "Toxiproxy disables the DB connection" });
+            await new RecoveryScenario(chaos).TheBacklogDrainsExactlyOnceAfterTheLinkReturns();
+            Log("scenario-pass", new { scenario = "CHAOS-RECOVERY-04", backlogDrainedExactlyOnce = true });
+            Log("fault-start", new { scenario = "CHAOS-DB-02" });
+            await new DatabaseFaultScenario(chaos, new ScenarioOutput()).ACutDatabaseLinkTurnsReadinessRedLosesNothingAndRecoversWhenTheLinkReturns();
+            Log("scenario-pass", new { scenario = "CHAOS-DB-02", noLoss = true });
+            Log("fault-start", new { scenario = "CHAOS-DOWNSTREAM-01" });
+            await new DownstreamFaultScenario(chaos).WhenSalesIsDownTheResultIsHeldForBoundedRetryAndNeverReportedAsConfirmed();
+            Log("scenario-pass", new { scenario = "CHAOS-DOWNSTREAM-01", boundedRetryNoFalseConfirmation = true });
+            File.WriteAllText(Path.Combine(output, "faults-complete.json"), JsonSerializer.Serialize(new { at = DateTimeOffset.UtcNow, counter = Interlocked.Read(ref quarantines) }));
+            while (!File.Exists(Path.Combine(output, "stop.trigger"))) await Task.Delay(500, stop.Token);
+            Log("complete", new { counter = Interlocked.Read(ref quarantines) });
+            return 0;
+        }
+        catch (Exception error)
+        {
+            File.WriteAllText(Path.Combine(output, "failure.txt"), error.ToString());
+            Log("failure", new { type = error.GetType().Name, error.Message });
+            return 1;
+        }
+        finally
+        {
+            stop.Cancel();
+            await http.StopAsync();
+            if (initialized) await chaos.DisposeAsync();
+            chaos.Dispose();
+        }
+    }
+}

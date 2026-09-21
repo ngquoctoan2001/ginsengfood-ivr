@@ -211,3 +211,18 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Đối soát sau W-0327 — 21/09/2026, W-0334
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Các ghi chú lịch sử “Trust chờ owner”, “IT-12..17 chờ quyết định” và “chưa có partition/trùng
+callback” ở trên không còn mô tả trạng thái hiện hành: OD-18 giao business call/no-call cho M3;
+OD-OPEN-01 đã sửa prompt; CHAOS-DUPLICATE-06 đã có. [Báo cáo game-day](../../gameday-report.md)
+có bảng đính chính theo source, gồm cả counter attempt/result đã có call site. [ARCH-05](../../../specs/architecture/05-resilience.md)
+được tách lại contact guard, không thêm trust-down ⇒ hold.
+
+[W-0334](../W-0334/README.md) ghi riêng lượt local nối lỗi SIM/service → counter thực → cảnh báo
+Prometheus, kèm scenario DB/downstream/recovery và hash candidate aaba3d2. Xem verdict cuối ở hồ
+sơ đó; không thay phạm vi hay số đo của lượt lịch sử này. W-0042 giữ TESTS_PASS, chưa nghiệm thu
+toàn P6-3; staging, bộ thu OTLP triển khai và giao thông báo cho vận hành cần lượt chứng minh riêng.

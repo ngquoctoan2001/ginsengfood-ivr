@@ -113,6 +113,12 @@ quyết định phải xin ký lại. T-07 cũng giữ nhiều câu trước khi
 **Thiếu bằng chứng theo DoD P6-3 §10/12**, dù phần harness và các test local đạt. Không mặc nhiên
 xin một ngoại lệ; trước hết chuẩn bị lượt capture có thể thực hiện, rồi Toàn quyết phạm vi cần duyệt.
 
+**Bổ sung 21/09 — [W-0334](../W-0334/README.md):** đã thu tại aaba3d2 sạch bốn nhóm scenario
+SIM/DB/downstream/recovery, nối counter thật tới Prometheus với luật nguyên byte. Counter 0→3,
+alert inactive→firing→inactive qua cửa sổ thật; 69 capture, target không mất và counter không reset.
+Đính chính ARCH-05/game-day đã xong. Đây là harness dùng cầu MeterListener; còn cần deployment
+OTLP, Alertmanager/thông báo và staging game-day phù hợp, nên không tự nhận DoD P6-3 hoàn tất.
+
 ## 4. W-0052 — Privacy/DSAR
 
 [Gói gốc](../W-0052/README.md) · [runbook](../../compliance/dsar-runbook.md) · [W-0314](../W-0314/README.md).

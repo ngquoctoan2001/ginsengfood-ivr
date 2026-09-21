@@ -7,11 +7,18 @@ Nguyên tắc tối cao: **fail-closed** — source-of-truth/policy/ops không k
 | Hệ thống down | Before attempt | During attempt | During callback |
 | --- | --- | --- | --- |
 | **Order Core** | Không tạo task mới | Tiếp tục call đã dispatch an toàn; callback retry bounded | Retry bounded / admin review |
-| **Trust/Contact resolver** | Hold task / review | Không đổi contact giữa cuộc gọi | Core quyết với source hiện có |
+| **Dữ liệu contact / phone-token** | Thiếu/không hợp lệ: từ chối intake hoặc block trước dispatch | Không đổi contact giữa cuộc gọi | Core quyết với source hiện có |
 | **CRM do-not-call** (DC-01) | **Không dispatch** nếu không xác định opt-out | Không đổi giữa cuộc gọi | Core quyết; IR-SALES-CRM-01 bổ sung rich fields |
 | **Evidence Registry** | Không final-callback nếu thiếu evidence | Technical exception nếu ghi evidence fail | Hold / admin review |
 | **SIM Gateway** | `IVR_TECHNICAL_EXCEPTION` | Technical exception, **không** no-answer (P0-IVR-004) | N/A |
 | **Admin Web** | Không ảnh hưởng vận hành | Không ảnh hưởng | Không ảnh hưởng |
+
+Đính chính 21/09/2026, W-0334: dòng cũ gộp Trust với Contact đã lỗi thời theo
+[OD-18](../../plan/ivr-orther/decisions-log.md). M3 sở hữu phân loại khách và quyết định nghiệp vụ
+gọi/không gọi; IVR không đọc trust để đảo quyết định đó. Vì vậy không thêm điều kiện
+“trust resolver unavailable ⇒ hold” vào IVR. Guard phone/token và các guard an toàn khác vẫn có
+hiệu lực; [EligibilityRules](../../src/Ivr.Domain/Policies/EligibilityRules.cs) block contact không
+hợp lệ trước dispatch. Đây là sửa mô tả theo quyết định đã chốt, không thay runtime.
 
 ## 2. Fail-closed cụ thể
 - Ops `non-2xx / timeout / /health/ready=503` khi revalidate → coi "không xác thực được blocker" → không dispatch/không confirm (DO-06).

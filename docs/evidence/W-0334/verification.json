@@ -1,0 +1,491 @@
+{
+  "schema": "ivr-local-chaos-alert/v1",
+  "workId": "W-0334",
+  "status": "PASS_LOCAL_SERVICE_TO_PROMETHEUS",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+  "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+  "sourceCleanBeforeAfter": true,
+  "result": {
+    "status": "PASS_LOCAL",
+    "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+    "startedAt": "2026-09-21T08:36:17.479Z",
+    "finishedAt": "2026-09-21T08:47:43.282Z",
+    "harnessExit": {
+      "code": 0,
+      "signal": null
+    },
+    "captures": 69,
+    "failure": null,
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+  },
+  "provenance": {
+    "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+    "startedAt": "2026-09-21T08:36:17.479Z",
+    "rulesSha256": "d3db4b66-17a753a9-1170a2af-1406ae7a-629a475c-52075eb7-6e54551b-050c67dd",
+    "assemblies": [
+      {
+        "file": "Ivr.ChaosTests.dll",
+        "sha256": "0711cb0f-72ac892a-59533d0c-12f59716-48292d64-e745cff4-1398a9e8-6b3115ef"
+      },
+      {
+        "file": "Ivr.Infrastructure.dll",
+        "sha256": "c45a10df-24f4958e-d257808f-42a06ae4-0269e3ce-daa61fbe-3a309c2d-b673616b"
+      },
+      {
+        "file": "Ivr.Domain.dll",
+        "sha256": "80807646-c5feeb51-4dfed9e3-9fbe9eae-6c0235d3-92de134d-79c2037c-cfe8745a"
+      },
+      {
+        "file": "Ivr.Api.dll",
+        "sha256": "7569ec1c-84c5eb42-39e55c8b-527b75d5-fd3e8cd9-e441ffb2-801308ce-f8adb318"
+      },
+      {
+        "file": "Ivr.Worker.dll",
+        "sha256": "6d8dce0d-fe35a888-28454bbf-c384cb8c-4663b239-66a703cc-9fd9068d-465565ec"
+      }
+    ],
+    "prometheusImage": "sha256:f6639335-d34a77d9-d9db382b-92eeb7fc-00934be8-eae81dbc-03b31cfe-90411a94",
+    "prometheusRepoDigests": [
+      "prom/prometheus@sha256:f6639335-d34a77d9-d9db382b-92eeb7fc-00934be8-eae81dbc-03b31cfe-90411a94"
+    ],
+    "metricBridge": "Manual MeterListener exports the actual production counter total; this does not certify the OTLP collector path",
+    "harnessSourceSha256": "5f2602b7-9d43ddf7-51a5fe16-3abcc730-69a7d8fd-5d4d8216-1d4daaf9-e5a30646"
+  },
+  "sources": [
+    {
+      "path": "tests/chaos/SimFaultScenario.cs",
+      "sha256": "ca1075a8-a4dcd342-0bf4dcaa-1e07ec11-1d4021fe-c787b38c-f3f42d0d-96a199e4"
+    },
+    {
+      "path": "tests/chaos/RecoveryScenario.cs",
+      "sha256": "7d7cf868-a00a88f9-d5bb611d-991a7293-dc57e553-3a283d08-fab6883f-35df65ec"
+    },
+    {
+      "path": "tests/chaos/DatabaseFaultScenario.cs",
+      "sha256": "637642ac-be8e0674-2f8229ac-31d7d439-3ba57d67-8576f3d2-d71c3435-22a08c8b"
+    },
+    {
+      "path": "tests/chaos/DownstreamFaultScenario.cs",
+      "sha256": "dff1a715-a86e85f8-c6b2c651-d19cd545-d95ec788-5a94be62-10b36846-776b2e38"
+    },
+    {
+      "path": "tests/chaos/ChaosEnvironment.cs",
+      "sha256": "7913eebf-13b69c03-87c4c724-6e4e3ea1-cafd3882-39a391ed-d447203a-f2661b75"
+    },
+    {
+      "path": "tests/chaos/ChaosFixtures.cs",
+      "sha256": "37934470-fdb0c21d-e5d085a2-1c631b43-f90d5838-2d243f0a-05a9ad10-0e250148"
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Observability/IvrTelemetry.cs",
+      "sha256": "575b5f81-206f6dfc-65947cd3-637d1bec-98928d0c-d2952cb4-8c8e5f5b-b422074b"
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Telephony/PostgresTelephonyDispatchStore.cs",
+      "sha256": "04b178c3-75e502a9-c9643c6e-50325b31-0e1119d2-e7a326c0-bcf34ba6-b6a06402"
+    },
+    {
+      "path": "deploy/observability/alerts/ivr-slo.rules.yml",
+      "sha256": "72f7a105-fa13cd77-1ef122b0-b06abeeb-43499903-a5cb1c3c-69e0fd1a-2c3730d9"
+    }
+  ],
+  "rawFiles": [
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/result.json",
+      "sha256": "f5829f06-6f3bd356-14702692-949e6b24-c44687a8-d48c36ea-94d1b6ee-9d2ba6d7"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/provenance.json",
+      "sha256": "9ee3388e-7da0bd08-72f3a47d-4280cd11-9b3c0cbd-854bca1f-a7515d9d-117b3b12"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/runtime-events.jsonl",
+      "sha256": "346043c0-85814093-00cd4716-7aa67412-6d4db3d4-5843dda9-9c9b4b55-41ee1e6c"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/collector-events.jsonl",
+      "sha256": "0052b5be-b0a3f73e-d18e1c87-aec41cb8-28d68799-46968786-4895b604-ee285285"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/prometheus-captures.jsonl",
+      "sha256": "c1abdb70-c4c8ee40-93d5dc9d-33347d33-2cbbeec4-21ef2603-963d61f2-87539c64"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/alert-range.json",
+      "sha256": "fb4775fc-793e24db-86821159-9f2718b4-61c524d9-41f01efb-2937526e-d914d837"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/prometheus.log",
+      "sha256": "e3b0c442-98fc1c14-9afbf4c8-996fb924-27ae41e4-649b934c-a495991b-7852b855"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/harness.log",
+      "sha256": "a4e6d9c1-897377b8-37a146c6-438c60d8-730a5627-7cb49b12-1f6f83a0-3e73917c"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/prometheus.yml",
+      "sha256": "4c0e7f89-dafbf113-1cc2bda5-ed0062eb-64fdf390-50a94431-5a89c290-bb013aba"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/ivr-slo.rules.yml",
+      "sha256": "d3db4b66-17a753a9-1170a2af-1406ae7a-629a475c-52075eb7-6e54551b-050c67dd"
+    },
+    {
+      "path": ".artifacts/w0334-chaos-alert/run-20260921b/db-while-alert-firing.json",
+      "sha256": "42bde28a-bfd22575-7d12f9a0-6cd846d1-cedc347f-5f9b94c3-aa7e2b04-76eb936e"
+    }
+  ],
+  "replay": [
+    {
+      "path": "harness.cs.txt",
+      "sha256": "5f2602b7-9d43ddf7-51a5fe16-3abcc730-69a7d8fd-5d4d8216-1d4daaf9-e5a30646"
+    },
+    {
+      "path": "harness.csproj.txt",
+      "sha256": "a918b738-bc76d24e-8600a6f9-cce3e6c4-84457b4b-6d46cb33-65bc9ca7-54e9fa1f"
+    },
+    {
+      "path": "collector.mjs.txt",
+      "sha256": "6d7407e6-13a99f5a-6d6eeb72-8dda6902-037a2485-85886995-0da48ed0-e7ac720f"
+    }
+  ],
+  "hashEncoding": "SHA-256 hex grouped by eight; remove hyphens for canonical hex",
+  "harnessConfiguration": {
+    "executionMode": "LAB_REAL_SIM",
+    "simProvider": "VENDOR",
+    "realCustomerCallAllowed": "NO",
+    "gatewayOrDialerStarted": false,
+    "invocation": "Existing chaos methods call production stores directly; all rows are synthetic"
+  },
+  "observations": {
+    "baseline": {
+      "at": "2026-09-21T08:36:58.579Z",
+      "phase": "baseline-confirmed",
+      "alert": {
+        "state": "inactive",
+        "name": "IvrChannelAutoDisableBurst",
+        "query": "sum(increase(ivr_channel_quarantines_total[10m])) >= 3",
+        "duration": 0,
+        "keepFiringFor": 0,
+        "labels": {
+          "decision": "DT-04",
+          "severity": "page",
+          "slo": "channel_availability",
+          "slo_status": "locked"
+        },
+        "annotations": {
+          "description": "DT-04 fixes the threshold at three failures in ten minutes; the expression carries its own window, so for is 0m.",
+          "runbook_url": "docs/slo.md#channel-auto-disable",
+          "summary": "Three or more channels auto-disabled within ten minutes"
+        },
+        "alerts": [],
+        "health": "ok",
+        "evaluationTime": 0.000082202,
+        "lastEvaluation": "2026-09-21T08:36:34.162227913Z",
+        "type": "alerting"
+      },
+      "counter": [
+        {
+          "metric": {},
+          "value": [
+            1789979818.592,
+            "0"
+          ]
+        }
+      ],
+      "increase": [
+        {
+          "metric": {},
+          "value": [
+            1789979818.609,
+            "0"
+          ]
+        }
+      ],
+      "targetUp": [
+        {
+          "metric": {
+            "__name__": "up",
+            "instance": "host.docker.internal:51934",
+            "job": "w0334-runtime-meter"
+          },
+          "value": [
+            1789979818.625,
+            "1"
+          ]
+        }
+      ]
+    },
+    "firing": {
+      "at": "2026-09-21T08:37:04.719Z",
+      "phase": "await-firing",
+      "alert": {
+        "state": "firing",
+        "name": "IvrChannelAutoDisableBurst",
+        "query": "sum(increase(ivr_channel_quarantines_total[10m])) >= 3",
+        "duration": 0,
+        "keepFiringFor": 0,
+        "labels": {
+          "decision": "DT-04",
+          "severity": "page",
+          "slo": "channel_availability",
+          "slo_status": "locked"
+        },
+        "annotations": {
+          "description": "DT-04 fixes the threshold at three failures in ten minutes; the expression carries its own window, so for is 0m.",
+          "runbook_url": "docs/slo.md#channel-auto-disable",
+          "summary": "Three or more channels auto-disabled within ten minutes"
+        },
+        "alerts": [
+          {
+            "labels": {
+              "alertname": "IvrChannelAutoDisableBurst",
+              "decision": "DT-04",
+              "severity": "page",
+              "slo": "channel_availability",
+              "slo_status": "locked"
+            },
+            "annotations": {
+              "description": "DT-04 fixes the threshold at three failures in ten minutes; the expression carries its own window, so for is 0m.",
+              "runbook_url": "docs/slo.md#channel-auto-disable",
+              "summary": "Three or more channels auto-disabled within ten minutes"
+            },
+            "state": "firing",
+            "activeAt": "2026-09-21T08:37:04.158593397Z",
+            "value": "3.3345e+00"
+          }
+        ],
+        "health": "ok",
+        "evaluationTime": 0.000245117,
+        "lastEvaluation": "2026-09-21T08:37:04.159353861Z",
+        "type": "alerting"
+      },
+      "counter": [
+        {
+          "metric": {},
+          "value": [
+            1789979824.734,
+            "3"
+          ]
+        }
+      ],
+      "increase": [
+        {
+          "metric": {},
+          "value": [
+            1789979824.745,
+            "3.4225499999999998"
+          ]
+        }
+      ],
+      "targetUp": [
+        {
+          "metric": {
+            "__name__": "up",
+            "instance": "host.docker.internal:51934",
+            "job": "w0334-runtime-meter"
+          },
+          "value": [
+            1789979824.759,
+            "1"
+          ]
+        }
+      ]
+    },
+    "recovered": {
+      "at": "2026-09-21T08:47:39.900Z",
+      "phase": "await-resolution",
+      "alert": {
+        "state": "inactive",
+        "name": "IvrChannelAutoDisableBurst",
+        "query": "sum(increase(ivr_channel_quarantines_total[10m])) >= 3",
+        "duration": 0,
+        "keepFiringFor": 0,
+        "labels": {
+          "decision": "DT-04",
+          "severity": "page",
+          "slo": "channel_availability",
+          "slo_status": "locked"
+        },
+        "annotations": {
+          "description": "DT-04 fixes the threshold at three failures in ten minutes; the expression carries its own window, so for is 0m.",
+          "runbook_url": "docs/slo.md#channel-auto-disable",
+          "summary": "Three or more channels auto-disabled within ten minutes"
+        },
+        "alerts": [],
+        "health": "ok",
+        "evaluationTime": 0.000233327,
+        "lastEvaluation": "2026-09-21T08:47:34.118819154Z",
+        "type": "alerting"
+      },
+      "counter": [
+        {
+          "metric": {},
+          "value": [
+            1789980459.912,
+            "3"
+          ]
+        }
+      ],
+      "increase": [
+        {
+          "metric": {},
+          "value": [
+            1789980459.928,
+            "0"
+          ]
+        }
+      ],
+      "targetUp": [
+        {
+          "metric": {
+            "__name__": "up",
+            "instance": "host.docker.internal:51934",
+            "job": "w0334-runtime-meter"
+          },
+          "value": [
+            1789980459.935,
+            "1"
+          ]
+        }
+      ]
+    },
+    "alertFiringObservedSeconds": 635.181,
+    "secondsSinceLastFaultCounter": 639.595,
+    "scrapeStayedUp": true,
+    "counterNeverReset": true,
+    "ruleBytesUnchanged": true,
+    "dbSnapshot": {
+      "tasks": 3,
+      "jobs": 3,
+      "attempts": 3,
+      "countedAttempts": 0,
+      "healthFailedChannels": 3,
+      "counter": 3
+    },
+    "dbWhileFiring": {
+      "observed_at": "2026-09-21T08:43:49.074456+00:00",
+      "health_failed_channels": 3,
+      "sim_attempts": 3,
+      "counted_sim_attempts": 0
+    },
+    "scenarioPasses": [
+      {
+        "at": "2026-09-21T08:37:00.208705+00:00",
+        "kind": "scenario-pass",
+        "data": {
+          "scenario": "CHAOS-SIM-03",
+          "repetition": 1
+        }
+      },
+      {
+        "at": "2026-09-21T08:37:00.2719736+00:00",
+        "kind": "scenario-pass",
+        "data": {
+          "scenario": "CHAOS-SIM-03",
+          "repetition": 2
+        }
+      },
+      {
+        "at": "2026-09-21T08:37:00.3185666+00:00",
+        "kind": "scenario-pass",
+        "data": {
+          "scenario": "CHAOS-SIM-03",
+          "repetition": 3
+        }
+      },
+      {
+        "at": "2026-09-21T08:37:00.775208+00:00",
+        "kind": "scenario-pass",
+        "data": {
+          "scenario": "CHAOS-RECOVERY-04",
+          "backlogDrainedExactlyOnce": true
+        }
+      },
+      {
+        "at": "2026-09-21T08:37:00.8538674+00:00",
+        "kind": "scenario-pass",
+        "data": {
+          "scenario": "CHAOS-DB-02",
+          "noLoss": true
+        }
+      },
+      {
+        "at": "2026-09-21T08:37:01.0815512+00:00",
+        "kind": "scenario-pass",
+        "data": {
+          "scenario": "CHAOS-DOWNSTREAM-01",
+          "boundedRetryNoFalseConfirmation": true
+        }
+      }
+    ],
+    "recoveryObservation": {
+      "at": "2026-09-21T08:37:00.8288134+00:00",
+      "kind": "scenario-output",
+      "data": {
+        "message": "RECOVERY_TIME_MS=16"
+      }
+    }
+  },
+  "existingFullProof": {
+    "path": ".artifacts/w0330-acceptance-aaba3d2/acceptance-run.json",
+    "sha256": "f4613c58-777f0398-a1429860-271b2d60-5cea4b1b-7cbb0de9-1c11ee13-be5317d4",
+    "testCount": 1171,
+    "sweep": {
+      "ok": true,
+      "reason": "GATE_SWEEP_PASS 42/42"
+    },
+    "supportingTests": [
+      {
+        "id": "CHAOS-SIM-03",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "CHAOS-RECOVERY-04",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "CHAOS-DB-02",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "CHAOS-DOWNSTREAM-01",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "CHAOS-DUPLICATE-06",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "CHAOS-GUARD-05",
+        "ok": true,
+        "reason": ""
+      },
+      {
+        "id": "IT-ELIG-NODISPATCH-15",
+        "ok": true,
+        "reason": ""
+      }
+    ],
+    "notRerunForThisDocsHead": true
+  },
+  "priorAttempt": {
+    "path": ".artifacts/w0334-chaos-alert/run-20260921a/result.json",
+    "status": "FAIL_BEFORE_SCENARIOS",
+    "reason": "Windows HTTP.sys URL registration denied the temporary HttpListener endpoint; changed the local collector to Kestrel without changing OS ACLs or runtime code"
+  },
+  "limits": [
+    "Local harness invoking existing production stores, not a deployed staging API/worker stack",
+    "Manual MeterListener scrape bridge; OTLP exporter/collector path is not exercised",
+    "Prometheus rule firing/inactive is captured; no Alertmanager or human notification delivery is certified",
+    "Inactive means burst aged out of the unchanged ten-minute window; no claim that HEALTH_FAILED channels recovered",
+    "Only the channel burst alert is exercised; DB and downstream assertions are not evidence for every alert",
+    "No owner acceptance or production authorization changed"
+  ]
+}
