@@ -137,6 +137,12 @@ ghim bằng chứng mới; PIA/checklist/retention có đối soát kỹ thuật
 lối chạy” đã được xử lý. Lượt owner chạy, Sales xác minh chủ thể, S2/PIA và quy trình backup/restore
 thật vẫn còn; không tự đổi W-0052 sang ACCEPTED. Bảng 10/2/1 ở đầu là kết quả tại mốc rà cũ.
 
+**Bổ sung sau thực hành owner, 21/09:** owner đã tự preview/execute đơn giả A và đối chứng B;
+[W-0330 owner-practice](../W-0330/owner-practice.json) kiểm trực tiếp bốn audit, A được redact,
+58 cột B không đổi và 43 file gói khớp aaba3d2. Vế thiếu lượt owner chạy đã khép ở phạm vi local.
+W-0052 đủ đề nghị xét phần công cụ/thao tác local; không suy thành xác minh Sales, S2/PIA,
+quyền trên máy vận hành hay backup/restore thật. Trạng thái gốc và bảng lịch sử giữ nguyên.
+
 ## 5. W-0088 — Liveness/state machine
 
 [Gói gốc](../W-0088/README.md), commit `fb1eb4c`; [PostgresSchedulerStore](../../../src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs)

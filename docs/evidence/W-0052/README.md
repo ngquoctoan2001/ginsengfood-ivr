@@ -156,3 +156,12 @@ CLI không xoá backup. Không được dùng câu “không chữ ký nào”, 
 
 Còn lại: owner chọn môi trường và chạy; Sales xác minh chủ thể; owner xử lý S2/PIA và chứng minh cách
 áp lại DSAR sau restore. Giữ nguyên TESTS_PASS của W-0052, chờ Toàn xét phạm vi nghiệm thu.
+
+### Bổ sung sau thực hành owner — 21/09/2026
+
+Owner đã tự chạy CLI trên database giả riêng: preview A 1/0, execute A 1/1, preview lại A 0/0,
+preview B 1/0 (số task khớp/đã redact). [Đối chứng W-0330](../W-0330/owner-practice.json) xác nhận
+bốn audit đúng actor/request và toàn bộ 58 cột của B giữ nguyên; 43 file gói khớp candidate aaba3d2.
+Vế “owner chọn môi trường và chạy” đã hoàn thành trong phạm vi thực hành local. Đủ đề nghị Toàn
+xét phần công cụ và thao tác DSAR local; W-0052 vẫn TESTS_PASS. Sales xác minh người thật,
+S2/PIA, quyền trên máy vận hành và backup/restore thật vẫn cần bằng chứng tương ứng.

@@ -1,0 +1,128 @@
+{
+  "schema": "ivr-dsar-owner-practice/v1",
+  "status": "PASS_LOCAL_SYNTHETIC",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "candidate": "aaba3d2c173c1ce3b2e6dcbf899515ea5e87c979",
+  "tree": "406a786cb02cd2d382657db841eecce29e6c0db5",
+  "observedAt": "2026-09-21T08:15:20.753152+00:00",
+  "package": {
+    "manifest": "package-manifest.json",
+    "verifiedFiles": 43,
+    "allHashesMatch": true,
+    "operatorPolicyAddedByOwner": true,
+    "operator": "NQT\\Administrator"
+  },
+  "environment": {
+    "container": "ivr-w0330-dsar-practice",
+    "database": "ivr_dsar_practice",
+    "host": "127.0.0.1",
+    "port": 55443,
+    "migrations": 32,
+    "syntheticOnly": true
+  },
+  "sourceEvidence": {
+    "ownerFinalPreviews": {
+      "path": ".artifacts/w0330-practice/owner-final-previews.txt",
+      "sha256": "6f2eaf14-713d8c71-02e81d06-43368c72-646a16ad-90e2d71c-3903d4b7-770fcef1"
+    },
+    "syntheticSeed": {
+      "path": ".artifacts/w0330-practice/synthetic-seed.csv",
+      "sha256": "7d11a192-f7c2d570-39528973-d39aa01d-811e66c2-d2c2c09c-aecf18c2-30f1c599"
+    },
+    "rawDatabaseObservation": {
+      "path": ".artifacts/w0330-practice/database-observation.json",
+      "sha256": "ef1f1f49-b37da828-12402c5d-d17f81eb-f4ffd05b-d004d17e-33cbd474-6d286b48"
+    },
+    "initialPreviewAndExecute": "User supplied console output in this task, independently matched to database audits",
+    "hashEncoding": "SHA-256 grouped by eight; remove hyphens for canonical hex"
+  },
+  "checks": {
+    "ownerFinalPreviewsMatchDatabase": true,
+    "orderARedactionFieldsChecked": [
+      "phone_ref",
+      "phone_masked",
+      "phone_validation_status",
+      "dial_token_ciphertext",
+      "privacy_safe_order_summary_json",
+      "phone_e164",
+      "official_contact_id",
+      "customer_trust_status",
+      "trusted_skip_allowed"
+    ],
+    "orderAChangedColumns": [
+      "customer_trust_status",
+      "trusted_skip_allowed",
+      "official_contact_id",
+      "phone_ref",
+      "phone_masked",
+      "phone_validation_status",
+      "dial_token_ciphertext",
+      "privacy_safe_order_summary_json",
+      "anonymized_at",
+      "phone_e164"
+    ],
+    "orderAOtherColumnsUnchanged": true,
+    "orderAKeyAndCustomerIdRetained": true,
+    "orderAAnonymizedAt": "2026-09-21T08:00:59.316662+00:00",
+    "orderBAllSeedColumnsUnchanged": true,
+    "orderBSeedColumnsCompared": 58,
+    "onlyOneExecuteAudit": true,
+    "fourDistinctAuditCorrelations": true
+  },
+  "steps": [
+    {
+      "order": "DSAR-DEMO-A",
+      "requestRef": "DSAR-DEMO-REQUEST-A",
+      "mode": "PREVIEW",
+      "dryRun": true,
+      "tasksMatched": 1,
+      "tasksRedacted": 0,
+      "auditRef": "e43360ee-3b60-4dd6-9780-2c190659d992",
+      "auditCreatedAt": "2026-09-21T07:59:46.704737+00:00",
+      "operatorMatchesPolicy": true
+    },
+    {
+      "order": "DSAR-DEMO-A",
+      "requestRef": "DSAR-DEMO-REQUEST-A",
+      "mode": "EXECUTED",
+      "dryRun": false,
+      "tasksMatched": 1,
+      "tasksRedacted": 1,
+      "auditRef": "bdfc1458-bf5b-45d3-8d5c-efd2c74e175f",
+      "auditCreatedAt": "2026-09-21T08:00:59.336135+00:00",
+      "operatorMatchesPolicy": true
+    },
+    {
+      "order": "DSAR-DEMO-A",
+      "requestRef": "DSAR-DEMO-CHECK-A",
+      "mode": "PREVIEW",
+      "dryRun": true,
+      "tasksMatched": 0,
+      "tasksRedacted": 0,
+      "auditRef": "a32583a4-546c-4646-bb7f-a12de624cb93",
+      "auditCreatedAt": "2026-09-21T08:11:17.829482+00:00",
+      "operatorMatchesPolicy": true
+    },
+    {
+      "order": "DSAR-DEMO-B",
+      "requestRef": "DSAR-DEMO-CHECK-B",
+      "mode": "PREVIEW",
+      "dryRun": true,
+      "tasksMatched": 1,
+      "tasksRedacted": 0,
+      "auditRef": "69a9a901-e6b4-4a34-95bd-1e2004d56d11",
+      "auditCreatedAt": "2026-09-21T08:11:25.781059+00:00",
+      "operatorMatchesPolicy": true
+    }
+  ],
+  "cleanup": {
+    "connectionEnvironmentVariableRemoved": "Owner transcript shows Remove-Item without error; the agent cannot inspect the parent PowerShell environment",
+    "practiceContainerRetained": true
+  },
+  "limits": [
+    "Synthetic owner practice only; subject-verified exercises the CLI flag, not Sales identity verification",
+    "No production operator deployment, legal signoff, backup erasure or restore reapplication proof",
+    "Retained order/customer keys, append-only audit and callback payload policy remain as documented",
+    "No ACCEPTED status or owner signature changed"
+  ]
+}

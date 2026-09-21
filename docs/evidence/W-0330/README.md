@@ -74,3 +74,35 @@ Quyền OS/file/credential phải được owner bố trí trên máy vận hàn
 can thiệp. Đây là bằng chứng local với dữ liệu giả, không phải xác nhận xoá dữ liệu khách mọi nơi.
 
 Kiểm tài liệu: compliance-pack và docs-selftest PASS; liên kết local và PII được kiểm lại ở commit hồ sơ.
+
+## Bổ sung sau bàn giao — owner thực hành xong, 21/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Owner xác nhận hiện là giai đoạn code, chưa có database vận hành, và tự chạy CLI trên database
+giả riêng `ivr_dsar_practice` tại loopback cổng 55443. Policy do owner thêm sau bàn giao cho tài
+khoản `NQT\Administrator`; transcript đặt ACL báo 0 file lỗi. Vì vậy mô tả “gói chưa có policy”
+ở trên chỉ nói về thời điểm đóng gói, không phải trạng thái sau khi owner cấu hình.
+
+| Bước owner chạy | TasksMatched | TasksRedacted | Audit |
+| --- | --- | --- | --- |
+| Preview A trước khi thực thi | 1 | 0 | e43360ee-3b60-4dd6-9780-2c190659d992 |
+| Execute A, gõ lại mã đơn và cờ xác nhận | 1 | 1 | bdfc1458-bf5b-45d3-8d5c-efd2c74e175f |
+| Preview A sau khi thực thi | 0 | 0 | a32583a4-546c-4646-bb7f-a12de624cb93 |
+| Preview B để đối chứng | 1 | 0 | 69a9a901-e6b4-4a34-95bd-1e2004d56d11 |
+
+[Bằng chứng thực hành](owner-practice.json) đối chiếu transcript với PostgreSQL bằng transaction
+READ ONLY. Bốn audit tồn tại, đúng actor/request/đơn/số lượng; chỉ một audit execute. Chín trường
+redaction của A đúng giá trị quy định, anonymized_at có giá trị, các cột khác giữ nguyên. Toàn bộ
+**58 cột của B khớp dữ liệu seed**. Mã đơn, customer_id và audit được giữ theo giới hạn CLI đã nêu.
+Không đưa giá trị liên hệ vào hồ sơ công khai; raw dữ liệu giả ở .artifacts/w0330-practice/.
+
+Kiểm lại **43/43 file gói** khớp manifest aaba3d2. Đây là xác minh thao tác owner trên binary đã
+kiểm thử, không phải lượt chạy lại full test/sweep cho HEAD tài liệu hiện tại. Transcript kết thúc
+bằng Remove-Item Env:IVR_DSAR_CONNECTION_STRING không báo lỗi; agent không đọc được môi trường
+của cửa sổ PowerShell cha để xác nhận độc lập việc này. Container thực hành được giữ lại.
+
+**Khép phần owner tự thực hành trên dữ liệu giả.** Cờ subject-verified ở đây chỉ diễn tập cổng
+xác nhận, không chứng minh Sales xác minh người thật. Khi đưa vào vận hành, Toàn vẫn cần bố trí
+tài khoản/quyền/credential, xử lý S2/PIA và chứng minh áp lại DSAR sau restore; Sales phụ trách
+xác minh chủ thể thật. Không đổi ACCEPTED hoặc ký thay owner.
