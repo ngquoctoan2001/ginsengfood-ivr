@@ -9,6 +9,25 @@ database mới rỗng, network và volume riêng. Không sửa hoặc gửi đơ
 VieNeu tạo tiếng thật; Asterisk và SIP peer trao đổi RTP/DTMF thật trong software lab.
 Đơn và Sales đều giả; không có SIM vật lý, PSTN hoặc khách thật.
 
+## Khai báo kiểm chứng cho lần chốt commit sạch
+
+Bổ sung ngày 22/09/2026 sau khi W-0338 được owner nghiệm thu. Các TestId dưới đây
+là ca hồi quy đã có trong traceability, cần kiểm bằng collector trên commit chứa
+khai báo này. Không gán lượt 340 test trên binary cũ cho các kết quả mới.
+
+| Phạm vi | TestId phải đạt |
+| --- | --- |
+| Tổng deadline, queue, hết hạn và hủy khi tạo tiếng | `UT-TTS-DEADLINE-01..05`, `UT-TTS-TIMEOUT-05` |
+| Playlist đủ phần, gate trước dial, DTMF và khách bấm 0 | `UT-AST-PLAYLIST-06`, `UT-AST-GATE-02`, `UT-TEL-DTMF-10`, `UT-OPTOUT-DTMF0-05` |
+| Hạn dispatch, retry và bộ đếm attempt | `UT-SCH-CLOCK-03`, `UT-SCH-RETRY-06`, `IT-DB-ATTEMPT-03`, `IT-NORM-TECH-02`, `IT-API-RETRY-06` |
+| Operator ngắt và ghi giọng đã gọi | `IT-API-TERMINATE-10`, `IT-TEL-TERMINATE-04`, `IT-TEL-VOICE-05`, `CHAOS-TERMINATE-08` |
+| Finality và callback chỉ cho kết quả final | `IT-RESULT-CONTRACT-FINALITY-18`, `IT-RESULT-CONTRACT-OUTBOX-19` |
+
+Lần chốt cần build API, worker và migration từ cùng một checkout sạch; ghim SHA,
+image và DLL thực tế; chạy lại đủ bảy ca dưới đây trên DB/lab riêng. Toàn bộ solution
+tests rồi full manifest sweep cũng phải thuộc SHA đó. Bằng chứng cũ bên dưới giữ
+nguyên phạm vi và lịch sử; kết quả mới sẽ được lưu thành hồ sơ bổ sung riêng.
+
 ## Kết quả runtime
 
 | Ca | Bằng chứng chính | Kết quả lưu | Lượt khách |
