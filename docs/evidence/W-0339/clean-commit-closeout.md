@@ -1,7 +1,8 @@
 # W-0339 — Chốt kiểm toàn luồng tại commit sạch
 
-Ngày 22/09/2026. **Hoàn tất phạm vi local, đủ để đề nghị owner nghiệm thu.**
-Trạng thái tracker: **EVIDENCE_SUBMITTED**. **REAL_CUSTOMER_CALL_ALLOWED=NO.**
+Ngày 22/09/2026. **ACCEPTED trong phạm vi local/lab đơn giả.**
+[Xác nhận của owner và giới hạn nghiệm thu](owner-acceptance.md).
+**REAL_CUSTOMER_CALL_ALLOWED=NO.**
 
 ## Bằng chứng cùng commit
 
@@ -68,9 +69,9 @@ ID, thời điểm khởi động và số lần restart của sáu container la
 
 ## Phạm vi nghiệm thu và việc tiếp nối
 
-**Đề nghị Toàn nghiệm thu W-0339 trong phạm vi toàn luồng đơn giả trên software lab.**
-Phần triển khai và kiểm chứng local của W-0339 đã hoàn tất. Toàn quyết định chuyển
-ACCEPTED theo quy tắc 6 của [sổ tiến độ](../../../prompt/_execution/prompt-execution-tracker.md).
+**Toàn đã chốt nghiệm thu W-0339 trong phạm vi toàn luồng đơn giả trên software lab.**
+Quyết định được ghi riêng tại owner-acceptance.md và trong
+[sổ tiến độ](../../../prompt/_execution/prompt-execution-tracker.md).
 
 | Người phụ trách | Phần tiếp nối ngoài phạm vi lần này |
 | --- | --- |

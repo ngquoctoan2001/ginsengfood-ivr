@@ -1,12 +1,15 @@
 # W-0339 — Kiểm toàn luồng đơn giả trên lab SIP riêng
 
+**ACCEPTED 22/09/2026:** owner đã chốt phạm vi toàn luồng lab đơn giả.
+[Xác nhận và giới hạn nghiệm thu](owner-acceptance.md).
+
 **Bổ sung chốt commit sạch:** `66a6baa` đã chạy mới **7/7 ca toàn luồng**,
 **1.196/1.196 test và 43/43 gate**; C1/C2/C4 đạt.
 [Xem hồ sơ hoàn tất và phạm vi đề nghị nghiệm thu](clean-commit-closeout.md).
 Phần dưới giữ bằng chứng lần đầu với provenance riêng.
 
 Ngày 22/09/2026. **7/7 ca runtime đạt; 0 lỗi kỹ thuật bị tính thành lượt khách.**
-**REAL_CUSTOMER_CALL_ALLOWED=NO.** Trạng thái: EVIDENCE_SUBMITTED, chưa ACCEPTED.
+**REAL_CUSTOMER_CALL_ALLOWED=NO.** Trạng thái khi nộp bằng chứng lần đầu: EVIDENCE_SUBMITTED.
 
 Owner yêu cầu kiểm nhận đơn → tạo đủ lời thoại → gọi trong lab → nhận DTMF → lưu
 kết quả, gồm hủy, hết hạn và thử lại. Lượt này dùng stack `ivr-w0339-flow` riêng,
