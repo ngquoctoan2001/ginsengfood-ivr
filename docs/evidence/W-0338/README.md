@@ -1,5 +1,9 @@
 # W-0338 — Deadline VieNeu và worker/SIP/DTMF tự động
 
+**Bổ sung kiểm chứng commit sạch:** `c3da2b6` đạt **1.196/1.196 tests và 43/43 gate**.
+Xem [hồ sơ và manifest](clean-commit-verification.md). Mục full acceptance sweep được
+đóng bằng bổ sung này; các phép đo runtime bên dưới giữ provenance riêng.
+
 Ngày 22/09/2026. **REAL_CUSTOMER_CALL_ALLOWED=NO; production BLOCKED; S2/mirror OPEN.**
 Giọng/câu ghép đã được owner duyệt; toàn bộ kiểm tra ở đây không yêu cầu nghe lại.
 **Đã hoàn tất sửa và kiểm local: 364 tests, 25 đơn model thật, 8 cuộc SIP tự động đạt.**

@@ -1,0 +1,849 @@
+{
+  "work_id": "W-0338",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "scope": "LOCAL_CLEAN_COMMIT_SOLUTION_AND_FULL_MANIFEST_SWEEP",
+  "production": "BLOCKED",
+  "S5": "Separate target measurement; not exercised by this collection",
+  "S2": "OPEN",
+  "mirror": "OPEN",
+  "candidate": {
+    "commit": "c3da2b6336cdc2e5daa607dca39303ebb5a92cf6",
+    "tree": "e758a11c181b5056daee46acfad4db1a6217fc0c",
+    "clean": true
+  },
+  "checkout": ".claude/worktrees/w0338-clean-verification3-20260922",
+  "collection": ".artifacts/w0338-acceptance-c3da2b6-r4",
+  "tool_versions": [
+    "Node: v24.19.0",
+    ".NET SDK: 10.0.201",
+    "npm: 11.17.0",
+    "Python: Python 3.13.13",
+    "Git: git version 2.54.0.windows.1",
+    "Docker: 29.7.2 / 29.7.2"
+  ],
+  "commands": {
+    "tests": [
+      "dotnet",
+      "test",
+      "Ivr.sln",
+      "--logger",
+      "trx",
+      "--results-directory",
+      "trx"
+    ],
+    "sweep": [
+      "node",
+      "deploy/ci/scripts/gate-sweep.mjs"
+    ]
+  },
+  "snapshots": {
+    "tests": {
+      "before": {
+        "commit": "c3da2b6336cdc2e5daa607dca39303ebb5a92cf6",
+        "tree": "e758a11c181b5056daee46acfad4db1a6217fc0c",
+        "clean": true
+      },
+      "after": {
+        "commit": "c3da2b6336cdc2e5daa607dca39303ebb5a92cf6",
+        "tree": "e758a11c181b5056daee46acfad4db1a6217fc0c",
+        "clean": true
+      },
+      "started_utc": "2026-09-22T02:18:07.543Z",
+      "finished_utc": "2026-09-22T02:26:58.132Z",
+      "exit_code": 0
+    },
+    "sweep": {
+      "before": {
+        "commit": "c3da2b6336cdc2e5daa607dca39303ebb5a92cf6",
+        "tree": "e758a11c181b5056daee46acfad4db1a6217fc0c",
+        "clean": true
+      },
+      "after": {
+        "commit": "c3da2b6336cdc2e5daa607dca39303ebb5a92cf6",
+        "tree": "e758a11c181b5056daee46acfad4db1a6217fc0c",
+        "clean": true
+      },
+      "started_utc": "2026-09-22T02:26:58.379Z",
+      "finished_utc": "2026-09-22T02:32:27.012Z",
+      "exit_code": 0
+    }
+  },
+  "tests": {
+    "total": 1196,
+    "passed": 1196,
+    "failed": 0,
+    "skipped": 0,
+    "assemblies": [
+      {
+        "assembly": "Ivr.ContractTests.dll",
+        "count": 24
+      },
+      {
+        "assembly": "Ivr.UnitTests.dll",
+        "count": 781
+      },
+      {
+        "assembly": "Ivr.ChaosTests.dll",
+        "count": 8
+      },
+      {
+        "assembly": "Ivr.IntegrationTests.dll",
+        "count": 383
+      }
+    ]
+  },
+  "additional_lab_launcher_tests": {
+    "finished_utc": "2026-09-22T02:19:56.5674891Z",
+    "before_clean": true,
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "deploy/lab/tests",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "started_utc": "2026-09-22T02:19:55.3612959Z",
+    "after_clean": true,
+    "exit_code": 0,
+    "commit": "c3da2b6336cdc2e5daa607dca39303ebb5a92cf6",
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  },
+  "api_matrix_validator_selftest": {
+    "verdict": "API_MATRIX_VALIDATOR_SELFTEST=PASS (18 cases; 1 valid, 17 refusals)",
+    "commit": "c3da2b6336cdc2e5daa607dca39303ebb5a92cf6",
+    "command": [
+      "node",
+      "deploy/ci/scripts/api-behavior-matrix-selftest.mjs"
+    ],
+    "inputs": "Fresh HTTP observations produced by IT-API-MATRIX-38 in the same checkout and full test invocation."
+  },
+  "sweep": {
+    "verdict": "GATE_SWEEP_PASS 43/43",
+    "runnable": 43,
+    "classified_non_runnable": 24,
+    "non_runnable": [
+      {
+        "name": "sandbox-examples.mjs",
+        "reason": "drives HTTP examples against a running isolated Module 3 sandbox; writes live MOCK evidence and requires sandbox services",
+        "runner": "pnpm sandbox:examples after pnpm sandbox:up; W-0283 validates worker-owned eligibility"
+      },
+      {
+        "name": "acceptance-c2-checks.mjs",
+        "reason": "C2 regression assertions imported and required by acceptance-batches --self-test",
+        "runner": "acceptance-batches.mjs --self-test"
+      },
+      {
+        "name": "acceptance-test-plan.mjs",
+        "reason": "pinned attachment and test retirement library; exercised by the mandatory acceptance self-tests",
+        "runner": "acceptance-batches.mjs --self-test and acceptance-evidence-selftest.mjs"
+      },
+      {
+        "name": "acceptance-evidence-lib.mjs",
+        "reason": "provenance/completeness library; exercised by acceptance-evidence-selftest",
+        "runner": "acceptance-evidence-selftest.mjs"
+      },
+      {
+        "name": "api-behavior-matrix-selftest.mjs",
+        "reason": "asserts on verify-api-behavior-matrix, whose verdict depends on the ApiBehaviorMatrixTests run having happened against current source",
+        "runner": "after dotnet test, alongside verify-api-behavior-matrix.mjs"
+      },
+      {
+        "name": "api-behavior-matrix.mjs",
+        "reason": "drives the HTTP matrix and writes .artifacts/api-matrix; a generator, not a gate",
+        "runner": "tests/Ivr.IntegrationTests/ApiBehaviorMatrixTests.cs"
+      },
+      {
+        "name": "build-api-docs.mjs",
+        "reason": "regenerates docs/api; a generator whose output docs-selftest.mjs checks",
+        "runner": "docs.gitlab-ci.yml via pnpm docs:build"
+      },
+      {
+        "name": "check-mr-traceability.mjs",
+        "reason": "reads the merge-request description, which exists only in a merge_request_event pipeline",
+        "runner": "quality-gate.gitlab-ci.yml job mr_traceability_gate"
+      },
+      {
+        "name": "generate-oasdiff-changelog.sh",
+        "reason": "needs the pinned tufin/oasdiff image and three path arguments; a generator",
+        "runner": "docs.gitlab-ci.yml inside the oasdiff image"
+      },
+      {
+        "name": "generate-speech-segments.mjs",
+        "reason": "writes speech segments; a generator, not a gate",
+        "runner": "invoked by hand when the approved script template changes"
+      },
+      {
+        "name": "image-selftest.mjs",
+        "reason": "runs docker build against the API and worker images",
+        "runner": "images.gitlab-ci.yml"
+      },
+      {
+        "name": "json-shape-lib.mjs",
+        "reason": "a library with no top-level invocation",
+        "runner": "the eight evidence-bundle validators that reject duplicate JSON keys"
+      },
+      {
+        "name": "k8s-selftest.mjs",
+        "reason": "needs helm, kubeconform and a running cluster; exceeds any offline budget",
+        "runner": "k8s.gitlab-ci.yml"
+      },
+      {
+        "name": "migration-expand-guard.mjs",
+        "reason": "a library with no top-level invocation; running it directly exits 0 having proved nothing",
+        "runner": "progressive-selftest.mjs"
+      },
+      {
+        "name": "observability-runtime-selftest.mjs",
+        "reason": "a library with no top-level invocation; running it directly exits 0 having proved nothing",
+        "runner": "image-selftest.mjs"
+      },
+      {
+        "name": "regenerate-openapi.ps1",
+        "reason": "PowerShell codegen driver for NSwag; a generator, and openapi-contract-drift.mjs is the gate on its output",
+        "runner": "invoked by hand after an OAS edit"
+      },
+      {
+        "name": "render-fixed-speech.mjs",
+        "reason": "needs --endpoint, --output and --acceptance; renders audio against a live TTS endpoint",
+        "runner": "tts.gitlab-ci.yml"
+      },
+      {
+        "name": "render-voice-audition.mjs",
+        "reason": "needs --output and a TTS endpoint or container",
+        "runner": "tts.gitlab-ci.yml"
+      },
+      {
+        "name": "repository-path-lib.mjs",
+        "reason": "a library with no top-level invocation",
+        "runner": "the ten evidence-bundle validators that confine an input path to the repository"
+      },
+      {
+        "name": "security-scan.sh",
+        "reason": "needs the scanner images and a network; selftest-dotnet-policy.sh covers the policy half offline",
+        "runner": "ci.gitlab-ci.yml"
+      },
+      {
+        "name": "sensitive-value-lib.mjs",
+        "reason": "a library with no top-level invocation",
+        "runner": "every validator that screens an identifier for personal data or credentials"
+      },
+      {
+        "name": "selftest-oasdiff.sh",
+        "reason": "needs the oasdiff binary, which lives in the pinned image and not on a developer host",
+        "runner": "docs.gitlab-ci.yml inside the oasdiff image"
+      },
+      {
+        "name": "tts-voice-acceptance-lib.mjs",
+        "reason": "a library with no top-level invocation",
+        "runner": "tts-voice-acceptance-gate.mjs, tts-fixed-render-selftest.mjs, render-fixed-speech.mjs"
+      },
+      {
+        "name": "verify-api-behavior-matrix.mjs",
+        "reason": "its verdict is `Source changed since the HTTP matrix ran` until ApiBehaviorMatrixTests runs again, so a static sweep would report a stale artefact as a broken gate",
+        "runner": "after dotnet test, in the same lap"
+      }
+    ]
+  },
+  "initial_failed_candidate": {
+    "commit": "511375cbf27b7d4446bec1641491cb1c54f51e86",
+    "collection": ".artifacts/w0338-acceptance-511375c-r1",
+    "failed_test": "UT-SCH-PUMP-09",
+    "reason": "Test released success before every failed dispatch continuation completed; wait for Active=1 before success.",
+    "additional_environment_failure": "ApiBehaviorMatrixTests could not import yaml; CI dependencies were not installed in the first checkout.",
+    "environment_resolution": "npm ci --offline --ignore-scripts --no-audit --no-fund in the second checkout deploy/ci using the committed package-lock.json; added 19 packages.",
+    "counters": {
+      "total": 1196,
+      "passed": 1194,
+      "failed": 2,
+      "skipped": 0
+    },
+    "scheduler_runtime_changed": false,
+    "acceptance_manifest_written": false
+  },
+  "second_incomplete_collection": {
+    "commit": "25fbfebb761014f3c33495523a602d56b91e75a9",
+    "collection": ".artifacts/w0338-acceptance-25fbfeb-r2",
+    "tests": {
+      "total": 1196,
+      "passed": 1196,
+      "failed": 0,
+      "skipped": 0
+    },
+    "sweep": {
+      "passed": 42,
+      "total": 43
+    },
+    "failed_gate": "selftest-dotnet-policy.sh",
+    "cause": "Release Ivr.CiPolicy executable missing; the gate uses --configuration Release --no-build.",
+    "resolution": "Built the policy tool in Release from the same clean commit, validated the gate, then reran both full phases in a new collection.",
+    "acceptance_manifest_written": false
+  },
+  "third_failed_collection": {
+    "commit": "25fbfebb761014f3c33495523a602d56b91e75a9",
+    "collection": ".artifacts/w0338-acceptance-25fbfeb-r3",
+    "failed_test": "UT-TTS-DEADLINE-02",
+    "counters": {
+      "total": 1196,
+      "passed": 1195,
+      "failed": 1,
+      "skipped": 0
+    },
+    "cause": "The queue holder exceeded its 600 ms preparation budget on a busy host; a 350 ms delay was not a synchronization guarantee.",
+    "resolution": "Signal-controlled queue holder with a generous armed deadline; the next request receives the short total budget and must expire before admission. Next order verifies queue cleanup.",
+    "focused_tests_after_fix": {
+      "scope": "Precommit test fix; final acceptance uses the new clean candidate and collection below.",
+      "passed": 7,
+      "failed": 0,
+      "stability_runs": 10,
+      "stability_cases": 70,
+      "stability_failures": 0
+    },
+    "runtime_changed": false,
+    "acceptance_manifest_written": false
+  },
+  "artifacts": [
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/acceptance-run.json",
+      "bytes": 2070,
+      "sha256_hex_blocks": [
+        "546c3776",
+        "77767276",
+        "7068d368",
+        "42aa8ae4",
+        "c7f12fc5",
+        "77975aa5",
+        "ece9946c",
+        "f8669062"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/tests.log",
+      "bytes": 5373,
+      "sha256_hex_blocks": [
+        "e2b0e510",
+        "f3d3c5c9",
+        "7025c559",
+        "6c0c121f",
+        "72ae55d3",
+        "c68ed108",
+        "179d11f4",
+        "b43ccabd"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/sweep.log",
+      "bytes": 3977,
+      "sha256_hex_blocks": [
+        "d3307d25",
+        "c8d2990f",
+        "7ca8232b",
+        "c8cdeeea",
+        "797cc920",
+        "34c6b38a",
+        "5ae2f1f7",
+        "2703672e"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/acceptance-batches.md",
+      "bytes": 82986,
+      "sha256_hex_blocks": [
+        "47b2ba2d",
+        "3b24189d",
+        "faf5b6be",
+        "f504e00d",
+        "008a7038",
+        "dd39c18f",
+        "65d4df2e",
+        "b7a81b87"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/trx/Administrator_NQT_2026-09-22_09_18_20.trx",
+      "bytes": 39149,
+      "sha256_hex_blocks": [
+        "4de5be66",
+        "4cd09e2e",
+        "fb8bdfc8",
+        "20ef119d",
+        "84670a35",
+        "f2e09a4e",
+        "22df610d",
+        "a5fda411"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/trx/Administrator_NQT_2026-09-22_09_18_39.trx",
+      "bytes": 1186411,
+      "sha256_hex_blocks": [
+        "8e7565df",
+        "7486a6f9",
+        "57e5a224",
+        "81a1bca2",
+        "4bc3565a",
+        "63fd9948",
+        "bdfdea3c",
+        "838e84e9"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/trx/Administrator_NQT_2026-09-22_09_18_44.trx",
+      "bytes": 15530,
+      "sha256_hex_blocks": [
+        "4984a983",
+        "a34f3ae6",
+        "653e3b2c",
+        "1a4eaece",
+        "00f4f75e",
+        "911fe6c4",
+        "80627150",
+        "ac2f2097"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/trx/Administrator_NQT_2026-09-22_09_18_50.trx",
+      "bytes": 923003,
+      "sha256_hex_blocks": [
+        "aa801108",
+        "9350653c",
+        "27e52cd7",
+        "8c077b70",
+        "a16a8556",
+        "bb092ce3",
+        "a530b0ca",
+        "c73f3ce5"
+      ]
+    }
+  ],
+  "supplemental_artifacts": [
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/lab-launcher-run.json",
+      "bytes": 399,
+      "sha256_hex_blocks": [
+        "8cd8827e",
+        "9e8c31b1",
+        "0717e431",
+        "66b6d218",
+        "45c19e9e",
+        "02f529dc",
+        "726a1819",
+        "0cd4a548"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/lab-launcher-tests.log",
+      "bytes": 1554,
+      "sha256_hex_blocks": [
+        "7a42be26",
+        "3feefa45",
+        "2d1bcc67",
+        "60bfa4e3",
+        "ead6f6a8",
+        "9574c097",
+        "f2907795",
+        "93775cd3"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/api-matrix-validator-selftest.log",
+      "bytes": 69,
+      "sha256_hex_blocks": [
+        "d38141c2",
+        "d9a245d7",
+        "132c72c9",
+        "a8b77675",
+        "ed7f253f",
+        "a92044d4",
+        "63a06609",
+        "45e2157a"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-c3da2b6-r4/tool-versions.txt",
+      "bytes": 134,
+      "sha256_hex_blocks": [
+        "7b84ce6c",
+        "5c53cfde",
+        "acd629da",
+        "44c1f756",
+        "a60c75f4",
+        "f0bc23ae",
+        "efc5b832",
+        "a1fe01e2"
+      ]
+    }
+  ],
+  "diagnostic_artifacts": [
+    {
+      "path": ".artifacts/w0338-acceptance-511375c-r1/tests.log",
+      "bytes": 8174,
+      "sha256_hex_blocks": [
+        "1a99662f",
+        "a0573a8d",
+        "4fd7ee39",
+        "954d62d5",
+        "441648ef",
+        "67a91ef5",
+        "5d5059de",
+        "f7ddf8ca"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/pump-tests/pump-tests.trx",
+      "bytes": 26431,
+      "sha256_hex_blocks": [
+        "51f7154d",
+        "19c3a9c9",
+        "c342842e",
+        "90dffc62",
+        "69ff5598",
+        "f5098831",
+        "cd103367",
+        "b824730c"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/staged-impact.json",
+      "bytes": 1211,
+      "sha256_hex_blocks": [
+        "fe4dd4df",
+        "55a4564b",
+        "4c20413d",
+        "585b14b9",
+        "7d8dfc56",
+        "31fde1b4",
+        "6b925ce7",
+        "c556f389"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/pump-staged-impact.txt",
+      "bytes": 306,
+      "sha256_hex_blocks": [
+        "f2978e22",
+        "4d46f467",
+        "990f96ce",
+        "e8df6321",
+        "96e3acb4",
+        "aa6f9ea1",
+        "6f8916fa",
+        "f6f54285"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-25fbfeb-r2/tests.log",
+      "bytes": 5359,
+      "sha256_hex_blocks": [
+        "1619d834",
+        "f71930fb",
+        "18dfb401",
+        "9bfa7d52",
+        "56816132",
+        "7d395082",
+        "16be2f32",
+        "c766c86d"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-25fbfeb-r2/sweep.log",
+      "bytes": 4031,
+      "sha256_hex_blocks": [
+        "ce8707da",
+        "3e1965d2",
+        "1701451b",
+        "0f63417f",
+        "4a068b20",
+        "7aa5a824",
+        "122c8985",
+        "b77be7b7"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-25fbfeb-r2/policy-missing-release.log",
+      "bytes": 377,
+      "sha256_hex_blocks": [
+        "ed4aca7d",
+        "ba5f6226",
+        "63308653",
+        "2879984d",
+        "5e9fb33f",
+        "71788e08",
+        "733077d4",
+        "385d0423"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/policy-release-build.log",
+      "bytes": 255,
+      "sha256_hex_blocks": [
+        "669e1b44",
+        "ecd27edc",
+        "db76cedc",
+        "f919f145",
+        "e636d497",
+        "3a5528c2",
+        "ec27f7c4",
+        "d5a62878"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/policy-preflight.log",
+      "bytes": 396,
+      "sha256_hex_blocks": [
+        "6e117aee",
+        "c08e952e",
+        "61c0ef09",
+        "c817b41b",
+        "11d170ca",
+        "fbd13f28",
+        "ea214c73",
+        "230c0b18"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-acceptance-25fbfeb-r3/tests.log",
+      "bytes": 6244,
+      "sha256_hex_blocks": [
+        "b73e6ef9",
+        "88178a16",
+        "9bd4f027",
+        "b70fad3e",
+        "c36b6855",
+        "199bdc38",
+        "62e28273",
+        "62b2f337"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-tests/deadline-tests.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "d405a886",
+        "8565fd39",
+        "abe66eff",
+        "cf2fdd37",
+        "75e06b05",
+        "97e33f0d",
+        "e7844e9e",
+        "26a4d54b"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-staged-impact.txt",
+      "bytes": 22,
+      "sha256_hex_blocks": [
+        "8ac116ca",
+        "b13a31c2",
+        "9b6d42e2",
+        "ffba7a8c",
+        "63805011",
+        "1a95879f",
+        "e697b0f5",
+        "0605b453"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/final-npm-ci.log",
+      "bytes": 27,
+      "sha256_hex_blocks": [
+        "a9d5252e",
+        "9ef9ef08",
+        "7baeadf8",
+        "056668c6",
+        "dfcd5215",
+        "ae829c0c",
+        "3d77726e",
+        "fed51429"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/final-policy-restore.log",
+      "bytes": 200,
+      "sha256_hex_blocks": [
+        "6e595edb",
+        "bcd9f712",
+        "ec86eece",
+        "974f2931",
+        "93c06a7d",
+        "c5c78d77",
+        "552609a9",
+        "9cf6cf3f"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/final-policy-build.log",
+      "bytes": 255,
+      "sha256_hex_blocks": [
+        "2173b50d",
+        "6d9a3efa",
+        "3764cc6c",
+        "04e29c6e",
+        "d67d27e6",
+        "b27d5619",
+        "433fe767",
+        "41cda293"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/runtime-scope.txt",
+      "bytes": 193,
+      "sha256_hex_blocks": [
+        "bb534541",
+        "ba904f18",
+        "a05a3458",
+        "35396ed1",
+        "a6d44d4b",
+        "64e8bb12",
+        "de6c0109",
+        "6e0eeb5d"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-1.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "14139247",
+        "3a3404a0",
+        "18aa2e10",
+        "b6f94e98",
+        "0d7932a4",
+        "b571efa9",
+        "d8bba053",
+        "d9dbba5c"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-2.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "1ad1ee2f",
+        "b0165b50",
+        "b473be32",
+        "af2dd5aa",
+        "789f3c68",
+        "0edafb7a",
+        "f01129cc",
+        "7d06d1d8"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-3.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "bfe7a5a2",
+        "a81e4b8f",
+        "029e3de0",
+        "999420a9",
+        "4f003b82",
+        "f34808e6",
+        "9b54590e",
+        "4a8c0f5c"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-4.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "8ea9e640",
+        "8e17b331",
+        "195c0406",
+        "7d1de045",
+        "bdde8f6e",
+        "8f8112f4",
+        "6e6e84de",
+        "58f536c9"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-5.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "ad7b07c8",
+        "fc7f4b7f",
+        "04e6576d",
+        "ed6a83ff",
+        "64f6cc77",
+        "bb1e5538",
+        "6ef40a2d",
+        "29117a0d"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-6.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "3461a25b",
+        "acef3d5c",
+        "3b0e413b",
+        "b1569c40",
+        "1aa5f6b2",
+        "45a097d6",
+        "834691ee",
+        "c8741147"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-7.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "c73c587d",
+        "5cd538ae",
+        "9d4b85df",
+        "4b3633ba",
+        "3b5e485e",
+        "38a858bd",
+        "430afb32",
+        "c2acc636"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-8.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "7a335b95",
+        "1cbc3807",
+        "1bc59679",
+        "62938ce6",
+        "f4334811",
+        "bfc952ad",
+        "2fe671a3",
+        "599a9dee"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-9.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "cabc5997",
+        "149bd296",
+        "191bdcb6",
+        "6dab663f",
+        "fcf11fa9",
+        "12e661b4",
+        "72449802",
+        "ed402ceb"
+      ]
+    },
+    {
+      "path": ".artifacts/w0338-clean-commit/deadline-stability/deadline-10.trx",
+      "bytes": 11262,
+      "sha256_hex_blocks": [
+        "29dcb5a8",
+        "58218536",
+        "1cbdf350",
+        "2d526944",
+        "9f5756db",
+        "8d731deb",
+        "aac4a550",
+        "cbe4afbc"
+      ]
+    }
+  ]
+}
