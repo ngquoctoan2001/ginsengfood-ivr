@@ -49,6 +49,11 @@ third_party/vieneu-tts/LICENSE text eol=lf
 third_party/vieneu-tts/src/vieneu/assets/voices_v3_turbo.json text eol=lf
 deploy/tts/Dockerfile.tts text eol=lf
 deploy/tts/models/MODELS.lock text eol=lf
+deploy/tts/licenses/** text eol=lf
+# Preserve the byte-identical upstream Markdown, including its original whitespace.
+deploy/tts/licenses/*model-card.md -whitespace
+deploy/tts/tests/fixtures/license-evidence-cases.json text eol=lf
+docs/evidence/W-0342/*.json text eol=lf
 deploy/tts/runtime-requirements.in text eol=lf
 deploy/tts/runtime-requirements.lock text eol=lf
 deploy/tts/scripts/*.py text eol=lf

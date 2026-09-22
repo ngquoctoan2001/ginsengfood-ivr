@@ -9,6 +9,21 @@ Model weights are intentionally absent from Git and from the image build context
 the exact bundle with `scripts/verify-model.py`. Production must replace public fetch with the
 owner-approved internal mirror recorded in `models/MODELS.lock`.
 
+W-0342 records the verified vps61 artifact-store URIs and adds [published license evidence](licenses/README.md).
+Both the Python CLI and CI validate the exact publisher model cards plus referenced Apache-2.0
+text, using file hashes and per-artifact repository/revision bindings. No upstream standalone
+LICENSE is invented. The evidence is shipped in the image under `/opt/ivr-tts/licenses`.
+`verify-model.py --license-root <directory>` can select a separately supplied evidence directory;
+the manifest must still match the trusted lock. W-0343 records Nguyễn Quốc Toàn's explicit
+company-authorized Legal/Privacy decision, including permission to hold both roles. The CLI
+model-release checks now pass; this does not enable production or customer calls.
+
+The original listening manifest remains historical in W-0122. The W-0343 derived manifest
+rebinds only the model-lock metadata after proving all 13 model bytes, preset/source and audio
+inputs unchanged. It retains the same Owner/date/decision and does not request another audition.
+See [W-0343](../../docs/evidence/W-0343/README.md) for the approved candidate and target handoff;
+W-0342 is the preceding license-evidence integration. Existing S5 images remain unchanged until handoff.
+
 `shim/voices.json` lists the exact 11 female audition candidates but grants none of them production
 authority. Production readiness requires a separately mounted Owner manifest that proves all 11
 were heard through the pinned Asterisk/MicroSIP 8 kHz route, binds every candidate hash, selects
@@ -17,7 +32,7 @@ exactly one distinct voice per region and matches the three configured routing I
 Tracked evidence and owner templates are under `docs/evidence/W-0122/`. Local weight bundles,
 audition WAVs and generated SBOMs are intentionally Git-ignored; only exact manifests/hashes are
 tracked. `THIRD_PARTY_NOTICES.md` records the known source/model/codec/base-image attribution and
-the unresolved Legal gates.
+the source attribution and published rights evidence. The signed decision is in W-0343.
 
 The release image installs the hash-locked 24-package inference subset from
 `runtime-requirements.lock`; the full vendored upstream `uv.lock` remains provenance evidence but

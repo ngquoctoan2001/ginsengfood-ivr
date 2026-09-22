@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "evidence_origin": "W-0341",
+  "checked_utc": "2026-09-22T03:30:43.918055+00:00",
+  "production_approval": false,
+  "documents": [
+    {
+      "id": "apache-2.0",
+      "path": "Apache-2.0.txt",
+      "source_url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+      "size_bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "id": "vieneu-card",
+      "path": "vieneu-model-card.md",
+      "source_url": "https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo/resolve/2da0efab622a1722125991736524f080b751ef5b/README.md",
+      "size_bytes": 13318,
+      "sha256": "f8a7927b5a6f27d1ab54c63a22a3c010f8622b006c3239a691bcd014b108b2b7"
+    },
+    {
+      "id": "moss-onnx-card",
+      "path": "moss-onnx-model-card.md",
+      "source_url": "https://huggingface.co/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX/resolve/ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae/README.md",
+      "size_bytes": 4892,
+      "sha256": "3c7b9e9ef1c8c5e5c829a077a1d32c1f7aea1668f2bf17ead318ff04bf1e6fe4"
+    },
+    {
+      "id": "moss-source-notice",
+      "path": "MOSS-source-LICENSE",
+      "source_url": "https://raw.githubusercontent.com/OpenMOSS/MOSS-Audio-Tokenizer/8c50ac4c5d7287d2ed6ea20a08c90ca439887d23/LICENSE",
+      "size_bytes": 11374,
+      "sha256": "08af5a268e2223ebf492a30ef8c21a734a6faa1723af0d09a2027d60ed78ea24"
+    }
+  ],
+  "models": [
+    {
+      "id": "moss-nano-onnx",
+      "kind": "PUBLISHER_DECLARATION_WITH_REFERENCED_LICENSE",
+      "model_repo": "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX",
+      "full_revision": "ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae",
+      "declared_spdx": "Apache-2.0",
+      "declaration_document_id": "moss-onnx-card",
+      "license_document_id": "apache-2.0",
+      "artifact_paths": [
+        "README.md",
+        "codec_browser_onnx_meta.json",
+        "moss_audio_tokenizer_decode_full.onnx",
+        "moss_audio_tokenizer_decode_shared.data",
+        "moss_audio_tokenizer_decode_step.onnx"
+      ],
+      "preset_assets": null
+    },
+    {
+      "id": "vieneu-v3-turbo",
+      "kind": "PUBLISHER_DECLARATION_WITH_REFERENCED_LICENSE",
+      "model_repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
+      "full_revision": "2da0efab622a1722125991736524f080b751ef5b",
+      "declared_spdx": "Apache-2.0",
+      "declaration_document_id": "vieneu-card",
+      "license_document_id": "apache-2.0",
+      "artifact_paths": [
+        "README.md",
+        "onnx_int8/config.json",
+        "onnx_int8/tokenizer.json",
+        "onnx_int8/vieneu_acoustic_cached.onnx",
+        "onnx_int8/vieneu_backbone_shared.data",
+        "onnx_int8/vieneu_decode_step.onnx",
+        "onnx_int8/vieneu_prefill.onnx",
+        "onnx_int8/vieneu_v3_heads.npz"
+      ],
+      "preset_assets": {
+        "source_commit": "36c4b501b0634a8f59805e6b529a058fbd30190b",
+        "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
+        "commercial_generated_audio": true,
+        "speaker_consent_basis": "PUBLISHER_DECLARATION"
+      }
+    }
+  ],
+  "supplementary_document_ids": [
+    "moss-source-notice"
+  ]
+}

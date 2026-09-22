@@ -1,0 +1,755 @@
+{
+  "work_id": "W-0342",
+  "verified_utc": "2026-09-22T04:05:01.271191+00:00",
+  "scope": "LOCAL_WORKTREE_LICENSE_INTEGRATION_AND_CANDIDATE_IMAGE",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "release_blockers": [
+    "LEGAL"
+  ],
+  "license_evidence": {
+    "status": "PASS",
+    "documents": 4,
+    "models": 2,
+    "artifacts": 13,
+    "shared_negative_cases_per_language": 36
+  },
+  "model_artifact_content_unchanged": 13,
+  "voice_configuration_changed_fields": [
+    "model_lock_sha256"
+  ],
+  "voice_acceptance_changed_fields": [
+    "model_lock_sha256",
+    "notes"
+  ],
+  "owner_listener_date_decision_selections_preserved": true,
+  "original_owner_acceptance_file_unchanged": true,
+  "mirror_artifact_bindings_applied": 13,
+  "mirror_receipt_reference": "docs/evidence/W-0340/mirror-target-verification.json",
+  "old_mirror_archive_unchanged": true,
+  "historical_bindings_verified": 38,
+  "historical_bindings_moved_to_baseline": [
+    {
+      "historical_path": "deploy/tts/models/MODELS.lock",
+      "frozen_path": ".artifacts/W-0342/baseline/deploy/tts/models/MODELS.lock"
+    },
+    {
+      "historical_path": "deploy/tts/models/MODELS.lock",
+      "frozen_path": ".artifacts/W-0342/baseline/deploy/tts/models/MODELS.lock"
+    },
+    {
+      "historical_path": "deploy/tts/shim/voices.json",
+      "frozen_path": ".artifacts/W-0342/baseline/deploy/tts/shim/voices.json"
+    }
+  ],
+  "profile_unchanged": {
+    "tts_cpus": 2,
+    "tts_memory_gib": 4,
+    "segment_ms": 30000,
+    "queue_ms": 90000,
+    "preparation_ms": 120000,
+    "queue_limit": 8
+  },
+  "image_index_sha256_hex_blocks": [
+    "f5fd0909",
+    "d7985821",
+    "b417b755",
+    "23b3ddfc",
+    "96ae4f6a",
+    "4cdd53f2",
+    "acb7ab3a",
+    "958e399a"
+  ],
+  "image_config_sha256_hex_blocks": [
+    "2c98db9c",
+    "0ad2bdad",
+    "5c1c348d",
+    "6a2d7bc8",
+    "1f1dd905",
+    "13ff9100",
+    "4f2344bf",
+    "f0476189"
+  ],
+  "image_evidence_and_shim_files_exactly_match_source": 16,
+  "candidate_image_deployed_to_S5": false,
+  "candidate_image_mirrored_to_S5": false,
+  "security_scan": {
+    "vulnerabilities": 0,
+    "database": {
+      "Version": 2,
+      "NextUpdate": "2026-09-22T19:11:02.692565768Z",
+      "UpdatedAt": "2026-09-21T19:11:02.692566039Z",
+      "DownloadedAt": "2026-09-22T02:21:22.294553366Z"
+    },
+    "db_downloaded_this_turn": false,
+    "db_from_W0340_still_current_at_scan": true,
+    "scan_network": "NONE",
+    "metadata_image_id_matches_archive_config": true,
+    "trivy_artifact_identifier_is_not_used_as_image_config": true,
+    "packages": [
+      {
+        "type": "wolfi",
+        "count": 26
+      },
+      {
+        "type": "python-pkg",
+        "count": 24
+      }
+    ]
+  },
+  "container_tests": {
+    "passed": 27,
+    "failed": 0,
+    "http_contract": "PASS",
+    "nonroot": true,
+    "network": "NONE"
+  },
+  "production_cli_refused": true,
+  "test_only_legal_authority_positive_fixture": "PASS_NOT_A_REAL_APPROVAL",
+  "bindings": [
+    {
+      "path": ".artifacts/W-0342/audition-selftest.log",
+      "size_bytes": 68,
+      "sha256_hex_blocks": [
+        "0ca4cad3",
+        "1d5e5614",
+        "f337a1bc",
+        "1dcf3a95",
+        "540ab626",
+        "d1645eca",
+        "3eab4922",
+        "3888d13a"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/b3-selftest.log",
+      "size_bytes": 114,
+      "sha256_hex_blocks": [
+        "b38bf20e",
+        "408b99a6",
+        "dce88e3b",
+        "5afe1b5a",
+        "d9e83524",
+        "d20b1e05",
+        "3f5b0105",
+        "debadb56"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/b3-template.log",
+      "size_bytes": 96,
+      "sha256_hex_blocks": [
+        "abf0dec0",
+        "4a175c80",
+        "c7c50463",
+        "974d7e9c",
+        "92a29821",
+        "ba2f9679",
+        "fbcd3171",
+        "ce64f852"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/container-selftest-final.log",
+      "size_bytes": 4340,
+      "sha256_hex_blocks": [
+        "341042a8",
+        "773a648f",
+        "81a8873a",
+        "8a5e390d",
+        "91962b0e",
+        "a41db2b7",
+        "6e98dbad",
+        "cb762e24"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/fixed-render.log",
+      "size_bytes": 424,
+      "sha256_hex_blocks": [
+        "2ac6ca9c",
+        "8c61c187",
+        "f158f8c6",
+        "1d6e7aeb",
+        "729877ad",
+        "6184fdfc",
+        "9bbfbf88",
+        "95cb6298"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/image-inspect.json",
+      "size_bytes": 5142,
+      "sha256_hex_blocks": [
+        "e6a727d9",
+        "8ec0882f",
+        "4cb7c145",
+        "e56c6868",
+        "831ce9be",
+        "99abbcab",
+        "498270dc",
+        "e865c384"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/model-nonprod.log",
+      "size_bytes": 132,
+      "sha256_hex_blocks": [
+        "294a99d4",
+        "435f7dde",
+        "91fe72d8",
+        "f217e94d",
+        "1ec4597a",
+        "63000eb5",
+        "60fbb939",
+        "611362c9"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/model-production-refused.log",
+      "size_bytes": 111,
+      "sha256_hex_blocks": [
+        "b19b2c3f",
+        "6ffda8db",
+        "498efa01",
+        "fc9be33b",
+        "58735c6e",
+        "233a24cb",
+        "3df08182",
+        "d2ce0b48"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/provenance-selftest.log",
+      "size_bytes": 731,
+      "sha256_hex_blocks": [
+        "91dcdd41",
+        "701dcbd8",
+        "aa32a2ec",
+        "8eb75fd3",
+        "e8db90ad",
+        "005e23f6",
+        "2f9cece7",
+        "9a68fe46"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/scan/db-metadata.json",
+      "size_bytes": 153,
+      "sha256_hex_blocks": [
+        "c7b3aa04",
+        "dd918bca",
+        "22a0f55d",
+        "f2aabcad",
+        "5f033b1b",
+        "821e3bb2",
+        "183ce9f6",
+        "26d53111"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/scan/scanner.log",
+      "size_bytes": 523,
+      "sha256_hex_blocks": [
+        "75bdf5b9",
+        "8c3ec36b",
+        "2f67cfd6",
+        "b22b8da3",
+        "6fad98db",
+        "f08f40b3",
+        "f4fb9b8e",
+        "d9e37ef4"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/scan/trivy.json",
+      "size_bytes": 165638,
+      "sha256_hex_blocks": [
+        "b6514c91",
+        "61d97f43",
+        "ca31e441",
+        "ae39063f",
+        "7905bd06",
+        "e2d21922",
+        "cfb1106d",
+        "44a39d5a"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/tts-image.tar",
+      "size_bytes": 105812480,
+      "sha256_hex_blocks": [
+        "e3d3c907",
+        "b65d1361",
+        "7bec5ed9",
+        "211b56c7",
+        "b8687608",
+        "a71517d5",
+        "bce9baeb",
+        "eff7fdf1"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/verify-closeout.py",
+      "size_bytes": 10754,
+      "sha256_hex_blocks": [
+        "84872e33",
+        "8cc3d422",
+        "9fe40ad6",
+        "fb348c70",
+        "a9a79594",
+        "9878e08f",
+        "005820c6",
+        "4679e887"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/voice-rebind-validation.log",
+      "size_bytes": 189,
+      "sha256_hex_blocks": [
+        "78785bf3",
+        "615bf459",
+        "24e3603e",
+        "613934c2",
+        "b6238244",
+        "7511116e",
+        "ae6f5257",
+        "98f34170"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0342/voice-selftest.log",
+      "size_bytes": 1005,
+      "sha256_hex_blocks": [
+        "242add09",
+        "5420b6e4",
+        "91c4fc4e",
+        "eb2cb754",
+        "f17e9cc0",
+        "c5ceba5d",
+        "c3143223",
+        "e9a3e94b"
+      ]
+    },
+    {
+      "path": ".dockerignore",
+      "size_bytes": 1311,
+      "sha256_hex_blocks": [
+        "d30bc39c",
+        "7cb11abc",
+        "ac3fe18c",
+        "4001ae41",
+        "923ead6b",
+        "fe2e1e92",
+        "e921b912",
+        "1a738703"
+      ]
+    },
+    {
+      "path": ".gitattributes",
+      "size_bytes": 7956,
+      "sha256_hex_blocks": [
+        "26954d8a",
+        "32537c43",
+        "2932e4c5",
+        "62c4c925",
+        "bd9bcfef",
+        "0e7103d8",
+        "3af680ba",
+        "ba275576"
+      ]
+    },
+    {
+      "path": "deploy/ci/scripts/b3-telephony-evidence-validator.mjs",
+      "size_bytes": 45326,
+      "sha256_hex_blocks": [
+        "f4a9fe69",
+        "3f6592bd",
+        "c28fba55",
+        "12a6e04c",
+        "dba6bf4d",
+        "3baf35bd",
+        "955f5c18",
+        "ab4d9f8b"
+      ]
+    },
+    {
+      "path": "deploy/ci/scripts/tts-license-evidence-selftest.mjs",
+      "size_bytes": 2150,
+      "sha256_hex_blocks": [
+        "ef9b49fc",
+        "08937009",
+        "f9d99880",
+        "3c5c2541",
+        "b16c60ea",
+        "187060cd",
+        "0e9cc2ed",
+        "84a99294"
+      ]
+    },
+    {
+      "path": "deploy/ci/scripts/tts-license-evidence.mjs",
+      "size_bytes": 6808,
+      "sha256_hex_blocks": [
+        "66d33cb2",
+        "60a92b00",
+        "1b72c238",
+        "be76418f",
+        "d0d08d96",
+        "5113726f",
+        "8fe7ba46",
+        "5c966a7b"
+      ]
+    },
+    {
+      "path": "deploy/ci/scripts/tts-provenance-gate.mjs",
+      "size_bytes": 14472,
+      "sha256_hex_blocks": [
+        "f13c1c70",
+        "db2aed19",
+        "e8bf876d",
+        "9c01b89c",
+        "d16cf463",
+        "b62fdf8f",
+        "654f5f62",
+        "55c8b7e3"
+      ]
+    },
+    {
+      "path": "deploy/helm/ivr/values-prod-tts.draft.yaml",
+      "size_bytes": 6084,
+      "sha256_hex_blocks": [
+        "9238c392",
+        "59551eb2",
+        "8a54f409",
+        "4b4754eb",
+        "a7efcfa6",
+        "2a2b74af",
+        "002627aa",
+        "063c237f"
+      ]
+    },
+    {
+      "path": "deploy/tts/Dockerfile.tts",
+      "size_bytes": 2344,
+      "sha256_hex_blocks": [
+        "9a3a7123",
+        "acdef0ce",
+        "1bf4afc4",
+        "1e7eaf7e",
+        "9b90d100",
+        "1cc7393a",
+        "799265c2",
+        "6ed0388a"
+      ]
+    },
+    {
+      "path": "deploy/tts/licenses/Apache-2.0.txt",
+      "size_bytes": 11358,
+      "sha256_hex_blocks": [
+        "cfc7749b",
+        "96f63bd3",
+        "1c3c42b5",
+        "c471bf75",
+        "6814053e",
+        "847c10f3",
+        "eb003417",
+        "bc523d30"
+      ]
+    },
+    {
+      "path": "deploy/tts/licenses/LICENSES.json",
+      "size_bytes": 3147,
+      "sha256_hex_blocks": [
+        "cbcc81c2",
+        "6d262d84",
+        "dfca4d2b",
+        "8e7d372c",
+        "6c3d6ae2",
+        "1795ec56",
+        "672a04ad",
+        "fdbc2e6c"
+      ]
+    },
+    {
+      "path": "deploy/tts/licenses/moss-onnx-model-card.md",
+      "size_bytes": 4892,
+      "sha256_hex_blocks": [
+        "3c7b9e9e",
+        "f1c8c5e5",
+        "c829a077",
+        "a1d32c1f",
+        "7aea1668",
+        "f2bf17ea",
+        "d318ff04",
+        "bf1e6fe4"
+      ]
+    },
+    {
+      "path": "deploy/tts/licenses/MOSS-source-LICENSE",
+      "size_bytes": 11374,
+      "sha256_hex_blocks": [
+        "08af5a26",
+        "8e2223eb",
+        "f492a30e",
+        "f8c21a73",
+        "4a6faa17",
+        "23af0d09",
+        "a2027d60",
+        "ed78ea24"
+      ]
+    },
+    {
+      "path": "deploy/tts/licenses/README.md",
+      "size_bytes": 1974,
+      "sha256_hex_blocks": [
+        "748deb8a",
+        "6e80705e",
+        "5aac416b",
+        "32a869b3",
+        "2f7e4820",
+        "d55e7e76",
+        "2931b44d",
+        "6d80fc0e"
+      ]
+    },
+    {
+      "path": "deploy/tts/licenses/vieneu-model-card.md",
+      "size_bytes": 13318,
+      "sha256_hex_blocks": [
+        "f8a7927b",
+        "5a6f27d1",
+        "ab54c63a",
+        "22a3c010",
+        "f8622b00",
+        "6c3239a6",
+        "91bcd014",
+        "b108b2b7"
+      ]
+    },
+    {
+      "path": "deploy/tts/models/MODELS.lock",
+      "size_bytes": 14786,
+      "sha256_hex_blocks": [
+        "d1965a7f",
+        "2871fb9e",
+        "81dd2b54",
+        "5ad8c1f6",
+        "6bd47d8a",
+        "12c81faf",
+        "4d584e52",
+        "505507cd"
+      ]
+    },
+    {
+      "path": "deploy/tts/scripts/verify-model.py",
+      "size_bytes": 4087,
+      "sha256_hex_blocks": [
+        "985f1d80",
+        "7d4601ba",
+        "c4128420",
+        "f5cae06f",
+        "e58b347e",
+        "f80269d8",
+        "70ac0550",
+        "97392292"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/__init__.py",
+      "size_bytes": 64,
+      "sha256_hex_blocks": [
+        "9545827e",
+        "0e4b5810",
+        "025278cf",
+        "8e1b9977",
+        "21ae9a75",
+        "1a309730",
+        "980fec7e",
+        "8e0adc2b"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/acceptance.py",
+      "size_bytes": 7285,
+      "sha256_hex_blocks": [
+        "7e6f04de",
+        "f920e7d0",
+        "52816d53",
+        "c9376498",
+        "6f2dd246",
+        "2d9a1fb3",
+        "10af5c80",
+        "ac3a70a5"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/backend.py",
+      "size_bytes": 10975,
+      "sha256_hex_blocks": [
+        "2babb008",
+        "b6f3bbea",
+        "b22e5d8d",
+        "14962216",
+        "e66900a4",
+        "394cf96b",
+        "2de6ee62",
+        "5e086d68"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/convert.py",
+      "size_bytes": 1663,
+      "sha256_hex_blocks": [
+        "4cf76ed3",
+        "995f6251",
+        "9492059c",
+        "1425a7a6",
+        "a42da688",
+        "8d7cb258",
+        "4245e9cf",
+        "3a3f3d95"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/license_evidence.py",
+      "size_bytes": 8189,
+      "sha256_hex_blocks": [
+        "efc3e6fc",
+        "2e42e756",
+        "4faf77ba",
+        "2ca03acb",
+        "64f23738",
+        "5e6d1436",
+        "ad516d1e",
+        "ce21a53c"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/model_lock.py",
+      "size_bytes": 2351,
+      "sha256_hex_blocks": [
+        "034e39d3",
+        "fc9cc53d",
+        "b9b334fd",
+        "835a7630",
+        "95119392",
+        "1c50d7d7",
+        "c8f7a70d",
+        "8fd65d8e"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/server.py",
+      "size_bytes": 8408,
+      "sha256_hex_blocks": [
+        "4d390ae7",
+        "43cfbfb7",
+        "15654529",
+        "76e9ff11",
+        "828d8de2",
+        "c81f1f13",
+        "daadce6f",
+        "c444d66d"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/voices.json",
+      "size_bytes": 2733,
+      "sha256_hex_blocks": [
+        "4fee1d51",
+        "9a411e09",
+        "3d3fb7f8",
+        "33d960c5",
+        "2b948940",
+        "95f20b1c",
+        "7a775cf4",
+        "977fd854"
+      ]
+    },
+    {
+      "path": "deploy/tts/tests/fixtures/license-evidence-cases.json",
+      "size_bytes": 3893,
+      "sha256_hex_blocks": [
+        "c88cf7e3",
+        "f72b4675",
+        "25f6b11c",
+        "7c340b10",
+        "0bfb212a",
+        "318d0d95",
+        "2ee88e86",
+        "28679543"
+      ]
+    },
+    {
+      "path": "deploy/tts/tests/test_license_evidence.py",
+      "size_bytes": 5077,
+      "sha256_hex_blocks": [
+        "b03e3cb3",
+        "7dcd9e38",
+        "09915b57",
+        "e8f65f71",
+        "fc3a481a",
+        "da6fa4ac",
+        "1a6e6dfe",
+        "7be50922"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0122/voice-acceptance-manifest.json",
+      "size_bytes": 3743,
+      "sha256_hex_blocks": [
+        "90927e16",
+        "cbe5b4e2",
+        "7f48e31b",
+        "a396c906",
+        "9f1ae908",
+        "eaadc157",
+        "57e72fbc",
+        "0d8558b9"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0122/voice-acceptance-manifest.template.json",
+      "size_bytes": 3204,
+      "sha256_hex_blocks": [
+        "b9864f84",
+        "8b9e2477",
+        "bdd33437",
+        "d47e580b",
+        "5aa69baa",
+        "7688efb2",
+        "08f4ab44",
+        "9c017442"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0185/b3-telephony-evidence.template.json",
+      "size_bytes": 15617,
+      "sha256_hex_blocks": [
+        "b6dba360",
+        "2440bda2",
+        "97ec62f9",
+        "851836fe",
+        "47e75ff0",
+        "946c025c",
+        "c676568d",
+        "c03a262b"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0342/voice-acceptance-manifest.json",
+      "size_bytes": 3996,
+      "sha256_hex_blocks": [
+        "8748874f",
+        "565fc45d",
+        "83c0dbd1",
+        "eb10d037",
+        "9502c72a",
+        "8fd01558",
+        "b14c6cf6",
+        "87f12dc1"
+      ]
+    }
+  ]
+}

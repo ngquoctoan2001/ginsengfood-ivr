@@ -32,6 +32,8 @@ COPY third_party/vieneu-tts/LICENSE /opt/vieneu/LICENSE
 WORKDIR /opt/ivr-tts
 COPY deploy/tts/shim/ /opt/ivr-tts/shim/
 COPY deploy/tts/models/MODELS.lock /opt/ivr-tts/models/MODELS.lock
+COPY deploy/tts/licenses/ /opt/ivr-tts/licenses/
+COPY deploy/tts/scripts/verify-model.py /opt/ivr-tts/scripts/verify-model.py
 
 ENV PATH="/opt/vieneu/.venv/bin:${PATH}" \
     PYTHONPATH="/opt/ivr-tts:/opt/vieneu/src" \

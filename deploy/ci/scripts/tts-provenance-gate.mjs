@@ -2,25 +2,25 @@
 import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
+import { verifyLicenseEvidence } from "./tts-license-evidence.mjs";
+import { runLicenseEvidenceSelftest } from "./tts-license-evidence-selftest.mjs";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
 const lockPath = resolve(repoRoot, "deploy/tts/models/MODELS.lock");
 const lock = JSON.parse(readFileSync(lockPath, "utf8"));
 const selftest = process.argv.includes("--selftest");
-// Covers internal_mirror_uri and internal_mirror_digest (see artifactFingerprintFields), which
-// are null on all 13 artifacts today. Supplying real mirror values is therefore expected to fail
-// here with "artifact provenance fingerprint drift" -- that is the review point working, not a
-// defect. Recompute this constant in the same change, and expect the same for the lock hash
-// chain W-0126 established: dependency_lock_sha256 -> model_lock_sha256 -> this.
-const expectedArtifactSetSha256 = "84eeb006ab695c875707cdb3ed56409468ab8394ddf25bbf11409e08539bfd94";
+// W-0342: bind the W-0340 verified mirror and W-0341 publisher evidence. Changes require
+// review and re-pinning the artifact set, license manifest and W-0126 lock/voice chain.
+const expectedLicenseManifestSha256 = "cbcc81c26d262d84dfca4d2b8e7d372c6c3d6ae21795ec56672a04adfdbc2e6c";
+const expectedArtifactSetSha256 = "09ecbec246276f75fda0c74a9ee395d0f9739fe50618c6c11c87830cab95ca8b";
 const expectedRuntimeLockSha256 = "a2f18ce29167f97e1e11f9b1d9802378c6dc4997ddcfcdc99d04a54c77956304";
-const expectedVoiceConfigSha256 = "9a76fdabca3ad58994caa1b59c0c76f3a98facb22f11e2f9ec9210a9371ccae2";
-const expectedAcceptanceTemplateSha256 = "c70230fa2b3c20007c78286e150b5b83f718c3b3c1da2e354dc98887eb7951f6";
+const expectedVoiceConfigSha256 = "e6f95f9c1d794dbda981ef133de8db290840e6aa29d28515f6c3dcca4831b74f";
+const expectedAcceptanceTemplateSha256 = "7099e55dc87ba3d7774b44646b328eb010234bbbf33a0aa581da75404655a3d0";
 const artifactFingerprintFields = [
   "component", "runtime_required", "model_repo", "full_revision", "allowed_file_path",
   "bundle_path", "size_bytes", "sha256", "declared_spdx", "license_file_sha256",
   "voice_manifest_sha256", "dependency_lock_sha256", "internal_mirror_uri",
-  "internal_mirror_digest",
+  "internal_mirror_digest", "license_evidence_id",
 ];
 
 const allowedRepos = new Map([
@@ -65,7 +65,8 @@ function hasLegalPrivacyApproval(gate) {
 // Two deliberate choices here.
 //
 // No authority token is prescribed. LEGAL_PRIVACY exists because the module owner must not be
-// able to sign their own legal review. This gate is different: the lock's own reason says an
+// able to sign solely as MODULE_8_OWNER. W-0343 records an explicit company-authorized
+// dual-role Legal/Privacy decision; the authority guard still rejects MODULE_8_OWNER. This gate is different: the lock's own reason says an
 // "owner-approved internal artifact or OCI mirror URI/digest" is what is missing, so owner
 // approval IS the right authority, and naming some other one would be inventing governance
 // nobody has decided. What is demanded is the record -- who, when, against what reference.
@@ -103,6 +104,10 @@ function validate(candidate) {
   if (candidate.schema_version !== 1 || !Array.isArray(candidate.artifacts)) {
     throw new Error("invalid lock schema");
   }
+  if (candidate.license_evidence?.sha256 !== expectedLicenseManifestSha256) {
+    throw new Error("license evidence manifest pin drift");
+  }
+  verifyLicenseEvidence(candidate, resolve(repoRoot, "deploy/tts/licenses"));
   if (candidate.legal_gate?.status === "PASS" && !hasLegalPrivacyApproval(candidate.legal_gate)) {
     throw new Error("legal approval authority invalid");
   }
@@ -119,7 +124,7 @@ function validate(candidate) {
     const fields = [
       "model_repo", "full_revision", "allowed_file_path", "bundle_path", "size_bytes",
       "sha256", "declared_spdx", "license_file_sha256", "voice_manifest_sha256",
-      "dependency_lock_sha256", "internal_mirror_uri", "internal_mirror_digest",
+      "dependency_lock_sha256", "internal_mirror_uri", "internal_mirror_digest", "license_evidence_id",
     ];
     for (const field of fields) {
       if (!(field in item)) throw new Error(`missing field ${field}`);
@@ -204,6 +209,8 @@ function expectFailure(name, mutate) {
 validate(lock);
 validateSupportingFiles();
 if (selftest) {
+  runLicenseEvidenceSelftest(repoRoot);
+  expectFailure("license-evidence-manifest-pin", value => { value.license_evidence.sha256 = "0".repeat(64); });
   expectFailure("revision", value => { value.artifacts[0].full_revision = "main"; });
   expectFailure("path", value => { value.artifacts[0].bundle_path = value.artifacts[1].bundle_path; });
   expectFailure("hash", value => { value.artifacts[0].sha256 = "0".repeat(64); });
@@ -222,6 +229,10 @@ if (selftest) {
   expectFailure("mirror-bare-pass", value => { value.internal_mirror_gate = { status: "PASS" }; });
   // And the subtler half: a complete decision record still is not a mirror.
   expectFailure("mirror-without-artifacts", value => {
+    for (const item of value.artifacts) {
+      item.internal_mirror_uri = null;
+      item.internal_mirror_digest = null;
+    }
     value.internal_mirror_gate = {
       status: "PASS",
       decided_on: "2026-09-08",
@@ -282,5 +293,5 @@ if (!hasInternalMirrorApproval(lock.internal_mirror_gate, lock.artifacts)) {
   blockers.push("INTERNAL_MIRROR");
 }
 process.stdout.write(
-  `TTS_PROVENANCE_STRUCTURE_PASS artifacts=${lock.artifacts.length} release_blockers=${blockers.join(",") || "NONE"}\n`,
+  `TTS_PROVENANCE_STRUCTURE_PASS artifacts=${lock.artifacts.length} license_evidence=PASS release_blockers=${blockers.join(",") || "NONE"}\n`,
 );

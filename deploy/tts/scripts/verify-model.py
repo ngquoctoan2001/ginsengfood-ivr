@@ -11,6 +11,7 @@ SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPT_ROOT))
 
 from shim.model_lock import ModelLockError, verify_bundle  # noqa: E402
+from shim.license_evidence import verify_license_evidence  # noqa: E402
 
 
 def has_legal_privacy_approval(gate: Any) -> bool:
@@ -72,10 +73,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Verify a W-0122 model bundle")
     parser.add_argument("--lock", type=Path, required=True)
     parser.add_argument("--bundle", type=Path, required=True)
+    parser.add_argument("--license-root", type=Path, default=SCRIPT_ROOT / "licenses")
     parser.add_argument("--mode", choices=("nonprod", "production"), default="production")
     args = parser.parse_args()
 
     lock = verify_bundle(args.lock, args.bundle)
+    evidence = verify_license_evidence(lock, args.license_root)
+    print(f"MODEL_LICENSE_EVIDENCE_PASS documents={evidence['documents']} models={evidence['models']} approval=SEPARATE")
     blockers = []
     if not has_legal_privacy_approval(lock.get("legal_gate")):
         blockers.append("LEGAL")
@@ -83,8 +87,6 @@ def main() -> int:
         blockers.append("INTERNAL_MIRROR")
 
     if args.mode == "production":
-        if any(item.get("license_file_sha256") is None for item in lock["artifacts"]):
-            raise ModelLockError("production requires license-file evidence")
         if any(not has_exact_internal_mirror(item) for item in lock["artifacts"]):
             raise ModelLockError("production requires an exact internal mirror")
         if blockers:

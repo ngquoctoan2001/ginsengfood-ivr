@@ -49,3 +49,4 @@ third_party/vieneu-tts/examples/
 third_party/vieneu-tts/finetune/
 third_party/vieneu-tts/tests/
 third_party/vieneu-tts/src/vieneu/assets/samples/
+!deploy/tts/licenses/*.md
