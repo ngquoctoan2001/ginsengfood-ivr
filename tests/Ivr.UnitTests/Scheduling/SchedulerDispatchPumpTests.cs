@@ -396,9 +396,13 @@ public sealed class SchedulerDispatchPumpTests
             Assert.True(gateway.ReleaseOne(refused));
         }
 
+        // ReleaseOne schedules continuations; observing the first failure's shed does not
+        // mean all seven failures have been recorded. Wait for their slots to be released
+        // before completing the success, otherwise a late failure can legitimately shed again.
         await WaitUntilAsync(
-            () => harness.Pump.SheddingUntil is not null,
-            "seven consecutive failures put the pump into shedding");
+            () => harness.Pump.Active == 1,
+            "all seven failed dispatches completed before the successful call");
+        Assert.NotNull(harness.Pump.SheddingUntil);
 
         // Seven failures on the trot reach the backoff ceiling, so this is a long shed - it is not
         // about to expire on its own during the next two lines.
