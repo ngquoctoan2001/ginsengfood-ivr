@@ -1,0 +1,61 @@
+{
+  "work_id": "W-0344",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "target_status": "FAIL_BEFORE_CASES",
+  "receipt_sha256": "5a312731f3aad00debfe3b51392494e16f01948867c2c36d84c48dfe2ab8150e",
+  "receipt_files_verified": 26,
+  "summary": {
+    "work_id": "W-0344",
+    "candidate": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+    "scope": "S5_TARGET_SYNTHETIC_SIP",
+    "project": "ivr-w0344-20260922065113-f2117a",
+    "started_utc": "2026-09-22T06:51:13.251844+00:00",
+    "status": "FAIL",
+    "kit_manifest_sha256": "8844b979b82f95980c177a56886524abc5be5d1e75622a65d7fe6d1068eabe8d",
+    "error": "CalledProcessError(1, ['docker', '--context', 'default', 'compose', '-f', '/home/ssv/ivr-full-flow-w0344-20260922-135115-e0b16d79/result/compose.private.json', 'up', '-d', '--no-build', '--pull', 'never'])",
+    "finished_utc": "2026-09-22T06:52:15.387314+00:00"
+  },
+  "inventory": {
+    "host_name": "vps61",
+    "architecture": "x86_64",
+    "logical_cpus": 10,
+    "host_memory": {
+      "MemTotal": 14669688832,
+      "MemAvailable": 12076007424
+    },
+    "docker": {
+      "Name": "vps61",
+      "NCPU": 10,
+      "MemTotal": 14669688832,
+      "ServerVersion": "29.6.1",
+      "OSType": "linux",
+      "Architecture": "x86_64"
+    }
+  },
+  "models_verified": 13,
+  "original_containers": 43,
+  "original_containers_unchanged": true,
+  "cleanup": {
+    "removed_containers": [
+      "ivr-w0344-20260922065113-f2117a-ivr-tts-1",
+      "ivr-w0344-20260922065113-f2117a-ivr-worker-1",
+      "ivr-w0344-20260922065113-f2117a-ivr-api-1",
+      "ivr-w0344-20260922065113-f2117a-lab-seed-1",
+      "ivr-w0344-20260922065113-f2117a-seed-1",
+      "ivr-w0344-20260922065113-f2117a-asterisk-1",
+      "ivr-w0344-20260922065113-f2117a-ivr-migrate-1",
+      "ivr-w0344-20260922065113-f2117a-postgres-1",
+      "ivr-w0344-20260922065113-f2117a-media-init-1",
+      "ivr-w0344-20260922065113-f2117a-fake-sales-1"
+    ],
+    "networks_removed": true,
+    "named_volumes_preserved": [
+      "ivr-w0344-20260922065113-f2117a-pg",
+      "ivr-w0344-20260922065113-f2117a-media"
+    ]
+  },
+  "stack_error": "Asterisk exited (132); API, worker and TTS never started; no case/admission ran.",
+  "asterisk_image": "sha256:6a3b73f52ff1250956dcdaa3735581e1287e4b474396c1dc813dbf07509eb585",
+  "raw_receipt": ".artifacts/W-0344/s5-20260922-135115-e0b16d79/result.tar.gz"
+}

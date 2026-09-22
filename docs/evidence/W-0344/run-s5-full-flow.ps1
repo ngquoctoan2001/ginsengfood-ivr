@@ -25,18 +25,5 @@ $checksum = $archive + '.sha256'
 $installer = Join-Path $PSScriptRoot 'install-s5-full-flow.sh'
 & $scp -o StrictHostKeyChecking=yes $archive $checksum $installer "ssv@192.168.1.61:${remoteDir}/"
 if ($LASTEXITCODE -ne 0) { throw 'Chuyen goi that bai; chua chay full-flow' }
-$command = "cd $remoteDir && printf '%s  %s\n' '$installerPin' install-s5-full-flow.sh | sha256sum -c - && bash ./install-s5-full-flow.sh"
-& $ssh -o StrictHostKeyChecking=yes -o ServerAliveInterval=20 -o ServerAliveCountMax=6 ssv@192.168.1.61 $command
-$runExit = $LASTEXITCODE
-# Retrieve failed runs as well; do not turn an execution error into missing evidence.
-& $scp -o StrictHostKeyChecking=yes "ssv@192.168.1.61:${remoteDir}/result.tar.gz" "ssv@192.168.1.61:${remoteDir}/result.tar.gz.sha256" "ssv@192.168.1.61:${remoteDir}/launcher.log" $localDir
-$receiptExit = $LASTEXITCODE
-@{ WorkId='W-0344'; RunExitCode=$runExit; ReceiptExitCode=$receiptExit; RemoteDirectory=$remoteDir; LocalDirectory=$localDir } |
-    ConvertTo-Json | Set-Content -LiteralPath (Join-Path $localDir 'handoff-result.json') -Encoding utf8
-if ($receiptExit -ne 0) { throw "Chua lay duoc day du receipt; giu nguyen $remoteDir tren S5" }
-$expected = ((Get-Content -LiteralPath (Join-Path $localDir 'result.tar.gz.sha256') -Raw).Trim() -split '\s+')[0]
-$actual = (Get-FileHash -LiteralPath (Join-Path $localDir 'result.tar.gz') -Algorithm SHA256).Hash.ToLowerInvariant()
-if ($actual -ne $expected) { throw 'Receipt hash mismatch' }
-Write-Output "W0344_RECEIPT_VERIFIED $localDir"
-if ($runExit -ne 0) { throw "Luot S5 chua dat (exit=$runExit); da lay receipt ve de kiem tra" }
-Write-Output 'W0344_S5_COMMAND_COMPLETED: gui vi tri receipt va cac dong ket qua cuoi cho Codex kiem tra.'
+# Start under an independent session; reconnect the same run if SSH drops.
+& (Join-Path $PSScriptRoot 'resume-s5-full-flow.ps1') -RunId $runId

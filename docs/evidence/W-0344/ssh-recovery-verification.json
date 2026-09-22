@@ -1,0 +1,196 @@
+{
+  "work_id": "W-0344",
+  "scope": "LOCAL_SSH_HANDOFF_RECOVERY_FIX",
+  "verified_utc": "2026-09-22T07:03:05.915153+00:00",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "observed_ssh_exit": 255,
+  "observed_receipt_exit": 1,
+  "server_execution_status": "UNCONFIRMED",
+  "server_disconnect_root_cause": "UNKNOWN_WITHOUT_SERVER_LOGS",
+  "remote_directory": "/home/ssv/ivr-full-flow-w0344-20260922-133208-4b83eafa",
+  "application_bundle_installer_and_checksum_unchanged": true,
+  "linux_tests": {
+    "passed": 5,
+    "failed": 0,
+    "ssh_process_group_SIGHUP_detachment": "PASS",
+    "duplicate_start_refused": "PASS",
+    "partial_run_requires_review": "PASS",
+    "wrong_host_path_hash_refused": "PASS",
+    "private_config_excluded": "PASS"
+  },
+  "test_fixture_initial_failure": "Fake bash execution denied on noexec tmpfs; final fixture mount allows execution only inside local TEST_ONLY container. Production helper guards unchanged.",
+  "powershell_pins_and_arguments": "PASS",
+  "python310_syntax": "PASS",
+  "gitnexus_impact": "UNKNOWN_SCRIPT_NOT_INDEXED_DIRECT_SOURCE_REVIEW_ONLY",
+  "bindings": [
+    {
+      "path": "docs/evidence/W-0344/recover-s5-full-flow.py",
+      "bytes": 8126,
+      "sha256_hex_chunks": [
+        "942d0299",
+        "66a0cace",
+        "5f3d23bb",
+        "3eda2151",
+        "bf71121f",
+        "284b90fc",
+        "a0e6178d",
+        "f372dbfd"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0344/resume-s5-full-flow.ps1",
+      "bytes": 4281,
+      "sha256_hex_chunks": [
+        "363f21d2",
+        "d23dbddd",
+        "7fbd89e5",
+        "292a8d83",
+        "046ad10e",
+        "5deff0da",
+        "62bbd91f",
+        "13a1818d"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0344/run-s5-full-flow.ps1",
+      "bytes": 2091,
+      "sha256_hex_chunks": [
+        "4a8c01c4",
+        "161710a8",
+        "836fa5e6",
+        "7197c271",
+        "7aebe871",
+        "c3133906",
+        "7a1c9cf5",
+        "317c9da8"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0344/test-ssh-recovery.py",
+      "bytes": 6629,
+      "sha256_hex_chunks": [
+        "7b192b70",
+        "607e3a98",
+        "93675f44",
+        "6edcd600",
+        "d689716f",
+        "63ed0e33",
+        "91c7cd18",
+        "16ede557"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0344/ssh-recovery.md",
+      "bytes": 3508,
+      "sha256_hex_chunks": [
+        "42d39c6b",
+        "f52ccf94",
+        "61b596ad",
+        "40d92cbd",
+        "f917184f",
+        "007fde04",
+        "675bafc0",
+        "d80783d9"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0344/ssh-recovery-tests.log",
+      "bytes": 762,
+      "sha256_hex_chunks": [
+        "17dec2d5",
+        "6a6e9fc0",
+        "a086a431",
+        "1cf3fb31",
+        "e5d63435",
+        "69faf156",
+        "afb563de",
+        "a0984533"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0344/ssh-recovery-tests-first.log",
+      "bytes": 1413,
+      "sha256_hex_chunks": [
+        "6738b724",
+        "4fe76319",
+        "ef1131de",
+        "14a41cb0",
+        "7ff1a389",
+        "03b30ddd",
+        "ca376cb8",
+        "70d3bf2b"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0344/ssh-recovery-tests-debug.log",
+      "bytes": 3072,
+      "sha256_hex_chunks": [
+        "506144aa",
+        "4d8518e7",
+        "0e918140",
+        "67df0e2a",
+        "5a8dc6e1",
+        "55a07c9e",
+        "3106f952",
+        "7adb6aca"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0344/s5-20260922-133208-4b83eafa/handoff-result.json",
+      "bytes": 286,
+      "sha256_hex_chunks": [
+        "5fe51d07",
+        "9a9a466b",
+        "1a4ee224",
+        "81130c7b",
+        "48b5ee0a",
+        "01d384dd",
+        "efdd4c89",
+        "b05b7852"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0344/ssh-recovery-baseline/run-s5-full-flow.ps1",
+      "bytes": 3404,
+      "sha256_hex_chunks": [
+        "6a7376d3",
+        "8be9f1ff",
+        "4e52285f",
+        "a2e5ce1a",
+        "da8ff572",
+        "b78726f9",
+        "602c5c8e",
+        "e4f18504"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0344/ssh-recovery-baseline/README.md",
+      "bytes": 6039,
+      "sha256_hex_chunks": [
+        "ab8c5fab",
+        "3b069258",
+        "74f14d47",
+        "1d42c07f",
+        "89cae518",
+        "0a2c68c5",
+        "ff1b895b",
+        "de544bfc"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0344/ssh-recovery-baseline/handoff-pins.json",
+      "bytes": 488,
+      "sha256_hex_chunks": [
+        "bc92554b",
+        "b4db9eac",
+        "9b1b19c7",
+        "948aeef5",
+        "3f5811a3",
+        "7d6612ec",
+        "b7b89e6e",
+        "31caf7ed"
+      ]
+    }
+  ]
+}

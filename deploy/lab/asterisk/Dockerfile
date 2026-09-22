@@ -42,9 +42,19 @@ RUN apt-get update \
     && tar --extract --gzip --file /tmp/asterisk.tar.gz \
         --directory /tmp/asterisk-source --strip-components=1 \
     && cd /tmp/asterisk-source \
+    # W-0344: this image moves from the build PC to S5. BUILD_NATIVE adds
+    # -march=native and can emit instructions unavailable on the target CPU.
     && ./configure --with-pjproject-bundled \
-    && make -j2 \
+        CFLAGS="-O2 -march=x86-64 -mtune=generic" \
+        CXXFLAGS="-O2 -march=x86-64 -mtune=generic" \
+    && make menuselect.makeopts \
+    && menuselect/menuselect --disable BUILD_NATIVE menuselect.makeopts \
+    && ! grep -E '^MENUSELECT_CFLAGS=.*BUILD_NATIVE' menuselect.makeopts \
+    && make -j2 NOISY_BUILD=yes \
     && make install \
+    && mkdir -p /opt/ivr-lab/build \
+    && cp menuselect.makeopts makeopts /opt/ivr-lab/build/ \
+    && printf 'cpu_baseline=x86-64\nbuild_native=disabled\n' > /opt/ivr-lab/build/cpu-baseline.txt \
     && cd / \
     && rm -rf /tmp/asterisk-source /tmp/asterisk.tar.gz \
     && apt-get purge -y --auto-remove \

@@ -140,8 +140,13 @@ def run_case(name,region,variant,digit=None,fault=None):
                 item['queue_pause']=post('/queue:pause',{'reason':'Synthetic W0344 retain operator-cancel evidence'},'admin','pause-'+task)
                 terminated=True
             elif digit is not None and not sent and time.monotonic()-answered>=measured['segmented_audio_ms']/1000+2:
-                item['rtp']=cli(PEER,'pjsip show channelstats'); item['sent_utc']=utc()
-                cli(PEER,f'channel redirect {peers[0]} send-{digit},s,1'); sent=True
+                item['rtp']=cli(PEER,'pjsip show channelstats')
+                # Wall time is only a lower bound under load. Wait for the same
+                # received-audio threshold that the final assertion enforces.
+                received_rtp=re.search(r'switch-[a-f0-9]+\s+\S+\s+ulaw\s+(\d+)',item['rtp'])
+                if received_rtp and int(received_rtp[1])>=measured['segmented_audio_ms']//20:
+                    item['sent_utc']=utc()
+                    cli(PEER,f'channel redirect {peers[0]} send-{digit},s,1'); sent=True
         if current['job']['status'] in TERMINAL or (fault=='operator-cancel' and any(r['type']=='IVR_TECHNICAL_EXCEPTION' for r in current['results'])):
             break
         time.sleep(0.5)

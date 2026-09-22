@@ -1,0 +1,64 @@
+{
+  "work_id": "W-0344",
+  "scope": "READ_ONLY_RECEIPT_TRANSFER_HELPER",
+  "verified_utc": "2026-09-22T07:12:39.902387+00:00",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "run_id": "20260922-133208-4b83eafa",
+  "target_status": "USER_REPORTED_S5_FAIL_RECEIPT_NOT_YET_RETRIEVED",
+  "helper_exit_zero_means": "RECEIPT_READY_NOT_TEST_PASS",
+  "reported_failure_stage": "docker compose up",
+  "container_failure_cause_this_run": "UNKNOWN_UNTIL_RECEIPT_READ",
+  "another_run_kept_separate": "20260922-135115-e0b16d79",
+  "remote_action": "sha256sum + base64 reads of existing result.tar.gz only",
+  "scp_used": false,
+  "starts_test": false,
+  "parser_tests": {
+    "positive_binary_values": 256,
+    "positive_cases": 1,
+    "rejected_cases": 4,
+    "status": "PASS"
+  },
+  "powershell_syntax": "PASS",
+  "bindings": [
+    {
+      "path": "docs/evidence/W-0344/fetch-s5-receipt.ps1",
+      "sha256_hex_chunks": [
+        "29b941a3",
+        "fb801fd6",
+        "290dc950",
+        "4049abd0",
+        "dc0b8de0",
+        "5de17add",
+        "96231bf6",
+        "251842f4"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0344/s5-receipt-fetch.md",
+      "sha256_hex_chunks": [
+        "be657cd5",
+        "d2af4cf4",
+        "586b5cd5",
+        "f9a0cc38",
+        "ea6a6842",
+        "c35d4f72",
+        "b4aa9eb3",
+        "87ad5b32"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0344/s5-20260922-133208-4b83eafa/recovery-20260922-140500-e0b0f279/recovery-handoff.json",
+      "sha256_hex_chunks": [
+        "41bfab13",
+        "a711a378",
+        "e9ea0df1",
+        "e12c90c2",
+        "2aa4f8d4",
+        "32b353f8",
+        "eba3760e",
+        "a7e09015"
+      ]
+    }
+  ]
+}

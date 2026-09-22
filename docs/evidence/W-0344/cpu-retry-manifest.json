@@ -1,0 +1,138 @@
+{
+  "work_id": "W-0344",
+  "candidate": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "images": {
+    "postgres": {
+      "index": "sha256:95206741a5b214807675e14165369d05b93a9cf692223b616d07cca227e74b0b",
+      "config": "sha256:8a4b045886180c64f518ca6a4b0791b15fb997f3b3b619bd5ee141914668db55",
+      "archive": "images/postgres.tar"
+    },
+    "ivr-migrate": {
+      "index": "sha256:982d310d6f04948be10755f55f20fc7d541b86b77d97823dbeb9d3d45abecf46",
+      "config": "sha256:725cc23ac2200f9ce473f47a36283d0cd1520378e3d1ee761b255382498c5f79",
+      "archive": "images/ivr-migrate.tar"
+    },
+    "seed": {
+      "index": "sha256:95206741a5b214807675e14165369d05b93a9cf692223b616d07cca227e74b0b",
+      "config": "sha256:8a4b045886180c64f518ca6a4b0791b15fb997f3b3b619bd5ee141914668db55",
+      "archive": "images/postgres.tar"
+    },
+    "lab-seed": {
+      "index": "sha256:95206741a5b214807675e14165369d05b93a9cf692223b616d07cca227e74b0b",
+      "config": "sha256:8a4b045886180c64f518ca6a4b0791b15fb997f3b3b619bd5ee141914668db55",
+      "archive": "images/postgres.tar"
+    },
+    "media-init": {
+      "index": "sha256:95206741a5b214807675e14165369d05b93a9cf692223b616d07cca227e74b0b",
+      "config": "sha256:8a4b045886180c64f518ca6a4b0791b15fb997f3b3b619bd5ee141914668db55",
+      "archive": "images/postgres.tar"
+    },
+    "fake-sales": {
+      "index": "sha256:2876acc6f400b7aa35c5cf50553f951e2cb17a0dd9db0515ee58e57c2947688a",
+      "config": "sha256:b690a12395418a7fb033eb127d0d269db42180fb09662a81e6cf7049d4264b37",
+      "archive": "images/fake-sales.tar"
+    },
+    "asterisk": {
+      "index": "sha256:933a527a9be52fd74d7e74d5595ea93c6f128e9d92b55ce2d41ef3596fb52341",
+      "config": "sha256:86d8a87786e7182ca9beb7b6bc00823bfb068894896197360dc8ec7fdf39e7d3",
+      "archive": "images/asterisk.tar"
+    },
+    "ivr-api": {
+      "index": "sha256:dff23e965b9cd647d0a33c6e7cdb656780a8a893491a547bc5c4b02f359cff6d",
+      "config": "sha256:aa45b403b63dc92fae3d7732f26e967e369e04e006de36b726acc986734ff3b3",
+      "archive": "images/ivr-api.tar"
+    },
+    "ivr-worker": {
+      "index": "sha256:bd905f041e8919fdddacefcc23203a9b8ff233a5e00aa1854121548b5774456d",
+      "config": "sha256:b9a0787c8a8551d4ae159d9bcfc30906f348e7e0b145bb2c9b9c7609962fab2a",
+      "archive": "images/ivr-worker.tar"
+    },
+    "ivr-tts": {
+      "index": "sha256:79e9106ec1401c5cdd751b80da52e6d8a46f17f437c1e0690209bce13b692581",
+      "config": "sha256:13aae53fd114ec1b8e4a8adc5dad0dd657765e68322387bbc0926b3c27da80d8",
+      "archive": "images/ivr-tts.tar"
+    }
+  },
+  "dll_bindings": [
+    {
+      "service": "ivr-api",
+      "assembly": "Ivr.Api",
+      "sha256": "dffb8d367e4650189251731a88f4559d2861b0409e01091025f414874c403429",
+      "container_image": "sha256:dff23e965b9cd647d0a33c6e7cdb656780a8a893491a547bc5c4b02f359cff6d",
+      "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+    },
+    {
+      "service": "ivr-api",
+      "assembly": "Ivr.Infrastructure",
+      "sha256": "6f6fe9137fcdb99a90a0ca32610e727f8626994adcc3a4f0454f3c8073fd552e",
+      "container_image": "sha256:dff23e965b9cd647d0a33c6e7cdb656780a8a893491a547bc5c4b02f359cff6d",
+      "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+    },
+    {
+      "service": "ivr-api",
+      "assembly": "Ivr.Domain",
+      "sha256": "d773b675cc71f85050e3bf698e80ce9f4f500a7ed56c89290966722fa860e363",
+      "container_image": "sha256:dff23e965b9cd647d0a33c6e7cdb656780a8a893491a547bc5c4b02f359cff6d",
+      "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+    },
+    {
+      "service": "ivr-api",
+      "assembly": "Ivr.Contracts",
+      "sha256": "fbc9b7665222e9d8f5247c8f8db00647661571d6075421c9ebbecf80755617a4",
+      "container_image": "sha256:dff23e965b9cd647d0a33c6e7cdb656780a8a893491a547bc5c4b02f359cff6d",
+      "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+    },
+    {
+      "service": "ivr-worker",
+      "assembly": "Ivr.Worker",
+      "sha256": "6d8793dd383cd38dafb76d55177c3373b966a9d5cd9f8438f59cf5e264dc357f",
+      "container_image": "sha256:bd905f041e8919fdddacefcc23203a9b8ff233a5e00aa1854121548b5774456d",
+      "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+    },
+    {
+      "service": "ivr-worker",
+      "assembly": "Ivr.Infrastructure",
+      "sha256": "6f6fe9137fcdb99a90a0ca32610e727f8626994adcc3a4f0454f3c8073fd552e",
+      "container_image": "sha256:bd905f041e8919fdddacefcc23203a9b8ff233a5e00aa1854121548b5774456d",
+      "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+    },
+    {
+      "service": "ivr-worker",
+      "assembly": "Ivr.Domain",
+      "sha256": "d773b675cc71f85050e3bf698e80ce9f4f500a7ed56c89290966722fa860e363",
+      "container_image": "sha256:bd905f041e8919fdddacefcc23203a9b8ff233a5e00aa1854121548b5774456d",
+      "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+    },
+    {
+      "service": "ivr-worker",
+      "assembly": "Ivr.Contracts",
+      "sha256": "fbc9b7665222e9d8f5247c8f8db00647661571d6075421c9ebbecf80755617a4",
+      "container_image": "sha256:bd905f041e8919fdddacefcc23203a9b8ff233a5e00aa1854121548b5774456d",
+      "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+    }
+  ],
+  "migration_sha256": "82dd771af8490cd90feeb8ec3a2a9c4bf3b76ddc483fd0dac8e83a1d668ae6c9",
+  "files": {
+    "cases.py": "ec7f482ca01182eb1272da5bd633701fe8b1f22f03a9e057f93dde561c10e3af",
+    "compose.template.json": "d8a739b1c4a7964c46b99776a0e7bf4bd570d67f6cd75159e3c183632af6035e",
+    "fixtures/fake-orders.json": "9d0545c5053eda2ea09c18337d19358ff5ac020fbdb7d526bc173e51146d3f51",
+    "fixtures/lab-seed.sql": "3360b49403cb08575ce78e1ed877ebaaf03a6fd616a66c586ed759ff9d4f9091",
+    "fixtures/measurement.json": "cf04d06e5b1fa806fd7f6e3bc6097aa22a60cb4528916a61a0fd93bd1f62ca95",
+    "fixtures/MODELS.lock": "bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d",
+    "fixtures/reconciliation.sql": "072a62e085a15f69d113bbd183f9350b25adeecb63c37c122ae9e9cc50f572d1",
+    "fixtures/seed.sql": "b34026f4d3e1ad9b5e35b69cc63c4b33f5843a482542c783912cbb309e5698f9",
+    "fixtures/voice-acceptance-manifest.json": "90927e16cbe5b4e27f48e31ba396c9069f1ae908eaadc15757e72fbc0d8558b9",
+    "fixtures/worker-texts-expanded.json": "b9463f1f0b6630af60ed5f23e863989f8d02b02e5b777dc6fc93c0b5221b9812",
+    "fixtures/worker-texts.json": "0603eb07e71c01411f0116adc17d577eaa461bb70b43e339fd48335f81a45cec",
+    "images/asterisk.tar": "202c01fcbb8dc65067acc2c18fbe23e3fb0ac713c45fcd5ebda6f771937cabe8",
+    "images/fake-sales.tar": "666c314d11048c9b65785a2db4544f9ebf9fd5fc37ab45c4e4a4f9021dc33fee",
+    "images/ivr-api.tar": "6545d11b9aa93092a8f6775f91e889e97616c6c20f01d78cbff167b2ce7e79ec",
+    "images/ivr-migrate.tar": "cddf07af9fd84662e4c9f203cb82660b2d1ed1b69cf50a7360105eb19876f0e6",
+    "images/ivr-tts.tar": "a3aef13b4ca17cfcfad98e9bfd5a9e260c9ed7e434f33c096c68cf7bbbf1c585",
+    "images/ivr-worker.tar": "312d769a163670edcabf099525848307b26433d106108274747b60947a96ad2f",
+    "images/postgres.tar": "06b65d61abd64b68184c6ec91f634e8cbfc6d1aef6bf1d4a15177fbc1e927867",
+    "launcher.py": "0a82ad6cda4c8e4d0e56f91cd8ae32e80a26942c92b7e6321147d659e3f2cb83",
+    "s5_common.py": "b7a0f8c7cd71f17d58ab93c1fe25f572e83729991b85785c8ad15c451048fb20"
+  }
+}

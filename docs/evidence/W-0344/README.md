@@ -2,9 +2,10 @@
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
-**S5: NOT_RUN — cần owner nhập mật khẩu SSH tại terminal.** SSH BatchMode tới
-`ssv@192.168.1.61` trả `Permission denied (publickey,password)`; chưa chạy lệnh trên S5.
-Đây là thiếu phiên đăng nhập, không phải kết quả kiểm S5 và không phải yêu cầu phê duyệt phạm vi mới.
+**S5: EXECUTION_UNCONFIRMED / SSH_INTERRUPTED.** Owner đã chuyển gói lên server tại
+`/home/ssv/ivr-full-flow-w0344-20260922-133208-4b83eafa`; bước thực thi SSH trả 255,
+chưa lấy được `launcher.log` hoặc receipt. Không kết luận bài kiểm đã khởi động hoặc đã đạt.
+Xem [khôi phục kết nối](ssh-recovery.md); không tạo lượt mới trước khi kiểm lượt này.
 
 Ứng dụng được ghim vào `66a6baa2019efe69a1ede3b6179fce5b49643a6d`, đã nghiệm thu
 trong [W-0339](../W-0339/clean-commit-closeout.md). Bộ kiểm mới không sửa mã ứng dụng.
@@ -64,7 +65,7 @@ Chạy trong PowerShell của owner trên máy chứa repo:
 & 'C:\Users\Administrator\Desktop\ivr\docs\evidence\W-0344\run-s5-full-flow.ps1'
 ```
 
-Script kiểm checksum, tạo thư mục mới trên S5, chuyển gói, chạy 7ca và kéo receipt về
+Script kiểm checksum, tạo thư mục mới trên S5, chuyển gói, chạy 7ca bằng tiến trình tách khỏi SSH và kéo receipt về
 `.artifacts/W-0344/s5-<timestamp>-<id>/`. Nhập mật khẩu SSH khi terminal hỏi, không gửi vào chat.
 Có tiến độ mỗi20giây; thời gian truyền gói phụ thuộc mạng. Không chạy cùng probe W-0343 để tránh tranh tài nguyên.
 Thành công của lệnh chuyển file chưa phải nghiệm thu: Codex cần đọc và xác minh receipt thực tế.
@@ -75,6 +76,13 @@ Thành công của lệnh chuyển file chưa phải nghiệm thu: Codex cần �
 2. **Codex:** kiểm hash/scope/hostname, 7ca SIP/DTMF, đối soát DB, model/DLL và dọn tài nguyên;
    cập nhật kết quả S5 theo dữ liệu trả về. Nếu lỗi, sửa đúng nguyên nhân và chạy lại, giữ raw cũ.
 3. **Toàn:** nghiệm thu sau khi có kết quả S5. Hiện chưa chuyển ACCEPTED.
+
+Sau lỗi SSH 255, lớp bàn giao đã thêm [resume-s5-full-flow.ps1](resume-s5-full-flow.ps1)
+và [helper độc lập phiên](recover-s5-full-flow.py). Mất kết nối không tạo lượt kiểm thứ hai;
+run dở cần xem chẩn đoán, không tự xóa hoặc chạy đè. 5 test Linux (bao gồm SIGHUP cả nhóm
+SSH giả lập) đạt, xem [bằng chứng khôi phục](ssh-recovery-verification.json). Gói ứng dụng,
+installer, manifest và 7 ca kiểm giữ nguyên hash. Bản script cũ được giữ tại
+`.artifacts/W-0344/ssh-recovery-baseline/`; kết quả rehearsal gốc không được viết lại.
 
 Ghi chú provenance: claim W-0343 trùng phiên chuẩn bị image mới, nên full-flow chuyển sang W-0344.
 Raw rehearsal đầu dùng prefix W0343 được giữ nguyên để điều tra; đó không phải kết quả S5/W-0343 phát hành.
