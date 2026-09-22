@@ -1,0 +1,226 @@
+{
+  "work_id": "W-0341",
+  "checked_utc": "2026-09-22T03:30:43.918055+00:00",
+  "scope": "PUBLISHED_RIGHTS_REVIEW_EXACT_PINNED_MODELS",
+  "sha256_encoding": "concatenate eight hexadecimal blocks",
+  "production": "BLOCKED",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "files": [
+    {
+      "file": ".artifacts/W-0341/upstream/vieneu-revision.json",
+      "url": "https://huggingface.co/api/models/pnnbao-ump/VieNeu-TTS-v3-Turbo/revision/2da0efab622a1722125991736524f080b751ef5b",
+      "resolved_url": "https://huggingface.co/api/models/pnnbao-ump/VieNeu-TTS-v3-Turbo/revision/2da0efab622a1722125991736524f080b751ef5b",
+      "size_bytes": 3041,
+      "sha256": [
+        "3f794b76",
+        "e3991102",
+        "b8e0271e",
+        "9cbc4364",
+        "9ad62225",
+        "469334f6",
+        "008657b5",
+        "d14b37cc"
+      ],
+      "revision": "2da0efab622a1722125991736524f080b751ef5b",
+      "license_metadata": "apache-2.0",
+      "standalone_license_files": []
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/vieneu-README.md",
+      "url": "https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo/resolve/2da0efab622a1722125991736524f080b751ef5b/README.md",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/pnnbao-ump/VieNeu-TTS-v3-Turbo/2da0efab622a1722125991736524f080b751ef5b/README.md?%2Fpnnbao-ump%2FVieNeu-TTS-v3-Turbo%2Fresolve%2F2da0efab622a1722125991736524f080b751ef5b%2FREADME.md=&etag=%22d202164d9ebfdc24e4751f6a328e43889f2cedf6%22",
+      "size_bytes": 13318,
+      "sha256": [
+        "f8a7927b",
+        "5a6f27d1",
+        "ab54c63a",
+        "22a3c010",
+        "f8622b00",
+        "6c3239a6",
+        "91bcd014",
+        "b108b2b7"
+      ],
+      "matches_model_lock": true,
+      "local_match_path": ".artifacts/W-0333/vieneu-s5/models/metadata/vieneu-model-card.md",
+      "local_bytes_equal": true,
+      "local_lf_text_equal": true
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/moss-onnx-revision.json",
+      "url": "https://huggingface.co/api/models/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX/revision/ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae",
+      "resolved_url": "https://huggingface.co/api/models/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX/revision/ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae",
+      "size_bytes": 1500,
+      "sha256": [
+        "41fd9159",
+        "f46b8492",
+        "202bcbd8",
+        "989efb58",
+        "6e1895d3",
+        "a1a833ce",
+        "fd3965da",
+        "2e63e686"
+      ],
+      "revision": "ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae",
+      "license_metadata": "apache-2.0",
+      "standalone_license_files": []
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/moss-onnx-README.md",
+      "url": "https://huggingface.co/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX/resolve/ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae/README.md",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX/ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae/README.md?%2FOpenMOSS-Team%2FMOSS-Audio-Tokenizer-Nano-ONNX%2Fresolve%2Fceff0d0749bfb3fa2d61149794ec6feef0d1e1ae%2FREADME.md=&etag=%2246f3d445b16e8a283dd62fc9bdeec8aa35a59337%22",
+      "size_bytes": 4892,
+      "sha256": [
+        "3c7b9e9e",
+        "f1c8c5e5",
+        "c829a077",
+        "a1d32c1f",
+        "7aea1668",
+        "f2bf17ea",
+        "d318ff04",
+        "bf1e6fe4"
+      ],
+      "matches_model_lock": true,
+      "local_match_path": ".artifacts/W-0333/vieneu-s5/models/metadata/moss-codec-model-card.md",
+      "local_bytes_equal": true,
+      "local_lf_text_equal": true
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/vieneu-source-LICENSE",
+      "url": "https://raw.githubusercontent.com/pnnbao97/VieNeu-TTS/36c4b501b0634a8f59805e6b529a058fbd30190b/LICENSE",
+      "resolved_url": "https://raw.githubusercontent.com/pnnbao97/VieNeu-TTS/36c4b501b0634a8f59805e6b529a058fbd30190b/LICENSE",
+      "size_bytes": 11357,
+      "sha256": [
+        "c71d239d",
+        "f91726fc",
+        "519c6eb7",
+        "2d318ec6",
+        "58206272",
+        "32b2f796",
+        "219e87dc",
+        "f35d0ab4"
+      ],
+      "local_match_path": "third_party/vieneu-tts/LICENSE",
+      "local_bytes_equal": true,
+      "local_lf_text_equal": true
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/vieneu-preset-voices.json",
+      "url": "https://raw.githubusercontent.com/pnnbao97/VieNeu-TTS/36c4b501b0634a8f59805e6b529a058fbd30190b/src/vieneu/assets/voices_v3_turbo.json",
+      "resolved_url": "https://raw.githubusercontent.com/pnnbao97/VieNeu-TTS/36c4b501b0634a8f59805e6b529a058fbd30190b/src/vieneu/assets/voices_v3_turbo.json",
+      "size_bytes": 140175,
+      "sha256": [
+        "574e6acf",
+        "03823c4c",
+        "afdc43f1",
+        "06731ce5",
+        "fce6de30",
+        "228fe383",
+        "831b8b90",
+        "64ee0bd8"
+      ],
+      "local_match_path": "third_party/vieneu-tts/src/vieneu/assets/voices_v3_turbo.json",
+      "local_bytes_equal": true,
+      "local_lf_text_equal": true
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/moss-original-revision.json",
+      "url": "https://huggingface.co/api/models/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano/revision/main",
+      "resolved_url": "https://huggingface.co/api/models/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano/revision/main",
+      "size_bytes": 2971,
+      "sha256": [
+        "e8863ebc",
+        "b3a5409e",
+        "ffafef47",
+        "d104a955",
+        "ba3955ca",
+        "64740a20",
+        "481b6501",
+        "a50ad376"
+      ],
+      "revision": "6aa02b01e445cc585582cf0ba480bc3ea6c8dd68",
+      "license_metadata": "apache-2.0",
+      "standalone_license_files": []
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/moss-source-commit.json",
+      "url": "https://api.github.com/repos/OpenMOSS/MOSS-Audio-Tokenizer/commits/main",
+      "resolved_url": "https://api.github.com/repos/OpenMOSS/MOSS-Audio-Tokenizer/commits/main",
+      "size_bytes": 5257,
+      "sha256": [
+        "1cbbb009",
+        "f73be560",
+        "29d43484",
+        "3a57a204",
+        "312efe7c",
+        "5d977fa8",
+        "c0dcd0f9",
+        "f367e19f"
+      ],
+      "revision": "8c50ac4c5d7287d2ed6ea20a08c90ca439887d23"
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/APACHE-2.0.txt",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+      "resolved_url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+      "size_bytes": 11358,
+      "sha256": [
+        "cfc7749b",
+        "96f63bd3",
+        "1c3c42b5",
+        "c471bf75",
+        "6814053e",
+        "847c10f3",
+        "eb003417",
+        "bc523d30"
+      ]
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/moss-original-README.md",
+      "url": "https://huggingface.co/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano/resolve/6aa02b01e445cc585582cf0ba480bc3ea6c8dd68/README.md",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano/6aa02b01e445cc585582cf0ba480bc3ea6c8dd68/README.md?%2FOpenMOSS-Team%2FMOSS-Audio-Tokenizer-Nano%2Fresolve%2F6aa02b01e445cc585582cf0ba480bc3ea6c8dd68%2FREADME.md=&etag=%22a276b3e2e399916a0cda4c4145e48655ddd62faa%22",
+      "size_bytes": 12491,
+      "sha256": [
+        "83cae343",
+        "211c7c48",
+        "2433c975",
+        "8f16fc9d",
+        "17046a0c",
+        "d450d185",
+        "b473542e",
+        "87e35ef8"
+      ]
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/moss-source-LICENSE",
+      "url": "https://raw.githubusercontent.com/OpenMOSS/MOSS-Audio-Tokenizer/8c50ac4c5d7287d2ed6ea20a08c90ca439887d23/LICENSE",
+      "resolved_url": "https://raw.githubusercontent.com/OpenMOSS/MOSS-Audio-Tokenizer/8c50ac4c5d7287d2ed6ea20a08c90ca439887d23/LICENSE",
+      "size_bytes": 11374,
+      "sha256": [
+        "08af5a26",
+        "8e2223eb",
+        "f492a30e",
+        "f8c21a73",
+        "4a6faa17",
+        "23af0d09",
+        "a2027d60",
+        "ed78ea24"
+      ]
+    },
+    {
+      "file": ".artifacts/W-0341/upstream/moss-source-README.md",
+      "url": "https://raw.githubusercontent.com/OpenMOSS/MOSS-Audio-Tokenizer/8c50ac4c5d7287d2ed6ea20a08c90ca439887d23/README.md",
+      "resolved_url": "https://raw.githubusercontent.com/OpenMOSS/MOSS-Audio-Tokenizer/8c50ac4c5d7287d2ed6ea20a08c90ca439887d23/README.md",
+      "size_bytes": 20440,
+      "sha256": [
+        "05fcbc5c",
+        "e428940d",
+        "b6ca05c0",
+        "e6ddfb3c",
+        "cc1fa3b8",
+        "8666f25f",
+        "2ccd7251",
+        "828b6db4"
+      ]
+    }
+  ]
+}

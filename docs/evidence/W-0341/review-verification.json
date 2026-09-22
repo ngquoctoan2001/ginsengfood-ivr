@@ -1,0 +1,107 @@
+{
+  "work_id": "W-0341",
+  "verified_utc": "2026-09-22T03:35:54.002175+00:00",
+  "status": "PUBLISHED_RIGHTS_EVIDENCE_VERIFIED",
+  "source_files_verified": 12,
+  "exact_model_cards": [
+    {
+      "mirror_path": "models/metadata/vieneu-model-card.md",
+      "matches_model_lock": true
+    },
+    {
+      "mirror_path": "models/metadata/moss-codec-model-card.md",
+      "matches_model_lock": true
+    }
+  ],
+  "voice_presets": [
+    {
+      "voice_id": "v3t-north-ngoc-linh",
+      "preset": "Ngọc Linh",
+      "bundled_preset": true
+    },
+    {
+      "voice_id": "v3t-central-ngoc-tran",
+      "preset": "Ngọc Trân",
+      "bundled_preset": true
+    },
+    {
+      "voice_id": "v3t-south-my-duyen",
+      "preset": "Mỹ Duyên",
+      "bundled_preset": true
+    }
+  ],
+  "previous_artifact_bindings_verified": 33,
+  "previous_unique_files_verified": 32,
+  "active_model_lock_changed": false,
+  "runtime_profile_changed": false,
+  "S2_owner_decision": "PRESERVED_AS_SIGNED",
+  "production": "BLOCKED",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "bindings": [
+    {
+      "path": ".artifacts/W-0341/collect-rights-evidence.py",
+      "sha256": [
+        "ef18ae29",
+        "3c97eedb",
+        "f2c89e19",
+        "28067831",
+        "a13fdc7f",
+        "7eb6c690",
+        "34bb38eb",
+        "2ffc681f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0341/verify-review.py",
+      "sha256": [
+        "98a749bc",
+        "006873e8",
+        "269c976b",
+        "730fa8a6",
+        "ad7856c7",
+        "1633efd5",
+        "f4aeb33b",
+        "4dea9ded"
+      ]
+    },
+    {
+      "path": "deploy/tts/models/MODELS.lock",
+      "sha256": [
+        "bba41ea7",
+        "96bc6ab1",
+        "c659865a",
+        "1087868d",
+        "41353680",
+        "8e00535c",
+        "71e5ce46",
+        "09cbe37d"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/voices.json",
+      "sha256": [
+        "9a76fdab",
+        "ca3ad589",
+        "94caa1b5",
+        "9c0c76f3",
+        "a98facb2",
+        "2f11e2f9",
+        "ec9210a9",
+        "371ccae2"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0340/S2-owner-review.md",
+      "sha256": [
+        "6aa620e2",
+        "fb41c62b",
+        "6c36b4ab",
+        "42412896",
+        "b592f57d",
+        "5f4537a1",
+        "9fda9eff",
+        "10e6ebc3"
+      ]
+    }
+  ]
+}
