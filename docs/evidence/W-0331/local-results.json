@@ -1,0 +1,932 @@
+{
+  "work_id": "W-0331",
+  "baseline": "f2d35cefdf83c6767a2fdfb34d4e17567b2c68d5",
+  "head_observed_at_export": "8557baa9cb82e647ad868760d48a36006c7bfdd7",
+  "scope": "LOCAL_BASELINE_PLUS_EXPLICIT_OVERLAY_NOT_HOSTED_CI",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production_ready": false,
+  "listening": "OWNER_ACCEPTED_NO_RELISTEN",
+  "candidate": {
+    "baseline": "f2d35cefdf83c6767a2fdfb34d4e17567b2c68d5",
+    "overlays": [
+      {
+        "path": "src/Ivr.Infrastructure/Speech/ConfigurableExternalTtsProvider.cs",
+        "sha256_hex_blocks": [
+          "b4461c34",
+          "548fc1c4",
+          "02916aa3",
+          "a35413e1",
+          "a68807cf",
+          "cfa35ea4",
+          "3e56a99a",
+          "4b065666"
+        ]
+      },
+      {
+        "path": "tests/Ivr.UnitTests/Speech/TtsBusyRetryTests.cs",
+        "sha256_hex_blocks": [
+          "1c4f48ff",
+          "6ef1eeb5",
+          "07a76759",
+          "ab8fe334",
+          "995441ab",
+          "829a68af",
+          "17692121",
+          "ecbf3c65"
+        ]
+      }
+    ],
+    "excluded_shared_wip": [
+      "src/Ivr.Infrastructure/Audit/PostgresAuditLogger.cs",
+      "src/Ivr.Infrastructure/Governance/DsarService.cs"
+    ],
+    "archive_sha256_hex_blocks": [
+      "685c36ba",
+      "ad657f84",
+      "d7bdb3ca",
+      "9bce4c13",
+      "fa7f9ec7",
+      "3e54f1c8",
+      "20f450fc",
+      "c1911a3f"
+    ]
+  },
+  "worker_sha256_hex_blocks": [
+    "24409b68",
+    "2e9fd82b",
+    "113e3d2c",
+    "3ffc544c",
+    "32bfbe0a",
+    "ab63e1e2",
+    "2d1d2439",
+    "93e64bce"
+  ],
+  "tts_sha256_hex_blocks": [
+    "79e9106e",
+    "c1401c5c",
+    "dd751b80",
+    "da52e6d8",
+    "a46f17f4",
+    "37c1e069",
+    "0209bce1",
+    "3b692581"
+  ],
+  "excluded_initial_shared_worker_sha256_hex_blocks": [
+    "6c92cab9",
+    "48857776",
+    "31670425",
+    "44e9b81f",
+    "f09fa04e",
+    "7aec1190",
+    "7abe02b1",
+    "0205c63c"
+  ],
+  "tests": {
+    "before": {
+      "total": "7",
+      "executed": "7",
+      "passed": "3",
+      "failed": "4",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "shared_after": {
+      "total": "220",
+      "executed": "220",
+      "passed": "220",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "shared_traceability_race": {
+      "total": "8",
+      "executed": "8",
+      "passed": "7",
+      "failed": "1",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "bounded_candidate": {
+      "total": "221",
+      "executed": "221",
+      "passed": "221",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "real_model_probe": {
+    "scope": "LOCAL_REAL_MODEL_NO_CALLS",
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+    "results": [
+      {
+        "scenario": "busy_recovery",
+        "elapsed_ms": 4685,
+        "statuses": [
+          503,
+          503,
+          503,
+          503,
+          503,
+          200
+        ],
+        "cancelled": false,
+        "media_files": 1
+      },
+      {
+        "scenario": "busy_timeout",
+        "elapsed_ms": 505,
+        "statuses": [
+          503,
+          503
+        ],
+        "cancelled": true,
+        "media_files": 0
+      }
+    ]
+  },
+  "probe_approved_pcm_equal": true,
+  "probe_pcm_sha256_hex_blocks": [
+    "3e0e8ac7",
+    "a7d74489",
+    "a30511e0",
+    "6fd29e05",
+    "e3d1e44e",
+    "83a0feb0",
+    "0c533e04",
+    "46869056"
+  ],
+  "initial_model_startup_wait": "FAILED_BEFORE_PROBE_RETAINED",
+  "lab_first_attempt_failed": {
+    "scope": "LOCAL_SYNTHETIC_SIP",
+    "real_customer_call_allowed": "NO",
+    "human_listening": "OWNER_ACCEPTED_NO_RELISTEN",
+    "started_utc": "2026-09-21T07:09:31.247965+00:00",
+    "switch_image_sha256_hex_blocks": [
+      "6a3b73f5",
+      "2ff12509",
+      "56dcdaa3",
+      "735581e1",
+      "287e4b47",
+      "4396c1dc",
+      "813dbf07",
+      "509eb585"
+    ],
+    "original_config_sha256_hex_blocks": [
+      "d4de36b1",
+      "6cac6fc1",
+      "e5f3cfa1",
+      "d0a1e861",
+      "060c957c",
+      "6c20ed8f",
+      "555752b0",
+      "be1f9389"
+    ],
+    "calls": [
+      {
+        "case": "North-MultiItem-1",
+        "region": "North",
+        "variant": "MultiItem",
+        "digit": "1",
+        "started_utc": "2026-09-21T07:09:39.624503+00:00",
+        "audio_ms": 22080,
+        "sent_utc": null,
+        "pass": false,
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T07:10:12.825712+00:00",
+        "task_id": "TASK-LAB-20260921070957",
+        "attempt": {
+          "status": "NORMALIZED_TECHNICAL_RETRY",
+          "dtmf": null,
+          "voice_id": null,
+          "region": null,
+          "region_resolved": null,
+          "started_at": null,
+          "ended_at": "2026-09-21T07:10:10.694307+00:00",
+          "counted": false,
+          "exception": "TTS_TIMEOUT"
+        },
+        "result": {
+          "type": "IVR_TECHNICAL_EXCEPTION",
+          "final": false,
+          "counted": false
+        },
+        "media": []
+      }
+    ],
+    "restored": true,
+    "contacts_before": "No objects found.",
+    "contacts_automatic": "Contact:  <Aor/ContactUri..............................> <Hash....> <Status> <RTT(ms)..>\n==========================================================================================\n\n  Contact:  LAB-A-AUTO/sip:LAB-A@172.21.0.6:5060           b410b9e80d Avail         1.061\n\nObjects found: 1",
+    "ended_utc": "2026-09-21T07:10:28.504999+00:00"
+  },
+  "lab_first_job_current": [
+    {
+      "status": "WINDOW_EXPIRED",
+      "task_id": "TASK-LAB-20260921070957"
+    },
+    {
+      "status": "NORMALIZED_TECHNICAL_RETRY",
+      "exception": "TTS_TIMEOUT",
+      "counted": false,
+      "started_at": null,
+      "ended_at": "2026-09-21T07:10:10.694307+00:00"
+    },
+    {
+      "status": "NORMALIZED_REVIEW_REQUIRED",
+      "exception": "ASTERISK_DIAL_FAILED",
+      "counted": false,
+      "started_at": null,
+      "ended_at": "2026-09-21T07:10:25.78506+00:00"
+    }
+  ],
+  "lab_warm_smoke": {
+    "scope": "LOCAL_SYNTHETIC_SIP",
+    "real_customer_call_allowed": "NO",
+    "human_listening": "OWNER_ACCEPTED_NO_RELISTEN",
+    "started_utc": "2026-09-21T07:13:21.800317+00:00",
+    "switch_image_sha256_hex_blocks": [
+      "6a3b73f5",
+      "2ff12509",
+      "56dcdaa3",
+      "735581e1",
+      "287e4b47",
+      "4396c1dc",
+      "813dbf07",
+      "509eb585"
+    ],
+    "original_config_sha256_hex_blocks": [
+      "d4de36b1",
+      "6cac6fc1",
+      "e5f3cfa1",
+      "d0a1e861",
+      "060c957c",
+      "6c20ed8f",
+      "555752b0",
+      "be1f9389"
+    ],
+    "calls": [
+      {
+        "case": "North-MultiItem-1",
+        "region": "North",
+        "variant": "MultiItem",
+        "digit": "1",
+        "started_utc": "2026-09-21T07:13:28.011730+00:00",
+        "audio_ms": 22080,
+        "sent_utc": "2026-09-21T07:13:59.742655+00:00",
+        "pass": true,
+        "answered_utc": "2026-09-21T07:13:35.025775+00:00",
+        "rtp_switch": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          LAB-A-00000026     00:00:25 ulaw        0       1    0   0.000   1104       0    0   0.000   0.001\n\nObjects found: 1",
+        "rtp_peer": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          switch-00000000    00:00:25 ulaw     1104       0    0   0.000      0       0    0   0.000   0.000\n\nObjects found: 1",
+        "send_result": "Channel 'PJSIP/switch-00000000' successfully redirected to send-1,s,1",
+        "job_status": "RESULT_READY_FOR_CALLBACK",
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T07:14:04.423869+00:00",
+        "task_id": "TASK-LAB-20260921071332",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-north-ngoc-linh",
+          "region": "North",
+          "region_resolved": true,
+          "started_at": "2026-09-21T07:13:34.454878+00:00",
+          "ended_at": "2026-09-21T07:14:00.111303+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "media": [
+          "ivr-seg-north-4612fb85a1d0c3df.slin",
+          "generated/dce270b6d5ad6746cc62b82797108073.slin",
+          "ivr-seg-north-95f78c510d802cdf.slin",
+          "generated/3da9be5c0f60200c710e2c3f5ef06b10.slin",
+          "ivr-seg-north-53d482dfd9119b91.slin",
+          "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin",
+          "ivr-seg-north-764af2bea49c72c8.slin"
+        ],
+        "received_dtmf_trace": [
+          "[2026-09-21 07:14:00] DTMF[30936] channel.c: DTMF end '1' received on PJSIP/LAB-A-00000026, duration 160 ms"
+        ],
+        "active_ms": 25656
+      }
+    ],
+    "restored": true,
+    "contacts_before": "No objects found.",
+    "contacts_automatic": "Contact:  <Aor/ContactUri..............................> <Hash....> <Status> <RTT(ms)..>\n==========================================================================================\n\n  Contact:  LAB-A-AUTO/sip:LAB-A@172.21.0.6:5060           b410b9e80d Avail         0.739\n\nObjects found: 1",
+    "ended_utc": "2026-09-21T07:14:15.532187+00:00"
+  },
+  "running": {
+    "ivr-worker": {
+      "image_sha256_hex_blocks": [
+        "24409b68",
+        "2e9fd82b",
+        "113e3d2c",
+        "3ffc544c",
+        "32bfbe0a",
+        "ab63e1e2",
+        "2d1d2439",
+        "93e64bce"
+      ],
+      "mode": "LAB_REAL_SIM",
+      "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+    },
+    "ivr-api": {
+      "image_sha256_hex_blocks": [
+        "9da1cd8f",
+        "176c90ba",
+        "c95dcfaa",
+        "5e3c0cc0",
+        "96946710",
+        "774610ef",
+        "9693ce19",
+        "3594bdf9"
+      ],
+      "mode": "LAB_REAL_SIM",
+      "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+    },
+    "ivr-tts": {
+      "image_sha256_hex_blocks": [
+        "79e9106e",
+        "c1401c5c",
+        "dd751b80",
+        "da52e6d8",
+        "a46f17f4",
+        "37c1e069",
+        "0209bce1",
+        "3b692581"
+      ],
+      "mode": "LAB_REAL_SIM",
+      "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+    }
+  },
+  "post_run": {
+    "active_channels": 0,
+    "active_calls": 0,
+    "peer_removed": true
+  },
+  "scan": {
+    "artifact_id_sha256_hex_blocks": [
+      "ba54d07d",
+      "cfbace15",
+      "712a3ff5",
+      "374b9c3f",
+      "6c5e3acd",
+      "38e80295",
+      "4ed7b84f",
+      "71033bc5"
+    ],
+    "archive_image_sha256_hex_blocks": [
+      "24409b68",
+      "2e9fd82b",
+      "113e3d2c",
+      "3ffc544c",
+      "32bfbe0a",
+      "ab63e1e2",
+      "2d1d2439",
+      "93e64bce"
+    ],
+    "config_digest_sha256_hex_blocks": [
+      "ba54d07d",
+      "cfbace15",
+      "712a3ff5",
+      "374b9c3f",
+      "6c5e3acd",
+      "38e80295",
+      "4ed7b84f",
+      "71033bc5"
+    ],
+    "high": 0,
+    "critical": 0,
+    "trivy_version": "0.73.0",
+    "created_at": "2026-09-21T07:11:27.342511177Z",
+    "scanner_sha256_hex_blocks": [
+      "7cced7ca",
+      "e583819f",
+      "c7806d4c",
+      "bc0dbbc7",
+      "cad18b99",
+      "f7d3e235",
+      "192e6da8",
+      "c091045c"
+    ],
+    "db": {
+      "Version": 2,
+      "NextUpdate": "2026-09-21T19:19:55.870895986Z",
+      "UpdatedAt": "2026-09-20T19:19:55.870896177Z",
+      "DownloadedAt": "2026-09-21T02:15:23.275405607Z"
+    },
+    "network": "NONE",
+    "docker_socket": false,
+    "archive_sha256_hex_blocks": [
+      "a980bf25",
+      "47c80d08",
+      "0ce599c1",
+      "ef4ce0be",
+      "4090f1c8",
+      "1738edef",
+      "a9d9f3a3",
+      "4ee2075a"
+    ]
+  },
+  "remaining": {
+    "s5_host": "UNIDENTIFIED",
+    "s5_load": "NOT_RUN",
+    "production_5s_budget": "NOT_PROVEN",
+    "lab_cold_10s": "TIMEOUT_REPRODUCED",
+    "inflight_inference_cancel": "NOT_IMPLEMENTED",
+    "mirror": "OWNER_DATA_REQUIRED",
+    "S2_model_codec_legal": "OWNER_DECISION_REQUIRED"
+  },
+  "source_bindings": [
+    {
+      "path": "src/Ivr.Infrastructure/Speech/ConfigurableExternalTtsProvider.cs",
+      "sha256_hex_blocks": [
+        "b4461c34",
+        "548fc1c4",
+        "02916aa3",
+        "a35413e1",
+        "a68807cf",
+        "cfa35ea4",
+        "3e56a99a",
+        "4b065666"
+      ]
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Speech/TtsBusyRetryTests.cs",
+      "sha256_hex_blocks": [
+        "1c4f48ff",
+        "6ef1eeb5",
+        "07a76759",
+        "ab8fe334",
+        "995441ab",
+        "829a68af",
+        "17692121",
+        "ecbf3c65"
+      ]
+    },
+    {
+      "path": "deploy/lab/run-headless-dtmf.py",
+      "sha256_hex_blocks": [
+        "8f7670d1",
+        "632d5eb1",
+        "e221d80f",
+        "beb982d5",
+        "1a0be5ab",
+        "e71c23ca",
+        "1dd2df10",
+        "b7610cb3"
+      ]
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0331/candidate-bindings.json",
+      "bytes": 672,
+      "sha256_hex_blocks": [
+        "545005f8",
+        "6688e93c",
+        "7e606e83",
+        "409567c2",
+        "fcc4412e",
+        "b6094e18",
+        "b381308c",
+        "c00126e5"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/before/before.trx",
+      "bytes": 21014,
+      "sha256_hex_blocks": [
+        "9286af92",
+        "29c42d80",
+        "eb122466",
+        "de03b1bc",
+        "d9fd8c54",
+        "712f7fa9",
+        "d571c62d",
+        "a490a1b1"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/after/after.trx",
+      "bytes": 315957,
+      "sha256_hex_blocks": [
+        "3ca42501",
+        "7685e670",
+        "ec3f22be",
+        "32b02c0b",
+        "993cbe6a",
+        "b3bb32f8",
+        "b32e875c",
+        "53d6e219"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/final/final.trx",
+      "bytes": 14119,
+      "sha256_hex_blocks": [
+        "35395c86",
+        "298d07f2",
+        "f2bf2389",
+        "7587fc7f",
+        "503b0bef",
+        "174140c2",
+        "9f7e06b3",
+        "97c24bd9"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/candidate-tests/candidate.trx",
+      "bytes": 329640,
+      "sha256_hex_blocks": [
+        "75269c80",
+        "1012de29",
+        "cb5c0c26",
+        "c46ea037",
+        "9dd02020",
+        "a89aacd4",
+        "923593d0",
+        "f073fc0d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/worker-candidate-build.log",
+      "bytes": 4213,
+      "sha256_hex_blocks": [
+        "925deb41",
+        "d48ede81",
+        "d224caed",
+        "f8a32912",
+        "d7cf5159",
+        "cb57393d",
+        "b6f5b7cf",
+        "52c6bcae"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/candidate-probe-build.log",
+      "bytes": 850,
+      "sha256_hex_blocks": [
+        "4e6712ca",
+        "b7bdc68f",
+        "e86991e8",
+        "652a2b94",
+        "69be4898",
+        "64877815",
+        "53122cc6",
+        "82d513c5"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/real-client-candidate/client.log",
+      "bytes": 262,
+      "sha256_hex_blocks": [
+        "d60f7a94",
+        "16ee68dc",
+        "ee4dc07f",
+        "671fdd1b",
+        "028ec14e",
+        "98cbab2c",
+        "436843dd",
+        "93f931cb"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/real-client-candidate-r2/result.json",
+      "bytes": 502,
+      "sha256_hex_blocks": [
+        "a4ae3e06",
+        "902026a6",
+        "8bb34da6",
+        "6ad8d3ff",
+        "0871b8b3",
+        "d151d23b",
+        "f5ff8da0",
+        "2f69281f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/real-client-candidate-r2/images.json",
+      "bytes": 275,
+      "sha256_hex_blocks": [
+        "495460f6",
+        "9d2409d3",
+        "5ca714af",
+        "6d21a897",
+        "e4a8f3b6",
+        "3bdee64a",
+        "fe936ee9",
+        "dc7c2d9c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/real-client-candidate-r2/tts.log",
+      "bytes": 708,
+      "sha256_hex_blocks": [
+        "5a5f192e",
+        "0968b7ec",
+        "1ecd902e",
+        "a37aacfb",
+        "c9658690",
+        "5660f6b4",
+        "7df4657d",
+        "9d5d42b9"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/lab-before.json",
+      "bytes": 178,
+      "sha256_hex_blocks": [
+        "fa851201",
+        "447adf42",
+        "28be35a7",
+        "f14ace79",
+        "b9ac995c",
+        "07e5c789",
+        "ee03b708",
+        "2aee0a21"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/lab-after.json",
+      "bytes": 241,
+      "sha256_hex_blocks": [
+        "03237e72",
+        "fdb551c3",
+        "88bfbe2b",
+        "12af5fc3",
+        "6f165aa8",
+        "082b678a",
+        "b0b2274d",
+        "7a1da1a9"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/lab-update.log",
+      "bytes": 1005,
+      "sha256_hex_blocks": [
+        "115ba15d",
+        "5bc5adb8",
+        "f0815816",
+        "f14cc4e5",
+        "7edf902d",
+        "7e22add5",
+        "0663eea0",
+        "65502fa3"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/lab-smoke/result.json",
+      "bytes": 1697,
+      "sha256_hex_blocks": [
+        "9f4b08a4",
+        "9c8f6d24",
+        "580ab7ac",
+        "b4a94eac",
+        "5f9a02a9",
+        "c4d7d9d0",
+        "50d3c48e",
+        "246be5d5"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/lab-smoke-r2/result.json",
+      "bytes": 3376,
+      "sha256_hex_blocks": [
+        "b5b7daaf",
+        "750a449c",
+        "c0a27c4d",
+        "2b35c4a7",
+        "73ac84f1",
+        "535a78da",
+        "ed7b1335",
+        "fa368f38"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/lab-smoke-r2/dtmf-received.log",
+      "bytes": 7277,
+      "sha256_hex_blocks": [
+        "2c5d06d2",
+        "7aba7f8f",
+        "20d6655f",
+        "033f3a1a",
+        "f087dab4",
+        "18010f98",
+        "f434cd44",
+        "4435c42a"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/lab-tts.log",
+      "bytes": 284,
+      "sha256_hex_blocks": [
+        "c36ce4fd",
+        "962011a3",
+        "67d74b80",
+        "e11cfc0b",
+        "bdc0ff83",
+        "a5b16475",
+        "4e8546da",
+        "af469f6f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/scan-r2/trivy.json",
+      "bytes": 100733,
+      "sha256_hex_blocks": [
+        "a2145fb2",
+        "81df040a",
+        "d6a9ae7d",
+        "8f24cca9",
+        "b1af973d",
+        "73e2771a",
+        "ecbdda32",
+        "ff20062d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/scan-r2/scanner.log",
+      "bytes": 434,
+      "sha256_hex_blocks": [
+        "15c761a7",
+        "d4bee4bb",
+        "c1d039a2",
+        "4ce40ae0",
+        "16af1205",
+        "2eb47669",
+        "93357c96",
+        "86151128"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/detect-changes.json",
+      "bytes": 1060,
+      "sha256_hex_blocks": [
+        "413e7e1f",
+        "c451a090",
+        "6a7bd2e8",
+        "5da60577",
+        "6ba085ff",
+        "f5bfcc86",
+        "029f35ad",
+        "dfb1ea6c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/detect-changes-final.log",
+      "bytes": 1070,
+      "sha256_hex_blocks": [
+        "d2cd5c46",
+        "a14ba8e0",
+        "54e65145",
+        "9a9ee809",
+        "0d0d25db",
+        "d51da1fa",
+        "3fec9ac3",
+        "c1a3311e"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/harness-impact.log",
+      "bytes": 188,
+      "sha256_hex_blocks": [
+        "2cc4bf60",
+        "70e634cc",
+        "822a2f34",
+        "5c26de4e",
+        "7ec046b4",
+        "a2278b0e",
+        "fd643cd1",
+        "d9959e66"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/pii.log",
+      "bytes": 55,
+      "sha256_hex_blocks": [
+        "5440a396",
+        "bdc2ef4c",
+        "484849a8",
+        "b852be42",
+        "2ed3f1eb",
+        "16fa0d7f",
+        "2355d52d",
+        "b629e655"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/Probe/Program.cs",
+      "bytes": 5550,
+      "sha256_hex_blocks": [
+        "4ae63fa9",
+        "cd05ccde",
+        "9984a331",
+        "71e04036",
+        "6e02542f",
+        "2268776f",
+        "16f99239",
+        "fc1de4d8"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/Probe/Probe.csproj",
+      "bytes": 329,
+      "sha256_hex_blocks": [
+        "ea9e48d9",
+        "9d6e54cb",
+        "819a674f",
+        "4c420b29",
+        "bf90fbd8",
+        "b2b30fcc",
+        "174b5aaf",
+        "a636a1e0"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/run-candidate-probe-r2.ps1",
+      "bytes": 2463,
+      "sha256_hex_blocks": [
+        "1e0b0c8d",
+        "446ffc7c",
+        "0fcb167b",
+        "668f8c8d",
+        "8809c6d7",
+        "a6a2fa1b",
+        "8e07aeaf",
+        "de509550"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/wait-ready.py",
+      "bytes": 446,
+      "sha256_hex_blocks": [
+        "b4988e8e",
+        "e496b343",
+        "c19fe7d2",
+        "2f55540c",
+        "8a7ccd4b",
+        "c3c71eb0",
+        "60a837f5",
+        "2385fbc4"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0331/export-evidence.py",
+      "bytes": 7665,
+      "sha256_hex_blocks": [
+        "d48a0fc7",
+        "7137602f",
+        "8735ec96",
+        "f7e2a9a4",
+        "f68a7e17",
+        "16b0d8b4",
+        "e7675e1b",
+        "65fbbd28"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4469 @@
+{
+  "work_id": "W-0323",
+  "scope": "LOCAL_SHARED_WORKTREE_LAB_ONLY",
+  "baseline": "a7f7ad3c572fb71de46b90074e557abb6d994064",
+  "head_observed_at_export": "4346f6afd5920c447ff95adfc8466513edfb283c",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production_ready": false,
+  "listening": {
+    "owner_general_verdict": "GENERALLY_ACCEPTABLE",
+    "owner_requested_fix": "CONTINUOUS_ITEMS_SEAM",
+    "final_seam_listening": "OWNER_ACCEPTED",
+    "previous_manifest_sha256_base64": "6jCoFrQCM2WUjExnUYzjS9EdUkr2NMvoaqvQP2S1RaQ=",
+    "owner_confirmation": {
+      "date": "2026-09-21",
+      "quote": "đừng bắt tôi nghe nữa, nghe quài. tôi chốt mà. tiếp cái khác iđ",
+      "requires_relisten": false,
+      "scope": "THREE_VOICES_AND_FINAL_SEAMS"
+    }
+  },
+  "S2": {
+    "base_selection": "CHAINGUARD",
+    "selection_authority": "OWNER_DELEGATED_TECHNICAL_CHOICE",
+    "model_legal": "OWNER_DATA_REQUIRED",
+    "production_approval": false
+  },
+  "S5": {
+    "target_hardware": "NOT_IDENTIFIED",
+    "mirror": "OWNER_DATA_REQUIRED"
+  },
+  "host": {
+    "scope": "LOCAL_HOST_NOT_YET_CONFIRMED_AS_S5",
+    "cpu": {
+      "Name": "11th Gen Intel(R) Core(TM) i7-11700 @ 2.50GHz",
+      "NumberOfCores": 8,
+      "NumberOfLogicalProcessors": 16
+    },
+    "physical_ram_bytes": 34185228288,
+    "os": "Microsoft Windows 11 Pro",
+    "os_version": "10.0.26200",
+    "docker_cpus": 16,
+    "docker_memory_bytes": 16680824832,
+    "docker_os": "Docker Desktop",
+    "docker_arch": "x86_64"
+  },
+  "final_image": {
+    "image_id_sha256_hex_blocks": [
+      "3c221242",
+      "af56425f",
+      "15495a7c",
+      "a0934273",
+      "439b7fe9",
+      "b150f915",
+      "31710b4e",
+      "e47c2843"
+    ],
+    "running_image_equal": true,
+    "shim_sha256_base64": {
+      "convert.py": "TPdu05lfYlGUkgWcFCWnpqQtpoiNfLJYQkXpzzo/PZU=",
+      "server.py": "jIJOkPXvayJf5DXTyKyQhf/w5ieZiDi+HKYcojU9ddo=",
+      "acceptance.py": "fm8E3vkg59BSgW1TyTdkmG8t0kYtmh+zEK9cgKw6cKU=",
+      "backend.py": "K6uwCLbzu+qyLl2NFJYiFuZpAKQ5TPlrLebuYl4IbWg=",
+      "__init__.py": "lUWCfg5LWBACUnjPjhuZdyGumnUaMJcwmA/sfo4K3Cs=",
+      "model_lock.py": "A0450/ycxT25szT9g1p2MJURk5IcUNfXyPenDY/WXY4=",
+      "voices.json": "mnb9q8o61YmUyqG1nAx286mPrLIvEeL57JIQqTccyuI="
+    },
+    "all_shim_bytes_equal": true,
+    "high": 0,
+    "critical": 0
+  },
+  "scan": {
+    "trivy_version": "0.73.0",
+    "scanner_image_id_sha256_hex_blocks": [
+      "7cced7ca",
+      "e583819f",
+      "c7806d4c",
+      "bc0dbbc7",
+      "cad18b99",
+      "f7d3e235",
+      "192e6da8",
+      "c091045c"
+    ],
+    "created_at": "2026-09-21T04:12:39.978918471Z",
+    "db": {
+      "Version": 2,
+      "NextUpdate": "2026-09-21T19:19:55.870895986Z",
+      "UpdatedAt": "2026-09-20T19:19:55.870896177Z",
+      "DownloadedAt": "2026-09-21T02:15:23.275405607Z"
+    },
+    "report_sha256_base64": "wcOwfWeMP7Ugfl7rRGSoLQh+kZjumdBQT6FoI/4AcQw=",
+    "high": 0,
+    "critical": 0
+  },
+  "before_fix_measurement": {
+    "cases": [
+      {
+        "region": "North",
+        "variant": "A",
+        "samples": 1,
+        "request_max_ms": 1088,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 2652,
+        "synthesis_total_max_ms": 2652,
+        "audio_ms": 17680,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "North",
+        "variant": "B",
+        "samples": 1,
+        "request_max_ms": 684,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 1896,
+        "synthesis_total_max_ms": 1896,
+        "audio_ms": 16880,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "North",
+        "variant": "MultiItem",
+        "samples": 4,
+        "request_max_ms": 3534,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 3948,
+        "synthesis_total_max_ms": 5104,
+        "audio_ms": 22080,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "North",
+        "variant": "LongName",
+        "samples": 4,
+        "request_max_ms": 2775,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 3117,
+        "synthesis_total_max_ms": 4233,
+        "audio_ms": 21200,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "Central",
+        "variant": "A",
+        "samples": 1,
+        "request_max_ms": 1121,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 2682,
+        "synthesis_total_max_ms": 2682,
+        "audio_ms": 20560,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "Central",
+        "variant": "B",
+        "samples": 1,
+        "request_max_ms": 907,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 2567,
+        "synthesis_total_max_ms": 2567,
+        "audio_ms": 20240,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "Central",
+        "variant": "MultiItem",
+        "samples": 4,
+        "request_max_ms": 3585,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 4351,
+        "synthesis_total_max_ms": 5277,
+        "audio_ms": 25600,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "Central",
+        "variant": "LongName",
+        "samples": 4,
+        "request_max_ms": 3525,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 4221,
+        "synthesis_total_max_ms": 5404,
+        "audio_ms": 24960,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "South",
+        "variant": "A",
+        "samples": 1,
+        "request_max_ms": 1436,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 4055,
+        "synthesis_total_max_ms": 4055,
+        "audio_ms": 27600,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "South",
+        "variant": "B",
+        "samples": 1,
+        "request_max_ms": 1276,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 3023,
+        "synthesis_total_max_ms": 3023,
+        "audio_ms": 26320,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "South",
+        "variant": "MultiItem",
+        "samples": 4,
+        "request_max_ms": 6036,
+        "requests_over_5s": 3,
+        "synthesis_total_min_ms": 7999,
+        "synthesis_total_max_ms": 9714,
+        "audio_ms": 35360,
+        "pcm_repeat_equal": true
+      },
+      {
+        "region": "South",
+        "variant": "LongName",
+        "samples": 4,
+        "request_max_ms": 4112,
+        "requests_over_5s": 0,
+        "synthesis_total_min_ms": 5734,
+        "synthesis_total_max_ms": 6908,
+        "audio_ms": 32320,
+        "pcm_repeat_equal": true
+      }
+    ],
+    "total_cases": 30,
+    "total_requests": 90,
+    "simple_pcm_unchanged_from_w0321": 6,
+    "lab_timeout_ms": 10000,
+    "production_5s_budget": "NOT_MET",
+    "s5_target": "NOT_YET_IDENTIFIED"
+  },
+  "final_measurement": {
+    "scope": "LOCAL_LAB_MEASUREMENT",
+    "python": "3.14.7",
+    "load_ms": 8094,
+    "cases": [
+      {
+        "region": "North",
+        "variant": "A",
+        "iteration": 1,
+        "voice": "v3t-north-ngoc-linh",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 36,
+            "elapsed_ms": 1056,
+            "audio_ms": 2320,
+            "pcm_sha256_base64": "rYddzhX8ecMx0wEoqctBH7xsk6HBFMQASGnN3RuWeME="
+          },
+          {
+            "ordinal": 4,
+            "characters": 28,
+            "elapsed_ms": 703,
+            "audio_ms": 1600,
+            "pcm_sha256_base64": "uKrdDkZYm/1L188Kdic6yLRkes/XD3410zYKLsIkAw8="
+          },
+          {
+            "ordinal": 6,
+            "characters": 32,
+            "elapsed_ms": 826,
+            "audio_ms": 1840,
+            "pcm_sha256_base64": "Pg6Kx6fXRImjBRHgb9KeBePR5E6DoP6wDFM+BEaGkFY="
+          }
+        ],
+        "segmented_ms": 2585,
+        "segmented_audio_ms": 17680,
+        "segmented_pcm_sha256_base64": "jPEtTIC1ydTChNkK9esb+bERvJlvflexp83wg6Y2Yrw=",
+        "file": "North-A-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "North",
+        "variant": "B",
+        "iteration": 1,
+        "voice": "v3t-north-ngoc-linh",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 24,
+            "elapsed_ms": 943,
+            "audio_ms": 1600,
+            "pcm_sha256_base64": "kH0R8SIJw60pgF/LGnKwDBVkjuL16lmLYdlZp3LDFh0="
+          },
+          {
+            "ordinal": 4,
+            "characters": 31,
+            "elapsed_ms": 836,
+            "audio_ms": 1520,
+            "pcm_sha256_base64": "N8/GdOTShXxfHrt9wDYscF5ZAjK2Um0DgafX8wy4vvE="
+          },
+          {
+            "ordinal": 6,
+            "characters": 32,
+            "elapsed_ms": 908,
+            "audio_ms": 1840,
+            "pcm_sha256_base64": "Pg6Kx6fXRImjBRHgb9KeBePR5E6DoP6wDFM+BEaGkFY="
+          }
+        ],
+        "segmented_ms": 2687,
+        "segmented_audio_ms": 16880,
+        "segmented_pcm_sha256_base64": "U9zh+bpx6tPetvOMv2wpnNN8DcS2k2CnDUC+k0mopTs=",
+        "file": "North-B-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "North",
+        "variant": "MultiItem",
+        "iteration": 1,
+        "voice": "v3t-north-ngoc-linh",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 101,
+            "elapsed_ms": 3733,
+            "audio_ms": 6080,
+            "pcm_sha256_base64": "3OJwttWtZ0bMYrgnlxCAcxO98s3xCl6FJxYbBhBhHA8="
+          },
+          {
+            "ordinal": 4,
+            "characters": 42,
+            "elapsed_ms": 984,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "Pam+XA9gIAxxDiw/XvBrEKs3hvJ/IR7tja9u+U9FaeE="
+          },
+          {
+            "ordinal": 6,
+            "characters": 32,
+            "elapsed_ms": 862,
+            "audio_ms": 1840,
+            "pcm_sha256_base64": "Pg6Kx6fXRImjBRHgb9KeBePR5E6DoP6wDFM+BEaGkFY="
+          }
+        ],
+        "segmented_ms": 5579,
+        "segmented_audio_ms": 22080,
+        "segmented_pcm_sha256_base64": "jox1sejEkxCAAyEnM5IYEMUzy6cLspZKmaNdx0cAvd4=",
+        "file": "North-MultiItem-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "North",
+        "variant": "LongName",
+        "iteration": 1,
+        "voice": "v3t-north-ngoc-linh",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 99,
+            "elapsed_ms": 3235,
+            "audio_ms": 5440,
+            "pcm_sha256_base64": "Kiscpzd5+3RaXFjUdmnO9cqW/Tgb0OtCtmteHfl7SlA="
+          },
+          {
+            "ordinal": 4,
+            "characters": 38,
+            "elapsed_ms": 881,
+            "audio_ms": 2000,
+            "pcm_sha256_base64": "t7qxJeduyFghhBg1abGdwGN6QPENGbt5Gy0oPZUff7w="
+          },
+          {
+            "ordinal": 6,
+            "characters": 32,
+            "elapsed_ms": 860,
+            "audio_ms": 1840,
+            "pcm_sha256_base64": "Pg6Kx6fXRImjBRHgb9KeBePR5E6DoP6wDFM+BEaGkFY="
+          }
+        ],
+        "segmented_ms": 4976,
+        "segmented_audio_ms": 21200,
+        "segmented_pcm_sha256_base64": "xkx9yzdORY8KLNIrNJ2G2SO+dnZlNpIGFNKewnnU0dI=",
+        "file": "North-LongName-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "Central",
+        "variant": "A",
+        "iteration": 1,
+        "voice": "v3t-central-ngoc-tran",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 36,
+            "elapsed_ms": 1207,
+            "audio_ms": 2720,
+            "pcm_sha256_base64": "wkD7O7/w1UDiKJtSjrzNmTF6pQs4QeloA1JW0fhPlxg="
+          },
+          {
+            "ordinal": 4,
+            "characters": 27,
+            "elapsed_ms": 691,
+            "audio_ms": 1680,
+            "pcm_sha256_base64": "xv/cWSwNnCTN9aNocbKxkHybY4aY6GecLEbarrCXM88="
+          },
+          {
+            "ordinal": 6,
+            "characters": 34,
+            "elapsed_ms": 922,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "GJPIKT86Wj6HqmU3ShymK21qI7mkP93QAo5mAk6HoQ4="
+          }
+        ],
+        "segmented_ms": 2820,
+        "segmented_audio_ms": 20560,
+        "segmented_pcm_sha256_base64": "DpB8KtAj3znCQcbVsHxUHjwyZuRCxA5b0U6gc/AMVW8=",
+        "file": "Central-A-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "Central",
+        "variant": "B",
+        "iteration": 1,
+        "voice": "v3t-central-ngoc-tran",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 24,
+            "elapsed_ms": 844,
+            "audio_ms": 1840,
+            "pcm_sha256_base64": "jMa1T5VmW3RhhmRdpFVVrOs5oeMm73oa8pbT3T0ebQk="
+          },
+          {
+            "ordinal": 4,
+            "characters": 30,
+            "elapsed_ms": 903,
+            "audio_ms": 1820,
+            "pcm_sha256_base64": "q045XkedJz74DqRcQyfh4fTqUjD78LP7V9BKi+N3hAg="
+          },
+          {
+            "ordinal": 6,
+            "characters": 34,
+            "elapsed_ms": 847,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "GJPIKT86Wj6HqmU3ShymK21qI7mkP93QAo5mAk6HoQ4="
+          }
+        ],
+        "segmented_ms": 2594,
+        "segmented_audio_ms": 19820,
+        "segmented_pcm_sha256_base64": "0hPoDVYTXg69WCqOAfo66wdmBBTsrS57GV9I6okgu/k=",
+        "file": "Central-B-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "Central",
+        "variant": "MultiItem",
+        "iteration": 1,
+        "voice": "v3t-central-ngoc-tran",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 101,
+            "elapsed_ms": 3850,
+            "audio_ms": 7040,
+            "pcm_sha256_base64": "0wmtQywa1IDtjslbpJX/VK6C2HzgnYYF/06QB3RrPUo="
+          },
+          {
+            "ordinal": 4,
+            "characters": 41,
+            "elapsed_ms": 1190,
+            "audio_ms": 2400,
+            "pcm_sha256_base64": "jsAkTDR/jIzpvLPcECMlz6m5oPzKCbBm7q5HMAYbzw0="
+          },
+          {
+            "ordinal": 6,
+            "characters": 34,
+            "elapsed_ms": 1239,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "GJPIKT86Wj6HqmU3ShymK21qI7mkP93QAo5mAk6HoQ4="
+          }
+        ],
+        "segmented_ms": 6279,
+        "segmented_audio_ms": 25600,
+        "segmented_pcm_sha256_base64": "Mzwc+y1Sv6bpCnY3/LvGBhQrS4090JyP2IQj0nQckyI=",
+        "file": "Central-MultiItem-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "Central",
+        "variant": "LongName",
+        "iteration": 1,
+        "voice": "v3t-central-ngoc-tran",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 99,
+            "elapsed_ms": 3816,
+            "audio_ms": 6560,
+            "pcm_sha256_base64": "CNfb6fD9rqTqLrR6e/nmZpeLB6NWdPIZ1ZMhEmpvU/8="
+          },
+          {
+            "ordinal": 4,
+            "characters": 37,
+            "elapsed_ms": 973,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "5ESCnMUo8K2FhmdvXKPliX6i6/urzbf51ovzuqZ35vM="
+          },
+          {
+            "ordinal": 6,
+            "characters": 34,
+            "elapsed_ms": 1135,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "GJPIKT86Wj6HqmU3ShymK21qI7mkP93QAo5mAk6HoQ4="
+          }
+        ],
+        "segmented_ms": 5924,
+        "segmented_audio_ms": 24960,
+        "segmented_pcm_sha256_base64": "01YfcO/Rco14r0rR1ScYN9bri+RHJH69myaoLBFfvrI=",
+        "file": "Central-LongName-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "South",
+        "variant": "A",
+        "iteration": 1,
+        "voice": "v3t-south-my-duyen",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 36,
+            "elapsed_ms": 1304,
+            "audio_ms": 3040,
+            "pcm_sha256_base64": "PFlszgim4OK2dpivTzTUFIxCjryOOzkSJrwqUCYBqqA="
+          },
+          {
+            "ordinal": 4,
+            "characters": 27,
+            "elapsed_ms": 1684,
+            "audio_ms": 3600,
+            "pcm_sha256_base64": "9fLZwzNwzYgQNDXMt0mxfH+3tcBO9blqW+c9IFf/BLw="
+          },
+          {
+            "ordinal": 6,
+            "characters": 33,
+            "elapsed_ms": 1129,
+            "audio_ms": 2560,
+            "pcm_sha256_base64": "cEeTpjgaUFpYj59Mvoj1s6CUIb795TuaWdCWVkA3bXA="
+          }
+        ],
+        "segmented_ms": 4117,
+        "segmented_audio_ms": 27600,
+        "segmented_pcm_sha256_base64": "fkYn3B65VuGpI+cQD4ND7RPxIm7uqmj1NbguAimFCMQ=",
+        "file": "South-A-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "South",
+        "variant": "B",
+        "iteration": 1,
+        "voice": "v3t-south-my-duyen",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 24,
+            "elapsed_ms": 1028,
+            "audio_ms": 2160,
+            "pcm_sha256_base64": "2cun8fH3ywACtQQQrE05RM6bjR/OOfexVKz1I3uyeWs="
+          },
+          {
+            "ordinal": 4,
+            "characters": 30,
+            "elapsed_ms": 1615,
+            "audio_ms": 3200,
+            "pcm_sha256_base64": "yyVOpfncVBC/bPDBKMyBoe5UJWttcat/jJpZUmGL4NY="
+          },
+          {
+            "ordinal": 6,
+            "characters": 33,
+            "elapsed_ms": 1173,
+            "audio_ms": 2560,
+            "pcm_sha256_base64": "cEeTpjgaUFpYj59Mvoj1s6CUIb795TuaWdCWVkA3bXA="
+          }
+        ],
+        "segmented_ms": 3816,
+        "segmented_audio_ms": 26320,
+        "segmented_pcm_sha256_base64": "fvfTpL8IcUn0sGynu9w3icLHc2C93rP0gg6aHh0KlzU=",
+        "file": "South-B-1.wav",
+        "within_5s_each": true
+      },
+      {
+        "region": "South",
+        "variant": "MultiItem",
+        "iteration": 1,
+        "voice": "v3t-south-my-duyen",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 101,
+            "elapsed_ms": 7471,
+            "audio_ms": 7440,
+            "pcm_sha256_base64": "Df9bvQ87l9f8LIJusCP3sPhtOjaj7JMnzH9SKcPR3lk="
+          },
+          {
+            "ordinal": 4,
+            "characters": 41,
+            "elapsed_ms": 4157,
+            "audio_ms": 5360,
+            "pcm_sha256_base64": "w5qRisxnsL1H4bvZTTQEBu9MHQUvvhSVs5JPLDqx13I="
+          },
+          {
+            "ordinal": 6,
+            "characters": 33,
+            "elapsed_ms": 3392,
+            "audio_ms": 2560,
+            "pcm_sha256_base64": "cEeTpjgaUFpYj59Mvoj1s6CUIb795TuaWdCWVkA3bXA="
+          }
+        ],
+        "segmented_ms": 15020,
+        "segmented_audio_ms": 33760,
+        "segmented_pcm_sha256_base64": "faTAIM7FCKQbBxVhUjB+7ZLnXHFq7A1SzPFJ4blMsRI=",
+        "file": "South-MultiItem-1.wav",
+        "within_5s_each": false
+      },
+      {
+        "region": "South",
+        "variant": "LongName",
+        "iteration": 1,
+        "voice": "v3t-south-my-duyen",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "characters": 99,
+            "elapsed_ms": 7794,
+            "audio_ms": 6580,
+            "pcm_sha256_base64": "FYDzCbjrMhQLl9rYYnOQ62+cm7LwuOh+odHxXC/6DeY="
+          },
+          {
+            "ordinal": 4,
+            "characters": 37,
+            "elapsed_ms": 3011,
+            "audio_ms": 4320,
+            "pcm_sha256_base64": "ylJ60PNNal/JomEQN5YxgJi5BKQp75wHlBX3g3hJX/U="
+          },
+          {
+            "ordinal": 6,
+            "characters": 33,
+            "elapsed_ms": 1943,
+            "audio_ms": 2560,
+            "pcm_sha256_base64": "cEeTpjgaUFpYj59Mvoj1s6CUIb795TuaWdCWVkA3bXA="
+          }
+        ],
+        "segmented_ms": 12748,
+        "segmented_audio_ms": 31860,
+        "segmented_pcm_sha256_base64": "7IcZGYfI1n+GAr4jV+Mr03URelt5FpO/L6468cYG2RU=",
+        "file": "South-LongName-1.wav",
+        "within_5s_each": false
+      }
+    ],
+    "threads": 1,
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+  },
+  "audio_comparison": {
+    "dynamic_interiors_preserved": 36,
+    "fixed_segments_unchanged": 48,
+    "changes": [
+      {
+        "region": "Central",
+        "variant": "B",
+        "ordinal": 4,
+        "removed_ms": 420.0,
+        "interior_peak_delta_lsb": 0,
+        "interior_rms_delta_lsb": 0.0
+      },
+      {
+        "region": "South",
+        "variant": "MultiItem",
+        "ordinal": 2,
+        "removed_ms": 1600.0,
+        "interior_peak_delta_lsb": 1,
+        "interior_rms_delta_lsb": 0.022758642338790165
+      },
+      {
+        "region": "South",
+        "variant": "LongName",
+        "ordinal": 2,
+        "removed_ms": 460.0,
+        "interior_peak_delta_lsb": 1,
+        "interior_rms_delta_lsb": 0.021227975863177557
+      }
+    ],
+    "final_max_request_ms": 7794,
+    "final_requests_over_5s": 2
+  },
+  "seams_before": [
+    {
+      "region": "North",
+      "variant": "A",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 6400.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 174.64
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 2320.0,
+          "leading_ms": 30,
+          "trailing_ms": 50,
+          "threshold_rms": 94.88
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 20,
+          "threshold_rms": 110.47
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 1600.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 94.84
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 0,
+          "threshold_rms": 107.83
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 86.22
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 3920.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 136.6
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 160
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 150
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 130
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 200
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 100
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 190
+        }
+      ]
+    },
+    {
+      "region": "North",
+      "variant": "B",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 6400.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 174.64
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 1600.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 78.53
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 20,
+          "threshold_rms": 110.47
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 1520.0,
+          "leading_ms": 100,
+          "trailing_ms": 110,
+          "threshold_rms": 82.69
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 0,
+          "threshold_rms": 107.83
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 86.22
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 3920.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 136.6
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 230
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 180
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 120
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 210
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 100
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 190
+        }
+      ]
+    },
+    {
+      "region": "North",
+      "variant": "MultiItem",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 6400.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 174.64
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 6080.0,
+          "leading_ms": 60,
+          "trailing_ms": 140,
+          "threshold_rms": 98.93
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 20,
+          "threshold_rms": 110.47
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 170,
+          "trailing_ms": 90,
+          "threshold_rms": 89.79
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 0,
+          "threshold_rms": 107.83
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 86.22
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 3920.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 136.6
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 190
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 190
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 190
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 100
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 190
+        }
+      ]
+    },
+    {
+      "region": "North",
+      "variant": "LongName",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 6400.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 174.64
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 5440.0,
+          "leading_ms": 110,
+          "trailing_ms": 70,
+          "threshold_rms": 108.4
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 20,
+          "threshold_rms": 110.47
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2000.0,
+          "leading_ms": 0,
+          "trailing_ms": 100,
+          "threshold_rms": 84.25
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 0,
+          "threshold_rms": 107.83
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 86.22
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 3920.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 136.6
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 170
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 20
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 200
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 100
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 190
+        }
+      ]
+    },
+    {
+      "region": "Central",
+      "variant": "A",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 7040.0,
+          "leading_ms": 140,
+          "trailing_ms": 140,
+          "threshold_rms": 121.39
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 2720.0,
+          "leading_ms": 100,
+          "trailing_ms": 160,
+          "threshold_rms": 76.26
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 880.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 95.62
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 1680.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 67.71
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 1120.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 91.63
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 210,
+          "threshold_rms": 86.45
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 4880.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 128.99
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 260
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 270
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 310
+        }
+      ]
+    },
+    {
+      "region": "Central",
+      "variant": "B",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 7040.0,
+          "leading_ms": 140,
+          "trailing_ms": 140,
+          "threshold_rms": 121.39
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 230,
+          "threshold_rms": 85.26
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 880.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 95.62
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 480,
+          "threshold_rms": 69.34
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 1120.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 91.63
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 210,
+          "threshold_rms": 86.45
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 4880.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 128.99
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 330
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 580
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 310
+        }
+      ]
+    },
+    {
+      "region": "Central",
+      "variant": "MultiItem",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 7040.0,
+          "leading_ms": 140,
+          "trailing_ms": 140,
+          "threshold_rms": 121.39
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 7040.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 104.95
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 880.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 95.62
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2400.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 81.3
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 1120.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 91.63
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 210,
+          "threshold_rms": 86.45
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 4880.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 128.99
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 310
+        }
+      ]
+    },
+    {
+      "region": "Central",
+      "variant": "LongName",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 7040.0,
+          "leading_ms": 140,
+          "trailing_ms": 140,
+          "threshold_rms": 121.39
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 6560.0,
+          "leading_ms": 100,
+          "trailing_ms": 230,
+          "threshold_rms": 85.39
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 880.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 95.62
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 79.35
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 1120.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 91.63
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 210,
+          "threshold_rms": 86.45
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 4880.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 128.99
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 330
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 310
+        }
+      ]
+    },
+    {
+      "region": "South",
+      "variant": "A",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 8720.0,
+          "leading_ms": 260,
+          "trailing_ms": 160,
+          "threshold_rms": 160.12
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 3040.0,
+          "leading_ms": 190,
+          "trailing_ms": 40,
+          "threshold_rms": 79.16
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 1760.0,
+          "leading_ms": 30,
+          "trailing_ms": 40,
+          "threshold_rms": 84.64
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 3600.0,
+          "leading_ms": 0,
+          "trailing_ms": 110,
+          "threshold_rms": 75.14
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 2800.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 122.13
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2560.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 110.98
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 5120.0,
+          "leading_ms": 20,
+          "trailing_ms": 110,
+          "threshold_rms": 160.71
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 350
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 70
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 40
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 110
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 140
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 150
+        }
+      ]
+    },
+    {
+      "region": "South",
+      "variant": "B",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 8720.0,
+          "leading_ms": 260,
+          "trailing_ms": 160,
+          "threshold_rms": 160.12
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 2160.0,
+          "leading_ms": 0,
+          "trailing_ms": 30,
+          "threshold_rms": 74.12
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 1760.0,
+          "leading_ms": 30,
+          "trailing_ms": 40,
+          "threshold_rms": 84.64
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 3200.0,
+          "leading_ms": 0,
+          "trailing_ms": 120,
+          "threshold_rms": 84.79
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 2800.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 122.13
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2560.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 110.98
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 5120.0,
+          "leading_ms": 20,
+          "trailing_ms": 110,
+          "threshold_rms": 160.71
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 160
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 60
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 40
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 120
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 140
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 150
+        }
+      ]
+    },
+    {
+      "region": "South",
+      "variant": "MultiItem",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 8720.0,
+          "leading_ms": 260,
+          "trailing_ms": 160,
+          "threshold_rms": 160.12
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 9040.0,
+          "leading_ms": 1660,
+          "trailing_ms": 200,
+          "threshold_rms": 97.88
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 1760.0,
+          "leading_ms": 30,
+          "trailing_ms": 40,
+          "threshold_rms": 84.64
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 5360.0,
+          "leading_ms": 0,
+          "trailing_ms": 30,
+          "threshold_rms": 66.2
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 2800.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 122.13
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2560.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 110.98
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 5120.0,
+          "leading_ms": 20,
+          "trailing_ms": 110,
+          "threshold_rms": 160.71
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 1820
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 230
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 40
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 30
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 140
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 150
+        }
+      ]
+    },
+    {
+      "region": "South",
+      "variant": "LongName",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 8720.0,
+          "leading_ms": 260,
+          "trailing_ms": 160,
+          "threshold_rms": 160.12
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 7040.0,
+          "leading_ms": 520,
+          "trailing_ms": 240,
+          "threshold_rms": 116.15
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 1760.0,
+          "leading_ms": 30,
+          "trailing_ms": 40,
+          "threshold_rms": 84.64
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 4320.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 82.65
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 2800.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 122.13
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2560.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 110.98
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 5120.0,
+          "leading_ms": 20,
+          "trailing_ms": 110,
+          "threshold_rms": 160.71
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 680
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 270
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 40
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 0
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 140
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 150
+        }
+      ]
+    }
+  ],
+  "seams_after": [
+    {
+      "region": "North",
+      "variant": "A",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 6400.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 174.64
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 2320.0,
+          "leading_ms": 30,
+          "trailing_ms": 50,
+          "threshold_rms": 94.88
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 20,
+          "threshold_rms": 110.47
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 1600.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 94.84
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 0,
+          "threshold_rms": 107.83
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 86.22
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 3920.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 136.6
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 160
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 150
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 130
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 200
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 100
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 190
+        }
+      ]
+    },
+    {
+      "region": "North",
+      "variant": "B",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 6400.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 174.64
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 1600.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 78.53
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 20,
+          "threshold_rms": 110.47
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 1520.0,
+          "leading_ms": 100,
+          "trailing_ms": 110,
+          "threshold_rms": 82.69
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 0,
+          "threshold_rms": 107.83
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 86.22
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 3920.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 136.6
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 230
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 180
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 120
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 210
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 100
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 190
+        }
+      ]
+    },
+    {
+      "region": "North",
+      "variant": "MultiItem",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 6400.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 174.64
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 6080.0,
+          "leading_ms": 60,
+          "trailing_ms": 140,
+          "threshold_rms": 98.93
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 20,
+          "threshold_rms": 110.47
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 170,
+          "trailing_ms": 90,
+          "threshold_rms": 89.79
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 0,
+          "threshold_rms": 107.83
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 86.22
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 3920.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 136.6
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 190
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 190
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 190
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 100
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 190
+        }
+      ]
+    },
+    {
+      "region": "North",
+      "variant": "LongName",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 6400.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 174.64
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 5440.0,
+          "leading_ms": 110,
+          "trailing_ms": 70,
+          "threshold_rms": 108.4
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 20,
+          "threshold_rms": 110.47
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2000.0,
+          "leading_ms": 0,
+          "trailing_ms": 100,
+          "threshold_rms": 84.25
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 800.0,
+          "leading_ms": 100,
+          "trailing_ms": 0,
+          "threshold_rms": 107.83
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 80,
+          "threshold_rms": 86.22
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 3920.0,
+          "leading_ms": 110,
+          "trailing_ms": 100,
+          "threshold_rms": 136.6
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 170
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 20
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 200
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 100
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 190
+        }
+      ]
+    },
+    {
+      "region": "Central",
+      "variant": "A",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 7040.0,
+          "leading_ms": 140,
+          "trailing_ms": 140,
+          "threshold_rms": 121.39
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 2720.0,
+          "leading_ms": 100,
+          "trailing_ms": 160,
+          "threshold_rms": 76.26
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 880.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 95.62
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 1680.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 67.71
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 1120.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 91.63
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 210,
+          "threshold_rms": 86.45
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 4880.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 128.99
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 260
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 270
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 310
+        }
+      ]
+    },
+    {
+      "region": "Central",
+      "variant": "B",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 7040.0,
+          "leading_ms": 140,
+          "trailing_ms": 140,
+          "threshold_rms": 121.39
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 1840.0,
+          "leading_ms": 100,
+          "trailing_ms": 230,
+          "threshold_rms": 85.26
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 880.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 95.62
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 1820.0,
+          "leading_ms": 100,
+          "trailing_ms": 60,
+          "threshold_rms": 69.34
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 1120.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 91.63
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 210,
+          "threshold_rms": 86.45
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 4880.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 128.99
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 330
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 160
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 310
+        }
+      ]
+    },
+    {
+      "region": "Central",
+      "variant": "MultiItem",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 7040.0,
+          "leading_ms": 140,
+          "trailing_ms": 140,
+          "threshold_rms": 121.39
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 7040.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 104.95
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 880.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 95.62
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2400.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 81.3
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 1120.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 91.63
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 210,
+          "threshold_rms": 86.45
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 4880.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 128.99
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 310
+        }
+      ]
+    },
+    {
+      "region": "Central",
+      "variant": "LongName",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 7040.0,
+          "leading_ms": 140,
+          "trailing_ms": 140,
+          "threshold_rms": 121.39
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 6560.0,
+          "leading_ms": 100,
+          "trailing_ms": 230,
+          "threshold_rms": 85.39
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 880.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 95.62
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 79.35
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 1120.0,
+          "leading_ms": 100,
+          "trailing_ms": 180,
+          "threshold_rms": 91.63
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2240.0,
+          "leading_ms": 100,
+          "trailing_ms": 210,
+          "threshold_rms": 86.45
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 4880.0,
+          "leading_ms": 100,
+          "trailing_ms": 170,
+          "threshold_rms": 128.99
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 240
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 330
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 280
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 310
+        }
+      ]
+    },
+    {
+      "region": "South",
+      "variant": "A",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 8720.0,
+          "leading_ms": 260,
+          "trailing_ms": 160,
+          "threshold_rms": 160.12
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 3040.0,
+          "leading_ms": 190,
+          "trailing_ms": 40,
+          "threshold_rms": 79.16
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 1760.0,
+          "leading_ms": 30,
+          "trailing_ms": 40,
+          "threshold_rms": 84.64
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 3600.0,
+          "leading_ms": 0,
+          "trailing_ms": 110,
+          "threshold_rms": 75.14
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 2800.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 122.13
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2560.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 110.98
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 5120.0,
+          "leading_ms": 20,
+          "trailing_ms": 110,
+          "threshold_rms": 160.71
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 350
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 70
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 40
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 110
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 140
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 150
+        }
+      ]
+    },
+    {
+      "region": "South",
+      "variant": "B",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 8720.0,
+          "leading_ms": 260,
+          "trailing_ms": 160,
+          "threshold_rms": 160.12
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 2160.0,
+          "leading_ms": 0,
+          "trailing_ms": 30,
+          "threshold_rms": 74.12
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 1760.0,
+          "leading_ms": 30,
+          "trailing_ms": 40,
+          "threshold_rms": 84.64
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 3200.0,
+          "leading_ms": 0,
+          "trailing_ms": 120,
+          "threshold_rms": 84.79
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 2800.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 122.13
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2560.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 110.98
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 5120.0,
+          "leading_ms": 20,
+          "trailing_ms": 110,
+          "threshold_rms": 160.71
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 160
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 60
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 40
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 120
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 140
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 150
+        }
+      ]
+    },
+    {
+      "region": "South",
+      "variant": "MultiItem",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 8720.0,
+          "leading_ms": 260,
+          "trailing_ms": 160,
+          "threshold_rms": 160.12
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 7440.0,
+          "leading_ms": 60,
+          "trailing_ms": 200,
+          "threshold_rms": 97.88
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 1760.0,
+          "leading_ms": 30,
+          "trailing_ms": 40,
+          "threshold_rms": 84.64
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 5360.0,
+          "leading_ms": 0,
+          "trailing_ms": 30,
+          "threshold_rms": 66.2
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 2800.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 122.13
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2560.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 110.98
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 5120.0,
+          "leading_ms": 20,
+          "trailing_ms": 110,
+          "threshold_rms": 160.71
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 220
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 230
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 40
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 30
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 140
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 150
+        }
+      ]
+    },
+    {
+      "region": "South",
+      "variant": "LongName",
+      "segments": [
+        {
+          "ordinal": 1,
+          "kind": "Fixed",
+          "duration_ms": 8720.0,
+          "leading_ms": 260,
+          "trailing_ms": 160,
+          "threshold_rms": 160.12
+        },
+        {
+          "ordinal": 2,
+          "kind": "Dynamic",
+          "duration_ms": 6580.0,
+          "leading_ms": 60,
+          "trailing_ms": 240,
+          "threshold_rms": 116.15
+        },
+        {
+          "ordinal": 3,
+          "kind": "Fixed",
+          "duration_ms": 1760.0,
+          "leading_ms": 30,
+          "trailing_ms": 40,
+          "threshold_rms": 84.64
+        },
+        {
+          "ordinal": 4,
+          "kind": "Dynamic",
+          "duration_ms": 4320.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 82.65
+        },
+        {
+          "ordinal": 5,
+          "kind": "Fixed",
+          "duration_ms": 2800.0,
+          "leading_ms": 0,
+          "trailing_ms": 0,
+          "threshold_rms": 122.13
+        },
+        {
+          "ordinal": 6,
+          "kind": "Dynamic",
+          "duration_ms": 2560.0,
+          "leading_ms": 140,
+          "trailing_ms": 130,
+          "threshold_rms": 110.98
+        },
+        {
+          "ordinal": 7,
+          "kind": "Fixed",
+          "duration_ms": 5120.0,
+          "leading_ms": 20,
+          "trailing_ms": 110,
+          "threshold_rms": 160.71
+        }
+      ],
+      "seams": [
+        {
+          "before_ordinal": 2,
+          "silence_ms": 220
+        },
+        {
+          "before_ordinal": 3,
+          "silence_ms": 270
+        },
+        {
+          "before_ordinal": 4,
+          "silence_ms": 40
+        },
+        {
+          "before_ordinal": 5,
+          "silence_ms": 0
+        },
+        {
+          "before_ordinal": 6,
+          "silence_ms": 140
+        },
+        {
+          "before_ordinal": 7,
+          "silence_ms": 150
+        }
+      ]
+    }
+  ],
+  "lab_timeout_ms": 10000,
+  "production_timeout_ms": 5000,
+  "cold_start": {
+    "status": "TIMEOUT_OBSERVED",
+    "task_id": "TASK-LAB-20260921041330",
+    "technical_attempts": 2,
+    "codes": [
+      "TTS_TIMEOUT",
+      "TTS_PROVIDER_HTTP_ERROR"
+    ],
+    "counted_customer_attempts": 0,
+    "calls_placed": 0
+  },
+  "before_fix_controlled_calls": [
+    {
+      "case": "Central-LongName-segmented",
+      "task_id": "TASK-LAB-20260921040216",
+      "channel_id": "ivr-lab-c953048cdd284e0d83f45886f896870e",
+      "mode": "segmented",
+      "attempt": {
+        "status": "NORMALIZED_FINAL",
+        "dtmf": "0",
+        "voice_id": "v3t-central-ngoc-tran",
+        "region": "Central",
+        "region_resolved": true,
+        "started_at": "2026-09-21T04:02:21.801978+00:00",
+        "ended_at": "2026-09-21T04:02:53.70768+00:00",
+        "counted": true,
+        "exception": null
+      },
+      "result": {
+        "type": "IVR_CUSTOMER_CANCELLED",
+        "final": true,
+        "counted": true
+      },
+      "active_ms": 31906,
+      "expected_audio_ms": 24960,
+      "playback": [
+        {
+          "timestamp": "2026-09-21T04:02:22.194167572Z",
+          "media": "ivr-seg-central-4612fb85a1d0c3df.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:02:29.225498281Z",
+          "media": "generated/08d7dbe9f0fdaea4ea2eb47a7bf9e666.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:02:35.786174427Z",
+          "media": "ivr-seg-central-95f78c510d802cdf.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:02:36.661985798Z",
+          "media": "generated/e444829cc528f0ad8586676f5ca3e589.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:02:38.902930208Z",
+          "media": "ivr-seg-central-53d482dfd9119b91.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:02:40.021727283Z",
+          "media": "generated/1893c8293f3a5a3e87aa65374a1ca62b.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:02:42.262257503Z",
+          "media": "ivr-seg-central-764af2bea49c72c8.slin"
+        }
+      ],
+      "rtp_stats": [
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-00000011     00:00:03 ulaw      132       0    0   0.000    133       0    0   0.000   0.000",
+        "",
+        "Objects found: 1",
+        "",
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-00000011     00:00:32 ulaw     1551       0    0   0.003   1248       0    0   0.000   0.004",
+        "",
+        "Objects found: 1",
+        ""
+      ],
+      "pass": true
+    },
+    {
+      "case": "Central-MultiItem-segmented",
+      "task_id": "TASK-LAB-20260921040131",
+      "channel_id": "ivr-lab-35a8485edc584d7bb401095038606c17",
+      "mode": "segmented",
+      "attempt": {
+        "status": "NORMALIZED_FINAL",
+        "dtmf": "1",
+        "voice_id": "v3t-central-ngoc-tran",
+        "region": "Central",
+        "region_resolved": true,
+        "started_at": "2026-09-21T04:01:38.047226+00:00",
+        "ended_at": "2026-09-21T04:02:09.967626+00:00",
+        "counted": true,
+        "exception": null
+      },
+      "result": {
+        "type": "IVR_CONFIRMED",
+        "final": true,
+        "counted": true
+      },
+      "active_ms": 31920,
+      "expected_audio_ms": 25600,
+      "playback": [
+        {
+          "timestamp": "2026-09-21T04:01:38.230043037Z",
+          "media": "ivr-seg-central-4612fb85a1d0c3df.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:45.268016566Z",
+          "media": "generated/d309ad432c1ad480ed8ec95ba495ff54.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:52.308675576Z",
+          "media": "ivr-seg-central-95f78c510d802cdf.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:53.186676628Z",
+          "media": "generated/8ec0244c347f8c8ce9bcb3dc102325cf.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:55.587180780Z",
+          "media": "ivr-seg-central-53d482dfd9119b91.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:56.704919231Z",
+          "media": "generated/1893c8293f3a5a3e87aa65374a1ca62b.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:58.945758294Z",
+          "media": "ivr-seg-central-764af2bea49c72c8.slin"
+        }
+      ],
+      "rtp_stats": [
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-00000010     00:00:02 ulaw      131       0    0   0.000    132       0    0   0.000   0.000",
+        "",
+        "Objects found: 1",
+        "",
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-00000010     00:00:31 ulaw     1566       0    0   0.000   1280       0    0   0.001   0.001",
+        "",
+        "Objects found: 1",
+        ""
+      ],
+      "pass": true
+    },
+    {
+      "case": "North-LongName-segmented",
+      "task_id": "TASK-LAB-20260921040051",
+      "channel_id": "ivr-lab-38d48babb2a54c799f5030fc6f71ded6",
+      "mode": "segmented",
+      "attempt": {
+        "status": "NORMALIZED_FINAL",
+        "dtmf": "0",
+        "voice_id": "v3t-north-ngoc-linh",
+        "region": "North",
+        "region_resolved": true,
+        "started_at": "2026-09-21T04:00:57.198578+00:00",
+        "ended_at": "2026-09-21T04:01:25.170651+00:00",
+        "counted": true,
+        "exception": null
+      },
+      "result": {
+        "type": "IVR_CUSTOMER_CANCELLED",
+        "final": true,
+        "counted": true
+      },
+      "active_ms": 27972,
+      "expected_audio_ms": 21200,
+      "playback": [
+        {
+          "timestamp": "2026-09-21T04:00:57.546307837Z",
+          "media": "ivr-seg-north-4612fb85a1d0c3df.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:03.944233150Z",
+          "media": "generated/2a2b1ca73779fb745a5c58d47669cef5.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:09.383600372Z",
+          "media": "ivr-seg-north-95f78c510d802cdf.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:10.181408075Z",
+          "media": "generated/b7bab125e76ec8582184183569b19dc0.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:12.181920189Z",
+          "media": "ivr-seg-north-53d482dfd9119b91.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:12.979675984Z",
+          "media": "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:01:14.820094687Z",
+          "media": "ivr-seg-north-764af2bea49c72c8.slin"
+        }
+      ],
+      "rtp_stats": [
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-0000000f     00:00:03 ulaw      129       0    0   0.000    129       0    0   0.004   0.000",
+        "",
+        "Objects found: 1",
+        "",
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-0000000f     00:00:27 ulaw     1361       0    0   0.000   1060       0    0   0.002   0.001",
+        "",
+        "Objects found: 1",
+        ""
+      ],
+      "pass": true
+    },
+    {
+      "case": "North-MultiItem-segmented",
+      "task_id": "TASK-LAB-20260921040009",
+      "channel_id": "ivr-lab-99445a04e94e4fc0967eb87488bbcefe",
+      "mode": "segmented",
+      "attempt": {
+        "status": "NORMALIZED_FINAL",
+        "dtmf": "1",
+        "voice_id": "v3t-north-ngoc-linh",
+        "region": "North",
+        "region_resolved": true,
+        "started_at": "2026-09-21T04:00:15.548822+00:00",
+        "ended_at": "2026-09-21T04:00:44.202237+00:00",
+        "counted": true,
+        "exception": null
+      },
+      "result": {
+        "type": "IVR_CONFIRMED",
+        "final": true,
+        "counted": true
+      },
+      "active_ms": 28653,
+      "expected_audio_ms": 22080,
+      "playback": [
+        {
+          "timestamp": "2026-09-21T04:00:15.807730529Z",
+          "media": "ivr-seg-north-4612fb85a1d0c3df.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:00:22.206090706Z",
+          "media": "generated/dce270b6d5ad6746cc62b82797108073.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:00:28.287412187Z",
+          "media": "ivr-seg-north-95f78c510d802cdf.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:00:29.085893170Z",
+          "media": "generated/3da9be5c0f60200c710e2c3f5ef06b10.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:00:31.330876358Z",
+          "media": "ivr-seg-north-53d482dfd9119b91.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:00:32.129042773Z",
+          "media": "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin"
+        },
+        {
+          "timestamp": "2026-09-21T04:00:33.971829092Z",
+          "media": "ivr-seg-north-764af2bea49c72c8.slin"
+        }
+      ],
+      "rtp_stats": [
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-0000000e     00:00:03 ulaw      134       0    0   0.000    134       0    0   0.005   0.000",
+        "",
+        "Objects found: 1",
+        "",
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-0000000e     00:00:28 ulaw     1397       0    0   0.000   1104       0    0   0.004   0.002",
+        "",
+        "Objects found: 1",
+        ""
+      ],
+      "pass": true
+    },
+    {
+      "case": "South-LongName-segmented",
+      "task_id": "TASK-LAB-20260921035918",
+      "channel_id": "ivr-lab-58b587f8852c415aae8c947d52952944",
+      "mode": "segmented",
+      "attempt": {
+        "status": "NORMALIZED_FINAL",
+        "dtmf": "0",
+        "voice_id": "v3t-south-my-duyen",
+        "region": "South",
+        "region_resolved": true,
+        "started_at": "2026-09-21T03:59:26.728785+00:00",
+        "ended_at": "2026-09-21T04:00:05.273406+00:00",
+        "counted": true,
+        "exception": null
+      },
+      "result": {
+        "type": "IVR_CUSTOMER_CANCELLED",
+        "final": true,
+        "counted": true
+      },
+      "active_ms": 38545,
+      "expected_audio_ms": 32320,
+      "playback": [
+        {
+          "timestamp": "2026-09-21T03:59:26.958945194Z",
+          "media": "ivr-seg-south-4612fb85a1d0c3df.slin"
+        },
+        {
+          "timestamp": "2026-09-21T03:59:35.676727279Z",
+          "media": "generated/0e1a28a16059f222133f967e4688300d.slin"
+        },
+        {
+          "timestamp": "2026-09-21T03:59:42.714355068Z",
+          "media": "ivr-seg-south-95f78c510d802cdf.slin"
+        },
+        {
+          "timestamp": "2026-09-21T03:59:44.472413249Z",
+          "media": "generated/ca527ad0f34d6a5fc9a2611037963180.slin"
+        },
+        {
+          "timestamp": "2026-09-21T03:59:48.792880023Z",
+          "media": "ivr-seg-south-53d482dfd9119b91.slin"
+        },
+        {
+          "timestamp": "2026-09-21T03:59:51.590832164Z",
+          "media": "generated/704793a6381a505a588f9f4cbe88f5b3.slin"
+        },
+        {
+          "timestamp": "2026-09-21T03:59:54.151664945Z",
+          "media": "ivr-seg-south-764af2bea49c72c8.slin"
+        }
+      ],
+      "rtp_stats": [
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-0000000d     00:00:03 ulaw      131       0    0   0.000    131       0    0   0.002   0.000",
+        "",
+        "Objects found: 1",
+        "",
+        "",
+        "                                             ...........Receive......... .........Transmit..........",
+        " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+        " ===========================================================================================================",
+        "",
+        "          LAB-A-0000000d     00:00:38 ulaw     1895       0    0   0.000   1616       0    0   0.001   0.001",
+        "",
+        "Objects found: 1",
+        ""
+      ],
+      "pass": true
+    }
+  ],
+  "final_runtime": {
+    "registry": {
+      "text": "Xin chào Quý khách. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Quý khách có đơn hàng gồm {{items_spoken}}, tổng tiền {{total_amount_display}}, giao đến {{delivery_area_short}}. Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
+      "hash": "2b98e5b695a03736e7749333e98099a71c7234c486494a37b7d2ca0dfe9dae51",
+      "canonical_text_equal": true,
+      "utf8_sha256_base64": "K5jltpWgNzbndJMz6YCZpxxyNMSGSUo3t9LKDf6drlE="
+    },
+    "calls": [
+      {
+        "case": "Central-MultiItem-segmented-seam-r2",
+        "task_id": "TASK-LAB-20260921042627",
+        "channel_id": "ivr-lab-f531f9e918614ffe939377fc07c23403",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-central-ngoc-tran",
+          "region": "Central",
+          "region_resolved": true,
+          "started_at": "2026-09-21T04:26:39.047381+00:00",
+          "ended_at": "2026-09-21T04:27:08.608003+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 29561,
+        "expected_audio_ms": 25600,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T04:26:39.447322397Z",
+            "media": "ivr-seg-central-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:26:46.485097220Z",
+            "media": "generated/d309ad432c1ad480ed8ec95ba495ff54.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:26:53.525745846Z",
+            "media": "ivr-seg-central-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:26:54.403914045Z",
+            "media": "generated/8ec0244c347f8c8ce9bcb3dc102325cf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:26:56.804457534Z",
+            "media": "ivr-seg-central-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:26:57.923182202Z",
+            "media": "generated/1893c8293f3a5a3e87aa65374a1ca62b.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:27:00.164575982Z",
+            "media": "ivr-seg-central-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000017     00:00:03 ulaw      136       0    0   0.000    136       0    0   0.004   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000017     00:00:29 ulaw     1428       0    0   0.001   1280       0    0   0.006   0.001",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      },
+      {
+        "case": "North-MultiItem-segmented-seam-r2",
+        "task_id": "TASK-LAB-20260921042256",
+        "channel_id": "ivr-lab-1d5ce11276454e848c01af41640a66d9",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-north-ngoc-linh",
+          "region": "North",
+          "region_resolved": true,
+          "started_at": "2026-09-21T04:23:07.557424+00:00",
+          "ended_at": "2026-09-21T04:23:33.259691+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 25702,
+        "expected_audio_ms": 22080,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T04:23:07.846921568Z",
+            "media": "ivr-seg-north-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:23:14.245305622Z",
+            "media": "generated/dce270b6d5ad6746cc62b82797108073.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:23:20.326261524Z",
+            "media": "ivr-seg-north-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:23:21.124352408Z",
+            "media": "generated/3da9be5c0f60200c710e2c3f5ef06b10.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:23:23.365706469Z",
+            "media": "ivr-seg-north-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:23:24.163738310Z",
+            "media": "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:23:26.004295835Z",
+            "media": "ivr-seg-north-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000015     00:00:03 ulaw      138       0    0   0.000    138       0    0   0.000   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000015     00:00:25 ulaw     1246       0    0   0.000   1104       0    0   0.000   0.002",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      },
+      {
+        "case": "South-LongName-segmented-seam-r2",
+        "task_id": "TASK-LAB-20260921042155",
+        "channel_id": "ivr-lab-aee6ef0de05d4be595ebe53a8fde45bf",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "0",
+          "voice_id": "v3t-south-my-duyen",
+          "region": "South",
+          "region_resolved": true,
+          "started_at": "2026-09-21T04:22:08.139419+00:00",
+          "ended_at": "2026-09-21T04:22:44.480338+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CUSTOMER_CANCELLED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 36341,
+        "expected_audio_ms": 31860,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T04:22:08.963672230Z",
+            "media": "ivr-seg-south-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:22:17.681911238Z",
+            "media": "generated/1580f309b8eb32140b97dad8627390eb.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:22:24.262888298Z",
+            "media": "ivr-seg-south-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:22:26.028906463Z",
+            "media": "generated/ca527ad0f34d6a5fc9a2611037963180.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:22:30.349508961Z",
+            "media": "ivr-seg-south-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:22:33.147789113Z",
+            "media": "generated/704793a6381a505a588f9f4cbe88f5b3.slin"
+          },
+          {
+            "timestamp": "2026-09-21T04:22:35.708485959Z",
+            "media": "ivr-seg-south-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000014     00:00:04 ulaw      152       0    0   0.000    153       0    0   0.004   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000014     00:00:35 ulaw     1745       0    0   0.001   1593       0    0   0.001   0.002",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      }
+    ],
+    "excluded": [
+      {
+        "case": "Central-LongName-segmented-seam-r2",
+        "task_id": "TASK-LAB-20260921042716",
+        "reason": "AUTOMATION_DTMF_OWNERSHIP_NOT_PROVEN",
+        "raw_pass": false
+      },
+      {
+        "case": "North-LongName-segmented-seam-r2",
+        "task_id": "TASK-LAB-20260921042341",
+        "reason": "AUTOMATION_DTMF_OWNERSHIP_NOT_PROVEN",
+        "raw_pass": false
+      },
+      {
+        "case": "South-MultiItem-segmented-seam-r2",
+        "task_id": "TASK-LAB-20260921042005",
+        "reason": "AUTOMATION_DTMF_OWNERSHIP_NOT_PROVEN",
+        "raw_pass": false
+      }
+    ],
+    "matrix_complete": false,
+    "missing_cases": [
+      {
+        "region": "Central",
+        "variant": "LongName"
+      },
+      {
+        "region": "North",
+        "variant": "LongName"
+      },
+      {
+        "region": "South",
+        "variant": "MultiItem"
+      }
+    ],
+    "human_listening": "OWNER_ACCEPTED",
+    "real_customer_call_allowed": "NO",
+    "human_listening_at_collection": "PENDING_OWNER_AFTER_SEAM_FIX"
+  },
+  "excluded_interactions": [
+    {
+      "task_id": "TASK-LAB-20260921035823",
+      "phase": "BEFORE_FIX",
+      "reason": "DTMF_BEFORE_AUTOMATION"
+    },
+    {
+      "task_id": "TASK-LAB-20260921041601",
+      "phase": "AFTER_FIX_FIRST",
+      "reason": "DTMF_BEFORE_AUTOMATION"
+    }
+  ],
+  "checks": {
+    "unit": {
+      "passed": 20,
+      "failed": 0
+    },
+    "http_contract": "PASS",
+    "nonroot_readonly_network_none": "PASS",
+    "lab_regression": {
+      "valid": 1,
+      "refusal": 17,
+      "entry_guards": 4,
+      "payload_cases": 12
+    },
+    "ci_config": "PASS",
+    "docs": "PASS",
+    "model_provenance": "PASS",
+    "voice_binding": "PASS",
+    "helm": "PASS",
+    "gitnexus": {
+      "risk": "LOW",
+      "affected_processes": 0,
+      "limits": "New Python helper/test absent from graph; direct source and runtime verification used"
+    }
+  },
+  "source_bindings": [
+    {
+      "path": "deploy/tts/Dockerfile.tts",
+      "sha256_base64": "2rA2wXfwyvRtWY2gVCL1UXRBrSqNZCPWEZYqh6mwNgQ="
+    },
+    {
+      "path": "deploy/tts/shim/backend.py",
+      "sha256_base64": "K6uwCLbzu+qyLl2NFJYiFuZpAKQ5TPlrLebuYl4IbWg="
+    },
+    {
+      "path": "deploy/tts/shim/server.py",
+      "sha256_base64": "jIJOkPXvayJf5DXTyKyQhf/w5ieZiDi+HKYcojU9ddo="
+    },
+    {
+      "path": "deploy/tts/shim/convert.py",
+      "sha256_base64": "TPdu05lfYlGUkgWcFCWnpqQtpoiNfLJYQkXpzzo/PZU="
+    },
+    {
+      "path": "deploy/tts/shim/voices.json",
+      "sha256_base64": "mnb9q8o61YmUyqG1nAx286mPrLIvEeL57JIQqTccyuI="
+    },
+    {
+      "path": "deploy/tts/tests/test_shim.py",
+      "sha256_base64": "bZAPsam3wZUHTdUn5s2YHBXii8Xud/wIosLY1FBllHw="
+    },
+    {
+      "path": "deploy/tts/tests/measure_lab_orders.py",
+      "sha256_base64": "pbIGRm90PmZUL3c/sWi6oRL5uzeJVCAoKkY+PmVOjKU="
+    },
+    {
+      "path": "deploy/tts/models/MODELS.lock",
+      "sha256_base64": "u6Qep5a8arHGWYZaEIeGjUE1NoCOAFNcceXORgnL430="
+    },
+    {
+      "path": "deploy/lab/fake-orders.json",
+      "sha256_base64": "wfMAaJ3pO52vZ2wxqsNdLquUzSmHA9r2jxSiUMn7ees="
+    },
+    {
+      "path": "deploy/lab/Invoke-FreeSoftphoneCall.ps1",
+      "sha256_base64": "R8joYzehdbD23k9+vRi/RYmHNNK3zxEWjQOBzh28A0U="
+    },
+    {
+      "path": "deploy/lab/speech-lab-profile.mjs",
+      "sha256_base64": "XkwBZes+joR2f5PpPj9UslnK86b9jaJGSu++I0UXhxI="
+    },
+    {
+      "path": "deploy/lab/tests/SpeechPreflight.Tests.ps1",
+      "sha256_base64": "kW9/O50sNuAWuV6pmqqntM9hyBCZmj3ZA/jMtJDNGCQ="
+    },
+    {
+      "path": "deploy/ci/scripts/lab-speech-preflight-selftest.mjs",
+      "sha256_base64": "qxNJzRUzGTnG72pyjcLft5zAN3i7wNAvsVNgF6pLRPk="
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Telephony/AsteriskSchedulerDispatchGateway.cs",
+      "sha256_base64": "Ls6vBtLW7Syw4kYUafgcnSsLsnBvdDcZ8ouKh6kT4bE="
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Telephony/AsteriskAriSimGateway.cs",
+      "sha256_base64": "9dowlMu31qviuvk8zDhTh8ByOT4ph+NQ4WXg8VSfiBw="
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Speech/SpeechSynthesisService.cs",
+      "sha256_base64": "KKbeQhR0LmDtYLJ1/U5/iGe61ZDw/bO11fK6oOqF4Ak="
+    },
+    {
+      "path": "src/Ivr.Domain/Scripts/VietnameseOrderScriptRenderer.cs",
+      "sha256_base64": "VFRrOH/SKl8HzQjdQEYvxJj00f5ZZzxlX5QlHc10xHM="
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0323/audio/Central-A-1.wav",
+      "bytes": 329004,
+      "sha256_base64": "JKesj5Iv9iPPZpv1p3U8hm6FAuypTlCMGl5WsSZSs8s="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/Central-B-1.wav",
+      "bytes": 323884,
+      "sha256_base64": "XZ696ho/Axv64uexREiDNC6Ymprz8Rt4ge5Cc/PlNho="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/Central-LongName-1.wav",
+      "bytes": 399404,
+      "sha256_base64": "VeBnKEZIN0C8o5mjL8MmJZjmAdr4paLPQwdr8pBx0GY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/Central-MultiItem-1.wav",
+      "bytes": 409644,
+      "sha256_base64": "QxwwRhWD7CYmrCwDYSZw5eop7EZSR/h3C1XhmQ7x4Yo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/measurement.json",
+      "bytes": 12652,
+      "sha256_base64": "hSqnZYCbrDZMb0P7HlznwJchlw9o4n0FSRLwWyz5BuE="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/North-A-1.wav",
+      "bytes": 282924,
+      "sha256_base64": "48Er+Ty1huADtOa5tHiKCorFPuAt1sULQk69u6DXkJY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/North-B-1.wav",
+      "bytes": 270124,
+      "sha256_base64": "58TiqQcBOnKblS7pDmcWMVy/DkXK2BOovYPjBZVX2BI="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/North-LongName-1.wav",
+      "bytes": 339244,
+      "sha256_base64": "GQ2RQ2dIA2V50MN2INPdUcO1kfaNvgR8rqKFgDtZOe4="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/North-MultiItem-1.wav",
+      "bytes": 353324,
+      "sha256_base64": "r39VgwXl1tp3J9Eui5kCyorxzzO6ZrLtjMCKGTdeHgE="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/South-A-1.wav",
+      "bytes": 441644,
+      "sha256_base64": "uOMwecIsUHnpM39/shaC3JpuKKF8vzQe9dVhKsBapBo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/South-B-1.wav",
+      "bytes": 421164,
+      "sha256_base64": "35iOaHovMsAncOThDxPTWzcYWmHyg0pVHX+QoSqa6wM="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/South-LongName-1.wav",
+      "bytes": 517164,
+      "sha256_base64": "e0bk9VvIqz9Ydl6ZaYtFbz2ej3vo6FTfoIPHZMEbTxU="
+    },
+    {
+      "path": ".artifacts/W-0323/audio/South-MultiItem-1.wav",
+      "bytes": 565804,
+      "sha256_base64": "3kKx5XYOkzOmWpb/epIrK82n2c205/zjhYdzsvWcNZ8="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/Central-LongName-1.wav",
+      "bytes": 399404,
+      "sha256_base64": "VeBnKEZIN0C8o5mjL8MmJZjmAdr4paLPQwdr8pBx0GY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/Central-LongName-2.wav",
+      "bytes": 399404,
+      "sha256_base64": "VeBnKEZIN0C8o5mjL8MmJZjmAdr4paLPQwdr8pBx0GY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/Central-LongName-3.wav",
+      "bytes": 399404,
+      "sha256_base64": "VeBnKEZIN0C8o5mjL8MmJZjmAdr4paLPQwdr8pBx0GY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/Central-MultiItem-1.wav",
+      "bytes": 409644,
+      "sha256_base64": "QxwwRhWD7CYmrCwDYSZw5eop7EZSR/h3C1XhmQ7x4Yo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/Central-MultiItem-2.wav",
+      "bytes": 409644,
+      "sha256_base64": "QxwwRhWD7CYmrCwDYSZw5eop7EZSR/h3C1XhmQ7x4Yo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/Central-MultiItem-3.wav",
+      "bytes": 409644,
+      "sha256_base64": "QxwwRhWD7CYmrCwDYSZw5eop7EZSR/h3C1XhmQ7x4Yo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/measurement.json",
+      "bytes": 19048,
+      "sha256_base64": "6Uqcz3V4V3Y9l4u2ncnqWXhDeflGWa354hNZApyyNkY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/North-LongName-1.wav",
+      "bytes": 339244,
+      "sha256_base64": "GQ2RQ2dIA2V50MN2INPdUcO1kfaNvgR8rqKFgDtZOe4="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/North-LongName-2.wav",
+      "bytes": 339244,
+      "sha256_base64": "GQ2RQ2dIA2V50MN2INPdUcO1kfaNvgR8rqKFgDtZOe4="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/North-LongName-3.wav",
+      "bytes": 339244,
+      "sha256_base64": "GQ2RQ2dIA2V50MN2INPdUcO1kfaNvgR8rqKFgDtZOe4="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/North-MultiItem-1.wav",
+      "bytes": 353324,
+      "sha256_base64": "r39VgwXl1tp3J9Eui5kCyorxzzO6ZrLtjMCKGTdeHgE="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/North-MultiItem-2.wav",
+      "bytes": 353324,
+      "sha256_base64": "r39VgwXl1tp3J9Eui5kCyorxzzO6ZrLtjMCKGTdeHgE="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/North-MultiItem-3.wav",
+      "bytes": 353324,
+      "sha256_base64": "r39VgwXl1tp3J9Eui5kCyorxzzO6ZrLtjMCKGTdeHgE="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/South-LongName-1.wav",
+      "bytes": 517164,
+      "sha256_base64": "e0bk9VvIqz9Ydl6ZaYtFbz2ej3vo6FTfoIPHZMEbTxU="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/South-LongName-2.wav",
+      "bytes": 517164,
+      "sha256_base64": "e0bk9VvIqz9Ydl6ZaYtFbz2ej3vo6FTfoIPHZMEbTxU="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/South-LongName-3.wav",
+      "bytes": 517164,
+      "sha256_base64": "e0bk9VvIqz9Ydl6ZaYtFbz2ej3vo6FTfoIPHZMEbTxU="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/South-MultiItem-1.wav",
+      "bytes": 565804,
+      "sha256_base64": "3kKx5XYOkzOmWpb/epIrK82n2c205/zjhYdzsvWcNZ8="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/South-MultiItem-2.wav",
+      "bytes": 565804,
+      "sha256_base64": "3kKx5XYOkzOmWpb/epIrK82n2c205/zjhYdzsvWcNZ8="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-repeat/South-MultiItem-3.wav",
+      "bytes": 565804,
+      "sha256_base64": "3kKx5XYOkzOmWpb/epIrK82n2c205/zjhYdzsvWcNZ8="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/Central-A-1.wav",
+      "bytes": 329004,
+      "sha256_base64": "JKesj5Iv9iPPZpv1p3U8hm6FAuypTlCMGl5WsSZSs8s="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/Central-B-1.wav",
+      "bytes": 317164,
+      "sha256_base64": "GqCdjXn0Ku2XkJar+IF6KlvC5KtzBFF2mm9dcmYMFXY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/Central-LongName-1.wav",
+      "bytes": 399404,
+      "sha256_base64": "VeBnKEZIN0C8o5mjL8MmJZjmAdr4paLPQwdr8pBx0GY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/Central-MultiItem-1.wav",
+      "bytes": 409644,
+      "sha256_base64": "QxwwRhWD7CYmrCwDYSZw5eop7EZSR/h3C1XhmQ7x4Yo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/measurement.json",
+      "bytes": 12647,
+      "sha256_base64": "KeB/CpZuVCYz1p4x2ai5aFqizSOiOV4qXWvbmz9DgiQ="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/North-A-1.wav",
+      "bytes": 282924,
+      "sha256_base64": "48Er+Ty1huADtOa5tHiKCorFPuAt1sULQk69u6DXkJY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/North-B-1.wav",
+      "bytes": 270124,
+      "sha256_base64": "58TiqQcBOnKblS7pDmcWMVy/DkXK2BOovYPjBZVX2BI="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/North-LongName-1.wav",
+      "bytes": 339244,
+      "sha256_base64": "GQ2RQ2dIA2V50MN2INPdUcO1kfaNvgR8rqKFgDtZOe4="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/North-MultiItem-1.wav",
+      "bytes": 353324,
+      "sha256_base64": "r39VgwXl1tp3J9Eui5kCyorxzzO6ZrLtjMCKGTdeHgE="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/South-A-1.wav",
+      "bytes": 441644,
+      "sha256_base64": "uOMwecIsUHnpM39/shaC3JpuKKF8vzQe9dVhKsBapBo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/South-B-1.wav",
+      "bytes": 421164,
+      "sha256_base64": "35iOaHovMsAncOThDxPTWzcYWmHyg0pVHX+QoSqa6wM="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/South-LongName-1.wav",
+      "bytes": 513484,
+      "sha256_base64": "GPcgkALooRhRcCA0vMHdSGXNYOLMrRV5ay0rv0KQw9U="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam/South-MultiItem-1.wav",
+      "bytes": 540204,
+      "sha256_base64": "nkkWA9TshS02ft2aFVREIXrNBGhzjZ4X0+ikewMXpY8="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/Central-A-1.wav",
+      "bytes": 329004,
+      "sha256_base64": "JKesj5Iv9iPPZpv1p3U8hm6FAuypTlCMGl5WsSZSs8s="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/Central-B-1.wav",
+      "bytes": 317164,
+      "sha256_base64": "GqCdjXn0Ku2XkJar+IF6KlvC5KtzBFF2mm9dcmYMFXY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/Central-LongName-1.wav",
+      "bytes": 399404,
+      "sha256_base64": "VeBnKEZIN0C8o5mjL8MmJZjmAdr4paLPQwdr8pBx0GY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/Central-MultiItem-1.wav",
+      "bytes": 409644,
+      "sha256_base64": "QxwwRhWD7CYmrCwDYSZw5eop7EZSR/h3C1XhmQ7x4Yo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/measurement.json",
+      "bytes": 12661,
+      "sha256_base64": "zwTQblsfqAb9f247xgl6oipgy0UokWphoP2TvR9iypU="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/North-A-1.wav",
+      "bytes": 282924,
+      "sha256_base64": "48Er+Ty1huADtOa5tHiKCorFPuAt1sULQk69u6DXkJY="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/North-B-1.wav",
+      "bytes": 270124,
+      "sha256_base64": "58TiqQcBOnKblS7pDmcWMVy/DkXK2BOovYPjBZVX2BI="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/North-LongName-1.wav",
+      "bytes": 339244,
+      "sha256_base64": "GQ2RQ2dIA2V50MN2INPdUcO1kfaNvgR8rqKFgDtZOe4="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/North-MultiItem-1.wav",
+      "bytes": 353324,
+      "sha256_base64": "r39VgwXl1tp3J9Eui5kCyorxzzO6ZrLtjMCKGTdeHgE="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/South-A-1.wav",
+      "bytes": 441644,
+      "sha256_base64": "uOMwecIsUHnpM39/shaC3JpuKKF8vzQe9dVhKsBapBo="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/South-B-1.wav",
+      "bytes": 421164,
+      "sha256_base64": "35iOaHovMsAncOThDxPTWzcYWmHyg0pVHX+QoSqa6wM="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/South-LongName-1.wav",
+      "bytes": 509804,
+      "sha256_base64": "9l4fL13w8HWD/TpUT/xUW5qN/tCReLLe451/V2aMxCA="
+    },
+    {
+      "path": ".artifacts/W-0323/audio-seam-final/South-MultiItem-1.wav",
+      "bytes": 540204,
+      "sha256_base64": "nkkWA9TshS02ft2aFVREIXrNBGhzjZ4X0+ikewMXpY8="
+    },
+    {
+      "path": ".artifacts/W-0323/build-seam-final.log",
+      "bytes": 4011,
+      "sha256_base64": "rywPuAa9Zde0tL6rCnMhs2Q/rB/2F5xH42Ktcz+bYWU="
+    },
+    {
+      "path": ".artifacts/W-0323/build-seam.log",
+      "bytes": 4367,
+      "sha256_base64": "cwCbl7EJqkXUZUCeEV70Dy/LCLv484XtFKYUKBq5vVc="
+    },
+    {
+      "path": ".artifacts/W-0323/build.log",
+      "bytes": 4411,
+      "sha256_base64": "KqwWT0bPLS1iNnDptYHqkKy1Rr5qwEA1bMaNxEGHY54="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-LongName-segmented-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-LongName-segmented-call.json",
+      "bytes": 1674,
+      "sha256_base64": "ZGlU8fj3hFI3cDkkayuu8AbDyneEz16AmC39fnyGvjY="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-LongName-segmented-call.log",
+      "bytes": 398,
+      "sha256_base64": "MfhlkRmgq2B1eGPH9YQ7JSYVSL2P0uCeJ46C7Qqea+M="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-LongName-segmented-seam-r2-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-LongName-segmented-seam-r2-call.json",
+      "bytes": 1197,
+      "sha256_base64": "OO0CbI4P3ceePSedFU9rpa8nXMdL8XFsaMy+2DXdfMk="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-LongName-segmented-seam-r2-call.log",
+      "bytes": 389,
+      "sha256_base64": "4q4nyJDAH2JUQDv95eWZR2R4FdkcUPDpszx1Q6h3cyA="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-MultiItem-segmented-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-MultiItem-segmented-call.json",
+      "bytes": 1667,
+      "sha256_base64": "l6bnEYztUgBrnHKde41g3f4+wbeyIfDPJrm0qiNIPuA="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-MultiItem-segmented-call.log",
+      "bytes": 389,
+      "sha256_base64": "dKl8vu97E6AxvFInpNMcFyDXjojEjNNy+jfKUQ5MAAY="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-MultiItem-segmented-seam-r2-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-MultiItem-segmented-seam-r2-call.json",
+      "bytes": 1675,
+      "sha256_base64": "PF7IlyAblK7uPQZwNM/5zuMk616FzcN+UMqCbqTCikE="
+    },
+    {
+      "path": ".artifacts/W-0323/Central-MultiItem-segmented-seam-r2-call.log",
+      "bytes": 389,
+      "sha256_base64": "pAMF+3YEE/IS1vxfHULqKeoh8RrR1BySzFBUPR6kerU="
+    },
+    {
+      "path": ".artifacts/W-0323/checks.log",
+      "bytes": 2358,
+      "sha256_base64": "0Q9YbzewanD5erP8cdNMV0gX1agQfKPiaWqKeuaKW/0="
+    },
+    {
+      "path": ".artifacts/W-0323/cold-start-failure/South-MultiItem-segmented-seam-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/cold-start-failure/South-MultiItem-segmented-seam-call.json",
+      "bytes": 588,
+      "sha256_hex_blocks": [
+        "026edaa7",
+        "d7fea7e1",
+        "9bb1155a",
+        "96fdcbf2",
+        "2a8d1bbe",
+        "170236da",
+        "b2e9f106",
+        "6667c0fb"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0323/cold-start-failure/South-MultiItem-segmented-seam-call.log",
+      "bytes": 398,
+      "sha256_base64": "X0SmG1cjDi+O+Hfhq0D9gKSuJqzCBUllrZrcDyFwCU8="
+    },
+    {
+      "path": ".artifacts/W-0323/collect-image.py",
+      "bytes": 1372,
+      "sha256_base64": "vV3xn6vM6q4L2PBOla4xuTdRzW0oSproE8xGQWH+4PU="
+    },
+    {
+      "path": ".artifacts/W-0323/collect-runtime-final.py",
+      "bytes": 4928,
+      "sha256_base64": "0ckOxhSjsj1JBzC9q03FQ1c+21of0eFTb9iAGwfH19E="
+    },
+    {
+      "path": ".artifacts/W-0323/collect-runtime-r2.py",
+      "bytes": 5565,
+      "sha256_base64": "J/N7bLqMD6cv17klRAWGtuNCmp86e50zvSO1q1dwBE8="
+    },
+    {
+      "path": ".artifacts/W-0323/collect-runtime-seam.py",
+      "bytes": 4921,
+      "sha256_base64": "J04YNAjyUmHuIyHeELdE3czUQEs9tEsArVZjzWY4nps="
+    },
+    {
+      "path": ".artifacts/W-0323/collect-runtime.py",
+      "bytes": 4906,
+      "sha256_base64": "ugYeVaHkOZcYxwscmNGt8E9hbTLvNW/3uOJgBez0148="
+    },
+    {
+      "path": ".artifacts/W-0323/compare-final.py",
+      "bytes": 2711,
+      "sha256_base64": "07WHRosdplw2i0iQkhJW7lDN9lSSNRcKVl6RGjkTfcs="
+    },
+    {
+      "path": ".artifacts/W-0323/comparison-final.json",
+      "bytes": 777,
+      "sha256_base64": "nEzA0fv07pcFKdkfAnb4p54YUrxxB3ScBF4RO9HFAd4="
+    },
+    {
+      "path": ".artifacts/W-0323/export-evidence.py",
+      "bytes": 5505,
+      "sha256_base64": "jXPbWr5x+ob2Nl2mtBJgPVwpaGfTA/BJxFcZqbgvsYw="
+    },
+    {
+      "path": ".artifacts/W-0323/extended-budget.json",
+      "bytes": 239,
+      "sha256_base64": "QKmOXvwov/1X6tJe+QVuNbfKoIW7wl7jAW4V12Ew3Ps="
+    },
+    {
+      "path": ".artifacts/W-0323/final-scope.log",
+      "bytes": 2178,
+      "sha256_hex_blocks": [
+        "a8cb00d9",
+        "44d01401",
+        "3d31c4a3",
+        "4c8b8527",
+        "00b3aa7b",
+        "19691771",
+        "c941c8a4",
+        "94b8feda"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0323/finish-tracker.py",
+      "bytes": 870,
+      "sha256_base64": "uBe7+8B8w4y3lwpO5iyPWDYSRaTGpbGnzQYZ8RIdDNE="
+    },
+    {
+      "path": ".artifacts/W-0323/host-baseline.json",
+      "bytes": 426,
+      "sha256_base64": "R4VM/QMXympmRlAFQthOe9o57gbL8R+eESsG92WreCY="
+    },
+    {
+      "path": ".artifacts/W-0323/image-id.txt",
+      "bytes": 73,
+      "sha256_base64": "lAoGPDbzX+kMR9z+2bIqhXlReeiGQr6fu9eRdykah98="
+    },
+    {
+      "path": ".artifacts/W-0323/image-seam-id.txt",
+      "bytes": 73,
+      "sha256_base64": "pk1NpniV4I96NrRtitSRH5s0P4DxIBm7VHTWAq09+3E="
+    },
+    {
+      "path": ".artifacts/W-0323/image-seam-interim-id.txt",
+      "bytes": 73,
+      "sha256_base64": "Ew+vM+/IElpj8d5NZlGoy6q3812Qfm7DfH037yXNSNw="
+    },
+    {
+      "path": ".artifacts/W-0323/image-verification.json",
+      "bytes": 833,
+      "sha256_base64": "tqgi6SvQniNQ1p8Ze1RRZ9wMKlibhaWWf9dnug+c220="
+    },
+    {
+      "path": ".artifacts/W-0323/inspect-silence-final.py",
+      "bytes": 1821,
+      "sha256_base64": "5NZRBiB8Bm5N3kLekPv5uh1f56y/6s1wJQuDKlv3gLE="
+    },
+    {
+      "path": ".artifacts/W-0323/inspect-silence-seam.py",
+      "bytes": 1809,
+      "sha256_base64": "09+31TCv7mn3DON5GWfWJjwISCa0XMiXVtBRfv8xLOE="
+    },
+    {
+      "path": ".artifacts/W-0323/inspect-silence.py",
+      "bytes": 1771,
+      "sha256_base64": "tvGOAi1ex1J1R+wk+8dhLRkzplje8JFOMkTHszkWafA="
+    },
+    {
+      "path": ".artifacts/W-0323/lab-regression.log",
+      "bytes": 5872,
+      "sha256_base64": "jYymUizCJft7tF78FrwlVoYTP9JmoHb/E5mAcUl166Y="
+    },
+    {
+      "path": ".artifacts/W-0323/measure-seam-final.ps1",
+      "bytes": 1618,
+      "sha256_base64": "US9o2+gmx9Ff5vpXEZox70+Ig/6ZW521QqflE81Bxmo="
+    },
+    {
+      "path": ".artifacts/W-0323/measure-seam.ps1",
+      "bytes": 1576,
+      "sha256_base64": "G5TXV6lUk1XRszSA2hJb9H7E3P9slSP25CgPA2Tm0q4="
+    },
+    {
+      "path": ".artifacts/W-0323/measurement-repeat.log",
+      "bytes": 17175,
+      "sha256_base64": "qBW+FBGF882GFkcePFPU5leuEOp1GCcPS6kWrkfnzBY="
+    },
+    {
+      "path": ".artifacts/W-0323/measurement-seam-final.log",
+      "bytes": 11400,
+      "sha256_base64": "Lf/3HdSRvSSOR5fLhwNbbOjXjG+M018ZJ1JQ21/7lEs="
+    },
+    {
+      "path": ".artifacts/W-0323/measurement-seam.log",
+      "bytes": 11381,
+      "sha256_base64": "ZnL+zYKjLbLInaO3KOIN+mYhYOTJu7zo+CgYdhho4AM="
+    },
+    {
+      "path": ".artifacts/W-0323/measurement-summary.json",
+      "bytes": 3651,
+      "sha256_base64": "1lIXfeCFQvqXcUyWEaB13hI0ZBdVdvhXOKl1nJ5nouk="
+    },
+    {
+      "path": ".artifacts/W-0323/measurement.log",
+      "bytes": 11390,
+      "sha256_base64": "5iFvvXDXBRf3i1S5y956W/BqW3907NnMfEFBkbUx9gY="
+    },
+    {
+      "path": ".artifacts/W-0323/North-LongName-segmented-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/North-LongName-segmented-call.json",
+      "bytes": 1670,
+      "sha256_base64": "z3jI8kKB2T/BuhTwB2qS3mvuiT/cFOpPEIiKQEYpH8I="
+    },
+    {
+      "path": ".artifacts/W-0323/North-LongName-segmented-call.log",
+      "bytes": 394,
+      "sha256_base64": "vyG4dtcK8iaMg7yU1OTgLTUi5I5mLxSz9OHcmoqP8Ns="
+    },
+    {
+      "path": ".artifacts/W-0323/North-LongName-segmented-seam-r2-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/North-LongName-segmented-seam-r2-call.json",
+      "bytes": 1159,
+      "sha256_base64": "DW23nNg7uMGOXvpFLqXRGFqRd6B38UuC82Q2QvP6zXs="
+    },
+    {
+      "path": ".artifacts/W-0323/North-LongName-segmented-seam-r2-call.log",
+      "bytes": 385,
+      "sha256_base64": "80OC0I+niJqqkrpdZVGK4vD9TLRylqQRTiuTicy2Ylw="
+    },
+    {
+      "path": ".artifacts/W-0323/North-MultiItem-segmented-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/North-MultiItem-segmented-call.json",
+      "bytes": 1663,
+      "sha256_base64": "j7PHMMRkssynnIKHHtGwpzo/rCXoKJiOipllud9xXQs="
+    },
+    {
+      "path": ".artifacts/W-0323/North-MultiItem-segmented-call.log",
+      "bytes": 385,
+      "sha256_base64": "/pcIJBO82MOkutJswz99Lcyf7ut8cVFuCBAL4YvNsJ0="
+    },
+    {
+      "path": ".artifacts/W-0323/North-MultiItem-segmented-seam-r2-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/North-MultiItem-segmented-seam-r2-call.json",
+      "bytes": 1671,
+      "sha256_base64": "xUuzktp+Re3PZy0Kn88S9HAQ5IOo+X0jDE+g1uuIzms="
+    },
+    {
+      "path": ".artifacts/W-0323/North-MultiItem-segmented-seam-r2-call.log",
+      "bytes": 385,
+      "sha256_base64": "U27zgtFT4YcV4LZE1IZJ1Aq1E4yx/4vWWN89h58GyDc="
+    },
+    {
+      "path": ".artifacts/W-0323/pii-final.log",
+      "bytes": 55,
+      "sha256_base64": "VECjlr3C70xISEmouFK+Qi7T8esW+g1/I1XVLbYp5lU="
+    },
+    {
+      "path": ".artifacts/W-0323/pii.log",
+      "bytes": 188,
+      "sha256_base64": "f5xfaEWXWCZBzG2ATkmcn206CMtQGYIipFaA2tSp71k="
+    },
+    {
+      "path": ".artifacts/W-0323/playback-query.log",
+      "bytes": 351,
+      "sha256_base64": "J2vktBMARJBasD4D9FCRtrsNoTSSzigbdUt1By14e7E="
+    },
+    {
+      "path": ".artifacts/W-0323/prepare-call-r2.py",
+      "bytes": 525,
+      "sha256_base64": "tOwQ2kBN/O3oX1RKxqTCm9cMS1Gc0w9vAgrM/ZTIH6c="
+    },
+    {
+      "path": ".artifacts/W-0323/prepare-final-runtime.py",
+      "bytes": 733,
+      "sha256_base64": "y/MLm2YHFvEqsJlukvU1Y7otOKlGUUidFrb5sHT+vFo="
+    },
+    {
+      "path": ".artifacts/W-0323/prepare-runtime.py",
+      "bytes": 1481,
+      "sha256_base64": "s15Z5QgePM9yzYMkQ7GqfOJkVuDn33EYfuomxReqLQs="
+    },
+    {
+      "path": ".artifacts/W-0323/prepare-seam-runtime.py",
+      "bytes": 1192,
+      "sha256_base64": "rzEOZ9Dg6Nsft5cLg/2l8sXgrPyizd6anM2+77LaMSY="
+    },
+    {
+      "path": ".artifacts/W-0323/renderer.log",
+      "bytes": 38,
+      "sha256_base64": "JmMRtnGX2Zfo7jzDGC838EE/+JOFPXd+g/KH8mHPlZw="
+    },
+    {
+      "path": ".artifacts/W-0323/RendererProbe/packages.lock.json",
+      "bytes": 131,
+      "sha256_base64": "BqFGVSYvnGkTvEc1TgTGbKDncVf21z5vHAGgvH+v/XQ="
+    },
+    {
+      "path": ".artifacts/W-0323/RendererProbe/Program.cs",
+      "bytes": 2105,
+      "sha256_base64": "Xa7FW7WIlw5Fc3bQeTy4rjMNkEYMT3CeI0NSfmROw1o="
+    },
+    {
+      "path": ".artifacts/W-0323/RendererProbe/RendererProbe.csproj",
+      "bytes": 359,
+      "sha256_base64": "YxxkdSbpX3KeMKYfiKJblaa0h7CylPwd1naH9U08LmI="
+    },
+    {
+      "path": ".artifacts/W-0323/repeat-measure.ps1",
+      "bytes": 1870,
+      "sha256_base64": "Ps/7Kzlb56NM4B/WddM41UGXJRaCeywKy6TabEhmmZk="
+    },
+    {
+      "path": ".artifacts/W-0323/run-call-final.ps1",
+      "bytes": 4193,
+      "sha256_base64": "hYtCXE1ZlmqHzArleZTWcwUt3pKA8lbUrZE8obrs3FY="
+    },
+    {
+      "path": ".artifacts/W-0323/run-call-r2.ps1",
+      "bytes": 4196,
+      "sha256_base64": "DIdz6FcjTvG8vJw2x08KcHoE/JGcEnY16CWUj1R7Poo="
+    },
+    {
+      "path": ".artifacts/W-0323/run-call-seam.ps1",
+      "bytes": 4187,
+      "sha256_base64": "vq7H7EwhPV7CwOAwN9jEHDQHux2802INQ+ExEA6rp+g="
+    },
+    {
+      "path": ".artifacts/W-0323/run-call.ps1",
+      "bytes": 4176,
+      "sha256_base64": "Myp3aziTSsVKn0+Ff/WNi5P89AU51v/wcN1rt1c37gQ="
+    },
+    {
+      "path": ".artifacts/W-0323/Run-TargetProbe.ps1",
+      "bytes": 2938,
+      "sha256_base64": "C99rpMd6VNPn4uDIT8Pxz9DBQJ0UHOFWtnx/eTbIWbM="
+    },
+    {
+      "path": ".artifacts/W-0323/runtime-results-before.json",
+      "bytes": 15435,
+      "sha256_base64": "ihEqdcc7NOGYttLRftA7Aoy9U6P3R8F4gR16CBv1bVM="
+    },
+    {
+      "path": ".artifacts/W-0323/runtime-results-final.json",
+      "bytes": 10436,
+      "sha256_base64": "2sKtibHv7/qL3OpwJgGpgq+ScTjoZpJMpk7i7rBDc7I="
+    },
+    {
+      "path": ".artifacts/W-0323/runtime-results.json",
+      "bytes": 15435,
+      "sha256_base64": "ihEqdcc7NOGYttLRftA7Aoy9U6P3R8F4gR16CBv1bVM="
+    },
+    {
+      "path": ".artifacts/W-0323/seam-impact.log",
+      "bytes": 1983,
+      "sha256_base64": "U1GOew6DfYnsWebfA4n24NHW8mZMlBJ9b6A7mb3QcDA="
+    },
+    {
+      "path": ".artifacts/W-0323/seam-regression-after.log",
+      "bytes": 2710,
+      "sha256_base64": "a9ZI13Sb/25bKjCJnobTVpUijdTNeNv8CzQ+dC2e1dw="
+    },
+    {
+      "path": ".artifacts/W-0323/seam-regression-before.log",
+      "bytes": 3856,
+      "sha256_base64": "nklS3VMIECNhS30EEdRGoJsdYVHgVNQzTKf9dMhte00="
+    },
+    {
+      "path": ".artifacts/W-0323/seam-regression-final-verified.log",
+      "bytes": 2891,
+      "sha256_base64": "ve1N8LS0NvddXg7O1TGMgiEGiw/5lDbzvLawN2irVg0="
+    },
+    {
+      "path": ".artifacts/W-0323/seam-regression-final.log",
+      "bytes": 4036,
+      "sha256_base64": "5aC0IUaZHItJOLqyJ27B9HsWpGHBfHvWfhgylq/cD6o="
+    },
+    {
+      "path": ".artifacts/W-0323/segmented-seam.json",
+      "bytes": 5236,
+      "sha256_base64": "oHZmiKKW4BuUn9kqcTFpGQW5UbglDM67gEnCFTtwXV4="
+    },
+    {
+      "path": ".artifacts/W-0323/segmented.json",
+      "bytes": 5236,
+      "sha256_base64": "pQXIOf9bWM14yulEOxWkDHktR3zo8ziiy55wZOpexWE="
+    },
+    {
+      "path": ".artifacts/W-0323/setup-lab.ps1",
+      "bytes": 733,
+      "sha256_base64": "kdbbmbZh9wDMCxjj5dtAqlMoRzkk2wOoJChsJv9c890="
+    },
+    {
+      "path": ".artifacts/W-0323/setup-seam-lab.ps1",
+      "bytes": 758,
+      "sha256_base64": "rHJjOhvqFZzxWA7ttnsLJJRM+qVvfdDX75Q4dRpyz2A="
+    },
+    {
+      "path": ".artifacts/W-0323/silence-after.json",
+      "bytes": 22671,
+      "sha256_base64": "cvK5mQhPURG40+GAdHZ0jXIzzCj9KZJxMNOuUq9D2/A="
+    },
+    {
+      "path": ".artifacts/W-0323/silence-before.json",
+      "bytes": 22675,
+      "sha256_base64": "sN6HrQ+ULiQ3oSz6XhJO5cJ5uVemdNhvWNhV5tGlstw="
+    },
+    {
+      "path": ".artifacts/W-0323/silence-final.json",
+      "bytes": 22670,
+      "sha256_base64": "JBrKuxpL4RcZIRIYoLZA7sVICCmmBAKwPq0ch7Lif0A="
+    },
+    {
+      "path": ".artifacts/W-0323/silence-tests-impact.log",
+      "bytes": 190,
+      "sha256_base64": "AJfCAxLY68c0lS/A9sfju+yvGpB2OhFlm0/bP1wY8tM="
+    },
+    {
+      "path": ".artifacts/W-0323/South-LongName-segmented-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/South-LongName-segmented-call.json",
+      "bytes": 1670,
+      "sha256_base64": "yhFeTAFvyDN0KUailvKMWxgO3l7ogBrxIJIqfFMKil4="
+    },
+    {
+      "path": ".artifacts/W-0323/South-LongName-segmented-call.log",
+      "bytes": 395,
+      "sha256_base64": "eyapZXfveswSdL2ZC/0+/4a0uG5B0/5JkprU/glU8U0="
+    },
+    {
+      "path": ".artifacts/W-0323/South-LongName-segmented-seam-r2-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/South-LongName-segmented-seam-r2-call.json",
+      "bytes": 1678,
+      "sha256_base64": "FeRfhgBOMKE9y6ms2L1PmkqeUXWDpb9Dny+aJdL+6fw="
+    },
+    {
+      "path": ".artifacts/W-0323/South-LongName-segmented-seam-r2-call.log",
+      "bytes": 395,
+      "sha256_base64": "eYpRYccrWeqgEWfVi4Lo3EfKMTn/OaiWSC4UDSmtPdE="
+    },
+    {
+      "path": ".artifacts/W-0323/South-MultiItem-segmented-seam-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/South-MultiItem-segmented-seam-call.json",
+      "bytes": 1149,
+      "sha256_base64": "PR8tJ7B5N4+ZFy24jm+bzNpjFBJPV3BSnO4fytbSlHM="
+    },
+    {
+      "path": ".artifacts/W-0323/South-MultiItem-segmented-seam-call.log",
+      "bytes": 386,
+      "sha256_base64": "CaIaC20GJlq/GORn0hR8m8UcPP/lUTEGFocVSMQBf/I="
+    },
+    {
+      "path": ".artifacts/W-0323/South-MultiItem-segmented-seam-r2-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/South-MultiItem-segmented-seam-r2-call.json",
+      "bytes": 1152,
+      "sha256_base64": "/x+O1TrBD6NoOLMtjnjuAbJ7TB4Tt4w9ENXYbTppuwk="
+    },
+    {
+      "path": ".artifacts/W-0323/South-MultiItem-segmented-seam-r2-call.log",
+      "bytes": 386,
+      "sha256_base64": "9fAjQnLvHIysGiUO04KwVfu43wYiTI8ljQRAanDi/is="
+    },
+    {
+      "path": ".artifacts/W-0323/startup-seam-final.log",
+      "bytes": 1096,
+      "sha256_base64": "fXnpNiukXQF6jxP99Y1nCw9pMlPlHkrNS4arCp6XqCs="
+    },
+    {
+      "path": ".artifacts/W-0323/startup.log",
+      "bytes": 1096,
+      "sha256_base64": "dMqIj5ybAZ4LQXvnGkdjSCr+CmMt6nQi3jTMIwVTh5Y="
+    },
+    {
+      "path": ".artifacts/W-0323/summarize-measure.py",
+      "bytes": 1805,
+      "sha256_base64": "hBklfIOlXzCB5u/M9MiDvLFF9BqGJizSvAoFqfqh0Hw="
+    },
+    {
+      "path": ".artifacts/W-0323/synthesize-impact.log",
+      "bytes": 437,
+      "sha256_base64": "lRwnWJr07Z2dvdETlj2M3eFID+P5QxYkwP+M8OAmC0E="
+    },
+    {
+      "path": ".artifacts/W-0323/target-probe.zip",
+      "bytes": 620900,
+      "sha256_base64": "4vwP6JM7/ainmrnmrijqv9PeQRDDXh2SKAHHANECKYg="
+    },
+    {
+      "path": ".artifacts/W-0323/trim-impact.log",
+      "bytes": 194,
+      "sha256_base64": "vIuS3AIkQpShSV/JehCaPyNXvwlBHbko3+oac6P05cY="
+    },
+    {
+      "path": ".artifacts/W-0323/trivy-final.json",
+      "bytes": 164187,
+      "sha256_base64": "wcOwfWeMP7Ugfl7rRGSoLQh+kZjumdBQT6FoI/4AcQw="
+    },
+    {
+      "path": ".artifacts/W-0323/trivy-seam.json",
+      "bytes": 164187,
+      "sha256_base64": "mwdzMZSdUza1IqKSr5pcexcBknPr5A1MsEaS3UtCNAc="
+    },
+    {
+      "path": ".artifacts/W-0323/trivy.json",
+      "bytes": 164176,
+      "sha256_base64": "HQJaBc7faSr7+B/LdLzr6/wugCF9OVK2tiQaFcih/yY="
+    },
+    {
+      "path": ".artifacts/W-0323/tts-container.log",
+      "bytes": 2271,
+      "sha256_base64": "hY3MMbZIBkNMt6tnRJlGWCWOa0ZRPmt/f1dhcuud6Vc="
+    },
+    {
+      "path": ".artifacts/W-0323/uncontrolled/South-MultiItem-segmented-call-error.log",
+      "bytes": 0,
+      "sha256_base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "path": ".artifacts/W-0323/uncontrolled/South-MultiItem-segmented-call.json",
+      "bytes": 1143,
+      "sha256_base64": "NJxl3LZYMHchYl0eMa0Wf1Ns9d5vvOGgosP7+kyz5i4="
+    },
+    {
+      "path": ".artifacts/W-0323/uncontrolled/South-MultiItem-segmented-call.log",
+      "bytes": 386,
+      "sha256_base64": "lKOsDchYDK39gfAg4teAtkG3fyEp1Za8tZ4uablhXhA="
+    },
+    {
+      "path": ".artifacts/W-0323/worker-texts-expanded.json",
+      "bytes": 15893,
+      "sha256_base64": "uUY/HwtmMK9g7V8j6GOYn40CsC5bd33G/JPAtSIbmBI="
+    },
+    {
+      "path": ".artifacts/W-0323/worker-texts.json",
+      "bytes": 30371,
+      "sha256_base64": "BgPrB+ccAUEfARatwX1XfqpGG7cLQ+M5/UgzX4GkXOw="
+    }
+  ]
+}

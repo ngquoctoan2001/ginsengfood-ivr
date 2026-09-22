@@ -1,0 +1,24 @@
+{
+  "work_id": "W-0333",
+  "source": "OWNER_PASTED_TERMINAL_OUTPUT",
+  "verification": "SUMMARY_RECEIVED_FULL_ARTIFACTS_PENDING",
+  "reported_target": "vps61",
+  "reported_result_directory": "/home/ssv/vieneu-s5-20260921-081018/vieneu-s5/result",
+  "archive_checksum_reported": "OK",
+  "completion_marker": "S5_MEASUREMENT_COMPLETE",
+  "cpu_limit": 2,
+  "memory_gib": 4,
+  "sequential_dynamic_segments": {
+    "count": 18,
+    "p50_ms": 1920,
+    "p95_ms": 9272,
+    "max_ms": 9272,
+    "over_5s": 5,
+    "over_10s": 0
+  },
+  "full_artifacts_locally_received": false,
+  "burst_timeout_recovery_review": "PENDING_FULL_ARTIFACTS",
+  "production_timeout_decision": "NOT_MADE",
+  "production_ready": false,
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+}

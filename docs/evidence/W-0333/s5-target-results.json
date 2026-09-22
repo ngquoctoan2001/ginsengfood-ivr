@@ -1,0 +1,415 @@
+{
+  "work_id": "W-0333",
+  "verification": "TARGET_ARTIFACTS_RECEIVED_AND_CROSS_CHECKED",
+  "head_at_review": "f2a7bc8bd54d255f503ae02d98cd9cba257646de",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production_ready": false,
+  "execution_source": "OWNER_EXECUTED_TARGET_BUNDLE",
+  "agent_direct_server_access": false,
+  "host": {
+    "scope": "S5_TARGET",
+    "image_sha256_hex_blocks": [
+      "79e9106e",
+      "c1401c5c",
+      "dd751b80",
+      "da52e6d8",
+      "a46f17f4",
+      "37c1e069",
+      "0209bce1",
+      "3b692581"
+    ],
+    "image_index_sha256_hex_blocks": [
+      "79e9106e",
+      "c1401c5c",
+      "dd751b80",
+      "da52e6d8",
+      "a46f17f4",
+      "37c1e069",
+      "0209bce1",
+      "3b692581"
+    ],
+    "image_config_sha256_hex_blocks": [
+      "13aae53f",
+      "d114ec1b",
+      "8e4a8adc",
+      "5dad0dd6",
+      "57765e68",
+      "322387bb",
+      "c0926b3c",
+      "27da80d8"
+    ],
+    "manifest_sha256_sha256_hex_blocks": [
+      "e221ff37",
+      "26ac3042",
+      "d81f1a3a",
+      "2525dd00",
+      "cdaad375",
+      "f1b6bf3d",
+      "2ea3e30f",
+      "09a13bd0"
+    ],
+    "cpu_limit": 2,
+    "memory_gib": 4,
+    "real_customer_call_allowed": "NO",
+    "started_utc": "2026-09-21T08:10:37.044797+00:00",
+    "exit_code": 0,
+    "successful_pcm_equal": 25,
+    "all_probe_assertions_pass": true,
+    "ended_utc": "2026-09-21T08:13:41.681524+00:00"
+  },
+  "inventory_summary": {
+    "host_name": "vps61",
+    "kernel": "5.15.0-191-generic",
+    "logical_cpus": 10,
+    "host_memory": {
+      "MemTotal": 14669688832,
+      "MemAvailable": 12261421056
+    },
+    "docker": {
+      "Name": "vps61",
+      "NCPU": 10,
+      "MemTotal": 14669688832,
+      "ServerVersion": "29.6.1",
+      "OSType": "linux",
+      "Architecture": "x86_64"
+    },
+    "container_memory_limits": [
+      {
+        "name": "/ginsengfood-ops-core-api-1",
+        "memory_limit_bytes": 0
+      },
+      {
+        "name": "/ginsengfood-admin-web",
+        "memory_limit_bytes": 0
+      },
+      {
+        "name": "/ginsengfood-shopfloor-pwa",
+        "memory_limit_bytes": 0
+      },
+      {
+        "name": "/ginsengfood-public-trace",
+        "memory_limit_bytes": 0
+      },
+      {
+        "name": "/ginsengfood-m7-mc-ai-live-1",
+        "memory_limit_bytes": 0
+      },
+      {
+        "name": "/ginsengfood-pg-ops-1",
+        "memory_limit_bytes": 0
+      },
+      {
+        "name": "/ginsengfood-nginx-1",
+        "memory_limit_bytes": 0
+      }
+    ],
+    "stats_reported_limit": "47.84GiB",
+    "stats_limit_discrepancy_cause": "NOT_ESTABLISHED",
+    "host_and_daemon_memory_equal": true
+  },
+  "model": {
+    "startup_ms": 4379,
+    "capacity": 1,
+    "ort_threads": 1,
+    "cpu_max": "200000 100000",
+    "memory_max": "4294967296",
+    "peak_rss_kib": 1584464,
+    "peak_rss_gib": 1.5111,
+    "approved_successful_pcm_equal": 25
+  },
+  "sequential": {
+    "count": 18,
+    "p50_ms": 1920,
+    "p95_ms": 9272,
+    "max_ms": 9272,
+    "over_5s": 5,
+    "over_10s": 0
+  },
+  "burst_budgets_ms": {
+    "5000": {
+      "post_count": 14,
+      "status_counts": {
+        "CLIENT_TIMEOUT": 6,
+        "503": 8
+      },
+      "max_success_ms": null,
+      "admitted_requests": 6,
+      "admitted_success": 0,
+      "admitted_timeout": 6
+    },
+    "10000": {
+      "post_count": 14,
+      "status_counts": {
+        "200": 6,
+        "503": 8
+      },
+      "max_success_ms": 9019,
+      "admitted_requests": 6,
+      "admitted_success": 6,
+      "admitted_timeout": 0
+    }
+  },
+  "dynamic_part_sums": [
+    {
+      "region": "North",
+      "variant": "MultiItem",
+      "dynamic_parts": 3,
+      "sum_individual_synthesis_ms": 8706,
+      "NOT_A_WORKER_CALL_TIMING": true
+    },
+    {
+      "region": "North",
+      "variant": "LongName",
+      "dynamic_parts": 3,
+      "sum_individual_synthesis_ms": 7645,
+      "NOT_A_WORKER_CALL_TIMING": true
+    },
+    {
+      "region": "Central",
+      "variant": "MultiItem",
+      "dynamic_parts": 3,
+      "sum_individual_synthesis_ms": 9936,
+      "NOT_A_WORKER_CALL_TIMING": true
+    },
+    {
+      "region": "Central",
+      "variant": "LongName",
+      "dynamic_parts": 3,
+      "sum_individual_synthesis_ms": 9118,
+      "NOT_A_WORKER_CALL_TIMING": true
+    },
+    {
+      "region": "South",
+      "variant": "MultiItem",
+      "dynamic_parts": 3,
+      "sum_individual_synthesis_ms": 15578,
+      "NOT_A_WORKER_CALL_TIMING": true
+    },
+    {
+      "region": "South",
+      "variant": "LongName",
+      "dynamic_parts": 3,
+      "sum_individual_synthesis_ms": 11954,
+      "NOT_A_WORKER_CALL_TIMING": true
+    }
+  ],
+  "request_accounting": {
+    "all_synthesize_posts": 49,
+    "recorded_rows": 48,
+    "extra_busy_check_not_in_rows": 1,
+    "success": 25,
+    "http503": 17,
+    "timeouts": 7,
+    "intentional_50ms_disconnect_included": 1
+  },
+  "recovery": {
+    "forced_disconnect_ms": 52,
+    "capacity_drain_after_disconnect_ms": 8871,
+    "next_synthesis_ms": 9060,
+    "http_recovery": {
+      "busy_status": 503,
+      "readiness_next_request": 200,
+      "synthesis_after_drain": 200,
+      "pass": true
+    },
+    "drain_after_5s_timeout_ms": [
+      4161,
+      1582,
+      4068,
+      1541,
+      4061,
+      1535
+    ]
+  },
+  "cpu_observation": {
+    "host_elapsed_seconds": 184.637,
+    "cgroup_delta": {
+      "usage_usec": 173885208,
+      "user_usec": 173034800,
+      "system_usec": 850408,
+      "nr_periods": 1744,
+      "nr_throttled": 0,
+      "throttled_usec": 0
+    },
+    "average_cores_over_host_interval": 0.9418,
+    "quota_throttling_observed": false
+  },
+  "source_review": {
+    "tts_timeout_is_per_dynamic_segment": true,
+    "speech_prepared_before_dial": true,
+    "current_client_busy_retry_delays_ms": [
+      250,
+      500,
+      1000,
+      1000,
+      1000,
+      1000,
+      1000,
+      1000
+    ],
+    "sum_backoff_ms": 6750,
+    "inference": "An 8.871s remaining busy interval can outlast the current ~6.75s backoff ceiling; HTTP latency is extra",
+    "worker_retry_on_S5": "NOT_RUN",
+    "worker_full_call_on_S5": "NOT_RUN"
+  },
+  "decisions": {
+    "quota_for_next_diagnostic": "KEEP_2_CPU_4_GIB_CAPACITY1",
+    "production_5s": "INSUFFICIENT_FOR_MEASURED_LONG_ORDER_SEGMENTS",
+    "production_10s": "NOT_APPROVED_SMALL_SINGLE_RUN_MARGIN",
+    "priority": "TEST_AND_FIX_WORKER_BUSY_WAIT_AND_ADMISSION_BEFORE_RAISING_LOAD",
+    "mirror_and_S2": "STILL_OPEN"
+  },
+  "input_archive": {
+    "path": ".artifacts/W-0333/s5-vps61-result.tar.gz",
+    "bytes": 5356,
+    "sha256_sha256_hex_blocks": [
+      "7c09e391",
+      "a2438523",
+      "cb39011c",
+      "9a7cc65b",
+      "dd078ef8",
+      "fb08c479",
+      "2d11d837",
+      "d8db6705"
+    ]
+  },
+  "raw_file_bindings": [
+    {
+      "path": ".artifacts/W-0333/s5-vps61-received/host.json",
+      "bytes": 651,
+      "sha256_sha256_hex_blocks": [
+        "bd0c109a",
+        "017b92e8",
+        "4bb33e77",
+        "321e7db1",
+        "42b535ab",
+        "edd7d180",
+        "77ef5e6e",
+        "f127beca"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0333/s5-vps61-received/image-load.log",
+      "bytes": 89,
+      "sha256_sha256_hex_blocks": [
+        "4b7c5bb5",
+        "205a9b5e",
+        "91c9b96a",
+        "0b4aebbe",
+        "8dd548c2",
+        "0d28d726",
+        "0ca152b6",
+        "e24821ce"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0333/s5-vps61-received/inventory.json",
+      "bytes": 6775,
+      "sha256_sha256_hex_blocks": [
+        "9a9f0c59",
+        "0477cf20",
+        "6986fb11",
+        "24a2b47a",
+        "2251220f",
+        "8a23d7b4",
+        "8a8ff262",
+        "cd8c809c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0333/s5-vps61-received/load.json",
+      "bytes": 15814,
+      "sha256_sha256_hex_blocks": [
+        "627d4c75",
+        "a4cf4822",
+        "8515f00a",
+        "b854c9da",
+        "36981a2c",
+        "376a4c5a",
+        "0ef46068",
+        "43acc396"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0333/s5-vps61-received/run.log",
+      "bytes": 4425,
+      "sha256_sha256_hex_blocks": [
+        "414b17dd",
+        "090a5862",
+        "120b44c3",
+        "e27a08de",
+        "d443f7bf",
+        "11a47532",
+        "763f46c6",
+        "e51cf411"
+      ]
+    }
+  ],
+  "source_bindings": [
+    {
+      "path": "deploy/tts/tests/probe_load.py",
+      "sha256_sha256_hex_blocks": [
+        "04cc26e5",
+        "92fc0256",
+        "7ecac9e3",
+        "2a224d40",
+        "8d75208e",
+        "6318aab3",
+        "1cd144f7",
+        "2cda2b73"
+      ]
+    },
+    {
+      "path": "deploy/lab/run-vieneu-s5.py",
+      "sha256_sha256_hex_blocks": [
+        "b7a0f8c7",
+        "cd71f17d",
+        "58ab93c1",
+        "fe25f572",
+        "e8372999",
+        "1b85785c",
+        "8ad15c45",
+        "1048fb20"
+      ]
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Speech/SpeechSynthesisService.cs",
+      "sha256_sha256_hex_blocks": [
+        "28a6de42",
+        "14742e60",
+        "ed60b275",
+        "fd4e7f88",
+        "67bad590",
+        "f0fdb3b5",
+        "d5f2baa0",
+        "ea85e009"
+      ]
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Speech/ConfigurableExternalTtsProvider.cs",
+      "sha256_sha256_hex_blocks": [
+        "b4461c34",
+        "548fc1c4",
+        "02916aa3",
+        "a35413e1",
+        "a68807cf",
+        "cfa35ea4",
+        "3e56a99a",
+        "4b065666"
+      ]
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Telephony/AsteriskSchedulerDispatchGateway.cs",
+      "sha256_sha256_hex_blocks": [
+        "2eceaf06",
+        "d2d6ed2c",
+        "b0e24614",
+        "69f81c9d",
+        "2b0bb270",
+        "6f743719",
+        "f28b8a87",
+        "a913e1b1"
+      ]
+    }
+  ]
+}

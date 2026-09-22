@@ -24,6 +24,10 @@
 .PARAMETER InvokePreflightCall
     Gửi một task gọi fake sau khi mở MicroSIP. Mặc định không gọi để việc dựng lab không tạo
     một lượt ngoài kế hoạch nghiệm thu.
+
+.PARAMETER SpeechReadyTimeoutSeconds
+    Thời gian tối đa chờ VieNeu ready, mặc định 180 giây. Trước khi mở MicroSIP/gọi phải qua
+    kiểm tra readiness và quyền đọc/ghi trên volume audio dùng chung.
 #>
 [CmdletBinding()]
 param(
@@ -34,7 +38,10 @@ param(
 
     [switch]$SkipBuild,
 
-    [switch]$InvokePreflightCall
+    [switch]$InvokePreflightCall,
+
+    [ValidateRange(1, 600)]
+    [int]$SpeechReadyTimeoutSeconds = 180
 )
 
 $ErrorActionPreference = 'Stop'
@@ -89,11 +96,16 @@ try {
         throw "The VieNeu softphone lab failed to start (exit $LASTEXITCODE)."
     }
 
+    & node (Join-Path $PSScriptRoot 'check-speech-preflight.mjs') --timeout-seconds $SpeechReadyTimeoutSeconds
+    if ($LASTEXITCODE -ne 0) {
+        throw 'VieNeu/media preflight failed. No lab call was submitted.'
+    }
+
     & (Join-Path $PSScriptRoot 'Install-Launch-MicroSip.ps1') `
         -SipPassword $env:IVR_LAB_SIP_PASSWORD
 
     if ($InvokePreflightCall) {
-        & (Join-Path $PSScriptRoot 'Invoke-FreeSoftphoneCall.ps1')
+        & (Join-Path $PSScriptRoot 'Invoke-FreeSoftphoneCall.ps1') -SpeechReadyTimeoutSeconds $SpeechReadyTimeoutSeconds
     }
     else {
         Write-Host 'Lab đã khởi động; chưa gửi task gọi. Chạy Invoke-FreeSoftphoneCall.ps1 khi sẵn sàng nghe.' -ForegroundColor Green

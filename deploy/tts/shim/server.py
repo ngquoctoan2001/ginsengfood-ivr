@@ -93,7 +93,10 @@ class TtsHandler(BaseHTTPRequestHandler):
         if not self.state.ready or self.state.backend is None:
             self._empty(503)
             return
-        if self.headers.get("Content-Type") != "application/json":
+        # .NET StringContent sends application/json; charset=utf-8. Parse the MIME header
+        # instead of comparing its wire spelling; request bytes must still be UTF-8 JSON.
+        if (self.headers.get_content_type() != "application/json"
+                or self.headers.get_content_charset("utf-8") != "utf-8"):
             self._empty(415)
             return
 
@@ -145,9 +148,14 @@ class TtsHandler(BaseHTTPRequestHandler):
     do_PUT = do_DELETE = do_PATCH = do_OPTIONS = do_HEAD = lambda self: self._empty(405)
 
     def _empty(self, status: int) -> None:
+        # Early POST refusals (including overload) leave the request body unread. Reusing
+        # that connection would parse the remaining JSON as the next HTTP request line.
+        # Close without draining an untrusted body; pooled clients can reconnect and retry.
+        self.close_connection = True
         try:
             self.send_response_only(status)
             self.send_header("Content-Length", "0")
+            self.send_header("Connection", "close")
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
             self.end_headers()

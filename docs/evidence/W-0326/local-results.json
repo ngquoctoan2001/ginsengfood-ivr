@@ -1,0 +1,1030 @@
+{
+  "work_id": "W-0326",
+  "scope": "LOCAL_SHARED_WORKTREE_NO_PHONE_CALLS",
+  "baseline": {
+    "head": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+    "image_id_sha256_hex_blocks": [
+      "3c221242",
+      "af56425f",
+      "15495a7c",
+      "a0934273",
+      "439b7fe9",
+      "b150f915",
+      "31710b4e",
+      "e47c2843"
+    ],
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+  },
+  "head_observed_at_export": "3545e10e5aabf5d26ddd2997adfb32fa1c0d846f",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production_ready": false,
+  "listening": {
+    "status": "OWNER_ACCEPTED",
+    "ref": "docs/evidence/W-0323/owner-decision.md",
+    "requires_relisten": false
+  },
+  "image_sha256_hex_blocks": [
+    "79e9106e",
+    "c1401c5c",
+    "dd751b80",
+    "da52e6d8",
+    "a46f17f4",
+    "37c1e069",
+    "0209bce1",
+    "3b692581"
+  ],
+  "image_source_bytes_equal": 7,
+  "running_image_equal": true,
+  "http_regression": {
+    "before": {
+      "passed": 20,
+      "failed": 3,
+      "observed_incorrect_response": 400
+    },
+    "after": {
+      "passed": 23,
+      "failed": 0
+    },
+    "http_contract": "PASS",
+    "nonroot_readonly_network_none": "PASS"
+  },
+  "model_measurement": {
+    "audio_equal_to_owner_accepted_cases": 12,
+    "pcm_contract": "8kHz mono signed16LE",
+    "requires_relisten": false,
+    "cold_runs_before_http_fix": [
+      {
+        "trial": 1,
+        "startup_ms": 5652,
+        "first_request_ms": 4878,
+        "all_requests_max_ms": 4878,
+        "case_count": 4,
+        "request_count": 12
+      },
+      {
+        "trial": 2,
+        "startup_ms": 8376,
+        "first_request_ms": 7201,
+        "all_requests_max_ms": 7201,
+        "case_count": 4,
+        "request_count": 12
+      },
+      {
+        "trial": 3,
+        "startup_ms": 5822,
+        "first_request_ms": 6202,
+        "all_requests_max_ms": 6202,
+        "case_count": 4,
+        "request_count": 12
+      }
+    ],
+    "final_cases": 12,
+    "final_requests": 36,
+    "final_request_max_ms": 4760,
+    "historical_10s_timeout": "NOT_REPRODUCED_IN_THREE_NEW_STARTS_NOT_ERASED",
+    "cold_start_root_cause": "NOT_PROVEN",
+    "original_5s_budget": "INSUFFICIENT_IN_TWO_OF_THREE_FIRST_REQUESTS",
+    "scope": "LOCAL_SHARED_HOST_SERIAL_NO_PHONE_CALLS",
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+  },
+  "scan": {
+    "scanner_sha256_hex_blocks": [
+      "7cced7ca",
+      "e583819f",
+      "c7806d4c",
+      "bc0dbbc7",
+      "cad18b99",
+      "f7d3e235",
+      "192e6da8",
+      "c091045c"
+    ],
+    "registry_digests": [
+      "aquasec/trivy@sha256:7cced7cae583819fc7806d4cbc0dbbc7cad18b99f7d3e235192e6da8c091045c"
+    ],
+    "trivy_version": "0.73.0",
+    "created_at": "2026-09-21T05:46:13.573741282Z",
+    "db": {
+      "Version": 2,
+      "NextUpdate": "2026-09-21T19:19:55.870895986Z",
+      "UpdatedAt": "2026-09-20T19:19:55.870896177Z",
+      "DownloadedAt": "2026-09-21T02:15:23.275405607Z"
+    },
+    "archive_image_sha256_hex_blocks": [
+      "79e9106e",
+      "c1401c5c",
+      "dd751b80",
+      "da52e6d8",
+      "a46f17f4",
+      "37c1e069",
+      "0209bce1",
+      "3b692581"
+    ],
+    "manifest_digest_sha256_hex_blocks": [
+      "ddbc7bd3",
+      "668146b0",
+      "2deeddfd",
+      "4965b4be",
+      "ce44220c",
+      "4458517a",
+      "6c9dcdfc",
+      "0542c748"
+    ],
+    "config_digest_sha256_hex_blocks": [
+      "13aae53f",
+      "d114ec1b",
+      "8e4a8adc",
+      "5dad0dd6",
+      "57765e68",
+      "322387bb",
+      "c0926b3c",
+      "27da80d8"
+    ],
+    "artifact_id_sha256_hex_blocks": [
+      "13aae53f",
+      "d114ec1b",
+      "8e4a8adc",
+      "5dad0dd6",
+      "57765e68",
+      "322387bb",
+      "c0926b3c",
+      "27da80d8"
+    ],
+    "high": 0,
+    "critical": 0,
+    "network": "NONE",
+    "docker_socket": false,
+    "archive_sha256_hex_blocks": [
+      "a3aef13b",
+      "4ca17cfc",
+      "fad98e9b",
+      "fd5a9e26",
+      "0c9ed7e4",
+      "34f33c09",
+      "6c68cf7b",
+      "bbf1c585"
+    ],
+    "report_sha256_hex_blocks": [
+      "faee2799",
+      "2eb3fbc5",
+      "658f6750",
+      "17143455",
+      "c4123cb4",
+      "16e50477",
+      "b6ce7da5",
+      "27815020"
+    ]
+  },
+  "lab": {
+    "preflight": "PASS",
+    "new_phone_calls": 0,
+    "pending_jobs_before_update": 0,
+    "active_calls_after": 0,
+    "tts_timeout_ms": 10000,
+    "production_timeout_ms": 5000
+  },
+  "remaining": {
+    "historical_10s_timeout": "NOT_REPRODUCED_NOT_DISMISSED",
+    "target_hardware": "NOT_IDENTIFIED",
+    "concurrent_target_load": "NOT_RUN",
+    "W0323_dtmf_matrix": "3_OF_6_VERIFIED",
+    "mirror": "OWNER_DATA_REQUIRED",
+    "model_legal": "OWNER_DATA_REQUIRED"
+  },
+  "source_bindings": [
+    {
+      "path": "deploy/tts/shim/server.py",
+      "sha256_hex_blocks": [
+        "4d390ae7",
+        "43cfbfb7",
+        "15654529",
+        "76e9ff11",
+        "828d8de2",
+        "c81f1f13",
+        "daadce6f",
+        "c444d66d"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/backend.py",
+      "sha256_hex_blocks": [
+        "2babb008",
+        "b6f3bbea",
+        "b22e5d8d",
+        "14962216",
+        "e66900a4",
+        "394cf96b",
+        "2de6ee62",
+        "5e086d68"
+      ]
+    },
+    {
+      "path": "deploy/tts/tests/test_http_lifecycle.py",
+      "sha256_hex_blocks": [
+        "94ff2466",
+        "d584a26a",
+        "4d244359",
+        "a5956d33",
+        "27834a0c",
+        "0fa84bce",
+        "907b2aa0",
+        "ad2e31c8"
+      ]
+    },
+    {
+      "path": "deploy/tts/tests/test_shim.py",
+      "sha256_hex_blocks": [
+        "6d900fb1",
+        "a9b7c195",
+        "074dd527",
+        "e6cd981c",
+        "15e28bc5",
+        "ee77fc08",
+        "a2c2d8d4",
+        "5065947c"
+      ]
+    },
+    {
+      "path": "deploy/tts/Dockerfile.tts",
+      "sha256_hex_blocks": [
+        "dab036c1",
+        "77f0caf4",
+        "6d598da0",
+        "5422f551",
+        "7441ad2a",
+        "8d6423d6",
+        "11962a87",
+        "a9b03604"
+      ]
+    },
+    {
+      "path": "deploy/tts/models/MODELS.lock",
+      "sha256_hex_blocks": [
+        "bba41ea7",
+        "96bc6ab1",
+        "c659865a",
+        "1087868d",
+        "41353680",
+        "8e00535c",
+        "71e5ce46",
+        "09cbe37d"
+      ]
+    },
+    {
+      "path": "deploy/tts/tests/measure_lab_orders.py",
+      "sha256_hex_blocks": [
+        "a5b20646",
+        "6f743e66",
+        "542f773f",
+        "b168baa1",
+        "12f9bb37",
+        "89542028",
+        "2a463e3e",
+        "654e8ca5"
+      ]
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0326/audio-comparison.json",
+      "bytes": 1073,
+      "sha256_hex_blocks": [
+        "000a1590",
+        "6f0ea0d9",
+        "ee6fe8ae",
+        "5cb72e0f",
+        "671cd9b1",
+        "9d5cc502",
+        "a94bbd7b",
+        "8999b5d4"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/baseline.json",
+      "bytes": 189,
+      "sha256_hex_blocks": [
+        "e68a69c8",
+        "a7b57190",
+        "634eb3d0",
+        "b1e20721",
+        "cfb73ac1",
+        "150c1cb2",
+        "8390c5d5",
+        "bdd7b750"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/build.log",
+      "bytes": 7028,
+      "sha256_hex_blocks": [
+        "ea6c9034",
+        "2f09ddb5",
+        "833366c5",
+        "45f3ea5a",
+        "3d891f89",
+        "5225e6bb",
+        "421f10e5",
+        "cb1d7753"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-1/measurement.json",
+      "bytes": 4343,
+      "sha256_hex_blocks": [
+        "c35c1e9e",
+        "b3c00de9",
+        "920e080a",
+        "8d29371b",
+        "568a1b38",
+        "e1b1f6cf",
+        "9c674ce6",
+        "e9af7ea0"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-1/South-LongName-1.wav",
+      "bytes": 509804,
+      "sha256_hex_blocks": [
+        "f65e1f2f",
+        "5df0f075",
+        "83fd3a54",
+        "4ffc545b",
+        "9a8dfed0",
+        "9178b2de",
+        "e39d7f57",
+        "668cc420"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-1/South-LongName-2.wav",
+      "bytes": 509804,
+      "sha256_hex_blocks": [
+        "f65e1f2f",
+        "5df0f075",
+        "83fd3a54",
+        "4ffc545b",
+        "9a8dfed0",
+        "9178b2de",
+        "e39d7f57",
+        "668cc420"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-1/South-MultiItem-1.wav",
+      "bytes": 540204,
+      "sha256_hex_blocks": [
+        "9e491603",
+        "d4ec852d",
+        "367edd9a",
+        "15544421",
+        "7acd0468",
+        "738d9e17",
+        "d3e8a47b",
+        "0317a58f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-1/South-MultiItem-2.wav",
+      "bytes": 540204,
+      "sha256_hex_blocks": [
+        "9e491603",
+        "d4ec852d",
+        "367edd9a",
+        "15544421",
+        "7acd0468",
+        "738d9e17",
+        "d3e8a47b",
+        "0317a58f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-1.log",
+      "bytes": 3894,
+      "sha256_hex_blocks": [
+        "e45c4201",
+        "3ddd6748",
+        "2588b1e2",
+        "d9c04a27",
+        "3cb0f9b5",
+        "810938a4",
+        "8edc6ef6",
+        "5f5862d0"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-2/measurement.json",
+      "bytes": 4347,
+      "sha256_hex_blocks": [
+        "f74e875a",
+        "08336bbd",
+        "9cc7000b",
+        "0027e2ef",
+        "a8489a90",
+        "0bcd809d",
+        "0a1adc01",
+        "02b3db8e"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-2/South-LongName-1.wav",
+      "bytes": 509804,
+      "sha256_hex_blocks": [
+        "f65e1f2f",
+        "5df0f075",
+        "83fd3a54",
+        "4ffc545b",
+        "9a8dfed0",
+        "9178b2de",
+        "e39d7f57",
+        "668cc420"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-2/South-LongName-2.wav",
+      "bytes": 509804,
+      "sha256_hex_blocks": [
+        "f65e1f2f",
+        "5df0f075",
+        "83fd3a54",
+        "4ffc545b",
+        "9a8dfed0",
+        "9178b2de",
+        "e39d7f57",
+        "668cc420"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-2/South-MultiItem-1.wav",
+      "bytes": 540204,
+      "sha256_hex_blocks": [
+        "9e491603",
+        "d4ec852d",
+        "367edd9a",
+        "15544421",
+        "7acd0468",
+        "738d9e17",
+        "d3e8a47b",
+        "0317a58f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-2/South-MultiItem-2.wav",
+      "bytes": 540204,
+      "sha256_hex_blocks": [
+        "9e491603",
+        "d4ec852d",
+        "367edd9a",
+        "15544421",
+        "7acd0468",
+        "738d9e17",
+        "d3e8a47b",
+        "0317a58f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-2.log",
+      "bytes": 3901,
+      "sha256_hex_blocks": [
+        "e9a4b13d",
+        "459701cd",
+        "a0c2c928",
+        "316fc6d3",
+        "4066f3bd",
+        "ca96ad3a",
+        "22f676da",
+        "d0428d96"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-3/measurement.json",
+      "bytes": 4344,
+      "sha256_hex_blocks": [
+        "d7db6578",
+        "fd34fb9a",
+        "d1c3c4b8",
+        "53f35c27",
+        "e7913de9",
+        "c201fd75",
+        "beba2975",
+        "4d63f9c6"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-3/South-LongName-1.wav",
+      "bytes": 509804,
+      "sha256_hex_blocks": [
+        "f65e1f2f",
+        "5df0f075",
+        "83fd3a54",
+        "4ffc545b",
+        "9a8dfed0",
+        "9178b2de",
+        "e39d7f57",
+        "668cc420"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-3/South-LongName-2.wav",
+      "bytes": 509804,
+      "sha256_hex_blocks": [
+        "f65e1f2f",
+        "5df0f075",
+        "83fd3a54",
+        "4ffc545b",
+        "9a8dfed0",
+        "9178b2de",
+        "e39d7f57",
+        "668cc420"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-3/South-MultiItem-1.wav",
+      "bytes": 540204,
+      "sha256_hex_blocks": [
+        "9e491603",
+        "d4ec852d",
+        "367edd9a",
+        "15544421",
+        "7acd0468",
+        "738d9e17",
+        "d3e8a47b",
+        "0317a58f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-3/South-MultiItem-2.wav",
+      "bytes": 540204,
+      "sha256_hex_blocks": [
+        "9e491603",
+        "d4ec852d",
+        "367edd9a",
+        "15544421",
+        "7acd0468",
+        "738d9e17",
+        "d3e8a47b",
+        "0317a58f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/cold-3.log",
+      "bytes": 3898,
+      "sha256_hex_blocks": [
+        "8371d677",
+        "54c9b47a",
+        "0a5f45c2",
+        "8a8c7fb1",
+        "111a16aa",
+        "50a1e324",
+        "88c0ae10",
+        "e96e9ef7"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/compare-audio.py",
+      "bytes": 1802,
+      "sha256_hex_blocks": [
+        "48853327",
+        "a8020899",
+        "a020fa97",
+        "01613ba6",
+        "b3b7d2b4",
+        "16d8f993",
+        "b416cf5f",
+        "f3af879a"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/export-evidence.py",
+      "bytes": 5210,
+      "sha256_hex_blocks": [
+        "08097a5a",
+        "6dfcb6f8",
+        "9b48c8b0",
+        "d6064bc5",
+        "ded91ff1",
+        "e9d3fe20",
+        "3e7fe0a4",
+        "d85dd3b0"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/Central-A-1.wav",
+      "bytes": 329004,
+      "sha256_hex_blocks": [
+        "24a7ac8f",
+        "922ff623",
+        "cf669bf5",
+        "a7753c86",
+        "6e8502ec",
+        "a94e508c",
+        "1a5e56b1",
+        "2652b3cb"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/Central-B-1.wav",
+      "bytes": 317164,
+      "sha256_hex_blocks": [
+        "1aa09d8d",
+        "79f42aed",
+        "979096ab",
+        "f8817a2a",
+        "5bc2e4ab",
+        "73045176",
+        "9a6f5d72",
+        "660c1576"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/Central-LongName-1.wav",
+      "bytes": 399404,
+      "sha256_hex_blocks": [
+        "55e06728",
+        "46483740",
+        "bca399a3",
+        "2fc32625",
+        "98e601da",
+        "f8a5a2cf",
+        "43076bf2",
+        "9071d066"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/Central-MultiItem-1.wav",
+      "bytes": 409644,
+      "sha256_hex_blocks": [
+        "431c3046",
+        "1583ec26",
+        "26ac2c03",
+        "612670e5",
+        "ea29ec46",
+        "5247f877",
+        "0b55e199",
+        "0ef1e18a"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/measurement.json",
+      "bytes": 12646,
+      "sha256_hex_blocks": [
+        "529e99bb",
+        "373d8673",
+        "5cd9a8d2",
+        "3f856477",
+        "311eb870",
+        "8d3fb324",
+        "29d48689",
+        "2bef3d5c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/North-A-1.wav",
+      "bytes": 282924,
+      "sha256_hex_blocks": [
+        "e3c12bf9",
+        "3cb586e0",
+        "03b4e6b9",
+        "b4788a0a",
+        "8ac53ee0",
+        "2dd6c50b",
+        "424ebdbb",
+        "a0d79096"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/North-B-1.wav",
+      "bytes": 270124,
+      "sha256_hex_blocks": [
+        "e7c4e2a9",
+        "07013a72",
+        "9b952ee9",
+        "0e671631",
+        "5cbf0e45",
+        "cad813a8",
+        "bd83e305",
+        "9557d812"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/North-LongName-1.wav",
+      "bytes": 339244,
+      "sha256_hex_blocks": [
+        "190d9143",
+        "67480365",
+        "79d0c376",
+        "20d3dd51",
+        "c3b591f6",
+        "8dbe047c",
+        "aea28580",
+        "3b5939ee"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/North-MultiItem-1.wav",
+      "bytes": 353324,
+      "sha256_hex_blocks": [
+        "af7f5583",
+        "05e5d6da",
+        "7727d12e",
+        "8b9902ca",
+        "8af1cf33",
+        "ba66b2ed",
+        "8cc08a19",
+        "375e1e01"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/South-A-1.wav",
+      "bytes": 441644,
+      "sha256_hex_blocks": [
+        "b8e33079",
+        "c22c5079",
+        "e9337f7f",
+        "b21682dc",
+        "9a6e28a1",
+        "7cbf341e",
+        "f5d5612a",
+        "c05aa41a"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/South-B-1.wav",
+      "bytes": 421164,
+      "sha256_hex_blocks": [
+        "df988e68",
+        "7a2f32c0",
+        "2770e4e1",
+        "0f13d35b",
+        "37185a61",
+        "f2834a55",
+        "1d7f90a1",
+        "2a9aeb03"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/South-LongName-1.wav",
+      "bytes": 509804,
+      "sha256_hex_blocks": [
+        "f65e1f2f",
+        "5df0f075",
+        "83fd3a54",
+        "4ffc545b",
+        "9a8dfed0",
+        "9178b2de",
+        "e39d7f57",
+        "668cc420"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-audio/South-MultiItem-1.wav",
+      "bytes": 540204,
+      "sha256_hex_blocks": [
+        "9e491603",
+        "d4ec852d",
+        "367edd9a",
+        "15544421",
+        "7acd0468",
+        "738d9e17",
+        "d3e8a47b",
+        "0317a58f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/final-model.log",
+      "bytes": 11379,
+      "sha256_hex_blocks": [
+        "be7e0161",
+        "700e8e7f",
+        "9ad81e93",
+        "a4924df2",
+        "58d2aae6",
+        "cb37a001",
+        "07483178",
+        "89bd3e4c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/http-after.log",
+      "bytes": 3676,
+      "sha256_hex_blocks": [
+        "7b054f70",
+        "6e3193be",
+        "d79593d7",
+        "c92acf47",
+        "10ab8054",
+        "d71b147d",
+        "949b86b8",
+        "e93f6412"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/http-before.log",
+      "bytes": 5816,
+      "sha256_hex_blocks": [
+        "171f6649",
+        "bbf7b973",
+        "81378eeb",
+        "18dd6af7",
+        "da8b997b",
+        "131b7e2a",
+        "b2af6196",
+        "dc64667d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/http-impact.log",
+      "bytes": 1277,
+      "sha256_hex_blocks": [
+        "b37f1a07",
+        "1b385bdb",
+        "aadae23a",
+        "4af26c93",
+        "73a63314",
+        "7896d9a5",
+        "0eeb435e",
+        "d171dbab"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/image-id.txt",
+      "bytes": 73,
+      "sha256_hex_blocks": [
+        "3808bffe",
+        "a27c96c3",
+        "4f0b7898",
+        "d9eba02b",
+        "fc83a28c",
+        "164e49bb",
+        "13a4fd6b",
+        "cb63982c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/initialize-work.py",
+      "bytes": 3403,
+      "sha256_hex_blocks": [
+        "7c809807",
+        "f4a4fc33",
+        "12076366",
+        "ddda41e7",
+        "61915d31",
+        "0ce50c90",
+        "381479b2",
+        "caff3936"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/lab-update.log",
+      "bytes": 1140,
+      "sha256_hex_blocks": [
+        "ec24458c",
+        "52031336",
+        "b9a3ebca",
+        "90a978cf",
+        "da82ba01",
+        "8dce2b5d",
+        "7534a150",
+        "90e21792"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/measure-cold.ps1",
+      "bytes": 1967,
+      "sha256_hex_blocks": [
+        "ee51ee3a",
+        "1576508d",
+        "a06e88e0",
+        "f1ea87b7",
+        "f81744ad",
+        "911163ea",
+        "75e6703a",
+        "0f0ffd87"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/measure-final.ps1",
+      "bytes": 1666,
+      "sha256_hex_blocks": [
+        "c2344ae9",
+        "3343516d",
+        "35fb7f70",
+        "9b2a45d7",
+        "204ee668",
+        "5890df26",
+        "2f8cefe1",
+        "69691dc0"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/scan/trivy.json",
+      "bytes": 164296,
+      "sha256_hex_blocks": [
+        "faee2799",
+        "2eb3fbc5",
+        "658f6750",
+        "17143455",
+        "c4123cb4",
+        "16e50477",
+        "b6ce7da5",
+        "27815020"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/scanner-digests.json",
+      "bytes": 91,
+      "sha256_hex_blocks": [
+        "5a8d8357",
+        "3a76cadf",
+        "d7cbac71",
+        "fa8b6b93",
+        "c48d8151",
+        "bde58101",
+        "0411cb68",
+        "bbdaeb66"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/scanner-image-id.txt",
+      "bytes": 73,
+      "sha256_hex_blocks": [
+        "c3fb4f71",
+        "23afac44",
+        "0d3418fa",
+        "27b6843e",
+        "f3eedac4",
+        "61d6a355",
+        "bc360348",
+        "5e434705"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/scanner-pull.log",
+      "bytes": 554,
+      "sha256_hex_blocks": [
+        "504eb3a4",
+        "1b596ea3",
+        "81748f98",
+        "d829e1b8",
+        "c883a698",
+        "f2037b1d",
+        "8fb3bd67",
+        "06607a5f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/segmented.json",
+      "bytes": 5236,
+      "sha256_hex_blocks": [
+        "2674d193",
+        "c3a1f880",
+        "f9858182",
+        "80db16b8",
+        "7f838f3f",
+        "69f31372",
+        "666c9d7d",
+        "be91db60"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/tts-image.tar",
+      "bytes": 105790464,
+      "sha256_hex_blocks": [
+        "a3aef13b",
+        "4ca17cfc",
+        "fad98e9b",
+        "fd5a9e26",
+        "0c9ed7e4",
+        "34f33c09",
+        "6c68cf7b",
+        "bbf1c585"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/update-lab.ps1",
+      "bytes": 1380,
+      "sha256_hex_blocks": [
+        "6736a127",
+        "e82ea127",
+        "2edf30be",
+        "1af7087a",
+        "c8c56ee1",
+        "65b5a8ca",
+        "794b4fdf",
+        "10b86be5"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0326/worker-texts-cold.json",
+      "bytes": 5343,
+      "sha256_hex_blocks": [
+        "85fd4c6f",
+        "aa24b684",
+        "4b400ecd",
+        "f3116bcd",
+        "88ecaf2f",
+        "d113cb55",
+        "0a81b92e",
+        "b3f3bc79"
+      ]
+    }
+  ]
+}

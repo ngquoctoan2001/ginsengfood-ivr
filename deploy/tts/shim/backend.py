@@ -109,6 +109,10 @@ class VieNeuBackend:
         if not selected:
             raise BackendError("voice allowlist empty")
 
+        thread_setting = os.environ.get("VIE_NEU_ORT_THREADS", "0")
+        if thread_setting not in {str(value) for value in range(9)}:
+            raise BackendError("invalid ONNX thread count")
+
         try:
             from vieneu._v3_turbo_engine.onnx_runtime_lite import OnnxV3LiteEngine
 
@@ -116,6 +120,7 @@ class VieNeuBackend:
                 checkpoint_path=str(self.bundle_root / "vieneu"),
                 onnx_dir=str(self.bundle_root / "vieneu" / "onnx_int8"),
                 codec_dir=str(self.bundle_root / "moss-codec"),
+                threads=int(thread_setting),
             )
         except Exception as error:
             raise BackendError("model load failed") from error
@@ -151,10 +156,43 @@ class VieNeuBackend:
             for index, item in enumerate(rendered):
                 if index:
                     output.append(gap)
-                output.append(np.asarray(item, dtype=np.float32))
+                output.append(_trim_boundary_silence(np.asarray(item, dtype=np.float32), self.sample_rate))
             return np.concatenate(output)
         except Exception as error:
             raise BackendError("synthesis failed") from error
+
+
+def _trim_boundary_silence(audio: Any, sample_rate: int) -> Any:
+    """Remove excessive model padding, preserving short pauses and every internal sample.
+
+    Telephone-band ten-millisecond RMS windows find boundaries at -40 dB relative to the strongest
+    window (with a -66 dBFS noise floor). Only outer silence over 250 ms is shortened; keep
+    60 ms of guard audio at either trimmed edge so quiet speech onsets are not cut tightly.
+    Invalid or silent audio is left for the existing conversion/contract validation.
+    """
+    import numpy as np
+    import soxr
+
+    if audio.ndim != 1 or audio.size == 0 or not np.isfinite(audio).all():
+        return audio
+    frame = sample_rate // 100
+    # High-frequency model noise can hide a pause at 48 kHz even though it is inaudible
+    # after the existing 8 kHz telephone conversion. Analyze that band, slice the original.
+    telephone = soxr.resample(audio, sample_rate, 8000, quality="HQ")
+    if telephone.size == 0:
+        return audio
+    padded = np.pad(telephone, (0, (-telephone.size) % 80))
+    rms = np.sqrt(np.mean(padded.reshape(-1, 80).astype(np.float64) ** 2, axis=1))
+    active = np.flatnonzero(rms >= max(0.0005, float(rms.max()) * 0.01))
+    if active.size == 0:
+        return audio
+    first = int(active[0]) * frame
+    last = min((int(active[-1]) + 1) * frame, audio.size)
+    limit = sample_rate // 4
+    guard = sample_rate * 60 // 1000
+    start = max(0, first - guard) if first > limit else 0
+    end = min(audio.size, last + guard) if audio.size - last > limit else audio.size
+    return audio[start:end]
 
 
 class DeterministicTestBackend:

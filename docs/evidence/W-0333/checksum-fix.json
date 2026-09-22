@@ -1,0 +1,23 @@
+{
+  "work_id": "W-0333",
+  "issue": "Owner Ubuntu sha256sum interpreted CR from CRLF as part of archive filename",
+  "original_checksum_bytes": 91,
+  "fixed_checksum_bytes": 90,
+  "fixed_encoding": "ASCII_LF",
+  "archive_unchanged": true,
+  "runtime_changed": false,
+  "s5_measurement": "NOT_RUN",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "local_linux_fixed_checksum": "PASS",
+  "local_linux_original_crlf": "ALSO_ACCEPTED_BY_LOCAL_READER_NOT_UBUNTU_REPRODUCTION",
+  "archive_sha256_hex_blocks": [
+    "b9ccd254",
+    "414cf6ce",
+    "01b19fba",
+    "481f971e",
+    "413896b7",
+    "17b2287c",
+    "eb55d402",
+    "9049da54"
+  ]
+}

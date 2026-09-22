@@ -1,0 +1,22 @@
+{
+  "A": {
+    "items": [{ "public_name": "Cháo sâm diêm mạch - hạt sen", "quantity": 2, "unit_label": "hộp" }],
+    "total_amount": 560000
+  },
+  "B": {
+    "items": [{ "public_name": "Cháo sâm yến mạch", "quantity": 3, "unit_label": "hộp" }],
+    "total_amount": 735000
+  },
+  "MultiItem": {
+    "items": [
+      { "public_name": "Cháo sâm diêm mạch hạt sen", "quantity": 2, "unit_label": "hộp" },
+      { "public_name": "Cháo sâm yến mạch đậu xanh", "quantity": 3, "unit_label": "hộp" },
+      { "public_name": "Trà sâm gừng mật ong", "quantity": 1, "unit_label": "hộp" }
+    ],
+    "total_amount": 1255000
+  },
+  "LongName": {
+    "items": [{ "public_name": "Cháo sâm diêm mạch hạt sen yến mạch đậu xanh nấm hương và rau củ dùng cho bữa sáng gia đình", "quantity": 4, "unit_label": "hộp" }],
+    "total_amount": 1180000
+  }
+}

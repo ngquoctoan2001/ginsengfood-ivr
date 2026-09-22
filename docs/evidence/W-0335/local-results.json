@@ -1,0 +1,437 @@
+{
+  "work_id": "W-0335",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "S5_TARGET": "NOT_RUN_PENDING_OWNER_SSH_EXECUTION",
+  "source_baseline": "f2a7bc8bd54d255f503ae02d98cd9cba257646de",
+  "candidate": "baseline git archive plus explicit source overlay; no branch or commit",
+  "tests": {
+    "before_rebuilt": {
+      "total": "4",
+      "executed": "4",
+      "passed": "1",
+      "failed": "3",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "frozen_after": {
+      "total": "232",
+      "executed": "232",
+      "passed": "232",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "launcher_guard_tests_passed": 3,
+    "earlier_incremental_before_run": "INVALID_NEGATIVE_CONTROL_OLD_SOURCE_TIMESTAMP_REUSED_NEW_BINARY",
+    "build_provenance": "SourceRevisionId frozen to baseline; runtime/tested project DLLs identical"
+  },
+  "local_model": {
+    "complete_jobs": 31,
+    "errors": 0,
+    "provider_calls": 72,
+    "http_status_counts": {
+      "200": 72,
+      "503": 6
+    },
+    "model_startup_ms": 6109,
+    "phases": {
+      "burst-2-15s": {
+        "count": 2,
+        "max_total_ms": 7936,
+        "min_total_ms": 4310,
+        "max_wait_to_first_provider_ms": 4277,
+        "provider_calls": 6,
+        "all_complete_pcm_equal": true
+      },
+      "burst-4-15s": {
+        "count": 4,
+        "max_total_ms": 16898,
+        "min_total_ms": 4765,
+        "max_wait_to_first_provider_ms": 12778,
+        "provider_calls": 12,
+        "all_complete_pcm_equal": true
+      },
+      "cold-cache-10s": {
+        "count": 6,
+        "max_total_ms": 7511,
+        "min_total_ms": 2814,
+        "max_wait_to_first_provider_ms": 107,
+        "provider_calls": 15,
+        "all_complete_pcm_equal": true
+      },
+      "disconnect-recovery-30s": {
+        "count": 1,
+        "max_total_ms": 12838,
+        "min_total_ms": 12838,
+        "max_wait_to_first_provider_ms": 1,
+        "provider_calls": 3,
+        "all_complete_pcm_equal": true
+      },
+      "soak-15s": {
+        "count": 12,
+        "max_total_ms": 14860,
+        "min_total_ms": 3934,
+        "max_wait_to_first_provider_ms": 9008,
+        "provider_calls": 36,
+        "all_complete_pcm_equal": true
+      },
+      "warm-cache-10s": {
+        "count": 6,
+        "max_total_ms": 8,
+        "min_total_ms": 7,
+        "max_wait_to_first_provider_ms": 0,
+        "provider_calls": 0,
+        "all_complete_pcm_equal": true
+      }
+    },
+    "soak": {
+      "completed": true,
+      "soak_elapsed_ms": 62811,
+      "soak_batches": 6,
+      "REAL_CUSTOMER_CALL_ALLOWED": "NO"
+    },
+    "peak_rss_gib": 1.505,
+    "cpu_stat_delta": {
+      "usage_usec": 121043621,
+      "user_usec": 120441231,
+      "system_usec": 602389,
+      "nr_periods": 1236,
+      "nr_throttled": 0,
+      "throttled_usec": 0,
+      "nr_bursts": 0,
+      "burst_usec": 0
+    },
+    "no_overlapping_provider_work": true,
+    "tts_cpus": 2,
+    "tts_memory_gib": 4,
+    "client_cpus": 0.5,
+    "client_memory_mib": 512
+  },
+  "limitations": [
+    "Process-local FIFO, not distributed admission for a shared sidecar",
+    "No SIP/dial/scheduler attempt performed",
+    "Diagnostic budgets 10/15/30s and queue90s do not change production5s or lab10s",
+    "Local soak is60s; target two450s runs not yet performed",
+    "S2 and mirror remain open; no production acceptance"
+  ],
+  "source_bindings": [
+    {
+      "path": "src/Ivr.Infrastructure/Speech/ConfigurableExternalTtsProvider.cs",
+      "bytes": 14614,
+      "sha256_hex_blocks": [
+        "be4ecc54",
+        "4298c689",
+        "1ca5b182",
+        "00f2132e",
+        "5ebd616b",
+        "846d4fe1",
+        "dd582c8e",
+        "cecefafb"
+      ]
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Speech/SpeechSynthesisService.cs",
+      "bytes": 15225,
+      "sha256_hex_blocks": [
+        "72d448e2",
+        "92cb5c1f",
+        "27f1bf31",
+        "a5d6d5ce",
+        "82f596b4",
+        "f69c1f4a",
+        "c8bfb3ee",
+        "bb95dd00"
+      ]
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Speech/SpeechPreparationQueue.cs",
+      "bytes": 2337,
+      "sha256_hex_blocks": [
+        "7b2bf4aa",
+        "ce64e18a",
+        "1a5200e1",
+        "a69b8a5a",
+        "be4821f5",
+        "83a6e470",
+        "88cd2465",
+        "32db994d"
+      ]
+    },
+    {
+      "path": "src/Ivr.Infrastructure/Speech/SpeechServiceCollectionExtensions.cs",
+      "bytes": 20201,
+      "sha256_hex_blocks": [
+        "5422a588",
+        "5ca1b57b",
+        "60ad9e99",
+        "593eea96",
+        "8cfc4e10",
+        "41e7014a",
+        "6d77d3f6",
+        "b807e77e"
+      ]
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Speech/TtsBusyRetryTests.cs",
+      "bytes": 8086,
+      "sha256_hex_blocks": [
+        "3d898bd0",
+        "867d25b9",
+        "aae4b3cd",
+        "035618db",
+        "27b14d1e",
+        "bd8d8f5b",
+        "fe7da1c1",
+        "96cdc267"
+      ]
+    },
+    {
+      "path": "tests/Ivr.UnitTests/Speech/SpeechPreparationQueueTests.cs",
+      "bytes": 8830,
+      "sha256_hex_blocks": [
+        "1bbeb1b5",
+        "bc485279",
+        "d8af9c7d",
+        "b14d994a",
+        "3b345867",
+        "b228461a",
+        "d906989e",
+        "773e8f9a"
+      ]
+    },
+    {
+      "path": "deploy/lab/VieNeuWorkerProbe/Program.cs",
+      "bytes": 12603,
+      "sha256_hex_blocks": [
+        "67ac9953",
+        "243713f2",
+        "b824b181",
+        "9a3156f8",
+        "e1bf336e",
+        "a1299d3b",
+        "9fee4848",
+        "7465c6b2"
+      ]
+    },
+    {
+      "path": "deploy/lab/VieNeuWorkerProbe/VieNeuWorkerProbe.csproj",
+      "bytes": 329,
+      "sha256_hex_blocks": [
+        "ea9e48d9",
+        "9d6e54cb",
+        "819a674f",
+        "4c420b29",
+        "bf90fbd8",
+        "b2b30fcc",
+        "174b5aaf",
+        "a636a1e0"
+      ]
+    }
+  ],
+  "runtime_bindings": [
+    {
+      "path": ".artifacts/W-0335/probe-bin/Ivr.Infrastructure.dll",
+      "bytes": 2371584,
+      "sha256_hex_blocks": [
+        "2f1bc08d",
+        "d188f32b",
+        "6bc7a34c",
+        "58fce594",
+        "7f118f3d",
+        "a45db709",
+        "8b9b617b",
+        "13c68724"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/probe-bin/Ivr.Domain.dll",
+      "bytes": 232448,
+      "sha256_hex_blocks": [
+        "6b150e80",
+        "9bd1f0ba",
+        "6b61d0e4",
+        "0c01e491",
+        "27ee0f41",
+        "0301d42f",
+        "f226e6a4",
+        "2c733d52"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/probe-bin/Ivr.Contracts.dll",
+      "bytes": 167936,
+      "sha256_hex_blocks": [
+        "ce489816",
+        "b6b4464b",
+        "19041a9e",
+        "1a01cb33",
+        "c8ddb051",
+        "9cbecc00",
+        "d36bd662",
+        "e638b361"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/probe-bin/VieNeuWorkerProbe.dll",
+      "bytes": 41984,
+      "sha256_hex_blocks": [
+        "36f35f35",
+        "58247627",
+        "d5723d48",
+        "f4fad726",
+        "85d90c66",
+        "9cb0f1be",
+        "9d0f1f4a",
+        "171b456b"
+      ]
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0335/local-final/host.json",
+      "bytes": 661,
+      "sha256_hex_blocks": [
+        "d7ee23fd",
+        "83ca29bf",
+        "8538af7b",
+        "34de3e77",
+        "d8453f82",
+        "f5406c80",
+        "77fb23a2",
+        "8cd3c718"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/local-final/run-1/worker.json",
+      "bytes": 25545,
+      "sha256_hex_blocks": [
+        "800f074c",
+        "cc636fd9",
+        "a58640db",
+        "a59d7aed",
+        "423dbb27",
+        "9727e3ae",
+        "c5d0b4ee",
+        "00a5a31f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/local-final/run-1/model.json",
+      "bytes": 11019,
+      "sha256_hex_blocks": [
+        "90716b91",
+        "a10feff6",
+        "db71f74d",
+        "74228bcc",
+        "7dfd5f4d",
+        "98705b5e",
+        "edf2a481",
+        "54fc20b7"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/local-final/run-1/completion.json",
+      "bytes": 93,
+      "sha256_hex_blocks": [
+        "4193ddf1",
+        "5a78aa3c",
+        "3a2f15a8",
+        "9cdc6a55",
+        "26e28e25",
+        "2bafeafe",
+        "f4ca2c56",
+        "c1eb02ab"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/before-rebuilt/before.trx",
+      "bytes": 15000,
+      "sha256_hex_blocks": [
+        "cdca3389",
+        "f70c285c",
+        "cafd32ab",
+        "db11a6a1",
+        "aa04ab4c",
+        "1872eb99",
+        "ebbe075a",
+        "d56fd496"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/frozen-tests/frozen.trx",
+      "bytes": 346342,
+      "sha256_hex_blocks": [
+        "47852b95",
+        "9831c23f",
+        "262b964d",
+        "ec64d2c5",
+        "ad1bfea0",
+        "44954853",
+        "8953f4e2",
+        "04166bde"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/vieneu-worker-s5/manifest.json",
+      "bytes": 7380,
+      "sha256_hex_blocks": [
+        "5dd2df0d",
+        "ebd00d4a",
+        "61fb7e0a",
+        "d67e1bdb",
+        "53acba32",
+        "84b759ca",
+        "4a7afe97",
+        "989db0a2"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/vieneu-worker-s5.tar.gz",
+      "bytes": 64834963,
+      "sha256_hex_blocks": [
+        "d35ff1b1",
+        "0fee1c9e",
+        "348d3eca",
+        "532507bb",
+        "370887cc",
+        "28b178ce",
+        "58f4ed16",
+        "6e370622"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0335/vieneu-worker-s5.tar.gz.sha256",
+      "bytes": 90,
+      "sha256_hex_blocks": [
+        "949579b7",
+        "db9cc994",
+        "8c0d18a2",
+        "ebeb1869",
+        "6a387c0d",
+        "ab8b498b",
+        "c1d2373a",
+        "95c6bb07"
+      ]
+    }
+  ]
+}

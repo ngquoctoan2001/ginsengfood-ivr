@@ -140,6 +140,7 @@
     "selftest-openapi.mjs": { "argv": ["--self-test"], "expect": "CT-CI-01 PASS" },
     "selftest-pii.sh": { "argv": [], "expect": "CT-CI-06h PASS" },
     "target-v1-shared-e2e-report-validator.mjs": { "argv": ["--self-test"], "expect": "W0174_SELFTEST_PASS" },
+    "lab-speech-preflight-selftest.mjs": { "argv": [], "expect": "LAB_SPEECH_PREFLIGHT_SELFTEST_PASS" },
     "tts-audition-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_AUDITION_SELFTEST_PASS" },
     "tts-container-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_CONTAINER_SELFTEST_PASS" },
     "tts-fixed-render-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_FIXED_RENDER_SELFTEST_PASS" },

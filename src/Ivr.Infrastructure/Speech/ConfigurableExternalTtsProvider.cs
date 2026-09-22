@@ -183,68 +183,91 @@ public sealed class ConfigurableExternalTtsProvider(
         CancellationToken cancellationToken)
     {
         HttpClient client = httpClientFactory.CreateClient(HttpClientName);
-        using var request = new HttpRequestMessage(HttpMethod.Post, external.Endpoint)
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(options.Timeout);
+        cancellationToken = deadline.Token;
+        int busyRetries = 0;
+        while (true)
         {
-            Content = new StringContent(
-                BuildRequestBody(external.RequestBodyTemplate, script, options, configured),
-                Encoding.UTF8,
-                "application/json"),
-        };
-        if (!string.IsNullOrWhiteSpace(configured.Credential))
-        {
-            if (string.IsNullOrWhiteSpace(external.CredentialScheme))
+            cancellationToken.ThrowIfCancellationRequested();
+            using var request = new HttpRequestMessage(HttpMethod.Post, external.Endpoint)
             {
-                request.Headers.TryAddWithoutValidation(
-                    external.CredentialHeader,
-                    configured.Credential);
+                Content = new StringContent(
+                    BuildRequestBody(external.RequestBodyTemplate, script, options, configured),
+                    Encoding.UTF8,
+                    "application/json"),
+            };
+            if (!string.IsNullOrWhiteSpace(configured.Credential))
+            {
+                if (string.IsNullOrWhiteSpace(external.CredentialScheme))
+                {
+                    request.Headers.TryAddWithoutValidation(
+                        external.CredentialHeader,
+                        configured.Credential);
+                }
+                else
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue(
+                        external.CredentialScheme,
+                        configured.Credential);
+                }
             }
-            else
+
+            using HttpResponseMessage response = await client
+                .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            // VieNeu rejects before inference when its bounded capacity is occupied. A
+            // timed-out inference may still be running, so do not spend the scheduler's
+            // technical retry on an immediate second 503. Retry only this known transient
+            // status; neither HTTP errors nor synthesis timeouts restart the total budget.
+            if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue(
-                    external.CredentialScheme,
-                    configured.Credential);
+                response.Dispose();
+                int delayMilliseconds = Math.Min(250 << busyRetries, 1000);
+                // Saturate the exponent; the shared deadline bounds both retries and body reads.
+                // A fixed attempt ceiling used to expire before a cancelled S5 inference drained.
+                busyRetries = Math.Min(busyRetries + 1, 2);
+                await Task.Delay(delayMilliseconds, cancellationToken);
+                continue;
             }
-        }
 
-        using HttpResponseMessage response = await client
-            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        if (!response.IsSuccessStatusCode)
-        {
-            // The status code is the whole diagnostic. An error body can quote the text it was
-            // asked to speak, which is order content, so it is never read or logged here.
-            throw new TtsSynthesisException(
-                "TTS_PROVIDER_HTTP_ERROR",
-                $"The TTS provider returned HTTP {(int)response.StatusCode}.");
-        }
-
-        long? declaredLength = response.Content.Headers.ContentLength;
-        if (declaredLength > external.MaxResponseBytes)
-        {
-            throw new TtsSynthesisException(
-                "TTS_AUDIO_TOO_LARGE",
-                "The TTS provider declared a response larger than the configured bound.");
-        }
-
-        using Stream body = await response.Content
-            .ReadAsStreamAsync(cancellationToken);
-        using var buffer = new MemoryStream();
-        byte[] chunk = new byte[64 * 1024];
-        int read;
-        while ((read = await body.ReadAsync(chunk, cancellationToken)) > 0)
-        {
-            if (buffer.Length + read > external.MaxResponseBytes)
+            if (!response.IsSuccessStatusCode)
             {
-                // Checked while streaming as well as from the header: a chunked response
-                // declares no length, and the bound has to hold for the case that omits it.
+                // The status code is the whole diagnostic. An error body can quote the text it was
+                // asked to speak, which is order content, so it is never read or logged here.
+                throw new TtsSynthesisException(
+                    "TTS_PROVIDER_HTTP_ERROR",
+                    $"The TTS provider returned HTTP {(int)response.StatusCode}.");
+            }
+
+            long? declaredLength = response.Content.Headers.ContentLength;
+            if (declaredLength > external.MaxResponseBytes)
+            {
                 throw new TtsSynthesisException(
                     "TTS_AUDIO_TOO_LARGE",
-                    "The TTS provider streamed more audio than the configured bound.");
+                    "The TTS provider declared a response larger than the configured bound.");
             }
 
-            buffer.Write(chunk, 0, read);
-        }
+            using Stream body = await response.Content
+                .ReadAsStreamAsync(cancellationToken);
+            using var buffer = new MemoryStream();
+            byte[] chunk = new byte[64 * 1024];
+            int read;
+            while ((read = await body.ReadAsync(chunk, cancellationToken)) > 0)
+            {
+                if (buffer.Length + read > external.MaxResponseBytes)
+                {
+                    // Checked while streaming as well as from the header: a chunked response
+                    // declares no length, and the bound has to hold for the case that omits it.
+                    throw new TtsSynthesisException(
+                        "TTS_AUDIO_TOO_LARGE",
+                        "The TTS provider streamed more audio than the configured bound.");
+                }
 
-        return buffer.ToArray();
+                buffer.Write(chunk, 0, read);
+            }
+
+            return buffer.ToArray();
+        }
     }
 
     /// <summary>

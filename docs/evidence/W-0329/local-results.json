@@ -1,0 +1,2866 @@
+{
+  "work_id": "W-0329",
+  "baseline": {
+    "head": "3e06c17933f7f14a40baf95ef42cc780952e508f",
+    "real_customer_call_allowed": "NO",
+    "s5": "UNIDENTIFIED"
+  },
+  "head_at_export": "1794241dfbbc919409d03db7232d8a9ad504b9f8",
+  "scope": "SHARED_WORKTREE_LOCAL_SOFTWARE_LAB",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production_ready": false,
+  "listening": "OWNER_ACCEPTED_NO_RELISTEN",
+  "image_sha256_hex_blocks": [
+    "79e9106e",
+    "c1401c5c",
+    "dd751b80",
+    "da52e6d8",
+    "a46f17f4",
+    "37c1e069",
+    "0209bce1",
+    "3b692581"
+  ],
+  "dtmf": {
+    "matrix": "6_OF_6_PASS",
+    "no_input": "PASS",
+    "restored_original_config": true,
+    "original_config_sha256_sha256_hex_blocks": [
+      "d4de36b1",
+      "6cac6fc1",
+      "e5f3cfa1",
+      "d0a1e861",
+      "060c957c",
+      "6c20ed8f",
+      "555752b0",
+      "be1f9389"
+    ],
+    "switch_image_sha256_hex_blocks": [
+      "6a3b73f5",
+      "2ff12509",
+      "56dcdaa3",
+      "735581e1",
+      "287e4b47",
+      "4396c1dc",
+      "813dbf07",
+      "509eb585"
+    ],
+    "calls": [
+      {
+        "case": "North-MultiItem-1",
+        "region": "North",
+        "variant": "MultiItem",
+        "digit": "1",
+        "started_utc": "2026-09-21T06:27:28.622936+00:00",
+        "audio_ms": 22080,
+        "sent_utc": "2026-09-21T06:28:06.259756+00:00",
+        "pass": true,
+        "answered_utc": "2026-09-21T06:27:41.683165+00:00",
+        "rtp_switch": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          LAB-A-0000001f     00:00:24 ulaw        0       1    0   0.000   1104       0    0   0.000   0.001\n\nObjects found: 1",
+        "rtp_peer": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          switch-00000000    00:00:25 ulaw     1104       0    0   0.000      0       0    0   0.001   0.000\n\nObjects found: 1",
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T06:28:07.483572+00:00",
+        "task_id": "TASK-LAB-20260921062735",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-north-ngoc-linh",
+          "region": "North",
+          "region_resolved": true,
+          "started_at": "2026-09-21T06:27:41.093952+00:00",
+          "ended_at": "2026-09-21T06:28:06.645691+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "media": [
+          "ivr-seg-north-4612fb85a1d0c3df.slin",
+          "generated/dce270b6d5ad6746cc62b82797108073.slin",
+          "ivr-seg-north-95f78c510d802cdf.slin",
+          "generated/3da9be5c0f60200c710e2c3f5ef06b10.slin",
+          "ivr-seg-north-53d482dfd9119b91.slin",
+          "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin",
+          "ivr-seg-north-764af2bea49c72c8.slin"
+        ],
+        "received_dtmf_trace": [
+          "[2026-09-21 06:28:06] DTMF[25909] channel.c: DTMF end '1' received on PJSIP/LAB-A-0000001f, duration 160 ms"
+        ],
+        "active_ms": 25552,
+        "evidence_run": "matrix-final"
+      },
+      {
+        "case": "North-LongName-0",
+        "region": "North",
+        "variant": "LongName",
+        "digit": "0",
+        "started_utc": "2026-09-21T06:28:10.918862+00:00",
+        "audio_ms": 21200,
+        "sent_utc": "2026-09-21T06:28:46.609843+00:00",
+        "pass": true,
+        "answered_utc": "2026-09-21T06:28:22.328246+00:00",
+        "rtp_switch": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          LAB-A-00000020     00:00:24 ulaw        0       1    0   0.000   1060       0    0   0.000   0.000\n\nObjects found: 1",
+        "rtp_peer": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          switch-00000001    00:00:24 ulaw     1060       0    0   0.000      0       0    0   0.000   0.000\n\nObjects found: 1",
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T06:28:47.866522+00:00",
+        "task_id": "TASK-LAB-20260921062815",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "0",
+          "voice_id": "v3t-north-ngoc-linh",
+          "region": "North",
+          "region_resolved": true,
+          "started_at": "2026-09-21T06:28:22.180186+00:00",
+          "ended_at": "2026-09-21T06:28:46.990515+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CUSTOMER_CANCELLED",
+          "final": true,
+          "counted": true
+        },
+        "media": [
+          "ivr-seg-north-4612fb85a1d0c3df.slin",
+          "generated/2a2b1ca73779fb745a5c58d47669cef5.slin",
+          "ivr-seg-north-95f78c510d802cdf.slin",
+          "generated/b7bab125e76ec8582184183569b19dc0.slin",
+          "ivr-seg-north-53d482dfd9119b91.slin",
+          "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin",
+          "ivr-seg-north-764af2bea49c72c8.slin"
+        ],
+        "received_dtmf_trace": [
+          "[2026-09-21 06:28:46] DTMF[26023] channel.c: DTMF end '0' received on PJSIP/LAB-A-00000020, duration 160 ms"
+        ],
+        "active_ms": 24810,
+        "evidence_run": "matrix-final"
+      },
+      {
+        "case": "Central-MultiItem-1",
+        "region": "Central",
+        "variant": "MultiItem",
+        "digit": "1",
+        "started_utc": "2026-09-21T06:28:51.625905+00:00",
+        "audio_ms": 25600,
+        "sent_utc": "2026-09-21T06:29:38.137365+00:00",
+        "pass": true,
+        "answered_utc": "2026-09-21T06:29:08.638008+00:00",
+        "rtp_switch": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          LAB-A-00000021     00:00:29 ulaw        0       1    0   0.000   1280       0    0   0.000   0.000\n\nObjects found: 1",
+        "rtp_peer": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          switch-00000002    00:00:30 ulaw     1280       0    0   0.000      0       0    0   0.000   0.000\n\nObjects found: 1",
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T06:29:40.669780+00:00",
+        "task_id": "TASK-LAB-20260921062857",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-central-ngoc-tran",
+          "region": "Central",
+          "region_resolved": true,
+          "started_at": "2026-09-21T06:29:08.372105+00:00",
+          "ended_at": "2026-09-21T06:29:38.517648+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "media": [
+          "ivr-seg-central-4612fb85a1d0c3df.slin",
+          "generated/d309ad432c1ad480ed8ec95ba495ff54.slin",
+          "ivr-seg-central-95f78c510d802cdf.slin",
+          "generated/8ec0244c347f8c8ce9bcb3dc102325cf.slin",
+          "ivr-seg-central-53d482dfd9119b91.slin",
+          "generated/1893c8293f3a5a3e87aa65374a1ca62b.slin",
+          "ivr-seg-central-764af2bea49c72c8.slin"
+        ],
+        "received_dtmf_trace": [
+          "[2026-09-21 06:29:38] DTMF[26145] channel.c: DTMF end '1' received on PJSIP/LAB-A-00000021, duration 160 ms"
+        ],
+        "active_ms": 30146,
+        "evidence_run": "matrix-final"
+      },
+      {
+        "case": "Central-LongName-0",
+        "region": "Central",
+        "variant": "LongName",
+        "digit": "0",
+        "started_utc": "2026-09-21T06:29:44.322139+00:00",
+        "audio_ms": 24960,
+        "sent_utc": "2026-09-21T06:30:25.593876+00:00",
+        "pass": true,
+        "answered_utc": "2026-09-21T06:29:57.122394+00:00",
+        "rtp_switch": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          LAB-A-00000022     00:00:28 ulaw        0       1    0   0.000   1248       0    0   0.000   0.000\n\nObjects found: 1",
+        "rtp_peer": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          switch-00000003    00:00:29 ulaw     1248       0    0   0.000      0       0    0   0.000   0.000\n\nObjects found: 1",
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T06:30:29.680760+00:00",
+        "task_id": "TASK-LAB-20260921062948",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "0",
+          "voice_id": "v3t-central-ngoc-tran",
+          "region": "Central",
+          "region_resolved": true,
+          "started_at": "2026-09-21T06:29:56.556578+00:00",
+          "ended_at": "2026-09-21T06:30:26.367129+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CUSTOMER_CANCELLED",
+          "final": true,
+          "counted": true
+        },
+        "media": [
+          "ivr-seg-central-4612fb85a1d0c3df.slin",
+          "generated/08d7dbe9f0fdaea4ea2eb47a7bf9e666.slin",
+          "ivr-seg-central-95f78c510d802cdf.slin",
+          "generated/e444829cc528f0ad8586676f5ca3e589.slin",
+          "ivr-seg-central-53d482dfd9119b91.slin",
+          "generated/1893c8293f3a5a3e87aa65374a1ca62b.slin",
+          "ivr-seg-central-764af2bea49c72c8.slin"
+        ],
+        "received_dtmf_trace": [
+          "[2026-09-21 06:30:26] DTMF[26267] channel.c: DTMF end '0' received on PJSIP/LAB-A-00000022, duration 160 ms"
+        ],
+        "active_ms": 29811,
+        "evidence_run": "matrix-final"
+      },
+      {
+        "case": "South-MultiItem-1",
+        "region": "South",
+        "variant": "MultiItem",
+        "digit": "1",
+        "started_utc": "2026-09-21T06:33:42.888604+00:00",
+        "audio_ms": 33760,
+        "sent_utc": "2026-09-21T06:34:39.250910+00:00",
+        "pass": true,
+        "answered_utc": "2026-09-21T06:34:02.666611+00:00",
+        "rtp_switch": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          LAB-A-00000023     00:00:37 ulaw        0       1    0   0.000   1688       0    0   0.000   0.000\n\nObjects found: 1",
+        "rtp_peer": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          switch-00000000    00:00:38 ulaw     1688       0    0   0.000      0       0    0   0.000   0.000\n\nObjects found: 1",
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T06:34:41.904613+00:00",
+        "task_id": "TASK-LAB-20260921063347",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-south-my-duyen",
+          "region": "South",
+          "region_resolved": true,
+          "started_at": "2026-09-21T06:34:01.981338+00:00",
+          "ended_at": "2026-09-21T06:34:39.645754+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "media": [
+          "ivr-seg-south-4612fb85a1d0c3df.slin",
+          "generated/0dff5bbd0f3b97d7fc2c826eb023f7b0.slin",
+          "ivr-seg-south-95f78c510d802cdf.slin",
+          "generated/c39a918acc67b0bd47e1bbd94d340406.slin",
+          "ivr-seg-south-53d482dfd9119b91.slin",
+          "generated/704793a6381a505a588f9f4cbe88f5b3.slin",
+          "ivr-seg-south-764af2bea49c72c8.slin"
+        ],
+        "received_dtmf_trace": [
+          "[2026-09-21 06:34:39] DTMF[26833] channel.c: DTMF end '1' received on PJSIP/LAB-A-00000023, duration 160 ms"
+        ],
+        "active_ms": 37664,
+        "evidence_run": "south-and-timeout"
+      },
+      {
+        "case": "South-LongName-0",
+        "region": "South",
+        "variant": "LongName",
+        "digit": "0",
+        "started_utc": "2026-09-21T06:34:45.561599+00:00",
+        "audio_ms": 31860,
+        "sent_utc": "2026-09-21T06:35:37.531627+00:00",
+        "pass": true,
+        "answered_utc": "2026-09-21T06:35:02.727348+00:00",
+        "rtp_switch": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          LAB-A-00000024     00:00:35 ulaw        0       1    0   0.000   1593       0    0   0.000   0.001\n\nObjects found: 1",
+        "rtp_peer": "...........Receive......... .........Transmit..........\n BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....\n ===========================================================================================================\n\n          switch-00000001    00:00:35 ulaw     1593       0    0   0.000      0       0    0   0.000   0.000\n\nObjects found: 1",
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T06:35:39.387698+00:00",
+        "task_id": "TASK-LAB-20260921063451",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "0",
+          "voice_id": "v3t-south-my-duyen",
+          "region": "South",
+          "region_resolved": true,
+          "started_at": "2026-09-21T06:35:02.228348+00:00",
+          "ended_at": "2026-09-21T06:35:37.896971+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CUSTOMER_CANCELLED",
+          "final": true,
+          "counted": true
+        },
+        "media": [
+          "ivr-seg-south-4612fb85a1d0c3df.slin",
+          "generated/1580f309b8eb32140b97dad8627390eb.slin",
+          "ivr-seg-south-95f78c510d802cdf.slin",
+          "generated/ca527ad0f34d6a5fc9a2611037963180.slin",
+          "ivr-seg-south-53d482dfd9119b91.slin",
+          "generated/704793a6381a505a588f9f4cbe88f5b3.slin",
+          "ivr-seg-south-764af2bea49c72c8.slin"
+        ],
+        "received_dtmf_trace": [
+          "[2026-09-21 06:35:37] DTMF[26971] channel.c: DTMF end '0' received on PJSIP/LAB-A-00000024, duration 160 ms"
+        ],
+        "active_ms": 35669,
+        "evidence_run": "south-and-timeout"
+      },
+      {
+        "case": "North-A-no-input",
+        "region": "North",
+        "variant": "A",
+        "digit": null,
+        "started_utc": "2026-09-21T06:35:42.984655+00:00",
+        "audio_ms": 17680,
+        "sent_utc": null,
+        "pass": true,
+        "answered_utc": "2026-09-21T06:35:52.795446+00:00",
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T06:36:54.467199+00:00",
+        "task_id": "TASK-LAB-20260921063547",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": null,
+          "voice_id": "v3t-north-ngoc-linh",
+          "region": "North",
+          "region_resolved": true,
+          "started_at": "2026-09-21T06:35:52.31725+00:00",
+          "ended_at": "2026-09-21T06:36:52.328878+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_NO_ANSWER_FINAL",
+          "final": true,
+          "counted": true
+        },
+        "media": [
+          "ivr-seg-north-4612fb85a1d0c3df.slin",
+          "generated/ad875dce15fc79c331d30128a9cb411f.slin",
+          "ivr-seg-north-95f78c510d802cdf.slin",
+          "generated/b8aadd0e46589bfd4bd7cf0a76273ac8.slin",
+          "ivr-seg-north-53d482dfd9119b91.slin",
+          "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin",
+          "ivr-seg-north-764af2bea49c72c8.slin"
+        ],
+        "received_dtmf_trace": [],
+        "active_ms": 60012,
+        "evidence_run": "south-and-timeout"
+      }
+    ],
+    "old_microsip_interference_source": "UNPROVEN",
+    "prior_harness_runs": [
+      {
+        "path": ".artifacts/W-0329/smoke/result.json",
+        "calls_attempted": 0,
+        "passed_at_collection": 0,
+        "restored": true
+      },
+      {
+        "path": ".artifacts/W-0329/smoke-r2/result.json",
+        "calls_attempted": 1,
+        "passed_at_collection": 0,
+        "restored": true
+      },
+      {
+        "path": ".artifacts/W-0329/matrix/result.json",
+        "calls_attempted": 6,
+        "passed_at_collection": 5,
+        "restored": true
+      }
+    ]
+  },
+  "load": {
+    "host": {
+      "scope": "LOCAL_LAB",
+      "owner_confirmed_s5": false,
+      "host_name": "NQT",
+      "cpu": {
+        "Name": "11th Gen Intel(R) Core(TM) i7-11700 @ 2.50GHz",
+        "NumberOfCores": 8,
+        "NumberOfLogicalProcessors": 16
+      },
+      "host_memory_bytes": 34185228288,
+      "docker": "16 16680824832",
+      "image_sha256_hex_blocks": [
+        "79e9106e",
+        "c1401c5c",
+        "dd751b80",
+        "da52e6d8",
+        "a46f17f4",
+        "37c1e069",
+        "0209bce1",
+        "3b692581"
+      ],
+      "cpu_limit": 0,
+      "memory_gib": 0,
+      "worker_texts_sha256_sha256_hex_blocks": [
+        "0603eb07",
+        "e71c0141",
+        "1f0116ad",
+        "c17d577e",
+        "aa461bb7",
+        "0b43e339",
+        "fd48335f",
+        "81a45cec"
+      ],
+      "probe_sha256_sha256_hex_blocks": [
+        "04cc26e5",
+        "92fc0256",
+        "7ecac9e3",
+        "2a224d40",
+        "8d75208e",
+        "6318aab3",
+        "1cd144f7",
+        "2cda2b73"
+      ],
+      "started_utc": "2026-09-21T06:28:06.9872596+00:00",
+      "real_customer_call_allowed": "NO",
+      "ended_utc": "2026-09-21T06:30:25.4095199+00:00",
+      "exit_code": 0
+    },
+    "measurements": {
+      "scope": "LOCAL_LAB",
+      "real_customer_call_allowed": "NO",
+      "model": "REAL_VIENEU",
+      "startup_ms": 7389,
+      "capacity": 1,
+      "ort_threads": 1,
+      "cpu_max": "max 100000",
+      "memory_max": "max",
+      "cpu_stat_before": "usage_usec 4973361\nuser_usec 4403831\nsystem_usec 569530\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+      "requests": [
+        {
+          "phase": "sequential-diagnostic",
+          "region": "North",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "dce270b6",
+            "d5ad6746",
+            "cc62b827",
+            "97108073",
+            "13bdf2cd",
+            "f10a5e85",
+            "27161b06",
+            "10611c0f"
+          ],
+          "audio_ms": 6080,
+          "elapsed_ms": 3926
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "North",
+          "variant": "MultiItem",
+          "ordinal": 4,
+          "characters": 42,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "3da9be5c",
+            "0f60200c",
+            "710e2c3f",
+            "5ef06b10",
+            "ab3786f2",
+            "7f211eed",
+            "8daf6ef9",
+            "4f4569e1"
+          ],
+          "audio_ms": 2240,
+          "elapsed_ms": 1500
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "North",
+          "variant": "MultiItem",
+          "ordinal": 6,
+          "characters": 32,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "3e0e8ac7",
+            "a7d74489",
+            "a30511e0",
+            "6fd29e05",
+            "e3d1e44e",
+            "83a0feb0",
+            "0c533e04",
+            "46869056"
+          ],
+          "audio_ms": 1840,
+          "elapsed_ms": 1373
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "North",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "2a2b1ca7",
+            "3779fb74",
+            "5a5c58d4",
+            "7669cef5",
+            "ca96fd38",
+            "1bd0eb42",
+            "b66b5e1d",
+            "f97b4a50"
+          ],
+          "audio_ms": 5440,
+          "elapsed_ms": 3889
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "North",
+          "variant": "LongName",
+          "ordinal": 4,
+          "characters": 38,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "b7bab125",
+            "e76ec858",
+            "21841835",
+            "69b19dc0",
+            "637a40f1",
+            "0d19bb79",
+            "1b2d283d",
+            "951f7fbc"
+          ],
+          "audio_ms": 2000,
+          "elapsed_ms": 1045
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "North",
+          "variant": "LongName",
+          "ordinal": 6,
+          "characters": 32,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "3e0e8ac7",
+            "a7d74489",
+            "a30511e0",
+            "6fd29e05",
+            "e3d1e44e",
+            "83a0feb0",
+            "0c533e04",
+            "46869056"
+          ],
+          "audio_ms": 1840,
+          "elapsed_ms": 886
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "Central",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "d309ad43",
+            "2c1ad480",
+            "ed8ec95b",
+            "a495ff54",
+            "ae82d87c",
+            "e09d8605",
+            "ff4e9007",
+            "746b3d4a"
+          ],
+          "audio_ms": 7040,
+          "elapsed_ms": 4126
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "Central",
+          "variant": "MultiItem",
+          "ordinal": 4,
+          "characters": 41,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "8ec0244c",
+            "347f8c8c",
+            "e9bcb3dc",
+            "102325cf",
+            "a9b9a0fc",
+            "ca09b066",
+            "eeae4730",
+            "061bcf0d"
+          ],
+          "audio_ms": 2400,
+          "elapsed_ms": 997
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "Central",
+          "variant": "MultiItem",
+          "ordinal": 6,
+          "characters": 34,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1893c829",
+            "3f3a5a3e",
+            "87aa6537",
+            "4a1ca62b",
+            "6d6a23b9",
+            "a43fddd0",
+            "028e6602",
+            "4e87a10e"
+          ],
+          "audio_ms": 2240,
+          "elapsed_ms": 1053
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "Central",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "08d7dbe9",
+            "f0fdaea4",
+            "ea2eb47a",
+            "7bf9e666",
+            "978b07a3",
+            "5674f219",
+            "d5932112",
+            "6a6f53ff"
+          ],
+          "audio_ms": 6560,
+          "elapsed_ms": 3632
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "Central",
+          "variant": "LongName",
+          "ordinal": 4,
+          "characters": 37,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "e444829c",
+            "c528f0ad",
+            "8586676f",
+            "5ca3e589",
+            "7ea2ebfb",
+            "abcdb7f9",
+            "d68bf3ba",
+            "a677e6f3"
+          ],
+          "audio_ms": 2240,
+          "elapsed_ms": 1036
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "Central",
+          "variant": "LongName",
+          "ordinal": 6,
+          "characters": 34,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1893c829",
+            "3f3a5a3e",
+            "87aa6537",
+            "4a1ca62b",
+            "6d6a23b9",
+            "a43fddd0",
+            "028e6602",
+            "4e87a10e"
+          ],
+          "audio_ms": 2240,
+          "elapsed_ms": 1057
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "0dff5bbd",
+            "0f3b97d7",
+            "fc2c826e",
+            "b023f7b0",
+            "f86d3a36",
+            "a3ec9327",
+            "cc7f5229",
+            "c3d1de59"
+          ],
+          "audio_ms": 7440,
+          "elapsed_ms": 6270
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 4,
+          "characters": 41,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "c39a918a",
+            "cc67b0bd",
+            "47e1bbd9",
+            "4d340406",
+            "ef4c1d05",
+            "2fbe1495",
+            "b3924f2c",
+            "3ab1d772"
+          ],
+          "audio_ms": 5360,
+          "elapsed_ms": 2977
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 6,
+          "characters": 33,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "704793a6",
+            "381a505a",
+            "588f9f4c",
+            "be88f5b3",
+            "a09421be",
+            "fde53b9a",
+            "59d09656",
+            "40376d70"
+          ],
+          "audio_ms": 2560,
+          "elapsed_ms": 1266
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1580f309",
+            "b8eb3214",
+            "0b97dad8",
+            "627390eb",
+            "6f9c9bb2",
+            "f0b8e87e",
+            "a1d1f15c",
+            "2ffa0de6"
+          ],
+          "audio_ms": 6580,
+          "elapsed_ms": 5907
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 4,
+          "characters": 37,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "ca527ad0",
+            "f34d6a5f",
+            "c9a26110",
+            "37963180",
+            "98b904a4",
+            "29ef9c07",
+            "9415f783",
+            "78495ff5"
+          ],
+          "audio_ms": 4320,
+          "elapsed_ms": 2745
+        },
+        {
+          "phase": "sequential-diagnostic",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 6,
+          "characters": 33,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "704793a6",
+            "381a505a",
+            "588f9f4c",
+            "be88f5b3",
+            "a09421be",
+            "fde53b9a",
+            "59d09656",
+            "40376d70"
+          ],
+          "audio_ms": 2560,
+          "elapsed_ms": 1324
+        },
+        {
+          "phase": "burst-1-clients-5s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 5000,
+          "status": "CLIENT_TIMEOUT",
+          "elapsed_ms": 5004
+        },
+        {
+          "phase": "burst-1-clients-5s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 5000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1580f309",
+            "b8eb3214",
+            "0b97dad8",
+            "627390eb",
+            "6f9c9bb2",
+            "f0b8e87e",
+            "a1d1f15c",
+            "2ffa0de6"
+          ],
+          "audio_ms": 6580,
+          "elapsed_ms": 4208
+        },
+        {
+          "phase": "burst-2-clients-5s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 5000,
+          "status": 503,
+          "elapsed_ms": 4
+        },
+        {
+          "phase": "burst-2-clients-5s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 5000,
+          "status": "CLIENT_TIMEOUT",
+          "elapsed_ms": 5007
+        },
+        {
+          "phase": "burst-2-clients-5s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 5000,
+          "status": 503,
+          "elapsed_ms": 4
+        },
+        {
+          "phase": "burst-2-clients-5s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 5000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1580f309",
+            "b8eb3214",
+            "0b97dad8",
+            "627390eb",
+            "6f9c9bb2",
+            "f0b8e87e",
+            "a1d1f15c",
+            "2ffa0de6"
+          ],
+          "audio_ms": 6580,
+          "elapsed_ms": 4300
+        },
+        {
+          "phase": "burst-4-clients-5s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 5000,
+          "status": 503,
+          "elapsed_ms": 5
+        },
+        {
+          "phase": "burst-4-clients-5s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 5000,
+          "status": "CLIENT_TIMEOUT",
+          "elapsed_ms": 5004
+        },
+        {
+          "phase": "burst-4-clients-5s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 5000,
+          "status": 503,
+          "elapsed_ms": 7
+        },
+        {
+          "phase": "burst-4-clients-5s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 5000,
+          "status": 503,
+          "elapsed_ms": 9
+        },
+        {
+          "phase": "burst-4-clients-5s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 5000,
+          "status": 503,
+          "elapsed_ms": 5
+        },
+        {
+          "phase": "burst-4-clients-5s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 5000,
+          "status": 503,
+          "elapsed_ms": 3
+        },
+        {
+          "phase": "burst-4-clients-5s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 5000,
+          "status": 503,
+          "elapsed_ms": 6
+        },
+        {
+          "phase": "burst-4-clients-5s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 5000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1580f309",
+            "b8eb3214",
+            "0b97dad8",
+            "627390eb",
+            "6f9c9bb2",
+            "f0b8e87e",
+            "a1d1f15c",
+            "2ffa0de6"
+          ],
+          "audio_ms": 6580,
+          "elapsed_ms": 3300
+        },
+        {
+          "phase": "burst-1-clients-10s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 10000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "0dff5bbd",
+            "0f3b97d7",
+            "fc2c826e",
+            "b023f7b0",
+            "f86d3a36",
+            "a3ec9327",
+            "cc7f5229",
+            "c3d1de59"
+          ],
+          "audio_ms": 7440,
+          "elapsed_ms": 5812
+        },
+        {
+          "phase": "burst-1-clients-10s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 10000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1580f309",
+            "b8eb3214",
+            "0b97dad8",
+            "627390eb",
+            "6f9c9bb2",
+            "f0b8e87e",
+            "a1d1f15c",
+            "2ffa0de6"
+          ],
+          "audio_ms": 6580,
+          "elapsed_ms": 4314
+        },
+        {
+          "phase": "burst-2-clients-10s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 10000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "0dff5bbd",
+            "0f3b97d7",
+            "fc2c826e",
+            "b023f7b0",
+            "f86d3a36",
+            "a3ec9327",
+            "cc7f5229",
+            "c3d1de59"
+          ],
+          "audio_ms": 7440,
+          "elapsed_ms": 6178
+        },
+        {
+          "phase": "burst-2-clients-10s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 10000,
+          "status": 503,
+          "elapsed_ms": 5
+        },
+        {
+          "phase": "burst-2-clients-10s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 10000,
+          "status": 503,
+          "elapsed_ms": 4
+        },
+        {
+          "phase": "burst-2-clients-10s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 10000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1580f309",
+            "b8eb3214",
+            "0b97dad8",
+            "627390eb",
+            "6f9c9bb2",
+            "f0b8e87e",
+            "a1d1f15c",
+            "2ffa0de6"
+          ],
+          "audio_ms": 6580,
+          "elapsed_ms": 4618
+        },
+        {
+          "phase": "burst-4-clients-10s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 10000,
+          "status": 503,
+          "elapsed_ms": 8
+        },
+        {
+          "phase": "burst-4-clients-10s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 10000,
+          "status": 503,
+          "elapsed_ms": 10
+        },
+        {
+          "phase": "burst-4-clients-10s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 10000,
+          "status": 503,
+          "elapsed_ms": 11
+        },
+        {
+          "phase": "burst-4-clients-10s-r1",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 10000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "0dff5bbd",
+            "0f3b97d7",
+            "fc2c826e",
+            "b023f7b0",
+            "f86d3a36",
+            "a3ec9327",
+            "cc7f5229",
+            "c3d1de59"
+          ],
+          "audio_ms": 7440,
+          "elapsed_ms": 6666
+        },
+        {
+          "phase": "burst-4-clients-10s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 10000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "1580f309",
+            "b8eb3214",
+            "0b97dad8",
+            "627390eb",
+            "6f9c9bb2",
+            "f0b8e87e",
+            "a1d1f15c",
+            "2ffa0de6"
+          ],
+          "audio_ms": 6580,
+          "elapsed_ms": 5786
+        },
+        {
+          "phase": "burst-4-clients-10s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 10000,
+          "status": 503,
+          "elapsed_ms": 7
+        },
+        {
+          "phase": "burst-4-clients-10s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 10000,
+          "status": 503,
+          "elapsed_ms": 6
+        },
+        {
+          "phase": "burst-4-clients-10s-r2",
+          "region": "South",
+          "variant": "LongName",
+          "ordinal": 2,
+          "characters": 99,
+          "client_timeout_ms": 10000,
+          "status": 503,
+          "elapsed_ms": 8
+        },
+        {
+          "phase": "forced-disconnect",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 50,
+          "status": "CLIENT_TIMEOUT",
+          "elapsed_ms": 51
+        },
+        {
+          "phase": "after-disconnect",
+          "region": "South",
+          "variant": "MultiItem",
+          "ordinal": 2,
+          "characters": 101,
+          "client_timeout_ms": 60000,
+          "status": 200,
+          "pcm_sha256_sha256_hex_blocks": [
+            "0dff5bbd",
+            "0f3b97d7",
+            "fc2c826e",
+            "b023f7b0",
+            "f86d3a36",
+            "a3ec9327",
+            "cc7f5229",
+            "c3d1de59"
+          ],
+          "audio_ms": 7440,
+          "elapsed_ms": 11674
+        }
+      ],
+      "recoveries": [
+        {
+          "reason": "burst-1-clients-5s-r1",
+          "drain_ms": 2928
+        },
+        {
+          "reason": "burst-1-clients-5s-r2",
+          "drain_ms": 0
+        },
+        {
+          "reason": "burst-2-clients-5s-r1",
+          "drain_ms": 1219
+        },
+        {
+          "reason": "burst-2-clients-5s-r2",
+          "drain_ms": 0
+        },
+        {
+          "reason": "burst-4-clients-5s-r1",
+          "drain_ms": 615
+        },
+        {
+          "reason": "burst-4-clients-5s-r2",
+          "drain_ms": 0
+        },
+        {
+          "reason": "burst-1-clients-10s-r1",
+          "drain_ms": 0
+        },
+        {
+          "reason": "burst-1-clients-10s-r2",
+          "drain_ms": 0
+        },
+        {
+          "reason": "burst-2-clients-10s-r1",
+          "drain_ms": 0
+        },
+        {
+          "reason": "burst-2-clients-10s-r2",
+          "drain_ms": 0
+        },
+        {
+          "reason": "burst-4-clients-10s-r1",
+          "drain_ms": 0
+        },
+        {
+          "reason": "burst-4-clients-10s-r2",
+          "drain_ms": 0
+        },
+        {
+          "reason": "forced-disconnect",
+          "drain_ms": 6361
+        }
+      ],
+      "peak_rss_kib": 1582020,
+      "http_recovery": {
+        "busy_status": 503,
+        "readiness_next_request": 200,
+        "synthesis_after_drain": 200,
+        "pass": true
+      },
+      "sequential": {
+        "count": 18,
+        "p50_ms": 1373,
+        "p95_ms": 6270,
+        "max_ms": 6270,
+        "over_5s": 2,
+        "over_10s": 0
+      },
+      "cpu_stat_after": "usage_usec 133129973\nuser_usec 131082901\nsystem_usec 2047071\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+      "all_assertions_pass": true
+    },
+    "bursts_by_client_budget_ms": {
+      "5000": {
+        "submitted": 14,
+        "http_200": 3,
+        "http_503": 8,
+        "client_timeout": 3,
+        "max_success_ms": 4300
+      },
+      "10000": {
+        "submitted": 14,
+        "http_200": 6,
+        "http_503": 8,
+        "client_timeout": 0,
+        "max_success_ms": 6666
+      }
+    },
+    "worker_failure_under_concurrent_load": {
+      "case": {
+        "case": "South-MultiItem-1",
+        "region": "South",
+        "variant": "MultiItem",
+        "digit": "1",
+        "started_utc": "2026-09-21T06:30:35.925897+00:00",
+        "audio_ms": 33760,
+        "sent_utc": null,
+        "pass": false,
+        "exit_code": 0,
+        "ended_utc": "2026-09-21T06:31:05.195723+00:00",
+        "task_id": "TASK-LAB-20260921063050",
+        "attempt": {
+          "status": "NORMALIZED_REVIEW_REQUIRED",
+          "dtmf": null,
+          "voice_id": null,
+          "region": null,
+          "region_resolved": null,
+          "started_at": null,
+          "ended_at": "2026-09-21T06:31:04.289786+00:00",
+          "counted": false,
+          "exception": "TTS_PROVIDER_HTTP_ERROR"
+        },
+        "result": {
+          "type": "IVR_TECHNICAL_EXCEPTION",
+          "final": false,
+          "counted": false
+        },
+        "media": []
+      },
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "status": "NORMALIZED_TECHNICAL_RETRY",
+          "technical_exception_type": "TTS_TIMEOUT",
+          "is_counted_customer_attempt": false,
+          "started_at": null,
+          "ended_at": "2026-09-21T06:31:01.913635+00:00"
+        },
+        {
+          "attempt_number": 1,
+          "status": "NORMALIZED_REVIEW_REQUIRED",
+          "technical_exception_type": "TTS_PROVIDER_HTTP_ERROR",
+          "is_counted_customer_attempt": false,
+          "started_at": null,
+          "ended_at": "2026-09-21T06:31:04.289786+00:00"
+        }
+      ],
+      "job_status_at_failure": "HELD_ADMIN_REVIEW",
+      "final_job": {
+        "status": "WINDOW_EXPIRED",
+        "queue_status": "CLOSED_WINDOW_EXPIRED"
+      },
+      "dialed": false
+    },
+    "success_pcm_equal_owner_accepted": 28,
+    "total_synthesize_posts": 49,
+    "extra_busy_post_in_http_recovery": 1,
+    "concurrent_local_sip_matrix": true,
+    "additional_host_load": "SHARED_HOST_UNCONTROLLED",
+    "target_s5": "NOT_RUN_TARGET_UNIDENTIFIED"
+  },
+  "checks": {
+    "headless_regression_before": "FAIL_PARAMETER_ABSENT",
+    "headless_regression_after": "PASS",
+    "preflight_selftest": {
+      "valid": 1,
+      "refusals": 17,
+      "entry_guards": 4,
+      "orders": 12,
+      "headless_route_guards": 2
+    }
+  },
+  "scan": {
+    "new_scan": false,
+    "reason": "Exact TTS image unchanged from W-0326",
+    "evidence": "docs/evidence/W-0326/local-results.json",
+    "HIGH": 0,
+    "CRITICAL": 0
+  },
+  "remaining": {
+    "S5": "OWNER_TARGET_IDENTITY_REQUIRED",
+    "production_timeout": "UNPROVEN_5S_AND_10S_NOT_CERTIFIED",
+    "mirror": "OWNER_DATA_REQUIRED",
+    "model_legal": "OWNER_DECISION_REQUIRED"
+  },
+  "source_bindings": [
+    {
+      "path": "deploy/lab/run-headless-dtmf.py",
+      "sha256_sha256_hex_blocks": [
+        "e24f1e3b",
+        "80db3a10",
+        "f87758ec",
+        "ea891036",
+        "fa589788",
+        "dacd5d0e",
+        "fcf5a563",
+        "94a89f11"
+      ]
+    },
+    {
+      "path": "deploy/lab/Invoke-FreeSoftphoneCall.ps1",
+      "sha256_sha256_hex_blocks": [
+        "81d5e13e",
+        "514d5278",
+        "968c05a0",
+        "f9dc085c",
+        "40174564",
+        "84a58bc0",
+        "9c577e39",
+        "78234a14"
+      ]
+    },
+    {
+      "path": "deploy/lab/tests/SpeechPreflight.Tests.ps1",
+      "sha256_sha256_hex_blocks": [
+        "67d6034c",
+        "0728679b",
+        "01bf99c8",
+        "dccf43f2",
+        "1519951d",
+        "9b184727",
+        "fb04aa1d",
+        "33d49245"
+      ]
+    },
+    {
+      "path": "deploy/lab/Measure-VieNeuLoad.ps1",
+      "sha256_sha256_hex_blocks": [
+        "91bea52a",
+        "d8ba196d",
+        "ed303801",
+        "0818aafd",
+        "0583e47d",
+        "111e0993",
+        "8347f06f",
+        "b946cc57"
+      ]
+    },
+    {
+      "path": "deploy/tts/tests/probe_load.py",
+      "sha256_sha256_hex_blocks": [
+        "04cc26e5",
+        "92fc0256",
+        "7ecac9e3",
+        "2a224d40",
+        "8d75208e",
+        "6318aab3",
+        "1cd144f7",
+        "2cda2b73"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/server.py",
+      "sha256_sha256_hex_blocks": [
+        "4d390ae7",
+        "43cfbfb7",
+        "15654529",
+        "76e9ff11",
+        "828d8de2",
+        "c81f1f13",
+        "daadce6f",
+        "c444d66d"
+      ]
+    },
+    {
+      "path": "deploy/tts/shim/backend.py",
+      "sha256_sha256_hex_blocks": [
+        "2babb008",
+        "b6f3bbea",
+        "b22e5d8d",
+        "14962216",
+        "e66900a4",
+        "394cf96b",
+        "2de6ee62",
+        "5e086d68"
+      ]
+    }
+  ],
+  "target_kit": {
+    "path": ".artifacts/W-0329/s5-load-probe.zip",
+    "sha256_sha256_hex_blocks": [
+      "3ff3eb64",
+      "412c5329",
+      "f89d591c",
+      "c655a182",
+      "8c2451f6",
+      "e1daaf8c",
+      "bd277b68",
+      "820eb7d8"
+    ],
+    "contains_model_or_credentials": false
+  },
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0329/baseline.json",
+      "sha256_sha256_hex_blocks": [
+        "c96631dc",
+        "e5d0fa15",
+        "fd59f721",
+        "885578eb",
+        "d8a40ff5",
+        "7a25b761",
+        "89d1122c",
+        "39ffc860"
+      ],
+      "bytes": 124
+    },
+    {
+      "path": ".artifacts/W-0329/failed-allocation.py",
+      "sha256_sha256_hex_blocks": [
+        "fcffcc6f",
+        "3c450f9d",
+        "8ca0796d",
+        "9b436fd6",
+        "b61fe1f6",
+        "9de8c36c",
+        "dd12c712",
+        "4711f31b"
+      ],
+      "bytes": 1772
+    },
+    {
+      "path": ".artifacts/W-0329/finish.py",
+      "sha256_sha256_hex_blocks": [
+        "d3fc5d27",
+        "03c61d36",
+        "9571a017",
+        "b12062ef",
+        "35b7667b",
+        "32e4c0e9",
+        "627d0f75",
+        "7ba6b598"
+      ],
+      "bytes": 2255
+    },
+    {
+      "path": ".artifacts/W-0329/headless-after.log",
+      "sha256_sha256_hex_blocks": [
+        "6fac6dae",
+        "398ace5c",
+        "903099d9",
+        "0bbb96c2",
+        "9225968d",
+        "4e7979eb",
+        "d354ab1f",
+        "2839ad82"
+      ],
+      "bytes": 5449
+    },
+    {
+      "path": ".artifacts/W-0329/headless-before.log",
+      "sha256_sha256_hex_blocks": [
+        "baeff459",
+        "fa5b8d95",
+        "8a4a190b",
+        "2cf253bd",
+        "61b47f4a",
+        "58815bc3",
+        "3002972e",
+        "7f84a14a"
+      ],
+      "bytes": 5173
+    },
+    {
+      "path": ".artifacts/W-0329/initialize.py",
+      "sha256_sha256_hex_blocks": [
+        "fceace87",
+        "85a8b604",
+        "f37d1418",
+        "3edddba3",
+        "8784b394",
+        "860fb842",
+        "c7beebdb",
+        "edd82dac"
+      ],
+      "bytes": 1772
+    },
+    {
+      "path": ".artifacts/W-0329/load-local/host.json",
+      "sha256_sha256_hex_blocks": [
+        "fbd37801",
+        "e2f0efdc",
+        "68be4e54",
+        "83703e9f",
+        "33aa1960",
+        "5f4edbb1",
+        "023f00ce",
+        "fddc5b55"
+      ],
+      "bytes": 768
+    },
+    {
+      "path": ".artifacts/W-0329/load-local/load.json",
+      "sha256_sha256_hex_blocks": [
+        "fce3fd45",
+        "e632d52d",
+        "90c44182",
+        "6dc1f908",
+        "bb2a4008",
+        "6bb7f67e",
+        "b27706f9",
+        "5b3fa195"
+      ],
+      "bytes": 16136
+    },
+    {
+      "path": ".artifacts/W-0329/load-local/run.log",
+      "sha256_sha256_hex_blocks": [
+        "185d09ea",
+        "c90c7f8f",
+        "199690ac",
+        "c52a61f1",
+        "e931dae1",
+        "6cdd7d14",
+        "a76e9926",
+        "6a15d0ad"
+      ],
+      "bytes": 4013
+    },
+    {
+      "path": ".artifacts/W-0329/make-target-kit.py",
+      "sha256_sha256_hex_blocks": [
+        "52238dc0",
+        "633e3510",
+        "af089183",
+        "b9e35e40",
+        "4ac85c32",
+        "d78c5351",
+        "ca075cdf",
+        "f0b2cae6"
+      ],
+      "bytes": 3406
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/Central-LongName-0-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "6142a43a",
+        "9c2d42a9",
+        "62f140d5",
+        "4b1e3e78",
+        "9ec6ad60",
+        "9b24ca3f",
+        "c09c2566",
+        "42cd0a26"
+      ],
+      "bytes": 13003
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/Central-LongName-0-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "83aafe59",
+        "dfee24f8",
+        "4440c9f6",
+        "fd66d326",
+        "e85b8b5e",
+        "c98c491c",
+        "c780ca15",
+        "d6b178d3"
+      ],
+      "bytes": 1663
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/Central-LongName-0.log",
+      "sha256_sha256_hex_blocks": [
+        "7db7cdb5",
+        "30009bd3",
+        "de2bd68d",
+        "49216095",
+        "33f08f5d",
+        "04b7edba",
+        "c5b6447c",
+        "060cef97"
+      ],
+      "bytes": 411
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/Central-MultiItem-1-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "37aad3bb",
+        "f49a67ca",
+        "8d428219",
+        "4c577fff",
+        "92996d54",
+        "29901b96",
+        "5b2861f9",
+        "f8598d17"
+      ],
+      "bytes": 13162
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/Central-MultiItem-1-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "28c992b9",
+        "9c4f76e5",
+        "694f7d88",
+        "10fb3984",
+        "92e0e8d9",
+        "0e783350",
+        "2e03da0e",
+        "cd169aea"
+      ],
+      "bytes": 1448
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/Central-MultiItem-1.log",
+      "sha256_sha256_hex_blocks": [
+        "9a567302",
+        "2197b796",
+        "bb722890",
+        "56340bf0",
+        "e98395cd",
+        "233a55ab",
+        "741fc658",
+        "99f3cfff"
+      ],
+      "bytes": 402
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/dtmf-received.log",
+      "sha256_sha256_hex_blocks": [
+        "5ef33008",
+        "81cf7f85",
+        "16e9fd1e",
+        "8b9e8c53",
+        "80174a6f",
+        "2b0c173d",
+        "7ffa74cc",
+        "86769a00"
+      ],
+      "bytes": 3330
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/North-LongName-0-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "bb531718",
+        "ca334df7",
+        "3a337d7d",
+        "30672b71",
+        "7a962373",
+        "f28226d1",
+        "255eda01",
+        "31c1de9f"
+      ],
+      "bytes": 10936
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/North-LongName-0-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "042799a7",
+        "2f976a55",
+        "0adbd588",
+        "ec7f3f95",
+        "8e659778",
+        "2880112c",
+        "977e46f7",
+        "20e8e533"
+      ],
+      "bytes": 1440
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/North-LongName-0.log",
+      "sha256_sha256_hex_blocks": [
+        "a6be8198",
+        "48aece5e",
+        "d7060b7c",
+        "91c4512d",
+        "29364dc5",
+        "8e8da2ef",
+        "1962b2a7",
+        "258056ff"
+      ],
+      "bytes": 405
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/North-MultiItem-1-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "af235267",
+        "a316a767",
+        "a51d2c9f",
+        "7c30105f",
+        "6e6ee624",
+        "6fcfa573",
+        "03717a54",
+        "ada797d3"
+      ],
+      "bytes": 9505
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/North-MultiItem-1-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "e7c4ce44",
+        "11e45b9e",
+        "18c1209b",
+        "1a351dba",
+        "208d2f77",
+        "160bec97",
+        "d103f01f",
+        "fe418059"
+      ],
+      "bytes": 1440
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/North-MultiItem-1.log",
+      "sha256_sha256_hex_blocks": [
+        "ab1db9b4",
+        "f1c83f33",
+        "acb31ea1",
+        "35142e6f",
+        "71cdf4f1",
+        "18fca2b7",
+        "9bc5cec3",
+        "9b035147"
+      ],
+      "bytes": 396
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/peer/extensions.conf",
+      "sha256_sha256_hex_blocks": [
+        "6b43e0de",
+        "fcc2fd4a",
+        "c43f9d61",
+        "5ee7e858",
+        "c37a5502",
+        "dd68de4f",
+        "2139e161",
+        "1714736d"
+      ],
+      "bytes": 430
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/peer/http.conf",
+      "sha256_sha256_hex_blocks": [
+        "88744f04",
+        "28dfa036",
+        "3212515a",
+        "432176d7",
+        "c70e629f",
+        "fbf0305f",
+        "009c4121",
+        "98631a5c"
+      ],
+      "bytes": 23
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/peer/logger.conf",
+      "sha256_sha256_hex_blocks": [
+        "8af8506b",
+        "dfbc01f4",
+        "86e046ff",
+        "7c08de11",
+        "1f6cb823",
+        "f1a3bd6b",
+        "71420c4f",
+        "b0d43368"
+      ],
+      "bytes": 84
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/peer/pjsip.conf",
+      "sha256_sha256_hex_blocks": [
+        "fa30c0b4",
+        "6adac061",
+        "14c443d4",
+        "cae898f4",
+        "6eebe7b4",
+        "8209f4d7",
+        "b4833a09",
+        "f5cbac4e"
+      ],
+      "bytes": 273
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/pjsip-automatic.conf",
+      "sha256_sha256_hex_blocks": [
+        "7886a100",
+        "83bd8cfe",
+        "817256c8",
+        "68169513",
+        "043aa604",
+        "a4a4258d",
+        "356d41c0",
+        "fda599a5"
+      ],
+      "bytes": 815
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/pjsip-original.conf",
+      "sha256_sha256_hex_blocks": [
+        "d4de36b1",
+        "6cac6fc1",
+        "e5f3cfa1",
+        "d0a1e861",
+        "060c957c",
+        "6c20ed8f",
+        "555752b0",
+        "be1f9389"
+      ],
+      "bytes": 673
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/result.json",
+      "sha256_sha256_hex_blocks": [
+        "385c5085",
+        "351f8ef5",
+        "e40b05c1",
+        "b8a41b92",
+        "3d60fda8",
+        "4b3d8e62",
+        "2e988c25",
+        "643e4fa4"
+      ],
+      "bytes": 14046
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/South-LongName-0.log",
+      "sha256_sha256_hex_blocks": [
+        "85f21be2",
+        "b29a3a11",
+        "b79034b8",
+        "8d7c50c2",
+        "9b6e596b",
+        "6bba5003",
+        "4a7c4efd",
+        "75e8d1e1"
+      ],
+      "bytes": 568
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/South-MultiItem-1-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "5f30f0c6",
+        "7ff19378",
+        "a67cb069",
+        "42f2ce9a",
+        "4e18ad9f",
+        "470d9607",
+        "8d0a0c1f",
+        "66f62695"
+      ],
+      "bytes": 15865
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/South-MultiItem-1-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "fbee6eeb",
+        "a4ac92f0",
+        "a835a7b1",
+        "d2b5769d",
+        "d86fd764",
+        "c209c058",
+        "fcb6f36e",
+        "aab8c662"
+      ],
+      "bytes": 1584
+    },
+    {
+      "path": ".artifacts/W-0329/matrix/South-MultiItem-1.log",
+      "sha256_sha256_hex_blocks": [
+        "708f5d79",
+        "049e3038",
+        "5b510bfa",
+        "a53bade0",
+        "9ddecc6e",
+        "26ecd6e2",
+        "a7b19adb",
+        "ff006aed"
+      ],
+      "bytes": 395
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/Central-LongName-0-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "35851bb5",
+        "d2a0acea",
+        "3e9dae89",
+        "62fac719",
+        "f69be1ed",
+        "9b9b909f",
+        "210075c3",
+        "bbe5dc83"
+      ],
+      "bytes": 10936
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/Central-LongName-0-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "ac9d0443",
+        "d27cdd7a",
+        "171a6480",
+        "21fae001",
+        "4ca88112",
+        "cc27cf60",
+        "beea34ba",
+        "9c1892ae"
+      ],
+      "bytes": 1607
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/Central-LongName-0.log",
+      "sha256_sha256_hex_blocks": [
+        "b7b6bc7e",
+        "429fe334",
+        "ff3bcf10",
+        "7b16d5af",
+        "7c369ce2",
+        "e8ecef0f",
+        "9693b1e2",
+        "94382cd4"
+      ],
+      "bytes": 392
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/Central-MultiItem-1-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "6f78fa36",
+        "838b3388",
+        "d1d3c6ce",
+        "ef9971e5",
+        "e8c936c2",
+        "ee1cfa00",
+        "cb619783",
+        "b4b86bd0"
+      ],
+      "bytes": 12049
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/Central-MultiItem-1-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "71dad582",
+        "c8b7a879",
+        "ea578959",
+        "e588a34f",
+        "ce3cff51",
+        "466f50ce",
+        "17b32c6f",
+        "5723e0e2"
+      ],
+      "bytes": 1607
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/Central-MultiItem-1.log",
+      "sha256_sha256_hex_blocks": [
+        "e10f6e12",
+        "d88bcd54",
+        "a1524347",
+        "4df1aec4",
+        "ccc06056",
+        "41aa7f75",
+        "0509cb45",
+        "ce45fb76"
+      ],
+      "bytes": 383
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/dtmf-received.log",
+      "sha256_sha256_hex_blocks": [
+        "9761f307",
+        "f8ce4aff",
+        "fb95a7b7",
+        "01666dd9",
+        "91f40eb0",
+        "a36ae281",
+        "83d3e755",
+        "18b6632b"
+      ],
+      "bytes": 5426
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/North-LongName-0-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "7dd85a30",
+        "5ef69b28",
+        "b3bf4199",
+        "4c73a875",
+        "c4dca769",
+        "50c6fb66",
+        "61985640",
+        "a078fa38"
+      ],
+      "bytes": 10459
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/North-LongName-0-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "4fa2808f",
+        "79a1a15a",
+        "c07337f7",
+        "dd8534c5",
+        "7980d703",
+        "a524df00",
+        "f50cfae9",
+        "1e68c440"
+      ],
+      "bytes": 1599
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/North-LongName-0.log",
+      "sha256_sha256_hex_blocks": [
+        "0ee5db9d",
+        "9972c67f",
+        "77d13034",
+        "a0beee2a",
+        "31fc7c05",
+        "8898be69",
+        "08c788f9",
+        "b5175b31"
+      ],
+      "bytes": 386
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/North-MultiItem-1-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "e1187645",
+        "4ab60e1c",
+        "de3510f7",
+        "de53a03d",
+        "adb257d3",
+        "814d4ec9",
+        "09e35e7e",
+        "9a5ab443"
+      ],
+      "bytes": 11487
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/North-MultiItem-1-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "66246f09",
+        "a5e03dc1",
+        "877abff1",
+        "950233eb",
+        "6fa67024",
+        "0373a7a6",
+        "068568a4",
+        "dc3663bc"
+      ],
+      "bytes": 1599
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/North-MultiItem-1.log",
+      "sha256_sha256_hex_blocks": [
+        "b614c9e2",
+        "48270632",
+        "419f380b",
+        "298a7f05",
+        "c5bd9668",
+        "7775bff6",
+        "8a19f8b8",
+        "362a11f4"
+      ],
+      "bytes": 377
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/peer/extensions.conf",
+      "sha256_sha256_hex_blocks": [
+        "6b43e0de",
+        "fcc2fd4a",
+        "c43f9d61",
+        "5ee7e858",
+        "c37a5502",
+        "dd68de4f",
+        "2139e161",
+        "1714736d"
+      ],
+      "bytes": 430
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/peer/http.conf",
+      "sha256_sha256_hex_blocks": [
+        "88744f04",
+        "28dfa036",
+        "3212515a",
+        "432176d7",
+        "c70e629f",
+        "fbf0305f",
+        "009c4121",
+        "98631a5c"
+      ],
+      "bytes": 23
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/peer/logger.conf",
+      "sha256_sha256_hex_blocks": [
+        "8af8506b",
+        "dfbc01f4",
+        "86e046ff",
+        "7c08de11",
+        "1f6cb823",
+        "f1a3bd6b",
+        "71420c4f",
+        "b0d43368"
+      ],
+      "bytes": 84
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/peer/pjsip.conf",
+      "sha256_sha256_hex_blocks": [
+        "fa30c0b4",
+        "6adac061",
+        "14c443d4",
+        "cae898f4",
+        "6eebe7b4",
+        "8209f4d7",
+        "b4833a09",
+        "f5cbac4e"
+      ],
+      "bytes": 273
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/pjsip-automatic.conf",
+      "sha256_sha256_hex_blocks": [
+        "7886a100",
+        "83bd8cfe",
+        "817256c8",
+        "68169513",
+        "043aa604",
+        "a4a4258d",
+        "356d41c0",
+        "fda599a5"
+      ],
+      "bytes": 815
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/pjsip-original.conf",
+      "sha256_sha256_hex_blocks": [
+        "d4de36b1",
+        "6cac6fc1",
+        "e5f3cfa1",
+        "d0a1e861",
+        "060c957c",
+        "6c20ed8f",
+        "555752b0",
+        "be1f9389"
+      ],
+      "bytes": 673
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/result.json",
+      "sha256_sha256_hex_blocks": [
+        "956501ff",
+        "779c8161",
+        "c0089012",
+        "6d2be726",
+        "be0faa56",
+        "68257abb",
+        "e5d4c462",
+        "14a81727"
+      ],
+      "bytes": 11727
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/South-MultiItem-1-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "bb2b04f2",
+        "b77fe438",
+        "06cde8cc",
+        "6d12bdec",
+        "d13bebbe",
+        "972e5f1d",
+        "76349317",
+        "5ed18299"
+      ],
+      "bytes": 4291
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/South-MultiItem-1-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "f29b512e",
+        "c7680979",
+        "865ed98d",
+        "722a4585",
+        "15bc61c2",
+        "743d3629",
+        "3b90e6f7",
+        "9ff9c989"
+      ],
+      "bytes": 316
+    },
+    {
+      "path": ".artifacts/W-0329/matrix-final/South-MultiItem-1.log",
+      "sha256_sha256_hex_blocks": [
+        "8da4ebd3",
+        "4b5bf017",
+        "2364446e",
+        "0c992ff5",
+        "9c56206e",
+        "13ef47da",
+        "1c0f6e8c",
+        "df87b997"
+      ],
+      "bytes": 388
+    },
+    {
+      "path": ".artifacts/W-0329/pii.log",
+      "sha256_sha256_hex_blocks": [
+        "1a9e8933",
+        "f319682e",
+        "49d3a044",
+        "3949bfaa",
+        "ed2375ff",
+        "f48181e7",
+        "6620dfcf",
+        "942e4e14"
+      ],
+      "bytes": 55
+    },
+    {
+      "path": ".artifacts/W-0329/preflight-selftest.log",
+      "sha256_sha256_hex_blocks": [
+        "0bf15728",
+        "00eace77",
+        "03e742ff",
+        "efedbe89",
+        "b98c37e6",
+        "2c85dd38",
+        "877885d6",
+        "aa6b1fc1"
+      ],
+      "bytes": 6248
+    },
+    {
+      "path": ".artifacts/W-0329/scope.log",
+      "sha256_sha256_hex_blocks": [
+        "24467576",
+        "1afc8333",
+        "ee9fee0d",
+        "a8f2ff84",
+        "760313e1",
+        "76675714",
+        "33a7c071",
+        "c737e0a1"
+      ],
+      "bytes": 2048
+    },
+    {
+      "path": ".artifacts/W-0329/smoke/dtmf-received.log",
+      "sha256_sha256_hex_blocks": [
+        "67ea973b",
+        "01a7b76d",
+        "e27dc2d8",
+        "a5ac4b11",
+        "f4aa644b",
+        "ebee8b71",
+        "2865f7b4",
+        "8883db1a"
+      ],
+      "bytes": 124
+    },
+    {
+      "path": ".artifacts/W-0329/smoke/peer/extensions.conf",
+      "sha256_sha256_hex_blocks": [
+        "6b43e0de",
+        "fcc2fd4a",
+        "c43f9d61",
+        "5ee7e858",
+        "c37a5502",
+        "dd68de4f",
+        "2139e161",
+        "1714736d"
+      ],
+      "bytes": 430
+    },
+    {
+      "path": ".artifacts/W-0329/smoke/peer/http.conf",
+      "sha256_sha256_hex_blocks": [
+        "88744f04",
+        "28dfa036",
+        "3212515a",
+        "432176d7",
+        "c70e629f",
+        "fbf0305f",
+        "009c4121",
+        "98631a5c"
+      ],
+      "bytes": 23
+    },
+    {
+      "path": ".artifacts/W-0329/smoke/peer/logger.conf",
+      "sha256_sha256_hex_blocks": [
+        "8af8506b",
+        "dfbc01f4",
+        "86e046ff",
+        "7c08de11",
+        "1f6cb823",
+        "f1a3bd6b",
+        "71420c4f",
+        "b0d43368"
+      ],
+      "bytes": 84
+    },
+    {
+      "path": ".artifacts/W-0329/smoke/peer/pjsip.conf",
+      "sha256_sha256_hex_blocks": [
+        "fa30c0b4",
+        "6adac061",
+        "14c443d4",
+        "cae898f4",
+        "6eebe7b4",
+        "8209f4d7",
+        "b4833a09",
+        "f5cbac4e"
+      ],
+      "bytes": 273
+    },
+    {
+      "path": ".artifacts/W-0329/smoke/pjsip-automatic.conf",
+      "sha256_sha256_hex_blocks": [
+        "91c5ab46",
+        "cade84d7",
+        "21d9d6cd",
+        "6d36e4ec",
+        "10b6b1be",
+        "0aa08f64",
+        "e72332c4",
+        "2df620a9"
+      ],
+      "bytes": 375
+    },
+    {
+      "path": ".artifacts/W-0329/smoke/pjsip-original.conf",
+      "sha256_sha256_hex_blocks": [
+        "d4de36b1",
+        "6cac6fc1",
+        "e5f3cfa1",
+        "d0a1e861",
+        "060c957c",
+        "6c20ed8f",
+        "555752b0",
+        "be1f9389"
+      ],
+      "bytes": 673
+    },
+    {
+      "path": ".artifacts/W-0329/smoke/result.json",
+      "sha256_sha256_hex_blocks": [
+        "b9ac7150",
+        "4a1cd7a0",
+        "0328ade2",
+        "f81ce89a",
+        "685aed60",
+        "aa24c8fa",
+        "ef24a11b",
+        "7ec1b244"
+      ],
+      "bytes": 1106
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/dtmf-received.log",
+      "sha256_sha256_hex_blocks": [
+        "104f1205",
+        "d0180693",
+        "29e9563e",
+        "70aedc27",
+        "a4dda260",
+        "d7cc41c3",
+        "e65a3a7d",
+        "afab1ad8"
+      ],
+      "bytes": 741
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/North-MultiItem-1-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "0bfa133b",
+        "fbfaf894",
+        "9c068b19",
+        "d1f14a5d",
+        "3bb0d5e2",
+        "f2ea7b62",
+        "20812a15",
+        "68d19fd8"
+      ],
+      "bytes": 12049
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/North-MultiItem-1-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "dbd265c1",
+        "41c1a662",
+        "e17c8871",
+        "2d287b82",
+        "e071e6b6",
+        "c79499dc",
+        "97384eec",
+        "491d69c8"
+      ],
+      "bytes": 1514
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/North-MultiItem-1.log",
+      "sha256_sha256_hex_blocks": [
+        "5c5e057a",
+        "6dfdb295",
+        "db382bbd",
+        "cdd3e401",
+        "4f04188f",
+        "2caf795b",
+        "73662b76",
+        "c1cab82e"
+      ],
+      "bytes": 396
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/peer/extensions.conf",
+      "sha256_sha256_hex_blocks": [
+        "6b43e0de",
+        "fcc2fd4a",
+        "c43f9d61",
+        "5ee7e858",
+        "c37a5502",
+        "dd68de4f",
+        "2139e161",
+        "1714736d"
+      ],
+      "bytes": 430
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/peer/http.conf",
+      "sha256_sha256_hex_blocks": [
+        "88744f04",
+        "28dfa036",
+        "3212515a",
+        "432176d7",
+        "c70e629f",
+        "fbf0305f",
+        "009c4121",
+        "98631a5c"
+      ],
+      "bytes": 23
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/peer/logger.conf",
+      "sha256_sha256_hex_blocks": [
+        "8af8506b",
+        "dfbc01f4",
+        "86e046ff",
+        "7c08de11",
+        "1f6cb823",
+        "f1a3bd6b",
+        "71420c4f",
+        "b0d43368"
+      ],
+      "bytes": 84
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/peer/pjsip.conf",
+      "sha256_sha256_hex_blocks": [
+        "fa30c0b4",
+        "6adac061",
+        "14c443d4",
+        "cae898f4",
+        "6eebe7b4",
+        "8209f4d7",
+        "b4833a09",
+        "f5cbac4e"
+      ],
+      "bytes": 273
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/pjsip-automatic.conf",
+      "sha256_sha256_hex_blocks": [
+        "7886a100",
+        "83bd8cfe",
+        "817256c8",
+        "68169513",
+        "043aa604",
+        "a4a4258d",
+        "356d41c0",
+        "fda599a5"
+      ],
+      "bytes": 815
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/pjsip-original.conf",
+      "sha256_sha256_hex_blocks": [
+        "d4de36b1",
+        "6cac6fc1",
+        "e5f3cfa1",
+        "d0a1e861",
+        "060c957c",
+        "6c20ed8f",
+        "555752b0",
+        "be1f9389"
+      ],
+      "bytes": 673
+    },
+    {
+      "path": ".artifacts/W-0329/smoke-r2/result.json",
+      "sha256_sha256_hex_blocks": [
+        "6608bb90",
+        "1a41759c",
+        "6e8cc9b4",
+        "0d286005",
+        "25b8976a",
+        "a23271d7",
+        "aab6dd21",
+        "bc40f55f"
+      ],
+      "bytes": 3533
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/dtmf-received.log",
+      "sha256_sha256_hex_blocks": [
+        "ef9551c3",
+        "2eb233ed",
+        "8c369b46",
+        "9c358c8d",
+        "80067f3b",
+        "79ca809a",
+        "6588b2bc",
+        "df61a302"
+      ],
+      "bytes": 6536
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/North-A-no-input-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "8bdc3118",
+        "78b0dc14",
+        "5a67cf9c",
+        "46fcb867",
+        "7f75a157",
+        "2aeaaac3",
+        "882cd79f",
+        "29752812"
+      ],
+      "bytes": 18528
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/North-A-no-input-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "7a921276",
+        "0d5b06a5",
+        "f82da852",
+        "94302671",
+        "f701027b",
+        "7b0c84cc",
+        "9adbe6e8",
+        "d610ebc4"
+      ],
+      "bytes": 1440
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/North-A-no-input.log",
+      "sha256_sha256_hex_blocks": [
+        "4f428a44",
+        "dc9f5ebf",
+        "71dd8282",
+        "f16ec278",
+        "84863c70",
+        "ddf57a40",
+        "89f1a16c",
+        "c0707322"
+      ],
+      "bytes": 383
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/peer/extensions.conf",
+      "sha256_sha256_hex_blocks": [
+        "6b43e0de",
+        "fcc2fd4a",
+        "c43f9d61",
+        "5ee7e858",
+        "c37a5502",
+        "dd68de4f",
+        "2139e161",
+        "1714736d"
+      ],
+      "bytes": 430
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/peer/http.conf",
+      "sha256_sha256_hex_blocks": [
+        "88744f04",
+        "28dfa036",
+        "3212515a",
+        "432176d7",
+        "c70e629f",
+        "fbf0305f",
+        "009c4121",
+        "98631a5c"
+      ],
+      "bytes": 23
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/peer/logger.conf",
+      "sha256_sha256_hex_blocks": [
+        "8af8506b",
+        "dfbc01f4",
+        "86e046ff",
+        "7c08de11",
+        "1f6cb823",
+        "f1a3bd6b",
+        "71420c4f",
+        "b0d43368"
+      ],
+      "bytes": 84
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/peer/pjsip.conf",
+      "sha256_sha256_hex_blocks": [
+        "fa30c0b4",
+        "6adac061",
+        "14c443d4",
+        "cae898f4",
+        "6eebe7b4",
+        "8209f4d7",
+        "b4833a09",
+        "f5cbac4e"
+      ],
+      "bytes": 273
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/pjsip-automatic.conf",
+      "sha256_sha256_hex_blocks": [
+        "7886a100",
+        "83bd8cfe",
+        "817256c8",
+        "68169513",
+        "043aa604",
+        "a4a4258d",
+        "356d41c0",
+        "fda599a5"
+      ],
+      "bytes": 815
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/pjsip-original.conf",
+      "sha256_sha256_hex_blocks": [
+        "d4de36b1",
+        "6cac6fc1",
+        "e5f3cfa1",
+        "d0a1e861",
+        "060c957c",
+        "6c20ed8f",
+        "555752b0",
+        "be1f9389"
+      ],
+      "bytes": 673
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/result.json",
+      "sha256_sha256_hex_blocks": [
+        "896d1581",
+        "b1f2f740",
+        "379478d9",
+        "76feee5b",
+        "cd983596",
+        "e6151cee",
+        "83baa052",
+        "6fbb2f93"
+      ],
+      "bytes": 7201
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/South-LongName-0-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "ce86180d",
+        "8b95c178",
+        "c42589d4",
+        "dc0c0cff",
+        "2edd036b",
+        "34fdcc4f",
+        "5099a769",
+        "d6c60bc4"
+      ],
+      "bytes": 14275
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/South-LongName-0-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "c7b4f922",
+        "2fc8fa61",
+        "b3be81b9",
+        "a46ba289",
+        "c12faa89",
+        "17642c0a",
+        "6dc0cef2",
+        "8149afb2"
+      ],
+      "bytes": 1599
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/South-LongName-0.log",
+      "sha256_sha256_hex_blocks": [
+        "420d1188",
+        "9e6cb6a0",
+        "3223c6b4",
+        "14a9a198",
+        "0c823858",
+        "fe5ed45c",
+        "3e225ce7",
+        "8c3f75a5"
+      ],
+      "bytes": 385
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/South-MultiItem-1-peer.log",
+      "sha256_sha256_hex_blocks": [
+        "c34c8316",
+        "91547c3a",
+        "055f74de",
+        "0da27f4b",
+        "75ebf9f6",
+        "7d9ea005",
+        "a16ec14d",
+        "4a2e0902"
+      ],
+      "bytes": 15547
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/South-MultiItem-1-switch.log",
+      "sha256_sha256_hex_blocks": [
+        "0f1bbdf3",
+        "411e218a",
+        "3315852a",
+        "cddbdd81",
+        "b83cff6f",
+        "8c0b5dee",
+        "f521cfa5",
+        "061f68dc"
+      ],
+      "bytes": 1599
+    },
+    {
+      "path": ".artifacts/W-0329/south-and-timeout/South-MultiItem-1.log",
+      "sha256_sha256_hex_blocks": [
+        "f2f12f48",
+        "6292c142",
+        "f2288d8f",
+        "3fbbf2f2",
+        "0b694160",
+        "91786abb",
+        "5ac950e0",
+        "857b4edc"
+      ],
+      "bytes": 376
+    }
+  ]
+}

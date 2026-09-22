@@ -76,19 +76,21 @@ body = json.dumps({
     "output_format": "audio/L16",
     "sample_rate": 8000,
 }, ensure_ascii=False).encode()
-request = urllib.request.Request(base + "/synthesize", data=body, headers={"Content-Type":"application/json"})
-with urllib.request.urlopen(request, timeout=10) as response:
-    audio = response.read()
-    assert response.status == 200
-    assert response.headers["Content-Type"] == "audio/L16"
-    assert len(audio) > 1600 and len(audio) % 2 == 0 and not audio.startswith(b"RIFF")
+for content_type in ("application/json", "application/json; charset=utf-8", 'Application/JSON; charset="UTF-8"'):
+    request = urllib.request.Request(base + "/synthesize", data=body, headers={"Content-Type":content_type})
+    with urllib.request.urlopen(request, timeout=10) as response:
+        audio = response.read()
+        assert response.status == 200
+        assert response.headers["Content-Type"] == "audio/L16"
+        assert len(audio) > 1600 and len(audio) % 2 == 0 and not audio.startswith(b"RIFF")
 
-bad = urllib.request.Request(base + "/synthesize", data=body, headers={"Content-Type":"text/plain"})
-try:
-    urllib.request.urlopen(bad, timeout=2)
-    raise AssertionError("invalid content type accepted")
-except urllib.error.HTTPError as error:
-    assert error.code == 415 and error.read() == b""
+for content_type in ("text/plain", "application/json; charset=utf-16"):
+    bad = urllib.request.Request(base + "/synthesize", data=body, headers={"Content-Type":content_type})
+    try:
+        urllib.request.urlopen(bad, timeout=2)
+        raise AssertionError("invalid content type accepted")
+    except urllib.error.HTTPError as error:
+        assert error.code == 415 and error.read() == b""
 
 extra = json.loads(body)
 extra["unexpected"] = True

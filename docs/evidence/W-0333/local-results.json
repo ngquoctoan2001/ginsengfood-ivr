@@ -1,0 +1,412 @@
+{
+  "work_id": "W-0333",
+  "baseline": "185548cff040025e3915db37da75c7e3e8dd4991",
+  "head_at_export": "185548cff040025e3915db37da75c7e3e8dd4991",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production_ready": false,
+  "s5_target": "vps61_OWNER_REPORTED_NOT_MEASURED",
+  "target_ram_discrepancy": "UNRESOLVED_INVENTORY_REQUIRED",
+  "full_linux_launcher": "NOT_RUN_ON_TARGET",
+  "guard_tests": {
+    "passed": 8,
+    "failed": 0,
+    "prior_sandbox_cleanup_errors": 2
+  },
+  "bundle": {
+    "work_id": "W-0333",
+    "real_customer_call_allowed": "NO",
+    "image_index_sha256_hex_blocks": [
+      "79e9106e",
+      "c1401c5c",
+      "dd751b80",
+      "da52e6d8",
+      "a46f17f4",
+      "37c1e069",
+      "0209bce1",
+      "3b692581"
+    ],
+    "image_config_sha256_hex_blocks": [
+      "13aae53f",
+      "d114ec1b",
+      "8e4a8adc",
+      "5dad0dd6",
+      "57765e68",
+      "322387bb",
+      "c0926b3c",
+      "27da80d8"
+    ],
+    "scope": "S5_DIAGNOSTIC_NOT_PRODUCTION_APPROVAL",
+    "files": {
+      "approved-audio.json_sha256_hex_blocks": [
+        "fc1facc5",
+        "dc6c59b1",
+        "989503db",
+        "5f4b2e69",
+        "02b1614c",
+        "22cc48e5",
+        "0ab6515d",
+        "ec36cbe2"
+      ],
+      "LICENSE-VIENEU_sha256_hex_blocks": [
+        "c71d239d",
+        "f91726fc",
+        "519c6eb7",
+        "2d318ec6",
+        "58206272",
+        "32b2f796",
+        "219e87dc",
+        "f35d0ab4"
+      ],
+      "models/metadata/moss-codec-model-card.md_sha256_hex_blocks": [
+        "3c7b9e9e",
+        "f1c8c5e5",
+        "c829a077",
+        "a1d32c1f",
+        "7aea1668",
+        "f2bf17ea",
+        "d318ff04",
+        "bf1e6fe4"
+      ],
+      "models/metadata/vieneu-model-card.md_sha256_hex_blocks": [
+        "f8a7927b",
+        "5a6f27d1",
+        "ab54c63a",
+        "22a3c010",
+        "f8622b00",
+        "6c3239a6",
+        "91bcd014",
+        "b108b2b7"
+      ],
+      "models/moss-codec/codec_browser_onnx_meta.json_sha256_hex_blocks": [
+        "3e291c88",
+        "3bb7d11f",
+        "f2fe8e96",
+        "4e3e4955",
+        "19760358",
+        "859f35c9",
+        "51254c77",
+        "41592731"
+      ],
+      "models/moss-codec/moss_audio_tokenizer_decode_full.onnx_sha256_hex_blocks": [
+        "0fbbafe3",
+        "fd4afa2a",
+        "019af5c5",
+        "ced204af",
+        "6e2d1db0",
+        "44fa40f0",
+        "21525d2a",
+        "ee95b4ac"
+      ],
+      "models/moss-codec/moss_audio_tokenizer_decode_shared.data_sha256_hex_blocks": [
+        "e69d52e0",
+        "f4e84ca2",
+        "7850557e",
+        "e54face4",
+        "6632d3a5",
+        "a16c89bd",
+        "246c7c40",
+        "8466dcad"
+      ],
+      "models/moss-codec/moss_audio_tokenizer_decode_step.onnx_sha256_hex_blocks": [
+        "9527c86a",
+        "29e1837e",
+        "dec1f74d",
+        "b57d5eea",
+        "adb3a715",
+        "af338270",
+        "3566460a",
+        "fed25855"
+      ],
+      "models/vieneu/onnx_int8/config.json_sha256_hex_blocks": [
+        "a9f8d9c4",
+        "b4736448",
+        "ab355d1a",
+        "98cfe48f",
+        "5e39aecf",
+        "2916c37b",
+        "0806c228",
+        "612e9a2d"
+      ],
+      "models/vieneu/onnx_int8/tokenizer.json_sha256_hex_blocks": [
+        "6cc6bcbe",
+        "380b8c37",
+        "bd9f2514",
+        "e37c5dfa",
+        "3e00e122",
+        "c6e3125d",
+        "ae5c4afe",
+        "48e39158"
+      ],
+      "models/vieneu/onnx_int8/vieneu_acoustic_cached.onnx_sha256_hex_blocks": [
+        "8f2d7306",
+        "a35c6128",
+        "793838f3",
+        "9c4c2da2",
+        "c176e243",
+        "bd63f096",
+        "3c56bbf0",
+        "376c3939"
+      ],
+      "models/vieneu/onnx_int8/vieneu_backbone_shared.data_sha256_hex_blocks": [
+        "429bfddd",
+        "585b7a19",
+        "07c7c9c9",
+        "44b3d91b",
+        "c4da8b91",
+        "f1f99823",
+        "53351357",
+        "140fd08f"
+      ],
+      "models/vieneu/onnx_int8/vieneu_decode_step.onnx_sha256_hex_blocks": [
+        "8346ce8f",
+        "efa3635a",
+        "2dcd29b6",
+        "f8a5cb23",
+        "c7acfd5d",
+        "a9dfad54",
+        "090b0f9b",
+        "797c4b5a"
+      ],
+      "models/vieneu/onnx_int8/vieneu_prefill.onnx_sha256_hex_blocks": [
+        "bc45488b",
+        "d7802cd0",
+        "e5d65cc4",
+        "27e9124e",
+        "1a15b8b7",
+        "e9fd86d3",
+        "7a3d16f1",
+        "e847de4d"
+      ],
+      "models/vieneu/onnx_int8/vieneu_v3_heads.npz_sha256_hex_blocks": [
+        "19ee6dd5",
+        "6530d784",
+        "2c81fbd8",
+        "55f3d894",
+        "40e2c312",
+        "1e11f7e6",
+        "ced447a5",
+        "59da585a"
+      ],
+      "probe_load.py_sha256_hex_blocks": [
+        "04cc26e5",
+        "92fc0256",
+        "7ecac9e3",
+        "2a224d40",
+        "8d75208e",
+        "6318aab3",
+        "1cd144f7",
+        "2cda2b73"
+      ],
+      "README.md_sha256_hex_blocks": [
+        "4dcdc023",
+        "a38ff1b7",
+        "a11fae82",
+        "15ee6311",
+        "4e6432f4",
+        "529b43f2",
+        "1d424655",
+        "30921e13"
+      ],
+      "run-s5.py_sha256_hex_blocks": [
+        "b7a0f8c7",
+        "cd71f17d",
+        "58ab93c1",
+        "fe25f572",
+        "e8372999",
+        "1b85785c",
+        "8ad15c45",
+        "1048fb20"
+      ],
+      "THIRD_PARTY_NOTICES.md_sha256_hex_blocks": [
+        "8dfc2043",
+        "ff405406",
+        "17dd778f",
+        "a1ad406c",
+        "27d5961d",
+        "2505a9df",
+        "451d4c42",
+        "6d412076"
+      ],
+      "tts-image.tar_sha256_hex_blocks": [
+        "a3aef13b",
+        "4ca17cfc",
+        "fad98e9b",
+        "fd5a9e26",
+        "0c9ed7e4",
+        "34f33c09",
+        "6c68cf7b",
+        "bbf1c585"
+      ],
+      "voice-acceptance-manifest.json_sha256_hex_blocks": [
+        "90927e16",
+        "cbe5b4e2",
+        "7f48e31b",
+        "a396c906",
+        "9f1ae908",
+        "eaadc157",
+        "57e72fbc",
+        "0d8558b9"
+      ],
+      "worker-texts.json_sha256_hex_blocks": [
+        "0603eb07",
+        "e71c0141",
+        "1f0116ad",
+        "c17d577e",
+        "aa461bb7",
+        "0b43e339",
+        "fd48335f",
+        "81a45cec"
+      ]
+    }
+  },
+  "archive": {
+    "path": ".artifacts/W-0333/vieneu-s5-ubuntu.tar.gz",
+    "bytes": 258437879,
+    "sha256_sha256_hex_blocks": [
+      "b9ccd254",
+      "414cf6ce",
+      "01b19fba",
+      "481f971e",
+      "413896b7",
+      "17b2287c",
+      "eb55d402",
+      "9049da54"
+    ],
+    "file_checksums_verified": 22
+  },
+  "local_real_model": {
+    "scope": "LOCAL_LAB",
+    "all_assertions_pass": true,
+    "approved_pcm_equal": 30,
+    "sequential": {
+      "count": 18,
+      "p50_ms": 1158,
+      "p95_ms": 5802,
+      "max_ms": 5802,
+      "over_5s": 1,
+      "over_10s": 0
+    },
+    "cpu_max": "200000 100000",
+    "memory_max": "4294967296",
+    "peak_rss_kib": 1583628,
+    "source": "local-model/load.json",
+    "sha256_sha256_hex_blocks": [
+      "155c77a6",
+      "cce7631e",
+      "56dccf11",
+      "dfb4eb1c",
+      "0c77d6d0",
+      "0722abf6",
+      "85817c01",
+      "15c65aca"
+    ]
+  },
+  "source_bindings": [
+    {
+      "path": "deploy/lab/run-vieneu-s5.py",
+      "sha256_sha256_hex_blocks": [
+        "b7a0f8c7",
+        "cd71f17d",
+        "58ab93c1",
+        "fe25f572",
+        "e8372999",
+        "1b85785c",
+        "8ad15c45",
+        "1048fb20"
+      ]
+    },
+    {
+      "path": "deploy/lab/tests/test_s5_launcher.py",
+      "sha256_sha256_hex_blocks": [
+        "dae9db47",
+        "56885f66",
+        "593a60f1",
+        "ab2b252a",
+        "7226ae3d",
+        "b3ccffac",
+        "1a0ad1c7",
+        "d9a091d5"
+      ]
+    },
+    {
+      "path": "deploy/tts/tests/probe_load.py",
+      "sha256_sha256_hex_blocks": [
+        "04cc26e5",
+        "92fc0256",
+        "7ecac9e3",
+        "2a224d40",
+        "8d75208e",
+        "6318aab3",
+        "1cd144f7",
+        "2cda2b73"
+      ]
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0333/guards-elevated.log",
+      "sha256_sha256_hex_blocks": [
+        "0687acc2",
+        "92836ca3",
+        "c01207b9",
+        "fb4f11fe",
+        "0de0baf5",
+        "95ae11ca",
+        "2feb00e2",
+        "3cfe75f7"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0333/verify-local.ps1",
+      "sha256_sha256_hex_blocks": [
+        "0986e744",
+        "1d436bcf",
+        "9c0c95f0",
+        "7e76456e",
+        "cc0bc16c",
+        "af33185a",
+        "d0cc6d5a",
+        "896ee07c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0333/local-model/run.log",
+      "sha256_sha256_hex_blocks": [
+        "9f12e4ce",
+        "99db43ee",
+        "9a9df775",
+        "b738b58b",
+        "de402d26",
+        "0b42a885",
+        "50ce5e40",
+        "0dcb7955"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0333/vieneu-s5/manifest.json",
+      "sha256_sha256_hex_blocks": [
+        "e221ff37",
+        "26ac3042",
+        "d81f1a3a",
+        "2525dd00",
+        "cdaad375",
+        "f1b6bf3d",
+        "2ea3e30f",
+        "09a13bd0"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0333/build-bundle-original.py",
+      "sha256_sha256_hex_blocks": [
+        "7bad9c2a",
+        "7d4d6488",
+        "6fb529a7",
+        "d6f858b5",
+        "fe293b64",
+        "670362a4",
+        "ab8aa6b7",
+        "bd267fc8"
+      ]
+    }
+  ]
+}

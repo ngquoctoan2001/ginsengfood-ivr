@@ -1,0 +1,1319 @@
+{
+  "work_id": "W-0321",
+  "scope": "LOCAL_WORKTREE_LAB_ONLY",
+  "baseline": "d7a3bd4d7c13974d0f14982fd1624861de9940c0",
+  "head_observed_at_export": "423b5732062b6ee77c6d8e875473683e4c41ed75",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production_ready": false,
+  "owner_role_acknowledged": true,
+  "listening_acceptance": "PENDING_OWNER",
+  "S2": "OWNER_DECISION_REQUIRED",
+  "S5": "OWNER_DATA_REQUIRED",
+  "measurement": {
+    "load_ms": 18347,
+    "cases": [
+      {
+        "region": "North",
+        "variant": "A",
+        "voice": "v3t-north-ngoc-linh",
+        "threads": 1,
+        "whole_ms": 15204,
+        "whole_audio_ms": 15960,
+        "whole_pcm_sha256_base64": "JsfPo5n1Gy8FKq5c0cSt5aPVXZvmhCA7wQBjve/JWKQ=",
+        "whole_file": "North-A-whole-1.wav",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "elapsed_ms": 1119,
+            "audio_ms": 2320,
+            "pcm_sha256_base64": "rYddzhX8ecMx0wEoqctBH7xsk6HBFMQASGnN3RuWeME=",
+            "file": "North-A-dynamic-2-1.wav"
+          },
+          {
+            "ordinal": 4,
+            "elapsed_ms": 970,
+            "audio_ms": 1600,
+            "pcm_sha256_base64": "uKrdDkZYm/1L188Kdic6yLRkes/XD3410zYKLsIkAw8=",
+            "file": "North-A-dynamic-4-1.wav"
+          },
+          {
+            "ordinal": 6,
+            "elapsed_ms": 893,
+            "audio_ms": 1840,
+            "pcm_sha256_base64": "Pg6Kx6fXRImjBRHgb9KeBePR5E6DoP6wDFM+BEaGkFY=",
+            "file": "North-A-dynamic-6-1.wav"
+          }
+        ],
+        "segmented_ms": 2982,
+        "segmented_audio_ms": 17680,
+        "segmented_file": "North-A-segmented-1.wav",
+        "segmented_pcm_sha256_base64": "jPEtTIC1ydTChNkK9esb+bERvJlvflexp83wg6Y2Yrw="
+      },
+      {
+        "region": "North",
+        "variant": "B",
+        "voice": "v3t-north-ngoc-linh",
+        "threads": 1,
+        "whole_ms": 19650,
+        "whole_audio_ms": 18440,
+        "whole_pcm_sha256_base64": "ySCaX5sbM3rSr65HoCvgooNdlRT95SDOB8p5N7wbA0k=",
+        "whole_file": "North-B-whole-1.wav",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "elapsed_ms": 1171,
+            "audio_ms": 1600,
+            "pcm_sha256_base64": "kH0R8SIJw60pgF/LGnKwDBVkjuL16lmLYdlZp3LDFh0=",
+            "file": "North-B-dynamic-2-1.wav"
+          },
+          {
+            "ordinal": 4,
+            "elapsed_ms": 630,
+            "audio_ms": 1520,
+            "pcm_sha256_base64": "N8/GdOTShXxfHrt9wDYscF5ZAjK2Um0DgafX8wy4vvE=",
+            "file": "North-B-dynamic-4-1.wav"
+          },
+          {
+            "ordinal": 6,
+            "elapsed_ms": 773,
+            "audio_ms": 1840,
+            "pcm_sha256_base64": "Pg6Kx6fXRImjBRHgb9KeBePR5E6DoP6wDFM+BEaGkFY=",
+            "file": "North-B-dynamic-6-1.wav"
+          }
+        ],
+        "segmented_ms": 2574,
+        "segmented_audio_ms": 16880,
+        "segmented_file": "North-B-segmented-1.wav",
+        "segmented_pcm_sha256_base64": "U9zh+bpx6tPetvOMv2wpnNN8DcS2k2CnDUC+k0mopTs="
+      },
+      {
+        "region": "Central",
+        "variant": "A",
+        "voice": "v3t-central-ngoc-tran",
+        "threads": 1,
+        "whole_ms": 15047,
+        "whole_audio_ms": 19160,
+        "whole_pcm_sha256_base64": "7uu+SKbQfSH0sZhU9L09IYVE1I5xziP8viIfxsOvlLQ=",
+        "whole_file": "Central-A-whole-1.wav",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "elapsed_ms": 1526,
+            "audio_ms": 2720,
+            "pcm_sha256_base64": "wkD7O7/w1UDiKJtSjrzNmTF6pQs4QeloA1JW0fhPlxg=",
+            "file": "Central-A-dynamic-2-1.wav"
+          },
+          {
+            "ordinal": 4,
+            "elapsed_ms": 717,
+            "audio_ms": 1680,
+            "pcm_sha256_base64": "xv/cWSwNnCTN9aNocbKxkHybY4aY6GecLEbarrCXM88=",
+            "file": "Central-A-dynamic-4-1.wav"
+          },
+          {
+            "ordinal": 6,
+            "elapsed_ms": 856,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "GJPIKT86Wj6HqmU3ShymK21qI7mkP93QAo5mAk6HoQ4=",
+            "file": "Central-A-dynamic-6-1.wav"
+          }
+        ],
+        "segmented_ms": 3099,
+        "segmented_audio_ms": 20560,
+        "segmented_file": "Central-A-segmented-1.wav",
+        "segmented_pcm_sha256_base64": "DpB8KtAj3znCQcbVsHxUHjwyZuRCxA5b0U6gc/AMVW8="
+      },
+      {
+        "region": "Central",
+        "variant": "B",
+        "voice": "v3t-central-ngoc-tran",
+        "threads": 1,
+        "whole_ms": 27988,
+        "whole_audio_ms": 27320,
+        "whole_pcm_sha256_base64": "GSeEFT2eLe2oSd7/nxQN7ydxuyFKlimVyHSuHAhvdAM=",
+        "whole_file": "Central-B-whole-1.wav",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "elapsed_ms": 681,
+            "audio_ms": 1840,
+            "pcm_sha256_base64": "jMa1T5VmW3RhhmRdpFVVrOs5oeMm73oa8pbT3T0ebQk=",
+            "file": "Central-B-dynamic-2-1.wav"
+          },
+          {
+            "ordinal": 4,
+            "elapsed_ms": 861,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "g8Hqjrz8nR9psePKyFVThUR+q30tejoKNJpAgpiFyzw=",
+            "file": "Central-B-dynamic-4-1.wav"
+          },
+          {
+            "ordinal": 6,
+            "elapsed_ms": 870,
+            "audio_ms": 2240,
+            "pcm_sha256_base64": "GJPIKT86Wj6HqmU3ShymK21qI7mkP93QAo5mAk6HoQ4=",
+            "file": "Central-B-dynamic-6-1.wav"
+          }
+        ],
+        "segmented_ms": 2412,
+        "segmented_audio_ms": 20240,
+        "segmented_file": "Central-B-segmented-1.wav",
+        "segmented_pcm_sha256_base64": "tGlvB+Rlj0Xzw+MBLXpB5emmf6LPwKCu2RYlT/5B8z8="
+      },
+      {
+        "region": "South",
+        "variant": "A",
+        "voice": "v3t-south-my-duyen",
+        "threads": 1,
+        "whole_ms": 21704,
+        "whole_audio_ms": 26040,
+        "whole_pcm_sha256_base64": "M1XOK4X8Nt4574MU/omVkalMzC7TeeRTKIkv14bUv7Q=",
+        "whole_file": "South-A-whole-1.wav",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "elapsed_ms": 1548,
+            "audio_ms": 3040,
+            "pcm_sha256_base64": "PFlszgim4OK2dpivTzTUFIxCjryOOzkSJrwqUCYBqqA=",
+            "file": "South-A-dynamic-2-1.wav"
+          },
+          {
+            "ordinal": 4,
+            "elapsed_ms": 1653,
+            "audio_ms": 3600,
+            "pcm_sha256_base64": "9fLZwzNwzYgQNDXMt0mxfH+3tcBO9blqW+c9IFf/BLw=",
+            "file": "South-A-dynamic-4-1.wav"
+          },
+          {
+            "ordinal": 6,
+            "elapsed_ms": 1125,
+            "audio_ms": 2560,
+            "pcm_sha256_base64": "cEeTpjgaUFpYj59Mvoj1s6CUIb795TuaWdCWVkA3bXA=",
+            "file": "South-A-dynamic-6-1.wav"
+          }
+        ],
+        "segmented_ms": 4326,
+        "segmented_audio_ms": 27600,
+        "segmented_file": "South-A-segmented-1.wav",
+        "segmented_pcm_sha256_base64": "fkYn3B65VuGpI+cQD4ND7RPxIm7uqmj1NbguAimFCMQ="
+      },
+      {
+        "region": "South",
+        "variant": "B",
+        "voice": "v3t-south-my-duyen",
+        "threads": 1,
+        "whole_ms": 39046,
+        "whole_audio_ms": 28760,
+        "whole_pcm_sha256_base64": "vaQfwlYCSFTOCrXW4sd2mwWU5U06Ziz68ndSF32va2k=",
+        "whole_file": "South-B-whole-1.wav",
+        "dynamic": [
+          {
+            "ordinal": 2,
+            "elapsed_ms": 940,
+            "audio_ms": 2160,
+            "pcm_sha256_base64": "2cun8fH3ywACtQQQrE05RM6bjR/OOfexVKz1I3uyeWs=",
+            "file": "South-B-dynamic-2-1.wav"
+          },
+          {
+            "ordinal": 4,
+            "elapsed_ms": 1314,
+            "audio_ms": 3200,
+            "pcm_sha256_base64": "yyVOpfncVBC/bPDBKMyBoe5UJWttcat/jJpZUmGL4NY=",
+            "file": "South-B-dynamic-4-1.wav"
+          },
+          {
+            "ordinal": 6,
+            "elapsed_ms": 1037,
+            "audio_ms": 2560,
+            "pcm_sha256_base64": "cEeTpjgaUFpYj59Mvoj1s6CUIb795TuaWdCWVkA3bXA=",
+            "file": "South-B-dynamic-6-1.wav"
+          }
+        ],
+        "segmented_ms": 3291,
+        "segmented_audio_ms": 26320,
+        "segmented_file": "South-B-segmented-1.wav",
+        "segmented_pcm_sha256_base64": "fvfTpL8IcUn0sGynu9w3icLHc2C93rP0gg6aHh0KlzU="
+      }
+    ],
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+    "listening_acceptance": "PENDING_OWNER",
+    "scope": "MEASUREMENT_ONLY"
+  },
+  "runtime": {
+    "registry": {
+      "text": "Xin chào Quý khách. Đây là cuộc gọi tự động để xác nhận đơn hàng từ Ginsengfood. Quý khách có đơn hàng gồm {{items_spoken}}, tổng tiền {{total_amount_display}}, giao đến {{delivery_area_short}}. Bấm phím một để xác nhận đơn hàng, hoặc bấm phím không để hủy đơn hàng.",
+      "hash": "2b98e5b695a03736e7749333e98099a71c7234c486494a37b7d2ca0dfe9dae51",
+      "canonical_text_equal": true,
+      "utf8_sha256_base64": "K5jltpWgNzbndJMz6YCZpxxyNMSGSUo3t9LKDf6drlE="
+    },
+    "calls": [
+      {
+        "case": "Central-A-segmented",
+        "task_id": "TASK-LAB-20260921025319",
+        "channel_id": "ivr-lab-18a04ada6a64451c9023ba38a9d9e771",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-central-ngoc-tran",
+          "region": "Central",
+          "region_resolved": true,
+          "started_at": "2026-09-21T02:53:20.81059+00:00",
+          "ended_at": "2026-09-21T02:53:48.116734+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 27306,
+        "expected_audio_ms": 20560,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T02:53:21.376351292Z",
+            "media": "ivr-seg-central-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:28.414129936Z",
+            "media": "generated/c240fb3bbff0d540e2289b528ebccd99.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:31.134498601Z",
+            "media": "ivr-seg-central-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:32.012376516Z",
+            "media": "generated/c6ffdc592c0d9c24cdf5a36871b2b190.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:33.693174231Z",
+            "media": "ivr-seg-central-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:34.811049986Z",
+            "media": "generated/1893c8293f3a5a3e87aa65374a1ca62b.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:37.049841106Z",
+            "media": "ivr-seg-central-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000007     00:00:03 ulaw      130       0    0   0.000    131       0    0   0.000   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000007     00:00:27 ulaw     1308       0    0   0.000   1028       0    0   0.000   0.001",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      },
+      {
+        "case": "Central-B-segmented",
+        "task_id": "TASK-LAB-20260921025354",
+        "channel_id": "ivr-lab-3c384b4a77b64c34a8bed89edd6d7b75",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "0",
+          "voice_id": "v3t-central-ngoc-tran",
+          "region": "Central",
+          "region_resolved": true,
+          "started_at": "2026-09-21T02:53:56.8234+00:00",
+          "ended_at": "2026-09-21T02:54:24.776125+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CUSTOMER_CANCELLED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 27953,
+        "expected_audio_ms": 20240,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T02:53:57.318813191Z",
+            "media": "ivr-seg-central-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:04.357065174Z",
+            "media": "generated/8cc6b54f95665b746186645da45555ac.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:06.194808332Z",
+            "media": "ivr-seg-central-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:07.072589523Z",
+            "media": "generated/83c1ea8ebcfc9d1f69b1e3cac8555385.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:09.312963096Z",
+            "media": "ivr-seg-central-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:10.430881826Z",
+            "media": "generated/1893c8293f3a5a3e87aa65374a1ca62b.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:12.671370721Z",
+            "media": "ivr-seg-central-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000008     00:00:04 ulaw      134       0    0   0.000    135       0    0   0.000   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000008     00:00:27 ulaw     1292       0    0   0.000   1012       0    0   0.000   0.001",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      },
+      {
+        "case": "North-A-segmented",
+        "task_id": "TASK-LAB-20260921025213",
+        "channel_id": "ivr-lab-8178eb00abb34b838defa8601a91642a",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-north-ngoc-linh",
+          "region": "North",
+          "region_resolved": true,
+          "started_at": "2026-09-21T02:52:15.683735+00:00",
+          "ended_at": "2026-09-21T02:52:40.704326+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 25021,
+        "expected_audio_ms": 17680,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T02:52:16.425114422Z",
+            "media": "ivr-seg-north-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:52:22.822957619Z",
+            "media": "generated/ad875dce15fc79c331d30128a9cb411f.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:52:25.143352465Z",
+            "media": "ivr-seg-north-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:52:25.941267819Z",
+            "media": "generated/b8aadd0e46589bfd4bd7cf0a76273ac8.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:52:27.541864319Z",
+            "media": "ivr-seg-north-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:52:28.339596368Z",
+            "media": "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:52:30.180286262Z",
+            "media": "ivr-seg-north-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000005     00:00:04 ulaw      133       0    0   0.000    133       0    0   0.000   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000005     00:00:25 ulaw     1185       0    0   0.000    884       0    0   0.001   0.001",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      },
+      {
+        "case": "North-A-whole",
+        "task_id": "TASK-LAB-20260921025722",
+        "channel_id": "ivr-lab-68272d404c0448a69de29da32e637fb6",
+        "mode": "whole",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-north-ngoc-linh",
+          "region": "North",
+          "region_resolved": true,
+          "started_at": "2026-09-21T02:57:36.573604+00:00",
+          "ended_at": "2026-09-21T02:57:59.659475+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 23086,
+        "expected_audio_ms": 15960,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T02:57:37.369104502Z",
+            "media": "generated/26c7cfa399f51b2f052aae5cd1c4ade5.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-0000000b     00:00:03 ulaw      131       0    0   0.000    131       0    0   0.000   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-0000000b     00:00:23 ulaw     1083       0    0   0.000    798       0    0   0.000   0.002",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      },
+      {
+        "case": "North-B-segmented",
+        "task_id": "TASK-LAB-20260921025248",
+        "channel_id": "ivr-lab-54c0c87dbf844afdad4ce735ed0ccda1",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "0",
+          "voice_id": "v3t-north-ngoc-linh",
+          "region": "North",
+          "region_resolved": true,
+          "started_at": "2026-09-21T02:52:50.576603+00:00",
+          "ended_at": "2026-09-21T02:53:14.635317+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CUSTOMER_CANCELLED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 24059,
+        "expected_audio_ms": 16880,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T02:52:51.415003879Z",
+            "media": "ivr-seg-north-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:52:57.812943198Z",
+            "media": "generated/907d11f12209c3ad29805fcb1a72b00c.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:52:59.413369849Z",
+            "media": "ivr-seg-north-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:00.211474169Z",
+            "media": "generated/37cfc674e4d2857c5f1ebb7dc0362c70.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:01.731715806Z",
+            "media": "ivr-seg-north-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:02.529481745Z",
+            "media": "generated/3e0e8ac7a7d74489a30511e06fd29e05.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:53:04.369986310Z",
+            "media": "ivr-seg-north-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000006     00:00:04 ulaw      130       0    0   0.000    131       0    0   0.000   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000006     00:00:24 ulaw     1131       0    0   0.000    844       0    0   0.001   0.001",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      },
+      {
+        "case": "South-A-segmented",
+        "task_id": "TASK-LAB-20260921025430",
+        "channel_id": "ivr-lab-14a818d8e18442969402c6d1152eb633",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "1",
+          "voice_id": "v3t-south-my-duyen",
+          "region": "South",
+          "region_resolved": true,
+          "started_at": "2026-09-21T02:54:34.526357+00:00",
+          "ended_at": "2026-09-21T02:55:11.995156+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CONFIRMED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 37469,
+        "expected_audio_ms": 27600,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T02:54:37.951972000Z",
+            "media": "ivr-seg-south-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:46.669828420Z",
+            "media": "generated/3c596cce08a6e0e2b67698af4f34d414.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:49.710543851Z",
+            "media": "ivr-seg-south-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:51.468540997Z",
+            "media": "generated/f5f2d9c33370cd88103435ccb749b17c.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:55.069140848Z",
+            "media": "ivr-seg-south-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:54:57.867124788Z",
+            "media": "generated/704793a6381a505a588f9f4cbe88f5b3.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:55:00.427972802Z",
+            "media": "ivr-seg-south-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000009     00:00:06 ulaw      132       0    0   0.000    132       0    0   0.000   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-00000009     00:00:37 ulaw     1671       0    0   0.000   1380       0    0   0.000   0.001",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      },
+      {
+        "case": "South-B-segmented",
+        "task_id": "TASK-LAB-20260921025518",
+        "channel_id": "ivr-lab-9a2a5795f8d94728b4ac368d2ef0ef99",
+        "mode": "segmented",
+        "attempt": {
+          "status": "NORMALIZED_FINAL",
+          "dtmf": "0",
+          "voice_id": "v3t-south-my-duyen",
+          "region": "South",
+          "region_resolved": true,
+          "started_at": "2026-09-21T02:55:21.108116+00:00",
+          "ended_at": "2026-09-21T02:55:54.71593+00:00",
+          "counted": true,
+          "exception": null
+        },
+        "result": {
+          "type": "IVR_CUSTOMER_CANCELLED",
+          "final": true,
+          "counted": true
+        },
+        "active_ms": 33608,
+        "expected_audio_ms": 26320,
+        "playback": [
+          {
+            "timestamp": "2026-09-21T02:55:21.640975792Z",
+            "media": "ivr-seg-south-4612fb85a1d0c3df.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:55:30.358899817Z",
+            "media": "generated/d9cba7f1f1f7cb0002b50410ac4d3944.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:55:32.519431988Z",
+            "media": "ivr-seg-south-95f78c510d802cdf.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:55:34.277518016Z",
+            "media": "generated/cb254ea5f9dc5410bf6cf0c128cc81a1.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:55:37.475751304Z",
+            "media": "ivr-seg-south-53d482dfd9119b91.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:55:40.273691564Z",
+            "media": "generated/704793a6381a505a588f9f4cbe88f5b3.slin"
+          },
+          {
+            "timestamp": "2026-09-21T02:55:42.834130975Z",
+            "media": "ivr-seg-south-764af2bea49c72c8.slin"
+          }
+        ],
+        "rtp_stats": [
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-0000000a     00:00:03 ulaw      131       0    0   0.000    132       0    0   0.002   0.000",
+          "",
+          "Objects found: 1",
+          "",
+          "",
+          "                                             ...........Receive......... .........Transmit..........",
+          " BridgeId ChannelId ........ UpTime.. Codec.   Count    Lost Pct  Jitter   Count    Lost Pct  Jitter RTT....",
+          " ===========================================================================================================",
+          "",
+          "          LAB-A-0000000a     00:00:32 ulaw     1615       0    0   0.000   1316       0    0   0.004   0.001",
+          "",
+          "Objects found: 1",
+          ""
+        ],
+        "pass": true
+      }
+    ],
+    "human_listening": "PENDING_OWNER",
+    "real_customer_call_allowed": "NO"
+  },
+  "restored_runtime": {
+    "ginsengfood-ivr-dev-ivr-worker-1": {
+      "image": "sha256:263be4a1a48c5a52ddc935937b728ab04a0072e4fabedeebf4f98f04cdc37605",
+      "running": true,
+      "environment": {
+        "IVR_EXECUTION_MODE": "LAB_REAL_SIM",
+        "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+        "Ivr__Speech__Tts__Provider": "EXTERNAL_CONFIGURABLE",
+        "Ivr__Speech__Tts__TimeoutMilliseconds": "5000",
+        "Ivr__Speech__Tts__Segmentation__Enabled": "true"
+      }
+    },
+    "ginsengfood-ivr-dev-ivr-tts-1": {
+      "image": "sha256:6d0001b9cc66b0318697c32daf54ea27828f7ef1fec919703fa7263ff50e53e2",
+      "running": true,
+      "environment": {
+        "IVR_EXECUTION_MODE": "LAB_REAL_SIM",
+        "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+        "VIE_NEU_ORT_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      }
+    },
+    "ginsengfood-ivr-dev-ivr-api-1": {
+      "image": "sha256:9da1cd8f176c90bac95dcfaa5e3c0cc096946710774610ef9693ce193594bdf9",
+      "running": true,
+      "environment": {
+        "IVR_EXECUTION_MODE": "LAB_REAL_SIM",
+        "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+        "Ivr__Speech__Tts__Provider": "UNSELECTED"
+      }
+    }
+  },
+  "lab_images": {
+    "ivr-worker": "sha256:263be4a1a48c5a52ddc935937b728ab04a0072e4fabedeebf4f98f04cdc37605",
+    "ivr-migrate": "sha256:f1f587dd9ef6876bac2c33182fc2d74dab7063d2e1db7069a08c96315887db55",
+    "asterisk": "sha256:6a3b73f52ff1250956dcdaa3735581e1287e4b474396c1dc813dbf07509eb585",
+    "tts": "sha256:6d0001b9cc66b0318697c32daf54ea27828f7ef1fec919703fa7263ff50e53e2",
+    "ivr-api": "sha256:9da1cd8f176c90bac95dcfaa5e3c0cc096946710774610ef9693ce193594bdf9"
+  },
+  "trivy": {
+    "scanner_image_id": "sha256:7cced7cae583819fc7806d4cbc0dbbc7cad18b99f7d3e235192e6da8c091045c",
+    "db_metadata": {
+      "Version": 2,
+      "NextUpdate": "2026-09-21T19:19:55.870895986Z",
+      "UpdatedAt": "2026-09-20T19:19:55.870896177Z",
+      "DownloadedAt": "2026-09-21T02:15:23.275405607Z"
+    },
+    "candidates": {
+      "debian": {
+        "image_id": "sha256:6d0001b9cc66b0318697c32daf54ea27828f7ef1fec919703fa7263ff50e53e2",
+        "high": 44,
+        "critical": 0,
+        "fixable": 0,
+        "report": ".artifacts/W-0321/trivy/http-fixed-debian.json",
+        "report_sha256_base64": "QOt4hExUyzlms7Z4/C48VtIgUo2UGrU+DduWqm1SzKc=",
+        "findings": [
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "bsdutils",
+            "InstalledVersion": "1:2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "bsdutils",
+            "InstalledVersion": "1:2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "bsdutils",
+            "InstalledVersion": "1:2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "bsdutils",
+            "InstalledVersion": "1:2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-54369",
+            "PkgName": "libacl1",
+            "InstalledVersion": "2.3.2-2+b1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "libblkid1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "libblkid1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "libblkid1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "libblkid1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "liblastlog2-2",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "liblastlog2-2",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "liblastlog2-2",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "liblastlog2-2",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "libmount1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "libmount1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "libmount1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "libmount1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2025-69720",
+            "PkgName": "libncursesw6",
+            "InstalledVersion": "6.5+20250216-2",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "libsmartcols1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "libsmartcols1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "libsmartcols1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "libsmartcols1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-16742",
+            "PkgName": "libsystemd0",
+            "InstalledVersion": "257.13-1~deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2025-69720",
+            "PkgName": "libtinfo6",
+            "InstalledVersion": "6.5+20250216-2",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-16742",
+            "PkgName": "libudev1",
+            "InstalledVersion": "257.13-1~deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "libuuid1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "libuuid1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "libuuid1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "libuuid1",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "login",
+            "InstalledVersion": "1:4.16.0-2+really2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "login",
+            "InstalledVersion": "1:4.16.0-2+really2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "login",
+            "InstalledVersion": "1:4.16.0-2+really2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "login",
+            "InstalledVersion": "1:4.16.0-2+really2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "mount",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "mount",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "mount",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "mount",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2025-69720",
+            "PkgName": "ncurses-base",
+            "InstalledVersion": "6.5+20250216-2",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2025-69720",
+            "PkgName": "ncurses-bin",
+            "InstalledVersion": "6.5+20250216-2",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-9538",
+            "PkgName": "perl-base",
+            "InstalledVersion": "5.40.1-6+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-76642",
+            "PkgName": "util-linux",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78408",
+            "PkgName": "util-linux",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78409",
+            "PkgName": "util-linux",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          },
+          {
+            "VulnerabilityID": "CVE-2026-78410",
+            "PkgName": "util-linux",
+            "InstalledVersion": "2.41.5-0+deb13u1",
+            "FixedVersion": null,
+            "Severity": "HIGH"
+          }
+        ]
+      },
+      "chainguard": {
+        "image_id": "sha256:2470470ae999955a657d59b93d809e3d44ad8415683b0cf350d4f26e1d01706f",
+        "high": 0,
+        "critical": 0,
+        "fixable": 0,
+        "report": ".artifacts/W-0321/trivy/http-fixed-chainguard.json",
+        "report_sha256_base64": "EyBxk16gQ/2COz7FDCrkfDDdc39FH/k23UsYK7KTWXs=",
+        "findings": []
+      }
+    }
+  },
+  "final_chainguard_real_model": {
+    "python": "3.14.7",
+    "load_and_startup_smoke_ms": 5313,
+    "cases": [
+      {
+        "voice_id": "v3t-central-ngoc-tran",
+        "case": "amount",
+        "iteration": 1,
+        "elapsed_ms": 743,
+        "pcm_bytes": 28160,
+        "audio_ms": 1760,
+        "sha256_base64": "PkvDLoRy5Kbig7nJZOFsd900LShV0pZ/TZTZYMu5kVQ="
+      },
+      {
+        "voice_id": "v3t-central-ngoc-tran",
+        "case": "amount",
+        "iteration": 2,
+        "elapsed_ms": 747,
+        "pcm_bytes": 28160,
+        "audio_ms": 1760,
+        "sha256_base64": "PkvDLoRy5Kbig7nJZOFsd900LShV0pZ/TZTZYMu5kVQ="
+      },
+      {
+        "voice_id": "v3t-central-ngoc-tran",
+        "case": "fake-order",
+        "iteration": 1,
+        "elapsed_ms": 3540,
+        "pcm_bytes": 99840,
+        "audio_ms": 6240,
+        "sha256_base64": "Iw3k6xzOWe9tOjs2ugpmLxU0i6t3PoM8Fl/AMXgS5jo="
+      },
+      {
+        "voice_id": "v3t-central-ngoc-tran",
+        "case": "fake-order",
+        "iteration": 2,
+        "elapsed_ms": 3139,
+        "pcm_bytes": 99840,
+        "audio_ms": 6240,
+        "sha256_base64": "Iw3k6xzOWe9tOjs2ugpmLxU0i6t3PoM8Fl/AMXgS5jo="
+      },
+      {
+        "voice_id": "v3t-north-ngoc-linh",
+        "case": "amount",
+        "iteration": 1,
+        "elapsed_ms": 596,
+        "pcm_bytes": 25600,
+        "audio_ms": 1600,
+        "sha256_base64": "uKrdDkZYm/1L188Kdic6yLRkes/XD3410zYKLsIkAw8="
+      },
+      {
+        "voice_id": "v3t-north-ngoc-linh",
+        "case": "amount",
+        "iteration": 2,
+        "elapsed_ms": 647,
+        "pcm_bytes": 25600,
+        "audio_ms": 1600,
+        "sha256_base64": "uKrdDkZYm/1L188Kdic6yLRkes/XD3410zYKLsIkAw8="
+      },
+      {
+        "voice_id": "v3t-north-ngoc-linh",
+        "case": "fake-order",
+        "iteration": 1,
+        "elapsed_ms": 2593,
+        "pcm_bytes": 87040,
+        "audio_ms": 5440,
+        "sha256_base64": "J3goS10Ic+SvI8Ky7gBSvUEO8QJ6zT8pvRDpVyCrL2E="
+      },
+      {
+        "voice_id": "v3t-north-ngoc-linh",
+        "case": "fake-order",
+        "iteration": 2,
+        "elapsed_ms": 2253,
+        "pcm_bytes": 87040,
+        "audio_ms": 5440,
+        "sha256_base64": "J3goS10Ic+SvI8Ky7gBSvUEO8QJ6zT8pvRDpVyCrL2E="
+      },
+      {
+        "voice_id": "v3t-south-my-duyen",
+        "case": "amount",
+        "iteration": 1,
+        "elapsed_ms": 1271,
+        "pcm_bytes": 57600,
+        "audio_ms": 3600,
+        "sha256_base64": "y0xYzpW2fNIm11FzPWZ+VQ1xZtfnV8wx4mFyTOf7pSM="
+      },
+      {
+        "voice_id": "v3t-south-my-duyen",
+        "case": "amount",
+        "iteration": 2,
+        "elapsed_ms": 1271,
+        "pcm_bytes": 57600,
+        "audio_ms": 3600,
+        "sha256_base64": "y0xYzpW2fNIm11FzPWZ+VQ1xZtfnV8wx4mFyTOf7pSM="
+      },
+      {
+        "voice_id": "v3t-south-my-duyen",
+        "case": "fake-order",
+        "iteration": 1,
+        "elapsed_ms": 3343,
+        "pcm_bytes": 115200,
+        "audio_ms": 7200,
+        "sha256_base64": "oFKuHH/FuUr5D1kC19ctPcS4BZ7PALdmSU4/Z2BQ77A="
+      },
+      {
+        "voice_id": "v3t-south-my-duyen",
+        "case": "fake-order",
+        "iteration": 2,
+        "elapsed_ms": 3290,
+        "pcm_bytes": 115200,
+        "audio_ms": 7200,
+        "sha256_base64": "oFKuHH/FuUr5D1kC19ctPcS4BZ7PALdmSU4/Z2BQ77A="
+      }
+    ],
+    "real_customer_call_allowed": "NO",
+    "listening_acceptance": "NOT_RUN"
+  },
+  "same_pcm_as_W0320_chainguard": 12,
+  "historical_attempts": {
+    "startup_no_task": 1,
+    "http_415_tasks": 1,
+    "http_415_attempts": 2,
+    "interactive_calls_before_controlled_matrix": 4,
+    "controlled_segmented_calls": 6,
+    "rollback_calls": 1
+  },
+  "source_sha256_base64": {
+    "docker-compose.vieneu-tts.yml": "XxJW0Pw00rlm4QDwn/yRJnsvZEeHC6RP8S+PHKe0aTU=",
+    "deploy/tts/shim/server.py": "jIJOkPXvayJf5DXTyKyQhf/w5ieZiDi+HKYcojU9ddo=",
+    "deploy/tts/shim/backend.py": "L5p78SSFs5Xua28yOzEodxjUaNXstB9gUhHNIjnroNE=",
+    "deploy/tts/tests/test_shim.py": "Z6cJlqQm+LlQeJGC/7ohWTdVYsSYLzb2nomeS+xHWi8=",
+    "deploy/tts/tests/smoke_real_model.py": "WeomAR+O46pUtrEilCVmsWpjAv6B6c5Oyybb90rrTNg=",
+    "deploy/tts/Dockerfile.tts": "7jBd5OCIfBGhxnYbK3+mySi0yaK6FiiC7h2hYAr/7gQ=",
+    "deploy/tts/runtime-requirements.lock": "ovGM4pFn+X4eEfmx2YAjeMbcSZfdz83JnQSlTHeVYwQ=",
+    "deploy/tts/models/MODELS.lock": "u6Qep5a8arHGWYZaEIeGjUE1NoCOAFNcceXORgnL430=",
+    "deploy/lab/Invoke-FreeSoftphoneCall.ps1": "6sTJsm2R3ERMLmz367NyW59ABjGefukjugwS92RGIsA=",
+    "deploy/lab/Start-FreeSoftphoneLab.ps1": "bQnCM98j+HNmbmhcy5urdILU6imMgUXQwVclFYyE+Zo=",
+    "deploy/lab/check-speech-preflight.mjs": "lakQSa9PnIWgZ18Oi0opDb8ACvj+0Eg90vqItKzar+I=",
+    "deploy/lab/speech-lab-profile.mjs": "XkwBZes+joR2f5PpPj9UslnK86b9jaJGSu++I0UXhxI=",
+    "deploy/lab/tests/SpeechPreflight.Tests.ps1": "/wS0fCoCQ6pkulPFP4CNJ+rjc0Knp2DXwpYwGsuFQd0=",
+    "deploy/lab/asterisk/audio/segments-appsettings.json": "aZHAvoA4PLD5ZLdwDbrXNZCmOVfHRZkXjaMn65nhirg=",
+    "deploy/ci/scripts/lab-speech-preflight-selftest.mjs": "+kV905OBhmc3w5/RZTFkPtJ3UehaIpyLyoGcT637BZs=",
+    "deploy/ci/scripts/tts-container-selftest.mjs": "fzvzUMGqdqZFGwnN/aA2qTopenwswOJvbE4Z/viTm/c=",
+    "deploy/ci/tts.gitlab-ci.yml": "/1sYORbovOi5Z4lnG61DhwZ/encGJHNgvPJpUWzDq0c=",
+    "deploy/ci/gate-invocations.json": "sqg+sNZCHNgDJpVs+SN0TDAHODLzLSMjVsV+Ae2oJcs="
+  },
+  "artifact_sha256_base64": {
+    ".artifacts/W-0321/worker-texts.json": "XJ8JO91vdyxCskGgKo2aAMd4TdVPNBQzIqg+92erahk=",
+    ".artifacts/W-0321/audio-blas1/measure-1.json": "PjWcrxWn/LyDy8KaZTIb0hHIXlNqeLKGaP0ub+/T9TE=",
+    ".artifacts/W-0321/listening/audio-manifest.json": "6jCoFrQCM2WUjExnUYzjS9EdUkr2NMvoaqvQP2S1RaQ=",
+    ".artifacts/W-0321/measure-default.log": "FcG+LdGfAjjgjjS/E35QwiveGXlwxxQaN6xSmCqRvek=",
+    ".artifacts/W-0321/measure-1.log": "pzP9tZLtxHYOWChov+0/LCugHi01vgNrB9aFxW4aDO8=",
+    ".artifacts/W-0321/measure-blas1.log": "DkwsquBSLy+VaB/lU3/1VD0VLnFM2qM6WcpX7iMLaZE=",
+    ".artifacts/W-0321/http-charset-before.log": "UMFoiLSUo9DGC8V0m4OezQJqt0DFasGVBQG1owGe06Y=",
+    ".artifacts/W-0321/final-tts-debian.log": "Y7U6lIGvYB4FNstGbeivCBKQT60q623n7sZKmOpRvlQ=",
+    ".artifacts/W-0321/final-tts-chainguard.log": "9JrM7J6DBSHSGGrGnMqfSU0r+h+27xvG5xYxXIF1XZA=",
+    ".artifacts/W-0321/final-chainguard-real-model-allowlisted.log": "LJZy09GnW48q3wdJjmq3up6gawTUtOOMaPPTSBDMDl4=",
+    ".artifacts/W-0321/lab-regression-final.log": "LjEHBstvYgEL8w87ckTwuH5irU+Pc9ACTUhKfNp0Qpk=",
+    ".artifacts/W-0321/docs-selftest.log": "nEc7kuIXd5Uatn2E27hI2Gqu38hL+/NqgpJCS8Wxfv8=",
+    ".artifacts/W-0321/runtime-results.json": "TKXWFCEOl7empgZidzen5p1mkcTRRfmU/ov1XGUJhMM=",
+    ".artifacts/W-0321/gitnexus-detect.log": "enCOdQDIa68dYz8XU+nUWKwsb0A3cV2BSO4aKmpAXvU=",
+    ".artifacts/W-0321/RendererProbe/Program.cs": "gy1ys/pJoQV1QL/i9pnne/WqpSS6c+JfCHAIUvGR3nY=",
+    ".artifacts/W-0321/measure-worker.py": "IZ90mJJTc+PiCTi71klvYP5QxV22Ha8Pl7LiXE6QqUA=",
+    ".artifacts/W-0321/run-call.ps1": "vKYHaKMF/uStXm7A7A20ONXnQJMPUvpadmLbhrRvYA4=",
+    ".artifacts/W-0321/collect-runtime.py": "6Br4RmEIcWP8yBMQIFcaB0f/pJxjipfXoUMlcpe1ASY=",
+    ".artifacts/W-0321/setup-lab.ps1": "5xFRpjU2Z55FOPlOx8eo6x6hK6TYc3IHLyfCPbZbxSw=",
+    ".artifacts/W-0321/rollback.ps1": "QhGemWBF9Zjr1Er9op6dT3gxrLk3PnujH0L2xUJWH1s=",
+    ".artifacts/W-0321/write-evidence.py": "fM1tLY/AEvxFbf0iv4dmE4y0b36bHAENti5P0hIQQCk=",
+    ".artifacts/W-0321/ci-config-final.log": "rYia5gYsvwMHSBeqgpZFX0iJq9Dq16kWDFSyiIFw7CU=",
+    ".artifacts/W-0321/helm-final.log": "M9tqJQJZq5Pxeq8p0lfM1Uv/P6P2KJFzUOZZmLzOStM="
+  },
+  "checks": {
+    "passed_log_markers": {
+      "final-tts-debian.log": "TTS_CONTAINER_SELFTEST_PASS",
+      "final-tts-chainguard.log": "TTS_CONTAINER_SELFTEST_PASS",
+      "lab-regression-final.log": "LAB_SPEECH_PREFLIGHT_SELFTEST_PASS valid=1 refusal=17 entry_guards=4 orders=6",
+      "docs-selftest.log": "API_DOCS_SELFTEST_PASS",
+      "ci-config-final.log": "CI_CONFIG_SELFTEST_PASS",
+      "helm-final.log": "TTS_HELM_SELFTEST_PASS",
+      "pii-scan.log": "PII_SCAN_PASS"
+    },
+    "unit_tests_per_image": 16,
+    "shim_source_files_match_per_image": 7,
+    "runtime_collector_calls": 7,
+    "production_defaults_unchanged": true
+  }
+}

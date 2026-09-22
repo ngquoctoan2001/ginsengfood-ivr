@@ -10,12 +10,33 @@ param(
     # field — the IVR derives it from delivery_area_short, exactly as it will in production.
     # Passing it here only picks which fake delivery area the task carries.
     [ValidateSet('North', 'Central', 'South')]
-    [string]$Region = 'South'
+    [string]$Region = 'South',
+
+    [ValidateSet('A', 'B', 'MultiItem', 'LongName')]
+    [string]$OrderVariant = 'A',
+
+    # Automated lab control can use MicroSIP's documented /answer and /dtmf CLI.
+    # SIP registration and the VieNeu/media guard remain mandatory.
+    [switch]$NoUi,
+
+    # Dedicated silent SIP peer installed by run-headless-dtmf.py. Never skips SIP checks.
+    [switch]$HeadlessPeer,
+
+    [ValidateRange(1, 600)]
+    [int]$SpeechReadyTimeoutSeconds = 180
 )
 
 $ErrorActionPreference = 'Stop'
 $asteriskContainer = 'ginsengfood-ivr-dev-asterisk-1'
 $postgresContainer = 'ginsengfood-ivr-dev-postgres-1'
+if ($HeadlessPeer -and -not $NoUi) { throw 'HeadlessPeer requires NoUi.' }
+
+# W-0320: direct invocation must have the same guard as Start-FreeSoftphoneLab's preflight.
+# This runs before SIP polling, UI helpers and, most importantly, task intake.
+& node (Join-Path $PSScriptRoot 'check-speech-preflight.mjs') --timeout-seconds $SpeechReadyTimeoutSeconds
+if ($LASTEXITCODE -ne 0) {
+    throw 'VieNeu/media preflight failed. No lab call was submitted.'
+}
 
 # Fake delivery areas, one per region, each naming a province from the 34-unit table so
 # DeliveryRegionResolver has something real to resolve. 'South' keeps the exact W-0104 area
@@ -28,10 +49,22 @@ $deliveryAreas = @{
 $deliveryAreaShort = $deliveryAreas[$Region]
 Write-Host "W-0106 region under test: $Region ($deliveryAreaShort)" -ForegroundColor Cyan
 
-Write-Host 'Waiting for MicroSIP LAB-A registration...'
+Write-Host 'Checking LAB-A SIP destination...'
 $registered = $false
+if ($HeadlessPeer) {
+    $endpoint = (& docker exec $asteriskContainer asterisk -rx 'pjsip show endpoint LAB-A') -join "`n"
+    if ($LASTEXITCODE -ne 0 -or $endpoint -notmatch '(?m)^\s*aors\s*:\s*LAB-A-AUTO\s*$') {
+        throw 'Headless LAB-A route is not pinned to LAB-A-AUTO.'
+    }
+    $contacts = @(& docker exec $asteriskContainer asterisk -rx 'pjsip show contacts')
+    $peerContacts = @($contacts | Where-Object { $_ -match 'Contact:\s+LAB-A-AUTO/sip:LAB-A@' })
+    if ($LASTEXITCODE -ne 0 -or $peerContacts.Count -ne 1 -or $peerContacts[0] -notmatch '\bAvail\b') {
+        throw 'The single headless LAB-A contact is not available.'
+    }
+    $registered = $true
+}
 $deadline = [DateTimeOffset]::UtcNow.AddSeconds($RegistrationTimeoutSeconds)
-while ([DateTimeOffset]::UtcNow -lt $deadline) {
+while (-not $registered -and [DateTimeOffset]::UtcNow -lt $deadline) {
     $contacts = & docker exec $asteriskContainer asterisk -rx 'pjsip show contacts' 2>$null
     if ($LASTEXITCODE -eq 0 -and ($contacts -join "`n") -match 'LAB-A/sip:LAB-A@') {
         $registered = $true
@@ -45,7 +78,12 @@ if (-not $registered) {
     throw 'LAB-A is not registered. Keep MicroSIP open and confirm its status shows Online.'
 }
 
-& (Join-Path $PSScriptRoot 'Show-MicroSipLab.ps1')
+if (-not $NoUi) {
+    & (Join-Path $PSScriptRoot 'Show-MicroSipLab.ps1')
+}
+
+$fakeOrders = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'fake-orders.json') -Raw -Encoding utf8 | ConvertFrom-Json
+$fakeOrder = $fakeOrders.$OrderVariant
 
 $now = [DateTimeOffset]::UtcNow
 $started = $now.AddSeconds(-10)
@@ -80,14 +118,8 @@ $payload = [ordered]@{
     privacy_safe_order_summary = [ordered]@{
         customer_display_name = 'anh/chị Giang'
         order_code_short = 'E2E001'
-        items = @(
-            [ordered]@{
-                public_name = 'Cháo sâm diêm mạch - hạt sen'
-                quantity = 2
-                unit_label = 'hộp'
-            }
-        )
-        total_amount = 560000
+        items = @($fakeOrder.items)
+        total_amount = $fakeOrder.total_amount
         currency = 'VND'
         delivery_area_short = $deliveryAreaShort
         program_display_name = 'Giờ Vàng'
@@ -156,7 +188,8 @@ if ($eligibility.decision -ne 'ELIGIBLE_FOR_IVR') {
     throw "Fake task eligibility was not accepted: $($eligibility | ConvertTo-Json -Compress)."
 }
 
-Write-Host "Fake order $taskId queued. Answer MicroSIP and press 1 to confirm or 0 to cancel."
+if ($HeadlessPeer) { Write-Host "Fake order $taskId queued. The silent SIP harness owns answer and DTMF." }
+else { Write-Host "Fake order $taskId queued. Answer MicroSIP and press 1 to confirm or 0 to cancel." }
 $resultDeadline = [DateTimeOffset]::UtcNow.AddSeconds($ResultTimeoutSeconds)
 $result = ''
 while ([DateTimeOffset]::UtcNow -lt $resultDeadline) {

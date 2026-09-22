@@ -4,12 +4,14 @@ import hashlib
 import json
 import math
 import os
+import sys
+from types import SimpleNamespace
 import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 
@@ -155,6 +157,54 @@ class BackendGuardTests(unittest.TestCase):
         self.assertGreater(len(chunks), 1)
         self.assertTrue(all(0 < len(chunk) <= 80 for chunk in chunks))
         self.assertEqual(source.split(), " ".join(chunks).split())
+
+
+class BoundarySilenceTests(unittest.TestCase):
+    @staticmethod
+    def render(source: np.ndarray) -> np.ndarray:
+        backend = VieNeuBackend()
+        backend._engine = SimpleNamespace(infer=lambda **kwargs: source)
+        backend._voices = {"fixture": {"speaking_rate": 1.0,
+            "preset_data": {"speaker_emb": [], "codes": []}}}
+        return backend.synthesize("Synthetic fixture", "fixture", 1.0)
+
+    def test_long_boundaries_removed_without_cutting_quiet_onset_or_internal_pause(self) -> None:
+        # A quiet initial consonant must survive alongside a louder vowel. The one-second
+        # pause inside the utterance belongs to the model's speech, not a segment boundary.
+        body = np.concatenate((np.full(2400, 0.002, dtype=np.float32),
+            np.full(4800, 0.1, dtype=np.float32), np.zeros(48000, dtype=np.float32),
+            np.full(4800, -0.1, dtype=np.float32)))
+        source = np.concatenate((np.zeros(79680, dtype=np.float32), body,
+                                 np.zeros(24000, dtype=np.float32)))
+        actual = self.render(source)
+        # Resampling can expose one extra boundary window via filter ringing. Require
+        # short guards and exact preservation of the complete quiet/loud/internal body.
+        active = np.flatnonzero(actual)
+        leading = int(active[0])
+        trailing = actual.size - int(active[-1]) - 1
+        self.assertTrue(2880 <= leading <= 3840)
+        self.assertTrue(2880 <= trailing <= 3840)
+        np.testing.assert_array_equal(body, actual[leading:actual.size-trailing])
+
+    def test_short_natural_boundaries_unchanged(self) -> None:
+        source = np.concatenate((np.zeros(9600, dtype=np.float32),
+            np.full(4800, 0.1, dtype=np.float32), np.zeros(9600, dtype=np.float32)))
+        np.testing.assert_array_equal(source, self.render(source))
+
+    def test_inaudible_high_frequency_padding_does_not_hide_a_telephone_pause(self) -> None:
+        time = np.arange(48000, dtype=np.float32) / 48000
+        noise = 0.02 * np.sin(2 * math.pi * 6000 * time)
+        speech = 0.2 * np.sin(2 * math.pi * 1000 * time)
+        source = np.concatenate((noise, speech))
+        actual = self.render(source)
+        self.assertLess(actual.size, source.size - 48000 * 0.7)
+        np.testing.assert_array_equal(speech, actual[-speech.size:])
+
+    def test_silent_and_short_audio_not_fabricated(self) -> None:
+        for source in (np.zeros(48000, dtype=np.float32),
+                       np.full(200, 0.1, dtype=np.float32)):
+            with self.subTest(size=source.size):
+                np.testing.assert_array_equal(source, self.render(source))
 
 
 # Shared so the acceptance contract and the readiness path are checked against the same shape
@@ -355,6 +405,24 @@ class VieNeuBackendVerificationTests(unittest.TestCase):
             # the synthetic bundle holds no real weights, so the engine is where it stops.
             message = self.load_expecting_failure(self.build(Path(directory)))
         self.assertEqual("model load failed", message)
+
+    def test_thread_setting_is_bounded_and_reaches_engine(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            environment = self.build(Path(directory))
+            for value in ("0", "1", "8", "-1", "9", "", "text", "2.5"):
+                engine = Mock()
+                environment["VIE_NEU_ORT_THREADS"] = value
+                with self.subTest(threads=value), patch.dict(os.environ, environment), patch.dict(
+                    sys.modules, {"vieneu._v3_turbo_engine.onnx_runtime_lite": SimpleNamespace(OnnxV3LiteEngine=engine)}
+                ):
+                    if value in ("0", "1", "8"):
+                        backend = VieNeuBackend()
+                        backend.load()
+                        self.assertEqual(int(value), engine.call_args.kwargs["threads"])
+                    else:
+                        with self.assertRaisesRegex(BackendError, "invalid ONNX thread count"):
+                            VieNeuBackend().load()
+                        engine.assert_not_called()
 
     def test_lock_binding_drift_fails_closed(self) -> None:
         cases = [

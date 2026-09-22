@@ -99,6 +99,12 @@ public sealed class TtsProviderOptions
 
     public int TimeoutMilliseconds { get; set; } = 5_000;
 
+    /// <summary>Maximum orders waiting behind one active external speech preparation.</summary>
+    public int PreparationQueueLimit { get; set; } = 8;
+
+    /// <summary>Queue wait budget, separate from each segment's existing synthesis timeout.</summary>
+    public int PreparationQueueTimeoutMilliseconds { get; set; } = 30_000;
+
     public int CacheMaximumTtlSeconds { get; set; } = 900;
 
     public int SpeechSnapshotRetentionSeconds { get; set; } = 900;
@@ -189,6 +195,8 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
             || options.SpeakingRate is < 0.5m or > 2m
             || options.MaxDurationSeconds is < 1 or > 300
             || options.TimeoutMilliseconds is < 10 or > 120_000
+            || options.PreparationQueueLimit is < 1 or > 32
+            || options.PreparationQueueTimeoutMilliseconds is < 10 or > 120_000
             || options.CacheMaximumTtlSeconds is < 1 or > 86_400
             || options.SpeechSnapshotRetentionSeconds is < 1 or > 86_400
             || options.MaxCharactersPerRequest is < 200 or > 4_000

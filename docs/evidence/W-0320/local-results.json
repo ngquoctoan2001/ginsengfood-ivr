@@ -1,0 +1,312 @@
+{
+  "work_id": "W-0320",
+  "baseline": "e33927d03257492de93727fbdcab4b33e6f3f25e",
+  "scope": "LOCAL_WORKTREE_NONPRODUCTION",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "listening_acceptance": "NOT_RUN",
+  "production_ready": false,
+  "images": {
+    "debian": {
+      "python": "3.12.14",
+      "load_and_startup_smoke_ms": 6197,
+      "cases": [
+        {
+          "voice_id": "v3t-central-ngoc-tran",
+          "case": "amount",
+          "iteration": 1,
+          "elapsed_ms": 2644,
+          "pcm_bytes": 28160,
+          "audio_ms": 1760,
+          "sha256": "3e4bc32e8472e4a6e283b9c964e16c77dd342d2855d2967f4d94d960cbb99154"
+        },
+        {
+          "voice_id": "v3t-central-ngoc-tran",
+          "case": "amount",
+          "iteration": 2,
+          "elapsed_ms": 3084,
+          "pcm_bytes": 28160,
+          "audio_ms": 1760,
+          "sha256": "3e4bc32e8472e4a6e283b9c964e16c77dd342d2855d2967f4d94d960cbb99154"
+        },
+        {
+          "voice_id": "v3t-central-ngoc-tran",
+          "case": "fake-order",
+          "iteration": 1,
+          "elapsed_ms": 10824,
+          "pcm_bytes": 99840,
+          "audio_ms": 6240,
+          "sha256": "230de4eb1cce59ef6d3a3b36ba0a662f15348bab773e833c165fc0317812e63a"
+        },
+        {
+          "voice_id": "v3t-central-ngoc-tran",
+          "case": "fake-order",
+          "iteration": 2,
+          "elapsed_ms": 6820,
+          "pcm_bytes": 99840,
+          "audio_ms": 6240,
+          "sha256": "230de4eb1cce59ef6d3a3b36ba0a662f15348bab773e833c165fc0317812e63a"
+        },
+        {
+          "voice_id": "v3t-north-ngoc-linh",
+          "case": "amount",
+          "iteration": 1,
+          "elapsed_ms": 2693,
+          "pcm_bytes": 25600,
+          "audio_ms": 1600,
+          "sha256": "b8aadd0e46589bfd4bd7cf0a76273ac8b4647acfd70f7e35d3360a2ec224030f"
+        },
+        {
+          "voice_id": "v3t-north-ngoc-linh",
+          "case": "amount",
+          "iteration": 2,
+          "elapsed_ms": 3348,
+          "pcm_bytes": 25600,
+          "audio_ms": 1600,
+          "sha256": "b8aadd0e46589bfd4bd7cf0a76273ac8b4647acfd70f7e35d3360a2ec224030f"
+        },
+        {
+          "voice_id": "v3t-north-ngoc-linh",
+          "case": "fake-order",
+          "iteration": 1,
+          "elapsed_ms": 8021,
+          "pcm_bytes": 87040,
+          "audio_ms": 5440,
+          "sha256": "2778284b5d0873e4af23c2b2ee0052bd410ef1027acd3f29bd10e95720ab2f61"
+        },
+        {
+          "voice_id": "v3t-north-ngoc-linh",
+          "case": "fake-order",
+          "iteration": 2,
+          "elapsed_ms": 11847,
+          "pcm_bytes": 87040,
+          "audio_ms": 5440,
+          "sha256": "2778284b5d0873e4af23c2b2ee0052bd410ef1027acd3f29bd10e95720ab2f61"
+        },
+        {
+          "voice_id": "v3t-south-my-duyen",
+          "case": "amount",
+          "iteration": 1,
+          "elapsed_ms": 4525,
+          "pcm_bytes": 57600,
+          "audio_ms": 3600,
+          "sha256": "cb4c58ce95b67cd226d751733d667e550d7166d7e757cc31e261724ce7fba523"
+        },
+        {
+          "voice_id": "v3t-south-my-duyen",
+          "case": "amount",
+          "iteration": 2,
+          "elapsed_ms": 3822,
+          "pcm_bytes": 57600,
+          "audio_ms": 3600,
+          "sha256": "cb4c58ce95b67cd226d751733d667e550d7166d7e757cc31e261724ce7fba523"
+        },
+        {
+          "voice_id": "v3t-south-my-duyen",
+          "case": "fake-order",
+          "iteration": 1,
+          "elapsed_ms": 6295,
+          "pcm_bytes": 115200,
+          "audio_ms": 7200,
+          "sha256": "a052ae1c7fc5b94af90f5902d7d72d3dc4b8059ecf00b766494e3f676050efb0"
+        },
+        {
+          "voice_id": "v3t-south-my-duyen",
+          "case": "fake-order",
+          "iteration": 2,
+          "elapsed_ms": 11080,
+          "pcm_bytes": 115200,
+          "audio_ms": 7200,
+          "sha256": "a052ae1c7fc5b94af90f5902d7d72d3dc4b8059ecf00b766494e3f676050efb0"
+        }
+      ],
+      "real_customer_call_allowed": "NO",
+      "listening_acceptance": "NOT_RUN",
+      "image_id": "sha256:3d679172e034bd5df20e3f8ea2a357c6365a6c14555eb4be8fb7f46864e7fc46",
+      "source_log_sha256": "e8132ceb558c443f9458afa99c1a776b4170dc942eac9ee6b21f575aa58cf740",
+      "amount_range_ms": [
+        2644,
+        4525
+      ],
+      "fake-order_range_ms": [
+        6295,
+        11847
+      ],
+      "requests_above_worker_default_5000ms": 6,
+      "in_image_source_lock_files_matching_worktree": 45
+    },
+    "chainguard": {
+      "python": "3.14.7",
+      "load_and_startup_smoke_ms": 8658,
+      "cases": [
+        {
+          "voice_id": "v3t-central-ngoc-tran",
+          "case": "amount",
+          "iteration": 1,
+          "elapsed_ms": 2769,
+          "pcm_bytes": 28160,
+          "audio_ms": 1760,
+          "sha256": "3e4bc32e8472e4a6e283b9c964e16c77dd342d2855d2967f4d94d960cbb99154"
+        },
+        {
+          "voice_id": "v3t-central-ngoc-tran",
+          "case": "amount",
+          "iteration": 2,
+          "elapsed_ms": 2058,
+          "pcm_bytes": 28160,
+          "audio_ms": 1760,
+          "sha256": "3e4bc32e8472e4a6e283b9c964e16c77dd342d2855d2967f4d94d960cbb99154"
+        },
+        {
+          "voice_id": "v3t-central-ngoc-tran",
+          "case": "fake-order",
+          "iteration": 1,
+          "elapsed_ms": 7428,
+          "pcm_bytes": 99840,
+          "audio_ms": 6240,
+          "sha256": "230de4eb1cce59ef6d3a3b36ba0a662f15348bab773e833c165fc0317812e63a"
+        },
+        {
+          "voice_id": "v3t-central-ngoc-tran",
+          "case": "fake-order",
+          "iteration": 2,
+          "elapsed_ms": 7560,
+          "pcm_bytes": 99840,
+          "audio_ms": 6240,
+          "sha256": "230de4eb1cce59ef6d3a3b36ba0a662f15348bab773e833c165fc0317812e63a"
+        },
+        {
+          "voice_id": "v3t-north-ngoc-linh",
+          "case": "amount",
+          "iteration": 1,
+          "elapsed_ms": 979,
+          "pcm_bytes": 25600,
+          "audio_ms": 1600,
+          "sha256": "b8aadd0e46589bfd4bd7cf0a76273ac8b4647acfd70f7e35d3360a2ec224030f"
+        },
+        {
+          "voice_id": "v3t-north-ngoc-linh",
+          "case": "amount",
+          "iteration": 2,
+          "elapsed_ms": 2068,
+          "pcm_bytes": 25600,
+          "audio_ms": 1600,
+          "sha256": "b8aadd0e46589bfd4bd7cf0a76273ac8b4647acfd70f7e35d3360a2ec224030f"
+        },
+        {
+          "voice_id": "v3t-north-ngoc-linh",
+          "case": "fake-order",
+          "iteration": 1,
+          "elapsed_ms": 7720,
+          "pcm_bytes": 87040,
+          "audio_ms": 5440,
+          "sha256": "2778284b5d0873e4af23c2b2ee0052bd410ef1027acd3f29bd10e95720ab2f61"
+        },
+        {
+          "voice_id": "v3t-north-ngoc-linh",
+          "case": "fake-order",
+          "iteration": 2,
+          "elapsed_ms": 7135,
+          "pcm_bytes": 87040,
+          "audio_ms": 5440,
+          "sha256": "2778284b5d0873e4af23c2b2ee0052bd410ef1027acd3f29bd10e95720ab2f61"
+        },
+        {
+          "voice_id": "v3t-south-my-duyen",
+          "case": "amount",
+          "iteration": 1,
+          "elapsed_ms": 4410,
+          "pcm_bytes": 57600,
+          "audio_ms": 3600,
+          "sha256": "cb4c58ce95b67cd226d751733d667e550d7166d7e757cc31e261724ce7fba523"
+        },
+        {
+          "voice_id": "v3t-south-my-duyen",
+          "case": "amount",
+          "iteration": 2,
+          "elapsed_ms": 4925,
+          "pcm_bytes": 57600,
+          "audio_ms": 3600,
+          "sha256": "cb4c58ce95b67cd226d751733d667e550d7166d7e757cc31e261724ce7fba523"
+        },
+        {
+          "voice_id": "v3t-south-my-duyen",
+          "case": "fake-order",
+          "iteration": 1,
+          "elapsed_ms": 19840,
+          "pcm_bytes": 115200,
+          "audio_ms": 7200,
+          "sha256": "a052ae1c7fc5b94af90f5902d7d72d3dc4b8059ecf00b766494e3f676050efb0"
+        },
+        {
+          "voice_id": "v3t-south-my-duyen",
+          "case": "fake-order",
+          "iteration": 2,
+          "elapsed_ms": 14504,
+          "pcm_bytes": 115200,
+          "audio_ms": 7200,
+          "sha256": "a052ae1c7fc5b94af90f5902d7d72d3dc4b8059ecf00b766494e3f676050efb0"
+        }
+      ],
+      "real_customer_call_allowed": "NO",
+      "listening_acceptance": "NOT_RUN",
+      "image_id": "sha256:0d3c1b95ee78df03b9a780fa131813146491b35f8662ff5de0e2b7b17bca08e7",
+      "source_log_sha256": "b440fceb7573f1d7a509baecc00935f8bf7a79af4ff9ff2047b0e96c609067c0",
+      "amount_range_ms": [
+        979,
+        4925
+      ],
+      "fake-order_range_ms": [
+        7135,
+        19840
+      ],
+      "requests_above_worker_default_5000ms": 6,
+      "in_image_source_lock_files_matching_worktree": 45
+    }
+  },
+  "matching_audio_checksums_between_images": 12,
+  "model_bundle": {
+    "files": 13,
+    "bytes": 210763608,
+    "nonprod_verify": "PASS",
+    "production_verify": "REFUSED",
+    "release_blockers": [
+      "LEGAL",
+      "INTERNAL_MIRROR"
+    ]
+  },
+  "local_source_byte_sha256": {
+    "deploy/lab/check-speech-preflight.mjs": "95a91049af4f9c85a0675f0e8b4a290dbf000af8fed0483dd2fa88b4acdaafe2",
+    "deploy/lab/Start-FreeSoftphoneLab.ps1": "6d09c233df23f873666e685ccb9bab7482d4ea298c8145d0c15725158c84f99a",
+    "deploy/lab/Invoke-FreeSoftphoneCall.ps1": "1ce18426b43e23daaa51f3da1340548dfb5773f3fb1fbc8e2a56e474deed7c3a",
+    "deploy/lab/tests/SpeechPreflight.Tests.ps1": "ca7a647a8332c0c854204aae9f0b6d9f9a0c93065d562454da958b7917715c0d",
+    "deploy/ci/scripts/lab-speech-preflight-selftest.mjs": "653b3d6ae985ce7d2397959824a85b1bd0bdd507cfab1fdc05eb91f3c263fdcd",
+    "deploy/ci/gate-invocations.json": "b2a83eb0d6421cd80326956cf923744c30073832f32d232356c57e01eda825cb",
+    "deploy/ci/tts.gitlab-ci.yml": "ff5b183916e8bce8b96789671bad4387067f7a7706247360bcf269516cc3ab47",
+    "deploy/tts/tests/smoke_real_model.py": "59ea26011f8ee3aa54b6b122942566b16a6302fe81e9ce4ecb26dbf74aeb4cd8",
+    "deploy/tts/models/MODELS.lock": "bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d",
+    "docs/evidence/W-0122/voice-acceptance-manifest.json": "90927e16cbe5b4e27f48e31ba396c9069f1ae908eaadc15757e72fbc0d8558b9"
+  },
+  "head_observed_after_checks": "d7a3bd4d7c13974d0f14982fd1624861de9940c0",
+  "head_note": "W-0319 committed concurrently; W-0320 remains uncommitted and is bound by local source hashes only.",
+  "local_log_sha256_base64": {
+    "ci-config-selftest.log": "rYia5gYsvwMHSBeqgpZFX0iJq9Dq16kWDFSyiIFw7CU=",
+    "docker-unavailable-refusal.log": "LavN3Tv6GV3gJ9RgYb2puSFUb8sIkIqU5Zw5Bu2DyIY=",
+    "docs-selftest.log": "2D7P6BpYN9Z7xBAti+6sPtDR8WUIt35J6RxNVcjEolI=",
+    "gate-status.log": "O3EXdk1wrWZweiocJS1r8bivi7NzBY+nmemm81GsR3k=",
+    "gitnexus-detect-changes.log": "m9DtDkzRYMjEbbTjDt2lvkUBuvWq1h+WDhB1Li3Auas=",
+    "live-lab-stopped-refusal.log": "LavN3Tv6GV3gJ9RgYb2puSFUb8sIkIqU5Zw5Bu2DyIY=",
+    "model-verify-nonprod.log": "Q8snJOU/mTY4VC1AGDb5hMQFgtYWQPUNUsUAgt9b+CE=",
+    "model-verify-production-refusal.log": "JUxSDIGSX1SEfiDiomnk04Lq8XZB4UJZIzQUKKacMqc=",
+    "preflight-gate-runner.log": "DMdCcorRPgtGEBDFQ2JbG4zG5YV4UjhVmH8L4Tpqujw=",
+    "preflight-impact.log": "RCoP9WIcxoajkXx6k1C9ARIAWEi9xqNhZlVG/3rRL1w=",
+    "preflight-selftest-container.log": "8YCvSvh3vFcGsuaR52cwo+fN5r5xJbeE9uT9yD1O51A=",
+    "preflight-selftest.log": "iCxXDONWiiAbTXQWT8gz0pekTymCs+7rc35+0nIaJ6A=",
+    "real-model-chainguard-invalid-allowlist.log": "2zO1bpMmLlt2A0xSioVnNxzRJXRvT/gmb+1wtAXfC3U=",
+    "real-model-chainguard.log": "tED863Vz8delCbrswAk1+L96ea9P+f8gR7DpbGCQZ8A=",
+    "real-model-debian.log": "6BMs61WMRD+UWK+pnBp3a0Fw3JQurJ7msh9XWqWM90A=",
+    "volume-fixture-after-nocopy.log": "24Z/8v8oaAti45cr9KlkKgdTt25ND8KxXOJE/yR7ED4=",
+    "volume-fixture-before-nocopy.log": "iKwAdPpkb8L/fjykdCX1u81m2nTMGIc8W9ESUBuS5nw=",
+    "volume-fixture-first.log": "n6z5g/fOiGMRDsxbBPtHO+wDYvo0d1CwIO4cVh9nnqw=",
+    "volume-fixture.log": "VMQfckPJ5zFkOZpVpxsO0GJVC4dBThUiZIzVOvUO1ss="
+  }
+}

@@ -30,6 +30,8 @@ public sealed class SpeechSynthesisService(
     IOptions<TtsProviderOptions> providerOptions,
     TimeProvider timeProvider) : ISpeechSynthesisService
 {
+    private readonly SpeechPreparationQueue preparationQueue = new();
+
     private static readonly IReadOnlyDictionary<string, FixedSegmentMediaEntry> EmptyCatalog =
         new Dictionary<string, FixedSegmentMediaEntry>(StringComparer.Ordinal);
 
@@ -106,28 +108,8 @@ public sealed class SpeechSynthesisService(
                 "The rendered speech exceeds the configured TTS character bound.");
         }
 
-        DateTimeOffset now = timeProvider.GetUtcNow();
-        DateTimeOffset cacheExpiresAt = Minimum(
-            confirmationWindowExpiresAt,
-            now.AddSeconds(configured.CacheMaximumTtlSeconds),
-            now.AddSeconds(configured.SpeechSnapshotRetentionSeconds));
-
-        // The whole-script path stays byte-for-byte what it was. Segmented playback changes what
-        // a customer hears, so it is reached only when a deployment turns it on AND the renderer
-        // actually produced a split — never as a silent consequence of upgrading.
-        RenderedAudio audio = configured.Segmentation.Enabled && script.IsSegmented
-            ? await SynthesizeSegmentedAsync(
-                script,
-                request,
-                configured,
-                cacheExpiresAt,
-                cancellationToken)
-            : await SynthesizeWholeAsync(
-                script,
-                request,
-                configured,
-                cacheExpiresAt,
-                cancellationToken);
+        RenderedAudio audio = await SynthesizeWithAdmissionAsync(
+            script, request, configured, confirmationWindowExpiresAt, cancellationToken);
 
         // W-0113. The selection above is the only place that decides which voice a customer
         // hears; attaching it here is what lets the dispatch loop record that decision instead
@@ -136,6 +118,52 @@ public sealed class SpeechSynthesisService(
             voice.VoiceId,
             voice.Region,
             voice.ResolvedFromDeliveryArea)));
+    }
+
+    private async Task<RenderedAudio> SynthesizeWithAdmissionAsync(
+        SpeechScript script,
+        TtsOptions request,
+        TtsProviderOptions configured,
+        DateTimeOffset confirmationWindowExpiresAt,
+        CancellationToken cancellationToken)
+    {
+        bool external = string.Equals(configured.Provider, TtsProviderOptions.ExternalProvider,
+            StringComparison.OrdinalIgnoreCase);
+        using var window = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        if (external)
+        {
+            TimeSpan remaining = confirmationWindowExpiresAt - timeProvider.GetUtcNow();
+            if (remaining <= TimeSpan.Zero)
+                throw new TtsSynthesisException("TTS_CACHE_WINDOW_EXPIRED", "The confirmation window expired before speech preparation.");
+            window.CancelAfter(remaining);
+        }
+
+        try
+        {
+            // Hold the turn across all three dynamic pieces. Queue wait never spends their
+            // synthesis budgets, but caller cancellation and the order deadline cover both.
+            using IDisposable? turn = external
+                ? await preparationQueue.EnterAsync(configured.PreparationQueueLimit,
+                    TimeSpan.FromMilliseconds(configured.PreparationQueueTimeoutMilliseconds), window.Token)
+                : null;
+            window.Token.ThrowIfCancellationRequested();
+            DateTimeOffset now = timeProvider.GetUtcNow();
+            DateTimeOffset cacheExpiresAt = Minimum(confirmationWindowExpiresAt,
+                now.AddSeconds(configured.CacheMaximumTtlSeconds),
+                now.AddSeconds(configured.SpeechSnapshotRetentionSeconds));
+            RenderedAudio audio = configured.Segmentation.Enabled && script.IsSegmented
+                ? await SynthesizeSegmentedAsync(script, request, configured, cacheExpiresAt, window.Token)
+                : await SynthesizeWholeAsync(script, request, configured, cacheExpiresAt, window.Token);
+            window.Token.ThrowIfCancellationRequested();
+            if (external && timeProvider.GetUtcNow() >= confirmationWindowExpiresAt)
+                throw new TtsSynthesisException("TTS_CACHE_WINDOW_EXPIRED", "The confirmation window expired during speech preparation.");
+            return audio;
+        }
+        catch (OperationCanceledException exception) when (external && !cancellationToken.IsCancellationRequested)
+        {
+            throw new TtsSynthesisException("TTS_CACHE_WINDOW_EXPIRED",
+                "The confirmation window expired during speech preparation.", exception);
+        }
     }
 
     private async Task<RenderedAudio> SynthesizeWholeAsync(
@@ -306,6 +334,11 @@ public sealed class SpeechSynthesisService(
                 "TTS_TIMEOUT",
                 "The TTS provider exceeded its configured timeout.",
                 exception);
+        }
+        catch (OperationCanceledException)
+        {
+            // Preserve caller/order cancellation rather than wrapping it as a provider failure.
+            throw;
         }
         catch (TtsSynthesisException)
         {
