@@ -33,11 +33,10 @@ cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evi
 | `ACCEPTED` | 66 |
 | `CANCELLED` | 21 |
 | `BLOCKED_EXTERNAL` | 19 |
-| `EVIDENCE_SUBMITTED` | 17 |
+| `EVIDENCE_SUBMITTED` | 18 |
 | `CODE_DONE` | 4 |
 | `N/A` | 2 |
 | `DEFERRED_TARGET` | 2 |
-| `IN_PROGRESS` | 1 |
 
 ## 4. Cổng còn mở
 

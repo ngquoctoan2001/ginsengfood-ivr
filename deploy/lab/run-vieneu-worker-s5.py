@@ -56,7 +56,7 @@ def pinned_image(docker, index, config, archive, log):
     raise ValueError('Pinned image not available')
 
 
-def commands(docker, base, kit, out, tts_image, runtime_image, name, scope, seconds):
+def commands(docker, base, kit, out, tts_image, runtime_image, name, scope, seconds, final_profile=False):
     identity = '{}:{}'.format(os.getuid(), os.getgid()) if hasattr(os, 'getuid') else '1654:1654'
     safe = ['--pull', 'never', '--read-only', '--user', identity, '--pids-limit', '256',
             '--tmpfs', '/tmp:rw,noexec,nosuid,size=128m', '--cap-drop', 'ALL',
@@ -77,6 +77,8 @@ def commands(docker, base, kit, out, tts_image, runtime_image, name, scope, seco
         client += ['--mount', 'type=bind,src={},dst={},readonly'.format(source, target)]
     client += ['--mount', 'type=bind,src={},dst=/out'.format(out), '--entrypoint', 'dotnet', runtime_image,
                '/kit/probe/VieNeuWorkerProbe.dll', scope, str(seconds)]
+    if final_profile:
+        client.append('--final-profile')
     return tts, client
 
 
@@ -89,6 +91,7 @@ def run_worker_s5():
     parser.add_argument('--local-lab', action='store_true', help='Explicit local scope; never produces S5 evidence')
     parser.add_argument('--soak-seconds', type=int, default=450)
     parser.add_argument('--runs', type=int, default=2)
+    parser.add_argument('--final-profile', action='store_true', help='Use the same 30s segment / 90s queue / 120s total budget as the W-0338 lab worker')
     args = parser.parse_args()
     if not 30 <= args.soak_seconds <= 900 or not 1 <= args.runs <= 2:
         raise ValueError('Bounded to one/two runs, each 30-900 soak seconds')
@@ -121,13 +124,14 @@ def run_worker_s5():
     binding = {'scope': scope, 'REAL_CUSTOMER_CALL_ALLOWED': 'NO', 'tts_image': tts_image,
                'runtime_image': runtime, 'kit_manifest_sha256': digest(root / 'manifest.json'),
                'tts_cpus': 2, 'tts_memory_gib': 4, 'client_cpus': 0.5, 'client_memory_mib': 512,
+               'final_profile': args.final_profile,
                'started_utc': dt.datetime.now(dt.timezone.utc).isoformat(), 'runs': []}
     try:
         for index in range(args.runs):
             out = output / ('run-' + str(index + 1))
             out.mkdir()
             name = 'ivr-w0335-' + uuid.uuid4().hex[:12]
-            tts_cmd, client_cmd = commands(docker, base, root, out, tts_image, runtime, name, scope, args.soak_seconds)
+            tts_cmd, client_cmd = commands(docker, base, root, out, tts_image, runtime, name, scope, args.soak_seconds, args.final_profile)
             print('RUN_START {} scope={} TTS=2CPU/4GiB; log={}'.format(index + 1, scope, out / 'client.log'), flush=True)
             try:
                 subprocess.run(tts_cmd, check=True, stdout=subprocess.DEVNULL)
@@ -149,6 +153,10 @@ def run_worker_s5():
                 model = json.loads((out / 'model.json').read_text())
                 if data['scope'] != scope or data['REAL_CUSTOMER_CALL_ALLOWED'] != 'NO':
                     raise ValueError('Probe scope mismatch')
+                if args.final_profile and (data['profile'] != 'UNIFIED_LAB_30_90_120'
+                        or any(data[key] != 30000 for key in ('per_segment_comparison_ms', 'per_segment_soak_ms', 'per_segment_recovery_ms'))
+                        or data['queue_ms'] != 90000 or data['preparation_ms'] != 120000):
+                    raise ValueError('Final deadline profile mismatch')
                 if not completed['completed'] or completed['soak_elapsed_ms'] < args.soak_seconds * 1000:
                     raise ValueError('Sustained interval incomplete')
                 if model['capacity'] != 1 or model['ort_threads'] != 1 or not model['samples']:

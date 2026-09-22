@@ -12,8 +12,14 @@ export function createSpeechLabProfile(mode, imageId) {
     IVR_EXECUTION_MODE: 'LAB_REAL_SIM', REAL_CUSTOMER_CALL_ALLOWED: 'NO',
     Ivr__Speech__Tts__Segmentation__Enabled: String(mode === 'segmented'),
     Ivr__Speech__Tts__Segmentation__FixedSegments: 'Catalog',
-    // Whole-script rollback needs its measured lab budget; production defaults stay unchanged.
-    Ivr__Speech__Tts__TimeoutMilliseconds: mode === 'segmented' ? '5000' : '60000',
+    // W-0335 S5 recovery took 19.352s including busy wait after client cancellation.
+    // Keep one budget for busy retry + inference, and bound the whole preparation separately.
+    Ivr__Speech__Tts__TimeoutMilliseconds: mode === 'segmented' ? '30000' : '60000',
+    Ivr__Speech__Tts__PreparationQueueLimit: '8',
+    Ivr__Speech__Tts__PreparationQueueTimeoutMilliseconds: '90000',
+    Ivr__Speech__Tts__PreparationTimeoutMilliseconds: '120000',
+    // A channel lease must outlive preparation + playback + DTMF and cleanup in this lab.
+    Ivr__Scheduler__LeaseDurationSeconds: '360',
   };
   for (const region of ['North', 'Central', 'South']) {
     const entries = catalog.Ivr.Speech.Tts.RegionalVoices[region].FixedSegments;
@@ -30,8 +36,9 @@ export function createSpeechLabProfile(mode, imageId) {
   }
   return { services: {
     'ivr-worker': { environment },
-    'ivr-tts': { image: imageId, pull_policy: 'never', environment: {
+    'ivr-tts': { image: imageId, pull_policy: 'never', cpus: 2, mem_limit: '4g', memswap_limit: '4g', environment: {
       IVR_EXECUTION_MODE: 'LAB_REAL_SIM', REAL_CUSTOMER_CALL_ALLOWED: 'NO',
+      VIE_NEU_MAX_CONCURRENCY: '1',
       VIE_NEU_ORT_THREADS: '1', OPENBLAS_NUM_THREADS: '1', OMP_NUM_THREADS: '1', MKL_NUM_THREADS: '1',
     } },
   } };
@@ -41,5 +48,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const [mode, image, output, ...extra] = process.argv.slice(2);
   if (!output || extra.length) throw new Error('Usage: speech-lab-profile.mjs segmented|whole sha256:<image-id> <output.json>');
   writeFileSync(output, JSON.stringify(createSpeechLabProfile(mode, image), null, 2) + '\n');
-  console.log(`LAB_SPEECH_PROFILE_WRITTEN mode=${mode} REAL_CUSTOMER_CALL_ALLOWED=NO listening=PENDING_OWNER`);
+  console.log(`LAB_SPEECH_PROFILE_WRITTEN mode=${mode} REAL_CUSTOMER_CALL_ALLOWED=NO`);
 }

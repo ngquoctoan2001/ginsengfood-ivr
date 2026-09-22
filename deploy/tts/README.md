@@ -75,3 +75,12 @@ admission, not a distributed queue for multiple workers sharing one model endpoi
 HTTP 503 retries keep their original deadline and capped 1-second backoff, without the former
 nine-request ceiling. Inference already running in ONNX may continue after a client disconnect.
 See [S5 worker probe](../../docs/evidence/W-0335/README.md); production calls remain disabled.
+
+W-0338 adds `PreparationTimeoutMilliseconds` (default 120000, allowed 10–120000) across the
+entire external preparation, including FIFO wait, busy retries and all segments. Caller
+cancellation and an earlier order expiry still stop preparation; a provider returning after
+cancellation cannot return a playlist. Total expiry is `TTS_PREPARATION_TIMEOUT`, distinct
+from queue, segment and order expiry. The explicit lab profile uses 30s/segment, 90s queue,
+120s total and a 360s channel lease; it does not alter the production per-segment default.
+The offline probe's `--final-profile` selects the same deadlines for all cases. See
+[W-0338 evidence and limits](../../docs/evidence/W-0338/README.md).

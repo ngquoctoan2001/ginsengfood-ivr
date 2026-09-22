@@ -15,6 +15,10 @@ using Microsoft.Extensions.Options;
 if (Environment.GetEnvironmentVariable("REAL_CUSTOMER_CALL_ALLOWED") != "NO") throw new InvalidOperationException("NO required");
 string scope = args[0];
 int soakSeconds = int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture);
+bool finalProfile = args.Length == 3 && args[2] == "--final-profile";
+if (args.Length != 2 && !finalProfile) throw new InvalidOperationException("Unknown probe profile");
+int comparisonTimeout = finalProfile ? 30000 : 10000;
+int soakTimeout = finalProfile ? 30000 : 15000;
 if (scope is not ("LOCAL_LAB" or "S5_TARGET") || soakSeconds is < 30 or > 1800) throw new InvalidOperationException("Invalid probe bounds");
 const string endpoint = "http://127.0.0.1:8090/synthesize";
 using JsonDocument fixtures = JsonDocument.Parse(File.ReadAllText("/base/worker-texts.json"));
@@ -54,6 +58,7 @@ SpeechSynthesisService Service(int segmentTimeout, bool cache)
     {
         Provider = TtsProviderOptions.ExternalProvider, ExecutionMode = "LAB_REAL_SIM", TimeoutMilliseconds = segmentTimeout,
         PreparationQueueLimit = 8, PreparationQueueTimeoutMilliseconds = 90000,
+        PreparationTimeoutMilliseconds = 120000,
         MaxRequestsPerMinute = 10000, MaxCharactersPerMinute = 12000000,
         Segmentation = new SpeechSegmentationOptions { Enabled = true, FixedSegments = FixedSegmentSource.Catalog },
         RegionalVoices = new RegionalVoiceOptions { Enabled = true,
@@ -69,8 +74,9 @@ SpeechSynthesisService Service(int segmentTimeout, bool cache)
 }
 void Save() => File.WriteAllText("/out/worker.json", JsonSerializer.Serialize(new
 {
-    scope, REAL_CUSTOMER_CALL_ALLOWED = "NO", profile = "DIAGNOSTIC_NOT_PRODUCTION_CONFIG",
-    per_segment_comparison_ms = 10000, per_segment_soak_ms = 15000, queue_ms = 90000,
+    scope, REAL_CUSTOMER_CALL_ALLOWED = "NO", profile = finalProfile ? "UNIFIED_LAB_30_90_120" : "DIAGNOSTIC_NOT_PRODUCTION_CONFIG",
+    per_segment_comparison_ms = comparisonTimeout, per_segment_soak_ms = soakTimeout,
+    per_segment_recovery_ms = 30000, queue_ms = 90000, preparation_ms = 120000,
     soak_seconds_requested = soakSeconds, elapsed_ms = timer.ElapsedMilliseconds,
     jobs = rows, parts = parts.ToArray(), http = http.ToArray(),
 }, new JsonSerializerOptions { WriteIndented = true }));
@@ -118,13 +124,13 @@ async Task Job(SpeechSynthesisService service, JsonElement c, string phase, int 
         provider_calls = own.Length, playlist_segments = segmentCount, pcm_equal = pcmEqual, error });
     Console.WriteLine($"JOB_DONE {job} elapsed_ms={timer.ElapsedMilliseconds-start} result={error ?? "PCM_MATCH"}");
 }
-var comparison = Service(10000, true);
-foreach (var c in cases) { await Job(comparison, c, "cold-cache-10s", rows.Count); Save(); }
-foreach (var c in cases) { await Job(comparison, c, "warm-cache-10s", rows.Count); Save(); }
-var uncached = Service(15000, false);
+var comparison = Service(comparisonTimeout, true);
+foreach (var c in cases) { await Job(comparison, c, $"cold-cache-{comparisonTimeout/1000}s", rows.Count); Save(); }
+foreach (var c in cases) { await Job(comparison, c, $"warm-cache-{comparisonTimeout/1000}s", rows.Count); Save(); }
+var uncached = Service(soakTimeout, false);
 foreach (int count in new[] { 2, 4 })
 {
-    await Task.WhenAll(Enumerable.Range(0, count).Select(i => Job(uncached, cases[i], $"burst-{count}-15s", i)));
+    await Task.WhenAll(Enumerable.Range(0, count).Select(i => Job(uncached, cases[i], $"burst-{count}-{soakTimeout/1000}s", i)));
     Save();
 }
 // A disconnected real inference occupies the sidecar while the actual C# client retries.
@@ -142,7 +148,7 @@ var soak = Stopwatch.StartNew();
 int batch = 0;
 while (soak.Elapsed.TotalSeconds < soakSeconds)
 {
-    await Task.WhenAll(Enumerable.Range(0, 2).Select(i => Job(uncached, cases[(batch * 2 + i) % cases.Length], "soak-15s", batch * 2 + i)));
+    await Task.WhenAll(Enumerable.Range(0, 2).Select(i => Job(uncached, cases[(batch * 2 + i) % cases.Length], $"soak-{soakTimeout/1000}s", batch * 2 + i)));
     batch++;
     Save();
 }

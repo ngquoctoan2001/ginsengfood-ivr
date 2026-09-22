@@ -108,10 +108,13 @@ Nạp đúng một file vừa tạo sau ba compose file dev, softphone, vieneu-t
 model/voice/ARI/SIP của lab. Khi đổi profile, recreate cả `ivr-worker` và `ivr-tts` vì sidecar
 dùng network namespace của worker. Chạy lại `check-speech-preflight.mjs` trước gửi task.
 
-Profile `segmented` ghép catalog 12 đoạn với ba giá trị đơn, timeout `5000 ms` mỗi request.
+Profile `segmented` ghép catalog 12 đoạn với ba giá trị đơn, timeout `30000 ms` mỗi request
+gồm cả busy retry (W-0338, sau số đo S5 W-0335). Chờ FIFO tối đa 90 giây, nhưng cả hàng
+chờ và mọi phần tiếng cùng chịu deadline tổng 120 giây; hạn đơn sớm hơn vẫn thắng.
 Profile `whole` là rollback lab, timeout `60000 ms` cho toàn câu. Cả hai giới hạn ONNX, BLAS,
-OpenMP và MKL ở một thread; đây là cấu hình đã đo local, chưa phải sizing máy S5.
-Phép đo và giới hạn xem [W-0321](../../docs/evidence/W-0321/README.md).
+OpenMP và MKL ở một thread, TTS 2 CPU/4 GiB và lease lab 360 giây. Đây là profile lab;
+phép đo và giới hạn hiện tại xem [W-0338](../../docs/evidence/W-0338/README.md).
+Các số đo W-0321 giữ nguyên ý nghĩa lịch sử theo profile lúc đó.
 
 ```powershell
 .\deploy\lab\Invoke-FreeSoftphoneCall.ps1 -Region North -OrderVariant A
@@ -190,3 +193,13 @@ phần audio, cache lạnh/ấm, 2/4 đơn đồng thời và tải liên tục.
 [W-0335](../../docs/evidence/W-0335/ubuntu-steps.md). TTS giữ 2 CPU/4 GiB; probe .NET riêng
 thêm tối đa 0.5 CPU/512 MiB. Mọi kết quả local và target được ghi scope riêng.
 Các timeout 10/15/30 giây trong probe là chẩn đoán, không đổi cấu hình vận hành.
+
+Từ W-0338, thêm `--final-profile` để dùng cùng deadline **30/90/120 giây** của worker lab
+cho tất cả ca (gồm phục hồi sau disconnect). Gói mới và hướng dẫn:
+[W-0338 S5](../../docs/evidence/W-0338/ubuntu-steps.md). Kết quả S5 W-0335 không tự trở thành
+bằng chứng cho profile cuối; phải chạy và trả raw mới nếu chốt trên máy đích.
+
+Harness `run-headless-dtmf.py --final-profile` từ chối nếu deadline hoặc quota TTS lệch.
+`--smoke-only --final-profile --fault-timeout` chỉ dùng khi lab rảnh: gây timeout trước dial,
+giữ peer qua technical retry, kiểm chỉ một lượt khách được tính và khôi phục route.
+Không phát âm thanh ra thiết bị người dùng; không cần nghe lại giọng đã duyệt.

@@ -49,9 +49,12 @@ def run_headless_matrix() -> None:
     parser.add_argument('--texts', required=True)
     parser.add_argument('--smoke-only', action='store_true')
     parser.add_argument('--no-input-only', action='store_true')
+    parser.add_argument('--final-profile', action='store_true', help='Require W-0338 measured deadline/quota profile')
+    parser.add_argument('--fault-timeout', action='store_true', help='One cold smoke call: pause TTS until the first technical failure, then recover')
     parser.add_argument('--regions', nargs='+', choices=['North','Central','South'], default=['North','Central','South'])
     args = parser.parse_args()
     assert not (args.smoke_only and args.no_input_only)
+    assert not args.fault_timeout or (args.smoke_only and args.final_profile)
     out = Path(args.out).resolve()
     out.relative_to(Path('.artifacts').resolve())
     out.mkdir(parents=True, exist_ok=False)
@@ -66,6 +69,23 @@ def run_headless_matrix() -> None:
         assert 'IVR_EXECUTION_MODE=LAB_REAL_SIM' in env and 'REAL_CUSTOMER_CALL_ALLOWED=NO' in env
         assert 'Ivr__Telephony__Asterisk__DestinationAlias=LAB-A' in env
         assert 'Ivr__Telephony__SipTrunk__Enabled=true' not in env
+    worker_name = 'ginsengfood-ivr-dev-ivr-worker-1'
+    tts_name = 'ginsengfood-ivr-dev-ivr-tts-1'
+    worker_info = json.loads(command('docker', 'inspect', worker_name))[0]
+    tts_info = json.loads(command('docker', 'inspect', tts_name))[0]
+    assert not worker_info['State']['Paused'] and not tts_info['State']['Paused']
+    deadline_env = {line.split('=', 1)[0]: line.split('=', 1)[1] for line in worker_info['Config']['Env']
+                    if line.startswith(('Ivr__Speech__Tts__TimeoutMilliseconds=', 'Ivr__Speech__Tts__Preparation',
+                                        'Ivr__Scheduler__LeaseDurationSeconds='))}
+    if args.final_profile:
+        assert deadline_env == {
+            'Ivr__Speech__Tts__TimeoutMilliseconds': '30000',
+            'Ivr__Speech__Tts__PreparationQueueLimit': '8',
+            'Ivr__Speech__Tts__PreparationQueueTimeoutMilliseconds': '90000',
+            'Ivr__Speech__Tts__PreparationTimeoutMilliseconds': '120000',
+            'Ivr__Scheduler__LeaseDurationSeconds': '360'}, deadline_env
+        assert tts_info['HostConfig']['NanoCpus'] == 2000000000 and tts_info['HostConfig']['Memory'] == 4 * 1024**3
+        assert tts_info['HostConfig']['MemorySwap'] == 4 * 1024**3
     command('node', 'deploy/lab/check-speech-preflight.mjs', '--timeout-seconds', '180')
     switch = json.loads(command('docker','inspect', SWITCH))[0]
     image = switch['Image']
@@ -116,8 +136,12 @@ exten => s,1,Verbose(1,HEADLESS_SEND_DTMF_0)
     result = {'scope':'LOCAL_SYNTHETIC_SIP','real_customer_call_allowed':'NO',
               'human_listening':'OWNER_ACCEPTED_NO_RELISTEN', 'started_utc':utc(),
               'switch_image':image,'original_config_sha256':original_hash, 'calls':[], 'restored':False}
+    result.update(worker_image=worker_info['Image'], tts_image=tts_info['Image'], deadline_configuration=deadline_env,
+                  fault_timeout=args.fault_timeout)
     created = False
     switched = False
+    worker_paused = False
+    tts_paused = False
     try:
         mounts = []
         for name in ('pjsip.conf','extensions.conf','http.conf','logger.conf'):
@@ -165,13 +189,33 @@ qualify_frequency=2
             item = {'case':case_id,'region':region,'variant':variant,'digit':digit,'started_utc':utc(),
                     'audio_ms':case['segmented_audio_ms'],'sent_utc':None,'pass':False}
             result['calls'].append(item)
+            if args.fault_timeout:
+                # Keep the worker idle while the guarded intake completes. No DB row is changed.
+                command('docker', 'pause', worker_name)
+                worker_paused = True
             with (out/f'{case_id}.log').open('w',encoding='utf-8') as log:
                 proc = subprocess.Popen([shutil.which('pwsh') or 'pwsh','-NoProfile','-File',
                     'deploy/lab/Invoke-FreeSoftphoneCall.ps1','-NoUi','-HeadlessPeer','-Region',region,
                     '-OrderVariant',variant,'-ResultTimeoutSeconds','180'],stdout=log,stderr=subprocess.STDOUT)
-                deadline=time.monotonic()+220
+                deadline=time.monotonic()+360
                 up_at=None; peer_channel=None
                 while time.monotonic()<deadline:
+                    if args.fault_timeout:
+                        submitted=re.findall(r'TASK-LAB-\d+', (out/f'{case_id}.log').read_text(encoding='utf-8-sig'))
+                        if submitted and worker_paused:
+                            command('docker', 'pause', tts_name)
+                            tts_paused = True
+                            command('docker', 'unpause', worker_name)
+                            worker_paused = False
+                            item['fault_started_utc'] = utc()
+                        if submitted and tts_paused:
+                            failed=sql(f"SELECT count(*) FROM ivr_call_attempts WHERE task_id='{submitted[-1]}' AND technical_exception_type='TTS_TIMEOUT' AND is_counted_customer_attempt IS FALSE")
+                            if failed == '1':
+                                assert not channels(SWITCH), 'Timeout must precede dial'
+                                item['fault_failed_before_dial'] = True
+                                command('docker', 'unpause', tts_name)
+                                tts_paused = False
+                                item['fault_released_utc'] = utc()
                     if proc.poll() is not None:
                         # The intake script reports the first result, including a technical
                         # retry. Keep the peer/route alive until the job can no longer dial.
@@ -204,6 +248,13 @@ qualify_frequency=2
             matches=re.findall(r'TASK-LAB-\d+',script_log)
             assert matches, script_log[-1500:]
             task=matches[-1]; item['task_id']=task
+            item['attempts']=json.loads(sql(f"SELECT COALESCE(json_agg(json_build_object('counted',is_counted_customer_attempt,'exception',technical_exception_type,'attempt_no',attempt_number) ORDER BY ended_at),'[]'::json) FROM ivr_call_attempts WHERE task_id='{task}'"))
+            if args.fault_timeout:
+                assert item.get('fault_failed_before_dial') is True
+                assert len(item['attempts']) == 2, item['attempts']
+                assert item['attempts'][0]['exception'] == 'TTS_TIMEOUT' and not item['attempts'][0]['counted']
+                assert item['attempts'][1]['exception'] is None and item['attempts'][1]['counted']
+                assert item['attempts'][0]['attempt_no'] == item['attempts'][1]['attempt_no'] == 1
             item['attempt']=json.loads(sql(f"SELECT json_build_object('status',status,'dtmf',dtmf_key,'voice_id',voice_id,'region',voice_region,'region_resolved',voice_region_resolved,'started_at',started_at,'ended_at',ended_at,'counted',is_counted_customer_attempt,'exception',technical_exception_type) FROM ivr_call_attempts WHERE task_id='{task}' ORDER BY ended_at DESC LIMIT 1"))
             item['result']=json.loads(sql(f"SELECT json_build_object('type',r.result_type,'final',r.is_final_for_ivr,'counted',r.is_counted_customer_attempt) FROM ivr_call_results r JOIN ivr_call_jobs j ON j.ivr_call_job_id=r.ivr_call_job_id WHERE j.task_id='{task}' ORDER BY r.created_at DESC LIMIT 1"))
             logs=command('docker','logs',SWITCH,'--timestamps','--since',item['started_utc'],'--until',item['ended_utc'])
@@ -249,6 +300,10 @@ qualify_frequency=2
             print(f'HEADLESS_PASS case={case_id} result={expected}',flush=True)
             time.sleep(2)
     finally:
+        if tts_paused:
+            command('docker', 'unpause', tts_name)
+        if worker_paused:
+            command('docker', 'unpause', worker_name)
         if created:
             for channel in channels(PEER):
                 cli(PEER,f'channel request hangup {channel}')

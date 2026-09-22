@@ -12,7 +12,12 @@ for (const mode of ['segmented', 'whole']) {
   const worker = profile.services['ivr-worker'].environment;
   assert.equal(worker.REAL_CUSTOMER_CALL_ALLOWED, 'NO');
   assert.equal(worker.Ivr__Speech__Tts__Segmentation__Enabled, String(mode === 'segmented'));
-  assert.equal(worker.Ivr__Speech__Tts__TimeoutMilliseconds, mode === 'segmented' ? '5000' : '60000');
+  assert.equal(worker.Ivr__Speech__Tts__TimeoutMilliseconds, mode === 'segmented' ? '30000' : '60000');
+  assert.equal(worker.Ivr__Speech__Tts__PreparationTimeoutMilliseconds, '120000');
+  assert.equal(worker.Ivr__Speech__Tts__PreparationQueueTimeoutMilliseconds, '90000');
+  assert.ok(Number(worker.Ivr__Scheduler__LeaseDurationSeconds) > 120 + 120 + 30);
+  assert.equal(profile.services['ivr-tts'].cpus, 2);
+  assert.equal(profile.services['ivr-tts'].mem_limit, '4g');
   assert.equal(Object.keys(worker).filter(x => x.endsWith('__TextHash')).length, 12);
   assert.equal(profile.services['ivr-tts'].environment.VIE_NEU_ORT_THREADS, '1');
 }

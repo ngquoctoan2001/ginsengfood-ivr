@@ -129,19 +129,22 @@ public sealed class SpeechSynthesisService(
     {
         bool external = string.Equals(configured.Provider, TtsProviderOptions.ExternalProvider,
             StringComparison.OrdinalIgnoreCase);
-        using var window = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        using var preparation = new CancellationTokenSource();
+        using var window = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, preparation.Token);
         if (external)
         {
             TimeSpan remaining = confirmationWindowExpiresAt - timeProvider.GetUtcNow();
             if (remaining <= TimeSpan.Zero)
                 throw new TtsSynthesisException("TTS_CACHE_WINDOW_EXPIRED", "The confirmation window expired before speech preparation.");
             window.CancelAfter(remaining);
+            preparation.CancelAfter(configured.PreparationTimeoutMilliseconds);
         }
 
         try
         {
             // Hold the turn across all three dynamic pieces. Queue wait never spends their
-            // synthesis budgets, but caller cancellation and the order deadline cover both.
+            // synthesis budgets. One total deadline covers queue, busy retry and every segment;
+            // neither taking a turn nor beginning another segment restarts it.
             using IDisposable? turn = external
                 ? await preparationQueue.EnterAsync(configured.PreparationQueueLimit,
                     TimeSpan.FromMilliseconds(configured.PreparationQueueTimeoutMilliseconds), window.Token)
@@ -159,8 +162,12 @@ public sealed class SpeechSynthesisService(
                 throw new TtsSynthesisException("TTS_CACHE_WINDOW_EXPIRED", "The confirmation window expired during speech preparation.");
             return audio;
         }
-        catch (OperationCanceledException exception) when (external && !cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException exception) when (external && !cancellationToken.IsCancellationRequested
+            && window.IsCancellationRequested)
         {
+            if (preparation.IsCancellationRequested && timeProvider.GetUtcNow() < confirmationWindowExpiresAt)
+                throw new TtsSynthesisException("TTS_PREPARATION_TIMEOUT",
+                    "The complete speech preparation exceeded its total deadline.", exception);
             throw new TtsSynthesisException("TTS_CACHE_WINDOW_EXPIRED",
                 "The confirmation window expired during speech preparation.", exception);
         }

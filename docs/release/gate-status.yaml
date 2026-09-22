@@ -1414,8 +1414,8 @@ work:
     evidence: "docs/evidence/W-0337/README.md"
   - id: "W-0338"
     prompt: "Hoàn thiện deadline VieNeu sau hủy và kiểm worker/DTMF tự động (Origin=OWNER_DECISION 2026-09-22)"
-    status: "IN_PROGRESS"
-    evidence: null
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0338/README.md"
   - id: "W-0339"
     prompt: "Kiểm full-flow đơn giả trên lab SIP riêng (Origin=OWNER_REQUEST 2026-09-22)"
     status: "EVIDENCE_SUBMITTED"

@@ -105,6 +105,9 @@ public sealed class TtsProviderOptions
     /// <summary>Queue wait budget, separate from each segment's existing synthesis timeout.</summary>
     public int PreparationQueueTimeoutMilliseconds { get; set; } = 30_000;
 
+    /// <summary>Total external preparation budget: queue, busy retry and every audio segment.</summary>
+    public int PreparationTimeoutMilliseconds { get; set; } = 120_000;
+
     public int CacheMaximumTtlSeconds { get; set; } = 900;
 
     public int SpeechSnapshotRetentionSeconds { get; set; } = 900;
@@ -197,6 +200,7 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
             || options.TimeoutMilliseconds is < 10 or > 120_000
             || options.PreparationQueueLimit is < 1 or > 32
             || options.PreparationQueueTimeoutMilliseconds is < 10 or > 120_000
+            || options.PreparationTimeoutMilliseconds is < 10 or > 120_000
             || options.CacheMaximumTtlSeconds is < 1 or > 86_400
             || options.SpeechSnapshotRetentionSeconds is < 1 or > 86_400
             || options.MaxCharactersPerRequest is < 200 or > 4_000
