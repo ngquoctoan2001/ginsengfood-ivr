@@ -1,0 +1,661 @@
+{
+  "work_id": "W-0338",
+  "scope": "S5_TARGET_FINAL_PROFILE",
+  "status": "BOUNDED_MEASUREMENT_VERIFIED",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "S2": "OPEN",
+  "mirror": "OPEN",
+  "host": "vps61",
+  "received_via": "Owner-run archive; no direct SSH or post-run target inspection",
+  "candidate": "W-0338 baseline 3131d9d plus frozen overlays; not a current-HEAD acceptance claim",
+  "profile": {
+    "segment_ms": 30000,
+    "queue_ms": 90000,
+    "preparation_ms": 120000,
+    "queue_limit": 8,
+    "tts_cpus": 2,
+    "tts_memory_gib": 4,
+    "capacity": 1,
+    "ort_threads": 1,
+    "client_cpus": 0.5,
+    "client_memory_mib": 512
+  },
+  "started_utc": "2026-09-22T01:41:26.118040+00:00",
+  "ended_utc": "2026-09-22T02:01:32.527322+00:00",
+  "duration_s": 1206.409,
+  "provenance": {
+    "kit_files_verified": 62,
+    "archive_files_equal_to_kit": true,
+    "generated_cache_outside_manifest": [
+      "__pycache__/s5_common.cpython-313.pyc"
+    ],
+    "raw_files": 12,
+    "source_checks": [
+      {
+        "path": "src/Ivr.Infrastructure/Speech/ConfigurableExternalTtsProvider.cs",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "src/Ivr.Infrastructure/Speech/SpeechSynthesisService.cs",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "src/Ivr.Infrastructure/Speech/SpeechServiceCollectionExtensions.cs",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "src/Ivr.Infrastructure/Speech/SpeechPreparationQueue.cs",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "tests/Ivr.UnitTests/Speech/TtsBusyRetryTests.cs",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "tests/Ivr.UnitTests/Speech/SpeechPreparationQueueTests.cs",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "deploy/lab/speech-lab-profile.mjs",
+        "location": "checkout_matching_recorded_hash"
+      },
+      {
+        "path": "deploy/lab/run-headless-dtmf.py",
+        "location": "checkout_matching_recorded_hash"
+      },
+      {
+        "path": "deploy/lab/Invoke-FreeSoftphoneCall.ps1",
+        "location": "checkout_matching_recorded_hash"
+      },
+      {
+        "path": "deploy/lab/fake-orders.json",
+        "location": "checkout_matching_recorded_hash"
+      },
+      {
+        "path": "deploy/lab/VieNeuWorkerProbe/Program.cs",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "deploy/lab/VieNeuWorkerProbe/VieNeuWorkerProbe.csproj",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "deploy/lab/VieNeuWorkerProbe/packages.lock.json",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "tests/Ivr.UnitTests/Speech/SpeechPreparationDeadlineTests.cs",
+        "location": "frozen_candidate"
+      },
+      {
+        "path": "deploy/lab/run-vieneu-worker-s5.py",
+        "location": "checkout_matching_recorded_hash"
+      },
+      {
+        "path": "deploy/ci/scripts/lab-speech-preflight-selftest.mjs",
+        "location": "checkout_matching_recorded_hash"
+      }
+    ],
+    "three_shared_dlls_equal_to_tested_worker": true,
+    "returned_manifest_matches": true,
+    "pinned_images_match": true,
+    "base_manifest_matches": true
+  },
+  "aggregate": {
+    "jobs": 128,
+    "errors": 0,
+    "pcm_equal": 128,
+    "parts": 342,
+    "http_status_counts": {
+      "200": 342,
+      "503": 22
+    },
+    "soak_jobs": 90,
+    "soak_ms": 919048
+  },
+  "runs": [
+    {
+      "run": 1,
+      "jobs": 65,
+      "parts": 174,
+      "http_status_counts": {
+        "200": 174,
+        "503": 11
+      },
+      "tts_status_counts": {
+        "ok": 174,
+        "overloaded": 11,
+        "client_disconnected": 1
+      },
+      "soak_ms": 468412,
+      "soak_batches": 23,
+      "startup_ms": 5207,
+      "peak_rss_gib": 1.5043,
+      "max_sampled_cgroup_memory_gib": 1.4514,
+      "cpu_delta": {
+        "usage_usec": 592945102,
+        "user_usec": 591645204,
+        "system_usec": 1299898,
+        "nr_periods": 6012,
+        "nr_throttled": 0,
+        "throttled_usec": 0
+      },
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0",
+      "samples": 122,
+      "provider_no_overlap": true,
+      "fifo_completion_order": true,
+      "phases": {
+        "burst-2-30s": {
+          "jobs": 2,
+          "max_order_ms": 16211,
+          "max_part_ms": 5388,
+          "max_wait_to_first_provider_ms": 8605
+        },
+        "burst-4-30s": {
+          "jobs": 4,
+          "max_order_ms": 35009,
+          "max_part_ms": 6358,
+          "max_wait_to_first_provider_ms": 25891
+        },
+        "cold-cache-30s": {
+          "jobs": 6,
+          "max_order_ms": 15392,
+          "max_part_ms": 9086,
+          "max_wait_to_first_provider_ms": 189
+        },
+        "disconnect-recovery-30s": {
+          "jobs": 1,
+          "max_order_ms": 24912,
+          "max_part_ms": 18758,
+          "max_wait_to_first_provider_ms": 2
+        },
+        "soak-30s": {
+          "jobs": 46,
+          "max_order_ms": 27026,
+          "max_part_ms": 9034,
+          "max_wait_to_first_provider_ms": 15274
+        },
+        "warm-cache-30s": {
+          "jobs": 6,
+          "max_order_ms": 53,
+          "max_part_ms": 0,
+          "max_wait_to_first_provider_ms": 0
+        }
+      }
+    },
+    {
+      "run": 2,
+      "jobs": 63,
+      "parts": 168,
+      "http_status_counts": {
+        "200": 168,
+        "503": 11
+      },
+      "tts_status_counts": {
+        "ok": 168,
+        "overloaded": 11,
+        "client_disconnected": 1
+      },
+      "soak_ms": 450636,
+      "soak_batches": 22,
+      "startup_ms": 4476,
+      "peak_rss_gib": 1.503,
+      "max_sampled_cgroup_memory_gib": 1.4454,
+      "cpu_delta": {
+        "usage_usec": 576332083,
+        "user_usec": 575165249,
+        "system_usec": 1166835,
+        "nr_periods": 5836,
+        "nr_throttled": 0,
+        "throttled_usec": 0
+      },
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0",
+      "samples": 118,
+      "provider_no_overlap": true,
+      "fifo_completion_order": true,
+      "phases": {
+        "burst-2-30s": {
+          "jobs": 2,
+          "max_order_ms": 16082,
+          "max_part_ms": 5376,
+          "max_wait_to_first_provider_ms": 8514
+        },
+        "burst-4-30s": {
+          "jobs": 4,
+          "max_order_ms": 35013,
+          "max_part_ms": 6327,
+          "max_wait_to_first_provider_ms": 25882
+        },
+        "cold-cache-30s": {
+          "jobs": 6,
+          "max_order_ms": 15269,
+          "max_part_ms": 9059,
+          "max_wait_to_first_provider_ms": 195
+        },
+        "disconnect-recovery-30s": {
+          "jobs": 1,
+          "max_order_ms": 24924,
+          "max_part_ms": 18705,
+          "max_wait_to_first_provider_ms": 1
+        },
+        "soak-30s": {
+          "jobs": 44,
+          "max_order_ms": 27405,
+          "max_part_ms": 9073,
+          "max_wait_to_first_provider_ms": 15426
+        },
+        "warm-cache-30s": {
+          "jobs": 6,
+          "max_order_ms": 9,
+          "max_part_ms": 0,
+          "max_wait_to_first_provider_ms": 0
+        }
+      }
+    }
+  ],
+  "phases": {
+    "burst-2-30s": {
+      "jobs": 4,
+      "parts": 12,
+      "order_ms": {
+        "n": 4,
+        "min": 8527,
+        "p50": 8620,
+        "p95": 16211,
+        "max": 16211
+      },
+      "part_ms": {
+        "n": 12,
+        "min": 1395,
+        "p50": 1544,
+        "p95": 5388,
+        "max": 5388
+      },
+      "wait_to_first_provider_ms": {
+        "n": 4,
+        "min": 1,
+        "p50": 1,
+        "p95": 8605,
+        "max": 8605
+      }
+    },
+    "burst-4-30s": {
+      "jobs": 8,
+      "parts": 24,
+      "order_ms": {
+        "n": 8,
+        "min": 8496,
+        "p50": 16121,
+        "p95": 35013,
+        "max": 35013
+      },
+      "part_ms": {
+        "n": 24,
+        "min": 1392,
+        "p50": 1671,
+        "p95": 6327,
+        "max": 6358
+      },
+      "wait_to_first_provider_ms": {
+        "n": 8,
+        "min": 1,
+        "p50": 8495,
+        "p95": 25891,
+        "max": 25891
+      }
+    },
+    "cold-cache-30s": {
+      "jobs": 12,
+      "parts": 30,
+      "order_ms": {
+        "n": 12,
+        "min": 6222,
+        "p50": 9041,
+        "p95": 15392,
+        "max": 15392
+      },
+      "part_ms": {
+        "n": 30,
+        "min": 1395,
+        "p50": 3371,
+        "p95": 9059,
+        "max": 9086
+      },
+      "wait_to_first_provider_ms": {
+        "n": 12,
+        "min": 0,
+        "p50": 1,
+        "p95": 195,
+        "max": 195
+      }
+    },
+    "disconnect-recovery-30s": {
+      "jobs": 2,
+      "parts": 6,
+      "order_ms": {
+        "n": 2,
+        "min": 24912,
+        "p50": 24912,
+        "p95": 24924,
+        "max": 24924
+      },
+      "part_ms": {
+        "n": 6,
+        "min": 1867,
+        "p50": 4274,
+        "p95": 18758,
+        "max": 18758
+      },
+      "wait_to_first_provider_ms": {
+        "n": 2,
+        "min": 1,
+        "p50": 1,
+        "p95": 2,
+        "max": 2
+      }
+    },
+    "soak-30s": {
+      "jobs": 90,
+      "parts": 270,
+      "order_ms": {
+        "n": 90,
+        "min": 8400,
+        "p50": 15436,
+        "p95": 26992,
+        "max": 27405
+      },
+      "part_ms": {
+        "n": 270,
+        "min": 1383,
+        "p50": 1926,
+        "p95": 8857,
+        "max": 9073
+      },
+      "wait_to_first_provider_ms": {
+        "n": 90,
+        "min": 0,
+        "p50": 1,
+        "p95": 15219,
+        "max": 15426
+      }
+    },
+    "warm-cache-30s": {
+      "jobs": 12,
+      "parts": 0,
+      "order_ms": {
+        "n": 12,
+        "min": 2,
+        "p50": 4,
+        "p95": 53,
+        "max": 53
+      },
+      "part_ms": null,
+      "wait_to_first_provider_ms": null
+    }
+  },
+  "quantiles": "Nearest rank",
+  "comparison_W0335": {
+    "same_tts_image_and_quota": true,
+    "old_profile_segment_ms": [
+      10000,
+      15000,
+      30000
+    ],
+    "old_soak_jobs": 84,
+    "old_soak_ms": 905133,
+    "old_soak_order_p95_ms": 28427,
+    "old_soak_order_max_ms": 29569,
+    "old_soak_part_max_ms": 10099,
+    "old_recovery_part_max_ms": 19352
+  },
+  "limits": [
+    "PCM is checked by the pinned probe; returned archive contains no audio to independently rehash",
+    "Single process, concurrency 2 sustained / burst 4; no saturation of all eight queue slots",
+    "Whole-order time is preparation before dial, not silence during audio playback",
+    "S5 ran renderer and speech service; no target scheduler, DB or SIP",
+    "No forced expiration of 30/90/120 deadlines on S5; local tests cover those paths",
+    "No fresh image scan, internal mirror, S2 signature or production authorization",
+    "RSS is process high-water; cgroup memory is sampled; no post-run target inventory"
+  ],
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0338/vieneu-deadline-s5-result.tar.gz",
+      "bytes": 21067,
+      "sha256_hex_blocks": [
+        "c34b619a",
+        "c346b529",
+        "b69f075f",
+        "1e41be22",
+        "5a76376a",
+        "bf2bcbf8",
+        "ab0bbd87",
+        "b6092688"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/vieneu-deadline-s5.tar.gz",
+      "bytes": 64131233,
+      "sha256_hex_blocks": [
+        "94c6896c",
+        "3b5e41af",
+        "6fc2c48d",
+        "72a630f5",
+        "79433c36",
+        "5a8aa508",
+        "19e6ae1d",
+        "91e55613"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/vieneu-deadline-s5-final/manifest.json",
+      "bytes": 7418,
+      "sha256_hex_blocks": [
+        "e789cae4",
+        "18e519f4",
+        "d0c31516",
+        "c734163c",
+        "3e363475",
+        "f1218e29",
+        "52166341",
+        "b6660ec6"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/analyze-s5-target.py",
+      "bytes": 14029,
+      "sha256_hex_blocks": [
+        "6635d563",
+        "168d01e6",
+        "601c5808",
+        "18b7adb9",
+        "0e1ad0e6",
+        "2fcf26ca",
+        "577a7c70",
+        "1f34cd97"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0335/s5-target-results.json",
+      "bytes": 21418,
+      "sha256_hex_blocks": [
+        "1acec0a2",
+        "0495664e",
+        "af24d4ba",
+        "89a90f59",
+        "2efc45e8",
+        "b65e4e95",
+        "933eaad2",
+        "3fcf7c39"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/host.json",
+      "bytes": 753,
+      "sha256_hex_blocks": [
+        "48e90c2d",
+        "b507f16c",
+        "f7a7da6f",
+        "8ccb7679",
+        "39b50ec6",
+        "dde6a199",
+        "fb127aeb",
+        "08baa0e4"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/inventory.json",
+      "bytes": 6776,
+      "sha256_hex_blocks": [
+        "0e8349dd",
+        "943e7693",
+        "5cbd2b08",
+        "7e2c8729",
+        "7c521d9c",
+        "0e3a9e36",
+        "a89abe6e",
+        "4f8b0372"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-1/client.log",
+      "bytes": 4704,
+      "sha256_hex_blocks": [
+        "a2f1e93c",
+        "ba0582f8",
+        "3f34c4df",
+        "71b4e279",
+        "c7ac60cf",
+        "d66af4b5",
+        "f25a573d",
+        "a4b93027"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-1/completion.json",
+      "bytes": 95,
+      "sha256_hex_blocks": [
+        "d4243b62",
+        "ee32ebfe",
+        "0e15ed14",
+        "d4d40c86",
+        "2eddddb7",
+        "03646d79",
+        "8353d5ef",
+        "ae580cf9"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-1/model.json",
+      "bytes": 46118,
+      "sha256_hex_blocks": [
+        "2a0368ac",
+        "8f5c80e7",
+        "23fe2d9e",
+        "c88e5d77",
+        "6b45b879",
+        "43b70e6e",
+        "bba6d5bf",
+        "9867e75e"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-1/tts.log",
+      "bytes": 10361,
+      "sha256_hex_blocks": [
+        "17774fdf",
+        "92bef271",
+        "17d4f208",
+        "47067fb3",
+        "2e59cea3",
+        "7a3beb33",
+        "3dc8b61e",
+        "2c328086"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-1/worker.json",
+      "bytes": 57649,
+      "sha256_hex_blocks": [
+        "a8df712d",
+        "fc09c0d9",
+        "4cacf116",
+        "19bbcbc5",
+        "f737fee4",
+        "565c7492",
+        "9771d7c1",
+        "9a2fbdc5"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-2/client.log",
+      "bytes": 4560,
+      "sha256_hex_blocks": [
+        "a40d2e84",
+        "33989021",
+        "de46a2f8",
+        "10ef938b",
+        "ef89c354",
+        "4546162a",
+        "032eb60f",
+        "12652033"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-2/completion.json",
+      "bytes": 95,
+      "sha256_hex_blocks": [
+        "975e3658",
+        "f8e0f7ae",
+        "4b42c9ce",
+        "9c723d31",
+        "ae4d8aa4",
+        "04eaf025",
+        "3ca39ca8",
+        "b82f2831"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-2/model.json",
+      "bytes": 44595,
+      "sha256_hex_blocks": [
+        "139d6388",
+        "fff16560",
+        "268a2226",
+        "2e316d81",
+        "e95bb16c",
+        "13b2a3a9",
+        "490d50cc",
+        "62ce22c7"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-2/tts.log",
+      "bytes": 10041,
+      "sha256_hex_blocks": [
+        "270ad05a",
+        "d15c1729",
+        "990c1c02",
+        "d589d992",
+        "6a98c32b",
+        "8437aaf4",
+        "5c516707",
+        "844e4199"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/s5-target-intake/result/run-2/worker.json",
+      "bytes": 55774,
+      "sha256_hex_blocks": [
+        "2c03b088",
+        "6f67addf",
+        "e0038df1",
+        "e7304d5a",
+        "0cb99457",
+        "6523da5e",
+        "d70f8ed5",
+        "8351b03f"
+      ]
+    }
+  ]
+}

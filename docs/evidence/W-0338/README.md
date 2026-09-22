@@ -8,8 +8,17 @@ Xem [hồ sơ và manifest](clean-commit-verification.md). Mục full acceptance
 đóng bằng bổ sung này; các phép đo runtime bên dưới giữ provenance riêng.
 
 Ngày 22/09/2026. **REAL_CUSTOMER_CALL_ALLOWED=NO; production BLOCKED; S2/mirror OPEN.**
+Trạng thái tiếp nối: [W-0340](../W-0340/README.md) đã quét với DB mới và nhận xác nhận bảy
+rủi ro S2 của Nguyễn Quốc Toàn có điều kiện; mirror vps61 đã kiểm 39/39 file và khôi phục.
+Chứng từ model/codec và cấu hình phát hành vẫn còn chờ; không đổi image đang chạy.
 Giọng/câu ghép đã được owner duyệt; toàn bộ kiểm tra ở đây không yêu cầu nghe lại.
 **Đã hoàn tất sửa và kiểm local: 364 tests, 25 đơn model thật, 8 cuộc SIP tự động đạt.**
+
+**Đã nhận và xác minh S5 profile cuối: 128/128 đơn đạt, cùng quota 2 CPU/4 GiB.**
+Hai lượt trên vps61; soak 90 đơn/919,048 giây, không timeout/OOM/quota throttling.
+Recovery tối đa 18,758 giây/phần; profile 30/90/120 được giữ thống nhất.
+Chi tiết: [s5-findings.md](s5-findings.md), [s5-target-results.json](s5-target-results.json).
+Các số ở bảng local bên dưới là bằng chứng lịch sử riêng, không gộp vào số S5.
 
 ## Deadline và bản chạy
 
@@ -65,16 +74,18 @@ lượt local này, khác với lượt S5 W-0335 không ghi nhận throttle; kh
 
 ## Giới hạn và bước tiếp theo
 
-- Lượt này là **local lab**, không phải đo mới trên vps61. W-0335 S5 đã đo profile hỗn hợp
-  10/15/30 giây; không dùng kết quả đó để chứng nhận profile cuối 30/90/120.
-- Gói [hướng dẫn S5](ubuntu-steps.md) đã chuẩn bị, checksum ASCII/LF, dùng lại model W-0333.
-  Không cần owner nghe lại. Gói đo chỉ dựng speech probe, không dựng scheduler/SIP trên S5.
+- Phần kiểm local phía trên là lịch sử. Owner đã chạy gói [S5](ubuntu-steps.md) và trả đủ
+  raw của profile cuối 30/90/120; đã kiểm riêng trong [s5-findings.md](s5-findings.md).
+  Không dùng W-0335 profile hỗn hợp để thay thế lượt mới.
+- S5 đạt 128/128 đơn; không cần owner nghe lại. Gói đo dùng model W-0333 và speech probe,
+  không dựng scheduler/SIP trên S5; nghiệm thu triển khai toàn hệ thống vẫn còn mở.
 - Probe dùng request budget cao hơn worker và client riêng 0.5 CPU/512 MiB; chỉ deadline,
   model/quota TTS và dịch vụ tạo tiếng là phạm vi so sánh. PCM là kết quả kiểm của probe.
 - Mốc 28,185 giây gần trần 30 giây cho thấy đây là giới hạn xử lý, không cam kết mọi tải sẽ đạt.
   Chưa chứng minh nhiều worker chung sidecar hoặc sizing production.
 - Scan đúng image mới nhưng database CVE không mới tại thời điểm chạy. S2/mirror, quét lại
-  với database mới, nghiệm thu máy đích và full acceptance sweep tại commit sạch vẫn còn mở.
+  với database mới và nghiệm thu vận hành máy đích vẫn còn mở. Kiểm full acceptance tại
+  commit sạch thuộc task nghiệm thu riêng; số đo S5 này không thay thế gói nghiệm thu đó.
 
 Lượt đầu quét lỗi vì cache phân tích Trivy bị mount chỉ đọc; đã dùng cache tạm writable,
 database gốc vẫn readonly và network none. Build probe đầu có hash DLL khác do metadata

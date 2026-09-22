@@ -1,6 +1,8 @@
 # Đo profile deadline cuối trên S5
 
-**Chưa chạy trên vps61. REAL_CUSTOMER_CALL_ALLOWED=NO. S2/mirror OPEN.**
+**Đã chạy hai lượt trên vps61 ngày 22/09: 128/128 đơn đạt.**
+Đã kiểm raw: [s5-findings.md](s5-findings.md). Lệnh dưới đây giữ để tái lập khi cần;
+không yêu cầu chạy lại cùng gói. **REAL_CUSTOMER_CALL_ALLOWED=NO. S2/mirror OPEN.**
 Gói khoảng 61 MiB, dùng lại model/base bundle W-0333. Không phát audio hoặc gọi điện.
 TTS giữ 2 CPU/4 GiB; profile thống nhất 30 giây/phần, 90 giây chờ, 120 giây tổng.
 Hai lượt, mỗi lượt ít nhất 450 giây tải. Đây là phép đo, không phải approval production.

@@ -5,7 +5,8 @@
   "S2": "OPEN",
   "mirror": "OPEN",
   "scope": "LOCAL_LAB_FINAL_PROFILE",
-  "S5_final_profile": "NOT_RUN_PENDING_OWNER_EXECUTION",
+  "S5_final_profile": "BOUNDED_MEASUREMENT_VERIFIED",
+  "S5_evidence": "docs/evidence/W-0338/s5-target-results.json",
   "baseline": "3131d9d56e5bd0b1ddcf373f93e7b1621810bff0",
   "candidate": "git archive plus explicit overlays; shared checkout commits excluded",
   "worker_image_index_hex_blocks": [
