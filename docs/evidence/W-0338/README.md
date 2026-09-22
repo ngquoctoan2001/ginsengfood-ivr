@@ -1,5 +1,8 @@
 # W-0338 — Deadline VieNeu và worker/SIP/DTMF tự động
 
+**ACCEPTED 22/09/2026:** Toàn đã nghiệm thu phạm vi code, lab đã trình và
+kiểm chứng commit sạch. [Xác nhận và phạm vi còn theo dõi](owner-acceptance.md).
+
 **Bổ sung kiểm chứng commit sạch:** `c3da2b6` đạt **1.196/1.196 tests và 43/43 gate**.
 Xem [hồ sơ và manifest](clean-commit-verification.md). Mục full acceptance sweep được
 đóng bằng bổ sung này; các phép đo runtime bên dưới giữ provenance riêng.

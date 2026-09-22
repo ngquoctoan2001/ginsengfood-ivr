@@ -32,7 +32,7 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "66 of 327 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "67 of 327 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
@@ -1414,7 +1414,7 @@ work:
     evidence: "docs/evidence/W-0337/README.md"
   - id: "W-0338"
     prompt: "Hoàn thiện deadline VieNeu sau hủy và kiểm worker/DTMF tự động (Origin=OWNER_DECISION 2026-09-22)"
-    status: "EVIDENCE_SUBMITTED"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0338/README.md"
   - id: "W-0339"
     prompt: "Kiểm full-flow đơn giả trên lab SIP riêng (Origin=OWNER_REQUEST 2026-09-22)"
