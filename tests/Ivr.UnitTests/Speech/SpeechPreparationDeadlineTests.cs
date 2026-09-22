@@ -35,21 +35,38 @@ public sealed class SpeechPreparationDeadlineTests
         var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         int calls = 0;
+        TtsProviderOptions settings = null!;
         var service = Service(async token =>
         {
             int call = Interlocked.Increment(ref calls);
             if (call == 1) { entered.SetResult(); await release.Task.WaitAsync(token); }
-            if (call > 3) await Task.Delay(200, token);
-        }, total: 600);
+        }, total: 120000, configure: options =>
+        {
+            settings = options;
+            options.PreparationQueueTimeoutMilliseconds = 120000;
+        });
         Task<RenderedSpeech> first = Run(service, 1);
         await entered.Task.WaitAsync(TimeSpan.FromSeconds(3));
-        Task<RenderedSpeech> queued = Run(service, 2);
-        await Task.Delay(350);
-        release.SetResult();
-        Assert.Equal(7, (await first).Audio!.Segments.Length);
-        var error = await Assert.ThrowsAsync<TtsSynthesisException>(() => queued);
-        Assert.Equal("TTS_PREPARATION_TIMEOUT", error.TechnicalErrorCode);
-        Assert.InRange(calls, 4, 5);
+        // The first order has already armed its generous deadline. Only the next order
+        // gets the short budget, so queue expiry cannot depend on releasing the holder
+        // within a narrow wall-clock interval on a busy test host.
+        settings.PreparationTimeoutMilliseconds = 100;
+        try
+        {
+            var error = await Assert.ThrowsAsync<TtsSynthesisException>(() =>
+                Run(service, 2).WaitAsync(TimeSpan.FromSeconds(10)));
+            Assert.Equal("TTS_PREPARATION_TIMEOUT", error.TechnicalErrorCode);
+            Assert.Equal(1, calls);
+            Assert.False(first.IsCompleted);
+        }
+        finally
+        {
+            release.TrySetResult();
+            Assert.Equal(7, (await first.WaitAsync(TimeSpan.FromSeconds(10))).Audio!.Segments.Length);
+        }
+
+        settings.PreparationTimeoutMilliseconds = 120000;
+        Assert.Equal(7, (await Run(service, 3)).Audio!.Segments.Length);
     }
 
     [Theory]
@@ -99,7 +116,8 @@ public sealed class SpeechPreparationDeadlineTests
             new TtsProviderOptions { PreparationTimeoutMilliseconds = total }).Failed);
     }
 
-    private static SpeechSynthesisService Service(Func<CancellationToken, Task> call, int total)
+    private static SpeechSynthesisService Service(Func<CancellationToken, Task> call, int total,
+        Action<TtsProviderOptions>? configure = null)
     {
         var configured = Options.Create(new TtsProviderOptions
         {
@@ -110,6 +128,7 @@ public sealed class SpeechPreparationDeadlineTests
             FixedSegments = TargetV1SpeechPolicy.FixedSegmentHashes(TargetV1SpeechPolicy.CanonicalVietnameseTemplate)
                 .Select((hash, i) => new FixedSegmentMediaEntry { TextHash = hash, MediaReference = $"sound:fixed-{i}", DurationMilliseconds = 100 }).ToArray(),
         });
+        configure?.Invoke(configured.Value);
         return new SpeechSynthesisService(new Provider(call), new NoCache(), new TtsRequestBudget(TimeProvider.System),
             new TtsUsageMeter(), new RegionalVoiceMap(configured), configured, TimeProvider.System);
     }
