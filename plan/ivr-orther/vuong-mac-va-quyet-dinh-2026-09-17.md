@@ -59,6 +59,14 @@ dung lời thoại. Từ `S4`: nghe duyệt 12 đoạn giọng VieNeu cũng cầ
 
 ### S2 · Ký nhận rủi ro của bản đầu — một chữ ký cho cả cụm ⚖️ 🔴
 
+Cập nhật `22/09` — **Nguyễn Quốc Toàn đã xác nhận thẩm quyền đại diện công ty và chấp thuận
+đủ bảy điểm, giữ nguyên các điều kiện**. [Phiếu và nguyên văn xác nhận W-0340](../../docs/evidence/W-0340/S2-owner-review.md).
+Phần nhận rủi ro đã chốt có điều kiện. **Bổ sung 22/09, [W-0341](../../docs/evidence/W-0341/README.md):**
+đã kiểm công bố Apache-2.0 tại đúng hai revision; FAQ VieNeu cho phép preset và audio thương mại.
+Nhận định trước rằng thiếu mọi chứng từ là quá rộng. **W-0342 đã tích hợp bằng chứng vào
+provenance và hai verifier**, cùng mirror URI đã kiểm; còn quyết định phát hành riêng và các gate
+production. Phiếu S2 đã ký giữ nguyên lịch sử, không cần ký lại bảy điểm.
+
 Công ty không có bộ phận pháp chế hay bảo mật riêng. Cách đã dùng ngày `10/09`: người có thẩm quyền **ký
 nhận rủi ro bằng văn bản**. Hồ sơ hiện ghi người nhận là **"owner"** — cần ghi rõ là Sếp.
 
@@ -66,7 +74,7 @@ nhận rủi ro bằng văn bản**. Hồ sơ hiện ghi người nhận là **"
 | --- | --- | --- |
 | 1 | Hệ thống gọi **giữ số điện thoại khách ở dạng đọc được** — ai lấy được bản sao dữ liệu là đọc được | Chọn `17/09`: Module 3 gửi thẳng số |
 | 2 | 🆕 **Giữ vĩnh viễn** mọi dữ liệu khách, gồm số điện thoại ở rủi ro 1. Cách xoá duy nhất: khi khách yêu cầu — *cập nhật 21/09: W-0330 đã bổ sung CLI để owner tự chạy theo `S8`; câu “chưa có lệnh” trước đây đã hết hiệu lực*. *Nghị định `13/2023/NĐ-CP` có nguyên tắc chỉ lưu dữ liệu cá nhân trong thời gian phù hợp với mục đích xử lý — đây là điểm rủi ro pháp lý rõ nhất trong bảng. Ghi để Sếp cân nhắc, không phải ý kiến pháp lý* | `S3` |
-| 3 | 🆕 **Lỗ hổng bảo mật chưa có bản vá** trong bản cài nền của VieNeu. *Quét lại `18/09` (`W-0317`):* ra `57` lỗ chứ không phải `16`, vì dữ liệu lỗ hổng đã cập nhật. Vá được `13`, gồm cả `3` lỗ nghiêm trọng ⇒ **còn `44` lỗ mức cao, `0` nghiêm trọng**, và đã đo là phần mềm lúc chạy không nạp tới chúng. **Muốn về `0`:** đổi bản cài nền sang image miễn phí của Chainguard — đã thử: `0` lỗ, qua các kiểm tra; đổi lại là phụ thuộc một nhà cung cấp ngoài, và cần một lượt đọc thật bằng model trước khi đổi hẳn | `S4` |
+| 3 | **Lỗ hổng và phụ thuộc nền chạy.** Đã chọn Chainguard và đo model thật. `W-0340`, `22/09`: quét đúng image VieNeu với DB mới, không phát hiện CVE; image worker đi kèm có **0 HIGH/CRITICAL**, còn **11 MEDIUM + 6 LOW** theo cặp package/CVE. Danh sách **44 HIGH** của Debian `W-0317` là lịch sử, không phải image đang chọn. Giữ phụ thuộc nhà cung cấp và nghĩa vụ theo dõi/cập nhật | `S4`; [W-0340](../../docs/evidence/W-0340/README.md) |
 | 4 | 🆕 **Quyền dùng thương mại** model VieNeu và 12 đoạn giọng đã render | `S4` |
 | 5 | Người **nhấc máy không phải chủ đơn** vẫn nghe được tên món hàng và phường/quận giao | Chốt `05/09` |
 | 6 | Bản đầu **không có cách** để khách nói "đừng gọi tôi nữa" qua cuộc gọi — phím 0 là huỷ đơn | Chốt `10/09` |
@@ -74,14 +82,21 @@ nhận rủi ro bằng văn bản**. Hồ sơ hiện ghi người nhận là **"
 
 Rủi ro 1 có lối lùi: quay lại mã hoá số — phải mua dịch vụ giữ khoá, và Module 3 phải xây bộ mã hoá.
 
-**Đề xuất:** ký cả bảy điểm, kèm hai điều kiện: `T2` xong **trước** khi Module 3 gửi số thật *(✅ `18/09`, `W-0314`)*; rủi ro 3
-**chỉ ký sau** khi Lô 4 đã thử đổi bản cài nền *(✅ đã thử `18/09`, `W-0317`)*. Với rủi ro 3, Sếp chọn một trong hai: **ký**
-với `44` lỗ mức cao, hoặc **cho đổi** bản cài nền sang Chainguard — khi đó rủi ro 3 biến mất, đổi lại là phụ thuộc Chainguard.
+**Quyết định `22/09`:** đã nhận đủ bảy điểm theo phiếu W-0340, không cần xin xác nhận lại.
+Điều kiện giữ nguyên: `T2` trước dữ liệu thật; quyền model/codec/giọng phải có chứng từ;
+mirror và nghiệm thu triển khai còn phải kiểm. Chữ ký nhận rủi ro không tự cấp quyền model
+hoặc bật production. Rủi ro CVE được xử lý bằng lựa chọn Chainguard và quét đúng image,
+không diễn giải scan không phát hiện thành bảo đảm không còn mọi lỗ hổng.
 
-> **Câu mẫu:** *"Công ty không có bộ phận pháp chế và bảo mật riêng. Tôi, ______, nhận rủi ro của bảy
-> điểm trên cho bản đầu của hệ thống gọi xác nhận đơn hàng."* — Ký: ______ · Ngày: ______
+> **Nguyễn Quốc Toàn, `22/09/2026`:** *"Tôi có thẩm quyền và chấp thuận đủ 7 điểm, giữ các điều kiện đã ghi".*
 
 ### S5 · Chỗ chạy thử trước khi chạy thật 💰 🟡
+
+Cập nhật `22/09`: vps61 đã đo VieNeu thật **128/128 đơn đạt** với **2 CPU/4 GiB** và
+profile **30/90/120 giây** (W-0338); mốc 5 giây/phần ban đầu bên dưới không phải cấu hình
+đã chọn. Kho artifact nội bộ qua SSH/SFTP trên chính vps61 đã kiểm **39/39 file và khôi phục
+39/39 file** ([W-0340](../../docs/evidence/W-0340/mirror-target-findings.md)). Hai phần này đã có
+bằng chứng; S5 triển khai toàn hệ thống, registry OCI nếu cần và backup ngoài máy chưa đóng.
 
 Bàn giao `17/09` ghi Sếp **đã trả lời** mục này, nhưng **nội dung chưa được ghi ở đâu**. Cần ghi lại.
 
@@ -148,7 +163,7 @@ Kết quả kỹ thuật và phạm vi được ghi tại [W-0330](../../docs/ev
 | Người duyệt | `S1` | `S2` | `S5` | `S6` | `S8` | Ngày |
 | --- | --- | --- | --- | --- | --- | --- |
 | Sếp | ☐ | ☐ | ☐ | ☐ | ☐ | |
-| Toàn | ☐ | ☐ | ☐ | ☐ | ☐ | |
+| Nguyễn Quốc Toàn | ☐ | ✓ nhận rủi ro có điều kiện, W-0340 | ☐ | ☐ | ☐ | 22/09/2026 |
 
 ---
 
