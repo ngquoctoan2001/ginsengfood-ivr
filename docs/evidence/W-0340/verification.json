@@ -1,0 +1,637 @@
+{
+  "work_id": "W-0340",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "status": "FRESH_SCAN_S2_RISK_ACK_LOCAL_MIRROR_READY_TARGET_PENDING",
+  "profile": {
+    "tts_cpus": 2,
+    "tts_memory_gib": 4,
+    "segment_ms": 30000,
+    "queue_ms": 90000,
+    "preparation_ms": 120000,
+    "queue_limit": 8
+  },
+  "S2": "OWNER_RISK_ACCEPTED_LICENSE_EVIDENCE_PENDING",
+  "signer": {
+    "name": "Nguyễn Quốc Toàn",
+    "self_reported_role": "Tôi là người duy nhất build module 8",
+    "company_signing_authority": "OWNER_CONFIRMED",
+    "decision_date": "2026-09-22",
+    "decision_quote": "Tôi có thẩm quyền và chấp thuận đủ 7 điểm, giữ các điều kiện đã ghi",
+    "reference": "docs/evidence/W-0340/S2-owner-review.md"
+  },
+  "mirror": "PACKAGE_VERIFIED_LOCAL_TARGET_INSTALL_AND_RESTORE_PENDING",
+  "mirror_files": 39,
+  "mirror_archive_bytes": 318299389,
+  "scanner_version": "0.73.0",
+  "scanner_hex_blocks": [
+    "7cced7ca",
+    "e583819f",
+    "c7806d4c",
+    "bc0dbbc7",
+    "cad18b99",
+    "f7d3e235",
+    "192e6da8",
+    "c091045c"
+  ],
+  "database": {
+    "Version": 2,
+    "NextUpdate": "2026-09-22T19:11:02.692565768Z",
+    "UpdatedAt": "2026-09-21T19:11:02.692566039Z",
+    "DownloadedAt": "2026-09-22T02:21:22.294553366Z"
+  },
+  "database_sha256_hex_blocks": [
+    "5c1f6e77",
+    "06e7f12e",
+    "a1157dee",
+    "2b30d59c",
+    "3373cf72",
+    "68b96727",
+    "3aee3a02",
+    "29d67e56"
+  ],
+  "scan_started_utc": "2026-09-22T02:19:39.8237917Z",
+  "scan_ended_utc": "2026-09-22T02:22:38.7437658Z",
+  "scan_uses_network": false,
+  "db_refresh_network_only": true,
+  "docker_socket_mounted": false,
+  "scans": [
+    {
+      "name": "tts",
+      "image_index_hex_blocks": [
+        "79e9106e",
+        "c1401c5c",
+        "dd751b80",
+        "da52e6d8",
+        "a46f17f4",
+        "37c1e069",
+        "0209bce1",
+        "3b692581"
+      ],
+      "image_config_hex_blocks": [
+        "13aae53f",
+        "d114ec1b",
+        "8e4a8adc",
+        "5dad0dd6",
+        "57765e68",
+        "322387bb",
+        "c0926b3c",
+        "27da80d8"
+      ],
+      "severity_counts": {},
+      "vulnerability_package_occurrences": 0,
+      "unique_cve_count": 0,
+      "fixable_package_occurrences": 0,
+      "os": {
+        "Family": "wolfi",
+        "Name": "20230201"
+      },
+      "package_counts": [
+        {
+          "type": "wolfi",
+          "packages": 26
+        },
+        {
+          "type": "python-pkg",
+          "packages": 24
+        }
+      ],
+      "vulnerabilities": []
+    },
+    {
+      "name": "worker",
+      "image_index_hex_blocks": [
+        "1d4f05d5",
+        "e2842888",
+        "7a15c3a5",
+        "2800c53e",
+        "26b5682a",
+        "b3435244",
+        "5bee8a13",
+        "3bb0593b"
+      ],
+      "image_config_hex_blocks": [
+        "d6a7f0f7",
+        "49069e93",
+        "bb73816f",
+        "de40b060",
+        "c697a7d2",
+        "3abc3988",
+        "1e63956b",
+        "427217d4"
+      ],
+      "severity_counts": {
+        "MEDIUM": 11,
+        "LOW": 6
+      },
+      "vulnerability_package_occurrences": 17,
+      "unique_cve_count": 12,
+      "fixable_package_occurrences": 16,
+      "os": {
+        "Family": "ubuntu",
+        "Name": "24.04"
+      },
+      "package_counts": [
+        {
+          "type": "ubuntu",
+          "packages": 8
+        },
+        {
+          "type": "dotnet-core",
+          "packages": 36
+        },
+        {
+          "type": "nuget",
+          "packages": 49
+        },
+        {
+          "type": "dotnet-core",
+          "packages": 1
+        },
+        {
+          "type": "dotnet-core",
+          "packages": 1
+        }
+      ],
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "libc6",
+          "InstalledVersion": "2.39-0ubuntu8.8",
+          "FixedVersion": null,
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19499",
+          "PkgName": "libc6",
+          "InstalledVersion": "2.39-0ubuntu8.8",
+          "FixedVersion": "2.39-0ubuntu8.9",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19499"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19542",
+          "PkgName": "libc6",
+          "InstalledVersion": "2.39-0ubuntu8.8",
+          "FixedVersion": "2.39-0ubuntu8.9",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19542"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-6368",
+          "PkgName": "libc6",
+          "InstalledVersion": "2.39-0ubuntu8.8",
+          "FixedVersion": "2.39-0ubuntu8.9",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-6368"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-6791",
+          "PkgName": "libc6",
+          "InstalledVersion": "2.39-0ubuntu8.8",
+          "FixedVersion": "2.39-0ubuntu8.9",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-6791"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-77117",
+          "PkgName": "libc6",
+          "InstalledVersion": "2.39-0ubuntu8.8",
+          "FixedVersion": "2.39-0ubuntu8.9",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-77117"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-80489",
+          "PkgName": "libc6",
+          "InstalledVersion": "2.39-0ubuntu8.8",
+          "FixedVersion": "2.39-0ubuntu8.9",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-80489"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-63072",
+          "PkgName": "libssl3t64",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-63072"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-63076",
+          "PkgName": "libssl3t64",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-63076"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54874",
+          "PkgName": "libssl3t64",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "LOW",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54874"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-63074",
+          "PkgName": "libssl3t64",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "LOW",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-63074"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-75803",
+          "PkgName": "libssl3t64",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "LOW",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-75803"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-63072",
+          "PkgName": "openssl",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-63072"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-63076",
+          "PkgName": "openssl",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-63076"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54874",
+          "PkgName": "openssl",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "LOW",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54874"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-63074",
+          "PkgName": "openssl",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "LOW",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-63074"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-75803",
+          "PkgName": "openssl",
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.15",
+          "Severity": "LOW",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-75803"
+        }
+      ]
+    }
+  ],
+  "upstream_checked_utc": "2026-09-22T02:21:25.098634+00:00",
+  "model_license_review": [
+    {
+      "repo": "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX",
+      "revision": "ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae",
+      "declared_license": "apache-2.0",
+      "license_files": [],
+      "source_url": "https://huggingface.co/api/models/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX/revision/ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae"
+    },
+    {
+      "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
+      "revision": "2da0efab622a1722125991736524f080b751ef5b",
+      "declared_license": "apache-2.0",
+      "license_files": [],
+      "source_url": "https://huggingface.co/api/models/pnnbao-ump/VieNeu-TTS-v3-Turbo/revision/2da0efab622a1722125991736524f080b751ef5b"
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0333/vieneu-s5/tts-image.tar",
+      "bytes": 105790464,
+      "sha256_hex_blocks": [
+        "a3aef13b",
+        "4ca17cfc",
+        "fad98e9b",
+        "fd5a9e26",
+        "0c9ed7e4",
+        "34f33c09",
+        "6c68cf7b",
+        "bbf1c585"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0338/worker-image.tar",
+      "bytes": 59452416,
+      "sha256_hex_blocks": [
+        "f8f1c843",
+        "aa0dc008",
+        "f178a47c",
+        "4080567e",
+        "9eb4f19d",
+        "27679473",
+        "0373bbe3",
+        "e9b18fad"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/db-metadata.json",
+      "bytes": 153,
+      "sha256_hex_blocks": [
+        "c7b3aa04",
+        "dd918bca",
+        "22a0f55d",
+        "f2aabcad",
+        "5f033b1b",
+        "821e3bb2",
+        "183ce9f6",
+        "26d53111"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/scan-run.json",
+      "bytes": 522,
+      "sha256_hex_blocks": [
+        "6ab5e20f",
+        "183e12fc",
+        "ef8ba8c7",
+        "e00c7a0b",
+        "f2d7c3db",
+        "8e7c587c",
+        "aa823a9e",
+        "2cba07bf"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/db-download.log",
+      "bytes": 50631,
+      "sha256_hex_blocks": [
+        "12b91dcb",
+        "7577de41",
+        "a9e5ba88",
+        "09fe3609",
+        "aba699d7",
+        "d6fdb3e8",
+        "e95961a5",
+        "ce3ed555"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/scan-fresh.ps1",
+      "bytes": 2894,
+      "sha256_hex_blocks": [
+        "6c996f25",
+        "19f21ae7",
+        "9f9b9b8d",
+        "ca990ca8",
+        "587c8af7",
+        "7337440f",
+        "582e5e2a",
+        "7de6372d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/verify-upstream.py",
+      "bytes": 1317,
+      "sha256_hex_blocks": [
+        "72027d67",
+        "e7ff0e73",
+        "5d292aa1",
+        "2e30f79d",
+        "33b5451b",
+        "bcedfd47",
+        "3bc83555",
+        "a6250d92"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/verify-evidence.py",
+      "bytes": 6191,
+      "sha256_hex_blocks": [
+        "1a9c04a9",
+        "bb83a4f7",
+        "85316759",
+        "e2a2cf8d",
+        "732e20c5",
+        "771a4585",
+        "3011af96",
+        "81a16b7d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/upstream/verification.json",
+      "bytes": 2602,
+      "sha256_hex_blocks": [
+        "e58179cb",
+        "db935c4e",
+        "b2980263",
+        "93ffe420",
+        "17a34f64",
+        "08d02738",
+        "aaedaad6",
+        "4e7dbb33"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/tts/trivy.json",
+      "bytes": 164296,
+      "sha256_hex_blocks": [
+        "db34eca2",
+        "adbbe97f",
+        "f30a76e1",
+        "5aad33d0",
+        "b5bc50f2",
+        "64bc235b",
+        "5e7e2661",
+        "1dae84bb"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/tts/scanner.log",
+      "bytes": 523,
+      "sha256_hex_blocks": [
+        "2f7b1a2c",
+        "4f8e968e",
+        "78266e73",
+        "e8c991d0",
+        "36a21661",
+        "3ec5b254",
+        "9142e3d4",
+        "a8ebee78"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/worker/trivy.json",
+      "bytes": 181925,
+      "sha256_hex_blocks": [
+        "4d2001f1",
+        "2798c57c",
+        "e5252f37",
+        "db937874",
+        "6eb62da9",
+        "d381cf6d",
+        "3b996b0c",
+        "b51056ac"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/worker/scanner.log",
+      "bytes": 434,
+      "sha256_hex_blocks": [
+        "fd06ab25",
+        "5a928f31",
+        "e25a0a4b",
+        "47812c51",
+        "16993ad1",
+        "04596809",
+        "c657ae49",
+        "9a34e63d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/vieneu-mirror-w0340.tar.gz",
+      "bytes": 318299389,
+      "sha256_hex_blocks": [
+        "c0f8f1ff",
+        "818a09d2",
+        "251bf297",
+        "9c4962f4",
+        "66eb3fab",
+        "8dddb078",
+        "09f6b558",
+        "926d0888"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/vieneu-w0340/catalog.json",
+      "bytes": 7017,
+      "sha256_hex_blocks": [
+        "218070b3",
+        "a795406c",
+        "682d78a7",
+        "9f17f3f7",
+        "33930b07",
+        "5dc63a30",
+        "33a0f893",
+        "dda9a769"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/mirror-local-proof-final/receipt.json",
+      "bytes": 7768,
+      "sha256_hex_blocks": [
+        "b67d9976",
+        "b6d05a9b",
+        "2d7ee616",
+        "f8f71172",
+        "bf81458b",
+        "b372968b",
+        "0949ebdb",
+        "2636ea19"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0340/verify-mirror.py",
+      "bytes": 3666,
+      "sha256_hex_blocks": [
+        "da00764e",
+        "e573ef8f",
+        "f7938d79",
+        "2762cbf7",
+        "b8c25f65",
+        "4f1cc92a",
+        "a701444f",
+        "b3e814bc"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/build-mirror.py",
+      "bytes": 4151,
+      "sha256_hex_blocks": [
+        "9adecad6",
+        "891d9424",
+        "3e1b3d8b",
+        "21650344",
+        "1018f188",
+        "4fd6b35b",
+        "ec8086bf",
+        "fafc829b"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/mirror-guard-results.json",
+      "bytes": 160,
+      "sha256_hex_blocks": [
+        "077d8e3e",
+        "ff4c1f95",
+        "0aaeadc0",
+        "eccb97e3",
+        "5d18c116",
+        "cf2f385b",
+        "03decd7a",
+        "9a5e9044"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0340/run-mirror-handoff.ps1",
+      "bytes": 2157,
+      "sha256_hex_blocks": [
+        "49c41558",
+        "099d9e0a",
+        "8528e7ca",
+        "ce9efdf1",
+        "93f2035d",
+        "ebec0e97",
+        "d1d83802",
+        "fc2e72a7"
+      ]
+    },
+    {
+      "path": "docs/evidence/W-0340/S2-owner-review.md",
+      "bytes": 5664,
+      "sha256_hex_blocks": [
+        "6aa620e2",
+        "fb41c62b",
+        "6c36b4ab",
+        "42412896",
+        "b592f57d",
+        "5f4537a1",
+        "9fda9eff",
+        "10e6ebc3"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/install-vieneu-mirror-w0340.sh",
+      "bytes": 854,
+      "sha256_hex_blocks": [
+        "e7cb46e2",
+        "5cc42def",
+        "b18c2ed8",
+        "00a3df24",
+        "1e8b150f",
+        "17ad5b6d",
+        "089818d1",
+        "b62ca93d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/vieneu-mirror-w0340.tar.gz.sha256",
+      "bytes": 190,
+      "sha256_hex_blocks": [
+        "a035cc0f",
+        "ec9dfb88",
+        "766eae48",
+        "709abdca",
+        "6c68dd17",
+        "21e286bc",
+        "8d61699c",
+        "610bb202"
+      ]
+    }
+  ]
+}

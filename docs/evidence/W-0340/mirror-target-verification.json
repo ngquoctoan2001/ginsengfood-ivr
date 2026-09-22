@@ -1,0 +1,367 @@
+{
+  "work_id": "W-0340",
+  "status": "S5_INTERNAL_ARTIFACT_STORE_AND_RESTORE_VERIFIED",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "S2": "OWNER_RISK_ACCEPTED_LICENSE_EVIDENCE_PENDING",
+  "host": "vps61",
+  "verified_utc": "2026-09-22T02:46:12.761430+00:00",
+  "release_root": "/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340",
+  "files_verified": 39,
+  "restore_files_verified": 39,
+  "model_artifacts": 13,
+  "fixed_pcm_files": 12,
+  "image_archives": 2,
+  "catalog_exactly_matches_handoff": true,
+  "all_returned_file_hashes_match": true,
+  "profile": {
+    "tts_cpus": 2,
+    "tts_memory_gib": 4,
+    "segment_ms": 30000,
+    "queue_ms": 90000,
+    "preparation_ms": 120000,
+    "queue_limit": 8
+  },
+  "no_container_started_reported": true,
+  "transport": "owner SSH/SFTP; no OCI registry installed",
+  "returned_archive_bytes": 3660,
+  "receipt_source": "Owner-operated handoff; local analysis of returned files, not direct SSH inspection",
+  "mirror_uri_map": [
+    {
+      "bundle_path": "metadata/vieneu-model-card.md",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/metadata/vieneu-model-card.md",
+      "sha256_hex_blocks": [
+        "f8a7927b",
+        "5a6f27d1",
+        "ab54c63a",
+        "22a3c010",
+        "f8622b00",
+        "6c3239a6",
+        "91bcd014",
+        "b108b2b7"
+      ]
+    },
+    {
+      "bundle_path": "vieneu/onnx_int8/config.json",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/config.json",
+      "sha256_hex_blocks": [
+        "a9f8d9c4",
+        "b4736448",
+        "ab355d1a",
+        "98cfe48f",
+        "5e39aecf",
+        "2916c37b",
+        "0806c228",
+        "612e9a2d"
+      ]
+    },
+    {
+      "bundle_path": "vieneu/onnx_int8/tokenizer.json",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/tokenizer.json",
+      "sha256_hex_blocks": [
+        "6cc6bcbe",
+        "380b8c37",
+        "bd9f2514",
+        "e37c5dfa",
+        "3e00e122",
+        "c6e3125d",
+        "ae5c4afe",
+        "48e39158"
+      ]
+    },
+    {
+      "bundle_path": "vieneu/onnx_int8/vieneu_acoustic_cached.onnx",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_acoustic_cached.onnx",
+      "sha256_hex_blocks": [
+        "8f2d7306",
+        "a35c6128",
+        "793838f3",
+        "9c4c2da2",
+        "c176e243",
+        "bd63f096",
+        "3c56bbf0",
+        "376c3939"
+      ]
+    },
+    {
+      "bundle_path": "vieneu/onnx_int8/vieneu_backbone_shared.data",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_backbone_shared.data",
+      "sha256_hex_blocks": [
+        "429bfddd",
+        "585b7a19",
+        "07c7c9c9",
+        "44b3d91b",
+        "c4da8b91",
+        "f1f99823",
+        "53351357",
+        "140fd08f"
+      ]
+    },
+    {
+      "bundle_path": "vieneu/onnx_int8/vieneu_decode_step.onnx",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_decode_step.onnx",
+      "sha256_hex_blocks": [
+        "8346ce8f",
+        "efa3635a",
+        "2dcd29b6",
+        "f8a5cb23",
+        "c7acfd5d",
+        "a9dfad54",
+        "090b0f9b",
+        "797c4b5a"
+      ]
+    },
+    {
+      "bundle_path": "vieneu/onnx_int8/vieneu_prefill.onnx",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_prefill.onnx",
+      "sha256_hex_blocks": [
+        "bc45488b",
+        "d7802cd0",
+        "e5d65cc4",
+        "27e9124e",
+        "1a15b8b7",
+        "e9fd86d3",
+        "7a3d16f1",
+        "e847de4d"
+      ]
+    },
+    {
+      "bundle_path": "vieneu/onnx_int8/vieneu_v3_heads.npz",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_v3_heads.npz",
+      "sha256_hex_blocks": [
+        "19ee6dd5",
+        "6530d784",
+        "2c81fbd8",
+        "55f3d894",
+        "40e2c312",
+        "1e11f7e6",
+        "ced447a5",
+        "59da585a"
+      ]
+    },
+    {
+      "bundle_path": "metadata/moss-codec-model-card.md",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/metadata/moss-codec-model-card.md",
+      "sha256_hex_blocks": [
+        "3c7b9e9e",
+        "f1c8c5e5",
+        "c829a077",
+        "a1d32c1f",
+        "7aea1668",
+        "f2bf17ea",
+        "d318ff04",
+        "bf1e6fe4"
+      ]
+    },
+    {
+      "bundle_path": "moss-codec/codec_browser_onnx_meta.json",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/moss-codec/codec_browser_onnx_meta.json",
+      "sha256_hex_blocks": [
+        "3e291c88",
+        "3bb7d11f",
+        "f2fe8e96",
+        "4e3e4955",
+        "19760358",
+        "859f35c9",
+        "51254c77",
+        "41592731"
+      ]
+    },
+    {
+      "bundle_path": "moss-codec/moss_audio_tokenizer_decode_full.onnx",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/moss-codec/moss_audio_tokenizer_decode_full.onnx",
+      "sha256_hex_blocks": [
+        "0fbbafe3",
+        "fd4afa2a",
+        "019af5c5",
+        "ced204af",
+        "6e2d1db0",
+        "44fa40f0",
+        "21525d2a",
+        "ee95b4ac"
+      ]
+    },
+    {
+      "bundle_path": "moss-codec/moss_audio_tokenizer_decode_shared.data",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/moss-codec/moss_audio_tokenizer_decode_shared.data",
+      "sha256_hex_blocks": [
+        "e69d52e0",
+        "f4e84ca2",
+        "7850557e",
+        "e54face4",
+        "6632d3a5",
+        "a16c89bd",
+        "246c7c40",
+        "8466dcad"
+      ]
+    },
+    {
+      "bundle_path": "moss-codec/moss_audio_tokenizer_decode_step.onnx",
+      "uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/moss-codec/moss_audio_tokenizer_decode_step.onnx",
+      "sha256_hex_blocks": [
+        "9527c86a",
+        "29e1837e",
+        "dec1f74d",
+        "b57d5eea",
+        "adb3a715",
+        "af338270",
+        "3566460a",
+        "fed25855"
+      ]
+    }
+  ],
+  "mirror_lock_candidate": ".artifacts/W-0340/MODELS.lock.mirror-verified.json",
+  "active_source_lock_changed": false,
+  "candidate_model_verification": {
+    "nonprod_files": 13,
+    "remaining_blocker": "LEGAL",
+    "production": "EXPECTED_REFUSAL_LICENSE_EVIDENCE_MISSING"
+  },
+  "remaining": [
+    "Exact model/codec/preset license evidence and legal gate remain open",
+    "Candidate mirror lock is prepared separately; adopting it requires updating the provenance hash chain for a future image",
+    "No target worker/SIP deployment or OCI registry/remote backup proof from this file-store check"
+  ],
+  "artifact_bindings": [
+    {
+      "path": ".artifacts/W-0340/vieneu-mirror-w0340-result.tar.gz",
+      "bytes": 3660,
+      "sha256_hex_blocks": [
+        "799599f5",
+        "b819d681",
+        "ea597d3f",
+        "05d026a7",
+        "e958abbd",
+        "14d1a45e",
+        "d43746ad",
+        "8712403f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/mirror-target-received/receipt.json",
+      "bytes": 7539,
+      "sha256_hex_blocks": [
+        "b486c5fa",
+        "d28cb301",
+        "d43bb3a5",
+        "106b0ad8",
+        "5bf22595",
+        "e88b23c6",
+        "da8db4ca",
+        "f9b4a38c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/mirror-target-received/catalog.json",
+      "bytes": 7017,
+      "sha256_hex_blocks": [
+        "218070b3",
+        "a795406c",
+        "682d78a7",
+        "9f17f3f7",
+        "33930b07",
+        "5dc63a30",
+        "33a0f893",
+        "dda9a769"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/vieneu-mirror-w0340.tar.gz",
+      "bytes": 318299389,
+      "sha256_hex_blocks": [
+        "c0f8f1ff",
+        "818a09d2",
+        "251bf297",
+        "9c4962f4",
+        "66eb3fab",
+        "8dddb078",
+        "09f6b558",
+        "926d0888"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/vieneu-w0340/verify-mirror.py",
+      "bytes": 3666,
+      "sha256_hex_blocks": [
+        "da00764e",
+        "e573ef8f",
+        "f7938d79",
+        "2762cbf7",
+        "b8c25f65",
+        "4f1cc92a",
+        "a701444f",
+        "b3e814bc"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/verify-mirror-target.py",
+      "bytes": 6233,
+      "sha256_hex_blocks": [
+        "50beb7e8",
+        "13d87a31",
+        "d819537e",
+        "da4161ad",
+        "a48c18a5",
+        "4dba51f0",
+        "e9b05ccc",
+        "704ed43d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/MODELS.lock.mirror-verified.json",
+      "bytes": 13931,
+      "sha256_hex_blocks": [
+        "0cd60faa",
+        "023ee5a6",
+        "e1c4e91e",
+        "04323f44",
+        "592f7ba9",
+        "3e0a063a",
+        "d73565fa",
+        "70f8344b"
+      ]
+    },
+    {
+      "path": "deploy/tts/models/MODELS.lock",
+      "bytes": 11137,
+      "sha256_hex_blocks": [
+        "bba41ea7",
+        "96bc6ab1",
+        "c659865a",
+        "1087868d",
+        "41353680",
+        "8e00535c",
+        "71e5ce46",
+        "09cbe37d"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/mirror-lock-nonprod.log",
+      "bytes": 64,
+      "sha256_hex_blocks": [
+        "2347d222",
+        "6adfce76",
+        "f3bda39d",
+        "ec713990",
+        "4700e959",
+        "24771ad3",
+        "47dc9ac4",
+        "8f0c3cc9"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0340/mirror-lock-production-refusal.log",
+      "bytes": 43,
+      "sha256_hex_blocks": [
+        "254c520c",
+        "81925f54",
+        "847e20e2",
+        "a269e4d3",
+        "82eaf176",
+        "41e14259",
+        "23341428",
+        "a69c32a7"
+      ]
+    }
+  ]
+}
