@@ -1,5 +1,10 @@
 # W-0339 — Kiểm toàn luồng đơn giả trên lab SIP riêng
 
+**Bổ sung chốt commit sạch:** `66a6baa` đã chạy mới **7/7 ca toàn luồng**,
+**1.196/1.196 test và 43/43 gate**; C1/C2/C4 đạt.
+[Xem hồ sơ hoàn tất và phạm vi đề nghị nghiệm thu](clean-commit-closeout.md).
+Phần dưới giữ bằng chứng lần đầu với provenance riêng.
+
 Ngày 22/09/2026. **7/7 ca runtime đạt; 0 lỗi kỹ thuật bị tính thành lượt khách.**
 **REAL_CUSTOMER_CALL_ALLOWED=NO.** Trạng thái: EVIDENCE_SUBMITTED, chưa ACCEPTED.
 
@@ -107,9 +112,9 @@ Giữ cả hai sự cố harness, không tính chúng là hệ thống đạt:
 Đã gỡ container, SIP peer và network riêng sau khi lưu bằng chứng. Hai volume
 `ivr-w0339-flow-pg` và `ivr-w0339-flow-media` được giữ; không dọn volume hoặc sửa lab khác.
 
-## Việc còn lại
+## Kết thúc phần còn lại của lượt đầu
 
-- Chốt runtime W-0338 thành commit sạch, chạy toàn bộ test rồi full gate sweep tại
-  cùng SHA và sinh lại hồ sơ nghiệm thu. Lượt 340 test ở đây là kiểm có phạm vi.
+- Đã chốt lại toàn bộ build ứng dụng, chạy mới bảy ca và full test/sweep cùng
+  `66a6baa`; xem hồ sơ bổ sung ở đầu trang. Lượt 340 test lịch sử vẫn giữ phạm vi riêng.
 - Tích hợp trên máy đích, nhiều worker, M3 chung, S2/mirror và quyền production chưa
   thuộc bằng chứng này. Không chuyển ACCEPTED thay owner.

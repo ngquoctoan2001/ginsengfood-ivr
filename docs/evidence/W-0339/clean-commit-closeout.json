@@ -1,0 +1,1696 @@
+{
+  "work_id": "W-0339",
+  "status": "READY_FOR_OWNER_REVIEW",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "candidate": {
+    "commit": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+    "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+    "clean": true
+  },
+  "scope": "Clean-commit API/worker/migration; real VieNeu in isolated software SIP/RTP lab; synthetic orders and fake Sales; no physical SIM/PSTN/customer calls.",
+  "tests": {
+    "total": 1196,
+    "passed": 1196,
+    "failed": 0,
+    "skipped": 0,
+    "assemblies": [
+      {
+        "assembly": "Ivr.ContractTests.dll",
+        "count": 24
+      },
+      {
+        "assembly": "Ivr.UnitTests.dll",
+        "count": 781
+      },
+      {
+        "assembly": "Ivr.ChaosTests.dll",
+        "count": 8
+      },
+      {
+        "assembly": "Ivr.IntegrationTests.dll",
+        "count": 383
+      }
+    ]
+  },
+  "acceptance": {
+    "c1": "PASS",
+    "c2": "PASS",
+    "c4": "PASS",
+    "test_id_count": 21,
+    "test_ids": [
+      "CHAOS-TERMINATE-08",
+      "IT-API-RETRY-06",
+      "IT-API-TERMINATE-10",
+      "IT-DB-ATTEMPT-03",
+      "IT-NORM-TECH-02",
+      "IT-RESULT-CONTRACT-FINALITY-18",
+      "IT-RESULT-CONTRACT-OUTBOX-19",
+      "IT-TEL-TERMINATE-04",
+      "IT-TEL-VOICE-05",
+      "UT-AST-GATE-02",
+      "UT-AST-PLAYLIST-06",
+      "UT-OPTOUT-DTMF0-05",
+      "UT-SCH-CLOCK-03",
+      "UT-SCH-RETRY-06",
+      "UT-TEL-DTMF-10",
+      "UT-TTS-DEADLINE-01",
+      "UT-TTS-DEADLINE-02",
+      "UT-TTS-DEADLINE-03",
+      "UT-TTS-DEADLINE-04",
+      "UT-TTS-DEADLINE-05",
+      "UT-TTS-TIMEOUT-05"
+    ],
+    "consumer_row": "| `W-0339` | `EVIDENCE_SUBMITTED` | ✅ | ✅ | 👀 | **XEM** |",
+    "c3": "Owner review required; candidate row is frozen before closeout."
+  },
+  "sweep": {
+    "verdict": "GATE_SWEEP_PASS 43/43",
+    "runnable": 43,
+    "classified_non_runnable": 24
+  },
+  "collection_snapshots": {
+    "tests": {
+      "before": {
+        "commit": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+        "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+        "clean": true
+      },
+      "after": {
+        "commit": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+        "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+        "clean": true
+      },
+      "started_utc": "2026-09-22T03:43:58.132Z",
+      "finished_utc": "2026-09-22T03:57:11.260Z",
+      "exit_code": 0
+    },
+    "sweep": {
+      "before": {
+        "commit": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+        "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+        "clean": true
+      },
+      "after": {
+        "commit": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+        "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+        "clean": true
+      },
+      "started_utc": "2026-09-22T03:57:11.674Z",
+      "finished_utc": "2026-09-22T04:03:21.259Z",
+      "exit_code": 0
+    }
+  },
+  "runtime": {
+    "started_utc": "2026-09-22T03:49:23.412297+00:00",
+    "finished_utc": "2026-09-22T03:55:56.842203+00:00",
+    "project": "ivr-w0339-clean-66a6baa",
+    "profile": {
+      "Ivr__Speech__Tts__TimeoutMilliseconds": "30000",
+      "Ivr__Scheduler__LeaseDurationSeconds": "360",
+      "Ivr__Speech__Tts__PreparationTimeoutMilliseconds": "120000",
+      "Ivr__Speech__Tts__PreparationQueueTimeoutMilliseconds": "90000",
+      "Ivr__Speech__Tts__PreparationQueueLimit": "8"
+    },
+    "tts_resources": {
+      "NanoCpus": 2000000000,
+      "Memory": 4294967296,
+      "MemorySwap": 4294967296,
+      "ReadonlyRootfs": true
+    },
+    "images": {
+      "postgres": {
+        "sha256_hex_blocks": [
+          "95206741",
+          "a5b21480",
+          "7675e141",
+          "65369d05",
+          "b93a9cf6",
+          "92223b61",
+          "6d07cca2",
+          "27e74b0b"
+        ]
+      },
+      "ivr-migrate": {
+        "sha256_hex_blocks": [
+          "982d310d",
+          "6f04948b",
+          "e10755f5",
+          "5f20fc7d",
+          "541b86b7",
+          "7d97823d",
+          "beb9d3d4",
+          "5abecf46"
+        ]
+      },
+      "seed": {
+        "sha256_hex_blocks": [
+          "95206741",
+          "a5b21480",
+          "7675e141",
+          "65369d05",
+          "b93a9cf6",
+          "92223b61",
+          "6d07cca2",
+          "27e74b0b"
+        ]
+      },
+      "lab-seed": {
+        "sha256_hex_blocks": [
+          "95206741",
+          "a5b21480",
+          "7675e141",
+          "65369d05",
+          "b93a9cf6",
+          "92223b61",
+          "6d07cca2",
+          "27e74b0b"
+        ]
+      },
+      "media-init": {
+        "sha256_hex_blocks": [
+          "95206741",
+          "a5b21480",
+          "7675e141",
+          "65369d05",
+          "b93a9cf6",
+          "92223b61",
+          "6d07cca2",
+          "27e74b0b"
+        ]
+      },
+      "fake-sales": {
+        "sha256_hex_blocks": [
+          "2876acc6",
+          "f400b7aa",
+          "35c5cf50",
+          "553f951e",
+          "2cb17a0d",
+          "d9db0515",
+          "ee58e57c",
+          "2947688a"
+        ]
+      },
+      "asterisk": {
+        "sha256_hex_blocks": [
+          "6a3b73f5",
+          "2ff12509",
+          "56dcdaa3",
+          "735581e1",
+          "287e4b47",
+          "4396c1dc",
+          "813dbf07",
+          "509eb585"
+        ]
+      },
+      "ivr-api": {
+        "sha256_hex_blocks": [
+          "dff23e96",
+          "5b9cd647",
+          "d0a33c6e",
+          "7cdb6567",
+          "80a8a893",
+          "491a547b",
+          "c5c4b02f",
+          "359cff6d"
+        ]
+      },
+      "ivr-worker": {
+        "sha256_hex_blocks": [
+          "bd905f04",
+          "1e8919fd",
+          "ddacefcc",
+          "23203a9b",
+          "8ff233a5",
+          "e00aa185",
+          "4121548b",
+          "5774456d"
+        ]
+      },
+      "ivr-tts": {
+        "sha256_hex_blocks": [
+          "79e9106e",
+          "c1401c5c",
+          "dd751b80",
+          "da52e6d8",
+          "a46f17f4",
+          "37c1e069",
+          "0209bce1",
+          "3b692581"
+        ]
+      }
+    },
+    "fresh_builds": {
+      "ivr-api": {
+        "id": {
+          "sha256_hex_blocks": [
+            "dff23e96",
+            "5b9cd647",
+            "d0a33c6e",
+            "7cdb6567",
+            "80a8a893",
+            "491a547b",
+            "c5c4b02f",
+            "359cff6d"
+          ]
+        },
+        "source_before": {
+          "sha": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+          "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+          "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+          "clean": true
+        },
+        "revision": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      "ivr-worker": {
+        "id": {
+          "sha256_hex_blocks": [
+            "bd905f04",
+            "1e8919fd",
+            "ddacefcc",
+            "23203a9b",
+            "8ff233a5",
+            "e00aa185",
+            "4121548b",
+            "5774456d"
+          ]
+        },
+        "source_before": {
+          "sha": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+          "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+          "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+          "clean": true
+        },
+        "revision": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      "ivr-migrate": {
+        "id": {
+          "sha256_hex_blocks": [
+            "982d310d",
+            "6f04948b",
+            "e10755f5",
+            "5f20fc7d",
+            "541b86b7",
+            "7d97823d",
+            "beb9d3d4",
+            "5abecf46"
+          ]
+        },
+        "source_before": {
+          "sha": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+          "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+          "clean": true
+        },
+        "source_after": {
+          "sha": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+          "tree": "04cf8c32cdd7935a1a150328eab99e28d80d3f0a",
+          "clean": true
+        },
+        "revision": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      }
+    },
+    "dll_bindings": [
+      {
+        "service": "ivr-api",
+        "assembly": "Ivr.Api",
+        "sha256": {
+          "sha256_hex_blocks": [
+            "dffb8d36",
+            "7e465018",
+            "9251731a",
+            "88f4559d",
+            "2861b040",
+            "9e010910",
+            "25f41487",
+            "4c403429"
+          ]
+        },
+        "container_image": {
+          "sha256_hex_blocks": [
+            "dff23e96",
+            "5b9cd647",
+            "d0a33c6e",
+            "7cdb6567",
+            "80a8a893",
+            "491a547b",
+            "c5c4b02f",
+            "359cff6d"
+          ]
+        },
+        "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      {
+        "service": "ivr-api",
+        "assembly": "Ivr.Infrastructure",
+        "sha256": {
+          "sha256_hex_blocks": [
+            "6f6fe913",
+            "7fcdb99a",
+            "90a0ca32",
+            "610e727f",
+            "8626994a",
+            "dcc3a4f0",
+            "454f3c80",
+            "73fd552e"
+          ]
+        },
+        "container_image": {
+          "sha256_hex_blocks": [
+            "dff23e96",
+            "5b9cd647",
+            "d0a33c6e",
+            "7cdb6567",
+            "80a8a893",
+            "491a547b",
+            "c5c4b02f",
+            "359cff6d"
+          ]
+        },
+        "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      {
+        "service": "ivr-api",
+        "assembly": "Ivr.Domain",
+        "sha256": {
+          "sha256_hex_blocks": [
+            "d773b675",
+            "cc71f850",
+            "50e3bf69",
+            "8e80ce9f",
+            "4f500a7e",
+            "d56c8929",
+            "0966722f",
+            "a860e363"
+          ]
+        },
+        "container_image": {
+          "sha256_hex_blocks": [
+            "dff23e96",
+            "5b9cd647",
+            "d0a33c6e",
+            "7cdb6567",
+            "80a8a893",
+            "491a547b",
+            "c5c4b02f",
+            "359cff6d"
+          ]
+        },
+        "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      {
+        "service": "ivr-api",
+        "assembly": "Ivr.Contracts",
+        "sha256": {
+          "sha256_hex_blocks": [
+            "fbc9b766",
+            "5222e9d8",
+            "f5247c8f",
+            "8db00647",
+            "661571d6",
+            "075421c9",
+            "ebbecf80",
+            "755617a4"
+          ]
+        },
+        "container_image": {
+          "sha256_hex_blocks": [
+            "dff23e96",
+            "5b9cd647",
+            "d0a33c6e",
+            "7cdb6567",
+            "80a8a893",
+            "491a547b",
+            "c5c4b02f",
+            "359cff6d"
+          ]
+        },
+        "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      {
+        "service": "ivr-worker",
+        "assembly": "Ivr.Worker",
+        "sha256": {
+          "sha256_hex_blocks": [
+            "6d8793dd",
+            "383cd38d",
+            "afb76d55",
+            "177c3373",
+            "b966a9d5",
+            "cd9f8438",
+            "f59cf5e2",
+            "64dc357f"
+          ]
+        },
+        "container_image": {
+          "sha256_hex_blocks": [
+            "bd905f04",
+            "1e8919fd",
+            "ddacefcc",
+            "23203a9b",
+            "8ff233a5",
+            "e00aa185",
+            "4121548b",
+            "5774456d"
+          ]
+        },
+        "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      {
+        "service": "ivr-worker",
+        "assembly": "Ivr.Infrastructure",
+        "sha256": {
+          "sha256_hex_blocks": [
+            "6f6fe913",
+            "7fcdb99a",
+            "90a0ca32",
+            "610e727f",
+            "8626994a",
+            "dcc3a4f0",
+            "454f3c80",
+            "73fd552e"
+          ]
+        },
+        "container_image": {
+          "sha256_hex_blocks": [
+            "bd905f04",
+            "1e8919fd",
+            "ddacefcc",
+            "23203a9b",
+            "8ff233a5",
+            "e00aa185",
+            "4121548b",
+            "5774456d"
+          ]
+        },
+        "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      {
+        "service": "ivr-worker",
+        "assembly": "Ivr.Domain",
+        "sha256": {
+          "sha256_hex_blocks": [
+            "d773b675",
+            "cc71f850",
+            "50e3bf69",
+            "8e80ce9f",
+            "4f500a7e",
+            "d56c8929",
+            "0966722f",
+            "a860e363"
+          ]
+        },
+        "container_image": {
+          "sha256_hex_blocks": [
+            "bd905f04",
+            "1e8919fd",
+            "ddacefcc",
+            "23203a9b",
+            "8ff233a5",
+            "e00aa185",
+            "4121548b",
+            "5774456d"
+          ]
+        },
+        "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      },
+      {
+        "service": "ivr-worker",
+        "assembly": "Ivr.Contracts",
+        "sha256": {
+          "sha256_hex_blocks": [
+            "fbc9b766",
+            "5222e9d8",
+            "f5247c8f",
+            "8db00647",
+            "661571d6",
+            "075421c9",
+            "ebbecf80",
+            "755617a4"
+          ]
+        },
+        "container_image": {
+          "sha256_hex_blocks": [
+            "bd905f04",
+            "1e8919fd",
+            "ddacefcc",
+            "23203a9b",
+            "8ff233a5",
+            "e00aa185",
+            "4121548b",
+            "5774456d"
+          ]
+        },
+        "revision_label": "66a6baa2019efe69a1ede3b6179fce5b49643a6d"
+      }
+    ],
+    "migration_bundle": {
+      "sha256_hex_blocks": [
+        "82dd771a",
+        "f8490cd9",
+        "0feeb8ec",
+        "3a2a9c4b",
+        "f3b76ddc",
+        "483fd0da",
+        "c8e83a1d",
+        "668ae6c9"
+      ]
+    },
+    "cases": [
+      {
+        "case": "confirm",
+        "pass": true,
+        "region": "North",
+        "variant": "MultiItem",
+        "task_id": "TASK-W0339-CONFIRM-20260922034935188206",
+        "media_parts": 7,
+        "sip_call_observed": true,
+        "dtmf": "1",
+        "received_dtmf_events": 1,
+        "first_timeout_before_dial": null,
+        "job": {
+          "id": "JOB-5126772169d943f0aca8354381637200",
+          "status": "RESULT_READY_FOR_CALLBACK",
+          "queue": "HELD_CALLBACK"
+        },
+        "attempts": [
+          {
+            "number": 1,
+            "counted": true,
+            "exception": null,
+            "dtmf": "1",
+            "voice": "v3t-north-ngoc-linh",
+            "region": "North"
+          }
+        ],
+        "results": [
+          {
+            "type": "IVR_CONFIRMED",
+            "counted": true,
+            "final": true,
+            "reason": "CUSTOMER_PRESSED_1"
+          }
+        ],
+        "callback_rows": 1
+      },
+      {
+        "case": "customer-cancel",
+        "pass": true,
+        "region": "South",
+        "variant": "LongName",
+        "task_id": "TASK-W0339-CUSTOMER-CANCEL-20260922035035554313",
+        "media_parts": 7,
+        "sip_call_observed": true,
+        "dtmf": "0",
+        "received_dtmf_events": 1,
+        "first_timeout_before_dial": null,
+        "job": {
+          "id": "JOB-52cd072f392043fc8061950121c5019c",
+          "status": "RESULT_READY_FOR_CALLBACK",
+          "queue": "HELD_CALLBACK"
+        },
+        "attempts": [
+          {
+            "number": 1,
+            "counted": true,
+            "exception": null,
+            "dtmf": "0",
+            "voice": "v3t-south-my-duyen",
+            "region": "South"
+          }
+        ],
+        "results": [
+          {
+            "type": "IVR_CUSTOMER_CANCELLED",
+            "counted": true,
+            "final": true,
+            "reason": "CUSTOMER_PRESSED_0"
+          }
+        ],
+        "callback_rows": 1
+      },
+      {
+        "case": "technical-retry",
+        "pass": true,
+        "region": "Central",
+        "variant": "MultiItem",
+        "task_id": "TASK-W0339-TECHNICAL-RETRY-20260922035130392297",
+        "media_parts": 7,
+        "sip_call_observed": true,
+        "dtmf": "1",
+        "received_dtmf_events": 1,
+        "first_timeout_before_dial": true,
+        "job": {
+          "id": "JOB-43d11e58f3c54cf19716c890c6a14363",
+          "status": "RESULT_READY_FOR_CALLBACK",
+          "queue": "HELD_CALLBACK"
+        },
+        "attempts": [
+          {
+            "number": 1,
+            "counted": false,
+            "exception": "TTS_TIMEOUT",
+            "dtmf": null,
+            "voice": null,
+            "region": null
+          },
+          {
+            "number": 1,
+            "counted": true,
+            "exception": null,
+            "dtmf": "1",
+            "voice": "v3t-central-ngoc-tran",
+            "region": "Central"
+          }
+        ],
+        "results": [
+          {
+            "type": "IVR_TECHNICAL_EXCEPTION",
+            "counted": false,
+            "final": false,
+            "reason": "TTS_TIMEOUT"
+          },
+          {
+            "type": "IVR_CONFIRMED",
+            "counted": true,
+            "final": true,
+            "reason": "CUSTOMER_PRESSED_1"
+          }
+        ],
+        "callback_rows": 1
+      },
+      {
+        "case": "queued-expiry",
+        "pass": true,
+        "region": "North",
+        "variant": "B",
+        "task_id": "TASK-W0339-QUEUED-EXPIRY-20260922035258095783",
+        "media_parts": 0,
+        "sip_call_observed": false,
+        "dtmf": null,
+        "received_dtmf_events": 0,
+        "first_timeout_before_dial": null,
+        "job": {
+          "id": "JOB-d47263fb278840eb95e9204ff47fb691",
+          "status": "CAPACITY_MISSED",
+          "queue": "CLOSED_CAPACITY"
+        },
+        "attempts": [],
+        "results": [
+          {
+            "type": "IVR_CAPACITY_EXCEPTION",
+            "counted": false,
+            "final": true,
+            "reason": "NO_DISPATCH_BEFORE_DEADLINE"
+          }
+        ],
+        "callback_rows": 1
+      },
+      {
+        "case": "tts-expiry",
+        "pass": true,
+        "region": "South",
+        "variant": "MultiItem",
+        "task_id": "TASK-W0339-TTS-EXPIRY-20260922035309709075",
+        "media_parts": 0,
+        "sip_call_observed": false,
+        "dtmf": null,
+        "received_dtmf_events": 0,
+        "first_timeout_before_dial": null,
+        "job": {
+          "id": "JOB-e9109dee89d94aa4b4f7f5e857665b34",
+          "status": "WINDOW_EXPIRED",
+          "queue": "CLOSED_WINDOW_EXPIRED"
+        },
+        "attempts": [
+          {
+            "number": 1,
+            "counted": false,
+            "exception": "TTS_CACHE_WINDOW_EXPIRED",
+            "dtmf": null,
+            "voice": null,
+            "region": null
+          }
+        ],
+        "results": [
+          {
+            "type": "IVR_TECHNICAL_EXCEPTION",
+            "counted": false,
+            "final": false,
+            "reason": "TTS_CACHE_WINDOW_EXPIRED"
+          },
+          {
+            "type": "IVR_CONFIRMATION_WINDOW_EXPIRED",
+            "counted": false,
+            "final": true,
+            "reason": "WINDOW_EXPIRED_BEFORE_FINAL_RESULT"
+          }
+        ],
+        "callback_rows": 1
+      },
+      {
+        "case": "no-input",
+        "pass": true,
+        "region": "North",
+        "variant": "A",
+        "task_id": "TASK-W0339-NO-INPUT-20260922035333174891",
+        "media_parts": 7,
+        "sip_call_observed": true,
+        "dtmf": null,
+        "received_dtmf_events": 0,
+        "first_timeout_before_dial": null,
+        "job": {
+          "id": "JOB-be9a041b371a48c6a17f723a5572ee45",
+          "status": "RESULT_READY_FOR_CALLBACK",
+          "queue": "HELD_CALLBACK"
+        },
+        "attempts": [
+          {
+            "number": 1,
+            "counted": true,
+            "exception": null,
+            "dtmf": null,
+            "voice": "v3t-north-ngoc-linh",
+            "region": "North"
+          }
+        ],
+        "results": [
+          {
+            "type": "IVR_NO_ANSWER_FINAL",
+            "counted": true,
+            "final": true,
+            "reason": "ANSWERED_NO_INPUT"
+          }
+        ],
+        "callback_rows": 1
+      },
+      {
+        "case": "operator-cancel",
+        "pass": true,
+        "region": "Central",
+        "variant": "LongName",
+        "task_id": "TASK-W0339-OPERATOR-CANCEL-20260922035444933556",
+        "media_parts": 1,
+        "sip_call_observed": true,
+        "dtmf": null,
+        "received_dtmf_events": 0,
+        "first_timeout_before_dial": null,
+        "job": {
+          "id": "JOB-26474875fe0e4c55b2c092206320ccb3",
+          "status": "READY_FOR_SCHEDULER",
+          "queue": "QUEUED"
+        },
+        "attempts": [
+          {
+            "number": 1,
+            "counted": false,
+            "exception": "CALL_TERMINATED_BY_OPERATOR",
+            "dtmf": null,
+            "voice": "v3t-central-ngoc-tran",
+            "region": "Central"
+          }
+        ],
+        "results": [
+          {
+            "type": "IVR_TECHNICAL_EXCEPTION",
+            "counted": false,
+            "final": false,
+            "reason": "CALL_TERMINATED_BY_OPERATOR"
+          }
+        ],
+        "callback_rows": 0
+      }
+    ],
+    "reconciliation": {
+      "checked_utc": "2026-09-22T03:56:34.354734+00:00",
+      "status": "PASS",
+      "totals": {
+        "tasks": 7,
+        "attempts": 7,
+        "counted_customer_attempts": 4,
+        "technical_attempts": 3,
+        "results": 9,
+        "final_results": 6,
+        "callbacks": 6,
+        "miscounted_technical_attempts": 0,
+        "miscounted_noncustomer_results": 0,
+        "duplicate_finals": 0,
+        "duplicate_callbacks": 0,
+        "callbacks_for_nonfinal_results": 0
+      }
+    },
+    "cleanup": {
+      "finished_utc": "2026-09-22T03:56:44.801718+00:00",
+      "containers_removed": true,
+      "peer_removed": true,
+      "networks_removed": true,
+      "named_volumes_preserved": [
+        "ivr-w0339-clean-66a6baa-pg",
+        "ivr-w0339-clean-66a6baa-media"
+      ],
+      "other_lab_untouched": true,
+      "last_tts_readiness": 200
+    },
+    "shared_lab": {
+      "unchanged": true,
+      "containers": {
+        "/ginsengfood-ivr-dev-ivr-api-1": {
+          "id": "54db0ecd5b1efe40a5c317d9d94bc4f6c87138c6a834c53113e5dc540c51b4f3",
+          "started_at": "2026-09-21T02:40:06.916924385Z",
+          "restart_count": 0
+        },
+        "/ginsengfood-ivr-dev-ivr-worker-1": {
+          "id": "3ebf8de0f55771f15bca71e9b23080bfcae8d64ead0dd5ec21647494ee4edb64",
+          "started_at": "2026-09-22T00:57:36.858342237Z",
+          "restart_count": 0
+        },
+        "/ginsengfood-ivr-dev-ivr-tts-1": {
+          "id": "c8350edafd7e7d7cefbba6faa4ba1dc6dc1776bbe37f4695563b802365267314",
+          "started_at": "2026-09-22T00:57:37.238484214Z",
+          "restart_count": 0
+        },
+        "/ginsengfood-ivr-dev-asterisk-1": {
+          "id": "1142168eb2c303d6bc54f2c8d5dbcf8f3dc205eef45a8ca48752fe040c6f58a0",
+          "started_at": "2026-09-21T02:36:29.100021784Z",
+          "restart_count": 0
+        },
+        "/ginsengfood-ivr-dev-postgres-1": {
+          "id": "97601013ec87fe437058e210eae8c23fd201ae85ff95108fed97841b5998edbd",
+          "started_at": "2026-09-21T02:36:27.947553255Z",
+          "restart_count": 0
+        },
+        "/ginsengfood-ivr-dev-fake-sales-1": {
+          "id": "8233700fc7cfe3bc16db578c50e5bbc492f8280d77f559e5e2d32897dd81df50",
+          "started_at": "2026-09-21T02:36:27.934443614Z",
+          "restart_count": 0
+        }
+      }
+    },
+    "tts_mount_audit": {
+      "phase": "After runtime",
+      "model_files_verified": 13,
+      "voice_acceptance_manifest_matches_candidate": true,
+      "mounts_read_only": true
+    }
+  },
+  "historical_audit": {
+    "historical_artifacts_verified": 36,
+    "speech_sources": [
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\AudioCache.cs",
+        "matches": true,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      },
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\ConfigurableExternalTtsProvider.cs",
+        "matches": false,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      },
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\FakeDeterministicTtsProvider.cs",
+        "matches": true,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      },
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\RegionalVoiceMap.cs",
+        "matches": true,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      },
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\SpeechPreparationQueue.cs",
+        "matches": true,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      },
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\SpeechPrivacyGuard.cs",
+        "matches": true,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      },
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\SpeechServiceCollectionExtensions.cs",
+        "matches": true,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      },
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\SpeechSynthesisService.cs",
+        "matches": true,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      },
+      {
+        "path": "src\\Ivr.Infrastructure\\Speech\\TtsTelemetry.cs",
+        "matches": true,
+        "frozen_snapshot_matches_historical_hash": true,
+        "normalized_lf_content_matches": true
+      }
+    ]
+  },
+  "residual": [
+    {
+      "owner": "Toan, IVR owner",
+      "action": "Review and accept the bounded W-0339 local lab evidence."
+    },
+    {
+      "owner": "IVR/Infra",
+      "action": "Target S5 full scheduler/SIP integration and multi-worker deployment are separate follow-up scope."
+    },
+    {
+      "owner": "Sales/M3 and IVR",
+      "action": "Shared real integration remains separate; this run used synthetic intake and fake Sales."
+    },
+    {
+      "owner": "W-0340/W-0341 owners and Release owner",
+      "action": "Model/codec rights, release mirror provenance and production authorization are separate; no gates changed."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/build-manifest.json",
+      "bytes": 48950,
+      "sha256_hex_blocks": [
+        "85fae0b7",
+        "11e32d06",
+        "42621d2f",
+        "236bf84c",
+        "d63e475d",
+        "2e16c1ce",
+        "81660387",
+        "db850ce7"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/build-api.log",
+      "bytes": 5497,
+      "sha256_hex_blocks": [
+        "8a4842b7",
+        "f55cd99b",
+        "60c4a142",
+        "49445b62",
+        "7b53f176",
+        "ad650ae0",
+        "199539b0",
+        "8c77c7a6"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/build-worker.log",
+      "bytes": 4286,
+      "sha256_hex_blocks": [
+        "297f0027",
+        "9b53bb2f",
+        "7cf2a1f1",
+        "51b6906b",
+        "27034414",
+        "3962e169",
+        "a7178afa",
+        "de4d7b0e"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/build-migrate.log",
+      "bytes": 4801,
+      "sha256_hex_blocks": [
+        "2c051003",
+        "6c7c400c",
+        "8546280d",
+        "00c9ccb0",
+        "4c2030e2",
+        "539c0807",
+        "36beef77",
+        "95c4cccf"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/runtime-manifest.json",
+      "bytes": 5195,
+      "sha256_hex_blocks": [
+        "b79a0385",
+        "a6382fba",
+        "189ab615",
+        "52c89b8d",
+        "4919220e",
+        "e8acc847",
+        "38190b79",
+        "a441c0f5"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/runtime-dll-bindings.json",
+      "bytes": 2572,
+      "sha256_hex_blocks": [
+        "f44a9360",
+        "2fb7a36f",
+        "beee2d94",
+        "9d748323",
+        "1a00d2de",
+        "19e9d1f3",
+        "bb9273d4",
+        "a7ccce25"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/result.json",
+      "bytes": 19664,
+      "sha256_hex_blocks": [
+        "6e9c4d88",
+        "c6819927",
+        "9b44179d",
+        "44963d74",
+        "aace4ab1",
+        "eeb7b4c1",
+        "e4d2369e",
+        "f89645ee"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-flow.py",
+      "bytes": 18309,
+      "sha256_hex_blocks": [
+        "7b2c855b",
+        "05476263",
+        "3d037e42",
+        "472175c8",
+        "fc01175e",
+        "650e4f7a",
+        "00f7346a",
+        "7c890cab"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/finish.py",
+      "bytes": 4144,
+      "sha256_hex_blocks": [
+        "9a93325c",
+        "844909e3",
+        "5464c575",
+        "785ada5b",
+        "0e991cf7",
+        "b5d1d3ef",
+        "d8a11c98",
+        "a4d9a1e6"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/reconciliation.json",
+      "bytes": 453,
+      "sha256_hex_blocks": [
+        "6e61070d",
+        "a406f982",
+        "d8f645c4",
+        "16f8a8be",
+        "df31d983",
+        "8a97e923",
+        "94d33ba5",
+        "70a9094f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/reconciliation.sql",
+      "bytes": 1355,
+      "sha256_hex_blocks": [
+        "337751b9",
+        "2e0793df",
+        "919063b2",
+        "8e87cb07",
+        "ae578551",
+        "e3839bdf",
+        "c9df6ea9",
+        "0cc4f767"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/cleanup.json",
+      "bytes": 317,
+      "sha256_hex_blocks": [
+        "cadd6195",
+        "be55b734",
+        "4668995e",
+        "c35ecc29",
+        "e5190ade",
+        "bdbd31e0",
+        "0ef5f981",
+        "de63f173"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/cleanup.log",
+      "bytes": 2470,
+      "sha256_hex_blocks": [
+        "e0d703b6",
+        "6df1c49d",
+        "6700bf46",
+        "54f49dda",
+        "d6a3110f",
+        "5fc6a43b",
+        "adbaa859",
+        "2d5e83a8"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/shared-lab-before.json",
+      "bytes": 1219,
+      "sha256_hex_blocks": [
+        "57ba9824",
+        "06b7ad50",
+        "d7bd100c",
+        "e22b36d3",
+        "cb3789c9",
+        "98f01e3e",
+        "805431c8",
+        "067bd075"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/shared-lab-after.json",
+      "bytes": 1325,
+      "sha256_hex_blocks": [
+        "db0c42ff",
+        "1f6b4576",
+        "de78eedf",
+        "e5acadd7",
+        "c33756ee",
+        "1c7fc61e",
+        "69177af2",
+        "7e74c77c"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/fixture-audit.json",
+      "bytes": 672,
+      "sha256_hex_blocks": [
+        "d3b9ab10",
+        "5a0d21d6",
+        "a012bb0e",
+        "02b942d0",
+        "8ec16b56",
+        "a7dbbdf9",
+        "05de7c0e",
+        "606c48de"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/tts-mount-audit.json",
+      "bytes": 3143,
+      "sha256_hex_blocks": [
+        "fab67d6c",
+        "9e5279df",
+        "519b4b62",
+        "b335ef86",
+        "c59e630d",
+        "2f551651",
+        "7ed4b3ea",
+        "c70fb796"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/flow.log",
+      "bytes": 225,
+      "sha256_hex_blocks": [
+        "4e782396",
+        "23b5af4f",
+        "65fa43fb",
+        "1439b129",
+        "4790a7f2",
+        "6b8c2352",
+        "c6eb526e",
+        "cf97b05b"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/replay-kit.zip",
+      "bytes": 42776,
+      "sha256_hex_blocks": [
+        "e3467248",
+        "cc56e8cf",
+        "c80d4114",
+        "1850c89a",
+        "07b93310",
+        "160d577e",
+        "f18fd41a",
+        "f896614b"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/confirm-peer.log",
+      "bytes": 6621,
+      "sha256_hex_blocks": [
+        "c290fae2",
+        "b47391ff",
+        "ee287062",
+        "ef4b46b4",
+        "77a830d1",
+        "d51594f6",
+        "4cfc16fa",
+        "458289a3"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/confirm-switch.log",
+      "bytes": 1355,
+      "sha256_hex_blocks": [
+        "77c0e0c9",
+        "3ad40ce6",
+        "ad4deef2",
+        "8277d334",
+        "934ce48c",
+        "23a06d5c",
+        "a442dcf0",
+        "34f79813"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/customer-cancel-peer.log",
+      "bytes": 8211,
+      "sha256_hex_blocks": [
+        "933cab6c",
+        "68912379",
+        "b7f7946b",
+        "8198473d",
+        "9a4e289e",
+        "cada477a",
+        "0fd8738c",
+        "78a54402"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/customer-cancel-switch.log",
+      "bytes": 1281,
+      "sha256_hex_blocks": [
+        "d7dd4a12",
+        "57510e99",
+        "83074a6b",
+        "a76c816b",
+        "fa122b82",
+        "5717c13e",
+        "a5755779",
+        "aa0142c8"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/no-input-peer.log",
+      "bytes": 11208,
+      "sha256_hex_blocks": [
+        "a0b6456e",
+        "d4d0a1ca",
+        "f7130e81",
+        "81c4b7e4",
+        "d7552ca9",
+        "b33203b1",
+        "3bb13276",
+        "06aa1619"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/no-input-switch.log",
+      "bytes": 1281,
+      "sha256_hex_blocks": [
+        "5d374aaf",
+        "ca17cd00",
+        "44c9640b",
+        "ccc90f26",
+        "3b6e55b9",
+        "9e46c793",
+        "b010f667",
+        "04a30169"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/operator-cancel-peer.log",
+      "bytes": 10254,
+      "sha256_hex_blocks": [
+        "8535d57f",
+        "420259f1",
+        "20b2f6aa",
+        "1dc4a4d6",
+        "599b471f",
+        "1c086199",
+        "8f5e9bc3",
+        "0effd233"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/operator-cancel-switch.log",
+      "bytes": 700,
+      "sha256_hex_blocks": [
+        "4092fcb5",
+        "ea70eb04",
+        "f5e4ac6e",
+        "75cae4ea",
+        "c7992c99",
+        "b4edbd74",
+        "a48dc6a4",
+        "175db0f7"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/queued-expiry-peer.log",
+      "bytes": 316,
+      "sha256_hex_blocks": [
+        "39872003",
+        "4e8824af",
+        "08506f04",
+        "b1410884",
+        "69beaeff",
+        "bf2ec56b",
+        "c28a85ad",
+        "6850f99f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/queued-expiry-switch.log",
+      "bytes": 157,
+      "sha256_hex_blocks": [
+        "1a016209",
+        "dca889b8",
+        "6263e931",
+        "c737a1e0",
+        "c7c9fa3e",
+        "b30735d2",
+        "56eb512b",
+        "b7e7a481"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/technical-retry-peer.log",
+      "bytes": 12504,
+      "sha256_hex_blocks": [
+        "cf18cad3",
+        "51b75845",
+        "e6ae5855",
+        "5049450c",
+        "ddf456ad",
+        "c5593a8a",
+        "f72c007a",
+        "47c83415"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/technical-retry-switch.log",
+      "bytes": 1448,
+      "sha256_hex_blocks": [
+        "3cf6c187",
+        "aef286c2",
+        "1098fdec",
+        "058ec026",
+        "0a047ec4",
+        "88deb48d",
+        "b8894385",
+        "b0eb3a62"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/tts-expiry-peer.log",
+      "bytes": 3178,
+      "sha256_hex_blocks": [
+        "ec1ca0f2",
+        "26f2a098",
+        "40dc4a73",
+        "fc0dd862",
+        "bb3da8ce",
+        "f8ff99bb",
+        "0233b50d",
+        "64c263b3"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/run-2/tts-expiry-switch.log",
+      "bytes": 157,
+      "sha256_hex_blocks": [
+        "054727bb",
+        "78a28414",
+        "5edfd9a0",
+        "5ddae953",
+        "ffde4503",
+        "f9eb747e",
+        "e2325599",
+        "0fcaeb4a"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/ivr-api-final.log",
+      "bytes": 1464,
+      "sha256_hex_blocks": [
+        "8ea93504",
+        "1afe9a93",
+        "e256b263",
+        "61acffa9",
+        "0a1670df",
+        "7d5441a0",
+        "cde8cd19",
+        "8e310e13"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/ivr-worker-final.log",
+      "bytes": 66599,
+      "sha256_hex_blocks": [
+        "3938fc8c",
+        "34371bd0",
+        "1eab40b1",
+        "ee604d19",
+        "bd6906be",
+        "10c23705",
+        "5694625e",
+        "78655f84"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/ivr-tts-final.log",
+      "bytes": 2494,
+      "sha256_hex_blocks": [
+        "cefc8b47",
+        "bf3be650",
+        "8a715a90",
+        "25e3dbda",
+        "b4fe4059",
+        "526849d2",
+        "c8125b32",
+        "e2352b9f"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/asterisk-final.log",
+      "bytes": 30988,
+      "sha256_hex_blocks": [
+        "e0de86f7",
+        "280f37fb",
+        "c1cbbce5",
+        "1a688654",
+        "8cb1fd9f",
+        "9fcebccd",
+        "ddc080c7",
+        "ec355f67"
+      ]
+    },
+    {
+      "path": ".artifacts/W-0339-closeout-66a6baa/peer-final.log",
+      "bytes": 74064,
+      "sha256_hex_blocks": [
+        "f6baf71d",
+        "9a63ad45",
+        "c93ba2e3",
+        "0f8b9262",
+        "a021ab05",
+        "edc812ea",
+        "b591f942",
+        "66fb486d"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-acceptance-66a6baa-r1/acceptance-run.json",
+      "bytes": 2070,
+      "sha256_hex_blocks": [
+        "e295093e",
+        "76f86680",
+        "403175af",
+        "eb29bf7d",
+        "6b8feccf",
+        "30f822e1",
+        "d37400e3",
+        "1b4035f2"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-acceptance-66a6baa-r1/tests.log",
+      "bytes": 5254,
+      "sha256_hex_blocks": [
+        "70b6e368",
+        "ac3016b1",
+        "1cec1636",
+        "9cc429a8",
+        "625b2d00",
+        "d096d624",
+        "4bdb4af7",
+        "8dc9e350"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-acceptance-66a6baa-r1/sweep.log",
+      "bytes": 3978,
+      "sha256_hex_blocks": [
+        "48fa7a43",
+        "7365e461",
+        "3c9cbd99",
+        "944b74b9",
+        "c1a34e8d",
+        "3e0c9cf4",
+        "5f48ba70",
+        "5f47d863"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-acceptance-66a6baa-r1/acceptance-batches.md",
+      "bytes": 82663,
+      "sha256_hex_blocks": [
+        "986c2244",
+        "6fdaf356",
+        "1eb2cf43",
+        "987aa647",
+        "ebc65976",
+        "db41aa93",
+        "78c1fae8",
+        "b048026c"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-acceptance-66a6baa-r1/trx/Administrator_NQT_2026-09-22_10_44_28.trx",
+      "bytes": 38909,
+      "sha256_hex_blocks": [
+        "9dea536d",
+        "5a0f831d",
+        "7fa7ca75",
+        "7369d148",
+        "78e0af97",
+        "44eab40d",
+        "f5bd4110",
+        "be0102e2"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-acceptance-66a6baa-r1/trx/Administrator_NQT_2026-09-22_10_45_20.trx",
+      "bytes": 1178601,
+      "sha256_hex_blocks": [
+        "75aea386",
+        "c88d6d03",
+        "a97d1000",
+        "02567f9b",
+        "48d22707",
+        "0e902692",
+        "cc36019c",
+        "534f2b25"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-acceptance-66a6baa-r1/trx/Administrator_NQT_2026-09-22_10_45_23.trx",
+      "bytes": 15894,
+      "sha256_hex_blocks": [
+        "0ef37d08",
+        "701b19ee",
+        "68e97c4c",
+        "5f8a1f33",
+        "8d0bb300",
+        "e37e1a16",
+        "47b270b3",
+        "e8a526c2"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-acceptance-66a6baa-r1/trx/Administrator_NQT_2026-09-22_10_45_50.trx",
+      "bytes": 920196,
+      "sha256_hex_blocks": [
+        "15466b00",
+        "b9f59304",
+        "f01b5786",
+        "a8510a64",
+        "26e99b26",
+        "a52434ce",
+        "6e7a1cfd",
+        "9e587d39"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-closeout/build-clean.py",
+      "bytes": 2304,
+      "sha256_hex_blocks": [
+        "21efd19c",
+        "ca3b4f27",
+        "97aabb8a",
+        "ce6dea1d",
+        "b5d53c2d",
+        "16580e12",
+        "3f3f41ff",
+        "a0dd507b"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-closeout/prepare-lab.py",
+      "bytes": 7826,
+      "sha256_hex_blocks": [
+        "39c4a280",
+        "874f1a3e",
+        "ad623235",
+        "5c75e9c2",
+        "ea3440c6",
+        "485c3e2b",
+        "a71698d0",
+        "f3a45141"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-closeout/finish-lab.py",
+      "bytes": 1812,
+      "sha256_hex_blocks": [
+        "954e9c74",
+        "bef60aee",
+        "b27e5b7b",
+        "14a8ec43",
+        "1e38eda0",
+        "55b2c6b6",
+        "1f33b55b",
+        "908fe5e3"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-closeout/historical-audit.json",
+      "bytes": 2021,
+      "sha256_hex_blocks": [
+        "6e6b9656",
+        "cfa1e92b",
+        "da2d58e5",
+        "33043566",
+        "ae4f17c2",
+        "baa0ece0",
+        "93de2312",
+        "fe7bf958"
+      ]
+    },
+    {
+      "path": ".artifacts/w0339-closeout/test-plan-audit.json",
+      "bytes": 577,
+      "sha256_hex_blocks": [
+        "c339f848",
+        "eed51032",
+        "df1060a4",
+        "cf018d3d",
+        "6fc40beb",
+        "f895d622",
+        "281e8c74",
+        "e0e54b87"
+      ]
+    }
+  ]
+}
