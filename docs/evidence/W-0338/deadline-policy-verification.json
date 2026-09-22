@@ -1,0 +1,161 @@
+{
+  "status": "FOCUSED_LOCAL_TESTS_PASS",
+  "tests": {
+    "filter": "FullyQualifiedName~Ivr.UnitTests.Speech",
+    "failed": 0,
+    "passed": 212,
+    "command": "dotnet test tests/Ivr.UnitTests/Ivr.UnitTests.csproj -c Release --no-restore --filter 'FullyQualifiedName~Ivr.UnitTests.Speech' --logger 'trx;LogFileName=speech-review.trx' --results-directory ../test-results -p:SourceRevisionId=71f337e6a4db606eac1b0f2bdd71ec1eb1feb257 --verbosity minimal",
+    "total": 212,
+    "skipped": 0
+  },
+  "overlay": [
+    {
+      "sha256_hex_blocks": [
+        "9d1dc0d1",
+        "3825217c",
+        "470156be",
+        "70ac4ec1",
+        "41a14d08",
+        "84c3897b",
+        "96f04b65",
+        "ab0166ef"
+      ],
+      "path": "src/Ivr.Infrastructure/Speech/SpeechServiceCollectionExtensions.cs"
+    },
+    {
+      "sha256_hex_blocks": [
+        "bcc22044",
+        "8a967ccf",
+        "80dabd67",
+        "8b8b4e5f",
+        "feb16560",
+        "34ed8417",
+        "93a4cdc9",
+        "2eccd986"
+      ],
+      "path": "src/Ivr.Infrastructure/Speech/SpeechSynthesisService.cs"
+    },
+    {
+      "sha256_hex_blocks": [
+        "f023d3ea",
+        "770afe17",
+        "e18bfb7f",
+        "65c0db87",
+        "0a72c63c",
+        "2ebff7a5",
+        "862d8e0b",
+        "5197e5fe"
+      ],
+      "path": "deploy/lab/speech-lab-profile.mjs"
+    },
+    {
+      "sha256_hex_blocks": [
+        "c5962632",
+        "62cff3e0",
+        "b3625ab2",
+        "b1a0afae",
+        "be531950",
+        "2210047b",
+        "e56494ac",
+        "43dfefae"
+      ],
+      "path": "deploy/ci/scripts/lab-speech-preflight-selftest.mjs"
+    },
+    {
+      "sha256_hex_blocks": [
+        "a4891dd6",
+        "f7d51e8a",
+        "39369dc9",
+        "c169f190",
+        "14527fc8",
+        "d3950d40",
+        "ff97b285",
+        "60c0dabe"
+      ],
+      "path": "tests/Ivr.UnitTests/Speech/SpeechPreparationDeadlineTests.cs"
+    }
+  ],
+  "policy": {
+    "order_expiry": "earlier deadline wins",
+    "queue_waiters": 8,
+    "segment_ms": 30000,
+    "tts_memory_gib": 4,
+    "queue_ms": 90000,
+    "total_ms": 120000,
+    "tts_cpus": 2,
+    "capacity": 1
+  },
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "candidate": "baseline archive plus exactly the five overlays below; no clean-commit claim",
+  "preflight": {
+    "order_variants": 12,
+    "valid_profiles": 2,
+    "command": "node deploy/ci/scripts/lab-speech-preflight-selftest.mjs --powershell <bundled-pwsh>",
+    "entry_guards": 4,
+    "refusal_cases": 17,
+    "status": "PASS",
+    "network": "STUB"
+  },
+  "limitations": [
+    "WIP overlay, not exact clean-commit full acceptance proof",
+    "Worker scheduler SIP DTMF model and multiple-process integration not executed by this review",
+    "No deployment or production authorization"
+  ],
+  "scope": "W0338_INDEPENDENT_DEADLINE_POLICY_REVIEW",
+  "artifacts": [
+    {
+      "sha256_hex_blocks": [
+        "363b3558",
+        "f9e329b2",
+        "260ca3b3",
+        "be682806",
+        "9d962ccf",
+        "140e903d",
+        "daf294ac",
+        "b492b727"
+      ],
+      "path": "test-results/speech-review.trx"
+    },
+    {
+      "sha256_hex_blocks": [
+        "66984ac6",
+        "c6f6d9cc",
+        "cecea482",
+        "01efa5dd",
+        "83ac6829",
+        "448e6b23",
+        "5a14af4a",
+        "29dc0cfe"
+      ],
+      "path": "test.log"
+    },
+    {
+      "sha256_hex_blocks": [
+        "cd459e77",
+        "2bdcf2f5",
+        "efb7b80c",
+        "fc85bfcd",
+        "92a3b1c3",
+        "e998631d",
+        "247dc366",
+        "592d15e4"
+      ],
+      "path": "preflight.log"
+    },
+    {
+      "sha256_hex_blocks": [
+        "b11ecbca",
+        "e67999c3",
+        "a80ac16e",
+        "7b01aa27",
+        "0d844f5c",
+        "cd2b1958",
+        "fd621b2c",
+        "1ab9d485"
+      ],
+      "path": "snapshot.json"
+    }
+  ],
+  "baseline": "71f337e6a4db606eac1b0f2bdd71ec1eb1feb257",
+  "capturedUtc": "2026-09-22T00:45:14.3508641Z"
+}
