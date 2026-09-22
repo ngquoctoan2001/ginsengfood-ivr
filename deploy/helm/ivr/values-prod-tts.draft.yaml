@@ -16,7 +16,7 @@
 #   image.repository / image.digest           — S5: kho bản cài nội bộ, và Trivy chạy lại trên chính digest đó
 #   modelBundle.existingClaim                 — S5: bundle từ mirror nội bộ (OD-VOICE-07)
 #   mediaSink                                  — S5: chỗ đặt audio sinh ra cho tổng đài đọc (OD-VOICE-08)
-#   approvals.legalRef                        — S2 rủi ro 4: quyền dùng thương mại model VieNeu và 12 đoạn
+#   approvals.legalRef đã ghi W-0343           — phê duyệt Legal/Privacy đã nhận; không phải bật production
 #   approvals.platformRef                     — S5: máy chạy thật
 #   approvals.telephonyRef                    — S6: nhà mạng và adapter production
 #   approvals.internalMirrorRef               — S5: OD-VOICE-07
@@ -25,12 +25,13 @@
 # ConfigMap nghiệm thu giọng — tạo từ đúng một nguồn, không chép tay nội dung vào đây:
 #
 #   kubectl -n <namespace> create configmap ivr-tts-voice-acceptance \
-#     --from-file=voice-acceptance-manifest.json=docs/evidence/W-0122/voice-acceptance-manifest.json
+#     --from-file=voice-acceptance-manifest.json=docs/evidence/W-0343/voice-acceptance-manifest.json
 #
 # Manifest đó là OWNER_ACCEPTED (OD-VOICE-06, 28/08). Nó ràng vào hash của MODELS.lock và của
-# deploy/tts/runtime-requirements.lock; đổi một trong hai file thì phải nghe duyệt lại.
+# deploy/tts/runtime-requirements.lock. W-0343 thêm phê duyệt vào metadata W-0342 và ghi chuyển
+# liên kết ở README W-0343; model/preset/audio không đổi, giữ quyết định nghe đã có.
 #
-# Nghe duyệt 12 đoạn cố định dưới đây vẫn là việc của người duyệt được chỉ định (S1). Catalog lấy từ
+# Owner đã chốt ba giọng và các đoạn/mối nối; không yêu cầu nghe lại cho W-0343. Catalog lấy từ
 # deploy/lab/asterisk/audio/segments-appsettings.json; tiền tố "sound:generated/" là mặc định của chart
 # (mediaSink.mediaReferencePrefix) và đổi theo chỗ đặt audio mà S5 chọn.
 
@@ -43,7 +44,7 @@ worker:
     modelBundle:
       existingClaim: ""
       # SHA-256 của deploy/tts/models/MODELS.lock (byte LF), trùng model_lock_sha256 trong manifest nghiệm thu.
-      lockSha256: "bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d"
+      lockSha256: "82e8d27077ea3e66452f81fd1e84d0121210ca9f38adcb9ef9d0bce39554b7a2"
     voiceAcceptance:
       existingConfigMap: ivr-tts-voice-acceptance
       key: voice-acceptance-manifest.json
@@ -52,7 +53,7 @@ worker:
       type: UNDECIDED
       existingClaim: ""
     approvals:
-      legalRef: ""
+      legalRef: "docs/evidence/W-0343/legal-approval.json"
       platformRef: ""
       telephonyRef: ""
       internalMirrorRef: ""

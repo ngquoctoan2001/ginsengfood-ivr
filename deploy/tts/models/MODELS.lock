@@ -2,18 +2,30 @@
   "schema_version": 1,
   "work_id": "W-0122",
   "created_at": "2026-08-27",
-  "status": "DRAFT_NONPROD_VERIFIED_RELEASE_BLOCKED",
+  "status": "LICENSE_AND_MIRROR_APPROVED_CUTOVER_BLOCKED",
   "source_commit": "36c4b501b0634a8f59805e6b529a058fbd30190b",
   "source_tree": "16632c30c2484aa4f86c8cde68a074192bd52736",
   "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
   "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
   "legal_gate": {
-    "status": "OWNER_DATA_REQUIRED",
-    "reason": "Both model repositories declare apache-2.0 in model-card metadata but neither pinned revision contains a LICENSE file. Training-data and exact preset commercial-use review are also unresolved."
+    "status": "PASS",
+    "decision_authority": "LEGAL_PRIVACY",
+    "decided_by": "Nguyễn Quốc Toàn",
+    "decided_on": "2026-09-22",
+    "approval_reference": "docs/evidence/W-0343/legal-approval.json",
+    "approval_sha256": "d9fc8651b9c57ccc7f800d1f0c697b0c9b5a4176b946ee3d48a3bc5df15886a3",
+    "authority_basis": "Direct company-authorized decision permitting Legal/Privacy and Module 8 builder roles to be held by the same person; explicit owner instruction overrides the prior internal separation assumption for this named decision only.",
+    "scope": "Accept W-0341/W-0342 publisher license evidence for the pinned VieNeu and MOSS ONNX revisions, three approved preset voices and generated commercial order audio; preserve Apache-2.0 obligations and W-0340 S2 conditions.",
+    "production_activation_allowed": false,
+    "real_customer_call_allowed": "NO"
   },
   "internal_mirror_gate": {
-    "status": "OWNER_DATA_REQUIRED",
-    "reason": "No owner-approved internal artifact or OCI mirror URI/digest has been supplied."
+    "status": "PASS",
+    "decided_by": "Nguyễn Quốc Toàn",
+    "decided_on": "2026-09-22",
+    "approval_reference": "docs/evidence/W-0340/mirror-target-findings.md",
+    "authorization_basis": "Owner requested finalizing the internal mirror and executed the supplied installation/restore handoff on vps61; returned receipt verified.",
+    "scope": "Offline SSH/SFTP artifact storage and local restore only; not an OCI registry or production activation"
   },
   "artifacts": [
     {
@@ -29,8 +41,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/metadata/vieneu-model-card.md",
+      "internal_mirror_digest": "sha256:f8a7927b5a6f27d1ab54c63a22a3c010f8622b006c3239a691bcd014b108b2b7",
+      "license_evidence_id": "vieneu-v3-turbo"
     },
     {
       "component": "vieneu_backbone",
@@ -45,8 +58,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/config.json",
+      "internal_mirror_digest": "sha256:a9f8d9c4b4736448ab355d1a98cfe48f5e39aecf2916c37b0806c228612e9a2d",
+      "license_evidence_id": "vieneu-v3-turbo"
     },
     {
       "component": "vieneu_backbone",
@@ -61,8 +75,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/tokenizer.json",
+      "internal_mirror_digest": "sha256:6cc6bcbe380b8c37bd9f2514e37c5dfa3e00e122c6e3125dae5c4afe48e39158",
+      "license_evidence_id": "vieneu-v3-turbo"
     },
     {
       "component": "vieneu_backbone",
@@ -77,8 +92,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_acoustic_cached.onnx",
+      "internal_mirror_digest": "sha256:8f2d7306a35c6128793838f39c4c2da2c176e243bd63f0963c56bbf0376c3939",
+      "license_evidence_id": "vieneu-v3-turbo"
     },
     {
       "component": "vieneu_backbone",
@@ -93,8 +109,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_backbone_shared.data",
+      "internal_mirror_digest": "sha256:429bfddd585b7a1907c7c9c944b3d91bc4da8b91f1f9982353351357140fd08f",
+      "license_evidence_id": "vieneu-v3-turbo"
     },
     {
       "component": "vieneu_backbone",
@@ -109,8 +126,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_decode_step.onnx",
+      "internal_mirror_digest": "sha256:8346ce8fefa3635a2dcd29b6f8a5cb23c7acfd5da9dfad54090b0f9b797c4b5a",
+      "license_evidence_id": "vieneu-v3-turbo"
     },
     {
       "component": "vieneu_backbone",
@@ -125,8 +143,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_prefill.onnx",
+      "internal_mirror_digest": "sha256:bc45488bd7802cd0e5d65cc427e9124e1a15b8b7e9fd86d37a3d16f1e847de4d",
+      "license_evidence_id": "vieneu-v3-turbo"
     },
     {
       "component": "vieneu_backbone",
@@ -141,8 +160,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/vieneu/onnx_int8/vieneu_v3_heads.npz",
+      "internal_mirror_digest": "sha256:19ee6dd56530d7842c81fbd855f3d89440e2c3121e11f7e6ced447a559da585a",
+      "license_evidence_id": "vieneu-v3-turbo"
     },
     {
       "component": "moss_codec_model_card",
@@ -157,8 +177,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/metadata/moss-codec-model-card.md",
+      "internal_mirror_digest": "sha256:3c7b9e9ef1c8c5e5c829a077a1d32c1f7aea1668f2bf17ead318ff04bf1e6fe4",
+      "license_evidence_id": "moss-nano-onnx"
     },
     {
       "component": "moss_codec",
@@ -173,8 +194,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/moss-codec/codec_browser_onnx_meta.json",
+      "internal_mirror_digest": "sha256:3e291c883bb7d11ff2fe8e964e3e495519760358859f35c951254c7741592731",
+      "license_evidence_id": "moss-nano-onnx"
     },
     {
       "component": "moss_codec",
@@ -189,8 +211,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/moss-codec/moss_audio_tokenizer_decode_full.onnx",
+      "internal_mirror_digest": "sha256:0fbbafe3fd4afa2a019af5c5ced204af6e2d1db044fa40f021525d2aee95b4ac",
+      "license_evidence_id": "moss-nano-onnx"
     },
     {
       "component": "moss_codec",
@@ -205,8 +228,9 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/moss-codec/moss_audio_tokenizer_decode_shared.data",
+      "internal_mirror_digest": "sha256:e69d52e0f4e84ca27850557ee54face46632d3a5a16c89bd246c7c408466dcad",
+      "license_evidence_id": "moss-nano-onnx"
     },
     {
       "component": "moss_codec",
@@ -221,8 +245,14 @@
       "license_file_sha256": null,
       "voice_manifest_sha256": "574e6acf03823c4cafdc43f106731ce5fce6de30228fe383831b8b9064ee0bd8",
       "dependency_lock_sha256": "f04d0713ee2e0041fae1234064fad0f22958be712f852fc6464e1beb3a724b4e",
-      "internal_mirror_uri": null,
-      "internal_mirror_digest": null
+      "internal_mirror_uri": "sftp://ssv@192.168.1.61/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models/moss-codec/moss_audio_tokenizer_decode_step.onnx",
+      "internal_mirror_digest": "sha256:9527c86a29e1837edec1f74db57d5eeaadb3a715af3382703566460afed25855",
+      "license_evidence_id": "moss-nano-onnx"
     }
-  ]
+  ],
+  "license_evidence": {
+    "manifest_path": "LICENSES.json",
+    "sha256": "cbcc81c26d262d84dfca4d2b8e7d372c6c3d6ae21795ec56672a04adfdbc2e6c",
+    "review_reference": "docs/evidence/W-0341/README.md"
+  }
 }

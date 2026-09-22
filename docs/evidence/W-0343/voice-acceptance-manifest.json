@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_id": "W-0122",
-  "status": "PENDING_OWNER_LISTENING",
+  "status": "OWNER_ACCEPTED",
   "stale_relisten_required": false,
   "source_commit": "36c4b501b0634a8f59805e6b529a058fbd30190b",
   "model_artifacts": [
@@ -23,28 +23,28 @@
   "audition_renderer_sha256": "3c77abd04ffa6e764fad19e2b5dcb43cf8afc8970cc19e625cf3cfee85720ac2",
   "listening_profile_id": "w0122-asterisk-microsip-8khz-v1",
   "listening_route": "ASTERISK_MICROSIP_8KHZ",
-  "listener": null,
-  "listened_at": null,
-  "device_and_lab_route": null,
-  "approval_reference": null,
-  "all_11_candidates_listened": false,
+  "listener": "Nguyen Quoc Toan (IVR owner, Module 8)",
+  "listened_at": "2026-08-28T13:55:02+07:00",
+  "device_and_lab_route": "MicroSIP -> Asterisk lab 8 kHz, tai nghe có dây",
+  "approval_reference": "OD-VOICE-06 owner sign-off 2026-08-28",
+  "all_11_candidates_listened": true,
   "selections": {
     "North": {
-      "voice_id": null,
-      "preset": null,
-      "speaking_rate": null,
+      "voice_id": "v3t-north-ngoc-linh",
+      "preset": "Ngọc Linh",
+      "speaking_rate": 1.0,
       "owner_notes": null
     },
     "Central": {
-      "voice_id": null,
-      "preset": null,
-      "speaking_rate": null,
+      "voice_id": "v3t-central-ngoc-tran",
+      "preset": "Ngọc Trân",
+      "speaking_rate": 1.0,
       "owner_notes": null
     },
     "South": {
-      "voice_id": null,
-      "preset": null,
-      "speaking_rate": null,
+      "voice_id": "v3t-south-my-duyen",
+      "preset": "Mỹ Duyên",
+      "speaking_rate": 1.0,
       "owner_notes": null
     }
   },
@@ -52,80 +52,80 @@
     {
       "voice_id": "v3t-north-truc-ly",
       "region": "North",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "NOT_SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-north-ngoc-linh",
       "region": "North",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-north-doan-trang",
       "region": "North",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "NOT_SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-north-mai-anh",
       "region": "North",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "NOT_SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-north-quynh-anh",
       "region": "North",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "NOT_SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-north-ngoc-huyen",
       "region": "North",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "NOT_SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-central-ngoc-tran",
       "region": "Central",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-south-thuc-doan",
       "region": "South",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "NOT_SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-south-thuy-dung",
       "region": "South",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "NOT_SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-south-my-duyen",
       "region": "South",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "SELECTED",
       "notes": null
     },
     {
       "voice_id": "v3t-south-kim-thanh",
       "region": "South",
-      "listened": false,
-      "verdict": null,
+      "listened": true,
+      "verdict": "NOT_SELECTED",
       "notes": null
     }
   ],
-  "notes": "Copy to voice-acceptance-manifest.json only after Owner listens to all 11 candidates on the exact route. Set status=OWNER_ACCEPTED and populate every evidence field; never edit this template into an implied approval."
+  "notes": "W-0342 metadata-only rebind to published license evidence and verified mirror. Original owner decision/date/reference retained; model, presets, runtime dependencies and audio inputs unchanged. See docs/evidence/W-0342/README.md. No new listening decision. W-0343: rebind only the Legal/Privacy approval metadata after the owner explicitly approved dual authority; model/preset/audio/listener decision unchanged. No new listening requested."
 }

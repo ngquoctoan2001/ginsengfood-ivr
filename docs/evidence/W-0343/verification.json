@@ -1,0 +1,346 @@
+{
+  "work_id": "W-0343",
+  "verified_utc": "2026-09-22T04:42:48.742724+00:00",
+  "scope": "LOCAL_FINAL_CANDIDATE_HANDOFF_TEST",
+  "status": "LOCAL_CHECK_PASS_TARGET_HANDOFF_PENDING",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "legal_release_decision": "PASS_OWNER_AUTHORIZED_LEGAL_PRIVACY",
+  "package": {
+    "archive": "vieneu-release-w0343.tar.gz",
+    "archive_bytes": 322651943,
+    "archive_sha256": "668f02f753b490cf29fe1d9ffd73f481f23db514deeb3ffa389923353008d3ff",
+    "catalog_sha256": "39de4a043c02f4cf318c242eda5fc450315922f8ea52d54c77b625da78019b3a",
+    "files": 104,
+    "tts_image_index": "sha256:676133c79749512543a47a11ec66211ca083b38da3a0b0cf97777b1f2af6c1dd",
+    "tts_image_config": "sha256:3bfeb46fe22a2b742a72b32fc176781ea16489b45673ab47e846c5fd790d2a80",
+    "profile": {
+      "tts_cpus": 2,
+      "tts_memory_gib": 4,
+      "capacity": 1,
+      "ort_threads": 1,
+      "segment_ms": 30000,
+      "queue_ms": 90000,
+      "preparation_ms": 120000,
+      "queue_limit": 8
+    },
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+    "production": "BLOCKED",
+    "installer_sha256": "6e3023145a057e28b507df25e7f1dc35eb97def93748f4799d83b5a7bbc650a0"
+  },
+  "candidate": {
+    "image_index": "sha256:676133c79749512543a47a11ec66211ca083b38da3a0b0cf97777b1f2af6c1dd",
+    "image_config": "sha256:3bfeb46fe22a2b742a72b32fc176781ea16489b45673ab47e846c5fd790d2a80",
+    "archive_sha256": "e25b73c6195e2728db62878b904184f05ee21373c5e2b4ea3f8f8c4013fdbc50",
+    "source_bindings": {
+      "deploy/tts/models/MODELS.lock": "82e8d27077ea3e66452f81fd1e84d0121210ca9f38adcb9ef9d0bce39554b7a2",
+      "deploy/tts/scripts/verify-model.py": "985f1d807d4601bac4128420f5cae06fe58b347ef80269d870ac055097392292",
+      "deploy/tts/shim/acceptance.py": "7e6f04def920e7d052816d53c93764986f2dd2462d9a1fb310af5c80ac3a70a5",
+      "deploy/tts/shim/backend.py": "2babb008b6f3bbeab22e5d8d14962216e66900a4394cf96b2de6ee625e086d68",
+      "deploy/tts/shim/convert.py": "4cf76ed3995f62519492059c1425a7a6a42da6888d7cb2584245e9cf3a3f3d95",
+      "deploy/tts/shim/license_evidence.py": "efc3e6fc2e42e7564faf77ba2ca03acb64f237385e6d1436ad516d1ece21a53c",
+      "deploy/tts/shim/model_lock.py": "034e39d3fc9cc53db9b334fd835a7630951193921c50d7d7c8f7a70d8fd65d8e",
+      "deploy/tts/shim/server.py": "4d390ae743cfbfb71565452976e9ff11828d8de2c81f1f13daadce6fc444d66d",
+      "deploy/tts/shim/__init__.py": "9545827e0e4b5810025278cf8e1b997721ae9a751a309730980fec7e8e0adc2b",
+      "deploy/tts/shim/voices.json": "e6f95f9c1d794dbda981ef133de8db290840e6aa29d28515f6c3dcca4831b74f",
+      "deploy/tts/licenses/Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "deploy/tts/licenses/LICENSES.json": "cbcc81c26d262d84dfca4d2b8e7d372c6c3d6ae21795ec56672a04adfdbc2e6c",
+      "deploy/tts/licenses/moss-onnx-model-card.md": "3c7b9e9ef1c8c5e5c829a077a1d32c1f7aea1668f2bf17ead318ff04bf1e6fe4",
+      "deploy/tts/licenses/MOSS-source-LICENSE": "08af5a268e2223ebf492a30ef8c21a734a6faa1723af0d09a2027d60ed78ea24",
+      "deploy/tts/licenses/README.md": "748deb8a6e80705e5aac416b32a869b32f7e4820d55e7e762931b44d6d80fc0e",
+      "deploy/tts/licenses/vieneu-model-card.md": "f8a7927b5a6f27d1ab54c63a22a3c010f8622b006c3239a691bcd014b108b2b7",
+      "docs/evidence/W-0343/legal-approval.json": "d9fc8651b9c57ccc7f800d1f0c697b0c9b5a4176b946ee3d48a3bc5df15886a3",
+      "docs/evidence/W-0343/voice-acceptance-manifest.json": "4c3345c5ccaf36f3c94fd64f1598c7ad885ec02e85d5ea90ef1826330277eb01",
+      "docs/evidence/W-0122/voice-acceptance-manifest.template.json": "7099e55dc87ba3d7774b44646b328eb010234bbbf33a0aa581da75404655a3d0"
+    },
+    "image_files_exact": 16,
+    "model_artifacts_unchanged": 13,
+    "listening_decision_preserved": true,
+    "legal_gate": "PASS_OWNER_AUTHORIZED_LEGAL_PRIVACY",
+    "production": "BLOCKED",
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+    "scan": {
+      "vulnerabilities": 0,
+      "metadata_image_id_matches_config": true,
+      "database": {
+        "Version": 2,
+        "NextUpdate": "2026-09-22T19:11:02.692565768Z",
+        "UpdatedAt": "2026-09-21T19:11:02.692566039Z",
+        "DownloadedAt": "2026-09-22T02:21:22.294553366Z"
+      },
+      "downloaded_this_turn": false,
+      "report_sha256": "5c63cb363e28416c5b6ea2f232b16827384f4631eaeb90cdc90f912982a047f8"
+    }
+  },
+  "local_runtime": {
+    "work_id": "W-0343",
+    "scope": "LOCAL_LAB",
+    "status": "PASS",
+    "profile": {
+      "tts_cpus": 2,
+      "tts_memory_gib": 4,
+      "capacity": 1,
+      "ort_threads": 1,
+      "segment_ms": 30000,
+      "queue_ms": 90000,
+      "preparation_ms": 120000,
+      "queue_limit": 8
+    },
+    "production": "BLOCKED",
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+    "catalog_sha256": "39de4a043c02f4cf318c242eda5fc450315922f8ea52d54c77b625da78019b3a",
+    "tts_image_index": "sha256:676133c79749512543a47a11ec66211ca083b38da3a0b0cf97777b1f2af6c1dd",
+    "tts_image_config": "sha256:3bfeb46fe22a2b742a72b32fc176781ea16489b45673ab47e846c5fd790d2a80",
+    "release_path": "C:\\Users\\Administrator\\Desktop\\ivr\\.artifacts\\W-0343\\vieneu-w0343",
+    "started_utc": "2026-09-22T04:37:56.340548+00:00",
+    "image_used": "sha256:676133c79749512543a47a11ec66211ca083b38da3a0b0cf97777b1f2af6c1dd",
+    "runs": [
+      {
+        "run": 1,
+        "jobs": 25,
+        "errors": 0,
+        "pcm_equal": 25
+      }
+    ],
+    "existing_services_unchanged": true,
+    "ended_utc": "2026-09-22T04:41:25.633252+00:00"
+  },
+  "container_tests": {
+    "count": 27,
+    "HTTP_contract": "PASS"
+  },
+  "provenance_selftest": "PASS_36_LICENSE_REFUSALS_PLUS_BINDING_AUTHORITY_MUTATIONS",
+  "B3_selftest": "PASS_1_VALID_34_REFUSALS_PENDING_TEMPLATE_NOT_READY",
+  "deployment_guards": {
+    "test_methods": 2,
+    "negative_cases": 21,
+    "status": "PASS"
+  },
+  "python310_syntax": "PASS",
+  "powershell_verify_only": "PASS",
+  "local_links_verified": 16,
+  "s5_new_candidate_transferred": false,
+  "s5_new_candidate_measured": false,
+  "ssh_batchmode": "NO_USABLE_AUTH_PUBLICKEY_PASSWORD_REQUIRED",
+  "s5_planned_runs": 2,
+  "s5_soak_seconds_per_run": 450,
+  "pre_approval_package_and_results": ".artifacts/W-0343/pre-approval/",
+  "historical_W0342_bindings_checked": 46,
+  "bindings": [
+    {
+      "path": ".artifacts/W-0343/b3-selftest.log",
+      "bytes": 113,
+      "sha256": "11d185037ab753608fc605d6624b3f4d13836ae91dcb60b16518db337f695c2f"
+    },
+    {
+      "path": ".artifacts/W-0343/candidate.json",
+      "bytes": 3044,
+      "sha256": "38bfa1adaa85aa0a8248e3769e246a3d188813e581f4b5cd98431b591aa5fcb4"
+    },
+    {
+      "path": ".artifacts/W-0343/container-selftest.log",
+      "bytes": 4340,
+      "sha256": "ff42e29dfb5917eb3feacfc7b6c7ab111fd414a21ba7f15ace69adda99c94d34"
+    },
+    {
+      "path": ".artifacts/W-0343/detect-changes.txt",
+      "bytes": 1336,
+      "sha256": "8c99477af0a1d6ee8c8220601be86aa4bafb2fa90fb20446c8615a7b00654f24"
+    },
+    {
+      "path": ".artifacts/W-0343/helm-selftest.log",
+      "bytes": 176,
+      "sha256": "951fe5dfe08eab19aade1f8103c2b7a2822fa23627070303013e69c622b899d0"
+    },
+    {
+      "path": ".artifacts/W-0343/image-inspect.json",
+      "bytes": 5143,
+      "sha256": "a536e163a4925c816588ecd10bcc6ffe1f97c922ca62b2d712caa003edfbb7a1"
+    },
+    {
+      "path": ".artifacts/W-0343/install-vieneu-w0343.py",
+      "bytes": 4101,
+      "sha256": "6e3023145a057e28b507df25e7f1dc35eb97def93748f4799d83b5a7bbc650a0"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/deployment-final-inspect.json",
+      "bytes": 8941,
+      "sha256": "6934433a44effc5a6a86cbf23f49d85c03d1ae8ea136d9e5dee6a0d9e9b8bc64"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/deployment-inspect.json",
+      "bytes": 9095,
+      "sha256": "1592f8c00fc3ef08a2115bb2d960e212b9662b00bee4cdf692d4dcd5186ac765"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/entrypoint.log",
+      "bytes": 98,
+      "sha256": "3e371e2cb14c92fba75fa473d98970fd9519a61b90b57274b06d0d355dac2ef8"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/inventory.json",
+      "bytes": 30,
+      "sha256": "c9ca8cdc43699a941399e781a072814066df21f69fc76d31414ad459322aed99"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/license-model-check.log",
+      "bytes": 129,
+      "sha256": "17ab9501e4a9ca04e8d761dfa50a617fa64c6affbea2017eaf677fb143752152"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/measurement/host.json",
+      "bytes": 687,
+      "sha256": "5bb3415740cf5b8a135e09576ba8007b969febc7b88df62dc42a3aecd47f9e9e"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/measurement/inventory.json",
+      "bytes": 30,
+      "sha256": "c9ca8cdc43699a941399e781a072814066df21f69fc76d31414ad459322aed99"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/measurement/run-1/client.log",
+      "bytes": 1877,
+      "sha256": "8aa59fe9cf24bbdcf5e29a5730973848533201110b514f3bbd2d8bef7c82cb0b"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/measurement/run-1/completion.json",
+      "bytes": 93,
+      "sha256": "b00d7f29a40cafa28b9871a1b118f2f86ae19e3c37a4e3172df2a655aace0780"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/measurement/run-1/model.json",
+      "bytes": 11873,
+      "sha256": "5f85f624b22027e18932d610272bc3bcd26dab1c31df85ac8de074854d2e7b96"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/measurement/run-1/tts.log",
+      "bytes": 3417,
+      "sha256": "f8c33883c6bf402f3481e5f947ab0366a7a48e60a588f48b3f734e5cb527b833"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/measurement/run-1/worker.json",
+      "bytes": 20306,
+      "sha256": "96004dabebb31908741862d5e6d2ff1fa96523ca7f3f1d850631fbc25eaaeb6d"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/receipt.json",
+      "bytes": 1085,
+      "sha256": "4933852178bb82e928adf529fb1f0f89b2d459cf722649441787ecbb632b2fab"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/release-approval-check.log",
+      "bytes": 132,
+      "sha256": "f239c4fa6cd3b71321ea16324381d215158a7be7d8e5ff6b32e29b0cec2b4abb"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/restart-ready.json",
+      "bytes": 51,
+      "sha256": "7692a730845676041f55fb70f01e8a1249ffc163aea33ab860701d9b50ce7831"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/services-after.json",
+      "bytes": 2428,
+      "sha256": "bb5d119e7a43f4d343d7db82263fdcd0dd268d879ea291c59e804d700d937355"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/services-before.json",
+      "bytes": 2428,
+      "sha256": "bb5d119e7a43f4d343d7db82263fdcd0dd268d879ea291c59e804d700d937355"
+    },
+    {
+      "path": ".artifacts/W-0343/local-final/start-ready.json",
+      "bytes": 51,
+      "sha256": "4cb8c44b6b7ec424538c9273dbc8abf5ce88323c29e9226c0584dbb0e36622c0"
+    },
+    {
+      "path": ".artifacts/W-0343/package.json",
+      "bytes": 821,
+      "sha256": "9d2dc99d1959956bc5806e79db5d002c6a8ac6bffe6cf70cbc0590a61eaea5c7"
+    },
+    {
+      "path": ".artifacts/W-0343/provenance-selftest.log",
+      "bytes": 717,
+      "sha256": "3c44fcf7b766ca54109b0081f3f6581c62bbf8e02fa11fbd9e98eee98b6bc955"
+    },
+    {
+      "path": ".artifacts/W-0343/scan/scanner.log",
+      "bytes": 523,
+      "sha256": "96bcf7f3545d40b179d4ce7bdbde98b8d3a3a78f763756f94856c2002b2f1b3d"
+    },
+    {
+      "path": ".artifacts/W-0343/scan/trivy.json",
+      "bytes": 165642,
+      "sha256": "5c63cb363e28416c5b6ea2f232b16827384f4631eaeb90cdc90f912982a047f8"
+    },
+    {
+      "path": ".artifacts/W-0343/tts-image.tar",
+      "bytes": 105812992,
+      "sha256": "e25b73c6195e2728db62878b904184f05ee21373c5e2b4ea3f8f8c4013fdbc50"
+    },
+    {
+      "path": ".artifacts/W-0343/vieneu-release-w0343.tar.gz",
+      "bytes": 322651943,
+      "sha256": "668f02f753b490cf29fe1d9ffd73f481f23db514deeb3ffa389923353008d3ff"
+    },
+    {
+      "path": ".artifacts/W-0343/vieneu-release-w0343.tar.gz.sha256",
+      "bytes": 184,
+      "sha256": "c941f88d9774b9f71a53164bb23399c683f523a00f9f272e8c6250e1101f55a4"
+    },
+    {
+      "path": ".artifacts/W-0343/voice-rebind.log",
+      "bytes": 188,
+      "sha256": "02eeecf089a47f797bc19dec9f3855360f8d76e600397c06e210326b53131ac4"
+    },
+    {
+      "path": "docs/evidence/W-0343/build-release.py",
+      "bytes": 6340,
+      "sha256": "519d8d81f42a2031b49e7183b1286d6322abc6f1217f285c75e183f9cf11c062"
+    },
+    {
+      "path": "docs/evidence/W-0343/install-release.py",
+      "bytes": 4101,
+      "sha256": "6e3023145a057e28b507df25e7f1dc35eb97def93748f4799d83b5a7bbc650a0"
+    },
+    {
+      "path": "docs/evidence/W-0343/legal-approval.json",
+      "bytes": 999,
+      "sha256": "d9fc8651b9c57ccc7f800d1f0c697b0c9b5a4176b946ee3d48a3bc5df15886a3"
+    },
+    {
+      "path": "docs/evidence/W-0343/README.md",
+      "bytes": 6160,
+      "sha256": "52f6e1020255dd6ac1c5611484ab48b05c73d18e6aee278dfe59165ef42b8aac"
+    },
+    {
+      "path": "docs/evidence/W-0343/release-decision.md",
+      "bytes": 4616,
+      "sha256": "987a8f9003e10ad9008915f2338d6662dcbe912a73c803e613fd1db6971d4b01"
+    },
+    {
+      "path": "docs/evidence/W-0343/run-release-check.py",
+      "bytes": 12782,
+      "sha256": "1be2e57a2d0aa3587f8a483834fe0f3d10037d17e32896ad8cc362058eab691c"
+    },
+    {
+      "path": "docs/evidence/W-0343/run-s5-handoff.ps1",
+      "bytes": 4102,
+      "sha256": "d381a0d9d73949643f527e88b28c01970d2fecb18ab20faf188c076a9e43614d"
+    },
+    {
+      "path": "docs/evidence/W-0343/test-release-guards.py",
+      "bytes": 4017,
+      "sha256": "de4a459c53c54701ff3ab1395112389c52e633b0694387bbecde042fe8483ed8"
+    },
+    {
+      "path": "docs/evidence/W-0343/verify-candidate.py",
+      "bytes": 4840,
+      "sha256": "5313e5538c8cbe63362386e849f7ff75707dd5c5f7036c7665fc01e2b1d126c0"
+    },
+    {
+      "path": "docs/evidence/W-0343/voice-acceptance-manifest.json",
+      "bytes": 4180,
+      "sha256": "4c3345c5ccaf36f3c94fd64f1598c7ad885ec02e85d5ea90ef1826330277eb01"
+    }
+  ]
+}

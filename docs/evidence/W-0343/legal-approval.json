@@ -1,0 +1,15 @@
+{
+  "work_id": "W-0343",
+  "status": "PASS",
+  "decision_authority": "LEGAL_PRIVACY",
+  "decided_by": "Nguyễn Quốc Toàn",
+  "decided_on": "2026-09-22",
+  "recorded_utc": "2026-09-22T04:32:17.879153+00:00",
+  "approval_reference": "docs/evidence/W-0343/release-decision.md",
+  "statement_verbatim": "Tôi có thẩm quyền cho phép kiêm nhiệm Legal/Privacy và chấp thuận phiếu này",
+  "authority_basis": "Direct company-authorized decision permitting Legal/Privacy and Module 8 builder roles to be held by the same person; explicit owner instruction overrides the prior internal separation assumption for this named decision only.",
+  "scope": "Accept W-0341/W-0342 publisher license evidence for the pinned VieNeu and MOSS ONNX revisions, three approved preset voices and generated commercial order audio; preserve Apache-2.0 obligations and W-0340 S2 conditions.",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "not_independent_external_legal_review": true
+}

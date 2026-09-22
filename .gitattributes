@@ -143,3 +143,8 @@ deploy/lab/asterisk/w0122-audition/extensions.conf text eol=lf
 # missed, so a Windows checkout produced CRLF and manufactured drift the Linux
 # runner never sees - the same W-0126/F1 trap, one file later.
 integration-requirements/05-open-contract-questions.md text eol=lf
+
+# W-0343: the Legal/Privacy decision and derived acceptance are byte-pinned by CI.
+docs/evidence/W-0343/*.json text eol=lf
+docs/evidence/W-0343/*.py text eol=lf
+docs/evidence/W-0343/*.ps1 text eol=lf

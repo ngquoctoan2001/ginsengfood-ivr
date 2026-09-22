@@ -17,8 +17,11 @@ const GIT_SHA_PATTERN = /^[a-f0-9]{40}$/u;
 const SAFE_ALIAS_PATTERN = /^[A-Z0-9][A-Z0-9._:/-]{1,127}$/u;
 
 const SOURCE_PINS = Object.freeze({
-  "deploy/tts/models/MODELS.lock": "bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d",
-  "deploy/tts/shim/voices.json": "9a76fdabca3ad58994caa1b59c0c76f3a98facb22f11e2f9ec9210a9371ccae2",
+  "docs/evidence/W-0343/legal-approval.json": "d9fc8651b9c57ccc7f800d1f0c697b0c9b5a4176b946ee3d48a3bc5df15886a3",
+  "deploy/tts/licenses/LICENSES.json": "cbcc81c26d262d84dfca4d2b8e7d372c6c3d6ae21795ec56672a04adfdbc2e6c",
+  "docs/evidence/W-0343/voice-acceptance-manifest.json": "4c3345c5ccaf36f3c94fd64f1598c7ad885ec02e85d5ea90ef1826330277eb01",
+  "deploy/tts/models/MODELS.lock": "82e8d27077ea3e66452f81fd1e84d0121210ca9f38adcb9ef9d0bce39554b7a2",
+  "deploy/tts/shim/voices.json": "e6f95f9c1d794dbda981ef133de8db290840e6aa29d28515f6c3dcca4831b74f",
   "docs/evidence/W-0122/voice-acceptance-manifest.json": "90927e16cbe5b4e27f48e31ba396c9069f1ae908eaadc15757e72fbc0d8558b9",
   "docs/evidence/W-0122/lab-runbook.md": "8a7d8a889d0ac22672116ab6a7273029e32e6776e0e2cea40da4d41dc92851fd",
   "docs/lab/one-sim-lab-plan.md": "c78c63642595f5101256a006e88c6901afdef58fd7afe79297ab1285ded0dd02",
