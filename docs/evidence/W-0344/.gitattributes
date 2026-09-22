@@ -1,0 +1,5 @@
+# The installer is executed by Linux and its exact bytes are pinned in the handoff.
+*.sh text eol=lf
+*.ps1 text eol=lf
+*.json text eol=lf
+*.md text eol=lf

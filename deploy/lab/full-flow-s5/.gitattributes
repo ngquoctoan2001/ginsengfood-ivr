@@ -1,0 +1,2 @@
+# These files are hashed into the offline S5 kit on Windows and executed on Linux.
+*.py text eol=lf

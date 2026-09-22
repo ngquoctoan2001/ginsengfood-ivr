@@ -1,0 +1,773 @@
+{
+  "work_id": "W-0344",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "target_status": "NOT_RUN_SSH_PASSWORD_REQUIRED",
+  "ssh": {
+    "host": "ssv@192.168.1.61",
+    "mode": "BatchMode=yes,StrictHostKeyChecking=yes",
+    "result": "Permission denied (publickey,password).",
+    "server_commands_executed": false
+  },
+  "candidate": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+  "launcher_tests": {
+    "passed": 25,
+    "failed": 0,
+    "new_refusal_tests": 14,
+    "command": "python -m unittest discover -s deploy/lab/tests -p 'test_*s5*.py' -v"
+  },
+  "local_rehearsal": {
+    "work_id": "W-0344",
+    "candidate": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+    "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+    "scope": "LOCAL_REHEARSAL",
+    "project": "ivr-w0344-20260922042935-7fa5e0",
+    "started_utc": "2026-09-22T04:29:35.813578+00:00",
+    "status": "PASS",
+    "kit_manifest_sha256": "8844b979b82f95980c177a56886524abc5be5d1e75622a65d7fe6d1068eabe8d",
+    "cases_passed": 7,
+    "reconciliation": {
+      "tasks": 7,
+      "attempts": 7,
+      "counted_customer_attempts": 4,
+      "technical_attempts": 3,
+      "results": 9,
+      "final_results": 6,
+      "callbacks": 6,
+      "miscounted_technical_attempts": 0,
+      "miscounted_noncustomer_results": 0,
+      "duplicate_finals": 0,
+      "duplicate_callbacks": 0,
+      "callbacks_for_nonfinal_results": 0
+    },
+    "finished_utc": "2026-09-22T04:36:56.399986+00:00"
+  },
+  "cases": [
+    {
+      "name": "confirm",
+      "pass": true,
+      "observed_sip": true,
+      "digit": "1",
+      "task_status": "RESULT_READY_FOR_CALLBACK",
+      "customer_attempts": 1
+    },
+    {
+      "name": "customer-cancel",
+      "pass": true,
+      "observed_sip": true,
+      "digit": "0",
+      "task_status": "RESULT_READY_FOR_CALLBACK",
+      "customer_attempts": 1
+    },
+    {
+      "name": "technical-retry",
+      "pass": true,
+      "observed_sip": true,
+      "digit": "1",
+      "task_status": "RESULT_READY_FOR_CALLBACK",
+      "customer_attempts": 1
+    },
+    {
+      "name": "queued-expiry",
+      "pass": true,
+      "observed_sip": false,
+      "digit": null,
+      "task_status": "CAPACITY_MISSED",
+      "customer_attempts": 0
+    },
+    {
+      "name": "tts-expiry",
+      "pass": true,
+      "observed_sip": false,
+      "digit": null,
+      "task_status": "WINDOW_EXPIRED",
+      "customer_attempts": 0
+    },
+    {
+      "name": "no-input",
+      "pass": true,
+      "observed_sip": true,
+      "digit": null,
+      "task_status": "RESULT_READY_FOR_CALLBACK",
+      "customer_attempts": 1
+    },
+    {
+      "name": "operator-cancel",
+      "pass": true,
+      "observed_sip": true,
+      "digit": null,
+      "task_status": "READY_FOR_SCHEDULER",
+      "customer_attempts": 0
+    }
+  ],
+  "runtime": {
+    "dll_bindings": 8,
+    "models_checked_before_after": 13,
+    "original_containers_unchanged": 9,
+    "tts": {
+      "NanoCpus": 2000000000,
+      "Memory": 4294967296,
+      "MemorySwap": 4294967296,
+      "ReadonlyRootfs": true
+    },
+    "cleanup": {
+      "removed_containers": [
+        "ivr-w0344-20260922042935-7fa5e0-peer",
+        "ivr-w0344-20260922042935-7fa5e0-ivr-tts-1",
+        "ivr-w0344-20260922042935-7fa5e0-ivr-api-1",
+        "ivr-w0344-20260922042935-7fa5e0-ivr-worker-1",
+        "ivr-w0344-20260922042935-7fa5e0-lab-seed-1",
+        "ivr-w0344-20260922042935-7fa5e0-seed-1",
+        "ivr-w0344-20260922042935-7fa5e0-ivr-migrate-1",
+        "ivr-w0344-20260922042935-7fa5e0-asterisk-1",
+        "ivr-w0344-20260922042935-7fa5e0-fake-sales-1",
+        "ivr-w0344-20260922042935-7fa5e0-postgres-1",
+        "ivr-w0344-20260922042935-7fa5e0-media-init-1"
+      ],
+      "networks_removed": true,
+      "named_volumes_preserved": [
+        "ivr-w0344-20260922042935-7fa5e0-pg",
+        "ivr-w0344-20260922042935-7fa5e0-media"
+      ]
+    }
+  },
+  "archive_audit": {
+    "status": "PASS",
+    "archive_files": 21,
+    "file_hashes": {
+      "cases.py": "ec7f482ca01182eb1272da5bd633701fe8b1f22f03a9e057f93dde561c10e3af",
+      "compose.template.json": "d8a739b1c4a7964c46b99776a0e7bf4bd570d67f6cd75159e3c183632af6035e",
+      "fixtures/fake-orders.json": "9d0545c5053eda2ea09c18337d19358ff5ac020fbdb7d526bc173e51146d3f51",
+      "fixtures/lab-seed.sql": "3360b49403cb08575ce78e1ed877ebaaf03a6fd616a66c586ed759ff9d4f9091",
+      "fixtures/measurement.json": "cf04d06e5b1fa806fd7f6e3bc6097aa22a60cb4528916a61a0fd93bd1f62ca95",
+      "fixtures/MODELS.lock": "bba41ea796bc6ab1c659865a1087868d413536808e00535c71e5ce4609cbe37d",
+      "fixtures/reconciliation.sql": "072a62e085a15f69d113bbd183f9350b25adeecb63c37c122ae9e9cc50f572d1",
+      "fixtures/seed.sql": "b34026f4d3e1ad9b5e35b69cc63c4b33f5843a482542c783912cbb309e5698f9",
+      "fixtures/voice-acceptance-manifest.json": "90927e16cbe5b4e27f48e31ba396c9069f1ae908eaadc15757e72fbc0d8558b9",
+      "fixtures/worker-texts-expanded.json": "b9463f1f0b6630af60ed5f23e863989f8d02b02e5b777dc6fc93c0b5221b9812",
+      "fixtures/worker-texts.json": "0603eb07e71c01411f0116adc17d577eaa461bb70b43e339fd48335f81a45cec",
+      "images/asterisk.tar": "057f29fd12a3428f9581f71c510cdf040b16c096ced88761ccc9d1fc76fe3de3",
+      "images/fake-sales.tar": "666c314d11048c9b65785a2db4544f9ebf9fd5fc37ab45c4e4a4f9021dc33fee",
+      "images/ivr-api.tar": "6545d11b9aa93092a8f6775f91e889e97616c6c20f01d78cbff167b2ce7e79ec",
+      "images/ivr-migrate.tar": "cddf07af9fd84662e4c9f203cb82660b2d1ed1b69cf50a7360105eb19876f0e6",
+      "images/ivr-tts.tar": "a3aef13b4ca17cfcfad98e9bfd5a9e260c9ed7e434f33c096c68cf7bbbf1c585",
+      "images/ivr-worker.tar": "312d769a163670edcabf099525848307b26433d106108274747b60947a96ad2f",
+      "images/postgres.tar": "06b65d61abd64b68184c6ec91f634e8cbfc6d1aef6bf1d4a15177fbc1e927867",
+      "launcher.py": "0a82ad6cda4c8e4d0e56f91cd8ae32e80a26942c92b7e6321147d659e3f2cb83",
+      "manifest.json": "8844b979b82f95980c177a56886524abc5be5d1e75622a65d7fe6d1068eabe8d",
+      "s5_common.py": "b7a0f8c7cd71f17d58ab93c1fe25f572e83729991b85785c8ad15c451048fb20"
+    },
+    "case_function_ast_equal": {
+      "now": true,
+      "utc": true,
+      "save": true,
+      "cmd": false,
+      "cli": true,
+      "channels": true,
+      "sql": true,
+      "pause": true,
+      "unpause": true,
+      "post": true,
+      "state": true,
+      "admit": true,
+      "setup_peer": false,
+      "run_case": true
+    },
+    "all_case_assertions_preserved": true,
+    "assertion_count": 51,
+    "changed_helpers": "cmd pins Docker context/timeout; setup_peer adds own project label and 0.5CPU/256MiB limit",
+    "installer_lf_only": true
+  },
+  "handoff_verify_only": "PASS",
+  "installer_bash_syntax": "PASS",
+  "failed_preparations": [
+    {
+      "path": ".artifacts/W-0343/rehearsal-1/",
+      "reason": "Internal-only network blocked host API; final kit exposes only API on loopback frontend. Failure receipt/cleanup preserved."
+    },
+    {
+      "path": ".artifacts/W-0344/rehearsal-1/",
+      "reason": "Packaging helper used mapping operation on network list; manifest hash refused before container mutations. Fixed generator and produced a new run."
+    }
+  ],
+  "provenance": {
+    "case_source": ".artifacts/W-0339-closeout-66a6baa/run-flow.py",
+    "case_assertions_preserved": 51,
+    "application_source_modified": false,
+    "gitnexus_impact": "New launcher/case helpers not indexed: UNKNOWN, not a LOW claim. Direct inspection: standalone lab entrypoints; no production callers changed.",
+    "original_tests_and_gates": "1196 tests and 43 runnable gates belong to application candidate66a6baa/W0339; not claimed as a new suite at this handoff commit."
+  },
+  "raw_artifacts": {
+    ".artifacts/W-0344/all-launcher-tests.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "7113d983",
+        "8dd890b0",
+        "169d26f6",
+        "c7568a7e",
+        "f9ee7702",
+        "be127de9",
+        "1b53d6ae",
+        "b6c9783f"
+      ]
+    },
+    ".artifacts/W-0344/archive-audit.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "bad67a86",
+        "4a991899",
+        "2575d3e2",
+        "7486a008",
+        "6916990d",
+        "59b56590",
+        "ff4acece",
+        "03d0d8d5"
+      ]
+    },
+    ".artifacts/W-0344/full-flow-s5/manifest.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "8844b979",
+        "b82f9598",
+        "0c177a56",
+        "886524ab",
+        "c5be5d1e",
+        "75622a65",
+        "d7fe6d10",
+        "68eabe8d"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2.tar.gz": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "02a8cecf",
+        "f1d1396e",
+        "f16cc4fd",
+        "f8f4e6b6",
+        "b2290dac",
+        "beef7803",
+        "dc1a5e2d",
+        "837ac6f0"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/cleanup.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "6dd57130",
+        "4b1ff207",
+        "6d316f70",
+        "74dd9a16",
+        "8be4079d",
+        "36170d27",
+        "e8c15844",
+        "6f3bf093"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/flow.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "814bb87f",
+        "4ec5396d",
+        "27376be8",
+        "0ced302c",
+        "ab830056",
+        "2f686d4d",
+        "d335c67b",
+        "d523b034"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/inventory.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "4d925ec2",
+        "920f76ba",
+        "ae4de496",
+        "893736bc",
+        "4ef974d0",
+        "b8fe34c3",
+        "d13f1380",
+        "9cc03ab1"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-asterisk-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "c523fc8f",
+        "01b1a2df",
+        "18da1b9b",
+        "6653d54c",
+        "e741c6c1",
+        "8a0ac646",
+        "df933a23",
+        "45814dbd"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-fake-sales-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "5509bd4a",
+        "f67a504b",
+        "8438924e",
+        "6cab28f7",
+        "7e7fc504",
+        "a9a3d9b1",
+        "5182d04c",
+        "201fec51"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-ivr-api-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "afe91f57",
+        "1231f03a",
+        "7cb74de5",
+        "01793063",
+        "9308886c",
+        "56308f7b",
+        "4f39cee3",
+        "31702c56"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-ivr-migrate-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "e6553bfd",
+        "71e9cf81",
+        "a72b47b0",
+        "a8a6c7d8",
+        "48124223",
+        "b45dc6eb",
+        "fea9a57a",
+        "f3480353"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-ivr-tts-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "5d9a49a4",
+        "0f0a6785",
+        "f1ec5d21",
+        "1d2c19ce",
+        "7964e6eb",
+        "a468e8ac",
+        "38394a46",
+        "c7986451"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-ivr-worker-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "7b7912c9",
+        "35c6a884",
+        "3bf9cefe",
+        "ebb9508e",
+        "5acb44ab",
+        "2b38ecd6",
+        "217c4a0b",
+        "f01253d0"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-lab-seed-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "34281b60",
+        "7ed7b205",
+        "4e04b310",
+        "52ce9f3b",
+        "da950a4c",
+        "db961d2b",
+        "4edf80ae",
+        "3a50acd0"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-media-init-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "e3b0c442",
+        "98fc1c14",
+        "9afbf4c8",
+        "996fb924",
+        "27ae41e4",
+        "649b934c",
+        "a495991b",
+        "7852b855"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-peer.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "8603393e",
+        "7daf30dd",
+        "66f8dbef",
+        "b33c0f4f",
+        "e244eba7",
+        "1d830256",
+        "b57d4220",
+        "b692a31b"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-postgres-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "9c17cc50",
+        "4fa306b9",
+        "a5ca6475",
+        "6a356fb9",
+        "761d7fd6",
+        "60986a25",
+        "cf6ab9ee",
+        "ee98afb5"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/ivr-w0344-20260922042935-7fa5e0-seed-1.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "4f9e28f9",
+        "03ac6d23",
+        "20dd7541",
+        "3d8ca5ea",
+        "53467e3e",
+        "d1937f31",
+        "aa6e2ae0",
+        "b0b32e01"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/kit-manifest.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "8844b979",
+        "b82f9598",
+        "0c177a56",
+        "886524ab",
+        "c5be5d1e",
+        "75622a65",
+        "d7fe6d10",
+        "68eabe8d"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/model-bindings-after.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "4e5fef78",
+        "9125688a",
+        "81dd3739",
+        "373c1b59",
+        "12f51998",
+        "aab93ed8",
+        "5da62162",
+        "356fa789"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/model-bindings.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "4e5fef78",
+        "9125688a",
+        "81dd3739",
+        "373c1b59",
+        "12f51998",
+        "aab93ed8",
+        "5da62162",
+        "356fa789"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/receipt-manifest.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "6f3c8143",
+        "04a62e6b",
+        "621399b3",
+        "6bc1da41",
+        "a4439307",
+        "26bd73ad",
+        "883d6a45",
+        "0f6dd89b"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/reconciliation.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "9df06a7d",
+        "08f100d1",
+        "5e49e717",
+        "80d1e6d1",
+        "6cfdcb11",
+        "b02aee3b",
+        "35113025",
+        "854b7465"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/confirm-peer.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "9a50b116",
+        "250c3ab6",
+        "ad481f26",
+        "9d078791",
+        "77029767",
+        "a2bca94e",
+        "61b11948",
+        "c6b9b78c"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/confirm-switch.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "dafeb8c7",
+        "22ff8d33",
+        "b43513f5",
+        "3d82216a",
+        "136c5e19",
+        "ad727722",
+        "4d097c41",
+        "0efbb8e8"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/customer-cancel-peer.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "ea116d08",
+        "ff85138a",
+        "867133f4",
+        "92130bf0",
+        "4bab8b1a",
+        "d8eef93e",
+        "d5d155c4",
+        "695239a2"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/customer-cancel-switch.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "80bc1e33",
+        "f7f39efb",
+        "0136e0d8",
+        "a0a28ca1",
+        "b2a06bf6",
+        "38012924",
+        "277c7f42",
+        "559390e4"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/no-input-peer.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "df8857ac",
+        "b1554889",
+        "f8c75d73",
+        "c0350b3d",
+        "7068df50",
+        "e51f28ca",
+        "4ef570d9",
+        "49b895c9"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/no-input-switch.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "cf731644",
+        "72349d32",
+        "960625b4",
+        "972ff96d",
+        "005bef04",
+        "4dc84a2a",
+        "fd8d0142",
+        "9f9b1dee"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/operator-cancel-peer.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "87fa7845",
+        "685f5838",
+        "a684ff83",
+        "4ccfcf9e",
+        "16a8cef1",
+        "4d42b0d1",
+        "1b428335",
+        "8373e26c"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/operator-cancel-switch.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "9f5ccd1c",
+        "3efd85cd",
+        "6809f732",
+        "6fe33932",
+        "4eb8ac8d",
+        "e776e4a5",
+        "936f6ec7",
+        "fe7ca967"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/queued-expiry-peer.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "a0cdf1a7",
+        "639d2dd4",
+        "d8477965",
+        "2c6c8d55",
+        "dca84fd8",
+        "3ab47bd1",
+        "afe7ba5c",
+        "6c2eb53d"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/queued-expiry-switch.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "fb1b3658",
+        "80179222",
+        "8a4dc806",
+        "18a43bef",
+        "db4044d1",
+        "50dd4242",
+        "4d848d69",
+        "1e26ee65"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/result.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "7d02cd58",
+        "426e35e8",
+        "6500d80b",
+        "e8ef837b",
+        "dc75a371",
+        "805ab5f1",
+        "5cafa258",
+        "be498da5"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/technical-retry-peer.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "a6ff332c",
+        "ee7baab7",
+        "9cef6059",
+        "d3442948",
+        "ae91f1c9",
+        "b8d45f57",
+        "8ea73ff8",
+        "3ba99f9d"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/technical-retry-switch.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "5a03e6bb",
+        "7c497778",
+        "423a54d0",
+        "f09d0445",
+        "69b81fb3",
+        "364fd0ac",
+        "76bf8101",
+        "7d573b21"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/tts-expiry-peer.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "c6878431",
+        "253164d5",
+        "bb8a2692",
+        "277f1533",
+        "4baf4feb",
+        "955716cf",
+        "3f7b2be4",
+        "1e642e97"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/run-2/tts-expiry-switch.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "f60b214c",
+        "65cadbdd",
+        "fbf1ebd5",
+        "528bcf54",
+        "7fc8df35",
+        "0301415b",
+        "6704645b",
+        "4ae7206d"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/runtime-bindings.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "43b1ebaf",
+        "2f6e5510",
+        "ec88f272",
+        "d4b4b9b6",
+        "4ad1678d",
+        "f5e16bca",
+        "867177b2",
+        "bf04a00a"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/runtime-manifest.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "ff1f5aaf",
+        "e5433822",
+        "10b3fe5f",
+        "de92cc70",
+        "80f1b7de",
+        "9b0ca396",
+        "6b5f2945",
+        "519a2972"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/services-after.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "4b95ae9c",
+        "8f824a20",
+        "0aba58c3",
+        "7fc9fd11",
+        "1537be94",
+        "23b1bbea",
+        "b4be5160",
+        "50974bd1"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/services-before.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "90d44d76",
+        "05a4a07e",
+        "da32770f",
+        "9617f4e2",
+        "eefb2017",
+        "82a80984",
+        "b130e6c1",
+        "0c10763d"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/stack-start.log": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "8df70018",
+        "125bb107",
+        "c26baa78",
+        "52d74b0c",
+        "37cc15fd",
+        "7bc9346d",
+        "eaa6e3ce",
+        "2c336d68"
+      ]
+    },
+    ".artifacts/W-0344/rehearsal-2/summary.json": {
+      "algorithm": "sha256",
+      "hex_chunks": [
+        "04b882e7",
+        "10ee7f82",
+        "bb09eaa7",
+        "0391da1f",
+        "23fd1abf",
+        "502d160e",
+        "d843ec88",
+        "5a331013"
+      ]
+    }
+  }
+}
