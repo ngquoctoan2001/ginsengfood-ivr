@@ -1458,7 +1458,7 @@ work:
     evidence: "docs/evidence/W-0348/README.md"
   - id: "W-0349"
     prompt: "C2 xét việc chỉ có gate hoặc chỉ có tài liệu (Origin=UNPLANNED, owner yêu cầu làm tiếp sau W-0348)"
-    status: "IN_PROGRESS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0349/README.md"
 
 production_flag:

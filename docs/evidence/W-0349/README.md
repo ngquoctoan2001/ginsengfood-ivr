@@ -2,7 +2,7 @@
 
 Ngày 23/09/2026 · Claude · `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-**Trạng thái: ứng viên đã commit, lượt collector chạy ở bước tiếp theo.**
+**Đã nộp bằng chứng. Collector tại ứng viên `1859243`: 1200/1200 test .NET, GATE_SWEEP_PASS 43/43.**
 
 ## Vì sao có việc này
 
@@ -83,6 +83,9 @@ gate có `argv` trong sweep, tệp có trong git. Các ca chưa chắc được 
 - Build hai project test sau khi gắn TestId: 0 lỗi.
 - Chế độ worktree: 101/101 việc đạt C1. 95 việc có khai báo hợp lệ, chờ kết quả collector. 6 việc cố ý chưa
   đạt, như mục trên.
-- PII scan, docs-selftest và gate-status đạt.
+- PII scan, docs-selftest và gate-status đạt. Full sweep trên cây đã sửa: 43/43.
+- **Collector tại `1859243`**, cây sạch: 1200/1200 test .NET (Contract 24, Unit 782, Chaos 8, Integration 386),
+  GATE_SWEEP_PASS 43/43. Trong danh sách sinh lại, 95/101 việc lên `XEM`; 6 việc còn `KHÔNG ĐẠT` đúng như
+  mục trên. Tổng ứng viên 140: 102 `XEM`, 38 `KHÔNG ĐẠT`. Nấc 1 vẫn 35/54 cho tới khi Toàn duyệt.
 
 Chỉ Toàn chuyển các việc này sang `ACCEPTED`.
