@@ -2,7 +2,9 @@
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
-**S5 chưa đạt. Gói chạy lại là `cpu-r2` (23/09), đã kiểm local, chưa chạy trên S5.**
+**S5 chưa đạt.** Lượt `cpu-r2` đầu tiên trên S5 (23/09, `093745-1c9bd160`) cho thấy bản sửa Asterisk
+đã có tác dụng, nhưng sidecar TTS không đọc được model: mirror chỉ `ssv` đọc được, còn TTS chạy
+bằng uid 1654 (mục 6). Installer đã sửa để chép model sang bản đọc được; chờ chạy lại.
 Gói `cpu-r1` (22/09 14:06) chưa từng gửi lên S5 và đã bị thay: installer bị sửa sau khi ghim
 hash nên script retry tự dừng ở bước kiểm checksum, và lượt diễn tập thứ hai của nó hỏng
 (mục 2). Toàn bộ hash và kết quả nằm ở [cpu-retry-verification.json](cpu-retry-verification.json).
@@ -84,7 +86,7 @@ phiên SSH giả lập rồi resume, tiến trình bị giết, chạy trùng th
 | --- | --- |
 | Diễn tập local với `cpu-r2` (`rehearsal-1`, 23/09) | **PASS**: 7/7 ca. DB đúng 7 task, 7 attempt, 4 lượt khách, 3 lỗi kỹ thuật, 9 kết quả, 6 kết quả cuối, 6 callback; 0 đếm nhầm hay trùng. Container có sẵn không đổi. Dọn 11 container và network, giữ 2 volume |
 | Cổng chờ RTP trong lượt đó | không phải giữ lần bấm nào: tiếng phát đúng thời gian thực, mỗi lần bấm đều đã nhận đủ gói |
-| Test Python | 37/37 trên Windows (3.13) · 26/26 trên Linux (3.14) |
+| Test Python | 41 trên Windows (3.13, 1 test symlink chỉ chạy POSIX) · 30/30 trên Linux (3.14) |
 | Test hồi quy DTMF | đỏ với `cases.py` của gói S5 gốc, xanh với bản mới |
 | Tách phiên SSH | 8/8 trong container Debian. Đối chứng: script cũ bị ngắt ở giây thứ 3 thì mất cả kết quả lẫn receipt |
 | Chuỗi hash | 20/20 file dựng lại khớp manifest; image Asterisk cùng byte r1; gói gốc khớp lượt S5 `135115`; `-VerifyOnly` đạt trên PowerShell 5.1 và 7 |
@@ -102,10 +104,40 @@ Installer tạo bản sao mới, database/network mới; không sửa hoặc ch�
 & 'C:\Users\Administrator\Desktop\ivr\docs\evidence\W-0344\retry-s5-full-flow.ps1'
 ```
 
-Nhập mật khẩu SSH trong terminal (khoảng 4 lần), không gửi vào chat. Script in `RunId`, theo dõi
-log khoảng 10 phút, rồi kéo receipt về `.artifacts/W-0344/cpu-portable-r2/s5-<RunId>/`, kể cả khi
-lỗi. Nếu rớt SSH, chạy đúng lệnh `-ResumeRunId` mà script in ra.
+Từ 23/09 máy Windows đăng nhập S5 bằng SSH key, nên script không còn hỏi mật khẩu. Thiếu key thì
+script hỏi khoảng 4 lần; nhập trong terminal, không gửi vào chat. Script in `RunId`, theo dõi log
+khoảng 10 phút, rồi kéo receipt về `.artifacts/W-0344/cpu-portable-r2/s5-<RunId>/`, kể cả khi lỗi.
+Nếu rớt SSH, chạy đúng lệnh `-ResumeRunId` mà script in ra.
 
-**Còn phải làm:** Toàn chạy retry; kiểm receipt mới (SIP/RTP/DTMF, đối soát DB, dòng thời gian
+**Còn phải làm:** chạy lại retry; kiểm receipt mới (SIP/RTP/DTMF, đối soát DB, dòng thời gian
 phát tiếng, bảo toàn dịch vụ); Toàn nghiệm thu sau khi S5 thực sự đạt. Chưa chuyển `ACCEPTED`.
 Không xác nhận production, M3, SIM thật hay nhiều worker.
+
+## 6. Lượt S5 23/09 `093745-1c9bd160`: Asterisk chạy, TTS không đọc được model
+
+Receipt (`.artifacts/W-0344/cpu-portable-r2/s5-20260923-093745-1c9bd160/`) hash khớp. Bản vá dựng
+đúng (`W0344_CPU_PATCH_VERIFIED`), image Asterisk portable load được và **Asterisk lên `Healthy`
+trên Xeon Silver 4216**, nên lỗi exit 132 đã hết. API, worker và TTS đều khởi động, nhưng sau 180
+giây chờ, launcher dừng với `Isolated stack failed readiness`. Log TTS chỉ có một dòng, in ngay
+lúc khởi động: `tts_event=startup status=not_ready`. Chưa có đơn kiểm nào chạy. Launcher dọn
+container của lượt đó và giữ volume.
+
+**Nguyên nhân** (đọc trên S5 qua SSH, không thay đổi gì): mirror
+`/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340` có thư mục `700` và cả 13/13 file `600`,
+chủ là `ssv` (uid 1000). Image TTS `79e910…` chạy bằng user **1654**, nên không đọc được model qua
+bind mount. Launcher kiểm hash model bằng quyền của `ssv` nên không bắt được. Các lượt đo S5
+trước đó (W-0338, W-0343) chạy TTS bằng `--user` uid của `ssv`, nên không gặp. Docker Desktop trên
+Windows bỏ qua quyền Unix của bind mount, nên mọi diễn tập local đều đạt. Đây đúng là loại lỗi
+chỉ lộ ra khi chạy trên máy thật.
+
+**Sửa trong installer, không đụng launcher hay mirror:** `stage_models` chép 13 file đã kiểm hash
+sang `models-readable/` riêng của lượt chạy (thư mục `755`, file `644`), kiểm hash từng bản chép,
+đưa thư mục đó cho launcher, và xóa sau khi chạy xong. TTS vẫn chạy bằng user non-root 1654 như
+thiết kế. Launcher, kit gốc, 7 ca và archive `cpu-r2` giữ nguyên byte; chỉ installer đổi, và đã
+ghim lại hash.
+
+**Tái hiện có quyền Unix thật** ([test-model-staging.py](test-model-staging.py)): model thật đặt
+trong volume Docker theo đúng bố cục mirror S5 (chủ uid 1000, `700`/`600`); cùng image TTS `79e910…`
+chạy bằng user 1654. Gắn thẳng mirror ra `status=not_ready`, giống hệt S5. Gắn bản do
+`stage_models` chép (thư mục cha `700` như thư mục chạy trên S5) ra `status=ready`. Mirror vẫn
+`600`. Test installer: 13/13 trên Linux, 12/13 trên Windows (1 test symlink chỉ chạy trên POSIX).

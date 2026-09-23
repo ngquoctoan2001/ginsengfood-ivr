@@ -3,7 +3,9 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
+import stat
 import tarfile
 import tempfile
 import unittest
@@ -82,6 +84,50 @@ class CpuRetryGuards(unittest.TestCase):
     def test_replacement_hash_mismatch_refused(self):
         patch = self.patch(lambda d: d['files'].update({'images/asterisk.tar': '0'*64}))
         with self.assertRaisesRegex(ValueError, 'Reconstructed file hash'): retry.prepare_retry(self.base, patch, self.root / 'new')
+
+
+class ModelStaging(unittest.TestCase):
+    """S5 20260923-093745: the TTS user (uid 1654) could not read the ssv-only mirror."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name); self.mirror = self.root / 'mirror'
+        files = {'vieneu/onnx_int8/model.onnx': b'weights', 'metadata/card.md': b'card'}
+        for name, data in files.items():
+            path = self.mirror / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
+            if os.name == 'posix': path.chmod(0o600)
+        if os.name == 'posix':
+            for path in [self.mirror] + [p for p in self.mirror.rglob('*') if p.is_dir()]: path.chmod(0o700)
+        self.lock = {'artifacts': [{'bundle_path': k, 'sha256': hashlib.sha256(v).hexdigest(), 'size_bytes': len(v)}
+                                   for k, v in files.items()]}
+
+    def test_copies_are_identical_readable_and_mirror_untouched(self):
+        self.assertEqual(retry.stage_models(self.mirror, self.lock, self.root / 'staged'), 2)
+        for item in self.lock['artifacts']:
+            staged = self.root / 'staged' / item['bundle_path']
+            self.assertEqual(staged.read_bytes(), (self.mirror / item['bundle_path']).read_bytes())
+            if os.name == 'posix':
+                self.assertEqual(stat.S_IMODE(staged.stat().st_mode), 0o644)
+                self.assertEqual(stat.S_IMODE(staged.parent.stat().st_mode), 0o755)
+                self.assertEqual(stat.S_IMODE((self.mirror / item['bundle_path']).stat().st_mode), 0o600)
+
+    def test_changed_mirror_model_refused(self):
+        (self.mirror / 'metadata/card.md').write_bytes(b'tampered')
+        with self.assertRaisesRegex(ValueError, 'Mirror model changed'):
+            retry.stage_models(self.mirror, self.lock, self.root / 'staged')
+        self.assertFalse((self.root / 'staged/metadata/card.md').exists())
+
+    def test_existing_destination_refused(self):
+        (self.root / 'staged').mkdir()
+        with self.assertRaisesRegex(ValueError, 'overwrite'):
+            retry.stage_models(self.mirror, self.lock, self.root / 'staged')
+
+    @unittest.skipUnless(os.name == 'posix', 'symlinks need POSIX permissions here')
+    def test_symlinked_mirror_file_refused(self):
+        outside = self.root / 'outside'; outside.write_bytes(b'weights')
+        link = self.mirror / 'vieneu/onnx_int8/model.onnx'; link.unlink(); link.symlink_to(outside)
+        with self.assertRaises(ValueError):  # escapes the mirror, so contained() refuses before the hash check
+            retry.stage_models(self.mirror, self.lock, self.root / 'staged')
 
 
 if __name__ == '__main__':

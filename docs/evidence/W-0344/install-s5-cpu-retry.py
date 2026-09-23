@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Apply the verified Asterisk image and case-driver replacement to a fresh copy of the original S5 kit."""
+"""Apply the verified Asterisk image and case-driver replacement to a fresh copy of the original S5 kit,
+then give the non-root TTS sidecar a readable, hash-checked copy of the pinned models."""
 import argparse
 import hashlib
 import json
@@ -88,6 +89,30 @@ def prepare_retry(base_dir, patch, destination):
     return change
 
 
+def stage_models(source, lock, destination):
+    # The W-0340 mirror is ssv-only (0700/0600) but the TTS image runs as uid 1654, so mounting the
+    # mirror directly left the sidecar not_ready on S5 (run 20260923-093745-1c9bd160). Copy each
+    # pinned file into a run-private tree it can read; the mirror itself is never modified.
+    if destination.exists():
+        raise ValueError('Refuse to overwrite staged models')
+    source = source.resolve()
+    destination.mkdir(parents=True)
+    for item in lock['artifacts']:
+        origin = contained(source, item['bundle_path'])
+        if origin.is_symlink() or digest(origin) != item['sha256'] or origin.stat().st_size != item['size_bytes']:
+            raise ValueError('Mirror model changed: ' + item['bundle_path'])
+        target = contained(destination, item['bundle_path'])
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with origin.open('rb') as reader, target.open('xb') as writer:
+            shutil.copyfileobj(reader, writer)
+        if digest(target) != item['sha256']:
+            raise ValueError('Staged model hash mismatch: ' + item['bundle_path'])
+        target.chmod(0o644)
+    for path in [destination] + [p for p in destination.rglob('*') if p.is_dir()]:
+        path.chmod(0o755)
+    return len(lock['artifacts'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base-kit', type=Path, required=True)
@@ -106,11 +131,18 @@ def main():
         raise ValueError('Patch transport checksum mismatch')
     kit = root / 'full-flow-s5'
     prepare_retry(args.base_kit, patch, kit)
-    print('W0344_CPU_PATCH_VERIFIED image=asterisk dtmf_wait=received_RTP original_kit_preserved=YES', flush=True)
-    # The original launcher checks host resources, models, bindings, seven cases and cleanup.
-    return subprocess.call([sys.executable, '-B', str(kit / 'launcher.py'),
-                            '--models', '/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models',
-                            '--output', str(root / 'result'), '--run'])
+    lock = json.loads((kit / 'fixtures/MODELS.lock').read_text(encoding='utf-8-sig'))
+    models = root / 'models-readable'
+    staged = stage_models(Path('/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models'), lock, models)
+    print('W0344_CPU_PATCH_VERIFIED image=asterisk dtmf_wait=received_RTP models_staged=%d original_kit_preserved=YES' % staged,
+          flush=True)
+    try:
+        # The original launcher checks host resources, models, bindings, seven cases and cleanup.
+        return subprocess.call([sys.executable, '-B', str(kit / 'launcher.py'), '--models', str(models),
+                                '--output', str(root / 'result'), '--run'])
+    finally:
+        shutil.rmtree(models, ignore_errors=True)
+        print('W0344_STAGED_MODELS_REMOVED ' + ('NO' if models.exists() else 'YES'), flush=True)
 
 
 if __name__ == '__main__':

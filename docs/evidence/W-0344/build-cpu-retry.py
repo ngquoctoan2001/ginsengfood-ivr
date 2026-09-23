@@ -11,6 +11,7 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import sys
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -42,7 +43,27 @@ def member(name, data):
     return info, io.BytesIO(data)
 
 
+def write_pins(target, checksum):
+    installer = DOC / 'install-s5-cpu-retry.py'
+    pins = {'work_id': 'W-0344', 'REAL_CUSTOMER_CALL_ALLOWED': 'NO', 'package': 'cpu-r2',
+            'archive_bytes': target.stat().st_size, 'base_remote_kit': BASE_REMOTE_KIT,
+            'files': {p.relative_to(ROOT).as_posix(): file_sha256(p) for p in (target, checksum, installer)}}
+    (DOC / 'cpu-retry-pins.json').write_text(json.dumps(pins, indent=2) + '\n', encoding='utf-8', newline='\n')
+
+
+def repin():
+    # The installer is transported next to the archive, not inside it; an installer-only fix
+    # keeps the archive bytes and re-pins just the three transported files.
+    target, checksum = OUT / NAME, OUT / (NAME + '.sha256')
+    if checksum.read_text(encoding='ascii').split()[0] != file_sha256(target):
+        raise SystemExit('Archive differs from its checksum file')
+    write_pins(target, checksum)
+    print('W0344_CPU_R2_REPINNED installer=%s' % file_sha256(DOC / 'install-s5-cpu-retry.py'), flush=True)
+
+
 def main():
+    if '--repin' in sys.argv:
+        return repin()
     if OUT.exists():
         raise SystemExit('Refuse to overwrite ' + str(OUT))
     if file_sha256(R1) != R1_SHA256:
@@ -93,11 +114,8 @@ def main():
     checksum = OUT / (NAME + '.sha256')
     checksum.write_text(file_sha256(target) + '  ' + NAME + '\n', encoding='ascii', newline='\n')
     (DOC / 'cpu-retry-manifest.json').write_bytes(encoded)
+    write_pins(target, checksum)
     installer = DOC / 'install-s5-cpu-retry.py'
-    pins = {'work_id': 'W-0344', 'REAL_CUSTOMER_CALL_ALLOWED': 'NO', 'package': 'cpu-r2',
-            'archive_bytes': target.stat().st_size, 'base_remote_kit': BASE_REMOTE_KIT,
-            'files': {p.relative_to(ROOT).as_posix(): file_sha256(p) for p in (target, checksum, installer)}}
-    (DOC / 'cpu-retry-pins.json').write_text(json.dumps(pins, indent=2) + '\n', encoding='utf-8', newline='\n')
     spec = importlib.util.spec_from_file_location('retry', installer)
     retry = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(retry)

@@ -2,7 +2,10 @@
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
-**S5: FAIL_BEFORE_CASES · chạy lại bằng gói `cpu-r2`, đã kiểm local, chưa chạy trên S5.**
+**S5: FAIL_BEFORE_CASES · lần gần nhất `cpu-r2` 23/09: Asterisk đã chạy, TTS không đọc được model
+(đã sửa trong installer, chờ chạy lại).**
+Lượt `093745-1c9bd160` (23/09) dừng ở readiness vì mirror model chỉ `ssv` đọc được, còn TTS chạy
+bằng uid 1654 (mục 6 của [cpu-retry.md](cpu-retry.md)).
 Lượt `135115-e0b16d79` dừng ở Asterisk exit 132 trước mọi ca ([receipt](s5-first-run.json)).
 Lượt `133208-4b83eafa` mất SSH; console cho thấy `docker compose up` hỏng, receipt của lượt đó
 chưa tải về ([lấy receipt](s5-receipt-fetch.md), chỉ để chẩn đoán). Bản sửa Asterisk, bản sửa bộ

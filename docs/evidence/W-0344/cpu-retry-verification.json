@@ -3,8 +3,8 @@
   "scope": "LOCAL_RETRY_PACKAGE_CPU_R2",
   "REAL_CUSTOMER_CALL_ALLOWED": "NO",
   "production": "BLOCKED",
-  "verified_utc": "2026-09-23T02:14:26+00:00",
-  "s5_status": "CPU_R2_NOT_RUN_ON_S5; last S5 run 20260922-135115-e0b16d79 FAIL_BEFORE_CASES (Asterisk exit 132)",
+  "verified_utc": "2026-09-23T03:31:58+00:00",
+  "s5_status": "FAIL_BEFORE_CASES; cpu-r2 run 20260923-093745-1c9bd160: Asterisk healthy, TTS not_ready (mirror unreadable by uid 1654); installer now stages readable models; rerun pending",
   "cpu_r1": {
     "archive": "ivr-full-flow-w0344-cpu-r1.tar.gz",
     "archive_sha256": "dfaaadd98eb4d7636f2799d2c4a16bef95e4f90d32c68cd0ebf647e4e63d8498",
@@ -224,7 +224,7 @@
     "asterisk_image_bytes_same_as_r1": true,
     "reconstructed_files_match_manifest": 20,
     "retry_and_resume_bash_syntax": "PASS",
-    "installer_sha256": "ebe488ba8ce35c1bcb6eeece30b6925e9b78706c86ac768f59fd5c33663ae3fa"
+    "installer_sha256": "c12a67eb2e810a130e00d2cbdd26085fa3dd09bbbec3e8389d41ea6d09c852d4"
   },
   "cases_py": {
     "base_sha256": "ec7f482ca01182eb1272da5bd633701fe8b1f22f03a9e057f93dde561c10e3af",
@@ -249,8 +249,8 @@
     ]
   },
   "tests": {
-    "windows_python_3_13": "37/37 deploy/lab/tests",
-    "linux_python_3_14": "26/26 (cpu retry installer 9, DTMF gate 3, full-flow guards 14)",
+    "windows_python_3_13": "41 deploy/lab/tests, 1 POSIX-only skip",
+    "linux_python_3_14": "30/30 (cpu retry installer 13, DTMF gate 3, full-flow guards 14)",
     "dtmf_gate_red_before": "original S5 kit cases.py rtp_gated=False; r2 cases.py rtp_gated=True",
     "retry_detach": "8/8 in a Debian 12 container with a fake installer: normal run, failing installer, SIGHUP then SIGKILL of the SSH session group followed by resume, killed test reports INTERRUPTED, second start refused, wrong pin refused",
     "retry_detach_red_before": [
@@ -304,16 +304,115 @@
     "dtmf_gate_engaged": false,
     "note": "playback kept real time in this run, so each DTMF went out at the wall-clock bound with every packet received"
   },
+  "cpu_r2_s5_run_1": {
+    "run_id": "20260923-093745-1c9bd160",
+    "remote_directory": "/home/ssv/ivr-full-flow-w0344-cpu-20260923-093745-1c9bd160",
+    "receipt_sha256": "153acd5556ccb426ceab77bc180086af55c585337b7151985e29668b1be11517",
+    "receipt_hash_matches_checksum_file": true,
+    "fetch": "script scp closed by 192.168.1.61 at the password prompt; receipt fetched by a separate scp",
+    "summary": {
+      "work_id": "W-0344",
+      "candidate": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+      "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+      "scope": "S5_TARGET_SYNTHETIC_SIP",
+      "project": "ivr-w0344-20260923023730-5fb0f1",
+      "started_utc": "2026-09-23T02:37:30.469891+00:00",
+      "status": "FAIL",
+      "kit_manifest_sha256": "e65bd6bc360308c52bfe67ab133cbd776f4da67bbafc7eab842aba163c855ddf",
+      "error": "ValueError('Isolated stack failed readiness')",
+      "finished_utc": "2026-09-23T02:41:21.185693+00:00"
+    },
+    "launcher_log": [
+      "W0344_CPU_PATCH_VERIFIED image=asterisk dtmf_wait=received_RTP original_kit_preserved=YES",
+      "W0344_LOAD_IMAGE asterisk",
+      "W0344_ERROR ValueError('Isolated stack failed readiness')",
+      "W0344_S5_TARGET_SYNTHETIC_SIP_FAIL",
+      "W0344_RECEIPT /home/ssv/ivr-full-flow-w0344-cpu-20260923-093745-1c9bd160/result.tar.gz"
+    ],
+    "asterisk": "Healthy with the portable image; exit 132 gone",
+    "tts_log": [
+      "2026-09-23T02:38:11.348022867Z tts_event=startup status=not_ready latency_bucket=na"
+    ],
+    "readiness_window_s": 180,
+    "cases_run": 0,
+    "pre_existing_containers_unchanged": true,
+    "pre_existing_containers": 43,
+    "cleanup": {
+      "removed_containers": [
+        "ivr-w0344-20260923023730-5fb0f1-ivr-tts-1",
+        "ivr-w0344-20260923023730-5fb0f1-ivr-api-1",
+        "ivr-w0344-20260923023730-5fb0f1-ivr-worker-1",
+        "ivr-w0344-20260923023730-5fb0f1-lab-seed-1",
+        "ivr-w0344-20260923023730-5fb0f1-seed-1",
+        "ivr-w0344-20260923023730-5fb0f1-asterisk-1",
+        "ivr-w0344-20260923023730-5fb0f1-ivr-migrate-1",
+        "ivr-w0344-20260923023730-5fb0f1-media-init-1",
+        "ivr-w0344-20260923023730-5fb0f1-postgres-1",
+        "ivr-w0344-20260923023730-5fb0f1-fake-sales-1"
+      ],
+      "networks_removed": true,
+      "named_volumes_preserved": [
+        "ivr-w0344-20260923023730-5fb0f1-pg",
+        "ivr-w0344-20260923023730-5fb0f1-media"
+      ]
+    },
+    "cause_read_only_on_s5": [
+      "2026-09-23T03:30:11Z",
+      "vps61",
+      "1000",
+      "700 1000:1000 /home/ssv/ivr-artifact-mirror/releases/vieneu-w0340",
+      "700 1000:1000 /home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models",
+      "files_not_other_readable=13/13 dirs_not_other_exec=5",
+      "tts_image_user=1654:1654 id=sha256:79e9106ec1401c5cdd751b80da52e6d8a46f17f437c1e0690209bce13b692581",
+      "/dev/sda3       482G   79G  379G  18% /",
+      "202M\t/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models"
+    ]
+  },
+  "model_staging_fix": {
+    "installer_function": "stage_models: copy the 13 pinned files, verify each hash, dirs 0755 / files 0644, remove after the run",
+    "unchanged": [
+      "launcher.py",
+      "cases.py",
+      "archive cpu-r2",
+      "W-0340 mirror",
+      "TTS container user 1654"
+    ],
+    "unix_permission_repro": {
+      "prepare": [
+        "STAGED 13",
+        "STAGE_EXIT 0 FILE_MODES ['0o644'] MIRROR_FILE_MODE 0o600"
+      ],
+      "mirror_layout": {
+        "subpath": "mirror",
+        "startup": "not_ready",
+        "container_user": "1654:1654"
+      },
+      "staged_copy": {
+        "subpath": "run/models-readable",
+        "startup": "ready",
+        "container_user": "1654:1654"
+      },
+      "expected": {
+        "mirror_layout": "not_ready",
+        "staged_copy": "ready"
+      }
+    },
+    "unit_tests": {
+      "linux_python_3_14": "13/13 installer tests",
+      "windows_python_3_13": "12/13 installer tests, symlink case POSIX-only"
+    }
+  },
   "evidence_files": {
     "deploy/lab/full-flow-s5/cases.py": "cc73f65e0ca0789da8d6d9b68c2d1e54c50de778bf80b2e9270ccd056a2babd1",
     "deploy/lab/tests/test_full_flow_dtmf_gate.py": "7d4f22cb61cfb709af09109ba1f284dd831782ddbb1d5fd0c0037059cb0cc13e",
-    "deploy/lab/tests/test_s5_cpu_retry.py": "c4b3b505276e7dd3ecea109336320a53ef11e0cf6832b0b317336a85cb25cf00",
-    "docs/evidence/W-0344/install-s5-cpu-retry.py": "ebe488ba8ce35c1bcb6eeece30b6925e9b78706c86ac768f59fd5c33663ae3fa",
+    "deploy/lab/tests/test_s5_cpu_retry.py": "c694f2a03ee76ffe3806a6ab07117e9890d44615d42126bf5d4b754c02ef6e00",
+    "docs/evidence/W-0344/install-s5-cpu-retry.py": "c12a67eb2e810a130e00d2cbdd26085fa3dd09bbbec3e8389d41ea6d09c852d4",
     "docs/evidence/W-0344/retry-s5-full-flow.ps1": "c1e5ce8a2b9c4075fd30dcc1e41cc6fa6dd5fb3b1e3bbe7dd3ab49f2d2a1fb70",
-    "docs/evidence/W-0344/build-cpu-retry.py": "379d6b04cbea1218dd32a895c2f33f38f39b359946663dd176e6671aca00e9c9",
+    "docs/evidence/W-0344/build-cpu-retry.py": "422ce9569d1346c55e4c16ac5c1b83fa70ce2ddafb88a9b99f7e4a3f12e7e1a4",
     "docs/evidence/W-0344/verify-cpu-retry.py": "220f4faf056ee9bd5e1e4ac6db66007c3f5da5032382aebb1c97ff2ebed165e4",
     "docs/evidence/W-0344/test-retry-detach.py": "eb3588c0491fffad24912e922d732c89cbd6233f00c577dedb24ac7f9758e1e4",
-    "docs/evidence/W-0344/cpu-retry-pins.json": "d845737de91fce99ae83992baea8b8f5c7b85f152e4baea3d042cff75698a018",
+    "docs/evidence/W-0344/test-model-staging.py": "ec6def6ce19e48dd39ffa0d27b762581605fbc6ecce50d6e18fdcfb0c86a9ef9",
+    "docs/evidence/W-0344/cpu-retry-pins.json": "f52c37b35b9bda6636f73cfd630bfc502d79e37b16a2e42e38f088bfa29dc280",
     "docs/evidence/W-0344/cpu-retry-manifest.json": "e65bd6bc360308c52bfe67ab133cbd776f4da67bbafc7eab842aba163c855ddf"
   },
   "raw": ".artifacts/W-0344/cpu-portable-r2/"
