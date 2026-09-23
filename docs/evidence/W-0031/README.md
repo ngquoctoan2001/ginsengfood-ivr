@@ -124,3 +124,7 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Ba test trust-skip ở mục 4 bị xoá ở `6760ba6`, khi quyết định OD-18 chuyển việc gọi hay không gọi
 sang Module 3. Xem [đối chiếu với test thay thế](acceptance-addendum.md) và
 [khai báo C2 có ghim quyết định](acceptance-tests.json). Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+Commit đó cũng xoá luôn code trust-skip: `src/` không còn `TrustResolverEvidence` hay `CanSkip`. Vì thế câu
+"trust skip vẫn tắt, bật là quyết định owner" ở mục 3 không còn đúng: không còn gì để bật, M3 quyết định
+gọi hay không. Ô Residual của W-0031 trong tracker đã sửa theo, Toàn duyệt ngày 23/09/2026.
