@@ -1,0 +1,13 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0140",
+  "scope": "document",
+  "reason": "W-0140 chỉ đối chiếu bằng chứng TODAY-01..04, đồng bộ trạng thái vào tracker, sinh lại readiness mirror và ghi OD-20 đã quyết; không sửa mã, test hay gate.",
+  "deliverables": [
+    "docs/evidence/W-0140/README.md",
+    "prompt/_execution/prompt-execution-tracker.md",
+    "docs/release/readiness-board.md",
+    "docs/release/gate-status.yaml",
+    "plan/ivr-orther/decisions-log.md"
+  ]
+}

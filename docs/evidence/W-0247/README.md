@@ -100,3 +100,13 @@ Không sửa code. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
 `2.5`. Nó là mục duy nhất trong nhóm 2 mà cái giá của việc **không** quyết rơi vào khách hàng, chứ
 không rơi vào một bảng trạng thái.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Lượt này chỉ đọc lại nguồn và xếp lại năm mục 2.2–2.6 trong worklist; kết luận nằm trong tài liệu, không đổi src/, tests/ hay script gate nên không có claim phần mềm. Danh sách 2 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

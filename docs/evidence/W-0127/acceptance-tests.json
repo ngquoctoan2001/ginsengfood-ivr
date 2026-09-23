@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0127",
+  "scope": "document",
+  "reason": "W-0127 chỉ viết phiếu hỏi, ghi lượt dựng thử profile nghe và lượt quét lại Trivy, và thêm một script lab sinh manifest cho Owner; không sửa src/, tests/ hay gate CI nên không có claim phần mềm để test tự động.",
+  "deliverables": [
+    "deploy/lab/New-W0122VoiceAcceptance.ps1",
+    "docs/evidence/W-0122/voice-audition-runbook.md",
+    "docs/evidence/W-0122/security-performance.md"
+  ]
+}

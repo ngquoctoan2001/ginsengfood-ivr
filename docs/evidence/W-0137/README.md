@@ -92,3 +92,13 @@ khi Owner trả lời `OD-20` là làm ngược thứ tự — nếu chọn hư�
   `b2b95c9cb62e14b8138538b8447117040207641e5c565e4e1881f3a55af0935c` — không đổi.
 - Không sửa nội dung DOCX, không xóa binary, không đụng bản V0.2 hoặc report DOCX.
 - W-0137 giữ `TESTS_PASS`; rename không phải Release acceptance và không đóng external gate.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: W-0137 chỉ đo bản .docx V0.3, ghi errata 22 vào spec và mở quyết định OD-20 cho Owner; không sửa mã, test hay gate. Danh sách 3 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

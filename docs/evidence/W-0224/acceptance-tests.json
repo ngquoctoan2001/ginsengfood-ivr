@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0224",
+  "scope": "document",
+  "reason": "Lượt này xoá một nhánh remote đã merge, ghi cảnh báo ref github/main vào CLAUDE.md/AGENTS.md và rút hai phát hiện sai; không đổi src/, tests/ hay script gate nên không có claim phần mềm.",
+  "deliverables": [
+    "docs/evidence/W-0224/README.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "plan/toan-viec-can-lam-m8-2026-09-07.md"
+  ]
+}

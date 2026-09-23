@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0296",
+  "scope": "document",
+  "reason": "Khôi phục runner là thao tác vận hành ngoài repo (đổi tên thư mục socket Docker cũ, mở lại Docker Desktop, bấm Retry trên GitLab), không đổi mã, test hay gate; bằng chứng là job CI hosted (số job ghi trong README).",
+  "deliverables": [
+    "docs/evidence/W-0296/README.md"
+  ]
+}

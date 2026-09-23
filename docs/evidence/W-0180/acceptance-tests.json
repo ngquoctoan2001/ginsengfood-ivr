@@ -1,0 +1,8 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0180",
+  "scope": "software",
+  "gates": [
+    "attempt-policy-production-bundle-validator.mjs"
+  ]
+}

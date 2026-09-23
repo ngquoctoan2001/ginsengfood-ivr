@@ -124,3 +124,13 @@ Tracker hiện tại được cập nhật kết quả sau đó. Commit tài li�
 ```sh
 node deploy/ci/scripts/acceptance-batches.mjs --root .claude/worktrees/w0319-acceptance-lf-20260921 --evidence .artifacts/w0319-acceptance-bd9ea5c/acceptance-run.json
 ```
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `acceptance-batches.mjs`, `acceptance-evidence-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -81,3 +81,13 @@ GATE_STATUS_PASS                           250 work items
 | — | endpoint revoke + OAS + IR-06 — `2.5`, đi cùng `7.1`/`2.2` ở lượt phát hành sau | tôi |
 | — | `2.3` hỏi dev M3 xem có định làm registry `ProgramCode` không | tôi + dev M3 |
 | — | `4d` điền 20 giá trị `public_product_name` trong `PACK-02 §32.2` | owner + Product Master |
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `external-decision-closure-validator.mjs`, `external-decision-response-validator.mjs`, `external-decision-routing-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

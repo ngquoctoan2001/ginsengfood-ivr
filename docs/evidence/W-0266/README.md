@@ -78,3 +78,15 @@ pipe count register        6/7/7 — giữ nguyên, bảng không vỡ
 | — | Gửi `IR-07` cho dev M3 — nay không còn dòng nào chờ người không tồn tại | **owner** |
 | — | Re-pin `IR-06` trong `opt-out` + `upstream` validator sau khi luồng kia hạ cánh | tôi |
 | — | Nếu muốn mở `PRODUCTION_REAL` script approval: người thứ hai/ba, hoặc `OD` mới đổi luật ba-actor | owner |
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Mục này là quyết định của owner đóng OD-V1-11/21/23, ghi vào sổ quyết định, IR-06 §9a và IR-07 (A-13, A-14); không đổi mã nguồn hay test, còn hai validator chỉ được ghim lại hash IR-06 và giá trị đó đã bị W-0275 ghim đè. Danh sách 4 tài liệu nằm trong khai báo.
+
+Các kỳ hạn lưu trữ trong README đã bị quyết định giữ toàn bộ ngày 17/09 thay thế.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

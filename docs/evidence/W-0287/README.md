@@ -25,3 +25,13 @@ Lượt đầu dùng `git archive` theo `core.autocrlf=true` đã đổi byte LF
 GitNexus trước sửa `ci-config-selftest.mjs`/`expectedDotnetImage`: LOW, 0 caller/0 process. Chỉ sửa bootstrap/guard, không đổi runtime.
 
 Không thay nhãn nghiệp vụ của image pause. Security scan và push/pipeline mới còn chờ chấp thuận đã hỏi. Chưa có hosted proof cho candidate mới; M3/SIM/staging/production NOT_RUN. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `ci-config-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -204,3 +204,13 @@ chứng thực, nên nó trỏ sang vị trí pin mới.
 `docs/evidence/` đổi theo. Nội dung **không đổi một byte** — chỉ cái tên, để vai của nó đọc được ngay
 từ tên chứ không phải suy ra từ chỗ nó nằm. Tên cũ `artifact-sha256.txt` trùng khuôn với tệp pin
 sống, và chính sự trùng ấy là thứ để `W-0217` sửa nhầm chỗ mà không ai thấy.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `external-decision-closure-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0080",
+  "scope": "software",
+  "gates": [
+    "selftest-pii.sh",
+    "scan-pii.sh",
+    "ci-config-selftest.mjs"
+  ]
+}

@@ -132,3 +132,13 @@ gate-sweep                             ĐỎ 4 validator — pin của luồng k
 | — | Re-pin `IR-06` trong `opt-out` + `upstream` validator sau khi refactor luồng kia hạ cánh | tôi |
 | — | Chọn luồng cho `IR-06 §9a` (quorum ba mục treo) | **owner** |
 | — | Mở endpoint thu hồi theo shape M3 chốt ở `M3-14` | tôi |
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `contract-freeze-verifier.mjs`, `docs-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

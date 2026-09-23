@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0136",
+  "scope": "document",
+  "reason": "W-0136 chỉ thêm yêu cầu VoLTE (#0) vào §13.2, đổi tên thiết bị trong luồng tích hợp và ghi errata 21 trong spec nguồn Module 8; không sửa mã, test hay gate.",
+  "deliverables": [
+    "docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.md",
+    "docs/evidence/W-0136/README.md"
+  ]
+}

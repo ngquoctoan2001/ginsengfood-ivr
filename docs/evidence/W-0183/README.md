@@ -138,3 +138,13 @@ Module 8 Owner gửi routing metadata D-02; M3/Security/Platform/Telephony/Produ
 và ký completed W-0183 bundle, giao tám artifact và independent pins. Chạy W-0183 trước, sau đó
 W-0164 → dispatch/receipt → W-0165 → authority attestation → W-0170 S-08. Chỉ sau cả bundle và
 closure PASS mới mở Work ID implementation riêng.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `dial-token-production-bundle-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

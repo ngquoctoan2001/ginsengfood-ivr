@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0294",
+  "scope": "software",
+  "gates": [
+    "selftest-dotnet-policy.sh",
+    "ci-config-selftest.mjs"
+  ]
+}

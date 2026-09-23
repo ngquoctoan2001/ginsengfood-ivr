@@ -102,3 +102,13 @@ nhận riêng phần T-09 W-0180 additive/fail-closed và xoay dependency chain 
 validator SHA-256 là `de192cb4f14435247a149e2d0cd27c4e0b054a5746ff3e228e72670f6a37be91`;
 template SHA-256 là `590b4682905c62162f7d612558d6036f5f1497fd152bfaad104d50f977aabef9`.
 Self-test current: `W0164_SELFTEST_PASS template=1 valid=2 refusals=19`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `external-decision-routing-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -144,3 +144,14 @@ duyệt, và không phải phát hành.
 | — | re-pin `m8-05` cho hai manifest `W-0152`/`W-0170`, và tách vai *bản ghi đóng băng* khỏi *pin sống* | tôi, lượt sau |
 | — | endpoint revoke + OAS + IR-06 — `2.5`, đi cùng `7.1`/`2.2` ở lượt phát hành sau | tôi |
 | — | M3 gửi đúng `VALID`, và biết status sai nay là `400` chứ không `422` | dev M3 |
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `IT-INTAKE-REASON-WIRE-15`, `UT-INTAKE-REASON-TAXONOMY-13`, `IT-API-MATRIX-38`.
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `contract-freeze-selftest.mjs`, `validate-openapi.mjs`, `contract-freeze-verifier.mjs`, `docs-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -75,3 +75,13 @@ lại để lần sau không lặp.
 - `.docx` lệch với `.md` — cần Owner quyết cách đồng bộ.
 - Tên bước/component còn chữ "GSM" — cố ý, đã ghi errata.
 - Số kênh pilot và attempt policy vẫn chưa ký (`W-0135` §6).
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: W-0136 chỉ thêm yêu cầu VoLTE (#0) vào §13.2, đổi tên thiết bị trong luồng tích hợp và ghi errata 21 trong spec nguồn Module 8; không sửa mã, test hay gate. Danh sách 2 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

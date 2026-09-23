@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0323",
+  "scope": "software",
+  "gates": [
+    "tts-container-selftest.mjs",
+    "lab-speech-preflight-selftest.mjs"
+  ]
+}

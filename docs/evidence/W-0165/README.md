@@ -112,3 +112,13 @@ sheet/artifact/quorum rule. Current validator SHA-256 là
 `33b341e1d11c6383cd9f72ede018d510d103d348134c40d98a9f67a5d736e538`; template SHA-256 là
 `056ee7b325950da4380d167cd876d40195b44a96ef81df2f97365fdb5cea5be3`.
 Self-test current: `W0165_SELFTEST_PASS template=1 valid=2 refusals=27`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `external-decision-response-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

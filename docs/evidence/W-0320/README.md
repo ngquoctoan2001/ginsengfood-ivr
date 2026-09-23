@@ -120,3 +120,13 @@ Mỗi lần build khác phải ghi ID mới, kiểm binding lại; không lấy 
    vào gate phát hành theo F1/F2 của [báo cáo review](../../reports/21-09-ra-soat-vieneu-va-buoc-tiep-theo.md).
 5. Sau commit phù hợp và checkout sạch, thu toàn solution/full sweep theo W-0319; kết quả local
    của W-0320 không thay bộ nghiệm thu đó. S1/S2/S5/S6 và quyền phát hành vẫn thuộc người phụ trách.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `lab-speech-preflight-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

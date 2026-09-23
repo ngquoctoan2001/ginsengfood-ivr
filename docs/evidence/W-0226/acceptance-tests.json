@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0226",
+  "scope": "document",
+  "reason": "Lượt này khôi phục và cập nhật hai phiếu hỏi Legal/Privacy và Platform bằng markdown, sửa routing trong evidence W-0122; không đổi src/, tests/ hay script gate nên không có claim phần mềm. Hai phiếu khôi phục ở lượt này sau đó bị W-0297 xoá; còn lại README này, routing trong hồ sơ W-0122 và worklist 07/09.",
+  "deliverables": [
+    "docs/evidence/W-0226/README.md",
+    "docs/evidence/W-0122/README.md",
+    "plan/toan-viec-can-lam-m8-2026-09-07.md"
+  ]
+}

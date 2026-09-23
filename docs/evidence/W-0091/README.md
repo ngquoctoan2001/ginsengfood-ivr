@@ -36,3 +36,15 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `IT-API-PII-05`, `IT-API-QUEUE-08`, `IT-TTS-MODE-09`, `UT-TEL-SAFETY-06`, `UT-TTS-PII-04`, `UT-TEL-CHANNEL-05`, `UT-SCRIPT-TEMPLATE-GUARD-04`, `UT-SCRIPT-INPUT-GUARD-05`, `IT-RET-OUTBOX-09`, `IT-RET-CONFIG-10`, `IT-INTAKE-NEGATIVE-18`, `UT-FAKE-PORT-08`, `UT-FAKE-REGISTRY-09`, `UT-RESULT-MAPPER-10`, `IT-API-SIM-12`.
+
+Các test cho outbox giữ task, báo cáo NOT_CONFIGURED, fixture âm, fake provider và mapper đã có nhưng trước chưa mang TestId; W-0349 gắn thêm.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

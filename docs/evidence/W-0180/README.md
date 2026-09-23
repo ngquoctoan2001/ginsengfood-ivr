@@ -112,3 +112,13 @@ signer-verifier không tách, safety flag, PII/secret-like value và extra key.
 Product, Order Core và M3 điền/ ký bundle từ template, còn Platform/Release giao đúng evidence thuộc
 phạm vi của họ. Reviewer lấy bảy hash độc lập và chạy validator. Chỉ sau PASS mới mở change review
 riêng cho registry/producer/pre-dial/scheduler; không code theo proposal pending.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `attempt-policy-production-bundle-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -106,3 +106,13 @@ Residual giữ nguyên:
 - M3 role mapping/client/shared E2E và reason visibility vẫn cần owner/M3;
 - Platform secret custody/selectors, target DB, deploy/UAT và production vẫn external;
 - `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: W-0130 chỉ dựng lại và đóng băng đúng delta của W-0128/W-0129 lên một commit cô lập làm mốc provenance; bản thân nó không viết mã, test hay gate mới trên main, và kết quả test trên candidate thuộc về W-0128/W-0129. Danh sách 1 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

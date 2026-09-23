@@ -96,3 +96,13 @@ Không sửa code, không sửa test, không sửa `MODELS.lock`, không mở ga
 - `00-CHUA-XONG.md#today-03` (110 dòng) cũng bị `8ed62e9` xoá. Chưa khôi phục lượt
   này — nó là pack routing, và hai phiếu nó route tới nay đã sống lại; khôi phục hay bỏ hẳn là một
   quyết định riêng, không phải mặc định.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Lượt này khôi phục và cập nhật hai phiếu hỏi Legal/Privacy và Platform bằng markdown, sửa routing trong evidence W-0122; không đổi src/, tests/ hay script gate nên không có claim phần mềm. Hai phiếu khôi phục ở lượt này sau đó bị W-0297 xoá; còn lại README này, routing trong hồ sơ W-0122 và worklist 07/09. Danh sách 3 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

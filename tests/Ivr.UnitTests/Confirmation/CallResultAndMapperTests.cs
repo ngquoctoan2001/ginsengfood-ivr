@@ -15,6 +15,7 @@ namespace Ivr.UnitTests.Confirmation;
 public sealed class CallResultAndMapperTests
 {
     [Fact]
+    [Trait("TestId", "UT-RESULT-TAXONOMY-04")]
     public void NoAnswerIsAdvisoryAndCannotRequestCoreTransition()
     {
         CallResultSnapshot result = TestData.Result(
@@ -32,6 +33,7 @@ public sealed class CallResultAndMapperTests
     [Theory]
     [InlineData(IvrResultType.IvrTechnicalException)]
     [InlineData(IvrResultType.IvrCapacityException)]
+    [Trait("TestId", "UT-RESULT-TAXONOMY-05")]
     public void TechnicalAndCapacityResultsNeverCountAsCustomerAttempts(IvrResultType resultType)
     {
         Assert.Throws<InvalidOperationException>(() => TestData.Result(
@@ -63,6 +65,7 @@ public sealed class CallResultAndMapperTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-RESULT-MAPPER-06")]
     public void TargetCallbackMapperPreservesSemanticsAndStaleGuard()
     {
         CallResultSnapshot domain = TestData.Result();
@@ -78,6 +81,7 @@ public sealed class CallResultAndMapperTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-RESULT-MAPPER-07")]
     public void TargetAckSemanticsAreIndependentOfHttpStatus()
     {
         CallbackAcknowledgement accepted = TargetV1CallbackMapper.FromSalesAck(new CallbackAck200
@@ -98,6 +102,7 @@ public sealed class CallResultAndMapperTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-RESULT-MAPPER-08")]
     public void CurrentMapperIsExplicitAndRejectsTwentyFourSeven()
     {
         CurrentGoldenHourIdentity identity = new(1, 2, 3, 4);
@@ -115,6 +120,7 @@ public sealed class CallResultAndMapperTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-RESULT-MAPPER-09")]
     public void CurrentMapperRejectsTargetOnlyResultInsteadOfLossyMapping()
     {
         CurrentGoldenHourIdentity identity = new(1, 2, 3, 4);
@@ -130,6 +136,7 @@ public sealed class CallResultAndMapperTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-RESULT-MAPPER-10")]
     public async Task TargetTaskMapperUsesRegistryAndDoesNotMapPhoneFields()
     {
         AttemptPolicySnapshot policy = TestData.Policy(AttemptPolicyApproval.CandidateMockLabOnly);
@@ -154,6 +161,7 @@ public sealed class CallResultAndMapperTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-RESULT-MAPPER-11")]
     public async Task TargetTaskMapperRejectsCandidatePolicyInProduction()
     {
         TargetV1TaskMapper mapper = new(

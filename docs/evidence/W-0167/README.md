@@ -70,3 +70,15 @@ W-0163 và mọi external signature/artifact/shared-E2E vẫn giữ nguyên tr�
 
 W-0167 đóng khoảng trống full offline solution của D8 trên current tree. Nó không chứng minh M3
 consumer, provider sandbox, staging/UAT, cuộc gọi khách thật hoặc production readiness.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: W-0167 chỉ ghi lại một lượt chạy toàn bộ Ivr.sln (765/765 PASS) trên cây làm việc lúc đó để lấp khoảng trống D8; không sửa mã, test hay gate nên không có claim phần mềm riêng. Danh sách 1 tài liệu nằm trong khai báo.
+
+Lượt chạy toàn bộ ghi ở đây là ảnh chụp tại thời điểm đó; dòng D8 nay trỏ lượt chạy sạch của W-0177.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

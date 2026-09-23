@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0313",
+  "scope": "software",
+  "gates": [
+    "scan-pii.sh",
+    "d06-revalidation-evidence-validator.mjs",
+    "dial-token-production-bundle-validator.mjs",
+    "opt-out-suppression-bundle-validator.mjs",
+    "upstream-session-signoff-validator.mjs"
+  ]
+}

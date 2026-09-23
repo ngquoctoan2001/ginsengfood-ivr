@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0293",
+  "scope": "document",
+  "reason": "Mục này chỉ sửa câu chữ trong 45 tệp evidence cho khớp PII gate; không đổi scanner, pattern, allowlist, test hay mã nguồn nào.",
+  "deliverables": [
+    "docs/evidence/W-0293/README.md",
+    "docs/evidence/W-0293/reviewed-lines.json",
+    "docs/evidence/W-0293/pii-scan.log",
+    "docs/evidence/W-0293/pii-selftest.log"
+  ]
+}

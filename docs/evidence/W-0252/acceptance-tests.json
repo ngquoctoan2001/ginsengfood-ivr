@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0252",
+  "scope": "software",
+  "gates": [
+    "external-decision-closure-validator.mjs",
+    "external-decision-response-validator.mjs",
+    "external-decision-routing-validator.mjs"
+  ]
+}

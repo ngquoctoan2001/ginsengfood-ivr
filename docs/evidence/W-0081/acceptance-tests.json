@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0081",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-FND-ERR-05"
+  ],
+  "gates": [
+    "ci-config-selftest.mjs"
+  ]
+}

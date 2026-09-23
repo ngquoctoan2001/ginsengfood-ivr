@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0253",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-L10N-DBENUM-04"
+  ],
+  "gates": [
+    "docs-selftest.mjs",
+    "ci-config-selftest.mjs"
+  ]
+}

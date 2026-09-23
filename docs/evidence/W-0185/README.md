@@ -108,3 +108,13 @@ Cho đến khi đủ artifact/chữ ký và pilot/cutover riêng:
 - LAB_REAL_SIM_VERIFIED=NO;
 - PRODUCTION_REAL_ELIGIBLE=NO;
 - REAL_CUSTOMER_CALL_ALLOWED=NO.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `b3-telephony-evidence-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

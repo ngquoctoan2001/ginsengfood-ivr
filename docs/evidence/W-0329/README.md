@@ -100,3 +100,13 @@ nguyên; ở thời điểm đó S5 chưa xác định host, ngân sách product
 2 CPU/4 GiB. Có phép đo TTS thật đầu tiên; các bước xác định host/thu số đo ban đầu ở trên
 đã xong. Chưa đóng S5: còn kiểm worker retry, đủ đơn và tải kéo dài. Timeout 5 giây không
 đủ các mẫu dài, 10 giây mới là kết quả một lượt probe. Mirror/S2 và khách thật giữ nguyên.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Bằng chứng chạy lab: Lượt kiểm lab DTMF qua đầu SIP im lặng và đo tải VieNeu bằng model thật; chỉ thêm công cụ lab, không đổi mã ứng dụng, test .NET hay script gate, nên bằng chứng là log và số đo lab. Danh sách 6 tệp nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

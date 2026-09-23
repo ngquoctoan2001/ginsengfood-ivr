@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0222",
+  "scope": "document",
+  "reason": "Lượt này chỉ xoá hai ref git đã merge và ghi mục miễn trừ đích danh một nhánh vào CLAUDE.md/AGENTS.md; không đổi src/, tests/ hay script gate nên không có claim phần mềm.",
+  "deliverables": [
+    "docs/evidence/W-0222/README.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "plan/toan-viec-can-lam-m8-2026-09-07.md"
+  ]
+}

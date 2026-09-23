@@ -187,3 +187,13 @@ một giá trị hash nào, không mở gate nào. `REAL_CUSTOMER_CALL_ALLOWED=N
   rebuild image và xác thực lại lock binding, mà offline ở đây không chạy được.
 - Hai blocker của `1.4` **không đổi trạng thái**: `LEGAL` vẫn cần review licence, `INTERNAL_MIRROR`
   vẫn cần Platform. Lượt này chỉ làm cái thứ hai **không thể mở bằng ba chữ**.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `tts-provenance-gate.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

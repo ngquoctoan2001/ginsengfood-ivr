@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0141",
+  "scope": "document",
+  "reason": "W-0141 chỉ đổi tên một file .docx đã thu hồi theo OD-20 (giữ nguyên byte) và cập nhật quyết định, errata 22 và hồ sơ; không sửa mã, test hay gate. File .docx đã đổi tên sau đó bị W-0169 xoá khỏi cây; bản đủ byte còn trong lịch sử git.",
+  "deliverables": [
+    "docs/evidence/W-0141/README.md",
+    "plan/ivr-orther/decisions-log.md",
+    "docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.md"
+  ]
+}

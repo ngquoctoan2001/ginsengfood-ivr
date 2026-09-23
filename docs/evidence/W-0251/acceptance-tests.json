@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0251",
+  "scope": "software",
+  "gates": [
+    "external-decision-c9-selftest.mjs",
+    "external-decision-closure-validator.mjs",
+    "external-decision-dial-token-selftest.mjs",
+    "external-decision-response-validator.mjs",
+    "external-decision-routing-validator.mjs"
+  ]
+}

@@ -91,3 +91,13 @@ thời gian trả capacity hoặc nguyên nhân chênh RAM. Kết quả local v�
 ở các JSON cũ giữ nguyên theo thời điểm thu. Bước tiếp theo là nhận `s5-result.tar.gz`
 từ thư mục đo của owner rồi phân tích đầy đủ. Bước này nay đã hoàn tất ở addendum S5
 đầu tài liệu; giữ tóm tắt lịch sử theo thời điểm nhận. Khách thật vẫn tắt.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Bằng chứng chạy lab: Bộ đo VieNeu cho Ubuntu S5 và kết quả đo thật trên vps61; chỉ thêm launcher lab cùng test Python chạy ngoài CI, không đổi mã ứng dụng, test .NET hay script gate, nên bằng chứng là số đo và hash máy đích. Danh sách 9 tệp nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

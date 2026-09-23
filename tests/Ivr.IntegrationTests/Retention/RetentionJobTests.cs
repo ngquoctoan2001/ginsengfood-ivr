@@ -156,6 +156,7 @@ public sealed class RetentionJobTests(RetentionJobFixture fixture)
     }
 
     [Fact]
+    [Trait("TestId", "IT-RET-OUTBOX-09")]
     public async Task HeldIntakeOutboxBlocksParentTaskAndJobDeletion()
     {
         await fixture.ResetAsync();
@@ -221,6 +222,7 @@ public sealed class RetentionJobTests(RetentionJobFixture fixture)
     }
 
     [Fact]
+    [Trait("TestId", "IT-RET-CONFIG-10")]
     public async Task MissingPeriodCreatesNotConfiguredReportAndCheckpoint()
     {
         await fixture.ResetAsync();

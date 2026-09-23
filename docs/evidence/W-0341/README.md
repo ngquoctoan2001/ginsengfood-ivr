@@ -89,3 +89,13 @@ Nếu cần đổi lock/image, đó là ứng viên mới cần chuỗi kiểm c
 **Việc đã làm:** xác minh quyền công bố đúng revision, sửa nhận định thiếu chứng từ quá rộng.
 **Đề xuất bước tiếp theo:** đồng bộ hồ sơ và cách kiểm bằng chứng giấy phép vào ứng viên phát hành;
 giữ S2 đã nhận rủi ro, quota/profile và trạng thái khách thật tắt.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Rà soát quyền dùng model/codec VieNeu và MOSS theo nguồn công bố đúng revision; chỉ thêm tài liệu và hash nguồn, không đổi mã, test hay gate. Danh sách 4 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

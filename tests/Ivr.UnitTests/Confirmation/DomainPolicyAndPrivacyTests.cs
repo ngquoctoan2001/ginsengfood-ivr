@@ -16,6 +16,7 @@ public sealed class DomainPolicyAndPrivacyTests
 
     [Theory]
     [MemberData(nameof(ProgramPaymentCases))]
+    [Trait("TestId", "UT-DOMAIN-POLICY-01")]
     public void ProgramPaymentMatrixIsFailClosed(
         IvrProgramCode program,
         PaymentMethod payment,
@@ -34,6 +35,7 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-DOMAIN-POLICY-02")]
     public void CandidatePolicyIsRejectedInProductionButAllowedInMockAndLab()
     {
         AttemptPolicySnapshot policy = TestData.Policy(AttemptPolicyApproval.CandidateMockLabOnly);
@@ -45,6 +47,7 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-DOMAIN-POLICY-03")]
     public void AttemptPolicyRejectsUnorderedOffsetsAndOffsetsOutsideWindow()
     {
         Assert.Throws<InvalidOperationException>(() => AttemptPolicySnapshot.Create(
@@ -64,6 +67,7 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-DOMAIN-PRIVACY-01")]
     public void UnicodeSpeechSummaryPreservesSafeVietnameseContentAndVnd()
     {
         PrivacySafeOrderSummary summary = TestData.Summary();
@@ -78,6 +82,7 @@ public sealed class DomainPolicyAndPrivacyTests
     [Theory]
     [InlineData("Quận 1, Thành phố Hồ Chí Minh")]
     [InlineData("Khu đô thị cao cấp, Quận 7")]
+    [Trait("TestId", "UT-DOMAIN-PRIVACY-04")]
     public void ShortAreaAcceptsCityAndBenignWords(string value)
     {
         Assert.Equal(value, ShortDeliveryArea.Create(value).Value);
@@ -89,6 +94,7 @@ public sealed class DomainPolicyAndPrivacyTests
     [InlineData("street-keyword")]
     [InlineData("slash-address")]
     [InlineData("numeric-street")]
+    [Trait("TestId", "UT-DOMAIN-PRIVACY-02")]
     public void PrivacyGuardRejectsPhoneTokenAndFullAddress(string caseId)
     {
         string unsafeValue = caseId switch
@@ -105,6 +111,7 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-DOMAIN-SPEECH-01")]
     public void SpeechItemCountIsConfigurationDriven()
     {
         SpeechItem item = SpeechItem.Create("Sâm lát", 1, "Hộp");
@@ -135,6 +142,7 @@ public sealed class DomainPolicyAndPrivacyTests
     [InlineData("prefixed-sip")]
     [InlineData("prefixed-underscore")]
     [InlineData("suffixed")]
+    [Trait("TestId", "UT-DOMAIN-PRIVACY-03")]
     public void DialTokenReferenceRejectsRawPhoneData(string caseId)
     {
         string rawPhone = caseId switch
@@ -179,6 +187,7 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-DOMAIN-POLICY-04")]
     public void SnapshotHashIsDeterministicAndCollectionsAreImmutable()
     {
         PrivacySafeOrderSummary first = TestData.Summary(new Dictionary<string, string>
@@ -200,6 +209,7 @@ public sealed class DomainPolicyAndPrivacyTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-DOMAIN-POLICY-05")]
     public void PolicyHashChangesWhenPolicyFieldChanges()
     {
         AttemptPolicySnapshot first = TestData.Policy(AttemptPolicyApproval.OwnerApproved);

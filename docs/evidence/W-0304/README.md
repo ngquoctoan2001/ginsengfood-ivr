@@ -275,3 +275,13 @@ quan tới thay đổi của mình.
 **Quy tắc rút ra, cụ thể hơn "chạy gate trước khi commit":** khi một lượt **xoá hoặc đổi tên** file,
 thứ phải chạy không phải gate của phạm vi mình, mà là **quét toàn bộ pin** — vì pin là thứ duy nhất
 biết rằng một file nào đó ở chỗ khác đang phụ thuộc vào file bạn vừa xoá.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `opt-out-suppression-bundle-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

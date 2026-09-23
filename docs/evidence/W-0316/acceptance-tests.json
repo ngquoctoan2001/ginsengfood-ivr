@@ -1,0 +1,19 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0316",
+  "scope": "document",
+  "reason": "Chỉ ghi các quyết định 17–18/09 vào register, tracker, kế hoạch và phiếu; thay đổi ngoài tài liệu duy nhất là trường timeoutMs của dr-selftest trong manifest gate, không đổi mã, test hay script gate.",
+  "deliverables": [
+    "specs/_review/open-decisions-register.md",
+    "docs/compliance/retention-period-proposal.md",
+    "integration-requirements/07-module-3-decision-sheet.md",
+    "integration-requirements/00-index.md",
+    "plan/ivr-orther/00-CHUA-XONG.md",
+    "plan/ivr-orther/phieu-quyet-dinh-cho-sep-2026-09-17.md",
+    "plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md",
+    "plan/BAN-GIAO-phien-moi-2026-09-17.md",
+    "docs/evidence/W-0310/README.md",
+    "docs/evidence/W-0311/README.md",
+    "prompt/_execution/prompt-execution-tracker.md"
+  ]
+}

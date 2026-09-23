@@ -1,0 +1,22 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0091",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-API-PII-05",
+    "IT-API-QUEUE-08",
+    "IT-TTS-MODE-09",
+    "UT-TEL-SAFETY-06",
+    "UT-TTS-PII-04",
+    "UT-TEL-CHANNEL-05",
+    "UT-SCRIPT-TEMPLATE-GUARD-04",
+    "UT-SCRIPT-INPUT-GUARD-05",
+    "IT-RET-OUTBOX-09",
+    "IT-RET-CONFIG-10",
+    "IT-INTAKE-NEGATIVE-18",
+    "UT-FAKE-PORT-08",
+    "UT-FAKE-REGISTRY-09",
+    "UT-RESULT-MAPPER-10",
+    "IT-API-SIM-12"
+  ]
+}

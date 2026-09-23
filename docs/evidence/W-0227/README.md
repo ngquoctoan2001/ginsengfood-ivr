@@ -76,3 +76,13 @@ Bốn tài liệu nay đủ bộ và liên kết đúng. **Không cái nào đã
 NOT_PERFORMED` vẫn là trạng thái tự khai của gói, y như ngày `29/08`.
 
 Việc kế tiếp không phải của M8: gửi. *(Sửa `18/09`, `W-0315`: câu hỏi của ba phiếu nay gom về `S2`/`S5` của Sếp.)*
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Lượt này khôi phục gói routing today-03 và phiếu Security bằng markdown, cập nhật routing trong evidence W-0122 và worklist; không đổi src/, tests/ hay script gate nên không có claim phần mềm. Gói routing và phiếu khôi phục ở lượt này sau đó bị W-0297 xoá; còn lại README này, routing trong hồ sơ W-0122 và worklist. Danh sách 3 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

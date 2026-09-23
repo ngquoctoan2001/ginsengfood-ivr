@@ -45,3 +45,15 @@ Không đổi mã sản phẩm, không đổi cấu hình. `Ivr:Retention:Period
 `BLOCKED_EXTERNAL` cho tới khi pháp chế trả lại phiếu đã điền.
 
 Mock-only evidence: đầy đủ · Lab: NOT_RUN · Real integration: NOT_RUN · Production: NOT_RUN
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Mục này chỉ dựng phiếu điền kỳ hạn lưu trữ từ mã nguồn để pháp chế điền số; không đổi mã nguồn, test, cấu hình hay cổng kiểm nào. Danh sách 2 tài liệu nằm trong khai báo.
+
+README ở trên ghi BLOCKED_EXTERNAL, còn tracker ghi EVIDENCE_SUBMITTED từ W-0316.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

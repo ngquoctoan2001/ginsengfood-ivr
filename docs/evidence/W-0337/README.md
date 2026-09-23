@@ -61,3 +61,13 @@ Không phát hiện phần runtime local bắt buộc phải triển khai thêm 
 Phiếu tại8763dc1 đã được owner duyệt ngày21/09. Chín phạm vi P2 và bốn closeout P3 đã ghi sổ;
 verification.json là snapshot kiểm trước duyệt, không sửa PENDING trong artifact đó thành chữ ký.
 Không chạy lại full test/sweep vì lượt này chỉ ghi quyết định và đồng bộ hồ sơ/tracker.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Gói trình owner quyết định chín việc P2 và bốn việc P3 UI đã ngừng, kèm đối chiếu C1/C2/C4 tại aaba3d2; không đổi mã, test hay gate nên không có khẳng định phần mềm để test. Danh sách 3 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -362,6 +362,7 @@ public sealed class TaskIntakeApiTests
     }
 
     [Fact]
+    [Trait("TestId", "IT-INTAKE-TRACE-16")]
     public async Task MissingIdempotencyIsMissingTraceButInvalidSyntaxIsMalformed()
     {
         await using TaskIntakeApiTestApplication app =
@@ -446,6 +447,7 @@ public sealed class TaskIntakeApiTests
     }
 
     [Fact]
+    [Trait("TestId", "IT-INTAKE-BLOCKED-17")]
     public async Task CallRestrictionReturnsOperationalBlocked409()
     {
         await using TaskIntakeApiTestApplication app =
@@ -462,6 +464,7 @@ public sealed class TaskIntakeApiTests
 
     [Fact]
 #pragma warning disable CA2000 // await using owns each per-fixture test application.
+    [Trait("TestId", "IT-INTAKE-NEGATIVE-18")]
     public async Task EveryCanonicalDomainNegativeFixtureExecutesItsExpectedRuntimeBranch()
     {
         JsonObject catalog = JsonNode.Parse(await File.ReadAllTextAsync(

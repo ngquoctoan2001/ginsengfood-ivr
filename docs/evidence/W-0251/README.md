@@ -165,3 +165,13 @@ chủ ý: câu *"bốn script gate đọc `artifact-sha256.txt` như một danh 
 tên cũ, viết lại thành tên mới sẽ thành sai. `W-0252` đổi cả mười hai bản ghi trong `docs/evidence/`
 sang `attested-sha256.txt`, **nội dung không đổi một byte** — trỏ tới tệp nào thì thay `artifact-`
 bằng `attested-` trong vị trí file.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `external-decision-c9-selftest.mjs`, `external-decision-closure-validator.mjs`, `external-decision-dial-token-selftest.mjs`, `external-decision-response-validator.mjs`, `external-decision-routing-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

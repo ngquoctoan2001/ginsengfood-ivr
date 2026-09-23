@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0247",
+  "scope": "document",
+  "reason": "Lượt này chỉ đọc lại nguồn và xếp lại năm mục 2.2–2.6 trong worklist; kết luận nằm trong tài liệu, không đổi src/, tests/ hay script gate nên không có claim phần mềm.",
+  "deliverables": [
+    "docs/evidence/W-0247/README.md",
+    "plan/toan-viec-can-lam-m8-2026-09-07.md"
+  ]
+}

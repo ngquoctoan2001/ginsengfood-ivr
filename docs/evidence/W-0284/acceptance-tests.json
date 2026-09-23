@@ -1,0 +1,15 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0284",
+  "scope": "document",
+  "reason": "Mục này là đối soát tài liệu bàn giao và sổ tiến độ (khôi phục 13 dòng tracker, sửa chỉ dẫn phiên bản IR-06/07/08, sinh hai changelog OpenAPI); phần chạm bốn validator chỉ là ghim lại hash IR-06 và đã bị W-0304 ghim đè, nên không có khẳng định phần mềm.",
+  "deliverables": [
+    "docs/evidence/W-0284/README.md",
+    "docs/evidence/W-0284/recovered-work-items.json",
+    "docs/evidence/W-0284/evidence-inventory.json",
+    "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md",
+    "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md",
+    "prompt/_execution/prompt-execution-tracker.md",
+    "docs/reports/12-09-bao-cao-tien-do-module-8-ivr.md"
+  ]
+}

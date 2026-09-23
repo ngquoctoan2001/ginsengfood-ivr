@@ -42,3 +42,13 @@ Các addendum trong chín hồ sơ gốc dẫn tới phiếu này, giữ nguyên
 Tại mốc trình 4dfd500, tổng ACCEPTED là **48**. Sau phản hồi “tôi chấp nhận”, chín việc gốc
 được ghi ACCEPTED, tổng **57**; W-0336 giữ EVIDENCE_SUBMITTED. [Quyết định owner](approval-request.md#quyết-định-owner--21092026)
 không sửa SHA/kết quả kiểm chứng cũ và giữ nguyên các giới hạn ngoài local.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Gói trình duyệt phạm vi local của chín việc, đối chiếu bằng chứng và Residual; ngoài một chú thích XML trong SimAdapters.cs không đổi mã, test hay gate nên không có khẳng định phần mềm để test. Danh sách 3 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

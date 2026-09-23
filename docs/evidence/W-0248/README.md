@@ -91,3 +91,13 @@ gate-status.mjs                GATE_STATUS_PASS
 | — | chốt hình dạng revoke (`task_id` + `order_version` + `reason`) | Owner + dev M3 |
 | — | migration + hai fence + test | **M8**, ngay sau khi chốt |
 | — | endpoint + OAS | **lượt phát hành contract**, cùng `7.1` và `2.2` |
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Lượt này ghi quyết định phương án B của owner và đặc tả hai fence thu hồi đơn; code, migration và test do W-0249 dựng, lượt này không đổi src/, tests/ hay script gate. Danh sách 2 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

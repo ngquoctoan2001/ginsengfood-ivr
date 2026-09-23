@@ -133,3 +133,13 @@ cả `3` câu còn nguyên hiệu lực. **Nội dung không sửa một chữ**
 
 **Không mục nào của bản `16/09` đóng nhờ lượt này.** Cái đổi là: `5` phiếu đang treo chờ một phòng
 ban không tồn tại nay thành `2` phiếu có người nhận thật, cộng câu hỏi về VieNeu đã gom về Sếp.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Chỉ khôi phục và định tuyến lại các phiếu hỏi nhóm A và sửa sổ sách kế hoạch; commit d655989 không chạm file .cs, test hay script gate nên không có khẳng định phần mềm. Danh sách 4 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

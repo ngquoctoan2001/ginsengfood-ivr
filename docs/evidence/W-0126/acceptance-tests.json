@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0126",
+  "scope": "software",
+  "gates": [
+    "tts-provenance-gate.mjs",
+    "tts-voice-acceptance-gate.mjs",
+    "tts-helm-selftest.mjs",
+    "lab-converter-selftest.mjs",
+    "tts-fixed-render-selftest.mjs"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0203",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-PROFILE-01",
+    "UT-PROFILE-02",
+    "UT-PROFILE-03",
+    "UT-PROFILE-04",
+    "UT-PROFILE-05",
+    "UT-PROFILE-06",
+    "UT-PROFILE-07",
+    "UT-FAKE-SCEN-01",
+    "UT-FAKE-SCEN-02",
+    "UT-FAKE-SCEN-03",
+    "UT-FAKE-SCEN-04",
+    "UT-FAKE-SCEN-05",
+    "UT-FAKE-SCEN-06",
+    "UT-FAKE-SCEN-07"
+  ]
+}

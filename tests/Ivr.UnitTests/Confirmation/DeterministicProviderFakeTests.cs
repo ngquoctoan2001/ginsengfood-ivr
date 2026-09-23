@@ -7,6 +7,7 @@ namespace Ivr.UnitTests.Confirmation;
 public sealed class DeterministicProviderFakeTests
 {
     [Fact]
+    [Trait("TestId", "UT-FAKE-PORT-08")]
     public async Task EveryProviderPortHasDeterministicFake()
     {
         ProviderFakeSnapshot first = await RunProviderFakesOnce();
@@ -114,6 +115,7 @@ public sealed class DeterministicProviderFakeTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-FAKE-REGISTRY-09")]
     public async Task RegistryLookupIsVersionAndProgramSpecific()
     {
         FakeAttemptPolicyRegistry registry = new([TestData.Policy(AttemptPolicyApproval.OwnerApproved)]);

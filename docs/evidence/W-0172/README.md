@@ -85,3 +85,13 @@ full integration trên build biệt lập dưới repository root đạt `239/23
 Next action: giữ invariant và migration trong exact release candidate, rồi M3/Product cung cấp
 assembler/CDC, generic callback consumer, policy approval và shared-E2E evidence. Không còn local
 code/test action bắt buộc cho W-0172 nếu không xuất hiện finding mới.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `UT-RESULT-CONTRACT-01`, `UT-RESULT-CONTRACT-02`, `UT-RESULT-CONTRACT-03`, `IT-RESULT-CONTRACT-PRECALL-17`, `IT-RESULT-CONTRACT-FINALITY-18`, `IT-RESULT-CONTRACT-ACTION-19`, `IT-RESULT-CONTRACT-OUTBOX-19`, `IT-RESULT-CONTRACT-PREFLIGHT-20`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

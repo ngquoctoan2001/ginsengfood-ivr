@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0295",
+  "scope": "software",
+  "gates": [
+    "dial-token-production-bundle-validator.mjs",
+    "upstream-session-signoff-validator.mjs"
+  ]
+}

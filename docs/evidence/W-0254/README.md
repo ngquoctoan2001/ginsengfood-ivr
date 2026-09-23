@@ -116,3 +116,13 @@ sẵn, hai breaking change đã ghi rõ ở `§0`.
 | — | `§9` mục 9: ai giữ ba token quản trị, vai M3 nào ánh xạ tầng nào, định dạng `X-Actor-Id` | owner + dev M3 |
 | — | endpoint revoke + OAS + IR-06 — `2.5`, lượt phát hành contract sau | tôi |
 | — | `4d` điền 20 `public_product_name` trong `PACK-02 §32.2` | owner + Product Master |
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `contract-freeze-verifier.mjs`, `contract-freeze-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

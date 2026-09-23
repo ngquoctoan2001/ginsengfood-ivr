@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0194",
+  "scope": "document",
+  "reason": "Việc ký quyết định: ghi chữ ký owner cho 19 dòng OD-V1/OD-VOICE vào register và gói ký, thêm cột Current cho bảng bốn cột; không đổi code, test hay gate.",
+  "deliverables": [
+    "specs/_review/open-decisions-register.md",
+    "plan/ivr-orther/00-DA-XONG.md"
+  ]
+}

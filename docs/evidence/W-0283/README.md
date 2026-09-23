@@ -48,3 +48,13 @@ This does not sign M3's contract, supply production credentials, authorize a SIM
 or implement M3's order transition. The sandbox receiver is fake. The new loop stays disabled
 outside explicitly configured deployments. Final exact-commit verification is the later execution
 task; local runtime artifacts here identify their source and container scope separately.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `UT-ELIG-LOOP-01`, `UT-ELIG-LOOP-02`, `UT-ELIG-LOOP-03`, `UT-ELIG-LOOP-04`, `IT-ELIG-LOOP-01`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

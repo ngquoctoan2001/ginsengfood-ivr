@@ -1,0 +1,8 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0343",
+  "scope": "software",
+  "gates": [
+    "tts-provenance-gate.mjs"
+  ]
+}

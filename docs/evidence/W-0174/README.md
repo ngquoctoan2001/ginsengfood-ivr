@@ -116,3 +116,15 @@ và path ngoài repo.
 
 Khi external artifact có đủ, copy template, lấy sáu pin từ trust source độc lập và chạy validator.
 Chỉ sau PASS mới mở một change review riêng cho delivery guard; không gỡ guard trong W-0174.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `target-v1-shared-e2e-report-validator.mjs`.
+
+W-0207 sau này sửa phiếu ca kiểm mà việc này dựng; gate kiểm bản đã sửa, README ở trên còn mô tả bản đầu.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

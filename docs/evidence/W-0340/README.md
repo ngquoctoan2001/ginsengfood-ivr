@@ -69,3 +69,15 @@ DB vận hành hoặc dial token. Không chạy image, gọi model, phát tiến
    vào ứng viên local mới; ứng viên đó chưa đưa lên S5. Giữ riêng scan/image đo hiện tại.
 3. Hoàn tất nghiệm thu triển khai tích hợp và commit sạch theo task riêng. Các bằng chứng
    quét/mirror có giới hạn này không bật production; khách thật tiếp tục tắt.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Bằng chứng chạy lab: Hồ sơ owner ký nhận bảy rủi ro S2, quét CVE đúng image bằng DB mới và biên nhận kho artifact trên vps61; không đổi mã, test hay gate, chỉ có tài liệu, số đo và script bàn giao. Danh sách 8 tệp nằm trong khai báo.
+
+README viết trước phê duyệt Legal/Privacy của W-0343; khoá model nay ghi phê duyệt đó.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

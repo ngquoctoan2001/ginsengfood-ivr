@@ -1,0 +1,16 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0340",
+  "scope": "lab-run",
+  "reason": "Hồ sơ owner ký nhận bảy rủi ro S2, quét CVE đúng image bằng DB mới và biên nhận kho artifact trên vps61; không đổi mã, test hay gate, chỉ có tài liệu, số đo và script bàn giao.",
+  "deliverables": [
+    "docs/evidence/W-0340/README.md",
+    "docs/evidence/W-0340/S2-owner-review.md",
+    "docs/evidence/W-0340/mirror-target-findings.md",
+    "docs/evidence/W-0340/mirror-target-verification.json",
+    "docs/evidence/W-0340/mirror-steps.md",
+    "docs/evidence/W-0340/verification.json",
+    "docs/evidence/W-0340/verify-mirror.py",
+    "docs/evidence/W-0340/run-mirror-handoff.ps1"
+  ]
+}

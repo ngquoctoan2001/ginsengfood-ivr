@@ -1,0 +1,8 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0084",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-DB-AUDIT-07"
+  ]
+}

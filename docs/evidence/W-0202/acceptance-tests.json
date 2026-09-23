@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0202",
+  "scope": "document",
+  "reason": "Việc quyết định hợp đồng theo phương án (a) của owner: xoay baseline so sánh OpenAPI sang draft.23 và đóng băng báo cáo 11 cảnh báo; không đổi code, test hay gate runner của sweep.",
+  "deliverables": [
+    "specs/api/openapi/baselines/ivr-order-confirmation.v1.0.0-draft.23.yaml",
+    "docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md",
+    "docs/api/ivr-order-confirmation-v1.0.0-draft.22-to-v1.0.0-draft.23.html",
+    "docs/api-changelog.md"
+  ]
+}

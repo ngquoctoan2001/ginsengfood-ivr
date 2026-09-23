@@ -120,3 +120,13 @@ Lab còn chạy ở profile segmented, bộ nghe tại `http://127.0.0.1:58121`;
 
 S1 nghe/mối nối `PENDING_OWNER`; S2 `OWNER_DECISION_REQUIRED`; máy/mirror S5 `OWNER_DATA_REQUIRED`.
 Production `BLOCKED`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `tts-container-selftest.mjs`, `lab-speech-preflight-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

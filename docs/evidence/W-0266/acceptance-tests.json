@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0266",
+  "scope": "document",
+  "reason": "Mục này là quyết định của owner đóng OD-V1-11/21/23, ghi vào sổ quyết định, IR-06 §9a và IR-07 (A-13, A-14); không đổi mã nguồn hay test, còn hai validator chỉ được ghim lại hash IR-06 và giá trị đó đã bị W-0275 ghim đè.",
+  "deliverables": [
+    "specs/_review/open-decisions-register.md",
+    "integration-requirements/06-module-3-api-handover.md",
+    "integration-requirements/07-module-3-decision-sheet.md",
+    "docs/evidence/W-0266/README.md"
+  ]
+}

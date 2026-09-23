@@ -1,0 +1,8 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0083",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-BOOT-03"
+  ]
+}

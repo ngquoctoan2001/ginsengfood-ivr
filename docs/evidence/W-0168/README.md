@@ -65,3 +65,13 @@ dependency, application runtime, OpenAPI, DB và production config không đổi
 
 Hosted GitLab pipeline, external secret-store custody/rotation, vendor sandbox, staging/UAT và
 production vẫn chưa được chứng minh. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. Trạng thái khai báo:
+
+- Chưa khai phép kiểm. Việc này sửa security-scan.sh, script không chạy trong sweep (sweepable: false), và không test nào phủ thay đổi đó. Chưa khai phép kiểm; Toàn quyết nhận theo hồ sơ hay để trượt C2.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

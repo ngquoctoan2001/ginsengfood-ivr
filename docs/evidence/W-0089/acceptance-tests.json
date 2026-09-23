@@ -1,0 +1,17 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0089",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-FND-PII-07",
+    "IT-INTAKE-DB-02",
+    "IT-INTAKE-SCHEMA-03",
+    "UT-DOMAIN-PRIVACY-04",
+    "UT-INTAKE-IDEMPOTENCY-15",
+    "IT-INTAKE-DB-04",
+    "IT-INTAKE-TRACE-16",
+    "IT-INTAKE-BLOCKED-17",
+    "UT-INTAKE-NOJOB-16",
+    "IT-INTAKE-NEGATIVE-18"
+  ]
+}

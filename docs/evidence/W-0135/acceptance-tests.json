@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0135",
+  "scope": "document",
+  "reason": "W-0135 chỉ sửa ba lỗi sự thật (mốc tắt 3G, số lần gọi chưa ký, số kênh chưa chốt) trong hồ sơ mua sắm R-00/R-06; không đụng mã, test hay gate nên không có claim phần mềm.",
+  "deliverables": [
+    "docs/contracts/telephony-procurement-pack/R-00-voice-gateway-rfq.md",
+    "docs/contracts/telephony-procurement-pack/R-06-to-trinh-mua-thiet-bi.md",
+    "docs/evidence/W-0135/README.md"
+  ]
+}

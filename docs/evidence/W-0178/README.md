@@ -92,3 +92,13 @@ Self-test phủ positive fixture, pending template, exact schema/order, source d
 4. W-0178 PASS mới cho phép đưa bundle sang W-0174/shared-E2E review; chỉ authority/release process bên ngoài mới có thể xem xét gỡ delivery guard.
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `d06-revalidation-evidence-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

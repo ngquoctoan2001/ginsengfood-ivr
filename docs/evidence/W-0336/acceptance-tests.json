@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0336",
+  "scope": "document",
+  "reason": "Gói trình duyệt phạm vi local của chín việc, đối chiếu bằng chứng và Residual; ngoài một chú thích XML trong SimAdapters.cs không đổi mã, test hay gate nên không có khẳng định phần mềm để test.",
+  "deliverables": [
+    "docs/evidence/W-0336/README.md",
+    "docs/evidence/W-0336/approval-request.md",
+    "docs/evidence/W-0336/verification.json"
+  ]
+}

@@ -132,3 +132,13 @@ malformed/duplicate-key/oversized input và path ngoài repository.
 
 M3 gửi completed metadata bundle và reviewer cung cấp bốn pin độc lập. Chạy W-0181; chỉ nếu PASS mới
 mở work item implementation riêng, chạy GitNexus impact rồi mới cân nhắc OpenAPI/domain/DB/tests.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `upstream-session-signoff-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -1,0 +1,20 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0345",
+  "scope": "lab-run",
+  "reason": "Lượt chạy toàn luồng đơn giả chương trình 24/7 trên lab và S5; chỉ đổi bộ kiểm lab chạy ngoài CI, không đổi mã ứng dụng, test .NET hay script gate, nên bằng chứng là receipt và đối soát DB.",
+  "deliverables": [
+    "docs/evidence/W-0345/README.md",
+    "docs/evidence/W-0345/verification.json",
+    "docs/evidence/W-0345/cpu-retry-build.json",
+    "docs/evidence/W-0345/cpu-retry-manifest.json",
+    "docs/evidence/W-0345/cpu-retry-pins.json",
+    "deploy/lab/full-flow-s5/cases.py",
+    "deploy/lab/tests/test_full_flow_program.py",
+    "docs/evidence/W-0344/retry-s5-full-flow.ps1",
+    "docs/evidence/W-0344/build-cpu-retry.py",
+    "docs/evidence/W-0344/verify-cpu-retry.py",
+    "docs/evidence/W-0344/test-retry-detach.py",
+    "plan/ivr-orther/so-sanh-gio-vang-vs-24-7-2026-09-22.md"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0297",
+  "scope": "document",
+  "reason": "Chỉ dồn, xoá tài liệu kế hoạch trong plan/ivr-orther và viết lại link; commit 257cbef không chạm src/, tests/ hay script gate nên không có khẳng định phần mềm nào để test kiểm.",
+  "deliverables": [
+    "plan/ivr-orther/00-DA-XONG.md",
+    "plan/ivr-orther/00-CHUA-XONG.md",
+    "plan/ivr-orther/sip-production-dial-path-plan-2026-09-16.md"
+  ]
+}

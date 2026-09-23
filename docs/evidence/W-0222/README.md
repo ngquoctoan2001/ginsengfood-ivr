@@ -90,3 +90,13 @@ docs-selftest.mjs                      API_DOCS_SELFTEST_PASS
 ```
 
 Không sửa code, không sửa test. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Lượt này chỉ xoá hai ref git đã merge và ghi mục miễn trừ đích danh một nhánh vào CLAUDE.md/AGENTS.md; không đổi src/, tests/ hay script gate nên không có claim phần mềm. Danh sách 4 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

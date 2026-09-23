@@ -457,6 +457,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             }));
 
     [Fact]
+    [Trait("TestId", "IT-INTAKE-DB-04")]
     public async Task PostgresNewKeyReevaluatesTransientPolicyHold()
     {
         await fixture.ResetAsync();

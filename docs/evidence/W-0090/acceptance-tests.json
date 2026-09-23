@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0090",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-CALLBACK-OUTBOX-06",
+    "IT-API-RETRY-06",
+    "UT-CALLBACK-TOKEN-CIRCUIT-10",
+    "UT-CALLBACK-TRANSPORT-RETRY-16",
+    "IT-API-ATOMIC-11"
+  ]
+}

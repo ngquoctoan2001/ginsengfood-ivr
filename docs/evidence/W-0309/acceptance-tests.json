@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0309",
+  "scope": "document",
+  "reason": "Chỉ khôi phục và định tuyến lại các phiếu hỏi nhóm A và sửa sổ sách kế hoạch; commit d655989 không chạm file .cs, test hay script gate nên không có khẳng định phần mềm.",
+  "deliverables": [
+    "plan/ivr-orther/phieu-quyet-dinh-cho-sep-2026-09-17.md",
+    "plan/ivr-orther/questions-to-module-3-call-limit-2026-09-15.md",
+    "plan/ivr-orther/00-CHUA-XONG.md",
+    "plan/PHAN-HOI-toan-viec-can-lam-m8-2026-09-16.md"
+  ]
+}

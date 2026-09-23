@@ -38,3 +38,13 @@ Toàn văn 27 file đã xóa lấy lại bằng `git log --all --full-history --
 | `generate-test-traceability --check` | PASS, `TEST_TRACEABILITY_CURRENT=671` — kiểm lúc soạn là `668`; `W-0298` (`92091a1`) vào trước lượt này và thêm `3` test, nên số đã ghi lại theo trạng thái thật lúc commit |
 
 Quét link treo sau khi xóa: không còn link markdown nào trỏ tới 27 file đã xóa. Các chuỗi còn khớp tên cũ đều là tên bị cắt trong văn xuôi (`m8-16-…md`), glob trong lệnh git (`questions-to-*`), hoặc file đã xóa từ đợt trước — không phải link.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Chỉ dồn, xoá tài liệu kế hoạch trong plan/ivr-orther và viết lại link; commit 257cbef không chạm src/, tests/ hay script gate nên không có khẳng định phần mềm nào để test kiểm. Danh sách 3 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

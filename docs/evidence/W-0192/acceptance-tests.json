@@ -1,0 +1,13 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0192",
+  "scope": "document",
+  "reason": "W-0192 không sửa src/, tests/ hay script gate nào: phần của nó là script dev chạy tay `pnpm e2e:local` (kết quả 5/5 chỉ là một lần chạy tay, không runner nào trong sweep chạy lại), mục §0.2 đối soát lab plan và báo cáo ngày 05/09, nên không có claim phần mềm nào để test tự động xác nhận.",
+  "deliverables": [
+    "tools/dev/Invoke-LocalE2E.ps1",
+    "docs/lab/one-sim-lab-plan.md",
+    "docs/reports/2026-09-05-ke-hoach-hoan-thien-ivr.md",
+    "README.md",
+    "package.json"
+  ]
+}

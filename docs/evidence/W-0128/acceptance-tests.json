@@ -1,0 +1,13 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0128",
+  "scope": "software",
+  "requiredTestIds": [
+    "CT-API-ADMIN-PARITY-01",
+    "SEC-ADMIN-ROT-01",
+    "SEC-ADMIN-ROT-02",
+    "SEC-ADMIN-ROT-03",
+    "SEC-ADMIN-ROT-04",
+    "SEC-ADMIN-ROT-05"
+  ]
+}

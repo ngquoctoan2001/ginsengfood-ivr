@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0317",
+  "scope": "document",
+  "reason": "Phần mã của lô này (ghim 4 gói Debian trong Dockerfile.tts) đã bị W-0323 thay bằng nền Chainguard nên không còn gì cho test kiểm; phần còn lại là đo Trivy, thử nền Chainguard và bản nháp Helm production mà không gate nào đọc.",
+  "deliverables": [
+    "deploy/helm/ivr/values-prod-tts.draft.yaml",
+    "docs/evidence/W-0122/security-performance.md",
+    "docs/evidence/W-0122/README.md",
+    "plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md"
+  ]
+}

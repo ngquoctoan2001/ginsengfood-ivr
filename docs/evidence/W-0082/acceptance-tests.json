@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0082",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-FND-ERR-12",
+    "IT-FND-ERR-13"
+  ]
+}

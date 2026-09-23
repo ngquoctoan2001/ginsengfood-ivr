@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0281",
+  "scope": "document",
+  "reason": "Mục này chỉ soạn phiếu yêu cầu gửi Hạ tầng và đính chính báo cáo tuần 12/09; không đổi mã nguồn, test hay cổng kiểm nào. Tệp phiếu sau đó bị W-0297 xoá; nội dung chuyển vào phiếu quyết định 17/09, còn lại một dòng trong báo cáo 12/09.",
+  "deliverables": [
+    "docs/reports/12-09-bao-cao-tien-do-module-8-ivr.md"
+  ]
+}

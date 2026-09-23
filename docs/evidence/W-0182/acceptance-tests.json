@@ -1,0 +1,8 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0182",
+  "scope": "software",
+  "gates": [
+    "capacity-registry-decision-pack-validator.mjs"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0167",
+  "scope": "document",
+  "reason": "W-0167 chỉ ghi lại một lượt chạy toàn bộ Ivr.sln (765/765 PASS) trên cây làm việc lúc đó để lấp khoảng trống D8; không sửa mã, test hay gate nên không có claim phần mềm riêng.",
+  "deliverables": [
+    "docs/evidence/W-0167/README.md"
+  ]
+}

@@ -70,3 +70,13 @@ Không cần mật khẩu vì máy này đăng nhập S5 bằng SSH key.
 Chưa chứng minh SIM thật, Sales/M3 chung, nhiều worker hay production. Bộ số 24/7 production
 (`2 / [0,450] / 900s`) không còn trong database từ `W-0300`, và chỉ vào lại được qua bước vận hành có
 approval. Chỉ Toàn chuyển W-0345 sang `ACCEPTED`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Bằng chứng chạy lab: Lượt chạy toàn luồng đơn giả chương trình 24/7 trên lab và S5; chỉ đổi bộ kiểm lab chạy ngoài CI, không đổi mã ứng dụng, test .NET hay script gate, nên bằng chứng là receipt và đối soát DB. Danh sách 12 tệp nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

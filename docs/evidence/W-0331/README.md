@@ -75,3 +75,15 @@ mọi đơn hoặc máy S5 đều đáp ứng5s/10s. Không nâng timeout để 
    nhận và cơ chế làm nóng model. Chưa có kết luận timeout production5s đạt.
 3. Chốt mirror nội bộ và S2 bản quyền model/codec. Quét lại image sau mọi thay đổi image;
    không dùng scan worker để thay scan TTS hoặc ngược lại. Khách thật tiếp tục tắt.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `UT-TTS-BUSY-01`, `UT-TTS-BUSY-02`, `UT-TTS-BUSY-03`, `UT-TTS-BUSY-04`.
+
+Một TestId mà README ở trên nhắc cho trần 9 request đã bị W-0335 dùng lại cho test khác, nên khai báo không gồm ID đó.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

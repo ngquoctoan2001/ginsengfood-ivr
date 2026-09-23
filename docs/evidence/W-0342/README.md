@@ -93,3 +93,15 @@ Raw/log/script kiểm đóng gói: `.artifacts/W-0342/`. Hash và kết quả: [
 **Việc đã làm:** tích hợp giấy phép và mirror đã kiểm, đồng bộ provenance, kiểm âm/dương và image.
 **Đề xuất bước tiếp theo:** chốt quyết định phát hành tổng thể và đưa ứng viên đã kiểm lên mirror/S5
 theo đợt triển khai riêng; không dùng W-0342 để tự bật production hoặc nhận lại phép đo tải cũ cho image mới.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `tts-provenance-gate.mjs`.
+
+README viết trước phê duyệt Legal/Privacy của W-0343; khoá model nay ghi phê duyệt đó.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

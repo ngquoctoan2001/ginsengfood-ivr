@@ -234,3 +234,15 @@ tự dọn khi xong; ghi log vào `ci-artifacts/local-mock-e2e/` và JSON vào e
 - F-1 còn mở; mọi con số thông lượng trong pack này đã bị workaround của F-1 làm chậm và không nên
   đọc thành capacity.
 - Chưa ai ký. Trạng thái là `TESTS_PASS`, không phải `ACCEPTED`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `UT-PROFILE-01`, `UT-PROFILE-02`, `UT-PROFILE-03`, `UT-PROFILE-04`, `UT-PROFILE-05`, `UT-PROFILE-06`, `UT-PROFILE-07`, `UT-FAKE-SCEN-01`, `UT-FAKE-SCEN-02`, `UT-FAKE-SCEN-03`, `UT-FAKE-SCEN-04`, `UT-FAKE-SCEN-05`, `UT-FAKE-SCEN-06`, `UT-FAKE-SCEN-07`.
+
+README ở trên còn ghi F-1 mở; W-0286 đã sửa.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

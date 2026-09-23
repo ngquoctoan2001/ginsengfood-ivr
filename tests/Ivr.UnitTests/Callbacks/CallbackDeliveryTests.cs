@@ -573,6 +573,7 @@ public sealed class CallbackDeliveryTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-CALLBACK-TRANSPORT-RETRY-16")]
     public async Task UnexpectedTransportFailureBecomesRetryAndReleasesHalfOpenProbe()
     {
         CallbackDeliveryOptions settings = CreateOptions();

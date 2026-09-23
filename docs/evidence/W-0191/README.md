@@ -62,3 +62,15 @@ P0.2 exit is met: one `pnpm dev:bootstrap` command reproducibly returns nine see
 replays `SCN-001-confirm`. The proof is local Development/MOCK only. It does not start the worker,
 approve a real Sales/Module 3 connection, buy telephony, run a physical SIM, or authorize real calls.
 `REAL_CUSTOMER_CALL_ALLOWED=NO` and all external gates remain unchanged.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `UT-DEV-SEEDPATH-11`, `UT-DEV-SEEDPATH-12`, `UT-DEV-SEEDPATH-13`, `UT-DEV-SEEDPATH-14`, `IT-COMPROOT-SEEDPATH-03`, `IT-COMPROOT-SEEDPATH-04`, `IT-COMPROOT-SEEDPATH-05`.
+
+README ở trên còn ghi lần nạp seed thứ hai báo xung đột ở fixture thứ chín; code hiện tại (sau W-0193) báo cả chín đã nạp, nên câu đó không còn đúng.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

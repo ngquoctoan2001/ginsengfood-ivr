@@ -32,3 +32,15 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `IT-CALLBACK-OUTBOX-06`, `IT-API-RETRY-06`, `UT-CALLBACK-TOKEN-CIRCUIT-10`, `UT-CALLBACK-TRANSPORT-RETRY-16`, `IT-API-ATOMIC-11`.
+
+Hai test cho phần chốt breaker và ghi admin nguyên tử đã có nhưng trước chưa mang TestId; W-0349 gắn thêm.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

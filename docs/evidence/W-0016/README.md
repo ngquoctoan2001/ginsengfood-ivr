@@ -119,3 +119,15 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `UT-DOMAIN-POLICY-01`, `UT-DOMAIN-POLICY-02`, `UT-DOMAIN-POLICY-03`, `UT-DOMAIN-POLICY-04`, `UT-DOMAIN-POLICY-05`, `UT-DOMAIN-PRIVACY-01`, `UT-DOMAIN-PRIVACY-02`, `UT-DOMAIN-PRIVACY-03`, `UT-DOMAIN-SPEECH-01`, `UT-FAKE-PORT-08`, `UT-FAKE-REGISTRY-09`, `UT-RESULT-TAXONOMY-04`, `UT-RESULT-TAXONOMY-05`, `UT-RESULT-MAPPER-06`, `UT-RESULT-MAPPER-07`, `UT-RESULT-MAPPER-08`, `UT-RESULT-MAPPER-09`, `UT-RESULT-MAPPER-10`, `UT-RESULT-MAPPER-11`.
+
+Mười chín test mà việc này viết đã có từ 13/08 nhưng chưa mang TestId; W-0349 gắn TestId lên đúng các test đó, không đổi tên hay thân test nào.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

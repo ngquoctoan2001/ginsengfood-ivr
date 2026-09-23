@@ -217,6 +217,7 @@ public sealed class TaskIntakeServiceTests
         false,
         NotValidPhoneStatus,
         TaskIntakeDecisions.RejectedContactInvalid)]
+    [Trait("TestId", "UT-INTAKE-NOJOB-16")]
     public async Task PolicyAndContactFailuresCreateNoJob(
         string policyVersion,
         int maxAttempts,
@@ -262,6 +263,7 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-INTAKE-IDEMPOTENCY-15")]
     public async Task NewKeyReevaluatesTransientHoldButSameKeyStillReplays()
     {
         TestContext test = CreateContext();

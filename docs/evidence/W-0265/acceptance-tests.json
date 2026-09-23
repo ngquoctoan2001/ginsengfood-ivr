@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0265",
+  "scope": "software",
+  "gates": [
+    "contract-freeze-verifier.mjs",
+    "docs-selftest.mjs"
+  ]
+}

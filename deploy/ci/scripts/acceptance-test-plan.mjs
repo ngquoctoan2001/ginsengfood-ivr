@@ -3,6 +3,9 @@ import path from "node:path";
 
 export const TEST_PLAN_SCHEMA = "ivr-acceptance-tests/v1";
 
+// W-0349. Work with no software claim a script can check; the owner reads what it produced.
+export const READ_ONLY_SCOPES = Object.freeze(["document", "lab-run"]);
+
 // These are shell assertions, not VSTest results. The complete, verified sweep must include their
 // owning gate. No per-work plan may map an arbitrary missing TestId onto a green shell gate.
 export const GATE_TESTS = Object.freeze({
@@ -93,10 +96,18 @@ export function gateRegistryErrors({ manifest, traced, source, registry = GATE_T
   return errors;
 }
 
-/** Read only same-pack Markdown attachments; every read is supplied by the pinned Git reader. */
+/**
+ * Read only same-pack Markdown attachments; every read is supplied by the pinned Git reader.
+ *
+ * W-0349. Besides TestIds, a plan may declare `gates`: sweep runners whose self-test exercises the
+ * work's own change. The evidence has to name each one, like any other claim. Work that changed no
+ * code, test or gate declares scope `document`; a run on lab or target hardware, whose tooling no
+ * sweep gate runs, declares `lab-run`. Both list their `deliverables` and a `reason`, and the list
+ * always shows them as XEM, because no script can judge what a document or a lab log says.
+ */
 export function collectTestEvidence({ workId, evidencePath, evidenceText, promptText = "", trace,
   extract, read, validateDecision }) {
-  const empty = { ids: [], retired: [], documents: [], errors: [] };
+  const empty = { ids: [], retired: [], documents: [], errors: [], gates: [], deliverables: [], scope: null, reason: null };
   if (!evidencePath || evidenceText === null) return empty;
   try {
     const directory = path.posix.dirname(evidencePath);
@@ -106,7 +117,7 @@ export function collectTestEvidence({ workId, evidencePath, evidenceText, prompt
     if (plan) {
       assert.equal(plan.schema, TEST_PLAN_SCHEMA, "unsupported acceptance test plan schema");
       assert.equal(plan.workId, workId, "test plan belongs to another work item");
-      assert(["software", "retired-ui"].includes(plan.scope), "unknown acceptance scope");
+      assert(["software", "retired-ui", ...READ_ONLY_SCOPES].includes(plan.scope), "unknown acceptance scope");
     }
     const queue = [evidencePath];
     const documents = new Map();
@@ -155,7 +166,34 @@ export function collectTestEvidence({ workId, evidencePath, evidenceText, prompt
         "UI đã ngừng phạm vi theo quyết định đã ghim; hồ sơ đề nghị CANCELLED, chờ Toàn. Test backend không chứng nhận UI.",
       ] };
     }
-    return { ids: [...cited].sort(), retired: [...seen].sort(), documents: [...documents.keys()], errors: [] };
+
+    const gates = plan?.gates ?? [];
+    assert(Array.isArray(gates) && gates.every((gate) => typeof gate === "string"
+      && /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:mjs|sh)$/u.test(gate)), "gates must name sweep runners");
+    assert.equal(new Set(gates).size, gates.length, "duplicate gate");
+    for (const gate of gates) {
+      assert([...documents.values()].some((text) => text.includes(gate)),
+        `gate ${gate} is declared but the evidence never names it`);
+    }
+    const deliverables = plan?.deliverables ?? [];
+    assert(Array.isArray(deliverables), "deliverables must be an array");
+    const readOnly = READ_ONLY_SCOPES.includes(plan?.scope);
+    if (readOnly) {
+      assert(typeof plan.reason === "string" && plan.reason.trim().length >= 20,
+        `${plan.scope} scope needs a specific reason`);
+      assert(deliverables.length > 0 && deliverables.length <= 64, `${plan.scope} scope needs its deliverables`);
+      assert.equal(new Set(deliverables).size, deliverables.length, "duplicate deliverable");
+      for (const file of deliverables) {
+        assert(typeof file === "string" && file.length <= 300 && /^[A-Za-z0-9_]/u.test(file) && !file.includes("\\")
+          && !file.split("/").includes("..") && /\.[A-Za-z0-9]+$/u.test(file), `invalid deliverable path: ${file}`);
+        assert.equal(typeof read(file), "string", `deliverable missing at the reviewed commit: ${file}`);
+      }
+    } else {
+      assert.equal(deliverables.length, 0, "only document or lab-run scope lists deliverables");
+    }
+    return { ids: [...cited].sort(), retired: [...seen].sort(), documents: [...documents.keys()], errors: [],
+      gates: [...gates], deliverables: [...deliverables], scope: plan?.scope ?? null,
+      reason: readOnly ? plan.reason.trim() : null };
   } catch (error) {
     return { ...empty, errors: [`hồ sơ C2 không hợp lệ: ${error.message.split("\n")[0]}`] };
   }

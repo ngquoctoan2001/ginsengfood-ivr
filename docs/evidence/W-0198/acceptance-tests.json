@@ -1,0 +1,19 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0198",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-SCH-WINDOW-01",
+    "UT-SCH-WINDOW-02",
+    "UT-SCH-WINDOW-03",
+    "UT-SCH-WINDOW-04",
+    "UT-SCH-WINDOW-05",
+    "UT-SCH-WINDOW-06",
+    "UT-SCH-WINDOW-07",
+    "UT-POLICY-SIGNED-01",
+    "UT-POLICY-SIGNED-02",
+    "UT-POLICY-SIGNED-03",
+    "UT-POLICY-SIGNED-04",
+    "UT-POLICY-SIGNED-05"
+  ]
+}

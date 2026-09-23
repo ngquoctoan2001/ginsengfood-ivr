@@ -1,0 +1,17 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0199",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-TOKEN-REUSE-01",
+    "UT-TOKEN-REUSE-02",
+    "UT-TOKEN-REUSE-03",
+    "UT-TOKEN-REUSE-04",
+    "UT-TOKEN-REUSE-05",
+    "UT-TOKEN-REUSE-06",
+    "UT-TOKEN-REUSE-07",
+    "UT-TOKEN-REUSE-08",
+    "UT-TEL-TOKEN-03",
+    "UT-AST-VAULT-04"
+  ]
+}

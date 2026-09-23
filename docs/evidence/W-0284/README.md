@@ -21,3 +21,13 @@ Chạy container `tufin/oasdiff:v1.26.1@sha256:aae8cfcf7d18d3b0ebce6bdf407623bf8
 Contract-freeze PASS; docs-selftest PASS 17 trang; bốn validator handover PASS sau khi re-pin nguồn và mẫu chưa ký; gate-status PASS (272 work, 44 ACCEPTED, 19 BLOCKED_EXTERNAL, 11 gate, 2 quyết định mở, nấc 0). GitNexus impact bốn SOURCE_PINS: LOW, 0 caller/0 process. Các hash đổi chỉ chứng minh tài liệu nguồn, không mang nghĩa duyệt external evidence.
 
 Nhãn queue pause vẫn chờ quyết định owner; chưa sửa semantics. M3 thật, JWT deployed, SIM, staging và production chưa được chứng minh bởi task này. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Mục này là đối soát tài liệu bàn giao và sổ tiến độ (khôi phục 13 dòng tracker, sửa chỉ dẫn phiên bản IR-06/07/08, sinh hai changelog OpenAPI); phần chạm bốn validator chỉ là ghim lại hash IR-06 và đã bị W-0304 ghim đè, nên không có khẳng định phần mềm. Danh sách 7 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

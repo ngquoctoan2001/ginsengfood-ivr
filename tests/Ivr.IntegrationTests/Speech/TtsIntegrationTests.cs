@@ -13,6 +13,7 @@ namespace Ivr.IntegrationTests.Speech;
 public sealed class TtsAudioCacheIntegrationTests(RetentionJobFixture fixture)
 {
     [Fact]
+    [Trait("TestId", "IT-TTS-SHARED-10")]
     public async Task FirstWaiterCancellationDoesNotPoisonSharedSynthesis()
     {
         IAudioCache cache = fixture.Services.GetRequiredService<IAudioCache>();

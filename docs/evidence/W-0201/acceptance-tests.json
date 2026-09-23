@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0201",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-COMPROOT-SEEDPATH-03",
+    "IT-COMPROOT-SEEDPATH-05"
+  ]
+}

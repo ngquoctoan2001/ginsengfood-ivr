@@ -93,3 +93,14 @@ enum-labels.vi.json                        rename thuần, 0 dòng đổi
 | ---: | --- | --- |
 | — | `W-0254`: sửa các phát biểu đã sai trong `IR-06` và dựng gói tích hợp M3 | tôi, ngay sau đây |
 | — | `specs/ui/**` giờ là bề mặt M3 đọc để dựng console — chín đặc tả màn hình cộng bộ nhãn | dev M3 |
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `IT-L10N-DBENUM-04`.
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `docs-selftest.mjs`, `ci-config-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -1,0 +1,8 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0174",
+  "scope": "software",
+  "gates": [
+    "target-v1-shared-e2e-report-validator.mjs"
+  ]
+}

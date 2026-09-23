@@ -107,3 +107,13 @@ Không sửa runtime, không thêm/xoá test. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
 Không còn mục nào trong worklist mà M8 tự đóng được. Phần còn lại là chữ ký có tên — `X1`, `B5`,
 `0.1`, `0.2`, `0.3`, `0.5` — cộng `B6` cần một database đích thật, và `B12` cần mua SIM.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Việc sổ sách và tài liệu: ghi hồi tố dòng W-0206 vào tracker và thêm cầu nối tên result code sang business source ở m8-05 §3.1; không sửa runtime, test hay gate. Danh sách 2 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

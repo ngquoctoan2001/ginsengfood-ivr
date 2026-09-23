@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0331",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-TTS-BUSY-01",
+    "UT-TTS-BUSY-02",
+    "UT-TTS-BUSY-03",
+    "UT-TTS-BUSY-04"
+  ]
+}

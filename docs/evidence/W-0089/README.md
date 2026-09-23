@@ -34,3 +34,15 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Test .NET kiểm đúng thay đổi của việc này: `UT-FND-PII-07`, `IT-INTAKE-DB-02`, `IT-INTAKE-SCHEMA-03`, `UT-DOMAIN-PRIVACY-04`, `UT-INTAKE-IDEMPOTENCY-15`, `IT-INTAKE-DB-04`, `IT-INTAKE-TRACE-16`, `IT-INTAKE-BLOCKED-17`, `UT-INTAKE-NOJOB-16`, `IT-INTAKE-NEGATIVE-18`.
+
+Khai báo gồm cả các test đã có nhưng trước chưa mang TestId (W-0349 gắn thêm), để mọi phát hiện của việc này đều có test đứng tên.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -1,0 +1,17 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0333",
+  "scope": "lab-run",
+  "reason": "Bộ đo VieNeu cho Ubuntu S5 và kết quả đo thật trên vps61; chỉ thêm launcher lab cùng test Python chạy ngoài CI, không đổi mã ứng dụng, test .NET hay script gate, nên bằng chứng là số đo và hash máy đích.",
+  "deliverables": [
+    "docs/evidence/W-0333/README.md",
+    "docs/evidence/W-0333/s5-findings.md",
+    "docs/evidence/W-0333/s5-target-results.json",
+    "docs/evidence/W-0333/owner-reported-s5-summary.json",
+    "docs/evidence/W-0333/checksum-fix.json",
+    "docs/evidence/W-0333/local-results.json",
+    "docs/evidence/W-0333/ubuntu-steps.md",
+    "deploy/lab/run-vieneu-s5.py",
+    "deploy/lab/tests/test_s5_launcher.py"
+  ]
+}

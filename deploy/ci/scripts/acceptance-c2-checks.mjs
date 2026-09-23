@@ -152,5 +152,62 @@ export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, te
   }
   assert.deepEqual(registry({ registry: { "UT-Z-08": "z.mjs" }, conditions: {}, wholeGate: ["UT-Z-08"] }), [],
     "a whole-gate test needs its runner in the sweep, not a per-ID line"); checks += 1;
+
+  // W-0349: a gate the work built, and work that is documents only.
+  const ownGate = { gates: { "own-validator.mjs": { argv: ["--self-test"] } } };
+  const gatePlan = { schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", gates: ["own-validator.mjs"] };
+  const named = { evidenceText: `${input.evidenceText}\nChạy deploy/ci/scripts/own-validator.mjs --self-test.` };
+  save(gatePlan);
+  const built = collect(named);
+  assert.deepEqual(built.gates, ["own-validator.mjs"]);
+  const builtVerdict = judge(row, { ...input, testEvidence: built, gateManifest: ownGate });
+  assert.equal(builtVerdict.c2.ok, true);
+  assert.equal(builtVerdict.verdict, "ĐẠT", "a gate the work built passes through its own self-test"); checks += 1;
+  assert.equal(judge(row, { ...input, testEvidence: built, gateManifest: { gates: {} } }).c2.ok, false,
+    "a declared gate outside the full sweep proves nothing"); checks += 1;
+  assert.equal(judge(row, { ...input, testEvidence: built, gateManifest: ownGate, sweep: { ok: false, reason: "red" } }).c2.ok,
+    false, "a declared gate fails with the sweep"); checks += 1;
+  assert.match(collect().errors.join("; "), /never names it/u, "the evidence must name a declared gate"); checks += 1;
+  save({ ...gatePlan, gates: ["../own-validator.mjs"] });
+  assert(collect(named).errors.length, "a gate is a runner name, not a path"); checks += 1;
+
+  documents.set("docs/plan/decision.md", "# Quyết định");
+  const documentPlan = { schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "document",
+    reason: "Việc chỉ soạn phiếu quyết định, không đổi code, test hay gate.", deliverables: ["docs/plan/decision.md"] };
+  save(documentPlan);
+  const paper = collect({ evidenceText: input.evidenceText });
+  const paperVerdict = judge(row, { ...input, testEvidence: paper });
+  assert.equal(paperVerdict.c2.ok, true);
+  assert.equal(paperVerdict.verdict, "XEM", "the owner reads a document even when nothing residual is left");
+  assert.match(paperVerdict.documentNote, /^Việc tài liệu/u); checks += 1;
+  assert.equal(judge(row, { ...input, testEvidence: paper, sweep: { ok: false, reason: "red" } }).c2.ok, false,
+    "documents still need the documentation gates of the sweep"); checks += 1;
+  assert.equal(judge(row, { ...input, testEvidence: collect({ evidenceText: `${input.evidenceText}\nUT-X-99` }) }).c2.ok,
+    false, "a document plan does not excuse a cited test that is missing"); checks += 1;
+  for (const broken of [
+    { deliverables: ["docs/plan/absent.md"] },
+    { deliverables: ["docs/../secret.md"] },
+    { deliverables: ["docs/plan"] },
+    { deliverables: [] },
+    { reason: "ngắn" },
+    { scope: "software" },
+    { scope: "paper" },
+  ]) {
+    save({ ...documentPlan, ...broken });
+    assert(collect({ evidenceText: input.evidenceText }).errors.length,
+      `an invalid document plan must be refused: ${JSON.stringify(broken)}`); checks += 1;
+  }
+  documents.set("docs/evidence/W-0010/run.log", "PASS 20/20");
+  save({ ...documentPlan, scope: "lab-run", reason: "Lượt chạy trên máy lab; công cụ lab không gate nào chạy.",
+    deliverables: ["docs/evidence/W-0010/run.log"] });
+  const lab = judge(row, { ...input, testEvidence: collect({ evidenceText: input.evidenceText }) });
+  assert.equal(lab.c2.ok, true);
+  assert.equal(lab.verdict, "XEM");
+  assert.match(lab.documentNote, /^Bằng chứng chạy lab/u, "a lab run is named as one, not as a document"); checks += 1;
+  save({ ...documentPlan, scope: "lab-run", deliverables: [] });
+  assert(collect({ evidenceText: input.evidenceText }).errors.length, "a lab run lists the files it produced"); checks += 1;
+  save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software" });
+  assert.match(judge(row, { ...input, testEvidence: collect({ evidenceText: input.evidenceText }) }).c2.reason,
+    /không có TestId/u, "a plan that declares nothing still has no claim"); checks += 1;
   return checks;
 }

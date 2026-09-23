@@ -198,3 +198,13 @@ mặc định gần như không còn khoảng dư.
 đó `git status` sạch. Sửa cả hai loại; câu Kiểm của Lô 1 giữ nguyên vì đúng lúc thi hành.
 
 **Còn lại của Lô 3:** mục `1`–`14`, và mục `20` chờ Toàn.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `scan-pii.sh`, `d06-revalidation-evidence-validator.mjs`, `dial-token-production-bundle-validator.mjs`, `opt-out-suppression-bundle-validator.mjs`, `upstream-session-signoff-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

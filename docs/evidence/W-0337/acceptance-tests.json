@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0337",
+  "scope": "document",
+  "reason": "Gói trình owner quyết định chín việc P2 và bốn việc P3 UI đã ngừng, kèm đối chiếu C1/C2/C4 tại aaba3d2; không đổi mã, test hay gate nên không có khẳng định phần mềm để test.",
+  "deliverables": [
+    "docs/evidence/W-0337/README.md",
+    "docs/evidence/W-0337/approval-request.md",
+    "docs/evidence/W-0337/verification.json"
+  ]
+}

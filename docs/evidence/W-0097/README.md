@@ -135,3 +135,15 @@ Open it and switch the OS light/dark setting to see both themes.
 - No API, contract, permission, governance flag or test expectation changed.
 - The skill's data is third-party and lives outside the repository, so nothing
   here is committed from it.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- UI đã ngừng phạm vi; khai báo đề nghị CANCELLED theo quyết định đã ghim, chờ Toàn.
+
+Admin UI đã bị gỡ khỏi repo ở W-0253. Khai báo đề nghị CANCELLED theo quyết định đã ghim, giống W-0027 và W-0028; test backend không chứng nhận UI.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

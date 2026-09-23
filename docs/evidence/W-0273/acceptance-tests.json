@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0273",
+  "scope": "document",
+  "reason": "Mục này chỉ dựng phiếu điền kỳ hạn lưu trữ từ mã nguồn để pháp chế điền số; không đổi mã nguồn, test, cấu hình hay cổng kiểm nào.",
+  "deliverables": [
+    "docs/compliance/retention-period-proposal.md",
+    "docs/evidence/W-0273/README.md"
+  ]
+}

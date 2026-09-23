@@ -138,3 +138,13 @@ Không chạy `dotnet test`: lô này không chạm mã, không chạm test.
 - **Lô 4 bước `1`, `2`, `4`** — quét lại Trivy, thử đổi bản cài nền, soạn cấu hình production nháp.
   `ivr-a4` không nhận; lô kế tiếp của phiên này.
 - **Lô 5** — nghiệm thu theo đợt.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Chỉ ghi các quyết định 17–18/09 vào register, tracker, kế hoạch và phiếu; thay đổi ngoài tài liệu duy nhất là trường timeoutMs của dr-selftest trong manifest gate, không đổi mã, test hay script gate. Danh sách 11 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

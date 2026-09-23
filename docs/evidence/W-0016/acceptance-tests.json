@@ -1,0 +1,26 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0016",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-DOMAIN-POLICY-01",
+    "UT-DOMAIN-POLICY-02",
+    "UT-DOMAIN-POLICY-03",
+    "UT-DOMAIN-POLICY-04",
+    "UT-DOMAIN-POLICY-05",
+    "UT-DOMAIN-PRIVACY-01",
+    "UT-DOMAIN-PRIVACY-02",
+    "UT-DOMAIN-PRIVACY-03",
+    "UT-DOMAIN-SPEECH-01",
+    "UT-FAKE-PORT-08",
+    "UT-FAKE-REGISTRY-09",
+    "UT-RESULT-TAXONOMY-04",
+    "UT-RESULT-TAXONOMY-05",
+    "UT-RESULT-MAPPER-06",
+    "UT-RESULT-MAPPER-07",
+    "UT-RESULT-MAPPER-08",
+    "UT-RESULT-MAPPER-09",
+    "UT-RESULT-MAPPER-10",
+    "UT-RESULT-MAPPER-11"
+  ]
+}

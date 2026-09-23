@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0341",
+  "scope": "document",
+  "reason": "Rà soát quyền dùng model/codec VieNeu và MOSS theo nguồn công bố đúng revision; chỉ thêm tài liệu và hash nguồn, không đổi mã, test hay gate.",
+  "deliverables": [
+    "docs/evidence/W-0341/README.md",
+    "docs/evidence/W-0341/source-verification.json",
+    "docs/evidence/W-0341/review-verification.json",
+    "deploy/tts/THIRD_PARTY_NOTICES.md"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0283",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-ELIG-LOOP-01",
+    "UT-ELIG-LOOP-02",
+    "UT-ELIG-LOOP-03",
+    "UT-ELIG-LOOP-04",
+    "IT-ELIG-LOOP-01"
+  ]
+}

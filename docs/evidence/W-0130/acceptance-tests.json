@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0130",
+  "scope": "document",
+  "reason": "W-0130 chỉ dựng lại và đóng băng đúng delta của W-0128/W-0129 lên một commit cô lập làm mốc provenance; bản thân nó không viết mã, test hay gate mới trên main, và kết quả test trên candidate thuộc về W-0128/W-0129.",
+  "deliverables": [
+    "docs/evidence/W-0130/README.md"
+  ]
+}

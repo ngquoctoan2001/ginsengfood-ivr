@@ -1,0 +1,15 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0172",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-RESULT-CONTRACT-01",
+    "UT-RESULT-CONTRACT-02",
+    "UT-RESULT-CONTRACT-03",
+    "IT-RESULT-CONTRACT-PRECALL-17",
+    "IT-RESULT-CONTRACT-FINALITY-18",
+    "IT-RESULT-CONTRACT-ACTION-19",
+    "IT-RESULT-CONTRACT-OUTBOX-19",
+    "IT-RESULT-CONTRACT-PREFLIGHT-20"
+  ]
+}

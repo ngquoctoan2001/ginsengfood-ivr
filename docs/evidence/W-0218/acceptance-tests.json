@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0218",
+  "scope": "document",
+  "reason": "Việc rà soát tài liệu: kiểm lại bốn mục C1/C2/C5/C10 trên tài liệu và code rồi viết lại worklist kèm bằng chứng; không đổi code, test hay gate.",
+  "deliverables": [
+    "plan/toan-viec-can-lam-m8-2026-09-07.md"
+  ]
+}

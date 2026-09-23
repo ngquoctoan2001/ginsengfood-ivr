@@ -1,0 +1,17 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0195",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-GATE-APPROVAL-02",
+    "IT-GATE-APPROVAL-03",
+    "IT-GATE-APPROVAL-04",
+    "IT-GATE-APPROVAL-05",
+    "IT-GATE-APPROVAL-06",
+    "IT-GATE-APPROVAL-07",
+    "IT-GATE-APPROVAL-08",
+    "IT-GATE-APPROVAL-09",
+    "UT-FLAG-KILLSWITCH-12",
+    "IT-FLAG-OWNERGATE-12"
+  ]
+}

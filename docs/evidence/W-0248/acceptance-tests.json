@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0248",
+  "scope": "document",
+  "reason": "Lượt này ghi quyết định phương án B của owner và đặc tả hai fence thu hồi đơn; code, migration và test do W-0249 dựng, lượt này không đổi src/, tests/ hay script gate.",
+  "deliverables": [
+    "docs/evidence/W-0248/README.md",
+    "plan/toan-viec-can-lam-m8-2026-09-07.md"
+  ]
+}

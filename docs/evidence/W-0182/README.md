@@ -163,3 +163,13 @@ B1 dừng tại `LOCAL_TOOLCHAIN_READY / DATA_0_OF_4 / EXTERNAL_INTAKE_DEFERRED_
 yêu cầu, không chạy calibration và không mở adapter review. Khi owner mở lại, Platform, Security và
 Module 8 mới điền completed pack, giao sáu evidence bundle cùng bảy independent pins; chỉ sau
 completed-input W-0182 PASS mới mở provider-specific adapter review.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `capacity-registry-decision-pack-validator.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

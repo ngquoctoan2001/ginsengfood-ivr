@@ -227,3 +227,15 @@ USER 1654:1654
 
 ENTRYPOINT ["python", "-m", "shim.server"]
 ```
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Phần mã của lô này (ghim 4 gói Debian trong Dockerfile.tts) đã bị W-0323 thay bằng nền Chainguard nên không còn gì cho test kiểm; phần còn lại là đo Trivy, thử nền Chainguard và bản nháp Helm production mà không gate nào đọc. Danh sách 4 tài liệu nằm trong khai báo.
+
+Phần ghim gói Debian đã bị W-0323 thay; chỉ phần đo và bản nháp Helm còn lại.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

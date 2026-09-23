@@ -118,3 +118,13 @@ CI config, docs, model provenance, voice bindings và Helm guards PASS. Regressi
 PII scan gói này PASS. GitNexus detect-changes LOW/0 affected processes trên diff chung;
 helper/test Python mới chưa có trong graph, nên đã đọc caller trực tiếp và kiểm runtime bổ sung.
 Scope bàn giao `CODE_DONE`; nghiệm thu lab đầy đủ và production chưa được đóng.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `tts-container-selftest.mjs`, `lab-speech-preflight-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

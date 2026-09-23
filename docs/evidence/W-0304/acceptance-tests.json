@@ -1,0 +1,8 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0304",
+  "scope": "software",
+  "gates": [
+    "opt-out-suppression-bundle-validator.mjs"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0250",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-INTAKE-REASON-WIRE-15",
+    "UT-INTAKE-REASON-TAXONOMY-13",
+    "IT-API-MATRIX-38"
+  ],
+  "gates": [
+    "contract-freeze-selftest.mjs",
+    "validate-openapi.mjs",
+    "contract-freeze-verifier.mjs",
+    "docs-selftest.mjs"
+  ]
+}

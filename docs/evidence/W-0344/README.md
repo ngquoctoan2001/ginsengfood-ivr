@@ -92,3 +92,15 @@ Ghi chú provenance: claim W-0343 trùng phiên chuẩn bị image mới, nên f
 Raw rehearsal đầu dùng prefix W0343 được giữ nguyên để điều tra; đó không phải kết quả S5/W-0343 phát hành.
 Lượt đầu chỉ dùng mạng internal khiến API host không truy cập được; đã tách frontend cho API loopback.
 SIP/backend vẫn internal; không sửa hay dùng dữ liệu của phiên image mới.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Bằng chứng chạy lab: Lượt chạy toàn luồng đơn giả trên S5 và diễn tập lab; không đổi mã ứng dụng, test .NET hay script gate, chỉ có bộ kiểm lab chạy ngoài CI, nên bằng chứng là receipt, log và đối soát DB của lượt chạy. Danh sách 32 tệp nằm trong khai báo.
+
+W-0345 sau đó sửa năm tệp của lượt này; bằng chứng thuộc commit 317fca5.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

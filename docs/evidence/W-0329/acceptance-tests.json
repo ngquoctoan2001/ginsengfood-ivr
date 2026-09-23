@@ -1,0 +1,14 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0329",
+  "scope": "lab-run",
+  "reason": "Lượt kiểm lab DTMF qua đầu SIP im lặng và đo tải VieNeu bằng model thật; chỉ thêm công cụ lab, không đổi mã ứng dụng, test .NET hay script gate, nên bằng chứng là log và số đo lab.",
+  "deliverables": [
+    "docs/evidence/W-0329/README.md",
+    "docs/evidence/W-0329/local-results.json",
+    "deploy/lab/README.md",
+    "deploy/lab/run-headless-dtmf.py",
+    "deploy/lab/Measure-VieNeuLoad.ps1",
+    "deploy/tts/tests/probe_load.py"
+  ]
+}

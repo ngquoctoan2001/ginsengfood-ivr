@@ -1,0 +1,1427 @@
+{
+  "schema": "ivr-w0349-declarations/v1",
+  "note": "Khai báo phép kiểm C2 cho 101 việc trượt C2 vì không khai gì; mỗi dòng trỏ acceptance-tests.json trong gói của việc đó.",
+  "addedTraits": [
+    {
+      "testId": "UT-DOMAIN-POLICY-01",
+      "method": "ProgramPaymentMatrixIsFailClosed",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-POLICY-02",
+      "method": "CandidatePolicyIsRejectedInProductionButAllowedInMockAndLab",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-POLICY-03",
+      "method": "AttemptPolicyRejectsUnorderedOffsetsAndOffsetsOutsideWindow",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-POLICY-04",
+      "method": "SnapshotHashIsDeterministicAndCollectionsAreImmutable",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-POLICY-05",
+      "method": "PolicyHashChangesWhenPolicyFieldChanges",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-PRIVACY-01",
+      "method": "UnicodeSpeechSummaryPreservesSafeVietnameseContentAndVnd",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-PRIVACY-02",
+      "method": "PrivacyGuardRejectsPhoneTokenAndFullAddress",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-PRIVACY-03",
+      "method": "DialTokenReferenceRejectsRawPhoneData",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-PRIVACY-04",
+      "method": "ShortAreaAcceptsCityAndBenignWords",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0089"
+      ]
+    },
+    {
+      "testId": "UT-DOMAIN-SPEECH-01",
+      "method": "SpeechItemCountIsConfigurationDriven",
+      "file": "tests/Ivr.UnitTests/Confirmation/DomainPolicyAndPrivacyTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-FAKE-PORT-08",
+      "method": "EveryProviderPortHasDeterministicFake",
+      "file": "tests/Ivr.UnitTests/Confirmation/DeterministicProviderFakeTests.cs",
+      "declaredBy": [
+        "W-0016",
+        "W-0091"
+      ]
+    },
+    {
+      "testId": "UT-FAKE-REGISTRY-09",
+      "method": "RegistryLookupIsVersionAndProgramSpecific",
+      "file": "tests/Ivr.UnitTests/Confirmation/DeterministicProviderFakeTests.cs",
+      "declaredBy": [
+        "W-0016",
+        "W-0091"
+      ]
+    },
+    {
+      "testId": "UT-RESULT-TAXONOMY-04",
+      "method": "NoAnswerIsAdvisoryAndCannotRequestCoreTransition",
+      "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-RESULT-TAXONOMY-05",
+      "method": "TechnicalAndCapacityResultsNeverCountAsCustomerAttempts",
+      "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-RESULT-MAPPER-06",
+      "method": "TargetCallbackMapperPreservesSemanticsAndStaleGuard",
+      "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-RESULT-MAPPER-07",
+      "method": "TargetAckSemanticsAreIndependentOfHttpStatus",
+      "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-RESULT-MAPPER-08",
+      "method": "CurrentMapperIsExplicitAndRejectsTwentyFourSeven",
+      "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-RESULT-MAPPER-09",
+      "method": "CurrentMapperRejectsTargetOnlyResultInsteadOfLossyMapping",
+      "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-RESULT-MAPPER-10",
+      "method": "TargetTaskMapperUsesRegistryAndDoesNotMapPhoneFields",
+      "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+      "declaredBy": [
+        "W-0016",
+        "W-0091"
+      ]
+    },
+    {
+      "testId": "UT-RESULT-MAPPER-11",
+      "method": "TargetTaskMapperRejectsCandidatePolicyInProduction",
+      "file": "tests/Ivr.UnitTests/Confirmation/CallResultAndMapperTests.cs",
+      "declaredBy": [
+        "W-0016"
+      ]
+    },
+    {
+      "testId": "UT-INTAKE-IDEMPOTENCY-15",
+      "method": "NewKeyReevaluatesTransientHoldButSameKeyStillReplays",
+      "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+      "declaredBy": [
+        "W-0089"
+      ]
+    },
+    {
+      "testId": "UT-INTAKE-NOJOB-16",
+      "method": "PolicyAndContactFailuresCreateNoJob",
+      "file": "tests/Ivr.UnitTests/Intake/TaskIntakeServiceTests.cs",
+      "declaredBy": [
+        "W-0089"
+      ]
+    },
+    {
+      "testId": "IT-INTAKE-DB-04",
+      "method": "PostgresNewKeyReevaluatesTransientPolicyHold",
+      "file": "tests/Ivr.IntegrationTests/TaskIntakePersistenceTests.cs",
+      "declaredBy": [
+        "W-0089"
+      ]
+    },
+    {
+      "testId": "IT-INTAKE-TRACE-16",
+      "method": "MissingIdempotencyIsMissingTraceButInvalidSyntaxIsMalformed",
+      "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+      "declaredBy": [
+        "W-0089"
+      ]
+    },
+    {
+      "testId": "IT-INTAKE-BLOCKED-17",
+      "method": "CallRestrictionReturnsOperationalBlocked409",
+      "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+      "declaredBy": [
+        "W-0089"
+      ]
+    },
+    {
+      "testId": "IT-INTAKE-NEGATIVE-18",
+      "method": "EveryCanonicalDomainNegativeFixtureExecutesItsExpectedRuntimeBranch",
+      "file": "tests/Ivr.IntegrationTests/TaskIntakeApiTests.cs",
+      "declaredBy": [
+        "W-0089",
+        "W-0091"
+      ]
+    },
+    {
+      "testId": "UT-CALLBACK-TRANSPORT-RETRY-16",
+      "method": "UnexpectedTransportFailureBecomesRetryAndReleasesHalfOpenProbe",
+      "file": "tests/Ivr.UnitTests/Callbacks/CallbackDeliveryTests.cs",
+      "declaredBy": [
+        "W-0090"
+      ]
+    },
+    {
+      "testId": "IT-API-ATOMIC-11",
+      "method": "AdminMutationRollsBackWhenIdempotencySnapshotCannotCommit",
+      "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+      "declaredBy": [
+        "W-0090"
+      ]
+    },
+    {
+      "testId": "IT-API-SIM-12",
+      "method": "DirectEnableRejectsRealOrQuarantinedChannel",
+      "file": "tests/Ivr.IntegrationTests/InternalAdminApiTests.cs",
+      "declaredBy": [
+        "W-0091"
+      ]
+    },
+    {
+      "testId": "IT-RET-OUTBOX-09",
+      "method": "HeldIntakeOutboxBlocksParentTaskAndJobDeletion",
+      "file": "tests/Ivr.IntegrationTests/Retention/RetentionJobTests.cs",
+      "declaredBy": [
+        "W-0091"
+      ]
+    },
+    {
+      "testId": "IT-RET-CONFIG-10",
+      "method": "MissingPeriodCreatesNotConfiguredReportAndCheckpoint",
+      "file": "tests/Ivr.IntegrationTests/Retention/RetentionJobTests.cs",
+      "declaredBy": [
+        "W-0091"
+      ]
+    },
+    {
+      "testId": "IT-TTS-SHARED-10",
+      "method": "FirstWaiterCancellationDoesNotPoisonSharedSynthesis",
+      "file": "tests/Ivr.IntegrationTests/Speech/TtsIntegrationTests.cs",
+      "declaredBy": []
+    }
+  ],
+  "items": [
+    {
+      "workId": "W-0016",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-DOMAIN-POLICY-01",
+        "UT-DOMAIN-POLICY-02",
+        "UT-DOMAIN-POLICY-03",
+        "UT-DOMAIN-POLICY-04",
+        "UT-DOMAIN-POLICY-05",
+        "UT-DOMAIN-PRIVACY-01",
+        "UT-DOMAIN-PRIVACY-02",
+        "UT-DOMAIN-PRIVACY-03",
+        "UT-DOMAIN-SPEECH-01",
+        "UT-FAKE-PORT-08",
+        "UT-FAKE-REGISTRY-09",
+        "UT-RESULT-TAXONOMY-04",
+        "UT-RESULT-TAXONOMY-05",
+        "UT-RESULT-MAPPER-06",
+        "UT-RESULT-MAPPER-07",
+        "UT-RESULT-MAPPER-08",
+        "UT-RESULT-MAPPER-09",
+        "UT-RESULT-MAPPER-10",
+        "UT-RESULT-MAPPER-11"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0078",
+      "declared": false
+    },
+    {
+      "workId": "W-0079",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "selftest-dotnet-policy.sh",
+        "ci-config-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0080",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "selftest-pii.sh",
+        "scan-pii.sh",
+        "ci-config-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0081",
+      "declared": true,
+      "scope": "software",
+      "kind": "software+gates",
+      "testIds": [
+        "UT-FND-ERR-05"
+      ],
+      "gates": [
+        "ci-config-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0082",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "IT-FND-ERR-12",
+        "IT-FND-ERR-13"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0083",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-BOOT-03"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0084",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "IT-DB-AUDIT-07"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0089",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-FND-PII-07",
+        "IT-INTAKE-DB-02",
+        "IT-INTAKE-SCHEMA-03",
+        "UT-DOMAIN-PRIVACY-04",
+        "UT-INTAKE-IDEMPOTENCY-15",
+        "IT-INTAKE-DB-04",
+        "IT-INTAKE-TRACE-16",
+        "IT-INTAKE-BLOCKED-17",
+        "UT-INTAKE-NOJOB-16",
+        "IT-INTAKE-NEGATIVE-18"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0090",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "IT-CALLBACK-OUTBOX-06",
+        "IT-API-RETRY-06",
+        "UT-CALLBACK-TOKEN-CIRCUIT-10",
+        "UT-CALLBACK-TRANSPORT-RETRY-16",
+        "IT-API-ATOMIC-11"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0091",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "IT-API-PII-05",
+        "IT-API-QUEUE-08",
+        "IT-TTS-MODE-09",
+        "UT-TEL-SAFETY-06",
+        "UT-TTS-PII-04",
+        "UT-TEL-CHANNEL-05",
+        "UT-SCRIPT-TEMPLATE-GUARD-04",
+        "UT-SCRIPT-INPUT-GUARD-05",
+        "IT-RET-OUTBOX-09",
+        "IT-RET-CONFIG-10",
+        "IT-INTAKE-NEGATIVE-18",
+        "UT-FAKE-PORT-08",
+        "UT-FAKE-REGISTRY-09",
+        "UT-RESULT-MAPPER-10",
+        "IT-API-SIM-12"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0094",
+      "declared": false
+    },
+    {
+      "workId": "W-0097",
+      "declared": true,
+      "scope": "retired-ui",
+      "kind": "retired-ui",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0126",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "tts-provenance-gate.mjs",
+        "tts-voice-acceptance-gate.mjs",
+        "tts-helm-selftest.mjs",
+        "lab-converter-selftest.mjs",
+        "tts-fixed-render-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0127",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0128",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "CT-API-ADMIN-PARITY-01",
+        "SEC-ADMIN-ROT-01",
+        "SEC-ADMIN-ROT-02",
+        "SEC-ADMIN-ROT-03",
+        "SEC-ADMIN-ROT-04",
+        "SEC-ADMIN-ROT-05"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0130",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 1
+    },
+    {
+      "workId": "W-0135",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0136",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 2
+    },
+    {
+      "workId": "W-0137",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0138",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "gate-status.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0140",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 5
+    },
+    {
+      "workId": "W-0141",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0164",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "external-decision-routing-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0165",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "external-decision-response-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0167",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 1
+    },
+    {
+      "workId": "W-0168",
+      "declared": false
+    },
+    {
+      "workId": "W-0170",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "external-decision-closure-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0172",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-RESULT-CONTRACT-01",
+        "UT-RESULT-CONTRACT-02",
+        "UT-RESULT-CONTRACT-03",
+        "IT-RESULT-CONTRACT-PRECALL-17",
+        "IT-RESULT-CONTRACT-FINALITY-18",
+        "IT-RESULT-CONTRACT-ACTION-19",
+        "IT-RESULT-CONTRACT-OUTBOX-19",
+        "IT-RESULT-CONTRACT-PREFLIGHT-20"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0174",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "target-v1-shared-e2e-report-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0178",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "d06-revalidation-evidence-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0180",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "attempt-policy-production-bundle-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0181",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "upstream-session-signoff-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0182",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "capacity-registry-decision-pack-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0183",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "dial-token-production-bundle-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0185",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "b3-telephony-evidence-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0191",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-DEV-SEEDPATH-11",
+        "UT-DEV-SEEDPATH-12",
+        "UT-DEV-SEEDPATH-13",
+        "UT-DEV-SEEDPATH-14",
+        "IT-COMPROOT-SEEDPATH-03",
+        "IT-COMPROOT-SEEDPATH-04",
+        "IT-COMPROOT-SEEDPATH-05"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0192",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 5
+    },
+    {
+      "workId": "W-0193",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "IT-COMPROOT-FLAGS-01",
+        "IT-COMPROOT-FLAGS-02",
+        "IT-COMPROOT-SEEDPATH-03",
+        "IT-COMPROOT-SEEDPATH-04",
+        "IT-COMPROOT-SEEDPATH-05",
+        "IT-FLAG-UNKNOWNENV-13",
+        "UT-FLAG-FALLBACKLOG-11",
+        "IT-DEV-SEED-04"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0194",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 2
+    },
+    {
+      "workId": "W-0195",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "IT-GATE-APPROVAL-02",
+        "IT-GATE-APPROVAL-03",
+        "IT-GATE-APPROVAL-04",
+        "IT-GATE-APPROVAL-05",
+        "IT-GATE-APPROVAL-06",
+        "IT-GATE-APPROVAL-07",
+        "IT-GATE-APPROVAL-08",
+        "IT-GATE-APPROVAL-09",
+        "UT-FLAG-KILLSWITCH-12",
+        "IT-FLAG-OWNERGATE-12"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0198",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-SCH-WINDOW-01",
+        "UT-SCH-WINDOW-02",
+        "UT-SCH-WINDOW-03",
+        "UT-SCH-WINDOW-04",
+        "UT-SCH-WINDOW-05",
+        "UT-SCH-WINDOW-06",
+        "UT-SCH-WINDOW-07",
+        "UT-POLICY-SIGNED-01",
+        "UT-POLICY-SIGNED-02",
+        "UT-POLICY-SIGNED-03",
+        "UT-POLICY-SIGNED-04",
+        "UT-POLICY-SIGNED-05"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0199",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-TOKEN-REUSE-01",
+        "UT-TOKEN-REUSE-02",
+        "UT-TOKEN-REUSE-03",
+        "UT-TOKEN-REUSE-04",
+        "UT-TOKEN-REUSE-05",
+        "UT-TOKEN-REUSE-06",
+        "UT-TOKEN-REUSE-07",
+        "UT-TOKEN-REUSE-08",
+        "UT-TEL-TOKEN-03",
+        "UT-AST-VAULT-04"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0200",
+      "declared": false
+    },
+    {
+      "workId": "W-0201",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "IT-COMPROOT-SEEDPATH-03",
+        "IT-COMPROOT-SEEDPATH-05"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0202",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 4
+    },
+    {
+      "workId": "W-0203",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-PROFILE-01",
+        "UT-PROFILE-02",
+        "UT-PROFILE-03",
+        "UT-PROFILE-04",
+        "UT-PROFILE-05",
+        "UT-PROFILE-06",
+        "UT-PROFILE-07",
+        "UT-FAKE-SCEN-01",
+        "UT-FAKE-SCEN-02",
+        "UT-FAKE-SCEN-03",
+        "UT-FAKE-SCEN-04",
+        "UT-FAKE-SCEN-05",
+        "UT-FAKE-SCEN-06",
+        "UT-FAKE-SCEN-07"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0205",
+      "declared": false
+    },
+    {
+      "workId": "W-0206",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "ci-config-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0217",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 2
+    },
+    {
+      "workId": "W-0218",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 1
+    },
+    {
+      "workId": "W-0219",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 1
+    },
+    {
+      "workId": "W-0222",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 4
+    },
+    {
+      "workId": "W-0224",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 4
+    },
+    {
+      "workId": "W-0225",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "tts-provenance-gate.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0226",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0227",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0247",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 2
+    },
+    {
+      "workId": "W-0248",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 2
+    },
+    {
+      "workId": "W-0250",
+      "declared": true,
+      "scope": "software",
+      "kind": "software+gates",
+      "testIds": [
+        "IT-INTAKE-REASON-WIRE-15",
+        "UT-INTAKE-REASON-TAXONOMY-13",
+        "IT-API-MATRIX-38"
+      ],
+      "gates": [
+        "contract-freeze-selftest.mjs",
+        "validate-openapi.mjs",
+        "contract-freeze-verifier.mjs",
+        "docs-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0251",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "external-decision-c9-selftest.mjs",
+        "external-decision-closure-validator.mjs",
+        "external-decision-dial-token-selftest.mjs",
+        "external-decision-response-validator.mjs",
+        "external-decision-routing-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0252",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "external-decision-closure-validator.mjs",
+        "external-decision-response-validator.mjs",
+        "external-decision-routing-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0253",
+      "declared": true,
+      "scope": "software",
+      "kind": "software+gates",
+      "testIds": [
+        "IT-L10N-DBENUM-04"
+      ],
+      "gates": [
+        "docs-selftest.mjs",
+        "ci-config-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0254",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "contract-freeze-verifier.mjs",
+        "contract-freeze-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0265",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "contract-freeze-verifier.mjs",
+        "docs-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0266",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 4
+    },
+    {
+      "workId": "W-0267",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "ci-config-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0273",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 2
+    },
+    {
+      "workId": "W-0281",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 1
+    },
+    {
+      "workId": "W-0283",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-ELIG-LOOP-01",
+        "UT-ELIG-LOOP-02",
+        "UT-ELIG-LOOP-03",
+        "UT-ELIG-LOOP-04",
+        "IT-ELIG-LOOP-01"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0284",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 7
+    },
+    {
+      "workId": "W-0286",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "IT-ELIG-CONCURRENT-01"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0287",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "ci-config-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0288",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "CHAOS-DB-02",
+        "CHAOS-DOWNSTREAM-01",
+        "CHAOS-DUPLICATE-06",
+        "CHAOS-RECOVERY-04",
+        "CHAOS-SIM-03",
+        "CHAOS-TERMINATE-07",
+        "CHAOS-TERMINATE-08"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0289",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "review-gate-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0293",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 4
+    },
+    {
+      "workId": "W-0294",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "selftest-dotnet-policy.sh",
+        "ci-config-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0295",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "dial-token-production-bundle-validator.mjs",
+        "upstream-session-signoff-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0296",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 1
+    },
+    {
+      "workId": "W-0297",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0304",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "opt-out-suppression-bundle-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0309",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 4
+    },
+    {
+      "workId": "W-0313",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "scan-pii.sh",
+        "d06-revalidation-evidence-validator.mjs",
+        "dial-token-production-bundle-validator.mjs",
+        "opt-out-suppression-bundle-validator.mjs",
+        "upstream-session-signoff-validator.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0316",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 11
+    },
+    {
+      "workId": "W-0317",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 4
+    },
+    {
+      "workId": "W-0319",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "acceptance-batches.mjs",
+        "acceptance-evidence-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0320",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "lab-speech-preflight-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0321",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "tts-container-selftest.mjs",
+        "lab-speech-preflight-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0323",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "tts-container-selftest.mjs",
+        "lab-speech-preflight-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0326",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "tts-container-selftest.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0329",
+      "declared": true,
+      "scope": "lab-run",
+      "kind": "lab-run",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 6
+    },
+    {
+      "workId": "W-0331",
+      "declared": true,
+      "scope": "software",
+      "kind": "tests",
+      "testIds": [
+        "UT-TTS-BUSY-01",
+        "UT-TTS-BUSY-02",
+        "UT-TTS-BUSY-03",
+        "UT-TTS-BUSY-04"
+      ],
+      "gates": [],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0333",
+      "declared": true,
+      "scope": "lab-run",
+      "kind": "lab-run",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 9
+    },
+    {
+      "workId": "W-0336",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0337",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 3
+    },
+    {
+      "workId": "W-0340",
+      "declared": true,
+      "scope": "lab-run",
+      "kind": "lab-run",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 8
+    },
+    {
+      "workId": "W-0341",
+      "declared": true,
+      "scope": "document",
+      "kind": "document",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 4
+    },
+    {
+      "workId": "W-0342",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "tts-provenance-gate.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0343",
+      "declared": true,
+      "scope": "software",
+      "kind": "gates",
+      "testIds": [],
+      "gates": [
+        "tts-provenance-gate.mjs"
+      ],
+      "deliverables": 0
+    },
+    {
+      "workId": "W-0344",
+      "declared": true,
+      "scope": "lab-run",
+      "kind": "lab-run",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 32
+    },
+    {
+      "workId": "W-0345",
+      "declared": true,
+      "scope": "lab-run",
+      "kind": "lab-run",
+      "testIds": [],
+      "gates": [],
+      "deliverables": 12
+    }
+  ]
+}

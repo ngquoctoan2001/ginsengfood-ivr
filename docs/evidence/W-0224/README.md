@@ -123,3 +123,13 @@ Không sửa code, không thêm/xoá test, không đụng hook. `REAL_CUSTOMER_C
 **Ref tracking không phải trạng thái remote.** Cả claim (1) và claim (3) là tôi lặp lại một nguồn —
 một ref cũ, một bullet audit — mà không kiểm nguồn gốc, rồi trình con số cho owner trước khi hỏi
 đúng chỗ. Hai lệnh rẻ (`ls-remote`, đọc chính script) là đủ để chặn cả hai.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Lượt này xoá một nhánh remote đã merge, ghi cảnh báo ref github/main vào CLAUDE.md/AGENTS.md và rút hai phát hiện sai; không đổi src/, tests/ hay script gate nên không có claim phần mềm. Danh sách 4 tài liệu nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

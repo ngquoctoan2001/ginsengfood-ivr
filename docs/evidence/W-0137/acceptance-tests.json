@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0137",
+  "scope": "document",
+  "reason": "W-0137 chỉ đo bản .docx V0.3, ghi errata 22 vào spec và mở quyết định OD-20 cho Owner; không sửa mã, test hay gate.",
+  "deliverables": [
+    "docs/MODULE_8_IVR_ORDER_CONFIRMATION_V0.3_CLEAN.md",
+    "plan/ivr-orther/decisions-log.md",
+    "docs/evidence/W-0137/README.md"
+  ]
+}

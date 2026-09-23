@@ -370,6 +370,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
     }
 
     [Fact]
+    [Trait("TestId", "IT-API-ATOMIC-11")]
     public async Task AdminMutationRollsBackWhenIdempotencySnapshotCannotCommit()
     {
         await fixture.ResetAsync();
@@ -577,6 +578,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
     [Theory]
     [InlineData("REAL", "IDLE", false)]
     [InlineData("MOCK", "QUARANTINED", true)]
+    [Trait("TestId", "IT-API-SIM-12")]
     public async Task DirectEnableRejectsRealOrQuarantinedChannel(
         string adapterMode,
         string status,

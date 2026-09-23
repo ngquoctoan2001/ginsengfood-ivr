@@ -1,0 +1,14 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0288",
+  "scope": "software",
+  "requiredTestIds": [
+    "CHAOS-DB-02",
+    "CHAOS-DOWNSTREAM-01",
+    "CHAOS-DUPLICATE-06",
+    "CHAOS-RECOVERY-04",
+    "CHAOS-SIM-03",
+    "CHAOS-TERMINATE-07",
+    "CHAOS-TERMINATE-08"
+  ]
+}

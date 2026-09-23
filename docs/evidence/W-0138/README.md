@@ -86,3 +86,13 @@ bằng chứng; bảng trên là các lượt đã xác nhận mutate thật.
 - `OD-19`/`OD-20` trong `decisions-log.md` vẫn nằm ngoài register nên vẫn không lên board. Đó là
   đúng thiết kế hai namespace (register = quyết định chặn Sales/external; decisions-log = nội bộ
   IVR), nhưng đáng để Owner xác nhận là cố ý.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `gate-status.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -79,3 +79,13 @@ cho kết quả tiếp nối; các số và mục còn lại bên dưới là sn
 
 Raw logs, PCM, archive và phép đo ở `.artifacts/W-0326/`; metadata/checksum trong JSON cạnh file này.
 Không sửa model weights, lựa chọn giọng, phép ghép hoặc mã .NET trong lượt W-0326.
+
+## Khai báo phép kiểm C2 — W-0349, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không xét được. [Khai báo](acceptance-tests.json) nay ghi:
+
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `tts-container-selftest.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.
