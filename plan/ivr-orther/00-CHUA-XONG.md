@@ -1,6 +1,6 @@
 # Chưa xong — việc còn mở của Module 8
 
-Cập nhật: **16/09/2026** · Thay thế 25 file kế hoạch/phiếu hỏi riêng lẻ.
+Cập nhật: **16/09/2026**, sửa **23/09** (mục `today-03` và bảng “đang chặn”) · Thay thế 25 file kế hoạch/phiếu hỏi riêng lẻ.
 
 Phần đã đóng nằm ở [00-DA-XONG.md](00-DA-XONG.md). Quyết định nghiệp vụ đã ký nằm ở [decisions-log.md](decisions-log.md) — file đó **không dồn được** vì tài liệu của sếp trong `docs/documents/` đang trỏ vào.
 
@@ -255,6 +255,19 @@ khác VieNeu.
 - Chờ: đo trên máy thật (`S5`) · người được chỉ định nghe duyệt `12` đoạn và chỗ nối (`S1`) · `6`
   cuộc gọi thử MicroSIP (`S5`) · ký rủi ro `3` và `4` (`S2`).
 
+**Cập nhật `23/09`: phần “chờ” ở trên đã có bằng chứng, nhưng chữ ký chính thức chưa đủ.**
+
+- Đo trên máy thật: S5 `vps61` ở `W-0333`, `W-0335`, `W-0338` (`ACCEPTED`) và `W-0343`. Bản phát
+  hành cuối chạy 2 lượt soak 457 s, 63/63 job, 0 lỗi, không OOM.
+- Nghe duyệt `12` đoạn và chỗ nối: Owner chấp nhận ở `W-0323`.
+- Cuộc gọi thử: `W-0321` có 6 cuộc có kiểm soát kèm rollback; `W-0329` tự động hóa DTMF; `W-0344`
+  chạy toàn luồng 7 ca trên S5 và đạt `23/09`.
+- Rủi ro `3` và `4`: Toàn nhận có điều kiện `22/09` (`W-0340`); quyền dùng model và preset theo nguồn
+  công bố (`W-0341`, `W-0342`); Legal/Privacy xác nhận (`W-0343`).
+- **Vẫn còn:** ô ký của Sếp cho `S1`, `S2`, `S5` trong [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md)
+  vẫn trống; Toàn nghiệm thu các work item trên; `deploy/helm/ivr/values-prod.yaml` vẫn đặt
+  `tts.enabled: false`.
+
 ### 14-risk-register
 
 **Sổ rủi ro · LIVING**
@@ -277,10 +290,10 @@ _Cập nhật `17/09` (`W-0309`). Bảng cũ gom `5` bên; thật ra chỉ có *
 | Bên | Đang chặn | Cách gỡ |
 | --- | --- | --- |
 | **Module 3** | m8-05, m8-06, m8-07, m8-09, m8-10, m8-17, `14` mục nhóm C của bản `16/09`, cộng `W-0123` *(chờ `OD-18`)* | **Đúng một** [phiếu `IR-07`, `30` câu](../../integration-requirements/07-module-3-decision-sheet.md) — bản gộp `17/09` đã nuốt cả phiếu giới hạn số cuộc gọi (`B5`) lẫn phiếu `OD-18` (`B6`). **Không gửi phiếu nào khác nữa** · **đã gửi** `17/09`, chờ trả lời |
-| **Sếp** | môi trường triển khai (`S5`) · người duyệt thứ hai (`S1`) · quyền dùng model VieNeu và `12` đoạn đã render (`S2`) · ~~nguồn khoá token~~ *hết đối tượng từ phương án B* · ~~m8-15~~ *`S7` chốt B ngày `17/09`, giới hạn đã nhận (`OD-V1-24`)* | [Phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md) **đã trả lời `17/09`**; phần còn mở ở `S1` `S2` `S5` `S6` `S8` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md) *(sửa `18/09`, `W-0316`)* |
+| **Sếp** | môi trường triển khai (`S5`) · người duyệt thứ hai (`S1`) · quyền dùng model VieNeu và `12` đoạn đã render (`S2`) · ~~nguồn khoá token~~ *hết đối tượng từ phương án B* · ~~m8-15~~ *`S7` chốt B ngày `17/09`, giới hạn đã nhận (`OD-V1-24`)* | [Phiếu quyết định](phieu-quyet-dinh-cho-sep-2026-09-17.md) **đã trả lời `17/09`**; phần còn mở ở `S1` `S2` `S5` `S6` `S8` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md) *(sửa `18/09`, `W-0316`)*. *Sửa `23/09`: `S8` đã có trả lời (`W-0330`); `S2` được Toàn nhận có điều kiện (`W-0340`) và Legal/Privacy đã xác nhận (`W-0343`); `S5` đã đo trên vps61. Ô ký của Sếp vẫn trống* |
 | **Nhà mạng** | `B12` adapter production, `B1` hiệu chỉnh `4` số năng lực | Chờ báo giá. Đường ống đã dựng xong `16/09`, thiếu tuyến |
 | ~~Platform~~ ~~Security~~ ~~Legal~~ | — | **Không tồn tại như đội riêng.** Đã gom về Sếp — xem nhóm A |
-| **Chính mình** | `B8` VieNeu: phần làm được ngay của Lô `4` | ✅ **Xong `18/09` (`W-0317`)**: quét lại Trivy, thử đổi bản cài nền, soạn cấu hình production nháp. Còn một lượt đọc thật khi có bundle model |
+| **Chính mình** | `B8` VieNeu: phần làm được ngay của Lô `4` | ✅ **Xong `18/09` (`W-0317`)**: quét lại Trivy, thử đổi bản cài nền, soạn cấu hình production nháp. *(Sửa `23/09`: lượt đọc thật với bundle model đã chạy (`W-0320`), và toàn luồng đơn giả đạt trên S5 (`W-0344`).)* |
 
 > ### Câu cũ ở chỗ này đã sai, và tôi lặp lại nó ba lần trước khi kiểm
 >
