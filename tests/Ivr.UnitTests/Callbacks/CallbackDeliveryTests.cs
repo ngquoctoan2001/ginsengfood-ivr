@@ -35,6 +35,15 @@ public sealed class CallbackDeliveryTests
     [InlineData(503, "UNAVAILABLE", CallbackTransportOutcome.TransientFailure)]
     [InlineData(401, "UNAUTHORIZED", CallbackTransportOutcome.AuthRejected)]
     [InlineData(403, "FORBIDDEN", CallbackTransportOutcome.AuthRejected)]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "CT-CB-01")]
+    [Trait("TestId", "CT-CB-02")]
+    [Trait("TestId", "CT-CB-03")]
+    [Trait("TestId", "CT-CB-04")]
+    [Trait("TestId", "CT-CB-05")]
+    [Trait("TestId", "CT-CB-06")]
+    [Trait("TestId", "CT-CB-07")]
+    [Trait("TestId", "CT-CB-08")]
     public async Task TargetTransportClassifiesEveryRequiredStatus(
         int status,
         string code,
@@ -61,6 +70,9 @@ public sealed class CallbackDeliveryTests
 
     [Fact]
     [Trait("TestId", "UT-CALLBACK-RETRY-IDENTITY-02")]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "CT-CB-02")]
+    [Trait("TestId", "CT-CB-08")]
     public async Task RetryUsesTheExactSameBodyAndIdempotencyKey()
     {
         CallbackOutboxMessage message = CreateMessage();
@@ -129,6 +141,8 @@ public sealed class CallbackDeliveryTests
 
     [Fact]
     [Trait("TestId", "UT-CALLBACK-TIMEOUT-03")]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "CT-CB-08")]
     public async Task TargetTimeoutIsRetryableWithoutLeakingTransportDetails()
     {
         using ScriptedHandler handler = new(
@@ -225,6 +239,8 @@ public sealed class CallbackDeliveryTests
 
     [Fact]
     [Trait("TestId", "UT-CALLBACK-GH-COMPAT-06")]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "CT-CB-09")]
     public async Task CurrentGoldenHourTransportUsesOnlyPinnedPathHeaderAndDto()
     {
         CallbackDeliveryOptions settings = CreateOptions();
@@ -264,6 +280,8 @@ public sealed class CallbackDeliveryTests
 
     [Fact]
     [Trait("TestId", "UT-CALLBACK-GH-ISOLATION-07")]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "CT-CB-09")]
     public async Task CurrentGoldenHourTransportRejectsTwentyFourSevenBeforeHttp()
     {
         CallbackDeliveryOptions settings = CreateOptions();
@@ -287,6 +305,47 @@ public sealed class CallbackDeliveryTests
         Assert.Equal(CallbackTransportOutcome.Invalid, result.Outcome);
         Assert.Equal("CURRENT_GOLDEN_HOUR_FORBIDS_24_7", result.Code);
         Assert.Null(handler.Path);
+    }
+
+    /// <summary>
+    /// W-0036 / P5-2 §8 CT-CB-09 names the Golden Hour current-compat suite by its two statuses,
+    /// 200 and 422. UT-CALLBACK-GH-COMPAT-06 holds the 200. This holds the 422: the compat route
+    /// refusing a callback is a rejection, not a retry, and its status survives into the result.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "CT-CB-09")]
+    public async Task CurrentGoldenHourTransportTreatsA422AsARejectionNotARetry()
+    {
+        CallbackDeliveryOptions settings = CreateOptions();
+        settings.Provider = SalesProviderNames.CurrentGoldenHourCompat;
+        settings.CurrentGoldenHourCompatibilityEnabled = true;
+        settings.CurrentGoldenHourInternalToken = "mock-current-token";
+        settings.CurrentGoldenHourIdentities["task-1"] = new CurrentGoldenHourIdentityOptions
+        {
+            CallId = 11,
+            ReservationId = 12,
+            OrderId = 13,
+            CustomerId = 14,
+        };
+        using RejectingCurrentHandler handler = new();
+        using HttpClient httpClient = new(handler)
+        {
+            BaseAddress = new Uri("http://fake-sales.local"),
+        };
+        var transport = new CurrentGoldenHourCallbackTransport(
+            new CurrentGoldenHourCallbackClient(httpClient),
+            new ConfiguredCurrentGoldenHourIdentityResolver(Options.Create(settings)),
+            Options.Create(settings),
+            new CorrelationContext());
+
+        CallbackTransportResult result = await transport.SendAsync(
+            CreateMessage(),
+            CancellationToken.None);
+
+        Assert.Equal(CallbackTransportOutcome.Invalid, result.Outcome);
+        Assert.Equal(422, result.HttpStatus);
+        Assert.Equal("CURRENT_GOLDEN_HOUR_REJECTED", result.Code);
+        Assert.Equal(1, handler.CallCount);
     }
 
     [Fact]
@@ -392,6 +451,15 @@ public sealed class CallbackDeliveryTests
     [InlineData(CallbackTransportOutcome.Invalid, 422, "INVALID_DEAD_LETTER", 0, true)]
     [InlineData(CallbackTransportOutcome.AuthRejected, 401, "AUTH_REJECTED", 0, true)]
     [InlineData(CallbackTransportOutcome.TransientFailure, 503, "RETRY_PENDING", 1, false)]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "CT-CB-01")]
+    [Trait("TestId", "CT-CB-02")]
+    [Trait("TestId", "CT-CB-03")]
+    [Trait("TestId", "CT-CB-04")]
+    [Trait("TestId", "CT-CB-05")]
+    [Trait("TestId", "CT-CB-06")]
+    [Trait("TestId", "CT-CB-07")]
+    [Trait("TestId", "CT-CB-08")]
     public async Task DispatcherMapsTransportOutcomeToAdminVisibleStateWithoutBlindRetry(
         CallbackTransportOutcome outcome,
         int status,
@@ -427,6 +495,8 @@ public sealed class CallbackDeliveryTests
 
     [Fact]
     [Trait("TestId", "UT-CALLBACK-RETRY-EXHAUSTED-09")]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "CT-CB-08")]
     public async Task DispatcherStopsAfterConfiguredRetryBudget()
     {
         CallbackDeliveryOptions settings = CreateOptions();
@@ -953,6 +1023,26 @@ public sealed class CallbackDeliveryTests
             {
                 Content = new StringContent(response, Encoding.UTF8, "application/json"),
             };
+        }
+    }
+
+    /// <summary>The compat route refusing the callback with 422, as current Sales does.</summary>
+    private sealed class RejectingCurrentHandler : HttpMessageHandler
+    {
+        public int CallCount { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            CallCount++;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
+            {
+                Content = new StringContent(
+                    """{"success":false,"message":"Invalid callback"}""",
+                    Encoding.UTF8,
+                    "application/json"),
+            });
         }
     }
 

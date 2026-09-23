@@ -74,3 +74,11 @@ Filter của job CI được chạy thật ở đây chứ không chỉ viết v
 - **Không có Pact.** §6.1 nhắc pact consumer/provider; slice này dùng schema round-trip + WireMock + hash ghim thay vì thêm một framework nữa. Pact chỉ có giá trị khi **cả hai bên** cùng chạy nó — mà Sales chưa có gì để chạy. Ghi lại như một khác biệt có chủ ý so với prompt, không phải một mục đã xong.
 - **Không có E2E trình duyệt** (§3 ở trên).
 - **`TESTS_PASS` là trần.** Chỉ reviewer/owner chuyển `ACCEPTED`.
+
+## Gắn ID §8 vào test hiện có — W-0347, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Bảng ở mục 1 nay được C2 kiểm lại: 12 ID §8 được gắn thêm vào đúng các test đang kiểm chúng, kèm ba
+test mới cho các vế chưa có assertion. Bảy ID theo nhóm còn chờ quyết định. Xem
+[bảng gắn tag và phần còn chờ](acceptance-addendum.md). Kết quả và phạm vi lịch sử ở trên giữ nguyên.

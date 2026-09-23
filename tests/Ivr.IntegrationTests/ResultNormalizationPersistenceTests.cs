@@ -19,6 +19,8 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
     private static readonly DateTimeOffset Now =
         new(2026, 8, 14, 3, 0, 0, TimeSpan.Zero);
 
+    private static readonly int[] CandidateOffsetsSeconds = [0, 150, 300];
+
     [Fact]
     [Trait("TestId", "IT-OBS-OUTCOME-09")]
     public async Task NormalizingAResultRecordsTheOutcomeCounterThatConfirmRateIsBuiltOn()
@@ -284,6 +286,9 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
 
     [Fact]
     [Trait("TestId", "E2E-FLOW-CONFIRM-01")]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "E2E-CONFIRM-01")]
+    [Trait("TestId", "CT-CB-01")]
     public async Task ConfirmFlowProducesAConfirmedSignalAcceptedBySalesAndVisibleToAdmin()
     {
         // W-0036 / P5-2 §8. The happy path, end to end on real storage: keypress -> normalized
@@ -314,8 +319,70 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.Equal("ACCEPTED", callback.CoreResponseCode);
         Assert.NotNull(callback.AcknowledgedAt);
 
+        // CT-CB-01's "task closed": the final result closed the job, and nothing reopens it.
+        CallJobEntity job = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("RESULT_READY_FOR_CALLBACK", job.Status);
+        Assert.NotNull(job.ClosedAt);
+
         // An accepted confirmation is not a review item: raising one would put every successful
         // call into an operator's queue.
+        Assert.Empty(await verification.ReviewItems.AsNoTracking()
+            .Where(item => item.SourceType == "IVR_RESULT_CALLBACK")
+            .ToListAsync());
+    }
+
+    /// <summary>
+    /// W-0036 / P5-2 §8 CT-CB-02: a resend Sales has already seen, answered 200
+    /// DUPLICATE_ACCEPTED, ends as DELIVERED_ACCEPTED and leaves no second record.
+    /// <para>
+    /// W-0036 closed the state half in UT-CALLBACK-STATE-08. This is the record half, on real
+    /// storage: the first lease runs out before its ACK is written, the same row is claimed again
+    /// with the same identity, and Sales recognises it.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "CT-CB-02")]
+    public async Task AResendSalesAlreadyHasIsAcceptedOnceAndLeavesNoSecondRecord()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedPendingAsync(factory, "ANSWERED", "1");
+        await Repository(factory).NormalizeNextAsync("normalizer-ct-cb-02");
+        ICallbackOutboxRepository outbox = fixture.Services
+            .GetRequiredService<ICallbackOutboxRepository>();
+
+        CallbackOutboxMessage first = Assert.Single(await outbox.DequeueReadyAsync(
+            10,
+            TimeSpan.FromMinutes(1)));
+        await using (IvrDbContext expire = await factory.CreateDbContextAsync())
+        {
+            await expire.ResultCallbacks
+                .Where(row => row.CallbackId == first.CallbackId)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(
+                    row => row.LeaseExpiresAt,
+                    (DateTimeOffset?)DateTimeOffset.UtcNow.AddMinutes(-1)));
+        }
+
+        // The resend is the same callback: same id, same idempotency key, byte-identical body.
+        CallbackOutboxMessage resend = Assert.Single(await outbox.DequeueReadyAsync(
+            10,
+            TimeSpan.FromMinutes(1)));
+        Assert.Equal(first.CallbackId, resend.CallbackId);
+        Assert.Equal(first.IdempotencyKey, resend.IdempotencyKey);
+        Assert.Equal(first.PayloadSha256, resend.PayloadSha256);
+        Assert.NotEqual(first.LeaseToken, resend.LeaseToken);
+        Assert.True(await outbox.CompleteDeliveryAsync(
+            resend.CallbackId,
+            resend.LeaseToken,
+            new CallbackDeliveryUpdate("DELIVERED_ACCEPTED", 200, "DUPLICATE_ACCEPTED", null, 0, null, true, false)));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        ResultCallbackEntity callback = Assert.Single(
+            await verification.ResultCallbacks.AsNoTracking().ToListAsync());
+        Assert.Equal("DELIVERED_ACCEPTED", callback.DeliveryStatus);
+        Assert.Equal("DUPLICATE_ACCEPTED", callback.CoreResponseCode);
+        Assert.NotNull(callback.AcknowledgedAt);
+        Assert.Single(await verification.CallResults.AsNoTracking().ToListAsync());
         Assert.Empty(await verification.ReviewItems.AsNoTracking()
             .Where(item => item.SourceType == "IVR_RESULT_CALLBACK")
             .ToListAsync());
@@ -347,8 +414,72 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         Assert.Equal("1", task.OrderVersion);
     }
 
+    /// <summary>
+    /// W-0036 / P5-2 §8 E2E-NOANSWER-02: A1 no-answer, then A2, then final, and IVR never moves
+    /// the order (DS-02).
+    /// <para>
+    /// E2E-FLOW-NOANSWER-02 above holds the end of that sequence. This one runs all of it on real
+    /// storage with the two attempts of the Golden Hour policy. The first no-answer is counted but
+    /// not final: the job goes back for the second attempt and Sales is told nothing. The second
+    /// no-answer is final: it closes the job and queues exactly one callback.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "E2E-NOANSWER-02")]
+    public async Task TwoUnansweredAttemptsEndInOneFinalNoAnswerAndTheOrderNeverMoves()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedPendingAsync(factory, "RING_TIMEOUT", null, maxAttempts: 2);
+        ResultRepository repository = Repository(factory);
+
+        await repository.NormalizeNextAsync("normalizer-e2e-noanswer-a1");
+        await using (IvrDbContext afterFirst = await factory.CreateDbContextAsync())
+        {
+            CallResultEntity first = await afterFirst.CallResults.AsNoTracking().SingleAsync();
+            CallJobEntity requeued = await afterFirst.CallJobs.AsNoTracking().SingleAsync();
+            Assert.Equal("IVR_NO_ANSWER_ATTEMPT", first.ResultType);
+            Assert.True(first.IsCountedCustomerAttempt);
+            Assert.False(first.IsFinalForIvr);
+            Assert.Equal("DRY_RUN", requeued.Status);
+            Assert.Equal("HELD_MOCK", requeued.QueueStatus);
+            Assert.Null(requeued.ClosedAt);
+            Assert.Empty(await afterFirst.ResultCallbacks.AsNoTracking().ToListAsync());
+        }
+
+        await AddPendingAttemptAsync(
+            factory,
+            "ATTEMPT-NORM-002",
+            "RAW-NORM-002",
+            "RING_TIMEOUT",
+            null,
+            Now.AddSeconds(170),
+            attemptNumber: 2,
+            maxAttempts: 2);
+        await repository.NormalizeNextAsync("normalizer-e2e-noanswer-a2");
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallResultEntity[] results = await verification.CallResults.AsNoTracking().ToArrayAsync();
+        Assert.Equal(2, results.Length);
+        CallResultEntity final = Assert.Single(results, result => result.IsFinalForIvr);
+        Assert.Equal("IVR_NO_ANSWER_FINAL", final.ResultType);
+        Assert.True(final.IsCountedCustomerAttempt);
+        Assert.Equal("NO_STATE_CHANGE_WAIT_FOR_TIMEOUT", final.RecommendedCoreAction);
+        CallJobEntity closed = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("RESULT_READY_FOR_CALLBACK", closed.Status);
+        Assert.NotNull(closed.ClosedAt);
+        Assert.Single(await verification.ResultCallbacks.AsNoTracking().ToListAsync());
+
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks.AsNoTracking().SingleAsync();
+        Assert.Equal("CONFIRMING", task.OrderState);
+        Assert.Equal("1", task.OrderVersion);
+    }
+
     [Fact]
     [Trait("TestId", "IT-ELIG-RACE-12")]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "E2E-RACE-03")]
+    [Trait("TestId", "CT-CB-03")]
     public async Task BlockerRaisedAfterKeyOneBlocksTheSignalWithoutRewritingTheCallResult()
     {
         // Seed 'SCN-009-race-recall-after-key1': the customer confirmed, and only afterwards did
@@ -404,6 +535,9 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
 
     [Fact]
     [Trait("TestId", "IT-CALLBACK-OUTBOX-06")]
+    // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
+    [Trait("TestId", "CT-CB-04")]
+    [Trait("TestId", "CT-CB-05")]
     public async Task DeliveryCompletionUsesLeaseFencingAndCreatesAdminVisibleReview()
     {
         await fixture.ResetAsync();
@@ -477,9 +611,11 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         IDbContextFactory<IvrDbContext> factory,
         string rawStatus,
         string? rawDtmf,
-        string? technicalErrorCode = null)
+        string? technicalErrorCode = null,
+        int maxAttempts = 3)
     {
         DateTimeOffset deadline = Now.AddMinutes(10);
+        int[] offsets = [.. CandidateOffsetsSeconds.Take(maxAttempts)];
         await using IvrDbContext context = await factory.CreateDbContextAsync();
         context.ConfirmationTasks.Add(new ConfirmationTaskEntity
         {
@@ -497,8 +633,8 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
             RiskFlagsJson = "[]",
             ProgramType = "GOLDEN_HOUR",
             AttemptPolicyVersion = "GH-CANDIDATE-v1",
-            MaxAttempts = 3,
-            AttemptOffsetsSecondsJson = "[0,150,300]",
+            MaxAttempts = maxAttempts,
+            AttemptOffsetsSecondsJson = JsonSerializer.Serialize(offsets),
             ConfirmationWindowStartedAt = Now,
             ConfirmationWindowExpiresAt = deadline,
             PhoneRef = "phone-ref-normalization-test",
@@ -526,15 +662,11 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
             ProgramType = "GOLDEN_HOUR",
             AttemptPolicyCode = "GH-CANDIDATE-v1",
             Status = "DISPOSITION_PENDING_NORMALIZATION",
-            MaxAttempts = 3,
-            AttemptOffsetsSecondsJson = "[0,150,300]",
+            MaxAttempts = maxAttempts,
+            AttemptOffsetsSecondsJson = JsonSerializer.Serialize(offsets),
             ConfirmationWindowSeconds = 600,
-            AttemptScheduleJson = JsonSerializer.Serialize(new[]
-            {
-                Now,
-                Now.AddSeconds(150),
-                Now.AddSeconds(300),
-            }),
+            AttemptScheduleJson = JsonSerializer.Serialize(
+                offsets.Select(offset => Now.AddSeconds(offset)).ToArray()),
             T0At = Now,
             ExpiresAt = deadline,
             Eligible = true,
@@ -551,7 +683,8 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
             rawStatus,
             rawDtmf,
             technicalErrorCode,
-            Now);
+            Now,
+            maxAttempts: maxAttempts);
         await context.SaveChangesAsync();
     }
 
@@ -561,7 +694,9 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         string rawEventId,
         string rawStatus,
         string? technicalErrorCode,
-        DateTimeOffset receivedAt)
+        DateTimeOffset receivedAt,
+        int attemptNumber = 1,
+        int maxAttempts = 3)
     {
         await using IvrDbContext context = await factory.CreateDbContextAsync();
         CallJobEntity job = await context.CallJobs.SingleAsync();
@@ -574,7 +709,9 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
             rawStatus,
             null,
             technicalErrorCode,
-            receivedAt);
+            receivedAt,
+            attemptNumber,
+            maxAttempts);
         await context.SaveChangesAsync();
     }
 
@@ -585,16 +722,18 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
         string rawStatus,
         string? rawDtmf,
         string? technicalErrorCode,
-        DateTimeOffset receivedAt)
+        DateTimeOffset receivedAt,
+        int attemptNumber = 1,
+        int maxAttempts = 3)
     {
         context.CallAttempts.Add(new CallAttemptEntity
         {
             IvrCallAttemptId = attemptId,
             IvrCallJobId = "JOB-NORM-001",
             TaskId = "TASK-NORM-001",
-            AttemptNumber = 1,
-            MaxAttemptsSnapshot = 3,
-            ScheduledAt = Now,
+            AttemptNumber = attemptNumber,
+            MaxAttemptsSnapshot = maxAttempts,
+            ScheduledAt = Now.AddSeconds(150 * (attemptNumber - 1)),
             ScheduledWindowExpiresAt = Now.AddMinutes(10),
             StartedAt = receivedAt.AddSeconds(-20),
             EndedAt = receivedAt,
