@@ -130,3 +130,13 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0275 thuộc nhóm A5 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: adapter_mode
+thành enum. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: chỉ local. Mọi giới hạn trong cột Residual của tracker giữ
+nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi
+commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

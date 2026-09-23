@@ -346,3 +346,14 @@ tại 4dfd500. W-0088/W-0125/W-0196/W-0197/W-0207/W-0268/W-0269/W-0272/W-0274 na
 TESTS_PASS vì thiếu staging/OTLP/thông báo. Tổng repo **57 ACCEPTED** tại thời điểm ghi.
 Giới hạn rollback W-0196, phía IVR W-0207 và mọi hành động/người phụ trách ngoài local vẫn giữ.
 Các bảng và trạng thái chờ duyệt phía trên là lịch sử; không có lượt full test/sweep mới.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0327 thuộc nhóm A6 và chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã làm: Rà
+Residual 13 việc. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: việc theo sau đã làm (W-0330, W-0332, W-0334). Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

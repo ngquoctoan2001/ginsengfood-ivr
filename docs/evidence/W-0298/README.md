@@ -87,3 +87,14 @@ Test dùng `CallingWindow` **bật thật** thay vì tắt: cả hai fixture s�
    lý do. Giữ đơn tới sáng hay cấp cửa sổ khác là quyết định của Module 3, vì cửa sổ và token đều tới
    trên wire đã cấp sẵn.
 3. **`IR-06 §3.4.2` chưa ghi** hành vi này cho Module 3 — chuyển sang lô tài liệu.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0298 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Chặn task mà
+mọi lần gọi rơi ngoài khung giờ. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: IR-06 nay đã ghi hành vi này (bổ sung W-0304). Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

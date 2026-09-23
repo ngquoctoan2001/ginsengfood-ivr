@@ -99,3 +99,13 @@ chạy lại. Rà 13 workstream cho thấy phần còn lại thuộc một trong
 
 Do đó **`AUTONOMOUS_LOCAL_QUEUE=EMPTY` theo authority và input hiện tại**. Điều này không có nghĩa
 toàn bộ 12 workstream applicable đã hoàn tất end-to-end hoặc production-ready.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0162 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Bằng chứng
+Postgres/Chaos local cho W-0147. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: phần còn lại đều ngoài. Mọi giới hạn trong cột Residual của
+tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43),
+không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

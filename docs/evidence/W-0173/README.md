@@ -75,3 +75,14 @@ Nhận exact M3 consumer/OAS SHA, Security auth record và Platform sandbox evid
 matrix trong M8-07 §6 trên cùng M8/M3 candidate. Nếu external input chưa có, việc local tiếp theo có
 giá trị là tạo validator offline cho shared-E2E report; validator đó không được gửi network request
 hoặc gỡ delivery guard.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0173 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: ACK Target V1
+sai định dạng thì fail-closed. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: M3, Security, Platform. Lượt chạy lại Postgres/Chaos mà Residual
+nhắc nay đã có trong collector ca4f442. Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng
+chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài liệu
+là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

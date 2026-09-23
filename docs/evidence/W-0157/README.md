@@ -110,3 +110,13 @@ rejection và 10 negative controls nêu trên.
 Khi external bundle đầu tiên đến: validate bundle và ghi receipt vào filename mới; chuyển exact
 receipt hash qua một approved separate channel/record; chạy W-0157 verifier bằng hash đó; chỉ khi
 precheck PASS mới append metadata vào intake ledger. Chưa calibration nếu chưa đủ 4/4 group PASS.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0157 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Bộ kiểm receipt
+độc lập B1. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: trust anchor ngoài. Mọi giới hạn trong cột Residual của tracker
+giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không
+coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

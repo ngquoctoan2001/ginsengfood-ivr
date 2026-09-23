@@ -203,3 +203,14 @@ là gate đọc **hiện vật độc lập** — ở đây là chính file Open
 | Permission riêng cho audit-evidence | Cần quyết định `DF-01`, do Permission Core sở hữu. **M8 không ký được** |
 | `capacity-incidents` endpoint | Kế hoạch đã loại từ đầu: `AdminReadService` có hàm đọc, nhưng phơi ra endpoint thì phải biết M3 lọc/phân trang thế nào. ⛔ Chờ M3 |
 | Phân trang thật (cursor) cho trail dài | `limit` + `truncated` là đủ cho tra cứu một đối tượng. Cursor chỉ đáng làm khi có màn hình thật dùng nó — M3 dựng |
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0307 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Endpoint
+audit-evidence. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: quyền riêng chờ DF-01; M3 chốt lọc và phân trang. Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

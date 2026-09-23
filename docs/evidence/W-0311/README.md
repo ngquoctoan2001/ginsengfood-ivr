@@ -200,3 +200,13 @@ Vì vậy stage `5` chỉ bắt đầu khi đã có một **lối có kiểm so�
 gồm: đúng một migration được nêu tên và ghim hash; kiểm được rằng bản chạy trước đó (`N−1`) không còn
 đọc `3` cột; Toàn duyệt. **Không** đi lối tắt: không dời mốc, không thêm migration mới vào danh sách lịch
 sử, không tắt gate. Chưa ai dựng lối đó.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0311 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Phương án B: M3
+gửi thẳng phone_e164. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: các stage sau chờ M3 chuyển sang. Mọi giới hạn trong cột
+Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test,
+sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

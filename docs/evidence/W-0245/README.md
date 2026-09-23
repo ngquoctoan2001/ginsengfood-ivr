@@ -130,3 +130,13 @@ Không sửa code, không đổi hành vi runtime. `REAL_CUSTOMER_CALL_ALLOWED=N
 
 Và một việc của tôi: **đọc lại các mục `2.x` khác dưới cùng ánh sáng** — chúng đang chờ
 `M3 + Security`, mà nay là owner cộng một dev.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0245 thuộc nhóm A4 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Rút số TTL gán
+sai, re-pin validator. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: owner ký ở W-0246. Mọi giới hạn trong cột Residual của tracker
+giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không
+coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

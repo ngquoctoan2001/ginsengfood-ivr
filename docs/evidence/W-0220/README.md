@@ -90,3 +90,14 @@ docs-selftest.mjs                        API_DOCS_SELFTEST_PASS
   nhưng **trạng thái dòng vẫn `CLOSED`** — sửa trạng thái là việc chief auditor (mục `3.2`).
 - Nếu owner muốn đúng `21:07:30` từng giây: đổi trường sang đơn vị giây, sửa validator + mọi nơi
   khai giá trị. Một quyết định riêng, không nằm trong lượt này.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0220 thuộc nhóm A4 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Thi hành End =
+21:08. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: trạng thái register là việc auditor; M3 xác nhận producer. Mọi
+giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

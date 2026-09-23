@@ -89,3 +89,14 @@ Cả hai đều là contract change, cần OpenAPI/CDC/client rollout riêng. W-
 
 `TESTS_PASS_LOCAL` không có nghĩa M3 đã tích hợp hoặc production ready. Hosted CI, shared M3→M8
 E2E và owner decision về wire exposure vẫn `NOT_RUN / OWNER_DECISION_REQUIRED`.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0129 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Truy vết lý do
+từ chối ở intake. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: phơi lý do chi tiết ra wire cần M3 và owner ký. Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

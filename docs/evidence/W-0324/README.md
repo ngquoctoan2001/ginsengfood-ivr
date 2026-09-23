@@ -103,3 +103,13 @@ Toàn trả lời **“oke cả nhóm”** sau [phiếu W-0337](../W-0337/approv
 đã retire. Cả13 việc đã chốt trạng thái; tổng repo66 ACCEPTED. Các câu PENDING/chờ owner
 phía trên là lịch sử. Phần M3/lab/model-image/vận hành thật và giới hạn đã trình vẫn mở;
 không có thông điệp bàn giao gửi ra ngoài hoặc lượt test mới. REAL_CUSTOMER_CALL_ALLOWED=NO.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0324 thuộc nhóm A6 và chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã làm: Sửa C2,
+hoàn thiện hồ sơ P2/P3. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: xong. Mọi giới hạn trong cột Residual của tracker giữ nguyên.
+Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài
+liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

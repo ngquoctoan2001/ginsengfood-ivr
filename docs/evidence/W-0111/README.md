@@ -164,3 +164,14 @@ OpenAPI `draft.13 → draft.14`: +2 path, re-pin manifest, sinh lại portal.
 - **Chưa cập nhật `readiness-board.md` §6.** Dòng "không có cơ chế nào" do
   `gate-status.mjs` sinh từ tracker, và nội dung §6 là văn bản viết tay trong generator — sửa nó
   là một việc riêng, không phải của W-0111.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0111 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Cắt ngang cuộc
+gọi đang diễn ra. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: giới hạn đã ghi: trễ theo chu kỳ poll; worker chết giữa chừng
+thì không cắt được. Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt
+collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt
+test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

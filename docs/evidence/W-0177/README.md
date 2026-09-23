@@ -136,3 +136,13 @@ candidate và không trộn kết quả của các SHA bị loại.
 
 W-0186 sau đó phục hồi/re-pin C5 trên working tree hiện hành. Việc đó không thay verdict lịch sử của
 `59597e2` và cũng chưa tạo candidate exact mới; xem [W-0186](../W-0186/README.md).
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0177 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Đóng băng
+candidate local. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: chữ ký, E2E chung ngoài. Mọi giới hạn trong cột Residual của
+tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43),
+không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

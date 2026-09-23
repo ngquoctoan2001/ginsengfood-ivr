@@ -64,3 +64,13 @@ trống bằng chứng local service→counter→Prometheus; các giới hạn t
 [ARCH-05](../../../specs/architecture/05-resilience.md) đã bỏ dòng gộp Trust/Contact lỗi thời;
 [game-day](../../gameday-report.md) có đính chính tham chiếu test, instrumentation, coverage và
 partition. Nội dung historical được giữ nguyên.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0334 thuộc nhóm A6 và chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã làm: Diễn
+tập cảnh báo local cho W-0042. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: OTLP, Alertmanager, staging ngoài. Mọi giới hạn trong cột
+Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test,
+sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

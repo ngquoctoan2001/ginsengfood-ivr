@@ -60,3 +60,13 @@ Lỗi MSBuild sau thời điểm dừng là do huỷ cây tiến trình đó; kh
 Phần sửa C2 đã xong. Danh sách ghim candidate trên; commit tài liệu sau không được gán lại test.
 Giữ nguyên trạng thái 13 việc đã rà và các gói cũ. Toàn quyết định ACCEPTED.
 Bước tiếp thực thi phần local E2E W-0207; M3, staging và quyền gọi khách vẫn chưa được xác nhận.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0328 thuộc nhóm A6 và chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã làm: C2 đọc
+TestId viết tắt. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: xong. Mọi giới hạn trong cột Residual của tracker giữ nguyên.
+Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài
+liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

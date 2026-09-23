@@ -63,3 +63,13 @@ mặc định sai, không phải vá một lỗ đang chảy.
 `DR-12` — nội dung lời thoại đọc cho khách chạm quyền riêng tư của khách hàng — vẫn cần **một lần xác
 nhận rủi ro ở cấp công ty**, chung cụm với `OD-V1-11`. Lượt này không thay cho chữ ký đó; nó chỉ làm
 cho việc thiếu chữ ký không còn im lặng bật sẵn.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0299 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Trả cờ duyệt
+field Target V1 về NO. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: xác nhận rủi ro cấp công ty (OD-V1-11). Mọi giới hạn trong cột
+Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test,
+sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

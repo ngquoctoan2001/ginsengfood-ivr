@@ -13,3 +13,14 @@ GitNexus: constant LOW/0 caller; `driveCapacityCase` LOW, 1 caller `checkEndToEn
 [Image lần đầu](image-first-run.log): build, health, Compose, image scan và SBOM đạt; E2E đỏ tại assertion mới yêu cầu toàn bảng incident rỗng. Assertion task pause trước đó (zero attempt, WINDOW_EXPIRED/CLOSED_WINDOW_EXPIRED, capacity link null) đã đạt. Đọc DB trong lượt hai xác nhận bảng dùng chung chứa một sự kiện `ADMIN_QUEUE_PAUSE`, đúng audit của thao tác quản trị, không phải shortage. Sửa phép đếm về đúng task qua cả link và session scheduler; giữ sự kiện audit. [Lượt chạy lại](image-e2e-rerun.log): `node deploy/ci/scripts/image-selftest.mjs --skip-scan` đạt **8 task E2E**, build/health/Compose cùng đạt, exit 0. Scan/SBOM lấy từ lượt đầu trên cùng image; đây là kết quả tổng hợp hai lượt, chưa phải full hosted pass.
 
 Scan/SBOM local phủ **2 image API/worker**, 31/97 thành phần. Dòng log cũ ghi cứng "three" đã được sửa thành độ dài danh sách thực tế; log trước sửa được giữ nguyên. Migration image thuộc scan của job publish, chưa có kết quả mới. `ci-config-selftest.mjs` PASS. Security dependency scan phát hiện js-yaml HIGH, sẽ xử lý bằng task tiếp theo; hosted proof chưa chạy. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0290 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Chốt pause và
+kiểm chứng image E2E. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: chữ ký M3; lab, production, cuộc gọi thật chưa mở. Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

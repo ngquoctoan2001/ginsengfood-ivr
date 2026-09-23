@@ -87,3 +87,13 @@ Module 8 Owner/chief auditor cung cấp routing thật cho ít nhất D-01: reci
 authority source, approved channel/destination, due time, dispatch authorizer và receipt
 system-of-record. Chạy W-0164, recheck exact hash, dispatch trong kênh đã được cấp quyền, rồi mới
 nhận W-0165 response và W-0170 authority closure.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0186 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Khôi phục chuỗi
+provenance C5. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: 0/5 phiếu đã gửi. Mọi giới hạn trong cột Residual của tracker
+giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không
+coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

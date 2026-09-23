@@ -105,3 +105,14 @@ Build: 0 warnings.
 > **Superseded 2026-08-22 — `OD-V1-20` approved.** `IVR_FLAG_READ` and `IVR_RUNTIME_GATE_ADMIN` are now granted to the `Admin` role. The statement above records the state at this evidence pack's baseline and is left unchanged; current state lives in `plan/ivr-orther/decisions-log.md` and `specs/ui/08-role-permission-ui.md` §2.
 
 - Hosted GitLab pipeline evidence: `NOT_RUN`.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0096 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: API đọc
+back-office. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: dependency chưa thăm dò nên ghi NOT_WIRED; quyền thuộc
+Permission Core. Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt
+collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt
+test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

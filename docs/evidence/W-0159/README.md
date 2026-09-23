@@ -123,3 +123,13 @@ với sequence/latest-selection, previous checkpoint hash, atomic CAS, custody v
 vẫn `EXTERNAL_SIGNATURES_REQUIRED / CODE_NOT_AUTHORIZED`; chỉ code adapter sau khi
 Platform/Security/M8 ký exact hash và giao provider/sandbox/drill evidence. Chưa freeze/calibrate
 trước 4/4 external submission.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0159 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Checkpoint
+ledger-head B1. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: trust store ngoài. Mọi giới hạn trong cột Residual của tracker
+giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không
+coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

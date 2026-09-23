@@ -158,3 +158,13 @@ CAPACITY_DATA_INTAKE_SELFTEST_PASS valid=1 mode_guard=2 template_guard=1 refusal
 Module 8 Owner gửi D-06 kèm thư mục template. Khi nhận từng bundle, lưu ngoài repo/secret-safe
 channel, chạy validator, ghi exact output/hash và chỉ đưa bundle qua intake ledger nếu cả 4/4 nhóm
 PASS. Sau đó mới freeze input snapshot và mở calibration review.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0155 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Validator bốn
+bản nộp B1. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: 0/4 bản nộp từ bên ngoài. Mọi giới hạn trong cột Residual của
+tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43),
+không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

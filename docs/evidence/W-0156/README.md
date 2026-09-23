@@ -108,3 +108,13 @@ CLI receipt path cũng được chạy với pending template và trả exit `1`
 Khi external bundle đầu tiên đến, chạy validator với `--receipt-out` tới một filename mới, recompute
 receipt SHA-256 độc lập, ghi receipt/hash vào intake ledger và giữ raw bundle ở approved secure
 channel. Chỉ khi đủ 4/4 group PASS mới freeze calibration input.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0156 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Receipt kiểm
+chứng B1 an toàn PII. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: chưa có receipt ngoài. Mọi giới hạn trong cột Residual của
+tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43),
+không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

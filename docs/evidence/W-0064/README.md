@@ -54,3 +54,14 @@ ghi mode cấu hình thực cùng environment kiểm thử, thay vì nhãn hư c
 - Hosted pipeline/MR review: không dùng để nâng verdict của work này; thực hiện riêng theo platform workflow.
 - Lab SIM, Sales API, telephony, production: `NOT_RUN`, không cần cho retention engine local và không được suy ra từ test DB.
 - `REAL_CUSTOMER_CALL_ALLOWED=NO` không thay đổi.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0064 thuộc nhóm A1 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: P1-5: job
+retention và vòng đời dữ liệu. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: thời hạn lưu production chờ owner quyết (DF-07, OD-V1-11). Mọi
+giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

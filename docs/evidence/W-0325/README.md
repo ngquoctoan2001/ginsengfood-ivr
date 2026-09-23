@@ -72,3 +72,13 @@ Bundle local: `.artifacts/w0325-acceptance-b6bd852/acceptance-run.json`.
 Hash SHA-256 bundle (ghép nhóm): `d5546cdd-ca67def0-90b927c1-48f9fe2b-a353776c-b9d6b3ca-5bdb0218-7d903046`.
 Đã đối chiếu mọi verdict với CLI gốc. Commit báo cáo sau lượt chạy chỉ ghi kết quả;
 không gắn kết quả b6bd852 cho một commit khác. WIP VieNeu/lab được giữ riêng.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0325 thuộc nhóm A6 và chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã làm: Chỉ dấu
+C1 và phân loại hồ sơ. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: xong. Mọi giới hạn trong cột Residual của tracker giữ nguyên.
+Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài
+liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

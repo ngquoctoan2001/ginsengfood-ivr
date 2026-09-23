@@ -107,3 +107,13 @@ không multi-AZ, không mã hoá volume at-rest, không KMS. Toàn đọc Residu
 | Chưa khai báo phép kiểm | W-0016 |
 
 Chỉ Toàn chuyển một mục sang `ACCEPTED`, sau khi đọc bằng chứng và Residual.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0346 thuộc nhóm A6 và chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã làm: C2 nhận
+assertion của gate. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: xong. Mọi giới hạn trong cột Residual của tracker giữ nguyên.
+Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài
+liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

@@ -54,3 +54,14 @@ API, worker và fake receiver của lượt chạy đã được harness dừng.
   riêng cho M8_OWNER/M3_OWNER/SECURITY/PLATFORM/RELEASE_OWNER, verifier tách signer. Nếu nhóm không
   đáp ứng mô hình này thì cần quyết định đổi quy tắc; không nhân tên hoặc tự ký.
 - Template kiểm lại ra **SHARED_E2E_TEMPLATE_VALID_NOT_READY**. Không có shared E2E/go-live mới.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0332 thuộc nhóm A6 và chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã làm: E2E
+local cho W-0207. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: W-0207 đã ACCEPTED; phần thật chờ M3 và credential. Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

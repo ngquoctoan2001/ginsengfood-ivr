@@ -74,3 +74,14 @@ Integration vẫn chạy Postgres thật qua Testcontainers — không in-memory
 - **Coverage không phải chất lượng.** 87.96% nói dòng nào được chạy qua, không nói assertion có đúng không. Giá trị thật nằm ở fail-gate và ở việc không test cũ nào bị nới.
 - **Traceability là test↔source, chưa phải test↔spec đầy đủ.** Bảng map `TestId` sang file và method; ánh xạ ngược tới từng mục `specs/testing/02`/`03` vẫn cần một vòng đọc spec — đó là việc `P5-2`/`P5-4` sẽ chạm.
 - **`TESTS_PASS` là trần.** Chỉ reviewer/owner chuyển `ACCEPTED`.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0035 thuộc nhóm A1 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: P5-1: bộ test
+unit, integration, Testcontainers. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: ánh xạ tới từng mục specs/testing thuộc P5-2 và P5-4. Mọi giới
+hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

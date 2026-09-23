@@ -70,3 +70,14 @@ gọi khách thật, không ghi `ACCEPTED` hoặc `production-ready`.
 
 **Tôi — Module 8 / Project Owner** ký semantics DT-04 và handoff phần local ngày `2026-08-29`.
 Chữ ký này không thay vendor, Security, Platform, Procurement hoặc Release approval.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0144 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: DT-04: cửa sổ
+lỗi và preflight adapter production. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: adapter production chờ vendor, Security, Vault/KMS. Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

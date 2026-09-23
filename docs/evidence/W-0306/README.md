@@ -245,3 +245,14 @@ hơn thực tế `4` lần làm phạm vi kiểm tra nghe rộng hơn nó thật
 | `image-selftest` cố định cổng `55433`/`58080` | là nợ riêng: nó làm gate không chạy được song song với một stack dev đang bật. Không sửa trong lượt này vì ngoài phạm vi `4` mục, nhưng đáng một Work ID |
 | Trần kênh là **ba con số ở ba nơi**, không gate nào so | phát hiện của phiên PD-03; cần owner quyết |
 | Kênh non-`MOCK` không enable lại được qua API | như trên — endpoint thuộc `AdminPolicies.Danger` |
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0306 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Lô vận hành 4
+mục từ smoke 16/09. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: nợ cổng image-selftest (cố định cổng) đã ghi riêng. Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

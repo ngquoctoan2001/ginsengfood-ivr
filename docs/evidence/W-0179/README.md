@@ -108,3 +108,13 @@ W0179_C9_SELFTEST_PASS valid=1 refusals=6 authorities=5 decisions=11
 [W-0187](../W-0187/README.md) đóng thêm khoảng trống structure: W-0179 vẫn là provenance/quorum
 guard, còn W-0187 kiểm nội dung production bundle và independent pins trước implementation review.
 Hai lớp đều local/synthetic; không thay chữ ký, dispatch receipt, CRM contract hoặc shared E2E thật.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0179 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Self-test luồng
+đóng S-06 (opt-out). Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: quyết định ngoài chưa nhận. Mọi giới hạn trong cột Residual của
+tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43),
+không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

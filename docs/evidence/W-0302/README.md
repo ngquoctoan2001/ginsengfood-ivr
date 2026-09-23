@@ -94,3 +94,13 @@ Nay `--check` trả `695` và test khớp, vì test của phiên kia đã vào `
 
 Chốt `DTK-02`/`DTK-06` với Module 3 vẫn chờ phần đơn hàng bên đó. Nửa lỗi `500` thì không chờ ai, và
 đã xong.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0302 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Token hết hạn
+muộn hơn cửa sổ trả 422; draft.28. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: DTK-02, DTK-06 chờ phần đơn hàng của M3. Mọi giới hạn trong cột
+Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test,
+sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

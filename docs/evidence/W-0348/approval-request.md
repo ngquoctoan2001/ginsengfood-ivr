@@ -2,6 +2,8 @@
 
 REAL_CUSTOMER_CALL_ALLOWED=NO
 
+**Owner đã duyệt nhóm A và B ngày 23/09/2026, theo phiếu tại `7fc9806`. Quyết định: ACCEPTED trong phạm vi đã trình. Nhóm C chưa trình.**
+
 Toàn yêu cầu gom các việc duyệt nhanh để duyệt một lần. Phiếu này lấy 84 mục đang ở XEM trong
 [danh sách nghiệm thu](../../release/acceptance-batches.md) tại candidate `ca4f442`, đọc đủ cột
 Residual của từng mục trong tracker, rồi chia ba nhóm.

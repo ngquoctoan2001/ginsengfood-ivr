@@ -102,3 +102,15 @@ Khi `W-0008` có số đo: đặt model/runtime bằng occupancy đo được, �
 `occupancy + cooldown`, và **dẫn lại `35`** — nó là con số của spec, không phải của model. Lưu ý
 luật hiện hành dùng `+5` trong khi cặp lịch sử của spec dùng `+15`, nên `50` sẽ đổi; đó là hệ quả đã
 biết, không phải drift.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0212 thuộc nhóm B và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Con số thứ tư
+của họ call-duration. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: chưa hiệu chỉnh (W-0008). Điều kiện: mô hình được nhận như một
+khung tính chưa hiệu chỉnh; không dùng số của nó để mua kênh cho tới khi có số đo cuộc gọi thật
+(W-0008). Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector
+tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

@@ -175,3 +175,14 @@ migration, seed nạp `10` fixture và `28` ví dụ đã chạy qua HTTP.
 | `retention-period-proposal.md` vẫn ghi *"chờ pháp chế điền số"* — cũ từ `S3` | Lô 3 mục `1` |
 | Gate `compliance-pack-selftest.mjs` vẫn kiểm **ba** giới hạn trong DB; giới hạn thứ tư (`customer_id`) được giữ ở mức code bằng `COMP-PII-02`, và đã ghi ở runbook lẫn bộ hồ sơ pháp lý | Để nguyên — ghi để biết |
 | `eligibility_snapshot_json` lưu nguyên văn, có thể mang object `trust` legacy (`OD-15`). Các trường khai trong đó nói về bộ phân giải (`risk_evidence_available`, `resolver_*`), không định danh ai; xoá không chạm cột này | Ghi để biết |
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0314 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Luồng xoá dữ
+liệu phủ phone_e164. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: DSAR đã nghiệm thu ở W-0052 và W-0330; thời hạn lưu chờ pháp
+chế. Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

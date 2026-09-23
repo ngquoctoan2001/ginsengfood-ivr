@@ -88,3 +88,14 @@ Không có giá trị nào kế thừa từ tài liệu cũ. Nguồn của từn
 Commit stage đúng **năm** path bằng `git commit -- <paths>` (runbook, gói bằng chứng, tracker, `gate-status.yaml`, `readiness-board.md` — hai file cuối do `gate-status.mjs --write` sinh từ tracker nên phải đi cùng), **không** `git add -A`: 12 file khôi phục của `ivr-9f` đang nằm sẵn trong index, và một lần `git commit` không giới hạn path sẽ cuốn hết chúng vào lượt này — đúng cái `A-0625` đã gặp.
 
 `gate-status.yaml` đi cùng commit với dòng tracker. `ivr-9f` đính chính lý do họ đưa ra trước đó: không chỉ con trỏ evidence, mà `gate-status.mjs` còn đọc gate row và open decision từ chính sổ này, nên **bất kỳ dòng nào** trong tracker cũng làm yaml dịch chuyển.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0305 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Sổ tay vận hành
+luồng quay số production. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: giá trị nhà mạng cần hợp đồng; bật lại kênh một chiều là quyết
+định của owner. Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt
+collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt
+test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

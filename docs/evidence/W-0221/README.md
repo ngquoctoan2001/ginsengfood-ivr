@@ -92,3 +92,13 @@ docs-selftest.mjs                       API_DOCS_SELFTEST_PASS
 - **Lượt phát hành OpenAPI**, gộp với `2.1` (TTL). Xem §4.
 - IR-06 `§3.1.1` đã ghi quyết định. Với M3 thì **API A không đổi gì** — `1-128` và bảng chữ cái vốn
   đã là luật của route intake; chỉ route admin/internal đổi, tức phần BFF M3 sẽ gọi sau này.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0221 thuộc nhóm A4 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Siết
+Idempotency-Key admin theo intake. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: OpenAPI hiện hành đã khai ràng buộc. Mọi giới hạn trong cột
+Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test,
+sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

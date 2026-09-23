@@ -218,3 +218,14 @@ chỗ đếm trước khi thêm**, vì script dev và tài liệu không có tes
 | 1 | `pii_scan` trên GitLab (`allow_failure: false`) quét `docs/evidence`: **`41` dòng** ở **`13`** README `W-0297`…`W-0311` khớp mẫu. Tất cả là **báo nhầm** — `39` dòng chứa một từ tiếng Việt thông dụng trùng mẫu *tên phố*, `2` dòng trùng mẫu *đơn vị hành chính*; không có số điện thoại hay token nào. Quét lại cây theo commit: `257cbef^` **`0`** · `257cbef` **`1`** · `fe3bb19` **`41`**. Gate sweep cục bộ chỉ chạy `selftest-pii.sh`, nên `39/39` không thấy | 🔴 job CI này đỏ ở mọi commit từ `257cbef` | Lô 3: đổi từ trong `13` README, **không** nới mẫu. README này tự quét: `0` dòng |
 | 2 | `IR-06 §3.4.1` vẫn ghi intake chỉ chặn token hết hạn **sớm**, chiều **muộn** *"hỏng ở persistence"* — trái với `W-0302` và với chính dòng `1311` của `IR-06` | 🟡 tài liệu cho M3 | Lô 3, kèm re-pin `IR-06` |
 | 3 | `IR-07` `A-9` *"metadata giữ 90 ngày"* lệch với quyết định `S3` | 🟡 | Đính chính sau khi chốt cách hiểu `S3` |
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0312 thuộc nhóm A2 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: draft.31: M3
+gửi số là nhận được. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: owner gửi changelog; stage bắt buộc số chờ M3. Mọi giới hạn
+trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442`
+(1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.

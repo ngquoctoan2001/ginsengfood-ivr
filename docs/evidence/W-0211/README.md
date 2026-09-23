@@ -95,3 +95,13 @@ Không thêm/xoá test nên traceability giữ `553`. Không sửa runtime, khô
 ## 6. Còn lại
 
 Không có. Mục 0.4 đóng.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0211 thuộc nhóm A4 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Ba câu tài liệu
+sai về hệ thống. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: đã đóng hẳn. Mọi giới hạn trong cột Residual của tracker giữ
+nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi
+commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

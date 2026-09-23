@@ -82,3 +82,15 @@ Mỗi mutation bị chặn ở một lớp khác nhau, `exit=1` cả ba. Đã re
   profile. Không có nó thì hướng 1 under-size đơn mua 8 lần.
 - `NOT_CALIBRATED` — chu kỳ cuộc gọi vẫn chờ `W-0008`.
 - W-0134 **không** đóng `OD-19`. Nó chỉ làm cho việc đóng sai trở nên khó.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0134 thuộc nhóm B và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Độ dài phiên là
+input mở. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: M8-OD-C, OD-19 và arrival profile chờ owner. Điều kiện: mô hình
+được nhận như một khung tính chưa hiệu chỉnh; không dùng số của nó để mua kênh cho tới khi có số đo
+cuộc gọi thật (W-0008). Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng
+lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt
+test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

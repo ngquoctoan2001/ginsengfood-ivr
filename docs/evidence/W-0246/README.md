@@ -100,3 +100,13 @@ Không sửa code runtime. `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
 Và việc của tôi: đọc lại `2.2`–`2.6` dưới ánh sáng *"Security/Product là owner"* — `2.1` vừa cho
 thấy một mục có thể nhỏ hơn nhiều so với cách nó tự mô tả.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0246 thuộc nhóm A4 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Owner ký TTL
+bằng mép cửa sổ. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: không còn gì. Mọi giới hạn trong cột Residual của tracker giữ
+nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi
+commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

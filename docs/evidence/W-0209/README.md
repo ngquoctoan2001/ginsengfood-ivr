@@ -99,3 +99,13 @@ docs-selftest.mjs                       API_DOCS_SELFTEST_PASS
 2. **Re-pin OpenAPI** cùng lượt với `W-0208`: `CorrelationId` lấy đúng schema của
    `GeneratedCorrelationId`; `IdempotencyKey` theo kết quả bước 1.
 3. Nếu `raw_event_id` đổi định dạng, con số `50` ở `§4.1` phải đổi theo.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0209 thuộc nhóm A4 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Ràng buộc
+header lệch tài liệu và runtime. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: OpenAPI hiện hành đã khai ràng buộc. Mọi giới hạn trong cột
+Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test,
+sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

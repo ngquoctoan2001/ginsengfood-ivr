@@ -104,3 +104,13 @@ B5+C12 vẫn `CODE_NOT_AUTHORIZED`: M3/Security/Platform/Telephony/Product/Legal
 **Bước tiếp theo:** hoàn tất W-0183 decision-bundle validator; khi có bundle thật và routing D-02,
 chạy W-0164 → dispatch/receipt → W-0165 → independent authority attestation → W-0170 cho `S-08`.
 Chỉ sau closure hợp lệ mới mở Work ID riêng để impact-analyze production implementation.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0184 thuộc nhóm A3 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Self-test luồng
+đóng S-08 (contact, dial-token). Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: quyết định ngoài chưa nhận. Mọi giới hạn trong cột Residual của
+tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43),
+không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

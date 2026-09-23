@@ -53,3 +53,13 @@ HISTORICAL_EVIDENCE_PRESERVED / B1_EXTERNAL_INTAKE_DEFERRED_BY_OWNER`**
 
 Mở Work ID riêng để freeze candidate gồm W-0189, chạy clean-checkout full offline suite, UI/LF và
 security wrapper trên đúng SHA. Hosted CI và external owner evidence vẫn là gate độc lập.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0189 thuộc nhóm A5 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: Dọn lệch tài
+liệu và code. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: các phần lớn hơn là việc riêng. Mọi giới hạn trong cột Residual
+của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep
+43/43), không coi commit tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

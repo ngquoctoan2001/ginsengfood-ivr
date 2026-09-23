@@ -118,3 +118,14 @@ ladder **phụ thuộc vào pod nào trả lời request**.
   chỉ chặn chiều ngược lại (schema mới phá code cũ).
 - **`ivr-admin-ui` không có progressive delivery** — cố ý, vì nó đọc-thuần; ghi ra để không ai đọc
   nhầm là thiếu sót.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị “chấp nhận nhóm A và B” theo [phiếu W-0348](../W-0348/approval-request.md) tại
+`7fc9806`. W-0046 thuộc nhóm A1 và chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm: P7-4: canary,
+rollback, ramp cờ (as-code). Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: canary và rollback chưa chạy: Argo Rollouts, Prometheus thuộc
+W-0063. Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector
+tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit tài liệu là một lượt test/sweep mới.
+REAL_CUSTOMER_CALL_ALLOWED=NO.
