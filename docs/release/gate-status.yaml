@@ -1446,7 +1446,7 @@ work:
     evidence: "docs/evidence/W-0345/README.md"
   - id: "W-0346"
     prompt: "C2 nhận assertion của gate trong full sweep (Origin=UNPLANNED, owner yêu cầu tiếp tục)"
-    status: "IN_PROGRESS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0346/README.md"
 
 production_flag:
