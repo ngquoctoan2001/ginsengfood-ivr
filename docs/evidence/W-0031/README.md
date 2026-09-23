@@ -116,3 +116,11 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Đối chiếu test lịch sử — W-0347, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Ba test trust-skip ở mục 4 bị xoá ở `6760ba6`, khi quyết định OD-18 chuyển việc gọi hay không gọi
+sang Module 3. Xem [đối chiếu với test thay thế](acceptance-addendum.md) và
+[khai báo C2 có ghim quyết định](acceptance-tests.json). Kết quả và phạm vi lịch sử ở trên giữ nguyên.

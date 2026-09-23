@@ -120,3 +120,22 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Viết lại IT-DB-LEASE-05 — W-0347, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Test gốc của `IT-DB-LEASE-05` bị xoá ở `fb1eb4c` (14/08), cùng `SimChannelLeaseRepository`, khi lease
+kênh chuyển vào scheduler. `IT-SCH-CLAIM-01` và `IT-SCH-RECOVERY-02` giữ được hai trong ba tính
+chất; không test nào còn kiểm release bằng lease cũ. Test mới cùng TestId nằm trong
+`tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs`
+(`OneChannelIsLeasedOnceAStaleLeaseCannotReleaseItAndTheFenceOnlyRises`) và chạy trên Postgres thật:
+
+- hai worker tranh một kênh, chỉ một lease;
+- lease đúng kênh, đúng job nhưng sai token bị từ chối, và kênh vẫn thuộc người giữ;
+- release một lần làm fence tăng;
+- release lại bằng lease cũ bị từ chối;
+- lease kế tiếp có fence cao hơn.
+
+Khi tạm bỏ phép so token trong `EnsureCurrentLease`, test đỏ ("No exception was thrown"). Khôi phục
+thì xanh. Kết quả lịch sử ở trên giữ nguyên.

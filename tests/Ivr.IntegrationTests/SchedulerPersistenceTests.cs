@@ -4,6 +4,7 @@ using System.Text.Json;
 using Ivr.Api.Application;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
+using Ivr.Domain.Ports;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Observability;
@@ -11,10 +12,12 @@ using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Telephony;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace Ivr.IntegrationTests;
@@ -159,6 +162,92 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         Assert.Equal("IDLE", recoveredChannel.Status);
         Assert.Null(recoveredChannel.QuarantineUntil);
         Assert.Null(recoveredChannel.DisabledReason);
+    }
+
+    /// <summary>
+    /// W-0015 / P1-2 named IT-DB-LEASE-05: concurrent channel acquire leases once, a stale release
+    /// is rejected, and the fencing generation increases.
+    /// <para>
+    /// Its original test went with <c>SimChannelLeaseRepository</c> in fb1eb4c, when channel
+    /// leasing moved into the scheduler. IT-SCH-CLAIM-01 and IT-SCH-RECOVERY-02 kept the first and
+    /// last halves; nothing kept the middle one. This holds all three on the path that leases a
+    /// channel now: the scheduler claims it and the telephony store releases it.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-DB-LEASE-05")]
+    public async Task OneChannelIsLeasedOnceAStaleLeaseCannotReleaseItAndTheFenceOnlyRises()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(factory, "TASK-DB-LEASE-05A", "JOB-DB-LEASE-05A", Now);
+        await SeedReadyJobAsync(factory, "TASK-DB-LEASE-05B", "JOB-DB-LEASE-05B", Now);
+        await SeedChannelAsync(factory, "SIM-LAB-LEASE-05");
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        var telephony = new PostgresTelephonyDispatchStore(
+            factory,
+            SpeechSummaryLimits.Create(100, 100),
+            Options.Create(new SchedulerOptions()),
+            new FixedTimeProvider(Now));
+
+        // Two jobs are due and there is one channel, so two racing workers share one lease.
+        SchedulerDispatchLease?[] raced = await Task.WhenAll(
+            scheduler.TryClaimDueDispatchAsync(
+                "worker-a",
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromMinutes(2)),
+            scheduler.TryClaimDueDispatchAsync(
+                "worker-b",
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        SchedulerDispatchLease held = Assert.Single(raced.OfType<SchedulerDispatchLease>());
+        SimChannelEntity leased = await ChannelAsync(factory);
+        Assert.Equal("RESERVED", leased.Status);
+        Assert.Equal(held.LeaseToken, leased.LeaseToken);
+        Assert.Equal(held.FencingGeneration, leased.LeaseFencingGeneration);
+
+        // Right channel, right job, wrong token: refused, and the holder keeps the channel.
+        await Assert.ThrowsAsync<InvalidOperationException>(() => ReleaseAsync(
+            telephony,
+            held with { LeaseToken = Guid.NewGuid() }));
+        SimChannelEntity stillHeld = await ChannelAsync(factory);
+        Assert.Equal(held.LeaseToken, stillHeld.LeaseToken);
+        Assert.Equal(held.FencingGeneration, stillHeld.LeaseFencingGeneration);
+
+        await ReleaseAsync(telephony, held);
+        SimChannelEntity released = await ChannelAsync(factory);
+        Assert.Equal("IDLE", released.Status);
+        Assert.Null(released.LeaseToken);
+        Assert.Null(released.ActiveCallJobId);
+        Assert.True(released.LeaseFencingGeneration > held.FencingGeneration);
+
+        // The same lease a second time is now stale. A late worker cannot release a channel twice.
+        await Assert.ThrowsAsync<InvalidOperationException>(() => ReleaseAsync(telephony, held));
+        Assert.Equal(released.LeaseFencingGeneration, (await ChannelAsync(factory)).LeaseFencingGeneration);
+
+        SchedulerDispatchLease next = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-c",
+                IvrOptions.LabRealSimExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        Assert.Equal(held.SimChannelId, next.SimChannelId);
+        Assert.NotEqual(held.JobId, next.JobId);
+        Assert.True(next.FencingGeneration > released.LeaseFencingGeneration);
+
+        static Task ReleaseAsync(PostgresTelephonyDispatchStore store, SchedulerDispatchLease lease) =>
+            store.FailAsync(
+                lease,
+                session: null,
+                SimProviderDisposition.NetworkError,
+                "NETWORK_ERROR",
+                channelHealthy: true,
+                TimeSpan.Zero);
+
+        static async Task<SimChannelEntity> ChannelAsync(IDbContextFactory<IvrDbContext> factory)
+        {
+            await using IvrDbContext context = await factory.CreateDbContextAsync();
+            return await context.SimChannels.AsNoTracking().SingleAsync();
+        }
     }
 
     [Fact]

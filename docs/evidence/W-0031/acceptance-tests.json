@@ -1,0 +1,53 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0031",
+  "scope": "software",
+  "requiredTestIds": [],
+  "retirements": [
+    {
+      "testId": "IT-ELIG-TRUST-14",
+      "reason": "OD-18 bỏ trust-skip phía IVR và giao quyết định gọi cho M3. Không còn cổng owner nào để mở, nên điều cần giữ không còn là 'đủ bằng chứng vẫn không skip khi cổng đóng' mà là 'metadata trust không tạo được quyết định hay job skip'.",
+      "decision": {
+        "commit": "6760ba614e47e1631384640209cc4acee944a8cf",
+        "path": "docs/evidence/W-0123/README.md",
+        "sha256": "7cd43cc218cb8cea473c680dd198c12f78a6765fadad8a104e2e4aaabd1c496a",
+        "quote": "Module 3 quyết định nghiệp vụ; IVR chỉ thực thi cuộc gọi."
+      },
+      "replacementTestIds": [
+        "IT-M3-AUTHORITY-05",
+        "IT-M3-AUTHORITY-06"
+      ]
+    },
+    {
+      "testId": "UT-ELIG-TRUST-16",
+      "reason": "OD-18 bỏ TrustResolverEvidence.CanSkip. IVR không còn điều kiện skip nào để bỏ từng phần; điều cần giữ là trust và risk metadata không đổi được quyết định của M3, và bộ quyết định không có skip nghiệp vụ.",
+      "decision": {
+        "commit": "6760ba614e47e1631384640209cc4acee944a8cf",
+        "path": "docs/evidence/W-0123/README.md",
+        "sha256": "7cd43cc218cb8cea473c680dd198c12f78a6765fadad8a104e2e4aaabd1c496a",
+        "quote": "Module 3 quyết định nghiệp vụ; IVR chỉ thực thi cuộc gọi."
+      },
+      "replacementTestIds": [
+        "UT-M3-AUTHORITY-01",
+        "UT-M3-AUTHORITY-02",
+        "UT-M3-AUTHORITY-10",
+        "IT-M3-AUTHORITY-07"
+      ]
+    },
+    {
+      "testId": "UT-ELIG-TRUST-17",
+      "reason": "Test hai chiều: chiều trust-skip đã bị OD-18 bỏ, chiều voice (thiếu bằng chứng thì chặn) vẫn giữ và có test riêng. Luồng quyết định trước khi gọi không còn đọc được trust hay risk metadata.",
+      "decision": {
+        "commit": "6760ba614e47e1631384640209cc4acee944a8cf",
+        "path": "docs/evidence/W-0123/README.md",
+        "sha256": "7cd43cc218cb8cea473c680dd198c12f78a6765fadad8a104e2e4aaabd1c496a",
+        "quote": "Module 3 quyết định nghiệp vụ; IVR chỉ thực thi cuộc gọi."
+      },
+      "replacementTestIds": [
+        "UT-ELIG-VOICE-15",
+        "UT-M3-AUTHORITY-10",
+        "UT-M3-AUTHORITY-11"
+      ]
+    }
+  ]
+}

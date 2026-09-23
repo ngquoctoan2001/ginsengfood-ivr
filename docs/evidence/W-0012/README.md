@@ -145,3 +145,11 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Đối chiếu test lịch sử — W-0347, 23/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Hai test RBAC ở bảng trên bị xoá ở `3e36b46`, khi W-0128 bỏ tài khoản console và mock permission
+provider theo lệnh của owner. Xem [đối chiếu với test thay thế](acceptance-addendum.md) và
+[khai báo C2 có ghim quyết định](acceptance-tests.json). Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -1,0 +1,35 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0012",
+  "scope": "software",
+  "requiredTestIds": [],
+  "retirements": [
+    {
+      "testId": "UT-FND-RBAC-03",
+      "reason": "W-0128 bỏ tài khoản console và mock permission provider; Module 3 giữ danh tính operator và gọi IVR bằng token theo tầng. Điều cần giữ vẫn là thiếu quyền thì 403 IVR_FORBIDDEN_CALLER, đủ quyền thì qua, nay kiểm trên credential theo tầng.",
+      "decision": {
+        "commit": "a09f0627015f7f286a84564a4b9cca66552232f6",
+        "path": "docs/api-changelog.md",
+        "sha256": "5579ed1c533ad777e578b510239fde8fd22c8a4cc9fa14a1fd97369f7b80b19c",
+        "quote": "Module 3 owns the operator console and reaches this service as a peer"
+      },
+      "replacementTestIds": [
+        "IT-API-AUTHZ-01",
+        "IT-API-AUTHZ-02"
+      ]
+    },
+    {
+      "testId": "UT-FND-RBAC-08",
+      "reason": "W-0128 xoá hẳn mock permission provider, nên không còn gì để đăng ký ở chế độ nào. Điều cần giữ mạnh hơn: header X-Permissions tự khai quyền bị từ chối 401 ở mọi chế độ và không gây tác dụng phụ.",
+      "decision": {
+        "commit": "a09f0627015f7f286a84564a4b9cca66552232f6",
+        "path": "docs/api-changelog.md",
+        "sha256": "5579ed1c533ad777e578b510239fde8fd22c8a4cc9fa14a1fd97369f7b80b19c",
+        "quote": "Module 3 owns the operator console and reaches this service as a peer"
+      },
+      "replacementTestIds": [
+        "IT-DEV-AUTHZ-08"
+      ]
+    }
+  ]
+}
