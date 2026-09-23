@@ -51,3 +51,10 @@ Nguyên tắc chung:
   lâu, hay dời sang staging).
 
 Chỉ Toàn chuyển các việc này sang `ACCEPTED`.
+
+## Owner duyệt — 23/09/2026
+
+Toàn chỉ thị “chấp nhận W-0012, W-0015, W-0031”. Ba việc này được ghi **ACCEPTED** theo đúng phạm vi
+đã trình ở bảng trên, và mỗi gói bằng chứng có mục ghi nhận riêng. Trước đó, câu Residual cũ của
+W-0031 đã được sửa theo OD-18. W-0036 và W-0037 vẫn chờ quyết định ở mục trên; W-0347 giữ
+`EVIDENCE_SUBMITTED`. REAL_CUSTOMER_CALL_ALLOWED=NO.

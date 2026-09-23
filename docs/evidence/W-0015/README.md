@@ -139,3 +139,16 @@ chất; không test nào còn kiểm release bằng lease cũ. Test mới cùng 
 
 Khi tạm bỏ phép so token trong `EnsureCurrentLease`, test đỏ ("No exception was thrown"). Khôi phục
 thì xanh. Kết quả lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị: “chấp nhận W-0012, W-0015, W-0031”, sau khi đọc giải thích của
+[W-0347](../W-0347/README.md). Theo quyết định này, W-0015 chuyển **TESTS_PASS → ACCEPTED** cho
+phạm vi local của P1-2: model và migration EF có Up/Down, Postgres qua Testcontainers, persistence
+của P0-4, outbox, lease kênh và fencing. Test lease kênh viết lại ở mục trên kiểm cả vế release
+bằng lease cũ bị từ chối. Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: DF-07/KMS, backup staging và production, independent approval
+của W-0061, mọi tích hợp Sales, SIM và cuộc gọi thật.
+Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit
+tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

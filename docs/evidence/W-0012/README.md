@@ -153,3 +153,16 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Hai test RBAC ở bảng trên bị xoá ở `3e36b46`, khi W-0128 bỏ tài khoản console và mock permission
 provider theo lệnh của owner. Xem [đối chiếu với test thay thế](acceptance-addendum.md) và
 [khai báo C2 có ghim quyết định](acceptance-tests.json). Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị: “chấp nhận W-0012, W-0015, W-0031”, sau khi đọc giải thích của
+[W-0347](../W-0347/README.md). Theo quyết định này, W-0012 chuyển **TESTS_PASS → ACCEPTED** cho
+phạm vi local của P0-3: config, audit, idempotency, correlation, và auth bằng credential theo tầng
+sau W-0128. Hai test RBAC lịch sử được retire có ghim quyết định, xem [đối chiếu](acceptance-addendum.md).
+Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: auth production thuộc P4-4 và profile thật vẫn chờ W-0006;
+independent approval của W-0061; mọi tích hợp Sales, SIM và cuộc gọi thật.
+Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit
+tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.

@@ -128,3 +128,16 @@ sang Module 3. Xem [đối chiếu với test thay thế](acceptance-addendum.md
 Commit đó cũng xoá luôn code trust-skip: `src/` không còn `TrustResolverEvidence` hay `CanSkip`. Vì thế câu
 "trust skip vẫn tắt, bật là quyết định owner" ở mục 3 không còn đúng: không còn gì để bật, M3 quyết định
 gọi hay không. Ô Residual của W-0031 trong tracker đã sửa theo, Toàn duyệt ngày 23/09/2026.
+
+## Owner nghiệm thu — 23/09/2026
+
+Toàn chỉ thị: “chấp nhận W-0012, W-0015, W-0031”, sau khi đọc giải thích của
+[W-0347](../W-0347/README.md) và lượt sửa câu Residual ở mục trên. Theo quyết định này, W-0031
+chuyển **TESTS_PASS → ACCEPTED** cho phạm vi MOCK của P4-3: bằng chứng hạn chế gọi voice đóng về
+phía chặn, và trust-skip đã bỏ theo OD-18. Ba test trust lịch sử được retire có ghim quyết định,
+xem [đối chiếu](acceptance-addendum.md). Claude ghi nhận quyết định của owner, không tự cấp phê duyệt.
+
+Còn mở, không thuộc nghiệm thu này: shape voice trong snapshot là đề xuất IVR và OD-V1-03 vẫn chờ
+M3; sandbox thật chưa chạy; notification no-op do P4-5 chứng minh riêng.
+Bằng chứng giữ đúng lượt collector tại `ca4f442` (1200/1200 test, sweep 43/43), không coi commit
+tài liệu là một lượt test/sweep mới. REAL_CUSTOMER_CALL_ALLOWED=NO.
