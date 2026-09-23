@@ -1,0 +1,15 @@
+{
+  "work_id": "W-0345",
+  "revision": "r4",
+  "evidence_dir": "docs/evidence/W-0345",
+  "supersedes": {
+    "archive": "ivr-full-flow-w0344-cpu-r3.tar.gz",
+    "sha256": "f20ac247ea3fcb83bfa28d42e24a6cac6a70c49a45133c4eb56d18de59d606e2",
+    "sent_to_s5": true,
+    "s5_runs": [
+      "20260923-104028-3db63850"
+    ],
+    "note": "W-0344's passing package; its pins stay in docs/evidence/W-0344"
+  },
+  "replacement": "asterisk image unchanged from cpu-r1 (x86-64 generic, BUILD_NATIVE disabled) + cases.py from cpu-r3 plus programme selection (IVR_FLOW_PROGRAM: GOLDEN_HOUR+ONLINE or TWENTY_FOUR_SEVEN+COD) checked against the stored task"
+}

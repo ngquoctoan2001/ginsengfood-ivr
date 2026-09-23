@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Exercise the remote bash of retry-s5-full-flow.ps1 in a Debian container with a fake installer.
 
-Six cases: a normal run, a failing installer, an SSH drop (the foreground session group gets
-SIGHUP then SIGKILL) followed by -ResumeRunId, a killed test that resume must report instead of
-waiting forever, a second start in the same directory, and a wrong installer pin.
+Six scenarios, nine checks: a normal run (progress streams, IVR_FLOW_PROGRAM reaches the installer),
+a failing installer, an SSH drop (SIGHUP then SIGKILL of the foreground session group) followed by
+-ResumeRunId, a killed test that resume must report instead of waiting forever, a second start in
+the same directory, and a wrong installer pin.
 Needs Docker and the local image ivr-w0344-asterisk:22.10.1-portable-r1 (bash, setsid, GNU tail).
 """
 import json
@@ -19,7 +20,7 @@ IMAGE = 'ivr-w0344-asterisk:22.10.1-portable-r1'
 
 FAKE_INSTALLER = r'''#!/bin/bash
 # Stands in for "python3 -B ./install-s5-cpu-retry.py": progress, a receipt, a chosen exit code.
-echo "FAKE_INSTALLER $*"
+echo "FAKE_INSTALLER $* program=${IVR_FLOW_PROGRAM:-unset}"
 for i in $(seq 1 "${FAKE_SLEEP:-1}"); do echo "W0344_PROGRESS seconds=$i"; sleep 1; done
 if [ -z "${FAKE_NO_RESULT:-}" ]; then mkdir -p result && echo '{}' > result/summary.json && tar -czf result.tar.gz result; fi
 exit "${FAKE_EXIT:-0}"
@@ -32,7 +33,7 @@ make_run() {  # $1 = pin override (optional)
   local d; d=$(mktemp -d /tmp/ivr-full-flow-w0344-cpu-XXXXXX)
   cp /t/stub-installer "$d/install-s5-cpu-retry.py"
   local pin; pin=${1:-$(sha256sum "$d/install-s5-cpu-retry.py" | cut -d' ' -f1)}
-  sed -e "s#__REMOTE__#$d#" -e "s#__PIN__#$pin#" -e "s#__BASE__#/tmp/base-kit#" /t/start.tpl > "$d.start"
+  sed -e "s#__REMOTE__#$d#" -e "s#__PIN__#$pin#" -e "s#__BASE__#/tmp/base-kit#" -e "s#__PROGRAM__#TWENTY_FOUR_SEVEN#" /t/start.tpl > "$d.start"
   printf '\n' >> "$d.start"; cat /t/follow.sh >> "$d.start"
   echo "$d"
 }
@@ -41,6 +42,7 @@ report() { echo "RESULT $1 exit=$2 status=$(cat "$3/run.status" 2>/dev/null || e
 
 d=$(make_run); FAKE_SLEEP=2 FAKE_EXIT=0 bash "$d.start" > "$d.out" 2>&1; report normal $? "$d"
 grep -q 'W0344_PROGRESS seconds=2' "$d.out" && echo "RESULT normal_progress_streamed yes"
+grep -q 'program=TWENTY_FOUR_SEVEN' "$d/launcher.log" && echo "RESULT program_reaches_installer yes"
 
 d=$(make_run); FAKE_SLEEP=1 FAKE_EXIT=1 FAKE_NO_RESULT=1 bash "$d.start" > "$d.out" 2>&1; report failing $? "$d"
 
@@ -67,6 +69,7 @@ echo "RESULT wrong_pin exit=$code started=$started"
 EXPECTED = {
     'normal': 'exit=0 status=0 members=launcher.log,result.tar.gz,result.tar.gz.sha256,',
     'normal_progress_streamed': 'yes',
+    'program_reaches_installer': 'yes',
     'failing': 'exit=1 status=1 members=launcher.log,',
     'drop_test_alive_after_hangup': 'yes',
     'drop_resume': 'exit=0 status=0 members=launcher.log,result.tar.gz,result.tar.gz.sha256,',

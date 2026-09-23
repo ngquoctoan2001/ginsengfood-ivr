@@ -1,7 +1,11 @@
-param([switch]$VerifyOnly, [string]$ResumeRunId)
+param([switch]$VerifyOnly, [string]$ResumeRunId, [string]$PinsPath,
+      [ValidateSet('GOLDEN_HOUR', 'TWENTY_FOUR_SEVEN')][string]$Program = 'GOLDEN_HOUR')
 $ErrorActionPreference = 'Stop'
 $taskRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
-$pins = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'cpu-retry-pins.json') -Raw | ConvertFrom-Json
+# W-0345 keeps its own pins (docs/evidence/W-0345/cpu-retry-pins.json); W-0344's stay the default.
+# PowerShell names are case-insensitive: the parameter must not be called $Pins.
+if (-not $PinsPath) { $PinsPath = Join-Path $PSScriptRoot 'cpu-retry-pins.json' }
+$pins = Get-Content -LiteralPath $PinsPath -Raw | ConvertFrom-Json
 # The pinned archive names the package revision; a new revision needs a rebuild and re-pin, not an edit here.
 $archiveEntry = @($pins.files.PSObject.Properties.Name | Where-Object { $_ -match '^\.artifacts/W-0344/cpu-portable-r[0-9]+/ivr-full-flow-w0344-cpu-r[0-9]+\.tar\.gz$' })
 if ($archiveEntry.Count -ne 1) { throw 'Pins must name exactly one retry archive' }
@@ -44,7 +48,7 @@ if ($ResumeRunId) {
     $remoteDir = '/home/ssv/ivr-full-flow-w0344-cpu-' + $runId
     $localDir = Join-Path $artifactDir ('s5-' + $runId)
     New-Item -ItemType Directory -Path $localDir -ErrorAction Stop | Out-Null
-    Write-Host "RunId $runId. Chi chuyen ban va Asterisk + cases.py. Nhap mat khau SSH trong terminal khi duoc hoi."
+    Write-Host "RunId $runId. Goi $($pins.package), chuong trinh $Program. Nhap mat khau SSH trong terminal khi duoc hoi."
     & $ssh -o StrictHostKeyChecking=yes -o ConnectTimeout=15 ssv@192.168.1.61 "mkdir -m 700 $remoteDir"
     if ($LASTEXITCODE -ne 0) { throw 'Khong tao duoc thu muc retry rieng tren S5' }
     $checksum = $archive + '.sha256'
@@ -58,7 +62,7 @@ set -o noclobber
 { : > run.started; } 2>/dev/null || { echo 'W0344_RETRY_ALREADY_STARTED: dung -ResumeRunId, khong chay lai'; exit 3; }
 set +o noclobber
 cat > run-detached.sh <<'EOS'
-python3 -B ./install-s5-cpu-retry.py --base-kit "$1" > launcher.log 2>&1 < /dev/null
+IVR_FLOW_PROGRAM="$2" python3 -B ./install-s5-cpu-retry.py --base-kit "$1" > launcher.log 2>&1 < /dev/null
 status=$?
 if test -f result.tar.gz; then
   sha256sum result.tar.gz > result.tar.gz.sha256
@@ -68,12 +72,12 @@ else
 fi
 printf '%s\n' "$status" > run.status.tmp && mv run.status.tmp run.status
 EOS
-setsid bash ./run-detached.sh __BASE__ < /dev/null > /dev/null 2>&1 &
+setsid bash ./run-detached.sh __BASE__ __PROGRAM__ < /dev/null > /dev/null 2>&1 &
 printf '%s\n' "$!" > run.pid
 echo "W0344_RETRY_DETACHED pid=$!"
 tail --pid="$!" -n +1 -F launcher.log 2>/dev/null
 '@
-    $script = $start.Replace('__REMOTE__', $remoteDir).Replace('__PIN__', $installerPin).Replace('__BASE__', $pins.base_remote_kit) + "`n" + $follow
+    $script = $start.Replace('__REMOTE__', $remoteDir).Replace('__PIN__', $installerPin).Replace('__BASE__', $pins.base_remote_kit).Replace('__PROGRAM__', $Program) + "`n" + $follow
 }
 $script = $script.Replace("`r`n", "`n")
 # Base64 preserves the literal bash syntax through Windows OpenSSH argument parsing.

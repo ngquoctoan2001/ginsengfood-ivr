@@ -5,12 +5,14 @@ Proves: the pins match the files, the S5 base kit is the one run 135115 verified
 bytes are r1's, only cases.py and the image differ from the base kit, no assertion changed,
 the reconstructed kit matches the manifest, and the remote bash block parses.
 """
+from collections import Counter
 import difflib
 import hashlib
 import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -33,7 +35,10 @@ def asserts(text):
 
 
 def main():
-    pins = json.loads((DOC / 'cpu-retry-pins.json').read_text(encoding='utf-8'))
+    # Pins and manifest live with the work item that built the package (W-0344 by default);
+    # the installer, retry script and S5 base-kit receipt are always W-0344's.
+    evid = ROOT / sys.argv[sys.argv.index('--evidence-dir') + 1] if '--evidence-dir' in sys.argv else DOC
+    pins = json.loads((evid / 'cpu-retry-pins.json').read_text(encoding='utf-8'))
     for relative, digest in pins['files'].items():
         assert sha(ROOT / relative) == digest, 'pin mismatch: ' + relative
     archives = [k for k in pins['files']
@@ -60,12 +65,13 @@ def main():
         for chunk in iter(lambda: stream.read(1024 * 1024), b''):
             image.update(chunk)
     manifest = json.loads(manifest_bytes)
-    assert (DOC / 'cpu-retry-manifest.json').read_bytes() == manifest_bytes
+    assert (evid / 'cpu-retry-manifest.json').read_bytes() == manifest_bytes
     assert change['REAL_CUSTOMER_CALL_ALLOWED'] == 'NO' and change['base_manifest_sha256'] == base_manifest_sha
     assert change['new_manifest_sha256'] == hashlib.sha256(manifest_bytes).hexdigest()
     assert image.hexdigest() == manifest['files']['images/asterisk.tar'] == r1_manifest['files']['images/asterisk.tar']
     assert manifest['images']['asterisk'] == r1_manifest['images']['asterisk'] != base['images']['asterisk']
-    assert cases == (ROOT / 'deploy/lab/full-flow-s5/cases.py').read_bytes()
+    # The repo's driver moves on after a package is pinned; only the pinned bytes must be self-consistent.
+    matches_repo = cases == (ROOT / 'deploy/lab/full-flow-s5/cases.py').read_bytes()
     assert hashlib.sha256(cases).hexdigest() == manifest['files']['cases.py']
     changed_files = sorted(k for k in set(base['files']) | set(manifest['files'])
                            if base['files'].get(k) != manifest['files'].get(k))
@@ -75,7 +81,9 @@ def main():
     assert all(base[k] == manifest[k] for k in base if k not in ('files', 'images'))
     old_text = (BASE / 'cases.py').read_text(encoding='utf-8')
     new_text = cases.decode('utf-8')
-    assert asserts(old_text) == asserts(new_text), 'an assertion changed'
+    removed_asserts = Counter(asserts(old_text)) - Counter(asserts(new_text))
+    assert not removed_asserts, 'a base assertion was removed or changed: %r' % list(removed_asserts)[:3]
+    added_asserts = list((Counter(asserts(new_text)) - Counter(asserts(old_text))).elements())
     diff = [line for line in difflib.unified_diff(old_text.splitlines(), new_text.splitlines(), 'base/cases.py', 'package/cases.py', lineterm='', n=0)]
     removed = [l for l in diff if l.startswith('-') and not l.startswith('---')]
     added = [l for l in diff if l.startswith('+') and not l.startswith('+++')]
@@ -102,12 +110,15 @@ def main():
              'asterisk_image': manifest['images']['asterisk'],
              'portable_build_carried_from_r1': {k: r1_proof[k] for k in ('portable_compile_commands', 'native_compile_commands', 'build_native_enabled', 'asterisk_binary_sha256')},
              'cases_py': {'base_sha256': sha(BASE / 'cases.py'), 'package_sha256': manifest['files']['cases.py'],
-                          'assert_lines': len(asserts(new_text)), 'assert_lines_identical': True,
+                          'assert_lines': len(asserts(new_text)), 'base_assert_lines_kept': True,
+                          'assert_lines_added': added_asserts, 'matches_repo_cases_py': matches_repo,
                           'lines_removed': len(removed), 'lines_added': len(added), 'diff': diff},
              'reconstructed_files_match_manifest': len(rebuilt), 'retry_and_resume_bash_syntax': 'PASS',
              'installer_sha256': sha(DOC / 'install-s5-cpu-retry.py'), 'REAL_CUSTOMER_CALL_ALLOWED': 'NO'}
     (OUT / 'retry-verification.json').write_text(json.dumps(proof, indent=2, ensure_ascii=False) + '\n', encoding='utf-8', newline='\n')
-    print('W0344_CPU_RETRY_VERIFIED files=%d asserts=%d diff=-%d/+%d' % (len(rebuilt), len(asserts(new_text)), len(removed), len(added)))
+    print('W0344_CPU_RETRY_VERIFIED package=%s files=%d asserts=%d added_asserts=%d diff=-%d/+%d repo_driver=%s'
+          % (pins['package'], len(rebuilt), len(asserts(new_text)), len(added_asserts), len(removed), len(added),
+             'same' if matches_repo else 'newer'))
 
 
 if __name__ == '__main__':

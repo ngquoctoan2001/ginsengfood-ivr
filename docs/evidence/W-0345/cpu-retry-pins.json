@@ -1,0 +1,12 @@
+{
+  "work_id": "W-0345",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "package": "cpu-r4",
+  "archive_bytes": 138233012,
+  "base_remote_kit": "/home/ssv/ivr-full-flow-w0344-20260922-135115-e0b16d79/full-flow-s5",
+  "files": {
+    ".artifacts/W-0344/cpu-portable-r4/ivr-full-flow-w0344-cpu-r4.tar.gz": "2177d8e638564000383415e77db14e2e01bc8437a0e0496f645cc4f72f301994",
+    ".artifacts/W-0344/cpu-portable-r4/ivr-full-flow-w0344-cpu-r4.tar.gz.sha256": "0381cc0c186b833f2a5645d2e4bc34a2c6f60ae5ba11730591cc0b16b1cca8b9",
+    "docs/evidence/W-0344/install-s5-cpu-retry.py": "a615b3b67c3c33283d77eecc924e9e828127f25d7768b5454b70c38b877acc38"
+  }
+}

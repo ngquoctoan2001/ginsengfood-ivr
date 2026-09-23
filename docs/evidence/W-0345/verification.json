@@ -1,0 +1,377 @@
+{
+  "work_id": "W-0345",
+  "scope": "LAB_AND_S5_TWENTY_FOUR_SEVEN_FULL_FLOW",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "verified_utc": "2026-09-23T04:44:48+00:00",
+  "program": "TWENTY_FOUR_SEVEN",
+  "payment": "COD",
+  "attempt_policy": "lab-softphone-v1: 1 attempt, offsets [0], 300 s window (not the 24/7 production 2/[0,450]/900s)",
+  "callback_contract": "Target V1 via FAKE_TARGET_V1; the Golden Hour compat endpoint refuses 24/7",
+  "package": {
+    "package": "cpu-r4",
+    "archive_sha256": "2177d8e638564000383415e77db14e2e01bc8437a0e0496f645cc4f72f301994",
+    "archive_bytes": 138233012,
+    "members": [
+      "cases.py",
+      "images/asterisk.tar",
+      "manifest.json",
+      "patch.json"
+    ],
+    "base_kit_manifest_sha256": "8844b979b82f95980c177a56886524abc5be5d1e75622a65d7fe6d1068eabe8d",
+    "new_manifest_sha256": "0c75d4e85efc2e28cf6b593fdb2813509de3fcfbc3597ed7895d5d208e685013",
+    "changed_files_vs_base": [
+      "cases.py",
+      "images/asterisk.tar"
+    ],
+    "asterisk_image_bytes_same_as_r1": true,
+    "reconstructed_files_match_manifest": 20,
+    "retry_and_resume_bash_syntax": "PASS",
+    "installer_sha256": "a615b3b67c3c33283d77eecc924e9e828127f25d7768b5454b70c38b877acc38"
+  },
+  "cases_py": {
+    "base_sha256": "ec7f482ca01182eb1272da5bd633701fe8b1f22f03a9e057f93dde561c10e3af",
+    "package_sha256": "a1f6a1ed08a3a979b1064c6b97dceb368d9ac4f19ebac4c821e9ecc8fd8f255c",
+    "assert_lines": 53,
+    "base_assert_lines_kept": true,
+    "assert_lines_added": [
+      "PROGRAM=os.environ.get('IVR_FLOW_PROGRAM','GOLDEN_HOUR'); assert PROGRAM in PROGRAMS, PROGRAM",
+      "assert item['program']==PROGRAM+'|'+PAYMENT,item['program']"
+    ],
+    "lines_removed": 3,
+    "lines_added": 19,
+    "matches_repo_cases_py": true,
+    "diff": [
+      "--- base/cases.py",
+      "+++ package/cases.py",
+      "@@ -69,0 +70,6 @@",
+      "+# W-0345: the same seven cases for either programme. The wire matrix allows exactly these two pairs,",
+      "+# and the approved script never speaks the programme name, so the measured audio stays valid.",
+      "+PROGRAMS={'GOLDEN_HOUR':('ONLINE','Giờ Vàng'),'TWENTY_FOUR_SEVEN':('COD','Bán hàng 24/7')}",
+      "+PROGRAM=os.environ.get('IVR_FLOW_PROGRAM','GOLDEN_HOUR'); assert PROGRAM in PROGRAMS, PROGRAM",
+      "+PAYMENT,PROGRAM_NAME=PROGRAMS[PROGRAM]",
+      "+result.update(program=PROGRAM,payment=PAYMENT)",
+      "@@ -79 +85 @@",
+      "-[admit payload line, 1550 chars, sha256 5b0379e2423ec617f48479ca55adab4dc698ebdb3be7d34e81ee48596bc533e0: program_code, payment_method_snapshot and program_display_name now come from PROGRAM, PAYMENT, PROGRAM_NAME; full text in cases.py]",
+      "+[admit payload line, 1545 chars, sha256 43f785dfed48c8cf6738e07744ae5d0a220ae30b44b2c53a7c39eda8a4fd76d3: program_code, payment_method_snapshot and program_display_name now come from PROGRAM, PAYMENT, PROGRAM_NAME; full text in cases.py]",
+      "@@ -102,0 +109,3 @@",
+      "+    # S5 runs this under umask 077 and the peer's root has no CAP_DAC_OVERRIDE (cap-drop ALL), so",
+      "+    # 0600 files owned by ssv were unreadable there (run 20260923-103255). None of these holds a secret.",
+      "+    for name in ('pjsip.conf','extensions.conf','http.conf','logger.conf'): (peer/name).chmod(0o644)",
+      "@@ -125,0 +135,2 @@",
+      "+    item['program']=sql(f\"SELECT program_type||'|'||payment_method_snapshot FROM ivr_confirmation_tasks WHERE task_id='{task}'\")",
+      "+    assert item['program']==PROGRAM+'|'+PAYMENT,item['program']",
+      "@@ -143,2 +154,7 @@",
+      "-                item['rtp']=cli(PEER,'pjsip show channelstats'); item['sent_utc']=utc()",
+      "-                cli(PEER,f'channel redirect {peers[0]} send-{digit},s,1'); sent=True",
+      "+                item['rtp']=cli(PEER,'pjsip show channelstats')",
+      "+                # Wall time is only a lower bound under load. Wait for the same",
+      "+                # received-audio threshold that the final assertion enforces.",
+      "+                received_rtp=re.search(r'switch-[a-f0-9]+\\s+\\S+\\s+ulaw\\s+(\\d+)',item['rtp'])",
+      "+                if received_rtp and int(received_rtp[1])>=measured['segmented_audio_ms']//20:",
+      "+                    item['sent_utc']=utc()",
+      "+                    cli(PEER,f'channel redirect {peers[0]} send-{digit},s,1'); sent=True"
+    ]
+  },
+  "build_profile_sha256": "5911b51a0ec76e83696e7c97db046a7dc23e8d0eb3e936d2b0fd98bef784b1dd",
+  "local_rehearsal": {
+    "project": "ivr-w0344-20260923043202-15aac8",
+    "started_utc": "2026-09-23T04:32:02.182910+00:00",
+    "finished_utc": "2026-09-23T04:38:22.533582+00:00",
+    "status": "PASS",
+    "cases_passed": 7,
+    "reconciliation": {
+      "tasks": 7,
+      "attempts": 7,
+      "counted_customer_attempts": 4,
+      "technical_attempts": 3,
+      "results": 9,
+      "final_results": 6,
+      "callbacks": 6,
+      "miscounted_technical_attempts": 0,
+      "miscounted_noncustomer_results": 0,
+      "duplicate_finals": 0,
+      "duplicate_callbacks": 0,
+      "callbacks_for_nonfinal_results": 0
+    },
+    "kit_manifest_sha256": "0c75d4e85efc2e28cf6b593fdb2813509de3fcfbc3597ed7895d5d208e685013",
+    "cases": [
+      {
+        "case": "confirm",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CONFIRMED",
+        "attempts": 1,
+        "callbacks": 1
+      },
+      {
+        "case": "customer-cancel",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CUSTOMER_CANCELLED",
+        "attempts": 1,
+        "callbacks": 1
+      },
+      {
+        "case": "technical-retry",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CONFIRMED",
+        "attempts": 2,
+        "callbacks": 1
+      },
+      {
+        "case": "queued-expiry",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CAPACITY_EXCEPTION",
+        "attempts": 0,
+        "callbacks": 1
+      },
+      {
+        "case": "tts-expiry",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CONFIRMATION_WINDOW_EXPIRED",
+        "attempts": 1,
+        "callbacks": 1
+      },
+      {
+        "case": "no-input",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_NO_ANSWER_FINAL",
+        "attempts": 1,
+        "callbacks": 1
+      },
+      {
+        "case": "operator-cancel",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_TECHNICAL_EXCEPTION",
+        "attempts": 1,
+        "callbacks": 0
+      }
+    ],
+    "pre_existing_changed": []
+  },
+  "s5_run": {
+    "run_id": "20260923-113341-bc374828",
+    "receipt_sha256": "056d23cfe2a780f62cdc4fdcdf69f36c51e7fddd5194d0c5d91a315f4ab14cea",
+    "receipt_hash_matches_checksum_file": true,
+    "summary": {
+      "work_id": "W-0344",
+      "candidate": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+      "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+      "scope": "S5_TARGET_SYNTHETIC_SIP",
+      "project": "ivr-w0344-20260923043317-1f50a7",
+      "started_utc": "2026-09-23T04:33:17.222062+00:00",
+      "status": "PASS",
+      "kit_manifest_sha256": "0c75d4e85efc2e28cf6b593fdb2813509de3fcfbc3597ed7895d5d208e685013",
+      "cases_passed": 7,
+      "reconciliation": {
+        "tasks": 7,
+        "attempts": 7,
+        "counted_customer_attempts": 4,
+        "technical_attempts": 3,
+        "results": 9,
+        "final_results": 6,
+        "callbacks": 6,
+        "miscounted_technical_attempts": 0,
+        "miscounted_noncustomer_results": 0,
+        "duplicate_finals": 0,
+        "duplicate_callbacks": 0,
+        "callbacks_for_nonfinal_results": 0
+      },
+      "finished_utc": "2026-09-23T04:40:06.220668+00:00"
+    },
+    "kit_manifest_matches_package": true,
+    "pre_existing_containers_unchanged": true,
+    "pre_existing_containers": 43,
+    "cleanup": {
+      "removed_containers": [
+        "ivr-w0344-20260923043317-1f50a7-peer",
+        "ivr-w0344-20260923043317-1f50a7-ivr-tts-1",
+        "ivr-w0344-20260923043317-1f50a7-ivr-worker-1",
+        "ivr-w0344-20260923043317-1f50a7-ivr-api-1",
+        "ivr-w0344-20260923043317-1f50a7-lab-seed-1",
+        "ivr-w0344-20260923043317-1f50a7-seed-1",
+        "ivr-w0344-20260923043317-1f50a7-asterisk-1",
+        "ivr-w0344-20260923043317-1f50a7-ivr-migrate-1",
+        "ivr-w0344-20260923043317-1f50a7-postgres-1",
+        "ivr-w0344-20260923043317-1f50a7-media-init-1",
+        "ivr-w0344-20260923043317-1f50a7-fake-sales-1"
+      ],
+      "networks_removed": true,
+      "named_volumes_preserved": [
+        "ivr-w0344-20260923043317-1f50a7-pg",
+        "ivr-w0344-20260923043317-1f50a7-media"
+      ]
+    },
+    "launcher_log": [
+      "W0344_CPU_PATCH_VERIFIED patch=ivr-full-flow-w0344-cpu-r4.tar.gz models_staged=13 original_kit_preserved=YES",
+      "W0344_STACK_READY cases=7 scope=S5_TARGET_SYNTHETIC_SIP",
+      "W0344_PROGRESS seconds=20 completed=0/7",
+      "W0344_PROGRESS seconds=40 completed=0/7",
+      "W0344_PROGRESS seconds=60 completed=1/7",
+      "W0344_PROGRESS seconds=80 completed=1/7",
+      "W0344_PROGRESS seconds=100 completed=1/7",
+      "W0344_PROGRESS seconds=120 completed=2/7",
+      "W0344_PROGRESS seconds=140 completed=2/7",
+      "W0344_PROGRESS seconds=160 completed=2/7",
+      "W0344_PROGRESS seconds=180 completed=2/7",
+      "W0344_PROGRESS seconds=200 completed=4/7",
+      "W0344_PROGRESS seconds=220 completed=5/7",
+      "W0344_PROGRESS seconds=240 completed=5/7",
+      "W0344_PROGRESS seconds=260 completed=5/7",
+      "W0344_PROGRESS seconds=280 completed=5/7",
+      "W0344_PROGRESS seconds=300 completed=6/7",
+      "W0344_PROGRESS seconds=320 completed=6/7",
+      "W0344_PROGRESS seconds=340 completed=6/7",
+      "W0344_PROGRESS seconds=360 completed=6/7",
+      "W0344_S5_TARGET_SYNTHETIC_SIP_PASS",
+      "W0344_RECEIPT /home/ssv/ivr-full-flow-w0344-cpu-20260923-113341-bc374828/result.tar.gz",
+      "W0344_STAGED_MODELS_REMOVED YES"
+    ],
+    "dtmf_timeline": [
+      {
+        "case": "confirm",
+        "need_packets": 1104,
+        "packets_at_dtmf": 1104,
+        "segment_start_deltas_s": [
+          6.4,
+          6.08,
+          0.8,
+          2.24,
+          0.8,
+          1.84
+        ],
+        "answer_to_dtmf_s": 24.21,
+        "wall_clock_bound_s": 24.08
+      },
+      {
+        "case": "customer-cancel",
+        "need_packets": 1593,
+        "packets_at_dtmf": 1593,
+        "segment_start_deltas_s": [
+          8.72,
+          6.58,
+          1.76,
+          4.32,
+          2.8,
+          2.56
+        ],
+        "answer_to_dtmf_s": 34.13,
+        "wall_clock_bound_s": 33.86
+      },
+      {
+        "case": "technical-retry",
+        "need_packets": 1280,
+        "packets_at_dtmf": 1280,
+        "segment_start_deltas_s": [
+          7.04,
+          7.04,
+          0.88,
+          2.4,
+          1.12,
+          2.24
+        ],
+        "answer_to_dtmf_s": 28.52,
+        "wall_clock_bound_s": 27.6
+      }
+    ],
+    "ssh": "key login, no password prompt; receipt fetched automatically",
+    "cases": [
+      {
+        "case": "confirm",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CONFIRMED",
+        "attempts": 1,
+        "callbacks": 1
+      },
+      {
+        "case": "customer-cancel",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CUSTOMER_CANCELLED",
+        "attempts": 1,
+        "callbacks": 1
+      },
+      {
+        "case": "technical-retry",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CONFIRMED",
+        "attempts": 2,
+        "callbacks": 1
+      },
+      {
+        "case": "queued-expiry",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CAPACITY_EXCEPTION",
+        "attempts": 0,
+        "callbacks": 1
+      },
+      {
+        "case": "tts-expiry",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_CONFIRMATION_WINDOW_EXPIRED",
+        "attempts": 1,
+        "callbacks": 1
+      },
+      {
+        "case": "no-input",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_NO_ANSWER_FINAL",
+        "attempts": 1,
+        "callbacks": 1
+      },
+      {
+        "case": "operator-cancel",
+        "pass": true,
+        "stored_program_payment": "TWENTY_FOUR_SEVEN|COD",
+        "final_result": "IVR_TECHNICAL_EXCEPTION",
+        "attempts": 1,
+        "callbacks": 0
+      }
+    ]
+  },
+  "tests": {
+    "windows_python_3_13": "50 deploy/lab/tests, 1 POSIX-only skip",
+    "linux_python_3_14": "39/39 (installer 16, DTMF gate 3, peer config 2, programme 4, full-flow guards 14)",
+    "programme_red_before": [
+      "cpu-r3 cases.py PROGRAMS= False hard-coded 'GOLDEN_HOUR' in admit= True",
+      "repo cases.py PROGRAMS= True hard-coded 'GOLDEN_HOUR' in admit= False"
+    ],
+    "retry_detach": "9/9 including IVR_FLOW_PROGRAM reaching the installer",
+    "w0344_cpu_r3_still_verifies_at_head": true
+  },
+  "w0344_files_changed_after_its_submission": {
+    "backward_compatible": true,
+    "w0344_evidence_commit": "317fca5",
+    "files": [
+      "docs/evidence/W-0344/retry-s5-full-flow.ps1 (-PinsPath, -Program)",
+      "docs/evidence/W-0344/build-cpu-retry.py (--profile)",
+      "docs/evidence/W-0344/verify-cpu-retry.py (--evidence-dir; base asserts kept, additions allowed)",
+      "docs/evidence/W-0344/test-retry-detach.py (programme propagation)",
+      "deploy/lab/full-flow-s5/cases.py (programme switch, default GOLDEN_HOUR)"
+    ]
+  },
+  "evidence_files": {
+    "deploy/lab/full-flow-s5/cases.py": "a1f6a1ed08a3a979b1064c6b97dceb368d9ac4f19ebac4c821e9ecc8fd8f255c",
+    "deploy/lab/tests/test_full_flow_program.py": "d3fd170d74fe608840f50f9a813ba0aa11c1b7899db51a2519c12ccef785ca3a",
+    "docs/evidence/W-0344/retry-s5-full-flow.ps1": "be982dfe1427fd3fbe05bc1a42a4b61494ef113a351c07c7c66910994f6c70d2",
+    "docs/evidence/W-0344/build-cpu-retry.py": "6d5cd05478474bc0477bdf30ed845991e54462bc11a7586c53dec725ca5eb551",
+    "docs/evidence/W-0344/verify-cpu-retry.py": "9b9d1549a8d4d06c2bb8560a7ae66e158dcb2e3f018867a9b96c05215137e01d",
+    "docs/evidence/W-0344/test-retry-detach.py": "df5838b4fa108f2d055eb4f012e5a5c12ea3874d71914b156d16c658f7af8bff",
+    "docs/evidence/W-0344/install-s5-cpu-retry.py": "a615b3b67c3c33283d77eecc924e9e828127f25d7768b5454b70c38b877acc38",
+    "docs/evidence/W-0345/cpu-retry-build.json": "5911b51a0ec76e83696e7c97db046a7dc23e8d0eb3e936d2b0fd98bef784b1dd",
+    "docs/evidence/W-0345/cpu-retry-pins.json": "da7e17613dcd5fb443474f7926bb12c4f1e316e2e2b757cd4de27daa34f2922d",
+    "docs/evidence/W-0345/cpu-retry-manifest.json": "0c75d4e85efc2e28cf6b593fdb2813509de3fcfbc3597ed7895d5d208e685013"
+  },
+  "raw": ".artifacts/W-0344/cpu-portable-r4/"
+}

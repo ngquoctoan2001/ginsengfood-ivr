@@ -30,6 +30,23 @@ SUPERSEDES = {'archive': 'ivr-full-flow-w0344-cpu-r2.tar.gz',
               'sha256': '634c903b54fb8a7ac8ee2c2459f48327a816075d6ac8c412891343f943660dee',
               'sent_to_s5': True, 's5_runs': ['20260923-093745-1c9bd160', '20260923-103255-bf2e4b7c']}
 BASE_REMOTE_KIT = '/home/ssv/ivr-full-flow-w0344-20260922-135115-e0b16d79/full-flow-s5'
+INSTALLER = ROOT / 'docs/evidence/W-0344/install-s5-cpu-retry.py'
+WORK_ID = 'W-0344'
+REPLACEMENT = ('asterisk image unchanged from cpu-r1 (x86-64 generic, BUILD_NATIVE disabled) '
+               '+ cases.py sends DTMF only after received RTP covers the measured audio '
+               'and makes the SIP peer config files 0644')
+
+
+def load_profile(path):
+    # A later work item reuses this builder with its own revision and evidence directory.
+    # Without --profile the defaults above rebuild W-0344's cpu-r3.
+    global DOC, REVISION, OUT, NAME, SUPERSEDES, REPLACEMENT, WORK_ID
+    profile = json.loads(Path(path).read_text(encoding='utf-8'))
+    WORK_ID, REVISION = profile['work_id'], profile['revision']
+    DOC = ROOT / profile['evidence_dir']
+    OUT = ROOT / ('.artifacts/W-0344/cpu-portable-' + REVISION)
+    NAME = 'ivr-full-flow-w0344-cpu-' + REVISION + '.tar.gz'
+    SUPERSEDES, REPLACEMENT = profile['supersedes'], profile['replacement']
 
 
 def sha256(data):
@@ -51,8 +68,8 @@ def member(name, data):
 
 
 def write_pins(target, checksum):
-    installer = DOC / 'install-s5-cpu-retry.py'
-    pins = {'work_id': 'W-0344', 'REAL_CUSTOMER_CALL_ALLOWED': 'NO', 'package': 'cpu-' + REVISION,
+    installer = INSTALLER
+    pins = {'work_id': WORK_ID, 'REAL_CUSTOMER_CALL_ALLOWED': 'NO', 'package': 'cpu-' + REVISION,
             'archive_bytes': target.stat().st_size, 'base_remote_kit': BASE_REMOTE_KIT,
             'files': {p.relative_to(ROOT).as_posix(): file_sha256(p) for p in (target, checksum, installer)}}
     (DOC / 'cpu-retry-pins.json').write_text(json.dumps(pins, indent=2) + '\n', encoding='utf-8', newline='\n')
@@ -65,10 +82,12 @@ def repin():
     if checksum.read_text(encoding='ascii').split()[0] != file_sha256(target):
         raise SystemExit('Archive differs from its checksum file')
     write_pins(target, checksum)
-    print('W0344_CPU_RETRY_REPINNED installer=%s' % file_sha256(DOC / 'install-s5-cpu-retry.py'), flush=True)
+    print('W0344_CPU_RETRY_REPINNED installer=%s' % file_sha256(INSTALLER), flush=True)
 
 
 def main():
+    if '--profile' in sys.argv:
+        load_profile(sys.argv[sys.argv.index('--profile') + 1])
     if '--repin' in sys.argv:
         return repin()
     if OUT.exists():
@@ -100,12 +119,10 @@ def main():
         if manifest != expected:
             raise SystemExit('package manifest would change more than the image and case driver')
         encoded = (json.dumps(manifest, indent=2) + '\n').encode()
-        change = {'work_id': 'W-0344', 'REAL_CUSTOMER_CALL_ALLOWED': 'NO',
+        change = {'work_id': WORK_ID, 'REAL_CUSTOMER_CALL_ALLOWED': 'NO',
                   'base_manifest_sha256': old_patch['base_manifest_sha256'],
                   'new_manifest_sha256': sha256(encoded),
-                  'replacement': 'asterisk image unchanged from cpu-r1 (x86-64 generic, BUILD_NATIVE disabled) '
-                                 '+ cases.py sends DTMF only after received RTP covers the measured audio '
-                                 'and makes the SIP peer config files 0644',
+                  'replacement': REPLACEMENT,
                   'source_version': old_patch['source_version'],
                   'build_inputs_sha256': old_patch['build_inputs_sha256'],
                   'image_source': {'archive': R1.name, 'sha256': R1_SHA256},
@@ -124,8 +141,7 @@ def main():
     checksum.write_text(file_sha256(target) + '  ' + NAME + '\n', encoding='ascii', newline='\n')
     (DOC / 'cpu-retry-manifest.json').write_bytes(encoded)
     write_pins(target, checksum)
-    installer = DOC / 'install-s5-cpu-retry.py'
-    spec = importlib.util.spec_from_file_location('retry', installer)
+    spec = importlib.util.spec_from_file_location('retry', INSTALLER)
     retry = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(retry)
     retry.prepare_retry(BASE, target, OUT / 'full-flow-s5')

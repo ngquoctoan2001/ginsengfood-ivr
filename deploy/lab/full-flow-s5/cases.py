@@ -67,6 +67,12 @@ assert BASE_TEXTS['fixtureOnly'] and BASE_TEXTS['realCustomerCallAllowed']=='NO'
 TEXTS['cases']+=BASE_TEXTS['cases']
 AREAS={'North':'Phường Cửa Nam, thành phố Hà Nội','Central':'Phường Hải Châu, thành phố Đà Nẵng','South':'Phường Phú Khương, tỉnh Vĩnh Long'}
 TERMINAL=('RESULT_READY_FOR_CALLBACK','WINDOW_EXPIRED','CAPACITY_MISSED','HELD_ADMIN_REVIEW')
+# W-0345: the same seven cases for either programme. The wire matrix allows exactly these two pairs,
+# and the approved script never speaks the programme name, so the measured audio stays valid.
+PROGRAMS={'GOLDEN_HOUR':('ONLINE','Giờ Vàng'),'TWENTY_FOUR_SEVEN':('COD','Bán hàng 24/7')}
+PROGRAM=os.environ.get('IVR_FLOW_PROGRAM','GOLDEN_HOUR'); assert PROGRAM in PROGRAMS, PROGRAM
+PAYMENT,PROGRAM_NAME=PROGRAMS[PROGRAM]
+result.update(program=PROGRAM,payment=PAYMENT)
 
 def state(task):
     assert re.fullmatch(r'TASK-W0344-[A-Z0-9-]+',task)
@@ -76,7 +82,7 @@ def admit(case,region,variant,remaining=285):
     suffix=now().strftime('%Y%m%d%H%M%S%f'); task='TASK-W0344-'+case.upper()+'-'+suffix
     expires=now()+dt.timedelta(seconds=remaining); start=expires-dt.timedelta(seconds=300)
     stamp=lambda d:d.isoformat(timespec='milliseconds').replace('+00:00','Z')
-    body={'contract_version':'ivr-order-confirmation.v1','task_id':task,'correlation_id':'corr-'+suffix,'created_at':stamp(start),'order_id':'ORDER-W0344-'+suffix,'order_code':'GF-W0344-'+suffix,'order_code_short':'E2E001','order_version':'1','order_state':'CONFIRMING','payment_method_snapshot':'ONLINE','ivr_confirmation_required':True,'is_ivr_callable':True,'program_code':'GOLDEN_HOUR','confirmation_window_started_at':stamp(start),'confirmation_window_expires_at':stamp(expires),'attempt_policy_version':'lab-softphone-v1','max_customer_attempts':1,'attempt_offsets_seconds':[0],'phone_ref':'phone-ref-w0104-fake','phone_masked':'84xxxxx0001','phone_validation_status':'VALID','dial_token':'dial-token-lab-'+suffix,'dial_token_expires_at':stamp(expires),'privacy_safe_order_summary':{'customer_display_name':'anh/chị Giang','order_code_short':'E2E001','items':ORDERS[variant]['items'],'total_amount':ORDERS[variant]['total_amount'],'currency':'VND','delivery_area_short':AREAS[region],'program_display_name':'Giờ Vàng','locale':'vi-VN'},'call_restriction':False,'eligibility_snapshot':{'decision':'ELIGIBLE','source_version':'w0104-fake-sales-v1','captured_at':stamp(start),'source_available':True,'blockers':[],'voice_restriction':{'restricted':False,'source_available':True,'source_version':'w0104-fake-voice-v1'}},'call_script_template_id':'SCRIPT-ORDER-CONFIRM','call_script_version':'v3-test-approved','evidence_policy_version':'w0104-lab-evidence-v1','privacy_policy_version':'w0104-lab-privacy-v1','evidence_ref':'evidence://w0344/'+task}
+    body={'contract_version':'ivr-order-confirmation.v1','task_id':task,'correlation_id':'corr-'+suffix,'created_at':stamp(start),'order_id':'ORDER-W0344-'+suffix,'order_code':'GF-W0344-'+suffix,'order_code_short':'E2E001','order_version':'1','order_state':'CONFIRMING','payment_method_snapshot':PAYMENT,'ivr_confirmation_required':True,'is_ivr_callable':True,'program_code':PROGRAM,'confirmation_window_started_at':stamp(start),'confirmation_window_expires_at':stamp(expires),'attempt_policy_version':'lab-softphone-v1','max_customer_attempts':1,'attempt_offsets_seconds':[0],'phone_ref':'phone-ref-w0104-fake','phone_masked':'84xxxxx0001','phone_validation_status':'VALID','dial_token':'dial-token-lab-'+suffix,'dial_token_expires_at':stamp(expires),'privacy_safe_order_summary':{'customer_display_name':'anh/chị Giang','order_code_short':'E2E001','items':ORDERS[variant]['items'],'total_amount':ORDERS[variant]['total_amount'],'currency':'VND','delivery_area_short':AREAS[region],'program_display_name':PROGRAM_NAME,'locale':'vi-VN'},'call_restriction':False,'eligibility_snapshot':{'decision':'ELIGIBLE','source_version':'w0104-fake-sales-v1','captured_at':stamp(start),'source_available':True,'blockers':[],'voice_restriction':{'restricted':False,'source_available':True,'source_version':'w0104-fake-voice-v1'}},'call_script_template_id':'SCRIPT-ORDER-CONFIRM','call_script_version':'v3-test-approved','evidence_policy_version':'w0104-lab-evidence-v1','privacy_policy_version':'w0104-lab-privacy-v1','evidence_ref':'evidence://w0344/'+task}
     intake=post('/tasks',body,'intake','intake-'+suffix)
     assert intake['decision']=='TASK_ACCEPTED_CALL_JOB_CREATED',intake
     eligible=post('/eligibility-checks',{'task_id':task},'internal','eligible-'+suffix)
@@ -126,6 +132,8 @@ def run_case(name,region,variant,digit=None,fault=None):
     if fault in ('tts-expiry','tts-timeout'): pause(TTS)
     task,item['admission']=admit(name,region,variant,remaining=6 if fault=='queued-expiry' else 18 if fault=='tts-expiry' else 285)
     item['task_id']=task; save()
+    item['program']=sql(f"SELECT program_type||'|'||payment_method_snapshot FROM ivr_confirmation_tasks WHERE task_id='{task}'")
+    assert item['program']==PROGRAM+'|'+PAYMENT,item['program']
     if fault=='queued-expiry': time.sleep(7); unpause(WORKER)
     started=time.monotonic(); answered=None; sent=False; terminated=False
     while time.monotonic()-started<360:
