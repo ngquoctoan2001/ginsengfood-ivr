@@ -1450,8 +1450,8 @@ work:
     evidence: "docs/evidence/W-0346/README.md"
   - id: "W-0347"
     prompt: "Nhóm thiếu test của 5 việc trong kế hoạch (Origin=UNPLANNED, owner yêu cầu tiếp tục)"
-    status: "IN_PROGRESS"
-    evidence: null
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0347/README.md"
 
 production_flag:
   real_customer_call_allowed: false
