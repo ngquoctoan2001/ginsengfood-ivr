@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { c2SelfTest } from "./acceptance-c2-checks.mjs";
-import { collectTestEvidence, GATE_TESTS } from "./acceptance-test-plan.mjs";
+import { collectTestEvidence, GATE_TEST_CONDITIONS, GATE_TESTS, gateRegistryErrors } from "./acceptance-test-plan.mjs";
 import {
   GATE_MANIFEST, fullSweepVerdict, expectedTestAssemblies, readPinnedArtifact, validateRunEvidence, sha256,
 } from "./acceptance-evidence-lib.mjs";
@@ -24,7 +24,8 @@ import {
 //       REAL_CUSTOMER_CALL_ALLOWED=NO
 //   C2  required TestIds from the prompt, README and same-pack attachments are live and passed in
 //       a --evidence bundle captured at the same commit, or have a pinned retirement with tested
-//       replacements. An empty test claim or a retired UI never passes as current software.
+//       replacements. An empty test claim or a retired UI never passes as current software. A
+//       runner assertion that passed only under a stated condition is shown as XEM with it.
 //   C3  Residual/next holds nothing IVR still has to do, only external waits. A script cannot judge
 //       that, so a non-empty cell is shown for the owner to read (XEM) and never passed silently
 //   C4  the captured sweep ran the exact set of gates in that commit's manifest
@@ -359,6 +360,9 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
       : runCheck?.ok !== true ? (runCheck?.ok ?? null) : sweep.ok,
       reason: `${id} cần full sweep có ${GATE_TESTS[id]}` }
     : testVerdict(id, trace, results));
+  // A conditional gate PASS still counts for C2, but the owner reads the condition (W-0346).
+  const conditional = cited.filter((id) => GATE_TESTS[id] && Object.hasOwn(GATE_TEST_CONDITIONS, id))
+    .map((id) => `${id} ${GATE_TEST_CONDITIONS[id]}`);
   const failures = verdicts.filter((verdict) => verdict.ok === false);
   let c2;
   if (testEvidence?.errors?.length) {
@@ -372,7 +376,7 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
   } else if (verdicts.some((verdict) => verdict.ok === null)) {
     c2 = { ok: null, reason: "chưa có kết quả test đã xác minh (--evidence)" };
   } else {
-    c2 = { ok: true, reason: `${cited.length} TestId xanh${testEvidence?.retired?.length ? `; ${testEvidence.retired.length} ID lịch sử có quyết định thay thế` : ""}` };
+    c2 = { ok: true, reason: `${cited.length} TestId xanh${testEvidence?.retired?.length ? `; ${testEvidence.retired.length} ID lịch sử có quyết định thay thế` : ""}${conditional.length ? `; ${conditional.length} gate đạt có điều kiện` : ""}` };
   }
 
   const c3 = residualVerdict(row.residual);
@@ -382,12 +386,12 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
     verdict = FAIL;
   } else if (hard.some((check) => check.ok === null)) {
     verdict = UNCHECKED;
-  } else if (c3.ok === "review") {
+  } else if (c3.ok === "review" || conditional.length > 0) {
     verdict = REVIEW;
   }
 
   return { id: row.id, status: row.status, phase: phaseOf(row.prompt), cited,
-    retired: testEvidence?.retired ?? [], c1, c2, c3, verdict };
+    retired: testEvidence?.retired ?? [], conditional, c1, c2, c3, verdict };
 }
 
 function phaseOrder(phase) {
@@ -442,8 +446,8 @@ export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phas
   }
 
   lines.push("");
-  lines.push(`\`${PASS}\`: đủ bốn điều. \`${REVIEW}\`: C1, C2, C4 đạt, còn cột Residual cần Toàn đọc xem có việc`);
-  lines.push(`của IVR không. \`${FAIL}\`: hỏng ít nhất một điều, lý do ở dưới. \`${UNCHECKED}\`: thiếu kết quả test`);
+  lines.push(`\`${PASS}\`: đủ bốn điều. \`${REVIEW}\`: C1, C2, C4 đạt, còn cột Residual hoặc điều kiện kèm PASS của gate`);
+  lines.push(`cần Toàn đọc xem có việc của IVR không. \`${FAIL}\`: hỏng ít nhất một điều, lý do ở dưới. \`${UNCHECKED}\`: thiếu kết quả test`);
   lines.push("hoặc log gate sweep để kết luận.", "");
 
   for (const phase of phases) {
@@ -462,6 +466,7 @@ export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phas
         const reasons = [item.c1, item.c2].filter((check) => check.ok === false || check.ok === null)
           .map((check) => check.reason);
         if (item.retired?.length) reasons.push(`Test lịch sử đã thay thế: ${item.retired.join(", ")}; xem acceptance-tests.json trong gói bằng chứng`);
+        if (item.c2.ok === true && item.conditional?.length) reasons.push(`Gate đạt có điều kiện: ${item.conditional.join("; ")}`);
         if (item.c3.ok === "review") {
           reasons.push(`Residual: ${item.c3.reason}`);
         }
@@ -515,6 +520,16 @@ function readWorktree(root, files) {
   }
 
   return texts;
+}
+
+/**
+ * gateRegistryErrors() over the runners as `read` sees them. Only the self-test calls it: a gate
+ * TestId counts for C2 only with a verified full sweep, and that sweep runs this self-test.
+ */
+function registryErrors(read, manifest, trace) {
+  const file = (runner) => `deploy/ci/scripts/${runner}`;
+  const texts = read([...new Set(Object.values(GATE_TESTS))].map(file));
+  return gateRegistryErrors({ manifest, traced: trace.byId, source: (runner) => normalise(texts.get(file(runner)) ?? null) });
 }
 
 function argument(name) {
@@ -748,7 +763,15 @@ function selfTest() {
   assert.ok(!report.includes("W-0017"), "accepted rows are not proposed again");
 
   const c2Checks = c2SelfTest({ citedTestIds, traceability, judge, indexResults, testVerdict });
-  process.stdout.write(`ACCEPTANCE_BATCHES_SELFTEST_PASS — 4 criteria, 8 candidate rows, 2 non-candidates, ${c2Checks} C2 regression checks\n`);
+
+  // W-0346: the real registry against the real runners. A bad entry fails this gate, so the sweep
+  // fails, and C2 counts a gate TestId only when the sweep passed at the same commit.
+  const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+  const live = (files) => readWorktree(repository, files);
+  const liveErrors = registryErrors(live, JSON.parse(live([GATE_MANIFEST]).get(GATE_MANIFEST)),
+    traceability(live([TRACEABILITY]).get(TRACEABILITY)));
+  assert.deepEqual(liveErrors, [], `GATE_TESTS: ${liveErrors.join("; ")}`);
+  process.stdout.write(`ACCEPTANCE_BATCHES_SELFTEST_PASS — 4 criteria, 8 candidate rows, 2 non-candidates, ${c2Checks} C2 regression checks, ${Object.keys(GATE_TESTS).length} gate TestIds held to their runners\n`);
 }
 
 if (process.argv.includes("--self-test")) {

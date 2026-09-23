@@ -1,0 +1,1007 @@
+{
+  "work_id": "W-0346",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "runners_read_at": "414e84be6ef5a97dd2945fe48cd41e6b10657502",
+  "rules": [
+    "runner có argv trong deploy/ci/gate-invocations.json, tức là full sweep chạy nó",
+    "TestId không thuộc test .NET nào trong docs/traceability-tests.md",
+    "runner in \"<TestId> PASS\" ở một dòng không phải comment, ngay sau assertion cùng tên",
+    "PASS có hậu tố là có điều kiện: phải khai báo trong GATE_TEST_CONDITIONS, và khai báo cần có PASS như vậy",
+    "WHOLE_GATE_TESTS: hai gate nghiệm thu mà cả gate là phép kiểm, chỉ cần chạy trong sweep"
+  ],
+  "counts": {
+    "registry_before": 10,
+    "registry_after": 54,
+    "added": 44,
+    "by_relation": {
+      "khớp định nghĩa": 32,
+      "kiểm tĩnh cấu hình thay cho lần chạy thật": 6,
+      "một phần của định nghĩa": 1,
+      "PASS có điều kiện": 5
+    }
+  },
+  "entries": [
+    {
+      "id": "CT-CI-01",
+      "runner": "selftest-openapi.mjs",
+      "markers": [
+        {
+          "line": 23,
+          "text": "process.stdout.write(\"CT-CI-01 PASS — invalid OpenAPI rejected\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:115",
+        "text": "ci-selftest | MR có OpenAPI cố tình sai → job `openapi_lint` FAIL."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0011",
+        "W-0095"
+      ]
+    },
+    {
+      "id": "CT-CI-02",
+      "runner": "selftest-dotnet-policy.sh",
+      "markers": [
+        {
+          "line": 105,
+          "text": "echo \"CT-CI-02 PASS — the discovered deliberate test failure, not any non-zero exit, is required\""
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:116",
+        "text": "ci-selftest | Test đã discover `CtCi02DeliberatelyFails` và fail với marker dự kiến → gate PASS self-test; typo/missing project không được tính là expected failure."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0011"
+      ]
+    },
+    {
+      "id": "CT-CI-03",
+      "runner": "selftest-dotnet-policy.sh",
+      "markers": [
+        {
+          "line": 106,
+          "text": "echo \"CT-CI-03 PASS — the measured low-coverage result, not a missing path, is required\""
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:117",
+        "text": "ci-selftest | Báo cáo fixture đo đúng coverage dưới ngưỡng → gate PASS self-test; missing report/path không được tính là low-coverage evidence."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0011"
+      ]
+    },
+    {
+      "id": "CT-CI-09",
+      "runner": "selftest-dotnet-policy.sh",
+      "markers": [
+        {
+          "line": 107,
+          "text": "echo \"CT-CI-09 PASS — NuGet vulnerability JSON is schema-validated and unknown severities fail closed\""
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:129",
+        "text": "ci-selftest | NuGet vulnerability fixture sạch PASS; High, `{}`/schema thiếu và severity lạ đều FAIL closed với lý do phân biệt."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0011"
+      ]
+    },
+    {
+      "id": "CT-CI-05",
+      "runner": "ci-config-selftest.mjs",
+      "markers": [
+        {
+          "line": 851,
+          "text": "process.stdout.write(\"CT-CI-05 PASS — workflow routing and duplicate prevention\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:119",
+        "text": "config/rules | MR, default-branch push và manual web source render đúng job; không sinh duplicate branch+MR pipeline."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0011",
+        "W-0012",
+        "W-0013",
+        "W-0014"
+      ]
+    },
+    {
+      "id": "CT-CI-07",
+      "runner": "ci-config-selftest.mjs",
+      "markers": [
+        {
+          "line": 852,
+          "text": "process.stdout.write(\"CT-CI-07 PASS — every GitLab fragment is reachable\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:128",
+        "text": "config/rules | Mọi file dưới `deploy/ci/*.gitlab-ci.yml` đều reachable từ root `.gitlab-ci.yml` (render pipeline liệt kê đủ job); fragment mồ côi → FAIL."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0011",
+        "W-0012",
+        "W-0013",
+        "W-0014"
+      ]
+    },
+    {
+      "id": "CT-CI-08",
+      "runner": "ci-config-selftest.mjs",
+      "markers": [
+        {
+          "line": 853,
+          "text": "process.stdout.write(\"CT-CI-08 PASS — every artifact producer feeds pii_scan\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:127",
+        "text": "config/rules | Mọi job có `artifacts:` đều nằm trong `needs` của `pii_scan` (phương án A) **hoặc** tự chạy scanner trước upload (phương án B); thiếu job → FAIL."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0011",
+        "W-0012",
+        "W-0013",
+        "W-0014",
+        "W-0114"
+      ]
+    },
+    {
+      "id": "CT-CI-10",
+      "runner": "ci-config-selftest.mjs",
+      "markers": [
+        {
+          "line": 854,
+          "text": "process.stdout.write(\"CT-CI-10 PASS — OpenAPI, API-06 and source error catalogs match\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-0-foundation/P0-2-ci-baseline-quality-gates.md:130",
+        "text": "config/contract | Exact set 16 error codes phải giống nhau giữa OpenAPI, API-06 và `IvrErrorCodes`; lệch bất kỳ phía nào → FAIL."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0011"
+      ]
+    },
+    {
+      "id": "CT-CI-11",
+      "runner": "ci-config-selftest.mjs",
+      "markers": [
+        {
+          "line": 783,
+          "text": "process.stdout.write(\"CT-CI-11 PASS — every image USER states its UID and matches the chart\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0270/README.md:44",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0270"
+      ]
+    },
+    {
+      "id": "CT-CI-12",
+      "runner": "ci-config-selftest.mjs",
+      "markers": [
+        {
+          "line": 850,
+          "text": "process.stdout.write(\"CT-CI-12 PASS — the documented baseline is the one CI compares against\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0275/README.md:80",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0275",
+        "W-0276",
+        "W-0277",
+        "W-0278",
+        "W-0279"
+      ]
+    },
+    {
+      "id": "CT-GATE-01",
+      "runner": "review-gate-selftest.mjs",
+      "markers": [
+        {
+          "line": 144,
+          "text": "process.stdout.write(\"CT-GATE-01 PASS — a planted order-transition symbol is rejected\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-5-quality/P5-4-code-review-gate.md:50",
+        "text": "ci-selftest | MR có transition order (vi phạm D-02 giả) → reviewer checklist/analyzer bắt."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0038"
+      ]
+    },
+    {
+      "id": "CT-GATE-02",
+      "runner": "review-gate-selftest.mjs",
+      "markers": [
+        {
+          "line": 145,
+          "text": "process.stdout.write(\"CT-GATE-02 PASS — a raw phone number fails the PII scan\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-5-quality/P5-4-code-review-gate.md:51",
+        "text": "ci-selftest | MR PII leak trong log → security scan/test fail."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0038"
+      ]
+    },
+    {
+      "id": "CT-GATE-03",
+      "runner": "review-gate-selftest.mjs",
+      "markers": [
+        {
+          "line": 146,
+          "text": "process.stdout.write(\"CT-GATE-03 PASS — coverage below the gate fails\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-5-quality/P5-4-code-review-gate.md:52",
+        "text": "ci-selftest | coverage tụt → gate fail."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0038"
+      ]
+    },
+    {
+      "id": "CT-GATE-04",
+      "runner": "review-gate-selftest.mjs",
+      "markers": [
+        {
+          "line": 147,
+          "text": "process.stdout.write(\"CT-GATE-04 PASS — an untraceable merge request is blocked\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-5-quality/P5-4-code-review-gate.md:53",
+        "text": "ci-selftest | thiếu traceability trong MR → block."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0038"
+      ]
+    },
+    {
+      "id": "CT-DOC-01",
+      "runner": "docs-selftest.mjs",
+      "markers": [
+        {
+          "line": 37,
+          "text": "process.stdout.write(\"CT-DOC-01 PASS — generated portal matches OpenAPI and drift is rejected\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-1-contracts-data/P1-4-api-docs-developer-portal.md:50",
+        "text": "ci | docs sinh từ OpenAPI; drift (docs≠spec) → fail."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0098",
+        "W-0100"
+      ]
+    },
+    {
+      "id": "UT-DOC-PII-03",
+      "runner": "docs-selftest.mjs",
+      "markers": [
+        {
+          "line": 38,
+          "text": "process.stdout.write(\"UT-DOC-PII-03 PASS — docs sources contain no real phone or full street address examples\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-1-contracts-data/P1-4-api-docs-developer-portal.md:52",
+        "text": "unit | ví dụ trong docs không chứa PII thật."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0098",
+        "W-0100",
+        "W-0305",
+        "W-0310"
+      ]
+    },
+    {
+      "id": "IT-CD-DEV-01",
+      "runner": "cd-selftest.mjs",
+      "markers": [
+        {
+          "line": 95,
+          "text": "process.stdout.write(\"IT-CD-DEV-01 PASS — dev deploy needs a scanned, digest-recorded publish, and smokes after\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-3-cicd-pipeline.md:54",
+        "text": "gitlab-ci | protected default-branch push → build/scan/push/deploy dev + smoke pass; scan fail chặn."
+      },
+      "relation": "kiểm tĩnh cấu hình thay cho lần chạy thật",
+      "note": "định nghĩa là lần push đi build/scan/push/deploy dev và smoke; gate kiểm cấu hình job yêu cầu đúng chuỗi đó. W-0045 residual: chưa pipeline deploy nào chạy",
+      "cited_by": [
+        "W-0045"
+      ]
+    },
+    {
+      "id": "IT-CD-GATE-02",
+      "runner": "cd-selftest.mjs",
+      "markers": [
+        {
+          "line": 118,
+          "text": "process.stdout.write(\"IT-CD-GATE-02 PASS — lab and prod promotions are manual, fail-closed and environment-scoped\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-3-cicd-pipeline.md:55",
+        "text": "gitlab-ci | promote pilot/prod cần manual job + protected-environment authorization (DF-03); không auto."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0045"
+      ]
+    },
+    {
+      "id": "IT-CD-REAL-03",
+      "runner": "cd-selftest.mjs",
+      "markers": [
+        {
+          "line": 146,
+          "text": "process.stdout.write(\"IT-CD-REAL-03 PASS — no job sets REAL_CUSTOMER_CALL_ALLOWED, and promotions refuse non-MOCK\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-3-cicd-pipeline.md:56",
+        "text": "gitlab-ci | pipeline không set `REAL_CUSTOMER_CALL_ALLOWED=true` ngoài protected prod-approved job."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0045"
+      ]
+    },
+    {
+      "id": "IT-CD-ROLLBACK-04",
+      "runner": "cd-selftest.mjs",
+      "markers": [
+        {
+          "line": 168,
+          "text": "process.stdout.write(\"IT-CD-ROLLBACK-04 PASS — every environment job is atomic and has a rollback path\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-3-cicd-pipeline.md:57",
+        "text": "gitlab-ci | deploy fail health → auto rollback về revision trước; evidence giữ nguyên."
+      },
+      "relation": "kiểm tĩnh cấu hình thay cho lần chạy thật",
+      "note": "định nghĩa là deploy hỏng health thì tự rollback; gate kiểm mỗi job môi trường có bước rollback trong cấu hình",
+      "cited_by": [
+        "W-0045"
+      ]
+    },
+    {
+      "id": "IT-CD-CONCURRENCY-05",
+      "runner": "cd-selftest.mjs",
+      "markers": [
+        {
+          "line": 184,
+          "text": "process.stdout.write(\"IT-CD-CONCURRENCY-05 PASS — every environment job is serialised by resource_group\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-3-cicd-pipeline.md:58",
+        "text": "gitlab-ci | `resource_group` serialize deployment cùng environment; pipeline superseded không deploy chồng."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0045"
+      ]
+    },
+    {
+      "id": "IT-CANARY-01",
+      "runner": "progressive-selftest.mjs",
+      "markers": [
+        {
+          "line": 74,
+          "text": "process.stdout.write(\"IT-CANARY-01 PASS — canary is SLO-gated, starts small, and every pause is bounded\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-4-progressive-delivery-canary.md:49",
+        "text": "ci | canary api promote theo SLO; vi phạm SLO → auto-rollback."
+      },
+      "relation": "kiểm tĩnh cấu hình thay cho lần chạy thật",
+      "note": "định nghĩa là canary promote theo SLO và tự rollback; gate kiểm cấu hình rollout. W-0046 residual: canary run/auto-rollback NOT_RUN",
+      "cited_by": [
+        "W-0046"
+      ]
+    },
+    {
+      "id": "IT-BG-WORKER-02",
+      "runner": "progressive-selftest.mjs",
+      "markers": [
+        {
+          "line": 98,
+          "text": "process.stdout.write(\"IT-BG-WORKER-02 PASS — worker switches blue-green, manually promoted, with the reason recorded\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-4-progressive-delivery-canary.md:50",
+        "text": "ci | blue-green worker switch atomic; không 2 scheduler double-dispatch."
+      },
+      "relation": "kiểm tĩnh cấu hình thay cho lần chạy thật",
+      "note": "định nghĩa là chuyển blue-green không double-dispatch; gate kiểm cấu hình chuyển và promote thủ công. W-0046 residual: blue-green demo NOT_RUN",
+      "cited_by": [
+        "W-0046"
+      ]
+    },
+    {
+      "id": "IT-MIGRATE-03",
+      "runner": "progressive-selftest.mjs",
+      "markers": [
+        {
+          "line": 145,
+          "text": "`IT-MIGRATE-03 PASS — ${files.length} migrations, expand DDL guarded; 2 byte-pinned legacy SQL migrations outside the supported overlap window\\n`);"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-4-progressive-delivery-canary.md:51",
+        "text": "ci | migration expand-contract: 2 version chạy song không lỗi."
+      },
+      "relation": "kiểm tĩnh cấu hình thay cho lần chạy thật",
+      "note": "định nghĩa là hai version chạy song song; gate đọc migration thật và chặn DDL không tương thích, không chạy hai version",
+      "cited_by": [
+        "W-0114",
+        "W-0046",
+        "W-0055"
+      ]
+    },
+    {
+      "id": "IT-FLAG-RAMP-04",
+      "runner": "progressive-selftest.mjs",
+      "markers": [
+        {
+          "line": 180,
+          "text": "process.stdout.write(\"IT-FLAG-RAMP-04 PASS — no rollout touches a feature flag, and both pin the governance floor\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-7-deployment/P7-4-progressive-delivery-canary.md:52",
+        "text": "ci | bật tính năng qua flag độc lập rollout %."
+      },
+      "relation": "kiểm tĩnh cấu hình thay cho lần chạy thật",
+      "note": "định nghĩa là bật tính năng qua flag độc lập với % rollout; gate kiểm rollout không chạm feature flag",
+      "cited_by": [
+        "W-0046"
+      ]
+    },
+    {
+      "id": "DG-CRYPTO-01",
+      "runner": "dr-selftest.mjs",
+      "markers": [
+        {
+          "line": 247,
+          "text": "\"DG-CRYPTO-01 PASS — the server refuses plaintext (with a positive control), and no environment \""
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-10-compliance-maturity/P10-2-data-governance-backup-dr.md:50",
+        "text": "security | DB at-rest encrypted + in-transit TLS; token-vault bảo vệ (D-05)."
+      },
+      "relation": "một phần của định nghĩa",
+      "note": "định nghĩa gồm at-rest, in-transit và token vault; gate chỉ chứng minh server từ chối kết nối không TLS. W-0053 residual: không mã hoá volume at-rest, không KMS",
+      "cited_by": [
+        "W-0053"
+      ]
+    },
+    {
+      "id": "DG-BACKUP-02",
+      "runner": "dr-selftest.mjs",
+      "markers": [
+        {
+          "line": 338,
+          "text": "`DG-BACKUP-02 PASS — encrypted in flight, tampering refused before decryption, restored `"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-10-compliance-maturity/P10-2-data-governance-backup-dr.md:51",
+        "text": "drill | restore từ backup **encrypted** thành công; RPO đạt."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0053"
+      ]
+    },
+    {
+      "id": "DG-DR-03",
+      "runner": "dr-selftest.mjs",
+      "markers": [
+        {
+          "line": 498,
+          "text": "`DG-DR-03 PASS_SINGLE_HOST — RPO=0 (the commit taken immediately before SIGKILL survived); `"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-10-compliance-maturity/P10-2-data-governance-backup-dr.md:52",
+        "text": "drill | failover multi-AZ trong RTO; không mất dữ liệu committed."
+      },
+      "relation": "PASS có điều kiện",
+      "note": "PASS_SINGLE_HOST: RPO=0 và RTO trong ngân sách, nhưng trên một host hai container, không phải multi-AZ",
+      "cited_by": [
+        "W-0053",
+        "W-0216"
+      ]
+    },
+    {
+      "id": "CAP-MODEL-01",
+      "runner": "capacity-selftest.mjs",
+      "markers": [
+        {
+          "line": 107,
+          "text": "`CAP-MODEL-01 PASS — peak sizing (${peak} channels) exceeds flat-day sizing (${flat}), cooldown `"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-10-compliance-maturity/P10-3-capacity-cost-sim-sizing.md:50",
+        "text": "verification | model tính SIM cho Golden Hour peak (không phải avg); ràng buộc one-call/cooldown đúng."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0132",
+        "W-0134",
+        "W-0054",
+        "W-0212",
+        "W-0223"
+      ]
+    },
+    {
+      "id": "CAP-SENS-02",
+      "runner": "capacity-selftest.mjs",
+      "markers": [
+        {
+          "line": 129,
+          "text": "`CAP-SENS-02 PASS — ${result.results.length} corners give ${result.minimum}..${result.maximum} `"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-10-compliance-maturity/P10-3-capacity-cost-sim-sizing.md:51",
+        "text": "verification | sensitivity cho dải volume → khoảng SIM pilot/launch có căn cứ (thay giả định DT-04)."
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0132",
+        "W-0134",
+        "W-0054",
+        "W-0212",
+        "W-0223"
+      ]
+    },
+    {
+      "id": "CAP-CALIB-03",
+      "runner": "capacity-selftest.mjs",
+      "markers": [
+        {
+          "line": 157,
+          "text": "\"CAP-CALIB-03 PASS_UNCALIBRATED — the model declares itself uncalibrated and names W-0008 \""
+        },
+        {
+          "line": 171,
+          "text": "`CAP-CALIB-03 PASS_CALIBRATED — real-call evidence exists at ${evidence}; P5-3 remains `"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-10-compliance-maturity/P10-3-capacity-cost-sim-sizing.md:52",
+        "text": "verification | đối chiếu perf test (P5-3): model khớp throughput đo được (±sai số)."
+      },
+      "relation": "PASS có điều kiện",
+      "note": "PASS_UNCALIBRATED: mô hình tự khai chưa hiệu chỉnh và chỉ ra W-0008; PASS_CALIBRATED chỉ khi có số đo cuộc gọi thật",
+      "cited_by": [
+        "W-0132",
+        "W-0054",
+        "W-0212",
+        "W-0223"
+      ]
+    },
+    {
+      "id": "CAP-ALERT-04",
+      "runner": "capacity-selftest.mjs",
+      "markers": [
+        {
+          "line": 271,
+          "text": "`CAP-ALERT-04 PASS_WITH_NOT_PROVEN=COST_METRIC — prod ships ${pools.prod} channels against a `"
+        }
+      ],
+      "definition": {
+        "source": "prompt/phase-10-compliance-maturity/P10-3-capacity-cost-sim-sizing.md:53",
+        "text": "integration | capacity alert ngưỡng khớp model (P6-2)."
+      },
+      "relation": "PASS có điều kiện",
+      "note": "PASS_WITH_NOT_PROVEN=COST_METRIC: pool prod khớp đỉnh của mô hình; cost_per_confirmed_order chưa đo vì còn chờ báo giá (W-0008)",
+      "cited_by": [
+        "W-0134",
+        "W-0041",
+        "W-0054"
+      ]
+    },
+    {
+      "id": "CAP-DRIFT-05",
+      "runner": "capacity-selftest.mjs",
+      "markers": [
+        {
+          "line": 400,
+          "text": "`CAP-DRIFT-05 ${declared.calibrated ? \"PASS_CALIBRATED\" : \"PASS_DECLARED_DISAGREEMENT\"} — `"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0132/README.md:35",
+        "text": null
+      },
+      "relation": "PASS có điều kiện",
+      "note": "PASS_DECLARED_DISAGREEMENT: thời lượng cuộc gọi của mô hình, spec và runtime lệch nhau có khai báo; PASS_CALIBRATED khi đã hiệu chỉnh",
+      "cited_by": [
+        "W-0132",
+        "W-0134",
+        "W-0212",
+        "W-0223"
+      ]
+    },
+    {
+      "id": "CAP-SESSION-06",
+      "runner": "capacity-selftest.mjs",
+      "markers": [
+        {
+          "line": 485,
+          "text": "`CAP-SESSION-06 PASS_UNANSWERED — session length is declared open under `"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0134/README.md:39",
+        "text": null
+      },
+      "relation": "PASS có điều kiện",
+      "note": "PASS_UNANSWERED: độ dài phiên vẫn là câu hỏi mở đã khai báo, mô hình tính theo mốc đã chốt",
+      "cited_by": [
+        "W-0134",
+        "W-0223"
+      ]
+    },
+    {
+      "id": "CAP-INTAKE-VALID-01",
+      "runner": "capacity-data-intake-validator.mjs",
+      "markers": [
+        {
+          "line": 1601,
+          "text": "process.stdout.write(\"CAP-INTAKE-VALID-01 PASS — TEST_ONLY four-group bundle accepted only by self-test path\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0155/README.md:96",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0155",
+        "W-0156"
+      ]
+    },
+    {
+      "id": "CAP-INTAKE-MODE-02",
+      "runner": "capacity-data-intake-validator.mjs",
+      "markers": [
+        {
+          "line": 2010,
+          "text": "process.stdout.write(\"CAP-INTAKE-MODE-02 PASS — normal acceptance path rejects TEST_ONLY data\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0155/README.md:97",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0155",
+        "W-0156"
+      ]
+    },
+    {
+      "id": "CAP-INTAKE-MODE-03",
+      "runner": "capacity-data-intake-validator.mjs",
+      "markers": [
+        {
+          "line": 2022,
+          "text": "process.stdout.write(\"CAP-INTAKE-MODE-03 PASS — external status cannot hide TEST_ONLY provenance\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0155/README.md:98",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0155",
+        "W-0156"
+      ]
+    },
+    {
+      "id": "CAP-INTAKE-TEMPLATE-04",
+      "runner": "capacity-data-intake-validator.mjs",
+      "markers": [
+        {
+          "line": 2031,
+          "text": "process.stdout.write(\"CAP-INTAKE-TEMPLATE-04 PASS — pending template is fail-closed\\n\");"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0155/README.md:99",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0155",
+        "W-0156"
+      ]
+    },
+    {
+      "id": "CAP-INTAKE-RECEIPT-05",
+      "runner": "capacity-data-intake-validator.mjs",
+      "markers": [
+        {
+          "line": 1641,
+          "text": "\"CAP-INTAKE-RECEIPT-05 PASS — deterministic fixed-clock receipt is hash-bound, PII-safe, raw-row-free, tamper-rejecting and no-overwrite\\n\","
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0156/README.md:61",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0156"
+      ]
+    },
+    {
+      "id": "CAP-INTAKE-RECEIPT-VERIFY-06",
+      "runner": "capacity-data-intake-validator.mjs",
+      "markers": [
+        {
+          "line": 1696,
+          "text": "`CAP-INTAKE-RECEIPT-VERIFY-06 PASS — trusted-hash receipt accepted; normal mode rejects TEST_ONLY;`"
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0157/README.md:61",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0157",
+        "W-0158"
+      ]
+    },
+    {
+      "id": "CAP-INTAKE-LEDGER-07",
+      "runner": "capacity-data-intake-validator.mjs",
+      "markers": [
+        {
+          "line": 1832,
+          "text": "\"CAP-INTAKE-LEDGER-07 PASS — verified-only append, metadata-only shape, idempotent duplicate,\""
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0158/README.md:60",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0158",
+        "W-0159"
+      ]
+    },
+    {
+      "id": "CAP-INTAKE-CHECKPOINT-08",
+      "runner": "capacity-data-intake-validator.mjs",
+      "markers": [
+        {
+          "line": 1999,
+          "text": "\"CAP-INTAKE-CHECKPOINT-08 PASS — immutable metadata checkpoint and trusted-hash verifier reject\""
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0159/README.md:64",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0159"
+      ]
+    },
+    {
+      "id": "CT-OBS-STAGING-13",
+      "runner": "observability-staging-evidence.mjs",
+      "markers": [
+        {
+          "line": 630,
+          "text": "\"CT-OBS-STAGING-13 PASS — the template and complete backend-shaped proof produce a PII-safe closure manifest\\n\","
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0139/README.md:61",
+        "text": null
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0139"
+      ]
+    },
+    {
+      "id": "CT-OBS-STAGING-14",
+      "runner": "observability-staging-evidence.mjs",
+      "markers": [
+        {
+          "line": 633,
+          "text": "\"CT-OBS-STAGING-14 PASS — incomplete traces, mutable images, credential fields and HTTP staging endpoints fail closed\\n\","
+        }
+      ],
+      "definition": {
+        "source": "docs/evidence/W-0139/README.md:61",
+        "text": "viết tắt CT-OBS-STAGING-13/14"
+      },
+      "relation": "khớp định nghĩa",
+      "note": null,
+      "cited_by": [
+        "W-0139"
+      ]
+    }
+  ],
+  "whole_gate": [
+    "CT-ACCEPTANCE-C2-01",
+    "CT-ACCEPTANCE-EVIDENCE-01"
+  ],
+  "not_registered": [
+    {
+      "ids": [
+        "DG-RETENTION-04"
+      ],
+      "reason": "đã là test .NET có tag; đăng ký gate sẽ che kết quả .NET"
+    },
+    {
+      "ids": [
+        "IT-IMG-BUILD-01"
+      ],
+      "reason": "ci-config-selftest.mjs chỉ nhắc tên trong comment"
+    },
+    {
+      "ids": [
+        "IT-IMG-*",
+        "IT-K8S-*",
+        "IT-OBS-TRACE-02"
+      ],
+      "reason": "image-selftest.mjs/k8s-selftest.mjs không chạy trong full sweep (docker build, helm/kubeconform/cluster); observability-runtime-selftest.mjs là thư viện của image-selftest"
+    },
+    {
+      "ids": [
+        "CT-DOC-02"
+      ],
+      "reason": "selftest-oasdiff.sh cần binary oasdiff trong image, không chạy trong full sweep"
+    },
+    {
+      "ids": [
+        "CT-CI-04"
+      ],
+      "reason": "security-scan.sh cần image scanner và mạng, không chạy trong full sweep"
+    }
+  ],
+  "negative_checks_against_real_runners": [
+    "DG-RETENTION-04 là TestId của test .NET; registry sẽ che kết quả của test đó",
+    "IT-IMG-BUILD-01: ci-config-selftest.mjs không in \"IT-IMG-BUILD-01 PASS\"",
+    "IT-K8S-LINT-01: k8s-selftest.mjs không chạy trong full sweep",
+    "CT-DOC-02: selftest-oasdiff.sh không chạy trong full sweep",
+    "CT-CI-04: security-scan.sh không chạy trong full sweep",
+    "CAP-DRIFT-05: capacity-selftest.mjs in PASS có điều kiện (${declared.calibrated ? \"PASS_CALIBRATED\" : \"PASS_DECLARED_DISAGREEMENT\"}) mà chưa khai báo"
+  ],
+  "preview_same_data_same_bundle": {
+    "data_commit": "2a002e337c7235f919bcd4858c9ff9a8de7c3520",
+    "bundle": ".artifacts/acceptance-2a002e3/acceptance-run.json (1196 kết quả .trx, GATE_SWEEP_PASS 43/43)",
+    "before": "docs/release/acceptance-batches.md tại 414e84b (tool cũ)",
+    "after": "tool W-0346 chạy --root trên bản clone chỉ đọc tại 2a002e3 với cùng bundle",
+    "xem": [
+      56,
+      83
+    ],
+    "khong_dat": [
+      162,
+      135
+    ],
+    "dat": [
+      0,
+      0
+    ],
+    "moved_count": 27,
+    "moved_planned": [
+      "W-0013: KHÔNG ĐẠT -> XEM",
+      "W-0014: KHÔNG ĐẠT -> XEM",
+      "W-0038: KHÔNG ĐẠT -> XEM",
+      "W-0041: KHÔNG ĐẠT -> XEM",
+      "W-0045: KHÔNG ĐẠT -> XEM",
+      "W-0046: KHÔNG ĐẠT -> XEM",
+      "W-0053: KHÔNG ĐẠT -> XEM",
+      "W-0054: KHÔNG ĐẠT -> XEM"
+    ],
+    "moved_unplanned": [
+      "W-0095: KHÔNG ĐẠT -> XEM",
+      "W-0098: KHÔNG ĐẠT -> XEM",
+      "W-0114: KHÔNG ĐẠT -> XEM",
+      "W-0132: KHÔNG ĐẠT -> XEM",
+      "W-0134: KHÔNG ĐẠT -> XEM",
+      "W-0155: KHÔNG ĐẠT -> XEM",
+      "W-0156: KHÔNG ĐẠT -> XEM",
+      "W-0157: KHÔNG ĐẠT -> XEM",
+      "W-0158: KHÔNG ĐẠT -> XEM",
+      "W-0159: KHÔNG ĐẠT -> XEM",
+      "W-0212: KHÔNG ĐẠT -> XEM",
+      "W-0223: KHÔNG ĐẠT -> XEM",
+      "W-0275: KHÔNG ĐẠT -> XEM",
+      "W-0276: KHÔNG ĐẠT -> XEM",
+      "W-0277: KHÔNG ĐẠT -> XEM",
+      "W-0278: KHÔNG ĐẠT -> XEM",
+      "W-0279: KHÔNG ĐẠT -> XEM",
+      "W-0305: KHÔNG ĐẠT -> XEM",
+      "W-0310: KHÔNG ĐẠT -> XEM"
+    ],
+    "other_changes": 0
+  }
+}

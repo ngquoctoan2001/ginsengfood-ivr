@@ -10,7 +10,88 @@ export const GATE_TESTS = Object.freeze({
     .map((suffix) => [`CT-CI-06${suffix}`, "selftest-pii.sh"])),
   "CT-ACCEPTANCE-C2-01": "acceptance-batches.mjs",
   "CT-ACCEPTANCE-EVIDENCE-01": "acceptance-evidence-selftest.mjs",
+  // W-0346. Each runner prints "<TestId> PASS…" right after the assertion of that name, and
+  // gateRegistryErrors() holds every entry to that. Only IDs a candidate cites. A gate the full
+  // sweep does not run (image, k8s, oasdiff, security-scan) cannot own one.
+  ...printedBy("selftest-openapi.mjs", "CT-CI-01"),
+  ...printedBy("selftest-dotnet-policy.sh", "CT-CI-02", "CT-CI-03", "CT-CI-09"),
+  ...printedBy("ci-config-selftest.mjs", "CT-CI-05", "CT-CI-07", "CT-CI-08", "CT-CI-10", "CT-CI-11",
+    "CT-CI-12"),
+  ...printedBy("review-gate-selftest.mjs", "CT-GATE-01", "CT-GATE-02", "CT-GATE-03", "CT-GATE-04"),
+  ...printedBy("docs-selftest.mjs", "CT-DOC-01", "UT-DOC-PII-03"),
+  ...printedBy("cd-selftest.mjs", "IT-CD-DEV-01", "IT-CD-GATE-02", "IT-CD-REAL-03", "IT-CD-ROLLBACK-04",
+    "IT-CD-CONCURRENCY-05"),
+  ...printedBy("progressive-selftest.mjs", "IT-CANARY-01", "IT-BG-WORKER-02", "IT-MIGRATE-03",
+    "IT-FLAG-RAMP-04"),
+  ...printedBy("dr-selftest.mjs", "DG-CRYPTO-01", "DG-BACKUP-02", "DG-DR-03"),
+  ...printedBy("capacity-selftest.mjs", "CAP-MODEL-01", "CAP-SENS-02", "CAP-CALIB-03", "CAP-ALERT-04",
+    "CAP-DRIFT-05", "CAP-SESSION-06"),
+  ...printedBy("capacity-data-intake-validator.mjs", "CAP-INTAKE-VALID-01", "CAP-INTAKE-MODE-02",
+    "CAP-INTAKE-MODE-03", "CAP-INTAKE-TEMPLATE-04", "CAP-INTAKE-RECEIPT-05", "CAP-INTAKE-RECEIPT-VERIFY-06",
+    "CAP-INTAKE-LEDGER-07", "CAP-INTAKE-CHECKPOINT-08"),
+  ...printedBy("observability-staging-evidence.mjs", "CT-OBS-STAGING-13", "CT-OBS-STAGING-14"),
 });
+
+// Here the whole gate is the test. Its manifest marker is the result, so it prints no per-ID line.
+export const WHOLE_GATE_TESTS = Object.freeze(["CT-ACCEPTANCE-C2-01", "CT-ACCEPTANCE-EVIDENCE-01"]);
+
+// A runner that prints "<TestId> PASS_<suffix>" passed under the condition it names. The list shows
+// the condition beside the work, which therefore never passes without the owner reading it.
+export const GATE_TEST_CONDITIONS = Object.freeze({
+  "CAP-CALIB-03": "PASS_UNCALIBRATED: mô hình tự khai chưa hiệu chỉnh và chỉ ra W-0008; PASS_CALIBRATED chỉ khi có số đo cuộc gọi thật",
+  "CAP-ALERT-04": "PASS_WITH_NOT_PROVEN=COST_METRIC: pool prod khớp đỉnh của mô hình; cost_per_confirmed_order chưa đo vì còn chờ báo giá (W-0008)",
+  "CAP-DRIFT-05": "PASS_DECLARED_DISAGREEMENT: thời lượng cuộc gọi của mô hình, spec và runtime lệch nhau có khai báo; PASS_CALIBRATED khi đã hiệu chỉnh",
+  "CAP-SESSION-06": "PASS_UNANSWERED: độ dài phiên vẫn là câu hỏi mở đã khai báo, mô hình tính theo mốc đã chốt",
+  "DG-DR-03": "PASS_SINGLE_HOST: RPO=0 và RTO trong ngân sách, nhưng trên một host hai container, không phải multi-AZ",
+});
+
+function printedBy(runner, ...ids) {
+  return Object.fromEntries(ids.map((id) => [id, runner]));
+}
+
+/**
+ * Why registry entries cannot stand, one message each. An entry stands when its runner is in the
+ * full sweep (argv in the manifest), no .NET test owns its TestId (the entry would hide that test's
+ * result), and the runner prints "<TestId> PASS" outside a comment. A PASS with a suffix is
+ * conditional: it must be declared, and a declaration needs one.
+ */
+export function gateRegistryErrors({ manifest, traced, source, registry = GATE_TESTS,
+  conditions = GATE_TEST_CONDITIONS, wholeGate = WHOLE_GATE_TESTS }) {
+  const errors = [];
+  for (const [id, runner] of Object.entries(registry)) {
+    if (!Array.isArray(manifest?.gates?.[runner]?.argv)) {
+      errors.push(`${id}: ${runner} không chạy trong full sweep`);
+      continue;
+    }
+    if (traced.has(id)) {
+      errors.push(`${id} là TestId của test .NET; registry sẽ che kết quả của test đó`);
+      continue;
+    }
+    if (wholeGate.includes(id)) continue;
+    const text = source(runner);
+    if (typeof text !== "string") {
+      errors.push(`${id}: không đọc được ${runner}`);
+      continue;
+    }
+    const escaped = id.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+    const printed = new RegExp(`(?<![A-Za-z0-9-])${escaped} (PASS\\w*|\\$\\{[^}]*\\bPASS\\w*[^}]*\\})`, "gu");
+    const markers = text.split("\n").filter((line) => !/^\s*(?:\/\/|\/\*|\*|#)/u.test(line))
+      .flatMap((line) => [...line.matchAll(printed)].map((match) => match[1]));
+    const conditional = markers.some((marker) => marker !== "PASS");
+    if (markers.length === 0) {
+      errors.push(`${id}: ${runner} không in "${id} PASS"`);
+    } else if (conditional && !Object.hasOwn(conditions, id)) {
+      errors.push(`${id}: ${runner} in PASS có điều kiện (${markers.join(", ")}) mà chưa khai báo`);
+    } else if (!conditional && Object.hasOwn(conditions, id)) {
+      errors.push(`${id}: khai báo điều kiện nhưng ${runner} chỉ in PASS`);
+    }
+  }
+
+  for (const id of Object.keys(conditions)) {
+    if (!Object.hasOwn(registry, id)) errors.push(`${id}: có điều kiện nhưng không có trong registry`);
+  }
+  return errors;
+}
 
 /** Read only same-pack Markdown attachments; every read is supplied by the pinned Git reader. */
 export function collectTestEvidence({ workId, evidencePath, evidenceText, promptText = "", trace,

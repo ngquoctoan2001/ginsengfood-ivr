@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { collectTestEvidence, TEST_PLAN_SCHEMA } from "./acceptance-test-plan.mjs";
+import { collectTestEvidence, gateRegistryErrors, TEST_PLAN_SCHEMA } from "./acceptance-test-plan.mjs";
 
 // Invoked by the existing acceptance-batches --self-test gate; no separate optional runner.
 export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, testVerdict }) {
@@ -111,5 +111,46 @@ export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, te
   assert.equal(judge(row, { ...gateEvidence, gateManifest: { gates: {} } }).c2.ok, false); checks += 1;
   assert.equal(judge(row, { ...gateEvidence, sweep: { ok: false } }).c2.ok, false); checks += 1;
   assert.equal(judge(row, { ...input, evidenceText: `${input.evidenceText}\nCT-CI-999` }).c2.ok, false); checks += 1;
+
+  // W-0346: registered runner assertions, plain and conditional, and the rules the registry obeys.
+  const capacity = { gates: { "capacity-selftest.mjs": { argv: ["--self-test"] } } };
+  const plain = judge(row, { ...input, evidenceText: `${input.evidenceText}\nCT-CI-05`,
+    gateManifest: { gates: { "ci-config-selftest.mjs": { argv: ["--self-test"] } } } });
+  assert.equal(plain.c2.ok, true);
+  assert.deepEqual(plain.conditional, []);
+  assert.equal(plain.verdict, "ĐẠT", "a plain runner PASS with nothing left to read passes"); checks += 1;
+  const conditional = judge(row, { ...input, evidenceText: `${input.evidenceText}\nCAP-CALIB-03`, gateManifest: capacity });
+  assert.equal(conditional.c2.ok, true);
+  assert.equal(conditional.verdict, "XEM", "a conditional runner PASS is shown to the owner, never passed silently");
+  assert.match(conditional.conditional.join("; "), /^CAP-CALIB-03 PASS_UNCALIBRATED/u); checks += 1;
+  assert.equal(judge(row, { ...input, evidenceText: `${input.evidenceText}\nCAP-CALIB-03`, gateManifest: { gates: {} } }).c2.ok,
+    false, "a conditional PASS still needs its runner in the sweep"); checks += 1;
+  assert.equal(judge(row, { ...input, evidenceText: `${input.evidenceText}\nCAP-CALIB-03 UT-X-99`, gateManifest: capacity })
+    .verdict, "KHÔNG ĐẠT", "a condition never softens another failure"); checks += 1;
+
+  const runner = [
+    'process.stdout.write("UT-Z-01 PASS — plain\\n");',
+    'process.stdout.write(`UT-Z-02 ${ok ? "PASS_A" : "PASS_B"} — conditional\\n`);',
+    "// UT-Z-03 PASS — a comment is not a result",
+    'process.stdout.write("UT-Z-04b PASS — a longer ID does not print UT-Z-04\\n");',
+  ].join("\n");
+  const registry = (overrides) => gateRegistryErrors({
+    manifest: { gates: { "z.mjs": { argv: [] }, "off.mjs": { sweepable: false } } },
+    traced: new Map([["UT-Z-09", []]]), source: (file) => (file === "z.mjs" ? runner : null), wholeGate: [],
+    registry: { "UT-Z-01": "z.mjs", "UT-Z-02": "z.mjs" }, conditions: { "UT-Z-02": "PASS_A hoặc PASS_B" }, ...overrides });
+  assert.deepEqual(registry({}), []); checks += 1;
+  for (const [overrides, rejected] of [
+    [{ registry: { "UT-Z-01": "off.mjs" }, conditions: {} }, /không chạy trong full sweep/u],
+    [{ registry: { "UT-Z-09": "z.mjs" }, conditions: {} }, /test \.NET/u],
+    [{ registry: { "UT-Z-03": "z.mjs" }, conditions: {} }, /không in "UT-Z-03 PASS"/u],
+    [{ registry: { "UT-Z-04": "z.mjs" }, conditions: {} }, /không in "UT-Z-04 PASS"/u],
+    [{ registry: { "UT-Z-02": "z.mjs" }, conditions: {} }, /có điều kiện .* chưa khai báo/u],
+    [{ registry: { "UT-Z-01": "z.mjs" }, conditions: { "UT-Z-01": "x" } }, /chỉ in PASS/u],
+    [{ registry: { "UT-Z-01": "z.mjs" }, conditions: { "UT-Z-05": "x" } }, /không có trong registry/u],
+  ]) {
+    assert.match(registry(overrides).join("; "), rejected); checks += 1;
+  }
+  assert.deepEqual(registry({ registry: { "UT-Z-08": "z.mjs" }, conditions: {}, wholeGate: ["UT-Z-08"] }), [],
+    "a whole-gate test needs its runner in the sweep, not a per-ID line"); checks += 1;
   return checks;
 }
