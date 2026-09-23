@@ -1,0 +1,127 @@
+{
+  "work_id": "W-0343",
+  "scope": "S5_TARGET",
+  "status": "PASS",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "run_utc": {
+    "started": "2026-09-23T01:25:21.481825+00:00",
+    "ended": "2026-09-23T01:46:13.635399+00:00"
+  },
+  "fetch": {
+    "handoff_step_3": "scp closed by 192.168.1.61 at the password prompt",
+    "retrieved_by": "separate read-only scp, 2026-09-23",
+    "measurement_rerun": false
+  },
+  "receipt_archive": {
+    "path": ".artifacts/W-0343/vieneu-release-w0343-result.tar.gz",
+    "bytes": 32861,
+    "sha256_hex_chunks": [
+      "4ee51023",
+      "62843bb5",
+      "7f3f6e73",
+      "2da80953",
+      "48d1ca24",
+      "4703d97c",
+      "b1a0f8fb",
+      "bd0873e8"
+    ],
+    "checksum_file_format": "PASS",
+    "hash_matches_checksum_file": true
+  },
+  "script_step_3_checks": {
+    "catalog": true,
+    "scope": true,
+    "status": true,
+    "no_real_calls": true,
+    "production_blocked": true,
+    "existing_services_unchanged": true,
+    "profile_2cpu_4gib_30_90_120": true,
+    "two_runs": true
+  },
+  "host": {
+    "name": "vps61",
+    "kernel": "5.15.0-191-generic",
+    "logical_cpus": 10,
+    "os": "Ubuntu 22.04.4 LTS"
+  },
+  "image": {
+    "index_hex_chunks": [
+      "676133c7",
+      "97495125",
+      "43a47a11",
+      "ec66211c",
+      "a083b38d",
+      "a3a0b0cf",
+      "97777b1f",
+      "2af6c1dd"
+    ],
+    "config_hex_chunks": [
+      "3bfeb46f",
+      "e22a2b74",
+      "2a72b32f",
+      "c176781e",
+      "a16489b4",
+      "5673ab47",
+      "e846c5fd",
+      "790d2a80"
+    ]
+  },
+  "release_path": "/home/ssv/ivr-artifact-mirror/releases/vieneu-w0343",
+  "limits": {
+    "nano_cpus": 2000000000,
+    "memory": 4294967296,
+    "memory_swap": 4294967296,
+    "network_mode": "none",
+    "read_only_rootfs": true,
+    "cap_drop": [
+      "ALL"
+    ]
+  },
+  "readiness_ms": {
+    "start": 8209,
+    "restart": 5452
+  },
+  "runs": [
+    {
+      "run": "run-1",
+      "soak_elapsed_ms": 456913,
+      "soak_batches": 22,
+      "elapsed_ms": 593832,
+      "jobs": 63,
+      "errors": 0,
+      "pcm_equal": 63,
+      "dynamic_parts": 168,
+      "http_status_counts": {
+        "200": 168,
+        "503": 11
+      }
+    },
+    {
+      "run": "run-2",
+      "soak_elapsed_ms": 457212,
+      "soak_batches": 22,
+      "elapsed_ms": 594146,
+      "jobs": 63,
+      "errors": 0,
+      "pcm_equal": 63,
+      "dynamic_parts": 168,
+      "http_status_counts": {
+        "200": 168,
+        "503": 11
+      }
+    }
+  ],
+  "final_container": {
+    "status": "exited",
+    "oom_killed": false,
+    "exit_code": 137,
+    "restart_count": 0,
+    "exit_137_reason": "harness docker stop -t 10 escalated to SIGKILL"
+  },
+  "not_covered": [
+    "scheduler/SIP/DTMF (W-0344)",
+    "production capacity",
+    "real customer calls"
+  ]
+}
