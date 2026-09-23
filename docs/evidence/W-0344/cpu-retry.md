@@ -2,12 +2,14 @@
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
-**S5 chưa đạt.** Lượt `cpu-r2` đầu tiên trên S5 (23/09, `093745-1c9bd160`) cho thấy bản sửa Asterisk
-đã có tác dụng, nhưng sidecar TTS không đọc được model: mirror chỉ `ssv` đọc được, còn TTS chạy
-bằng uid 1654 (mục 6). Installer đã sửa để chép model sang bản đọc được; chờ chạy lại.
-Gói `cpu-r1` (22/09 14:06) chưa từng gửi lên S5 và đã bị thay: installer bị sửa sau khi ghim
-hash nên script retry tự dừng ở bước kiểm checksum, và lượt diễn tập thứ hai của nó hỏng
-(mục 2). Toàn bộ hash và kết quả nằm ở [cpu-retry-verification.json](cpu-retry-verification.json).
+**S5 ĐẠT — `S5_TARGET_SYNTHETIC_SIP_PASS` với gói `cpu-r3`, lượt `20260923-104028-3db63850` (mục 8).**
+7/7 ca, đối soát DB đúng hoàn toàn, 43 container có sẵn không đổi. Chờ Toàn nghiệm thu.
+
+Các lượt trước: `cpu-r1` (22/09) không chạy được vì installer bị sửa sau khi ghim, và lượt diễn tập
+thứ hai của nó lộ ra lỗi bộ kiểm bấm phím sớm (mục 2). `cpu-r2` chạy trên S5 hai lần. Lần đầu,
+TTS không đọc được model trong mirror chỉ `ssv` đọc được (mục 6). Lần hai, peer SIP không đọc được
+cấu hình `0600` của chính nó (mục 7). Cả hai đều là lỗi quyền file mà Docker Desktop trên Windows
+che mất. Toàn bộ hash và kết quả nằm ở [cpu-retry-verification.json](cpu-retry-verification.json).
 
 ## 1. Asterisk exit 132 trên S5
 
@@ -61,7 +63,10 @@ Quan sát cho production, **không phải cổng của W-0344**: với 0,5 CPU, 
 hơn thời gian thực khi máy bị tranh CPU, và người nghe có thể gặp khoảng lặng giữa câu. Receipt S5
 sẽ được đo cùng dòng thời gian này.
 
-## 3. Gói cpu-r2
+## 3. Gói cpu-r2 (nay là cpu-r3)
+
+`cpu-r3` giống `cpu-r2` ở mọi điểm dưới đây, chỉ thêm `cases.py` đặt quyền `0644` cho cấu hình peer
+(mục 7). Pin hiện hành trỏ vào `cpu-r3`.
 
 | | |
 | --- | --- |
@@ -86,7 +91,7 @@ phiên SSH giả lập rồi resume, tiến trình bị giết, chạy trùng th
 | --- | --- |
 | Diễn tập local với `cpu-r2` (`rehearsal-1`, 23/09) | **PASS**: 7/7 ca. DB đúng 7 task, 7 attempt, 4 lượt khách, 3 lỗi kỹ thuật, 9 kết quả, 6 kết quả cuối, 6 callback; 0 đếm nhầm hay trùng. Container có sẵn không đổi. Dọn 11 container và network, giữ 2 volume |
 | Cổng chờ RTP trong lượt đó | không phải giữ lần bấm nào: tiếng phát đúng thời gian thực, mỗi lần bấm đều đã nhận đủ gói |
-| Test Python | 41 trên Windows (3.13, 1 test symlink chỉ chạy POSIX) · 30/30 trên Linux (3.14) |
+| Test Python (sau cpu-r3) | 46 trên Windows (3.13, 1 test symlink chỉ chạy POSIX) · 35/35 trên Linux (3.14) |
 | Test hồi quy DTMF | đỏ với `cases.py` của gói S5 gốc, xanh với bản mới |
 | Tách phiên SSH | 8/8 trong container Debian. Đối chứng: script cũ bị ngắt ở giây thứ 3 thì mất cả kết quả lẫn receipt |
 | Chuỗi hash | 20/20 file dựng lại khớp manifest; image Asterisk cùng byte r1; gói gốc khớp lượt S5 `135115`; `-VerifyOnly` đạt trên PowerShell 5.1 và 7 |
@@ -106,12 +111,12 @@ Installer tạo bản sao mới, database/network mới; không sửa hoặc ch�
 
 Từ 23/09 máy Windows đăng nhập S5 bằng SSH key, nên script không còn hỏi mật khẩu. Thiếu key thì
 script hỏi khoảng 4 lần; nhập trong terminal, không gửi vào chat. Script in `RunId`, theo dõi log
-khoảng 10 phút, rồi kéo receipt về `.artifacts/W-0344/cpu-portable-r2/s5-<RunId>/`, kể cả khi lỗi.
+khoảng 10 phút, rồi kéo receipt về thư mục của gói đang ghim (hiện là
+`.artifacts/W-0344/cpu-portable-r3/s5-<RunId>/`), kể cả khi lỗi.
 Nếu rớt SSH, chạy đúng lệnh `-ResumeRunId` mà script in ra.
 
-**Còn phải làm:** chạy lại retry; kiểm receipt mới (SIP/RTP/DTMF, đối soát DB, dòng thời gian
-phát tiếng, bảo toàn dịch vụ); Toàn nghiệm thu sau khi S5 thực sự đạt. Chưa chuyển `ACCEPTED`.
-Không xác nhận production, M3, SIM thật hay nhiều worker.
+**Còn phải làm:** Toàn nghiệm thu (mục 8). Chưa chuyển `ACCEPTED`. Không xác nhận production, M3,
+SIM thật hay nhiều worker.
 
 ## 6. Lượt S5 23/09 `093745-1c9bd160`: Asterisk chạy, TTS không đọc được model
 
@@ -141,3 +146,49 @@ trong volume Docker theo đúng bố cục mirror S5 (chủ uid 1000, `700`/`600
 chạy bằng user 1654. Gắn thẳng mirror ra `status=not_ready`, giống hệt S5. Gắn bản do
 `stage_models` chép (thư mục cha `700` như thư mục chạy trên S5) ra `status=ready`. Mirror vẫn
 `600`. Test installer: 13/13 trên Linux, 12/13 trên Windows (1 test symlink chỉ chạy trên POSIX).
+
+## 7. Lượt S5 23/09 `103255-bf2e4b7c`: TTS lên, peer SIP không đọc được cấu hình → gói `cpu-r3`
+
+Chạy bằng SSH key, không cần gõ mật khẩu; receipt tự tải về và kiểm hash. `stage_models` chép
+13 file model và TTS lên `ready`, nên stack sẵn sàng (`W0344_STACK_READY`). Ca đầu (`confirm`) quay
+số hai lần, cả hai `ASTERISK_DIAL_FAILED`. Hai lần này tính là lỗi kỹ thuật, không tính lượt khách,
+và job chuyển `HELD_ADMIN_REVIEW`: IVR xử lý lỗi đúng thiết kế. Switch báo
+`Could not create dialog to invalid URI 'LAB-A-AUTO'`, tức không có contact nào còn sống.
+
+**Nguyên nhân:** log của peer ghi
+`Parsing '/etc/asterisk/pjsip.conf': Not found (Permission denied)`, và `logger.conf`,
+`http.conf` cũng vậy. `cases.py` ghi 4 file cấu hình của peer trong khi installer đặt `umask 077`,
+nên file có quyền `0600` và thuộc `ssv`. Peer chạy image Asterisk bằng root nhưng có `--cap-drop ALL`:
+thiếu `CAP_DAC_OVERRIDE`, root không đọc được file `0600` của user khác. Peer không có cấu hình
+SIP thì không trả lời OPTIONS, và switch không còn contact nào để gọi. Cùng loại lỗi với mục 6:
+file tạo trên host rồi bind vào container chạy bằng uid khác. Docker Desktop che mất lỗi này.
+
+**Sửa:** `setup_peer` đặt `0644` cho 4 file trước `docker run`; không file nào chứa mật khẩu. Gói
+**`cpu-r3`** = `cpu-r2` + `cases.py` mới; image Asterisk vẫn cùng byte với r1. Diff so với gói gốc:
+−2/+10 dòng; 51/51 dòng assert giữ nguyên. Installer và script retry nay đọc tên gói từ file pin
+(`find_patch`), nên lần sau đổi gói chỉ cần dựng lại và ghim, không phải sửa code.
+
+**Kiểm chứng:** [test_full_flow_peer_config.py](../../../deploy/lab/tests/test_full_flow_peer_config.py)
+đỏ với `cases.py` của `cpu-r2` (4 file được bind, 0 file đọc được), xanh với bản mới.
+[test-peer-config-permissions.py](test-peer-config-permissions.py) dùng image Asterisk thật:
+root có `--cap-drop ALL` bị `Permission denied` với file `0600` của uid 1000, và đọc được file `0644`.
+
+## 8. Lượt S5 23/09 `104028-3db63850` với `cpu-r3`: ĐẠT
+
+Chạy bằng SSH key, không cần mật khẩu; receipt tự tải về và kiểm hash. Manifest kit trong receipt
+(`16d8470a…`) đúng là manifest của `cpu-r3`.
+
+| Kiểm | Kết quả |
+| --- | --- |
+| Tổng | `W0344_S5_TARGET_SYNTHETIC_SIP_PASS`, 03:40–03:47 UTC |
+| 7 ca | xác nhận miền Bắc `IVR_CONFIRMED` · khách hủy miền Nam `IVR_CUSTOMER_CANCELLED` · TTS lỗi rồi thử lại miền Trung `IVR_CONFIRMED` (2 attempt, lần 1 không tính) · hết hạn trong hàng chờ (0 attempt) · hết hạn lúc tạo tiếng `IVR_CONFIRMATION_WINDOW_EXPIRED` · không bấm phím `IVR_NO_ANSWER_FINAL` · người vận hành hủy `IVR_TECHNICAL_EXCEPTION`, không tính lượt, không callback |
+| Đối soát DB | 7 task, 7 attempt, 4 lượt khách, 3 lỗi kỹ thuật, 9 kết quả, 6 kết quả cuối, 6 callback; 0 đếm nhầm, 0 trùng, 0 callback sai |
+| Dòng thời gian tiếng | đúng thời gian thực (ví dụ 7,04 · 7,04 · 0,88 · 2,40 · 1,12 · 2,24 s ở ca thử lại); mỗi lần bấm phím đã nhận đủ gói (1104/1104, 1593/1593, 1280/1280) |
+| Máy đích | 43 container có sẵn không đổi; dọn 11 container và network, giữ 2 volume; bản model chép tạm đã xóa |
+
+Diễn tập local cùng gói, chạy song song: 7/7 ca, đối soát đúng. Tổng kết ra FAIL chỉ vì 2 container
+Testcontainers của dự án khác trên cùng Docker local đổi trạng thái giữa lượt. Guard bắt đúng; đây
+không phải lỗi của gói.
+
+Phạm vi: SIP/RTP/DTMF giữa hai tổng đài phần mềm trên S5, đơn giả, alias `LAB-A`. Không chứng minh
+SIM thật, Sales/M3 chung, nhiều worker hay production. `REAL_CUSTOMER_CALL_ALLOWED=NO`.

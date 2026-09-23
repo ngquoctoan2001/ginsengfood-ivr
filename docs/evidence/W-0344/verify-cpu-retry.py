@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check retry patch r2 end to end before anyone types an SSH password.
+"""Check the pinned retry patch end to end before it goes to S5.
 
 Proves: the pins match the files, the S5 base kit is the one run 135115 verified, the image
 bytes are r1's, only cases.py and the image differ from the base kit, no assertion changed,
@@ -17,7 +17,6 @@ ROOT = Path(__file__).resolve().parents[3]
 DOC = ROOT / 'docs/evidence/W-0344'
 BASE = ROOT / '.artifacts/W-0344/full-flow-s5'
 R1 = ROOT / '.artifacts/W-0344/cpu-portable-r1'
-OUT = ROOT / '.artifacts/W-0344/cpu-portable-r2'
 BASH = Path('C:/Program Files/Git/bin/bash.exe')
 
 
@@ -37,7 +36,11 @@ def main():
     pins = json.loads((DOC / 'cpu-retry-pins.json').read_text(encoding='utf-8'))
     for relative, digest in pins['files'].items():
         assert sha(ROOT / relative) == digest, 'pin mismatch: ' + relative
-    archive = OUT / 'ivr-full-flow-w0344-cpu-r2.tar.gz'
+    archives = [k for k in pins['files']
+                if re.fullmatch(r'\.artifacts/W-0344/cpu-portable-r[0-9]+/ivr-full-flow-w0344-cpu-r[0-9]+\.tar\.gz', k)]
+    assert len(archives) == 1, archives
+    archive = ROOT / archives[0]
+    OUT = archive.parent
     assert (OUT / (archive.name + '.sha256')).read_text().split()[0] == sha(archive)
     s5_first = json.loads((DOC / 's5-first-run.json').read_text(encoding='utf-8'))
     base_manifest_sha = sha(BASE / 'manifest.json')
@@ -73,15 +76,15 @@ def main():
     old_text = (BASE / 'cases.py').read_text(encoding='utf-8')
     new_text = cases.decode('utf-8')
     assert asserts(old_text) == asserts(new_text), 'an assertion changed'
-    diff = [line for line in difflib.unified_diff(old_text.splitlines(), new_text.splitlines(), 'base/cases.py', 'r2/cases.py', lineterm='', n=0)]
+    diff = [line for line in difflib.unified_diff(old_text.splitlines(), new_text.splitlines(), 'base/cases.py', 'package/cases.py', lineterm='', n=0)]
     removed = [l for l in diff if l.startswith('-') and not l.startswith('---')]
     added = [l for l in diff if l.startswith('+') and not l.startswith('+++')]
     kit = OUT / 'full-flow-s5'
     rebuilt = {p.relative_to(kit).as_posix(): sha(p) for p in kit.rglob('*') if p.is_file() and p.name != 'manifest.json'}
-    assert rebuilt == manifest['files'], 'reconstructed kit differs from the r2 manifest'
+    assert rebuilt == manifest['files'], 'reconstructed kit differs from the package manifest'
     assert (kit / 'manifest.json').read_bytes() == manifest_bytes
     ps1 = (DOC / 'retry-s5-full-flow.ps1').read_text(encoding='utf-8').replace('\r\n', '\n')
-    assert "'.artifacts/W-0344/cpu-portable-r2'" in ps1 and "'ivr-full-flow-w0344-cpu-r2.tar.gz'" in ps1
+    assert 'Pins must name exactly one retry archive' in ps1 and 'cpu-r2.tar.gz' not in ps1
     blocks = {name: re.search(r'^\s*\$' + name + r" = @'\n(.*?)\n'@$", ps1, re.S | re.M)[1] + '\n'
               for name in ('start', 'follow')}
     commands = {'retry-command.sh': blocks['start'] + blocks['follow'],
@@ -90,21 +93,21 @@ def main():
         (OUT / name).write_text(body, encoding='utf-8', newline='\n')
         subprocess.run([str(BASH), '-n', str(OUT / name)], check=True)
     installer = (DOC / 'install-s5-cpu-retry.py').read_text(encoding='utf-8')
-    assert "'ivr-full-flow-w0344-cpu-r2.tar.gz'" in installer and '\r' not in installer
+    assert 'def find_patch(root)' in installer and 'cpu-r2.tar.gz' not in installer and '\r' not in installer
     r1_proof = json.loads((R1 / 'retry-verification.json').read_text(encoding='utf-8'))
-    proof = {'status': 'PASS', 'package': 'cpu-r2', 'archive_sha256': sha(archive), 'archive_bytes': archive.stat().st_size,
+    proof = {'status': 'PASS', 'package': pins['package'], 'archive_sha256': sha(archive), 'archive_bytes': archive.stat().st_size,
              'members': names, 'base_kit_manifest_sha256': base_manifest_sha, 'base_matches_s5_run_135115': True,
              'new_manifest_sha256': change['new_manifest_sha256'], 'changed_files_vs_base': changed_files,
              'changed_images_vs_base': changed_images, 'asterisk_image_bytes_same_as_r1': True,
              'asterisk_image': manifest['images']['asterisk'],
              'portable_build_carried_from_r1': {k: r1_proof[k] for k in ('portable_compile_commands', 'native_compile_commands', 'build_native_enabled', 'asterisk_binary_sha256')},
-             'cases_py': {'base_sha256': sha(BASE / 'cases.py'), 'r2_sha256': manifest['files']['cases.py'],
+             'cases_py': {'base_sha256': sha(BASE / 'cases.py'), 'package_sha256': manifest['files']['cases.py'],
                           'assert_lines': len(asserts(new_text)), 'assert_lines_identical': True,
                           'lines_removed': len(removed), 'lines_added': len(added), 'diff': diff},
              'reconstructed_files_match_manifest': len(rebuilt), 'retry_and_resume_bash_syntax': 'PASS',
              'installer_sha256': sha(DOC / 'install-s5-cpu-retry.py'), 'REAL_CUSTOMER_CALL_ALLOWED': 'NO'}
     (OUT / 'retry-verification.json').write_text(json.dumps(proof, indent=2, ensure_ascii=False) + '\n', encoding='utf-8', newline='\n')
-    print('W0344_CPU_R2_VERIFIED files=%d asserts=%d diff=-%d/+%d' % (len(rebuilt), len(asserts(new_text)), len(removed), len(added)))
+    print('W0344_CPU_RETRY_VERIFIED files=%d asserts=%d diff=-%d/+%d' % (len(rebuilt), len(asserts(new_text)), len(removed), len(added)))
 
 
 if __name__ == '__main__':

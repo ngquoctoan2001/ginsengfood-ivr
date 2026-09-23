@@ -2,10 +2,9 @@
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
-**S5: FAIL_BEFORE_CASES · lần gần nhất `cpu-r2` 23/09: Asterisk đã chạy, TTS không đọc được model
-(đã sửa trong installer, chờ chạy lại).**
-Lượt `093745-1c9bd160` (23/09) dừng ở readiness vì mirror model chỉ `ssv` đọc được, còn TTS chạy
-bằng uid 1654 (mục 6 của [cpu-retry.md](cpu-retry.md)).
+**S5: PASS — `S5_TARGET_SYNTHETIC_SIP_PASS`, gói `cpu-r3`, lượt `20260923-104028-3db63850`.**
+7/7 ca, đối soát DB đúng hoàn toàn, 43 container có sẵn không đổi; chờ Toàn nghiệm thu. Chi tiết,
+cùng ba lượt hỏng trước đó và nguyên nhân từng lượt, ở mục 8 và mục 1–7 của [cpu-retry.md](cpu-retry.md).
 Lượt `135115-e0b16d79` dừng ở Asterisk exit 132 trước mọi ca ([receipt](s5-first-run.json)).
 Lượt `133208-4b83eafa` mất SSH; console cho thấy `docker compose up` hỏng, receipt của lượt đó
 chưa tải về ([lấy receipt](s5-receipt-fetch.md), chỉ để chẩn đoán). Bản sửa Asterisk, bản sửa bộ
@@ -77,12 +76,10 @@ Thành công của lệnh chuyển file chưa phải nghiệm thu: Codex cần �
 
 ## Trạng thái và trách nhiệm tiếp theo
 
-1. **Toàn/SSH operator:** chạy retry trong [cpu-retry.md](cpu-retry.md) **sau khi W-0343 đã trả
-   receipt**; gửi vị trí receipt và các dòng cuối.
-2. **Agent nhận việc:** kiểm hash/scope/hostname, 7 ca SIP/DTMF, đối soát DB, model/DLL, dòng thời
-   gian phát tiếng và dọn tài nguyên; cập nhật kết quả S5 theo dữ liệu trả về. Nếu lỗi, sửa đúng
-   nguyên nhân và chạy lại, giữ raw cũ.
-3. **Toàn:** nghiệm thu sau khi có kết quả S5. Hiện chưa chuyển ACCEPTED.
+1. ~~Chạy retry trên S5~~: xong 23/09, lượt `104028-3db63850` đạt (mục 8 của [cpu-retry.md](cpu-retry.md)).
+2. ~~Kiểm receipt~~: xong. Hash, scope, hostname, 7 ca SIP/DTMF, đối soát DB, dòng thời gian phát
+   tiếng, container có sẵn và dọn tài nguyên đều đạt.
+3. **Toàn:** nghiệm thu. Hiện `EVIDENCE_SUBMITTED`, chưa `ACCEPTED`.
 
 Sau lỗi SSH 255, lớp bàn giao đã thêm [resume-s5-full-flow.ps1](resume-s5-full-flow.ps1)
 và [helper độc lập phiên](recover-s5-full-flow.py). Mất kết nối không tạo lượt kiểm thứ hai;

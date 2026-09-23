@@ -1,8 +1,12 @@
 param([switch]$VerifyOnly, [string]$ResumeRunId)
 $ErrorActionPreference = 'Stop'
 $taskRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
-$artifactDir = Join-Path $taskRoot '.artifacts/W-0344/cpu-portable-r2'
 $pins = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'cpu-retry-pins.json') -Raw | ConvertFrom-Json
+# The pinned archive names the package revision; a new revision needs a rebuild and re-pin, not an edit here.
+$archiveEntry = @($pins.files.PSObject.Properties.Name | Where-Object { $_ -match '^\.artifacts/W-0344/cpu-portable-r[0-9]+/ivr-full-flow-w0344-cpu-r[0-9]+\.tar\.gz$' })
+if ($archiveEntry.Count -ne 1) { throw 'Pins must name exactly one retry archive' }
+$archive = [IO.Path]::GetFullPath((Join-Path $taskRoot $archiveEntry[0]))
+$artifactDir = Split-Path -Parent $archive
 foreach ($entry in $pins.files.PSObject.Properties) {
     $path = [IO.Path]::GetFullPath((Join-Path $taskRoot $entry.Name))
     if (-not $path.StartsWith($taskRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Pin path outside workspace' }
@@ -43,7 +47,6 @@ if ($ResumeRunId) {
     Write-Host "RunId $runId. Chi chuyen ban va Asterisk + cases.py. Nhap mat khau SSH trong terminal khi duoc hoi."
     & $ssh -o StrictHostKeyChecking=yes -o ConnectTimeout=15 ssv@192.168.1.61 "mkdir -m 700 $remoteDir"
     if ($LASTEXITCODE -ne 0) { throw 'Khong tao duoc thu muc retry rieng tren S5' }
-    $archive = Join-Path $artifactDir 'ivr-full-flow-w0344-cpu-r2.tar.gz'
     $checksum = $archive + '.sha256'
     $installer = Join-Path $PSScriptRoot 'install-s5-cpu-retry.py'
     & $scp -o StrictHostKeyChecking=yes $archive $checksum $installer "ssv@192.168.1.61:${remoteDir}/"

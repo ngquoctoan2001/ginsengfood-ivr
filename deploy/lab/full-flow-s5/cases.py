@@ -100,6 +100,9 @@ def setup_peer():
     (peer/'http.conf').write_text('[general]\nenabled=no\n')
     (peer/'logger.conf').write_text('[general]\ndateformat=%F %T\n[logfiles]\nconsole=notice,warning,error,verbose,dtmf\n')
     mounts=[]
+    # S5 runs this under umask 077 and the peer's root has no CAP_DAC_OVERRIDE (cap-drop ALL), so
+    # 0600 files owned by ssv were unreadable there (run 20260923-103255). None of these holds a secret.
+    for name in ('pjsip.conf','extensions.conf','http.conf','logger.conf'): (peer/name).chmod(0o644)
     for name in ('pjsip.conf','extensions.conf','http.conf','logger.conf'): mounts+=['--mount',f'type=bind,src={peer/name},dst=/etc/asterisk/{name},readonly']
     cmd('docker','run','-d','--name',PEER,'--label','ivr.work=W0344','--label','ivr.flow.project='+PROJECT,'--cpus','0.5','--memory','256m','--memory-swap','256m','--network',NETWORK,'--cap-drop','ALL','--security-opt','no-new-privileges',*mounts,'--entrypoint','/usr/sbin/asterisk',switch['Image'],'-f','-vvv')
     peer_ip=json.loads(cmd('docker','inspect',PEER))[0]['NetworkSettings']['Networks'][NETWORK]['IPAddress']

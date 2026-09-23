@@ -1438,7 +1438,7 @@ work:
     evidence: "docs/evidence/W-0343/README.md"
   - id: "W-0344"
     prompt: "Kiểm toàn luồng đơn giả trên S5 (Origin=OWNER_REQUEST 2026-09-22)"
-    status: "IN_PROGRESS"
+    status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0344/README.md"
 
 production_flag:

@@ -3,8 +3,8 @@
   "scope": "LOCAL_RETRY_PACKAGE_CPU_R2",
   "REAL_CUSTOMER_CALL_ALLOWED": "NO",
   "production": "BLOCKED",
-  "verified_utc": "2026-09-23T03:31:58+00:00",
-  "s5_status": "FAIL_BEFORE_CASES; cpu-r2 run 20260923-093745-1c9bd160: Asterisk healthy, TTS not_ready (mirror unreadable by uid 1654); installer now stages readable models; rerun pending",
+  "verified_utc": "2026-09-23T03:48:55+00:00",
+  "s5_status": "cpu-r3 on S5: PASS",
   "cpu_r1": {
     "archive": "ivr-full-flow-w0344-cpu-r1.tar.gz",
     "archive_sha256": "dfaaadd98eb4d7636f2799d2c4a16bef95e4f90d32c68cd0ebf647e4e63d8498",
@@ -226,7 +226,7 @@
     "retry_and_resume_bash_syntax": "PASS",
     "installer_sha256": "c12a67eb2e810a130e00d2cbdd26085fa3dd09bbbec3e8389d41ea6d09c852d4"
   },
-  "cases_py": {
+  "cases_py_cpu_r2": {
     "base_sha256": "ec7f482ca01182eb1272da5bd633701fe8b1f22f03a9e057f93dde561c10e3af",
     "r2_sha256": "cc73f65e0ca0789da8d6d9b68c2d1e54c50de778bf80b2e9270ccd056a2babd1",
     "assert_lines": 51,
@@ -249,8 +249,8 @@
     ]
   },
   "tests": {
-    "windows_python_3_13": "41 deploy/lab/tests, 1 POSIX-only skip",
-    "linux_python_3_14": "30/30 (cpu retry installer 13, DTMF gate 3, full-flow guards 14)",
+    "windows_python_3_13": "46 deploy/lab/tests, 1 POSIX-only skip",
+    "linux_python_3_14": "35/35 (installer 16, DTMF gate 3, peer config 2, full-flow guards 14)",
     "dtmf_gate_red_before": "original S5 kit cases.py rtp_gated=False; r2 cases.py rtp_gated=True",
     "retry_detach": "8/8 in a Debian 12 container with a fake installer: normal run, failing installer, SIGHUP then SIGKILL of the SSH session group followed by resume, killed test reports INTERRUPTED, second start refused, wrong pin refused",
     "retry_detach_red_before": [
@@ -403,17 +403,383 @@
     }
   },
   "evidence_files": {
-    "deploy/lab/full-flow-s5/cases.py": "cc73f65e0ca0789da8d6d9b68c2d1e54c50de778bf80b2e9270ccd056a2babd1",
+    "deploy/lab/full-flow-s5/cases.py": "213cd787aa2d9edf9139eca89b5781c9fc20271672f9e37280045e7d8a087e15",
     "deploy/lab/tests/test_full_flow_dtmf_gate.py": "7d4f22cb61cfb709af09109ba1f284dd831782ddbb1d5fd0c0037059cb0cc13e",
-    "deploy/lab/tests/test_s5_cpu_retry.py": "c694f2a03ee76ffe3806a6ab07117e9890d44615d42126bf5d4b754c02ef6e00",
-    "docs/evidence/W-0344/install-s5-cpu-retry.py": "c12a67eb2e810a130e00d2cbdd26085fa3dd09bbbec3e8389d41ea6d09c852d4",
-    "docs/evidence/W-0344/retry-s5-full-flow.ps1": "c1e5ce8a2b9c4075fd30dcc1e41cc6fa6dd5fb3b1e3bbe7dd3ab49f2d2a1fb70",
-    "docs/evidence/W-0344/build-cpu-retry.py": "422ce9569d1346c55e4c16ac5c1b83fa70ce2ddafb88a9b99f7e4a3f12e7e1a4",
-    "docs/evidence/W-0344/verify-cpu-retry.py": "220f4faf056ee9bd5e1e4ac6db66007c3f5da5032382aebb1c97ff2ebed165e4",
+    "deploy/lab/tests/test_s5_cpu_retry.py": "d5d9479c680856ff4c408122d746f4d028469524c3e5067a5c1bd55200f54772",
+    "docs/evidence/W-0344/install-s5-cpu-retry.py": "a615b3b67c3c33283d77eecc924e9e828127f25d7768b5454b70c38b877acc38",
+    "docs/evidence/W-0344/retry-s5-full-flow.ps1": "3a1ea02cee828f75c521d80e3180bcbc25c38a3afede9bf9a2db4c6189fd8079",
+    "docs/evidence/W-0344/build-cpu-retry.py": "c72bb9c6841382a51b0868e82aeba824391e6ed9af9089e5046412737a1ee12c",
+    "docs/evidence/W-0344/verify-cpu-retry.py": "9bd7f85f38ccea76a540872c0f928952ebc2ddf4c78152a3c38b96c560fab0e6",
     "docs/evidence/W-0344/test-retry-detach.py": "eb3588c0491fffad24912e922d732c89cbd6233f00c577dedb24ac7f9758e1e4",
     "docs/evidence/W-0344/test-model-staging.py": "ec6def6ce19e48dd39ffa0d27b762581605fbc6ecce50d6e18fdcfb0c86a9ef9",
-    "docs/evidence/W-0344/cpu-retry-pins.json": "f52c37b35b9bda6636f73cfd630bfc502d79e37b16a2e42e38f088bfa29dc280",
-    "docs/evidence/W-0344/cpu-retry-manifest.json": "e65bd6bc360308c52bfe67ab133cbd776f4da67bbafc7eab842aba163c855ddf"
+    "docs/evidence/W-0344/cpu-retry-pins.json": "5dd950c34632b830c7e593165832fbf6934e989af5518cb4219d5005a41a92ef",
+    "docs/evidence/W-0344/cpu-retry-manifest.json": "16d8470abc42f8993e1862a1807b0faff8ca59b00768d5c87daaa1d901e0f815",
+    "deploy/lab/tests/test_full_flow_peer_config.py": "106bb4530da2a4912fd2c370d85f12726065c7a9e8a2a92fa7403ed2788089bc",
+    "docs/evidence/W-0344/test-peer-config-permissions.py": "733a836795e17c1a1bebe1ec5acbb01084498c58507efa287709a8a251bc9065"
   },
-  "raw": ".artifacts/W-0344/cpu-portable-r2/"
+  "raw": [
+    ".artifacts/W-0344/cpu-portable-r2/",
+    ".artifacts/W-0344/cpu-portable-r3/"
+  ],
+  "cpu_r2_s5_run_2": {
+    "run_id": "20260923-103255-bf2e4b7c",
+    "receipt_sha256": "394453c492022a683f82fcf15ba44b003edf9797b327f79c10df29b8ddfe192c",
+    "receipt_hash_matches_checksum_file": true,
+    "summary": {
+      "work_id": "W-0344",
+      "candidate": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+      "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+      "scope": "S5_TARGET_SYNTHETIC_SIP",
+      "project": "ivr-w0344-20260923033230-0d902b",
+      "started_utc": "2026-09-23T03:32:30.520009+00:00",
+      "status": "FAIL",
+      "kit_manifest_sha256": "e65bd6bc360308c52bfe67ab133cbd776f4da67bbafc7eab842aba163c855ddf",
+      "error": "RuntimeError('Full-flow cases failed; see flow.log')",
+      "finished_utc": "2026-09-23T03:33:41.371320+00:00"
+    },
+    "launcher_log": [
+      "W0344_CPU_PATCH_VERIFIED image=asterisk dtmf_wait=received_RTP models_staged=13 original_kit_preserved=YES",
+      "W0344_STACK_READY cases=7 scope=S5_TARGET_SYNTHETIC_SIP",
+      "W0344_PROGRESS seconds=20 completed=0/7",
+      "W0344_ERROR RuntimeError('Full-flow cases failed; see flow.log')",
+      "W0344_S5_TARGET_SYNTHETIC_SIP_FAIL",
+      "W0344_RECEIPT /home/ssv/ivr-full-flow-w0344-cpu-20260923-103255-bf2e4b7c/result.tar.gz",
+      "W0344_STAGED_MODELS_REMOVED YES"
+    ],
+    "pre_existing_containers_unchanged": true,
+    "pre_existing_containers": 43,
+    "cleanup": {
+      "removed_containers": [
+        "ivr-w0344-20260923033230-0d902b-peer",
+        "ivr-w0344-20260923033230-0d902b-ivr-tts-1",
+        "ivr-w0344-20260923033230-0d902b-ivr-worker-1",
+        "ivr-w0344-20260923033230-0d902b-ivr-api-1",
+        "ivr-w0344-20260923033230-0d902b-lab-seed-1",
+        "ivr-w0344-20260923033230-0d902b-seed-1",
+        "ivr-w0344-20260923033230-0d902b-asterisk-1",
+        "ivr-w0344-20260923033230-0d902b-ivr-migrate-1",
+        "ivr-w0344-20260923033230-0d902b-media-init-1",
+        "ivr-w0344-20260923033230-0d902b-postgres-1",
+        "ivr-w0344-20260923033230-0d902b-fake-sales-1"
+      ],
+      "networks_removed": true,
+      "named_volumes_preserved": [
+        "ivr-w0344-20260923033230-0d902b-pg",
+        "ivr-w0344-20260923033230-0d902b-media"
+      ]
+    },
+    "flow_log": [
+      "W0344_RUN_FAIL",
+      "Traceback (most recent call last):",
+      "  File \"/home/ssv/ivr-full-flow-w0344-cpu-20260923-103255-bf2e4b7c/full-flow-s5/cases.py\", line 212, in <module>",
+      "    if case[0] not in completed: run_case(*case)",
+      "  File \"/home/ssv/ivr-full-flow-w0344-cpu-20260923-103255-bf2e4b7c/full-flow-s5/cases.py\", line 177, in run_case",
+      "    assert counted==1 and results[-1]['type']==expected and results[-1]['final'] and results[-1]['counted'],current",
+      "AssertionError: {'job': {'id': 'JOB-fdfa9e0ae78041d988c5f3718c288184', 'status': 'HELD_ADMIN_REVIEW', 'queue': 'HELD_TECHNICAL_REVIEW'}, 'attempts': [{'id': 'ATTEMPT-1fbf7ba5877e4e37bfac5314938ed8d2', 'number': 1, 'status': 'NORMALIZED_TECHNICAL_RETRY', 'counted': False, 'exception': 'ASTERISK_DIAL_FAILED', 'provider': None, 'dtmf': None, 'voice': None, 'region': None, 'started': None, 'ended': '2026-09-23T03:33:27.866889+00:00'}, {'id': 'ATTEMPT-30db1d9d22934dbf8fe5195a860b538b', 'number': 1, 'status': 'NORMALIZED_REVIEW_REQUIRED', 'counted': False, 'exception': 'ASTERISK_DIAL_FAILED', 'provider': None, 'dtmf': None, 'voice': None, 'region': None, 'started': None, 'ended': '2026-09-23T03:33:30.643444+00:00'}], 'results': [{'type': 'IVR_TECHNICAL_EXCEPTION', 'counted': False, 'final': False, 'reason': 'ASTERISK_DIAL_FAILED'}, {'type': 'IVR_TECHNICAL_EXCEPTION', 'counted': False, 'final': False, 'reason': 'ASTERISK_DIAL_FAILED'}], 'callbacks': 0}"
+    ],
+    "cases": [
+      {
+        "case": "confirm",
+        "pass": false,
+        "final_result": "IVR_TECHNICAL_EXCEPTION"
+      }
+    ],
+    "fetch": "automatic over the SSH key; no password prompt",
+    "switch_errors": [
+      "ERROR[72]: res_pjsip.c:987 ast_sip_create_dialog_uac: Endpoint 'LAB-A': Could not create dialog to invalid URI 'LAB-A-AUTO'.  Is endpoint registered and reachable?",
+      "ERROR[72]: chan_pjsip.c:2726 request: Failed to create outgoing session to endpoint 'LAB-A'"
+    ],
+    "peer_permission_errors": [
+      "  == Parsing '/etc/asterisk/logger.conf': Not found (Permission denied)",
+      "  == Parsing '/etc/asterisk/http.conf': Not found (Permission denied)",
+      "  == Parsing '/etc/asterisk/pjsip.conf': Not found (Permission denied)",
+      "  == Parsing '/etc/asterisk/pjsip.conf': Not found (Permission denied)"
+    ],
+    "cause": "cases.py wrote the peer config under umask 077 (0600, owner ssv); the peer runs as root with cap-drop ALL and cannot read it"
+  },
+  "cpu_r3": {
+    "package": "cpu-r3",
+    "archive_sha256": "f20ac247ea3fcb83bfa28d42e24a6cac6a70c49a45133c4eb56d18de59d606e2",
+    "archive_bytes": 138232808,
+    "members": [
+      "cases.py",
+      "images/asterisk.tar",
+      "manifest.json",
+      "patch.json"
+    ],
+    "base_kit_manifest_sha256": "8844b979b82f95980c177a56886524abc5be5d1e75622a65d7fe6d1068eabe8d",
+    "new_manifest_sha256": "16d8470abc42f8993e1862a1807b0faff8ca59b00768d5c87daaa1d901e0f815",
+    "changed_files_vs_base": [
+      "cases.py",
+      "images/asterisk.tar"
+    ],
+    "asterisk_image_bytes_same_as_r1": true,
+    "reconstructed_files_match_manifest": 20,
+    "retry_and_resume_bash_syntax": "PASS",
+    "installer_sha256": "a615b3b67c3c33283d77eecc924e9e828127f25d7768b5454b70c38b877acc38"
+  },
+  "cases_py_cpu_r3": {
+    "base_sha256": "ec7f482ca01182eb1272da5bd633701fe8b1f22f03a9e057f93dde561c10e3af",
+    "package_sha256": "213cd787aa2d9edf9139eca89b5781c9fc20271672f9e37280045e7d8a087e15",
+    "assert_lines": 51,
+    "assert_lines_identical": true,
+    "lines_removed": 2,
+    "lines_added": 10,
+    "diff": [
+      "--- base/cases.py",
+      "+++ package/cases.py",
+      "@@ -102,0 +103,3 @@",
+      "+    # S5 runs this under umask 077 and the peer's root has no CAP_DAC_OVERRIDE (cap-drop ALL), so",
+      "+    # 0600 files owned by ssv were unreadable there (run 20260923-103255). None of these holds a secret.",
+      "+    for name in ('pjsip.conf','extensions.conf','http.conf','logger.conf'): (peer/name).chmod(0o644)",
+      "@@ -143,2 +146,7 @@",
+      "-                item['rtp']=cli(PEER,'pjsip show channelstats'); item['sent_utc']=utc()",
+      "-                cli(PEER,f'channel redirect {peers[0]} send-{digit},s,1'); sent=True",
+      "+                item['rtp']=cli(PEER,'pjsip show channelstats')",
+      "+                # Wall time is only a lower bound under load. Wait for the same",
+      "+                # received-audio threshold that the final assertion enforces.",
+      "+                received_rtp=re.search(r'switch-[a-f0-9]+\\s+\\S+\\s+ulaw\\s+(\\d+)',item['rtp'])",
+      "+                if received_rtp and int(received_rtp[1])>=measured['segmented_audio_ms']//20:",
+      "+                    item['sent_utc']=utc()",
+      "+                    cli(PEER,f'channel redirect {peers[0]} send-{digit},s,1'); sent=True"
+    ]
+  },
+  "peer_config_fix": {
+    "change": "setup_peer chmods the four bind-mounted peer config files 0644 before docker run; none holds a secret",
+    "red_before": [
+      "original S5 kit + cpu-r2 cases.py mounted= 4 made_readable= 0",
+      "repo cases.py mounted= 4 made_readable= 4"
+    ],
+    "unix_permission_repro": {
+      "prepared": [
+        "600",
+        "1000:1000",
+        "/vol/peer-0600/pjsip.conf",
+        "644",
+        "1000:1000",
+        "/vol/peer-0644/pjsip.conf"
+      ],
+      "reads": [
+        {
+          "mode": "0600",
+          "exit": 1,
+          "uid": "0",
+          "readable": false,
+          "error": "cat: /etc/asterisk-peer/pjsip.conf: Permission denied"
+        },
+        {
+          "mode": "0644",
+          "exit": 0,
+          "uid": "0",
+          "readable": true,
+          "error": ""
+        }
+      ]
+    },
+    "package_discovery": "installer find_patch and retry script read the package name from the pins; a new revision needs only a rebuild and re-pin"
+  },
+  "local_rehearsal_cpu_r3": {
+    "project": "ivr-w0344-20260923034030-22be0e",
+    "started_utc": "2026-09-23T03:40:30.795044+00:00",
+    "finished_utc": "2026-09-23T03:47:32.848968+00:00",
+    "status": "FAIL",
+    "cases_passed": 7,
+    "reconciliation": {
+      "tasks": 7,
+      "attempts": 7,
+      "counted_customer_attempts": 4,
+      "technical_attempts": 3,
+      "results": 9,
+      "final_results": 6,
+      "callbacks": 6,
+      "miscounted_technical_attempts": 0,
+      "miscounted_noncustomer_results": 0,
+      "duplicate_finals": 0,
+      "duplicate_callbacks": 0,
+      "callbacks_for_nonfinal_results": 0
+    },
+    "kit_manifest_sha256": "16d8470abc42f8993e1862a1807b0faff8ca59b00768d5c87daaa1d901e0f815",
+    "cleanup_error": "ValueError('Existing service state changed during this run; inspect receipts')",
+    "pre_existing_changed": [
+      "/testcontainers-ryuk-0e71edbb-defe-48e7-af25-6140858d0d01",
+      "/thirsty_williamson"
+    ],
+    "note": "7/7 cases and exact reconciliation; overall FAIL only because other projects' Testcontainers on the shared local Docker changed during the run"
+  },
+  "cpu_r3_s5_runs": [
+    {
+      "run_id": "20260923-104028-3db63850",
+      "receipt_sha256": "12f610f2cb3bd471e97e40d2fa039ec4a987743b1d31dd6c1e027baef7338b82",
+      "receipt_hash_matches_checksum_file": true,
+      "summary": {
+        "work_id": "W-0344",
+        "candidate": "66a6baa2019efe69a1ede3b6179fce5b49643a6d",
+        "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+        "scope": "S5_TARGET_SYNTHETIC_SIP",
+        "project": "ivr-w0344-20260923034003-5720fd",
+        "started_utc": "2026-09-23T03:40:03.731280+00:00",
+        "status": "PASS",
+        "kit_manifest_sha256": "16d8470abc42f8993e1862a1807b0faff8ca59b00768d5c87daaa1d901e0f815",
+        "cases_passed": 7,
+        "reconciliation": {
+          "tasks": 7,
+          "attempts": 7,
+          "counted_customer_attempts": 4,
+          "technical_attempts": 3,
+          "results": 9,
+          "final_results": 6,
+          "callbacks": 6,
+          "miscounted_technical_attempts": 0,
+          "miscounted_noncustomer_results": 0,
+          "duplicate_finals": 0,
+          "duplicate_callbacks": 0,
+          "callbacks_for_nonfinal_results": 0
+        },
+        "finished_utc": "2026-09-23T03:46:52.168453+00:00"
+      },
+      "launcher_log": [
+        "W0344_CPU_PATCH_VERIFIED patch=ivr-full-flow-w0344-cpu-r3.tar.gz models_staged=13 original_kit_preserved=YES",
+        "W0344_STACK_READY cases=7 scope=S5_TARGET_SYNTHETIC_SIP",
+        "W0344_PROGRESS seconds=20 completed=0/7",
+        "W0344_PROGRESS seconds=40 completed=0/7",
+        "W0344_PROGRESS seconds=60 completed=1/7",
+        "W0344_PROGRESS seconds=80 completed=1/7",
+        "W0344_PROGRESS seconds=100 completed=1/7",
+        "W0344_PROGRESS seconds=120 completed=2/7",
+        "W0344_PROGRESS seconds=140 completed=2/7",
+        "W0344_PROGRESS seconds=160 completed=2/7",
+        "W0344_PROGRESS seconds=180 completed=2/7",
+        "W0344_PROGRESS seconds=200 completed=4/7",
+        "W0344_PROGRESS seconds=220 completed=5/7",
+        "W0344_PROGRESS seconds=240 completed=5/7",
+        "W0344_PROGRESS seconds=260 completed=5/7",
+        "W0344_PROGRESS seconds=280 completed=5/7",
+        "W0344_PROGRESS seconds=300 completed=6/7",
+        "W0344_PROGRESS seconds=320 completed=6/7",
+        "W0344_PROGRESS seconds=340 completed=6/7",
+        "W0344_PROGRESS seconds=360 completed=6/7",
+        "W0344_S5_TARGET_SYNTHETIC_SIP_PASS",
+        "W0344_RECEIPT /home/ssv/ivr-full-flow-w0344-cpu-20260923-104028-3db63850/result.tar.gz",
+        "W0344_STAGED_MODELS_REMOVED YES"
+      ],
+      "pre_existing_containers_unchanged": true,
+      "pre_existing_containers": 43,
+      "cleanup": {
+        "removed_containers": [
+          "ivr-w0344-20260923034003-5720fd-peer",
+          "ivr-w0344-20260923034003-5720fd-ivr-tts-1",
+          "ivr-w0344-20260923034003-5720fd-ivr-api-1",
+          "ivr-w0344-20260923034003-5720fd-ivr-worker-1",
+          "ivr-w0344-20260923034003-5720fd-lab-seed-1",
+          "ivr-w0344-20260923034003-5720fd-seed-1",
+          "ivr-w0344-20260923034003-5720fd-ivr-migrate-1",
+          "ivr-w0344-20260923034003-5720fd-asterisk-1",
+          "ivr-w0344-20260923034003-5720fd-postgres-1",
+          "ivr-w0344-20260923034003-5720fd-media-init-1",
+          "ivr-w0344-20260923034003-5720fd-fake-sales-1"
+        ],
+        "networks_removed": true,
+        "named_volumes_preserved": [
+          "ivr-w0344-20260923034003-5720fd-pg",
+          "ivr-w0344-20260923034003-5720fd-media"
+        ]
+      },
+      "flow_log": [
+        "W0344_CASE_PASS confirm",
+        "W0344_CASE_PASS customer-cancel",
+        "W0344_CASE_PASS technical-retry",
+        "W0344_CASE_PASS queued-expiry",
+        "W0344_CASE_PASS tts-expiry",
+        "W0344_CASE_PASS no-input",
+        "W0344_CASE_PASS operator-cancel",
+        "W0344_RUN_PASS"
+      ],
+      "cases": [
+        {
+          "case": "confirm",
+          "pass": true,
+          "final_result": "IVR_CONFIRMED"
+        },
+        {
+          "case": "customer-cancel",
+          "pass": true,
+          "final_result": "IVR_CUSTOMER_CANCELLED"
+        },
+        {
+          "case": "technical-retry",
+          "pass": true,
+          "final_result": "IVR_CONFIRMED"
+        },
+        {
+          "case": "queued-expiry",
+          "pass": true,
+          "final_result": "IVR_CAPACITY_EXCEPTION"
+        },
+        {
+          "case": "tts-expiry",
+          "pass": true,
+          "final_result": "IVR_CONFIRMATION_WINDOW_EXPIRED"
+        },
+        {
+          "case": "no-input",
+          "pass": true,
+          "final_result": "IVR_NO_ANSWER_FINAL"
+        },
+        {
+          "case": "operator-cancel",
+          "pass": true,
+          "final_result": "IVR_TECHNICAL_EXCEPTION"
+        }
+      ],
+      "dtmf_timeline": [
+        {
+          "case": "confirm",
+          "need_packets": 1104,
+          "packets_at_dtmf": 1104,
+          "segment_start_deltas_s": [
+            6.39,
+            6.08,
+            0.8,
+            2.24,
+            0.8,
+            1.84
+          ],
+          "answer_to_dtmf_s": 24.71,
+          "wall_clock_bound_s": 24.08
+        },
+        {
+          "case": "customer-cancel",
+          "need_packets": 1593,
+          "packets_at_dtmf": 1593,
+          "segment_start_deltas_s": [
+            8.72,
+            6.58,
+            1.76,
+            4.32,
+            2.8,
+            2.56
+          ],
+          "answer_to_dtmf_s": 34.51,
+          "wall_clock_bound_s": 33.86
+        },
+        {
+          "case": "technical-retry",
+          "need_packets": 1280,
+          "packets_at_dtmf": 1280,
+          "segment_start_deltas_s": [
+            7.04,
+            7.04,
+            0.88,
+            2.4,
+            1.12,
+            2.24
+          ],
+          "answer_to_dtmf_s": 28.49,
+          "wall_clock_bound_s": 27.6
+        }
+      ],
+      "playback_real_time": true,
+      "kit_manifest_matches_package": true
+    }
+  ]
 }

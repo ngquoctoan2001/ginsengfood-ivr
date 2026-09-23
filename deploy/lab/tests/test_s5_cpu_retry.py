@@ -86,6 +86,27 @@ class CpuRetryGuards(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Reconstructed file hash'): retry.prepare_retry(self.base, patch, self.root / 'new')
 
 
+class PatchDiscovery(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def test_single_revision_is_found(self):
+        (self.root / 'ivr-full-flow-w0344-cpu-r3.tar.gz').write_bytes(b'x')
+        (self.root / 'ivr-full-flow-w0344-cpu-r3.tar.gz.sha256').write_text('y')
+        self.assertEqual(retry.find_patch(self.root).name, 'ivr-full-flow-w0344-cpu-r3.tar.gz')
+
+    def test_missing_or_two_revisions_refused(self):
+        with self.assertRaisesRegex(ValueError, 'exactly one'): retry.find_patch(self.root)
+        for name in ('ivr-full-flow-w0344-cpu-r2.tar.gz', 'ivr-full-flow-w0344-cpu-r3.tar.gz'):
+            (self.root / name).write_bytes(b'x')
+        with self.assertRaisesRegex(ValueError, 'exactly one'): retry.find_patch(self.root)
+
+    def test_lookalike_name_ignored(self):
+        (self.root / 'ivr-full-flow-w0344-cpu-rX.tar.gz').write_bytes(b'x')
+        with self.assertRaisesRegex(ValueError, 'exactly one'): retry.find_patch(self.root)
+
+
 class ModelStaging(unittest.TestCase):
     """S5 20260923-093745: the TTS user (uid 1654) could not read the ssv-only mirror."""
 

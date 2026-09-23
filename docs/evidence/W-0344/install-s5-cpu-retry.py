@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
+import re
 import shutil
 import socket
 import subprocess
@@ -113,6 +114,15 @@ def stage_models(source, lock, destination):
     return len(lock['artifacts'])
 
 
+def find_patch(root):
+    # One patch per retry directory; its name carries the package revision (cpu-r2, cpu-r3, ...).
+    found = [p for p in root.glob('ivr-full-flow-w0344-cpu-r*.tar.gz')
+             if re.fullmatch(r'ivr-full-flow-w0344-cpu-r[0-9]+\.tar\.gz', p.name)]
+    if len(found) != 1:
+        raise ValueError('Expected exactly one retry patch, found %d' % len(found))
+    return found[0]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base-kit', type=Path, required=True)
@@ -125,7 +135,7 @@ def main():
         raise ValueError('Expected a fresh W0344 CPU retry directory')
     os.umask(0o077)
     args.base_kit.resolve().relative_to(Path('/home/ssv'))
-    patch = root / 'ivr-full-flow-w0344-cpu-r2.tar.gz'
+    patch = find_patch(root)
     expected = (root / (patch.name + '.sha256')).read_text().split()[0]
     if digest(patch) != expected:
         raise ValueError('Patch transport checksum mismatch')
@@ -134,8 +144,7 @@ def main():
     lock = json.loads((kit / 'fixtures/MODELS.lock').read_text(encoding='utf-8-sig'))
     models = root / 'models-readable'
     staged = stage_models(Path('/home/ssv/ivr-artifact-mirror/releases/vieneu-w0340/models'), lock, models)
-    print('W0344_CPU_PATCH_VERIFIED image=asterisk dtmf_wait=received_RTP models_staged=%d original_kit_preserved=YES' % staged,
-          flush=True)
+    print('W0344_CPU_PATCH_VERIFIED patch=%s models_staged=%d original_kit_preserved=YES' % (patch.name, staged), flush=True)
     try:
         # The original launcher checks host resources, models, bindings, seven cases and cleanup.
         return subprocess.call([sys.executable, '-B', str(kit / 'launcher.py'), '--models', str(models),
