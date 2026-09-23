@@ -22,7 +22,7 @@ Chạy trong PowerShell Windows:
 Lệnh dùng một phiên SSH, chỉ đọc checksum và base64 của đúng archive có sẵn. Không SCP,
 không gửi helper/archive, không gọi installer/Docker và không thay trạng thái server.
 Base64 tránh làm hỏng dữ liệu nhị phân khi PowerShell 5.1 nhận stdout; trước khi ghi archive
-local, script kiểm đúng đường dẫn, định dạng, giới hạn 32 MiB và SHA256 của byte đã giải mã.
+local, script kiểm đúng path, định dạng, giới hạn 32 MiB và SHA256 của byte đã giải mã.
 
 Kết quả lưu vào thư mục mới `fetch-<thời điểm>-<id>` dưới thư mục local của lượt cũ.
 Chờ `W0344_RECEIPT_FETCHED_AND_HASH_VERIFIED`, rồi báo lại để Codex kiểm

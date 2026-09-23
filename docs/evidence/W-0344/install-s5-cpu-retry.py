@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply a verified Asterisk-only replacement to a fresh copy of the original S5 kit."""
+"""Apply the verified Asterisk image and case-driver replacement to a fresh copy of the original S5 kit."""
 import argparse
 import hashlib
 import json
@@ -100,7 +100,7 @@ def main():
         raise ValueError('Expected a fresh W0344 CPU retry directory')
     os.umask(0o077)
     args.base_kit.resolve().relative_to(Path('/home/ssv'))
-    patch = root / 'ivr-full-flow-w0344-cpu-r1.tar.gz'
+    patch = root / 'ivr-full-flow-w0344-cpu-r2.tar.gz'
     expected = (root / (patch.name + '.sha256')).read_text().split()[0]
     if digest(patch) != expected:
         raise ValueError('Patch transport checksum mismatch')

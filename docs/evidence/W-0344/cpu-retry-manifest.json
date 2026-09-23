@@ -114,7 +114,7 @@
   ],
   "migration_sha256": "82dd771af8490cd90feeb8ec3a2a9c4bf3b76ddc483fd0dac8e83a1d668ae6c9",
   "files": {
-    "cases.py": "ec7f482ca01182eb1272da5bd633701fe8b1f22f03a9e057f93dde561c10e3af",
+    "cases.py": "cc73f65e0ca0789da8d6d9b68c2d1e54c50de778bf80b2e9270ccd056a2babd1",
     "compose.template.json": "d8a739b1c4a7964c46b99776a0e7bf4bd570d67f6cd75159e3c183632af6035e",
     "fixtures/fake-orders.json": "9d0545c5053eda2ea09c18337d19358ff5ac020fbdb7d526bc173e51146d3f51",
     "fixtures/lab-seed.sql": "3360b49403cb08575ce78e1ed877ebaaf03a6fd616a66c586ed759ff9d4f9091",

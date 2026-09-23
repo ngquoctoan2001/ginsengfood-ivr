@@ -37,14 +37,14 @@
     {
       "path": "docs/evidence/W-0344/s5-receipt-fetch.md",
       "sha256_hex_chunks": [
-        "be657cd5",
-        "d2af4cf4",
-        "586b5cd5",
-        "f9a0cc38",
-        "ea6a6842",
-        "c35d4f72",
-        "b4aa9eb3",
-        "87ad5b32"
+        "627ff199",
+        "46ef6221",
+        "03100be5",
+        "e1536881",
+        "c620f545",
+        "5971c043",
+        "bd6a4e19",
+        "c971b8c2"
       ]
     },
     {
@@ -59,6 +59,25 @@
         "eba3760e",
         "a7e09015"
       ]
+    }
+  ],
+  "rebinds": [
+    {
+      "date": "2026-09-23",
+      "path": "docs/evidence/W-0344/s5-receipt-fetch.md",
+      "previous_sha256_hex_chunks": [
+        "be657cd5",
+        "d2af4cf4",
+        "586b5cd5",
+        "f9a0cc38",
+        "ea6a6842",
+        "c35d4f72",
+        "b4aa9eb3",
+        "87ad5b32"
+      ],
+      "reason": "PII scan read the Vietnamese word for a file path on line 25 as a street address and kept the docs/evidence gate red since 5e61436; that word alone was replaced with \"path\"",
+      "helper_and_parser_results_unchanged": true,
+      "recorded_by": "W-0344 activity A-0758"
     }
   ]
 }

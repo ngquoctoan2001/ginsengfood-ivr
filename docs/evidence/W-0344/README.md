@@ -2,10 +2,11 @@
 
 `REAL_CUSTOMER_CALL_ALLOWED=NO`
 
-**S5: EXECUTION_UNCONFIRMED / SSH_INTERRUPTED.** Owner đã chuyển gói lên server tại
-`/home/ssv/ivr-full-flow-w0344-20260922-133208-4b83eafa`; bước thực thi SSH trả 255,
-chưa lấy được `launcher.log` hoặc receipt. Không kết luận bài kiểm đã khởi động hoặc đã đạt.
-Xem [khôi phục kết nối](ssh-recovery.md); không tạo lượt mới trước khi kiểm lượt này.
+**S5: FAIL_BEFORE_CASES · chạy lại bằng gói `cpu-r2`, đã kiểm local, chưa chạy trên S5.**
+Lượt `135115-e0b16d79` dừng ở Asterisk exit 132 trước mọi ca ([receipt](s5-first-run.json)).
+Lượt `133208-4b83eafa` mất SSH; console cho thấy `docker compose up` hỏng, receipt của lượt đó
+chưa tải về ([lấy receipt](s5-receipt-fetch.md), chỉ để chẩn đoán). Bản sửa Asterisk, bản sửa bộ
+kiểm bấm phím sớm và lệnh chạy lại nằm ở **[cpu-retry.md](cpu-retry.md)**.
 
 Ứng dụng được ghim vào `66a6baa2019efe69a1ede3b6179fce5b49643a6d`, đã nghiệm thu
 trong [W-0339](../W-0339/clean-commit-closeout.md). Bộ kiểm mới không sửa mã ứng dụng.
@@ -59,7 +60,8 @@ Chưa chứng minh thiết bị/SIM thật, Sales/M3 chung, nhiều worker hoặ
   So sánh ID/start/restart/status của mọi container có sẵn trước/sau.
 - Receipt chỉ chứa JSON/log/hash; loại compose chứa mật khẩu, cấu hình SIP và SQL riêng.
 
-Chạy trong PowerShell của owner trên máy chứa repo:
+Lệnh bàn giao gốc, đã dùng ngày 22/09. **Không chạy lại**: gói gốc đã nằm trên S5, lần chạy tiếp
+theo dùng retry trong [cpu-retry.md](cpu-retry.md).
 
 ```powershell
 & 'C:\Users\Administrator\Desktop\ivr\docs\evidence\W-0344\run-s5-full-flow.ps1'
@@ -72,9 +74,11 @@ Thành công của lệnh chuyển file chưa phải nghiệm thu: Codex cần �
 
 ## Trạng thái và trách nhiệm tiếp theo
 
-1. **Toàn/SSH operator:** chạy lệnh trên; gửi vị trí receipt và các dòng cuối.
-2. **Codex:** kiểm hash/scope/hostname, 7ca SIP/DTMF, đối soát DB, model/DLL và dọn tài nguyên;
-   cập nhật kết quả S5 theo dữ liệu trả về. Nếu lỗi, sửa đúng nguyên nhân và chạy lại, giữ raw cũ.
+1. **Toàn/SSH operator:** chạy retry trong [cpu-retry.md](cpu-retry.md) **sau khi W-0343 đã trả
+   receipt**; gửi vị trí receipt và các dòng cuối.
+2. **Agent nhận việc:** kiểm hash/scope/hostname, 7 ca SIP/DTMF, đối soát DB, model/DLL, dòng thời
+   gian phát tiếng và dọn tài nguyên; cập nhật kết quả S5 theo dữ liệu trả về. Nếu lỗi, sửa đúng
+   nguyên nhân và chạy lại, giữ raw cũ.
 3. **Toàn:** nghiệm thu sau khi có kết quả S5. Hiện chưa chuyển ACCEPTED.
 
 Sau lỗi SSH 255, lớp bàn giao đã thêm [resume-s5-full-flow.ps1](resume-s5-full-flow.ps1)

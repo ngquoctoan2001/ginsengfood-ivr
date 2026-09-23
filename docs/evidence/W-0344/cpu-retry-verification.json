@@ -1,0 +1,320 @@
+{
+  "work_id": "W-0344",
+  "scope": "LOCAL_RETRY_PACKAGE_CPU_R2",
+  "REAL_CUSTOMER_CALL_ALLOWED": "NO",
+  "production": "BLOCKED",
+  "verified_utc": "2026-09-23T02:14:26+00:00",
+  "s5_status": "CPU_R2_NOT_RUN_ON_S5; last S5 run 20260922-135115-e0b16d79 FAIL_BEFORE_CASES (Asterisk exit 132)",
+  "cpu_r1": {
+    "archive": "ivr-full-flow-w0344-cpu-r1.tar.gz",
+    "archive_sha256": "dfaaadd98eb4d7636f2799d2c4a16bef95e4f90d32c68cd0ebf647e4e63d8498",
+    "sent_to_s5": false,
+    "superseded_because": [
+      "installer edited 2026-09-22 14:28 after its pin (14:06); the retry script refused Hash mismatch before SSH",
+      "rehearsal-r2 pressed DTMF before the prompt had finished playing (harness defect)"
+    ],
+    "portable_build": {
+      "portable_compile_commands": 690,
+      "native_compile_commands": 0,
+      "build_native_enabled": false,
+      "asterisk_binary_sha256": "78e55bde339446183791dcda589a9fdca5b4d869d713eecbec3f5ef276796730"
+    },
+    "local_rehearsals": [
+      {
+        "name": "rehearsal",
+        "started_utc": "2026-09-22T07:06:15.296850+00:00",
+        "cases_passed": 7,
+        "status": "FAIL",
+        "reason": "host guard: pre-existing containers changed during the run",
+        "pre_existing_changed": [
+          "/runner-mzg59tfav-project-85344202-concurrent-0-eca90524ce3c7304-build",
+          "/runner-mzg59tfav-project-85344202-concurrent-0-eca90524ce3c7304-predefined"
+        ]
+      },
+      {
+        "name": "rehearsal-r2",
+        "started_utc": "2026-09-22T07:17:21.138433+00:00",
+        "cases_passed": 2,
+        "status": "FAIL",
+        "failed_case": "technical-retry",
+        "error": "AssertionError: received RTP 1196 < 1280 packets when DTMF was sent",
+        "cleanup_error": "ValueError('Existing service state changed during this run; inspect receipts')",
+        "pre_existing_changed": [
+          "/mystifying_elgamal",
+          "/stoic_dubinsky",
+          "/testcontainers-ryuk-7d2ada6c-2283-4b84-9d2d-f6986cb16494"
+        ]
+      }
+    ]
+  },
+  "dtmf_timing_analysis": {
+    "rehearsal": [
+      {
+        "case": "confirm",
+        "pass": true,
+        "need_packets": 1104,
+        "packets_at_dtmf": 1104,
+        "segment_start_deltas_s": [
+          6.4,
+          6.08,
+          0.8,
+          2.24,
+          0.8,
+          1.84
+        ],
+        "answer_to_dtmf_s": 26.35,
+        "wall_clock_bound_s": 24.08
+      },
+      {
+        "case": "customer-cancel",
+        "pass": true,
+        "need_packets": 1593,
+        "packets_at_dtmf": 1593,
+        "segment_start_deltas_s": [
+          8.72,
+          6.58,
+          1.76,
+          4.32,
+          2.8,
+          2.56
+        ],
+        "answer_to_dtmf_s": 34.67,
+        "wall_clock_bound_s": 33.86
+      },
+      {
+        "case": "technical-retry",
+        "pass": true,
+        "need_packets": 1280,
+        "packets_at_dtmf": 1280,
+        "segment_start_deltas_s": [
+          7.22,
+          7.07,
+          0.88,
+          2.42,
+          1.14,
+          2.26
+        ],
+        "answer_to_dtmf_s": 28.09,
+        "wall_clock_bound_s": 27.6
+      }
+    ],
+    "rehearsal-r2": [
+      {
+        "case": "confirm",
+        "pass": true,
+        "need_packets": 1104,
+        "packets_at_dtmf": 1104,
+        "segment_start_deltas_s": [
+          6.41,
+          6.08,
+          0.8,
+          2.26,
+          0.8,
+          1.86
+        ],
+        "answer_to_dtmf_s": 24.87,
+        "wall_clock_bound_s": 24.08
+      },
+      {
+        "case": "customer-cancel",
+        "pass": true,
+        "need_packets": 1593,
+        "packets_at_dtmf": 1593,
+        "segment_start_deltas_s": [
+          8.72,
+          6.58,
+          1.76,
+          4.32,
+          2.8,
+          2.56
+        ],
+        "answer_to_dtmf_s": 35.0,
+        "wall_clock_bound_s": 33.86
+      },
+      {
+        "case": "technical-retry",
+        "pass": false,
+        "need_packets": 1280,
+        "packets_at_dtmf": 1196,
+        "segment_start_deltas_s": [
+          9.8,
+          9.36,
+          0.88,
+          2.4,
+          1.12,
+          2.24
+        ],
+        "answer_to_dtmf_s": 28.12,
+        "wall_clock_bound_s": 27.6
+      }
+    ],
+    "cpu-r2/rehearsal-1": [
+      {
+        "case": "confirm",
+        "pass": true,
+        "need_packets": 1104,
+        "packets_at_dtmf": 1104,
+        "segment_start_deltas_s": [
+          6.44,
+          6.08,
+          0.8,
+          2.24,
+          0.8,
+          1.84
+        ],
+        "answer_to_dtmf_s": 25.2,
+        "wall_clock_bound_s": 24.08
+      },
+      {
+        "case": "customer-cancel",
+        "pass": true,
+        "need_packets": 1593,
+        "packets_at_dtmf": 1593,
+        "segment_start_deltas_s": [
+          8.72,
+          6.58,
+          1.76,
+          4.32,
+          2.8,
+          2.56
+        ],
+        "answer_to_dtmf_s": 34.41,
+        "wall_clock_bound_s": 33.86
+      },
+      {
+        "case": "technical-retry",
+        "pass": true,
+        "need_packets": 1280,
+        "packets_at_dtmf": 1280,
+        "segment_start_deltas_s": [
+          7.04,
+          7.04,
+          0.88,
+          2.4,
+          1.12,
+          2.24
+        ],
+        "answer_to_dtmf_s": 27.84,
+        "wall_clock_bound_s": 27.6
+      }
+    ],
+    "finding": "r2 technical-retry: segments 1-2 took 9.80/9.36 s against 7.22/7.07 s in r1 (same files); 0 packets lost; Asterisk is limited to 0.5 CPU and another Testcontainers run shared the Docker host. The harness pressed DTMF at audio+2 s wall clock with 1.7 s of the prompt still unplayed.",
+    "harness_fix": "cases.py waits until received RTP >= segmented_audio_ms/20 before DTMF; the wall clock is only a lower bound; still bounded by 360 s per case",
+    "production_observation": "A 0.5-CPU PBX can fall behind real time under host contention; not a W-0344 gate"
+  },
+  "cpu_r2": {
+    "archive_sha256": "634c903b54fb8a7ac8ee2c2459f48327a816075d6ac8c412891343f943660dee",
+    "archive_bytes": 138232592,
+    "members": [
+      "cases.py",
+      "images/asterisk.tar",
+      "manifest.json",
+      "patch.json"
+    ],
+    "base_kit_manifest_sha256": "8844b979b82f95980c177a56886524abc5be5d1e75622a65d7fe6d1068eabe8d",
+    "base_matches_s5_run_135115": true,
+    "new_manifest_sha256": "e65bd6bc360308c52bfe67ab133cbd776f4da67bbafc7eab842aba163c855ddf",
+    "changed_files_vs_base": [
+      "cases.py",
+      "images/asterisk.tar"
+    ],
+    "changed_images_vs_base": [
+      "asterisk"
+    ],
+    "asterisk_image_bytes_same_as_r1": true,
+    "reconstructed_files_match_manifest": 20,
+    "retry_and_resume_bash_syntax": "PASS",
+    "installer_sha256": "ebe488ba8ce35c1bcb6eeece30b6925e9b78706c86ac768f59fd5c33663ae3fa"
+  },
+  "cases_py": {
+    "base_sha256": "ec7f482ca01182eb1272da5bd633701fe8b1f22f03a9e057f93dde561c10e3af",
+    "r2_sha256": "cc73f65e0ca0789da8d6d9b68c2d1e54c50de778bf80b2e9270ccd056a2babd1",
+    "assert_lines": 51,
+    "assert_lines_identical": true,
+    "lines_removed": 2,
+    "lines_added": 7,
+    "diff": [
+      "--- base/cases.py",
+      "+++ r2/cases.py",
+      "@@ -143,2 +143,7 @@",
+      "-                item['rtp']=cli(PEER,'pjsip show channelstats'); item['sent_utc']=utc()",
+      "-                cli(PEER,f'channel redirect {peers[0]} send-{digit},s,1'); sent=True",
+      "+                item['rtp']=cli(PEER,'pjsip show channelstats')",
+      "+                # Wall time is only a lower bound under load. Wait for the same",
+      "+                # received-audio threshold that the final assertion enforces.",
+      "+                received_rtp=re.search(r'switch-[a-f0-9]+\\s+\\S+\\s+ulaw\\s+(\\d+)',item['rtp'])",
+      "+                if received_rtp and int(received_rtp[1])>=measured['segmented_audio_ms']//20:",
+      "+                    item['sent_utc']=utc()",
+      "+                    cli(PEER,f'channel redirect {peers[0]} send-{digit},s,1'); sent=True"
+    ]
+  },
+  "tests": {
+    "windows_python_3_13": "37/37 deploy/lab/tests",
+    "linux_python_3_14": "26/26 (cpu retry installer 9, DTMF gate 3, full-flow guards 14)",
+    "dtmf_gate_red_before": "original S5 kit cases.py rtp_gated=False; r2 cases.py rtp_gated=True",
+    "retry_detach": "8/8 in a Debian 12 container with a fake installer: normal run, failing installer, SIGHUP then SIGKILL of the SSH session group followed by resume, killed test reports INTERRUPTED, second start refused, wrong pin refused",
+    "retry_detach_red_before": [
+      "OLD_SCRIPT mode=control result_tar=yes receipt=yes log_lines=9",
+      "OLD_SCRIPT mode=hangup result_tar=no receipt=no log_lines=4"
+    ],
+    "verify_only": "W0344_CPU_RETRY_CHECKSUMS_PASS on Windows PowerShell 5.1 and PowerShell 7; a malformed -ResumeRunId is refused before SSH"
+  },
+  "local_rehearsal_cpu_r2": {
+    "project": "ivr-w0344-20260923015640-cd78e6",
+    "started_utc": "2026-09-23T01:56:40.511319+00:00",
+    "finished_utc": "2026-09-23T02:04:15.526271+00:00",
+    "status": "PASS",
+    "cases_passed": 7,
+    "reconciliation": {
+      "tasks": 7,
+      "attempts": 7,
+      "counted_customer_attempts": 4,
+      "technical_attempts": 3,
+      "results": 9,
+      "final_results": 6,
+      "callbacks": 6,
+      "miscounted_technical_attempts": 0,
+      "miscounted_noncustomer_results": 0,
+      "duplicate_finals": 0,
+      "duplicate_callbacks": 0,
+      "callbacks_for_nonfinal_results": 0
+    },
+    "kit_manifest_sha256": "e65bd6bc360308c52bfe67ab133cbd776f4da67bbafc7eab842aba163c855ddf",
+    "cleanup": {
+      "removed_containers": [
+        "ivr-w0344-20260923015640-cd78e6-peer",
+        "ivr-w0344-20260923015640-cd78e6-ivr-tts-1",
+        "ivr-w0344-20260923015640-cd78e6-ivr-worker-1",
+        "ivr-w0344-20260923015640-cd78e6-ivr-api-1",
+        "ivr-w0344-20260923015640-cd78e6-lab-seed-1",
+        "ivr-w0344-20260923015640-cd78e6-seed-1",
+        "ivr-w0344-20260923015640-cd78e6-asterisk-1",
+        "ivr-w0344-20260923015640-cd78e6-ivr-migrate-1",
+        "ivr-w0344-20260923015640-cd78e6-fake-sales-1",
+        "ivr-w0344-20260923015640-cd78e6-postgres-1",
+        "ivr-w0344-20260923015640-cd78e6-media-init-1"
+      ],
+      "networks_removed": true,
+      "named_volumes_preserved": [
+        "ivr-w0344-20260923015640-cd78e6-pg",
+        "ivr-w0344-20260923015640-cd78e6-media"
+      ]
+    },
+    "pre_existing_containers_unchanged": true,
+    "dtmf_gate_engaged": false,
+    "note": "playback kept real time in this run, so each DTMF went out at the wall-clock bound with every packet received"
+  },
+  "evidence_files": {
+    "deploy/lab/full-flow-s5/cases.py": "cc73f65e0ca0789da8d6d9b68c2d1e54c50de778bf80b2e9270ccd056a2babd1",
+    "deploy/lab/tests/test_full_flow_dtmf_gate.py": "7d4f22cb61cfb709af09109ba1f284dd831782ddbb1d5fd0c0037059cb0cc13e",
+    "deploy/lab/tests/test_s5_cpu_retry.py": "c4b3b505276e7dd3ecea109336320a53ef11e0cf6832b0b317336a85cb25cf00",
+    "docs/evidence/W-0344/install-s5-cpu-retry.py": "ebe488ba8ce35c1bcb6eeece30b6925e9b78706c86ac768f59fd5c33663ae3fa",
+    "docs/evidence/W-0344/retry-s5-full-flow.ps1": "c1e5ce8a2b9c4075fd30dcc1e41cc6fa6dd5fb3b1e3bbe7dd3ab49f2d2a1fb70",
+    "docs/evidence/W-0344/build-cpu-retry.py": "379d6b04cbea1218dd32a895c2f33f38f39b359946663dd176e6671aca00e9c9",
+    "docs/evidence/W-0344/verify-cpu-retry.py": "220f4faf056ee9bd5e1e4ac6db66007c3f5da5032382aebb1c97ff2ebed165e4",
+    "docs/evidence/W-0344/test-retry-detach.py": "eb3588c0491fffad24912e922d732c89cbd6233f00c577dedb24ac7f9758e1e4",
+    "docs/evidence/W-0344/cpu-retry-pins.json": "d845737de91fce99ae83992baea8b8f5c7b85f152e4baea3d042cff75698a018",
+    "docs/evidence/W-0344/cpu-retry-manifest.json": "e65bd6bc360308c52bfe67ab133cbd776f4da67bbafc7eab842aba163c855ddf"
+  },
+  "raw": ".artifacts/W-0344/cpu-portable-r2/"
+}
