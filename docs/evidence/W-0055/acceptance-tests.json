@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0055",
+  "scope": "software",
+  "requiredTestIds": [
+    "BI-ALERT-05",
+    "BI-DRIFT-06",
+    "BI-QUALITY-04",
+    "IT-SLO-ANALYTICS-06"
+  ]
+}

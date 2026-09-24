@@ -1,8 +1,11 @@
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Speech;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence.Security;
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Speech;
 using Ivr.Infrastructure.Telephony;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -597,6 +600,190 @@ public sealed class SipTrunkProductionDialTests
         Assert.DoesNotContain(
             production,
             descriptor => descriptor.ServiceType == typeof(LabDialTokenVault));
+    }
+
+    /// <summary>
+    /// W-0353 / W-0303. The production dial path is wired, and the gateway that would carry it is
+    /// still closed: <c>IsReady</c> opens only for the lab combination - LAB_REAL_SIM with real
+    /// customer calls off - so a PRODUCTION_REAL deployment, or any deployment with real calls
+    /// switched on, cannot dial through it. Opening it is SIP-04 and needs approval evidence; the
+    /// W-0303 residual said nothing pinned the closed door, and this does.
+    /// </summary>
+    [Theory]
+    [InlineData(IvrOptions.LabRealSimExecutionMode, false, true)]
+    [InlineData(IvrOptions.ProductionRealExecutionMode, false, false)]
+    [InlineData(IvrOptions.LabRealSimExecutionMode, true, false)]
+    [InlineData(IvrOptions.ProductionRealExecutionMode, true, false)]
+    [Trait("TestId", "UT-TRUNK-DI-05")]
+    public void TheAsteriskGatewayOpensOnlyForTheLabWithRealCallsOff(
+        string executionMode,
+        bool realCustomerCallAllowed,
+        bool expectedReady)
+    {
+        var untouched = new Untouched();
+
+        Assert.Equal(expectedReady, Gateway(untouched, executionMode, realCustomerCallAllowed).IsReady);
+        Assert.Equal(0, untouched.Calls);
+    }
+
+    /// <summary>
+    /// W-0353 / W-0303. A closed gateway refuses before it touches anything: no dispatch context
+    /// loaded, no token resolved, no speech rendered, nothing dialled, and no failure written against
+    /// the lease. The lease names the configured adapter and provider, so the refusal can only come
+    /// from the closed gate and not from the adapter mismatch check beside it.
+    /// </summary>
+    [Theory]
+    [InlineData(IvrOptions.ProductionRealExecutionMode, false)]
+    [InlineData(IvrOptions.LabRealSimExecutionMode, true)]
+    [InlineData(IvrOptions.ProductionRealExecutionMode, true)]
+    [Trait("TestId", "UT-TRUNK-DI-06")]
+    public async Task AClosedAsteriskGatewayRefusesBeforeTouchingAnyDependency(
+        string executionMode,
+        bool realCustomerCallAllowed)
+    {
+        var untouched = new Untouched();
+        AsteriskSchedulerDispatchGateway gateway = Gateway(untouched, executionMode, realCustomerCallAllowed);
+        SchedulerDispatchLease lease = new(
+            "JOB-TRUNK-1",
+            "ATTEMPT-TRUNK-1",
+            1,
+            Now,
+            Now.AddMinutes(5),
+            "SIM-ASTERISK-001",
+            Guid.NewGuid(),
+            1,
+            Now.AddMinutes(2),
+            AsteriskAriOptions.Adapter,
+            AsteriskAriOptions.Adapter);
+
+        InvalidOperationException refused = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => gateway.DispatchAsync(lease, CancellationToken.None));
+
+        Assert.Equal("Asterisk lab dispatch is not safely enabled.", refused.Message);
+        Assert.Equal(0, untouched.Calls);
+    }
+
+    private static AsteriskSchedulerDispatchGateway Gateway(
+        Untouched untouched,
+        string executionMode,
+        bool realCustomerCallAllowed) => new(
+            untouched,
+            untouched,
+            untouched,
+            untouched,
+            untouched,
+            untouched,
+            Microsoft.Extensions.Options.Options.Create(new AsteriskAriOptions
+            {
+                Enabled = true,
+                ExecutionMode = IvrOptions.LabRealSimExecutionMode,
+                AdapterMode = AsteriskAriOptions.Adapter,
+                ProviderName = AsteriskAriOptions.Adapter,
+            }),
+            Microsoft.Extensions.Options.Options.Create(new IvrOptions
+            {
+                ExecutionMode = executionMode,
+                SalesProvider = "FAKE_TARGET_V1",
+                SimProvider = "VENDOR",
+                RealCustomerCallAllowed = realCustomerCallAllowed,
+            }),
+            new SchedulerExecutionContext(executionMode),
+            TimeProvider.System);
+
+    /// <summary>Every dependency of the gateway at once; each member is counted and refused.</summary>
+    private sealed class Untouched
+        : ITelephonyDispatchStore, IDialTokenResolver, ISpeechRenderer, ISpeechSynthesisService, ISimGateway, IDispatchGate
+    {
+        public int Calls { get; private set; }
+
+        private InvalidOperationException Touched()
+        {
+            Calls++;
+            return new InvalidOperationException("A closed gateway must not touch its dependencies.");
+        }
+
+        public Task<TelephonyDispatchContext> LoadAsync(
+            SchedulerDispatchLease lease,
+            CancellationToken cancellationToken = default) => throw Touched();
+
+        public Task MarkActiveAsync(
+            SchedulerDispatchLease lease,
+            SimCallSession session,
+            DispatchedVoice? voice = null,
+            CancellationToken cancellationToken = default) => throw Touched();
+
+        public Task CompleteAsync(
+            SchedulerDispatchLease lease,
+            SimCallSession session,
+            SimDtmfCapture dtmf,
+            SimDispositionReport disposition,
+            TimeSpan cooldown,
+            CancellationToken cancellationToken = default) => throw Touched();
+
+        public Task FailAsync(
+            SchedulerDispatchLease lease,
+            SimCallSession? session,
+            SimProviderDisposition disposition,
+            string technicalErrorCode,
+            bool channelHealthy,
+            TimeSpan cooldown,
+            CancellationToken cancellationToken = default) => throw Touched();
+
+        public Task<CallTerminationRequest?> ReadTerminationAsync(
+            SchedulerDispatchLease lease,
+            CancellationToken cancellationToken = default) => throw Touched();
+
+        public ValueTask<DialAuthorization> ResolveAsync(
+            DialTokenResolutionRequest request,
+            DateTimeOffset now,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public ValueTask<RenderedSpeech> RenderAsync(
+            PrivacySafeOrderSummary summary,
+            string scriptTemplateId,
+            string scriptVersion,
+            ExecutionMode executionMode,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public Task<RenderedSpeech> SynthesizeAsync(
+            RenderedSpeech renderedSpeech,
+            PrivacySafeOrderSummary summary,
+            string scriptTemplateId,
+            string scriptVersion,
+            ExecutionMode executionMode,
+            DateTimeOffset confirmationWindowExpiresAt,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public ValueTask<SimCallSession> DialAsync(
+            SimDialRequest request,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public ValueTask PlayAsync(
+            SimCallSession session,
+            RenderedSpeech speech,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public ValueTask<SimDtmfCapture> CaptureDtmfAsync(
+            SimCallSession session,
+            TimeSpan timeout,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public ValueTask<SimDispositionReport> GetDispositionAsync(
+            SimCallSession session,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public ValueTask HangupAsync(
+            SimCallSession session,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public ValueTask<SimGatewayHealth> CheckHealthAsync(
+            string simChannelId,
+            CancellationToken cancellationToken) => throw Touched();
+
+        public Task<DispatchGateDecision> EvaluateAsync(
+            string environment,
+            string destinationReference,
+            CancellationToken cancellationToken = default) => throw Touched();
     }
     // --------------------------------- PD-02: the ceiling against the contract
 

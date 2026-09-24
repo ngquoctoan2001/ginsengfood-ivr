@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0041",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-OBS-METRIC-03",
+    "IT-SLO-BACKLOG-05",
+    "IT-OBS-BACKLOG-15"
+  ]
+}

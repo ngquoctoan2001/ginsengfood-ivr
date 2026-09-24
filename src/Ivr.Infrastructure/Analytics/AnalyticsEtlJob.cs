@@ -1,9 +1,12 @@
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Ivr.Infrastructure.Analytics;
 
@@ -71,7 +74,40 @@ public sealed class AnalyticsEtlJob(
             : null;
     }
 
+    /// <summary>
+    /// One run, counted on <c>ivr_analytics_etl_runs_total</c> by how it ended (<c>W-0055</c>).
+    ///
+    /// <para>The verdict is counted only after the checkpoint that carries it has been written,
+    /// so the metric never reports a verdict the reporting API cannot also show. A run that throws
+    /// is counted as <c>FAILED</c> -- including one refused for invalid options, because a
+    /// misconfigured pipeline that fails every run must read as runs that never complete rather
+    /// than as no runs at all. Cancellation during shutdown is not counted: stopping is not a
+    /// failure, and counting it would put a failure on every deployment.</para>
+    ///
+    /// <para>Counted here rather than in the worker host that calls it: this is the only place
+    /// that knows the verdict and sees every run, and it is reachable from the integration suite,
+    /// which the internal host is not.</para>
+    /// </summary>
     public async Task<AnalyticsEtlRunReport> RunAsync(
+        AnalyticsEtlRunOptions options,
+        CancellationToken cancellationToken)
+    {
+        AnalyticsEtlRunReport report;
+        try
+        {
+            report = await RunOnceAsync(options, cancellationToken);
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            IvrTelemetry.RecordAnalyticsEtlRun(AnalyticsEtlRunOutcome.Failed);
+            throw;
+        }
+
+        IvrTelemetry.RecordAnalyticsEtlRun(report.ReconcileStatus);
+        return report;
+    }
+
+    private async Task<AnalyticsEtlRunReport> RunOnceAsync(
         AnalyticsEtlRunOptions options,
         CancellationToken cancellationToken)
     {
@@ -99,7 +135,7 @@ public sealed class AnalyticsEtlJob(
             await UpsertDimensionsAsync(context, loaded, now, cancellationToken);
         }
 
-        (int jobsInserted, int jobsRefreshed) =
+        JobGrainSync jobs =
             await SyncJobFactsAsync(context, options.BatchSize, now, cancellationToken);
 
         int buckets = await RecomputeAggregatesAsync(
@@ -116,9 +152,13 @@ public sealed class AnalyticsEtlJob(
         // A row rejected by the privacy filter is deliberately absent from the facts, so it is
         // subtracted before the counts are compared. Otherwise every rejection would masquerade
         // as a pipeline fault and the real signal would be lost inside the noise.
-        long totalRejected = await ResolveTotalRejectedAsync(context, rejected, cancellationToken);
-
-        string status = ResolveStatus(sourceRows, orphanRows, factRows, totalRejected);
+        //
+        // This run's count, not the checkpoint's running total. A rejected row never gets a fact,
+        // so the anti-join hands it back and the filter refuses it again on every run: `rejected`
+        // already counts every row currently refused. Adding the total on top counted the same row
+        // once per run, so from the second run on the expected count fell below the fact count and
+        // one refused row turned into a MISMATCH that never cleared (W-0055).
+        string status = ResolveStatus(sourceRows, orphanRows, factRows, rejected, jobs);
         long durationMs = (long)Stopwatch.GetElapsedTime(startedTicks).TotalMilliseconds;
 
         await WriteCheckpointAsync(
@@ -141,14 +181,18 @@ public sealed class AnalyticsEtlJob(
             orphanRows,
             status,
             durationMs,
-            jobsInserted,
-            jobsRefreshed);
+            jobs.Inserted,
+            jobs.Refreshed,
+            jobs.SourceJobs,
+            jobs.JobFacts,
+            jobs.Rejected,
+            jobs.DriftedAfterRefresh);
     }
 
     // ----------------------------------------------------------------- job grain
 
     /// <summary>
-    /// Loads and maintains the job-grain fact.
+    /// Loads and maintains the job-grain fact, and reconciles it against its source.
     ///
     /// <para>A call job is not immutable the way a result is: attempts accumulate
     /// and eligibility is decided after the row exists. Insert-only would therefore
@@ -157,22 +201,35 @@ public sealed class AnalyticsEtlJob(
     /// it.</para>
     ///
     /// <para>So the pass is two-part and both parts are idempotent: insert jobs
-    /// with no fact, then re-read the ones still open. <c>ClosedAt</c> is the
-    /// boundary — once set, the job is finished and re-reading it would be work
-    /// with no possible effect.</para>
+    /// with no fact, then refresh every fact whose eligible, closed or counted-attempt
+    /// value no longer matches its job. The refresh finds those facts by comparing them
+    /// with the source, not by reading the fact's own <c>Closed</c> flag. It used to
+    /// re-read open facts only, on the premise that a job with <c>ClosedAt</c> set can
+    /// no longer change. Nothing enforced that premise, and a closed job that gained a
+    /// counted attempt kept its old count for good while the row count still reconciled
+    /// (<c>BI-DRIFT-06</c>).</para>
     ///
-    /// <para><b>Stated limit:</b> the reconcile compares row counts, and a stale
-    /// open-job row has the right count with the wrong contents. If <c>ClosedAt</c>
-    /// were ever set while a job could still change, this pass would go stale
-    /// silently. <c>BI-IDEMP-03</c> covers the refresh; nothing covers that
-    /// premise.</para>
+    /// <para><b>One snapshot.</b> Insert, refresh and reconcile run inside a single
+    /// <c>REPEATABLE READ</c> transaction. The reconcile asks whether any fact still
+    /// disagrees with its job after the refresh; asked in a later snapshot, every attempt
+    /// normalised in the milliseconds between the two would read as drift, and a busy
+    /// afternoon would raise a MISMATCH that cleared itself on the next run. Inside one
+    /// snapshot the answer is zero unless the refresh failed at its one job.</para>
+    ///
+    /// <para>A fact whose job is gone is left alone: the retention hook owns that delete,
+    /// and touching it here would put two owners on the same row. It still counts toward
+    /// the job-fact total, so an orphan that outlives the hook reads as MISMATCH, which is
+    /// the rule the result grain has always applied to its own orphans.</para>
     /// </summary>
-    private static async Task<(int Inserted, int Refreshed)> SyncJobFactsAsync(
+    private static async Task<JobGrainSync> SyncJobFactsAsync(
         IvrDbContext context,
         int batchSize,
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
+        await using IDbContextTransaction snapshot = await context.Database
+            .BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken);
+
         var missing = await context.CallJobs.AsNoTracking()
             .Where(job => !context.AnalyticsJobFacts
                 .Any(fact => fact.IvrCallJobId == job.IvrCallJobId))
@@ -189,36 +246,25 @@ public sealed class AnalyticsEtlJob(
                 job.ClosedAt))
             .ToListAsync(cancellationToken);
 
-        List<AnalyticsFactCallJobEntity> openFacts = await context.AnalyticsJobFacts
-            .Where(fact => !fact.Closed)
+        // Bounded like the insert: the cap limits one transaction, not correctness. Whatever
+        // is left over is found again by the same comparison on the next run.
+        List<JobFactAgainstSource> drifted = await DriftedJobFacts(context)
+            .OrderBy(row => row.Fact.IvrCallJobId)
+            .Take(batchSize)
             .ToListAsync(cancellationToken);
 
-        string[] refreshIds = openFacts.Select(fact => fact.IvrCallJobId).ToArray();
-        Dictionary<string, JobProjection> refreshSource = refreshIds.Length == 0
-            ? []
-            : await context.CallJobs.AsNoTracking()
-                .Where(job => refreshIds.Contains(job.IvrCallJobId))
-                .Select(job => new JobProjection(
-                    job.IvrCallJobId,
-                    job.OfficialOrderId,
-                    job.ProgramType,
-                    job.ScriptVersion,
-                    job.Eligible,
-                    job.CreatedAt,
-                    job.ClosedAt))
-                .ToDictionaryAsync(job => job.JobId, cancellationToken);
-
-        string[] countIds = missing.Select(job => job.JobId).Concat(refreshIds).Distinct().ToArray();
-        Dictionary<string, int> attemptCounts = countIds.Length == 0
+        string[] missingIds = missing.Select(job => job.JobId).ToArray();
+        Dictionary<string, int> attemptCounts = missingIds.Length == 0
             ? []
             : await context.CallAttempts.AsNoTracking()
                 .Where(attempt => attempt.IsCountedCustomerAttempt
-                    && countIds.Contains(attempt.IvrCallJobId))
+                    && missingIds.Contains(attempt.IvrCallJobId))
                 .GroupBy(attempt => attempt.IvrCallJobId)
                 .Select(group => new { JobId = group.Key, Count = group.Count() })
                 .ToDictionaryAsync(row => row.JobId, row => row.Count, cancellationToken);
 
         int inserted = 0;
+        int rejected = 0;
         foreach (JobProjection job in missing)
         {
             var fact = new AnalyticsFactCallJobEntity
@@ -239,6 +285,9 @@ public sealed class AnalyticsEtlJob(
 
             if (!IsJobSafeToLoad(fact))
             {
+                // Counted as well as skipped. A refused job never gets a fact, so without the
+                // count the reconcile below would read it as a missing row on every run.
+                rejected++;
                 continue;
             }
 
@@ -246,39 +295,63 @@ public sealed class AnalyticsEtlJob(
             inserted++;
         }
 
-        int refreshed = 0;
-        foreach (AnalyticsFactCallJobEntity fact in openFacts)
+        foreach (JobFactAgainstSource row in drifted)
         {
-            if (!refreshSource.TryGetValue(fact.IvrCallJobId, out JobProjection? job))
-            {
-                // The job is gone. The retention hook owns the delete; touching it here would
-                // put two owners on the same row.
-                continue;
-            }
-
-            int attempts = attemptCounts.GetValueOrDefault(fact.IvrCallJobId);
-            bool closed = job.ClosedAt is not null;
-            if (fact.CountedAttemptCount == attempts
-                && fact.Eligible == job.Eligible
-                && fact.Closed == closed)
-            {
-                continue;
-            }
-
-            fact.CountedAttemptCount = attempts;
-            fact.Eligible = job.Eligible;
-            fact.Closed = closed;
-            fact.LoadedAt = now;
-            refreshed++;
+            row.Fact.CountedAttemptCount = row.CountedAttempts;
+            row.Fact.Eligible = row.Eligible;
+            row.Fact.Closed = row.Closed;
+            row.Fact.LoadedAt = now;
         }
 
-        if (inserted > 0 || refreshed > 0)
+        if (inserted > 0 || drifted.Count > 0)
         {
             await context.SaveChangesAsync(cancellationToken);
         }
 
-        return (inserted, refreshed);
+        // Same snapshot, after this run's own writes: what is counted here is exactly what the
+        // insert and the refresh were looking at, and nothing that committed since.
+        int sourceJobs = await context.CallJobs.CountAsync(cancellationToken);
+        int jobFacts = await context.AnalyticsJobFacts.CountAsync(cancellationToken);
+        int driftedAfterRefresh = await DriftedJobFacts(context).CountAsync(cancellationToken);
+
+        await snapshot.CommitAsync(cancellationToken);
+
+        return new JobGrainSync(
+            inserted,
+            drifted.Count,
+            rejected,
+            sourceJobs,
+            jobFacts,
+            driftedAfterRefresh,
+            RefreshCapped: drifted.Count >= batchSize);
     }
+
+    /// <summary>
+    /// Every job fact paired with what its source job holds now, keeping the pairs that
+    /// disagree. The refresh fixes what this returns and the reconcile counts what is left,
+    /// so the two cannot come to mean different things by drift.
+    /// </summary>
+    private static IQueryable<JobFactAgainstSource> DriftedJobFacts(IvrDbContext context) =>
+        context.AnalyticsJobFacts
+            .Join(
+                context.CallJobs,
+                fact => fact.IvrCallJobId,
+                job => job.IvrCallJobId,
+                (fact, job) => new JobFactAgainstSource
+                {
+                    Fact = fact,
+                    Eligible = job.Eligible,
+                    Closed = job.ClosedAt != null,
+
+                    // Counted customer attempts only, as at insert: a technical retry is not a
+                    // second attempt at the customer (DT-02).
+                    CountedAttempts = context.CallAttempts.Count(attempt =>
+                        attempt.IvrCallJobId == job.IvrCallJobId
+                        && attempt.IsCountedCustomerAttempt),
+                })
+            .Where(row => row.Fact.Eligible != row.Eligible
+                || row.Fact.Closed != row.Closed
+                || row.Fact.CountedAttemptCount != row.CountedAttempts);
 
     private static bool IsJobSafeToLoad(AnalyticsFactCallJobEntity fact) =>
         AnalyticsColumnPolicy.InspectValue(fact.IvrCallJobId)
@@ -294,6 +367,32 @@ public sealed class AnalyticsEtlJob(
         bool Eligible,
         DateTimeOffset CreatedAt,
         DateTimeOffset? ClosedAt);
+
+    /// <summary>
+    /// A job fact beside the three values its source job holds now. A class with settable
+    /// members rather than a positional record, because the query filters and orders on these
+    /// members after projecting them, and only a member initialiser lets that translate to SQL.
+    /// </summary>
+    private sealed class JobFactAgainstSource
+    {
+        public AnalyticsFactCallJobEntity Fact { get; init; } = null!;
+
+        public bool Eligible { get; init; }
+
+        public bool Closed { get; init; }
+
+        public int CountedAttempts { get; init; }
+    }
+
+    /// <summary>What the job-grain pass did, and what it counted in the snapshot it did it in.</summary>
+    private readonly record struct JobGrainSync(
+        int Inserted,
+        int Refreshed,
+        int Rejected,
+        int SourceJobs,
+        int JobFacts,
+        int DriftedAfterRefresh,
+        bool RefreshCapped);
 
     // ------------------------------------------------------------------ extract
 
@@ -535,34 +634,56 @@ public sealed class AnalyticsEtlJob(
         return (total, orphan);
     }
 
+    /// <summary>
+    /// The run's verdict: the worse of the two grains, MISMATCH before BACKLOG before COMPLETE.
+    ///
+    /// <para>The result grain is judged on counts, as it always was. The job grain is judged on
+    /// contents as well: a stale job fact has the right count and the wrong values, which is
+    /// exactly the state a count-only reconcile calls COMPLETE. So a fact that still disagrees
+    /// with its job after the refresh is a MISMATCH by itself, unless the refresh stopped at the
+    /// batch cap, in which case the remainder is the next run's work and the verdict is BACKLOG.</para>
+    /// </summary>
     private static string ResolveStatus(
         int sourceRows,
         int orphanRows,
         int factRows,
-        long totalRejected)
+        int rejectedRows,
+        JobGrainSync jobs)
     {
-        long expected = sourceRows - orphanRows - totalRejected;
-        if (factRows == expected)
+        string results = CompareCounts(factRows, (long)sourceRows - orphanRows - rejectedRows);
+        string jobGrain;
+        if (jobs.DriftedAfterRefresh > 0)
+        {
+            jobGrain = jobs.RefreshCapped
+                ? AnalyticsReconcileStatus.Backlog
+                : AnalyticsReconcileStatus.Mismatch;
+        }
+        else
+        {
+            jobGrain = CompareCounts(jobs.JobFacts, (long)jobs.SourceJobs - jobs.Rejected);
+        }
+
+        return Severity(jobGrain) > Severity(results) ? jobGrain : results;
+    }
+
+    private static string CompareCounts(long facts, long expected)
+    {
+        if (facts == expected)
         {
             return AnalyticsReconcileStatus.Complete;
         }
 
-        return factRows < expected
+        return facts < expected
             ? AnalyticsReconcileStatus.Backlog
             : AnalyticsReconcileStatus.Mismatch;
     }
 
-    private static async Task<long> ResolveTotalRejectedAsync(
-        IvrDbContext context,
-        int rejectedThisRun,
-        CancellationToken cancellationToken)
+    private static int Severity(string status) => status switch
     {
-        AnalyticsEtlCheckpointEntity? checkpoint = await context.AnalyticsCheckpoints
-            .AsNoTracking()
-            .FirstOrDefaultAsync(row => row.PipelineName == PipelineName, cancellationToken);
-
-        return (checkpoint?.TotalRejectedRows ?? 0) + rejectedThisRun;
-    }
+        AnalyticsReconcileStatus.Mismatch => 2,
+        AnalyticsReconcileStatus.Backlog => 1,
+        _ => 0,
+    };
 
     private static async Task WriteCheckpointAsync(
         IvrDbContext context,

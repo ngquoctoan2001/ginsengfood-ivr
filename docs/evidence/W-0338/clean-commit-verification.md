@@ -29,10 +29,10 @@ W-0338 đạt C1/C2/C4, ở mức **XEM** vì còn Residual; chưa chuyển `ACC
 Danh sách đọc tracker tại candidate, nên ghi chú lịch sử về S5 không thay thế hồ sơ
 S5 được task khác cập nhật sau đó.
 
-- [Manifest gốc](../../../.artifacts/w0338-acceptance-c3da2b6-r4/acceptance-run.json)
-- [Danh sách nghiệm thu tại candidate](../../../.artifacts/w0338-acceptance-c3da2b6-r4/acceptance-batches.md)
-- [Log toàn bộ test](../../../.artifacts/w0338-acceptance-c3da2b6-r4/tests.log)
-- [Log full sweep](../../../.artifacts/w0338-acceptance-c3da2b6-r4/sweep.log)
+- Manifest gốc: `.artifacts/w0338-acceptance-c3da2b6-r4/acceptance-run.json` (bốn file đầu danh sách này nằm ở `.artifacts/` cục bộ trên máy chạy, không commit vì thư mục nằm trong `.gitignore`)
+- Danh sách nghiệm thu tại candidate: `.artifacts/w0338-acceptance-c3da2b6-r4/acceptance-batches.md`
+- Log toàn bộ test: `.artifacts/w0338-acceptance-c3da2b6-r4/tests.log`
+- Log full sweep: `.artifacts/w0338-acceptance-c3da2b6-r4/sweep.log`
 - [Bản ghi SHA, snapshot, kết quả và hash artifact](clean-commit-verification.json)
 
 ## Các lượt chưa đạt và sửa chữa

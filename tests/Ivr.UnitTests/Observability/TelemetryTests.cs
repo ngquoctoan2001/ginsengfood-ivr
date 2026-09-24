@@ -160,6 +160,80 @@ public sealed class TelemetryTests
         Assert.All(observed, entry => Assert.Equal("GOLDEN_HOUR", entry.Program));
     }
 
+    [Fact]
+    [Trait("TestId", "UT-OBS-METRIC-03")]
+    public void OperationalInstrumentsEmitWithTheirOwnDimensionAndTheLatencyBucketsKeepTheObjective()
+    {
+        // W-0055 and W-0041. Two instruments that describe the machinery rather than an order, so
+        // neither carries a programme. The ETL run counter is tagged with how the run ended --
+        // that tag is the whole alert -- and the backlog gauge is one number per worker. Same
+        // thread filter as above, for the same reason: the meter is process-global.
+        int recordingThread = Environment.CurrentManagedThreadId;
+        var observed = new List<(string Instrument, double Value, string Outcome, int TagCount)>();
+        IReadOnlyList<double>? callbackBuckets = null;
+        using var listener = new MeterListener();
+        listener.InstrumentPublished = (instrument, target) =>
+        {
+            if (instrument.Meter.Name != IvrTelemetry.ServiceName)
+            {
+                return;
+            }
+
+            if (instrument is Histogram<double> histogram
+                && instrument.Name == "ivr_result_callback_duration_seconds")
+            {
+                callbackBuckets = histogram.Advice?.HistogramBucketBoundaries;
+            }
+
+            target.EnableMeasurementEvents(instrument);
+        };
+        listener.SetMeasurementEventCallback<long>((instrument, value, tags, _) =>
+        {
+            if (Environment.CurrentManagedThreadId == recordingThread)
+            {
+                observed.Add((instrument.Name, value, ReadTag(tags, TelemetryTags.Outcome), tags.Length));
+            }
+        });
+        listener.SetMeasurementEventCallback<double>((instrument, value, tags, _) =>
+        {
+            if (Environment.CurrentManagedThreadId == recordingThread)
+            {
+                observed.Add((instrument.Name, value, ReadTag(tags, TelemetryTags.Outcome), tags.Length));
+            }
+        });
+        listener.Start();
+
+        IvrTelemetry.RecordAnalyticsEtlRun("MISMATCH");
+        IvrTelemetry.RecordCallQueueOldestDueAge(42.5);
+
+        Assert.Equal(
+            [
+                ("ivr_analytics_etl_runs_total", 1D, "MISMATCH", 1),
+                ("ivr_call_queue_oldest_due_age_seconds", 42.5D, string.Empty, 0),
+            ],
+            observed);
+
+        // D-04's objective is a bucket boundary, and so is the bottom of its 3-5s band. The alert
+        // and the burn-rate panel both read le="5"; if the boundary were left to the SDK's default
+        // it could move, and the objective would then sit inside a bucket and be interpolated.
+        Assert.NotNull(callbackBuckets);
+        Assert.Contains(5D, callbackBuckets);
+        Assert.Contains(3D, callbackBuckets);
+    }
+
+    private static string ReadTag(ReadOnlySpan<KeyValuePair<string, object?>> tags, string key)
+    {
+        foreach (KeyValuePair<string, object?> tag in tags)
+        {
+            if (tag.Key == key)
+            {
+                return tag.Value?.ToString() ?? string.Empty;
+            }
+        }
+
+        return string.Empty;
+    }
+
     private static string ReadProgram(ReadOnlySpan<KeyValuePair<string, object?>> tags)
     {
         foreach (KeyValuePair<string, object?> tag in tags)

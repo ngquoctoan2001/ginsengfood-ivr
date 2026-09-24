@@ -143,3 +143,36 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Bước dựng lại standby đã có phép kiểm — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Mục 8 ghi: bước "dựng lại standby" sau failover chưa có phép kiểm nào, mà đó chính là bước đưa RPO về
+lại 0. W-0353 thêm script và phép kiểm cho bước đó.
+
+- `deploy/dr/rebuild-standby.sh` chạy `pg_basebackup -R -X stream --checkpoint=fast` từ primary mới,
+  khởi động standby, chờ **primary** báo standby `streaming`, rồi mới đặt `synchronous_standby_names`.
+  Đặt tên trước khi standby stream thì mọi lệnh ghi trên database duy nhất đang phục vụ bị treo suốt
+  thời gian sao chép. Nếu hỏng sau khi đã đặt tên, bẫy EXIT trả giá trị về `''` để ghi vẫn chạy. Script
+  từ chối chạy bằng root, tên sai dạng, PGDATA không rỗng (nó không bao giờ xoá gì), primary còn đang
+  recovery, primary đã chờ một standby, hoặc tên standby đã có kết nối. Mật khẩu chỉ lấy từ tệp mật khẩu
+  của libpq.
+- `dr-selftest.mjs` có thêm `DG-DR-REBUILD-05`, chạy sau DG-DR-03 và gọi đúng script đó. Nó kiểm
+  trạng thái sau failover (primary ra khỏi recovery, 0 replica, tên rỗng), rồi kiểm cả hai server: primary
+  báo `streaming/sync`; standby kết nối **trước** lần reload đặt tên (`backend_start < pg_conf_load_time()`);
+  standby stream từ primary mới; một commit mới trả về với replay lag 0 và đọc được trên standby mới.
+  Dòng in ra: `DG-DR-REBUILD-05 PASS_SINGLE_HOST` — RPO về 0, trên một host, không phải giữa các AZ.
+- Ba đột biến đều làm drill đỏ: script không đặt tên (standby không thành sync trong 60 giây); script bỏ
+  bước sync mà vẫn báo thành công (chờ `streaming/async` hết giờ); script đặt tên trước khi sao chép
+  (chỉ phép kiểm thứ tự bắt được, `actual: 'f'`). Một lượt riêng kiểm các nhánh lỗi của script đạt
+  13/13.
+
+**Sửa phép kiểm của DG-DR-03.** Lượt chờ đồng bộ của DG-DR-03 dùng `includes("sync")`, mà chuỗi `"async"`
+cũng chứa `sync`, nên phép kiểm có thể đi tiếp khi standby mới chỉ bất đồng bộ. Nay so đúng bằng
+`"sync"`. `pg_basebackup` của DG-DR-03 cũng thêm `--checkpoint=fast`: checkpoint mặc định kiểu dàn trải
+đã giữ bản sao lại 80–110 giây trong mỗi lượt đột biến. Phép kiểm chỉ chặt hơn; DG-DR-03 vẫn là bằng
+chứng đã nghiệm thu ở W-0216, và vẫn phải đạt trong full sweep.
+
+Phần còn lại ở mục 8 là việc của nền tảng (W-0063): fencing, multi-AZ, KMS, PITR, backup trong cluster
+và drill trên dữ liệu quy mô production.

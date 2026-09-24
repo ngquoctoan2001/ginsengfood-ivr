@@ -56,6 +56,28 @@ internal sealed partial class AnalyticsEtlJobHost(
             // informational message.
             LogRejected(logger, report.RejectedRows);
         }
+
+        if (string.Equals(
+                report.ReconcileStatus,
+                AnalyticsReconcileStatus.Mismatch,
+                StringComparison.Ordinal))
+        {
+            // W-0055. Names the grain that disagreed. The checkpoint the console reads carries
+            // result-grain counts only, so a MISMATCH raised by the job grain shows two equal
+            // counts there; this line is where the on-call finds which side is wrong
+            // (docs/slo.md#analytics-reconcile-mismatch). The run itself is already counted on
+            // ivr_analytics_etl_runs_total by the job.
+            LogMismatch(
+                logger,
+                report.SourceRowCount,
+                report.FactRowCount,
+                report.OrphanSourceRows,
+                report.RejectedRows,
+                report.SourceJobCount,
+                report.JobFactCount,
+                report.JobRowsRejected,
+                report.JobFactsDrifted);
+        }
     }
 
     protected override void OnDisabled() => LogDisabled(logger);
@@ -96,4 +118,21 @@ internal sealed partial class AnalyticsEtlJobHost(
         ILogger logger,
         Exception exception,
         int consecutiveFailures);
+
+    [LoggerMessage(
+        EventId = 1204,
+        Level = LogLevel.Warning,
+        Message = "Analytics reconcile MISMATCH: results source={SourceRows} facts={FactRows} "
+            + "orphan={OrphanRows} rejected={RejectedRows}; jobs source={SourceJobs} "
+            + "facts={JobFacts} rejected={RejectedJobs} drifted={DriftedJobFacts}")]
+    private static partial void LogMismatch(
+        ILogger logger,
+        int sourceRows,
+        int factRows,
+        int orphanRows,
+        int rejectedRows,
+        int sourceJobs,
+        int jobFacts,
+        int rejectedJobs,
+        int driftedJobFacts);
 }

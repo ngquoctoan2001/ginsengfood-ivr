@@ -2,9 +2,9 @@
 
 Trạng thái: `TESTS_PASS` — **chưa** `ACCEPTED`
 Ngày: `2026-08-22`
-Nguồn hiện hành: [`enums.vi.json`](../../../admin-ui/src/i18n/enums.vi.json),
-[`enum.ts`](../../../admin-ui/src/lib/i18n/enum.ts) và
-[`EnumLabel.tsx`](../../../admin-ui/src/components/data/EnumLabel.tsx). Plan lịch sử đã được gỡ khỏi
+Nguồn hiện hành: [`enums.vi.json`](../../../specs/ui/enum-labels.vi.json) (nay là `specs/ui/enum-labels.vi.json`, `W-0253` chuyển nguyên bytes),
+`admin-ui/src/lib/i18n/enum.ts` và
+`admin-ui/src/components/data/EnumLabel.tsx` (hai file này đã xóa cùng `admin-ui/` ở `W-0253`, commit `c0e6609`; bản cuối còn trong git history tại `c0e6609^`). Plan lịch sử đã được gỡ khỏi
 cây active; evidence và source này là điểm đọc hiện hành.
 
 ---

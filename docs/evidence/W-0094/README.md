@@ -43,3 +43,27 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 - Chưa khai phép kiểm. Sáu thay đổi của việc này còn ở HEAD, nhưng chỉ một có test: test chia sẻ lượt tổng hợp giọng, nay đã gắn TestId ở W-0349. Giới hạn lịch sử sự kiện của SIM giả, việc bỏ StopApplication và scope theo lô của callback chưa có test nào, nên chưa khai phép kiểm cho tới khi có test cho ba phần đó.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Khai báo phép kiểm C2 — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Mục W-0349 ở trên ghi ba thay đổi chưa có test. W-0353 viết test cho cả ba và khai phép kiểm trong
+[`acceptance-tests.json`](acceptance-tests.json). Sáu thay đổi của việc này ứng với:
+
+| Thay đổi | Phép kiểm |
+|----------|-----------|
+| Callback dispatcher và transport Golden Hour hiện hành là scoped; mỗi lượt bơm mở một scope rồi đóng | `UT-WORKER-CALLBACK-SCOPE-06` (mới) |
+| Lượt tổng hợp giọng dùng chung không mang token hủy của người chờ đầu tiên | `IT-TTS-SHARED-10` (gắn TestId ở W-0349) |
+| Lịch sử sự kiện và giọng đã phát của SIM giả có giới hạn 4096 và 1024, giữ phần mới nhất | `UT-FAKE-HISTORY-10` (mới); `UT-TEL-CHANNEL-05` giữ phần một kênh chỉ một cuộc gọi |
+| Host retention chạy dài không dừng worker; chỉ host chạy một lần của CronJob dừng | `UT-WORKER-RETENTION-05` (mới) |
+| Transport Golden Hour hiện hành dùng lại `CurrentGoldenHourCompatMapper` lúc chạy | `UT-CALLBACK-GH-COMPAT-06` (thân request mang kết quả đã ánh xạ `CONFIRMED`) |
+| Gỡ `SimChannelLeaseRepository` không dùng | Không có test: bằng chứng là lớp này không còn trong `src/`; chỉ một chú thích trong `tests/Ivr.IntegrationTests/SchedulerPersistenceTests.cs` còn nhắc tên nó |
+
+Ba test mới được kiểm bằng đột biến ngày 24/09/2026: bỏ giới hạn sự kiện, bỏ giới hạn giọng đã
+phát, bỏ lệnh dừng của host chạy một lần, cho host chạy dài gọi dừng, cho vòng bơm giữ một scope
+suốt đời, và đổi dispatcher thành singleton. Mỗi đột biến làm đúng test tương ứng đỏ; mã nguồn đã
+khôi phục nguyên vẹn sau đó.
+
+Phần đọc lại cấu hình ghi âm vẫn giữ như quyết định lịch sử ở trên: đó là lớp phòng vệ, không phải
+mã chết.

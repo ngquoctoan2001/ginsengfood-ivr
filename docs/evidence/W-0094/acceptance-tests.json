@@ -1,0 +1,13 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0094",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-TTS-SHARED-10",
+    "UT-TEL-CHANNEL-05",
+    "UT-FAKE-HISTORY-10",
+    "UT-WORKER-RETENTION-05",
+    "UT-WORKER-CALLBACK-SCOPE-06",
+    "UT-CALLBACK-GH-COMPAT-06"
+  ]
+}

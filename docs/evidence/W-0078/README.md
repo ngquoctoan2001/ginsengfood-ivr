@@ -22,3 +22,12 @@ W-0078 ghim trực tiếp gói SSH.NET 2026.0.0 vào tests/Ivr.IntegrationTests,
 Trạng thái khai báo:
 
 - Chưa khai phép kiểm. Bản ghim gói SSH.NET chỉ được kiểm gián tiếp: build coi cảnh báo là lỗi, và job security_scan chạy trên CI. Không test hay gate sweep nào kiểm riêng bản ghim. Toàn quyết nhận theo sổ và commit, hay thêm một phép kiểm trong sweep trước.
+
+## Khai báo phép kiểm C2 — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Phép kiểm của việc này là bước `dotnet list package --vulnerable` trong `deploy/ci/scripts/security-scan.sh`: nếu
+bản SSH.NET dính advisory quay lại qua Testcontainers, gate đỏ ở mức HIGH. Từ W-0352, gate này chạy trong lượt mở
+rộng của collector, và từ W-0353 khai báo `gates` được xét qua lượt đó. [Khai báo](acceptance-tests.json) nay ghi
+`security-scan.sh`. Kết quả và phạm vi lịch sử ở trên giữ nguyên.

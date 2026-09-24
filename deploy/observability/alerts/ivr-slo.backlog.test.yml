@@ -1,0 +1,68 @@
+# W-0041 / P6-2 section 11 -- promtool rule unit test backing IT-SLO-BACKLOG-05.
+#
+# The gauge is sampled by every worker from the same database, so the case that matters most is
+# the third one: two workers reporting the same wait. A rule written with sum would read that as
+# twice the wait and page on a queue that is keeping up; max reads it as what it is. The last case
+# pins the ten-minute hold, which is what keeps a burst the dialler drains on its own from paging.
+rule_files:
+  - ivr-slo.rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    name: a call left waiting past a minute for ten minutes pages
+    input_series:
+      # Idle, then the dialler stops keeping up at minute 6 and the oldest wait sits at 90s.
+      - series: 'ivr_call_queue_oldest_due_age_seconds{instance="worker-a"}'
+        values: '0x5 90x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: IvrCallQueueBacklogAging
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              slo: dispatch_backlog
+              slo_status: proposed
+            exp_annotations:
+              summary: Due calls have waited more than a minute to be dialled for ten minutes
+              description: The oldest dialable call attempt has been waiting over 60s for ten minutes while the calling window is open. Customers are being called late or not at all, and their confirmation windows keep running.
+              runbook_url: docs/slo.md#call-queue-backlog-aging
+
+  - interval: 1m
+    name: a queue that keeps up stays silent
+    input_series:
+      # Short waits come and go -- a burst of due attempts meeting the start rate -- and none of
+      # them reaches the threshold.
+      - series: 'ivr_call_queue_oldest_due_age_seconds{instance="worker-a"}'
+        values: '0 2 0 1 45 30 0 0 3 0x30'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: IvrCallQueueBacklogAging
+        exp_alerts: []
+
+  - interval: 1m
+    name: two workers reporting the same wait do not add up
+    input_series:
+      # Both workers read one queue and see a 45s wait. Summed, that is 90s and a page; the real
+      # wait is 45s and under the threshold.
+      - series: 'ivr_call_queue_oldest_due_age_seconds{instance="worker-a"}'
+        values: '45x40'
+      - series: 'ivr_call_queue_oldest_due_age_seconds{instance="worker-b"}'
+        values: '45x40'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: IvrCallQueueBacklogAging
+        exp_alerts: []
+
+  - interval: 1m
+    name: a backlog shorter than the hold does not page
+    input_series:
+      # Two minutes over the threshold from minute 5, evaluated at minute 9: pending, not firing.
+      # A rule with no hold would already be paging here.
+      - series: 'ivr_call_queue_oldest_due_age_seconds{instance="worker-a"}'
+        values: '0x4 120x5 0x30'
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: IvrCallQueueBacklogAging
+        exp_alerts: []

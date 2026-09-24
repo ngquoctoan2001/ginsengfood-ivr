@@ -1,0 +1,16 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0036",
+  "scope": "software",
+  "requiredTestIds": [
+    "CT-OAS-01",
+    "CT-OAS-02",
+    "CT-OAS-03",
+    "CT-TASK-01",
+    "CT-TASK-02",
+    "CT-TASK-03",
+    "CT-TASK-04",
+    "E2E-FLOW-CONFIRM-01",
+    "E2E-FLOW-NOANSWER-02"
+  ]
+}

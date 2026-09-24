@@ -294,5 +294,51 @@ export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, te
   ]) {
     assert.match(extendedRegistry(overrides).join("; "), rejected); checks += 1;
   }
+
+  // W-0353: a declared gate the offline sweep skips counts through the extended run of the bundle.
+  const scanPlan = { schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", gates: ["security-scan.sh"] };
+  save(scanPlan);
+  const scanWork = collect({ evidenceText: `${input.evidenceText}\nChạy lại deploy/ci/scripts/security-scan.sh.` });
+  assert.deepEqual(scanWork.gates, ["security-scan.sh"]);
+  const scanManifest = { gates: { "security-scan.sh": { sweepable: false, extended: [{ argv: [], expect: "SECURITY_SCAN_PASS" }] } } };
+  const declared = { ...input, testEvidence: scanWork, gateManifest: scanManifest };
+  assert.equal(judge(row, declared).verdict, "CHƯA KIỂM", "a declared extended gate waits for the extended run");
+  assert.match(judge(row, declared).c2.reason, /--extended/u); checks += 1;
+  assert.equal(judge(row, { ...declared, extended: { ok: true, reason: "EXTENDED_SWEEP_PASS 1/1", printed: new Map() } }).verdict,
+    "ĐẠT", "a declared extended gate passes with a sound extended run"); checks += 1;
+  assert.equal(judge(row, { ...declared, extended: { ok: false, reason: "red", printed: new Map() } }).c2.ok, false,
+    "a failed extended run fails the declared gate"); checks += 1;
+  assert.equal(judge(row, { ...declared, gateManifest: { gates: { "security-scan.sh": { sweepable: false } } },
+    extended: { ok: true, reason: "EXTENDED_SWEEP_PASS 1/1", printed: new Map() } }).c2.ok, false,
+    "a declared gate that runs nowhere proves nothing"); checks += 1;
+
+  // W-0353: a TestId proven by a run recorded in the pack, such as a soak of several hours.
+  const soakFile = "docs/evidence/W-0010/soak.json";
+  documents.set(soakFile, JSON.stringify({ testId: "UT-SOAK-02", verdict: "PASS" }));
+  const soakPlan = { schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", runs: [{ testId: "UT-SOAK-02",
+    file: soakFile, reason: "Soak nhiều giờ không chạy được trong mỗi lượt collector." }] };
+  save(soakPlan);
+  const soakText = { evidenceText: `${input.evidenceText}\nUT-X-01 UT-SOAK-02` };
+  const soaked = collect(soakText);
+  assert.deepEqual([soaked.ids, soaked.recordedRuns.map((run) => run.testId)], [["UT-X-01"], ["UT-SOAK-02"]]);
+  const soakVerdict = judge(row, { ...input, testEvidence: soaked });
+  assert.equal(soakVerdict.c2.ok, true);
+  assert.equal(soakVerdict.verdict, "XEM", "a recorded run is shown to the owner, never passed silently");
+  assert.match(soakVerdict.readNotes.join(" "), /UT-SOAK-02 được chứng minh bằng lượt chạy đã ghi/u); checks += 1;
+  for (const [broken, why] of [
+    [{ testId: "UT-X-01" }, "a live TestId is proven by its test, never by a record"],
+    [{ testId: "UT-NEVER-03" }, "a recorded run must be cited by the evidence"],
+    [{ file: "docs/evidence/W-0010/absent.json" }, "the record must exist at the commit"],
+    [{ file: "docs/plan/soak.json" }, "the record lives in the pack"],
+    [{ reason: "ngắn" }, "a recorded run needs a reason"],
+  ]) {
+    save({ ...soakPlan, runs: [{ ...soakPlan.runs[0], ...broken }] });
+    assert(collect(soakText).errors.length, why); checks += 1;
+  }
+  save(soakPlan);
+  documents.set(soakFile, JSON.stringify({ testId: "UT-SOAK-02", verdict: "FAIL" }));
+  assert(collect(soakText).errors.length, "a FAIL verdict proves nothing"); checks += 1;
+  documents.set(soakFile, JSON.stringify({ testId: "UT-SOAK-99", verdict: "PASS" }));
+  assert(collect(soakText).errors.length, "a record of another TestId proves nothing"); checks += 1;
   return checks;
 }

@@ -147,7 +147,7 @@ migration, operation hoặc cột đổi; nó không che được thao tác th�
 `IS NULL OR ... IN (...)`, rồi yêu cầu tập tên constraint khớp chính xác với
 `FamilyByConstraint`. Guard không còn có thể xanh vì parser bỏ sót một CHECK mới.
 
-Từ điển [`enums.vi.json`](../../../admin-ui/src/i18n/enums.vi.json) bổ sung nhãn cho
+Từ điển [`enums.vi.json`](../../../specs/ui/enum-labels.vi.json) (nay là `specs/ui/enum-labels.vi.json`, `W-0253` chuyển nguyên bytes) bổ sung nhãn cho
 `CREATED`, `DRY_RUN`, `PENDING_CRM`, `ACCEPTED_BY_CRM`; mọi giá trị constraint còn lại đã có nhãn.
 
 ---

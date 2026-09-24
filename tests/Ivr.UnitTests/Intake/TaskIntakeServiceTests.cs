@@ -218,6 +218,8 @@ public sealed class TaskIntakeServiceTests
         NotValidPhoneStatus,
         TaskIntakeDecisions.RejectedContactInvalid)]
     [Trait("TestId", "UT-INTAKE-NOJOB-16")]
+    // W-0353: P5-2 §8 IDs this test satisfies, per the W-0036 addendum.
+    [Trait("TestId", "CT-TASK-04")]
     public async Task PolicyAndContactFailuresCreateNoJob(
         string policyVersion,
         int maxAttempts,

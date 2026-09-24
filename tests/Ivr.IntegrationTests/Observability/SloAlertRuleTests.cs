@@ -102,6 +102,26 @@ public sealed class SloAlertRuleTests(PromtoolFixture fixture)
         await AssertRuleTestPassesAsync("ivr-slo.capacity.test.yml");
     }
 
+    [Fact]
+    [Trait("TestId", "IT-SLO-BACKLOG-05")]
+    public async Task ADueCallLeftWaitingPagesAndTwoWorkersReportingItDoNotAddUp()
+    {
+        // W-0041 section 11. The only rule that reads a gauge, and every worker reports the same
+        // number from the same queue. The file's third case is the one that would catch a sum:
+        // two workers each seeing a 45s wait are a 45s wait, not a 90s page.
+        await AssertRuleTestPassesAsync("ivr-slo.backlog.test.yml");
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-SLO-ANALYTICS-06")]
+    public async Task AReconcileMismatchTicketsAndAnEtlThatNeverCompletesIsNoticed()
+    {
+        // W-0055. Zero-tolerance on MISMATCH, so an old one has to leave the window; and a backlog
+        // that clears on its own is the pipeline working, so it must not open a ticket while a
+        // pipeline that fails every run must.
+        await AssertRuleTestPassesAsync("ivr-slo.analytics.test.yml");
+    }
+
     private async Task AssertRuleTestPassesAsync(string testFile)
     {
         (long exitCode, string output) = await fixture.RunAsync(testFile);

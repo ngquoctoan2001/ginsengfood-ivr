@@ -1,0 +1,38 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0353",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-FAKE-HISTORY-10",
+    "UT-WORKER-RETENTION-05",
+    "UT-WORKER-CALLBACK-SCOPE-06",
+    "UT-TRUNK-DI-05",
+    "UT-TRUNK-DI-06",
+    "IT-RESULT-CONTRACT-PREFLIGHT-20",
+    "CT-OAS-01",
+    "CT-OAS-02",
+    "CT-OAS-03",
+    "CT-TASK-01",
+    "CT-TASK-02",
+    "CT-TASK-03",
+    "CT-TASK-04",
+    "UT-OBS-METRIC-03",
+    "IT-SLO-BACKLOG-05",
+    "IT-OBS-BACKLOG-15",
+    "BI-ALERT-05",
+    "BI-DRIFT-06",
+    "BI-QUALITY-04",
+    "IT-SLO-ANALYTICS-06",
+    "DG-DR-REBUILD-05"
+  ],
+  "gates": [
+    "acceptance-batches.mjs",
+    "tts-provenance-gate.mjs"
+  ],
+  "mentions": [
+    {
+      "testId": "PT-SOAK-02",
+      "reason": "Tên phép kiểm soak mà W-0037 khai qua runs; lượt chạy và tệp kết quả thuộc hồ sơ W-0037, không phải khẳng định của W-0353."
+    }
+  ]
+}

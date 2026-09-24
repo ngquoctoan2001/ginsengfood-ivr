@@ -197,3 +197,48 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 - Gate trong full sweep có self-test kiểm thay đổi của việc này: `tts-provenance-gate.mjs`.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Hai bản luật có chung bộ ca — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Mục 8 ghi bản Python "không chạy trong CI, không nằm trong image, không có test nào". Câu đó đã cũ từ
+commit `6643a5e` (W-0342, 22/09): Dockerfile chép `verify-model.py` vào image, `test_license_evidence.py`
+nạp và chạy nó, và job CI `tts_candidate_selftest` chạy bộ test đó trong container.
+
+W-0353 thay lời nhắc `TWIN:` bằng một cơ chế thật. Không chia sẻ code qua ranh giới Node/Python được,
+nên hai bản chia sẻ **ca**:
+
+- [`deploy/tts/tests/fixtures/release-approval-cases.json`](../../../deploy/tts/tests/fixtures/release-approval-cases.json)
+  có 56 ca cho ba luật duyệt phát hành: 22 ca Legal/Privacy, 18 ca mirror nội bộ đúng từng file, 16 ca
+  duyệt mirror nội bộ. Mỗi ca ghi nguyên đối số, nên hai bên không có gì để hiểu khác nhau.
+- `tts-provenance-gate.mjs --selftest` phát lại cả 56 ca, fail khi có ca lệch, và in
+  `TTS_RELEASE_APPROVAL_CASES_PASS cases=56 python_drift=10`. Mỗi luật phải có ít nhất một ca nhận và
+  một ca từ chối, để một luật từ chối tất cả không lọt qua.
+- `deploy/tts/tests/test_release_approval_parity.py` chạy cùng tệp trên `verify-model.py`, trong image
+  qua container self-test.
+
+46 ca hai bên cho cùng kết quả. **10 ca bản Python lỏng hơn** và được đánh dấu `python_drift`; phía
+Python chạy chúng dạng expected failure:
+
+- Ngày duyệt: Python chỉ kiểm độ dài 10 và dấu `-` ở vị trí 4 và 7, nên nhận `abcd-ef-gh` và chữ số
+  toàn khổ. Node đòi đúng `^\d{4}-\d{2}-\d{2}$` với chữ số ASCII.
+- Digest mirror: `$` của Python khớp cả trước ký tự xuống dòng cuối, nên nhận `sha256:<64 hex>\n`.
+- Người ký chỉ có ký tự BOM (U+FEFF): `str.strip()` của Python không bỏ nó, nên coi là đã điền.
+
+Chép nguyên regex của Node sang Python vẫn sai, vì `\d` của Python khớp mọi chữ số Unicode nếu không
+có `re.ASCII`. Bộ ca bắt được cả trường hợp đó.
+
+Kết quả chạy của agent làm phần này, trong image `ivr-tts:w0343-approved-evidence` (Python 3.14.7, cùng
+bytes `verify-model.py`): `Ran 39 … OK (expected failures=10)`, rồi `TTS_CONTAINER_SELFTEST_PASS`. Thử trên
+bản sao đã sửa của `verify-model.py` (file thật không đổi): sửa đúng làm cả 10 ca thành unexpected
+success, nên bộ test đỏ cho tới khi gỡ dấu. Cho `MODULE_8_OWNER` ký thay Legal thì bị bắt. Chép regex
+của Node sang Python cũng bị bắt.
+
+**Vì sao chưa sửa bản Python.** `verify-model.py` và `shim/model_lock.py` bị ghim hash trong
+`candidate.source_bindings` của W-0343, tức image đang chạy trên S5. Sửa hai file đó nghĩa là build
+image mới, quét lại và xác thực lại trên S5. Việc sửa đi cùng image TTS kế tiếp. Khi sửa thì gỡ dấu
+`python_drift` cùng lúc, nếu không bộ test sẽ đỏ. Sau lượt này, 19 hash trong
+`candidate.source_bindings` của W-0343 vẫn khớp với cây làm việc (tính lại ngày 24/09).
+
+Hai blocker `LEGAL` và `INTERNAL_MIRROR` vẫn chờ bên ngoài như mục 8 ghi.

@@ -77,8 +77,12 @@ function hasLegalPrivacyApproval(gate) {
 // puts the same requirement in front of both readers.
 //
 // TWIN: deploy/tts/scripts/verify-model.py has_internal_mirror_approval. Change both together.
-// They cannot share code across the language boundary, and the Python side is neither run in CI
-// nor shipped in the image, so nothing mechanical will catch it if they drift.
+// They cannot share code across the language boundary, so they share cases instead:
+// deploy/tts/tests/fixtures/release-approval-cases.json, replayed here by runReleaseApprovalCases
+// under --selftest and against verify-model.py by test_release_approval_parity.py, which the
+// container self-test runs inside the image (verify-model.py has shipped there since W-0342).
+// Cases marked python_drift are where the Python copy is still looser; they stay marked until
+// the next TTS candidate hoists that copy into shim/model_lock.py.
 function hasExactInternalMirror(item) {
   return typeof item?.internal_mirror_uri === "string"
     && item.internal_mirror_uri.trim().length > 0
@@ -206,6 +210,49 @@ function expectFailure(name, mutate) {
   throw new Error(`mutation was not rejected: ${name}`);
 }
 
+// W-0225 follow-up. Every case must get its `expected` verdict from these predicates; the file's
+// _note says who else replays it. Mismatches are collected so one run names all of them.
+function runReleaseApprovalCases() {
+  const predicates = new Map([
+    ["legal_privacy_approval", hasLegalPrivacyApproval],
+    ["exact_internal_mirror", hasExactInternalMirror],
+    ["internal_mirror_approval", hasInternalMirrorApproval],
+  ]);
+  const { cases } = JSON.parse(readFileSync(
+    resolve(repoRoot, "deploy/tts/tests/fixtures/release-approval-cases.json"),
+    "utf8",
+  ));
+  if (!Array.isArray(cases) || cases.length === 0) throw new Error("release approval cases missing");
+  const ids = new Set();
+  const verdicts = new Set();
+  const mismatches = [];
+  for (const test of cases) {
+    const predicate = predicates.get(test?.predicate);
+    const wellFormed = typeof test?.id === "string"
+      && !ids.has(test.id)
+      && typeof predicate === "function"
+      && Array.isArray(test.args)
+      && test.args.length === predicate.length
+      && typeof test.expected === "boolean"
+      && (!("python_drift" in test)
+        || (typeof test.python_drift === "string" && test.python_drift.trim().length > 0));
+    if (!wellFormed) throw new Error(`release approval case malformed: ${test?.id}`);
+    ids.add(test.id);
+    verdicts.add(`${test.predicate}:${test.expected}`);
+    const verdict = predicate(...test.args);
+    if (verdict !== test.expected) mismatches.push(`${test.id} expected=${test.expected} got=${verdict}`);
+  }
+  // A rule that refuses everything passes every negative case, so each rule must also accept one.
+  for (const name of predicates.keys()) {
+    if (!verdicts.has(`${name}:true`) || !verdicts.has(`${name}:false`)) {
+      throw new Error(`release approval cases need an accepted and a refused case for ${name}`);
+    }
+  }
+  if (mismatches.length > 0) throw new Error(`release approval case mismatch: ${mismatches.join("; ")}`);
+  const drift = cases.filter(test => "python_drift" in test).length;
+  process.stdout.write(`TTS_RELEASE_APPROVAL_CASES_PASS cases=${cases.length} python_drift=${drift}\n`);
+}
+
 validate(lock);
 validateSupportingFiles();
 if (selftest) {
@@ -285,6 +332,7 @@ if (selftest) {
   )) {
     throw new Error("internal mirror positive fixture was rejected");
   }
+  runReleaseApprovalCases();
 }
 
 const blockers = [];

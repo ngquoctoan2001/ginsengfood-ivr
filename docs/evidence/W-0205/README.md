@@ -24,3 +24,13 @@ Clone sạch và chạy toàn bộ bộ test offline trên đúng một SHA: l�
 Trạng thái khai báo:
 
 - Chưa khai phép kiểm. Kết quả freeze và quét gitleaks là số đo tại thời điểm đó; security-scan.sh không chạy trong sweep, và các pin lượt này ghim lại đã bị việc sau thay, trừ một. Chưa khai phép kiểm; Toàn quyết nhận theo hồ sơ hay chạy lại.
+
+## Khai báo phép kiểm C2 — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Việc này đóng băng bằng chứng trên một SHA và chạy lại lớp quét security. Con số của lần đó là số đo
+tại thời điểm ấy; phép kiểm còn sống là chính `deploy/ci/scripts/security-scan.sh`, chạy trong lượt
+mở rộng của collector từ W-0352. Từ W-0353 khai báo `gates` được xét qua lượt đó, nên [khai
+báo](acceptance-tests.json) nay ghi `security-scan.sh`. Kết quả và phạm vi lịch sử ở trên giữ
+nguyên.

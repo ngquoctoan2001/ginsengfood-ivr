@@ -436,6 +436,120 @@
         },
         "overrides": []
       }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Oldest dialable call still waiting (dispatch backlog)",
+      "description": "How long the oldest call attempt the dispatch claim would take right now has been waiting, sampled every 15s by each worker's scheduler loop from the claim's own conditions -- a revoked order, a paused queue or an attempt already ringing is not waiting. max across workers, never sum: they all read the same queue. Counted from the later of the due time and the calling window opening, so an attempt that fell due overnight starts from zero when dialling resumes, and the line is zero while the window is shut. A dialler that has stopped records no attempts, results or misses; this is the line that still moves. Pages above 60s held for ten minutes. Runbook: docs/slo.md#call-queue-backlog-aging",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 56
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max(ivr_call_queue_oldest_due_age_seconds)",
+          "legendFormat": "oldest wait",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "s",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Callback latency error-budget burn (D-04: 1% over 5s in 30 days)",
+      "description": "The share of callback deliveries slower than 5s, divided by the 1% the D-04 budget allows. 1 spends the 30-day budget in exactly 30 days; 14.4 spends it in about two. Three windows so a spike and a slow leak can be told apart: 1h reacts, 6h confirms, 3d shows the trend. Reads the le=\"5\" bucket, which IvrTelemetry pins as a boundary so the objective never falls inside a bucket and gets interpolated across. Deliveries minus fast deliveries over a clamped total, so an idle period reads as zero burn rather than as an incident. No burn alert yet: multi-window thresholds need a production baseline (docs/slo.md section 10). Runbook: docs/slo.md#callback-revalidate-latency",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 56
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "(sum(rate(ivr_result_callback_duration_seconds_count[1h])) - sum(rate(ivr_result_callback_duration_seconds_bucket{le=\"5\"}[1h]))) / clamp_min(sum(rate(ivr_result_callback_duration_seconds_count[1h])), 0.0001) / 0.01",
+          "legendFormat": "burn rate 1h",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "(sum(rate(ivr_result_callback_duration_seconds_count[6h])) - sum(rate(ivr_result_callback_duration_seconds_bucket{le=\"5\"}[6h]))) / clamp_min(sum(rate(ivr_result_callback_duration_seconds_count[6h])), 0.0001) / 0.01",
+          "legendFormat": "burn rate 6h",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "(sum(rate(ivr_result_callback_duration_seconds_count[3d])) - sum(rate(ivr_result_callback_duration_seconds_bucket{le=\"5\"}[3d]))) / clamp_min(sum(rate(ivr_result_callback_duration_seconds_count[3d])), 0.0001) / 0.01",
+          "legendFormat": "burn rate 3d",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "short",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
     }
   ]
 }

@@ -25,6 +25,8 @@ của observability — nó không im lặng, nó nói dối.
 | intake decision mix | `ivr_intake_decisions_total` | `TaskIntakeService` |
 | intake latency | `ivr_task_intake_duration_seconds` | `TaskIntakeService` |
 | channel failure/quarantine transition | `ivr_channel_quarantines_total` | `PostgresSchedulerStore`, `PostgresTelephonyDispatchStore` |
+| dispatch backlog wait | `ivr_call_queue_oldest_due_age_seconds` | `SchedulerQueueBacklogSampler`, gọi từ `SchedulerJobHost` |
+| analytics ETL run outcome | `ivr_analytics_etl_runs_total` | `AnalyticsEtlJob.RunAsync` |
 
 <a id="callback-revalidate-latency"></a>
 
@@ -39,6 +41,13 @@ của observability — nó không im lặng, nó nói dối.
 
 D-04 chốt Core revalidate trả lời trong **3–5s**; mục tiêu lấy cận trên. Đây là chặng **đồng bộ**,
 nên độ trễ ở đây là độ trễ mà xác nhận với khách hàng thừa hưởng.
+
+**Tốc độ đốt ngân sách** (panel #13, `W-0041`): tỉ lệ lần gửi vượt 5s chia cho 1% mà ngân sách cho
+phép, trên ba cửa sổ 1h/6h/3d. `1` là đốt hết ngân sách 30 ngày trong đúng 30 ngày; `14.4` là hết trong
+khoảng hai ngày. Biểu thức đọc thẳng bucket `le="5"`, nên biên bucket của histogram được **ghim** trong
+`IvrTelemetry` (`0.05 … 3, 4, 5, 7.5 … 60`) thay vì thừa hưởng mặc định của SDK: mặc định đó vẽ cho
+mili-giây, dồn cả khoảng 0–5s vào một bucket, và nếu nó đổi thì chính biên của mục tiêu biến mất khỏi
+dữ liệu. Chưa có alert burn-rate — xem §10.
 
 **Người trực không được làm gì:** không tắt callback để "giảm alert". Outbox sẽ dồn, và đơn vẫn cần
 được xác nhận — vấn đề chỉ chuyển từ chỗ nhìn thấy sang chỗ không nhìn thấy.
@@ -239,6 +248,117 @@ deadline **vắng mặt** khỏi `ivr_call_results_total`.
 Hệ quả: `confirm_rate` ở §7 có mẫu số **bỏ sót đúng phần thất bại**, nên đọc **cao hơn sự thật** —
 và khoảng lệch **lớn nhất đúng lúc dung lượng tệ nhất**. Nên call site ghi **cả hai** instrument.
 
+<a id="call-queue-backlog-aging"></a>
+
+## 9b. Hàng đợi quay số bị dồn — đề xuất (`W-0041` §11)
+
+| | |
+| --- | --- |
+| **Ngưỡng** | cuộc gọi đến hạn lâu nhất đã chờ > **60s**, giữ liên tục **10 phút** |
+| **Đo bằng** | `max(ivr_call_queue_oldest_due_age_seconds)` |
+| **Alert** | `IvrCallQueueBacklogAging` · `severity: page` · `for: 10m` |
+
+Luật duy nhất đọc một **gauge**. Mọi tín hiệu khác của scheduler đếm sự kiện, mà một dialler đã dừng
+thì **không sinh sự kiện nào**: không attempt, không result, không miss cho tới khi cửa sổ xác nhận
+đầu tiên đóng. Thời gian chờ của cuộc gọi đến hạn lâu nhất là con số **còn nhúc nhích khi mọi thứ
+khác đứng yên**.
+
+Call site: `SchedulerQueueBacklogSampler`, lấy mẫu mỗi **15s** từ vòng lặp scheduler của worker
+(`SchedulerJobHost`), với **đúng các điều kiện claim** của `PostgresSchedulerStore` — đơn đã thu hồi,
+hàng đợi bị admin tạm dừng (`ADMIN_QUEUE_PAUSE`), attempt đang đổ chuông đều **không** phải "đang
+chờ". Điều kiện được chép chứ không dùng chung, vì claim nằm trong lớp bị phụ thuộc nhiều nhất của
+scheduler; `IT-OBS-BACKLOG-15` giữ hai bên khớp nhau bằng cách claim đúng thứ gauge báo rồi kiểm tra
+gauge về **0**.
+
+| Chi tiết | Cách sai nếu làm khác |
+| --- | --- |
+| thời gian chờ tính từ mốc **muộn hơn** giữa lúc đến hạn và lúc cửa sổ gọi mở hôm nay (`OD-V1-16`); ngoài cửa sổ gauge = 0 | attempt đến hạn lúc 07:55 bị **luật giờ** giữ, không phải dialler. Tính từ 07:55 thì sáng nào luật cũng nổ chỉ vì đêm qua đã xảy ra |
+| ghi **0** khi không có gì chờ, không bỏ qua | gauge báo giá trị cuối cùng nó nhận; im lặng khi hàng đợi rỗng sẽ tiếp tục báo backlog cũ |
+| `max`, không `sum` | mọi worker lấy mẫu **cùng một database** và báo cùng một con số; `sum` nhân thời gian chờ với số replica. Ca thứ ba của `ivr-slo.backlog.test.yml` ghim điều đó |
+| lấy mẫu cả khi lượt scheduler **ném lỗi** | lượt nào cũng lỗi (một lịch attempt không đọc được là đủ) chính là dialler có hàng đợi đang già đi; chỉ lấy mẫu sau lượt sạch thì gauge đóng băng ở giá trị khoẻ mạnh cuối cùng |
+| **không** lấy mẫu khi scheduler bị tắt; lỗi lấy mẫu chỉ ghi log (`2340`), không làm hỏng lượt | tắt là một quyết định, hàng đợi già đi dưới quyết định đó không phải dialler tụt lại; một metric làm hỏng lượt sẽ đẩy vòng lặp vào backoff và làm chậm chính việc quay số nó đo |
+
+**Vì sao 60s.** Cửa sổ xác nhận là **5 phút** (Giờ Vàng) và **15 phút** (24/7), và attempt rời khỏi
+tập claim khi cửa sổ của nó đóng — nên gauge **không bao giờ** chạm một ngưỡng tính bằng chục phút.
+Một phút là một phần năm cửa sổ Giờ Vàng. Giữ liên tục 10 phút nghĩa là khách **đang bị gọi trễ,
+liên tục** — thứ mà `IvrConfirmationDeadlineMissed` (§9) chỉ thấy khi đơn **đã mất**.
+
+**Page chứ không ticket**, ngược với §9: luật deadline nổ khi job đã đóng và đã có người sở hữu; luật
+này nổ khi các đơn trong hàng đợi **vẫn còn cứu được**. Ngưỡng 60s là **đề xuất**, chưa có baseline
+production.
+
+**Người trực kiểm tra:** log của `SchedulerJobHost` về cửa sổ gọi, shedding và controller (`2312`,
+`2317`, `2319`); kênh bị cách ly (§4); `MaxConcurrentDispatches`/`MaxCallStartsPerSecond` so với tải.
+**Không** nâng ngưỡng để "tắt alert": cửa sổ 5 phút không co giãn theo ngưỡng.
+
+<a id="analytics-reconcile-mismatch"></a>
+
+## 9c. Analytics reconcile `MISMATCH` — đề xuất (`W-0055`)
+
+| | |
+| --- | --- |
+| **Đo bằng** | `increase(ivr_analytics_etl_runs_total{ivr_outcome="MISMATCH"}[30m])` |
+| **Alert** | `IvrAnalyticsReconcileMismatch` · `severity: ticket` · `for: 5m` |
+
+Mỗi lượt ETL được đếm **sau khi** checkpoint mang verdict đã ghi xong, với `ivr.outcome` là verdict
+đó (`COMPLETE`/`BACKLOG`/`MISMATCH`) hoặc `FAILED` khi lượt ném lỗi trước khi có verdict. `FAILED`
+**không** được thêm vào `AnalyticsReconcileStatus`: tập đó được lưu và API trả ra, còn lượt lỗi không
+ghi checkpoint nào. Huỷ lúc shutdown **không** tính là lỗi. Call site là `AnalyticsEtlJob.RunAsync`,
+không phải `AnalyticsEtlJobHost`: host là `internal` của worker, và đếm ở job thì bộ integration
+test (`BI-ALERT-05`) chạm được tới đúng đường đếm.
+
+`MISMATCH` nghĩa là warehouse và nguồn **lệch nhau** mà không có backlog hay privacy rejection nào giải
+thích — KPI dựng trên đó **trông y như KPI đúng**. Verdict là grain tệ hơn trong hai grain:
+
+| Grain | `MISMATCH` khi |
+| --- | --- |
+| result | số fact > nguồn − orphan − số dòng privacy filter từ chối **ở lượt này** |
+| job | số job fact > số job nguồn − số job bị từ chối, **hoặc** còn job fact lệch `eligible`/`closed`/số attempt counted với job của nó **sau** refresh (`BI-DRIFT-06`) |
+
+Checkpoint mà API đọc chỉ mang số đếm **grain result**, nên `MISMATCH` do grain job hiện ra với hai số
+bằng nhau. Log worker event `1204` ghi đủ cả hai grain — đọc ở **stdout của pod worker**: đường OTLP
+chỉ giữ các trường có trong allowlist của `PiiSafeLogRecordProcessor`, nên các số đếm này không tới
+Loki, giống mọi số đếm khác của log `1201`.
+
+Hai lỗi cũ sẽ làm luật này nổ sai, nên được sửa cùng lúc:
+
+- Reconcile cộng tổng rejection **tích luỹ** của checkpoint vào lượt hiện tại. Dòng bị từ chối không
+  bao giờ có fact, nên anti-join trả nó về và filter từ chối lại **mỗi lượt**: cộng dồn là đếm một
+  dòng một lần mỗi lượt, và từ lượt thứ hai **một** dòng bị từ chối thành `MISMATCH` vĩnh viễn. Giờ
+  dùng số của chính lượt đó (`BI-QUALITY-04`).
+- Refresh job fact chỉ đọc lại fact **đang mở**, dựa trên giả định job đã `closed` không đổi nữa.
+  Không gì ép giả định đó: job đã đóng mà có thêm attempt counted giữ số cũ mãi mãi, trong khi số dòng
+  vẫn khớp. Giờ refresh chọn theo **so sánh với nguồn**, và reconcile đọc **cùng snapshot**
+  `REPEATABLE READ` với refresh — đọc ở snapshot sau thì mọi attempt được normalize trong vài mili-giây
+  giữa hai lần đọc đều thành `MISMATCH` giả vào mỗi buổi chiều đông khách.
+
+**Người trực:** đọc log `1204` (stdout của worker) để biết grain nào. Grain result với fact > nguồn: xem có retention run
+vừa chạy không — orphan tồn tại giữa lúc purge dữ liệu vận hành và lúc hook analytics chạy là **tạm
+thời**, lượt kế tiếp sẽ hết. Grain job với `drifted` > 0: refresh đã không làm đúng việc của nó — đó là
+bug, không phải dữ liệu. **Không** xoá checkpoint để "reset": checkpoint không phải input của tính đúng
+(anti-join mới là), xoá nó không sửa được gì.
+
+<a id="analytics-etl-not-completing"></a>
+
+## 9d. Analytics ETL chạy mà không hoàn tất — đề xuất (`W-0055`)
+
+| | |
+| --- | --- |
+| **Đo bằng** | có lượt chạy trong 1h, `unless` có lượt `COMPLETE` trong 1h |
+| **Alert** | `IvrAnalyticsEtlNotCompleting` · `severity: ticket` · `for: 15m` |
+
+`BACKLOG` kéo dài một giờ, `MISMATCH` ở mọi lượt, hay `FAILED` ở mọi lượt đều dẫn về đây. Console
+reporting quảng cáo độ tươi **15 phút**; một giờ không hoàn tất là đã vượt ngân sách đó bốn lần.
+
+Pipeline **không chạy** thì luật này **không** nổ: không có lượt nào để đếm. Trường hợp đó thuộc về
+liveness của worker (`IT-WORKER-LIVENESS-12`), còn ETL bị tắt là một quyết định.
+
+`for: 15m` vì một chi tiết của `increase()`: worker khởi động lại tạo **series mới**, và lần tăng đầu
+tiên của một series mới không nhìn thấy được cho tới khi lượt kế tiếp cộng thêm. Không có `for`, chuỗi
+`FAILED` → `COMPLETE` → `FAILED` ngay sau restart sẽ mở ticket cho một pipeline vừa hoàn tất. Cùng lý
+do đó, một `MISMATCH` **đơn lẻ** ngay sau restart có thể không mở ticket ở §9c; `MISMATCH` thật thường
+lặp lại ở mọi lượt và được thấy từ lượt thứ hai.
+
 ## 10. Cái này KHÔNG đo được, và tại sao
 
 - ~~**Chưa có metric nào rời khỏi tiến trình.**~~ **Đã đóng ở mức code + local runtime bởi
@@ -259,7 +379,13 @@ và khoảng lệch **lớn nhất đúng lúc dung lượng tệ nhất**. Nên
   (`W-0008`). Một metric tên là "chi phí" mà không có chi phí thì tệ hơn không có metric.
   `CAP-ALERT-04` khẳng định lý do đó **vẫn còn đúng**: dòng đầu tiên được điền vào sẽ làm cổng
   đỏ, kèm chỉ dẫn dựng metric — nên lời bào chữa này không sống lâu hơn được sự thật của nó.
-- **Chưa có burn-rate panel nhiều cửa sổ.** Ngân sách lỗi ở trên là định nghĩa, chưa phải thứ đang
-  được đốt và vẽ — cần dữ liệu production thật mới hiệu chỉnh được.
+- ~~**Chưa có burn-rate panel nhiều cửa sổ.**~~ **Đã có panel** (`W-0041`, panel #13): ngân sách
+  D-04 được vẽ như tốc độ đốt trên 1h/6h/3d — xem §2. **Alert burn-rate thì vẫn chưa có**: ngưỡng
+  multi-window (bao nhiêu lần đốt trên cửa sổ nào thì page) cần dữ liệu production thật mới hiệu chỉnh
+  được, và một ngưỡng đoán bây giờ là một ngưỡng sẽ bị tắt trong tuần đầu.
+- **Panel integration-status (`P6-2` §6.4) chưa làm, và cố ý không làm.** Nó cần một nguồn **probe
+  dependency thật**, mà hiện không có: `AdminConfigReadService` trả cứng
+  `dependency_probing_available=false`. Một panel vẽ trạng thái tích hợp từ nguồn không probe gì sẽ
+  là vạch phẳng đọc như "mọi tích hợp đều khoẻ" — đúng kiểu nói dối §1 cấm.
 - **Ngưỡng đánh dấu "đề xuất" chưa được chủ sở hữu phê duyệt.** Chúng dựa trên suy luận, không dựa
   trên baseline đo được.

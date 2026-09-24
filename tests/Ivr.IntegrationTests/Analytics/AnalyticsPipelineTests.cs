@@ -1,6 +1,8 @@
+using System.Diagnostics.Metrics;
 using System.Globalization;
 using Ivr.Domain.Retention;
 using Ivr.Infrastructure.Analytics;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +14,9 @@ namespace Ivr.IntegrationTests.Analytics;
 /// W-0055 / P10-4 §8 — <c>BI-IDEMP-03</c> and <c>BI-QUALITY-04</c> against real
 /// PostgreSQL, because both properties are about what the database does: the
 /// anti-join that makes a replay exactly-once, and the reconcile that compares two
-/// row counts across a schema boundary.
+/// row counts across a schema boundary. <c>BI-DRIFT-06</c> extends the reconcile to
+/// the contents of the job grain, and <c>BI-ALERT-05</c> is the run counter the two
+/// analytics alerts read.
 /// </summary>
 [Collection(PostgresPersistenceTestGroup.Name)]
 public sealed class AnalyticsPipelineTests(PostgresPersistenceFixture fixture)
@@ -247,14 +251,227 @@ public sealed class AnalyticsPipelineTests(PostgresPersistenceFixture fixture)
         Assert.Equal(bucketBefore - 1, await BucketTotalAsync(bucketDate));
     }
 
+    [Fact]
+    [Trait("TestId", "BI-QUALITY-04")]
+    public async Task ARowThePrivacyFilterRefusesStaysExplainedOnEveryLaterRun()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+        await SeedRefusedAsync();
+
+        AnalyticsEtlRunReport first = await RunEtlAsync();
+        AnalyticsEtlRunReport second = await RunEtlAsync();
+        AnalyticsEtlRunReport third = await RunEtlAsync();
+
+        // A refused row never gets a fact, so the anti-join hands it back and the filter refuses it
+        // again on every run. The reconcile used to add the checkpoint's running total on top of
+        // this run's count, which counted the same row once per run: from the second run the
+        // expected count fell below the fact count, and one refused row became a MISMATCH that
+        // never cleared -- exactly what IvrAnalyticsReconcileMismatch would have paged on forever.
+        Assert.All(
+            [first, second, third],
+            report =>
+            {
+                Assert.Equal(1, report.RejectedRows);
+                Assert.Equal(1, report.JobRowsRejected);
+                Assert.Equal(AnalyticsReconcileStatus.Complete, report.ReconcileStatus);
+            });
+        Assert.Equal(SeededResults, await CountFactsAsync());
+    }
+
+    // ------------------------------------------------------------- BI-DRIFT-06
+
+    [Fact]
+    [Trait("TestId", "BI-DRIFT-06")]
+    public async Task AClosedJobThatGainsACountedAttemptIsRefreshedRatherThanFrozen()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+        Assert.Equal(AnalyticsReconcileStatus.Complete, (await RunEtlAsync()).ReconcileStatus);
+
+        const string closedJob = "JOB-ANALYTICS-01";
+        Assert.True(await JobFactClosedAsync(closedJob));
+        Assert.Equal(1, await JobAttemptCountAsync(closedJob));
+
+        // The premise the old refresh rested on, broken: the job is closed and still changes. The
+        // refresh used to re-read open facts only, so this row kept one attempt for good while the
+        // row counts went on reconciling.
+        await AddCountedAttemptAsync(closedJob, attemptNumber: 2);
+
+        AnalyticsEtlRunReport report = await RunEtlAsync();
+
+        Assert.Equal(1, report.JobRowsRefreshed);
+        Assert.Equal(2, await JobAttemptCountAsync(closedJob));
+        Assert.Equal(0, report.JobFactsDrifted);
+        Assert.Equal(AnalyticsReconcileStatus.Complete, report.ReconcileStatus);
+
+        // Refreshed once, not on every run: the comparison finds nothing the next time round.
+        Assert.Equal(0, (await RunEtlAsync()).JobRowsRefreshed);
+    }
+
+    [Fact]
+    [Trait("TestId", "BI-DRIFT-06")]
+    public async Task AJobFactWithNoJobBehindItIsAMismatchEvenWhenTheResultCountsAgree()
+    {
+        await fixture.ResetAsync();
+        await SeedAsync();
+        await RunEtlAsync();
+
+        await InsertOrphanJobFactAsync();
+
+        AnalyticsEtlRunReport report = await RunEtlAsync();
+
+        // The result grain agrees, so a reconcile that compared result counts only -- which is
+        // all this one used to do -- would have called the run COMPLETE.
+        Assert.Equal(report.SourceRowCount, report.FactRowCount);
+        Assert.Equal(report.SourceJobCount + 1, report.JobFactCount);
+        Assert.Equal(AnalyticsReconcileStatus.Mismatch, report.ReconcileStatus);
+
+        // And the verdict reaches the checkpoint the reporting API serves, not only the report.
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        AnalyticsEtlCheckpointEntity checkpoint = await context.AnalyticsCheckpoints
+            .SingleAsync(row => row.PipelineName == AnalyticsEtlJob.PipelineName);
+        Assert.Equal(AnalyticsReconcileStatus.Mismatch, checkpoint.ReconcileStatus);
+    }
+
+    // ------------------------------------------------------------- BI-ALERT-05
+
+    [Fact]
+    [Trait("TestId", "BI-ALERT-05")]
+    public async Task EveryRunIsCountedWithTheVerdictItWrote()
+    {
+        // W-0055. The verdict reached the checkpoint and nothing else; this is the counter the two
+        // analytics alerts read, measured through the real Meter on a real database.
+        await fixture.ResetAsync();
+        await SeedAsync();
+
+        List<string> outcomes = [];
+        using (MeterListener listener = ListenForEtlRuns(outcomes))
+        {
+            await RunEtlAsync(batchSize: 1);
+            await RunEtlAsync();
+            await InsertOrphanJobFactAsync();
+            await RunEtlAsync();
+        }
+
+        Assert.Equal(
+            [
+                AnalyticsReconcileStatus.Backlog,
+                AnalyticsReconcileStatus.Complete,
+                AnalyticsReconcileStatus.Mismatch,
+            ],
+            outcomes);
+    }
+
+    [Fact]
+    [Trait("TestId", "BI-ALERT-05")]
+    public async Task ARunThatThrowsIsCountedAsFailedAndStoppingIsNot()
+    {
+        await fixture.ResetAsync();
+
+        List<string> outcomes = [];
+        using (MeterListener listener = ListenForEtlRuns(outcomes))
+        {
+            // Refused before any work. A misconfigured pipeline fails every run, and each of those
+            // runs has to count: otherwise the not-completing rule would see no runs at all and
+            // stay silent about a pipeline that has never once succeeded.
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => RunEtlAsync(batchSize: 0));
+
+            // Shutdown. Not a failure; counting it would put one on every deployment.
+            using var stopping = new CancellationTokenSource();
+            await stopping.CancelAsync();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                () => RunEtlAsync(cancellationToken: stopping.Token));
+        }
+
+        Assert.Equal([AnalyticsEtlRunOutcome.Failed], outcomes);
+    }
+
     // ------------------------------------------------------------------ helpers
+
+    private static MeterListener ListenForEtlRuns(List<string> outcomes)
+    {
+        var listener = new MeterListener
+        {
+            InstrumentPublished = (instrument, target) =>
+            {
+                if (instrument.Meter.Name == IvrTelemetry.ServiceName
+                    && instrument.Name == "ivr_analytics_etl_runs_total")
+                {
+                    target.EnableMeasurementEvents(instrument);
+                }
+            },
+        };
+        listener.SetMeasurementEventCallback<long>((_, _, tags, _) =>
+        {
+            string outcome = string.Empty;
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                if (tag.Key == TelemetryTags.Outcome)
+                {
+                    outcome = tag.Value?.ToString() ?? string.Empty;
+                }
+            }
+
+            lock (outcomes)
+            {
+                outcomes.Add(outcome);
+            }
+        });
+        listener.Start();
+        return listener;
+    }
+
+    /// <summary>
+    /// What a retention purge leaves behind until the analytics hook runs: a job fact whose job
+    /// is gone. Inserted directly, because the operational job cannot be deleted from under its
+    /// attempts and results.
+    /// </summary>
+    private async Task InsertOrphanJobFactAsync()
+    {
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        context.AnalyticsJobFacts.Add(new AnalyticsFactCallJobEntity
+        {
+            IvrCallJobId = "JOB-ANALYTICS-GONE",
+            OrderRefHash = new string('0', 64),
+            ProgramKey = GoldenHour,
+            ScriptVariantKey = VariantA,
+            Eligible = true,
+            CountedAttemptCount = 1,
+            Closed = true,
+            CreatedAt = ResultAt,
+            CreatedDate = DateOnly.FromDateTime(ResultAt.UtcDateTime),
+            LoadedAt = RunAt,
+        });
+        await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// One more closed job with one result, whose script version carries a subscriber-number
+    /// shape, so the privacy filter refuses it at both grains. Assembled from parts, as BI-PII-01
+    /// does, so this file never holds the literal shape it exists to have refused.
+    /// </summary>
+    private async Task SeedRefusedAsync()
+    {
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        Seed(context, 50, GoldenHour, "SCRIPT-84" + new string('5', 9), "IVR_CONFIRMED", closed: true);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task<bool> JobFactClosedAsync(string jobId)
+    {
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        return (await context.AnalyticsJobFacts.SingleAsync(fact => fact.IvrCallJobId == jobId))
+            .Closed;
+    }
 
     private IDbContextFactory<IvrDbContext> Factory() =>
         fixture.Services.GetRequiredService<IDbContextFactory<IvrDbContext>>();
 
     private Task<AnalyticsEtlRunReport> RunEtlAsync(
         int batchSize = 5_000,
-        bool rebuildAggregates = false)
+        bool rebuildAggregates = false,
+        CancellationToken cancellationToken = default)
     {
         var job = new AnalyticsEtlJob(Factory(), TimeProvider.System);
         return job.RunAsync(
@@ -264,7 +481,7 @@ public sealed class AnalyticsPipelineTests(PostgresPersistenceFixture fixture)
                 RebuildAggregates = rebuildAggregates,
                 Now = RunAt,
             },
-            CancellationToken.None);
+            cancellationToken);
     }
 
     [Fact]

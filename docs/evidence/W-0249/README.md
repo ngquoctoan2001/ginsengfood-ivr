@@ -109,3 +109,31 @@ docs-selftest.mjs                          API_DOCS_SELFTEST_PASS
 
 Đến khi có endpoint, hai fence là **cơ chế nằm chờ**: đúng, có test, và trơ — vì chưa gì đặt được
 `revoked_at`.
+
+## Seed của test preflight không còn đi qua model — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Residual của việc này ghi một điểm giòn: `IT-RESULT-CONTRACT-PREFLIGHT-20`
+(`MigrationPreflightNamesLegacyRowsThatViolateTheSignedTaxonomy`) đưa schema về mốc ngay trước
+`W0172ProgramResultContractInvariants` rồi seed bằng model entity hiện tại, nên mọi cột thêm sau mốc đó
+vào ba bảng được seed đều làm test gãy. Chuyện đã xảy ra hai lần: ba cột revoke của chính việc này, rồi
+`phone_e164` của W-0310. Mỗi lần đều vá bằng một dòng `ALTER TABLE` viết tay.
+
+W-0353 làm cách sửa bền mà Residual nêu. Ba dòng cũ (task, call job, kết quả `IVR_CONFIRMED` không
+đếm) nay được ghi bằng SQL chỉ nêu những cột có ở schema mốc `W0144SimChannelFailureWindow`. Khối
+`ALTER TABLE` bị gỡ. Phần khẳng định của test giữ nguyên.
+
+Kiểm trước khi chạy test: dựng một PostgreSQL 16 tạm, áp DDL từ đầu tới `W0144`, lấy danh sách cột
+bắt buộc và ràng buộc từ `information_schema` và `pg_constraint`, chạy ba câu INSERT, rồi áp script
+`W0144 → W0172`. Migration dừng với đúng thông điệp test chờ:
+`W-0172 program/result preflight blocked: result:RESULT-PREFLIGHT-20=IVR_CONFIRMED/counted=false/final=true`.
+Container tạm đã xoá sau đó.
+
+Hai dòng còn lại ở mục 8 không còn là việc phía IVR:
+
+- Đề xuất sai ở `m8-17 §5` không còn trong tài liệu đang dùng. Sau khi W-0297 dồn kế hoạch,
+  `plan/ivr-orther/00-DA-XONG.md` chỉ mô tả hai fence đã cài.
+- Endpoint thu hồi chờ Module 3 trả lời `M3-14` trong
+  [phiếu IR-07](../../../integration-requirements/07-module-3-decision-sheet.md); mục `E-2` của phiếu
+  đó mở endpoint theo shape M3 chốt.

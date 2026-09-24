@@ -25,6 +25,8 @@ observability_rules:
     - promtool test rules deploy/observability/alerts/ivr-slo.failclosed.test.yml
     - promtool test rules deploy/observability/alerts/ivr-slo.channel.test.yml
     - promtool test rules deploy/observability/alerts/ivr-slo.capacity.test.yml
+    - promtool test rules deploy/observability/alerts/ivr-slo.backlog.test.yml
+    - promtool test rules deploy/observability/alerts/ivr-slo.analytics.test.yml
 
 observability_contract:
   stage: validate

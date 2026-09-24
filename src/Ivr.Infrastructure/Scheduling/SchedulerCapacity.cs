@@ -873,6 +873,11 @@ public static class SchedulerServiceCollectionExtensions
 
         services.TryAddSingleton<IPostgresSchedulerStore, PostgresSchedulerStore>();
 
+        // W-0041. The queue-backlog gauge. Read-only, and registered for every mode for the same
+        // reason as the pump below: a worker that cannot dial is exactly the one whose queue ages.
+        services.TryAddSingleton<ISchedulerQueueBacklogReader, PostgresSchedulerQueueBacklogReader>();
+        services.TryAddSingleton<SchedulerQueueBacklogSampler>();
+
         // Registered for every mode, including the one whose dispatch gateway is unavailable. The
         // pump holds the count of calls in flight, and shutdown has to be able to ask that
         // question of a worker that was never allowed to dial as well as one that was.

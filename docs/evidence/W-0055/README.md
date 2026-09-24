@@ -163,3 +163,31 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Alert reconcile và fact job không còn dựa vào `closed_at` bất biến — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+W-0352 giữ việc này lại vì còn hai việc phía IVR: chưa có alert trên `reconcile_status`, và `fact_call_job` dựa vào giả
+định `closed_at` bất biến. W-0353 làm cả hai, và sửa thêm một lỗi tìm ra trong lúc làm.
+
+- **Fact job so với nguồn.** Lượt làm mới nay chọn mọi fact có `eligible`, `closed` hoặc số lượt gọi tính vào khách lệch
+  với job nguồn, không chỉ fact còn mở. Một job đã đóng mà sau đó có thêm lượt gọi tính vào khách trước đây giữ số cũ
+  mãi, trong khi số dòng vẫn khớp. Reconcile của grain job nay so cả nội dung: fact còn lệch sau lượt làm mới là
+  `MISMATCH`, trừ khi lượt làm mới dừng ở giới hạn lô (khi đó là `BACKLOG`). Chèn, làm mới và reconcile chạy trong một
+  snapshot `REPEATABLE READ`, để lượt gọi xong giữa chừng không bị đọc thành lệch. `BI-DRIFT-06` kiểm cả hai.
+- **Lỗi cộng dồn dòng bị từ chối.** Reconcile cộng tổng dồn trong checkpoint của các dòng bị từ chối vì quyền riêng
+  tư vào số của lượt hiện tại. Dòng bị từ chối không bao giờ có fact, nên lượt sau đọc lại và từ chối lại nó; từ lượt
+  thứ hai, một dòng bị từ chối thành `MISMATCH` vĩnh viễn, và alert mới sẽ kêu mãi. Nay chỉ dùng số của lượt hiện tại.
+  `BI-QUALITY-04` có thêm ca cho lỗi này.
+- **Metric và alert.** `ivr_analytics_etl_runs_total` đếm từng lượt theo `ivr.outcome`, ghi sau khi checkpoint mang
+  verdict đã được lưu; lượt ném lỗi đếm là `FAILED`, dừng khi tắt máy thì không đếm. Hai luật mức ticket,
+  `slo_status: proposed`: `IvrAnalyticsReconcileMismatch` (có `MISMATCH` trong 30 phút, giữ 5 phút) và
+  `IvrAnalyticsEtlNotCompleting` (có lượt chạy trong giờ qua nhưng không lượt nào `COMPLETE`, giữ 15 phút). Runbook ở
+  `docs/slo.md` §9c và §9d. `BI-ALERT-05` kiểm bộ đếm; `IT-SLO-ANALYTICS-06` chạy `promtool test rules`.
+
+Đột biến, mỗi cái đều làm test đỏ: trả lượt làm mới về "chỉ fact còn mở" (`BI-DRIFT-06`), trả lại tổng dồn dòng bị từ
+chối (`BI-QUALITY-04`), bỏ thời gian giữ 15 phút, đọc bộ đếm thô thay vì mức tăng, bỏ mệnh đề `unless` (`IT-SLO-ANALYTICS-06`).
+
+Còn lại là việc của nền tảng và bên dùng dữ liệu: kho riêng (`W-0063`), công cụ BI kết nối, đo trên khối lượng thật, và
+lượt ETL chạy trong cluster.

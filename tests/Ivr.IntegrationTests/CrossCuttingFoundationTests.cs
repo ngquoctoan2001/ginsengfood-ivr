@@ -85,6 +85,7 @@ public sealed class CrossCuttingFoundationTests
 
     [Fact]
     [Trait("TestId", "UT-FND-ERR-05")]
+    [Trait("TestId", "SEC-ERR-06")]
     public async Task ErrorEnvelopeUsesStableCodesAndRedactsUnexpectedFailures()
     {
         await using FoundationApiTestApplication application =
@@ -119,6 +120,7 @@ public sealed class CrossCuttingFoundationTests
 
     [Fact]
     [Trait("TestId", "IT-FND-ERR-12")]
+    [Trait("TestId", "SEC-ERR-06")]
     public async Task ErrorEnvelopeCatchesAuthenticationStageFailures()
     {
         await using FoundationApiTestApplication application =

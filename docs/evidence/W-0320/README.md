@@ -79,7 +79,7 @@ Kết quả số, full image IDs, từng request/checksum, source/log hashes:
 [local-results.json](local-results.json). Hash source là byte workspace lúc chạy, không phải commit mới.
 Hash log dùng SHA-256 mã hóa base64: một digest hex bị scanner nhận nhầm thành số điện thoại;
 đổi cách biểu diễn digest, giữ nguyên log và quy tắc scanner.
-Log thô và script fixture/summarize: [`.artifacts/W-0320`](../../../.artifacts/W-0320/).
+Log thô và script fixture/summarize: `.artifacts/W-0320/` (thư mục cục bộ trên máy chạy, không commit vì `.artifacts/` nằm trong `.gitignore`).
 Lượt đầu Chainguard dùng nhầm trường `regions` thay vì `selections`, bị readiness từ chối;
 đã giữ log riêng rồi chạy lại đúng allowlist. Không tính lượt sai tham số vào `24` syntheses PASS.
 

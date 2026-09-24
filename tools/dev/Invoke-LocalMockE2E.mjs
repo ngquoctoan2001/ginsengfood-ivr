@@ -29,10 +29,23 @@
  * -----
  *   node tools/dev/Invoke-LocalMockE2E.mjs [--rounds 100] [--workers 2] [--skip-faults]
  *                                          [--keep-running] [--policy mock-lab-v1]
+ *
+ * Soak (W-0353, PT-SOAK-02)
+ * -------------------------
+ *   node tools/dev/Invoke-LocalMockE2E.mjs --duration-minutes 240 [--sample-seconds 60]
+ *                                          --skip-faults --evidence-dir docs/evidence/W-0037
+ *
+ * With --duration-minutes the loop runs rounds until the time is up instead of counting them,
+ * and samples the stack every --sample-seconds: working set and handle count of the API and each
+ * worker, database connections, the callback backlog, idempotency keys and the slack between each
+ * final result and its task's deadline. The verdict compares the first quarter of the run with
+ * the last, because a leak and a drifting deadline are both things that only show over time.
+ * The result goes to pt-soak-02.json in the evidence directory.
  */
 
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpus, totalmem } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,6 +69,8 @@ function readArgs(argv) {
     postgresPort: 55433,
     extendedEvery: 10,
     evidenceDir: 'docs/evidence/W-0203',
+    durationMinutes: 0,
+    sampleSeconds: 60,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
@@ -70,6 +85,8 @@ function readArgs(argv) {
       case '--postgres-port': options.postgresPort = Number(value); index += 1; break;
       case '--extended-every': options.extendedEvery = Number(value); index += 1; break;
       case '--evidence-dir': options.evidenceDir = value; index += 1; break;
+      case '--duration-minutes': options.durationMinutes = Number(value); index += 1; break;
+      case '--sample-seconds': options.sampleSeconds = Number(value); index += 1; break;
       case '--skip-faults': options.skipFaults = true; break;
       case '--keep-running': options.keepRunning = true; break;
       default:
@@ -81,6 +98,14 @@ function readArgs(argv) {
   }
   if (!Number.isInteger(options.workers) || options.workers < 1 || options.workers > 8) {
     throw new Error('--workers must be between 1 and 8.');
+  }
+  if (!Number.isFinite(options.durationMinutes) || options.durationMinutes < 0
+      || options.durationMinutes > 24 * 60) {
+    throw new Error('--duration-minutes must be between 0 (off) and 1440.');
+  }
+  if (!Number.isInteger(options.sampleSeconds) || options.sampleSeconds < 10
+      || options.sampleSeconds > 3600) {
+    throw new Error('--sample-seconds must be an integer between 10 and 3600.');
   }
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_.-]+$/.test(options.postgresContainer)
       || !Number.isInteger(options.postgresPort) || options.postgresPort < 1024 || options.postgresPort > 65535) {
@@ -1244,16 +1269,276 @@ async function faultDeadLetterAndReplay() {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Soak sampling (W-0353, PT-SOAK-02)
+// ---------------------------------------------------------------------------------------------
+
+const SOAK = OPTIONS.durationMinutes > 0;
+const TERMINAL_DELIVERY_SQL = () => [...TERMINAL_DELIVERY].map((status) => `'${status}'`).join(',');
+
+// How long after its window closes a task may still be open before the sample counts it: the
+// scheduler closes expired windows on its own pass, so "open one second after the deadline" is a
+// race with that pass, not a missed deadline. Sixty seconds is far longer than any pass takes.
+const DEADLINE_GRACE_SECONDS = 60;
+
+/**
+ * Working set and handle count of every process this harness launched, by pid. Read from the
+ * operating system rather than from the process, because a process that leaks is also the last
+ * one to be trusted about how much it holds.
+ */
+function sampleProcesses() {
+  const live = started.filter(
+    (item) => item.kind === 'process' && item.child?.pid && item.child.exitCode === null);
+  const byPid = new Map();
+  if (live.length > 0 && process.platform === 'win32') {
+    const script = `Get-Process -Id ${live.map((item) => item.child.pid).join(',')} `
+      + '-ErrorAction SilentlyContinue | ForEach-Object { '
+      + "'{0}|{1}|{2}|{3}' -f $_.Id, $_.WorkingSet64, $_.PrivateMemorySize64, $_.HandleCount }";
+    const result = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script],
+      { encoding: 'utf8', windowsHide: true });
+    for (const line of (result.stdout || '').split(/\r?\n/)) {
+      const [pid, workingSetBytes, privateBytes, handles] = line.trim().split('|').map(Number);
+      if (Number.isInteger(pid)) byPid.set(pid, { workingSetBytes, privateBytes, handles });
+    }
+  } else if (live.length > 0) {
+    const result = spawnSync('ps', ['-o', 'pid=,rss=', '-p', live.map((item) => item.child.pid).join(',')],
+      { encoding: 'utf8' });
+    for (const line of (result.stdout || '').split('\n')) {
+      const [pid, rssKilobytes] = line.trim().split(/\s+/).map(Number);
+      if (!Number.isInteger(pid)) continue;
+      let handles = null;
+      try { handles = readdirSync(`/proc/${pid}/fd`).length; } catch { /* no procfs here */ }
+      byPid.set(pid, { workingSetBytes: rssKilobytes * 1024, privateBytes: null, handles });
+    }
+  }
+  return started
+    .filter((item) => item.kind === 'process')
+    .map((item) => ({
+      name: item.name,
+      pid: item.child?.pid ?? null,
+      ...(byPid.get(item.child?.pid) ?? { missing: true }),
+    }));
+}
+
+/**
+ * One query, so the numbers describe one instant. The deadline and callback figures are scoped to
+ * this run's tasks; connections and idempotency keys are the whole database, because a pool that
+ * leaks does not label its connections.
+ *
+ * "The deadline holds" is four separate facts, and the first version of this sampler got it wrong
+ * by merging them. A task parked for technical review is closed by the scheduler AFTER its window
+ * ends, with IVR_CONFIRMATION_WINDOW_EXPIRED: that result is written after the deadline because it
+ * is the deadline being enforced, not missed. So: no task stays open past its window (beyond a
+ * grace for the closer to run), no dial starts after it, no customer outcome lands after it, and
+ * the closer's lag behind the deadline stays small.
+ */
+function sampleDatabase(sinceIso) {
+  const like = `'E2E-%${RUN_MARK}%'`;
+  const expired = "'IVR_CONFIRMATION_WINDOW_EXPIRED'";
+  const finals = `FROM ivr_call_results r JOIN ivr_confirmation_tasks t ON t.task_id = r.task_id `
+    + `WHERE r.is_final_for_ivr IS TRUE AND r.task_id LIKE ${like}`;
+  const [row] = psqlRows([
+    'SELECT',
+    '(SELECT COUNT(*) FROM pg_stat_activity WHERE datname = current_database()),',
+    `(SELECT COUNT(*) FROM ivr_result_callbacks WHERE task_id LIKE ${like} `
+      + `AND delivery_status NOT IN (${TERMINAL_DELIVERY_SQL()})),`,
+    '(SELECT COUNT(*) FROM ivr_idempotency_keys),',
+    '(SELECT pg_database_size(current_database())),',
+    `(SELECT COUNT(*) FROM ivr_confirmation_tasks t WHERE t.task_id LIKE ${like} `
+      + `AND t.confirmation_window_expires_at < now() - interval '${DEADLINE_GRACE_SECONDS} seconds' `
+      + 'AND NOT EXISTS (SELECT 1 FROM ivr_call_results r '
+      + 'WHERE r.task_id = t.task_id AND r.is_final_for_ivr IS TRUE)),',
+    `(SELECT COUNT(*) FROM ivr_call_attempts a JOIN ivr_confirmation_tasks t ON t.task_id = a.task_id `
+      + `WHERE a.task_id LIKE ${like} AND a.started_at > t.confirmation_window_expires_at),`,
+    `(SELECT COUNT(*) ${finals} AND r.result_type <> ${expired} `
+      + 'AND r.created_at > t.confirmation_window_expires_at),',
+    `(SELECT MIN(EXTRACT(EPOCH FROM (t.confirmation_window_expires_at - r.created_at))) `
+      + `${finals} AND r.result_type <> ${expired} AND r.created_at >= '${sinceIso}'),`,
+    `(SELECT MAX(EXTRACT(EPOCH FROM (r.created_at - t.confirmation_window_expires_at))) `
+      + `${finals} AND r.result_type = ${expired} AND r.created_at >= '${sinceIso}'),`,
+    `(SELECT COUNT(*) ${finals} AND r.result_type = ${expired}),`,
+    `(SELECT COUNT(*) ${finals})`,
+  ].join(' '));
+  const number = (value) => (value === undefined || value === '' ? null : Number(value));
+  return {
+    connections: number(row?.[0]),
+    pendingCallbacks: number(row?.[1]),
+    idempotencyKeys: number(row?.[2]),
+    databaseBytes: number(row?.[3]),
+    openPastDeadline: number(row?.[4]),
+    dialsAfterDeadline: number(row?.[5]),
+    customerOutcomesAfterDeadline: number(row?.[6]),
+    minCustomerSlackSeconds: number(row?.[7]),
+    maxCloseLagSeconds: number(row?.[8]),
+    closedAtDeadline: number(row?.[9]),
+    finalResults: number(row?.[10]),
+  };
+}
+
+function takeSample(round, sinceIso) {
+  const at = new Date().toISOString();
+  const sample = { at, round, processes: sampleProcesses(), database: sampleDatabase(sinceIso) };
+  // Written as it is taken: hours of samples held only in memory are lost to one exception at the
+  // end, and the run that produced them cannot be repeated cheaply.
+  try {
+    appendFileSync(join(LOG_DIR, `soak-samples-${RUN_ID}.jsonl`), `${JSON.stringify(sample)}\n`);
+  } catch { /* the in-memory copy still reaches the evidence */ }
+  return sample;
+}
+
+const median = (values) => {
+  const sorted = values.filter((value) => Number.isFinite(value)).sort((a, b) => a - b);
+  return sorted.length === 0 ? null : sorted[Math.floor(sorted.length / 2)];
+};
+
+const megabytes = (bytes) => (Number.isFinite(bytes) ? Math.round(bytes / 1048576) : null);
+
+/**
+ * The first quarter of the run against the last. Every limit here is this harness's own, chosen
+ * to separate "grows without bound" from "settles after warm-up"; none of them is an approved
+ * service level, and the evidence says so.
+ */
+function soakVerdict(samples, perRound) {
+  const measured = samples.filter((sample) => sample.round > 0);
+  const quarter = Math.max(1, Math.floor(measured.length / 4));
+  const first = measured.slice(0, quarter);
+  const last = measured.slice(-quarter);
+  const criteria = [];
+  const check = (name, limit, observed, ok) => criteria.push({ name, limit, observed, ok: Boolean(ok) });
+
+  if (measured.length < 8) {
+    check('samples', 'at least 8 samples after the first round', { samples: measured.length }, false);
+  }
+
+  const names = [...new Set(samples.flatMap((sample) => sample.processes.map((item) => item.name)))];
+  for (const name of names) {
+    const series = (group, field) => group.map(
+      (sample) => sample.processes.find((item) => item.name === name)?.[field]);
+    const pids = new Set(series(samples, 'pid').filter((pid) => pid !== null && pid !== undefined));
+    const gaps = samples.filter(
+      (sample) => sample.processes.find((item) => item.name === name)?.missing).length;
+    // A restart would reset the heap and hide the very leak the run is looking for.
+    check(`${name}: one process for the whole run`, 'one pid, present in every sample',
+      { pids: pids.size, samplesMissing: gaps }, pids.size === 1 && gaps === 0);
+    const before = median(series(first, 'workingSetBytes'));
+    const after = median(series(last, 'workingSetBytes'));
+    check(`${name}: working set`, 'last-quarter median <= 1.5 x first-quarter median',
+      { firstQuarterMedianMb: megabytes(before), lastQuarterMedianMb: megabytes(after),
+        peakMb: megabytes(Math.max(...series(measured, 'workingSetBytes').filter(Number.isFinite))) },
+      before !== null && after !== null && after <= 1.5 * before);
+    const handlesBefore = median(series(first, 'handles'));
+    const handlesAfter = median(series(last, 'handles'));
+    check(`${name}: handles`, 'last-quarter median <= 1.5 x first-quarter median + 100',
+      { firstQuarterMedian: handlesBefore, lastQuarterMedian: handlesAfter },
+      handlesBefore !== null && handlesAfter !== null && handlesAfter <= 1.5 * handlesBefore + 100);
+  }
+
+  const database = (group, field) => group.map((sample) => sample.database[field]);
+  const connectionsBefore = Math.max(...database(first, 'connections').filter(Number.isFinite));
+  const connectionsAfter = Math.max(...database(last, 'connections').filter(Number.isFinite));
+  check('database connections', 'last-quarter peak <= 1.5 x first-quarter peak + 5',
+    { firstQuarterPeak: connectionsBefore, lastQuarterPeak: connectionsAfter },
+    Number.isFinite(connectionsBefore) && Number.isFinite(connectionsAfter)
+      && connectionsAfter <= 1.5 * connectionsBefore + 5);
+
+  const backlogBefore = Math.max(0, ...database(first, 'pendingCallbacks').filter(Number.isFinite));
+  const backlogAfter = Math.max(0, ...database(last, 'pendingCallbacks').filter(Number.isFinite));
+  check('callback backlog between rounds', 'last-quarter peak <= first-quarter peak + 5',
+    { firstQuarterPeak: backlogBefore, lastQuarterPeak: backlogAfter },
+    backlogAfter <= backlogBefore + 5);
+
+  const worst = (field) => Math.max(0, ...database(samples, field).filter(Number.isFinite));
+  const openPast = worst('openPastDeadline');
+  check('no task outlives its window',
+    `no task still without a final result ${DEADLINE_GRACE_SECONDS} s after its window closed, in any sample`,
+    { worstSample: openPast }, openPast === 0);
+  const lateDials = worst('dialsAfterDeadline');
+  check('no dial after a window closed', 'no attempt started after its task\'s window closed',
+    { attempts: lateDials }, lateDials === 0);
+  const lateOutcomes = worst('customerOutcomesAfterDeadline');
+  check('no customer outcome after a window closed',
+    'every result other than IVR_CONFIRMATION_WINDOW_EXPIRED lands before its window closes',
+    { results: lateOutcomes }, lateOutcomes === 0);
+
+  // The closer's lag behind the deadline: bounded, and not growing over the run.
+  const lagBefore = median(database(first, 'maxCloseLagSeconds'));
+  const lagAfter = median(database(last, 'maxCloseLagSeconds'));
+  const lagWorst = Math.max(...database(measured, 'maxCloseLagSeconds').filter(Number.isFinite));
+  const closed = measured[measured.length - 1]?.database.closedAtDeadline ?? 0;
+  check('expired windows are closed promptly',
+    `every expired window closed within ${DEADLINE_GRACE_SECONDS} s; last-quarter median lag <= first-quarter median + 30 s`,
+    { windowsClosedAtDeadline: closed, firstQuarterMedianSeconds: lagBefore,
+      lastQuarterMedianSeconds: lagAfter, worstSeconds: Number.isFinite(lagWorst) ? lagWorst : null },
+    closed > 0 && lagBefore !== null && lagAfter !== null && Number.isFinite(lagWorst)
+      && lagWorst <= DEADLINE_GRACE_SECONDS && lagAfter <= lagBefore + 30);
+
+  const slackBefore = median(database(first, 'minCustomerSlackSeconds'));
+  const slackAfter = median(database(last, 'minCustomerSlackSeconds'));
+  const slackLowest = Math.min(...database(measured, 'minCustomerSlackSeconds').filter(Number.isFinite));
+  check('deadline slack does not erode',
+    'customer outcomes: last-quarter median slack >= first-quarter median - 30 s',
+    { firstQuarterMedianSeconds: slackBefore, lastQuarterMedianSeconds: slackAfter,
+      lowestSeconds: Number.isFinite(slackLowest) ? slackLowest : null },
+    slackBefore !== null && slackAfter !== null && slackAfter >= slackBefore - 30);
+
+  // Core rounds only: an extended round carries the retry-exhaustion scenarios and is slower by
+  // design, and mixing the two would make the quartiles depend on where the extended rounds fell.
+  const core = perRound.filter((item) => !item.extended);
+  const coreQuarter = Math.max(1, Math.floor(core.length / 4));
+  const roundBefore = median(core.slice(0, coreQuarter).map((item) => item.milliseconds));
+  const roundAfter = median(core.slice(-coreQuarter).map((item) => item.milliseconds));
+  check('core round duration', 'last-quarter median <= 2 x first-quarter median',
+    { firstQuarterMedianMs: roundBefore, lastQuarterMedianMs: roundAfter, coreRounds: core.length },
+    roundBefore !== null && roundAfter !== null && roundAfter <= 2 * roundBefore);
+
+  const failedRounds = perRound.filter((item) => !item.ok).length;
+  check('rounds', 'every round settles with the outcome its scenario specifies',
+    { rounds: perRound.length, failed: failedRounds }, perRound.length > 0 && failedRounds === 0);
+
+  const keysBefore = first[0]?.database.idempotencyKeys ?? null;
+  const keysAfter = last[last.length - 1]?.database.idempotencyKeys ?? null;
+  const finalsBefore = first[0]?.database.finalResults ?? null;
+  const finalsAfter = last[last.length - 1]?.database.finalResults ?? null;
+  return {
+    verdict: criteria.every((item) => item.ok) ? 'PASS' : 'FAIL',
+    samples: measured.length,
+    quarterSize: quarter,
+    criteria,
+    reportedOnly: {
+      idempotencyKeysPerFinalResult: keysAfter !== null && keysBefore !== null
+        && finalsAfter > finalsBefore
+        ? Number(((keysAfter - keysBefore) / (finalsAfter - finalsBefore)).toFixed(2)) : null,
+      databaseGrowthMb: megabytes((last[last.length - 1]?.database.databaseBytes ?? 0)
+        - (first[0]?.database.databaseBytes ?? 0)),
+    },
+  };
+}
+
+function writeSoakEvidence(document) {
+  const path = join(EVIDENCE_DIR, 'pt-soak-02.json');
+  writeFileSync(path, `${JSON.stringify(document, null, 2)}\n`);
+  note(`soak evidence: ${path}`);
+  return path;
+}
+
+// ---------------------------------------------------------------------------------------------
 // The steady loop
 // ---------------------------------------------------------------------------------------------
 
 async function runRounds() {
-  step(`Steady loop: ${OPTIONS.rounds} round(s), ${OPTIONS.workers} worker(s)`);
+  const soakEndsAt = SOAK ? Date.now() + OPTIONS.durationMinutes * 60_000 : null;
+  step(SOAK
+    ? `Soak: rounds for ${OPTIONS.durationMinutes} minute(s), ${OPTIONS.workers} worker(s), `
+      + `a sample every ${OPTIONS.sampleSeconds} s`
+    : `Steady loop: ${OPTIONS.rounds} round(s), ${OPTIONS.workers} worker(s)`);
   const perRound = [];
+  const samples = [];
   let admittedTotal = 0;
   let settledTotal = 0;
   let lastExtended = null;
-  for (let round = 1; round <= OPTIONS.rounds; round += 1) {
+  let lastSampleAt = Date.now();
+  let sampleWindowStart = new Date().toISOString();
+  if (SOAK) samples.push(takeSample(0, sampleWindowStart));
+  for (let round = 1; SOAK ? Date.now() < soakEndsAt : round <= OPTIONS.rounds; round += 1) {
     const extended = OPTIONS.extendedEvery > 0 && round % OPTIONS.extendedEvery === 0;
     const matrix = extended ? [...CORE_MATRIX, ...EXTENDED_MATRIX] : CORE_MATRIX;
     const startedAt = Date.now();
@@ -1278,8 +1563,23 @@ async function runRounds() {
         + `${ok ? 'ok' : 'FAIL'}`);
     }
     if (!ok) break;
+    if (SOAK && Date.now() - lastSampleAt >= OPTIONS.sampleSeconds * 1000) {
+      const sample = takeSample(round, sampleWindowStart);
+      samples.push(sample);
+      sampleWindowStart = sample.at;
+      lastSampleAt = Date.now();
+      note(`sample ${String(samples.length - 1).padStart(4)} after round ${round}: `
+        + sample.processes.map((item) => `${item.name} ${megabytes(item.workingSetBytes) ?? '?'} MB/`
+          + `${item.handles ?? '?'} h`).join(', ')
+        + `; db ${sample.database.connections} conn, backlog ${sample.database.pendingCallbacks}, `
+        + `open past window ${sample.database.openPastDeadline}, late dials ${sample.database.dialsAfterDeadline}, `
+        + `late outcomes ${sample.database.customerOutcomesAfterDeadline}, `
+        + `slack ${sample.database.minCustomerSlackSeconds?.toFixed(1) ?? '-'} s, `
+        + `close lag ${sample.database.maxCloseLagSeconds?.toFixed(2) ?? '-'} s`);
+    }
   }
-  return { perRound, admittedTotal, settledTotal, lastExtended };
+  if (SOAK) samples.push(takeSample(perRound.length, sampleWindowStart));
+  return { perRound, admittedTotal, settledTotal, lastExtended, samples };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1490,8 +1790,18 @@ function writeEvidence(summary) {
 // Main
 // ---------------------------------------------------------------------------------------------
 
+/** Which tree the binaries under test were built from, taken before anything starts. */
+function gitProvenance() {
+  const git = (args) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' }).stdout?.trim() ?? '';
+  return {
+    commit: git(['rev-parse', 'HEAD']),
+    tracked_tree_clean: git(['status', '--porcelain', '--untracked-files=no']).length === 0,
+  };
+}
+
 async function main() {
   const startedAt = new Date();
+  const provenance = gitProvenance();
   preflight();
   let workers = await startStack();
   const probe = await concurrencyProbe();
@@ -1530,7 +1840,8 @@ async function main() {
       destination_allowlist: ['mock-destination-allowlisted'],
     },
     configuration: {
-      rounds_requested: OPTIONS.rounds,
+      rounds_requested: SOAK ? null : OPTIONS.rounds,
+      duration_minutes_requested: SOAK ? OPTIONS.durationMinutes : null,
       workers: OPTIONS.workers,
       extended_every: OPTIONS.extendedEvery,
       attempt_policy_version: OPTIONS.policy,
@@ -1594,21 +1905,89 @@ async function main() {
       in_period_survivors: retention.survived,
     },
     failures,
-    verdict: failures.length === 0 && completedRounds === OPTIONS.rounds ? 'PASS' : 'FAIL',
+    verdict: failures.length === 0
+      && (SOAK ? rounds.length > 0 && completedRounds === rounds.length : completedRounds === OPTIONS.rounds)
+      ? 'PASS' : 'FAIL',
   };
   writeEvidence(summary);
 
+  let soakResult = null;
+  if (SOAK) {
+    step('Soak verdict: first quarter against last');
+    try {
+      soakResult = soakVerdict(loop.samples, rounds);
+    } catch (error) {
+      // A defect in the judging must not throw away the run it was judging.
+      soakResult = { verdict: 'FAIL', samples: loop.samples.length, criteria: [],
+        error: `the verdict could not be computed: ${error?.message ?? error}` };
+      note(`FAIL ${soakResult.error}`);
+    }
+    for (const item of soakResult.criteria) {
+      note(`${item.ok ? 'ok  ' : 'FAIL'} ${item.name}: ${JSON.stringify(item.observed)}`);
+    }
+    const loopStarted = loop.samples[0]?.at ?? null;
+    const loopEnded = loop.samples[loop.samples.length - 1]?.at ?? null;
+    writeSoakEvidence({
+      testId: 'PT-SOAK-02',
+      verdict: soakResult.verdict === 'PASS' && summary.verdict === 'PASS' ? 'PASS' : 'FAIL',
+      work_id: summary.work_id,
+      plan_item: 'P5-3 PT-SOAK-02: a long run leaks nothing and keeps its deadlines',
+      what: 'The full MOCK worker pipeline (API, workers, fake Sales, PostgreSQL) run for the '
+        + 'requested time, sampled at a fixed interval, judged by comparing the first quarter of '
+        + 'the samples with the last.',
+      ...provenance,
+      loop_started_at: loopStarted,
+      loop_ended_at: loopEnded,
+      duration_minutes_requested: OPTIONS.durationMinutes,
+      duration_minutes_observed: loopStarted && loopEnded
+        ? Math.round((Date.parse(loopEnded) - Date.parse(loopStarted)) / 60_000) : null,
+      sample_seconds: OPTIONS.sampleSeconds,
+      host: { platform: process.platform, cpus: cpus().length, memory_gb: Math.round(totalmem() / 1073741824) },
+      stack: {
+        api_processes: 1,
+        workers: OPTIONS.workers,
+        execution_mode: 'MOCK',
+        sim_provider: 'MOCK',
+        real_customer_call_allowed: 'NO',
+        faults_injected_before_loop: !OPTIONS.skipFaults,
+        binaries: 'src/Ivr.Api and src/Ivr.Worker bin/Release/net10.0',
+      },
+      rounds: {
+        completed: completedRounds,
+        failed: rounds.length - completedRounds,
+        tasks_admitted: loop.admittedTotal,
+        tasks_settled: loop.settledTotal,
+      },
+      e2e_verdict: summary.verdict,
+      e2e_failures: failures.slice(0, 20),
+      soak: soakResult,
+      not_claimed: [
+        'The limits are this harness\'s own, chosen to tell growth without bound from settling '
+          + 'after warm-up. None of them is an approved service level.',
+        'No latency figure for D-04: with a fake provider the time measured is the fake\'s.',
+        'MOCK only: no SIM, no carrier, no real customer. Capacity on 32 real channels is W-0008.',
+        'One machine and one database, with the API and workers as local processes rather than '
+          + 'in the cluster.',
+      ],
+      samples: loop.samples,
+    });
+  }
+
   step('Result');
-  note(`rounds ${completedRounds}/${OPTIONS.rounds}, tasks ${loop.admittedTotal}, `
-    + `failures ${failures.length}`);
-  if (summary.verdict === 'PASS') {
-    process.stdout.write('\nLocalMockE2E PASSED.\n');
+  note(`rounds ${completedRounds}/${SOAK ? rounds.length : OPTIONS.rounds}, tasks ${loop.admittedTotal}, `
+    + `failures ${failures.length}${soakResult ? `, soak ${soakResult.verdict}` : ''}`);
+  const passed = summary.verdict === 'PASS' && (soakResult === null || soakResult.verdict === 'PASS');
+  if (passed) {
+    process.stdout.write(`\nLocalMockE2E PASSED${SOAK ? ' (PT-SOAK-02 PASS)' : ''}.\n`);
   } else {
-    process.stdout.write('\nLocalMockE2E FAILED:\n');
+    process.stdout.write(`\nLocalMockE2E FAILED${SOAK ? ` (PT-SOAK-02 ${soakResult?.verdict ?? 'not judged'})` : ''}:\n`);
     for (const item of failures.slice(0, 40)) process.stdout.write(`  - ${item}\n`);
     if (failures.length > 40) process.stdout.write(`  ... ${failures.length - 40} more\n`);
+    for (const item of soakResult?.criteria.filter((criterion) => !criterion.ok) ?? []) {
+      process.stdout.write(`  - soak: ${item.name} (${item.limit})\n`);
+    }
   }
-  return summary.verdict === 'PASS' ? 0 : 1;
+  return passed ? 0 : 1;
 }
 
 process.on('SIGINT', () => { stopEverything(); process.exit(130); });

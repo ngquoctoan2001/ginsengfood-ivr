@@ -210,15 +210,73 @@ public static class IvrTelemetry
         "ivr_missed_deadline_total",
         description: "Confirmation windows that closed with no call placed (ARCH-06 section 1).");
 
+    /// <summary>
+    /// Bucket boundaries for <see cref="CallbackLatency"/>, pinned rather than inherited.
+    /// <para>
+    /// D-04's objective is "at most 5s", and both its alert (p95 &gt; 5) and its burn-rate panel
+    /// (the share of deliveries above 5s) read the <c>le="5"</c> bucket directly. The SDK's
+    /// default boundaries happen to contain 5 today, but they were drawn for milliseconds and put
+    /// everything from zero to five seconds in one bucket; a default that moved would take the
+    /// objective's own boundary with it and leave both artifacts interpolating across it. 3 and 5
+    /// are the two ends of D-04's 3-5s band, and 60 is the ceiling the delivery timeout may be
+    /// configured to (<c>CallbackDeliveryOptions.RequestTimeoutSeconds</c>).
+    /// </para>
+    /// </summary>
+    private static readonly double[] CallbackLatencyBuckets =
+        [0.05, 0.1, 0.25, 0.5, 1, 2, 3, 4, 5, 7.5, 10, 30, 60];
+
     private static readonly Histogram<double> CallbackLatency = Meter.CreateHistogram<double>(
         "ivr_result_callback_duration_seconds",
         unit: "s",
-        description: "Wall time of a callback delivery attempt.");
+        description: "Wall time of a callback delivery attempt.",
+        tags: null,
+        advice: new InstrumentAdvice<double> { HistogramBucketBoundaries = CallbackLatencyBuckets });
 
     private static readonly Histogram<double> IntakeLatency = Meter.CreateHistogram<double>(
         "ivr_task_intake_duration_seconds",
         unit: "s",
         description: "Wall time from task receipt to intake decision.");
+
+    /// <summary>
+    /// One analytics ETL run, tagged with how it ended (<c>W-0055</c> / P10-4): the reconcile
+    /// verdict it wrote to the checkpoint -- <c>COMPLETE</c>, <c>BACKLOG</c> or <c>MISMATCH</c> --
+    /// or <c>FAILED</c> when it threw before reaching one.
+    /// <para>
+    /// The verdict was already computed on every run and nothing read it but a person opening the
+    /// console. A warehouse that disagrees with its source goes on serving KPIs that look exactly
+    /// like correct ones, so the disagreement has to reach an alert rather than wait to be noticed.
+    /// </para>
+    /// </summary>
+    private static readonly Counter<long> AnalyticsEtlRuns = Meter.CreateCounter<long>(
+        "ivr_analytics_etl_runs_total",
+        description:
+            "Analytics ETL runs by outcome: the reconcile verdict the run wrote, or FAILED when it "
+            + "threw first.");
+
+    /// <summary>
+    /// How long the oldest dialable call attempt has been waiting to be claimed (<c>W-0041</c> /
+    /// P6-2 section 11, the queue-backlog alert).
+    /// <para>
+    /// A gauge rather than a counter because the question is "how far behind is the dialler right
+    /// now", and no count of events answers it: a dialler that has stalled produces no events at
+    /// all. It is sampled by the scheduler loop from the conditions the claim itself uses, and it is
+    /// zero whenever nothing is waiting. The wait runs from the later of the moment the attempt fell
+    /// due and the moment the calling window last opened -- an attempt that fell due overnight was
+    /// held by the hour rule (OD-V1-16), not kept waiting by the dialler.
+    /// </para>
+    /// <para>
+    /// Synchronous, not observable, so a measurement lands on the thread that took the sample and
+    /// a test can tell its own sample from another test's. Every worker samples the same database
+    /// and reports the same number, which is why the alert reads it with <c>max</c>: a <c>sum</c>
+    /// would multiply the wait by the replica count.
+    /// </para>
+    /// </summary>
+    private static readonly Gauge<double> CallQueueOldestDueAge = Meter.CreateGauge<double>(
+        "ivr_call_queue_oldest_due_age_seconds",
+        unit: "s",
+        description:
+            "Seconds the oldest dialable call attempt has waited to be claimed; zero when none is "
+            + "waiting.");
 
     /// <summary>
     /// Starts a span. Returns null when nothing is listening, which is the normal case in tests
@@ -327,6 +385,24 @@ public static class IvrTelemetry
         MissedDeadlines.Add(1, ToMetricTags(tags));
 
     /// <summary>
+    /// One analytics ETL run and how it ended: the reconcile verdict the run wrote, or
+    /// <c>FAILED</c>. See <see cref="AnalyticsEtlRuns"/>.
+    /// </summary>
+    public static void RecordAnalyticsEtlRun(string outcome) =>
+        AnalyticsEtlRuns.Add(1, ToMetricTags([(TelemetryTags.Outcome, outcome)]));
+
+    /// <summary>
+    /// The current wait of the oldest dialable call attempt, in seconds. A sample rather than an
+    /// event: the exporter reports the last value recorded, so a caller that finds nothing waiting
+    /// records zero instead of recording nothing -- otherwise the last backlog it saw would go on
+    /// being reported after the queue drained. See <see cref="CallQueueOldestDueAge"/>.
+    /// </summary>
+    public static void RecordCallQueueOldestDueAge(
+        double seconds,
+        params (string Key, object? Value)[] tags) =>
+        CallQueueOldestDueAge.Record(seconds, ToMetricTags(tags));
+
+    /// <summary>
     /// Which instrument each recorder feeds (W-0041 / P6-2 section 11). A dashboard panel or an
     /// alert rule may only name a metric that some production call site actually records -- an
     /// instrument that exists but is never called reads as a healthy flat line rather than as the
@@ -348,6 +424,8 @@ public static class IvrTelemetry
             [nameof(RecordFailClosed)] = Names("ivr_fail_closed_total"),
             [nameof(RecordChannelQuarantine)] = Names("ivr_channel_quarantines_total"),
             [nameof(RecordMissedDeadline)] = Names("ivr_missed_deadline_total"),
+            [nameof(RecordAnalyticsEtlRun)] = Names("ivr_analytics_etl_runs_total"),
+            [nameof(RecordCallQueueOldestDueAge)] = Names("ivr_call_queue_oldest_due_age_seconds"),
         };
 
     private static HashSet<string> Names(params string[] names) =>

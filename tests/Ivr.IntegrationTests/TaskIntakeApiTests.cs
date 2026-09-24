@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.Metrics;
+using System.Globalization;
 using System.Net;
 using System.Reflection;
 using System.Net.Http.Headers;
@@ -27,6 +28,9 @@ public sealed class TaskIntakeApiTests
     [InlineData("GOLDEN_HOUR", "ONLINE")]
     [InlineData("TWENTY_FOUR_SEVEN", "COD")]
     [Trait("TestId", "IT-INTAKE-HAPPY-01")]
+    // W-0353: P5-2 §8 IDs this test satisfies, per the W-0036 addendum.
+    [Trait("TestId", "CT-TASK-01")]
+    [Trait("TestId", "CT-TASK-03")]
     public async Task SupportedProgramsReturnDryRunAndNeverInvokeRealCallPath(
         string program,
         string payment)
@@ -63,6 +67,8 @@ public sealed class TaskIntakeApiTests
     [InlineData("contact-schema", HttpStatusCode.BadRequest, IvrErrorCodes.MalformedRequest)]
     [InlineData("contact", HttpStatusCode.UnprocessableEntity, IvrErrorCodes.ContactInvalid)]
     [Trait("TestId", "IT-INTAKE-REASON-WIRE-15")]
+    // W-0353: P5-2 §8 IDs this test satisfies, per the W-0036 addendum.
+    [Trait("TestId", "CT-TASK-03")]
     public async Task ReasonRefinementPreservesTheWireStatusAndErrorCode(
         string scenario,
         HttpStatusCode expectedStatus,
@@ -234,6 +240,8 @@ public sealed class TaskIntakeApiTests
     [InlineData("required-flag")]
     [InlineData("unknown-speech-field")]
     [Trait("TestId", "IT-INTAKE-SCHEMA-03")]
+    // W-0353: P5-2 §8 IDs this test satisfies, per the W-0036 addendum.
+    [Trait("TestId", "CT-TASK-02")]
     public async Task SchemaViolationsReturnMalformed400(string scenario)
     {
         await using TaskIntakeApiTestApplication app =
@@ -304,6 +312,7 @@ public sealed class TaskIntakeApiTests
 
     [Fact]
     [Trait("TestId", "IT-AUTH-INGRESS-12")]
+    [Trait("TestId", "SEC-AUTHZ-05")]
     public async Task ServiceJwtAuthenticatesIngressAndAnUntrustedOneDoesNot()
     {
         // W-0032 / P4-4 §2.2. The unit suite proves the validator; this proves it is actually on
@@ -544,6 +553,123 @@ public sealed class TaskIntakeApiTests
         }
     }
 #pragma warning restore CA2000
+
+    /// <summary>
+    /// W-0353 / P5-2 §8 <c>CT-TASK-02</c>. Every <c>schema_negative</c> fixture in the seed
+    /// catalogue, sent to the endpoint.
+    /// <para>
+    /// <c>validate-openapi.mjs</c> proves each of these bodies is invalid against the OpenAPI
+    /// schema, and <c>IT-INTAKE-NEGATIVE-18</c> sends the <c>domain_negative</c> half over the
+    /// wire. Nothing sent this half. The seed tells Module 3 that a schema-invalid task answers
+    /// <c>400 IVR_MALFORMED_REQUEST</c>, while <c>TaskIntakeEndpoint</c> checks the schema by
+    /// hand, so the schema and the code that answers could drift apart with both checks green.
+    /// </para>
+    /// <para>
+    /// Each source task is first sent unchanged and must be accepted. Without that, a base body
+    /// that stopped being valid would get every fixture "refused" and this test would pass while
+    /// testing nothing.
+    /// </para>
+    /// </summary>
+    [Fact]
+#pragma warning disable CA2000 // await using owns each per-fixture test application.
+    [Trait("TestId", "CT-TASK-02")]
+    public async Task EveryCanonicalSchemaNegativeFixtureIsRefusedOverTheWire()
+    {
+        JsonObject catalog = await ReadSeedCatalogAsync();
+        JsonArray tasks = catalog["tasks"]!.AsArray();
+        JsonObject[] fixtures =
+        [
+            .. catalog["schema_negative"]!.AsArray().Select(node => node!.AsObject()),
+        ];
+
+        foreach (string scenario in fixtures
+                     .Select(fixture => fixture["from"]!.GetValue<string>())
+                     .Distinct(StringComparer.Ordinal))
+        {
+            await using TaskIntakeApiTestApplication app =
+                await TaskIntakeApiTestApplication.StartAsync();
+            using HttpResponseMessage accepted = await SendAsync(
+                app.Client,
+                SeedTaskBody(tasks, scenario));
+
+            Assert.Equal(HttpStatusCode.OK, accepted.StatusCode);
+        }
+
+        // Compared as one list, so a failure names every fixture that answered wrongly rather
+        // than stopping at the first.
+        List<string> expected = [];
+        List<string> observed = [];
+        foreach (JsonObject fixture in fixtures)
+        {
+            string fixtureId = fixture["id"]!.GetValue<string>();
+            await using TaskIntakeApiTestApplication app =
+                await TaskIntakeApiTestApplication.StartAsync();
+            using HttpResponseMessage response = await SendAsync(
+                app.Client,
+                FixtureBody(tasks, fixture));
+
+            expected.Add(WireOutcome(
+                fixtureId,
+                fixture["expect_http"]!.GetValue<int>(),
+                fixture["expect_error_code"]!.GetValue<string>(),
+                callJobs: 0,
+                auditEntries: 0));
+            observed.Add(WireOutcome(
+                fixtureId,
+                (int)response.StatusCode,
+                await ErrorCodeOrDecisionAsync(response),
+                app.Store.CallJobCount,
+                app.Audit.Entries.Count));
+        }
+
+        Assert.Equal(expected, observed);
+
+        // A floor, not a count: a fixture added to the seed should widen this test, not break it.
+        Assert.InRange(fixtures.Length, 16, int.MaxValue);
+    }
+#pragma warning restore CA2000
+
+    private const string GoldenHourWithTwentyFourSevenWindow = "golden-hour-window-900s";
+
+    /// <summary>
+    /// W-0353 / P5-2 §8 <c>CT-TASK-04</c>. A task whose attempt-policy snapshot disagrees with the
+    /// policy IVR resolves for it answers <c>409 IVR_POLICY_MISMATCH</c> over the wire, and writes
+    /// nothing: no task, no call job, no outbox row.
+    /// <para>
+    /// <c>TaskIntakeService.WirePolicyMatches</c> compares three things: the attempt count, the
+    /// offsets and the window length. <c>NEG-DOMAIN-POLICY-03</c> and <c>NEG-DOMAIN-POLICY-02</c>
+    /// break the first two. The window length has no fixture, so the third case builds one: a
+    /// Golden Hour task whose window runs 900 seconds, the 24/7 length, instead of 300. Its token
+    /// expiry moves with the window, as OD-V1-17 requires, so the length is the only thing wrong
+    /// with it and the answer does not depend on which check runs first. Without the length
+    /// comparison this body is not accepted either: it reaches a later invariant and answers 500.
+    /// </para>
+    /// <para>
+    /// Each fixture is looked up by id with <c>Assert.Single</c>, so deleting or renaming one fails
+    /// this test instead of quietly shrinking it.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [InlineData("NEG-DOMAIN-POLICY-02")]
+    [InlineData("NEG-DOMAIN-POLICY-03")]
+    [InlineData(GoldenHourWithTwentyFourSevenWindow)]
+    [Trait("TestId", "CT-TASK-04")]
+    public async Task PolicySnapshotMismatchIs409AndCreatesNothing(string policyCase)
+    {
+        JsonObject body = policyCase == GoldenHourWithTwentyFourSevenWindow
+            ? GoldenHourBodyWithWindowSeconds(900)
+            : await DomainNegativeFixtureBodyAsync(policyCase);
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal(IvrErrorCodes.PolicyMismatch, await ErrorCodeAsync(response));
+        Assert.Equal(0, app.Store.TaskCount);
+        Assert.Equal(0, app.Store.CallJobCount);
+        Assert.Equal(0, app.Store.OutboxCount);
+    }
 
     // W-0312. A number of the contract's shape, sent where the token pair used to go. Nothing in this
     // suite dials.
@@ -836,6 +962,92 @@ public sealed class TaskIntakeApiTests
         }
     }
 
+    private static async Task<JsonObject> ReadSeedCatalogAsync() =>
+        JsonNode.Parse(await File.ReadAllTextAsync(
+            FindRepositoryFile("seed", "sales-target-v1.sample.json")))!.AsObject();
+
+    /// <summary>
+    /// W-0353. A seed task by scenario, moved onto the test clock the way
+    /// <c>IT-INTAKE-NEGATIVE-18</c> moves it.
+    /// </summary>
+    private static JsonObject SeedTaskBody(JsonArray tasks, string scenario)
+    {
+        JsonObject body = tasks.Single(node =>
+                node!["scenario"]!.GetValue<string>() == scenario)!["body"]!
+            .DeepClone()
+            .AsObject();
+        NormalizeFixtureWindow(body);
+        return body;
+    }
+
+    /// <summary>
+    /// W-0353. A seed fixture's body: its source task on the test clock, then <c>replace</c>,
+    /// <c>add</c> and <c>remove</c>, in the order <c>validate-openapi.mjs</c> applies them.
+    /// </summary>
+    private static JsonObject FixtureBody(JsonArray tasks, JsonObject fixture)
+    {
+        JsonObject body = SeedTaskBody(tasks, fixture["from"]!.GetValue<string>());
+        ApplyFixtureObject(body, fixture["replace"] as JsonObject);
+        ApplyFixtureObject(body, fixture["add"] as JsonObject);
+        if (fixture["remove"] is JsonValue removed)
+        {
+            RemoveFixturePath(body, removed.GetValue<string>());
+        }
+
+        return body;
+    }
+
+    /// <summary>
+    /// W-0353. The <c>remove</c> half of a fixture: one dotted path, deleted. A path that is not on
+    /// the body fails here rather than removing nothing, because a fixture that deletes a field
+    /// the task never had is really sending the unchanged task.
+    /// </summary>
+    private static void RemoveFixturePath(JsonObject body, string path)
+    {
+        string[] segments = path.Split('.');
+        JsonObject owner = body;
+        foreach (string segment in segments[..^1])
+        {
+            owner = owner[segment]!.AsObject();
+        }
+
+        Assert.True(
+            owner.Remove(segments[^1]),
+            string.Concat(path, " is not on the fixture's source task."));
+    }
+
+    private static async Task<JsonObject> DomainNegativeFixtureBodyAsync(string fixtureId)
+    {
+        JsonObject catalog = await ReadSeedCatalogAsync();
+        JsonObject fixture = Assert.Single(
+            catalog["domain_negative"]!.AsArray().Select(node => node!.AsObject()),
+            candidate => candidate["id"]!.GetValue<string>() == fixtureId);
+        return FixtureBody(catalog["tasks"]!.AsArray(), fixture);
+    }
+
+    /// <summary>
+    /// W-0353. A Golden Hour body whose confirmation window, and the dial token that expires with
+    /// it, runs <paramref name="seconds"/> instead of the 300 its policy snapshot declares.
+    /// </summary>
+    private static JsonObject GoldenHourBodyWithWindowSeconds(int seconds)
+    {
+        JsonObject body = CreateBody("GOLDEN_HOUR", "ONLINE");
+        DateTimeOffset start = body["confirmation_window_started_at"]!.GetValue<DateTimeOffset>();
+        body["confirmation_window_expires_at"] = start.AddSeconds(seconds);
+        body["dial_token_expires_at"] = start.AddSeconds(seconds);
+        return body;
+    }
+
+    private static string WireOutcome(
+        string fixtureId,
+        int status,
+        string code,
+        int callJobs,
+        int auditEntries) =>
+        string.Create(
+            CultureInfo.InvariantCulture,
+            $"{fixtureId}: {status} {code}, call jobs {callJobs}, audit entries {auditEntries}");
+
     private static string FindRepositoryFile(params string[] segments)
     {
         DirectoryInfo? directory = new(AppContext.BaseDirectory);
@@ -857,5 +1069,18 @@ public sealed class TaskIntakeApiTests
     {
         using JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         return body.RootElement.GetProperty("error").GetProperty("code").GetString()!;
+    }
+
+    /// <summary>
+    /// W-0353. The error code of an error envelope, or the decision of an accepted task, so a
+    /// body that is wrongly accepted shows up in a comparison as what it became instead of as a
+    /// parse failure.
+    /// </summary>
+    private static async Task<string> ErrorCodeOrDecisionAsync(HttpResponseMessage response)
+    {
+        using JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        return body.RootElement.TryGetProperty("error", out JsonElement error)
+            ? error.GetProperty("code").GetString()!
+            : body.RootElement.GetProperty("decision").GetString()!;
     }
 }

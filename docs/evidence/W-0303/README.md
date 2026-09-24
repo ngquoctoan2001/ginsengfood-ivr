@@ -61,3 +61,24 @@ Xác minh: `git show 1651e8f -- docs/traceability-tests.md` thêm 16 dòng; `git
 Commit stage **đúng tám path**, không `git add -A`. Khoảng 30 file của phiên `ivr-9f` không bị chạm. Work ID `W-0303` do `ivr-9f` cấp; họ giữ `W-0302` và sẽ đặt `NEXT_WORK_ID = W-0304`, nên trường điều khiển không bị sửa ở đây.
 
 Đính chính một đề nghị sai của phiên này: `docs/release/gate-status.yaml` và tracker **không** để lại cho ai commit sau cùng được — `deploy/ci/scripts/gate-status.mjs:27` sinh yaml từ tracker và fail khi lệch, nên hai file phải đi cùng một commit với dòng đã đổi. Quy tắc đó chỉ áp dụng cho `docs/traceability-tests.md`.
+
+## Cổng đóng đã được ghim bằng test — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Mục "Cố ý chưa làm" ở trên ghi hành vi cổng đóng chưa có test. W-0353 thêm hai test trong
+`tests/Ivr.UnitTests/Telephony/SipTrunkProductionDialTests.cs`:
+
+- `UT-TRUNK-DI-05`: `AsteriskSchedulerDispatchGateway.IsReady` chỉ mở khi `ExecutionMode` là lab
+  **và** `RealCustomerCallAllowed` tắt. Bốn cặp giá trị: lab + tắt thì mở; production + tắt, lab + bật,
+  production + bật đều đóng.
+- `UT-TRUNK-DI-06`: gateway đang đóng từ chối **trước khi chạm** bất kỳ dependency nào. Sáu
+  dependency dịch vụ (dispatch store, dial-token resolver, speech renderer, synthesis, SIM gateway,
+  dispatch gate) đều là bản giả ném lỗi khi bị gọi, và test khẳng định số lần gọi bằng 0.
+
+Kiểm bằng đột biến: bỏ điều kiện `!RealCustomerCallAllowed` làm hai trường hợp đỏ; mã nguồn đã khôi
+phục nguyên vẹn. Phép kiểm của việc này khai trong [`acceptance-tests.json`](acceptance-tests.json):
+19 test gốc của commit `a2808ce`, hai test mới ở trên, và `UT-AST-CONFIG-07` cho nhánh lab không đổi.
+
+Phần còn lại không thuộc phía IVR: mở cổng là SIP-04 và cần bằng chứng phê duyệt; protector production
+cần khóa do Platform cấp.

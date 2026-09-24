@@ -127,7 +127,11 @@ Bổ trợ `P9-2`, không thay thế.
    chứng minh node thật sự phục vụ được — chứ không chỉ đã rời recovery.
 3. Đổi endpoint (Service/DNS) sang bậc đã promote.
 4. **Dựng lại một standby mới** trước khi coi sự cố là đã đóng — chạy một primary không standby
-   nghĩa là RPO quay về khác 0 mà không ai tuyên bố điều đó.
+   nghĩa là RPO quay về khác 0 mà không ai tuyên bố điều đó. Chạy `deploy/dr/rebuild-standby.sh`
+   trên máy standby mới: base backup từ primary mới, khởi động standby, chờ primary thấy nó
+   `streaming`, **rồi mới** đặt `synchronous_standby_names` (đặt trước thì mọi lệnh ghi treo suốt
+   thời gian base backup), sau cùng kiểm `sync_state = sync` và một lệnh ghi quay về. Thất bại sau
+   khi đã đặt thì script trả giá trị về rỗng. `DG-DR-REBUILD-05` chạy chính script này.
 5. Ghi Activity vào tracker; failover là sự kiện governance, không phải thao tác vận hành lặng lẽ.
 
 **Không có bước tự động nào.** Failover tự động cần một cơ chế chống split-brain (fencing/quorum) mà
@@ -144,5 +148,7 @@ chưa ai dựng; một script promote tự động khi chưa có fencing là cá
 - **Chưa drill trên dữ liệu quy mô production**; kích thước dump ảnh hưởng trực tiếp tới RTO của
   restore và con số hiện tại không suy rộng được.
 - **Chưa có fencing.** Runbook yêu cầu người xác nhận primary đã chết; không cơ chế nào ép điều đó.
-- **Chưa dựng lại standby sau failover trong drill.** Bước 4 của runbook là bước duy nhất chưa
-  có phép kiểm nào, và nó chính là bước đưa RPO về lại 0.
+- **Thời gian dựng lại standby chưa đo trên dữ liệu thật.** `DG-DR-REBUILD-05` dựng lại standby
+  sau failover và kiểm RPO về 0 (standby `sync`, lag 0, dòng vừa commit đọc được trên standby),
+  nhưng trên vài chục MB. Suốt thời gian base backup RPO vẫn khác 0, và trên dữ liệu production
+  khoảng đó chưa đo.

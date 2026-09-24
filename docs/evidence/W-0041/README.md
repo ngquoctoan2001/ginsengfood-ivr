@@ -144,3 +144,30 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Alert hàng đợi quay số và panel burn-rate — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Residual ghi hai việc phía IVR chưa làm: alert queue backlog và panel burn-rate. W-0353 làm cả hai.
+
+- **Gauge `ivr_call_queue_oldest_due_age_seconds`**: thời gian lượt gọi quay được lâu nhất đã chờ. Truy vấn nằm ở
+  `src/Ivr.Infrastructure/Scheduling/SchedulerQueueBacklog.cs`, chép đúng điều kiện của lệnh claim trong
+  `PostgresSchedulerStore` (lớp CRITICAL nên không sửa), đọc không khoá. `IT-OBS-BACKLOG-15` giữ hai bên khớp nhau:
+  claim đúng thứ truy vấn báo, rồi truy vấn phải báo rỗng. Thời gian chờ tính từ lúc muộn hơn giữa giờ đến hạn và
+  giờ mở cửa sổ gọi trong ngày, vì lượt đến hạn 07:55 không được gọi trước 08:00 (`OD-V1-16`). Cửa sổ đóng thì
+  báo 0. Worker lấy mẫu trong `SchedulerJobHost`, nhiều nhất mỗi 15 giây, cả khi lượt ném lỗi; lấy mẫu hỏng chỉ ghi
+  log (event 2340), không làm hỏng lượt quay số.
+- **Luật `IvrCallQueueBacklogAging`**: `max(...) > 60` giữ 10 phút, mức page, `slo_status: proposed`. 60 giây vì
+  cửa sổ gọi chỉ dài 5 và 15 phút. Runbook ở `docs/slo.md` §9b. `IT-SLO-BACKLOG-05` chạy `promtool test rules` với
+  `deploy/observability/alerts/ivr-slo.backlog.test.yml`.
+- **Panel #12** (backlog quay số) và **panel #13** (burn-rate ngân sách lỗi D-04 trên 1 giờ, 6 giờ, 3 ngày). Bucket
+  của `ivr_result_callback_duration_seconds` được ghim, có cả 3 và 5 giây; `UT-OBS-METRIC-03` kiểm SDK dùng đúng
+  các bucket đó.
+
+Đột biến, mỗi cái đều làm test đỏ: đổi `max` thành `sum`, bỏ thời gian giữ 10 phút trong luật backlog.
+
+Còn lại, đều không thuộc phía IVR hoặc đã ghi là giới hạn: exporter OTLP và Grafana (`W-0063`); `cost_per_confirmed_order`
+cần báo giá bên ngoài; alert burn-rate cần số liệu production để đặt ngưỡng; panel integration-status §6.4 không có
+nguồn thật vì chưa có thành phần nào dò dependency (`DependencyProbingAvailable = false`, ghi ở `docs/slo.md` §10);
+các ngưỡng `proposed` chờ lưu lượng thật mới duyệt được.

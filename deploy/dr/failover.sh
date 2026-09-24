@@ -75,5 +75,5 @@ if [ -n "${IVR_DR_VERIFY_DATABASE:-}" ]; then
 fi
 
 echo "DR_FAILOVER_OK"
-echo "DR_FAILOVER_NEXT: rebuild a standby before closing the incident — a lone primary has "
-echo "DR_FAILOVER_NEXT: silently returned RPO to non-zero, and nobody has said so."
+echo "DR_FAILOVER_NEXT: rebuild a standby before closing the incident (deploy/dr/rebuild-standby.sh);"
+echo "DR_FAILOVER_NEXT: a lone primary has silently returned RPO to non-zero, and nobody has said so."

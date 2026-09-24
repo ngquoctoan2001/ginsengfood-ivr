@@ -51,7 +51,7 @@ hồ sơ W-0325/W-0327 mới vào tập ứng viên ở commit này, không do n
 - [Xác minh, hash và thời gian](verification.json).
 - [Đối chiếu từng ứng viên và 20 gói bị ảnh hưởng](c2-assessment.json).
 - [Danh sách nghiệm thu sinh từ kết quả mới](../../release/acceptance-batches.md).
-- [Bundle gốc giữ trên máy](../../../.artifacts/w0328-acceptance-1794241/acceptance-run.json).
+- Bundle gốc giữ trên máy: `.artifacts/w0328-acceptance-1794241/acceptance-run.json` (cục bộ, không commit vì `.artifacts/` nằm trong `.gitignore`).
 
 Lượt đầu tại a9da739 dừng vì cần bổ sung khoảng assertion chữ; giữ toàn bộ log tại
 .artifacts/w0328-acceptance-a9da739, không có manifest và không dùng làm bằng chứng nghiệm thu.

@@ -119,6 +119,7 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
 
     [Fact]
     [Trait("TestId", "IT-API-AUTHZ-02")]
+    [Trait("TestId", "SEC-AUTHZ-05")]
     public async Task InternalSurfaceRequiresDedicatedServiceIdentityScopeAndSource()
     {
         await fixture.ResetAsync();

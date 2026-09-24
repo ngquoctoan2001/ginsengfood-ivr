@@ -27,7 +27,7 @@ export const GATE_TESTS = Object.freeze({
     "IT-CD-CONCURRENCY-05"),
   ...printedBy("progressive-selftest.mjs", "IT-CANARY-01", "IT-BG-WORKER-02", "IT-MIGRATE-03",
     "IT-FLAG-RAMP-04"),
-  ...printedBy("dr-selftest.mjs", "DG-CRYPTO-01", "DG-BACKUP-02", "DG-DR-03"),
+  ...printedBy("dr-selftest.mjs", "DG-CRYPTO-01", "DG-BACKUP-02", "DG-DR-03", "DG-DR-REBUILD-05"),
   ...printedBy("capacity-selftest.mjs", "CAP-MODEL-01", "CAP-SENS-02", "CAP-CALIB-03", "CAP-ALERT-04",
     "CAP-DRIFT-05", "CAP-SESSION-06"),
   ...printedBy("capacity-data-intake-validator.mjs", "CAP-INTAKE-VALID-01", "CAP-INTAKE-MODE-02",
@@ -61,6 +61,7 @@ export const GATE_TEST_CONDITIONS = Object.freeze({
   "CAP-DRIFT-05": "PASS_DECLARED_DISAGREEMENT: thời lượng cuộc gọi của mô hình, spec và runtime lệch nhau có khai báo; PASS_CALIBRATED khi đã hiệu chỉnh",
   "CAP-SESSION-06": "PASS_UNANSWERED: độ dài phiên vẫn là câu hỏi mở đã khai báo, mô hình tính theo mốc đã chốt",
   "DG-DR-03": "PASS_SINGLE_HOST: RPO=0 và RTO trong ngân sách, nhưng trên một host hai container, không phải multi-AZ",
+  "DG-DR-REBUILD-05": "PASS_SINGLE_HOST: dựng lại standby đồng bộ sau failover đưa RPO về 0, nhưng trên một host hai container, không phải multi-AZ",
 });
 
 function printedBy(runner, ...ids) {
@@ -152,7 +153,7 @@ function printedMarkers(text, id) {
 export function collectTestEvidence({ workId, evidencePath, evidenceText, promptText = "", trace,
   extract, read, validateDecision }) {
   const empty = { ids: [], retired: [], documents: [], errors: [], gates: [], deliverables: [], scope: null, reason: null,
-    mentioned: [], withoutReplacement: [] };
+    mentioned: [], withoutReplacement: [], recordedRuns: [] };
   if (!evidencePath || evidenceText === null) return empty;
   try {
     const directory = path.posix.dirname(evidencePath);
@@ -224,6 +225,30 @@ export function collectTestEvidence({ workId, evidencePath, evidenceText, prompt
       mentioned.add(item.testId);
       cited.delete(item.testId);
     }
+    // W-0353. A TestId proven by a recorded run rather than by a test in the suite: a soak that
+    // lasts hours cannot run on every collector pass. The run record lives in the pack, names the
+    // TestId and carries a PASS verdict; the list always shows it for the owner to read. A TestId a
+    // live test or gate owns is proven by that test, never by a record.
+    const runs = plan?.runs ?? [];
+    assert(Array.isArray(runs), "runs must be an array");
+    const recorded = new Map();
+    for (const item of runs) {
+      assert(typeof item?.testId === "string" && cited.has(item.testId),
+        `a recorded run names a TestId the evidence does not cite: ${item?.testId}`);
+      assert(!trace.byId.has(item.testId) && !Object.hasOwn(GATE_TESTS, item.testId)
+        && !Object.hasOwn(EXTENDED_GATE_TESTS, item.testId), `a live TestId is proven by its test: ${item.testId}`);
+      assert(!recorded.has(item.testId), `duplicate recorded run: ${item.testId}`);
+      assert(typeof item.reason === "string" && item.reason.trim().length >= 20, "a recorded run needs a specific reason");
+      assert(typeof item.file === "string" && item.file.startsWith(`${directory}/`) && !item.file.split("/").includes("..")
+        && item.file.endsWith(".json"), `a recorded run must be a JSON file in the pack: ${item.file}`);
+      const record = read(item.file);
+      assert.equal(typeof record, "string", `recorded run missing at the reviewed commit: ${item.file}`);
+      const parsed = JSON.parse(record);
+      assert(parsed?.testId === item.testId && parsed.verdict === "PASS",
+        `recorded run ${item.file} does not show ${item.testId} PASS`);
+      recorded.set(item.testId, item.file);
+      cited.delete(item.testId);
+    }
     if (plan?.scope === "retired-ui") {
       assert(typeof validateDecision === "function", "retired UI requires pinned decision verification");
       validateDecision(plan.decision);
@@ -260,7 +285,8 @@ export function collectTestEvidence({ workId, evidencePath, evidenceText, prompt
     return { ids: [...cited].sort(), retired: [...seen].sort(), documents: [...documents.keys()], errors: [],
       gates: [...gates], deliverables: [...deliverables], scope: plan?.scope ?? null,
       reason: readOnly ? plan.reason.trim() : null,
-      mentioned: [...mentioned].sort(), withoutReplacement: [...withoutReplacement].sort() };
+      mentioned: [...mentioned].sort(), withoutReplacement: [...withoutReplacement].sort(),
+      recordedRuns: [...recorded].map(([testId, file]) => ({ testId, file })) };
   } catch (error) {
     return { ...empty, errors: [`hồ sơ C2 không hợp lệ: ${error.message.split("\n")[0]}`] };
   }

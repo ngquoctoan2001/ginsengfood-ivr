@@ -101,7 +101,7 @@ S1 cần phân biệt: **chọn ba giọng đã được Owner ký ngày 28/08**
 | Ba test Python conversion | **NOT_RUN**: Python host thiếu `soxr`; 12 test ở trên không thay thế kiểm resample/container |
 | Model thật/lab call/performance máy đích | **NOT_RUN**; không tìm thấy bundle ở `artifacts/w-0122-models` hoặc file `.onnx` trong `artifacts`; không kết luận toàn máy không có model |
 
-Log, TRX, kiểm artifact và tổng hợp scan: [thư mục bằng chứng lượt review](../../artifacts/vieneu-review-20260921/). Node spawn và Python temp ban đầu bị sandbox chặn; đã chạy lại cùng selftest ngoài sandbox và PASS. Lượt .NET đầu không tiến triển đã dừng, lượt đơn MSBuild nêu trên hoàn tất. Không sửa test để đạt kết quả.
+Log, TRX, kiểm artifact và tổng hợp scan: thư mục bằng chứng lượt review `artifacts/vieneu-review-20260921/` (cục bộ trên máy review, không commit vì `/artifacts/` nằm trong `.gitignore`). Node spawn và Python temp ban đầu bị sandbox chặn; đã chạy lại cùng selftest ngoài sandbox và PASS. Lượt .NET đầu không tiến triển đã dừng, lượt đơn MSBuild nêu trên hoàn tất. Không sửa test để đạt kết quả.
 
 GitNexus query/context đã dùng để tìm symbol; index tại `9af20d3`, nên kết luận lấy từ source `e33927d` đã đọc trực tiếp, không coi graph là bằng chứng của tip. Báo cáo này không thay tracker, chữ ký hoặc kết luận phát hành.
 

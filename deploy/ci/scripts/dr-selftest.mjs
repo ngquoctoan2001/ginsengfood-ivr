@@ -175,7 +175,7 @@ async function up() {
 }
 
 function down() {
-  for (const name of [STANDBY, PRIMARY, PLAIN, HELMBOX]) {
+  for (const name of [STANDBY2, STANDBY, PRIMARY, PLAIN, HELMBOX]) {
     tryDocker(["rm", "-f", name]);
   }
   tryDocker(["network", "rm", NETWORK]);
@@ -393,7 +393,7 @@ async function synchronousStandbyPromotes() {
     "--entrypoint", "sh", POSTGRES, "-c",
     [
       `rm -rf ${DATA}/* &&`,
-      `pg_basebackup -h ${PRIMARY} -p 5432 -U repl -D ${DATA} -R -X stream`,
+      `pg_basebackup -h ${PRIMARY} -p 5432 -U repl -D ${DATA} -R -X stream --checkpoint=fast`,
       `-d "host=${PRIMARY} user=repl password=${REPLICATION_PASSWORD} application_name=standby1" &&`,
       `chmod 700 ${DATA} &&`,
       "exec postgres",
@@ -408,7 +408,7 @@ async function synchronousStandbyPromotes() {
     const state = tryPsql(PRIMARY,
       "SELECT sync_state FROM pg_stat_replication WHERE application_name='standby1'",
       { database: "postgres" });
-    return state.ok && state.output.includes("sync") ? state : { ok: false, output: state.output };
+    return state.ok && state.output.trim() === "sync" ? state : { ok: false, output: state.output };
   });
 
   // Synchronous, not asynchronous, and the difference is the whole RPO claim. Async replication has
@@ -562,6 +562,126 @@ async function backupsObeyRetention({ artefact }) {
     + `can remove them (artefact ${path.basename(artefact)})\n`);
 }
 
+// ------------------------------------------------------------ DG-DR-REBUILD-05
+
+// Declared here rather than beside STANDBY so that the marker lines above keep the line numbers
+// docs/evidence/W-0346/gate-registry.json recorded for them.
+const STANDBY2 = "ivr-dr-standby2";
+const STANDBY2_NAME = "standby2";
+
+/** One statement through a container's local socket, as postgres. */
+function localSql(container, sql, database = "postgres") {
+  return sh(container, `psql -v ON_ERROR_STOP=1 -AtqX -d ${database} -c "${sql}"`, "postgres").trim();
+}
+
+function tryLocalSql(container, sql, database = "postgres") {
+  const result = trySh(container, `psql -v ON_ERROR_STOP=1 -AtqX -d ${database} -c "${sql}"`, "postgres");
+  return { ok: result.ok, output: result.output.trim() };
+}
+
+async function rebuiltStandbyRestoresRpo() {
+  // DG-DR-03 ends on a primary that serves writes and has no standby. Every commit from then on is
+  // acknowledged by one machine, so RPO is no longer 0 -- and nothing fails, alerts or looks any
+  // different. This drill starts from that state, asserts it, and runs the runbook step that ends
+  // it: deploy/dr/rebuild-standby.sh, executed rather than described, as failover.sh is above.
+  step("DG-DR-REBUILD-05 asserting the window failover leaves open");
+  assert.equal(localSql(STANDBY, "SELECT pg_is_in_recovery()"), "f", "the promoted node is not a primary.");
+  assert.equal(
+    localSql(STANDBY, "SELECT count(*) FROM pg_stat_replication"),
+    "0",
+    "the new primary already has a replica, so the drill does not start from the post-failover state.");
+  assert.equal(
+    localSql(STANDBY, "SHOW synchronous_standby_names"),
+    "",
+    "the new primary still names a synchronous standby, so failover.sh did not leave it serving writes.");
+
+  step("DG-DR-REBUILD-05 starting an empty standby host");
+  docker([
+    "run", "-d", "--name", STANDBY2, "--network", NETWORK, "--user", "postgres",
+    "--entrypoint", "sh", POSTGRES, "-c", "sleep 900",
+  ]);
+  created.push(() => tryDocker(["rm", "-f", STANDBY2]));
+  // The runbook takes passwords from the libpq password file, never from its arguments, and the
+  // standby goes on using that file to reconnect. So the drill provides one, at the default path.
+  sh(STANDBY2, [
+    `printf '%s\\n' '${STANDBY}:5432:*:repl:${REPLICATION_PASSWORD}' '${STANDBY}:5432:*:postgres:${PASSWORD}'`,
+    "> /var/lib/postgresql/.pgpass && chmod 600 /var/lib/postgresql/.pgpass",
+  ].join(" "), "postgres");
+
+  step("DG-DR-REBUILD-05 running deploy/dr/rebuild-standby.sh");
+  sh(STANDBY2, "mkdir -p /tmp/scripts", "postgres");
+  docker(["cp", path.join(repositoryRoot, "deploy/dr/rebuild-standby.sh"), `${STANDBY2}:/tmp/scripts/rebuild-standby.sh`]);
+  sh(STANDBY2, "sed -i 's/\\r$//' /tmp/scripts/rebuild-standby.sh", "postgres");
+  const rebuildStarted = Date.now();
+  const rebuild = sh(STANDBY2, [
+    `PGDATA=${DATA} PGSSLMODE=require IVR_DR_PRIMARY_HOST=${STANDBY} IVR_DR_STANDBY_NAME=${STANDBY2_NAME}`,
+    `IVR_DR_VERIFY_DATABASE=${DATABASE} sh /tmp/scripts/rebuild-standby.sh`,
+  ].join(" "), "postgres");
+  const rebuildSeconds = (Date.now() - rebuildStarted) / 1000;
+  for (const marker of [
+    "DR_REBUILD_STREAMING", "DR_REBUILD_SYNC_SET", "DR_REBUILD_IN_SYNC", "DR_REBUILD_WRITE_OK", "DR_REBUILD_OK",
+  ]) {
+    assert(rebuild.includes(marker), `rebuild-standby.sh did not report ${marker}: ${rebuild}`);
+  }
+
+  // From here the evidence is the servers' own account, not the script's output.
+  step("DG-DR-REBUILD-05 checking the pair from both ends");
+  await waitFor("standby2 streaming and synchronous", () => {
+    const state = tryLocalSql(STANDBY,
+      `SELECT state || '/' || sync_state FROM pg_stat_replication WHERE application_name = '${STANDBY2_NAME}'`);
+    return state.ok && state.output === "streaming/sync" ? state : { ok: false, output: state.output };
+  }, 30_000);
+
+  // The order, read off the primary. The standby's replication connection has to be older than the
+  // configuration reload that named it; the other way round, every write in between would have
+  // waited for it. Nothing else writes during this drill, so without this check a script that
+  // named the standby first would pass everything else here.
+  assert.equal(
+    localSql(STANDBY, "SELECT backend_start < pg_conf_load_time() FROM pg_stat_replication "
+      + `WHERE application_name = '${STANDBY2_NAME}'`),
+    "t",
+    "the primary was told to wait for standby2 before standby2 had connected, so every write would "
+    + "have hung for the whole base backup.");
+
+  assert.equal(localSql(STANDBY2, "SELECT pg_is_in_recovery()"), "t", "standby2 is not a standby.");
+  assert.equal(
+    localSql(STANDBY2, "SELECT status || '/' || sender_host FROM pg_stat_wal_receiver"),
+    `streaming/${STANDBY}`,
+    "standby2 is not streaming from the promoted node.");
+
+  step("DG-DR-REBUILD-05 committing through the rebuilt pair");
+  // remote_apply rather than the default on. With the standby synchronous, on waits for it to flush
+  // the commit and remote_apply also for it to apply it and say so at once; an idle standby
+  // otherwise reports replay only every wal_receiver_status_interval (10s), and the lag below would
+  // measure that interval instead of replication. timeout, not statement_timeout: the wait is at
+  // COMMIT (DG-DR-03).
+  sh(STANDBY, [
+    `timeout 15 psql -v ON_ERROR_STOP=1 -AtqX -d ${DATABASE} -c`,
+    `"SET synchronous_commit = remote_apply; INSERT INTO ivr_dr_results`,
+    `VALUES ('RESULT-DR-REBUILT','TASK-DR-01','IVR_CONFIRMED')"`,
+  ].join(" "), "postgres");
+
+  // Replay lag in bytes, from the primary. Polled briefly, because the background writer logs a
+  // running-xacts record on its own schedule, which the standby then has to report as well.
+  await waitFor("replay lag 0 on standby2", () => {
+    const lag = tryLocalSql(STANDBY, "SELECT pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn) "
+      + `FROM pg_stat_replication WHERE application_name = '${STANDBY2_NAME}'`);
+    return lag.ok && lag.output === "0" ? lag : { ok: false, output: lag.output };
+  }, 15_000);
+  assert.equal(
+    localSql(STANDBY2, "SELECT count(*) FROM ivr_dr_results WHERE result_id = 'RESULT-DR-REBUILT'", DATABASE),
+    "1",
+    "the row committed on the primary is not on standby2.");
+  const size = localSql(STANDBY, "SELECT pg_size_pretty(sum(pg_database_size(oid))) FROM pg_database");
+
+  process.stdout.write(
+    `DG-DR-REBUILD-05 PASS_SINGLE_HOST — after failover the primary had no standby and `
+    + `synchronous_standby_names='' (RPO not 0); deploy/dr/rebuild-standby.sh rebuilt one from it in `
+    + `${rebuildSeconds.toFixed(1)}s (${size}) and named it only after it had connected; the primary `
+    + `reports it sync, and the next commit came back with replay lag 0 and was readable on the new `
+    + `standby. RPO=0 again, on one host, not across AZs.\n`);
+}
+
 // ------------------------------------------------------------------------ main
 
 try {
@@ -570,11 +690,12 @@ try {
   const backup = await encryptedBackupRestores();
   await backupsObeyRetention(backup);
   await synchronousStandbyPromotes();
+  await rebuiltStandbyRestoresRpo();
 
   process.stdout.write(
-    "DR_SELFTEST_PASS_SINGLE_HOST=DG-DR-03 — the four drills ran against real PostgreSQL. "
-    + "Multi-AZ and at-rest volume encryption remain NOT_RUN: both are cluster properties and no "
-    + "cluster exists (W-0063). See docs/dr-topology.md.\n");
+    "DR_SELFTEST_PASS_SINGLE_HOST=DG-DR-03,DG-DR-REBUILD-05 — the four drills and the standby rebuild "
+    + "ran against real PostgreSQL. Multi-AZ and at-rest volume encryption remain NOT_RUN: both are "
+    + "cluster properties and no cluster exists (W-0063). See docs/dr-topology.md.\n");
 } finally {
   for (const cleanup of created.reverse()) {
     cleanup();

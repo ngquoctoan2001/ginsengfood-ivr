@@ -91,9 +91,12 @@ public sealed class AnalyticsFactCallJobEntity
     public int CountedAttemptCount { get; set; }
 
     /// <summary>
-    /// False while the job can still change. The ETL refreshes open jobs on every
-    /// run and leaves closed ones alone, which is the only reason a mutable source
-    /// row can be projected into an append-shaped store without going stale.
+    /// Whether the source job had closed when this row was last refreshed. A value
+    /// like the others, not a licence to stop looking: the ETL refreshes any row
+    /// whose eligible, closed or counted-attempt value differs from its job, and the
+    /// reconcile reports MISMATCH if one still differs afterwards (<c>BI-DRIFT-06</c>).
+    /// That comparison, not a promise that closed jobs never change, is what keeps a
+    /// mutable source row from going stale in an append-shaped store.
     /// </summary>
     public bool Closed { get; set; }
 

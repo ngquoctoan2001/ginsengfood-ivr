@@ -28,7 +28,8 @@ import {
 //       a --evidence bundle captured at the same commit, or have a pinned retirement with tested
 //       replacements. An empty test claim or a retired UI never passes as current software. A
 //       runner assertion that passed only under a stated condition is shown as XEM with it. A
-//       gate the work built counts through its self-test in the sweep; work that is documents only
+//       gate the work built counts through its self-test in the sweep, or through the extended
+//       run when the offline sweep skips it (W-0353); work that is documents only
 //       declares them and is always shown as XEM (W-0349). So is an ID the evidence only mentions,
 //       or one retired with its whole surface by a pinned decision (W-0351). A TestId of a gate
 //       the offline sweep skips (image, K8s, oasdiff, security scan) counts only through the
@@ -387,13 +388,24 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
       ? { ok: true, reason: "" }
       : { ok: false, reason: `${id} không in PASS trong phần log của ${runner}` };
   };
+  // W-0353: a whole declared gate from the extended run. A sound extended run means every
+  // invocation of every extended gate closed with its own pass token.
+  const byExtendedGate = (gate) => {
+    if (runCheck?.ok !== true) return { ok: runCheck?.ok ?? null, reason: `${gate} cần gói kết quả gắn với commit` };
+    if (extended === null) {
+      return { ok: null, extended: true, reason: `${gate} cần lượt gate mở rộng của collector (--extended)` };
+    }
+    return extended.ok === true ? { ok: true, reason: "" } : { ok: false, reason: `${gate}: ${extended.reason}` };
+  };
   const verdicts = [
     ...cited.map((id) => GATE_TESTS[id]
       ? bySweep(GATE_TESTS[id], `${id} cần full sweep có ${GATE_TESTS[id]}`)
       : EXTENDED_GATE_TESTS[id] ? byExtended(id, EXTENDED_GATE_TESTS[id])
         : testVerdict(id, trace, results)),
-    // W-0349: a gate the work built is tested by its own self-test in the sweep.
-    ...declaredGates.map((gate) => bySweep(gate, `${gate} cần chạy và đạt trong full sweep`)),
+    // W-0349: a gate the work built is tested by its own self-test in the sweep. W-0353: a gate the
+    // offline sweep skips is tested by the extended run of the same bundle instead.
+    ...declaredGates.map((gate) => Array.isArray(gateManifest?.gates?.[gate]?.extended)
+      ? byExtendedGate(gate) : bySweep(gate, `${gate} cần chạy và đạt trong full sweep`)),
     // A document has no test of its own; the documentation and PII gates of the sweep can still fail it.
     ...(documentOnly ? [bySweep(null, "tài liệu cần full sweep đạt")] : []),
   ];
@@ -403,9 +415,12 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
   // W-0351: what the pack names without claiming, and retired surfaces with nothing to replace them.
   const surfaceGone = testEvidence?.withoutReplacement ?? [];
   const mentioned = testEvidence?.mentioned ?? [];
+  // W-0353: a TestId proven by a run recorded in the pack, which the owner reads.
+  const recordedRuns = testEvidence?.recordedRuns ?? [];
   const readNotes = [
     ...(surfaceGone.length ? [`ID của bề mặt đã gỡ theo quyết định đã ghim, không có test thay thế: ${surfaceGone.join(", ")}`] : []),
     ...(mentioned.length ? [`ID chỉ được nhắc, không phải claim của việc này: ${mentioned.join(", ")}; lý do trong acceptance-tests.json`] : []),
+    ...recordedRuns.map((run) => `${run.testId} được chứng minh bằng lượt chạy đã ghi, không phải test trong suite: ${run.file}`),
   ];
   const documentNote = !documentOnly ? null : labRun
     ? `Bằng chứng chạy lab, không có test phần mềm trong sweep (${deliverables.length} tệp có tại commit): ${testEvidence.reason}`
@@ -414,7 +429,7 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
   let c2;
   if (testEvidence?.errors?.length) {
     c2 = { ok: false, reason: testEvidence.errors.join("; ") };
-  } else if (cited.length === 0 && declaredGates.length === 0 && !documentOnly) {
+  } else if (cited.length === 0 && declaredGates.length === 0 && !documentOnly && recordedRuns.length === 0) {
     c2 = { ok: false, reason: "không có TestId hoặc khai báo kiểm chứng để xét C2" };
   } else if (failures.length > 0) {
     c2 = { ok: false, reason: joinReasons(failures) };
@@ -430,8 +445,9 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
         ? [`${testEvidence.retired.length - surfaceGone.length} ID lịch sử có quyết định thay thế`] : []),
       ...(surfaceGone.length ? [`${surfaceGone.length} ID bề mặt đã gỡ`] : []),
       ...(mentioned.length ? [`${mentioned.length} ID chỉ được nhắc`] : []),
+      ...(recordedRuns.length ? [`${recordedRuns.length} ID chứng minh bằng lượt chạy đã ghi`] : []),
       ...(conditional.length ? [`${conditional.length} gate đạt có điều kiện`] : []),
-      ...(declaredGates.length ? [`${declaredGates.length} gate của chính việc này đạt trong full sweep`] : []),
+      ...(declaredGates.length ? [`${declaredGates.length} gate của chính việc này đạt trong full sweep hoặc lượt mở rộng`] : []),
       ...(documentOnly ? [`${deliverables.length} ${labRun ? "tệp bằng chứng lab" : "tài liệu"} có tại commit`] : []),
     ];
     c2 = { ok: true, reason: parts.join("; ") };

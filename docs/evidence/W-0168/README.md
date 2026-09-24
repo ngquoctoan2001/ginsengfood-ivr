@@ -75,3 +75,12 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 - Chưa khai phép kiểm. Việc này sửa security-scan.sh, script không chạy trong sweep (sweepable: false), và không test nào phủ thay đổi đó. Chưa khai phép kiểm; Toàn quyết nhận theo hồ sơ hay để trượt C2.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Khai báo phép kiểm C2 — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Việc này sửa `deploy/ci/scripts/security-scan.sh` và chạy lại gate security. Script không chạy trong
+full sweep (`sweepable: false`) nhưng có lượt mở rộng của collector từ W-0352, và từ W-0353 khai báo
+`gates` được xét qua lượt đó. [Khai báo](acceptance-tests.json) nay ghi `security-scan.sh`: gate
+phải đạt trong lượt mở rộng của cùng gói bằng chứng. Kết quả và phạm vi lịch sử ở trên giữ nguyên.

@@ -135,6 +135,60 @@ public sealed class DeterministicProviderFakeTests
                 CancellationToken.None));
     }
 
+    /// <summary>
+    /// W-0353 / W-0094. The fake SIM keeps a bounded history. It is one instance for the life of a
+    /// worker, and a MOCK rehearsal running for hours used to grow its event log and its
+    /// played-speech map without limit; W-0094 capped them at 4,096 events and 1,024 played
+    /// speeches. The newest entries have to survive the trim: whoever reads the fake after a long
+    /// run wants the last calls, not the first ones.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-FAKE-HISTORY-10")]
+    public async Task TheFakeSimKeepsABoundedHistoryAndItsNewestEntries()
+    {
+        var gateway = new FakeSimGateway(new Dictionary<string, FakeSimScenario>
+        {
+            ["*"] = new(SimProviderDisposition.Answered, "1"),
+        });
+        for (int index = 0; index < 4_106; index += 1)
+        {
+            await gateway.CheckHealthAsync($"SIM-{index:D5}", CancellationToken.None);
+        }
+
+        Assert.Equal(4_096, gateway.Events.Count);
+        Assert.Equal("SIM-00010", gateway.Events.First().SimChannelId);
+        Assert.Equal("SIM-04105", gateway.Events.Last().SimChannelId);
+
+        DialAuthorization authorization = DialAuthorization.CreateTrusted("provider-destination-ref-1");
+        RenderedSpeech speech = await new FakeSpeechRenderer().RenderAsync(
+            TestData.Summary(),
+            "SCRIPT-ORDER-CONFIRM",
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
+            ExecutionMode.Mock,
+            CancellationToken.None);
+        for (int index = 0; index < 1_029; index += 1)
+        {
+            SimCallSession call = await gateway.DialAsync(
+                new SimDialRequest(
+                    AttemptId.Create($"attempt-{index}"),
+                    TaskId.Create($"task-{index}"),
+                    "SIM-MOCK-001",
+                    Guid.NewGuid(),
+                    1,
+                    authorization,
+                    SimRecordingMode.Disabled),
+                CancellationToken.None);
+            await gateway.PlayAsync(call, speech, CancellationToken.None);
+            await gateway.HangupAsync(call, CancellationToken.None);
+        }
+
+        // Which older entry leaves is not asserted: the played-speech map is a concurrent
+        // dictionary, which keeps no insertion order, so "oldest" is only the first key it yields.
+        Assert.Equal(1_024, gateway.PlayedSpeech.Count);
+        Assert.Contains("mock-call:attempt-1028", gateway.PlayedSpeech.Keys);
+        Assert.Equal(4_096, gateway.Events.Count);
+    }
+
     private sealed record ProviderFakeSnapshot(
         DateTimeOffset UtcNow,
         string Identifier,

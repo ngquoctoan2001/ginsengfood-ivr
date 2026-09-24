@@ -40,3 +40,37 @@ một nhánh lỗi riêng, vì các lỗi `PolicyMismatch` hiện chỉ có ở 
 bảy ID này, và W-0036 vẫn trượt C2 vì chúng cho tới khi Toàn quyết.
 
 Chỉ Toàn chuyển W-0036 sang `ACCEPTED`.
+
+## Bổ sung W-0353 — 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO. Mục "Còn chờ Toàn quyết" ở trên đã cũ. Ngày 24/09 Toàn yêu cầu làm
+nốt phần việc IVR còn lại, nên W-0353 chọn test cho bảy ID theo bảng dưới. Không test nào bị đổi
+tên; test cũ chỉ được gắn thêm tag, như W-0347 đã làm. Chỉ Toàn chuyển W-0036 sang `ACCEPTED`.
+
+| ID §8 | Test mang tag |
+| --- | --- |
+| `CT-OAS-01` | Test mới `EveryOpenApiDocumentParsesAndValidates`: chạy `validate-openapi.mjs`, đòi exit 0, `OPENAPI_FILES_VALID=2` và một dòng `OPENAPI_PARSE_PASS` cho mỗi tài liệu |
+| `CT-OAS-02` | Test mới `ADocumentWithADanglingReferenceIsRefused`: chạy `selftest-openapi.mjs` và đọc fixture của nó. Script đạt với bất kỳ lỗi nào, nên test còn đòi fixture vẫn mang một `$ref` trỏ vào schema không có |
+| `CT-OAS-03` | Hai test mới trong `OpenApiEnumParityTests`: enum `ErrorCode` của spec trùng `IvrErrorCodes.All` và enum sinh ra; enum `ProgramCode` của spec trùng enum sinh ra, và mỗi chương trình có policy đã ký đúng D-10 (hai lượt, lượt hai ở giữa window) |
+| `CT-TASK-01` | `IT-INTAKE-HAPPY-01`: task hợp lệ của cả hai cặp chương trình và thanh toán được nhận |
+| `CT-TASK-02` | `IT-INTAKE-SCHEMA-03`, và test mới `EveryCanonicalSchemaNegativeFixtureIsRefusedOverTheWire`: gửi cả 16 fixture `schema_negative` của seed qua HTTP, mỗi cái phải nhận `400 IVR_MALFORMED_REQUEST`, không tạo call job, không ghi audit. Trước đây chưa test nào gửi nhóm fixture này tới endpoint |
+| `CT-TASK-03` | `IT-INTAKE-HAPPY-01` (hai cặp đúng được nhận) và `IT-INTAKE-REASON-WIRE-15` (cặp sai bị từ chối 400) |
+| `CT-TASK-04` | `UT-INTAKE-NOJOB-16` ở mức service, và test mới `PolicySnapshotMismatchIs409AndCreatesNothing` qua HTTP với ba ca: `NEG-DOMAIN-POLICY-02`, `NEG-DOMAIN-POLICY-03` và một task Giờ Vàng có window 900 giây thay vì 300. Cả ba nhận `409 IVR_POLICY_MISMATCH`, không tạo task, call job hay outbox |
+
+**Sửa một câu sai ở trên.** Lỗi `PolicyMismatch` không chỉ có ở API admin. Intake trả
+`409 IVR_POLICY_MISMATCH` khi snapshot policy của task lệch với policy IVR tra được: số lượt, offset
+hoặc độ dài window (`TaskIntakeService.WirePolicyMatches`). `IT-INTAKE-NEGATIVE-18` đã kiểm nhánh
+này qua HTTP từ trước, với hai fixture POLICY. Vậy "policy mismatch" ở intake là một nhánh lỗi riêng
+có thật, và `CT-TASK-04` gắn vào chính nhánh đó.
+
+Mỗi test mới đã được thử đột biến trong một bản clone rồi hoàn lại, và đều đỏ:
+
+- Bỏ luật "không bắt đầu bằng chữ số" của `delivery_area_short`: `CT-TASK-02` đỏ đúng ở
+  `NEG-SCHEMA-PII-02` (thành 422), trong khi `IT-INTAKE-SCHEMA-03` vẫn xanh.
+- Bỏ phép so độ dài window: ca 900 giây đỏ (thành lỗi 500 ở tầng sau), hai ca fixture vẫn xanh.
+  Chỉ ca này giữ luật độ dài window.
+- Một `$ref` gãy trong spec callback: `CT-OAS-01` đỏ.
+- Fixture gãy theo kiểu khác (bỏ `$ref`, đổi phiên bản `openapi`): script vẫn in PASS nhưng
+  `CT-OAS-02` đỏ.
+- Bớt một mã lỗi khỏi spec, thêm một chương trình vào spec, hoặc dời lượt hai của 24/7: `CT-OAS-03`
+  đỏ.

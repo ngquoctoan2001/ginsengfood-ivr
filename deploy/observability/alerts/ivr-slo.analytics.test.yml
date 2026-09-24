@@ -1,0 +1,92 @@
+# W-0055 / P10-4 -- promtool rule unit test backing IT-SLO-ANALYTICS-06.
+#
+# Two rules over one counter, tagged with how each ETL run ended. The MISMATCH rule is zero-
+# tolerance on a counter, so the case that decides whether it is usable is the last one: an old
+# mismatch has to stop alerting once it leaves the window, or the first one ever seen would keep a
+# ticket open for the life of the process. The not-completing rule has the opposite trap -- a
+# backlog that clears on its own is the pipeline working as designed, and must stay silent.
+rule_files:
+  - ivr-slo.rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    name: a reconcile mismatch opens a ticket
+    input_series:
+      # Runs keep completing, and one of them ends in MISMATCH at minute 10.
+      - series: 'ivr_analytics_etl_runs_total{ivr_outcome="COMPLETE"}'
+        values: '0+1x40'
+      - series: 'ivr_analytics_etl_runs_total{ivr_outcome="MISMATCH"}'
+        values: '0x10 1x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: IvrAnalyticsReconcileMismatch
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              slo: analytics_reconcile
+              slo_status: proposed
+            exp_annotations:
+              summary: The analytics warehouse disagrees with its source
+              description: An analytics ETL run ended in MISMATCH within the last 30 minutes. Reporting KPIs may be wrong while looking normal; worker log event 1204 names the grain that disagreed.
+              runbook_url: docs/slo.md#analytics-reconcile-mismatch
+      # The same runs are still completing, so the pipeline is not stuck -- only wrong.
+      - eval_time: 20m
+        alertname: IvrAnalyticsEtlNotCompleting
+        exp_alerts: []
+
+  - interval: 1m
+    name: a backlog that clears on its own stays silent
+    input_series:
+      # Five runs of BACKLOG while a batch cap works through the source, then COMPLETE.
+      - series: 'ivr_analytics_etl_runs_total{ivr_outcome="BACKLOG"}'
+        values: '0+1x5 5x35'
+      - series: 'ivr_analytics_etl_runs_total{ivr_outcome="COMPLETE"}'
+        values: '0x5 1+1x35'
+    alert_rule_test:
+      # Minute 5 is the worst moment: runs, and not one COMPLETE yet. The hold keeps it pending.
+      - eval_time: 5m
+        alertname: IvrAnalyticsEtlNotCompleting
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: IvrAnalyticsEtlNotCompleting
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: IvrAnalyticsReconcileMismatch
+        exp_alerts: []
+
+  - interval: 1m
+    name: a pipeline that fails every run opens a ticket
+    input_series:
+      # Every run throws before it writes a verdict. Nothing but FAILED is ever recorded.
+      - series: 'ivr_analytics_etl_runs_total{ivr_outcome="FAILED"}'
+        values: '0+1x90'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: IvrAnalyticsEtlNotCompleting
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              slo: analytics_freshness
+              slo_status: proposed
+            exp_annotations:
+              summary: The analytics ETL is running but has not completed in an hour
+              description: Every analytics ETL run in the last hour ended in BACKLOG, MISMATCH or FAILED. The warehouse is behind the fifteen-minute freshness the reporting console advertises.
+              runbook_url: docs/slo.md#analytics-etl-not-completing
+      - eval_time: 70m
+        alertname: IvrAnalyticsReconcileMismatch
+        exp_alerts: []
+
+  - interval: 1m
+    name: an old mismatch stops alerting once it leaves the window
+    input_series:
+      # One MISMATCH at minute 5, then clean runs. At minute 45 it is well outside the 30m window.
+      - series: 'ivr_analytics_etl_runs_total{ivr_outcome="COMPLETE"}'
+        values: '0+1x60'
+      - series: 'ivr_analytics_etl_runs_total{ivr_outcome="MISMATCH"}'
+        values: '0x5 1x55'
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: IvrAnalyticsReconcileMismatch
+        exp_alerts: []

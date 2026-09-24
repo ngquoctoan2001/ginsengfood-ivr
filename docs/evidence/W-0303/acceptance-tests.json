@@ -1,0 +1,29 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0303",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-TRUNK-DI-01",
+    "UT-TRUNK-DI-02",
+    "UT-TRUNK-DI-03",
+    "UT-TRUNK-DI-04",
+    "UT-TRUNK-DI-05",
+    "UT-TRUNK-DI-06",
+    "UT-TRUNK-DIAL-01",
+    "UT-TRUNK-DIAL-02",
+    "UT-TRUNK-DIAL-03",
+    "UT-TRUNK-DIAL-04",
+    "UT-TRUNK-DIAL-05",
+    "UT-TRUNK-DIAL-06",
+    "UT-TRUNK-DIAL-07",
+    "UT-TRUNK-OPT-01",
+    "UT-TRUNK-OPT-02",
+    "UT-TRUNK-OPT-03",
+    "UT-TRUNK-OPT-04",
+    "UT-TRUNK-OPT-05",
+    "UT-TRUNK-OPT-06",
+    "UT-TRUNK-OPT-07",
+    "UT-TRUNK-OPT-08",
+    "UT-AST-CONFIG-07"
+  ]
+}

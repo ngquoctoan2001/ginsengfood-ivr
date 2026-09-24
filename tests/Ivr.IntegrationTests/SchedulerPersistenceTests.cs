@@ -441,6 +441,159 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         return listener;
     }
 
+    [Fact]
+    [Trait("TestId", "IT-OBS-BACKLOG-15")]
+    public async Task TheBacklogGaugeReportsWhatTheClaimWouldTakeAndNothingOnceItIsTaken()
+    {
+        // W-0041 section 11. The gauge reads its own copy of the claim's conditions, so the claim
+        // is what it is checked against: what the gauge reports as waiting must be exactly what the
+        // claim then takes, and once it is taken nothing may be left waiting. Measured through the
+        // real Meter, as IT-OBS-DEADLINE-10 is.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-OBS-BACKLOG-15",
+            "JOB-OBS-BACKLOG-15",
+            Now.AddMinutes(-2));
+        await SeedChannelAsync(factory, "SIM-LAB-001");
+        var clock = new FixedTimeProvider(Now);
+        SchedulerQueueBacklogSampler sampler = BacklogSampler(factory, clock);
+
+        List<double> observed = [];
+        using (MeterListener listener = ListenForBacklogGauge(observed))
+        {
+            Assert.Equal(TimeSpan.FromMinutes(2), await sampler.SampleAsync());
+
+            SchedulerDispatchLease? lease = await new PostgresSchedulerStore(factory, clock)
+                .TryClaimDueDispatchAsync(
+                    "worker-a",
+                    IvrOptions.LabRealSimExecutionMode,
+                    TimeSpan.FromMinutes(2));
+            Assert.Equal("JOB-OBS-BACKLOG-15", lease?.JobId);
+
+            // Leased and dialling, so no longer waiting. Zero is recorded rather than nothing: the
+            // gauge reports the last value it was given, and silence would go on reporting 120s.
+            Assert.Equal(TimeSpan.Zero, await sampler.SampleAsync());
+        }
+
+        Assert.Equal([120D, 0D], observed);
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-OBS-BACKLOG-15")]
+    public async Task AnAttemptThatFellDueBeforeTheCallingWindowOpenedIsTimedFromTheOpening()
+    {
+        // OD-V1-16 opens the window at 08:00 at +07:00, which is 01:00 UTC.
+        DateTimeOffset opening = new(2026, 8, 13, 1, 0, 0, TimeSpan.Zero);
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+
+        // Due at 07:55, five minutes before anyone was allowed to dial it.
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-OBS-BACKLOG-15B",
+            "JOB-OBS-BACKLOG-15B",
+            opening.AddMinutes(-5),
+            expiresAt: opening.AddMinutes(10));
+
+        // Before the opening the hour rule holds it, not the dialler, so nothing is being kept
+        // waiting.
+        Assert.Equal(
+            TimeSpan.Zero,
+            await BacklogSampler(factory, new FixedTimeProvider(opening.AddMinutes(-2))).SampleAsync());
+
+        // Two minutes after the opening it has waited two minutes, not seven. Timed from 07:55,
+        // every morning's first samples would carry the night into the alert.
+        Assert.Equal(
+            TimeSpan.FromMinutes(2),
+            await BacklogSampler(factory, new FixedTimeProvider(opening.AddMinutes(2))).SampleAsync());
+    }
+
+    [Fact]
+    [Trait("TestId", "IT-OBS-BACKLOG-15")]
+    public async Task WorkTheClaimWouldRefuseIsNotBacklog()
+    {
+        // The two refusals that are decisions rather than failures. A paused queue and a revoked
+        // order are both work the dialler has been told not to do; reporting them as waiting would
+        // page someone for obeying.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-OBS-BACKLOG-15C",
+            "JOB-OBS-BACKLOG-15C",
+            Now.AddMinutes(-2));
+        SchedulerQueueBacklogSampler sampler = BacklogSampler(factory, new FixedTimeProvider(Now));
+        Assert.Equal(TimeSpan.FromMinutes(2), await sampler.SampleAsync());
+
+        await using (IvrDbContext pausing = await factory.CreateDbContextAsync())
+        {
+            pausing.CapacityIncidents.Add(new CapacityIncidentEntity
+            {
+                CapacityIncidentId = "CAP-ADMIN-OBS-BACKLOG-15C",
+                SessionId = "ADMIN-QUEUE-OBS-BACKLOG-15C",
+                ProgramCode = "ALL",
+                Status = "OPEN",
+                Scope = "ADMIN_QUEUE_PAUSE",
+                HoldNewCalls = true,
+                OpenedAt = Now,
+                Reason = "Queue paused while the test checks the backlog gauge.",
+            });
+            await pausing.SaveChangesAsync();
+        }
+
+        Assert.Equal(TimeSpan.Zero, await sampler.SampleAsync());
+
+        await using (IvrDbContext resuming = await factory.CreateDbContextAsync())
+        {
+            CapacityIncidentEntity pause = await resuming.CapacityIncidents.SingleAsync(
+                incident => incident.CapacityIncidentId == "CAP-ADMIN-OBS-BACKLOG-15C");
+            pause.Status = "RESOLVED";
+            pause.ResolvedAt = Now;
+            ConfirmationTaskEntity task = await resuming.ConfirmationTasks.SingleAsync(
+                candidate => candidate.TaskId == "TASK-OBS-BACKLOG-15C");
+            task.RevokedAt = Now;
+            task.RevokeReason = "ORDER_CANCELLED";
+            task.RevokeOrderVersion = "2";
+            await resuming.SaveChangesAsync();
+        }
+
+        Assert.Equal(TimeSpan.Zero, await sampler.SampleAsync());
+    }
+
+    private static SchedulerQueueBacklogSampler BacklogSampler(
+        IDbContextFactory<IvrDbContext> factory,
+        TimeProvider clock) => new(
+            new PostgresSchedulerQueueBacklogReader(factory),
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
+            new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
+            clock);
+
+    private static MeterListener ListenForBacklogGauge(List<double> observed)
+    {
+        var listener = new MeterListener
+        {
+            InstrumentPublished = (instrument, target) =>
+            {
+                if (instrument.Meter.Name == IvrTelemetry.ServiceName
+                    && instrument.Name == "ivr_call_queue_oldest_due_age_seconds")
+                {
+                    target.EnableMeasurementEvents(instrument);
+                }
+            },
+        };
+        listener.SetMeasurementEventCallback<double>((_, value, _, _) =>
+        {
+            lock (observed)
+            {
+                observed.Add(value);
+            }
+        });
+        listener.Start();
+        return listener;
+    }
+
     /// <summary>
     /// W-0116. A job held for admin review still closes at its deadline, but it closes as a window
     /// expiry rather than as a capacity miss. It was kept back deliberately; no channel was ever
@@ -823,44 +976,72 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
             string target = migrations[targetIndex];
             await migration.GetService<IMigrator>().MigrateAsync(previous);
 
-            // Scaffolding, not the thing under test. This test pins a schema point and then seeds
-            // through the current entity model, so every column added to a seeded table after
-            // `previous` breaks it -- W-0249's three revocation columns were simply the first to
-            // do so. They are added here by hand so the physical table matches the model EF will
-            // insert with; W0172 does not touch them, so the preflight under test is unaffected.
-            //
-            // The fragility is real and worth naming: the next column added to
-            // ivr_confirmation_tasks will need the same line. The durable fix is to seed this one
-            // case with schema-pinned SQL instead of the live model, which is a larger change than
-            // this lap should carry.
-            await migration.Database.ExecuteSqlRawAsync("""
-                ALTER TABLE ivr_confirmation_tasks
-                    ADD COLUMN IF NOT EXISTS revoked_at timestamp with time zone NULL,
-                    ADD COLUMN IF NOT EXISTS revoke_reason text NULL,
-                    ADD COLUMN IF NOT EXISTS revoke_order_version text NULL,
+            // W-0353. The legacy rows are written in SQL against the schema `previous` leaves
+            // behind, not through the entity model. The model is the schema at HEAD, so seeding
+            // through it wrote every column added since `previous` into tables that did not have
+            // them yet: W-0249's revocation columns broke this test first, W-0310's phone_e164
+            // second, and each was patched in by hand with an ALTER TABLE. These statements name
+            // only columns that exist at `previous`, so a later column has nothing to break.
+            DateTimeOffset startedAt = Now.AddMinutes(-5);
+            await migration.Database.ExecuteSqlRawAsync(
+                """
+                INSERT INTO ivr_confirmation_tasks (
+                    id, task_id, contract_version, idempotency_key, correlation_id,
+                    official_order_id, order_code, order_version, order_state,
+                    payment_method_snapshot, ivr_confirmation_required, risk_flags_json,
+                    program_type, attempt_policy_version, max_attempts, attempt_offsets_seconds_json,
+                    confirmation_window_started_at, confirmation_window_expires_at, phone_ref,
+                    phone_masked, phone_validation_status, dial_token_ciphertext,
+                    dial_token_expires_at, privacy_safe_order_summary_json, eligibility_decision,
+                    eligibility_snapshot_json, call_restriction, not_for_quote_cart_draft,
+                    no_direct_order_update, created_at, expires_at, accepted_at, retention_class,
+                    call_script_template_id, call_script_version, evidence_policy_version,
+                    privacy_policy_version)
+                VALUES (
+                    gen_random_uuid(), 'TASK-RESULT-PREFLIGHT-20', 'ivr-order-confirmation.v1',
+                    'scheduler:TASK-RESULT-PREFLIGHT-20', 'corr-TASK-RESULT-PREFLIGHT-20',
+                    'ORDER-TASK-RESULT-PREFLIGHT-20', 'GF-TASK-RESULT-PREFLIGHT-20', '1',
+                    'CONFIRMING', 'ONLINE', TRUE, '[]'::jsonb, 'GOLDEN_HOUR', {2}, 2,
+                    '[0,150]'::jsonb, {0}, {1}, 'phone-ref-TASK-RESULT-PREFLIGHT-20', '84xxxxx0020',
+                    'VALID', 'enc:TASK-RESULT-PREFLIGHT-20', {1}, '{{}}'::jsonb, 'ELIGIBLE_FOR_IVR',
+                    '{{"decision":"ELIGIBLE"}}'::jsonb, FALSE, TRUE, TRUE, {0}, {1}, {0},
+                    'LEGAL_DECISION_PENDING', 'SCRIPT-ORDER-CONFIRM', 'v1-test-approved',
+                    'evidence-v1', 'privacy-v1');
 
-                    -- W-0310. The line the comment above predicted would be needed: option B
-                    -- added phone_e164 to this table, and the seed below writes through the live
-                    -- model. W0172 does not touch it either, so the preflight under test is
-                    -- still unaffected.
-                    ADD COLUMN IF NOT EXISTS phone_e164 text NULL
-                """);
+                INSERT INTO ivr_call_jobs (
+                    ivr_call_job_id, task_id, official_order_id, order_version_snapshot,
+                    program_type, attempt_policy_code, status, max_attempts,
+                    attempt_offsets_seconds_json, confirmation_window_seconds, attempt_schedule_json,
+                    t0_at, expires_at, eligible, eligibility_decision, queue_status, script_version,
+                    privacy_policy_version, input_signal_only, no_direct_order_update, created_at,
+                    retention_class)
+                VALUES (
+                    'JOB-RESULT-PREFLIGHT-20', 'TASK-RESULT-PREFLIGHT-20',
+                    'ORDER-TASK-RESULT-PREFLIGHT-20', '1', 'GOLDEN_HOUR', {2},
+                    'READY_FOR_SCHEDULER', 2, '[0,150]'::jsonb, 300, {3}::jsonb, {0}, {1}, TRUE,
+                    'ELIGIBLE_FOR_IVR', 'QUEUED', 'SCRIPT-ORDER-CONFIRM:v1-test-approved',
+                    'privacy-v1', TRUE, TRUE, {0}, 'LEGAL_DECISION_PENDING');
 
-            await SeedReadyJobAsync(
-                factory,
-                "TASK-RESULT-PREFLIGHT-20",
-                "JOB-RESULT-PREFLIGHT-20",
-                Now.AddMinutes(-5),
-                expiresAt: Now);
+                -- The row the preflight exists to find: a confirmation that was not counted as a
+                -- customer attempt, which W0172's signed taxonomy forbids.
+                INSERT INTO ivr_call_results (
+                    ivr_call_result_id, ivr_call_job_id, task_id, official_order_id,
+                    order_version_snapshot, order_version_seen_by_ivr, final_result_status,
+                    result_type, is_counted_customer_attempt, is_final_for_ivr,
+                    recommended_core_action, core_order_handoff_required, human_review_required,
+                    input_signal_only, no_direct_order_update, no_payment_or_revenue_effect,
+                    created_at, retention_class)
+                VALUES (
+                    'RESULT-PREFLIGHT-20', 'JOB-RESULT-PREFLIGHT-20', 'TASK-RESULT-PREFLIGHT-20',
+                    'ORDER-TASK-RESULT-PREFLIGHT-20', '1', '1', 'IVR_CONFIRMED', 'IVR_CONFIRMED',
+                    FALSE, TRUE, 'REVALIDATE_AND_CONFIRM_ORDER', TRUE, FALSE, TRUE, TRUE, TRUE, {1},
+                    'LEGAL_DECISION_PENDING');
+                """,
+                startedAt,
+                Now,
+                CandidateAttemptPolicies.Version,
+                JsonSerializer.Serialize(new[] { startedAt, startedAt.AddSeconds(150) }));
             await using IvrDbContext legacy = await factory.CreateDbContextAsync();
-            CallJobEntity job = await legacy.CallJobs.SingleAsync();
-            legacy.CallResults.Add(CreateResult(
-                job,
-                "RESULT-PREFLIGHT-20",
-                "IVR_CONFIRMED",
-                counted: false,
-                final: true));
-            await legacy.SaveChangesAsync();
 
             PostgresException blocked = await Assert.ThrowsAsync<PostgresException>(
                 () => legacy.GetService<IMigrator>().MigrateAsync(target));

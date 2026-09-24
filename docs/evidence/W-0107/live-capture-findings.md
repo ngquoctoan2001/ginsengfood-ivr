@@ -130,7 +130,7 @@ mang giá trị đó. Nghĩa là ô này hiện mã thô ở phần lớn đơn.
 Bộ capture nêu `source = ANALYTICS_WAREHOUSE` là ứng viên vì tên trần `source` đụng với
 `event.source` bên màn tích hợp. Đọc file ràng buộc thì thấy khác:
 
-[`FreshnessBanner.tsx:68`](../../../admin-ui/src/components/reports/FreshnessBanner.tsx) in giá trị
+`admin-ui/src/components/reports/FreshnessBanner.tsx:68` (đã xóa cùng `admin-ui/` ở `W-0253`; bản cuối tại `c0e6609^`) in giá trị
 này **thẳng vào trong câu** — `` `${t("reports.sourceWarehouse")} (${quality.source})` `` — cố ý
 không đi qua `EnumLabel`. Comment ngay trên đó nói rõ: nguồn dữ liệu được nêu **như một dữ kiện**,
 không phải cảnh báo.

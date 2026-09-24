@@ -53,6 +53,7 @@ public sealed class ServiceQuotaEndpointTests
 
     [Fact]
     [Trait("TestId", "IT-QUOTA-01")]
+    [Trait("TestId", "SEC-AUTHZ-05")]
     public async Task TheContractOwnRateLimitedCodeFinallyAppearsOnTheWire()
     {
         await using FoundationApiTestApplication app = await FoundationApiTestApplication.StartAsync(

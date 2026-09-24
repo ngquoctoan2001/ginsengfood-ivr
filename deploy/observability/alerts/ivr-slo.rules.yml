@@ -121,3 +121,72 @@ groups:
           summary: Intake is rejecting more than three in ten tasks
           description: A sustained rejection ratio points upstream at Sales payloads rather than at IVR.
           runbook_url: docs/slo.md#intake-success
+
+      # W-0041 / P6-2 section 11. The one rule here that reads a gauge. Every other scheduler
+      # signal counts events, and a dialler that has stopped produces none: no attempts, no
+      # results, and no misses until the first confirmation window closes. How long the oldest
+      # dialable call has been waiting is the number that moves while nothing else does.
+      #
+      # max, never sum: every worker samples the same database and reports the same wait, so a sum
+      # would multiply it by the replica count. The third case in ivr-slo.backlog.test.yml pins it.
+      #
+      # 60s because the windows are short. Golden Hour gives five minutes and 24/7 fifteen, and an
+      # attempt leaves the claim once its window closes, so this gauge can never reach a threshold
+      # measured in tens of minutes. A minute is a fifth of the Golden Hour window; held for ten, it
+      # means customers are being called late, continuously -- which the deadline rule only sees
+      # once the orders are already lost. Page for the same reason: this fires while the queue can
+      # still be saved, not after the jobs have closed.
+      - alert: IvrCallQueueBacklogAging
+        expr: max(ivr_call_queue_oldest_due_age_seconds) > 60
+        for: 10m
+        labels:
+          severity: page
+          slo: dispatch_backlog
+          slo_status: proposed
+        annotations:
+          summary: Due calls have waited more than a minute to be dialled for ten minutes
+          description: The oldest dialable call attempt has been waiting over 60s for ten minutes while the calling window is open. Customers are being called late or not at all, and their confirmation windows keep running.
+          runbook_url: docs/slo.md#call-queue-backlog-aging
+
+      # W-0055 / P10-4. The ETL writes a reconcile verdict on every run and, until this rule,
+      # nothing read it but a person opening the console. MISMATCH means the warehouse and its
+      # source disagree with no backlog or privacy rejection to explain it, or a job-grain fact
+      # still disagrees with its job after the refresh; the KPIs built on it look exactly like
+      # correct ones. Ticket: no customer is affected, a report is.
+      #
+      # increase over a window, never the raw counter: compared with zero, a counter fires once and
+      # then forever. The last case in ivr-slo.analytics.test.yml proves this one stops.
+      - alert: IvrAnalyticsReconcileMismatch
+        expr: sum(increase(ivr_analytics_etl_runs_total{ivr_outcome="MISMATCH"}[30m])) > 0
+        for: 5m
+        labels:
+          severity: ticket
+          slo: analytics_reconcile
+          slo_status: proposed
+        annotations:
+          summary: The analytics warehouse disagrees with its source
+          description: An analytics ETL run ended in MISMATCH within the last 30 minutes. Reporting KPIs may be wrong while looking normal; worker log event 1204 names the grain that disagreed.
+          runbook_url: docs/slo.md#analytics-reconcile-mismatch
+
+      # W-0055. Runs are happening and none of them completed: an hour of BACKLOG, a MISMATCH on
+      # every run, or a pipeline that throws before it can write a verdict all end here. One that is
+      # not running at all does not -- it records nothing, and the worker liveness check owns that.
+      #
+      # for: 15m because a restarted worker's first COMPLETE lands on a series that did not exist a
+      # moment earlier, and increase() cannot see a series' first sample until the next run adds to
+      # it. Without the hold, FAILED then COMPLETE then FAILED straight after a restart would open a
+      # ticket against a pipeline that had just completed.
+      - alert: IvrAnalyticsEtlNotCompleting
+        expr: |
+          sum(increase(ivr_analytics_etl_runs_total[1h])) > 0
+          unless
+          sum(increase(ivr_analytics_etl_runs_total{ivr_outcome="COMPLETE"}[1h])) > 0
+        for: 15m
+        labels:
+          severity: ticket
+          slo: analytics_freshness
+          slo_status: proposed
+        annotations:
+          summary: The analytics ETL is running but has not completed in an hour
+          description: Every analytics ETL run in the last hour ended in BACKLOG, MISMATCH or FAILED. The warehouse is behind the fifteen-minute freshness the reporting console advertises.
+          runbook_url: docs/slo.md#analytics-etl-not-completing

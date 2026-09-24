@@ -9,6 +9,7 @@ internal sealed partial class SchedulerJobHost(
     SchedulerDispatchPump pump,
     IAriControllerOwnership controllerOwnership,
     SchedulerControllerStatus controllerStatusReport,
+    SchedulerQueueBacklogSampler backlogSampler,
     IOptions<SchedulerOptions> options,
     WorkerLiveness liveness,
     TimeProvider timeProvider,
@@ -95,9 +96,22 @@ internal sealed partial class SchedulerJobHost(
 
     protected override async Task RunOnceAsync(CancellationToken cancellationToken)
     {
-        SchedulerRunResult result = await scheduler.RunOnceAsync(
-            workerId,
-            cancellationToken);
+        SchedulerRunResult result;
+        try
+        {
+            result = await scheduler.RunOnceAsync(
+                workerId,
+                cancellationToken);
+        }
+        finally
+        {
+            // W-0041. In a finally, not after a clean pass: a pass that throws on every turn --
+            // one unreadable attempt schedule is enough -- is exactly the dialler whose queue
+            // ages, and a gauge sampled only on success would freeze at its last healthy value
+            // for as long as the failure lasted.
+            await SampleQueueBacklogAsync(cancellationToken);
+        }
+
         if (result.QuarantinedLeases > 0
             || result.ClosedMissedDeadlines > 0
             || result.DispatchClaimed)
@@ -176,6 +190,38 @@ internal sealed partial class SchedulerJobHost(
             }
 
             callingWindowOpen = result.CallingWindowOpen;
+        }
+    }
+
+    /// <summary>
+    /// Samples <c>ivr_call_queue_oldest_due_age_seconds</c> when one is due (<c>W-0041</c>).
+    /// <para>
+    /// Not while the scheduler is switched off: nobody dials by decision then, and a queue that
+    /// ages under that decision is not a dialler falling behind. Read from the options rather
+    /// than from the pass, which may have thrown before it could say.
+    /// </para>
+    /// <para>
+    /// A failed sample is logged and swallowed. The pass has already placed its calls, and a
+    /// metric that could fail it would put the loop into backoff -- slowing the dialling it
+    /// exists to watch. The gauge keeps its last value until the next sample succeeds.
+    /// </para>
+    /// </summary>
+    private async Task SampleQueueBacklogAsync(CancellationToken cancellationToken)
+    {
+        if (!options.Value.Enabled || cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
+        try
+        {
+            await backlogSampler.SampleIfDueAsync(cancellationToken);
+        }
+#pragma warning disable CA1031 // A metric must never fail the pass that places the calls.
+        catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+#pragma warning restore CA1031
+        {
+            LogBacklogSampleFailed(logger, exception);
         }
     }
 
@@ -274,4 +320,11 @@ internal sealed partial class SchedulerJobHost(
         string status,
         long generation,
         string scope);
+
+    [LoggerMessage(
+        EventId = 2340,
+        Level = LogLevel.Warning,
+        Message = "Queue backlog sample failed; ivr_call_queue_oldest_due_age_seconds keeps its "
+            + "last value until the next sample succeeds. Dialling is unaffected.")]
+    private static partial void LogBacklogSampleFailed(ILogger logger, Exception exception);
 }
