@@ -113,3 +113,13 @@ Bốn việc trong kế hoạch (W-0040, W-0043, W-0044, W-0047) nâng Nấc 1 l
 Ghi chú “mới có span 1/5 chặng” ở Residual của W-0040 đã cũ: lượt observability runtime thấy trace có đủ năm chặng.
 Lý do từng việc nằm trong [closeout.json](closeout.json); mỗi README được đóng có thêm mục ghi nhận ngày 24/09.
 Toàn có thể đảo bất kỳ dòng nào.
+
+## Owner nghiệm thu — 24/09/2026 (W-0203)
+
+Toàn: “rồi tiếp tục w203”, sau chỉ thị “thì cái nào xong cho xong luôn đi”. W-0352 chuyển
+**EVIDENCE_SUBMITTED → ACCEPTED** theo danh sách tại `26820e7`. Gate acceptance-batches.mjs và
+acceptance-evidence-selftest.mjs đạt; lượt gate mở rộng đạt 5/5 ở cả 16fa1e4 lẫn lượt này, và việc
+ghi sổ theo chỉ thị owner đã xong. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt;
+Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. REAL_CUSTOMER_CALL_ALLOWED=NO.

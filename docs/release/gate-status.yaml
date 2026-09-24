@@ -32,7 +32,7 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "271 of 340 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "273 of 340 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
@@ -914,7 +914,7 @@ work:
     evidence: "docs/evidence/W-0202/README.md"
   - id: "W-0203"
     prompt: "P1.2 Full worker pipeline — profile LocalMockE2E + vòng lặp E2E có tiêm lỗi (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P1.2\" 2026-09-05)"
-    status: "TESTS_PASS"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0203/README.md"
   - id: "W-0204"
     prompt: "P2.1 Chốt contract — cơ chế đóng băng hợp đồng + đối chiếu trạng thái chữ ký (Origin=UNPLANNED, owner chỉ đạo \"tiếp tục P2.1\" 2026-09-06)"
@@ -1470,7 +1470,7 @@ work:
     evidence: "docs/evidence/W-0351/README.md"
   - id: "W-0352"
     prompt: "Lượt gate mở rộng: chạy bốn gate Docker để xét 18 việc (Origin=UNPLANNED, owner: “cái nào ko cần thì xóa đi, còn cái nào cần thì cho xong đi”)"
-    status: "EVIDENCE_SUBMITTED"
+    status: "ACCEPTED"
     evidence: "docs/evidence/W-0352/README.md"
 
 production_flag:

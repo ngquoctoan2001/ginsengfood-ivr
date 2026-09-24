@@ -281,3 +281,15 @@ bảng tầng `danger`, nay có 9 endpoint.
 Commit `d21d97b` sinh lại portal API, nên gitleaks thấy 4 cảnh báo nhầm cùng hai loại đã rà ở W-0352: một giá trị
 `sourceHashes` bằng đúng SHA-256 của file tại cùng commit, và Redoc hiển thị tên cờ ở dòng mới. Chúng được ghi theo từng
 dòng trong `.gitleaksignore`; hồ sơ rà: [reviewed-findings.json](reviewed-findings.json).
+
+## Owner nghiệm thu — 24/09/2026 (W-0203)
+
+Toàn: “rồi tiếp tục w203”, sau chỉ thị “thì cái nào xong cho xong luôn đi”. W-0203 chuyển
+**TESTS_PASS → ACCEPTED** theo danh sách tại `26820e7`. Ba phát hiện của §7 nay đều có kết luận: F-1
+đã sửa ở 4483029 (W-0286); F-2 đã làm, endpoint POST /result-callbacks/{callbackId}:replay ở
+contract draft.32 với IT-API-DEADLETTER-13 và IT-API-DEADLETTER-14 xanh; F-3 đúng thiết kế vì seed
+dev đặt kill switch toàn cục bằng true và MOCK không tới khách. Còn lại chỉ là giới hạn đã ghi:
+Local/MOCK, không phải hosted CI. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt;
+Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. REAL_CUSTOMER_CALL_ALLOWED=NO.
