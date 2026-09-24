@@ -345,3 +345,59 @@ cc4a8c8d87f11615593b4432893e35dd779936bf:docs/evidence/W-0286/api-matrix-report.
 d68a471c9642139ee13e0b98c7edccde9c3b118a:docs/api/portal-manifest.json:generic-api-key:26
 e984983afa702df6c0927f7235655e11223f92b3:docs/api/portal-manifest.json:generic-api-key:27
 f730809e7a33b3d71eb57890c512f9d0770a7ee4:docs/api/portal-manifest.json:generic-api-key:27
+# W-0352 reviewed false positives from the local extended run of security-scan.sh on 2026-09-24,
+# in commits of 2026-09-15..23, after the W-0291 review. Each flagged line was opened at its commit:
+#   - 35 EF model designers repeat the seeded feature-flag NAME v1NotificationEnabled;
+#   - 3 are the Redoc rendering of that same name, where the CSS class "token" is the keyword;
+#   - 5 portal sourceHashes values equal the SHA-256 of the named file at the same commit;
+#   - 4 are the SHA-256 of the kit archive images/ivr-api.tar, identical in all four W-0344/W-0345
+#     manifests; the archive itself is not committed.
+# Review: docs/evidence/W-0352/reviewed-findings.json. Pinned to commit, path, rule and line like
+# every exception above; no file-wide bypass and no config-level relaxation of the rule itself.
+6029b19f5b21400cc457792f3c670f358a6c014a:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1246
+6029b19f5b21400cc457792f3c670f358a6c014a:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1276
+6029b19f5b21400cc457792f3c670f358a6c014a:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1276
+6029b19f5b21400cc457792f3c670f358a6c014a:docs/api/portal-manifest.json:generic-api-key:27
+7c4204e54102d161a92a04571cfaa48a90859d51:docs/api/portal-manifest.json:generic-api-key:27
+9dc54795a19e735e7dc429ebfa1191f56e66b4c6:docs/api/portal-manifest.json:generic-api-key:27
+f7bb52b7bf66c530db627e1bc528aef3b72a2900:docs/api/portal-manifest.json:generic-api-key:27
+ffa0284502931107ace3d40ba608f8ef39f06a49:docs/api/portal-manifest.json:generic-api-key:27
+5e614366545818a886e049be0fc842c65f47672c:docs/evidence/W-0344/cpu-retry-manifest.json:generic-api-key:130
+02e32e306a372559ba53f62eae442536ae5fa876:docs/evidence/W-0344/kit-manifest.json:generic-api-key:130
+02e32e306a372559ba53f62eae442536ae5fa876:docs/evidence/W-0344/verification.json:generic-api-key:150
+f711a798ef9076c93911d2a21e113fe7340877d1:docs/evidence/W-0345/cpu-retry-manifest.json:generic-api-key:130
+b1bf377270f1ac5cd1b1caabe39fefca6ab811f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs:generic-api-key:524
+b1bf377270f1ac5cd1b1caabe39fefca6ab811f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs:generic-api-key:623
+b1bf377270f1ac5cd1b1caabe39fefca6ab811f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs:generic-api-key:722
+b1bf377270f1ac5cd1b1caabe39fefca6ab811f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs:generic-api-key:821
+b1bf377270f1ac5cd1b1caabe39fefca6ab811f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs:generic-api-key:920
+eb7e781bb5724cec914be7ff7be779c820b4e1f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs:generic-api-key:524
+eb7e781bb5724cec914be7ff7be779c820b4e1f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs:generic-api-key:623
+eb7e781bb5724cec914be7ff7be779c820b4e1f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs:generic-api-key:722
+eb7e781bb5724cec914be7ff7be779c820b4e1f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs:generic-api-key:821
+eb7e781bb5724cec914be7ff7be779c820b4e1f4:src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs:generic-api-key:920
+b817fae7b55cd06b0964c711fc29f24fb586a88e:src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:524
+b817fae7b55cd06b0964c711fc29f24fb586a88e:src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:623
+b817fae7b55cd06b0964c711fc29f24fb586a88e:src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:722
+b817fae7b55cd06b0964c711fc29f24fb586a88e:src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:821
+b817fae7b55cd06b0964c711fc29f24fb586a88e:src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:920
+641d294cf7d13dcf1eed6a55d5befe34ae9f40e2:src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs:generic-api-key:524
+641d294cf7d13dcf1eed6a55d5befe34ae9f40e2:src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs:generic-api-key:623
+641d294cf7d13dcf1eed6a55d5befe34ae9f40e2:src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs:generic-api-key:722
+641d294cf7d13dcf1eed6a55d5befe34ae9f40e2:src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs:generic-api-key:821
+641d294cf7d13dcf1eed6a55d5befe34ae9f40e2:src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs:generic-api-key:920
+1651e8fa264a710d463bdce7410c07c9c69a9e43:src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:524
+1651e8fa264a710d463bdce7410c07c9c69a9e43:src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:623
+1651e8fa264a710d463bdce7410c07c9c69a9e43:src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:722
+1651e8fa264a710d463bdce7410c07c9c69a9e43:src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:821
+1651e8fa264a710d463bdce7410c07c9c69a9e43:src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs:generic-api-key:920
+ca8d13b6498d7b5f819980f95de2d3ea0a0acda0:src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs:generic-api-key:524
+ca8d13b6498d7b5f819980f95de2d3ea0a0acda0:src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs:generic-api-key:623
+ca8d13b6498d7b5f819980f95de2d3ea0a0acda0:src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs:generic-api-key:722
+ca8d13b6498d7b5f819980f95de2d3ea0a0acda0:src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs:generic-api-key:821
+ca8d13b6498d7b5f819980f95de2d3ea0a0acda0:src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs:generic-api-key:920
+53c2eb55a4d8174aa9057152fa5d5ea281ee7489:src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs:generic-api-key:524
+53c2eb55a4d8174aa9057152fa5d5ea281ee7489:src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs:generic-api-key:623
+53c2eb55a4d8174aa9057152fa5d5ea281ee7489:src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs:generic-api-key:722
+53c2eb55a4d8174aa9057152fa5d5ea281ee7489:src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs:generic-api-key:821
+53c2eb55a4d8174aa9057152fa5d5ea281ee7489:src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs:generic-api-key:920

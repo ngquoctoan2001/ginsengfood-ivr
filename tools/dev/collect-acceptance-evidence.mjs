@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  RUN_SCHEMA, GATE_MANIFEST, TEST_COMMAND, SWEEP_COMMAND, sha256, assertRunSource,
+  RUN_SCHEMA, GATE_MANIFEST, TEST_COMMAND, SWEEP_COMMAND, EXTENDED_SWEEP_COMMAND, sha256, assertRunSource,
   expectedTestAssemblies, readPinnedArtifact, validateRunEvidence,
 } from "../../deploy/ci/scripts/acceptance-evidence-lib.mjs";
 
@@ -49,8 +49,10 @@ function filesUnder(directory) {
   });
 }
 
+// W-0352. `extended` adds a third run, the gates the offline sweep skips because they need container
+// images or a network. It is opt-in because it pulls images and takes the better part of an hour.
 export async function collectAcceptanceEvidence({
-  root, output, snapshot = () => captureSource(root), run = runCommand,
+  root, output, extended = false, snapshot = () => captureSource(root), run = runCommand,
   readSource = (commit, file) => git(root, ["show", `${commit}:${file}`]),
 }) {
   const source = snapshot();
@@ -62,7 +64,8 @@ export async function collectAcceptanceEvidence({
   fs.mkdirSync(output, { recursive: true });
   const bundle = { schema: RUN_SCHEMA, gateManifestSha256: sha256(manifestBytes) };
   const pin = (file) => ({ path: path.relative(output, file).split(path.sep).join("/"), sha256: sha256(fs.readFileSync(file)) });
-  for (const [name, command] of [["tests", TEST_COMMAND], ["sweep", SWEEP_COMMAND]]) {
+  const runs = [["tests", TEST_COMMAND], ["sweep", SWEEP_COMMAND], ...(extended ? [["extended", EXTENDED_SWEEP_COMMAND]] : [])];
+  for (const [name, command] of runs) {
     const before = snapshot();
     assertRunSource(before, source);
     const startedAt = new Date().toISOString();
@@ -77,7 +80,7 @@ export async function collectAcceptanceEvidence({
       bundle.tests.files = filesUnder(path.join(output, "trx")).filter((file) => file.endsWith(".trx")).map(pin);
       // Pin before the sweep: a gate must not replace the solution results with its own filtered run.
     } else {
-      bundle.sweep.file = pin(logFile);
+      bundle[name].file = pin(logFile);
     }
   }
   validateRunEvidence(bundle, {
@@ -91,10 +94,12 @@ export async function collectAcceptanceEvidence({
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const index = process.argv.indexOf("--out");
   try {
-    assert(index !== -1 && process.argv[index + 1], "usage: node tools/dev/collect-acceptance-evidence.mjs --out <new-directory>");
+    assert(index !== -1 && process.argv[index + 1],
+      "usage: node tools/dev/collect-acceptance-evidence.mjs --out <new-directory> [--extended]");
     const target = await collectAcceptanceEvidence({
       root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
       output: path.resolve(process.argv[index + 1]),
+      extended: process.argv.includes("--extended"),
     });
     process.stdout.write(`ACCEPTANCE_EVIDENCE_COLLECTED ${target}\n`);
   } catch (error) {

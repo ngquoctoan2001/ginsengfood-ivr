@@ -4,11 +4,14 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { extendedInvocations, OUTPUT_PREFIX } from "./gate-sweep.mjs";
 
 export const RUN_SCHEMA = "ivr-acceptance-run/v1";
 export const GATE_MANIFEST = "deploy/ci/gate-invocations.json";
 export const TEST_COMMAND = ["dotnet", "test", "Ivr.sln", "--logger", "trx", "--results-directory", "trx"];
 export const SWEEP_COMMAND = ["node", "deploy/ci/scripts/gate-sweep.mjs"];
+// W-0352. Optional third run: the gates the offline sweep skips because they need images or a network.
+export const EXTENDED_SWEEP_COMMAND = ["node", "deploy/ci/scripts/gate-sweep.mjs", "--extended"];
 export const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 export function assertRunSource(actual, expected) {
@@ -43,6 +46,57 @@ export function fullSweepVerdict(log, manifest) {
     return { ok: true, reason: `GATE_SWEEP_PASS ${runnable.length}/${runnable.length}` };
   } catch (error) {
     return { ok: false, reason: `gate sweep không hợp lệ: ${error.message.split("\n")[0]}` };
+  }
+}
+
+/**
+ * W-0352. The extended run of `gate-sweep.mjs --extended`: every invocation in the manifest, in
+ * order, each in its own section that ends with its own result line. Returns the TestIds each gate
+ * printed as "<TestId> PASS" inside its own sections, which is all C2 reads from this log.
+ */
+export function extendedSweepVerdict(log, manifest) {
+  if (log === null) return { ok: null, reason: "chưa có lượt gate mở rộng", printed: new Map() };
+  try {
+    assert(manifest?.gates && typeof manifest.gates === "object", "missing gate manifest at the reviewed commit");
+    const invocations = extendedInvocations(manifest.gates);
+    assert(invocations.length > 0, "manifest has no extended gates");
+    const lines = log.trim().split(/\r?\n/u);
+    const expected = `EXTENDED_SWEEP_PASS ${invocations.length}/${invocations.length} run`;
+    assert.deepEqual(lines.filter((line) => line.startsWith("EXTENDED_SWEEP_")), [expected],
+      "extended sweep is incomplete, failed, or contains multiple runs");
+    assert.equal(lines.at(-1), expected, "extended sweep summary is not the final line");
+    const printed = new Map();
+    const closed = [];
+    let open = null;
+    for (const line of lines.slice(0, -1)) {
+      if (line.startsWith(OUTPUT_PREFIX)) {
+        assert(open, "gate output outside a gate section");
+        const id = /^([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+[a-z]?) PASS(?:\s|$)/u.exec(line.slice(OUTPUT_PREFIX.length));
+        if (id) printed.set(open.name, new Set([...(printed.get(open.name) ?? []), id[1]]));
+        continue;
+      }
+      const header = /^==== (.+)$/u.exec(line);
+      if (header) {
+        assert(!open, `section ${open?.label} has no result line`);
+        open = invocations[closed.length];
+        assert.equal(header[1], open?.label, "missing, extra, or reordered extended gate");
+        continue;
+      }
+      // The sweep's own notes, such as taking over a lock a crashed run left behind.
+      if (line.startsWith("  ---- ") && !open) continue;
+      const result = /^\s*(ok|FAIL)\s+(.+?)\s+\d+(?:\.\d+)?s\s+(.+)$/u.exec(line);
+      assert(result, `unexpected line in extended sweep: ${line.slice(0, 80)}`);
+      assert(open && result[2] === open.label, "a result line does not close its own section");
+      assert.equal(result[1], "ok", `extended gate failed: ${open.label}`);
+      assert.equal(result[3], open.entry.expect, `wrong pass token for ${open.label}`);
+      closed.push(open.label);
+      open = null;
+    }
+    assert.deepEqual(closed, invocations.map((invocation) => invocation.label),
+      "missing, duplicate, or reordered extended gate results");
+    return { ok: true, reason: expected.replace(" run", ""), printed };
+  } catch (error) {
+    return { ok: false, reason: `lượt gate mở rộng không hợp lệ: ${error.message.split("\n")[0]}`, printed: new Map() };
   }
 }
 
@@ -130,7 +184,21 @@ export function validateRunEvidence(bundle, { source, manifestBytes, assemblies,
   });
   const summaries = texts.map((text) => checkTrx(text, bundle.tests));
   assert.deepEqual(summaries.map((summary) => summary.assembly).sort(), [...assemblies].sort(), "missing or duplicate test assembly");
-  const sweep = fullSweepVerdict(readArtifact(bundle.sweep.file), JSON.parse(manifestBytes));
+  const manifest = JSON.parse(manifestBytes);
+  const sweep = fullSweepVerdict(readArtifact(bundle.sweep.file), manifest);
   assert.equal(sweep.ok, true, sweep.reason);
-  return { texts, count: summaries.reduce((sum, summary) => sum + summary.count, 0), sweep };
+  // W-0352. The extended run is optional; a bundle that has one must have a sound one.
+  let extended = null;
+  if (bundle.extended !== undefined) {
+    const run = bundle.extended;
+    assertRunSource(run?.before, source);
+    assertRunSource(run.after, source);
+    assert.deepEqual(run.command, EXTENDED_SWEEP_COMMAND, "extended used a partial or unsupported command");
+    assert.equal(run.exitCode, 0, "extended command failed");
+    assert(instant(run.finishedAt) >= instant(run.startedAt), "invalid run interval");
+    assert(instant(run.startedAt) >= instant(bundle.sweep.finishedAt), "sweep and extended gates overlap");
+    extended = extendedSweepVerdict(readArtifact(run.file), manifest);
+    assert.equal(extended.ok, true, extended.reason);
+  }
+  return { texts, count: summaries.reduce((sum, summary) => sum + summary.count, 0), sweep, extended };
 }

@@ -1,0 +1,19 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0116",
+  "scope": "software",
+  "retirements": [
+    {
+      "testId": "UT-UI-CONTRACT-06",
+      "reason": "Test UI trong admin-ui khóa hai field optional phía TypeScript; owner gỡ toàn bộ admin-ui ở W-0253 nên không còn bề mặt nào để test. Phía spec vẫn do CT-DOC-02 và các gate contract của sweep giữ.",
+      "decision": {
+        "commit": "c0e660948b9ba5e330d9a60dfe08ae0610f137cc",
+        "path": "docs/evidence/W-0253/README.md",
+        "sha256": "23ab714d5c18528a5b2e9fe017d8c2746bebfb67fb84ed9e0bb5b1ad50a9a78e",
+        "quote": "Owner chốt từ `2026-09-05` rằng console thuộc Module 3 và `admin-ui/` không phải deliverable."
+      },
+      "replacementTestIds": [],
+      "surfaceRemoved": true
+    }
+  ]
+}

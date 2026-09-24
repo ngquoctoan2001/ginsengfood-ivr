@@ -6,7 +6,7 @@
 // different reason the first time this ran. So the script builds a throwaway cluster and deploys
 // into it.
 //
-// Run: node deploy/ci/scripts/k8s-selftest.mjs [--keep]
+// Run: node deploy/ci/scripts/k8s-selftest.mjs [--keep] [--build-images]
 import { execFileSync, execSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -15,6 +15,10 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const keep = process.argv.includes("--keep");
+// W-0352. CI builds the three images in the job's before_script (k8s.gitlab-ci.yml). A local run
+// through `gate-sweep.mjs --extended` asks this script to build them itself, under the tag
+// loadImages() reads, so the cluster runs the images of the checkout under test.
+const buildImages = process.argv.includes("--build-images");
 
 const K3S = "rancher/k3s:v1.31.4-k3s1";
 const HELM = "alpine/helm:3.16.3";
@@ -698,6 +702,12 @@ function retentionCronJob() {
 // ---------------------------------------------------------------- run
 let netpolProven = false;
 try {
+  if (buildImages) {
+    for (const [image, dockerfile] of [["ivr-api", "api"], ["ivr-worker", "worker"], ["ivr-migrate", "migrate"]]) {
+      docker(["build", "-f", `deploy/docker/Dockerfile.${dockerfile}`,
+        "-t", `${image}:${process.env.IVR_IMAGE_TAG ?? "p7-1"}`, "."], { inherit: true });
+    }
+  }
   docker(["rm", "-f", HELMBOX], { stdio: ["ignore", "ignore", "ignore"] });
   docker(["run", "-d", "--name", HELMBOX, "--entrypoint", "sh", HELM, "-c", "sleep 3600"]);
   sleepSeconds(2);

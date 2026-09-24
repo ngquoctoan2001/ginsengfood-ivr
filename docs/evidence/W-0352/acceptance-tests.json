@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0352",
+  "scope": "software",
+  "gates": [
+    "acceptance-batches.mjs",
+    "acceptance-evidence-selftest.mjs"
+  ]
+}

@@ -1,0 +1,336 @@
+{
+  "scan_commit": "f75e20e",
+  "finding_count": 47,
+  "review": "Each flagged line opened at its recorded commit, never trusted from the rule. 35 EF designer lines are exactly the seeded feature-flag name v1NotificationEnabled; 3 are the Redoc rendering of that name inside a span whose CSS class is \"property token string\"; 5 portal sourceHashes values equal the SHA-256 of the named file at the same commit; 4 are the SHA-256 of the kit archive images/ivr-api.tar, recorded identically in all four W-0344/W-0345 manifests, and the archive itself is not committed.",
+  "findings": [
+    {
+      "commit": "6029b19f-5b21400c-c457792f-3c670f35-8a6c014a",
+      "file": "docs/api/ivr-order-confirmation-v1.html",
+      "line": 1246,
+      "rule": "generic-api-key",
+      "category": "redoc_rendered_feature_flag_name"
+    },
+    {
+      "commit": "6029b19f-5b21400c-c457792f-3c670f35-8a6c014a",
+      "file": "docs/api/ivr-order-confirmation-v1.html",
+      "line": 1276,
+      "rule": "generic-api-key",
+      "category": "redoc_rendered_feature_flag_name"
+    },
+    {
+      "commit": "6029b19f-5b21400c-c457792f-3c670f35-8a6c014a",
+      "file": "docs/api/ivr-order-confirmation-v1.html",
+      "line": 1276,
+      "rule": "generic-api-key",
+      "category": "redoc_rendered_feature_flag_name"
+    },
+    {
+      "commit": "6029b19f-5b21400c-c457792f-3c670f35-8a6c014a",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "7c4204e5-4102d161-a92a0457-1cfaa48a-90859d51",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "9dc54795-a19e735e-7dc429eb-fa1191f5-6e66b4c6",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "f7bb52b7-bf66c530-db627e1b-c528aef3-b72a2900",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "ffa02845-02931107-ace3d40b-a608f8ef-39f06a49",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "5e614366-545818a8-86e049be-0fc842c6-5f47672c",
+      "file": "docs/evidence/W-0344/cpu-retry-manifest.json",
+      "line": 130,
+      "rule": "generic-api-key",
+      "category": "image_archive_sha256_digest"
+    },
+    {
+      "commit": "02e32e30-6a372559-ba53f62e-ae442536-ae5fa876",
+      "file": "docs/evidence/W-0344/kit-manifest.json",
+      "line": 130,
+      "rule": "generic-api-key",
+      "category": "image_archive_sha256_digest"
+    },
+    {
+      "commit": "02e32e30-6a372559-ba53f62e-ae442536-ae5fa876",
+      "file": "docs/evidence/W-0344/verification.json",
+      "line": 150,
+      "rule": "generic-api-key",
+      "category": "image_archive_sha256_digest"
+    },
+    {
+      "commit": "f711a798-ef9076c9-3911d2a2-1e113fe7-340877d1",
+      "file": "docs/evidence/W-0345/cpu-retry-manifest.json",
+      "line": 130,
+      "rule": "generic-api-key",
+      "category": "image_archive_sha256_digest"
+    },
+    {
+      "commit": "b1bf3772-70f1ac5c-d1b1caab-e39fefca-6ab811f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b1bf3772-70f1ac5c-d1b1caab-e39fefca-6ab811f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b1bf3772-70f1ac5c-d1b1caab-e39fefca-6ab811f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b1bf3772-70f1ac5c-d1b1caab-e39fefca-6ab811f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b1bf3772-70f1ac5c-d1b1caab-e39fefca-6ab811f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915085434_AriControllerOwnership.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "eb7e781b-b5724cec-914be7ff-7be779c8-20b4e1f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "eb7e781b-b5724cec-914be7ff-7be779c8-20b4e1f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "eb7e781b-b5724cec-914be7ff-7be779c8-20b4e1f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "eb7e781b-b5724cec-914be7ff-7be779c8-20b4e1f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "eb7e781b-b5724cec-914be7ff-7be779c8-20b4e1f4",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915114705_DialTokenResolveLedger.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b817fae7-b55cd06b-0964c711-fc29f24f-b586a88e",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b817fae7-b55cd06b-0964c711-fc29f24f-b586a88e",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b817fae7-b55cd06b-0964c711-fc29f24f-b586a88e",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b817fae7-b55cd06b-0964c711-fc29f24f-b586a88e",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "b817fae7-b55cd06b-0964c711-fc29f24f-b586a88e",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260915122953_ProductionCallApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "641d294c-f7d13dcf-1eed6a55-d5befe34-ae9f40e2",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "641d294c-f7d13dcf-1eed6a55-d5befe34-ae9f40e2",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "641d294c-f7d13dcf-1eed6a55-d5befe34-ae9f40e2",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "641d294c-f7d13dcf-1eed6a55-d5befe34-ae9f40e2",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "641d294c-f7d13dcf-1eed6a55-d5befe34-ae9f40e2",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916065842_UnapproveUnsignedProductionAttemptPolicy.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "1651e8fa-264a710d-463bdce7-410c07c9-c69a9e43",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "1651e8fa-264a710d-463bdce7-410c07c9-c69a9e43",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "1651e8fa-264a710d-463bdce7-410c07c9-c69a9e43",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "1651e8fa-264a710d-463bdce7-410c07c9-c69a9e43",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "1651e8fa-264a710d-463bdce7-410c07c9-c69a9e43",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260916073006_RuntimeGateAdminApprovalIsEnvironmentScoped.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "ca8d13b6-498d7b5f-819980f9-5de2d3ea-0a0acda0",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "ca8d13b6-498d7b5f-819980f9-5de2d3ea-0a0acda0",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "ca8d13b6-498d7b5f-819980f9-5de2d3ea-0a0acda0",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "ca8d13b6-498d7b5f-819980f9-5de2d3ea-0a0acda0",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "ca8d13b6-498d7b5f-819980f9-5de2d3ea-0a0acda0",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260917013914_W0310PhoneE164FromModule3.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "53c2eb55-a4d8174a-a9057152-fa5d5ea2-81ee7489",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs",
+      "line": 524,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "53c2eb55-a4d8174a-a9057152-fa5d5ea2-81ee7489",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs",
+      "line": 623,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "53c2eb55-a4d8174a-a9057152-fa5d5ea2-81ee7489",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs",
+      "line": 722,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "53c2eb55-a4d8174a-a9057152-fa5d5ea2-81ee7489",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs",
+      "line": 821,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    },
+    {
+      "commit": "53c2eb55-a4d8174a-a9057152-fa5d5ea2-81ee7489",
+      "file": "src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs",
+      "line": 920,
+      "rule": "generic-api-key",
+      "category": "feature_flag_seed_name"
+    }
+  ]
+}

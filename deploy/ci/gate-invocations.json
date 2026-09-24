@@ -5,7 +5,8 @@
     "expect": "substring that must appear in stdout+stderr for the run to count as a pass",
     "timeoutMs": "optional override of the 180s default",
     "sweepable": "false with a reason, for gates a static offline sweep cannot run",
-    "runner": "what does run it, when the sweep does not"
+    "runner": "what does run it, when the sweep does not",
+    "extended": "W-0352. invocations `gate-sweep.mjs --extended` runs for a gate the offline sweep skips because it needs container images or a network. Each has `argv`, `expect` (a line of the gate's output must start with this token, followed by a space or the end of the line), an optional `timeoutMs`, and an optional `image`: the script then runs inside that pinned image with the repository mounted at /repo"
   },
   "gates": {
     "sandbox-examples.mjs": {
@@ -72,7 +73,11 @@
     "image-selftest.mjs": {
       "sweepable": false,
       "reason": "runs docker build against the API and worker images",
-      "runner": "images.gitlab-ci.yml"
+      "runner": "images.gitlab-ci.yml",
+      "extended": [
+        { "argv": [], "expect": "IMAGE_SELFTEST_PASS", "timeoutMs": 3600000 },
+        { "argv": ["--observability-runtime", "--skip-compose", "--skip-scan"], "expect": "IMAGE_SELFTEST_PASS", "timeoutMs": 3600000 }
+      ]
     },
     "json-shape-lib.mjs": {
       "sweepable": false,
@@ -82,7 +87,10 @@
     "k8s-selftest.mjs": {
       "sweepable": false,
       "reason": "needs helm, kubeconform and a running cluster; exceeds any offline budget",
-      "runner": "k8s.gitlab-ci.yml"
+      "runner": "k8s.gitlab-ci.yml",
+      "extended": [
+        { "argv": ["--build-images"], "expect": "K8S_SELFTEST_PASS", "timeoutMs": 3600000 }
+      ]
     },
     "lab-converter-selftest.mjs": { "argv": ["--self-test"], "expect": "LAB_CONVERTER_SELFTEST_PASS" },
     "migration-expand-guard.mjs": {
@@ -124,7 +132,10 @@
     "security-scan.sh": {
       "sweepable": false,
       "reason": "needs the scanner images and a network; selftest-dotnet-policy.sh covers the policy half offline",
-      "runner": "ci.gitlab-ci.yml"
+      "runner": "ci.gitlab-ci.yml",
+      "extended": [
+        { "argv": [], "expect": "SECURITY_SCAN_PASS", "timeoutMs": 1800000 }
+      ]
     },
     "sensitive-value-lib.mjs": {
       "sweepable": false,
@@ -135,7 +146,14 @@
     "selftest-oasdiff.sh": {
       "sweepable": false,
       "reason": "needs the oasdiff binary, which lives in the pinned image and not on a developer host",
-      "runner": "docs.gitlab-ci.yml inside the oasdiff image"
+      "runner": "docs.gitlab-ci.yml inside the oasdiff image",
+      "extended": [
+        {
+          "image": "tufin/oasdiff:v1.26.1@sha256:aae8cfcf7d18d3b0ebce6bdf407623bf8788ca318c7a0440627aaf583ed3e9f4",
+          "argv": [],
+          "expect": "CT-DOC-02 PASS"
+        }
+      ]
     },
     "selftest-openapi.mjs": { "argv": ["--self-test"], "expect": "CT-CI-01 PASS" },
     "selftest-pii.sh": { "argv": [], "expect": "CT-CI-06h PASS" },

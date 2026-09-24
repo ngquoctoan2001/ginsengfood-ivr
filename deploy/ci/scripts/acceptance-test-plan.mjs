@@ -15,7 +15,8 @@ export const GATE_TESTS = Object.freeze({
   "CT-ACCEPTANCE-EVIDENCE-01": "acceptance-evidence-selftest.mjs",
   // W-0346. Each runner prints "<TestId> PASS…" right after the assertion of that name, and
   // gateRegistryErrors() holds every entry to that. Only IDs a candidate cites. A gate the full
-  // sweep does not run (image, k8s, oasdiff, security-scan) cannot own one.
+  // sweep does not run (image, k8s, oasdiff, security-scan) cannot own one here; its TestIds are in
+  // EXTENDED_GATE_TESTS (W-0352).
   ...printedBy("selftest-openapi.mjs", "CT-CI-01"),
   ...printedBy("selftest-dotnet-policy.sh", "CT-CI-02", "CT-CI-03", "CT-CI-09"),
   ...printedBy("ci-config-selftest.mjs", "CT-CI-05", "CT-CI-07", "CT-CI-08", "CT-CI-10", "CT-CI-11",
@@ -33,6 +34,20 @@ export const GATE_TESTS = Object.freeze({
     "CAP-INTAKE-MODE-03", "CAP-INTAKE-TEMPLATE-04", "CAP-INTAKE-RECEIPT-05", "CAP-INTAKE-RECEIPT-VERIFY-06",
     "CAP-INTAKE-LEDGER-07", "CAP-INTAKE-CHECKPOINT-08"),
   ...printedBy("observability-staging-evidence.mjs", "CT-OBS-STAGING-13", "CT-OBS-STAGING-14"),
+});
+
+// W-0352. TestIds printed by the gates the offline sweep skips because they need container images
+// or a network. One counts only through the collector's extended run (--extended) at the same
+// commit, and only when that run shows "<TestId> PASS" inside the owning gate's own output. The
+// runner is the manifest entry that is run: IT-OBS-TRACE-02 and IT-OBS-EXPORT-11 are printed by
+// observability-runtime-selftest.mjs, a library that image-selftest.mjs imports and calls.
+export const EXTENDED_GATE_TESTS = Object.freeze({
+  ...printedBy("image-selftest.mjs", "IT-IMG-BUILD-01", "IT-IMG-HEALTH-02", "IT-IMG-COMPOSE-03", "IT-IMG-SCAN-04",
+    "IT-IMG-E2E-05", "IT-IMG-SBOM-06", "IT-OBS-TRACE-02", "IT-OBS-EXPORT-11", "IT-OBS-RESILIENCE-12"),
+  ...printedBy("k8s-selftest.mjs", "IT-K8S-LINT-01", "IT-K8S-GATE-02", "IT-K8S-PROBE-03", "IT-K8S-NETPOL-04",
+    "IT-K8S-RETENTION-05", "IT-K8S-WORKER-06", "IT-K8S-ROTATE-07"),
+  ...printedBy("security-scan.sh", "CT-CI-04"),
+  ...printedBy("selftest-oasdiff.sh", "CT-DOC-02"),
 });
 
 // Here the whole gate is the test. Its manifest marker is the result, so it prints no per-ID line.
@@ -59,7 +74,7 @@ function printedBy(runner, ...ids) {
  * conditional: it must be declared, and a declaration needs one.
  */
 export function gateRegistryErrors({ manifest, traced, source, registry = GATE_TESTS,
-  conditions = GATE_TEST_CONDITIONS, wholeGate = WHOLE_GATE_TESTS }) {
+  conditions = GATE_TEST_CONDITIONS, wholeGate = WHOLE_GATE_TESTS, extended = EXTENDED_GATE_TESTS }) {
   const errors = [];
   for (const [id, runner] of Object.entries(registry)) {
     if (!Array.isArray(manifest?.gates?.[runner]?.argv)) {
@@ -76,10 +91,7 @@ export function gateRegistryErrors({ manifest, traced, source, registry = GATE_T
       errors.push(`${id}: không đọc được ${runner}`);
       continue;
     }
-    const escaped = id.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-    const printed = new RegExp(`(?<![A-Za-z0-9-])${escaped} (PASS\\w*|\\$\\{[^}]*\\bPASS\\w*[^}]*\\})`, "gu");
-    const markers = text.split("\n").filter((line) => !/^\s*(?:\/\/|\/\*|\*|#)/u.test(line))
-      .flatMap((line) => [...line.matchAll(printed)].map((match) => match[1]));
+    const markers = printedMarkers(text, id);
     const conditional = markers.some((marker) => marker !== "PASS");
     if (markers.length === 0) {
       errors.push(`${id}: ${runner} không in "${id} PASS"`);
@@ -93,7 +105,39 @@ export function gateRegistryErrors({ manifest, traced, source, registry = GATE_T
   for (const id of Object.keys(conditions)) {
     if (!Object.hasOwn(registry, id)) errors.push(`${id}: có điều kiện nhưng không có trong registry`);
   }
+
+  // W-0352. An extended entry stands when its runner has extended invocations and no offline argv,
+  // no .NET test owns the TestId, and the runner, or a sibling module it imports, prints a plain
+  // "<TestId> PASS". Only a plain PASS line counts in the extended log, so none is conditional.
+  for (const [id, runner] of Object.entries(extended)) {
+    const gate = manifest?.gates?.[runner];
+    if (!Array.isArray(gate?.extended) || gate.extended.length === 0 || Array.isArray(gate.argv)) {
+      errors.push(`${id}: ${runner} không chạy trong lượt gate mở rộng`);
+      continue;
+    }
+    if (traced.has(id) || Object.hasOwn(registry, id)) {
+      errors.push(`${id} đã có chủ khác (test .NET hoặc gate của full sweep)`);
+      continue;
+    }
+    const text = source(runner);
+    if (typeof text !== "string") {
+      errors.push(`${id}: không đọc được ${runner}`);
+      continue;
+    }
+    const imported = [...text.matchAll(/\bfrom\s+"\.\/([A-Za-z0-9._-]+\.mjs)"/gu)].map((match) => source(match[1]));
+    if (![text, ...imported].some((module) => typeof module === "string" && printedMarkers(module, id).includes("PASS"))) {
+      errors.push(`${id}: ${runner} không in "${id} PASS"`);
+    }
+  }
   return errors;
+}
+
+/** The PASS markers a runner prints for one TestId, outside comments. */
+function printedMarkers(text, id) {
+  const escaped = id.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const printed = new RegExp(`(?<![A-Za-z0-9-])${escaped} (PASS\\w*|\\$\\{[^}]*\\bPASS\\w*[^}]*\\})`, "gu");
+  return text.split("\n").filter((line) => !/^\s*(?:\/\/|\/\*|\*|#)/u.test(line))
+    .flatMap((line) => [...line.matchAll(printed)].map((match) => match[1]));
 }
 
 /**
@@ -173,8 +217,8 @@ export function collectTestEvidence({ workId, evidencePath, evidenceText, prompt
     for (const item of mentions) {
       assert(typeof item?.testId === "string" && cited.has(item.testId),
         `mentioned TestId is not named by the evidence: ${item?.testId}`);
-      assert(!trace.byId.has(item.testId) && !Object.hasOwn(GATE_TESTS, item.testId),
-        `a live TestId is a claim, not a mention: ${item.testId}`);
+      assert(!trace.byId.has(item.testId) && !Object.hasOwn(GATE_TESTS, item.testId)
+        && !Object.hasOwn(EXTENDED_GATE_TESTS, item.testId), `a live TestId is a claim, not a mention: ${item.testId}`);
       assert(!mentioned.has(item.testId), `duplicate mention: ${item.testId}`);
       assert(typeof item.reason === "string" && item.reason.trim().length >= 20, "a mention needs a specific reason");
       mentioned.add(item.testId);

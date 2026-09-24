@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { c2SelfTest } from "./acceptance-c2-checks.mjs";
 import {
-  collectTestEvidence, GATE_TEST_CONDITIONS, GATE_TESTS, gateRegistryErrors, READ_ONLY_SCOPES,
+  collectTestEvidence, EXTENDED_GATE_TESTS, GATE_TEST_CONDITIONS, GATE_TESTS, gateRegistryErrors, READ_ONLY_SCOPES,
 } from "./acceptance-test-plan.mjs";
 import {
   GATE_MANIFEST, fullSweepVerdict, expectedTestAssemblies, readPinnedArtifact, validateRunEvidence, sha256,
@@ -30,7 +30,9 @@ import {
 //       runner assertion that passed only under a stated condition is shown as XEM with it. A
 //       gate the work built counts through its self-test in the sweep; work that is documents only
 //       declares them and is always shown as XEM (W-0349). So is an ID the evidence only mentions,
-//       or one retired with its whole surface by a pinned decision (W-0351)
+//       or one retired with its whole surface by a pinned decision (W-0351). A TestId of a gate
+//       the offline sweep skips (image, K8s, oasdiff, security scan) counts only through the
+//       bundle's extended run, where that gate's own output printed "<TestId> PASS" (W-0352)
 //   C3  Residual/next holds nothing IVR still has to do, only external waits. A script cannot judge
 //       that, so a non-empty cell is shown for the owner to read (XEM) and never passed silently
 //   C4  the captured sweep ran the exact set of gates in that commit's manifest
@@ -340,7 +342,8 @@ function joinReasons(failures) {
 }
 
 /** One row against the four criteria. `sweep` is shared by every row of the same commit. */
-export function judge(row, { evidencePath, evidenceText, trace, results, sweep, runCheck, testEvidence, gateManifest }) {
+export function judge(row, { evidencePath, evidenceText, trace, results, sweep, runCheck, testEvidence, gateManifest,
+  extended = null }) {
   let c1;
   if (!evidencePath) {
     c1 = { ok: false, reason: "gate-status.yaml không trỏ tới gói bằng chứng nào" };
@@ -370,10 +373,25 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
       : runCheck?.ok !== true ? (runCheck?.ok ?? null) : sweep.ok,
     reason,
   });
+  // W-0352: the extended run of the same bundle, and only the owning gate's own output in it.
+  const byExtended = (id, runner) => {
+    if (!Array.isArray(gateManifest?.gates?.[runner]?.extended)) {
+      return { ok: false, reason: `${id}: ${runner} không có trong lượt gate mở rộng` };
+    }
+    if (runCheck?.ok !== true) return { ok: runCheck?.ok ?? null, reason: `${id} cần gói kết quả gắn với commit` };
+    if (extended === null) {
+      return { ok: null, extended: true, reason: `${id} cần lượt gate mở rộng của collector (--extended)` };
+    }
+    if (extended.ok !== true) return { ok: false, reason: `${id}: ${extended.reason}` };
+    return extended.printed.get(runner)?.has(id)
+      ? { ok: true, reason: "" }
+      : { ok: false, reason: `${id} không in PASS trong phần log của ${runner}` };
+  };
   const verdicts = [
     ...cited.map((id) => GATE_TESTS[id]
       ? bySweep(GATE_TESTS[id], `${id} cần full sweep có ${GATE_TESTS[id]}`)
-      : testVerdict(id, trace, results)),
+      : EXTENDED_GATE_TESTS[id] ? byExtended(id, EXTENDED_GATE_TESTS[id])
+        : testVerdict(id, trace, results)),
     // W-0349: a gate the work built is tested by its own self-test in the sweep.
     ...declaredGates.map((gate) => bySweep(gate, `${gate} cần chạy và đạt trong full sweep`)),
     // A document has no test of its own; the documentation and PII gates of the sweep can still fail it.
@@ -403,7 +421,8 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
   } else if (runCheck?.ok !== true) {
     c2 = runCheck ?? { ok: null, reason: "chưa có gói kết quả gắn với commit (--evidence)" };
   } else if (verdicts.some((verdict) => verdict.ok === null)) {
-    c2 = { ok: null, reason: "chưa có kết quả test đã xác minh (--evidence)" };
+    const waiting = verdicts.find((verdict) => verdict.ok === null && verdict.extended);
+    c2 = { ok: null, reason: waiting?.reason ?? "chưa có kết quả test đã xác minh (--evidence)" };
   } else {
     const parts = [
       ...(cited.length ? [`${cited.length} TestId xanh`] : []),
@@ -451,7 +470,7 @@ function cellText(text) {
 }
 
 /** The report the owner reads. Markdown, Vietnamese, one table per batch. */
-export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phaseFilter }) {
+export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phaseFilter, extended = null }) {
   const lines = [];
   lines.push(`# Danh sách đề nghị nghiệm thu — \`${head}\``, "");
   lines.push("Script **chỉ đọc**: không sửa tracker. Chỉ Toàn chuyển một dòng sang `ACCEPTED`, sau khi");
@@ -462,7 +481,9 @@ export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phas
 
   lines.push("| Nguồn | Trạng thái |", "| --- | --- |");
   lines.push(`| Kết quả test (\`C2\`) | ${resultsNote} |`);
-  lines.push(`| Gate sweep (\`C4\`) | ${mark(sweep)} ${sweep.reason} |`, "");
+  lines.push(`| Gate sweep (\`C4\`) | ${mark(sweep)} ${sweep.reason} |`);
+  lines.push(`| Gate mở rộng: image, K8s, oasdiff, security scan (\`C2\`) | ${extended
+    ? `${mark(extended)} ${extended.reason}` : "⏳ gói không có lượt này; chạy collector với `--extended`"} |`, "");
 
   const planned = rows.filter((row) => row.prompt && phaseOf(row.prompt) !== "UNPLANNED");
   const accepted = planned.filter((row) => row.status === "ACCEPTED" || row.status === "N/A"
@@ -570,8 +591,9 @@ function readWorktree(root, files) {
  */
 function registryErrors(read, manifest, trace) {
   const file = (runner) => `deploy/ci/scripts/${runner}`;
-  const texts = read([...new Set(Object.values(GATE_TESTS))].map(file));
-  return gateRegistryErrors({ manifest, traced: trace.byId, source: (runner) => normalise(texts.get(file(runner)) ?? null) });
+  // Read on demand: an extended runner's check also reads the sibling modules it imports.
+  return gateRegistryErrors({ manifest, traced: trace.byId,
+    source: (runner) => normalise(read([file(runner)]).get(file(runner)) ?? null) });
 }
 
 function argument(name) {
@@ -636,6 +658,7 @@ function main() {
   let resultsNote = "⏳ chưa có — chạy `node tools/dev/collect-acceptance-evidence.mjs --out <thư mục mới>`, rồi đưa `--evidence <acceptance-run.json>`";
   let runCheck = { ok: null, reason: "chưa có gói kết quả gắn với commit (--evidence)" };
   let sweep = sweepVerdict(null);
+  let extended = null;
   const evidenceFile = argument("--evidence");
   if (evidenceFile) {
     try {
@@ -653,6 +676,7 @@ function main() {
       resultsNote = `${verified.texts.length} file \`.trx\`, ${results.count} kết quả · SHA/hash/đủ project đã kiểm`;
       runCheck = { ok: true, reason: "" };
       sweep = verified.sweep;
+      extended = verified.extended;
     } catch (error) {
       const reason = `gói kết quả bị từ chối: ${error.message.split("\n")[0]}`;
       results = null;
@@ -671,6 +695,7 @@ function main() {
     sweep,
     runCheck,
     gateManifest,
+    extended,
     testEvidence: collectTestEvidence({ workId: row.id, evidencePath: evidence.get(row.id),
       evidenceText: evidence.get(row.id) ? normalise(texts.get(evidence.get(row.id))) : null,
       promptText: prompts.get(promptPaths.find((file) => path.posix.basename(file).startsWith(`${row.prompt}-`))) ?? "",
@@ -678,7 +703,7 @@ function main() {
   }));
 
   process.stdout.write(render({
-    head, dirtyNote, rows, judged, sweep, resultsNote, phaseFilter: argument("--phase"),
+    head, dirtyNote, rows, judged, sweep, resultsNote, phaseFilter: argument("--phase"), extended,
   }));
 }
 
@@ -813,7 +838,7 @@ function selfTest() {
   const liveErrors = registryErrors(live, JSON.parse(live([GATE_MANIFEST]).get(GATE_MANIFEST)),
     traceability(live([TRACEABILITY]).get(TRACEABILITY)));
   assert.deepEqual(liveErrors, [], `GATE_TESTS: ${liveErrors.join("; ")}`);
-  process.stdout.write(`ACCEPTANCE_BATCHES_SELFTEST_PASS — 4 criteria, 8 candidate rows, 2 non-candidates, ${c2Checks} C2 regression checks, ${Object.keys(GATE_TESTS).length} gate TestIds held to their runners\n`);
+  process.stdout.write(`ACCEPTANCE_BATCHES_SELFTEST_PASS — 4 criteria, 8 candidate rows, 2 non-candidates, ${c2Checks} C2 regression checks, ${Object.keys(GATE_TESTS).length} gate TestIds held to their runners, ${Object.keys(EXTENDED_GATE_TESTS).length} to extended runners\n`);
 }
 
 if (process.argv.includes("--self-test")) {

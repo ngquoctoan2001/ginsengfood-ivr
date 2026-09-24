@@ -20,7 +20,7 @@
 // reason. A gate added without an entry fails this sweep. That is the check that would have caught
 // the seventeen orphans on the day the first one landed.
 
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -178,7 +178,7 @@ export function runGateSweep({ listOnly = false, only = null } = {}) {
       const entry = gates[name];
       const how = entry?.argv
         ? `run: ${entry.argv.join(" ") || "<no arguments>"} -> ${entry.expect}`
-        : `skip: ${entry?.reason ?? "UNLISTED"}`;
+        : `skip: ${entry?.reason ?? "UNLISTED"}${entry?.extended ? ` [--extended runs it ${entry.extended.length}x]` : ""}`;
       process.stdout.write(`  ${name.padEnd(52)} ${how}\n`);
     }
     process.stdout.write(`GATE_SWEEP_LIST ${runnable.length} runnable, ${skipped.length} skipped\n`);
@@ -217,10 +217,116 @@ export function runGateSweep({ listOnly = false, only = null } = {}) {
   return problems.length === 0 ? 0 : 1;
 }
 
+// W-0352. The gates above that the offline sweep skips because they need container images or a
+// network - image, K8s, oasdiff, security scan - each have an `extended` list in the manifest, and
+// `--extended` runs those invocations and nothing else. The regular sweep stays offline and fast.
+//
+// Unlike the regular sweep, every line a gate prints goes to the log, behind OUTPUT_PREFIX. The
+// acceptance list reads "<TestId> PASS" lines from it, and only inside the section of the gate that
+// owns the TestId: a final token proves the gate got to its end, but only the gate's own output says
+// which assertions this invocation reached. The prefix keeps that output from ever reading as a
+// result line or a section header of the sweep itself.
+export const OUTPUT_PREFIX = "    | ";
+
+/** Every extended invocation, in the order the sweep runs them: by file name, then as listed. */
+export function extendedInvocations(gates) {
+  return Object.keys(gates).sort().flatMap((name) =>
+    (Array.isArray(gates[name]?.extended) ? gates[name].extended : []).map((entry) => ({
+      name,
+      entry,
+      label: [name, ...(entry.argv ?? [])].join(" "),
+    })));
+}
+
+/** A line that starts with the token, followed by a space or nothing: PASS, never PASS_WITH_... */
+export function printsToken(output, token) {
+  return output.split(/\r?\n/u).some((line) => line.startsWith(token)
+    && (line.length === token.length || /\s/u.test(line[token.length])));
+}
+
+function runExtendedInvocation({ name, entry, label }) {
+  const script = `deploy/ci/scripts/${name}`;
+  const interpreter = path.extname(name) === ".mjs" ? "node" : "sh";
+  const [command, args] = entry.image
+    ? ["docker", ["run", "--rm", "-v", `${REPOSITORY_ROOT}:/repo`, "-w", "/repo", "--entrypoint", interpreter,
+      entry.image, script, ...entry.argv]]
+    : [interpreter, [path.join(REPOSITORY_ROOT, script), ...entry.argv]];
+  process.stdout.write(`==== ${label}\n`);
+  const started = Date.now();
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { cwd: REPOSITORY_ROOT, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+    let output = "";
+    let pending = "";
+    const emit = (chunk) => {
+      const text = chunk.toString("utf8");
+      output += text;
+      pending += text;
+      const lines = pending.split(/\r?\n/u);
+      pending = lines.pop();
+      for (const line of lines) process.stdout.write(`${OUTPUT_PREFIX}${line}\n`);
+    };
+    child.stdout.on("data", emit);
+    child.stderr.on("data", emit);
+    const timer = setTimeout(() => child.kill(), entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+    const finish = (detail, ok) => {
+      clearTimeout(timer);
+      if (pending) process.stdout.write(`${OUTPUT_PREFIX}${pending}\n`);
+      resolve({ ok, elapsed: Date.now() - started, detail });
+    };
+    child.once("error", (error) => finish(`could not start: ${error.message}`, false));
+    child.once("close", (code, signal) => {
+      if (code !== 0) finish(signal ? `killed by ${signal} (timeout?)` : `exit ${code}`, false);
+      else if (!printsToken(output, entry.expect)) finish(`exit 0 but never printed ${entry.expect}`, false);
+      else finish(entry.expect, true);
+    });
+  });
+}
+
+export async function runExtendedSweep({ only = null } = {}) {
+  const gates = loadManifest();
+  const problems = checkCoverage(gates, listGateFiles());
+  // `--only` is for debugging one gate. Its summary counts fewer invocations than the manifest
+  // lists, so the acceptance collector can never take it for a complete extended run.
+  const invocations = extendedInvocations(gates)
+    .filter(({ name }) => !only || name === only || name === `${only}.mjs` || name === `${only}.sh`);
+  for (const { name, entry } of invocations) {
+    if (Array.isArray(gates[name].argv)) problems.push(`${name}: runs in the offline sweep and must not be extended too`);
+    if (!Array.isArray(entry.argv) || typeof entry.expect !== "string" || entry.expect.length === 0) {
+      problems.push(`${name}: an extended invocation needs argv and expect`);
+    }
+  }
+  if (invocations.length === 0) problems.push("the manifest has no extended invocations");
+  if (!acquireLock()) return 1;
+
+  let passed = 0;
+  try {
+    if (problems.length === 0) {
+      for (const invocation of invocations) {
+        const outcome = await runExtendedInvocation(invocation);
+        const seconds = (outcome.elapsed / 1000).toFixed(1);
+        if (outcome.ok) passed += 1;
+        else problems.push(`${invocation.label}: ${outcome.detail}`);
+        process.stdout.write(`  ${outcome.ok ? "ok  " : "FAIL"} ${invocation.label.padEnd(52)} ${seconds}s  ${outcome.detail}\n`);
+      }
+    }
+  } finally {
+    rmSync(LOCK_PATH, { force: true });
+  }
+
+  for (const problem of problems.filter((item) => !item.includes(": exit "))) {
+    process.stdout.write(`  ---- ${problem}\n`);
+  }
+
+  process.stdout.write(`EXTENDED_SWEEP_${problems.length === 0 ? "PASS" : "FAIL"} ${passed}/${invocations.length} run\n`);
+  return problems.length === 0 ? 0 : 1;
+}
+
 const invokedDirectly =
   process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
-if (invokedDirectly) {
-  const onlyIndex = process.argv.indexOf("--only");
+const onlyIndex = process.argv.indexOf("--only");
+if (invokedDirectly && process.argv.includes("--extended")) {
+  process.exitCode = await runExtendedSweep({ only: onlyIndex === -1 ? null : process.argv[onlyIndex + 1] });
+} else if (invokedDirectly) {
   process.exit(
     runGateSweep({
       listOnly: process.argv.includes("--list"),

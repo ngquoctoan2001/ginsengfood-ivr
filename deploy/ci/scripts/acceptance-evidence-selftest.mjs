@@ -5,9 +5,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  RUN_SCHEMA, GATE_MANIFEST, TEST_COMMAND, SWEEP_COMMAND, sha256, fullSweepVerdict,
-  validateRunEvidence, readPinnedArtifact, expectedTestAssemblies,
+  RUN_SCHEMA, GATE_MANIFEST, TEST_COMMAND, SWEEP_COMMAND, EXTENDED_SWEEP_COMMAND, sha256, fullSweepVerdict,
+  extendedSweepVerdict, validateRunEvidence, readPinnedArtifact, expectedTestAssemblies,
 } from "./acceptance-evidence-lib.mjs";
+import { OUTPUT_PREFIX, printsToken } from "./gate-sweep.mjs";
 import { captureSource, collectAcceptanceEvidence } from "../../../tools/dev/collect-acceptance-evidence.mjs";
 
 let checks = 0;
@@ -91,6 +92,70 @@ refused("failed/skipped result", ({ bundle, artifacts }) => {
   artifacts.set("trx/tests.trx", skipped); bundle.tests.files[0].sha256 = sha256(skipped);
 }, /non-passing/u);
 refused("wrong assembly", ({ options }) => { options.assemblies = ["Other.dll"]; }, /missing or duplicate test assembly/u);
+
+// W-0352. The extended run: gates the offline sweep skips, each in its own prefixed section.
+const extendedManifest = { gates: { ...manifest.gates,
+  "c.sh": { sweepable: false, reason: "needs a network", extended: [
+    { argv: [], expect: "C_PASS" }, { argv: ["--again"], expect: "C_PASS" }] } } };
+const extendedManifestBytes = JSON.stringify(extendedManifest);
+const extendedSweepLog = sweepLog.replace("1 skipped", "2 skipped");
+const extendedLog = ["==== c.sh", `${OUTPUT_PREFIX}UT-C-01 PASS — first`, `${OUTPUT_PREFIX}building layer 3/9`,
+  "  ok   c.sh 3.0s  C_PASS", "==== c.sh --again", `${OUTPUT_PREFIX}UT-C-02 PASS`,
+  `${OUTPUT_PREFIX}UT-C-03 PASS_WITH_NOT_PROVEN=X`, "  ok   c.sh --again 1.0s  C_PASS", "EXTENDED_SWEEP_PASS 2/2 run", ""].join("\n");
+const green = extendedSweepVerdict(extendedLog, extendedManifest);
+assert.equal(green.ok, true, green.reason);
+assert.deepEqual([...green.printed.get("c.sh")].sort(), ["UT-C-01", "UT-C-02"], "only a plain PASS line counts"); checks += 1;
+assert.equal(extendedSweepVerdict(null, extendedManifest).ok, null); checks += 1;
+for (const log of [
+  extendedLog.replace("PASS 2/2", "PASS 1/1"),
+  extendedLog.replace("  ok   c.sh --again", "  FAIL c.sh --again"),
+  extendedLog.replace(/==== c\.sh --again[\s\S]*?--again 1\.0s {2}C_PASS\n/u, ""),
+  extendedLog.replace("3.0s  C_PASS", "3.0s  WRONG_PASS"),
+  extendedLog.replace(`${OUTPUT_PREFIX}UT-C-01`, "UT-C-01"),
+  extendedLog.replace("==== c.sh --again", "==== c.sh --other"),
+  extendedLog.replace("  ok   c.sh 3.0s  C_PASS\n", ""),
+  extendedLog + extendedLog,
+]) {
+  assert.equal(extendedSweepVerdict(log, extendedManifest).ok, false, log); checks += 1;
+}
+assert.equal(extendedSweepVerdict(extendedLog, manifest).ok, false, "a manifest with no extended gates proves nothing"); checks += 1;
+assert.deepEqual(["X_PASS", "X_PASS_WITH_NOT_PROVEN=Y", "X_PASSED", "X_PASS extra", "  X_PASS"].map((line) => printsToken(line, "X_PASS")),
+  [true, false, false, true, false], "the sweep's own token check reads whole lines"); checks += 1;
+
+function withExtended(value) {
+  value.options.manifestBytes = extendedManifestBytes;
+  value.bundle.gateManifestSha256 = sha256(extendedManifestBytes);
+  value.artifacts.set("sweep.log", extendedSweepLog);
+  value.bundle.sweep.file = { path: "sweep.log", sha256: sha256(extendedSweepLog) };
+  value.artifacts.set("extended.log", extendedLog);
+  value.bundle.extended = { before: { ...source }, after: { ...source }, startedAt: finishedAt,
+    finishedAt: "2026-09-21T00:00:02.000Z", command: EXTENDED_SWEEP_COMMAND, exitCode: 0,
+    file: { path: "extended.log", sha256: sha256(extendedLog) } };
+  return value;
+}
+{
+  const value = withExtended(fixture());
+  const verified = validateRunEvidence(value.bundle, value.options);
+  assert.equal(verified.extended.ok, true);
+  assert(verified.extended.printed.get("c.sh").has("UT-C-01")); checks += 1;
+  assert.equal(validateRunEvidence(fixture().bundle, fixture().options).extended, null, "the extended run is optional"); checks += 1;
+}
+for (const [label, mutate, pattern] of [
+  ["extended from a dirty tree", ({ bundle }) => { bundle.extended.after.clean = false; }, /dirty checkout/u],
+  ["extended at another commit", ({ bundle }) => { bundle.extended.before.commit = "c".repeat(40); }, /different commit/u],
+  ["partial extended command", ({ bundle }) => { bundle.extended.command = [...SWEEP_COMMAND, "--only", "c"]; }, /partial or unsupported/u],
+  ["extended command failed", ({ bundle }) => { bundle.extended.exitCode = 1; }, /extended command failed/u],
+  ["extended overlaps the sweep", ({ bundle }) => { bundle.extended.startedAt = startedAt; }, /overlap/u],
+  ["extended bytes changed", ({ artifacts }) => { artifacts.set("extended.log", `${extendedLog} `); }, /hash mismatch/u],
+  ["extended gate failed", ({ bundle, artifacts }) => {
+    const red = extendedLog.replace("  ok   c.sh --again", "  FAIL c.sh --again");
+    artifacts.set("extended.log", red); bundle.extended.file.sha256 = sha256(red);
+  }, /gate mở rộng không hợp lệ/u],
+]) {
+  const value = withExtended(fixture());
+  mutate(value);
+  assert.throws(() => validateRunEvidence(value.bundle, value.options), pattern, label); checks += 1;
+}
 
 // Real Git/CLI fixture: a separate throwaway repository, always main. No refs or files in the
 // user's repository are touched. Synthetic test results are labelled and never used for acceptance.
@@ -193,6 +258,30 @@ try {
     await assert.rejects(collectAcceptanceEvidence({ root, output: out, snapshot, run: badRun }));
     assert(!fs.existsSync(path.join(out, "acceptance-run.json"))); checks += 1;
   }
+  // W-0352. End to end: the collector records an extended run, and the list counts a claim of a
+  // gate the offline sweep skips only through it.
+  git(["rm", "-q", "docs/evidence/W-0010/acceptance-tests.json"]);
+  write("docs/evidence/W-0010/test-report.md", "UT-X-01 CT-DOC-02\n");
+  write(GATE_MANIFEST, JSON.stringify({ gates: { ...manifest.gates, "selftest-oasdiff.sh": { sweepable: false,
+    reason: "needs the pinned oasdiff image", extended: [{ argv: [], expect: "CT-DOC-02 PASS" }] } } }));
+  git(["add", "deploy", "docs"]); git(["commit", "-m", "test: a claim of an extended gate"]);
+  const oasdiffLog = ["==== selftest-oasdiff.sh", `${OUTPUT_PREFIX}CT-DOC-02 PASS — synthetic fixture, no oasdiff ran`,
+    "  ok   selftest-oasdiff.sh 2.0s  CT-DOC-02 PASS", "EXTENDED_SWEEP_PASS 1/1 run", ""].join("\n");
+  const withGates = async (cmd, options) => {
+    await run(cmd, options);
+    if (cmd === SWEEP_COMMAND) fs.writeFileSync(options.logFile, extendedSweepLog);
+    if (cmd === EXTENDED_SWEEP_COMMAND) fs.writeFileSync(options.logFile, oasdiffLog);
+    return 0;
+  };
+  const extendedRun = await collectAcceptanceEvidence({ root, output: path.join(temporary, "extended"), extended: true, run: withGates });
+  assert.deepEqual(JSON.parse(fs.readFileSync(extendedRun, "utf8")).extended.command, EXTENDED_SWEEP_COMMAND);
+  const listed = command(process.execPath, [cli, "--root", root, "--evidence", extendedRun]);
+  assert.equal(listed.status, 0, listed.stderr);
+  assert(listed.stdout.includes("EXTENDED_SWEEP_PASS 1/1") && listed.stdout.includes("**ĐẠT**"), listed.stdout); checks += 1;
+  const plainRun = await collectAcceptanceEvidence({ root, output: path.join(temporary, "no-extended"), run: withGates });
+  const unlisted = command(process.execPath, [cli, "--root", root, "--evidence", plainRun]);
+  assert(unlisted.stdout.includes("**CHƯA KIỂM**") && !unlisted.stdout.includes("**ĐẠT**"), unlisted.stdout);
+  assert(unlisted.stdout.includes("--extended"), "the list says which run is missing"); checks += 1;
   const artifact = JSON.parse(fs.readFileSync(target, "utf8")).tests.files[0];
   assert.throws(() => readPinnedArtifact(output, { ...artifact, path: "../outside.trx" }), /unsafe/u); checks += 1;
   fs.appendFileSync(path.join(output, artifact.path), "changed");

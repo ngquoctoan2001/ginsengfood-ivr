@@ -137,7 +137,8 @@ export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, te
   const registry = (overrides) => gateRegistryErrors({
     manifest: { gates: { "z.mjs": { argv: [] }, "off.mjs": { sweepable: false } } },
     traced: new Map([["UT-Z-09", []]]), source: (file) => (file === "z.mjs" ? runner : null), wholeGate: [],
-    registry: { "UT-Z-01": "z.mjs", "UT-Z-02": "z.mjs" }, conditions: { "UT-Z-02": "PASS_A hoặc PASS_B" }, ...overrides });
+    registry: { "UT-Z-01": "z.mjs", "UT-Z-02": "z.mjs" }, conditions: { "UT-Z-02": "PASS_A hoặc PASS_B" }, extended: {},
+    ...overrides });
   assert.deepEqual(registry({}), []); checks += 1;
   for (const [overrides, rejected] of [
     [{ registry: { "UT-Z-01": "off.mjs" }, conditions: {} }, /không chạy trong full sweep/u],
@@ -247,5 +248,51 @@ export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, te
   save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", retirements: [surface] });
   assert.match(judge(row, { ...input, testEvidence: collect({ ...uiBoth, evidenceText: `${input.evidenceText}\nUT-UI-OLD-01` }) })
     .c2.reason, /không có TestId/u, "a removed surface alone is no claim"); checks += 1;
+
+  // W-0352: a TestId of a gate the offline sweep skips, through the bundle's extended run only.
+  const k8s = { ...input, evidenceText: `${input.evidenceText}\nIT-K8S-LINT-01`,
+    gateManifest: { gates: { "k8s-selftest.mjs": { sweepable: false, extended: [{ argv: [], expect: "K8S_SELFTEST_PASS" }] } } } };
+  const printedGreen = { ok: true, reason: "EXTENDED_SWEEP_PASS 1/1",
+    printed: new Map([["k8s-selftest.mjs", new Set(["IT-K8S-LINT-01"])]]) };
+  const unchecked = judge(row, k8s);
+  assert.equal(unchecked.verdict, "CHƯA KIỂM", "without the extended run the TestId is unchecked, not failed");
+  assert.match(unchecked.c2.reason, /--extended/u); checks += 1;
+  const extendedGreen = judge(row, { ...k8s, extended: printedGreen });
+  assert.equal(extendedGreen.c2.ok, true);
+  assert.equal(extendedGreen.verdict, "ĐẠT", "a TestId its own gate printed as PASS in the extended run passes"); checks += 1;
+  for (const [overrides, why] of [
+    [{ extended: { ...printedGreen, printed: new Map([["image-selftest.mjs", new Set(["IT-K8S-LINT-01"])]]) } },
+      "the PASS line has to come from the owning gate's own output"],
+    [{ extended: { ...printedGreen, printed: new Map([["k8s-selftest.mjs", new Set()]]) } },
+      "a gate that ended green without printing this TestId did not prove it"],
+    [{ extended: { ok: false, reason: "red", printed: new Map() } }, "a failed extended run proves nothing"],
+    [{ extended: printedGreen, gateManifest: { gates: { "k8s-selftest.mjs": { argv: [] } } } },
+      "a runner with no extended invocation proves nothing"],
+    [{ extended: printedGreen, runCheck: { ok: false, reason: "rejected bundle" } }, "a rejected bundle proves nothing"],
+  ]) {
+    assert.equal(judge(row, { ...k8s, ...overrides }).c2.ok, false, why); checks += 1;
+  }
+  save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software",
+    mentions: [{ testId: "IT-K8S-LINT-01", reason: mention.reason }] });
+  assert(collect({ evidenceText: `${input.evidenceText}\nUT-X-01 IT-K8S-LINT-01` }).errors.length,
+    "an extended gate TestId is a claim, never a mention"); checks += 1;
+  const importedLibrary = [
+    'process.stdout.write("UT-Z-12 PASS — printed by the module the runner imports\\n");',
+    "// UT-Z-13 PASS — a comment is not a result",
+  ].join("\n");
+  const extendedRegistry = (overrides) => gateRegistryErrors({
+    manifest: { gates: { "x.mjs": { sweepable: false, extended: [{ argv: [], expect: "X_PASS" }] }, "z.mjs": { argv: [] } } },
+    traced: new Map([["UT-Z-09", []]]), wholeGate: [], registry: {}, conditions: {},
+    source: (file) => ({ "x.mjs": 'import { check } from "./lib.mjs";\nprocess.stdout.write("UT-Z-11 PASS\\n");',
+      "lib.mjs": importedLibrary })[file] ?? null,
+    extended: { "UT-Z-11": "x.mjs", "UT-Z-12": "x.mjs" }, ...overrides });
+  assert.deepEqual(extendedRegistry({}), [], "the runner or a module it imports may print the PASS line"); checks += 1;
+  for (const [overrides, rejected] of [
+    [{ extended: { "UT-Z-11": "z.mjs" } }, /không chạy trong lượt gate mở rộng/u],
+    [{ extended: { "UT-Z-09": "x.mjs" } }, /đã có chủ khác/u],
+    [{ extended: { "UT-Z-13": "x.mjs" } }, /không in "UT-Z-13 PASS"/u],
+  ]) {
+    assert.match(extendedRegistry(overrides).join("; "), rejected); checks += 1;
+  }
   return checks;
 }
