@@ -89,3 +89,14 @@ gate có `argv` trong sweep, tệp có trong git. Các ca chưa chắc được 
   mục trên. Tổng ứng viên 140: 102 `XEM`, 38 `KHÔNG ĐẠT`. Nấc 1 vẫn 35/54 cho tới khi Toàn duyệt.
 
 Chỉ Toàn chuyển các việc này sang `ACCEPTED`.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn hỏi “29 việc này cần quyết gì không? ko thì clean đi”, sau chỉ thị “thì cái nào xong cho xong
+luôn đi”. Theo [danh sách W-0351](../W-0351/README.md), W-0349 chuyển **EVIDENCE_SUBMITTED →
+ACCEPTED** cho phần đã làm. Gate generate-test-traceability.mjs xanh; các việc chờ quyết định đã ghi
+riêng. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định
+này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`a8a3e57`. REAL_CUSTOMER_CALL_ALLOWED=NO.

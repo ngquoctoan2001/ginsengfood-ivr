@@ -91,3 +91,11 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 - Việc này là UI thuần; admin-ui đã gỡ ở W-0253. Khai báo đề nghị `CANCELLED` theo quyết định đã ghim, giống W-0027 và W-0097.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner đóng việc — 24/09/2026
+
+Toàn hỏi “29 việc này cần quyết gì không? ko thì clean đi”, sau chỉ thị “thì cái nào xong cho xong
+luôn đi”. Theo [danh sách W-0351](../W-0351/README.md), W-0039 chuyển **TESTS_PASS → CANCELLED**.
+Việc UI thuần; owner gỡ admin-ui ở W-0253, như W-0027 và W-0097.
+
+REAL_CUSTOMER_CALL_ALLOWED=NO.

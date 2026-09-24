@@ -49,3 +49,13 @@ Danh sách đầy đủ, kèm lý do từng việc, nằm ở [closeout.json](cl
   sau đó không được coi là một lượt test mới.
 
 Không mở cuộc gọi khách thật, không phê duyệt production, không đóng việc của M3, Sales, Platform hay Security.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn hỏi “29 việc này cần quyết gì không? ko thì clean đi”, sau chỉ thị “thì cái nào xong cho xong
+luôn đi”. Theo [danh sách W-0351](../W-0351/README.md), W-0350 chuyển **EVIDENCE_SUBMITTED →
+ACCEPTED** cho phần đã làm. Việc ghi sổ theo chỉ thị owner đã xong. Claude chọn theo tiêu chí phiếu
+W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`a8a3e57`. REAL_CUSTOMER_CALL_ALLOWED=NO.

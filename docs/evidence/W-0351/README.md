@@ -2,7 +2,7 @@
 
 Ngày 24/09/2026 · Claude · `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-**Trạng thái: ứng viên đang được kiểm; lượt collector chạy ở bước tiếp theo.**
+**Đã ghi sổ. 13 việc chuyển `ACCEPTED`, W-0039 chuyển `CANCELLED`, 3 việc giữ lại.**
 
 ## Vì sao có việc này
 
@@ -15,8 +15,9 @@ cần quyết gì không? ko thì clean đi”*. 11 việc trong số đó khôn
 - **3 việc trích ID không còn**: W-0115 ghi khoảng `01..04` nhưng mã `04` chưa từng tồn tại; W-0315 nhắc các
   test do chính nó gỡ khi owner chốt TTS chỉ VieNeu; W-0318 dùng ID làm ví dụ cho luật của bộ kiểm.
 
-18 việc còn lại (17 việc cộng W-0116) trích test của gate cần Docker, K8s hoặc oasdiff. Máy này thiếu helm,
-kubeconform và oasdiff, nên cách kiểm các việc đó chờ Toàn quyết.
+18 việc còn lại (17 việc cộng W-0116) trích test của bốn gate mà sweep không chạy: image, K8s, oasdiff và
+security scan. Toàn chọn cách kiểm sau khi W-0351 xong: *“cái nào ko cần thì xóa đi, còn cái nào cần thì cho xong
+đi”*. Phần đó thuộc việc sau.
 
 ## C2 nhận thêm gì
 
@@ -50,5 +51,22 @@ Lý do từng ID nằm trong `acceptance-tests.json` của mỗi việc.
 - Self-test của danh sách: 84 phép kiểm C2. Self-test bằng chứng: 47 phép kiểm.
 - Chế độ worktree: 14 việc có khai báo hợp lệ, chờ kết quả collector; W-0039 ra đúng dạng đề nghị `CANCELLED`.
 - PII scan, docs-selftest và gate-status đạt.
+- Collector tại `a8a3e57` trên cây sạch: 4 file `.trx`, 1200/1200 test .NET xanh, `GATE_SWEEP_PASS 43/43`. Danh
+  sách sinh từ lượt đó ([acceptance-batches.md](../../release/acceptance-batches.md)) cho 13 việc lên `XEM`, và
+  W-0039 ra dạng đề nghị `CANCELLED`.
 
-Chỉ Toàn chuyển các việc này sang `ACCEPTED`.
+## Kết quả
+
+Hai câu của Toàn, *“thì cái nào xong cho xong luôn đi”* rồi *“ko thì clean đi”*, là chỉ thị đóng việc đã xong.
+Claude chọn theo tiêu chí của [phiếu W-0348](../W-0348/approval-request.md), như ở [W-0350](../W-0350/README.md).
+
+| Kết quả | Việc |
+| --- | --- |
+| `ACCEPTED` | W-0099, W-0100, W-0101, W-0110, W-0112, W-0113, W-0115, W-0315, W-0318, W-0322, W-0348, W-0349, W-0350 |
+| `CANCELLED` | W-0039, nên Nấc 1 lên 37/54 |
+| Trả về `CODE_DONE` | W-0121: Residual ghi điều kiện đổi trạng thái là một pipeline hosted xanh, chưa có |
+| Giữ `EVIDENCE_SUBMITTED` | W-0169 (còn chạy lại bản đồ tài liệu, lệch OD-20 và gói thiếu của W-0118); W-0171 (mục (b), taxonomy technical-exception, chưa hiện thực) |
+
+Lý do từng việc nằm trong [closeout.json](closeout.json). Tracker: `A-0956` ghi bằng chứng, `A-0957`..`A-0970`
+cho từng việc, `A-0971` trả W-0121 về `CODE_DONE`, `A-0972` ghi quyết định. Mỗi README được đóng có thêm mục ghi
+nhận ngày 24/09. Toàn có thể đảo bất kỳ dòng nào.

@@ -1,0 +1,110 @@
+{
+  "schema": "ivr-w0351-closeout/v1",
+  "date": "2026-09-24",
+  "evidenceCandidate": "a8a3e57",
+  "accepted": [
+    {
+      "workId": "W-0099",
+      "from": "TESTS_PASS",
+      "title": "Phase 3 audit — SIM channel surface",
+      "why": "Phần backend có test xanh; test UI đã retire theo quyết định gỡ admin-ui."
+    },
+    {
+      "workId": "W-0100",
+      "from": "TESTS_PASS",
+      "title": "Phase 3 audit — hygiene remediation",
+      "why": "Phần backend có gate xanh; test UI và ảnh màn hình không còn bề mặt để làm."
+    },
+    {
+      "workId": "W-0101",
+      "from": "TESTS_PASS",
+      "title": "Phase 3 spec conformance UI-01/02/03",
+      "why": "Phần backend có test xanh; công thức call_success_rate chờ owner xác nhận là việc bên ngoài."
+    },
+    {
+      "workId": "W-0110",
+      "from": "TESTS_PASS",
+      "title": "Màn hình cổng vận hành / runtime gate",
+      "why": "Phần backend có test xanh; phát hiện về claim đích của phiên console đã hết hiệu lực vì đích nay lấy từ header X-Destination-Ref đã khai trong contract."
+    },
+    {
+      "workId": "W-0112",
+      "from": "TESTS_PASS",
+      "title": "Seed loader / scenario runner / integration-status profile",
+      "why": "Phần backend có test xanh; phát hiện về file mẫu hết hạn đã xử lý ngay trong việc."
+    },
+    {
+      "workId": "W-0113",
+      "from": "TESTS_PASS",
+      "title": "Ghi lại giọng đã phát thay vì suy lại lúc đọc",
+      "why": "Test backend xanh; test UI đã retire theo quyết định gỡ admin-ui."
+    },
+    {
+      "workId": "W-0115",
+      "from": "TESTS_PASS",
+      "title": "Mở rộng `CHECK` constraint enum ở tầng DB",
+      "why": "Test xanh; mã 04 chưa từng tồn tại chỉ được nhắc; quét production và A10 chờ owner."
+    },
+    {
+      "workId": "W-0315",
+      "from": "TESTS_PASS",
+      "title": "TTS chỉ còn VieNeu — gỡ hướng giọng đọc cũ khỏi code, lab, tài liệu và lịch sử",
+      "why": "Test xanh; test đã gỡ chỉ được nhắc; các chốt S1, S2, S5 đã làm ở W-0320…W-0344."
+    },
+    {
+      "workId": "W-0318",
+      "from": "TESTS_PASS",
+      "title": "Lô 5 — nghiệm thu theo đợt, phần của agent",
+      "why": "Gate acceptance-batches.mjs xanh; ID ví dụ chỉ được nhắc."
+    },
+    {
+      "workId": "W-0322",
+      "from": "EVIDENCE_SUBMITTED",
+      "title": "Rà nghiệm thu từng việc P2/P3",
+      "why": "Test xanh; bốn ID của việc được rà chỉ được nhắc; phát hiện F1 đã được W-0324 sửa."
+    },
+    {
+      "workId": "W-0348",
+      "from": "EVIDENCE_SUBMITTED",
+      "title": "Phiếu duyệt một lượt các việc XEM",
+      "why": "Phiếu đã được Toàn trả lời; việc tài liệu."
+    },
+    {
+      "workId": "W-0349",
+      "from": "EVIDENCE_SUBMITTED",
+      "title": "C2 xét việc chỉ có gate hoặc chỉ có tài liệu",
+      "why": "Gate generate-test-traceability.mjs xanh; các việc chờ quyết định đã ghi riêng."
+    },
+    {
+      "workId": "W-0350",
+      "from": "EVIDENCE_SUBMITTED",
+      "title": "Đóng các việc đã xong theo chỉ thị owner",
+      "why": "Việc ghi sổ theo chỉ thị owner đã xong."
+    }
+  ],
+  "cancelled": [
+    {
+      "workId": "W-0039",
+      "from": "TESTS_PASS",
+      "title": "P5-5 UI accessibility/i18n/visual QA",
+      "why": "Việc UI thuần; owner gỡ admin-ui ở W-0253, như W-0027 và W-0097."
+    }
+  ],
+  "held": [
+    {
+      "workId": "W-0121",
+      "title": "Lối đẩy code không tới GitLab nên hosted CI không thể chạy",
+      "why": "Residual ghi điều kiện đổi trạng thái là một pipeline hosted xanh, chưa có; trả về CODE_DONE."
+    },
+    {
+      "workId": "W-0169",
+      "title": "Documentation estate cleanup — gỡ tài liệu SUPERSEDED/HISTORICAL",
+      "why": "Còn việc chạy lại bản đồ tài liệu và ghi nhận lệch khỏi OD-20; W-0118 thiếu gói chờ owner."
+    },
+    {
+      "workId": "W-0171",
+      "title": "Doc↔code conflict audit và reconciliation",
+      "why": "Mục (b) còn mở: taxonomy 7 nhãn technical-exception chưa được hiện thực."
+    }
+  ]
+}

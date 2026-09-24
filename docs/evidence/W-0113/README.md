@@ -155,3 +155,13 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 - 1 ID test UI được retire theo quyết định gỡ admin-ui đã ghim, không có test thay thế. Phần backend vẫn phải có test xanh.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn hỏi “29 việc này cần quyết gì không? ko thì clean đi”, sau chỉ thị “thì cái nào xong cho xong
+luôn đi”. Theo [danh sách W-0351](../W-0351/README.md), W-0113 chuyển **TESTS_PASS → ACCEPTED** cho
+phần đã làm. Test backend xanh; test UI đã retire theo quyết định gỡ admin-ui. Claude chọn theo tiêu
+chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`a8a3e57`. REAL_CUSTOMER_CALL_ALLOWED=NO.

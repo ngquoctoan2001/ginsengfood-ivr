@@ -419,3 +419,14 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 - 4 ID chỉ được nhắc, không phải claim của việc này; lý do từng ID nằm trong khai báo.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn hỏi “29 việc này cần quyết gì không? ko thì clean đi”, sau chỉ thị “thì cái nào xong cho xong
+luôn đi”. Theo [danh sách W-0351](../W-0351/README.md), W-0322 chuyển **EVIDENCE_SUBMITTED →
+ACCEPTED** cho phần đã làm. Test xanh; bốn ID của việc được rà chỉ được nhắc; phát hiện F1 đã được
+W-0324 sửa. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết
+định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`a8a3e57`. REAL_CUSTOMER_CALL_ALLOWED=NO.
