@@ -58,6 +58,7 @@ public interface IIvrAdminOperationsService
     public Task<AdminReviewApiResult> ReviewAsync(AdminReviewRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
     public Task<AdminActionApiResult> TerminateCallAsync(string ivrCallJobId, AdminMutationRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
     public Task<AdminActionApiResult> TerminateAllActiveCallsAsync(AdminMutationRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
+    public Task<AdminActionApiResult> ReplayCallbackAsync(string callbackId, AdminMutationRequest request, string actorId, string correlationId, string idempotencyKey, CancellationToken cancellationToken);
 }
 
 public sealed class InternalAdminApiService(
@@ -795,6 +796,101 @@ public sealed class InternalAdminApiService(
                     actorId,
                     "sim-channel",
                     channel.SimChannelId,
+                    request,
+                    correlationId,
+                    before,
+                    after,
+                    now);
+            },
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Puts a dead-lettered result callback back on the outbox (W-0203 F-2).
+    /// <para>
+    /// Before this, the only way back for a callback that reached <c>RETRY_EXHAUSTED</c> or
+    /// <c>INVALID_DEAD_LETTER</c> was an <c>UPDATE</c> typed into the production database. This
+    /// makes the change the W-0203 harness made by hand - <c>RETRY_PENDING</c>, retry count back
+    /// to zero, due now, lease cleared - and records who asked and why, as every other operator
+    /// action is recorded.
+    /// </para>
+    /// <para>
+    /// The payload and its hash are not touched. The outbox sends the bytes it would have sent the
+    /// first time, under the same idempotency key, so a replay that Sales already processed is a
+    /// duplicate for Sales to recognise, not a second outcome.
+    /// </para>
+    /// <para>
+    /// Refused with nothing written (409) when the callback is not dead-lettered - replaying one
+    /// still in flight would race the outbox that owns it - and when its confirmation task is
+    /// gone: the outbox could only dead-letter it again, and the operator would be left believing
+    /// a result was on its way to Sales. The review item a dead letter opened stays open until the
+    /// operator closes it through <c>/admin-reviews</c>, once delivery is confirmed.
+    /// </para>
+    /// </summary>
+    public Task<AdminActionApiResult> ReplayCallbackAsync(
+        string callbackId,
+        AdminMutationRequest request,
+        string actorId,
+        string correlationId,
+        string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        RequireSafe(callbackId, nameof(callbackId));
+        Validate(request);
+        return ExecuteAdminAsync(
+            "replay-callback",
+            idempotencyKey,
+            new { callbackId, request },
+            actorId,
+            correlationId,
+            IvrPermissions.CallbackReplay,
+            async (context, now, token) =>
+            {
+                ResultCallbackEntity callback = await context.ResultCallbacks.SingleOrDefaultAsync(
+                    item => item.CallbackId == callbackId,
+                    token)
+                    ?? throw IvrErrors.NotFound("The result callback was not found.");
+                if (callback.DeliveryStatus is not ("RETRY_EXHAUSTED" or "INVALID_DEAD_LETTER"))
+                {
+                    throw new IvrFailureException(
+                        IvrErrorCodes.VersionConflict,
+                        "Only a dead-lettered callback can be replayed.");
+                }
+
+                bool taskExists = await context.ConfirmationTasks.AnyAsync(
+                    task => task.TaskId == callback.TaskId,
+                    token);
+                if (!taskExists)
+                {
+                    throw new IvrFailureException(
+                        IvrErrorCodes.VersionConflict,
+                        "The confirmation task of this callback no longer exists, so it cannot be sent.");
+                }
+
+                string before = JsonSerializer.Serialize(new
+                {
+                    callback.CallbackId,
+                    callback.DeliveryStatus,
+                    callback.RetryCount,
+                }, JsonOptions);
+                callback.DeliveryStatus = "RETRY_PENDING";
+                callback.RetryCount = 0;
+                callback.NextRetryAt = now;
+                callback.LeaseToken = null;
+                callback.LeaseExpiresAt = null;
+                string after = JsonSerializer.Serialize(new
+                {
+                    callback.CallbackId,
+                    callback.DeliveryStatus,
+                    callback.RetryCount,
+                    callback.NextRetryAt,
+                }, JsonOptions);
+                return CreateAdminMutation(
+                    "replay-callback",
+                    IvrPermissions.CallbackReplay,
+                    actorId,
+                    "result_callback",
+                    callback.CallbackId,
                     request,
                     correlationId,
                     before,

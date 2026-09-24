@@ -1,9 +1,13 @@
-# API Changelog 1.0.0-draft.27 vs. 1.0.0-draft.31
+# API Changelog 1.0.0-draft.27 vs. 1.0.0-draft.32
 
 
 ## API Changes
 
 ### GET /audit-evidence
+-  endpoint added
+
+
+### POST /result-callbacks/{callbackId}:replay
 -  endpoint added
 
 

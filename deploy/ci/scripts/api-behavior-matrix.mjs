@@ -20,8 +20,8 @@ const operations = Object.entries(document.paths).flatMap(([route, item]) =>
       requestSchema: resolve(op.requestBody)?.content?.['application/json']?.schema ?? null,
       responses: Object.fromEntries(Object.entries(op.responses).map(([code, response]) => [code, resolve(response)])),
     })));
-if (operations.length !== 39 || new Set(operations.map(op => op.id)).size !== 39)
-  throw new Error(`Expected 39 unique operations, found ${operations.length}; reconcile matrix fixtures.`);
+if (operations.length !== 40 || new Set(operations.map(op => op.id)).size !== 40)
+  throw new Error(`Expected 40 unique operations, found ${operations.length}; reconcile matrix fixtures.`);
 const inventory = { source, sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
   version: document.info.version, prefix: '/v1/ivr/order-confirmation',
   result_codes: document.components.schemas.ResultType.enum, operations };

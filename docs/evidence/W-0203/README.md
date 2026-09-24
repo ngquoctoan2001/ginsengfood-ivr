@@ -246,3 +246,34 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 README ở trên còn ghi F-1 mở; W-0286 đã sửa.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Đóng F-2 và F-3 — 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Toàn giao làm tiếp W-0203 sau W-0352. Ba phát hiện ở §7 nay có kết luận:
+
+- **F-1 đã sửa ở `4483029` (W-0286).** Eligibility chạy qua `ExecuteCoordinatedAsync`: khoá theo từng key ở mức
+  ReadCommitted, nên các request đồng thời chờ nhau thay vì va chạm serialization rồi thành HTTP 500.
+- **F-2 đã làm: `POST /result-callbacks/{callbackId}:replay`**, tier `danger`, contract `1.0.0-draft.32`.
+  Endpoint làm đúng thay đổi mà harness từng gõ bằng SQL (`RETRY_PENDING`, retry về `0`, tới hạn ngay, bỏ lease)
+  và ghi admin action cùng audit kèm người yêu cầu và lý do. Payload, hash và idempotency key giữ nguyên. Endpoint
+  trả `409` và không ghi gì khi callback chưa chết, vì outbox còn giữ nó, hoặc khi task xác nhận không còn, vì
+  callback đó chỉ có thể chết lại. Bước F4b của `tools/dev/Invoke-LocalMockE2E.mjs` nay phát lại qua endpoint này,
+  mỗi callback một lần gọi, không còn `UPDATE` tay.
+- **F-3 không sửa, vì đúng thiết kế.** Seed của môi trường dev đặt kill switch toàn cục bằng `true` (“safe
+  bootstrap seed”). Nếu gateway MOCK đọc cờ đó, mọi cuộc gọi MOCK (E2E, sandbox, gate image) sẽ bị chặn mặc định.
+  MOCK cũng không bao giờ tới khách: SIM là giả và `REAL_CUSTOMER_CALL_ALLOWED=NO`. Cách dừng ở MOCK vẫn là tắt
+  telephony lúc khởi động (`KillSwitchEngaged`, bị validator chặn nếu bật cùng `Enabled`) và `terminate-all` cho
+  cuộc đang chạy, như §8 đã ghi.
+
+Test mới: `IT-API-DEADLETTER-13` (cả `RETRY_EXHAUSTED` lẫn `INVALID_DEAD_LETTER` quay lại hàng đợi, payload và
+hash giữ nguyên, admin action và audit ghi đúng người) và `IT-API-DEADLETTER-14` (callback đang gửi, callback mất
+task, callback không tồn tại và tier thấp hơn `danger` đều bị từ chối mà không ghi gì). Ma trận hành vi HTTP
+`IT-API-MATRIX-38` chạy endpoint mới qua đủ các ca auth, body sai, không tìm thấy, idempotency và xung đột payload.
+
+Bộ sinh ma trận ghim số operation, nên `api-behavior-matrix.mjs` và `verify-api-behavior-matrix.mjs` nâng từ 39 lên
+40. Hai phép thử đột biến đều làm `IT-API-DEADLETTER-14` đỏ: bỏ kiểm tra callback đã chết, và bỏ kiểm tra task còn tồn tại.
+
+`oasdiff` không báo thay đổi breaking nào, cả `31→32` lẫn `27→32`. Bản bàn giao cho Module 3 ghi endpoint mới trong
+bảng tầng `danger`, nay có 9 endpoint.

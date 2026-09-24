@@ -92,7 +92,7 @@ const operationReports = report.inventory.operations.map(op => {
     not_applicable: cases.filter(item => item.applicability === 'NOT_APPLICABLE'),
     verdict: problems.length ? 'FAIL' : 'PASS', failures: problems, cases };
 });
-if (operationReports.length !== 39) failures.push('Expected 39 operation reports');
+if (operationReports.length !== 40) failures.push('Expected 40 operation reports');
 if (report.cases.some(item => !report.inventory.operations.some(op => op.id === item.operation_id))) failures.push('Unknown operation evidence');
 const taxonomy = contract.components.schemas.ResultType.enum;
 const codes = report.result_codes ?? [];

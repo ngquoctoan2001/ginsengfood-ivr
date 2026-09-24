@@ -1157,9 +1157,9 @@ async function faultCallbackOutage() {
  *
  * A stub that always answers 500 drives the cohort to RETRY_EXHAUSTED, which is the dead-letter
  * state: bounded, visible and countable rather than a message that quietly keeps trying. The stub
- * is then removed and the rows are re-queued the way an operator would have to re-queue them
- * today - by hand, in SQL, because no admin replay endpoint exists yet. That gap is the finding,
- * and it is recorded in the evidence rather than papered over.
+ * is then removed and the rows are re-queued the way an operator re-queues them: one call per dead
+ * callback to POST /result-callbacks/{callbackId}:replay. Until W-0203 F-2 added that endpoint this
+ * step was an UPDATE typed into the database, which was the finding.
  */
 async function faultDeadLetterAndReplay() {
   step('Fault 4b: dead letter and replay');
@@ -1199,12 +1199,27 @@ async function faultDeadLetterAndReplay() {
   note(`${exhausted.dead} callback(s) dead-lettered at retry_count 3`);
 
   await fetch(`${SALES_URL}/__admin/mappings/${stub.id}`, { method: 'DELETE' });
-  const replayed = Number(scalar(
-    `WITH replayed AS (UPDATE ivr_result_callbacks SET delivery_status = 'RETRY_PENDING', `
-    + `retry_count = 0, next_retry_at = now(), lease_token = NULL, lease_expires_at = NULL `
-    + `WHERE task_id LIKE 'E2E-DLQ-${RUN_ID}-F5%' AND delivery_status = 'RETRY_EXHAUSTED' `
-    + `RETURNING 1) SELECT COUNT(*) FROM replayed`));
-  note(`replayed ${replayed} dead-lettered callback(s)`);
+  const deadIds = psqlRows(
+    `SELECT callback_id FROM ivr_result_callbacks WHERE task_id LIKE 'E2E-DLQ-${RUN_ID}-F5%' `
+    + `AND delivery_status = 'RETRY_EXHAUSTED' ORDER BY callback_id`).map((row) => row[0]);
+  let replayed = 0;
+  for (const callbackId of deadIds) {
+    const reason = 'W-0203 rehearsal: Sales is answering again';
+    const response = await postJson(`${API_BASE}/result-callbacks/${encodeURIComponent(callbackId)}:replay`, {
+      Authorization: `Bearer ${DANGER_TOKEN}`,
+      'X-Service-Scope': 'ivr.admin.danger',
+      'X-Actor-Id': 'local-mock-e2e-operator',
+      'X-Action-Reason': reason,
+      'X-Correlation-Id': `corr-replay-${RUN_ID}-${replayed}`,
+      'Idempotency-Key': `replay-${RUN_ID}-${callbackId}`,
+    }, { reason });
+    if (response.status !== 200) {
+      fail(`replay of ${callbackId} returned ${response.status}: ${response.raw.slice(0, 300)}`);
+      return;
+    }
+    replayed += 1;
+  }
+  note(`replayed ${replayed} dead-lettered callback(s) through the admin endpoint`);
   const delivered = await waitFor('the replayed cohort to deliver', async () => {
     const seen = observe(cohort.map((item) => item.taskId));
     const ok = cohort.filter(
@@ -1224,7 +1239,7 @@ async function faultDeadLetterAndReplay() {
     retryCountAtDeath: 3,
     replayedRows: replayed,
     deliveredAfterReplay: delivered.ok,
-    replayPath: 'manual SQL re-queue; no admin replay endpoint exists yet (finding)',
+    replayPath: 'POST /result-callbacks/{callbackId}:replay, one call per dead callback (W-0203 F-2)',
   });
 }
 

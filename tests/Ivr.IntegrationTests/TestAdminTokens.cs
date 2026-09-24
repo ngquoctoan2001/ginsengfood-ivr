@@ -44,7 +44,7 @@ internal static class TestAdminTokens
         IvrPermissions.RuntimeGateAdmin or IvrPermissions.CallTerminate
             or IvrPermissions.SimDisable or IvrPermissions.SimEnable
             or IvrPermissions.ManualRetry or IvrPermissions.QueuePause
-            or IvrPermissions.QueueResume => AdminScope.Danger,
+            or IvrPermissions.QueueResume or IvrPermissions.CallbackReplay => AdminScope.Danger,
         IvrPermissions.QueueView or IvrPermissions.FlagRead => AdminScope.Read,
         _ => AdminScope.Write,
     };

@@ -62,4 +62,11 @@ public static class IvrPermissions
     /// queue and SIM operations above; the tier that reaches the endpoint is <c>danger</c>.
     /// </summary>
     public const string CallTerminate = "IVR_CALL_TERMINATE";
+
+    /// <summary>
+    /// Putting a dead-lettered result callback back on the outbox (W-0203 F-2). Stamped on the
+    /// admin action like the others; the tier that reaches the endpoint is <c>danger</c>, because
+    /// the callback it re-sends tells Sales how a customer answered.
+    /// </summary>
+    public const string CallbackReplay = "IVR_CALLBACK_REPLAY";
 }

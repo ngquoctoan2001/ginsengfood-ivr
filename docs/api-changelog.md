@@ -10,6 +10,14 @@ and does not approve the external Sales contract.
 
 ## Current comparisons
 
+> **`1.0.0-draft.32` (W-0203 F-2)** thêm một endpoint admin, `POST /result-callbacks/{callbackId}:replay`.
+> Trước bản này, callback đã chết (`RETRY_EXHAUSTED` hoặc `INVALID_DEAD_LETTER`) chỉ đưa lại hàng đợi được bằng
+> một lệnh `UPDATE` gõ thẳng vào database. Endpoint làm đúng thay đổi đó (`RETRY_PENDING`, retry về `0`, tới hạn
+> ngay, bỏ lease) ở tier `danger`, ghi admin action và audit kèm người yêu cầu và lý do. Payload, hash và
+> idempotency key không đổi, nên Sales nhận lại đúng các byte của lần gửi đầu. `409` và không ghi gì khi
+> callback chưa chết, hoặc khi task xác nhận của nó không còn. **Không breaking**: `oasdiff` không báo thay
+> đổi breaking nào, cả `31→32` lẫn `27→32`. Module 3 chỉ cần sinh lại client khi muốn gọi endpoint này.
+
 > **`1.0.0-draft.31` (W-0312)** nới `dial_token` + `dial_token_expires_at` từ *bắt buộc* thành
 > *"cặp token **hoặc** số"*. **Không breaking**: mọi body hợp lệ ở `draft.30` vẫn hợp lệ —
 > `oasdiff` ghi `3` info, `0` warning, `0` error, cả `30→31` lẫn `27→31`.
@@ -106,7 +114,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.31` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.32` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,

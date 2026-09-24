@@ -488,6 +488,142 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal(HttpStatusCode.Forbidden, wrongPermission.StatusCode);
     }
 
+    /// <summary>
+    /// Replaying a dead-lettered callback (W-0203 F-2).
+    /// <para>
+    /// The same change the W-0203 harness had to make by hand in SQL: back to
+    /// <c>RETRY_PENDING</c>, retry count zero, due now, no lease. The payload and its hash stay
+    /// byte for byte, because the outbox has to send exactly what it would have sent the first
+    /// time, and the action is recorded against the operator who asked for it.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [InlineData("RETRY_EXHAUSTED")]
+    [InlineData("INVALID_DEAD_LETTER")]
+    [Trait("TestId", "IT-API-DEADLETTER-13")]
+    public async Task ReplayPutsADeadLetteredCallbackBackOnTheOutboxAndRecordsWhoAsked(string deadStatus)
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "NORMALIZED_FINAL");
+        string payload, hash;
+        await using (IvrDbContext setup = await Factory().CreateDbContextAsync())
+        {
+            ResultCallbackEntity dead = await setup.ResultCallbacks.SingleAsync();
+            dead.DeliveryStatus = deadStatus;
+            dead.RetryCount = 3;
+            dead.NextRetryAt = null;
+            dead.LeaseToken = "callback-lease-stale";
+            dead.LeaseExpiresAt = Now.AddMinutes(-5);
+            await setup.SaveChangesAsync();
+            (payload, hash) = (dead.PayloadJson, dead.PayloadSha256);
+        }
+
+        await using InternalAdminApiTestApplication app = await StartAsync();
+        using HttpResponseMessage replayed = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/result-callbacks/CALLBACK-P2-8:replay",
+            new AdminMutationRequest("Sales is answering again; resend the outcome"),
+            IvrPermissions.CallbackReplay);
+
+        Assert.Equal(HttpStatusCode.OK, replayed.StatusCode);
+        await using IvrDbContext after = await Factory().CreateDbContextAsync();
+        ResultCallbackEntity callback = await after.ResultCallbacks.AsNoTracking().SingleAsync();
+        Assert.Equal("RETRY_PENDING", callback.DeliveryStatus);
+        Assert.Equal(0, callback.RetryCount);
+        Assert.NotNull(callback.NextRetryAt);
+        Assert.Null(callback.LeaseToken);
+        Assert.Null(callback.LeaseExpiresAt);
+        Assert.Equal(payload, callback.PayloadJson);
+        Assert.Equal(hash, callback.PayloadSha256);
+        AdminActionEntity action = await after.AdminActions.AsNoTracking().SingleAsync();
+        Assert.Equal(IvrPermissions.CallbackReplay, action.Permission);
+        Assert.Equal("result_callback", action.TargetType);
+        Assert.Equal("CALLBACK-P2-8", action.TargetId);
+        Assert.Equal("operator-p2-8", action.ActorId);
+        Assert.Contains(deadStatus, action.BeforeStateJson, StringComparison.Ordinal);
+        Assert.Contains(
+            await after.AuditLog.AsNoTracking().ToListAsync(),
+            audit => audit.Action == "replay-callback" && audit.TargetId == "CALLBACK-P2-8");
+    }
+
+    /// <summary>
+    /// What a replay refuses, and that each refusal writes nothing (W-0203 F-2).
+    /// <para>
+    /// A callback still in flight belongs to the outbox, and a replay would race it. A dead letter
+    /// whose confirmation task is gone can only be dead-lettered again, and replaying it would
+    /// leave the operator believing a result was on its way to Sales. Neither may leave an admin
+    /// action or an audit row behind; an unknown callback is a 404, and a tier below danger is
+    /// refused before anything runs.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-API-DEADLETTER-14")]
+    public async Task ReplayRefusesALiveOrOrphanedCallbackAndWritesNothing()
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "NORMALIZED_FINAL");
+        await using (IvrDbContext orphan = await Factory().CreateDbContextAsync())
+        {
+            // Seeded the way IT-DB-OUTBOX-09 seeds one: the result reference is real, so the
+            // foreign key holds, and only task_id - the column with no foreign key - points at
+            // nothing. The payload columns are immutable once written, so the orphan is inserted
+            // as one rather than made one.
+            orphan.ResultCallbacks.Add(new ResultCallbackEntity
+            {
+                CallbackId = "CALLBACK-P2-8-ORPHAN",
+                IvrCallResultId = "RESULT-P2-8",
+                TaskId = "TASK-P2-8-GONE",
+                OfficialOrderId = "ORDER-P2-8",
+                IdempotencyKey = "callback-p2-8-orphan",
+                ResultStatus = "IVR_NO_ANSWER_FINAL",
+                ResultState = "PENDING_CORE_REVALIDATION",
+                DeliveryStatus = "INVALID_DEAD_LETTER",
+                RequiresCoreRevalidation = true,
+                PayloadJson = "{}",
+                PayloadSha256 = new string('C', 64),
+                CreatedAt = Now,
+            });
+            await orphan.SaveChangesAsync();
+        }
+
+        await using InternalAdminApiTestApplication app = await StartAsync();
+        int auditBefore;
+        await using (IvrDbContext before = await Factory().CreateDbContextAsync())
+        {
+            auditBefore = await before.AuditLog.AsNoTracking().CountAsync();
+        }
+
+        const string Route = "/v1/ivr/order-confirmation/result-callbacks/CALLBACK-P2-8:replay";
+        using HttpResponseMessage live = await SendAdminAsync(
+            app, HttpMethod.Post, Route, new AdminMutationRequest("replay a callback in flight"),
+            IvrPermissions.CallbackReplay);
+        Assert.Equal(HttpStatusCode.Conflict, live.StatusCode);
+
+        using HttpResponseMessage orphaned = await SendAdminAsync(
+            app, HttpMethod.Post, "/v1/ivr/order-confirmation/result-callbacks/CALLBACK-P2-8-ORPHAN:replay",
+            new AdminMutationRequest("replay a callback whose task is gone"), IvrPermissions.CallbackReplay);
+        Assert.Equal(HttpStatusCode.Conflict, orphaned.StatusCode);
+
+        using HttpResponseMessage unknown = await SendAdminAsync(
+            app, HttpMethod.Post, "/v1/ivr/order-confirmation/result-callbacks/CALLBACK-MISSING:replay",
+            new AdminMutationRequest("replay an unknown callback"), IvrPermissions.CallbackReplay);
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+
+        using HttpResponseMessage wrongTier = await SendAdminAsync(
+            app, HttpMethod.Post, Route, new AdminMutationRequest("replay below the danger tier"),
+            IvrPermissions.ResultReview);
+        Assert.Equal(HttpStatusCode.Forbidden, wrongTier.StatusCode);
+
+        await using IvrDbContext after = await Factory().CreateDbContextAsync();
+        Dictionary<string, string> statuses = await after.ResultCallbacks.AsNoTracking()
+            .ToDictionaryAsync(row => row.CallbackId, row => row.DeliveryStatus);
+        Assert.Equal("READY", statuses["CALLBACK-P2-8"]);
+        Assert.Equal("INVALID_DEAD_LETTER", statuses["CALLBACK-P2-8-ORPHAN"]);
+        Assert.Equal(auditBefore, await after.AuditLog.AsNoTracking().CountAsync());
+        Assert.Empty(await after.AdminActions.AsNoTracking().ToListAsync());
+    }
+
     [Fact]
     [Trait("TestId", "IT-API-QUEUE-08")]
     public async Task PauseBlocksOnlyNewClaimsAndResumeRestoresClaiming()

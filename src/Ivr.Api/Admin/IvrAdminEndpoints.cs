@@ -72,6 +72,11 @@ public static class IvrAdminEndpoints
         // next call; this ends conversations already under way.
         adminGroup.MapPost("/call-jobs:terminate-all", TerminateAllCallsAsync)
             .RequireAuthorization(AdminPolicies.Danger);
+
+        // W-0203 F-2. The operator's way back for a dead-lettered callback, which until now was
+        // an UPDATE typed into the database. Danger tier: it sends Sales an outcome again.
+        adminGroup.MapPost("/result-callbacks/{callbackId}:replay", ReplayCallbackAsync)
+            .RequireAuthorization(AdminPolicies.Danger);
         endpoints.MapIvrScriptLifecycleEndpoints();
         return endpoints;
     }
@@ -362,6 +367,20 @@ public static class IvrAdminEndpoints
         CancellationToken cancellationToken) =>
         service.EnableChannelAsync(
             simChannelId,
+            request,
+            InternalRequestGuard.RequireAdminActor(context),
+            InternalRequestGuard.RequireCorrelation(context),
+            InternalRequestGuard.RequireIdempotencyKey(context),
+            cancellationToken);
+
+    private static Task<AdminActionApiResult> ReplayCallbackAsync(
+        string callbackId,
+        AdminMutationRequest request,
+        HttpContext context,
+        IIvrAdminOperationsService service,
+        CancellationToken cancellationToken) =>
+        service.ReplayCallbackAsync(
+            callbackId,
             request,
             InternalRequestGuard.RequireAdminActor(context),
             InternalRequestGuard.RequireCorrelation(context),

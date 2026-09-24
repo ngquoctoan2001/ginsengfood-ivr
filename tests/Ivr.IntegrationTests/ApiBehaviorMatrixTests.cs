@@ -148,10 +148,12 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
         await ObserveAsync(operation, "correlation_missing", path, body, "missing-correlation",
             [id.Contains("FeatureFlag", StringComparison.Ordinal) ? 200 : id == "intakeTask" ? 422 : 400]);
         if (path.Contains("JOB-P2-8", StringComparison.Ordinal) || path.Contains("SIM-P2-8", StringComparison.Ordinal)
+            || path.Contains("CALLBACK-P2-8", StringComparison.Ordinal)
             || path.Contains("v-matrix", StringComparison.Ordinal) || path.Contains("SCN-001", StringComparison.Ordinal)
             || path.Contains("STATUS-all-up", StringComparison.Ordinal) || path.Contains("feature-flags/dev", StringComparison.Ordinal))
         {
             string missing = path.Replace("JOB-P2-8", "missing-job").Replace("SIM-P2-8", "missing-sim")
+                .Replace("CALLBACK-P2-8", "missing-callback")
                 .Replace("v-matrix", "missing-version").Replace("SCN-001-confirm", "missing-scenario")
                 .Replace("STATUS-all-up", "missing-profile").Replace("feature-flags/dev", "feature-flags/missing");
             await ObserveAsync(operation, "not_found", missing, body, "normal", [404]);
@@ -291,6 +293,16 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
             attempt.EndedAt = null;
             attempt.StartedAt = DateTimeOffset.UtcNow;
             attempt.ProviderCallId = "mock-matrix-call";
+            await db.SaveChangesAsync();
+        }
+        // W-0203 F-2. Only a dead-lettered callback can be replayed, so the seeded one is put where
+        // the outbox leaves a callback whose retries ran out.
+        if (id == "replayResultCallback")
+        {
+            await using IvrDbContext db = await fixture.Services.GetRequiredService<IDbContextFactory<IvrDbContext>>().CreateDbContextAsync();
+            var callback = await db.ResultCallbacks.SingleAsync();
+            callback.DeliveryStatus = "RETRY_EXHAUSTED";
+            callback.RetryCount = 3;
             await db.SaveChangesAsync();
         }
         if (id is "enableSim" or "applyDevIntegrationProfile")
@@ -508,8 +520,10 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
     private static bool IsInternal(string id) => id is "recordEligibility" or "createCallJob" or "getCallJob" or "recordAttempt" or "recordResult" or "recordResultCallback";
     private static AdminScope Tier(string id, HttpMethod method) => method == HttpMethod.Get ? AdminScope.Read
         : id is "mutateFeatureFlags" or "terminateAllCallJobs" or "terminateCallJob" or "pauseQueue" or "resumeQueue" or "disableSim" or "enableSim" or "technicalRetry"
+            or "replayResultCallback"
             ? AdminScope.Danger : AdminScope.Write;
     private static string ConcretePath(string path) => path.Replace("{ivrCallJobId}", "JOB-P2-8").Replace("{simChannelId}", "SIM-P2-8")
+        .Replace("{callbackId}", "CALLBACK-P2-8")
         .Replace("{environment}", "dev").Replace("{templateId}", TargetV1SpeechPolicy.MockTemplateId).Replace("{version}", "v-matrix")
         .Replace("{scenarioId}", "SCN-001-confirm").Replace("{profileId}", "STATUS-all-up")
         + (path == "/analytics/export" ? "?reason=Matrix%20synthetic%20export" : "")

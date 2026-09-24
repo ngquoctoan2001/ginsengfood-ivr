@@ -12,6 +12,15 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
 <blockquote>
+<p><strong><code>1.0.0-draft.32</code> (W-0203 F-2)</strong> thêm một endpoint admin, <code>POST /result-callbacks/{callbackId}:replay</code>.
+Trước bản này, callback đã chết (<code>RETRY_EXHAUSTED</code> hoặc <code>INVALID_DEAD_LETTER</code>) chỉ đưa lại hàng đợi được bằng
+một lệnh <code>UPDATE</code> gõ thẳng vào database. Endpoint làm đúng thay đổi đó (<code>RETRY_PENDING</code>, retry về <code>0</code>, tới hạn
+ngay, bỏ lease) ở tier <code>danger</code>, ghi admin action và audit kèm người yêu cầu và lý do. Payload, hash và
+idempotency key không đổi, nên Sales nhận lại đúng các byte của lần gửi đầu. <code>409</code> và không ghi gì khi
+callback chưa chết, hoặc khi task xác nhận của nó không còn. <strong>Không breaking</strong>: <code>oasdiff</code> không báo thay
+đổi breaking nào, cả <code>31→32</code> lẫn <code>27→32</code>. Module 3 chỉ cần sinh lại client khi muốn gọi endpoint này.</p>
+</blockquote>
+<blockquote>
 <p><strong><code>1.0.0-draft.31</code> (W-0312)</strong> nới <code>dial_token</code> + <code>dial_token_expires_at</code> từ <em>bắt buộc</em> thành
 <em>&quot;cặp token <strong>hoặc</strong> số&quot;</em>. <strong>Không breaking</strong>: mọi body hợp lệ ở <code>draft.30</code> vẫn hợp lệ —
 <code>oasdiff</code> ghi <code>3</code> info, <code>0</code> warning, <code>0</code> error, cả <code>30→31</code> lẫn <code>27→31</code>.</p>
@@ -107,7 +116,7 @@ Xem <code>docs/evidence/W-0275/README.md</code>.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.27</code></td>
-<td><code>1.0.0-draft.31</code></td>
+<td><code>1.0.0-draft.32</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>
