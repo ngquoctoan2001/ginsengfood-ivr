@@ -118,3 +118,13 @@ sellable table renders.
 - Hosted GitLab pipeline evidence: `NOT_RUN`.
 - Screenshot evidence (`§10` of all four Phase 3 prompts) is still outstanding —
   see `docs/evidence/W-0100/` §6.
+
+## Khai báo phép kiểm C2 — W-0351, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+[Khai báo](acceptance-tests.json) nay ghi:
+
+- 2 ID test UI được retire theo quyết định gỡ admin-ui đã ghim, không có test thay thế. Phần backend vẫn phải có test xanh.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

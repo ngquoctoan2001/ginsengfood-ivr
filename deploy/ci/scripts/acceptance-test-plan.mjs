@@ -107,7 +107,8 @@ export function gateRegistryErrors({ manifest, traced, source, registry = GATE_T
  */
 export function collectTestEvidence({ workId, evidencePath, evidenceText, promptText = "", trace,
   extract, read, validateDecision }) {
-  const empty = { ids: [], retired: [], documents: [], errors: [], gates: [], deliverables: [], scope: null, reason: null };
+  const empty = { ids: [], retired: [], documents: [], errors: [], gates: [], deliverables: [], scope: null, reason: null,
+    mentioned: [], withoutReplacement: [] };
   if (!evidencePath || evidenceText === null) return empty;
   try {
     const directory = path.posix.dirname(evidencePath);
@@ -144,19 +145,40 @@ export function collectTestEvidence({ workId, evidencePath, evidenceText, prompt
     const retired = plan?.retirements ?? [];
     assert(Array.isArray(retired), "retirements must be an array");
     const seen = new Set();
+    // W-0351. A pinned decision that removed the whole surface (the Admin UI) leaves nothing to
+    // replace its tests with; such a retirement says so, and the list always shows it.
+    const withoutReplacement = new Set();
     for (const item of retired) {
       assert(cited.has(item.testId), `retired TestId was not cited: ${item.testId}`);
       assert(!trace.byId.has(item.testId), `cannot retire an active TestId: ${item.testId}`);
       assert(!seen.has(item.testId), `duplicate retirement: ${item.testId}`);
       seen.add(item.testId);
       assert(typeof item.reason === "string" && item.reason.trim().length >= 20, "retirement needs a specific reason");
-      assert(Array.isArray(item.replacementTestIds) && item.replacementTestIds.length > 0,
+      const removed = item.surfaceRemoved === true;
+      assert(Array.isArray(item.replacementTestIds) && (item.replacementTestIds.length > 0 || removed),
         "retirement needs active replacement tests");
+      if (removed) withoutReplacement.add(item.testId);
       assert(item.replacementTestIds.every((id) => trace.byId.has(id)), "replacement TestId is missing");
       assert(typeof validateDecision === "function", "retirement requires pinned decision verification");
       validateDecision(item.decision);
       cited.delete(item.testId);
       for (const id of item.replacementTestIds) cited.add(id);
+    }
+    // W-0351. An ID the evidence names without claiming it: an example, another item's finding, or
+    // a test this work itself removed. Only an ID that no live test or gate owns can be a mention,
+    // so a red test can never be hidden this way.
+    const mentions = plan?.mentions ?? [];
+    assert(Array.isArray(mentions), "mentions must be an array");
+    const mentioned = new Set();
+    for (const item of mentions) {
+      assert(typeof item?.testId === "string" && cited.has(item.testId),
+        `mentioned TestId is not named by the evidence: ${item?.testId}`);
+      assert(!trace.byId.has(item.testId) && !Object.hasOwn(GATE_TESTS, item.testId),
+        `a live TestId is a claim, not a mention: ${item.testId}`);
+      assert(!mentioned.has(item.testId), `duplicate mention: ${item.testId}`);
+      assert(typeof item.reason === "string" && item.reason.trim().length >= 20, "a mention needs a specific reason");
+      mentioned.add(item.testId);
+      cited.delete(item.testId);
     }
     if (plan?.scope === "retired-ui") {
       assert(typeof validateDecision === "function", "retired UI requires pinned decision verification");
@@ -193,7 +215,8 @@ export function collectTestEvidence({ workId, evidencePath, evidenceText, prompt
     }
     return { ids: [...cited].sort(), retired: [...seen].sort(), documents: [...documents.keys()], errors: [],
       gates: [...gates], deliverables: [...deliverables], scope: plan?.scope ?? null,
-      reason: readOnly ? plan.reason.trim() : null };
+      reason: readOnly ? plan.reason.trim() : null,
+      mentioned: [...mentioned].sort(), withoutReplacement: [...withoutReplacement].sort() };
   } catch (error) {
     return { ...empty, errors: [`hồ sơ C2 không hợp lệ: ${error.message.split("\n")[0]}`] };
   }

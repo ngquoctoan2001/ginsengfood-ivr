@@ -157,3 +157,13 @@ từ khác.
 | gitleaks `v8.30.0` trên các dòng thêm vào | `no leaks found` |
 | .NET | `0` file `.cs` ⇒ không chạy lại solution |
 | `gitnexus_impact` `SOURCE_PINS` · `gitnexus_detect_changes` | `LOW`, `0` phụ thuộc · `low`, `0` luồng |
+
+## Khai báo phép kiểm C2 — W-0351, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+[Khai báo](acceptance-tests.json) nay ghi:
+
+- 7 ID chỉ được nhắc, không phải claim của việc này; lý do từng ID nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

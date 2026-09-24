@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0348",
+  "scope": "document",
+  "reason": "Phiếu duyệt một lượt các việc XEM; không đổi code, test hay gate.",
+  "deliverables": [
+    "docs/evidence/W-0348/approval-request.md"
+  ]
+}

@@ -142,3 +142,14 @@ Không chỗ nào trong repo ghi cứng số gate trong code hay test (đã `git
 - Sau mỗi đợt: `gate-status.mjs --write` (bước `4`), và chạy lại danh sách trên commit mới.
 - `55` gói thiếu dòng đánh dấu: thêm dòng đó là việc máy móc, nhưng nó sửa gói bằng chứng cũ. Chỉ làm khi
   Toàn bảo.
+
+## Khai báo phép kiểm C2 — W-0351, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+[Khai báo](acceptance-tests.json) nay ghi:
+
+- 4 ID chỉ được nhắc, không phải claim của việc này; lý do từng ID nằm trong khai báo.
+- Gate trong full sweep có self-test kiểm thay đổi của việc này: `acceptance-batches.mjs`.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

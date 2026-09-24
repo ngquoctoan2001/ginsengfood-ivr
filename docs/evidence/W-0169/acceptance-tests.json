@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0169",
+  "scope": "document",
+  "gates": [
+    "docs-selftest.mjs"
+  ],
+  "reason": "Dọn tài liệu theo chỉ đạo owner ở commit c213bf7: xoá 63 tệp SUPERSEDED/HISTORICAL, sửa link, thêm .artifacts/ vào .gitignore; không đổi code hay test. README này ghi lại lượt dọn và phép kiểm.",
+  "deliverables": [
+    "docs/evidence/W-0169/README.md"
+  ]
+}

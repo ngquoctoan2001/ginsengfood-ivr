@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0039",
+  "scope": "retired-ui",
+  "decision": {
+    "commit": "c0e660948b9ba5e330d9a60dfe08ae0610f137cc",
+    "path": "docs/evidence/W-0253/README.md",
+    "sha256": "23ab714d5c18528a5b2e9fe017d8c2746bebfb67fb84ed9e0bb5b1ad50a9a78e",
+    "quote": "Owner chốt từ `2026-09-05` rằng console thuộc Module 3 và `admin-ui/` không phải deliverable."
+  },
+  "proposedDisposition": "CANCELLED"
+}

@@ -409,3 +409,13 @@ Toàn trả lời **“oke cả nhóm”** sau [phiếu W-0337](../W-0337/approv
 đã retire. Cả13 việc đã chốt trạng thái; tổng repo66 ACCEPTED. Các câu PENDING/chờ owner
 phía trên là lịch sử. Phần M3/lab/model-image/vận hành thật và giới hạn đã trình vẫn mở;
 không có thông điệp bàn giao gửi ra ngoài hoặc lượt test mới. REAL_CUSTOMER_CALL_ALLOWED=NO.
+
+## Khai báo phép kiểm C2 — W-0351, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+[Khai báo](acceptance-tests.json) nay ghi:
+
+- 4 ID chỉ được nhắc, không phải claim của việc này; lý do từng ID nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

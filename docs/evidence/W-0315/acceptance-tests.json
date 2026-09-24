@@ -1,0 +1,35 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0315",
+  "scope": "software",
+  "mentions": [
+    {
+      "testId": "UT-AST-AUDIO-03",
+      "reason": "Test do chính W-0315 gỡ khi owner chốt TTS chỉ VieNeu (S4, 17–18/09); README nêu chúng là đã gỡ, không phải claim."
+    },
+    {
+      "testId": "UT-TTS-STATIC-REGION-05",
+      "reason": "Test do chính W-0315 gỡ khi owner chốt TTS chỉ VieNeu (S4, 17–18/09); README nêu chúng là đã gỡ, không phải claim."
+    },
+    {
+      "testId": "UT-VOICE-3B-01",
+      "reason": "Test do chính W-0315 gỡ khi owner chốt TTS chỉ VieNeu (S4, 17–18/09); README nêu chúng là đã gỡ, không phải claim."
+    },
+    {
+      "testId": "UT-VOICE-4B-07",
+      "reason": "Test do chính W-0315 gỡ khi owner chốt TTS chỉ VieNeu (S4, 17–18/09); README nêu chúng là đã gỡ, không phải claim."
+    },
+    {
+      "testId": "UT-VOICE-AREA-01",
+      "reason": "Test do chính W-0315 gỡ khi owner chốt TTS chỉ VieNeu (S4, 17–18/09); README nêu chúng là đã gỡ, không phải claim."
+    },
+    {
+      "testId": "UT-VOICE-CFG-04",
+      "reason": "Test do chính W-0315 gỡ khi owner chốt TTS chỉ VieNeu (S4, 17–18/09); README nêu chúng là đã gỡ, không phải claim."
+    },
+    {
+      "testId": "UT-VOICE-CLIP-06",
+      "reason": "Test do chính W-0315 gỡ khi owner chốt TTS chỉ VieNeu (S4, 17–18/09); README nêu chúng là đã gỡ, không phải claim."
+    }
+  ]
+}

@@ -52,3 +52,13 @@ Toàn trả lời “chấp nhận nhóm A và B, push luôn” sau phiếu tạ
 Mỗi hồ sơ của 78 việc có mục "Owner nghiệm thu", trừ W-0161: README của nó bị validator opt-out ghim
 hash, nên bản ghi của W-0161 nằm ở đây và trong tracker. Nhóm C chưa trình. W-0348 giữ
 `EVIDENCE_SUBMITTED`. REAL_CUSTOMER_CALL_ALLOWED=NO.
+
+## Khai báo phép kiểm C2 — W-0351, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+[Khai báo](acceptance-tests.json) nay ghi:
+
+- Việc thuần tài liệu: Phiếu duyệt một lượt các việc XEM; không đổi code, test hay gate.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

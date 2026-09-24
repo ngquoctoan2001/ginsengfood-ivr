@@ -209,5 +209,43 @@ export function c2SelfTest({ citedTestIds, traceability, judge, indexResults, te
   save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software" });
   assert.match(judge(row, { ...input, testEvidence: collect({ evidenceText: input.evidenceText }) }).c2.reason,
     /không có TestId/u, "a plan that declares nothing still has no claim"); checks += 1;
+
+  // W-0351: IDs a pack names without claiming them, and a surface removed with no replacement.
+  const both = { evidenceText: `${input.evidenceText}\nUT-X-01 UT-GONE-09` };
+  const mention = { testId: "UT-GONE-09", reason: "Ví dụ trong bảng luật, không phải test của việc này." };
+  save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", mentions: [mention] });
+  const named2 = collect(both);
+  assert.deepEqual([named2.ids, named2.mentioned], [["UT-X-01"], ["UT-GONE-09"]]);
+  const namedVerdict = judge(row, { ...input, testEvidence: named2 });
+  assert.equal(namedVerdict.c2.ok, true);
+  assert.equal(namedVerdict.verdict, "XEM", "a mention is shown to the owner, never passed silently");
+  assert.match(namedVerdict.readNotes.join(" "), /UT-GONE-09/u); checks += 1;
+  for (const [broken, why] of [
+    [{ testId: "UT-X-01", reason: mention.reason }, "a live test cannot be turned into a mention"],
+    [{ testId: "UT-GONE-09", reason: "ngắn" }, "a mention needs a reason"],
+    [{ testId: "UT-NEVER-07", reason: mention.reason }, "a mention must be named by the evidence"],
+  ]) {
+    save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", mentions: [broken] });
+    assert(collect(both).errors.length, why); checks += 1;
+  }
+  save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", mentions: [mention] });
+  assert.match(judge(row, { ...input, testEvidence: collect({ evidenceText: `${input.evidenceText}\nUT-GONE-09` }) }).c2.reason,
+    /không có TestId/u, "mentions alone are no claim"); checks += 1;
+  const surface = { testId: "UT-UI-OLD-01", reason: "Owner gỡ cả console; không còn giao diện nào để test.",
+    decision: plan.retirements[0].decision, replacementTestIds: [], surfaceRemoved: true };
+  save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", retirements: [surface] });
+  const uiBoth = { evidenceText: `${input.evidenceText}\nUT-X-01 UT-UI-OLD-01`, validateDecision: () => { validated += 1; } };
+  const before = validated;
+  const gone = collect(uiBoth);
+  assert.equal(validated, before + 1, "a surface retirement still needs its pinned decision");
+  const goneVerdict = judge(row, { ...input, testEvidence: gone });
+  assert.equal(goneVerdict.c2.ok, true);
+  assert.equal(goneVerdict.verdict, "XEM", "a removed surface is shown to the owner");
+  assert.deepEqual(goneVerdict.retired, [], "a removed surface is not listed as replaced"); checks += 1;
+  save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", retirements: [{ ...surface, surfaceRemoved: false }] });
+  assert(collect(uiBoth).errors.length, "no replacement without a removed surface"); checks += 1;
+  save({ schema: TEST_PLAN_SCHEMA, workId: row.id, scope: "software", retirements: [surface] });
+  assert.match(judge(row, { ...input, testEvidence: collect({ ...uiBoth, evidenceText: `${input.evidenceText}\nUT-UI-OLD-01` }) })
+    .c2.reason, /không có TestId/u, "a removed surface alone is no claim"); checks += 1;
   return checks;
 }

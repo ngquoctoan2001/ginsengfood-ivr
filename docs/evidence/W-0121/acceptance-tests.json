@@ -1,0 +1,9 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0121",
+  "scope": "document",
+  "reason": "Chỉ sửa cấu hình remote.origin.pushurl trong .git/config, không tệp nào trong repo đổi; README này ghi lại cấu hình và phép kiểm.",
+  "deliverables": [
+    "docs/evidence/W-0121/README.md"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0318",
+  "scope": "software",
+  "gates": [
+    "acceptance-batches.mjs"
+  ],
+  "mentions": [
+    {
+      "testId": "UT-X-01",
+      "reason": "Ví dụ trong bảng luật của bộ kiểm C2, không phải test của việc này."
+    },
+    {
+      "testId": "UT-X-02",
+      "reason": "Ví dụ trong bảng luật của bộ kiểm C2, không phải test của việc này."
+    },
+    {
+      "testId": "UT-X-03",
+      "reason": "Ví dụ trong bảng luật của bộ kiểm C2, không phải test của việc này."
+    },
+    {
+      "testId": "UT-SCHEMA-BACKCOMPAT-04",
+      "reason": "Phát hiện về hồ sơ W-0115 (khoảng 01..04 chỉ có ba test), không phải claim của W-0318."
+    }
+  ]
+}

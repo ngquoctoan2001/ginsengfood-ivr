@@ -186,3 +186,13 @@ lại. Lượt test bị ngắt và lượt chạy trên binary cũ không đư�
 - Không gọi SIM/carrier, không tạo real-customer-call evidence; `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 - Production distinct-value scan: `OWNER_DATA_REQUIRED`.
 - Không push; hai remote vẫn chờ owner xác nhận.
+
+## Khai báo phép kiểm C2 — W-0351, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+[Khai báo](acceptance-tests.json) nay ghi:
+
+- 1 ID chỉ được nhắc, không phải claim của việc này; lý do từng ID nằm trong khai báo.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

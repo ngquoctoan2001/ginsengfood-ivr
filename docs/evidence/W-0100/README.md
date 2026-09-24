@@ -111,3 +111,13 @@ extended rather than the assertion weakened.
 - `dotnet format` still reports pre-existing `ENDOFLINE` errors across ~50
   git-checked-out files on this Windows working tree (`core.autocrlf=true`).
   Untouched: every file added or edited here is LF-only.
+
+## Khai báo phép kiểm C2 — W-0351, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+[Khai báo](acceptance-tests.json) nay ghi:
+
+- 4 ID test UI được retire theo quyết định gỡ admin-ui đã ghim, không có test thay thế. Phần backend vẫn phải có test xanh.
+
+Kết quả và phạm vi lịch sử ở trên giữ nguyên.

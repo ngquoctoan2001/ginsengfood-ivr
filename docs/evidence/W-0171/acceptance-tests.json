@@ -1,0 +1,13 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0171",
+  "scope": "document",
+  "reason": "Đối soát tài liệu theo code: sửa spec database, functional, workflow và ui cho khớp constraint và quyền thật; ngoài tài liệu chỉ sửa một comment trong DevToolingEndpoints.cs.",
+  "deliverables": [
+    "specs/database/03-enums-and-status.md",
+    "specs/database/02-tables.md",
+    "specs/functional/06-technical-exception-capacity.md",
+    "specs/workflows/05-technical-exception.md",
+    "specs/ui/07-seed-mock-management.md"
+  ]
+}

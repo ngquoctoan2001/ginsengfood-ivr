@@ -29,7 +29,8 @@ import {
 //       replacements. An empty test claim or a retired UI never passes as current software. A
 //       runner assertion that passed only under a stated condition is shown as XEM with it. A
 //       gate the work built counts through its self-test in the sweep; work that is documents only
-//       declares them and is always shown as XEM (W-0349)
+//       declares them and is always shown as XEM (W-0349). So is an ID the evidence only mentions,
+//       or one retired with its whole surface by a pinned decision (W-0351)
 //   C3  Residual/next holds nothing IVR still has to do, only external waits. A script cannot judge
 //       that, so a non-empty cell is shown for the owner to read (XEM) and never passed silently
 //   C4  the captured sweep ran the exact set of gates in that commit's manifest
@@ -381,6 +382,13 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
   // A conditional gate PASS still counts for C2, but the owner reads the condition (W-0346).
   const conditional = cited.filter((id) => GATE_TESTS[id] && Object.hasOwn(GATE_TEST_CONDITIONS, id))
     .map((id) => `${id} ${GATE_TEST_CONDITIONS[id]}`);
+  // W-0351: what the pack names without claiming, and retired surfaces with nothing to replace them.
+  const surfaceGone = testEvidence?.withoutReplacement ?? [];
+  const mentioned = testEvidence?.mentioned ?? [];
+  const readNotes = [
+    ...(surfaceGone.length ? [`ID của bề mặt đã gỡ theo quyết định đã ghim, không có test thay thế: ${surfaceGone.join(", ")}`] : []),
+    ...(mentioned.length ? [`ID chỉ được nhắc, không phải claim của việc này: ${mentioned.join(", ")}; lý do trong acceptance-tests.json`] : []),
+  ];
   const documentNote = !documentOnly ? null : labRun
     ? `Bằng chứng chạy lab, không có test phần mềm trong sweep (${deliverables.length} tệp có tại commit): ${testEvidence.reason}`
     : `Việc tài liệu, không có test phần mềm (${deliverables.length} tài liệu có tại commit): ${testEvidence.reason}`;
@@ -399,7 +407,10 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
   } else {
     const parts = [
       ...(cited.length ? [`${cited.length} TestId xanh`] : []),
-      ...(testEvidence?.retired?.length ? [`${testEvidence.retired.length} ID lịch sử có quyết định thay thế`] : []),
+      ...(testEvidence?.retired?.length > surfaceGone.length
+        ? [`${testEvidence.retired.length - surfaceGone.length} ID lịch sử có quyết định thay thế`] : []),
+      ...(surfaceGone.length ? [`${surfaceGone.length} ID bề mặt đã gỡ`] : []),
+      ...(mentioned.length ? [`${mentioned.length} ID chỉ được nhắc`] : []),
       ...(conditional.length ? [`${conditional.length} gate đạt có điều kiện`] : []),
       ...(declaredGates.length ? [`${declaredGates.length} gate của chính việc này đạt trong full sweep`] : []),
       ...(documentOnly ? [`${deliverables.length} ${labRun ? "tệp bằng chứng lab" : "tài liệu"} có tại commit`] : []),
@@ -414,12 +425,13 @@ export function judge(row, { evidencePath, evidenceText, trace, results, sweep, 
     verdict = FAIL;
   } else if (hard.some((check) => check.ok === null)) {
     verdict = UNCHECKED;
-  } else if (c3.ok === "review" || conditional.length > 0 || documentOnly) {
+  } else if (c3.ok === "review" || conditional.length > 0 || documentOnly || readNotes.length > 0) {
     verdict = REVIEW;
   }
 
   return { id: row.id, status: row.status, phase: phaseOf(row.prompt), cited, gates: declaredGates,
-    retired: testEvidence?.retired ?? [], conditional, documentNote, c1, c2, c3, verdict };
+    retired: (testEvidence?.retired ?? []).filter((id) => !surfaceGone.includes(id)), conditional, documentNote,
+    readNotes, c1, c2, c3, verdict };
 }
 
 function phaseOrder(phase) {
@@ -474,8 +486,8 @@ export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phas
   }
 
   lines.push("");
-  lines.push(`\`${PASS}\`: đủ bốn điều. \`${REVIEW}\`: C1, C2, C4 đạt, còn cột Residual, điều kiện kèm PASS của gate, hoặc`);
-  lines.push(`nội dung của việc thuần tài liệu cần Toàn đọc. \`${FAIL}\`: hỏng ít nhất một điều, lý do ở dưới. \`${UNCHECKED}\`: thiếu kết quả test`);
+  lines.push(`\`${PASS}\`: đủ bốn điều. \`${REVIEW}\`: C1, C2, C4 đạt, còn cột Residual hoặc một ghi chú cần Toàn đọc (điều kiện`);
+  lines.push(`của gate, việc tài liệu, ID đã gỡ hay chỉ được nhắc). \`${FAIL}\`: hỏng ít nhất một điều, lý do ở dưới. \`${UNCHECKED}\`: thiếu kết quả test`);
   lines.push("hoặc log gate sweep để kết luận.", "");
 
   for (const phase of phases) {
@@ -496,6 +508,7 @@ export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phas
         if (item.retired?.length) reasons.push(`Test lịch sử đã thay thế: ${item.retired.join(", ")}; xem acceptance-tests.json trong gói bằng chứng`);
         if (item.c2.ok === true && item.conditional?.length) reasons.push(`Gate đạt có điều kiện: ${item.conditional.join("; ")}`);
         if (item.c2.ok === true && item.documentNote) reasons.push(item.documentNote);
+        if (item.c2.ok === true && item.readNotes?.length) reasons.push(...item.readNotes);
         if (item.c3.ok === "review") {
           reasons.push(`Residual: ${item.c3.reason}`);
         }

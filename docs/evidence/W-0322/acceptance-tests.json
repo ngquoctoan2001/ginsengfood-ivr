@@ -1,0 +1,23 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0322",
+  "scope": "software",
+  "mentions": [
+    {
+      "testId": "E2E-UI-REPLAY-05",
+      "reason": "ID test UI của việc được rà; admin-ui đã gỡ ở W-0253, không phải claim của W-0322."
+    },
+    {
+      "testId": "E2E-UI-REVIEW-05",
+      "reason": "ID test UI của việc được rà; admin-ui đã gỡ ở W-0253, không phải claim của W-0322."
+    },
+    {
+      "testId": "UT-ELIG-BLOCK-01",
+      "reason": "ID của W-0019 đã retire theo quyết định đã ghim ở W-0324; W-0322 chỉ nhắc khi rà."
+    },
+    {
+      "testId": "UT-ELIG-TRUST-03",
+      "reason": "ID của W-0019 đã retire theo quyết định đã ghim ở W-0324; W-0322 chỉ nhắc khi rà."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0115",
+  "scope": "software",
+  "mentions": [
+    {
+      "testId": "UT-SCHEMA-BACKCOMPAT-04",
+      "reason": "README ghi khoảng 01..04 nhưng chỉ ba test mang TestId; mã 04 chưa từng tồn tại trong repo."
+    }
+  ]
+}

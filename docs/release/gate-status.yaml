@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "241 of 338 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "241 of 339 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 284
+  rows_without_evidence_pack: 285
 
 gates:
   - id: "G-CONTRACT"
@@ -330,8 +330,8 @@ work:
     evidence: null
   - id: "W-0121"
     prompt: "Lối đẩy code không tới GitLab nên hosted CI không thể chạy (Origin=UNPLANNED, owner requested)"
-    status: "CODE_DONE"
-    evidence: null
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0121/README.md"
   - id: "W-0122"
     prompt: "Tự host VieNeu-TTS, loại phụ thuộc SaaS TTS ở runtime (Origin=UNPLANNED, owner requested)"
     status: "BLOCKED_EXTERNAL"
@@ -522,16 +522,16 @@ work:
     evidence: "docs/evidence/W-0168/README.md"
   - id: "W-0169"
     prompt: "Documentation estate cleanup — gỡ tài liệu SUPERSEDED/HISTORICAL (Origin=UNPLANNED, owner chỉ đạo trực tiếp 2026-09-04 sau khi được cảnh báo rằng governance hiện hành cấm xóa lịch sử; owner tái khẳng định \"xóa hẳn khỏi repo\")"
-    status: "CODE_DONE"
-    evidence: null
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0169/README.md"
   - id: "W-0170"
     prompt: "C5 external-decision receipt hash và sheet-quorum closure validator (Origin=UNPLANNED, owner duyệt triển khai đề xuất 2026-09-04)"
     status: "ACCEPTED"
     evidence: "docs/evidence/W-0170/README.md"
   - id: "W-0171"
     prompt: "Doc↔code conflict audit và reconciliation (Origin=UNPLANNED, owner yêu cầu \"rà soát tài liệu và codebase xem có conflict gì không\" rồi \"sửa docs cho khớp code\" 2026-09-04)"
-    status: "CODE_DONE"
-    evidence: null
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0171/README.md"
   - id: "W-0029"
     prompt: "P4-1"
     status: "ACCEPTED"
@@ -1464,6 +1464,10 @@ work:
     prompt: "Đóng các việc đã xong theo chỉ thị owner (Origin=UNPLANNED, owner: “thì cái nào xong cho xong luôn đi”)"
     status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0350/README.md"
+  - id: "W-0351"
+    prompt: "Dọn các việc trích test UI đã gỡ hoặc ID không còn (Origin=UNPLANNED, owner: “29 việc này cần quyết gì không? ko thì clean đi”)"
+    status: "IN_PROGRESS"
+    evidence: "docs/evidence/W-0351/README.md"
 
 production_flag:
   real_customer_call_allowed: false
