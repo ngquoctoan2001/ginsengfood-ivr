@@ -48,3 +48,21 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 - Việc thuần tài liệu: Chỉ dồn, xoá tài liệu kế hoạch trong plan/ivr-orther và viết lại link; commit 257cbef không chạm src/, tests/ hay script gate nên không có khẳng định phần mềm nào để test kiểm. Danh sách 3 tài liệu nằm trong khai báo.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Bản đồ tài liệu đã sinh lại — W-0353, 24/09/2026
+
+REAL_CUSTOMER_CALL_ALLOWED=NO
+
+Mục "Hệ quả để lại" ghi hai bản đồ `markdown-doc-map.json` bị cũ và cần chạy mapper chính thức khi có dịp.
+
+- **Bản đồ tài liệu sinh lại bằng mapper chính thức `markdown-doc-reader`** (W-0075 chỉ cho phép bản do mapper này
+  sinh). Chạy trên một clone sạch của commit `e95ba64`, tức chỉ các tệp được track: 834 tệp Markdown, 1564 link giải
+  được, 493 link không giải được. Cả 493 đều trỏ tới tệp hoặc thư mục có thật mà mapper không lập chỉ mục (`.cs`,
+  `.json`, `.yaml`, thư mục); không link nào trỏ tới đích không tồn tại. Kiểm bằng cách giải từng `rawTarget` so với
+  cây của clone. Dòng `Root` của bản đồ ghi path của clone đó, vì bản checkout chính có các worktree chưa track dưới
+  `.claude/worktrees/` mà mapper sẽ quét cả vào. Trước khi sinh lại, 18 link hỏng ở 9 tệp đã được sửa: link tới
+  `admin-ui/` đã xoá ở W-0253, link tới thư mục `.artifacts/` chỉ có trên máy, và link tương đối cũ của
+  `docs/review/2026-09-07-m8-worklist-claude-annotated.md`.
+
+Bản thứ hai, `.artifacts/w0286/doc-map-final/markdown-doc-map.json`, nằm trong `.artifacts/`: thư mục này bị gitignore,
+chỉ có trên một máy và không thuộc repo, nên không có gì để sinh lại ở đó.
