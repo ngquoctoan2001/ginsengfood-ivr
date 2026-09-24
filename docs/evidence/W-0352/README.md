@@ -72,3 +72,21 @@ Mỗi gate được chạy qua `gate-sweep.mjs --extended --only <gate>` trên m
 
 Lượt đỏ của observability là lỗi hạ tầng, không phải lỗi của gate. Nhưng nó cho thấy lượt mở rộng không nên chạy cùng
 lúc với job CI dùng Docker trên máy này. Vì vậy ứng viên chỉ được push sau khi collector xong.
+
+## Lượt collector đầu tại `0f498ba`, và sửa gate image
+
+Test .NET 1200/1200 và full sweep 43/43 đều đạt. Lượt mở rộng đạt 4/5: lượt image đầy đủ đỏ ở bước quét, vì trivy
+không tải kịp cơ sở dữ liệu lỗ hổng từ mirror (“context deadline exceeded”). Đó là lỗi tải, không phải phát hiện lỗ
+hổng, và collector không ghi gói bằng chứng nào.
+
+Đọc lại bước quét thì thấy thêm một lỗi thật: trivy sập cũng thoát bằng mã 1, giống như khi tìm thấy lỗ hổng. Vậy hai
+phép đối chứng dương, vốn phải chứng minh máy quét bắt được image xấu, có thể đạt ngay cả khi máy quét không chạy.
+Sửa trong `image-selftest.mjs`:
+
+- Một volume cache cho cơ sở dữ liệu trivy dùng chung cả lượt, tải trước với tối đa ba lần thử. Trước đây mỗi lượt tải
+  khoảng sáu lần.
+- Phát hiện lỗ hổng thoát bằng mã riêng `42`. Đối chứng dương chỉ đạt với mã đó; mọi lỗi khác được ném ra như lỗi của
+  máy quét.
+
+Chạy riêng phần build, health, quét image và SBOM sau khi sửa: đạt, cả hai đối chứng dương đều bắt được base xấu bằng
+mã `42`.

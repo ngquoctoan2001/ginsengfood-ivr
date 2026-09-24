@@ -162,20 +162,47 @@ function checkCompose() {
 }
 
 // ---------------------------------------------------------------- IT-IMG-SCAN-04
+// W-0352. One vulnerability database for the whole run. Each trivy container used to download its
+// own copy, about six a run, and on 24/09 one of them timed out on the mirror ("context deadline
+// exceeded") and failed the gate over a download rather than a finding. The named volume keeps the
+// first copy; trivy still refreshes it when it is older than its own update interval.
+const TRIVY_IMAGE = "aquasec/trivy:0.58.1";
+const TRIVY_CACHE = ["-v", "ivr-image-selftest-trivy-cache:/root/.cache/trivy"];
+// Findings exit with a code nothing else uses. Before this, a scanner that crashed exited 1 like a
+// scanner that found something, so a positive control could pass on a crash - the one outcome a
+// positive control exists to rule out.
+const TRIVY_FINDINGS_EXIT = 42;
+
+function warmTrivyDatabase() {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      docker(["run", "--rm", ...TRIVY_CACHE, TRIVY_IMAGE, "image", "--download-db-only", "--quiet"], { inherit: true });
+      return;
+    } catch (error) {
+      if (attempt === 3) throw error;
+      process.stdout.write(`trivy database download failed (attempt ${attempt} of 3); retrying\n`);
+    }
+  }
+}
+
 function checkScan() {
-  const trivy = ["run", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock", "aquasec/trivy:0.58.1",
-    "image", "--scanners", "vuln", "--severity", "HIGH,CRITICAL", "--exit-code", "1", "--quiet"];
+  warmTrivyDatabase();
+  const trivy = ["run", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock", ...TRIVY_CACHE, TRIVY_IMAGE,
+    "image", "--scanners", "vuln", "--severity", "HIGH,CRITICAL", "--exit-code", String(TRIVY_FINDINGS_EXIT),
+    "--quiet"];
 
   for (const image of IMAGES) {
     docker([...trivy, `${image.name}:${TAG}`], { inherit: true });
   }
 
   // Positive control. A scanner that never fails is indistinguishable from one that is broken, so
-  // the gate is proven against an image with a known-vulnerable base before it is trusted.
+  // the gate is proven against an image with a known-vulnerable base before it is trusted. Only the
+  // findings exit code counts: any other failure is the scanner not running, and is rethrown.
   let caught = false;
   try {
     docker([...trivy, "alpine:3.10"], { stdio: ["ignore", "ignore", "ignore"] });
-  } catch {
+  } catch (error) {
+    if (error.status !== TRIVY_FINDINGS_EXIT) throw error;
     caught = true;
   }
   assert(caught, "trivy passed a base with known HIGH/CRITICAL findings; the scan gate is not wired.");
@@ -973,26 +1000,29 @@ const SBOM_DIRECTORY = path.join(repositoryRoot, "artifacts", "sbom");
 
 function sbomFor(image) {
   return docker([
-    "run", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock",
-    "aquasec/trivy:0.58.1", "image", "--format", "cyclonedx", "--quiet", image,
+    "run", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock", ...TRIVY_CACHE,
+    TRIVY_IMAGE, "image", "--format", "cyclonedx", "--quiet", image,
   ]);
 }
 
 /** Scans an SBOM document. Copied into a container rather than bind-mounted: a mount would make
- *  this depend on the host's path layout, and the same choice is already made for the alerts. */
+ *  this depend on the host's path layout, and the same choice is already made for the alerts.
+ *  True when clean, false on findings; a scanner that failed to run throws instead of reading as
+ *  a finding (W-0352), so the positive control below cannot pass on a crash. */
 function scanSbom(document) {
   const container = docker([
-    "create", "--entrypoint", "sleep", "aquasec/trivy:0.58.1", "300",
+    "create", ...TRIVY_CACHE, "--entrypoint", "sleep", TRIVY_IMAGE, "300",
   ]).trim();
   try {
     docker(["start", container]);
     docker(["exec", "-i", container, "sh", "-c", "cat > /tmp/sbom.json"],
       { stdio: ["pipe", "pipe", "pipe"], input: document });
     docker(["exec", container, "trivy", "sbom", "--severity", "HIGH,CRITICAL",
-      "--exit-code", "1", "--quiet", "/tmp/sbom.json"]);
+      "--exit-code", String(TRIVY_FINDINGS_EXIT), "--quiet", "/tmp/sbom.json"]);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error.status === TRIVY_FINDINGS_EXIT) return false;
+    throw error;
   } finally {
     try { docker(["rm", "-f", container]); } catch { /* already gone */ }
   }
