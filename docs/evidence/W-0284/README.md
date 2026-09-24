@@ -31,3 +31,13 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 - Việc thuần tài liệu: Mục này là đối soát tài liệu bàn giao và sổ tiến độ (khôi phục 13 dòng tracker, sửa chỉ dẫn phiên bản IR-06/07/08, sinh hai changelog OpenAPI); phần chạm bốn validator chỉ là ghim lại hash IR-06 và đã bị W-0304 ghim đè, nên không có khẳng định phần mềm. Danh sách 7 tài liệu nằm trong khai báo.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0284 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm. Nhãn pause đã
+chốt ở W-0290. Claude chọn việc theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo
+quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

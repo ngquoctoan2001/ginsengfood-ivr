@@ -99,3 +99,13 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 - Việc thuần tài liệu: Rà soát quyền dùng model/codec VieNeu và MOSS theo nguồn công bố đúng revision; chỉ thêm tài liệu và hash nguồn, không đổi mã, test hay gate. Danh sách 4 tài liệu nằm trong khai báo.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0341 chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã làm. Phê
+duyệt Legal/Privacy và bàn giao S5 làm ở W-0343. Claude chọn việc theo tiêu chí phiếu W-0348, không
+tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

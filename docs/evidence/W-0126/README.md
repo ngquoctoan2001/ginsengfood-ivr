@@ -25,3 +25,13 @@ W-0126 rà soát độc lập W-0122 bằng cách chạy lại gate và sửa c�
 [Khai báo](acceptance-tests.json) nay ghi:
 
 - Gate trong full sweep có self-test kiểm thay đổi của việc này: `tts-provenance-gate.mjs`, `tts-voice-acceptance-gate.mjs`, `tts-helm-selftest.mjs`, `lab-converter-selftest.mjs`, `tts-fixed-render-selftest.mjs`.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0126 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm. Image cũ đã
+được các lượt sau thay (W-0315, W-0323, W-0343). Claude chọn việc theo tiêu chí phiếu W-0348, không
+tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

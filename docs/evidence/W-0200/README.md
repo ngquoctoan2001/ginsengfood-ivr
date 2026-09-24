@@ -23,3 +23,11 @@ W-0200 chuẩn bị bump OpenAPI `1.0.0-draft.22` → `1.0.0` theo `OD-V1-02`: x
 Trạng thái khai báo:
 
 - Chưa khai phép kiểm. Mọi thay đổi của W-0200 đã bị rút khi merge ở 4fde987, và changelog API ghi W-0200 là CANCELLED. Tại HEAD không còn gì để kiểm. Đề nghị Toàn chuyển dòng này sang CANCELLED thay vì nghiệm thu.
+
+## Owner đóng việc — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0200 chuyển **TESTS_PASS → CANCELLED**. Mọi thay đổi đã bị rút khi
+merge ở 4fde987; changelog API ghi W-0200 CANCELLED.
+
+REAL_CUSTOMER_CALL_ALLOWED=NO.

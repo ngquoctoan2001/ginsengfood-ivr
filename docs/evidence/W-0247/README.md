@@ -110,3 +110,13 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 - Việc thuần tài liệu: Lượt này chỉ đọc lại nguồn và xếp lại năm mục 2.2–2.6 trong worklist; kết luận nằm trong tài liệu, không đổi src/, tests/ hay script gate nên không có claim phần mềm. Danh sách 2 tài liệu nằm trong khai báo.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0247 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm. Residual chỉ
+còn việc bên ngoài (M3, Sales, Platform, tier GitLab, pháp chế) hoặc giới hạn đã ghi. Claude chọn
+việc theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

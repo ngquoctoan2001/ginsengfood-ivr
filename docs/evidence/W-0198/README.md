@@ -25,3 +25,13 @@ Trước lượt này hệ thống không có khái niệm giờ được phép 
 [Khai báo](acceptance-tests.json) nay ghi:
 
 - Test .NET kiểm đúng thay đổi của việc này: `UT-SCH-WINDOW-01`, `UT-SCH-WINDOW-02`, `UT-SCH-WINDOW-03`, `UT-SCH-WINDOW-04`, `UT-SCH-WINDOW-05`, `UT-SCH-WINDOW-06`, `UT-SCH-WINDOW-07`, `UT-POLICY-SIGNED-01`, `UT-POLICY-SIGNED-02`, `UT-POLICY-SIGNED-03`, `UT-POLICY-SIGNED-04`, `UT-POLICY-SIGNED-05`.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0198 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm. Phần còn lại
+của GĐ 2 thuộc các việc sau. Claude chọn việc theo tiêu chí phiếu W-0348, không tự cấp phê duyệt;
+Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

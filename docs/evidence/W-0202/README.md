@@ -23,3 +23,13 @@ Land W-0197 làm job `api_contract_diff` đỏ: `draft.23` thắt chặt `x-corr
 [Khai báo](acceptance-tests.json) nay ghi:
 
 - Việc thuần tài liệu: Việc quyết định hợp đồng theo phương án (a) của owner: xoay baseline so sánh OpenAPI sang draft.23 và đóng băng báo cáo 11 cảnh báo; không đổi code, test hay gate runner của sweep. Danh sách 4 tài liệu nằm trong khai báo.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0202 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm. Residual chỉ
+còn việc bên ngoài (M3, Sales, Platform, tier GitLab, pháp chế) hoặc giới hạn đã ghi. Claude chọn
+việc theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

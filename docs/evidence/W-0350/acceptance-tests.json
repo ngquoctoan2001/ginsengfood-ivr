@@ -1,0 +1,10 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0350",
+  "scope": "document",
+  "reason": "Việc ghi sổ theo chỉ thị owner: đổi trạng thái trong tracker và thêm mục ghi nhận vào README; không đổi code, test hay gate.",
+  "deliverables": [
+    "docs/evidence/W-0350/closeout.json",
+    "prompt/_execution/prompt-execution-tracker.md"
+  ]
+}

@@ -21,3 +21,13 @@ Worklist 07/09 đang xếp theo nhóm audit (0.x/A/B/C/X) và không nói ai ph�
 [Khai báo](acceptance-tests.json) nay ghi:
 
 - Việc thuần tài liệu: Việc dọn tài liệu: xếp lại worklist 07/09 theo người phải quyết và gom phần đã xong thành một bảng trỏ evidence; không đổi code, test hay gate. Danh sách 1 tài liệu nằm trong khai báo.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0219 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm. Residual chỉ
+còn việc bên ngoài (M3, Sales, Platform, tier GitLab, pháp chế) hoặc giới hạn đã ghi. Claude chọn
+việc theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

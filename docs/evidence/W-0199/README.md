@@ -24,3 +24,13 @@ Năm tài liệu ghi dial token là 'one-use per attempt', một luật không t
 [Khai báo](acceptance-tests.json) nay ghi:
 
 - Test .NET kiểm đúng thay đổi của việc này: `UT-TOKEN-REUSE-01`, `UT-TOKEN-REUSE-02`, `UT-TOKEN-REUSE-03`, `UT-TOKEN-REUSE-04`, `UT-TOKEN-REUSE-05`, `UT-TOKEN-REUSE-06`, `UT-TOKEN-REUSE-07`, `UT-TOKEN-REUSE-08`, `UT-TEL-TOKEN-03`, `UT-AST-VAULT-04`.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0199 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm. Phần còn lại
+của GĐ 2 thuộc các việc sau. Claude chọn việc theo tiêu chí phiếu W-0348, không tự cấp phê duyệt;
+Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

@@ -89,3 +89,13 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 - Gate trong full sweep có self-test kiểm thay đổi của việc này: `tts-container-selftest.mjs`.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0326 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm. S5, mirror và
+pháp lý làm ở W-0340…W-0344. Claude chọn việc theo tiêu chí phiếu W-0348, không tự cấp phê duyệt;
+Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`1859243` (1200/1200 test, sweep 43/43). REAL_CUSTOMER_CALL_ALLOWED=NO.

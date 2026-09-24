@@ -147,3 +147,11 @@ Hồ sơ này trước không khai test hay phép kiểm nào, nên C2 không x�
 Admin UI đã bị gỡ khỏi repo ở W-0253. Khai báo đề nghị CANCELLED theo quyết định đã ghim, giống W-0027 và W-0028; test backend không chứng nhận UI.
 
 Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner đóng việc — 24/09/2026
+
+Toàn trả lời “thì cái nào xong cho xong luôn đi” sau báo cáo W-0349 tại 11fa118. Theo [danh sách
+W-0350](../W-0350/README.md), W-0097 chuyển **TESTS_PASS → CANCELLED**. Admin UI đã bị gỡ khỏi repo
+ở W-0253; đề nghị CANCELLED theo quyết định đã ghim, giống W-0027 và W-0028.
+
+REAL_CUSTOMER_CALL_ALLOWED=NO.
