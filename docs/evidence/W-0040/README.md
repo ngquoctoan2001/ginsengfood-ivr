@@ -265,3 +265,15 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0040 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. IT-OBS-TRACE-02 đạt trong lượt gate mở rộng. Ghi chú “mới có span 1/5 chặng” trong
+Residual đã cũ: span nay có ở cả năm chặng intake, eligibility, dispatch, result, callback (W-0139).
+OTLP export và pipeline log đi cùng W-0063, là việc bên ngoài. Claude chọn theo tiêu chí phiếu
+W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

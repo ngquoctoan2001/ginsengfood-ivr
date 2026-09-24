@@ -272,3 +272,14 @@ The quota is per instance and therefore per replica. Stated in `ServiceQuotaCoun
 documentation rather than left for someone to discover: behind two replicas an account gets two
 windows. A shared counter would put a database write on every request to make a non-production
 ceiling exact; an exact ceiling belongs to the gateway in front of a real deployment.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0282 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. IT-IMG-COMPOSE-03 đạt. Khoảng trống vòng eligibility đã được a0790e3 đóng
+(EligibilityJobHost); Retry-After để bản hợp đồng kế tiếp. Claude chọn theo tiêu chí phiếu W-0348,
+không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

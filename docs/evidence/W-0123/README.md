@@ -277,3 +277,13 @@ git add -A
 Chỉ trạng thái **cây cuối cùng** được xác minh xanh (`804/804` + admin `223/223` + toàn bộ gate).
 Hai commit đầu không được chạy gate riêng lẻ — nói rõ ở đây thay vì để người đọc suy ra là chúng đã
 được kiểm.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0123 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. CT-DOC-02 đạt. Sign-off của M3 và DB đích chờ bên ngoài. Claude chọn theo tiêu chí
+phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

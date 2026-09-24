@@ -68,3 +68,13 @@ bằng chứng production.
 
 Các thay đổi UI khác đang có sẵn trong shared checkout được giữ nguyên và không
 được tính vào W-0117.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0117 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. CT-DOC-02 đạt. Hosted CI, deploy, UAT và external closures là việc bên ngoài.
+Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

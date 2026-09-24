@@ -1,0 +1,124 @@
+{
+  "schema": "ivr-w0352-closeout/v1",
+  "date": "2026-09-24",
+  "evidenceCandidate": "16fa1e4",
+  "acceptedTotal": "271/340",
+  "rung": "41/54",
+  "accepted": [
+    {
+      "workId": "W-0040",
+      "from": "TESTS_PASS",
+      "title": "P6-1 redacted telemetry/tracing/metrics",
+      "why": "IT-OBS-TRACE-02 đạt trong lượt gate mở rộng. Ghi chú “mới có span 1/5 chặng” trong Residual đã cũ: span nay có ở cả năm chặng intake, eligibility, dispatch, result, callback (W-0139). OTLP export và pipeline log đi cùng W-0063, là việc bên ngoài."
+    },
+    {
+      "workId": "W-0043",
+      "from": "TESTS_PASS",
+      "title": "P7-1 Docker/Compose incl fake Sales/mock SIM/JWT",
+      "why": "Các assertion của gate image và IT-K8S-WORKER-06 đạt trong lượt gate mở rộng. Registry chờ owner xác nhận, ba giá trị DT-02 chờ owner (A-0277), mock-sim và mock-jwt in-process là giới hạn đã ghi."
+    },
+    {
+      "workId": "W-0044",
+      "from": "TESTS_PASS",
+      "title": "P7-2 Helm/K8s/modes/netpol/retention",
+      "why": "Năm assertion của gate K8s đạt trên cụm k3s tạm. Triển khai thật ngoài dev, Vault, HPA, ingress/TLS chờ nền tảng (W-0063); retention chạy dryRun là giới hạn đã ghi."
+    },
+    {
+      "workId": "W-0047",
+      "from": "TESTS_PASS",
+      "title": "P7-5 secret/token/cert rotation",
+      "why": "IT-K8S-NETPOL-04 và IT-K8S-ROTATE-07 đạt trong lượt gate mở rộng. Vault/KMS (W-0063), khoá ký JWT (W-0006) và SIM credential (W-0008) là việc bên ngoài."
+    },
+    {
+      "workId": "W-0092",
+      "from": "TESTS_PASS",
+      "title": "Phase 1/2 contract and configuration remediation",
+      "why": "CT-DOC-02 đạt trong image oasdiff ghim. Contract vẫn DRAFT và Sales chưa duyệt là việc bên ngoài."
+    },
+    {
+      "workId": "W-0103",
+      "from": "TESTS_PASS",
+      "title": "Current-system audit closure",
+      "why": "IT-IMG-E2E-05 đạt trong lượt gate mở rộng. Sales endpoint, lab một SIM và 32 eSIM là việc bên ngoài."
+    },
+    {
+      "workId": "W-0116",
+      "from": "TESTS_PASS",
+      "title": "Việt hóa telemetry tích hợp bằng trường phụ",
+      "why": "CT-DOC-02 đạt; test UI retire kèm surfaceRemoved theo quyết định W-0253. 14 lỗi lint baseline nằm ngoài việc này, đã ghi."
+    },
+    {
+      "workId": "W-0117",
+      "from": "TESTS_PASS",
+      "title": "Contract và documentation hygiene sau `draft.17`",
+      "why": "CT-DOC-02 đạt. Hosted CI, deploy, UAT và external closures là việc bên ngoài."
+    },
+    {
+      "workId": "W-0123",
+      "from": "TESTS_PASS",
+      "title": "M3 quyết định gọi, IVR chỉ thực thi: cleanup trusted-skip phía IVR",
+      "why": "CT-DOC-02 đạt. Sign-off của M3 và DB đích chờ bên ngoài."
+    },
+    {
+      "workId": "W-0124",
+      "from": "TESTS_PASS",
+      "title": "Khắc phục phát hiện rà soát `W-0123`",
+      "why": "CT-DOC-02 đạt. Residual chỉ ghi kết quả lúc làm và nói external gates của W-0123 không đổi."
+    },
+    {
+      "workId": "W-0139",
+      "from": "TESTS_PASS",
+      "title": "Hoàn tất phần triển khai còn lại của B-06 Observability",
+      "why": "IT-IMG-E2E-05 và ba assertion observability runtime đạt trong lượt gate mở rộng. Job staging chờ endpoint, credential và quyền truy cập của owner."
+    },
+    {
+      "workId": "W-0216",
+      "from": "TESTS_PASS",
+      "title": "Chạy toàn bộ gate offline sau chín lượt khắc phục, và sửa những gate đang đỏ",
+      "why": "IT-K8S-NETPOL-04 đạt; DG-DR-03 đạt có điều kiện single-host, một giới hạn hạ tầng đã ghi. Residual là bài học đã ghi, không còn việc."
+    },
+    {
+      "workId": "W-0270",
+      "from": "TESTS_PASS",
+      "title": "Một comment nói dối về UID, và một guard có sẵn bị tắt đúng chỗ cần",
+      "why": "IT-IMG-BUILD-01 đạt. LOCAL_ONLY, không đóng external gates."
+    },
+    {
+      "workId": "W-0280",
+      "from": "TESTS_PASS",
+      "title": "Ba lỗi chỉ lộ khi chạy thật, phát hiện sáng 12/09 khi chạy lại toàn bộ cổng để lập báo cáo tuần",
+      "why": "IT-IMG-BUILD-01 đạt. Câu hỏi nhãn khi tạm dừng hàng đợi là quyết định của owner và M3, giữ nguyên trong Residual."
+    },
+    {
+      "workId": "W-0282",
+      "from": "TESTS_PASS",
+      "title": "**B2 — dựng môi trường thử để Module 3 gọi vào**",
+      "why": "IT-IMG-COMPOSE-03 đạt. Khoảng trống vòng eligibility đã được a0790e3 đóng (EligibilityJobHost); Retry-After để bản hợp đồng kế tiếp."
+    },
+    {
+      "workId": "W-0291",
+      "from": "TESTS_PASS",
+      "title": "Vá dependency CI và chạy security scan",
+      "why": "CT-CI-04 đạt trong security scan xanh, sau khi 47 cảnh báo nhầm được rà và ghi theo từng dòng. Hosted CI là bước kế tiếp."
+    },
+    {
+      "workId": "W-0351",
+      "from": "EVIDENCE_SUBMITTED",
+      "title": "Dọn các việc trích test UI đã gỡ hoặc ID không còn",
+      "why": "Gate acceptance-batches.mjs đạt; việc ghi sổ theo chỉ thị owner đã xong."
+    }
+  ],
+  "held": [
+    {
+      "workId": "W-0011",
+      "title": "P0-2 GitLab CI/quality baseline",
+      "why": "Residual tự đặt điều kiện: giữ TESTS_PASS tới khi có GitLab Premium/Ultimate và bằng chứng second reviewer (W-0061)."
+    },
+    {
+      "workId": "W-0055",
+      "title": "P10-4 analytics pipeline",
+      "why": "Residual còn việc phía IVR: chưa có alert nào trên reconcile_status, và fact_call_job còn dựa vào giả định closed_at bất biến."
+    }
+  ],
+  "notXem": []
+}

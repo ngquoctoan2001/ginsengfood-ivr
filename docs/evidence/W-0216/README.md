@@ -126,3 +126,14 @@ dotnet test Ivr.sln                897/897 PASS, 0 failed, 0 skipped
 
 Điều đáng giữ lại: cả ba lỗi đều **bị máy bắt**, không phải do đọc lại. Cơ chế đúng, chỉ là chưa ai
 chạy nó sau khi sửa.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0216 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. IT-K8S-NETPOL-04 đạt; DG-DR-03 đạt có điều kiện single-host, một giới hạn hạ tầng
+đã ghi. Residual là bài học đã ghi, không còn việc. Claude chọn theo tiêu chí phiếu W-0348, không tự
+cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

@@ -97,3 +97,14 @@ SBOM nằm ở artifact local/CI và không commit vì nó mô tả image của 
 Sau commit W-0103, working tree phải sạch. Bước tiếp theo chỉ được chuyển sang Sales/one-SIM lab khi
 đã có API/auth/payload thật hoặc adapter + destination allowlist; thiếu dữ liệu nào phải giữ
 `OWNER_DATA_REQUIRED`/`BLOCKED_EXTERNAL`, không thay bằng mock rồi tuyên bố tích hợp xong.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0103 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. IT-IMG-E2E-05 đạt trong lượt gate mở rộng. Sales endpoint, lab một SIM và 32 eSIM
+là việc bên ngoài. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo
+quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

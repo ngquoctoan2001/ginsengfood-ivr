@@ -95,3 +95,14 @@ item riêng.
 - Không chạy SIM/carrier, không gọi khách thật, không tạo evidence production.
 - `REAL_CUSTOMER_CALL_ALLOWED=NO` giữ nguyên.
 - Hosted CI/deploy/UAT: `NOT_RUN`; `TESTS_PASS` không tự nâng thành `ACCEPTED`.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0116 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. CT-DOC-02 đạt; test UI retire kèm surfaceRemoved theo quyết định W-0253. 14 lỗi
+lint baseline nằm ngoài việc này, đã ghi. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê
+duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

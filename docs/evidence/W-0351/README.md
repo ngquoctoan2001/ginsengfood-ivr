@@ -70,3 +70,13 @@ Claude chọn theo tiêu chí của [phiếu W-0348](../W-0348/approval-request.
 Lý do từng việc nằm trong [closeout.json](closeout.json). Tracker: `A-0956` ghi bằng chứng, `A-0957`..`A-0970`
 cho từng việc, `A-0971` trả W-0121 về `CODE_DONE`, `A-0972` ghi quyết định. Mỗi README được đóng có thêm mục ghi
 nhận ngày 24/09. Toàn có thể đảo bất kỳ dòng nào.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0351 chuyển **EVIDENCE_SUBMITTED →
+ACCEPTED** cho phần đã làm. Gate acceptance-batches.mjs đạt; việc ghi sổ theo chỉ thị owner đã xong.
+Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

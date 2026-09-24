@@ -85,3 +85,14 @@ tracker, so the readiness board undercounts by thirteen. The tracker header also
 read `NEXT_WORK_ID = W-0250`, an id already spent; left alone it would have
 issued a duplicate. The header is corrected here. Writing the thirteen missing
 rows belongs to whoever did that work.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0280 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. IT-IMG-BUILD-01 đạt. Câu hỏi nhãn khi tạm dừng hàng đợi là quyết định của owner và
+M3, giữ nguyên trong Residual. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn
+có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

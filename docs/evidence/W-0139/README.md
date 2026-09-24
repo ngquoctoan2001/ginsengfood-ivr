@@ -103,3 +103,14 @@ Vì vậy không đổi B-06 thành đóng, không gọi production-ready và kh
 `W-0063` vẫn mở bất kể staging observability sau này có đạt.
 
 Không cập nhật `.docx` vì `OD-20` còn mở. Không có real SIM/provider/customer call.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0139 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. IT-IMG-E2E-05 và ba assertion observability runtime đạt trong lượt gate mở rộng.
+Job staging chờ endpoint, credential và quyền truy cập của owner. Claude chọn theo tiêu chí phiếu
+W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

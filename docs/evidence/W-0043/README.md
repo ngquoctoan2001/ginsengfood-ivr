@@ -611,3 +611,15 @@ fact source riêng. Không dùng `0` để giả vờ một sự kiện không �
 - **`mock-sim` và `mock-jwt` vẫn là placeholder** từ P0-1, cố ý: cả hai mock đều **in-process** ở
   chế độ MOCK, nên không có gì trong stack gọi tới container của chúng. Thay bằng server thật sẽ là
   thêm hai tiến trình không ai nói chuyện với, đọc như nhiều phủ hơn thực tế.
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0043 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. Các assertion của gate image và IT-K8S-WORKER-06 đạt trong lượt gate mở rộng.
+Registry chờ owner xác nhận, ba giá trị DT-02 chờ owner (A-0277), mock-sim và mock-jwt in-process là
+giới hạn đã ghi. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo
+quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.

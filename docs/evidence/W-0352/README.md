@@ -2,7 +2,7 @@
 
 Ngày 24/09/2026 · Claude · `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-**Trạng thái: ứng viên đang được kiểm; lượt collector có `--extended` chạy ở bước tiếp theo.**
+**Đã ghi sổ. 17 việc chuyển `ACCEPTED` (16 trong 18 việc, cùng W-0351), 2 việc giữ lại.**
 
 ## Vì sao có việc này
 
@@ -90,3 +90,26 @@ Sửa trong `image-selftest.mjs`:
 
 Chạy riêng phần build, health, quét image và SBOM sau khi sửa: đạt, cả hai đối chứng dương đều bắt được base xấu bằng
 mã `42`.
+
+## Lượt collector tại `16fa1e4`
+
+Trên cây sạch, `collect-acceptance-evidence.mjs --extended`: 4 file `.trx`, 1200/1200 test .NET xanh,
+`GATE_SWEEP_PASS 43/43`, và `EXTENDED_SWEEP_PASS 5/5`: image đầy đủ 174 giây (các lượt trước đã để lại cache image
+và cơ sở dữ liệu trivy), image có observability runtime 62 giây, K8s 290 giây, security scan 33 giây, oasdiff dưới một giây.
+[Danh sách](../../release/acceptance-batches.md) sinh từ lượt đó cho cả 18 việc lên `XEM`.
+
+## Kết quả
+
+Câu của Toàn, *“cái nào ko cần thì xóa đi, còn cái nào cần thì cho xong đi”*, được thực hiện theo tiêu chí của
+[phiếu W-0348](../W-0348/approval-request.md), như ở W-0350 và W-0351:
+
+| Kết quả | Việc |
+| --- | --- |
+| `ACCEPTED` | W-0040, W-0043, W-0044, W-0047, W-0092, W-0103, W-0116, W-0117, W-0123, W-0124, W-0139, W-0216, W-0270, W-0280, W-0282, W-0291, W-0351 |
+| Giữ lại | W-0011: Residual tự đặt điều kiện, giữ tới khi có GitLab Premium/Ultimate và second reviewer (W-0061) |
+| Giữ lại | W-0055: còn việc phía IVR, chưa có alert trên `reconcile_status` và `fact_call_job` còn dựa vào giả định `closed_at` bất biến |
+
+Bốn việc trong kế hoạch (W-0040, W-0043, W-0044, W-0047) nâng Nấc 1 lên **41/54**. Tổng `ACCEPTED` lên **271/340**.
+Ghi chú “mới có span 1/5 chặng” ở Residual của W-0040 đã cũ: lượt observability runtime thấy trace có đủ năm chặng.
+Lý do từng việc nằm trong [closeout.json](closeout.json); mỗi README được đóng có thêm mục ghi nhận ngày 24/09.
+Toàn có thể đảo bất kỳ dòng nào.

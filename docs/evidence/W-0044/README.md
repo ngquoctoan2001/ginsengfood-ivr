@@ -194,3 +194,14 @@ nói rõ cái nào thì họ biết phải sửa gì. Và nó không phải mộ
   minh — mới chứng minh job chạy xong và mặc định không xoá gì.
 - **Chưa có ingress/TLS.** Service là `ClusterIP`; lối vào từ ngoài thuộc hạ tầng platform
   (`W-0063`).
+
+## Owner nghiệm thu — 24/09/2026
+
+Toàn trả lời về 18 việc trích test của gate Docker: “cái nào ko cần thì xóa đi, còn cái nào cần thì
+cho xong đi”. Theo [danh sách W-0352](../W-0352/README.md), W-0044 chuyển **TESTS_PASS → ACCEPTED**
+cho phần đã làm. Năm assertion của gate K8s đạt trên cụm k3s tạm. Triển khai thật ngoài dev, Vault,
+HPA, ingress/TLS chờ nền tảng (W-0063); retention chạy dryRun là giới hạn đã ghi. Claude chọn theo
+tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`16fa1e4`. REAL_CUSTOMER_CALL_ALLOWED=NO.
