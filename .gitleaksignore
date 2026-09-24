@@ -401,3 +401,10 @@ ca8d13b6498d7b5f819980f95de2d3ea0a0acda0:src/Ivr.Infrastructure/Persistence/Migr
 53c2eb55a4d8174aa9057152fa5d5ea281ee7489:src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs:generic-api-key:722
 53c2eb55a4d8174aa9057152fa5d5ea281ee7489:src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs:generic-api-key:821
 53c2eb55a4d8174aa9057152fa5d5ea281ee7489:src/Ivr.Infrastructure/Persistence/Migrations/20260918005920_W0314ErasureReachesTheNumber.Designer.cs:generic-api-key:920
+# W-0203 F-2 (draft.32) regenerated the API portal. Reviewed like the W-0352 batch: the portal
+# sourceHashes value for docs/api-changelog.md equals its SHA-256 at the same commit, and the HTML
+# lines are Redoc rendering the feature-flag name v1NotificationEnabled at their new positions.
+# Review: docs/evidence/W-0203/reviewed-findings.json. Same commit/file/rule/line pinning.
+d21d97b23d467f65a33bc642cbeff736dd6f0814:docs/api/portal-manifest.json:generic-api-key:27
+d21d97b23d467f65a33bc642cbeff736dd6f0814:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1272
+d21d97b23d467f65a33bc642cbeff736dd6f0814:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1302

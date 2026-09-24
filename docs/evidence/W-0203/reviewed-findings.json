@@ -1,0 +1,35 @@
+{
+  "scan_commit": "d21d97b",
+  "finding_count": 4,
+  "review": "Each flagged line opened at d21d97b, the W-0203 commit that regenerated the API portal for draft.32. The portal sourceHashes value on line 27 equals the SHA-256 of docs/api-changelog.md at that commit; the other three are Redoc rendering the feature-flag name v1NotificationEnabled inside a span whose CSS class is \"property token string\", at the positions the new endpoint moved them to. Two findings share line 1302.",
+  "findings": [
+    {
+      "commit": "d21d97b2-3d467f65-a33bc642-cbeff736-dd6f0814",
+      "file": "docs/api/portal-manifest.json",
+      "line": 27,
+      "rule": "generic-api-key",
+      "category": "verified_same_commit_source_sha256"
+    },
+    {
+      "commit": "d21d97b2-3d467f65-a33bc642-cbeff736-dd6f0814",
+      "file": "docs/api/ivr-order-confirmation-v1.html",
+      "line": 1272,
+      "rule": "generic-api-key",
+      "category": "redoc_rendered_feature_flag_name"
+    },
+    {
+      "commit": "d21d97b2-3d467f65-a33bc642-cbeff736-dd6f0814",
+      "file": "docs/api/ivr-order-confirmation-v1.html",
+      "line": 1302,
+      "rule": "generic-api-key",
+      "category": "redoc_rendered_feature_flag_name"
+    },
+    {
+      "commit": "d21d97b2-3d467f65-a33bc642-cbeff736-dd6f0814",
+      "file": "docs/api/ivr-order-confirmation-v1.html",
+      "line": 1302,
+      "rule": "generic-api-key",
+      "category": "redoc_rendered_feature_flag_name"
+    }
+  ]
+}

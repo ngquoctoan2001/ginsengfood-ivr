@@ -277,3 +277,7 @@ Bộ sinh ma trận ghim số operation, nên `api-behavior-matrix.mjs` và `ver
 
 `oasdiff` không báo thay đổi breaking nào, cả `31→32` lẫn `27→32`. Bản bàn giao cho Module 3 ghi endpoint mới trong
 bảng tầng `danger`, nay có 9 endpoint.
+
+Commit `d21d97b` sinh lại portal API, nên gitleaks thấy 4 cảnh báo nhầm cùng hai loại đã rà ở W-0352: một giá trị
+`sourceHashes` bằng đúng SHA-256 của file tại cùng commit, và Redoc hiển thị tên cờ ở dòng mới. Chúng được ghi theo từng
+dòng trong `.gitleaksignore`; hồ sơ rà: [reviewed-findings.json](reviewed-findings.json).
