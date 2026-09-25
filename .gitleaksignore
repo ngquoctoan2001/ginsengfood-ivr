@@ -412,3 +412,8 @@ d21d97b23d467f65a33bc642cbeff736dd6f0814:docs/api/ivr-order-confirmation-v1.html
 # line again. The row quotes the EF model snapshot line that seeds the feature flag named
 # v1NotificationEnabled: the same false positive as the Designer lines above. Same commit/file/rule/line pinning.
 02d22fc15ee99d2bf17789370655e72c51689a34:prompt/_execution/prompt-execution-tracker.md:generic-api-key:301
+# W-0354 (draft.33) regenerated the API portal. Same false positive as the W-0203 batch above: the
+# portal sourceHashes value for docs/api-changelog.md equals that file's SHA-256 at the same commit
+# (885965f2..., checked 25/09 before the push). The HTML lines this commit changed do not match the rule.
+# Same commit/file/rule/line pinning.
+f3e26a6be0072cd9ef1b14b8732e39feb85d07a4:docs/api/portal-manifest.json:generic-api-key:27
